@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Caching.Memory;
+
 using StreamMaster.SchedulesDirectAPI.Services;
 
 using StreamMasterAPI;
@@ -5,6 +7,7 @@ using StreamMasterAPI;
 using StreamMasterApplication;
 using StreamMasterApplication.Hubs;
 
+using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 
 using StreamMasterInfrastructure;
@@ -125,6 +128,10 @@ using (IServiceScope scope = app.Services.CreateScope())
     {
         initialiser.TrySeed();
     }
+
+    var mem = scope.ServiceProvider.GetRequiredService<IMemoryCache>();
+    var setting = FileUtil.GetSetting();
+    mem.SetSetting(setting);
 }
 
 

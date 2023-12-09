@@ -3,7 +3,7 @@ import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { useSchedulesDirectGetLineupPreviewChannelQuery } from '@lib/iptvApi';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { Dialog } from 'primereact/dialog';
-import { memo, useMemo, useState } from 'react';
+import { memo, useMemo } from 'react';
 
 type SchedulesDirectLineupPreviewChannelProps = {
   lineup: string | undefined;
@@ -14,7 +14,7 @@ type SchedulesDirectLineupPreviewChannelProps = {
 const SchedulesDirectLineupPreviewChannel = ({ children, lineup, onHide }: SchedulesDirectLineupPreviewChannelProps) => {
   const getPreviewQuery = useSchedulesDirectGetLineupPreviewChannelQuery(lineup ? lineup : skipToken);
 
-  const [reset, setReset] = useState<boolean>(false);
+  // const [reset, setReset] = useState<boolean>(false);
 
   const columns = useMemo(
     (): ColumnMeta[] => [
@@ -37,7 +37,6 @@ const SchedulesDirectLineupPreviewChannel = ({ children, lineup, onHide }: Sched
         visible={lineup !== undefined}
         style={{ width: '50vw' }}
         onHide={() => {
-          setReset(true);
           onHide();
         }}
       >
@@ -49,10 +48,9 @@ const SchedulesDirectLineupPreviewChannel = ({ children, lineup, onHide }: Sched
             defaultSortField="name"
             disableSelectAll
             emptyMessage="No Line Ups"
+            enableState={false}
             headerName="Line Up Preview"
             id="queustatus"
-            OnReset={() => setReset(false)}
-            reset={reset}
             selectedItemsKey="queustatus"
             style={{ height: 'calc(50vh)' }}
           />

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
+
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;
 
@@ -22,6 +24,7 @@ namespace StreamMasterInfrastructureEF
         ILogger<VideoStreamRepository> VideoStreamRepositoryLogger,
         ILogger<StreamGroupVideoStreamRepository> StreamGroupVideoStreamRepositoryLogger,
         ILogger<StreamGroupChannelGroupRepository> StreamGroupChannelGroupRepositoryLogger,
+        ISchedulesDirectData schedulesDirectData,
         RepositoryContext repositoryContext,
         ISortHelper<StreamGroup> streamGroupSortHelper,
         IMapper mapper, IMemoryCache memoryCache, ISender sender,
@@ -91,7 +94,7 @@ namespace StreamMasterInfrastructureEF
             {
                 if (_epgFile == null)
                 {
-                    _epgFile = new EPGFileRepository(EPGFileRepositoryLogger, repositoryContext, this, mapper);
+                    _epgFile = new EPGFileRepository(EPGFileRepositoryLogger, repositoryContext, this, schedulesDirectData, mapper);
                 }
                 return _epgFile;
             }

@@ -1,5 +1,4 @@
 ﻿using StreamMaster.SchedulesDirectAPI;
-using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 using StreamMasterApplication.Services;
 
@@ -49,7 +48,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public string? StreamingClientUserAgent { get; set; }
     public StreamingProxyTypes? StreamingProxyType { get; set; }
     public bool? VideoStreamAlwaysUseEPGLogo { get; set; }
-    public List<string>? NameRegex { get; set; } = new();
+    public List<string>? NameRegex { get; set; } = [];
 }
 
 public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger<UpdateSettingRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
@@ -178,7 +177,7 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
         }
     }
 
-        public async Task<UpdateSettingResponse> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
+    public async Task<UpdateSettingResponse> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
     {
         Setting currentSetting = await GetSettingsAsync();
 
@@ -191,7 +190,8 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
         {
             AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
         };
-        memoryCache.Set("Setting", currentSetting, cacheEntryOptions);
+
+        _ = memoryCache.Set("Setting", currentSetting, cacheEntryOptions);
 
         SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
         await HubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);
@@ -223,9 +223,9 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
             currentSetting.CleanURLs = (bool)request.CleanURLs;
         }
 
-        if ( request.SDSettings != null)
+        if (request.SDSettings != null)
         {
-            CopyNonNullFields( request.SDSettings,  currentSetting.SDSettings);
+            CopyNonNullFields(request.SDSettings, currentSetting.SDSettings);
         }
 
         if (request.EnableSSL != null && request.EnableSSL != currentSetting.EnableSSL)
@@ -381,7 +381,7 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
             currentSetting.RingBufferSizeMB = (int)request.RingBufferSizeMB;
         }
 
-        
+
 
         if (request.NameRegex != null)
         {

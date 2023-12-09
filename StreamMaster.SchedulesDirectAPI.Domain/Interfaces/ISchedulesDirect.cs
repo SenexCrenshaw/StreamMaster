@@ -5,6 +5,8 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
 
 public interface ISchedulesDirect
 {
+    void CheckToken();
+    Task<HttpResponseMessage> GetSdImage(string uri);
     Task<List<SubscribedLineup>> GetLineups(CancellationToken cancellationToken);
     List<StationChannelName> GetStationChannelNames();
     XMLTV? CreateXmltv(string baseUrl, IEnumerable<string>? stationIds = null);
@@ -21,9 +23,8 @@ public interface ISchedulesDirect
     Task<List<ScheduleResponse>?> GetScheduleListingsAsync(ScheduleRequest[] request);
     Task<Dictionary<string, Dictionary<string, ScheduleMd5Response>>?> GetScheduleMd5sAsync(ScheduleRequest[] request);
     Task<StationChannelMap?> GetStationChannelMapAsync(string lineup);
-    Task<UserStatus> GetStatus(CancellationToken cancellationToken);
+    Task<UserStatus> GetUserStatus(CancellationToken cancellationToken);
     Task<LineupResponse?> GetSubscribedLineups(CancellationToken cancellationToken);
-    Task<bool> GetSystemReady(CancellationToken cancellationToken);
     Task<bool> RemoveLineup(string lineup, CancellationToken cancellationToken);
     void ResetCache(string command);
 

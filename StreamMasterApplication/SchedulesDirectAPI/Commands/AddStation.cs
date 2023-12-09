@@ -8,15 +8,20 @@ public record StationRequest(string StationId, string LineUp);
 
 public record AddStation(List<StationRequest> Requests) : IRequest<bool>;
 
-public class AddStationHandler( ILogger<AddStation> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+public class AddStationHandler(ILogger<AddStation> logger, ISchedulesDirect schedulesDirect, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
 : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<AddStation, bool>
 {
     public async Task<bool> Handle(AddStation request, CancellationToken cancellationToken)
     {
+        if (!request.Requests.Any())
+        {
+            return true;
+        }
+
         Setting setting = await GetSettingsAsync().ConfigureAwait(false);
         if (!setting.SDSettings.SDEnabled)
         {
-            return false;
+            return true;
         }
 
         var updateSettingRequest = new UpdateSettingRequest
@@ -37,10 +42,16 @@ public class AddStationHandler( ILogger<AddStation> logger, IRepositoryWrapper r
             }
             logger.LogInformation("Added Station {StationIdLineup}", station.StationId);
             updateSettingRequest.SDSettings.SDStationIds.Add(station);
-        }             
-               
-        await Sender.Send(updateSettingRequest, cancellationToken).ConfigureAwait(false);
-              
+        }
+
+        if (await schedulesDirect.SDSync(cancellationToken))
+        {
+            await HubContext.Clients.All.SchedulesDirectsRefresh();
+            return true;
+        }
+
+        _ = await Sender.Send(updateSettingRequest, cancellationToken).ConfigureAwait(false);
+
         return true;
     }
 }

@@ -1,11 +1,4 @@
-﻿using AspectInjector.Broker;
-
-using FluentValidation;
-
-using StreamMaster.SchedulesDirectAPI.Converters;
-using StreamMaster.SchedulesDirectAPI.Domain.EPG;
-
-using StreamMasterApplication.Programmes.Queries;
+﻿using FluentValidation;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
@@ -35,7 +28,7 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
                 return null;
             }
 
-            var test = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), "TEST Lineup");
+            var test = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.Id);
 
             Tv? tv = await epgFile.GetTV().ConfigureAwait(false);
             if (tv != null)
@@ -49,7 +42,7 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
 
             _ = await Repository.SaveAsync().ConfigureAwait(false);
 
-           
+
             //await AddProgrammesFromEPG(epgFile, cancellationToken);
 
             EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);

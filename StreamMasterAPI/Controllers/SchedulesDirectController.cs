@@ -1,6 +1,4 @@
-﻿using Azure.Core;
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
 using StreamMaster.SchedulesDirectAPI.Domain.Models;
@@ -11,8 +9,6 @@ using StreamMasterApplication.SchedulesDirectAPI.Queries;
 
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
-
-using System.Diagnostics.Metrics;
 
 namespace StreamMasterAPI.Controllers;
 
@@ -68,7 +64,7 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
         return Ok(await Mediator.Send(new GetLineups()).ConfigureAwait(false));
     }
 
-        [HttpGet]
+    [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult<PagedResponse<StationChannelName>>> GetPagedStationChannelNameSelections([FromQuery] StationChannelNameParameters Parameters)
     {
@@ -111,9 +107,9 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<UserStatus>> GetStatus()
+    public async Task<ActionResult<UserStatus>> GetUserStatus()
     {
-        return await Mediator.Send(new GetStatus()).ConfigureAwait(false);
+        return await Mediator.Send(new GetUserStatus()).ConfigureAwait(false);
     }
     [HttpPatch]
     [Route("[action]")]

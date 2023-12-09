@@ -2,14 +2,11 @@
 
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
 
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterDomain.Common;
 
-using System.Collections.Generic;
-using System.Net;
 using System.Text.RegularExpressions;
 
 
@@ -22,10 +19,13 @@ public partial class SchedulesDirect
     private async Task<bool> BuildLineupServices(CancellationToken cancellationToken = default)
     {
         var clientLineups = await GetSubscribedLineups(cancellationToken).ConfigureAwait(false);
-        if (clientLineups == null || !clientLineups.Lineups.Any()) return false;
+        if (clientLineups == null || !clientLineups.Lineups.Any())
+        {
+            return false;
+        }
 
         Setting setting = await settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
-       
+
         foreach (var clientLineup in clientLineups.Lineups)
         {
             // don't download station map if lineup not included
@@ -60,8 +60,11 @@ public partial class SchedulesDirect
             foreach (var station in lineupMap.Stations)
             {
                 // check if station should be downloaded and processed
-                if (station == null || setting.SDSettings.SDStationIds.FirstOrDefault(a => a.StationId == station.StationId) == null) continue;
-               
+                if (station == null || setting.SDSettings.SDStationIds.FirstOrDefault(a => a.StationId == station.StationId) == null)
+                {
+                    continue;
+                }
+
                 // build the service if necessary
                 var mxfService = schedulesDirectData.FindOrCreateService(station.StationId);
                 if (string.IsNullOrEmpty(mxfService.CallSign))
@@ -71,15 +74,13 @@ public partial class SchedulesDirect
                     mxfService.UidOverride = $"!Service!EPG123_{station.StationId}";
 
                     // add callsign and station name
-                    mxfService.CallSign =station.Callsign;
+                    mxfService.CallSign = station.Callsign;
                     if (string.IsNullOrEmpty(mxfService.Name))
                     {
                         var names = Regex.Matches(station.Name.Replace("-", ""), station.Callsign);
-                        if (names.Count > 0)
-                        {
-                            mxfService.Name = (!string.IsNullOrEmpty(station.Affiliate) ? $"{station.Name} ({station.Affiliate})" : station.Name);
-                        }
-                        else mxfService.Name = station.Name;
+                        mxfService.Name = names.Count > 0
+                            ? !string.IsNullOrEmpty(station.Affiliate) ? $"{station.Name} ({station.Affiliate})" : station.Name
+                            : station.Name;
                     }
 
                     // add affiliate if available
@@ -89,68 +90,69 @@ public partial class SchedulesDirect
                     }
 
                     // add station logo if available
-                    if (station.StationLogos != null) {
+                    if (station.StationLogos != null)
+                    {
                         var cats = station.StationLogos.Select(a => a.Category).Distinct().ToList();
                         stationLogo = station.StationLogos?.FirstOrDefault(arg => arg.Category != null && arg.Category.Equals("DARK", StringComparison.OrdinalIgnoreCase)) ??
                                       station.StationLogos?.FirstOrDefault(arg => arg.Category != null && arg.Category.Equals("WHITE", StringComparison.OrdinalIgnoreCase)) ??
                                       station.Logo;
-                   
-                    // initialize as custom logo
-                    var logoPath = string.Empty;
-                    var urlLogoPath = string.Empty;
-        
-                    var logoFilename = $"{station.Callsign}_c.png";
-                    if ( File.Exists($"{BuildInfo.SDStationLogos}{logoFilename}"))
-                    {
-                        logoPath = $"{BuildInfo.SDStationLogos}{logoFilename}";
-                        urlLogoPath = stationLogo.Url;                        
-                    }
-                    else if (stationLogo != null)
-                    {
-                        logoFilename = $"{stationLogo.Md5}.png";
-                        logoPath = $"{BuildInfo.SDStationLogosCache}{logoFilename}";
-                        urlLogoPath = stationLogo.Url;
 
-                        if ( !File.Exists(logoPath))
+                        // initialize as custom logo
+                        var logoPath = string.Empty;
+                        var urlLogoPath = string.Empty;
+
+                        var logoFilename = $"{station.Callsign}_c.png";
+                        if (File.Exists($"{BuildInfo.SDStationLogos}{logoFilename}"))
                         {
-                            StationLogosToDownload.Add(new KeyValuePair<MxfService, string[]>(mxfService, [logoPath, stationLogo.Url]));
-                        }
-                       
-                    }
-
-                    // add to mxf guide images if file exists already
-                    if (!string.IsNullOrEmpty(logoPath) && File.Exists(logoPath))
-                    {
-                        mxfService.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage( urlLogoPath);
-                    }
-
-                    // handle xmltv logos
-                    //if (config.XmltvIncludeChannelLogos.Equals("url") && stationLogo != null)
-                    //{
-                    //    mxfService.extras.Add("logo", stationLogo);
-                    //}
-                    //else 
-                    if (stationLogo != null)
-                    {
-                        if (!string.IsNullOrEmpty(logoPath) && File.Exists(logoPath))
-                        {
-                            using var stream = File.OpenRead(logoPath);
-                            using var image = await Image.LoadAsync(stream, cancellationToken);
-
-                            mxfService.extras.Add("logo", new StationImage
-                            {
-                                Url =  urlLogoPath,
-                                Height = image.Height,
-                                Width = image.Width
-                            });
+                            logoPath = $"{BuildInfo.SDStationLogos}{logoFilename}";
+                            urlLogoPath = stationLogo.Url;
                         }
                         else if (stationLogo != null)
                         {
-                            mxfService.extras.Add("logo", new StationImage
+                            logoFilename = $"{stationLogo.Md5}.png";
+                            logoPath = $"{BuildInfo.SDStationLogosCache}{logoFilename}";
+                            urlLogoPath = stationLogo.Url;
+
+                            if (!File.Exists(logoPath))
                             {
-                                Url =  urlLogoPath
-                            });
+                                StationLogosToDownload.Add(new KeyValuePair<MxfService, string[]>(mxfService, [logoPath, stationLogo.Url]));
+                            }
+
                         }
+
+                        // add to mxf guide images if file exists already
+                        if (!string.IsNullOrEmpty(logoPath) && File.Exists(logoPath))
+                        {
+                            mxfService.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(urlLogoPath);
+                        }
+
+                        // handle xmltv logos
+                        //if (config.XmltvIncludeChannelLogos.Equals("url") && stationLogo != null)
+                        //{
+                        //    mxfService.extras.Add("logo", stationLogo);
+                        //}
+                        //else 
+                        if (stationLogo != null)
+                        {
+                            if (!string.IsNullOrEmpty(logoPath) && File.Exists(logoPath))
+                            {
+                                using var stream = File.OpenRead(logoPath);
+                                using var image = await Image.LoadAsync(stream, cancellationToken);
+
+                                mxfService.extras.Add("logo", new StationImage
+                                {
+                                    Url = urlLogoPath,
+                                    Height = image.Height,
+                                    Width = image.Width
+                                });
+                            }
+                            else if (stationLogo != null)
+                            {
+                                mxfService.extras.Add("logo", new StationImage
+                                {
+                                    Url = urlLogoPath
+                                });
+                            }
                         }
                     }
                 }
@@ -158,7 +160,11 @@ public partial class SchedulesDirect
                 // match station with mapping for lineup number and subnumbers
                 foreach (var map in lineupMap.Map)
                 {
-                    if (!map.StationId.Equals(station.StationId)) continue;
+                    if (!map.StationId.Equals(station.StationId))
+                    {
+                        continue;
+                    }
+
                     var number = map.myChannelNumber;
                     var subnumber = map.myChannelSubnumber;
 
@@ -208,25 +214,25 @@ public partial class SchedulesDirect
                     }
                 }
             }
-        
+
 
         }
 
         if (StationLogosToDownload.Count > 0)
-        {            
+        {
             StationLogosDownloadComplete = false;
             logger.LogInformation($"Kicking off background worker to download and process {StationLogosToDownload.Count} station logos.");
             await Task.Run(async () =>
             {
                 try
                 {
-                    await DownloadStationLogos(cancellationToken).ConfigureAwait(false);
+                    _ = await DownloadStationLogos(cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error occurred while downloading station logos.");
+                    logger.LogError(ex, "Error occurred while downloading station logos.");
                 }
-            });
+            }, cancellationToken);
         }
 
         if (schedulesDirectData.Services.Count > 0)
@@ -245,10 +251,10 @@ public partial class SchedulesDirect
             //    Logger.WriteInformation($"Stations added for download since last configuration save are: {string.Join(", ", extras.Select(e => e.CallSign))}");
             //}
 
-     
-                 UpdateIcons(schedulesDirectData.Services);
-            
-            
+
+            UpdateIcons(schedulesDirectData.Services);
+
+
 
             logger.LogInformation("Exiting BuildLineupServices(). SUCCESS.");
             return true;
@@ -256,7 +262,7 @@ public partial class SchedulesDirect
 
         logger.LogError($"There are 0 stations queued for download from {clientLineups.Lineups.Count} subscribed lineups. Exiting.");
         logger.LogError("Check that lineups are 'INCLUDED' and stations are selected in the EPG123 GUI.");
-        return false;        
+        return false;
     }
 
     private async Task<bool> DownloadStationLogos(CancellationToken cancellationToken)
@@ -272,8 +278,7 @@ public partial class SchedulesDirect
             return false;
         }
 
-        int maxConcurrentDownloads = 4;
-        var semaphore = new SemaphoreSlim(maxConcurrentDownloads);
+        var semaphore = new SemaphoreSlim(MaxParallelDownloads);
 
         var tasks = StationLogosToDownload.Select(async serviceLogo =>
         {
@@ -282,25 +287,26 @@ public partial class SchedulesDirect
             try
             {
                 var logoPath = serviceLogo.Value[0];
-                if ((File.Exists(logoPath) || await DownloadSdLogo(serviceLogo.Value[1], logoPath, cancellationToken)) && string.IsNullOrEmpty(serviceLogo.Key.LogoImage))
+                if (!File.Exists(logoPath))
                 {
-                    
+                    var (width, height) = await DownloadSdLogoAsync(serviceLogo.Value[1], logoPath, cancellationToken).ConfigureAwait(false);
+                    if (width == 0)
+                    {
+                        return;
+                    }
                     serviceLogo.Key.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(logoPath);
 
-                    if (File.Exists(logoPath))
-                    {
-                        // update dimensions
-                        using var stream = File.OpenRead(logoPath);
-                        using var image = await Image.LoadAsync(stream, cancellationToken);
-                        serviceLogo.Key.extras["logo"].Height = image.Height;
-                        serviceLogo.Key.extras["logo"].Width = image.Width;
-                        StationLogosToDownload.Remove(serviceLogo);
-                    }
+                    //if (File.Exists(logoPath))
+                    //{
+                    serviceLogo.Key.extras["logo"].Height = height;
+                    serviceLogo.Key.extras["logo"].Width = width;
+                    _ = StationLogosToDownload.Remove(serviceLogo);
+                    //}
                 }
             }
             finally
             {
-                semaphore.Release();
+                _ = semaphore.Release();
             }
         }).ToArray();
 
@@ -309,61 +315,37 @@ public partial class SchedulesDirect
         return true;
     }
 
-    private async Task<Image<Rgba32>> CropAndResizeImageAsync(Stream stream)
+    private async Task<(int width, int height)> DownloadSdLogoAsync(string uri, string filePath, CancellationToken cancellationToken)
     {
         try
         {
-            //using var stream = File.OpenRead(imagePath);
-            using var image = await Image.LoadAsync<Rgba32>(stream);
+            using var httpClient = new HttpClient();
+            var response = await httpClient.GetAsync(uri, cancellationToken);
 
-            const int tgtWidth = 360;
-            const int tgtHeight = 270;
-            const double tgtAspect = 3.0;
-
-            // Find the min/max non-transparent pixels
-            var min = new Size(int.MaxValue, int.MaxValue);
-            var max = new Size(int.MinValue, int.MinValue);
-
-            for (var x = 0; x < image.Width; ++x)
+            if (response.IsSuccessStatusCode)
             {
-                for (var y = 0; y < image.Height; ++y)
-                {
-                    var pixelColor = image[x, y];
-                    if (pixelColor.A <= 0) continue;
-                    if (x < min.Width) min.Width = x;
-                    if (y < min.Height) min.Height = y;
+                using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
 
-                    if (x > max.Width) max.Width = x;
-                    if (y > max.Height) max.Height = y;
+                using var image = await Image.LoadAsync<Rgba32>(stream, cancellationToken).ConfigureAwait(false);
+                using var cropImg = SDHelpers.CropAndResizeImage(image);
+                if (cropImg == null)
+                {
+                    return (0, 0);
                 }
-            }
-
-            // Create a new image with the crop and resize
-            var cropRectangle = new Rectangle(min.Width, min.Height, max.Width - min.Width + 1, max.Height - min.Height + 1);
-            var croppedImage = image.Clone(ctx => ctx.Crop(cropRectangle));
-
-            if ((max.Width - min.Width + 1) / tgtAspect > (max.Height - min.Height + 1))
-            {
-                var offsetY = (int)((max.Width - min.Width + 1) / tgtAspect - (max.Height - min.Height + 1) + 0.5) / 2;
-                var newHeight = croppedImage.Height + offsetY * 2;
-
-                var resizedImage = croppedImage.Clone(ctx => ctx.Resize(new ResizeOptions
-                {
-                    Size = new Size(tgtWidth, newHeight),
-                    Mode = ResizeMode.Max
-                }));
-
-                return resizedImage;
+                using var outputFileStream = File.Create(filePath);
+                var a = image.Metadata.DecodedImageFormat;
+                cropImg.Save(outputFileStream, image.Metadata.DecodedImageFormat);
+                return (cropImg.Width, cropImg.Height);
             }
             else
             {
-                return croppedImage;
+                logger.LogError($"HTTP request failed with status code: {response.StatusCode}");
             }
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error while cropping and resizing image.");
-            throw;
+            logger.LogError($"An exception occurred during DownloadSDLogoAsync(). Message:{FileUtil.ReportExceptionMessages(ex)}");
         }
+        return (0, 0);
     }
 }

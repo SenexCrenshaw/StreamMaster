@@ -30,10 +30,10 @@ const SchedulesDirectHeadendDataSelector = () => {
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'headendId', sortable: true },
-      { field: 'lineup', sortable: true },
-      { field: 'location', sortable: true },
-      { field: 'name', sortable: true },
+      { field: 'headendId', filter: true, sortable: true },
+      { field: 'lineup', filter: true, sortable: true },
+      { field: 'location', filter: true, sortable: true },
+      { field: 'name', filter: true, sortable: true },
       { field: 'transport', sortable: true },
       {
         bodyTemplate: actionBodyTemplate,
@@ -50,12 +50,10 @@ const SchedulesDirectHeadendDataSelector = () => {
   const rightHeaderTemplate = useMemo(
     () => (
       <div className="flex justify-content-end align-items-center w-full gap-1">
-        <SchedulesDirectLineupPreviewChannel lineup={lineupToPreview} onHide={() => setLineupToPreview(undefined)}>
-          <SchedulesDirectCountrySelector />
-        </SchedulesDirectLineupPreviewChannel>
+        <SchedulesDirectCountrySelector />
       </div>
     ),
-    [lineupToPreview]
+    []
   );
 
   return (
@@ -64,6 +62,8 @@ const SchedulesDirectHeadendDataSelector = () => {
         <span className="text-bold">TV Headends | </span>
         <span className="text-bold text-blue-500">{selectedCountry}</span> -<span className="text-bold text-500">{selectedPostalCode}</span>
       </h3>
+
+      <SchedulesDirectLineupPreviewChannel lineup={lineupToPreview} onHide={() => setLineupToPreview(undefined)} />
       <DataSelector
         columns={columns}
         defaultSortField="name"

@@ -77,9 +77,9 @@ public partial class StreamMasterHub : ISchedulesDirectHub
         return await mediator.Send(new GetStationPreviews()).ConfigureAwait(false);
     }
 
-    public async Task<UserStatus> GetStatus()
+    public async Task<UserStatus> GetUserStatus()
     {
-        return await mediator.Send(new GetStatus()).ConfigureAwait(false);
+        return await mediator.Send(new GetUserStatus()).ConfigureAwait(false);
     }
 
     public async Task<bool> RemoveLineup(RemoveLineup request)

@@ -4,6 +4,8 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
+
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
@@ -13,8 +15,35 @@ namespace StreamMasterInfrastructureEF.Repositories;
 /// <summary>
 /// Repository to manage EPGFile entities in the database.
 /// </summary>
-public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper) : RepositoryBase<EPGFile>(repositoryContext, logger), IEPGFileRepository
+public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, ISchedulesDirectData schedulesDirectData, IMapper mapper) : RepositoryBase<EPGFile>(repositoryContext, logger), IEPGFileRepository
 {
+    public async Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int Id, CancellationToken cancellationToken)
+    {
+        if (Id == 0)
+        {
+            return [];
+        }
+
+        var epgFile = await FindByCondition(a => a.Id == Id).FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        if (epgFile == null)
+        {
+            return [];
+        }
+
+        var services = schedulesDirectData.Services.Where(a => a.extras.ContainsKey("epgid") && a.extras["epgid"] == Id).ToList();
+        var ret = new List<EPGFilePreviewDto>();
+        foreach (var service in services)
+        {
+            ret.Add(new EPGFilePreviewDto
+            {
+                ChannelName = service.Name,
+                ChannelNumber = service.StationId,
+                ChannelLogo = service.mxfGuideImage.ImageUrl,
+            });
+
+        }
+        return ret;
+    }
 
     /// <summary>
     /// Creates a new EPGFile in the database.
@@ -89,7 +118,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryCont
     }
     public async Task<List<EPGFileDto>> GetEPGFilesNeedUpdating()
     {
-        List<EPGFileDto> ret = new();
+        List<EPGFileDto> ret = [];
         List<EPGFileDto> epgFilesToUpdated = await FindByCondition(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < DateTime.Now).ProjectTo<EPGFileDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
         ret.AddRange(epgFilesToUpdated);
         foreach (EPGFile? epgFile in FindByCondition(a => string.IsNullOrEmpty(a.Url)))
@@ -138,4 +167,6 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryCont
         Update(EPGFile);
         logger.LogInformation($"EPGFile with ID {EPGFile.Id} was updated.");
     }
+
+
 }

@@ -94,6 +94,10 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/epgfiles/${queryArg}` }),
         providesTags: ['EPGFiles']
       }),
+      epgFilesGetEpgFilePreviewById: build.query<EpgFilesGetEpgFilePreviewByIdApiResponse, EpgFilesGetEpgFilePreviewByIdApiArg>({
+        query: (queryArg) => ({ url: `/api/epgfiles/getepgfilepreviewbyid`, params: { id: queryArg } }),
+        providesTags: ['EPGFiles']
+      }),
       epgFilesGetPagedEpgFiles: build.query<EpgFilesGetPagedEpgFilesApiResponse, EpgFilesGetPagedEpgFilesApiArg>({
         query: (queryArg) => ({
           url: `/api/epgfiles`,
@@ -325,8 +329,8 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/schedulesdirect/getstationpreviews` }),
         providesTags: ['SchedulesDirect']
       }),
-      schedulesDirectGetStatus: build.query<SchedulesDirectGetStatusApiResponse, SchedulesDirectGetStatusApiArg>({
-        query: () => ({ url: `/api/schedulesdirect/getstatus` }),
+      schedulesDirectGetUserStatus: build.query<SchedulesDirectGetUserStatusApiResponse, SchedulesDirectGetUserStatusApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getuserstatus` }),
         providesTags: ['SchedulesDirect']
       }),
       schedulesDirectRemoveLineup: build.mutation<SchedulesDirectRemoveLineupApiResponse, SchedulesDirectRemoveLineupApiArg>({
@@ -733,6 +737,8 @@ export type EpgFilesDeleteEpgFileApiResponse = unknown;
 export type EpgFilesDeleteEpgFileApiArg = DeleteEpgFileRequest;
 export type EpgFilesGetEpgFileApiResponse = /** status 200  */ EpgFileDto;
 export type EpgFilesGetEpgFileApiArg = number;
+export type EpgFilesGetEpgFilePreviewByIdApiResponse = /** status 200  */ EpgFilePreviewDto[];
+export type EpgFilesGetEpgFilePreviewByIdApiArg = number;
 export type EpgFilesGetPagedEpgFilesApiResponse = /** status 200  */ PagedResponseOfEpgFileDto;
 export type EpgFilesGetPagedEpgFilesApiArg = {
   pageNumber?: number;
@@ -875,8 +881,8 @@ export type SchedulesDirectGetStationChannelNamesSimpleQueryApiArg = {
 };
 export type SchedulesDirectGetStationPreviewsApiResponse = /** status 200  */ StationPreview[];
 export type SchedulesDirectGetStationPreviewsApiArg = void;
-export type SchedulesDirectGetStatusApiResponse = /** status 200  */ UserStatus;
-export type SchedulesDirectGetStatusApiArg = void;
+export type SchedulesDirectGetUserStatusApiResponse = /** status 200  */ UserStatus;
+export type SchedulesDirectGetUserStatusApiArg = void;
 export type SchedulesDirectRemoveLineupApiResponse = /** status 200  */ boolean;
 export type SchedulesDirectRemoveLineupApiArg = RemoveLineup;
 export type SchedulesDirectRemoveStationApiResponse = /** status 200  */ boolean;
@@ -1124,6 +1130,12 @@ export type EpgFileDto = BaseFileDto & {
   epgStartDate: string;
   epgStopDate: string;
   programmeCount: number;
+};
+export type EpgFilePreviewDto = {
+  id?: number;
+  channelLogo?: string;
+  channelNumber?: string;
+  channelName?: string;
 };
 export type PagedResponseOfEpgFileDto = {
   data: EpgFileDto[];
@@ -1894,6 +1906,7 @@ export const {
   useEpgFilesCreateEpgFileFromFormMutation,
   useEpgFilesDeleteEpgFileMutation,
   useEpgFilesGetEpgFileQuery,
+  useEpgFilesGetEpgFilePreviewByIdQuery,
   useEpgFilesGetPagedEpgFilesQuery,
   useEpgFilesProcessEpgFileMutation,
   useEpgFilesRefreshEpgFileMutation,
@@ -1933,7 +1946,7 @@ export const {
   useSchedulesDirectGetStationChannelNameFromDisplayNameQuery,
   useSchedulesDirectGetStationChannelNamesSimpleQueryQuery,
   useSchedulesDirectGetStationPreviewsQuery,
-  useSchedulesDirectGetStatusQuery,
+  useSchedulesDirectGetUserStatusQuery,
   useSchedulesDirectRemoveLineupMutation,
   useSchedulesDirectRemoveStationMutation,
   useSettingsGetIsSystemReadyQuery,

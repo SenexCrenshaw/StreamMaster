@@ -9,13 +9,12 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddSchedulesDirectAPIServices(this IServiceCollection services)
     {
-        services.AddSingleton<IXmltv2Mxf, Xmltv2Mxf>();
-        services.AddSingleton<ISDToken, SDToken>();
-        services.AddSingleton<ISchedulesDirectAPI, SchedulesDirectAPI>();
-        services.AddSingleton<IEPGCache, EPGCache>();
-        services.AddSingleton<ISchedulesDirectData, SchedulesDirectData>();
-        services.AddSingleton<ISchedulesDirect, SchedulesDirect>();        
-        
+        _ = services.AddSingleton<IXmltv2Mxf, Xmltv2Mxf>();
+        _ = services.AddSingleton<ISchedulesDirectAPI, SchedulesDirectAPI>();
+        _ = services.AddSingleton<IEPGCache, EPGCache>();
+        _ = services.AddSingleton<ISchedulesDirectData, SchedulesDirectData>();
+        _ = services.AddSingleton<ISchedulesDirect, SchedulesDirect>();
+
         return services;
     }
 }

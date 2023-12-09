@@ -4,7 +4,8 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Interfaces
 {
     public interface ISchedulesDirectAPI
     {
+        void CheckToken();
+        Task<HttpResponseMessage> GetSdImage(string uri);
         Task<T?> GetApiResponse<T>(APIMethod method, string uri, object? classObject = null, CancellationToken cancellationToken = default);
-
     }
 }

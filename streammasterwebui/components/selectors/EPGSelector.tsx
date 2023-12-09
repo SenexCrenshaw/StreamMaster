@@ -14,7 +14,10 @@ type EPGSelectorProperties = BaseSelectorProperties<StationChannelName> & {
 };
 
 const EPGSelector: React.FC<Partial<EPGSelectorProperties>> = ({ enableEditMode = true, onChange, ...restProperties }) => {
-  const selectedTemplate = (option: StationChannelName) => <div>{option?.displayName}</div>;
+  const selectedTemplate = (option: any) => {
+    console.log('option', option.displayName, getColor(option?.displayName));
+    return <div style={{ color: getColor(option?.displayName) }}>{option?.displayName} shit</div>;
+  };
 
   const handleOnChange = useCallback(
     (event: string) => {
@@ -25,7 +28,7 @@ const EPGSelector: React.FC<Partial<EPGSelectorProperties>> = ({ enableEditMode 
     [onChange]
   );
 
-  const itemTemplate = (option: StationChannelName): JSX.Element => {
+  const itemTemplate = (option: any): JSX.Element => {
     let inputString = option?.displayName ?? '';
     const splitIndex = inputString.indexOf(']') + 1;
     const beforeCallSign = inputString.substring(0, splitIndex);

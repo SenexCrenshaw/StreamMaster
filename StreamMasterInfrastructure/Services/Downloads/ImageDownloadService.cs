@@ -15,7 +15,6 @@ using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Services;
 
-using System.Collections.Concurrent;
 using System.Net;
 
 namespace StreamMasterInfrastructure.Services.Downloads;
@@ -24,16 +23,17 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
 {
     private readonly ILogger<ImageDownloadService> logger;
     private readonly ISchedulesDirectData schedulesDirectData;
-    private readonly ISDToken sDToken;
     private readonly SemaphoreSlim downloadSemaphore;
     private readonly IMemoryCache memoryCache;
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> hubContext;
-    private readonly ConcurrentQueue<ProgramMetadata> downloadQueue = new();
+    //private readonly ConcurrentQueue<ProgramMetadata> downloadQueue = new();
+    private readonly ISchedulesDirect schedulesDirect;
+    private readonly IImageDownloadQueue imageDownloadQueue;
     private bool IsActive = false;
     private readonly object Lock = new();
 
     public int TotalDownloadAttempts { get; private set; }
-    public int TotalInQueue {get => downloadQueue.Count; }
+    public int TotalInQueue => imageDownloadQueue.Count();
     public int TotalSuccessful { get; private set; }
     public int TotalAlreadyExists { get; private set; }
     public int TotalNoArt { get; private set; }
@@ -50,17 +50,20 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
             TotalNoArt = TotalNoArt,
             TotalErrors = TotalErrors
         };
-    } 
+    }
 
-    public ImageDownloadService(ILogger<ImageDownloadService> logger, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache, ISchedulesDirectData schedulesDirectData, ISDToken sDToken)
+    public ImageDownloadService(ILogger<ImageDownloadService> logger, IImageDownloadQueue imageDownloadQueue, ISchedulesDirect schedulesDirect, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache, ISchedulesDirectData schedulesDirectData)
     {
         this.logger = logger;
         this.hubContext = hubContext;
         this.schedulesDirectData = schedulesDirectData;
-        this.sDToken = sDToken;
         this.memoryCache = memoryCache;
-        var settings = FileUtil.GetSetting();
-        downloadSemaphore = new(settings.MaxConcurrentDownloads);        
+        this.schedulesDirect = schedulesDirect;
+        this.imageDownloadQueue = imageDownloadQueue;
+        var settings = memoryCache.GetSetting();
+        downloadSemaphore = new(settings.MaxConcurrentDownloads);
+        schedulesDirect.CheckToken();
+        CheckStart();
     }
 
     private void CheckStart()
@@ -72,44 +75,45 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                 return;
             }
 
-         
+
             var test = memoryCache.GetSetting();
-          
-                StartAsync(CancellationToken.None).ConfigureAwait(false);
-                IsActive = true;
-            
+
+            _ = StartAsync(CancellationToken.None).ConfigureAwait(false);
+            IsActive = true;
+
         }
     }
-    public void EnqueueProgramMetadataCollection(IEnumerable<ProgramMetadata> metadataCollection)
-    {      
-        foreach (var metadata in metadataCollection)
-        {
-            logger.LogDebug("Enqueue Program Metadata for program id {programId}", metadata.ProgramId);
-            downloadQueue.Enqueue(metadata);           
-        }
-        CheckStart();
-    }
+    //public void EnqueueProgramMetadataCollection(IEnumerable<ProgramMetadata> metadataCollection)
+    //{
+    //    foreach (var metadata in metadataCollection)
+    //    {
+    //        logger.LogDebug("Enqueue Program Metadata for program id {programId}", metadata.ProgramId);
+    //        downloadQueue.Enqueue(metadata);
+    //    }
+    //    CheckStart();
+    //}
 
-    // Method to add ProgramMetadata to the download queue
-    public void EnqueueProgramMetadata(ProgramMetadata metadata)
-    {
-        logger.LogDebug("Enqueue Program Metadata for program id {programId}", metadata.ProgramId);
-        downloadQueue.Enqueue(metadata);
+    //// Method to add ProgramMetadata to the download queue
+    //public void EnqueueProgramMetadata(ProgramMetadata metadata)
+    //{
+    //    logger.LogDebug("Enqueue Program Metadata for program id {programId}", metadata.ProgramId);
+    //    downloadQueue.Enqueue(metadata);
 
-        CheckStart();       
-    }
+    //    CheckStart();
+    //}
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested)
         {
+            //schedulesDirect.CheckToken();
             Setting setting = FileUtil.GetSetting();
 
-            if (setting.SDSettings.SDEnabled && !downloadQueue.IsEmpty && memoryCache.IsSystemReady())
+            if (setting.SDSettings.SDEnabled && !imageDownloadQueue.IsEmpty() && memoryCache.IsSystemReady())
             {
                 await DownloadImagesAsync(cancellationToken);
             }
-                
+
             // Optionally, introduce a delay before checking the queue again
             await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
         }
@@ -119,11 +123,6 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
     {
         // Implement stopping logic if needed
         return Task.CompletedTask;
-    }
-
-    private async Task<bool> EnsureToken(CancellationToken cancellationToken)
-    {
-        return await sDToken.GetTokenAsync(cancellationToken) != null;
     }
 
     private async Task<bool> DownloadLogo(string uri, string logoPath, CancellationToken cancellationToken)
@@ -139,22 +138,17 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                 return false;
             }
 
-
-            if (!await EnsureToken(cancellationToken).ConfigureAwait(false))
-            {
-                ++TotalErrors;
-                return false;
-            }
-
             Setting setting = FileUtil.GetSetting();
 
-            HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
+            //HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
+            //using var httpClient = new HttpClient();
 
             int maxRetryCount = 1; // Set the maximum number of retries
 
             for (int retryCount = 0; retryCount <= maxRetryCount; retryCount++)
             {
-                HttpResponseMessage response = await httpClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
+                var response = await schedulesDirect.GetSdImage(uri).ConfigureAwait(false);
+                //HttpResponseMessage response = await httpClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
 
                 if (response.StatusCode == HttpStatusCode.NotFound)
                 {
@@ -164,18 +158,8 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
 
                 if (response.StatusCode == HttpStatusCode.Forbidden)
                 {
-                    await sDToken.ResetTokenAsync(cancellationToken);
-                  
-                    if (retryCount < maxRetryCount)
-                    {
-                        // Retry the request after resetting the token
-                        continue;
-                    }
-                    else
-                    {
-                        ++TotalErrors;
-                        return false; // Maximum retry attempts reached
-                    }
+                    ++TotalErrors;
+                    return false; // Maximum retry attempts reached
                 }
 
                 if (response.IsSuccessStatusCode)
@@ -188,7 +172,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                         stream.Close();
                         stream.Dispose();
                         var fileInfo = new FileInfo(logoPath);
-                        if ( fileInfo.Length < 2000)
+                        if (fileInfo.Length < 2000)
                         {
                             ++TotalErrors;
                             logger.LogError($"Failed to download image from {uri} to {logoPath}: {response.StatusCode}");
@@ -217,11 +201,11 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
 
     private async Task DownloadImagesAsync(CancellationToken cancellationToken)
     {
-                
+
 
         while (!cancellationToken.IsCancellationRequested)
         {
-            if (!downloadQueue.TryDequeue(out var response))
+            if (!imageDownloadQueue.TryDequeue(out var response))
             {
                 // If the queue is empty, break out of the loop and wait for more items
                 break;
@@ -256,17 +240,10 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                     try
                     {
                         var logoPath = art.Uri.GetSDImageFullPath();
-                       
-                        string url = "";
-                        if (art.Uri.StartsWith("http"))
-                        {
-                            url = art.Uri;
-                        }
-                        else
-                        {
-                            url = await sDToken.GetAPIUrl($"image/{art.Uri}", cancellationToken);
-                        }
-                        await DownloadLogo(url, logoPath, cancellationToken);
+
+                        string url = art.Uri.StartsWith("http") ? art.Uri : $"image/{art.Uri}";// await sDToken.GetAPIUrl($"image/{art.Uri}", cancellationToken);
+
+                        _ = await DownloadLogo(url, logoPath, cancellationToken);
                     }
                     catch (Exception ex)
                     {
@@ -275,7 +252,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                     finally
                     {
                         await hubContext.Clients.All.MiscRefresh();
-                        downloadSemaphore.Release();
+                        _ = downloadSemaphore.Release();
                     }
                 }
             }
@@ -291,7 +268,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
         }
     }
 
-   
+
     public void Dispose()
     {
         downloadSemaphore.Dispose();

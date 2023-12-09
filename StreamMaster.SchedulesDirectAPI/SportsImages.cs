@@ -1,13 +1,7 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
-using StreamMaster.SchedulesDirectAPI.Domain.Models;
 using StreamMaster.SchedulesDirectAPI.Helpers;
-
-using StreamMasterDomain.Dto;
-using StreamMasterDomain.Enums;
-using StreamMasterDomain.Extensions;
 
 using System.Collections.Concurrent;
 using System.Text.Json;
@@ -15,17 +9,20 @@ using System.Text.Json;
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
 {
-    private  readonly List<MxfProgram> sportEvents = [];
+    private readonly List<MxfProgram> sportEvents = [];
     private List<string> sportsImageQueue = [];
     private ConcurrentBag<ProgramMetadata> sportsImageResponses = [];
-    private async Task <bool> GetAllSportsImages(CancellationToken cancellationToken)
+    private async Task<bool> GetAllSportsImages(CancellationToken cancellationToken)
     {
         var settings = memoryCache.GetSetting();
         // reset counters
         sportsImageQueue = [];
         sportsImageResponses = [];
         //IncrementNextStage(sportEvents.Count);
-        if (!settings.SDSettings.SeasonEventImages) return true;
+        if (!settings.SDSettings.SeasonEventImages)
+        {
+            return true;
+        }
 
         // scan through each series in the mxf
         logger.LogInformation($"Entering GetAllSportsImages() for {totalObjects} sports events.");
@@ -53,13 +50,13 @@ public partial class SchedulesDirect
         // maximum 500 queries at a time
         if (sportsImageQueue.Count > 0)
         {
-            Parallel.For(0, (sportsImageQueue.Count / MaxImgQueries + 1), new ParallelOptions { MaxDegreeOfParallelism = MaxParallelDownloads }, i =>
-            {               
-                DownloadImageResponses(sportsImageQueue, sportsImageResponses,i * MaxImgQueries);
+            _ = Parallel.For(0, (sportsImageQueue.Count / MaxImgQueries) + 1, new ParallelOptions { MaxDegreeOfParallelism = MaxParallelDownloads }, i =>
+            {
+                DownloadImageResponses(sportsImageQueue, sportsImageResponses, i * MaxImgQueries);
             });
 
             ProcessSportsImageResponses();
-             imageDownloadService.EnqueueProgramMetadataCollection(sportsImageResponses);
+            imageDownloadQueue.EnqueueProgramMetadataCollection(sportsImageResponses);
             //await DownloadImages(sportsImageResponses, cancellationToken);
             if (processedObjects != totalObjects)
             {
@@ -69,30 +66,40 @@ public partial class SchedulesDirect
 
         //UpdateIcons(sportEvents);
 
-        logger.LogInformation("Exiting GetAllSportsImages(). SUCCESS.");  
-        
+        logger.LogInformation("Exiting GetAllSportsImages(). SUCCESS.");
+
         sportsImageQueue = []; sportsImageResponses = []; sportEvents.Clear();
 
         return true;
     }
 
-    
 
-    private  void ProcessSportsImageResponses()
+
+    private void ProcessSportsImageResponses()
     {
         // process request response
-        if (sportsImageResponses == null) return;
+        if (sportsImageResponses == null)
+        {
+            return;
+        }
+
         foreach (var response in sportsImageResponses)
         {
             //IncrementProgress();
-            if (response.Data == null) continue;
+            if (response.Data == null)
+            {
+                continue;
+            }
 
             var mxfProgram = sportEvents.SingleOrDefault(arg => arg.ProgramId == response.ProgramId);
-            if (mxfProgram == null) continue;
+            if (mxfProgram == null)
+            {
+                continue;
+            }
 
             // get sports event images
             List<ProgramArtwork> artwork;
-            mxfProgram.extras.Add("artwork", artwork = SDHelpers.GetTieredImages(response.Data, new List<string> { "team event", "sport event" }));
+            mxfProgram.extras.Add("artwork", artwork = SDHelpers.GetTieredImages(response.Data, ["team event", "sport event"]));
             mxfProgram.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Program, mxfProgram.extras["md5"]);
         }
     }

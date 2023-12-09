@@ -23,6 +23,11 @@ public partial class StreamMasterHub : IEPGFileHub
         return await mediator.Send(new GetEPGFile(id)).ConfigureAwait(false);
     }
 
+    public async Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int id, CancellationToken cancellationToken)
+    {
+        return await mediator.Send(new GetEPGFilePreviewById(id)).ConfigureAwait(false);
+    }
+
     public async Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(EPGFileParameters parameters)
     {
         return await mediator.Send(new GetPagedEPGFiles(parameters)).ConfigureAwait(false);

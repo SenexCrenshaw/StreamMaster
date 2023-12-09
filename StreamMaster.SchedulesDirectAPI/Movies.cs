@@ -3,8 +3,6 @@
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
-using StreamMasterDomain.Services;
-
 using System.Collections.Concurrent;
 using System.Text.Json;
 
@@ -20,9 +18,9 @@ public partial class SchedulesDirect
 
         // reset counters
         movieImageQueue = [];
-        movieImageResponses =[];
+        movieImageResponses = [];
         //IncrementNextStage(moviePrograms.Count);
-        
+
         logger.LogInformation($"Entering GetAllMoviePosters() for {totalObjects} movies.");
 
         // query all movies from Schedules Direct
@@ -31,7 +29,10 @@ public partial class SchedulesDirect
             if (mxfProgram.extras.ContainsKey("md5") && epgCache.JsonFiles.ContainsKey(mxfProgram.extras["md5"]) && epgCache.JsonFiles[mxfProgram.extras["md5"]].Images != null)
             {
                 //IncrementProgress();
-                if (string.IsNullOrEmpty(epgCache.JsonFiles[mxfProgram.extras["md5"]].Images)) continue;
+                if (string.IsNullOrEmpty(epgCache.JsonFiles[mxfProgram.extras["md5"]].Images))
+                {
+                    continue;
+                }
 
                 List<ProgramArtwork>? artwork;
                 using var reader = new StringReader(epgCache.JsonFiles[mxfProgram.extras["md5"]].Images);
@@ -54,13 +55,13 @@ public partial class SchedulesDirect
         // maximum 500 queries at a time
         if (movieImageQueue.Count > 0)
         {
-            Parallel.For(0, (movieImageQueue.Count / MaxImgQueries + 1), new ParallelOptions { MaxDegreeOfParallelism = MaxParallelDownloads }, i =>
+            _ = Parallel.For(0, (movieImageQueue.Count / MaxImgQueries) + 1, new ParallelOptions { MaxDegreeOfParallelism = MaxParallelDownloads }, i =>
             {
-                DownloadImageResponses(movieImageQueue,movieImageResponses, i * MaxImgQueries);
+                DownloadImageResponses(movieImageQueue, movieImageResponses, i * MaxImgQueries);
             });
 
             ProcessMovieImageResponses();
-            imageDownloadService.EnqueueProgramMetadataCollection(movieImageResponses);
+            imageDownloadQueue.EnqueueProgramMetadataCollection(movieImageResponses);
             //await DownloadImages(movieImageResponses, cancellationToken);
             if (processedObjects != totalObjects)
             {
@@ -75,13 +76,16 @@ public partial class SchedulesDirect
         return true;
     }
 
-    private  void ProcessMovieImageResponses()
+    private void ProcessMovieImageResponses()
     {
         // process request response
         foreach (var response in movieImageResponses)
         {
             //IncrementProgress();
-            if (response.Data == null) continue;
+            if (response.Data == null)
+            {
+                continue;
+            }
 
             // determine which program this belongs to
             var mxfProgram = schedulesDirectData.FindOrCreateProgram(response.ProgramId);
@@ -89,7 +93,11 @@ public partial class SchedulesDirect
             // first choice is return from Schedules Direct
             List<ProgramArtwork> artwork;
             artwork = SDHelpers.GetTieredImages(response.Data, ["episode"]).Where(arg => arg.Aspect.Equals("2x3")).ToList();
-
+            if (artwork.Any())
+            {
+                mxfProgram.extras.Add("artwork", artwork);
+                mxfProgram.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Movie, mxfProgram.extras["md5"]);
+            }
             //// second choice is from TMDb if allowed and available
             //if (artwork.Count == 0 || artwork[0].Category.Equals("Staple"))
             //{
@@ -99,8 +107,8 @@ public partial class SchedulesDirect
 
             // regardless if image is found or not, store the final result in xml file
             // this avoids hitting the tmdb server every update for every movie missing cover art
-            mxfProgram.extras.Add("artwork", artwork);
-            mxfProgram.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Movie, mxfProgram.extras["md5"]);
+            //mxfProgram.extras.Add("artwork", artwork);
+            //mxfProgram.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Movie, mxfProgram.extras["md5"]);
         }
     }
 

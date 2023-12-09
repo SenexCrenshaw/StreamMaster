@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.SchedulesDirectAPI.Domain;
-using StreamMaster.SchedulesDirectAPI.Domain.Commands;
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
@@ -13,79 +11,115 @@ using StreamMasterDomain.Services;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirectAPI;
-public partial class SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDownloadService imageDownloadService, IEPGCache epgCache, ISchedulesDirectData schedulesDirectData, ISchedulesDirectAPI schedulesDirectAPI, ISettingsService settingsService, ISDToken SdToken, IMemoryCache memoryCache) : ISchedulesDirect
+public partial class SchedulesDirect : ISchedulesDirect
 {
     public static readonly int MAX_RETRIES = 3;
     public bool IsSyncing { get; set; }
     private readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
     private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
+    private readonly SemaphoreSlim _syncSemaphore = new(1, 1);
     private readonly object fileLock = new();
     private const int MaxQueries = 1250;
     private const int MaxImgQueries = 125;
-    private const int MaxParallelDownloads = 8;
+    public const int MaxParallelDownloads = 8;
 
     private static int processedObjects;
     private static int totalObjects;
     private static int processStage;
-    private readonly ILogger _logger = logger;
+
+    private readonly ILogger<SchedulesDirect> logger;
+    private readonly IEPGCache epgCache;
+    private readonly ISchedulesDirectData schedulesDirectData;
+
+    private readonly ISchedulesDirectAPI schedulesDirectAPI;
+    private readonly ISettingsService settingsService;
+    private readonly IImageDownloadQueue imageDownloadQueue;
+    private readonly IMemoryCache memoryCache;
+
+    public SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDownloadQueue imageDownloadQueue, IEPGCache epgCache, ISchedulesDirectData schedulesDirectData, ISchedulesDirectAPI schedulesDirectAPI, ISettingsService settingsService, IMemoryCache memoryCache)
+    {
+        this.logger = logger;
+        this.epgCache = epgCache;
+        this.schedulesDirectData = schedulesDirectData;
+        this.schedulesDirectAPI = schedulesDirectAPI;
+        this.settingsService = settingsService;
+        this.memoryCache = memoryCache;
+        this.imageDownloadQueue = imageDownloadQueue;
+        CheckToken();
+    }
 
     public async Task<bool> SDSync(CancellationToken cancellationToken)
     {
         if (IsSyncing)
         {
-            _logger.LogWarning("Schedules Direct already Syncing");
+            logger.LogWarning("Schedules Direct already Syncing");
             return false;
         }
 
-        IsSyncing = true;
-        if (!await EnsureToken(cancellationToken).ConfigureAwait(false))
+        try
         {
-            _logger.LogWarning("Schedules Direct Token Not Ready");
-            IsSyncing = false;
-            return false;
-        }
-        //UserStatus status = await GetStatus(cancellationToken);
+            await _syncSemaphore.WaitAsync(cancellationToken);
 
-        if (!await GetSystemReady(cancellationToken))
-        {
-            _logger.LogWarning("Schedules Direct Not Ready");
-            IsSyncing = false;
-            return false;
-        }
+            if (IsSyncing)
+            {
+                logger.LogWarning("Schedules Direct already Syncing");
+                return false;
+            }
 
-        //var startTime = DateTime.UtcNow;
-        var setting = memoryCache.GetSetting();
-        logger.LogInformation($"DaysToDownload: {setting.SDSettings.SDEPGDays}");
-
-        // load cache file
-        epgCache.LoadCache();
-        if (
-             await BuildLineupServices(cancellationToken) &&
-                await GetAllScheduleEntryMd5S(setting.SDSettings.SDEPGDays) &&
-                BuildAllProgramEntries() &&
-                BuildAllGenericSeriesInfoDescriptions() &&
-                await GetAllMoviePosters(cancellationToken) &&
-                await GetAllSeriesImages(cancellationToken) &&
-                await GetAllSeasonImages(cancellationToken) &&
-                await GetAllSportsImages(cancellationToken) &&
-                BuildKeywords()
-            )
-        {
-            epgCache.WriteCache();
-            CreateDummLineupChannel();
-            //var xml = CreateXmltv("");
-            //if (xml is not null)
+            IsSyncing = true;
+            //if (!await EnsureToken(cancellationToken).ConfigureAwait(false))
             //{
-            //    WriteXmltv(xml);
+            //    logger.LogWarning("Schedules Direct Token Not Ready");
+            //    IsSyncing = false;
+            //    return false;
+            //}
+            //UserStatus status = await GetStatus(cancellationToken);
+
+            //if (!await GetSystemReady(cancellationToken))
+            //{
+            //    logger.LogWarning("Schedules Direct Not Ready");
+            //    IsSyncing = false;
+            //    return false;
             //}
 
-            logger.LogInformation("Completed Schedules Direct update execution. SUCCESS.");
+            //var startTime = DateTime.UtcNow;
+            var setting = memoryCache.GetSetting();
+            logger.LogInformation($"DaysToDownload: {setting.SDSettings.SDEPGDays}");
+
+            // load cache file
+            epgCache.LoadCache();
+            if (
+                 await BuildLineupServices(cancellationToken) &&
+                    await GetAllScheduleEntryMd5S(setting.SDSettings.SDEPGDays) &&
+                    BuildAllProgramEntries() &&
+                    BuildAllGenericSeriesInfoDescriptions() &&
+                    await GetAllMoviePosters(cancellationToken) &&
+                    await GetAllSeriesImages(cancellationToken) &&
+                    await GetAllSeasonImages(cancellationToken) &&
+                    await GetAllSportsImages(cancellationToken) &&
+                    BuildKeywords()
+                )
+            {
+                epgCache.WriteCache();
+                CreateDummLineupChannel();
+                //var xml = CreateXmltv("");
+                //if (xml is not null)
+                //{
+                //    WriteXmltv(xml);
+                //}
+
+                logger.LogInformation("Completed Schedules Direct update execution. SUCCESS.");
+                IsSyncing = false;
+                return true;
+            }
+            //StationLogosToDownload = [];
             IsSyncing = false;
-            return true;
+            return false;
         }
-        //StationLogosToDownload = [];
-        IsSyncing = false;
-        return false;
+        finally
+        {
+            _syncSemaphore.Release();
+        }
     }
 
     private void WriteXmltv(XMLTV xmltv)
@@ -112,38 +146,32 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDown
         mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
     }
 
-    //private  bool ServiceCountSafetyCheck()
-    //{
-    //    var setting = memoryCache.GetSetting();
-
-    //    if (setting.ExpectedServiceCount < 20 || !(setting.SDStationIds.Count < setting.ExpectedServiceCount * 0.95)) return true;
-    //    logger.LogError($"Of the expected {setting.SDStationIds.Count} stations to download, there are only {config.ExpectedServicecount - MissingStations} stations available from Schedules Direct. Aborting update for review by user.");
-    //    return false;
-    //}
-
-    public async Task<bool> GetSystemReady(CancellationToken cancellationToken)
+    public async Task<UserStatus> GetUserStatus(CancellationToken cancellationToken)
     {
-        UserStatus status = await GetStatusInternal(cancellationToken);
-
-        try
+        UserStatus? ret = await schedulesDirectAPI.GetApiResponse<UserStatus>(APIMethod.GET, "status", cancellationToken: cancellationToken);
+        if (ret != null)
         {
-            return status.SystemStatus.Any() && status.SystemStatus[0].Status?.ToLower() == "online";
+            logger.LogInformation($"Status request successful. account expires: {ret.Account.Expires:s}Z , lineups: {ret.Lineups.Count}/{ret.Account.MaxLineups} , lastDataUpdate: {ret.LastDataUpdate:s}Z");
+            logger.LogInformation($"System status: {ret.SystemStatus[0].Status} , message: {ret.SystemStatus[0].Message}");
+
+            TimeSpan expires = ret.Account.Expires - DateTime.UtcNow;
+            if (expires >= TimeSpan.FromDays(7.0))
+            {
+                return ret;
+            }
+
+            logger.LogWarning($"Your Schedules Direct account expires in {expires.Days:D2} days {expires.Hours:D2} hours {expires.Minutes:D2} minutes.");
+            logger.LogWarning("*** Renew your Schedules Direct membership at https://schedulesdirect.org. ***");
         }
-        catch
+        else
         {
-            return false;
+            logger.LogError("Did not receive a response from Schedules Direct for a status request.");
         }
+
+        return ret;
+
     }
 
-    private async Task<bool> EnsureToken(CancellationToken cancellationToken)
-    {
-        return await SdToken.GetTokenAsync(cancellationToken) != null;
-    }
-    public async Task<UserStatus> GetStatus(CancellationToken cancellationToken)
-    {
-        UserStatus status = await GetStatusInternal(cancellationToken);
-        return status;
-    }
     public void ResetCache(string command)
     {
         string cacheKey = SDHelpers.GenerateCacheKey(command);
@@ -153,36 +181,6 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDown
         {
             File.Delete(cachePath);
         }
-    }
-
-    private async Task<UserStatus> GetStatusInternal(CancellationToken cancellationToken)
-    {
-        UserStatus? result = memoryCache.GetSDUserStatus();
-        result ??= await schedulesDirectAPI.GetApiResponse<UserStatus>(APIMethod.GET, SDCommands.Status, cancellationToken, cancellationToken).ConfigureAwait(false);
-
-        if (result == null)
-        {
-            return SDHelpers.GetStatusOffline();
-        }
-        result = await HandleStatus(result, cancellationToken).ConfigureAwait(false);
-
-        memoryCache.SetSDUserStatus(result);
-
-        return result ?? SDHelpers.GetStatusOffline();
-    }
-
-    private async Task<UserStatus?> HandleStatus(UserStatus UserStatus, CancellationToken cancellationToken)
-    {
-        if ((SDHttpResponseCode)UserStatus.Code is SDHttpResponseCode.ACCOUNT_LOCKOUT or SDHttpResponseCode.ACCOUNT_DISABLED or SDHttpResponseCode.ACCOUNT_EXPIRED or SDHttpResponseCode.TOKEN_EXPIRED or SDHttpResponseCode.INVALID_USER)
-        {
-            if (await SdToken.ResetTokenAsync(cancellationToken).ConfigureAwait(false) == null)
-            {
-                return null;
-            }
-            ResetCache(SDCommands.Status);
-            return await GetStatusInternal(cancellationToken).ConfigureAwait(false);
-        }
-        return UserStatus;
     }
 
     private async Task WriteToCacheAsync<T>(string name, T data, CancellationToken cancellationToken = default)
@@ -230,5 +228,10 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDown
         {
             _ = _cacheSemaphore.Release();
         }
+    }
+
+    public void CheckToken()
+    {
+        schedulesDirectAPI.CheckToken();
     }
 }

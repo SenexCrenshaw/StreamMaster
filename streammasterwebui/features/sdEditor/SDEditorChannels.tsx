@@ -1,13 +1,13 @@
 import StandardHeader from '@components/StandardHeader';
 import SchedulesDirectStationDataSelector from '@components/schedulesDirect/SchedulesDirectStationDataSelector';
 import { SDIcon } from '@lib/common/icons';
-import { useSchedulesDirectGetStatusQuery } from '@lib/iptvApi';
+import { useSchedulesDirectGetUserStatusQuery } from '@lib/iptvApi';
 import useSettings from '@lib/useSettings';
 import { BlockUI } from 'primereact/blockui';
 import { memo, useMemo } from 'react';
 
 const SDEditorChannels = () => {
-  const getStatusQuery = useSchedulesDirectGetStatusQuery();
+  const getStatusQuery = useSchedulesDirectGetUserStatusQuery();
   const settings = useSettings();
 
   const isSDReady = useMemo((): boolean => {

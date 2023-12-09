@@ -585,7 +585,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
           sortOrder={props.reorderable ? 0 : state.sortOrder}
           stateKey={`${props.id}-table`}
           showSelectAll={props.disableSelectAll !== true}
-          stateStorage="local"
+          stateStorage={props.enableState !== undefined && props.enableState !== true ? 'custom' : 'local'}
           stripedRows
           style={props.style}
           totalRecords={state.pagedInformation ? state.pagedInformation.totalItemCount : undefined}
@@ -661,6 +661,7 @@ interface BaseDataSelectorProperties<T = any> {
   emptyMessage?: ReactNode;
   enableExport?: boolean;
   enablePaginator?: boolean;
+  enableState?: boolean;
   disableSelectAll?: boolean;
   exportFilename?: string;
   groupRowsBy?: string;

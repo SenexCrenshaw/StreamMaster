@@ -8,6 +8,7 @@ namespace StreamMasterApplication.EPGFiles;
 
 public interface IEPGFileController
 {
+    Task<ActionResult<List<EPGFilePreviewDto>>> GetEPGFilePreviewById(int id, CancellationToken cancellationToken);
     Task<ActionResult> CreateEPGFile(CreateEPGFileRequest request);
 
     Task<ActionResult> CreateEPGFileFromForm([FromForm] CreateEPGFileRequest request);
@@ -33,6 +34,7 @@ public interface IEPGFileDB
 
 public interface IEPGFileHub
 {
+    Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int id, CancellationToken cancellationToken);
     Task CreateEPGFile(CreateEPGFileRequest request);
 
     Task DeleteEPGFile(DeleteEPGFileRequest request);

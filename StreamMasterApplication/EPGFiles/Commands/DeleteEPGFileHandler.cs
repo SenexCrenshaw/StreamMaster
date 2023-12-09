@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+using StreamMasterApplication.SchedulesDirectAPI.Commands;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
@@ -16,12 +16,8 @@ public class DeleteEPGFileRequestValidator : AbstractValidator<DeleteEPGFileRequ
     }
 }
 
-public class DeleteEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<DeleteEPGFileRequest, int?>
+public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, ISchedulesDirectData schedulesDirectData, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<DeleteEPGFileRequest, int?>
 {
-
-    public DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-    : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
-
     public async Task<int?> Handle(DeleteEPGFileRequest request, CancellationToken cancellationToken = default)
     {
         EPGFileDto? epgFile = await Repository.EPGFile.DeleteEPGFile(request.Id);
@@ -44,6 +40,18 @@ public class DeleteEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestH
             }
         }
 
+        var services = schedulesDirectData.Services.Where(a => a.extras.ContainsKey("epgid") && a.extras["epgid"] == epgFile.Id).ToList();
+        foreach (var service in services)
+        {
+            schedulesDirectData.Services.Remove(service);
+        }
+
+        var programs = schedulesDirectData.Programs.Where(a => a.extras.ContainsKey("epgid") && a.extras["epgid"] == epgFile.Id).ToList();
+        foreach (var program in programs)
+        {
+            schedulesDirectData.Programs.Remove(program);
+        }
+
         //var programmes = MemoryCache.Programmes();
         //_ = programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
         //MemoryCache.SetCache(programmes);
@@ -61,6 +69,8 @@ public class DeleteEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestH
         //MemoryCache.SetProgrammeLogos(programmeIcons);
 
         _ = await Repository.SaveAsync().ConfigureAwait(false);
+
+        await Sender.Send(new SDSync(), cancellationToken).ConfigureAwait(false);
 
         await Publisher.Publish(new EPGFileDeletedEvent(epgFile.Id), cancellationToken).ConfigureAwait(false);
         return epgFile.Id;

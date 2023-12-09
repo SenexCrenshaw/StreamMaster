@@ -1,51 +1,123 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain;
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
-using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Models;
-using StreamMasterDomain.Services;
 
 using System.Diagnostics;
+using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace StreamMaster.SchedulesDirectAPI;
 
-public class SchedulesDirectAPI(ILogger<SchedulesDirectAPI> logger, ISDToken SdToken, ISettingsService settingsService) : ISchedulesDirectAPI
+public partial class SchedulesDirectAPI : ISchedulesDirectAPI
 {
-    public static readonly int MAX_RETRIES = 2;
-    private readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
-    private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
+    private readonly ILogger<SchedulesDirectAPI> logger;
+    private readonly IMemoryCache memoryCache;
+    public HttpClient _httpClient = null!;
+    private const string BaseAddress = "https://json.schedulesdirect.org/20141201/";
 
-    private async Task WriteToCacheAsync<T>(string name, T data, CancellationToken cancellationToken = default)
+    public SchedulesDirectAPI(ILogger<SchedulesDirectAPI> logger, IMemoryCache memoryCache)
     {
-        await _cacheSemaphore.WaitAsync(cancellationToken);
-        try
-        {
-            string cacheKey = SDHelpers.GenerateCacheKey(name);
-            string cachePath = Path.Combine(BuildInfo.SDCacheFolder, cacheKey);
-            SDCacheEntry<T> cacheEntry = new()
-            {
-                Data = data,
-                Command = name,
-                Content = "",
-                Timestamp = DateTime.UtcNow
-            };
-
-            string contentToCache = JsonSerializer.Serialize(cacheEntry);
-            await File.WriteAllTextAsync(cachePath, contentToCache, cancellationToken).ConfigureAwait(false);
-        }
-        finally
-        {
-            _ = _cacheSemaphore.Release();
-        }
+        this.logger = logger;
+        this.memoryCache = memoryCache;
+        CreateHttpClient();
     }
 
 
+
+    public async Task<HttpResponseMessage> GetSdImage(string uri)//, DateTimeOffset ifModifiedSince)
+    {
+        try
+        {
+            var message = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri($"{BaseAddress}{uri}")
+            };
+            var response = await _httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+
+            return !response.IsSuccessStatusCode || response.Content?.Headers?.ContentType?.MediaType == "application/json"
+                ? response.Content?.Headers?.ContentType?.MediaType == "application/json"
+                    ? await HandleHttpResponseError(response, await response.Content.ReadAsStringAsync())
+                    : await HandleHttpResponseError(response, null)
+                : response;
+        }
+        catch (HttpRequestException ex)
+        {
+            logger.LogError($"{uri} GetSdImage() Exception: {ex?.InnerException.Message ?? ex.Message}");
+        }
+        return null;
+    }
+
+    private async Task<HttpResponseMessage> HandleHttpResponseError(HttpResponseMessage response, string? content)
+    {
+        var tokenUsed = response.RequestMessage.Headers.GetValues("token")?.FirstOrDefault();
+
+        if (!string.IsNullOrEmpty(content))
+        {
+            var err = JsonSerializer.Deserialize<BaseResponse>(content);
+            if (err != null)
+            {
+                var sdCode = (SDHttpResponseCode)err.Code;
+
+                switch (sdCode)
+                {
+                    case SDHttpResponseCode.SERVICE_OFFLINE: // SERVICE_OFFLINE
+                        response.StatusCode = HttpStatusCode.ServiceUnavailable; // 503
+                        response.ReasonPhrase = "Service Unavailable";
+                        break;
+                    case SDHttpResponseCode.ACCOUNT_DISABLED: // ACCOUNT_EXPIRED
+                    case SDHttpResponseCode.ACCOUNT_EXPIRED: // ACCOUNT_DISABLED
+                    case SDHttpResponseCode.APPLICATION_DISABLED: // APPLICATION_DISABLED
+                        response.StatusCode = HttpStatusCode.Forbidden; // 403
+                        response.ReasonPhrase = "Forbidden";
+                        break;
+                    case SDHttpResponseCode.ACCOUNT_LOCKOUT: // ACCOUNT_LOCKOUT
+                        response.StatusCode = (HttpStatusCode)423; // 423
+                        response.ReasonPhrase = "Locked";
+                        break;
+                    case SDHttpResponseCode.IMAGE_NOT_FOUND: // IMAGE_NOT_FOUND
+                    case SDHttpResponseCode.IMAGE_QUEUED: // IMAGE_QUEUED
+                        response.StatusCode = HttpStatusCode.NotFound; // 404
+                        response.ReasonPhrase = "Not Found";
+                        break;
+                    case SDHttpResponseCode.MAX_IMAGE_DOWNLOADS: // MAX_IMAGE_DOWNLOADS
+                    case SDHttpResponseCode.MAX_IMAGE_DOWNLOADS_TRIAL: // MAX_IMAGE_DOWNLOADS_TRIAL
+                        response.StatusCode = (HttpStatusCode)429; // 429
+                        response.ReasonPhrase = "Too Many Requests";
+                        break;
+                    case SDHttpResponseCode.TOKEN_MISSING: // TOKEN_MISSING - special case when token is getting refreshed due to below responses from a separate request
+                    case SDHttpResponseCode.INVALID_USER: // INVALID_USER
+                    case SDHttpResponseCode.TOKEN_EXPIRED: // TOKEN_EXPIRED
+                    case SDHttpResponseCode.TOKEN_DUPLICATED: // TOKEN_DUPLICATED
+                    case SDHttpResponseCode.UNKNOWN_USER: // UNKNOWN_USER
+                        response.StatusCode = HttpStatusCode.Unauthorized; // 401
+                        response.ReasonPhrase = "Unauthorized";
+                        await ResetToken();
+                        break;
+                }
+            }
+        }
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            response.StatusCode = (HttpStatusCode)418;
+            response.ReasonPhrase = "I'm a teapot";
+        }
+
+        if (response.StatusCode != HttpStatusCode.NotModified)
+        {
+            logger.LogError($"{response.RequestMessage.RequestUri.AbsolutePath.Replace(BaseAddress, "/")}: {(int)response.StatusCode} {response.ReasonPhrase} : Token={tokenUsed[..5]}...{(!string.IsNullOrEmpty(content) ? $"\n{content}" : "")}");
+        }
+
+        return response;
+    }
 
     /// <summary>
     /// 
@@ -59,6 +131,17 @@ public class SchedulesDirectAPI(ILogger<SchedulesDirectAPI> logger, ISDToken SdT
     {
         try
         {
+            await tokenSemaphore.WaitAsync(cancellationToken);
+
+            if (!GoodToken)
+            {
+                CheckToken();
+                if (!GoodToken)
+                {
+                    return default;
+                }
+            }
+
             switch (method)
             {
                 case APIMethod.GET:
@@ -73,136 +156,133 @@ public class SchedulesDirectAPI(ILogger<SchedulesDirectAPI> logger, ISDToken SdT
         }
         catch (Exception ex)
         {
-            logger.LogDebug($"HTTP request exception thrown. Message:{FileUtil.ReportExceptionMessages(ex)}");
+            logger.LogDebug("HTTP request exception thrown. Message:{FileUtil.ReportExceptionMessages}", FileUtil.ReportExceptionMessages(ex));
+        }
+        finally
+        {
+            tokenSemaphore.Release();
         }
         return default;
     }
 
-
-    private async Task<T?> GetHttpResponse<T>(HttpMethod method, string command, object? content = null, CancellationToken cancellationToken = default)
+    private async Task<T?> GetHttpResponse<T>(HttpMethod method, string uri, object? content = null, CancellationToken cancellationToken = default)
     {
-
-
-        Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
         string? json = null;
-        HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
 
-        int retryCount = 0;
-        while (retryCount < 3)
+        try
         {
-            retryCount++;
-            try
+            using HttpRequestMessage request = new(method, uri)
             {
-                string? url = await SdToken.GetAPIUrl(command, cancellationToken);
+                Content = (content != null)
+                    ? new StringContent(JsonSerializer.Serialize(content), Encoding.UTF8, "application/json")
+                    : null
+            };
+            using HttpResponseMessage response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
 
-                using HttpRequestMessage request = new(method, url)
-                {
-                    Content = (content != null)
-                        ? new StringContent(JsonSerializer.Serialize(content), Encoding.UTF8, "application/json")
-                        : null
-                };
-                using HttpResponseMessage response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    if (await HandleHttpResponseError(response, await response.Content?.ReadAsStringAsync(), cancellationToken))
-                    {
-                        return default;
-                    }
-                    await Task.Delay(100, cancellationToken);
-                    continue;
-                }
-
-                JsonSerializerOptions jsonOptions = new()
-                {
-                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-                };
-
-                using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-
-                if (typeof(T) != typeof(List<LineupPreviewChannel>) &&
-                    typeof(T) != typeof(StationChannelMap) &&
-                    typeof(T) != typeof(Dictionary<string, Dictionary<string, ScheduleMd5Response>>))
-                {
-                    using var sr = new StreamReader(stream);
-                    json = await sr.ReadToEndAsync(cancellationToken);
-                    return JsonSerializer.Deserialize<T>(json, jsonOptions);
-                }
-
-                if (typeof(T) == typeof(List<LineupPreviewChannel>) || typeof(T) == typeof(StationChannelMap))
-                {
-                    using var sr = new StreamReader(stream);
-                    json = await sr.ReadToEndAsync(cancellationToken);
-                    json = json.Replace("[],", ""); // Modify the JSON string as needed
-                    return JsonSerializer.Deserialize<T>(json);
-                }
-
-                if (typeof(T) == typeof(Dictionary<string, Dictionary<string, ScheduleMd5Response>>))
-                {
-                    using var sr = new StreamReader(stream);
-                    json = await sr.ReadToEndAsync(cancellationToken);
-                    json = json.Replace("[]", "{}"); // Modify the JSON string as needed
-                    return JsonSerializer.Deserialize<T>(json);
-                }
-
-                using var jsonStream = new StreamReader(stream);
-                return await JsonSerializer.DeserializeAsync<T>(jsonStream.BaseStream, cancellationToken: cancellationToken);
-            }
-            catch (JsonException ex)
+            if (!response.IsSuccessStatusCode)
             {
-                // Handle the JSON deserialization error
-                // Log the error and decide how to proceed
-
-                if (json != null)
-                {
-                    var startOrig = Math.Max((int)ex.BytePositionInLine, 0);
-                    var start = Math.Max((int)ex.BytePositionInLine - 40, 0);
-                    var lineOrig = json.Substring(startOrig, 200);
-                    var line = json.Substring(start, 200);
-                    if (line.Contains("INVALID_PROGRAMID"))
-                    {
-
-
-                    }
-                    else
-                    {
-                        Debug.Assert(true);
-                        var a = 1;
-                    }
-                }
-
-            }
-            catch (Exception)
-            {
-                Debug.Assert(true);
+                string responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+                await HandleHttpResponseError(response, responseContent);
+                return default;
             }
 
+            JsonSerializerOptions jsonOptions = new()
+            {
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+
+            using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+
+            if (typeof(T) != typeof(List<LineupPreviewChannel>) &&
+                typeof(T) != typeof(StationChannelMap) &&
+                typeof(T) != typeof(Dictionary<string, Dictionary<string, ScheduleMd5Response>>))
+            {
+                using var sr = new StreamReader(stream);
+                json = await sr.ReadToEndAsync(cancellationToken);
+
+                if (typeof(T) == typeof(TokenResponse))
+                {
+                    var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(json, jsonOptions);
+                    if (tokenResponse != null)
+                    {
+                        SetToken(tokenResponse);
+                    }
+                }
+                var data = JsonSerializer.Deserialize<T>(json, jsonOptions);
+                return data;
+            }
+
+            if (typeof(T) == typeof(List<LineupPreviewChannel>) || typeof(T) == typeof(StationChannelMap))
+            {
+                using var sr = new StreamReader(stream);
+                json = await sr.ReadToEndAsync(cancellationToken);
+                json = json.Replace("[],", ""); // Modify the JSON string as needed
+                return JsonSerializer.Deserialize<T>(json);
+            }
+
+            if (typeof(T) == typeof(Dictionary<string, Dictionary<string, ScheduleMd5Response>>))
+            {
+                using var sr = new StreamReader(stream);
+                json = await sr.ReadToEndAsync(cancellationToken);
+                json = json.Replace("[]", "{}"); // Modify the JSON string as needed
+                return JsonSerializer.Deserialize<T>(json);
+            }
+
+            using var jsonStream = new StreamReader(stream);
+            return await JsonSerializer.DeserializeAsync<T>(jsonStream.BaseStream, cancellationToken: cancellationToken);
+        }
+        catch (JsonException ex)
+        {
+            // Handle the JSON deserialization error
+            // Log the error and decide how to proceed
+
+            if (json != null)
+            {
+                var bytePosition = ex.BytePositionInLine ?? 0;
+
+                var startOriginal = Math.Max((int)bytePosition, 0);
+                var start = Math.Max((int)bytePosition - 40, 0);
+
+                var lineOriginal = json.Substring(startOriginal, 200);
+                var line = json.Substring(start, 200);
+                if (line.Contains("INVALID_PROGRAMID"))
+                {
+
+
+                }
+                else
+                {
+                    Debug.Assert(true);
+                }
+            }
+
+        }
+        catch (Exception)
+        {
+            Debug.Assert(true);
         }
         return default;
     }
 
-    private async Task<bool> HandleHttpResponseError(HttpResponseMessage response, string? content, CancellationToken cancellationToken)
+
+
+
+    private void CreateHttpClient()
     {
-        if (string.IsNullOrEmpty(content) || !(response.Content?.Headers?.ContentType?.MediaType?.Contains("json") ?? false))
+        var setting = memoryCache.GetSetting();
+        _httpClient = new(new HttpClientHandler()
         {
-            logger.LogDebug($"HTTP request failed with status code \"{(int)response.StatusCode} {response.ReasonPhrase}\"");
-        }
-        else
+            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+            AllowAutoRedirect = true,
+        })
         {
-            var err = JsonSerializer.Deserialize<BaseResponse>(content);
-            logger.LogDebug($"SD responded with error code: {err.Code} , message: {err.Message ?? err.Response} , serverID: {err.ServerId} , datetime: {err.Datetime:s}Z");
-            //SdErrorMessage = $"{err.Response}: {err.Message}";
-
-            var responseCode = (SDHttpResponseCode)err.Code;
-
-            if (responseCode is SDHttpResponseCode.ACCOUNT_LOCKOUT or SDHttpResponseCode.ACCOUNT_DISABLED or SDHttpResponseCode.ACCOUNT_EXPIRED or SDHttpResponseCode.TOKEN_EXPIRED or SDHttpResponseCode.INVALID_USER)
-            {
-                return await SdToken.ResetTokenAsync(cancellationToken).ConfigureAwait(false) == null && false;
-            }
-
-            logger.LogDebug("SD Error: response code: {responseCode}", responseCode.GetMessage());
-
-        }
-        return false;
+            BaseAddress = new Uri(BaseAddress),
+            Timeout = TimeSpan.FromMinutes(5)
+        };
+        _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+        _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
+        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(setting.ClientUserAgent);
+        _httpClient.DefaultRequestHeaders.ExpectContinue = true;
     }
+
 }

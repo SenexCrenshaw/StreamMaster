@@ -3,14 +3,16 @@ import SchedulesDirectHeadendDataSelector from '@components/schedulesDirect/Sche
 
 import SchedulesDirectLineUpsDataSelector from '@components/schedulesDirect/SchedulesDirectLineUpsDataSelector';
 import { SDIcon } from '@lib/common/icons';
-import { useSchedulesDirectGetStatusQuery } from '@lib/iptvApi';
+import { useSchedulesDirectGetUserStatusQuery } from '@lib/iptvApi';
 import useSettings from '@lib/useSettings';
 import { BlockUI } from 'primereact/blockui';
 
 import { memo, useMemo } from 'react';
 
 const SDEditorHeadEndsAndLineUps = () => {
-  const getStatusQuery = useSchedulesDirectGetStatusQuery();
+  const getStatusQuery = useSchedulesDirectGetUserStatusQuery(undefined, {
+    refetchOnMountOrArgChange: 0
+  });
   const settings = useSettings();
 
   const isSDReady = useMemo((): boolean => {

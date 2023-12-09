@@ -28,7 +28,7 @@ public interface ISchedulesDirectController
 
     Task<ActionResult<List<HeadendDto>>> GetHeadends(string country, string postalCode);
     Task<ActionResult<List<SubscribedLineup>>> GetLineups();
-    
+
 
     //Task<ActionResult<LineupPreviewChannel?>> GetLineup(string lineup);
 
@@ -43,9 +43,9 @@ public interface ISchedulesDirectController
     Task<ActionResult<StationChannelName>> GetStationChannelNameFromDisplayName(GetStationChannelNameFromDisplayName request);
     Task<ActionResult<List<CountryData>?>> GetAvailableCountries();
     Task<ActionResult<List<string>>> GetChannelNames();
-    Task<ActionResult<UserStatus>> GetStatus();
+    Task<ActionResult<UserStatus>> GetUserStatus();
     Task<ActionResult<List<StationChannelMap>>> GetStationChannelMaps();
-    
+
 }
 
 public interface ISchedulesDirectDB
@@ -64,8 +64,8 @@ public interface ISchedulesDirectHub
 
     Task<List<StationChannelMap>> GetStationChannelMaps();
     Task<List<SubscribedLineup>> GetLineups();
-        
-        //Task<List<string>> GetLineupNames();
+
+    //Task<List<string>> GetLineupNames();
 
     Task<List<StationIdLineup>> GetSelectedStationIds();
 
@@ -92,7 +92,7 @@ public interface ISchedulesDirectHub
     Task<PagedResponse<StationChannelName>> GetPagedStationChannelNameSelections([FromQuery] StationChannelNameParameters Parameters);
     Task<StationChannelName?> GetStationChannelNameFromDisplayName(GetStationChannelNameFromDisplayName request);
 
-    Task<UserStatus> GetStatus();
+    Task<UserStatus> GetUserStatus();
 }
 
 public interface ISchedulesDirectTasks

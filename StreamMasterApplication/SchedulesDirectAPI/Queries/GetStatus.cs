@@ -1,15 +1,12 @@
-﻿using StreamMaster.SchedulesDirectAPI;
+﻿namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
 
-namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
+public record GetUserStatus : IRequest<UserStatus>;
 
-public record GetStatus : IRequest<UserStatus>;
-
-internal class GetStatusHandler(ISchedulesDirect schedulesDirect) : IRequestHandler<GetStatus, UserStatus>
+internal class GetStatusHandler(ISchedulesDirect schedulesDirect) : IRequestHandler<GetUserStatus, UserStatus>
 {
-
-    public async Task<UserStatus> Handle(GetStatus request, CancellationToken cancellationToken)
+    public async Task<UserStatus> Handle(GetUserStatus request, CancellationToken cancellationToken)
     {
-        UserStatus status = await schedulesDirect.GetStatus(cancellationToken).ConfigureAwait(false);
+        UserStatus status = await schedulesDirect.GetUserStatus(cancellationToken).ConfigureAwait(false);
         return status ?? new UserStatus();
     }
 }
