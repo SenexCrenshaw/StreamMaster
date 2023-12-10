@@ -63,7 +63,14 @@ public partial class SchedulesDirect
                 // Add artwork to series.extras
                 if (artwork != null)
                 {
-                    series.extras.Add("artwork", artwork);
+                    if (series.extras.ContainsKey("artwork"))
+                    {
+                        series.extras["artwork"] = artwork;
+                    }
+                    else
+                    {
+                        series.extras.Add("artwork", artwork);
+                    }
                 }
 
                 series.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Series);

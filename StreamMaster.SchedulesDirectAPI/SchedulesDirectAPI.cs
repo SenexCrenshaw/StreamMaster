@@ -133,14 +133,14 @@ public partial class SchedulesDirectAPI : ISchedulesDirectAPI
         {
             await tokenSemaphore.WaitAsync(cancellationToken);
 
-            if (!GoodToken)
-            {
-                CheckToken();
-                if (!GoodToken)
-                {
-                    return default;
-                }
-            }
+            //if (!GoodToken)
+            //{
+            CheckToken();
+            //    if (!GoodToken)
+            //    {
+            //        return default;
+            //    }
+            //}
 
             switch (method)
             {

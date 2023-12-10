@@ -37,11 +37,6 @@ public partial class SchedulesDirectAPI
     {
         if (tokenResponse != null && !string.IsNullOrEmpty(tokenResponse.Token))
         {
-            //if (!await ValidateToken())
-            //{
-            //    logger.LogWarning("Validation of cached token failed. Requesting new token.");
-            //    return false;
-            //}
             _httpClient.DefaultRequestHeaders.Add("token", tokenResponse.Token);
             Token = tokenResponse.Token;
             GoodToken = true;
@@ -57,15 +52,9 @@ public partial class SchedulesDirectAPI
         }
     }
 
-    public void CheckToken()
+    public bool CheckToken(bool forceReset = false)
     {
-        if (DateTime.UtcNow - TokenTimestamp > TimeSpan.FromHours(23))
-        {
-            if (GetToken().Result)
-            {
-                //SetToken(Token);
-            }
-        }
+        return !forceReset && DateTime.UtcNow - TokenTimestamp <= TimeSpan.FromHours(23) || GetToken().Result;
     }
 
     private async Task<bool> GetToken(string? username = null, string? password = null, bool requestNew = false, CancellationToken cancellationToken = default)

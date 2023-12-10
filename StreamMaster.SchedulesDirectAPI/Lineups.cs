@@ -1,9 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-
-using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterDomain.Common;
 
@@ -14,11 +11,10 @@ namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
 {
     private static List<KeyValuePair<MxfService, string[]>> StationLogosToDownload = [];
-    private static volatile bool StationLogosDownloadComplete = true;
 
     private async Task<bool> BuildLineupServices(CancellationToken cancellationToken = default)
     {
-        var clientLineups = await GetSubscribedLineups(cancellationToken).ConfigureAwait(false);
+        LineupResponse? clientLineups = await GetSubscribedLineups(cancellationToken).ConfigureAwait(false);
         if (clientLineups == null || !clientLineups.Lineups.Any())
         {
             return false;
@@ -26,7 +22,7 @@ public partial class SchedulesDirect
 
         Setting setting = await settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
 
-        foreach (var clientLineup in clientLineups.Lineups)
+        foreach (SubscribedLineup clientLineup in clientLineups.Lineups)
         {
             // don't download station map if lineup not included
             if (setting.SDSettings.SDStationIds.FirstOrDefault(a => a.Lineup == clientLineup.Lineup) == null)
@@ -42,11 +38,11 @@ public partial class SchedulesDirect
             }
 
             // get/create lineup
-            var mxfLineup = schedulesDirectData.FindOrCreateLineup(clientLineup.Lineup, $"EPG123 {clientLineup.Name} ({clientLineup.Location})");
+            MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup(clientLineup.Lineup, $"EPG123 {clientLineup.Name} ({clientLineup.Location})");
 
 
             // request the lineup's station maps
-            var lineupMap = await GetStationChannelMap(clientLineup.Lineup);
+            StationChannelMap? lineupMap = await GetStationChannelMap(clientLineup.Lineup, cancellationToken);
             if (lineupMap == null || ((lineupMap?.Stations?.Count ?? 0) == 0))
             {
                 logger.LogError($"Subscribed lineup {clientLineup.Lineup} does not contain any stations.");
@@ -54,10 +50,10 @@ public partial class SchedulesDirect
             }
 
             // use hashset to make sure we don't duplicate channel entries for this station
-            var channelNumbers = new HashSet<string>();
+            HashSet<string> channelNumbers = new();
 
             // build the services and lineup
-            foreach (var station in lineupMap.Stations)
+            foreach (LineupStation station in lineupMap.Stations)
             {
                 // check if station should be downloaded and processed
                 if (station == null || setting.SDSettings.SDStationIds.FirstOrDefault(a => a.StationId == station.StationId) == null)
@@ -66,7 +62,7 @@ public partial class SchedulesDirect
                 }
 
                 // build the service if necessary
-                var mxfService = schedulesDirectData.FindOrCreateService(station.StationId);
+                MxfService mxfService = schedulesDirectData.FindOrCreateService(station.StationId);
                 if (string.IsNullOrEmpty(mxfService.CallSign))
                 {
                     // instantiate stationLogo and override uid
@@ -77,7 +73,7 @@ public partial class SchedulesDirect
                     mxfService.CallSign = station.Callsign;
                     if (string.IsNullOrEmpty(mxfService.Name))
                     {
-                        var names = Regex.Matches(station.Name.Replace("-", ""), station.Callsign);
+                        MatchCollection names = Regex.Matches(station.Name.Replace("-", ""), station.Callsign);
                         mxfService.Name = names.Count > 0
                             ? !string.IsNullOrEmpty(station.Affiliate) ? $"{station.Name} ({station.Affiliate})" : station.Name
                             : station.Name;
@@ -92,16 +88,16 @@ public partial class SchedulesDirect
                     // add station logo if available
                     if (station.StationLogos != null)
                     {
-                        var cats = station.StationLogos.Select(a => a.Category).Distinct().ToList();
+                        List<string> cats = station.StationLogos.Select(a => a.Category).Distinct().ToList();
                         stationLogo = station.StationLogos?.FirstOrDefault(arg => arg.Category != null && arg.Category.Equals("DARK", StringComparison.OrdinalIgnoreCase)) ??
                                       station.StationLogos?.FirstOrDefault(arg => arg.Category != null && arg.Category.Equals("WHITE", StringComparison.OrdinalIgnoreCase)) ??
                                       station.Logo;
 
                         // initialize as custom logo
-                        var logoPath = string.Empty;
-                        var urlLogoPath = string.Empty;
+                        string logoPath = string.Empty;
+                        string urlLogoPath = string.Empty;
 
-                        var logoFilename = $"{station.Callsign}_c.png";
+                        string logoFilename = $"{station.Callsign}_c.png";
                         if (File.Exists($"{BuildInfo.SDStationLogos}{logoFilename}"))
                         {
                             logoPath = $"{BuildInfo.SDStationLogos}{logoFilename}";
@@ -136,8 +132,8 @@ public partial class SchedulesDirect
                         {
                             if (!string.IsNullOrEmpty(logoPath) && File.Exists(logoPath))
                             {
-                                using var stream = File.OpenRead(logoPath);
-                                using var image = await Image.LoadAsync(stream, cancellationToken);
+                                using FileStream stream = File.OpenRead(logoPath);
+                                using Image image = await Image.LoadAsync(stream, cancellationToken);
 
                                 mxfService.extras.Add("logo", new StationImage
                                 {
@@ -158,22 +154,22 @@ public partial class SchedulesDirect
                 }
 
                 // match station with mapping for lineup number and subnumbers
-                foreach (var map in lineupMap.Map)
+                foreach (LineupChannel map in lineupMap.Map)
                 {
                     if (!map.StationId.Equals(station.StationId))
                     {
                         continue;
                     }
 
-                    var number = map.myChannelNumber;
-                    var subnumber = map.myChannelSubnumber;
+                    int number = map.myChannelNumber;
+                    int subnumber = map.myChannelSubnumber;
 
                     string matchName = map.ProviderCallsign;
                     switch (clientLineup.Transport)
                     {
                         case "Satellite":
                         case "DVB-S":
-                            var m = Regex.Match(lineupMap.Metadata.Lineup, @"\d+\.\d+");
+                            Match m = Regex.Match(lineupMap.Metadata.Lineup, @"\d+\.\d+");
                             if (m.Success && map.FrequencyHz > 0 && map.NetworkId > 0 && map.TransportId > 0 && map.ServiceId > 0)
                             {
                                 while (map.FrequencyHz > 13000)
@@ -204,7 +200,7 @@ public partial class SchedulesDirect
                     //    number = -1; subnumber = 0;
                     //}
 
-                    var channelNumber = $"{number}{(subnumber > 0 ? $".{subnumber}" : "")}";
+                    string channelNumber = $"{number}{(subnumber > 0 ? $".{subnumber}" : "")}";
                     if (channelNumbers.Add($"{channelNumber}:{station.StationId}"))
                     {
                         mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService, number, subnumber)
@@ -220,7 +216,6 @@ public partial class SchedulesDirect
 
         if (StationLogosToDownload.Count > 0)
         {
-            StationLogosDownloadComplete = false;
             logger.LogInformation($"Kicking off background worker to download and process {StationLogosToDownload.Count} station logos.");
             await Task.Run(async () =>
             {
@@ -263,89 +258,5 @@ public partial class SchedulesDirect
         logger.LogError($"There are 0 stations queued for download from {clientLineups.Lineups.Count} subscribed lineups. Exiting.");
         logger.LogError("Check that lineups are 'INCLUDED' and stations are selected in the EPG123 GUI.");
         return false;
-    }
-
-    private async Task<bool> DownloadStationLogos(CancellationToken cancellationToken)
-    {
-        Setting setting = memoryCache.GetSetting();
-        if (!setting.SDSettings.SDEnabled)
-        {
-            return false;
-        }
-
-        if (StationLogosToDownload.Count == 0)
-        {
-            return false;
-        }
-
-        var semaphore = new SemaphoreSlim(MaxParallelDownloads);
-
-        var tasks = StationLogosToDownload.Select(async serviceLogo =>
-        {
-            await semaphore.WaitAsync(cancellationToken);
-
-            try
-            {
-                var logoPath = serviceLogo.Value[0];
-                if (!File.Exists(logoPath))
-                {
-                    var (width, height) = await DownloadSdLogoAsync(serviceLogo.Value[1], logoPath, cancellationToken).ConfigureAwait(false);
-                    if (width == 0)
-                    {
-                        return;
-                    }
-                    serviceLogo.Key.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(logoPath);
-
-                    //if (File.Exists(logoPath))
-                    //{
-                    serviceLogo.Key.extras["logo"].Height = height;
-                    serviceLogo.Key.extras["logo"].Width = width;
-                    _ = StationLogosToDownload.Remove(serviceLogo);
-                    //}
-                }
-            }
-            finally
-            {
-                _ = semaphore.Release();
-            }
-        }).ToArray();
-
-        await Task.WhenAll(tasks);
-
-        return true;
-    }
-
-    private async Task<(int width, int height)> DownloadSdLogoAsync(string uri, string filePath, CancellationToken cancellationToken)
-    {
-        try
-        {
-            using var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync(uri, cancellationToken);
-
-            if (response.IsSuccessStatusCode)
-            {
-                using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-
-                using var image = await Image.LoadAsync<Rgba32>(stream, cancellationToken).ConfigureAwait(false);
-                using var cropImg = SDHelpers.CropAndResizeImage(image);
-                if (cropImg == null)
-                {
-                    return (0, 0);
-                }
-                using var outputFileStream = File.Create(filePath);
-                var a = image.Metadata.DecodedImageFormat;
-                cropImg.Save(outputFileStream, image.Metadata.DecodedImageFormat);
-                return (cropImg.Width, cropImg.Height);
-            }
-            else
-            {
-                logger.LogError($"HTTP request failed with status code: {response.StatusCode}");
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.LogError($"An exception occurred during DownloadSDLogoAsync(). Message:{FileUtil.ReportExceptionMessages(ex)}");
-        }
-        return (0, 0);
     }
 }

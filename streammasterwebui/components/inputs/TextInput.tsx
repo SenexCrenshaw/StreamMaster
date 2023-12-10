@@ -72,14 +72,18 @@ const TextInput = ({
 
     // If it's supposed to be a URL, process accordingly
     if (isUrl) {
-      try {
-        // Construct the URL and return it with the query parameters
-        const constructedURL = new URL(value_);
-        return constructedURL.origin + constructedURL.pathname + constructedURL.search;
-      } catch {
-        // If there's an error constructing the URL (meaning it's not a valid URL), return val as is
-        return value_;
-      }
+      // try {
+      //   // Construct the URL and return it with the query parameters
+      //   const constructedURL = new URL(value_);
+      //   if (constructedURL) {
+      //     return value_;
+      //   }
+      //   return constructedURL.origin + constructedURL.pathname + constructedURL.search;
+      // } catch {
+      //   // If there's an error constructing the URL (meaning it's not a valid URL), return val as is
+      //   return value_;
+      // }
+      return value_;
     }
 
     // If not a URL, remove file extension (previous behavior)

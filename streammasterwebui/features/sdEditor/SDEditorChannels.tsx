@@ -1,22 +1,22 @@
 import StandardHeader from '@components/StandardHeader';
 import SchedulesDirectStationDataSelector from '@components/schedulesDirect/SchedulesDirectStationDataSelector';
 import { SDIcon } from '@lib/common/icons';
-import { useSchedulesDirectGetUserStatusQuery } from '@lib/iptvApi';
 import useSettings from '@lib/useSettings';
 import { BlockUI } from 'primereact/blockui';
 import { memo, useMemo } from 'react';
 
 const SDEditorChannels = () => {
-  const getStatusQuery = useSchedulesDirectGetUserStatusQuery();
+  // const getStatusQuery = useSchedulesDirectGetUserStatusQuery();
   const settings = useSettings();
 
   const isSDReady = useMemo((): boolean => {
-    if (!getStatusQuery.data?.systemStatus || getStatusQuery.data?.systemStatus.length === 0 || settings.data?.sdSettings?.sdEnabled !== true) {
-      return false;
-    }
+    return settings.data?.sdSettings?.sdEnabled ?? false;
+    // if (!getStatusQuery.data?.systemStatus || getStatusQuery.data?.systemStatus.length === 0 || settings.data?.sdSettings?.sdEnabled !== true) {
+    //   return false;
+    // }
 
-    return getStatusQuery.data.systemStatus[0].status?.toLocaleLowerCase() === 'online';
-  }, [getStatusQuery.data?.systemStatus, settings.data?.sdSettings?.sdEnabled]);
+    // return getStatusQuery.data.systemStatus[0].status?.toLocaleLowerCase() === 'online';
+  }, [settings.data?.sdSettings?.sdEnabled]);
 
   const status = useMemo(() => {
     if (isSDReady) {

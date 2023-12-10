@@ -1,9 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
+using StreamMaster.SchedulesDirectAPI.Helpers;
 
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
 
@@ -97,6 +100,90 @@ public partial class SchedulesDirect
             List<ProgramArtwork> artwork = prog.extras["artwork"];
             UpdateIcons(artwork.Select(a => a.Uri), prog.Title);
         }
+    }
+
+    private async Task<bool> DownloadStationLogos(CancellationToken cancellationToken)
+    {
+        Setting setting = memoryCache.GetSetting();
+        if (!setting.SDSettings.SDEnabled)
+        {
+            return false;
+        }
+
+        if (StationLogosToDownload.Count == 0)
+        {
+            return false;
+        }
+
+        var semaphore = new SemaphoreSlim(MaxParallelDownloads);
+
+        var tasks = StationLogosToDownload.Select(async serviceLogo =>
+        {
+            await semaphore.WaitAsync(cancellationToken);
+
+            try
+            {
+                var logoPath = serviceLogo.Value[0];
+                if (!File.Exists(logoPath))
+                {
+                    var (width, height) = await DownloadSdLogoAsync(serviceLogo.Value[1], logoPath, cancellationToken).ConfigureAwait(false);
+                    if (width == 0)
+                    {
+                        return;
+                    }
+                    serviceLogo.Key.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(logoPath);
+
+                    //if (File.Exists(logoPath))
+                    //{
+                    serviceLogo.Key.extras["logo"].Height = height;
+                    serviceLogo.Key.extras["logo"].Width = width;
+                    _ = StationLogosToDownload.Remove(serviceLogo);
+                    //}
+                }
+            }
+            finally
+            {
+                _ = semaphore.Release();
+            }
+        }).ToArray();
+
+        await Task.WhenAll(tasks);
+
+        return true;
+    }
+
+    private async Task<(int width, int height)> DownloadSdLogoAsync(string uri, string filePath, CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var httpClient = new HttpClient();
+            var response = await httpClient.GetAsync(uri, cancellationToken);
+
+            if (response.IsSuccessStatusCode)
+            {
+                using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+
+                using var image = await Image.LoadAsync<Rgba32>(stream, cancellationToken).ConfigureAwait(false);
+                using var cropImg = SDHelpers.CropAndResizeImage(image);
+                if (cropImg == null)
+                {
+                    return (0, 0);
+                }
+                using var outputFileStream = File.Create(filePath);
+                var a = image.Metadata.DecodedImageFormat;
+                cropImg.Save(outputFileStream, image.Metadata.DecodedImageFormat);
+                return (cropImg.Width, cropImg.Height);
+            }
+            else
+            {
+                logger.LogError($"HTTP request failed with status code: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError($"An exception occurred during DownloadSDLogoAsync(). Message:{FileUtil.ReportExceptionMessages(ex)}");
+        }
+        return (0, 0);
     }
 
     private void UpdateSeasonIcons(List<MxfSeason> mxfSeasons)

@@ -81,7 +81,6 @@ const SchedulesDirectStationDataSelector = () => {
 
         AddStation(toSend)
           .then(() => {
-            setIsLoading(false);
             if (toast.current) {
               toast.current.show({
                 detail: 'Update Station Ids Successful',
@@ -92,7 +91,6 @@ const SchedulesDirectStationDataSelector = () => {
             }
           })
           .catch(() => {
-            setIsLoading(false);
             if (toast.current) {
               toast.current.show({
                 detail: 'Update Station Ids Failed',
@@ -101,6 +99,10 @@ const SchedulesDirectStationDataSelector = () => {
                 summary: 'Error'
               });
             }
+          })
+          .finally(() => {
+            setSelectSelectedItems([] as StationPreview[]);
+            setIsLoading(false);
           });
       }
 
@@ -116,7 +118,6 @@ const SchedulesDirectStationDataSelector = () => {
 
         RemoveStation(toSend)
           .then(() => {
-            setIsLoading(false);
             if (toast.current) {
               toast.current.show({
                 detail: 'Update Station Ids Successful',
@@ -127,7 +128,6 @@ const SchedulesDirectStationDataSelector = () => {
             }
           })
           .catch(() => {
-            setIsLoading(false);
             if (toast.current) {
               toast.current.show({
                 detail: 'Update Station Ids Failed',
@@ -136,10 +136,14 @@ const SchedulesDirectStationDataSelector = () => {
                 summary: 'Error'
               });
             }
+          })
+          .finally(() => {
+            setSelectSelectedItems([] as StationPreview[]);
+            setIsLoading(false);
           });
       }
     },
-    [schedulesDirectGetSelectedStationIdsQuery.data]
+    [schedulesDirectGetSelectedStationIdsQuery.data, setSelectSelectedItems]
   );
 
   function imageBodyTemplate(data: StationPreview) {

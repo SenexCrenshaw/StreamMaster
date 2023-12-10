@@ -2,13 +2,9 @@
 
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 
-using StreamMasterDomain.Cache;
-using StreamMasterDomain.Common;
-using StreamMasterDomain.Dto;
-
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
-{ 
+{
     public async Task<StationChannelMap?> GetStationChannelMapAsync(string lineup)
     {
         StationChannelMap? ret = await schedulesDirectAPI.GetApiResponse<StationChannelMap?>(APIMethod.GET, $"lineups/{lineup}");
@@ -24,10 +20,10 @@ public partial class SchedulesDirect
         return ret;
     }
 
-    public async Task<Dictionary<string, Dictionary<string, ScheduleMd5Response>>?> GetScheduleMd5sAsync(ScheduleRequest[] request)
+    public async Task<Dictionary<string, Dictionary<string, ScheduleMd5Response>>?> GetScheduleMd5sAsync(ScheduleRequest[] request, CancellationToken cancellationToken)
     {
         DateTime dtStart = DateTime.Now;
-        Dictionary<string, Dictionary<string, ScheduleMd5Response>>? ret = await schedulesDirectAPI.GetApiResponse<Dictionary<string, Dictionary<string, ScheduleMd5Response>>>(APIMethod.POST, "schedules/md5", request);
+        Dictionary<string, Dictionary<string, ScheduleMd5Response>>? ret = await schedulesDirectAPI.GetApiResponse<Dictionary<string, Dictionary<string, ScheduleMd5Response>>>(APIMethod.POST, "schedules/md5", request, cancellationToken);
         if (ret != null)
         {
             logger.LogDebug($"Successfully retrieved Md5s for {ret.Count}/{request.Length} stations' daily schedules. ({DateTime.Now - dtStart:G})");

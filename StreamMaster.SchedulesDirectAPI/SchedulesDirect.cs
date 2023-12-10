@@ -14,7 +14,6 @@ namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect : ISchedulesDirect
 {
     public static readonly int MAX_RETRIES = 3;
-    public bool IsSyncing { get; set; }
     private readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
     private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
     private readonly SemaphoreSlim _syncSemaphore = new(1, 1);
@@ -50,47 +49,32 @@ public partial class SchedulesDirect : ISchedulesDirect
 
     public async Task<bool> SDSync(CancellationToken cancellationToken)
     {
-        if (IsSyncing)
-        {
-            logger.LogWarning("Schedules Direct already Syncing");
-            return false;
-        }
 
         try
         {
             await _syncSemaphore.WaitAsync(cancellationToken);
 
-            if (IsSyncing)
+            int maxRetry = 3;
+            int retryCount = 0;
+            while (!CheckToken() && retryCount++ < maxRetry)
             {
-                logger.LogWarning("Schedules Direct already Syncing");
+                await Task.Delay(1000, cancellationToken);
+            }
+
+            if (!CheckToken())
+            {
                 return false;
             }
 
-            IsSyncing = true;
-            //if (!await EnsureToken(cancellationToken).ConfigureAwait(false))
-            //{
-            //    logger.LogWarning("Schedules Direct Token Not Ready");
-            //    IsSyncing = false;
-            //    return false;
-            //}
-            //UserStatus status = await GetStatus(cancellationToken);
-
-            //if (!await GetSystemReady(cancellationToken))
-            //{
-            //    logger.LogWarning("Schedules Direct Not Ready");
-            //    IsSyncing = false;
-            //    return false;
-            //}
-
             //var startTime = DateTime.UtcNow;
-            var setting = memoryCache.GetSetting();
+            Setting setting = memoryCache.GetSetting();
             logger.LogInformation($"DaysToDownload: {setting.SDSettings.SDEPGDays}");
 
             // load cache file
             epgCache.LoadCache();
             if (
                  await BuildLineupServices(cancellationToken) &&
-                    await GetAllScheduleEntryMd5S(setting.SDSettings.SDEPGDays) &&
+                    await GetAllScheduleEntryMd5S(cancellationToken) &&
                     BuildAllProgramEntries() &&
                     BuildAllGenericSeriesInfoDescriptions() &&
                     await GetAllMoviePosters(cancellationToken) &&
@@ -109,11 +93,14 @@ public partial class SchedulesDirect : ISchedulesDirect
                 //}
 
                 logger.LogInformation("Completed Schedules Direct update execution. SUCCESS.");
-                IsSyncing = false;
                 return true;
             }
-            //StationLogosToDownload = [];
-            IsSyncing = false;
+            //StationLogosToDownload = [];            
+            return false;
+        }
+        catch (OperationCanceledException)
+        {
+            // Handle cancellation
             return false;
         }
         finally
@@ -124,25 +111,25 @@ public partial class SchedulesDirect : ISchedulesDirect
 
     private void WriteXmltv(XMLTV xmltv)
     {
-        var fileName = Path.Combine(BuildInfo.SDCacheFolder, "epg123.xmltv");
+        string fileName = Path.Combine(BuildInfo.SDCacheFolder, "epg123.xmltv");
         if (!FileUtil.WriteXmlFile(xmltv, fileName))
         {
             return;
         }
 
-        var fi = new FileInfo(fileName);
-        var imageCount = xmltv.Programs.SelectMany(program => program.Icons?.Select(icon => icon.Src) ?? new List<string>()).Distinct().Count();
+        FileInfo fi = new(fileName);
+        int imageCount = xmltv.Programs.SelectMany(program => program.Icons?.Select(icon => icon.Src) ?? new List<string>()).Distinct().Count();
         logger.LogInformation($"Completed save of the XMLTV file to \"{fileName}\". ({FileUtil.BytesToString(fi.Length)})");
         logger.LogDebug($"Generated XMLTV file contains {xmltv.Channels.Count} channels and {xmltv.Programs.Count} programs with {imageCount} distinct program image links.");
     }
 
     private void CreateDummLineupChannel()
     {
-        var mxfService = schedulesDirectData.FindOrCreateService("DUMMY");
+        MxfService mxfService = schedulesDirectData.FindOrCreateService("DUMMY");
         mxfService.CallSign = "DUMMY";
         mxfService.Name = "DUMMY Station";
 
-        var mxfLineup = schedulesDirectData.FindOrCreateLineup("ZZZ-DUMMY-EPG123", "ZZZ123 Dummy Lineup");
+        MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup("ZZZ-DUMMY-EPG123", "ZZZ123 Dummy Lineup");
         mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
     }
 
@@ -230,8 +217,8 @@ public partial class SchedulesDirect : ISchedulesDirect
         }
     }
 
-    public void CheckToken()
+    public bool CheckToken(bool forceReset = false)
     {
-        schedulesDirectAPI.CheckToken();
+        return schedulesDirectAPI.CheckToken(forceReset);
     }
 }

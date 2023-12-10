@@ -4,10 +4,6 @@ using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterDomain.Common;
 
-using System.Globalization;
-using System.IO;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -16,14 +12,17 @@ namespace StreamMaster.SchedulesDirectAPI;
 
 public partial class SchedulesDirect
 {
-    private  readonly Dictionary<string, string[]> ScheduleEntries = [];
-    private  int cachedSchedules;
-    private  int downloadedSchedules;
-    private  List<string> suppressedPrefixes = [];
-    private  int missingGuide;
+    private readonly Dictionary<string, string[]> ScheduleEntries = [];
+    private int cachedSchedules;
+    private int downloadedSchedules;
+    private List<string> suppressedPrefixes = [];
+    private int missingGuide;
 
-    private async Task<bool> GetAllScheduleEntryMd5S(int days = 1)
+    private async Task<bool> GetAllScheduleEntryMd5S(CancellationToken cancellationToken)
     {
+        Setting settings = await settingsService.GetSettingsAsync(cancellationToken);
+        int days = settings.SDSettings.SDEPGDays;
+        days = Math.Clamp(days, 1, 14);
 
         logger.LogInformation($"Entering GetAllScheduleEntryMd5s() for {days} days on {schedulesDirectData.Services.Count} stations.");
         if (days <= 0)
@@ -33,7 +32,7 @@ public partial class SchedulesDirect
         }
 
         // populate station prefixes to suppress
-       // suppressedPrefixes = new List<string>(config.SuppressStationEmptyWarnings.Split(','));
+        // suppressedPrefixes = new List<string>(config.SuppressStationEmptyWarnings.Split(','));
 
         // reset counter
         processedObjects = 0;
@@ -41,30 +40,34 @@ public partial class SchedulesDirect
         ++processStage;
 
         // build date array for requests
-        var dt = DateTime.UtcNow;
+        DateTime dt = DateTime.UtcNow;
 
         // build the date array to request
-        var dates = new string[days];
-        for (var i = 0; i < dates.Length; ++i)
+        string[] dates = new string[days];
+        for (int i = 0; i < dates.Length; ++i)
         {
             dates[i] = dt.ToString("yyyy-MM-dd");
             dt = dt.AddDays(1.0);
         }
 
         // maximum 5000 queries at a time
-        for (var i = 0; i < schedulesDirectData.Services.Count; i += MaxQueries / dates.Length)
+        for (int i = 0; i < schedulesDirectData.Services.Count; i += MaxQueries / dates.Length)
         {
-            if (await GetMd5ScheduleEntries(dates, i)) continue;
+            if (await GetMd5ScheduleEntries(dates, i, cancellationToken))
+            {
+                continue;
+            }
+
             logger.LogError("Problem occurred during GetMd5ScheduleEntries(). Exiting.");
             return false;
         }
         logger.LogDebug($"Found {cachedSchedules} cached daily schedules.");
         logger.LogDebug($"Downloaded {downloadedSchedules} daily schedules.");
 
-        var missing = (double)missingGuide / schedulesDirectData.Services.Count;
-        if (missing > 0.1 )
+        double missing = (double)missingGuide / schedulesDirectData.Services.Count;
+        if (missing > 0.1)
         {
-           logger.LogError($"{100 * missing:N1}% of all stations are missing guide data. Aborting update.");
+            logger.LogError($"{100 * missing:N1}% of all stations are missing guide data. Aborting update.");
             return false;
         }
 
@@ -74,7 +77,7 @@ public partial class SchedulesDirect
         ++processStage;
 
         // process all schedules
-        foreach (var md5 in ScheduleEntries.Keys)
+        foreach (string md5 in ScheduleEntries.Keys)
         {
             ++processedObjects;
             ProcessMd5ScheduleEntry(md5);
@@ -84,14 +87,17 @@ public partial class SchedulesDirect
         return true;
     }
 
-    private  async Task<bool> GetMd5ScheduleEntries(string[] dates, int start)
+    private async Task<bool> GetMd5ScheduleEntries(string[] dates, int start, CancellationToken cancellationToken)
     {
         // reject 0 requests
-        if (schedulesDirectData.Services.Count - start < 1) return true;
+        if (schedulesDirectData.Services.Count - start < 1)
+        {
+            return true;
+        }
 
         // build request for station schedules
-        var requests = new ScheduleRequest[Math.Min(schedulesDirectData.Services.Count - start, MaxQueries / dates.Length)];
-        for (var i = 0; i < requests.Length; ++i)
+        ScheduleRequest[] requests = new ScheduleRequest[Math.Min(schedulesDirectData.Services.Count - start, MaxQueries / dates.Length)];
+        for (int i = 0; i < requests.Length; ++i)
         {
             requests[i] = new ScheduleRequest()
             {
@@ -101,44 +107,47 @@ public partial class SchedulesDirect
         }
 
         // request schedule md5s from Schedules Direct
-        var stationResponses = await GetScheduleMd5sAsync(requests);
-        if (stationResponses == null) return false;
+        Dictionary<string, Dictionary<string, ScheduleMd5Response>>? stationResponses = await GetScheduleMd5sAsync(requests, cancellationToken);
+        if (stationResponses == null)
+        {
+            return false;
+        }
 
         // build request of daily schedules not downloaded yet
-        var newRequests = new List<ScheduleRequest>();
-        foreach (var request in requests)
+        List<ScheduleRequest> newRequests = [];
+        foreach (ScheduleRequest request in requests)
         {
-            var requestErrors = new Dictionary<int, string>();
-            var mxfService = schedulesDirectData.FindOrCreateService(request.StationId);
-            if (stationResponses.TryGetValue(request.StationId, out var stationResponse))
+            Dictionary<int, string> requestErrors = [];
+            MxfService mxfService = schedulesDirectData.FindOrCreateService(request.StationId);
+            if (stationResponses.TryGetValue(request.StationId, out Dictionary<string, ScheduleMd5Response>? stationResponse))
             {
                 // if the station return is empty, go to next station
                 if (stationResponse.Count == 0)
                 {
-                    var comment = $"Failed to parse the schedule Md5 return for stationId {mxfService.StationId} ({mxfService.CallSign}) on {dates[0]} and after.";
+                    string comment = $"Failed to parse the schedule Md5 return for stationId {mxfService.StationId} ({mxfService.CallSign}) on {dates[0]} and after.";
                     //if (CheckSuppressWarnings(mxfService.CallSign))
                     //{
                     //    logger.LogInformation(comment);
                     //}
                     //else
                     //{
-                        logger.LogWarning(comment);
-                        ++missingGuide;
+                    logger.LogWarning(comment);
+                    ++missingGuide;
                     //}
-                    processedObjects += dates.Length; 
+                    processedObjects += dates.Length;
                     continue;
                 }
 
                 // scan through all the dates returned for the station and request dates that are not cached
-                var newDateRequests = new List<string>();
-                var dupeMd5s = new HashSet<string>();
-                foreach (var day in dates)
+                List<string> newDateRequests = [];
+                HashSet<string> dupeMd5s = [];
+                foreach (string day in dates)
                 {
-                    if (stationResponse.TryGetValue(day, out var dayResponse) && (dayResponse.Code == 0) && !string.IsNullOrEmpty(dayResponse.Md5))
+                    if (stationResponse.TryGetValue(day, out ScheduleMd5Response? dayResponse) && (dayResponse.Code == 0) && !string.IsNullOrEmpty(dayResponse.Md5))
                     {
                         if (epgCache.JsonFiles.ContainsKey(dayResponse.Md5))
                         {
-                            ++processedObjects; 
+                            ++processedObjects;
                             ++cachedSchedules;
                         }
                         else
@@ -152,8 +161,8 @@ public partial class SchedulesDirect
                         }
                         else
                         {
-                            var previous = ScheduleEntries[dayResponse.Md5][1];
-                            var comment = $"Duplicate schedule Md5 return for stationId {mxfService.StationId} ({mxfService.CallSign}) on {day} with {previous}.";
+                            string previous = ScheduleEntries[dayResponse.Md5][1];
+                            string comment = $"Duplicate schedule Md5 return for stationId {mxfService.StationId} ({mxfService.CallSign}) on {day} with {previous}.";
                             logger.LogWarning(comment);
                             dupeMd5s.Add(dayResponse.Md5);
                         }
@@ -165,10 +174,10 @@ public partial class SchedulesDirect
                 }
 
                 // clear out dupe entries
-                foreach (var dupe in dupeMd5s)
+                foreach (string dupe in dupeMd5s)
                 {
-                    var previous = ScheduleEntries[dupe][1];
-                    var comment = $"Removing duplicate Md5 schedule entry for stationId {mxfService.StationId} ({mxfService.CallSign}) on {previous}.";
+                    string previous = ScheduleEntries[dupe][1];
+                    string comment = $"Removing duplicate Md5 schedule entry for stationId {mxfService.StationId} ({mxfService.CallSign}) on {previous}.";
                     logger.LogWarning(comment);
                     ScheduleEntries.Remove(dupe);
                 }
@@ -187,29 +196,36 @@ public partial class SchedulesDirect
             {
                 // requested station was not in response
                 logger.LogWarning($"Requested stationId {mxfService.StationId} ({mxfService.CallSign}) was not present in schedule Md5 response.");
-                processedObjects += dates.Length; 
+                processedObjects += dates.Length;
                 continue;
             }
 
-            if (requestErrors.Count <= 0) continue;
-            foreach (var keyValuePair in requestErrors)
+            if (requestErrors.Count <= 0)
+            {
+                continue;
+            }
+
+            foreach (KeyValuePair<int, string> keyValuePair in requestErrors)
             {
                 logger.LogWarning($"Requests for MD5 schedule entries of station {request.StationId} returned error code {keyValuePair.Key} , message: {keyValuePair.Value}");
             }
         }
-        
+
 
         // download the remaining daily schedules to the cache directory
         if (newRequests.Count > 0)
         {
             // request daily schedules from Schedules Direct
-            var responses = await GetScheduleListingsAsync([.. newRequests]);
-            if (responses == null) return false;
+            List<ScheduleResponse>? responses = await GetScheduleListingsAsync([.. newRequests]);
+            if (responses == null)
+            {
+                return false;
+            }
 
             // process the responses
-            foreach (var response in responses)
+            foreach (ScheduleResponse response in responses)
             {
-                ++processedObjects; 
+                ++processedObjects;
                 if (response?.Programs == null)
                 {
                     continue;
@@ -217,11 +233,11 @@ public partial class SchedulesDirect
                 ++downloadedSchedules;
 
                 // serialize JSON directly to a file
-                if (ScheduleEntries.TryGetValue(response.Metadata.Md5, out var serviceDate))
+                if (ScheduleEntries.TryGetValue(response.Metadata.Md5, out string[]? serviceDate))
                 {
                     try
                     {
-                        var jsonSerializerOptions = new JsonSerializerOptions
+                        JsonSerializerOptions jsonSerializerOptions = new()
                         {
                             // Add any desired JsonSerializerOptions here
                             // For example, to ignore null values during serialization:
@@ -241,7 +257,7 @@ public partial class SchedulesDirect
                 {
                     try
                     {
-                        var compare = ScheduleEntries
+                        KeyValuePair<string, string[]> compare = ScheduleEntries
                             .Where(arg => arg.Value[0].Equals(response.StationId))
                             .Single(arg => arg.Value[1].Equals(response.Metadata.StartDate));
                         logger.LogWarning($"Md5 mismatch for station {compare.Value[0]} on {compare.Value[1]}. Expected: {compare.Key} - Downloaded: {response.Metadata.Md5}");
@@ -253,11 +269,11 @@ public partial class SchedulesDirect
                 }
             }
         }
-        
+
         return true;
     }
 
-    private  void ProcessMd5ScheduleEntry(string md5)
+    private void ProcessMd5ScheduleEntry(string md5)
     {
         // ensure cached file exists
         if (!epgCache.JsonFiles.ContainsKey(md5))
@@ -269,15 +285,15 @@ public partial class SchedulesDirect
         ScheduleResponse schedule;
         try
         {
-            var jsonSerializerOptions = new JsonSerializerOptions
+            JsonSerializerOptions jsonSerializerOptions = new()
             {
                 // Add any desired JsonSerializerOptions here
                 // For example, to ignore null values during deserialization:
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             };
 
-            using var reader = new StringReader(epgCache.GetAsset(md5));
-            var jsonString = reader.ReadToEnd();
+            using StringReader reader = new(epgCache.GetAsset(md5));
+            string jsonString = reader.ReadToEnd();
             schedule = JsonSerializer.Deserialize<ScheduleResponse>(jsonString, jsonSerializerOptions);
             if (schedule == null)
             {
@@ -293,19 +309,22 @@ public partial class SchedulesDirect
 
 
         // determine which service entry applies to
-        var mxfService = schedulesDirectData.FindOrCreateService(schedule.StationId);
+        MxfService mxfService = schedulesDirectData.FindOrCreateService(schedule.StationId);
 
         // process each program schedule entry
-        foreach (var scheduleProgram in schedule.Programs)
+        foreach (ScheduleProgram scheduleProgram in schedule.Programs)
         {
             // limit requests to airing programs now or in the future
-            if (scheduleProgram.AirDateTime + TimeSpan.FromSeconds(scheduleProgram.Duration) < DateTime.UtcNow) continue;
+            if (scheduleProgram.AirDateTime + TimeSpan.FromSeconds(scheduleProgram.Duration) < DateTime.UtcNow)
+            {
+                continue;
+            }
 
             // prepopulate some of the program
-            var mxfProgram = schedulesDirectData.FindOrCreateProgram(scheduleProgram.ProgramId);
+            MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(scheduleProgram.ProgramId);
             if (mxfProgram.extras.Count == 0)
             {
-                mxfProgram.UidOverride = $"{scheduleProgram.ProgramId.Substring(0, 10)}_{scheduleProgram.ProgramId.Substring(10)}";
+                mxfProgram.UidOverride = $"{scheduleProgram.ProgramId[..10]}_{scheduleProgram.ProgramId[10..]}";
                 mxfProgram.extras.Add("md5", scheduleProgram.Md5);
                 if (scheduleProgram.Multipart?.PartNumber > 0)
                 {
@@ -316,24 +335,31 @@ public partial class SchedulesDirect
                 //    mxfProgram.extras.Add("newAirDate", scheduleProgram.AirDateTime.ToLocalTime());
                 //}
             }
-            mxfProgram.IsSeasonFinale |= scheduleProgram.IsPremiereOrFinale.StringContains( "Season Finale");
-            mxfProgram.IsSeasonPremiere |= scheduleProgram.IsPremiereOrFinale.StringContains( "Season Premiere");
+            mxfProgram.IsSeasonFinale |= scheduleProgram.IsPremiereOrFinale.StringContains("Season Finale");
+            mxfProgram.IsSeasonPremiere |= scheduleProgram.IsPremiereOrFinale.StringContains("Season Premiere");
             mxfProgram.IsSeriesFinale |= scheduleProgram.IsPremiereOrFinale.StringContains("Series Finale");
             mxfProgram.IsSeriesPremiere |= scheduleProgram.IsPremiereOrFinale.StringContains("Series Premiere");
-            if (!mxfProgram.extras.ContainsKey("premiere")) mxfProgram.extras.Add("premiere", false);
-            if (scheduleProgram.Premiere) mxfProgram.extras["premiere"] = true; // used only for movie and miniseries premieres
+            if (!mxfProgram.extras.ContainsKey("premiere"))
+            {
+                mxfProgram.extras.Add("premiere", false);
+            }
+
+            if (scheduleProgram.Premiere)
+            {
+                mxfProgram.extras["premiere"] = true; // used only for movie and miniseries premieres
+            }
 
             // grab any tvratings from desired countries
-            var scheduleTvRatings = new Dictionary<string, string>();
+            Dictionary<string, string> scheduleTvRatings = [];
             if (scheduleProgram.Ratings != null)
             {
                 //var origins = !string.IsNullOrEmpty(config.RatingsOrigin) ? config.RatingsOrigin.Split(',') : new[] { RegionInfo.CurrentRegion.ThreeLetterISORegionName };
                 //if (Helper.TableContains(origins, "ALL"))
                 //{
-                    foreach (var rating in scheduleProgram.Ratings)
-                    {
-                        scheduleTvRatings.Add(rating.Body, rating.Code);
-                    }
+                foreach (ScheduleTvRating rating in scheduleProgram.Ratings)
+                {
+                    scheduleTvRatings.Add(rating.Body, rating.Code);
+                }
                 //}
                 //else
                 //{
@@ -360,7 +386,7 @@ public partial class SchedulesDirect
                 IsDelay = scheduleProgram.LiveTapeDelay.StringContains("delay"),
                 IsDvs = SDHelpers.TableContains(scheduleProgram.AudioProperties, "dvs"),
                 IsEnhanced = SDHelpers.TableContains(scheduleProgram.VideoProperties, "enhanced"),
-                IsFinale = scheduleProgram.IsPremiereOrFinale.StringContains( "finale"),
+                IsFinale = scheduleProgram.IsPremiereOrFinale.StringContains("finale"),
                 IsHdtv = SDHelpers.TableContains(scheduleProgram.VideoProperties, "hd"),
                 //IsHdtvSimulCast = null,
                 IsInProgress = scheduleProgram.JoinedInProgress,
@@ -371,7 +397,7 @@ public partial class SchedulesDirect
                 IsRepeat = !scheduleProgram.New,
                 IsSap = SDHelpers.TableContains(scheduleProgram.AudioProperties, "sap"),
                 IsSubtitled = SDHelpers.TableContains(scheduleProgram.AudioProperties, "subtitled"),
-                IsTape = scheduleProgram.LiveTapeDelay.StringContains( "tape"),
+                IsTape = scheduleProgram.LiveTapeDelay.StringContains("tape"),
                 Part = scheduleProgram.Multipart?.PartNumber ?? 0,
                 Parts = scheduleProgram.Multipart?.TotalParts ?? 0,
                 mxfProgram = mxfProgram,
@@ -383,11 +409,15 @@ public partial class SchedulesDirect
         }
     }
 
-    private  int EncodeAudioFormat(string[] audioProperties)
+    private int EncodeAudioFormat(string[] audioProperties)
     {
-        var maxValue = 0;
-        if (audioProperties == null) return maxValue;
-        foreach (var property in audioProperties)
+        int maxValue = 0;
+        if (audioProperties == null)
+        {
+            return maxValue;
+        }
+
+        foreach (string property in audioProperties)
         {
             switch (property.ToLower())
             {
@@ -407,7 +437,7 @@ public partial class SchedulesDirect
         return maxValue;
     }
 
-        private static string SafeFilename(string md5)
+    private static string SafeFilename(string md5)
     {
         return md5 == null ? null : Regex.Replace(md5, @"[^\w\.@-]", "-");
     }
