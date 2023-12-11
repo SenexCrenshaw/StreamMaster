@@ -182,6 +182,7 @@ const SchedulesDirectStationDataSelector = () => {
           defaultSortField="name"
           disableSelectAll
           emptyMessage="No Line Ups"
+          enableState={false}
           headerName="Line Up Preview"
           id="SchedulesDirectStationDataSelector"
           isLoading={stationPreviews.isLoading || isLoading}

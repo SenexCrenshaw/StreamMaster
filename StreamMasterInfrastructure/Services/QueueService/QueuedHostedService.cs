@@ -90,8 +90,8 @@ public sealed class QueuedHostedService : BackgroundService
                             _ = await _sender.Send(new ProcessEPGFileRequest((int)command.Entity), cancellationToken).ConfigureAwait(false);
                         }
                         break;
-                    case SMQueCommand.SDSync:
-                        await _sender.Send(new SDSync(), cancellationToken).ConfigureAwait(false);
+                    case SMQueCommand.EPGSync:
+                        await _sender.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.UpdateChannelGroupCounts:

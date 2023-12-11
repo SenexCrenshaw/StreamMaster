@@ -182,6 +182,62 @@ public static class CacheManagerExtensions
         return cache.GetFromCache<bool?>(IsSystemReadyConfig.Key) ?? false;
     }
 
+    public static JobStatus GetSyncJobStatus(this IMemoryCache cache)
+    {
+        JobStatus? ret = cache.GetFromCache<JobStatus?>(EPGSyncConfig.Key);
+        if (ret is null)
+        {
+            ret = new JobStatus();
+            cache.SetSyncJobStatus(ret);
+        }
+        return ret;
+    }
+
+    public static void SetSyncSuccessful(this IMemoryCache cache)
+    {
+        lock (EPGSyncConfig.Lock)
+        {
+            JobStatus jobStatus = cache.GetSyncJobStatus();
+            jobStatus.LastRun = DateTime.Now;
+            jobStatus.IsRunning = false;
+            jobStatus.LastSuccessful = jobStatus.LastRun;
+            jobStatus.ForceNextRun = false;
+            cache.Set(EPGSyncConfig.Key, jobStatus, EPGSyncConfig.CacheEntryOptions);
+        }
+    }
+    public static void SetSyncError(this IMemoryCache cache)
+    {
+        lock (EPGSyncConfig.Lock)
+        {
+            JobStatus jobStatus = cache.GetSyncJobStatus();
+            jobStatus.LastRun = DateTime.Now;
+            jobStatus.LastError = jobStatus.LastRun;
+            jobStatus.IsRunning = false;
+            jobStatus.ForceNextRun = false;
+            cache.Set(EPGSyncConfig.Key, jobStatus, EPGSyncConfig.CacheEntryOptions);
+        }
+    }
+
+
+    public static void SetSyncForceNextRun(this IMemoryCache cache)
+    {
+        lock (EPGSyncConfig.Lock)
+        {
+            JobStatus jobStatus = cache.GetSyncJobStatus();
+            jobStatus.ForceNextRun = true;
+            cache.Set(EPGSyncConfig.Key, jobStatus, EPGSyncConfig.CacheEntryOptions);
+        }
+    }
+
+
+    private static void SetSyncJobStatus(this IMemoryCache cache, JobStatus value)
+    {
+        lock (SettingConfig.Lock)
+        {
+            _ = cache.Set(EPGSyncConfig.Key, value, EPGSyncConfig.CacheEntryOptions);
+        }
+    }
+
     //public static SDTokenFile? GetSDToken(this IMemoryCache cache)
     //{
     //    return cache.GetFromCache<SDTokenFile>(SDTokenConfig.Key);
@@ -244,7 +300,7 @@ public static class CacheManagerExtensions
             }
         }
 
-        var ret = new List<T>();
+        List<T> ret = [];
         _ = cache.Set(key, ret, NeverRemoveCacheEntryOptions);
         return ret;
     }
@@ -280,7 +336,7 @@ public static class CacheManagerExtensions
     {
         lock (SettingConfig.Lock)
         {
-            _ = cache.Set(SettingConfig.Key, setting, TVLogosConfig.CacheEntryOptions);
+            _ = cache.Set(SettingConfig.Key, setting, SettingConfig.CacheEntryOptions);
         }
     }
 

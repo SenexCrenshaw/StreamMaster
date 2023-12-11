@@ -1,9 +1,9 @@
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
-import { useSchedulesDirectGetLineupPreviewChannelQuery } from '@lib/iptvApi';
-import { skipToken } from '@reduxjs/toolkit/query';
+import { LineupPreviewChannel } from '@lib/iptvApi';
+import { GetLineupPreviewChannel } from '@lib/smAPI/SchedulesDirect/SchedulesDirectGetAPI';
 import { Dialog } from 'primereact/dialog';
-import { memo, useMemo } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 
 type SchedulesDirectLineupPreviewChannelProps = {
   lineup: string | undefined;
@@ -12,9 +12,21 @@ type SchedulesDirectLineupPreviewChannelProps = {
 };
 
 const SchedulesDirectLineupPreviewChannel = ({ children, lineup, onHide }: SchedulesDirectLineupPreviewChannelProps) => {
-  const getPreviewQuery = useSchedulesDirectGetLineupPreviewChannelQuery(lineup ? lineup : skipToken);
+  const [dataSource, setDataSource] = useState<LineupPreviewChannel[]>([]);
 
-  // const [reset, setReset] = useState<boolean>(false);
+  useEffect(() => {
+    if (!lineup) {
+      return;
+    }
+
+    GetLineupPreviewChannel({ lineup: lineup })
+      .then((data) => {
+        setDataSource(data ?? []);
+      })
+      .catch((error) => {
+        setDataSource([]);
+      });
+  }, [lineup]);
 
   const columns = useMemo(
     (): ColumnMeta[] => [
@@ -42,9 +54,9 @@ const SchedulesDirectLineupPreviewChannel = ({ children, lineup, onHide }: Sched
       >
         <div className="flex grid flex-col">
           <DataSelector
-            isLoading={getPreviewQuery.isLoading}
+            // isLoading={getPreviewQuery.isLoading}
             columns={columns}
-            dataSource={getPreviewQuery.data}
+            dataSource={dataSource}
             defaultSortField="name"
             disableSelectAll
             emptyMessage="No Line Ups"

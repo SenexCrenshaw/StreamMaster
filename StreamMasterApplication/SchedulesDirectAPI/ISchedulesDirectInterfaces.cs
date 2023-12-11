@@ -17,7 +17,7 @@ public interface ISchedulesDirectController
     Task<ActionResult<bool>> RemoveStation(RemoveStation request);
     Task<ActionResult<bool>> RemoveLineup(RemoveLineup request);
 
-    Task<ActionResult<List<LineupPreviewChannel>>> GetLineupPreviewChannel(string Lineup);
+    Task<ActionResult<List<LineupPreviewChannel>>> GetLineupPreviewChannel(GetLineupPreviewChannel request);
     //Task<ActionResult<List<string>>> GetLineupNames();
 
     //Task<ActionResult<Country?>> GetCountry();
@@ -26,7 +26,7 @@ public interface ISchedulesDirectController
 
     //Task<ActionResult<List<Programme>>> GetSDPrograms();
 
-    Task<ActionResult<List<HeadendDto>>> GetHeadends(string country, string postalCode);
+    Task<ActionResult<List<HeadendDto>>> GetHeadends(GetHeadends request);
     Task<ActionResult<List<SubscribedLineup>>> GetLineups();
 
 
@@ -48,13 +48,9 @@ public interface ISchedulesDirectController
 
 }
 
-public interface ISchedulesDirectDB
-{
-}
-
 public interface ISchedulesDirectHub
 {
-    Task<List<LineupPreviewChannel>> GetLineupPreviewChannel(string Lineup);
+    Task<List<LineupPreviewChannel>> GetLineupPreviewChannel(GetLineupPreviewChannel request);
     Task<bool> AddLineup(AddLineup request);
     Task<bool> AddStation(AddStation request);
 
@@ -73,7 +69,7 @@ public interface ISchedulesDirectHub
 
     //Task<List<Programme>> GetSDPrograms();
 
-    Task<List<HeadendDto>> GetHeadends(string country, string postalCode);
+    Task<List<HeadendDto>> GetHeadends(GetHeadends request);
 
     //Task<LineupPreviewChannel> GetLineup(string lineup);
 
@@ -93,8 +89,4 @@ public interface ISchedulesDirectHub
     Task<StationChannelName?> GetStationChannelNameFromDisplayName(GetStationChannelNameFromDisplayName request);
 
     Task<UserStatus> GetUserStatus();
-}
-
-public interface ISchedulesDirectTasks
-{
 }

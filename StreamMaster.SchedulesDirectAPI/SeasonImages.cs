@@ -9,12 +9,12 @@ using System.Text.Json;
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
 {
-    private readonly List<MxfSeason> seasons = [];
+    private List<MxfSeason> seasons = [];
     private List<string> seasonImageQueue = [];
     private ConcurrentBag<ProgramMetadata> seasonImageResponses = [];
     private async Task<bool> GetAllSeasonImages(CancellationToken cancellationToken)
     {
-        var settings = memoryCache.GetSetting();
+        StreamMasterDomain.Common.Setting settings = memoryCache.GetSetting();
 
         // reset counters
         seasonImageQueue = [];
@@ -27,10 +27,10 @@ public partial class SchedulesDirect
 
 
         // scan through each series in the mxf
-        logger.LogInformation($"Entering GetAllSeasonImages() for {totalObjects} seasons.");
-        foreach (var season in schedulesDirectData.SeasonsToProcess)
+        logger.LogInformation("Entering GetAllSeasonImages() for {totalObjects} seasons.", schedulesDirectData.SeasonsToProcess.Count);
+        foreach (MxfSeason season in schedulesDirectData.SeasonsToProcess)
         {
-            var uid = $"{season.SeriesId}_{season.SeasonNumber}";
+            string uid = $"{season.SeriesId}_{season.SeasonNumber}";
             if (epgCache.JsonFiles.ContainsKey(uid) && !string.IsNullOrEmpty(epgCache.JsonFiles[uid].Images))
             {
                 epgCache.JsonFiles[uid].Current = true;
@@ -41,7 +41,7 @@ public partial class SchedulesDirect
                 }
 
                 List<ProgramArtwork> artwork;
-                using (var reader = new StringReader(epgCache.JsonFiles[uid].Images))
+                using (StringReader reader = new(epgCache.JsonFiles[uid].Images))
                 {
                     season.extras.Add("artwork", artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(reader.ReadToEnd()));
                 }
@@ -86,7 +86,7 @@ public partial class SchedulesDirect
     private void ProcessSeasonImageResponses()
     {
         // process request response
-        foreach (var response in seasonImageResponses)
+        foreach (ProgramMetadata response in seasonImageResponses)
         {
             //IncrementProgress();
             if (response.Data == null)
@@ -94,7 +94,7 @@ public partial class SchedulesDirect
                 continue;
             }
 
-            var season = seasons.SingleOrDefault(arg => arg.ProtoTypicalProgram == response.ProgramId);
+            MxfSeason? season = seasons.SingleOrDefault(arg => arg.ProtoTypicalProgram == response.ProgramId);
             if (season == null)
             {
                 continue;
@@ -105,7 +105,7 @@ public partial class SchedulesDirect
             season.extras.Add("artwork", artwork = SDHelpers.GetTieredImages(response.Data, ["season"]));
 
             // create a season entry in cache
-            var uid = $"{season.SeriesId}_{season.SeasonNumber}";
+            string uid = $"{season.SeriesId}_{season.SeasonNumber}";
             if (!epgCache.JsonFiles.ContainsKey(uid))
             {
                 epgCache.AddAsset(uid, null);

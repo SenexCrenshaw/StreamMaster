@@ -4,14 +4,14 @@ namespace StreamMaster.SchedulesDirectAPI.Data;
 
 public partial class SchedulesDirectData
 {
-    [XmlIgnore] public List<MxfSeason> SeasonsToProcess { get; set; } =[];
+    [XmlIgnore] public List<MxfSeason> SeasonsToProcess { get; set; } = [];
 
-    private readonly Dictionary<string, MxfSeason> _seasons = [];
+    private Dictionary<string, MxfSeason> _seasons = [];
     public MxfSeason FindOrCreateSeason(string seriesId, int seasonNumber, string protoTypicalProgram)
     {
-        if (_seasons.TryGetValue($"{seriesId}_{seasonNumber}", out var season))
+        if (_seasons.TryGetValue($"{seriesId}_{seasonNumber}", out MxfSeason? season))
         {
-            season.ProtoTypicalProgram = season.ProtoTypicalProgram ?? protoTypicalProgram;
+            season.ProtoTypicalProgram ??= protoTypicalProgram;
             return season;
         }
         Seasons.Add(season = new MxfSeason(Seasons.Count + 1, FindOrCreateSeriesInfo(seriesId), seasonNumber, protoTypicalProgram));

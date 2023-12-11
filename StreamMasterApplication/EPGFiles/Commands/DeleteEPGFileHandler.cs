@@ -40,14 +40,14 @@ public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, I
             }
         }
 
-        var services = schedulesDirectData.Services.Where(a => a.extras.ContainsKey("epgid") && a.extras["epgid"] == epgFile.Id).ToList();
-        foreach (var service in services)
+        List<StreamMaster.SchedulesDirectAPI.Domain.Models.MxfService> services = schedulesDirectData.Services.Where(a => a.extras.ContainsKey("epgid") && a.extras["epgid"] == epgFile.Id).ToList();
+        foreach (StreamMaster.SchedulesDirectAPI.Domain.Models.MxfService? service in services)
         {
             schedulesDirectData.Services.Remove(service);
         }
 
-        var programs = schedulesDirectData.Programs.Where(a => a.extras.ContainsKey("epgid") && a.extras["epgid"] == epgFile.Id).ToList();
-        foreach (var program in programs)
+        List<StreamMaster.SchedulesDirectAPI.Domain.Models.MxfProgram> programs = schedulesDirectData.Programs.Where(a => a.extras.ContainsKey("epgid") && a.extras["epgid"] == epgFile.Id).ToList();
+        foreach (StreamMaster.SchedulesDirectAPI.Domain.Models.MxfProgram? program in programs)
         {
             schedulesDirectData.Programs.Remove(program);
         }
@@ -70,7 +70,7 @@ public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, I
 
         _ = await Repository.SaveAsync().ConfigureAwait(false);
 
-        await Sender.Send(new SDSync(), cancellationToken).ConfigureAwait(false);
+        await Sender.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
 
         await Publisher.Publish(new EPGFileDeletedEvent(epgFile.Id), cancellationToken).ConfigureAwait(false);
         return epgFile.Id;

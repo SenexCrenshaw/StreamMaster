@@ -7,6 +7,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Interfaces
 {
     public interface ISchedulesDirectData
     {
+        void ResetLists();
         MxfService? GetService(string stationId);
         [XmlArrayItem("Lineup")]
         public List<MxfLineup> Lineups { get; set; }
@@ -29,5 +30,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Interfaces
         MxfGuideImage FindOrCreateGuideImage(string pathname);
         MxfLineup FindOrCreateLineup(string lineupId, string lineupName);
         MxfService FindOrCreateService(string stationId);
+        void RemoveProgram(string programId);
+        void RemoveService(string stationId);
     }
 }

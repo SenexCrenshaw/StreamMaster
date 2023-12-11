@@ -79,8 +79,6 @@ public static class ConfigureServices
 
         _ = services.AddScoped<ILogDB>(provider => provider.GetRequiredService<LogDbContext>());
 
-        _ = services.AddTransient<IDateTime, DateTimeService>();
-
         _ = services.AddSingleton<IChannelManager, ChannelManager>();
         _ = services.AddSingleton<IBroadcastService, BroadcastService>();
 

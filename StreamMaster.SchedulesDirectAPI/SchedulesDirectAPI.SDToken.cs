@@ -2,6 +2,8 @@
 
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 
+using StreamMasterDomain.Common;
+
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirectAPI
 {
@@ -16,7 +18,7 @@ public partial class SchedulesDirectAPI
     /// <returns>true if successful</returns>
     public async Task<bool> GetToken()
     {
-        var setting = memoryCache.GetSetting();
+        Setting setting = memoryCache.GetSetting();
         return await GetToken(setting.SDSettings.SDUserName, setting.SDSettings.SDPassword);
     }
 
@@ -24,7 +26,7 @@ public partial class SchedulesDirectAPI
     {
         GoodToken = false;
         TokenTimestamp = DateTime.MinValue;
-        _ = _httpClient.DefaultRequestHeaders.Remove("token");
+        //_ = _httpClient.DefaultRequestHeaders.Remove("token");
     }
 
     public async Task ResetToken()
@@ -37,6 +39,7 @@ public partial class SchedulesDirectAPI
     {
         if (tokenResponse != null && !string.IsNullOrEmpty(tokenResponse.Token))
         {
+            _httpClient.DefaultRequestHeaders.Remove("token");
             _httpClient.DefaultRequestHeaders.Add("token", tokenResponse.Token);
             Token = tokenResponse.Token;
             GoodToken = true;
@@ -46,15 +49,16 @@ public partial class SchedulesDirectAPI
         }
         else
         {
-            GoodToken = false;
-            TokenTimestamp = DateTime.MinValue;
+            //GoodToken = false;
+            //TokenTimestamp = DateTime.MinValue;
+            ClearToken();
             logger.LogError("Did not receive a response from Schedules Direct for a token request.");
         }
     }
 
     public bool CheckToken(bool forceReset = false)
     {
-        return !forceReset && DateTime.UtcNow - TokenTimestamp <= TimeSpan.FromHours(23) || GetToken().Result;
+        return (!forceReset && DateTime.UtcNow - TokenTimestamp <= TimeSpan.FromHours(23)) || GetToken().Result;
     }
 
     private async Task<bool> GetToken(string? username = null, string? password = null, bool requestNew = false, CancellationToken cancellationToken = default)
@@ -71,7 +75,7 @@ public partial class SchedulesDirectAPI
 
         ClearToken();
 
-        var ret = await GetHttpResponse<TokenResponse>(HttpMethod.Post, "token", new TokenRequest { Username = username, PasswordHash = password }, cancellationToken: cancellationToken);
+        TokenResponse? ret = await GetHttpResponse<TokenResponse>(HttpMethod.Post, "token", new TokenRequest { Username = username, PasswordHash = password }, cancellationToken: cancellationToken);
 
         return (ret?.Code ?? -1) == 0;
 

@@ -30,6 +30,34 @@ public partial class SchedulesDirectData(ILogger<SchedulesDirectData> logger, IS
         return true;
     }
 
+    public void ResetLists()
+    {
+        GuideImages = [];
+        People = [];
+        SeriesInfos = [];
+        Seasons = [];
+        Programs = [];
+        Affiliates = [];
+        Services = [];
+        ScheduleEntries = [];
+        Lineups = [];
+        ProgramsToProcess = [];
+        SeriesInfosToProcess = [];
+        SeasonsToProcess = [];
+        ServicesToProcess = [];
+
+        _affiliates = [];
+        _guideImages = [];
+        _keywordGroups = [];
+        _lineups = [];
+        _people = [];
+        _programs = [];
+        _seasons = [];
+        _seriesInfos = [];
+        _services = [];
+    }
+
+
     [XmlArrayItem("GuideImage")]
     public List<MxfGuideImage> GuideImages { get; set; } = [];
 

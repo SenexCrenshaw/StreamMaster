@@ -13,10 +13,13 @@ public partial class SchedulesDirect
     {
         // reset counters
         seriesDescriptionQueue = [];
-        seriesDescriptionResponses = new ConcurrentDictionary<string, GenericDescription>();
+        seriesDescriptionResponses = [];
         ////IncrementNextStage(mxf.SeriesInfosToProcess.Count);
         logger.LogInformation($"Entering BuildAllGenericSeriesInfoDescriptions() for {totalObjects} series.");
 
+        List<MxfSeriesInfo> a = schedulesDirectData.SeriesInfosToProcess;
+        List<MxfProgram> b = schedulesDirectData.Programs;
+        List<MxfProvider> c = schedulesDirectData.Providers;
         // fill mxf programs with cached values and queue the rest
         foreach (MxfSeriesInfo series in schedulesDirectData.SeriesInfosToProcess)
         {
@@ -36,7 +39,7 @@ public partial class SchedulesDirect
                     using StringReader reader = new(epgCache.GetAsset(seriesId));
                     GenericDescription? cached = JsonSerializer.Deserialize<GenericDescription>(reader.ReadToEnd());
 
-                    if (cached.Code == 0)
+                    if (cached is not null && cached.Code == 0)
                     {
                         series.ShortDescription = cached.Description100;
                         series.Description = cached.Description1000;
@@ -89,7 +92,7 @@ public partial class SchedulesDirect
             }
         }
         logger.LogInformation("Exiting BuildAllGenericSeriesInfoDescriptions(). SUCCESS.");
-        seriesDescriptionQueue = null; seriesDescriptionResponses = null;
+        seriesDescriptionQueue = []; seriesDescriptionResponses = [];
         return true;
     }
 
@@ -108,6 +111,11 @@ public partial class SchedulesDirect
             series[i] = seriesDescriptionQueue[start + i];
         }
 
+        IEnumerable<string> test = series.Where(string.IsNullOrEmpty);
+        if (test.Any())
+        {
+            int aaa = 1;
+        }
         // request descriptions from Schedules Direct
         Dictionary<string, GenericDescription>? responses = GetGenericDescriptionsAsync(series, CancellationToken.None).Result;
         if (responses != null)

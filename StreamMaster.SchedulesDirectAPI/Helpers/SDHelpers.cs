@@ -29,14 +29,14 @@ public static partial class SDHelpers
             const double tgtAspect = 3.0;
 
             // Find the min/max non-transparent pixels
-            var min = new Point(int.MaxValue, int.MaxValue);
-            var max = new Point(int.MinValue, int.MinValue);
+            Point min = new(int.MaxValue, int.MaxValue);
+            Point max = new(int.MinValue, int.MinValue);
 
-            for (var x = 0; x < origImg.Width; ++x)
+            for (int x = 0; x < origImg.Width; ++x)
             {
-                for (var y = 0; y < origImg.Height; ++y)
+                for (int y = 0; y < origImg.Height; ++y)
                 {
-                    var pixel = origImg[x, y];
+                    Rgba32 pixel = origImg[x, y];
                     if (pixel.A <= 0)
                     {
                         continue;
@@ -65,15 +65,15 @@ public static partial class SDHelpers
             }
 
             // Create a new image from the crop rectangle and increase canvas size if necessary
-            var offsetY = 0;
-            var cropRectangle = new Rectangle(min.X, min.Y, max.X - min.X + 1, max.Y - min.Y + 1);
+            int offsetY = 0;
+            Rectangle cropRectangle = new(min.X, min.Y, max.X - min.X + 1, max.Y - min.Y + 1);
             if ((max.X - min.X + 1) / tgtAspect > (max.Y - min.Y + 1))
             {
                 offsetY = (int)(((max.X - min.X + 1) / tgtAspect) - (max.Y - min.Y + 1) + 0.5) / 2;
             }
 
             //var cropImg = new Image<Rgba32>(new Configuration(), cropRectangle.Width, cropRectangle.Height + (offsetY * 2));
-            var cropImg = origImg.Clone(ctx =>
+            Image<Rgba32> cropImg = origImg.Clone(ctx =>
             {
                 ctx.Resize(new ResizeOptions
                 {
@@ -117,7 +117,7 @@ public static partial class SDHelpers
 
     public static List<ProgramArtwork> GetArtWork(this MxfProgram program)
     {
-        var artwork = new List<ProgramArtwork>();
+        List<ProgramArtwork> artwork = [];
         // a movie or sport event will have a guide image from the program
         if (program.extras.TryGetValue("artwork", out dynamic? value))
         {
@@ -140,15 +140,15 @@ public static partial class SDHelpers
 
     public static List<ProgramArtwork> GetTieredImages(List<ProgramArtwork> sdImages, List<string> tiers, string artWorkSize = "Md")
     {
-        var ret = new List<ProgramArtwork>();
-        var images = sdImages.Where(arg =>
+        List<ProgramArtwork> ret = [];
+        IEnumerable<ProgramArtwork> images = sdImages.Where(arg =>
             !string.IsNullOrEmpty(arg.Category) && !string.IsNullOrEmpty(arg.Aspect) && !string.IsNullOrEmpty(arg.Uri) &&
             (string.IsNullOrEmpty(arg.Tier) || tiers.Contains(arg.Tier.ToLower())) &&
             !string.IsNullOrEmpty(arg.Size) && arg.Size.Equals(artWorkSize));
 
         // get the aspect ratios available and fix the URI
-        var aspects = new HashSet<string>();
-        foreach (var image in images)
+        HashSet<string> aspects = [];
+        foreach (ProgramArtwork? image in images)
         {
             _ = aspects.Add(image.Aspect);
             //if (!image.Uri.ToLower().StartsWith("http"))
@@ -158,12 +158,12 @@ public static partial class SDHelpers
         }
 
         // determine which image to return with each aspect
-        foreach (var aspect in aspects)
+        foreach (string aspect in aspects)
         {
-            var imgAspects = images.Where(arg => arg.Aspect.Equals(aspect));
+            IEnumerable<ProgramArtwork> imgAspects = images.Where(arg => arg.Aspect.Equals(aspect));
 
-            var links = new ProgramArtwork[11];
-            foreach (var image in imgAspects)
+            ProgramArtwork[] links = new ProgramArtwork[11];
+            foreach (ProgramArtwork? image in imgAspects)
             {
                 switch (image.Category.ToLower())
                 {
@@ -250,7 +250,7 @@ public static partial class SDHelpers
                 }
             }
 
-            foreach (var link in links)
+            foreach (ProgramArtwork link in links)
             {
                 if (link == null)
                 {
@@ -276,7 +276,7 @@ public static partial class SDHelpers
             return false;
         }
 
-        foreach (var str in table)
+        foreach (string str in table)
         {
             if (string.IsNullOrEmpty(str))
             {
@@ -309,8 +309,6 @@ public static partial class SDHelpers
         byte[] hashBytes = SHA256.HashData(contentBytes); // Compute SHA-256 hash
         return BitConverter.ToString(hashBytes).Replace("-", "").ToLower(); // Convert byte array to hex string
     }
-
-
 
     public static string GenerateCacheKey(string command)
     {

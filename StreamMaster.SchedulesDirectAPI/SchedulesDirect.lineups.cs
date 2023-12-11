@@ -8,17 +8,25 @@ public partial class SchedulesDirect
 {
     public async Task<LineupResponse?> GetSubscribedLineups(CancellationToken cancellationToken)
     {
-        var ret = await schedulesDirectAPI.GetApiResponse<LineupResponse>(APIMethod.GET, "lineups", cancellationToken: cancellationToken).ConfigureAwait(false);
-        if (ret != null)
+        //LineupResponse? cache = await GetValidCachedDataAsync<LineupResponse>("SubscribedLineups", cancellationToken).ConfigureAwait(false);
+        //if (cache != null)
+        //{
+        //    return cache;
+        //}
+
+
+        LineupResponse? cache = await schedulesDirectAPI.GetApiResponse<LineupResponse>(APIMethod.GET, "lineups", cancellationToken: cancellationToken).ConfigureAwait(false);
+        if (cache != null)
         {
             logger.LogDebug("Successfully requested listing of subscribed lineups from Schedules Direct.");
+            //await WriteToCacheAsync("SubscribedLineups", cache, cancellationToken).ConfigureAwait(false);
         }
         else
         {
             logger.LogError("Did not receive a response from Schedules Direct for list of subscribed lineups.");
         }
 
-        return ret;
+        return cache;
     }
 
     public async Task<List<CountryData>?> GetAvailableCountries(CancellationToken cancellationToken)
@@ -29,7 +37,7 @@ public partial class SchedulesDirect
             return cache;
         }
 
-        var ret = await schedulesDirectAPI.GetApiResponse<Dictionary<string, List<Country>>>(APIMethod.GET, "available/countries", cancellationToken: cancellationToken);
+        Dictionary<string, List<Country>>? ret = await schedulesDirectAPI.GetApiResponse<Dictionary<string, List<Country>>>(APIMethod.GET, "available/countries", cancellationToken: cancellationToken);
         if (ret == null)
         {
             logger.LogError("Did not receive a response from Schedules Direct for a list of available countries.");
@@ -54,9 +62,16 @@ public partial class SchedulesDirect
             return null;
         }
 
-        var ret = await schedulesDirectAPI.GetApiResponse<List<Headend>>(APIMethod.GET, $"headends?country={country}&postalcode={postalCode}", cancellationToken: cancellationToken).ConfigureAwait(false);
-        if (ret != null)
+        List<Headend>? cache = await GetValidCachedDataAsync<List<Headend>>($"Headends-{country}-{postalCode}", cancellationToken).ConfigureAwait(false);
+        if (cache != null)
         {
+            return cache;
+        }
+
+        cache = await schedulesDirectAPI.GetApiResponse<List<Headend>>(APIMethod.GET, $"headends?country={country}&postalcode={postalCode}", cancellationToken: cancellationToken).ConfigureAwait(false);
+        if (cache != null)
+        {
+            await WriteToCacheAsync($"Headends-{country}-{postalCode}", cache, cancellationToken).ConfigureAwait(false);
             logger.LogDebug($"Successfully retrieved the headends for {country} and postal code {postalCode}.");
         }
         else
@@ -64,7 +79,7 @@ public partial class SchedulesDirect
             logger.LogError($"Failed to get a response from Schedules Direct for the headends of {country} and postal code {postalCode}.");
         }
 
-        return ret;
+        return cache;
     }
 
     public async Task<List<LineupPreviewChannel>?> GetLineupPreviewChannel(string lineup, CancellationToken cancellationToken)
@@ -79,6 +94,11 @@ public partial class SchedulesDirect
         ret = await schedulesDirectAPI.GetApiResponse<List<LineupPreviewChannel>>(APIMethod.GET, $"lineups/preview/{lineup}", cancellationToken: cancellationToken);
         if (ret != null)
         {
+            for (int i = 0; i < ret.Count; i++)
+            {
+                ret[i].Id = i;
+            }
+
             await WriteToCacheAsync("LineupPreviewChannel" + lineup, ret, cancellationToken).ConfigureAwait(false);
             logger.LogDebug($"Successfully retrieved the channels in lineup {lineup} for preview.");
         }
@@ -114,7 +134,7 @@ public partial class SchedulesDirect
     public async Task<List<SubscribedLineup>> GetLineups(CancellationToken cancellationToken)
     {
         List<LineupPreviewChannel> res = [];
-        var lineups = await GetSubscribedLineups(cancellationToken);
+        LineupResponse? lineups = await GetSubscribedLineups(cancellationToken);
 
         return lineups is null ? ([]) : lineups.Lineups;
     }
@@ -136,8 +156,6 @@ public partial class SchedulesDirect
         }
         return ret;
     }
-
-
 
     public async Task<List<Station>> GetStations(CancellationToken cancellationToken)
     {

@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 using StreamMaster.SchedulesDirectAPI.Domain.EPG;
 
 using StreamMasterDomain.Models;
@@ -46,11 +44,9 @@ public sealed class FileUtil
 
         try
         {
-            XmlSerializer serializer = new XmlSerializer(type);
-            using (var reader = new StreamReader(filepath, Encoding.Default))
-            {
-                return serializer.Deserialize(reader);
-            }
+            XmlSerializer serializer = new(type);
+            using StreamReader reader = new(filepath, Encoding.Default);
+            return serializer.Deserialize(reader);
         }
         catch (Exception ex)
         {
@@ -61,7 +57,7 @@ public sealed class FileUtil
     public static string BytesToString(long bytes)
     {
         string[] unit = { "", "K", "M", "G", "T" };
-        for (var i = 0; i < unit.Length; ++i)
+        for (int i = 0; i < unit.Length; ++i)
         {
             double calc;
             if ((calc = bytes / Math.Pow(1024, i)) < 1024)
@@ -77,13 +73,11 @@ public sealed class FileUtil
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(filepath));
-            XmlSerializer serializer = new XmlSerializer(obj.GetType());
-            var ns = new XmlSerializerNamespaces();
+            XmlSerializer serializer = new(obj.GetType());
+            XmlSerializerNamespaces ns = new();
             ns.Add("", "");
-            using (var writer = new StreamWriter(filepath, false, Encoding.UTF8))
-            {
-                serializer.Serialize(writer, obj, ns);
-            }
+            using StreamWriter writer = new(filepath, false, Encoding.UTF8);
+            serializer.Serialize(writer, obj, ns);
             //if (compress)
             //{
             //    GZipCompressFile(filepath);
@@ -100,8 +94,8 @@ public sealed class FileUtil
 
     public static string ReportExceptionMessages(Exception ex)
     {
-        var ret = string.Empty;
-        var innerException = ex;
+        string ret = string.Empty;
+        Exception? innerException = ex;
         do
         {
             ret += $" {innerException.Message} ";
@@ -225,7 +219,7 @@ public sealed class FileUtil
         }
     }
 
-   
+
 
     public static Stream GetFileDataStream(string source)
     {
@@ -261,7 +255,7 @@ public sealed class FileUtil
 
     public static async Task<List<TvLogoFile>> GetIconFilesFromDirectory(DirectoryInfo dirInfo, string tvLogosLocation, int startingId, CancellationToken cancellationToken = default)
     {
-        List<TvLogoFile> ret = new();
+        List<TvLogoFile> ret = [];
 
         foreach (FileInfo file in dirInfo.GetFiles("*png"))
         {
@@ -410,7 +404,6 @@ public sealed class FileUtil
         CreateDir(BuildInfo.ProgrammeIconDataFolder);
         CreateDir(BuildInfo.EPGFolder);
         CreateDir(BuildInfo.M3UFolder);
-        CreateDir(BuildInfo.SDCacheFolder);
         CreateDir(BuildInfo.SDImagesFolder);
         CreateDir(BuildInfo.SDStationLogos);
         CreateDir(BuildInfo.SDStationLogosCache);

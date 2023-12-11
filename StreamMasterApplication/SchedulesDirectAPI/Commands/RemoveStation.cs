@@ -7,7 +7,7 @@ namespace StreamMasterApplication.SchedulesDirectAPI.Commands;
 
 public record RemoveStation(List<StationRequest> Requests) : IRequest<bool>;
 
-public class RemoveStationHandler(ILogger<RemoveStation> logger, ISchedulesDirect schedulesDirect, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+public class RemoveStationHandler(ILogger<RemoveStation> logger, ISchedulesDirect schedulesDirect, ISchedulesDirectData schedulesDirectData, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
 : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<RemoveStation, bool>
 {
     public async Task<bool> Handle(RemoveStation request, CancellationToken cancellationToken)
@@ -18,7 +18,7 @@ public class RemoveStationHandler(ILogger<RemoveStation> logger, ISchedulesDirec
             return false;
         }
 
-        var updateSettingRequest = new UpdateSettingRequest
+        UpdateSettingRequest updateSettingRequest = new()
         {
             SDSettings = new SDSettingsRequest
             {
@@ -26,10 +26,11 @@ public class RemoveStationHandler(ILogger<RemoveStation> logger, ISchedulesDirec
             }
         };
 
-        foreach (var stationRequest in request.Requests)
+        List<string> toDelete = [];
+        foreach (StationRequest stationRequest in request.Requests)
         {
             StationIdLineup station = new(stationRequest.StationId, stationRequest.LineUp);
-            var existing = updateSettingRequest.SDSettings.SDStationIds.FirstOrDefault(x => x.Lineup == station.Lineup && x.StationId == station.StationId);
+            StationIdLineup? existing = updateSettingRequest.SDSettings.SDStationIds.FirstOrDefault(x => x.Lineup == station.Lineup && x.StationId == station.StationId);
             if (existing == null)
             {
                 logger.LogInformation("Remove Station: Does not exists {StationIdLineup}", station.StationId);
@@ -37,13 +38,24 @@ public class RemoveStationHandler(ILogger<RemoveStation> logger, ISchedulesDirec
             }
             logger.LogInformation("Remove Station {StationIdLineup}", station.StationId);
             updateSettingRequest.SDSettings.SDStationIds.Remove(existing);
+            toDelete.Add(station.StationId);
         }
 
-        await Sender.Send(updateSettingRequest, cancellationToken).ConfigureAwait(false);
-        if (await schedulesDirect.SDSync(cancellationToken))
+
+        if (toDelete.Count > 0)
         {
-            await HubContext.Clients.All.SchedulesDirectsRefresh();
+            await Sender.Send(updateSettingRequest, cancellationToken).ConfigureAwait(false);
+
+            //foreach (string file in Directory.GetFiles(BuildInfo.SDJSONFolder))
+            //{
+            //    File.Delete(file);
+            //}
+            schedulesDirect.ResetEPGCache();
+            schedulesDirectData.ResetLists();
+            //schedulesDirect.ResetCache("SubscribedLineups");
+            MemoryCache.SetSyncForceNextRun();
         }
+
         return true;
     }
 }

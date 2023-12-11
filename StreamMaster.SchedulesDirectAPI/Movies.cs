@@ -14,17 +14,17 @@ public partial class SchedulesDirect
     private async Task<bool> GetAllMoviePosters(CancellationToken cancellationToken)
     {
 
-        var moviePrograms = schedulesDirectData.ProgramsToProcess.Where(arg => arg.IsMovie).Where(arg => !arg.IsAdultOnly).ToList();
+        List<MxfProgram> moviePrograms = schedulesDirectData.ProgramsToProcess.Where(arg => arg.IsMovie).Where(arg => !arg.IsAdultOnly).ToList();
 
         // reset counters
         movieImageQueue = [];
         movieImageResponses = [];
         //IncrementNextStage(moviePrograms.Count);
 
-        logger.LogInformation($"Entering GetAllMoviePosters() for {totalObjects} movies.");
+        logger.LogInformation("Entering GetAllMoviePosters() for {totalObjects} movies.", moviePrograms.Count);
 
         // query all movies from Schedules Direct
-        foreach (var mxfProgram in moviePrograms)
+        foreach (MxfProgram? mxfProgram in moviePrograms)
         {
             if (mxfProgram.extras.ContainsKey("md5") && epgCache.JsonFiles.ContainsKey(mxfProgram.extras["md5"]) && epgCache.JsonFiles[mxfProgram.extras["md5"]].Images != null)
             {
@@ -35,7 +35,7 @@ public partial class SchedulesDirect
                 }
 
                 List<ProgramArtwork>? artwork;
-                using var reader = new StringReader(epgCache.JsonFiles[mxfProgram.extras["md5"]].Images);
+                using StringReader reader = new(epgCache.JsonFiles[mxfProgram.extras["md5"]].Images);
                 artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(reader.ReadToEnd());
 
                 if (artwork != null)
@@ -79,7 +79,7 @@ public partial class SchedulesDirect
     private void ProcessMovieImageResponses()
     {
         // process request response
-        foreach (var response in movieImageResponses)
+        foreach (ProgramMetadata response in movieImageResponses)
         {
             //IncrementProgress();
             if (response.Data == null)
@@ -88,7 +88,7 @@ public partial class SchedulesDirect
             }
 
             // determine which program this belongs to
-            var mxfProgram = schedulesDirectData.FindOrCreateProgram(response.ProgramId);
+            MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(response.ProgramId);
 
             // first choice is return from Schedules Direct
             List<ProgramArtwork> artwork;

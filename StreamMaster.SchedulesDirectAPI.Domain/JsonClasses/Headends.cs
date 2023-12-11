@@ -1,12 +1,10 @@
 ﻿using System.Text.Json.Serialization;
 
-using System.Collections.Generic;
-
 namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
 {
     public class Headend
     {
-        public string Id { get => HeadendId;  }
+        public string Id => HeadendId;
 
         [JsonPropertyName("headend")]
         public string HeadendId { get; set; }
@@ -18,8 +16,8 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         public string Location { get; set; }
 
         [JsonPropertyName("lineups")]
-      [JsonConverter(typeof(SingleOrListConverter<HeadendLineup>))]
-        public List<HeadendLineup> Lineups { get; set; }
+        //[JsonConverter(typeof(SingleOrListConverter<HeadendLineup>))]
+        public List<HeadendLineup> Lineups { get; set; } = [];
     }
 
     public class HeadendLineup

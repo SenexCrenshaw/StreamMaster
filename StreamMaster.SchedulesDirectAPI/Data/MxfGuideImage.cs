@@ -2,7 +2,7 @@
 
 public partial class SchedulesDirectData
 {
-    private readonly Dictionary<string, MxfGuideImage> _guideImages = [];
+    private Dictionary<string, MxfGuideImage> _guideImages = [];
     public MxfGuideImage FindOrCreateGuideImage(string pathname)
     {
         if (_guideImages.TryGetValue(pathname, out MxfGuideImage? guideImage))

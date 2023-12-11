@@ -6,10 +6,14 @@ public partial class SchedulesDirectData
 {
     [XmlIgnore] public List<MxfService> ServicesToProcess = [];
 
-    private readonly Dictionary<string, MxfService> _services = [];
+    private Dictionary<string, MxfService> _services = [];
     public MxfService FindOrCreateService(string stationId)
     {
-        if (_services.TryGetValue(stationId, out var service)) return service;
+        if (_services.TryGetValue(stationId, out MxfService? service))
+        {
+            return service;
+        }
+
         Services.Add(service = new MxfService(Services.Count + 1, stationId));
         ScheduleEntries.Add(service.MxfScheduleEntries);
         _services.Add(stationId, service);
@@ -17,9 +21,19 @@ public partial class SchedulesDirectData
         return service;
     }
 
+    public void RemoveService(string stationId)
+    {
+        if (!_services.TryGetValue(stationId, out MxfService? service))
+        {
+            return;
+        }
+        _services.Remove(stationId);
+        Services.Remove(service);
+    }
+
     public MxfService? GetService(string stationId)
     {
-        return _services.TryGetValue(stationId, out var service) ? service : null;
+        return _services.TryGetValue(stationId, out MxfService? service) ? service : null;
     }
 
 }

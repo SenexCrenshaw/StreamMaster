@@ -12,10 +12,12 @@ namespace StreamMaster.SchedulesDirectAPI;
 
 public partial class SchedulesDirect
 {
-    private readonly Dictionary<string, string[]> ScheduleEntries = [];
+    private Dictionary<string, string[]> ScheduleEntries = [];
+    private List<string> suppressedPrefixes = [];
+
     private int cachedSchedules;
     private int downloadedSchedules;
-    private List<string> suppressedPrefixes = [];
+
     private int missingGuide;
 
     private async Task<bool> GetAllScheduleEntryMd5S(CancellationToken cancellationToken)
@@ -24,7 +26,7 @@ public partial class SchedulesDirect
         int days = settings.SDSettings.SDEPGDays;
         days = Math.Clamp(days, 1, 14);
 
-        logger.LogInformation($"Entering GetAllScheduleEntryMd5s() for {days} days on {schedulesDirectData.Services.Count} stations.");
+        logger.LogInformation("Entering GetAllScheduleEntryMd5s() for {days} days on {Count} stations.", days, schedulesDirectData.Services.Count);
         if (days <= 0)
         {
             logger.LogInformation("Invalid number of days to download. Exiting.");
@@ -61,13 +63,13 @@ public partial class SchedulesDirect
             logger.LogError("Problem occurred during GetMd5ScheduleEntries(). Exiting.");
             return false;
         }
-        logger.LogDebug($"Found {cachedSchedules} cached daily schedules.");
-        logger.LogDebug($"Downloaded {downloadedSchedules} daily schedules.");
+        logger.LogDebug("Found {cachedSchedules} cached daily schedules.", cachedSchedules);
+        logger.LogDebug("Downloaded {downloadedSchedules} daily schedules.", downloadedSchedules);
 
         double missing = (double)missingGuide / schedulesDirectData.Services.Count;
         if (missing > 0.1)
         {
-            logger.LogError($"{100 * missing:N1}% of all stations are missing guide data. Aborting update.");
+            logger.LogError("{missing:N1}% of all stations are missing guide data. Aborting update.", 100 * missing);
             return false;
         }
 
@@ -82,7 +84,8 @@ public partial class SchedulesDirect
             ++processedObjects;
             ProcessMd5ScheduleEntry(md5);
         }
-        logger.LogInformation($"Processed {totalObjects} daily schedules for {schedulesDirectData.Services.Count} stations for average of {(double)totalObjects / schedulesDirectData.Services.Count:N1} days per station.");
+        logger.LogInformation("Processed {totalObjects} daily schedules for {Count} stations for average of {totalObjects:N1} days per station.",
+            totalObjects, schedulesDirectData.Services.Count, (double)totalObjects / schedulesDirectData.Services.Count);
         logger.LogInformation("Exiting GetAllScheduleEntryMd5s(). SUCCESS.");
         return true;
     }
@@ -117,6 +120,11 @@ public partial class SchedulesDirect
         List<ScheduleRequest> newRequests = [];
         foreach (ScheduleRequest request in requests)
         {
+            if (request.StationId == "DUMMY")
+            {
+                continue;
+            }
+
             Dictionary<int, string> requestErrors = [];
             MxfService mxfService = schedulesDirectData.FindOrCreateService(request.StationId);
             if (stationResponses.TryGetValue(request.StationId, out Dictionary<string, ScheduleMd5Response>? stationResponse))
@@ -155,15 +163,15 @@ public partial class SchedulesDirect
                             newDateRequests.Add(day);
                         }
 
-                        if (!ScheduleEntries.ContainsKey(dayResponse.Md5))
+                        if (!ScheduleEntries.TryGetValue(dayResponse.Md5, out string[]? value))
                         {
-                            ScheduleEntries.Add(dayResponse.Md5, new[] { request.StationId, day });
+                            ScheduleEntries.Add(dayResponse.Md5, [request.StationId, day]);
                         }
                         else
                         {
-                            string previous = ScheduleEntries[dayResponse.Md5][1];
-                            string comment = $"Duplicate schedule Md5 return for stationId {mxfService.StationId} ({mxfService.CallSign}) on {day} with {previous}.";
-                            logger.LogWarning(comment);
+                            string previous = value[1];
+                            //string comment = $"Duplicate schedule Md5 return for stationId {mxfService.StationId} ({mxfService.CallSign}) on {day} with {previous}.";
+                            //logger.LogWarning(comment);
                             dupeMd5s.Add(dayResponse.Md5);
                         }
                     }
@@ -177,8 +185,8 @@ public partial class SchedulesDirect
                 foreach (string dupe in dupeMd5s)
                 {
                     string previous = ScheduleEntries[dupe][1];
-                    string comment = $"Removing duplicate Md5 schedule entry for stationId {mxfService.StationId} ({mxfService.CallSign}) on {previous}.";
-                    logger.LogWarning(comment);
+                    //string comment = $"Removing duplicate Md5 schedule entry for stationId {mxfService.StationId} ({mxfService.CallSign}) on {previous}.";
+                    //logger.LogWarning(comment);
                     ScheduleEntries.Remove(dupe);
                 }
 
@@ -188,7 +196,7 @@ public partial class SchedulesDirect
                     newRequests.Add(new ScheduleRequest()
                     {
                         StationId = request.StationId,
-                        Date = newDateRequests.ToArray()
+                        Date = [.. newDateRequests]
                     });
                 }
             }
@@ -250,7 +258,7 @@ public partial class SchedulesDirect
                     }
                     catch (Exception ex)
                     {
-                        logger.LogInformation($"Failed to write station daily schedule file to cache file. station: {serviceDate[0]} ; date: {serviceDate[1]}. Exception: {FileUtil.ReportExceptionMessages(ex)}");
+                        logger.LogInformation("Failed to write station daily schedule file to cache file. station: {station} ; date: {date}. Exception: {ReportExceptionMessages}", serviceDate[0], serviceDate[1], FileUtil.ReportExceptionMessages(ex));
                     }
                 }
                 else
@@ -282,7 +290,7 @@ public partial class SchedulesDirect
         }
 
         // read the cached file
-        ScheduleResponse schedule;
+        ScheduleResponse? schedule = null;
         try
         {
             JsonSerializerOptions jsonSerializerOptions = new()
@@ -291,10 +299,14 @@ public partial class SchedulesDirect
                 // For example, to ignore null values during deserialization:
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             };
+            string? asset = epgCache.GetAsset(md5);
+            if (asset != null)
+            {
+                using StringReader reader = new(asset);
+                string jsonString = reader.ReadToEnd();
+                schedule = JsonSerializer.Deserialize<ScheduleResponse>(jsonString, jsonSerializerOptions);
+            }
 
-            using StringReader reader = new(epgCache.GetAsset(md5));
-            string jsonString = reader.ReadToEnd();
-            schedule = JsonSerializer.Deserialize<ScheduleResponse>(jsonString, jsonSerializerOptions);
             if (schedule == null)
             {
                 logger.LogError("Failed to read Md5Schedule entry in cache file.");
@@ -437,7 +449,7 @@ public partial class SchedulesDirect
         return maxValue;
     }
 
-    private static string SafeFilename(string md5)
+    private static string? SafeFilename(string md5)
     {
         return md5 == null ? null : Regex.Replace(md5, @"[^\w\.@-]", "-");
     }

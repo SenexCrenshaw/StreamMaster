@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMaster.SchedulesDirectAPI.Helpers;
-
 using StreamMasterDomain.Common;
 
 using System.Text.Json;
@@ -27,7 +25,7 @@ public class EPGCache(ILogger<EPGCache> logger) : IEPGCache
         {
             byte[] jsonBytes = File.ReadAllBytes(filepath);
 
-            var jsonSerializerOptions = new JsonSerializerOptions
+            JsonSerializerOptions jsonSerializerOptions = new()
             {
                 // Add any desired JsonSerializerOptions here
                 // For example, to ignore null values during serialization:
@@ -43,11 +41,9 @@ public class EPGCache(ILogger<EPGCache> logger) : IEPGCache
         return null;
     }
 
-
-
     public void LoadCache()
     {
-        var res = ReadJsonFile(BuildInfo.SDEPGCacheFile, typeof(Dictionary<string, EPGJsonCache>));
+        dynamic res = ReadJsonFile(BuildInfo.SDEPGCacheFile, typeof(Dictionary<string, EPGJsonCache>));
         if (res != null)
         {
             JsonFiles = res;
@@ -66,7 +62,7 @@ public class EPGCache(ILogger<EPGCache> logger) : IEPGCache
         {
             Directory.CreateDirectory(Path.GetDirectoryName(filepath));
 
-            var jsonSerializerOptions = new JsonSerializerOptions
+            JsonSerializerOptions jsonSerializerOptions = new()
             {
                 // Add any desired JsonSerializerOptions here
                 // For example, to ignore null values during serialization:
@@ -74,7 +70,7 @@ public class EPGCache(ILogger<EPGCache> logger) : IEPGCache
                 WriteIndented = false // Formatting.None equivalent
             };
 
-            using var stream = File.Create(filepath);
+            using FileStream stream = File.Create(filepath);
             JsonSerializer.Serialize(stream, obj, jsonSerializerOptions);
 
             return true;
@@ -88,7 +84,11 @@ public class EPGCache(ILogger<EPGCache> logger) : IEPGCache
 
     public void WriteCache()
     {
-        if (!isDirty || JsonFiles.Count <= 0) return;
+        if (!isDirty || JsonFiles.Count <= 0)
+        {
+            return;
+        }
+
         CleanDictionary();
         if (!WriteJsonFile(JsonFiles, BuildInfo.SDEPGCacheFile))
         {
@@ -100,7 +100,11 @@ public class EPGCache(ILogger<EPGCache> logger) : IEPGCache
 
     public bool DeleteFile(string filepath)
     {
-        if (!File.Exists(filepath)) return true;
+        if (!File.Exists(filepath))
+        {
+            return true;
+        }
+
         try
         {
             File.Delete(filepath);
@@ -139,13 +143,16 @@ public class EPGCache(ILogger<EPGCache> logger) : IEPGCache
 
     public void AddAsset(string md5, string? json)
     {
-        if (JsonFiles.ContainsKey(md5)) return;
+        if (JsonFiles.ContainsKey(md5))
+        {
+            return;
+        }
 
         // reduce the size of the string by removing nulls, empty strings, and false booleans
         json = CleanJsonText(json);
 
         // store
-        var epgJson = new EPGJsonCache()
+        EPGJsonCache epgJson = new()
         {
             JsonEntry = json,
             Current = true
@@ -186,12 +193,22 @@ public class EPGCache(ILogger<EPGCache> logger) : IEPGCache
 
     public void CleanDictionary()
     {
-        var keysToDelete = (from asset in JsonFiles where !asset.Value.Current select asset.Key).ToList();
-        foreach (var key in keysToDelete)
+        List<string> keysToDelete = (from asset in JsonFiles where !asset.Value.Current select asset.Key).ToList();
+        foreach (string? key in keysToDelete)
         {
             JsonFiles.Remove(key);
         }
         logger.LogInformation($"{keysToDelete.Count} entries deleted from the cache file during cleanup.");
+    }
+
+    public void ResetEPGCache()
+    {
+        //if (File.Exists(BuildInfo.SDEPGCacheFile))
+        //{
+        //    File.Delete(BuildInfo.SDEPGCacheFile);
+        //}
+        JsonFiles = [];
+        isDirty = false;
     }
 }
 

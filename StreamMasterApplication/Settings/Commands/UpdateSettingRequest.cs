@@ -401,7 +401,7 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
 
         if (needsSetProgrammes)
         {
-            await taskQueue.SDSync(cancellationToken).ConfigureAwait(false);
+            await taskQueue.EPGSync(cancellationToken).ConfigureAwait(false);
         }
 
         return needsLogOut;

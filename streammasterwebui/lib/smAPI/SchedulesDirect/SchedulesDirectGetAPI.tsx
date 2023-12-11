@@ -9,9 +9,9 @@ export const GetAvailableCountries = async (argument: iptv.CountryData[]): Promi
 export const GetChannelNames = async (): Promise<void | null> => {
   await invokeHubConnection<void>('GetChannelNames');
 };
-export const GetHeadends = async (argument: iptv.HeadendDto[]): Promise<iptv.HeadendDto[] | null> =>
+export const GetHeadends = async (argument: iptv.GetHeadends): Promise<iptv.HeadendDto[] | null> =>
   invokeHubConnection<iptv.HeadendDto[]>('GetHeadends', argument);
-export const GetLineupPreviewChannel = async (argument: iptv.LineupPreviewChannel[]): Promise<iptv.LineupPreviewChannel[] | null> =>
+export const GetLineupPreviewChannel = async (argument: iptv.GetLineupPreviewChannel): Promise<iptv.LineupPreviewChannel[] | null> =>
   invokeHubConnection<iptv.LineupPreviewChannel[]>('GetLineupPreviewChannel', argument);
 export const GetLineups = async (argument: iptv.SubscribedLineup[]): Promise<iptv.SubscribedLineup[] | null> =>
   invokeHubConnection<iptv.SubscribedLineup[]>('GetLineups', argument);
@@ -27,5 +27,5 @@ export const GetStationChannelNamesSimpleQuery = async (argument: iptv.StationCh
   invokeHubConnection<iptv.StationChannelName[]>('GetStationChannelNamesSimpleQuery', argument);
 export const GetStationPreviews = async (argument: iptv.StationPreview[]): Promise<iptv.StationPreview[] | null> =>
   invokeHubConnection<iptv.StationPreview[]>('GetStationPreviews', argument);
-export const GetStatus = async (argument: iptv.UserStatus): Promise<iptv.UserStatus | null> =>
-  invokeHubConnection<iptv.UserStatus>('GetStatus', argument);
+export const GetUserStatus = async (argument: iptv.UserStatus): Promise<iptv.UserStatus | null> =>
+  invokeHubConnection<iptv.UserStatus>('GetUserStatus', argument);

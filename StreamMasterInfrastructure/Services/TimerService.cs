@@ -18,11 +18,8 @@ using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructure.Services;
 
-public class TimerService(    IServiceProvider serviceProvider,    IMemoryCache memoryCache,    ILogger<TimerService> logger       ) : IHostedService, IDisposable
+public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryCache, ILogger<TimerService> logger) : IHostedService, IDisposable
 {
-    private readonly ILogger<TimerService> _logger = logger;
-    private readonly IMemoryCache _memoryCache = memoryCache;
-    private readonly IServiceProvider _serviceProvider = serviceProvider;
     private readonly object Lock = new();
 
     private Timer? _timer;
@@ -30,14 +27,14 @@ public class TimerService(    IServiceProvider serviceProvider,    IMemoryCache 
 
     public void Dispose()
     {
-        _timer?.Dispose();
+        GC.SuppressFinalize(this);
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
         //_logger.LogInformation("Timer Service running.");
 
-        _timer = new Timer(async state => await DoWorkAsync(state, cancellationToken), null, TimeSpan.Zero, TimeSpan.FromSeconds(600));
+        _timer = new Timer(async state => await DoWorkAsync(state, cancellationToken), null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
 
         return Task.CompletedTask;
     }
@@ -62,7 +59,7 @@ public class TimerService(    IServiceProvider serviceProvider,    IMemoryCache 
             isActive = true;
         }
 
-        SDSystemStatus status = new() { IsSystemReady = _memoryCache.IsSystemReady() };
+        SDSystemStatus status = new() { IsSystemReady = memoryCache.IsSystemReady() };
 
         if (!status.IsSystemReady)
         {
@@ -73,7 +70,7 @@ public class TimerService(    IServiceProvider serviceProvider,    IMemoryCache 
             return;
         }
 
-        using IServiceScope scope = _serviceProvider.CreateScope();
+        using IServiceScope scope = serviceProvider.CreateScope();
         IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
         IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
@@ -82,12 +79,27 @@ public class TimerService(    IServiceProvider serviceProvider,    IMemoryCache 
 
         DateTime now = DateTime.Now;
 
+        JobStatus jobStatus = memoryCache.GetSyncJobStatus();
+        if (!jobStatus.IsRunning)
+        {
+            if (jobStatus.ForceNextRun || (now - jobStatus.LastRun).TotalMinutes > 15)
+            {
+                if (jobStatus.ForceNextRun || jobStatus.IsErrored || (now - jobStatus.LastSuccessful).TotalMinutes > 60)
+                {
+                    logger.LogInformation("EPGSync started. {status}", memoryCache.GetSyncJobStatus());
+                    await mediator.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
+                    logger.LogInformation("EPGSync completed. {status}", memoryCache.GetSyncJobStatus());
+                }
+            }
+
+        }
+
         IEnumerable<EPGFileDto> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
         IEnumerable<M3UFileDto> m3uFilesToUpdated = await mediator.Send(new GetM3UFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
 
         if (epgFilesToUpdated.Any())
         {
-            _logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFilesToUpdated.Count());
+            logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFilesToUpdated.Count());
             foreach (EPGFileDto? epgFile in epgFilesToUpdated)
             {
                 _ = await mediator.Send(new RefreshEPGFileRequest(epgFile.Id), cancellationToken).ConfigureAwait(false);
@@ -96,15 +108,13 @@ public class TimerService(    IServiceProvider serviceProvider,    IMemoryCache 
 
         if (m3uFilesToUpdated.Any())
         {
-            _logger.LogInformation("M3U Files to update count: {m3uFiles.Count()}", m3uFilesToUpdated.Count());
+            logger.LogInformation("M3U Files to update count: {m3uFiles.Count()}", m3uFilesToUpdated.Count());
 
             foreach (M3UFileDto? m3uFile in m3uFilesToUpdated)
             {
                 _ = await mediator.Send(new RefreshM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
             }
         }
-
-        await mediator.Send(new SDSync(), cancellationToken).ConfigureAwait(false);
 
         lock (Lock)
         {

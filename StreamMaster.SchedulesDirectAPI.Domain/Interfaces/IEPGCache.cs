@@ -11,6 +11,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Interfaces
         bool DeleteFile(string filepath);
         string? GetAsset(string md5);
         void LoadCache();
+        void ResetEPGCache();
         dynamic ReadJsonFile(string filepath, Type type);
         void UpdateAssetImages(string md5, string? json);
         void UpdateAssetJsonEntry(string md5, string? json);

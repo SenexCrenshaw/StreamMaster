@@ -60,11 +60,9 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         }
         else if (setting.CacheIcons)
         {
-            if (iconOriginalSource.StartsWith("https://json.schedulesdirect.org"))
-            {
-                return GetApiUrl(SMFileTypes.SDImage, originalUrl);
-            }
-            return GetApiUrl(SMFileTypes.Icon, originalUrl);
+            return iconOriginalSource.StartsWith("https://json.schedulesdirect.org")
+                ? GetApiUrl(SMFileTypes.SDImage, originalUrl)
+                : GetApiUrl(SMFileTypes.Icon, originalUrl);
         }
 
         return iconOriginalSource;
@@ -87,12 +85,12 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         //    return "";
         //}
 
-        var settings = MemoryCache.GetSetting();
-        var goodIds =  settings.SDSettings.SDStationIds.Select(a => a.StationId).Distinct().ToList();
+        Setting settings = MemoryCache.GetSetting();
+        List<string> goodIds = settings.SDSettings.SDStationIds.Select(a => a.StationId).Distinct().ToList();
 
-        XMLTV epgData = schedulesDirect.CreateXmltv(_httpContextAccessor.GetUrl(), goodIds);
+        XMLTV epgData = schedulesDirect.CreateXmltv(_httpContextAccessor.GetUrl(), goodIds) ?? new XMLTV();
 
-        return  SerializeXMLTVData(epgData);
+        return SerializeXMLTVData(epgData);
     }
 
 

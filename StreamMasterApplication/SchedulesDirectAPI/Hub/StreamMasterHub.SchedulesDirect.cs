@@ -32,14 +32,14 @@ public partial class StreamMasterHub : ISchedulesDirectHub
         return await mediator.Send(new GetChannelNames()).ConfigureAwait(false);
     }
 
-    public async Task<List<HeadendDto>> GetHeadends(string country, string postalCode)
+    public async Task<List<HeadendDto>> GetHeadends(GetHeadends request)
     {
-        return await mediator.Send(new GetHeadends(country, postalCode)).ConfigureAwait(false);
+        return await mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<List<LineupPreviewChannel>> GetLineupPreviewChannel(string Lineup)
+    public async Task<List<LineupPreviewChannel>> GetLineupPreviewChannel(GetLineupPreviewChannel request)
     {
-        return await mediator.Send(new GetLineupPreviewChannel(Lineup)).ConfigureAwait(false);
+        return await mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task<List<SubscribedLineup>> GetLineups()

@@ -439,7 +439,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
       }
     // eslint-disable-next-line comma-dangle
     },
-    schedulesDirectGetStatus: {
+    schedulesDirectGetUserStatus: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
@@ -452,7 +452,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
                 return;
               }
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'SchedulesDirect' }])) {
-                if (endpointName !== 'schedulesDirectGetStatus') continue;
+                if (endpointName !== 'schedulesDirectGetUserStatus') continue;
                   dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{
                     if (isDev) console.log('updateCachedData', data, draft);
                    }})

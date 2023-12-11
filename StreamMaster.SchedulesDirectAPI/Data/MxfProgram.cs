@@ -6,14 +6,28 @@ public partial class SchedulesDirectData
 {
     [XmlIgnore] public List<MxfProgram> ProgramsToProcess { get; set; } = [];
 
-    private readonly Dictionary<string, MxfProgram> _programs = [];
+    private Dictionary<string, MxfProgram> _programs = [];
     public MxfProgram FindOrCreateProgram(string programId)
     {
-        if (_programs.TryGetValue(programId, out var program)) return program;
+        if (_programs.TryGetValue(programId, out MxfProgram? program))
+        {
+            return program;
+        }
+
         Programs.Add(program = new MxfProgram(Programs.Count + 1, programId));
         _programs.Add(programId, program);
         ProgramsToProcess.Add(program);
         return program;
+    }
+
+    public void RemoveProgram(string programId)
+    {
+        if (!_programs.TryGetValue(programId, out MxfProgram? program))
+        {
+            return;
+        }
+        _programs.Remove(programId);
+        Programs.Remove(program);
     }
 }
 

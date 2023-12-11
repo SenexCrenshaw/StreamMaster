@@ -261,11 +261,11 @@ const injectedRtkApi = api
         providesTags: ['SchedulesDirect']
       }),
       schedulesDirectGetHeadends: build.query<SchedulesDirectGetHeadendsApiResponse, SchedulesDirectGetHeadendsApiArg>({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/getheadends`, params: { country: queryArg.country, postalCode: queryArg.postalCode } }),
+        query: (queryArg) => ({ url: `/api/schedulesdirect/getheadends`, body: queryArg }),
         providesTags: ['SchedulesDirect']
       }),
       schedulesDirectGetLineupPreviewChannel: build.query<SchedulesDirectGetLineupPreviewChannelApiResponse, SchedulesDirectGetLineupPreviewChannelApiArg>({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/getlineuppreviewchannel`, params: { Lineup: queryArg } }),
+        query: (queryArg) => ({ url: `/api/schedulesdirect/getlineuppreviewchannel`, body: queryArg }),
         providesTags: ['SchedulesDirect']
       }),
       schedulesDirectGetLineups: build.query<SchedulesDirectGetLineupsApiResponse, SchedulesDirectGetLineupsApiArg>({
@@ -843,12 +843,9 @@ export type SchedulesDirectGetAvailableCountriesApiArg = void;
 export type SchedulesDirectGetChannelNamesApiResponse = /** status 200  */ string[];
 export type SchedulesDirectGetChannelNamesApiArg = void;
 export type SchedulesDirectGetHeadendsApiResponse = /** status 200  */ HeadendDto[];
-export type SchedulesDirectGetHeadendsApiArg = {
-  country?: string;
-  postalCode?: string;
-};
+export type SchedulesDirectGetHeadendsApiArg = GetHeadends;
 export type SchedulesDirectGetLineupPreviewChannelApiResponse = /** status 200  */ LineupPreviewChannel[];
-export type SchedulesDirectGetLineupPreviewChannelApiArg = string;
+export type SchedulesDirectGetLineupPreviewChannelApiArg = GetLineupPreviewChannel;
 export type SchedulesDirectGetLineupsApiResponse = /** status 200  */ SubscribedLineup[];
 export type SchedulesDirectGetLineupsApiArg = void;
 export type SchedulesDirectGetPagedStationChannelNameSelectionsApiResponse = /** status 200  */ PagedResponseOfStationChannelName;
@@ -1370,12 +1367,19 @@ export type HeadendDto = {
   name?: string;
   transport?: string;
 };
+export type GetHeadends = {
+  country?: string;
+  postalCode?: string;
+};
 export type LineupPreviewChannel = {
   id?: number;
   channel?: string;
   name?: string;
   callsign?: string;
   affiliate?: string;
+};
+export type GetLineupPreviewChannel = {
+  lineup?: string;
 };
 export type SubscribedLineup = {
   id?: string;

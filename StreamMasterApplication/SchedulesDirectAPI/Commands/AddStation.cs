@@ -24,7 +24,7 @@ public class AddStationHandler(ILogger<AddStation> logger, ISchedulesDirect sche
             return true;
         }
 
-        var updateSettingRequest = new UpdateSettingRequest
+        UpdateSettingRequest updateSettingRequest = new()
         {
             SDSettings = new SDSettingsRequest
             {
@@ -32,7 +32,7 @@ public class AddStationHandler(ILogger<AddStation> logger, ISchedulesDirect sche
             }
         };
 
-        foreach (var stationRequest in request.Requests)
+        foreach (StationRequest stationRequest in request.Requests)
         {
             StationIdLineup station = new(stationRequest.StationId, stationRequest.LineUp);
             if (updateSettingRequest.SDSettings.SDStationIds.Any(x => x.Lineup == station.Lineup && x.StationId == station.StationId))
@@ -44,14 +44,12 @@ public class AddStationHandler(ILogger<AddStation> logger, ISchedulesDirect sche
             updateSettingRequest.SDSettings.SDStationIds.Add(station);
         }
 
-        if (await schedulesDirect.SDSync(cancellationToken))
-        {
-            await HubContext.Clients.All.SchedulesDirectsRefresh();
-            return true;
-        }
+        await Sender.Send(updateSettingRequest, cancellationToken).ConfigureAwait(false);
 
-        _ = await Sender.Send(updateSettingRequest, cancellationToken).ConfigureAwait(false);
+        schedulesDirect.ResetCache("SubscribedLineups");
+        MemoryCache.SetSyncForceNextRun();
 
+        //await HubContext.Clients.All.SchedulesDirectsRefresh();
         return true;
     }
 }

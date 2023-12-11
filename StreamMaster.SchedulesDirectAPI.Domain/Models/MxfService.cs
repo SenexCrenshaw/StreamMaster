@@ -1,31 +1,23 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
+﻿namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 public class MxfService
 {
-    public string StationId => _stationId;
+    public string StationId { get; }
 
     private int _index;
     private string _affiliate;
     private string _logoImage;
-    private readonly string _stationId;
-
     public string UidOverride;
     public MxfAffiliate mxfAffiliate;
     public MxfGuideImage mxfGuideImage;
     public MxfScheduleEntries MxfScheduleEntries;
 
-    public Dictionary<string, dynamic> extras = new Dictionary<string, dynamic>();
+    public Dictionary<string, dynamic> extras = [];
 
     public MxfService(int index, string stationId)
     {
         _index = index;
-        _stationId = stationId;
-        MxfScheduleEntries = new MxfScheduleEntries() { Service = Id, ScheduleEntry = new List<MxfScheduleEntry>() };
+        StationId = stationId;
+        MxfScheduleEntries = new MxfScheduleEntries() { Service = Id, ScheduleEntry = [] };
     }
     private MxfService() { }
 
@@ -37,7 +29,7 @@ public class MxfService
     public string Id
     {
         get => $"s{_index}";
-        set { _index = int.Parse(value.Substring(1)); }
+        set => _index = int.Parse(value[1..]);
     }
 
     /// <summary>
@@ -47,8 +39,8 @@ public class MxfService
 
     public string Uid
     {
-        get => UidOverride ?? $"!Service!{_stationId}";
-        set { UidOverride = value; }
+        get => UidOverride ?? $"!Service!{StationId}";
+        set => UidOverride = value;
     }
 
     /// <summary>
@@ -71,7 +63,7 @@ public class MxfService
     public string Affiliate
     {
         get => _affiliate ?? mxfAffiliate?.Uid;
-        set { _affiliate = value; }
+        set => _affiliate = value;
     }
 
     /// <summary>
@@ -82,6 +74,6 @@ public class MxfService
     public string LogoImage
     {
         get => _logoImage ?? mxfGuideImage?.Id ?? "";
-        set { _logoImage = value; }
+        set => _logoImage = value;
     }
 }

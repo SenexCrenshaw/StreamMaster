@@ -27,7 +27,7 @@ public partial class SchedulesDirect
             // don't download station map if lineup not included
             if (setting.SDSettings.SDStationIds.FirstOrDefault(a => a.Lineup == clientLineup.Lineup) == null)
             {
-                logger.LogWarning($"Subscribed lineup {clientLineup.Lineup} has been EXCLUDED by user from download and processing.");
+                //logger.LogWarning($"Subscribed lineup {clientLineup.Lineup} has been EXCLUDED by user from download and processing.");
                 continue;
             }
 
@@ -50,7 +50,7 @@ public partial class SchedulesDirect
             }
 
             // use hashset to make sure we don't duplicate channel entries for this station
-            HashSet<string> channelNumbers = new();
+            HashSet<string> channelNumbers = [];
 
             // build the services and lineup
             foreach (LineupStation station in lineupMap.Stations)
@@ -210,8 +210,6 @@ public partial class SchedulesDirect
                     }
                 }
             }
-
-
         }
 
         if (StationLogosToDownload.Count > 0)

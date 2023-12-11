@@ -15,13 +15,10 @@ public class AddLineupHandler(ISchedulesDirect schedulesDirect, ILogger<AddLineu
         logger.LogInformation("Add line up {lineup}", request.lineup);
         if (await schedulesDirect.AddLineup(request.lineup, cancellationToken).ConfigureAwait(false))
         {
-            //schedulesDirect.ResetCache(SDCommands.Status);
-            //schedulesDirect.ResetCache(SDCommands.LineUps);
-            if (await schedulesDirect.SDSync(cancellationToken))
-            {
-                await HubContext.Clients.All.SchedulesDirectsRefresh();
-                return true;
-            }
+            schedulesDirect.ResetCache("SubscribedLineups");
+            MemoryCache.SetSyncForceNextRun();
+            //await HubContext.Clients.All.SchedulesDirectsRefresh();
+            return true;
         }
         return false;
     }

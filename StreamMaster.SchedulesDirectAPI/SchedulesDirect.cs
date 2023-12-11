@@ -14,7 +14,7 @@ namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect : ISchedulesDirect
 {
     public static readonly int MAX_RETRIES = 3;
-    private readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
+    private readonly TimeSpan CacheDuration = TimeSpan.FromHours(23);
     private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
     private readonly SemaphoreSlim _syncSemaphore = new(1, 1);
     private readonly object fileLock = new();
@@ -27,7 +27,7 @@ public partial class SchedulesDirect : ISchedulesDirect
     private static int processStage;
 
     private readonly ILogger<SchedulesDirect> logger;
-    private readonly IEPGCache epgCache;
+    public IEPGCache epgCache;
     private readonly ISchedulesDirectData schedulesDirectData;
 
     private readonly ISchedulesDirectAPI schedulesDirectAPI;
@@ -49,11 +49,17 @@ public partial class SchedulesDirect : ISchedulesDirect
 
     public async Task<bool> SDSync(CancellationToken cancellationToken)
     {
-
         try
         {
-            await _syncSemaphore.WaitAsync(cancellationToken);
+            if (memoryCache.GetSyncJobStatus().IsRunning)
+            {
+                memoryCache.SetSyncForceNextRun();
+                return false;
+            }
 
+            await _syncSemaphore.WaitAsync(cancellationToken);
+            memoryCache.GetSyncJobStatus().IsRunning = true;
+            bool test = memoryCache.GetSyncJobStatus().IsRunning;
             int maxRetry = 3;
             int retryCount = 0;
             while (!CheckToken() && retryCount++ < maxRetry)
@@ -63,14 +69,15 @@ public partial class SchedulesDirect : ISchedulesDirect
 
             if (!CheckToken())
             {
+                memoryCache.SetSyncError();
                 return false;
             }
 
-            //var startTime = DateTime.UtcNow;
             Setting setting = memoryCache.GetSetting();
             logger.LogInformation($"DaysToDownload: {setting.SDSettings.SDEPGDays}");
 
             // load cache file
+
             epgCache.LoadCache();
             if (
                  await BuildLineupServices(cancellationToken) &&
@@ -78,9 +85,9 @@ public partial class SchedulesDirect : ISchedulesDirect
                     BuildAllProgramEntries() &&
                     BuildAllGenericSeriesInfoDescriptions() &&
                     await GetAllMoviePosters(cancellationToken) &&
-                    await GetAllSeriesImages(cancellationToken) &&
+                    GetAllSeriesImages() &&
                     await GetAllSeasonImages(cancellationToken) &&
-                    await GetAllSportsImages(cancellationToken) &&
+                    GetAllSportsImages() &&
                     BuildKeywords()
                 )
             {
@@ -93,25 +100,28 @@ public partial class SchedulesDirect : ISchedulesDirect
                 //}
 
                 logger.LogInformation("Completed Schedules Direct update execution. SUCCESS.");
+                memoryCache.SetSyncSuccessful();
                 return true;
             }
-            //StationLogosToDownload = [];            
-            return false;
+            //StationLogosToDownload = [];
+
         }
         catch (OperationCanceledException)
         {
-            // Handle cancellation
-            return false;
+
         }
         finally
         {
             _syncSemaphore.Release();
         }
+
+        memoryCache.SetSyncError();
+        return false;
     }
 
     private void WriteXmltv(XMLTV xmltv)
     {
-        string fileName = Path.Combine(BuildInfo.SDCacheFolder, "epg123.xmltv");
+        string fileName = Path.Combine(BuildInfo.SDJSONFolder, "epg123.xmltv");
         if (!FileUtil.WriteXmlFile(xmltv, fileName))
         {
             return;
@@ -159,10 +169,11 @@ public partial class SchedulesDirect : ISchedulesDirect
 
     }
 
+
     public void ResetCache(string command)
     {
         string cacheKey = SDHelpers.GenerateCacheKey(command);
-        string cachePath = Path.Combine(BuildInfo.SDCacheFolder, cacheKey);
+        string cachePath = Path.Combine(BuildInfo.SDJSONFolder, cacheKey);
 
         if (File.Exists(cachePath))
         {
@@ -196,6 +207,7 @@ public partial class SchedulesDirect : ISchedulesDirect
 
     private async Task<T?> GetValidCachedDataAsync<T>(string name, CancellationToken cancellationToken = default)
     {
+        //return default;
         await _cacheSemaphore.WaitAsync(cancellationToken);
         try
         {
@@ -209,7 +221,11 @@ public partial class SchedulesDirect : ISchedulesDirect
             string cachedContent = await File.ReadAllTextAsync(cachePath, cancellationToken).ConfigureAwait(false);
             SDCacheEntry<T>? cacheEntry = JsonSerializer.Deserialize<SDCacheEntry<T>>(cachedContent);
 
-            return cacheEntry != null && DateTime.Now - cacheEntry.Timestamp <= CacheDuration ? cacheEntry.Data : default;
+            return cacheEntry != null && (DateTime.Now - cacheEntry.Timestamp) <= CacheDuration ? cacheEntry.Data : default;
+        }
+        catch (Exception ex)
+        {
+            return default;
         }
         finally
         {
@@ -220,5 +236,30 @@ public partial class SchedulesDirect : ISchedulesDirect
     public bool CheckToken(bool forceReset = false)
     {
         return schedulesDirectAPI.CheckToken(forceReset);
+    }
+
+    public void ResetEPGCache()
+    {
+        ScheduleEntries = [];
+        suppressedPrefixes = [];
+        seriesDescriptionQueue = [];
+        seriesDescriptionResponses = [];
+        StationLogosToDownload = [];
+        movieImageQueue = [];
+        movieImageResponses = [];
+        seasonImageQueue = [];
+        seasonImageResponses = [];
+        sportsImageQueue = [];
+        sportsImageResponses = [];
+        programQueue = [];
+        programResponses = [];
+        cachedSchedules = 0;
+        processedObjects = 0;
+        downloadedSchedules = 0;
+        missingGuide = 0;
+        seasons = [];
+        sportsSeries = [];
+        sportEvents = [];
+        epgCache.ResetEPGCache();
     }
 }

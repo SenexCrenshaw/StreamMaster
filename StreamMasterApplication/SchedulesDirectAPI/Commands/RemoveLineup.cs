@@ -23,6 +23,8 @@ public class RemoveLineupHandler(ISchedulesDirect schedulesDirect, ILogger<Remov
             //schedulesDirect.ResetCache(SDCommands.Status);
             //schedulesDirect.ResetCache(SDCommands.LineUps);
             //await hubContext.Clients.All.SchedulesDirectsRefresh();
+            schedulesDirect.ResetCache("SubscribedLineups");
+            MemoryCache.SetSyncForceNextRun();
 
             return true;
         }

@@ -11,7 +11,7 @@ internal class GetStationPreviewsHandler(ISchedulesDirect schedulesDirect, ISend
         SettingDto setting = await sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
         if (!setting.SDSettings.SDEnabled)
         {
-            return new();
+            return [];
         }
 
         List<StationPreview> ret = await schedulesDirect.GetStationPreviews(cancellationToken).ConfigureAwait(false);

@@ -29,18 +29,16 @@ public partial class SchedulesDirectAPI : ISchedulesDirectAPI
         CreateHttpClient();
     }
 
-
-
-    public async Task<HttpResponseMessage> GetSdImage(string uri)//, DateTimeOffset ifModifiedSince)
+    public async Task<HttpResponseMessage?> GetSdImage(string uri)//, DateTimeOffset ifModifiedSince)
     {
         try
         {
-            var message = new HttpRequestMessage
+            HttpRequestMessage message = new()
             {
                 Method = HttpMethod.Get,
                 RequestUri = new Uri($"{BaseAddress}{uri}")
             };
-            var response = await _httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+            HttpResponseMessage response = await _httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
 
             return !response.IsSuccessStatusCode || response.Content?.Headers?.ContentType?.MediaType == "application/json"
                 ? response.Content?.Headers?.ContentType?.MediaType == "application/json"
@@ -57,15 +55,18 @@ public partial class SchedulesDirectAPI : ISchedulesDirectAPI
 
     private async Task<HttpResponseMessage> HandleHttpResponseError(HttpResponseMessage response, string? content)
     {
-        var tokenUsed = response.RequestMessage.Headers.GetValues("token")?.FirstOrDefault();
+        string? tokenUsed = response.RequestMessage.Headers.GetValues("token")?.FirstOrDefault();
 
         if (!string.IsNullOrEmpty(content))
         {
-            var err = JsonSerializer.Deserialize<BaseResponse>(content);
+            BaseResponse? err = JsonSerializer.Deserialize<BaseResponse>(content);
             if (err != null)
             {
-                var sdCode = (SDHttpResponseCode)err.Code;
-
+                SDHttpResponseCode sdCode = (SDHttpResponseCode)err.Code;
+                if (sdCode == SDHttpResponseCode.TOKEN_INVALID)
+                {
+                    logger.LogError("SDToken is invalid {token} {length}", tokenUsed, tokenUsed != null ? tokenUsed.Length : 0);
+                }
                 switch (sdCode)
                 {
                     case SDHttpResponseCode.SERVICE_OFFLINE: // SERVICE_OFFLINE
@@ -94,6 +95,7 @@ public partial class SchedulesDirectAPI : ISchedulesDirectAPI
                         break;
                     case SDHttpResponseCode.TOKEN_MISSING: // TOKEN_MISSING - special case when token is getting refreshed due to below responses from a separate request
                     case SDHttpResponseCode.INVALID_USER: // INVALID_USER
+                    case SDHttpResponseCode.TOKEN_INVALID:
                     case SDHttpResponseCode.TOKEN_EXPIRED: // TOKEN_EXPIRED
                     case SDHttpResponseCode.TOKEN_DUPLICATED: // TOKEN_DUPLICATED
                     case SDHttpResponseCode.UNKNOWN_USER: // UNKNOWN_USER
@@ -171,6 +173,11 @@ public partial class SchedulesDirectAPI : ISchedulesDirectAPI
 
         try
         {
+            if (uri.Equals("metadata/description/"))
+            {
+                int a = 1;
+                Debug.Assert(true);
+            }
             using HttpRequestMessage request = new(method, uri)
             {
                 Content = (content != null)
@@ -192,43 +199,51 @@ public partial class SchedulesDirectAPI : ISchedulesDirectAPI
             };
 
             using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+            using StreamReader sr = new(stream);
+            json = await sr.ReadToEndAsync(cancellationToken);
+
+            try
+            {
+                // Attempt to parse the JSON string
+                JsonDocument.Parse(json);
+            }
+            catch (JsonException ex)
+            {
+                // If parsing fails, the JSON is not valid
+                logger.LogError("JSON is not valid. Error: {Message}", ex.Message);
+
+                return default;
+            }
 
             if (typeof(T) != typeof(List<LineupPreviewChannel>) &&
                 typeof(T) != typeof(StationChannelMap) &&
                 typeof(T) != typeof(Dictionary<string, Dictionary<string, ScheduleMd5Response>>))
             {
-                using var sr = new StreamReader(stream);
-                json = await sr.ReadToEndAsync(cancellationToken);
-
                 if (typeof(T) == typeof(TokenResponse))
                 {
-                    var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(json, jsonOptions);
+                    TokenResponse? tokenResponse = JsonSerializer.Deserialize<TokenResponse>(json, jsonOptions);
                     if (tokenResponse != null)
                     {
                         SetToken(tokenResponse);
                     }
                 }
-                var data = JsonSerializer.Deserialize<T>(json, jsonOptions);
+                T? data = JsonSerializer.Deserialize<T>(json, jsonOptions);
                 return data;
             }
 
             if (typeof(T) == typeof(List<LineupPreviewChannel>) || typeof(T) == typeof(StationChannelMap))
             {
-                using var sr = new StreamReader(stream);
-                json = await sr.ReadToEndAsync(cancellationToken);
-                json = json.Replace("[],", ""); // Modify the JSON string as needed
+                json = json.Replace("[],", "");
                 return JsonSerializer.Deserialize<T>(json);
             }
 
             if (typeof(T) == typeof(Dictionary<string, Dictionary<string, ScheduleMd5Response>>))
             {
-                using var sr = new StreamReader(stream);
-                json = await sr.ReadToEndAsync(cancellationToken);
-                json = json.Replace("[]", "{}"); // Modify the JSON string as needed
+                json = json.Replace("[]", "{}");
                 return JsonSerializer.Deserialize<T>(json);
             }
 
-            using var jsonStream = new StreamReader(stream);
+            using StreamReader jsonStream = new(stream);
             return await JsonSerializer.DeserializeAsync<T>(jsonStream.BaseStream, cancellationToken: cancellationToken);
         }
         catch (JsonException ex)
@@ -238,16 +253,15 @@ public partial class SchedulesDirectAPI : ISchedulesDirectAPI
 
             if (json != null)
             {
-                var bytePosition = ex.BytePositionInLine ?? 0;
+                long bytePosition = ex.BytePositionInLine ?? 0;
 
-                var startOriginal = Math.Max((int)bytePosition, 0);
-                var start = Math.Max((int)bytePosition - 40, 0);
+                int startOriginal = Math.Max((int)bytePosition, 0);
+                int start = Math.Max((int)bytePosition - 40, 0);
 
-                var lineOriginal = json.Substring(startOriginal, 200);
-                var line = json.Substring(start, 200);
+                string lineOriginal = json.Substring(startOriginal, 200);
+                string line = json.Substring(start, 200);
                 if (line.Contains("INVALID_PROGRAMID"))
                 {
-
 
                 }
                 else
@@ -264,12 +278,9 @@ public partial class SchedulesDirectAPI : ISchedulesDirectAPI
         return default;
     }
 
-
-
-
     private void CreateHttpClient()
     {
-        var setting = memoryCache.GetSetting();
+        Setting setting = memoryCache.GetSetting();
         _httpClient = new(new HttpClientHandler()
         {
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,

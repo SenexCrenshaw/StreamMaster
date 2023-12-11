@@ -9,12 +9,12 @@ using System.Text.Json;
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
 {
-    private readonly List<MxfProgram> sportEvents = [];
+    private List<MxfProgram> sportEvents = [];
     private List<string> sportsImageQueue = [];
     private ConcurrentBag<ProgramMetadata> sportsImageResponses = [];
-    private async Task<bool> GetAllSportsImages(CancellationToken cancellationToken)
+    private bool GetAllSportsImages()
     {
-        var settings = memoryCache.GetSetting();
+        StreamMasterDomain.Common.Setting settings = memoryCache.GetSetting();
         // reset counters
         sportsImageQueue = [];
         sportsImageResponses = [];
@@ -25,19 +25,23 @@ public partial class SchedulesDirect
         }
 
         // scan through each series in the mxf
-        logger.LogInformation($"Entering GetAllSportsImages() for {totalObjects} sports events.");
-        foreach (var sportEvent in sportEvents)
+        logger.LogInformation("Entering GetAllSportsImages() for {totalObjects} sports events.", sportEvents.Count);
+        foreach (MxfProgram sportEvent in sportEvents)
         {
             string md5 = sportEvent.extras["md5"];
             if (epgCache.JsonFiles.ContainsKey(md5) && !string.IsNullOrEmpty(epgCache.JsonFiles[md5].Images))
             {
-                //IncrementProgress();
-                List<ProgramArtwork> artwork;
-                using (var reader = new StringReader(epgCache.JsonFiles[md5].Images))
+                //IncrementProgress();              
+                using StringReader reader = new(epgCache.JsonFiles[md5].Images);
+                List<ProgramArtwork>? artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(reader.ReadToEnd());
+                if (sportEvent.extras.ContainsKey("artwork"))
                 {
-                    sportEvent.extras.Add("artwork", artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(reader.ReadToEnd()));
+                    sportEvent.extras["artwork"] = artwork;
                 }
-
+                else
+                {
+                    sportEvent.extras.Add("artwork", artwork);
+                }
                 sportEvent.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Program);
             }
             else
@@ -83,7 +87,7 @@ public partial class SchedulesDirect
             return;
         }
 
-        foreach (var response in sportsImageResponses)
+        foreach (ProgramMetadata response in sportsImageResponses)
         {
             //IncrementProgress();
             if (response.Data == null)
@@ -91,15 +95,23 @@ public partial class SchedulesDirect
                 continue;
             }
 
-            var mxfProgram = sportEvents.SingleOrDefault(arg => arg.ProgramId == response.ProgramId);
+            MxfProgram? mxfProgram = sportEvents.SingleOrDefault(arg => arg.ProgramId == response.ProgramId);
             if (mxfProgram == null)
             {
                 continue;
             }
 
-            // get sports event images
-            List<ProgramArtwork> artwork;
-            mxfProgram.extras.Add("artwork", artwork = SDHelpers.GetTieredImages(response.Data, ["team event", "sport event"]));
+            // get sports event images      
+            List<ProgramArtwork> artwork = SDHelpers.GetTieredImages(response.Data, ["team event", "sport event"]);
+            if (mxfProgram.extras.ContainsKey("artwork"))
+            {
+                mxfProgram.extras["artwork"] = artwork;
+            }
+            else
+            {
+                mxfProgram.extras.Add("artwork", artwork);
+            }
+
             mxfProgram.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Program, mxfProgram.extras["md5"]);
         }
     }

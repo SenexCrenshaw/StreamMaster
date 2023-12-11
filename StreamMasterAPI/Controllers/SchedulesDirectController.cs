@@ -44,17 +44,17 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<List<HeadendDto>>> GetHeadends(string country, string postalCode)
+    public async Task<ActionResult<List<HeadendDto>>> GetHeadends(GetHeadends request)
     {
-        return Ok(await Mediator.Send(new GetHeadends(country, postalCode)).ConfigureAwait(false));
+        return Ok(await Mediator.Send(request).ConfigureAwait(false));
     }
 
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<List<LineupPreviewChannel>>> GetLineupPreviewChannel(string Lineup)
+    public async Task<ActionResult<List<LineupPreviewChannel>>> GetLineupPreviewChannel(GetLineupPreviewChannel request)
     {
-        return Ok(await Mediator.Send(new GetLineupPreviewChannel(Lineup)).ConfigureAwait(false));
+        return Ok(await Mediator.Send(request).ConfigureAwait(false));
     }
 
     [HttpGet]
