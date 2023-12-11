@@ -86,7 +86,21 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         //}
 
         Setting settings = MemoryCache.GetSetting();
-        List<string> goodIds = settings.SDSettings.SDStationIds.Select(a => a.StationId).Distinct().ToList();
+        List<string> goodIds = [];
+
+        if (request.StreamGroupId == 0)
+        {
+            goodIds = settings.SDSettings.SDStationIds.Select(a => a.StationId).Distinct().ToList();
+        }
+        else
+        {
+            List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
+            List<string> test = videoStreams.Where(a => !a.IsHidden).Select(a => a.User_Tvg_ID).Distinct().ToList();
+            //$"EPG123.{mxfService.StationId}.schedulesdirect.org"
+
+            goodIds = test;// videoStreams.Where(a => !a.IsHidden).Select(a => a.User_Tvg_ID.ExtractStationId()).Distinct().ToList();
+        }
+
 
         XMLTV epgData = schedulesDirect.CreateXmltv(_httpContextAccessor.GetUrl(), goodIds) ?? new XMLTV();
 

@@ -55,8 +55,6 @@ public static class BuildInfo
     public static readonly string SDStationLogosCache = $"{CacheFolder}SDStationLogosCache{Path.DirectorySeparatorChar}";
     public static readonly string SDImagesFolder = $"{CacheFolder}SDImages{Path.DirectorySeparatorChar}";
     public static readonly string SDEPGCacheFile = $"{SDJSONFolder}epgCache.json";
-    public static readonly string PlayListEPGFolder = $"{PlayListFolder}EPG{Path.DirectorySeparatorChar}";
-    public static readonly string PlayListM3UFolder = $"{PlayListFolder}M3U{Path.DirectorySeparatorChar}";
 
     public static readonly string EPGFolder = $"{PlayListFolder}EPG{Path.DirectorySeparatorChar}";
     public static readonly string M3UFolder = $"{PlayListFolder}M3U{Path.DirectorySeparatorChar}";

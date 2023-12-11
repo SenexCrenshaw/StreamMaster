@@ -24,7 +24,7 @@ public partial class SchedulesDirect
         foreach (MxfSeriesInfo series in schedulesDirectData.SeriesInfosToProcess)
         {
             // sports events will not have a generic description
-            if (series.SeriesId.StartsWith("SP"))
+            if (series.SeriesId.StartsWith("SP") || string.IsNullOrEmpty(series.ProtoTypicalProgram))
             {
                 //IncrementProgress();
                 continue;

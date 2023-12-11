@@ -10,4 +10,4 @@ using System.Reflection;
 
 [assembly: AssemblyFileVersion("0.3.2.0")]
 [assembly: AssemblyVersion("0.3.2.0")]
-[assembly: AssemblyInformationalVersion("0.3.2-epg-love.1+54.Branch.epg-love.Sha.bb771f42243cf3fe04ecf08c2b678da9539454be")]
+[assembly: AssemblyInformationalVersion("0.3.2-epg-love.1+56.Branch.epg-love.Sha.935b0b21aca2db3e49d17970f24ee01b5ea1452c")]

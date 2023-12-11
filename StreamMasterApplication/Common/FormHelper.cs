@@ -8,10 +8,10 @@ public sealed class FormHelper
     {
         try
         {
-            if (!File.Exists(fileName))
-            {
-                FileUtil.CreateDirectory(fileName);
-            }
+            //if (!File.Exists(fileName))
+            //{
+            //    FileUtil.CreateDirectory(fileName);
+            //}
             using FileStream createStream = File.Create(fileName);
             await data.CopyToAsync(createStream).ConfigureAwait(false);
             return (true, null);
