@@ -219,12 +219,16 @@ public static class CacheManagerExtensions
     }
 
 
-    public static void SetSyncForceNextRun(this IMemoryCache cache)
+    public static void SetSyncForceNextRun(this IMemoryCache cache, bool Extra = false)
     {
         lock (EPGSyncConfig.Lock)
         {
             JobStatus jobStatus = cache.GetSyncJobStatus();
             jobStatus.ForceNextRun = true;
+            if (Extra == true)
+            {
+                jobStatus.Extra = true;
+            }
             cache.Set(EPGSyncConfig.Key, jobStatus, EPGSyncConfig.CacheEntryOptions);
         }
     }

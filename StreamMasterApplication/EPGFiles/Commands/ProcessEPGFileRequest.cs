@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 
+using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
+
 namespace StreamMasterApplication.EPGFiles.Commands;
 
 public record ProcessEPGFileRequest(int Id) : IRequest<EPGFileDto?> { }
@@ -28,7 +30,7 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
                 return null;
             }
 
-            StreamMaster.SchedulesDirectAPI.Domain.XmltvXml.XMLTV? test = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.Id);
+            XMLTV? test = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.Id);
 
             //Tv? tv = await epgFile.GetTV().ConfigureAwait(false);
             if (test != null)

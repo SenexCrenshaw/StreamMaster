@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
+
 using StreamMasterApplication.EPGFiles.Commands;
 using StreamMasterApplication.EPGFiles.Queries;
 using StreamMasterApplication.M3UFiles.Commands;
@@ -74,6 +76,7 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
         IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
         IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        ISchedulesDirect schedulesDirect = scope.ServiceProvider.GetRequiredService<ISchedulesDirect>();
 
         //_logger.LogInformation("Timer Service is working.");
 
@@ -88,10 +91,17 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
                 {
                     logger.LogInformation("EPGSync started. {status}", memoryCache.GetSyncJobStatus());
                     await mediator.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
+                    if (jobStatus.Extra)
+                    {
+                        foreach (EPGFileDto epg in await repository.EPGFile.GetEPGFiles())
+                        {
+                            await mediator.Send(new RefreshEPGFileRequest(epg.Id), cancellationToken).ConfigureAwait(false);
+                        }
+                        jobStatus.Extra = false;
+                    }
                     logger.LogInformation("EPGSync completed. {status}", memoryCache.GetSyncJobStatus());
                 }
             }
-
         }
 
         IEnumerable<EPGFileDto> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
@@ -100,10 +110,12 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
         if (epgFilesToUpdated.Any())
         {
             logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFilesToUpdated.Count());
-            foreach (EPGFileDto? epgFile in epgFilesToUpdated)
-            {
-                _ = await mediator.Send(new RefreshEPGFileRequest(epgFile.Id), cancellationToken).ConfigureAwait(false);
-            }
+            //foreach (EPGFileDto? epgFile in epgFilesToUpdated)
+            //{
+            //    _ = await mediator.Send(new RefreshEPGFileRequest(epgFile.Id), cancellationToken).ConfigureAwait(false);
+            //}
+            schedulesDirect.ResetEPGCache();
+            memoryCache.SetSyncForceNextRun(Extra: true);
         }
 
         if (m3uFilesToUpdated.Any())
