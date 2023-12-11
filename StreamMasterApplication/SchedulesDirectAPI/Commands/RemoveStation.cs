@@ -1,5 +1,6 @@
 ﻿using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
+using StreamMasterApplication.EPGFiles.Commands;
 using StreamMasterApplication.Settings.Commands;
 
 namespace StreamMasterApplication.SchedulesDirectAPI.Commands;
@@ -46,14 +47,13 @@ public class RemoveStationHandler(ILogger<RemoveStation> logger, ISchedulesDirec
         {
             await Sender.Send(updateSettingRequest, cancellationToken).ConfigureAwait(false);
 
-            //foreach (string file in Directory.GetFiles(BuildInfo.SDJSONFolder))
-            //{
-            //    File.Delete(file);
-            //}
             schedulesDirect.ResetEPGCache();
-            schedulesDirectData.ResetLists();
-            //schedulesDirect.ResetCache("SubscribedLineups");
             MemoryCache.SetSyncForceNextRun();
+
+            foreach (EPGFileDto epg in await Repository.EPGFile.GetEPGFiles())
+            {
+                await Sender.Send(new RefreshEPGFileRequest(epg.Id), cancellationToken).ConfigureAwait(false);
+            }
         }
 
         return true;

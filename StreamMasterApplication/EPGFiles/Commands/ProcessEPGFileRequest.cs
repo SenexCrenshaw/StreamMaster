@@ -28,13 +28,13 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
                 return null;
             }
 
-            var test = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.Id);
+            StreamMaster.SchedulesDirectAPI.Domain.XmltvXml.XMLTV? test = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.Id);
 
-            Tv? tv = await epgFile.GetTV().ConfigureAwait(false);
-            if (tv != null)
+            //Tv? tv = await epgFile.GetTV().ConfigureAwait(false);
+            if (test != null)
             {
-                epgFile.ChannelCount = tv.Channel != null ? tv.Channel.Count : 0;
-                epgFile.ProgrammeCount = tv.Programme != null ? tv.Programme.Count : 0;
+                epgFile.ChannelCount = test.Channels != null ? test.Channels.Count : 0;
+                epgFile.ProgrammeCount = test.Programs != null ? test.Programs.Count : 0;
             }
 
             epgFile.LastUpdated = DateTime.Now;

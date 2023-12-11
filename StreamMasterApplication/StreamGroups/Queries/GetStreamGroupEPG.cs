@@ -71,19 +71,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
-        //return "";
-        //if ( request.StreamGroupId == 0)
-        //{
-        //    XMLTV epgData2 = schedulesDirect.CreateXmltv(_httpContextAccessor.GetUrl());
-        //    return SerializeXMLTVData(epgData2);
-        //}
-
-        //List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
-        //var ids = videoStreams.Where(a=>a.User_Tvg_ID.StartsWith("SD|")).Select(a=>a.User_Tvg_ID[4..]).Distinct().ToList();
-        //if (!ids.Any())
-        //{
-        //    return "";
-        //}
 
         Setting settings = MemoryCache.GetSetting();
         List<string> goodIds = [];
@@ -95,12 +82,8 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         else
         {
             List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
-            List<string> test = videoStreams.Where(a => !a.IsHidden).Select(a => a.User_Tvg_ID).Distinct().ToList();
-            //$"EPG123.{mxfService.StationId}.schedulesdirect.org"
-
-            goodIds = test;// videoStreams.Where(a => !a.IsHidden).Select(a => a.User_Tvg_ID.ExtractStationId()).Distinct().ToList();
+            goodIds = videoStreams.Where(a => !a.IsHidden).Select(a => a.User_Tvg_ID).Distinct().ToList();
         }
-
 
         XMLTV epgData = schedulesDirect.CreateXmltv(_httpContextAccessor.GetUrl(), goodIds) ?? new XMLTV();
 

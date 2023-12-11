@@ -261,5 +261,7 @@ public partial class SchedulesDirect : ISchedulesDirect
         sportsSeries = [];
         sportEvents = [];
         epgCache.ResetEPGCache();
+
+        schedulesDirectData.ResetLists();
     }
 }
