@@ -19,7 +19,7 @@ export function GeneralSettings(): React.ReactElement {
   }
 
   return (
-    <Fieldset className="mt-4 pt-10" legend={GetMessage('general')}>
+    <Fieldset className="mt-4 pt-10" legend={GetMessage('general')} toggleable>
       {getInputTextLine({ field: 'deviceID', selectedCurrentSettingDto, onChange })}
       {getCheckBoxLine({ field: 'cleanURLs', selectedCurrentSettingDto, onChange })}
       {getInputTextLine({ field: 'ffmPegExecutable', selectedCurrentSettingDto, onChange })}

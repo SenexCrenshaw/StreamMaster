@@ -36,7 +36,7 @@ export function StreamingSettings(): React.ReactElement {
   }
 
   return (
-    <Fieldset className="mt-4 pt-10" legend={GetMessage('streaming')}>
+    <Fieldset className="mt-4 pt-10" legend={GetMessage('streaming')} toggleable>
       {getDropDownLine({ field: 'streamingProxyType', options: getHandlersOptions(), selectedCurrentSettingDto, onChange })}
       {getInputNumberLine({ field: 'globalStreamLimit', selectedCurrentSettingDto, onChange })}
       {getInputNumberLine({ field: 'ringBufferSizeMB', selectedCurrentSettingDto, onChange })}

@@ -16,7 +16,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Models
         public string Id
         {
             get => _id ?? $"provider{Index}";
-            set { _id = value; }
+            set => _id = value;
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Models
         public string Copyright { get; set; }
 
         /// <summary>
-        /// The status of the EPG123 MXF file creation.
+        /// The status of the Stream Master MXF file creation.
         /// </summary>
         [XmlAttribute("status")]
         [DefaultValue(0)]

@@ -20,7 +20,7 @@ export function FilesEPGM3USettings(): React.ReactElement {
   }
 
   return (
-    <Fieldset className="mt-4 pt-10" legend={GetMessage('filesEPGM3U')}>
+    <Fieldset className="mt-4 pt-10" legend={GetMessage('filesEPGM3U')} toggleable>
       {getCheckBoxLine({ field: 'cacheIcons', selectedCurrentSettingDto, onChange })}
       {getCheckBoxLine({ field: 'videoStreamAlwaysUseEPGLogo', selectedCurrentSettingDto, onChange })}
       {getInputTextLine({ field: 'dummyRegex', selectedCurrentSettingDto, onChange })}

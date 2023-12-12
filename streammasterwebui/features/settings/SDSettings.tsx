@@ -19,7 +19,7 @@ export function SDSettings(): React.ReactElement {
   }
 
   return (
-    <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')}>
+    <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')} toggleable>
       {getCheckBoxLine({ field: 'sdSettings.sdEnabled', selectedCurrentSettingDto, onChange })}
       {getInputTextLine({ field: 'sdSettings.sdUserName', selectedCurrentSettingDto, onChange })}
       {getPasswordLine({ field: 'sdSettings.sdPassword', selectedCurrentSettingDto, onChange })}

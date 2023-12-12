@@ -51,7 +51,7 @@ export function AuthenticationSettings(): React.ReactElement {
   }
 
   return (
-    <Fieldset className="mt-4 pt-10" legend={GetMessage('authentication')}>
+    <Fieldset className="mt-4 pt-10" legend={GetMessage('authentication')} toggleable>
       {getInputTextLine({ field: 'apiKey', selectedCurrentSettingDto, onChange })}
       {getDropDownLine({ field: 'authenticationMethod', options: getAuthTypeOptions(), selectedCurrentSettingDto, onChange })}
       {getInputTextLine({ field: 'adminUserName', warning: adminUserNameError, selectedCurrentSettingDto, onChange })}

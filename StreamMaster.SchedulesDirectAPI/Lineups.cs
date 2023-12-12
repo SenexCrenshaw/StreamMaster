@@ -38,7 +38,7 @@ public partial class SchedulesDirect
             }
 
             // get/create lineup
-            MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup(clientLineup.Lineup, $"EPG123 {clientLineup.Name} ({clientLineup.Location})");
+            MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup(clientLineup.Lineup, $"SM {clientLineup.Name} ({clientLineup.Location})");
 
 
             // request the lineup's station maps
@@ -254,7 +254,6 @@ public partial class SchedulesDirect
         }
 
         logger.LogError($"There are 0 stations queued for download from {clientLineups.Lineups.Count} subscribed lineups. Exiting.");
-        logger.LogError("Check that lineups are 'INCLUDED' and stations are selected in the EPG123 GUI.");
         return false;
     }
 }

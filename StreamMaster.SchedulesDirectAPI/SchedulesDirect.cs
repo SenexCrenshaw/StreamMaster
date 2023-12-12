@@ -128,7 +128,7 @@ public partial class SchedulesDirect : ISchedulesDirect
 
     private void WriteXmltv(XMLTV xmltv)
     {
-        string fileName = Path.Combine(BuildInfo.SDJSONFolder, "epg123.xmltv");
+        string fileName = Path.Combine(BuildInfo.SDJSONFolder, "streammaster.xmltv");
         if (!FileUtil.WriteXmlFile(xmltv, fileName))
         {
             return;
@@ -146,7 +146,7 @@ public partial class SchedulesDirect : ISchedulesDirect
         mxfService.CallSign = "DUMMY";
         mxfService.Name = "DUMMY Station";
 
-        MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup("ZZZ-DUMMY-EPG123", "ZZZ123 Dummy Lineup");
+        MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup("ZZZ-DUMMY-StreamMaster", "ZZZSM Dummy Lineup");
         mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
     }
 

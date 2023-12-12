@@ -51,7 +51,7 @@ public partial class SchedulesDirect
                 Date = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture),
                 SourceInfoUrl = "http://schedulesdirect.org",
                 SourceInfoName = "Schedules Direct",
-                GeneratorInfoName = "EPG123",
+                GeneratorInfoName = "streamaster",
                 GeneratorInfoUrl = "https://garyan2.github.io/",
                 Channels = [],
                 Programs = []
@@ -99,7 +99,7 @@ public partial class SchedulesDirect
 
                 foreach (MxfScheduleEntry scheduleEntry in service.MxfScheduleEntries.ScheduleEntry)
                 {
-                    xmltv.Programs.Add(BuildXmltvProgram(scheduleEntry, $"EPG123.{service.StationId}.schedulesdirect.org"));
+                    xmltv.Programs.Add(BuildXmltvProgram(scheduleEntry, $"SM.{service.StationId}.schedulesdirect.org"));
                 }
             }
             return xmltv;
@@ -158,7 +158,7 @@ public partial class SchedulesDirect
         // initialize the return channel
         XmltvChannel ret = new()
         {
-            Id = $"EPG123.{mxfService.StationId}.schedulesdirect.org",
+            Id = $"StreamMaster.{mxfService.StationId}.schedulesdirect.org",
             DisplayNames = []
         };
 
@@ -561,7 +561,7 @@ public partial class SchedulesDirect
     {
         List<XmltvEpisodeNum> list = [];
         MxfProgram mxfProgram = mxfScheduleEntry.mxfProgram;
-        if (!mxfProgram.ProgramId.StartsWith("EPG123"))
+        if (!mxfProgram.ProgramId.StartsWith("StreamMaster"))
         {
             list.Add(new XmltvEpisodeNum()
             {
@@ -576,7 +576,7 @@ public partial class SchedulesDirect
                 $"{(mxfProgram.SeasonNumber != 0 ? (mxfProgram.SeasonNumber - 1).ToString() : string.Empty)}.{(mxfProgram.EpisodeNumber != 0 ? (mxfProgram.EpisodeNumber - 1).ToString() : string.Empty)}.{(mxfScheduleEntry.Part != 0 ? $"{mxfScheduleEntry.Part - 1}/" : "0/")}{(mxfScheduleEntry.Parts != 0 ? $"{mxfScheduleEntry.Parts}" : "1")}";
             list.Add(new XmltvEpisodeNum() { System = "xmltv_ns", Text = text });
         }
-        else if (mxfProgram.ProgramId.StartsWith("EPG123"))
+        else if (mxfProgram.ProgramId.StartsWith("StreamMaster"))
         {
             // filler data - create oad of scheduled start time
             list.Add(new XmltvEpisodeNum() { System = "original-air-date", Text = $"{mxfScheduleEntry.StartTime.ToLocalTime():yyyy-MM-dd HH:mm:ss}" });
