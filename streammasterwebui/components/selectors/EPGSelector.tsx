@@ -100,6 +100,8 @@ const EPGSelector: React.FC<Partial<EPGSelectorProperties>> = ({ enableEditMode 
     );
   };
 
+  console.log('EPGSelector value', restProperties.value);
+
   if (!enableEditMode) {
     return <div className="flex h-full justify-content-center align-items-center p-0 m-0">{restProperties.value ?? 'Dummy'}</div>;
   }

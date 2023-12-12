@@ -316,8 +316,8 @@ public partial class SchedulesDirect
                        SDHelpers.TableContains(sd.Genres, "Sports talk");
 
         // set isGeneric flag if programID starts with "SH", is a series, is not a miniseries, and is not paid programming
-        if (prg.ProgramId.StartsWith("SH") && (prg.IsSports && !SDHelpers.TableContains(types, "Sports") ||
-                                               prg.IsSeries && !prg.IsMiniseries && !prg.IsPaidProgramming))
+        if (prg.ProgramId.StartsWith("SH") && ((prg.IsSports && !SDHelpers.TableContains(types, "Sports")) ||
+                                               (prg.IsSeries && !prg.IsMiniseries && !prg.IsPaidProgramming)))
         {
             prg.IsGeneric = true;
         }
@@ -397,7 +397,7 @@ public partial class SchedulesDirect
                 mxfProgram.mxfKeywords.Add(premiere.FindOrCreateKeyword("Season Premiere"));
             }
         }
-        else if (mxfProgram.extras["premiere"])
+        else if (mxfProgram.extras.ContainsKey("premiere"))
         {
             if (group == KeywordGroupsEnum.MOVIES)
             {
@@ -574,14 +574,9 @@ public partial class SchedulesDirect
 
         StreamMasterDomain.Common.Setting setting = memoryCache.GetSetting();
         string se = setting.SDSettings.AlternateSEFormat ? "S{0}:E{1} " : "s{0:D2}e{1:D2} ";
-        if (mxfProgram.SeasonNumber != 0)
-        {
-            se = string.Format(se, mxfProgram.SeasonNumber, mxfProgram.EpisodeNumber);
-        }
-        else
-        {
-            se = mxfProgram.EpisodeNumber != 0 ? $"#{mxfProgram.EpisodeNumber} " : string.Empty;
-        }
+        se = mxfProgram.SeasonNumber != 0
+            ? string.Format(se, mxfProgram.SeasonNumber, mxfProgram.EpisodeNumber)
+            : mxfProgram.EpisodeNumber != 0 ? $"#{mxfProgram.EpisodeNumber} " : string.Empty;
 
         // prefix episode title with season and episode numbers as configured
         if (setting.SDSettings.PrefixEpisodeTitle)
@@ -623,12 +618,12 @@ public partial class SchedulesDirect
     private void DetermineContentAdvisory(MxfProgram mxfProgram, Programme sdProgram)
     {
         // fill content ratings and advisories; set flags
-        HashSet<string> advisories = new();
+        HashSet<string> advisories = [];
         if (sdProgram.ContentRating != null)
         {
             //var origins = !string.IsNullOrEmpty(config.RatingsOrigin) ? config.RatingsOrigin.Split(',') : new[] { RegionInfo.CurrentRegion.ThreeLetterISORegionName };
             string[] origins = new[] { RegionInfo.CurrentRegion.ThreeLetterISORegionName };
-            Dictionary<string, string> contentRatings = new();
+            Dictionary<string, string> contentRatings = [];
             if (SDHelpers.TableContains(origins, "ALL"))
             {
                 foreach (ProgramContentRating rating in sdProgram.ContentRating)
@@ -712,8 +707,8 @@ public partial class SchedulesDirect
             return null;
         }
 
-        List<string> personName = new();
-        List<MxfPersonRank> ret = new();
+        List<string> personName = [];
+        List<MxfPersonRank> ret = [];
         foreach (ProgramPerson? person in persons.Where(person => roles.Any(role => person.Role.ToLower().Contains(role.ToLower()) && !personName.Contains(person.Name))))
         {
             ret.Add(new MxfPersonRank(schedulesDirectData.FindOrCreatePerson(person.Name))

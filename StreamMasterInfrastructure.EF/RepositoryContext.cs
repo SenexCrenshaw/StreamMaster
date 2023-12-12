@@ -36,7 +36,7 @@ namespace StreamMasterInfrastructureEF
         {
 
             _ = modelBuilder.ApplyConfigurationsFromAssembly(typeof(RepositoryContext).Assembly);
-            modelBuilder.UseCollation("NOCASE");
+            modelBuilder.UseCollation("NOCASE_UTF8");
 
             _ = modelBuilder.Entity<VideoStream>()
              .HasIndex(e => e.User_Tvg_group)

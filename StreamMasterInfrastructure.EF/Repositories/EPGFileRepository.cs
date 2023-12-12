@@ -34,7 +34,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryCont
         List<EPGFilePreviewDto> ret = [];
         foreach (StreamMaster.SchedulesDirectAPI.Domain.Models.MxfService? service in services)
         {
-            if (service is null)
+            if (service is null || string.IsNullOrEmpty(service.Name) || string.IsNullOrEmpty(service.StationId))
             {
                 continue;
             }
@@ -43,7 +43,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryCont
             {
                 ChannelName = service.Name,
                 ChannelNumber = service.StationId,
-                ChannelLogo = service.mxfGuideImage.ImageUrl,
+                ChannelLogo = service?.mxfGuideImage?.ImageUrl ?? "",
             });
 
         }
