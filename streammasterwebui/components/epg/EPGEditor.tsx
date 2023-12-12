@@ -40,7 +40,6 @@ const EPGEditor = ({ data, enableEditMode }: EPGEditorProperties) => {
           await onUpdateVideoStream(e);
         }}
         value={data.user_Tvg_ID}
-        epgFileId={1}
       />
     </div>
   );

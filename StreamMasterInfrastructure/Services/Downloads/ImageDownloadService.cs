@@ -104,18 +104,28 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
     //    CheckStart();
     //}
 
+    private bool lockedlogged = false;
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested)
         {
             if (!ImageLockOut)
             {
+                lockedlogged = false;
                 //schedulesDirect.CheckToken();
                 Setting setting = FileUtil.GetSetting();
 
                 if (setting.SDSettings.SDEnabled && !imageDownloadQueue.IsEmpty() && memoryCache.IsSystemReady())
                 {
                     await DownloadImagesAsync(cancellationToken);
+                }
+            }
+            else
+            {
+                if (!lockedlogged)
+                {
+                    logger.LogError($"Image downloads locked out,too many requests");
+                    lockedlogged = true;
                 }
             }
 

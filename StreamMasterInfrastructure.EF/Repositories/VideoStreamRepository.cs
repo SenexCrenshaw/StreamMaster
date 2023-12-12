@@ -23,7 +23,6 @@ using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
-using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 
@@ -195,7 +194,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
         if (!videoStreams.Any())
         {
-            return new();
+            return [];
         }
 
         int deletedCount = 0;
@@ -348,7 +347,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
         if (request.Tvg_name != null && (videoStream.User_Tvg_name != request.Tvg_name || videoStream.IsUserCreated))
         {
-            videoStream.User_Tvg_name = request.Tvg_name;       
+            videoStream.User_Tvg_name = request.Tvg_name;
             await SetVideoStreamLogoFromEPG(videoStream, cancellationToken).ConfigureAwait(false);
             //UpdateVideoStream(videoStream);
         }
@@ -364,7 +363,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
             videoStream.User_Tvg_ID = request.Tvg_ID;
             if (setting.VideoStreamAlwaysUseEPGLogo && videoStream.User_Tvg_ID != null)
             {
-                epglogo = await SetVideoStreamLogoFromEPG(videoStream, cancellationToken).ConfigureAwait(false);                      
+                epglogo = await SetVideoStreamLogoFromEPG(videoStream, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -411,14 +410,18 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
     private static string NormalizeString(string input)
     {
-        // Remove punctuation characters
-        string normalized = new(input.Where(c => !char.IsPunctuation(c)).ToArray());
-
-        // Convert to lowercase
-        normalized = normalized.ToLower();
-
-        return normalized;
+        return input.ToLower();
     }
+    //private static string NormalizeString(string input)
+    //{
+    //    // Remove punctuation characters
+    //    string normalized = new(input.Where(c => !char.IsPunctuation(c)).ToArray());
+
+    //    // Convert to lowercase
+    //    normalized = normalized.ToLower();
+
+    //    return normalized;
+    //}
 
     private static double GetWeightedMatch(string sentence1, string sentence2)
     {
@@ -446,7 +449,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
         IQueryable<VideoStream> streams = FindByCondition(a => VideoStreamIds.Contains(a.Id));
 
-        List<VideoStreamDto> videoStreamDtos = new();
+        List<VideoStreamDto> videoStreamDtos = [];
 
         foreach (VideoStream stream in streams)
         {
@@ -659,7 +662,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
     private async Task<List<VideoStreamDto>> SetVideoStreamChannelNumbers(IQueryable<VideoStream> videoStreams, bool overWriteExisting, int startNumber, CancellationToken cancellationToken)
     {
-        HashSet<int> existingNumbers = new();
+        HashSet<int> existingNumbers = [];
 
         if (!overWriteExisting)
         {
@@ -696,7 +699,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
             _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return await videoStreams.AsNoTracking().ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         }
-        return new();
+        return [];
     }
 
     public async Task<List<VideoStreamDto>> SetVideoStreamsLogoFromEPGFromIds(IEnumerable<string> Ids, CancellationToken cancellationToken)
@@ -713,7 +716,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
     private async Task<bool> SetVideoStreamLogoFromEPG(VideoStream videoStream, CancellationToken cancellationToken)
     {
-        var service = await sender.Send(new GetService(videoStream.User_Tvg_ID), cancellationToken).ConfigureAwait(false);
+        MxfService? service = await sender.Send(new GetService(videoStream.User_Tvg_ID), cancellationToken).ConfigureAwait(false);
         if (service is null || !service.extras.TryGetValue("logo", out dynamic? value))
         {
             return false;
@@ -729,12 +732,12 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
     private async Task<List<VideoStreamDto>> SetVideoStreamsLogoFromEPG(IQueryable<VideoStream> videoStreams, CancellationToken cancellationToken)
     {
         int ret = 0;
-        foreach (VideoStream videoStream in videoStreams.Where(a=> !string.IsNullOrEmpty(a.User_Tvg_ID)))
+        foreach (VideoStream videoStream in videoStreams.Where(a => !string.IsNullOrEmpty(a.User_Tvg_ID)))
         {
-            if ( await SetVideoStreamLogoFromEPG(videoStream, cancellationToken))
+            if (await SetVideoStreamLogoFromEPG(videoStream, cancellationToken))
             {
                 ret++;
-            }          
+            }
         }
 
         if (ret > 0)
@@ -772,7 +775,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
             _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return await videoStreams.AsNoTracking().ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         }
-        return new();
+        return [];
     }
 
     public async Task<List<VideoStreamDto>> GetVideoStreamsForChannelGroup(int channelGroupId, CancellationToken cancellationToken)
@@ -780,7 +783,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
         ChannelGroup? channelGroup = await RepositoryContext.ChannelGroups.FirstOrDefaultAsync(a => a.Id == channelGroupId, cancellationToken: cancellationToken).ConfigureAwait(false);
         if (channelGroup == null)
         {
-            return new();
+            return [];
         }
 
         List<VideoStreamDto> ret = await FindByCondition(a => a.User_Tvg_group == channelGroup.Name).AsNoTracking()
@@ -800,7 +803,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
     public async Task<List<VideoStreamDto>> SetVideoStreamSetEPGsFromName(IEnumerable<string> VideoStreamIds, CancellationToken cancellationToken)
     {
-        List<VideoStreamDto> results = new();
+        List<VideoStreamDto> results = [];
 
         foreach (VideoStream? videoStream in FindByCondition(a => VideoStreamIds.Contains(a.Id)))
         {
@@ -841,9 +844,9 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
     public async Task<(List<VideoStreamDto> videoStreams, List<ChannelGroupDto> updatedChannelGroups)> UpdateVideoStreamsAsync(IEnumerable<UpdateVideoStreamRequest> VideoStreamUpdates, CancellationToken cancellationToken)
     {
-        List<VideoStreamDto> ret = new();
+        List<VideoStreamDto> ret = [];
         bool updateCG = false;
-        List<ChannelGroupDto> updatedChannelGroups = new();
+        List<ChannelGroupDto> updatedChannelGroups = [];
 
         foreach (UpdateVideoStreamRequest request in VideoStreamUpdates)
         {
@@ -866,15 +869,18 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
         return FindAll();
     }
 
+
+
     private async Task<List<VideoStreamDto>> AutoSetEPGs(IQueryable<VideoStream> videoStreams, CancellationToken cancellationToken)
     {
 
         List<StationChannelName> stationChannelNames = await sender.Send(new GetStationChannelNames(), cancellationToken).ConfigureAwait(false);
-        var tomatch =stationChannelNames.Select(a=>a.ChannelName).Distinct().ToList();
-        Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
-        var tomatchString = string.Join(',', tomatch);
 
-        List<VideoStreamDto> results = new();
+        Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
+        List<string> tomatch = stationChannelNames.Select(a => a.DisplayName).Distinct().ToList();
+        string tomatchString = string.Join(',', tomatch);
+
+        List<VideoStreamDto> results = [];
 
         foreach (VideoStream videoStream in videoStreams)
         {
@@ -882,21 +888,33 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
                  .Select(p => new
                  {
                      Channel = p,
-                     Score = GetMatchingScore(videoStream.User_Tvg_name, p.ChannelName)
+                     Score = GetMatchingScore(videoStream.User_Tvg_name, p.Channel)
                  })
                  .Where(x => x.Score > 0) // Filter out non-matches
                  .OrderByDescending(x => x.Score) // Sort by score in descending order
                  .ToList();
 
+            if (!scoredMatches.Any())
+            {
+                scoredMatches = stationChannelNames
+                 .Select(p => new
+                 {
+                     Channel = p,
+                     Score = GetMatchingScore(videoStream.User_Tvg_name, p.DisplayName)
+                 })
+                 .Where(x => x.Score > 0) // Filter out non-matches
+                 .OrderByDescending(x => x.Score).ToList(); // Sort by score in descending order
+            }
+
             if (scoredMatches.Any())
             {
                 videoStream.User_Tvg_ID = scoredMatches[0].Channel.Channel;
                 UpdateVideoStream(videoStream);
-                
+
                 if (setting.VideoStreamAlwaysUseEPGLogo)
                 {
-                    await SetVideoStreamLogoFromEPG(videoStream, cancellationToken).ConfigureAwait(false);                   
-                }                
+                    await SetVideoStreamLogoFromEPG(videoStream, cancellationToken).ConfigureAwait(false);
+                }
                 results.Add(mapper.Map<VideoStreamDto>(videoStream));
             }
         }
@@ -907,40 +925,74 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
         return results;
     }
 
+    private static string RemoveCommonSuffixes(string input, string[] suffixes)
+    {
+        foreach (string suffix in suffixes)
+        {
+            if (input.EndsWith(suffix))
+            {
+                return input[..^suffix.Length];
+            }
+        }
+        return input;
+    }
+    private static (string code, string name) ExtractComponentsFromProgrammeName(string programmeName)
+    {
+        Match match = Regex.Match(programmeName, @"\[(.*?)\]\s*([\w-]+)");
+        string code = match.Success ? match.Groups[1].Value : "";
+        string name = match.Success ? match.Groups[2].Value.Split(new char[] { ' ', '-' })[0] : "";
+
+        return (code, name);
+    }
+
+
     public static int GetMatchingScore(string userTvgName, string programmeName)
     {
         int score = 0;
-
-        // Normalize inputs for case-insensitive comparison
-        string normalizedUserTvgName = userTvgName.ToLower();
-        string normalizedProgrammeName = programmeName.ToLower();
-
-        // List of common suffixes
         string[] commonSuffixes = new[] { "us", "gb", "dt", "hd" };
 
+        string normalizedUserTvgName = NormalizeString(userTvgName);
+        string normalizedProgrammeName = NormalizeString(programmeName);
+
+
+        if (normalizedProgrammeName.Contains("wpvi"))
+        {
+            int a = 1;
+        }
+
+        normalizedUserTvgName = RemoveCommonSuffixes(normalizedUserTvgName, commonSuffixes);
+        normalizedProgrammeName = RemoveCommonSuffixes(normalizedProgrammeName, commonSuffixes);
+
+        (string extractedProgrammeCode, string extractedProgrammeName) = ExtractComponentsFromProgrammeName(normalizedProgrammeName);
+
+        if (normalizedUserTvgName.Equals(extractedProgrammeCode) || normalizedUserTvgName.Equals(extractedProgrammeName))
+        {
+            score += 50;
+        }
+
         // Removing common suffixes from normalizedUserTvgName
-        foreach (var suffix in commonSuffixes)
+        foreach (string suffix in commonSuffixes)
         {
             if (normalizedUserTvgName.EndsWith(suffix))
             {
-                normalizedUserTvgName = normalizedUserTvgName.Substring(0, normalizedUserTvgName.Length - suffix.Length);
+                normalizedUserTvgName = normalizedUserTvgName[..^suffix.Length];
                 break;
             }
         }
 
         // Removing common suffixes from normalizedProgrammeName to extract the base name
         string baseName = normalizedProgrammeName;
-        foreach (var suffix in commonSuffixes)
+        foreach (string suffix in commonSuffixes)
         {
             if (baseName.EndsWith(suffix))
             {
-                baseName = baseName.Substring(0, baseName.Length - suffix.Length);
+                baseName = baseName[..^suffix.Length];
                 break;
             }
         }
 
         // Extract call sign from normalizedUserTvgName (expected to be within parentheses)
-        var match = Regex.Match(normalizedUserTvgName, @"\((.*?)\)"); // Matches content within parentheses
+        Match match = Regex.Match(normalizedUserTvgName, @"\((.*?)\)"); // Matches content within parentheses
         string callSign = match.Success ? match.Groups[1].Value.ToLower() : "";
 
         // Check for direct match with both the full and base name of normalizedProgrammeName
@@ -953,7 +1005,6 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
         }
 
         // Base name match (without suffix)
-        // This checks if the programmeName without its suffix (like 'HD' or 'DT') is contained in the userTvgName
         if (normalizedUserTvgName.Contains(baseName))
         {
             score += 30;
@@ -964,13 +1015,19 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
         List<string> programmeNameWords = normalizedProgrammeName.Split(' ').ToList();
 
         // Word intersection count
-        // Each intersecting word adds to the score, useful for partial matches in names
         int intersectionCount = userTvgNameWords.Intersect(programmeNameWords).Count();
         score += intersectionCount * 10;
+
+        // Check for abbreviation or call sign match
+        if (normalizedUserTvgName.Equals(baseName))
+        {
+            score += 50;
+        }
 
         // Returning the final calculated score
         return score;
     }
+
 
     public async Task<List<VideoStreamDto>> AutoSetEPGFromIds(List<string> ids, CancellationToken cancellationToken)
     {
@@ -986,11 +1043,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
     private static string GetFirstFourOrBlank(string input)
     {
-        if (string.IsNullOrEmpty(input) || input.Length < 4 || !IsAllDigits(input[..4]))
-        {
-            return "0000";
-        }
-        return input[..4];
+        return string.IsNullOrEmpty(input) || input.Length < 4 || !IsAllDigits(input[..4]) ? "0000" : input[..4];
     }
 
     private static bool IsAllDigits(string value)
@@ -1019,7 +1072,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
     public async Task<List<VideoStreamDto>> SetVideoStreamTimeShifts(IQueryable<VideoStream> videoStreams, string timeShift, CancellationToken cancellationToken)
     {
-        List<VideoStreamDto> results = new();
+        List<VideoStreamDto> results = [];
 
         foreach (VideoStream? videoStream in videoStreams)
         {
