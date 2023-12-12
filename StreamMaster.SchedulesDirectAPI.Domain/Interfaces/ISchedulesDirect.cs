@@ -5,7 +5,6 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
 
 public interface ISchedulesDirect
 {
-    void Delete(List<string> stationIds);
     bool CheckToken(bool forceReset = false);
     Task<HttpResponseMessage> GetSdImage(string uri);
     Task<List<SubscribedLineup>> GetLineups(CancellationToken cancellationToken);

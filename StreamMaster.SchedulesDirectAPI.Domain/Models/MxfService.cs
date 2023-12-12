@@ -1,7 +1,7 @@
 ﻿namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 public class MxfService
 {
-    public string StationId { get; }
+    public string StationId { get; set; }
 
     private int _index;
     private string _affiliate;

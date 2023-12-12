@@ -150,7 +150,7 @@ const EPGFilesDataSelector = () => {
       return <div />;
     }
 
-    return <div>{rowData.channelCount}</div>;
+    return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.channelCount}</div>;
   }, []);
 
   const programmeCountTemplate = useCallback((rowData: EpgFileDto) => {
@@ -158,7 +158,7 @@ const EPGFilesDataSelector = () => {
       return <div />;
     }
 
-    return <div>{rowData.programmeCount}</div>;
+    return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.programmeCount}</div>;
   }, []);
 
   const actionBodyTemplate = useCallback(

@@ -30,7 +30,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
     private readonly ISchedulesDirect schedulesDirect;
     private readonly IImageDownloadQueue imageDownloadQueue;
     private bool IsActive = false;
-    private bool ImageLockOut => ImageLockOutDate.AddHours(1) <= DateTime.Now;
+    private bool ImageLockOut => ImageLockOutDate.AddHours(1) >= DateTime.Now;
     private DateTime ImageLockOutDate = DateTime.MinValue;
     private readonly object Lock = new();
 
@@ -41,6 +41,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
     public int TotalNoArt { get; private set; }
     public int TotalErrors { get; private set; }
 
+    private bool exitLoop = false;
     public ImageDownloadServiceStatus GetStatus()
     {
         return new ImageDownloadServiceStatus
@@ -65,10 +66,10 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
         Setting settings = memoryCache.GetSetting();
         downloadSemaphore = new(settings.MaxConcurrentDownloads);
         schedulesDirect.CheckToken();
-        CheckStart();
+
     }
 
-    private void CheckStart()
+    public void Start()
     {
         lock (Lock)
         {
@@ -76,11 +77,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
             {
                 return;
             }
-
-
-            Setting test = memoryCache.GetSetting();
-
-            _ = StartAsync(CancellationToken.None).ConfigureAwait(false);
+            StartAsync(CancellationToken.None).ConfigureAwait(false);
             IsActive = true;
 
         }
@@ -107,7 +104,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
     private bool lockedlogged = false;
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        while (!cancellationToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested && !exitLoop)
         {
             if (!ImageLockOut)
             {
@@ -135,7 +132,8 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
-        // Implement stopping logic if needed
+        // Implement stopping logic if needed        
+        exitLoop = true;
         return Task.CompletedTask;
     }
 

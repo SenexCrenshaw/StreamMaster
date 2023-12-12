@@ -28,7 +28,7 @@ const EPGSelector: React.FC<Partial<EPGSelectorProperties>> = ({ enableEditMode 
         }
       })
       .catch((e) => {
-        console.log(e);
+        console.error(e);
       });
   }, []);
 
@@ -49,7 +49,6 @@ const EPGSelector: React.FC<Partial<EPGSelectorProperties>> = ({ enableEditMode 
     }
     // const background = adjustBackgroundColorIfNeeded(color);
 
-    console.log('option', option.displayName, getColor(option?.displayName));
     return <div style={{ color: color }}>{option?.displayName}</div>;
   };
 
@@ -77,8 +76,8 @@ const EPGSelector: React.FC<Partial<EPGSelectorProperties>> = ({ enableEditMode 
 
     return (
       <div className="flex grid w-full align-items-center p-0 m-0">
-        <div className="col-3 align-items-center p-0 m-0 border-round">
-          <div className="align-items-center pl-1 m-0 border-round " style={{ color: color, backgroundColor: background }}>
+        <div className="col-5 align-items-center p-0 m-0 border-round">
+          <div className="align-items-center pl-1 m-0 border-round ">
             <i className="pi pi-circle-fill pr-2" style={{ color: color, backgroundColor: background }} />
             {beforeCallSign}
           </div>
@@ -89,8 +88,6 @@ const EPGSelector: React.FC<Partial<EPGSelectorProperties>> = ({ enableEditMode 
       </div>
     );
   };
-
-  console.log('EPGSelector value', restProperties.value);
 
   if (!enableEditMode) {
     return <div className="flex h-full justify-content-center align-items-center p-0 m-0">{restProperties.value ?? 'Dummy'}</div>;

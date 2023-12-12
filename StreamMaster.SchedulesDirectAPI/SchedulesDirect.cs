@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
@@ -6,6 +7,7 @@ using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Models;
+using StreamMasterDomain.Repository;
 using StreamMasterDomain.Services;
 
 using System.Text.Json;
@@ -34,8 +36,10 @@ public partial class SchedulesDirect : ISchedulesDirect
     private readonly ISettingsService settingsService;
     private readonly IImageDownloadQueue imageDownloadQueue;
     private readonly IMemoryCache memoryCache;
+    private readonly IServiceProvider serviceProvider;
 
-    public SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDownloadQueue imageDownloadQueue, IEPGCache epgCache, ISchedulesDirectData schedulesDirectData, ISchedulesDirectAPI schedulesDirectAPI, ISettingsService settingsService, IMemoryCache memoryCache)
+
+    public SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IEPGCache epgCache, ISchedulesDirectData schedulesDirectData, ISchedulesDirectAPI schedulesDirectAPI, ISettingsService settingsService, IMemoryCache memoryCache)
     {
         this.logger = logger;
         this.epgCache = epgCache;
@@ -44,6 +48,7 @@ public partial class SchedulesDirect : ISchedulesDirect
         this.settingsService = settingsService;
         this.memoryCache = memoryCache;
         this.imageDownloadQueue = imageDownloadQueue;
+        this.serviceProvider = serviceProvider;
         CheckToken();
     }
 
@@ -99,7 +104,7 @@ public partial class SchedulesDirect : ISchedulesDirect
                 )
             {
                 epgCache.WriteCache();
-                CreateDummLineupChannel();
+                HandleDummies();
                 //var xml = CreateXmltv("");
                 //if (xml is not null)
                 //{
@@ -140,7 +145,8 @@ public partial class SchedulesDirect : ISchedulesDirect
         logger.LogDebug($"Generated XMLTV file contains {xmltv.Channels.Count} channels and {xmltv.Programs.Count} programs with {imageCount} distinct program image links.");
     }
 
-    private void CreateDummLineupChannel()
+
+    private void HandleDummies()
     {
         MxfService mxfService = schedulesDirectData.FindOrCreateService("DUMMY");
         mxfService.CallSign = "DUMMY";
@@ -148,6 +154,26 @@ public partial class SchedulesDirect : ISchedulesDirect
 
         MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup("ZZZ-DUMMY-StreamMaster", "ZZZSM Dummy Lineup");
         mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
+        CreateDummyLineupChannels();
+    }
+
+    private void CreateDummyLineupChannels()
+    {
+        using IServiceScope scope = serviceProvider.CreateScope();
+        IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        List<VideoStream> dummies = [.. repository.VideoStream.FindByCondition(x => x.User_Tvg_ID == "DUMMY")];
+
+        foreach (VideoStream dummy in dummies)
+        {
+            string dummyName = "DUMMY-" + dummy.Id;
+
+            MxfService mxfService = schedulesDirectData.FindOrCreateService(dummyName);
+            mxfService.CallSign = dummy.User_Tvg_name;
+            mxfService.Name = dummy.User_Tvg_name;
+
+            MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup($"ZZZ-{dummyName}-StreamMaster", $"ZZZSM {dummyName} Lineup");
+            mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
+        }
     }
 
     public async Task<UserStatus> GetUserStatus(CancellationToken cancellationToken)

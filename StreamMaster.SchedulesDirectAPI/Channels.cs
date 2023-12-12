@@ -6,7 +6,8 @@ public partial class SchedulesDirect
         List<MxfService> stations = schedulesDirectData.Services;
         List<StationChannelName> ret = [];
 
-        foreach (MxfService station in stations)
+        foreach (MxfService station in stations.Where(a => !a.StationId.StartsWith("DUMMY-")))
+
         {
             string channelNameSuffix = station.CallSign;
 

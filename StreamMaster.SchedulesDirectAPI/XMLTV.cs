@@ -11,41 +11,13 @@ public partial class SchedulesDirect
 {
     private string _baseUrl = "";
 
-    public void Delete(List<string> stationIds)
-    {
-        Setting settings = memoryCache.GetSetting();
-        List<MxfService> servicesToDelete = [];
-        foreach (MxfService service in schedulesDirectData.Services)
-        {
-            if (stationIds is not null && !stationIds.Contains(service.StationId))
-            {
-                continue;
-            }
-
-            if (service.StationId == "DUMMY")
-            {
-                int a = 1;
-            }
-
-            foreach (MxfScheduleEntry scheduleEntry in service.MxfScheduleEntries.ScheduleEntry)
-            {
-                MxfProgram mxfProgram = scheduleEntry.mxfProgram;
-                schedulesDirectData.RemoveProgram(mxfProgram.ProgramId);
-            }
-
-            servicesToDelete.Add(service);
-        }
-
-        foreach (MxfService service in servicesToDelete)
-        {
-            schedulesDirectData.RemoveService(service.StationId);
-        }
-    }
     public XMLTV? CreateXmltv(string baseUrl, IEnumerable<string>? stationIds = null)
     {
         _baseUrl = baseUrl;
         try
         {
+            CreateDummyLineupChannels();
+
             XMLTV xmltv = new()
             {
                 Date = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture),
@@ -58,10 +30,65 @@ public partial class SchedulesDirect
             };
 
             Setting settings = memoryCache.GetSetting();
+            List<MxfService> toProcess = [];
 
-            foreach (MxfService service in schedulesDirectData.Services)
+            if (stationIds is not null)
             {
-                if (stationIds is not null && !stationIds.Contains(service.StationId))
+                foreach (string stationId in stationIds)
+                {
+                    if (stationId.StartsWith("SMMASTER-"))
+                    {
+                        MxfService? newService = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == stationId);
+                        if (newService is not null)
+                        {
+                            continue;
+                        }
+
+                        string[] parts = stationId.Split('-');
+                        string userTvgId = parts[1];
+                        string userTvgName = parts[2];
+
+                        MxfService? origService = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == userTvgId);
+                        if (origService is null)
+                        {
+                            continue;
+                        }
+
+
+                        newService = schedulesDirectData.FindOrCreateService(stationId);
+
+                        if (origService.MxfScheduleEntries is not null)
+                        {
+                            newService.MxfScheduleEntries = origService.MxfScheduleEntries;
+                        }
+
+                        newService.Name = userTvgName;
+                        newService.Affiliate = origService.Affiliate;
+                        newService.CallSign = origService.CallSign;
+                        newService.LogoImage = origService.LogoImage;
+                        if (newService is null)
+                        {
+                            continue;
+                        }
+
+                    }
+                    MxfService? service = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == stationId);
+                    if (service is null)
+                    {
+                        continue;
+                    }
+                    toProcess.Add(service);
+                    logger.LogInformation($"StationId: {stationId}");
+                }
+            }
+            else
+            {
+                toProcess = schedulesDirectData.Services;
+            }
+
+            foreach (MxfService service in toProcess)
+            {
+                if (!service.StationId.StartsWith("SMMASTER-") && stationIds is not null && !stationIds.Contains(service.StationId))
                 {
                     continue;
                 }
@@ -69,6 +96,11 @@ public partial class SchedulesDirect
                 if (service.StationId == "DUMMY")
                 {
                     continue;
+                }
+
+                if (service.StationId.Contains("DUMMY"))
+                {
+                    int aaa = 1;
                 }
 
                 xmltv.Channels.Add(BuildXmltvChannel(service));

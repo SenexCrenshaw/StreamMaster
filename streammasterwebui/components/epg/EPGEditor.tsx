@@ -25,7 +25,7 @@ const EPGEditor = ({ data, enableEditMode }: EPGEditorProperties) => {
     console.log('onUpdateVideoStream sending', toSend);
     await UpdateVideoStream(toSend)
       .then(() => {
-        console.log('onUpdateVideoStream Successful', toSend);
+        
       })
       .catch((error: unknown) => {
         console.error(error);

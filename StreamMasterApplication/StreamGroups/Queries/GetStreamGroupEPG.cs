@@ -82,8 +82,31 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         else
         {
             List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
-            goodIds = videoStreams.Where(a => !a.IsHidden).Select(a => a.User_Tvg_ID).Distinct().ToList();
+            //goodIds = videoStreams.Where(a => !a.IsHidden).Select(a => a.User_Tvg_ID).Distinct().ToList();
+
+            foreach (VideoStreamDto videoStream in videoStreams.Where(a => !a.IsHidden))
+            {
+                if (videoStream.User_Tvg_ID.Equals("DUMMY"))
+                {
+                    string dummyName = "DUMMY-" + videoStream.Id;
+                    goodIds.Add(dummyName);
+                }
+                else
+                {
+                    if (goodIds.Contains(videoStream.User_Tvg_ID))
+                    {
+                        goodIds.Add($"SMMASTER-{videoStream.User_Tvg_ID}-{videoStream.User_Tvg_name}");
+                    }
+                    else
+                    {
+                        goodIds.Add(videoStream.User_Tvg_ID);
+                    }
+
+                }
+            }
         }
+
+        goodIds = goodIds.Where(a => !a.Equals("DUMMY")).ToList();
 
         XMLTV epgData = schedulesDirect.CreateXmltv(_httpContextAccessor.GetUrl(), goodIds) ?? new XMLTV();
 
