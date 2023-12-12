@@ -2,15 +2,15 @@
 public partial class SchedulesDirect
 {
     public List<StationChannelName> GetStationChannelNames()
-    { 
-        var stations = schedulesDirectData.Services;
+    {
+        List<MxfService> stations = schedulesDirectData.Services;
         List<StationChannelName> ret = [];
 
-        foreach (var station in stations)
+        foreach (MxfService station in stations)
         {
             string channelNameSuffix = station.CallSign;
 
-            var stationChannelName = new StationChannelName
+            StationChannelName stationChannelName = new()
             {
                 Channel = station.StationId,
                 DisplayName = $"[{station.CallSign}] {station.Name}",
@@ -19,6 +19,6 @@ public partial class SchedulesDirect
             ret.Add(stationChannelName);
         }
 
-        return ret.OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase).ToList();
+        return [.. ret.OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase)];
     }
 }

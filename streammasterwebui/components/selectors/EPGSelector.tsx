@@ -76,10 +76,6 @@ const EPGSelector: React.FC<Partial<EPGSelectorProperties>> = ({ enableEditMode 
     const background = adjustBackgroundColorIfNeeded(color);
 
     return (
-      // <div>
-      //   <span style={{ color: getColor(beforeCallSign) }}>{beforeCallSign}</span>
-      //   {afterCallSign}
-      // </div>
       <div className="flex grid w-full align-items-center p-0 m-0">
         <div className="col-3 align-items-center p-0 m-0 border-round">
           <div className="align-items-center pl-1 m-0 border-round " style={{ color: color, backgroundColor: background }}>

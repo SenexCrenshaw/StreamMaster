@@ -8,9 +8,9 @@ internal class GetStationChannelNameFromDisplayNameHandler(ILogger<GetStationCha
 {
     public Task<StationChannelName?> Handle(GetStationChannelNameFromDisplayName request, CancellationToken cancellationToken)
     {
-        var stationChannelNames = schedulesDirect.GetStationChannelNames();
+        List<StationChannelName> stationChannelNames = schedulesDirect.GetStationChannelNames();
 
-        var check = stationChannelNames.FirstOrDefault(a => a.DisplayName == request.value);
+        StationChannelName? check = stationChannelNames.FirstOrDefault(a => a.Channel == request.value);
         return Task.FromResult(check);
     }
 }
