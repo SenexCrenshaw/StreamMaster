@@ -115,11 +115,11 @@ const MessagesEn: messages_enType = {
 
   ringBufferSizeMB: 'Buffer Size (MB)',
 
-  'sdSettings.sdEnabled': 'Sched Direct Enabled',
+  'sdSettings.sdEnabled': 'ScheduleDirect Enabled',
 
-  'sdSettings.sdPassword': 'Sched Direct Password',
+  'sdSettings.sdPassword': 'ScheduleDirect Password',
 
-  'sdSettings.sdUserName': 'Sched Direct Username',
+  'sdSettings.sdUserName': 'ScheduleDirect Username',
   'sdSettings.seriesWsArt': 'Enable Series Wide Sceen Art',
   'sdSettings.seriesPosterAspect': 'Series Poster Aspect Ratio',
   'sdSettings.artworkSize': 'Artwork Size Md',

@@ -51,6 +51,13 @@ public partial class SchedulesDirect : ISchedulesDirect
     {
         try
         {
+            Setting setting = memoryCache.GetSetting();
+            if (!setting.SDSettings.SDEnabled)
+            {
+                memoryCache.SetSyncSuccessful();
+                return true;
+            }
+
             if (memoryCache.GetSyncJobStatus().IsRunning)
             {
                 memoryCache.SetSyncForceNextRun();
@@ -73,7 +80,7 @@ public partial class SchedulesDirect : ISchedulesDirect
                 return false;
             }
 
-            Setting setting = memoryCache.GetSetting();
+
             logger.LogInformation($"DaysToDownload: {setting.SDSettings.SDEPGDays}");
 
             // load cache file

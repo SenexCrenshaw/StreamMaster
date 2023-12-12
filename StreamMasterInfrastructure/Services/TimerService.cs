@@ -78,28 +78,30 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
         IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
         ISchedulesDirect schedulesDirect = scope.ServiceProvider.GetRequiredService<ISchedulesDirect>();
 
-        //_logger.LogInformation("Timer Service is working.");
-
+        StreamMasterDomain.Common.Setting setting = memoryCache.GetSetting();
         DateTime now = DateTime.Now;
 
-        JobStatus jobStatus = memoryCache.GetSyncJobStatus();
-        if (!jobStatus.IsRunning)
+        if (setting.SDSettings.SDEnabled)
         {
-            if (jobStatus.ForceNextRun || (now - jobStatus.LastRun).TotalMinutes > 15)
+            JobStatus jobStatus = memoryCache.GetSyncJobStatus();
+            if (!jobStatus.IsRunning)
             {
-                if (jobStatus.ForceNextRun || jobStatus.IsErrored || (now - jobStatus.LastSuccessful).TotalMinutes > 60)
+                if (jobStatus.ForceNextRun || (now - jobStatus.LastRun).TotalMinutes > 15)
                 {
-                    logger.LogInformation("EPGSync started. {status}", memoryCache.GetSyncJobStatus());
-                    await mediator.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
-                    if (jobStatus.Extra)
+                    if (jobStatus.ForceNextRun || jobStatus.IsErrored || (now - jobStatus.LastSuccessful).TotalMinutes > 60)
                     {
-                        foreach (EPGFileDto epg in await repository.EPGFile.GetEPGFiles())
+                        logger.LogInformation("EPGSync started. {status}", memoryCache.GetSyncJobStatus());
+                        await mediator.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
+                        if (jobStatus.Extra)
                         {
-                            await mediator.Send(new RefreshEPGFileRequest(epg.Id), cancellationToken).ConfigureAwait(false);
+                            foreach (EPGFileDto epg in await repository.EPGFile.GetEPGFiles())
+                            {
+                                await mediator.Send(new RefreshEPGFileRequest(epg.Id), cancellationToken).ConfigureAwait(false);
+                            }
+                            jobStatus.Extra = false;
                         }
-                        jobStatus.Extra = false;
+                        logger.LogInformation("EPGSync completed. {status}", memoryCache.GetSyncJobStatus());
                     }
-                    logger.LogInformation("EPGSync completed. {status}", memoryCache.GetSyncJobStatus());
                 }
             }
         }
