@@ -21,4 +21,5 @@ public interface IEPGFileRepository : IRepositoryBase<EPGFile>
 
     Task<EPGFileDto?> DeleteEPGFile(int EPGFileId);
     Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int id, CancellationToken cancellationToken);
+    List<EPGColorDto> GetEPGColors();
 }

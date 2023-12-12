@@ -7,6 +7,7 @@
     "@vidstack/react": "^0.6.13",
     "@vitejs/plugin-react": "^4.2.0",
     "axios": "^1.6.2",
+    "chroma-js": "^2.4.2",
     "primeflex": "^3.3.1",
     "primeicons": "^6.0.1",
     "primereact": "^10.2.1",

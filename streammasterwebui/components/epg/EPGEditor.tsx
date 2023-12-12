@@ -10,6 +10,7 @@ interface EPGEditorProperties {
 
 const EPGEditor = ({ data, enableEditMode }: EPGEditorProperties) => {
   const onUpdateVideoStream = async (epg: string) => {
+    console.log('onUpdateVideoStream', data);
     if (data.id === '') {
       return;
     }
@@ -21,9 +22,11 @@ const EPGEditor = ({ data, enableEditMode }: EPGEditorProperties) => {
     if (epg && epg !== '' && data.user_Tvg_ID !== epg) {
       toSend.tvg_ID = epg;
     }
-
+    console.log('onUpdateVideoStream sending', toSend);
     await UpdateVideoStream(toSend)
-      .then(() => {})
+      .then(() => {
+        console.log('onUpdateVideoStream Successful', toSend);
+      })
       .catch((error: unknown) => {
         console.error(error);
       });
@@ -37,6 +40,7 @@ const EPGEditor = ({ data, enableEditMode }: EPGEditorProperties) => {
           await onUpdateVideoStream(e);
         }}
         value={data.user_Tvg_ID}
+        epgFileId={1}
       />
     </div>
   );

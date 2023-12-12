@@ -9,7 +9,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.XmltvXml
 
         private string stop = string.Empty;
 
-       
+
 
         [XmlAttribute(AttributeName = "start")]
         public string Start
@@ -35,9 +35,9 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.XmltvXml
 
         [XmlIgnore]
         public int EPGFileId { get; set; }
-               
 
-       [XmlAttribute(AttributeName = "stop")]
+
+        [XmlAttribute(AttributeName = "stop")]
         public string Stop
         {
             get => stop;
@@ -79,6 +79,9 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.XmltvXml
 
         [XmlElement("title")]
         public List<XmltvText>? Titles { get; set; }
+
+        [XmlElement("subtitles")]
+        public List<XmltvSubtitles>? SubTitles2 { get; set; }
 
         [XmlElement("sub-title")]
         public List<XmltvText>? SubTitles { get; set; }
@@ -148,8 +151,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.XmltvXml
         [XmlElement("live")]
         public string? Live { get; set; }
 
-        [XmlElement("subtitles")]
-        public List<XmltvSubtitles>? Subtitles { get; set; }
+
 
         [XmlElement("rating")]
         public List<XmltvRating> Rating { get; set; }

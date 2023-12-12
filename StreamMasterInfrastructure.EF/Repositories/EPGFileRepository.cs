@@ -19,21 +19,26 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryCont
 {
     public async Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int Id, CancellationToken cancellationToken)
     {
-        if (Id == 0)
+        if (Id < 0)
         {
             return [];
         }
 
-        var epgFile = await FindByCondition(a => a.Id == Id).FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        EPGFile? epgFile = await FindByCondition(a => a.Id == Id).FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         if (epgFile == null)
         {
             return [];
         }
 
-        var services = schedulesDirectData.Services.Where(a => a.extras.ContainsKey("epgid") && a.extras["epgid"] == Id).ToList();
-        var ret = new List<EPGFilePreviewDto>();
-        foreach (var service in services)
+        List<StreamMaster.SchedulesDirectAPI.Domain.Models.MxfService> services = schedulesDirectData.Services.Where(a => a.extras.ContainsKey("epgid") && a.extras["epgid"] == Id).ToList();
+        List<EPGFilePreviewDto> ret = [];
+        foreach (StreamMaster.SchedulesDirectAPI.Domain.Models.MxfService? service in services)
         {
+            if (service is null)
+            {
+                continue;
+            }
+
             ret.Add(new EPGFilePreviewDto
             {
                 ChannelName = service.Name,
@@ -168,5 +173,10 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryCont
         logger.LogInformation($"EPGFile with ID {EPGFile.Id} was updated.");
     }
 
+    public List<EPGColorDto> GetEPGColors()
+    {
 
+        return [.. FindAll().ProjectTo<EPGColorDto>(mapper.ConfigurationProvider)];
+
+    }
 }

@@ -30,6 +30,8 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
     private readonly ISchedulesDirect schedulesDirect;
     private readonly IImageDownloadQueue imageDownloadQueue;
     private bool IsActive = false;
+    private bool ImageLockOut => ImageLockOutDate.AddHours(1) <= DateTime.Now;
+    private DateTime ImageLockOutDate = DateTime.MinValue;
     private readonly object Lock = new();
 
     public int TotalDownloadAttempts { get; private set; }
@@ -60,7 +62,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
         this.memoryCache = memoryCache;
         this.schedulesDirect = schedulesDirect;
         this.imageDownloadQueue = imageDownloadQueue;
-        var settings = memoryCache.GetSetting();
+        Setting settings = memoryCache.GetSetting();
         downloadSemaphore = new(settings.MaxConcurrentDownloads);
         schedulesDirect.CheckToken();
         CheckStart();
@@ -76,7 +78,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
             }
 
 
-            var test = memoryCache.GetSetting();
+            Setting test = memoryCache.GetSetting();
 
             _ = StartAsync(CancellationToken.None).ConfigureAwait(false);
             IsActive = true;
@@ -106,15 +108,17 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            //schedulesDirect.CheckToken();
-            Setting setting = FileUtil.GetSetting();
-
-            if (setting.SDSettings.SDEnabled && !imageDownloadQueue.IsEmpty() && memoryCache.IsSystemReady())
+            if (!ImageLockOut)
             {
-                await DownloadImagesAsync(cancellationToken);
+                //schedulesDirect.CheckToken();
+                Setting setting = FileUtil.GetSetting();
+
+                if (setting.SDSettings.SDEnabled && !imageDownloadQueue.IsEmpty() && memoryCache.IsSystemReady())
+                {
+                    await DownloadImagesAsync(cancellationToken);
+                }
             }
 
-            // Optionally, introduce a delay before checking the queue again
             await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
         }
     }
@@ -147,7 +151,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
 
             for (int retryCount = 0; retryCount <= maxRetryCount; retryCount++)
             {
-                var response = await schedulesDirect.GetSdImage(uri).ConfigureAwait(false);
+                HttpResponseMessage response = await schedulesDirect.GetSdImage(uri).ConfigureAwait(false);
                 //HttpResponseMessage response = await httpClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
 
                 if (response.StatusCode == HttpStatusCode.NotFound)
@@ -167,11 +171,11 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                     Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
                     if (stream != null)
                     {
-                        using var outputStream = File.Create(logoPath);
+                        using FileStream outputStream = File.Create(logoPath);
                         await stream.CopyToAsync(outputStream, cancellationToken);
                         stream.Close();
                         stream.Dispose();
-                        var fileInfo = new FileInfo(logoPath);
+                        FileInfo fileInfo = new(logoPath);
                         if (fileInfo.Length < 2000)
                         {
                             ++TotalErrors;
@@ -187,6 +191,11 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                 else
                 {
                     ++TotalErrors;
+                    if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                    {
+                        ImageLockOutDate = DateTime.Now;
+                        return false;
+                    }
                     logger.LogError($"Failed to download image from {uri} to {logoPath}: {response.StatusCode}");
                 }
             }
@@ -205,7 +214,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
 
         while (!cancellationToken.IsCancellationRequested)
         {
-            if (!imageDownloadQueue.TryDequeue(out var response))
+            if (!imageDownloadQueue.TryDequeue(out ProgramMetadata? response))
             {
                 // If the queue is empty, break out of the loop and wait for more items
                 break;
@@ -213,8 +222,8 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
             try
             {
                 string programId = response.ProgramId;
-                var artwork = new List<ProgramArtwork>();
-                var program = schedulesDirectData.Programs.Find(a => a.ProgramId == programId);
+                List<ProgramArtwork> artwork = [];
+                MxfProgram? program = schedulesDirectData.Programs.Find(a => a.ProgramId == programId);
                 if (program != null && program.extras != null)
                 {
                     artwork = program.GetArtWork();
@@ -239,7 +248,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                     await downloadSemaphore.WaitAsync(cancellationToken);
                     try
                     {
-                        var logoPath = art.Uri.GetSDImageFullPath();
+                        string logoPath = art.Uri.GetSDImageFullPath();
 
                         string url = art.Uri.StartsWith("http") ? art.Uri : $"image/{art.Uri}";// await sDToken.GetAPIUrl($"image/{art.Uri}", cancellationToken);
 
@@ -247,7 +256,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                     }
                     catch (Exception ex)
                     {
-                        var a = 1;
+                        int a = 1;
                     }
                     finally
                     {
@@ -258,7 +267,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
             }
             catch (Exception ex)
             {
-                var a = 1;
+                int a = 1;
             }
             finally
             {

@@ -8,7 +8,8 @@ namespace StreamMasterApplication.EPGFiles;
 
 public interface IEPGFileController
 {
-    Task<ActionResult<List<EPGFilePreviewDto>>> GetEPGFilePreviewById(int id, CancellationToken cancellationToken);
+    Task<ActionResult<List<EPGColorDto>>> GetEPGColors();
+    Task<ActionResult<List<EPGFilePreviewDto>>> GetEPGFilePreviewById(int id);
     Task<ActionResult> CreateEPGFile(CreateEPGFileRequest request);
 
     Task<ActionResult> CreateEPGFileFromForm([FromForm] CreateEPGFileRequest request);
@@ -28,13 +29,10 @@ public interface IEPGFileController
     Task<ActionResult> UpdateEPGFile(UpdateEPGFileRequest request);
 }
 
-public interface IEPGFileDB
-{
-}
-
 public interface IEPGFileHub
 {
-    Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int id, CancellationToken cancellationToken);
+    Task<List<EPGColorDto>> GetEPGColors(object nothing);
+    Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int id);
     Task CreateEPGFile(CreateEPGFileRequest request);
 
     Task DeleteEPGFile(DeleteEPGFileRequest request);
@@ -50,10 +48,6 @@ public interface IEPGFileHub
     Task ScanDirectoryForEPGFiles();
 
     Task UpdateEPGFile(UpdateEPGFileRequest request);
-}
-
-public interface IEPGFileScoped
-{
 }
 
 public interface IEPGFileTasks

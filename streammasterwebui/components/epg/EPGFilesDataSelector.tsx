@@ -1,3 +1,4 @@
+import ColorEditor from '@components/ColorEditor';
 import { formatJSONDateString, getTopToolOptions } from '@lib/common/common';
 import { useEpgFilesGetPagedEpgFilesQuery, useEpgFilesUpdateEpgFileMutation, type EpgFileDto, type M3UFileDto, type UpdateEpgFileRequest } from '@lib/iptvApi';
 import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox';
@@ -17,7 +18,7 @@ const EPGFilesDataSelector = () => {
   const [epgFilesUpdateEpgFileMutation] = useEpgFilesUpdateEpgFileMutation();
 
   const onEPGUpdateClick = useCallback(
-    async (id: number, auto?: boolean | null, hours?: number | null, name?: string | null, url?: string | null) => {
+    async (id: number, auto?: boolean | null, hours?: number | null, name?: string | null, url?: string | null, color?: string | null) => {
       if (id < 1) {
         return;
       }
@@ -32,6 +33,10 @@ const EPGFilesDataSelector = () => {
 
       if (auto !== undefined) {
         tosend.autoUpdate = auto;
+      }
+
+      if (color) {
+        tosend.color = color;
       }
 
       if (hours) {
@@ -103,6 +108,37 @@ const EPGFilesDataSelector = () => {
             await onEPGUpdateClick(rowData.id, null, null, e);
           }}
           value={rowData.name}
+        />
+      );
+    },
+    [onEPGUpdateClick]
+  );
+
+  const colorTemplate = useCallback(
+    (rowData: EpgFileDto) => {
+      if (rowData.id === 0) {
+        return (
+          <div
+            className="p-0 relative"
+            style={{
+              backgroundColor: 'var(--mask-bg)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            {rowData.color}
+          </div>
+        );
+      }
+
+      return (
+        <ColorEditor
+          onChange={async (e) => {
+            console.log(e);
+            await onEPGUpdateClick(rowData.id, null, null, null, null, e);
+          }}
+          color={rowData.color}
         />
       );
     },
@@ -196,6 +232,12 @@ const EPGFilesDataSelector = () => {
   const columns = useMemo(
     (): ColumnMeta[] => [
       {
+        bodyTemplate: colorTemplate,
+        field: 'color',
+        header: 'Color',
+        width: '4rem'
+      },
+      {
         bodyTemplate: nameEditorBodyTemplate,
         field: 'name',
         filter: true,
@@ -215,24 +257,24 @@ const EPGFilesDataSelector = () => {
         field: 'channelCount',
         header: 'Channels',
         sortable: true,
-        width: '8rem'
+        width: '6rem'
       },
       {
         bodyTemplate: programmeCountTemplate,
         field: 'programmeCount',
-        header: 'Programmes',
+        header: 'Progs',
         sortable: true,
-        width: '8rem'
+        width: '6rem'
       },
       { bodyTemplate: urlEditorBodyTemplate, field: 'url', sortable: true },
       {
         align: 'center',
         bodyTemplate: actionBodyTemplate,
         field: 'autoUpdate',
-        width: '8rem'
+        width: '10rem'
       }
     ],
-    [nameEditorBodyTemplate, lastDownloadedTemplate, channelCountTemplate, programmeCountTemplate, urlEditorBodyTemplate, actionBodyTemplate]
+    [colorTemplate, nameEditorBodyTemplate, lastDownloadedTemplate, channelCountTemplate, programmeCountTemplate, urlEditorBodyTemplate, actionBodyTemplate]
   );
 
   return (

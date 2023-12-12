@@ -158,7 +158,7 @@ public class Xmltv2Mxf(ILogger<Xmltv2Mxf> logger, ISchedulesDirectData schedules
                 mxfProgram.IsPaidProgramming = program.Categories.Any(arg => arg.Text.ToLower().Contains("paid programming"));
                 mxfProgram.IsProgramEpisodic = program.Categories.Any(arg => arg.Text.ToLower().Contains("episodic"));
                 mxfProgram.IsSerial = program.Categories.Any(arg => arg.Text.ToLower().Contains("serial"));
-                mxfProgram.IsSeries = (info.SeasonNumber > 0 && info.EpisodeNumber > 0) || (program.Subtitles != null) || (program.Categories.Any(arg => arg.Text.ToLower().Equals("series")) &&
+                mxfProgram.IsSeries = (info.SeasonNumber > 0 && info.EpisodeNumber > 0) || (program.SubTitles2 != null) || (program.Categories.Any(arg => arg.Text.ToLower().Equals("series")) &&
                                                                                                                            !program.Categories.Any(arg => arg.Text.ToLower().Contains("sports talk")));
                 mxfProgram.IsShortFilm = program.Categories.Any(arg => arg.Text.ToLower().Equals("short film"));
                 mxfProgram.IsSpecial = program.Categories.Any(arg => arg.Text.ToLower().Contains("special"));
@@ -262,14 +262,14 @@ public class Xmltv2Mxf(ILogger<Xmltv2Mxf> logger, ISchedulesDirectData schedules
 
                 StartTime = dtStart,
                 Duration = (int)(DateTime.ParseExact(program.Stop, "yyyyMMddHHmmss zzz", CultureInfo.InvariantCulture).ToUniversalTime() - dtStart).TotalSeconds,
-                IsCc = program.Subtitles.Any(arg => arg.Type.Equals("teletext", StringComparison.OrdinalIgnoreCase)),
-                IsSigned = program.Subtitles.Any(arg => arg.Type.Equals("deaf-signed", StringComparison.OrdinalIgnoreCase)),
+                IsCc = program.SubTitles2.Any(arg => arg.Type.Equals("teletext", StringComparison.OrdinalIgnoreCase)),
+                IsSigned = program.SubTitles2.Any(arg => arg.Type.Equals("deaf-signed", StringComparison.OrdinalIgnoreCase)),
                 AudioFormat = DetermineAudioFormat(program),
                 IsLive = program.Live != null,
                 IsLiveSports = program.Live != null && mxfProgram.IsSports,
                 //IsTape = NOT PART OF XMLTV
                 //IsDelay = NOT PART OF XMLTV
-                IsSubtitled = program.Subtitles.Any(arg => arg.Type.Equals("onscreen", StringComparison.OrdinalIgnoreCase)),
+                IsSubtitled = program.SubTitles2.Any(arg => arg.Type.Equals("onscreen", StringComparison.OrdinalIgnoreCase)),
                 IsPremiere = program.Premiere != null,
                 //IsFinale = NOT PART OF XMLTV
                 //IsInProgress = NOT PART OF XMLTV

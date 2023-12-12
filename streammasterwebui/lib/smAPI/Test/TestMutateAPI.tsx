@@ -3,6 +3,6 @@
 import type * as iptv from '@lib/iptvApi';
 import { invokeHubConnection } from '@lib/signalr/signalr';
 
-export const SDSync = async (): Promise<void | null> => {
-  await invokeHubConnection<void>('SDSync');
+export const EpgSync = async (): Promise<void | null> => {
+  await invokeHubConnection<void>('EpgSync');
 };

@@ -214,6 +214,17 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
                   iconFilled
                   label={videoStream ? 'Edit Stream' : 'Add Stream'}
                   onClick={() => {
+                    const toSend = {
+                      id: videoStream?.id,
+                      tvg_ID: epgId,
+                      tvg_chno: channelNumber,
+                      tvg_group: channelGroup,
+                      tvg_logo: iconSource,
+                      tvg_name: name,
+                      url
+                    };
+                    console.log('VideoStreamPanel onClick', toSend);
+
                     videoStream
                       ? onEdit?.({
                           id: videoStream.id,

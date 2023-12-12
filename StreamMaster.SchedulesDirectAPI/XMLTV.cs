@@ -253,7 +253,7 @@ public partial class SchedulesDirect
                 Premiere = BuildProgramPremiere(scheduleEntry),
                 Live = BuildLiveFlag(scheduleEntry),
                 New = !scheduleEntry.IsRepeat ? string.Empty : null,
-                Subtitles = BuildProgramSubtitles(scheduleEntry),
+                SubTitles2 = BuildProgramSubtitles(scheduleEntry),
                 Rating = BuildProgramRatings(scheduleEntry),
                 StarRating = BuildProgramStarRatings(mxfProgram)
             };
@@ -421,7 +421,7 @@ public partial class SchedulesDirect
             Premiere = BuildProgramPremiere(scheduleEntry),
             Live = BuildLiveFlag(scheduleEntry),
             New = (!scheduleEntry.IsRepeat) ? string.Empty : null,
-            Subtitles = BuildProgramSubtitles(scheduleEntry),
+            SubTitles2 = BuildProgramSubtitles(scheduleEntry),
             //Rating = BuildProgramRatings(mxfProgram, scheduleEntry),
             //StarRating = BuildProgramStarRatings(mxfProgram)
         };

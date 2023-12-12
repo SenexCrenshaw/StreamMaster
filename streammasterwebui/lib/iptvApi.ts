@@ -90,6 +90,10 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/epgfiles/deleteepgfile`, method: 'DELETE', body: queryArg }),
         invalidatesTags: ['EPGFiles']
       }),
+      epgFilesGetEpgColors: build.query<EpgFilesGetEpgColorsApiResponse, EpgFilesGetEpgColorsApiArg>({
+        query: () => ({ url: `/api/epgfiles/getepgcolors` }),
+        providesTags: ['EPGFiles']
+      }),
       epgFilesGetEpgFile: build.query<EpgFilesGetEpgFileApiResponse, EpgFilesGetEpgFileApiArg>({
         query: (queryArg) => ({ url: `/api/epgfiles/${queryArg}` }),
         providesTags: ['EPGFiles']
@@ -499,8 +503,8 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/streamgroupvideostreams/setstreamgroupvideostreamchannelnumbers`, method: 'PATCH', body: queryArg }),
         invalidatesTags: ['StreamGroupVideoStreams']
       }),
-      testSdSync: build.mutation<TestSdSyncApiResponse, TestSdSyncApiArg>({
-        query: () => ({ url: `/api/test/sdsync`, method: 'PUT' }),
+      testEpgSync: build.mutation<TestEpgSyncApiResponse, TestEpgSyncApiArg>({
+        query: () => ({ url: `/api/test/epgsync`, method: 'PUT' }),
         invalidatesTags: ['Test']
       }),
       videoStreamLinksAddVideoStreamToVideoStream: build.mutation<
@@ -735,6 +739,8 @@ export type EpgFilesCreateEpgFileFromFormApiArg = {
 };
 export type EpgFilesDeleteEpgFileApiResponse = unknown;
 export type EpgFilesDeleteEpgFileApiArg = DeleteEpgFileRequest;
+export type EpgFilesGetEpgColorsApiResponse = /** status 200  */ EpgColorDto[];
+export type EpgFilesGetEpgColorsApiArg = void;
 export type EpgFilesGetEpgFileApiResponse = /** status 200  */ EpgFileDto;
 export type EpgFilesGetEpgFileApiArg = number;
 export type EpgFilesGetEpgFilePreviewByIdApiResponse = /** status 200  */ EpgFilePreviewDto[];
@@ -953,8 +959,8 @@ export type StreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteApiResponse
 export type StreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteApiArg = SyncVideoStreamToStreamGroupRequest;
 export type StreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersApiResponse = unknown;
 export type StreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersApiArg = SetStreamGroupVideoStreamChannelNumbersRequest;
-export type TestSdSyncApiResponse = /** status 200  */ boolean;
-export type TestSdSyncApiArg = void;
+export type TestEpgSyncApiResponse = /** status 200  */ boolean;
+export type TestEpgSyncApiArg = void;
 export type VideoStreamLinksAddVideoStreamToVideoStreamApiResponse = unknown;
 export type VideoStreamLinksAddVideoStreamToVideoStreamApiArg = AddVideoStreamToVideoStreamRequest;
 export type VideoStreamLinksGetVideoStreamVideoStreamIdsApiResponse = /** status 200  */ string[];
@@ -1109,6 +1115,13 @@ export type DeleteEpgFileRequest = {
   deleteFile?: boolean;
   id?: number;
 };
+export type EpgColorDto = {
+  id?: number;
+  epgFileId?: number;
+  callSign?: string;
+  stationId?: string;
+  color?: string;
+};
 export type BaseFileDto = {
   source: string;
   autoUpdate: boolean;
@@ -1123,6 +1136,7 @@ export type BaseFileDto = {
   url: string;
 };
 export type EpgFileDto = BaseFileDto & {
+  color: string;
   channelCount: number;
   epgStartDate: string;
   epgStopDate: string;
@@ -1158,7 +1172,7 @@ export type BaseFileRequest = {
   url?: string | null;
 };
 export type UpdateEpgFileRequest = BaseFileRequest & {
-  epgRank?: number | null;
+  color?: string | null;
 };
 export type SmFileTypes = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
 export type AutoMatchIconToStreamsRequest = {
@@ -1238,6 +1252,10 @@ export type XmltvText = {
   language?: string;
   text?: string;
 };
+export type XmltvSubtitles = {
+  language?: string;
+  type?: string;
+};
 export type XmltvActor = {
   role?: string;
   actor?: string;
@@ -1282,10 +1300,6 @@ export type XmltvPreviouslyShown = {
   channel?: string;
   text?: string;
 };
-export type XmltvSubtitles = {
-  language?: string;
-  type?: string;
-};
 export type XmltvRating = {
   value?: string;
   icons?: XmltvIcon[];
@@ -1311,6 +1325,7 @@ export type XmltvProgramme = {
   channel?: string;
   clumpIdx?: string;
   titles?: XmltvText[] | null;
+  subTitles2?: XmltvSubtitles[] | null;
   subTitles?: XmltvText[] | null;
   descriptions?: XmltvText[] | null;
   credits?: XmltvCredit | null;
@@ -1333,7 +1348,6 @@ export type XmltvProgramme = {
   lastChance?: XmltvText;
   new?: string | null;
   live?: string | null;
-  subtitles?: XmltvSubtitles[] | null;
   rating?: XmltvRating[];
   starRating?: XmltvRating[] | null;
   review?: XmltvReview[];
@@ -1909,6 +1923,7 @@ export const {
   useEpgFilesCreateEpgFileMutation,
   useEpgFilesCreateEpgFileFromFormMutation,
   useEpgFilesDeleteEpgFileMutation,
+  useEpgFilesGetEpgColorsQuery,
   useEpgFilesGetEpgFileQuery,
   useEpgFilesGetEpgFilePreviewByIdQuery,
   useEpgFilesGetPagedEpgFilesQuery,
@@ -1981,7 +1996,7 @@ export const {
   useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostMutation,
   useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteMutation,
   useStreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersMutation,
-  useTestSdSyncMutation,
+  useTestEpgSyncMutation,
   useVideoStreamLinksAddVideoStreamToVideoStreamMutation,
   useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery,
   useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery,
