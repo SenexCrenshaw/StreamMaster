@@ -67,7 +67,7 @@ public partial class SchedulesDirect
                 {
                     // instantiate stationLogo and override uid
                     StationImage? stationLogo = null;
-                    mxfService.UidOverride = $"!Service!EPG123_{station.StationId}";
+                    mxfService.UidOverride = $"!Service!STREAMMASTER_{station.StationId}";
 
                     // add callsign and station name
                     mxfService.CallSign = station.Callsign;

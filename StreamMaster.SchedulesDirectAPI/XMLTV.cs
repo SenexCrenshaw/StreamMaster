@@ -51,8 +51,8 @@ public partial class SchedulesDirect
                 Date = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture),
                 SourceInfoUrl = "http://schedulesdirect.org",
                 SourceInfoName = "Schedules Direct",
-                GeneratorInfoName = "streamaster",
-                GeneratorInfoUrl = "https://garyan2.github.io/",
+                GeneratorInfoName = "StreamMaster",
+                GeneratorInfoUrl = "https://github.com/SenexCrenshaw/StreamMaster/",
                 Channels = [],
                 Programs = []
             };
@@ -76,7 +76,7 @@ public partial class SchedulesDirect
                 if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && settings.SDSettings.XmltvAddFillerData)
                 {
                     // add a program specific for this service
-                    MxfProgram program = schedulesDirectData.FindOrCreateProgram($"EPG123FILL{service.StationId}");
+                    MxfProgram program = schedulesDirectData.FindOrCreateProgram($"STREAMMASTERFILL{service.StationId}");
                     program.Title = service.Name;
                     program.Description = settings.SDSettings.XmltvFillerProgramDescription;
                     program.IsGeneric = true;
