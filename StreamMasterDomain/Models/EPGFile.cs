@@ -7,6 +7,7 @@ namespace StreamMasterDomain.Models;
 
 public class EPGFile : AutoUpdateEntity
 {
+    public string Color { get; set; } = string.Empty;
     public static EPGFile? ReadJSON(FileInfo fileInfo)
     {
         string filePath = Path.Combine(fileInfo.DirectoryName, Path.GetFileNameWithoutExtension(fileInfo.FullName) + ".json");

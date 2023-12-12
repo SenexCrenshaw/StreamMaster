@@ -7,6 +7,7 @@ namespace StreamMasterDomain.Dto;
 [RequireAll]
 public class EPGFileDto : BaseFileDto, IMapFrom<EPGFile>
 {
+    public string Color { get; set; }
     public int ChannelCount { get; set; }
 
     public DateTime EPGStartDate { get; set; }

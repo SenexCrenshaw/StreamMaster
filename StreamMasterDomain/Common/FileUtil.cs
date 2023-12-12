@@ -122,10 +122,7 @@ public sealed class FileUtil
             return;
         }
 
-        if (
-            !directory.ToLower().StartsWith(BuildInfo.AppDataFolder.ToLower()) &&
-            !$"{directory.ToLower()}{Path.DirectorySeparatorChar}".StartsWith(BuildInfo.AppDataFolder.ToLower())
-            )
+        if (!IsSubdirectory(directory, BuildInfo.AppDataFolder))
         {
             throw new Exception($"Illegal directory outside of {BuildInfo.AppDataFolder} : {directory}");
         }
@@ -134,6 +131,15 @@ public sealed class FileUtil
         {
             _ = Directory.CreateDirectory(directory);
         }
+    }
+    public static bool IsSubdirectory(string candidate, string parent)
+    {
+        candidate = Path.GetFullPath(candidate).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                                    .ToLowerInvariant();
+        parent = Path.GetFullPath(parent).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                                .ToLowerInvariant();
+
+        return candidate.StartsWith(parent);
     }
 
     public static async Task<(bool success, Exception? ex)> DownloadUrlAsync(string url, string fullName, CancellationToken cancellationdefault)
@@ -411,8 +417,6 @@ public sealed class FileUtil
 
         for (char c = '0'; c <= '9'; c++)
         {
-            Console.WriteLine(c);
-
             string subdirectoryName = c.ToString();
             string subdirectoryPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName);
 
@@ -425,8 +429,6 @@ public sealed class FileUtil
 
         for (char c = 'a'; c <= 'f'; c++)
         {
-            Console.WriteLine(c);
-
             string subdirectoryName = c.ToString();
             string subdirectoryPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName);
 

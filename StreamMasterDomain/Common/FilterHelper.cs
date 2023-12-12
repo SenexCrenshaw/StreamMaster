@@ -82,12 +82,13 @@ public static class FilterHelper<T> where T : class
         if (string.IsNullOrEmpty(filter.MatchMode))
         {
             filter.MatchMode = "contains";
-        } else  if (filter.MatchMode == "channelGroupsMatch")
+        }
+        else if (filter.MatchMode == "channelGroupsMatch")
         {
             filter.MatchMode = "equals";
         }
-        
-        List<Expression> containsExpressions = new();
+
+        List<Expression> containsExpressions = [];
 
         MethodInfo? methodInfoString = GetMethodCaseInsensitive(typeof(string), filter.MatchMode, new[] { typeof(string) });
 
