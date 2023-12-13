@@ -23,6 +23,8 @@ export function SDSettings(): React.ReactElement {
       {getCheckBoxLine({ field: 'sdSettings.sdEnabled', selectedCurrentSettingDto, onChange })}
       {getInputTextLine({ field: 'sdSettings.sdUserName', selectedCurrentSettingDto, onChange })}
       {getPasswordLine({ field: 'sdSettings.sdPassword', selectedCurrentSettingDto, onChange })}
+      {getInputTextLine({ field: 'sdSettings.preferredLogoStyle', selectedCurrentSettingDto, onChange })}
+      {getInputTextLine({ field: 'sdSettings.alternateLogoStyle', selectedCurrentSettingDto, onChange })}
       {getCheckBoxLine({ field: 'sdSettings.seriesPosterArt', selectedCurrentSettingDto, onChange })}
       {getCheckBoxLine({ field: 'sdSettings.seriesWsArt', selectedCurrentSettingDto, onChange })}
       {getInputTextLine({ field: 'sdSettings.seriesPosterAspect', selectedCurrentSettingDto, onChange })}

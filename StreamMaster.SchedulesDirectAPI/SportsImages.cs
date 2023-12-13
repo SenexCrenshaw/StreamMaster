@@ -87,6 +87,9 @@ public partial class SchedulesDirect
             return;
         }
 
+        StreamMasterDomain.Common.Setting setting = memoryCache.GetSetting();
+        string artworkSize = string.IsNullOrEmpty(setting.SDSettings.ArtworkSize) ? "Md" : setting.SDSettings.ArtworkSize;
+
         foreach (ProgramMetadata response in sportsImageResponses)
         {
             //IncrementProgress();
@@ -102,7 +105,7 @@ public partial class SchedulesDirect
             }
 
             // get sports event images      
-            List<ProgramArtwork> artwork = SDHelpers.GetTieredImages(response.Data, ["team event", "sport event"]);
+            List<ProgramArtwork> artwork = SDHelpers.GetTieredImages(response.Data, ["team event", "sport event"], artworkSize);
             if (mxfProgram.extras.ContainsKey("artwork"))
             {
                 mxfProgram.extras["artwork"] = artwork;

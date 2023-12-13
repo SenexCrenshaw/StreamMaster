@@ -1577,6 +1577,8 @@ export type SdSettings = {
   sdCountry?: string;
   sdPassword?: string;
   sdPostalCode?: string;
+  preferredLogoStyle?: string;
+  alternateLogoStyle?: string;
   sdStationIds?: StationIdLineup[];
   seasonEventImages?: boolean;
   xmltvAddFillerData?: boolean;
@@ -1636,6 +1638,8 @@ export type LogInRequest = {
   userName?: string;
 };
 export type SdSettingsRequest = {
+  preferredLogoStyle?: string | null;
+  alternateLogoStyle?: string | null;
   seriesPosterArt?: boolean | null;
   seriesWsArt?: boolean | null;
   seriesPosterAspect?: string | null;

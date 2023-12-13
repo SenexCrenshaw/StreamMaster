@@ -130,6 +130,8 @@ public partial class SchedulesDirect
 
     private void ProcessSeriesImageResponses()
     {
+        StreamMasterDomain.Common.Setting setting = memoryCache.GetSetting();
+        string artworkSize = string.IsNullOrEmpty(setting.SDSettings.ArtworkSize) ? "Md" : setting.SDSettings.ArtworkSize;
         // process request response
         foreach (ProgramMetadata response in seriesImageResponses)
         {
@@ -171,7 +173,7 @@ public partial class SchedulesDirect
             }
 
             // get series images
-            List<ProgramArtwork> artwork = SDHelpers.GetTieredImages(response.Data, ["series", "sport", "episode"]);
+            List<ProgramArtwork> artwork = SDHelpers.GetTieredImages(response.Data, ["series", "sport", "episode"], artworkSize);
             if (response.ProgramId.StartsWith("SP") && artwork.Count <= 0)
             {
                 continue;

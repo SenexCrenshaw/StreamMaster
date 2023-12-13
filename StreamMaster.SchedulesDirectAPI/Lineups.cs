@@ -21,6 +21,8 @@ public partial class SchedulesDirect
         }
 
         Setting setting = await settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
+        string preferredLogoStyle = string.IsNullOrEmpty(setting.SDSettings.PreferredLogoStyle) ? "DARK" : setting.SDSettings.PreferredLogoStyle;
+        string alternateLogoStyle = string.IsNullOrEmpty(setting.SDSettings.AlternateLogoStyle) ? "WHITE" : setting.SDSettings.AlternateLogoStyle;
 
         foreach (SubscribedLineup clientLineup in clientLineups.Lineups)
         {
@@ -89,8 +91,8 @@ public partial class SchedulesDirect
                     if (station.StationLogos != null)
                     {
                         List<string> cats = station.StationLogos.Select(a => a.Category).Distinct().ToList();
-                        stationLogo = station.StationLogos?.FirstOrDefault(arg => arg.Category != null && arg.Category.Equals("DARK", StringComparison.OrdinalIgnoreCase)) ??
-                                      station.StationLogos?.FirstOrDefault(arg => arg.Category != null && arg.Category.Equals("WHITE", StringComparison.OrdinalIgnoreCase)) ??
+                        stationLogo = station.StationLogos?.FirstOrDefault(arg => arg.Category != null && arg.Category.Equals(preferredLogoStyle, StringComparison.OrdinalIgnoreCase)) ??
+                                      station.StationLogos?.FirstOrDefault(arg => arg.Category != null && arg.Category.Equals(alternateLogoStyle, StringComparison.OrdinalIgnoreCase)) ??
                                       station.Logo;
 
                         // initialize as custom logo

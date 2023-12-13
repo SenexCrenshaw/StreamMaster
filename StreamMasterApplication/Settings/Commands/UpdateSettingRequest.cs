@@ -27,6 +27,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public bool? M3UFieldCUID { get; set; }
     public bool? M3UFieldGroupTitle { get; set; }
     public bool? M3UFieldTvgChno { get; set; }
+
     public bool? M3UFieldTvgId { get; set; }
     public bool? M3UFieldTvgLogo { get; set; }
     public bool? M3UFieldTvgName { get; set; }
@@ -94,6 +95,16 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
         if (source.PrefixEpisodeDescription != null)
         {
             destination.PrefixEpisodeDescription = (bool)source.PrefixEpisodeDescription;
+        }
+
+        if (source.PrefixEpisodeTitle != null)
+        {
+            destination.PrefixEpisodeTitle = (bool)source.PrefixEpisodeTitle;
+        }
+
+        if (source.AlternateLogoStyle != null)
+        {
+            destination.AlternateLogoStyle = source.AlternateLogoStyle;
         }
 
         if (source.PrefixEpisodeTitle != null)

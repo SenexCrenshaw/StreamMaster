@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
@@ -7,7 +6,6 @@ using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Models;
-using StreamMasterDomain.Repository;
 using StreamMasterDomain.Services;
 
 using System.Text.Json;
@@ -159,21 +157,21 @@ public partial class SchedulesDirect : ISchedulesDirect
 
     private void CreateDummyLineupChannels()
     {
-        using IServiceScope scope = serviceProvider.CreateScope();
-        IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-        List<VideoStream> dummies = [.. repository.VideoStream.FindByCondition(x => x.User_Tvg_ID == "DUMMY")];
+        //using IServiceScope scope = serviceProvider.CreateScope();
+        //IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        //List<VideoStream> dummies = [.. repository.VideoStream.FindByCondition(x => x.User_Tvg_ID == "DUMMY")];
 
-        foreach (VideoStream dummy in dummies)
-        {
-            string dummyName = "DUMMY-" + dummy.Id;
+        //foreach (VideoStream dummy in dummies)
+        //{
+        //    string dummyName = "DUMMY-" + dummy.Id;
 
-            MxfService mxfService = schedulesDirectData.FindOrCreateService(dummyName);
-            mxfService.CallSign = dummy.User_Tvg_name;
-            mxfService.Name = dummy.User_Tvg_name;
+        //    MxfService mxfService = schedulesDirectData.FindOrCreateService(dummyName);
+        //    mxfService.CallSign = dummy.User_Tvg_name;
+        //    mxfService.Name = dummy.User_Tvg_name;
 
-            MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup($"ZZZ-{dummyName}-StreamMaster", $"ZZZSM {dummyName} Lineup");
-            mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
-        }
+        //    MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup($"ZZZ-{dummyName}-StreamMaster", $"ZZZSM {dummyName} Lineup");
+        //    mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
+        //}
     }
 
     public async Task<UserStatus> GetUserStatus(CancellationToken cancellationToken)

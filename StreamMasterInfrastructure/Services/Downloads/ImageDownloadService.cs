@@ -218,6 +218,8 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
 
     private async Task DownloadImagesAsync(CancellationToken cancellationToken)
     {
+        StreamMasterDomain.Common.Setting setting = memoryCache.GetSetting();
+        string artworkSize = string.IsNullOrEmpty(setting.SDSettings.ArtworkSize) ? "Md" : setting.SDSettings.ArtworkSize;
 
 
         while (!cancellationToken.IsCancellationRequested)
@@ -241,7 +243,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                 {
                     if (response.Data != null && response.Data.Any())
                     {
-                        artwork = SDHelpers.GetTieredImages(response.Data, ["series", "sport", "episode"]);
+                        artwork = SDHelpers.GetTieredImages(response.Data, ["series", "sport", "episode"], artworkSize);
                     }
                     else
                     {

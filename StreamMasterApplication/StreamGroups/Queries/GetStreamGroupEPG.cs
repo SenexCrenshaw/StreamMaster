@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Http;
 
+using StreamMaster.SchedulesDirectAPI.Domain.Models;
 using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
 
 using StreamMasterApplication.Common.Extensions;
@@ -73,42 +74,54 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     {
 
         Setting settings = MemoryCache.GetSetting();
-        List<string> goodIds = [];
 
-        if (request.StreamGroupId == 0)
-        {
-            goodIds = settings.SDSettings.SDStationIds.Select(a => a.StationId).Distinct().ToList();
-        }
-        else
-        {
-            List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
-            //goodIds = videoStreams.Where(a => !a.IsHidden).Select(a => a.User_Tvg_ID).Distinct().ToList();
+        List<VideoStreamDto> videoStreams = [];
 
-            foreach (VideoStreamDto videoStream in videoStreams.Where(a => !a.IsHidden))
+        videoStreams = request.StreamGroupId == 0
+            ? await Repository.VideoStream.GetVideoStreams()
+            : await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
+
+        List<VideoStreamConfig> videoStreamConfigs = [];
+
+        foreach (VideoStreamDto? videoStream in videoStreams.Where(a => !a.IsHidden))
+        {
+            videoStreamConfigs.Add(new VideoStreamConfig
             {
-                if (videoStream.User_Tvg_ID.Equals("DUMMY"))
-                {
-                    string dummyName = "DUMMY-" + videoStream.Id;
-                    goodIds.Add(dummyName);
-                }
-                else
-                {
-                    if (goodIds.Contains(videoStream.User_Tvg_ID))
-                    {
-                        goodIds.Add($"SMMASTER-{videoStream.User_Tvg_ID}-{videoStream.User_Tvg_name}");
-                    }
-                    else
-                    {
-                        goodIds.Add(videoStream.User_Tvg_ID);
-                    }
+                Id = videoStream.Id,
+                User_Tvg_name = videoStream.User_Tvg_name,
+                User_Tvg_ID = videoStream.User_Tvg_ID,
+                User_Tvg_Logo = videoStream.User_Tvg_logo,
+                User_Tvg_chno = videoStream.User_Tvg_chno,
+                IsDuplicate = false,
+                IsDummy = false
+            });
+        }
 
-                }
+        //= Mapper.Map<List<VideoStreamConfig>>(videoStreams.Where(a => !a.IsHidden));
+
+        //goodIds = videoStreams.Where(a => !a.IsHidden).Select(a => a.User_Tvg_ID).Distinct().ToList();
+
+        HashSet<string> epgids = [];
+
+        foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs)
+        {
+            videoStreamConfig.IsDummy = videoStreamConfig.User_Tvg_ID.Equals("DUMMY");
+            //if (videoStreamConfig.User_Tvg_ID.Equals("DUMMY"))
+            //{
+            //    videoStreamConfig.IsDummy = true;
+            //}
+
+            if (epgids.Contains(videoStreamConfig.User_Tvg_ID))
+            {
+                videoStreamConfig.IsDuplicate = true;
+            }
+            else
+            {
+                epgids.Add(videoStreamConfig.User_Tvg_ID);
             }
         }
 
-        goodIds = goodIds.Where(a => !a.Equals("DUMMY")).ToList();
-
-        XMLTV epgData = schedulesDirect.CreateXmltv(_httpContextAccessor.GetUrl(), goodIds) ?? new XMLTV();
+        XMLTV epgData = schedulesDirect.CreateXmltv(_httpContextAccessor.GetUrl(), videoStreamConfigs) ?? new XMLTV();
 
         return SerializeXMLTVData(epgData);
     }

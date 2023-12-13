@@ -108,26 +108,6 @@ public static partial class SDHelpers
         }
     }
 
-    public static string ExtractStationId(this string input)
-    {
-        string prefix = "guide2go.";
-        string suffix = ".schedulesdirect.org";
-
-        int startIndex = input.IndexOf(prefix);
-        int endIndex = input.IndexOf(suffix);
-
-        if (startIndex != -1 && endIndex != -1 && startIndex < endIndex)
-        {
-            int length = endIndex - (startIndex + prefix.Length);
-            if (length > 0)
-            {
-                return input.Substring(startIndex + prefix.Length, length);
-            }
-        }
-
-        return string.Empty;
-    }
-
     public static string GetSDImageFullPath(this string fileName)
     {
         string subdirectoryName = fileName[0].ToString().ToLower();
@@ -159,8 +139,9 @@ public static partial class SDHelpers
         return artwork;
     }
 
-    public static List<ProgramArtwork> GetTieredImages(List<ProgramArtwork> sdImages, List<string> tiers, string artWorkSize = "Md")
+    public static List<ProgramArtwork> GetTieredImages(List<ProgramArtwork> sdImages, List<string> tiers, string artWorkSize)
     {
+
         List<ProgramArtwork> ret = [];
         IEnumerable<ProgramArtwork> images = sdImages.Where(arg =>
             !string.IsNullOrEmpty(arg.Category) && !string.IsNullOrEmpty(arg.Aspect) && !string.IsNullOrEmpty(arg.Uri) &&

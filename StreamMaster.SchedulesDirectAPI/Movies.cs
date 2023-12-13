@@ -78,6 +78,8 @@ public partial class SchedulesDirect
 
     private void ProcessMovieImageResponses()
     {
+        StreamMasterDomain.Common.Setting setting = memoryCache.GetSetting();
+        string artworkSize = string.IsNullOrEmpty(setting.SDSettings.ArtworkSize) ? "Md" : setting.SDSettings.ArtworkSize;
         // process request response
         foreach (ProgramMetadata response in movieImageResponses)
         {
@@ -92,7 +94,7 @@ public partial class SchedulesDirect
 
             // first choice is return from Schedules Direct
             List<ProgramArtwork> artwork;
-            artwork = SDHelpers.GetTieredImages(response.Data, ["episode"]).Where(arg => arg.Aspect.Equals("2x3")).ToList();
+            artwork = SDHelpers.GetTieredImages(response.Data, ["episode"], artworkSize).Where(arg => arg.Aspect.Equals("2x3")).ToList();
             if (artwork.Any())
             {
                 mxfProgram.extras.Add("artwork", artwork);

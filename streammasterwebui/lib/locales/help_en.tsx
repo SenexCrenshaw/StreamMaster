@@ -48,7 +48,10 @@ const help_en: help_enType = {
   videoStreamAlwaysUseEPGLogo:
     'Always use EPG Logo for Video Stream. If the EPG is changed to one containing a logo then the video stream logo will be set to that',
 
-  'sdSettings.alternateSEFormat': 'True: "S{0}:E{1} "  False: "s{0:D2}e{1:D2} ";'
+  'sdSettings.alternateSEFormat': 'True: "S{0}:E{1} "  False: "s{0:D2}e{1:D2} ";',
+  'sdSettings.preferredLogoStyle': 'Dark, Gray, Light, White',
+  'sdSettings.alternateLogoStyle': 'Dark, Gray, Light, White',
+  'sdSettings.artworkSize': 'Sm, Md, Lg'
 };
 
 export const getHelp = (key: string) => help_en[key];

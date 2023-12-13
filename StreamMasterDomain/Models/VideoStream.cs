@@ -1,7 +1,8 @@
 ﻿using AutoMapper.Configuration.Annotations;
 
+
+
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Mappings;
 
 using System.ComponentModel.DataAnnotations;
 

@@ -85,6 +85,9 @@ public partial class SchedulesDirect
 
     private void ProcessSeasonImageResponses()
     {
+        StreamMasterDomain.Common.Setting setting = memoryCache.GetSetting();
+        string artworkSize = string.IsNullOrEmpty(setting.SDSettings.ArtworkSize) ? "Md" : setting.SDSettings.ArtworkSize;
+
         // process request response
         foreach (ProgramMetadata response in seasonImageResponses)
         {
@@ -102,7 +105,8 @@ public partial class SchedulesDirect
 
             // get season images
             List<ProgramArtwork> artwork;
-            season.extras.Add("artwork", artwork = SDHelpers.GetTieredImages(response.Data, ["season"]));
+
+            season.extras.Add("artwork", artwork = SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize));
 
             // create a season entry in cache
             string uid = $"{season.SeriesId}_{season.SeasonNumber}";

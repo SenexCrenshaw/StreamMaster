@@ -11,7 +11,7 @@ public partial class SchedulesDirect
 {
     private string _baseUrl = "";
 
-    public XMLTV? CreateXmltv(string baseUrl, IEnumerable<string>? stationIds = null)
+    public XMLTV? CreateXmltv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs)
     {
         _baseUrl = baseUrl;
         try
@@ -32,83 +32,70 @@ public partial class SchedulesDirect
             Setting settings = memoryCache.GetSetting();
             List<MxfService> toProcess = [];
 
-            if (stationIds is not null)
+            foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs)
             {
-                foreach (string stationId in stationIds)
-                {
-                    if (stationId.StartsWith("SMMASTER-"))
-                    {
-                        MxfService? newService = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == stationId);
-                        if (newService is not null)
-                        {
-                            continue;
-                        }
+                string prefix = videoStreamConfig.IsDummy ? "DUMMY" : videoStreamConfig.IsDuplicate ? "SM" : "SM";
 
-                        string[] parts = stationId.Split('-');
-                        string userTvgId = parts[1];
-                        string userTvgName = parts[2];
+                string stationId = $"{prefix}-{videoStreamConfig.Id}";
 
-                        MxfService? origService = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == userTvgId);
-                        if (origService is null)
-                        {
-                            continue;
-                        }
-
-
-                        newService = schedulesDirectData.FindOrCreateService(stationId);
-
-                        if (origService.MxfScheduleEntries is not null)
-                        {
-                            newService.MxfScheduleEntries = origService.MxfScheduleEntries;
-                        }
-
-                        newService.Name = userTvgName;
-                        newService.Affiliate = origService.Affiliate;
-                        newService.CallSign = origService.CallSign;
-                        newService.LogoImage = origService.LogoImage;
-                        if (newService is null)
-                        {
-                            continue;
-                        }
-
-                    }
-                    MxfService? service = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == stationId);
-                    if (service is null)
-                    {
-                        continue;
-                    }
-                    toProcess.Add(service);
-                    logger.LogInformation($"StationId: {stationId}");
-                }
-            }
-            else
-            {
-                toProcess = schedulesDirectData.Services;
-            }
-
-            foreach (MxfService service in toProcess)
-            {
-                if (!service.StationId.StartsWith("SMMASTER-") && stationIds is not null && !stationIds.Contains(service.StationId))
+                MxfService? origService = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == videoStreamConfig.User_Tvg_ID);
+                if (origService is null)
                 {
                     continue;
                 }
+
+                MxfService? newService = schedulesDirectData.FindOrCreateService(stationId);
+
+                if (origService.MxfScheduleEntries is not null)
+                {
+                    newService.MxfScheduleEntries = origService.MxfScheduleEntries;
+                }
+
+                newService.Name = videoStreamConfig.User_Tvg_name;
+                newService.Affiliate = origService.Affiliate;
+                newService.CallSign = origService.CallSign;
+                newService.LogoImage = origService.LogoImage;
+                newService.extras = origService.extras;
+                newService.extras["videoStreamConfig"] = videoStreamConfig;
+
+
+                //MxfService? service = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == stationId);
+                //if (service is null)
+                //{
+                //    continue;
+                //}
+                toProcess.Add(newService);
+                logger.LogInformation($"StationId: {stationId}");
+            }
+            //}
+            //else
+            //{
+            //    toProcess = schedulesDirectData.Services;
+            //}
+
+            foreach (MxfService service in toProcess)
+            {
+                //if (!service.StationId.StartsWith("SMMASTER-") && stationIds is not null && !stationIds.Contains(service.StationId))
+                //{
+                //    continue;
+                //}
 
                 if (service.StationId == "DUMMY")
                 {
                     continue;
                 }
 
-                if (service.StationId.Contains("DUMMY"))
-                {
-                    int aaa = 1;
-                }
+                //if (service.StationId.Contains("DUMMY"))
+                //{
+                //    int aaa = 1;
+                //}
 
-                xmltv.Channels.Add(BuildXmltvChannel(service));
+                xmltv.Channels.Add(BuildXmltvChannel(service, videoStreamConfigs));
 
                 if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && settings.SDSettings.XmltvAddFillerData)
                 {
                     // add a program specific for this service
-                    MxfProgram program = schedulesDirectData.FindOrCreateProgram($"STREAMMASTERFILL{service.StationId}");
+                    MxfProgram program = schedulesDirectData.FindOrCreateProgram($"SM-{service.StationId}");
                     program.Title = service.Name;
                     program.Description = settings.SDSettings.XmltvFillerProgramDescription;
                     program.IsGeneric = true;
@@ -183,14 +170,14 @@ public partial class SchedulesDirect
     }
 
     #region ========== XMLTV Channels and Functions ==========
-    public XmltvChannel BuildXmltvChannel(MxfService mxfService)
+    public XmltvChannel BuildXmltvChannel(MxfService mxfService, List<VideoStreamConfig> videoStreamConfigs)
     {
         Setting settings = memoryCache.GetSetting();
 
         // initialize the return channel
         XmltvChannel ret = new()
         {
-            Id = $"StreamMaster.{mxfService.StationId}.schedulesdirect.org",
+            Id = mxfService.StationId,// $"StreamMaster.{mxfService.StationId}.schedulesdirect.org",
             DisplayNames = []
         };
 

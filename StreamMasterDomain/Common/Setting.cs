@@ -35,6 +35,10 @@ public class SDSettings
     public string SDPassword { get; set; } = string.Empty;
     public string SDPostalCode { get; set; } = string.Empty;
 
+    public string PreferredLogoStyle { get; set; } = "DARK";
+    public string AlternateLogoStyle { get; set; } = "WHITE";
+
+
     public List<StationIdLineup> SDStationIds { get; set; } = [];
     public bool SeasonEventImages { get; set; } = true;
     public bool XmltvAddFillerData { get; set; } = true;
@@ -47,6 +51,8 @@ public class SDSettings
 
 public class SDSettingsRequest
 {
+    public string? PreferredLogoStyle { get; set; }
+    public string? AlternateLogoStyle { get; set; }
     public bool? SeriesPosterArt { get; set; }
     public bool? SeriesWsArt { get; set; }
     public string? SeriesPosterAspect { get; set; }
