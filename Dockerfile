@@ -28,8 +28,9 @@ RUN dotnet build "StreamMasterAPI.csproj" -c Debug -o /app/build -a $TARGETARCH
 RUN mkdir -p /etc/apt/keyrings
 RUN apt-get update -yq \
     && apt-get upgrade -yq \
-    && apt-get install -yq ca-certificates curl gnupg git nano \
-    && curl -sL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+    && apt-get install -yq ca-certificates curl gnupg git nano
+
+RUN curl -sL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
     && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
     && apt-get update && apt-get install -yq nodejs build-essential \
     && rm -rf /var/lib/apt/lists/* \
