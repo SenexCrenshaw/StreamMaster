@@ -6,7 +6,7 @@ import { useSelectedPostalCode } from '@lib/redux/slices/selectedPostalCodeSlice
 import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
 import useSettings from '@lib/useSettings';
 import { Dropdown } from 'primereact/dropdown';
-import React, { useState } from 'react';
+import React from 'react';
 
 interface SchedulesDirectCountrySelectorProperties {
   readonly onChange?: (value: string) => void;
@@ -17,34 +17,31 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
   const { selectedCountry, setSelectedCountry } = useSelectedCountry('Country');
   const { selectedPostalCode, setSelectedPostalCode } = useSelectedPostalCode('PostalCode');
 
-  const [countryValue, setCountryValue] = useState<string | undefined>();
-  const [postalCodeValue, setPostalCodeValue] = useState<string | undefined>();
+  // const [countryValue, setCountryValue] = useState<string | undefined>();
+  // const [postalCodeValue, setPostalCodeValue] = useState<string | undefined>();
 
   const getCountriesQuery = useSchedulesDirectGetAvailableCountriesQuery();
 
   React.useEffect(() => {
     // console.log('sdCountry', setting.data?.sdSettings?.sdCountry, selectedCountry);
-    if (setting.data?.sdSettings?.sdCountry !== undefined) {
-      if (setting.data?.sdSettings?.sdCountry !== selectedCountry) {
-        setSelectedCountry(setting.data?.sdSettings?.sdCountry);
-      }
-      if (setting.data?.sdSettings?.sdCountry !== countryValue) {
-        setCountryValue(setting.data?.sdSettings?.sdCountry);
-      }
+    // if (setting.data?.sdSettings?.sdCountry !== undefined) {
+    //   if (setting.data?.sdSettings?.sdCountry !== selectedCountry) {
+    //     setSelectedCountry(setting.data?.sdSettings?.sdCountry);
+    //   }
+    //   if (setting.data?.sdSettings?.sdCountry !== countryValue) {
+    //     setCountryValue(setting.data?.sdSettings?.sdCountry);
+    //   }
+    // }
+
+    if ((selectedCountry === undefined || selectedCountry === '') && setting.data?.sdSettings?.sdCountry !== undefined) {
+      setSelectedCountry(setting.data?.sdSettings?.sdCountry);
     }
 
     //console.log('sdPostalCode', setting.data?.sdSettings?.sdPostalCode, selectedPostalCode);
-    if (setting.data?.sdSettings?.sdPostalCode !== undefined) {
-      if (setting.data?.sdSettings?.sdPostalCode !== selectedPostalCode) {
-        setSelectedPostalCode(setting.data?.sdSettings?.sdPostalCode);
-      }
-      if (setting.data?.sdSettings?.sdPostalCode !== postalCodeValue) {
-        setPostalCodeValue(setting.data?.sdSettings?.sdPostalCode);
-      }
+    if ((selectedPostalCode === undefined || selectedPostalCode === '') && setting.data?.sdSettings?.sdPostalCode !== undefined) {
+      setSelectedPostalCode(setting.data?.sdSettings?.sdPostalCode);
     }
   }, [
-    countryValue,
-    postalCodeValue,
     selectedCountry,
     selectedPostalCode,
     setSelectedCountry,
@@ -110,9 +107,9 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
           <TextInput
             placeHolder="Postal Code"
             onChange={(e) => {
-              setPostalCodeValue(e);
+              setSelectedPostalCode(e);
             }}
-            value={postalCodeValue}
+            value={selectedPostalCode}
           />
         </div>
         <div className="flex col-2 pt-2 p-0 pr-3">
@@ -121,7 +118,7 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
             onClick={() => {
               // console.log('PostalCode', postalCodeValue);
 
-              if (!postalCodeValue || !countryValue) {
+              if (!selectedPostalCode || !selectedCountry) {
                 return;
               }
 
@@ -135,7 +132,7 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
               // setSelectedCountry(countryValue);
               // setSelectedPostalCode(postalCodeValue);
 
-              const newData: UpdateSettingRequest = { sdSettings: { sdPostalCode: postalCodeValue, sdCountry: countryValue } };
+              const newData: UpdateSettingRequest = { sdSettings: { sdPostalCode: selectedPostalCode, sdCountry: selectedCountry } };
 
               UpdateSetting(newData)
                 .then(() => {})

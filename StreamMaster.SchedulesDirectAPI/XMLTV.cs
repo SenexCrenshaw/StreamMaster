@@ -32,11 +32,11 @@ public partial class SchedulesDirect
             Setting settings = memoryCache.GetSetting();
             List<MxfService> toProcess = [];
 
-            foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs)
+            foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs.OrderBy(a => a.User_Tvg_chno))
             {
-                string prefix = videoStreamConfig.IsDummy ? "DUMMY" : videoStreamConfig.IsDuplicate ? "SM" : "SM";
+                string prefix = videoStreamConfig.IsDummy ? "DUMMY" : "SM";
 
-                string stationId = $"{prefix}-{videoStreamConfig.Id}";
+                string stationId = videoStreamConfig.User_Tvg_chno.ToString();// $"{prefix}-{videoStreamConfig.Id}";
 
                 MxfService? origService = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == videoStreamConfig.User_Tvg_ID);
                 if (origService is null)
@@ -54,10 +54,22 @@ public partial class SchedulesDirect
                 newService.Name = videoStreamConfig.User_Tvg_name;
                 newService.Affiliate = origService.Affiliate;
                 newService.CallSign = origService.CallSign;
-                newService.LogoImage = origService.LogoImage;
+                newService.LogoImage = videoStreamConfig.User_Tvg_Logo;
                 newService.extras = origService.extras;
                 newService.extras["videoStreamConfig"] = videoStreamConfig;
+                if (newService.extras.ContainsKey("logo"))
+                {
+                    newService.extras["logo"].Url = videoStreamConfig.User_Tvg_Logo;
+                }
+                else
+                {
 
+                    newService.extras.Add("logo", new StationImage
+                    {
+                        Url = videoStreamConfig.User_Tvg_Logo
+
+                    });
+                }
 
                 //MxfService? service = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == stationId);
                 //if (service is null)
@@ -118,7 +130,7 @@ public partial class SchedulesDirect
 
                 foreach (MxfScheduleEntry scheduleEntry in service.MxfScheduleEntries.ScheduleEntry)
                 {
-                    xmltv.Programs.Add(BuildXmltvProgram(scheduleEntry, $"SM.{service.StationId}.schedulesdirect.org"));
+                    xmltv.Programs.Add(BuildXmltvProgram(scheduleEntry, service.StationId));
                 }
             }
             return xmltv;

@@ -35,8 +35,6 @@ public partial class SchedulesDirect : ISchedulesDirect
     private readonly IImageDownloadQueue imageDownloadQueue;
     private readonly IMemoryCache memoryCache;
     private readonly IServiceProvider serviceProvider;
-
-
     public SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IEPGCache epgCache, ISchedulesDirectData schedulesDirectData, ISchedulesDirectAPI schedulesDirectAPI, ISettingsService settingsService, IMemoryCache memoryCache)
     {
         this.logger = logger;
@@ -47,7 +45,10 @@ public partial class SchedulesDirect : ISchedulesDirect
         this.memoryCache = memoryCache;
         this.imageDownloadQueue = imageDownloadQueue;
         this.serviceProvider = serviceProvider;
-        CheckToken();
+        if (memoryCache.GetSetting().SDSettings.SDEnabled)
+        {
+            CheckToken();
+        }
     }
 
     public async Task<bool> SDSync(CancellationToken cancellationToken)

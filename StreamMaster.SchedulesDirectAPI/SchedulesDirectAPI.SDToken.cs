@@ -19,6 +19,11 @@ public partial class SchedulesDirectAPI
     public async Task<bool> GetToken()
     {
         Setting setting = memoryCache.GetSetting();
+        if (!setting.SDSettings.SDEnabled)
+        {
+            return false;
+        }
+
         return await GetToken(setting.SDSettings.SDUserName, setting.SDSettings.SDPassword);
     }
 
