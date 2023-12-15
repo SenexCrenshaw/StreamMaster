@@ -7,9 +7,20 @@ export function useSettingChangeHandler() {
   const { selectUpdateSettingRequest, setSelectedUpdateSettingRequest } = useSelectUpdateSettingRequest('UpdateSettingRequest');
 
   const onChange = (existing: SettingDto | null, updatedValues: UpdateSettingRequest | null) => {
-    if (updatedValues !== null && selectUpdateSettingRequest !== null) {
-      const updated = { ...selectUpdateSettingRequest, ...updatedValues };
-      setSelectedUpdateSettingRequest(updated);
+    if (updatedValues !== null && selectUpdateSettingRequest != null) {
+      const mergedMain = {
+        ...selectUpdateSettingRequest,
+        ...updatedValues
+      };
+
+      const mergedSdSettings = {
+        ...selectUpdateSettingRequest.sdSettings,
+        ...updatedValues.sdSettings
+      };
+
+      mergedMain.sdSettings = mergedSdSettings;
+
+      setSelectedUpdateSettingRequest(mergedMain);
     }
 
     if (existing !== null && selectedCurrentSettingDto !== null) {

@@ -50,7 +50,7 @@ export const SettingsEditor = () => {
   }, [selectedCurrentSettingDto?.adminPassword, selectedCurrentSettingDto?.authenticationMethod]);
 
   const isSaveEnabled = useMemo((): boolean => {
-    console.log('Start', isEmptyObject(selectUpdateSettingRequest), selectUpdateSettingRequest);
+    // console.log('Start', isEmptyObject(selectUpdateSettingRequest), selectUpdateSettingRequest);
 
     if (selectedCurrentSettingDto?.enableSSL === true && selectedCurrentSettingDto?.sslCertPath === '') {
       console.log('enableSSL');
@@ -63,7 +63,7 @@ export const SettingsEditor = () => {
     }
 
     if (isEmptyObject(selectUpdateSettingRequest)) {
-      console.log('selectUpdateSettingRequest', selectUpdateSettingRequest);
+      // console.log('selectUpdateSettingRequest', selectUpdateSettingRequest);
       return false;
     }
 
@@ -72,7 +72,7 @@ export const SettingsEditor = () => {
     //   return false;
     // }
 
-    console.log(true);
+    // console.log(true);
     return true;
   }, [adminPasswordError, adminUserNameError, selectUpdateSettingRequest, selectedCurrentSettingDto?.enableSSL, selectedCurrentSettingDto?.sslCertPath]);
 
