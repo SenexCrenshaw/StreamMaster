@@ -27,11 +27,18 @@ public partial class SchedulesDirect
         int refreshing = 0;
 
         StreamMasterDomain.Common.Setting setting = memoryCache.GetSetting();
-
+        var test = schedulesDirectData.SeriesInfosToProcess.Select(a => a.ProtoTypicalProgram).Distinct().ToList();
+        var programs = schedulesDirectData.Programs.Select(a => a.ProgramId).Distinct().ToList();
         // scan through each series in the mxf
         foreach (MxfSeriesInfo series in schedulesDirectData.SeriesInfosToProcess)
         {
             string seriesId;
+
+            var prog = schedulesDirectData.Programs.FirstOrDefault(a => a.ProgramId == series.ProtoTypicalProgram);
+            if (prog != null && prog.extras.ContainsKey("epgid"))
+            {
+                continue;
+            }
 
             // if image for series already exists in archive file, use it
             // cycle images for a refresh based on day of month and seriesid
