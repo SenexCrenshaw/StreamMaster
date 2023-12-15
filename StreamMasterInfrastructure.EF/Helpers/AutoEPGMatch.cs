@@ -67,11 +67,20 @@ namespace StreamMasterInfrastructureEF.Helpers
         /// <returns>Score based on exact or base name match.</returns>
         private static int MatchExactOrBase(string userTvgName, string programmeCode, string programmeName)
         {
+            int score = 0;
             if (userTvgName.Equals(programmeCode) || userTvgName.Equals(programmeName))
             {
-                return 50;
+                score += 50;
             }
-            return 0;
+            else if (userTvgName.Length > 2)
+            {
+                string userTvgNameTrimmed = userTvgName[..^2];
+                if (userTvgNameTrimmed.Equals(programmeCode) || userTvgNameTrimmed.Equals(programmeName))
+                {
+                    score += 25; // Reduced score for trimmed match
+                }
+            }
+            return score;
         }
 
         /// <summary>
@@ -83,17 +92,81 @@ namespace StreamMasterInfrastructureEF.Helpers
         /// <returns>Score based on call sign match.</returns>
         private static int MatchCallSign(string userTvgName, string programmeCode, string programmeName)
         {
-            // Extract call sign from userTvgName (expected to be within parentheses)
-            Match match = Regex.Match(userTvgName, @"\((.*?)\)"); // Matches content within parentheses
-            string callSign = match.Success ? match.Groups[1].Value.ToLower() : "";
+            int score = 0;
+            string callSign = ExtractCallSign(userTvgName);
 
-            if (!string.IsNullOrEmpty(callSign) && (callSign.Equals(programmeCode) || callSign.Equals(programmeName)))
+            if (!string.IsNullOrEmpty(callSign))
             {
-                return 40;
+
+                if (callSign.Equals(programmeCode) || callSign.Equals(programmeName))
+                {
+                    score += 40;
+                }
+
+                // Normalize call sign for comparison
+                callSign = RemoveSuffixesFromCallSign(callSign);
+
+                if (callSign.Equals(programmeCode) || callSign.Equals(programmeName))
+                {
+                    score += 40;
+                }
+            }
+            return score;
+        }
+
+        private static string ExtractCallSign(string userTvgName)
+        {
+            Match match = Regex.Match(userTvgName, @"\((.*?)\)");
+            string extractedCallSign = match.Success ? match.Groups[1].Value : "";
+
+            // If no match in parentheses, attempt to extract call sign directly from the name
+            if (string.IsNullOrEmpty(extractedCallSign))
+            {
+                var parts = userTvgName.Split(new[] { ' ', '-', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var part in parts)
+                {
+                    // Assuming call sign is the part that contains letters and possibly ends with -TV or -DT
+                    if (part.Any(char.IsLetter) && (part.EndsWith("-TV") || part.EndsWith("-DT")))
+                    {
+                        return part;
+                    }
+                }
             }
 
-            return 0;
+            return extractedCallSign;
         }
+
+        //private static string RemoveSuffixesFromCallSign(string callSign)
+        //{
+        //    // Remove common suffixes like -TV or -DT
+        //    string[] suffixesToRemove = { "-TV", "-DT" };
+        //    foreach (var suffix in suffixesToRemove)
+        //    {
+        //        if (callSign.EndsWith(suffix))
+        //        {
+        //            return callSign.Substring(0, callSign.Length - suffix.Length);
+        //        }
+        //    }
+        //    return callSign;
+        //}
+
+
+        private static string RemoveSuffixesFromCallSign(string callSign)
+        {
+
+            // Check if the call sign has enough length before removing the last two characters
+            if (callSign.Length > 2)
+            {
+                // Remove the last two characters
+                callSign = callSign.Substring(0, callSign.Length - 2);
+            }
+
+            // Remove trailing hyphens if any
+            callSign = callSign.TrimEnd('-');
+
+            return callSign;
+        }
+
 
         /// <summary>
         /// Calculates a score based on the intersection of words in the user TVG name and the program name.
@@ -103,10 +176,20 @@ namespace StreamMasterInfrastructureEF.Helpers
         /// <returns>Score based on the number of intersecting words.</returns>
         private static int MatchWordIntersection(string userTvgName, string programmeName)
         {
-            List<string> userTvgNameWords = [.. userTvgName.Split(' ')];
-            List<string> programmeNameWords = [.. programmeName.Split(' ')];
-            int intersectionCount = userTvgNameWords.Intersect(programmeNameWords).Count();
+            int score = CalculateIntersectionScore(userTvgName, programmeName);
+            if (userTvgName.Length > 2)
+            {
+                string userTvgNameTrimmed = userTvgName[..^2];
+                score += CalculateIntersectionScore(userTvgNameTrimmed, programmeName) / 2; // Half score for trimmed match
+            }
+            return score;
+        }
 
+        private static int CalculateIntersectionScore(string name1, string name2)
+        {
+            List<string> name1Words = name1.Split(' ').ToList();
+            List<string> name2Words = name2.Split(' ').ToList();
+            int intersectionCount = name1Words.Intersect(name2Words).Count();
             return intersectionCount * 10;
         }
     }
