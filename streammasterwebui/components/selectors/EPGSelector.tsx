@@ -31,14 +31,6 @@ const EPGSelector: React.FC<Partial<EPGSelectorProperties>> = ({ enableEditMode 
       });
   }, []);
 
-  // function adjustBackgroundColorIfNeeded(foregroundColor: string, threshold: number = 2.2): string {
-  //   const contrastRatio = chroma.contrast(foregroundColor, '2F394A');
-  //   if (contrastRatio < threshold) {
-  //     return '#5c708c';
-  //   }
-  //   return '';
-  // }
-
   const selectedTemplate = (option: any) => {
     const entry = colors.find((x) => x.stationId === restProperties.value);
     let color = '#FFFFFF';

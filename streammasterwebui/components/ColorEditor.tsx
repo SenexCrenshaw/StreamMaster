@@ -10,7 +10,9 @@ const ColorEditor = ({ color, onChange }: ColorEditorProperties) => {
   const debounced = useDebouncedCallback(
     useCallback(
       (value) => {
-        console.log(value);
+        if (!value.startsWith('#')) {
+          value = '#' + value;
+        }
         onChange(value);
       },
       [onChange]
