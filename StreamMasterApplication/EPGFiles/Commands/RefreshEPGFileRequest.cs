@@ -13,12 +13,8 @@ public class RefreshEPGFileRequestValidator : AbstractValidator<RefreshEPGFileRe
     }
 }
 
-public class RefreshEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<RefreshEPGFileRequest, EPGFileDto?>
+public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<RefreshEPGFileRequest, EPGFileDto?>
 {
-
-    public RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
-
     public async Task<EPGFileDto?> Handle(RefreshEPGFileRequest request, CancellationToken cancellationToken)
     {
         try
@@ -72,6 +68,7 @@ public class RefreshEPGFileRequestHandler : BaseMediatorRequestHandler, IRequest
                     epgFile.ProgrammeCount = tv.Programme != null ? tv.Programme.Count : 0;
 
                 }
+
                 Repository.EPGFile.UpdateEPGFile(epgFile);
                 _ = await Repository.SaveAsync().ConfigureAwait(false);
 

@@ -57,9 +57,9 @@ public partial class SchedulesDirect
                 newService.LogoImage = videoStreamConfig.User_Tvg_Logo;
                 newService.extras = origService.extras;
                 newService.extras["videoStreamConfig"] = videoStreamConfig;
-                if (newService.extras.ContainsKey("logo"))
+                if (newService.extras.TryGetValue("logo", out dynamic? value))
                 {
-                    newService.extras["logo"].Url = videoStreamConfig.User_Tvg_Logo;
+                    value.Url = videoStreamConfig.User_Tvg_Logo;
                 }
                 else
                 {

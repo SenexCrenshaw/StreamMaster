@@ -2,8 +2,6 @@
 
 using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
 
-using StreamMasterApplication.Common.Extensions;
-
 namespace StreamMasterApplication.Programmes.Queries;
 
 public record GetProgrammesRequest : IRequest<List<XmltvProgramme>>;
@@ -19,25 +17,26 @@ public class GetProgrammesRequestHandler(ILogger<GetProgrammesRequest> logger, I
         //if (setting.SDSettings.SDEnabled)
         //{        
 
-        XMLTV? xmltv = schedulesDirect.CreateXmltv(httpContextAccessor.GetUrl());
-        if (xmltv == null)
-        {
-            if (MemoryCache.GetSyncJobStatus().IsRunning)
-            {
-                await Task.Delay(1000, cancellationToken);
-            }
-            xmltv = schedulesDirect.CreateXmltv(httpContextAccessor.GetUrl());
-            if (xmltv == null)
-            {
-                return [];
-            }
 
-        }
-        List<XmltvProgramme> progs = xmltv.Programs.ToList();
+        //XMLTV? xmltv = schedulesDirect.CreateXmltv(httpContextAccessor.GetUrl());
+        //if (xmltv == null)
+        //{
+        //    if (MemoryCache.GetSyncJobStatus().IsRunning)
+        //    {
+        //        await Task.Delay(1000, cancellationToken);
+        //    }
+        //    xmltv = schedulesDirect.CreateXmltv(httpContextAccessor.GetUrl());
+        //    if (xmltv == null)
+        //    {
+        //        return [];
+        //    }
 
-        List<XmltvProgramme> sdprogrammes = progs.OrderBy(a => a.Channel).ToList();
+        //}
+        //List<XmltvProgramme> progs = xmltv.Programs.ToList();
+
+        //List<XmltvProgramme> sdprogrammes = progs.OrderBy(a => a.Channel).ToList();
         //programmes = programmes.Concat(sdprogrammes).OrderBy(a => a.Channel).ToList();
-        return sdprogrammes;
+        return [];
         //}
 
         //List<IconFileDto> icons = MemoryCache.Icons();

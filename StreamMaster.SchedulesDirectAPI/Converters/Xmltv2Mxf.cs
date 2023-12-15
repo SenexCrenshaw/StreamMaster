@@ -25,8 +25,11 @@ public class Xmltv2Mxf(ILogger<Xmltv2Mxf> logger, ISchedulesDirectData schedules
 
     public XMLTV? ConvertToMxf(string filepath, int EPGId)
     {
-        dynamic xmltv = FileUtil.ReadXmlFile(filepath, typeof(XMLTV));
-
+        XMLTV? xmltv = FileUtil.ReadXmlFile(filepath, typeof(XMLTV));
+        if (xmltv == null)
+        {
+            return null;
+        }
         return ConvertToMxf(xmltv, EPGId);
     }
 
@@ -56,7 +59,12 @@ public class Xmltv2Mxf(ILogger<Xmltv2Mxf> logger, ISchedulesDirectData schedules
         foreach (XmltvChannel channel in xmltv.Channels)
         {
             MxfService mxfService = schedulesDirectData.FindOrCreateService(channel.Id);
-            mxfService.extras.Add("epgid", EPGId);
+
+            if (!mxfService.extras.ContainsKey("epgid"))
+            {
+                mxfService.extras.Add("epgid", EPGId);
+            }
+
             if (string.IsNullOrEmpty(mxfService.CallSign))
             {
                 // add "callsign" and "station name"
@@ -96,7 +104,12 @@ public class Xmltv2Mxf(ILogger<Xmltv2Mxf> logger, ISchedulesDirectData schedules
                     foreach (string lcn in lcns)
                     {
                         string[] numbers = lcn.Split('.');
-                        mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService, int.Parse(numbers[0]), int.Parse(numbers[1])));
+
+                        int number = int.Parse(numbers[0]);
+                        int subNumber = numbers.Length > 1 ? int.Parse(numbers[1]) : (int)0;
+
+                        var newChannel = new MxfChannel(mxfLineup, mxfService, number, subNumber);
+                        mxfLineup.channels.Add(newChannel);
                     }
                 }
                 else
@@ -278,7 +291,7 @@ public class Xmltv2Mxf(ILogger<Xmltv2Mxf> logger, ISchedulesDirectData schedules
                 //IsEnhanced = NOT PART OF XMLTV
                 //Is3D = NOT PART OF XMLTV
                 //IsLetterbox = NOT PART OF XMLTV
-                IsHdtv = program.Video?.Quality.ToLower().Contains("hd") ?? false,
+                IsHdtv = program.Video?.Quality?.ToLower().Contains("hd") ?? false,
                 //IsHdtvSimulcast = NOT PART OF XMLTV
                 //IsDvs = NOT PART OF XMLTV
                 Part = info.NumberOfParts > 1 ? info.PartNumber : 0,

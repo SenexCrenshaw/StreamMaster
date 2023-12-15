@@ -45,7 +45,8 @@ const EPGSelector: React.FC<Partial<EPGSelectorProperties>> = ({ enableEditMode 
     let color = '#FFFFFF';
     if (entry?.color) {
       // console.log('entry', entry);
-      color = '#' + entry.color;
+
+      color = entry.color;
     }
     // const background = adjustBackgroundColorIfNeeded(color);
 
@@ -70,7 +71,7 @@ const EPGSelector: React.FC<Partial<EPGSelectorProperties>> = ({ enableEditMode 
     const entry = colors.find((x) => x.stationId === option.channel);
     let color = '#FFFFFF';
     if (entry?.color) {
-      color = '#' + entry.color;
+      color = entry.color;
     }
     const background = adjustBackgroundColorIfNeeded(color);
 

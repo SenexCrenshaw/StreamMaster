@@ -154,12 +154,12 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.XmltvXml
 
 
         [XmlElement("rating")]
-        public List<XmltvRating> Rating { get; set; }
+        public List<XmltvRating>? Rating { get; set; }
 
         [XmlElement("star-rating")]
         public List<XmltvRating>? StarRating { get; set; }
 
         [XmlElement("review")]
-        public List<XmltvReview> Review { get; set; }
+        public List<XmltvReview>? Review { get; set; }
     }
 }
