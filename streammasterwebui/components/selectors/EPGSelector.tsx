@@ -4,7 +4,6 @@ import {
   useSchedulesDirectGetPagedStationChannelNameSelectionsQuery,
   useSchedulesDirectGetStationChannelNamesSimpleQueryQuery
 } from '@lib/iptvApi';
-import chroma from 'chroma-js';
 
 import { GetEpgColors } from '@lib/smAPI/EpgFiles/EpgFilesGetAPI';
 import { GetStationChannelNameFromDisplayName } from '@lib/smAPI/SchedulesDirect/SchedulesDirectGetAPI';
@@ -32,13 +31,13 @@ const EPGSelector: React.FC<Partial<EPGSelectorProperties>> = ({ enableEditMode 
       });
   }, []);
 
-  function adjustBackgroundColorIfNeeded(foregroundColor: string, threshold: number = 2.2): string {
-    const contrastRatio = chroma.contrast(foregroundColor, '2F394A');
-    if (contrastRatio < threshold) {
-      return '#5c708c';
-    }
-    return '';
-  }
+  // function adjustBackgroundColorIfNeeded(foregroundColor: string, threshold: number = 2.2): string {
+  //   const contrastRatio = chroma.contrast(foregroundColor, '2F394A');
+  //   if (contrastRatio < threshold) {
+  //     return '#5c708c';
+  //   }
+  //   return '';
+  // }
 
   const selectedTemplate = (option: any) => {
     const entry = colors.find((x) => x.stationId === restProperties.value);
@@ -73,13 +72,13 @@ const EPGSelector: React.FC<Partial<EPGSelectorProperties>> = ({ enableEditMode 
     if (entry?.color) {
       color = entry.color;
     }
-    const background = adjustBackgroundColorIfNeeded(color);
+    // const background = adjustBackgroundColorIfNeeded(color);
 
     return (
       <div className="flex grid w-full align-items-center p-0 m-0">
         <div className="col-5 align-items-center p-0 m-0 border-round">
           <div className="align-items-center pl-1 m-0 border-round ">
-            <i className="pi pi-circle-fill pr-2" style={{ color: color, backgroundColor: background }} />
+            <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
             {beforeCallSign}
           </div>
         </div>
