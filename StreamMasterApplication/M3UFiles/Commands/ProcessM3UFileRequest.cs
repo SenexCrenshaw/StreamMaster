@@ -156,6 +156,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
             {
                 continue;
             }
+
             processed.Add(stream.Id);
             _ = groupLookup.TryGetValue(stream.Tvg_group, out ChannelGroup? group);
 
@@ -169,6 +170,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
                 VideoStream? dbStream = value;
                 if (await ProcessExistingStream(stream, dbStream, group?.IsHidden ?? false, m3uFile.Name))
                 {
+                    dbStream.M3UFileId = m3uFile.Id;
                     toUpdate.Add(dbStream);
                 }
             }
