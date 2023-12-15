@@ -55,7 +55,7 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-      // eslint-disable-next-line comma-dangle
+    // eslint-disable-next-line comma-dangle
     },
     settingsGetSetting: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -63,20 +63,19 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.SettingDto) => {
-            updateCachedData(() => {
-              {
-                if (isDev) console.log('updateCachedData', data);
-                for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Settings' }])) {
-                  if (endpointName !== 'settingsGetSetting') continue;
-                  dispatch(
-                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                      {
-                        if (isDev) console.log('updateCachedData', data, draft);
-                      }
-                    })
-                  );
-                }
+            updateCachedData(() => {{
+              if (isDev) console.log('updateCachedData', data);
+              if (!data) {
+                dispatch(iptvApi.util.invalidateTags(['Settings']));
+                return;
               }
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Settings' }])) {
+                if (endpointName !== 'settingsGetSetting') continue;
+                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{
+                    if (isDev) console.log('updateCachedData', data, draft);
+                   }})
+                   );
+                 }}
             });
           };
 
@@ -88,28 +87,27 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-      // eslint-disable-next-line comma-dangle
+    // eslint-disable-next-line comma-dangle
     },
     settingsGetSystemStatus: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
-          const updateCachedDataWithResults = (data: iptv.SystemStatus) => {
-            updateCachedData(() => {
-              {
-                if (isDev) console.log('updateCachedData', data);
-                for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Settings' }])) {
-                  if (endpointName !== 'settingsGetSystemStatus') continue;
-                  dispatch(
-                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                      {
-                        if (isDev) console.log('updateCachedData', data, draft);
-                      }
-                    })
-                  );
-                }
+          const updateCachedDataWithResults = (data: iptv.SDSystemStatus) => {
+            updateCachedData(() => {{
+              if (isDev) console.log('updateCachedData', data);
+              if (!data) {
+                dispatch(iptvApi.util.invalidateTags(['Settings']));
+                return;
               }
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Settings' }])) {
+                if (endpointName !== 'settingsGetSystemStatus') continue;
+                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{
+                    if (isDev) console.log('updateCachedData', data, draft);
+                   }})
+                   );
+                 }}
             });
           };
 
@@ -121,7 +119,7 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-      // eslint-disable-next-line comma-dangle
-    }
+    // eslint-disable-next-line comma-dangle
+    },
   }
 });

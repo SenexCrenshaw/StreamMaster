@@ -19,8 +19,6 @@ public interface IStreamGroupController
 
     Task<IActionResult> GetStreamGroupEPG(string encodedId);
 
-    Task<ActionResult<EPGGuide>> GetStreamGroupEPGForGuide(int StreamGroupNumber);
-
     Task<IActionResult> GetStreamGroupM3U(string encodedId);
 
     Task<ActionResult<PagedResponse<StreamGroupDto>>> GetPagedStreamGroups(StreamGroupParameters parameters);
@@ -43,8 +41,6 @@ public interface IStreamGroupHub
     Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls();
 
     Task<StreamGroupDto?> GetStreamGroup(int StreamGroupNumber);
-
-    Task<EPGGuide> GetStreamGroupEPGForGuide(int StreamGroupNumber);
 
     Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(StreamGroupParameters streamGroupParameters);
 

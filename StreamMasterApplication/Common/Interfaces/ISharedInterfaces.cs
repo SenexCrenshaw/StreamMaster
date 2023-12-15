@@ -34,7 +34,6 @@ public interface ISharedTasks :
     ILogTasks,
     IVideoStreamTasks,
     IIconTasks,
-    ISchedulesDirectTasks,
     IStreamGroupTasks,
     IProgrammeChannelTasks,
     ISettingTasks

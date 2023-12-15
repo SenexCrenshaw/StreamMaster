@@ -6,8 +6,8 @@ namespace StreamMasterInfrastructure.Services;
 
 public partial class BackgroundTaskQueue : IProgrammeChannelTasks
 {
-    public async ValueTask SDSync(CancellationToken cancellationToken = default)
+    public async ValueTask EPGSync(CancellationToken cancellationToken = default)
     {
-        await QueueAsync(SMQueCommand.SDSync, cancellationToken).ConfigureAwait(false);
+        await QueueAsync(SMQueCommand.EPGSync, cancellationToken).ConfigureAwait(false);
     }
 }

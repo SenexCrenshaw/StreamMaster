@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
 
+using StreamMaster.SchedulesDirectAPI.Helpers;
+
 using StreamMasterAPI.Interfaces;
 
 using StreamMasterApplication.Common.Logging;
@@ -52,9 +54,20 @@ public class FilesController(IMemoryCache memoryCache, IContentTypeProvider mime
         string returnName = "";
         FileDefinition fd = FileDefinitions.Icon;
 
+        if (IPTVFileType == SMFileTypes.SDImage)
+        {
+            //StreamMaster.SchedulesDirectAPI.Domain.Models.ImageInfo? cache = memoryCache.ImageInfos().FirstOrDefault(a => a.IconUri == source);
+            //if (cache == null) { return (null, null); }
+            string fullPath = source.GetSDImageFullPath();// Path.Combine(FileDefinitions.SDImage.DirectoryLocation, source);
+
+            string fullName = Path.GetFileName(fullPath);
+            returnName = fullName;
+            fileName = fullPath;
+        }
+        else
         if (IPTVFileType == SMFileTypes.TvLogo)
         {
-            TvLogoFile? cache = memoryCache.TvLogos().FirstOrDefault(a => a.Source == source);
+            TvLogoFile? cache = memoryCache.GetTvLogos().FirstOrDefault(a => a.Source == source);
             if (cache == null || !cache.FileExists) { return (null, null); }
             returnName = cache.Source;
             fileName = FileDefinitions.TVLogo.DirectoryLocation + returnName;
@@ -144,7 +157,7 @@ public class FilesController(IMemoryCache memoryCache, IContentTypeProvider mime
             }
             contentType ??= "application/octet-stream";
 
-            memoryCache.Set(cacheKey, contentType, CacheKeys.NeverRemoveCacheEntryOptions);
+            memoryCache.Set(cacheKey, contentType, CacheManagerExtensions.NeverRemoveCacheEntryOptions);
         }
 
         return contentType ?? "application/octet-stream";

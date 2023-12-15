@@ -1,9 +1,9 @@
 ﻿namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
-public class StationPreview : IStationPreview
+public class StationPreview 
 {
     public StationPreview() { }
-    public StationPreview(IStation station)
+    public StationPreview(Station station)
     {
 
         Affiliate = station.Affiliate;

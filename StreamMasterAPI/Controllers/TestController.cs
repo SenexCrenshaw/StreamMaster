@@ -8,8 +8,8 @@ public class TestController : ApiControllerBase
 {
     [HttpPut]
     [Route("[action]")]
-    public async Task<ActionResult<bool>> SDSync()
+    public async Task<ActionResult<bool>> EPGSync()
     {
-        return await Mediator.Send(new SDSync()).ConfigureAwait(false);
+        return await Mediator.Send(new EPGSync()).ConfigureAwait(false);
     }
 }

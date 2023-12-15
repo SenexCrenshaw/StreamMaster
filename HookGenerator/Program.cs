@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 internal class Program
 {
     private static readonly List<string> blackList = new() { "schedulesDirectGetSDPrograms", "programmesGetProgramme", "programmesGetProgrammeChannels", "programmesGetProgrammes", "programmesGetProgrammeFromDisplayName", "schedulesDirectGetHeadends", "schedulesDirectGetSchedules", "schedulesDirectGetStations", "videoStreamsGetAllStatisticsForAllUrls", "streamGroupVideoStreamsGetStreamGroupVideoStreamIds" };
-    private static readonly Dictionary<string, string> overRideArgs = new() { { "GetSDPrograms", "iptv.SdProgram" }, { "GetIconFromSource", "StringArg" } };
+    private static readonly Dictionary<string, string> overRideArgs = new() { { "GetStationChannelNameFromDisplayName", "StringArgument" },  { "GetSDPrograms", "iptv.SdProgram" }, { "GetIconFromSource", "StringArg" } };
     private static readonly Dictionary<string, string> additionalImports = new() { { "Icons", "import { type StringArg } from '@components/selectors/BaseSelector';" } };
 
 
@@ -66,6 +66,7 @@ internal class Program
                                 // Add imports at the start of each new file's content
                                 tagToGetContentMap[tag].AppendLine("/* eslint unused-imports/no-unused-imports-ts: off */");
                                 tagToGetContentMap[tag].AppendLine("/* eslint @typescript-eslint/no-unused-vars: off */");
+                                tagToGetContentMap[tag].AppendLine("import { StringArgument } from '@components/selectors/BaseSelector';");
                                 tagToGetContentMap[tag].AppendLine("import type * as iptv from '@lib/iptvApi';");
                                 tagToGetContentMap[tag].AppendLine("import { invokeHubConnection } from '@lib/signalr/signalr';");
                                 if (additionalImports.ContainsKey(tag))
@@ -192,6 +193,10 @@ internal class Program
         }
         ret.AppendLine("            updateCachedData(() => {{");
         ret.AppendLine("              if (isDev) console.log('updateCachedData', data);");
+        ret.AppendLine("              if (!data) {");
+        ret.AppendLine($"                dispatch(iptvApi.util.invalidateTags(['{tag}']));");
+        ret.AppendLine("                return;");
+        ret.AppendLine("              }");
         ret.AppendLine($"              for (const {{ endpointName, originalArgs }} of iptvApi.util.selectInvalidatedBy(getState(), [{{ type: '{tag}' }}])) {{");
         ret.AppendLine($"                if (endpointName !== '{endpointName}') continue;");
         ret.AppendLine("                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{");

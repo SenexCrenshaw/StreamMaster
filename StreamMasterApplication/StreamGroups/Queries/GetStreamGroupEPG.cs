@@ -2,17 +2,15 @@
 
 using Microsoft.AspNetCore.Http;
 
-using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+using StreamMaster.SchedulesDirectAPI.Domain.Models;
+using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
 
 using StreamMasterApplication.Common.Extensions;
-using StreamMasterApplication.Programmes.Queries;
 
-using System.Collections.Concurrent;
 using System.Net;
-using System.Text.RegularExpressions;
+using System.Text;
+using System.Xml;
 using System.Xml.Serialization;
-
-using static StreamMasterDomain.Common.GetStreamGroupEPGHandler;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 
@@ -28,11 +26,9 @@ public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
     }
 }
 
-public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupEPG> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupEPG, string>
+public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupEPG> logger, ISchedulesDirect schedulesDirect, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupEPG, string>
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-
-    private int dummyCount;
 
     private readonly ParallelOptions parallelOptions = new()
     {
@@ -45,8 +41,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         if (string.IsNullOrEmpty(iconOriginalSource))
         {
-            iconOriginalSource = $"{url}{setting.DefaultIcon}";
-            return iconOriginalSource;
+            return $"{url}{setting.DefaultIcon}";
         }
 
         string originalUrl = iconOriginalSource;
@@ -66,7 +61,9 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         }
         else if (setting.CacheIcons)
         {
-            return GetApiUrl(SMFileTypes.Icon, originalUrl);
+            return iconOriginalSource.StartsWith("https://json.schedulesdirect.org")
+                ? GetApiUrl(SMFileTypes.SDImage, originalUrl)
+                : GetApiUrl(SMFileTypes.Icon, originalUrl);
         }
 
         return iconOriginalSource;
@@ -75,257 +72,347 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
-        List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
 
-        if (!videoStreams.Any())
+        Setting settings = MemoryCache.GetSetting();
+
+        List<VideoStreamDto> videoStreams = [];
+
+        videoStreams = request.StreamGroupId == 0
+            ? await Repository.VideoStream.GetVideoStreams()
+            : await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
+
+        List<VideoStreamConfig> videoStreamConfigs = [];
+
+        foreach (VideoStreamDto? videoStream in videoStreams.Where(a => !a.IsHidden))
         {
-            return "";
+            videoStreamConfigs.Add(new VideoStreamConfig
+            {
+                Id = videoStream.Id,
+                User_Tvg_name = videoStream.User_Tvg_name,
+                User_Tvg_ID = videoStream.User_Tvg_ID,
+                User_Tvg_Logo = videoStream.User_Tvg_logo,
+                User_Tvg_chno = videoStream.User_Tvg_chno,
+                IsDuplicate = false,
+                IsDummy = false
+            });
         }
 
-        Tv epgData = await PrepareEpgData(videoStreams, cancellationToken);
+        //= Mapper.Map<List<VideoStreamConfig>>(videoStreams.Where(a => !a.IsHidden));
 
-        return SerializeEpgData(epgData);
+        //goodIds = videoStreams.Where(a => !a.IsHidden).Select(a => a.User_Tvg_ID).Distinct().ToList();
+
+        HashSet<string> epgids = [];
+
+        foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs)
+        {
+            videoStreamConfig.IsDummy = videoStreamConfig.User_Tvg_ID.Equals("DUMMY");
+            //if (videoStreamConfig.User_Tvg_ID.Equals("DUMMY"))
+            //{
+            //    videoStreamConfig.IsDummy = true;
+            //}
+
+            if (epgids.Contains(videoStreamConfig.User_Tvg_ID))
+            {
+                videoStreamConfig.IsDuplicate = true;
+            }
+            else
+            {
+                epgids.Add(videoStreamConfig.User_Tvg_ID);
+            }
+        }
+
+        XMLTV epgData = schedulesDirect.CreateXmltv(_httpContextAccessor.GetUrl(), videoStreamConfigs) ?? new XMLTV();
+
+        return SerializeXMLTVData(epgData);
     }
 
-    [LogExecutionTimeAspect]
-    private async Task<Tv> PrepareEpgData(IEnumerable<VideoStreamDto> videoStreams, CancellationToken cancellationToken)
-    {
-        HashSet<string> epgids = new(videoStreams.Where(a => !a.IsHidden).Select(r => r.User_Tvg_ID));
-
-        List<Programme> cachedProgrammes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
-        Setting setting = await GetSettingsAsync();
-        List<string> channels = cachedProgrammes.ConvertAll(a => a.Channel).Distinct().Order().ToList();
-        IEnumerable<Programme> programmes = cachedProgrammes.Where(a =>
-        a.StartDateTime > DateTime.Now.AddDays(-1) &&
-        a.StartDateTime <= DateTime.Now.AddDays(setting.SDEPGDays) &&
-                        a.Channel != null &&
-                        (epgids.Contains(a.Channel) || epgids.Contains(a.DisplayName))).DeepCopy();
-
-        List<IconFileDto> icons = MemoryCache.Icons().ToList();
-
-        ConcurrentBag<TvChannel> retChannels = new();
-        ConcurrentBag<Programme> retProgrammes = new();
 
 
-        Parallel.ForEach(videoStreams, parallelOptions, videoStream =>
-        {
-            TvChannel? tvChannel = CreateTvChannel(videoStream, setting);
-            if (tvChannel != null)
-            {
-                retChannels.Add(tvChannel);
-            }
+    //    [LogExecutionTimeAspect]
+    //private async Task<Tv> PrepareEpgData(IEnumerable<VideoStreamDto> videoStreams, CancellationToken cancellationToken)
+    //{
+    //    HashSet<string> epgids = new(videoStreams.Where(a => !a.IsHidden).Select(r => r.User_Tvg_ID));
 
-            foreach (Programme programme in ProcessProgrammesForVideoStream(videoStream, programmes, icons, setting))
-            {
-                retProgrammes.Add(programme);
-            }
-        });
+    //    List<XmltvProgramme> cachedProgrammes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+    //    Setting setting = await GetSettingsAsync();
+    //    List<string> channels = [.. cachedProgrammes.ConvertAll(a => a.Channel).Distinct().Order()];
+    //    IEnumerable<XmltvProgramme> programmes = cachedProgrammes.Where(a =>
+    //    a.StartDateTime > DateTime.Now.AddDays(-1) &&
+    //    a.StartDateTime <= DateTime.Now.AddDays(setting.SDSettings.SDEPGDays) &&
+    //                    a.Channel != null &&
+    //                    (epgids.Contains(a.Channel) || epgids.Contains(a.DisplayName))).DeepCopy();
 
-        return new Tv
-        {
-            Channel = retChannels.OrderBy(a => int.Parse(a.Id)).ToList(),
-            Programme = retProgrammes.OrderBy(a => int.Parse(a.Channel)).ThenBy(a => a.StartDateTime).ToList()
-        };
-    }
+    //    List<IconFileDto> icons = [.. MemoryCache.Icons()];
 
-    private TvChannel? CreateTvChannel(VideoStreamDto? videoStream, Setting setting)
-    {
-        if (videoStream == null)
-        {
-            return null;
-        }
+    //    ConcurrentBag<TvChannel> retChannels = [];
+    //    ConcurrentBag<XmltvProgramme> retProgrammes = [];
 
-        string? logo = GetIconUrl(videoStream.User_Tvg_logo, setting);
+    //    Parallel.ForEach(videoStreams, parallelOptions, videoStream =>
+    //    {
+    //        TvChannel? tvChannel = CreateTvChannel(videoStream, setting);
+    //        if (tvChannel != null)
+    //        {
+    //            retChannels.Add(tvChannel);
+    //        }
 
-        // Check if it's a dummy stream
-        bool isDummyStream = IsVideoStreamADummy(videoStream, setting);
+    //        foreach (XmltvProgramme programme in ProcessProgrammesForVideoStream(videoStream, programmes, icons, setting))
+    //        {
+    //            retProgrammes.Add(programme);
+    //        }
+    //    });
 
-        // Build the TvChannel based on whether it's a dummy or not
-        if (isDummyStream)
-        {
-            return new TvChannel
-            {
-                Id = videoStream.User_Tvg_chno.ToString(),
-                Icon = new TvIcon { Src = logo ?? string.Empty },
-                Displayname = new List<string>
-            {
-              videoStream.User_Tvg_name
-            }
-            };
-        }
-        else
-        {
-            return new TvChannel
-            {
-                Id = videoStream.User_Tvg_chno.ToString(),
-                Icon = new TvIcon { Src = logo ?? string.Empty },
-                Displayname = new List<string>
-            {
-               videoStream.User_Tvg_name
-            }
-            };
-        }
-    }
+    //    return new Tv
+    //    {
+    //        Channel = [.. retChannels.OrderBy(a => int.Parse(a.Id))],
+    //        Programme = [.. retProgrammes.OrderBy(a => int.Parse(a.Channel)).ThenBy(a => a.StartDateTime)]
+    //    };
+    //}
 
-    private List<Programme> ProcessProgrammesForVideoStream(VideoStreamDto videoStream, IEnumerable<Programme> cachedProgrammes, List<IconFileDto> cachedIcons, Setting setting)
-    {
-        if (videoStream.User_Tvg_ID == null)
-        {
-            // Decide what to do if User_Tvg_ID is null. Here, we're returning an empty list.
-            return new List<Programme>();
-        }
+    //private TvChannel? CreateTvChannel(VideoStreamDto? videoStream, Setting setting)
+    //{
+    //    if (videoStream == null)
+    //    {
+    //        return null;
+    //    }
 
-        //string userTvgIdLower = videoStream.User_Tvg_ID.ToLower();
-        bool isDummyStream = IsVideoStreamADummy(videoStream, setting);
-        if (isDummyStream)
-        {
-            return HandleDummyStream(videoStream);
-        }
-        else
-        {
-            return ProcessNonDummyStream(videoStream, cachedProgrammes, cachedIcons);
-        }
-    }
+    //    string? logo = GetIconUrl(videoStream.User_Tvg_logo, setting);
 
-    private List<Programme> HandleDummyStream(VideoStreamDto videoStream)
-    {
-        List<Programme> programmesForStream = new();
+    //    // Check if it's a dummy stream
+    //    bool isDummyStream = IsVideoStreamADummy(videoStream, setting);
 
-        Programme prog = new()
-        {
-            Channel = videoStream.User_Tvg_chno.ToString(),
-            Title = new List<TvTitle>{
-                new TvTitle
-                {
-                    Lang = "en",
-                    Text = videoStream.User_Tvg_name
-                }
-            },
-            Desc = new TvDesc
-            {
-                Lang = "en",
-                Text = videoStream.User_Tvg_name
-            }
-        };
+    //    // Build the TvChannel based on whether it's a dummy or not
+    //    if (isDummyStream)
+    //    {
+    //        return new TvChannel
+    //        {
+    //            Id = videoStream.User_Tvg_chno.ToString(),
+    //            Icon = new TvIcon { Src = logo ?? string.Empty },
+    //            Displayname =
+    //        [
+    //          videoStream.User_Tvg_name
+    //        ]
+    //        };
+    //    }
+    //    else
+    //    {
+    //        return new TvChannel
+    //        {
+    //            Id = videoStream.User_Tvg_chno.ToString(),
+    //            Icon = new TvIcon { Src = logo ?? string.Empty },
+    //            Displayname =
+    //        [
+    //           videoStream.User_Tvg_name
+    //        ]
+    //        };
+    //    }
+    //}
 
-        DateTime now = DateTime.Now;
-        prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{_httpContextAccessor.GetUrl()}/images/transparent.png" });
-        prog.Start = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).ToString("yyyyMMddHHmmss zzz").Replace(":", "");
-        now = now.AddDays(7);
-        prog.Stop = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).ToString("yyyyMMddHHmmss zzz").Replace(":", "");
-        prog.New = null;
-        prog.Previouslyshown = null;
+    //private List<XmltvProgramme> ProcessProgrammesForVideoStream(VideoStreamDto videoStream, IEnumerable<XmltvProgramme> cachedProgrammes, List<IconFileDto> cachedIcons, Setting setting)
+    //{
+    //    if (videoStream.User_Tvg_ID == null)
+    //    {
+    //        // Decide what to do if User_Tvg_ID is null. Here, we're returning an empty list.
+    //        return [];
+    //    }
 
-        if (!string.IsNullOrEmpty(videoStream.TimeShift) && videoStream.TimeShift != "0000")
-        {
-            prog.Start = ReplaceTimezoneOffset(prog.Start, videoStream.TimeShift);
-            prog.Stop = ReplaceTimezoneOffset(prog.Stop, videoStream.TimeShift);
-        }
+    //    //string userTvgIdLower = videoStream.User_Tvg_ID.ToLower();
+    //    bool isDummyStream = IsVideoStreamADummy(videoStream, setting);
+    //    if (isDummyStream)
+    //    {
+    //        return HandleDummyStream(videoStream);
+    //    }
+    //    else
+    //    {
+    //        return ProcessNonDummyStream(videoStream, cachedProgrammes, cachedIcons);
+    //    }
+    //}
 
-        programmesForStream.Add(prog);
-        return programmesForStream;
-    }
+    //private List<XmltvProgramme> HandleDummyStream(VideoStreamDto videoStream)
+    //{
+    //    List<XmltvProgramme> programmesForStream = [];
 
-    private List<Programme> ProcessNonDummyStream(VideoStreamDto videoStream, IEnumerable<Programme> cachedProgrammes, List<IconFileDto> cachedIcons)
-    {
-        List<Programme> programmesForStream = new();
+    //    XmltvProgramme prog = new()
+    //    {
+    //        Channel = videoStream.User_Tvg_chno.ToString(),
+    //        Titles = [
+    //            new()
+    //            {
+    //                lang = "en",
+    //                Text = videoStream.User_Tvg_name
+    //            }
+    //        ],
+    //        Descriptions = new TvDesc
+    //        {
+    //            Lang = "en",
+    //            Text = videoStream.User_Tvg_name
+    //        }
+    //    };
 
-        foreach (Programme? aprog in cachedProgrammes.Where(p => p.Channel == videoStream.User_Tvg_ID))
-        {
-            Programme prog = aprog.DeepCopy();
-            AdjustProgrammeIcons(prog, cachedIcons);
+    //    DateTime now = DateTime.Now;
+    //    prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{_httpContextAccessor.GetUrl()}/images/transparent.png" });
+    //    prog.Start = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).ToString("yyyyMMddHHmmss zzz").Replace(":", "");
+    //    now = now.AddDays(7);
+    //    prog.Stop = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).ToString("yyyyMMddHHmmss zzz").Replace(":", "");
+    //    prog.New = null;
+    //    prog.Previouslyshown = null;
 
-            prog.Channel = videoStream.User_Tvg_chno.ToString();
-            if (string.IsNullOrEmpty(prog.New))
-            {
-                prog.New = null;
-            }
+    //    if (!string.IsNullOrEmpty(videoStream.TimeShift) && videoStream.TimeShift != "0000")
+    //    {
+    //        prog.Start = ReplaceTimezoneOffset(prog.Start, videoStream.TimeShift);
+    //        prog.Stop = ReplaceTimezoneOffset(prog.Stop, videoStream.TimeShift);
+    //    }
 
-            if (string.IsNullOrEmpty(prog.Live))
-            {
-                prog.Live = null;
-            }
+    //    programmesForStream.Add(prog);
+    //    return programmesForStream;
+    //}
 
-            if (string.IsNullOrEmpty(prog.Premiere))
-            {
-                prog.Premiere = null;
-            }
+    //private List<XmltvProgramme> ProcessNonDummyStream(VideoStreamDto videoStream, IEnumerable<XmltvProgramme> cachedProgrammes, List<IconFileDto> cachedIcons)
+    //{
+    //    List<XmltvProgramme> programmesForStream = [];
 
-            if (prog.Previouslyshown == null || string.IsNullOrEmpty(prog.Previouslyshown.Start))
-            {
-                prog.Previouslyshown = null;
-            }
+    //    foreach (XmltvProgramme? aprog in cachedProgrammes.Where(p => p.Channel == videoStream.User_Tvg_ID))
+    //    {
+    //        XmltvProgramme prog = aprog.DeepCopy();
+    //        AdjustProgrammeIcons(prog, cachedIcons);
 
-            if (!string.IsNullOrEmpty(videoStream.TimeShift) && videoStream.TimeShift != "0000")
-            {
-                prog.Start = ReplaceTimezoneOffset(prog.Start, videoStream.TimeShift);
-                prog.Stop = ReplaceTimezoneOffset(prog.Stop, videoStream.TimeShift);
-            }
+    //        prog.Channel = videoStream.User_Tvg_chno.ToString();
+    //        //if (string.IsNullOrEmpty(prog.New))
+    //        //{
+    //        //    prog.New = null;
+    //        //}
 
-            programmesForStream.Add(prog);
-        }
+    //        //if (string.IsNullOrEmpty(prog.Live))
+    //        //{
+    //        //    prog.Live = null;
+    //        //}
 
-        return programmesForStream;
-    }
+    //        //if (string.IsNullOrEmpty(prog.Premiere))
+    //        //{
+    //        //    prog.Premiere = null;
+    //        //}
 
-    private static string ReplaceTimezoneOffset(string input, string newOffset)
-    {
-        // The new offset should be exactly 4 digits
-        if (newOffset.Length != 4 || !Regex.IsMatch(newOffset, @"^\d{4}$"))
-        {
-            throw new ArgumentException("The new offset should be exactly 4 digits", nameof(newOffset));
-        }
+    //        //if (prog.Previouslyshown == null || string.IsNullOrEmpty(prog.Previouslyshown.Start))
+    //        //{
+    //        //    prog.Previouslyshown = null;
+    //        //}
 
-        // Use regex to replace the offset after the '+'
-        return Regex.Replace(input, @"\+\d{4}", $"+{newOffset}");
-    }
+    //        if (!string.IsNullOrEmpty(videoStream.TimeShift) && videoStream.TimeShift != "0000")
+    //        {
+    //            prog.Start = ReplaceTimezoneOffset(prog.Start, videoStream.TimeShift);
+    //            prog.Stop = ReplaceTimezoneOffset(prog.Stop, videoStream.TimeShift);
+    //        }
 
-    private void AdjustProgrammeIcons(Programme prog, List<IconFileDto> cachedIcons)
-    {
-        if (!prog.Icon.Any())
-        {
-            prog.Icon.Add(new TvIcon { Height = "", Width = "", Src = "" });
-        }
-        else
-        {
-            foreach (TvIcon icon in prog.Icon.DeepCopy())
-            {
-                if (!string.IsNullOrEmpty(icon.Src))
-                {
-                    IconFileDto? programmeIcon = cachedIcons.Find(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == icon.Src);
-                    if (programmeIcon != null)
-                    {
-                        icon.Src = GetApiUrl(SMFileTypes.ProgrammeIcon, programmeIcon.Source);
-                    }
-                }
-            }
-        }
-    }
+    //        programmesForStream.Add(prog);
+    //    }
 
-    [LogExecutionTimeAspect]
-    private static string SerializeEpgData(Tv epgData)
+    //    return programmesForStream;
+    //}
+
+    //private static string ReplaceTimezoneOffset(string input, string newOffset)
+    //{
+    //    // The new offset should be exactly 4 digits
+    //    if (newOffset.Length != 4 || !Regex.IsMatch(newOffset, @"^\d{4}$"))
+    //    {
+    //        throw new ArgumentException("The new offset should be exactly 4 digits", nameof(newOffset));
+    //    }
+
+    //    // Use regex to replace the offset after the '+'
+    //    return Regex.Replace(input, @"\+\d{4}", $"+{newOffset}");
+    //}
+
+    //private void AdjustProgrammeIcons(XmltvProgramme prog, List<IconFileDto> cachedIcons)
+    //{
+    //    if (!prog.Icon.Any())
+    //    {
+    //        prog.Icon.Add(new TvIcon { Height = "", Width = "", Src = "" });
+    //    }
+    //    else
+    //    {
+    //        foreach (TvIcon icon in prog.Icon)
+    //        {
+    //            if (!string.IsNullOrEmpty(icon.Src))
+    //            {
+    //                if (icon.Src.StartsWith("https://json.schedulesdirect.org"))
+    //                {
+    //                    ImageInfo? programmeIcon = MemoryCache.ImageInfos().Find(a => a.RealUrl == icon.Src);
+    //                    if (programmeIcon != null)
+    //                    {
+    //                        icon.Src = GetApiUrl(SMFileTypes.SDImage, programmeIcon.IconUri);
+    //                    }
+    //                }
+    //                else
+    //                {
+    //                    IconFileDto? programmeIcon = cachedIcons.Find(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == icon.Src);
+    //                    if (programmeIcon != null)
+    //                    {
+    //                        icon.Src = GetApiUrl(SMFileTypes.ProgrammeIcon, programmeIcon.Source);
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
+    private static string SerializeXMLTVData(XMLTV xmltv)
     {
         XmlSerializerNamespaces ns = new();
         ns.Add("", "");
 
-        using Utf8StringWriter textWriter = new();
-        XmlSerializer serializer = new(typeof(Tv));
-        serializer.Serialize(textWriter, epgData, ns);
-        return textWriter.ToString();
+        XmlWriterSettings settings = new()
+        {
+            //settings.NewLineHandling = NewLineHandling.Entitize;
+            Indent = true,
+            OmitXmlDeclaration = true,
+            NewLineHandling = NewLineHandling.Entitize,
+            NewLineChars = "\n"
+        };
+
+        //using Utf8StringWriter textWriter = new();
+        UTF8Encoding utf8NoBOM = new(false);
+
+        //XmlSerializer serializer = new(typeof(Tv));
+        string xmlText = "";
+
+        using (MemoryStream stream = new())
+        {
+            using XmlWriter writer = XmlWriter.Create(stream, settings); // Create XmlWriter with settings
+            XmlSerializer xml = new(typeof(XMLTV));
+
+            xml.Serialize(writer, xmltv, ns);
+            xmlText = utf8NoBOM.GetString(stream.ToArray());
+        }
+        return xmlText;
     }
 
     //[LogExecutionTimeAspect]
-    //private async Task<List<Programme>> GetRelevantProgrammes(List<string> epgids, CancellationToken cancellationToken)
+    //private static string SerializeEpgData(Tv epgData)
     //{
-    //    List<Programme> programmes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
-    //    return programmes
-    //        .Where(a =>
-    //            a.StartDateTime > DateTime.Now.AddDays(-1) &&
-    //            a.StopDateTime < DateTime.Now.AddDays(7) &&
-    //            a.Channel != null &&
-    //            (epgids.Contains(a.Channel) ||
-    //            epgids.Contains(a.DisplayName))
-    //        ).ToList();
+    //    XmlSerializerNamespaces ns = new();
+    //    ns.Add("", "");
+
+    //    XmlWriterSettings settings = new()
+    //    {
+    //        //settings.NewLineHandling = NewLineHandling.Entitize;
+    //        Indent = true,
+    //        OmitXmlDeclaration = true,
+    //        NewLineHandling = NewLineHandling.Entitize,
+    //        NewLineChars = "\n"
+    //    };
+
+    //    //using Utf8StringWriter textWriter = new();
+    //    UTF8Encoding utf8NoBOM = new(false);
+
+    //    //XmlSerializer serializer = new(typeof(Tv));
+    //    string xmlText = "";
+
+    //    using (MemoryStream stream = new())
+    //    {
+    //        using XmlWriter writer = XmlWriter.Create(stream, settings); // Create XmlWriter with settings
+    //        XmlSerializer xml = new(typeof(Tv));
+
+    //        xml.Serialize(writer, epgData, ns);
+    //        xmlText = utf8NoBOM.GetString(stream.ToArray());
+    //    }
+    //    return xmlText;
     //}
 
     private string GetApiUrl(SMFileTypes path, string source)
@@ -334,29 +421,19 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         return $"{url}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
     }
 
-    private int GetDummy()
-    {
-        return Interlocked.Increment(ref dummyCount);
-    }
+    //private static bool IsVideoStreamADummy(VideoStreamDto videoStream, Setting setting)
+    //{
+    //    if (videoStream.User_Tvg_ID?.ToLower() == "dummy")
+    //    {
+    //        return true;
+    //    }
 
-    private bool IsNotInProgrammes(IEnumerable<Programme> programmes, VideoStream videoStream)
-    {
-        return !programmes.Any(p => p.Channel == videoStream.User_Tvg_ID);
-    }
+    //    if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
+    //    {
+    //        return true;
+    //    }
 
-    private static bool IsVideoStreamADummy(VideoStreamDto videoStream, Setting setting)
-    {
-        if (videoStream.User_Tvg_ID?.ToLower() == "dummy")
-        {
-            return true;
-        }
-
-        if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
-        {
-            return true;
-        }
-
-        return !string.IsNullOrEmpty(setting.DummyRegex) &&
-               new Regex(setting.DummyRegex, RegexOptions.ECMAScript | RegexOptions.IgnoreCase).IsMatch(videoStream.User_Tvg_ID);
-    }
+    //    return !string.IsNullOrEmpty(setting.DummyRegex) &&
+    //           new Regex(setting.DummyRegex, RegexOptions.ECMAScript | RegexOptions.IgnoreCase).IsMatch(videoStream.User_Tvg_ID);
+    //}
 }

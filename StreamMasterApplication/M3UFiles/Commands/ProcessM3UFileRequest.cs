@@ -145,24 +145,32 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         int processedCount = 0;
         Dictionary<string, VideoStream> existingLookup = existing.ToDictionary(a => a.Id, a => a);
         Dictionary<string, ChannelGroup> groupLookup = groups.ToDictionary(g => g.Name, g => g);
+        HashSet<string> processed = [];// existing.Select(a => a.Id).ToHashSet();
 
         List<VideoStream> toWrite = new();
         List<VideoStream> toUpdate = new();
 
         foreach (VideoStream stream in streams)
         {
+            if (processed.Contains(stream.Id))
+            {
+                continue;
+            }
+
+            processed.Add(stream.Id);
             _ = groupLookup.TryGetValue(stream.Tvg_group, out ChannelGroup? group);
 
-            if (!existingLookup.ContainsKey(stream.Id))
+            if (!existingLookup.TryGetValue(stream.Id, out VideoStream? value))
             {
                 await ProcessNewStream(stream, group?.IsHidden ?? false, m3uFile.Name);
                 toWrite.Add(stream);
             }
             else
             {
-                VideoStream? dbStream = existingLookup[stream.Id];
+                VideoStream? dbStream = value;
                 if (await ProcessExistingStream(stream, dbStream, group?.IsHidden ?? false, m3uFile.Name))
                 {
+                    dbStream.M3UFileId = m3uFile.Id;
                     toUpdate.Add(dbStream);
                 }
             }

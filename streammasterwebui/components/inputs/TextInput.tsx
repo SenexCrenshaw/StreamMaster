@@ -72,14 +72,18 @@ const TextInput = ({
 
     // If it's supposed to be a URL, process accordingly
     if (isUrl) {
-      try {
-        // Construct the URL and return it with the query parameters
-        const constructedURL = new URL(value_);
-        return constructedURL.origin + constructedURL.pathname + constructedURL.search;
-      } catch {
-        // If there's an error constructing the URL (meaning it's not a valid URL), return val as is
-        return value_;
-      }
+      // try {
+      //   // Construct the URL and return it with the query parameters
+      //   const constructedURL = new URL(value_);
+      //   if (constructedURL) {
+      //     return value_;
+      //   }
+      //   return constructedURL.origin + constructedURL.pathname + constructedURL.search;
+      // } catch {
+      //   // If there's an error constructing the URL (meaning it's not a valid URL), return val as is
+      //   return value_;
+      // }
+      return value_;
     }
 
     // If not a URL, remove file extension (previous behavior)
@@ -104,7 +108,7 @@ const TextInput = ({
 
   return (
     <div className={placeHolder && !label ? 'flex grid w-full align-items-center' : 'flex grid w-full mt-3 align-items-center'} ref={overlayReference}>
-      <span className={placeHolder && !label ? 'col-11 p-input-icon-right w-full' : 'col-11 p-input-icon-right p-float-label w-full'}>
+      <span className={placeHolder && !label ? 'col-11 p-input-icon-right' : 'col-11 p-input-icon-right p-float-label'}>
         {doShowClear() && originalInput && (
           <i
             className="pi pi-times-circle"

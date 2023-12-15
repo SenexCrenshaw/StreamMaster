@@ -1,14 +1,310 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+﻿
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
-using System.Net;
-using System.Net.Http.Headers;
+using StreamMasterDomain.Common;
+
 using System.Security.Cryptography;
 using System.Text;
 
 namespace StreamMaster.SchedulesDirectAPI.Helpers;
 
-public static class SDHelpers
+public static partial class SDHelpers
 {
+    public static Image? CropAndResizeImage(Image<Rgba32> origImg)
+    {
+        try
+        {
+            if (origImg == null)
+            {
+                return null;
+            }
+
+            // Set target image size
+            const int tgtWidth = 360;
+            const int tgtHeight = 270;
+
+            // Set target aspect/image size
+            const double tgtAspect = 3.0;
+
+            // Find the min/max non-transparent pixels
+            Point min = new(int.MaxValue, int.MaxValue);
+            Point max = new(int.MinValue, int.MinValue);
+
+            for (int x = 0; x < origImg.Width; ++x)
+            {
+                for (int y = 0; y < origImg.Height; ++y)
+                {
+                    Rgba32 pixel = origImg[x, y];
+                    if (pixel.A <= 0)
+                    {
+                        continue;
+                    }
+
+                    if (x < min.X)
+                    {
+                        min.X = x;
+                    }
+
+                    if (y < min.Y)
+                    {
+                        min.Y = y;
+                    }
+
+                    if (x > max.X)
+                    {
+                        max.X = x;
+                    }
+
+                    if (y > max.Y)
+                    {
+                        max.Y = y;
+                    }
+                }
+            }
+
+            // Create a new image from the crop rectangle and increase canvas size if necessary
+            int offsetY = 0;
+            Rectangle cropRectangle = new(min.X, min.Y, max.X - min.X + 1, max.Y - min.Y + 1);
+            if ((max.X - min.X + 1) / tgtAspect > (max.Y - min.Y + 1))
+            {
+                offsetY = (int)(((max.X - min.X + 1) / tgtAspect) - (max.Y - min.Y + 1) + 0.5) / 2;
+            }
+
+            //var cropImg = new Image<Rgba32>(new Configuration(), cropRectangle.Width, cropRectangle.Height + (offsetY * 2));
+            Image<Rgba32> cropImg = origImg.Clone(ctx =>
+            {
+                ctx.Resize(new ResizeOptions
+                {
+                    Size = new Size(tgtWidth, tgtHeight),//cropRectangle.Width, cropRectangle.Height),
+                    Mode = ResizeMode.Crop
+                });
+                //var destinationRectangle = new Rectangle(0, offsetY, cropRectangle.Width, cropRectangle.Height);
+                //_ = ctx.DrawImage(origImg, 1).Crop(destinationRectangle);
+            });
+
+            return cropImg;
+            //if (tgtHeight >= cropImg.Height && tgtWidth >= cropImg.Width)
+            //{
+            //    return cropImg;
+            //}
+
+            //// Resize image if needed
+            //var scale = Math.Min((double)tgtWidth / cropImg.Width, (double)tgtHeight / cropImg.Height);
+            //var destWidth = (int)(cropImg.Width * scale);
+            //var destHeight = (int)(cropImg.Height * scale);
+
+            //return cropImg.Clone(ctx => ctx.Resize(new ResizeOptions
+            //{
+            //    Size = new Size(destWidth, destHeight),
+            //    Mode = ResizeMode.Max
+            //}));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return null;
+        }
+    }
+
+    public static string GetSDImageFullPath(this string fileName)
+    {
+        string subdirectoryName = fileName[0].ToString().ToLower();
+        string logoPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName, fileName);
+
+        return logoPath;
+    }
+
+    public static List<ProgramArtwork> GetArtWork(this MxfProgram program)
+    {
+        List<ProgramArtwork> artwork = [];
+        // a movie or sport event will have a guide image from the program
+        if (program.extras.TryGetValue("artwork", out dynamic? value))
+        {
+            artwork = value;
+        }
+
+        // get the season class from the program if it has a season
+        if (artwork.Count == 0 && (program.mxfSeason?.extras.ContainsKey("artwork") ?? false))
+        {
+            artwork = program.mxfSeason.extras["artwork"];
+        }
+
+        // get the series info class from the program if it is a series
+        if (artwork.Count == 0 && (program.mxfSeriesInfo?.extras.ContainsKey("artwork") ?? false))
+        {
+            artwork = program.mxfSeriesInfo.extras["artwork"];
+        }
+        return artwork;
+    }
+
+    public static List<ProgramArtwork> GetTieredImages(List<ProgramArtwork> sdImages, List<string> tiers, string artWorkSize)
+    {
+
+        List<ProgramArtwork> ret = [];
+        IEnumerable<ProgramArtwork> images = sdImages.Where(arg =>
+            !string.IsNullOrEmpty(arg.Category) && !string.IsNullOrEmpty(arg.Aspect) && !string.IsNullOrEmpty(arg.Uri) &&
+            (string.IsNullOrEmpty(arg.Tier) || tiers.Contains(arg.Tier.ToLower())) &&
+            !string.IsNullOrEmpty(arg.Size) && arg.Size.Equals(artWorkSize));
+
+        // get the aspect ratios available and fix the URI
+        HashSet<string> aspects = [];
+        foreach (ProgramArtwork? image in images)
+        {
+            _ = aspects.Add(image.Aspect);
+            //if (!image.Uri.ToLower().StartsWith("http"))
+            //{
+            //    image.Uri = $"{api.BaseArtworkAddress}image/{image.Uri.ToLower()}";
+            //}
+        }
+
+        // determine which image to return with each aspect
+        foreach (string aspect in aspects)
+        {
+            IEnumerable<ProgramArtwork> imgAspects = images.Where(arg => arg.Aspect.Equals(aspect));
+
+            ProgramArtwork[] links = new ProgramArtwork[11];
+            foreach (ProgramArtwork? image in imgAspects)
+            {
+                switch (image.Category.ToLower())
+                {
+                    case "box art":     // DVD box art, for movies only
+                        if (links[0] == null)
+                        {
+                            links[0] = image;
+                        }
+
+                        break;
+                    case "vod art":
+                        if (links[1] == null)
+                        {
+                            links[1] = image;
+                        }
+
+                        break;
+                    case "poster art":  // theatrical movie poster, standard sizes
+                        if (links[2] == null)
+                        {
+                            links[2] = image;
+                        }
+
+                        break;
+                    case "banner":      // source-provided image, usually shows cast ensemble with source-provided text
+                        if (links[3] == null)
+                        {
+                            links[3] = image;
+                        }
+
+                        break;
+                    case "banner-l1":   // same as Banner
+                        if (links[4] == null)
+                        {
+                            links[4] = image;
+                        }
+
+                        break;
+                    case "banner-l2":   // source-provided image with plain text
+                        if (links[5] == null)
+                        {
+                            links[5] = image;
+                        }
+
+                        break;
+                    case "banner-lo":   // banner with Logo Only
+                        if (links[6] == null)
+                        {
+                            links[6] = image;
+                        }
+
+                        break;
+                    case "logo":        // official logo for program, sports organization, sports conference, or TV station
+                        if (links[7] == null)
+                        {
+                            links[7] = image;
+                        }
+
+                        break;
+                    case "banner-l3":   // stock photo image with plain text
+                        if (links[8] == null)
+                        {
+                            links[8] = image;
+                        }
+
+                        break;
+                    case "iconic":      // representative series/season/episode image, no text
+                        if (tiers.Contains("series") && links[9] == null)
+                        {
+                            links[9] = image;
+                        }
+
+                        break;
+                    case "staple":      // the staple image is intended to cover programs which do not have a unique banner image
+                        if (links[10] == null)
+                        {
+                            links[10] = image;
+                        }
+
+                        break;
+                    case "banner-l1t":
+                    case "banner-lot":  // banner with Logo Only + Text indicating season number
+                        break;
+                }
+            }
+
+            foreach (ProgramArtwork link in links)
+            {
+                if (link == null)
+                {
+                    continue;
+                }
+
+                ret.Add(link);
+                break;
+            }
+        }
+
+        if (ret.Count > 1)
+        {
+            ret = ret.OrderBy(arg => arg.Width).ToList();
+        }
+        return ret;
+    }
+
+    public static bool TableContains(string[] table, string text, bool exactMatch = false)
+    {
+        if (table == null)
+        {
+            return false;
+        }
+
+        foreach (string str in table)
+        {
+            if (string.IsNullOrEmpty(str))
+            {
+                continue;
+            }
+
+            if (!exactMatch && str.ToLower().Contains(text.ToLower()))
+            {
+                return true;
+            }
+
+            if (str.ToLower().Equals(text.ToLower()))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static bool StringContains(this string str, string text)
+    {
+        return str != null && str.ToLower().Contains(text.ToLower());
+    }
+
+
     public static string GenerateHashFromStringContent(StringContent content)
     {
         byte[] contentBytes = Encoding.UTF8.GetBytes(content.ReadAsStringAsync().Result); // Extract string from StringContent and convert to bytes
@@ -16,19 +312,6 @@ public static class SDHelpers
         return BitConverter.ToString(hashBytes).Replace("-", "").ToLower(); // Convert byte array to hex string
     }
 
-    public static HttpClient CreateHttpClient(string clientUserAgent)
-    {
-        HttpClient client = new(new HttpClientHandler()
-        {
-            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
-            AllowAutoRedirect = true,
-        });
-        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
-        client.DefaultRequestHeaders.UserAgent.ParseAdd(clientUserAgent);
-
-        return client;
-    }
     public static string GenerateCacheKey(string command)
     {
         char[] invalidChars = Path.GetInvalidFileNameChars();
@@ -37,312 +320,22 @@ public static class SDHelpers
         {
             if (!invalidChars.Contains(c))
             {
-                sanitized.Append(c);
+                _ = sanitized.Append(c);
             }
             else
             {
-                sanitized.Append('_');  // replace invalid chars with underscore or another desired character
+                _ = sanitized.Append('_');  // replace invalid chars with underscore or another desired character
             }
         }
-        sanitized.Append(".json");
+        _ = sanitized.Append(".json");
         return sanitized.ToString();
     }
 
-    public static List<TvTitle> GetTitles(List<Title> Titles, string lang)
+    public static UserStatus GetStatusOffline()
     {
-
-        List<TvTitle> ret = Titles.ConvertAll(a => new TvTitle
-        {
-            Lang = lang,
-            Text = a.Title120
-        });
+        UserStatus ret = new();
+        ret.SystemStatus.Add(new SystemStatus { Status = "Offline" });
         return ret;
     }
 
-    public static TvSubtitle GetSubTitles(ISDProgram sdProgram, string lang)
-    {
-        if (!string.IsNullOrEmpty(sdProgram.EpisodeTitle150))
-        {
-            return new TvSubtitle
-            {
-                Lang = lang,
-                Text = sdProgram.EpisodeTitle150
-            };
-        }
-
-        string description = "";
-        if (sdProgram.Descriptions?.Description100 is not null)
-        {
-            IDescription100? test = sdProgram.Descriptions.Description100.FirstOrDefault(a => a.DescriptionLanguage == lang && a.Description != "");
-            if (test == null)
-            {
-                if (!string.IsNullOrEmpty(sdProgram.Descriptions.Description100[0].Description))
-                {
-                    description = sdProgram.Descriptions.Description100[0].Description;
-                }
-            }
-            else
-            {
-                description = test.Description;
-            }
-        }
-
-        return new TvSubtitle
-        {
-            Lang = lang,
-            Text = description
-        };
-    }
-
-    public static TvCredits GetCredits(ISDProgram sdProgram, string lang)
-    {
-        TvCredits ret = new();
-        if (sdProgram.Crew == null)
-        {
-            return ret;
-
-        }
-        foreach (Crew crew in sdProgram.Crew)
-        {
-            switch (crew.Role)
-            {
-                case "Actor":
-                    ret.Actor ??= new();
-                    ret.Actor.Add(new TvActor
-                    {
-                        Text = crew.Name,
-                        Role = crew.Role
-                    });
-                    break;
-                case "Director":
-                    ret.Director ??= new();
-                    ret.Director.Add(crew.Name);
-                    break;
-                case "Producer":
-                    ret.Producer ??= new();
-                    ret.Producer.Add(crew.Name);
-                    break;
-                case "Presenter":
-                    ret.Presenter ??= new();
-                    ret.Presenter.Add(crew.Name);
-                    break;
-                case "Writer":
-                    ret.Writer ??= new();
-                    ret.Writer.Add(crew.Name);
-                    break;
-            }
-        }
-
-        if (sdProgram.Cast is not null)
-        {
-            foreach (ICast? cast in sdProgram.Cast.OrderBy(a => a.BillingOrder))
-            {
-                ret.Actor ??= new();
-                ret.Actor.Add(new TvActor
-                {
-                    Text = cast.Name,
-                    Role = cast.CharacterName
-                });
-                break;
-            }
-        }
-
-        return ret;
-    }
-
-    public static TvDesc GetDescriptions(ISDProgram sdProgram, string lang)
-    {
-
-        string description = "";
-        if (sdProgram.Descriptions is not null)
-        {
-            if (sdProgram.Descriptions.Description1000 is not null && sdProgram.Descriptions.Description1000.Any())
-            {
-                IDescription1000? test = sdProgram.Descriptions.Description1000.FirstOrDefault(a => a.DescriptionLanguage == lang && a.Description != "");
-                if (test == null)
-                {
-                    if (!string.IsNullOrEmpty(sdProgram.Descriptions.Description1000[0].Description))
-                    {
-                        description = sdProgram.Descriptions.Description1000[0].Description;
-                    }
-                }
-                else
-                {
-                    description = test.Description;
-                }
-            }
-
-        }
-
-        return new TvDesc
-        {
-            Lang = lang,
-            Text = description
-        };
-    }
-
-    public static List<TvCategory> GetCategory(ISDProgram sdProgram, string lang)
-    {
-        List<TvCategory> ret = new();
-
-        if (sdProgram.Genres is not null)
-        {
-            foreach (string genre in sdProgram.Genres)
-            {
-                ret.Add(new TvCategory
-                {
-                    Lang = lang,
-                    Text = genre
-                });
-            }
-        }
-
-        return ret;
-    }
-
-    public static List<TvEpisodenum> GetEpisodeNums(ISDProgram sdProgram, string lang)
-    {
-        List<TvEpisodenum> ret = new();
-        int season = 0;
-        int episode = 0;
-
-        if (sdProgram.Metadata is not null && sdProgram.Metadata.Any())
-        {
-            foreach (ProgramMetadata m in sdProgram.Metadata.Where(a => a.Gracenote != null))
-            {
-                season = m.Gracenote.Season;
-                episode = m.Gracenote.Episode;
-                ret.Add(new TvEpisodenum
-                {
-                    System = "xmltv_ns",
-                    Text = $"{season:00}.{episode:00}"
-                });
-            }
-        }
-
-        if (season != 0 && episode != 0)
-        {
-            ret.Add(new TvEpisodenum
-            {
-                System = "onscreen",
-                Text = $"S{season} E{episode}"
-            });
-        }
-
-        if (ret.Count == 0)
-        {
-            string prefix = sdProgram.ProgramID[..2];
-            string newValue;
-
-            switch (prefix)
-            {
-                case "EP":
-                    newValue = sdProgram.ProgramID[..10] + "." + sdProgram.ProgramID[10..];
-                    break;
-
-                case "SH":
-                case "MV":
-                    newValue = sdProgram.ProgramID[..10] + ".0000";
-                    break;
-
-                default:
-                    newValue = sdProgram.ProgramID;
-                    break;
-            }
-            ret.Add(new TvEpisodenum
-            {
-                System = "dd_progid",
-                Text = newValue
-            });
-        }
-
-        if (sdProgram.OriginalAirDate != null)
-        {
-            ret.Add(new TvEpisodenum
-            {
-                System = "original-air-date",
-                Text = sdProgram.OriginalAirDate
-            });
-        }
-
-        return ret;
-
-    }
-
-    public static List<TvIcon> GetIcons(Program program, ISDProgram sdProgram, ISchedule sched, string lang)
-    {
-        List<TvIcon> ret = new();
-        List<string> aspects = new() { "2x3", "4x3", "3x4", "16x9" };
-
-        if (sdProgram.Metadata is not null && sdProgram.Metadata.Any())
-        {
-
-        }
-
-        return ret;
-
-    }
-
-    public static List<TvRating> GetRatings(ISDProgram sdProgram, string countryCode, int maxRatings)
-    {
-        List<TvRating> ratings = new();
-
-
-        if (sdProgram?.ContentRating == null)
-        {
-
-            return ratings;
-        }
-
-        maxRatings = maxRatings > 0 ? Math.Min(maxRatings, sdProgram.ContentRating.Count) : sdProgram.ContentRating.Count;
-
-        foreach (ContentRating? cr in sdProgram.ContentRating.Take(maxRatings))
-        {
-            ratings.Add(new TvRating
-            {
-                System = cr.Body,
-                Value = cr.Code
-            });
-        }
-
-        return ratings;
-    }
-
-
-    public static TvVideo GetTvVideos(Program sdProgram)
-    {
-        TvVideo ret = new();
-
-        if (sdProgram.VideoProperties?.Any() == true)
-        {
-            ret.Quality = sdProgram.VideoProperties.ToList();
-        }
-
-        return ret;
-
-    }
-
-    public static TvAudio GetTvAudios(Program sdProgram)
-    {
-        TvAudio ret = new();
-
-        if (sdProgram.AudioProperties != null && sdProgram.AudioProperties.Any())
-        {
-            List<string> a = sdProgram.AudioProperties.ToList();
-            if (a.Any())
-            {
-                ret.Stereo = a[0];
-            }
-
-        }
-
-        return ret;
-
-    }
-    public static SDStatus GetSDStatusOffline()
-    {
-        SDStatus ret = new();
-        ret.systemStatus.Add(new SDSystemStatus { status = "Offline" });
-        return ret;
-    }
 }

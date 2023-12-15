@@ -16,7 +16,7 @@ public partial class StreamMasterHub : ISettingHub
         return await mediator.Send(new GetSettings()).ConfigureAwait(false);
     }
 
-    public async Task<SystemStatus> GetSystemStatus()
+    public async Task<SDSystemStatus> GetSystemStatus()
     {
         return await mediator.Send(new GetSystemStatus()).ConfigureAwait(false);
     }

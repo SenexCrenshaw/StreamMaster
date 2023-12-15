@@ -1,21 +1,34 @@
-import { HeadendDto, SchedulesDirectGetHeadendsApiArg, useSchedulesDirectGetHeadendsQuery } from '@lib/iptvApi';
-import { memo, useCallback, useMemo } from 'react';
+import { HeadendDto, SchedulesDirectGetHeadendsApiArg } from '@lib/iptvApi';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 
-import DataSelector from '../dataSelector/DataSelector';
 import { useSelectedCountry } from '@lib/redux/slices/selectedCountrySlice';
 import { useSelectedPostalCode } from '@lib/redux/slices/selectedPostalCodeSlice';
-import { skipToken } from '@reduxjs/toolkit/query';
+import { GetHeadends } from '@lib/smAPI/SchedulesDirect/SchedulesDirectGetAPI';
+import DataSelector from '../dataSelector/DataSelector';
 import SchedulesDirectAddHeadendDialog from './SchedulesDirectAddHeadendDialog';
 import SchedulesDirectCountrySelector from './SchedulesDirectCountrySelector';
+import SchedulesDirectLineupPreviewChannel from './SchedulesDirectLineupPreviewChannel';
 
 const SchedulesDirectHeadendDataSelector = () => {
   const { selectedCountry } = useSelectedCountry('Country');
-  const { selectedPostalCode } = useSelectedPostalCode('ZipCode');
+  const { selectedPostalCode } = useSelectedPostalCode('PostalCode');
+  const [dataSource, setDataSource] = useState<HeadendDto[]>([]);
 
-  const getHeadendsQuery = useSchedulesDirectGetHeadendsQuery(
-    ({ country: selectedCountry, postalCode: selectedPostalCode } as SchedulesDirectGetHeadendsApiArg) ?? skipToken
-  );
+  const [lineupToPreview, setLineupToPreview] = useState<string | undefined>(undefined);
+
+  // const getHeadendsQuery = useSchedulesDirectGetHeadendsQuery(
+  //   ({ country: selectedCountry ?? 'USA', postalCode: selectedPostalCode ?? '0000' } as SchedulesDirectGetHeadendsApiArg) ?? skipToken
+  // );
+  useEffect(() => {
+    GetHeadends({ country: selectedCountry ?? 'USA', postalCode: selectedPostalCode ?? '00000' } as SchedulesDirectGetHeadendsApiArg)
+      .then((data) => {
+        setDataSource(data ?? []);
+      })
+      .catch((error) => {
+        setDataSource([]);
+      });
+  }, [selectedCountry, selectedPostalCode]);
 
   const actionBodyTemplate = useCallback((data: HeadendDto) => {
     return (
@@ -27,10 +40,10 @@ const SchedulesDirectHeadendDataSelector = () => {
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'headend', sortable: true },
-      { field: 'lineup', sortable: true },
-      { field: 'location', sortable: true },
-      { field: 'name', sortable: true },
+      { field: 'headendId', filter: true, sortable: true },
+      { field: 'lineup', filter: true, sortable: true },
+      { field: 'location', filter: true, sortable: true },
+      { field: 'name', filter: true, sortable: true },
       { field: 'transport', sortable: true },
       {
         bodyTemplate: actionBodyTemplate,
@@ -59,14 +72,19 @@ const SchedulesDirectHeadendDataSelector = () => {
         <span className="text-bold">TV Headends | </span>
         <span className="text-bold text-blue-500">{selectedCountry}</span> -<span className="text-bold text-500">{selectedPostalCode}</span>
       </h3>
+
+      <SchedulesDirectLineupPreviewChannel lineup={lineupToPreview} onHide={() => setLineupToPreview(undefined)} />
       <DataSelector
         columns={columns}
         defaultSortField="name"
-        dataSource={getHeadendsQuery.data}
+        dataSource={dataSource}
         emptyMessage="No Streams"
         id="StreamingServerStatusPanel"
-        isLoading={getHeadendsQuery.isLoading}
         headerRightTemplate={rightHeaderTemplate}
+        onRowClick={(e) => {
+          const data: HeadendDto = e.data;
+          setLineupToPreview(data.lineup);
+        }}
         selectedItemsKey="selectSelectedItems"
         style={{ height: 'calc(100vh - 120px)' }}
       />

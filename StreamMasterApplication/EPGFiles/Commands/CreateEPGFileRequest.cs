@@ -2,15 +2,13 @@
 
 using Microsoft.AspNetCore.Http;
 
-using StreamMaster.SchedulesDirectAPI.Domain.EPG;
-
-using StreamMasterDomain.Models;
+using StreamMasterDomain.Color;
 
 using System.Web;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
-public record CreateEPGFileRequest(string? Description, int EPGRank, IFormFile? FormFile, string Name, string? UrlSource) : IRequest<EPGFileDto?> { }
+public record CreateEPGFileRequest(string? Description, int EPGRank, IFormFile? FormFile, string Name, string? UrlSource, string? Color) : IRequest<EPGFileDto?> { }
 public class CreateEPGFileRequestValidator : AbstractValidator<CreateEPGFileRequest>
 {
     public CreateEPGFileRequestValidator()
@@ -24,14 +22,8 @@ public class CreateEPGFileRequestValidator : AbstractValidator<CreateEPGFileRequ
     }
 }
 
-public class CreateEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<CreateEPGFileRequest, EPGFileDto?>
+public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<CreateEPGFileRequest, EPGFileDto?>
 {
-
-
-    public CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
-
-
     public async Task<EPGFileDto?> Handle(CreateEPGFileRequest command, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(command.UrlSource) && command.FormFile != null && command.FormFile.Length <= 0)
@@ -49,7 +41,8 @@ public class CreateEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestH
             {
                 Description = command.Description ?? "",
                 Name = command.Name,
-                Source = command.Name + fd.FileExtension
+                Source = command.Name + fd.FileExtension,
+                Color = command.Color ?? ColorHelper.GetColor(command.Name)
             };
 
             if (command.FormFile != null)

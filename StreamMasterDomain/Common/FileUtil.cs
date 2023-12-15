@@ -15,6 +15,95 @@ namespace StreamMasterDomain.Common;
 public sealed class FileUtil
 {
     private static bool setupDirectories = false;
+
+    public static string CleanUpFileName(string fullName)
+    {
+        // Remove double spaces, trim, and replace spaces with underscores
+        fullName = string.Join("_", fullName.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()));
+
+        // Ensure the file name doesn't start or end with an underscore
+        if (fullName.StartsWith("_"))
+        {
+            fullName = fullName.TrimStart('_');
+        }
+
+        if (fullName.EndsWith("_"))
+        {
+            fullName = fullName.TrimEnd('_');
+        }
+        return fullName;
+    }
+
+    public static dynamic? ReadXmlFile(string filepath, Type type)
+    {
+        if (!File.Exists(filepath))
+        {
+            //Logger.WriteInformation($"File \"{filepath}\" does not exist.");
+            return null;
+        }
+
+        try
+        {
+            XmlSerializer serializer = new(type);
+            using StreamReader reader = new(filepath, Encoding.Default);
+            return serializer.Deserialize(reader);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to read file \"{filepath}\". Exception:{ReportExceptionMessages(ex)}");
+        }
+        return null;
+    }
+    public static string BytesToString(long bytes)
+    {
+        string[] unit = { "", "K", "M", "G", "T" };
+        for (int i = 0; i < unit.Length; ++i)
+        {
+            double calc;
+            if ((calc = bytes / Math.Pow(1024, i)) < 1024)
+            {
+                return $"{calc:N3} {unit[i]}B";
+            }
+        }
+        return "0 bytes";
+    }
+
+    public static bool WriteXmlFile(object obj, string filepath)
+    {
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(filepath));
+            XmlSerializer serializer = new(obj.GetType());
+            XmlSerializerNamespaces ns = new();
+            ns.Add("", "");
+            using StreamWriter writer = new(filepath, false, Encoding.UTF8);
+            serializer.Serialize(writer, obj, ns);
+            //if (compress)
+            //{
+            //    GZipCompressFile(filepath);
+            //    DeflateCompressFile(filepath);
+            //}
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to write file \"{filepath}\". Exception:{ReportExceptionMessages(ex)}");
+        }
+        return false;
+    }
+
+    public static string ReportExceptionMessages(Exception ex)
+    {
+        string ret = string.Empty;
+        Exception? innerException = ex;
+        do
+        {
+            ret += $" {innerException.Message} ";
+            innerException = innerException.InnerException;
+        } while (innerException != null);
+        return ret;
+    }
+
     public static string SerializeEpgData(Tv epgData)
     {
         XmlSerializerNamespaces ns = new();
@@ -33,10 +122,7 @@ public sealed class FileUtil
             return;
         }
 
-        if (
-            !directory.ToLower().StartsWith(BuildInfo.AppDataFolder.ToLower()) &&
-            !$"{directory.ToLower()}{Path.DirectorySeparatorChar}".StartsWith(BuildInfo.AppDataFolder.ToLower())
-            )
+        if (!IsSubdirectory(directory, BuildInfo.AppDataFolder))
         {
             throw new Exception($"Illegal directory outside of {BuildInfo.AppDataFolder} : {directory}");
         }
@@ -45,6 +131,15 @@ public sealed class FileUtil
         {
             _ = Directory.CreateDirectory(directory);
         }
+    }
+    public static bool IsSubdirectory(string candidate, string parent)
+    {
+        candidate = Path.GetFullPath(candidate).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                                    .ToLowerInvariant();
+        parent = Path.GetFullPath(parent).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                                .ToLowerInvariant();
+
+        return candidate.StartsWith(parent);
     }
 
     public static async Task<(bool success, Exception? ex)> DownloadUrlAsync(string url, string fullName, CancellationToken cancellationdefault)
@@ -71,7 +166,7 @@ public sealed class FileUtil
                 }
                 using FileStream fileStream = new(fullName, FileMode.Create);
                 using HttpResponseMessage response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationdefault).ConfigureAwait(false);
-                if (response.StatusCode == HttpStatusCode.Forbidden || response.StatusCode == HttpStatusCode.NotFound)
+                if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.NotFound)
                 {
                     return (false, null);
                 }
@@ -130,6 +225,8 @@ public sealed class FileUtil
         }
     }
 
+
+
     public static Stream GetFileDataStream(string source)
     {
         if (!IsFileGzipped(source))
@@ -164,7 +261,7 @@ public sealed class FileUtil
 
     public static async Task<List<TvLogoFile>> GetIconFilesFromDirectory(DirectoryInfo dirInfo, string tvLogosLocation, int startingId, CancellationToken cancellationToken = default)
     {
-        List<TvLogoFile> ret = new();
+        List<TvLogoFile> ret = [];
 
         foreach (FileInfo file in dirInfo.GetFiles("*png"))
         {
@@ -313,8 +410,36 @@ public sealed class FileUtil
         CreateDir(BuildInfo.ProgrammeIconDataFolder);
         CreateDir(BuildInfo.EPGFolder);
         CreateDir(BuildInfo.M3UFolder);
-        CreateDir(BuildInfo.SDCacheFolder);
+        CreateDir(BuildInfo.SDImagesFolder);
+        CreateDir(BuildInfo.SDStationLogos);
+        CreateDir(BuildInfo.SDStationLogosCache);
+        CreateDir(BuildInfo.SDJSONFolder);
+
+        for (char c = '0'; c <= '9'; c++)
+        {
+            string subdirectoryName = c.ToString();
+            string subdirectoryPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName);
+
+            // Create the subdirectory if it doesn't exist
+            if (!Directory.Exists(subdirectoryPath))
+            {
+                Directory.CreateDirectory(subdirectoryPath);
+            }
+        }
+
+        for (char c = 'a'; c <= 'f'; c++)
+        {
+            string subdirectoryName = c.ToString();
+            string subdirectoryPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName);
+
+            // Create the subdirectory if it doesn't exist
+            if (!Directory.Exists(subdirectoryPath))
+            {
+                Directory.CreateDirectory(subdirectoryPath);
+            }
+        }
     }
+
 
     public static void UpdateSetting(Setting setting)
     {

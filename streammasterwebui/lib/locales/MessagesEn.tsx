@@ -51,6 +51,8 @@ const MessagesEn: messages_enType = {
 
   ffmPegExecutable: 'FFMPeg Executable',
 
+  SD: 'Schedules Direct',
+
   filesEPGM3U: 'Files / EPG / M3U',
 
   formsAuthRequiresAdminUserName: 'Forms Authentication requires an Admin Username',
@@ -113,12 +115,30 @@ const MessagesEn: messages_enType = {
 
   ringBufferSizeMB: 'Buffer Size (MB)',
 
-  sdEnabled: 'Sched Direct Enabled',
+  'sdSettings.sdEnabled': 'ScheduleDirect Enabled',
 
-  sdPassword: 'Sched Direct Password',
+  'sdSettings.sdPassword': 'ScheduleDirect Password',
 
-  sdUserName: 'Sched Direct Username',
+  'sdSettings.sdUserName': 'ScheduleDirect Username',
+  'sdSettings.seriesWsArt': 'Enable Series Wide Sceen Art',
+  'sdSettings.seriesPosterAspect': 'Series Poster Aspect Ratio',
+  'sdSettings.artworkSize': 'Artwork Size Md',
+  'sdSettings.seriesPosterArt': 'Enable Series Poster Art',
+  'sdSettings.excludeCastAndCrew': 'Exclude Cast and Crew',
+  'sdSettings.alternateSEFormat': 'Alternate Season/Episode Format',
+  'sdSettings.prefixEpisodeDescription': 'Prefix Episode Description',
+  'sdSettings.prefixEpisodeTitle': 'Prefix Episode Title',
+  'sdSettings.appendEpisodeDesc': 'Append Season and Episode Numbers to the Program Description',
+  'sdSettings.seasonEventImages': 'Season Event Images',
+  'sdSettings.xmltvAddFillerData': 'Add Filler Data to EPG',
+  'sdSettings.xmltvIncludeChannelNumbers': 'Include Channel Numbers in EPG',
+  'sdSettings.xmltvExtendedInfoInTitleDescriptions': 'Include Extended Info in Title Descriptions',
+  'sdSettings.xmltvSingleImage': 'Use Single Image for EPG',
+  'sdSettings.sdepgDays': 'EPG Days to download',
+  'sdSettings.preferredLogoStyle': 'Preferred Logo Style',
+  'sdSettings.alternateLogoStyle': 'Alternate Logo Style',
 
+  loading: 'Loading',
   set: 'Set',
 
   settings: 'Settings',

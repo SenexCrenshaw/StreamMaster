@@ -88,7 +88,7 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
 
         List<IconFileDto> icons = MemoryCache.Icons();
         _ = icons.RemoveAll(a => a.FileId == m3UFile.Id);
-        MemoryCache.SetCache(icons);
+        MemoryCache.SetIcons(icons);
 
         _ = await Repository.SaveAsync().ConfigureAwait(false);
 

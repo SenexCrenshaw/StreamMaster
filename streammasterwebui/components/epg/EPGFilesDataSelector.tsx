@@ -1,3 +1,4 @@
+import ColorEditor from '@components/ColorEditor';
 import { formatJSONDateString, getTopToolOptions } from '@lib/common/common';
 import { useEpgFilesGetPagedEpgFilesQuery, useEpgFilesUpdateEpgFileMutation, type EpgFileDto, type M3UFileDto, type UpdateEpgFileRequest } from '@lib/iptvApi';
 import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox';
@@ -9,6 +10,7 @@ import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 import EPGFileRefreshDialog from './EPGFileRefreshDialog';
 import EPGFileRemoveDialog from './EPGFileRemoveDialog';
+import EPGPreviewDialog from './EPGPreviewDialog';
 
 const EPGFilesDataSelector = () => {
   const toast = useRef<Toast>(null);
@@ -16,7 +18,7 @@ const EPGFilesDataSelector = () => {
   const [epgFilesUpdateEpgFileMutation] = useEpgFilesUpdateEpgFileMutation();
 
   const onEPGUpdateClick = useCallback(
-    async (id: number, auto?: boolean | null, hours?: number | null, name?: string | null, url?: string | null) => {
+    async (id: number, auto?: boolean | null, hours?: number | null, name?: string | null, url?: string | null, color?: string | null) => {
       if (id < 1) {
         return;
       }
@@ -31,6 +33,10 @@ const EPGFilesDataSelector = () => {
 
       if (auto !== undefined) {
         tosend.autoUpdate = auto;
+      }
+
+      if (color) {
+        tosend.color = color;
       }
 
       if (hours) {
@@ -108,12 +114,51 @@ const EPGFilesDataSelector = () => {
     [onEPGUpdateClick]
   );
 
+  const colorTemplate = useCallback(
+    (rowData: EpgFileDto) => {
+      if (rowData.id === 0) {
+        return (
+          <div
+            className="p-0 relative"
+            style={{
+              backgroundColor: 'var(--mask-bg)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            {rowData.color}
+          </div>
+        );
+      }
+
+      return (
+        <ColorEditor
+          onChange={async (e) => {
+            console.log(e);
+            await onEPGUpdateClick(rowData.id, null, null, null, null, e);
+          }}
+          color={rowData.color}
+        />
+      );
+    },
+    [onEPGUpdateClick]
+  );
+
+  const channelCountTemplate = useCallback((rowData: EpgFileDto) => {
+    if (rowData.id === 0) {
+      return <div />;
+    }
+
+    return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.channelCount}</div>;
+  }, []);
+
   const programmeCountTemplate = useCallback((rowData: EpgFileDto) => {
     if (rowData.id === 0) {
       return <div />;
     }
 
-    return <div>{rowData.programmeCount}</div>;
+    return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.programmeCount}</div>;
   }, []);
 
   const actionBodyTemplate = useCallback(
@@ -123,28 +168,27 @@ const EPGFilesDataSelector = () => {
       }
 
       return (
-        <div className="flex grid p-0 justify-content-end align-items-center">
-          <div className="col-8 flex p-0 justify-content-between align-items-center">
-            <div className="col-8 flex p-0 justify-content-between align-items-center">
-              <Checkbox
-                checked={rowData.autoUpdate}
-                onChange={async (e: CheckboxChangeEvent) => {
-                  await onEPGUpdateClick(rowData.id, e.checked ?? false);
-                }}
-                tooltip="Enable Auto Update"
-                tooltipOptions={getTopToolOptions}
-              />
+        <div className="flex col-12 grid p-0 justify-content-end align-items-center">
+          <div className="col-6 p-0 justify-content-between align-items-center">
+            <Checkbox
+              checked={rowData.autoUpdate}
+              onChange={async (e: CheckboxChangeEvent) => {
+                await onEPGUpdateClick(rowData.id, e.checked ?? false);
+              }}
+              tooltip="Enable Auto Update"
+              tooltipOptions={getTopToolOptions}
+            />
 
-              <NumberEditorBodyTemplate
-                onChange={async (e) => {
-                  await onEPGUpdateClick(rowData.id, null, e);
-                }}
-                suffix=" hours"
-                value={rowData.hoursToUpdate}
-              />
-            </div>
+            <NumberEditorBodyTemplate
+              onChange={async (e) => {
+                await onEPGUpdateClick(rowData.id, null, e);
+              }}
+              suffix=" hours"
+              value={rowData.hoursToUpdate}
+            />
           </div>
-          <div className="col-4 p-0 justify-content-end align-items-center">
+          <div className="col-6 p-0 justify-content-end  align-items-center">
+            <EPGPreviewDialog selectedFile={rowData} />
             <EPGFileRefreshDialog selectedFile={rowData} />
             <EPGFileRemoveDialog selectedFile={rowData} />
           </div>
@@ -188,6 +232,12 @@ const EPGFilesDataSelector = () => {
   const columns = useMemo(
     (): ColumnMeta[] => [
       {
+        bodyTemplate: colorTemplate,
+        field: 'color',
+        header: 'Color',
+        width: '4rem'
+      },
+      {
         bodyTemplate: nameEditorBodyTemplate,
         field: 'name',
         filter: true,
@@ -203,11 +253,18 @@ const EPGFilesDataSelector = () => {
         width: '12rem'
       },
       {
+        bodyTemplate: channelCountTemplate,
+        field: 'channelCount',
+        header: 'Channels',
+        sortable: true,
+        width: '6rem'
+      },
+      {
         bodyTemplate: programmeCountTemplate,
         field: 'programmeCount',
-        header: 'Programmes',
+        header: 'Progs',
         sortable: true,
-        width: '20rem'
+        width: '6rem'
       },
       { bodyTemplate: urlEditorBodyTemplate, field: 'url', sortable: true },
       {
@@ -217,7 +274,7 @@ const EPGFilesDataSelector = () => {
         width: '10rem'
       }
     ],
-    [lastDownloadedTemplate, nameEditorBodyTemplate, programmeCountTemplate, actionBodyTemplate, urlEditorBodyTemplate]
+    [colorTemplate, nameEditorBodyTemplate, lastDownloadedTemplate, channelCountTemplate, programmeCountTemplate, urlEditorBodyTemplate, actionBodyTemplate]
   );
 
   return (

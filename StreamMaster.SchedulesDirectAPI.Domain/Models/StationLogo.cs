@@ -1,10 +1,8 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.Interfaces.Models;
-
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
-public class StationLogo : Logo, IStationLogo
+public class StationLogo : Logo
 {
     [JsonPropertyName("source")]
     public string Source { get; set; }

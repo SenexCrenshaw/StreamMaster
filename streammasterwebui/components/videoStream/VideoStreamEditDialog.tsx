@@ -28,16 +28,20 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProperties) => {
 
   const onEdit = useCallback(
     async (data: UpdateVideoStreamRequest) => {
+      console.log('VideoStreamEditDialog onEdit', data);
       setBlock(true);
 
       if (data === null || data === undefined) {
+        console.log('onUpdateVideoStream data is null');
         ReturnToParent();
 
         return;
       }
 
+      console.log('onUpdateVideoStream sending');
       videoStreamsUpdateVideoStreamMutation(data)
         .then(() => {
+          console.log('onUpdateVideoStream Successful');
           setInfoMessage('Set Stream Edited Successfully');
         })
         .catch((error) => {

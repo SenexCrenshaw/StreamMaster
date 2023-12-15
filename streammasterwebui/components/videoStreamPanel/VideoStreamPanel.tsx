@@ -103,11 +103,19 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
       return true;
     }
 
+    if (videoStream.user_Tvg_logo !== iconSource) {
+      return true;
+    }
+
     if (videoStream.user_Tvg_chno !== channelNumber) {
       return true;
     }
 
-    if (videoStream.user_Tvg_logo !== iconSource) {
+    if (videoStream.user_Tvg_ID !== epgId) {
+      return true;
+    }
+
+    if (videoStream.user_Tvg_group !== channelGroup) {
       return true;
     }
 
@@ -116,7 +124,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
     }
 
     return false;
-  }, [channelNumber, iconSource, name, videoStream, url]);
+  }, [videoStream, name, iconSource, channelNumber, epgId, channelGroup, url]);
 
   const onsetActiveIndex = (index: number) => {
     if (index === null) {
@@ -206,6 +214,17 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
                   iconFilled
                   label={videoStream ? 'Edit Stream' : 'Add Stream'}
                   onClick={() => {
+                    const toSend = {
+                      id: videoStream?.id,
+                      tvg_ID: epgId,
+                      tvg_chno: channelNumber,
+                      tvg_group: channelGroup,
+                      tvg_logo: iconSource,
+                      tvg_name: name,
+                      url
+                    };
+                    console.log('VideoStreamPanel onClick', toSend);
+
                     videoStream
                       ? onEdit?.({
                           id: videoStream.id,

@@ -1,4 +1,6 @@
-﻿using StreamMasterDomain.Models;
+﻿using JetBrains.Annotations;
+
+using StreamMasterDomain.Models;
 
 using System.Collections.Concurrent;
 using System.Text;
@@ -35,16 +37,53 @@ public static partial class IPTVExtensions
 
         string[] extInfArray = body.Split("#EXTINF", StringSplitOptions.RemoveEmptyEntries);
 
-        _ = Parallel.ForEach(extInfArray.Skip(1), (bodyline, state, index) =>
+        //_ = Parallel.ForEach(extInfArray.Skip(1), (bodyline, state, index) =>
+        //{
+        //    VideoStream? VideoStream = bodyline.StringToVideoStream();
+        //    if (VideoStream == null)
+        //    {
+        //        return;
+        //    }
+
+        //    MatchCollection extGrp = grpRegex().Matches(bodyline); if
+        //    (extGrp.Count > 0) { lastExtGrp = extGrp[0].Groups[1].Value.Trim(); }
+
+        //    if (string.IsNullOrEmpty(VideoStream.Tvg_group))
+        //    {
+        //        //VideoStream.Tvg_group = lastExtGrp;
+        //        VideoStream.Tvg_group = "(None)";
+        //    }
+
+        //    VideoStream.M3UFileId = Id;
+        //    VideoStream.M3UFileName = Name;
+        //    VideoStream.IsHidden = false;
+
+        //    VideoStream.User_Tvg_logo = VideoStream.Tvg_logo;
+        //    VideoStream.User_Tvg_name = VideoStream.Tvg_name;
+        //    VideoStream.User_Tvg_ID = VideoStream.Tvg_ID;
+        //    VideoStream.User_Tvg_chno = VideoStream.Tvg_chno;
+        //    VideoStream.User_Tvg_group = VideoStream.Tvg_group;
+        //    VideoStream.User_Url = VideoStream.Url;
+
+
+        //    streamLists.TryAdd(index, VideoStream);
+        //});
+
+        var index = -1;
+        foreach (var bodyline in extInfArray.Skip(1))
         {
+            ++index;
             VideoStream? VideoStream = bodyline.StringToVideoStream();
             if (VideoStream == null)
             {
-                return;
+                continue;
             }
 
-            MatchCollection extGrp = grpRegex().Matches(bodyline); if
-            (extGrp.Count > 0) { lastExtGrp = extGrp[0].Groups[1].Value.Trim(); }
+            MatchCollection extGrp = grpRegex().Matches(bodyline);
+            if (extGrp.Count > 0)
+            {
+                lastExtGrp = extGrp[0].Groups[1].Value.Trim();
+            }
 
             if (string.IsNullOrEmpty(VideoStream.Tvg_group))
             {
@@ -63,13 +102,14 @@ public static partial class IPTVExtensions
             VideoStream.User_Tvg_group = VideoStream.Tvg_group;
             VideoStream.User_Url = VideoStream.Url;
 
-
+            // Add the VideoStream to a list directly instead of using a ConcurrentDictionary
             streamLists.TryAdd(index, VideoStream);
-        });
+        }
 
         List<VideoStream> results = streamLists.OrderBy(s => s.Key).Select(s => s.Value).ToList();
 
         return results;
+
     }
 
     public static (string fullName, string name) GetRandomFileName(this FileDefinition fd)
@@ -86,7 +126,10 @@ public static partial class IPTVExtensions
     public static VideoStream? StringToVideoStream(this string bodyline)
     {
         VideoStream VideoStream = new();
-
+        if (bodyline.Contains("https://tmsimg.fancybits.co/assets/s97051") )
+        {
+            var aa = 1;
+        }
         string[] lines = bodyline.Replace("\r\n", "\n").Split("\n");
 
         // Remove lines with # and blank lines
@@ -163,7 +206,7 @@ public static partial class IPTVExtensions
                             break;
 
                         case "tvg-logo":
-                            VideoStream.Tvg_logo = parameter[1].Trim();
+                            VideoStream.Tvg_logo = parameter.Skip(1).Aggregate((current, next) => current + next).Trim();
                             break;
 
                         case "group-title":

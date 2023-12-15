@@ -41,16 +41,10 @@ public partial class StreamMasterHub : IStreamGroupHub
         return await mediator.Send(new GetStreamGroup(StreamGroupNumber)).ConfigureAwait(false);
     }
 
-    public async Task<EPGGuide> GetStreamGroupEPGForGuide(int StreamGroupNumber)
-    {
-        return await mediator.Send(new GetStreamGroupEPGForGuide(StreamGroupNumber)).ConfigureAwait(false);
-    }
-
     public async Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(StreamGroupParameters streamGroupParameters)
     {
         return await mediator.Send(new GetPagedStreamGroups(streamGroupParameters)).ConfigureAwait(false);
     }
-
 
     public async Task SimulateStreamFailure(SimulateStreamFailureRequest request)
     {

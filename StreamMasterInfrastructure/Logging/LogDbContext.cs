@@ -3,7 +3,6 @@
 using StreamMasterApplication.LogApp;
 
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Models;
 
 namespace StreamMasterInfrastructure.Logging;
 
@@ -34,8 +33,9 @@ public class LogDbContext : DbContext, ILogDB
         SQLitePCL.Batteries.Init();
     }
 
-    protected override void OnModelCreating(ModelBuilder builder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(builder);
+        modelBuilder.UseCollation("NOCASE");
+        base.OnModelCreating(modelBuilder);
     }
 }

@@ -1,5 +1,6 @@
 /* eslint unused-imports/no-unused-imports-ts: off */
 /* eslint @typescript-eslint/no-unused-vars: off */
+import { StringArgument } from '@components/selectors/BaseSelector';
 import type * as iptv from '@lib/iptvApi';
 import { invokeHubConnection } from '@lib/signalr/signalr';
 
@@ -20,8 +21,6 @@ export const GetStreamGroupDiscover = async (argument: string): Promise<void | n
 export const GetStreamGroupEpg = async (argument: string): Promise<void | null> => {
   await invokeHubConnection<void>('GetStreamGroupEpg', argument);
 };
-export const GetStreamGroupEpgForGuide = async (argument: iptv.EpgGuide): Promise<iptv.EpgGuide | null> =>
-  invokeHubConnection<iptv.EpgGuide>('GetStreamGroupEpgForGuide', argument);
 export const GetStreamGroupLineup = async (argument: string): Promise<void | null> => {
   await invokeHubConnection<void>('GetStreamGroupLineup', argument);
 };

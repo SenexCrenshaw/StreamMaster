@@ -1,17 +1,18 @@
 ﻿using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
 
 namespace StreamMasterApplication.Programmes.Queries;
 
-public record GetProgramme(string Channel) : IRequest<IEnumerable<Programme>?>;
+public record GetProgramme(string Channel) : IRequest<IEnumerable<XmltvProgramme>?>;
 
-internal class GetProgrammeHandler(ISender sender) : IRequestHandler<GetProgramme, IEnumerable<Programme>?>
+internal class GetProgrammeHandler(ISender sender) : IRequestHandler<GetProgramme, IEnumerable<XmltvProgramme>?>
 {
     [LogExecutionTimeAspect]
-    public async Task<IEnumerable<Programme>?> Handle(GetProgramme request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<XmltvProgramme>?> Handle(GetProgramme request, CancellationToken cancellationToken)
     {
-        IEnumerable<Programme> cprogrammes = await sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+        IEnumerable<XmltvProgramme> cprogrammes = await sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
 
-        IEnumerable<Programme> programmes = cprogrammes.Where(a => a.Channel.ToLower() == request.Channel.ToLower());
+        IEnumerable<XmltvProgramme> programmes = cprogrammes.Where(a => a.Channel.ToLower() == request.Channel.ToLower());
         if (programmes == null)
         {
             return null;

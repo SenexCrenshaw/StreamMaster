@@ -36,6 +36,7 @@ export interface BaseSelectorProperties<T extends HasId> {
   readonly className?: string | null;
   readonly disabled?: boolean;
   readonly editable?: boolean | undefined;
+  readonly filterValue?: string;
   readonly isLoading?: boolean;
   readonly itemSize: number;
   readonly itemTemplate: (option: T) => JSX.Element;
@@ -234,7 +235,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
         editable={props.editable}
         filter
         filterBy={props.optionLabel}
-        filterPlaceholder={`Filter ${selectedItemName}`}
+        // filterPlaceholder={`Filter ${selectedItemName}`}
         itemTemplate={props.itemTemplate}
         onChange={onChange}
         onFilter={onFilter}

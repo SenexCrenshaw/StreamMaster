@@ -1,10 +1,8 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.Interfaces.Models;
-
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
-public class Broadcaster : IBroadcaster
+public class Broadcaster 
 {
     [JsonPropertyName("city")]
     public string City { get; set; }

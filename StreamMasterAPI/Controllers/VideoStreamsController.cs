@@ -77,14 +77,6 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     }
 
     [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<List<ChannelLogoDto>>> GetChannelLogoDtos()
-    {
-        List<ChannelLogoDto> data = await Mediator.Send(new GetChannelLogoDtos()).ConfigureAwait(false);
-        return Ok(data);
-    }
-
-    [HttpGet]
     [Route("{id}")]
     public async Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id)
     {

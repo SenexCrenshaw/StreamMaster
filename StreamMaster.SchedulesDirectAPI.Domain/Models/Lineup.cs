@@ -2,7 +2,7 @@
 
 namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
-public class Lineup : ILineup
+public class Lineup
 {
     [JsonPropertyName("id")]
     public string Id => LineupString;

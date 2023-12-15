@@ -2,7 +2,7 @@
 
 namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
-public class Station : IStation
+public class Station
 {
     [JsonPropertyName("affiliate")]
     public string Affiliate { get; set; }

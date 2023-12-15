@@ -8,6 +8,7 @@ public interface IStreamMasterHub : ISharedHub
     Task VideoStreamLinksRemove(string[]? results = null);
     Task VideoStreamLinksRefresh(string[]? results = null);
     Task BroadcastStartUpData();
+    Task MiscRefresh();
     Task ChannelGroupsRefresh(ChannelGroupDto[]? results = null);
     Task EPGFilesRefresh(EPGFileDto[]? results = null);
     Task M3UFilesRefresh(M3UFileDto[]? results = null);
@@ -20,7 +21,7 @@ public interface IStreamMasterHub : ISharedHub
     Task SettingsUpdate(SettingDto setting);
     Task StreamingStatusDtoUpdate(StreamingStatusDto result);
     Task StreamStatisticsResultsUpdate(List<StreamStatisticsResult> result);
-    Task SystemStatusUpdate(SystemStatus result);
+    Task SystemStatusUpdate(SDSystemStatus result);
     Task TaskQueueStatusDtoesUpdate(IEnumerable<TaskQueueStatusDto> results);
     Task VideoStreamsRefresh(VideoStreamDto[]? results = null);
     Task ChannelGroupCreated(ChannelGroupDto channelGroup);

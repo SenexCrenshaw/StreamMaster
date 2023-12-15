@@ -35,7 +35,7 @@ public class PostStartup : BackgroundService
 
         _logger.LogInformation($"Stream Master is startting.");
 
-        await _taskQueue.SDSync(cancellationToken).ConfigureAwait(false);
+        await _taskQueue.EPGSync(cancellationToken).ConfigureAwait(false);
         //await _hubContext.Clients.All.SystemStatusUpdate(new StreamMasterApplication.Settings.Queries.SystemStatus { IsSystemReady = false }).ConfigureAwait(false);
 
         // await _taskQueue.ScanDirectoryForIconFiles(cancellationToken).ConfigureAwait(false);
@@ -64,7 +64,7 @@ public class PostStartup : BackgroundService
         await _taskQueue.BuildIconCaches(cancellationToken).ConfigureAwait(false);
 
 
-        while (!_taskQueue.IsCurrent())
+        while (_taskQueue.HasJobs())
         {
             await Task.Delay(250, cancellationToken).ConfigureAwait(false);
         }

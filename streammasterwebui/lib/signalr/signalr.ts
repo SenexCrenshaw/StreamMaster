@@ -22,14 +22,14 @@ export function isSignalRConnected() {
 }
 
 const blacklistedMethods: string[] = ['GetLog', 'GetIconFromSource'];
-const whitelistedMethods: string[] = ['SetStreamGroupVideoStreamChannelNumbers'];
+const whitelistedMethods: string[] = [];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const invokeHubConnection = async <T>(methodName: string, argument?: any): Promise<T | null> => {
   if (hubConnection.state !== 'Connected') return null;
 
   if (isDev && !blacklistedMethods.includes(methodName)) {
-    console.groupCollapsed(`%c${methodName}`, 'color: green; font-weight: bold;');
+    //console.groupCollapsed(`%c${methodName}`, 'color: green; font-weight: bold;');
     if (whitelistedMethods.includes(methodName)) {
       console.info('Arguments:', argument);
     }

@@ -15,7 +15,9 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "7.0.11");
+            modelBuilder
+                .UseCollation("NOCASE")
+                .HasAnnotation("ProductVersion", "7.0.12");
 
             modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
                 {
@@ -31,7 +33,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DataProtectionKeys", (string)null);
+                    b.ToTable("DataProtectionKeys");
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Models.ChannelGroup", b =>
@@ -62,7 +64,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.HasIndex("Name", "IsHidden")
                         .HasDatabaseName("idx_Name_IsHidden");
 
-                    b.ToTable("ChannelGroups", (string)null);
+                    b.ToTable("ChannelGroups");
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Models.EPGFile", b =>
@@ -76,6 +78,10 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
                     b.Property<int>("ChannelCount")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ContentType")
                         .IsRequired()
@@ -135,7 +141,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EPGFiles", (string)null);
+                    b.ToTable("EPGFiles");
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Models.M3UFile", b =>
@@ -205,7 +211,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("M3UFiles", (string)null);
+                    b.ToTable("M3UFiles");
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Models.StreamGroup", b =>
@@ -223,7 +229,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("StreamGroups", (string)null);
+                    b.ToTable("StreamGroups");
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Models.StreamGroupChannelGroup", b =>
@@ -238,7 +244,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
                     b.HasIndex("StreamGroupId");
 
-                    b.ToTable("StreamGroupChannelGroups", (string)null);
+                    b.ToTable("StreamGroupChannelGroups");
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Models.StreamGroupVideoStream", b =>
@@ -259,7 +265,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
                     b.HasIndex("StreamGroupId");
 
-                    b.ToTable("StreamGroupVideoStreams", (string)null);
+                    b.ToTable("StreamGroupVideoStreams");
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Models.VideoStream", b =>
@@ -362,7 +368,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.HasIndex("User_Tvg_group", "IsHidden")
                         .HasDatabaseName("idx_User_Tvg_group_IsHidden");
 
-                    b.ToTable("VideoStreams", (string)null);
+                    b.ToTable("VideoStreams");
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Models.VideoStreamLink", b =>
@@ -380,7 +386,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
                     b.HasIndex("ChildVideoStreamId");
 
-                    b.ToTable("VideoStreamLinks", (string)null);
+                    b.ToTable("VideoStreamLinks");
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Models.StreamGroupChannelGroup", b =>

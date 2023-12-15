@@ -1,13 +1,12 @@
 ﻿using FluentValidation;
-using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+
 using StreamMasterApplication.M3UFiles.Commands;
-using StreamMasterApplication.Programmes.Queries;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
 public class UpdateEPGFileRequest : BaseFileRequest, IRequest<EPGFileDto?>
 {
-    public int? EPGRank { get; set; }
+    public string? Color { get; set; }
 }
 
 public class UpdateEPGFileRequestValidator : AbstractValidator<UpdateEPGFileRequest>
@@ -46,6 +45,12 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
                 epgFile.Url = request.Url == "" ? null : request.Url;
             }
 
+            if (request.Color != null && epgFile.Color != request.Color)
+            {
+                isChanged = true;
+                epgFile.Color = request.Color;
+            }
+
             if (!string.IsNullOrEmpty(request.Name) && epgFile.Name != request.Name)
             {
                 isChanged = true;
@@ -72,20 +77,6 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
 
             if (isNameChanged)
             {
-                List<Programme> programmes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
-                int c = programmes.Count;
-                _ = programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
-                int d = programmes.Count;
-                MemoryCache.SetCache(programmes);
-
-                List<ChannelLogoDto> channelLogos = MemoryCache.ChannelLogos();
-                _ = channelLogos.RemoveAll(a => a.EPGFileId == epgFile.Id);
-                MemoryCache.SetCache(channelLogos);
-
-                List<IconFileDto> programmeIcons = MemoryCache.ProgrammeIcons();
-                _ = programmeIcons.RemoveAll(a => a.FileId == epgFile.Id);
-                MemoryCache.SetProgrammeLogos(programmeIcons);
-
                 await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
             }
 

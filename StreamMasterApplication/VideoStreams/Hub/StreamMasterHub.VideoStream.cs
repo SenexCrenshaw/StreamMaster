@@ -23,11 +23,6 @@ public partial class StreamMasterHub : IVideoStreamHub
         _ = await mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<ChannelLogoDto>> GetChannelLogoDtos()
-    {
-        return await mediator.Send(new GetChannelLogoDtos()).ConfigureAwait(false);
-    }
-
     public async Task<VideoStreamDto?> GetVideoStream(string id)
     {
         return await mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);

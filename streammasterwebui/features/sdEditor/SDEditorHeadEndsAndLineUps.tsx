@@ -3,26 +3,25 @@ import SchedulesDirectHeadendDataSelector from '@components/schedulesDirect/Sche
 
 import SchedulesDirectLineUpsDataSelector from '@components/schedulesDirect/SchedulesDirectLineUpsDataSelector';
 import { SDIcon } from '@lib/common/icons';
-import { useSchedulesDirectGetStatusQuery } from '@lib/iptvApi';
 import useSettings from '@lib/useSettings';
 import { BlockUI } from 'primereact/blockui';
 
 import { memo, useMemo } from 'react';
 
 const SDEditorHeadEndsAndLineUps = () => {
-  const getStatusQuery = useSchedulesDirectGetStatusQuery();
   const settings = useSettings();
 
   const isSDReady = useMemo((): boolean => {
-    if (!getStatusQuery.data?.systemStatus || getStatusQuery.data?.systemStatus.length === 0 || settings.data?.sdEnabled !== true) {
-      return false;
-    }
-    return getStatusQuery.data.systemStatus[0].status?.toLocaleLowerCase() === 'online';
-  }, [getStatusQuery.data?.systemStatus, settings.data?.sdEnabled]);
+    return settings.data?.sdSettings?.sdEnabled ?? false;
+    // if (!getStatusQuery.data?.systemStatus || getStatusQuery.data?.systemStatus.length === 0 || settings.data?.sdSettings?.sdEnabled !== true) {
+    //   return false;
+    // }
+
+    // return getStatusQuery.data.systemStatus[0].status?.toLocaleLowerCase() === 'online';
+  }, [settings.data?.sdSettings?.sdEnabled]);
 
   const status = useMemo(() => {
     if (isSDReady) {
-      console.log(getStatusQuery.data);
       return (
         <span>
           Schedules Direct System Status: <span className="text-green-500">Online</span>
@@ -35,8 +34,8 @@ const SDEditorHeadEndsAndLineUps = () => {
         Schedules Direct System Status: <span className="text-red-500">Offline</span>
       </div>
     );
-  }, [getStatusQuery.data, isSDReady]);
-  console.log(status);
+  }, [isSDReady]);
+
   return (
     <BlockUI blocked={!isSDReady}>
       <StandardHeader displayName={status} icon={<SDIcon />}>

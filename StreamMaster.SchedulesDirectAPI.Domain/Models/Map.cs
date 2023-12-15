@@ -2,7 +2,7 @@
 
 namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
-public class Map : IMap
+public class Map 
 {
     [JsonPropertyName("stationID")]
     public string StationId { get; set; }

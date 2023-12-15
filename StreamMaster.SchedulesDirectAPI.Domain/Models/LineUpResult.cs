@@ -3,7 +3,7 @@
 namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 
-public class LineupResult : ILineupResult
+public class LineupResult 
 {
 
     [JsonPropertyName("map")]

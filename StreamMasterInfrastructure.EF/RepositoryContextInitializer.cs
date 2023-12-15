@@ -37,6 +37,7 @@ public class RepositoryContextInitializer
                     _context.Add(new ChannelGroup { Name = "(None)", IsReadOnly = true });
                     await _context.SaveChangesAsync().ConfigureAwait(false);
                 }
+                //_context.Database.ExecuteSqlRaw("PRAGMA journal_mode = 'delete';");
             }
         }
         catch (Exception ex)

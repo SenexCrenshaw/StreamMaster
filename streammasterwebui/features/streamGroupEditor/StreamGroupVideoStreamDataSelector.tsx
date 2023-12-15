@@ -55,7 +55,7 @@ const StreamGroupVideoStreamDataSelector = ({ id }: StreamGroupVideoStreamDataSe
       });
   };
 
-  const targetColumns = useMemo(
+  const columns = useMemo(
     (): ColumnMeta[] => [channelNumberColumnConfig, channelNameColumnConfig, channelGroupConfig, m3uFileNameColumnConfig],
     [channelNumberColumnConfig, channelNameColumnConfig, channelGroupConfig, m3uFileNameColumnConfig]
   );
@@ -79,7 +79,7 @@ const StreamGroupVideoStreamDataSelector = ({ id }: StreamGroupVideoStreamDataSe
 
   return (
     <DataSelector
-      columns={targetColumns}
+      columns={columns}
       defaultSortField="user_Tvg_name"
       defaultSortOrder={1}
       emptyMessage="No Streams"

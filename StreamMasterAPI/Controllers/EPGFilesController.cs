@@ -36,11 +36,26 @@ public class EPGFilesController : ApiControllerBase, IEPGFileController
     }
 
     [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<EPGColorDto>>> GetEPGColors()
+    {
+        List<EPGColorDto> res = await Mediator.Send(new GetEPGColors()).ConfigureAwait(false);
+        return Ok(res);
+    }
+
+    [HttpGet]
     [Route("{id}")]
     public async Task<ActionResult<EPGFileDto>> GetEPGFile(int id)
     {
         EPGFileDto? data = await Mediator.Send(new GetEPGFile(id)).ConfigureAwait(false);
         return data != null ? (ActionResult<EPGFileDto>)data : (ActionResult<EPGFileDto>)NotFound();
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<EPGFilePreviewDto>>> GetEPGFilePreviewById(int id)
+    {
+        return Ok(await Mediator.Send(new GetEPGFilePreviewById(id)).ConfigureAwait(false));
     }
 
     [HttpGet]

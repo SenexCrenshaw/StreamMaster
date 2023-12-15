@@ -58,7 +58,7 @@ public sealed class StreamHandler(
 
     public async Task StartVideoStreamingAsync(Stream stream, ICircularRingBuffer circularRingbuffer)
     {
-        const int chunkSize = 128 * 1024;
+        const int chunkSize = 32 * 1024;
 
         logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} name: {name} circularRingbuffer id: {circularRingbuffer}", chunkSize, StreamUrl, VideoStreamName, circularRingbuffer.Id);
 

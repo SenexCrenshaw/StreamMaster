@@ -226,6 +226,13 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
   };
 
   useEffect(() => {
+    if (props.reset === true) {
+      tableReference.current?.reset();
+      props.OnReset?.();
+    }
+  }, [props, props.reset]);
+
+  useEffect(() => {
     if (!props.scrollTo) {
       return;
     }
@@ -554,7 +561,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
             onSelectionChange(e);
           }}
           onSort={onSort}
-          paginator
+          paginator={props.enablePaginator ?? true}
           paginatorClassName="text-xs p-0 m-0 withpadding"
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
           ref={tableReference}
@@ -578,7 +585,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
           sortOrder={props.reorderable ? 0 : state.sortOrder}
           stateKey={`${props.id}-table`}
           showSelectAll={props.disableSelectAll !== true}
-          stateStorage="local"
+          stateStorage={props.enableState !== undefined && props.enableState !== true ? 'custom' : 'local'}
           stripedRows
           style={props.style}
           totalRecords={state.pagedInformation ? state.pagedInformation.totalItemCount : undefined}
@@ -653,6 +660,8 @@ interface BaseDataSelectorProperties<T = any> {
   defaultSortOrder?: -1 | 0 | 1;
   emptyMessage?: ReactNode;
   enableExport?: boolean;
+  enablePaginator?: boolean;
+  enableState?: boolean;
   disableSelectAll?: boolean;
   exportFilename?: string;
   groupRowsBy?: string;
@@ -666,6 +675,7 @@ interface BaseDataSelectorProperties<T = any> {
 
   // onLazyLoad?: (e: any) => void;
   onMultiSelectClick?: (value: boolean) => void;
+  OnReset?: () => void;
   onRowClick?: (event: DataTableRowClickEvent) => void;
   onRowReorder?: (value: T[]) => void;
   onRowVisibleClick?: (value: T) => void;
@@ -682,6 +692,7 @@ interface BaseDataSelectorProperties<T = any> {
   sortField?: string;
   sortOrder?: number;
   style?: CSSProperties;
+  reset?: boolean | undefined;
   videoStreamIdsIsReadOnly?: string[] | undefined;
   // virtualScrollHeight?: string | undefined;
 }

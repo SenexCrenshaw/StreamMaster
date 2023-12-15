@@ -1,9 +1,5 @@
 ﻿using FluentValidation;
 
-using StreamMaster.SchedulesDirectAPI.Domain.EPG;
-
-using StreamMasterApplication.Programmes.Queries;
-
 namespace StreamMasterApplication.EPGFiles.Commands;
 
 [RequireAll]
@@ -17,12 +13,8 @@ public class RefreshEPGFileRequestValidator : AbstractValidator<RefreshEPGFileRe
     }
 }
 
-public class RefreshEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<RefreshEPGFileRequest, EPGFileDto?>
+public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<RefreshEPGFileRequest, EPGFileDto?>
 {
-
-    public RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
-
     public async Task<EPGFileDto?> Handle(RefreshEPGFileRequest request, CancellationToken cancellationToken)
     {
         try
@@ -76,21 +68,9 @@ public class RefreshEPGFileRequestHandler : BaseMediatorRequestHandler, IRequest
                     epgFile.ProgrammeCount = tv.Programme != null ? tv.Programme.Count : 0;
 
                 }
+
                 Repository.EPGFile.UpdateEPGFile(epgFile);
                 _ = await Repository.SaveAsync().ConfigureAwait(false);
-
-                List<Programme> programmes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
-                _ = programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
-                MemoryCache.SetCache(programmes);
-
-                List<ProgrammeChannel> programmeChannels = MemoryCache.ProgrammeChannels();
-                _ = programmeChannels.RemoveAll(a => a.EPGFileId == epgFile.Id);
-                MemoryCache.SetCache(programmeChannels);
-
-                List<IconFileDto> programmeIcons = MemoryCache.ProgrammeIcons();
-                _ = programmeIcons.RemoveAll(a => a.FileId == epgFile.Id);
-                MemoryCache.SetProgrammeLogos(programmeIcons);
-
 
                 EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);
                 await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);

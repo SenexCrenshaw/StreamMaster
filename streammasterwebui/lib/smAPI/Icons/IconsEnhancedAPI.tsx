@@ -13,20 +13,19 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto) => {
-            updateCachedData(() => {
-              {
-                if (isDev) console.log('updateCachedData', data);
-                for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Icons' }])) {
-                  if (endpointName !== 'iconsGetIcon') continue;
-                  dispatch(
-                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                      {
-                        if (isDev) console.log('updateCachedData', data, draft);
-                      }
-                    })
-                  );
-                }
+            updateCachedData(() => {{
+              if (isDev) console.log('updateCachedData', data);
+              if (!data) {
+                dispatch(iptvApi.util.invalidateTags(['Icons']));
+                return;
               }
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Icons' }])) {
+                if (endpointName !== 'iconsGetIcon') continue;
+                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{
+                    if (isDev) console.log('updateCachedData', data, draft);
+                   }})
+                   );
+                 }}
             });
           };
 
@@ -38,7 +37,7 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-      // eslint-disable-next-line comma-dangle
+    // eslint-disable-next-line comma-dangle
     },
     iconsGetIconFromSource: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -46,20 +45,19 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto) => {
-            updateCachedData(() => {
-              {
-                if (isDev) console.log('updateCachedData', data);
-                for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Icons' }])) {
-                  if (endpointName !== 'iconsGetIconFromSource') continue;
-                  dispatch(
-                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                      {
-                        if (isDev) console.log('updateCachedData', data, draft);
-                      }
-                    })
-                  );
-                }
+            updateCachedData(() => {{
+              if (isDev) console.log('updateCachedData', data);
+              if (!data) {
+                dispatch(iptvApi.util.invalidateTags(['Icons']));
+                return;
               }
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Icons' }])) {
+                if (endpointName !== 'iconsGetIconFromSource') continue;
+                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{
+                    if (isDev) console.log('updateCachedData', data, draft);
+                   }})
+                   );
+                 }}
             });
           };
 
@@ -71,7 +69,7 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-      // eslint-disable-next-line comma-dangle
+    // eslint-disable-next-line comma-dangle
     },
     iconsGetPagedIcons: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -121,7 +119,7 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-      // eslint-disable-next-line comma-dangle
+    // eslint-disable-next-line comma-dangle
     },
     iconsGetIconsSimpleQuery: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -171,7 +169,7 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-      // eslint-disable-next-line comma-dangle
-    }
+    // eslint-disable-next-line comma-dangle
+    },
   }
 });

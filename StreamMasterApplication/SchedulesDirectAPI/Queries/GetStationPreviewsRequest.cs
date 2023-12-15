@@ -1,18 +1,17 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
-using StreamMaster.SchedulesDirectAPI.Domain.Models;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
 
-public record GetStationPreviewsRequest : IRequest<List<StationPreview>>;
+public record GetStationPreviews : IRequest<List<StationPreview>>;
 
-internal class GetStationPreviewsRequestHandler(ISDService schedulesDirect, ISender sender) : IRequestHandler<GetStationPreviewsRequest, List<StationPreview>>
+internal class GetStationPreviewsHandler(ISchedulesDirect schedulesDirect, ISender sender) : IRequestHandler<GetStationPreviews, List<StationPreview>>
 {
-    public async Task<List<StationPreview>> Handle(GetStationPreviewsRequest request, CancellationToken cancellationToken)
+    public async Task<List<StationPreview>> Handle(GetStationPreviews request, CancellationToken cancellationToken)
     {
         SettingDto setting = await sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
-        if (!setting.SDEnabled)
+        if (!setting.SDSettings.SDEnabled)
         {
-            return new();
+            return [];
         }
 
         List<StationPreview> ret = await schedulesDirect.GetStationPreviews(cancellationToken).ConfigureAwait(false);

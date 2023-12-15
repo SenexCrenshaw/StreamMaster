@@ -1,10 +1,8 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.Interfaces.Models;
-
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
-public class Metadata : IMetadata
+public class Metadata 
 {
     [JsonPropertyName("lineup")]
     public string Lineup { get; set; }

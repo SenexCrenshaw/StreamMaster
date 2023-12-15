@@ -225,7 +225,7 @@ const M3UFilesDataSelector = () => {
       return <div />;
     }
 
-    return <div>{rowData.stationCount}</div>;
+    return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.stationCount}</div>;
   }, []);
 
   const targetActionBodyTemplate = useCallback(

@@ -43,4 +43,18 @@ public static class FileDefinitions
         FileExtension = ".jpg|.png|.jpeg",
         SMFileType = SMFileTypes.TvLogo
     };
+
+    public static FileDefinition SDImage => new()
+    {
+        DirectoryLocation = BuildInfo.SDImagesFolder,
+        FileExtension = ".png",
+        SMFileType = SMFileTypes.SDImage
+    };
+
+    public static FileDefinition SDStationLogos => new()
+    {
+        DirectoryLocation = BuildInfo.SDStationLogos,
+        FileExtension = ".png",
+        SMFileType = SMFileTypes.SDStationLogo
+    };
 }

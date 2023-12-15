@@ -5,18 +5,33 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.EPG;
 [XmlRoot(ElementName = "credits")]
 public class TvCredits
 {
-    [XmlElement(ElementName = "actor")]
-    public List<TvActor>? Actor { get; set; }
+    [XmlElement("director")]
+    public List<string>? Directors { get; set; }
 
-    [XmlElement(ElementName = "director")]
-    public List<string>? Director { get; set; }
+    [XmlElement("actor")]
+    public List<TvActor>? Actors { get; set; }
 
-    [XmlElement(ElementName = "presenter")]
-    public List<string>? Presenter { get; set; }
+    [XmlElement("writer")]
+    public List<string>? Writers { get; set; }
 
-    [XmlElement(ElementName = "producer")]
-    public List<string>? Producer { get; set; }
+    [XmlElement("adapter")]
+    public List<string>? Adapters { get; set; }
 
-    [XmlElement(ElementName = "writer")]
-    public List<string>? Writer { get; set; }
+    [XmlElement("producer")]
+    public List<string>? Producers { get; set; }
+
+    [XmlElement("composer")]
+    public List<string>? Composers { get; set; }
+
+    [XmlElement("editor")]
+    public List<string>? Editors { get; set; }
+
+    [XmlElement("presenter")]
+    public List<string>? Presenters { get; set; }
+
+    [XmlElement("commentator")]
+    public List<string>? Commentators { get; set; }
+
+    [XmlElement("guest")]
+    public List<string>? Guests { get; set; }
 }

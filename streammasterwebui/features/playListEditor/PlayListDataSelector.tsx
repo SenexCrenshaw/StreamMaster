@@ -35,7 +35,7 @@ const PlayListDataSelector = ({
     }
   }, [setShowHidden, showHidden]);
 
-  const sourceActionBodyTemplate = useCallback(
+  const actionBodyTemplate = useCallback(
     (data: ChannelGroupDto) => (
       <div className="flex p-0 justify-content-end align-items-center">
         <div hidden={data.isReadOnly === true && useReadOnly}>
@@ -55,19 +55,19 @@ const PlayListDataSelector = ({
       {
         field: 'streams',
         fieldType: 'streams',
-        header: 'Streams (active/total)',
-        width: '6rem'
+        header: 'Streams',
+        width: '4rem'
       },
       {
         align: 'right',
-        bodyTemplate: sourceActionBodyTemplate,
+        bodyTemplate: actionBodyTemplate,
         field: 'isHidden',
         fieldType: 'isHidden',
         header: 'Actions',
         width: '8rem'
       }
     ],
-    [sourceActionBodyTemplate]
+    [actionBodyTemplate]
   );
 
   const sourceRightHeaderTemplate = useCallback(

@@ -18,9 +18,20 @@ public partial class StreamMasterHub : IEPGFileHub
         await mediator.Send(request).ConfigureAwait(false);
     }
 
+    public async Task<List<EPGColorDto>> GetEPGColors(object nothing)
+    {
+        List<EPGColorDto> a = await mediator.Send(new GetEPGColors()).ConfigureAwait(false);
+        return a;
+    }
+
     public async Task<EPGFileDto?> GetEPGFile(int id)
     {
         return await mediator.Send(new GetEPGFile(id)).ConfigureAwait(false);
+    }
+
+    public async Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int id)
+    {
+        return await mediator.Send(new GetEPGFilePreviewById(id)).ConfigureAwait(false);
     }
 
     public async Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(EPGFileParameters parameters)

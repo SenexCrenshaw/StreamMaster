@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
+using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
 using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 using StreamMasterApplication.SchedulesDirectAPI;
@@ -7,120 +8,120 @@ using StreamMasterApplication.SchedulesDirectAPI.Commands;
 using StreamMasterApplication.SchedulesDirectAPI.Queries;
 
 using StreamMasterDomain.Dto;
-
-using System.Text;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterAPI.Controllers;
 
 public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectController
 {
-    [HttpGet]
+    [HttpPatch]
     [Route("[action]")]
-    public async Task<ActionResult<Countries?>> GetCountries()
+    public async Task<ActionResult<bool>> AddLineup(AddLineup request)
     {
-        return await Mediator.Send(new GetCountries()).ConfigureAwait(false);
+        return Ok(await Mediator.Send(request).ConfigureAwait(false));
+    }
+
+    [HttpPatch]
+    [Route("[action]")]
+    public async Task<ActionResult<bool>> AddStation(AddStation request)
+    {
+        return Ok(await Mediator.Send(request).ConfigureAwait(false));
     }
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<List<HeadendDto>>> GetHeadends(string country, string postalCode)
+    public async Task<ActionResult<List<CountryData>?>> GetAvailableCountries()
     {
-        return await Mediator.Send(new GetHeadends(country, postalCode)).ConfigureAwait(false);
+        return Ok(await Mediator.Send(new GetAvailableCountries()).ConfigureAwait(false));
     }
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<LineupResult?>> GetLineup(string lineup)
+    public async Task<ActionResult<List<string>>> GetChannelNames()
     {
-        return await Mediator.Send(new GetLineup(lineup)).ConfigureAwait(false);
+        return Ok(await Mediator.Send(new GetChannelNames()).ConfigureAwait(false));
     }
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<List<LineupPreview>>> GetLineupPreviews()
+    public async Task<ActionResult<List<HeadendDto>>> GetHeadends(GetHeadends request)
     {
-        return await Mediator.Send(new GetLineupPreviews()).ConfigureAwait(false);
+        return Ok(await Mediator.Send(request).ConfigureAwait(false));
+    }
+
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<LineupPreviewChannel>>> GetLineupPreviewChannel(GetLineupPreviewChannel request)
+    {
+        return Ok(await Mediator.Send(request).ConfigureAwait(false));
     }
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<List<Lineup>>> GetLineups()
+    public async Task<ActionResult<List<SubscribedLineup>>> GetLineups()
     {
-        return await Mediator.Send(new GetLineups()).ConfigureAwait(false);
+        return Ok(await Mediator.Send(new GetLineups()).ConfigureAwait(false));
     }
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<List<SDProgram>>> GetSDPrograms()
+    public async Task<ActionResult<PagedResponse<StationChannelName>>> GetPagedStationChannelNameSelections([FromQuery] StationChannelNameParameters Parameters)
     {
-        return await Mediator.Send(new GetSDPrograms()).ConfigureAwait(false);
-    }
-
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<List<Schedule>>> GetSchedules()
-    {
-        return await Mediator.Send(new GetSchedules()).ConfigureAwait(false);
+        return Ok(await Mediator.Send(new GetPagedStationChannelNameSelections(Parameters)).ConfigureAwait(false));
     }
 
     [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult<List<StationIdLineup>>> GetSelectedStationIds()
     {
-        return await Mediator.Send(new GetSelectedStationIds()).ConfigureAwait(false);
+        return Ok(await Mediator.Send(new GetSelectedStationIds()).ConfigureAwait(false));
+    }
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<StationChannelMap>>> GetStationChannelMaps()
+    {
+        return Ok(await Mediator.Send(new GetStationChannelMaps()).ConfigureAwait(false));
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<StationChannelName>> GetStationChannelNameFromDisplayName(GetStationChannelNameFromDisplayName request)
+    {
+        return Ok(await Mediator.Send(request).ConfigureAwait(false));
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<StationChannelName>>> GetStationChannelNamesSimpleQuery([FromQuery] StationChannelNameParameters Parameters)
+    {
+        return Ok(await Mediator.Send(new GetStationChannelNamesSimpleQuery(Parameters)).ConfigureAwait(false));
     }
 
     [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult<List<StationPreview>>> GetStationPreviews()
     {
-        return await Mediator.Send(new GetStationPreviewsRequest()).ConfigureAwait(false);
+        return Ok(await Mediator.Send(new GetStationPreviews()).ConfigureAwait(false));
     }
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<List<Station>>> GetStations()
+    public async Task<ActionResult<UserStatus>> GetUserStatus()
     {
-        return await Mediator.Send(new GetStations()).ConfigureAwait(false);
+        return await Mediator.Send(new GetUserStatus()).ConfigureAwait(false);
     }
-
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<SDStatus>> GetStatus()
-    {
-        return await Mediator.Send(new GetStatus()).ConfigureAwait(false);
-    }
-
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult> GetEpg()
-    {
-        string xml = await Mediator.Send(new GetEpg()).ConfigureAwait(false);
-
-        return new FileContentResult(Encoding.UTF8.GetBytes(xml), "application/xml")
-        {
-            FileDownloadName = "epg-schedules-direct.xml"
-        };
-    }
-
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<List<string>>> GetLineupNames()
-    {
-        return await Mediator.Send(new GetLineupNames()).ConfigureAwait(false);
-    }
-
-    [HttpPut]
-    [Route("[action]")]
-    public async Task<ActionResult<bool>> AddLineup(AddLineup request)
-    {
-        return await Mediator.Send(request).ConfigureAwait(false);
-    }
-
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult<bool>> RemoveLineup(RemoveLineup request)
     {
-        return await Mediator.Send(request).ConfigureAwait(false);
+        return Ok(await Mediator.Send(request).ConfigureAwait(false));
+    }
+
+    [HttpPatch]
+    [Route("[action]")]
+    public async Task<ActionResult<bool>> RemoveStation(RemoveStation request)
+    {
+        return Ok(await Mediator.Send(request).ConfigureAwait(false));
     }
 }

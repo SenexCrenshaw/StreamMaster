@@ -1,9 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
-using StreamMaster.SchedulesDirectAPI.Services;
-
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.LogApp;
 
@@ -13,6 +10,7 @@ using StreamMasterDomain.Services;
 using StreamMasterInfrastructure.Logging;
 using StreamMasterInfrastructure.Middleware;
 using StreamMasterInfrastructure.Services;
+using StreamMasterInfrastructure.Services.Downloads;
 using StreamMasterInfrastructure.Services.Frontend.Mappers;
 using StreamMasterInfrastructure.Services.Settings;
 using StreamMasterInfrastructure.VideoStreamManager.Channels;
@@ -29,21 +27,20 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
-        services.AddMemoryCache();
-        services.AddSingleton<ISettingsService, SettingsService>();
-        services.AddSingleton<IStreamSwitcher, StreamSwitcher>();
-        services.AddSingleton<IChannelService, ChannelService>();
-        services.AddSingleton<IProxyFactory, ProxyFactory>();
-        services.AddSingleton<IClientStreamerManager, ClientStreamerManager>();
-        services.AddSingleton<IStreamHandlerFactory, StreamHandlerFactory>();
-        services.AddSingleton<IStreamStatisticService, StreamStatisticService>();
-
-        services.AddSingleton<ICircularRingBufferFactory, CircularRingBufferFactory>();
-        services.AddSingleton<IStatisticsManager, StatisticsManager>();
-        services.AddSingleton<IInputStatisticsManager, InputStatisticsManager>();
-        services.AddSingleton<IStreamManager, StreamManager>();
-        services.AddSingleton<ISDService, SDService>();
-        services.AddSingleton<ICacheableSpecification, CacheableSpecification>();
+        _ = services.AddMemoryCache();
+        _ = services.AddSingleton<ISettingsService, SettingsService>();
+        _ = services.AddSingleton<IStreamSwitcher, StreamSwitcher>();
+        _ = services.AddSingleton<IChannelService, ChannelService>();
+        _ = services.AddSingleton<IProxyFactory, ProxyFactory>();
+        _ = services.AddSingleton<IClientStreamerManager, ClientStreamerManager>();
+        _ = services.AddSingleton<IStreamHandlerFactory, StreamHandlerFactory>();
+        _ = services.AddSingleton<IStreamStatisticService, StreamStatisticService>();
+        _ = services.AddSingleton<IImageDownloadQueue, ImageDownloadQueue>();
+        _ = services.AddSingleton<ICircularRingBufferFactory, CircularRingBufferFactory>();
+        _ = services.AddSingleton<IStatisticsManager, StatisticsManager>();
+        _ = services.AddSingleton<IInputStatisticsManager, InputStatisticsManager>();
+        _ = services.AddSingleton<IStreamManager, StreamManager>();
+        _ = services.AddSingleton<ICacheableSpecification, CacheableSpecification>();
 
         // Dynamically find and register services implementing IMapHttpRequestsToDisk
         Assembly assembly = Assembly.GetExecutingAssembly();
@@ -56,7 +53,7 @@ public static class ConfigureServices
             {
                 continue;
             }
-            services.AddSingleton(typeof(IMapHttpRequestsToDisk), implementation);
+            _ = services.AddSingleton(typeof(IMapHttpRequestsToDisk), implementation);
         }
 
         _ = services.AddAutoMapper(
@@ -82,13 +79,12 @@ public static class ConfigureServices
 
         _ = services.AddScoped<ILogDB>(provider => provider.GetRequiredService<LogDbContext>());
 
-        _ = services.AddTransient<IDateTime, DateTimeService>();
-
         _ = services.AddSingleton<IChannelManager, ChannelManager>();
-        services.AddSingleton<IBroadcastService, BroadcastService>();
+        _ = services.AddSingleton<IBroadcastService, BroadcastService>();
 
         _ = services.AddHostedService<TimerService>();
-
+        //_ = services.AddHostedService<ImageDownloadService>();
+        _ = services.AddSingleton<IImageDownloadService, ImageDownloadService>();
         return services;
     }
 }

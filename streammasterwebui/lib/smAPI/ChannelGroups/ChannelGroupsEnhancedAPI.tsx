@@ -13,20 +13,19 @@ export const enhancedApiChannelGroups = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.ChannelGroupDto) => {
-            updateCachedData(() => {
-              {
-                if (isDev) console.log('updateCachedData', data);
-                for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'ChannelGroups' }])) {
-                  if (endpointName !== 'channelGroupsGetChannelGroup') continue;
-                  dispatch(
-                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                      {
-                        if (isDev) console.log('updateCachedData', data, draft);
-                      }
-                    })
-                  );
-                }
+            updateCachedData(() => {{
+              if (isDev) console.log('updateCachedData', data);
+              if (!data) {
+                dispatch(iptvApi.util.invalidateTags(['ChannelGroups']));
+                return;
               }
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'ChannelGroups' }])) {
+                if (endpointName !== 'channelGroupsGetChannelGroup') continue;
+                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{
+                    if (isDev) console.log('updateCachedData', data, draft);
+                   }})
+                   );
+                 }}
             });
           };
 
@@ -38,7 +37,7 @@ export const enhancedApiChannelGroups = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-      // eslint-disable-next-line comma-dangle
+    // eslint-disable-next-line comma-dangle
     },
     channelGroupsGetChannelGroupIdNames: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -88,7 +87,7 @@ export const enhancedApiChannelGroups = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-      // eslint-disable-next-line comma-dangle
+    // eslint-disable-next-line comma-dangle
     },
     channelGroupsGetPagedChannelGroups: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -138,7 +137,7 @@ export const enhancedApiChannelGroups = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-      // eslint-disable-next-line comma-dangle
+    // eslint-disable-next-line comma-dangle
     },
     channelGroupsGetChannelGroupsForStreamGroup: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -188,7 +187,7 @@ export const enhancedApiChannelGroups = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-      // eslint-disable-next-line comma-dangle
-    }
+    // eslint-disable-next-line comma-dangle
+    },
   }
 });

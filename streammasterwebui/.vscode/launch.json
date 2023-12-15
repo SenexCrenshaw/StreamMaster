@@ -1,20 +1,20 @@
 {
   "version": "0.2.0",
   "configurations": [
+    // {
+    //   "name": "Vite:server-side",
+    //   "type": "node-terminal",
+    //   "request": "launch",
+    //   "command": "npm run dev"
+    // },
+    // {
+    //   "name": "Vite:client-side",
+    //   "type": "chrome",
+    //   "request": "launch",
+    //   "url": "http://localhost:3000"
+    // },
     {
-      "name": "Vite: debug server-side",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "npm run dev"
-    },
-    {
-      "name": "Vite: debug client-side",
-      "type": "chrome",
-      "request": "launch",
-      "url": "http://localhost:3000"
-    },
-    {
-      "name": "Vite: debug full stack",
+      "name": "Full stack",
       "type": "node-terminal",
       "request": "launch",
       "command": "npm run dev",

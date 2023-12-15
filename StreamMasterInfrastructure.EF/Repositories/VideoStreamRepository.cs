@@ -9,14 +9,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
+using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.Common.Logging;
 using StreamMasterApplication.EPG.Queries;
 using StreamMasterApplication.Icons.Queries;
 using StreamMasterApplication.M3UFiles.Queries;
-using StreamMasterApplication.Programmes.Queries;
+using StreamMasterApplication.SchedulesDirectAPI.Queries;
 
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
@@ -24,6 +25,8 @@ using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
+
+using StreamMasterInfrastructureEF.Helpers;
 
 using System.Linq.Dynamic.Core;
 
@@ -192,7 +195,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
         if (!videoStreams.Any())
         {
-            return new();
+            return [];
         }
 
         int deletedCount = 0;
@@ -218,11 +221,8 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
             // Calculate the size of the next chunk
             int nextChunkSize = Math.Min(chunkSize, totalCount - count);
 
-            IQueryable<VideoStream> recordsToDelete = videoStreams.OrderBy(v => v.Id).Skip(count).Take(nextChunkSize);
+            var deletedRecords = videoStreams.Take(nextChunkSize).ExecuteDelete();
 
-            await RepositoryContext.SaveChangesAsync(cancellationToken);
-
-            // Increment count by the size of the chunk just processed
             count += nextChunkSize;
             logger.LogInformation($"Deleted {count} of {totalCount} video streams");
         }
@@ -346,14 +346,8 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
         if (request.Tvg_name != null && (videoStream.User_Tvg_name != request.Tvg_name || videoStream.IsUserCreated))
         {
             videoStream.User_Tvg_name = request.Tvg_name;
-            if (setting.EPGAlwaysUseVideoStreamName)
-            {
-                string? test = await sender.Send(new GetEPGChannelLogoByTvgId(videoStream.User_Tvg_ID), cancellationToken).ConfigureAwait(false);
-                if (test is not null)
-                {
-                    videoStream.User_Tvg_ID = test;
-                }
-            }
+            await SetVideoStreamLogoFromEPG(videoStream, cancellationToken).ConfigureAwait(false);
+            //UpdateVideoStream(videoStream);
         }
 
         if (request.TimeShift != null && videoStream.TimeShift != request.Tvg_name)
@@ -367,12 +361,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
             videoStream.User_Tvg_ID = request.Tvg_ID;
             if (setting.VideoStreamAlwaysUseEPGLogo && videoStream.User_Tvg_ID != null)
             {
-                string? logoUrl = await sender.Send(new GetEPGChannelLogoByTvgId(videoStream.User_Tvg_ID), cancellationToken).ConfigureAwait(false);
-                if (logoUrl != null)
-                {
-                    videoStream.User_Tvg_logo = logoUrl;
-                    epglogo = true;
-                }
+                epglogo = await SetVideoStreamLogoFromEPG(videoStream, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -417,7 +406,8 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
         _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    private static string NormalizeString(string input)
+
+    private static string NormalizeLogoString(string input)
     {
         // Remove punctuation characters
         string normalized = new(input.Where(c => !char.IsPunctuation(c)).ToArray());
@@ -431,8 +421,8 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
     private static double GetWeightedMatch(string sentence1, string sentence2)
     {
         // Convert sentences to lowercase and remove punctuation
-        string normalizedSentence1 = NormalizeString(sentence1);
-        string normalizedSentence2 = NormalizeString(sentence2);
+        string normalizedSentence1 = NormalizeLogoString(sentence1);
+        string normalizedSentence2 = NormalizeLogoString(sentence2);
 
         // Split sentences into individual words
         string[] words1 = normalizedSentence1.Split(' ');
@@ -454,7 +444,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
         IQueryable<VideoStream> streams = FindByCondition(a => VideoStreamIds.Contains(a.Id));
 
-        List<VideoStreamDto> videoStreamDtos = new();
+        List<VideoStreamDto> videoStreamDtos = [];
 
         foreach (VideoStream stream in streams)
         {
@@ -556,13 +546,6 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
         return ret != null ? mapper.Map<VideoStreamDto>(ret) : null;
     }
-
-    //public async Task<List<VideoStreamDto>> GetVideoStreamsByMatchingIds(IEnumerable<string> ids)
-    //{
-    //    IQueryable<VideoStream> query = FindByCondition(a => ids.Contains(a.Id));
-
-    //    return await query.ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider).ToListAsync();
-    //}
 
     public async Task<List<VideoStreamDto>> GetVideoStreamsNotHidden()
     {
@@ -674,7 +657,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
     private async Task<List<VideoStreamDto>> SetVideoStreamChannelNumbers(IQueryable<VideoStream> videoStreams, bool overWriteExisting, int startNumber, CancellationToken cancellationToken)
     {
-        HashSet<int> existingNumbers = new();
+        HashSet<int> existingNumbers = [];
 
         if (!overWriteExisting)
         {
@@ -711,7 +694,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
             _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return await videoStreams.AsNoTracking().ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         }
-        return new();
+        return [];
     }
 
     public async Task<List<VideoStreamDto>> SetVideoStreamsLogoFromEPGFromIds(IEnumerable<string> Ids, CancellationToken cancellationToken)
@@ -726,17 +709,28 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
         return await SetVideoStreamsLogoFromEPG(videoStreams, cancellationToken).ConfigureAwait(false);
     }
 
+    private async Task<bool> SetVideoStreamLogoFromEPG(VideoStream videoStream, CancellationToken cancellationToken)
+    {
+        MxfService? service = await sender.Send(new GetService(videoStream.User_Tvg_ID), cancellationToken).ConfigureAwait(false);
+        if (service is null || !service.extras.TryGetValue("logo", out dynamic? value))
+        {
+            return false;
+        }
+        StationImage logo = value;
+
+        if (logo.Url != null)
+        {
+            videoStream.User_Tvg_logo = logo.Url;
+        }
+        return true;
+    }
     private async Task<List<VideoStreamDto>> SetVideoStreamsLogoFromEPG(IQueryable<VideoStream> videoStreams, CancellationToken cancellationToken)
     {
         int ret = 0;
-        foreach (VideoStream videoStream in videoStreams)
+        foreach (VideoStream videoStream in videoStreams.Where(a => !string.IsNullOrEmpty(a.User_Tvg_ID)))
         {
-            string? channelLogo = await sender.Send(new GetEPGChannelLogoByTvgId(videoStream.User_Tvg_ID), cancellationToken).ConfigureAwait(false);
-
-            if (channelLogo != null)
+            if (await SetVideoStreamLogoFromEPG(videoStream, cancellationToken))
             {
-                videoStream.User_Tvg_logo = channelLogo;
-                Update(videoStream);
                 ret++;
             }
         }
@@ -746,7 +740,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
             await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return await videoStreams.AsNoTracking().ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         }
-        return new();
+        return [];
     }
 
     public async Task<List<VideoStreamDto>> ReSetVideoStreamsLogoFromIds(IEnumerable<string> Ids, CancellationToken cancellationToken)
@@ -776,7 +770,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
             _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return await videoStreams.AsNoTracking().ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         }
-        return new();
+        return [];
     }
 
     public async Task<List<VideoStreamDto>> GetVideoStreamsForChannelGroup(int channelGroupId, CancellationToken cancellationToken)
@@ -784,7 +778,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
         ChannelGroup? channelGroup = await RepositoryContext.ChannelGroups.FirstOrDefaultAsync(a => a.Id == channelGroupId, cancellationToken: cancellationToken).ConfigureAwait(false);
         if (channelGroup == null)
         {
-            return new();
+            return [];
         }
 
         List<VideoStreamDto> ret = await FindByCondition(a => a.User_Tvg_group == channelGroup.Name).AsNoTracking()
@@ -804,7 +798,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
     public async Task<List<VideoStreamDto>> SetVideoStreamSetEPGsFromName(IEnumerable<string> VideoStreamIds, CancellationToken cancellationToken)
     {
-        List<VideoStreamDto> results = new();
+        List<VideoStreamDto> results = [];
 
         foreach (VideoStream? videoStream in FindByCondition(a => VideoStreamIds.Contains(a.Id)))
         {
@@ -845,9 +839,9 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
     public async Task<(List<VideoStreamDto> videoStreams, List<ChannelGroupDto> updatedChannelGroups)> UpdateVideoStreamsAsync(IEnumerable<UpdateVideoStreamRequest> VideoStreamUpdates, CancellationToken cancellationToken)
     {
-        List<VideoStreamDto> ret = new();
+        List<VideoStreamDto> ret = [];
         bool updateCG = false;
-        List<ChannelGroupDto> updatedChannelGroups = new();
+        List<ChannelGroupDto> updatedChannelGroups = [];
 
         foreach (UpdateVideoStreamRequest request in VideoStreamUpdates)
         {
@@ -870,43 +864,52 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
         return FindAll();
     }
 
+
+
     private async Task<List<VideoStreamDto>> AutoSetEPGs(IQueryable<VideoStream> videoStreams, CancellationToken cancellationToken)
     {
-        List<Programme> programmes = await sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
-        List<ChannelNamePair> distinctChannelAndNames = programmes
-            .Select(p => new ChannelNamePair { Channel = p.Channel, Name = p.Name })
-            .Distinct()
-            .ToList();
 
-        Setting setting = await settingsService.GetSettingsAsync();
+        List<StationChannelName> stationChannelNames = await sender.Send(new GetStationChannelNames(), cancellationToken).ConfigureAwait(false);
 
-        List<VideoStreamDto> results = new();
-        //List<VideoStream> videoStreams = await FindByCondition(a => ids.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
+        List<string> tomatch = stationChannelNames.Select(a => a.DisplayName).Distinct().ToList();
+        string tomatchString = string.Join(',', tomatch);
+
+        List<VideoStreamDto> results = [];
 
         foreach (VideoStream videoStream in videoStreams)
         {
-            var scoredMatches = distinctChannelAndNames
+            var scoredMatches = stationChannelNames
                  .Select(p => new
                  {
-                     ChannelName = p,
-                     Score = GetMatchingScore(videoStream.User_Tvg_name, p.Name)
+                     Channel = p,
+                     Score = AutoEPGMatch.GetMatchingScore(videoStream.User_Tvg_name, p.Channel)
                  })
                  .Where(x => x.Score > 0) // Filter out non-matches
                  .OrderByDescending(x => x.Score) // Sort by score in descending order
                  .ToList();
 
+            if (!scoredMatches.Any())
+            {
+                scoredMatches = stationChannelNames
+                 .Select(p => new
+                 {
+                     Channel = p,
+                     Score = AutoEPGMatch.GetMatchingScore(videoStream.User_Tvg_name, p.DisplayName)
+                 })
+                 .Where(x => x.Score > 0) // Filter out non-matches
+                 .OrderByDescending(x => x.Score).ToList(); // Sort by score in descending order
+            }
+
             if (scoredMatches.Any())
             {
-                videoStream.User_Tvg_ID = scoredMatches[0].ChannelName.Channel;
+                videoStream.User_Tvg_ID = scoredMatches[0].Channel.Channel;
+                UpdateVideoStream(videoStream);
+
                 if (setting.VideoStreamAlwaysUseEPGLogo)
                 {
-                    string? logoUrl = await sender.Send(new GetEPGChannelLogoByTvgId(videoStream.User_Tvg_ID), cancellationToken).ConfigureAwait(false);
-                    if (logoUrl != null)
-                    {
-                        videoStream.User_Tvg_logo = logoUrl;
-                    }
+                    await SetVideoStreamLogoFromEPG(videoStream, cancellationToken).ConfigureAwait(false);
                 }
-                UpdateVideoStream(videoStream);
                 results.Add(mapper.Map<VideoStreamDto>(videoStream));
             }
         }
@@ -917,32 +920,8 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
         return results;
     }
 
-    public int GetMatchingScore(string userTvgName, string programmeName)
-    {
-        int score = 0;
 
-        List<string> userTvgNameWords = userTvgName.Split(' ').ToList();
-        List<string> programmeNameWords = programmeName.Split(' ').ToList();
 
-        // Direct match
-        if (userTvgName.Contains(programmeName))
-        {
-            score += 20;
-        }
-
-        // Word intersection count
-        int intersectionCount = userTvgNameWords.Intersect(programmeNameWords).Count();
-        score += intersectionCount * 30; // Each intersecting word adds 30 to the score
-
-        // Base name (before hyphen or space) match
-        string baseName = programmeName.Split(new[] { '-', ' ' }, StringSplitOptions.RemoveEmptyEntries)[0];
-        if (userTvgName.Contains(baseName))
-        {
-            score += 5;
-        }
-
-        return score;
-    }
 
     public async Task<List<VideoStreamDto>> AutoSetEPGFromIds(List<string> ids, CancellationToken cancellationToken)
     {
@@ -958,11 +937,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
     private static string GetFirstFourOrBlank(string input)
     {
-        if (string.IsNullOrEmpty(input) || input.Length < 4 || !IsAllDigits(input[..4]))
-        {
-            return "0000";
-        }
-        return input[..4];
+        return string.IsNullOrEmpty(input) || input.Length < 4 || !IsAllDigits(input[..4]) ? "0000" : input[..4];
     }
 
     private static bool IsAllDigits(string value)
@@ -991,7 +966,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
     public async Task<List<VideoStreamDto>> SetVideoStreamTimeShifts(IQueryable<VideoStream> videoStreams, string timeShift, CancellationToken cancellationToken)
     {
-        List<VideoStreamDto> results = new();
+        List<VideoStreamDto> results = [];
 
         foreach (VideoStream? videoStream in videoStreams)
         {
