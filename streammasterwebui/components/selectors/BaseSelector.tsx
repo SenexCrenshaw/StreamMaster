@@ -242,7 +242,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
         optionLabel={props.optionLabel}
         // optionValue={props.optionValue}
         options={filteredDataSource}
-        // placeholder={selectedItemName}
+        placeholder={selectedItemName}
         resetFilterOnHide
         scrollHeight="40vh"
         showFilterClear
