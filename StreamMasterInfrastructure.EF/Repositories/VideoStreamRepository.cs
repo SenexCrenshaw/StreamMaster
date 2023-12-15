@@ -220,11 +220,8 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
             // Calculate the size of the next chunk
             int nextChunkSize = Math.Min(chunkSize, totalCount - count);
 
-            IQueryable<VideoStream> recordsToDelete = videoStreams.OrderBy(v => v.Id).Skip(count).Take(nextChunkSize);
+            var deletedRecords = videoStreams.Take(nextChunkSize).ExecuteDelete();
 
-            await RepositoryContext.SaveChangesAsync(cancellationToken);
-
-            // Increment count by the size of the chunk just processed
             count += nextChunkSize;
             logger.LogInformation($"Deleted {count} of {totalCount} video streams");
         }
