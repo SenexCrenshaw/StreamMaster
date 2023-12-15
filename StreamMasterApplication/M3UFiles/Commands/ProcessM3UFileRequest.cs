@@ -145,7 +145,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         int processedCount = 0;
         Dictionary<string, VideoStream> existingLookup = existing.ToDictionary(a => a.Id, a => a);
         Dictionary<string, ChannelGroup> groupLookup = groups.ToDictionary(g => g.Name, g => g);
-        HashSet<string> processed = existing.Select(a => a.Id).ToHashSet();
+        HashSet<string> processed = [];// existing.Select(a => a.Id).ToHashSet();
 
         List<VideoStream> toWrite = new();
         List<VideoStream> toUpdate = new();

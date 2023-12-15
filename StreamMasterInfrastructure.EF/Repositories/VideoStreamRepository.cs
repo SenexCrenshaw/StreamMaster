@@ -26,8 +26,9 @@ using StreamMasterDomain.Enums;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 
+using StreamMasterInfrastructureEF.Helpers;
+
 using System.Linq.Dynamic.Core;
-using System.Text.RegularExpressions;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
@@ -405,26 +406,23 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
         _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    private static string NormalizeString(string input)
+
+    private static string NormalizeLogoString(string input)
     {
-        return input.ToLower();
+        // Remove punctuation characters
+        string normalized = new(input.Where(c => !char.IsPunctuation(c)).ToArray());
+
+        // Convert to lowercase
+        normalized = normalized.ToLower();
+
+        return normalized;
     }
-    //private static string NormalizeString(string input)
-    //{
-    //    // Remove punctuation characters
-    //    string normalized = new(input.Where(c => !char.IsPunctuation(c)).ToArray());
-
-    //    // Convert to lowercase
-    //    normalized = normalized.ToLower();
-
-    //    return normalized;
-    //}
 
     private static double GetWeightedMatch(string sentence1, string sentence2)
     {
         // Convert sentences to lowercase and remove punctuation
-        string normalizedSentence1 = NormalizeString(sentence1);
-        string normalizedSentence2 = NormalizeString(sentence2);
+        string normalizedSentence1 = NormalizeLogoString(sentence1);
+        string normalizedSentence2 = NormalizeLogoString(sentence2);
 
         // Split sentences into individual words
         string[] words1 = normalizedSentence1.Split(' ');
@@ -885,7 +883,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
                  .Select(p => new
                  {
                      Channel = p,
-                     Score = GetMatchingScore(videoStream.User_Tvg_name, p.Channel)
+                     Score = AutoEPGMatch.GetMatchingScore(videoStream.User_Tvg_name, p.Channel)
                  })
                  .Where(x => x.Score > 0) // Filter out non-matches
                  .OrderByDescending(x => x.Score) // Sort by score in descending order
@@ -897,7 +895,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
                  .Select(p => new
                  {
                      Channel = p,
-                     Score = GetMatchingScore(videoStream.User_Tvg_name, p.DisplayName)
+                     Score = AutoEPGMatch.GetMatchingScore(videoStream.User_Tvg_name, p.DisplayName)
                  })
                  .Where(x => x.Score > 0) // Filter out non-matches
                  .OrderByDescending(x => x.Score).ToList(); // Sort by score in descending order
@@ -922,108 +920,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
         return results;
     }
 
-    private static string RemoveCommonSuffixes(string input, string[] suffixes)
-    {
-        foreach (string suffix in suffixes)
-        {
-            if (input.EndsWith(suffix))
-            {
-                return input[..^suffix.Length];
-            }
-        }
-        return input;
-    }
-    private static (string code, string name) ExtractComponentsFromProgrammeName(string programmeName)
-    {
-        Match match = Regex.Match(programmeName, @"\[(.*?)\]\s*([\w-]+)");
-        string code = match.Success ? match.Groups[1].Value : "";
-        string name = match.Success ? match.Groups[2].Value.Split(new char[] { ' ', '-' })[0] : "";
 
-        return (code, name);
-    }
-
-
-    public static int GetMatchingScore(string userTvgName, string programmeName)
-    {
-        int score = 0;
-        string[] commonSuffixes = new[] { "us", "gb", "dt", "hd" };
-
-        string normalizedUserTvgName = NormalizeString(userTvgName);
-        string normalizedProgrammeName = NormalizeString(programmeName);
-
-
-        if (normalizedProgrammeName.Contains("wpvi"))
-        {
-            int a = 1;
-        }
-
-        normalizedUserTvgName = RemoveCommonSuffixes(normalizedUserTvgName, commonSuffixes);
-        normalizedProgrammeName = RemoveCommonSuffixes(normalizedProgrammeName, commonSuffixes);
-
-        (string extractedProgrammeCode, string extractedProgrammeName) = ExtractComponentsFromProgrammeName(normalizedProgrammeName);
-
-        if (normalizedUserTvgName.Equals(extractedProgrammeCode) || normalizedUserTvgName.Equals(extractedProgrammeName))
-        {
-            score += 50;
-        }
-
-        // Removing common suffixes from normalizedUserTvgName
-        foreach (string suffix in commonSuffixes)
-        {
-            if (normalizedUserTvgName.EndsWith(suffix))
-            {
-                normalizedUserTvgName = normalizedUserTvgName[..^suffix.Length];
-                break;
-            }
-        }
-
-        // Removing common suffixes from normalizedProgrammeName to extract the base name
-        string baseName = normalizedProgrammeName;
-        foreach (string suffix in commonSuffixes)
-        {
-            if (baseName.EndsWith(suffix))
-            {
-                baseName = baseName[..^suffix.Length];
-                break;
-            }
-        }
-
-        // Extract call sign from normalizedUserTvgName (expected to be within parentheses)
-        Match match = Regex.Match(normalizedUserTvgName, @"\((.*?)\)"); // Matches content within parentheses
-        string callSign = match.Success ? match.Groups[1].Value.ToLower() : "";
-
-        // Check for direct match with both the full and base name of normalizedProgrammeName
-        if (!string.IsNullOrEmpty(callSign))
-        {
-            if (callSign.Equals(baseName) || callSign.Equals(normalizedProgrammeName))
-            {
-                score += 40;
-            }
-        }
-
-        // Base name match (without suffix)
-        if (normalizedUserTvgName.Contains(baseName))
-        {
-            score += 30;
-        }
-
-        // Splitting the names into words for further analysis
-        List<string> userTvgNameWords = normalizedUserTvgName.Split(' ').ToList();
-        List<string> programmeNameWords = normalizedProgrammeName.Split(' ').ToList();
-
-        // Word intersection count
-        int intersectionCount = userTvgNameWords.Intersect(programmeNameWords).Count();
-        score += intersectionCount * 10;
-
-        // Check for abbreviation or call sign match
-        if (normalizedUserTvgName.Equals(baseName))
-        {
-            score += 50;
-        }
-
-        // Returning the final calculated score
-        return score;
-    }
 
 
     public async Task<List<VideoStreamDto>> AutoSetEPGFromIds(List<string> ids, CancellationToken cancellationToken)

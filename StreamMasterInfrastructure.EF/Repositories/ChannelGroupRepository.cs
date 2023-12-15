@@ -57,15 +57,15 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
     {
         try
         {
-            
+
             List<ChannelGroupIdName> channelGroupNames = await RepositoryContext.ChannelGroups
                                         .OrderBy(channelGroup => channelGroup.Name)
-                                        .Select( channelGroup => new ChannelGroupIdName
+                                        .Select(channelGroup => new ChannelGroupIdName
                                         {
                                             Name = channelGroup.Name,
                                             Id = channelGroup.Id,
-                                            TotalCount=RepositoryContext.VideoStreams.Count(a=> a.User_Tvg_group==channelGroup.Name)
-                                           
+                                            TotalCount = RepositoryContext.VideoStreams.Count(a => a.User_Tvg_group == channelGroup.Name)
+
                                         })
                                         .ToListAsync()
                                         .ConfigureAwait(false);
@@ -310,7 +310,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
         try
         {
             Create(channelGroup);
-            logger.LogInformation($"Successfully created channel group with name: {channelGroup.Name}");
+            //logger.LogInformation($"Successfully created channel group with name: {channelGroup.Name}");
         }
         catch (Exception ex)
         {
