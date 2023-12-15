@@ -22,13 +22,17 @@ export function getDropDownLine({ field, options, selectedCurrentSettingDto, onC
     label: `${label}:`,
     value: (
       <Dropdown
-        className="withpadding w-full text-left"
+        className="bordered-text w-full text-left"
         onChange={(e) => {
-          UpdateChanges({ field, selectedCurrentSettingDto, onChange, value: e.target.value });
+          if (isFinite(+e.target.value)) {
+            UpdateChanges({ field, selectedCurrentSettingDto, onChange, value: +e.target.value });
+          } else {
+            UpdateChanges({ field, selectedCurrentSettingDto, onChange, value: e.target.value });
+          }
         }}
         options={options}
         placeholder={label}
-        value={selectedCurrentSettingDto ? getRecordString<SettingDto>(field, selectedCurrentSettingDto) : undefined}
+        value={selectedCurrentSettingDto ? getRecordString<SettingDto>(field, selectedCurrentSettingDto)?.toLocaleLowerCase() : undefined}
       />
     ),
     help

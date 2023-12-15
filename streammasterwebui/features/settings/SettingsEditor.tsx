@@ -86,7 +86,9 @@ export const SettingsEditor = () => {
         const reset: UpdateSettingRequest = {};
         setSelectedUpdateSettingRequest(reset);
       })
-      .catch(() => {})
+      .catch((error) => {
+        console.error(error);
+      })
       .finally(() => {});
   }, [isSaveEnabled, selectUpdateSettingRequest, setSelectedUpdateSettingRequest]);
 

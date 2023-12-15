@@ -108,7 +108,7 @@ const TextInput = ({
 
   return (
     <div className={placeHolder && !label ? 'flex grid w-full align-items-center' : 'flex grid w-full mt-3 align-items-center'} ref={overlayReference}>
-      <span className={placeHolder && !label ? 'col-11 p-input-icon-right w-full' : 'col-11 p-input-icon-right p-float-label w-full'}>
+      <span className={placeHolder && !label ? 'col-11 p-input-icon-right' : 'col-11 p-input-icon-right p-float-label'}>
         {doShowClear() && originalInput && (
           <i
             className="pi pi-times-circle"
