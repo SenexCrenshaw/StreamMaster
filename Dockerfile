@@ -7,8 +7,7 @@ EXPOSE 7095
 ENV ASPNETCORE_URLS=http://+:7095
 RUN apt-get update -yq \
     && apt-get upgrade -yq \
-    && apt-get install -yq ffmpeg gosu\
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get install -yq ffmpeg gosu
 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 ARG TARGETPLATFORM
@@ -32,9 +31,10 @@ RUN apt-get update -yq \
 
 RUN curl -sL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
     && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
-    && apt-get update && apt-get install -yq nodejs build-essential \
-    && rm -rf /var/lib/apt/lists/* \
-    && update-ca-certificates
+    && update-ca-certificates \
+    && apt-get update && apt-get install -yq nodejs build-essential 
+
+RUN rm -rf /var/lib/apt/lists/* 
 
 WORKDIR /src/streammasterwebui
 COPY ["streammasterwebui/", "."]
