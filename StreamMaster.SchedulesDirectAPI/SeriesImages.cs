@@ -172,7 +172,14 @@ public partial class SchedulesDirect
             }
             else
             {
-                series = schedulesDirectData.FindOrCreateSeriesInfo(response.ProgramId.Substring(2, 8));
+                if (response.ProgramId == null || response.ProgramId.Length < 8)
+                {
+                    logger.LogError("Prog id is null or too short {ProgramId}", response.ProgramId);
+                }
+                else
+                {
+                    series = schedulesDirectData.FindOrCreateSeriesInfo(response.ProgramId.Substring(2, 8));
+                }
             }
             if (series == null || !string.IsNullOrEmpty(series.GuideImage) || series.extras.ContainsKey("artwork"))
             {
