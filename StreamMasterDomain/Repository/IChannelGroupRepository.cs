@@ -52,7 +52,7 @@ public interface IChannelGroupRepository : IRepositoryBase<ChannelGroup>
     /// <summary>
     /// Retrieves all channel group names.
     /// </summary>
-    Task<List<ChannelGroupIdName>> GetChannelGroupNames();
+    Task<List<ChannelGroupIdName>> GetChannelGroupNames(CancellationToken cancellationToken);
 
     Task<List<ChannelGroup>> GetChannelGroupsForStreamGroup(int streamGroupId, CancellationToken cancellationToken);
 

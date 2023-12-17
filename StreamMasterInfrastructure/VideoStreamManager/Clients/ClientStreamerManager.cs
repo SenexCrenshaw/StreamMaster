@@ -8,7 +8,7 @@ using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Clients;
 
-public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger, ILogger<RingBufferReadStream> ringBufferReadStreamLogger) : IClientStreamerManager
+public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger, ILogger<ClientReadStream> ringBufferReadStreamLogger) : IClientStreamerManager
 {
     private readonly ConcurrentDictionary<Guid, IClientStreamerConfiguration> clientStreamerConfigurations = new();
     private readonly object _disposeLock = new();
@@ -127,7 +127,7 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
             return;
         }
 
-        config.ReadBuffer ??= new RingBufferReadStream(() => RingBuffer, ringBufferReadStreamLogger, config);
+        config.ReadBuffer ??= new ClientReadStream(() => RingBuffer, ringBufferReadStreamLogger, config);
         config.ReadBuffer.SetBufferDelegate(() => RingBuffer, config);
     }
 

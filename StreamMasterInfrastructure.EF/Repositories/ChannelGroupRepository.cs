@@ -53,22 +53,22 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
     /// Asynchronously retrieves a list of all channel group names, ordered by name.
     /// </summary>
     /// <returns>A list of channel group names and their corresponding IDs.</returns>
-    public async Task<List<ChannelGroupIdName>> GetChannelGroupNames()
+    public async Task<List<ChannelGroupIdName>> GetChannelGroupNames(CancellationToken cancellationToken)
     {
         try
         {
 
-            List<ChannelGroupIdName> channelGroupNames = await RepositoryContext.ChannelGroups
-                                        .OrderBy(channelGroup => channelGroup.Name)
-                                        .Select(channelGroup => new ChannelGroupIdName
-                                        {
-                                            Name = channelGroup.Name,
-                                            Id = channelGroup.Id,
-                                            TotalCount = RepositoryContext.VideoStreams.Count(a => a.User_Tvg_group == channelGroup.Name)
-
-                                        })
-                                        .ToListAsync()
-                                        .ConfigureAwait(false);
+            var channelGroupNames = await RepositoryContext.ChannelGroups
+             .OrderBy(channelGroup => channelGroup.Name)
+             .Select(channelGroup => new ChannelGroupIdName
+             {
+                 Name = channelGroup.Name,
+                 Id = channelGroup.Id,
+                 TotalCount = RepositoryContext.VideoStreams
+                              .Count(vs => vs.User_Tvg_group == channelGroup.Name)
+             })
+             .ToListAsync(cancellationToken)
+             .ConfigureAwait(false);
 
             return channelGroupNames;
         }
@@ -96,21 +96,6 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
             IQueryable<ChannelGroup> query = GetIQueryableForEntity(Parameters);
 
             PagedResponse<ChannelGroup> ret = await query.GetPagedResponseAsync(Parameters.PageNumber, Parameters.PageSize);
-
-            //// Get channel group stream counts from the memory cache
-            //IEnumerable<ChannelGroupStreamCount> actives = memoryCache.ChannelGroupStreamCounts();
-
-            //// Enrich the DTOs with the counts from the memory cache
-            //foreach (ChannelGroupStreamCount? active in actives)
-            //{
-            //    ChannelGroup? dto = ret.Data.FirstOrDefault(a => a.Id == active.ChannelGroupId);
-            //    if (dto != null)
-            //    {
-            //        dto.ActiveCount = active.ActiveCount;
-            //        dto.HiddenCount = active.HiddenCount;
-            //        dto.TotalCount = active.TotalCount;
-            //    }
-            //}
 
             return ret;
         }

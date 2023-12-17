@@ -172,6 +172,7 @@ public sealed class ChannelManager(
                     bool handled = await ProcessStreamStatus(channelStatus);
                     if (!handled)
                     {
+
                         logger.LogDebug("ChannelWatcher ProcessStreamStatus not handled for : {ChannelName} {VideoStreamId}", channelStatus.ChannelName, channelStatus.CurrentVideoStream.Id);
                         continue;
                     }
@@ -268,7 +269,7 @@ public sealed class ChannelManager(
             IStreamHandler? streamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStream.User_Url);
             if (streamHandler == null)
             {
-                return true;
+                return false;
             }
 
             if (!streamHandler.VideoStreamingCancellationToken.IsCancellationRequested)
@@ -278,7 +279,7 @@ public sealed class ChannelManager(
 
             if (streamHandler.IsFailed)
             {
-                return true;
+                return false;
             }
 
             streamHandler.SetFailed();

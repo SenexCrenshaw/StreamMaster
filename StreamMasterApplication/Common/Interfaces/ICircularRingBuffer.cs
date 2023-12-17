@@ -4,8 +4,9 @@ namespace StreamMasterApplication.Common.Interfaces;
 
 public interface ICircularRingBuffer
 {
+    Task WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken);
     int BufferSize { get; }
-
+    event EventHandler<Guid> DataAvailable;
     float GetBufferUtilization();
     /// <summary>
     /// Gets the  ID.
@@ -33,7 +34,7 @@ public interface ICircularRingBuffer
 
     void UpdateReadIndex(Guid clientId, int newIndex);
 
-    Task WaitSemaphoreAsync(Guid clientId, CancellationToken cancellationToken);
+    //Task WaitSemaphoreAsync(Guid clientId, CancellationToken cancellationToken);
 
     void Write(byte data);
 

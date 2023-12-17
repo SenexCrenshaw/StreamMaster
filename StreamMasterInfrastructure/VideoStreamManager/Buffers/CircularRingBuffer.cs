@@ -17,20 +17,24 @@ namespace StreamMasterInfrastructure.VideoStreamManager.Buffers;
 /// </summary>
 public sealed class CircularRingBuffer : ICircularRingBuffer
 {
+    public event EventHandler<Guid> DataAvailable;
     private readonly IStatisticsManager _statisticsManager;
     private readonly IInputStatisticsManager _inputStatisticsManager;
     private readonly IInputStreamingStatistics _inputStreamStatistics;
-    private readonly object _semaphoreLock = new();
+    //private readonly object _semaphoreLock = new();
     public readonly StreamInfo StreamInfo;
     private readonly Memory<byte> _buffer;
     private readonly int _bufferSize;
     private readonly ConcurrentDictionary<Guid, int> _clientReadIndexes = new();
-    private readonly Dictionary<Guid, SemaphoreSlim> _clientSemaphores = [];
+    //private readonly Dictionary<Guid, SemaphoreSlim> _clientSemaphores = [];
+    private readonly ConcurrentDictionary<Guid, TaskCompletionSource<bool>> _readWaitHandles = new();
+
     private readonly ILogger<ICircularRingBuffer> _logger;
     private int _oldestDataIndex;
     private readonly float _preBuffPercent;
     private int _writeIndex;
     private readonly int _waitDelayMS;
+    private readonly object _writeLock = new();
     public CircularRingBuffer(VideoStreamDto videoStreamDto, string channelName, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILogger<ICircularRingBuffer> logger, int? waitDelayMS = null)
     {
         Setting setting = memoryCache.GetSetting();
@@ -72,6 +76,14 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
     public int BufferSize => _buffer.Length;
     public string VideoStreamId => StreamInfo.VideoStreamId;
     private bool InternalIsPreBuffered { get; set; } = false;
+
+    private void OnDataAvailable(Guid clientId)
+    {
+        if (_readWaitHandles.TryGetValue(clientId, out var tcs))
+        {
+            tcs.TrySetResult(true);
+        }
+    }
 
     public List<StreamStatisticsResult> GetAllStatisticsForAllUrls()
     {
@@ -233,6 +245,11 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         while (bytesToRead > 0)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            if (GetAvailableBytes(clientId) == 0)
+            {
+                await WaitForDataAvailability(clientId, cancellationToken);
+                continue;
+            }
             // Calculate how much we can read before we have to wrap
             int canRead = Math.Min(bytesToRead, _buffer.Length - readIndex);
 
@@ -256,37 +273,89 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         return target.Length;
     }
 
+    public async Task WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken)
+    {
+        // Check if data is already available before waiting
+        if (GetAvailableBytes(clientId) > 0)
+        {
+            return;
+        }
+
+        // Create or get an existing TaskCompletionSource for this client
+        var tcs = _readWaitHandles.GetOrAdd(clientId, id => new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously));
+
+        // Register cancellation token to set the TaskCompletionSource as canceled
+        using (cancellationToken.Register(() => tcs.TrySetCanceled()))
+        {
+            // Wait for the task to complete, which indicates data is available
+            await tcs.Task.ConfigureAwait(false);
+
+            // Reset the TaskCompletionSource for the next wait
+            _readWaitHandles[clientId] = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        }
+    }
+
+
+    //private bool IsOverlap(int readIndex, int writeIndex)
+    //{
+    //    // If the read index and write index are the same, it's an overlap
+    //    if (readIndex == writeIndex)
+    //    {
+    //        return true;
+    //    }
+
+    //    // If the write index is ahead of the read index in a circular manner
+    //    if (writeIndex > readIndex)
+    //    {
+    //        return false;
+    //    }
+    //    else
+    //    {
+    //        // The write index has wrapped around to the beginning of the buffer
+    //        // Check if the read index has not yet reached the end of the buffer
+    //        return readIndex >= writeIndex && readIndex < _buffer.Length;
+    //    }
+    //}
+
     public void RegisterClient(IClientStreamerConfiguration streamerConfiguration)
     {
         if (!_clientReadIndexes.ContainsKey(streamerConfiguration.ClientId))
         {
             _ = _clientReadIndexes.TryAdd(streamerConfiguration.ClientId, _oldestDataIndex);
-            _ = _clientSemaphores.TryAdd(streamerConfiguration.ClientId, new SemaphoreSlim(0, 1));
+            //_ = _clientSemaphores.TryAdd(streamerConfiguration.ClientId, new SemaphoreSlim(0, 1));
             _statisticsManager.RegisterClient(streamerConfiguration.ClientId, streamerConfiguration.ClientUserAgent, streamerConfiguration.ClientIPAddress);
         }
         _logger.LogInformation("RegisterClient for ClientId: {ClientId} {VideoStreamName} {_oldestDataIndex}", streamerConfiguration.ClientId, StreamInfo.VideoStreamName, _oldestDataIndex);
     }
 
-    private void ReleaseSemaphores()
-    {
-        lock (_semaphoreLock)
-        {
-            foreach (KeyValuePair<Guid, SemaphoreSlim> kvp in _clientSemaphores)
-            {
-                SemaphoreSlim semaphore = kvp.Value;
+    //private void ReleaseSemaphores2()
+    //{
+    //    lock (_semaphoreLock)
+    //    {
+    //        foreach (KeyValuePair<Guid, SemaphoreSlim> kvp in _clientSemaphores)
+    //        {
+    //            SemaphoreSlim semaphore = kvp.Value;
 
-                if (semaphore.CurrentCount == 0)
-                {
-                    semaphore.Release();
-                }
-            }
+    //            if (semaphore.CurrentCount == 0)
+    //            {
+    //                semaphore.Release();
+    //            }
+    //        }
+    //    }
+    //}
+
+    private void NotifyClients()
+    {
+        foreach (var clientId in _clientReadIndexes.Keys)
+        {
+            OnDataAvailable(clientId);
         }
     }
 
     public void UnRegisterClient(Guid clientId)
     {
         _ = _clientReadIndexes.TryRemove(clientId, out _);
-        _ = _clientSemaphores.Remove(clientId);
+        //_ = _clientSemaphores.Remove(clientId);
         _statisticsManager.UnRegisterClient(clientId);
 
         _logger.LogInformation("UnRegisterClient for clientId: {clientId}  {VideoStreamName}", clientId, StreamInfo.VideoStreamName);
@@ -297,24 +366,24 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         _clientReadIndexes[clientId] = newIndex % _buffer.Length;
     }
 
-    public async Task WaitSemaphoreAsync(Guid clientId, CancellationToken cancellationToken)
-    {
-        if (cancellationToken.IsCancellationRequested)
-        {
-            _logger.LogDebug("Exiting WaitSemaphoreAsync early due to CancellationToken cancellation request for clientId: {clientId}", clientId);
-            return;
-        }
+    //public async Task WaitSemaphoreAsync(Guid clientId, CancellationToken cancellationToken)
+    //{
+    //    if (cancellationToken.IsCancellationRequested)
+    //    {
+    //        _logger.LogDebug("Exiting WaitSemaphoreAsync early due to CancellationToken cancellation request for clientId: {clientId}", clientId);
+    //        return;
+    //    }
 
-        if (_clientSemaphores.TryGetValue(clientId, out SemaphoreSlim? semaphore))
-        {
-            await semaphore.WaitAsync(_waitDelayMS, cancellationToken);
-            _logger.LogDebug("WaitSemaphoreAsync for clientId: {clientId}", clientId);
-        }
-        else
-        {
-            _logger.LogDebug("Exiting WaitSemaphoreAsync early due to clientId not registered: {clientId}", clientId);
-        }
-    }
+    //    if (_clientSemaphores.TryGetValue(clientId, out SemaphoreSlim? semaphore))
+    //    {
+    //        await semaphore.WaitAsync(_waitDelayMS, cancellationToken);
+    //        _logger.LogDebug("WaitSemaphoreAsync for clientId: {clientId}", clientId);
+    //    }
+    //    else
+    //    {
+    //        _logger.LogDebug("Exiting WaitSemaphoreAsync early due to clientId not registered: {clientId}", clientId);
+    //    }
+    //}
 
     public void Write(byte data)
     {
@@ -334,7 +403,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
 
         try
         {
-            ReleaseSemaphores();
+            NotifyClients();
         }
         catch (Exception ex)
         {
@@ -346,51 +415,54 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
 
     public int WriteChunk(Memory<byte> data)
     {
-        _logger.LogDebug("Starting WriteChunk {VideoStreamId} with count: {count}", VideoStreamId, data.Length);
-
-        int bytesWritten = 0;
-
-        while (data.Length > 0)
+        lock (_writeLock)
         {
-            int availableSpace = _buffer.Length - _writeIndex;
-            if (availableSpace == 0)
+            _logger.LogDebug("Starting WriteChunk {VideoStreamId} with count: {count}", VideoStreamId, data.Length);
+
+            int bytesWritten = 0;
+
+            while (data.Length > 0)
             {
-                // Handle buffer wrap around
-                _writeIndex = 0;
-                availableSpace = _buffer.Length;
+                int availableSpace = _buffer.Length - _writeIndex;
+                if (availableSpace == 0)
+                {
+                    // Handle buffer wrap around
+                    _writeIndex = 0;
+                    availableSpace = _buffer.Length;
+                }
+
+                int lengthToWrite = Math.Min(data.Length, availableSpace);
+
+                try
+                {
+                    Memory<byte> bufferSlice = _buffer.Slice(_writeIndex, lengthToWrite);
+                    data[..lengthToWrite].CopyTo(bufferSlice);
+                    _writeIndex = (_writeIndex + lengthToWrite) % _buffer.Length;
+                    bytesWritten += lengthToWrite;
+                    data = data[lengthToWrite..];
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error writing chunk in WriteChunk for {VideoStreamId}.", VideoStreamId);
+                    throw;
+                }
             }
 
-            int lengthToWrite = Math.Min(data.Length, availableSpace);
+            _inputStreamStatistics.AddBytesWritten(bytesWritten);
 
             try
             {
-                Memory<byte> bufferSlice = _buffer.Slice(_writeIndex, lengthToWrite);
-                data[..lengthToWrite].CopyTo(bufferSlice);
-                _writeIndex = (_writeIndex + lengthToWrite) % _buffer.Length;
-                bytesWritten += lengthToWrite;
-                data = data[lengthToWrite..];
+                NotifyClients();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error writing chunk in WriteChunk for {VideoStreamId}.", VideoStreamId);
-                throw;
+                _logger.LogError(ex, "An error occurred while releasing semaphores during WriteChunk for {VideoStreamId}.", VideoStreamId);
             }
+
+            _logger.LogDebug("WriteChunk completed with {VideoStreamId} count: {data.Length}", VideoStreamId, data.Length);
+
+            return bytesWritten;
         }
-
-        _inputStreamStatistics.AddBytesWritten(bytesWritten);
-
-        try
-        {
-            ReleaseSemaphores();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An error occurred while releasing semaphores during WriteChunk for {VideoStreamId}.", VideoStreamId);
-        }
-
-        _logger.LogDebug("WriteChunk completed with {VideoStreamId} count: {data.Length}", VideoStreamId, data.Length);
-
-        return bytesWritten;
     }
 
     public int WriteChunk(byte[] data, int count)
@@ -432,7 +504,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
 
         try
         {
-            ReleaseSemaphores();
+            NotifyClients();
         }
         catch (Exception ex)
         {

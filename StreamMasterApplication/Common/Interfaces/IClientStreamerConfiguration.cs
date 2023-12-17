@@ -7,6 +7,6 @@ public interface IClientStreamerConfiguration
     Guid ClientId { get; set; }
     string ClientIPAddress { get; set; }
     string ClientUserAgent { get; set; }
-    IRingBufferReadStream? ReadBuffer { get; set; }
+    IClientReadStream? ReadBuffer { get; set; }
     CancellationTokenSource ClientMasterToken { get; set; }
 }

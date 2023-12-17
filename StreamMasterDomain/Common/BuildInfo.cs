@@ -75,7 +75,7 @@ public static class BuildInfo
 #if DEBUG
             true;
 #else
-                return false;
+                false;
 #endif
 
 }

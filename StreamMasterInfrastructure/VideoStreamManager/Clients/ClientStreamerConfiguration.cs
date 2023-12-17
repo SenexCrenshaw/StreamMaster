@@ -25,7 +25,7 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
     }
 
     //Buffering
-    public IRingBufferReadStream? ReadBuffer { get; set; }
+    public IClientReadStream? ReadBuffer { get; set; }
 
     //Tokens
     private CancellationToken ClientHTTPRequestCancellationToken { get; }
