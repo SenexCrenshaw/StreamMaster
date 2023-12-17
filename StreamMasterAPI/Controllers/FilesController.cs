@@ -41,6 +41,91 @@ public class FilesController(IMemoryCache memoryCache, IContentTypeProvider mime
         return File(image, contentType, fileName);
     }
 
+
+    private async Task<(string? returnName, string? fullPath)> GetValidImagePath(string URL)
+    {
+        string source = HttpUtility.UrlDecode(URL);
+        string fileName = "";
+        string returnName = "";
+
+
+        //StreamMaster.SchedulesDirectAPI.Domain.Models.ImageInfo? cache = memoryCache.ImageInfos().FirstOrDefault(a => a.IconUri == source);
+        //if (cache == null) { return (null, null); }
+        string fullPath = source.GetSDImageFullPath();// Path.Combine(FileDefinitions.SDImage.DirectoryLocation, source);
+        if (System.IO.File.Exists(fullPath))
+        {
+            return (Path.GetFileName(fullPath), fullPath);
+        }
+
+        TvLogoFile? cache = memoryCache.GetTvLogos().FirstOrDefault(a => a.Source == source);
+        if (cache != null)
+        {
+            returnName = cache.Source;
+            fileName = FileDefinitions.TVLogo.DirectoryLocation + returnName;
+            return (returnName, fileName);
+        }
+
+        Setting setting = await SettingsService.GetSettingsAsync();
+
+
+        List<StreamMasterDomain.Dto.IconFileDto> icons = memoryCache.Icons();
+        StreamMasterDomain.Dto.IconFileDto? icon = icons.FirstOrDefault(a => a.Source == source);
+
+        if (icon is null)
+        {
+            return (null, null);
+        }
+        FileDefinition fd = FileDefinitions.Icon;
+
+        //switch (IPTVFileType)
+        //{
+        //    case SMFileTypes.Icon:
+        //        fd = FileDefinitions.Icon;
+        //        break;
+
+        //    case SMFileTypes.ProgrammeIcon:
+        //        fd = FileDefinitions.ProgrammeIcon;
+        //        break;
+
+        //    case SMFileTypes.M3U:
+        //        break;
+
+        //    case SMFileTypes.EPG:
+        //        break;
+
+        //    case SMFileTypes.HDHR:
+        //        break;
+
+        //    case SMFileTypes.Channel:
+        //        break;
+
+        //    case SMFileTypes.M3UStream:
+        //        break;
+
+        //    case SMFileTypes.Image:
+        //        break;
+
+        //    case SMFileTypes.TvLogo:
+        //        fd = FileDefinitions.TVLogo;
+        //        break;
+
+        //    default:
+        //        fd = FileDefinitions.Icon;
+        //        break;
+        //}
+        returnName = $"{icon.Name}.{icon.Extension}";
+        fileName = $"{fd.DirectoryLocation}{returnName}";
+
+        if (System.IO.File.Exists(fileName))
+        {
+            return (returnName, fileName);
+        }
+
+
+        return (null, null);
+    }
+
+
     [LogExecutionTimeAspect]
     private async Task<(byte[]? image, string? fileName)> GetCacheEntryAsync(string URL, SMFileTypes IPTVFileType, CancellationToken cancellationToken)
     {
@@ -49,91 +134,14 @@ public class FilesController(IMemoryCache memoryCache, IContentTypeProvider mime
             return (null, null);
         }
 
-        string source = HttpUtility.UrlDecode(URL);
-        string fileName = "";
-        string returnName = "";
-        FileDefinition fd = FileDefinitions.Icon;
+        //string source = HttpUtility.UrlDecode(URL);
+        //string fileName = "";
+        //string returnName = "";
 
-        if (IPTVFileType == SMFileTypes.SDImage)
+        (string? returnName, string? fileName) = await GetValidImagePath(URL);
+        if (string.IsNullOrEmpty(returnName) || string.IsNullOrEmpty(fileName))
         {
-            //StreamMaster.SchedulesDirectAPI.Domain.Models.ImageInfo? cache = memoryCache.ImageInfos().FirstOrDefault(a => a.IconUri == source);
-            //if (cache == null) { return (null, null); }
-            string fullPath = source.GetSDImageFullPath();// Path.Combine(FileDefinitions.SDImage.DirectoryLocation, source);
-
-            string fullName = Path.GetFileName(fullPath);
-            returnName = fullName;
-            fileName = fullPath;
-        }
-        else
-        if (IPTVFileType == SMFileTypes.TvLogo)
-        {
-            TvLogoFile? cache = memoryCache.GetTvLogos().FirstOrDefault(a => a.Source == source);
-            if (cache == null || !cache.FileExists) { return (null, null); }
-            returnName = cache.Source;
-            fileName = FileDefinitions.TVLogo.DirectoryLocation + returnName;
-        }
-        else
-        {
-            Setting setting = await SettingsService.GetSettingsAsync();
-            if (!setting.CacheIcons)
-            {
-                return (null, null);
-            }
-            List<StreamMasterDomain.Dto.IconFileDto> icons = memoryCache.Icons();
-            StreamMasterDomain.Dto.IconFileDto? icon = icons.FirstOrDefault(a => a.Source == source);
-
-            if (icon is null)
-            {
-                return (null, null);
-            }
-
-            switch (IPTVFileType)
-            {
-                case SMFileTypes.Icon:
-                    fd = FileDefinitions.Icon;
-                    break;
-
-                case SMFileTypes.ProgrammeIcon:
-                    fd = FileDefinitions.ProgrammeIcon;
-                    break;
-
-                case SMFileTypes.M3U:
-                    break;
-
-                case SMFileTypes.EPG:
-                    break;
-
-                case SMFileTypes.HDHR:
-                    break;
-
-                case SMFileTypes.Channel:
-                    break;
-
-                case SMFileTypes.M3UStream:
-                    break;
-
-                case SMFileTypes.Image:
-                    break;
-
-                case SMFileTypes.TvLogo:
-                    fd = FileDefinitions.TVLogo;
-                    break;
-
-                default:
-                    fd = FileDefinitions.Icon;
-                    break;
-            }
-            returnName = $"{icon.Name}.{icon.Extension}";
-            fileName = $"{fd.DirectoryLocation}{returnName}";
-
-            if (!System.IO.File.Exists(fileName))
-            {
-                (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(source, fileName, cancellationToken).ConfigureAwait(false);
-                if (!success)
-                {
-                    return (null, null);
-                }
-            }
+            return (null, null);
         }
 
         if (System.IO.File.Exists(fileName))

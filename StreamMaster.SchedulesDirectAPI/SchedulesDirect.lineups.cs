@@ -254,10 +254,11 @@ public partial class SchedulesDirect
         if (ret != null)
         {
             logger.LogDebug($"Successfully removed lineup {lineup} from account. serverID: {ret.ServerId} , message: {ret.Message} , changesRemaining: {ret.ChangesRemaining}");
+            memoryCache.SetSyncForceNextRun(true);
         }
         else
         {
-            logger.LogError($"Failed to get a response from Schedules Direct when trying to remove lineup {lineup}.");
+            logger.LogError("Failed to get a response from Schedules Direct when trying to remove lineup {lineup}.", lineup);
         }
         return ret != null;
     }

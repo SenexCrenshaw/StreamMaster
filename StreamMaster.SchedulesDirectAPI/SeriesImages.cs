@@ -140,18 +140,21 @@ public partial class SchedulesDirect
         StreamMasterDomain.Common.Setting setting = memoryCache.GetSetting();
         string artworkSize = string.IsNullOrEmpty(setting.SDSettings.ArtworkSize) ? "Md" : setting.SDSettings.ArtworkSize;
         // process request response
-        foreach (ProgramMetadata response in seriesImageResponses)
+        foreach (ProgramMetadata response in seriesImageResponses.Where(a => !string.IsNullOrEmpty(a.ProgramId) && a.ProgramId.Length > 8 && a.Data != null && a.Code != 0))
         {
-            //IncrementProgress();
-            string uid = response.ProgramId;
 
-            if (response.Data == null || response.Code != 0)
-            {
-                continue;
-            }
+            //if (response.ProgramId == null || response.ProgramId.Length < 8)
+            //{
+            //    logger.LogError("Prog id is null or too short {ProgramId}", response.ProgramId);
+            //}
+
+            //IncrementProgress();
+            string programId = response.ProgramId!;
+            string uid = response.ProgramId!;
+
 
             MxfSeriesInfo? series = null;
-            if (response.ProgramId.StartsWith("SP"))
+            if (programId.StartsWith("SP"))
             {
                 foreach (string? key in sportsSeries.AllKeys)
                 {
@@ -172,14 +175,7 @@ public partial class SchedulesDirect
             }
             else
             {
-                if (response.ProgramId == null || response.ProgramId.Length < 8)
-                {
-                    logger.LogError("Prog id is null or too short {ProgramId}", response.ProgramId);
-                }
-                else
-                {
-                    series = schedulesDirectData.FindOrCreateSeriesInfo(response.ProgramId.Substring(2, 8));
-                }
+                series = schedulesDirectData.FindOrCreateSeriesInfo(response.ProgramId.Substring(2, 8));
             }
             if (series == null || !string.IsNullOrEmpty(series.GuideImage) || series.extras.ContainsKey("artwork"))
             {
