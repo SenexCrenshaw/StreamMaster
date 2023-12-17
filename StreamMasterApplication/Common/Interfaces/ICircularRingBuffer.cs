@@ -6,7 +6,7 @@ public interface ICircularRingBuffer
 {
     Task WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken);
     int BufferSize { get; }
-    event EventHandler<Guid> DataAvailable;
+    //event EventHandler<Guid> DataAvailable;
     float GetBufferUtilization();
     /// <summary>
     /// Gets the  ID.

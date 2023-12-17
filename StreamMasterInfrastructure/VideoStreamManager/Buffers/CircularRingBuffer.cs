@@ -244,12 +244,6 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         int bytesRead = 0;
         while (bytesToRead > 0)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            if (GetAvailableBytes(clientId) == 0)
-            {
-                await WaitForDataAvailability(clientId, cancellationToken);
-                continue;
-            }
             // Calculate how much we can read before we have to wrap
             int canRead = Math.Min(bytesToRead, _buffer.Length - readIndex);
 
@@ -263,14 +257,15 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
             readIndex = (readIndex + canRead) % _buffer.Length;
             bytesRead += canRead;
             bytesToRead -= canRead;
+            cancellationToken.ThrowIfCancellationRequested();
         }
 
         _clientReadIndexes[clientId] = readIndex;
 
-        _statisticsManager.AddBytesRead(clientId, target.Length);
+        _statisticsManager.AddBytesRead(clientId, bytesRead);
         _logger.LogDebug("Finished ReadChunkMemory for clientId: {clientId}", clientId);
 
-        return target.Length;
+        return bytesRead;
     }
 
     public async Task WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken)

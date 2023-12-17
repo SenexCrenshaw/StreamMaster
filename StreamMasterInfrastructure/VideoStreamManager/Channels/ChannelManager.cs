@@ -172,7 +172,7 @@ public sealed class ChannelManager(
                     bool handled = await ProcessStreamStatus(channelStatus);
                     if (!handled)
                     {
-
+                        channelService.UnRegisterChannel(channelStatus.ChannelVideoStreamId);
                         logger.LogDebug("ChannelWatcher ProcessStreamStatus not handled for : {ChannelName} {VideoStreamId}", channelStatus.ChannelName, channelStatus.CurrentVideoStream.Id);
                         continue;
                     }
