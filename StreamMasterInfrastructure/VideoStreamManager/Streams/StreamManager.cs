@@ -117,6 +117,12 @@ public sealed class StreamManager(
 
     }
 
+    public async Task<VideoInfo> GetVideoInfo(string streamUrl)
+    {
+        IStreamHandler? handler = GetStreamHandlerFromStreamUrl(streamUrl);
+        return handler is null ? new() : await handler.GetVideoInfo();
+    }
+
     public IStreamHandler? GetStreamHandlerFromStreamUrl(string streamUrl)
     {
         return _streamHandlers.Values.FirstOrDefault(x => x.StreamUrl == streamUrl);

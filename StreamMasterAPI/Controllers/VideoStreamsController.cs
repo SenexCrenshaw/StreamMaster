@@ -150,19 +150,18 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         Stream? stream = await _channelManager.GetChannel(config);
 
 
-
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(_channelManager, config));
         if (stream != null)
         {
-            ClientStreamerConfiguration fsconfig = new(videoStream.Id, videoStream.User_Tvg_name, Request.Headers["User-Agent"].ToString(), ipAddress ?? "unkown", cancellationToken, HttpContext.Response);
-            Stream? fsstream = await _channelManager.GetChannel(fsconfig);
-            if (fsstream != null)
-            {
-                string filePath = Path.Combine(BuildInfo.CacheFolder, videoStream.User_Tvg_name + ".mp4");
+            //ClientStreamerConfiguration fsconfig = new(videoStream.Id, videoStream.User_Tvg_name, Request.Headers["User-Agent"].ToString(), ipAddress ?? "unkown", cancellationToken, HttpContext.Response);
+            //Stream? fsstream = await _channelManager.GetChannel(fsconfig);
+            //if (fsstream != null)
+            //{
+            //    string filePath = Path.Combine(BuildInfo.CacheFolder, videoStream.User_Tvg_name + ".mp4");
 
-                await ReadAndWriteAsync(fsstream, filePath, cancellationToken).ConfigureAwait(false);
-                await _channelManager.RemoveClient(fsconfig);
-            }
+            //    await ReadAndWriteAsync(fsstream, filePath, cancellationToken).ConfigureAwait(false);
+            //    await _channelManager.RemoveClient(fsconfig);
+            //}
 
             return new FileStreamResult(stream, "video/mp4");
         }
@@ -348,6 +347,23 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         return Ok();
     }
 
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<VideoInfo>> GetVideoStreamInfoFromId([FromQuery] GetVideoStreamInfoFromIdRequest request)
+    {
+        VideoInfo res = await Mediator.Send(request).ConfigureAwait(false);
+        return Ok(res);
+    }
+
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<VideoInfo>> GetVideoStreamInfoFromUrl([FromQuery] GetVideoStreamInfoFromUrlRequest request)
+    {
+        VideoInfo res = await Mediator.Send(request).ConfigureAwait(false);
+        return Ok(res);
+    }
 
     private class UnregisterClientOnDispose(IChannelManager channelManager, ClientStreamerConfiguration config) : IDisposable
     {

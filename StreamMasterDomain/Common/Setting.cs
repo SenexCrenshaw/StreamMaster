@@ -102,6 +102,7 @@ public class BaseSettings : M3USettings
     public bool EnableSSL { get; set; }
 
     public string FFMPegExecutable { get; set; } = "ffmpeg";
+    public string FFProbeExecutable { get; set; } = "ffprobe";
     public int GlobalStreamLimit { get; set; } = 1;
     public int MaxConnectRetry { get; set; } = 20;
     public int MaxConnectRetryTimeMS { get; set; } = 200;

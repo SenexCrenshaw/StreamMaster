@@ -93,6 +93,31 @@ public sealed class ChannelManager : IChannelManager
         }
     }
 
+    public async Task<VideoInfo> GetVideoInfo(string channelVideoStreamId)
+    {
+        //using IServiceScope scope = serviceProvider.CreateScope();
+        //IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        //VideoStreamDto? channelVideoStream = await repository.VideoStream.GetVideoStreamById(config.ChannelVideoStreamId);
+
+        //if (channelVideoStream == null)
+        //{
+        //    logger.LogError("Could not find video stream for {ClientId} {ChannelVideoStreamId}", config.ClientId, config.ChannelVideoStreamId);
+        //    return;
+        //}
+
+        IChannelStatus? channelStatus = channelService.GetChannelStatus(channelVideoStreamId);
+        if (channelStatus is null)
+        {
+            return null;
+        }
+
+        IStreamHandler? streamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStream.User_Url);
+
+        return streamHandler is null ? new() : await streamHandler.GetVideoInfo();
+    }
+
+
+
     public async Task ChangeVideoStreamChannel(string playingVideoStreamId, string newVideoStreamId)
     {
         logger.LogDebug("Starting ChangeVideoStreamChannel with playingVideoStreamId: {playingVideoStreamId} and newVideoStreamId: {newVideoStreamId}", playingVideoStreamId, newVideoStreamId);

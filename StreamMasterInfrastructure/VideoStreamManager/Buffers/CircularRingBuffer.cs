@@ -49,11 +49,17 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
             setting.PreloadPercentage = 0;
         }
 
+        if (setting.RingBufferSizeMB < 1 || setting.RingBufferSizeMB > 10)
+        {
+            setting.RingBufferSizeMB = 1;
+        }
+
         _bufferSize = setting.RingBufferSizeMB * 1024 * 1000;
         _preBuffPercent = setting.PreloadPercentage;
 
         StreamInfo = new StreamInfo
         {
+            ChannelId = videoStreamDto.Id,
             ChannelName = channelName,
             VideoStreamId = videoStreamDto.Id,
             VideoStreamName = videoStreamDto.User_Tvg_name,
@@ -68,6 +74,34 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         _writeIndex = 0;
         _oldestDataIndex = 0;
         logger.LogInformation("New Circular Buffer {Id} for stream {videoStreamId} {name}", Id, videoStreamDto.Id, videoStreamDto.User_Tvg_name);
+    }
+
+    public Memory<byte> GetBufferSlice(int length)
+    {
+        int bufferEnd = _oldestDataIndex + length;
+
+        if (bufferEnd <= _bufferSize)
+        {
+            // No wrap-around needed
+            return _buffer.Slice(_oldestDataIndex, length);
+        }
+        else
+        {
+            // Handle wrap-around
+            int lengthToEnd = _bufferSize - _oldestDataIndex;
+            int lengthFromStart = length - lengthToEnd;
+
+            // Create a temporary array to hold the wrapped data
+            byte[] result = new byte[length];
+
+            // Copy from _oldestDataIndex to the end of the buffer
+            _buffer.Slice(_oldestDataIndex, lengthToEnd).CopyTo(result);
+
+            // Copy from start of the buffer to fill the remaining length
+            _buffer[..lengthFromStart].CopyTo(result.AsMemory(lengthToEnd));
+
+            return result;
+        }
     }
 
     public Guid Id { get; } = Guid.NewGuid();
@@ -94,6 +128,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
             allStatistics.Add(new StreamStatisticsResult
             {
                 Id = Id.ToString(),
+                ChannelId = StreamInfo.ChannelId,
                 ChannelName = StreamInfo.ChannelName,
                 VideoStreamId = StreamInfo.VideoStreamId,
                 VideoStreamName = StreamInfo.VideoStreamName,

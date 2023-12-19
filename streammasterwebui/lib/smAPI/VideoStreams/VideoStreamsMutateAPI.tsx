@@ -15,6 +15,9 @@ export const DeleteVideoStream = async (argument: iptv.DeleteVideoStreamRequest)
 export const FailClient = async (argument: iptv.FailClientRequest): Promise<void | null> => {
   await invokeHubConnection<void>('FailClient', argument);
 };
+export const ReadAndWrite = async (argument: string): Promise<void | null> => {
+  await invokeHubConnection<void>('ReadAndWrite', argument);
+};
 export const GetVideoStreamStreamHEAD = async (argument: string): Promise<void | null> => {
   await invokeHubConnection<void>('GetVideoStreamStreamHEAD', argument);
 };

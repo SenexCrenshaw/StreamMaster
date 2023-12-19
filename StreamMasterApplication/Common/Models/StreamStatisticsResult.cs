@@ -29,6 +29,7 @@ public class StreamStatisticsResult
     public string ChannelName { get; set; }
     public string VideoStreamName { get; set; }
     public string ClientIPAddress { get; set; }
+    public string ChannelId { get; set; }
 }
 
 public class StreamInfo
@@ -57,5 +58,6 @@ public class StreamInfo
     public string VideoStreamId { get; set; }
     public string VideoStreamName { get; set; }
 
+    public string ChannelId { get; set; }
     public string ChannelName { get; set; }
 }

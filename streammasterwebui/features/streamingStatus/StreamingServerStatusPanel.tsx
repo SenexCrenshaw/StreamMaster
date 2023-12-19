@@ -1,3 +1,4 @@
+import BookButton from '@components/buttons/BookButton';
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { VideoStreamSelector } from '@components/videoStream/VideoStreamSelector';
@@ -6,13 +7,17 @@ import {
   ChangeVideoStreamChannelRequest,
   SimulateStreamFailureRequest,
   StreamStatisticsResult,
+  VideoInfo,
   useVideoStreamsGetAllStatisticsForAllUrlsQuery
 } from '@lib/iptvApi';
+import { GetVideoStreamInfoFromId } from '@lib/smAPI/VideoStreams/VideoStreamsGetAPI';
 import { ChangeVideoStreamChannel, SimulateStreamFailure } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import useSettings from '@lib/useSettings';
 import { Button } from 'primereact/button';
+import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
-import { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react';
+import { memo, useCallback, useMemo, useRef, type CSSProperties, useState } from 'react';
+import { VideoInfoDisplay } from './VideoInfoDisplay';
 
 interface StreamingServerStatusPanelProperties {
   readonly className?: string;
@@ -22,7 +27,7 @@ interface StreamingServerStatusPanelProperties {
 export const StreamingServerStatusPanel = ({ className, style }: StreamingServerStatusPanelProperties) => {
   const setting = useSettings();
   const toast = useRef<Toast>(null);
-
+  const [videoInfo, setVideoInfo] = useState<VideoInfo | undefined>(undefined);
   const getStreamingStatus = useVideoStreamsGetAllStatisticsForAllUrlsQuery();
 
   const onChangeVideoStreamChannel = useCallback(async (playingVideoStreamId: string, newVideoStreamId: string) => {
@@ -153,9 +158,23 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
     [getStreamingStatus.data]
   );
 
+  const onPreview = useCallback(async (rowData: StreamStatisticsResult) => {
+    console.log('preview');
+
+    // const toSend: VideoStreamsGetVideoStreamInfoFromIdApiArg = rowData.channelId ?? '';
+
+    await GetVideoStreamInfoFromId(rowData.channelId ?? '').then((data) => {
+      if (data === null || data === undefined) return;
+
+      console.log(data);
+      setVideoInfo(data);
+    });
+  }, []);
+
   const targetActionBodyTemplate = useCallback(
     (rowData: StreamStatisticsResult) => (
       <div className="dataselector p-inputgroup align-items-center justify-content-end">
+        <BookButton iconFilled={false} onClick={(e) => onPreview(rowData)} />
         <Button
           // className="p-button-danger"
           icon="pi pi-angle-right"
@@ -167,7 +186,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
         />
       </div>
     ),
-    [onFailStream]
+    [onFailStream, onPreview]
   );
 
   const sourceColumns = useMemo(
@@ -239,9 +258,16 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
     ]
   );
 
+  const onHide = useCallback(() => {
+    setVideoInfo(undefined);
+  }, []);
+
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
+      <Dialog className={`col-8 p-0`} closable header={'hey'} maximizable modal onHide={onHide} visible={videoInfo !== undefined}>
+        {videoInfo && <VideoInfoDisplay videoInfo={videoInfo} />}
+      </Dialog>
       <div className="m3uFilesEditor flex flex-column col-12 flex-shrink-0 ">
         <DataSelector
           className={className}

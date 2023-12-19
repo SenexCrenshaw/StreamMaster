@@ -9,6 +9,7 @@ namespace StreamMasterApplication.VideoStreamLinks;
 
 public interface IVideoStreamLinkController
 {
+
     Task<ActionResult<List<string>>> GetVideoStreamVideoStreamIds(GetVideoStreamVideoStreamIdsRequest request, CancellationToken cancellationToken);
 
     Task<ActionResult<PagedResponse<VideoStreamDto>>> GetPagedVideoStreamVideoStreams([FromQuery] VideoStreamLinkParameters Parameters, CancellationToken cancellationToken);
@@ -20,6 +21,7 @@ public interface IVideoStreamLinkController
 
 public interface IVideoStreamLinkHub
 {
+
     Task RemoveVideoStreamFromVideoStream(RemoveVideoStreamFromVideoStreamRequest request);
 
     Task AddVideoStreamToVideoStream(AddVideoStreamToVideoStreamRequest request);

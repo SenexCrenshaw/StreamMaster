@@ -5,6 +5,8 @@
 /// </summary>
 public interface IStreamManager
 {
+    Task<VideoInfo> GetVideoInfo(string streamUrl);
+
     event EventHandler<IStreamHandler> OnStreamingStoppedEvent;
     /// <summary>
     /// Disposes of the resources used by the StreamManager.

@@ -21,3 +21,7 @@ export const GetVideoStreamStreamGET2 = async (argument: string): Promise<void |
 export const GetVideoStreamStreamGET3 = async (argument: string): Promise<void | null> => {
   await invokeHubConnection<void>('GetVideoStreamStreamGET3', argument);
 };
+export const GetVideoStreamInfoFromId = async (argument: string): Promise<iptv.VideoInfo | null> =>
+  invokeHubConnection<iptv.VideoInfo>('GetVideoStreamInfoFromId', argument);
+export const GetVideoStreamInfoFromUrl = async (argument: iptv.VideoInfo): Promise<iptv.VideoInfo | null> =>
+  invokeHubConnection<iptv.VideoInfo>('GetVideoStreamInfoFromUrl', argument);

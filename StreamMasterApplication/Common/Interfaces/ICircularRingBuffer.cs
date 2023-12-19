@@ -4,6 +4,7 @@ namespace StreamMasterApplication.Common.Interfaces;
 
 public interface ICircularRingBuffer
 {
+    Memory<byte> GetBufferSlice(int length);
     Task WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken);
     int BufferSize { get; }
     //event EventHandler<Guid> DataAvailable;

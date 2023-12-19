@@ -3,6 +3,7 @@
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.VideoStreams.Commands;
+using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Pagination;
 
@@ -10,6 +11,9 @@ namespace StreamMasterApplication.VideoStreams;
 
 public interface IVideoStreamController
 {
+    Task<ActionResult<VideoInfo>> GetVideoStreamInfoFromId(GetVideoStreamInfoFromIdRequest request);
+    Task<ActionResult<VideoInfo>> GetVideoStreamInfoFromUrl(GetVideoStreamInfoFromUrlRequest request);
+
     Task<IActionResult> AutoSetEPG(AutoSetEPGRequest request);
     Task<IActionResult> AutoSetEPGFromParameters(AutoSetEPGFromParametersRequest request);
     Task<IActionResult> SimulateStreamFailure(SimulateStreamFailureRequest request);
@@ -55,6 +59,9 @@ public interface IVideoStreamController
 
 public interface IVideoStreamHub
 {
+    Task<VideoInfo> GetVideoStreamInfoFromId(string channelVideoStreamId);
+    Task<VideoInfo> GetVideoStreamInfoFromUrl(string channelVideoStreamId);
+
     Task AutoSetEPGFromParameters(AutoSetEPGFromParametersRequest request);
     Task AutoSetEPG(AutoSetEPGRequest request);
     Task SimulateStreamFailure(SimulateStreamFailureRequest request);
@@ -65,7 +72,7 @@ public interface IVideoStreamHub
 
     Task ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request);
 
-    Task DeleteVideoStream(DeleteVideoStreamRequest request);    
+    Task DeleteVideoStream(DeleteVideoStreamRequest request);
 
     Task<VideoStreamDto?> GetVideoStream(string id);
 
