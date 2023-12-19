@@ -78,8 +78,10 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         }
     }
 
-    public void UnRegisterClient(Guid clientId)
+    public async Task UnRegisterClient(Guid clientId)
     {
+        await CancelClient(clientId).ConfigureAwait(false);
+
         bool removed = clientStreamerConfigurations.TryRemove(clientId, out _);
         if (!removed)
         {
@@ -132,14 +134,15 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
     }
 
 
-    public async Task<bool> CancelClient(Guid clientId, CancellationToken cancellationToken = default)
+    public async Task<bool> CancelClient(Guid clientId)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        IClientStreamerConfiguration? config = await GetClientStreamerConfiguration(clientId, cancellationToken).ConfigureAwait(false);
+        IClientStreamerConfiguration? config = await GetClientStreamerConfiguration(clientId).ConfigureAwait(false);
         if (config == null) { return false; }
 
-        logger.LogDebug("Cancelling {ClientId}", clientId);
-        config.ClientMasterToken.Cancel();
+        logger.LogDebug("Cancelling client {ClientId}", clientId);
+
+        await config.CancelClient().ConfigureAwait(false);
+
         return true;
     }
 

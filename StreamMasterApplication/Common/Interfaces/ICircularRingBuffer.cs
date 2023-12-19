@@ -7,7 +7,7 @@ public interface ICircularRingBuffer
     Task WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken);
     int BufferSize { get; }
     //event EventHandler<Guid> DataAvailable;
-    float GetBufferUtilization();
+    //float GetBufferUtilization();
     /// <summary>
     /// Gets the  ID.
     /// </summary>
@@ -23,21 +23,21 @@ public interface ICircularRingBuffer
     int GetReadIndex(Guid clientId);
 
     bool IsPreBuffered();
-    Task<byte> Read(Guid clientId, CancellationToken cancellationToken);
+    //Task<byte> Read(Guid clientId, CancellationToken cancellationToken);
 
     Task<int> ReadChunkMemory(Guid clientId, Memory<byte> target, CancellationToken cancellationToken);
-    Task<int> ReadChunk(Guid clientId, byte[] buffer, int offset, int count, CancellationToken cancellationToken);
+    //Task<int> ReadChunk(Guid clientId, byte[] buffer, int offset, int count, CancellationToken cancellationToken);
 
     void RegisterClient(IClientStreamerConfiguration streamerConfiguration);
 
     void UnRegisterClient(Guid clientId);
 
-    void UpdateReadIndex(Guid clientId, int newIndex);
+    //void UpdateReadIndex(Guid clientId, int newIndex);
 
     //Task WaitSemaphoreAsync(Guid clientId, CancellationToken cancellationToken);
 
-    void Write(byte data);
+    //void Write(byte data);
 
     int WriteChunk(Memory<byte> data);
-    int WriteChunk(byte[] data, int count);
+    //int WriteChunk(byte[] data, int count);
 }

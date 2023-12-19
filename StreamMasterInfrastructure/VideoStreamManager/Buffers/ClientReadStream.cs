@@ -18,6 +18,7 @@ public sealed class ClientReadStream : Stream, IClientReadStream
         ClientId = config.ClientId;
     }
 
+    private bool IsCancelled { get; set; }
     private Guid ClientId { get; set; }
     public ICircularRingBuffer Buffer => _bufferDelegate();
     public Guid Id { get; } = Guid.NewGuid();
@@ -29,41 +30,13 @@ public sealed class ClientReadStream : Stream, IClientReadStream
     public override void Flush()
     { }
 
-    public override int Read(byte[] buffer, int offset, int count)
+    public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
     {
-        if (_clientMasterToken.IsCancellationRequested)
+        if (IsCancelled)
         {
             return 0;
         }
 
-        int bytesRead = 0;
-        while (bytesRead < count)
-        {
-            int availableBytes = Buffer.GetAvailableBytes(ClientId);
-            if (availableBytes == 0)
-            {
-                // Instead of a busy wait, consider waiting for a signal (like in ReadAsync)
-                // This is a simplistic approach; adapt as needed for your scenario
-                Thread.Sleep(100);
-                continue;
-            }
-
-            int remainingBufferSpace = count - bytesRead;
-            int bytesToRead = Math.Min(remainingBufferSpace, availableBytes);
-
-            for (int i = 0; i < bytesToRead; i++)
-            {
-                buffer[offset + bytesRead] = Buffer.Read(ClientId, CancellationToken.None).Result;
-                bytesRead++;
-            }
-        }
-
-        return bytesRead;
-    }
-
-
-    public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
-    {
         int bytesRead = 0;
         while (!cancellationToken.IsCancellationRequested && !_clientMasterToken.Token.IsCancellationRequested && bytesRead < buffer.Length)
         {
@@ -87,40 +60,6 @@ public sealed class ClientReadStream : Stream, IClientReadStream
         return bytesRead;
     }
 
-
-    public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-    {
-        int bytesRead = 0;
-        while (!cancellationToken.IsCancellationRequested && bytesRead < count)
-        {
-            int availableBytes = Buffer.GetAvailableBytes(ClientId);
-            if (availableBytes == 0)
-            {
-                // Wait for data to become available
-                await Buffer.WaitForDataAvailability(ClientId, cancellationToken);
-                continue;
-            }
-
-            // Calculate the maximum number of bytes that can be read
-            int remainingBufferSpace = count - bytesRead;
-            int bytesToRead = Math.Min(remainingBufferSpace, availableBytes);
-
-            bytesRead += await Buffer.ReadChunk(ClientId, buffer, offset, bytesToRead, cancellationToken);
-            offset += bytesToRead;
-
-            // Check for cancellation
-            cancellationToken.ThrowIfCancellationRequested();
-        }
-
-        return bytesRead;
-    }
-
-
-    public override long Seek(long offset, SeekOrigin origin)
-    {
-        throw new NotSupportedException();
-    }
-
     public void SetBufferDelegate(Func<ICircularRingBuffer> bufferDelegate, IClientStreamerConfiguration config)
     {
         ClientId = config.ClientId;
@@ -129,13 +68,32 @@ public sealed class ClientReadStream : Stream, IClientReadStream
         _clientMasterToken = config.ClientMasterToken;
     }
 
+    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+    {
+        return Task.FromResult(0);
+    }
+
+    public override long Seek(long offset, SeekOrigin origin)
+    {
+        throw new NotSupportedException();
+    }
+
     public override void SetLength(long value)
     {
         throw new NotSupportedException();
+    }
+    public override int Read(byte[] buffer, int offset, int count)
+    {
+        return 0;
     }
 
     public override void Write(byte[] buffer, int offset, int count)
     {
         throw new NotSupportedException();
+    }
+
+    public void Cancel()
+    {
+        IsCancelled = true;
     }
 }

@@ -74,4 +74,6 @@ public interface IClientReadStream : IDisposable
     /// Writes a sequence of bytes to the current stream and advances the current position within this stream.
     /// </summary>
     void Write(byte[] buffer, int offset, int count);
+
+    void Cancel();
 }

@@ -14,6 +14,8 @@ public sealed class StreamManager(
     ILogger<StreamManager> logger
     ) : IStreamManager
 {
+
+    public event EventHandler<string> OnStreamingStoppedEvent;
     private readonly ConcurrentDictionary<string, IStreamHandler> _streamHandlers = new();
     private readonly object _disposeLock = new();
     private bool _disposed = false;
@@ -75,13 +77,13 @@ public sealed class StreamManager(
     {
         _ = _streamHandlers.TryGetValue(videoStreamDto.User_Url, out IStreamHandler? streamHandler);
 
-        if (streamHandler?.IsFailed == true)
+        if (streamHandler is not null && streamHandler.IsFailed == true)
         {
             _ = StopAndUnRegisterHandler(videoStreamDto.User_Url);
             _ = _streamHandlers.TryGetValue(videoStreamDto.User_Url, out streamHandler);
         }
 
-        if (streamHandler?.IsFailed != false)
+        if (streamHandler is null || streamHandler.IsFailed != false)
         {
             logger.LogInformation("Creating new handler for stream: {Id} {name}", videoStreamDto.Id, videoStreamDto.User_Tvg_name);
             streamHandler = await CreateStreamHandler(videoStreamDto, ChannelName, rank, cancellation);
@@ -89,6 +91,8 @@ public sealed class StreamManager(
             {
                 return null;
             }
+
+            streamHandler.OnStreamingStoppedEvent += StreamHandler_OnStreamingStoppedEvent;
             _ = _streamHandlers.TryAdd(videoStreamDto.User_Url, streamHandler);
 
             return streamHandler;
@@ -96,6 +100,19 @@ public sealed class StreamManager(
 
         logger.LogInformation("Reusing handler for stream: {Id} {name}", videoStreamDto.Id, videoStreamDto.User_Tvg_name);
         return streamHandler;
+    }
+
+    private void StreamHandler_OnStreamingStoppedEvent(object? sender, string VideoStreamUrl)
+    {
+        if (sender is IStreamHandler streamHandler)
+        {
+            if (streamHandler is not null && streamHandler.IsFailed == true)
+            {
+                //_ = StopAndUnRegisterHandler(VideoStreamUrl);
+            }
+        }
+
+        OnStreamingStoppedEvent?.Invoke(sender, VideoStreamUrl);
     }
 
     public IStreamHandler? GetStreamHandlerFromStreamUrl(string streamUrl)

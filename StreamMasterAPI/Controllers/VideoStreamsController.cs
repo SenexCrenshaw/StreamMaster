@@ -142,11 +142,11 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
             return Redirect(videoStream.User_Url);
         }
 
+
         string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
-        ClientStreamerConfiguration config = new(videoStream.Id, videoStream.User_Tvg_name, Request.Headers["User-Agent"].ToString(), ipAddress ?? "unkown", cancellationToken);
+        ClientStreamerConfiguration config = new(videoStream.Id, videoStream.User_Tvg_name, Request.Headers["User-Agent"].ToString(), ipAddress ?? "unkown", cancellationToken, HttpContext.Response);
 
-        // Get the read stream for the client
         Stream? stream = await _channelManager.GetChannel(config);
 
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(_channelManager, config));

@@ -6,6 +6,7 @@
 /// </summary>
 public interface IChannelManager : IDisposable
 {
+
     /// <summary>
     /// Asynchronously changes the video stream of a channel.
     /// </summary>

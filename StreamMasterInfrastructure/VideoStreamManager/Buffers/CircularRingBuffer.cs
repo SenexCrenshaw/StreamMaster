@@ -17,7 +17,7 @@ namespace StreamMasterInfrastructure.VideoStreamManager.Buffers;
 /// </summary>
 public sealed class CircularRingBuffer : ICircularRingBuffer
 {
-    public event EventHandler<Guid> DataAvailable;
+    //public event EventHandler<Guid> DataAvailable;
     private readonly IStatisticsManager _statisticsManager;
     private readonly IInputStatisticsManager _inputStatisticsManager;
     private readonly IInputStreamingStatistics _inputStreamStatistics;
@@ -33,13 +33,16 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
     private int _oldestDataIndex;
     private readonly float _preBuffPercent;
     private int _writeIndex;
-    private readonly int _waitDelayMS;
+    //private readonly int _waitDelayMS;
     private readonly object _writeLock = new();
+    private readonly ReaderWriterLockSlim _readWriteLock = new ReaderWriterLockSlim();
+    private bool isBufferFull = false; // This should be maintained as part of your buffer state
+
     public CircularRingBuffer(VideoStreamDto videoStreamDto, string channelName, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILogger<ICircularRingBuffer> logger, int? waitDelayMS = null)
     {
         Setting setting = memoryCache.GetSetting();
 
-        _waitDelayMS = waitDelayMS != null ? (int)waitDelayMS : (setting.MaxConnectRetry + 1) * setting.MaxConnectRetryTimeMS;
+        //_waitDelayMS = waitDelayMS != null ? (int)waitDelayMS : (setting.MaxConnectRetry + 1) * setting.MaxConnectRetryTimeMS;
 
         _statisticsManager = statisticsManager ?? throw new ArgumentNullException(nameof(statisticsManager));
         _inputStatisticsManager = inputStatisticsManager ?? throw new ArgumentNullException(nameof(inputStatisticsManager));
@@ -162,71 +165,9 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         return InternalIsPreBuffered;
     }
 
-    public async Task<byte> Read(Guid clientId, CancellationToken cancellationToken)
-    {
-        _logger.LogDebug("Starting Read for {VideoStreamId} clientId: {clientId}", VideoStreamId, clientId);
-
-        while (!IsPreBuffered())
-        {
-            await Task.Delay(50, cancellationToken);
-            cancellationToken.ThrowIfCancellationRequested();
-        }
-
-        int readIndex = _clientReadIndexes[clientId];
-        byte data = _buffer.Span[readIndex];
-        _clientReadIndexes[clientId] = (readIndex + 1) % _buffer.Length;
-
-        _statisticsManager.IncrementBytesRead(clientId);
-
-        _logger.LogDebug("Finished Read for clientId: {clientId}", clientId);
-        return data;
-    }
-
-    public async Task<int> ReadChunk(Guid clientId, byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-    {
-        _logger.LogDebug("Starting ReadChunk for clientId: {clientId}", clientId);
-
-        while (!IsPreBuffered())
-        {
-            await Task.Delay(100, cancellationToken).ConfigureAwait(false);
-            cancellationToken.ThrowIfCancellationRequested();
-        }
-
-        if (!_clientReadIndexes.TryGetValue(clientId, out int readIndex))
-        {
-            _logger.LogWarning("Client {clientId} not found in ReadChunk", clientId);
-            return 0; // Or throw an exception
-        }
-
-        int bytesRead = 0;
-        while (bytesRead < count)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            int availableToRead = Math.Min(count - bytesRead, _buffer.Length - readIndex);
-            if (availableToRead == 0)
-            {
-                // Handle wrap-around
-                readIndex = 0;
-                continue;
-            }
-
-            _buffer.Slice(readIndex, availableToRead).Span.CopyTo(buffer.AsSpan(offset + bytesRead));
-            bytesRead += availableToRead;
-            readIndex = (readIndex + availableToRead) % _buffer.Length;
-        }
-
-        _clientReadIndexes[clientId] = readIndex;
-
-        _statisticsManager.AddBytesRead(clientId, bytesRead);
-        _logger.LogDebug("Finished ReadChunk for clientId: {clientId} with bytes read: {bytesRead}", clientId, bytesRead);
-
-        return bytesRead;
-    }
-
     public async Task<int> ReadChunkMemory(Guid clientId, Memory<byte> target, CancellationToken cancellationToken)
     {
-        // _logger.LogInformation("Starting ReadChunkMemory for clientId: {clientId}", clientId);
+        _logger.LogDebug("Starting ReadChunkMemory for clientId: {clientId}", clientId);
 
         while (!IsPreBuffered())
         {
@@ -242,31 +183,41 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
 
         int bytesToRead = Math.Min(target.Length, GetAvailableBytes(clientId));
         int bytesRead = 0;
-        while (bytesToRead > 0)
+
+        _readWriteLock.EnterReadLock();
+        try
         {
-            // Calculate how much we can read before we have to wrap
-            int canRead = Math.Min(bytesToRead, _buffer.Length - readIndex);
+            while (bytesToRead > 0)
+            {
+                // Calculate how much we can read before we have to wrap
+                int canRead = Math.Min(bytesToRead, _buffer.Length - readIndex);
 
-            // Create a slice from the readIndex to the end of what we can read
-            Memory<byte> slice = _buffer.Slice(readIndex, canRead);
+                // Create a slice from the readIndex to the end of what we can read
+                Memory<byte> slice = _buffer.Slice(readIndex, canRead);
 
-            // Copy to the target buffer
-            slice.CopyTo(target.Slice(bytesRead, canRead));
+                // Copy to the target buffer
+                slice.CopyTo(target.Slice(bytesRead, canRead));
 
-            // Update readIndex and bytesToRead
-            readIndex = (readIndex + canRead) % _buffer.Length;
-            bytesRead += canRead;
-            bytesToRead -= canRead;
-            cancellationToken.ThrowIfCancellationRequested();
+                // Update readIndex and bytesToRead
+                readIndex = (readIndex + canRead) % _buffer.Length;
+                bytesRead += canRead;
+                bytesToRead -= canRead;
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+
+            _clientReadIndexes[clientId] = readIndex;
         }
-
-        _clientReadIndexes[clientId] = readIndex;
+        finally
+        {
+            _readWriteLock.ExitReadLock();
+        }
 
         _statisticsManager.AddBytesRead(clientId, bytesRead);
         _logger.LogDebug("Finished ReadChunkMemory for clientId: {clientId}", clientId);
 
         return bytesRead;
     }
+
 
     public async Task WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken)
     {
@@ -290,54 +241,15 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         }
     }
 
-
-    //private bool IsOverlap(int readIndex, int writeIndex)
-    //{
-    //    // If the read index and write index are the same, it's an overlap
-    //    if (readIndex == writeIndex)
-    //    {
-    //        return true;
-    //    }
-
-    //    // If the write index is ahead of the read index in a circular manner
-    //    if (writeIndex > readIndex)
-    //    {
-    //        return false;
-    //    }
-    //    else
-    //    {
-    //        // The write index has wrapped around to the beginning of the buffer
-    //        // Check if the read index has not yet reached the end of the buffer
-    //        return readIndex >= writeIndex && readIndex < _buffer.Length;
-    //    }
-    //}
-
     public void RegisterClient(IClientStreamerConfiguration streamerConfiguration)
     {
         if (!_clientReadIndexes.ContainsKey(streamerConfiguration.ClientId))
         {
             _ = _clientReadIndexes.TryAdd(streamerConfiguration.ClientId, _oldestDataIndex);
-            //_ = _clientSemaphores.TryAdd(streamerConfiguration.ClientId, new SemaphoreSlim(0, 1));
             _statisticsManager.RegisterClient(streamerConfiguration.ClientId, streamerConfiguration.ClientUserAgent, streamerConfiguration.ClientIPAddress);
         }
         _logger.LogInformation("RegisterClient for ClientId: {ClientId} {VideoStreamName} {_oldestDataIndex}", streamerConfiguration.ClientId, StreamInfo.VideoStreamName, _oldestDataIndex);
     }
-
-    //private void ReleaseSemaphores2()
-    //{
-    //    lock (_semaphoreLock)
-    //    {
-    //        foreach (KeyValuePair<Guid, SemaphoreSlim> kvp in _clientSemaphores)
-    //        {
-    //            SemaphoreSlim semaphore = kvp.Value;
-
-    //            if (semaphore.CurrentCount == 0)
-    //            {
-    //                semaphore.Release();
-    //            }
-    //        }
-    //    }
-    //}
 
     private void NotifyClients()
     {
@@ -361,158 +273,89 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         _clientReadIndexes[clientId] = newIndex % _buffer.Length;
     }
 
-    //public async Task WaitSemaphoreAsync(Guid clientId, CancellationToken cancellationToken)
-    //{
-    //    if (cancellationToken.IsCancellationRequested)
-    //    {
-    //        _logger.LogDebug("Exiting WaitSemaphoreAsync early due to CancellationToken cancellation request for clientId: {clientId}", clientId);
-    //        return;
-    //    }
-
-    //    if (_clientSemaphores.TryGetValue(clientId, out SemaphoreSlim? semaphore))
-    //    {
-    //        await semaphore.WaitAsync(_waitDelayMS, cancellationToken);
-    //        _logger.LogDebug("WaitSemaphoreAsync for clientId: {clientId}", clientId);
-    //    }
-    //    else
-    //    {
-    //        _logger.LogDebug("Exiting WaitSemaphoreAsync early due to clientId not registered: {clientId}", clientId);
-    //    }
-    //}
-
-    public void Write(byte data)
-    {
-        _logger.LogDebug("Starting Write {VideoStreamId}", VideoStreamId);
-
-        int nextWriteIndex = (_writeIndex + 1) % _buffer.Length;
-
-        if (nextWriteIndex == _oldestDataIndex)
-        {
-            _oldestDataIndex = (_oldestDataIndex + 1) % _buffer.Length;
-        }
-
-        _buffer.Span[_writeIndex] = data;
-        _writeIndex = nextWriteIndex;
-
-        _inputStreamStatistics.IncrementBytesWritten();
-
-        try
-        {
-            NotifyClients();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An error occurred while releasing semaphores during Write {VideoStreamId}", VideoStreamId);
-        }
-
-        _logger.LogDebug("Starting WriteChunk {VideoStreamId} with count: {count}", VideoStreamId, data);
-    }
-
     public int WriteChunk(Memory<byte> data)
     {
-        lock (_writeLock)
+        _logger.LogDebug("Starting WriteChunk {VideoStreamId} with count: {count}", VideoStreamId, data.Length);
+
+        int bytesWritten = 0;
+
+        _readWriteLock.EnterWriteLock();
+        try
         {
-            _logger.LogDebug("Starting WriteChunk {VideoStreamId} with count: {count}", VideoStreamId, data.Length);
-
-            int bytesWritten = 0;
-
             while (data.Length > 0)
             {
                 int availableSpace = _buffer.Length - _writeIndex;
                 if (availableSpace == 0)
                 {
-                    // Handle buffer wrap around
                     _writeIndex = 0;
                     availableSpace = _buffer.Length;
                 }
 
                 int lengthToWrite = Math.Min(data.Length, availableSpace);
 
-                try
+                Memory<byte> bufferSlice = _buffer.Slice(_writeIndex, lengthToWrite);
+                data[..lengthToWrite].CopyTo(bufferSlice);
+
+                if (!isBufferFull && _writeIndex + lengthToWrite >= _buffer.Length)
                 {
-                    Memory<byte> bufferSlice = _buffer.Slice(_writeIndex, lengthToWrite);
-                    data[..lengthToWrite].CopyTo(bufferSlice);
-                    _writeIndex = (_writeIndex + lengthToWrite) % _buffer.Length;
-                    bytesWritten += lengthToWrite;
-                    data = data[lengthToWrite..];
+                    isBufferFull = true;
                 }
-                catch (Exception ex)
+
+                _writeIndex = (_writeIndex + lengthToWrite) % _buffer.Length;
+                bytesWritten += lengthToWrite;
+                data = data[lengthToWrite..];
+
+                // After updating _writeIndex
+                if (HasOverwrittenOldestData(lengthToWrite))
                 {
-                    _logger.LogError(ex, "Error writing chunk in WriteChunk for {VideoStreamId}.", VideoStreamId);
-                    throw;
+                    // Increment _oldestDataIndex to the next position after _writeIndex
+                    _oldestDataIndex = (_writeIndex + 1) % _buffer.Length;
                 }
             }
-
-            _inputStreamStatistics.AddBytesWritten(bytesWritten);
-
-            try
-            {
-                NotifyClients();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while releasing semaphores during WriteChunk for {VideoStreamId}.", VideoStreamId);
-            }
-
-            _logger.LogDebug("WriteChunk completed with {VideoStreamId} count: {data.Length}", VideoStreamId, data.Length);
-
-            return bytesWritten;
         }
-    }
-
-    public int WriteChunk(byte[] data, int count)
-    {
-        _logger.LogDebug("Starting WriteChunk {VideoStreamId} with count: {count}", VideoStreamId, count);
-
-        int bytesWritten = 0;
-        int dataIndex = 0;
-
-        while (dataIndex < count)
+        finally
         {
-            int nextWriteIndex = (_writeIndex + 1) % _buffer.Length;
-
-            if (nextWriteIndex == _oldestDataIndex)
-            {
-                _oldestDataIndex = (_oldestDataIndex + 1) % _buffer.Length;
-            }
-
-            int availableSpace = _buffer.Length - _writeIndex;
-            if (availableSpace == 0)
-            {
-                // Handle buffer wrap around
-                _writeIndex = 0;
-                availableSpace = _buffer.Length;
-            }
-
-            int lengthToWrite = Math.Min(count - dataIndex, availableSpace);
-
-            Span<byte> bufferSpan = _buffer.Span.Slice(_writeIndex, lengthToWrite);
-            Span<byte> dataSpan = new(data, dataIndex, lengthToWrite);
-            dataSpan.CopyTo(bufferSpan);
-
-            _writeIndex = (_writeIndex + lengthToWrite) % _buffer.Length;
-            dataIndex += lengthToWrite;
-            bytesWritten += lengthToWrite;
+            _readWriteLock.ExitWriteLock();
         }
 
         _inputStreamStatistics.AddBytesWritten(bytesWritten);
-
         try
         {
             NotifyClients();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred while releasing semaphores during WriteChunk for {VideoStreamId}.", VideoStreamId);
+            _logger.LogError(ex, "An error occurred while notifying clients during WriteChunk for {VideoStreamId}.", VideoStreamId);
         }
 
-        _logger.LogDebug("WriteChunk completed with {VideoStreamId} count: {data.Length}", VideoStreamId, data.Length);
+        _logger.LogDebug("WriteChunk completed with {VideoStreamId} count: {bytesWritten}", VideoStreamId, bytesWritten);
 
         return bytesWritten;
     }
-    public float GetBufferUtilization()
+
+    private bool HasOverwrittenOldestData(int lengthToWrite)
     {
-        int dataInBuffer = (_writeIndex - _oldestDataIndex + _buffer.Length) % _buffer.Length;
-        return (float)dataInBuffer / _buffer.Length * 100;
+        if (!isBufferFull)
+        {
+            return false;
+        }
+
+        if (_writeIndex >= _oldestDataIndex)
+        {
+            return true;
+        }
+        else
+        {
+            int effectiveWriteEnd = (_writeIndex + lengthToWrite) % _buffer.Length;
+            if (effectiveWriteEnd < _writeIndex)
+            {
+                return _oldestDataIndex <= effectiveWriteEnd || _oldestDataIndex > _writeIndex;
+            }
+            else
+            {
+                return effectiveWriteEnd > _oldestDataIndex;
+            }
+        }
     }
+
 }

@@ -1,5 +1,6 @@
-﻿using StreamMasterApplication.Common.Interfaces;
+﻿using Microsoft.AspNetCore.Http;
 
+using StreamMasterApplication.Common.Interfaces;
 namespace StreamMasterInfrastructure.VideoStreamManager.Clients;
 
 /// <summary>
@@ -7,13 +8,18 @@ namespace StreamMasterInfrastructure.VideoStreamManager.Clients;
 /// </summary>
 public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
 {
+    //private readonly Action cancelClient;
+    private readonly HttpResponse response;
+    //private readonly Action abort;
     public ClientStreamerConfiguration(
         string channelVideoStreamId,
          string channelName,
         string clientUserAgent,
         string clientIPAddress,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        HttpResponse response)
     {
+        this.response = response;
         ClientHTTPRequestCancellationToken = cancellationToken;
         ClientIPAddress = clientIPAddress;
         ClientId = Guid.NewGuid();
@@ -22,6 +28,24 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
         ChannelName = channelName;
         ClientCancellationTokenSource = new();
         ClientMasterToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ClientHTTPRequestCancellationToken, ClientCancellationTokenSource.Token);
+    }
+
+    public async Task CancelClient()
+    {
+        if (ReadBuffer != null)
+        {
+            ReadBuffer.Cancel();
+            ReadBuffer.Dispose();
+            ReadBuffer = null;
+        }
+
+        response.Body.Flush();
+
+        await response.CompleteAsync();
+        response.HttpContext.Abort();
+
+        ClientCancellationTokenSource.Cancel();
+
     }
 
     //Buffering

@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Interfaces;
 
-using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Extensions;
 using StreamMasterDomain.Repository;
@@ -11,22 +10,98 @@ using StreamMasterDomain.Services;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Channels;
 
-public sealed class ChannelManager(
-    ILogger<ChannelManager> logger,
-    IBroadcastService broadcastService,
-    IStreamSwitcher streamSwitcher,
-    IChannelService channelService,
-    IStreamManager streamManager,
-    IClientStreamerManager clientStreamerManager,
-    ISettingsService settingService,
-    IServiceProvider serviceProvider
-    ) : IChannelManager
+public sealed class ChannelManager : IChannelManager
 {
+    public event EventHandler<string> OnClientCancelledEvent;
+
     private readonly SemaphoreSlim _registerSemaphore = new(1, 1);
     private readonly SemaphoreSlim _unregisterSemaphore = new(1, 1);
 
     private static CancellationTokenSource ChannelWatcherToken = new();
     private static bool ChannelWatcherStarted;
+
+    private readonly object _disposeLock = new();
+    private readonly ILogger<ChannelManager> logger;
+    private readonly IBroadcastService broadcastService;
+    private readonly IStreamSwitcher streamSwitcher;
+    private readonly IChannelService channelService;
+    private readonly IStreamManager streamManager;
+    private readonly IClientStreamerManager clientStreamerManager;
+    private readonly ISettingsService settingService;
+    private readonly IServiceProvider serviceProvider;
+    private bool _disposed = false;
+
+    public ChannelManager(
+        ILogger<ChannelManager> logger,
+        IBroadcastService broadcastService,
+        IStreamSwitcher streamSwitcher,
+        IChannelService channelService,
+        IStreamManager streamManager,
+        IClientStreamerManager clientStreamerManager,
+        ISettingsService settingService,
+        IServiceProvider serviceProvider
+    )
+    {
+        this.logger = logger;
+        this.broadcastService = broadcastService;
+        this.streamSwitcher = streamSwitcher;
+        this.channelService = channelService;
+        this.streamManager = streamManager;
+        this.clientStreamerManager = clientStreamerManager;
+        this.settingService = settingService;
+        this.serviceProvider = serviceProvider;
+        this.streamManager.OnStreamingStoppedEvent += StreamManager_OnStreamingStoppedEvent;
+    }
+
+    private async void StreamManager_OnStreamingStoppedEvent(object? sender, string e)
+    {
+        if (sender is IStreamHandler streamHandler)
+        {
+            if (streamHandler is not null)
+            {
+                logger.LogInformation("OnStreamingStoppedEvent for {VideoStreamId}", streamHandler.VideoStreamId);
+                var affectedChannelStatuses = channelService.GetChannelStatusesFromVideoStreamId(streamHandler.VideoStreamId);
+                foreach (IChannelStatus channelStatus in affectedChannelStatuses)
+                {
+                    if (channelStatus != null)
+                    {
+                        if (channelStatus.FailoverInProgress)
+                        {
+                            continue;
+                        }
+
+                        if (channelStatus.IsStarted)
+                        {
+                            bool hasClients = await CheckAndCleanUpClientStreamers(channelStatus);
+                            if (!hasClients)
+                            {
+                                continue;
+                            }
+                        }
+
+                        bool handled = await ProcessStreamStatus(channelStatus);
+                        if (!handled)
+                        {
+
+                            clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(channelStatus.ChannelVideoStreamId)
+                                .ForEach(async x =>
+                                {
+                                    //await clientStreamerManager.CancelClient(x.ClientId).ConfigureAwait(false);
+                                    await UnRegisterWithChannelManager(x).ConfigureAwait(false);
+                                }
+                                );
+
+                            //streamManager.StopAndUnRegisterHandler(channelStatus.CurrentVideoStream.User_Url);
+
+                            //channelService.UnRegisterChannel(channelStatus.ChannelVideoStreamId);
+                            continue;
+                        }
+                    }
+                }
+
+            }
+        }
+    }
 
     public async Task ChangeVideoStreamChannel(string playingVideoStreamId, string newVideoStreamId)
     {
@@ -49,8 +124,6 @@ public sealed class ChannelManager(
 
         return;
     }
-    private readonly object _disposeLock = new();
-    private bool _disposed = false;
 
     public void Dispose()
     {
@@ -169,13 +242,13 @@ public sealed class ChannelManager(
                         }
                     }
 
-                    bool handled = await ProcessStreamStatus(channelStatus);
-                    if (!handled)
-                    {
-                        channelService.UnRegisterChannel(channelStatus.ChannelVideoStreamId);
-                        logger.LogDebug("ChannelWatcher ProcessStreamStatus not handled for : {ChannelName} {VideoStreamId}", channelStatus.ChannelName, channelStatus.CurrentVideoStream.Id);
-                        continue;
-                    }
+                    //bool handled = await ProcessStreamStatus(channelStatus);
+                    //if (!handled)
+                    //{
+                    //    channelService.UnRegisterChannel(channelStatus.ChannelVideoStreamId);
+                    //    logger.LogDebug("ChannelWatcher ProcessStreamStatus not handled for : {ChannelName} {VideoStreamId}", channelStatus.ChannelName, channelStatus.CurrentVideoStream.Id);
+                    //    continue;
+                    //}
                 }
 
                 if (channelService.GetChannelStatuses().Count == 0)
@@ -233,24 +306,12 @@ public sealed class ChannelManager(
     {
         logger.LogDebug("HandleChannelVideoStreamSwitch for channelStatus: {channelName} {channelStatus}", channelStatus.CurrentVideoStream.User_Tvg_name, channelStatus.CurrentVideoStream.Id);
 
-        Setting setting = await settingService.GetSettingsAsync().ConfigureAwait(false);
-
-        int maxRetries = setting.MaxConnectRetry > 0 ? setting.MaxConnectRetry : 3;
-        int waitTime = setting.MaxConnectRetryTimeMS > 0 ? setting.MaxConnectRetryTimeMS : 50;
+        //Setting setting = await settingService.GetSettingsAsync().ConfigureAwait(false);
 
         try
         {
-            bool handled = false;
-            while (!handled || maxRetries > 0)
-            {
-                handled = await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
-                if (handled)
-                {
-                    break;
-                }
-                await Task.Delay(waitTime);
-                maxRetries--;
-            }
+
+            var handled = await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
 
             logger.LogDebug("HandleChannelVideoStreamSwitch handled: {handled}", handled);
             return handled;
@@ -272,10 +333,10 @@ public sealed class ChannelManager(
                 return false;
             }
 
-            if (!streamHandler.VideoStreamingCancellationToken.IsCancellationRequested)
-            {
-                return true;
-            }
+            //if (!streamHandler.VideoStreamingCancellationToken.IsCancellationRequested)
+            //{
+            //    return true;
+            //}
 
             if (streamHandler.IsFailed)
             {
@@ -319,11 +380,11 @@ public sealed class ChannelManager(
                 return null;
             }
 
-            if (!ChannelWatcherStarted)
-            {
-                ChannelWatcherToken = new();
-                _ = ChannelWatcher().ConfigureAwait(false);
-            }
+            //if (!ChannelWatcherStarted)
+            //{
+            //    ChannelWatcherToken = new();
+            //    _ = ChannelWatcher().ConfigureAwait(false);
+            //}
 
             logger.LogDebug("Finished RegisterWithChannelManager with config: {config}", config.ClientId);
             return channelStatus;
@@ -384,34 +445,37 @@ public sealed class ChannelManager(
         await _unregisterSemaphore.WaitAsync();
         try
         {
+            await clientStreamerManager.UnRegisterClient(config.ClientId);
+
             if (!channelService.HasChannel(config.ChannelVideoStreamId))
             {
                 logger.LogDebug("UnRegisterWithChannelManager finished early, VideoStreamId not found in channelService");
-                return;
+                //    return;
             }
 
-            clientStreamerManager.UnRegisterClient(config.ClientId);
             IChannelStatus? channelStatus = channelService.GetChannelStatus(config.ChannelVideoStreamId);
-            if (channelStatus == null)
+            if (channelStatus != null)
             {
-                logger.LogError("UnRegisterWithChannelManager cannot find channelStatus for ClientId {ClientId}", config.ClientId);
-                return;
-            }
-            IStreamHandler? StreamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStream.User_Url);
-            if (StreamHandler == null)
-            {
-                logger.LogError("UnRegisterWithChannelManager cannot find handler for ClientId {ClientId}", config.ClientId);
-                return;
-            }
 
-            _ = StreamHandler.UnRegisterClientStreamer(config.ClientId);
+                IStreamHandler? StreamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStream.User_Url);
+                if (StreamHandler == null)
+                {
+                    logger.LogError("UnRegisterWithChannelManager cannot find handler for ClientId {ClientId}", config.ClientId);
 
-            if (StreamHandler.ClientCount == 0)
-            {
-                logger.LogInformation("ChannelManager No more clients, stopping streaming for {videoStreamId} {name}", StreamHandler.VideoStreamId, channelStatus.CurrentVideoStream.User_Tvg_name);
-                _ = streamManager.StopAndUnRegisterHandler(channelStatus.CurrentVideoStream.User_Url);
+                }
+                else
+                {
 
-                channelService.UnRegisterChannel(config.ChannelVideoStreamId);
+                    _ = StreamHandler.UnRegisterClientStreamer(config.ClientId);
+
+                    if (StreamHandler.ClientCount == 0)
+                    {
+                        logger.LogInformation("ChannelManager No more clients, stopping streaming for {videoStreamId} {name}", StreamHandler.VideoStreamId, channelStatus.CurrentVideoStream.User_Tvg_name);
+                        _ = streamManager.StopAndUnRegisterHandler(channelStatus.CurrentVideoStream.User_Url);
+
+                        channelService.UnRegisterChannel(config.ChannelVideoStreamId);
+                    }
+                }
             }
 
             logger.LogInformation("Finished UnRegisterWithChannelManager with config: {config}", config.ClientId);

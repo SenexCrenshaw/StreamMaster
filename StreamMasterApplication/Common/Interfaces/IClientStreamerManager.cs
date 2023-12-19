@@ -25,7 +25,7 @@
         /// <summary>
         /// Asynchronously cancels a client.
         /// </summary>
-        Task<bool> CancelClient(Guid clientId, CancellationToken cancellationToken = default);
+        Task<bool> CancelClient(Guid clientId);
 
         /// <summary>
         /// Disposes of the object, releasing all allocated resources.
@@ -59,6 +59,6 @@
         /// <summary>
         /// Unregisters a client streamer by its ID.
         /// </summary>
-        void UnRegisterClient(Guid clientId);
+        Task UnRegisterClient(Guid clientId);
     }
 }

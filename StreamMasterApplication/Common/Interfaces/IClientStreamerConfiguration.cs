@@ -2,6 +2,7 @@
 
 public interface IClientStreamerConfiguration
 {
+    Task CancelClient();
     string ChannelVideoStreamId { get; set; }
     string ChannelName { get; set; }
     Guid ClientId { get; set; }

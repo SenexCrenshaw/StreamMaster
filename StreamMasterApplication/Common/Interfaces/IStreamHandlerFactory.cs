@@ -1,6 +1,4 @@
-﻿using StreamMasterDomain.Dto;
-
-namespace StreamMasterApplication.Common.Interfaces
+﻿namespace StreamMasterApplication.Common.Interfaces
 {
     public interface IStreamHandlerFactory
     {

@@ -12,13 +12,10 @@ namespace StreamMasterInfrastructure.VideoStreamManager.Streams;
 /// <summary>
 /// Manages the streaming of a single video stream, including client registrations and circularRingbuffer handling.
 /// </summary>
-public sealed class StreamHandler(
-    VideoStreamDto videoStreamDto,
-    int processId,
-    ILogger<IStreamHandler> logger,
-    ICircularRingBuffer ringBuffer
-    ) : IStreamHandler
+public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, ILogger<IStreamHandler> logger, ICircularRingBuffer ringBuffer) : IStreamHandler
 {
+    public event EventHandler<string> OnStreamingStoppedEvent;
+
     private readonly ConcurrentDictionary<Guid, Guid> clientStreamerIds = new();
 
     public int M3UFileId { get; } = videoStreamDto.M3UFileId;
@@ -27,6 +24,11 @@ public sealed class StreamHandler(
     public string StreamUrl { get; } = videoStreamDto.User_Url;
     public string VideoStreamId { get; } = videoStreamDto.Id;
     public string VideoStreamName { get; } = videoStreamDto.User_Tvg_name;
+
+    void OnStreamingStopped()
+    {
+        OnStreamingStoppedEvent?.Invoke(this, StreamUrl);
+    }
 
     private async Task DelayWithCancellation(int milliseconds)
     {
@@ -64,25 +66,26 @@ public sealed class StreamHandler(
 
         Memory<byte> bufferMemory = new byte[chunkSize];
 
-        const int maxRetries = 3;
-        const int waitTime = 50;
+        //const int maxRetries = 3;
+        //const int waitTime = 50;
 
         using (stream)
         {
             int retryCount = 0;
-            while (!VideoStreamingCancellationToken.IsCancellationRequested && retryCount < maxRetries)
+            while (!VideoStreamingCancellationToken.IsCancellationRequested)// && retryCount < maxRetries)
             {
                 try
                 {
-                    int bytesRead = await TryReadStream(bufferMemory, stream);
-                    if (bytesRead == -1)
+                    int bytesRead = await stream.ReadAsync(bufferMemory, VideoStreamingCancellationToken.Token);
+                    //if (bytesRead == -1)
+                    //{
+                    //    break;
+                    //}
+                    if (bytesRead < 1)
                     {
                         break;
-                    }
-                    if (bytesRead == 0)
-                    {
-                        retryCount++;
-                        await LogRetryAndDelay(retryCount, maxRetries, waitTime);
+                        //retryCount++;
+                        //await LogRetryAndDelay(retryCount, maxRetries, waitTime);
                     }
                     else
                     {
@@ -92,7 +95,7 @@ public sealed class StreamHandler(
                 }
                 catch (TaskCanceledException ex)
                 {
-                    logger.LogError(ex, "Stream cancelled for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
+                    //logger.LogInformation(ex, "Stream stopped for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
                 }
                 catch (Exception ex)
                 {
@@ -102,33 +105,15 @@ public sealed class StreamHandler(
             }
         }
 
+        stream.Close();
+        stream.Dispose();
+
         logger.LogInformation("Stream stopped for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
-        if (!VideoStreamingCancellationToken.IsCancellationRequested)
-        {
-            VideoStreamingCancellationToken.Cancel();
-        }
-    }
-
-    private async Task<int> TryReadStream(Memory<byte> bufferChunk, Stream stream)
-    {
-        try
-        {
-            if (!stream.CanRead || VideoStreamingCancellationToken.Token.IsCancellationRequested)
-            {
-                logger.LogWarning("Stream is not readable or cancelled for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
-                return -1;
-            }
-
-            return await stream.ReadAsync(bufferChunk, VideoStreamingCancellationToken.Token);
-        }
-        catch (TaskCanceledException)
-        {
-            return -1;
-        }
-        catch (Exception)
-        {
-            throw;
-        }
+        //if (!VideoStreamingCancellationToken.IsCancellationRequested)
+        //{
+        //    VideoStreamingCancellationToken.Cancel();
+        //}
+        OnStreamingStopped();
     }
 
     public CancellationTokenSource VideoStreamingCancellationToken { get; set; } = new();

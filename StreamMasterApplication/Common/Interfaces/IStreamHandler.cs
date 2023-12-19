@@ -4,6 +4,7 @@ namespace StreamMasterApplication.Common.Interfaces;
 
 public interface IStreamHandler : IDisposable
 {
+    event EventHandler<string> OnStreamingStoppedEvent;
     bool IsFailed { get; }
     /// <summary>
     /// true if there is an existing client registered; otherwise, false.
