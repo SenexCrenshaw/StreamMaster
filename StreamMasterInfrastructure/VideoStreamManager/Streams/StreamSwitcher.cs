@@ -10,42 +10,49 @@ using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
-using StreamMasterDomain.Extensions;
 using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Streams;
 
 public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStreamerManager clientStreamerManager, IChannelService channelService, IServiceProvider serviceProvider, IMemoryCache memoryCache, IStreamManager streamManager) : IStreamSwitcher
 {
+    private readonly SemaphoreSlim switcherSemaphoreSlim = new(1);
+
     public async Task<bool> SwitchToNextVideoStreamAsync(string ChannelVideoStreamId, string? overrideNextVideoStreamId = null)
     {
 
-        IChannelStatus? channelStatus = null;
-        lock (channelService)
+        //IChannelStatus? channelStatus = null;
+        //try
+        //{
+        //    await switcherSemaphoreSlim.WaitAsync();
+
+        IChannelStatus? channelStatus = channelService.GetChannelStatus(ChannelVideoStreamId);
+        if (channelStatus is null)
         {
-            channelStatus = channelService.GetChannelStatus(ChannelVideoStreamId);
-            if (channelStatus is null)
-            {
-                logger.LogError("SwitchToNextVideoStream could not get channelStatus for id {ChannelVideoStreamId}", ChannelVideoStreamId);
-                logger.LogDebug("Exiting SwitchToNextVideoStream with false due to channelStatus being null");
-                return false;
-            }
-            if (channelStatus.FailoverInProgress)
-            {
-                //logger.LogDebug("Exiting SwitchToNextVideoStream with false due to FailoverInProgress being true");
-                return false;
-            }
-            channelStatus.FailoverInProgress = true;
+            logger.LogError("SwitchToNextVideoStream could not get channelStatus for id {ChannelVideoStreamId}", ChannelVideoStreamId);
+            logger.LogDebug("Exiting SwitchToNextVideoStream with false due to channelStatus being null");
+            return false;
         }
+        if (channelStatus.FailoverInProgress)
+        {
+            //logger.LogDebug("Exiting SwitchToNextVideoStream with false due to FailoverInProgress being true");
+            return false;
+        }
+        channelStatus.FailoverInProgress = true;
+        //}
+        //finally
+        //{
+        //    switcherSemaphoreSlim.Release();
+        //}
 
         logger.LogDebug("Starting SwitchToNextVideoStream with channelStatus: {channelStatus} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus, overrideNextVideoStreamId);
 
-        if (!await TokenExtensions.ApplyDelay())
-        {
-            logger.LogInformation("Task was cancelled");
-            channelStatus.FailoverInProgress = false;
-            return false;
-        }
+        //if (!await TokenExtensions.ApplyDelay())
+        //{
+        //    logger.LogInformation("Task was cancelled");
+        //    channelStatus.FailoverInProgress = false;
+        //    return false;
+        //}
 
         IStreamHandler? oldStreamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStream.User_Url);
 
@@ -55,6 +62,14 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
             logger.LogDebug("Exiting SwitchToNextVideoStream with false due to videoStreamDto being null");
             channelStatus.FailoverInProgress = false;
             return false;
+        }
+
+        if (oldStreamHandler != null && oldStreamHandler.VideoStreamId == videoStreamDto.Id)
+        {
+            logger.LogDebug("Matching ids, stopping original stream");
+            oldStreamHandler.Stop();
+            channelStatus.FailoverInProgress = false;
+            return true;
         }
 
         IStreamHandler? newStreamHandler = await streamManager.GetOrCreateStreamHandler(videoStreamDto, channelStatus.ChannelName, channelStatus.Rank);

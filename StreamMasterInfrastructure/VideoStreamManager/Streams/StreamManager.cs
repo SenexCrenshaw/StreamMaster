@@ -15,7 +15,7 @@ public sealed class StreamManager(
     ) : IStreamManager
 {
 
-    public event EventHandler<string> OnStreamingStoppedEvent;
+    public event EventHandler<IStreamHandler> OnStreamingStoppedEvent;
     private readonly ConcurrentDictionary<string, IStreamHandler> _streamHandlers = new();
     private readonly object _disposeLock = new();
     private bool _disposed = false;
@@ -93,7 +93,7 @@ public sealed class StreamManager(
             }
 
             streamHandler.OnStreamingStoppedEvent += StreamHandler_OnStreamingStoppedEvent;
-            _ = _streamHandlers.TryAdd(videoStreamDto.User_Url, streamHandler);
+            bool test = _streamHandlers.TryAdd(videoStreamDto.User_Url, streamHandler);
 
             return streamHandler;
         }
@@ -106,13 +106,15 @@ public sealed class StreamManager(
     {
         if (sender is IStreamHandler streamHandler)
         {
-            if (streamHandler is not null && streamHandler.IsFailed == true)
+            if (streamHandler is not null)
             {
+                OnStreamingStoppedEvent?.Invoke(sender, streamHandler);
                 //_ = StopAndUnRegisterHandler(VideoStreamUrl);
             }
+
         }
 
-        OnStreamingStoppedEvent?.Invoke(sender, VideoStreamUrl);
+
     }
 
     public IStreamHandler? GetStreamHandlerFromStreamUrl(string streamUrl)
@@ -157,13 +159,7 @@ public sealed class StreamManager(
 
             await clientStreamerManager.AddClientToHandler(streamerConfiguration.ClientId, newStreamHandler);
 
-            //newStreamHandler.RegisterClientStreamer(streamerConfiguration);
-            //await clientStreamerManager.SetClientBufferDelegate(streamerConfiguration, newStreamHandler.CircularRingBuffer);
-
-            //_ = oldStreamHandler.UnRegisterClientStreamer(clientId);
         }
-
-
 
         if (oldStreamHandler.ClientCount == 0)
         {
@@ -188,4 +184,5 @@ public sealed class StreamManager(
         return false;
 
     }
+
 }

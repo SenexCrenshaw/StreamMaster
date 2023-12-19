@@ -5,7 +5,7 @@
 /// </summary>
 public interface IStreamManager
 {
-    event EventHandler<string> OnStreamingStoppedEvent;
+    event EventHandler<IStreamHandler> OnStreamingStoppedEvent;
     /// <summary>
     /// Disposes of the resources used by the StreamManager.
     /// </summary>
