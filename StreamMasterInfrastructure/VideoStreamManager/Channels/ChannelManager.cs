@@ -181,10 +181,8 @@ public sealed class ChannelManager : IChannelManager
 
         if (handler is not null)
         {
-            if (handler.VideoStreamingCancellationToken?.IsCancellationRequested == false)
-            {
-                handler.VideoStreamingCancellationToken.Cancel();
-            }
+            handler.Stop();
+
             logger.LogInformation("Simulating stream failure for: {StreamUrl}", streamUrl);
         }
         else
@@ -197,7 +195,7 @@ public sealed class ChannelManager : IChannelManager
     {
         foreach (IStreamHandler s in streamManager.GetStreamHandlers())
         {
-            s.VideoStreamingCancellationToken.Cancel();
+            s.Stop();
         }
     }
 
@@ -259,11 +257,6 @@ public sealed class ChannelManager : IChannelManager
             {
                 return false;
             }
-
-            //if (!streamHandler.VideoStreamingCancellationToken.IsCancellationRequested)
-            //{
-            //    return true;
-            //}
 
             if (streamHandler.IsFailed)
             {

@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace StreamMasterApplication.Common.Interfaces;
+﻿namespace StreamMasterApplication.Common.Interfaces;
 
 public interface IStreamHandler : IDisposable
 {
@@ -30,11 +28,6 @@ public interface IStreamHandler : IDisposable
 
     string VideoStreamId { get; }
 
-    /// <summary>
-    /// Gets or sets the cancellation token source for video streaming.
-    /// </summary>
-    [JsonIgnore]
-    CancellationTokenSource VideoStreamingCancellationToken { get; set; }
 
     ///// <summary>
     ///// Gets the current number of clients connected.

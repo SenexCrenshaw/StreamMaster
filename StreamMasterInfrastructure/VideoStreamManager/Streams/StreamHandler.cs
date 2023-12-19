@@ -25,23 +25,29 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
     public string VideoStreamId { get; } = videoStreamDto.Id;
     public string VideoStreamName { get; } = videoStreamDto.User_Tvg_name;
 
+    private CancellationTokenSource VideoStreamingCancellationToken { get; set; } = new();
+
+    public int ClientCount => clientStreamerIds.Count;
+
+    public bool IsFailed { get; private set; }
+
     private void OnStreamingStopped()
     {
         OnStreamingStoppedEvent?.Invoke(this, StreamUrl);
     }
 
-    private async Task DelayWithCancellation(int milliseconds)
-    {
-        try
-        {
-            await Task.Delay(milliseconds, VideoStreamingCancellationToken.Token);
-        }
-        catch (TaskCanceledException)
-        {
-            logger.LogInformation("Task was cancelled");
-            throw;
-        }
-    }
+    //private async Task DelayWithCancellation(int milliseconds)
+    //{
+    //    try
+    //    {
+    //        await Task.Delay(milliseconds, VideoStreamingCancellationToken.Token);
+    //    }
+    //    catch (TaskCanceledException)
+    //    {
+    //        logger.LogInformation("Task was cancelled");
+    //        throw;
+    //    }
+    //}
 
     //private async Task LogRetryAndDelay(int retryCount, int maxRetries, int waitTime)
     //{
@@ -75,7 +81,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             {
                 try
                 {
-                    int bytesRead = await stream.ReadAsync(bufferMemory, VideoStreamingCancellationToken.Token);
+                    int bytesRead = await stream.ReadAsync(bufferMemory);
                     if (bytesRead < 1)
                     {
                         break;
@@ -87,7 +93,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                 }
                 catch (TaskCanceledException)
                 {
-
+                    break;
                 }
                 catch (Exception ex)
                 {
@@ -105,11 +111,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         OnStreamingStopped();
     }
 
-    public CancellationTokenSource VideoStreamingCancellationToken { get; set; } = new();
 
-    public int ClientCount => clientStreamerIds.Count;
-
-    public bool IsFailed { get; private set; }
 
     public void Dispose()
     {
