@@ -141,6 +141,12 @@ public sealed class StreamManager(
 
         foreach (Guid clientId in ClientIds)
         {
+            _ = oldStreamHandler.UnRegisterClientStreamer(clientId);
+        }
+
+
+        foreach (Guid clientId in ClientIds)
+        {
             IClientStreamerConfiguration? streamerConfiguration = await clientStreamerManager.GetClientStreamerConfiguration(clientId, cancellationToken);
 
             if (streamerConfiguration == null)
@@ -149,15 +155,15 @@ public sealed class StreamManager(
                 return;
             }
 
-            newStreamHandler.RegisterClientStreamer(streamerConfiguration);
-            await clientStreamerManager.SetClientBufferDelegate(streamerConfiguration, newStreamHandler.CircularRingBuffer);
-            //  _ = oldStreamHandler.UnRegisterClientStreamer(clientId);
+            await clientStreamerManager.AddClientToHandler(streamerConfiguration.ClientId, newStreamHandler);
+
+            //newStreamHandler.RegisterClientStreamer(streamerConfiguration);
+            //await clientStreamerManager.SetClientBufferDelegate(streamerConfiguration, newStreamHandler.CircularRingBuffer);
+
+            //_ = oldStreamHandler.UnRegisterClientStreamer(clientId);
         }
 
-        //foreach (Guid clientId in ClientIds)
-        //{
-        //    _ = oldStreamHandler.UnRegisterClientStreamer(clientId);
-        //}
+
 
         if (oldStreamHandler.ClientCount == 0)
         {

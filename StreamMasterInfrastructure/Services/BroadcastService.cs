@@ -20,14 +20,14 @@ public class BroadcastService(IHubContext<StreamMasterHub, IStreamMasterHub> hub
         }
 
         //logger.LogInformation("GetStreamHandlers: {GetStreamHandlers}", streamManager.GetStreamHandlers().Count);
-        foreach (var clientStreamerConfiguration in clientStreamer.GetAllClientStreamerConfigurations)
+        foreach (IClientStreamerConfiguration clientStreamerConfiguration in clientStreamer.GetAllClientStreamerConfigurations)
         {
             logger.LogInformation("Client: {ChannelName} {ReadBuffer.Id}", clientStreamerConfiguration.ChannelName, clientStreamerConfiguration.ReadBuffer?.Id ?? Guid.Empty);
         }
 
-        foreach (var handler in streamManager.GetStreamHandlers())
+        foreach (IStreamHandler handler in streamManager.GetStreamHandlers())
         {
-            logger.LogInformation("Stream: {CircularRingBuffer} {StreamUrl}", handler.CircularRingBuffer.Id, handler.StreamUrl);
+            logger.LogInformation("Stream: {CircularRingBuffer} {VideoStreamName} {StreamUrl}", handler.CircularRingBuffer.Id, handler.VideoStreamName, handler.StreamUrl);
         }
     }
 

@@ -104,8 +104,6 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         return null;
     }
 
-
-
     public List<IClientStreamerConfiguration> GetClientStreamerConfigurationsByChannelVideoStreamId(string ChannelVideoStreamId)
     {
         ConcurrentDictionary<Guid, IClientStreamerConfiguration> a = clientStreamerConfigurations;
@@ -123,7 +121,8 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
     public async Task SetClientBufferDelegate(IClientStreamerConfiguration clientStreamerConfiguration, ICircularRingBuffer RingBuffer)
     {
         clientStreamerConfiguration.ReadBuffer ??= new ClientReadStream(() => RingBuffer, ringBufferReadStreamLogger, clientStreamerConfiguration);
-        clientStreamerConfiguration.ReadBuffer.SetBufferDelegate(() => RingBuffer, clientStreamerConfiguration);
+
+        await clientStreamerConfiguration.ReadBuffer.SetBufferDelegate(() => RingBuffer, clientStreamerConfiguration);
     }
 
 

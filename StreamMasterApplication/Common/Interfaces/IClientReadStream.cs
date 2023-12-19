@@ -63,7 +63,7 @@ public interface IClientReadStream : IDisposable
     /// <summary>
     /// Sets the buffer delegate and configuration for the stream.
     /// </summary>
-    void SetBufferDelegate(Func<ICircularRingBuffer> bufferDelegate, IClientStreamerConfiguration config);
+    Task SetBufferDelegate(Func<ICircularRingBuffer> bufferDelegate, IClientStreamerConfiguration config);
 
     /// <summary>
     /// Sets the length of the current stream.

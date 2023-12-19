@@ -16,7 +16,7 @@ public interface ICircularRingBuffer
 
     List<StreamStatisticsResult> GetAllStatisticsForAllUrls();
 
-    Task<int> GetAvailableBytes(Guid clientId);
+    int GetAvailableBytes(Guid clientId);
 
     ICollection<Guid> GetClientIds();
 

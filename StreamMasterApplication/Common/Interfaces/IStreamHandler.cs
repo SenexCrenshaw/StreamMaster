@@ -4,6 +4,8 @@ namespace StreamMasterApplication.Common.Interfaces;
 
 public interface IStreamHandler : IDisposable
 {
+    string VideoStreamName { get; }
+
     event EventHandler<string> OnStreamingStoppedEvent;
     bool IsFailed { get; }
     /// <summary>
