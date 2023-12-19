@@ -118,14 +118,16 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             //Memory<byte> inputData = CircularRingBuffer.GetBufferSlice(1 * 1024 * 1024);
             byte[] buffer = startMemory.ToArray(); // Convert Memory<byte> to byte array
 
-            using CancellationTokenSource cts = new();
-            cts.CancelAfter(TimeSpan.FromSeconds(5)); // Set your timeout duration here
+            //using CancellationTokenSource cts = new();
+            //cts.CancelAfter(TimeSpan.FromSeconds(5)); // Set your timeout duration here
+
+            using Timer timer = new(delegate { process.Kill(); }, null, 5000, Timeout.Infinite);
 
 
             using (Stream stdin = process.StandardInput.BaseStream)
             {
-                await stdin.WriteAsync(buffer, cts.Token);
-                await stdin.FlushAsync(cts.Token);
+                await stdin.WriteAsync(buffer);
+                await stdin.FlushAsync();
             }
 
             if (!process.WaitForExit(5000)) // 5000 ms timeout
