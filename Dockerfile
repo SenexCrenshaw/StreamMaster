@@ -7,7 +7,7 @@ EXPOSE 7095
 ENV ASPNETCORE_URLS=http://+:7095
 RUN apt-get update -yq \
     && apt-get upgrade -yq \
-    && apt-get install -yq ffmpeg ffprobe gosu
+    && apt-get install -yq ffmpeg gosu
 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 ARG TARGETPLATFORM
