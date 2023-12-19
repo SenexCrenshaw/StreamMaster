@@ -26,6 +26,7 @@ using StreamMasterDomain.Logging;
 
 using StreamMasterInfrastructure;
 using StreamMasterInfrastructure.Authentication;
+using StreamMasterInfrastructure.Logger;
 using StreamMasterInfrastructure.Logging;
 using StreamMasterInfrastructure.Services;
 using StreamMasterInfrastructure.Services.Frontend;
@@ -42,9 +43,21 @@ public static class ConfigureServices
         services.AddLogging(logging =>
         {
             logging.AddFilter("StreamMasterDomain.Logging.CustomLogger", LogLevel.Information);
+            logging.AddProvider(new StatsLoggerProvider());
             logging.AddConsole();
             logging.AddDebug();
             logging.AddProvider(new SMLoggerProvider());
+            logging.AddFilter<StatsLoggerProvider>((category, logLevel) =>
+            {
+                // List of classes to use with CustomLogger
+                var classesToLog = new List<string> { "BroadcastService" };
+                if (category is not null && category.Contains("BroadcastService", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+                return false;
+            });
+
         });
 
         services.AddTransient(typeof(ILogger<>), typeof(CustomLogger<>));

@@ -141,9 +141,8 @@ public sealed class StreamManager(
 
         foreach (Guid clientId in ClientIds)
         {
-            _ = oldStreamHandler.UnRegisterClientStreamer(clientId);
-
             IClientStreamerConfiguration? streamerConfiguration = await clientStreamerManager.GetClientStreamerConfiguration(clientId, cancellationToken);
+
             if (streamerConfiguration == null)
             {
                 logger.LogError("Error registering stream configuration for client {ClientId}, streamerConfiguration null.", clientId);
@@ -151,8 +150,14 @@ public sealed class StreamManager(
             }
 
             newStreamHandler.RegisterClientStreamer(streamerConfiguration);
-            await clientStreamerManager.SetClientBufferDelegate(clientId, newStreamHandler.RingBuffer, cancellationToken);
+            await clientStreamerManager.SetClientBufferDelegate(streamerConfiguration, newStreamHandler.CircularRingBuffer);
+            //  _ = oldStreamHandler.UnRegisterClientStreamer(clientId);
         }
+
+        //foreach (Guid clientId in ClientIds)
+        //{
+        //    _ = oldStreamHandler.UnRegisterClientStreamer(clientId);
+        //}
 
         if (oldStreamHandler.ClientCount == 0)
         {
@@ -175,5 +180,6 @@ public sealed class StreamManager(
 
         logger.LogWarning("Failed to remove stream information for {VideoStreamUrl}", VideoStreamUrl);
         return false;
+
     }
 }

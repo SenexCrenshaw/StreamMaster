@@ -40,7 +40,7 @@ public sealed class ClientReadStream : Stream, IClientReadStream
         int bytesRead = 0;
         while (!cancellationToken.IsCancellationRequested && !_clientMasterToken.Token.IsCancellationRequested && bytesRead < buffer.Length)
         {
-            int availableBytes = Buffer.GetAvailableBytes(ClientId);
+            int availableBytes = await Buffer.GetAvailableBytes(ClientId);
             if (availableBytes == 0)
             {
                 // Wait for data to become available
@@ -56,7 +56,10 @@ public sealed class ClientReadStream : Stream, IClientReadStream
             cancellationToken.ThrowIfCancellationRequested();
 
         }
-
+        if (bytesRead == 0)
+        {
+            var aaa = 1;
+        }
         return bytesRead;
     }
 

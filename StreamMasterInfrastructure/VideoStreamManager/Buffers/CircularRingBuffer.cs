@@ -125,10 +125,20 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         return allStatistics;
     }
 
-    public int GetAvailableBytes(Guid clientId)
+    public async Task<int> GetAvailableBytes(Guid clientId)
     {
+        while (!IsPreBuffered())
+        {
+            await Task.Delay(50);
+        }
+
         if (_clientReadIndexes.TryGetValue(clientId, out int readIndex))
         {
+            var a = (_writeIndex - readIndex + _buffer.Length) % _buffer.Length;
+            if (a == 0)
+            {
+                var aaa = 1;
+            }
             return (_writeIndex - readIndex + _buffer.Length) % _buffer.Length;
         }
         return 0;
@@ -181,7 +191,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
             return 0; // or throw new Exception($"Client {clientId} not found");
         }
 
-        int bytesToRead = Math.Min(target.Length, GetAvailableBytes(clientId));
+        int bytesToRead = Math.Min(target.Length, await GetAvailableBytes(clientId));
         int bytesRead = 0;
 
         _readWriteLock.EnterReadLock();
@@ -222,7 +232,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
     public async Task WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken)
     {
         // Check if data is already available before waiting
-        if (GetAvailableBytes(clientId) > 0)
+        if (await GetAvailableBytes(clientId) > 0)
         {
             return;
         }

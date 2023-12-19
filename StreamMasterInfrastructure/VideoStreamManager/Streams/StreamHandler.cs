@@ -20,7 +20,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
     public int M3UFileId { get; } = videoStreamDto.M3UFileId;
     public int ProcessId { get; set; } = processId;
-    public ICircularRingBuffer RingBuffer { get; } = ringBuffer;
+    public ICircularRingBuffer CircularRingBuffer { get; } = ringBuffer;
     public string StreamUrl { get; } = videoStreamDto.User_Url;
     public string VideoStreamId { get; } = videoStreamDto.Id;
     public string VideoStreamName { get; } = videoStreamDto.User_Tvg_name;
@@ -159,13 +159,13 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         try
         {
             clientStreamerIds.TryAdd(streamerConfiguration.ClientId, streamerConfiguration.ClientId);
-            RingBuffer.RegisterClient(streamerConfiguration);
+            CircularRingBuffer.RegisterClient(streamerConfiguration);
 
-            logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} read buffer id: {BufferId} to Video Stream Id {videoStreamId} {name}", streamerConfiguration.ClientId, streamerConfiguration.ReadBuffer?.Id, VideoStreamId, VideoStreamName);
+            logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId} {name} {RingBuffer.Id}", streamerConfiguration.ClientId, VideoStreamId, VideoStreamName, CircularRingBuffer.Id);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error registering stream configuration for client {ClientId} {name}.", streamerConfiguration.ClientId, VideoStreamName);
+            logger.LogError(ex, "Error registering stream configuration for client {ClientId} {name} {RingBuffer.Id}", streamerConfiguration.ClientId, VideoStreamName, CircularRingBuffer.Id);
         }
     }
 
@@ -174,15 +174,15 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
     {
         try
         {
-            logger.LogInformation("UnRegisterClientStreamer ClientId: {ClientId} {name}", ClientId, VideoStreamName);
+            logger.LogInformation("UnRegisterClientStreamer ClientId: {ClientId} {name} {RingBuffer.Id}", ClientId, VideoStreamName, CircularRingBuffer.Id);
             bool result = clientStreamerIds.TryRemove(ClientId, out _);
-            RingBuffer.UnRegisterClient(ClientId);
+            CircularRingBuffer.UnRegisterClient(ClientId);
 
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error unregistering stream configuration for client {ClientId} {name}", ClientId, VideoStreamName);
+            logger.LogError(ex, "Error unregistering stream configuration for client {ClientId} {name} {RingBuffer.Id}", ClientId, VideoStreamName, CircularRingBuffer.Id);
             return false;
         }
     }

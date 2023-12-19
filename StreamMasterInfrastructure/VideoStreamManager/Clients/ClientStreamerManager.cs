@@ -58,7 +58,7 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         if (streamerConfiguration != null)
         {
             streamHandler.RegisterClientStreamer(streamerConfiguration);
-            await SetClientBufferDelegate(streamerConfiguration.ClientId, streamHandler.RingBuffer);
+            await SetClientBufferDelegate(streamerConfiguration, streamHandler.CircularRingBuffer);
         }
     }
 
@@ -120,17 +120,10 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         return test;
     }
 
-    public async Task SetClientBufferDelegate(Guid clientId, ICircularRingBuffer RingBuffer, CancellationToken cancellationToken = default)
+    public async Task SetClientBufferDelegate(IClientStreamerConfiguration clientStreamerConfiguration, ICircularRingBuffer RingBuffer)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        IClientStreamerConfiguration? config = await GetClientStreamerConfiguration(clientId, cancellationToken).ConfigureAwait(false);
-        if (config == null)
-        {
-            return;
-        }
-
-        config.ReadBuffer ??= new ClientReadStream(() => RingBuffer, ringBufferReadStreamLogger, config);
-        config.ReadBuffer.SetBufferDelegate(() => RingBuffer, config);
+        clientStreamerConfiguration.ReadBuffer ??= new ClientReadStream(() => RingBuffer, ringBufferReadStreamLogger, clientStreamerConfiguration);
+        clientStreamerConfiguration.ReadBuffer.SetBufferDelegate(() => RingBuffer, clientStreamerConfiguration);
     }
 
 

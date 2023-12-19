@@ -14,7 +14,7 @@ public interface IStreamHandler : IDisposable
     /// <summary>
     /// Gets the ring buffer used for storing video chunks.
     /// </summary>
-    ICircularRingBuffer RingBuffer { get; }
+    ICircularRingBuffer CircularRingBuffer { get; }
 
     /// <summary>
     /// Gets or sets the M3U file ID.

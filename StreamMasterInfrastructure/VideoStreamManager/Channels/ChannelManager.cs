@@ -476,7 +476,10 @@ public sealed class ChannelManager : IChannelManager
                         channelService.UnRegisterChannel(config.ChannelVideoStreamId);
                     }
                 }
+                bool hasClients = await CheckAndCleanUpClientStreamers(channelStatus);
             }
+
+
 
             logger.LogInformation("Finished UnRegisterWithChannelManager with config: {config}", config.ClientId);
         }

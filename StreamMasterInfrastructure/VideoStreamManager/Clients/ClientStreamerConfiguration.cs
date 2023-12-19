@@ -39,11 +39,16 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
             ReadBuffer = null;
         }
 
-        response.Body.Flush();
+        try
+        {
+            response.Body.Flush();
+            await response.CompleteAsync();
+            response.HttpContext.Abort();
+        }
+        catch (Exception ex)
+        {
 
-        await response.CompleteAsync();
-        response.HttpContext.Abort();
-
+        }
         ClientCancellationTokenSource.Cancel();
 
     }

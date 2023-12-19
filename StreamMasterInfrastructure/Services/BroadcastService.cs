@@ -7,16 +7,28 @@ using StreamMasterApplication.Hubs;
 
 namespace StreamMasterInfrastructure.Services;
 
-public class BroadcastService(IHubContext<StreamMasterHub, IStreamMasterHub> hub, IStreamManager streamManager, IStreamStatisticService streamStatisticService, ILogger<BroadcastService> logger) : IBroadcastService, IDisposable
+public class BroadcastService(IHubContext<StreamMasterHub, IStreamMasterHub> hub, IClientStreamerManager clientStreamer, IStreamManager streamManager, IChannelService channelService, IStreamStatisticService streamStatisticService, ILogger<BroadcastService> logger) : IBroadcastService, IDisposable
 {
     private Timer? _broadcastTimer;
 
     public void LogDebug()
     {
-        logger.LogInformation("ChannelManager LogDebug");
-        //logger.LogInformation("GetGlobalStreamsCount: {GetGlobalStreamsCount}", channelService.GetGlobalStreamsCount());
-        logger.LogInformation("GetStreamHandlers: {GetStreamHandlers}", streamManager.GetStreamHandlers().Count);
-        logger.LogInformation("GetStreamHandlers: {GetStreamHandlers}", streamManager.GetStreamHandlers().Count);
+
+        if (channelService.GetGlobalStreamsCount() != 0)
+        {
+            logger.LogInformation("Global: {GetGlobalStreamsCount}", channelService.GetGlobalStreamsCount());
+        }
+
+        //logger.LogInformation("GetStreamHandlers: {GetStreamHandlers}", streamManager.GetStreamHandlers().Count);
+        foreach (var clientStreamerConfiguration in clientStreamer.GetAllClientStreamerConfigurations)
+        {
+            logger.LogInformation("Client: {ChannelName} {ReadBuffer.Id}", clientStreamerConfiguration.ChannelName, clientStreamerConfiguration.ReadBuffer?.Id ?? Guid.Empty);
+        }
+
+        foreach (var handler in streamManager.GetStreamHandlers())
+        {
+            logger.LogInformation("Stream: {CircularRingBuffer} {StreamUrl}", handler.CircularRingBuffer.Id, handler.StreamUrl);
+        }
     }
 
 
@@ -35,7 +47,7 @@ public class BroadcastService(IHubContext<StreamMasterHub, IStreamMasterHub> hub
     {
         try
         {
-            //LogDebug();
+            LogDebug();
             List<StreamStatisticsResult> statisticsResults = streamStatisticService.GetAllStatisticsForAllUrls().Result;
             if (statisticsResults.Any())
             {

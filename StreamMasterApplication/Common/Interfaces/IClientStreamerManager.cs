@@ -15,7 +15,7 @@
         /// <summary>
         /// Asynchronously sets the client buffer delegate.
         /// </summary>
-        Task SetClientBufferDelegate(Guid clientId, ICircularRingBuffer RingBuffer, CancellationToken cancellationToken = default);
+        Task SetClientBufferDelegate(IClientStreamerConfiguration clientStreamerConfiguration, ICircularRingBuffer RingBuffer);
 
         /// <summary>
         /// Gets the count of clients for a specific channel video stream Url.

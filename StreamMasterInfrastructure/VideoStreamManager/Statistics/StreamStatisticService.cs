@@ -19,9 +19,9 @@ public sealed class StreamStatisticService(IStreamManager streamManager, ISettin
         List<StreamStatisticsResult> allStatistics = [];
 
         List<IStreamHandler> infos = streamManager.GetStreamHandlers();
-        foreach (IStreamHandler? info in infos.Where(a => a.RingBuffer != null))
+        foreach (IStreamHandler? info in infos.Where(a => a.CircularRingBuffer != null))
         {
-            allStatistics.AddRange(info.RingBuffer.GetAllStatisticsForAllUrls());
+            allStatistics.AddRange(info.CircularRingBuffer.GetAllStatisticsForAllUrls());
         }
 
         Setting settings = await settingsService.GetSettingsAsync();
