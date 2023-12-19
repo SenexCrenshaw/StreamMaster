@@ -17,28 +17,23 @@ namespace StreamMasterInfrastructure.VideoStreamManager.Buffers;
 /// </summary>
 public sealed class CircularRingBuffer : ICircularRingBuffer
 {
-    //public event EventHandler<Guid> DataAvailable;
     private readonly IStatisticsManager _statisticsManager;
     private readonly IInputStatisticsManager _inputStatisticsManager;
     private readonly IInputStreamingStatistics _inputStreamStatistics;
-    //private readonly object _semaphoreLock = new();
     public readonly StreamInfo StreamInfo;
     private readonly Memory<byte> _buffer;
     private readonly int _bufferSize;
     private readonly ConcurrentDictionary<Guid, int> _clientReadIndexes = new();
-    //private readonly Dictionary<Guid, SemaphoreSlim> _clientSemaphores = [];
     private readonly ConcurrentDictionary<Guid, TaskCompletionSource<bool>> _readWaitHandles = new();
 
     private readonly ILogger<ICircularRingBuffer> _logger;
     private int _oldestDataIndex;
     private readonly float _preBuffPercent;
     private int _writeIndex;
-    //private readonly int _waitDelayMS;
-    private readonly object _writeLock = new();
-    private readonly ReaderWriterLockSlim _readWriteLock = new ReaderWriterLockSlim();
+    private readonly ReaderWriterLockSlim _readWriteLock = new();
     private bool isBufferFull = false; // This should be maintained as part of your buffer state
 
-    public CircularRingBuffer(VideoStreamDto videoStreamDto, string channelName, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILogger<ICircularRingBuffer> logger, int? waitDelayMS = null)
+    public CircularRingBuffer(VideoStreamDto videoStreamDto, string channelName, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILogger<ICircularRingBuffer> logger)
     {
         Setting setting = memoryCache.GetSetting();
 
@@ -82,7 +77,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
 
     private void OnDataAvailable(Guid clientId)
     {
-        if (_readWaitHandles.TryGetValue(clientId, out var tcs))
+        if (_readWaitHandles.TryGetValue(clientId, out TaskCompletionSource<bool>? tcs))
         {
             tcs.TrySetResult(true);
         }
@@ -127,11 +122,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
 
     public int GetAvailableBytes(Guid clientId)
     {
-        if (_clientReadIndexes.TryGetValue(clientId, out int readIndex))
-        {
-            return (_writeIndex - readIndex + _buffer.Length) % _buffer.Length;
-        }
-        return 0;
+        return _clientReadIndexes.TryGetValue(clientId, out int readIndex) ? (_writeIndex - readIndex + _buffer.Length) % _buffer.Length : 0;
     }
 
     public ICollection<Guid> GetClientIds()
@@ -228,7 +219,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         }
 
         // Create or get an existing TaskCompletionSource for this client
-        var tcs = _readWaitHandles.GetOrAdd(clientId, id => new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously));
+        TaskCompletionSource<bool> tcs = _readWaitHandles.GetOrAdd(clientId, id => new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously));
 
         // Register cancellation token to set the TaskCompletionSource as canceled
         using (cancellationToken.Register(() => tcs.TrySetCanceled()))
@@ -253,7 +244,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
 
     private void NotifyClients()
     {
-        foreach (var clientId in _clientReadIndexes.Keys)
+        foreach (Guid clientId in _clientReadIndexes.Keys)
         {
             OnDataAvailable(clientId);
         }
@@ -347,14 +338,9 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         else
         {
             int effectiveWriteEnd = (_writeIndex + lengthToWrite) % _buffer.Length;
-            if (effectiveWriteEnd < _writeIndex)
-            {
-                return _oldestDataIndex <= effectiveWriteEnd || _oldestDataIndex > _writeIndex;
-            }
-            else
-            {
-                return effectiveWriteEnd > _oldestDataIndex;
-            }
+            return effectiveWriteEnd < _writeIndex
+                ? _oldestDataIndex <= effectiveWriteEnd || _oldestDataIndex > _writeIndex
+                : effectiveWriteEnd > _oldestDataIndex;
         }
     }
 

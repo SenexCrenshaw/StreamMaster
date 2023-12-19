@@ -4,24 +4,15 @@ using StreamMasterApplication.Common.Interfaces;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Buffers;
 
-public sealed class ClientReadStream : Stream, IClientReadStream
+public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, ILogger<ClientReadStream> logger, IClientStreamerConfiguration config) : Stream, IClientReadStream
 {
-    private Func<ICircularRingBuffer> _bufferDelegate;
-    private CancellationTokenSource _clientMasterToken;
-    private readonly ILogger<ClientReadStream> logger;
+    private Func<ICircularRingBuffer> _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
+    private CancellationTokenSource _clientMasterToken = config.ClientMasterToken;
     private readonly SemaphoreSlim semaphore = new(1);
     private CancellationTokenSource? _readCancel;
 
-    public ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, ILogger<ClientReadStream> logger, IClientStreamerConfiguration config)
-    {
-        _clientMasterToken = config.ClientMasterToken;
-        this.logger = logger;
-        _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
-        ClientId = config.ClientId;
-    }
-
     private bool IsCancelled { get; set; }
-    private Guid ClientId { get; set; }
+    private Guid ClientId { get; set; } = config.ClientId;
     public ICircularRingBuffer Buffer => _bufferDelegate();
     public Guid Id { get; } = Guid.NewGuid();
     public override bool CanRead => true;
@@ -85,12 +76,6 @@ public sealed class ClientReadStream : Stream, IClientReadStream
             semaphore.Release();
         }
 
-        if (bytesRead == 0)
-        {
-            logger.LogError("Error reading buffer for ClientId: {ClientId} 0 bytes", ClientId);
-            int aaa = 1;
-        }
-
         return bytesRead;
 
     }
@@ -106,23 +91,20 @@ public sealed class ClientReadStream : Stream, IClientReadStream
             _readCancel.Cancel();
         }
 
-        //_readCancel = new CancellationTokenSource();
         ClientId = config.ClientId;
         _clientMasterToken = config.ClientMasterToken;
 
-        int a = 0;
         try
         {
             await semaphore.WaitAsync();
             _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
-            a = await Buffer.ReadChunkMemory(ClientId, new Memory<byte>(new byte[1024]), new CancellationToken());
         }
         finally
         {
             semaphore.Release();
         }
 
-        logger.LogInformation("Setting buffer delegate for Buffer.Id: {Id} Circular.Id: {Buffer.Id} {Name} ClientId: {ClientId} {a}", Id, Buffer.Id, config.ChannelName, config.ClientId, a);
+        logger.LogInformation("Setting buffer delegate for Buffer.Id: {Id} Circular.Id: {Buffer.Id} {Name} ClientId: {ClientId}", Id, Buffer.Id, config.ChannelName, config.ClientId);
     }
 
     public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)

@@ -25,7 +25,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
     public string VideoStreamId { get; } = videoStreamDto.Id;
     public string VideoStreamName { get; } = videoStreamDto.User_Tvg_name;
 
-    void OnStreamingStopped()
+    private void OnStreamingStopped()
     {
         OnStreamingStoppedEvent?.Invoke(this, StreamUrl);
     }
@@ -43,20 +43,20 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         }
     }
 
-    private async Task LogRetryAndDelay(int retryCount, int maxRetries, int waitTime)
-    {
-        if (VideoStreamingCancellationToken.Token.IsCancellationRequested)
-        {
-            logger.LogInformation("Stream was cancelled for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
-        }
+    //private async Task LogRetryAndDelay(int retryCount, int maxRetries, int waitTime)
+    //{
+    //    if (VideoStreamingCancellationToken.Token.IsCancellationRequested)
+    //    {
+    //        logger.LogInformation("Stream was cancelled for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
+    //    }
 
-        logger.LogInformation("Stream received 0 bytes for stream: {StreamUrl} Retry {retryCount}/{maxRetries} {name}",
-            StreamUrl,
-            retryCount,
-            maxRetries, VideoStreamName);
+    //    logger.LogInformation("Stream received 0 bytes for stream: {StreamUrl} Retry {retryCount}/{maxRetries} {name}",
+    //        StreamUrl,
+    //        retryCount,
+    //        maxRetries, VideoStreamName);
 
-        await DelayWithCancellation(waitTime);
-    }
+    //    await DelayWithCancellation(waitTime);
+    //}
 
     public async Task StartVideoStreamingAsync(Stream stream, ICircularRingBuffer circularRingbuffer)
     {
@@ -71,31 +71,23 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
         using (stream)
         {
-            int retryCount = 0;
             while (!VideoStreamingCancellationToken.IsCancellationRequested)// && retryCount < maxRetries)
             {
                 try
                 {
                     int bytesRead = await stream.ReadAsync(bufferMemory, VideoStreamingCancellationToken.Token);
-                    //if (bytesRead == -1)
-                    //{
-                    //    break;
-                    //}
                     if (bytesRead < 1)
                     {
                         break;
-                        //retryCount++;
-                        //await LogRetryAndDelay(retryCount, maxRetries, waitTime);
                     }
                     else
                     {
                         circularRingbuffer.WriteChunk(bufferMemory[..bytesRead]);
-                        retryCount = 0;
                     }
                 }
-                catch (TaskCanceledException ex)
+                catch (TaskCanceledException)
                 {
-                    //logger.LogInformation(ex, "Stream stopped for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
+
                 }
                 catch (Exception ex)
                 {
@@ -109,10 +101,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         stream.Dispose();
 
         logger.LogInformation("Stream stopped for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
-        //if (!VideoStreamingCancellationToken.IsCancellationRequested)
-        //{
-        //    VideoStreamingCancellationToken.Cancel();
-        //}
+
         OnStreamingStopped();
     }
 

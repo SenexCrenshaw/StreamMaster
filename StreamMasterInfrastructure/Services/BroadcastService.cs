@@ -27,7 +27,7 @@ public class BroadcastService(IHubContext<StreamMasterHub, IStreamMasterHub> hub
 
         foreach (IStreamHandler handler in streamManager.GetStreamHandlers())
         {
-            logger.LogInformation("Stream: {CircularRingBuffer} {VideoStreamName} {StreamUrl}", handler.CircularRingBuffer.Id, handler.VideoStreamName, handler.StreamUrl);
+            logger.LogInformation("Stream: {count} {CircularRingBuffer} {VideoStreamName} {StreamUrl}", handler.ClientCount, handler.CircularRingBuffer.Id, handler.VideoStreamName, handler.StreamUrl);
         }
     }
 

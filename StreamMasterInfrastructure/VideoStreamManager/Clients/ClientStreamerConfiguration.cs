@@ -41,7 +41,11 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
 
         try
         {
-            response.Body.Flush();
+            if (!response.HasStarted)
+            {
+                response.Body.Flush();
+
+            }
             await response.CompleteAsync();
             response.HttpContext.Abort();
         }

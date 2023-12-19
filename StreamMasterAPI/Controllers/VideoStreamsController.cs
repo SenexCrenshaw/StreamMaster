@@ -299,16 +299,10 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     }
 
 
-    private class UnregisterClientOnDispose : IDisposable
+    private class UnregisterClientOnDispose(IChannelManager channelManager, ClientStreamerConfiguration config) : IDisposable
     {
-        private readonly IChannelManager _channelManager;
-        private readonly ClientStreamerConfiguration _config;
-
-        public UnregisterClientOnDispose(IChannelManager channelManager, ClientStreamerConfiguration config)
-        {
-            _channelManager = channelManager;
-            _config = config;
-        }
+        private readonly IChannelManager _channelManager = channelManager;
+        private readonly ClientStreamerConfiguration _config = config;
 
         public void Dispose()
         {
