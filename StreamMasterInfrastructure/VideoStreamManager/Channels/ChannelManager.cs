@@ -379,7 +379,6 @@ public sealed class ChannelManager : IChannelManager
                 }
                 else
                 {
-
                     _ = StreamHandler.UnRegisterClientStreamer(config.ClientId);
 
                     if (StreamHandler.ClientCount == 0)

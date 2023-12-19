@@ -26,11 +26,13 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
         ClientUserAgent = clientUserAgent;
         ChannelVideoStreamId = channelVideoStreamId;
         ChannelName = channelName;
-        ClientCancellationTokenSource = new();
-        ClientMasterToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ClientHTTPRequestCancellationToken, ClientCancellationTokenSource.Token);
+        //ClientCancellationTokenSource = new();
+        ClientMasterToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ClientHTTPRequestCancellationToken);
     }
 
-    public async Task CancelClient()
+    public string HttpContextId { get => this.response.HttpContext.TraceIdentifier; }
+
+    public async Task CancelClient(bool includeResponse = true)
     {
         if (ReadBuffer != null)
         {
@@ -41,19 +43,22 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
 
         try
         {
-            if (!response.HasStarted)
+            if (includeResponse)
             {
-                response.Body.Flush();
+                if (!response.HasStarted)
+                {
+                    response.Body.Flush();
 
+                }
+                await response.CompleteAsync();
+                response.HttpContext.Abort();
             }
-            await response.CompleteAsync();
-            response.HttpContext.Abort();
         }
         catch (Exception ex)
         {
 
         }
-        ClientCancellationTokenSource.Cancel();
+        //ClientCancellationTokenSource.Cancel();
 
     }
 
@@ -63,7 +68,7 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
     //Tokens
     private CancellationToken ClientHTTPRequestCancellationToken { get; }
 
-    private CancellationTokenSource ClientCancellationTokenSource { get; }
+    //private CancellationTokenSource ClientCancellationTokenSource { get; }
     public CancellationTokenSource ClientMasterToken { get; set; }
 
     //Client Information

@@ -133,7 +133,9 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
 
         logger.LogDebug("Cancelling client {ClientId}", clientId);
 
-        await config.CancelClient().ConfigureAwait(false);
+        int test = GetAllClientStreamerConfigurations.Count(a => a.HttpContextId == config.HttpContextId);
+
+        await config.CancelClient(test == 1).ConfigureAwait(false);
 
         return true;
     }

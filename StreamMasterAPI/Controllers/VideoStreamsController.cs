@@ -149,9 +149,21 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
         Stream? stream = await _channelManager.GetChannel(config);
 
+
+
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(_channelManager, config));
         if (stream != null)
         {
+            ClientStreamerConfiguration fsconfig = new(videoStream.Id, videoStream.User_Tvg_name, Request.Headers["User-Agent"].ToString(), ipAddress ?? "unkown", cancellationToken, HttpContext.Response);
+            Stream? fsstream = await _channelManager.GetChannel(fsconfig);
+            if (fsstream != null)
+            {
+                string filePath = Path.Combine(BuildInfo.CacheFolder, videoStream.User_Tvg_name + ".mp4");
+
+                await ReadAndWriteAsync(fsstream, filePath, cancellationToken).ConfigureAwait(false);
+                await _channelManager.RemoveClient(fsconfig);
+            }
+
             return new FileStreamResult(stream, "video/mp4");
         }
         //else if (error != null)
@@ -166,6 +178,44 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         {
             // Unknown error occurred
             return StatusCode(StatusCodes.Status500InternalServerError, "An unknown error occurred");
+        }
+    }
+
+    public async Task ReadAndWriteAsync(Stream sourceStream, string filePath, CancellationToken cancellationToken = default)
+    {
+        const int bufferSize = 1024; // Read in chunks of 1024 bytes
+        const int totalSize = 1 * 1024 * 1024;
+        Memory<byte> buffer = new(new byte[bufferSize]);
+        int totalBytesRead = 0;
+
+        // Ensure the source stream supports reading
+        if (!sourceStream.CanRead)
+        {
+            throw new InvalidOperationException("Source stream does not support reading.");
+        }
+
+        try
+        {
+            using FileStream fileStream = new(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, true);
+
+            while (totalBytesRead < totalSize)
+            {
+                int maxReadLength = Math.Min(buffer.Length, totalSize - totalBytesRead);
+                int bytesRead = await sourceStream.ReadAsync(buffer[..maxReadLength], cancellationToken).ConfigureAwait(false);
+
+                if (bytesRead == 0)
+                {
+                    break; // End of the source stream
+                }
+
+                await fileStream.WriteAsync(buffer[..bytesRead], cancellationToken).ConfigureAwait(false);
+                totalBytesRead += bytesRead;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error writing stream to file");
+            throw;
         }
     }
 

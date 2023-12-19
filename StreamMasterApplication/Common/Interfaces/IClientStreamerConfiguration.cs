@@ -2,7 +2,8 @@
 
 public interface IClientStreamerConfiguration
 {
-    Task CancelClient();
+    string HttpContextId { get; }
+    Task CancelClient(bool includeResponse = true);
     string ChannelVideoStreamId { get; set; }
     string ChannelName { get; set; }
     Guid ClientId { get; set; }
