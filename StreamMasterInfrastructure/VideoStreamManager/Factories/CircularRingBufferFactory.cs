@@ -11,8 +11,8 @@ namespace StreamMasterInfrastructure.VideoStreamManager.Factories;
 
 public sealed class CircularRingBufferFactory(IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, ILogger<ICircularRingBuffer> circularRingBufferLogger) : ICircularRingBufferFactory
 {
-    public ICircularRingBuffer CreateCircularRingBuffer(VideoStreamDto videoStreamDto, string ChannelName, int rank)
+    public ICircularRingBuffer CreateCircularRingBuffer(VideoStreamDto videoStreamDto, string ChannelId, string ChannelName, int rank)
     {
-        return new CircularRingBuffer(videoStreamDto, ChannelName, statisticsManager, inputStatisticsManager, memoryCache, rank, circularRingBufferLogger);
+        return new CircularRingBuffer(videoStreamDto, ChannelId, ChannelName, statisticsManager, inputStatisticsManager, memoryCache, rank, circularRingBufferLogger);
     }
 }

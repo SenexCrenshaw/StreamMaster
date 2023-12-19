@@ -72,7 +72,7 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
             return true;
         }
 
-        IStreamHandler? newStreamHandler = await streamManager.GetOrCreateStreamHandler(videoStreamDto, channelStatus.ChannelName, channelStatus.Rank);
+        IStreamHandler? newStreamHandler = await streamManager.GetOrCreateStreamHandler(videoStreamDto, channelStatus.ChannelVideoStreamId, channelStatus.ChannelName, channelStatus.Rank);
 
         if (newStreamHandler is null)
         {

@@ -75,8 +75,8 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
         try
         {
-            _videoInfo = await CreateFFProbeStream(ffprobeExec).ConfigureAwait(false);
-            return _videoInfo;
+
+            return await CreateFFProbeStream(ffprobeExec).ConfigureAwait(false);
         }
         catch (IOException ex)
         {
@@ -127,13 +127,23 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                 await stdin.WriteAsync(buffer, cts.Token);
                 await stdin.FlushAsync(cts.Token);
             }
-            await process.WaitForExitAsync();
+
+            if (!process.WaitForExit(5000)) // 5000 ms timeout
+            {
+                // Handle the case where process doesn't exit in time
+                logger.LogWarning("Process did not exit within the expected time.");
+            }
 
             // Reading from the process's standard output
             string output = await process.StandardOutput.ReadToEndAsync();
 
             VideoInfo? videoInfo = JsonSerializer.Deserialize<VideoInfo>(output);
-
+            if (videoInfo == null)
+            {
+                logger.LogError("CreateFFProbeStream Error: Failed to deserialize FFProbe output");
+                return new();
+            }
+            _videoInfo = videoInfo;
             return videoInfo;
 
         }

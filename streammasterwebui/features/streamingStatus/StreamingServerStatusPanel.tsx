@@ -28,6 +28,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
   const setting = useSettings();
   const toast = useRef<Toast>(null);
   const [videoInfo, setVideoInfo] = useState<VideoInfo | undefined>(undefined);
+  const [channelName, setChannelName] = useState<string>('');
   const getStreamingStatus = useVideoStreamsGetAllStatisticsForAllUrlsQuery();
 
   const onChangeVideoStreamChannel = useCallback(async (playingVideoStreamId: string, newVideoStreamId: string) => {
@@ -159,14 +160,11 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
   );
 
   const onPreview = useCallback(async (rowData: StreamStatisticsResult) => {
-    console.log('preview');
-
-    // const toSend: VideoStreamsGetVideoStreamInfoFromIdApiArg = rowData.channelId ?? '';
-
+    setChannelName(rowData.videoStreamName ?? '');
     await GetVideoStreamInfoFromId(rowData.channelId ?? '').then((data) => {
       if (data === null || data === undefined) return;
 
-      console.log(data);
+      // console.log(data);
       setVideoInfo(data);
     });
   }, []);
@@ -265,7 +263,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
-      <Dialog className={`col-8 p-0`} closable header={'hey'} maximizable modal onHide={onHide} visible={videoInfo !== undefined}>
+      <Dialog className={`col-8 p-0`} closable header={'ffprobe: ' + channelName} maximizable modal onHide={onHide} visible={videoInfo !== undefined}>
         {videoInfo && <VideoInfoDisplay videoInfo={videoInfo} />}
       </Dialog>
       <div className="m3uFilesEditor flex flex-column col-12 flex-shrink-0 ">

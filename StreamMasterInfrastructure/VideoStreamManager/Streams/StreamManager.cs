@@ -60,10 +60,10 @@ public sealed class StreamManager(
         }
     }
 
-    private async Task<IStreamHandler?> CreateStreamHandler(VideoStreamDto videoStreamDto, string ChannelName, int rank, CancellationToken cancellation)
+    private async Task<IStreamHandler?> CreateStreamHandler(VideoStreamDto videoStreamDto, string ChannelId, string ChannelName, int rank, CancellationToken cancellation)
     {
 
-        IStreamHandler? streamHandler = await streamHandlerFactory.CreateStreamHandlerAsync(videoStreamDto, ChannelName, rank, cancellation);
+        IStreamHandler? streamHandler = await streamHandlerFactory.CreateStreamHandlerAsync(videoStreamDto, ChannelId, ChannelName, rank, cancellation);
 
         return streamHandler;
     }
@@ -73,7 +73,7 @@ public sealed class StreamManager(
         return !_streamHandlers.TryGetValue(videoStreamId, out IStreamHandler? streamHandler) ? null : streamHandler;
     }
 
-    public async Task<IStreamHandler?> GetOrCreateStreamHandler(VideoStreamDto videoStreamDto, string ChannelName, int rank, CancellationToken cancellation = default)
+    public async Task<IStreamHandler?> GetOrCreateStreamHandler(VideoStreamDto videoStreamDto, string ChannelId, string ChannelName, int rank, CancellationToken cancellation = default)
     {
         _ = _streamHandlers.TryGetValue(videoStreamDto.User_Url, out IStreamHandler? streamHandler);
 
@@ -86,7 +86,7 @@ public sealed class StreamManager(
         if (streamHandler is null || streamHandler.IsFailed != false)
         {
             logger.LogInformation("Creating new handler for stream: {Id} {name}", videoStreamDto.Id, videoStreamDto.User_Tvg_name);
-            streamHandler = await CreateStreamHandler(videoStreamDto, ChannelName, rank, cancellation);
+            streamHandler = await CreateStreamHandler(videoStreamDto, ChannelId, ChannelName, rank, cancellation);
             if (streamHandler == null)
             {
                 return null;

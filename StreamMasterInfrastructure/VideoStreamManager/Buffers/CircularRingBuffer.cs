@@ -33,7 +33,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
     private readonly ReaderWriterLockSlim _readWriteLock = new();
     private bool isBufferFull = false; // This should be maintained as part of your buffer state
 
-    public CircularRingBuffer(VideoStreamDto videoStreamDto, string channelName, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILogger<ICircularRingBuffer> logger)
+    public CircularRingBuffer(VideoStreamDto videoStreamDto, string channelId, string channelName, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILogger<ICircularRingBuffer> logger)
     {
         Setting setting = memoryCache.GetSetting();
 
@@ -59,7 +59,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
 
         StreamInfo = new StreamInfo
         {
-            ChannelId = videoStreamDto.Id,
+            ChannelId = channelId,
             ChannelName = channelName,
             VideoStreamId = videoStreamDto.Id,
             VideoStreamName = videoStreamDto.User_Tvg_name,
