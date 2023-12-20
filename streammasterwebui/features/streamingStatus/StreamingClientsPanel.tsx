@@ -20,13 +20,14 @@ const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProper
 
   useEffect(() => {
     if (getStreamingStatus.data === undefined || getStreamingStatus.data.length === 0 || getStreamingStatus.data === null) {
+      setDataSource([]);
       return;
     }
 
     let data = [...dataSource];
 
     for (const item of getStreamingStatus.data) {
-      const index = data.findIndex((x) => x.circularBufferId === item.circularBufferId);
+      const index = data.findIndex((x) => x.clientId === item.clientId);
       if (index === -1) {
         data.push(item);
       } else {

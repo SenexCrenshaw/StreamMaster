@@ -102,7 +102,7 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
                     int availableBytes = Buffer.GetAvailableBytes(ClientId);
                     if (availableBytes == 0)
                     {
-                        using CancellationTokenSource timeoutCts = new(TimeSpan.FromSeconds(3));
+                        using CancellationTokenSource timeoutCts = new(TimeSpan.FromSeconds(1));
                         using CancellationTokenSource combinedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, _readCancel.Token);
 
                         try
@@ -126,8 +126,11 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
                                 break;
                             }
                         }
-
-                        continue;
+                        availableBytes = Buffer.GetAvailableBytes(ClientId);
+                        if (availableBytes == 0)
+                        {
+                            break;
+                        }
                     }
 
                     int bytesToRead = Math.Min(count - bytesRead, availableBytes);
@@ -152,8 +155,6 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
             logger.LogError(ex, "Error reading buffer for ClientId: {ClientId}", ClientId);
         }
 
-
-
         if (bytesRead == 0)
         {
             logger.LogDebug("Read 0 bytes for ClientId: {ClientId}", ClientId);
@@ -166,7 +167,7 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
 
     public async Task SetBufferDelegate(Func<ICircularRingBuffer> bufferDelegate, IClientStreamerConfiguration config)
     {
-        _readCancel?.Cancel();
+        //_readCancel?.Cancel();
 
         try
         {

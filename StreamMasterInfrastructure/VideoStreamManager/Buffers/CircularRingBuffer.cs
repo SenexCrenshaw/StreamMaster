@@ -196,10 +196,9 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
     {
         _logger.LogDebug("Starting ReadChunkMemory for clientId: {clientId}", clientId);
 
-        while (!IsPreBuffered())
+        while (!IsPreBuffered() && !cancellationToken.IsCancellationRequested)
         {
             await Task.Delay(50, cancellationToken);
-            cancellationToken.ThrowIfCancellationRequested();
         }
 
         if (!_clientReadIndexes.TryGetValue(clientId, out int readIndex))
@@ -214,7 +213,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         _readWriteLock.EnterReadLock();
         try
         {
-            while (bytesToRead > 0)
+            while (!cancellationToken.IsCancellationRequested && bytesToRead > 0)
             {
                 // Calculate how much we can read before we have to wrap
                 int canRead = Math.Min(bytesToRead, _buffer.Length - readIndex);
@@ -229,7 +228,6 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
                 readIndex = (readIndex + canRead) % _buffer.Length;
                 bytesRead += canRead;
                 bytesToRead -= canRead;
-                cancellationToken.ThrowIfCancellationRequested();
             }
 
             _clientReadIndexes[clientId] = readIndex;

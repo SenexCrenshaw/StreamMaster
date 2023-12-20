@@ -147,6 +147,8 @@ public sealed class StreamManager(
             return;
         }
 
+        logger.LogInformation("Moving clients {count} from {OldStreamUrl} to {NewStreamUrl}", ClientIds.Count(), oldStreamHandler.VideoStreamName, newStreamHandler.VideoStreamName);
+
 
         foreach (Guid clientId in ClientIds)
         {
