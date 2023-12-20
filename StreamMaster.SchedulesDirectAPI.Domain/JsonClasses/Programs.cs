@@ -1,8 +1,5 @@
-﻿using System.Text.Json.Serialization;
-
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
@@ -22,7 +19,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         [JsonPropertyName("episodeTitle150")]
         public string EpisodeTitle150 { get; set; }
 
-        [JsonPropertyName("descriptions")]        
+        [JsonPropertyName("descriptions")]
         public ProgramDescriptions Descriptions { get; set; }
 
         [JsonPropertyName("eventDetails")]
@@ -54,7 +51,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         public string OfficialUrl { get; set; }
 
         [JsonPropertyName("contentRating")]
-       //[JsonConverter(typeof(SingleOrListConverter<ProgramContentRating>))]
+        //[JsonConverter(typeof(SingleOrListConverter<ProgramContentRating>))]
         public List<ProgramContentRating> ContentRating { get; set; } = [];
 
         [JsonPropertyName("contentAdvisory")]

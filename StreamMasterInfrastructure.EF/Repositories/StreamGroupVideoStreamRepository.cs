@@ -125,7 +125,7 @@ public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepo
     {
         if (id == 0)
         {
-            return new();
+            return [];
         }
 
         List<VideoStreamIsReadOnly> ret = await RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == id)

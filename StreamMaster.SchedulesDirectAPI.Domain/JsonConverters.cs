@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace StreamMaster.SchedulesDirectAPI.Domain;
 
@@ -38,7 +33,7 @@ public class IntConverter : JsonConverter<int>
                     if (reader.TokenType == JsonTokenType.PropertyName && reader.GetString() == "year")
                     {
                         reader.Read(); // Move to the property value
-                      
+
                         if (reader.TryGetInt32(out int yearValue))
                         {
                             reader.Read();
@@ -57,7 +52,7 @@ public class IntConverter : JsonConverter<int>
         catch (JsonException ex)
         {
             // Handle bad values by returning a default value or throwing a custom exception if needed
-            var a= 1;
+            int a = 1;
         }
 
         // Return a default value for bad or unexpected data
@@ -67,7 +62,7 @@ public class IntConverter : JsonConverter<int>
     public override void Write(Utf8JsonWriter writer, int value, JsonSerializerOptions options)
     {
         writer.WriteStartObject();
-        writer.WritePropertyName("year"); 
+        writer.WritePropertyName("year");
         JsonSerializer.Serialize(writer, value, options);
         writer.WriteEndObject();
     }

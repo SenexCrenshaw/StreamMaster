@@ -3,13 +3,13 @@
 public class MxfGuideImage
 {
     private int _index;
-    private string _imageUrl;
+
     //private string _encodedImage;
 
     public MxfGuideImage(int index, string pathName)
     {
         _index = index;
-        _imageUrl = pathName;
+        ImageUrl = pathName;
         //_encodedImage = encodedImage;
     }
     private MxfGuideImage() { }
@@ -22,7 +22,7 @@ public class MxfGuideImage
     public string Id
     {
         get => $"i{_index}";
-        set { _index = int.Parse(value.Substring(1)); }
+        set { _index = int.Parse(value[1..]); }
     }
 
     /// <summary>
@@ -36,11 +36,7 @@ public class MxfGuideImage
     /// This value can be in the form of file://URL.
     /// </summary>
 
-    public string ImageUrl
-    {
-        get => _imageUrl;
-        set { _imageUrl = value; }
-    }
+    public string ImageUrl { get; set; }
 
     /// <summary>
     /// Undocumented

@@ -14,9 +14,9 @@ public static class Utils
         if (!string.IsNullOrEmpty(jsonFiltersString))
         {
             List<DataTableFilterMetaData>? filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(jsonFiltersString);
-            return filters ?? new();
+            return filters ?? [];
         }
-        return new();
+        return [];
     }
 
     public static T DeepCopy<T>(this T value)
@@ -27,11 +27,7 @@ public static class Utils
             throw new Exception("JsonSerializer.Serialize returned null");
         }
         T? ret = JsonSerializer.Deserialize<T>(jsonString);
-        if (ret == null)
-        {
-            throw new Exception("JsonSerializer.Serialize returned null");
-        }
-        return ret;
+        return ret == null ? throw new Exception("JsonSerializer.Serialize returned null") : ret;
     }
 
     public static (string fullName, string name) GetRandomFileName(this string directoryName, string extentsion)

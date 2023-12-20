@@ -1,6 +1,6 @@
 ﻿namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
-public class StationPreview 
+public class StationPreview
 {
     public StationPreview() { }
     public StationPreview(Station station)

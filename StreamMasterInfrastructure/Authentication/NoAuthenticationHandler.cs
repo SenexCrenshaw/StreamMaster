@@ -21,11 +21,11 @@ namespace StreamMasterInfrastructure.Authentication
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            List<Claim> claims = new()
-            {
+            List<Claim> claims =
+            [
                 new Claim("user", "Anonymous"),
                 new Claim("AuthType", AuthenticationType.None.ToString())
-            };
+            ];
 
             ClaimsIdentity identity = new(claims, "NoAuth", "user", "identifier");
             ClaimsPrincipal principal = new(identity);

@@ -118,8 +118,8 @@ public class VideoStream : IMapFrom<VideoStreamDto>
 
     public override string ToString()
     {
-        List<string> properties = new()
-        {
+        List<string> properties =
+        [
             Id,
             Url,
             FilePosition.ToString(),
@@ -144,7 +144,7 @@ public class VideoStream : IMapFrom<VideoStreamDto>
             VideoStreamHandler.ToString(),
             StreamGroups?.ToString() ?? "N/A",
             ChildVideoStreams?.ToString() ?? "N/A"
-        };
+        ];
 
         return string.Join(",", properties);
     }

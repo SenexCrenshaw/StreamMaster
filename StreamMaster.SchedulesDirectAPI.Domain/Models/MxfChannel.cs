@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
@@ -17,14 +12,13 @@ public class MxfChannel
     private string _lineup;
     private string _service;
     private int _number;
-    private int _subnumber;
 
     public MxfChannel(MxfLineup lineup, MxfService service, int number = -1, int subnumber = 0)
     {
         _mxfLineup = lineup;
         _mxfService = service;
         _number = number;
-        _subnumber = subnumber;
+        SubNumber = subnumber;
         MatchName = service.CallSign;
     }
     private MxfChannel() { }
@@ -36,7 +30,7 @@ public class MxfChannel
     [XmlAttribute("uid")]
     public string Uid
     {
-        get => _uid ?? $"!Channel!{_mxfLineup.LineupId}!{_mxfService.StationId}_{_number}_{_subnumber}";
+        get => _uid ?? $"!Channel!{_mxfLineup.LineupId}!{_mxfService.StationId}_{_number}_{SubNumber}";
         set { _uid = value; }
     }
 
@@ -97,9 +91,5 @@ public class MxfChannel
     /// </summary>
     [XmlAttribute("subNumber")]
     [DefaultValue(0)]
-    public int SubNumber
-    {
-        get => _subnumber;
-        set { _subnumber = value; }
-    }
+    public int SubNumber { get; set; }
 }

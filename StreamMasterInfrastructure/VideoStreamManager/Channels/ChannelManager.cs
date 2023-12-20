@@ -79,7 +79,7 @@ public sealed class ChannelManager : IChannelManager
         }
     }
 
-    public async Task<VideoInfo> GetVideoInfo(string channelVideoStreamId)
+    public VideoInfo GetVideoInfo(string channelVideoStreamId)
     {
         IChannelStatus? channelStatus = channelService.GetChannelStatus(channelVideoStreamId);
         if (channelStatus is null)

@@ -18,7 +18,7 @@ public static class ColorHelper
             int hash = 23;
             foreach (char c in str)
             {
-                hash = hash * 31 + c;
+                hash = (hash * 31) + c;
             }
             return Math.Abs(hash);
         }
@@ -42,11 +42,11 @@ public static class ColorHelper
         }
         else
         {
-            float q = lightness < 0.5 ? lightness * (1 + saturation) : lightness + saturation - lightness * saturation;
-            float p = 2 * lightness - q;
-            r = HueToRgb(p, q, h / 360f + 1f / 3f);
+            float q = lightness < 0.5 ? lightness * (1 + saturation) : lightness + saturation - (lightness * saturation);
+            float p = (2 * lightness) - q;
+            r = HueToRgb(p, q, (h / 360f) + (1f / 3f));
             g = HueToRgb(p, q, h / 360f);
-            b = HueToRgb(p, q, h / 360f - 1f / 3f);
+            b = HueToRgb(p, q, (h / 360f) - (1f / 3f));
         }
 
         return (r, g, b);
@@ -56,9 +56,7 @@ public static class ColorHelper
     {
         if (t < 0) t += 1;
         if (t > 1) t -= 1;
-        if (t < 1f / 6f) return p + (q - p) * 6 * t;
-        if (t < 1f / 2f) return q;
-        if (t < 2f / 3f) return p + (q - p) * (2f / 3f - t) * 6;
-        return p;
+        if (t < 1f / 6f) return p + ((q - p) * 6 * t);
+        return t < 1f / 2f ? q : t < 2f / 3f ? p + ((q - p) * ((2f / 3f) - t) * 6) : p;
     }
 }

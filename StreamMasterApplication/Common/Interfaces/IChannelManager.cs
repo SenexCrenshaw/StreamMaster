@@ -7,7 +7,7 @@
 public interface IChannelManager : IDisposable
 {
 
-    Task<VideoInfo> GetVideoInfo(string channelVideoStreamId);
+    VideoInfo GetVideoInfo(string channelVideoStreamId);
     /// <summary>
     /// Asynchronously changes the video stream of a channel.
     /// </summary>

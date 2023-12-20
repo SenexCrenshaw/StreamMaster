@@ -45,14 +45,7 @@ public class CustomLogger<T>(ILoggerFactory loggerFactory, ILoggingUtils logging
         Regex regex = new(@"https?://\S+");
         Match match = regex.Match(originalMessage);
 
-        if (match.Success)
-        {
-            return match.Value;
-        }
-        else
-        {
-            return string.Empty;
-        }
+        return match.Success ? match.Value : string.Empty;
     }
 
     private async Task<string> ReplaceStreamUrl(string originalMessage)

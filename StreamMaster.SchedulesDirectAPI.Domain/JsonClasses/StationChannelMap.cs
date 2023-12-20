@@ -1,6 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
@@ -27,13 +25,13 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
             get
             {
                 if (string.IsNullOrEmpty(Channel)) return ChannelMajor ?? AtscMajor ?? UhfVhf ?? -1;
-                if (Regex.Match(Channel, @"[A-Za-z]{1}[\d]{4}").Length > 0) return int.Parse(Channel.Substring(2));
+                if (Regex.Match(Channel, @"[A-Za-z]{1}[\d]{4}").Length > 0) return int.Parse(Channel[2..]);
                 if (Regex.Match(Channel, @"[A-Za-z0-9.]\.[A-Za-z]{2}").Length > 0) return -1;
                 if (int.TryParse(Regex.Replace(Channel, "[^0-9.]", ""), out int number)) return number;
                 else
                 {
                     // if channel number is not a whole number, must be a decimal number
-                    var numbers = Regex.Replace(Channel, "[^0-9.]", "").Replace('_', '.').Replace('-', '.').Split('.');
+                    string[] numbers = Regex.Replace(Channel, "[^0-9.]", "").Replace('_', '.').Replace('-', '.').Split('.');
                     if (numbers.Length == 2)
                     {
                         return int.Parse(numbers[0]);
@@ -51,7 +49,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
                 if (!int.TryParse(Regex.Replace(Channel, "[^0-9.]", ""), out _))
                 {
                     // if channel number is not a whole number, must be a decimal number
-                    var numbers = Regex.Replace(Channel, "[^0-9.]", "").Replace('_', '.').Replace('-', '.').Split('.');
+                    string[] numbers = Regex.Replace(Channel, "[^0-9.]", "").Replace('_', '.').Replace('-', '.').Split('.');
                     if (numbers.Length == 2)
                     {
                         return int.Parse(numbers[1]);

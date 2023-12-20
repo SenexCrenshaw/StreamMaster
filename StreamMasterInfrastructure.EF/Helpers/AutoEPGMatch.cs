@@ -122,8 +122,8 @@ namespace StreamMasterInfrastructureEF.Helpers
             // If no match in parentheses, attempt to extract call sign directly from the name
             if (string.IsNullOrEmpty(extractedCallSign))
             {
-                var parts = userTvgName.Split(new[] { ' ', '-', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (var part in parts)
+                string[] parts = userTvgName.Split(new[] { ' ', '-', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string part in parts)
                 {
                     // Assuming call sign is the part that contains letters and possibly ends with -TV or -DT
                     if (part.Any(char.IsLetter) && (part.EndsWith("-TV") || part.EndsWith("-DT")))
@@ -158,7 +158,7 @@ namespace StreamMasterInfrastructureEF.Helpers
             if (callSign.Length > 2)
             {
                 // Remove the last two characters
-                callSign = callSign.Substring(0, callSign.Length - 2);
+                callSign = callSign[..^2];
             }
 
             // Remove trailing hyphens if any

@@ -1,24 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirectAPI.Domain.Models
 {
     public class MxfProgram
     {
-        public string ProgramId => _programId;
+        public string ProgramId { get; }
 
-        private int _index;
         private string _uid;
         private string _keywords;
         private string _season;
         private string _series;
         private string _guideImage;
-        private readonly string _programId;
         private DateTime _originalAirDate = DateTime.MinValue;
 
         [XmlIgnore] public string UidOverride;
@@ -28,12 +21,12 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Models
         [XmlIgnore] public List<MxfKeyword> mxfKeywords = [];
         [XmlIgnore] public bool IsAdultOnly;
 
-        [XmlIgnore] public Dictionary<string, dynamic> extras = new Dictionary<string, dynamic>();
+        [XmlIgnore] public Dictionary<string, dynamic> extras = [];
 
         public MxfProgram(int index, string programId)
         {
-            _index = index;
-            _programId = programId;
+            Id = index;
+            ProgramId = programId;
         }
         public MxfProgram() { }
 
@@ -44,11 +37,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Models
         /// </summary>
         [XmlAttribute("id")]
         [DefaultValue(0)]
-        public int Id
-        {
-            get => _index;
-            set { _index = value; }
-        }
+        public int Id { get; set; }
 
         /// <summary>
         /// A unique ID that will remain consistent between multiple versions of this document.
@@ -57,7 +46,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Models
         [XmlAttribute("uid")]
         public string Uid
         {
-            get => _uid ?? (!string.IsNullOrEmpty(UidOverride) ? $"!Program!{UidOverride}" : $"!Program!{_programId}");
+            get => _uid ?? (!string.IsNullOrEmpty(UidOverride) ? $"!Program!{UidOverride}" : $"!Program!{ProgramId}");
             set { _uid = value; }
         }
 
@@ -139,12 +128,9 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Models
         {
             get
             {
-                if (!IsGeneric && _originalAirDate != DateTime.MinValue && extras.ContainsKey("newAirDate"))
-                {
-                    return extras["newAirDate"].ToString("yyyy-MM-dd");
-                }
-
-                return _originalAirDate != DateTime.MinValue ? _originalAirDate.ToString("yyyy-MM-dd") : null;
+                return !IsGeneric && _originalAirDate != DateTime.MinValue && extras.ContainsKey("newAirDate")
+                    ? (string)extras["newAirDate"].ToString("yyyy-MM-dd")
+                    : _originalAirDate != DateTime.MinValue ? _originalAirDate.ToString("yyyy-MM-dd") : null;
             }
             set => _ = DateTime.TryParse(value, out _originalAirDate);
         }

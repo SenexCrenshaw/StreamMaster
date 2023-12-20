@@ -21,7 +21,7 @@ public class MxfPerson
     public string Id
     {
         get => $"p{_index}";
-        set { _index = int.Parse(value.Substring(1)); }
+        set { _index = int.Parse(value[1..]); }
     }
 
     /// <summary>

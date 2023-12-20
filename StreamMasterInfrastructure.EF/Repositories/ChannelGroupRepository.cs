@@ -26,17 +26,12 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
     {
         try
         {
-            List<ChannelGroup> channelGroups = new();
+            List<ChannelGroup> channelGroups = [];
 
             IQueryable<ChannelGroup> query = FindAll();
-            if (ids == null)
-            {
-                channelGroups = await FindAll().ToListAsync().ConfigureAwait(false);
-            }
-            else
-            {
-                channelGroups = await FindByCondition(a => ids.Contains(a.Id)).ToListAsync().ConfigureAwait(false);
-            }
+            channelGroups = ids == null
+                ? await FindAll().ToListAsync().ConfigureAwait(false)
+                : await FindByCondition(a => ids.Contains(a.Id)).ToListAsync().ConfigureAwait(false);
 
             logger.LogInformation($"Successfully retrieved {channelGroups.Count} channel groups.");
 
@@ -58,7 +53,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
         try
         {
 
-            var channelGroupNames = await RepositoryContext.ChannelGroups
+            List<ChannelGroupIdName> channelGroupNames = await RepositoryContext.ChannelGroups
              .OrderBy(channelGroup => channelGroup.Name)
              .Select(channelGroup => new ChannelGroupIdName
              {
@@ -117,12 +112,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
     {
         VideoStream? videoStream = await RepositoryContext.VideoStreams.FirstOrDefaultAsync(a => a.Id == videoStreamId).ConfigureAwait(false);
 
-        if (videoStream == null)
-        {
-            return null;
-        }
-
-        return videoStream.User_Tvg_name;
+        return videoStream?.User_Tvg_name;
     }
 
     /// <summary>
@@ -259,12 +249,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
         try
         {
             ChannelGroup? channelGroup = await FindByCondition(channelGroup => channelGroup.Name.Equals(name)).FirstOrDefaultAsync();
-            if (channelGroup == null)
-            {
-                return null;
-            }
-
-            return channelGroup;
+            return channelGroup ?? null;
         }
         catch (Exception ex)
         {
@@ -307,11 +292,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
     public async Task<(int? ChannelGroupId, List<VideoStreamDto> VideoStreams)> DeleteChannelGroupById(int ChannelGroupId)
     {
         ChannelGroup? channelGroup = await FindByCondition(a => a.Id == ChannelGroupId).FirstOrDefaultAsync().ConfigureAwait(false);
-        if (channelGroup == null)
-        {
-            return (null, new List<VideoStreamDto>());
-        }
-        return await DeleteChannelGroup(channelGroup).ConfigureAwait(false);
+        return channelGroup == null ? ((int? ChannelGroupId, List<VideoStreamDto> VideoStreams))(null, []) : await DeleteChannelGroup(channelGroup).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -324,7 +305,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
         logger.LogInformation($"Preparing to delete ChannelGroup with ID {channelGroup.Id} and update associated video streams.");
 
         // Fetching associated video streams for the ChannelGroup
-        List<VideoStreamDto> videoStreams = await sender.Send(new GetVideoStreamsForChannelGroups(new List<int> { channelGroup.Id })).ConfigureAwait(false);
+        List<VideoStreamDto> videoStreams = await sender.Send(new GetVideoStreamsForChannelGroups([channelGroup.Id])).ConfigureAwait(false);
 
         // Deleting the ChannelGroup
         Delete(channelGroup);
@@ -421,7 +402,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
 
         if (!videoStreams.Any())
         {
-            return new List<ChannelGroup>();
+            return [];
         }
 
         IQueryable<string> channeNames = videoStreams.Select(a => a.User_Tvg_group).Distinct();

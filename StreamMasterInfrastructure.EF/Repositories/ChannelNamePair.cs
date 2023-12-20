@@ -8,11 +8,7 @@ internal class ChannelNamePair
     // You may want to override Equals and GetHashCode to ensure distinct works correctly.
     public override bool Equals(object obj)
     {
-        if (obj is ChannelNamePair other)
-        {
-            return Channel == other.Channel && Name == other.Name;
-        }
-        return false;
+        return obj is ChannelNamePair other && Channel == other.Channel && Name == other.Name;
     }
 
     public override int GetHashCode()

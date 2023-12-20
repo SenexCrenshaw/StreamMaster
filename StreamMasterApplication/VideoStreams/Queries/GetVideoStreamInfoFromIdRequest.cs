@@ -5,8 +5,8 @@ public record GetVideoStreamInfoFromIdRequest(string channelVideoStreamId) : IRe
 [LogExecutionTimeAspect]
 public class GetVideoStreamInfoFromIdRequestHandler(ILogger<GetVideoStreamInfoFromIdRequest> logger, IChannelManager channelManager) : IRequestHandler<GetVideoStreamInfoFromIdRequest, VideoInfo>
 {
-    public async Task<VideoInfo> Handle(GetVideoStreamInfoFromIdRequest request, CancellationToken cancellationToken)
+    public Task<VideoInfo> Handle(GetVideoStreamInfoFromIdRequest request, CancellationToken cancellationToken)
     {
-        return await channelManager.GetVideoInfo(request.channelVideoStreamId);
+        return Task.FromResult(channelManager.GetVideoInfo(request.channelVideoStreamId));
     }
 }

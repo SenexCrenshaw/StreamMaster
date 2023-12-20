@@ -7,19 +7,17 @@ public static class IdConverter
 {
     public static string ConvertStringToId(this string str)
     {
-        using (MD5 md5 = MD5.Create())
+        using MD5 md5 = MD5.Create();
+        byte[] inputBytes = Encoding.UTF8.GetBytes(str);
+        byte[] hashBytes = md5.ComputeHash(inputBytes);
+        StringBuilder sb = new();
+
+        for (int i = 0; i < hashBytes.Length; i++)
         {
-            byte[] inputBytes = Encoding.UTF8.GetBytes(str);
-            byte[] hashBytes = md5.ComputeHash(inputBytes);
-            StringBuilder sb = new StringBuilder();
-
-            for (int i = 0; i < hashBytes.Length; i++)
-            {
-                sb.Append(hashBytes[i].ToString("x2"));
-            }
-
-            return sb.ToString();
+            sb.Append(hashBytes[i].ToString("x2"));
         }
+
+        return sb.ToString();
     }
 
     public static string GenerateRandomString()

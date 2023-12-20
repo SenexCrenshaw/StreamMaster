@@ -1,7 +1,5 @@
 ﻿using System.Text.Json.Serialization;
 
-using System.Collections.Generic;
-
 namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
 {
     public class ProgramMetadata : BaseResponse
@@ -14,7 +12,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         public List<ProgramArtwork> Data { get; set; }
     }
 
-    public class ProgramArtwork: BaseResponse
+    public class ProgramArtwork : BaseResponse
     {
         private string _size;
 

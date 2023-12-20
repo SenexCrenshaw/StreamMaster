@@ -217,12 +217,7 @@ public static class CryptoExtension
 
     public static string? GetAPIKeyFromPath(this string requestPath, string serverKey, int keySize = 128)
     {
-        if (requestPath.GetIVFromPath(serverKey) == null)
-        {
-            return null;
-        }
-
-        return serverKey;
+        return requestPath.GetIVFromPath(serverKey) == null ? null : serverKey;
     }
 
 

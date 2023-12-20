@@ -1,7 +1,4 @@
 ﻿namespace StreamMasterDomain.Common;
-
-using System.Threading;
-
 public class ThreadSafeCounter
 {
     private int count;

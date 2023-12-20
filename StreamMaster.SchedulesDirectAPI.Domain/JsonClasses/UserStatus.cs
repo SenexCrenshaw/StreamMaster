@@ -1,8 +1,5 @@
 ﻿using System.Text.Json.Serialization;
 
-using System;
-using System.Collections.Generic;
-
 namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
 {
     public class UserStatus : BaseResponse
@@ -11,7 +8,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         public StatusAccount Account { get; set; }
 
         [JsonPropertyName("lineups")]
-       // //[JsonConverter(typeof(SingleOrListConverter<StatusLineup>))]
+        // //[JsonConverter(typeof(SingleOrListConverter<StatusLineup>))]
         public List<StatusLineup> Lineups { get; set; }
 
         [JsonPropertyName("lastDataUpdate")]
