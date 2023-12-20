@@ -1,11 +1,37 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using Prometheus;
+
 using StreamMasterApplication.Common.Interfaces;
+
+using System.Diagnostics;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Buffers;
 
 public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, ILogger<ClientReadStream> logger, IClientStreamerConfiguration config) : Stream, IClientReadStream
 {
+    private readonly Histogram _readDurationHistogram = Metrics.CreateHistogram(
+            "client_read_stream_duration_milliseconds",
+            "Duration of read operations in milliseconds.",
+            new HistogramConfiguration
+            {
+                Buckets = Histogram.ExponentialBuckets(0.01, 2, 10), // Adjust as needed
+                LabelNames = new[] { "client_id" }
+            });
+
+    private readonly Counter _bytesReadCounter = Metrics.CreateCounter(
+            "client_read_stream_bytes_read_total",
+            "Total number of bytes read.",
+            "client_id");
+    private readonly Counter _readErrorsCounter = Metrics.CreateCounter(
+            "client_read_stream_errors_total",
+            "Total number of read errors.",
+            "client_id");
+    private readonly Counter _readCancellationCounter = Metrics.CreateCounter(
+            "client_read_stream_cancellations_total",
+            "Total number of read cancellations.",
+            "client_id");
+
     private Func<ICircularRingBuffer> _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
     private CancellationTokenSource _clientMasterToken = config.ClientMasterToken;
     private readonly SemaphoreSlim semaphore = new(1);
@@ -41,6 +67,9 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
 
         }
 
+        Stopwatch stopwatch = new();
+        stopwatch.Start();
+
         int bytesRead = 0;
         using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _readCancel!.Token, _clientMasterToken.Token);
         try
@@ -60,19 +89,25 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
 
                 bytesRead += await Buffer.ReadChunkMemory(ClientId, buffer.Slice(bytesRead, bytesToRead), _readCancel.Token);
             }
+            _bytesReadCounter.WithLabels(ClientId.ToString()).Inc(bytesRead);
         }
         catch (TaskCanceledException ex)
         {
+            _readCancellationCounter.WithLabels(ClientId.ToString()).Inc();
+
             _readCancel = new CancellationTokenSource();
             logger.LogInformation(ex, "Read Task ended for ClientId: {ClientId}", ClientId);
 
         }
         catch (Exception ex)
         {
+            _readErrorsCounter.WithLabels(ClientId.ToString()).Inc();
             logger.LogError(ex, "Error reading buffer for ClientId: {ClientId}", ClientId);
         }
         finally
         {
+            stopwatch.Stop();
+            _readDurationHistogram.WithLabels(ClientId.ToString()).Observe(stopwatch.Elapsed.TotalMilliseconds);
             semaphore.Release();
         }
 

@@ -21,7 +21,7 @@ namespace StreamMasterInfrastructure.VideoStreamManager.Buffers;
 public sealed class CircularRingBuffer : ICircularRingBuffer
 {
     private readonly Histogram WriteDurationHistogram = Metrics.CreateHistogram(
-       "circular_buffer_write_chunk_duration_seconds",
+       "circular_buffer_write_chunk_duration_milliseconds",
        "Histogram for the duration of the WriteChunk operation.",
        new HistogramConfiguration
        {
@@ -33,22 +33,18 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         "circular_buffer_bytes_written_total",
         "Total number of bytes written.", "circular_buffer_id");
 
-    private static readonly Counter WriteErrorsCounter = Metrics.CreateCounter(
+    private readonly Counter WriteErrorsCounter = Metrics.CreateCounter(
         "circular_buffer_write_errors_total",
         "Total number of write errors.", "circular_buffer_id");
 
     private readonly Histogram _dataArrivalHistogram = Metrics.CreateHistogram(
-        "circular_buffer_arrival_time_seconds",
-        "Histogram of data arrival times in seconds.",
+    "circular_buffer_arrival_time_milliseconds",
+    "Histogram of data arrival times in milliseconds.",
         new HistogramConfiguration
         {
             Buckets = Histogram.LinearBuckets(start: 0.01, width: 0.01, count: 500), // Adjust the buckets to your needs
-            LabelNames = ["client_id", "video_stream_name"]
+            LabelNames = ["circular_buffer_id", "video_stream_name"]
         });
-
-    private readonly Gauge _bufferUtilizationGauge = Metrics.CreateGauge("buffer_utilization", "Buffer utilization percentage");
-    private readonly Counter _bufferOverflowCounter = Metrics.CreateCounter("buffer_overflow_events", "Count of buffer overflow events");
-    private readonly Counter _bufferUnderflowCounter = Metrics.CreateCounter("buffer_underflow_events", "Count of buffer underflow events");
 
     private readonly IStatisticsManager _statisticsManager;
     private readonly IInputStatisticsManager _inputStatisticsManager;
@@ -58,10 +54,8 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
     private readonly int _bufferSize;
     private readonly ConcurrentDictionary<Guid, int> _clientReadIndexes = new();
 
-    //private readonly ConcurrentDictionary<Guid, TaskCompletionSource<bool>> _readWaitHandles = new();
-
     private readonly ConcurrentDictionary<Guid, ManualResetEventSlim> _readWaitHandles = new();
-    private readonly ConcurrentDictionary<Guid, DateTime> _lastNotificationTime = new();
+    private DateTime _lastNotificationTime = new();
 
     public VideoInfo? VideoInfo { get; set; } = null;
 
@@ -338,24 +332,23 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
     private void NotifyClients()
     {
         DateTime now = DateTime.UtcNow;
+        // Get the last notification time and update it to now
+        DateTime lastNotificationTime = _lastNotificationTime;
+        _lastNotificationTime = now;
+
+        // Log the elapsed time if it's more than 500 milliseconds
+        TimeSpan elapsed = now - lastNotificationTime;
+        _dataArrivalHistogram.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Observe(elapsed.TotalMilliseconds);
+        if (elapsed.TotalMilliseconds > 500)
+        {
+            // Log the elapsed time here
+            _logger.LogWarning($"Input stream is slow: {StreamInfo.VideoStreamName} {elapsed.TotalMilliseconds}ms elapsed since last set.");
+        }
 
         foreach (Guid clientId in _readWaitHandles.Keys)
         {
             if (_readWaitHandles.TryGetValue(clientId, out ManualResetEventSlim? waitHandle))
             {
-                // Get the last notification time and update it to now
-                DateTime lastNotificationTime = _lastNotificationTime.GetOrAdd(clientId, now);
-                _lastNotificationTime[clientId] = now;
-
-                // Log the elapsed time if it's more than 500 milliseconds
-                TimeSpan elapsed = now - lastNotificationTime;
-                _dataArrivalHistogram.WithLabels(clientId.ToString(), StreamInfo.VideoStreamName).Observe(elapsed.TotalSeconds);
-                if (elapsed.TotalMilliseconds > 500)
-                {
-                    // Log the elapsed time here
-                    _logger.LogWarning($"Input stream is slow {clientId}: {StreamInfo.VideoStreamName} {elapsed.TotalMilliseconds}ms elapsed since last set.");
-                }
-
                 waitHandle.Set();
             }
         }
@@ -424,7 +417,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         finally
         {
             stopwatch.Stop();
-            WriteDurationHistogram.WithLabels(Id.ToString()).Observe(stopwatch.Elapsed.TotalSeconds); // Record the duration
+            WriteDurationHistogram.WithLabels(Id.ToString()).Observe(stopwatch.Elapsed.TotalMilliseconds); // Record the duration
             _readWriteLock.ExitWriteLock();
         }
 
