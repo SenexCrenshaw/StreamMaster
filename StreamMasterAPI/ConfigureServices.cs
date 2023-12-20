@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.StaticFiles;
 using NSwag;
 using NSwag.Generation.Processors.Security;
 
+using Prometheus;
+
 using StreamMasterAPI.SchemaHelpers;
 using StreamMasterAPI.Services;
 
@@ -40,6 +42,7 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddWebUIServices(this IServiceCollection services)
     {
+
         services.AddLogging(logging =>
         {
             logging.AddFilter("StreamMasterDomain.Logging.CustomLogger", LogLevel.Information);
@@ -50,15 +53,13 @@ public static class ConfigureServices
             logging.AddFilter<StatsLoggerProvider>((category, logLevel) =>
             {
                 // List of classes to use with CustomLogger
-                var classesToLog = new List<string> { "BroadcastService" };
-                if (category is not null && category.Contains("BroadcastService", StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-                return false;
+                List<string> classesToLog = new() { "BroadcastService" };
+                return category is not null && category.Contains("BroadcastService", StringComparison.OrdinalIgnoreCase);
             });
 
         });
+
+        services.UseHttpClientMetrics();
 
         services.AddTransient(typeof(ILogger<>), typeof(CustomLogger<>));
 

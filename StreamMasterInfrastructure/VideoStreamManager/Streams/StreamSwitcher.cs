@@ -16,8 +16,6 @@ namespace StreamMasterInfrastructure.VideoStreamManager.Streams;
 
 public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStreamerManager clientStreamerManager, IChannelService channelService, IServiceProvider serviceProvider, IMemoryCache memoryCache, IStreamManager streamManager) : IStreamSwitcher
 {
-    private readonly SemaphoreSlim switcherSemaphoreSlim = new(1);
-
     public async Task<bool> SwitchToNextVideoStreamAsync(string ChannelVideoStreamId, string? overrideNextVideoStreamId = null)
     {
 
@@ -28,6 +26,7 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
             logger.LogDebug("Exiting SwitchToNextVideoStream with false due to channelStatus being null");
             return false;
         }
+
         if (channelStatus.FailoverInProgress)
         {
             //logger.LogDebug("Exiting SwitchToNextVideoStream with false due to FailoverInProgress being true");
@@ -35,20 +34,12 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
         }
 
         channelStatus.FailoverInProgress = true;
-        //}
-        //finally
-        //{
-        //    switcherSemaphoreSlim.Release();
-        //}
+        if (!string.IsNullOrEmpty(overrideNextVideoStreamId))
+        {
+            channelStatus.OverrideVideoStreamId = overrideNextVideoStreamId;
+        }
 
         logger.LogDebug("Starting SwitchToNextVideoStream with channelStatus: {channelStatus} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus, overrideNextVideoStreamId);
-
-        //if (!await TokenExtensions.ApplyDelay())
-        //{
-        //    logger.LogInformation("Task was cancelled");
-        //    channelStatus.FailoverInProgress = false;
-        //    return false;
-        //}
 
         IStreamHandler? oldStreamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStream.User_Url);
 
@@ -79,11 +70,6 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
 
         if (channelStatus.CurrentVideoStream is not null && oldStreamHandler is not null)
         {
-            //if (!oldStreamHandler.IsFailed)
-            //{
-            //    oldStreamHandler.SetFailed();
-            //}
-
             await streamManager.MoveClientStreamers(oldStreamHandler, newStreamHandler);
         }
         else

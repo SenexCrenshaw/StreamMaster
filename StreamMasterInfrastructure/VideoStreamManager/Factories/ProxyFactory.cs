@@ -121,6 +121,8 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
 
     private async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxyStream(string sourceUrl, string streamName, CancellationToken cancellationToken)
     {
+        Stopwatch stopwatch = Stopwatch.StartNew(); // Start the stopwatch
+
         try
         {
             Setting settings = await settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
@@ -146,12 +148,15 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
                 return await GetFFMpegStream(sourceUrl).ConfigureAwait(false);
             }
 
-            Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-            logger.LogInformation("Successfully retrieved stream for: {StreamUrl} {streamName}", sourceUrl, streamName);
+            Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+            stopwatch.Stop(); // Stop the stopwatch when the stream is retrieved
+            logger.LogInformation("Successfully retrieved stream for: {StreamUrl} {streamName} in {ElapsedMilliseconds} ms", sourceUrl, streamName, stopwatch.ElapsedMilliseconds);
+
             return (stream, -1, null);
         }
         catch (Exception ex)
         {
+            stopwatch.Stop();
             ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = ex.Message };
             string message = $"GetProxyStream Error for {streamName}";
             logger.LogError(ex, message, error.Message);

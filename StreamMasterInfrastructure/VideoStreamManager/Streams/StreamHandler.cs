@@ -58,6 +58,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         try
         {
             await getVideoInfo.WaitAsync();
+
             if (runningGetVideo)
             {
                 return _videoInfo ?? new();
@@ -67,8 +68,15 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             {
                 return _videoInfo;
             }
-            runningGetVideo = true;
 
+            if (GetVideoInfoErrors > 3)
+            {
+                return new();
+            }
+
+            ++GetVideoInfoErrors;
+
+            runningGetVideo = true;
 
             Setting settings = memoryCache.GetSetting();
 
@@ -78,7 +86,6 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             {
                 if (!IsFFProbeAvailable())
                 {
-                    runningGetVideo = false;
                     return new();
                 }
                 ffprobeExec = "ffprobe";
@@ -86,8 +93,9 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
             try
             {
-                runningGetVideo = false;
-                return await CreateFFProbeStream(ffprobeExec, videoMemory).ConfigureAwait(false);
+                VideoInfo ret = await CreateFFProbeStream(ffprobeExec, videoMemory).ConfigureAwait(false);
+
+                return ret;
             }
             catch (IOException ex)
             {
@@ -97,15 +105,17 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             {
 
             }
-            runningGetVideo = false;
+
             return new();
         }
         finally
         {
+            runningGetVideo = false;
             getVideoInfo.Release();
         }
     }
 
+    private int GetVideoInfoErrors = 0;
     private async Task<VideoInfo> CreateFFProbeStream(string ffProbeExec, byte[] videoMemory)
     {
         using Process process = new();

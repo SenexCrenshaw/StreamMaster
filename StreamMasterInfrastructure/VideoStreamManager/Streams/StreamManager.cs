@@ -162,8 +162,10 @@ public sealed class StreamManager(
 
         }
 
+
         if (oldStreamHandler.ClientCount == 0)
         {
+            //await Task.Delay(100);
             _ = StopAndUnRegisterHandler(oldStreamHandler.StreamUrl);
         }
     }

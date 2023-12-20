@@ -60,11 +60,14 @@ public sealed class ChannelManager : IChannelManager
                         continue;
                     }
 
-                    bool handled = await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
-
-                    if (!handled)
+                    if (!string.IsNullOrEmpty(channelStatus.OverrideVideoStreamId))
                     {
+                        channelStatus.OverrideVideoStreamId = "";
+                        continue;
+                    }
 
+                    if (!await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId))
+                    {
                         clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(channelStatus.ChannelVideoStreamId)
                             .ForEach(async x =>
                             {
@@ -100,6 +103,7 @@ public sealed class ChannelManager : IChannelManager
         {
             if (channelStatus != null)
             {
+
                 if (!await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId, newVideoStreamId))
                 {
                     logger.LogWarning("Exiting ChangeVideoStreamChannel. Could not change channel to {newVideoStreamId}", newVideoStreamId);

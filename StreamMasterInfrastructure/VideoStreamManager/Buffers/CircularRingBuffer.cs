@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
+using Prometheus;
+
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 
@@ -9,6 +11,7 @@ using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Buffers;
 
@@ -17,6 +20,36 @@ namespace StreamMasterInfrastructure.VideoStreamManager.Buffers;
 /// </summary>
 public sealed class CircularRingBuffer : ICircularRingBuffer
 {
+    private readonly Histogram WriteDurationHistogram = Metrics.CreateHistogram(
+       "circular_buffer_write_chunk_duration_seconds",
+       "Histogram for the duration of the WriteChunk operation.",
+       new HistogramConfiguration
+       {
+           Buckets = Histogram.ExponentialBuckets(0.01, 2, 10),
+           LabelNames = ["circular_buffer_id"]
+       });
+
+    private readonly Counter BytesWrittenCounter = Metrics.CreateCounter(
+        "circular_buffer_bytes_written_total",
+        "Total number of bytes written.", "circular_buffer_id");
+
+    private static readonly Counter WriteErrorsCounter = Metrics.CreateCounter(
+        "circular_buffer_write_errors_total",
+        "Total number of write errors.", "circular_buffer_id");
+
+    private readonly Histogram _dataArrivalHistogram = Metrics.CreateHistogram(
+        "circular_buffer_arrival_time_seconds",
+        "Histogram of data arrival times in seconds.",
+        new HistogramConfiguration
+        {
+            Buckets = Histogram.LinearBuckets(start: 0.01, width: 0.01, count: 500), // Adjust the buckets to your needs
+            LabelNames = ["client_id", "video_stream_name"]
+        });
+
+    private readonly Gauge _bufferUtilizationGauge = Metrics.CreateGauge("buffer_utilization", "Buffer utilization percentage");
+    private readonly Counter _bufferOverflowCounter = Metrics.CreateCounter("buffer_overflow_events", "Count of buffer overflow events");
+    private readonly Counter _bufferUnderflowCounter = Metrics.CreateCounter("buffer_underflow_events", "Count of buffer underflow events");
+
     private readonly IStatisticsManager _statisticsManager;
     private readonly IInputStatisticsManager _inputStatisticsManager;
     private readonly IInputStreamingStatistics _inputStreamStatistics;
@@ -316,10 +349,11 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
 
                 // Log the elapsed time if it's more than 500 milliseconds
                 TimeSpan elapsed = now - lastNotificationTime;
+                _dataArrivalHistogram.WithLabels(clientId.ToString(), StreamInfo.VideoStreamName).Observe(elapsed.TotalSeconds);
                 if (elapsed.TotalMilliseconds > 500)
                 {
                     // Log the elapsed time here
-                    _logger.LogWarning($"Client slow {clientId}: {elapsed.TotalMilliseconds}ms elapsed since last set.");
+                    _logger.LogWarning($"Input stream is slow {clientId}: {StreamInfo.VideoStreamName} {elapsed.TotalMilliseconds}ms elapsed since last set.");
                 }
 
                 waitHandle.Set();
@@ -340,6 +374,9 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
 
     public int WriteChunk(Memory<byte> data)
     {
+        Stopwatch stopwatch = new();
+        stopwatch.Start();
+
         _logger.LogDebug("Starting WriteChunk {VideoStreamId} with count: {count}", VideoStreamId, data.Length);
 
         int bytesWritten = 0;
@@ -377,21 +414,23 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
                     _oldestDataIndex = (_writeIndex + 1) % _buffer.Length;
                 }
             }
+            BytesWrittenCounter.WithLabels(Id.ToString()).Inc(bytesWritten);
+        }
+        catch (Exception ex)
+        {
+            WriteErrorsCounter.WithLabels(Id.ToString()).Inc(); // Increment write errors counter
+            _logger.LogError(ex, "WriteChunk error occurred while writing chunk for {VideoStreamId}.", VideoStreamId);
         }
         finally
         {
+            stopwatch.Stop();
+            WriteDurationHistogram.WithLabels(Id.ToString()).Observe(stopwatch.Elapsed.TotalSeconds); // Record the duration
             _readWriteLock.ExitWriteLock();
         }
 
         _inputStreamStatistics.AddBytesWritten(bytesWritten);
-        try
-        {
-            NotifyClients();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An error occurred while notifying clients during WriteChunk for {VideoStreamId}.", VideoStreamId);
-        }
+
+        NotifyClients();
 
         _logger.LogDebug("WriteChunk completed with {VideoStreamId} count: {bytesWritten}", VideoStreamId, bytesWritten);
 
