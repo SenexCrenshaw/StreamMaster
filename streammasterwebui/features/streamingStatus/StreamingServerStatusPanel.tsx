@@ -40,7 +40,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
     let data = [...dataSource];
 
     for (const item of getStreamingStatus.data) {
-      const index = data.findIndex((x) => x.videoStreamId === item.videoStreamId);
+      const index = data.findIndex((x) => x.circularBufferId === item.circularBufferId);
       if (index === -1) {
         data.push(item);
       } else {
@@ -54,6 +54,13 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
           inputBitsPerSecond: item.inputBitsPerSecond !== data[index].inputBitsPerSecond ? item.inputBitsPerSecond : data[index].inputBitsPerSecond,
           inputStartTime: item.inputStartTime !== data[index].inputStartTime ? item.inputStartTime : data[index].inputStartTime
         };
+      }
+    }
+
+    for (const item of dataSource) {
+      const index = getStreamingStatus.data.findIndex((x) => x.circularBufferId === item.circularBufferId);
+      if (index === -1) {
+        data = data.filter((x) => x.circularBufferId !== item.circularBufferId);
       }
     }
 
@@ -288,7 +295,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
           emptyMessage="No Streams"
           id="StreamingServerStatusPanel"
           isLoading={getStreamingStatus.isLoading}
-          key="circularBufferId"
+          dataKey="circularBufferId"
           selectedItemsKey="selectSelectedItems"
           style={style}
         />

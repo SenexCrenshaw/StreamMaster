@@ -121,7 +121,7 @@ const VideoStreamSelectedVideoStreamDataSelector = ({
       headerName={GetMessage('streams')}
       headerRightTemplate={rightHeaderTemplate()}
       id={dataKey}
-      key="rank"
+      dataKey="rank"
       onRowReorder={async (e) => await intOnRowReorder(e as VideoStreamDto[])}
       queryFilter={dataSource === undefined ? useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery : undefined}
       reorderable
