@@ -4,8 +4,9 @@ namespace StreamMasterApplication.Common.Interfaces;
 
 public interface ICircularRingBuffer
 {
+    VideoInfo? VideoInfo { get; set; }
     Memory<byte> GetBufferSlice(int length);
-    Task WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken);
+    void WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken);
     int BufferSize { get; }
     //event EventHandler<Guid> DataAvailable;
     //float GetBufferUtilization();

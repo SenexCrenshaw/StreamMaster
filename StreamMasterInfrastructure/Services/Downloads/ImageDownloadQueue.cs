@@ -12,7 +12,7 @@ public class ImageDownloadQueue : IImageDownloadQueue
 
     public void EnqueueProgramMetadataCollection(IEnumerable<ProgramMetadata> metadataCollection)
     {
-        foreach (var metadata in metadataCollection)
+        foreach (ProgramMetadata metadata in metadataCollection)
         {
             downloadQueue.Enqueue(metadata);
         }

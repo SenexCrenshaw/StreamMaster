@@ -30,6 +30,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
     private readonly ConcurrentDictionary<Guid, ManualResetEventSlim> _readWaitHandles = new();
     private readonly ConcurrentDictionary<Guid, DateTime> _lastNotificationTime = new();
 
+    public VideoInfo? VideoInfo { get; set; } = null;
 
     private readonly ILogger<ICircularRingBuffer> _logger;
     private int _oldestDataIndex;
@@ -114,14 +115,6 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
     public string VideoStreamId => StreamInfo.VideoStreamId;
     private bool InternalIsPreBuffered { get; set; } = false;
 
-    //private void OnDataAvailable(Guid clientId)
-    //{
-    //    if (_readWaitHandles.TryGetValue(clientId, out TaskCompletionSource<bool>? tcs))
-    //    {
-    //        tcs.TrySetResult(true);
-    //    }
-    //}
-
     public List<StreamStatisticsResult> GetAllStatisticsForAllUrls()
     {
         List<StreamStatisticsResult> allStatistics = [];
@@ -197,13 +190,28 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         return InternalIsPreBuffered;
     }
 
+    //public static double CalculateConsumptionTime(int packetSizeKB, double bitrateMbps)
+    //{
+    //    // Convert bitrate from Mbps to kilobytes per second (KB/s)
+    //    // Note: 1 byte = 8 bits, 1 megabit = 1000 kilobits
+    //    double bitrateKBps = bitrateMbps * 1000 / 8;
+
+    //    // Calculate the time to consume the packet in seconds
+    //    double timeInSeconds = packetSizeKB / bitrateKBps;
+
+    //    // Convert the time to milliseconds
+    //    return timeInSeconds * 1000;
+    //}
+
+    //private readonly int waitMs = 50;
+
     public async Task<int> ReadChunkMemory(Guid clientId, Memory<byte> target, CancellationToken cancellationToken)
     {
         _logger.LogDebug("Starting ReadChunkMemory for clientId: {clientId}", clientId);
 
         while (!IsPreBuffered() && !cancellationToken.IsCancellationRequested)
         {
-            await Task.Delay(50, cancellationToken);
+            await Task.Delay(25, cancellationToken);
         }
 
         if (!_clientReadIndexes.TryGetValue(clientId, out int readIndex))
@@ -247,7 +255,8 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
 
         return bytesRead;
     }
-    public async Task WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken)
+
+    public void WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken)
     {
         ManualResetEventSlim waitHandle = _readWaitHandles.GetOrAdd(clientId, _ => new ManualResetEventSlim(false));
 
@@ -260,7 +269,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
                 while (GetAvailableBytes(clientId) == 0 && !linkedCts.Token.IsCancellationRequested)
                 {
                     // Wait directly on the ManualResetEventSlim
-                    if (waitHandle.WaitHandle.WaitOne(TimeSpan.FromMilliseconds(100)))
+                    if (waitHandle.WaitHandle.WaitOne(TimeSpan.FromMilliseconds(25)))
                     {
                         break; // Exit the loop if the waitHandle is set
                     }
@@ -283,73 +292,6 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         waitHandle.Reset();
     }
 
-
-    //public async Task WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken)
-    //{
-    //    ManualResetEventSlim waitHandle = _readWaitHandles.GetOrAdd(clientId, _ => new ManualResetEventSlim(false));
-
-    //    // Create a linked token source that will cancel either on the original token's cancellation or after the timeout
-    //    using (CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
-    //    {
-    //        linkedCts.CancelAfter(TimeSpan.FromSeconds(5));
-
-    //        try
-    //        {
-    //            while (GetAvailableBytes(clientId) == 0 && !linkedCts.Token.IsCancellationRequested)
-    //            {
-    //                // Wait asynchronously on the ManualResetEventSlim with a delay
-    //                Task waitTask = Task.Run(() => waitHandle.Wait(linkedCts.Token), cancellationToken);
-    //                Task delayTask = Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken); // Introduce a 100ms delay
-
-    //                // Wait for either the wait handle to be set or the delay to complete
-    //                await Task.WhenAny(waitTask, delayTask);
-    //            }
-    //        }
-    //        catch (OperationCanceledException)
-    //        {
-    //            _logger.LogError("WaitForDataAvailability timed out for client ID {clientId}", clientId);
-    //            // Handle the cancellation (timeout or external cancellation)
-    //            // Log or perform necessary actions on timeout or cancellation
-    //            // This catch block will handle both the linked token (timeout) and the original cancellationToken
-    //        }
-    //    }
-
-    //    // Reset the event for the next wait
-    //    waitHandle.Reset();
-    //}
-
-
-
-
-    //public async Task WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken)
-    //{
-    //    try
-    //    {
-    //        // Check if data is already available before waiting
-    //        if (GetAvailableBytes(clientId) > 0)
-    //        {
-    //            return;
-    //        }
-
-    //        // Create or get an existing TaskCompletionSource for this client
-    //        TaskCompletionSource<bool> tcs = _readWaitHandles.GetOrAdd(clientId, id => new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously));
-
-    //        // Register cancellation token to set the TaskCompletionSource as canceled
-    //        using (cancellationToken.Register(() => tcs.TrySetCanceled()))
-    //        {
-    //            // Wait for the task to complete, which indicates data is available
-    //            await tcs.Task.ConfigureAwait(false);
-
-    //            // Reset the TaskCompletionSource for the next wait
-    //            _readWaitHandles[clientId] = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-    //        }
-    //    }
-    //    catch (TaskCanceledException)
-    //    {
-
-    //    }
-    //}
-
     public void RegisterClient(IClientStreamerConfiguration streamerConfiguration)
     {
         if (!_clientReadIndexes.ContainsKey(streamerConfiguration.ClientId))
@@ -359,18 +301,6 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         }
         _logger.LogInformation("RegisterClient for ClientId: {ClientId} {VideoStreamName} {_oldestDataIndex}", streamerConfiguration.ClientId, StreamInfo.VideoStreamName, _oldestDataIndex);
     }
-
-
-    //private void NotifyClients()
-    //{
-    //    foreach (Guid clientId in _clientReadIndexes.Keys)
-    //    {
-    //        if (_readWaitHandles.TryGetValue(clientId, out ManualResetEventSlim? waitHandle))
-    //        {
-    //            waitHandle.Set();
-    //        }
-    //    }
-    //}
 
     private void NotifyClients()
     {
@@ -389,7 +319,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
                 if (elapsed.TotalMilliseconds > 500)
                 {
                     // Log the elapsed time here
-                    _logger.LogInformation($"Client {clientId}: {elapsed.TotalMilliseconds}ms elapsed since last set.");
+                    _logger.LogWarning($"Client slow {clientId}: {elapsed.TotalMilliseconds}ms elapsed since last set.");
                 }
 
                 waitHandle.Set();
@@ -400,9 +330,6 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
     public void UnRegisterClient(Guid clientId)
     {
         _ = _clientReadIndexes.TryRemove(clientId, out _);
-        //_ = _clientSemaphores.Remove(clientId);
-        //_statisticsManager.UnRegisterClient(clientId);
-
         _logger.LogInformation("UnRegisterClient for clientId: {clientId}  {VideoStreamName}", clientId, StreamInfo.VideoStreamName);
     }
 

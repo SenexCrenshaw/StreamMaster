@@ -63,7 +63,7 @@ public sealed class ChannelService() : IChannelService
 
     public List<IChannelStatus> GetChannelStatusesFromVideoStreamId(string VideoStreamId)
     {
-        var test = _channelStatuses.Values.ToList();
+        List<IChannelStatus> test = _channelStatuses.Values.ToList();
         return _channelStatuses.Values.Where(a => a.ChannelVideoStreamId == VideoStreamId || a.CurrentVideoStream.Id == VideoStreamId).ToList();
     }
 

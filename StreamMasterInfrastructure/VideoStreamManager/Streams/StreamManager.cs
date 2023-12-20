@@ -111,16 +111,13 @@ public sealed class StreamManager(
                 OnStreamingStoppedEvent?.Invoke(sender, streamHandler);
                 //_ = StopAndUnRegisterHandler(VideoStreamUrl);
             }
-
         }
-
-
     }
 
     public async Task<VideoInfo> GetVideoInfo(string streamUrl)
     {
         IStreamHandler? handler = GetStreamHandlerFromStreamUrl(streamUrl);
-        return handler is null ? new() : await handler.GetVideoInfo();
+        return handler is null ? new() : handler.GetVideoInfo();
     }
 
     public IStreamHandler? GetStreamHandlerFromStreamUrl(string streamUrl)
@@ -184,7 +181,7 @@ public sealed class StreamManager(
             return true;
         }
 
-        logger.LogWarning("Failed to remove stream information for {VideoStreamUrl}", VideoStreamUrl);
+        logger.LogWarning("StopAndUnRegisterHandler {VideoStreamUrl} doesnt exist", VideoStreamUrl);
         return false;
 
     }

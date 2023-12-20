@@ -49,12 +49,7 @@ public class SettingsService(IMemoryCache cache) : ISettingsService
             }
         }
 
-        if (settings == null)
-        {
-            throw new InvalidOperationException("Failed to retrieve settings from cache.");
-        }
-
-        return settings;
+        return settings == null ? throw new InvalidOperationException("Failed to retrieve settings from cache.") : settings;
     }
 
 

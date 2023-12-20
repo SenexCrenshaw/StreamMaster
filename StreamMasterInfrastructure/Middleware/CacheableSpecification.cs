@@ -40,13 +40,7 @@ namespace StreamMasterInfrastructure.Middleware
 
             string path = request.Path.Value ?? "";
 
-            if (path.EndsWith("/index.js"))
-            {
-                return false;
-            }
-
-
-            return true;
+            return !path.EndsWith("/index.js");
         }
     }
 }

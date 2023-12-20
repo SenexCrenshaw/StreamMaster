@@ -33,7 +33,7 @@ public class StatsLogger : ILogger
             return;
         }
 
-        var message = formatter(state, exception);
+        string message = formatter(state, exception);
 
         // Custom log formatting logic here
         // Remove the namespace from the message or format as needed

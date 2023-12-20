@@ -52,7 +52,7 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
                 if (availableBytes == 0)
                 {
                     // Wait for data to become available
-                    await Buffer.WaitForDataAvailability(ClientId, _readCancel.Token);
+                    Buffer.WaitForDataAvailability(ClientId, _readCancel.Token);
                     continue;
                 }
 
@@ -102,30 +102,8 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
                     int availableBytes = Buffer.GetAvailableBytes(ClientId);
                     if (availableBytes == 0)
                     {
-                        //using CancellationTokenSource timeoutCts = new(TimeSpan.FromSeconds(1));
-                        //using CancellationTokenSource combinedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, _readCancel.Token);
 
-                        //try
-                        //{
-                        // Wait for data to become available or for the timeout to occur
-                        await Buffer.WaitForDataAvailability(ClientId, _readCancel.Token);
-                        //}
-                        //catch (OperationCanceledException)
-                        //{
-                        //    // Check which token triggered the cancellation
-                        //    if (timeoutCts.IsCancellationRequested)
-                        //    {
-                        //        // Timeout occurred, handle accordingly
-                        //        // For example, you can break the loop or throw an exception
-                        //        break;
-                        //    }
-
-                        //    if (_readCancel.Token.IsCancellationRequested)
-                        //    {
-                        //        // Cancellation was requested via _readCancel
-                        //        break;
-                        //    }
-                        //}
+                        Buffer.WaitForDataAvailability(ClientId, _readCancel.Token);
 
                         availableBytes = Buffer.GetAvailableBytes(ClientId);
                         if (availableBytes == 0)

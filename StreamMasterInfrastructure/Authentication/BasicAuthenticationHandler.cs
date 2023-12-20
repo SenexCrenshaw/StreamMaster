@@ -54,12 +54,12 @@ namespace StreamMasterInfrastructure.Authentication
                 return AuthenticateResult.Fail("The username or password is not correct.");
             }
 
-            List<Claim> claims = new()
-            {
+            List<Claim> claims =
+            [
                 new Claim("user", user.Username),
                 new Claim("identifier", user.Identifier.ToString()),
                 new Claim("AuthType", "Basic")
-            };
+            ];
 
             ClaimsIdentity identity = new(claims, "Basic", "user", "identifier");
             ClaimsPrincipal principal = new(identity);

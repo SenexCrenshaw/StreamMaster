@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMasterDomain.Repository;
-
 namespace StreamMasterInfrastructure.Logging;
 
 public class SMLogger : ILogger
@@ -26,30 +24,28 @@ public class SMLogger : ILogger
         }
 
         // Format the log message
-        var message = formatter(state, exception);
+        string message = formatter(state, exception);
 
         // Save the log entry to the SQLite database
-        using (var db = new LogDbContext())
+        using LogDbContext db = new();
+        db.LogEntries.Add(new LogEntry
+        {
+            LogLevel = logLevel,
+            Message = message,
+            TimeStamp = DateTime.Now
+        });
+
+        // If there's an exception, log its details separately
+        if (exception != null)
         {
             db.LogEntries.Add(new LogEntry
             {
-                LogLevel = logLevel,
-                Message = message,
+                LogLevel = LogLevel.Error,
+                Message = exception.ToString(),
                 TimeStamp = DateTime.Now
             });
-
-            // If there's an exception, log its details separately
-            if (exception != null)
-            {
-                db.LogEntries.Add(new LogEntry
-                {
-                    LogLevel = LogLevel.Error,
-                    Message = exception.ToString(),
-                    TimeStamp = DateTime.Now
-                });
-            }
-
-            db.SaveChanges();
         }
+
+        db.SaveChanges();
     }
 }

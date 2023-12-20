@@ -2,7 +2,7 @@
 
 public interface IStreamHandler : IDisposable
 {
-    Task<VideoInfo> GetVideoInfo();
+    VideoInfo GetVideoInfo();
     string VideoStreamName { get; }
 
     event EventHandler<string> OnStreamingStoppedEvent;

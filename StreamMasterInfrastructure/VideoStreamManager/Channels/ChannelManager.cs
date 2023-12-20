@@ -89,7 +89,7 @@ public sealed class ChannelManager : IChannelManager
 
         IStreamHandler? streamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStream.User_Url);
 
-        return streamHandler is null ? new() : await streamHandler.GetVideoInfo();
+        return streamHandler is null ? new() : streamHandler.GetVideoInfo();
     }
 
     public async Task ChangeVideoStreamChannel(string playingVideoStreamId, string newVideoStreamId)
@@ -195,33 +195,6 @@ public sealed class ChannelManager : IChannelManager
         }
     }
 
-    private async Task<bool> CheckAndCleanUpClientStreamers(IChannelStatus channelStatus)
-    {
-        List<IClientStreamerConfiguration> a = clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(channelStatus.ChannelVideoStreamId);
-
-        if (a.Any())
-        {
-            foreach (IClientStreamerConfiguration client in clientStreamerManager.GetAllClientStreamerConfigurations)
-            {
-                if (client.ClientMasterToken.IsCancellationRequested)
-                {
-                    logger.LogInformation("Client {clientId} is finished", client.ClientId);
-                    await UnRegisterWithChannelManager(client);
-                }
-            }
-        }
-
-        a = clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(channelStatus.ChannelVideoStreamId);
-        if (!a.Any())
-        {
-            logger.LogInformation("No clients for channel: {videoStreamId}", channelStatus.CurrentVideoStream.Id);
-            logger.LogDebug("Exiting CheckClients for channel: {VideoStreamId}", channelStatus.CurrentVideoStream.Id);
-            _ = streamManager.StopAndUnRegisterHandler(channelStatus.CurrentVideoStream.User_Url);
-
-            return false;
-        }
-        return true;
-    }
     private async Task<Stream?> RegisterClientAndGetStream(IClientStreamerConfiguration config)
     {
         clientStreamerManager.RegisterClient(config);
@@ -345,7 +318,6 @@ public sealed class ChannelManager : IChannelManager
                         channelService.UnRegisterChannel(config.ChannelVideoStreamId);
                     }
                 }
-                await CheckAndCleanUpClientStreamers(channelStatus);
             }
             logger.LogInformation("Finished UnRegisterWithChannelManager with config: {config}", config.ClientId);
         }

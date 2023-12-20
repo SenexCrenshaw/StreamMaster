@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Enums;
 
 using System.Security.Claims;
@@ -22,15 +21,15 @@ namespace StreamMasterInfrastructure.Authentication
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            var claims = new List<Claim>
+            List<Claim> claims = new()
             {
                 new Claim("user", "Anonymous"),
                 new Claim("AuthType", AuthenticationType.None.ToString())
             };
 
-            var identity = new ClaimsIdentity(claims, "NoAuth", "user", "identifier");
-            var principal = new ClaimsPrincipal(identity);
-            var ticket = new AuthenticationTicket(principal, "NoAuth");
+            ClaimsIdentity identity = new(claims, "NoAuth", "user", "identifier");
+            ClaimsPrincipal principal = new(identity);
+            AuthenticationTicket ticket = new(principal, "NoAuth");
 
             return Task.FromResult(AuthenticateResult.Success(ticket));
         }
