@@ -9,7 +9,7 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
     private Func<ICircularRingBuffer> _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
     private CancellationTokenSource _clientMasterToken = config.ClientMasterToken;
     private readonly SemaphoreSlim semaphore = new(1);
-    private CancellationTokenSource? _readCancel;
+    private CancellationTokenSource _readCancel = new();
 
     private bool IsCancelled { get; set; }
     private Guid ClientId { get; set; } = config.ClientId;
@@ -87,7 +87,7 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
             return 0;
         }
 
-        _readCancel = new CancellationTokenSource();
+        _readCancel ??= new CancellationTokenSource();
 
         int bytesRead = 0;
         //using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _readCancel.Token, _clientMasterToken.Token);
@@ -102,30 +102,31 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
                     int availableBytes = Buffer.GetAvailableBytes(ClientId);
                     if (availableBytes == 0)
                     {
-                        using CancellationTokenSource timeoutCts = new(TimeSpan.FromSeconds(1));
-                        using CancellationTokenSource combinedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, _readCancel.Token);
+                        //using CancellationTokenSource timeoutCts = new(TimeSpan.FromSeconds(1));
+                        //using CancellationTokenSource combinedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, _readCancel.Token);
 
-                        try
-                        {
-                            // Wait for data to become available or for the timeout to occur
-                            await Buffer.WaitForDataAvailability(ClientId, combinedCts.Token);
-                        }
-                        catch (OperationCanceledException)
-                        {
-                            // Check which token triggered the cancellation
-                            if (timeoutCts.IsCancellationRequested)
-                            {
-                                // Timeout occurred, handle accordingly
-                                // For example, you can break the loop or throw an exception
-                                break;
-                            }
+                        //try
+                        //{
+                        // Wait for data to become available or for the timeout to occur
+                        await Buffer.WaitForDataAvailability(ClientId, _readCancel.Token);
+                        //}
+                        //catch (OperationCanceledException)
+                        //{
+                        //    // Check which token triggered the cancellation
+                        //    if (timeoutCts.IsCancellationRequested)
+                        //    {
+                        //        // Timeout occurred, handle accordingly
+                        //        // For example, you can break the loop or throw an exception
+                        //        break;
+                        //    }
 
-                            if (_readCancel.Token.IsCancellationRequested)
-                            {
-                                // Cancellation was requested via _readCancel
-                                break;
-                            }
-                        }
+                        //    if (_readCancel.Token.IsCancellationRequested)
+                        //    {
+                        //        // Cancellation was requested via _readCancel
+                        //        break;
+                        //    }
+                        //}
+
                         availableBytes = Buffer.GetAvailableBytes(ClientId);
                         if (availableBytes == 0)
                         {
@@ -138,6 +139,15 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
                     // Create a Memory<byte> slice from the buffer
                     Memory<byte> bufferSlice = new(buffer, offset + bytesRead, bytesToRead);
                     bytesRead += await Buffer.ReadChunkMemory(ClientId, bufferSlice, _readCancel.Token);
+                }
+                catch (TaskCanceledException ex)
+                {
+                    _readCancel = new CancellationTokenSource();
+                    logger.LogInformation(ex, "Reading ended for ClientId: {ClientId}", ClientId);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error reading buffer for ClientId: {ClientId}", ClientId);
                 }
                 finally
                 {
@@ -167,11 +177,10 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
 
     public async Task SetBufferDelegate(Func<ICircularRingBuffer> bufferDelegate, IClientStreamerConfiguration config)
     {
-        //_readCancel?.Cancel();
+        _readCancel.Cancel();
 
         try
         {
-
             await semaphore.WaitAsync();
 
             ClientId = config.ClientId;

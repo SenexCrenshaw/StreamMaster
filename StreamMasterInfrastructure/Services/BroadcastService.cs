@@ -64,11 +64,11 @@ public class BroadcastService(IHubContext<StreamMasterHub, IStreamMasterHub> hub
             }
             else
             {
-                if (!sentEmpty)
-                {
-                    hub.Clients.All.StreamStatisticsResultsUpdate(statisticsResults);
-                }
-                sentEmpty = true;
+                //if (!sentEmpty)
+                //{
+                hub.Clients.All.StreamStatisticsResultsUpdate(statisticsResults).ConfigureAwait(false);
+                //}
+                //sentEmpty = true;
             }
         }
         catch (Exception ex)

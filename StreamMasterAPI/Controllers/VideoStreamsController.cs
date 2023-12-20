@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterApplication.Common.Interfaces;
@@ -27,13 +25,10 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     private readonly IChannelManager _channelManager;
     private readonly ILogger<VideoStreamsController> _logger;
 
-    private readonly IMapper _mapper;
-
-    public VideoStreamsController(IChannelManager channelManager, ILogger<VideoStreamsController> logger, IMapper mapper)
+    public VideoStreamsController(IChannelManager channelManager, ILogger<VideoStreamsController> logger)
     {
         _channelManager = channelManager;
         _logger = logger;
-        _mapper = mapper;
     }
 
     [HttpPost]
@@ -108,7 +103,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [Route("stream/{encodedIds}/{name}")]
     public async Task<ActionResult> GetVideoStreamStream(string encodedIds, string name, CancellationToken cancellationToken)
     {
-        Setting setting = await SettingsService.GetSettingsAsync();
+        Setting setting = await SettingsService.GetSettingsAsync(cancellationToken);
         (int? StreamGroupNumberNull, string? StreamIdNull) = encodedIds.DecodeTwoValuesAsString128(setting.ServerKey);
         if (StreamGroupNumberNull == null || StreamIdNull == null)
         {
@@ -153,16 +148,6 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(_channelManager, config));
         if (stream != null)
         {
-            //ClientStreamerConfiguration fsconfig = new(videoStream.Id, videoStream.User_Tvg_name, Request.Headers["User-Agent"].ToString(), ipAddress ?? "unkown", cancellationToken, HttpContext.Response);
-            //Stream? fsstream = await _channelManager.GetChannel(fsconfig);
-            //if (fsstream != null)
-            //{
-            //    string filePath = Path.Combine(BuildInfo.CacheFolder, videoStream.User_Tvg_name + ".mp4");
-
-            //    await ReadAndWriteAsync(fsstream, filePath, cancellationToken).ConfigureAwait(false);
-            //    await _channelManager.RemoveClient(fsconfig);
-            //}
-
             return new FileStreamResult(stream, "video/mp4");
         }
         //else if (error != null)
@@ -176,7 +161,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         else
         {
             // Unknown error occurred
-            return StatusCode(StatusCodes.Status500InternalServerError, "An unknown error occurred");
+            return StatusCode(StatusCodes.Status404NotFound);
         }
     }
 

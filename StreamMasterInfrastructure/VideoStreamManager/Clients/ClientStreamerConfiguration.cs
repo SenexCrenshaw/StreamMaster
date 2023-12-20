@@ -8,9 +8,9 @@ namespace StreamMasterInfrastructure.VideoStreamManager.Clients;
 /// </summary>
 public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
 {
-    //private readonly Action cancelClient;
+
     private readonly HttpResponse response;
-    //private readonly Action abort;
+
     public ClientStreamerConfiguration(
         string channelVideoStreamId,
          string channelName,
@@ -51,8 +51,15 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
 
                 }
                 await response.CompleteAsync();
-                response.HttpContext.Abort();
+                if (!response.HttpContext.Response.HasStarted)
+                {
+                    response.HttpContext.Abort();
+                }
             }
+        }
+        catch (ObjectDisposedException ex)
+        {
+            // Log the exception or handle it as necessary
         }
         catch (Exception ex)
         {

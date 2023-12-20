@@ -60,19 +60,8 @@ public sealed class ChannelManager : IChannelManager
                         continue;
                     }
 
-                    //if (channelStatus.IsStarted)
-                    //{
-                    //    bool hasClients = await CheckAndCleanUpClientStreamers(channelStatus);
-                    //    if (!hasClients)
-                    //    {
-                    //        continue;
-                    //    }
-                    //}
-
                     bool handled = await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
 
-
-                    //bool handled = await ProcessStreamStatus(channelStatus);
                     if (!handled)
                     {
 
@@ -233,46 +222,6 @@ public sealed class ChannelManager : IChannelManager
         }
         return true;
     }
-
-    //private async Task<bool> HandleChannelVideoStreamSwitch(IChannelStatus channelStatus)
-    //{
-    //    logger.LogDebug("HandleChannelVideoStreamSwitch for channelStatus: {channelName} {channelStatus}", channelStatus.CurrentVideoStream.User_Tvg_name, channelStatus.CurrentVideoStream.Id);
-    //    try
-    //    {
-    //        bool handled = await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
-
-    //        logger.LogDebug("HandleChannelVideoStreamSwitch handled: {handled}", handled);
-    //        return handled;
-    //    }
-    //    catch (TaskCanceledException)
-    //    {
-    //        logger.LogInformation("Task was cancelled");
-    //        throw;
-    //    }
-    //}
-
-    private async Task<bool> ProcessStreamStatus(IChannelStatus channelStatus)
-    {
-        if (!channelStatus.FailoverInProgress)
-        {
-            return false;
-            IStreamHandler? streamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStream.User_Url);
-            if (streamHandler == null)
-            {
-                return false;
-            }
-
-            //if (streamHandler.IsFailed)
-            //{
-            //    return false;
-            //}
-
-            streamHandler.SetFailed();
-        }
-
-        return await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
-    }
-
     private async Task<Stream?> RegisterClientAndGetStream(IClientStreamerConfiguration config)
     {
         clientStreamerManager.RegisterClient(config);
@@ -396,6 +345,7 @@ public sealed class ChannelManager : IChannelManager
                         channelService.UnRegisterChannel(config.ChannelVideoStreamId);
                     }
                 }
+                await CheckAndCleanUpClientStreamers(channelStatus);
             }
             logger.LogInformation("Finished UnRegisterWithChannelManager with config: {config}", config.ClientId);
         }

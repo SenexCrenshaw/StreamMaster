@@ -98,8 +98,6 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
             string options = "-loglevel error -print_format json -show_format -sexagesimal -show_streams - ";
 
-
-
             process.StartInfo.FileName = ffProbeExec;
             process.StartInfo.Arguments = options;
             process.StartInfo.CreateNoWindow = true;
@@ -146,6 +144,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                 return new();
             }
             _videoInfo = videoInfo;
+
             return videoInfo;
 
         }

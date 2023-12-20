@@ -34,6 +34,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
 
   useEffect(() => {
     if (getStreamingStatus.data === undefined || getStreamingStatus.data.length === 0 || getStreamingStatus.data === null) {
+      setDataSource([]);
       return;
     }
 
