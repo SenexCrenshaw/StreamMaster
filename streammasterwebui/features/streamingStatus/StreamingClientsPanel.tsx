@@ -135,7 +135,6 @@ const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProper
     }
   ];
 
-  console.log(getStreamingStatus.data);
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
@@ -148,6 +147,7 @@ const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProper
           emptyMessage="No Clients Streaming"
           id="StreamingServerStatusPanel"
           isLoading={getStreamingStatus.isLoading}
+          key="clientId"
           selectedItemsKey="selectSelectedItems"
           style={style}
         />

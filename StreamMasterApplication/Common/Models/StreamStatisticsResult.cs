@@ -3,6 +3,7 @@
 public class StreamStatisticsResult
 {
     public string Id { get; set; }
+    public string CircularBufferId { get; set; }
     public string ClientAgent { get; set; }
     public double ClientBitsPerSecond { get; set; }
     public long ClientBytesRead { get; set; }

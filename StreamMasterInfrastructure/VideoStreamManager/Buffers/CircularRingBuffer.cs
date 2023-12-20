@@ -128,6 +128,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
             allStatistics.Add(new StreamStatisticsResult
             {
                 Id = Guid.NewGuid().ToString(),
+                CircularBufferId = Id.ToString(),
                 ChannelId = StreamInfo.ChannelId,
                 ChannelName = StreamInfo.ChannelName,
                 VideoStreamId = StreamInfo.VideoStreamId,

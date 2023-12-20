@@ -16,7 +16,7 @@ import useSettings from '@lib/useSettings';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
-import { memo, useCallback, useMemo, useRef, type CSSProperties, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, type CSSProperties, useState, useEffect } from 'react';
 import { VideoInfoDisplay } from './VideoInfoDisplay';
 
 interface StreamingServerStatusPanelProperties {
@@ -30,6 +30,35 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
   const [videoInfo, setVideoInfo] = useState<VideoInfo | undefined>(undefined);
   const [channelName, setChannelName] = useState<string>('');
   const getStreamingStatus = useVideoStreamsGetAllStatisticsForAllUrlsQuery();
+  const [dataSource, setDataSource] = useState<StreamStatisticsResult[]>([]);
+
+  useEffect(() => {
+    if (getStreamingStatus.data === undefined || getStreamingStatus.data.length === 0 || getStreamingStatus.data === null) {
+      return;
+    }
+
+    let data = [...dataSource];
+
+    for (const item of getStreamingStatus.data) {
+      const index = data.findIndex((x) => x.videoStreamId === item.videoStreamId);
+      if (index === -1) {
+        data.push(item);
+      } else {
+        data[index] = {
+          ...data[index],
+          logo: item.logo !== data[index].logo ? item.logo : data[index].logo,
+          channelName: item.channelName !== data[index].channelName ? item.channelName : data[index].channelName,
+          rank: item.rank !== data[index].rank ? item.rank : data[index].rank,
+          videoStreamName: item.videoStreamName !== data[index].videoStreamName ? item.videoStreamName : data[index].videoStreamName,
+          inputElapsedTime: item.inputElapsedTime !== data[index].inputElapsedTime ? item.inputElapsedTime : data[index].inputElapsedTime,
+          inputBitsPerSecond: item.inputBitsPerSecond !== data[index].inputBitsPerSecond ? item.inputBitsPerSecond : data[index].inputBitsPerSecond,
+          inputStartTime: item.inputStartTime !== data[index].inputStartTime ? item.inputStartTime : data[index].inputStartTime
+        };
+      }
+    }
+
+    setDataSource(data);
+  }, [getStreamingStatus.data]);
 
   const onChangeVideoStreamChannel = useCallback(async (playingVideoStreamId: string, newVideoStreamId: string) => {
     if (playingVideoStreamId === undefined || playingVideoStreamId === '' || newVideoStreamId === undefined || newVideoStreamId === '') {
@@ -133,30 +162,14 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
 
   const inputStartTimeTemplate = useCallback((rowData: StreamStatisticsResult) => <div>{formatJSONDateString(rowData.inputStartTime ?? '')}</div>, []);
 
-  const dataSource = useMemo((): StreamStatisticsResult[] => {
-    if (getStreamingStatus.data === undefined || getStreamingStatus.data.length === 0 || getStreamingStatus.data === null) {
-      return [];
-    }
-
-    const data = [] as StreamStatisticsResult[];
-
-    for (const item of getStreamingStatus.data) {
-      if (data.findIndex((x) => x.videoStreamId === item.videoStreamId) === -1) {
-        data.push(item);
-      }
-    }
-
-    return data;
-  }, [getStreamingStatus.data]);
-
   const streamCount = useCallback(
     (rowData: StreamStatisticsResult) => {
-      if (getStreamingStatus.data === undefined || getStreamingStatus.data === null) {
+      if (dataSource === undefined || dataSource === null) {
         return <div>0</div>;
       }
-      return <div>{getStreamingStatus.data.filter((x) => x.videoStreamId === rowData.videoStreamId).length}</div>;
+      return <div>{dataSource.filter((x) => x.videoStreamId === rowData.videoStreamId).length}</div>;
     },
-    [getStreamingStatus.data]
+    [dataSource]
   );
 
   const onPreview = useCallback(async (rowData: StreamStatisticsResult) => {
@@ -187,7 +200,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
     [onFailStream, onPreview]
   );
 
-  const sourceColumns = useMemo(
+  const columns = useMemo(
     (): ColumnMeta[] => [
       {
         bodyTemplate: imageBodyTemplate,
@@ -269,13 +282,13 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
       <div className="m3uFilesEditor flex flex-column col-12 flex-shrink-0 ">
         <DataSelector
           className={className}
-          columns={sourceColumns}
+          columns={columns}
           dataSource={dataSource}
           defaultSortField="videoStreamName"
           emptyMessage="No Streams"
           id="StreamingServerStatusPanel"
           isLoading={getStreamingStatus.isLoading}
-          key="m3UStreamId"
+          key="circularBufferId"
           selectedItemsKey="selectSelectedItems"
           style={style}
         />

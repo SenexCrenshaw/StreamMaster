@@ -542,7 +542,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
           filters={isEmptyObject(state.filters) ? getEmptyFilter(props.columns, state.showHidden) : state.filters}
           first={state.pagedInformation ? state.pagedInformation.first : state.first}
           header={sourceRenderHeader}
-          key="id"
+          key={props.key ?? 'id'}
           lazy={props.dataSource === undefined}
           loading={props.isLoading === true || isFetching === true || isLoading === true}
           // metaKeySelection={false}

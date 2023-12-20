@@ -166,9 +166,10 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
 
     public async Task SetBufferDelegate(Func<ICircularRingBuffer> bufferDelegate, IClientStreamerConfiguration config)
     {
+        _readCancel?.Cancel();
+
         try
         {
-            _readCancel?.Cancel();
 
             await semaphore.WaitAsync();
 

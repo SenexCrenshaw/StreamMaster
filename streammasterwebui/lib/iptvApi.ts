@@ -1855,6 +1855,7 @@ export type FailClientRequest = {
 };
 export type StreamStatisticsResult = {
   id?: string;
+  circularBufferId?: string;
   clientAgent?: string;
   clientBitsPerSecond?: number;
   clientBytesRead?: number;
