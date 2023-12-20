@@ -21,11 +21,6 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
     public async Task<bool> SwitchToNextVideoStreamAsync(string ChannelVideoStreamId, string? overrideNextVideoStreamId = null)
     {
 
-        //IChannelStatus? channelStatus = null;
-        //try
-        //{
-        //    await switcherSemaphoreSlim.WaitAsync();
-
         IChannelStatus? channelStatus = channelService.GetChannelStatus(ChannelVideoStreamId);
         if (channelStatus is null)
         {
@@ -38,6 +33,7 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
             //logger.LogDebug("Exiting SwitchToNextVideoStream with false due to FailoverInProgress being true");
             return false;
         }
+
         channelStatus.FailoverInProgress = true;
         //}
         //finally
@@ -83,20 +79,18 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
 
         if (channelStatus.CurrentVideoStream is not null && oldStreamHandler is not null)
         {
-
-            if (!oldStreamHandler.IsFailed)
-            {
-                oldStreamHandler.SetFailed();
-            }
+            //if (!oldStreamHandler.IsFailed)
+            //{
+            //    oldStreamHandler.SetFailed();
+            //}
 
             await streamManager.MoveClientStreamers(oldStreamHandler, newStreamHandler);
         }
-        else if (!channelStatus.IsStarted)
+        else
         {
             await clientStreamerManager.AddClientsToHandler(ChannelVideoStreamId, newStreamHandler);
         }
 
-        channelStatus.IsStarted = true;
         channelStatus.CurrentVideoStream = videoStreamDto;
         channelStatus.FailoverInProgress = false;
 

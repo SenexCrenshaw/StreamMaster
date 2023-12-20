@@ -57,8 +57,13 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         IClientStreamerConfiguration? streamerConfiguration = await GetClientStreamerConfiguration(clientId);
         if (streamerConfiguration != null)
         {
+            logger.LogDebug("Adding client {ClientId} {ReaderID} to {Circular Buffer ID} ", clientId, streamerConfiguration.ReadBuffer?.Id ?? Guid.NewGuid(), streamHandler.CircularRingBuffer.Id);
             streamHandler.RegisterClientStreamer(streamerConfiguration);
             await SetClientBufferDelegate(streamerConfiguration, streamHandler.CircularRingBuffer);
+        }
+        else
+        {
+            logger.LogDebug("Error adding client {ClientId} to {Circular Buffer ID}, client status is null", clientId, streamHandler.CircularRingBuffer.Id);
         }
     }
 
@@ -120,7 +125,12 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
 
     public async Task SetClientBufferDelegate(IClientStreamerConfiguration clientStreamerConfiguration, ICircularRingBuffer RingBuffer)
     {
-        clientStreamerConfiguration.ReadBuffer ??= new ClientReadStream(() => RingBuffer, ringBufferReadStreamLogger, clientStreamerConfiguration);
+        if (clientStreamerConfiguration.ReadBuffer == null)
+        {
+            int a = 1;
+            clientStreamerConfiguration.ReadBuffer = new ClientReadStream(() => RingBuffer, ringBufferReadStreamLogger, clientStreamerConfiguration);
+        }
+
 
         await clientStreamerConfiguration.ReadBuffer.SetBufferDelegate(() => RingBuffer, clientStreamerConfiguration);
     }

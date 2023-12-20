@@ -135,6 +135,7 @@ const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProper
     }
   ];
 
+  console.log(getStreamingStatus.data);
   return (
     <>
       <Toast position="bottom-right" ref={toast} />

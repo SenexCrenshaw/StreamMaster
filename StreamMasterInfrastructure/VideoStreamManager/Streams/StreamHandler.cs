@@ -250,6 +250,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                 }
                 catch (TaskCanceledException)
                 {
+                    logger.LogInformation("Stream requested to stop for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
                     break;
                 }
                 catch (Exception ex)
@@ -263,7 +264,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         stream.Close();
         stream.Dispose();
 
-        logger.LogInformation("Stream stopped for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
+        //logger.LogInformation("Stream stopped for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
 
         OnStreamingStopped();
     }

@@ -24,7 +24,7 @@ public sealed class StreamStatisticService(IStreamManager streamManager, ISettin
             allStatistics.AddRange(info.CircularRingBuffer.GetAllStatisticsForAllUrls());
         }
 
-        Setting settings = await settingsService.GetSettingsAsync();
+        Setting settings = await settingsService.GetSettingsAsync(cancellationToken);
 
         if (settings.ShowClientHostNames)
         {
@@ -51,12 +51,12 @@ public sealed class StreamStatisticService(IStreamManager streamManager, ISettin
 
     private async Task<string> GetHostNameAsync(string ipAddress, CancellationToken cancellationToken)
     {
-        if (memoryCache.TryGetValue(ipAddress, out string hostName))
+        if (memoryCache.TryGetValue(ipAddress, out string? hostName))
         {
-            return hostName;
+            return hostName ?? "";
         }
 
-        IPHostEntry host = await Dns.GetHostEntryAsync(ipAddress).ConfigureAwait(false);
+        IPHostEntry host = await Dns.GetHostEntryAsync(ipAddress, cancellationToken).ConfigureAwait(false);
         hostName = host.HostName;
 
         // Set cache options. Adjust the expiration time as needed.

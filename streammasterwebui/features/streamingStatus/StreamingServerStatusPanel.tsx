@@ -172,7 +172,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
   const targetActionBodyTemplate = useCallback(
     (rowData: StreamStatisticsResult) => (
       <div className="dataselector p-inputgroup align-items-center justify-content-end">
-        <BookButton iconFilled={false} onClick={(e) => onPreview(rowData)} />
+        <BookButton iconFilled={false} onClick={(e) => onPreview(rowData)} tooltip="ffprobe" />
         <Button
           // className="p-button-danger"
           icon="pi pi-angle-right"

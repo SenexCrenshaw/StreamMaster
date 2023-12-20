@@ -6,7 +6,7 @@ public interface IStreamHandler : IDisposable
     string VideoStreamName { get; }
 
     event EventHandler<string> OnStreamingStoppedEvent;
-    bool IsFailed { get; }
+
     /// <summary>
     /// true if there is an existing client registered; otherwise, false.
     /// </summary>

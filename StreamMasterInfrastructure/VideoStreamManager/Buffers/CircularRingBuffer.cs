@@ -127,7 +127,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         {
             allStatistics.Add(new StreamStatisticsResult
             {
-                Id = Id.ToString(),
+                Id = Guid.NewGuid().ToString(),
                 ChannelId = StreamInfo.ChannelId,
                 ChannelName = StreamInfo.ChannelName,
                 VideoStreamId = StreamInfo.VideoStreamId,
@@ -247,23 +247,30 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
 
     public async Task WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken)
     {
-        // Check if data is already available before waiting
-        if (GetAvailableBytes(clientId) > 0)
+        try
         {
-            return;
+            // Check if data is already available before waiting
+            if (GetAvailableBytes(clientId) > 0)
+            {
+                return;
+            }
+
+            // Create or get an existing TaskCompletionSource for this client
+            TaskCompletionSource<bool> tcs = _readWaitHandles.GetOrAdd(clientId, id => new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously));
+
+            // Register cancellation token to set the TaskCompletionSource as canceled
+            using (cancellationToken.Register(() => tcs.TrySetCanceled()))
+            {
+                // Wait for the task to complete, which indicates data is available
+                await tcs.Task.ConfigureAwait(false);
+
+                // Reset the TaskCompletionSource for the next wait
+                _readWaitHandles[clientId] = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            }
         }
-
-        // Create or get an existing TaskCompletionSource for this client
-        TaskCompletionSource<bool> tcs = _readWaitHandles.GetOrAdd(clientId, id => new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously));
-
-        // Register cancellation token to set the TaskCompletionSource as canceled
-        using (cancellationToken.Register(() => tcs.TrySetCanceled()))
+        catch (TaskCanceledException)
         {
-            // Wait for the task to complete, which indicates data is available
-            await tcs.Task.ConfigureAwait(false);
 
-            // Reset the TaskCompletionSource for the next wait
-            _readWaitHandles[clientId] = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         }
     }
 
@@ -289,7 +296,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
     {
         _ = _clientReadIndexes.TryRemove(clientId, out _);
         //_ = _clientSemaphores.Remove(clientId);
-        _statisticsManager.UnRegisterClient(clientId);
+        //_statisticsManager.UnRegisterClient(clientId);
 
         _logger.LogInformation("UnRegisterClient for clientId: {clientId}  {VideoStreamName}", clientId, StreamInfo.VideoStreamName);
     }
