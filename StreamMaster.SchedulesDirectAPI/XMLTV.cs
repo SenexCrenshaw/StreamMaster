@@ -203,8 +203,8 @@ public partial class SchedulesDirect
 
             // Wait for all channel tasks to complete
             await Task.WhenAll(channelTasks);
-
-
+            xmltv.Channels = xmltv.Channels.OrderBy(a => a.Id).ToList();
+            xmltv.Programs=xmltv.Programs.OrderBy(a=>a.Channel).ThenBy(a=>a.StartDateTime).ToList();
             return xmltv;
         }
         catch (Exception ex)
