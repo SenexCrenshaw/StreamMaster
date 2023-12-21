@@ -12,6 +12,8 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
+using static StreamMasterDomain.Common.GetStreamGroupEPGHandler;
+
 namespace StreamMasterApplication.StreamGroups.Queries;
 
 [RequireAll]
@@ -121,7 +123,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
             }
         }
 
-        XMLTV epgData = schedulesDirect.CreateXmltv(_httpContextAccessor.GetUrl(), videoStreamConfigs) ?? new XMLTV();
+        XMLTV epgData = await schedulesDirect.CreateXmltv(_httpContextAccessor.GetUrl(), videoStreamConfigs) ?? new XMLTV();
 
         return SerializeXMLTVData(epgData);
     }
@@ -357,31 +359,31 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         XmlSerializerNamespaces ns = new();
         ns.Add("", "");
 
+        // Create a Utf8StringWriter
+        using Utf8StringWriter textWriter = new();
+
         XmlWriterSettings settings = new()
         {
-            //settings.NewLineHandling = NewLineHandling.Entitize;
             Indent = true,
             OmitXmlDeclaration = true,
             NewLineHandling = NewLineHandling.Entitize,
             NewLineChars = "\n"
         };
 
-        //using Utf8StringWriter textWriter = new();
-        UTF8Encoding utf8NoBOM = new(false);
+        // Create an XmlWriter using Utf8StringWriter
+        using XmlWriter writer = XmlWriter.Create(textWriter, settings);
 
-        //XmlSerializer serializer = new(typeof(Tv));
-        string xmlText = "";
+        XmlSerializer xml = new(typeof(XMLTV));
 
-        using (MemoryStream stream = new())
-        {
-            using XmlWriter writer = XmlWriter.Create(stream, settings); // Create XmlWriter with settings
-            XmlSerializer xml = new(typeof(XMLTV));
+        // Serialize XML data to the Utf8StringWriter
+        xml.Serialize(writer, xmltv, ns);
 
-            xml.Serialize(writer, xmltv, ns);
-            xmlText = utf8NoBOM.GetString(stream.ToArray());
-        }
+        // Get the XML string from the Utf8StringWriter
+        string xmlText = textWriter.ToString();
+
         return xmlText;
     }
+
 
     //[LogExecutionTimeAspect]
     //private static string SerializeEpgData(Tv epgData)

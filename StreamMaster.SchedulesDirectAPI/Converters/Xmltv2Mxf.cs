@@ -4,6 +4,8 @@ using StreamMaster.SchedulesDirectAPI.Data;
 
 using StreamMasterDomain.Common;
 
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
@@ -204,7 +206,7 @@ public class Xmltv2Mxf(ILogger<Xmltv2Mxf> logger, ISchedulesDirectData schedules
 
                 //mxfProgram.mxfGuideImage =
                 DetermineGuideImage(mxfProgram, program);
-
+              
                 // advisories
                 //mxfProgram.HasAdult =
                 //mxfProgram.HasBriefNudity =
@@ -643,14 +645,23 @@ public class Xmltv2Mxf(ILogger<Xmltv2Mxf> logger, ISchedulesDirectData schedules
 
     private void DetermineGuideImage(MxfProgram mxfProgram, XmltvProgramme xmltvProgramme)
     {
+        if (xmltvProgramme.Icons.Count > 1)
+        {
+            var a = 1;
+        }
+        if (xmltvProgramme.Titles.Any(a=>a.Text.Contains("CBS News"))){
+            var a = 1;
+        }
         if (xmltvProgramme.Icons == null || !xmltvProgramme.Icons.Any())
         {
+            
             return;
         }
 
-        if (xmltvProgramme.Icons.Count == 1 || xmltvProgramme.Icons[0].Width == 0 || xmltvProgramme.Icons[0].Height == 0)
+        if (xmltvProgramme.Icons.Count == 1)// || xmltvProgramme.Icons[0].Width == 0 || xmltvProgramme.Icons[0].Height == 0)
         {
             mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
+
             return;
         }
 
@@ -658,8 +669,18 @@ public class Xmltv2Mxf(ILogger<Xmltv2Mxf> logger, ISchedulesDirectData schedules
         if (posters != null)
         {
             mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(posters.Src);
+
             return;
         }
+
+        mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
+
+        List<ProgramArtwork> artworks = xmltvProgramme.Icons.Select(arg =>new ProgramArtwork
+        {
+Uri=arg.Src
+        }).ToList();
+        mxfProgram.extras["artwork"] = artworks;
+     
         mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
     }
 

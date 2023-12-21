@@ -17,7 +17,7 @@ public class MxfGuideImage
     /// <summary>
     /// An ID that is unique to the document and defines this element.
     /// Use IDs such as i1, i2, i3, and so forth. GuideImage elements are referenced by the Series, SeriesInfo, Program, Affiliate, and Channel elements.
-    /// </summary>
+    /// </summary>  
 
     public string Id
     {

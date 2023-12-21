@@ -9,7 +9,7 @@ public interface ISchedulesDirect
     Task<HttpResponseMessage> GetSdImage(string uri);
     Task<List<SubscribedLineup>> GetLineups(CancellationToken cancellationToken);
     List<StationChannelName> GetStationChannelNames();
-    XMLTV? CreateXmltv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs);
+    Task<XMLTV?> CreateXmltv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs);
     Task<StationChannelMap?> GetStationChannelMap(string lineup, CancellationToken cancellationToke);
     Task<bool> AddLineup(string lineup, CancellationToken cancellationToken);
     Task<List<ProgramMetadata>?> GetArtworkAsync(string[] request);
