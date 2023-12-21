@@ -70,7 +70,7 @@ public partial class SchedulesDirect : ISchedulesDirect
 
             await _syncSemaphore.WaitAsync(cancellationToken);
             memoryCache.GetSyncJobStatus().IsRunning = true;
-            bool test = memoryCache.GetSyncJobStatus().IsRunning;
+            ResetEPGCache();
             int maxRetry = 3;
             int retryCount = 0;
             while (!CheckToken() && retryCount++ < maxRetry)

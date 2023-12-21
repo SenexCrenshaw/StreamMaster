@@ -57,20 +57,22 @@ public partial class SchedulesDirect
                 newService.LogoImage = videoStreamConfig.User_Tvg_Logo;
                 newService.extras = origService.extras;
                 newService.extras["videoStreamConfig"] = videoStreamConfig;
-                if (newService.extras.TryGetValue("logo", out dynamic? value))
+                if (!settings.VideoStreamAlwaysUseEPGLogo && !string.IsNullOrEmpty(videoStreamConfig.User_Tvg_Logo))
                 {
-                    value.Url = videoStreamConfig.User_Tvg_Logo;
-                }
-                else
-                {
-
-                    newService.extras.Add("logo", new StationImage
+                    if (newService.extras.TryGetValue("logo", out dynamic? value))
                     {
-                        Url = videoStreamConfig.User_Tvg_Logo
+                        value.Url = videoStreamConfig.User_Tvg_Logo;
+                    }
+                    else
+                    {
 
-                    });
+                        newService.extras.Add("logo", new StationImage
+                        {
+                            Url = videoStreamConfig.User_Tvg_Logo
+
+                        });
+                    }
                 }
-
                 //MxfService? service = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == stationId);
                 //if (service is null)
                 //{
@@ -260,6 +262,8 @@ public partial class SchedulesDirect
         string descriptionExtended = string.Empty;
         if (!settings.SDSettings.XmltvExtendedInfoInTitleDescriptions || mxfProgram.IsPaidProgramming)
         {
+            List<string> svcs = schedulesDirectData.Services.Select(a => a.StationId).ToList();
+            MxfService? svc = schedulesDirectData.GetService(channelId);
             return new XmltvProgramme()
             {
                 // added +0000 for NPVR; otherwise it would assume local time instead of UTC

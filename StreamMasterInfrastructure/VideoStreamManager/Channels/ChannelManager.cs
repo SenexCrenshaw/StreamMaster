@@ -288,6 +288,7 @@ public sealed class ChannelManager : IChannelManager
     {
         try
         {
+            logger.LogInformation("UnRegisterWithChannelManager client: {clientId}  {name}", config.ClientId, config.ChannelName);
             await _registerSemaphore.WaitAsync();
 
             await clientStreamerManager.UnRegisterClient(config.ClientId);
@@ -296,7 +297,7 @@ public sealed class ChannelManager : IChannelManager
 
             if (!channelService.HasChannel(config.ChannelVideoStreamId))
             {
-                logger.LogDebug("UnRegisterWithChannelManager finished early, VideoStreamId not found in channelService");
+                logger.LogDebug("UnRegisterWithChannelManager finished early, VideoStreamId not found in channelService, {clientId}  {name}", config.ClientId, config.ChannelName);
                 //    return;
             }
 
@@ -307,7 +308,7 @@ public sealed class ChannelManager : IChannelManager
                 IStreamHandler? StreamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStream.User_Url);
                 if (StreamHandler == null)
                 {
-                    logger.LogError("UnRegisterWithChannelManager cannot find handler for ClientId {ClientId}", config.ClientId);
+                    logger.LogError("UnRegisterWithChannelManager cannot find handler for {clientId}  {name}", config.ClientId, config.ChannelName);
 
                 }
                 else
@@ -316,14 +317,14 @@ public sealed class ChannelManager : IChannelManager
 
                     if (StreamHandler.ClientCount == 0)
                     {
-                        logger.LogInformation("ChannelManager No more clients, stopping streaming for {videoStreamId} {name}", StreamHandler.VideoStreamId, channelStatus.CurrentVideoStream.User_Tvg_name);
+                        logger.LogInformation("ChannelManager No more clients, stopping streaming for {clientId}  {name}", config.ClientId, config.ChannelName);
                         _ = streamManager.StopAndUnRegisterHandler(channelStatus.CurrentVideoStream.User_Url);
 
                         channelService.UnRegisterChannel(config.ChannelVideoStreamId);
                     }
                 }
             }
-            logger.LogInformation("Finished UnRegisterWithChannelManager with config: {config}", config.ClientId);
+            logger.LogInformation("Finished UnRegisterWithChannelManager with client: {clientId}  {name}", config.ClientId, config.ChannelName);
         }
         finally
         {
