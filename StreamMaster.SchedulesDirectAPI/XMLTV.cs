@@ -37,13 +37,19 @@ public partial class SchedulesDirect
 
             Setting settings = memoryCache.GetSetting();
             List<MxfService> toProcess = [];
+            object lockObject = new object(); // Create a lock object
 
             Parallel.ForEach(videoStreamConfigs.OrderBy(a => a.User_Tvg_chno), videoStreamConfig =>
             {
                 string prefix = videoStreamConfig.IsDummy ? "DUMMY" : "SM";
                 string stationId = videoStreamConfig.User_Tvg_chno.ToString();
 
-                MxfService? origService = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == videoStreamConfig.User_Tvg_ID);
+                MxfService? origService;
+                lock (lockObject) // Lock access to the shared resource
+                {
+                    origService = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == videoStreamConfig.User_Tvg_ID);
+                }
+
                 if (origService is null)
                 {
                     return; // Use 'return' to continue to the next iteration
@@ -56,44 +62,36 @@ public partial class SchedulesDirect
                     newService.MxfScheduleEntries = origService.MxfScheduleEntries;
                 }
 
-                lock (toProcess) // Ensure thread-safe access to the shared list
+                lock (lockObject) // Lock access to the shared resource
                 {
-                    toProcess.Add(newService);
-                }
+                    newService.Name = videoStreamConfig.User_Tvg_name;
+                    newService.Affiliate = origService.Affiliate;
+                    newService.CallSign = origService.CallSign;
+                    newService.LogoImage = videoStreamConfig.User_Tvg_Logo;
+                    newService.extras = origService.extras;
+                    newService.extras["videoStreamConfig"] = videoStreamConfig;
 
-                newService.Name = videoStreamConfig.User_Tvg_name;
-                newService.Affiliate = origService.Affiliate;
-                newService.CallSign = origService.CallSign;
-                newService.LogoImage = videoStreamConfig.User_Tvg_Logo;
-                newService.extras = origService.extras;
-                newService.extras["videoStreamConfig"] = videoStreamConfig;
-                if (!settings.VideoStreamAlwaysUseEPGLogo && !string.IsNullOrEmpty(videoStreamConfig.User_Tvg_Logo))
-                {
-                    if (newService.extras.TryGetValue("logo", out dynamic? value))
+                    if (!settings.VideoStreamAlwaysUseEPGLogo && !string.IsNullOrEmpty(videoStreamConfig.User_Tvg_Logo))
                     {
-                        value.Url = videoStreamConfig.User_Tvg_Logo;
-                    }
-                    else
-                    {
-
-                        newService.extras.Add("logo", new StationImage
+                        if (newService.extras.TryGetValue("logo", out dynamic? value))
                         {
-                            Url = videoStreamConfig.User_Tvg_Logo
+                            value.Url = videoStreamConfig.User_Tvg_Logo;
+                        }
+                        else
+                        {
+                            newService.extras.Add("logo", new StationImage
+                            {
+                                Url = videoStreamConfig.User_Tvg_Logo
+                            });
+                        }
+                    }
 
-                        });
+                    lock (lockObject) // Lock access to the shared resource
+                    {
+                        toProcess.Add(newService);
                     }
                 }
-                //MxfService? service = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == stationId);
-                //if (service is null)
-                //{
-                //    continue;
-                //}
-                toProcess.Add(newService);
-              
             });
-
-
-
 
             //else
             //{
@@ -146,7 +144,7 @@ public partial class SchedulesDirect
             //    });
             //}
 
-         
+
             List<Task> channelTasks = new List<Task>();
 
             foreach (MxfService service in toProcess)
