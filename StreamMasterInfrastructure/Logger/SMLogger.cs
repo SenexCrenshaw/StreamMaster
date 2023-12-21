@@ -1,52 +1,28 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMasterDomain.Common;
+using StreamMasterDomain.Services;
 
-using System.Collections.Concurrent;
-
-namespace StreamMasterInfrastructure.Logging;
+namespace StreamMasterInfrastructure.Logger;
 
 public class SMLogger : ILogger
 {
-    private readonly ConcurrentQueue<string> _logQueue = new();
-    private readonly SemaphoreSlim _writeLock = new(1, 1);
-    private readonly CancellationTokenSource _cts = new();
-
-    private readonly Task _loggingTask;
-    private readonly string LogFilePath = "";
-    public SMLogger()
+    private readonly IFileLoggingService _logging;
+    public SMLogger(IFileLoggingServiceFactory factory)
     {
-        _loggingTask = Task.Run(ProcessLogQueue);
-        string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-        LogFilePath = Path.Combine(BuildInfo.AppDataFolder, $"StreamMasterAPI_{timestamp}.log");
+        _logging = factory.Create("FileLogger");
     }
 
-    private async Task ProcessLogQueue()
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
     {
-        while (!_cts.Token.IsCancellationRequested)
+        if (!IsEnabled(logLevel))
         {
-            while (_logQueue.TryDequeue(out string? logEntry))
-            {
-                await WriteLogEntryAsync(logEntry);
-            }
-
-            await Task.Delay(100); // Adjust delay as necessary
+            return;
         }
+
+        string logEntry = FormatLogEntry(logLevel, eventId, state, exception, formatter);
+        _logging.EnqueueLogEntry(logEntry);
     }
 
-    public void Dispose()
-    {
-        _cts.Cancel();
-        try
-        {
-            _loggingTask.Wait();
-        }
-        catch (AggregateException)
-        {
-            // Handle exceptions or ignore
-        }
-        _cts.Dispose();
-    }
 
     public IDisposable BeginScope<TState>(TState state)
     {
@@ -95,16 +71,16 @@ public class SMLogger : ILogger
 
 
 
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-    {
-        if (!IsEnabled(logLevel))
-        {
-            return;
-        }
+    //public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+    //{
+    //    if (!IsEnabled(logLevel))
+    //    {
+    //        return;
+    //    }
 
-        string logEntry = FormatLogEntry(logLevel, eventId, state, exception, formatter);
-        _logQueue.Enqueue(logEntry);
-    }
+    //    string logEntry = FormatLogEntry(logLevel, eventId, state, exception, formatter);
+    //    _logQueue.Enqueue(logEntry);
+    //}
 
     private static string FormatLogEntry<TState>(LogLevel logLevel, EventId eventId, TState? state, Exception exception, Func<TState, Exception, string> formatter)
     {
@@ -126,17 +102,17 @@ public class SMLogger : ILogger
     }
 
 
-    private async Task WriteLogEntryAsync(string logEntry)
-    {
-        await _writeLock.WaitAsync();
-        try
-        {
-            await File.AppendAllTextAsync(LogFilePath, logEntry + Environment.NewLine);
-        }
-        finally
-        {
-            _writeLock.Release();
-        }
-    }
+    //private async Task WriteLogEntryAsync(string logEntry)
+    //{
+    //    await _writeLock.WaitAsync();
+    //    try
+    //    {
+    //        await File.AppendAllTextAsync(BuildInfo.LogFilePath, logEntry + Environment.NewLine);
+    //    }
+    //    finally
+    //    {
+    //        _writeLock.Release();
+    //    }
+    //}
 
 }

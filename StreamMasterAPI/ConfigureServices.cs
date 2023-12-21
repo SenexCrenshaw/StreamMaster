@@ -25,11 +25,11 @@ using StreamMasterApplication.Services;
 using StreamMasterDomain.Enums;
 using StreamMasterDomain.EnvironmentInfo;
 using StreamMasterDomain.Logging;
+using StreamMasterDomain.Services;
 
 using StreamMasterInfrastructure;
 using StreamMasterInfrastructure.Authentication;
 using StreamMasterInfrastructure.Logger;
-using StreamMasterInfrastructure.Logging;
 using StreamMasterInfrastructure.Services;
 using StreamMasterInfrastructure.Services.Frontend;
 using StreamMasterInfrastructure.Services.QueueService;
@@ -42,6 +42,12 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddWebUIServices(this IServiceCollection services)
     {
+        // Register SMLoggerProvider with DI
+        services.AddSingleton<ILoggerProvider, SMLoggerProvider>(provider =>
+            new SMLoggerProvider(provider.GetRequiredService<IFileLoggingServiceFactory>()));
+
+        //services.AddSingleton<ILoggerProvider, FileLoggerDebugProvider>(provider =>
+        //    new FileLoggerDebugProvider(provider.GetRequiredService<IFileLoggingServiceFactory>()));
 
         services.AddLogging(logging =>
         {
@@ -49,11 +55,16 @@ public static class ConfigureServices
             logging.AddProvider(new StatsLoggerProvider());
             logging.AddConsole();
             logging.AddDebug();
-            logging.AddProvider(new SMLoggerProvider());
+
+            ServiceProvider serviceProvider = logging.Services.BuildServiceProvider();
+            ILoggerProvider loggerProvider = serviceProvider.GetRequiredService<ILoggerProvider>();
+
+            logging.AddProvider(loggerProvider);
+
             logging.AddFilter<StatsLoggerProvider>((category, logLevel) =>
             {
                 // List of classes to use with CustomLogger
-                List<string> classesToLog = new() { "BroadcastService" };
+                List<string> classesToLog = ["BroadcastService"];
                 return category is not null && category.Contains("BroadcastService", StringComparison.OrdinalIgnoreCase);
             });
 

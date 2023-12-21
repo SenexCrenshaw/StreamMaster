@@ -5,38 +5,60 @@ using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.Hubs;
 
+using StreamMasterDomain.Services;
+
 namespace StreamMasterInfrastructure.Services;
 
-public class BroadcastService(IHubContext<StreamMasterHub, IStreamMasterHub> hub, IStatisticsManager statisticsManager, IClientStreamerManager clientStreamer, IStreamManager streamManager, IChannelService channelService, IStreamStatisticService streamStatisticService, ILogger<BroadcastService> logger) : IBroadcastService, IDisposable
+public class BroadcastService : IBroadcastService, IDisposable
 {
+    private readonly IFileLoggingService debugLogger;
+    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> hub;
+    private readonly IStatisticsManager statisticsManager;
+    private readonly IClientStreamerManager clientStreamer;
+    private readonly IStreamManager streamManager;
+    private readonly IChannelService channelService;
+    private readonly IStreamStatisticService streamStatisticService;
+    private readonly ILogger<BroadcastService> logger;
     private Timer? _broadcastTimer;
+
+    public BroadcastService(IHubContext<StreamMasterHub, IStreamMasterHub> hub, IFileLoggingServiceFactory factory, IStatisticsManager statisticsManager, IClientStreamerManager clientStreamer, IStreamManager streamManager, IChannelService channelService, IStreamStatisticService streamStatisticService, ILogger<BroadcastService> logger)
+    {
+        this.hub = hub;
+        this.statisticsManager = statisticsManager;
+        this.clientStreamer = clientStreamer;
+        this.streamManager = streamManager;
+        this.channelService = channelService;
+        this.streamStatisticService = streamStatisticService;
+        this.logger = logger;
+        debugLogger = factory.Create("FileLoggerDebug");
+    }
+
 
     public void LogDebug()
     {
-
         if (statisticsManager.GetAllClientIds().Any())
         {
-            logger.LogInformation("Stat ClientIds: {GetAllClientIds}", statisticsManager.GetAllClientIds().Count);
+            debugLogger.EnqueueLogEntry("Stat ClientIds: {0}", statisticsManager.GetAllClientIds().Count);
         }
         if (channelService.GetGlobalStreamsCount() != 0)
         {
-            logger.LogInformation("Global: {GetGlobalStreamsCount}", channelService.GetGlobalStreamsCount());
+            debugLogger.EnqueueLogEntry("Global: {0}", channelService.GetGlobalStreamsCount());
         }
 
         if (channelService.GetChannelStatuses().Any())
         {
-            logger.LogInformation("GetChannelStatuses: {GetChannelStatuses}", channelService.GetChannelStatuses().Count);
+            debugLogger.EnqueueLogEntry("GetChannelStatuses: {0}", channelService.GetChannelStatuses().Count);
         }
 
         //logger.LogInformation("GetStreamHandlers: {GetStreamHandlers}", streamManager.GetStreamHandlers().Count);
         foreach (IClientStreamerConfiguration clientStreamerConfiguration in clientStreamer.GetAllClientStreamerConfigurations)
         {
-            logger.LogInformation("Client: {ChannelName} {ReadBuffer.Id}", clientStreamerConfiguration.ChannelName, clientStreamerConfiguration.ReadBuffer?.Id ?? Guid.Empty);
+            debugLogger.EnqueueLogEntry("Client: {0} {1}", clientStreamerConfiguration.ChannelName, clientStreamerConfiguration.ReadBuffer?.Id ?? Guid.Empty);
         }
 
         foreach (IStreamHandler handler in streamManager.GetStreamHandlers())
         {
-            logger.LogInformation("Stream: {count} {CircularRingBuffer} {VideoStreamName} {StreamUrl}", handler.ClientCount, handler.CircularRingBuffer.Id, handler.VideoStreamName, handler.StreamUrl);
+            debugLogger.EnqueueLogEntry("Stream: {0} {1} {2} {3}", handler.ClientCount, handler.CircularRingBuffer.Id, handler.VideoStreamName, handler.StreamUrl);
         }
     }
 
@@ -51,11 +73,13 @@ public class BroadcastService(IHubContext<StreamMasterHub, IStreamMasterHub> hub
     }
 
     private bool sentEmpty = false;
+
+
     private void BroadcastMessage(object? state)
     {
         try
         {
-            //   LogDebug();
+            LogDebug();
             List<StreamStatisticsResult> statisticsResults = streamStatisticService.GetAllStatisticsForAllUrls().Result;
             if (statisticsResults.Any())
             {
