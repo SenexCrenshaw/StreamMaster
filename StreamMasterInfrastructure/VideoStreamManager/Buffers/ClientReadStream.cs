@@ -132,7 +132,9 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
         else
         {
             logger.LogDebug("Read 0 bytes for ClientId: {ClientId}", ClientId);
+            bytesRead = 1;
         }
+
         return bytesRead;
     }
 

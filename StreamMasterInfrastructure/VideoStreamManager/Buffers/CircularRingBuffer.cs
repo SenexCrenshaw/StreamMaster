@@ -361,85 +361,6 @@ new GaugeConfiguration
         }
     }
 
-    //private void CopyDataToNewBuffer(Memory<byte> newBuffer, int dataLength)
-    //{
-    //    if (_writeIndex >= _oldestDataIndex)
-    //    {
-    //        // No wrap-around
-    //        _buffer.Slice(_oldestDataIndex, dataLength).CopyTo(newBuffer);
-    //    }
-    //    else
-    //    {
-    //        // Wrap-around
-    //        int lengthToEnd = _buffer.Length - _oldestDataIndex;
-    //        _buffer.Slice(_oldestDataIndex, lengthToEnd).CopyTo(newBuffer);
-    //        _buffer[.._writeIndex].CopyTo(newBuffer[lengthToEnd..]);
-    //    }
-    //}
-
-    //private int UpdateWriteIndex(int dataLength)
-    //{
-    //    // If there was no wrap-around in the old buffer, the write index remains the same.
-    //    // Otherwise, it's the length of the data copied.
-    //    return _writeIndex >= _oldestDataIndex ? _writeIndex : dataLength;
-    //}
-
-    //private int CalculateDataLength()
-    //{
-    //    if (!isBufferFull)
-    //    {
-    //        // If the buffer is not full, the data length is the difference between _writeIndex and _oldestDataIndex.
-    //        if (_writeIndex >= _oldestDataIndex)
-    //        {
-    //            return _writeIndex - _oldestDataIndex;
-    //        }
-    //        else
-    //        {
-    //            // The buffer has wrapped around, but is not full.
-    //            return _buffer.Length - _oldestDataIndex + _writeIndex;
-    //        }
-    //    }
-    //    else
-    //    {
-    //        // If the buffer is full, the data length is the size of the buffer.
-    //        return _buffer.Length;
-    //    }
-    //}
-
-
-    //private int UpdateReadIndex(Guid clientId, int dataLength)
-    //{
-    //    int clientReadIndex = _clientReadIndexes[clientId];
-    //    if (_writeIndex >= _oldestDataIndex)
-    //    {
-    //        // No wrap-around
-    //        return clientReadIndex - _oldestDataIndex; // Adjust the index based on the new start
-    //    }
-    //    else
-    //    {
-    //        // Wrap-around
-    //        if (clientReadIndex >= _oldestDataIndex)
-    //        {
-    //            // The read index was in the latter part of the old buffer
-    //            return clientReadIndex - _oldestDataIndex;
-    //        }
-    //        else
-    //        {
-    //            // The read index was in the beginning part of the old buffer
-    //            int lengthToEnd = _buffer.Length - _oldestDataIndex;
-    //            return lengthToEnd + clientReadIndex;
-    //        }
-    //    }
-    //}
-
-    private int UpdateReadIndex(Guid clientId)
-    {
-        // If the buffer is expanding, the relative position of the read index remains the same.
-        // Just return the current read index for the client.
-        return _clientReadIndexes[clientId];
-    }
-
-
     public async Task WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
@@ -621,12 +542,12 @@ new GaugeConfiguration
     private void ResizeBuffer()
     {
         int currentSize = _buffer.Length;
-        int newSize;
 
-        // Example: Increase by 50% but limit to a maximum size
-        int increaseBy = (int)(currentSize * 0.20);
-        int maxSize = _originalBufferSize * 4; // Example: 10 MB max size
-        newSize = Math.Min(currentSize + increaseBy, maxSize);
+        int increaseBy = (int)(currentSize * 0.20); // 20% increase
+        int maxSize = _originalBufferSize * 4; // Maximum size, e.g., 4 times the original size
+
+        // Calculate the new size, ensuring it's not greater than the max
+        int newSize = Math.Min(currentSize + increaseBy, maxSize);
 
         // Check if new size is actually larger than current size
         if (newSize > currentSize)
@@ -644,7 +565,7 @@ new GaugeConfiguration
         }
         else
         {
-            _logger.LogInformation("Buffer resize not required or maximum size reached.");
+            //_logger.LogInformation("Buffer resize not required or maximum size reached.");
         }
     }
 
