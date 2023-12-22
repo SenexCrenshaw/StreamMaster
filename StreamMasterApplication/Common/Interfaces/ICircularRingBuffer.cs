@@ -6,7 +6,7 @@ public interface ICircularRingBuffer
 {
     VideoInfo? VideoInfo { get; set; }
     Memory<byte> GetBufferSlice(int length);
-    void WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken);
+    //Task WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken);
     int BufferSize { get; }
     //event EventHandler<Guid> DataAvailable;
     //float GetBufferUtilization();

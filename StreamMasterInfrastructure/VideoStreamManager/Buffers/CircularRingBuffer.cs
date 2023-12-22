@@ -20,13 +20,26 @@ namespace StreamMasterInfrastructure.VideoStreamManager.Buffers;
 /// </summary>
 public sealed class CircularRingBuffer : ICircularRingBuffer
 {
+
+    private static readonly Histogram WaitTimeHistogram = Metrics.CreateHistogram(
+        "circular_buffer_wait_for_data_availability_duration_milliseconds",
+        "Duration in milliseconds of waiting for data availability",
+        new HistogramConfiguration
+        {
+            // Define buckets suitable for millisecond durations
+            // Example: Buckets from 1 ms to 1000 ms in increments of 10 ms
+            Buckets = Histogram.LinearBuckets(start: 1, width: 10, count: 100), // Adjust as needed
+            LabelNames = ["circular_buffer_id", "client_id", "video_stream_name"]
+        });
+
     private static readonly Gauge _bytesPerSecond = Metrics.CreateGauge(
- "circular_buffer_read_stream_bytes_per_second",
- "Bytes per second read from the input stream.",
- new GaugeConfiguration
- {
-     LabelNames = ["circular_buffer_id", "video_stream_name"]
- });
+"circular_buffer_read_stream_bytes_per_second",
+"Bytes per second read from the input stream.",
+new GaugeConfiguration
+{
+    LabelNames = ["circular_buffer_id", "video_stream_name"]
+});
+
 
     private static readonly Histogram _bytesPerSecondHistogram = Metrics.CreateHistogram(
     "circular_buffer_read_stream_bytes_per_second_histogram",
@@ -37,7 +50,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         LabelNames = ["circular_buffer_id", "video_stream_name"]
     });
 
-    private readonly Histogram BytesWrittenHistogram = Metrics.CreateHistogram(
+    private static readonly Histogram BytesWrittenHistogram = Metrics.CreateHistogram(
     "circular_buffer_bytes_written_histogram",
     "Histogram of bytes written.",
     new HistogramConfiguration
@@ -46,18 +59,17 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         LabelNames = ["circular_buffer_id", "video_stream_name"]
     });
 
-    private readonly Histogram WriteDurationHistogram = Metrics.CreateHistogram(
+    private static readonly Histogram WriteDurationHistogram = Metrics.CreateHistogram(
        "circular_buffer_write_chunk_duration_milliseconds",
        "Histogram for the duration of the WriteChunk operation.",
        new HistogramConfiguration
        {
-           Buckets = Histogram.LinearBuckets(0, 100, 100),
+           Buckets = Histogram.LinearBuckets(start: 0.001, width: 0.01, count: 100),
            LabelNames = ["circular_buffer_id", "video_stream_name"]
        });
 
 
-
-    private readonly Counter BytesWrittenCounter = Metrics.CreateCounter(
+    private static readonly Counter BytesWrittenCounter = Metrics.CreateCounter(
         "circular_buffer_bytes_written_total",
         "Total number of bytes written.",
         new CounterConfiguration
@@ -65,7 +77,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
             LabelNames = ["circular_buffer_id", "video_stream_name"]
         });
 
-    private readonly Counter WriteErrorsCounter = Metrics.CreateCounter(
+    private static readonly Counter WriteErrorsCounter = Metrics.CreateCounter(
         "circular_buffer_write_errors_total",
         "Total number of write errors.",
          new CounterConfiguration
@@ -73,14 +85,17 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
              LabelNames = ["circular_buffer_id", "video_stream_name"] // Add the additional label here
          });
 
-    private readonly Histogram _dataArrivalHistogram = Metrics.CreateHistogram(
+    private static readonly Histogram _dataArrivalHistogram = Metrics.CreateHistogram(
     "circular_buffer_arrival_time_milliseconds",
     "Histogram of data arrival times in milliseconds.",
         new HistogramConfiguration
         {
-            Buckets = Histogram.LinearBuckets(start: 0.01, width: 0.01, count: 500), // Adjust the buckets to your needs
+            Buckets = Histogram.LinearBuckets(start: 0.001, width: 0.01, count: 100), // Adjust the buckets to your needs
             LabelNames = ["circular_buffer_id", "video_stream_name"]
         });
+
+    public event EventHandler<Guid> DataAvailable;
+    private readonly ConcurrentDictionary<Guid, int> _clientLastReadBeforeOverwrite = new();
 
     private readonly IStatisticsManager _statisticsManager;
     private readonly IInputStatisticsManager _inputStatisticsManager;
@@ -89,25 +104,17 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
     private readonly Memory<byte> _buffer;
     private readonly int _bufferSize;
     private readonly ConcurrentDictionary<Guid, int> _clientReadIndexes = new();
-
-    private readonly ConcurrentDictionary<Guid, ManualResetEventSlim> _readWaitHandles = new();
     private DateTime _lastNotificationTime = new();
-
     public VideoInfo? VideoInfo { get; set; } = null;
-
     private readonly ILogger<ICircularRingBuffer> _logger;
     private int _oldestDataIndex;
     private readonly float _preBuffPercent;
     private int _writeIndex;
-    private readonly ReaderWriterLockSlim _readWriteLock = new();
     private bool isBufferFull = false;
 
     public CircularRingBuffer(VideoStreamDto videoStreamDto, string channelId, string channelName, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILogger<ICircularRingBuffer> logger)
     {
         Setting setting = memoryCache.GetSetting();
-
-        //_waitDelayMS = waitDelayMS != null ? (int)waitDelayMS : (setting.MaxConnectRetry + 1) * setting.MaxConnectRetryTimeMS;
-
         _statisticsManager = statisticsManager ?? throw new ArgumentNullException(nameof(statisticsManager));
         _inputStatisticsManager = inputStatisticsManager ?? throw new ArgumentNullException(nameof(inputStatisticsManager));
         _inputStreamStatistics = _inputStatisticsManager.RegisterReader(videoStreamDto.Id);
@@ -143,6 +150,10 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         _writeIndex = 0;
         _oldestDataIndex = 0;
         logger.LogInformation("New Circular Buffer {Id} for stream {videoStreamId} {name}", Id, videoStreamDto.Id, videoStreamDto.User_Tvg_name);
+    }
+    private void OnDataAvailable(Guid clientId)
+    {
+        DataAvailable?.Invoke(this, clientId);
     }
 
     public string VideoStreamName => StreamInfo.VideoStreamName;
@@ -255,66 +266,57 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         return InternalIsPreBuffered;
     }
 
-    //public static double CalculateConsumptionTime(int packetSizeKB, double bitrateMbps)
-    //{
-    //    // Convert bitrate from Mbps to kilobytes per second (KB/s)
-    //    // Note: 1 byte = 8 bits, 1 megabit = 1000 kilobits
-    //    double bitrateKBps = bitrateMbps * 1000 / 8;
-
-    //    // Calculate the time to consume the packet in seconds
-    //    double timeInSeconds = packetSizeKB / bitrateKBps;
-
-    //    // Convert the time to milliseconds
-    //    return timeInSeconds * 1000;
-    //}
-
-    //private readonly int waitMs = 50;
-
     public async Task<int> ReadChunkMemory(Guid clientId, Memory<byte> target, CancellationToken cancellationToken)
     {
         _logger.LogDebug("Starting ReadChunkMemory for clientId: {clientId}", clientId);
 
-        while (!IsPreBuffered() && !cancellationToken.IsCancellationRequested)
+        // Wait for data to become available initially
+        while (GetAvailableBytes(clientId) == 0)
         {
-            await Task.Delay(10, cancellationToken);
-        }
-
-        if (!_clientReadIndexes.TryGetValue(clientId, out int readIndex))
-        {
-            // Handle this case: either log an error or throw an exception
-            return 0; // or throw new Exception($"Client {clientId} not found");
-        }
-
-        int bytesToRead = Math.Min(target.Length, GetAvailableBytes(clientId));
-        int bytesRead = 0;
-
-
-        try
-        {
-            _readWriteLock.EnterReadLock();
-            while (!cancellationToken.IsCancellationRequested && bytesToRead > 0)
+            await WaitForDataAvailability(clientId, cancellationToken);
+            if (cancellationToken.IsCancellationRequested)
             {
-                // Calculate how much we can read before we have to wrap
-                int canRead = Math.Min(bytesToRead, _buffer.Length - readIndex);
+                return 0;
+            }
+        }
 
-                // Create a slice from the readIndex to the end of what we can read
-                Memory<byte> slice = _buffer.Slice(readIndex, canRead);
+        int bytesRead = 0;
+        int bufferLength = _buffer.Length; // Assuming _buffer is the circular buffer's underlying array
 
-                // Copy to the target buffer
-                slice.CopyTo(target.Slice(bytesRead, canRead));
+        while (!cancellationToken.IsCancellationRequested && bytesRead < target.Length)
+        {
+            int clientReadIndex = _clientReadIndexes[clientId];
+            int availableBytes = Math.Min(GetAvailableBytes(clientId), target.Length - bytesRead);
 
-                // Update readIndex and bytesToRead
-                readIndex = (readIndex + canRead) % _buffer.Length;
-                bytesRead += canRead;
-                bytesToRead -= canRead;
+            // Calculate the number of bytes to read before wrap-around
+            int bytesToRead = Math.Min(bufferLength - clientReadIndex, availableBytes);
+
+            // Copy data to the target buffer
+            Memory<byte> bufferSlice = _buffer.Slice(clientReadIndex, bytesToRead);
+            bufferSlice.CopyTo(target[bytesRead..]);
+            bytesRead += bytesToRead;
+
+            // Update the client's read index, wrapping around if necessary
+            _clientReadIndexes[clientId] = (clientReadIndex + bytesToRead) % bufferLength;
+
+            // Check if all requested data has been read
+            if (bytesRead >= target.Length)
+            {
+                break;
             }
 
-            _clientReadIndexes[clientId] = readIndex;
+            // Check and wait for more data if needed
+            if (GetAvailableBytes(clientId) == 0)
+            {
+                await WaitForDataAvailability(clientId, cancellationToken);
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
+            }
+            _clientLastReadBeforeOverwrite[clientId] = _clientReadIndexes[clientId];
         }
-        finally
-        {
-            _readWriteLock.ExitReadLock();
-        }
+
 
         _statisticsManager.AddBytesRead(clientId, bytesRead);
         _logger.LogDebug("Finished ReadChunkMemory for clientId: {clientId}", clientId);
@@ -322,41 +324,49 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         return bytesRead;
     }
 
-    public void WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken)
+    public async Task WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken)
     {
-        ManualResetEventSlim waitHandle = _readWaitHandles.GetOrAdd(clientId, _ => new ManualResetEventSlim(false));
-
-        using (CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+        Stopwatch stopwatch = Stopwatch.StartNew();
+        try
         {
-            linkedCts.CancelAfter(TimeSpan.FromSeconds(5));
-
-            try
+            while (GetAvailableBytes(clientId) == 0 && !cancellationToken.IsCancellationRequested)
             {
-                while (GetAvailableBytes(clientId) == 0 && !linkedCts.Token.IsCancellationRequested)
+                TaskCompletionSource<bool> tcs = new();
+
+                void handler(object? sender, Guid id)
                 {
-                    // Wait directly on the ManualResetEventSlim
-                    if (waitHandle.WaitHandle.WaitOne(TimeSpan.FromMilliseconds(25)))
+                    if (id == clientId)
                     {
-                        break; // Exit the loop if the waitHandle is set
+                        tcs.TrySetResult(true);
+                        DataAvailable -= handler;
                     }
                 }
-            }
-            catch (OperationCanceledException)
-            {
-                if (linkedCts.Token.IsCancellationRequested)
+
+                DataAvailable += handler;
+
+                await Task.WhenAny(tcs.Task, Task.Delay(15000, cancellationToken));
+                if (cancellationToken.IsCancellationRequested)
                 {
-                    _logger.LogError("WaitForDataAvailability timed out for client ID {clientId}", clientId);
+                    _logger.LogWarning("Wait for data availability cancelled for client {ClientId}", clientId);
+                    break;
                 }
-                else if (cancellationToken.IsCancellationRequested)
-                {
-                    _logger.LogError("WaitForDataAvailability was canceled for client ID {clientId}", clientId);
-                }
-                // Additional handling if necessary
             }
         }
 
-        waitHandle.Reset();
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while waiting for data availability for client {ClientId}", clientId);
+        }
+        finally
+        {
+            stopwatch.Stop();
+
+            // Assuming Prometheus metrics
+            // Replace 'YourHistogram' with your actual Prometheus histogram object
+            WaitTimeHistogram.WithLabels(Id.ToString(), clientId.ToString(), StreamInfo.VideoStreamName).Observe(stopwatch.Elapsed.TotalSeconds);
+        }
     }
+
 
     public void RegisterClient(IClientStreamerConfiguration streamerConfiguration)
     {
@@ -384,12 +394,9 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
             _logger.LogWarning($"Input stream is slow: {StreamInfo.VideoStreamName} {elapsed.TotalMilliseconds}ms elapsed since last set.");
         }
 
-        foreach (Guid clientId in _readWaitHandles.Keys)
+        foreach (Guid clientId in _clientReadIndexes.Keys)
         {
-            if (_readWaitHandles.TryGetValue(clientId, out ManualResetEventSlim? waitHandle))
-            {
-                waitHandle.Set();
-            }
+            OnDataAvailable(clientId);
         }
     }
 
@@ -406,17 +413,16 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
 
     public int WriteChunk(Memory<byte> data)
     {
+        //_writePending = true;
         Stopwatch stopwatch = new();
         stopwatch.Start();
 
         _logger.LogDebug("Starting WriteChunk {VideoStreamId} with count: {count}", VideoStreamId, data.Length);
 
         int bytesWritten = 0;
-
-
         try
         {
-            _readWriteLock.EnterWriteLock();
+            int initialWriteIndex = _writeIndex;
             while (data.Length > 0)
             {
                 int availableSpace = _buffer.Length - _writeIndex;
@@ -446,6 +452,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
                     // Increment _oldestDataIndex to the next position after _writeIndex
                     _oldestDataIndex = (_writeIndex + 1) % _buffer.Length;
                 }
+                CheckAndReportClientOverwrites(initialWriteIndex, lengthToWrite);
             }
             BytesWrittenCounter.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Inc(bytesWritten);
             stopwatch.Stop();
@@ -462,8 +469,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         finally
         {
             stopwatch.Stop();
-            WriteDurationHistogram.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Observe(stopwatch.Elapsed.TotalMilliseconds); // Record the duration
-            _readWriteLock.ExitWriteLock();
+            WriteDurationHistogram.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Observe(stopwatch.Elapsed.TotalMilliseconds);
         }
 
         _inputStreamStatistics.AddBytesWritten(bytesWritten);
@@ -473,6 +479,49 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         _logger.LogDebug("WriteChunk completed with {VideoStreamId} count: {bytesWritten}", VideoStreamId, bytesWritten);
 
         return bytesWritten;
+    }
+
+    private void CheckAndReportClientOverwrites(int initialWriteIndex, int lengthToWrite)
+    {
+        int newWriteIndex = (_writeIndex + lengthToWrite) % _buffer.Length;
+        foreach (KeyValuePair<Guid, int> clientReadIndexEntry in _clientReadIndexes)
+        {
+            int clientReadIndex = clientReadIndexEntry.Value;
+            if (IsClientOverwritten(clientReadIndex, initialWriteIndex, newWriteIndex))
+            {
+                Guid clientId = clientReadIndexEntry.Key;
+                // Report the overwrite
+                int lastReadBeforeOverwrite = _clientLastReadBeforeOverwrite.TryGetValue(clientId, out int lastRead) ? lastRead : -1;
+
+                _logger.LogWarning($"Client {clientId}'s read index {clientReadIndex} (last read before overwrite: {lastReadBeforeOverwrite}) was overwritten by a write operation. Write started at {initialWriteIndex} and ended at {newWriteIndex} in {VideoStreamName}");
+
+                _clientReadIndexes[clientId] = CalculateSafeReadIndex(newWriteIndex);
+
+            }
+        }
+    }
+
+    private int CalculateSafeReadIndex(int newWriteIndex)
+    {
+        // Implement logic to calculate a safe read index for the client
+        // This might be the new write index, or some position before it, depending on your buffer's logic
+        return newWriteIndex + 1;
+    }
+
+    private bool IsClientOverwritten(int clientReadIndex, int initialWriteIndex, int newWriteIndex)
+    {
+
+        // Check if the client's read index falls within the range of data that was overwritten
+        if (initialWriteIndex <= newWriteIndex)
+        {
+            // No wrap-around
+            return clientReadIndex > initialWriteIndex && clientReadIndex <= newWriteIndex;
+        }
+        else
+        {
+            // Wrap-around occurred
+            return clientReadIndex > initialWriteIndex || clientReadIndex <= newWriteIndex;
+        }
     }
 
     private bool HasOverwrittenOldestData(int lengthToWrite)

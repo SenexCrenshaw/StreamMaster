@@ -53,30 +53,28 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         return _videoInfo ?? new();
     }
 
-    public async Task<VideoInfo> BuildVideoInfo(byte[] videoMemory)
+    private async Task BuildVideoInfo(byte[] videoMemory)
     {
         try
         {
-            await getVideoInfo.WaitAsync();
-
             if (runningGetVideo)
             {
-                return _videoInfo ?? new();
+                return;
             }
 
             if (_videoInfo != null)
             {
-                return _videoInfo;
+                return;
             }
 
             if (GetVideoInfoErrors > 3)
             {
-                return new();
+                return;
             }
 
-            ++GetVideoInfoErrors;
-
+            await getVideoInfo.WaitAsync();
             runningGetVideo = true;
+            ++GetVideoInfoErrors;
 
             Setting settings = memoryCache.GetSetting();
 
@@ -86,7 +84,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             {
                 if (!IsFFProbeAvailable())
                 {
-                    return new();
+                    return;
                 }
                 ffprobeExec = "ffprobe";
             }
@@ -94,8 +92,8 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             try
             {
                 VideoInfo ret = await CreateFFProbeStream(ffprobeExec, videoMemory).ConfigureAwait(false);
-
-                return ret;
+                logger.LogInformation("Retrieved video information for {name}", VideoStreamName);
+                return;
             }
             catch (IOException ex)
             {
@@ -111,7 +109,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                 getVideoInfo.Release();
             }
 
-            return new();
+            return;
         }
         finally
         {
@@ -203,7 +201,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
     public async Task StartVideoStreamingAsync(Stream stream)
     {
-        const int chunkSize = 64 * 1024;
+        const int chunkSize = 16 * 1024;
 
         logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} name: {name} circularRingbuffer id: {circularRingbuffer}", chunkSize, StreamUrl, VideoStreamName, CircularRingBuffer.Id);
 
@@ -248,7 +246,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                         {
                             if (_videoInfo == null && !runningGetVideo)
                             {
-                                _ = BuildVideoInfo(videoMemory);
+                                BuildVideoInfo(videoMemory);
                             }
                         }
 
