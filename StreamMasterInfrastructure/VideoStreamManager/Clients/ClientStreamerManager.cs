@@ -28,7 +28,7 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
 
                 foreach (IClientStreamerConfiguration clientStreamerConfiguration in clientStreamerConfigurations.Values)
                 {
-                    CancelClient(clientStreamerConfiguration.ClientId).Wait();
+                    CancelClient(clientStreamerConfiguration.ClientId, false).Wait();
                 }
                 clientStreamerConfigurations.Clear();
             }
@@ -85,7 +85,7 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
 
     public async Task UnRegisterClient(Guid clientId)
     {
-        await CancelClient(clientId).ConfigureAwait(false);
+        await CancelClient(clientId, false).ConfigureAwait(false);
 
         bool removed = clientStreamerConfigurations.TryRemove(clientId, out _);
         if (!removed)
@@ -136,16 +136,16 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
     }
 
 
-    public async Task<bool> CancelClient(Guid clientId)
+    public async Task<bool> CancelClient(Guid clientId, bool includeAbort)
     {
         IClientStreamerConfiguration? config = await GetClientStreamerConfiguration(clientId).ConfigureAwait(false);
         if (config == null) { return false; }
 
         logger.LogDebug("Cancelling client {ClientId}", clientId);
 
-        int test = GetAllClientStreamerConfigurations.Count(a => a.HttpContextId == config.HttpContextId);
+        //int test = GetAllClientStreamerConfigurations.Count(a => a.HttpContextId == config.HttpContextId);
 
-        await config.CancelClient(test == 1).ConfigureAwait(false);
+        await config.CancelClient(includeAbort).ConfigureAwait(false);
 
         return true;
     }

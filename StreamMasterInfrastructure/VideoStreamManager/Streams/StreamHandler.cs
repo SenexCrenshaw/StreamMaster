@@ -105,6 +105,11 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             {
 
             }
+            finally
+            {
+                runningGetVideo = false;
+                getVideoInfo.Release();
+            }
 
             return new();
         }

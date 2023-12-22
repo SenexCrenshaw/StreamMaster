@@ -30,9 +30,9 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
         ClientMasterToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ClientHTTPRequestCancellationToken);
     }
 
-    public string HttpContextId { get => this.response.HttpContext.TraceIdentifier; }
+    public string HttpContextId => this.response.HttpContext.TraceIdentifier;
 
-    public async Task CancelClient(bool includeResponse = true)
+    public async Task CancelClient(bool includeAbort = true)
     {
         if (ReadBuffer != null)
         {
@@ -43,7 +43,7 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
 
         try
         {
-            if (includeResponse)
+            if (includeAbort)
             {
                 if (!response.HasStarted)
                 {

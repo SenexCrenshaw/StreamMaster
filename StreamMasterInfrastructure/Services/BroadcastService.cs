@@ -7,6 +7,8 @@ using StreamMasterApplication.Hubs;
 
 using StreamMasterDomain.Services;
 
+using System.Diagnostics;
+
 namespace StreamMasterInfrastructure.Services;
 
 public class BroadcastService : IBroadcastService, IDisposable
@@ -33,32 +35,37 @@ public class BroadcastService : IBroadcastService, IDisposable
         debugLogger = factory.Create("FileLoggerDebug");
     }
 
-
+    private void printDebug(string format, params object[] args)
+    {
+        string formattedMessage = string.Format(format, args);
+        Debug.WriteLine(formattedMessage);
+        //debugLogger.EnqueueLogEntry(formattedMessage);
+    }
     public void LogDebug()
     {
         if (statisticsManager.GetAllClientIds().Any())
         {
-            debugLogger.EnqueueLogEntry("Stat ClientIds: {0}", statisticsManager.GetAllClientIds().Count);
+            printDebug("Stat ClientIds: {0}", statisticsManager.GetAllClientIds().Count);
         }
         if (channelService.GetGlobalStreamsCount() != 0)
         {
-            debugLogger.EnqueueLogEntry("Global: {0}", channelService.GetGlobalStreamsCount());
+            printDebug("Global: {0}", channelService.GetGlobalStreamsCount());
         }
 
         if (channelService.GetChannelStatuses().Any())
         {
-            debugLogger.EnqueueLogEntry("GetChannelStatuses: {0}", channelService.GetChannelStatuses().Count);
+            printDebug("GetChannelStatuses: {0}", channelService.GetChannelStatuses().Count);
         }
 
         //logger.LogInformation("GetStreamHandlers: {GetStreamHandlers}", streamManager.GetStreamHandlers().Count);
         foreach (IClientStreamerConfiguration clientStreamerConfiguration in clientStreamer.GetAllClientStreamerConfigurations)
         {
-            debugLogger.EnqueueLogEntry("Client: {0} {1}", clientStreamerConfiguration.ChannelName, clientStreamerConfiguration.ReadBuffer?.Id ?? Guid.Empty);
+            printDebug("Client: {0} {1}", clientStreamerConfiguration.ChannelName, clientStreamerConfiguration.ReadBuffer?.Id ?? Guid.Empty);
         }
 
         foreach (IStreamHandler handler in streamManager.GetStreamHandlers())
         {
-            debugLogger.EnqueueLogEntry("Stream: {0} {1} {2} {3}", handler.ClientCount, handler.CircularRingBuffer.Id, handler.VideoStreamName, handler.StreamUrl);
+            printDebug("Stream: {0} {1} {2} {3}", handler.ClientCount, handler.CircularRingBuffer.Id, handler.VideoStreamName, handler.StreamUrl);
         }
     }
 

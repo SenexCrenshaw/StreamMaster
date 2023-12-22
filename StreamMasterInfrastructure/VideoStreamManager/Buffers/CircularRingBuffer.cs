@@ -100,7 +100,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
     private readonly float _preBuffPercent;
     private int _writeIndex;
     private readonly ReaderWriterLockSlim _readWriteLock = new();
-    private bool isBufferFull = false; // This should be maintained as part of your buffer state
+    private bool isBufferFull = false;
 
     public CircularRingBuffer(VideoStreamDto videoStreamDto, string channelId, string channelName, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILogger<ICircularRingBuffer> logger)
     {
@@ -288,9 +288,10 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         int bytesToRead = Math.Min(target.Length, GetAvailableBytes(clientId));
         int bytesRead = 0;
 
-        _readWriteLock.EnterReadLock();
+
         try
         {
+            _readWriteLock.EnterReadLock();
             while (!cancellationToken.IsCancellationRequested && bytesToRead > 0)
             {
                 // Calculate how much we can read before we have to wrap
@@ -412,9 +413,10 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
 
         int bytesWritten = 0;
 
-        _readWriteLock.EnterWriteLock();
+
         try
         {
+            _readWriteLock.EnterWriteLock();
             while (data.Length > 0)
             {
                 int availableSpace = _buffer.Length - _writeIndex;

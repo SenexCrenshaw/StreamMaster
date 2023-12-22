@@ -25,7 +25,7 @@
         /// <summary>
         /// Asynchronously cancels a client.
         /// </summary>
-        Task<bool> CancelClient(Guid clientId);
+        Task<bool> CancelClient(Guid clientId, bool includeAbort);
 
         /// <summary>
         /// Disposes of the object, releasing all allocated resources.

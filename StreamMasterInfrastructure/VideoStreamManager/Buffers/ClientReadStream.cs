@@ -212,7 +212,10 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
         {
             logger.LogError(ex, "Error reading buffer for ClientId: {ClientId}", ClientId);
         }
-
+        finally
+        {
+            semaphore.Release();
+        }
         if (bytesRead == 0)
         {
             logger.LogDebug("Read 0 bytes for ClientId: {ClientId}", ClientId);

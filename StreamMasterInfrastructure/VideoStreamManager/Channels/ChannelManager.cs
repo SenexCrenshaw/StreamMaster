@@ -148,7 +148,7 @@ public sealed class ChannelManager : IChannelManager
     }
     public void FailClient(Guid clientId)
     {
-        _ = clientStreamerManager.CancelClient(clientId);
+        _ = clientStreamerManager.CancelClient(clientId, true);
     }
 
     public async Task<Stream?> GetChannel(IClientStreamerConfiguration config)
@@ -218,9 +218,10 @@ public sealed class ChannelManager : IChannelManager
 
     private async Task<IChannelStatus?> RegisterWithChannelManager(IClientStreamerConfiguration config)
     {
-        await _registerSemaphore.WaitAsync();
+
         try
         {
+            await _registerSemaphore.WaitAsync();
 
             IChannelStatus? channelStatus = await EnsureChannelRegistration(config);
 
@@ -288,8 +289,9 @@ public sealed class ChannelManager : IChannelManager
     {
         try
         {
-            logger.LogInformation("UnRegisterWithChannelManager client: {clientId}  {name}", config.ClientId, config.ChannelName);
             await _registerSemaphore.WaitAsync();
+
+            logger.LogInformation("UnRegisterWithChannelManager client: {clientId}  {name}", config.ClientId, config.ChannelName);
 
             await clientStreamerManager.UnRegisterClient(config.ClientId);
 
