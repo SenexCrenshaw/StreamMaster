@@ -129,6 +129,11 @@ public static class CryptoExtension
         return EncodeValue(value1, serverKey, 128);
     }
 
+    public static string EncodeValue128(this int value1, string serverKey, string iv)
+    {
+        return EncodeValue(value1, serverKey, 128);
+
+    }
     public static string EncodeValue192(this string value1, string serverKey)
     {
         return EncodeValue(value1, serverKey, 192);
@@ -388,7 +393,8 @@ public static class CryptoExtension
         else
         {
             // Generate a random IV
-            aes.GenerateIV();
+            // aes.GenerateIV();
+            aes.IV = Encoding.UTF8.GetBytes("STREAMMASTER1234");
         }
 
         byte[] iv = aes.IV;
