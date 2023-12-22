@@ -15,6 +15,7 @@ public interface ICircularRingBuffer
     /// </summary>
     Guid Id { get; }
     public string VideoStreamId { get; }
+    public string VideoStreamName { get; }
 
     List<StreamStatisticsResult> GetAllStatisticsForAllUrls();
 

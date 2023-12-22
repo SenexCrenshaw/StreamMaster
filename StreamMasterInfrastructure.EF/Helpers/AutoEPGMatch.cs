@@ -33,27 +33,35 @@ namespace StreamMasterInfrastructureEF.Helpers
             return input.ToLower();
         }
 
-        public static int GetMatchingScore(string userTvgName, string programmeName)
+        public static int GetMatchingScore(string userTvgName, string programmeName, bool debug = false)
         {
-            Debug.WriteLine("---------- Start Matching Output ----------");
+            if (debug)
+            {
+                Debug.WriteLine("---------- Start Matching Output ----------");
+            }
 
             string normalizedUserTvgName = NormalizeString(RemoveCommonSuffixes(userTvgName));
             string normalizedProgrammeName = NormalizeString(RemoveCommonSuffixes(programmeName));
 
             (string extractedProgrammeCode, string extractedProgrammeName) = ExtractComponentsFromProgrammeName(normalizedProgrammeName);
 
-            Debug.WriteLine($"Normalized User TVG Name: {normalizedUserTvgName}");
-            Debug.WriteLine($"Normalized Programme Name: {normalizedProgrammeName}");
-            Debug.WriteLine($"Extracted Programme Code: {extractedProgrammeCode}");
-            Debug.WriteLine($"Extracted Programme Name: {extractedProgrammeName}");
-
+            if (debug)
+            {
+                Debug.WriteLine($"Normalized User TVG Name: {normalizedUserTvgName}");
+                Debug.WriteLine($"Normalized Programme Name: {normalizedProgrammeName}");
+                Debug.WriteLine($"Extracted Programme Code: {extractedProgrammeCode}");
+                Debug.WriteLine($"Extracted Programme Name: {extractedProgrammeName}");
+            }
             int score = 0;
             score += MatchExactOrBase(normalizedUserTvgName, extractedProgrammeCode, extractedProgrammeName);
             score += MatchCallSign(normalizedUserTvgName, extractedProgrammeCode, extractedProgrammeName);
             score += MatchWordIntersection(normalizedUserTvgName, normalizedProgrammeName);
 
-            Debug.WriteLine($"Total Score: {score}");
-            Debug.WriteLine("----------- End Matching Output -----------");
+            if (debug)
+            {
+                Debug.WriteLine($"Total Score: {score}");
+                Debug.WriteLine("----------- End Matching Output -----------");
+            }
 
             return score;
         }

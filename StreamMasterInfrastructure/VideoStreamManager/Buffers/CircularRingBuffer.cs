@@ -20,22 +20,58 @@ namespace StreamMasterInfrastructure.VideoStreamManager.Buffers;
 /// </summary>
 public sealed class CircularRingBuffer : ICircularRingBuffer
 {
+    private static readonly Gauge _bytesPerSecond = Metrics.CreateGauge(
+ "circular_buffer_read_stream_bytes_per_second",
+ "Bytes per second read from the input stream.",
+ new GaugeConfiguration
+ {
+     LabelNames = ["circular_buffer_id", "video_stream_name"]
+ });
+
+    private static readonly Histogram _bytesPerSecondHistogram = Metrics.CreateHistogram(
+    "circular_buffer_read_stream_bytes_per_second_histogram",
+    "Histogram of bytes per second read from the input stream.",
+    new HistogramConfiguration
+    {
+        Buckets = Histogram.LinearBuckets(0, 20000000, 11),
+        LabelNames = ["circular_buffer_id", "video_stream_name"]
+    });
+
+    private readonly Histogram BytesWrittenHistogram = Metrics.CreateHistogram(
+    "circular_buffer_bytes_written_histogram",
+    "Histogram of bytes written.",
+    new HistogramConfiguration
+    {
+        Buckets = Histogram.LinearBuckets(0, 20000000, 11),
+        LabelNames = ["circular_buffer_id", "video_stream_name"]
+    });
+
     private readonly Histogram WriteDurationHistogram = Metrics.CreateHistogram(
        "circular_buffer_write_chunk_duration_milliseconds",
        "Histogram for the duration of the WriteChunk operation.",
        new HistogramConfiguration
        {
-           Buckets = Histogram.ExponentialBuckets(0.01, 2, 10),
-           LabelNames = ["circular_buffer_id"]
+           Buckets = Histogram.LinearBuckets(0, 100, 100),
+           LabelNames = ["circular_buffer_id", "video_stream_name"]
        });
+
+
 
     private readonly Counter BytesWrittenCounter = Metrics.CreateCounter(
         "circular_buffer_bytes_written_total",
-        "Total number of bytes written.", "circular_buffer_id");
+        "Total number of bytes written.",
+        new CounterConfiguration
+        {
+            LabelNames = ["circular_buffer_id", "video_stream_name"]
+        });
 
     private readonly Counter WriteErrorsCounter = Metrics.CreateCounter(
         "circular_buffer_write_errors_total",
-        "Total number of write errors.", "circular_buffer_id");
+        "Total number of write errors.",
+         new CounterConfiguration
+         {
+             LabelNames = ["circular_buffer_id", "video_stream_name"] // Add the additional label here
+         });
 
     private readonly Histogram _dataArrivalHistogram = Metrics.CreateHistogram(
     "circular_buffer_arrival_time_milliseconds",
@@ -82,7 +118,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
             setting.PreloadPercentage = 0;
         }
 
-        if (setting.RingBufferSizeMB < 1 || setting.RingBufferSizeMB > 10)
+        if (setting.RingBufferSizeMB is < 1 or > 10)
         {
             setting.RingBufferSizeMB = 1;
         }
@@ -108,6 +144,8 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         _oldestDataIndex = 0;
         logger.LogInformation("New Circular Buffer {Id} for stream {videoStreamId} {name}", Id, videoStreamDto.Id, videoStreamDto.User_Tvg_name);
     }
+
+    public string VideoStreamName => StreamInfo.VideoStreamName;
 
     public Memory<byte> GetBufferSlice(int length)
     {
@@ -238,7 +276,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
 
         while (!IsPreBuffered() && !cancellationToken.IsCancellationRequested)
         {
-            await Task.Delay(25, cancellationToken);
+            await Task.Delay(10, cancellationToken);
         }
 
         if (!_clientReadIndexes.TryGetValue(clientId, out int readIndex))
@@ -339,7 +377,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         // Log the elapsed time if it's more than 500 milliseconds
         TimeSpan elapsed = now - lastNotificationTime;
         _dataArrivalHistogram.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Observe(elapsed.TotalMilliseconds);
-        if (elapsed.TotalMilliseconds > 10000 && elapsed.TotalMilliseconds < 60000000000000)
+        if (elapsed.TotalMilliseconds is > 15000 and < 60000000000000)
         {
             // Log the elapsed time here
             _logger.LogWarning($"Input stream is slow: {StreamInfo.VideoStreamName} {elapsed.TotalMilliseconds}ms elapsed since last set.");
@@ -407,17 +445,22 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
                     _oldestDataIndex = (_writeIndex + 1) % _buffer.Length;
                 }
             }
-            BytesWrittenCounter.WithLabels(Id.ToString()).Inc(bytesWritten);
+            BytesWrittenCounter.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Inc(bytesWritten);
+            stopwatch.Stop();
+            double seconds = stopwatch.Elapsed.TotalSeconds;
+            double bps = bytesWritten / seconds;
+            _bytesPerSecondHistogram.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Observe(bps);
+            _bytesPerSecond.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Set(bps);
         }
         catch (Exception ex)
         {
-            WriteErrorsCounter.WithLabels(Id.ToString()).Inc(); // Increment write errors counter
+            WriteErrorsCounter.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Inc(); // Increment write errors counter
             _logger.LogError(ex, "WriteChunk error occurred while writing chunk for {VideoStreamId}.", VideoStreamId);
         }
         finally
         {
             stopwatch.Stop();
-            WriteDurationHistogram.WithLabels(Id.ToString()).Observe(stopwatch.Elapsed.TotalMilliseconds); // Record the duration
+            WriteDurationHistogram.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Observe(stopwatch.Elapsed.TotalMilliseconds); // Record the duration
             _readWriteLock.ExitWriteLock();
         }
 

@@ -10,27 +10,54 @@ namespace StreamMasterInfrastructure.VideoStreamManager.Buffers;
 
 public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, ILogger<ClientReadStream> logger, IClientStreamerConfiguration config) : Stream, IClientReadStream
 {
+    private static readonly Gauge _bytesPerSecond = Metrics.CreateGauge(
+    "client_read_stream_bytes_per_second",
+    "Bytes per second read from the client stream.",
+    new GaugeConfiguration
+    {
+        LabelNames = ["client_id", "circular_buffer_id", "video_stream_name"]
+    });
+
+    private static readonly Histogram _bytesPerSecondHistogram = Metrics.CreateHistogram(
+    "client_read_stream_bytes_per_second_histogram",
+    "Histogram of bytes per second read from the client stream.",
+    new HistogramConfiguration
+    {
+        Buckets = Histogram.LinearBuckets(0, 20000000, 11),
+        LabelNames = ["client_id", "circular_buffer_id", "video_stream_name"]
+    });
+
+
     private readonly Histogram _readDurationHistogram = Metrics.CreateHistogram(
             "client_read_stream_duration_milliseconds",
             "Duration of read operations in milliseconds.",
             new HistogramConfiguration
             {
-                Buckets = Histogram.ExponentialBuckets(0.01, 2, 10), // Adjust as needed
-                LabelNames = new[] { "client_id" }
+                Buckets = Histogram.LinearBuckets(0, 100, 100),
+                LabelNames = ["client_id", "circular_buffer_id", "video_stream_name"]
             });
 
     private readonly Counter _bytesReadCounter = Metrics.CreateCounter(
             "client_read_stream_bytes_read_total",
-            "Total number of bytes read.",
-            "client_id");
+            "Total number of bytes read.", new CounterConfiguration
+            {
+                LabelNames = ["client_id", "circular_buffer_id", "video_stream_name"]
+            });
+
     private readonly Counter _readErrorsCounter = Metrics.CreateCounter(
             "client_read_stream_errors_total",
-            "Total number of read errors.",
-            "client_id");
+            "Total number of read errors."
+            , new CounterConfiguration
+            {
+                LabelNames = ["client_id", "circular_buffer_id", "video_stream_name"]
+            });
     private readonly Counter _readCancellationCounter = Metrics.CreateCounter(
             "client_read_stream_cancellations_total",
             "Total number of read cancellations.",
-            "client_id");
+            new CounterConfiguration
+            {
+                LabelNames = ["client_id", "circular_buffer_id", "video_stream_name"]
+            });
 
     private Func<ICircularRingBuffer> _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
     private CancellationTokenSource _clientMasterToken = config.ClientMasterToken;
@@ -63,8 +90,9 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
         else
         {
             if (_readCancel.IsCancellationRequested)
+            {
                 _readCancel = new CancellationTokenSource();
-
+            }
         }
 
         Stopwatch stopwatch = new();
@@ -89,11 +117,18 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
 
                 bytesRead += await Buffer.ReadChunkMemory(ClientId, buffer.Slice(bytesRead, bytesToRead), _readCancel.Token);
             }
-            _bytesReadCounter.WithLabels(ClientId.ToString()).Inc(bytesRead);
+            _bytesReadCounter.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Inc(bytesRead);
+
+            stopwatch.Stop();
+            double seconds = stopwatch.Elapsed.TotalSeconds;
+            double bps = bytesRead / seconds;
+
+            _bytesPerSecondHistogram.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Observe(bps);
+            _bytesPerSecond.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Set(bps);
         }
         catch (TaskCanceledException ex)
         {
-            _readCancellationCounter.WithLabels(ClientId.ToString()).Inc();
+            _readCancellationCounter.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Inc();
 
             _readCancel = new CancellationTokenSource();
             logger.LogInformation(ex, "Read Task ended for ClientId: {ClientId}", ClientId);
@@ -101,13 +136,13 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
         }
         catch (Exception ex)
         {
-            _readErrorsCounter.WithLabels(ClientId.ToString()).Inc();
+            _readErrorsCounter.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Inc();
             logger.LogError(ex, "Error reading buffer for ClientId: {ClientId}", ClientId);
         }
         finally
         {
             stopwatch.Stop();
-            _readDurationHistogram.WithLabels(ClientId.ToString()).Observe(stopwatch.Elapsed.TotalMilliseconds);
+            _readDurationHistogram.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Observe(stopwatch.Elapsed.TotalMilliseconds);
             semaphore.Release();
         }
 

@@ -877,28 +877,66 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
         List<VideoStreamDto> results = [];
 
-        foreach (VideoStream videoStream in videoStreams)
+        //foreach (VideoStream videoStream in videoStreams)
+        //{
+        //    var scoredMatches = stationChannelNames
+        //         .Select(p => new
+        //         {
+        //             Channel = p,
+        //             Score = AutoEPGMatch.GetMatchingScore(videoStream.User_Tvg_name, p.Channel)
+        //         })
+        //         .Where(x => x.Score > 0) // Filter out non-matches
+        //         .OrderByDescending(x => x.Score) // Sort by score in descending order
+        //         .ToList();
+
+        //    if (!scoredMatches.Any())
+        //    {
+        //        scoredMatches = stationChannelNames
+        //         .Select(p => new
+        //         {
+        //             Channel = p,
+        //             Score = AutoEPGMatch.GetMatchingScore(videoStream.User_Tvg_name, p.DisplayName)
+        //         })
+        //         .Where(x => x.Score > 0) // Filter out non-matches
+        //         .OrderByDescending(x => x.Score).ToList(); // Sort by score in descending order
+        //    }
+
+        //    if (scoredMatches.Any())
+        //    {
+        //        videoStream.User_Tvg_ID = scoredMatches[0].Channel.Channel;
+        //        UpdateVideoStream(videoStream);
+
+        //        if (setting.VideoStreamAlwaysUseEPGLogo)
+        //        {
+        //            await SetVideoStreamLogoFromEPG(videoStream, cancellationToken).ConfigureAwait(false);
+        //        }
+        //        results.Add(mapper.Map<VideoStreamDto>(videoStream));
+        //    }
+        //}
+
+        await Parallel.ForEachAsync(videoStreams, async (videoStream, token) =>
         {
             var scoredMatches = stationChannelNames
-                 .Select(p => new
-                 {
-                     Channel = p,
-                     Score = AutoEPGMatch.GetMatchingScore(videoStream.User_Tvg_name, p.Channel)
-                 })
-                 .Where(x => x.Score > 0) // Filter out non-matches
-                 .OrderByDescending(x => x.Score) // Sort by score in descending order
-                 .ToList();
+                .Select(p => new
+                {
+                    Channel = p,
+                    Score = AutoEPGMatch.GetMatchingScore(videoStream.User_Tvg_name, p.Channel)
+                })
+                .Where(x => x.Score > 0)
+                .OrderByDescending(x => x.Score)
+                .ToList();
 
             if (!scoredMatches.Any())
             {
                 scoredMatches = stationChannelNames
-                 .Select(p => new
-                 {
-                     Channel = p,
-                     Score = AutoEPGMatch.GetMatchingScore(videoStream.User_Tvg_name, p.DisplayName)
-                 })
-                 .Where(x => x.Score > 0) // Filter out non-matches
-                 .OrderByDescending(x => x.Score).ToList(); // Sort by score in descending order
+                    .Select(p => new
+                    {
+                        Channel = p,
+                        Score = AutoEPGMatch.GetMatchingScore(videoStream.User_Tvg_name, p.DisplayName)
+                    })
+                    .Where(x => x.Score > 0)
+                    .OrderByDescending(x => x.Score)
+                    .ToList();
             }
 
             if (scoredMatches.Any())
@@ -908,11 +946,13 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
                 if (setting.VideoStreamAlwaysUseEPGLogo)
                 {
-                    await SetVideoStreamLogoFromEPG(videoStream, cancellationToken).ConfigureAwait(false);
+                    await SetVideoStreamLogoFromEPG(videoStream, token).ConfigureAwait(false);
                 }
                 results.Add(mapper.Map<VideoStreamDto>(videoStream));
             }
-        }
+        });
+
+
         if (results.Any())
         {
             await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

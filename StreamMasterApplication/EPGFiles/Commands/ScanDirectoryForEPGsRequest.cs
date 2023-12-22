@@ -1,4 +1,4 @@
-﻿using StreamMasterDomain.Models;
+﻿using StreamMasterDomain.Color;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
@@ -64,6 +64,7 @@ public class ScanDirectoryForEPGFilesRequestHandler : BaseMediatorRequestHandler
             FileExists = true,
             LastDownloaded = epgFileInfo.LastWriteTime,
             LastDownloadAttempt = epgFileInfo.LastWriteTime,
+            Color = ColorHelper.GetColor(epgFileInfo.Name),
             Url = ""
         };
 
