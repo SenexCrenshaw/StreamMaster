@@ -125,11 +125,7 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
 
     public async Task SetClientBufferDelegate(IClientStreamerConfiguration clientStreamerConfiguration, ICircularRingBuffer RingBuffer)
     {
-        if (clientStreamerConfiguration.ReadBuffer == null)
-        {
-            int a = 1;
-            clientStreamerConfiguration.ReadBuffer = new ClientReadStream(() => RingBuffer, ringBufferReadStreamLogger, clientStreamerConfiguration);
-        }
+        clientStreamerConfiguration.ReadBuffer ??= new ClientReadStream(() => RingBuffer, ringBufferReadStreamLogger, clientStreamerConfiguration);
 
 
         await clientStreamerConfiguration.ReadBuffer.SetBufferDelegate(() => RingBuffer, clientStreamerConfiguration);

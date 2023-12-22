@@ -106,7 +106,7 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
 
         if (m3uFile == null)
         {
-            if (GetGlobalStreamsCount() >= setting.GlobalStreamLimit)
+            if (GetGlobalStreamsCount() > setting.GlobalStreamLimit)
             {
                 logger.LogInformation("Max Global stream count {GlobalStreamsCount} reached for stream: {StreamUrl}", GetGlobalStreamsCount(), vs.User_Url);
                 return null;

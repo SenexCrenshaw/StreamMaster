@@ -101,8 +101,9 @@ new GaugeConfiguration
     private readonly IInputStatisticsManager _inputStatisticsManager;
     private readonly IInputStreamingStatistics _inputStreamStatistics;
     public readonly StreamInfo StreamInfo;
-    private readonly Memory<byte> _buffer;
+    private Memory<byte> _buffer;
     private readonly int _bufferSize;
+    private readonly int _originalBufferSize;
     private readonly ConcurrentDictionary<Guid, int> _clientReadIndexes = new();
     private DateTime _lastNotificationTime = new();
     public VideoInfo? VideoInfo { get; set; } = null;
@@ -147,6 +148,7 @@ new GaugeConfiguration
         };
 
         _buffer = new byte[_bufferSize];
+        _originalBufferSize = _bufferSize;
         _writeIndex = 0;
         _oldestDataIndex = 0;
         logger.LogInformation("New Circular Buffer {Id} for stream {videoStreamId} {name}", Id, videoStreamDto.Id, videoStreamDto.User_Tvg_name);
@@ -232,6 +234,7 @@ new GaugeConfiguration
 
     public int GetAvailableBytes(Guid clientId)
     {
+        int a = _clientReadIndexes.TryGetValue(clientId, out int readIndex2) ? (_writeIndex - readIndex2 + _buffer.Length) % _buffer.Length : 0;
         return _clientReadIndexes.TryGetValue(clientId, out int readIndex) ? (_writeIndex - readIndex + _buffer.Length) % _buffer.Length : 0;
     }
 
@@ -285,9 +288,19 @@ new GaugeConfiguration
 
         while (!cancellationToken.IsCancellationRequested && bytesRead < target.Length)
         {
-            int clientReadIndex = _clientReadIndexes[clientId];
-            int availableBytes = Math.Min(GetAvailableBytes(clientId), target.Length - bytesRead);
 
+            int availableBytes = Math.Min(GetAvailableBytes(clientId), target.Length - bytesRead);
+            if (availableBytes == 0)
+            {
+                if (bytesRead > ((target.Length - bytesRead) * .25))
+                {
+                    break;
+                }
+                await Task.Delay(20);
+                continue;
+            }
+
+            int clientReadIndex = _clientReadIndexes[clientId];
             // Calculate the number of bytes to read before wrap-around
             int bytesToRead = Math.Min(bufferLength - clientReadIndex, availableBytes);
 
@@ -305,15 +318,15 @@ new GaugeConfiguration
                 break;
             }
 
-            // Check and wait for more data if needed
-            if (GetAvailableBytes(clientId) == 0)
-            {
-                await WaitForDataAvailability(clientId, cancellationToken);
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    break;
-                }
-            }
+            //// Check and wait for more data if needed
+            //if (GetAvailableBytes(clientId) == 0)
+            //{
+            //    await WaitForDataAvailability(clientId, cancellationToken);
+            //    if (cancellationToken.IsCancellationRequested)
+            //    {
+            //        break;
+            //    }
+            //}
             _clientLastReadBeforeOverwrite[clientId] = _clientReadIndexes[clientId];
         }
 
@@ -323,6 +336,109 @@ new GaugeConfiguration
 
         return bytesRead;
     }
+
+    private readonly object bufferLock = new();
+    public void ResizeBuffer(int newSize)
+    {
+        lock (bufferLock) // Ensure exclusive access
+        {
+            Memory<byte> newBuffer = new byte[newSize];
+            _buffer.CopyTo(newBuffer);
+
+            //int dataLength = CalculateDataLength(); // Calculate the length of data in the old buffer
+
+            //CopyDataToNewBuffer(newBuffer, dataLength); // Copy data to the new buffer
+
+            // Update indices
+            //_writeIndex = UpdateWriteIndex(dataLength);
+            //foreach (Guid clientId in _clientReadIndexes.Keys)
+            //{
+            //    _clientReadIndexes[clientId] = UpdateReadIndex(clientId);
+            //}
+
+            // Replace old buffer with new buffer
+            _buffer = newBuffer;
+        }
+    }
+
+    //private void CopyDataToNewBuffer(Memory<byte> newBuffer, int dataLength)
+    //{
+    //    if (_writeIndex >= _oldestDataIndex)
+    //    {
+    //        // No wrap-around
+    //        _buffer.Slice(_oldestDataIndex, dataLength).CopyTo(newBuffer);
+    //    }
+    //    else
+    //    {
+    //        // Wrap-around
+    //        int lengthToEnd = _buffer.Length - _oldestDataIndex;
+    //        _buffer.Slice(_oldestDataIndex, lengthToEnd).CopyTo(newBuffer);
+    //        _buffer[.._writeIndex].CopyTo(newBuffer[lengthToEnd..]);
+    //    }
+    //}
+
+    //private int UpdateWriteIndex(int dataLength)
+    //{
+    //    // If there was no wrap-around in the old buffer, the write index remains the same.
+    //    // Otherwise, it's the length of the data copied.
+    //    return _writeIndex >= _oldestDataIndex ? _writeIndex : dataLength;
+    //}
+
+    //private int CalculateDataLength()
+    //{
+    //    if (!isBufferFull)
+    //    {
+    //        // If the buffer is not full, the data length is the difference between _writeIndex and _oldestDataIndex.
+    //        if (_writeIndex >= _oldestDataIndex)
+    //        {
+    //            return _writeIndex - _oldestDataIndex;
+    //        }
+    //        else
+    //        {
+    //            // The buffer has wrapped around, but is not full.
+    //            return _buffer.Length - _oldestDataIndex + _writeIndex;
+    //        }
+    //    }
+    //    else
+    //    {
+    //        // If the buffer is full, the data length is the size of the buffer.
+    //        return _buffer.Length;
+    //    }
+    //}
+
+
+    //private int UpdateReadIndex(Guid clientId, int dataLength)
+    //{
+    //    int clientReadIndex = _clientReadIndexes[clientId];
+    //    if (_writeIndex >= _oldestDataIndex)
+    //    {
+    //        // No wrap-around
+    //        return clientReadIndex - _oldestDataIndex; // Adjust the index based on the new start
+    //    }
+    //    else
+    //    {
+    //        // Wrap-around
+    //        if (clientReadIndex >= _oldestDataIndex)
+    //        {
+    //            // The read index was in the latter part of the old buffer
+    //            return clientReadIndex - _oldestDataIndex;
+    //        }
+    //        else
+    //        {
+    //            // The read index was in the beginning part of the old buffer
+    //            int lengthToEnd = _buffer.Length - _oldestDataIndex;
+    //            return lengthToEnd + clientReadIndex;
+    //        }
+    //    }
+    //}
+
+    private int UpdateReadIndex(Guid clientId)
+    {
+        // If the buffer is expanding, the relative position of the read index remains the same.
+        // Just return the current read index for the client.
+        return _clientReadIndexes[clientId];
+    }
+
 
     public async Task WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken)
     {
@@ -345,11 +461,11 @@ new GaugeConfiguration
                 DataAvailable += handler;
 
                 await Task.WhenAny(tcs.Task, Task.Delay(15000, cancellationToken));
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    _logger.LogWarning("Wait for data availability cancelled for client {ClientId}", clientId);
-                    break;
-                }
+                //if (cancellationToken.IsCancellationRequested)
+                //{
+                //    _logger.LogWarning("Wait for data availability cancelled for client {ClientId}", clientId);
+                //    break;
+                //}
             }
         }
 
@@ -406,10 +522,10 @@ new GaugeConfiguration
         _logger.LogInformation("UnRegisterClient for clientId: {clientId}  {VideoStreamName}", clientId, StreamInfo.VideoStreamName);
     }
 
-    public void UpdateReadIndex(Guid clientId, int newIndex)
-    {
-        _clientReadIndexes[clientId] = newIndex % _buffer.Length;
-    }
+    //public void UpdateReadIndex(Guid clientId, int newIndex)
+    //{
+    //    _clientReadIndexes[clientId] = newIndex % _buffer.Length;
+    //}
 
     public int WriteChunk(Memory<byte> data)
     {
@@ -496,8 +612,39 @@ new GaugeConfiguration
                 _logger.LogWarning($"Client {clientId}'s read index {clientReadIndex} (last read before overwrite: {lastReadBeforeOverwrite}) was overwritten by a write operation. Write started at {initialWriteIndex} and ended at {newWriteIndex} in {VideoStreamName}");
 
                 _clientReadIndexes[clientId] = CalculateSafeReadIndex(newWriteIndex);
+                ResizeBuffer();
 
             }
+        }
+    }
+
+    private void ResizeBuffer()
+    {
+        int currentSize = _buffer.Length;
+        int newSize;
+
+        // Example: Increase by 50% but limit to a maximum size
+        int increaseBy = (int)(currentSize * 0.20);
+        int maxSize = _originalBufferSize * 4; // Example: 10 MB max size
+        newSize = Math.Min(currentSize + increaseBy, maxSize);
+
+        // Check if new size is actually larger than current size
+        if (newSize > currentSize)
+        {
+            _logger.LogInformation($"Resizing buffer from {currentSize} to {newSize}");
+            try
+            {
+                ResizeBuffer(newSize);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while resizing the buffer");
+                // Handle or rethrow the exception as needed
+            }
+        }
+        else
+        {
+            _logger.LogInformation("Buffer resize not required or maximum size reached.");
         }
     }
 
@@ -515,11 +662,15 @@ new GaugeConfiguration
         if (initialWriteIndex <= newWriteIndex)
         {
             // No wrap-around
+            bool a = clientReadIndex > initialWriteIndex;
+            bool b = clientReadIndex <= newWriteIndex;
             return clientReadIndex > initialWriteIndex && clientReadIndex <= newWriteIndex;
         }
         else
         {
             // Wrap-around occurred
+            bool a = clientReadIndex > initialWriteIndex;
+            bool b = clientReadIndex <= newWriteIndex;
             return clientReadIndex > initialWriteIndex || clientReadIndex <= newWriteIndex;
         }
     }

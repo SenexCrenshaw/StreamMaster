@@ -4,6 +4,7 @@ using Prometheus;
 
 using StreamMasterApplication.Common.Interfaces;
 
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Buffers;
@@ -61,7 +62,8 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
 
     private Func<ICircularRingBuffer> _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
     private CancellationTokenSource _clientMasterToken = config.ClientMasterToken;
-    //private readonly ConcurrentDictionary<Guid, SemaphoreSlim> _clientSemaphores = [];
+
+    private readonly ConcurrentDictionary<Guid, SemaphoreSlim> _bufferSwitchSemaphores = new();
 
     private CancellationTokenSource _readCancel = new();
 
@@ -97,15 +99,24 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
         stopwatch.Start();
 
         int bytesRead = 0;
+        SemaphoreSlim semaphore = _bufferSwitchSemaphores.GetOrAdd(config.ClientId, new SemaphoreSlim(1, 1));
 
         try
         {
             // Use the ReadChunkMemory method to read data
+
+            await semaphore.WaitAsync(cancellationToken);
             bytesRead = await Buffer.ReadChunkMemory(ClientId, buffer, linkedCts.Token);
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogInformation(ex, "ReadAsync cancelled ended for ClientId: {ClientId}", ClientId);
+            bytesRead = 1;
         }
         finally
         {
             stopwatch.Stop();
+            semaphore.Release();
         }
 
         if (bytesRead > 0)
@@ -156,10 +167,11 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
 
     public async Task SetBufferDelegate(Func<ICircularRingBuffer> bufferDelegate, IClientStreamerConfiguration config)
     {
-        _readCancel.Cancel();
-        //SemaphoreSlim semaphore = _clientSemaphores.GetOrAdd(config.ClientId, new SemaphoreSlim(1, 1));
+        SemaphoreSlim semaphore = _bufferSwitchSemaphores.GetOrAdd(config.ClientId, new SemaphoreSlim(1, 1));
 
-        //await semaphore.WaitAsync();
+        _readCancel.Cancel();
+
+        await semaphore.WaitAsync();
         try
         {
 
@@ -169,7 +181,7 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
         }
         finally
         {
-            //semaphore.Release();
+            semaphore.Release();
         }
 
         logger.LogInformation("Setting buffer delegate for Buffer.Id: {Id} Circular.Id: {Buffer.Id} {Name} ClientId: {ClientId}", Id, Buffer.Id, config.ChannelName, config.ClientId);
