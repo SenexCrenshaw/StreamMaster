@@ -1,16 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
-
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Enums;
 
-using System.Collections.Generic;
-using System;
 using System.Globalization;
 using System.Net;
-using System.Threading.Channels;
-using System.Threading.Tasks;
 
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
@@ -37,22 +31,66 @@ public partial class SchedulesDirect
 
             Setting settings = memoryCache.GetSetting();
             List<MxfService> toProcess = [];
-            object lockObject = new object(); // Create a lock object
+            object lockObject = new(); // Create a lock object
 
-            Parallel.ForEach(videoStreamConfigs.OrderBy(a => a.User_Tvg_chno), videoStreamConfig =>
+            //Parallel.ForEach(videoStreamConfigs.OrderBy(a => a.User_Tvg_chno), videoStreamConfig =>
+            //{
+            //    string prefix = videoStreamConfig.IsDummy ? "DUMMY" : "SM";
+            //    string stationId = videoStreamConfig.User_Tvg_chno.ToString();
+
+            //    MxfService? origService;
+            //    lock (lockObject) // Lock access to the shared resource
+            //    {
+            //        origService = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == videoStreamConfig.User_Tvg_ID);
+
+            //        if (origService is null)
+            //        {
+            //            return; // Use 'return' to continue to the next iteration
+            //        }
+
+            //        MxfService? newService = schedulesDirectData.FindOrCreateService(stationId);
+
+            //        if (origService.MxfScheduleEntries is not null)
+            //        {
+            //            newService.MxfScheduleEntries = origService.MxfScheduleEntries;
+            //        }
+
+            //        newService.Name = videoStreamConfig.User_Tvg_name;
+            //        newService.Affiliate = origService.Affiliate;
+            //        newService.CallSign = origService.CallSign;
+            //        newService.LogoImage = videoStreamConfig.User_Tvg_Logo;
+            //        newService.extras = origService.extras;
+            //        newService.extras["videoStreamConfig"] = videoStreamConfig;
+
+            //        if (!settings.VideoStreamAlwaysUseEPGLogo && !string.IsNullOrEmpty(videoStreamConfig.User_Tvg_Logo))
+            //        {
+            //            if (newService.extras.TryGetValue("logo", out dynamic? value))
+            //            {
+            //                value.Url = videoStreamConfig.User_Tvg_Logo;
+            //            }
+            //            else
+            //            {
+            //                newService.extras.Add("logo", new StationImage
+            //                {
+            //                    Url = videoStreamConfig.User_Tvg_Logo
+            //                });
+            //            }
+            //        }
+
+            //        toProcess.Add(newService);
+
+            //    }
+            //});
+            foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs.OrderBy(a => a.User_Tvg_chno))
             {
                 string prefix = videoStreamConfig.IsDummy ? "DUMMY" : "SM";
-                string stationId = videoStreamConfig.User_Tvg_chno.ToString();
 
-                MxfService? origService;
-                lock (lockObject) // Lock access to the shared resource
-                {
-                    origService = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == videoStreamConfig.User_Tvg_ID);
-                }
+                string stationId = videoStreamConfig.User_Tvg_chno.ToString();// $"{prefix}-{videoStreamConfig.Id}";
 
+                MxfService? origService = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == videoStreamConfig.User_Tvg_ID);
                 if (origService is null)
                 {
-                    return; // Use 'return' to continue to the next iteration
+                    continue;
                 }
 
                 MxfService? newService = schedulesDirectData.FindOrCreateService(stationId);
@@ -62,36 +100,36 @@ public partial class SchedulesDirect
                     newService.MxfScheduleEntries = origService.MxfScheduleEntries;
                 }
 
-                lock (lockObject) // Lock access to the shared resource
+                newService.Name = videoStreamConfig.User_Tvg_name;
+                newService.Affiliate = origService.Affiliate;
+                newService.CallSign = origService.CallSign;
+                newService.LogoImage = videoStreamConfig.User_Tvg_Logo;
+                newService.extras = origService.extras;
+                newService.extras["videoStreamConfig"] = videoStreamConfig;
+                if (!settings.VideoStreamAlwaysUseEPGLogo && !string.IsNullOrEmpty(videoStreamConfig.User_Tvg_Logo))
                 {
-                    newService.Name = videoStreamConfig.User_Tvg_name;
-                    newService.Affiliate = origService.Affiliate;
-                    newService.CallSign = origService.CallSign;
-                    newService.LogoImage = videoStreamConfig.User_Tvg_Logo;
-                    newService.extras = origService.extras;
-                    newService.extras["videoStreamConfig"] = videoStreamConfig;
-
-                    if (!settings.VideoStreamAlwaysUseEPGLogo && !string.IsNullOrEmpty(videoStreamConfig.User_Tvg_Logo))
+                    if (newService.extras.TryGetValue("logo", out dynamic? value))
                     {
-                        if (newService.extras.TryGetValue("logo", out dynamic? value))
-                        {
-                            value.Url = videoStreamConfig.User_Tvg_Logo;
-                        }
-                        else
-                        {
-                            newService.extras.Add("logo", new StationImage
-                            {
-                                Url = videoStreamConfig.User_Tvg_Logo
-                            });
-                        }
+                        value.Url = videoStreamConfig.User_Tvg_Logo;
                     }
-
-                    lock (lockObject) // Lock access to the shared resource
+                    else
                     {
-                        toProcess.Add(newService);
+
+                        newService.extras.Add("logo", new StationImage
+                        {
+                            Url = videoStreamConfig.User_Tvg_Logo
+
+                        });
                     }
                 }
-            });
+                //MxfService? service = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == stationId);
+                //if (service is null)
+                //{
+                //    continue;
+                //}
+                toProcess.Add(newService);
+                //logger.LogInformation($"StationId: {stationId}");
+            }
 
             //else
             //{
@@ -145,7 +183,7 @@ public partial class SchedulesDirect
             //}
 
 
-            List<Task> channelTasks = new List<Task>();
+            List<Task> channelTasks = [];
 
             foreach (MxfService service in toProcess)
             {
@@ -202,7 +240,7 @@ public partial class SchedulesDirect
             // Wait for all channel tasks to complete
             await Task.WhenAll(channelTasks);
             xmltv.Channels = xmltv.Channels.OrderBy(a => a.Id).ToList();
-            xmltv.Programs=xmltv.Programs.OrderBy(a=>a.Channel).ThenBy(a=>a.StartDateTime).ToList();
+            xmltv.Programs = xmltv.Programs.OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime).ToList();
             return xmltv;
         }
         catch (Exception ex)
@@ -614,7 +652,7 @@ public partial class SchedulesDirect
     private List<XmltvIcon>? BuildProgramIcons(MxfProgram mxfProgram)
     {
         Setting settings = memoryCache.GetSetting();
-        if (settings.SDSettings.XmltvSingleImage|| !mxfProgram.extras.ContainsKey("artwork"))
+        if (settings.SDSettings.XmltvSingleImage || !mxfProgram.extras.ContainsKey("artwork"))
         {
             string? url = mxfProgram.mxfGuideImage?.ImageUrl ?? mxfProgram.mxfSeason?.mxfGuideImage?.ImageUrl ??
                 mxfProgram.mxfSeriesInfo?.mxfGuideImage?.ImageUrl;

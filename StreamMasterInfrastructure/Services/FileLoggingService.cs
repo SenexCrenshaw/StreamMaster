@@ -7,7 +7,7 @@ namespace StreamMasterInfrastructure.Services;
 public class FileLoggingService : IFileLoggingService, IDisposable
 {
     private readonly ConcurrentQueue<string> _logQueue = new();
-    private readonly SemaphoreSlim _writeLock = new(1, 1);
+    private readonly SemaphoreSlim _writeLock = new(1);
     private readonly CancellationTokenSource _cts = new();
     private readonly Task _loggingTask;
     private readonly string _logFilePath;
@@ -20,7 +20,7 @@ public class FileLoggingService : IFileLoggingService, IDisposable
 
     public void EnqueueLogEntry(string format, params object[] args)
     {
-        string formattedMessage = string.Format(format, args);
+        string formattedMessage = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}" + string.Format(format, args);
         _logQueue.Enqueue(formattedMessage);
     }
 

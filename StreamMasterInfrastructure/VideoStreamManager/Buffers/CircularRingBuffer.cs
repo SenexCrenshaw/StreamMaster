@@ -339,7 +339,7 @@ public sealed class CircularRingBuffer : ICircularRingBuffer
         // Log the elapsed time if it's more than 500 milliseconds
         TimeSpan elapsed = now - lastNotificationTime;
         _dataArrivalHistogram.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Observe(elapsed.TotalMilliseconds);
-        if (elapsed.TotalMilliseconds > 10000)
+        if (elapsed.TotalMilliseconds > 10000 && elapsed.TotalMilliseconds < 60000000000000)
         {
             // Log the elapsed time here
             _logger.LogWarning($"Input stream is slow: {StreamInfo.VideoStreamName} {elapsed.TotalMilliseconds}ms elapsed since last set.");
