@@ -83,8 +83,6 @@ export function getChannelGroupMenuItem(colorIndex: string | undefined, toDispla
     </div>
   );
 }
-
-// export type MatchMode = 'between' | 'channelGroupsMatch' | 'contains' | 'custom' | 'dateAfter' | 'dateBefore' | 'dateIs' | 'dateIsNot' | 'endsWith' | 'equals' | 'gt' | 'gte' | 'in' | 'lt' | 'lte' | 'notContains' | 'notEquals' | 'startsWith' | undefined;
 export type MatchMode =
   | 'between'
   | 'contains'
@@ -157,14 +155,6 @@ export function GetMessage(...arguments_: string[]): string {
   if (arguments_ === undefined || arguments_.length === 0 || arguments_[0] === '') {
     return '';
   }
-
-  // const messageTest = toCamelCase(args.join());
-
-  // var test = intl.formatMessage({ id: messageTest });
-  // if (test !== messageTest) {
-  //   return test;
-  // }
-
   const ids: string[] = arguments_.flatMap((argument) => argument.split(' '));
 
   const message = ids.map((x) => intl.formatMessage({ id: x })).join(' ');

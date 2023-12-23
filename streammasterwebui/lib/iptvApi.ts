@@ -1773,7 +1773,7 @@ export type BaseVideoStreamDto = {
   isUserCreated: boolean;
   m3UFileId: number;
   m3UFileName: string;
-  streamProxyType: StreamingProxyTypes;
+  streamingProxyType: StreamingProxyTypes;
   tvg_chno: number;
   tvg_group: string;
   timeShift: string;
@@ -1832,6 +1832,7 @@ export type RemoveVideoStreamFromVideoStreamRequest = {
   childVideoStreamId: string;
 };
 export type VideoStreamBaseRequest = {
+  streamingProxyType?: StreamingProxyTypes | null;
   toggleVisibility?: boolean | null;
   tvg_chno?: number | null;
   tvg_group?: string | null;
@@ -1869,7 +1870,7 @@ export type StreamStatisticsResult = {
   inputElapsedTime?: string;
   inputStartTime?: string;
   logo?: string | null;
-  m3UStreamProxyType?: StreamingProxyTypes;
+  m3UStreamingProxyType?: StreamingProxyTypes;
   rank?: number;
   streamUrl?: string | null;
   videoStreamId?: string;
@@ -1897,7 +1898,6 @@ export type SetVideoStreamsLogoFromEpgRequest = {
 };
 export type UpdateVideoStreamRequest = VideoStreamBaseRequest & {
   id?: string;
-  streamProxyType?: StreamingProxyTypes | null;
 };
 export type UpdateVideoStreamsRequest = {
   videoStreamUpdates?: UpdateVideoStreamRequest[];

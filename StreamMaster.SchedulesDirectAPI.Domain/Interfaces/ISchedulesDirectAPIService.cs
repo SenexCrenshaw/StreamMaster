@@ -2,7 +2,7 @@
 
 namespace StreamMaster.SchedulesDirectAPI.Domain.Interfaces
 {
-    public interface ISchedulesDirectAPI
+    public interface ISchedulesDirectAPIService
     {
         bool CheckToken(bool forceReset = false);
         Task<HttpResponseMessage?> GetSdImage(string uri);

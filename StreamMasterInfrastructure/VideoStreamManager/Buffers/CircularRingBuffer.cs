@@ -141,7 +141,7 @@ new GaugeConfiguration
             VideoStreamId = videoStreamDto.Id,
             VideoStreamName = videoStreamDto.User_Tvg_name,
             Logo = videoStreamDto.User_Tvg_logo,
-            StreamProxyType = videoStreamDto.StreamProxyType,
+            StreamingProxyType = videoStreamDto.StreamingProxyType,
             StreamUrl = videoStreamDto.User_Url,
 
             Rank = rank
@@ -209,7 +209,7 @@ new GaugeConfiguration
                 ChannelName = StreamInfo.ChannelName,
                 VideoStreamId = StreamInfo.VideoStreamId,
                 VideoStreamName = StreamInfo.VideoStreamName,
-                M3UStreamProxyType = StreamInfo.StreamProxyType,
+                M3UStreamingProxyType = StreamInfo.StreamingProxyType,
                 Logo = StreamInfo.Logo,
                 Rank = StreamInfo.Rank,
 

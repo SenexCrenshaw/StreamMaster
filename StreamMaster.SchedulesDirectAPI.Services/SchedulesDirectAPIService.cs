@@ -1,11 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.SchedulesDirectAPI.Domain;
-using StreamMaster.SchedulesDirectAPI.Domain.Enums;
-
-using StreamMasterDomain.Common;
-
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
@@ -15,14 +10,14 @@ using System.Text.Json.Serialization;
 
 namespace StreamMaster.SchedulesDirectAPI;
 
-public partial class SchedulesDirectAPI : ISchedulesDirectAPI
+public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
 {
-    private readonly ILogger<SchedulesDirectAPI> logger;
+    private readonly ILogger<SchedulesDirectAPIService> logger;
     private readonly IMemoryCache memoryCache;
     public HttpClient _httpClient = null!;
     private const string BaseAddress = "https://json.schedulesdirect.org/20141201/";
 
-    public SchedulesDirectAPI(ILogger<SchedulesDirectAPI> logger, IMemoryCache memoryCache)
+    public SchedulesDirectAPIService(ILogger<SchedulesDirectAPIService> logger, IMemoryCache memoryCache)
     {
         this.logger = logger;
         this.memoryCache = memoryCache;

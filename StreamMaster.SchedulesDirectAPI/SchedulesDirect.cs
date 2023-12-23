@@ -30,12 +30,12 @@ public partial class SchedulesDirect : ISchedulesDirect
     public IEPGCache epgCache;
     private readonly ISchedulesDirectData schedulesDirectData;
 
-    private readonly ISchedulesDirectAPI schedulesDirectAPI;
+    private readonly ISchedulesDirectAPIService schedulesDirectAPI;
     private readonly ISettingsService settingsService;
     private readonly IImageDownloadQueue imageDownloadQueue;
     private readonly IMemoryCache memoryCache;
     private readonly IServiceProvider serviceProvider;
-    public SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IEPGCache epgCache, ISchedulesDirectData schedulesDirectData, ISchedulesDirectAPI schedulesDirectAPI, ISettingsService settingsService, IMemoryCache memoryCache)
+    public SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IEPGCache epgCache, ISchedulesDirectData schedulesDirectData, ISchedulesDirectAPIService schedulesDirectAPI, ISettingsService settingsService, IMemoryCache memoryCache)
     {
         this.logger = logger;
         this.epgCache = epgCache;

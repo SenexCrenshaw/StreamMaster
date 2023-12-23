@@ -38,7 +38,8 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProperties) => {
         return;
       }
 
-      console.log('onUpdateVideoStream sending');
+      console.log('onUpdateVideoStream sending', data);
+      // data.streamProxyType=parseInt(data.streamProxyType.toString());
       videoStreamsUpdateVideoStreamMutation(data)
         .then(() => {
           console.log('onUpdateVideoStream Successful');

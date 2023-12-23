@@ -22,7 +22,7 @@ public class StreamStatisticsResult
     /// <summary>
     /// Gets or sets the type of the streaming proxy.
     /// </summary>
-    public StreamingProxyTypes M3UStreamProxyType { get; set; }
+    public StreamingProxyTypes M3UStreamingProxyType { get; set; }
 
     public int Rank { get; set; }
     public string? StreamUrl { get; set; }
@@ -52,7 +52,7 @@ public class StreamInfo
     /// <summary>
     /// Gets or sets the type of the streaming proxy.
     /// </summary>
-    public StreamingProxyTypes StreamProxyType { get; set; }
+    public StreamingProxyTypes StreamingProxyType { get; set; }
 
     public string? StreamUrl { get; set; }
 

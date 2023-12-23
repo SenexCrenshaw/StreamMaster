@@ -10,6 +10,7 @@ import { Accordion, AccordionTab } from 'primereact/accordion';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
 import { memo, useEffect, useMemo, useState } from 'react';
+import StreamingProxyTypeSelector from '../videoStream/StreamingProxyTypeSelector';
 import InputWrapper from './InputWrapper';
 import VideoStreamDataSelector from './VideoStreamDataSelector';
 import VideoStreamSelectedVideoStreamDataSelector from './VideoStreamSelectedVideoStreamDataSelector';
@@ -34,6 +35,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [lastActiveIndex, setLastActiveIndex] = useState<number>(0);
   const [channelGroup, setChannelGroup] = useState<string | undefined>();
+  const [streamingProxyType, setStreamingProxyType] = useState<number | undefined>();
 
   const [dataSource, setDataSource] = useState<VideoStreamDto[] | undefined>();
 
@@ -58,7 +60,8 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
       user_Tvg_chno: userTvgChno,
       user_Tvg_ID: userTvgId,
       videoStreamHandler,
-      user_Tvg_group: userTvgGroup
+      user_Tvg_group: userTvgGroup,
+      streamingProxyType
     } = videoStream ?? {};
 
     if (childVideoStreams) {
@@ -89,6 +92,10 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
       setChannelHandler(videoStreamHandler);
     }
 
+    if (streamingProxyType !== null || streamingProxyType !== undefined) {
+      setStreamingProxyType(streamingProxyType);
+    }
+
     if (userTvgGroup) {
       setChannelGroup(userTvgGroup);
     }
@@ -104,6 +111,10 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
     }
 
     if (videoStream.user_Tvg_logo !== iconSource) {
+      return true;
+    }
+
+    if (videoStream.streamingProxyType !== streamingProxyType) {
       return true;
     }
 
@@ -124,7 +135,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
     }
 
     return false;
-  }, [videoStream, name, iconSource, channelNumber, epgId, channelGroup, url]);
+  }, [videoStream, name, iconSource, streamingProxyType, channelNumber, epgId, channelGroup, url]);
 
   const onsetActiveIndex = (index: number) => {
     if (index === null) {
@@ -189,15 +200,21 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
 
               <div className="flex col-12">
                 <InputWrapper
-                  columnSize={6}
+                  columnSize={4}
                   label="EPG"
                   renderInput={() => <EPGSelector className="w-full bordered-text mr-2" onChange={setEpgId} value={epgId} />}
                 />
-
                 <InputWrapper
-                  columnSize={6}
+                  columnSize={4}
                   label="Group"
-                  renderInput={() => <ChannelGroupSelector className="w-full bordered-text" onChange={(e) => setChannelGroup(e)} value={channelGroup} />}
+                  renderInput={() => <ChannelGroupSelector className="w-full bordered-text mr-2" onChange={(e) => setChannelGroup(e)} value={channelGroup} />}
+                />
+                <InputWrapper
+                  columnSize={4}
+                  label="Proxy"
+                  renderInput={() => (
+                    <StreamingProxyTypeSelector className="w-full bordered-text" onChange={(e) => setStreamingProxyType(e)} value={streamingProxyType} />
+                  )}
                 />
               </div>
 
@@ -221,6 +238,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
                       tvg_group: channelGroup,
                       tvg_logo: iconSource,
                       tvg_name: name,
+                      streamingProxyType: streamingProxyType === undefined ? null : parseInt(streamingProxyType.toString()),
                       url
                     };
                     console.log('VideoStreamPanel onClick', toSend);
@@ -233,6 +251,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
                           tvg_group: channelGroup,
                           tvg_logo: iconSource,
                           tvg_name: name,
+                          streamingProxyType: streamingProxyType === undefined ? null : parseInt(streamingProxyType.toString()),
                           url
                         } as UpdateVideoStreamRequest)
                       : onSave?.({
@@ -242,6 +261,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
                           tvg_group: channelGroup,
                           tvg_logo: iconSource,
                           tvg_name: name,
+                          streamingProxyType: streamingProxyType === undefined ? null : parseInt(streamingProxyType.toString()),
                           url
                         } as CreateVideoStreamRequest);
 

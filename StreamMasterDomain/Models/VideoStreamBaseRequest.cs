@@ -3,7 +3,9 @@
 namespace StreamMasterDomain.Models;
 
 public class VideoStreamBaseRequest
+
 {
+    public StreamingProxyTypes? StreamingProxyType { get; set; }
     public bool? ToggleVisibility { get; set; }
 
     //public bool? IsHidden { get; set; }

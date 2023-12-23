@@ -1,19 +1,17 @@
 ﻿using AutoMapper.Configuration.Annotations;
 
-
-
-using StreamMasterDomain.Dto;
-
 using System.ComponentModel.DataAnnotations;
 
 namespace StreamMasterDomain.Models;
 
-public class VideoStream : IMapFrom<VideoStreamDto>
+public class VideoStream
 {
     public VideoStream()
     {
         StreamGroups = new List<StreamGroupVideoStream>();
     }
+
+    public StreamingProxyTypes StreamingProxyType { get; set; } = StreamingProxyTypes.StreamMaster;
 
     [Ignore]
     public ICollection<VideoStreamLink> ChildVideoStreams { get; set; }

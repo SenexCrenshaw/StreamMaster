@@ -11,5 +11,5 @@ public class UpdateVideoStreamRequest : VideoStreamBaseRequest, IRequest<VideoSt
 {
     [Key]
     public string Id { get; set; }
-    public StreamingProxyTypes? StreamProxyType { get; set; }
+
 }

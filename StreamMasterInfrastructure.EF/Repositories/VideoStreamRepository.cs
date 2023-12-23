@@ -355,6 +355,11 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
             videoStream.TimeShift = request.TimeShift;
         }
 
+        if (request.StreamingProxyType != null && videoStream.StreamingProxyType != request.StreamingProxyType)
+        {
+            videoStream.StreamingProxyType = (StreamingProxyTypes)request.StreamingProxyType;
+        }
+
         if (request.Tvg_ID != null && (videoStream.User_Tvg_ID != request.Tvg_ID || videoStream.IsUserCreated))
         {
             //string? test = _memoryCache.GetEPGChannelNameByDisplayName(request.Tvg_ID);
