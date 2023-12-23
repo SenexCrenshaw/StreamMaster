@@ -5,7 +5,7 @@ using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 using StreamMasterDomain.Common;
 
 namespace StreamMaster.SchedulesDirectAPI;
-public partial class SchedulesDirectAPI
+public partial class SchedulesDirectAPIService
 {
     public static string Token { get; private set; }
     public static DateTime TokenTimestamp = DateTime.MinValue;

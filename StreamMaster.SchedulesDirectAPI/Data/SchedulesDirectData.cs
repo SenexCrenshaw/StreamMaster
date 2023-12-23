@@ -26,7 +26,7 @@ public partial class SchedulesDirectData(ILogger<SchedulesDirectData> logger, IS
     public List<MxfKeywordGroup> KeywordGroups { get; set; } = [];
     public bool ShouldSerializeKeywordGroups()
     {
-        KeywordGroups = KeywordGroups?.OrderBy(k => k.Index).ThenBy(k => k.Uid).ToList();
+        KeywordGroups = KeywordGroups?.OrderBy(k => k.Index).ThenBy(k => k.Uid).ToList() ?? [];
         return true;
     }
 

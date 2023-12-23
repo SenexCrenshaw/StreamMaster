@@ -1,19 +1,17 @@
 ﻿using AutoMapper.Configuration.Annotations;
 
-
-
-using StreamMasterDomain.Dto;
-
 using System.ComponentModel.DataAnnotations;
 
 namespace StreamMasterDomain.Models;
 
-public class VideoStream : IMapFrom<VideoStreamDto>
+public class VideoStream
 {
     public VideoStream()
     {
         StreamGroups = new List<StreamGroupVideoStream>();
     }
+
+    public StreamingProxyTypes StreamingProxyType { get; set; } = StreamingProxyTypes.StreamMaster;
 
     [Ignore]
     public ICollection<VideoStreamLink> ChildVideoStreams { get; set; }
@@ -52,6 +50,7 @@ public class VideoStream : IMapFrom<VideoStreamDto>
     public string Tvg_name { get; set; } = string.Empty;
 
     public string Url { get; set; } = string.Empty;
+    public string GroupTitle { get; set; } = string.Empty;
 
     public int User_Tvg_chno { get; set; } = 0;
 
@@ -118,8 +117,8 @@ public class VideoStream : IMapFrom<VideoStreamDto>
 
     public override string ToString()
     {
-        List<string> properties = new()
-        {
+        List<string> properties =
+        [
             Id,
             Url,
             FilePosition.ToString(),
@@ -144,7 +143,7 @@ public class VideoStream : IMapFrom<VideoStreamDto>
             VideoStreamHandler.ToString(),
             StreamGroups?.ToString() ?? "N/A",
             ChildVideoStreams?.ToString() ?? "N/A"
-        };
+        ];
 
         return string.Join(",", properties);
     }

@@ -60,6 +60,7 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
     <PackageReference Include="NSwag.AspNetCore" Version="13.20.0" />
+    <PackageReference Include="prometheus-net.AspNetCore" Version="8.2.0" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="7.0.1" />
   </ItemGroup>
   <ItemGroup>

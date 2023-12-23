@@ -4,6 +4,8 @@ using StreamMaster.SchedulesDirectAPI.Data;
 
 using StreamMasterDomain.Common;
 
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
@@ -26,11 +28,7 @@ public class Xmltv2Mxf(ILogger<Xmltv2Mxf> logger, ISchedulesDirectData schedules
     public XMLTV? ConvertToMxf(string filepath, int EPGId)
     {
         XMLTV? xmltv = FileUtil.ReadXmlFile(filepath, typeof(XMLTV));
-        if (xmltv == null)
-        {
-            return null;
-        }
-        return ConvertToMxf(xmltv, EPGId);
+        return xmltv == null ? null : ConvertToMxf(xmltv, EPGId);
     }
 
     public XMLTV? ConvertToMxf(XMLTV xmltv, int EPGId)
@@ -69,54 +67,54 @@ public class Xmltv2Mxf(ILogger<Xmltv2Mxf> logger, ISchedulesDirectData schedules
             {
                 // add "callsign" and "station name"
                 mxfService.CallSign = channel.DisplayNames.Count > 0 ? (mxfService.Name = channel.DisplayNames[0]?.Text ?? channel.Id) : channel.Id;
+            }
+            if (channel.DisplayNames.Count > 1)
+            {
+                mxfService.Name = channel.DisplayNames[1]?.Text ?? mxfService.Name;
+            }
 
-                if (channel.DisplayNames.Count > 1)
+            // add station logo if present
+            if (channel.Icons.Count > 0)
+            {
+                mxfService.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(channel.Icons[0].Src);
+                mxfService.extras.Add("logo", new StationImage
                 {
-                    mxfService.Name = channel.DisplayNames[1]?.Text ?? mxfService.Name;
-                }
+                    Url = channel.Icons[0].Src,
 
-                // add station logo if present
-                if (channel.Icons.Count > 0)
+                });
+            }
+
+            // gather possible channel number(s)
+            HashSet<string> lcns = [];
+            foreach (XmltvText lcn in channel.Lcn)
+            {
+                lcns.Add(lcn.Text ??= "");
+            }
+
+            foreach (XmltvText? dn in channel.DisplayNames.Where(arg => arg.Text != null && Regex.Match(arg.Text, "^\\d*\\.?\\d+$").Success))
+            {
+                lcns.Add(dn.Text ??= "");
+            }
+
+            // add service with channel numbers to lineup
+            if (lcns.Count > 0)
+            {
+                foreach (string lcn in lcns)
                 {
-                    mxfService.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(channel.Icons[0].Src);
-                    mxfService.extras.Add("logo", new StationImage
-                    {
-                        Url = channel.Icons[0].Src,
+                    string[] numbers = lcn.Split('.');
 
-                    });
-                }
+                    int number = int.Parse(numbers[0]);
+                    int subNumber = numbers.Length > 1 ? int.Parse(numbers[1]) : 0;
 
-                // gather possible channel number(s)
-                HashSet<string> lcns = [];
-                foreach (XmltvText lcn in channel.Lcn)
-                {
-                    lcns.Add(lcn.Text ??= "");
-                }
-
-                foreach (XmltvText? dn in channel.DisplayNames.Where(arg => arg.Text != null && Regex.Match(arg.Text, "^\\d*\\.?\\d+$").Success))
-                {
-                    lcns.Add(dn.Text ??= "");
-                }
-
-                // add service with channel numbers to lineup
-                if (lcns.Count > 0)
-                {
-                    foreach (string lcn in lcns)
-                    {
-                        string[] numbers = lcn.Split('.');
-
-                        int number = int.Parse(numbers[0]);
-                        int subNumber = numbers.Length > 1 ? int.Parse(numbers[1]) : (int)0;
-
-                        var newChannel = new MxfChannel(mxfLineup, mxfService, number, subNumber);
-                        mxfLineup.channels.Add(newChannel);
-                    }
-                }
-                else
-                {
-                    mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
+                    MxfChannel newChannel = new(mxfLineup, mxfService, number, subNumber);
+                    mxfLineup.channels.Add(newChannel);
                 }
             }
+            else
+            {
+                mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
+            }
+
         }
         return true;
     }
@@ -208,7 +206,7 @@ public class Xmltv2Mxf(ILogger<Xmltv2Mxf> logger, ISchedulesDirectData schedules
 
                 //mxfProgram.mxfGuideImage =
                 DetermineGuideImage(mxfProgram, program);
-
+              
                 // advisories
                 //mxfProgram.HasAdult =
                 //mxfProgram.HasBriefNudity =
@@ -647,14 +645,23 @@ public class Xmltv2Mxf(ILogger<Xmltv2Mxf> logger, ISchedulesDirectData schedules
 
     private void DetermineGuideImage(MxfProgram mxfProgram, XmltvProgramme xmltvProgramme)
     {
+        if (xmltvProgramme.Icons.Count > 1)
+        {
+            var a = 1;
+        }
+        if (xmltvProgramme.Titles.Any(a=>a.Text.Contains("CBS News"))){
+            var a = 1;
+        }
         if (xmltvProgramme.Icons == null || !xmltvProgramme.Icons.Any())
         {
+            
             return;
         }
 
-        if (xmltvProgramme.Icons.Count == 1 || xmltvProgramme.Icons[0].Width == 0 || xmltvProgramme.Icons[0].Height == 0)
+        if (xmltvProgramme.Icons.Count == 1)// || xmltvProgramme.Icons[0].Width == 0 || xmltvProgramme.Icons[0].Height == 0)
         {
             mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
+
             return;
         }
 
@@ -662,8 +669,18 @@ public class Xmltv2Mxf(ILogger<Xmltv2Mxf> logger, ISchedulesDirectData schedules
         if (posters != null)
         {
             mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(posters.Src);
+
             return;
         }
+
+        mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
+
+        List<ProgramArtwork> artworks = xmltvProgramme.Icons.Select(arg =>new ProgramArtwork
+        {
+Uri=arg.Src
+        }).ToList();
+        mxfProgram.extras["artwork"] = artworks;
+     
         mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
     }
 

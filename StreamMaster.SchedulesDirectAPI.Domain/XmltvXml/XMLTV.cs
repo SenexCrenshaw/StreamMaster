@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirectAPI.Domain.XmltvXml
 {
@@ -25,9 +24,9 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.XmltvXml
         public string GeneratorInfoUrl { get; set; }
 
         [XmlElement("channel")]
-        public List<XmltvChannel> Channels { get; set; } = new List<XmltvChannel>();
+        public List<XmltvChannel> Channels { get; set; } = [];
 
         [XmlElement("programme")]
-        public List<XmltvProgramme> Programs { get; set; } = new List<XmltvProgramme>();
+        public List<XmltvProgramme> Programs { get; set; } = [];
     }
 }

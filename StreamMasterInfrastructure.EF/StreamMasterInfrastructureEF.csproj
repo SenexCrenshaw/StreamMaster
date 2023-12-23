@@ -8,6 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Extensions\**" />
+    <EmbeddedResource Remove="Extensions\**" />
+    <None Remove="Extensions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="EFCore.BulkExtensions.Sqlite" Version="7.1.6" />
     <PackageReference Include="Hangfire.Core" Version="1.8.6" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="7.0.12" />
@@ -21,10 +27,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\StreamMasterApplication\StreamMasterApplication.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Extensions\" />
   </ItemGroup>
 
 </Project>

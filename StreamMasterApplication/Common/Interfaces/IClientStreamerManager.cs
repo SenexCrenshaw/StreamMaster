@@ -15,7 +15,7 @@
         /// <summary>
         /// Asynchronously sets the client buffer delegate.
         /// </summary>
-        Task SetClientBufferDelegate(Guid clientId, ICircularRingBuffer RingBuffer, CancellationToken cancellationToken = default);
+        Task SetClientBufferDelegate(IClientStreamerConfiguration clientStreamerConfiguration, ICircularRingBuffer RingBuffer);
 
         /// <summary>
         /// Gets the count of clients for a specific channel video stream Url.
@@ -25,7 +25,7 @@
         /// <summary>
         /// Asynchronously cancels a client.
         /// </summary>
-        Task<bool> CancelClient(Guid clientId, CancellationToken cancellationToken = default);
+        Task<bool> CancelClient(Guid clientId, bool includeAbort);
 
         /// <summary>
         /// Disposes of the object, releasing all allocated resources.
@@ -59,6 +59,6 @@
         /// <summary>
         /// Unregisters a client streamer by its ID.
         /// </summary>
-        void UnRegisterClient(Guid clientId);
+        Task UnRegisterClient(Guid clientId);
     }
 }

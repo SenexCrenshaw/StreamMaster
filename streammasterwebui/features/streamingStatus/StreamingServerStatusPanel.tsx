@@ -1,3 +1,4 @@
+import BookButton from '@components/buttons/BookButton';
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { VideoStreamSelector } from '@components/videoStream/VideoStreamSelector';
@@ -6,13 +7,17 @@ import {
   ChangeVideoStreamChannelRequest,
   SimulateStreamFailureRequest,
   StreamStatisticsResult,
+  VideoInfo,
   useVideoStreamsGetAllStatisticsForAllUrlsQuery
 } from '@lib/iptvApi';
+import { GetVideoStreamInfoFromId } from '@lib/smAPI/VideoStreams/VideoStreamsGetAPI';
 import { ChangeVideoStreamChannel, SimulateStreamFailure } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import useSettings from '@lib/useSettings';
 import { Button } from 'primereact/button';
+import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
-import { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react';
+import { memo, useCallback, useMemo, useRef, type CSSProperties, useState, useEffect } from 'react';
+import { VideoInfoDisplay } from './VideoInfoDisplay';
 
 interface StreamingServerStatusPanelProperties {
   readonly className?: string;
@@ -22,8 +27,46 @@ interface StreamingServerStatusPanelProperties {
 export const StreamingServerStatusPanel = ({ className, style }: StreamingServerStatusPanelProperties) => {
   const setting = useSettings();
   const toast = useRef<Toast>(null);
-
+  const [videoInfo, setVideoInfo] = useState<VideoInfo | undefined>(undefined);
+  const [channelName, setChannelName] = useState<string>('');
   const getStreamingStatus = useVideoStreamsGetAllStatisticsForAllUrlsQuery();
+  const [dataSource, setDataSource] = useState<StreamStatisticsResult[]>([]);
+
+  useEffect(() => {
+    if (getStreamingStatus.data === undefined || getStreamingStatus.data.length === 0 || getStreamingStatus.data === null) {
+      setDataSource([]);
+      return;
+    }
+
+    let data = [...dataSource];
+
+    for (const item of getStreamingStatus.data) {
+      const index = data.findIndex((x) => x.circularBufferId === item.circularBufferId);
+      if (index === -1) {
+        data.push(item);
+      } else {
+        data[index] = {
+          ...data[index],
+          logo: item.logo !== data[index].logo ? item.logo : data[index].logo,
+          channelName: item.channelName !== data[index].channelName ? item.channelName : data[index].channelName,
+          rank: item.rank !== data[index].rank ? item.rank : data[index].rank,
+          videoStreamName: item.videoStreamName !== data[index].videoStreamName ? item.videoStreamName : data[index].videoStreamName,
+          inputElapsedTime: item.inputElapsedTime !== data[index].inputElapsedTime ? item.inputElapsedTime : data[index].inputElapsedTime,
+          inputBitsPerSecond: item.inputBitsPerSecond !== data[index].inputBitsPerSecond ? item.inputBitsPerSecond : data[index].inputBitsPerSecond,
+          inputStartTime: item.inputStartTime !== data[index].inputStartTime ? item.inputStartTime : data[index].inputStartTime
+        };
+      }
+    }
+
+    for (const item of dataSource) {
+      const index = getStreamingStatus.data.findIndex((x) => x.circularBufferId === item.circularBufferId);
+      if (index === -1) {
+        data = data.filter((x) => x.circularBufferId !== item.circularBufferId);
+      }
+    }
+
+    setDataSource(data);
+  }, [getStreamingStatus.data]);
 
   const onChangeVideoStreamChannel = useCallback(async (playingVideoStreamId: string, newVideoStreamId: string) => {
     if (playingVideoStreamId === undefined || playingVideoStreamId === '' || newVideoStreamId === undefined || newVideoStreamId === '') {
@@ -127,35 +170,30 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
 
   const inputStartTimeTemplate = useCallback((rowData: StreamStatisticsResult) => <div>{formatJSONDateString(rowData.inputStartTime ?? '')}</div>, []);
 
-  const dataSource = useMemo((): StreamStatisticsResult[] => {
-    if (getStreamingStatus.data === undefined || getStreamingStatus.data.length === 0 || getStreamingStatus.data === null) {
-      return [];
-    }
-
-    const data = [] as StreamStatisticsResult[];
-
-    for (const item of getStreamingStatus.data) {
-      if (data.findIndex((x) => x.videoStreamId === item.videoStreamId) === -1) {
-        data.push(item);
-      }
-    }
-
-    return data;
-  }, [getStreamingStatus.data]);
-
   const streamCount = useCallback(
     (rowData: StreamStatisticsResult) => {
-      if (getStreamingStatus.data === undefined || getStreamingStatus.data === null) {
+      if (dataSource === undefined || dataSource === null) {
         return <div>0</div>;
       }
-      return <div>{getStreamingStatus.data.filter((x) => x.videoStreamId === rowData.videoStreamId).length}</div>;
+      return <div>{dataSource.filter((x) => x.videoStreamId === rowData.videoStreamId).length}</div>;
     },
-    [getStreamingStatus.data]
+    [dataSource]
   );
+
+  const onPreview = useCallback(async (rowData: StreamStatisticsResult) => {
+    setChannelName(rowData.videoStreamName ?? '');
+    await GetVideoStreamInfoFromId(rowData.channelId ?? '').then((data) => {
+      if (data === null || data === undefined) return;
+
+      // console.log(data);
+      setVideoInfo(data);
+    });
+  }, []);
 
   const targetActionBodyTemplate = useCallback(
     (rowData: StreamStatisticsResult) => (
       <div className="dataselector p-inputgroup align-items-center justify-content-end">
+        <BookButton iconFilled={false} onClick={(e) => onPreview(rowData)} tooltip="ffprobe" />
         <Button
           // className="p-button-danger"
           icon="pi pi-angle-right"
@@ -167,10 +205,10 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
         />
       </div>
     ),
-    [onFailStream]
+    [onFailStream, onPreview]
   );
 
-  const sourceColumns = useMemo(
+  const columns = useMemo(
     (): ColumnMeta[] => [
       {
         bodyTemplate: imageBodyTemplate,
@@ -239,19 +277,26 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
     ]
   );
 
+  const onHide = useCallback(() => {
+    setVideoInfo(undefined);
+  }, []);
+
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
+      <Dialog className={`col-8 p-0`} closable header={'ffprobe: ' + channelName} maximizable modal onHide={onHide} visible={videoInfo !== undefined}>
+        {videoInfo && <VideoInfoDisplay videoInfo={videoInfo} />}
+      </Dialog>
       <div className="m3uFilesEditor flex flex-column col-12 flex-shrink-0 ">
         <DataSelector
           className={className}
-          columns={sourceColumns}
+          columns={columns}
           dataSource={dataSource}
           defaultSortField="videoStreamName"
           emptyMessage="No Streams"
           id="StreamingServerStatusPanel"
           isLoading={getStreamingStatus.isLoading}
-          key="m3UStreamId"
+          dataKey="circularBufferId"
           selectedItemsKey="selectSelectedItems"
           style={style}
         />

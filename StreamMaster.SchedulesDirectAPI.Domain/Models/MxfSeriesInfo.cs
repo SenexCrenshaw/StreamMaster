@@ -4,15 +4,13 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 public class MxfSeriesInfo
 {
-    public string SeriesId => _seriesId;
+    public string SeriesId { get; }
 
     private DateTime _seriesStartDate = DateTime.MinValue;
     private DateTime _seriesEndDate = DateTime.MinValue;
     private int _index;
     private string _uid;
     private string _guideImage;
-    private readonly string _seriesId;
-
     [XmlIgnore] public string ProtoTypicalProgram;
     [XmlIgnore] public MxfGuideImage mxfGuideImage;
 
@@ -21,7 +19,7 @@ public class MxfSeriesInfo
     public MxfSeriesInfo(int index, string seriesId, string? protoTypicalProgram = null)
     {
         _index = index;
-        _seriesId = seriesId;
+        SeriesId = seriesId;
         ProtoTypicalProgram = protoTypicalProgram;
     }
     private MxfSeriesInfo() { }
@@ -34,7 +32,7 @@ public class MxfSeriesInfo
     public string Id
     {
         get => $"si{_index}";
-        set { _index = int.Parse(value.Substring(2)); }
+        set { _index = int.Parse(value[2..]); }
     }
 
     /// <summary>
@@ -44,7 +42,7 @@ public class MxfSeriesInfo
     [XmlAttribute("uid")]
     public string Uid
     {
-        get => _uid ?? $"!Series!{_seriesId}";
+        get => _uid ?? $"!Series!{SeriesId}";
         set { _uid = value; }
     }
 

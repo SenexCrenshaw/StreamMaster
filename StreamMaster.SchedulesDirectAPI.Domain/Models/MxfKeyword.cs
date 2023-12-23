@@ -24,7 +24,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Models
         public string Id
         {
             get => $"k{_index}";
-            set { _index = int.Parse(value.Substring(1)); }
+            set { _index = int.Parse(value[1..]); }
         }
 
         /// <summary>

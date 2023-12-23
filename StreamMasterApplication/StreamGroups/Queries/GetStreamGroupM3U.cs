@@ -60,7 +60,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
 
         return iconOriginalSource;
     }
-    private byte[] iv;
+    private byte[] iv = [];
 
     private const string DefaultReturn = "#EXTM3U\r\n";
 
@@ -147,10 +147,10 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, setting.ServerKey, iv);
         string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
-        List<string> fieldList = new()
-    {
+        List<string> fieldList =
+    [
         $"#EXTINF:0 CUID=\"{videoStream.Id}\""
-    };
+    ];
 
         if (setting.M3UFieldChannelId)
         {
@@ -174,7 +174,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
 
         if (showM3UFieldTvgId)
         {
-            fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_chno}\"");
+            fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_ID}\"");
         }
 
         if (setting.M3UFieldTvgLogo)
@@ -183,7 +183,15 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         }
         if (setting.M3UFieldGroupTitle)
         {
-            fieldList.Add($"group-title=\"{videoStream.User_Tvg_group}\"");
+            if (!string.IsNullOrEmpty(videoStream.GroupTitle))
+            {
+                fieldList.Add($"group-title=\"{videoStream.GroupTitle}\"");
+            }
+            else
+            {
+                fieldList.Add($"group-title=\"{videoStream.User_Tvg_group}\"");
+            }
+
         }
 
         string lines = string.Join(" ", fieldList.ToArray());

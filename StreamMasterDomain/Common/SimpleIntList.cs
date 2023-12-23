@@ -8,7 +8,7 @@ public class SimpleIntList
 
     public SimpleIntList(int startingValue)
     {
-        intSet = new HashSet<int>();
+        intSet = [];
         this.startingValue = startingValue;
         nextAvailableInt = startingValue;
     }

@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterApplication.Common.Interfaces;
@@ -17,6 +15,7 @@ using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
 using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
+using StreamMasterDomain.Requests;
 
 using StreamMasterInfrastructure.VideoStreamManager.Clients;
 
@@ -27,13 +26,10 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     private readonly IChannelManager _channelManager;
     private readonly ILogger<VideoStreamsController> _logger;
 
-    private readonly IMapper _mapper;
-
-    public VideoStreamsController(IChannelManager channelManager, ILogger<VideoStreamsController> logger, IMapper mapper)
+    public VideoStreamsController(IChannelManager channelManager, ILogger<VideoStreamsController> logger)
     {
         _channelManager = channelManager;
         _logger = logger;
-        _mapper = mapper;
     }
 
     [HttpPost]
@@ -108,7 +104,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [Route("stream/{encodedIds}/{name}")]
     public async Task<ActionResult> GetVideoStreamStream(string encodedIds, string name, CancellationToken cancellationToken)
     {
-        Setting setting = await SettingsService.GetSettingsAsync();
+        Setting setting = await SettingsService.GetSettingsAsync(cancellationToken);
         (int? StreamGroupNumberNull, string? StreamIdNull) = encodedIds.DecodeTwoValuesAsString128(setting.ServerKey);
         if (StreamGroupNumberNull == null || StreamIdNull == null)
         {
@@ -142,12 +138,13 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
             return Redirect(videoStream.User_Url);
         }
 
+
         string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
-        ClientStreamerConfiguration config = new(videoStream.Id, videoStream.User_Tvg_name, Request.Headers["User-Agent"].ToString(), ipAddress ?? "unkown", cancellationToken);
+        ClientStreamerConfiguration config = new(videoStream.Id, videoStream.User_Tvg_name, Request.Headers["User-Agent"].ToString(), ipAddress ?? "unkown", cancellationToken, HttpContext.Response);
 
-        // Get the read stream for the client
         Stream? stream = await _channelManager.GetChannel(config);
+
 
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(_channelManager, config));
         if (stream != null)
@@ -165,7 +162,45 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         else
         {
             // Unknown error occurred
-            return StatusCode(StatusCodes.Status500InternalServerError, "An unknown error occurred");
+            return StatusCode(StatusCodes.Status404NotFound);
+        }
+    }
+
+    public async Task ReadAndWriteAsync(Stream sourceStream, string filePath, CancellationToken cancellationToken = default)
+    {
+        const int bufferSize = 1024; // Read in chunks of 1024 bytes
+        const int totalSize = 1 * 1024 * 1024;
+        Memory<byte> buffer = new(new byte[bufferSize]);
+        int totalBytesRead = 0;
+
+        // Ensure the source stream supports reading
+        if (!sourceStream.CanRead)
+        {
+            throw new InvalidOperationException("Source stream does not support reading.");
+        }
+
+        try
+        {
+            using FileStream fileStream = new(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, true);
+
+            while (totalBytesRead < totalSize)
+            {
+                int maxReadLength = Math.Min(buffer.Length, totalSize - totalBytesRead);
+                int bytesRead = await sourceStream.ReadAsync(buffer[..maxReadLength], cancellationToken).ConfigureAwait(false);
+
+                if (bytesRead == 0)
+                {
+                    break; // End of the source stream
+                }
+
+                await fileStream.WriteAsync(buffer[..bytesRead], cancellationToken).ConfigureAwait(false);
+                totalBytesRead += bytesRead;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error writing stream to file");
+            throw;
         }
     }
 
@@ -299,16 +334,27 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     }
 
 
-    private class UnregisterClientOnDispose : IDisposable
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<VideoInfo>> GetVideoStreamInfoFromId([FromQuery] GetVideoStreamInfoFromIdRequest request)
     {
-        private readonly IChannelManager _channelManager;
-        private readonly ClientStreamerConfiguration _config;
+        VideoInfo res = await Mediator.Send(request).ConfigureAwait(false);
+        return Ok(res);
+    }
 
-        public UnregisterClientOnDispose(IChannelManager channelManager, ClientStreamerConfiguration config)
-        {
-            _channelManager = channelManager;
-            _config = config;
-        }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<VideoInfo>> GetVideoStreamInfoFromUrl([FromQuery] GetVideoStreamInfoFromUrlRequest request)
+    {
+        VideoInfo res = await Mediator.Send(request).ConfigureAwait(false);
+        return Ok(res);
+    }
+
+    private class UnregisterClientOnDispose(IChannelManager channelManager, ClientStreamerConfiguration config) : IDisposable
+    {
+        private readonly IChannelManager _channelManager = channelManager;
+        private readonly ClientStreamerConfiguration _config = config;
 
         public void Dispose()
         {

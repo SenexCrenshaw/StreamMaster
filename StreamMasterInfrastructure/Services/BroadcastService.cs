@@ -5,20 +5,69 @@ using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.Hubs;
 
+using StreamMasterDomain.Services;
+
+using System.Diagnostics;
+
 namespace StreamMasterInfrastructure.Services;
 
-public class BroadcastService(IHubContext<StreamMasterHub, IStreamMasterHub> hub, IStreamManager streamManager, IStreamStatisticService streamStatisticService, ILogger<BroadcastService> logger) : IBroadcastService, IDisposable
+public class BroadcastService : IBroadcastService, IDisposable
 {
+    private readonly IFileLoggingService debugLogger;
+    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> hub;
+    private readonly IStatisticsManager statisticsManager;
+    private readonly IClientStreamerManager clientStreamer;
+    private readonly IStreamManager streamManager;
+    private readonly IChannelService channelService;
+    private readonly IStreamStatisticService streamStatisticService;
+    private readonly ILogger<BroadcastService> logger;
     private Timer? _broadcastTimer;
 
-    public void LogDebug()
+    public BroadcastService(IHubContext<StreamMasterHub, IStreamMasterHub> hub, IFileLoggingServiceFactory factory, IStatisticsManager statisticsManager, IClientStreamerManager clientStreamer, IStreamManager streamManager, IChannelService channelService, IStreamStatisticService streamStatisticService, ILogger<BroadcastService> logger)
     {
-        logger.LogInformation("ChannelManager LogDebug");
-        //logger.LogInformation("GetGlobalStreamsCount: {GetGlobalStreamsCount}", channelService.GetGlobalStreamsCount());
-        logger.LogInformation("GetStreamHandlers: {GetStreamHandlers}", streamManager.GetStreamHandlers().Count);
-        logger.LogInformation("GetStreamHandlers: {GetStreamHandlers}", streamManager.GetStreamHandlers().Count);
+        this.hub = hub;
+        this.statisticsManager = statisticsManager;
+        this.clientStreamer = clientStreamer;
+        this.streamManager = streamManager;
+        this.channelService = channelService;
+        this.streamStatisticService = streamStatisticService;
+        this.logger = logger;
+        debugLogger = factory.Create("FileLoggerDebug");
     }
 
+    private void printDebug(string format, params object[] args)
+    {
+        string formattedMessage = string.Format(format, args);
+        Debug.WriteLine(formattedMessage);
+        //debugLogger.EnqueueLogEntry(formattedMessage);
+    }
+    public void LogDebug()
+    {
+        if (statisticsManager.GetAllClientIds().Any())
+        {
+            printDebug("Stat ClientIds: {0}", statisticsManager.GetAllClientIds().Count);
+        }
+        if (channelService.GetGlobalStreamsCount() != 0)
+        {
+            printDebug("Global: {0}", channelService.GetGlobalStreamsCount());
+        }
+
+        if (channelService.GetChannelStatuses().Any())
+        {
+            printDebug("GetChannelStatuses: {0}", channelService.GetChannelStatuses().Count);
+        }
+
+        //logger.LogInformation("GetStreamHandlers: {GetStreamHandlers}", streamManager.GetStreamHandlers().Count);
+        foreach (IClientStreamerConfiguration clientStreamerConfiguration in clientStreamer.GetAllClientStreamerConfigurations)
+        {
+            printDebug("Client: {0} {1}", clientStreamerConfiguration.ChannelName, clientStreamerConfiguration.ReadBuffer?.Id ?? Guid.Empty);
+        }
+
+        foreach (IStreamHandler handler in streamManager.GetStreamHandlers())
+        {
+            printDebug("Stream: {0} {1} {2} {3}", handler.ClientCount, handler.CircularRingBuffer.Id, handler.VideoStreamName, handler.StreamUrl);
+        }
+    }
 
     public void StartBroadcasting()
     {
@@ -31,6 +80,8 @@ public class BroadcastService(IHubContext<StreamMasterHub, IStreamMasterHub> hub
     }
 
     private bool sentEmpty = false;
+
+
     private void BroadcastMessage(object? state)
     {
         try
@@ -44,11 +95,11 @@ public class BroadcastService(IHubContext<StreamMasterHub, IStreamMasterHub> hub
             }
             else
             {
-                if (!sentEmpty)
-                {
-                    hub.Clients.All.StreamStatisticsResultsUpdate(statisticsResults);
-                }
-                sentEmpty = true;
+                //if (!sentEmpty)
+                //{
+                hub.Clients.All.StreamStatisticsResultsUpdate(statisticsResults).ConfigureAwait(false);
+                //}
+                //sentEmpty = true;
             }
         }
         catch (Exception ex)

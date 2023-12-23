@@ -157,7 +157,7 @@ public class StreamGroupChannelGroupRepository(ILogger<StreamGroupChannelGroupRe
     public async Task<List<string>> RemoveStreamGroupChannelGroups(int StreamGroupId, List<int> ChannelGroupIds, CancellationToken cancellationToken = default)
     {
         // List to hold the IDs of removed video streams.
-        List<string> removedVideoStreamIds = new();
+        List<string> removedVideoStreamIds = [];
 
         // Initial checks.
         if (StreamGroupId <= 0 || !RepositoryContext.StreamGroups.Any(a => a.Id == StreamGroupId) || ChannelGroupIds == null || !ChannelGroupIds.Any())
@@ -226,7 +226,7 @@ public class StreamGroupChannelGroupRepository(ILogger<StreamGroupChannelGroupRe
         if (channelGroupIds == null || !channelGroupIds.Any())
         {
             // Return an empty list if the input is null or empty
-            return new List<StreamGroupDto>();
+            return [];
         }
 
         try
@@ -297,7 +297,7 @@ public class StreamGroupChannelGroupRepository(ILogger<StreamGroupChannelGroupRe
         if (channelGroupId <= 0)
         {
             // Return an empty list if the input is invalid
-            return new List<StreamGroupDto>();
+            return [];
         }
 
         try

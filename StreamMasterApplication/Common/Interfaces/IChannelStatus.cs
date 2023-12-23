@@ -5,7 +5,7 @@
 /// </summary>
 public interface IChannelStatus
 {
-    bool IsStarted { get; set; }
+    string OverrideVideoStreamId { get; set; }
     //List<Guid> GetChannelClientIds { get; }
     /// <summary>
     /// Sets the channel to a global state.

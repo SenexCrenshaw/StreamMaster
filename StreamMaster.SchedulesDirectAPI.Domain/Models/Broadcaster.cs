@@ -2,7 +2,7 @@
 
 namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
-public class Broadcaster 
+public class Broadcaster
 {
     [JsonPropertyName("city")]
     public string City { get; set; }

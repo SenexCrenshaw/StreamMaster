@@ -27,4 +27,6 @@ public partial class StreamMasterHub : IVideoStreamLinkHub
     {
         await mediator.Send(request);
     }
+
+
 }

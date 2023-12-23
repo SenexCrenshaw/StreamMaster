@@ -4,12 +4,12 @@ using StreamMasterDomain.Dto;
 
 using System.ComponentModel.DataAnnotations;
 
-namespace StreamMasterDomain.Models;
+namespace StreamMasterDomain.Requests;
 
 
 public class UpdateVideoStreamRequest : VideoStreamBaseRequest, IRequest<VideoStreamDto?>
 {
     [Key]
     public string Id { get; set; }
-    public StreamingProxyTypes? StreamProxyType { get; set; }
+
 }

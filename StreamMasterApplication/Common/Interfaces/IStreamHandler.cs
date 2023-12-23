@@ -1,10 +1,12 @@
-﻿using System.Text.Json.Serialization;
-
-namespace StreamMasterApplication.Common.Interfaces;
+﻿namespace StreamMasterApplication.Common.Interfaces;
 
 public interface IStreamHandler : IDisposable
 {
-    bool IsFailed { get; }
+    VideoInfo GetVideoInfo();
+    string VideoStreamName { get; }
+
+    event EventHandler<string> OnStreamingStoppedEvent;
+
     /// <summary>
     /// true if there is an existing client registered; otherwise, false.
     /// </summary>
@@ -13,7 +15,7 @@ public interface IStreamHandler : IDisposable
     /// <summary>
     /// Gets the ring buffer used for storing video chunks.
     /// </summary>
-    ICircularRingBuffer RingBuffer { get; }
+    ICircularRingBuffer CircularRingBuffer { get; }
 
     /// <summary>
     /// Gets or sets the M3U file ID.
@@ -27,11 +29,6 @@ public interface IStreamHandler : IDisposable
 
     string VideoStreamId { get; }
 
-    /// <summary>
-    /// Gets or sets the cancellation token source for video streaming.
-    /// </summary>
-    [JsonIgnore]
-    CancellationTokenSource VideoStreamingCancellationToken { get; set; }
 
     ///// <summary>
     ///// Gets the current number of clients connected.

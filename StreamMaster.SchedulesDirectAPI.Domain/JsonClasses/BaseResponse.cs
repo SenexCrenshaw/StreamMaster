@@ -1,7 +1,5 @@
 ﻿using System.Text.Json.Serialization;
 
-using System;
-
 namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
 {
     public class BaseResponse

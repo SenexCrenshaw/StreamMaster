@@ -3,6 +3,7 @@ using StreamMasterApplication.VideoStreams.Commands;
 using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Pagination;
+using StreamMasterDomain.Requests;
 
 namespace StreamMasterApplication.Hubs;
 
@@ -121,5 +122,17 @@ public partial class StreamMasterHub : IVideoStreamHub
     public async Task<List<IdName>> GetVideoStreamNames()
     {
         return await mediator.Send(new GetVideoStreamNamesRequest()).ConfigureAwait(false);
+    }
+
+
+    public async Task<VideoInfo> GetVideoStreamInfoFromId(string channelVideoStreamId)
+    {
+        return await mediator.Send(new GetVideoStreamInfoFromIdRequest(channelVideoStreamId)).ConfigureAwait(false);
+    }
+
+    public async Task<VideoInfo> GetVideoStreamInfoFromUrl(string channelVideoStreamId)
+    {
+        return await mediator.Send(new GetVideoStreamInfoFromUrlRequest(channelVideoStreamId)).ConfigureAwait(false);
+
     }
 }

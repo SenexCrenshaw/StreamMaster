@@ -7,6 +7,7 @@ using StreamMasterApplication.LogApp;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Services;
 
+using StreamMasterInfrastructure.Logger;
 using StreamMasterInfrastructure.Logging;
 using StreamMasterInfrastructure.Middleware;
 using StreamMasterInfrastructure.Services;
@@ -41,6 +42,21 @@ public static class ConfigureServices
         _ = services.AddSingleton<IInputStatisticsManager, InputStatisticsManager>();
         _ = services.AddSingleton<IStreamManager, StreamManager>();
         _ = services.AddSingleton<ICacheableSpecification, CacheableSpecification>();
+
+        services.AddSingleton<IFileLoggingServiceFactory, FileLoggingServiceFactory>();
+
+        // If needed, you can also pre-register specific instances
+        services.AddSingleton(provider =>
+        {
+            IFileLoggingServiceFactory factory = provider.GetRequiredService<IFileLoggingServiceFactory>();
+            return factory.Create("FileLogger");
+        });
+
+        services.AddSingleton(provider =>
+        {
+            IFileLoggingServiceFactory factory = provider.GetRequiredService<IFileLoggingServiceFactory>();
+            return factory.Create("FileLoggerDebug");
+        });
 
         // Dynamically find and register services implementing IMapHttpRequestsToDisk
         Assembly assembly = Assembly.GetExecutingAssembly();

@@ -585,6 +585,10 @@ const injectedRtkApi = api
         }),
         providesTags: ['VideoStreams']
       }),
+      videoStreamsReadAndWrite: build.mutation<VideoStreamsReadAndWriteApiResponse, VideoStreamsReadAndWriteApiArg>({
+        query: (queryArg) => ({ url: `/api/videostreams`, method: 'POST', body: queryArg.body, params: { filePath: queryArg.filePath } }),
+        invalidatesTags: ['VideoStreams']
+      }),
       videoStreamsGetVideoStreamStreamGet: build.query<VideoStreamsGetVideoStreamStreamGetApiResponse, VideoStreamsGetVideoStreamStreamGetApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/stream/${queryArg}` }),
         providesTags: ['VideoStreams']
@@ -696,6 +700,14 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({ url: `/api/videostreams/setvideostreamtimeshiftfromparameters`, method: 'PATCH', body: queryArg }),
         invalidatesTags: ['VideoStreams']
+      }),
+      videoStreamsGetVideoStreamInfoFromId: build.query<VideoStreamsGetVideoStreamInfoFromIdApiResponse, VideoStreamsGetVideoStreamInfoFromIdApiArg>({
+        query: (queryArg) => ({ url: `/api/videostreams/getvideostreaminfofromid`, params: { channelVideoStreamId: queryArg } }),
+        providesTags: ['VideoStreams']
+      }),
+      videoStreamsGetVideoStreamInfoFromUrl: build.query<VideoStreamsGetVideoStreamInfoFromUrlApiResponse, VideoStreamsGetVideoStreamInfoFromUrlApiArg>({
+        query: (queryArg) => ({ url: `/api/videostreams/getvideostreaminfofromurl`, params: { streamUrl: queryArg } }),
+        providesTags: ['VideoStreams']
       })
     }),
     overrideExisting: false
@@ -736,6 +748,7 @@ export type EpgFilesCreateEpgFileFromFormApiArg = {
   FormFile?: Blob | null;
   Name?: string;
   UrlSource?: string | null;
+  Color?: string | null;
 };
 export type EpgFilesDeleteEpgFileApiResponse = unknown;
 export type EpgFilesDeleteEpgFileApiArg = DeleteEpgFileRequest;
@@ -997,6 +1010,11 @@ export type VideoStreamsGetPagedVideoStreamsApiArg = {
   jsonArgumentString?: string | null;
   jsonFiltersString?: string | null;
 };
+export type VideoStreamsReadAndWriteApiResponse = unknown;
+export type VideoStreamsReadAndWriteApiArg = {
+  filePath?: string;
+  body: Blob;
+};
 export type VideoStreamsGetVideoStreamStreamGetApiResponse = unknown;
 export type VideoStreamsGetVideoStreamStreamGetApiArg = string;
 export type VideoStreamsGetVideoStreamStreamHeadApiResponse = unknown;
@@ -1047,6 +1065,10 @@ export type VideoStreamsSetVideoStreamTimeShiftsApiResponse = unknown;
 export type VideoStreamsSetVideoStreamTimeShiftsApiArg = SetVideoStreamTimeShiftsRequest;
 export type VideoStreamsSetVideoStreamTimeShiftFromParametersApiResponse = unknown;
 export type VideoStreamsSetVideoStreamTimeShiftFromParametersApiArg = SetVideoStreamTimeShiftFromParametersRequest;
+export type VideoStreamsGetVideoStreamInfoFromIdApiResponse = /** status 200  */ VideoInfo;
+export type VideoStreamsGetVideoStreamInfoFromIdApiArg = string;
+export type VideoStreamsGetVideoStreamInfoFromUrlApiResponse = /** status 200  */ VideoInfo;
+export type VideoStreamsGetVideoStreamInfoFromUrlApiArg = string;
 export type CreateChannelGroupRequest = {
   groupName: string;
   isReadOnly: boolean;
@@ -1110,6 +1132,7 @@ export type CreateEpgFileRequest = {
   formFile?: Blob | null;
   name?: string;
   urlSource?: string | null;
+  color?: string | null;
 };
 export type DeleteEpgFileRequest = {
   deleteFile?: boolean;
@@ -1249,8 +1272,8 @@ export type ImageDownloadServiceStatus = {
   totalErrors?: number;
 };
 export type XmltvText = {
-  language?: string;
-  text?: string;
+  language?: string | null;
+  text?: string | null;
 };
 export type XmltvSubtitles = {
   language?: string;
@@ -1302,6 +1325,7 @@ export type XmltvPreviouslyShown = {
 };
 export type XmltvRating = {
   value?: string;
+  elementValue?: string;
   icons?: XmltvIcon[];
   system?: string;
 };
@@ -1348,9 +1372,9 @@ export type XmltvProgramme = {
   lastChance?: XmltvText;
   new?: string | null;
   live?: string | null;
-  rating?: XmltvRating[];
+  rating?: XmltvRating[] | null;
   starRating?: XmltvRating[] | null;
-  review?: XmltvReview[];
+  review?: XmltvReview[] | null;
 };
 export type AddLineup = {
   lineup?: string;
@@ -1610,6 +1634,7 @@ export type BaseSettings = M3USettings & {
   ffMpegOptions?: string;
   enableSSL?: boolean;
   ffmPegExecutable?: string;
+  ffProbeExecutable?: string;
   globalStreamLimit?: number;
   maxConnectRetry?: number;
   maxConnectRetryTimeMS?: number;
@@ -1705,6 +1730,7 @@ export type StreamGroupDto = {
   isLoading: boolean;
   hdhrLink: string;
   isReadOnly: boolean;
+  autoSetChannelNumbers: boolean;
   streamCount: number;
   id: number;
   m3ULink: string;
@@ -1732,6 +1758,7 @@ export type PagedResponseOfStreamGroupDto = {
 export type UpdateStreamGroupRequest = {
   streamGroupId?: number;
   name?: string | null;
+  autoSetChannelNumbers?: boolean | null;
 };
 export type VideoStreamIsReadOnly = {
   rank?: number;
@@ -1748,7 +1775,8 @@ export type BaseVideoStreamDto = {
   isUserCreated: boolean;
   m3UFileId: number;
   m3UFileName: string;
-  streamProxyType: StreamingProxyTypes;
+  streamingProxyType: StreamingProxyTypes;
+  groupTitle: string;
   tvg_chno: number;
   tvg_group: string;
   timeShift: string;
@@ -1807,7 +1835,9 @@ export type RemoveVideoStreamFromVideoStreamRequest = {
   childVideoStreamId: string;
 };
 export type VideoStreamBaseRequest = {
+  streamingProxyType?: StreamingProxyTypes | null;
   toggleVisibility?: boolean | null;
+  groupTitle?: string | null;
   tvg_chno?: number | null;
   tvg_group?: string | null;
   timeShift?: string | null;
@@ -1830,6 +1860,7 @@ export type FailClientRequest = {
 };
 export type StreamStatisticsResult = {
   id?: string;
+  circularBufferId?: string;
   clientAgent?: string;
   clientBitsPerSecond?: number;
   clientBytesRead?: number;
@@ -1843,13 +1874,14 @@ export type StreamStatisticsResult = {
   inputElapsedTime?: string;
   inputStartTime?: string;
   logo?: string | null;
-  m3UStreamProxyType?: StreamingProxyTypes;
+  m3UStreamingProxyType?: StreamingProxyTypes;
   rank?: number;
   streamUrl?: string | null;
   videoStreamId?: string;
   channelName?: string;
   videoStreamName?: string;
   clientIPAddress?: string;
+  channelId?: string;
 };
 export type IdName = {
   id: string;
@@ -1870,7 +1902,6 @@ export type SetVideoStreamsLogoFromEpgRequest = {
 };
 export type UpdateVideoStreamRequest = VideoStreamBaseRequest & {
   id?: string;
-  streamProxyType?: StreamingProxyTypes | null;
 };
 export type UpdateVideoStreamsRequest = {
   videoStreamUpdates?: UpdateVideoStreamRequest[];
@@ -1912,6 +1943,75 @@ export type SetVideoStreamTimeShiftsRequest = {
 export type SetVideoStreamTimeShiftFromParametersRequest = {
   parameters?: VideoStreamParameters;
   timeShift?: string;
+};
+export type Disposition = {
+  default?: number;
+  dub?: number;
+  original?: number;
+  comment?: number;
+  lyrics?: number;
+  karaoke?: number;
+  forced?: number;
+  hearing_impaired?: number;
+  visual_impaired?: number;
+  clean_effects?: number;
+  attached_pic?: number;
+  timed_thumbnails?: number;
+};
+export type VideoStreamInfo = {
+  index?: number;
+  codec_name?: string;
+  codec_long_name?: string;
+  profile?: string;
+  codec_type?: string;
+  codec_tag_string?: string;
+  codec_tag?: string;
+  width?: number;
+  height?: number;
+  coded_width?: number;
+  coded_height?: number;
+  closed_captions?: number;
+  has_b_frames?: number;
+  sample_aspect_ratio?: string;
+  display_aspect_ratio?: string;
+  pix_fmt?: string;
+  level?: number;
+  color_range?: string;
+  color_space?: string;
+  color_transfer?: string;
+  color_primaries?: string;
+  chroma_location?: string;
+  field_order?: string;
+  refs?: number;
+  is_avc?: string;
+  nal_length_size?: string;
+  id?: string;
+  r_frame_rate?: string;
+  avg_frame_rate?: string;
+  time_base?: string;
+  start_pts?: any;
+  start_time?: string;
+  bits_per_raw_sample?: string;
+  disposition?: Disposition;
+  sample_fmt?: string;
+  sample_rate?: string;
+  channels?: number | null;
+  channel_layout?: string;
+  bits_per_sample?: number | null;
+  bit_rate?: string;
+};
+export type Format = {
+  filename?: string;
+  nb_streams?: number;
+  nb_programs?: number;
+  format_name?: string;
+  format_long_name?: string;
+  start_time?: string;
+  probe_score?: number;
+};
+export type VideoInfo = {
+  streams?: VideoStreamInfo[];
+  format?: Format;
 };
 export const {
   useChannelGroupsCreateChannelGroupMutation,
@@ -2013,6 +2113,7 @@ export const {
   useVideoStreamsGetVideoStreamQuery,
   useVideoStreamsGetVideoStreamNamesQuery,
   useVideoStreamsGetPagedVideoStreamsQuery,
+  useVideoStreamsReadAndWriteMutation,
   useVideoStreamsGetVideoStreamStreamGetQuery,
   useVideoStreamsGetVideoStreamStreamHeadMutation,
   useVideoStreamsGetVideoStreamStreamGet2Query,
@@ -2034,5 +2135,7 @@ export const {
   useVideoStreamsAutoSetEpgMutation,
   useVideoStreamsAutoSetEpgFromParametersMutation,
   useVideoStreamsSetVideoStreamTimeShiftsMutation,
-  useVideoStreamsSetVideoStreamTimeShiftFromParametersMutation
+  useVideoStreamsSetVideoStreamTimeShiftFromParametersMutation,
+  useVideoStreamsGetVideoStreamInfoFromIdQuery,
+  useVideoStreamsGetVideoStreamInfoFromUrlQuery
 } = injectedRtkApi;

@@ -37,17 +37,18 @@ const VideoStreamDeleteDialog = ({ iconFilled, id, onClose, skipOverLayer, value
   const { queryFilter } = useQueryFilter(id);
 
   useEffect(() => {
-    if (values) {
+    if (values && selectVideoStreamsInternal !== values) {
       setSelectVideoStreamsInternal(values);
     }
-  }, [values]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [values]); // This is correct
 
   useEffect(() => {
     if (!values) {
       setSelectVideoStreamsInternal(selectedVideoStreams);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedVideoStreams]);
+  }, [values]);
 
   const ReturnToParent = () => {
     setShowOverlay(false);

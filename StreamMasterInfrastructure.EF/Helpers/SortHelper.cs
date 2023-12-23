@@ -16,21 +16,21 @@ namespace StreamMasterInfrastructureEF.Helpers
             {
                 return entities;
             }
-            var orderParams = orderByQueryString.Trim().Split(',');
-            var propertyInfos = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            var orderQueryBuilder = new StringBuilder();
-            foreach (var param in orderParams)
+            string[] orderParams = orderByQueryString.Trim().Split(',');
+            PropertyInfo[] propertyInfos = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            StringBuilder orderQueryBuilder = new();
+            foreach (string param in orderParams)
             {
                 if (string.IsNullOrWhiteSpace(param))
                     continue;
-                var propertyFromQueryName = param.Split(" ")[0];
-                var objectProperty = propertyInfos.FirstOrDefault(pi => pi.Name.Equals(propertyFromQueryName, StringComparison.InvariantCultureIgnoreCase));
+                string propertyFromQueryName = param.Split(" ")[0];
+                PropertyInfo? objectProperty = propertyInfos.FirstOrDefault(pi => pi.Name.Equals(propertyFromQueryName, StringComparison.InvariantCultureIgnoreCase));
                 if (objectProperty == null)
                     continue;
-                var sortingOrder = param.EndsWith(" desc") ? "descending" : "ascending";
+                string sortingOrder = param.EndsWith(" desc") ? "descending" : "ascending";
                 orderQueryBuilder.Append($"{objectProperty.Name} {sortingOrder}, ");
             }
-            var orderQuery = orderQueryBuilder.ToString().TrimEnd(',', ' ');
+            string orderQuery = orderQueryBuilder.ToString().TrimEnd(',', ' ');
             return entities.OrderBy(orderQuery);
         }
     }

@@ -5,7 +5,7 @@ import { FailClientRequest, StreamStatisticsResult, useVideoStreamsGetAllStatist
 import { FailClient } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import { memo, useRef, type CSSProperties } from 'react';
+import { memo, useRef, type CSSProperties, useEffect, useState } from 'react';
 
 interface StreamingClientsPanelProperties {
   readonly className?: string;
@@ -14,8 +14,46 @@ interface StreamingClientsPanelProperties {
 
 const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProperties) => {
   const toast = useRef<Toast>(null);
+  const [dataSource, setDataSource] = useState<StreamStatisticsResult[]>([]);
 
   const getStreamingStatus = useVideoStreamsGetAllStatisticsForAllUrlsQuery();
+
+  useEffect(() => {
+    if (getStreamingStatus.data === undefined || getStreamingStatus.data.length === 0 || getStreamingStatus.data === null) {
+      setDataSource([]);
+      return;
+    }
+
+    let data = [...dataSource];
+
+    for (const item of getStreamingStatus.data) {
+      const index = data.findIndex((x) => x.clientId === item.clientId);
+      if (index === -1) {
+        data.push(item);
+      } else {
+        data[index] = {
+          ...data[index],
+          clientIPAddress: item.clientIPAddress !== data[index].clientIPAddress ? item.clientIPAddress : data[index].clientIPAddress,
+          clientAgent: item.clientAgent !== data[index].clientAgent ? item.clientAgent : data[index].clientAgent,
+          videoStreamName: item.videoStreamName !== data[index].videoStreamName ? item.videoStreamName : data[index].videoStreamName,
+          clientStartTime: item.clientStartTime !== data[index].clientStartTime ? item.clientStartTime : data[index].clientStartTime,
+          clientElapsedTime: item.clientElapsedTime !== data[index].clientElapsedTime ? item.clientElapsedTime : data[index].clientElapsedTime,
+          clientBitsPerSecond: item.clientBitsPerSecond !== data[index].clientBitsPerSecond ? item.clientBitsPerSecond : data[index].clientBitsPerSecond,
+          inputStartTime: item.inputStartTime !== data[index].inputStartTime ? item.inputStartTime : data[index].inputStartTime
+        };
+      }
+    }
+
+    for (const item of dataSource) {
+      const index = getStreamingStatus.data.findIndex((x) => x.clientId === item.clientId);
+      if (index === -1) {
+        data = data.filter((x) => x.clientId !== item.clientId);
+      }
+    }
+
+    setDataSource(data);
+  }, [getStreamingStatus.data]);
+
   const clientBitsPerSecondTemplate = (rowData: StreamStatisticsResult) => {
     if (rowData.clientBitsPerSecond === undefined) return <div />;
 
@@ -143,10 +181,11 @@ const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProper
           className={className}
           columns={columns()}
           defaultSortField="clientStartTime"
-          dataSource={getStreamingStatus.data}
+          dataSource={dataSource}
           emptyMessage="No Clients Streaming"
           id="StreamingServerStatusPanel"
           isLoading={getStreamingStatus.isLoading}
+          dataKey="clientId"
           selectedItemsKey="selectSelectedItems"
           style={style}
         />

@@ -1,4 +1,4 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+﻿
 
 using System.Text.Json;
 using System.Xml.Serialization;
@@ -89,6 +89,5 @@ public class EPGFile : AutoUpdateEntity
         }
         return null;
     }
-
 
 }

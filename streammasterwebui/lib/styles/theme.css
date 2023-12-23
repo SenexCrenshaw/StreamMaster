@@ -144,7 +144,8 @@
   white-space: nowrap !important;
 }
 
-.p-dropdown-item {
+.p-dropdown-item,
+.p-multiselect-label-container {
   font-size: var(--common-font-size) !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;

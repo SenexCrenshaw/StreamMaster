@@ -10,6 +10,8 @@ public sealed class ChannelStatus(VideoStreamDto videoStreamDto) : IChannelStatu
     public bool IsGlobal { get; set; }
     public bool FailoverInProgress { get; set; }
     public int Rank { get; set; }
+
+    public string OverrideVideoStreamId { get; set; } = string.Empty;
     public string ChannelVideoStreamId { get; set; } = videoStreamDto.Id;
 
     public string VideoStreamURL { get; set; } = videoStreamDto.User_Url;

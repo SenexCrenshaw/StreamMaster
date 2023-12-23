@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace StreamMasterDomain.Sorting
+﻿namespace StreamMasterDomain.Sorting
 {
     public interface ISortHelper<T>
     {

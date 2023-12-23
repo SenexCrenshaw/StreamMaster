@@ -38,7 +38,7 @@ public sealed class StatisticsManager(ILogger<StatisticsManager> logger) : IStat
     }
     public List<ClientStreamingStatistics> GetAllClientStatistics()
     {
-        List<ClientStreamingStatistics> statisticsList = new();
+        List<ClientStreamingStatistics> statisticsList = [];
 
         foreach (KeyValuePair<Guid, StreamingStatistics> entry in _clientStatistics)
         {
@@ -53,9 +53,14 @@ public sealed class StatisticsManager(ILogger<StatisticsManager> logger) : IStat
         return statisticsList;
     }
 
+    public List<Guid> GetAllClientIds()
+    {
+        return [.. _clientStatistics.Keys];
+    }
+
     public List<ClientStreamingStatistics> GetAllClientStatisticsByClientIds(ICollection<Guid> ClientIds)
     {
-        List<ClientStreamingStatistics> statisticsList = new();
+        List<ClientStreamingStatistics> statisticsList = [];
 
         foreach (KeyValuePair<Guid, StreamingStatistics> entry in _clientStatistics.Where(a => ClientIds.Contains(a.Key)))
         {

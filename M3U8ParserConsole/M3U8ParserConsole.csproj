@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -7,9 +7,5 @@
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\StreamMaster.M3U8\StreamMaster.M3U8.csproj" />
-  </ItemGroup>
 
 </Project>

@@ -4,16 +4,15 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 public class MxfLineup
 {
-    public string LineupId => _lineupId;
+    public string LineupId { get; }
 
     private string _uid;
     private int _index;
-    private string _lineupId;
 
     public MxfLineup(int index, string lineupId, string lineupName)
     {
         _index = index;
-        _lineupId = lineupId;
+        LineupId = lineupId;
         Name = lineupName;
     }
     private MxfLineup() { }
@@ -26,7 +25,7 @@ public class MxfLineup
     public string Id
     {
         get => $"l{_index}";
-        set { _index = int.Parse(value.Substring(1)); }
+        set { _index = int.Parse(value[1..]); }
     }
 
     /// <summary>
@@ -37,7 +36,7 @@ public class MxfLineup
     [XmlAttribute("uid")]
     public string Uid
     {
-        get => _uid ?? $"!MCLineup!{_lineupId}";
+        get => _uid ?? $"!MCLineup!{LineupId}";
         set { _uid = value; }
     }
 

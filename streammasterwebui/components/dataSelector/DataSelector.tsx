@@ -531,7 +531,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
       <div className={`${props.className === undefined ? '' : props.className} min-h-full w-full surface-overlay`}>
         <DataTable
           cellSelection={false}
-          dataKey="id"
+          dataKey={props.dataKey ?? 'id'}
           editMode="cell"
           emptyMessage={props.emptyMessage}
           expandableRowGroups={props.groupRowsBy !== undefined && props.groupRowsBy !== ''}
@@ -542,7 +542,6 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
           filters={isEmptyObject(state.filters) ? getEmptyFilter(props.columns, state.showHidden) : state.filters}
           first={state.pagedInformation ? state.pagedInformation.first : state.first}
           header={sourceRenderHeader}
-          key="id"
           lazy={props.dataSource === undefined}
           loading={props.isLoading === true || isFetching === true || isLoading === true}
           // metaKeySelection={false}
@@ -671,7 +670,7 @@ interface BaseDataSelectorProperties<T = any> {
   hideControls?: boolean;
   id: string;
   isLoading?: boolean;
-  key?: string | undefined;
+  dataKey?: string | undefined;
 
   // onLazyLoad?: (e: any) => void;
   onMultiSelectClick?: (value: boolean) => void;

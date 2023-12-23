@@ -25,6 +25,7 @@ using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
+using StreamMasterDomain.Requests;
 
 using StreamMasterInfrastructureEF.Helpers;
 
@@ -221,7 +222,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
             // Calculate the size of the next chunk
             int nextChunkSize = Math.Min(chunkSize, totalCount - count);
 
-            var deletedRecords = videoStreams.Take(nextChunkSize).ExecuteDelete();
+            int deletedRecords = videoStreams.Take(nextChunkSize).ExecuteDelete();
 
             count += nextChunkSize;
             logger.LogInformation($"Deleted {count} of {totalCount} video streams");
@@ -353,6 +354,16 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
         if (request.TimeShift != null && videoStream.TimeShift != request.Tvg_name)
         {
             videoStream.TimeShift = request.TimeShift;
+        }
+
+        if (request.GroupTitle != null && videoStream.GroupTitle != request.GroupTitle)
+        {
+            videoStream.GroupTitle = request.GroupTitle;
+        }
+
+        if (request.StreamingProxyType != null && videoStream.StreamingProxyType != request.StreamingProxyType)
+        {
+            videoStream.StreamingProxyType = (StreamingProxyTypes)request.StreamingProxyType;
         }
 
         if (request.Tvg_ID != null && (videoStream.User_Tvg_ID != request.Tvg_ID || videoStream.IsUserCreated))
@@ -877,28 +888,66 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
         List<VideoStreamDto> results = [];
 
-        foreach (VideoStream videoStream in videoStreams)
+        //foreach (VideoStream videoStream in videoStreams)
+        //{
+        //    var scoredMatches = stationChannelNames
+        //         .Select(p => new
+        //         {
+        //             Channel = p,
+        //             Score = AutoEPGMatch.GetMatchingScore(videoStream.User_Tvg_name, p.Channel)
+        //         })
+        //         .Where(x => x.Score > 0) // Filter out non-matches
+        //         .OrderByDescending(x => x.Score) // Sort by score in descending order
+        //         .ToList();
+
+        //    if (!scoredMatches.Any())
+        //    {
+        //        scoredMatches = stationChannelNames
+        //         .Select(p => new
+        //         {
+        //             Channel = p,
+        //             Score = AutoEPGMatch.GetMatchingScore(videoStream.User_Tvg_name, p.DisplayName)
+        //         })
+        //         .Where(x => x.Score > 0) // Filter out non-matches
+        //         .OrderByDescending(x => x.Score).ToList(); // Sort by score in descending order
+        //    }
+
+        //    if (scoredMatches.Any())
+        //    {
+        //        videoStream.User_Tvg_ID = scoredMatches[0].Channel.Channel;
+        //        UpdateVideoStream(videoStream);
+
+        //        if (setting.VideoStreamAlwaysUseEPGLogo)
+        //        {
+        //            await SetVideoStreamLogoFromEPG(videoStream, cancellationToken).ConfigureAwait(false);
+        //        }
+        //        results.Add(mapper.Map<VideoStreamDto>(videoStream));
+        //    }
+        //}
+
+        await Parallel.ForEachAsync(videoStreams, async (videoStream, token) =>
         {
             var scoredMatches = stationChannelNames
-                 .Select(p => new
-                 {
-                     Channel = p,
-                     Score = AutoEPGMatch.GetMatchingScore(videoStream.User_Tvg_name, p.Channel)
-                 })
-                 .Where(x => x.Score > 0) // Filter out non-matches
-                 .OrderByDescending(x => x.Score) // Sort by score in descending order
-                 .ToList();
+                .Select(p => new
+                {
+                    Channel = p,
+                    Score = AutoEPGMatch.GetMatchingScore(videoStream.User_Tvg_name, p.Channel)
+                })
+                .Where(x => x.Score > 0)
+                .OrderByDescending(x => x.Score)
+                .ToList();
 
             if (!scoredMatches.Any())
             {
                 scoredMatches = stationChannelNames
-                 .Select(p => new
-                 {
-                     Channel = p,
-                     Score = AutoEPGMatch.GetMatchingScore(videoStream.User_Tvg_name, p.DisplayName)
-                 })
-                 .Where(x => x.Score > 0) // Filter out non-matches
-                 .OrderByDescending(x => x.Score).ToList(); // Sort by score in descending order
+                    .Select(p => new
+                    {
+                        Channel = p,
+                        Score = AutoEPGMatch.GetMatchingScore(videoStream.User_Tvg_name, p.DisplayName)
+                    })
+                    .Where(x => x.Score > 0)
+                    .OrderByDescending(x => x.Score)
+                    .ToList();
             }
 
             if (scoredMatches.Any())
@@ -908,11 +957,13 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
                 if (setting.VideoStreamAlwaysUseEPGLogo)
                 {
-                    await SetVideoStreamLogoFromEPG(videoStream, cancellationToken).ConfigureAwait(false);
+                    await SetVideoStreamLogoFromEPG(videoStream, token).ConfigureAwait(false);
                 }
                 results.Add(mapper.Map<VideoStreamDto>(videoStream));
             }
-        }
+        });
+
+
         if (results.Any())
         {
             await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

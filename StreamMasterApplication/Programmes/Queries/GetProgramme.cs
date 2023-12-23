@@ -1,5 +1,4 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.EPG;
-using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
 
 namespace StreamMasterApplication.Programmes.Queries;
 

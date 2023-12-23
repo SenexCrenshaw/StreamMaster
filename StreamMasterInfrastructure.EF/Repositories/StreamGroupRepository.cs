@@ -131,14 +131,26 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
         return streamGroup.Id;
     }
 
-    public async Task<StreamGroupDto?> UpdateStreamGroup(int StreamGroupId, string newName)
+    public async Task<StreamGroupDto?> UpdateStreamGroup(UpdateStreamGroupRequest request)
     {
+        int StreamGroupId = request.StreamGroupId;
+
         StreamGroup? streamGroup = FindByCondition(c => c.Id == StreamGroupId).FirstOrDefault();
         if (streamGroup == null)
         {
             return null;
         }
-        streamGroup.Name = newName;
+
+        if (!string.IsNullOrEmpty(request.Name))
+        {
+            streamGroup.Name = request.Name;
+        }
+
+        if (request.AutoSetChannelNumbers != null)
+        {
+            streamGroup.AutoSetChannelNumbers = (bool)request.AutoSetChannelNumbers;
+        }
+
         Update(streamGroup);
 
         StreamGroupDto ret = mapper.Map<StreamGroupDto>(streamGroup);

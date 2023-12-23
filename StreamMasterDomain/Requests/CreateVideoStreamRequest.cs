@@ -2,6 +2,6 @@
 
 using StreamMasterDomain.Dto;
 
-namespace StreamMasterDomain.Models;
+namespace StreamMasterDomain.Requests;
 
 public class CreateVideoStreamRequest : VideoStreamBaseRequest, IRequest<VideoStreamDto?> { }

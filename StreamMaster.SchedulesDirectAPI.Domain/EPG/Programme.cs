@@ -14,7 +14,7 @@ public class EPGProgramme2
     public TvAudio Audio { get; set; } = new();
 
     [XmlElement(ElementName = "category")]
-    public List<TvCategory> Category { get; set; } = new();
+    public List<TvCategory> Category { get; set; } = [];
 
     [XmlAttribute(AttributeName = "channel")]
     public string Channel { get; set; } = string.Empty;
@@ -38,10 +38,10 @@ public class EPGProgramme2
     public int EPGFileId { get; set; }
 
     [XmlElement(ElementName = "episode-num")]
-    public List<TvEpisodenum> Episodenum { get; set; } = new();
+    public List<TvEpisodenum> Episodenum { get; set; } = [];
 
     [XmlElement(ElementName = "icon")]
-    public List<TvIcon> Icon { get; set; } = new();
+    public List<TvIcon> Icon { get; set; } = [];
 
     [XmlElement(ElementName = "language")]
     public string Language { get; set; } = string.Empty;
@@ -79,7 +79,7 @@ public class EPGProgramme2
     public TvPreviouslyshown? Previouslyshown { get; set; }
 
     [XmlElement(ElementName = "rating")]
-    public List<TvRating> Rating { get; set; } = new();
+    public List<TvRating> Rating { get; set; } = [];
 
     [XmlAttribute(AttributeName = "start")]
     public string Start
@@ -129,7 +129,7 @@ public class EPGProgramme2
     public TvSubtitle Subtitle { get; set; } = new();
 
     [XmlElement(ElementName = "title")]
-    public List<TvTitle> Title { get; set; } = new();
+    public List<TvTitle> Title { get; set; } = [];
 
     [XmlElement(ElementName = "video")]
     public TvVideo Video { get; set; } = new();

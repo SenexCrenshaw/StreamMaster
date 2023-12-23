@@ -1,6 +1,4 @@
-﻿using JetBrains.Annotations;
-
-using StreamMasterDomain.Models;
+﻿using StreamMasterDomain.Models;
 
 using System.Collections.Concurrent;
 using System.Text;
@@ -69,8 +67,8 @@ public static partial class IPTVExtensions
         //    streamLists.TryAdd(index, VideoStream);
         //});
 
-        var index = -1;
-        foreach (var bodyline in extInfArray.Skip(1))
+        int index = -1;
+        foreach (string? bodyline in extInfArray.Skip(1))
         {
             ++index;
             VideoStream? VideoStream = bodyline.StringToVideoStream();
@@ -126,9 +124,9 @@ public static partial class IPTVExtensions
     public static VideoStream? StringToVideoStream(this string bodyline)
     {
         VideoStream VideoStream = new();
-        if (bodyline.Contains("https://tmsimg.fancybits.co/assets/s97051") )
+        if (bodyline.Contains("https://tmsimg.fancybits.co/assets/s97051"))
         {
-            var aa = 1;
+            int aa = 1;
         }
         string[] lines = bodyline.Replace("\r\n", "\n").Split("\n");
 

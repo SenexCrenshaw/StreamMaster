@@ -44,7 +44,7 @@ public static class PagedExtensions
             TotalPageCount = 0,
             PageSize = 0,
             TotalItemCount = count,
-            Data = new List<PagedT>()
+            Data = []
         };
     }
 

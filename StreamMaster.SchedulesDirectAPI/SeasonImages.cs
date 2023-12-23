@@ -26,9 +26,10 @@ public partial class SchedulesDirect
         }
 
 
+        List<MxfSeason> toProcess = schedulesDirectData.SeasonsToProcess.ToList();
         // scan through each series in the mxf
-        logger.LogInformation("Entering GetAllSeasonImages() for {totalObjects} seasons.", schedulesDirectData.SeasonsToProcess.Count);
-        foreach (MxfSeason season in schedulesDirectData.SeasonsToProcess)
+        logger.LogInformation("Entering GetAllSeasonImages() for {totalObjects} seasons.", toProcess.Count);
+        foreach (MxfSeason season in toProcess)
         {
             string uid = $"{season.SeriesId}_{season.SeasonNumber}";
             if (epgCache.JsonFiles.ContainsKey(uid) && !string.IsNullOrEmpty(epgCache.JsonFiles[uid].Images))

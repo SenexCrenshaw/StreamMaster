@@ -20,6 +20,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProperties) => {
   const [block, setBlock] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
   const [name, setName] = useState<string>('');
+  // const [autoSetChannelNumbers, setAutoSetChannelNumbers] = useState<boolean>(false);
   const uuid = uuidv4();
   const { selectedStreamGroup } = useSelectedStreamGroup(props.id);
 
@@ -44,23 +45,27 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProperties) => {
   );
 
   const isSaveEnabled = useMemo((): boolean => {
+    if (selectedStreamGroup === undefined || selectedStreamGroup.id === undefined) {
+      return false;
+    }
+
+    if (name && name !== '' && selectedStreamGroup.name !== name) {
+      return true;
+    }
+
     if (name && name !== '') {
       return true;
     }
 
     return false;
-  }, [name]);
+  }, [name, selectedStreamGroup]);
 
   const onUpdate = useCallback(() => {
     setBlock(true);
 
-    if (!isSaveEnabled || !name || name === '' || selectedStreamGroup === undefined || selectedStreamGroup.id === undefined) {
+    if (!isSaveEnabled) {
       ReturnToParent();
 
-      return;
-    }
-
-    if (!isSaveEnabled) {
       return;
     }
 
@@ -123,14 +128,22 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProperties) => {
               <StreamGroupChannelGroupsSelector streamGroupId={selectedStreamGroup?.id ?? undefined} />
             </div>
           </div>
+          {/* <div className="flex col-12 ">
+            <label className="col-6">Auto Set Channel Numbers: </label>
+            <div className="col-2">
+              <Checkbox
+                checked={autoSetChannelNumbers}
+                onChange={async (e: CheckboxChangeEvent) => {
+                  setAutoSetChannelNumbers(e.checked ?? false);
+                }}
+                tooltip="Enable Auto Channel Numbering"
+                tooltipOptions={getTopToolOptions}
+              />
+            </div>
+          </div> */}
 
           <div className="flex col-12 mt-3 gap-2 justify-content-end">
-            <EditButton
-              disabled={!selectedStreamGroup?.name || name === selectedStreamGroup.name}
-              label="Edit Stream Group"
-              onClick={() => onUpdate()}
-              tooltip="Edit Stream Group"
-            />
+            <EditButton disabled={!isSaveEnabled} label="Edit Stream Group" onClick={() => onUpdate()} tooltip="Edit Stream Group" />
           </div>
         </div>
       </InfoMessageOverLayDialog>

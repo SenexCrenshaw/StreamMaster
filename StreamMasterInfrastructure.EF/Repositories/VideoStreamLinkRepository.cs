@@ -38,7 +38,7 @@ public class VideoStreamLinkRepository(ILogger<VideoStreamLinkRepository> logger
                 TotalPageCount = 0,
                 PageSize = parameters.PageSize,
                 TotalItemCount = 0,
-                Data = new List<VideoStreamDto>()
+                Data = []
             };
         }
 
@@ -46,7 +46,7 @@ public class VideoStreamLinkRepository(ILogger<VideoStreamLinkRepository> logger
 
         //var videoStreams = await RepositoryContext.VideoStreams.Where(a => ids.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
-        List<VideoStreamDto> cgs = new();
+        List<VideoStreamDto> cgs = [];
 
         //var links = await FindByCondition(a => a.ParentVideoStreamId == videoStreamId).ToArrayAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         foreach (VideoStreamLink? link in pagedResult)
@@ -73,7 +73,7 @@ public class VideoStreamLinkRepository(ILogger<VideoStreamLinkRepository> logger
     {
         List<VideoStreamLink> childVideoStreamIds = await FindByCondition(a => a.ParentVideoStreamId == ParentVideoStreamId).OrderBy(a => a.Rank).AsNoTracking().ToListAsync(cancellationToken: cancellationToken);
 
-        childVideoStreamIds ??= new();
+        childVideoStreamIds ??= [];
 
         if (childVideoStreamIds.Any(a => a.ChildVideoStreamId == ChildVideoStreamId))
         {

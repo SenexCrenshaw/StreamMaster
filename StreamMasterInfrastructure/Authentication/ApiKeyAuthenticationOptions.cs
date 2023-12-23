@@ -41,13 +41,13 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
 
         if (!needsAuth)
         {
-            List<Claim> claims = new()
-            {
+            List<Claim> claims =
+            [
                     new Claim("ApiKey", "true")
-                };
+                ];
 
             ClaimsIdentity identity = new(claims, Options.AuthenticationType);
-            List<ClaimsIdentity> identities = new() { identity };
+            List<ClaimsIdentity> identities = [identity];
             ClaimsPrincipal principal = new(identities);
             AuthenticationTicket ticket = new(principal, Options.Scheme);
             _logger.LogDebug("Authentication is off");
@@ -64,13 +64,13 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
 
         if (setting.ApiKey == providedApiKey || setting.ServerKey == providedApiKey)
         {
-            List<Claim> claims = new()
-            {
+            List<Claim> claims =
+            [
                     new Claim("ApiKey", "true")
-                };
+                ];
 
             ClaimsIdentity identity = new(claims, Options.AuthenticationType);
-            List<ClaimsIdentity> identities = new() { identity };
+            List<ClaimsIdentity> identities = [identity];
             ClaimsPrincipal principal = new(identities);
             AuthenticationTicket ticket = new(principal, Options.Scheme);
             _logger.LogDebug("ApiKey Authentication success");

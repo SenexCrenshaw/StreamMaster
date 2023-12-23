@@ -1,15 +1,16 @@
-import ChannelHandlerSelector from '@components/ChannelHandlerSelector';
 import AddButton from '@components/buttons/AddButton';
 import ChannelGroupSelector from '@components/channelGroups/ChannelGroupSelector';
 import EPGSelector from '@components/selectors/EPGSelector';
 import IconSelector from '@components/selectors/IconSelector';
 import { getIconUrl } from '@lib/common/common';
-import { CreateVideoStreamRequest, UpdateVideoStreamRequest, VideoStreamDto, VideoStreamHandlers } from '@lib/iptvApi';
+import { CreateVideoStreamRequest, UpdateVideoStreamRequest, VideoStreamDto, useChannelGroupsGetChannelGroupNamesQuery } from '@lib/iptvApi';
 import useSettings from '@lib/useSettings';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
+import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import { memo, useEffect, useMemo, useState } from 'react';
+import StreamingProxyTypeSelector from '../videoStream/StreamingProxyTypeSelector';
 import InputWrapper from './InputWrapper';
 import VideoStreamDataSelector from './VideoStreamDataSelector';
 import VideoStreamSelectedVideoStreamDataSelector from './VideoStreamSelectedVideoStreamDataSelector';
@@ -26,15 +27,18 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
   const [name, setName] = useState<string>('');
   const [url, setUrl] = useState<string>('');
 
+  const [groupTitles, setGroupTitles] = useState<string[]>([]);
   const [iconSource, setIconSource] = useState<string>('');
   const [videoStreams, setVideoStreams] = useState<VideoStreamDto[] | undefined>();
   const [channelNumber, setChannelNumber] = useState<number>(0);
-  const [channelHandler, setChannelHandler] = useState<VideoStreamHandlers>(0);
+  // const [channelHandler, setChannelHandler] = useState<VideoStreamHandlers>(0);
   const [epgId, setEpgId] = useState<string>('');
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [lastActiveIndex, setLastActiveIndex] = useState<number>(0);
   const [channelGroup, setChannelGroup] = useState<string | undefined>();
+  const [streamingProxyType, setStreamingProxyType] = useState<number | undefined>();
 
+  const channelGroupsGetChannelGroupNamesQuery = useChannelGroupsGetChannelGroupNamesQuery();
   const [dataSource, setDataSource] = useState<VideoStreamDto[] | undefined>();
 
   useEffect(() => {
@@ -49,6 +53,10 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
     }
   }, [group]);
 
+  const groupTitlesString = () => {
+    return groupTitles.join(';');
+  };
+
   useEffect(() => {
     const {
       childVideoStreams,
@@ -57,8 +65,9 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
       user_Tvg_logo: userTvgLogo,
       user_Tvg_chno: userTvgChno,
       user_Tvg_ID: userTvgId,
-      videoStreamHandler,
-      user_Tvg_group: userTvgGroup
+      groupTitle,
+      user_Tvg_group: userTvgGroup,
+      streamingProxyType
     } = videoStream ?? {};
 
     if (childVideoStreams) {
@@ -85,8 +94,16 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
       setEpgId(userTvgId);
     }
 
-    if (videoStreamHandler) {
-      setChannelHandler(videoStreamHandler);
+    if (groupTitle) {
+      setGroupTitles(groupTitle.split(';'));
+    }
+
+    if (streamingProxyType !== null || streamingProxyType !== undefined) {
+      // if (videoStreamHandler) {
+      //   setChannelHandler(videoStreamHandler);
+      // }
+
+      setStreamingProxyType(streamingProxyType);
     }
 
     if (userTvgGroup) {
@@ -103,7 +120,15 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
       return true;
     }
 
+    if (videoStream.groupTitle !== groupTitlesString()) {
+      return true;
+    }
+
     if (videoStream.user_Tvg_logo !== iconSource) {
+      return true;
+    }
+
+    if (videoStream.streamingProxyType !== streamingProxyType) {
       return true;
     }
 
@@ -119,12 +144,16 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
       return true;
     }
 
+    if (videoStream.user_Tvg_group !== channelGroup) {
+      return true;
+    }
+
     if (videoStream.user_Url !== url) {
       return true;
     }
 
     return false;
-  }, [videoStream, name, iconSource, channelNumber, epgId, channelGroup, url]);
+  }, [videoStream, name, groupTitlesString, iconSource, streamingProxyType, channelNumber, epgId, channelGroup, url]);
 
   const onsetActiveIndex = (index: number) => {
     if (index === null) {
@@ -189,24 +218,44 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
 
               <div className="flex col-12">
                 <InputWrapper
-                  columnSize={6}
+                  columnSize={4}
                   label="EPG"
                   renderInput={() => <EPGSelector className="w-full bordered-text mr-2" onChange={setEpgId} value={epgId} />}
                 />
-
                 <InputWrapper
-                  columnSize={6}
+                  columnSize={4}
                   label="Group"
-                  renderInput={() => <ChannelGroupSelector className="w-full bordered-text" onChange={(e) => setChannelGroup(e)} value={channelGroup} />}
+                  renderInput={() => <ChannelGroupSelector className="w-full bordered-text mr-2" onChange={(e) => setChannelGroup(e)} value={channelGroup} />}
+                />
+                <InputWrapper
+                  columnSize={4}
+                  label="Proxy"
+                  renderInput={() => (
+                    <StreamingProxyTypeSelector className="w-full bordered-text" onChange={(e) => setStreamingProxyType(e)} value={streamingProxyType} />
+                  )}
                 />
               </div>
 
               <div className="flex col-12 justify-content-between align-items-center">
                 <InputWrapper
-                  columnSize={11}
+                  columnSize={6}
                   label="Stream URL"
                   renderInput={() => (
                     <InputText className="w-full bordered-text" onChange={(e) => setUrl(e.target.value)} placeholder="URL" type="text" value={url} />
+                  )}
+                />
+                <InputWrapper
+                  columnSize={5}
+                  label="Group Title Override"
+                  renderInput={() => (
+                    <MultiSelect
+                      filter
+                      value={groupTitles}
+                      onChange={(e: MultiSelectChangeEvent) => setGroupTitles(e.value)}
+                      options={channelGroupsGetChannelGroupNamesQuery.data ?? []}
+                      placeholder="Select Groups"
+                      maxSelectedLabels={2}
+                    />
                   )}
                 />
                 <AddButton
@@ -214,37 +263,26 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
                   iconFilled
                   label={videoStream ? 'Edit Stream' : 'Add Stream'}
                   onClick={() => {
-                    const toSend = {
-                      id: videoStream?.id,
-                      tvg_ID: epgId,
-                      tvg_chno: channelNumber,
-                      tvg_group: channelGroup,
-                      tvg_logo: iconSource,
-                      tvg_name: name,
-                      url
-                    };
-                    console.log('VideoStreamPanel onClick', toSend);
+                    const constructObject = () => ({
+                      ...(epgId !== null && { tvg_ID: epgId }),
+                      ...(channelNumber !== null && { tvg_chno: channelNumber }),
+                      ...(channelGroup !== null && { tvg_group: channelGroup }),
+                      ...(iconSource !== null && { tvg_logo: iconSource }),
+                      ...(name !== null && { tvg_name: name }),
+                      ...(groupTitlesString() !== null && { groupTitle: groupTitlesString() }),
+                      ...(streamingProxyType !== undefined && { streamingProxyType: parseInt(streamingProxyType.toString()) }),
+                      ...(url !== null && { url })
+                    });
+                    console.log('VideoStreamPanel onClick', constructObject());
 
-                    videoStream
-                      ? onEdit?.({
-                          id: videoStream.id,
-                          tvg_ID: epgId,
-                          tvg_chno: channelNumber,
-                          tvg_group: channelGroup,
-                          tvg_logo: iconSource,
-                          tvg_name: name,
-                          url
-                        } as UpdateVideoStreamRequest)
-                      : onSave?.({
-                          childVideoStreams: videoStream === undefined ? dataSource : videoStreams,
-                          tvg_ID: epgId,
-                          tvg_chno: channelNumber,
-                          tvg_group: channelGroup,
-                          tvg_logo: iconSource,
-                          tvg_name: name,
-                          url
-                        } as CreateVideoStreamRequest);
-
+                    if (videoStream) {
+                      onEdit?.({ id: videoStream.id, ...constructObject() } as UpdateVideoStreamRequest);
+                    } else {
+                      onSave?.({
+                        childVideoStreams: videoStream === undefined ? dataSource : videoStreams,
+                        ...constructObject()
+                      } as CreateVideoStreamRequest);
+                    }
                     setDataSource(undefined);
                   }}
                 />
@@ -301,9 +339,9 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
         <div className="flex col-12 m-0 p-0 justify-content-end align-items-center w-full pt-2">
           <div className="flex col-6 m-0 p-0 align-items-center">
             <div className="flex col-6 m-0 p-0 justify-content-end align-items-center mr-2">Handler</div>
-            <div className="flex col-6 m-0 p-0 align-items-center border-2 border-round surface-border ">
+            {/* <div className="flex col-6 m-0 p-0 align-items-center border-2 border-round surface-border ">
               <ChannelHandlerSelector className="w-full p-0 m-0" onChange={(e) => setChannelHandler(e)} value={channelHandler} />
-            </div>
+            </div> */}
           </div>
         </div>
       </AccordionTab>

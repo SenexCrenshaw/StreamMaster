@@ -18,7 +18,7 @@ public class MxfSeason
     [XmlIgnore] public MxfSeriesInfo mxfSeriesInfo;
     [XmlIgnore] public bool HideSeasonTitle;
 
-    [XmlIgnore] public Dictionary<string, dynamic> extras = new Dictionary<string, dynamic>();
+    [XmlIgnore] public Dictionary<string, dynamic> extras = [];
 
     public MxfSeason(int index, MxfSeriesInfo seriesInfo, int seasonNumber, string protoTypicalProgram)
     {
@@ -37,7 +37,7 @@ public class MxfSeason
     public string Id
     {
         get => $"sn{_index}";
-        set { _index = int.Parse(value.Substring(2)); }
+        set { _index = int.Parse(value[2..]); }
     }
 
     /// <summary>

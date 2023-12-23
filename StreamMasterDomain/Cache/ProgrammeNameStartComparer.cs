@@ -1,7 +1,4 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.EPG;
-using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
-
-namespace StreamMasterDomain.Cache;
+﻿namespace StreamMasterDomain.Cache;
 
 //public class ProgrammeNameStartComparer : IEqualityComparer<Programme>
 //{

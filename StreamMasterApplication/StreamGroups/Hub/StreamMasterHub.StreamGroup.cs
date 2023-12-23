@@ -4,6 +4,7 @@ using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.StreamGroups.Queries;
 
 using StreamMasterDomain.Pagination;
+using StreamMasterDomain.Requests;
 
 namespace StreamMasterApplication.Hubs;
 

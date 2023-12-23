@@ -7,7 +7,7 @@ public static class ListHelper
 {
     public static List<T> GetMatchingProperty<T>(List<T> list, string propertyName, string regex)
     {
-        List<T> matchedObjects = new();
+        List<T> matchedObjects = [];
         Regex rgx = new(regex, RegexOptions.ECMAScript | RegexOptions.IgnoreCase);
 
         PropertyInfo? property = typeof(T).GetProperty(propertyName);

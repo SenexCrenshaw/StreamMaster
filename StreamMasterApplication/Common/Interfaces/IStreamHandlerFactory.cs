@@ -1,9 +1,7 @@
-﻿using StreamMasterDomain.Dto;
-
-namespace StreamMasterApplication.Common.Interfaces
+﻿namespace StreamMasterApplication.Common.Interfaces
 {
     public interface IStreamHandlerFactory
     {
-        Task<IStreamHandler?> CreateStreamHandlerAsync(VideoStreamDto videoStreamDto, string ChannelName, int rank, CancellationToken cancellationToken);
+        Task<IStreamHandler?> CreateStreamHandlerAsync(VideoStreamDto videoStreamDto, string ChannelId, string ChannelName, int rank, CancellationToken cancellationToken);
     }
 }

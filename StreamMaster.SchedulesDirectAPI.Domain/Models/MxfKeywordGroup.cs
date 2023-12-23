@@ -5,29 +5,29 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 public class MxfKeywordGroup
 {
-    [XmlIgnore] public int Index => _index;
+    [XmlIgnore]
+    public int Index { get; private set; }
 
     private string _uid;
-    private int _index;
     private string _keywords;
-    private string _alpha;
+    private readonly string _alpha;
     [XmlIgnore] public List<MxfKeyword> mxfKeywords;
 
-    private readonly Dictionary<string, MxfKeyword> _Keywords = new Dictionary<string, MxfKeyword>();
+    private readonly Dictionary<string, MxfKeyword> _Keywords = [];
     public MxfKeyword FindOrCreateKeyword(string word)
     {
         word = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(word);
-        if (_Keywords.TryGetValue(word, out var keyword)) return keyword;
-        mxfKeywords.Add(keyword = new MxfKeyword(_index, _index * 1000 + mxfKeywords.Count + 1, word));
+        if (_Keywords.TryGetValue(word, out MxfKeyword? keyword)) return keyword;
+        mxfKeywords.Add(keyword = new MxfKeyword(Index, (Index * 1000) + mxfKeywords.Count + 1, word));
         _Keywords.Add(word, keyword);
         return keyword;
     }
 
     public MxfKeywordGroup(int index, string alpha)
     {
-        _index = index;
+        Index = index;
         _alpha = alpha ?? "";
-        mxfKeywords = new List<MxfKeyword>();
+        mxfKeywords = [];
     }
     private MxfKeywordGroup() { }
 
@@ -38,8 +38,8 @@ public class MxfKeywordGroup
     [XmlAttribute("groupName")]
     public string GroupName
     {
-        get => $"k{_index}";
-        set { _index = int.Parse(value.Substring(1)); }
+        get => $"k{Index}";
+        set { Index = int.Parse(value[1..]); }
     }
 
     /// <summary>
@@ -62,7 +62,7 @@ public class MxfKeywordGroup
     [XmlAttribute("keywords")]
     public string Keywords
     {
-        get => _keywords ?? $"k{_index * 1000},{string.Join(",", mxfKeywords.OrderBy(k => k.Word).Select(k => k.Id).Take(99).ToArray())}".TrimEnd(',');
+        get => _keywords ?? $"k{Index * 1000},{string.Join(",", mxfKeywords.OrderBy(k => k.Word).Select(k => k.Id).Take(99).ToArray())}".TrimEnd(',');
         set { _keywords = value; }
     }
 }

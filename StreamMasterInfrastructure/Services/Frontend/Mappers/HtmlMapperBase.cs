@@ -8,7 +8,7 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
     {
         protected string HtmlPath;
         protected string UrlBase;
-        private static readonly Regex ReplaceRegex = new Regex(@"(?:(?<attribute>href|src)=\"")(?<path>.*?(?<extension>css|js|png|ico|ics|svg|json))(?:\"")(?:\s(?<nohash>data-no-hash))?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex ReplaceRegex = new(@"(?:(?<attribute>href|src)=\"")(?<path>.*?(?<extension>css|js|png|ico|ics|svg|json))(?:\"")(?:\s(?<nohash>data-no-hash))?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private string _generatedContent;
 
@@ -19,10 +19,10 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
         protected override Stream GetContentStream(string filePath)
         {
             HtmlPath = filePath;
-            var text = GetHtmlText();
+            string text = GetHtmlText();
 
-            var stream = new MemoryStream();
-            var writer = new StreamWriter(stream);
+            MemoryStream stream = new();
+            StreamWriter writer = new(stream);
             writer.Write(text);
             writer.Flush();
             stream.Position = 0;
@@ -31,7 +31,7 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
 
         protected string GetHtmlText()
         {
-            var text = File.ReadAllText(HtmlPath);
+            string text = File.ReadAllText(HtmlPath);
 
             text = ReplaceRegex.Replace(text, match =>
             {

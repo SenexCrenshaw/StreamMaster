@@ -8,22 +8,26 @@ import { getLine } from './getLine'; // Import the getLine function
 
 type InputNumberLineProps = {
   field: string;
+  min?: number | null;
   max?: number | null;
   selectedCurrentSettingDto: SettingDto;
   onChange: (existing: SettingDto, updatedValues: UpdateSettingRequest) => void | undefined;
 };
 
-export function getInputNumberLine({ field, max, selectedCurrentSettingDto, onChange }: InputNumberLineProps): React.ReactElement {
+export function getInputNumberLine({ field, min, max, selectedCurrentSettingDto, onChange }: InputNumberLineProps): React.ReactElement {
   const label = GetMessage(field);
   const help = getHelp(field);
+
+  const validatedMax = max === null ? 999 : Math.min(max ?? 999, 999);
+  const validatedMin = min === null ? 0 : Math.max(Math.min(min ?? 0, validatedMax - 1), 0);
 
   return getLine({
     label: `${label}:`,
     value: (
       <InputNumber
         className="withpadding w-full text-left"
-        max={max === null ? 64 : max}
-        min={0}
+        max={validatedMax}
+        min={validatedMin}
         onChange={(e) => {
           UpdateChanges({ field, selectedCurrentSettingDto, onChange, value: e.value });
         }}

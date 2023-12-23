@@ -5,6 +5,9 @@
 /// </summary>
 public interface IStreamManager
 {
+    Task<VideoInfo> GetVideoInfo(string streamUrl);
+
+    event EventHandler<IStreamHandler> OnStreamingStoppedEvent;
     /// <summary>
     /// Disposes of the resources used by the StreamManager.
     /// </summary>
@@ -17,7 +20,7 @@ public interface IStreamManager
     /// <param name="rank">The rank of the stream.</param>
     /// <param name="cancellation">Optional cancellation token to cancel the operation.</param>
     /// <returns>A Task returning an IStreamHandler if successful; otherwise, returns null.</returns>
-    Task<IStreamHandler?> GetOrCreateStreamHandler(VideoStreamDto childVideoStreamDto, string ChannelName, int rank, CancellationToken cancellation = default);
+    Task<IStreamHandler?> GetOrCreateStreamHandler(VideoStreamDto childVideoStreamDto, string ChannelId, string ChannelName, int rank, CancellationToken cancellation = default);
 
     /// <summary>
     /// Retrieves the stream information based on a given stream URL.

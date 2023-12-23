@@ -1,17 +1,4 @@
-﻿using FluentValidation;
-
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Win32.SafeHandles;
-
-using StreamMaster.SchedulesDirectAPI.Domain.EPG;
-using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
-
-using StreamMasterApplication.Programmes.Queries;
-
-using System.Web;
-using System.Xml.Serialization;
-
-namespace StreamMasterApplication.Icons.Commands;
+﻿namespace StreamMasterApplication.Icons.Commands;
 
 public class BuildProgIconsCacheFromEPGsRequest : IRequest<bool> { }
 

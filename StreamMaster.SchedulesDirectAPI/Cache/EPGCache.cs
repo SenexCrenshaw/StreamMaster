@@ -1,12 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
-
 using StreamMasterDomain.Common;
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-namespace StreamMaster.SchedulesDirectAPI;
+namespace StreamMaster.SchedulesDirectAPI.Cache;
 
 public class EPGCache(ILogger<EPGCache> logger) : IEPGCache
 {

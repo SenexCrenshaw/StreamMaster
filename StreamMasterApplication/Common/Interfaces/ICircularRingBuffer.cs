@@ -4,14 +4,18 @@ namespace StreamMasterApplication.Common.Interfaces;
 
 public interface ICircularRingBuffer
 {
+    VideoInfo? VideoInfo { get; set; }
+    Memory<byte> GetBufferSlice(int length);
+    //Task WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken);
     int BufferSize { get; }
-
-    float GetBufferUtilization();
+    //event EventHandler<Guid> DataAvailable;
+    //float GetBufferUtilization();
     /// <summary>
     /// Gets the  ID.
     /// </summary>
     Guid Id { get; }
     public string VideoStreamId { get; }
+    public string VideoStreamName { get; }
 
     List<StreamStatisticsResult> GetAllStatisticsForAllUrls();
 
@@ -22,21 +26,21 @@ public interface ICircularRingBuffer
     int GetReadIndex(Guid clientId);
 
     bool IsPreBuffered();
-    Task<byte> Read(Guid clientId, CancellationToken cancellationToken);
+    //Task<byte> Read(Guid clientId, CancellationToken cancellationToken);
 
     Task<int> ReadChunkMemory(Guid clientId, Memory<byte> target, CancellationToken cancellationToken);
-    Task<int> ReadChunk(Guid clientId, byte[] buffer, int offset, int count, CancellationToken cancellationToken);
+    //Task<int> ReadChunk(Guid clientId, byte[] buffer, int offset, int count, CancellationToken cancellationToken);
 
     void RegisterClient(IClientStreamerConfiguration streamerConfiguration);
 
     void UnRegisterClient(Guid clientId);
 
-    void UpdateReadIndex(Guid clientId, int newIndex);
+    //void UpdateReadIndex(Guid clientId, int newIndex);
 
-    Task WaitSemaphoreAsync(Guid clientId, CancellationToken cancellationToken);
+    //Task WaitSemaphoreAsync(Guid clientId, CancellationToken cancellationToken);
 
-    void Write(byte data);
+    //void Write(byte data);
 
     int WriteChunk(Memory<byte> data);
-    int WriteChunk(byte[] data, int count);
+    //int WriteChunk(byte[] data, int count);
 }

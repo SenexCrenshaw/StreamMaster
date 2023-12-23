@@ -1,98 +1,262 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Interfaces;
 
+using StreamMasterDomain.Cache;
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Text.Json;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Streams;
+
 
 /// <summary>
 /// Manages the streaming of a single video stream, including client registrations and circularRingbuffer handling.
 /// </summary>
-public sealed class StreamHandler(
-    VideoStreamDto videoStreamDto,
-    int processId,
-    ILogger<IStreamHandler> logger,
-    ICircularRingBuffer ringBuffer
-    ) : IStreamHandler
+public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, IMemoryCache memoryCache, ILogger<IStreamHandler> logger, ICircularRingBuffer ringBuffer) : IStreamHandler
 {
+
+
+    private readonly SemaphoreSlim getVideoInfo = new(1);
+    private bool runningGetVideo { get; set; } = false;
+
+    public event EventHandler<string> OnStreamingStoppedEvent;
+
     private readonly ConcurrentDictionary<Guid, Guid> clientStreamerIds = new();
 
     public int M3UFileId { get; } = videoStreamDto.M3UFileId;
     public int ProcessId { get; set; } = processId;
-    public ICircularRingBuffer RingBuffer { get; } = ringBuffer;
+    public ICircularRingBuffer CircularRingBuffer { get; } = ringBuffer;
     public string StreamUrl { get; } = videoStreamDto.User_Url;
     public string VideoStreamId { get; } = videoStreamDto.Id;
     public string VideoStreamName { get; } = videoStreamDto.User_Tvg_name;
 
-    private async Task DelayWithCancellation(int milliseconds)
+    private VideoInfo? _videoInfo = null;
+    private CancellationTokenSource VideoStreamingCancellationToken { get; set; } = new();
+
+    public int ClientCount => clientStreamerIds.Count;
+
+    public bool IsFailed { get; private set; }
+
+    private void OnStreamingStopped()
+    {
+        OnStreamingStoppedEvent?.Invoke(this, StreamUrl);
+    }
+
+    public VideoInfo GetVideoInfo()
+    {
+        return _videoInfo ?? new();
+    }
+
+    private async Task BuildVideoInfo(byte[] videoMemory)
     {
         try
         {
-            await Task.Delay(milliseconds, VideoStreamingCancellationToken.Token);
+            if (runningGetVideo)
+            {
+                return;
+            }
+
+            if (_videoInfo != null)
+            {
+                return;
+            }
+
+            if (GetVideoInfoErrors > 3)
+            {
+                return;
+            }
+
+            await getVideoInfo.WaitAsync();
+            runningGetVideo = true;
+            ++GetVideoInfoErrors;
+
+            Setting settings = memoryCache.GetSetting();
+
+            string ffprobeExec = Path.Combine(BuildInfo.AppDataFolder, settings.FFProbeExecutable);
+
+            if (!File.Exists(ffprobeExec) && !File.Exists(ffprobeExec + ".exe"))
+            {
+                if (!IsFFProbeAvailable())
+                {
+                    return;
+                }
+                ffprobeExec = "ffprobe";
+            }
+
+            try
+            {
+                VideoInfo ret = await CreateFFProbeStream(ffprobeExec, videoMemory).ConfigureAwait(false);
+                logger.LogInformation("Retrieved video information for {name}", VideoStreamName);
+                return;
+            }
+            catch (IOException ex)
+            {
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                runningGetVideo = false;
+                getVideoInfo.Release();
+            }
+
+            return;
         }
-        catch (TaskCanceledException)
+        finally
         {
-            logger.LogInformation("Task was cancelled");
-            throw;
+            runningGetVideo = false;
+            getVideoInfo.Release();
         }
     }
 
-    private async Task LogRetryAndDelay(int retryCount, int maxRetries, int waitTime)
+    private int GetVideoInfoErrors = 0;
+    private async Task<VideoInfo> CreateFFProbeStream(string ffProbeExec, byte[] videoMemory)
     {
-        if (VideoStreamingCancellationToken.Token.IsCancellationRequested)
+        using Process process = new();
+        try
         {
-            logger.LogInformation("Stream was cancelled for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
+            Setting settings = memoryCache.GetSetting();
+
+            string options = "-loglevel error -print_format json -show_format -sexagesimal -show_streams - ";
+
+            process.StartInfo.FileName = ffProbeExec;
+            process.StartInfo.Arguments = options;
+            process.StartInfo.CreateNoWindow = true;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.StartInfo.RedirectStandardInput = true;
+
+            bool processStarted = process.Start();
+            if (!processStarted)
+            {
+                logger.LogError("CreateFFProbeStream Error: Failed to start FFProbe process");
+                return new();
+            }
+
+            //byte[] buffer = videoMemory.ToArray(); // Convert Memory<byte> to byte array
+
+            using Timer timer = new(delegate { process.Kill(); }, null, 5000, Timeout.Infinite);
+
+            using (Stream stdin = process.StandardInput.BaseStream)
+            {
+                await stdin.WriteAsync(videoMemory);
+                await stdin.FlushAsync();
+            }
+
+            if (!process.WaitForExit(5000)) // 5000 ms timeout
+            {
+                // Handle the case where process doesn't exit in time
+                logger.LogWarning("Process did not exit within the expected time.");
+            }
+
+            // Reading from the process's standard output
+            string output = await process.StandardOutput.ReadToEndAsync();
+
+            VideoInfo? videoInfo = JsonSerializer.Deserialize<VideoInfo>(output);
+            if (videoInfo == null)
+            {
+                logger.LogError("CreateFFProbeStream Error: Failed to deserialize FFProbe output");
+                return new();
+            }
+            _videoInfo = videoInfo;
+            CircularRingBuffer.VideoInfo = videoInfo;
+            return videoInfo;
+
         }
-
-        logger.LogInformation("Stream received 0 bytes for stream: {StreamUrl} Retry {retryCount}/{maxRetries} {name}",
-            StreamUrl,
-            retryCount,
-            maxRetries, VideoStreamName);
-
-        await DelayWithCancellation(waitTime);
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "CreateFFProbeStream Error: {ErrorMessage}", ex.Message);
+            process.Kill();
+        }
+        return new();
     }
 
-    public async Task StartVideoStreamingAsync(Stream stream, ICircularRingBuffer circularRingbuffer)
+    private static bool IsFFProbeAvailable()
     {
-        const int chunkSize = 32 * 1024;
+        string command = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "where" : "which";
+        ProcessStartInfo startInfo = new(command, "ffprobe")
+        {
+            RedirectStandardOutput = true,
+            UseShellExecute = false
+        };
+        Process process = new()
+        {
+            StartInfo = startInfo
+        };
+        _ = process.Start();
+        process.WaitForExit();
+        return process.ExitCode == 0;
+    }
 
-        logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} name: {name} circularRingbuffer id: {circularRingbuffer}", chunkSize, StreamUrl, VideoStreamName, circularRingbuffer.Id);
 
+    public async Task StartVideoStreamingAsync(Stream stream)
+    {
+        const int chunkSize = 16 * 1024;
+
+        logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} name: {name} circularRingbuffer id: {circularRingbuffer}", chunkSize, StreamUrl, VideoStreamName, CircularRingBuffer.Id);
+
+        byte[] videoMemory = new byte[1 * 1024 * 1024];
         Memory<byte> bufferMemory = new byte[chunkSize];
-
-        const int maxRetries = 3;
-        const int waitTime = 50;
+        int startMemoryIndex = 0;
+        bool startMemoryFilled = false;
 
         using (stream)
         {
-            int retryCount = 0;
-            while (!VideoStreamingCancellationToken.IsCancellationRequested && retryCount < maxRetries)
+            while (!VideoStreamingCancellationToken.IsCancellationRequested)// && retryCount < maxRetries)
             {
                 try
                 {
-                    int bytesRead = await TryReadStream(bufferMemory, stream);
-                    if (bytesRead == -1)
+                    int bytesRead = await stream.ReadAsync(bufferMemory);
+                    if (bytesRead < 1)
                     {
                         break;
                     }
-                    if (bytesRead == 0)
-                    {
-                        retryCount++;
-                        await LogRetryAndDelay(retryCount, maxRetries, waitTime);
-                    }
                     else
                     {
-                        circularRingbuffer.WriteChunk(bufferMemory[..bytesRead]);
-                        retryCount = 0;
+                        if (!startMemoryFilled)
+                        {
+                            if (startMemoryIndex < videoMemory.Length)
+                            {
+                                // Calculate the maximum number of bytes that can be copied
+                                int bytesToCopy = Math.Min(videoMemory.Length - startMemoryIndex, bytesRead);
+
+                                // Directly copy the data from bufferMemory to startMemory
+                                bufferMemory[..bytesToCopy].CopyTo(videoMemory.AsMemory()[startMemoryIndex..]);
+
+                                // Update startMemoryIndex
+                                startMemoryIndex += bytesToCopy;
+                            }
+                            else
+                            {
+                                startMemoryFilled = true;
+
+                            }
+                        }
+                        else
+                        {
+                            if (_videoInfo == null && !runningGetVideo)
+                            {
+                                BuildVideoInfo(videoMemory);
+                            }
+                        }
+
+                        CircularRingBuffer.WriteChunk(bufferMemory[..bytesRead]);
                     }
                 }
-                catch (TaskCanceledException ex)
+                catch (TaskCanceledException)
                 {
-                    logger.LogError(ex, "Stream cancelled for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
+                    logger.LogInformation("Stream requested to stop for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
+                    break;
                 }
                 catch (Exception ex)
                 {
@@ -102,40 +266,13 @@ public sealed class StreamHandler(
             }
         }
 
-        logger.LogInformation("Stream stopped for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
-        if (!VideoStreamingCancellationToken.IsCancellationRequested)
-        {
-            VideoStreamingCancellationToken.Cancel();
-        }
+        stream.Close();
+        stream.Dispose();
+
+        //logger.LogInformation("Stream stopped for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
+
+        OnStreamingStopped();
     }
-
-    private async Task<int> TryReadStream(Memory<byte> bufferChunk, Stream stream)
-    {
-        try
-        {
-            if (!stream.CanRead || VideoStreamingCancellationToken.Token.IsCancellationRequested)
-            {
-                logger.LogWarning("Stream is not readable or cancelled for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
-                return -1;
-            }
-
-            return await stream.ReadAsync(bufferChunk, VideoStreamingCancellationToken.Token);
-        }
-        catch (TaskCanceledException)
-        {
-            return -1;
-        }
-        catch (Exception)
-        {
-            throw;
-        }
-    }
-
-    public CancellationTokenSource VideoStreamingCancellationToken { get; set; } = new();
-
-    public int ClientCount => clientStreamerIds.Count;
-
-    public bool IsFailed { get; private set; }
 
     public void Dispose()
     {
@@ -174,13 +311,13 @@ public sealed class StreamHandler(
         try
         {
             clientStreamerIds.TryAdd(streamerConfiguration.ClientId, streamerConfiguration.ClientId);
-            RingBuffer.RegisterClient(streamerConfiguration);
+            CircularRingBuffer.RegisterClient(streamerConfiguration);
 
-            logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} read buffer id: {BufferId} to Video Stream Id {videoStreamId} {name}", streamerConfiguration.ClientId, streamerConfiguration.ReadBuffer?.Id, VideoStreamId, VideoStreamName);
+            logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId} {name} {RingBuffer.Id}", streamerConfiguration.ClientId, VideoStreamId, VideoStreamName, CircularRingBuffer.Id);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error registering stream configuration for client {ClientId} {name}.", streamerConfiguration.ClientId, VideoStreamName);
+            logger.LogError(ex, "Error registering stream configuration for client {ClientId} {name} {RingBuffer.Id}", streamerConfiguration.ClientId, VideoStreamName, CircularRingBuffer.Id);
         }
     }
 
@@ -189,15 +326,15 @@ public sealed class StreamHandler(
     {
         try
         {
-            logger.LogInformation("UnRegisterClientStreamer ClientId: {ClientId} {name}", ClientId, VideoStreamName);
+            logger.LogInformation("UnRegisterClientStreamer ClientId: {ClientId} {name} {RingBuffer.Id}", ClientId, VideoStreamName, CircularRingBuffer.Id);
             bool result = clientStreamerIds.TryRemove(ClientId, out _);
-            RingBuffer.UnRegisterClient(ClientId);
+            CircularRingBuffer.UnRegisterClient(ClientId);
 
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error unregistering stream configuration for client {ClientId} {name}", ClientId, VideoStreamName);
+            logger.LogError(ex, "Error unregistering stream configuration for client {ClientId} {name} {RingBuffer.Id}", ClientId, VideoStreamName, CircularRingBuffer.Id);
             return false;
         }
     }

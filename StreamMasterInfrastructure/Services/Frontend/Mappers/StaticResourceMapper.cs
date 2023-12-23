@@ -12,13 +12,9 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
         {
             resourceUrl = resourceUrl.ToLowerInvariant();
 
-            if (resourceUrl.StartsWith("/content/images/icons/manifest") ||
-                resourceUrl.StartsWith("/content/images/icons/browserconfig"))
-            {
-                return false;
-            }
-
-            return (resourceUrl.StartsWith("/static/") || resourceUrl.StartsWith("/content/") || resourceUrl.StartsWith("/assets/")) &&
+            return !resourceUrl.StartsWith("/content/images/icons/manifest") &&
+!resourceUrl.StartsWith("/content/images/icons/browserconfig")
+&& (resourceUrl.StartsWith("/static/") || resourceUrl.StartsWith("/content/") || resourceUrl.StartsWith("/assets/")) &&
                 (
                    (resourceUrl.EndsWith(".js") && !resourceUrl.EndsWith("initialize.js")) ||
                    resourceUrl.EndsWith(".map") ||

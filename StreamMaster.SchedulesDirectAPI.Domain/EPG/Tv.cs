@@ -8,13 +8,13 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.EPG;
 public class Tv
 {
     [XmlElement(ElementName = "channel")]
-    public List<TvChannel> Channel { get; set; } = new();
+    public List<TvChannel> Channel { get; set; } = [];
 
     [XmlAttribute(AttributeName = "guide2go")]
     public string Guide2go { get; set; } = string.Empty;
 
     [XmlElement(ElementName = "programme")]
-    public List<XmltvProgramme> Programme { get; set; } = new();
+    public List<XmltvProgramme> Programme { get; set; } = [];
 
     [XmlAttribute(AttributeName = "source-info-name")]
     public string Sourceinfoname { get; set; } = "Stream Master";

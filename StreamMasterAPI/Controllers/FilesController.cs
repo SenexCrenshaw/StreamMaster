@@ -49,7 +49,7 @@ public class FilesController(IMemoryCache memoryCache, IContentTypeProvider mime
         string returnName = "";
 
 
-        //StreamMaster.SchedulesDirectAPI.Domain.Models.ImageInfo? cache = memoryCache.ImageInfos().FirstOrDefault(a => a.IconUri == source);
+        //StreamMaster.SchedulesDirectAPIService.Domain.Models.ImageInfo? cache = memoryCache.ImageInfos().FirstOrDefault(a => a.IconUri == source);
         //if (cache == null) { return (null, null); }
         string fullPath = source.GetSDImageFullPath();// Path.Combine(FileDefinitions.SDImage.DirectoryLocation, source);
         if (System.IO.File.Exists(fullPath))

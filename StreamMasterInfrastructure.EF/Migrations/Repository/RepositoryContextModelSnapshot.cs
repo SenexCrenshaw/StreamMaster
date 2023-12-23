@@ -16,7 +16,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .UseCollation("NOCASE")
+                .UseCollation("NOCASE_UTF8")
                 .HasAnnotation("ProductVersion", "7.0.12");
 
             modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
@@ -220,6 +220,9 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("AutoSetChannelNumbers")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("IsReadOnly")
                         .HasColumnType("INTEGER");
 
@@ -276,6 +279,10 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.Property<int>("FilePosition")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("GroupTitle")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
@@ -299,6 +306,9 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<int>("StreamProxyType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("StreamingProxyType")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("TimeShift")

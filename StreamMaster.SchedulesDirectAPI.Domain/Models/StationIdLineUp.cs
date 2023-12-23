@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
+﻿namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 public class StationIdLineup
 {
@@ -9,7 +7,7 @@ public class StationIdLineup
     public StationIdLineup() { }
     public string Id => Lineup + "|" + StationId;
 
-    public StationIdLineup( string stationId, string lineup)
+    public StationIdLineup(string stationId, string lineup)
     {
         Lineup = lineup;
         StationId = stationId;

@@ -33,27 +33,35 @@ namespace StreamMasterInfrastructureEF.Helpers
             return input.ToLower();
         }
 
-        public static int GetMatchingScore(string userTvgName, string programmeName)
+        public static int GetMatchingScore(string userTvgName, string programmeName, bool debug = false)
         {
-            Debug.WriteLine("---------- Start Matching Output ----------");
+            if (debug)
+            {
+                Debug.WriteLine("---------- Start Matching Output ----------");
+            }
 
             string normalizedUserTvgName = NormalizeString(RemoveCommonSuffixes(userTvgName));
             string normalizedProgrammeName = NormalizeString(RemoveCommonSuffixes(programmeName));
 
             (string extractedProgrammeCode, string extractedProgrammeName) = ExtractComponentsFromProgrammeName(normalizedProgrammeName);
 
-            Debug.WriteLine($"Normalized User TVG Name: {normalizedUserTvgName}");
-            Debug.WriteLine($"Normalized Programme Name: {normalizedProgrammeName}");
-            Debug.WriteLine($"Extracted Programme Code: {extractedProgrammeCode}");
-            Debug.WriteLine($"Extracted Programme Name: {extractedProgrammeName}");
-
+            if (debug)
+            {
+                Debug.WriteLine($"Normalized User TVG Name: {normalizedUserTvgName}");
+                Debug.WriteLine($"Normalized Programme Name: {normalizedProgrammeName}");
+                Debug.WriteLine($"Extracted Programme Code: {extractedProgrammeCode}");
+                Debug.WriteLine($"Extracted Programme Name: {extractedProgrammeName}");
+            }
             int score = 0;
             score += MatchExactOrBase(normalizedUserTvgName, extractedProgrammeCode, extractedProgrammeName);
             score += MatchCallSign(normalizedUserTvgName, extractedProgrammeCode, extractedProgrammeName);
             score += MatchWordIntersection(normalizedUserTvgName, normalizedProgrammeName);
 
-            Debug.WriteLine($"Total Score: {score}");
-            Debug.WriteLine("----------- End Matching Output -----------");
+            if (debug)
+            {
+                Debug.WriteLine($"Total Score: {score}");
+                Debug.WriteLine("----------- End Matching Output -----------");
+            }
 
             return score;
         }
@@ -122,8 +130,8 @@ namespace StreamMasterInfrastructureEF.Helpers
             // If no match in parentheses, attempt to extract call sign directly from the name
             if (string.IsNullOrEmpty(extractedCallSign))
             {
-                var parts = userTvgName.Split(new[] { ' ', '-', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (var part in parts)
+                string[] parts = userTvgName.Split(new[] { ' ', '-', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string part in parts)
                 {
                     // Assuming call sign is the part that contains letters and possibly ends with -TV or -DT
                     if (part.Any(char.IsLetter) && (part.EndsWith("-TV") || part.EndsWith("-DT")))
@@ -158,7 +166,7 @@ namespace StreamMasterInfrastructureEF.Helpers
             if (callSign.Length > 2)
             {
                 // Remove the last two characters
-                callSign = callSign.Substring(0, callSign.Length - 2);
+                callSign = callSign[..^2];
             }
 
             // Remove trailing hyphens if any

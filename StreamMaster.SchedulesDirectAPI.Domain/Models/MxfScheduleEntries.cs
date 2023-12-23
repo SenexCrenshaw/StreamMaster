@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirectAPI.Domain.Models
@@ -18,8 +13,8 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Models
         public bool ShouldSerializeScheduleEntry()
         {
             ScheduleEntry = ScheduleEntry.OrderBy(arg => arg.StartTime).ToList();
-            var endTime = DateTime.MinValue;
-            foreach (var entry in ScheduleEntry)
+            DateTime endTime = DateTime.MinValue;
+            foreach (MxfScheduleEntry entry in ScheduleEntry)
             {
                 if (entry.StartTime != endTime) entry.IncludeStartTime = true;
                 endTime = entry.StartTime + TimeSpan.FromSeconds(entry.Duration);
@@ -35,7 +30,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Models
 
         [XmlIgnore] public MxfProgram mxfProgram;
         [XmlIgnore] public bool IncludeStartTime;
-        [XmlIgnore] public Dictionary<string, dynamic> extras = new Dictionary<string, dynamic>();
+        [XmlIgnore] public Dictionary<string, dynamic> extras = [];
 
         // duplicate of Microsoft.MediaCenter.Guide.TVRating enum
         private enum McepgTvRating
@@ -78,7 +73,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Models
         [DefaultValue(0)]
         public int Program
         {
-            get => (_program > 0 ? _program : mxfProgram?.Id ?? 0);
+            get => _program > 0 ? _program : mxfProgram?.Id ?? 0;
             set { _program = value; }
         }
 
@@ -263,7 +258,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Models
             {
                 if (_tvRating > 0) return _tvRating;
 
-                var ratings = new Dictionary<string, string>();
+                Dictionary<string, string> ratings = [];
                 if (extras.ContainsKey("ratings"))
                 {
                     foreach (KeyValuePair<string, string> rating in extras["ratings"])
@@ -286,8 +281,8 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Models
                     }
                 }
 
-                var maxValue = 0;
-                foreach (var keyValue in ratings)
+                int maxValue = 0;
+                foreach (KeyValuePair<string, string> keyValue in ratings)
                 {
                     switch (keyValue.Key)
                     {

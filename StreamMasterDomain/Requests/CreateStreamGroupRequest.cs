@@ -2,7 +2,7 @@
 
 using StreamMasterDomain.Attributes;
 
-namespace StreamMasterDomain.Models;
+namespace StreamMasterDomain.Requests;
 
 [RequireAll]
 public record CreateStreamGroupRequest(string Name) : IRequest

@@ -1,14 +1,12 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
-
-namespace StreamMaster.SchedulesDirectAPI;
+﻿namespace StreamMaster.SchedulesDirectAPI.Helpers;
 
 public static class SDExtensions
 {
     public static List<string>? CheckStatus(this UserStatus status)
     {
-        List<string> ret = new();
+        List<string> ret = [];
 
-        foreach (var lineup in status.Lineups)
+        foreach (StatusLineup lineup in status.Lineups)
         {
             if (lineup.IsDeleted)
             {
@@ -18,5 +16,5 @@ public static class SDExtensions
 
         return ret.Any() ? ret : null;
     }
-   
+
 }

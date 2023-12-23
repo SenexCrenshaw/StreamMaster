@@ -3,6 +3,7 @@
 using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Pagination;
+using StreamMasterDomain.Requests;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 

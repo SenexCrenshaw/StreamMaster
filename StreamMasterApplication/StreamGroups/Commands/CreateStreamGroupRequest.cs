@@ -2,6 +2,8 @@
 
 using StreamMasterApplication.StreamGroups.Events;
 
+using StreamMasterDomain.Requests;
+
 namespace StreamMasterApplication.StreamGroups.Commands;
 
 public class CreateStreamGroupRequestValidator : AbstractValidator<CreateStreamGroupRequest>

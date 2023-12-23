@@ -1,6 +1,7 @@
 ﻿using StreamMasterDomain.Dto;
 using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
+using StreamMasterDomain.Requests;
 
 namespace StreamMasterDomain.Repository
 {

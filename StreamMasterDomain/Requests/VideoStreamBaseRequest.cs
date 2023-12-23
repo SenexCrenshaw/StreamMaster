@@ -1,10 +1,14 @@
 ﻿using StreamMasterDomain.Dto;
 
-namespace StreamMasterDomain.Models;
+namespace StreamMasterDomain.Requests;
 
 public class VideoStreamBaseRequest
+
 {
+    public StreamingProxyTypes? StreamingProxyType { get; set; }
     public bool? ToggleVisibility { get; set; }
+
+    public string? GroupTitle { get; set; }
 
     //public bool? IsHidden { get; set; }
     public int? Tvg_chno { get; set; }

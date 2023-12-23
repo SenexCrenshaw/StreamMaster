@@ -139,5 +139,69 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
       }
     // eslint-disable-next-line comma-dangle
     },
+    videoStreamsGetVideoStreamInfoFromId: {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+        try {
+          await cacheDataLoaded;
+
+          const updateCachedDataWithResults = (data: iptv.VideoInfo) => {
+            updateCachedData(() => {{
+              if (isDev) console.log('updateCachedData', data);
+              if (!data) {
+                dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
+                return;
+              }
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'VideoStreams' }])) {
+                if (endpointName !== 'videoStreamsGetVideoStreamInfoFromId') continue;
+                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{
+                    if (isDev) console.log('updateCachedData', data, draft);
+                   }})
+                   );
+                 }}
+            });
+          };
+
+          singletonVideoStreamsListener.addListener(updateCachedDataWithResults);
+
+          await cacheEntryRemoved;
+          singletonVideoStreamsListener.removeListener(updateCachedDataWithResults);
+        } catch (error) {
+          console.error('Error in onCacheEntryAdded:', error);
+        }
+      }
+    // eslint-disable-next-line comma-dangle
+    },
+    videoStreamsGetVideoStreamInfoFromUrl: {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+        try {
+          await cacheDataLoaded;
+
+          const updateCachedDataWithResults = (data: iptv.VideoInfo) => {
+            updateCachedData(() => {{
+              if (isDev) console.log('updateCachedData', data);
+              if (!data) {
+                dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
+                return;
+              }
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'VideoStreams' }])) {
+                if (endpointName !== 'videoStreamsGetVideoStreamInfoFromUrl') continue;
+                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{
+                    if (isDev) console.log('updateCachedData', data, draft);
+                   }})
+                   );
+                 }}
+            });
+          };
+
+          singletonVideoStreamsListener.addListener(updateCachedDataWithResults);
+
+          await cacheEntryRemoved;
+          singletonVideoStreamsListener.removeListener(updateCachedDataWithResults);
+        } catch (error) {
+          console.error('Error in onCacheEntryAdded:', error);
+        }
+      }
+    // eslint-disable-next-line comma-dangle
+    },
   }
 });

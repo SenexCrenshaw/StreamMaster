@@ -26,7 +26,8 @@ public partial class SchedulesDirect
 
         // fill mxf programs with cached values and queue the rest
         programQueue = [];
-        foreach (MxfProgram mxfProgram in schedulesDirectData.Programs)
+        List<MxfProgram> toProcess = schedulesDirectData.Programs.ToList();
+        foreach (MxfProgram mxfProgram in toProcess)
         {
             if (!mxfProgram.extras.ContainsKey("md5"))
             {

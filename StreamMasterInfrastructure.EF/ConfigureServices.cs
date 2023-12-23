@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Models;
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;
 

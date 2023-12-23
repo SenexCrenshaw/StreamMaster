@@ -36,10 +36,7 @@ namespace StreamMasterInfrastructureEF
         {
             get
             {
-                if (_streamGroup == null)
-                {
-                    _streamGroup = new StreamGroupRepository(StreamGroupRepositoryLogger, repositoryContext, this, streamGroupSortHelper, mapper, memoryCache, sender, httpContextAccessor, settingsService);
-                }
+                _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, repositoryContext, this, streamGroupSortHelper, mapper, memoryCache, sender, httpContextAccessor, settingsService);
                 return _streamGroup;
             }
         }
@@ -50,10 +47,7 @@ namespace StreamMasterInfrastructureEF
         {
             get
             {
-                if (_channelGroup == null)
-                {
-                    _channelGroup = new ChannelGroupRepository(ChannelGroupRepositoryLogger, repositoryContext, this, memoryCache, sender);
-                }
+                _channelGroup ??= new ChannelGroupRepository(ChannelGroupRepositoryLogger, repositoryContext, this, memoryCache, sender);
                 return _channelGroup;
             }
         }
@@ -64,10 +58,7 @@ namespace StreamMasterInfrastructureEF
         {
             get
             {
-                if (_m3uFile == null)
-                {
-                    _m3uFile = new M3UFileRepository(M3UFileRepositoryLogger, repositoryContext, this, mapper);
-                }
+                _m3uFile ??= new M3UFileRepository(M3UFileRepositoryLogger, repositoryContext, this, mapper);
                 return _m3uFile;
             }
         }
@@ -78,10 +69,7 @@ namespace StreamMasterInfrastructureEF
         {
             get
             {
-                if (_videoStreamLink == null)
-                {
-                    _videoStreamLink = new VideoStreamLinkRepository(VideoStreamLinkRepositoryLogger, repositoryContext, mapper, memoryCache, sender);
-                }
+                _videoStreamLink ??= new VideoStreamLinkRepository(VideoStreamLinkRepositoryLogger, repositoryContext, mapper, memoryCache, sender);
                 return _videoStreamLink;
             }
         }
@@ -92,10 +80,7 @@ namespace StreamMasterInfrastructureEF
         {
             get
             {
-                if (_epgFile == null)
-                {
-                    _epgFile = new EPGFileRepository(EPGFileRepositoryLogger, repositoryContext, this, schedulesDirectData, mapper);
-                }
+                _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, repositoryContext, this, schedulesDirectData, mapper);
                 return _epgFile;
             }
         }
@@ -106,10 +91,7 @@ namespace StreamMasterInfrastructureEF
         {
             get
             {
-                if (_videoStream == null)
-                {
-                    _videoStream = new VideoStreamRepository(VideoStreamRepositoryLogger, repositoryContext, mapper, memoryCache, sender, settingsService);
-                }
+                _videoStream ??= new VideoStreamRepository(VideoStreamRepositoryLogger, repositoryContext, mapper, memoryCache, sender, settingsService);
                 return _videoStream;
             }
         }
@@ -120,10 +102,7 @@ namespace StreamMasterInfrastructureEF
         {
             get
             {
-                if (_streamGroupVideoStream == null)
-                {
-                    _streamGroupVideoStream = new StreamGroupVideoStreamRepository(StreamGroupVideoStreamRepositoryLogger, repositoryContext, this, mapper, settingsService, sender);
-                }
+                _streamGroupVideoStream ??= new StreamGroupVideoStreamRepository(StreamGroupVideoStreamRepositoryLogger, repositoryContext, this, mapper, settingsService, sender);
                 return _streamGroupVideoStream;
             }
         }
@@ -133,10 +112,7 @@ namespace StreamMasterInfrastructureEF
         {
             get
             {
-                if (_streamGroupChannelGroup == null)
-                {
-                    _streamGroupChannelGroup = new StreamGroupChannelGroupRepository(StreamGroupChannelGroupRepositoryLogger, repositoryContext, this, mapper, settingsService, sender);
-                }
+                _streamGroupChannelGroup ??= new StreamGroupChannelGroupRepository(StreamGroupChannelGroupRepositoryLogger, repositoryContext, this, mapper, settingsService, sender);
                 return _streamGroupChannelGroup;
             }
         }

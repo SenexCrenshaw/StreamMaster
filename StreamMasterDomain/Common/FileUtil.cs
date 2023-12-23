@@ -1,5 +1,3 @@
-using StreamMaster.SchedulesDirectAPI.Domain.EPG;
-
 using StreamMasterDomain.Models;
 
 using System.IO.Compression;
@@ -7,8 +5,6 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Xml.Serialization;
-
-using static StreamMasterDomain.Common.GetStreamGroupEPGHandler;
 
 namespace StreamMasterDomain.Common;
 
@@ -104,16 +100,17 @@ public sealed class FileUtil
         return ret;
     }
 
-    public static string SerializeEpgData(Tv epgData)
-    {
-        XmlSerializerNamespaces ns = new();
-        ns.Add("", "");
+    //public static string SerializeEpgData(Tv epgData)
+    //{
+    //    XmlSerializerNamespaces ns = new();
+    //    ns.Add("", "");
 
-        using Utf8StringWriter textWriter = new();
-        XmlSerializer serializer = new(typeof(Tv));
-        serializer.Serialize(textWriter, epgData, ns);
-        return textWriter.ToString();
-    }
+    //    using Utf8StringWriter textWriter = new();
+    //    XmlSerializer serializer = new(typeof(Tv));
+    //    serializer.Serialize(textWriter, epgData, ns);
+    //    return textWriter.ToString();
+    //}
+
     public static void CreateDirectory(string fileName)
     {
         string? directory = Path.EndsInDirectorySeparator(fileName) ? fileName : Path.GetDirectoryName(fileName);
@@ -414,6 +411,7 @@ public sealed class FileUtil
         CreateDir(BuildInfo.SDStationLogos);
         CreateDir(BuildInfo.SDStationLogosCache);
         CreateDir(BuildInfo.SDJSONFolder);
+        CreateDir(BuildInfo.LogFolder);
 
         for (char c = '0'; c <= '9'; c++)
         {

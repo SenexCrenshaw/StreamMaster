@@ -11,7 +11,7 @@ public partial class SchedulesDirect
 {
     private string _baseUrl = "";
 
-    public XMLTV? CreateXmltv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs)
+    public async Task<XMLTV?> CreateXmltv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs)
     {
         _baseUrl = baseUrl;
         try
@@ -31,7 +31,56 @@ public partial class SchedulesDirect
 
             Setting settings = memoryCache.GetSetting();
             List<MxfService> toProcess = [];
+            object lockObject = new(); // Create a lock object
 
+            //Parallel.ForEach(videoStreamConfigs.OrderBy(a => a.User_Tvg_chno), videoStreamConfig =>
+            //{
+            //    string prefix = videoStreamConfig.IsDummy ? "DUMMY" : "SM";
+            //    string stationId = videoStreamConfig.User_Tvg_chno.ToString();
+
+            //    MxfService? origService;
+            //    lock (lockObject) // Lock access to the shared resource
+            //    {
+            //        origService = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == videoStreamConfig.User_Tvg_ID);
+
+            //        if (origService is null)
+            //        {
+            //            return; // Use 'return' to continue to the next iteration
+            //        }
+
+            //        MxfService? newService = schedulesDirectData.FindOrCreateService(stationId);
+
+            //        if (origService.MxfScheduleEntries is not null)
+            //        {
+            //            newService.MxfScheduleEntries = origService.MxfScheduleEntries;
+            //        }
+
+            //        newService.Name = videoStreamConfig.User_Tvg_name;
+            //        newService.Affiliate = origService.Affiliate;
+            //        newService.CallSign = origService.CallSign;
+            //        newService.LogoImage = videoStreamConfig.User_Tvg_Logo;
+            //        newService.extras = origService.extras;
+            //        newService.extras["videoStreamConfig"] = videoStreamConfig;
+
+            //        if (!settings.VideoStreamAlwaysUseEPGLogo && !string.IsNullOrEmpty(videoStreamConfig.User_Tvg_Logo))
+            //        {
+            //            if (newService.extras.TryGetValue("logo", out dynamic? value))
+            //            {
+            //                value.Url = videoStreamConfig.User_Tvg_Logo;
+            //            }
+            //            else
+            //            {
+            //                newService.extras.Add("logo", new StationImage
+            //                {
+            //                    Url = videoStreamConfig.User_Tvg_Logo
+            //                });
+            //            }
+            //        }
+
+            //        toProcess.Add(newService);
+
+            //    }
+            //});
             foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs.OrderBy(a => a.User_Tvg_chno))
             {
                 string prefix = videoStreamConfig.IsDummy ? "DUMMY" : "SM";
@@ -57,82 +106,141 @@ public partial class SchedulesDirect
                 newService.LogoImage = videoStreamConfig.User_Tvg_Logo;
                 newService.extras = origService.extras;
                 newService.extras["videoStreamConfig"] = videoStreamConfig;
-                if (newService.extras.TryGetValue("logo", out dynamic? value))
+                if (!settings.VideoStreamAlwaysUseEPGLogo && !string.IsNullOrEmpty(videoStreamConfig.User_Tvg_Logo))
                 {
-                    value.Url = videoStreamConfig.User_Tvg_Logo;
-                }
-                else
-                {
-
-                    newService.extras.Add("logo", new StationImage
+                    if (newService.extras.TryGetValue("logo", out dynamic? value))
                     {
-                        Url = videoStreamConfig.User_Tvg_Logo
+                        value.Url = videoStreamConfig.User_Tvg_Logo;
+                    }
+                    else
+                    {
 
-                    });
+                        newService.extras.Add("logo", new StationImage
+                        {
+                            Url = videoStreamConfig.User_Tvg_Logo
+
+                        });
+                    }
                 }
-
                 //MxfService? service = schedulesDirectData.Services.FirstOrDefault(a => a.StationId == stationId);
                 //if (service is null)
                 //{
                 //    continue;
                 //}
                 toProcess.Add(newService);
-                logger.LogInformation($"StationId: {stationId}");
+                //logger.LogInformation($"StationId: {stationId}");
             }
-            //}
+
             //else
             //{
             //    toProcess = schedulesDirectData.Services;
             //}
 
+            //foreach (MxfService service in toProcess)
+            //{
+            //    if (service.StationId == "DUMMY")
+            //    {
+            //        continue;
+            //    }
+            //    xmltv.Channels.Add(BuildXmltvChannel(service, videoStreamConfigs));
+
+            //    if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && settings.SDSettings.XmltvAddFillerData)
+            //    {
+            //        // add a program specific for this service
+            //        MxfProgram program = schedulesDirectData.FindOrCreateProgram($"SM-{service.StationId}");
+            //        program.Title = service.Name;
+            //        program.Description = settings.SDSettings.XmltvFillerProgramDescription;
+            //        program.IsGeneric = true;
+
+            //        // populate the schedule entries
+            //        DateTime startTime = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 0, 0, 0);
+            //        DateTime stopTime = startTime + TimeSpan.FromDays(settings.SDSettings.SDEPGDays);
+            //        do
+            //        {
+            //            service.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
+            //            {
+            //                Duration = settings.SDSettings.XmltvFillerProgramLength * 60 * 60,
+            //                mxfProgram = program,
+            //                StartTime = startTime,
+            //                IsRepeat = true
+            //            });
+            //            startTime += TimeSpan.FromHours(settings.SDSettings.XmltvFillerProgramLength);
+            //        } while (startTime < stopTime);
+            //    }
+
+            //    List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
+            //    string channelId = service.StationId;
+            //    List<XmltvProgramme> xmltvPrograms = new List<XmltvProgramme>();
+
+            //    Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, scheduleEntry =>
+            //    {
+            //        XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channelId);
+            //        lock (xmltvPrograms) // Ensure thread-safe access to the shared list
+            //        {
+            //            xmltvPrograms.Add(program);
+            //        }
+            //    });
+            //}
+
+
+            List<Task> channelTasks = [];
+
             foreach (MxfService service in toProcess)
             {
-                //if (!service.StationId.StartsWith("SMMASTER-") && stationIds is not null && !stationIds.Contains(service.StationId))
-                //{
-                //    continue;
-                //}
-
                 if (service.StationId == "DUMMY")
                 {
                     continue;
                 }
 
-                //if (service.StationId.Contains("DUMMY"))
-                //{
-                //    int aaa = 1;
-                //}
-
-                xmltv.Channels.Add(BuildXmltvChannel(service, videoStreamConfigs));
-
-                if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && settings.SDSettings.XmltvAddFillerData)
+                Task channelTask = Task.Run(() =>
                 {
-                    // add a program specific for this service
-                    MxfProgram program = schedulesDirectData.FindOrCreateProgram($"SM-{service.StationId}");
-                    program.Title = service.Name;
-                    program.Description = settings.SDSettings.XmltvFillerProgramDescription;
-                    program.IsGeneric = true;
+                    xmltv.Channels.Add(BuildXmltvChannel(service, videoStreamConfigs));
 
-                    // populate the schedule entries
-                    DateTime startTime = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 0, 0, 0);
-                    DateTime stopTime = startTime + TimeSpan.FromDays(settings.SDSettings.SDEPGDays);
-                    do
+                    if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && settings.SDSettings.XmltvAddFillerData)
                     {
-                        service.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
-                        {
-                            Duration = settings.SDSettings.XmltvFillerProgramLength * 60 * 60,
-                            mxfProgram = program,
-                            StartTime = startTime,
-                            IsRepeat = true
-                        });
-                        startTime += TimeSpan.FromHours(settings.SDSettings.XmltvFillerProgramLength);
-                    } while (startTime < stopTime);
-                }
+                        // add a program specific for this service
+                        MxfProgram program = schedulesDirectData.FindOrCreateProgram($"SM-{service.StationId}");
+                        program.Title = service.Name;
+                        program.Description = settings.SDSettings.XmltvFillerProgramDescription;
+                        program.IsGeneric = true;
 
-                foreach (MxfScheduleEntry scheduleEntry in service.MxfScheduleEntries.ScheduleEntry)
-                {
-                    xmltv.Programs.Add(BuildXmltvProgram(scheduleEntry, service.StationId));
-                }
+                        // populate the schedule entries
+                        DateTime startTime = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 0, 0, 0);
+                        DateTime stopTime = startTime + TimeSpan.FromDays(settings.SDSettings.SDEPGDays);
+
+                        do
+                        {
+                            service.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
+                            {
+                                Duration = settings.SDSettings.XmltvFillerProgramLength * 60 * 60,
+                                mxfProgram = program,
+                                StartTime = startTime,
+                                IsRepeat = true
+                            });
+                            startTime += TimeSpan.FromHours(settings.SDSettings.XmltvFillerProgramLength);
+                        } while (startTime < stopTime);
+                    }
+
+                    List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
+                    string channelId = service.StationId;
+
+                    Parallel.ForEach(scheduleEntries, scheduleEntry =>
+                    {
+                        XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channelId);
+                        lock (xmltv) // Ensure thread-safe access to the shared list
+                        {
+                            xmltv.Programs.Add(program);
+                        }
+                    });
+                });
+
+                channelTasks.Add(channelTask);
             }
+
+            // Wait for all channel tasks to complete
+            await Task.WhenAll(channelTasks);
+            xmltv.Channels = xmltv.Channels.OrderBy(a => a.Id).ToList();
+            xmltv.Programs = xmltv.Programs.OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime).ToList();
             return xmltv;
         }
         catch (Exception ex)
@@ -260,6 +368,8 @@ public partial class SchedulesDirect
         string descriptionExtended = string.Empty;
         if (!settings.SDSettings.XmltvExtendedInfoInTitleDescriptions || mxfProgram.IsPaidProgramming)
         {
+            List<string> svcs = schedulesDirectData.Services.Select(a => a.StationId).ToList();
+            MxfService? svc = schedulesDirectData.GetService(channelId);
             return new XmltvProgramme()
             {
                 // added +0000 for NPVR; otherwise it would assume local time instead of UTC
@@ -542,7 +652,7 @@ public partial class SchedulesDirect
     private List<XmltvIcon>? BuildProgramIcons(MxfProgram mxfProgram)
     {
         Setting settings = memoryCache.GetSetting();
-        if (settings.SDSettings.XmltvSingleImage)
+        if (settings.SDSettings.XmltvSingleImage || !mxfProgram.extras.ContainsKey("artwork"))
         {
             string? url = mxfProgram.mxfGuideImage?.ImageUrl ?? mxfProgram.mxfSeason?.mxfGuideImage?.ImageUrl ??
                 mxfProgram.mxfSeriesInfo?.mxfGuideImage?.ImageUrl;

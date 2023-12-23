@@ -4,6 +4,7 @@ namespace StreamMasterApplication.Common.Interfaces
 {
     public interface IStatisticsManager
     {
+        List<Guid> GetAllClientIds();
         List<ClientStreamingStatistics> GetAllClientStatisticsByClientIds(ICollection<Guid> ClientIds);
         void AddBytesRead(Guid clientId, int count);
         List<ClientStreamingStatistics> GetAllClientStatistics();
