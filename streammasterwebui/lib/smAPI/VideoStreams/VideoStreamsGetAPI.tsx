@@ -1,12 +1,11 @@
 /* eslint unused-imports/no-unused-imports-ts: off */
 /* eslint @typescript-eslint/no-unused-vars: off */
-import { StringArgument } from '@components/selectors/BaseSelector';
 import type * as iptv from '@lib/iptvApi';
 import { invokeHubConnection } from '@lib/signalr/signalr';
 
 export const GetAllStatisticsForAllUrls = async (argument: iptv.StreamStatisticsResult[]): Promise<iptv.StreamStatisticsResult[] | null> =>
   invokeHubConnection<iptv.StreamStatisticsResult[]>('GetAllStatisticsForAllUrls', argument);
-export const GetVideoStream = async (argument: iptv.VideoStreamDto): Promise<iptv.VideoStreamDto | null> =>
+export const GetVideoStream = async (argument: string): Promise<iptv.VideoStreamDto | null> =>
   invokeHubConnection<iptv.VideoStreamDto>('GetVideoStream', argument);
 export const GetVideoStreamNames = async (argument: iptv.IdName[]): Promise<iptv.IdName[] | null> =>
   invokeHubConnection<iptv.IdName[]>('GetVideoStreamNames', argument);
