@@ -196,12 +196,17 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
 
   const onChange = useCallback(
     (event: DropdownChangeEvent) => {
-      if (event.value !== selectedItemName) {
-        const name = getRecord(event.value, props.optionValue);
-        setSelectedItemName(name);
+      let newValue = event.value;
+
+      if (event.value.id !== undefined) {
+        newValue = getRecord(event.value, props.optionValue);
+      }
+
+      if (newValue !== selectedItemName) {
+        setSelectedItemName(newValue);
         setSelectedItem(event.value);
-        if (name && props.onChange) {
-          props.onChange(name);
+        if (newValue && props.onChange) {
+          props.onChange(newValue);
         }
       }
     },
@@ -227,6 +232,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
     } as GetApiArgument);
   };
 
+  console.log(props.editable);
   return (
     <div className="BaseSelector flex align-contents-center w-full min-w-full">
       <Dropdown
