@@ -86,7 +86,7 @@ public class BroadcastService : IBroadcastService, IDisposable
     {
         try
         {
-            //LogDebug();
+            LogDebug();
             List<StreamStatisticsResult> statisticsResults = streamStatisticService.GetAllStatisticsForAllUrls().Result;
             if (statisticsResults.Any())
             {

@@ -29,7 +29,7 @@ public class UpdateStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequ
             return null;
         }
 
-        StreamGroupDto? streamGroup = await Repository.StreamGroup.UpdateStreamGroup(request.StreamGroupId, request.Name);
+        StreamGroupDto? streamGroup = await Repository.StreamGroup.UpdateStreamGroup(request);
         if (streamGroup is not null)
         {
 

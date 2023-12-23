@@ -2,6 +2,6 @@
 
 using StreamMasterDomain.Dto;
 
-namespace StreamMasterDomain.Models;
+namespace StreamMasterDomain.Requests;
 
 public record UpdateVideoStreamsRequest(IEnumerable<UpdateVideoStreamRequest> VideoStreamUpdates) : IRequest<List<VideoStreamDto>> { }

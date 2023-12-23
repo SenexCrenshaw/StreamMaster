@@ -9,12 +9,8 @@ internal class GetPagedStreamGroupsHandler(ILogger<GetPagedStreamGroups> logger,
 {
     public async Task<PagedResponse<StreamGroupDto>> Handle(GetPagedStreamGroups request, CancellationToken cancellationToken = default)
     {
-        if (request.Parameters.PageSize == 0)
-        {
-            return Repository.StreamGroup.CreateEmptyPagedResponse();
-        }
-
-        return await Repository.StreamGroup.GetPagedStreamGroups(request.Parameters).ConfigureAwait(false);
-
+        return request.Parameters.PageSize == 0
+            ? Repository.StreamGroup.CreateEmptyPagedResponse()
+            : await Repository.StreamGroup.GetPagedStreamGroups(request.Parameters).ConfigureAwait(false);
     }
 }

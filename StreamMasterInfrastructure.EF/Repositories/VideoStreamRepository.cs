@@ -25,6 +25,7 @@ using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
+using StreamMasterDomain.Requests;
 
 using StreamMasterInfrastructureEF.Helpers;
 
@@ -353,6 +354,11 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
         if (request.TimeShift != null && videoStream.TimeShift != request.Tvg_name)
         {
             videoStream.TimeShift = request.TimeShift;
+        }
+
+        if (request.GroupTitle != null && videoStream.GroupTitle != request.GroupTitle)
+        {
+            videoStream.GroupTitle = request.GroupTitle;
         }
 
         if (request.StreamingProxyType != null && videoStream.StreamingProxyType != request.StreamingProxyType)

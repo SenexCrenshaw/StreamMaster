@@ -232,7 +232,6 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
     } as GetApiArgument);
   };
 
-  console.log(props.editable);
   return (
     <div className="BaseSelector flex align-contents-center w-full min-w-full">
       <Dropdown

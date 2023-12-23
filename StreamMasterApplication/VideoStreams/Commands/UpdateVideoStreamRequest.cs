@@ -3,6 +3,8 @@
 using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.VideoStreams.Events;
 
+using StreamMasterDomain.Requests;
+
 namespace StreamMasterApplication.VideoStreams.Commands;
 
 public class UpdateVideoStreamRequestValidator : AbstractValidator<UpdateVideoStreamRequest>

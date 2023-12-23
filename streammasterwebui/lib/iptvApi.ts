@@ -1730,6 +1730,7 @@ export type StreamGroupDto = {
   isLoading: boolean;
   hdhrLink: string;
   isReadOnly: boolean;
+  autoSetChannelNumbers: boolean;
   streamCount: number;
   id: number;
   m3ULink: string;
@@ -1757,6 +1758,7 @@ export type PagedResponseOfStreamGroupDto = {
 export type UpdateStreamGroupRequest = {
   streamGroupId?: number;
   name?: string | null;
+  autoSetChannelNumbers?: boolean | null;
 };
 export type VideoStreamIsReadOnly = {
   rank?: number;
@@ -1774,6 +1776,7 @@ export type BaseVideoStreamDto = {
   m3UFileId: number;
   m3UFileName: string;
   streamingProxyType: StreamingProxyTypes;
+  groupTitle: string;
   tvg_chno: number;
   tvg_group: string;
   timeShift: string;
@@ -1834,6 +1837,7 @@ export type RemoveVideoStreamFromVideoStreamRequest = {
 export type VideoStreamBaseRequest = {
   streamingProxyType?: StreamingProxyTypes | null;
   toggleVisibility?: boolean | null;
+  groupTitle?: string | null;
   tvg_chno?: number | null;
   tvg_group?: string | null;
   timeShift?: string | null;

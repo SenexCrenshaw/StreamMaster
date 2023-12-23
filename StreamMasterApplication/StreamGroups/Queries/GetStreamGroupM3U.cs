@@ -183,7 +183,15 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         }
         if (setting.M3UFieldGroupTitle)
         {
-            fieldList.Add($"group-title=\"{videoStream.User_Tvg_group}\"");
+            if (!string.IsNullOrEmpty(videoStream.GroupTitle))
+            {
+                fieldList.Add($"group-title=\"{videoStream.GroupTitle}\"");
+            }
+            else
+            {
+                fieldList.Add($"group-title=\"{videoStream.User_Tvg_group}\"");
+            }
+
         }
 
         string lines = string.Join(" ", fieldList.ToArray());

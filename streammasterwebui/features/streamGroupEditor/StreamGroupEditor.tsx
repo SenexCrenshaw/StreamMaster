@@ -22,7 +22,6 @@ const StreamGroupEditor = (): JSX.Element => {
       <div className="col-3 m-0 p-0 pr-1">
         <StreamGroupDataSelector id={id} />
       </div>
-
       <div className="col-9 m-0 p-0 pl-1">
         <BlockUI
           blocked={selectedStreamGroup === undefined || selectedStreamGroup.id === undefined || selectedStreamGroup.id <= 1 || selectedStreamGroup.isReadOnly}

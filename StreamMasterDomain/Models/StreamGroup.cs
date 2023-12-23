@@ -11,6 +11,7 @@ public class StreamGroup : BaseEntity
     public ICollection<StreamGroupChannelGroup> ChannelGroups { get; set; }
     public ICollection<StreamGroupVideoStream> ChildVideoStreams { get; set; }
     public bool IsReadOnly { get; set; } = false;
+    public bool AutoSetChannelNumbers { get; set; } = false;
     public string Name { get; set; } = string.Empty;
     //public int StreamGroupNumber { get; set; }
 }
