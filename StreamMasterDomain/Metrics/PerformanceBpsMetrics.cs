@@ -41,16 +41,19 @@ public class PerformanceBpsMetrics
         return Timer.Elapsed.TotalSeconds;
     }
 
-    public double GetBytesPerSecond()
+    public (double bytesRead, double bps, long elapsedMilliseconds) GetBytesPerSecond()
     {
         long elapsedMilliseconds = Timer.ElapsedMilliseconds;
-        if (elapsedMilliseconds - LastUpdateMilliseconds >= 1000)
+        long elapsed = elapsedMilliseconds - LastUpdateMilliseconds;
+        if (elapsed >= 1000)
         {
-            double bps = TotalBytesProcessed / ((elapsedMilliseconds - LastUpdateMilliseconds) / 1000.0);
+            long old = TotalBytesProcessed;
+
+            double bps = TotalBytesProcessed / (elapsed / 1000.0);
             LastUpdateMilliseconds = elapsedMilliseconds;
             TotalBytesProcessed = 0; // Reset total bytes for the next second
-            return bps;
+            return (old, bps, elapsed);
         }
-        return -1; // Less than a second has passed, so don't calculate
+        return (TotalBytesProcessed, -1, elapsed); // Less than a second has passed, so don't calculate
     }
 }

@@ -120,15 +120,15 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
         }
         finally
         {
-            double bps = metrics.GetBytesPerSecond();
+            (double metricBytesRead, double bps, long elapsedMilliseconds) = metrics.GetBytesPerSecond();
             if (bps > -1)
             {
                 _bytesPerSecond.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Set(bps);
 
-                _bytesReadCounter.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Inc(bytesRead);
+                _bytesReadCounter.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Inc(metricBytesRead);
                 _bytesPerSecondHistogram.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Observe(bps);
                 _bytesPerSecond.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Set(bps);
-                _readDurationHistogram.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Observe(metrics.GetElapsedSeconds());
+                _readDurationHistogram.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Observe(elapsedMilliseconds / 1000);
             }
 
             if (bytesRead == 0)
