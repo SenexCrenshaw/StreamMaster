@@ -65,6 +65,8 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
 
     private readonly ConcurrentDictionary<Guid, SemaphoreSlim> _bufferSwitchSemaphores = new();
 
+    private readonly ConcurrentDictionary<Guid, DateTime> _clientReadStartTime = new();
+
     private CancellationTokenSource _readCancel = new();
 
     private bool IsCancelled { get; set; }
@@ -94,9 +96,12 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
         using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_readCancel.Token, cancellationToken);
 
         linkedCts.CancelAfter(TimeSpan.FromSeconds(30));
+        _clientReadStartTime.TryAdd(ClientId, DateTime.Now);
+        var startTs =_clientReadStartTime[ClientId];
+        //Stopwatch stopwatch = new();
+        //stopwatch.Start();
 
-        Stopwatch stopwatch = new();
-        stopwatch.Start();
+        //_clientReadStartTime.GetOrAdd(ClientId, DateTime.Now);
 
         int bytesRead = 0;
         SemaphoreSlim semaphore = _bufferSwitchSemaphores.GetOrAdd(config.ClientId, new SemaphoreSlim(1, 1));
@@ -115,19 +120,21 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
         }
         finally
         {
-            stopwatch.Stop();
+            //stopwatch.Stop();
             semaphore.Release();
         }
 
         if (bytesRead > 0)
         {
-            double seconds = stopwatch.Elapsed.TotalSeconds;
+            _clientReadStartTime[ClientId]= DateTime.Now;
+            var elapsed = _clientReadStartTime[ClientId] - startTs;
+            double seconds = elapsed.TotalSeconds;
             double bps = bytesRead / seconds;
 
             _bytesReadCounter.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Inc(bytesRead);
             _bytesPerSecondHistogram.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Observe(bps);
             _bytesPerSecond.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Set(bps);
-            _readDurationHistogram.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Observe(stopwatch.Elapsed.TotalMilliseconds);
+            _readDurationHistogram.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Observe(elapsed.TotalMilliseconds);  
         }
         else
         {
@@ -135,6 +142,7 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
             bytesRead = 1;
         }
 
+       
         return bytesRead;
     }
 
