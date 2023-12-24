@@ -175,9 +175,12 @@ public partial class SchedulesDirect
                 Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, scheduleEntry =>
                 {
                     XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channelId);
-                    lock (xmltvPrograms) // Ensure thread-safe access to the shared list
+                    lock (xmltvPrograms)
                     {
-                        xmltvPrograms.Add(program);
+                        if (!xmltvPrograms.Any(a => a.Start == program.Start && a.Channel == program.Channel))
+                        {
+                            xmltvPrograms.Add(program);
+                        }
                     }
                 });
             }
@@ -369,8 +372,8 @@ public partial class SchedulesDirect
         string descriptionExtended = string.Empty;
         if (!settings.SDSettings.XmltvExtendedInfoInTitleDescriptions || mxfProgram.IsPaidProgramming)
         {
-            List<string> svcs = schedulesDirectData.Services.Select(a => a.StationId).ToList();
-            MxfService? svc = schedulesDirectData.GetService(channelId);
+            //List<string> svcs = schedulesDirectData.Services.Select(a => a.StationId).ToList();
+            //MxfService? svc = schedulesDirectData.GetService(channelId);
             return new XmltvProgramme()
             {
                 // added +0000 for NPVR; otherwise it would assume local time instead of UTC
