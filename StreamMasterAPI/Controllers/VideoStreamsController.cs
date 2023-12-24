@@ -131,7 +131,13 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
         HttpContext.Session.Remove("ClientId");
 
-        if (setting.StreamingProxyType == StreamingProxyTypes.None)
+        var redirect = videoStream.StreamingProxyType == StreamingProxyTypes.None;
+        if (!redirect && videoStream.StreamingProxyType == StreamingProxyTypes.SystemDefault && setting.StreamingProxyType == StreamingProxyTypes.None)
+        {
+            redirect = true;
+        }
+
+        if (redirect)
         {
             _logger.LogInformation("GetStreamGroupVideoStream request SG Number {id} ChannelId {channelId} proxy is none, sending redirect", streamGroupNumber, videoStreamId);
 

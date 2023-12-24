@@ -40,7 +40,7 @@ public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, I
         _ = await Repository.SaveAsync().ConfigureAwait(false);
 
         schedulesDirect.ResetEPGCache();
-        MemoryCache.SetSyncForceNextRun();
+        MemoryCache.SetSyncForceNextRun(Extra: true);
 
         await Publisher.Publish(new EPGFileDeletedEvent(epgFile.Id), cancellationToken).ConfigureAwait(false);
         return epgFile.Id;
