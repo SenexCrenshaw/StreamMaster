@@ -4,8 +4,9 @@ using Prometheus;
 
 using StreamMasterApplication.Common.Interfaces;
 
+using StreamMasterDomain.Metrics;
+
 using System.Collections.Concurrent;
-using System.Diagnostics;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Buffers;
 
@@ -24,10 +25,12 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
     "Histogram of bytes per second read from the client stream.",
     new HistogramConfiguration
     {
-        Buckets = Histogram.LinearBuckets(0, 20000000, 11),
-        LabelNames = ["client_id", "circular_buffer_id", "video_stream_name"]
+        // Adjusting buckets to cover from kbps to 100 Mbps
+        // Note: 1 Mbps = 1,000,000 bytes per second
+        // Example: Buckets at 1,000 (1 kbps), 10,000 (10 kbps), 100,000 (100 kbps), 1,000,000 (1 Mbps), ..., 100,000,000 (100 Mbps)
+        Buckets = new double[] { 1000, 10000, 100000, 1000000, 10000000, 20000000, 30000000, 40000000, 50000000, 60000000, 70000000, 80000000, 90000000, 100000000 },
+        LabelNames = new[] { "client_id", "circular_buffer_id", "video_stream_name" }
     });
-
 
     private readonly Histogram _readDurationHistogram = Metrics.CreateHistogram(
             "client_read_stream_duration_milliseconds",
@@ -65,7 +68,7 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
 
     private readonly ConcurrentDictionary<Guid, SemaphoreSlim> _bufferSwitchSemaphores = new();
 
-    private readonly ConcurrentDictionary<Guid, DateTime> _clientReadStartTime = new();
+    private readonly ConcurrentDictionary<Guid, PerformanceBpsMetrics> _performanceMetrics = new();
 
     private CancellationTokenSource _readCancel = new();
 
@@ -88,6 +91,8 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
             return 0;
         }
 
+        PerformanceBpsMetrics metrics = _performanceMetrics.GetOrAdd(ClientId, new PerformanceBpsMetrics(ClientId));
+
         if (_readCancel == null || _readCancel.IsCancellationRequested)
         {
             _readCancel = new CancellationTokenSource();
@@ -96,12 +101,6 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
         using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_readCancel.Token, cancellationToken);
 
         linkedCts.CancelAfter(TimeSpan.FromSeconds(30));
-        _clientReadStartTime.TryAdd(ClientId, DateTime.Now);
-        var startTs =_clientReadStartTime[ClientId];
-        //Stopwatch stopwatch = new();
-        //stopwatch.Start();
-
-        //_clientReadStartTime.GetOrAdd(ClientId, DateTime.Now);
 
         int bytesRead = 0;
         SemaphoreSlim semaphore = _bufferSwitchSemaphores.GetOrAdd(config.ClientId, new SemaphoreSlim(1, 1));
@@ -112,6 +111,7 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
 
             await semaphore.WaitAsync(cancellationToken);
             bytesRead = await Buffer.ReadChunkMemory(ClientId, buffer, linkedCts.Token);
+            metrics.RecordBytesProcessed(bytesRead);
         }
         catch (TaskCanceledException ex)
         {
@@ -120,29 +120,28 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
         }
         finally
         {
-            //stopwatch.Stop();
-            semaphore.Release();
+            double bps = metrics.GetBytesPerSecond();
+            if (bps > -1)
+            {
+                _bytesPerSecond.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Set(bps);
+
+                _bytesReadCounter.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Inc(bytesRead);
+                _bytesPerSecondHistogram.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Observe(bps);
+                _bytesPerSecond.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Set(bps);
+                _readDurationHistogram.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Observe(metrics.GetElapsedSeconds());
+            }
+
+            if (bytesRead == 0)
+            {
+                logger.LogDebug("Read 0 bytes for ClientId: {ClientId}", ClientId);
+                bytesRead = 1;
+            }
+            _ = semaphore.Release();
         }
 
-        if (bytesRead > 0)
-        {
-            _clientReadStartTime[ClientId]= DateTime.Now;
-            var elapsed = _clientReadStartTime[ClientId] - startTs;
-            double seconds = elapsed.TotalSeconds;
-            double bps = bytesRead / seconds;
 
-            _bytesReadCounter.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Inc(bytesRead);
-            _bytesPerSecondHistogram.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Observe(bps);
-            _bytesPerSecond.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Set(bps);
-            _readDurationHistogram.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Observe(elapsed.TotalMilliseconds);  
-        }
-        else
-        {
-            logger.LogDebug("Read 0 bytes for ClientId: {ClientId}", ClientId);
-            bytesRead = 1;
-        }
 
-       
+
         return bytesRead;
     }
 
@@ -191,7 +190,7 @@ public sealed class ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, I
         }
         finally
         {
-            semaphore.Release();
+            _ = semaphore.Release();
         }
 
         logger.LogInformation("Setting buffer delegate for Buffer.Id: {Id} Circular.Id: {Buffer.Id} {Name} ClientId: {ClientId}", Id, Buffer.Id, config.ChannelName, config.ClientId);
