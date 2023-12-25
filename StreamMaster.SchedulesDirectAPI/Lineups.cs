@@ -4,6 +4,7 @@ using SixLabors.ImageSharp;
 
 using StreamMasterDomain.Common;
 
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 
@@ -42,6 +43,7 @@ public partial class SchedulesDirect
             // get/create lineup
             MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup(clientLineup.Lineup, $"SM {clientLineup.Name} ({clientLineup.Location})");
 
+            Debug.Assert(!mxfLineup.extras.ContainsKey("epgid"));
 
             // request the lineup's station maps
             StationChannelMap? lineupMap = await GetStationChannelMap(clientLineup.Lineup, cancellationToken);
@@ -65,6 +67,7 @@ public partial class SchedulesDirect
 
                 // build the service if necessary
                 MxfService mxfService = schedulesDirectData.FindOrCreateService(station.StationId);
+                Debug.Assert(!mxfService.extras.ContainsKey("epgid"));
                 if (string.IsNullOrEmpty(mxfService.CallSign))
                 {
                     // instantiate stationLogo and override uid

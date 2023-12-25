@@ -49,7 +49,7 @@ public class PerformanceBpsMetrics
         {
             long old = TotalBytesProcessed;
 
-            double bps = TotalBytesProcessed / (elapsed / 1000.0);
+            double bps = TotalBytesProcessed / 8 / (elapsed / 1000.0);
             LastUpdateMilliseconds = elapsedMilliseconds;
             TotalBytesProcessed = 0; // Reset total bytes for the next second
             return (old, bps, elapsed);

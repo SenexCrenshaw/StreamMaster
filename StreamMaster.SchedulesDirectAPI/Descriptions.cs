@@ -20,8 +20,9 @@ public partial class SchedulesDirect
         List<MxfSeriesInfo> a = schedulesDirectData.SeriesInfosToProcess;
         List<MxfProgram> b = schedulesDirectData.Programs;
         List<MxfProvider> c = schedulesDirectData.Providers;
+        List<MxfSeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess.Where(a => !a.extras.ContainsKey("epgid")).ToList();
         // fill mxf programs with cached values and queue the rest
-        foreach (MxfSeriesInfo series in schedulesDirectData.SeriesInfosToProcess)
+        foreach (MxfSeriesInfo series in toProcess)
         {
             // sports events will not have a generic description
             if (series.SeriesId.StartsWith("SP") || string.IsNullOrEmpty(series.ProtoTypicalProgram))

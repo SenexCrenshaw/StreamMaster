@@ -1,7 +1,10 @@
-﻿namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
+﻿using System.Xml.Serialization;
+
+namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 public class MxfGuideImage
 {
+    [XmlIgnore] public Dictionary<string, dynamic> extras = [];
     private int _index;
 
     //private string _encodedImage;
@@ -22,7 +25,7 @@ public class MxfGuideImage
     public string Id
     {
         get => $"i{_index}";
-        set { _index = int.Parse(value[1..]); }
+        set => _index = int.Parse(value[1..]);
     }
 
     /// <summary>

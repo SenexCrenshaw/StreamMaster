@@ -168,11 +168,7 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
 
         try
         {
-            if (uri.Equals("metadata/description/"))
-            {
-                int a = 1;
-                Debug.Assert(true);
-            }
+
             using HttpRequestMessage request = new(method, uri)
             {
                 Content = (content != null)

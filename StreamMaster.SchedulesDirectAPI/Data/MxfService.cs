@@ -7,14 +7,25 @@ public partial class SchedulesDirectData
     [XmlIgnore] public List<MxfService> ServicesToProcess = [];
 
     private Dictionary<string, MxfService> _services = [];
-    public MxfService FindOrCreateService(string stationId)
+    public MxfService FindOrCreateService(string stationId, int? epgId = null)
     {
         if (_services.TryGetValue(stationId, out MxfService? service))
         {
             return service;
         }
 
-        Services.Add(service = new MxfService(Services.Count + 1, stationId));
+        service = new MxfService(Services.Count + 1, stationId);
+        if (epgId != null)
+        {
+            service.extras.Add("epgid", epgId);
+            foreach (MxfScheduleEntry s in service.MxfScheduleEntries.ScheduleEntry)
+            {
+                s.extras.Add("epgid", epgId);
+            }
+        }
+
+        Services.Add(service);
+
         ScheduleEntries.Add(service.MxfScheduleEntries);
         _services.Add(stationId, service);
         ServicesToProcess.Add(service);

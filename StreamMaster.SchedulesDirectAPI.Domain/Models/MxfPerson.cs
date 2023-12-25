@@ -5,7 +5,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 public class MxfPerson
 {
     private int _index;
-
+    [XmlIgnore] public Dictionary<string, dynamic> extras = [];
     public MxfPerson(int index, string name)
     {
         _index = index;
@@ -21,7 +21,7 @@ public class MxfPerson
     public string Id
     {
         get => $"p{_index}";
-        set { _index = int.Parse(value[1..]); }
+        set => _index = int.Parse(value[1..]);
     }
 
     /// <summary>

@@ -26,7 +26,7 @@ public partial class SchedulesDirect
         }
 
 
-        List<MxfSeason> toProcess = schedulesDirectData.SeasonsToProcess.ToList();
+        List<MxfSeason> toProcess = schedulesDirectData.SeasonsToProcess.Where(a => !a.extras.ContainsKey("epgid")).ToList();
         // scan through each series in the mxf
         logger.LogInformation("Entering GetAllSeasonImages() for {totalObjects} seasons.", toProcess.Count);
         foreach (MxfSeason season in toProcess)

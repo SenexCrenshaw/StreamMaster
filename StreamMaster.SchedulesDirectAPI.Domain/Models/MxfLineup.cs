@@ -25,7 +25,7 @@ public class MxfLineup
     public string Id
     {
         get => $"l{_index}";
-        set { _index = int.Parse(value[1..]); }
+        set => _index = int.Parse(value[1..]);
     }
 
     /// <summary>
@@ -37,7 +37,7 @@ public class MxfLineup
     public string Uid
     {
         get => _uid ?? $"!MCLineup!{LineupId}";
-        set { _uid = value; }
+        set => _uid = value;
     }
 
     /// <summary>
@@ -59,4 +59,6 @@ public class MxfLineup
 
     [XmlArrayItem("Channel")]
     public List<MxfChannel> channels { get; set; } = [];
+
+    [XmlIgnore] public Dictionary<string, dynamic> extras = [];
 }

@@ -5,6 +5,8 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 public class MxfKeywordGroup
 {
+    [XmlIgnore] public Dictionary<string, dynamic> extras = [];
+
     [XmlIgnore]
     public int Index { get; private set; }
 
@@ -17,7 +19,11 @@ public class MxfKeywordGroup
     public MxfKeyword FindOrCreateKeyword(string word)
     {
         word = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(word);
-        if (_Keywords.TryGetValue(word, out MxfKeyword? keyword)) return keyword;
+        if (_Keywords.TryGetValue(word, out MxfKeyword? keyword))
+        {
+            return keyword;
+        }
+
         mxfKeywords.Add(keyword = new MxfKeyword(Index, (Index * 1000) + mxfKeywords.Count + 1, word));
         _Keywords.Add(word, keyword);
         return keyword;
@@ -39,7 +45,7 @@ public class MxfKeywordGroup
     public string GroupName
     {
         get => $"k{Index}";
-        set { Index = int.Parse(value[1..]); }
+        set => Index = int.Parse(value[1..]);
     }
 
     /// <summary>
@@ -50,7 +56,7 @@ public class MxfKeywordGroup
     public string Uid
     {
         get => _uid ?? $"!KeywordGroup!{GroupName}-{_alpha}";
-        set { _uid = value; }
+        set => _uid = value;
     }
 
     /// <summary>
@@ -63,6 +69,6 @@ public class MxfKeywordGroup
     public string Keywords
     {
         get => _keywords ?? $"k{Index * 1000},{string.Join(",", mxfKeywords.OrderBy(k => k.Word).Select(k => k.Id).Take(99).ToArray())}".TrimEnd(',');
-        set { _keywords = value; }
+        set => _keywords = value;
     }
 }

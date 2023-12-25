@@ -5,6 +5,7 @@ using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using System.Collections.Concurrent;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirectAPI;
@@ -21,22 +22,24 @@ public partial class SchedulesDirect
         // reset counters
         seriesImageQueue = [];
         seriesImageResponses = [];
-        //IncrementNextStage(schedulesDirectData.SeriesInfosToProcess.Count);
+        //IncrementNextStage(toProcess.Count);
+        List<MxfSeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess.Where(a => !a.extras.ContainsKey("epgid")).ToList();
 
-        logger.LogInformation("Entering GetAllSeriesImages() for {totalObjects} series.", schedulesDirectData.SeriesInfosToProcess.Count);
+        logger.LogInformation("Entering GetAllSeriesImages() for {totalObjects} series.", toProcess.Count);
         int refreshing = 0;
 
         StreamMasterDomain.Common.Setting setting = memoryCache.GetSetting();
-        var test = schedulesDirectData.SeriesInfosToProcess.Select(a => a.ProtoTypicalProgram).Distinct().ToList();
-        var programs = schedulesDirectData.Programs.Select(a => a.ProgramId).Distinct().ToList();
+        List<string> test = toProcess.Select(a => a.ProtoTypicalProgram).Distinct().ToList();
+        List<string> programs = schedulesDirectData.Programs.Select(a => a.ProgramId).Distinct().ToList();
         // scan through each series in the mxf
-        foreach (MxfSeriesInfo series in schedulesDirectData.SeriesInfosToProcess)
+        foreach (MxfSeriesInfo series in toProcess)
         {
             string seriesId;
 
-            var prog = schedulesDirectData.Programs.FirstOrDefault(a => a.ProgramId == series.ProtoTypicalProgram);
+            MxfProgram? prog = schedulesDirectData.Programs.FirstOrDefault(a => a.ProgramId == series.ProtoTypicalProgram);
             if (prog != null && prog.extras.ContainsKey("epgid"))
             {
+                Debug.Assert(true);
                 continue;
             }
 
@@ -124,11 +127,11 @@ public partial class SchedulesDirect
             //await DownloadImages(seriesImageResponses, cancellationToken);
             if (processedObjects != totalObjects)
             {
-                logger.LogWarning("Failed to download and process {count} series image links.", schedulesDirectData.SeriesInfosToProcess.Count - processedObjects);
+                logger.LogWarning("Failed to download and process {count} series image links.", toProcess.Count - processedObjects);
             }
         }
 
-        //UpdateIcons(schedulesDirectData.SeriesInfosToProcess);
+        //UpdateIcons(toProcess);
 
         logger.LogInformation("Exiting GetAllSeriesImages(). SUCCESS.");
         seriesImageQueue = []; sportsSeries = []; seriesImageResponses = [];

@@ -4,6 +4,7 @@ using StreamMaster.SchedulesDirectAPI.Data;
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Globalization;
 using System.Text.Json;
 
@@ -26,7 +27,7 @@ public partial class SchedulesDirect
 
         // fill mxf programs with cached values and queue the rest
         programQueue = [];
-        List<MxfProgram> toProcess = schedulesDirectData.Programs.ToList();
+        List<MxfProgram> toProcess = schedulesDirectData.Programs.Where(a => !a.extras.ContainsKey("epgid")).ToList();
         foreach (MxfProgram mxfProgram in toProcess)
         {
             if (!mxfProgram.extras.ContainsKey("md5"))
@@ -109,7 +110,7 @@ public partial class SchedulesDirect
 
             // determine which program this belongs to
             MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(sdProgram.ProgramId);
-
+            Debug.Assert(!mxfProgram.extras.ContainsKey("epgid"));
             // build a standalone program
             BuildMxfProgram(mxfProgram, sdProgram);
 
@@ -276,7 +277,7 @@ public partial class SchedulesDirect
 
     private void SetProgramFlags(MxfProgram prg, Programme sd)
     {
-        string[] types = new[] { sd.EntityType, sd.ShowType };
+        string[] types = [sd.EntityType, sd.ShowType];
 
         // transfer genres to mxf program
         prg.IsAction = SDHelpers.TableContains(sd.Genres, "Action") || SDHelpers.TableContains(sd.Genres, "Adventure");
@@ -474,10 +475,18 @@ public partial class SchedulesDirect
                 {
                     try
                     {
-                        using StringReader reader = new(epgCache.GetAsset(mxfProgram.ProgramId));
+                        string? asset = epgCache.GetAsset(mxfProgram.ProgramId);
+                        if (asset == null)
+                        {
+                            return;
+                        }
+                        using StringReader reader = new(asset);
 
                         GenericDescription? cached = JsonSerializer.Deserialize<GenericDescription>(reader.ReadToEnd());
-
+                        if (cached == null)
+                        {
+                            return;
+                        }
                         if (cached.StartAirdate == null)
                         {
                             cached.StartAirdate = mxfProgram.OriginalAirdate ?? string.Empty;

@@ -14,7 +14,7 @@ public partial class SchedulesDirect
     private async Task<bool> GetAllMoviePosters(CancellationToken cancellationToken)
     {
 
-        List<MxfProgram> moviePrograms = schedulesDirectData.ProgramsToProcess.Where(arg => arg.IsMovie).Where(arg => !arg.IsAdultOnly).ToList();
+        List<MxfProgram> moviePrograms = schedulesDirectData.ProgramsToProcess.Where(arg => arg.IsMovie && !arg.extras.ContainsKey("epgid")).Where(arg => !arg.IsAdultOnly).ToList();
 
         // reset counters
         movieImageQueue = [];

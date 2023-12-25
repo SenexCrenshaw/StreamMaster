@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
+﻿using System.Xml.Serialization;
+
+namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 public class MxfService
 {
     public string StationId { get; set; }
@@ -11,7 +13,7 @@ public class MxfService
     public MxfGuideImage mxfGuideImage;
     public MxfScheduleEntries MxfScheduleEntries;
 
-    public Dictionary<string, dynamic> extras = [];
+    [XmlIgnore] public Dictionary<string, dynamic> extras = [];
 
     public MxfService(int index, string stationId)
     {

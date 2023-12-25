@@ -4,6 +4,7 @@ using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterDomain.Common;
 
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -26,7 +27,9 @@ public partial class SchedulesDirect
         int days = settings.SDSettings.SDEPGDays;
         days = Math.Clamp(days, 1, 14);
 
-        logger.LogInformation("Entering GetAllScheduleEntryMd5s() for {days} days on {Count} stations.", days, schedulesDirectData.Services.Count);
+        List<MxfService> toProcess = schedulesDirectData.Services.Where(a => !a.extras.ContainsKey("epgid")).ToList();
+
+        logger.LogInformation("Entering GetAllScheduleEntryMd5s() for {days} days on {Count} stations.", days, toProcess.Count);
         if (days <= 0)
         {
             logger.LogInformation("Invalid number of days to download. Exiting.");
@@ -38,7 +41,7 @@ public partial class SchedulesDirect
 
         // reset counter
         processedObjects = 0;
-        totalObjects = schedulesDirectData.Services.Count * days;
+        totalObjects = toProcess.Count * days;
         ++processStage;
 
         // build date array for requests
@@ -53,7 +56,7 @@ public partial class SchedulesDirect
         }
 
         // maximum 5000 queries at a time
-        for (int i = 0; i < schedulesDirectData.Services.Count; i += MaxQueries / dates.Length)
+        for (int i = 0; i < toProcess.Count; i += MaxQueries / dates.Length)
         {
             if (await GetMd5ScheduleEntries(dates, i, cancellationToken))
             {
@@ -66,7 +69,7 @@ public partial class SchedulesDirect
         logger.LogDebug("Found {cachedSchedules} cached daily schedules.", cachedSchedules);
         logger.LogDebug("Downloaded {downloadedSchedules} daily schedules.", downloadedSchedules);
 
-        double missing = (double)missingGuide / schedulesDirectData.Services.Count;
+        double missing = (double)missingGuide / toProcess.Count;
         if (missing > 0.1)
         {
             logger.LogError("{missing:N1}% of all stations are missing guide data. Aborting update.", 100 * missing);
@@ -85,26 +88,31 @@ public partial class SchedulesDirect
             ProcessMd5ScheduleEntry(md5);
         }
         logger.LogInformation("Processed {totalObjects} daily schedules for {Count} stations for average of {totalObjects:N1} days per station.",
-            totalObjects, schedulesDirectData.Services.Count, (double)totalObjects / schedulesDirectData.Services.Count);
+            totalObjects, toProcess.Count, (double)totalObjects / toProcess.Count);
         logger.LogInformation("Exiting GetAllScheduleEntryMd5s(). SUCCESS.");
         return true;
     }
 
     private async Task<bool> GetMd5ScheduleEntries(string[] dates, int start, CancellationToken cancellationToken)
     {
+        List<MxfService> toProcess = schedulesDirectData.Services.Where(a => !a.extras.ContainsKey("epgid")).ToList();
         // reject 0 requests
-        if (schedulesDirectData.Services.Count - start < 1)
+        if (toProcess.Count - start < 1)
         {
             return true;
         }
 
         // build request for station schedules
-        ScheduleRequest[] requests = new ScheduleRequest[Math.Min(schedulesDirectData.Services.Count - start, MaxQueries / dates.Length)];
+        ScheduleRequest[] requests = new ScheduleRequest[Math.Min(toProcess.Count - start, MaxQueries / dates.Length)];
         for (int i = 0; i < requests.Length; ++i)
         {
+            if (toProcess[start + i].StationId == "DUMMY")
+            {
+                continue;
+            }
             requests[i] = new ScheduleRequest()
             {
-                StationId = schedulesDirectData.Services[start + i].StationId,
+                StationId = toProcess[start + i].StationId,
                 Date = dates
             };
         }
@@ -120,10 +128,6 @@ public partial class SchedulesDirect
         List<ScheduleRequest> newRequests = [];
         foreach (ScheduleRequest request in requests)
         {
-            if (request.StationId == "DUMMY")
-            {
-                continue;
-            }
 
             Dictionary<int, string> requestErrors = [];
             MxfService mxfService = schedulesDirectData.FindOrCreateService(request.StationId);
@@ -169,6 +173,7 @@ public partial class SchedulesDirect
                         }
                         else
                         {
+
                             string previous = value[1];
                             //string comment = $"Duplicate schedule Md5 return for stationId {mxfService.StationId} ({mxfService.CallSign}) on {day} with {previous}.";
                             //logger.LogWarning(comment);
@@ -322,10 +327,11 @@ public partial class SchedulesDirect
 
         // determine which service entry applies to
         MxfService mxfService = schedulesDirectData.FindOrCreateService(schedule.StationId);
-
+        Debug.Assert(!mxfService.extras.ContainsKey("epgid"));
         // process each program schedule entry
         foreach (ScheduleProgram scheduleProgram in schedule.Programs)
         {
+
             // limit requests to airing programs now or in the future
             if (scheduleProgram.AirDateTime + TimeSpan.FromSeconds(scheduleProgram.Duration) < DateTime.UtcNow)
             {
@@ -334,6 +340,7 @@ public partial class SchedulesDirect
 
             // prepopulate some of the program
             MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(scheduleProgram.ProgramId);
+            Debug.Assert(!mxfProgram.extras.ContainsKey("epgid"));
             if (mxfProgram.extras.Count == 0)
             {
                 mxfProgram.UidOverride = $"{scheduleProgram.ProgramId[..10]}_{scheduleProgram.ProgramId[10..]}";
