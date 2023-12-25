@@ -30,13 +30,13 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
                 return null;
             }
 
-            XMLTV? test = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.Id);
+            XMLTV? tv = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.Id);
 
             //Tv? tv = await epgFile.GetTV().ConfigureAwait(false);
-            if (test != null)
+            if (tv != null)
             {
-                epgFile.ChannelCount = test.Channels != null ? test.Channels.Count : 0;
-                epgFile.ProgrammeCount = test.Programs != null ? test.Programs.Count : 0;
+                epgFile.ChannelCount = tv.Channels != null ? tv.Channels.Count : 0;
+                epgFile.ProgrammeCount = tv.Programs != null ? tv.Programs.Count : 0;
             }
 
             epgFile.LastUpdated = DateTime.Now;

@@ -2,6 +2,8 @@
 
 using Microsoft.AspNetCore.Http;
 
+using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
+
 using StreamMasterDomain.Color;
 
 using System.Web;
@@ -22,7 +24,7 @@ public class CreateEPGFileRequestValidator : AbstractValidator<CreateEPGFileRequ
     }
 }
 
-public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<CreateEPGFileRequest, EPGFileDto?>
+public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<CreateEPGFileRequest, EPGFileDto?>
 {
     public async Task<EPGFileDto?> Handle(CreateEPGFileRequest command, CancellationToken cancellationToken)
     {
@@ -81,10 +83,9 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, I
                     Logger.LogCritical("Exception EPG From URL {ex}", ex);
                 }
             }
-
             epgFile.EPGRank = command.EPGRank;
 
-            Tv? tv = await epgFile.GetTV().ConfigureAwait(false);
+            XMLTV? tv = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.Id);
             if (tv == null)
             {
                 Logger.LogCritical("Exception EPG {fullName} format is not supported", fullName);
@@ -96,8 +97,8 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, I
                 return null;
             }
 
-            epgFile.ChannelCount = tv.Channel != null ? tv.Channel.Count : 0;
-            epgFile.ProgrammeCount = tv.Programme != null ? tv.Programme.Count : 0;
+            epgFile.ChannelCount = tv.Channels != null ? tv.Channels.Count : 0;
+            epgFile.ProgrammeCount = tv.Programs != null ? tv.Programs.Count : 0;
 
             Repository.EPGFile.CreateEPGFile(epgFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);

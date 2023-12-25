@@ -6,7 +6,6 @@ global using Microsoft.AspNetCore.SignalR;
 global using Microsoft.Extensions.Caching.Memory;
 global using Microsoft.Extensions.Logging;
 
-global using StreamMaster.SchedulesDirectAPI.Domain.EPG;
 global using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
 global using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
 

@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 
+using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
+
 namespace StreamMasterApplication.EPGFiles.Commands;
 
 [RequireAll]
@@ -13,7 +15,7 @@ public class RefreshEPGFileRequestValidator : AbstractValidator<RefreshEPGFileRe
     }
 }
 
-public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<RefreshEPGFileRequest, EPGFileDto?>
+public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> logger, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<RefreshEPGFileRequest, EPGFileDto?>
 {
     public async Task<EPGFileDto?> Handle(RefreshEPGFileRequest request, CancellationToken cancellationToken)
     {
@@ -49,8 +51,10 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> logger,
                         Logger.LogCritical("Exception EPG From URL {ex}", ex);
                     }
                 }
+                //Tv? tv = await epgFile.GetTV().ConfigureAwait(false);
 
-                Tv? tv = await epgFile.GetTV().ConfigureAwait(false);
+                XMLTV? tv = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.Id);
+
                 if (tv == null)
                 {
                     Logger.LogCritical("Exception EPG {fullName} format is not supported", fullName);
@@ -64,9 +68,8 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> logger,
 
                 if (tv != null)
                 {
-                    epgFile.ChannelCount = tv.Channel != null ? tv.Channel.Count : 0;
-                    epgFile.ProgrammeCount = tv.Programme != null ? tv.Programme.Count : 0;
-
+                    epgFile.ChannelCount = tv.Channels != null ? tv.Channels.Count : 0;
+                    epgFile.ProgrammeCount = tv.Programs != null ? tv.Programs.Count : 0;
                 }
 
                 Repository.EPGFile.UpdateEPGFile(epgFile);
