@@ -22,7 +22,7 @@ public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, I
 
         if (request.DeleteFile && epgFile != null)
         {
-            string fullName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Name + FileDefinitions.EPG.FileExtension);
+            string fullName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source);
             if (File.Exists(fullName))
             {
                 File.Delete(fullName);

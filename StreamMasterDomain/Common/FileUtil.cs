@@ -1,3 +1,5 @@
+using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
+
 using StreamMasterDomain.Models;
 
 using System.IO.Compression;
@@ -30,7 +32,7 @@ public sealed class FileUtil
         return fullName;
     }
 
-    public static dynamic? ReadXmlFile(string filepath, Type type)
+    public static XMLTV? ReadXmlFile(string filepath)
     {
         if (!File.Exists(filepath))
         {
@@ -40,9 +42,10 @@ public sealed class FileUtil
 
         try
         {
-            XmlSerializer serializer = new(type);
+            XmlSerializer serializer = new(typeof(XMLTV));
             using StreamReader reader = new(filepath, Encoding.Default);
-            return serializer.Deserialize(reader);
+            object? result = serializer.Deserialize(reader);
+            return (XMLTV?)result;
         }
         catch (Exception ex)
         {

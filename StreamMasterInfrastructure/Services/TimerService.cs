@@ -114,11 +114,6 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
         if (epgFilesToUpdated.Any())
         {
             logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFilesToUpdated.Count());
-            //foreach (EPGFileDto? epgFile in epgFilesToUpdated)
-            //{
-            //    _ = await mediator.Send(new RefreshEPGFileRequest(epgFile.Id), cancellationToken).ConfigureAwait(false);
-            //}
-            //schedulesDirect.ResetEPGCache();
             memoryCache.SetSyncForceNextRun(Extra: true);
         }
 

@@ -12,7 +12,7 @@ public static class FileDefinitions
     public static FileDefinition EPG => new()
     {
         DirectoryLocation = BuildInfo.EPGFolder,
-        FileExtension = ".xml",
+        FileExtension = ".xml|.xmltv",
         SMFileType = SMFileTypes.EPG
     };
 

@@ -25,7 +25,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectData schedules
 
     public XMLTV? ConvertToMxf(string filePath, int EPGId)
     {
-        XMLTV? xmlTv = FileUtil.ReadXmlFile(filePath, typeof(XMLTV));
+        XMLTV? xmlTv = FileUtil.ReadXmlFile(filePath);
         return xmlTv == null ? null : ConvertToMxf(xmlTv, EPGId);
     }
 

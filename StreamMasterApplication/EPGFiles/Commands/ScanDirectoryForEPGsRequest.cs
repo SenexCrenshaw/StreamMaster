@@ -30,10 +30,10 @@ public class ScanDirectoryForEPGFilesRequestHandler : BaseMediatorRequestHandler
         FileDefinition fd = FileDefinitions.EPG;
         DirectoryInfo epgDirInfo = new(fd.DirectoryLocation);
         EnumerationOptions er = new() { MatchCasing = MatchCasing.CaseInsensitive };
+        string[] extensions = fd.FileExtension.Split('|');
 
         return epgDirInfo.GetFiles("*.*", SearchOption.AllDirectories)
-            .Where(s => s.FullName.ToLower().EndsWith(fd.FileExtension.ToLower()) ||
-                       s.FullName.ToLower().EndsWith(fd.FileExtension + ".gz".ToLower()));
+            .Where(s => extensions.Contains(s.Extension.ToLower()) || extensions.Contains(s.Extension.ToLower() + ".gz"));
     }
 
     private async Task ProcessEPGFile(FileInfo epgFileInfo, CancellationToken cancellationToken)

@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
 
-using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
-
 namespace StreamMasterApplication.EPGFiles.Commands;
 
 [RequireAll]
@@ -50,30 +48,10 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> logger,
                         ++epgFile.DownloadErrors;
                         Logger.LogCritical("Exception EPG From URL {ex}", ex);
                     }
+                    Repository.EPGFile.UpdateEPGFile(epgFile);
+                    _ = await Repository.SaveAsync().ConfigureAwait(false);
+
                 }
-                //Tv? tv = await epgFile.GetTV().ConfigureAwait(false);
-
-                XMLTV? tv = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.Id);
-
-                if (tv == null)
-                {
-                    Logger.LogCritical("Exception EPG {fullName} format is not supported", fullName);
-                    //Bad EPG
-                    if (File.Exists(fullName))
-                    {
-                        File.Delete(fullName);
-                    }
-                    return null;
-                }
-
-                if (tv != null)
-                {
-                    epgFile.ChannelCount = tv.Channels != null ? tv.Channels.Count : 0;
-                    epgFile.ProgrammeCount = tv.Programs != null ? tv.Programs.Count : 0;
-                }
-
-                Repository.EPGFile.UpdateEPGFile(epgFile);
-                _ = await Repository.SaveAsync().ConfigureAwait(false);
 
                 EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);
                 await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);

@@ -100,6 +100,7 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, I
             epgFile.ChannelCount = tv.Channels != null ? tv.Channels.Count : 0;
             epgFile.ProgrammeCount = tv.Programs != null ? tv.Programs.Count : 0;
 
+
             Repository.EPGFile.CreateEPGFile(epgFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
             epgFile.WriteJSON();
