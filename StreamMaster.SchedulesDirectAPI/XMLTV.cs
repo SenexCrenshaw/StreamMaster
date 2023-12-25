@@ -170,19 +170,19 @@ public partial class SchedulesDirect
 
                 List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
                 string channelId = service.StationId;
-                List<XmltvProgramme> xmltvPrograms = [];
 
                 Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, scheduleEntry =>
-                {
-                    XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channelId);
-                    lock (xmltvPrograms)
-                    {
-                        if (!xmltvPrograms.Any(a => a.Start == program.Start && a.Channel == program.Channel))
-                        {
-                            xmltvPrograms.Add(program);
-                        }
-                    }
-                });
+            {
+                XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channelId);
+                //lock (xmltv.Programs)
+                //{
+                //    if (!xmltv.Programs.Any(a => a.Start == program.Start && a.Channel == program.Channel))
+                //    {
+                xmltv.Programs.Add(program);
+                //    }
+                //}
+            });
+
             }
 
 
