@@ -15,7 +15,7 @@ public class RemoveLineupHandler(ISchedulesDirect schedulesDirect, ILogger<Remov
         logger.LogInformation("Remove line up {lineup}", request.lineup);
         if (await schedulesDirect.RemoveLineup(request.lineup, cancellationToken).ConfigureAwait(false))
         {
-            if (await schedulesDirect.SDSync(cancellationToken))
+            if (await schedulesDirect.SDSync(0, cancellationToken))
             {
                 await HubContext.Clients.All.SchedulesDirectsRefresh();
 

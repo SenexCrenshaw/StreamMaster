@@ -10,7 +10,7 @@ public class SDSyncHandler(ISchedulesDirect schedulesDirect, ILogger<EPGSync> lo
         Setting setting = await GetSettingsAsync().ConfigureAwait(false);
         if (setting.SDSettings.SDEnabled)
         {
-            if (await schedulesDirect.SDSync(cancellationToken).ConfigureAwait(false))
+            if (await schedulesDirect.SDSync(0, cancellationToken).ConfigureAwait(false))
             {
                 logger.LogInformation("Updated Schedules Direct");
                 await HubContext.Clients.All.SchedulesDirectsRefresh();

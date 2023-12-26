@@ -1,8 +1,10 @@
-﻿namespace StreamMasterApplication.EPGFiles.Queries;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.Models;
+
+namespace StreamMasterApplication.EPGFiles.Queries;
 
 public record GetEPGFile(int Id) : IRequest<EPGFileDto?>;
 
-internal class GetEPGFileHandler(ILogger<GetEPGFile> logger, IRepositoryWrapper repository, ISchedulesDirectData schedulesDirectData, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetEPGFile, EPGFileDto?>
+internal class GetEPGFileHandler(ILogger<GetEPGFile> logger, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetEPGFile, EPGFileDto?>
 {
     public async Task<EPGFileDto?> Handle(GetEPGFile request, CancellationToken cancellationToken = default)
     {
@@ -12,9 +14,9 @@ internal class GetEPGFileHandler(ILogger<GetEPGFile> logger, IRepositoryWrapper 
             return null;
         }
         EPGFileDto epgFileDto = Mapper.Map<EPGFileDto>(epgFile);
-
-        var programmes = schedulesDirectData.Programs.Where(a => a.extras.ContainsKey("epgid") && a.extras["epgid"] == epgFileDto.Id);
-        var channels = schedulesDirectData.Services.Where(a => a.extras.ContainsKey("epgid") && a.extras["epgid"] == epgFileDto.Id);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(epgFileDto.Id);
+        IEnumerable<MxfProgram> programmes = schedulesDirectData.Programs;
+        IEnumerable<MxfService> channels = schedulesDirectData.Services;
 
         //var c = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
         //  var proprammes = c.Where(a => a.EPGFileId == epgFile.Id).ToList();

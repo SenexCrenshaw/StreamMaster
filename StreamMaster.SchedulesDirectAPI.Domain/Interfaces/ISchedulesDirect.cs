@@ -28,7 +28,7 @@ public interface ISchedulesDirect
     Task<bool> RemoveLineup(string lineup, CancellationToken cancellationToken);
     void ResetCache(string command);
     void ResetEPGCache();
-    Task<bool> SDSync(CancellationToken cancellationToken);
+    Task<bool> SDSync(int EPGID, CancellationToken cancellationToken);
     Task<List<StationPreview>> GetStationPreviews(CancellationToken cancellationToken);
     Task<List<StationChannelMap>> GetStationChannelMaps(CancellationToken cancellationToken);
 

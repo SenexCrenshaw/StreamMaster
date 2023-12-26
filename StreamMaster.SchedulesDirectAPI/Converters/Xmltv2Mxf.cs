@@ -9,8 +9,10 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.SchedulesDirectAPI.Converters;
 
-public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectData schedulesDirectData) : IXmltv2Mxf
+public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService schedulesDirectDataService) : IXmltv2Mxf
 {
+    private ISchedulesDirectData schedulesDirectData;
+
     private class SeriesEpisodeInfo
     {
         public string TmsId = string.Empty;
@@ -25,23 +27,25 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectData schedules
 
     public XMLTV? ConvertToMxf(string filePath, int EPGId)
     {
+
         XMLTV? xmlTv = FileUtil.ReadXmlFile(filePath);
         return xmlTv == null ? null : ConvertToMxf(xmlTv, EPGId);
     }
 
     public XMLTV? ConvertToMxf(XMLTV xmlTv, int EPGId)
     {
+        schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(EPGId);
 
-        if (!BuildLineupAndChannelServices(xmlTv, EPGId) || !BuildScheduleEntries(xmlTv, EPGId))
+        if (!BuildLineupAndChannelServices(xmlTv) || !BuildScheduleEntries(xmlTv))
         {
             return null;
         }
 
-        BuildKeywords(EPGID: EPGId);
+        BuildKeywords();
         return xmlTv;
     }
 
-    private bool BuildLineupAndChannelServices(XMLTV xmlTv, int EPGId, string lineupName = "SM+ Default Lineup Name")
+    private bool BuildLineupAndChannelServices(XMLTV xmlTv, string lineupName = "SM+ Default Lineup Name")
     {
 
         logger.LogInformation("Building lineup and channel services.");

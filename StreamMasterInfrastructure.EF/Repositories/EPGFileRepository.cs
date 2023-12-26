@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
+using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
@@ -15,7 +16,7 @@ namespace StreamMasterInfrastructureEF.Repositories;
 /// <summary>
 /// Repository to manage EPGFile entities in the database.
 /// </summary>
-public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, ISchedulesDirectData schedulesDirectData, IMapper mapper) : RepositoryBase<EPGFile>(repositoryContext, logger), IEPGFileRepository
+public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper) : RepositoryBase<EPGFile>(repositoryContext, logger), IEPGFileRepository
 {
     public async Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int Id, CancellationToken cancellationToken)
     {
@@ -30,9 +31,11 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryCont
             return [];
         }
 
-        List<StreamMaster.SchedulesDirectAPI.Domain.Models.MxfService> services = schedulesDirectData.Services.Where(a => a.extras.ContainsKey("epgid") && a.extras["epgid"] == Id).ToList();
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(epgFile.Id);
+
+        List<MxfService> services = schedulesDirectData.Services;
         List<EPGFilePreviewDto> ret = [];
-        foreach (StreamMaster.SchedulesDirectAPI.Domain.Models.MxfService? service in services)
+        foreach (MxfService? service in services)
         {
             if (service is null || string.IsNullOrEmpty(service.Name) || string.IsNullOrEmpty(service.StationId))
             {

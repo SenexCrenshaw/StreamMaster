@@ -4,12 +4,12 @@ namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
 
 public record GetService(string stationId) : IRequest<MxfService?>;
 
-internal class GetServiceHandler(ISchedulesDirectData schedulesDirectData) : IRequestHandler<GetService, MxfService?>
+internal class GetServiceHandler(ISchedulesDirectDataService schedulesDirectDataService) : IRequestHandler<GetService, MxfService?>
 {
 
-    public  Task<MxfService?> Handle(GetService request, CancellationToken cancellationToken)
+    public Task<MxfService?> Handle(GetService request, CancellationToken cancellationToken)
     {
-        var service = schedulesDirectData.GetService(request.stationId);
+        MxfService? service = schedulesDirectDataService.GetService(request.stationId);
 
         return Task.FromResult(service);
     }

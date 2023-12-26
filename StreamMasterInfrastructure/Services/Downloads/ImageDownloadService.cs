@@ -22,7 +22,7 @@ namespace StreamMasterInfrastructure.Services.Downloads;
 public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadService
 {
     private readonly ILogger<ImageDownloadService> logger;
-    private readonly ISchedulesDirectData schedulesDirectData;
+    private readonly ISchedulesDirectDataService schedulesDirectDataService;
     private readonly SemaphoreSlim downloadSemaphore;
     private readonly IMemoryCache memoryCache;
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> hubContext;
@@ -55,11 +55,11 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
         };
     }
 
-    public ImageDownloadService(ILogger<ImageDownloadService> logger, IImageDownloadQueue imageDownloadQueue, ISchedulesDirect schedulesDirect, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache, ISchedulesDirectData schedulesDirectData)
+    public ImageDownloadService(ILogger<ImageDownloadService> logger, IImageDownloadQueue imageDownloadQueue, ISchedulesDirect schedulesDirect, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache, ISchedulesDirectDataService schedulesDirectDataService)
     {
         this.logger = logger;
         this.hubContext = hubContext;
-        this.schedulesDirectData = schedulesDirectData;
+        this.schedulesDirectDataService = schedulesDirectDataService;
         this.memoryCache = memoryCache;
         this.schedulesDirect = schedulesDirect;
         this.imageDownloadQueue = imageDownloadQueue;
@@ -233,7 +233,8 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
             {
                 string programId = response.ProgramId;
                 List<ProgramArtwork> artwork = [];
-                MxfProgram? program = schedulesDirectData.Programs.Find(a => a.ProgramId == programId);
+
+                MxfProgram? program = schedulesDirectDataService.GetAllPrograms.Find(a => a.ProgramId == programId);
                 if (program != null && program.extras != null)
                 {
                     artwork = program.GetArtWork();

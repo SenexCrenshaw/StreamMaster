@@ -24,7 +24,7 @@ namespace StreamMasterInfrastructureEF
         ILogger<VideoStreamRepository> VideoStreamRepositoryLogger,
         ILogger<StreamGroupVideoStreamRepository> StreamGroupVideoStreamRepositoryLogger,
         ILogger<StreamGroupChannelGroupRepository> StreamGroupChannelGroupRepositoryLogger,
-        ISchedulesDirectData schedulesDirectData,
+        ISchedulesDirectDataService schedulesDirectDataService,
         RepositoryContext repositoryContext,
         ISortHelper<StreamGroup> streamGroupSortHelper,
         IMapper mapper, IMemoryCache memoryCache, ISender sender,
@@ -80,7 +80,7 @@ namespace StreamMasterInfrastructureEF
         {
             get
             {
-                _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, repositoryContext, this, schedulesDirectData, mapper);
+                _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, repositoryContext, this, schedulesDirectDataService, mapper);
                 return _epgFile;
             }
         }

@@ -28,18 +28,18 @@ public partial class SchedulesDirect : ISchedulesDirect
 
     private readonly ILogger<SchedulesDirect> logger;
     public IEPGCache epgCache;
-    private readonly ISchedulesDirectData schedulesDirectData;
-
+    private readonly ISchedulesDirectDataService schedulesDirectDataService;
+    private ISchedulesDirectData schedulesDirectData;
     private readonly ISchedulesDirectAPIService schedulesDirectAPI;
     private readonly ISettingsService settingsService;
     private readonly IImageDownloadQueue imageDownloadQueue;
     private readonly IMemoryCache memoryCache;
     private readonly IServiceProvider serviceProvider;
-    public SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IEPGCache epgCache, ISchedulesDirectData schedulesDirectData, ISchedulesDirectAPIService schedulesDirectAPI, ISettingsService settingsService, IMemoryCache memoryCache)
+    public SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IEPGCache epgCache, ISchedulesDirectDataService schedulesDirectDataService, ISchedulesDirectAPIService schedulesDirectAPI, ISettingsService settingsService, IMemoryCache memoryCache)
     {
         this.logger = logger;
         this.epgCache = epgCache;
-        this.schedulesDirectData = schedulesDirectData;
+        this.schedulesDirectDataService = schedulesDirectDataService;
         this.schedulesDirectAPI = schedulesDirectAPI;
         this.settingsService = settingsService;
         this.memoryCache = memoryCache;
@@ -51,8 +51,9 @@ public partial class SchedulesDirect : ISchedulesDirect
         }
     }
 
-    public async Task<bool> SDSync(CancellationToken cancellationToken)
+    public async Task<bool> SDSync(int EPGID, CancellationToken cancellationToken)
     {
+        schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(EPGID);
         try
         {
             Setting setting = memoryCache.GetSetting();

@@ -7,10 +7,12 @@ using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirectAPI.Data;
 
-public partial class SchedulesDirectData(ILogger<SchedulesDirectData> logger, ISettingsService settingsService, IMemoryCache memoryCache) : ISchedulesDirectData
+public partial class SchedulesDirectData(ILogger<SchedulesDirectData> logger, ISettingsService settingsService, IMemoryCache memoryCache, int EPGId) : ISchedulesDirectData
 {
+    public int EPGId { get; set; } = EPGId;
+
     [XmlArrayItem("Provider")]
-    public List<MxfProvider> Providers { get; set; }
+    public List<MxfProvider> Providers { get; set; } = [];
 
     [XmlAttribute("provider")]
     public string Provider { get; set; } = string.Empty;

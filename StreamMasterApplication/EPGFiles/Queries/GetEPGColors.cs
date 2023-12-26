@@ -4,12 +4,12 @@ namespace StreamMasterApplication.EPGFiles.Queries;
 
 public record GetEPGColors() : IRequest<List<EPGColorDto>>;
 
-internal class GetEPGColorsHandler(ILogger<GetEPGColors> logger, IRepositoryWrapper repository, ISchedulesDirectData schedulesDirectData, ISchedulesDirect schedulesDirect, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetEPGColors, List<EPGColorDto>>
+internal class GetEPGColorsHandler(ILogger<GetEPGColors> logger, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetEPGColors, List<EPGColorDto>>
 {
     public async Task<List<EPGColorDto>> Handle(GetEPGColors request, CancellationToken cancellationToken = default)
     {
         List<EPGColorDto> ret = [];
-        List<MxfService> svcs = schedulesDirectData.Services;
+        List<MxfService> svcs = schedulesDirectDataService.GetAllServices;
 
         List<EPGColorDto> epgColors = Repository.EPGFile.GetEPGColors();
 

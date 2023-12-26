@@ -7,7 +7,7 @@ namespace StreamMasterApplication.SchedulesDirectAPI.Commands;
 
 public record RemoveStation(List<StationRequest> Requests) : IRequest<bool>;
 
-public class RemoveStationHandler(ILogger<RemoveStation> logger, ISchedulesDirect schedulesDirect, ISchedulesDirectData schedulesDirectData, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+public class RemoveStationHandler(ILogger<RemoveStation> logger, ISchedulesDirect schedulesDirect, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
 : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<RemoveStation, bool>
 {
     public async Task<bool> Handle(RemoveStation request, CancellationToken cancellationToken)
