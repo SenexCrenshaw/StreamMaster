@@ -3,10 +3,10 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
-using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
-using StreamMaster.SchedulesDirectAPI.Domain.Models;
-using StreamMaster.SchedulesDirectAPI.Helpers;
+using StreamMaster.SchedulesDirect.Domain.Interfaces;
+using StreamMaster.SchedulesDirect.Domain.JsonClasses;
+using StreamMaster.SchedulesDirect.Domain.Models;
+using StreamMaster.SchedulesDirect.Helpers;
 
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Hubs;
@@ -234,7 +234,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                 string programId = response.ProgramId;
                 List<ProgramArtwork> artwork = [];
 
-                MxfProgram? program = schedulesDirectDataService.GetAllPrograms.Find(a => a.ProgramId == programId);
+                MxfProgram? program = schedulesDirectDataService.AllPrograms.Find(a => a.ProgramId == programId);
                 if (program != null && program.extras != null)
                 {
                     artwork = program.GetArtWork();

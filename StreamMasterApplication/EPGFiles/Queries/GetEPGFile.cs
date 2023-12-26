@@ -1,4 +1,4 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.Models;
+﻿
 
 namespace StreamMasterApplication.EPGFiles.Queries;
 

@@ -4,8 +4,8 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
-using StreamMaster.SchedulesDirectAPI.Domain.Models;
+using StreamMaster.SchedulesDirect.Domain.Interfaces;
+using StreamMaster.SchedulesDirect.Domain.Models;
 
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;

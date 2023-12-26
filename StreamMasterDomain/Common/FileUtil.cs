@@ -1,4 +1,6 @@
-using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
+
+
+using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 
 using StreamMasterDomain.Models;
 

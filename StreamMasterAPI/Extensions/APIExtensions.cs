@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 
-using StreamMaster.SchedulesDirectAPI;
+using StreamMaster.SchedulesDirect;
 
 using StreamMasterDomain.Pagination;
 

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
+using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 
 namespace StreamMasterApplication.Programmes;
 

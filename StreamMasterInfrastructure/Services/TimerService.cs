@@ -5,13 +5,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
+using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 using StreamMasterApplication.EPGFiles.Commands;
 using StreamMasterApplication.EPGFiles.Queries;
 using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.M3UFiles.Queries;
-using StreamMasterApplication.SchedulesDirectAPI.Commands;
+using StreamMasterApplication.SchedulesDirect.Commands;
 using StreamMasterApplication.Settings.Queries;
 
 using StreamMasterDomain.Cache;

@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
+
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 

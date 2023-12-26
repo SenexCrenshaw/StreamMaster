@@ -1,4 +1,6 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.Models;
+﻿
+
+using StreamMaster.SchedulesDirect.Domain.Models;
 
 namespace StreamMasterDomain.Services
 {

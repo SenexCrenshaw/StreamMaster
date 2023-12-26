@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.SchedulesDirect.Domain.Interfaces;
+
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.Hubs;
@@ -21,9 +23,10 @@ public class BroadcastService : IBroadcastService, IDisposable
     private readonly IChannelService channelService;
     private readonly IStreamStatisticService streamStatisticService;
     private readonly ILogger<BroadcastService> logger;
+    private readonly ISchedulesDirectDataService schedulesDirectDataService;
     private Timer? _broadcastTimer;
 
-    public BroadcastService(IHubContext<StreamMasterHub, IStreamMasterHub> hub, IFileLoggingServiceFactory factory, IStatisticsManager statisticsManager, IClientStreamerManager clientStreamer, IStreamManager streamManager, IChannelService channelService, IStreamStatisticService streamStatisticService, ILogger<BroadcastService> logger)
+    public BroadcastService(IHubContext<StreamMasterHub, IStreamMasterHub> hub, IFileLoggingServiceFactory factory, ISchedulesDirectDataService schedulesDirectDataService, IStatisticsManager statisticsManager, IClientStreamerManager clientStreamer, IStreamManager streamManager, IChannelService channelService, IStreamStatisticService streamStatisticService, ILogger<BroadcastService> logger)
     {
         this.hub = hub;
         this.statisticsManager = statisticsManager;
@@ -32,6 +35,7 @@ public class BroadcastService : IBroadcastService, IDisposable
         this.channelService = channelService;
         this.streamStatisticService = streamStatisticService;
         this.logger = logger;
+        this.schedulesDirectDataService = schedulesDirectDataService;
         debugLogger = factory.Create("FileLoggerDebug");
     }
 
@@ -43,6 +47,15 @@ public class BroadcastService : IBroadcastService, IDisposable
     }
     public void LogDebug()
     {
+        if (schedulesDirectDataService.SchedulesDirectDatas.Any())
+        {
+            printDebug("SchedulesDirectDatas: {0}", schedulesDirectDataService.SchedulesDirectDatas.Count);
+            foreach (KeyValuePair<int, ISchedulesDirectData> sd in schedulesDirectDataService.SchedulesDirectDatas)
+            {
+                printDebug("SchedulesDirectData: {0} {1} {2}", sd.Key, sd.Value.Services.Count, sd.Value.Programs.Count);
+            }
+        }
+
         if (statisticsManager.GetAllClientIds().Any())
         {
             printDebug("Stat ClientIds: {0}", statisticsManager.GetAllClientIds().Count);
@@ -86,7 +99,7 @@ public class BroadcastService : IBroadcastService, IDisposable
     {
         try
         {
-            //LogDebug();
+            LogDebug();
             List<StreamStatisticsResult> statisticsResults = streamStatisticService.GetAllStatisticsForAllUrls().Result;
             if (statisticsResults.Any())
             {

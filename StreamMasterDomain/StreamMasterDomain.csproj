@@ -26,6 +26,6 @@
     <PackageReference Include="X.PagedList.EF" Version="8.4.7" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\StreamMaster.SchedulesDirectAPI.Domain\StreamMaster.SchedulesDirectAPI.Domain.csproj" />
+    <ProjectReference Include="..\StreamMaster.SchedulesDirect.Domain\StreamMaster.SchedulesDirect.Domain.csproj" />
   </ItemGroup>
 </Project>

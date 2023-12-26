@@ -1,4 +1,4 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.Models;
+﻿
 
 namespace StreamMasterApplication.EPGFiles.Queries;
 
@@ -9,7 +9,7 @@ internal class GetEPGColorsHandler(ILogger<GetEPGColors> logger, IRepositoryWrap
     public async Task<List<EPGColorDto>> Handle(GetEPGColors request, CancellationToken cancellationToken = default)
     {
         List<EPGColorDto> ret = [];
-        List<MxfService> svcs = schedulesDirectDataService.GetAllServices;
+        List<MxfService> svcs = schedulesDirectDataService.AllServices;
 
         List<EPGColorDto> epgColors = Repository.EPGFile.GetEPGColors();
 

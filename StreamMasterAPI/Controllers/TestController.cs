@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMasterApplication.SchedulesDirectAPI.Commands;
+using StreamMasterApplication.SchedulesDirect.Commands;
 
 namespace StreamMasterAPI.Controllers;
 

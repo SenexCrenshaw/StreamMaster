@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
 
-using StreamMaster.SchedulesDirectAPI.Helpers;
+using StreamMaster.SchedulesDirect.Helpers;
 
 using StreamMasterAPI.Interfaces;
 

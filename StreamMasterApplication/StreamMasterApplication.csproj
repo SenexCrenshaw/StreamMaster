@@ -12,11 +12,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Programmes\Commands\**" />
-    <Compile Remove="SchedulesDirectAPI\NewFolder\**" />
+    <Compile Remove="SchedulesDirect\NewFolder\**" />
     <EmbeddedResource Remove="Programmes\Commands\**" />
-    <EmbeddedResource Remove="SchedulesDirectAPI\NewFolder\**" />
+    <EmbeddedResource Remove="SchedulesDirect\NewFolder\**" />
     <None Remove="Programmes\Commands\**" />
-    <None Remove="SchedulesDirectAPI\NewFolder\**" />
+    <None Remove="SchedulesDirect\NewFolder\**" />
   </ItemGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
@@ -39,7 +39,7 @@
   </ItemGroup>
   <ItemGroup>
    
-    <ProjectReference Include="..\StreamMaster.SchedulesDirectAPI\StreamMaster.SchedulesDirectAPI.csproj" />
+    <ProjectReference Include="..\StreamMaster.SchedulesDirect\StreamMaster.SchedulesDirect.csproj" />
    
     <ProjectReference Include="..\StreamMasterDomain\StreamMasterDomain.csproj" />
   </ItemGroup>

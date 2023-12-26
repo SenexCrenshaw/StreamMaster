@@ -2,8 +2,6 @@ using Microsoft.Extensions.Caching.Memory;
 
 using Prometheus;
 
-using StreamMaster.SchedulesDirectAPI.Services;
-
 using StreamMasterAPI;
 
 using StreamMasterApplication;
@@ -16,7 +14,7 @@ using StreamMasterDomain.Services;
 using StreamMasterInfrastructure;
 using StreamMasterInfrastructure.Logging;
 using StreamMasterInfrastructure.Middleware;
-
+using StreamMaster.SchedulesDirect.Services;
 using StreamMasterInfrastructureEF;
 
 using System.Security.Cryptography;

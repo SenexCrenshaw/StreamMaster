@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
+using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 
 using StreamMasterApplication.Programmes;
 using StreamMasterApplication.Programmes.Queries;
@@ -17,7 +17,7 @@ public class ProgrammesController : ApiControllerBase, IProgrammeChannelControll
         return data is not null ? (ActionResult<IEnumerable<XmltvProgramme>?>)Ok(data.ToList()) : (ActionResult<IEnumerable<XmltvProgramme>?>)NotFound();
     }
 
-  
+
     [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult<IEnumerable<XmltvProgramme>>> GetProgrammes()

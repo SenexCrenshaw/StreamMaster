@@ -4,7 +4,7 @@ using StreamMasterApplication.Icons;
 using StreamMasterApplication.LogApp;
 using StreamMasterApplication.M3UFiles;
 using StreamMasterApplication.Programmes;
-using StreamMasterApplication.SchedulesDirectAPI;
+using StreamMasterApplication.SchedulesDirect;
 using StreamMasterApplication.Settings;
 using StreamMasterApplication.StreamGroupChannelGroups;
 using StreamMasterApplication.StreamGroups;

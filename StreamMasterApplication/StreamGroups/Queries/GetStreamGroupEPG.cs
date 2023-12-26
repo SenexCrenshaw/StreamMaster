@@ -2,8 +2,8 @@
 
 using Microsoft.AspNetCore.Http;
 
-using StreamMaster.SchedulesDirectAPI.Domain.Models;
-using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
+
+
 
 using StreamMasterApplication.Common.Extensions;
 

@@ -9,15 +9,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
-using StreamMaster.SchedulesDirectAPI.Domain.Models;
+using StreamMaster.SchedulesDirect.Domain.JsonClasses;
+using StreamMaster.SchedulesDirect.Domain.Models;
 
 using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.Common.Logging;
 using StreamMasterApplication.EPG.Queries;
 using StreamMasterApplication.Icons.Queries;
 using StreamMasterApplication.M3UFiles.Queries;
-using StreamMasterApplication.SchedulesDirectAPI.Queries;
+using StreamMasterApplication.SchedulesDirect.Queries;
 
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
+using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;

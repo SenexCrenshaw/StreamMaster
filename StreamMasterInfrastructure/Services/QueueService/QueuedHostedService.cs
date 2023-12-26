@@ -10,7 +10,7 @@ using StreamMasterApplication.EPGFiles.Commands;
 using StreamMasterApplication.General.Commands;
 using StreamMasterApplication.Icons.Commands;
 using StreamMasterApplication.M3UFiles.Commands;
-using StreamMasterApplication.SchedulesDirectAPI.Commands;
+using StreamMasterApplication.SchedulesDirect.Commands;
 using StreamMasterApplication.Services;
 
 using StreamMasterDomain.Enums;

@@ -1,4 +1,4 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
+﻿using StreamMaster.SchedulesDirect.Domain.JsonClasses;
 
 
 using StreamMasterDomain.Attributes;

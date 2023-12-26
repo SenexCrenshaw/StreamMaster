@@ -1,4 +1,6 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.Models;
+﻿
+
+using StreamMaster.SchedulesDirect.Domain.Models;
 
 using StreamMasterDomain.Attributes;
 

@@ -1,4 +1,4 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
+﻿
 
 namespace StreamMasterApplication.Programmes.Queries;
 
