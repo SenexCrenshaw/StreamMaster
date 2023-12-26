@@ -1,6 +1,9 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Cache;
+using StreamMaster.Domain.Common;
+
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;

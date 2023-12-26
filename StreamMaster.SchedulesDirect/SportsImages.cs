@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Cache;
+using StreamMaster.Domain.Common;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
@@ -14,7 +16,7 @@ public partial class SchedulesDirect
     private ConcurrentBag<ProgramMetadata> sportsImageResponses = [];
     private bool GetAllSportsImages()
     {
-        StreamMasterDomain.Common.Setting settings = memoryCache.GetSetting();
+        Setting settings = memoryCache.GetSetting();
         // reset counters
         sportsImageQueue = [];
         sportsImageResponses = [];
@@ -87,7 +89,7 @@ public partial class SchedulesDirect
             return;
         }
 
-        StreamMasterDomain.Common.Setting setting = memoryCache.GetSetting();
+        Setting setting = memoryCache.GetSetting();
         string artworkSize = string.IsNullOrEmpty(setting.SDSettings.ArtworkSize) ? "Md" : setting.SDSettings.ArtworkSize;
 
         foreach (ProgramMetadata response in sportsImageResponses)

@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Common;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Collections.Concurrent;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect;
@@ -29,7 +29,7 @@ public partial class SchedulesDirect
         logger.LogInformation("Entering GetAllSeriesImages() for {totalObjects} series.", toProcess.Count);
         int refreshing = 0;
 
-        StreamMasterDomain.Common.Setting setting = memoryCache.GetSetting();
+        Setting setting = memoryCache.GetSetting();
         List<string> test = toProcess.Select(a => a.ProtoTypicalProgram).Distinct().ToList();
         List<string> programs = schedulesDirectData.Programs.Select(a => a.ProgramId).Distinct().ToList();
         // scan through each series in the mxf
@@ -40,7 +40,6 @@ public partial class SchedulesDirect
             MxfProgram? prog = schedulesDirectData.Programs.FirstOrDefault(a => a.ProgramId == series.ProtoTypicalProgram);
             if (prog != null)
             {
-                Debug.Assert(true);
                 continue;
             }
 
@@ -141,7 +140,7 @@ public partial class SchedulesDirect
 
     private void ProcessSeriesImageResponses()
     {
-        StreamMasterDomain.Common.Setting setting = memoryCache.GetSetting();
+        Setting setting = memoryCache.GetSetting();
         string artworkSize = string.IsNullOrEmpty(setting.SDSettings.ArtworkSize) ? "Md" : setting.SDSettings.ArtworkSize;
         // process request response
         foreach (ProgramMetadata response in seriesImageResponses.Where(a => !string.IsNullOrEmpty(a.ProgramId) && a.ProgramId.Length > 8 && a.Data != null && a.Code != 0))
@@ -221,7 +220,7 @@ public partial class SchedulesDirect
             epgCache.UpdateAssetImages(cacheKey, artworkJson);
         }
 
-        StreamMasterDomain.Common.Setting setting = memoryCache.GetSetting();
+        Setting setting = memoryCache.GetSetting();
         ProgramArtwork? image = null;
         if (type == ImageType.Movie)
         {

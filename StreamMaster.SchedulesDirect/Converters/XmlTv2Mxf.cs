@@ -1,8 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Common;
 using StreamMaster.SchedulesDirect.Data;
-
-using StreamMasterDomain.Common;
 
 using System.Globalization;
 using System.Text.RegularExpressions;

@@ -2,7 +2,7 @@
 
 using SixLabors.ImageSharp;
 
-using StreamMasterDomain.Common;
+using StreamMaster.Domain.Common;
 
 using System.Diagnostics;
 using System.Text.RegularExpressions;

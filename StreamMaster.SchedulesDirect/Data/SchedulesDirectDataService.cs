@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMasterDomain.Services;
+using StreamMaster.Domain.Services;
 
 using System.Collections.Concurrent;
 

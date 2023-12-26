@@ -14,8 +14,10 @@ public partial class SchedulesDirectData
             return service;
         }
 
-        service = new MxfService(Services.Count + 1, stationId);
-
+        service = new MxfService(Services.Count + 1, stationId)
+        {
+            EPGId = EPGId
+        };
 
         Services.Add(service);
 

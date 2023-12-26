@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using StreamMasterDomain.Common;
-using StreamMasterDomain.Dto;
-using StreamMasterDomain.Services;
+using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Dto;
+using StreamMaster.Domain.Services;
 
 using System;
 using System.Collections.Generic;

@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Cache;
+using StreamMaster.Domain.Common;
 using StreamMaster.SchedulesDirect.Data;
 using StreamMaster.SchedulesDirect.Helpers;
 
@@ -202,7 +204,7 @@ public partial class SchedulesDirect
 
     private void DetermineTitlesAndDescriptions(MxfProgram mxfProgram, Programme sdProgram)
     {
-        StreamMasterDomain.Common.Setting setting = memoryCache.GetSetting();
+        Setting setting = memoryCache.GetSetting();
         // populate titles
         if (sdProgram.Titles != null)
         {
@@ -564,7 +566,7 @@ public partial class SchedulesDirect
             mxfProgram.mxfSeason = schedulesDirectData.FindOrCreateSeason(mxfProgram.mxfSeriesInfo.SeriesId, mxfProgram.SeasonNumber,
                 sdProgram.HasSeasonArtwork ? mxfProgram.ProgramId : null);
 
-            StreamMasterDomain.Common.Setting setting = memoryCache.GetSetting();
+            Setting setting = memoryCache.GetSetting();
             if (setting.SDSettings.AppendEpisodeDesc || setting.SDSettings.PrefixEpisodeDescription || setting.SDSettings.PrefixEpisodeTitle)
             {
                 mxfProgram.mxfSeason.HideSeasonTitle = true;
@@ -584,7 +586,7 @@ public partial class SchedulesDirect
             return;
         }
 
-        StreamMasterDomain.Common.Setting setting = memoryCache.GetSetting();
+        Setting setting = memoryCache.GetSetting();
         string se = setting.SDSettings.AlternateSEFormat ? "S{0}:E{1} " : "s{0:D2}e{1:D2} ";
         se = mxfProgram.SeasonNumber != 0
             ? string.Format(se, mxfProgram.SeasonNumber, mxfProgram.EpisodeNumber)
@@ -698,7 +700,7 @@ public partial class SchedulesDirect
 
     private void DetermineCastAndCrew(MxfProgram prg, Programme sd)
     {
-        StreamMasterDomain.Common.Setting setting = memoryCache.GetSetting();
+        Setting setting = memoryCache.GetSetting();
         if (setting.SDSettings.ExcludeCastAndCrew)
         {
             return;

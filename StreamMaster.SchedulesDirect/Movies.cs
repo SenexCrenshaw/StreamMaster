@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Cache;
+using StreamMaster.Domain.Common;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
@@ -79,7 +81,7 @@ public partial class SchedulesDirect
 
     private void ProcessMovieImageResponses()
     {
-        StreamMasterDomain.Common.Setting setting = memoryCache.GetSetting();
+        Setting setting = memoryCache.GetSetting();
         string artworkSize = string.IsNullOrEmpty(setting.SDSettings.ArtworkSize) ? "Md" : setting.SDSettings.ArtworkSize;
         // process request response
         foreach (ProgramMetadata response in movieImageResponses)

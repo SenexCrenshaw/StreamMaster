@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMasterDomain.Common;
+using StreamMaster.Domain.Common;
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
