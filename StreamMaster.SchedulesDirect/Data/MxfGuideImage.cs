@@ -1,17 +1,17 @@
-﻿namespace StreamMaster.SchedulesDirect.Data;
+﻿using StreamMaster.Domain.Extensions;
+
+using System.Collections.Concurrent;
+using System.Xml.Serialization;
+
+namespace StreamMaster.SchedulesDirect.Data;
 
 public partial class SchedulesDirectData
 {
-    private Dictionary<string, MxfGuideImage> _guideImages = [];
+    [XmlArrayItem("GuideImage")]
+    public ConcurrentDictionary<string, MxfGuideImage> GuideImages { get; set; } = [];
+
     public MxfGuideImage FindOrCreateGuideImage(string pathname)
     {
-        if (_guideImages.TryGetValue(pathname, out MxfGuideImage? guideImage))
-        {
-            return guideImage;
-        }
-        guideImage = new MxfGuideImage(GuideImages.Count + 1, pathname);
-        GuideImages.Add(guideImage);
-        _guideImages.Add(pathname, guideImage);
-        return guideImage;
+        return GuideImages.FindOrCreate(pathname, key => new MxfGuideImage(GuideImages.Count + 1, key));
     }
 }

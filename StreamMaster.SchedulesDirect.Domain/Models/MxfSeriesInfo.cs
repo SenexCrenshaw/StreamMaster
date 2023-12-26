@@ -8,7 +8,7 @@ public class MxfSeriesInfo
 
     private DateTime _seriesStartDate = DateTime.MinValue;
     private DateTime _seriesEndDate = DateTime.MinValue;
-    private int _index;
+    [XmlIgnore] public int Index;
     private string _uid;
     private string _guideImage;
     [XmlIgnore] public string ProtoTypicalProgram;
@@ -18,7 +18,7 @@ public class MxfSeriesInfo
 
     public MxfSeriesInfo(int index, string seriesId, string? protoTypicalProgram = null)
     {
-        _index = index;
+        Index = index;
         SeriesId = seriesId;
         ProtoTypicalProgram = protoTypicalProgram;
     }
@@ -31,8 +31,8 @@ public class MxfSeriesInfo
     [XmlAttribute("id")]
     public string Id
     {
-        get => $"si{_index}";
-        set { _index = int.Parse(value[2..]); }
+        get => $"si{Index}";
+        set => Index = int.Parse(value[2..]);
     }
 
     /// <summary>
@@ -43,7 +43,7 @@ public class MxfSeriesInfo
     public string Uid
     {
         get => _uid ?? $"!Series!{SeriesId}";
-        set { _uid = value; }
+        set => _uid = value;
     }
 
     /// <summary>
@@ -102,7 +102,7 @@ public class MxfSeriesInfo
     public string GuideImage
     {
         get => _guideImage ?? mxfGuideImage?.Id ?? "";
-        set { _guideImage = value; }
+        set => _guideImage = value;
     }
 
     /// <summary>

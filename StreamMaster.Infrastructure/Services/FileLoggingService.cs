@@ -7,7 +7,7 @@ namespace StreamMaster.Infrastructure.Services;
 public class FileLoggingService : IFileLoggingService, IDisposable
 {
     private readonly ConcurrentQueue<string> _logQueue = new();
-    private readonly SemaphoreSlim _writeLock = new(1);
+    private readonly SemaphoreSlim _writeLock = new(1, 1);
     private readonly CancellationTokenSource _cts = new();
     private readonly Task _loggingTask;
     private readonly string _logFilePath;
@@ -34,12 +34,12 @@ public class FileLoggingService : IFileLoggingService, IDisposable
     {
         while (!_cts.Token.IsCancellationRequested)
         {
-            while (_logQueue.TryDequeue(out string? logEntry))
+            while (_writeLock.CurrentCount > 0 && _logQueue.TryDequeue(out string? logEntry))
             {
                 await WriteLogEntryAsync(logEntry);
             }
 
-            await Task.Delay(100); // Adjust delay as necessary
+            await Task.Delay(20); // Adjust delay as necessary
         }
     }
 
@@ -48,7 +48,9 @@ public class FileLoggingService : IFileLoggingService, IDisposable
         await _writeLock.WaitAsync();
         try
         {
-            await File.AppendAllTextAsync(_logFilePath, logEntry + Environment.NewLine);
+            using FileStream stream = new(_logFilePath, FileMode.Append, FileAccess.Write, FileShare.Read);
+            using StreamWriter writer = new(stream);
+            await writer.WriteLineAsync(logEntry);
         }
         finally
         {

@@ -1,23 +1,27 @@
-﻿using System.Xml.Serialization;
+﻿using StreamMaster.Domain.Extensions;
+
+using System.Collections.Concurrent;
+using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Data;
 
 public partial class SchedulesDirectData
 {
-    [XmlIgnore] public List<MxfSeason> SeasonsToProcess { get; set; } = [];
+    [XmlArrayItem("Season")]
+    public ConcurrentDictionary<string, MxfSeason> Seasons { get; set; } = new();
 
-    private Dictionary<string, MxfSeason> _seasons = [];
+    [XmlIgnore]
+    public List<MxfSeason> SeasonsToProcess { get; set; } = [];
+
     public MxfSeason FindOrCreateSeason(string seriesId, int seasonNumber, string protoTypicalProgram)
     {
-        if (_seasons.TryGetValue($"{seriesId}_{seasonNumber}", out MxfSeason? season))
+        (MxfSeason season, bool created) = Seasons.FindOrCreateWithStatus($"{seriesId}_{seasonNumber}", key => new MxfSeason(Seasons.Count + 1, FindOrCreateSeriesInfo(seriesId), seasonNumber, protoTypicalProgram));
+
+        if (created)
         {
             season.ProtoTypicalProgram ??= protoTypicalProgram;
             return season;
         }
-        season = new MxfSeason(Seasons.Count + 1, FindOrCreateSeriesInfo(seriesId), seasonNumber, protoTypicalProgram);
-
-        Seasons.Add(season);
-        _seasons.Add($"{seriesId}_{seasonNumber}", season);
         SeasonsToProcess.Add(season);
         return season;
     }

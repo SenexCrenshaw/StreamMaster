@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Services;
 
+using System.Collections.Concurrent;
 using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Data;
@@ -12,78 +13,39 @@ public partial class SchedulesDirectData(ILogger<SchedulesDirectData> logger, IS
     public int EPGId { get; set; } = EPGId;
 
     [XmlArrayItem("Provider")]
-    public List<MxfProvider> Providers { get; set; } = [];
+    public ConcurrentBag<MxfProvider> Providers { get; set; } = [];
 
     [XmlAttribute("provider")]
     public string Provider { get; set; } = string.Empty;
-    [XmlArrayItem("Keyword")]
-    public List<MxfKeyword> Keywords { get; set; } = [];
-    public bool ShouldSerializeKeywords()
-    {
-        Keywords = Keywords?.OrderBy(k => k.GrpIndex).ThenBy(k => k.Id).ToList();
-        return true;
-    }
-
-    [XmlArrayItem("KeywordGroup")]
-    public List<MxfKeywordGroup> KeywordGroups { get; set; } = [];
-    public bool ShouldSerializeKeywordGroups()
-    {
-        KeywordGroups = KeywordGroups?.OrderBy(k => k.Index).ThenBy(k => k.Uid).ToList() ?? [];
-        return true;
-    }
 
     public void ResetLists()
     {
-        GuideImages = [];
-        People = [];
-        SeriesInfos = [];
-        Seasons = [];
-        Programs = [];
-        Affiliates = [];
-        Services = [];
-        ScheduleEntries = [];
-        Lineups = [];
-        ProgramsToProcess = [];
-        SeriesInfosToProcess = [];
-        SeasonsToProcess = [];
-        ServicesToProcess = [];
+        Affiliates.Clear();
 
-        _affiliates = [];
-        _guideImages = [];
-        _keywordGroups = [];
-        _lineups = [];
-        _people = [];
-        _programs = [];
-        _seasons = [];
-        _seriesInfos = [];
-        _services = [];
+        GuideImages.Clear();
+
+        Keywords.Clear();
+
+        KeywordGroups.Clear();
+
+        Lineups.Clear();
+
+        People.Clear();
+
+        Programs.Clear();
+        ProgramsToProcess.Clear();
+
+        Providers.Clear();
+
+        Seasons.Clear();
+        SeasonsToProcess.Clear();
+
+        SeriesInfos.Clear();
+        SeriesInfosToProcess.Clear();
+        ScheduleEntries.Clear();
+
+        Services.Clear();
+        ServicesToProcess.Clear();
     }
 
-
-    [XmlArrayItem("GuideImage")]
-    public List<MxfGuideImage> GuideImages { get; set; } = [];
-
-    [XmlArrayItem("Person")]
-    public List<MxfPerson> People { get; set; } = [];
-
-    [XmlArrayItem("SeriesInfo")]
-    public List<MxfSeriesInfo> SeriesInfos { get; set; } = [];
-
-    [XmlArrayItem("Season")]
-    public List<MxfSeason> Seasons { get; set; } = [];
-
-    [XmlArrayItem("Program")]
-    public List<MxfProgram> Programs { get; set; } = [];
-
-    [XmlArrayItem("Affiliate")]
-    public List<MxfAffiliate> Affiliates { get; set; } = [];
-
-    [XmlArrayItem("Service")]
-    public List<MxfService> Services { get; set; } = [];
-
-    [XmlElement("ScheduleEntries")]
-    public List<MxfScheduleEntries> ScheduleEntries { get; set; } = [];
-
-    [XmlArrayItem("Lineup")]
-    public List<MxfLineup> Lineups { get; set; } = [];
 }

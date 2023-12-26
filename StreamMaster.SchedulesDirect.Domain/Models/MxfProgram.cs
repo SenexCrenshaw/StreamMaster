@@ -17,7 +17,7 @@ public class MxfProgram
     [XmlIgnore] public string UidOverride;
     [XmlIgnore] public MxfSeriesInfo mxfSeriesInfo;
     [XmlIgnore] public MxfSeason mxfSeason;
-    [XmlIgnore] public MxfGuideImage mxfGuideImage;
+    [XmlIgnore] public MxfGuideImage? mxfGuideImage;
     [XmlIgnore] public List<MxfKeyword> mxfKeywords = [];
     [XmlIgnore] public bool IsAdultOnly;
 

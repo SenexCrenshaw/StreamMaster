@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Extensions;
 using StreamMaster.SchedulesDirect.Data;
 
 using System.Globalization;
@@ -157,13 +158,13 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
 
                     mxfProgram.IsLimitedSeries = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("limited series"));
                     mxfProgram.IsMiniseries = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("miniseries"));
-                    mxfProgram.IsMovie = info.Type?.Equals("MV") ?? program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("movie")) ||
-                                                                    program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Equals("feature film"));
+                    mxfProgram.IsMovie = info.Type?.Equals("MV") ?? (program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("movie")) ||
+                                                                    program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Equals("feature film")));
                     mxfProgram.IsPaidProgramming = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("paid programming"));
                     mxfProgram.IsProgramEpisodic = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("episodic"));
                     mxfProgram.IsSerial = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("serial"));
-                    mxfProgram.IsSeries = info.SeasonNumber > 0 && info.EpisodeNumber > 0 || program.SubTitles2 != null || program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Equals("series")) &&
-                                                                                                                               !program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("sports talk"));
+                    mxfProgram.IsSeries = (info.SeasonNumber > 0 && info.EpisodeNumber > 0) || program.SubTitles2 != null || (program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Equals("series")) &&
+                                                                                                                               !program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("sports talk")));
                     mxfProgram.IsShortFilm = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Equals("short film"));
                     mxfProgram.IsSpecial = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("special"));
                     mxfProgram.IsSports = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("sports event")) ||
@@ -665,7 +666,8 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
         {
             Uri = arg.Src
         }).ToList();
-        mxfProgram.extras["artwork"] = artworks;
+
+        mxfProgram.extras.AddOrUpdate("artwork", artworks);
 
         mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
     }
@@ -673,10 +675,10 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
     private bool BuildKeywords()
     {
         logger.LogInformation("Building keyword categories.");
-        foreach (MxfKeywordGroup? group in schedulesDirectData.KeywordGroups.ToList())
+        foreach (MxfKeywordGroup? group in schedulesDirectData.KeywordGroups.Values)
         {
             // sort the group keywords
-            group.mxfKeywords = group.mxfKeywords.OrderBy(k => k.Word).ToList();
+            group.mxfKeywords = [.. group.mxfKeywords.OrderBy(k => k.Word)];
 
             // add the keywords
             schedulesDirectData.Keywords.AddRange(group.mxfKeywords);

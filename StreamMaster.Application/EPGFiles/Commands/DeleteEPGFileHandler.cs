@@ -1,11 +1,5 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 namespace StreamMaster.Application.EPGFiles.Commands;
 
 public record DeleteEPGFileRequest(bool DeleteFile, int Id) : IRequest<int?> { }
@@ -20,7 +14,7 @@ public class DeleteEPGFileRequestValidator : AbstractValidator<DeleteEPGFileRequ
     }
 }
 
-public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, ISchedulesDirect schedulesDirect, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<DeleteEPGFileRequest, int?>
+public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<DeleteEPGFileRequest, int?>
 {
     public async Task<int?> Handle(DeleteEPGFileRequest request, CancellationToken cancellationToken = default)
     {
@@ -42,11 +36,13 @@ public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, I
             {
                 //_logger.LogError("DeleteEPGFile File {fulleName} does not exist", fulleName);
             }
+            schedulesDirectDataService.Reset(epgFile.Id);
         }
         _ = await Repository.SaveAsync().ConfigureAwait(false);
 
-        schedulesDirect.ResetEPGCache();
-        MemoryCache.SetSyncForceNextRun(Extra: true);
+        //schedulesDirect.ResetEPGCache();
+
+        //MemoryCache.SetSyncForceNextRun(Extra: true);
 
         await Publisher.Publish(new EPGFileDeletedEvent(epgFile.Id), cancellationToken).ConfigureAwait(false);
         return epgFile.Id;

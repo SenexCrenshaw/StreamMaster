@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Extensions;
 using StreamMaster.SchedulesDirect.Data;
 using StreamMaster.SchedulesDirect.Helpers;
 
@@ -29,7 +29,7 @@ public partial class SchedulesDirect
         // fill mxf programs with cached values and queue the rest
         programQueue = [];
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
-        List<MxfProgram> toProcess = schedulesDirectData.Programs;
+        ICollection<MxfProgram> toProcess = schedulesDirectData.Programs.Values;
         foreach (MxfProgram mxfProgram in toProcess)
         {
             if (!mxfProgram.extras.ContainsKey("md5"))
@@ -119,7 +119,8 @@ public partial class SchedulesDirect
             // add JSON to cache
             if (sdProgram.Md5 != null)
             {
-                mxfProgram.extras["md5"] = sdProgram.Md5;
+                mxfProgram.extras.AddOrUpdate("md5", sdProgram.Md5);
+
                 try
                 {
                     string jsonString = JsonSerializer.Serialize(sdProgram);
@@ -168,38 +169,16 @@ public partial class SchedulesDirect
         DetermineCastAndCrew(mxfProgram, sdProgram);
 
         // populate stuff for xmltv
-        //if (config.CreateXmltv)
-        //{
+
         if (sdProgram.Genres != null && sdProgram.Genres.Length > 0)
         {
-            if (mxfProgram.extras.ContainsKey("genres"))
-            {
-                // Update the existing "genres" property with the new value
-                mxfProgram.extras["genres"] = sdProgram.Genres.Clone();
-            }
-            else
-            {
-                // Add the "genres" property to mxfProgram.extras
-                mxfProgram.extras.Add("genres", sdProgram.Genres.Clone());
-            }
+            mxfProgram.extras.AddOrUpdate("genres", sdProgram.Genres.Clone());
         }
 
         if (sdProgram.EventDetails?.Teams != null)
         {
-            if (mxfProgram.extras.ContainsKey("teams"))
-            {
-                // Update the existing "teams" property with the new value
-                mxfProgram.extras["teams"] = sdProgram.EventDetails.Teams.Select(team => team.Name).ToList();
-            }
-            else
-            {
-                // Add the "teams" property to mxfProgram.extras
-                mxfProgram.extras.Add("teams", sdProgram.EventDetails.Teams.Select(team => team.Name).ToList());
-            }
+            mxfProgram.extras.AddOrUpdate("teams", sdProgram.EventDetails.Teams.Select(team => team.Name).ToList());
         }
-
-        //}
-
     }
 
     private void DetermineTitlesAndDescriptions(MxfProgram mxfProgram, Programme sdProgram)
@@ -659,16 +638,9 @@ public partial class SchedulesDirect
                     }
                 }
             }
-            if (mxfProgram.extras.ContainsKey("ratings"))
-            {
-                // Key exists, update the value
-                mxfProgram.extras["ratings"] = contentRatings;
-            }
-            else
-            {
-                // Key does not exist, add a new key-value pair
-                mxfProgram.extras.Add("ratings", contentRatings);
-            }
+
+            mxfProgram.extras.AddOrUpdate("ratings", contentRatings);
+
         }
 
         if (sdProgram.ContentAdvisory != null)

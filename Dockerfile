@@ -14,16 +14,16 @@ ARG TARGETPLATFORM
 ARG TARGETARCH
 ARG BUILDPLATFORM
 WORKDIR /src
-COPY ["StreamMasterAPI/StreamMasterAPI.csproj", "StreamMasterAPI/"]
-COPY ["StreamMasterApplication/StreamMasterApplication.csproj", "StreamMasterApplication/"]
-COPY ["StreamMasterDomain/StreamMasterDomain.csproj", "StreamMasterDomain/"]
-COPY ["StreamMasterInfrastructure/StreamMasterInfrastructure.csproj", "StreamMasterInfrastructure/"]
-RUN dotnet restore "StreamMasterAPI/StreamMasterAPI.csproj" -a $TARGETARCH
+COPY ["StreamMaster.API/StreamMaster.API.csproj", "StreamMaster.API/"]
+COPY ["StreamMaster.Application/StreamMaster.Application.csproj", "StreamMaster.Application/"]
+COPY ["StreamMaster.Domain/StreamMaster.Domain.csproj", "StreamMaster.Domain/"]
+COPY ["StreamMaster.Infrastructure/StreamMaster.Infrastructure.csproj", "StreamMaster.Infrastructure/"]
+RUN dotnet restore "StreamMaster.API/StreamMaster.API.csproj" -a $TARGETARCH
 
 COPY . .
 
-WORKDIR "/src/StreamMasterAPI"
-RUN dotnet build "StreamMasterAPI.csproj" -c Debug -o /app/build -a $TARGETARCH
+WORKDIR "/src/StreamMaster.API"
+RUN dotnet build "StreamMaster.API.csproj" -c Debug -o /app/build -a $TARGETARCH
 RUN mkdir -p /etc/apt/keyrings
 RUN apt-get update -yq \
     && apt-get upgrade -yq \
@@ -40,14 +40,14 @@ WORKDIR /src/streammasterwebui
 COPY ["streammasterwebui/", "."]
 RUN npm install \
     && npm run build \
-    && cp -r dist/* /src/StreamMasterAPI/wwwroot/
+    && cp -r dist/* /src/StreamMaster.API/wwwroot/
 
 WORKDIR "/src/StreamMasterAPI"
 FROM build AS publish
 ARG TARGETPLATFORM
 ARG TARGETARCH
 ARG BUILDPLATFORM
-RUN dotnet publish --no-restore "StreamMasterAPI.csproj" -c Debug -o /app/publish /p:UseAppHost=false -a $TARGETARCH
+RUN dotnet publish --no-restore "StreamMaster.API.csproj" -c Debug -o /app/publish /p:UseAppHost=false -a $TARGETARCH
 
 FROM base AS final
 ARG TARGETPLATFORM
@@ -71,4 +71,4 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 RUN mkdir /config
 
-ENTRYPOINT ["/entrypoint.sh", "dotnet", "StreamMasterAPI.dll"]
+ENTRYPOINT ["/entrypoint.sh", "dotnet", "StreamMaster.API.dll"]

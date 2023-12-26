@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Extensions;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
@@ -35,16 +35,13 @@ public partial class SchedulesDirect
             {
                 //IncrementProgress();              
                 using StringReader reader = new(epgCache.JsonFiles[md5].Images);
+
                 List<ProgramArtwork>? artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(reader.ReadToEnd());
-                if (sportEvent.extras.ContainsKey("artwork"))
+                if (artwork != null)
                 {
-                    sportEvent.extras["artwork"] = artwork;
+                    sportEvent.extras.AddOrUpdate("artwork", artwork);
+                    sportEvent.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Program);
                 }
-                else
-                {
-                    sportEvent.extras.Add("artwork", artwork);
-                }
-                sportEvent.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Program);
             }
             else
             {
@@ -108,14 +105,7 @@ public partial class SchedulesDirect
 
             // get sports event images      
             List<ProgramArtwork> artwork = SDHelpers.GetTieredImages(response.Data, ["team event", "sport event"], artworkSize);
-            if (mxfProgram.extras.ContainsKey("artwork"))
-            {
-                mxfProgram.extras["artwork"] = artwork;
-            }
-            else
-            {
-                mxfProgram.extras.Add("artwork", artwork);
-            }
+            mxfProgram.extras.AddOrUpdate("artwork", artwork);
 
             mxfProgram.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Program, mxfProgram.extras["md5"]);
         }

@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Extensions;
 using StreamMaster.SchedulesDirect.Helpers;
 
-using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -26,7 +26,7 @@ public partial class SchedulesDirect
         int days = settings.SDSettings.SDEPGDays;
         days = Math.Clamp(days, 1, 14);
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
-        List<MxfService> toProcess = schedulesDirectData.Services.Where(a => !a.extras.ContainsKey("epgid")).ToList();
+        ICollection<MxfService> toProcess = schedulesDirectData.Services.Values;
 
         logger.LogInformation("Entering GetAllScheduleEntryMd5s() for {days} days on {Count} stations.", days, toProcess.Count);
         if (days <= 0)
@@ -95,7 +95,7 @@ public partial class SchedulesDirect
     private async Task<bool> GetMd5ScheduleEntries(string[] dates, int start, CancellationToken cancellationToken)
     {
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
-        List<MxfService> toProcess = schedulesDirectData.Services;
+        ICollection<MxfService> toProcess = schedulesDirectData.Services.Values;
         // reject 0 requests
         if (toProcess.Count - start < 1)
         {
@@ -104,18 +104,27 @@ public partial class SchedulesDirect
 
         // build request for station schedules
         ScheduleRequest[] requests = new ScheduleRequest[Math.Min(toProcess.Count - start, MaxQueries / dates.Length)];
-        for (int i = 0; i < requests.Length; ++i)
+        int i = 0;
+
+        foreach (MxfService service in toProcess)
         {
-            if (toProcess[start + i].StationId == "DUMMY")
+            if (service.StationId == "DUMMY")
             {
                 continue;
             }
-            requests[i] = new ScheduleRequest()
+
+            requests[i++] = new ScheduleRequest()
             {
-                StationId = toProcess[start + i].StationId,
+                StationId = service.StationId,
                 Date = dates
             };
+
+            if (i >= requests.Length)
+            {
+                break;
+            }
         }
+
 
         // request schedule md5s from Schedules Direct
         Dictionary<string, Dictionary<string, ScheduleMd5Response>>? stationResponses = await GetScheduleMd5sAsync(requests, cancellationToken);
@@ -341,7 +350,7 @@ public partial class SchedulesDirect
 
             // prepopulate some of the program
             MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(scheduleProgram.ProgramId);
-            Debug.Assert(!mxfProgram.extras.ContainsKey("epgid"));
+
             if (mxfProgram.extras.Count == 0)
             {
                 mxfProgram.UidOverride = $"{scheduleProgram.ProgramId[..10]}_{scheduleProgram.ProgramId[10..]}";
@@ -366,7 +375,7 @@ public partial class SchedulesDirect
 
             if (scheduleProgram.Premiere)
             {
-                mxfProgram.extras["premiere"] = true; // used only for movie and miniseries premieres
+                mxfProgram.extras.AddOrUpdate("premiere", true);
             }
 
             // grab any tvratings from desired countries

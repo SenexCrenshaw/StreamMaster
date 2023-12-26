@@ -1,26 +1,34 @@
 ﻿using StreamMaster.SchedulesDirect.Domain.Models;
 
-using System.Xml.Serialization;
+using System.Collections.Concurrent;
 
 
 namespace StreamMaster.SchedulesDirect.Domain.Interfaces
 {
     public interface ISchedulesDirectData
     {
-        void ResetLists();
-        MxfService? GetService(string stationId);
-        [XmlArrayItem("Lineup")]
-        public List<MxfLineup> Lineups { get; set; }
-        [XmlArrayItem("SeriesInfo")]
-        public List<MxfSeriesInfo> SeriesInfos { get; set; }
-        public List<MxfProvider> Providers { get; set; }
-        List<MxfKeywordGroup> KeywordGroups { get; set; }
-        List<MxfKeyword> Keywords { get; set; }
-        List<MxfSeason> SeasonsToProcess { get; set; }
+        ConcurrentDictionary<string, MxfAffiliate> Affiliates { get; set; }
+        ConcurrentDictionary<string, MxfGuideImage> GuideImages { get; set; }
+        ConcurrentBag<MxfKeyword> Keywords { get; set; }
+        ConcurrentDictionary<string, MxfKeywordGroup> KeywordGroups { get; set; }
+        ConcurrentDictionary<string, MxfLineup> Lineups { get; set; }
+        ConcurrentDictionary<string, MxfPerson> People { get; set; }
+
+        ConcurrentDictionary<string, MxfProgram> Programs { get; set; }
         List<MxfProgram> ProgramsToProcess { get; set; }
-        List<MxfProgram> Programs { get; set; }
-        List<MxfService> Services { get; set; }
+
+        ConcurrentBag<MxfProvider> Providers { get; set; }
+
+        ConcurrentDictionary<string, MxfSeason> Seasons { get; set; }
+        ConcurrentDictionary<string, MxfSeriesInfo> SeriesInfos { get; set; }
         List<MxfSeriesInfo> SeriesInfosToProcess { get; set; }
+
+        List<MxfSeason> SeasonsToProcess { get; set; }
+
+
+        ConcurrentDictionary<string, MxfService> Services { get; set; }
+
+
         MxfPerson FindOrCreatePerson(string name);
         MxfSeason FindOrCreateSeason(string seriesId, int seasonNumber, string protoTypicalProgram);
         MxfSeriesInfo FindOrCreateSeriesInfo(string seriesId, string? protoTypicalProgram = null);
@@ -30,7 +38,10 @@ namespace StreamMaster.SchedulesDirect.Domain.Interfaces
         MxfGuideImage FindOrCreateGuideImage(string pathname);
         MxfLineup FindOrCreateLineup(string lineupId, string lineupName);
         MxfService FindOrCreateService(string stationId);
+        MxfService? GetService(string stationId);
+
         void RemoveProgram(string programId);
         void RemoveService(string stationId);
+        void ResetLists();
     }
 }

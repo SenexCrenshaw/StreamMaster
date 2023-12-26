@@ -7,9 +7,14 @@ using System.Collections.Concurrent;
 
 namespace StreamMaster.SchedulesDirect.Data;
 
-public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, ISettingsService settingsService, IMemoryCache memoryCache) : ISchedulesDirectDataService
+public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, IXMLTVBuilder xMLTVBuilder, ISettingsService settingsService, IMemoryCache memoryCache) : ISchedulesDirectDataService
 {
     public ConcurrentDictionary<int, ISchedulesDirectData> SchedulesDirectDatas { get; private set; } = new();
+
+    public XMLTV? CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs)
+    {
+        return xMLTVBuilder.CreateXmlTv(baseUrl, videoStreamConfigs, AllServices, AllPrograms, this);
+    }
 
     public void Reset(int? epgId = null)
     {
@@ -27,7 +32,7 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, ISe
     {
         get
         {
-            List<MxfService> services = SchedulesDirectDatas.Values.SelectMany(d => d.Services).ToList();
+            List<MxfService> services = SchedulesDirectDatas.Values.SelectMany(d => d.Services.Values).ToList();
             return services;
         }
     }
@@ -36,8 +41,35 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, ISe
     {
         get
         {
-            List<MxfProgram> programs = SchedulesDirectDatas.Values.SelectMany(d => d.Programs).ToList();
+            List<MxfProgram> programs = SchedulesDirectDatas.Values.SelectMany(d => d.Programs.Values).ToList();
             return programs;
+        }
+    }
+
+    public List<MxfKeyword> AllKeywords
+    {
+        get
+        {
+            List<MxfKeyword> keywords = SchedulesDirectDatas.Values.SelectMany(d => d.Keywords).ToList();
+            return keywords;
+        }
+    }
+
+    public List<MxfLineup> AllLineups
+    {
+        get
+        {
+            List<MxfLineup> lineups = SchedulesDirectDatas.Values.SelectMany(d => d.Lineups.Values).ToList();
+            return lineups;
+        }
+    }
+
+    public List<MxfSeriesInfo> AllSeriesInfos
+    {
+        get
+        {
+            List<MxfSeriesInfo> seriesInfo = SchedulesDirectDatas.Values.SelectMany(d => d.SeriesInfos.Values).ToList();
+            return seriesInfo;
         }
     }
 

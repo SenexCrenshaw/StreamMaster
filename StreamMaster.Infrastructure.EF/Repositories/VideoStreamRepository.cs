@@ -9,29 +9,18 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Requests;
-using StreamMaster.Domain.Services;
-using StreamMaster.SchedulesDirect.Domain.JsonClasses;
-using StreamMaster.SchedulesDirect.Domain.Models;
-
 using StreamMaster.Application.ChannelGroups.Queries;
-using StreamMaster.Application.Common.Logging;
 using StreamMaster.Application.EPG.Queries;
 using StreamMaster.Application.Icons.Queries;
 using StreamMaster.Application.M3UFiles.Queries;
 using StreamMaster.Application.SchedulesDirect.Queries;
 
 using StreamMaster.Infrastructure.EF.Helpers;
+using StreamMaster.SchedulesDirect.Domain.JsonClasses;
+using StreamMaster.SchedulesDirect.Domain.Models;
 
 using System.Linq.Dynamic.Core;
+
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 

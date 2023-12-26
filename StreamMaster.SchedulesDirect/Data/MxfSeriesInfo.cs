@@ -1,4 +1,7 @@
-﻿using System.Xml.Serialization;
+﻿using StreamMaster.Domain.Extensions;
+
+using System.Collections.Concurrent;
+using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Data;
 
@@ -6,19 +9,17 @@ public partial class SchedulesDirectData
 {
     [XmlIgnore] public List<MxfSeriesInfo> SeriesInfosToProcess { get; set; } = [];
 
-    private Dictionary<string, MxfSeriesInfo> _seriesInfos = [];
+    [XmlArrayItem("SeriesInfo")]
+    public ConcurrentDictionary<string, MxfSeriesInfo> SeriesInfos { get; set; } = [];
+
     public MxfSeriesInfo FindOrCreateSeriesInfo(string seriesId, string? protoTypicalProgram = null)
     {
-        if (_seriesInfos.TryGetValue(seriesId, out MxfSeriesInfo? seriesInfo))
+        (MxfSeriesInfo seriesInfo, bool created) = SeriesInfos.FindOrCreateWithStatus(seriesId, key => new MxfSeriesInfo(SeriesInfos.Count + 1, seriesId, protoTypicalProgram));
+        if (created)
         {
             return seriesInfo;
         }
 
-        seriesInfo = new MxfSeriesInfo(SeriesInfos.Count + 1, seriesId, protoTypicalProgram);
-
-
-        SeriesInfos.Add(seriesInfo);
-        _seriesInfos.Add(seriesId, seriesInfo);
         SeriesInfosToProcess.Add(seriesInfo);
         return seriesInfo;
     }

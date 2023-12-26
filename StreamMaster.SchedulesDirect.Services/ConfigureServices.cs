@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
+using StreamMaster.Domain.Services;
 using StreamMaster.SchedulesDirect.Cache;
 using StreamMaster.SchedulesDirect.Converters;
 using StreamMaster.SchedulesDirect.Data;
@@ -15,6 +16,8 @@ public static class ConfigureServices
         _ = services.AddSingleton<IEPGCache, EPGCache>();
         _ = services.AddSingleton<ISchedulesDirectDataService, SchedulesDirectDataService>();
         _ = services.AddSingleton<ISchedulesDirect, SchedulesDirect>();
+        _ = services.AddSingleton<IXMLTVBuilder, XMLTVBuilder>();
+
 
         return services;
     }

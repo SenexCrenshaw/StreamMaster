@@ -2,8 +2,6 @@ using Microsoft.Extensions.Caching.Memory;
 
 using Prometheus;
 
-using StreamMasterAPI;
-
 using StreamMaster.Application;
 using StreamMaster.Application.Hubs;
 
@@ -19,6 +17,7 @@ using System.Text.Json.Serialization;
 using StreamMaster.Domain.Services;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Cache;
+using StreamMaster.API;
 
 FileUtil.SetupDirectories();
 

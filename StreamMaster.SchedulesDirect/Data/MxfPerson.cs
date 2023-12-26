@@ -1,20 +1,17 @@
-﻿namespace StreamMaster.SchedulesDirect.Data;
+﻿using StreamMaster.Domain.Extensions;
+
+using System.Collections.Concurrent;
+using System.Xml.Serialization;
+
+namespace StreamMaster.SchedulesDirect.Data;
 
 public partial class SchedulesDirectData
 {
-    private Dictionary<string, MxfPerson> _people = [];
+    [XmlArrayItem("Person")]
+    public ConcurrentDictionary<string, MxfPerson> People { get; set; } = [];
+
     public MxfPerson FindOrCreatePerson(string name)
     {
-        if (_people.TryGetValue(name, out MxfPerson? person))
-        {
-            return person;
-        }
-
-        person = new MxfPerson(People.Count + 1, name);
-
-
-        People.Add(person);
-        _people.Add(name, person);
-        return person;
+        return People.FindOrCreate(name, key => new MxfPerson(People.Count + 1, key));
     }
 }

@@ -1,11 +1,4 @@
-﻿
-
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-namespace StreamMaster.Application.EPGFiles.Queries;
+﻿namespace StreamMaster.Application.EPGFiles.Queries;
 
 public record GetEPGFile(int Id) : IRequest<EPGFileDto?>;
 
@@ -20,8 +13,8 @@ internal class GetEPGFileHandler(ILogger<GetEPGFile> logger, IRepositoryWrapper 
         }
         EPGFileDto epgFileDto = Mapper.Map<EPGFileDto>(epgFile);
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(epgFileDto.Id);
-        IEnumerable<MxfProgram> programmes = schedulesDirectData.Programs;
-        IEnumerable<MxfService> channels = schedulesDirectData.Services;
+        int programmes = schedulesDirectData.Programs.Count;
+        int channels = schedulesDirectData.Services.Count;
 
         //var c = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
         //  var proprammes = c.Where(a => a.EPGFileId == epgFile.Id).ToList();
@@ -30,8 +23,8 @@ internal class GetEPGFileHandler(ILogger<GetEPGFile> logger, IRepositoryWrapper 
         //    epgFileDto.EPGStartDate = proprammes.Min(a => a.s);
         //    epgFileDto.EPGStopDate = proprammes.Max(a => a.StopDateTime);
         //}
-        epgFileDto.ProgrammeCount = programmes.Count();
-        epgFileDto.ChannelCount = channels.Count();
+        epgFileDto.ProgrammeCount = programmes;
+        epgFileDto.ChannelCount = channels;
         return epgFileDto;
     }
 }

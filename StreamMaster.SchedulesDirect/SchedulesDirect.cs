@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Services;
@@ -161,27 +160,10 @@ public partial class SchedulesDirect : ISchedulesDirect
 
         MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup("ZZZ-DUMMY-StreamMaster", "ZZZSM Dummy Lineup");
         mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
-        CreateDummyLineupChannels();
+
     }
 
-    private void CreateDummyLineupChannels()
-    {
-        //using IServiceScope scope = serviceProvider.CreateScope();
-        //IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-        //List<VideoStream> dummies = [.. repository.VideoStream.FindByCondition(x => x.User_Tvg_ID == "DUMMY")];
 
-        //foreach (VideoStream dummy in dummies)
-        //{
-        //    string dummyName = "DUMMY-" + dummy.Id;
-
-        //    MxfService mxfService = schedulesDirectData.FindOrCreateService(dummyName);
-        //    mxfService.CallSign = dummy.User_Tvg_name;
-        //    mxfService.Name = dummy.User_Tvg_name;
-
-        //    MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup($"ZZZ-{dummyName}-StreamMaster", $"ZZZSM {dummyName} Lineup");
-        //    mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
-        //}
-    }
 
     public async Task<UserStatus> GetUserStatus(CancellationToken cancellationToken)
     {
@@ -302,6 +284,6 @@ public partial class SchedulesDirect : ISchedulesDirect
         sportEvents = [];
         epgCache.ResetEPGCache();
 
-        schedulesDirectDataService.Reset();
+        schedulesDirectDataService.Reset(0);
     }
 }

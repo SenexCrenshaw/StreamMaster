@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
@@ -28,7 +27,7 @@ public partial class SchedulesDirect
         }
 
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
-        List<MxfSeason> toProcess = schedulesDirectData.SeasonsToProcess;
+        var toProcess = schedulesDirectData.SeasonsToProcess;
         // scan through each series in the mxf
         logger.LogInformation("Entering GetAllSeasonImages() for {totalObjects} seasons.", toProcess.Count);
         foreach (MxfSeason season in toProcess)

@@ -5,19 +5,17 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Repository;
-using StreamMaster.SchedulesDirect.Domain.Interfaces;
-
 using StreamMaster.Application.EPGFiles.Commands;
 using StreamMaster.Application.EPGFiles.Queries;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.M3UFiles.Queries;
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.Settings.Queries;
+using StreamMaster.Domain.Cache;
+using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Dto;
+using StreamMaster.Domain.Repository;
+using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 namespace StreamMaster.Infrastructure.Services;
 
@@ -91,7 +89,7 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
             {
                 if (jobStatus.ForceNextRun || jobStatus.IsErrored || (now - jobStatus.LastSuccessful).TotalMinutes > 60)
                 {
-                    schedulesDirect.ResetEPGCache();
+                    //schedulesDirect.ResetEPGCache();
 
                     logger.LogInformation("EPGSync started. {status}", memoryCache.GetSyncJobStatus());
                     await mediator.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);

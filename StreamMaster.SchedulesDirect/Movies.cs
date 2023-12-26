@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Extensions;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
@@ -43,7 +43,7 @@ public partial class SchedulesDirect
 
                 if (artwork != null)
                 {
-                    mxfProgram.extras["artwork"] = artwork;
+                    mxfProgram.extras.AddOrUpdate("artwork", artwork);
                     mxfProgram.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Movie);
                 }
 
@@ -101,7 +101,8 @@ public partial class SchedulesDirect
             artwork = SDHelpers.GetTieredImages(response.Data, ["episode"], artworkSize).Where(arg => arg.Aspect.Equals("2x3")).ToList();
             if (artwork.Any())
             {
-                mxfProgram.extras.Add("artwork", artwork);
+                mxfProgram.extras.AddOrUpdate("artwork", artwork);
+
                 mxfProgram.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Movie, mxfProgram.extras["md5"]);
             }
             //// second choice is from TMDb if allowed and available

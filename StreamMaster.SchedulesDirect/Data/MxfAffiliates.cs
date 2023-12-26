@@ -1,18 +1,17 @@
-﻿
+﻿using StreamMaster.Domain.Extensions;
+
+using System.Collections.Concurrent;
+using System.Xml.Serialization;
+
 namespace StreamMaster.SchedulesDirect.Data;
 
 public partial class SchedulesDirectData
 {
-    private Dictionary<string, MxfAffiliate> _affiliates = [];
+    [XmlArrayItem("Affiliate")]
+    public ConcurrentDictionary<string, MxfAffiliate> Affiliates { get; set; } = [];
+
     public MxfAffiliate FindOrCreateAffiliate(string affiliateName)
     {
-        if (_affiliates.TryGetValue(affiliateName, out MxfAffiliate? affiliate))
-        {
-            return affiliate;
-        }
-
-        Affiliates.Add(affiliate = new MxfAffiliate(affiliateName));
-        _affiliates.Add(affiliateName, affiliate);
-        return affiliate;
+        return Affiliates.FindOrCreate(affiliateName, key => new MxfAffiliate(affiliateName));
     }
 }

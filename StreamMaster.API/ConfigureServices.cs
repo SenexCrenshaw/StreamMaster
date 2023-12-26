@@ -14,29 +14,25 @@ using NSwag.Generation.Processors.Security;
 
 using Prometheus;
 
+using StreamMaster.Application.Common.Interfaces;
+using StreamMaster.Application.Hubs;
+using StreamMaster.Application.Services;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.EnvironmentInfo;
 using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Services;
-
-using StreamMasterAPI.SchemaHelpers;
-using StreamMasterAPI.Services;
-
-using StreamMaster.Application.Common.Interfaces;
-using StreamMaster.Application.Common.Logging;
-using StreamMaster.Application.Hubs;
-using StreamMaster.Application.Services;
-
 using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.Authentication;
+using StreamMaster.Infrastructure.EF;
 using StreamMaster.Infrastructure.Logger;
 using StreamMaster.Infrastructure.Services;
 using StreamMaster.Infrastructure.Services.Frontend;
 using StreamMaster.Infrastructure.Services.QueueService;
 
-using StreamMaster.Infrastructure.EF;
+using StreamMasterAPI.SchemaHelpers;
+using StreamMasterAPI.Services;
 
-namespace StreamMasterAPI;
+namespace StreamMaster.API;
 
 public static class ConfigureServices
 {

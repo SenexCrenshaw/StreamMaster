@@ -3,7 +3,6 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
@@ -85,7 +84,7 @@ public partial class SchedulesDirect
     }
 
 
-    private void UpdateIcons(List<MxfService> Services)
+    private void UpdateIcons(ICollection<MxfService> Services)
     {
         foreach (MxfService? service in Services.Where(a => a.extras.ContainsKey("logo")))
         {

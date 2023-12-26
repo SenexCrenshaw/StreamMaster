@@ -1,12 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Extensions;
+
 namespace StreamMaster.SchedulesDirect;
 public partial class SchedulesDirect
 {
     private bool BuildKeywords()
     {
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
-        foreach (MxfKeywordGroup? group in schedulesDirectData.KeywordGroups.Where(a => !a.extras.ContainsKey("epgid")).ToList())
+        foreach (MxfKeywordGroup? group in schedulesDirectData.KeywordGroups.Values)
         {
             // sort the group keywords
             group.mxfKeywords = group.mxfKeywords.OrderBy(k => k.Word).ToList();

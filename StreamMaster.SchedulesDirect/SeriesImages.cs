@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Extensions;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
@@ -30,15 +31,15 @@ public partial class SchedulesDirect
         int refreshing = 0;
 
         Setting setting = memoryCache.GetSetting();
-        List<string> test = toProcess.Select(a => a.ProtoTypicalProgram).Distinct().ToList();
-        List<string> programs = schedulesDirectData.Programs.Select(a => a.ProgramId).Distinct().ToList();
+        //List<string> test = toProcess.Select(a => a.ProtoTypicalProgram).Distinct().ToList();
+        //List<string> programs = schedulesDirectData.Programs.Select(a => a.ProgramId).Distinct().ToList();
         // scan through each series in the mxf
         foreach (MxfSeriesInfo series in toProcess)
         {
             string seriesId;
 
-            MxfProgram? prog = schedulesDirectData.Programs.FirstOrDefault(a => a.ProgramId == series.ProtoTypicalProgram);
-            if (prog != null)
+            //MxfProgram? prog = schedulesDirectData.Programs.FirstOrDefault(a => a.ProgramId == series.ProtoTypicalProgram);
+            if (!schedulesDirectData.Programs.TryGetValue(series.ProtoTypicalProgram, out MxfProgram? program))
             {
                 continue;
             }
@@ -73,14 +74,7 @@ public partial class SchedulesDirect
                 // Add artwork to series.extras
                 if (artwork != null)
                 {
-                    if (series.extras.ContainsKey("artwork"))
-                    {
-                        series.extras["artwork"] = artwork;
-                    }
-                    else
-                    {
-                        series.extras.Add("artwork", artwork);
-                    }
+                    series.extras.AddOrUpdate("artwork", artwork);
                 }
 
                 MxfGuideImage? res = GetGuideImageAndUpdateCache(artwork, ImageType.Series);

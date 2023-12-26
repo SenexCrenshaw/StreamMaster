@@ -1,4 +1,7 @@
-﻿using System.Xml.Serialization;
+﻿using StreamMaster.Domain.Extensions;
+
+using System.Collections.Concurrent;
+using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Data;
 
@@ -6,40 +9,36 @@ public partial class SchedulesDirectData
 {
     [XmlIgnore] public List<MxfService> ServicesToProcess = [];
 
-    private Dictionary<string, MxfService> _services = [];
+    [XmlArrayItem("Service")]
+    public ConcurrentDictionary<string, MxfService> Services { get; set; } = [];
+
+    [XmlElement("ScheduleEntries")]
+    public List<MxfScheduleEntries> ScheduleEntries { get; set; } = [];
+
     public MxfService FindOrCreateService(string stationId)
     {
-        if (_services.TryGetValue(stationId, out MxfService? service))
+        (MxfService service, bool created) = Services.FindOrCreateWithStatus(stationId, key => new MxfService(Services.Count + 1, stationId)
+        {
+            EPGId = EPGId
+        });
+        if (created)
         {
             return service;
         }
 
-        service = new MxfService(Services.Count + 1, stationId)
-        {
-            EPGId = EPGId
-        };
-
-        Services.Add(service);
-
         ScheduleEntries.Add(service.MxfScheduleEntries);
-        _services.Add(stationId, service);
         ServicesToProcess.Add(service);
         return service;
     }
 
     public void RemoveService(string stationId)
     {
-        if (!_services.TryGetValue(stationId, out MxfService? service))
-        {
-            return;
-        }
-        _services.Remove(stationId);
-        Services.Remove(service);
+        Services.TryRemove(stationId, out _);
     }
 
     public MxfService? GetService(string stationId)
     {
-        return _services.TryGetValue(stationId, out MxfService? service) ? service : null;
+        return Services.TryGetValue(stationId, out MxfService? service) ? service : null;
     }
 
 }

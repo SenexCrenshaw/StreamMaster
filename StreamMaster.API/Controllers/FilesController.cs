@@ -7,16 +7,16 @@ using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
+using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Models;
 using StreamMaster.SchedulesDirect.Helpers;
 
+using StreamMasterAPI.Controllers;
 using StreamMasterAPI.Interfaces;
-
-using StreamMaster.Application.Common.Logging;
 
 using System.Web;
 
-namespace StreamMasterAPI.Controllers;
+namespace StreamMaster.API.Controllers;
 
 public class FilesController(IMemoryCache memoryCache, IContentTypeProvider mimeTypeProvider) : ApiControllerBase, IFileController
 {
@@ -116,13 +116,7 @@ public class FilesController(IMemoryCache memoryCache, IContentTypeProvider mime
         returnName = $"{icon.Name}.{icon.Extension}";
         fileName = $"{fd.DirectoryLocation}{returnName}";
 
-        if (System.IO.File.Exists(fileName))
-        {
-            return (returnName, fileName);
-        }
-
-
-        return (null, null);
+        return System.IO.File.Exists(fileName) ? ((string? returnName, string? fullPath))(returnName, fileName) : ((string? returnName, string? fullPath))(null, null);
     }
 
 

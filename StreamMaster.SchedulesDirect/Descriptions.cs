@@ -19,9 +19,9 @@ public partial class SchedulesDirect
         logger.LogInformation($"Entering BuildAllGenericSeriesInfoDescriptions() for {totalObjects} series.");
 
         List<MxfSeriesInfo> a = schedulesDirectData.SeriesInfosToProcess;
-        List<MxfProgram> b = schedulesDirectData.Programs;
-        List<MxfProvider> c = schedulesDirectData.Providers;
-        List<MxfSeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess.Where(a => !a.extras.ContainsKey("epgid")).ToList();
+        ConcurrentDictionary<string, MxfProgram> b = schedulesDirectData.Programs;
+        ConcurrentBag<MxfProvider> c = schedulesDirectData.Providers;
+        List<MxfSeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess;
         // fill mxf programs with cached values and queue the rest
         foreach (MxfSeriesInfo series in toProcess)
         {

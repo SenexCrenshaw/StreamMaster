@@ -1,6 +1,4 @@
-﻿using StreamMaster.SchedulesDirect.Domain;
-
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Text.Json.Serialization;
 using System.Xml.Serialization;
 
@@ -32,8 +30,10 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
 
         [JsonPropertyName("originalAirDate")]
         public DateTime OriginalAirDate { get; set; }
-        public bool ShouldSerializeOriginalAirDate() => OriginalAirDate.Ticks > 0;
-
+        public bool ShouldSerializeOriginalAirDate()
+        {
+            return OriginalAirDate.Ticks > 0;
+        }
 
         [XmlAttribute(AttributeName = "channel")]
         public string Channel { get; set; } = string.Empty;
@@ -129,7 +129,10 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
 
         [JsonPropertyName("gameDate")]
         public DateTime GameDate { get; set; }
-        public bool ShouldSerializeGameDate() => GameDate.Ticks > 0;
+        public bool ShouldSerializeGameDate()
+        {
+            return GameDate.Ticks > 0;
+        }
     }
 
     public class ProgramEventDetailsTeam

@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Pagination;
 using StreamMaster.Domain.Repository;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
@@ -34,7 +32,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryCont
 
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(epgFile.Id);
 
-        List<MxfService> services = schedulesDirectData.Services;
+        ICollection<MxfService> services = schedulesDirectData.Services.Values;
         List<EPGFilePreviewDto> ret = [];
         foreach (MxfService? service in services)
         {

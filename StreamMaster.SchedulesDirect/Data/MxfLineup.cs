@@ -1,19 +1,17 @@
-﻿namespace StreamMaster.SchedulesDirect.Data;
+﻿using StreamMaster.Domain.Extensions;
+
+using System.Collections.Concurrent;
+using System.Xml.Serialization;
+
+namespace StreamMaster.SchedulesDirect.Data;
 
 public partial class SchedulesDirectData
 {
-    private Dictionary<string, MxfLineup> _lineups = [];
+    [XmlArrayItem("Lineup")]
+    public ConcurrentDictionary<string, MxfLineup> Lineups { get; set; } = new();
+
     public MxfLineup FindOrCreateLineup(string lineupId, string lineupName)
     {
-        if (_lineups.TryGetValue(lineupId, out MxfLineup? lineup))
-        {
-            return lineup;
-        }
-        lineup = new MxfLineup(Lineups.Count + 1, lineupId, lineupName);
-
-        Lineups.Add(lineup);
-        _lineups.Add(lineupId, lineup);
-        return lineup;
+        return Lineups.FindOrCreate(lineupId, key => new MxfLineup(Lineups.Count + 1, lineupId, lineupName));
     }
-
 }

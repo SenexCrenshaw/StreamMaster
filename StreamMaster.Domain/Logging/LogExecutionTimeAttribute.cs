@@ -1,11 +1,11 @@
 ﻿using AspectInjector.Broker;
 
-using StreamMaster.Domain.Common;
+using Microsoft.Extensions.Logging;
 
 using System.Diagnostics;
 using System.Reflection;
 
-namespace StreamMaster.Application.Common.Logging;
+namespace StreamMaster.Domain.Logging;
 
 
 [Aspect(Scope.Global)]
@@ -25,13 +25,13 @@ public class LogExecutionTimeAspect : Attribute
         string abbreviatedNamespace = AbbreviateNamespace(method.DeclaringType.FullName);
         string nameToLog = $"{abbreviatedNamespace}.{name}";
 
-        if (nameToLog.ToLower().Contains("getstreamgroups"))
+        if (nameToLog.ToLower().Contains("xmltv"))
         {
             int a = 1;
 
         }
 
-        if (!ShouldLog(method.DeclaringType.FullName, LogPerformance))
+        if (!nameToLog.ToLower().Contains("xmltvbuilder") && !ShouldLog(method.DeclaringType.FullName, LogPerformance))
         {
             return target(args); // If the name doesn't match any string in the list, execute the method without any logging logic.
         }
@@ -71,7 +71,7 @@ public class LogExecutionTimeAspect : Attribute
 
     private static bool ShouldLog(string nameToLog, List<string> LogPerformance)
     {
-        if ( nameToLog.Contains("GetStreamGroupLineupStatusHandler") || nameToLog.Contains("GetStreamGroupDiscoverHandler"))
+        if (nameToLog.Contains("GetStreamGroupLineupStatusHandler") || nameToLog.Contains("GetStreamGroupDiscoverHandler"))
         {
             return false;
         }
