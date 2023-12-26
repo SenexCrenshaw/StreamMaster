@@ -40,11 +40,11 @@ const SchedulesDirectHeadendDataSelector = () => {
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'headendId', filter: true, sortable: true },
+      { field: 'headendId', filter: true, sortable: true, width: '6rem' },
       { field: 'lineup', filter: true, sortable: true },
       { field: 'location', filter: true, sortable: true },
       { field: 'name', filter: true, sortable: true },
-      { field: 'transport', sortable: true },
+      { field: 'transport', sortable: true, width: '6rem' },
       {
         bodyTemplate: actionBodyTemplate,
         field: 'Add',

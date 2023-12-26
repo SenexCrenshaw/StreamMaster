@@ -135,7 +135,7 @@ public partial class SchedulesDirect
 
         // build request of daily schedules not downloaded yet
         List<ScheduleRequest> newRequests = [];
-        foreach (ScheduleRequest request in requests)
+        foreach (ScheduleRequest request in requests.Where(a => a is not null))
         {
 
             Dictionary<int, string> requestErrors = [];

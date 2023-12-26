@@ -23,7 +23,7 @@ const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSe
       { field: 'lineup', sortable: true },
       { field: 'location', sortable: true },
       { field: 'name', sortable: true },
-      { field: 'transport', sortable: true },
+      { field: 'transport', sortable: true, width: '6rem' },
       {
         align: 'center',
         bodyTemplate: actionBodyTemplate,

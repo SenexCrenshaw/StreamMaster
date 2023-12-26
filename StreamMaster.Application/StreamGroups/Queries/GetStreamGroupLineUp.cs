@@ -2,13 +2,8 @@
 
 using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 using StreamMaster.Application.Common.Extensions;
+using StreamMaster.Domain.Authentication;
 
 using System.Text.Json;
 using System.Web;
@@ -41,7 +36,7 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
         }
 
         string url = httpContextAccessor.GetUrl();
-        List<SGLineup> ret = new();
+        List<SGLineup> ret = [];
 
         //IEnumerable<VideoStream> videoStreams;
         //if (request.StreamGroupId > 1)
@@ -70,7 +65,7 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
             return JsonSerializer.Serialize(ret);
         }
 
-        foreach (VideoStreamDto videoStream in videoStreams)
+        foreach (VideoStreamDto videoStream in videoStreams.OrderBy(a => a.User_Tvg_chno))
         {
             if (setting.M3UIgnoreEmptyEPGID &&
             (string.IsNullOrEmpty(videoStream.User_Tvg_ID) || videoStream.User_Tvg_ID.ToLower() == "dummy"))

@@ -42,7 +42,7 @@ RUN npm install \
     && npm run build \
     && cp -r dist/* /src/StreamMaster.API/wwwroot/
 
-WORKDIR "/src/StreamMasterAPI"
+WORKDIR "/src/StreamMaster.API"
 FROM build AS publish
 ARG TARGETPLATFORM
 ARG TARGETARCH

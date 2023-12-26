@@ -3,12 +3,6 @@
 using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Domain.Color;
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
 
 using System.Web;
 
@@ -41,19 +35,19 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, I
         {
             FileDefinition fd = FileDefinitions.EPG;
 
-            string fullName = Path.Combine(fd.DirectoryLocation, command.Name + fd.FileExtension);
+            string fullName = Path.Combine(fd.DirectoryLocation, command.Name + ".xmltv");
 
             EPGFile epgFile = new()
             {
                 Description = command.Description ?? "",
                 Name = command.Name,
-                Source = command.Name + fd.FileExtension,
+                Source = command.Name + ".xmltv",
                 Color = command.Color ?? ColorHelper.GetColor(command.Name)
             };
 
             if (command.FormFile != null)
             {
-                epgFile.Source = command.Name + fd.FileExtension;
+                epgFile.Source = command.Name + ".xmltv";
 
                 Logger.LogInformation("Adding EPG From Form: {fullName}", fullName);
                 (bool success, Exception? ex) = await FormHelper.SaveFormFileAsync(command.FormFile!, fullName).ConfigureAwait(false);
