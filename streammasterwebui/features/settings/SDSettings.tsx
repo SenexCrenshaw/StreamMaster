@@ -1,13 +1,13 @@
 import { GetMessage } from '@lib/common/common';
 import { Fieldset } from 'primereact/fieldset';
+import { SelectItem } from 'primereact/selectitem';
 import React from 'react';
 import { getCheckBoxLine } from './getCheckBoxLine';
+import { getDropDownLine } from './getDropDownLine';
 import { getInputNumberLine } from './getInputNumberLine';
 import { getInputTextLine } from './getInputTextLine';
 import { getPasswordLine } from './getPasswordLine';
 import { useSettingChangeHandler } from './useSettingChangeHandler';
-import { getDropDownLine } from './getDropDownLine';
-import { SelectItem } from 'primereact/selectitem';
 
 export function SDSettings(): React.ReactElement {
   const { onChange, selectedCurrentSettingDto } = useSettingChangeHandler();
@@ -74,6 +74,7 @@ export function SDSettings(): React.ReactElement {
       {getDropDownLine({ field: 'sdSettings.seriesPosterAspect', options: getArtworkAspectOptions(), selectedCurrentSettingDto, onChange })}
       {getDropDownLine({ field: 'sdSettings.artworkSize', options: getArtworkSizeOptions(), selectedCurrentSettingDto, onChange })}
       {getCheckBoxLine({ field: 'sdSettings.excludeCastAndCrew', selectedCurrentSettingDto, onChange })}
+      {getCheckBoxLine({ field: 'sdSettings.xmltvIncludeChannelNumbers', selectedCurrentSettingDto, onChange })}
       {getCheckBoxLine({ field: 'sdSettings.alternateSEFormat', selectedCurrentSettingDto, onChange })}
       {getCheckBoxLine({ field: 'sdSettings.prefixEpisodeDescription', selectedCurrentSettingDto, onChange })}
       {getCheckBoxLine({ field: 'sdSettings.prefixEpisodeTitle', selectedCurrentSettingDto, onChange })}

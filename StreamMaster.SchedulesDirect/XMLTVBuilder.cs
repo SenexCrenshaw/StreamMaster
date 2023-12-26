@@ -128,52 +128,65 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
 
             }
 
-            Parallel.ForEach(toProcess, service =>
+            try
             {
-                if (service.StationId != "DUMMY")
+                Parallel.ForEach(toProcess, service =>
                 {
-                    xmlTv.Channels.Add(BuildXmltvChannel(service, videoStreamConfigs));
-
-                    if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && settings.SDSettings.XmltvAddFillerData)
+                    if (service.StationId != "DUMMY")
                     {
-                        // add a program specific for this service
-                        MxfProgram program = new(programs.Count + 1, $"SM-{service.StationId}")
-                        {
-                            Title = service.Name,
-                            Description = settings.SDSettings.XmltvFillerProgramDescription,
-                            IsGeneric = true
-                        };// schedulesDirectData.FindOrCreateProgram($"SM-{service.StationId}");
+                        xmlTv.Channels.Add(BuildXmltvChannel(service, videoStreamConfigs));
 
-                        // populate the schedule entries
-                        DateTime startTime = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 0, 0, 0);
-                        DateTime stopTime = startTime + TimeSpan.FromDays(settings.SDSettings.SDEPGDays);
-                        do
+                        if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && settings.SDSettings.XmltvAddFillerData)
                         {
-                            service.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
+                            // add a program specific for this service
+                            MxfProgram program = new(programs.Count + 1, $"SM-{service.StationId}")
                             {
-                                Duration = settings.SDSettings.XmltvFillerProgramLength * 60 * 60,
-                                mxfProgram = program,
-                                StartTime = startTime,
-                                IsRepeat = true
-                            });
-                            startTime += TimeSpan.FromHours(settings.SDSettings.XmltvFillerProgramLength);
-                        } while (startTime < stopTime);
+                                Title = service.Name,
+                                Description = settings.SDSettings.XmltvFillerProgramDescription,
+                                IsGeneric = true
+                            };// schedulesDirectData.FindOrCreateProgram($"SM-{service.StationId}");
+
+                            // populate the schedule entries
+                            DateTime startTime = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 0, 0, 0);
+                            DateTime stopTime = startTime + TimeSpan.FromDays(settings.SDSettings.SDEPGDays);
+                            do
+                            {
+                                service.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
+                                {
+                                    Duration = settings.SDSettings.XmltvFillerProgramLength * 60 * 60,
+                                    mxfProgram = program,
+                                    StartTime = startTime,
+                                    IsRepeat = true
+                                });
+                                startTime += TimeSpan.FromHours(settings.SDSettings.XmltvFillerProgramLength);
+                            } while (startTime < stopTime);
+                        }
+
+                        List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
+                        string channelId = service.StationId;
+
+                        Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, scheduleEntry =>
+                    {
+                        XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channelId);
+                        xmlTv.Programs.Add(program);
+                    });
+
                     }
-
-                    List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
-                    string channelId = service.StationId;
-
-                    Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, scheduleEntry =>
-                {
-                    XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channelId);
-                    xmlTv.Programs.Add(program);
                 });
 
+                List<XmltvProgramme> a = xmlTv.Programs.Where(a => a == null || a.Channel == null || a.StartDateTime == null).ToList();
+                if (a.Any())
+                {
+                    int aa = 1;
                 }
-            });
+                xmlTv.Channels = [.. xmlTv.Channels.OrderBy(a => a.Id)];
+                xmlTv.Programs = [.. xmlTv.Programs.OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime)];
 
-            xmlTv.Channels = [.. xmlTv.Channels.OrderBy(a => a.Id)];
-            xmlTv.Programs = [.. xmlTv.Programs.OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime)];
+            }
+            catch (Exception ex)
+            {
+                return xmlTv;
+            }
 
             return xmlTv;
         }
@@ -244,7 +257,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
     }
 
 
-    [LogExecutionTimeAspect]
+
     #region ========== XMLTV Channels and Functions ==========
     private XmltvChannel BuildXmltvChannel(MxfService mxfService, List<VideoStreamConfig> videoStreamConfigs)
     {
@@ -315,7 +328,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
     #endregion
 
     #region ========== XMLTV Programmes and Functions ==========
-    //[LogExecutionTimeAspect]
+
     private XmltvProgramme BuildXmltvProgram(MxfScheduleEntry scheduleEntry, string channelId)
     {
         Setting settings = memoryCache.GetSetting();
@@ -798,7 +811,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
     }
 
     // Rating
-    [LogExecutionTimeAspect]
+
     private static List<XmltvRating> BuildProgramRatings(MxfScheduleEntry mxfScheduleEntry)
     {
         List<XmltvRating> ret = [];
@@ -818,7 +831,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
         return ret;
     }
 
-    [LogExecutionTimeAspect]
+
     private static void AddProgramRating(MxfScheduleEntry mxfScheduleEntry, List<XmltvRating> list)
     {
         HashSet<string> hashSet = [];
@@ -869,7 +882,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
         }
     }
 
-    [LogExecutionTimeAspect]
+
     private static void AddProgramRatingAdvisory(bool mxfProgramAdvise, List<XmltvRating> list, string advisory)
     {
         if (mxfProgramAdvise)
@@ -878,8 +891,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
         }
     }
 
-    // StarRating
-    [LogExecutionTimeAspect]
+    // StarRating   
     private static List<XmltvRating>? BuildProgramStarRatings(MxfProgram mxfProgram)
     {
         return mxfProgram.HalfStars == 0
