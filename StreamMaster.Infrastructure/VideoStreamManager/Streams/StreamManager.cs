@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
-
 using StreamMaster.Application.Common.Interfaces;
+using StreamMaster.Domain.Dto;
 
 using System.Collections.Concurrent;
 
@@ -168,6 +166,7 @@ public sealed class StreamManager(
         {
             //await Task.Delay(100);
             _ = StopAndUnRegisterHandler(oldStreamHandler.StreamUrl);
+
         }
     }
 

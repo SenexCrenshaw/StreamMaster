@@ -4,13 +4,13 @@ namespace StreamMaster.Domain.Metrics;
 
 public class PerformanceBpsMetrics
 {
-    public Guid Identifier { get; private set; }
+
     private Stopwatch Timer { get; }
     private long TotalBytesProcessed { get; set; }
 
-    public PerformanceBpsMetrics(Guid Id)
+    public PerformanceBpsMetrics()
     {
-        Identifier = Id;
+
         Timer = new Stopwatch();
         Timer.Start();
         TotalBytesProcessed = 0;

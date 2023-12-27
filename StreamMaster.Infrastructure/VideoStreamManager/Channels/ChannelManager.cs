@@ -1,11 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Repository;
-
 using StreamMaster.Application.Common.Interfaces;
+using StreamMaster.Domain.Dto;
+using StreamMaster.Domain.Repository;
 
 namespace StreamMaster.Infrastructure.VideoStreamManager.Channels;
 

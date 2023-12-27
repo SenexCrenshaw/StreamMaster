@@ -18,7 +18,7 @@ namespace StreamMaster.Infrastructure.VideoStreamManager.Buffers;
 /// <summary>
 /// Represents a circular ring buffer for streaming data.
 /// </summary>
-public sealed class CircularRingBuffer : ICircularRingBuffer
+public sealed class CircularRingBuffer : ICircularRingBuffer, IDisposable
 {
     private static readonly Gauge _waitTime = Metrics.CreateGauge(
   "circular_buffer_read_wait_for_data_availability_duration_milliseconds",
@@ -50,7 +50,7 @@ new GaugeConfiguration
         "Total number of write errors.",
          new CounterConfiguration
          {
-             LabelNames = ["circular_buffer_id", "client_id", "video_stream_name"]
+             LabelNames = ["circular_buffer_id", "video_stream_name"]
          });
 
 
@@ -75,7 +75,7 @@ new GaugeConfiguration
 
     private readonly ConcurrentDictionary<Guid, PerformanceBpsMetrics> _performanceMetrics = new();
     private readonly ConcurrentDictionary<Guid, int> _clientLastReadBeforeOverwrite = new();
-    private PerformanceBpsMetrics _writeMetric = new(Guid.Empty);
+    private PerformanceBpsMetrics _writeMetric = new();
     private readonly IStatisticsManager _statisticsManager;
     private readonly IInputStatisticsManager _inputStatisticsManager;
     private readonly IInputStreamingStatistics _inputStreamStatistics;
@@ -252,7 +252,7 @@ new GaugeConfiguration
     {
         _logger.LogDebug("Starting ReadChunkMemory for clientId: {clientId}", ClientId);
 
-        PerformanceBpsMetrics metrics = _performanceMetrics.GetOrAdd(ClientId, key => new PerformanceBpsMetrics(ClientId));
+        PerformanceBpsMetrics metrics = _performanceMetrics.GetOrAdd(ClientId, key => new PerformanceBpsMetrics());
 
         // Wait for data to become available initially
         while (GetAvailableBytes(ClientId) == 0)
@@ -576,6 +576,44 @@ new GaugeConfiguration
                 ? _oldestDataIndex <= effectiveWriteEnd || _oldestDataIndex > _writeIndex
                 : effectiveWriteEnd > _oldestDataIndex;
         }
+    }
+
+    private bool _disposed = false; // To track whether Dispose has been called
+
+    private void DoDispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _waitTime.GetAllLabelValues().ToList().ForEach(x => _waitTime.RemoveLabelled(x[0], x[1], x[2]));
+                _bitsPerSecond.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
+                _bytesWrittenCounter.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
+                _writeErrorsCounter.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
+                _dataArrival.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
+
+
+            }
+
+            // Dispose unmanaged resources here if any
+
+            _disposed = true;
+        }
+
+
+    }
+
+    // Public implementation of Dispose pattern callable by consumers
+    public void Dispose()
+    {
+        DoDispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    // Finalizer in case Dispose wasn't called
+    ~CircularRingBuffer()
+    {
+        DoDispose(false);
     }
 
 }

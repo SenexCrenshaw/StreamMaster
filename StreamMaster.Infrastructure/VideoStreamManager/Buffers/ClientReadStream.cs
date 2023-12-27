@@ -31,7 +31,7 @@ public sealed class ClientReadStream : Stream, IClientReadStream
 
     }
 
-    private readonly Gauge _bitsPerSecond = Metrics.CreateGauge(
+    private Gauge _bitsPerSecond = Metrics.CreateGauge(
     "client_read_stream_bits_per_second",
     "Bits per second read from the client stream.",
     new GaugeConfiguration
@@ -73,7 +73,8 @@ public sealed class ClientReadStream : Stream, IClientReadStream
 
     private readonly ConcurrentDictionary<Guid, SemaphoreSlim> _bufferSwitchSemaphores = new();
 
-    private readonly ConcurrentDictionary<Guid, PerformanceBpsMetrics> _performanceMetrics = new();
+    //private readonly ConcurrentDictionary<Guid, PerformanceBpsMetrics> _performanceMetrics = new();
+    private readonly PerformanceBpsMetrics metrics = new();
 
     private CancellationTokenSource _readCancel = new();
 
@@ -98,7 +99,7 @@ public sealed class ClientReadStream : Stream, IClientReadStream
         var stopWatch = Stopwatch.StartNew();
 
 
-        PerformanceBpsMetrics metrics = _performanceMetrics.GetOrAdd(ClientId, key => new PerformanceBpsMetrics(ClientId));
+        //PerformanceBpsMetrics metrics = _performanceMetrics.GetOrAdd(ClientId, key => new PerformanceBpsMetrics(ClientId));
 
         if (_readCancel == null || _readCancel.IsCancellationRequested)
         {
@@ -225,5 +226,43 @@ public sealed class ClientReadStream : Stream, IClientReadStream
     public void Cancel()
     {
         IsCancelled = true;
+    }
+    private bool _disposed = false; // To track whether Dispose has been called
+
+    protected override void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _bitsPerSecond.RemoveLabelled(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName);
+                _readDuration.RemoveLabelled(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName);
+                _bytesReadCounter.RemoveLabelled(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName);
+                _readErrorsCounter.RemoveLabelled(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName);
+                _readCancellationCounter.RemoveLabelled(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName);
+                _bufferSwitchSemaphores.Clear();
+
+            }
+
+            // Dispose unmanaged resources here if any
+
+            _disposed = true;
+        }
+
+        // Call the base class implementation of Dispose
+        base.Dispose(disposing);
+    }
+
+    // Public implementation of Dispose pattern callable by consumers
+    public new void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    // Finalizer in case Dispose wasn't called
+    ~ClientReadStream()
+    {
+        Dispose(false);
     }
 }
