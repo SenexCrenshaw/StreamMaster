@@ -35,7 +35,7 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
     {
         //_logger.LogInformation("Timer Service running.");
 
-        _timer = new Timer(async state => await DoWorkAsync(state, cancellationToken), null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+        _timer = new Timer(async state => await DoWorkAsync(state, cancellationToken), null, TimeSpan.Zero, TimeSpan.FromSeconds(60));
 
         return Task.CompletedTask;
     }
@@ -51,6 +51,11 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
 
     private async Task DoWorkAsync(object? state, CancellationToken cancellationToken)
     {
+        if (isActive)
+        {
+            return;
+        }
+
         lock (Lock)
         {
             if (isActive)

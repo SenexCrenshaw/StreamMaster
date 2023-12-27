@@ -169,7 +169,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
                 }
                 else
                 {
-                    if (ProcessExistingStream(stream, existingStream, group?.IsHidden ?? false, m3uFile.Name).Result)
+                    if (ProcessExistingStream(stream, existingStream, m3uFile.Name).Result)
                     {
                         existingStream.M3UFileId = m3uFile.Id;
                         toUpdate.Add(existingStream);
@@ -326,14 +326,11 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         Logger.LogError($"Found duplicate streams. Details logged to {fileName}");
     }
 
-    private async Task<bool> ProcessExistingStream(VideoStream stream, VideoStream dbStream, bool isHidden, string mu3FileName)
+    private async Task<bool> ProcessExistingStream(VideoStream stream, VideoStream dbStream, string mu3FileName)
     {
+
+        //Update dbStream
         bool changed = false;
-        if (dbStream.IsHidden != isHidden)
-        {
-            changed = true;
-            dbStream.IsHidden = isHidden;
-        }
 
         if (string.IsNullOrEmpty(dbStream.M3UFileName) || dbStream.M3UFileName != mu3FileName)
         {
@@ -455,9 +452,13 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         return changed;
     }
 
-    private async Task ProcessNewStream(VideoStream stream, bool IsHidden, string mu3FileName)
+    private async Task ProcessNewStream(VideoStream stream, bool? groupIsHidden, string mu3FileName)
     {
-        stream.IsHidden = IsHidden;
+        if (groupIsHidden is not null)
+        {
+            stream.IsHidden = (bool)groupIsHidden;
+        }
+
 
         Setting setting = await GetSettingsAsync();
 

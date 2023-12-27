@@ -5,7 +5,7 @@
         private static void Main(string[] args)
         {
             Console.WriteLine("Hello, World!");
-            List<string> m3u = BuildM3ULineForVideoStream(200000);
+            List<string> m3u = BuildM3ULineForVideoStream(10);
             File.WriteAllLines("test.m3u", m3u);
         }
 
