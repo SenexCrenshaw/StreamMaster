@@ -65,10 +65,6 @@ const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProper
 
   const clientStartTimeTemplate = (rowData: StreamStatisticsResult) => <div>{formatJSONDateString(rowData.clientStartTime ?? '')}</div>;
 
-  const clientElapsedTimeTemplate = (rowData: StreamStatisticsResult) => {
-    return <div>{rowData.clientElapsedTime}</div>;
-  };
-
   const onFailClient = async (rowData: StreamStatisticsResult) => {
     if (!rowData.clientId || rowData.clientId === undefined || rowData.clientId === '') {
       return;
@@ -119,18 +115,12 @@ const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProper
     {
       field: 'clientIPAddress',
       header: 'Client/IP Address',
-      style: {
-        maxWidth: '14rem',
-        width: '14rem'
-      } as CSSProperties
+      width: '14rem'
     },
     {
       field: 'clientAgent',
       header: 'Client/User Agent',
-      style: {
-        maxWidth: '14rem',
-        width: '14rem'
-      } as CSSProperties
+      width: '14rem'
     },
     { field: 'videoStreamName', header: 'Name' },
 
@@ -139,39 +129,26 @@ const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProper
       bodyTemplate: clientStartTimeTemplate,
       field: 'clientStartTime',
       header: 'Client Start',
-      style: {
-        maxWidth: '10rem',
-        width: '10rem'
-      } as CSSProperties
+      width: '10rem'
     },
     {
       align: 'center',
-      bodyTemplate: clientElapsedTimeTemplate,
       field: 'clientElapsedTime',
       header: 'Client Elapsed',
-      style: {
-        maxWidth: '10rem',
-        width: '10rem'
-      } as CSSProperties
+      width: '10rem'
     },
     {
       align: 'center',
       bodyTemplate: clientBitsPerSecondTemplate,
       field: 'clientBitsPerSecond',
       header: 'Client kbps',
-      style: {
-        maxWidth: '10rem',
-        width: '10rem'
-      } as CSSProperties
+      width: '10rem'
     },
     {
       align: 'center',
       bodyTemplate: targetActionBodyTemplate,
       field: 'Actions',
-      style: {
-        maxWidth: '8rem',
-        width: '8rem'
-      } as CSSProperties
+      width: '8rem'
     }
   ];
 

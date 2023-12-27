@@ -168,8 +168,6 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
     return <div>{roundedKbps.toLocaleString('en-US')}</div>;
   }, []);
 
-  const inputElapsedTimeTemplate = useCallback((rowData: StreamStatisticsResult) => <div>{rowData.inputElapsedTime?.split('.')[0]}</div>, []);
-
   const inputStartTimeTemplate = useCallback((rowData: StreamStatisticsResult) => <div>{formatJSONDateString(rowData.inputStartTime ?? '')}</div>, []);
 
   const streamCount = useCallback(
@@ -250,7 +248,6 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
       },
       {
         align: 'center',
-        bodyTemplate: inputElapsedTimeTemplate,
         field: 'inputElapsedTime',
         header: 'Input Elapsed',
         width: '10rem'
@@ -269,15 +266,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
         width: '8rem'
       }
     ],
-    [
-      imageBodyTemplate,
-      inputBitsPerSecondTemplate,
-      inputElapsedTimeTemplate,
-      inputStartTimeTemplate,
-      streamCount,
-      targetActionBodyTemplate,
-      videoStreamTemplate
-    ]
+    [imageBodyTemplate, inputBitsPerSecondTemplate, inputStartTimeTemplate, streamCount, targetActionBodyTemplate, videoStreamTemplate]
   );
 
   const onHide = useCallback(() => {

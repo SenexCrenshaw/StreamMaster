@@ -5,7 +5,7 @@ public class StreamingStatistics
     public StreamingStatistics(string ClientAgent, string ClientIPAddress)
     {
         BytesRead = 0;
-        StartTime = DateTime.UtcNow.AddDays(-2);
+        StartTime = DateTime.UtcNow;
         this.ClientAgent = ClientAgent;
         this.ClientIPAddress = ClientIPAddress;
     }
