@@ -90,9 +90,12 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
                 if (jobStatus.ForceNextRun || jobStatus.IsErrored || (now - jobStatus.LastSuccessful).TotalMinutes > 60)
                 {
                     //schedulesDirect.ResetEPGCache();
+                    if (setting.SDSettings.SDEnabled)
+                    {
+                        logger.LogInformation("EPGSync started. {status}", memoryCache.GetSyncJobStatus());
 
-                    logger.LogInformation("EPGSync started. {status}", memoryCache.GetSyncJobStatus());
-                    await mediator.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
+                        await mediator.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
+                    }
                     if (jobStatus.Extra)
                     {
                         foreach (EPGFileDto epg in await repository.EPGFile.GetEPGFiles())
@@ -101,7 +104,10 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
                         }
                         jobStatus.Extra = false;
                     }
-                    logger.LogInformation("EPGSync completed. {status}", memoryCache.GetSyncJobStatus());
+                    if (setting.SDSettings.SDEnabled)
+                    {
+                        logger.LogInformation("EPGSync completed. {status}", memoryCache.GetSyncJobStatus());
+                    }
                 }
             }
         }

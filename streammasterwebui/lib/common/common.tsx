@@ -486,6 +486,23 @@ export function formatJSONDateString(jsonDate: string | undefined): string {
   return returnValue;
 }
 
+export const FormatDuration = ({ duration }: { duration: string | undefined }) => {
+  console.log('duration', duration);
+  if (!duration) return <div />;
+  // Parse the duration
+  // Split the duration string into days and time parts
+  const [days, time] = duration.split('.');
+  const [hours, minutes, seconds] = time.split(':');
+
+  // Extract the whole seconds part (before the decimal point in seconds)
+  const wholeSeconds = seconds.split('.')[0];
+
+  // Format the duration
+  const formattedDuration = `${parseInt(days, 10)} ${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}:${wholeSeconds.padStart(2, '0')}`;
+
+  return <div>{formattedDuration}</div>;
+};
+
 function getApiUrl(path: SMFileTypes, originalUrl: string): string {
   return `${isDevelopment ? baseHostURL : ''}/api/files/${path}/${encodeURIComponent(originalUrl)}`;
 }

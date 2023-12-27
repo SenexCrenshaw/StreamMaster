@@ -16,7 +16,7 @@ import useSettings from '@lib/useSettings';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
-import { memo, useCallback, useMemo, useRef, type CSSProperties, useState, useEffect } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { VideoInfoDisplay } from './VideoInfoDisplay';
 
 interface StreamingServerStatusPanelProperties {
@@ -31,10 +31,12 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
   const [channelName, setChannelName] = useState<string>('');
   const getStreamingStatus = useVideoStreamsGetAllStatisticsForAllUrlsQuery();
   const [dataSource, setDataSource] = useState<StreamStatisticsResult[]>([]);
+  const [data, setData] = useState<StreamStatisticsResult[]>([]);
 
   useEffect(() => {
     if (getStreamingStatus.data === undefined || getStreamingStatus.data.length === 0 || getStreamingStatus.data === null) {
       setDataSource([]);
+      setData([]);
       return;
     }
 
@@ -64,7 +66,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
         data = data.filter((x) => x.circularBufferId !== item.circularBufferId);
       }
     }
-
+    setData(getStreamingStatus.data);
     setDataSource(data);
   }, [getStreamingStatus.data]);
 
@@ -172,12 +174,13 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
 
   const streamCount = useCallback(
     (rowData: StreamStatisticsResult) => {
-      if (dataSource === undefined || dataSource === null) {
+      if (data === undefined || data === null) {
         return <div>0</div>;
       }
-      return <div>{dataSource.filter((x) => x.videoStreamId === rowData.videoStreamId).length}</div>;
+
+      return <div>{data.filter((x) => x.videoStreamId === rowData.videoStreamId).length}</div>;
     },
-    [dataSource]
+    [data]
   );
 
   const onPreview = useCallback(async (rowData: StreamStatisticsResult) => {

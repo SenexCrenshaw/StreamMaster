@@ -5,7 +5,7 @@ import { FailClientRequest, StreamStatisticsResult, useVideoStreamsGetAllStatist
 import { FailClient } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import { memo, useRef, type CSSProperties, useEffect, useState } from 'react';
+import { memo, useEffect, useRef, useState, type CSSProperties } from 'react';
 
 interface StreamingClientsPanelProperties {
   readonly className?: string;
@@ -65,7 +65,9 @@ const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProper
 
   const clientStartTimeTemplate = (rowData: StreamStatisticsResult) => <div>{formatJSONDateString(rowData.clientStartTime ?? '')}</div>;
 
-  const clientElapsedTimeTemplate = (rowData: StreamStatisticsResult) => <div>{rowData.clientElapsedTime?.split('.')[0]}</div>;
+  const clientElapsedTimeTemplate = (rowData: StreamStatisticsResult) => {
+    return <div>{rowData.clientElapsedTime}</div>;
+  };
 
   const onFailClient = async (rowData: StreamStatisticsResult) => {
     if (!rowData.clientId || rowData.clientId === undefined || rowData.clientId === '') {

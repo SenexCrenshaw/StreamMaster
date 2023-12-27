@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Enums;
-
-namespace StreamMaster.Application.Common.Models;
+﻿namespace StreamMaster.Application.Common.Models;
 
 public class StreamStatisticsResult
 {
@@ -10,15 +8,27 @@ public class StreamStatisticsResult
     public double ClientBitsPerSecond { get; set; }
     public long ClientBytesRead { get; set; }
     public long ClientBytesWritten { get; set; }
-    public TimeSpan ClientElapsedTime => DateTimeOffset.UtcNow - ClientStartTime;
+    public string ClientElapsedTime => GetClientElapsedTimeFormatted();
     public Guid ClientId { get; set; }
     public DateTimeOffset ClientStartTime { get; set; }
     public double InputBitsPerSecond { get; set; }
     public long InputBytesRead { get; set; }
     public long InputBytesWritten { get; set; }
-    public TimeSpan InputElapsedTime => DateTimeOffset.UtcNow - InputStartTime;
+    public string InputElapsedTime => GetInputElapsedTimeFormatted();
     public DateTimeOffset InputStartTime { get; set; }
     public string? Logo { get; set; }
+
+    public string GetInputElapsedTimeFormatted()
+    {
+        TimeSpan elapsedTime = DateTimeOffset.UtcNow - InputStartTime;
+        return $"{elapsedTime.Days} {elapsedTime.Hours:00}:{elapsedTime.Minutes:00}:{elapsedTime.Seconds:00}";
+    }
+
+    public string GetClientElapsedTimeFormatted()
+    {
+        TimeSpan elapsedTime = DateTimeOffset.UtcNow - ClientStartTime;
+        return $"{elapsedTime.Days} {elapsedTime.Hours:00}:{elapsedTime.Minutes:00}:{elapsedTime.Seconds:00}";
+    }
 
 
     /// <summary>

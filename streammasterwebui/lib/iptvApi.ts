@@ -2,7 +2,6 @@ import { emptySplitApi as api } from './redux/emptyApi';
 export const addTagTypes = [
   'ChannelGroups',
   'EPGFiles',
-  'Files',
   'Icons',
   'Logs',
   'M3UFiles',
@@ -15,7 +14,8 @@ export const addTagTypes = [
   'StreamGroupVideoStreams',
   'Test',
   'VideoStreamLinks',
-  'VideoStreams'
+  'VideoStreams',
+  'Files'
 ] as const;
 const injectedRtkApi = api
   .enhanceEndpoints({
@@ -130,10 +130,6 @@ const injectedRtkApi = api
       epgFilesUpdateEpgFile: build.mutation<EpgFilesUpdateEpgFileApiResponse, EpgFilesUpdateEpgFileApiArg>({
         query: (queryArg) => ({ url: `/api/epgfiles/updateepgfile`, method: 'PATCH', body: queryArg }),
         invalidatesTags: ['EPGFiles']
-      }),
-      filesGetFile: build.query<FilesGetFileApiResponse, FilesGetFileApiArg>({
-        query: (queryArg) => ({ url: `/api/files/${queryArg.filetype}/${queryArg.source}` }),
-        providesTags: ['Files']
       }),
       iconsAutoMatchIconToStreams: build.mutation<IconsAutoMatchIconToStreamsApiResponse, IconsAutoMatchIconToStreamsApiArg>({
         query: (queryArg) => ({ url: `/api/icons/automatchicontostreams`, method: 'POST', body: queryArg }),
@@ -708,6 +704,10 @@ const injectedRtkApi = api
       videoStreamsGetVideoStreamInfoFromUrl: build.query<VideoStreamsGetVideoStreamInfoFromUrlApiResponse, VideoStreamsGetVideoStreamInfoFromUrlApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/getvideostreaminfofromurl`, params: { streamUrl: queryArg } }),
         providesTags: ['VideoStreams']
+      }),
+      filesGetFile: build.query<FilesGetFileApiResponse, FilesGetFileApiArg>({
+        query: (queryArg) => ({ url: `/api/files/${queryArg.filetype}/${queryArg.source}` }),
+        providesTags: ['Files']
       })
     }),
     overrideExisting: false
@@ -774,11 +774,6 @@ export type EpgFilesScanDirectoryForEpgFilesApiResponse = unknown;
 export type EpgFilesScanDirectoryForEpgFilesApiArg = void;
 export type EpgFilesUpdateEpgFileApiResponse = unknown;
 export type EpgFilesUpdateEpgFileApiArg = UpdateEpgFileRequest;
-export type FilesGetFileApiResponse = unknown;
-export type FilesGetFileApiArg = {
-  source: string;
-  filetype: SmFileTypes;
-};
 export type IconsAutoMatchIconToStreamsApiResponse = unknown;
 export type IconsAutoMatchIconToStreamsApiArg = AutoMatchIconToStreamsRequest;
 export type IconsGetIconApiResponse = /** status 200  */ IconFileDto;
@@ -1069,6 +1064,11 @@ export type VideoStreamsGetVideoStreamInfoFromIdApiResponse = /** status 200  */
 export type VideoStreamsGetVideoStreamInfoFromIdApiArg = string;
 export type VideoStreamsGetVideoStreamInfoFromUrlApiResponse = /** status 200  */ VideoInfo;
 export type VideoStreamsGetVideoStreamInfoFromUrlApiArg = string;
+export type FilesGetFileApiResponse = unknown;
+export type FilesGetFileApiArg = {
+  source: string;
+  filetype: SmFileTypes;
+};
 export type CreateChannelGroupRequest = {
   groupName: string;
   isReadOnly: boolean;
@@ -1197,7 +1197,6 @@ export type BaseFileRequest = {
 export type UpdateEpgFileRequest = BaseFileRequest & {
   color?: string | null;
 };
-export type SmFileTypes = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
 export type AutoMatchIconToStreamsRequest = {
   ids?: string[];
 };
@@ -2013,6 +2012,7 @@ export type VideoInfo = {
   streams?: VideoStreamInfo[];
   format?: Format;
 };
+export type SmFileTypes = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
 export const {
   useChannelGroupsCreateChannelGroupMutation,
   useChannelGroupsDeleteAllChannelGroupsFromParametersMutation,
@@ -2035,7 +2035,6 @@ export const {
   useEpgFilesRefreshEpgFileMutation,
   useEpgFilesScanDirectoryForEpgFilesMutation,
   useEpgFilesUpdateEpgFileMutation,
-  useFilesGetFileQuery,
   useIconsAutoMatchIconToStreamsMutation,
   useIconsGetIconQuery,
   useIconsGetIconFromSourceQuery,
@@ -2137,5 +2136,6 @@ export const {
   useVideoStreamsSetVideoStreamTimeShiftsMutation,
   useVideoStreamsSetVideoStreamTimeShiftFromParametersMutation,
   useVideoStreamsGetVideoStreamInfoFromIdQuery,
-  useVideoStreamsGetVideoStreamInfoFromUrlQuery
+  useVideoStreamsGetVideoStreamInfoFromUrlQuery,
+  useFilesGetFileQuery
 } = injectedRtkApi;
