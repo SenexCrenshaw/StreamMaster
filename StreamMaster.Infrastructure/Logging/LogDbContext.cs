@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Models;
-
 using StreamMaster.Application.LogApp;
+using StreamMaster.Domain.Common;
 
 namespace StreamMaster.Infrastructure.Logging;
 

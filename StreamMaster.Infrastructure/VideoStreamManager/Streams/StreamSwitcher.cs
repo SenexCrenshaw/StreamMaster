@@ -4,14 +4,12 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Repository;
-
-using StreamMaster.Application.Common.Interfaces;
 
 namespace StreamMaster.Infrastructure.VideoStreamManager.Streams;
 

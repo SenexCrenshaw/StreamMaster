@@ -3,12 +3,11 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Enums;
-
 using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.Hubs;
 using StreamMaster.Application.Services;
+using StreamMaster.Domain.Enums;
 
 using System.Threading.Channels;
 

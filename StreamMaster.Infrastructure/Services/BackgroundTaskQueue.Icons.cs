@@ -1,6 +1,5 @@
-﻿using StreamMaster.Domain.Enums;
-
-using StreamMaster.Application.Icons;
+﻿using StreamMaster.Application.Icons;
+using StreamMaster.Domain.Enums;
 
 namespace StreamMaster.Infrastructure.Services;
 

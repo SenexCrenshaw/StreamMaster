@@ -18,10 +18,10 @@ namespace StreamMaster.Infrastructure.VideoStreamManager.Buffers;
 /// <summary>
 /// Represents a circular ring buffer for streaming data.
 /// </summary>
-public sealed class CircularRingBuffer : ICircularRingBuffer, IDisposable
+public sealed class CircularRingBuffer : ICircularRingBuffer
 {
     private static readonly Gauge _waitTime = Metrics.CreateGauge(
-  "circular_buffer_read_wait_for_data_availability_duration_milliseconds",
+  "sm_circular_buffer_read_wait_for_data_availability_duration_milliseconds",
         "Client waiting duration in milliseconds for data availability",
 new GaugeConfiguration
 {
@@ -30,7 +30,7 @@ new GaugeConfiguration
 });
 
     private static readonly Gauge _bitsPerSecond = Metrics.CreateGauge(
-"circular_buffer_read_stream_bits_per_second",
+"sm_circular_buffer_read_stream_bits_per_second",
 "Bits per second read from the input stream.",
 new GaugeConfiguration
 {
@@ -38,7 +38,7 @@ new GaugeConfiguration
 });
 
     private static readonly Counter _bytesWrittenCounter = Metrics.CreateCounter(
-        "circular_buffer_bytes_written_total",
+        "sm_circular_buffer_bytes_written_total",
         "Total number of bytes written.",
         new CounterConfiguration
         {
@@ -46,30 +46,20 @@ new GaugeConfiguration
         });
 
     private static readonly Counter _writeErrorsCounter = Metrics.CreateCounter(
-        "circular_buffer_write_errors_total",
+        "sm_circular_buffer_write_errors_total",
         "Total number of write errors.",
          new CounterConfiguration
          {
              LabelNames = ["circular_buffer_id", "video_stream_name"]
          });
 
-
     private static readonly Gauge _dataArrival = Metrics.CreateGauge(
-"circular_buffer_arrival_time_milliseconds",
+"sm_circular_buffer_arrival_time_milliseconds",
     "Data arrival times in milliseconds.",
 new GaugeConfiguration
 {
     LabelNames = ["circular_buffer_id", "video_stream_name"]
 });
-
-    //private static readonly Histogram _dataArrivalHistogram = Metrics.CreateHistogram(
-    //"circular_buffer_arrival_time_milliseconds",
-    //"Histogram of data arrival times in milliseconds.",
-    //    new HistogramConfiguration
-    //    {
-    //        Buckets = Histogram.LinearBuckets(start: 0.001, width: 0.01, count: 100), // Adjust the buckets to your needs
-    //        LabelNames = ["circular_buffer_id", "video_stream_name"]
-    //    });
 
     public event EventHandler<Guid> DataAvailable;
 
@@ -591,8 +581,6 @@ new GaugeConfiguration
                 _bytesWrittenCounter.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
                 _writeErrorsCounter.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
                 _dataArrival.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
-
-
             }
 
             // Dispose unmanaged resources here if any

@@ -1,6 +1,5 @@
-﻿using StreamMaster.Domain.Enums;
-
-using StreamMaster.Application.ChannelGroups;
+﻿using StreamMaster.Application.ChannelGroups;
+using StreamMaster.Domain.Enums;
 
 namespace StreamMaster.Infrastructure.Services;
 

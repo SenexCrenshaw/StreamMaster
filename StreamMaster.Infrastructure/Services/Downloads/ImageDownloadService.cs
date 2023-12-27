@@ -3,6 +3,8 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.Application.Common.Interfaces;
+using StreamMaster.Application.Hubs;
 using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Services;
@@ -10,9 +12,6 @@ using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
 using StreamMaster.SchedulesDirect.Domain.Models;
 using StreamMaster.SchedulesDirect.Helpers;
-
-using StreamMaster.Application.Common.Interfaces;
-using StreamMaster.Application.Hubs;
 
 using System.Net;
 

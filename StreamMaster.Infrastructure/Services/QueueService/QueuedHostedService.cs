@@ -4,8 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Enums;
-
 using StreamMaster.Application.ChannelGroups.Commands;
 using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.EPGFiles.Commands;
@@ -14,6 +12,7 @@ using StreamMaster.Application.Icons.Commands;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.Services;
+using StreamMaster.Domain.Enums;
 
 namespace StreamMaster.Infrastructure.Services.QueueService;
 

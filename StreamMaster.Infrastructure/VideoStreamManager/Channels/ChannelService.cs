@@ -1,6 +1,5 @@
-﻿using StreamMaster.Domain.Dto;
-
-using StreamMaster.Application.Common.Interfaces;
+﻿using StreamMaster.Application.Common.Interfaces;
+using StreamMaster.Domain.Dto;
 
 using System.Collections.Concurrent;
 

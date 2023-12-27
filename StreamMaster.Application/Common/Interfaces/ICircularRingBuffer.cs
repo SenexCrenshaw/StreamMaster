@@ -1,10 +1,8 @@
-﻿using StreamMaster.Domain.Models;
-
-using StreamMaster.Application.Common.Models;
+﻿using StreamMaster.Application.Common.Models;
 
 namespace StreamMaster.Application.Common.Interfaces;
 
-public interface ICircularRingBuffer
+public interface ICircularRingBuffer : IDisposable
 {
     VideoInfo? VideoInfo { get; set; }
     Memory<byte> GetBufferSlice(int length);

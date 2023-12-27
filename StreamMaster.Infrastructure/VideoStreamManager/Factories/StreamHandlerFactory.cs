@@ -1,11 +1,9 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Dto;
-
-using StreamMaster.Application.Common.Interfaces;
-
 using StreamMaster.Infrastructure.VideoStreamManager.Streams;
 
 namespace StreamMaster.Infrastructure.VideoStreamManager.Factories;

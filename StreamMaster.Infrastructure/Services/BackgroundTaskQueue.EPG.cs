@@ -1,6 +1,5 @@
-﻿using StreamMaster.Domain.Enums;
-
-using StreamMaster.Application.EPGFiles;
+﻿using StreamMaster.Application.EPGFiles;
+using StreamMaster.Domain.Enums;
 
 namespace StreamMaster.Infrastructure.Services;
 

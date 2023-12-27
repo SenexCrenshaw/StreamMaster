@@ -32,7 +32,7 @@ public sealed class ClientReadStream : Stream, IClientReadStream
     }
 
     private Gauge _bitsPerSecond = Metrics.CreateGauge(
-    "client_read_stream_bits_per_second",
+    "sm_client_read_stream_bits_per_second",
     "Bits per second read from the client stream.",
     new GaugeConfiguration
     {
@@ -41,7 +41,7 @@ public sealed class ClientReadStream : Stream, IClientReadStream
 
 
     private readonly Gauge _readDuration = Metrics.CreateGauge(
-  "client_read_stream_duration_milliseconds",
+  "sm_client_read_stream_duration_milliseconds",
             "Duration of read operations in milliseconds.",
   new GaugeConfiguration
   {
@@ -49,21 +49,21 @@ public sealed class ClientReadStream : Stream, IClientReadStream
   });
 
     private readonly Counter _bytesReadCounter = Metrics.CreateCounter(
-            "client_read_stream_bytes_read_total",
+            "sm_client_read_stream_bytes_read_total",
             "Total number of bytes read.", new CounterConfiguration
             {
                 LabelNames = ["client_id", "circular_buffer_id", "video_stream_name"]
             });
 
     private readonly Counter _readErrorsCounter = Metrics.CreateCounter(
-            "client_read_stream_errors_total",
+            "sm_client_read_stream_errors_total",
             "Total number of read errors."
             , new CounterConfiguration
             {
                 LabelNames = ["client_id", "circular_buffer_id", "video_stream_name"]
             });
     private readonly Counter _readCancellationCounter = Metrics.CreateCounter(
-            "client_read_stream_cancellations_total",
+            "sm_client_read_stream_cancellations_total",
             "Total number of read cancellations.",
             new CounterConfiguration
             {

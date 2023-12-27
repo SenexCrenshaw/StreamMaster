@@ -1,10 +1,9 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Services;
-
 using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Application.Common.Models;
+using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Services;
 
 using System.Net;
 using System.Net.Sockets;

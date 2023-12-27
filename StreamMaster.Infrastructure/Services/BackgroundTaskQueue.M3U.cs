@@ -1,7 +1,6 @@
-﻿using StreamMaster.Domain.Enums;
-
-using StreamMaster.Application.M3UFiles;
+﻿using StreamMaster.Application.M3UFiles;
 using StreamMaster.Application.M3UFiles.Commands;
+using StreamMaster.Domain.Enums;
 
 namespace StreamMaster.Infrastructure.Services;
 

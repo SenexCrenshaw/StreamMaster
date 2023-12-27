@@ -1,12 +1,10 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
-
-using StreamMaster.Application.Common.Interfaces;
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -305,6 +303,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                 logger.LogError(ex, "Error killing process {ProcessId}.", ProcessId);
             }
         }
+        CircularRingBuffer?.Dispose();
     }
 
     public void RegisterClientStreamer(IClientStreamerConfiguration streamerConfiguration)
