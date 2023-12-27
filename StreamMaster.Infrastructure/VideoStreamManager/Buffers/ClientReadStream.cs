@@ -2,11 +2,11 @@
 
 using Prometheus;
 
+using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Domain.Metrics;
 
-using StreamMaster.Application.Common.Interfaces;
-
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace StreamMaster.Infrastructure.VideoStreamManager.Buffers;
 
@@ -19,7 +19,7 @@ public sealed class ClientReadStream : Stream, IClientReadStream
     private readonly ILogger<ClientReadStream> logger;
     private readonly IClientStreamerConfiguration config;
     private Func<ICircularRingBuffer> _bufferDelegate;
-    private readonly System.Timers.Timer bpsTimer;
+    //private readonly System.Timers.Timer bpsTimer;
     private long accumulatedBytesRead = 0;
     public ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, ILogger<ClientReadStream> logger, IClientStreamerConfiguration config)
     {
@@ -27,43 +27,26 @@ public sealed class ClientReadStream : Stream, IClientReadStream
         this.config = config ?? throw new ArgumentNullException(nameof(config));
         ClientId = config.ClientId;
         _clientMasterToken = config.ClientMasterToken;
-        this._bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
-        bpsTimer = new System.Timers.Timer(10000)
-        {
-            AutoReset = true
-        };
-        bpsTimer.Elapsed += BpsTimerElapsed;
-        bpsTimer.Start();
+        _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
 
     }
-    private readonly Gauge _bytesPerSecond = Metrics.CreateGauge(
-    "client_read_stream_bytes_per_second",
-    "Bytes per second read from the client stream.",
+
+    private readonly Gauge _bitsPerSecond = Metrics.CreateGauge(
+    "client_read_stream_bits_per_second",
+    "Bits per second read from the client stream.",
     new GaugeConfiguration
     {
         LabelNames = ["client_id", "circular_buffer_id", "video_stream_name"]
     });
 
-    private readonly Histogram _bytesPerSecondHistogram = Metrics.CreateHistogram(
-    "client_read_stream_bytes_per_second_histogram",
-    "Histogram of bytes per second read from the client stream.",
-    new HistogramConfiguration
-    {
-        // Adjusting buckets to cover from kbps to 100 Mbps
-        // Note: 1 Mbps = 1,000,000 bytes per second
-        // Example: Buckets at 1,000 (1 kbps), 10,000 (10 kbps), 100,000 (100 kbps), 1,000,000 (1 Mbps), ..., 100,000,000 (100 Mbps)
-        Buckets = [1000, 10000, 100000, 1000000, 10000000, 20000000, 30000000, 40000000, 50000000, 60000000, 70000000, 80000000, 90000000, 100000000],
-        LabelNames = ["client_id", "circular_buffer_id", "video_stream_name"]
-    });
 
-    private readonly Histogram _readDurationHistogram = Metrics.CreateHistogram(
-            "client_read_stream_duration_milliseconds",
+    private readonly Gauge _readDuration = Metrics.CreateGauge(
+  "client_read_stream_duration_milliseconds",
             "Duration of read operations in milliseconds.",
-            new HistogramConfiguration
-            {
-                Buckets = Histogram.LinearBuckets(start: 0.001, width: 0.01, count: 100),
-                LabelNames = ["client_id", "circular_buffer_id", "video_stream_name"]
-            });
+  new GaugeConfiguration
+  {
+      LabelNames = ["client_id", "circular_buffer_id", "video_stream_name"]
+  });
 
     private readonly Counter _bytesReadCounter = Metrics.CreateCounter(
             "client_read_stream_bytes_read_total",
@@ -106,26 +89,16 @@ public sealed class ClientReadStream : Stream, IClientReadStream
     public override void Flush()
     { }
 
-    private void BpsTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
-    {
-        // Calculate bps over the past 10 seconds
-        double bps = accumulatedBytesRead / 10.0;
-
-        // Record bps in the Histogram
-        _bytesPerSecondHistogram.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Observe(bps);
-
-        // Reset the accumulated bytes
-        accumulatedBytesRead = 0;
-
-    }
     public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken)
     {
         if (IsCancelled)
         {
             return 0;
         }
+        var stopWatch = Stopwatch.StartNew();
 
-        PerformanceBpsMetrics metrics = _performanceMetrics.GetOrAdd(ClientId, new PerformanceBpsMetrics(ClientId));
+
+        PerformanceBpsMetrics metrics = _performanceMetrics.GetOrAdd(ClientId, key => new PerformanceBpsMetrics(ClientId));
 
         if (_readCancel == null || _readCancel.IsCancellationRequested)
         {
@@ -155,16 +128,16 @@ public sealed class ClientReadStream : Stream, IClientReadStream
         }
         finally
         {
-            (double metricBytesRead, double bps, long elapsedMilliseconds) = metrics.GetBytesPerSecond();
+            stopWatch.Stop();
+            double bps = metrics.GetBitsPerSecond();
             if (bps > -1)
             {
                 //logger.LogDebug("Read {BytesRead} bytes for ClientId: {ClientId} {Bps} bps {elapsedMilliseconds}", metricBytesRead, ClientId, bps, elapsedMilliseconds);
-                _bytesPerSecond.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Set(bps);
+                _bitsPerSecond.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Set(bps);
 
-                _bytesReadCounter.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Inc(metricBytesRead);
-                _bytesPerSecondHistogram.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Observe(bps);
-                _bytesPerSecond.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Set(bps);
-                _readDurationHistogram.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Observe(elapsedMilliseconds / 1000);
+                _bytesReadCounter.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Inc(bytesRead);
+
+                _readDuration.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Set(stopWatch.ElapsedMilliseconds);
             }
 
             if (bytesRead == 0)

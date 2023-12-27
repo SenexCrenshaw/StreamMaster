@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Services;
-using StreamMaster.SchedulesDirect.Domain.Interfaces;
-
 using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.Hubs;
+using StreamMaster.Domain.Services;
+using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 using System.Diagnostics;
 
@@ -98,7 +97,7 @@ public class BroadcastService : IBroadcastService, IDisposable
     {
         try
         {
-            LogDebug();
+            //LogDebug();
             List<StreamStatisticsResult> statisticsResults = streamStatisticService.GetAllStatisticsForAllUrls().Result;
             if (statisticsResults.Any())
             {

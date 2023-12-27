@@ -3,13 +3,12 @@ using Microsoft.Extensions.Logging;
 
 using Prometheus;
 
+using StreamMaster.Application.Common.Interfaces;
+using StreamMaster.Application.Common.Models;
 using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
-
-using StreamMaster.Application.Common.Interfaces;
-using StreamMaster.Application.Common.Models;
+using StreamMaster.Domain.Metrics;
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -21,56 +20,24 @@ namespace StreamMaster.Infrastructure.VideoStreamManager.Buffers;
 /// </summary>
 public sealed class CircularRingBuffer : ICircularRingBuffer
 {
+    private static readonly Gauge _waitTime = Metrics.CreateGauge(
+  "circular_buffer_read_wait_for_data_availability_duration_milliseconds",
+        "Client waiting duration in milliseconds for data availability",
+new GaugeConfiguration
+{
+    LabelNames = ["circular_buffer_id", "client_id", "video_stream_name"]
 
-    private static readonly Histogram WaitTimeHistogram = Metrics.CreateHistogram(
-        "circular_buffer_wait_for_data_availability_duration_milliseconds",
-        "Duration in milliseconds of waiting for data availability",
-        new HistogramConfiguration
-        {
-            // Define buckets suitable for millisecond durations
-            // Example: Buckets from 1 ms to 1000 ms in increments of 10 ms
-            Buckets = Histogram.LinearBuckets(start: 1, width: 10, count: 100), // Adjust as needed
-            LabelNames = ["circular_buffer_id", "client_id", "video_stream_name"]
-        });
+});
 
-    private static readonly Gauge _bytesPerSecond = Metrics.CreateGauge(
-"circular_buffer_read_stream_bytes_per_second",
-"Bytes per second read from the input stream.",
+    private static readonly Gauge _bitsPerSecond = Metrics.CreateGauge(
+"circular_buffer_read_stream_bits_per_second",
+"Bits per second read from the input stream.",
 new GaugeConfiguration
 {
     LabelNames = ["circular_buffer_id", "video_stream_name"]
 });
 
-
-    private static readonly Histogram _bytesPerSecondHistogram = Metrics.CreateHistogram(
-    "circular_buffer_read_stream_bytes_per_second_histogram",
-    "Histogram of bytes per second read from the input stream.",
-    new HistogramConfiguration
-    {
-        Buckets = Histogram.LinearBuckets(0, 20000000, 11),
-        LabelNames = ["circular_buffer_id", "video_stream_name"]
-    });
-
-    private static readonly Histogram BytesWrittenHistogram = Metrics.CreateHistogram(
-    "circular_buffer_bytes_written_histogram",
-    "Histogram of bytes written.",
-    new HistogramConfiguration
-    {
-        Buckets = Histogram.LinearBuckets(0, 20000000, 11),
-        LabelNames = ["circular_buffer_id", "video_stream_name"]
-    });
-
-    private static readonly Histogram WriteDurationHistogram = Metrics.CreateHistogram(
-       "circular_buffer_write_chunk_duration_milliseconds",
-       "Histogram for the duration of the WriteChunk operation.",
-       new HistogramConfiguration
-       {
-           Buckets = Histogram.LinearBuckets(start: 0.001, width: 0.01, count: 100),
-           LabelNames = ["circular_buffer_id", "video_stream_name"]
-       });
-
-
-    private static readonly Counter BytesWrittenCounter = Metrics.CreateCounter(
+    private static readonly Counter _bytesWrittenCounter = Metrics.CreateCounter(
         "circular_buffer_bytes_written_total",
         "Total number of bytes written.",
         new CounterConfiguration
@@ -78,26 +45,37 @@ new GaugeConfiguration
             LabelNames = ["circular_buffer_id", "video_stream_name"]
         });
 
-    private static readonly Counter WriteErrorsCounter = Metrics.CreateCounter(
+    private static readonly Counter _writeErrorsCounter = Metrics.CreateCounter(
         "circular_buffer_write_errors_total",
         "Total number of write errors.",
          new CounterConfiguration
          {
-             LabelNames = ["circular_buffer_id", "video_stream_name"] // Add the additional label here
+             LabelNames = ["circular_buffer_id", "client_id", "video_stream_name"]
          });
 
-    private static readonly Histogram _dataArrivalHistogram = Metrics.CreateHistogram(
-    "circular_buffer_arrival_time_milliseconds",
-    "Histogram of data arrival times in milliseconds.",
-        new HistogramConfiguration
-        {
-            Buckets = Histogram.LinearBuckets(start: 0.001, width: 0.01, count: 100), // Adjust the buckets to your needs
-            LabelNames = ["circular_buffer_id", "video_stream_name"]
-        });
+
+    private static readonly Gauge _dataArrival = Metrics.CreateGauge(
+"circular_buffer_arrival_time_milliseconds",
+    "Data arrival times in milliseconds.",
+new GaugeConfiguration
+{
+    LabelNames = ["circular_buffer_id", "video_stream_name"]
+});
+
+    //private static readonly Histogram _dataArrivalHistogram = Metrics.CreateHistogram(
+    //"circular_buffer_arrival_time_milliseconds",
+    //"Histogram of data arrival times in milliseconds.",
+    //    new HistogramConfiguration
+    //    {
+    //        Buckets = Histogram.LinearBuckets(start: 0.001, width: 0.01, count: 100), // Adjust the buckets to your needs
+    //        LabelNames = ["circular_buffer_id", "video_stream_name"]
+    //    });
 
     public event EventHandler<Guid> DataAvailable;
-    private readonly ConcurrentDictionary<Guid, int> _clientLastReadBeforeOverwrite = new();
 
+    private readonly ConcurrentDictionary<Guid, PerformanceBpsMetrics> _performanceMetrics = new();
+    private readonly ConcurrentDictionary<Guid, int> _clientLastReadBeforeOverwrite = new();
+    private PerformanceBpsMetrics _writeMetric = new(Guid.Empty);
     private readonly IStatisticsManager _statisticsManager;
     private readonly IInputStatisticsManager _inputStatisticsManager;
     private readonly IInputStreamingStatistics _inputStreamStatistics;
@@ -152,6 +130,7 @@ new GaugeConfiguration
         _originalBufferSize = _bufferSize;
         _writeIndex = 0;
         _oldestDataIndex = 0;
+
         logger.LogInformation("New Circular Buffer {Id} for stream {videoStreamId} {name}", Id, videoStreamDto.Id, videoStreamDto.User_Tvg_name);
     }
     private void OnDataAvailable(Guid clientId)
@@ -235,7 +214,6 @@ new GaugeConfiguration
 
     public int GetAvailableBytes(Guid clientId)
     {
-        int a = _clientReadIndexes.TryGetValue(clientId, out int readIndex2) ? (_writeIndex - readIndex2 + _buffer.Length) % _buffer.Length : 0;
         return _clientReadIndexes.TryGetValue(clientId, out int readIndex) ? (_writeIndex - readIndex + _buffer.Length) % _buffer.Length : 0;
     }
 
@@ -270,14 +248,16 @@ new GaugeConfiguration
         return InternalIsPreBuffered;
     }
 
-    public async Task<int> ReadChunkMemory(Guid clientId, Memory<byte> target, CancellationToken cancellationToken)
+    public async Task<int> ReadChunkMemory(Guid ClientId, Memory<byte> target, CancellationToken cancellationToken)
     {
-        _logger.LogDebug("Starting ReadChunkMemory for clientId: {clientId}", clientId);
+        _logger.LogDebug("Starting ReadChunkMemory for clientId: {clientId}", ClientId);
+
+        PerformanceBpsMetrics metrics = _performanceMetrics.GetOrAdd(ClientId, key => new PerformanceBpsMetrics(ClientId));
 
         // Wait for data to become available initially
-        while (GetAvailableBytes(clientId) == 0)
+        while (GetAvailableBytes(ClientId) == 0)
         {
-            await WaitForDataAvailability(clientId, cancellationToken);
+            await WaitForDataAvailability(ClientId, cancellationToken);
             if (cancellationToken.IsCancellationRequested)
             {
                 return 0;
@@ -290,7 +270,7 @@ new GaugeConfiguration
         while (!cancellationToken.IsCancellationRequested && bytesRead < target.Length)
         {
 
-            int availableBytes = Math.Min(GetAvailableBytes(clientId), target.Length - bytesRead);
+            int availableBytes = Math.Min(GetAvailableBytes(ClientId), target.Length - bytesRead);
             if (availableBytes == 0)
             {
                 if (bytesRead > ((target.Length - bytesRead) * .25))
@@ -301,7 +281,7 @@ new GaugeConfiguration
                 continue;
             }
 
-            int clientReadIndex = _clientReadIndexes[clientId];
+            int clientReadIndex = _clientReadIndexes[ClientId];
             // Calculate the number of bytes to read before wrap-around
             int bytesToRead = Math.Min(bufferLength - clientReadIndex, availableBytes);
 
@@ -311,7 +291,7 @@ new GaugeConfiguration
             bytesRead += bytesToRead;
 
             // Update the client's read index, wrapping around if necessary
-            _clientReadIndexes[clientId] = (clientReadIndex + bytesToRead) % bufferLength;
+            _clientReadIndexes[ClientId] = (clientReadIndex + bytesToRead) % bufferLength;
 
             // Check if all requested data has been read
             if (bytesRead >= target.Length)
@@ -328,12 +308,12 @@ new GaugeConfiguration
             //        break;
             //    }
             //}
-            _clientLastReadBeforeOverwrite[clientId] = _clientReadIndexes[clientId];
+            _clientLastReadBeforeOverwrite[ClientId] = _clientReadIndexes[ClientId];
         }
 
-
-        _statisticsManager.AddBytesRead(clientId, bytesRead);
-        _logger.LogDebug("Finished ReadChunkMemory for clientId: {clientId}", clientId);
+        metrics.RecordBytesProcessed(bytesRead);
+        _statisticsManager.AddBytesRead(ClientId, bytesRead);
+        _logger.LogDebug("Finished ReadChunkMemory for clientId: {clientId}", ClientId);
 
         return bytesRead;
     }
@@ -345,19 +325,6 @@ new GaugeConfiguration
         {
             Memory<byte> newBuffer = new byte[newSize];
             _buffer.CopyTo(newBuffer);
-
-            //int dataLength = CalculateDataLength(); // Calculate the length of data in the old buffer
-
-            //CopyDataToNewBuffer(newBuffer, dataLength); // Copy data to the new buffer
-
-            // Update indices
-            //_writeIndex = UpdateWriteIndex(dataLength);
-            //foreach (Guid clientId in _clientReadIndexes.Keys)
-            //{
-            //    _clientReadIndexes[clientId] = UpdateReadIndex(clientId);
-            //}
-
-            // Replace old buffer with new buffer
             _buffer = newBuffer;
         }
     }
@@ -383,11 +350,7 @@ new GaugeConfiguration
                 DataAvailable += handler;
 
                 await Task.WhenAny(tcs.Task, Task.Delay(15000, cancellationToken));
-                //if (cancellationToken.IsCancellationRequested)
-                //{
-                //    _logger.LogWarning("Wait for data availability cancelled for client {ClientId}", clientId);
-                //    break;
-                //}
+
             }
         }
 
@@ -398,10 +361,7 @@ new GaugeConfiguration
         finally
         {
             stopwatch.Stop();
-
-            // Assuming Prometheus metrics
-            // Replace 'YourHistogram' with your actual Prometheus histogram object
-            WaitTimeHistogram.WithLabels(Id.ToString(), clientId.ToString(), StreamInfo.VideoStreamName).Observe(stopwatch.Elapsed.TotalSeconds);
+            _waitTime.WithLabels(Id.ToString(), clientId.ToString(), StreamInfo.VideoStreamName).Set(stopwatch.Elapsed.TotalMilliseconds);
         }
     }
 
@@ -425,7 +385,8 @@ new GaugeConfiguration
 
         // Log the elapsed time if it's more than 500 milliseconds
         TimeSpan elapsed = now - lastNotificationTime;
-        _dataArrivalHistogram.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Observe(elapsed.TotalMilliseconds);
+        _dataArrival.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Set(elapsed.TotalMilliseconds);
+
         if (elapsed.TotalMilliseconds is > 15000 and < 60000000000000)
         {
             // Log the elapsed time here
@@ -492,22 +453,22 @@ new GaugeConfiguration
                 }
                 CheckAndReportClientOverwrites(initialWriteIndex, lengthToWrite);
             }
-            BytesWrittenCounter.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Inc(bytesWritten);
+
             stopwatch.Stop();
-            double seconds = stopwatch.Elapsed.TotalSeconds;
-            double bps = bytesWritten / seconds;
-            _bytesPerSecondHistogram.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Observe(bps);
-            _bytesPerSecond.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Set(bps);
+
+            _bytesWrittenCounter.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Inc(bytesWritten);
+            _writeMetric.RecordBytesProcessed(bytesWritten);
+            _bitsPerSecond.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Set(_writeMetric.GetBitsPerSecond());
         }
         catch (Exception ex)
         {
-            WriteErrorsCounter.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Inc(); // Increment write errors counter
+            _writeErrorsCounter.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Inc();
             _logger.LogError(ex, "WriteChunk error occurred while writing chunk for {VideoStreamId}.", VideoStreamId);
         }
         finally
         {
             stopwatch.Stop();
-            WriteDurationHistogram.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Observe(stopwatch.Elapsed.TotalMilliseconds);
+
         }
 
         _inputStreamStatistics.AddBytesWritten(bytesWritten);
