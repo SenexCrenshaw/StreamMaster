@@ -5,7 +5,6 @@ using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Models;
 
 using System.Collections.Concurrent;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace StreamMaster.Domain.Common;
@@ -86,80 +85,7 @@ public static partial class IPTVExtensions
 
     private static bool IsValidM3UFile(string body)
     {
-        //var a = body.Contains("#EXT-X-TARGETDURATION");
-        //var b = body.Contains("#EXT-X-MEDIA-SEQUENCE");
-        //var c = !body.Contains("EXTM3U");
-        return body.Contains("#EXT-X-TARGETDURATION") || body.Contains("#EXT-X-MEDIA-SEQUENCE") || body.Contains("EXTM3U");
-    }
-
-
-    public static List<VideoStream>? ConvertToVideoStream2(Stream dataStream, int Id, string Name)
-    {
-        StringBuilder bodyBuilder = new();
-
-        using (StreamReader reader = new(dataStream))
-        {
-            while (!reader.EndOfStream)
-            {
-                bodyBuilder.AppendLine(reader.ReadLine());
-            }
-        }
-
-        string body = bodyBuilder.ToString();
-        if (body.Contains("#EXT-X-TARGETDURATION") || body.Contains("#EXT-X-MEDIA-SEQUENCE") ||
-            !body.Contains("EXTM3U"))
-        {
-            Console.WriteLine("Invalid M3U file, an extended M3U file is required.");
-            return null;
-        }
-
-        ConcurrentDictionary<long, VideoStream> streamLists = new();
-
-        string lastExtGrp = "";
-
-        string[] extInfArray = body.Split("#EXTINF", StringSplitOptions.RemoveEmptyEntries);
-
-        int index = -1;
-        foreach (string? bodyline in extInfArray.Skip(1))
-        {
-            ++index;
-            VideoStream? VideoStream = bodyline.StringToVideoStream();
-            if (VideoStream == null)
-            {
-                continue;
-            }
-
-            MatchCollection extGrp = grpRegex().Matches(bodyline);
-            if (extGrp.Count > 0)
-            {
-                lastExtGrp = extGrp[0].Groups[1].Value.Trim();
-            }
-
-            if (string.IsNullOrEmpty(VideoStream.Tvg_group))
-            {
-                //VideoStream.Tvg_group = lastExtGrp;
-                VideoStream.Tvg_group = "(None)";
-            }
-
-            VideoStream.M3UFileId = Id;
-            VideoStream.M3UFileName = Name;
-            VideoStream.IsHidden = false;
-
-            VideoStream.User_Tvg_logo = VideoStream.Tvg_logo;
-            VideoStream.User_Tvg_name = VideoStream.Tvg_name;
-            VideoStream.User_Tvg_ID = VideoStream.Tvg_ID;
-            VideoStream.User_Tvg_chno = VideoStream.Tvg_chno;
-            VideoStream.User_Tvg_group = VideoStream.Tvg_group;
-            VideoStream.User_Url = VideoStream.Url;
-
-            // Add the VideoStream to a list directly instead of using a ConcurrentDictionary
-            streamLists.TryAdd(index, VideoStream);
-        }
-
-        List<VideoStream> results = streamLists.OrderBy(s => s.Key).Select(s => s.Value).ToList();
-
-        return results;
-
+        return !(body.Contains("#EXT-X-TARGETDURATION") || body.Contains("#EXT-X-MEDIA-SEQUENCE")) && body.Contains("EXTM3U");
     }
 
     public static (string fullName, string name) GetRandomFileName(this FileDefinition fd)
@@ -175,17 +101,16 @@ public static partial class IPTVExtensions
 
     public static VideoStream? StringToVideoStream(this string bodyline)
     {
+
         VideoStream VideoStream = new();
-        if (bodyline.Contains("https://tmsimg.fancybits.co/assets/s97051"))
-        {
-        }
+
         string[] lines = bodyline.Replace("\r\n", "\n").Split("\n");
 
-        // Remove lines with # and blank lines
         if (lines.Length < 2 || lines[0].StartsWith("#"))
         {
             return null;
         }
+
         string value = "";
         string newline = "";
         string potentialname = "";
@@ -200,6 +125,12 @@ public static partial class IPTVExtensions
             if (Uri.IsWellFormedUriString(line, UriKind.Absolute))
             {
                 VideoStream.Url = line;
+                continue;
+            }
+
+            if (line.StartsWith("#EXTGRP:"))
+            {
+                VideoStream.Tvg_group = line.Substring(8).Trim(); // Extracting EXTGRP value
                 continue;
             }
 
