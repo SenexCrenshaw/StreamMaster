@@ -1,12 +1,5 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 using StreamMaster.Application.VideoStreams.Events;
 
 namespace StreamMaster.Application.M3UFiles.Commands;
@@ -51,6 +44,18 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
                 }
 
                 string txtName = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Path.GetFileNameWithoutExtension(m3UFile.Source) + ".json");
+                if (File.Exists(txtName))
+                {
+                    attributes = File.GetAttributes(txtName);
+                    if ((attributes & (FileAttributes.ReadOnly | FileAttributes.System)) != 0)
+                    {
+                    }
+                    else
+                    {
+                        File.Delete(txtName);
+                    }
+                }
+                txtName = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Path.GetFileNameWithoutExtension(m3UFile.Source) + ".url");
                 if (File.Exists(txtName))
                 {
                     attributes = File.GetAttributes(txtName);

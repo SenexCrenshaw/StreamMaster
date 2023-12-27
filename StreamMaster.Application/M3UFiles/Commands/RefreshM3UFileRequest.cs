@@ -1,12 +1,5 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 namespace StreamMaster.Application.M3UFiles.Commands;
 
 public record RefreshM3UFileRequest(int Id) : IRequest<M3UFile?> { }
@@ -60,7 +53,7 @@ public class RefreshM3UFileRequestHandler : BaseMediatorRequestHandler, IRequest
                     }
                 }
 
-                List<VideoStream>? streams = m3uFile.GetM3U();
+                List<VideoStream>? streams = await m3uFile.GetM3U(Logger, cancellationToken);
                 if (streams == null)
                 {
                     Logger.LogCritical("Exception M3U {fullName} format is not supported", fullName);

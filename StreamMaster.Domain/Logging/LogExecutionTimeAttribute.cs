@@ -25,13 +25,11 @@ public class LogExecutionTimeAspect : Attribute
         string abbreviatedNamespace = AbbreviateNamespace(method.DeclaringType.FullName);
         string nameToLog = $"{abbreviatedNamespace}.{name}";
 
-        if (nameToLog.ToLower().Contains("xmltv"))
-        {
-            int a = 1;
 
-        }
+        List<string> whiteList = ["xmltvbuilder", "processm3ufile", "deletevideostreams", "processstreams"];
 
-        if (!nameToLog.ToLower().Contains("xmltvbuilder") && !ShouldLog(method.DeclaringType.FullName, LogPerformance))
+        if (!whiteList.Any(a => nameToLog.Contains(a, StringComparison.OrdinalIgnoreCase))
+            && !ShouldLog(method.DeclaringType.FullName, LogPerformance))
         {
             return target(args); // If the name doesn't match any string in the list, execute the method without any logging logic.
         }

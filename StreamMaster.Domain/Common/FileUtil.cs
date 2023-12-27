@@ -1,4 +1,3 @@
-using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Models;
 using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 
@@ -13,6 +12,7 @@ namespace StreamMaster.Domain.Common;
 public sealed class FileUtil
 {
     private static bool setupDirectories = false;
+
 
     public static string CleanUpFileName(string fullName)
     {

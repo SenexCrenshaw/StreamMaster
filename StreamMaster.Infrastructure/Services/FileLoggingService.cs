@@ -51,6 +51,9 @@ public class FileLoggingService : IFileLoggingService, IDisposable
             using FileStream stream = new(_logFilePath, FileMode.Append, FileAccess.Write, FileShare.Read);
             using StreamWriter writer = new(stream);
             await writer.WriteLineAsync(logEntry);
+            writer.Flush();
+            writer.Close();
+            writer.Dispose();
         }
         finally
         {

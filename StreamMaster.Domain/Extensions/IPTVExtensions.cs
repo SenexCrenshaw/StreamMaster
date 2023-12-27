@@ -1,4 +1,7 @@
 ﻿
+using Microsoft.Extensions.Logging;
+
+using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Models;
 
 using System.Collections.Concurrent;
@@ -9,7 +12,88 @@ namespace StreamMaster.Domain.Common;
 
 public static partial class IPTVExtensions
 {
-    public static List<VideoStream>? ConvertToVideoStream(Stream dataStream, int Id, string Name)
+    [LogExecutionTimeAspect]
+    public static async Task<List<VideoStream>?> ConvertToVideoStreamAsync(Stream dataStream, int Id, string Name, ILogger logger, CancellationToken cancellationToken)
+    {
+        using var reader = new StreamReader(dataStream);
+        string body = await reader.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
+
+        if (!IsValidM3UFile(body))
+        {
+            logger.LogWarning("Invalid M3U file, an extended M3U file is required.");
+            return null;
+        }
+
+        var lines = body.Split("#EXTINF", StringSplitOptions.RemoveEmptyEntries).ToList();
+        lines.RemoveAt(0);
+
+        var totalExpectedCount = lines.Count;
+        var blockingCollection = new BlockingCollection<KeyValuePair<int, VideoStream>>(new ConcurrentQueue<KeyValuePair<int, VideoStream>>());
+
+        int processedCount = 0;
+        object lockObj = new object();
+
+        Parallel.ForEach(Partitioner.Create(0, totalExpectedCount), new ParallelOptions { CancellationToken = cancellationToken }, range =>
+        {
+            for (int i = range.Item1; i < range.Item2; i++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                string bodyline = lines[i];
+                var videoStream = bodyline.StringToVideoStream();
+
+                if (videoStream != null)
+                {
+                    UpdateVideoStreamProperties(videoStream, Id, Name);
+                    blockingCollection.Add(new KeyValuePair<int, VideoStream>(i, videoStream));
+
+                    lock (lockObj)
+                    {
+                        processedCount++;
+                        if (processedCount % 5000 == 0)
+                        {
+                            logger.LogInformation($"Importing {processedCount}/{totalExpectedCount} streams.");
+                        }
+                    }
+                }
+            }
+        });
+
+        blockingCollection.CompleteAdding();
+
+        List<VideoStream> results = blockingCollection.OrderBy(kvp => kvp.Key).Select(kvp => kvp.Value).ToList();
+        logger.LogInformation($"Imported {processedCount} streams.");
+        return results;
+    }
+
+
+    private static void UpdateVideoStreamProperties(VideoStream videoStream, int m3uFileId, string m3uFileName)
+    {
+        // Set the M3U file-related properties
+        videoStream.M3UFileId = m3uFileId;
+        videoStream.M3UFileName = m3uFileName;
+        videoStream.IsHidden = false;
+
+        // Set user-defined properties
+        videoStream.User_Tvg_logo = videoStream.Tvg_logo;
+        videoStream.User_Tvg_name = videoStream.Tvg_name;
+        videoStream.User_Tvg_ID = videoStream.Tvg_ID;
+        videoStream.User_Tvg_chno = videoStream.Tvg_chno;
+        videoStream.User_Tvg_group = videoStream.Tvg_group;
+        videoStream.User_Url = videoStream.Url;
+    }
+
+
+    private static bool IsValidM3UFile(string body)
+    {
+        //var a = body.Contains("#EXT-X-TARGETDURATION");
+        //var b = body.Contains("#EXT-X-MEDIA-SEQUENCE");
+        //var c = !body.Contains("EXTM3U");
+        return body.Contains("#EXT-X-TARGETDURATION") || body.Contains("#EXT-X-MEDIA-SEQUENCE") || body.Contains("EXTM3U");
+    }
+
+
+    public static List<VideoStream>? ConvertToVideoStream2(Stream dataStream, int Id, string Name)
     {
         StringBuilder bodyBuilder = new();
 
@@ -29,44 +113,11 @@ public static partial class IPTVExtensions
             return null;
         }
 
-
         ConcurrentDictionary<long, VideoStream> streamLists = new();
 
         string lastExtGrp = "";
 
         string[] extInfArray = body.Split("#EXTINF", StringSplitOptions.RemoveEmptyEntries);
-
-        //_ = Parallel.ForEach(extInfArray.Skip(1), (bodyline, state, index) =>
-        //{
-        //    VideoStream? VideoStream = bodyline.StringToVideoStream();
-        //    if (VideoStream == null)
-        //    {
-        //        return;
-        //    }
-
-        //    MatchCollection extGrp = grpRegex().Matches(bodyline); if
-        //    (extGrp.Count > 0) { lastExtGrp = extGrp[0].Groups[1].Value.Trim(); }
-
-        //    if (string.IsNullOrEmpty(VideoStream.Tvg_group))
-        //    {
-        //        //VideoStream.Tvg_group = lastExtGrp;
-        //        VideoStream.Tvg_group = "(None)";
-        //    }
-
-        //    VideoStream.M3UFileId = Id;
-        //    VideoStream.M3UFileName = Name;
-        //    VideoStream.IsHidden = false;
-
-        //    VideoStream.User_Tvg_logo = VideoStream.Tvg_logo;
-        //    VideoStream.User_Tvg_name = VideoStream.Tvg_name;
-        //    VideoStream.User_Tvg_ID = VideoStream.Tvg_ID;
-        //    VideoStream.User_Tvg_chno = VideoStream.Tvg_chno;
-        //    VideoStream.User_Tvg_group = VideoStream.Tvg_group;
-        //    VideoStream.User_Url = VideoStream.Url;
-
-
-        //    streamLists.TryAdd(index, VideoStream);
-        //});
 
         int index = -1;
         foreach (string? bodyline in extInfArray.Skip(1))
@@ -127,7 +178,6 @@ public static partial class IPTVExtensions
         VideoStream VideoStream = new();
         if (bodyline.Contains("https://tmsimg.fancybits.co/assets/s97051"))
         {
-            int aa = 1;
         }
         string[] lines = bodyline.Replace("\r\n", "\n").Split("\n");
 

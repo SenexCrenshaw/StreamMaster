@@ -10,6 +10,12 @@
     <Version>0.1.0-alpha0582</Version>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <Optimize>False</Optimize>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Args\**" />
     <EmbeddedResource Remove="Args\**" />

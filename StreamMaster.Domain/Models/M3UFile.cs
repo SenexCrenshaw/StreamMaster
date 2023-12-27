@@ -1,4 +1,8 @@
 ﻿
+using Microsoft.Extensions.Logging;
+
+using StreamMaster.Domain.Logging;
+
 using System.Text.Json;
 
 namespace StreamMaster.Domain.Models;
@@ -30,18 +34,17 @@ public class M3UFile : AutoUpdateEntity
         return lastWrite;
     }
 
-    private readonly object Lock = new();
 
-    public List<VideoStream>? GetM3U()
+    [LogExecutionTimeAspect]
+    public async Task<List<VideoStream>?> GetM3U(ILogger logger, CancellationToken cancellationToken)
     {
-        lock (Lock)
-        {
-            using Stream dataStream = FileUtil.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source));
-            List<VideoStream>? ret = IPTVExtensions.ConvertToVideoStream(dataStream, Id, Name);
-            dataStream.Close();
-            dataStream.Dispose();
-            return ret;
-        }
+
+        using Stream dataStream = FileUtil.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source));
+        List<VideoStream>? ret = await IPTVExtensions.ConvertToVideoStreamAsync(dataStream, Id, Name, logger, cancellationToken);
+        dataStream.Close();
+        dataStream.Dispose();
+        return ret;
+
     }
 
     public static M3UFile? ReadJSON(FileInfo fileInfo)

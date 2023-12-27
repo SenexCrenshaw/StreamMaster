@@ -2,14 +2,8 @@
 
 using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 using StreamMaster.Application.Common.Extensions;
+using StreamMaster.Domain.Authentication;
 
 using System.Collections.Concurrent;
 using System.Net;
@@ -135,7 +129,6 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
             }
         }
 
-        //int cid = Convert.ToInt32(longCid);
 
         if (request.StreamGroupId == 1 && videoStream.User_Tvg_chno == 0)
         {
@@ -206,8 +199,6 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         return lines;
     }
 
-
-    [LogExecutionTimeAspect]
     private string AssembleReturnString(ConcurrentDictionary<int, string> retlist)
     {
         StringBuilder ret = new("#EXTM3U\r\n");

@@ -9,7 +9,9 @@
         "ASPNETCORE_URLS": "http://+:7095"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://10.6.10.92:7095"
+      "applicationUrl": "http://10.6.10.92:7095",
+      "nativeDebugging": false,
+      "hotReloadEnabled": false
     },
     "https": {
       "commandName": "Project",

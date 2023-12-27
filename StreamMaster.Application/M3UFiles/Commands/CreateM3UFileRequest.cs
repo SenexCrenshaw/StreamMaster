@@ -1,12 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 using System.Web;
 
 namespace StreamMaster.Application.M3UFiles.Commands;
@@ -75,7 +68,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, I
 
             m3UFile.MaxStreamCount = command.MaxStreamCount;
 
-            List<VideoStream>? streams = m3UFile.GetM3U();
+            List<VideoStream>? streams = await m3UFile.GetM3U(logger, cancellationToken).ConfigureAwait(false);
             if (streams == null || streams.Count == 0)
             {
                 Logger.LogCritical("Exception M3U {fullName} format is not supported", fullName);

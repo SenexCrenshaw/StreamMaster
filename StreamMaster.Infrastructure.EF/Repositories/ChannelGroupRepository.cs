@@ -6,19 +6,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Repository;
-
 using StreamMaster.Application.VideoStreams.Queries;
 
 using System.Linq.Dynamic.Core;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMemoryCache memoryCache, ISender sender) : RepositoryBase<ChannelGroup>(repositoryContext, logger), IChannelGroupRepository
+public class ChannelGroupRepository(ILogger<ChannelGroupRepository> intLogger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMemoryCache memoryCache, ISender sender) : RepositoryBase<ChannelGroup>(repositoryContext, intLogger), IChannelGroupRepository
 {
     /// <summary>
     /// Retrieves all channel groups from the database.
@@ -245,7 +239,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
         if (string.IsNullOrWhiteSpace(name))
         {
             logger.LogError("The provided name for ChannelGroup was null or whitespace.");
-            throw new ArgumentNullException(nameof(name));
+            return null;
         }
 
         try

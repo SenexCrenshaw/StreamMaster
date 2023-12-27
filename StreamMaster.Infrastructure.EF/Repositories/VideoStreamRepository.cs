@@ -173,8 +173,47 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
     public async Task<List<VideoStreamDto>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, CancellationToken cancellationToken)
     {
         IQueryable<VideoStream> query = FindByCondition(a => a.M3UFileId == M3UFileId);
+        //// Get the VideoStreams
+        List<string> videoStreamIds = [.. query.Select(vs => vs.Id)];
 
-        _ = await DeleteVideoStreamsAsync(query, cancellationToken).ConfigureAwait(false);
+        if (!query.Any())
+        {
+            return [];
+        }
+
+        // Remove associated VideoStreamLinks where the VideoStream is a parent
+        IQueryable<VideoStreamLink> parentLinks = RepositoryContext.VideoStreamLinks.Where(vsl => videoStreamIds.Contains(vsl.ParentVideoStreamId));
+        //await RepositoryContext.VideoStreamLinks.Where(vsl => videoStreamIds.Contains(vsl.ParentVideoStreamId)).ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        await parentLinks.ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        //await RepositoryContext.BulkDeleteAsync(parentLinks, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        // Remove associated VideoStreamLinks where the VideoStream is a child
+        IQueryable<VideoStreamLink> childLinks = RepositoryContext.VideoStreamLinks.Where(vsl => videoStreamIds.Contains(vsl.ChildVideoStreamId));
+        //await RepositoryContext.BulkDeleteAsync(childLinks, cancellationToken: cancellationToken).ConfigureAwait(false);
+        await childLinks.ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+
+        IQueryable<StreamGroupVideoStream> streamgroupLinks = RepositoryContext.StreamGroupVideoStreams.Where(vsl => videoStreamIds.Contains(vsl.ChildVideoStreamId));
+        // await RepositoryContext.BulkDeleteAsync(streamgroupLinks, cancellationToken: cancellationToken).ConfigureAwait(false);
+        await streamgroupLinks.ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        //await RepositoryContext.VideoStreamLinks.Where(vsl => videoStreamIds.Contains(vsl.ChildVideoStreamId)).ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        await query.ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        //// Save changes
+        //try
+        //{
+        //    _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        //}
+        //catch (Exception)
+        //{
+        //    // You can decide how to handle exceptions here, for example by
+        //    // logging them. In this case, we're simply swallowing the exception.
+        //}
+
+        await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await RepositoryContext.VacuumDatabaseAsync().ConfigureAwait(false);
 
         return await query.ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider).ToListAsync(cancellationToken).ConfigureAwait(false);
     }
@@ -189,6 +228,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
         {
             return [];
         }
+
 
         int deletedCount = 0;
 

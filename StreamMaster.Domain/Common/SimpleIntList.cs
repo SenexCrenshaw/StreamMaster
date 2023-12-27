@@ -23,19 +23,25 @@ public class SimpleIntList
         return intSet.Contains(value);
     }
 
+    private readonly object lockObject = new object();
+
     public int GetNextInt(int? value = null)
     {
-        int desiredValue = value ?? ++nextAvailableInt;
-
-        // Ensure desiredValue is not less than startingValue
-        desiredValue = Math.Max(desiredValue, startingValue);
-
-        while (intSet.Contains(desiredValue))
+        lock (lockObject)
         {
-            desiredValue = ++nextAvailableInt;
-        }
+            int desiredValue = value ?? ++nextAvailableInt;
 
-        intSet.Add(desiredValue);
-        return desiredValue;
+            // Ensure desiredValue is not less than startingValue
+            desiredValue = Math.Max(desiredValue, startingValue);
+
+            while (intSet.Contains(desiredValue))
+            {
+                desiredValue = ++nextAvailableInt;
+            }
+
+            intSet.Add(desiredValue);
+            return desiredValue;
+        }
     }
+
 }
