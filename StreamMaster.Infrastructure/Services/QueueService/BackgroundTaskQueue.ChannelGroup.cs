@@ -1,7 +1,7 @@
 ﻿using StreamMaster.Application.ChannelGroups;
 using StreamMaster.Domain.Enums;
 
-namespace StreamMaster.Infrastructure.Services;
+namespace StreamMaster.Infrastructure.Services.QueueService;
 
 public partial class BackgroundTaskQueue : IChannelGroupTasks
 {

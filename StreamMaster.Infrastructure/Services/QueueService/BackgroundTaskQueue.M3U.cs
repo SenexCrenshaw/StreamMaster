@@ -2,7 +2,8 @@
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Domain.Enums;
 
-namespace StreamMaster.Infrastructure.Services;
+namespace StreamMaster.Infrastructure.Services.QueueService;
+
 
 public partial class BackgroundTaskQueue : IM3UFileTasks
 {

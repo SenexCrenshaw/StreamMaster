@@ -11,7 +11,8 @@ using StreamMaster.Domain.Enums;
 
 using System.Threading.Channels;
 
-namespace StreamMaster.Infrastructure.Services;
+namespace StreamMaster.Infrastructure.Services.QueueService;
+
 
 public partial class BackgroundTaskQueue : IBackgroundTaskQueue
 {
@@ -140,7 +141,7 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
             if (!taskQueueStatusDtos.Any(a => a.Id == workItem.Id && a.Command == workItem.Command.ToString()))
             {
                 good = true;
-                taskQueueStatusDtos.AddFirst(new TaskQueueStatusDto
+                _ = taskQueueStatusDtos.AddFirst(new TaskQueueStatusDto
                 {
                     Id = workItem.Id,
                     Command = workItem.Command.ToString(),

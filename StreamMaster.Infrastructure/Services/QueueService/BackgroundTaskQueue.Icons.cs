@@ -1,7 +1,8 @@
 ﻿using StreamMaster.Application.Icons;
 using StreamMaster.Domain.Enums;
 
-namespace StreamMaster.Infrastructure.Services;
+namespace StreamMaster.Infrastructure.Services.QueueService;
+
 
 public partial class BackgroundTaskQueue : IIconTasks
 {
