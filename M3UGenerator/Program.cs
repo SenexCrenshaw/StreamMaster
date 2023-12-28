@@ -4,9 +4,15 @@
     {
         private static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
-            List<string> m3u = BuildM3ULineForVideoStream(10);
-            File.WriteAllLines("test.m3u", m3u);
+            int count = 100;
+
+            if (args.Length == 1)
+            {
+                int.TryParse(args[0], out count);
+            }
+
+            List<string> m3u = BuildM3ULineForVideoStream(count);
+            File.WriteAllLines($"test_{count}.m3u", m3u);
         }
 
         private static List<string> BuildM3ULineForVideoStream(int m3uCount = 100)

@@ -38,13 +38,9 @@ public class M3UFile : AutoUpdateEntity
     [LogExecutionTimeAspect]
     public async Task<List<VideoStream>?> GetM3U(ILogger logger, CancellationToken cancellationToken)
     {
-
         using Stream dataStream = FileUtil.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source));
         List<VideoStream>? ret = await IPTVExtensions.ConvertToVideoStreamAsync(dataStream, Id, Name, logger, cancellationToken);
-        dataStream.Close();
-        dataStream.Dispose();
         return ret;
-
     }
 
     public static M3UFile? ReadJSON(FileInfo fileInfo)

@@ -5,6 +5,7 @@ using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Models;
 
 using System.Collections.Concurrent;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace StreamMaster.Domain.Common;
@@ -14,7 +15,99 @@ public static partial class IPTVExtensions
     [LogExecutionTimeAspect]
     public static async Task<List<VideoStream>?> ConvertToVideoStreamAsync(Stream dataStream, int Id, string Name, ILogger logger, CancellationToken cancellationToken)
     {
-        using var reader = new StreamReader(dataStream);
+
+        BlockingCollection<KeyValuePair<int, VideoStream>> blockingCollection = new(new ConcurrentQueue<KeyValuePair<int, VideoStream>>());
+        int segmentNumber = 0;
+        int processedCount = 0;
+        object lockObj = new();
+        StringBuilder segmentBuilder = new();
+
+        using StreamReader reader = new(dataStream);
+        await Task.Run(() =>
+        {
+            try
+            {
+
+                while (!reader.EndOfStream)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    string? line = reader.ReadLine();
+
+                    if (string.IsNullOrWhiteSpace(line))
+                    {
+                        continue;
+                    }
+
+                    if (line.StartsWith("#EXTINF"))
+                    {
+                        if (segmentBuilder.Length > 0)
+                        {
+                            ProcessSegment(segmentNumber++, segmentBuilder.ToString());
+                            segmentBuilder.Clear();
+                        }
+                    }
+                    else
+                    {
+                        if (segmentBuilder.Length == 0)
+                        {
+                            continue;
+                        }
+                    }
+
+                    segmentBuilder.AppendLine(line);
+                }
+
+                // Process the last segment
+                if (segmentBuilder.Length > 0)
+                {
+                    ProcessSegment(segmentNumber, segmentBuilder.ToString());
+                }
+            }
+            finally
+            {
+                blockingCollection.CompleteAdding();
+            }
+        }, cancellationToken);
+
+        List<VideoStream> results = blockingCollection.OrderBy(kvp => kvp.Key).Select(kvp => kvp.Value).ToList();
+        logger.LogInformation($"Imported {processedCount} streams.");
+        return results;
+
+        void ProcessSegment(int segmentNum, string segment)
+        {
+            VideoStream? videoStream = segment.StringToVideoStream();
+
+            if (videoStream != null)
+            {
+                UpdateVideoStreamProperties(videoStream, Id, Name);
+                blockingCollection.Add(new KeyValuePair<int, VideoStream>(segmentNum, videoStream));
+
+                lock (lockObj)
+                {
+                    processedCount++;
+                    if (processedCount % 5000 == 0)
+                    {
+                        logger.LogInformation($"Importing {processedCount} streams.");
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
+    [LogExecutionTimeAspect]
+    public static async Task<List<VideoStream>?> ConvertToVideoStreamAsync2(Stream dataStream, int Id, string Name, ILogger logger, CancellationToken cancellationToken)
+    {
+
+        BlockingCollection<KeyValuePair<int, VideoStream>> blockingCollection = new(new ConcurrentQueue<KeyValuePair<int, VideoStream>>());
+        int segmentNumber = 0;
+        int processedCount = 0;
+        object lockObj = new();
+        StringBuilder segmentBuilder = new();
+
+        using StreamReader reader = new(dataStream);
         string body = await reader.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
 
         if (!IsValidM3UFile(body))
@@ -23,47 +116,75 @@ public static partial class IPTVExtensions
             return null;
         }
 
-        var lines = body.Split("#EXTINF", StringSplitOptions.RemoveEmptyEntries).ToList();
+        List<string> lines = body.Split("\n", StringSplitOptions.RemoveEmptyEntries).ToList();
         lines.RemoveAt(0);
-
-        var totalExpectedCount = lines.Count;
-        var blockingCollection = new BlockingCollection<KeyValuePair<int, VideoStream>>(new ConcurrentQueue<KeyValuePair<int, VideoStream>>());
-
-        int processedCount = 0;
-        object lockObj = new object();
-
-        Parallel.ForEach(Partitioner.Create(0, totalExpectedCount), new ParallelOptions { CancellationToken = cancellationToken }, range =>
+        try
         {
-            for (int i = range.Item1; i < range.Item2; i++)
+
+            foreach (string line in lines)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                string bodyline = lines[i];
-                var videoStream = bodyline.StringToVideoStream();
 
-                if (videoStream != null)
+                if (string.IsNullOrWhiteSpace(line))
                 {
-                    UpdateVideoStreamProperties(videoStream, Id, Name);
-                    blockingCollection.Add(new KeyValuePair<int, VideoStream>(i, videoStream));
+                    continue;
+                }
 
-                    lock (lockObj)
+                if (line.StartsWith("#EXTINF"))
+                {
+                    if (segmentBuilder.Length > 0)
                     {
-                        processedCount++;
-                        if (processedCount % 5000 == 0)
-                        {
-                            logger.LogInformation($"Importing {processedCount}/{totalExpectedCount} streams.");
-                        }
+                        ProcessSegment(segmentNumber++, segmentBuilder.ToString());
+                        segmentBuilder.Clear();
                     }
                 }
-            }
-        });
+                else
+                {
+                    if (segmentBuilder.Length == 0)
+                    {
+                        continue;
+                    }
+                }
 
-        blockingCollection.CompleteAdding();
+                segmentBuilder.AppendLine(line);
+            }
+
+            // Process the last segment
+            if (segmentBuilder.Length > 0)
+            {
+                ProcessSegment(segmentNumber, segmentBuilder.ToString());
+            }
+        }
+        finally
+        {
+            blockingCollection.CompleteAdding();
+        }
 
         List<VideoStream> results = blockingCollection.OrderBy(kvp => kvp.Key).Select(kvp => kvp.Value).ToList();
         logger.LogInformation($"Imported {processedCount} streams.");
         return results;
+        void ProcessSegment(int segmentNum, string segment)
+        {
+            VideoStream? videoStream = segment.StringToVideoStream();
+
+            if (videoStream != null)
+            {
+                UpdateVideoStreamProperties(videoStream, Id, Name);
+                blockingCollection.Add(new KeyValuePair<int, VideoStream>(segmentNum, videoStream));
+
+                lock (lockObj)
+                {
+                    processedCount++;
+                    if (processedCount % 5000 == 0)
+                    {
+                        logger.LogInformation($"Importing {processedCount} streams.");
+                    }
+                }
+            }
+        }
     }
+
 
 
     private static void UpdateVideoStreamProperties(VideoStream videoStream, int m3uFileId, string m3uFileName)
@@ -106,7 +227,7 @@ public static partial class IPTVExtensions
 
         string[] lines = bodyline.Replace("\r\n", "\n").Split("\n");
 
-        if (lines.Length < 2 || lines[0].StartsWith("#"))
+        if (lines.Length < 2 || !lines[0].StartsWith("#"))
         {
             return null;
         }
@@ -130,7 +251,7 @@ public static partial class IPTVExtensions
 
             if (line.StartsWith("#EXTGRP:"))
             {
-                VideoStream.Tvg_group = line.Substring(8).Trim(); // Extracting EXTGRP value
+                VideoStream.Tvg_group = line[8..].Trim(); // Extracting EXTGRP value
                 continue;
             }
 
