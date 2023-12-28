@@ -17,3 +17,4 @@ export const singletonIconsListener = createSingletonListener('IconsRefresh', hu
 export const singletonLogsListener = createSingletonListener('LogsRefresh', hubConnection);
 export const singletonStatisticListener = createSingletonListener('StreamStatisticsResultsUpdate', hubConnection);
 export const singletonMiscListener = createSingletonListener('MiscRefresh', hubConnection);
+export const singletonQueueListener = createSingletonListener('TaskQueueStatusUpdate', hubConnection);

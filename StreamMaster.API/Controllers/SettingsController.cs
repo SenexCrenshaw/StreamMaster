@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.General.Queries;
 using StreamMaster.Application.Settings;
 using StreamMaster.Application.Settings.Commands;
@@ -21,13 +20,6 @@ public class SettingsController : ApiControllerBase, ISettingController
     public async Task<ActionResult<bool>> GetIsSystemReady()
     {
         return await Mediator.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
-    }
-
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<List<TaskQueueStatus>>> GetQueueStatus()
-    {
-        return await Mediator.Send(new GetQueueStatus()).ConfigureAwait(false);
     }
 
     [HttpGet]

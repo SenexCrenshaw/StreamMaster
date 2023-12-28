@@ -1,15 +1,10 @@
-﻿using StreamMaster.Application.Common.Models;
-using StreamMaster.Application.Settings;
+﻿using StreamMaster.Application.Settings;
 using StreamMaster.Application.Settings.Commands;
 
 namespace StreamMaster.Application.Hubs;
 
 public partial class StreamMasterHub : ISettingHub
 {
-    public async Task<List<TaskQueueStatus>> GetQueueStatus()
-    {
-        return await mediator.Send(new GetQueueStatus()).ConfigureAwait(false);
-    }
 
     public async Task<SettingDto> GetSetting()
     {

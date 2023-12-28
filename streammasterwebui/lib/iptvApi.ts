@@ -9,13 +9,14 @@ export const addTagTypes = [
   'Programmes',
   'SchedulesDirect',
   'StreamGroupChannelGroup',
-  'StreamGroups',
   'StreamGroupVideoStreams',
   'Test',
   'VideoStreamLinks',
   'VideoStreams',
   'Files',
-  'Settings'
+  'Queue',
+  'Settings',
+  'StreamGroups'
 ] as const;
 const injectedRtkApi = api
   .enhanceEndpoints({
@@ -355,74 +356,6 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/streamgroupchannelgroup/getchannelgroupsfromstreamgroup`, params: { StreamGroupId: queryArg } }),
         providesTags: ['StreamGroupChannelGroup']
       }),
-      streamGroupsCreateStreamGroup: build.mutation<StreamGroupsCreateStreamGroupApiResponse, StreamGroupsCreateStreamGroupApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/createstreamgroup`, method: 'POST', body: queryArg }),
-        invalidatesTags: ['StreamGroups']
-      }),
-      streamGroupsDeleteStreamGroup: build.mutation<StreamGroupsDeleteStreamGroupApiResponse, StreamGroupsDeleteStreamGroupApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/deletestreamgroup`, method: 'DELETE', body: queryArg }),
-        invalidatesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroup: build.query<StreamGroupsGetStreamGroupApiResponse, StreamGroupsGetStreamGroupApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/getstreamgroup/${queryArg}` }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroupCapability: build.query<StreamGroupsGetStreamGroupCapabilityApiResponse, StreamGroupsGetStreamGroupCapabilityApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}` }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroupCapability2: build.query<StreamGroupsGetStreamGroupCapability2ApiResponse, StreamGroupsGetStreamGroupCapability2ApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/capability` }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroupCapability3: build.query<StreamGroupsGetStreamGroupCapability3ApiResponse, StreamGroupsGetStreamGroupCapability3ApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/device.xml` }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroupDiscover: build.query<StreamGroupsGetStreamGroupDiscoverApiResponse, StreamGroupsGetStreamGroupDiscoverApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/discover.json` }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroupEpg: build.query<StreamGroupsGetStreamGroupEpgApiResponse, StreamGroupsGetStreamGroupEpgApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/epg.xml` }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroupLineup: build.query<StreamGroupsGetStreamGroupLineupApiResponse, StreamGroupsGetStreamGroupLineupApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/lineup.json` }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroupLineupStatus: build.query<StreamGroupsGetStreamGroupLineupStatusApiResponse, StreamGroupsGetStreamGroupLineupStatusApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/lineup_status.json` }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroupM3U: build.query<StreamGroupsGetStreamGroupM3UApiResponse, StreamGroupsGetStreamGroupM3UApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/m3u.m3u` }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsGetPagedStreamGroups: build.query<StreamGroupsGetPagedStreamGroupsApiResponse, StreamGroupsGetPagedStreamGroupsApiArg>({
-        query: (queryArg) => ({
-          url: `/api/streamgroups`,
-          params: {
-            PageNumber: queryArg.pageNumber,
-            PageSize: queryArg.pageSize,
-            OrderBy: queryArg.orderBy,
-            JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString
-          }
-        }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsUpdateStreamGroup: build.mutation<StreamGroupsUpdateStreamGroupApiResponse, StreamGroupsUpdateStreamGroupApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/updatestreamgroup`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroupVideoStreamUrl: build.query<
-        StreamGroupsGetStreamGroupVideoStreamUrlApiResponse,
-        StreamGroupsGetStreamGroupVideoStreamUrlApiArg
-      >({
-        query: (queryArg) => ({ url: `/api/streamgroups/getstreamgroupvideostreamurl`, params: { VideoStreamId: queryArg } }),
-        providesTags: ['StreamGroups']
-      }),
       streamGroupVideoStreamsGetStreamGroupVideoStreamIds: build.query<
         StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiResponse,
         StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiArg
@@ -685,12 +618,12 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/files/${queryArg.filetype}/${queryArg.source}` }),
         providesTags: ['Files']
       }),
+      queueGetQueueStatus: build.query<QueueGetQueueStatusApiResponse, QueueGetQueueStatusApiArg>({
+        query: () => ({ url: `/api/queue/getqueuestatus` }),
+        providesTags: ['Queue']
+      }),
       settingsGetIsSystemReady: build.query<SettingsGetIsSystemReadyApiResponse, SettingsGetIsSystemReadyApiArg>({
         query: () => ({ url: `/api/settings/getissystemready` }),
-        providesTags: ['Settings']
-      }),
-      settingsGetQueueStatus: build.query<SettingsGetQueueStatusApiResponse, SettingsGetQueueStatusApiArg>({
-        query: () => ({ url: `/api/settings/getqueuestatus` }),
         providesTags: ['Settings']
       }),
       settingsGetSetting: build.query<SettingsGetSettingApiResponse, SettingsGetSettingApiArg>({
@@ -708,6 +641,74 @@ const injectedRtkApi = api
       settingsUpdateSetting: build.mutation<SettingsUpdateSettingApiResponse, SettingsUpdateSettingApiArg>({
         query: (queryArg) => ({ url: `/api/settings/updatesetting`, method: 'PATCH', body: queryArg }),
         invalidatesTags: ['Settings']
+      }),
+      streamGroupsCreateStreamGroup: build.mutation<StreamGroupsCreateStreamGroupApiResponse, StreamGroupsCreateStreamGroupApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/createstreamgroup`, method: 'POST', body: queryArg }),
+        invalidatesTags: ['StreamGroups']
+      }),
+      streamGroupsDeleteStreamGroup: build.mutation<StreamGroupsDeleteStreamGroupApiResponse, StreamGroupsDeleteStreamGroupApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/deletestreamgroup`, method: 'DELETE', body: queryArg }),
+        invalidatesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroup: build.query<StreamGroupsGetStreamGroupApiResponse, StreamGroupsGetStreamGroupApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/getstreamgroup/${queryArg}` }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroupCapability: build.query<StreamGroupsGetStreamGroupCapabilityApiResponse, StreamGroupsGetStreamGroupCapabilityApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}` }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroupCapability2: build.query<StreamGroupsGetStreamGroupCapability2ApiResponse, StreamGroupsGetStreamGroupCapability2ApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/capability` }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroupCapability3: build.query<StreamGroupsGetStreamGroupCapability3ApiResponse, StreamGroupsGetStreamGroupCapability3ApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/device.xml` }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroupDiscover: build.query<StreamGroupsGetStreamGroupDiscoverApiResponse, StreamGroupsGetStreamGroupDiscoverApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/discover.json` }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroupEpg: build.query<StreamGroupsGetStreamGroupEpgApiResponse, StreamGroupsGetStreamGroupEpgApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/epg.xml` }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroupLineup: build.query<StreamGroupsGetStreamGroupLineupApiResponse, StreamGroupsGetStreamGroupLineupApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/lineup.json` }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroupLineupStatus: build.query<StreamGroupsGetStreamGroupLineupStatusApiResponse, StreamGroupsGetStreamGroupLineupStatusApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/lineup_status.json` }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroupM3U: build.query<StreamGroupsGetStreamGroupM3UApiResponse, StreamGroupsGetStreamGroupM3UApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/m3u.m3u` }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsGetPagedStreamGroups: build.query<StreamGroupsGetPagedStreamGroupsApiResponse, StreamGroupsGetPagedStreamGroupsApiArg>({
+        query: (queryArg) => ({
+          url: `/api/streamgroups`,
+          params: {
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
+        }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsUpdateStreamGroup: build.mutation<StreamGroupsUpdateStreamGroupApiResponse, StreamGroupsUpdateStreamGroupApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/updatestreamgroup`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroupVideoStreamUrl: build.query<
+        StreamGroupsGetStreamGroupVideoStreamUrlApiResponse,
+        StreamGroupsGetStreamGroupVideoStreamUrlApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/streamgroups/getstreamgroupvideostreamurl`, params: { VideoStreamId: queryArg } }),
+        providesTags: ['StreamGroups']
       })
     }),
     overrideExisting: false
@@ -902,40 +903,6 @@ export type StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiResponse = /**
 export type StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiArg = SyncStreamGroupChannelGroupsRequest;
 export type StreamGroupChannelGroupGetChannelGroupsFromStreamGroupApiResponse = /** status 200  */ ChannelGroupDto[];
 export type StreamGroupChannelGroupGetChannelGroupsFromStreamGroupApiArg = number;
-export type StreamGroupsCreateStreamGroupApiResponse = unknown;
-export type StreamGroupsCreateStreamGroupApiArg = CreateStreamGroupRequest;
-export type StreamGroupsDeleteStreamGroupApiResponse = unknown;
-export type StreamGroupsDeleteStreamGroupApiArg = DeleteStreamGroupRequest;
-export type StreamGroupsGetStreamGroupApiResponse = /** status 200  */ StreamGroupDto;
-export type StreamGroupsGetStreamGroupApiArg = number;
-export type StreamGroupsGetStreamGroupCapabilityApiResponse = unknown;
-export type StreamGroupsGetStreamGroupCapabilityApiArg = string;
-export type StreamGroupsGetStreamGroupCapability2ApiResponse = unknown;
-export type StreamGroupsGetStreamGroupCapability2ApiArg = string;
-export type StreamGroupsGetStreamGroupCapability3ApiResponse = unknown;
-export type StreamGroupsGetStreamGroupCapability3ApiArg = string;
-export type StreamGroupsGetStreamGroupDiscoverApiResponse = unknown;
-export type StreamGroupsGetStreamGroupDiscoverApiArg = string;
-export type StreamGroupsGetStreamGroupEpgApiResponse = unknown;
-export type StreamGroupsGetStreamGroupEpgApiArg = string;
-export type StreamGroupsGetStreamGroupLineupApiResponse = unknown;
-export type StreamGroupsGetStreamGroupLineupApiArg = string;
-export type StreamGroupsGetStreamGroupLineupStatusApiResponse = unknown;
-export type StreamGroupsGetStreamGroupLineupStatusApiArg = string;
-export type StreamGroupsGetStreamGroupM3UApiResponse = unknown;
-export type StreamGroupsGetStreamGroupM3UApiArg = string;
-export type StreamGroupsGetPagedStreamGroupsApiResponse = /** status 200  */ PagedResponseOfStreamGroupDto;
-export type StreamGroupsGetPagedStreamGroupsApiArg = {
-  pageNumber?: number;
-  pageSize?: number;
-  orderBy?: string;
-  jsonArgumentString?: string | null;
-  jsonFiltersString?: string | null;
-};
-export type StreamGroupsUpdateStreamGroupApiResponse = unknown;
-export type StreamGroupsUpdateStreamGroupApiArg = UpdateStreamGroupRequest;
-export type StreamGroupsGetStreamGroupVideoStreamUrlApiResponse = /** status 200  */ string;
-export type StreamGroupsGetStreamGroupVideoStreamUrlApiArg = string;
 export type StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiResponse = /** status 200  */ VideoStreamIsReadOnly[];
 export type StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiArg = number;
 export type StreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsApiResponse = /** status 200  */ PagedResponseOfVideoStreamDto;
@@ -1057,10 +1024,10 @@ export type FilesGetFileApiArg = {
   source: string;
   filetype: SmFileTypes;
 };
+export type QueueGetQueueStatusApiResponse = /** status 200  */ TaskQueueStatus[];
+export type QueueGetQueueStatusApiArg = void;
 export type SettingsGetIsSystemReadyApiResponse = /** status 200  */ boolean;
 export type SettingsGetIsSystemReadyApiArg = void;
-export type SettingsGetQueueStatusApiResponse = /** status 200  */ TaskQueueStatus[];
-export type SettingsGetQueueStatusApiArg = void;
 export type SettingsGetSettingApiResponse = /** status 200  */ SettingDto;
 export type SettingsGetSettingApiArg = void;
 export type SettingsGetSystemStatusApiResponse = /** status 200  */ SdSystemStatus;
@@ -1069,6 +1036,40 @@ export type SettingsLogInApiResponse = /** status 200  */ boolean;
 export type SettingsLogInApiArg = LogInRequest;
 export type SettingsUpdateSettingApiResponse = unknown;
 export type SettingsUpdateSettingApiArg = UpdateSettingRequest;
+export type StreamGroupsCreateStreamGroupApiResponse = unknown;
+export type StreamGroupsCreateStreamGroupApiArg = CreateStreamGroupRequest;
+export type StreamGroupsDeleteStreamGroupApiResponse = unknown;
+export type StreamGroupsDeleteStreamGroupApiArg = DeleteStreamGroupRequest;
+export type StreamGroupsGetStreamGroupApiResponse = /** status 200  */ StreamGroupDto;
+export type StreamGroupsGetStreamGroupApiArg = number;
+export type StreamGroupsGetStreamGroupCapabilityApiResponse = unknown;
+export type StreamGroupsGetStreamGroupCapabilityApiArg = string;
+export type StreamGroupsGetStreamGroupCapability2ApiResponse = unknown;
+export type StreamGroupsGetStreamGroupCapability2ApiArg = string;
+export type StreamGroupsGetStreamGroupCapability3ApiResponse = unknown;
+export type StreamGroupsGetStreamGroupCapability3ApiArg = string;
+export type StreamGroupsGetStreamGroupDiscoverApiResponse = unknown;
+export type StreamGroupsGetStreamGroupDiscoverApiArg = string;
+export type StreamGroupsGetStreamGroupEpgApiResponse = unknown;
+export type StreamGroupsGetStreamGroupEpgApiArg = string;
+export type StreamGroupsGetStreamGroupLineupApiResponse = unknown;
+export type StreamGroupsGetStreamGroupLineupApiArg = string;
+export type StreamGroupsGetStreamGroupLineupStatusApiResponse = unknown;
+export type StreamGroupsGetStreamGroupLineupStatusApiArg = string;
+export type StreamGroupsGetStreamGroupM3UApiResponse = unknown;
+export type StreamGroupsGetStreamGroupM3UApiArg = string;
+export type StreamGroupsGetPagedStreamGroupsApiResponse = /** status 200  */ PagedResponseOfStreamGroupDto;
+export type StreamGroupsGetPagedStreamGroupsApiArg = {
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type StreamGroupsUpdateStreamGroupApiResponse = unknown;
+export type StreamGroupsUpdateStreamGroupApiArg = UpdateStreamGroupRequest;
+export type StreamGroupsGetStreamGroupVideoStreamUrlApiResponse = /** status 200  */ string;
+export type StreamGroupsGetStreamGroupVideoStreamUrlApiArg = string;
 export type CreateChannelGroupRequest = {
   groupName: string;
   isReadOnly: boolean;
@@ -1580,25 +1581,6 @@ export type SyncStreamGroupChannelGroupsRequest = {
   streamGroupId?: number;
   channelGroupIds?: number[];
 };
-export type CreateStreamGroupRequest = {
-  name: string;
-};
-export type DeleteStreamGroupRequest = {
-  id?: number;
-};
-export type PagedResponseOfStreamGroupDto = {
-  data: StreamGroupDto[];
-  pageNumber: number;
-  pageSize: number;
-  totalPageCount: number;
-  totalItemCount: number;
-  first: number;
-};
-export type UpdateStreamGroupRequest = {
-  streamGroupId?: number;
-  name?: string | null;
-  autoSetChannelNumbers?: boolean | null;
-};
 export type VideoStreamIsReadOnly = {
   rank?: number;
   isReadOnly?: boolean;
@@ -2014,6 +1996,25 @@ export type UpdateSettingRequest = {
   videoStreamAlwaysUseEPGLogo?: boolean | null;
   nameRegex?: string[] | null;
 };
+export type CreateStreamGroupRequest = {
+  name: string;
+};
+export type DeleteStreamGroupRequest = {
+  id?: number;
+};
+export type PagedResponseOfStreamGroupDto = {
+  data: StreamGroupDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalPageCount: number;
+  totalItemCount: number;
+  first: number;
+};
+export type UpdateStreamGroupRequest = {
+  streamGroupId?: number;
+  name?: string | null;
+  autoSetChannelNumbers?: boolean | null;
+};
 export const {
   useChannelGroupsCreateChannelGroupMutation,
   useChannelGroupsDeleteAllChannelGroupsFromParametersMutation,
@@ -2074,20 +2075,6 @@ export const {
   useSchedulesDirectRemoveStationMutation,
   useStreamGroupChannelGroupSyncStreamGroupChannelGroupsMutation,
   useStreamGroupChannelGroupGetChannelGroupsFromStreamGroupQuery,
-  useStreamGroupsCreateStreamGroupMutation,
-  useStreamGroupsDeleteStreamGroupMutation,
-  useStreamGroupsGetStreamGroupQuery,
-  useStreamGroupsGetStreamGroupCapabilityQuery,
-  useStreamGroupsGetStreamGroupCapability2Query,
-  useStreamGroupsGetStreamGroupCapability3Query,
-  useStreamGroupsGetStreamGroupDiscoverQuery,
-  useStreamGroupsGetStreamGroupEpgQuery,
-  useStreamGroupsGetStreamGroupLineupQuery,
-  useStreamGroupsGetStreamGroupLineupStatusQuery,
-  useStreamGroupsGetStreamGroupM3UQuery,
-  useStreamGroupsGetPagedStreamGroupsQuery,
-  useStreamGroupsUpdateStreamGroupMutation,
-  useStreamGroupsGetStreamGroupVideoStreamUrlQuery,
   useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery,
   useStreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsQuery,
   useStreamGroupVideoStreamsSetVideoStreamRanksMutation,
@@ -2133,10 +2120,24 @@ export const {
   useVideoStreamsGetVideoStreamInfoFromIdQuery,
   useVideoStreamsGetVideoStreamInfoFromUrlQuery,
   useFilesGetFileQuery,
+  useQueueGetQueueStatusQuery,
   useSettingsGetIsSystemReadyQuery,
-  useSettingsGetQueueStatusQuery,
   useSettingsGetSettingQuery,
   useSettingsGetSystemStatusQuery,
   useSettingsLogInQuery,
-  useSettingsUpdateSettingMutation
+  useSettingsUpdateSettingMutation,
+  useStreamGroupsCreateStreamGroupMutation,
+  useStreamGroupsDeleteStreamGroupMutation,
+  useStreamGroupsGetStreamGroupQuery,
+  useStreamGroupsGetStreamGroupCapabilityQuery,
+  useStreamGroupsGetStreamGroupCapability2Query,
+  useStreamGroupsGetStreamGroupCapability3Query,
+  useStreamGroupsGetStreamGroupDiscoverQuery,
+  useStreamGroupsGetStreamGroupEpgQuery,
+  useStreamGroupsGetStreamGroupLineupQuery,
+  useStreamGroupsGetStreamGroupLineupStatusQuery,
+  useStreamGroupsGetStreamGroupM3UQuery,
+  useStreamGroupsGetPagedStreamGroupsQuery,
+  useStreamGroupsUpdateStreamGroupMutation,
+  useStreamGroupsGetStreamGroupVideoStreamUrlQuery
 } = injectedRtkApi;
