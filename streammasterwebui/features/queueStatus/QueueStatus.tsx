@@ -3,27 +3,25 @@ import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { formatJSONDateString } from '@lib/common/common';
 import { QueueStatisIcon } from '@lib/common/icons';
-import { TaskQueueStatusDto, useMiscGetDownloadServiceStatusQuery, useSettingsGetQueueStatusQuery } from '@lib/iptvApi';
+import { TaskQueueStatus, useMiscGetDownloadServiceStatusQuery, useSettingsGetQueueStatusQuery } from '@lib/iptvApi';
 import React, { useMemo } from 'react';
-
-// const StandardHeader = React.lazy(() => import('@components/StandardHeader'));
 
 const QueueStatus = () => {
   const status = useSettingsGetQueueStatusQuery();
   const downloadStatus = useMiscGetDownloadServiceStatusQuery();
 
-  const startDateTimeTemplate = (rowData: TaskQueueStatusDto) => {
+  const startDateTimeTemplate = (rowData: TaskQueueStatus) => {
     if (rowData.startTS === '0001-01-01T00:00:00') {
       return <div>Queued</div>;
     }
     return <div>{formatJSONDateString(rowData.startTS ?? '')}</div>;
   };
 
-  const queuedDateTimeTemplate = (rowData: TaskQueueStatusDto) => {
+  const queuedDateTimeTemplate = (rowData: TaskQueueStatus) => {
     return <div>{formatJSONDateString(rowData.queueTS ?? '')}</div>;
   };
 
-  const stopDateTimeTemplate = (rowData: TaskQueueStatusDto) => {
+  const stopDateTimeTemplate = (rowData: TaskQueueStatus) => {
     if (rowData.startTS && rowData.stopTS && rowData.startTS < rowData.stopTS) {
       return <div>{formatJSONDateString(rowData.stopTS ?? '')}</div>;
     }
@@ -31,18 +29,7 @@ const QueueStatus = () => {
     return <div></div>;
   };
 
-  const elaspsedTemplate = (rowData: TaskQueueStatusDto) => {
-    if (rowData.startTS && rowData.stopTS && rowData.startTS <= rowData.stopTS) {
-      const diff = new Date(rowData.stopTS).getTime() - new Date(rowData.startTS).getTime();
-      const seconds = diff / 1000;
-
-      return <div>{seconds.toString()}</div>;
-    }
-
-    return <div></div>;
-  };
-
-  const isRunningTemplate = (rowData: TaskQueueStatusDto) => {
+  const isRunningTemplate = (rowData: TaskQueueStatus) => {
     if (rowData.isRunning === true) {
       return <span className="pi pi-spin pi-spinner" />;
     }
@@ -89,9 +76,8 @@ const QueueStatus = () => {
       },
       {
         align: 'center',
-        bodyTemplate: elaspsedTemplate,
-        field: '',
-        header: 'Elapsed Seconds',
+        field: 'elapsedTS',
+        header: 'Elapsed',
         width: '10rem'
       }
     ],

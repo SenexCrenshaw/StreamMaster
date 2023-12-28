@@ -1,42 +1,32 @@
-﻿using AutoMapper;
-
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using StreamMaster.Application.StreamGroups;
+using StreamMaster.Application.StreamGroups.Commands;
+using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Pagination;
 using StreamMaster.Domain.Requests;
 
-using StreamMaster.Application.StreamGroups;
-using StreamMaster.Application.StreamGroups.Commands;
-using StreamMaster.Application.StreamGroups.Queries;
+using StreamMasterAPI.Controllers;
 
 using System.Text;
 
-namespace StreamMasterAPI.Controllers;
+namespace StreamMaster.API.Controllers;
 
 public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 {
-    private readonly ILogger<StreamGroupsController> _logger;
 
-    public StreamGroupsController(ILogger<StreamGroupsController> logger, IMapper mapper)
-    {
-        _logger = logger;
-        _mapper = mapper;
-    }
+    //private static int GenerateMediaSequence()
+    //{
+    //    DateTime epochStart = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    //    TimeSpan elapsedTime = DateTime.UtcNow - epochStart;
+    //    int mediaSequence = (int)(elapsedTime.TotalSeconds / 10);
 
-    private readonly IMapper _mapper;
-
-    private static int GenerateMediaSequence()
-    {
-        DateTime epochStart = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        TimeSpan elapsedTime = DateTime.UtcNow - epochStart;
-        int mediaSequence = (int)(elapsedTime.TotalSeconds / 10);
-
-        return mediaSequence;
-    }
+    //    return mediaSequence;
+    //}
 
     [HttpPost]
     [Route("[action]")]
@@ -203,34 +193,34 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         return entity == null ? NotFound() : NoContent();
     }
 
-    private ObjectResult GetStatus(ProxyStreamErrorCode proxyStreamErrorCode)
-    {
-        return proxyStreamErrorCode switch
-        {
-            ProxyStreamErrorCode.FileNotFound => StatusCode(StatusCodes.Status500InternalServerError, "FFmpeg executable not found"),
-            ProxyStreamErrorCode.IoError => StatusCode(StatusCodes.Status502BadGateway, "Error connecting to upstream server"),
-            ProxyStreamErrorCode.UnknownError => StatusCode(StatusCodes.Status500InternalServerError, "An unknown error occurred"),
-            ProxyStreamErrorCode.HttpRequestError => StatusCode(StatusCodes.Status500InternalServerError, "An Http Request Error occurred"),
-            ProxyStreamErrorCode.ChannelManagerFinished => StatusCode(200, "Channel Manager Exited"),
-            ProxyStreamErrorCode.HttpError => StatusCode(StatusCodes.Status500InternalServerError, "An Http Request Error occurred"),
-            ProxyStreamErrorCode.DownloadError => StatusCode(StatusCodes.Status500InternalServerError, "Could not parse stream"),
-            ProxyStreamErrorCode.MasterPlayListNotSupported => StatusCode(StatusCodes.Status500InternalServerError, "M3U8 Master playlist not supported"),
-            _ => StatusCode(StatusCodes.Status500InternalServerError, "An unknown error occurred"),
-        };
-    }
+    //private ObjectResult GetStatus(ProxyStreamErrorCode proxyStreamErrorCode)
+    //{
+    //    return proxyStreamErrorCode switch
+    //    {
+    //        ProxyStreamErrorCode.FileNotFound => StatusCode(StatusCodes.Status500InternalServerError, "FFmpeg executable not found"),
+    //        ProxyStreamErrorCode.IoError => StatusCode(StatusCodes.Status502BadGateway, "Error connecting to upstream server"),
+    //        ProxyStreamErrorCode.UnknownError => StatusCode(StatusCodes.Status500InternalServerError, "An unknown error occurred"),
+    //        ProxyStreamErrorCode.HttpRequestError => StatusCode(StatusCodes.Status500InternalServerError, "An Http Request Error occurred"),
+    //        ProxyStreamErrorCode.ChannelManagerFinished => StatusCode(200, "Channel Manager Exited"),
+    //        ProxyStreamErrorCode.HttpError => StatusCode(StatusCodes.Status500InternalServerError, "An Http Request Error occurred"),
+    //        ProxyStreamErrorCode.DownloadError => StatusCode(StatusCodes.Status500InternalServerError, "Could not parse stream"),
+    //        ProxyStreamErrorCode.MasterPlayListNotSupported => StatusCode(StatusCodes.Status500InternalServerError, "M3U8 Master playlist not supported"),
+    //        _ => StatusCode(StatusCodes.Status500InternalServerError, "An unknown error occurred"),
+    //    };
+    //}
 
-    private string GetUrl()
-    {
-        HttpRequest request = HttpContext.Request;
-        string scheme = request.Scheme;
-        HostString host = request.Host;
-        PathString path = request.Path;
-        QueryString queryString = request.QueryString;
+    //private string GetUrl()
+    //{
+    //    HttpRequest request = HttpContext.Request;
+    //    string scheme = request.Scheme;
+    //    HostString host = request.Host;
+    //    PathString path = request.Path;
+    //    QueryString queryString = request.QueryString;
 
-        string url = $"{scheme}://{host}{path}{queryString}";
+    //    string url = $"{scheme}://{host}{path}{queryString}";
 
-        return url;
-    }
+    //    return url;
+    //}
 
     [HttpGet]
     [Route("[action]")]

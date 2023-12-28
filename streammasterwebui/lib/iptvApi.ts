@@ -8,14 +8,14 @@ export const addTagTypes = [
   'Misc',
   'Programmes',
   'SchedulesDirect',
-  'Settings',
   'StreamGroupChannelGroup',
   'StreamGroups',
   'StreamGroupVideoStreams',
   'Test',
   'VideoStreamLinks',
   'VideoStreams',
-  'Files'
+  'Files',
+  'Settings'
 ] as const;
 const injectedRtkApi = api
   .enhanceEndpoints({
@@ -340,30 +340,6 @@ const injectedRtkApi = api
       schedulesDirectRemoveStation: build.mutation<SchedulesDirectRemoveStationApiResponse, SchedulesDirectRemoveStationApiArg>({
         query: (queryArg) => ({ url: `/api/schedulesdirect/removestation`, method: 'PATCH', body: queryArg }),
         invalidatesTags: ['SchedulesDirect']
-      }),
-      settingsGetIsSystemReady: build.query<SettingsGetIsSystemReadyApiResponse, SettingsGetIsSystemReadyApiArg>({
-        query: () => ({ url: `/api/settings/getissystemready` }),
-        providesTags: ['Settings']
-      }),
-      settingsGetQueueStatus: build.query<SettingsGetQueueStatusApiResponse, SettingsGetQueueStatusApiArg>({
-        query: () => ({ url: `/api/settings/getqueuestatus` }),
-        providesTags: ['Settings']
-      }),
-      settingsGetSetting: build.query<SettingsGetSettingApiResponse, SettingsGetSettingApiArg>({
-        query: () => ({ url: `/api/settings/getsetting` }),
-        providesTags: ['Settings']
-      }),
-      settingsGetSystemStatus: build.query<SettingsGetSystemStatusApiResponse, SettingsGetSystemStatusApiArg>({
-        query: () => ({ url: `/api/settings/getsystemstatus` }),
-        providesTags: ['Settings']
-      }),
-      settingsLogIn: build.query<SettingsLogInApiResponse, SettingsLogInApiArg>({
-        query: (queryArg) => ({ url: `/api/settings/login`, body: queryArg }),
-        providesTags: ['Settings']
-      }),
-      settingsUpdateSetting: build.mutation<SettingsUpdateSettingApiResponse, SettingsUpdateSettingApiArg>({
-        query: (queryArg) => ({ url: `/api/settings/updatesetting`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['Settings']
       }),
       streamGroupChannelGroupSyncStreamGroupChannelGroups: build.mutation<
         StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiResponse,
@@ -708,6 +684,30 @@ const injectedRtkApi = api
       filesGetFile: build.query<FilesGetFileApiResponse, FilesGetFileApiArg>({
         query: (queryArg) => ({ url: `/api/files/${queryArg.filetype}/${queryArg.source}` }),
         providesTags: ['Files']
+      }),
+      settingsGetIsSystemReady: build.query<SettingsGetIsSystemReadyApiResponse, SettingsGetIsSystemReadyApiArg>({
+        query: () => ({ url: `/api/settings/getissystemready` }),
+        providesTags: ['Settings']
+      }),
+      settingsGetQueueStatus: build.query<SettingsGetQueueStatusApiResponse, SettingsGetQueueStatusApiArg>({
+        query: () => ({ url: `/api/settings/getqueuestatus` }),
+        providesTags: ['Settings']
+      }),
+      settingsGetSetting: build.query<SettingsGetSettingApiResponse, SettingsGetSettingApiArg>({
+        query: () => ({ url: `/api/settings/getsetting` }),
+        providesTags: ['Settings']
+      }),
+      settingsGetSystemStatus: build.query<SettingsGetSystemStatusApiResponse, SettingsGetSystemStatusApiArg>({
+        query: () => ({ url: `/api/settings/getsystemstatus` }),
+        providesTags: ['Settings']
+      }),
+      settingsLogIn: build.query<SettingsLogInApiResponse, SettingsLogInApiArg>({
+        query: (queryArg) => ({ url: `/api/settings/login`, body: queryArg }),
+        providesTags: ['Settings']
+      }),
+      settingsUpdateSetting: build.mutation<SettingsUpdateSettingApiResponse, SettingsUpdateSettingApiArg>({
+        query: (queryArg) => ({ url: `/api/settings/updatesetting`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['Settings']
       })
     }),
     overrideExisting: false
@@ -898,18 +898,6 @@ export type SchedulesDirectRemoveLineupApiResponse = /** status 200  */ boolean;
 export type SchedulesDirectRemoveLineupApiArg = RemoveLineup;
 export type SchedulesDirectRemoveStationApiResponse = /** status 200  */ boolean;
 export type SchedulesDirectRemoveStationApiArg = RemoveStation;
-export type SettingsGetIsSystemReadyApiResponse = /** status 200  */ boolean;
-export type SettingsGetIsSystemReadyApiArg = void;
-export type SettingsGetQueueStatusApiResponse = /** status 200  */ TaskQueueStatusDto[];
-export type SettingsGetQueueStatusApiArg = void;
-export type SettingsGetSettingApiResponse = /** status 200  */ SettingDto;
-export type SettingsGetSettingApiArg = void;
-export type SettingsGetSystemStatusApiResponse = /** status 200  */ SdSystemStatus;
-export type SettingsGetSystemStatusApiArg = void;
-export type SettingsLogInApiResponse = /** status 200  */ boolean;
-export type SettingsLogInApiArg = LogInRequest;
-export type SettingsUpdateSettingApiResponse = unknown;
-export type SettingsUpdateSettingApiArg = UpdateSettingRequest;
 export type StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiResponse = /** status 200  */ StreamGroupDto;
 export type StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiArg = SyncStreamGroupChannelGroupsRequest;
 export type StreamGroupChannelGroupGetChannelGroupsFromStreamGroupApiResponse = /** status 200  */ ChannelGroupDto[];
@@ -1069,6 +1057,18 @@ export type FilesGetFileApiArg = {
   source: string;
   filetype: SmFileTypes;
 };
+export type SettingsGetIsSystemReadyApiResponse = /** status 200  */ boolean;
+export type SettingsGetIsSystemReadyApiArg = void;
+export type SettingsGetQueueStatusApiResponse = /** status 200  */ TaskQueueStatus[];
+export type SettingsGetQueueStatusApiArg = void;
+export type SettingsGetSettingApiResponse = /** status 200  */ SettingDto;
+export type SettingsGetSettingApiArg = void;
+export type SettingsGetSystemStatusApiResponse = /** status 200  */ SdSystemStatus;
+export type SettingsGetSystemStatusApiArg = void;
+export type SettingsLogInApiResponse = /** status 200  */ boolean;
+export type SettingsLogInApiArg = LogInRequest;
+export type SettingsUpdateSettingApiResponse = unknown;
+export type SettingsUpdateSettingApiArg = UpdateSettingRequest;
 export type CreateChannelGroupRequest = {
   groupName: string;
   isReadOnly: boolean;
@@ -1565,166 +1565,6 @@ export type RemoveLineup = {
 export type RemoveStation = {
   requests?: StationRequest[];
 };
-export type TaskQueueStatusDto = {
-  command?: string;
-  id?: string;
-  isRunning?: boolean;
-  queueTS?: string;
-  startTS?: string;
-  stopTS?: string;
-};
-export type M3USettings = {
-  m3UFieldChannelId?: boolean;
-  m3UFieldChannelNumber?: boolean;
-  m3UFieldCUID?: boolean;
-  m3UFieldGroupTitle?: boolean;
-  m3UFieldTvgChno?: boolean;
-  m3UFieldTvgId?: boolean;
-  m3UFieldTvgLogo?: boolean;
-  m3UFieldTvgName?: boolean;
-  m3UIgnoreEmptyEPGID?: boolean;
-};
-export type SdSettings = {
-  seriesPosterArt?: boolean;
-  seriesWsArt?: boolean;
-  seriesPosterAspect?: string;
-  artworkSize?: string;
-  excludeCastAndCrew?: boolean;
-  alternateSEFormat?: boolean;
-  prefixEpisodeDescription?: boolean;
-  prefixEpisodeTitle?: boolean;
-  appendEpisodeDesc?: boolean;
-  sdepgDays?: number;
-  sdEnabled?: boolean;
-  sdUserName?: string;
-  sdCountry?: string;
-  sdPassword?: string;
-  sdPostalCode?: string;
-  preferredLogoStyle?: string;
-  alternateLogoStyle?: string;
-  sdStationIds?: StationIdLineup[];
-  seasonEventImages?: boolean;
-  xmltvAddFillerData?: boolean;
-  xmltvFillerProgramDescription?: string;
-  xmltvFillerProgramLength?: number;
-  xmltvIncludeChannelNumbers?: boolean;
-  xmltvExtendedInfoInTitleDescriptions?: boolean;
-  xmltvSingleImage?: boolean;
-};
-export type AuthenticationType = 0 | 2;
-export type StreamingProxyTypes = 0 | 1 | 2 | 3;
-export type BaseSettings = M3USettings & {
-  maxConcurrentDownloads?: number;
-  sdSettings?: SdSettings;
-  expectedServiceCount?: number;
-  adminPassword?: string;
-  adminUserName?: string;
-  defaultIcon?: string;
-  uiFolder?: string;
-  urlBase?: string;
-  logPerformance?: string[];
-  apiKey?: string;
-  authenticationMethod?: AuthenticationType;
-  cacheIcons?: boolean;
-  cleanURLs?: boolean;
-  clientUserAgent?: string;
-  deviceID?: string;
-  dummyRegex?: string;
-  ffMpegOptions?: string;
-  enableSSL?: boolean;
-  ffmPegExecutable?: string;
-  ffProbeExecutable?: string;
-  globalStreamLimit?: number;
-  maxConnectRetry?: number;
-  maxConnectRetryTimeMS?: number;
-  overWriteM3UChannels?: boolean;
-  preloadPercentage?: number;
-  ringBufferSizeMB?: number;
-  nameRegex?: string[];
-  sslCertPassword?: string;
-  sslCertPath?: string;
-  streamingClientUserAgent?: string;
-  streamingProxyType?: StreamingProxyTypes;
-  videoStreamAlwaysUseEPGLogo?: boolean;
-  showClientHostNames?: boolean;
-};
-export type SettingDto = BaseSettings & {
-  release?: string;
-  version?: string;
-  ffmpegDefaultOptions?: string;
-  isDebug?: boolean;
-};
-export type SdSystemStatus = {
-  isSystemReady?: boolean;
-};
-export type LogInRequest = {
-  password?: string;
-  userName?: string;
-};
-export type SdSettingsRequest = {
-  preferredLogoStyle?: string | null;
-  alternateLogoStyle?: string | null;
-  seriesPosterArt?: boolean | null;
-  seriesWsArt?: boolean | null;
-  seriesPosterAspect?: string | null;
-  artworkSize?: string | null;
-  excludeCastAndCrew?: boolean | null;
-  alternateSEFormat?: boolean | null;
-  prefixEpisodeDescription?: boolean | null;
-  prefixEpisodeTitle?: boolean | null;
-  appendEpisodeDesc?: boolean | null;
-  sdepgDays?: number | null;
-  sdEnabled?: boolean | null;
-  sdUserName?: string | null;
-  sdCountry?: string | null;
-  sdPassword?: string | null;
-  sdPostalCode?: string | null;
-  sdStationIds?: StationIdLineup[] | null;
-  seasonEventImages?: boolean | null;
-  xmltvAddFillerData?: boolean | null;
-  xmltvFillerProgramDescription?: string | null;
-  xmltvFillerProgramLength?: number | null;
-  xmltvIncludeChannelNumbers?: boolean | null;
-  xmltvExtendedInfoInTitleDescriptions?: boolean | null;
-  xmltvSingleImage?: boolean | null;
-};
-export type UpdateSettingRequest = {
-  sdSettings?: SdSettingsRequest | null;
-  showClientHostNames?: boolean | null;
-  adminPassword?: string | null;
-  adminUserName?: string | null;
-  apiKey?: string | null;
-  authenticationMethod?: AuthenticationType | null;
-  cacheIcons?: boolean | null;
-  cleanURLs?: boolean | null;
-  clientUserAgent?: string | null;
-  deviceID?: string | null;
-  dummyRegex?: string | null;
-  enableSSL?: boolean | null;
-  ffmPegExecutable?: string | null;
-  globalStreamLimit?: number | null;
-  m3UFieldChannelId?: boolean | null;
-  m3UFieldChannelNumber?: boolean | null;
-  m3UFieldCUID?: boolean | null;
-  m3UFieldGroupTitle?: boolean | null;
-  m3UFieldTvgChno?: boolean | null;
-  m3UFieldTvgId?: boolean | null;
-  m3UFieldTvgLogo?: boolean | null;
-  m3UFieldTvgName?: boolean | null;
-  m3UIgnoreEmptyEPGID?: boolean | null;
-  maxConnectRetry?: number | null;
-  maxConnectRetryTimeMS?: number | null;
-  overWriteM3UChannels?: boolean | null;
-  preloadPercentage?: number | null;
-  ringBufferSizeMB?: number | null;
-  sourceBufferPreBufferPercentage?: number | null;
-  sslCertPassword?: string | null;
-  sslCertPath?: string | null;
-  streamingClientUserAgent?: string | null;
-  streamingProxyType?: StreamingProxyTypes | null;
-  videoStreamAlwaysUseEPGLogo?: boolean | null;
-  nameRegex?: string[] | null;
-};
 export type StreamGroupDto = {
   isLoading: boolean;
   hdhrLink: string;
@@ -1764,6 +1604,7 @@ export type VideoStreamIsReadOnly = {
   isReadOnly?: boolean;
   videoStreamId?: string;
 };
+export type StreamingProxyTypes = 0 | 1 | 2 | 3;
 export type VideoStreamHandlers = 0 | 1 | 2;
 export type BaseVideoStreamDto = {
   id: string;
@@ -2013,6 +1854,166 @@ export type VideoInfo = {
   format?: Format;
 };
 export type SmFileTypes = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
+export type TaskQueueStatus = {
+  command?: string;
+  id?: string;
+  isRunning?: boolean;
+  queueTS?: string;
+  startTS?: string;
+  stopTS?: string;
+  elapsedTS?: string;
+};
+export type M3USettings = {
+  m3UFieldChannelId?: boolean;
+  m3UFieldChannelNumber?: boolean;
+  m3UFieldCUID?: boolean;
+  m3UFieldGroupTitle?: boolean;
+  m3UFieldTvgChno?: boolean;
+  m3UFieldTvgId?: boolean;
+  m3UFieldTvgLogo?: boolean;
+  m3UFieldTvgName?: boolean;
+  m3UIgnoreEmptyEPGID?: boolean;
+};
+export type SdSettings = {
+  seriesPosterArt?: boolean;
+  seriesWsArt?: boolean;
+  seriesPosterAspect?: string;
+  artworkSize?: string;
+  excludeCastAndCrew?: boolean;
+  alternateSEFormat?: boolean;
+  prefixEpisodeDescription?: boolean;
+  prefixEpisodeTitle?: boolean;
+  appendEpisodeDesc?: boolean;
+  sdepgDays?: number;
+  sdEnabled?: boolean;
+  sdUserName?: string;
+  sdCountry?: string;
+  sdPassword?: string;
+  sdPostalCode?: string;
+  preferredLogoStyle?: string;
+  alternateLogoStyle?: string;
+  sdStationIds?: StationIdLineup[];
+  seasonEventImages?: boolean;
+  xmltvAddFillerData?: boolean;
+  xmltvFillerProgramDescription?: string;
+  xmltvFillerProgramLength?: number;
+  xmltvIncludeChannelNumbers?: boolean;
+  xmltvExtendedInfoInTitleDescriptions?: boolean;
+  xmltvSingleImage?: boolean;
+};
+export type AuthenticationType = 0 | 2;
+export type BaseSettings = M3USettings & {
+  maxConcurrentDownloads?: number;
+  sdSettings?: SdSettings;
+  expectedServiceCount?: number;
+  adminPassword?: string;
+  adminUserName?: string;
+  defaultIcon?: string;
+  uiFolder?: string;
+  urlBase?: string;
+  logPerformance?: string[];
+  apiKey?: string;
+  authenticationMethod?: AuthenticationType;
+  cacheIcons?: boolean;
+  cleanURLs?: boolean;
+  clientUserAgent?: string;
+  deviceID?: string;
+  dummyRegex?: string;
+  ffMpegOptions?: string;
+  enableSSL?: boolean;
+  ffmPegExecutable?: string;
+  ffProbeExecutable?: string;
+  globalStreamLimit?: number;
+  maxConnectRetry?: number;
+  maxConnectRetryTimeMS?: number;
+  overWriteM3UChannels?: boolean;
+  preloadPercentage?: number;
+  ringBufferSizeMB?: number;
+  nameRegex?: string[];
+  sslCertPassword?: string;
+  sslCertPath?: string;
+  streamingClientUserAgent?: string;
+  streamingProxyType?: StreamingProxyTypes;
+  videoStreamAlwaysUseEPGLogo?: boolean;
+  showClientHostNames?: boolean;
+};
+export type SettingDto = BaseSettings & {
+  release?: string;
+  version?: string;
+  ffmpegDefaultOptions?: string;
+  isDebug?: boolean;
+};
+export type SdSystemStatus = {
+  isSystemReady?: boolean;
+};
+export type LogInRequest = {
+  password?: string;
+  userName?: string;
+};
+export type SdSettingsRequest = {
+  preferredLogoStyle?: string | null;
+  alternateLogoStyle?: string | null;
+  seriesPosterArt?: boolean | null;
+  seriesWsArt?: boolean | null;
+  seriesPosterAspect?: string | null;
+  artworkSize?: string | null;
+  excludeCastAndCrew?: boolean | null;
+  alternateSEFormat?: boolean | null;
+  prefixEpisodeDescription?: boolean | null;
+  prefixEpisodeTitle?: boolean | null;
+  appendEpisodeDesc?: boolean | null;
+  sdepgDays?: number | null;
+  sdEnabled?: boolean | null;
+  sdUserName?: string | null;
+  sdCountry?: string | null;
+  sdPassword?: string | null;
+  sdPostalCode?: string | null;
+  sdStationIds?: StationIdLineup[] | null;
+  seasonEventImages?: boolean | null;
+  xmltvAddFillerData?: boolean | null;
+  xmltvFillerProgramDescription?: string | null;
+  xmltvFillerProgramLength?: number | null;
+  xmltvIncludeChannelNumbers?: boolean | null;
+  xmltvExtendedInfoInTitleDescriptions?: boolean | null;
+  xmltvSingleImage?: boolean | null;
+};
+export type UpdateSettingRequest = {
+  sdSettings?: SdSettingsRequest | null;
+  showClientHostNames?: boolean | null;
+  adminPassword?: string | null;
+  adminUserName?: string | null;
+  apiKey?: string | null;
+  authenticationMethod?: AuthenticationType | null;
+  cacheIcons?: boolean | null;
+  cleanURLs?: boolean | null;
+  clientUserAgent?: string | null;
+  deviceID?: string | null;
+  dummyRegex?: string | null;
+  enableSSL?: boolean | null;
+  ffmPegExecutable?: string | null;
+  globalStreamLimit?: number | null;
+  m3UFieldChannelId?: boolean | null;
+  m3UFieldChannelNumber?: boolean | null;
+  m3UFieldCUID?: boolean | null;
+  m3UFieldGroupTitle?: boolean | null;
+  m3UFieldTvgChno?: boolean | null;
+  m3UFieldTvgId?: boolean | null;
+  m3UFieldTvgLogo?: boolean | null;
+  m3UFieldTvgName?: boolean | null;
+  m3UIgnoreEmptyEPGID?: boolean | null;
+  maxConnectRetry?: number | null;
+  maxConnectRetryTimeMS?: number | null;
+  overWriteM3UChannels?: boolean | null;
+  preloadPercentage?: number | null;
+  ringBufferSizeMB?: number | null;
+  sourceBufferPreBufferPercentage?: number | null;
+  sslCertPassword?: string | null;
+  sslCertPath?: string | null;
+  streamingClientUserAgent?: string | null;
+  streamingProxyType?: StreamingProxyTypes | null;
+  videoStreamAlwaysUseEPGLogo?: boolean | null;
+  nameRegex?: string[] | null;
+};
 export const {
   useChannelGroupsCreateChannelGroupMutation,
   useChannelGroupsDeleteAllChannelGroupsFromParametersMutation,
@@ -2071,12 +2072,6 @@ export const {
   useSchedulesDirectGetUserStatusQuery,
   useSchedulesDirectRemoveLineupMutation,
   useSchedulesDirectRemoveStationMutation,
-  useSettingsGetIsSystemReadyQuery,
-  useSettingsGetQueueStatusQuery,
-  useSettingsGetSettingQuery,
-  useSettingsGetSystemStatusQuery,
-  useSettingsLogInQuery,
-  useSettingsUpdateSettingMutation,
   useStreamGroupChannelGroupSyncStreamGroupChannelGroupsMutation,
   useStreamGroupChannelGroupGetChannelGroupsFromStreamGroupQuery,
   useStreamGroupsCreateStreamGroupMutation,
@@ -2137,5 +2132,11 @@ export const {
   useVideoStreamsSetVideoStreamTimeShiftFromParametersMutation,
   useVideoStreamsGetVideoStreamInfoFromIdQuery,
   useVideoStreamsGetVideoStreamInfoFromUrlQuery,
-  useFilesGetFileQuery
+  useFilesGetFileQuery,
+  useSettingsGetIsSystemReadyQuery,
+  useSettingsGetQueueStatusQuery,
+  useSettingsGetSettingQuery,
+  useSettingsGetSystemStatusQuery,
+  useSettingsLogInQuery,
+  useSettingsUpdateSettingMutation
 } = injectedRtkApi;
