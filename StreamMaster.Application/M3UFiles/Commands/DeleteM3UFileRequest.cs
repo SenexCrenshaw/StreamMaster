@@ -16,7 +16,7 @@ public class DeleteM3UFileRequestValidator : AbstractValidator<DeleteM3UFileRequ
     }
 }
 
-public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<DeleteM3UFileRequest, int?>
+public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<DeleteM3UFileRequest, int?>
 {
     public async Task<int?> Handle(DeleteM3UFileRequest request, CancellationToken cancellationToken = default)
     {
@@ -25,7 +25,7 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
         {
             return null;
         }
-        await Repository.M3UFile.DeleteM3UFile(m3UFile.Id);
+        _ = await Repository.M3UFile.DeleteM3UFile(m3UFile.Id);
 
 
         if (request.DeleteFile)
@@ -91,7 +91,7 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
             ChannelGroup? group = await Repository.ChannelGroup.GetChannelGroupByName(gtd).ConfigureAwait(false);
             if (group != null)
             {
-                await Repository.ChannelGroup.DeleteChannelGroupById(group.Id);
+                _ = await Repository.ChannelGroup.DeleteChannelGroupById(group.Id);
                 _ = await Repository.SaveAsync().ConfigureAwait(false);
             }
         }

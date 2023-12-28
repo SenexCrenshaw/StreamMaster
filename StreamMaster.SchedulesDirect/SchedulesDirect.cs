@@ -34,7 +34,8 @@ public partial class SchedulesDirect : ISchedulesDirect
     private readonly IImageDownloadQueue imageDownloadQueue;
     private readonly IMemoryCache memoryCache;
     private readonly IServiceProvider serviceProvider;
-    public SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IEPGCache epgCache, ISchedulesDirectDataService schedulesDirectDataService, ISchedulesDirectAPIService schedulesDirectAPI, ISettingsService settingsService, IMemoryCache memoryCache)
+    private readonly IJobStatusService jobStatusService;
+    public SchedulesDirect(ILogger<SchedulesDirect> logger, IJobStatusService jobStatusService, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IEPGCache epgCache, ISchedulesDirectDataService schedulesDirectDataService, ISchedulesDirectAPIService schedulesDirectAPI, ISettingsService settingsService, IMemoryCache memoryCache)
     {
         this.logger = logger;
         this.epgCache = epgCache;
@@ -44,9 +45,10 @@ public partial class SchedulesDirect : ISchedulesDirect
         this.memoryCache = memoryCache;
         this.imageDownloadQueue = imageDownloadQueue;
         this.serviceProvider = serviceProvider;
+        this.jobStatusService = jobStatusService;
         if (memoryCache.GetSetting().SDSettings.SDEnabled)
         {
-            CheckToken();
+            _ = CheckToken();
         }
     }
 
@@ -58,18 +60,18 @@ public partial class SchedulesDirect : ISchedulesDirect
             Setting setting = memoryCache.GetSetting();
             if (!setting.SDSettings.SDEnabled)
             {
-                memoryCache.SetSyncSuccessful();
+                jobStatusService.SetSyncSuccessful();
                 return true;
             }
 
-            if (memoryCache.GetSyncJobStatus().IsRunning)
+            if (jobStatusService.GetSyncJobStatus().IsRunning)
             {
-                memoryCache.SetSyncForceNextRun();
+                jobStatusService.SetSyncForceNextRun();
                 return false;
             }
 
             await _syncSemaphore.WaitAsync(cancellationToken);
-            memoryCache.GetSyncJobStatus().IsRunning = true;
+            jobStatusService.SetSyncIsRunning(true);
             //ResetEPGCache();
             int maxRetry = 3;
             int retryCount = 0;
@@ -80,7 +82,7 @@ public partial class SchedulesDirect : ISchedulesDirect
 
             if (!CheckToken())
             {
-                memoryCache.SetSyncError();
+                jobStatusService.SetSyncError();
                 return false;
             }
 
@@ -117,7 +119,7 @@ public partial class SchedulesDirect : ISchedulesDirect
                 //}
 
                 logger.LogInformation("Completed Schedules Direct update execution. SUCCESS.");
-                memoryCache.SetSyncSuccessful();
+                jobStatusService.SetSyncSuccessful();
                 return true;
             }
             //StationLogosToDownload = [];
@@ -129,10 +131,10 @@ public partial class SchedulesDirect : ISchedulesDirect
         }
         finally
         {
-            _syncSemaphore.Release();
+            _ = _syncSemaphore.Release();
         }
 
-        memoryCache.SetSyncError();
+        jobStatusService.SetSyncError();
         return false;
     }
 

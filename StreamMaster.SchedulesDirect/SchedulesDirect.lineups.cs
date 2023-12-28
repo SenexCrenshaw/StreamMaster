@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Cache;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 
 
@@ -255,7 +254,7 @@ public partial class SchedulesDirect
         if (ret != null)
         {
             logger.LogDebug($"Successfully removed lineup {lineup} from account. serverID: {ret.ServerId} , message: {ret.Message} , changesRemaining: {ret.ChangesRemaining}");
-            memoryCache.SetSyncForceNextRun(true);
+            jobStatusService.SetSyncForceNextRun(true);
         }
         else
         {

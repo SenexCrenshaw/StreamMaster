@@ -2,9 +2,7 @@
 
 using Microsoft.Extensions.Caching.Memory;
 
-using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Models;
 
 namespace StreamMaster.Domain.Cache;
@@ -13,41 +11,6 @@ public static class CacheManagerExtensions
 {
 
     public static readonly MemoryCacheEntryOptions NeverRemoveCacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
-
-    //public static void Add(this IMemoryCache cache, object data)
-    //{
-    //    if (data.GetType() == typeof(IconFileDto))
-    //    {
-    //        lock (_lock)
-    //        {
-    //            List<IconFileDto> cachedData = cache.GetListFromCache<IconFileDto>(IconsConfig.Key);
-    //            cachedData.Add((IconFileDto)data);
-
-    //            _ = cache.Set(IconsConfig.Key, cachedData, NeverRemoveCacheEntryOptions);
-    //        }
-    //        return;
-    //    }
-
-    //    if (data.GetType() == typeof(ChannelGroupStreamCount))
-    //    {
-    //        lock (_lock)
-    //        {
-    //            List<ChannelGroupStreamCount> cachedData = cache.ChannelGroupStreamCounts();
-    //            cachedData.Add((ChannelGroupStreamCount)data);
-
-    //            _ = cache.Set(ChannelGroupStreamCountsConfig.Key, cachedData, NeverRemoveCacheEntryOptions);
-    //        }
-    //        return;
-    //    }
-
-    //    if (data.GetType() == typeof(ChannelLogoDto))
-    //    {
-    //        List<ChannelLogoDto> cachedData = cache.GetListFromCache<ChannelLogoDto>(ListChannelLogos);
-    //        cachedData.Add((ChannelLogoDto)data);
-    //        _ = cache.Set(ListChannelLogos, cachedData, NeverRemoveCacheEntryOptions);
-    //        return;
-    //    }
-    //}
 
     public static void RemoveChannelGroupStreamCount(this IMemoryCache cache, int channelGroupId)
     {
@@ -89,18 +52,11 @@ public static class CacheManagerExtensions
 
     public static List<IconFileDto> GetIcons(this IMemoryCache cache, IMapper mapper)
     {
-        //if (!cache.TryGetValue(IconsConfig.Key, out List<IconFileDto>? cacheValue))
-        //{
+
         List<IconFileDto> cacheValue = mapper.Map<List<IconFileDto>>(cache.GetTvLogos());
-        //List<ChannelLogoDto> a = cache.ChannelLogos();
+
         cacheValue.AddRange(cache.Icons());
-        //cacheValue.AddRange(mapper.Map<List<IconFileDto>>(cache.ChannelLogos()));
 
-        //MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
-        //    .SetPriority(CacheItemPriority.NeverRemove);
-
-        //_ = cache.Set(IconsConfig.Key, cacheValue, cacheEntryOptions);
-        //}
         int index = 0;
         IOrderedEnumerable<IconFileDto> ret = cacheValue.OrderBy(a => a.Name);
         foreach (IconFileDto? c in ret)
@@ -184,75 +140,6 @@ public static class CacheManagerExtensions
         return cache.GetFromCache<bool?>(IsSystemReadyConfig.Key) ?? false;
     }
 
-    public static JobStatus GetSyncJobStatus(this IMemoryCache cache)
-    {
-        JobStatus? ret = cache.GetFromCache<JobStatus?>(EPGSyncConfig.Key);
-        if (ret is null)
-        {
-            ret = new JobStatus();
-            cache.SetSyncJobStatus(ret);
-        }
-        return ret;
-    }
-
-    public static void SetSyncSuccessful(this IMemoryCache cache)
-    {
-        lock (EPGSyncConfig.Lock)
-        {
-            JobStatus jobStatus = cache.GetSyncJobStatus();
-            jobStatus.LastRun = DateTime.Now;
-            jobStatus.IsRunning = false;
-            jobStatus.LastSuccessful = jobStatus.LastRun;
-            jobStatus.ForceNextRun = false;
-            cache.Set(EPGSyncConfig.Key, jobStatus, EPGSyncConfig.CacheEntryOptions);
-        }
-    }
-    public static void SetSyncError(this IMemoryCache cache)
-    {
-        lock (EPGSyncConfig.Lock)
-        {
-            JobStatus jobStatus = cache.GetSyncJobStatus();
-            jobStatus.LastRun = DateTime.Now;
-            jobStatus.LastError = jobStatus.LastRun;
-            jobStatus.IsRunning = false;
-            jobStatus.ForceNextRun = false;
-            cache.Set(EPGSyncConfig.Key, jobStatus, EPGSyncConfig.CacheEntryOptions);
-        }
-    }
-
-
-    public static void SetSyncForceNextRun(this IMemoryCache cache, bool Extra = false)
-    {
-        lock (EPGSyncConfig.Lock)
-        {
-            JobStatus jobStatus = cache.GetSyncJobStatus();
-            jobStatus.ForceNextRun = true;
-            if (Extra == true)
-            {
-                jobStatus.Extra = true;
-            }
-            cache.Set(EPGSyncConfig.Key, jobStatus, EPGSyncConfig.CacheEntryOptions);
-        }
-    }
-
-
-    private static void SetSyncJobStatus(this IMemoryCache cache, JobStatus value)
-    {
-        lock (SettingConfig.Lock)
-        {
-            _ = cache.Set(EPGSyncConfig.Key, value, EPGSyncConfig.CacheEntryOptions);
-        }
-    }
-
-    //public static SDTokenFile? GetSDToken(this IMemoryCache cache)
-    //{
-    //    return cache.GetFromCache<SDTokenFile>(SDTokenConfig.Key);
-    //}
-
-    //public static UserStatus? GetSDUserStatus(this IMemoryCache cache)
-    //{
-    //    return cache.GetFromCache<UserStatus>(SDUserStatusConfig.Key);
-    //}
 
     public static List<IconFileDto> Icons(this IMemoryCache cache)
     {

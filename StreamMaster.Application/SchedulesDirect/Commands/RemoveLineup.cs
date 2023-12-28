@@ -1,13 +1,8 @@
-﻿using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-namespace StreamMaster.Application.SchedulesDirect.Commands;
+﻿namespace StreamMaster.Application.SchedulesDirect.Commands;
 
 public record RemoveLineup(string lineup) : IRequest<bool>;
 
-public class RemoveLineupHandler(ISchedulesDirect schedulesDirect, ILogger<RemoveLineup> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+public class RemoveLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusService jobStatusService, ILogger<RemoveLineup> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
 : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<RemoveLineup, bool>
 {
     public async Task<bool> Handle(RemoveLineup request, CancellationToken cancellationToken)
@@ -29,7 +24,7 @@ public class RemoveLineupHandler(ISchedulesDirect schedulesDirect, ILogger<Remov
             //schedulesDirect.ResetCache(SDCommands.LineUps);
             //await hubContext.Clients.All.SchedulesDirectsRefresh();
             schedulesDirect.ResetCache("SubscribedLineups");
-            MemoryCache.SetSyncForceNextRun();
+            jobStatusService.SetSyncForceNextRun();
 
             return true;
         }

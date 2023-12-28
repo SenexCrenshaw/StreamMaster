@@ -66,7 +66,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, I
                 }
             }
 
-            m3UFile.MaxStreamCount = command.MaxStreamCount;
+            m3UFile.MaxStreamCount = Math.Max(0, command.MaxStreamCount);
 
             List<VideoStream>? streams = await m3UFile.GetM3U(logger, cancellationToken).ConfigureAwait(false);
             if (streams == null || streams.Count == 0)
@@ -85,10 +85,9 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, I
                 return false;
             }
 
-            if (m3UFile.StationCount != streams.Count)
-            {
-                m3UFile.StationCount = streams.Count;
-            }
+
+            m3UFile.StationCount = streams.Count;
+
 
             Repository.M3UFile.CreateM3UFile(m3UFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
@@ -96,7 +95,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, I
             m3UFile.WriteJSON();
 
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3UFile);
-            await Publisher.Publish(new M3UFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new M3UFileAddedEvent(ret.Id), cancellationToken).ConfigureAwait(false);
 
             return true;
         }

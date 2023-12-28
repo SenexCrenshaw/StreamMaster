@@ -9,26 +9,6 @@ internal static class IsSystemReadyConfig
     public static readonly object Lock = new();
 }
 
-internal static class EPGSyncConfig
-{
-    public static readonly MemoryCacheEntryOptions CacheEntryOptions = CacheManagerExtensions.NeverRemoveCacheEntryOptions;
-    public static readonly string Key = "EPGSync";
-    public static readonly object Lock = new();
-}
-
-//internal static class SDTokenConfig
-//{
-//    public static readonly MemoryCacheEntryOptions CacheEntryOptions = new() { AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(1) };
-//    public static readonly string Key = "SDToken";
-//    public static readonly object Lock = new();
-//}
-
-//internal static class SDUserStatusConfig
-//{
-//    public static readonly MemoryCacheEntryOptions CacheEntryOptions = new() { AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(5) };
-//    public static readonly string Key = "SDUserStatus";
-//    public static readonly object Lock = new();
-//}
 
 internal static class ChannelLogosConfig
 {

@@ -1,10 +1,4 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-namespace StreamMaster.Application.M3UFiles.Commands;
+﻿namespace StreamMaster.Application.M3UFiles.Commands;
 
 public record ScanDirectoryForM3UFilesRequest : IRequest<bool> { }
 
@@ -60,7 +54,7 @@ public class ScanDirectoryForM3UFilesRequestHandler : BaseMediatorRequestHandler
         {
 
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
-            await Publisher.Publish(new M3UFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new M3UFileAddedEvent(ret.Id), cancellationToken).ConfigureAwait(false);
         }
     }
 

@@ -1,14 +1,11 @@
-﻿using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
-
-namespace StreamMaster.Application.Common.Events;
+﻿namespace StreamMaster.Application.Common.Events;
 
 public class M3UFileAddedEvent : BaseEvent
 {
-    public M3UFileAddedEvent(M3UFileDto item)
+    public M3UFileAddedEvent(int M3UFileId)
     {
-        Item = item;
+        this.M3UFileId = M3UFileId;
     }
 
-    public M3UFileDto Item { get; }
+    public int M3UFileId { get; }
 }

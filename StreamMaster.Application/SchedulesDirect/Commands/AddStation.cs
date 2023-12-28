@@ -1,9 +1,4 @@
-﻿using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-using StreamMaster.Application.Settings.Commands;
+﻿using StreamMaster.Application.Settings.Commands;
 
 namespace StreamMaster.Application.SchedulesDirect.Commands;
 
@@ -11,7 +6,7 @@ public record StationRequest(string StationId, string LineUp);
 
 public record AddStation(List<StationRequest> Requests) : IRequest<bool>;
 
-public class AddStationHandler(ILogger<AddStation> logger, ISchedulesDirect schedulesDirect, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+public class AddStationHandler(ILogger<AddStation> logger, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
 : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<AddStation, bool>
 {
     public async Task<bool> Handle(AddStation request, CancellationToken cancellationToken)
@@ -47,10 +42,10 @@ public class AddStationHandler(ILogger<AddStation> logger, ISchedulesDirect sche
             updateSettingRequest.SDSettings.SDStationIds.Add(station);
         }
 
-        await Sender.Send(updateSettingRequest, cancellationToken).ConfigureAwait(false);
+        _ = await Sender.Send(updateSettingRequest, cancellationToken).ConfigureAwait(false);
 
         schedulesDirect.ResetCache("SubscribedLineups");
-        MemoryCache.SetSyncForceNextRun();
+        jobStatusService.SetSyncForceNextRun();
 
         //await HubContext.Clients.All.SchedulesDirectsRefresh();
         return true;

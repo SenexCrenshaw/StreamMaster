@@ -1,13 +1,8 @@
-﻿using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-namespace StreamMaster.Application.SchedulesDirect.Commands;
+﻿namespace StreamMaster.Application.SchedulesDirect.Commands;
 
 public record AddLineup(string lineup) : IRequest<bool>;
 
-public class AddLineupHandler(ISchedulesDirect schedulesDirect, ILogger<AddLineup> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+public class AddLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusService jobStatusService, ILogger<AddLineup> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
 : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<AddLineup, bool>
 {
     public async Task<bool> Handle(AddLineup request, CancellationToken cancellationToken)
@@ -21,7 +16,7 @@ public class AddLineupHandler(ISchedulesDirect schedulesDirect, ILogger<AddLineu
         if (await schedulesDirect.AddLineup(request.lineup, cancellationToken).ConfigureAwait(false))
         {
             schedulesDirect.ResetCache("SubscribedLineups");
-            MemoryCache.SetSyncForceNextRun();
+            jobStatusService.SetSyncForceNextRun();
             //await HubContext.Clients.All.SchedulesDirectsRefresh();
             return true;
         }
