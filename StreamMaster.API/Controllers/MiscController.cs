@@ -2,49 +2,47 @@
 
 using StreamMaster.Domain.Services;
 
-namespace StreamMasterAPI.Controllers;
+using StreamMasterAPI.Controllers;
+
+using System.Text;
+
+namespace StreamMaster.API.Controllers;
 
 public class MiscController : ApiControllerBase
 {
     private readonly IImageDownloadService imageDownloadService;
-    
+
     public MiscController(IImageDownloadService imageDownloadService)
     {
-        this.imageDownloadService = imageDownloadService;        
+        this.imageDownloadService = imageDownloadService;
     }
 
     [HttpGet]
     [Route("[action]")]
     public ActionResult<ImageDownloadServiceStatus> GetDownloadServiceStatus()
     {
-        var status = imageDownloadService.GetStatus();
-        //var json = System.Text.Json.JsonSerializer.Serialize(status);
-        //return new ContentResult
-        //{
-        //    Content = json,
-        //    ContentType = "text/json",
-        //    StatusCode = 200
-        //};
+        ImageDownloadServiceStatus status = imageDownloadService.GetStatus();
         return Ok(status);
     }
 
-    //[HttpPatch]
-    //[Route("[action]")]
-    //public async Task<ActionResult> BuildIconsCacheFromVideoStreams()
-    //{
-    //    await _taskQueue.BuildIconsCacheFromVideoStreams().ConfigureAwait(false);
-    //    return NoContent();
-    //}
+    [HttpGet]
+    [Route("[action]")]
+    public IActionResult GetTestM3U(int numberOfStreams)
+    {
+        List<string> lines = [];
+        lines.Add("#EXTM3U");
+        for (int i = 0; i < numberOfStreams; i++)
+        {
+            string id = Guid.NewGuid().ToString();
+            lines.Add($"#EXTINF:-1 tvg-id=\"Channel_{i}\" tvg-name=\"Channel {i}\" tvg-logo=\"https://logo{i}.png\" group-title =\"TEST CHANNEL GROUP\", Channel {i}");
+            lines.Add($"http://channelfake.test/live/{id}.ts");
+        }
 
+        string data = string.Join("\r\n", lines);
 
-
-
-    //[HttpPatch]
-    //[Route("[action]")]
-    //public async Task<ActionResult> BuildProgIconsCacheFromEPGsRequest()
-    //{
-    //    await _sender.Send(new BuildProgIconsCacheFromEPGsRequest()).ConfigureAwait(false);
-
-    //    return NoContent();
-    //}
+        return new FileContentResult(Encoding.UTF8.GetBytes(data), "application/x-mpegURL")
+        {
+            FileDownloadName = $"m3u-test-{numberOfStreams}.m3u"
+        };
+    }
 }
