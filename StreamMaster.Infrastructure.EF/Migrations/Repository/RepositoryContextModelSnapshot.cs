@@ -33,7 +33,7 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DataProtectionKeys");
+                    b.ToTable("DataProtectionKeys", (string)null);
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Models.ChannelGroup", b =>
@@ -64,7 +64,7 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
                     b.HasIndex("Name", "IsHidden")
                         .HasDatabaseName("idx_Name_IsHidden");
 
-                    b.ToTable("ChannelGroups");
+                    b.ToTable("ChannelGroups", (string)null);
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Models.EPGFile", b =>
@@ -141,7 +141,7 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EPGFiles");
+                    b.ToTable("EPGFiles", (string)null);
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Models.M3UFile", b =>
@@ -211,7 +211,7 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("M3UFiles");
+                    b.ToTable("M3UFiles", (string)null);
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Models.StreamGroup", b =>
@@ -232,7 +232,7 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("StreamGroups");
+                    b.ToTable("StreamGroups", (string)null);
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Models.StreamGroupChannelGroup", b =>
@@ -247,7 +247,7 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("StreamGroupId");
 
-                    b.ToTable("StreamGroupChannelGroups");
+                    b.ToTable("StreamGroupChannelGroups", (string)null);
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Models.StreamGroupVideoStream", b =>
@@ -268,7 +268,7 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("StreamGroupId");
 
-                    b.ToTable("StreamGroupVideoStreams");
+                    b.ToTable("StreamGroupVideoStreams", (string)null);
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Models.VideoStream", b =>
@@ -378,7 +378,7 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
                     b.HasIndex("User_Tvg_group", "IsHidden")
                         .HasDatabaseName("idx_User_Tvg_group_IsHidden");
 
-                    b.ToTable("VideoStreams");
+                    b.ToTable("VideoStreams", (string)null);
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Models.VideoStreamLink", b =>
@@ -396,7 +396,7 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ChildVideoStreamId");
 
-                    b.ToTable("VideoStreamLinks");
+                    b.ToTable("VideoStreamLinks", (string)null);
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Models.StreamGroupChannelGroup", b =>

@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Models;
-
 namespace StreamMaster.Infrastructure.EF
 {
     public class RepositoryContext : DbContext, IDataProtectionKeyContext

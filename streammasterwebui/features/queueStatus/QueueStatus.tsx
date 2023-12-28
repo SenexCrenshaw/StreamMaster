@@ -44,10 +44,11 @@ const QueueStatus = () => {
   const columns = useMemo(
     (): ColumnMeta[] => [
       {
+        align: 'center',
         bodyTemplate: isRunningTemplate,
         field: 'isRunning',
         header: 'Running',
-        width: '10rem'
+        width: '4rem'
       },
       {
         field: 'command',

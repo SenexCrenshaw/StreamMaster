@@ -16,3 +16,7 @@ dotnet ef database update -c RepositoryContext
 dotnet ef database update -c LogDbContext
 
 dotnet tool update --global dotnet-ef
+
+
+//dotnet ef migrations remove -c RepositoryContext
+//dotnet ef database update -c RepositoryContext 20231223165021_AddSGAutoVideoGroupTitle

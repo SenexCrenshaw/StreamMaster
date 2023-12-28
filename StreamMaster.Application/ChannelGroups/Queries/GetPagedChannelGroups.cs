@@ -1,10 +1,5 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
+﻿using StreamMaster.Application.ChannelGroups.Commands;
 using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-using StreamMaster.Application.ChannelGroups.Commands;
 
 namespace StreamMaster.Application.ChannelGroups.Queries;
 
