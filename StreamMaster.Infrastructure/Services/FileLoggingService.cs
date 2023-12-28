@@ -8,7 +8,7 @@ namespace StreamMaster.Infrastructure.Services;
 public class FileLoggingService : IFileLoggingService, IDisposable
 {
     private readonly ConcurrentQueue<string> _logQueue = new();
-    private readonly SemaphoreSlim _writeLock = new(1, 1);
+    private static readonly SemaphoreSlim _writeLock = new(1, 1);
     private readonly CancellationTokenSource _cts = new();
     private readonly Task _loggingTask;
     private readonly string _logFilePath;
@@ -36,7 +36,6 @@ public class FileLoggingService : IFileLoggingService, IDisposable
         while (!_cts.Token.IsCancellationRequested)
         {
             StringBuilder combinedLogEntries = new();
-
             await _writeLock.WaitAsync();
             try
             {
@@ -44,35 +43,36 @@ public class FileLoggingService : IFileLoggingService, IDisposable
                 {
                     if (logEntry != null)
                     {
-                        // Append each log entry to the StringBuilder
-                        _ = combinedLogEntries.AppendLine(logEntry);
+                        combinedLogEntries.AppendLine(logEntry);
                     }
                 }
 
-                // Check if there is anything to log
                 if (combinedLogEntries.Length > 0)
                 {
-                    // Send the combined log entries to WriteLogEntryAsync
                     await WriteLogEntryAsync(combinedLogEntries.ToString());
                 }
             }
             finally
             {
-                _ = _writeLock.Release();
+                _writeLock.Release();
             }
 
-            await Task.Delay(100); // Adjust delay as necessary
+            await Task.Delay(100); // Adjust as necessary
         }
     }
 
     private async Task WriteLogEntryAsync(string logEntry)
     {
-        using FileStream stream = new(_logFilePath, FileMode.Append, FileAccess.Write, FileShare.Read);
-        using StreamWriter writer = new(stream);
-        await writer.WriteLineAsync(logEntry);
-        writer.Flush();
-        writer.Close();
-        writer.Dispose();
+        try
+        {
+            using FileStream stream = new(_logFilePath, FileMode.Append, FileAccess.Write, FileShare.Read);
+            using StreamWriter writer = new(stream);
+            await writer.WriteLineAsync(logEntry);
+        }
+        catch (Exception ex)
+        {
+            Exception a = ex;
+        }
 
     }
 
