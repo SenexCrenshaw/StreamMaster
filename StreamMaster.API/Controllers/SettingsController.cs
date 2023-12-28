@@ -1,16 +1,17 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
-
 using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.General.Queries;
 using StreamMaster.Application.Settings;
 using StreamMaster.Application.Settings.Commands;
 using StreamMaster.Application.Settings.Queries;
+using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Dto;
 
-namespace StreamMasterAPI.Controllers;
+using StreamMasterAPI.Controllers;
+
+namespace StreamMaster.API.Controllers;
 
 public class SettingsController : ApiControllerBase, ISettingController
 {
@@ -24,7 +25,7 @@ public class SettingsController : ApiControllerBase, ISettingController
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<List<TaskQueueStatusDto>>> GetQueueStatus()
+    public async Task<ActionResult<List<TaskQueueStatus>>> GetQueueStatus()
     {
         return await Mediator.Send(new GetQueueStatus()).ConfigureAwait(false);
     }
@@ -58,11 +59,6 @@ public class SettingsController : ApiControllerBase, ISettingController
     {
         UpdateSettingRequestHandler.UpdateSettingResponse updateSettingResponse = await Mediator.Send(command).ConfigureAwait(false);
 
-        if (updateSettingResponse.NeedsLogOut)
-        {
-            return Redirect("/logout");
-        }
-
-        return updateSettingResponse == null ? NotFound() : NoContent();
+        return updateSettingResponse.NeedsLogOut ? Redirect("/logout") : updateSettingResponse == null ? NotFound() : NoContent();
     }
 }

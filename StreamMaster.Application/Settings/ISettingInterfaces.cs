@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Domain.Dto;
-
 using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.Settings.Commands;
 
@@ -9,7 +7,7 @@ namespace StreamMaster.Application.Settings;
 
 public interface ISettingController
 {
-    Task<ActionResult<List<TaskQueueStatusDto>>> GetQueueStatus();
+    Task<ActionResult<List<TaskQueueStatus>>> GetQueueStatus();
 
     Task<ActionResult<SettingDto>> GetSetting();
 
@@ -26,7 +24,7 @@ public interface ISettingDB
 
 public interface ISettingHub
 {
-    Task<List<TaskQueueStatusDto>> GetQueueStatus();
+    Task<List<TaskQueueStatus>> GetQueueStatus();
 
     Task<SettingDto> GetSetting();
 

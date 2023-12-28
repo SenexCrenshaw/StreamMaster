@@ -1,7 +1,4 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
-
-using StreamMaster.Application.Common.Models;
+﻿using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.StreamGroups.Queries;
 
 namespace StreamMaster.Application.Common.Interfaces;
@@ -25,7 +22,7 @@ public interface IStreamMasterHub : ISharedHub
     Task StreamingStatusDtoUpdate(StreamingStatusDto result);
     Task StreamStatisticsResultsUpdate(List<StreamStatisticsResult> result);
     Task SystemStatusUpdate(SDSystemStatus result);
-    Task TaskQueueStatusDtoesUpdate(IEnumerable<TaskQueueStatusDto> results);
+    Task TaskQueueStatusUpdate(IEnumerable<TaskQueueStatus> results);
     Task VideoStreamsRefresh(VideoStreamDto[]? results = null);
     Task ChannelGroupCreated(ChannelGroupDto channelGroup);
     Task ChannelGroupDelete(int ChannelGroupId);

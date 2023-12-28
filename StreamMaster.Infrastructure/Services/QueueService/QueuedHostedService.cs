@@ -16,29 +16,16 @@ using StreamMaster.Domain.Enums;
 
 namespace StreamMaster.Infrastructure.Services.QueueService;
 
-public sealed class QueuedHostedService : BackgroundService
+public sealed class QueuedHostedService(
+    IBackgroundTaskQueue taskQueue,
+    IServiceProvider serviceProvider,
+    ILogger<QueuedHostedService> logger
+
+        ) : BackgroundService
 {
-    private readonly ILogger<QueuedHostedService> _logger;
-
-    private readonly IServiceProvider _serviceProvider;
-
-    private readonly IBackgroundTaskQueue _taskQueue;
-
-    public QueuedHostedService(
-        IBackgroundTaskQueue taskQueue,
-        IServiceProvider serviceProvider,
-        ILogger<QueuedHostedService> logger
-
-        )
-    {
-        _taskQueue = taskQueue;
-        _serviceProvider = serviceProvider;
-        _logger = logger;
-    }
-
     public override async Task StopAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation(
+        logger.LogInformation(
             "{nameof(QueuedHostedService)} is stopping.", nameof(QueuedHostedService));
 
         await base.StopAsync(stoppingToken).ConfigureAwait(false);
@@ -53,16 +40,16 @@ public sealed class QueuedHostedService : BackgroundService
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            BackgroundTaskQueueConfig command = await _taskQueue.DeQueueAsync(cancellationToken).ConfigureAwait(false);
+            BackgroundTaskQueueConfig command = await taskQueue.DeQueueAsync(cancellationToken).ConfigureAwait(false);
 
             try
             {
-                _logger.LogInformation("Starting {command}", command.Command);
-                using IServiceScope scope = _serviceProvider.CreateScope();
+                logger.LogInformation("Starting {command}", command.Command);
+                using IServiceScope scope = serviceProvider.CreateScope();
 
                 ISender _sender = scope.ServiceProvider.GetRequiredService<ISender>();
 
-                await _taskQueue.SetStart(command.Id).ConfigureAwait(false);
+                await taskQueue.SetStart(command.Id).ConfigureAwait(false);
 
                 switch (command.Command)
                 {
@@ -90,11 +77,11 @@ public sealed class QueuedHostedService : BackgroundService
                         }
                         break;
                     case SMQueCommand.EPGSync:
-                        await _sender.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
+                        _ = await _sender.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.UpdateChannelGroupCounts:
-                        await _sender.Send(new UpdateChannelGroupCountsByIdsRequest(), cancellationToken).ConfigureAwait(false);
+                        _ = await _sender.Send(new UpdateChannelGroupCountsByIdsRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.ProcessM3UFile:
@@ -131,11 +118,11 @@ public sealed class QueuedHostedService : BackgroundService
                         break;
 
                     default:
-                        _logger.LogWarning("{command} not found", command.Command);
+                        logger.LogWarning("{command} not found", command.Command);
                         break;
                 }
-                await _taskQueue.SetStop(command.Id).ConfigureAwait(false);
-                _logger.LogInformation("Finished {command}", command.Command);
+                await taskQueue.SetStop(command.Id).ConfigureAwait(false);
+                logger.LogInformation("Finished {command}", command.Command);
             }
             catch (OperationCanceledException)
             {
@@ -143,10 +130,10 @@ public sealed class QueuedHostedService : BackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred executing task work item. {command}", command.Command);
-                await _taskQueue.SetStop(command.Id).ConfigureAwait(false);
+                logger.LogError(ex, "Error occurred executing task work item. {command}", command.Command);
+                await taskQueue.SetStop(command.Id).ConfigureAwait(false);
             }
         }
-        _logger.LogInformation("{nameof(QueuedHostedService)} is stopped.{Environment.NewLine}", nameof(QueuedHostedService), Environment.NewLine);
+        logger.LogInformation("{nameof(QueuedHostedService)} is stopped.{Environment.NewLine}", nameof(QueuedHostedService), Environment.NewLine);
     }
 }

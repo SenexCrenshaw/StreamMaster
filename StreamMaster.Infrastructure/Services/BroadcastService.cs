@@ -90,9 +90,6 @@ public class BroadcastService : IBroadcastService, IDisposable
         _broadcastTimer?.Dispose();
     }
 
-    private bool sentEmpty = false;
-
-
     private void BroadcastMessage(object? state)
     {
         try
@@ -101,14 +98,14 @@ public class BroadcastService : IBroadcastService, IDisposable
             List<StreamStatisticsResult> statisticsResults = streamStatisticService.GetAllStatisticsForAllUrls().Result;
             if (statisticsResults.Any())
             {
-                hub.Clients.All.StreamStatisticsResultsUpdate(statisticsResults).ConfigureAwait(false);
-                sentEmpty = false;
+                _ = hub.Clients.All.StreamStatisticsResultsUpdate(statisticsResults).ConfigureAwait(false);
+
             }
             else
             {
                 //if (!sentEmpty)
                 //{
-                hub.Clients.All.StreamStatisticsResultsUpdate(statisticsResults).ConfigureAwait(false);
+                _ = hub.Clients.All.StreamStatisticsResultsUpdate(statisticsResults).ConfigureAwait(false);
                 //}
                 //sentEmpty = true;
             }

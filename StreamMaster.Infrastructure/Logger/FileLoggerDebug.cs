@@ -24,9 +24,9 @@ public class FileLoggerDebug : ILogger
     }
 
 
-    public IDisposable BeginScope<TState>(TState state)
+    public IDisposable? BeginScope<TState>(TState state)
     {
-        return null; // If you have a scope to handle, return an object that implements IDisposable
+        return null;
     }
 
     public bool IsEnabled(LogLevel logLevel)

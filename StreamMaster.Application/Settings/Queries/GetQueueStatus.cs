@@ -1,13 +1,11 @@
-﻿using MediatR;
-
-using StreamMaster.Application.Common.Models;
+﻿using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.Services;
 
 namespace StreamMaster.Application.Settings.Queries;
 
-public record GetQueueStatus : IRequest<List<TaskQueueStatusDto>>;
+public record GetQueueStatus : IRequest<List<TaskQueueStatus>>;
 
-internal class GetQueueStatusHandler : IRequestHandler<GetQueueStatus, List<TaskQueueStatusDto>>
+internal class GetQueueStatusHandler : IRequestHandler<GetQueueStatus, List<TaskQueueStatus>>
 {
     private readonly IBackgroundTaskQueue _taskQueue;
 
@@ -18,7 +16,7 @@ internal class GetQueueStatusHandler : IRequestHandler<GetQueueStatus, List<Task
         _taskQueue = taskQueue;
     }
 
-    public async Task<List<TaskQueueStatusDto>> Handle(GetQueueStatus request, CancellationToken cancellationToken)
+    public async Task<List<TaskQueueStatus>> Handle(GetQueueStatus request, CancellationToken cancellationToken)
     {
         return await _taskQueue.GetQueueStatus().ConfigureAwait(false);
     }

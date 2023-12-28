@@ -1,6 +1,6 @@
 ﻿namespace StreamMaster.Application.Common.Models;
 
-public class TaskQueueStatusDto
+public class TaskQueueStatus
 {
     public string Command { get; set; } = string.Empty;
     public Guid Id { get; set; }

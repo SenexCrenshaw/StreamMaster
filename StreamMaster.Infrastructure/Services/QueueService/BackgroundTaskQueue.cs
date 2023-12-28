@@ -22,7 +22,7 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
     private readonly ILogger<BackgroundTaskQueue> _logger;
     private readonly Channel<BackgroundTaskQueueConfig> _queue;
     private readonly ISender _sender;
-    private readonly ConcurrentDictionary<Guid, TaskQueueStatusDto> taskQueueStatusDtos = new();
+    private readonly ConcurrentDictionary<Guid, TaskQueueStatus> taskQueueStatuses = new();
 
     public BackgroundTaskQueue(int capacity, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<BackgroundTaskQueue> logger, ISender sender)
     {
@@ -43,18 +43,16 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
         return workItem;
     }
 
-    public Task<List<TaskQueueStatusDto>> GetQueueStatus()
+    public Task<List<TaskQueueStatus>> GetQueueStatus()
     {
 
-        return Task.FromResult(taskQueueStatusDtos.Values.OrderBy(a => a.StartTS).ToList());
+        return Task.FromResult(taskQueueStatuses.Values.OrderBy(a => a.StartTS).ToList());
 
     }
 
     public bool HasJobs()
     {
-
-        return taskQueueStatusDtos.Values.Any(a => a.StopTS == DateTime.MinValue);
-
+        return taskQueueStatuses.Values.Any(a => a.StopTS == DateTime.MinValue);
     }
 
     public async ValueTask SetIsSystemReady(bool isSystemReady, CancellationToken cancellationToken = default)
@@ -64,32 +62,32 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
 
     public async Task SetQueueTS(Guid Id)
     {
-        if (taskQueueStatusDtos.TryGetValue(Id, out TaskQueueStatusDto? status))
+        if (taskQueueStatuses.TryGetValue(Id, out TaskQueueStatus? status))
         {
             status.QueueTS = DateTime.Now;
             status.IsRunning = true;
-            await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(await GetQueueStatus()).ConfigureAwait(false);
+            await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
         }
     }
 
     public async Task SetStart(Guid Id)
     {
-        if (taskQueueStatusDtos.TryGetValue(Id, out TaskQueueStatusDto? status))
+        if (taskQueueStatuses.TryGetValue(Id, out TaskQueueStatus? status))
         {
             status.StartTS = DateTime.Now;
             status.IsRunning = true;
-            await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(await GetQueueStatus()).ConfigureAwait(false);
+            await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
         }
 
     }
 
     public async Task SetStop(Guid Id)
     {
-        if (taskQueueStatusDtos.TryGetValue(Id, out TaskQueueStatusDto? status))
+        if (taskQueueStatuses.TryGetValue(Id, out TaskQueueStatus? status))
         {
             status.StopTS = DateTime.Now;
             status.IsRunning = false;
-            await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(await GetQueueStatus()).ConfigureAwait(false);
+            await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
         }
     }
 
@@ -117,13 +115,13 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
             return;
         }
 
-        _ = taskQueueStatusDtos.TryAdd(workItem.Id, new TaskQueueStatusDto
+        _ = taskQueueStatuses.TryAdd(workItem.Id, new TaskQueueStatus
         {
             Id = workItem.Id,
             Command = workItem.Command.ToString(),
         });
 
-        await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(await GetQueueStatus()).ConfigureAwait(false);
+        await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
         await _queue.Writer.WriteAsync(workItem).ConfigureAwait(false);
         _logger.LogInformation("Added {workItem.command} to Queue", workItem.Command);
 

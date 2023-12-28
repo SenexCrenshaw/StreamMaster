@@ -63,7 +63,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
         this.imageDownloadQueue = imageDownloadQueue;
         Setting settings = memoryCache.GetSetting();
         downloadSemaphore = new(settings.MaxConcurrentDownloads);
-        schedulesDirect.CheckToken();
+        _ = schedulesDirect.CheckToken();
 
     }
 
@@ -75,7 +75,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
             {
                 return;
             }
-            StartAsync(CancellationToken.None).ConfigureAwait(false);
+            _ = StartAsync(CancellationToken.None).ConfigureAwait(false);
             IsActive = true;
 
         }
@@ -265,7 +265,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                     }
                     catch (Exception ex)
                     {
-                        int a = 1;
+
                     }
                     finally
                     {
@@ -276,7 +276,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
             }
             catch (Exception ex)
             {
-                int a = 1;
+
             }
             finally
             {

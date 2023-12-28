@@ -22,21 +22,13 @@ public class ApiKeyAuthenticationOptions : AuthenticationSchemeOptions
     public string Scheme => DefaultScheme;
 }
 
-public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthenticationOptions>
+public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options, ISettingsService settingsService, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock) : AuthenticationHandler<ApiKeyAuthenticationOptions>(options, logger, encoder, clock)
 {
-    private readonly ILogger<ApiKeyAuthenticationHandler> _logger;
-    private readonly ISettingsService _settingsService;
-
-    public ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options, ISettingsService settingsService, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
-        : base(options, logger, encoder, clock)
-    {
-        _logger = logger.CreateLogger<ApiKeyAuthenticationHandler>();
-        _settingsService = settingsService;
-    }
+    private readonly ILogger<ApiKeyAuthenticationHandler> _logger = logger.CreateLogger<ApiKeyAuthenticationHandler>();
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        Setting setting = await _settingsService.GetSettingsAsync();
+        Setting setting = await settingsService.GetSettingsAsync();
         bool needsAuth = setting.AuthenticationMethod != AuthenticationType.None;
 
         if (!needsAuth)

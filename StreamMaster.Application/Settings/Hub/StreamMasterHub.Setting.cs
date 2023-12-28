@@ -1,7 +1,4 @@
-﻿using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
-
-using StreamMaster.Application.Common.Models;
+﻿using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.Settings;
 using StreamMaster.Application.Settings.Commands;
 
@@ -9,7 +6,7 @@ namespace StreamMaster.Application.Hubs;
 
 public partial class StreamMasterHub : ISettingHub
 {
-    public async Task<List<TaskQueueStatusDto>> GetQueueStatus()
+    public async Task<List<TaskQueueStatus>> GetQueueStatus()
     {
         return await mediator.Send(new GetQueueStatus()).ConfigureAwait(false);
     }
@@ -33,6 +30,6 @@ public partial class StreamMasterHub : ISettingHub
 
     public async Task UpdateSetting(UpdateSettingRequest command)
     {
-        await mediator.Send(command).ConfigureAwait(false);
+        _ = await mediator.Send(command).ConfigureAwait(false);
     }
 }

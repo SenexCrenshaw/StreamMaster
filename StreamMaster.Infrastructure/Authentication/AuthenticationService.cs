@@ -18,34 +18,11 @@ public interface IAuthenticationService
     void LogUnauthorized(HttpRequest context);
 }
 
-public class AuthenticationService : IAuthenticationService
+public class AuthenticationService(ILogger<AuthenticationService> logger, ISettingsService settingsService) : IAuthenticationService
 {
-    //private static string AdminPassword;
-    //private static string AdminUserName;
-    //private static AuthenticationType AUTH_METHOD;
-    private readonly ILogger<AuthenticationService> _logger;
-    private readonly ISettingsService _settingsService;
-    public AuthenticationService(ILogger<AuthenticationService> logger, ISettingsService settingsService)
-    {
-        _settingsService = settingsService;
-        _logger = logger;
-        //AdminPassword = _setting.AdminPassword;
-        //AdminUserName = _setting.AdminUserName;
-        //AuthenticationType authMethod = AuthenticationType.None;
-        //if (
-        //    _setting.AuthenticationMethod != AuthenticationType.None &&
-        //    !string.IsNullOrEmpty(AdminPassword) && !string.IsNullOrEmpty(AdminUserName)
-        //    )
-        //{
-        //    authMethod = AuthenticationType.Forms;
-        //}
-
-        //AUTH_METHOD = authMethod;
-    }
-
     private async Task<AuthenticationType> GetAuthMethod()
     {
-        Setting setting = await _settingsService.GetSettingsAsync();
+        Setting setting = await settingsService.GetSettingsAsync();
         string AdminPassword = setting.AdminPassword;
         string AdminUserName = setting.AdminUserName;
         AuthenticationType authMethod = AuthenticationType.None;
@@ -60,7 +37,7 @@ public class AuthenticationService : IAuthenticationService
     }
     public async Task<User> Login(HttpRequest request, string username, string password)
     {
-        Setting setting = await _settingsService.GetSettingsAsync();
+        Setting setting = await settingsService.GetSettingsAsync();
         string AdminPassword = setting.AdminPassword;
         string AdminUserName = setting.AdminUserName;
         AuthenticationType authMethod = await GetAuthMethod();
@@ -103,26 +80,26 @@ public class AuthenticationService : IAuthenticationService
 
     public void LogUnauthorized(HttpRequest context)
     {
-        _logger.LogInformation("Auth-Unauthorized ip {0} url '{1}'", context.GetRemoteIP(), context.Path);
+        logger.LogInformation("Auth-Unauthorized ip {0} url '{1}'", context.GetRemoteIP(), context.Path);
     }
 
     private void LogFailure(HttpRequest context, string username)
     {
-        _logger.LogWarning("Auth-Failure ip {0} username '{1}'", context.GetRemoteIP(), username);
+        logger.LogWarning("Auth-Failure ip {0} username '{1}'", context.GetRemoteIP(), username);
     }
 
     private void LogInvalidated(HttpRequest context)
     {
-        _logger.LogInformation("Auth-Invalidated ip {0}", context.GetRemoteIP());
+        logger.LogInformation("Auth-Invalidated ip {0}", context.GetRemoteIP());
     }
 
     private void LogLogout(HttpRequest context, string username)
     {
-        _logger.LogInformation("Auth-Logout ip {0} username '{1}'", context.GetRemoteIP(), username);
+        logger.LogInformation("Auth-Logout ip {0} username '{1}'", context.GetRemoteIP(), username);
     }
 
     private void LogSuccess(HttpRequest context, string username)
     {
-        _logger.LogInformation("Auth-Success ip {0} username '{1}'", context.GetRemoteIP(), username);
+        logger.LogInformation("Auth-Success ip {0} username '{1}'", context.GetRemoteIP(), username);
     }
 }

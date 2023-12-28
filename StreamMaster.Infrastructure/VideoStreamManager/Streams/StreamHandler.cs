@@ -105,7 +105,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             finally
             {
                 runningGetVideo = false;
-                getVideoInfo.Release();
+                _ = getVideoInfo.Release();
             }
 
             return;
@@ -113,7 +113,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         finally
         {
             runningGetVideo = false;
-            getVideoInfo.Release();
+            _ = getVideoInfo.Release();
         }
     }
 
@@ -245,11 +245,11 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                         {
                             if (_videoInfo == null && !runningGetVideo)
                             {
-                                BuildVideoInfo(videoMemory);
+                                _ = BuildVideoInfo(videoMemory);//Run in background
                             }
                         }
 
-                        CircularRingBuffer.WriteChunk(bufferMemory[..bytesRead]);
+                        _ = CircularRingBuffer.WriteChunk(bufferMemory[..bytesRead]);
                     }
                 }
                 catch (TaskCanceledException)
@@ -310,7 +310,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
     {
         try
         {
-            clientStreamerIds.TryAdd(streamerConfiguration.ClientId, streamerConfiguration.ClientId);
+            _ = clientStreamerIds.TryAdd(streamerConfiguration.ClientId, streamerConfiguration.ClientId);
             CircularRingBuffer.RegisterClient(streamerConfiguration);
 
             logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId} {name} {RingBuffer.Id}", streamerConfiguration.ClientId, VideoStreamId, VideoStreamName, CircularRingBuffer.Id);
