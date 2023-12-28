@@ -2,6 +2,7 @@
 
 public class VideoStreamConfig
 {
+    public int M3UFileId { get; set; }
     public string Id { get; set; } = string.Empty;
     public string User_Tvg_name { get; set; } = string.Empty;
     public string User_Tvg_ID { get; set; } = string.Empty;

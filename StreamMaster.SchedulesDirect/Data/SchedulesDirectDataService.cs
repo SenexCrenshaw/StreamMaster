@@ -13,7 +13,7 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, IXM
 
     public XMLTV? CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs)
     {
-        return xMLTVBuilder.CreateXmlTv(baseUrl, videoStreamConfigs, AllServices, AllPrograms, this);
+        return xMLTVBuilder.CreateXmlTv(baseUrl, videoStreamConfigs, this);
     }
 
     public void Reset(int? epgId = null)

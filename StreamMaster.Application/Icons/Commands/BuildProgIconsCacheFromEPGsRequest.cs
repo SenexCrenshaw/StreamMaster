@@ -99,7 +99,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
     //                {
     //                    Id = iconDto.Id,
     //                    Source = source,
-    //                    EPGId = channel.Id,
+    //                    M3UFileId = channel.Id,
     //                    Name = name,
     //                    EPGFileId = epgFileId
     //                };

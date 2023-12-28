@@ -18,7 +18,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
     private readonly Dictionary<int, MxfSeriesInfo> seriesDict = [];
     private Dictionary<string, string> keywordDict = [];
     [LogExecutionTimeAspect]
-    public XMLTV? CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs, List<MxfService> services, List<MxfProgram> programs, ISchedulesDirectDataService schedulesDirectDataService)
+    public XMLTV? CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs, ISchedulesDirectDataService schedulesDirectDataService)
     {
         this.schedulesDirectDataService = schedulesDirectDataService;
         _baseUrl = baseUrl;
@@ -40,9 +40,6 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
             Setting settings = memoryCache.GetSetting();
             List<MxfService> toProcess = [];
 
-            //List<MxfService> services = schedulesDirectDataService.AllServices;
-            List<string> stations = services.OrderBy(a => a.StationId).Select(a => a.StationId).Distinct().ToList();
-            List<string> test = stations.Where(a => a.StartsWith("4")).ToList();
             int newServiceCount = 0;
 
             // Pre-process all keywords into a HashSet for faster lookup
@@ -54,15 +51,11 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
          g => g.Key,
          g =>
          {
-             // Example: Choose the first word from the group or apply your logic here
              string word = g.First().Word;
              return string.Equals(word, "Movies", StringComparison.OrdinalIgnoreCase) ? "Movie" : word;
          }
      );
 
-            //         seriesDict = schedulesDirectDataService.AllSeriesInfos
-            //.GroupBy(seriesInfo => seriesInfo.Index)
-            //.ToDictionary(g => g.Key, g => g.First());
 
             foreach (MxfSeriesInfo seriesInfo in schedulesDirectDataService.AllSeriesInfos)
             {
@@ -76,9 +69,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
                 seriesDict.Add(seriesInfo.Index, seriesInfo);
             }
 
-
-            // seriesDict = schedulesDirectDataService.AllSeriesInfos.ToDictionary(seriesInfo => seriesInfo.Index, seriesInfo => seriesInfo);
-
+            List<MxfService> services = schedulesDirectDataService.AllServices;
 
             foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs.OrderBy(a => a.User_Tvg_chno))
             {
@@ -87,6 +78,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
                 string stationId = videoStreamConfig.User_Tvg_chno.ToString();// $"{prefix}-{videoStreamConfig.Id}";
 
                 MxfService? origService = services.FirstOrDefault(a => a.StationId == videoStreamConfig.User_Tvg_ID);
+
                 if (origService == null)
                 {
                     continue;
@@ -127,6 +119,8 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
                 toProcess.Add(newService);
 
             }
+
+            List<MxfProgram> programs = schedulesDirectDataService.AllPrograms;
 
             try
             {

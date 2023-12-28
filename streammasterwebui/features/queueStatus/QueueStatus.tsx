@@ -127,7 +127,7 @@ const QueueStatus = () => {
           dataSource={status.data}
           enablePaginator={false}
           id="queustatus"
-          defaultSortField="startTS"
+          defaultSortField="id"
           selectedItemsKey="queustatus"
           style={{ height: 'calc(50vh)' }}
         />

@@ -10,6 +10,7 @@ public class ProcessM3UFilesRequestHandler(ILogger<ProcessM3UFilesRequest> logge
         {
             foreach (M3UFileDto m3uFile in await Repository.M3UFile.GetM3UFiles().ConfigureAwait(false))
             {
+
                 _ = await Sender.Send(new ProcessM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
             }
         }

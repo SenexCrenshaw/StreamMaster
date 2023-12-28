@@ -12,6 +12,7 @@ import { enhancedApiStreamGroupVideoStreams } from '@lib/smAPI/StreamGroupVideoS
 import { enhancedApiStreamGroups } from '@lib/smAPI/StreamGroups/StreamGroupsEnhancedAPI';
 import { enhancedApiVideoStreamLinks } from '@lib/smAPI/VideoStreamLinks/VideoStreamLinksEnhancedAPI';
 import { enhancedApiVideoStreams } from '@lib/smAPI/VideoStreams/VideoStreamsEnhancedAPI';
+import { enhancedApiQueue } from '@lib/smAPI/Queue/QueueEnhancedAPI';
 
 import channelGroupToRemoveSliceReducer from '@lib/redux/slices/channelGroupToRemoveSlice';
 import queryAdditionalFiltersReducer from '@lib/redux/slices/queryAdditionalFiltersSlice';
@@ -100,6 +101,7 @@ const rootReducer = combineReducers({
   [enhancedApiEpgFiles.reducerPath]: enhancedApiEpgFiles.reducer,
   [enhancedApiM3UFiles.reducerPath]: enhancedApiM3UFiles.reducer,
   [enhancedApiProgrammes.reducerPath]: enhancedApiProgrammes.reducer,
+  [enhancedApiQueue.reducerPath]: enhancedApiQueue.reducer,
   [enhancedApiSchedulesDirect.reducerPath]: enhancedApiSchedulesDirect.reducer,
   [enhancedApiSettings.reducerPath]: enhancedApiSettings.reducer,
   [enhancedApiStreamGroupChannelGroup.reducerPath]: enhancedApiStreamGroupChannelGroup.reducer,
@@ -140,6 +142,7 @@ const store = configureStore({
       enhancedApiM3UFiles.middleware,
       enhancedApiMisc.middleware,
       enhancedApiProgrammes.middleware,
+      enhancedApiQueue.middleware,
       enhancedApiSchedulesDirect.middleware,
       enhancedApiSettings.middleware,
       enhancedApiStreamGroupChannelGroup.middleware,

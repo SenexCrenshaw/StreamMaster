@@ -106,7 +106,7 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
         await QueueAsync(bq).ConfigureAwait(false);
     }
 
-    private readonly SMQueCommand lastSMQueCommand = new();
+    private SMQueCommand lastSMQueCommand = new();
     private async ValueTask QueueAsync(BackgroundTaskQueueConfig workItem)
     {
         //No need to stack up the same task
@@ -115,9 +115,11 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
             return;
         }
 
+        lastSMQueCommand = workItem.Command;
+
         _ = taskQueueStatuses.TryAdd(workItem.Id, new TaskQueueStatus
         {
-            Id = workItem.Id,
+            Id = taskQueueStatuses.Count,
             Command = workItem.Command.ToString(),
         });
 

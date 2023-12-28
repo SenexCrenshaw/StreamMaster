@@ -115,7 +115,7 @@ public class BaseSettings : M3USettings
     public string SSLCertPath { get; set; } = string.Empty;
     public string StreamingClientUserAgent { get; set; } = "VLC/3.0.20-git LibVLC/3.0.20-git";
     public StreamingProxyTypes StreamingProxyType { get; set; } = StreamingProxyTypes.StreamMaster;
-    public bool VideoStreamAlwaysUseEPGLogo { get; set; }
+    public bool VideoStreamAlwaysUseEPGLogo { get; set; } = true;
 
     public bool ShowClientHostNames { get; set; }
 }

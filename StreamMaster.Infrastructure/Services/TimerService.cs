@@ -1,15 +1,19 @@
 ﻿using MediatR;
 
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Application.EPGFiles.Commands;
 using StreamMaster.Application.EPGFiles.Queries;
+using StreamMaster.Application.Hubs;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.M3UFiles.Queries;
 using StreamMaster.Application.SchedulesDirect.Commands;
+using StreamMaster.Application.Services;
 using StreamMaster.Application.Settings.Queries;
 using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
@@ -36,7 +40,7 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
     {
         //_logger.LogInformation("Timer Service running.");
 
-        _timer = new Timer(async state => await DoWorkAsync(state, cancellationToken), null, TimeSpan.Zero, TimeSpan.FromSeconds(60));
+        _timer = new Timer(async state => await DoWorkAsync(state, cancellationToken), null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
 
         return Task.CompletedTask;
     }
@@ -66,6 +70,15 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
             isActive = true;
         }
 
+
+
+        using IServiceScope scope = serviceProvider.CreateScope();
+        IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+        IHubContext<StreamMasterHub, IStreamMasterHub> hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>();
+        IBackgroundTaskQueue backgroundTask = scope.ServiceProvider.GetRequiredService<IBackgroundTaskQueue>();
+
+        await hubContext.Clients.All.TaskQueueStatusUpdate(await backgroundTask.GetQueueStatus()).ConfigureAwait(false);
+
         SDSystemStatus status = new() { IsSystemReady = memoryCache.IsSystemReady() };
 
         if (!status.IsSystemReady)
@@ -77,14 +90,13 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
             return;
         }
 
-        using IServiceScope scope = serviceProvider.CreateScope();
-        IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-
         IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
         ISchedulesDirect schedulesDirect = scope.ServiceProvider.GetRequiredService<ISchedulesDirect>();
 
+
         Setting setting = memoryCache.GetSetting();
         DateTime now = DateTime.Now;
+
 
         //if (setting.SDSettings.SDEnabled)
         //{

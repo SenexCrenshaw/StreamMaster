@@ -86,6 +86,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
             videoStreamConfigs.Add(new VideoStreamConfig
             {
                 Id = videoStream.Id,
+                M3UFileId = videoStream.M3UFileId,
                 User_Tvg_name = videoStream.User_Tvg_name,
                 User_Tvg_ID = videoStream.User_Tvg_ID,
                 User_Tvg_Logo = videoStream.User_Tvg_logo,
@@ -94,6 +95,8 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
                 IsDummy = false
             });
         }
+
+
         HashSet<string> epgids = [];
 
         foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs)

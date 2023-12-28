@@ -4,7 +4,6 @@ public class M3UFileProcessedEventHandler(ILogger<M3UFileProcessedEventHandler> 
 {
     public async Task Handle(M3UFileProcessedEvent notification, CancellationToken cancellationToken)
     {
-        //await _taskQueue.BuildIconsCacheFromVideoStreams(cancellationToken).ConfigureAwait(false);
         await hubContext.Clients.All.M3UFilesRefresh().ConfigureAwait(false);
         await hubContext.Clients.All.ChannelGroupsRefresh().ConfigureAwait(false);
         await hubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);

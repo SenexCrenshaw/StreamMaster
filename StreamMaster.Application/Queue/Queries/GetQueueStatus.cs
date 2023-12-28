@@ -11,6 +11,7 @@ internal class GetQueueStatusHandler(
 {
     public async Task<List<TaskQueueStatus>> Handle(GetQueueStatus request, CancellationToken cancellationToken)
     {
-        return await taskQueue.GetQueueStatus().ConfigureAwait(false);
+        List<TaskQueueStatus> data = await taskQueue.GetQueueStatus().ConfigureAwait(false);
+        return data.OrderBy(a => a.Id).ToList();
     }
 }

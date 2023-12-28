@@ -31,7 +31,7 @@ namespace StreamMaster.SchedulesDirect.Domain.XmltvXml
         }
 
         [XmlIgnore]
-        public DateTime StartDateTime { get; set; }
+        public DateTime StartDateTime { get; private set; }
 
         [XmlIgnore]
         public int EPGFileId { get; set; }

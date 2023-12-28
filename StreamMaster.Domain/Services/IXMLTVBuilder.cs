@@ -5,5 +5,5 @@ using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 namespace StreamMaster.Domain.Services;
 public interface IXMLTVBuilder
 {
-    XMLTV? CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs, List<MxfService> services, List<MxfProgram> programs, ISchedulesDirectDataService schedulesDirectDataService);
+    XMLTV? CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs, ISchedulesDirectDataService schedulesDirectDataService);
 }

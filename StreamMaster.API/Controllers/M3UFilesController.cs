@@ -1,16 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
+using StreamMaster.Application.M3UFiles;
+using StreamMaster.Application.M3UFiles.Commands;
+using StreamMaster.Application.M3UFiles.Queries;
+using StreamMaster.Application.Services;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Pagination;
 
-using StreamMaster.Application.M3UFiles;
-using StreamMaster.Application.M3UFiles.Commands;
-using StreamMaster.Application.M3UFiles.Queries;
+using StreamMasterAPI.Controllers;
 
-namespace StreamMasterAPI.Controllers;
+namespace StreamMaster.API.Controllers;
 
-public class M3UFilesController : ApiControllerBase, IM3UFileController
+public class M3UFilesController(IBackgroundTaskQueue taskQueue) : ApiControllerBase, IM3UFileController
 {
 
 
@@ -67,8 +69,9 @@ public class M3UFilesController : ApiControllerBase, IM3UFileController
     [Route("[action]")]
     public async Task<ActionResult> ProcessM3UFile(ProcessM3UFileRequest request)
     {
-        M3UFile? data = await Mediator.Send(request).ConfigureAwait(false);
-        return data == null ? NotFound() : NoContent();
+        await taskQueue.ProcessM3UFile(request.Id).ConfigureAwait(false);
+        //M3UFile? data = await Mediator.Send(request).ConfigureAwait(false);
+        return NoContent();
     }
 
     [HttpPatch]
