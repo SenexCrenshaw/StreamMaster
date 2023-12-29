@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 ARG TARGETPLATFORM
 ARG TARGETARCH
 ARG BUILDPLATFORM
@@ -9,7 +9,7 @@ RUN apt-get update -yq \
     && apt-get upgrade -yq \
     && apt-get install -yq ffmpeg gosu
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG TARGETPLATFORM
 ARG TARGETARCH
 ARG BUILDPLATFORM
@@ -55,7 +55,7 @@ ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}
 ARG TARGETARCH
 ARG BUILDPLATFORM
 LABEL org.opencontainers.image.url="https://hub.docker.com/r/SenexCrenshaw/streammaster/" \
-    org.opencontainers.image.source="https://github.com/SenexCrenshaw/StreamMaster" \      
+    org.opencontainers.image.source="https://github.com/SenexCrenshaw/StreamMaster" \
     org.opencontainers.image.vendor="SenexCrenshaw" \
     org.opencontainers.image.title="Stream Master" \
     org.opencontainers.image.description="Dockerized Stream Master by SenexCrenshaw" \

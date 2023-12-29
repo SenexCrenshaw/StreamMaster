@@ -182,8 +182,14 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
   );
 
   const onPreview = useCallback(async (rowData: StreamStatisticsResult) => {
-    setChannelName(rowData.videoStreamName ?? '');
-    await GetVideoStreamInfoFromId(rowData.channelId ?? '').then((data) => {
+    if (rowData.videoStreamName !== undefined && rowData.videoStreamName === '') {
+      setChannelName(rowData.videoStreamName);
+    }
+
+    if (rowData.channelId === undefined || rowData.channelId === '') {
+      return;
+    }
+    await GetVideoStreamInfoFromId(rowData.channelId).then((data) => {
       if (data === null || data === undefined) return;
 
       // console.log(data);

@@ -4,8 +4,6 @@ export const addTagTypes = [
   'EPGFiles',
   'Icons',
   'Logs',
-  'M3UFiles',
-  'Misc',
   'Programmes',
   'SchedulesDirect',
   'StreamGroupChannelGroup',
@@ -14,6 +12,8 @@ export const addTagTypes = [
   'VideoStreamLinks',
   'VideoStreams',
   'Files',
+  'M3UFiles',
+  'Misc',
   'Queue',
   'Settings',
   'StreamGroups'
@@ -179,63 +179,6 @@ const injectedRtkApi = api
       logsGetLog: build.query<LogsGetLogApiResponse, LogsGetLogApiArg>({
         query: (queryArg) => ({ url: `/api/logs/getlog`, params: { LastId: queryArg.lastId, MaxLines: queryArg.maxLines } }),
         providesTags: ['Logs']
-      }),
-      m3UFilesCreateM3UFile: build.mutation<M3UFilesCreateM3UFileApiResponse, M3UFilesCreateM3UFileApiArg>({
-        query: (queryArg) => ({ url: `/api/m3ufiles/createm3ufile`, method: 'POST', body: queryArg }),
-        invalidatesTags: ['M3UFiles']
-      }),
-      m3UFilesCreateM3UFileFromForm: build.mutation<M3UFilesCreateM3UFileFromFormApiResponse, M3UFilesCreateM3UFileFromFormApiArg>({
-        query: (queryArg) => ({ url: `/api/m3ufiles/createm3ufilefromform`, method: 'POST', body: queryArg }),
-        invalidatesTags: ['M3UFiles']
-      }),
-      m3UFilesChangeM3UFileName: build.mutation<M3UFilesChangeM3UFileNameApiResponse, M3UFilesChangeM3UFileNameApiArg>({
-        query: (queryArg) => ({ url: `/api/m3ufiles/changem3ufilename`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['M3UFiles']
-      }),
-      m3UFilesDeleteM3UFile: build.mutation<M3UFilesDeleteM3UFileApiResponse, M3UFilesDeleteM3UFileApiArg>({
-        query: (queryArg) => ({ url: `/api/m3ufiles/deletem3ufile`, method: 'DELETE', body: queryArg }),
-        invalidatesTags: ['M3UFiles']
-      }),
-      m3UFilesGetM3UFile: build.query<M3UFilesGetM3UFileApiResponse, M3UFilesGetM3UFileApiArg>({
-        query: (queryArg) => ({ url: `/api/m3ufiles/${queryArg}` }),
-        providesTags: ['M3UFiles']
-      }),
-      m3UFilesGetPagedM3UFiles: build.query<M3UFilesGetPagedM3UFilesApiResponse, M3UFilesGetPagedM3UFilesApiArg>({
-        query: (queryArg) => ({
-          url: `/api/m3ufiles`,
-          params: {
-            PageNumber: queryArg.pageNumber,
-            PageSize: queryArg.pageSize,
-            OrderBy: queryArg.orderBy,
-            JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString
-          }
-        }),
-        providesTags: ['M3UFiles']
-      }),
-      m3UFilesProcessM3UFile: build.mutation<M3UFilesProcessM3UFileApiResponse, M3UFilesProcessM3UFileApiArg>({
-        query: (queryArg) => ({ url: `/api/m3ufiles/processm3ufile`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['M3UFiles']
-      }),
-      m3UFilesRefreshM3UFile: build.mutation<M3UFilesRefreshM3UFileApiResponse, M3UFilesRefreshM3UFileApiArg>({
-        query: (queryArg) => ({ url: `/api/m3ufiles/refreshm3ufile`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['M3UFiles']
-      }),
-      m3UFilesScanDirectoryForM3UFiles: build.mutation<M3UFilesScanDirectoryForM3UFilesApiResponse, M3UFilesScanDirectoryForM3UFilesApiArg>({
-        query: () => ({ url: `/api/m3ufiles/scandirectoryform3ufiles`, method: 'PATCH' }),
-        invalidatesTags: ['M3UFiles']
-      }),
-      m3UFilesUpdateM3UFile: build.mutation<M3UFilesUpdateM3UFileApiResponse, M3UFilesUpdateM3UFileApiArg>({
-        query: (queryArg) => ({ url: `/api/m3ufiles/updatem3ufile`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['M3UFiles']
-      }),
-      m3UFilesGetM3UFileNames: build.query<M3UFilesGetM3UFileNamesApiResponse, M3UFilesGetM3UFileNamesApiArg>({
-        query: () => ({ url: `/api/m3ufiles/getm3ufilenames` }),
-        providesTags: ['M3UFiles']
-      }),
-      miscGetDownloadServiceStatus: build.query<MiscGetDownloadServiceStatusApiResponse, MiscGetDownloadServiceStatusApiArg>({
-        query: () => ({ url: `/api/misc/getdownloadservicestatus` }),
-        providesTags: ['Misc']
       }),
       programmesGetProgramme: build.query<ProgrammesGetProgrammeApiResponse, ProgrammesGetProgrammeApiArg>({
         query: (queryArg) => ({ url: `/api/programmes/getprogramme/${queryArg}` }),
@@ -618,6 +561,67 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/files/${queryArg.filetype}/${queryArg.source}` }),
         providesTags: ['Files']
       }),
+      m3UFilesCreateM3UFile: build.mutation<M3UFilesCreateM3UFileApiResponse, M3UFilesCreateM3UFileApiArg>({
+        query: (queryArg) => ({ url: `/api/m3ufiles/createm3ufile`, method: 'POST', body: queryArg }),
+        invalidatesTags: ['M3UFiles']
+      }),
+      m3UFilesCreateM3UFileFromForm: build.mutation<M3UFilesCreateM3UFileFromFormApiResponse, M3UFilesCreateM3UFileFromFormApiArg>({
+        query: (queryArg) => ({ url: `/api/m3ufiles/createm3ufilefromform`, method: 'POST', body: queryArg }),
+        invalidatesTags: ['M3UFiles']
+      }),
+      m3UFilesChangeM3UFileName: build.mutation<M3UFilesChangeM3UFileNameApiResponse, M3UFilesChangeM3UFileNameApiArg>({
+        query: (queryArg) => ({ url: `/api/m3ufiles/changem3ufilename`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['M3UFiles']
+      }),
+      m3UFilesDeleteM3UFile: build.mutation<M3UFilesDeleteM3UFileApiResponse, M3UFilesDeleteM3UFileApiArg>({
+        query: (queryArg) => ({ url: `/api/m3ufiles/deletem3ufile`, method: 'DELETE', body: queryArg }),
+        invalidatesTags: ['M3UFiles']
+      }),
+      m3UFilesGetM3UFile: build.query<M3UFilesGetM3UFileApiResponse, M3UFilesGetM3UFileApiArg>({
+        query: (queryArg) => ({ url: `/api/m3ufiles/${queryArg}` }),
+        providesTags: ['M3UFiles']
+      }),
+      m3UFilesGetPagedM3UFiles: build.query<M3UFilesGetPagedM3UFilesApiResponse, M3UFilesGetPagedM3UFilesApiArg>({
+        query: (queryArg) => ({
+          url: `/api/m3ufiles`,
+          params: {
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
+        }),
+        providesTags: ['M3UFiles']
+      }),
+      m3UFilesProcessM3UFile: build.mutation<M3UFilesProcessM3UFileApiResponse, M3UFilesProcessM3UFileApiArg>({
+        query: (queryArg) => ({ url: `/api/m3ufiles/processm3ufile`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['M3UFiles']
+      }),
+      m3UFilesRefreshM3UFile: build.mutation<M3UFilesRefreshM3UFileApiResponse, M3UFilesRefreshM3UFileApiArg>({
+        query: (queryArg) => ({ url: `/api/m3ufiles/refreshm3ufile`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['M3UFiles']
+      }),
+      m3UFilesScanDirectoryForM3UFiles: build.mutation<M3UFilesScanDirectoryForM3UFilesApiResponse, M3UFilesScanDirectoryForM3UFilesApiArg>({
+        query: () => ({ url: `/api/m3ufiles/scandirectoryform3ufiles`, method: 'PATCH' }),
+        invalidatesTags: ['M3UFiles']
+      }),
+      m3UFilesUpdateM3UFile: build.mutation<M3UFilesUpdateM3UFileApiResponse, M3UFilesUpdateM3UFileApiArg>({
+        query: (queryArg) => ({ url: `/api/m3ufiles/updatem3ufile`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['M3UFiles']
+      }),
+      m3UFilesGetM3UFileNames: build.query<M3UFilesGetM3UFileNamesApiResponse, M3UFilesGetM3UFileNamesApiArg>({
+        query: () => ({ url: `/api/m3ufiles/getm3ufilenames` }),
+        providesTags: ['M3UFiles']
+      }),
+      miscGetDownloadServiceStatus: build.query<MiscGetDownloadServiceStatusApiResponse, MiscGetDownloadServiceStatusApiArg>({
+        query: () => ({ url: `/api/misc/getdownloadservicestatus` }),
+        providesTags: ['Misc']
+      }),
+      miscGetTestM3U: build.query<MiscGetTestM3UApiResponse, MiscGetTestM3UApiArg>({
+        query: (queryArg) => ({ url: `/api/misc/gettestm3u`, params: { numberOfStreams: queryArg } }),
+        providesTags: ['Misc']
+      }),
       queueGetQueueStatus: build.query<QueueGetQueueStatusApiResponse, QueueGetQueueStatusApiArg>({
         query: () => ({ url: `/api/queue/getqueuestatus` }),
         providesTags: ['Queue']
@@ -745,7 +749,6 @@ export type EpgFilesCreateEpgFileApiArg = CreateEpgFileRequest;
 export type EpgFilesCreateEpgFileFromFormApiResponse = unknown;
 export type EpgFilesCreateEpgFileFromFormApiArg = {
   Description?: string | null;
-  EPGRank?: number;
   FormFile?: Blob | null;
   Name?: string;
   UrlSource?: string | null;
@@ -808,43 +811,6 @@ export type LogsGetLogApiArg = {
   lastId?: number;
   maxLines?: number;
 };
-export type M3UFilesCreateM3UFileApiResponse = unknown;
-export type M3UFilesCreateM3UFileApiArg = CreateM3UFileRequest;
-export type M3UFilesCreateM3UFileFromFormApiResponse = unknown;
-export type M3UFilesCreateM3UFileFromFormApiArg = {
-  Description?: string | null;
-  MaxStreamCount?: number;
-  StartingChannelNumber?: number | null;
-  FormFile?: Blob | null;
-  Name?: string;
-  UrlSource?: string | null;
-};
-export type M3UFilesChangeM3UFileNameApiResponse = unknown;
-export type M3UFilesChangeM3UFileNameApiArg = ChangeM3UFileNameRequest;
-export type M3UFilesDeleteM3UFileApiResponse = unknown;
-export type M3UFilesDeleteM3UFileApiArg = DeleteM3UFileRequest;
-export type M3UFilesGetM3UFileApiResponse = /** status 200  */ M3UFileDto;
-export type M3UFilesGetM3UFileApiArg = number;
-export type M3UFilesGetPagedM3UFilesApiResponse = /** status 200  */ PagedResponseOfM3UFileDto;
-export type M3UFilesGetPagedM3UFilesApiArg = {
-  pageNumber?: number;
-  pageSize?: number;
-  orderBy?: string;
-  jsonArgumentString?: string | null;
-  jsonFiltersString?: string | null;
-};
-export type M3UFilesProcessM3UFileApiResponse = unknown;
-export type M3UFilesProcessM3UFileApiArg = ProcessM3UFileRequest;
-export type M3UFilesRefreshM3UFileApiResponse = unknown;
-export type M3UFilesRefreshM3UFileApiArg = RefreshM3UFileRequest;
-export type M3UFilesScanDirectoryForM3UFilesApiResponse = unknown;
-export type M3UFilesScanDirectoryForM3UFilesApiArg = void;
-export type M3UFilesUpdateM3UFileApiResponse = unknown;
-export type M3UFilesUpdateM3UFileApiArg = UpdateM3UFileRequest;
-export type M3UFilesGetM3UFileNamesApiResponse = /** status 200  */ string[];
-export type M3UFilesGetM3UFileNamesApiArg = void;
-export type MiscGetDownloadServiceStatusApiResponse = /** status 200  */ ImageDownloadServiceStatus;
-export type MiscGetDownloadServiceStatusApiArg = void;
 export type ProgrammesGetProgrammeApiResponse = /** status 200  */ XmltvProgramme[];
 export type ProgrammesGetProgrammeApiArg = string;
 export type ProgrammesGetProgrammesApiResponse = /** status 200  */ XmltvProgramme[];
@@ -1024,6 +990,45 @@ export type FilesGetFileApiArg = {
   source: string;
   filetype: SmFileTypes;
 };
+export type M3UFilesCreateM3UFileApiResponse = unknown;
+export type M3UFilesCreateM3UFileApiArg = CreateM3UFileRequest;
+export type M3UFilesCreateM3UFileFromFormApiResponse = unknown;
+export type M3UFilesCreateM3UFileFromFormApiArg = {
+  Description?: string | null;
+  MaxStreamCount?: number;
+  StartingChannelNumber?: number | null;
+  FormFile?: Blob | null;
+  Name?: string;
+  UrlSource?: string | null;
+};
+export type M3UFilesChangeM3UFileNameApiResponse = unknown;
+export type M3UFilesChangeM3UFileNameApiArg = ChangeM3UFileNameRequest;
+export type M3UFilesDeleteM3UFileApiResponse = unknown;
+export type M3UFilesDeleteM3UFileApiArg = DeleteM3UFileRequest;
+export type M3UFilesGetM3UFileApiResponse = /** status 200  */ M3UFileDto;
+export type M3UFilesGetM3UFileApiArg = number;
+export type M3UFilesGetPagedM3UFilesApiResponse = /** status 200  */ PagedResponseOfM3UFileDto;
+export type M3UFilesGetPagedM3UFilesApiArg = {
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type M3UFilesProcessM3UFileApiResponse = unknown;
+export type M3UFilesProcessM3UFileApiArg = ProcessM3UFileRequest;
+export type M3UFilesRefreshM3UFileApiResponse = unknown;
+export type M3UFilesRefreshM3UFileApiArg = RefreshM3UFileRequest;
+export type M3UFilesScanDirectoryForM3UFilesApiResponse = unknown;
+export type M3UFilesScanDirectoryForM3UFilesApiArg = void;
+export type M3UFilesUpdateM3UFileApiResponse = unknown;
+export type M3UFilesUpdateM3UFileApiArg = UpdateM3UFileRequest;
+export type M3UFilesGetM3UFileNamesApiResponse = /** status 200  */ string[];
+export type M3UFilesGetM3UFileNamesApiArg = void;
+export type MiscGetDownloadServiceStatusApiResponse = /** status 200  */ ImageDownloadServiceStatus;
+export type MiscGetDownloadServiceStatusApiArg = void;
+export type MiscGetTestM3UApiResponse = unknown;
+export type MiscGetTestM3UApiArg = number;
 export type QueueGetQueueStatusApiResponse = /** status 200  */ TaskQueueStatus[];
 export type QueueGetQueueStatusApiArg = void;
 export type SettingsGetIsSystemReadyApiResponse = /** status 200  */ boolean;
@@ -1129,7 +1134,6 @@ export type GetChannelGroupsForStreamGroupRequest = {
 };
 export type CreateEpgFileRequest = {
   description?: string | null;
-  epgRank?: number;
   formFile?: Blob | null;
   name?: string;
   urlSource?: string | null;
@@ -1160,6 +1164,7 @@ export type BaseFileDto = {
   url: string;
 };
 export type EpgFileDto = BaseFileDto & {
+  epgNumber: number;
   color: string;
   channelCount: number;
   epgStartDate: string;
@@ -1223,54 +1228,6 @@ export type LogEntry = {
   timeStamp: string;
 };
 export type LogEntryDto = LogEntry & object;
-export type CreateM3UFileRequest = {
-  description?: string | null;
-  maxStreamCount?: number;
-  startingChannelNumber?: number | null;
-  formFile?: Blob | null;
-  name?: string;
-  urlSource?: string | null;
-};
-export type ChangeM3UFileNameRequest = {
-  id?: number;
-  name?: string;
-};
-export type DeleteM3UFileRequest = {
-  deleteFile?: boolean;
-  id?: number;
-};
-export type M3UFileDto = BaseFileDto & {
-  startingChannelNumber: number;
-  maxStreamCount: number;
-  stationCount: number;
-};
-export type PagedResponseOfM3UFileDto = {
-  data: M3UFileDto[];
-  pageNumber: number;
-  pageSize: number;
-  totalPageCount: number;
-  totalItemCount: number;
-  first: number;
-};
-export type ProcessM3UFileRequest = {
-  id?: number;
-};
-export type RefreshM3UFileRequest = {
-  id?: number;
-};
-export type UpdateM3UFileRequest = BaseFileRequest & {
-  maxStreamCount?: number | null;
-  startingChannelNumber?: number | null;
-};
-export type ImageDownloadServiceStatus = {
-  id?: number;
-  totalDownloadAttempts?: number;
-  totalInQueue?: number;
-  totalSuccessful?: number;
-  totalAlreadyExists?: number;
-  totalNoArt?: number;
-  totalErrors?: number;
-};
 export type XmltvText = {
   language?: string | null;
   text?: string | null;
@@ -1836,9 +1793,57 @@ export type VideoInfo = {
   format?: Format;
 };
 export type SmFileTypes = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
+export type CreateM3UFileRequest = {
+  description?: string | null;
+  maxStreamCount?: number;
+  startingChannelNumber?: number | null;
+  formFile?: Blob | null;
+  name?: string;
+  urlSource?: string | null;
+};
+export type ChangeM3UFileNameRequest = {
+  id?: number;
+  name?: string;
+};
+export type DeleteM3UFileRequest = {
+  deleteFile?: boolean;
+  id?: number;
+};
+export type M3UFileDto = BaseFileDto & {
+  startingChannelNumber: number;
+  maxStreamCount: number;
+  stationCount: number;
+};
+export type PagedResponseOfM3UFileDto = {
+  data: M3UFileDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalPageCount: number;
+  totalItemCount: number;
+  first: number;
+};
+export type ProcessM3UFileRequest = {
+  id?: number;
+};
+export type RefreshM3UFileRequest = {
+  id?: number;
+};
+export type UpdateM3UFileRequest = BaseFileRequest & {
+  maxStreamCount?: number | null;
+  startingChannelNumber?: number | null;
+};
+export type ImageDownloadServiceStatus = {
+  id?: number;
+  totalDownloadAttempts?: number;
+  totalInQueue?: number;
+  totalSuccessful?: number;
+  totalAlreadyExists?: number;
+  totalNoArt?: number;
+  totalErrors?: number;
+};
 export type TaskQueueStatus = {
   command?: string;
-  id?: string;
+  id?: number;
   isRunning?: boolean;
   queueTS?: string;
   startTS?: string;
@@ -2043,18 +2048,6 @@ export const {
   useIconsGetPagedIconsQuery,
   useIconsGetIconsSimpleQueryQuery,
   useLogsGetLogQuery,
-  useM3UFilesCreateM3UFileMutation,
-  useM3UFilesCreateM3UFileFromFormMutation,
-  useM3UFilesChangeM3UFileNameMutation,
-  useM3UFilesDeleteM3UFileMutation,
-  useM3UFilesGetM3UFileQuery,
-  useM3UFilesGetPagedM3UFilesQuery,
-  useM3UFilesProcessM3UFileMutation,
-  useM3UFilesRefreshM3UFileMutation,
-  useM3UFilesScanDirectoryForM3UFilesMutation,
-  useM3UFilesUpdateM3UFileMutation,
-  useM3UFilesGetM3UFileNamesQuery,
-  useMiscGetDownloadServiceStatusQuery,
   useProgrammesGetProgrammeQuery,
   useProgrammesGetProgrammesQuery,
   useSchedulesDirectAddLineupMutation,
@@ -2120,6 +2113,19 @@ export const {
   useVideoStreamsGetVideoStreamInfoFromIdQuery,
   useVideoStreamsGetVideoStreamInfoFromUrlQuery,
   useFilesGetFileQuery,
+  useM3UFilesCreateM3UFileMutation,
+  useM3UFilesCreateM3UFileFromFormMutation,
+  useM3UFilesChangeM3UFileNameMutation,
+  useM3UFilesDeleteM3UFileMutation,
+  useM3UFilesGetM3UFileQuery,
+  useM3UFilesGetPagedM3UFilesQuery,
+  useM3UFilesProcessM3UFileMutation,
+  useM3UFilesRefreshM3UFileMutation,
+  useM3UFilesScanDirectoryForM3UFilesMutation,
+  useM3UFilesUpdateM3UFileMutation,
+  useM3UFilesGetM3UFileNamesQuery,
+  useMiscGetDownloadServiceStatusQuery,
+  useMiscGetTestM3UQuery,
   useQueueGetQueueStatusQuery,
   useSettingsGetIsSystemReadyQuery,
   useSettingsGetSettingQuery,

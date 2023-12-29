@@ -2,22 +2,21 @@ using Microsoft.Extensions.Caching.Memory;
 
 using Prometheus;
 
+using StreamMaster.API;
 using StreamMaster.Application;
 using StreamMaster.Application.Hubs;
-
+using StreamMaster.Domain.Cache;
+using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure;
+using StreamMaster.Infrastructure.EF;
 using StreamMaster.Infrastructure.Logging;
 using StreamMaster.Infrastructure.Middleware;
 using StreamMaster.SchedulesDirect.Services;
-using StreamMaster.Infrastructure.EF;
 
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
-using StreamMaster.Domain.Services;
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Cache;
-using StreamMaster.API;
 
 FileUtil.SetupDirectories();
 
@@ -90,7 +89,8 @@ builder.Services.AddControllers(options =>
 WebApplication app = builder.Build();
 
 app.UseOpenApi();
-app.UseSwaggerUi3();
+app.UseSwaggerUi();
+//app.UseSwaggerUi3();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -127,7 +127,7 @@ using (IServiceScope scope = app.Services.CreateScope())
     {
         initialiser.TrySeed();
     }
-      
+
 
     var mem = scope.ServiceProvider.GetRequiredService<IMemoryCache>();
     var setting = FileUtil.GetSetting();

@@ -1,14 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Requests;
-
 using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.StreamGroups.Commands;
@@ -16,7 +8,13 @@ using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Application.VideoStreams;
 using StreamMaster.Application.VideoStreams.Commands;
 using StreamMaster.Application.VideoStreams.Queries;
-
+using StreamMaster.Domain.Authentication;
+using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Dto;
+using StreamMaster.Domain.Enums;
+using StreamMaster.Domain.Models;
+using StreamMaster.Domain.Pagination;
+using StreamMaster.Domain.Requests;
 using StreamMaster.Infrastructure.VideoStreamManager.Clients;
 
 namespace StreamMasterAPI.Controllers;

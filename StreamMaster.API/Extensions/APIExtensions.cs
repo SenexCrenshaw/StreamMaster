@@ -1,9 +1,5 @@
 ﻿using AutoMapper;
 
-using StreamMaster.SchedulesDirect;
-
-using StreamMaster.Domain.Pagination;
-
 using System.Text.Json;
 
 namespace StreamMasterAPI.Extensions;
@@ -13,7 +9,7 @@ public static class APIExtensions
     public static PagedList<TDestination> GetPagedResult<TSource, TDestination>(PagedList<TSource> source, HttpResponse Response, IMapper mapper)
     {
         var json = JsonSerializer.Serialize(source.GetMetaData());
-        Response.Headers.Add("X-Pagination", json);
+        Response.Headers.Append("X-Pagination", json);
 
         List<TDestination> destination = mapper.Map<List<TDestination>>(source);
 
@@ -25,7 +21,7 @@ public static class APIExtensions
     public static PagedList<TDestination> GetPagedResult<TSource, TDestination>(IPagedList<TSource> source, HttpResponse Response, IMapper mapper)
     {
         var json = JsonSerializer.Serialize(source.GetMetaData());
-        Response.Headers.Add("X-Pagination", json);
+        Response.Headers.Append("X-Pagination", json);
 
         List<TDestination> destination = mapper.Map<List<TDestination>>(source);
 

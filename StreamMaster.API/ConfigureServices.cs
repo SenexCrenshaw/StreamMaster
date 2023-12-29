@@ -4,6 +4,7 @@ using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -25,7 +26,6 @@ using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.Authentication;
 using StreamMaster.Infrastructure.EF;
 using StreamMaster.Infrastructure.Logger;
-using StreamMaster.Infrastructure.Services;
 using StreamMaster.Infrastructure.Services.Frontend;
 using StreamMaster.Infrastructure.Services.QueueService;
 
@@ -66,6 +66,7 @@ public static class ConfigureServices
 
         });
 
+        services.AddHttpLogging(o => o = new HttpLoggingOptions());
         services.UseHttpClientMetrics();
 
         services.AddTransient(typeof(ILogger<>), typeof(CustomLogger<>));
@@ -151,7 +152,7 @@ public static class ConfigureServices
         _ = services.AddOpenApiDocument(configure =>
         {
             configure.Title = "StreamMaster API";
-            configure.SchemaProcessors.Add(new InheritanceSchemaProcessor());
+            configure.SchemaSettings.SchemaProcessors.Add(new InheritanceSchemaProcessor());
 
             configure.AddSecurity("apikey", Enumerable.Empty<string>(), new OpenApiSecurityScheme
             {
