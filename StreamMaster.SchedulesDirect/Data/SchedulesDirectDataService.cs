@@ -94,13 +94,12 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, IXM
         List<StationChannelName> ret = [];
 
         foreach (MxfService station in AllServices.Where(a => !a.StationId.StartsWith("DUMMY-")))
-
         {
             string channelNameSuffix = station.CallSign;
 
             StationChannelName stationChannelName = new()
             {
-                Channel = station.StationId,
+                Channel = $"{station.EPGNumber}-{station.StationId}",
                 DisplayName = $"[{station.CallSign}] {station.Name}",
                 ChannelName = station.CallSign
             };

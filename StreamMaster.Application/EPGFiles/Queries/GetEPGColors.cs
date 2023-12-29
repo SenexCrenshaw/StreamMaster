@@ -25,9 +25,7 @@ internal class GetEPGColorsHandler(ILogger<GetEPGColors> logger, IRepositoryWrap
             ret.Add(new EPGColorDto
             {
                 Id = index++,
-                //EPGFileId = svc.EPGNumber,
-                //CallSign = svc.CallSign,
-                StationId = svc.StationId,
+                StationId = $"{svc.EPGNumber}-{svc.StationId}",
                 Color = color,
             });
 

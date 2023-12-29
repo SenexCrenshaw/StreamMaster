@@ -1153,8 +1153,6 @@ export type DeleteEpgFileRequest = {
 };
 export type EpgColorDto = {
   id?: number;
-  epgFileId?: number;
-  callSign?: string;
   stationId?: string;
   color?: string;
 };

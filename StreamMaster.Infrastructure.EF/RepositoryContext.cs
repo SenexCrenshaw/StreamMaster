@@ -7,14 +7,8 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.Infrastructure.EF
 {
-    public class RepositoryContext : DbContext, IDataProtectionKeyContext
+    public class RepositoryContext(DbContextOptions<RepositoryContext> options) : DbContext(options), IDataProtectionKeyContext
     {
-        public RepositoryContext(DbContextOptions<RepositoryContext> options)
-          : base(options)
-        {
-            DbPath = Path.Join(BuildInfo.DataFolder, "StreamMaster.db");
-        }
-
         public async Task VacuumDatabaseAsync()
         {
             await Database.ExecuteSqlRawAsync("VACUUM;");
@@ -30,13 +24,8 @@ namespace StreamMaster.Infrastructure.EF
 
             if (currentMigration.Equals("20231229192654_SystemKeyValues") && !SystemKeyValues.Any(a => a.Key == "MigratedDB" && a.Value == "20231229192654_SystemKeyValues"))
             {
-                var videoStreams = VideoStreams.Where(a => a.User_Tvg_ID != null &&
-                a.User_Tvg_ID != "" &&
-                    (
-                        !Regex.IsMatch(a.User_Tvg_ID, @"^\d+-") ||
-                        !Regex.IsMatch(a.Tvg_ID, @"^\d+-")
-                    )
-                ).ToList();
+                var videoStreams = VideoStreams.Where(a => a.User_Tvg_ID != null && a.User_Tvg_ID != "" && !Regex.IsMatch(a.User_Tvg_ID, @"^\d+-")).ToList();
+
                 if (videoStreams.Count == 0)
                 {
                     SystemKeyValues.Add(new SystemKeyValue { Key = "MigratedDB", Value = "20231229192654_SystemKeyValues" });
@@ -51,17 +40,6 @@ namespace StreamMaster.Infrastructure.EF
 
                 foreach (var videoStream in videoStreams)
                 {
-                    if (!string.IsNullOrEmpty(videoStream.Tvg_ID))
-                    {
-                        var service = allServices.FirstOrDefault(a => a.StationId == videoStream.Tvg_ID);
-                        if (service != null)
-                        {
-                            var EPGID = $"{service.EPGNumber}-{videoStream.Tvg_ID}";
-                            videoStream.Tvg_ID = EPGID;
-                            updated = true;
-                        }
-                    }
-
                     if (!string.IsNullOrEmpty(videoStream.User_Tvg_ID))
                     {
                         var service = allServices.FirstOrDefault(a => a.StationId == videoStream.User_Tvg_ID);
@@ -101,7 +79,7 @@ namespace StreamMaster.Infrastructure.EF
         }
 
 
-        public string DbPath { get; }
+        public string DbPath { get; } = Path.Join(BuildInfo.DataFolder, "StreamMaster.db");
 
         public DbSet<SystemKeyValue> SystemKeyValues { get; set; }
 

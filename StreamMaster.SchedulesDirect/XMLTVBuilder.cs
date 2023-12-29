@@ -17,6 +17,8 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
     private ISchedulesDirectDataService schedulesDirectDataService;
     private readonly Dictionary<int, MxfSeriesInfo> seriesDict = [];
     private Dictionary<string, string> keywordDict = [];
+
+
     [LogExecutionTimeAspect]
     public XMLTV? CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs, ISchedulesDirectDataService schedulesDirectDataService)
     {
@@ -75,16 +77,16 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
             {
                 string prefix = videoStreamConfig.IsDummy ? "DUMMY" : "SM";
 
-                string stationId = videoStreamConfig.User_Tvg_chno.ToString();// $"{prefix}-{videoStreamConfig.Id}";
+                (int epgNumber, string stationId) = videoStreamConfig.User_Tvg_ID.ExtractEPGNumberAndStationId();
 
-                MxfService? origService = services.FirstOrDefault(a => a.StationId == videoStreamConfig.User_Tvg_ID);
+                MxfService? origService = services.FirstOrDefault(a => a.StationId == stationId && a.EPGNumber == epgNumber);
 
                 if (origService == null)
                 {
                     continue;
                 }
 
-                MxfService newService = new(newServiceCount++, stationId);// schedulesDirectDataService.FindOrCreateService(stationId);
+                MxfService newService = new(newServiceCount++, videoStreamConfig.User_Tvg_ID);// schedulesDirectDataService.FindOrCreateService(stationId);
 
                 if (origService.MxfScheduleEntries is not null)
                 {

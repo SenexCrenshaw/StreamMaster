@@ -114,8 +114,10 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
     {
         bool showM3UFieldTvgId = setting.M3UFieldTvgId;
 
-        bool isUserTvgIdInvalid = string.IsNullOrEmpty(videoStream.User_Tvg_ID)
-                      || StringComparer.OrdinalIgnoreCase.Equals(videoStream.User_Tvg_ID, "dummy");
+        (int epgNumber, string stationId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
+
+        bool isUserTvgIdInvalid = string.IsNullOrEmpty(stationId)
+                      || StringComparer.OrdinalIgnoreCase.Equals(stationId, "dummy");
 
         if (setting.M3UIgnoreEmptyEPGID && isUserTvgIdInvalid)
         {
@@ -184,6 +186,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
             if (!string.IsNullOrEmpty(videoStream.GroupTitle))
             {
                 fieldList.Add($"group-title=\"{videoStream.GroupTitle}\"");
+                fieldList.Add($"tvc-guide-categories\r\n=\"{videoStream.GroupTitle.Replace(';', ',')}\"");
             }
             else
             {
@@ -191,6 +194,12 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
             }
 
         }
+
+        if (epgNumber == 0)
+        {
+            fieldList.Add($"tvc-guide-stationid=\"{stationId}\"");
+        }
+
 
         string lines = string.Join(" ", fieldList.ToArray());
         lines += $",{videoStream.User_Tvg_name}\r\n";
