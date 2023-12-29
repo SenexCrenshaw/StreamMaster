@@ -78,4 +78,5 @@ public class MxfService
         get => _logoImage ?? mxfGuideImage?.Id ?? "";
         set => _logoImage = value;
     }
+    public int ChNo { get; set; }
 }

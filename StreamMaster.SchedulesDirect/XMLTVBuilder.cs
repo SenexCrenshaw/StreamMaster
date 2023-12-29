@@ -93,6 +93,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
                     newService.MxfScheduleEntries = origService.MxfScheduleEntries;
                 }
 
+                newService.ChNo = videoStreamConfig.User_Tvg_chno;
                 newService.Name = videoStreamConfig.User_Tvg_name;
                 newService.Affiliate = origService.Affiliate;
                 newService.CallSign = origService.CallSign;
@@ -159,7 +160,8 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
                         }
 
                         List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
-                        string channelId = service.StationId;
+
+                        string channelId = service.ChNo.ToString();
 
                         Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, scheduleEntry =>
                     {
@@ -175,8 +177,23 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
                 {
                     int aa = 1;
                 }
-                xmlTv.Channels = [.. xmlTv.Channels.OrderBy(a => a.Id)];
-                xmlTv.Programs = [.. xmlTv.Programs.OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime)];
+                //xmlTv.Channels = [.. xmlTv.Channels.OrderBy(a => a.Id)];
+                xmlTv.Channels = xmlTv.Channels
+          .Select(c => new { Channel = c, IsNumeric = int.TryParse(c.Id, out var num), NumericId = num })
+          .OrderBy(c => c.IsNumeric)
+          .ThenBy(c => c.NumericId)
+          .Select(c => c.Channel)
+          .ToList();
+
+                xmlTv.Programs = xmlTv.Programs
+        .Select(c => new { Program = c, IsNumeric = int.TryParse(c.Channel, out var num), NumericId = num })
+        .OrderBy(c => c.IsNumeric)
+        .ThenBy(c => c.NumericId)
+        .ThenBy(c => c.Program.StartDateTime)
+        .Select(c => c.Program)
+        .ToList();
+
+                // xmlTv.Programs = [.. xmlTv.Programs.OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime)];
 
             }
             catch (Exception ex)
@@ -259,10 +276,14 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
     {
         Setting settings = memoryCache.GetSetting();
 
+        //(int epgNumber, string stationId) = mxfService.StationId.ExtractEPGNumberAndStationId();
+
+        //var id = videoStreamConfigs.FirstOrDefault(a => a.User_Tvg_ID.Equals(mxfService.StationId))?.User_Tvg_chno ?? 0;
+
         // initialize the return channel
         XmltvChannel ret = new()
         {
-            Id = mxfService.StationId,
+            Id = mxfService.ChNo.ToString(),
             DisplayNames = []
         };
 
