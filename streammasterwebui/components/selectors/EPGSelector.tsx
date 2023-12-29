@@ -64,7 +64,7 @@ const EPGSelector: React.FC<Partial<EPGSelectorProperties>> = ({ enableEditMode 
     if (entry?.color) {
       color = entry.color;
     }
-    console.log('inputString', inputString);
+
     if (beforeCallSign === '[' + afterCallSign + ']') {
       return (
         <div className="flex grid w-full align-items-center p-0 m-0">
