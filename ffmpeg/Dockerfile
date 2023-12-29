@@ -1,4 +1,4 @@
-ARG CUDAVER=12.3.0
+ARG CUDAVER=12.3.1
 ARG UBUNTUVER=22.04
 
 FROM nvidia/cuda:${CUDAVER}-devel-ubuntu${UBUNTUVER} AS build
