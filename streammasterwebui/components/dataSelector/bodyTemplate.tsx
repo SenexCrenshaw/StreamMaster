@@ -26,6 +26,7 @@ function imageBodyTemplate(data: object, fieldName: string, defaultIcon: string)
         style={{
           objectFit: 'contain'
         }}
+        loading="lazy"
       />
     </div>
   );

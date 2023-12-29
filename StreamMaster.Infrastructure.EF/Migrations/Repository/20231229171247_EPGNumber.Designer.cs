@@ -2,17 +2,20 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StreamMaster.Infrastructure.EF;
 
 #nullable disable
 
-namespace StreamMaster.Infrastructure.Persistence.Migrations
+namespace StreamMaster.Infrastructure.EF.Migrations.Repository
 {
     [DbContext(typeof(RepositoryContext))]
-    partial class RepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20231229171247_EPGNumber")]
+    partial class EPGNumber
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -269,25 +272,6 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
                     b.HasIndex("StreamGroupId");
 
                     b.ToTable("StreamGroupVideoStreams");
-                });
-
-            modelBuilder.Entity("StreamMaster.Domain.Models.SystemKeyValue", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Key")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SystemKeyValues");
                 });
 
             modelBuilder.Entity("StreamMaster.Domain.Models.VideoStream", b =>

@@ -1,16 +1,12 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 using StreamMaster.Application.M3UFiles.Commands;
 
 namespace StreamMaster.Application.EPGFiles.Commands;
 
 public class UpdateEPGFileRequest : BaseFileRequest, IRequest<EPGFileDto?>
 {
+    public int? EPGNumber { get; set; }
     public string? Color { get; set; }
 }
 
@@ -43,6 +39,20 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
                 isChanged = true;
                 epgFile.Description = request.Description;
             }
+
+            if (request.EPGNumber != null && request.EPGNumber > 0 && epgFile.EPGNumber != request.EPGNumber)
+            {
+                isChanged = true;
+                if (!Repository.EPGFile.FindByCondition(x => x.EPGNumber == request.EPGNumber).Any())
+                {
+                    epgFile.EPGNumber = (int)request.EPGNumber;
+                }
+                else
+                {
+
+                }
+            }
+
 
             if (request.Url != null && epgFile.Url != request.Url)
             {

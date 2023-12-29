@@ -25,16 +25,16 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
         public int NumberOfParts;
     }
 
-    public XMLTV? ConvertToMxf(string filePath, int EPGId)
+    public XMLTV? ConvertToMxf(string filePath, int EPGNumber)
     {
 
         XMLTV? xmlTv = FileUtil.ReadXmlFile(filePath);
-        return xmlTv == null ? null : ConvertToMxf(xmlTv, EPGId);
+        return xmlTv == null ? null : ConvertToMxf(xmlTv, EPGNumber);
     }
 
-    public XMLTV? ConvertToMxf(XMLTV xmlTv, int EPGId)
+    private XMLTV? ConvertToMxf(XMLTV xmlTv, int EPGNumber)
     {
-        schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(EPGId);
+        schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(EPGNumber);
 
         if (
             !BuildLineupAndChannelServices(xmlTv) ||

@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Pagination;
-
 using StreamMaster.Application.EPGFiles;
 using StreamMaster.Application.EPGFiles.Commands;
 using StreamMaster.Application.EPGFiles.Queries;
+using StreamMaster.Domain.Dto;
+using StreamMaster.Domain.Pagination;
 
 namespace StreamMasterAPI.Controllers;
 
@@ -56,6 +55,13 @@ public class EPGFilesController : ApiControllerBase, IEPGFileController
     public async Task<ActionResult<List<EPGFilePreviewDto>>> GetEPGFilePreviewById(int id)
     {
         return Ok(await Mediator.Send(new GetEPGFilePreviewById(id)).ConfigureAwait(false));
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<int>> GetEPGNextEPGNumber()
+    {
+        return Ok(await Mediator.Send(new GetEPGNextEPGNumber()).ConfigureAwait(false));
     }
 
     [HttpGet]

@@ -1,9 +1,7 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Pagination;
-
-using StreamMaster.Application.EPGFiles;
+﻿using StreamMaster.Application.EPGFiles;
 using StreamMaster.Application.EPGFiles.Commands;
 using StreamMaster.Application.EPGFiles.Queries;
+using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Application.Hubs;
 
@@ -25,6 +23,13 @@ public partial class StreamMasterHub : IEPGFileHub
         return a;
     }
 
+    public async Task<int> GetEPGNextEPGNumber(object nothing)
+    {
+        var a = await mediator.Send(new GetEPGNextEPGNumber()).ConfigureAwait(false);
+        return a;
+
+    }
+
     public async Task<EPGFileDto?> GetEPGFile(int id)
     {
         return await mediator.Send(new GetEPGFile(id)).ConfigureAwait(false);
@@ -34,6 +39,8 @@ public partial class StreamMasterHub : IEPGFileHub
     {
         return await mediator.Send(new GetEPGFilePreviewById(id)).ConfigureAwait(false);
     }
+
+
 
     public async Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(EPGFileParameters parameters)
     {

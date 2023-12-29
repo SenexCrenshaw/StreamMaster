@@ -2,9 +2,10 @@
 
 using Microsoft.Extensions.Caching.Memory;
 
-using StreamMaster.Domain.Common;
-
 using StreamMaster.Application.Services;
+using StreamMaster.Domain.Common;
+using StreamMaster.Infrastructure.EF;
+using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 namespace StreamMasterAPI.Services;
 
@@ -15,15 +16,16 @@ public class PostStartup : BackgroundService
     private readonly IBackgroundTaskQueue _taskQueue;
     private readonly IMemoryCache _memoryCache;
     private readonly IMapper _mapper;
+    private readonly IServiceProvider serviceProvider;
     public PostStartup(
         ILogger<PostStartup> logger,
-
+        IServiceProvider serviceProvider,
         IMapper mapper,
         IMemoryCache memoryCache,
         IBackgroundTaskQueue taskQueue
         )
     {
-        (_logger, _taskQueue, _memoryCache, _mapper) = (logger, taskQueue, memoryCache, mapper);
+        (_logger, _taskQueue, _memoryCache, _mapper, this.serviceProvider) = (logger, taskQueue, memoryCache, mapper, serviceProvider);
     }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -36,14 +38,6 @@ public class PostStartup : BackgroundService
         _logger.LogInformation($"Stream Master is startting.");
 
         await _taskQueue.EPGSync(cancellationToken).ConfigureAwait(false);
-        //await _hubContext.Clients.All.SystemStatusUpdate(new StreamMasterApplication.Settings.Queries.SystemStatus { IsSystemReady = false }).ConfigureAwait(false);
-
-        // await _taskQueue.ScanDirectoryForIconFiles(cancellationToken).ConfigureAwait(false);
-
-        //_sender.Send(new StreamMasterApplication.Settings.Queries.SystemStatus { IsSystemReady = false }, cancellationToken);
-
-        //await _taskQueue.ReadDirectoryLogosRequest(cancellationToken).ConfigureAwait(false);
-
 
 
         if (await IconHelper.ReadDirectoryLogos(_memoryCache, cancellationToken).ConfigureAwait(false))
@@ -56,10 +50,7 @@ public class PostStartup : BackgroundService
 
         await _taskQueue.ScanDirectoryForM3UFiles(cancellationToken).ConfigureAwait(false);
 
-
         await _taskQueue.UpdateChannelGroupCounts(cancellationToken).ConfigureAwait(false);
-
-        //await _taskQueue.ProcessM3UFiles(cancellationToken).ConfigureAwait(false);
 
         await _taskQueue.BuildIconCaches(cancellationToken).ConfigureAwait(false);
 
@@ -72,6 +63,9 @@ public class PostStartup : BackgroundService
 
         await _taskQueue.SetIsSystemReady(true, cancellationToken).ConfigureAwait(false);
 
-        //await _taskQueue.CacheAllIcons(cancellationToken).ConfigureAwait(false);
+        using IServiceScope scope = serviceProvider.CreateScope();
+        RepositoryContext repositoryContext = scope.ServiceProvider.GetRequiredService<RepositoryContext>();
+        ISchedulesDirectDataService schedulesDirectService = scope.ServiceProvider.GetRequiredService<ISchedulesDirectDataService>();
+        await repositoryContext.MigrateData(schedulesDirectService.AllServices);
     }
 }

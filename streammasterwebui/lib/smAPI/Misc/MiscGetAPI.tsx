@@ -6,3 +6,6 @@ import { invokeHubConnection } from '@lib/signalr/signalr';
 
 export const GetDownloadServiceStatus = async (argument: iptv.ImageDownloadServiceStatus): Promise<iptv.ImageDownloadServiceStatus | null> =>
   invokeHubConnection<iptv.ImageDownloadServiceStatus>('GetDownloadServiceStatus', argument);
+export const GetTestM3U = async (argument: number): Promise<void | null> => {
+  await invokeHubConnection<void>('GetTestM3U', argument);
+};

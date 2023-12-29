@@ -4,9 +4,6 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Repository;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.Models;
 
@@ -17,6 +14,26 @@ namespace StreamMaster.Infrastructure.EF.Repositories;
 /// </summary>
 public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper) : RepositoryBase<EPGFile>(repositoryContext, logger), IEPGFileRepository
 {
+    public async Task<int> GetNextAvailableEPGNumberAsync(CancellationToken cancellationToken)
+    {
+        var epgNumbers = await FindAll()
+                                        .Select(x => x.EPGNumber)
+                                        .OrderBy(x => x)
+                                        .ToListAsync(cancellationToken)
+                                        .ConfigureAwait(false);
+
+        int nextAvailableNumber = 1;
+        foreach (var num in epgNumbers)
+        {
+            if (num != nextAvailableNumber)
+            {
+                break;
+            }
+            nextAvailableNumber++;
+        }
+
+        return nextAvailableNumber;
+    }
     public async Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int Id, CancellationToken cancellationToken)
     {
         if (Id < 0)
@@ -30,7 +47,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryCont
             return [];
         }
 
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(epgFile.Id);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(epgFile.EPGNumber);
 
         ICollection<MxfService> services = schedulesDirectData.Services.Values;
         List<EPGFilePreviewDto> ret = [];
@@ -177,8 +194,12 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryCont
 
     public List<EPGColorDto> GetEPGColors()
     {
-
         return [.. FindAll().ProjectTo<EPGColorDto>(mapper.ConfigurationProvider)];
 
+    }
+
+    public async Task<EPGFile?> GetEPGFileByNumber(int EPGNumber)
+    {
+        return await FindByCondition(a => a.EPGNumber == EPGNumber).FirstOrDefaultAsync();
     }
 }

@@ -171,7 +171,12 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
           <div className="flex col-12 justify-content-start align-items-center p-0 m-0">
             {/* Image */}
             <div className="flex col-2 justify-content-center align-items-center">
-              <img alt={iconSource ?? 'Logo'} className="icon-template-large" src={getIconUrl(iconSource, settings.defaultIcon, settings.cacheIcon)} />
+              <img
+                loading="lazy"
+                alt={iconSource ?? 'Logo'}
+                className="icon-template-large"
+                src={getIconUrl(iconSource, settings.defaultIcon, settings.cacheIcon)}
+              />
             </div>
 
             <div className="flex flex-wrap col-10 left_border justify-content-between">

@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
+using StreamMaster.SchedulesDirect.Domain.Models;
+
+using System.Text.RegularExpressions;
+
 namespace StreamMaster.Infrastructure.EF
 {
     public class RepositoryContext : DbContext, IDataProtectionKeyContext
@@ -16,7 +20,91 @@ namespace StreamMaster.Infrastructure.EF
             await Database.ExecuteSqlRawAsync("VACUUM;");
         }
 
+        public async Task MigrateData(List<MxfService> allServices)
+        {
+            var currentMigration = Database.GetAppliedMigrations().LastOrDefault();
+            if (currentMigration == null)
+            {
+                return;
+            }
+
+            if (currentMigration.Equals("20231229192654_SystemKeyValues") && !SystemKeyValues.Any(a => a.Key == "MigratedDB" && a.Value == "20231229192654_SystemKeyValues"))
+            {
+                var videoStreams = VideoStreams.Where(a => a.User_Tvg_ID != null &&
+                a.User_Tvg_ID != "" &&
+                    (
+                        !Regex.IsMatch(a.User_Tvg_ID, @"^\d+-") ||
+                        !Regex.IsMatch(a.Tvg_ID, @"^\d+-")
+                    )
+                ).ToList();
+                if (videoStreams.Count == 0)
+                {
+                    SystemKeyValues.Add(new SystemKeyValue { Key = "MigratedDB", Value = "20231229192654_SystemKeyValues" });
+                    await SaveChangesAsync().ConfigureAwait(false);
+                    return;
+                }
+
+                Console.WriteLine($"Migrating {videoStreams.Count} video streams to new EPGNumber format");
+                var updateCount = 0;
+                var updated = false;
+
+
+                foreach (var videoStream in videoStreams)
+                {
+                    if (!string.IsNullOrEmpty(videoStream.Tvg_ID))
+                    {
+                        var service = allServices.FirstOrDefault(a => a.StationId == videoStream.Tvg_ID);
+                        if (service != null)
+                        {
+                            var EPGID = $"{service.EPGNumber}-{videoStream.Tvg_ID}";
+                            videoStream.Tvg_ID = EPGID;
+                            updated = true;
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(videoStream.User_Tvg_ID))
+                    {
+                        var service = allServices.FirstOrDefault(a => a.StationId == videoStream.User_Tvg_ID);
+                        if (service != null)
+                        {
+                            var EPGID = $"{service.EPGNumber}-{videoStream.User_Tvg_ID}";
+                            videoStream.User_Tvg_ID = EPGID;
+                            updated = true;
+                        }
+
+                    }
+
+                    if (updated)
+                    {
+                        ++updateCount;
+                        updated = false;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                    if (updateCount % 500 == 0)
+                    {
+                        updateCount = 0;
+                        await SaveChangesAsync().ConfigureAwait(false);
+                    }
+
+                }
+
+                SystemKeyValues.Add(new SystemKeyValue { Key = "MigratedDB", Value = "20231229192654_SystemKeyValues" });
+                await SaveChangesAsync().ConfigureAwait(false);
+
+                Console.WriteLine("Completed migrating data to new EPGNumber format");
+
+            }
+        }
+
+
         public string DbPath { get; }
+
+        public DbSet<SystemKeyValue> SystemKeyValues { get; set; }
+
         public DbSet<EPGFile> EPGFiles { get; set; }
         public DbSet<M3UFile> M3UFiles { get; set; }
         public DbSet<VideoStreamLink> VideoStreamLinks { get; set; }

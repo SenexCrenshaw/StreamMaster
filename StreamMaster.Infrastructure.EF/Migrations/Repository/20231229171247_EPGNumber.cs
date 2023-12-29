@@ -14,6 +14,8 @@ namespace StreamMaster.Infrastructure.EF.Migrations.Repository
                 name: "EPGRank",
                 table: "EPGFiles",
                 newName: "EPGNumber");
+
+            migrationBuilder.Sql("UPDATE EPGFiles SET EPGNumber = Id where EPGNumber='0'");
         }
 
         /// <inheritdoc />

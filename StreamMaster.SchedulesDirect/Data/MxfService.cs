@@ -19,7 +19,7 @@ public partial class SchedulesDirectData
     {
         (MxfService service, bool created) = Services.FindOrCreateWithStatus(stationId, key => new MxfService(Services.Count + 1, stationId)
         {
-            EPGId = EPGId
+            EPGNumber = EPGNumber
         });
         if (created)
         {

@@ -22,7 +22,7 @@ const IconSelector: React.FC<Partial<IconSelectorProperties>> = ({ enableEditMod
 
     return (
       <div className="icon-template">
-        <img alt="Icon logo" src={iconUrl} />
+        <img alt="Icon logo" src={iconUrl} loading="lazy" />
       </div>
     );
   };
@@ -34,7 +34,7 @@ const IconSelector: React.FC<Partial<IconSelectorProperties>> = ({ enableEditMod
 
     return (
       <div className="icon-option-template">
-        <img alt={option?.name || 'name'} src={iconUrl} />
+        <img alt={option?.name || 'name'} src={iconUrl} loading="lazy" />
         <div className="icon-option-name">{option?.name}</div>
       </div>
     );
@@ -50,7 +50,7 @@ const IconSelector: React.FC<Partial<IconSelectorProperties>> = ({ enableEditMod
   if (!enableEditMode) {
     const iconUrl = getIconUrl(restProperties.value ?? '', setting.defaultIconUrl, false);
 
-    return <img alt="logo" className="default-icon" src={iconUrl} />;
+    return <img alt="logo" className="default-icon" src={iconUrl} loading="lazy" />;
   }
 
   return (

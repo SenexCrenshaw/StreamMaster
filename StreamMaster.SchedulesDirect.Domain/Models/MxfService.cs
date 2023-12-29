@@ -14,7 +14,7 @@ public class MxfService
     public MxfScheduleEntries MxfScheduleEntries;
 
     [XmlIgnore] public Dictionary<string, dynamic> extras = [];
-    [XmlIgnore] public int EPGId;
+    [XmlIgnore] public int EPGNumber;
     public MxfService(int index, string stationId)
     {
         _index = index;

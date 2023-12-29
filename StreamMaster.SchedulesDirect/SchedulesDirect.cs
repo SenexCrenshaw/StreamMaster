@@ -52,7 +52,7 @@ public partial class SchedulesDirect : ISchedulesDirect
         }
     }
 
-    public async Task<bool> SDSync(int EPGID, CancellationToken cancellationToken)
+    public async Task<bool> SDSync(int EPGNumber, CancellationToken cancellationToken)
     {
 
         try
@@ -90,8 +90,8 @@ public partial class SchedulesDirect : ISchedulesDirect
             logger.LogInformation($"DaysToDownload: {setting.SDSettings.SDEPGDays}");
 
             // load cache file
-            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(EPGID);
-            if (EPGID == 0)
+            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(EPGNumber);
+            if (EPGNumber == 0)
             {
                 epgCache.LoadCache();
             }
@@ -107,7 +107,7 @@ public partial class SchedulesDirect : ISchedulesDirect
                     BuildKeywords()
                 )
             {
-                if (EPGID == 0)
+                if (EPGNumber == 0)
                 {
                     epgCache.WriteCache();
                 }

@@ -7,6 +7,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { upload } from '@lib/FileUploadService';
 import { isValidUrl } from '@lib/common/common';
 import { M3UFileStreamUrlPrefix } from '@lib/common/streammaster_enums';
+import { GetEpgNextEpgNumber } from '@lib/smAPI/EpgFiles/EpgFilesGetAPI';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import AddButton from '../buttons/AddButton';
@@ -37,6 +38,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
   const [activeFile, setActiveFile] = useState<File | undefined>();
   const [name, setName] = useState<string>('');
   const [maxStreams, setMaxStreams] = useState<number>(1);
+  const [epgNumber, setEpgNumber] = useState<number | undefined>(undefined);
   const [startingChannelNumber, setStartingChannelNumber] = useState<number>(1);
   const [progress, setProgress] = useState<number>(0);
   const [source, setSource] = useState<string>('');
@@ -50,6 +52,20 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
   useEffect(() => {
     setInfoMessage(inputInfoMessage);
   }, [inputInfoMessage]);
+
+  useEffect(() => {
+    if (epgNumber === undefined) {
+      GetEpgNextEpgNumber()
+        .then((result) => {
+          if (result) {
+            setEpgNumber(result);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [epgNumber]);
 
   const onTemplateSelect = (e: FileUploadSelectEvent) => {
     setActiveFile(e.files[0]);
@@ -151,6 +167,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
     setNameFromFileName(false);
     setSource('');
     setActiveIndex(0);
+    setEpgNumber(undefined);
     setBlock(false);
     onHide?.(didUpload ?? false);
   };
@@ -231,7 +248,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
       >
         <div className="flex grid w-full justify-content-between align-items-center">
           <div className="flex col-12">
-            <div className={`flex col-${fileType === 'm3u' ? '8' : '12'}`}>
+            <div className={`flex col-${fileType === 'm3u' ? '8' : '8'}`}>
               <TextInput
                 label="Name"
                 onChange={(value) => {
@@ -250,6 +267,22 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
                 value={name}
               />
             </div>
+            {fileType === 'epg' && (
+              <div className="flex col-4">
+                <div className="flex col-6">
+                  <NumberInput
+                    label="EPG Number"
+                    min={1}
+                    max={999999}
+                    onChange={(e) => {
+                      setEpgNumber(e);
+                    }}
+                    showClear
+                    value={epgNumber || 999999}
+                  />
+                </div>
+              </div>
+            )}
             {fileType === 'm3u' && (
               <div className="flex col-4">
                 <div className="flex col-6">

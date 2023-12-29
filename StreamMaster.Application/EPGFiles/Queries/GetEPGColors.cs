@@ -14,19 +14,19 @@ internal class GetEPGColorsHandler(ILogger<GetEPGColors> logger, IRepositoryWrap
         int index = 0;
         foreach (MxfService svc in svcs)
         {
-            string color = "FFFFFF";
+            string color = "#FFFFFF";
 
-            if (svc.EPGId != 0)
+            if (svc.EPGNumber != 0)
             {
-                EPGColorDto? epgColor = epgColors.FirstOrDefault(x => x.Id == svc.EPGId);
+                EPGColorDto? epgColor = epgColors.FirstOrDefault(x => x.Id == svc.EPGNumber);
                 color = epgColor?.Color ?? color;
             }
 
             ret.Add(new EPGColorDto
             {
                 Id = index++,
-                EPGFileId = svc.EPGId,
-                CallSign = svc.CallSign,
+                //EPGFileId = svc.EPGNumber,
+                //CallSign = svc.CallSign,
                 StationId = svc.StationId,
                 Color = color,
             });

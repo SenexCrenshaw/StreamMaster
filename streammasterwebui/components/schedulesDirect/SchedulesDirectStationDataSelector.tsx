@@ -153,7 +153,7 @@ const SchedulesDirectStationDataSelector = () => {
 
     return (
       <div className="flex flex-nowrap justify-content-center align-items-center p-0">
-        <img alt={data.logo.URL ?? 'Logo'} className="max-h-1rem max-w-full p-0" src={`${encodeURI(data.logo.URL ?? '')}`} />
+        <img loading="lazy" alt={data.logo.URL ?? 'Logo'} className="max-h-1rem max-w-full p-0" src={`${encodeURI(data.logo.URL ?? '')}`} />
       </div>
     );
   }

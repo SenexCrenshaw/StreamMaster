@@ -152,7 +152,12 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
 
       return (
         <div className="flex align-content-center flex-wrap">
-          <img alt={rowData.logo ?? 'logo'} className="flex align-items-center justify-content-center max-w-full max-h-2rem h-2rem" src={iconUrl} />
+          <img
+            loading="lazy"
+            alt={rowData.logo ?? 'logo'}
+            className="flex align-items-center justify-content-center max-w-full max-h-2rem h-2rem"
+            src={iconUrl}
+          />
         </div>
       );
     },

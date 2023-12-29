@@ -270,7 +270,11 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
             }
           },
           showLoader: true,
-          style: { width: '400px' }
+          style: {
+            minWidth: '400px',
+            width: '400px',
+            maxWidth: '50vw'
+          }
         }}
       />
     </div>

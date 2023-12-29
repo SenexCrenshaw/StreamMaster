@@ -103,6 +103,10 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/epgfiles/getepgfilepreviewbyid`, params: { id: queryArg } }),
         providesTags: ['EPGFiles']
       }),
+      epgFilesGetEpgNextEpgNumber: build.query<EpgFilesGetEpgNextEpgNumberApiResponse, EpgFilesGetEpgNextEpgNumberApiArg>({
+        query: () => ({ url: `/api/epgfiles/getepgnextepgnumber` }),
+        providesTags: ['EPGFiles']
+      }),
       epgFilesGetPagedEpgFiles: build.query<EpgFilesGetPagedEpgFilesApiResponse, EpgFilesGetPagedEpgFilesApiArg>({
         query: (queryArg) => ({
           url: `/api/epgfiles`,
@@ -751,6 +755,7 @@ export type EpgFilesCreateEpgFileFromFormApiArg = {
   Description?: string | null;
   FormFile?: Blob | null;
   Name?: string;
+  EPGNumber?: number;
   UrlSource?: string | null;
   Color?: string | null;
 };
@@ -762,6 +767,8 @@ export type EpgFilesGetEpgFileApiResponse = /** status 200  */ EpgFileDto;
 export type EpgFilesGetEpgFileApiArg = number;
 export type EpgFilesGetEpgFilePreviewByIdApiResponse = /** status 200  */ EpgFilePreviewDto[];
 export type EpgFilesGetEpgFilePreviewByIdApiArg = number;
+export type EpgFilesGetEpgNextEpgNumberApiResponse = /** status 200  */ number;
+export type EpgFilesGetEpgNextEpgNumberApiArg = void;
 export type EpgFilesGetPagedEpgFilesApiResponse = /** status 200  */ PagedResponseOfEpgFileDto;
 export type EpgFilesGetPagedEpgFilesApiArg = {
   pageNumber?: number;
@@ -1136,6 +1143,7 @@ export type CreateEpgFileRequest = {
   description?: string | null;
   formFile?: Blob | null;
   name?: string;
+  epgNumber?: number;
   urlSource?: string | null;
   color?: string | null;
 };
@@ -1201,6 +1209,7 @@ export type BaseFileRequest = {
   url?: string | null;
 };
 export type UpdateEpgFileRequest = BaseFileRequest & {
+  epgNumber?: number | null;
   color?: string | null;
 };
 export type AutoMatchIconToStreamsRequest = {
@@ -2037,6 +2046,7 @@ export const {
   useEpgFilesGetEpgColorsQuery,
   useEpgFilesGetEpgFileQuery,
   useEpgFilesGetEpgFilePreviewByIdQuery,
+  useEpgFilesGetEpgNextEpgNumberQuery,
   useEpgFilesGetPagedEpgFilesQuery,
   useEpgFilesProcessEpgFileMutation,
   useEpgFilesRefreshEpgFileMutation,

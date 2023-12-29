@@ -5,10 +5,9 @@ using Microsoft.AspNetCore.Http;
 using StreamMaster.Domain.Color;
 
 using System.Web;
-
 namespace StreamMaster.Application.EPGFiles.Commands;
 
-public record CreateEPGFileRequest(string? Description, IFormFile? FormFile, string Name, string? UrlSource, string? Color) : IRequest<EPGFileDto?> { }
+public record CreateEPGFileRequest(string? Description, IFormFile? FormFile, string Name, int EPGNumber, string? UrlSource, string? Color) : IRequest<EPGFileDto?> { }
 public class CreateEPGFileRequestValidator : AbstractValidator<CreateEPGFileRequest>
 {
     public CreateEPGFileRequestValidator()
@@ -37,12 +36,19 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, I
 
             string fullName = Path.Combine(fd.DirectoryLocation, command.Name + ".xmltv");
 
+            var num = command.EPGNumber;
+            if (await Repository.EPGFile.GetEPGFileByNumber(command.EPGNumber).ConfigureAwait(false) != null)
+            {
+                num = await Repository.EPGFile.GetNextAvailableEPGNumberAsync(cancellationToken).ConfigureAwait(false);
+            }
+
             EPGFile epgFile = new()
             {
                 Description = command.Description ?? "",
                 Name = command.Name,
                 Source = command.Name + ".xmltv",
-                Color = command.Color ?? ColorHelper.GetColor(command.Name)
+                Color = command.Color ?? ColorHelper.GetColor(command.Name),
+                EPGNumber = num,
             };
 
             if (command.FormFile != null)
@@ -82,7 +88,7 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, I
                 }
             }
 
-            XMLTV? tv = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.Id);
+            XMLTV? tv = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.EPGNumber);
             if (tv == null)
             {
                 Logger.LogCritical("Exception EPG {fullName} format is not supported", fullName);

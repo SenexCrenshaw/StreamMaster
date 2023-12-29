@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Pagination;
-
 using StreamMaster.Application.EPGFiles.Commands;
+using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Application.EPGFiles;
 
 public interface IEPGFileController
 {
+
+    Task<ActionResult<int>> GetEPGNextEPGNumber();
     Task<ActionResult<List<EPGColorDto>>> GetEPGColors();
     Task<ActionResult<List<EPGFilePreviewDto>>> GetEPGFilePreviewById(int id);
     Task<ActionResult> CreateEPGFile(CreateEPGFileRequest request);
@@ -32,6 +32,7 @@ public interface IEPGFileController
 
 public interface IEPGFileHub
 {
+    Task<int> GetEPGNextEPGNumber(object nothing);
     Task<List<EPGColorDto>> GetEPGColors(object nothing);
     Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int id);
     Task CreateEPGFile(CreateEPGFileRequest request);

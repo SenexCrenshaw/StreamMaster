@@ -22,10 +22,24 @@ export function isSignalRConnected() {
 }
 
 const blacklistedMethods: string[] = ['GetLog', 'GetIconFromSource'];
-const whitelistedMethods: string[] = [];
+const whitelistedMethods: string[] = ['GetEpgNextEpgNumber'];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const invokeHubConnection = async <T>(methodName: string, argument?: any): Promise<T | null> => {
+  const waitForConnection = async (timeout: number): Promise<boolean> => {
+    const startTime = Date.now();
+    while (Date.now() - startTime < timeout) {
+      if (hubConnection.state === 'Connected') {
+        return true;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 100)); // wait for 100ms before checking again
+    }
+    return false;
+  };
+
+  const isConnected = await waitForConnection(3000);
+  if (!isConnected) return null;
+
   if (hubConnection.state !== 'Connected') return null;
 
   if (isDev && !blacklistedMethods.includes(methodName)) {

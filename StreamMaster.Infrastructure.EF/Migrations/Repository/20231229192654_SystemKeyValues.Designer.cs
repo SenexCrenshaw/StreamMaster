@@ -11,8 +11,8 @@ using StreamMaster.Infrastructure.EF;
 namespace StreamMaster.Infrastructure.EF.Migrations.Repository
 {
     [DbContext(typeof(RepositoryContext))]
-    [Migration("20231229142206_EPGNumber")]
-    partial class EPGNumber
+    [Migration("20231229192654_SystemKeyValues")]
+    partial class SystemKeyValues
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -20,7 +20,7 @@ namespace StreamMaster.Infrastructure.EF.Migrations.Repository
 #pragma warning disable 612, 618
             modelBuilder
                 .UseCollation("NOCASE_UTF8")
-                .HasAnnotation("ProductVersion", "7.0.12");
+                .HasAnnotation("ProductVersion", "8.0.0");
 
             modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
                 {
@@ -272,6 +272,25 @@ namespace StreamMaster.Infrastructure.EF.Migrations.Repository
                     b.HasIndex("StreamGroupId");
 
                     b.ToTable("StreamGroupVideoStreams");
+                });
+
+            modelBuilder.Entity("StreamMaster.Domain.Models.SystemKeyValue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SystemKeyValues");
                 });
 
             modelBuilder.Entity("StreamMaster.Domain.Models.VideoStream", b =>

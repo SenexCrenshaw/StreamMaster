@@ -119,6 +119,7 @@ using (IServiceScope scope = app.Services.CreateScope())
     if (app.Environment.IsDevelopment())
     {
         logInitialiser.TrySeed();
+
     }
 
     RepositoryContextInitializer initialiser = scope.ServiceProvider.GetRequiredService<RepositoryContextInitializer>();
@@ -126,6 +127,7 @@ using (IServiceScope scope = app.Services.CreateScope())
     if (app.Environment.IsDevelopment())
     {
         initialiser.TrySeed();
+        initialiser.MigrateData();
     }
 
 

@@ -8,9 +8,9 @@ using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Data;
 
-public partial class SchedulesDirectData(ILogger<SchedulesDirectData> logger, ISettingsService settingsService, IMemoryCache memoryCache, int EPGId) : ISchedulesDirectData
+public partial class SchedulesDirectData(ILogger<SchedulesDirectData> logger, ISettingsService settingsService, IMemoryCache memoryCache, int EPGNumber) : ISchedulesDirectData
 {
-    public int EPGId { get; set; } = EPGId;
+    public int EPGNumber { get; set; } = EPGNumber;
 
     [XmlArrayItem("Provider")]
     public ConcurrentBag<MxfProvider> Providers { get; set; } = [];

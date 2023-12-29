@@ -73,11 +73,11 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, IXM
         }
     }
 
-    public ISchedulesDirectData GetSchedulesDirectData(int ePGID)
+    public ISchedulesDirectData GetSchedulesDirectData(int EPGNUmber)
     {
-        return SchedulesDirectDatas.GetOrAdd(ePGID, (epgId) =>
+        return SchedulesDirectDatas.GetOrAdd(EPGNUmber, (epgId) =>
         {
-            SchedulesDirectData data = new(logger, settingsService, memoryCache, ePGID);
+            SchedulesDirectData data = new(logger, settingsService, memoryCache, EPGNUmber);
             return data;
         });
     }

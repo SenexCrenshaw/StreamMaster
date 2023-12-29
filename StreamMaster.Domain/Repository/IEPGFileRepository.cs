@@ -6,12 +6,15 @@ namespace StreamMaster.Domain.Repository;
 
 public interface IEPGFileRepository : IRepositoryBase<EPGFile>
 {
+    Task<int> GetNextAvailableEPGNumberAsync(CancellationToken cancellationToken);
     Task<List<EPGFileDto>> GetEPGFilesNeedUpdating();
     Task<List<EPGFileDto>> GetEPGFiles();
 
     Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(EPGFileParameters Parameters);
 
-    Task<EPGFile?> GetEPGFileById(int Id);
+    Task<EPGFile?> GetEPGFileById(int EPGNumber);
+
+    Task<EPGFile?> GetEPGFileByNumber(int Id);
 
     Task<EPGFile?> GetEPGFileBySource(string Source);
 

@@ -1,8 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Common;
-
 namespace StreamMaster.Infrastructure.EF;
 
 public class RepositoryContextInitializer
@@ -50,5 +48,10 @@ public class RepositoryContextInitializer
     public void TrySeed()
     {
         FileUtil.SetupDirectories();
+    }
+
+    public void MigrateData()
+    {
+
     }
 }
