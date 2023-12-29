@@ -73,6 +73,9 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
 
             List<MxfService> services = schedulesDirectDataService.AllServices;
 
+            HashSet<int> chNos = [];
+            HashSet<int> existingChNos = videoStreamConfigs.Select(a => a.User_Tvg_chno).Distinct().ToHashSet();
+
             foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs.OrderBy(a => a.User_Tvg_chno))
             {
                 string prefix = videoStreamConfig.IsDummy ? "DUMMY" : "SM";
@@ -93,7 +96,21 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
                     newService.MxfScheduleEntries = origService.MxfScheduleEntries;
                 }
 
-                newService.ChNo = videoStreamConfig.User_Tvg_chno;
+                int chNo = videoStreamConfig.User_Tvg_chno;
+                if (chNos.Contains(chNo))
+                {
+                    foreach (var num in existingChNos.Concat(chNos))
+                    {
+                        if (num != chNo)
+                        {
+                            break;
+                        }
+                        chNo++;
+                    }
+                }
+                chNos.Add(chNo);
+
+                newService.ChNo = chNo;
                 newService.Name = videoStreamConfig.User_Tvg_name;
                 newService.Affiliate = origService.Affiliate;
                 newService.CallSign = origService.CallSign;

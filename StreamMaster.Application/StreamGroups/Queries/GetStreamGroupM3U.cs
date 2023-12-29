@@ -62,6 +62,8 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
     private byte[] iv = [];
 
     private const string DefaultReturn = "#EXTM3U\r\n";
+    private HashSet<int> chNos = [];
+    private HashSet<int> existingChNos = [];
 
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupM3U request, CancellationToken cancellationToken)
@@ -83,34 +85,55 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
             return DefaultReturn;
         }
 
+        existingChNos = videoStreams.Select(a => a.User_Tvg_chno).Distinct().ToHashSet();
+
         // Retrieve necessary data in parallel
         var videoStreamData = videoStreams
      .AsParallel()
      .WithDegreeOfParallelism(Environment.ProcessorCount)
      .Select((videoStream, index) =>
      {
+         var (ChNo, m3uLine) = BuildM3ULineForVideoStream(videoStream, url, request, index, setting);
          return new
          {
-             VideoStream = videoStream,
-             M3ULine = BuildM3ULineForVideoStream(videoStream, url, request, index, setting)
+             ChNo,
+             m3uLine
          };
      }).ToList();
 
-        ConcurrentDictionary<int, string> retlist = new();
+        //ConcurrentDictionary<int, string> retlist = new();
 
-        // Process the data serially
-        foreach (var data in videoStreamData.OrderBy(a => a.VideoStream.User_Tvg_chno))
+        ////// Process the data serially
+        //foreach (var data in videoStreamData.OrderBy(a => a.ChNo))
+        //{
+        //    if (!string.IsNullOrEmpty(data.m3uLine))
+        //    {
+        //        retlist.TryAdd(ChNo, data.m3uLine);
+        //    }
+        //}
+
+
+        //   var ret = videoStreamData
+        //.Select(c => new { VideoStream = c, IsNumeric = int.TryParse(c., out var num), NumericId = num })
+        //.OrderBy(c => c.IsNumeric)
+        //.ThenBy(c => c.NumericId)     
+        //.Select(c => c.VideoStream)
+        //.ToList();
+
+        StringBuilder ret = new("#EXTM3U\r\n");
+        foreach (var data in videoStreamData.OrderBy(a => a.ChNo))
         {
-            if (!string.IsNullOrEmpty(data.M3ULine))
+            if (!string.IsNullOrEmpty(data.m3uLine))
             {
-                retlist.TryAdd(data.VideoStream.User_Tvg_chno, data.M3ULine);
+                ret.AppendLine(data.m3uLine);
             }
         }
 
-        return AssembleReturnString(retlist);
+        return ret.ToString();
     }
 
-    private string BuildM3ULineForVideoStream(VideoStreamDto videoStream, string url, GetStreamGroupM3U request, int cid, Setting setting)
+
+    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(VideoStreamDto videoStream, string url, GetStreamGroupM3U request, int cid, Setting setting)
     {
         bool showM3UFieldTvgId = setting.M3UFieldTvgId;
 
@@ -127,7 +150,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
             }
             else
             {
-                return "";
+                return (0, "");
             }
         }
 
@@ -157,24 +180,41 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
             fieldList.Add($"channel-id=\"{videoStream.Id}\"");
         }
 
-        if (setting.M3UFieldChannelNumber)
-        {
-            fieldList.Add($"channel-number=\"{videoStream.User_Tvg_chno}\"");
-        }
 
         if (setting.M3UFieldTvgName)
         {
             fieldList.Add($"tvg-name=\"{videoStream.User_Tvg_name}\"");
         }
 
+        int chNo = videoStream.User_Tvg_chno;
+        if (chNos.Contains(chNo))
+        {
+            foreach (var num in existingChNos.Concat(chNos))
+            {
+                if (num != chNo)
+                {
+                    break;
+                }
+                chNo++;
+            }
+        }
+        chNos.Add(chNo);
+
         if (setting.M3UFieldTvgChno)
         {
-            fieldList.Add($"tvg-chno=\"{videoStream.User_Tvg_chno}\"");
+
+            fieldList.Add($"tvg-chno=\"{chNo}\"");
+        }
+
+        if (setting.M3UFieldChannelNumber)
+        {
+
+            fieldList.Add($"channel-number=\"{chNo}\"");
         }
 
         if (showM3UFieldTvgId)
         {
-            fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_chno}\"");
+            fieldList.Add($"tvg-id=\"{chNo}\"");
         }
 
         if (setting.M3UFieldTvgLogo)
@@ -205,7 +245,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         lines += $",{videoStream.User_Tvg_name}\r\n";
         lines += $"{videoUrl}";
 
-        return lines;
+        return (chNo, lines);
     }
 
     private string AssembleReturnString(ConcurrentDictionary<int, string> retlist)
