@@ -8,7 +8,7 @@ using System.Web;
 
 namespace StreamMaster.Application.EPGFiles.Commands;
 
-public record CreateEPGFileRequest(string? Description, int EPGRank, IFormFile? FormFile, string Name, string? UrlSource, string? Color) : IRequest<EPGFileDto?> { }
+public record CreateEPGFileRequest(string? Description, IFormFile? FormFile, string Name, string? UrlSource, string? Color) : IRequest<EPGFileDto?> { }
 public class CreateEPGFileRequestValidator : AbstractValidator<CreateEPGFileRequest>
 {
     public CreateEPGFileRequestValidator()
@@ -81,7 +81,6 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, I
                     Logger.LogCritical("Exception EPG From URL {ex}", ex);
                 }
             }
-            epgFile.EPGRank = command.EPGRank;
 
             XMLTV? tv = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.Id);
             if (tv == null)

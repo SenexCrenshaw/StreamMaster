@@ -1,9 +1,7 @@
 ﻿using AutoMapper.Configuration.Annotations;
 
-using StreamMaster.Domain.Mappings;
-using StreamMaster.Domain.Models;
-
 using StreamMaster.Domain.Attributes;
+using StreamMaster.Domain.Models;
 
 namespace StreamMaster.Domain.Dto;
 

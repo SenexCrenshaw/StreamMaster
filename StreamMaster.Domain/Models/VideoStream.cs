@@ -1,7 +1,5 @@
 ﻿using AutoMapper.Configuration.Annotations;
 
-using StreamMaster.Domain.Enums;
-
 using System.ComponentModel.DataAnnotations;
 
 namespace StreamMaster.Domain.Models;

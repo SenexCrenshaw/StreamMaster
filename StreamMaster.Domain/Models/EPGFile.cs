@@ -1,11 +1,11 @@
-﻿using StreamMaster.Domain.Enums;
-
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace StreamMaster.Domain.Models;
 
 public class EPGFile : AutoUpdateEntity
 {
+    public int EPGNumber { get; set; }
+
     public string Color { get; set; }
 
     public static EPGFile? ReadJSON(FileInfo fileInfo)
@@ -40,7 +40,6 @@ public class EPGFile : AutoUpdateEntity
         return lastWrite;
     }
     public int ChannelCount { get; set; }
-    public int EPGRank { get; set; }
     public int ProgrammeCount { get; set; }
     public float TimeShift { get; set; } = 0;
 
