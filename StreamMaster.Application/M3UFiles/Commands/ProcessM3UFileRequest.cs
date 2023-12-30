@@ -157,21 +157,23 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
 
         int processedCount = 0;
 
-
-        _ = Parallel.ForEach(streams, stream =>
+        _ = Parallel.ForEach(streams.Select((stream, index) => (stream, index)), tuple =>
         {
+            var stream = tuple.stream;
+            var index = tuple.index;
+
             if (processed.TryAdd(stream.Id, true))
             {
                 _ = groupLookup.TryGetValue(stream.Tvg_group, out ChannelGroup? group);
 
                 if (!existingLookup.TryGetValue(stream.Id, out VideoStream? existingStream))
                 {
-                    ProcessNewStream(stream, group?.IsHidden ?? false, m3uFile.Name, overwriteChannelNumbers);
+                    ProcessNewStream(stream, group?.IsHidden ?? false, m3uFile.Name, overwriteChannelNumbers, index);
                     toWrite.Add(stream);
                 }
                 else
                 {
-                    if (ProcessExistingStream(stream, existingStream, m3uFile.Name, overwriteChannelNumbers))
+                    if (ProcessExistingStream(stream, existingStream, m3uFile.Name, overwriteChannelNumbers, index))
                     {
                         existingStream.M3UFileId = m3uFile.Id;
                         toUpdate.Add(existingStream);
@@ -311,7 +313,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         Logger.LogError($"Found duplicate streams. Details logged to {fileName}");
     }
 
-    private bool ProcessExistingStream(VideoStream stream, VideoStream dbStream, string mu3FileName, bool overWriteChannels)
+    private bool ProcessExistingStream(VideoStream stream, VideoStream dbStream, string mu3FileName, bool overWriteChannels, int index)
     {
 
         //Update dbStream
@@ -325,7 +327,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
 
         if (overWriteChannels || (stream.Tvg_chno != 0 && dbStream.Tvg_chno != stream.Tvg_chno))
         {
-            int localNextChno = overWriteChannels ? existingChannels.GetNextInt() : existingChannels.GetNextInt(stream.Tvg_chno);
+            int localNextChno = overWriteChannels ? existingChannels.GetNextInt(index: index) : existingChannels.GetNextInt(value: stream.Tvg_chno, index: index);
             if (dbStream.Tvg_chno != localNextChno)
             {
                 changed = true;
@@ -430,7 +432,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         return changed;
     }
 
-    private void ProcessNewStream(VideoStream stream, bool? groupIsHidden, string mu3FileName, bool overWriteChannels)
+    private void ProcessNewStream(VideoStream stream, bool? groupIsHidden, string mu3FileName, bool overWriteChannels, int index)
     {
         if (groupIsHidden is not null)
         {
@@ -440,7 +442,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
 
         if (overWriteChannels || stream.User_Tvg_chno == 0 || existingChannels.ContainsInt(stream.Tvg_chno))
         {
-            int localNextChno = overWriteChannels ? existingChannels.GetNextInt() : existingChannels.GetNextInt(stream.User_Tvg_chno);
+            int localNextChno = overWriteChannels ? existingChannels.GetNextInt(index: index) : existingChannels.GetNextInt(value: stream.User_Tvg_chno, index: index);
 
             stream.User_Tvg_chno = localNextChno;
             stream.Tvg_chno = localNextChno;

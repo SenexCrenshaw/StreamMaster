@@ -25,23 +25,38 @@ public class SimpleIntList
 
     private readonly object lockObject = new object();
 
-    public int GetNextInt(int? value = null)
+    public int GetNextInt(int? value = null, int? index = null)
     {
         lock (lockObject)
         {
-            int desiredValue = value ?? ++nextAvailableInt;
-
-            // Ensure desiredValue is not less than startingValue
-            desiredValue = Math.Max(desiredValue, startingValue);
-
-            while (intSet.Contains(desiredValue))
+            int desiredValue;
+            if (index.HasValue)
             {
-                desiredValue = ++nextAvailableInt;
+                // Use index as base for the desiredValue when provided
+                desiredValue = index.Value; // Assuming channel numbers start from 1
+                desiredValue = Math.Max(desiredValue, startingValue);
+
+                while (intSet.Contains(desiredValue))
+                {
+                    desiredValue++;
+                }
+            }
+            else
+            {
+                // Use the default logic when index is not provided
+                desiredValue = value ?? ++nextAvailableInt;
+                desiredValue = Math.Max(desiredValue, startingValue);
+
+                while (intSet.Contains(desiredValue))
+                {
+                    desiredValue = ++nextAvailableInt;
+                }
             }
 
             intSet.Add(desiredValue);
             return desiredValue;
         }
     }
+
 
 }

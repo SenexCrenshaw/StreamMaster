@@ -69,7 +69,7 @@ public class RefreshM3UFileRequestHandler : BaseMediatorRequestHandler, IRequest
                 {
                     m3uFile.StationCount = streams.Count;
                 }
-
+                m3uFile.LastUpdated = DateTime.Now;
                 Repository.M3UFile.UpdateM3UFile(m3uFile);
                 _ = await Repository.SaveAsync().ConfigureAwait(false);
 
