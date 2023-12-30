@@ -190,11 +190,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
                 });
 
                 List<XmltvProgramme> a = xmlTv.Programs.Where(a => a == null || a.Channel == null || a.StartDateTime == null).ToList();
-                if (a.Any())
-                {
-                    int aa = 1;
-                }
-                //xmlTv.Channels = [.. xmlTv.Channels.OrderBy(a => a.Id)];
+
                 xmlTv.Channels = xmlTv.Channels
           .Select(c => new { Channel = c, IsNumeric = int.TryParse(c.Id, out var num), NumericId = num })
           .OrderBy(c => c.IsNumeric)
@@ -209,8 +205,6 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
         .ThenBy(c => c.Program.StartDateTime)
         .Select(c => c.Program)
         .ToList();
-
-                // xmlTv.Programs = [.. xmlTv.Programs.OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime)];
 
             }
             catch (Exception ex)

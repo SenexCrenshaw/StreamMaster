@@ -205,7 +205,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
 
         int batchSize = 500;
 
-        if (writeList.Any())
+        if (writeList.Count != 0)
         {
             Logger.LogInformation($"Inserting {writeList.Count} new streams in the DB");
 

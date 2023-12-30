@@ -1,8 +1,5 @@
-﻿using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Mappings;
+﻿using StreamMaster.Domain.Attributes;
 using StreamMaster.Domain.Models;
-
-using StreamMaster.Domain.Attributes;
 
 using System.Text.Json.Serialization;
 
@@ -17,7 +14,7 @@ public class IconFileDto : IMapFrom<IconFile>
     [JsonIgnore]
     public int FileId { get; set; }
 
-    public int Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     public string Name { get; set; } = string.Empty;
 

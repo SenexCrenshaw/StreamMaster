@@ -21,7 +21,7 @@ public partial class BackgroundTaskQueue : IIconTasks
         await QueueAsync(SMQueCommand.BuildProgIconsCacheFromEPGs, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task ReadDirectoryLogosRequest(CancellationToken cancellationToken = default)
+    public async Task ReadDirectoryLogos(CancellationToken cancellationToken = default)
     {
         await QueueAsync(SMQueCommand.ReadDirectoryLogosRequest, cancellationToken).ConfigureAwait(false);
     }

@@ -24,8 +24,12 @@ namespace StreamMaster.Infrastructure.EF
         ISchedulesDirectDataService schedulesDirectDataService,
         RepositoryContext repositoryContext,
         ISortHelper<StreamGroup> streamGroupSortHelper,
-        IMapper mapper, IMemoryCache memoryCache, ISender sender,
-        IHttpContextAccessor httpContextAccessor, ISettingsService settingsService) : IRepositoryWrapper
+        IMapper mapper,
+        IIconService iconService,
+        IMemoryCache memoryCache,
+        ISender sender,
+        IHttpContextAccessor httpContextAccessor,
+        ISettingsService settingsService) : IRepositoryWrapper
     {
         private IStreamGroupRepository _streamGroup;
 
@@ -88,7 +92,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _videoStream ??= new VideoStreamRepository(VideoStreamRepositoryLogger, repositoryContext, mapper, memoryCache, sender, settingsService);
+                _videoStream ??= new VideoStreamRepository(VideoStreamRepositoryLogger, iconService, repositoryContext, mapper, memoryCache, sender, settingsService);
                 return _videoStream;
             }
         }

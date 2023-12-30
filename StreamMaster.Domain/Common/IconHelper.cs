@@ -1,9 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Models;
+﻿using StreamMaster.Domain.Dto;
 
 using System.Web;
 
@@ -85,39 +80,39 @@ public static class IconHelper
     //    return icon;
     //}
 
-    public static async Task<bool> ReadDirectoryLogos(IMemoryCache memoryCache, CancellationToken cancellationToken = default)
-    {
-        FileDefinition fd = FileDefinitions.TVLogo;
-        if (!Directory.Exists(fd.DirectoryLocation))
-        {
-            return false;
-        }
+    //public static async Task<bool> ReadDirectoryLogos(IMemoryCache memoryCache, CancellationToken cancellationToken = default)
+    //{
+    //    FileDefinition fd = FileDefinitions.TVLogo;
+    //    if (!Directory.Exists(fd.DirectoryLocation))
+    //    {
+    //        return false;
+    //    }
 
-        DirectoryInfo dirInfo = new(BuildInfo.TVLogoDataFolder);
+    //    DirectoryInfo dirInfo = new(BuildInfo.TVLogoDataFolder);
 
-        List<TvLogoFile> tvLogos =
-        [
-            new TvLogoFile
-            {
-                Id = 0,
-                Source = BuildInfo.IconDefault,
-                FileExists = true,
-                Name = "Default Icon"
-            },
+    //    List<TvLogoFile> tvLogos =
+    //    [
+    //        new TvLogoFile
+    //        {
+    //            Id = 0,
+    //            Source = BuildInfo.IconDefault,
+    //            FileExists = true,
+    //            Name = "Default Icon"
+    //        },
 
-            new TvLogoFile
-            {
-                Id = 1,
-                Source = "images/StreamMaster.png",
-                FileExists = true,
-                Name = "Stream Master"
-            }
-        ];
+    //        new TvLogoFile
+    //        {
+    //            Id = 1,
+    //            Source = "images/StreamMaster.png",
+    //            FileExists = true,
+    //            Name = "Stream Master"
+    //        }
+    //    ];
 
-        tvLogos.AddRange(await FileUtil.GetIconFilesFromDirectory(dirInfo, dirInfo.FullName, tvLogos.Count, cancellationToken).ConfigureAwait(false));
+    //    tvLogos.AddRange(await FileUtil.GetIconFilesFromDirectory(dirInfo, dirInfo.FullName, tvLogos.Count, cancellationToken).ConfigureAwait(false));
 
-        //memoryCache.ClearTvLogos();
-        memoryCache.SetTvLogos(tvLogos);
-        return true;
-    }
+    //    //memoryCache.ClearTvLogos();
+    //    memoryCache.SetTvLogos(tvLogos);
+    //    return true;
+    //}
 }

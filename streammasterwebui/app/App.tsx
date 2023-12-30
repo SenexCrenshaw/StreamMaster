@@ -14,7 +14,9 @@ import SDEditorHeadEndsAndLineUps from '@features/sdEditor/SDEditorHeadEndsAndLi
 import SettingsEditor from '@features/settings/SettingsEditor';
 import StreamGroupEditor from '@features/streamGroupEditor/StreamGroupEditor';
 import StreamingStatus from '@features/streamingStatus/StreamingStatus';
+import { IconFileDto, StationChannelName } from '@lib/iptvApi';
 import MessagesEn from '@lib/locales/MessagesEn';
+import { CacheProvider } from '@lib/redux/CacheProvider';
 import { SignalRConnection } from '@lib/signalr/SignalRConnection';
 import 'primeflex/primeflex.css'; // css utility
 import 'primeicons/primeicons.css'; // icons
@@ -72,7 +74,11 @@ const App = (): JSX.Element => {
     <IntlProvider locale={locale} messages={messages}>
       <SignalRConnection>
         <ProSidebarProvider>
-          <RouterProvider router={router} />
+          <CacheProvider<IconFileDto>>
+            <CacheProvider<StationChannelName>>
+              <RouterProvider router={router} />
+            </CacheProvider>
+          </CacheProvider>
         </ProSidebarProvider>
       </SignalRConnection>
     </IntlProvider>

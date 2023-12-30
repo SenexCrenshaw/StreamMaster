@@ -24,7 +24,7 @@ using System.Linq.Dynamic.Core;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender, ISettingsService settingsService) : RepositoryBase<VideoStream>(repositoryContext, intlogger), IVideoStreamRepository
+public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IIconService iconService, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender, ISettingsService settingsService) : RepositoryBase<VideoStream>(repositoryContext, intLogger), IVideoStreamRepository
 {
     public PagedResponse<VideoStreamDto> CreateEmptyPagedResponse()
     {
@@ -415,7 +415,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
             }
             else
             {
-                List<IconFileDto> icons = memoryCache.GetIcons(mapper);
+                List<IconFileDto> icons = iconService.GetIcons();
                 if (icons.Any(a => a.Source == request.Tvg_logo))
                 {
                     videoStream.User_Tvg_logo = request.Tvg_logo;

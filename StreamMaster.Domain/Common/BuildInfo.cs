@@ -37,6 +37,7 @@ public static class BuildInfo
 
     public static string AppName { get; } = "StreamMaster";
 
+    public static bool SetIsSystemReady { get; set; } = false;
     public static Version Version { get; }
     public static string Branch { get; }
     public static string Release { get; }

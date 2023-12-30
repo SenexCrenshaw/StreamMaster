@@ -110,7 +110,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                 //schedulesDirect.CheckToken();
                 Setting setting = FileUtil.GetSetting();
 
-                if (setting.SDSettings.SDEnabled && !imageDownloadQueue.IsEmpty() && memoryCache.IsSystemReady())
+                if (setting.SDSettings.SDEnabled && !imageDownloadQueue.IsEmpty() && BuildInfo.SetIsSystemReady)
                 {
                     await DownloadImagesAsync(cancellationToken);
                 }

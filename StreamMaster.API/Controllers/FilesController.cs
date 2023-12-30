@@ -9,6 +9,7 @@ using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Models;
+using StreamMaster.Domain.Services;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using StreamMasterAPI.Controllers;
@@ -18,7 +19,7 @@ using System.Web;
 
 namespace StreamMaster.API.Controllers;
 
-public class FilesController(IMemoryCache memoryCache, IContentTypeProvider mimeTypeProvider) : ApiControllerBase, IFileController
+public class FilesController(IMemoryCache memoryCache, IIconService iconService, IContentTypeProvider mimeTypeProvider) : ApiControllerBase, IFileController
 {
     [AllowAnonymous]
     [Route("{filetype}/{source}")]
@@ -67,9 +68,7 @@ public class FilesController(IMemoryCache memoryCache, IContentTypeProvider mime
 
         Setting setting = await SettingsService.GetSettingsAsync();
 
-
-        List<IconFileDto> icons = memoryCache.Icons();
-        IconFileDto? icon = icons.FirstOrDefault(a => a.Source == source);
+        IconFileDto? icon = iconService.GetIconBySource(source);
 
         if (icon is null)
         {

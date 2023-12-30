@@ -11,7 +11,7 @@ public class VideoStream
         StreamGroups = new List<StreamGroupVideoStream>();
     }
 
-    public StreamingProxyTypes StreamingProxyType { get; set; } = StreamingProxyTypes.StreamMaster;
+    public StreamingProxyTypes StreamingProxyType { get; set; } = StreamingProxyTypes.SystemDefault;
 
     [Ignore]
     public ICollection<VideoStreamLink> ChildVideoStreams { get; set; }

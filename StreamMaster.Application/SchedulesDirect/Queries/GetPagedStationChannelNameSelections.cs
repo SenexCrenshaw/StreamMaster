@@ -1,8 +1,5 @@
-﻿using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Filtering;
+﻿using StreamMaster.Domain.Filtering;
 using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
 
 using System.Text.Json;
 

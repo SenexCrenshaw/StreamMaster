@@ -5,6 +5,7 @@ import { enhancedApiChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroups
 import { enhancedApiEpgFiles } from '@lib/smAPI/EpgFiles/EpgFilesEnhancedAPI';
 import { enhancedApiM3UFiles } from '@lib/smAPI/M3UFiles/M3UFilesEnhancedAPI';
 import { enhancedApiProgrammes } from '@lib/smAPI/Programmes/ProgrammesEnhancedAPI';
+import { enhancedApiQueue } from '@lib/smAPI/Queue/QueueEnhancedAPI';
 import { enhancedApiSchedulesDirect } from '@lib/smAPI/SchedulesDirect/SchedulesDirectEnhancedAPI';
 import { enhancedApiSettings } from '@lib/smAPI/Settings/SettingsEnhancedAPI';
 import { enhancedApiStreamGroupChannelGroup } from '@lib/smAPI/StreamGroupChannelGroup/StreamGroupChannelGroupEnhancedAPI';
@@ -12,8 +13,8 @@ import { enhancedApiStreamGroupVideoStreams } from '@lib/smAPI/StreamGroupVideoS
 import { enhancedApiStreamGroups } from '@lib/smAPI/StreamGroups/StreamGroupsEnhancedAPI';
 import { enhancedApiVideoStreamLinks } from '@lib/smAPI/VideoStreamLinks/VideoStreamLinksEnhancedAPI';
 import { enhancedApiVideoStreams } from '@lib/smAPI/VideoStreams/VideoStreamsEnhancedAPI';
-import { enhancedApiQueue } from '@lib/smAPI/Queue/QueueEnhancedAPI';
 
+import anySliceReducer from '@lib/redux/slices/anySlice';
 import channelGroupToRemoveSliceReducer from '@lib/redux/slices/channelGroupToRemoveSlice';
 import queryAdditionalFiltersReducer from '@lib/redux/slices/queryAdditionalFiltersSlice';
 import queryFilterReducer from '@lib/redux/slices/queryFilterSlice';
@@ -28,6 +29,7 @@ import selectedVideoStreamsSliceReducer from '@lib/redux/slices/selectedVideoStr
 import showHiddenSliceReducer from '@lib/redux/slices/showHiddenSlice';
 import showSelectionsSliceReducer from '@lib/redux/slices/showSelectionsSlice';
 import sortInfoSliceReducer from '@lib/redux/slices/sortInfoSlice';
+
 import { enhancedApiMisc } from '@lib/smAPI/Misc/MiscEnhancedAPI';
 import { enhancedApiVideoStreamLinksLocal } from '@lib/smAPILocal/VideoStreamLinksEnhancedAPILocal';
 import { enhancedApiVideoStreamsGetAllStatisticsLocal } from '@lib/smAPILocal/enhancedApiVideoStreamsGetAllStatisticsLocal';
@@ -42,6 +44,11 @@ const selectAllConfig = {
 
 const sortInfoConfig = {
   key: 'sortInfo',
+  storage
+};
+
+const anyConfig = {
+  key: 'anyConfig',
   storage
 };
 
@@ -125,7 +132,9 @@ const rootReducer = combineReducers({
   selectedVideoStreams: persistReducer(selectedVideoStreamsConfig, selectedVideoStreamsSliceReducer),
   showHidden: persistReducer(showHiddenConfig, showHiddenSliceReducer),
   showSelections: persistReducer(showSelectionsConfig, showSelectionsSliceReducer),
-  sortInfo: persistReducer(sortInfoConfig, sortInfoSliceReducer)
+  sortInfo: persistReducer(sortInfoConfig, sortInfoSliceReducer),
+  //selectanySlice: anySliceReducer
+  selectanySlice: persistReducer(anyConfig, anySliceReducer)
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

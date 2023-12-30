@@ -79,7 +79,7 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
 
         await hubContext.Clients.All.TaskQueueStatusUpdate(await backgroundTask.GetQueueStatus()).ConfigureAwait(false);
 
-        SDSystemStatus status = new() { IsSystemReady = memoryCache.IsSystemReady() };
+        SDSystemStatus status = new() { IsSystemReady = BuildInfo.SetIsSystemReady };
 
         if (!status.IsSystemReady)
         {

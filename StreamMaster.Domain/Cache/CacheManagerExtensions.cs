@@ -1,13 +1,11 @@
-﻿using AutoMapper;
-
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Models;
 
 namespace StreamMaster.Domain.Cache;
 
-public static class CacheManagerExtensions
+public static partial class CacheManagerExtensions
 {
 
     public static readonly MemoryCacheEntryOptions NeverRemoveCacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
@@ -40,32 +38,7 @@ public static class CacheManagerExtensions
         }
     }
 
-    public static void ClearIcons(this IMemoryCache cache)
-    {
-        cache.Remove(IconsConfig.Key);
-    }
 
-    public static void ClearTvLogos(this IMemoryCache cache)
-    {
-        cache.Remove(TVLogosConfig.Key);
-    }
-
-    public static List<IconFileDto> GetIcons(this IMemoryCache cache, IMapper mapper)
-    {
-
-        List<IconFileDto> cacheValue = mapper.Map<List<IconFileDto>>(cache.GetTvLogos());
-
-        cacheValue.AddRange(cache.Icons());
-
-        int index = 0;
-        IOrderedEnumerable<IconFileDto> ret = cacheValue.OrderBy(a => a.Name);
-        foreach (IconFileDto? c in ret)
-        {
-            c.Id = index++;
-        }
-
-        return [.. ret];
-    }
 
     public static void AddOrUpdateChannelGroupVideoStreamCounts(this IMemoryCache cache, List<ChannelGroupDto> responses)
     {
@@ -128,22 +101,10 @@ public static class CacheManagerExtensions
     private static readonly object _lock = new();
 
 
-    #region Gets
     public static Setting GetSetting(this IMemoryCache cache)
     {
         _ = cache.TryGetValue(SettingConfig.Key, out Setting? settings);
         return settings ?? new Setting();
-    }
-
-    public static bool IsSystemReady(this IMemoryCache cache)
-    {
-        return cache.GetFromCache<bool?>(IsSystemReadyConfig.Key) ?? false;
-    }
-
-
-    public static List<IconFileDto> Icons(this IMemoryCache cache)
-    {
-        return cache.GetListFromCache<IconFileDto>(IconsConfig.Key);
     }
 
     public static List<ChannelGroupStreamCount> ChannelGroupStreamCounts(this IMemoryCache cache)
@@ -151,21 +112,11 @@ public static class CacheManagerExtensions
         return cache.GetListFromCache<ChannelGroupStreamCount>(ChannelGroupStreamCountsConfig.Key);
     }
 
-    public static IconFileDto? GetIcon(this IMemoryCache cache, string source, SMFileTypes sMFileTypes)
-    {
-        lock (_lock)
-        {
-            IconFileDto? testIcon = cache.Icons().Find(a => a.Source == source && a.SMFileType == sMFileTypes);
-            return testIcon;
-        }
-    }
-
     public static ChannelGroupStreamCount? GetChannelGroupVideoStreamCount(this IMemoryCache cache, int channelGroupId)
     {
         ChannelGroupStreamCount? ret = cache.ChannelGroupStreamCounts().Find(a => a.ChannelGroupId == channelGroupId);
         return ret;
     }
-
     public static List<TvLogoFile> GetTvLogos(this IMemoryCache cache)
     {
         return cache.GetListFromCache<TvLogoFile>(TVLogosConfig.Key);
@@ -198,32 +149,6 @@ public static class CacheManagerExtensions
         return ret;
     }
 
-    #endregion
-
-    #region Sets
-
-    //public static void SetSDToken(this IMemoryCache cache, SDTokenFile sdTokenFile)
-    //{
-    //    lock (SDTokenConfig.Lock)
-    //    {
-    //        _ = cache.Set(SDTokenConfig.Key, sdTokenFile, SDTokenConfig.CacheEntryOptions);
-    //    }
-    //}
-    //public static void SetSDUserStatus(this IMemoryCache cache, UserStatus? userStatus)
-    //{
-    //    lock (SDUserStatusConfig.Lock)
-    //    {
-    //        _ = cache.Set(SDUserStatusConfig.Key, userStatus, SDUserStatusConfig.CacheEntryOptions);
-    //    }
-    //}
-
-    public static void SetTvLogos(this IMemoryCache cache, List<TvLogoFile> icons)
-    {
-        lock (TVLogosConfig.Lock)
-        {
-            _ = cache.Set(TVLogosConfig.Key, icons, TVLogosConfig.CacheEntryOptions);
-        }
-    }
 
     public static void SetSetting(this IMemoryCache cache, Setting setting)
     {
@@ -232,49 +157,4 @@ public static class CacheManagerExtensions
             _ = cache.Set(SettingConfig.Key, setting, SettingConfig.CacheEntryOptions);
         }
     }
-
-    public static void SetIcons(this IMemoryCache cache, List<IconFileDto> icons)
-    {
-        lock (IconsConfig.Lock)
-        {
-            _ = cache.Set(IconsConfig.Key, icons, IconsConfig.CacheEntryOptions);
-        }
-    }
-
-    //public static void SetCache(this IMemoryCache cache, object data, TimeSpan? expiration = null)
-    //{
-    //    MemoryCacheEntryOptions CacheEntryOptions = expiration == null
-    //        ? new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove)
-    //        : new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiration };
-    //    if (data.GetType().GenericTypeArguments.Contains(typeof(IconFileDto)))
-    //    {
-    //        _ = cache.Set(IconsConfig.Key, data, CacheEntryOptions);
-    //        return;
-    //    }
-
-    //    if (data.GetType().GenericTypeArguments.Contains(typeof(TvLogoFile)))
-    //    {
-    //        _ = cache.Set(ListTVLogos, data, CacheEntryOptions);
-    //        return;
-    //    }
-
-
-    //    if (data.GetType().GenericTypeArguments.Contains(typeof(ChannelLogoDto)))
-    //    {
-    //        _ = cache.Set(ListChannelLogos, data, CacheEntryOptions);
-    //        return;
-    //    }
-
-
-    //    _ = data.GetType().Name;
-    //    throw new Exception($"Cache set Unknown type {data.GetType().Name}");
-    //}
-
-    public static void SetIsSystemReady(this IMemoryCache cache, bool isSystemReady)
-    {
-        _ = cache.Set(IsSystemReadyConfig.Key, isSystemReady, IsSystemReadyConfig.CacheEntryOptions);
-    }
-
-    #endregion
-
 }

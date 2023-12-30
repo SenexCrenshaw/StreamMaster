@@ -89,8 +89,9 @@ public partial class SchedulesDirect
         foreach (MxfService? service in Services.Where(a => a.extras.ContainsKey("logo")))
         {
             StationImage artwork = service.extras["logo"];
-            UpdateIcon(artwork.Url, service.CallSign);
+            AddIcon(artwork.Url, service.CallSign);
         }
+        //iconService.SetIndexes();
     }
     private void UpdateIcons(List<MxfProgram> mxfPrograms)
     {
@@ -201,23 +202,22 @@ public partial class SchedulesDirect
             UpdateIcons(artwork.Select(a => a.Uri), prog.Title);
         }
     }
-    private void UpdateIcon(string artworkUri, string title)
+    private void AddIcon(string artworkUri, string title)
     {
         if (string.IsNullOrEmpty(artworkUri))
         {
             return;
         }
 
-        List<IconFileDto> icons = memoryCache.Icons();
+        List<IconFileDto> icons = iconService.GetIcons();
 
         if (icons.Any(a => a.SMFileType == SMFileTypes.SDImage && a.Source == artworkUri))
         {
             return;
         }
 
-        icons.Add(new IconFileDto { Id = icons.Count, Source = artworkUri, SMFileType = SMFileTypes.SDImage, Name = title });
+        iconService.AddIcon(new IconFileDto { Source = artworkUri, SMFileType = SMFileTypes.SDImage, Name = title });
 
-        memoryCache.SetIcons(icons);
     }
 
     private void UpdateIcons(IEnumerable<string> artworkUris, string title)
@@ -227,14 +227,17 @@ public partial class SchedulesDirect
             return;
         }
 
-        List<IconFileDto> icons = memoryCache.Icons();
+        List<IconFileDto> icons = iconService.GetIcons(SMFileTypes.SDImage);
 
         foreach (string artworkUri in artworkUris)
         {
-            UpdateIcon(artworkUri, title);
-
+            if (icons.Any(a => a.Source == artworkUri))
+            {
+                continue;
+            }
+            AddIcon(artworkUri, title);
         }
-        memoryCache.SetIcons(icons);
+        //iconService.SetIndexes();
     }
 
     //private async Task<bool> DownloadSdLogo2(string uri, string filePath, CancellationToken cancellationToken)

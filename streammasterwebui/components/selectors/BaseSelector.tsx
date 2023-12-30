@@ -1,39 +1,16 @@
-import {
-  addOrUpdateValueForField,
-  doSetsContainSameIds,
-  type GetApiArgument,
-  type HasId,
-  type SMDataTableFilterMetaData,
-  type SimpleQueryApiArgument
-} from '@lib/common/common';
+import { addOrUpdateValueForField, type GetApiArgument, type HasId, type SMDataTableFilterMetaData, type SimpleQueryApiArgument } from '@lib/common/common';
+import { PagedResponseDtoData, SimpleQueryResponse, StringArgument } from '@lib/common/dataTypes';
+
+import { useCache } from '@lib/redux/CacheProvider';
 import { skipToken } from '@reduxjs/toolkit/dist/query/react';
 import { Dropdown, type DropdownChangeEvent, type DropdownFilterEvent } from 'primereact/dropdown';
 import { classNames } from 'primereact/utils';
 import { useCallback, useEffect, useState } from 'react';
 import getRecord from '../dataSelector/getRecord';
 
-export interface PagedResponseDto<T> {
-  data: T[];
-  first: number;
-  pageNumber: number;
-  pageSize: number;
-  totalItemCount: number;
-  totalPageCount: number;
-}
-
-export interface StringArgument {
-  value: string;
-}
-export interface PagedResponseDtoData<T> {
-  data?: PagedResponseDto<T>;
-}
-
-export interface SimpleQueryResponse<T> {
-  data?: T[];
-}
-
 export interface BaseSelectorProperties<T extends HasId> {
   readonly className?: string | null;
+  readonly dataKey: string;
   readonly disabled?: boolean;
   readonly editable?: boolean | undefined;
   readonly filterValue?: string;
@@ -56,89 +33,89 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
   const [selectedItem, setSelectedItem] = useState<T>();
   const [index, setIndex] = useState<number>(0);
   const [totalItems, setTotalItems] = useState<number>(0);
-  const [dataSource, setDataSource] = useState<T[]>([]);
   const [filteredDataSource, setFilteredDataSource] = useState<T[]>([]);
+  const { cacheData, updateCache, fetchAndAddItem } = useCache<T>(props.dataKey, props.querySelectedItem);
+
+  const isIconSelector = props.dataKey === 'iconSelector';
 
   const [simpleQuery, setSimpleQuery] = useState<SimpleQueryApiArgument>({
     first: 0,
     last: 200
   });
+
   const query = props.queryHook(simpleQuery);
 
   const [queryFilter, setQueryFilter] = useState<GetApiArgument | undefined>();
 
   const filterQuery = props.queryFilter(queryFilter ?? skipToken);
 
-  const dothing = useCallback(
-    (data: T[]) => {
-      if (query.data === undefined || query.data.length === 0 || props.value === null || props.value === undefined) return;
+  const logSmallData = useCallback((data: T[]) => {
+    if (data.length > 1 && data.length < 100) {
+      console.log(data);
+    }
+  }, []);
 
-      if (selectedItemName === props.value) {
+  const setFiltered = useCallback(
+    (data: T[]) => {
+      logSmallData(data);
+
+      if (selectedItem) {
+        const updatedFilteredData = [selectedItem, ...data.filter((x) => x.id !== selectedItem?.id)];
+        setFilteredDataSource(updatedFilteredData);
         return;
       }
-
-      let existingIds = new Set(data.map((x) => x.id));
-
-      if (!existingIds.has(props.value) && props.value !== '') {
-        try {
-          props
-            .querySelectedItem({ value: props.value } as StringArgument)
-            .then((item) => {
-              if (item) {
-                existingIds = new Set(data.map((x) => x.id));
-                if (item && item.source !== selectedItemName && !existingIds.has(item.id)) {
-                  const newDataSource = data.concat(item);
-                  setDataSource(newDataSource);
-                  setFilteredDataSource(newDataSource);
-                  setIndex(newDataSource.length);
-                  setSelectedItemName(item.source);
-                  setSelectedItem(item);
-                }
-              }
-            })
-            .catch((error) => {
-              console.error(error);
-            });
-        } catch (error) {
-          console.error(error);
-        }
-      }
-      const item = data.find((x) => x.id === props.value || x.source === props.value);
-
-      if (item) {
-        setSelectedItem(item);
-      }
-      setSelectedItemName(props.value);
+      setFilteredDataSource(data);
     },
-    [props, query.data, selectedItemName]
+    [logSmallData, selectedItem]
   );
 
+  const getItemByValue = useCallback(
+    (toMatch: string) => {
+      if (isIconSelector) {
+        return cacheData.find((item) => item.source.toString() === toMatch);
+      }
+      return cacheData.find((item) => item.id.toString() === toMatch);
+    },
+    [cacheData, props.dataKey]
+  );
+
+  //Add props.value to the cache if it is not already there
   useEffect(() => {
-    if (filteredDataSource && filteredDataSource.length > 0) {
-      const item = filteredDataSource.find((x) => x.id === props.value);
-      if (!item || selectedItem?.id === props.value) {
+    if (selectedItem !== null && selectedItem !== undefined) return;
+    if (props.value === null || props.value === null) return;
+
+    fetchAndAddItem({ value: props.value } as StringArgument).catch((error) => {
+      console.error(error);
+    });
+  }, [cacheData, fetchAndAddItem, filteredDataSource, props.value, queryFilter, selectedItem, setFiltered]);
+
+  //Set the selected item if the value is set
+  useEffect(() => {
+    if (selectedItem === undefined && props.value !== undefined && filteredDataSource && filteredDataSource.length > 0) {
+      const item = getItemByValue(props.value);
+
+      if (!item) {
+        if (!isIconSelector) {
+          setSelectedItemName(props.value);
+        }
         return;
       }
-
-      setSelectedItemName(item.source);
+      if (isIconSelector) {
+        setSelectedItemName(item.source);
+      } else {
+        setSelectedItemName(item.displayName);
+      }
       setSelectedItem(item);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.value]);
+  }, [filteredDataSource, getItemByValue, isIconSelector, props.value, selectedItem]);
 
+  //Data was Filtered
   useEffect(() => {
-    const existingIds = new Set(dataSource.map((x) => x.id));
-    const existingFiltered = new Set(filteredDataSource.map((x) => x.id));
-
-    if (queryFilter?.jsonFiltersString && !queryFilter.jsonFiltersString && dataSource.length > 0) {
-      if (!doSetsContainSameIds(existingIds, existingFiltered)) {
-        setFilteredDataSource(dataSource);
+    if (queryFilter === undefined || !queryFilter.jsonFiltersString) {
+      if (cacheData.length > 0 && filteredDataSource.length === 0) {
+        logSmallData(cacheData);
+        setFiltered(cacheData);
       }
-
-      if (filterQuery.data && filterQuery.data.totalItemCount !== totalItems) {
-        setTotalItems(filterQuery.data.totalItemCount);
-      }
-
       return;
     }
 
@@ -146,34 +123,49 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
       return;
     }
 
+    if (filterQuery.data.totalItemCount !== totalItems) {
+      setTotalItems(filterQuery.data.totalItemCount);
+    }
+
     if (filterQuery.data) {
-      // if (dataSource.length > 0) {
       const filteredData = filterQuery.data.data;
+      const existingIds = cacheData !== undefined ? new Set(cacheData.map((x: HasId) => (x as HasId).id)) : new Set();
       const newItems = filteredData.filter((cn: T) => cn?.id && !existingIds.has(cn.id));
-      let ds = dataSource;
+      let ds = cacheData;
 
       if (newItems.length > 0) {
         ds = ds.concat(newItems);
-        setDataSource(ds);
+        updateCache(ds);
         setIndex(ds.length);
+      } else {
+        return;
       }
-
       if (filteredData.length === 0) {
-        setFilteredDataSource(ds);
+        if (ds.length > 1 && ds.length < 100) {
+          console.log(ds);
+        }
+        setFiltered(ds);
       } else {
         if (selectedItem && !filteredData.find((x) => x.id === selectedItem?.id)) {
-          const updatedFilteredData = [selectedItem, ...filteredData];
-          setFilteredDataSource(updatedFilteredData);
+          const updatedFilteredData = [selectedItem, ...filteredData.filter((x) => x.id !== selectedItem?.id)];
+          logSmallData(updatedFilteredData);
+
+          setFiltered(filteredData);
           return;
         }
-        setFilteredDataSource(filteredData);
+
+        logSmallData(filteredData);
+        setFiltered(filteredData);
       }
       // }
     } else {
-      setFilteredDataSource(dataSource);
-    }
-  }, [dataSource, filterQuery, filteredDataSource, queryFilter, selectedItem, totalItems]);
+      logSmallData(cacheData);
 
+      setFiltered(cacheData);
+    }
+  }, [cacheData, filterQuery, filteredDataSource, logSmallData, queryFilter, selectedItem, setFiltered, totalItems, updateCache]);
+
+  //New Data, new page
   useEffect(() => {
     if (query.data == null) return;
 
@@ -182,17 +174,27 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
       return;
     }
 
-    const existingIds = new Set(dataSource.map((x) => x.id));
+    const existingIds = cacheData !== undefined ? new Set(cacheData.map((x: HasId) => x.id)) : new Set();
     const newItems = query.data.filter((cn: T) => cn?.id && !existingIds.has(cn.id));
 
+    let d: T[] = [];
+
     if (newItems.length > 0) {
-      const d = dataSource.concat(newItems);
-      setDataSource(d);
-      dothing(d);
-      setIndex(d.length);
-      setFilteredDataSource(d);
+      if (cacheData === undefined) {
+        d = newItems;
+        updateCache(newItems);
+      } else {
+        d = cacheData.concat(newItems);
+        updateCache(d);
+      }
+
+      setIndex(d?.length ?? 0);
+      if (d.length > 1 && d.length < 100) {
+        console.log(d);
+      }
+      setFiltered(d);
     }
-  }, [dataSource, dothing, props.value, query]);
+  }, [cacheData, props.value, query, setFiltered, updateCache]);
 
   const onChange = useCallback(
     (event: DropdownChangeEvent) => {
@@ -203,9 +205,9 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
       }
 
       if (newValue !== selectedItemName) {
-        setSelectedItemName(newValue);
-        setSelectedItem(event.value);
         if (newValue && props.onChange) {
+          setSelectedItemName(newValue);
+          setSelectedItem(event.value);
           props.onChange(newValue);
         }
       }
@@ -222,9 +224,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
     if (event.filter === '') {
       return;
     }
-
     const toSend = [] as SMDataTableFilterMetaData[];
-
     addOrUpdateValueForField(toSend, 'name', 'contains', event.filter);
     setQueryFilter({
       jsonFiltersString: JSON.stringify(toSend),

@@ -99,6 +99,7 @@ const EPGSelector: React.FC<Partial<EPGSelectorProperties>> = ({ enableEditMode 
   return (
     <BaseSelector
       {...restProperties}
+      dataKey="epgSelector"
       editable
       itemSize={32}
       itemTemplate={itemTemplate}

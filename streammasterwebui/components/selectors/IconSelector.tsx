@@ -57,6 +57,7 @@ const IconSelector: React.FC<Partial<IconSelectorProperties>> = ({ enableEditMod
     <BaseSelector
       {...restProperties}
       className="iconselector"
+      dataKey="iconSelector"
       itemSize={42}
       itemTemplate={iconOptionTemplate}
       onChange={handleOnChange}

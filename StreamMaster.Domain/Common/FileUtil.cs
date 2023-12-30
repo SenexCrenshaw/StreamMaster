@@ -259,7 +259,7 @@ public sealed class FileUtil
         }
     }
 
-    public static async Task<List<TvLogoFile>> GetIconFilesFromDirectory(DirectoryInfo dirInfo, string tvLogosLocation, int startingId, CancellationToken cancellationToken = default)
+    public static async Task<List<TvLogoFile>> GetTVLogosFromDirectory(DirectoryInfo dirInfo, string tvLogosLocation, int startingId, CancellationToken cancellationToken = default)
     {
         List<TvLogoFile> ret = [];
 
@@ -300,8 +300,8 @@ public sealed class FileUtil
             {
                 break;
             }
-            List<TvLogoFile> files = await GetIconFilesFromDirectory(newDir, tvLogosLocation, startingId, cancellationToken).ConfigureAwait(false);
-            ret = ret.Concat(files).ToList();
+            List<TvLogoFile> files = await GetTVLogosFromDirectory(newDir, tvLogosLocation, startingId, cancellationToken).ConfigureAwait(false);
+            ret = [.. ret, .. files];
         }
 
         return ret;
