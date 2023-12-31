@@ -48,7 +48,7 @@ public sealed class ChannelManager : IChannelManager
     {
         if (streamHandler is not null)
         {
-            logger.LogInformation("Streaming Stopped Event for {VideoStreamId}", streamHandler.VideoStreamId);
+            logger.LogInformation("Streaming Stopped Event for VideoStreamId: {VideoStreamId} {VideoStreamName}", streamHandler.VideoStreamId, streamHandler.VideoStreamName);
             List<IChannelStatus> affectedChannelStatuses = channelService.GetChannelStatusesFromVideoStreamId(streamHandler.VideoStreamId);
             foreach (IChannelStatus channelStatus in affectedChannelStatuses)
             {
