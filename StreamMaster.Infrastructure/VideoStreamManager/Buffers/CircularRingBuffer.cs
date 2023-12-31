@@ -61,7 +61,7 @@ new GaugeConfiguration
     LabelNames = ["circular_buffer_id", "video_stream_name"]
 });
 
-    private const int maxWaitTimeMs = 100;
+    private const int maxWaitTimeMs = 250;
 
     public event EventHandler<Guid> DataAvailable;
 
@@ -424,11 +424,14 @@ new GaugeConfiguration
             {
                 int waitTime;
 
-                waitTime = CalculateDynamicWaitTime();
-                if (waitTime > 0)
+                if (IsPreBuffered())
                 {
-                    await Task.Delay(waitTime, cancellationToken);
-                    _logger.LogWarning($"Dynamically adjusting write wait: {StreamInfo.VideoStreamName} waiting {waitTime}ms.");
+                    waitTime = CalculateDynamicWaitTime();
+                    if (waitTime > 0)
+                    {
+                        await Task.Delay(waitTime, cancellationToken);
+                        _logger.LogWarning($"Dynamically adjusting write wait: {StreamInfo.VideoStreamName} waiting {waitTime}ms. Is Pre Buffered: {IsPreBuffered()}");
+                    }
                 }
 
                 if (cancellationToken.IsCancellationRequested)
@@ -539,6 +542,11 @@ new GaugeConfiguration
         }
         else
         {
+            if (!isBufferFull)
+            {
+                // If the buffer hasn't looped, treat this as a direct distance without wrap-around
+                return _oldestDataIndex;
+            }
             // Handle wrap-around case
             return (_buffer.Length - startIndex) + endIndex;
         }
