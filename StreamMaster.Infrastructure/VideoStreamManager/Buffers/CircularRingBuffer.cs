@@ -61,11 +61,13 @@ new GaugeConfiguration
     LabelNames = ["circular_buffer_id", "video_stream_name"]
 });
 
+    private const int maxWaitTimeMs = 100;
+
     public event EventHandler<Guid> DataAvailable;
 
     private readonly ConcurrentDictionary<Guid, PerformanceBpsMetrics> _performanceMetrics = new();
     private readonly ConcurrentDictionary<Guid, int> _clientLastReadBeforeOverwrite = new();
-    private PerformanceBpsMetrics _writeMetric = new();
+    private readonly PerformanceBpsMetrics _writeMetric = new();
     private readonly IStatisticsManager _statisticsManager;
     private readonly IInputStatisticsManager _inputStatisticsManager;
     private readonly IInputStreamingStatistics _inputStreamStatistics;
@@ -130,33 +132,33 @@ new GaugeConfiguration
 
     public string VideoStreamName => StreamInfo.VideoStreamName;
 
-    public Memory<byte> GetBufferSlice(int length)
-    {
-        int bufferEnd = _oldestDataIndex + length;
+    //public Memory<byte> GetBufferSlice(int length)
+    //{
+    //    int bufferEnd = _oldestDataIndex + length;
 
-        if (bufferEnd <= _bufferSize)
-        {
-            // No wrap-around needed
-            return _buffer.Slice(_oldestDataIndex, length);
-        }
-        else
-        {
-            // Handle wrap-around
-            int lengthToEnd = _bufferSize - _oldestDataIndex;
-            int lengthFromStart = length - lengthToEnd;
+    //    if (bufferEnd <= _bufferSize)
+    //    {
+    //        // No wrap-around needed
+    //        return _buffer.Slice(_oldestDataIndex, length);
+    //    }
+    //    else
+    //    {
+    //        // Handle wrap-around
+    //        int lengthToEnd = _bufferSize - _oldestDataIndex;
+    //        int lengthFromStart = length - lengthToEnd;
 
-            // Create a temporary array to hold the wrapped data
-            byte[] result = new byte[length];
+    //        // Create a temporary array to hold the wrapped data
+    //        byte[] result = new byte[length];
 
-            // Copy from _oldestDataIndex to the end of the buffer
-            _buffer.Slice(_oldestDataIndex, lengthToEnd).CopyTo(result);
+    //        // Copy from _oldestDataIndex to the end of the buffer
+    //        _buffer.Slice(_oldestDataIndex, lengthToEnd).CopyTo(result);
 
-            // Copy from start of the buffer to fill the remaining length
-            _buffer[..lengthFromStart].CopyTo(result.AsMemory(lengthToEnd));
+    //        // Copy from start of the buffer to fill the remaining length
+    //        _buffer[..lengthFromStart].CopyTo(result.AsMemory(lengthToEnd));
 
-            return result;
-        }
-    }
+    //        return result;
+    //    }
+    //}
 
     public Guid Id { get; } = Guid.NewGuid();
     public int BufferSize => _buffer.Length;
@@ -267,7 +269,7 @@ new GaugeConfiguration
                 {
                     break;
                 }
-                await Task.Delay(20);
+                await Task.Delay(20, cancellationToken);
                 continue;
             }
 
@@ -289,15 +291,6 @@ new GaugeConfiguration
                 break;
             }
 
-            //// Check and wait for more data if needed
-            //if (GetAvailableBytes(clientId) == 0)
-            //{
-            //    await WaitForDataAvailability(clientId, cancellationToken);
-            //    if (cancellationToken.IsCancellationRequested)
-            //    {
-            //        break;
-            //    }
-            //}
             _clientLastReadBeforeOverwrite[ClientId] = _clientReadIndexes[ClientId];
         }
 
@@ -324,7 +317,7 @@ new GaugeConfiguration
         Stopwatch stopwatch = Stopwatch.StartNew();
         try
         {
-            while (GetAvailableBytes(clientId) == 0 && !cancellationToken.IsCancellationRequested)
+            while ((!IsPreBuffered() || GetAvailableBytes(clientId) == 0) && !cancellationToken.IsCancellationRequested)
             {
                 TaskCompletionSource<bool> tcs = new();
 
@@ -358,13 +351,26 @@ new GaugeConfiguration
 
     public void RegisterClient(IClientStreamerConfiguration streamerConfiguration)
     {
-        if (!_clientReadIndexes.ContainsKey(streamerConfiguration.ClientId))
+        //int bufferAdvancePercentage = 10; // 10% of the buffer size
+        //int maxBufferAdvance = (int)(_buffer.Length * (bufferAdvancePercentage / 100.0));
+        ////int availableData = CalculateDistance(_oldestDataIndex, _writeIndex);
+
+        //// Adjust buffer advance based on available data
+        ////int actualBufferAdvance = Math.Min(maxBufferAdvance, availableData);
+        //int clientReadIndex = (_oldestDataIndex) % _buffer.Length;
+
+        // Always register the client
+        if (_clientReadIndexes.TryAdd(streamerConfiguration.ClientId, _oldestDataIndex))
         {
-            _ = _clientReadIndexes.TryAdd(streamerConfiguration.ClientId, _oldestDataIndex);
-            _statisticsManager.RegisterClient(streamerConfiguration.ClientId, streamerConfiguration.ClientUserAgent, streamerConfiguration.ClientIPAddress);
+            _logger.LogInformation("Registered new client {ClientId} with read index {ReadIndex}", streamerConfiguration.ClientId, _oldestDataIndex);
         }
-        _logger.LogInformation("RegisterClient for ClientId: {ClientId} {VideoStreamName} {_oldestDataIndex}", streamerConfiguration.ClientId, StreamInfo.VideoStreamName, _oldestDataIndex);
+        else
+        {
+            _logger.LogWarning("Failed to add new client {ClientId} to read indexes.", streamerConfiguration.ClientId);
+            // Handle the case if adding the client fails
+        }
     }
+
 
     private void NotifyClients()
     {
@@ -395,12 +401,7 @@ new GaugeConfiguration
         _logger.LogInformation("UnRegisterClient for clientId: {clientId}  {VideoStreamName}", clientId, StreamInfo.VideoStreamName);
     }
 
-    //public void UpdateReadIndex(Guid clientId, int newIndex)
-    //{
-    //    _clientReadIndexes[clientId] = newIndex % _buffer.Length;
-    //}
-
-    public int WriteChunk(Memory<byte> data)
+    public async Task<int> WriteChunk(Memory<byte> data, CancellationToken cancellationToken)
     {
         //_writePending = true;
         Stopwatch stopwatch = new();
@@ -414,6 +415,21 @@ new GaugeConfiguration
             int initialWriteIndex = _writeIndex;
             while (data.Length > 0)
             {
+                int waitTime;
+
+                waitTime = CalculateDynamicWaitTime();
+                if (waitTime > 0)
+                {
+                    await Task.Delay(waitTime, cancellationToken);
+                    _logger.LogWarning($"Dynamically adjusting write wait: {StreamInfo.VideoStreamName} waiting {waitTime}ms.");
+                }
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    _logger.LogDebug("WriteChunkAsync was cancelled during wait.");
+                    return bytesWritten; // Or handle the cancellation in an appropriate manner
+                }
+
                 int availableSpace = _buffer.Length - _writeIndex;
                 if (availableSpace == 0)
                 {
@@ -422,6 +438,7 @@ new GaugeConfiguration
                 }
 
                 int lengthToWrite = Math.Min(data.Length, availableSpace);
+                CheckAndReportClientOverwrites(initialWriteIndex, lengthToWrite);
 
                 Memory<byte> bufferSlice = _buffer.Slice(_writeIndex, lengthToWrite);
                 data[..lengthToWrite].CopyTo(bufferSlice);
@@ -435,13 +452,13 @@ new GaugeConfiguration
                 bytesWritten += lengthToWrite;
                 data = data[lengthToWrite..];
 
-                // After updating _writeIndex
-                if (HasOverwrittenOldestData(lengthToWrite))
-                {
-                    // Increment _oldestDataIndex to the next position after _writeIndex
-                    _oldestDataIndex = (_writeIndex + 1) % _buffer.Length;
-                }
-                CheckAndReportClientOverwrites(initialWriteIndex, lengthToWrite);
+                //// After updating _writeIndex
+                //if (HasOverwrittenOldestData(lengthToWrite))
+                //{
+                // Increment _oldestDataIndex to the next position after _writeIndex
+                _oldestDataIndex = (_writeIndex + 1) % _buffer.Length;
+                //}
+
             }
 
             stopwatch.Stop();
@@ -470,6 +487,56 @@ new GaugeConfiguration
         return bytesWritten;
     }
 
+    private int CalculateDynamicWaitTime()
+    {
+        int closestReadIndexDistance = CalculateClosestReadIndexDistance();
+        int throttleThreshold = (int)(_buffer.Length * 0.10);
+
+        if (closestReadIndexDistance > throttleThreshold)
+        {
+            return 0; // No wait required
+        }
+
+
+        if (closestReadIndexDistance == 0)
+        {
+            return maxWaitTimeMs; // If the read index is very close, wait for the maximum time
+        }
+
+        double proximity = (double)closestReadIndexDistance / throttleThreshold;
+        int calculatedWaitTime = (int)(-maxWaitTimeMs * Math.Log(proximity));
+
+        return Math.Min(calculatedWaitTime, maxWaitTimeMs); // Ensure wait time doesn't exceed maxWaitTime
+    }
+
+
+    private int CalculateClosestReadIndexDistance()
+    {
+        int closestDistance = _buffer.Length;
+        foreach (var readIndex in _clientReadIndexes.Values)
+        {
+            int distance = CalculateDistance(_oldestDataIndex, readIndex);
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+            }
+        }
+        return closestDistance;
+    }
+
+    private int CalculateDistance(int startIndex, int endIndex)
+    {
+        if (startIndex <= endIndex)
+        {
+            return endIndex - startIndex;
+        }
+        else
+        {
+            // Handle wrap-around case
+            return (_buffer.Length - startIndex) + endIndex;
+        }
+    }
+
     private void CheckAndReportClientOverwrites(int initialWriteIndex, int lengthToWrite)
     {
         int newWriteIndex = (_writeIndex + lengthToWrite) % _buffer.Length;
@@ -485,8 +552,7 @@ new GaugeConfiguration
                 _logger.LogWarning($"Client {clientId}'s read index {clientReadIndex} (last read before overwrite: {lastReadBeforeOverwrite}) was overwritten by a write operation. Write started at {initialWriteIndex} and ended at {newWriteIndex} in {VideoStreamName}");
 
                 _clientReadIndexes[clientId] = CalculateSafeReadIndex(newWriteIndex);
-                ResizeBuffer();
-
+                // ResizeBuffer();
             }
         }
     }
@@ -521,29 +587,25 @@ new GaugeConfiguration
         }
     }
 
-    private int CalculateSafeReadIndex(int newWriteIndex)
+    private static int CalculateSafeReadIndex(int newWriteIndex)
     {
         // Implement logic to calculate a safe read index for the client
         // This might be the new write index, or some position before it, depending on your buffer's logic
         return newWriteIndex + 1;
     }
 
-    private bool IsClientOverwritten(int clientReadIndex, int initialWriteIndex, int newWriteIndex)
+    private static bool IsClientOverwritten(int clientReadIndex, int initialWriteIndex, int newWriteIndex)
     {
 
         // Check if the client's read index falls within the range of data that was overwritten
         if (initialWriteIndex <= newWriteIndex)
         {
             // No wrap-around
-            bool a = clientReadIndex > initialWriteIndex;
-            bool b = clientReadIndex <= newWriteIndex;
             return clientReadIndex > initialWriteIndex && clientReadIndex <= newWriteIndex;
         }
         else
         {
             // Wrap-around occurred
-            bool a = clientReadIndex > initialWriteIndex;
-            bool b = clientReadIndex <= newWriteIndex;
             return clientReadIndex > initialWriteIndex || clientReadIndex <= newWriteIndex;
         }
     }
@@ -581,6 +643,13 @@ new GaugeConfiguration
                 _bytesWrittenCounter.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
                 _writeErrorsCounter.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
                 _dataArrival.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
+                foreach (var item in _clientReadIndexes)
+                {
+                    _statisticsManager.UnRegisterClient(item.Key);
+                }
+                _clientReadIndexes.Clear();
+                _clientLastReadBeforeOverwrite.Clear();
+                _performanceMetrics.Clear();
             }
 
             // Dispose unmanaged resources here if any
