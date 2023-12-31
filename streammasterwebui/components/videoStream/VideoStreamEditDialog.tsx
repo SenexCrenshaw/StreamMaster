@@ -1,7 +1,7 @@
-import { useVideoStreamsUpdateVideoStreamMutation, type UpdateVideoStreamRequest, type VideoStreamDto } from '@lib/iptvApi';
 import { memo, useCallback, useEffect, useState } from 'react';
 
 import VideoStreamPanel from '@components/videoStreamPanel/VideoStreamPanel';
+import { UpdateVideoStreamRequest, VideoStreamDto, useVideoStreamsUpdateVideoStreamMutation } from '@lib/iptvApi';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import EditButton from '../buttons/EditButton';
 
@@ -68,7 +68,7 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProperties) => {
         <VideoStreamPanel onEdit={async (e) => await onEdit(e)} videoStream={videoStream} />
       </InfoMessageOverLayDialog>
 
-      <EditButton iconFilled={false} onClick={() => setShowOverlay(true)} tooltip="Edit Group" />
+      <EditButton iconFilled={false} onClick={() => setShowOverlay(true)} tooltip="Edit Stream" />
     </>
   );
 };

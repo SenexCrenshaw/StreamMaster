@@ -115,7 +115,7 @@ const NumberInput = ({
       </span>
       {doShowCopy() && (
         <div className="col-1 p-0 m-0">
-          <CopyButton value={input.toString()} />
+          <CopyButton openCopyWindow={false} value={input.toString()} />
         </div>
       )}
     </div>

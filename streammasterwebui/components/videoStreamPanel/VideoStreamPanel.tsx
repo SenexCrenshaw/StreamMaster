@@ -1,4 +1,4 @@
-import AddButton from '@components/buttons/AddButton';
+import SaveButton from '@components/buttons/SaveButton';
 import ChannelGroupSelector from '@components/channelGroups/ChannelGroupSelector';
 import EPGSelector from '@components/selectors/EPGSelector';
 import IconSelector from '@components/selectors/IconSelector';
@@ -250,7 +250,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
                   )}
                 />
                 <InputWrapper
-                  columnSize={5}
+                  columnSize={4}
                   label="Group Title Override"
                   renderInput={() => (
                     <MultiSelect
@@ -263,34 +263,35 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
                     />
                   )}
                 />
-                <AddButton
-                  disabled={!isSaveEnabled}
-                  iconFilled
-                  label={videoStream ? 'Edit Stream' : 'Add Stream'}
-                  onClick={() => {
-                    const constructObject = () => ({
-                      ...(epgId !== null && { tvg_ID: epgId }),
-                      ...(channelNumber !== null && { tvg_chno: channelNumber }),
-                      ...(channelGroup !== null && { tvg_group: channelGroup }),
-                      ...(iconSource !== null && { tvg_logo: iconSource }),
-                      ...(name !== null && { tvg_name: name }),
-                      ...(groupTitlesString() !== null && { groupTitle: groupTitlesString() }),
-                      ...(streamingProxyType !== undefined && { streamingProxyType: parseInt(streamingProxyType.toString()) }),
-                      ...(url !== null && { url })
-                    });
-                    console.log('VideoStreamPanel onClick', constructObject());
+                <div className="col-4 w-full">
+                  <SaveButton
+                    disabled={!isSaveEnabled}
+                    iconFilled
+                    label={videoStream ? 'Edit Stream' : 'Add Stream'}
+                    onClick={() => {
+                      const constructObject = () => ({
+                        ...(epgId !== null && { tvg_ID: epgId }),
+                        ...(channelNumber !== null && { tvg_chno: channelNumber }),
+                        ...(channelGroup !== null && { tvg_group: channelGroup }),
+                        ...(iconSource !== null && { tvg_logo: iconSource }),
+                        ...(name !== null && { tvg_name: name }),
+                        ...(groupTitlesString() !== null && { groupTitle: groupTitlesString() }),
+                        ...(streamingProxyType !== undefined && { streamingProxyType: parseInt(streamingProxyType.toString()) }),
+                        ...(url !== null && { url })
+                      });
 
-                    if (videoStream) {
-                      onEdit?.({ id: videoStream.id, ...constructObject() } as UpdateVideoStreamRequest);
-                    } else {
-                      onSave?.({
-                        childVideoStreams: videoStream === undefined ? dataSource : videoStreams,
-                        ...constructObject()
-                      } as CreateVideoStreamRequest);
-                    }
-                    setDataSource(undefined);
-                  }}
-                />
+                      if (videoStream) {
+                        onEdit?.({ id: videoStream.id, ...constructObject() } as UpdateVideoStreamRequest);
+                      } else {
+                        onSave?.({
+                          childVideoStreams: videoStream === undefined ? dataSource : videoStreams,
+                          ...constructObject()
+                        } as CreateVideoStreamRequest);
+                      }
+                      setDataSource(undefined);
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>
