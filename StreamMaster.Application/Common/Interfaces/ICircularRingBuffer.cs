@@ -16,6 +16,7 @@ public interface ICircularRingBuffer : IDisposable
     Guid Id { get; }
     public string VideoStreamId { get; }
     public string VideoStreamName { get; }
+    CancellationTokenSource StopVideoStreamingToken { get; set; }
 
     List<StreamStatisticsResult> GetAllStatisticsForAllUrls();
 

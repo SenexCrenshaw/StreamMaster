@@ -84,6 +84,8 @@ new GaugeConfiguration
     private int _writeIndex;
     private bool isBufferFull = false;
 
+    public CancellationTokenSource StopVideoStreamingToken { get; set; }
+
     public CircularRingBuffer(VideoStreamDto videoStreamDto, string channelId, string channelName, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILogger<ICircularRingBuffer> logger)
     {
         Setting setting = memoryCache.GetSetting();
@@ -246,11 +248,13 @@ new GaugeConfiguration
 
         PerformanceBpsMetrics metrics = _performanceMetrics.GetOrAdd(ClientId, key => new PerformanceBpsMetrics());
 
+
+        var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, StopVideoStreamingToken.Token).Token;
         // Wait for data to become available initially
         while (GetAvailableBytes(ClientId) == 0)
         {
-            await WaitForDataAvailability(ClientId, cancellationToken);
-            if (cancellationToken.IsCancellationRequested)
+            await WaitForDataAvailability(ClientId, linkedToken);
+            if (linkedToken.IsCancellationRequested)
             {
                 return 0;
             }
@@ -259,7 +263,7 @@ new GaugeConfiguration
         int bytesRead = 0;
         int bufferLength = _buffer.Length; // Assuming _buffer is the circular buffer's underlying array
 
-        while (!cancellationToken.IsCancellationRequested && bytesRead < target.Length)
+        while (!linkedToken.IsCancellationRequested && bytesRead < target.Length)
         {
 
             int availableBytes = Math.Min(GetAvailableBytes(ClientId), target.Length - bytesRead);
@@ -269,7 +273,7 @@ new GaugeConfiguration
                 {
                     break;
                 }
-                await Task.Delay(20, cancellationToken);
+                await Task.Delay(20, linkedToken);
                 continue;
             }
 
@@ -386,7 +390,8 @@ new GaugeConfiguration
         if (elapsed.TotalMilliseconds is > 15000 and < 60000000000000)
         {
             // Log the elapsed time here
-            _logger.LogWarning($"Input stream is slow: {StreamInfo.VideoStreamName} {elapsed.TotalMilliseconds}ms elapsed since last set.");
+            _logger.LogWarning($"Input stream is slow: {StreamInfo.VideoStreamName} {elapsed.TotalMilliseconds}ms elapsed since last set. Cancelling Stream");
+            StopVideoStreamingToken.Cancel();
         }
 
         foreach (Guid clientId in _clientReadIndexes.Keys)

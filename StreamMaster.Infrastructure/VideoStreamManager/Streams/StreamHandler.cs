@@ -204,6 +204,11 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         const int chunkSize = 128 * 1024;
         const int minWriteSize = 16 * 1024;
 
+        var stopVideoStreamingToken = new CancellationTokenSource();
+        var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(stopVideoStreamingToken.Token, VideoStreamingCancellationToken.Token);
+
+        CircularRingBuffer.StopVideoStreamingToken = stopVideoStreamingToken;
+
         logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} name: {name} circularRingbuffer id: {circularRingbuffer}", chunkSize, StreamUrl, VideoStreamName, CircularRingBuffer.Id);
 
         Memory<byte> videoMemory = new byte[1 * 1024 * 1024];
@@ -215,7 +220,9 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
         using (stream)
         {
-            while (!VideoStreamingCancellationToken.IsCancellationRequested)// && retryCount < maxRetries)
+            Stopwatch timeBetweenWrites = new Stopwatch(); // Initialize the stopwatch
+
+            while (!linkedToken.IsCancellationRequested)// && retryCount < maxRetries)
             {
                 try
                 {
@@ -257,10 +264,25 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                         int bytesToAccumulate = Math.Min(bytesRead, tempBuffer.Length - tempBufferIndex);
                         bufferMemory[..bytesToAccumulate].CopyTo(tempBuffer[tempBufferIndex..]);
                         tempBufferIndex += bytesToAccumulate;
+                        if (timeBetweenWrites.IsRunning)
+                        {
+                            if (timeBetweenWrites.ElapsedMilliseconds is > 15000 and < 60000000000000)
+                            {
+                                logger.LogWarning($"Input stream is slow: {VideoStreamName} {timeBetweenWrites.ElapsedMilliseconds}ms elapsed since last set.");
+
+                                break;
+                            }
+                        }
 
                         // Check if tempBuffer has enough data to write
                         if (tempBufferIndex >= minWriteSize)
                         {
+                            if (timeBetweenWrites.IsRunning)
+                            {
+                                //logger.LogInformation("Time between writes: {ElapsedMilliseconds}ms for {StreamUrl}", timeBetweenWrites.ElapsedMilliseconds, StreamUrl);
+                                timeBetweenWrites.Reset(); // Reset for the next iteration
+                            }
+
                             await CircularRingBuffer.WriteChunk(tempBuffer[..tempBufferIndex], VideoStreamingCancellationToken.Token).ConfigureAwait(false);
                             tempBufferIndex = 0; // Reset tempBufferIndex after writing
                         }
@@ -280,6 +302,10 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             }
         }
 
+        if (!stopVideoStreamingToken.IsCancellationRequested)
+        {
+            stopVideoStreamingToken.Cancel();
+        }
         stream.Close();
         stream.Dispose();
 
