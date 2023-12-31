@@ -5,12 +5,13 @@ import BaseButton from './BaseButton';
 export interface CopyButtonProperties {
   readonly disabled?: boolean | undefined;
   readonly notificationDuration?: number;
+  readonly openCopyWindow: boolean;
   readonly value: string | undefined; // New prop for notification duration
 }
 
-const CopyButton: React.FC<CopyButtonProperties> = ({ disabled = false, value, notificationDuration = 750 }) => {
+const CopyButton: React.FC<CopyButtonProperties> = ({ disabled = false, value, openCopyWindow: openWindow = false, notificationDuration = 750 }) => {
   const [copied, setCopied] = useState(false);
-  const [, copyToClipboard] = useCopyToClipboard();
+  const [, copyToClipboard] = useCopyToClipboard(openWindow);
 
   const handleCopy = () => {
     if (value !== undefined) {

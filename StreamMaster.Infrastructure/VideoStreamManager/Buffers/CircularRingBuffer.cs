@@ -82,7 +82,7 @@ new GaugeConfiguration
     private int _oldestDataIndex;
     private readonly float _preBuffPercent;
     private int _writeIndex;
-    //private bool isBufferFull = false;
+    //private bool HasBufferFlipped = false;
 
     public CancellationTokenSource StopVideoStreamingToken { get; set; }
 
@@ -355,18 +355,18 @@ new GaugeConfiguration
 
     public void RegisterClient(IClientStreamerConfiguration streamerConfiguration)
     {
-        //int bufferAdvancePercentage = 10; // 10% of the buffer size
-        //int maxBufferAdvance = (int)(_buffer.Length * (bufferAdvancePercentage / 100.0));
-        ////int availableData = CalculateDistance(_oldestDataIndex, _writeIndex);
+        var index = 0;
+        if (HasBufferFlipped)
+        {
+            int maxBufferAdvance = (int)(_buffer.Length * .1);
+            int clientReadIndex = (_oldestDataIndex + maxBufferAdvance) % _buffer.Length;
+            index = clientReadIndex;
+        }
 
-        //// Adjust buffer advance based on available data
-        ////int actualBufferAdvance = Math.Min(maxBufferAdvance, availableData);
-        //int clientReadIndex = (_oldestDataIndex) % _buffer.Length;
-
-        if (_clientReadIndexes.TryAdd(streamerConfiguration.ClientId, _oldestDataIndex))
+        if (_clientReadIndexes.TryAdd(streamerConfiguration.ClientId, index))
         {
             _statisticsManager.RegisterClient(streamerConfiguration);
-            _logger.LogInformation("Registered new client {ClientId} with read index {ReadIndex}", streamerConfiguration.ClientId, _oldestDataIndex);
+            _logger.LogInformation("Registered new client {ClientId} with read index {ReadIndex}", streamerConfiguration.ClientId, index);
         }
         else
         {
@@ -453,9 +453,9 @@ new GaugeConfiguration
                 Memory<byte> bufferSlice = _buffer.Slice(_writeIndex, lengthToWrite);
                 data[..lengthToWrite].CopyTo(bufferSlice);
 
-                if (!isBufferFull && _writeIndex + lengthToWrite >= _buffer.Length)
+                if (!HasBufferFlipped && _writeIndex + lengthToWrite >= _buffer.Length)
                 {
-                    isBufferFull = true;
+                    HasBufferFlipped = true;
                 }
 
                 _writeIndex = (_writeIndex + lengthToWrite) % _buffer.Length;
@@ -464,7 +464,7 @@ new GaugeConfiguration
 
 
                 // Increment _oldestDataIndex to the next position after _writeIndex
-                if (isBufferFull)
+                if (HasBufferFlipped)
                 {
                     _oldestDataIndex = (_writeIndex + 1) % _buffer.Length;
                 }
@@ -542,7 +542,7 @@ new GaugeConfiguration
         }
         else
         {
-            if (!isBufferFull)
+            if (!HasBufferFlipped)
             {
                 // If the buffer hasn't looped, treat this as a direct distance without wrap-around
                 return _oldestDataIndex;
@@ -627,7 +627,7 @@ new GaugeConfiguration
 
     private bool HasOverwrittenOldestData(int lengthToWrite)
     {
-        if (!isBufferFull)
+        if (!HasBufferFlipped)
         {
             return false;
         }
@@ -646,7 +646,7 @@ new GaugeConfiguration
     }
 
     private bool _disposed = false; // To track whether Dispose has been called
-    private bool isBufferFull;
+    private bool HasBufferFlipped;
 
     private void DoDispose(bool disposing)
     {

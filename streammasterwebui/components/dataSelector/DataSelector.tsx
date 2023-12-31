@@ -19,7 +19,7 @@ import {
   type DataTableValue
 } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
-import { type PagedResponseDto } from '../selectors/BaseSelector';
+
 import { type ColumnAlign, type ColumnFieldType, type ColumnMeta, type DataSelectorSelectionMode } from './DataSelectorTypes';
 import TableHeader from './TableHeader';
 import bodyTemplate from './bodyTemplate';
@@ -31,6 +31,7 @@ import getRecordString from './getRecordString';
 import isPagedTableDto from './isPagedTableDto';
 import useDataSelectorState from './useDataSelectorState';
 
+import { PagedResponseDto } from '@lib/common/dataTypes';
 import BanButton from '../buttons/BanButton';
 import ResetButton from '../buttons/ResetButton';
 import { TriSelectShowSelection } from '../selectors/TriSelectShowSelection';

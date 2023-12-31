@@ -13,6 +13,7 @@ interface TextInputProperties {
   readonly onChange: (value: string) => void;
   readonly onEnter?: () => void;
   readonly onResetClick?: () => void;
+  readonly openCopyWindow?: boolean;
   readonly placeHolder?: string;
   readonly showClear?: boolean;
   readonly showCopy?: boolean;
@@ -27,6 +28,7 @@ const TextInput = ({
   isValid = true,
   label,
   onChange,
+  openCopyWindow = false,
   onResetClick,
   placeHolder,
   showClear = true,
@@ -140,7 +142,7 @@ const TextInput = ({
       </span>
       {doShowCopy() && (
         <div className="col-1 p-0 m-0">
-          <CopyButton value={input} />
+          <CopyButton openCopyWindow={openCopyWindow} value={input} />
         </div>
       )}
     </div>

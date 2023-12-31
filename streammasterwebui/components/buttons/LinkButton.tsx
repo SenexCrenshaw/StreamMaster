@@ -2,7 +2,7 @@ import useCopyToClipboard from '@lib/hooks/useCopyToClipboard';
 import { useState } from 'react';
 
 export const LinkButton = ({ link, filled }: { readonly link: string; readonly filled?: boolean }) => {
-  const [, copyToClipboard] = useCopyToClipboard();
+  const [, copyToClipboard] = useCopyToClipboard(true);
   const [copied, setCopied] = useState(false);
 
   return (

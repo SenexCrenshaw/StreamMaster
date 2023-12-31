@@ -5,14 +5,14 @@ interface CopyFunction {
   (text: string): Promise<boolean>;
 } // Return success
 
-const useCopyToClipboard = (): [CopiedValue, CopyFunction] => {
+const useCopyToClipboard = (openCopyWindow: boolean): [CopiedValue, CopyFunction] => {
   const [copiedText, setCopiedText] = useState<CopiedValue>(null);
 
   const copyToClipboard: CopyFunction = async (text) => {
     if (!navigator?.clipboard) {
-      console.warn('Clipboard not supported, enable SSL maybe?');
-      window.open(text);
-
+      if (openCopyWindow) {
+        window.open(text);
+      }
       return false;
     }
 

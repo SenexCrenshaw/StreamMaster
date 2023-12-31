@@ -137,7 +137,18 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
     {
         bool showM3UFieldTvgId = setting.M3UFieldTvgId;
 
-        (int epgNumber, string stationId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
+        int epgNumber;
+        string stationId;
+
+        if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
+        {
+            epgNumber = 1000;
+            stationId = videoStream.User_Tvg_group;
+        }
+        else
+        {
+            (epgNumber, stationId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
+        }
 
         bool isUserTvgIdInvalid = string.IsNullOrEmpty(stationId)
                       || StringComparer.OrdinalIgnoreCase.Equals(stationId, "dummy");
@@ -150,7 +161,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
             }
             else
             {
-                return (0, "");
+                return (999, "");
             }
         }
 
