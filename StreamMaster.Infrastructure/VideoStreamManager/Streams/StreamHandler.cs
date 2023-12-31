@@ -52,7 +52,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         return _videoInfo ?? new();
     }
 
-    private async Task BuildVideoInfo(byte[] videoMemory)
+    private async Task BuildVideoInfo(Memory<byte> videoMemory)
     {
         try
         {
@@ -90,7 +90,8 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
             try
             {
-                VideoInfo ret = await CreateFFProbeStream(ffprobeExec, videoMemory).ConfigureAwait(false);
+                var videoMemoryArray = videoMemory.ToArray();
+                VideoInfo ret = await CreateFFProbeStream(ffprobeExec, videoMemoryArray).ConfigureAwait(false);
                 logger.LogInformation("Retrieved video information for {name}", VideoStreamName);
                 return;
             }
@@ -200,12 +201,15 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
     public async Task StartVideoStreamingAsync(Stream stream)
     {
-        const int chunkSize = 16 * 1024;
+        const int chunkSize = 128 * 1024;
+        const int minWriteSize = 16 * 1024;
 
         logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} name: {name} circularRingbuffer id: {circularRingbuffer}", chunkSize, StreamUrl, VideoStreamName, CircularRingBuffer.Id);
 
-        byte[] videoMemory = new byte[1 * 1024 * 1024];
+        Memory<byte> videoMemory = new byte[1 * 1024 * 1024];
         Memory<byte> bufferMemory = new byte[chunkSize];
+        Memory<byte> tempBuffer = new byte[chunkSize];
+        int tempBufferIndex = 0;
         int startMemoryIndex = 0;
         bool startMemoryFilled = false;
 
@@ -230,7 +234,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                                 int bytesToCopy = Math.Min(videoMemory.Length - startMemoryIndex, bytesRead);
 
                                 // Directly copy the data from bufferMemory to startMemory
-                                bufferMemory[..bytesToCopy].CopyTo(videoMemory.AsMemory()[startMemoryIndex..]);
+                                bufferMemory[..bytesToCopy].CopyTo(videoMemory[startMemoryIndex..]);
 
                                 // Update startMemoryIndex
                                 startMemoryIndex += bytesToCopy;
@@ -249,7 +253,18 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                             }
                         }
 
-                        _ = CircularRingBuffer.WriteChunk(bufferMemory[..bytesRead]);
+                        // Accumulate read data in tempBuffer
+                        int bytesToAccumulate = Math.Min(bytesRead, tempBuffer.Length - tempBufferIndex);
+                        bufferMemory[..bytesToAccumulate].CopyTo(tempBuffer[tempBufferIndex..]);
+                        tempBufferIndex += bytesToAccumulate;
+
+                        // Check if tempBuffer has enough data to write
+                        if (tempBufferIndex >= minWriteSize)
+                        {
+                            await CircularRingBuffer.WriteChunk(tempBuffer[..tempBufferIndex], VideoStreamingCancellationToken.Token).ConfigureAwait(false);
+                            tempBufferIndex = 0; // Reset tempBufferIndex after writing
+                        }
+                        //_ = await CircularRingBuffer.WriteChunk(bufferMemory[..bytesRead], VideoStreamingCancellationToken.Token);
                     }
                 }
                 catch (TaskCanceledException)
@@ -275,6 +290,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
     public void Dispose()
     {
+        CircularRingBuffer?.Dispose();
         clientStreamerIds.Clear();
         Stop();
         GC.SuppressFinalize(this);
