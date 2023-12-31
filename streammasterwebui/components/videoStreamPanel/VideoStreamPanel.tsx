@@ -249,6 +249,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
                     <InputText className="w-full bordered-text" onChange={(e) => setUrl(e.target.value)} placeholder="URL" type="text" value={url} />
                   )}
                 />
+                <div className="mr-3"></div>
                 <InputWrapper
                   columnSize={4}
                   label="Group Title Override"
@@ -263,7 +264,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
                     />
                   )}
                 />
-                <div className="col-4 w-full">
+                <div className="col-3">
                   <SaveButton
                     disabled={!isSaveEnabled}
                     iconFilled

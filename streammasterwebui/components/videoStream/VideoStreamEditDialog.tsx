@@ -28,21 +28,21 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProperties) => {
 
   const onEdit = useCallback(
     async (data: UpdateVideoStreamRequest) => {
-      console.log('VideoStreamEditDialog onEdit', data);
+      // console.log('VideoStreamEditDialog onEdit', data);
       setBlock(true);
 
       if (data === null || data === undefined) {
-        console.log('onUpdateVideoStream data is null');
+        // console.log('onUpdateVideoStream data is null');
         ReturnToParent();
 
         return;
       }
 
-      console.log('onUpdateVideoStream sending', data);
+      // console.log('onUpdateVideoStream sending', data);
       // data.streamProxyType=parseInt(data.streamProxyType.toString());
       videoStreamsUpdateVideoStreamMutation(data)
         .then(() => {
-          console.log('onUpdateVideoStream Successful');
+          // console.log('onUpdateVideoStream Successful');
           setInfoMessage('Set Stream Edited Successfully');
         })
         .catch((error) => {
@@ -57,7 +57,8 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProperties) => {
       <InfoMessageOverLayDialog
         blocked={block}
         closable
-        header="Edit Video Stream"
+        header={'Edit Video Stream : ' + videoStream?.user_Tvg_name}
+        subHeader={videoStream?.id}
         infoMessage={infoMessage}
         onClose={() => {
           ReturnToParent();

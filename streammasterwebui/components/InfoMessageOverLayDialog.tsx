@@ -10,6 +10,7 @@ interface InfoMessageOverLayDialogProperties {
   readonly children: React.ReactNode;
   readonly closable?: boolean;
   readonly header?: string;
+  readonly subHeader?: string;
   readonly infoMessage: string | undefined;
   readonly maximizable?: boolean;
   readonly onClose: () => void;
@@ -19,7 +20,19 @@ interface InfoMessageOverLayDialogProperties {
 }
 
 const InfoMessageOverLayDialog: React.FC<InfoMessageOverLayDialogProperties> = (props) => {
-  const { blocked = false, children, closable = true, header = '', infoMessage, maximizable = true, onClose, overlayColSize = 4, severity, show } = props;
+  const {
+    blocked = false,
+    children,
+    closable = true,
+    header = '',
+    subHeader = '',
+    infoMessage,
+    maximizable = true,
+    onClose,
+    overlayColSize = 4,
+    severity,
+    show
+  } = props;
 
   const [showDialog, setShowDialog] = useState<boolean>(show);
 
@@ -83,6 +96,7 @@ const InfoMessageOverLayDialog: React.FC<InfoMessageOverLayDialogProperties> = (
         ref={anchorReference}
         visible={showDialog}
       >
+        <span className="text-sm">{subHeader}</span>
         <BlockUI className="h-full" blocked={blocked}>
           <div className="flex p-0 h-full pt-3 pb-3 border-1 border-round surface-border justify-contents-center align-items-center">{children}</div>
         </BlockUI>

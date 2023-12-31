@@ -39,7 +39,7 @@ public partial class SchedulesDirect
             string seriesId;
 
             //MxfProgram? prog = schedulesDirectData.Programs.FirstOrDefault(a => a.ProgramId == series.ProtoTypicalProgram);
-            if (!schedulesDirectData.Programs.TryGetValue(series.ProtoTypicalProgram, out MxfProgram? program))
+            if (string.IsNullOrEmpty(series.ProtoTypicalProgram) || !schedulesDirectData.Programs.TryGetValue(series.ProtoTypicalProgram, out MxfProgram? program))
             {
                 continue;
             }
