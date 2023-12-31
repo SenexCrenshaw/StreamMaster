@@ -12,11 +12,11 @@ public sealed class StatisticsManager(ILogger<StatisticsManager> logger) : IStat
     private readonly ConcurrentDictionary<Guid, StreamingStatistics> _clientStatistics = new();
     private readonly ILogger<StatisticsManager> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-    public void RegisterClient(Guid clientId, string clientAgent, string clientIPAddress)
+    public void RegisterClient(IClientStreamerConfiguration streamerConfiguration)
     {
-        if (!_clientStatistics.ContainsKey(clientId))
+        if (!_clientStatistics.ContainsKey(streamerConfiguration.ClientId))
         {
-            _clientStatistics.TryAdd(clientId, new StreamingStatistics(clientAgent, clientIPAddress));
+            _clientStatistics.TryAdd(streamerConfiguration.ClientId, new StreamingStatistics(streamerConfiguration.ClientUserAgent, streamerConfiguration.ClientIPAddress));
         }
     }
 

@@ -9,7 +9,7 @@ namespace StreamMaster.Application.Common.Interfaces
         void AddBytesRead(Guid clientId, int count);
         List<ClientStreamingStatistics> GetAllClientStatistics();
         void IncrementBytesRead(Guid clientId);
-        void RegisterClient(Guid clientId, string clientAgent, string clientIPAddress);
+        void RegisterClient(IClientStreamerConfiguration streamerConfiguration);
         void UnRegisterClient(Guid clientId);
     }
 }

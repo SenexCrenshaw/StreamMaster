@@ -366,6 +366,7 @@ new GaugeConfiguration
         // Always register the client
         if (_clientReadIndexes.TryAdd(streamerConfiguration.ClientId, _oldestDataIndex))
         {
+            _statisticsManager.RegisterClient(streamerConfiguration.ClientId, streamerConfiguration.ClientUserAgent, streamerConfiguration.ClientIPAddress);
             _logger.LogInformation("Registered new client {ClientId} with read index {ReadIndex}", streamerConfiguration.ClientId, _oldestDataIndex);
         }
         else
