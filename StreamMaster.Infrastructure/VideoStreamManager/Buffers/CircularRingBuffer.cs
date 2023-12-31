@@ -82,7 +82,7 @@ new GaugeConfiguration
     private int _oldestDataIndex;
     private readonly float _preBuffPercent;
     private int _writeIndex;
-    private bool isBufferFull = false;
+    //private bool isBufferFull = false;
 
     public CancellationTokenSource StopVideoStreamingToken { get; set; }
 
@@ -363,10 +363,9 @@ new GaugeConfiguration
         ////int actualBufferAdvance = Math.Min(maxBufferAdvance, availableData);
         //int clientReadIndex = (_oldestDataIndex) % _buffer.Length;
 
-        // Always register the client
         if (_clientReadIndexes.TryAdd(streamerConfiguration.ClientId, _oldestDataIndex))
         {
-            _statisticsManager.RegisterClient(streamerConfiguration.ClientId, streamerConfiguration.ClientUserAgent, streamerConfiguration.ClientIPAddress);
+            _statisticsManager.RegisterClient(streamerConfiguration);
             _logger.LogInformation("Registered new client {ClientId} with read index {ReadIndex}", streamerConfiguration.ClientId, _oldestDataIndex);
         }
         else
@@ -404,6 +403,8 @@ new GaugeConfiguration
     public void UnRegisterClient(Guid clientId)
     {
         _ = _clientReadIndexes.TryRemove(clientId, out _);
+        _statisticsManager.UnRegisterClient(clientId);
+
         _logger.LogInformation("UnRegisterClient for clientId: {clientId}  {VideoStreamName}", clientId, StreamInfo.VideoStreamName);
     }
 
@@ -458,12 +459,12 @@ new GaugeConfiguration
                 bytesWritten += lengthToWrite;
                 data = data[lengthToWrite..];
 
-                //// After updating _writeIndex
-                //if (HasOverwrittenOldestData(lengthToWrite))
-                //{
+
                 // Increment _oldestDataIndex to the next position after _writeIndex
-                _oldestDataIndex = (_writeIndex + 1) % _buffer.Length;
-                //}
+                if (isBufferFull)
+                {
+                    _oldestDataIndex = (_writeIndex + 1) % _buffer.Length;
+                }
 
             }
 
@@ -637,6 +638,7 @@ new GaugeConfiguration
     }
 
     private bool _disposed = false; // To track whether Dispose has been called
+    private bool isBufferFull;
 
     private void DoDispose(bool disposing)
     {
