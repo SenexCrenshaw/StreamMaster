@@ -137,6 +137,10 @@
   min-width: 100% !important;
 }
 
+.bordered.p-button.p-component.p-button-text {
+  border-color: var(--common-border-color) !important;
+}
+
 .p-inputtext {
   font-size: var(--common-font-size) !important;
   overflow: hidden !important;

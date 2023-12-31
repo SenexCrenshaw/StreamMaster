@@ -572,7 +572,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
           rowGroupHeaderTemplate={rowGroupHeaderTemplate}
           rowGroupMode={props.groupRowsBy !== undefined && props.groupRowsBy !== '' ? 'subheader' : undefined}
           rows={state.rows}
-          rowsPerPageOptions={[25, 50, 100, 250]}
+          rowsPerPageOptions={[10, 25, 50, 100, 250]}
           scrollHeight="flex"
           scrollable
           selectAll={props.disableSelectAll === true ? undefined : state.selectAll}

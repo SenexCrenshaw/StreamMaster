@@ -51,7 +51,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
 
   const logSmallData = useCallback((data: T[]) => {
     if (data.length > 1 && data.length < 100) {
-      console.log(data);
+      // console.log(data);
     }
   }, []);
 

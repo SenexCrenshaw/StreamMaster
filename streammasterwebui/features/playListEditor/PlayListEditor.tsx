@@ -2,7 +2,6 @@ import StandardHeader from '@components/StandardHeader';
 import { PlayListEditorIcon } from '@lib/common/icons';
 import { memo } from 'react';
 import ChannelGroupVideoStreamDataSelector from './ChannelGroupVideoStreamDataSelector';
-import PlayListDataSelector from './PlayListDataSelector';
 
 // const StandardHeader = React.lazy(() => import('@components/StandardHeader'));
 
@@ -14,10 +13,10 @@ const PlayListEditor = () => {
 
   return (
     <StandardHeader className="playListEditor" displayName="PLAYLIST" icon={<PlayListEditorIcon />}>
-      <div className="col-3 m-0 p-0 pr-1">
-        <PlayListDataSelector id={id} />
-      </div>
-      <div className="col-9 m-0 p-0">
+      {/* <div className="col-3 m-0 p-0 pr-1">
+        <PlayListDataSelectorDropDown id={id} />
+      </div> */}
+      <div className="col-12 m-0 p-0">
         <ChannelGroupVideoStreamDataSelector id={id} />
       </div>
     </StandardHeader>

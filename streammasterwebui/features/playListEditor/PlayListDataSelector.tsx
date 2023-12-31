@@ -103,7 +103,7 @@ const PlayListDataSelector = ({
       queryFilter={useChannelGroupsGetPagedChannelGroupsQuery}
       selectedItemsKey="selectSelectedChannelGroupDtoItems"
       selectionMode="multiple"
-      style={{ height: 'calc(100vh - 40px)' }}
+      style={{ height: '70vh' }}
     />
   );
 };

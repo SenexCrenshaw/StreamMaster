@@ -27,6 +27,7 @@ import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalF
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import PlayListDataSelectorDropDown from './PlayListDataSelectorDropDown';
 
 interface ChannelGroupVideoStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
@@ -140,6 +141,15 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
     [dataKey, channelGroupNames]
   );
 
+  const leftHeaderTemplate = useMemo(
+    () => (
+      <div className="flex justify-content-end align-items-center w-full gap-1">
+        <PlayListDataSelectorDropDown id={id} />
+      </div>
+    ),
+    [id]
+  );
+
   return (
     <DataSelector
       columns={columns}
@@ -147,6 +157,7 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
       defaultSortOrder={1}
       emptyMessage="No Streams"
       headerName={GetMessage('streams')}
+      headerLeftTemplate={leftHeaderTemplate}
       headerRightTemplate={rightHeaderTemplate}
       id={dataKey}
       onSelectionChange={(value, selectAll) => {
