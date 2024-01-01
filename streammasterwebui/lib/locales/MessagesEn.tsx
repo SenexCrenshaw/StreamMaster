@@ -137,6 +137,7 @@ const MessagesEn: messages_enType = {
   'sdSettings.sdepgDays': 'EPG Days to download',
   'sdSettings.preferredLogoStyle': 'Preferred Logo Style',
   'sdSettings.alternateLogoStyle': 'Alternate Logo Style',
+  'sdSettings.xmltvFillerProgramLength': 'Dummy Program Length (hrs)',
 
   loading: 'Loading',
   set: 'Set',
