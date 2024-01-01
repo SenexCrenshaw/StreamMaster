@@ -103,32 +103,27 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
         JobStatus jobStatus = jobStatusService.GetSyncJobStatus();
         if (!jobStatus.IsRunning)
         {
-            if (jobStatus.ForceNextRun || (now - jobStatus.LastRun).TotalMinutes > 15)
+            jobStatus.SetIsRunning(true);
+
+            if (jobStatus.ForceNextRun || (now - jobStatus.LastRun).TotalMinutes > 15 || (now - jobStatus.LastSuccessful).TotalMinutes > 60)
             {
-                if (jobStatus.ForceNextRun || jobStatus.IsErrored || (now - jobStatus.LastSuccessful).TotalMinutes > 60)
+                if (jobStatus.ForceNextRun)
                 {
-                    //schedulesDirect.ResetEPGCache();
-                    if (setting.SDSettings.SDEnabled)
-                    {
-                        logger.LogInformation("EPGSync started. {status}", jobStatusService.GetSyncJobStatus());
-
-                        _ = await mediator.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
-                    }
-                    if (jobStatus.Extra)
-                    {
-                        foreach (EPGFileDto epg in await repository.EPGFile.GetEPGFiles())
-                        {
-                            _ = await mediator.Send(new RefreshEPGFileRequest(epg.Id), cancellationToken).ConfigureAwait(false);
-                        }
-                        jobStatusService.ClearSyncForce();
-
-                    }
-                    if (setting.SDSettings.SDEnabled)
-                    {
-                        logger.LogInformation("EPGSync completed. {status}", jobStatusService.GetSyncJobStatus());
-                    }
+                    jobStatusService.ClearSyncForce();
                 }
+                //if (jobStatus.ForceNextRun)// || jobStatus.IsErrored || (now - jobStatus.LastSuccessful).TotalMinutes > 60)
+                //{
+                if (setting.SDSettings.SDEnabled)
+                {
+                    logger.LogInformation("EPGSync started. {status}", jobStatusService.GetSyncJobStatus());
+
+                    _ = await mediator.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
+
+                    logger.LogInformation("EPGSync completed. {status}", jobStatusService.GetSyncJobStatus());
+                }
+                //}
             }
+
         }
         //}
 
@@ -138,7 +133,11 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
         if (epgFilesToUpdated.Any())
         {
             logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFilesToUpdated.Count());
-            jobStatusService.SetSyncForceNextRun(Extra: true);
+
+            foreach (EPGFileDto epg in epgFilesToUpdated)
+            {
+                _ = await mediator.Send(new RefreshEPGFileRequest(epg.Id), cancellationToken).ConfigureAwait(false);
+            }
         }
 
         if (m3uFilesToUpdated.Any())

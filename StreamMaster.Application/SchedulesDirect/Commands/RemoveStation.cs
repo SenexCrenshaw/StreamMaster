@@ -45,7 +45,7 @@ public class RemoveStationHandler(ILogger<RemoveStation> logger, IJobStatusServi
             _ = await Sender.Send(updateSettingRequest, cancellationToken).ConfigureAwait(false);
 
             schedulesDirect.ResetEPGCache();
-            jobStatusService.SetSyncForceNextRun(Extra: true);
+            jobStatusService.SetSyncForceNextRun();
 
             //foreach (EPGFileDto epg in await Repository.EPGFile.GetEPGFiles())
             //{
