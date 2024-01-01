@@ -63,8 +63,8 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
     private byte[] iv = [];
 
     private const string DefaultReturn = "#EXTM3U\r\n";
-    private HashSet<int> chNos = [];
-    private HashSet<int> existingChNos = [];
+    private ConcurrentBag<int> chNos = [];
+    private ConcurrentBag<int> existingChNos = [];
 
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupM3U request, CancellationToken cancellationToken)
@@ -86,7 +86,8 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
             return DefaultReturn;
         }
 
-        existingChNos = videoStreams.Select(a => a.User_Tvg_chno).Distinct().ToHashSet();
+        // Initialize the ConcurrentBag with distinct channel numbers
+        existingChNos = new ConcurrentBag<int>(videoStreams.Select(a => a.User_Tvg_chno).Distinct());
 
         // Retrieve necessary data in parallel
         var videoStreamData = videoStreams
