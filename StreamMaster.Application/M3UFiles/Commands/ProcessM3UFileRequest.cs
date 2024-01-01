@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace StreamMaster.Application.M3UFiles.Commands;
 
-public record ProcessM3UFileRequest(int Id) : IRequest<M3UFile?> { }
+public record ProcessM3UFileRequest(int Id, bool? OverWriteChannels = null) : IRequest<M3UFile?> { }
 
 public class ProcessM3UFileRequestValidator : AbstractValidator<ProcessM3UFileRequest>
 {
@@ -50,7 +50,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
                 return m3uFile;
             }
 
-            if (!ShouldUpdate(m3uFile))
+            if (!ShouldUpdate(m3uFile, request.OverWriteChannels))
             {
                 return m3uFile;
             }
@@ -88,8 +88,24 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         return (streams, streamsCount);
     }
 
-    private static bool ShouldUpdate(M3UFile m3uFile)
+    private static bool ShouldUpdate(M3UFile m3uFile, bool? OverWriteChannels)
     {
+        if (OverWriteChannels is not null)
+        {
+            return true;
+        }
+
+        var json = m3uFile.ReadJSON();
+        if (json is null)
+        {
+            return true;
+        }
+
+        if (m3uFile.OverwriteChannelNumbers != json.OverwriteChannelNumbers)
+        {
+            return true;
+        }
+
         return m3uFile.LastWrite() >= m3uFile.LastUpdated;
     }
 
@@ -99,22 +115,22 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         await RemoveMissing(streams, m3uFile.Id);
 
         List<VideoStream> existing = await Repository.VideoStream.GetVideoStreamQuery().Where(a => a.M3UFileId == m3uFile.Id).ToListAsync().ConfigureAwait(false);
-        existingChannels = new SimpleIntList(m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber - 1);
+        existingChannels = new SimpleIntList(m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber);
 
-        int ch = m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber - 1;
 
         List<ChannelGroup> groups = await Repository.ChannelGroup.GetChannelGroups();
 
         ProcessStreamsConcurrently(streams, existing, groups, m3uFile);
 
-        _ = await Repository.SaveAsync().ConfigureAwait(false);
+        //_ = await Repository.SaveAsync().ConfigureAwait(false);
 
         m3uFile.LastUpdated = DateTime.Now;
         if (m3uFile.StationCount != streamCount)
         {
             m3uFile.StationCount = streamCount;
         }
-        Repository.M3UFile.UpdateM3UFile(m3uFile);
+
+        //Repository.M3UFile.UpdateM3UFile(m3uFile);
         _ = await Repository.SaveAsync().ConfigureAwait(false);
     }
 
@@ -153,7 +169,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         ConcurrentBag<VideoStream> toWrite = [];
         ConcurrentBag<VideoStream> toUpdate = [];
 
-        bool overwriteChannelNumbers = MemoryCache.GetSetting().OverWriteM3UChannels;
+        bool overwriteChannelNumbers = m3uFile.OverwriteChannelNumbers;
 
         int processedCount = 0;
 
@@ -325,19 +341,22 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
             dbStream.M3UFileName = mu3FileName;
         }
 
-        if (overWriteChannels || (stream.Tvg_chno != 0 && dbStream.Tvg_chno != stream.Tvg_chno))
+        int localNextChno = stream.Tvg_chno;
+        if (overWriteChannels)
         {
-            int localNextChno = overWriteChannels ? existingChannels.GetNextInt(index: index) : existingChannels.GetNextInt(value: stream.Tvg_chno, index: index);
-            if (dbStream.Tvg_chno != localNextChno)
-            {
-                changed = true;
-                if (dbStream.Tvg_chno == dbStream.User_Tvg_chno)
-                {
-                    dbStream.User_Tvg_chno = localNextChno;
-                }
-                dbStream.Tvg_chno = localNextChno;
-            }
+            localNextChno = overWriteChannels ? existingChannels.GetNextInt(index: index) : existingChannels.GetNextInt(value: stream.Tvg_chno, index: index);
         }
+
+        if (dbStream.Tvg_chno != localNextChno)
+        {
+            changed = true;
+            if (dbStream.Tvg_chno == dbStream.User_Tvg_chno)
+            {
+                dbStream.User_Tvg_chno = localNextChno;
+            }
+            dbStream.Tvg_chno = localNextChno;
+        }
+
 
         if (dbStream.Tvg_group != stream.Tvg_group)
         {
@@ -438,7 +457,6 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         {
             stream.IsHidden = (bool)groupIsHidden;
         }
-
 
         if (overWriteChannels || stream.User_Tvg_chno == 0 || existingChannels.ContainsInt(stream.Tvg_chno))
         {

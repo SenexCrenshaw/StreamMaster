@@ -82,6 +82,7 @@ public class ScanDirectoryForM3UFilesRequestHandler : BaseMediatorRequestHandler
     private async Task SaveM3UFile(M3UFile m3uFile, CancellationToken cancellationToken)
     {
         Repository.M3UFile.CreateM3UFile(m3uFile);
+
         _ = await Repository.SaveAsync().ConfigureAwait(false);
         m3uFile.WriteJSON();
 

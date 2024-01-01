@@ -4,25 +4,24 @@ using Microsoft.Extensions.Logging;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Services;
 
 using System.Globalization;
 using System.Net;
 
 namespace StreamMaster.SchedulesDirect;
-public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger) : IXMLTVBuilder
+public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger) : IXMLTVBuilder
 {
     private string _baseUrl = "";
-    private ISchedulesDirectDataService schedulesDirectDataService;
+    //private ISchedulesDirectDataService schedulesDirectDataService;
     private readonly Dictionary<int, MxfSeriesInfo> seriesDict = [];
     private Dictionary<string, string> keywordDict = [];
 
 
-    [LogExecutionTimeAspect]
-    public XMLTV? CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs, ISchedulesDirectDataService schedulesDirectDataService)
+    //[LogExecutionTimeAspect]
+    public XMLTV? CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs)
     {
-        this.schedulesDirectDataService = schedulesDirectDataService;
+
         _baseUrl = baseUrl;
         try
         {
@@ -57,8 +56,6 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
              return string.Equals(word, "Movies", StringComparison.OrdinalIgnoreCase) ? "Movie" : word;
          }
      );
-
-
             foreach (MxfSeriesInfo seriesInfo in schedulesDirectDataService.AllSeriesInfos)
             {
                 if (seriesDict.ContainsKey(seriesInfo.Index))
@@ -76,11 +73,19 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
             HashSet<int> chNos = [];
             HashSet<int> existingChNos = videoStreamConfigs.Select(a => a.User_Tvg_chno).Distinct().ToHashSet();
 
+
             foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs.OrderBy(a => a.User_Tvg_chno))
             {
                 string prefix = videoStreamConfig.IsDummy ? "DUMMY" : "SM";
+                int epgNumber;
+                string stationId;
 
-                (int epgNumber, string stationId) = videoStreamConfig.User_Tvg_ID.ExtractEPGNumberAndStationId();
+                if (videoStreamConfig.Id == "282476628d303b54eaec5b63457d0447")
+                {
+                    var aa = 1;
+                }
+                (epgNumber, stationId) = ePGHelper.ExtractEPGNumberAndStationId(videoStreamConfig.User_Tvg_ID);
+                //}
 
                 MxfService? origService = services.FirstOrDefault(a => a.StationId == stationId && a.EPGNumber == epgNumber);
 
@@ -110,6 +115,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
                 }
                 chNos.Add(chNo);
 
+                newService.EPGNumber = epgNumber;
                 newService.ChNo = chNo;
                 newService.Name = videoStreamConfig.User_Tvg_name;
                 newService.Affiliate = origService.Affiliate;
@@ -146,47 +152,45 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
             {
                 Parallel.ForEach(toProcess, service =>
                 {
-                    if (service.StationId != "DUMMY")
-                    {
-                        xmlTv.Channels.Add(BuildXmltvChannel(service, videoStreamConfigs));
 
-                        if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && settings.SDSettings.XmltvAddFillerData)
+                    xmlTv.Channels.Add(BuildXmltvChannel(service, videoStreamConfigs));
+
+                    if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && settings.SDSettings.XmltvAddFillerData)
+                    {
+                        // add a program specific for this service
+                        MxfProgram program = new(programs.Count + 1, $"SM-{service.StationId}")
                         {
-                            // add a program specific for this service
-                            MxfProgram program = new(programs.Count + 1, $"SM-{service.StationId}")
+                            Title = service.Name,
+                            Description = settings.SDSettings.XmltvFillerProgramDescription,
+                            IsGeneric = true
+                        };
+
+                        // populate the schedule entries
+                        DateTime startTime = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 0, 0, 0);
+                        DateTime stopTime = startTime + TimeSpan.FromDays(settings.SDSettings.SDEPGDays);
+                        do
+                        {
+                            service.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
                             {
-                                Title = service.Name,
-                                Description = settings.SDSettings.XmltvFillerProgramDescription,
-                                IsGeneric = true
-                            };// schedulesDirectData.FindOrCreateProgram($"SM-{service.StationId}");
-
-                            // populate the schedule entries
-                            DateTime startTime = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 0, 0, 0);
-                            DateTime stopTime = startTime + TimeSpan.FromDays(settings.SDSettings.SDEPGDays);
-                            do
-                            {
-                                service.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
-                                {
-                                    Duration = settings.SDSettings.XmltvFillerProgramLength * 60 * 60,
-                                    mxfProgram = program,
-                                    StartTime = startTime,
-                                    IsRepeat = true
-                                });
-                                startTime += TimeSpan.FromHours(settings.SDSettings.XmltvFillerProgramLength);
-                            } while (startTime < stopTime);
-                        }
-
-                        List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
-
-                        string channelId = service.ChNo.ToString();
-
-                        Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, scheduleEntry =>
-                    {
-                        XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channelId);
-                        xmlTv.Programs.Add(program);
-                    });
-
+                                Duration = settings.SDSettings.XmltvFillerProgramLength * 60 * 60,
+                                mxfProgram = program,
+                                StartTime = startTime,
+                                IsRepeat = true
+                            });
+                            startTime += TimeSpan.FromHours(settings.SDSettings.XmltvFillerProgramLength);
+                        } while (startTime < stopTime);
                     }
+
+                    List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
+
+                    string channelId = service.ChNo.ToString();
+
+                    Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, scheduleEntry =>
+                {
+                    XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channelId);
+                    xmlTv.Programs.Add(program);
+                });
+
                 });
 
                 List<XmltvProgramme> a = xmlTv.Programs.Where(a => a == null || a.Channel == null || a.StartDateTime == null).ToList();
@@ -240,9 +244,28 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
         //}
     }
 
-    private string GetIconUrl(string iconOriginalSource, SMFileTypes? sMFileTypes = null)
+    private string GetIconUrl(int EPGNumber, string iconOriginalSource, SMFileTypes? sMFileTypes = null)
     {
+        if (ePGHelper.IsDummy(EPGNumber))
+        {
+            return iconOriginalSource;
+        }
+
+        if (ePGHelper.IsSchedulesDirect(EPGNumber))
+        {
+            if (iconOriginalSource.StartsWith("http"))
+            {
+                return iconOriginalSource;
+            }
+            else
+            {
+                return GetApiUrl(sMFileTypes ?? SMFileTypes.SDImage, iconOriginalSource);
+            }
+        }
+
+
         Setting settings = memoryCache.GetSetting();
+
         if (string.IsNullOrEmpty(iconOriginalSource))
         {
             return $"{_baseUrl}{settings.DefaultIcon}";
@@ -259,15 +282,8 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
         {
             return $"{_baseUrl}/{iconOriginalSource}";
         }
-        else if (!iconOriginalSource.StartsWith("http"))
-        {
-            return GetApiUrl(sMFileTypes ?? SMFileTypes.SDImage, originalUrl);
-        }
-        if (iconOriginalSource.StartsWith("https://json.schedulesdirect.org"))
-        {
-            return GetApiUrl(sMFileTypes ?? SMFileTypes.SDImage, originalUrl);
-        }
-        else if (settings.CacheIcons)
+
+        if (settings.CacheIcons)
         {
             return GetApiUrl(sMFileTypes ?? SMFileTypes.Icon, originalUrl);
         }
@@ -286,10 +302,6 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
     private XmltvChannel BuildXmltvChannel(MxfService mxfService, List<VideoStreamConfig> videoStreamConfigs)
     {
         Setting settings = memoryCache.GetSetting();
-
-        //(int epgNumber, string stationId) = mxfService.StationId.ExtractEPGNumberAndStationId();
-
-        //var id = videoStreamConfigs.FirstOrDefault(a => a.User_Tvg_ID.Equals(mxfService.StationId))?.User_Tvg_chno ?? 0;
 
         // initialize the return channel
         XmltvChannel ret = new()
@@ -337,6 +349,11 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
             ret.DisplayNames.Add(new XmltvText { Text = affiliate });
         }
 
+        if (mxfService.EPGNumber < 0)
+        {
+            var a = 1;
+        }
+
         // add logo if available
         if (mxfService.extras.TryGetValue("logo", out dynamic? logos))
         {
@@ -344,7 +361,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
             ret.Icons =
                 [
                     new() {
-                        Src = GetIconUrl( mxfService.extras["logo"].Url),
+                        Src = GetIconUrl(mxfService.EPGNumber, mxfService.extras["logo"].Url),
                         Height = mxfService.extras["logo"].Height,
                         Width = mxfService.extras["logo"].Width
                     }
@@ -668,6 +685,8 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
     private List<XmltvIcon>? BuildProgramIcons(MxfProgram mxfProgram)
     {
         Setting settings = memoryCache.GetSetting();
+
+
         if (settings.SDSettings.XmltvSingleImage || !mxfProgram.extras.ContainsKey("artwork"))
         {
             // Use the first available image URL
@@ -675,7 +694,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
                           mxfProgram.mxfSeason?.mxfGuideImage?.ImageUrl ??
                           mxfProgram.mxfSeriesInfo?.mxfGuideImage?.ImageUrl;
 
-            return url != null ? [new XmltvIcon { Src = GetIconUrl(url) }] : null;
+            return url != null ? [new XmltvIcon { Src = GetIconUrl(mxfProgram.EPGNumber, url) }] : null;
         }
 
         // Retrieve artwork from the program, season, or series info
@@ -686,7 +705,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, ILogger<XMLTVBuilder> logger
         // Convert artwork to XmltvIcon list
         return artwork?.Select(image => new XmltvIcon
         {
-            Src = GetIconUrl(image.Uri),
+            Src = GetIconUrl(mxfProgram.EPGNumber, image.Uri),
             Height = image.Height,
             Width = image.Width
         }).ToList();

@@ -5,6 +5,9 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
 {
     public class StationChannelMap
     {
+        [JsonIgnore]
+        public Guid Id { get; set; } = Guid.NewGuid();
+
         [JsonPropertyName("map")]
         //[JsonConverter(typeof(SingleOrListConverter<LineupChannel>))]
         public List<LineupChannel> Map { get; set; } = [];

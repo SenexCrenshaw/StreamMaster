@@ -22,12 +22,14 @@ namespace StreamMaster.Infrastructure.EF
         ILogger<StreamGroupVideoStreamRepository> StreamGroupVideoStreamRepositoryLogger,
         ILogger<StreamGroupChannelGroupRepository> StreamGroupChannelGroupRepositoryLogger,
         ISchedulesDirectDataService schedulesDirectDataService,
+
         RepositoryContext repositoryContext,
         ISortHelper<StreamGroup> streamGroupSortHelper,
         IMapper mapper,
         IIconService iconService,
         IMemoryCache memoryCache,
         ISender sender,
+        IEPGHelper epgHelper,
         IHttpContextAccessor httpContextAccessor,
         ISettingsService settingsService) : IRepositoryWrapper
     {
@@ -59,7 +61,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _m3uFile ??= new M3UFileRepository(M3UFileRepositoryLogger, repositoryContext, this, mapper);
+                _m3uFile ??= new M3UFileRepository(M3UFileRepositoryLogger, repositoryContext, mapper);
                 return _m3uFile;
             }
         }
@@ -92,7 +94,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _videoStream ??= new VideoStreamRepository(VideoStreamRepositoryLogger, iconService, repositoryContext, mapper, memoryCache, sender, settingsService);
+                _videoStream ??= new VideoStreamRepository(VideoStreamRepositoryLogger, schedulesDirectDataService, epgHelper, iconService, repositoryContext, mapper, memoryCache, sender, settingsService);
                 return _videoStream;
             }
         }

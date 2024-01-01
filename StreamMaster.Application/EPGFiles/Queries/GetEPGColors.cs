@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.EPGFiles.Queries;
+﻿using StreamMaster.SchedulesDirect.Helpers;
+
+namespace StreamMaster.Application.EPGFiles.Queries;
 
 public record GetEPGColors() : IRequest<List<EPGColorDto>>;
 
@@ -16,9 +18,9 @@ internal class GetEPGColorsHandler(ILogger<GetEPGColors> logger, IRepositoryWrap
         {
             string color = "#FFFFFF";
 
-            if (svc.EPGNumber != 0)
+            if (svc.EPGNumber != EPGHelper.SchedulesDirectId)
             {
-                EPGColorDto? epgColor = epgColors.FirstOrDefault(x => x.Id == svc.EPGNumber);
+                EPGColorDto? epgColor = epgColors.FirstOrDefault(x => x.EPGNumber == svc.EPGNumber);
                 color = epgColor?.Color ?? color;
             }
 

@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Data;
 
-public partial class SchedulesDirectData(ILogger<SchedulesDirectData> logger, ISettingsService settingsService, IMemoryCache memoryCache, int EPGNumber) : ISchedulesDirectData
+public partial class SchedulesDirectData(ILogger<SchedulesDirectData> logger, IEPGHelper ePGHelper, IMemoryCache memoryCache, int EPGNumber) : ISchedulesDirectData
 {
     public int EPGNumber { get; set; } = EPGNumber;
 

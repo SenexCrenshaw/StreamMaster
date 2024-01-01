@@ -34,7 +34,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
 
     private XMLTV? ConvertToMxf(XMLTV xmlTv, int EPGNumber)
     {
-        schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(EPGNumber);
+        schedulesDirectData = schedulesDirectDataService.GetEPGData(EPGNumber);
 
         if (
             !BuildLineupAndChannelServices(xmlTv) ||
@@ -101,13 +101,21 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
 
                     int number = int.Parse(numbers[0]);
                     int subNumber = numbers.Length > 1 ? int.Parse(numbers[1]) : 0;
-
+                    if (number == 2117 || subNumber == 2117)
+                    {
+                        var aaa = 1;
+                    }
                     MxfChannel newChannel = new(mxfLineup, mxfService, number, subNumber);
+
                     mxfLineup.channels.Add(newChannel);
                 }
             }
             else
             {
+                if (mxfService.ChNo == 2117 || mxfService.ChNo == 2117)
+                {
+                    var aaa = 1;
+                }
                 mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
             }
 
@@ -127,6 +135,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
 
             if (mxfProgram.Title == null)
             {
+                mxfProgram.EPGNumber = mxfService.EPGNumber;
                 if (program.Categories != null)
                 {
                     mxfProgram.IsAction = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("action")) ||

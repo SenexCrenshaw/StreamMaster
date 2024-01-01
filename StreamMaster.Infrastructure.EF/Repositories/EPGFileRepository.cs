@@ -47,7 +47,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryCont
             return [];
         }
 
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(epgFile.EPGNumber);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetEPGData(epgFile.EPGNumber);
 
         ICollection<MxfService> services = schedulesDirectData.Services.Values;
         List<EPGFilePreviewDto> ret = [];

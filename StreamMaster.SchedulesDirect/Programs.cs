@@ -28,7 +28,7 @@ public partial class SchedulesDirect
 
         // fill mxf programs with cached values and queue the rest
         programQueue = [];
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         ICollection<MxfProgram> toProcess = schedulesDirectData.Programs.Values;
         foreach (MxfProgram mxfProgram in toProcess)
         {
@@ -110,7 +110,7 @@ public partial class SchedulesDirect
         {
             //IncrementProgress();
 
-            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
             MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(sdProgram.ProgramId);
 
             // build a standalone program
@@ -362,7 +362,7 @@ public partial class SchedulesDirect
         {
             return;
         }
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         MxfKeywordGroup mxfKeyGroup = schedulesDirectData.FindOrCreateKeywordGroup(group);
         mxfProgram.mxfKeywords.Add(new MxfKeyword((int)group, mxfKeyGroup.Index, SchedulesDirectData.KeywordGroupsText[(int)group]));
 
@@ -436,7 +436,7 @@ public partial class SchedulesDirect
 
     private void DetermineSeriesInfo(MxfProgram mxfProgram, Programme sdProgram)
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         // for sports programs that start with "SP", create a series entry based on program title
         // this groups them all together as a series for recordings
         MxfSeriesInfo mxfSeriesInfo;
@@ -539,7 +539,7 @@ public partial class SchedulesDirect
         }
 
         // if there is a season number, create a season entry
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         if (mxfProgram.SeasonNumber != 0)
         {
             mxfProgram.mxfSeason = schedulesDirectData.FindOrCreateSeason(mxfProgram.mxfSeriesInfo.SeriesId, mxfProgram.SeasonNumber,
@@ -695,7 +695,7 @@ public partial class SchedulesDirect
 
         List<string> personName = [];
         List<MxfPersonRank> ret = [];
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         foreach (ProgramPerson? person in persons.Where(person => roles.Any(role => person.Role.ToLower().Contains(role.ToLower()) && !personName.Contains(person.Name))))
         {
             ret.Add(new MxfPersonRank(schedulesDirectData.FindOrCreatePerson(person.Name))

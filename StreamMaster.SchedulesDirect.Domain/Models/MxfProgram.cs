@@ -520,4 +520,5 @@ public class MxfProgram
 
     [XmlElement("DirectorRole")]
     public List<MxfPersonRank> DirectorRole { get; set; }
+    public int EPGNumber { get; set; }
 }

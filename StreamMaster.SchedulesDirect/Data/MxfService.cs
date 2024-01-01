@@ -23,11 +23,39 @@ public partial class SchedulesDirectData
         });
         if (created)
         {
+
             return service;
         }
 
         ScheduleEntries.Add(service.MxfScheduleEntries);
         ServicesToProcess.Add(service);
+        return service;
+    }
+
+    public MxfService FindOrCreateDummyService(string stationId, VideoStreamConfig videoStreamConfig)
+    {
+        (MxfService service, bool created) = Services.FindOrCreateWithStatus(stationId, key => new MxfService(Services.Count + 1, stationId)
+        {
+            EPGNumber = EPGNumber
+        });
+        if (created)
+        {
+            service.Name = videoStreamConfig.User_Tvg_name;
+            service.CallSign = videoStreamConfig.User_Tvg_name;
+            service.ChNo = videoStreamConfig.User_Tvg_chno;
+            if (!string.IsNullOrEmpty(videoStreamConfig.User_Tvg_Logo) && videoStreamConfig.User_Tvg_Logo.StartsWith("http"))
+            {
+                service.LogoImage = videoStreamConfig.User_Tvg_Logo;
+                service.extras.AddOrUpdate("logo", new StationImage
+                {
+                    Url = videoStreamConfig.User_Tvg_Logo
+
+                });
+
+                //service.mxfGuideImage = FindOrCreateGuideImage(videoStreamConfig.User_Tvg_Logo);
+            }
+
+        }
         return service;
     }
 

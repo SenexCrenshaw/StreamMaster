@@ -7,7 +7,7 @@ public partial class SchedulesDirect
 {
     private bool BuildKeywords()
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         foreach (MxfKeywordGroup? group in schedulesDirectData.KeywordGroups.Values)
         {
             // sort the group keywords

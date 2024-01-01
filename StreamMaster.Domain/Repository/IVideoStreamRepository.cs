@@ -70,5 +70,6 @@ namespace StreamMaster.Domain.Repository
         Task<List<VideoStreamDto>> AutoSetEPGFromParameters(VideoStreamParameters parameters, List<string> ids, CancellationToken cancellationToken);
         Task<List<VideoStreamDto>> SetVideoStreamTimeShiftsFromIds(List<string> ids, string timeShift, CancellationToken cancellationToken);
         Task<List<VideoStreamDto>> SetVideoStreamTimeShiftFromParameters(VideoStreamParameters parameters, string timeShift, CancellationToken cancellationToken);
+        Task<List<VideoStreamDto>> VideoStreamChangeEPGNumber(int oldEPGNumber, int newEPGNumber, CancellationToken cancellationToken);
     }
 }

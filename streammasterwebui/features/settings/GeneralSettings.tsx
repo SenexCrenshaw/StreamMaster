@@ -30,8 +30,6 @@ export function GeneralSettings(): React.ReactElement {
           {getPasswordLine({ field: 'sslCertPassword', warning: GetMessage('changesServiceRestart'), selectedCurrentSettingDto, onChange })}
         </>
       )}
-      {getCheckBoxLine({ field: 'overWriteM3UChannels', selectedCurrentSettingDto, onChange })}
-      {/* {getCheckBoxLine('logPerformance')} */}
     </Fieldset>
   );
 }

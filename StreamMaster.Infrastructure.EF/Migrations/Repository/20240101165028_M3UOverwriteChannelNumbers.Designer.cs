@@ -2,17 +2,20 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StreamMaster.Infrastructure.EF;
 
 #nullable disable
 
-namespace StreamMaster.Infrastructure.Persistence.Migrations
+namespace StreamMaster.Infrastructure.EF.Migrations.Repository
 {
     [DbContext(typeof(RepositoryContext))]
-    partial class RepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20240101165028_M3UOverwriteChannelNumbers")]
+    partial class M3UOverwriteChannelNumbers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

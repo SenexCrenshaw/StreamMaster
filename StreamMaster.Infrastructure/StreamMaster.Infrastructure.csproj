@@ -8,7 +8,7 @@
     <FileVersion>0.1.0.0</FileVersion>
     <InformationalVersion>0.1.0-alpha.582+Branch.develop.Sha.95b3b4eac9a11372a0e6e5d32be2790dfac1813b</InformationalVersion>
     <Version>0.1.0-alpha0582</Version>
-    <LangVersion>preview</LangVersion>
+   
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Services\SD\**" />

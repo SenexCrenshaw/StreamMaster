@@ -16,15 +16,17 @@ using StreamMaster.Application.M3UFiles.Queries;
 using StreamMaster.Application.SchedulesDirect.Queries;
 
 using StreamMaster.Infrastructure.EF.Helpers;
+using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
 using StreamMaster.SchedulesDirect.Domain.Models;
 
+using System.Diagnostics;
 using System.Linq.Dynamic.Core;
 
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IIconService iconService, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender, ISettingsService settingsService) : RepositoryBase<VideoStream>(repositoryContext, intLogger), IVideoStreamRepository
+public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISchedulesDirectDataService schedulesDirectDataService, IEPGHelper epgHelper, IIconService iconService, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender, ISettingsService settingsService) : RepositoryBase<VideoStream>(repositoryContext, intLogger), IVideoStreamRepository
 {
     public PagedResponse<VideoStreamDto> CreateEmptyPagedResponse()
     {
@@ -1059,5 +1061,38 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IIc
 
         await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return results;
+    }
+
+    public async Task<List<VideoStreamDto>> VideoStreamChangeEPGNumber(int oldEPGNumber, int newEPGNumber, CancellationToken cancellationToken)
+    {
+        var stopWatch = Stopwatch.StartNew();
+        logger.LogInformation($"Starting VideoStreamChangeEPGNumber {oldEPGNumber} {newEPGNumber}");
+
+        var starts = $"{oldEPGNumber}-";
+
+        // Using raw SQL for bulk update
+        var sql = $"UPDATE VideoStreams SET User_Tvg_ID = REPLACE(User_Tvg_ID, '{starts}', '{newEPGNumber}-') WHERE User_Tvg_ID LIKE '{starts}%'";
+        await RepositoryContext.Database.ExecuteSqlRawAsync(sql, cancellationToken);
+
+
+        //var results = await RepositoryContext.VideoStreams.Where(a => a.User_Tvg_ID.StartsWith(starts)).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        //foreach (var videoStream in results)
+        //{
+        //    var (epgNumber, stationId) = epgHelper.ExtractEPGNumberAndStationId(videoStream.User_Tvg_ID);
+        //    videoStream.User_Tvg_ID = videoStream.User_Tvg_ID = $"{newEPGNumber}-{stationId}";
+        //}
+
+        //await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        var results = await RepositoryContext.VideoStreams
+    .Where(a => a.User_Tvg_ID.StartsWith($"{newEPGNumber}-"))
+
+    .ToListAsync(cancellationToken: cancellationToken)
+    .ConfigureAwait(false);
+
+        schedulesDirectDataService.ChangeServiceEPGNumber(oldEPGNumber, newEPGNumber);
+        stopWatch.Stop();
+        logger.LogInformation($"Finished VideoStreamChangeEPGNumber processed {results.Count} in {stopWatch.ElapsedMilliseconds} ms");
+        return mapper.Map<List<VideoStreamDto>>(results);
     }
 }

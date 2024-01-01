@@ -1,15 +1,11 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-namespace StreamMaster.Application.M3UFiles.Commands;
+﻿namespace StreamMaster.Application.M3UFiles.Commands;
 
 public class UpdateM3UFileRequest : BaseFileRequest, IRequest<M3UFile?>
 {
     //public int? StreamURLPrefixInt { get; set; }
     public int? MaxStreamCount { get; set; }
     public int? StartingChannelNumber { get; set; }
+    public bool? OverWriteChannels { get; set; }
 }
 
 
@@ -28,6 +24,7 @@ public class UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, I
             }
 
             bool isChanged = false;
+            bool needsUpdate = false;
 
             if (!string.IsNullOrEmpty(request.Description) && m3uFile.Description != request.Description)
             {
@@ -44,7 +41,15 @@ public class UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, I
             if (!string.IsNullOrEmpty(request.Url) && m3uFile.Url != request.Url)
             {
                 isChanged = true;
+                needsUpdate = true;
                 m3uFile.Url = request.Url;
+            }
+
+            if (request.OverWriteChannels != null)
+            {
+                isChanged = true;
+                needsUpdate = true;
+                m3uFile.OverwriteChannelNumbers = (bool)request.OverWriteChannels;
             }
 
             if (!string.IsNullOrEmpty(request.Name) && m3uFile.Name != request.Name)
@@ -79,7 +84,11 @@ public class UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, I
 
             Repository.M3UFile.UpdateM3UFile(m3uFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
-            m3uFile.WriteJSON();
+
+            if (needsUpdate)
+            {
+                await Sender.Send(new ProcessM3UFileRequest(m3uFile.Id, request.OverWriteChannels), cancellationToken).ConfigureAwait(false);
+            }
 
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
             if (isChanged)

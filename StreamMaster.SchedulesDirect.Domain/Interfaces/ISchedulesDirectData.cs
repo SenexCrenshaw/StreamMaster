@@ -38,6 +38,7 @@ namespace StreamMaster.SchedulesDirect.Domain.Interfaces
         MxfGuideImage FindOrCreateGuideImage(string pathname);
         MxfLineup FindOrCreateLineup(string lineupId, string lineupName);
         MxfService FindOrCreateService(string stationId);
+        MxfService FindOrCreateDummyService(string stationId, VideoStreamConfig videoStreamConfig);
         MxfService? GetService(string stationId);
 
         void RemoveProgram(string programId);

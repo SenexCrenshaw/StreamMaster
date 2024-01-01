@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "StreamMaster.SchedulesDirect": {
+      "commandName": "Project",
+      "hotReloadEnabled": false,
+      "nativeDebugging": true
+    }
+  }
+}

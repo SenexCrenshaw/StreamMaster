@@ -17,7 +17,7 @@
     <Copyright>Copyright 2023-$([System.DateTime]::Now.ToString('yyyy')) streammaster (MIT license)</Copyright>
     <NeutralLanguage>en</NeutralLanguage>
     <Title>Stream Master</Title>
-    <LangVersion>preview</LangVersion>
+   
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>	 
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

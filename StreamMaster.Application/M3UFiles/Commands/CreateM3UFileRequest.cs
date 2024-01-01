@@ -4,7 +4,7 @@ using System.Web;
 
 namespace StreamMaster.Application.M3UFiles.Commands;
 
-public record CreateM3UFileRequest(string? Description, int MaxStreamCount, int? StartingChannelNumber, IFormFile? FormFile, string Name, string? UrlSource) : IRequest<bool> { }
+public record CreateM3UFileRequest(string? Description, int MaxStreamCount, bool? OverWriteChannels, int? StartingChannelNumber, IFormFile? FormFile, string Name, string? UrlSource) : IRequest<bool> { }
 
 [LogExecutionTimeAspect]
 public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<CreateM3UFileRequest, bool>
@@ -28,6 +28,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, I
                 Name = command.Name,
                 Source = command.Name + fd.FileExtension,
                 StartingChannelNumber = command.StartingChannelNumber == null ? 1 : (int)command.StartingChannelNumber,
+                OverwriteChannelNumbers = command.OverWriteChannels != null && (bool)command.OverWriteChannels,
                 //StreamURLPrefix = command.StreamURLPrefixInt == null ? M3UFileStreamURLPrefix.SystemDefault : (M3UFileStreamURLPrefix)command.StreamURLPrefixInt
             };
 
@@ -87,7 +88,6 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, I
 
 
             m3UFile.StationCount = streams.Count;
-
 
             Repository.M3UFile.CreateM3UFile(m3UFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);

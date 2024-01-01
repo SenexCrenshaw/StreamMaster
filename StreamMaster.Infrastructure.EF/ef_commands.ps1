@@ -19,4 +19,4 @@ dotnet tool update --global dotnet-ef
 
 
 //dotnet ef migrations remove -c RepositoryContext
-//dotnet ef database update -c RepositoryContext 20231223165021_AddSGAutoVideoGroupTitle
+//dotnet ef database update -c RepositoryContext 20231229192654_SystemKeyValues

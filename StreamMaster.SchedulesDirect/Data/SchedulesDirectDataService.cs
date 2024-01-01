@@ -2,20 +2,16 @@
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Services;
+using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Collections.Concurrent;
 
 namespace StreamMaster.SchedulesDirect.Data;
 
-public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, IXMLTVBuilder xMLTVBuilder, ISettingsService settingsService, IMemoryCache memoryCache) : ISchedulesDirectDataService
+public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, IEPGHelper ePGHelper, ISettingsService settingsService, IMemoryCache memoryCache) : ISchedulesDirectDataService
 {
+
     public ConcurrentDictionary<int, ISchedulesDirectData> SchedulesDirectDatas { get; private set; } = new();
-
-    public XMLTV? CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs)
-    {
-        return xMLTVBuilder.CreateXmlTv(baseUrl, videoStreamConfigs, this);
-    }
-
     public void Reset(int? epgId = null)
     {
         if (epgId.HasValue)
@@ -73,11 +69,31 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, IXM
         }
     }
 
-    public ISchedulesDirectData GetSchedulesDirectData(int EPGNUmber)
+    public ISchedulesDirectData GetEPGData(int EPGNumber)
     {
-        return SchedulesDirectDatas.GetOrAdd(EPGNUmber, (epgId) =>
+        return SchedulesDirectDatas.GetOrAdd(EPGNumber, (epgId) =>
         {
-            SchedulesDirectData data = new(logger, settingsService, memoryCache, EPGNUmber);
+            SchedulesDirectData data = new(logger, ePGHelper, memoryCache, EPGNumber);
+            return data;
+        });
+    }
+
+    public ISchedulesDirectData SchedulesDirectData()
+    {
+        return SchedulesDirectDatas.GetOrAdd(EPGHelper.SchedulesDirectId, (epgId) =>
+        {
+            SchedulesDirectData data = new(logger, ePGHelper, memoryCache, EPGHelper.SchedulesDirectId);
+            data.EPGNumber = EPGHelper.SchedulesDirectId;
+            return data;
+        });
+    }
+
+    public ISchedulesDirectData DummyData()
+    {
+        return SchedulesDirectDatas.GetOrAdd(EPGHelper.DummyId, (epgId) =>
+        {
+            SchedulesDirectData data = new(logger, ePGHelper, memoryCache, EPGHelper.DummyId);
+            data.EPGNumber = EPGHelper.DummyId;
             return data;
         });
     }
@@ -107,5 +123,13 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, IXM
         }
 
         return [.. ret.OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase)];
+    }
+
+    public void ChangeServiceEPGNumber(int oldEPGNumber, int newEPGNumber)
+    {
+        foreach (var service in GetEPGData(oldEPGNumber).Services.Values)
+        {
+            service.EPGNumber = newEPGNumber;
+        }
     }
 }

@@ -1,0 +1,10 @@
+﻿namespace StreamMaster.Domain.Services
+{
+    public interface IEPGHelper
+    {
+        (int epgNumber, string stationId) ExtractEPGNumberAndStationId(string epgId);
+        bool IsDummy(string epgId);
+        bool IsDummy(int epgNumber);
+        bool IsSchedulesDirect(int epgNumber);
+    }
+}

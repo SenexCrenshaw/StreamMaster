@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 
 using StreamMaster.Application.M3UFiles.Commands;
+using StreamMaster.Application.VideoStreams.Commands;
 
 namespace StreamMaster.Application.EPGFiles.Commands;
 
@@ -33,6 +34,7 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
 
             bool isChanged = false;
             bool isNameChanged = false;
+            int? oldEPGNumber = null;
 
             if (!string.IsNullOrEmpty(request.Description) && epgFile.Description != request.Description)
             {
@@ -40,11 +42,12 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
                 epgFile.Description = request.Description;
             }
 
-            if (request.EPGNumber != null && request.EPGNumber > 0 && epgFile.EPGNumber != request.EPGNumber)
+            if (request.EPGNumber != null && request.EPGNumber >= 0 && epgFile.EPGNumber != request.EPGNumber)
             {
                 isChanged = true;
                 if (!Repository.EPGFile.FindByCondition(x => x.EPGNumber == request.EPGNumber).Any())
                 {
+                    oldEPGNumber = epgFile.EPGNumber;
                     epgFile.EPGNumber = (int)request.EPGNumber;
                 }
                 else
@@ -89,6 +92,11 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
             _ = await Repository.SaveAsync().ConfigureAwait(false);
             epgFile.WriteJSON();
             EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);
+
+            if (oldEPGNumber != null && request.EPGNumber != null)
+            {
+                await Sender.Send(new VideoStreamChangeEPGNumberRequest((int)oldEPGNumber, (int)request.EPGNumber), cancellationToken).ConfigureAwait(false);
+            }
 
             if (isNameChanged)
             {

@@ -10,6 +10,7 @@ public class VideoStreamConfig
     public int User_Tvg_chno { get; set; }
     public bool IsDuplicate { get; set; }
     public bool IsDummy { get; set; }
+    public string Tvg_ID { get; set; }
 }
 
 

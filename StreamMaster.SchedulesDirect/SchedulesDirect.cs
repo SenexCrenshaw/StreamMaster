@@ -92,7 +92,7 @@ public partial class SchedulesDirect : ISchedulesDirect
             logger.LogInformation($"DaysToDownload: {setting.SDSettings.SDEPGDays}");
 
             // load cache file
-            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(EPGNumber);
+            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
             if (EPGNumber == 0)
             {
                 epgCache.LoadCache();
@@ -157,7 +157,7 @@ public partial class SchedulesDirect : ISchedulesDirect
 
     private void HandleDummies()
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         MxfService mxfService = schedulesDirectData.FindOrCreateService("DUMMY");
         mxfService.CallSign = "DUMMY";
         mxfService.Name = "DUMMY Station";
@@ -166,8 +166,6 @@ public partial class SchedulesDirect : ISchedulesDirect
         mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
 
     }
-
-
 
     public async Task<UserStatus> GetUserStatus(CancellationToken cancellationToken)
     {

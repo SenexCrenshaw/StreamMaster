@@ -33,7 +33,6 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public bool? M3UIgnoreEmptyEPGID { get; set; }
     public int? MaxConnectRetry { get; set; }
     public int? MaxConnectRetryTimeMS { get; set; }
-    public bool? OverWriteM3UChannels { get; set; }
     public int? PreloadPercentage { get; set; }
     public int? RingBufferSizeMB { get; set; }
     //public bool? SDEnabled { get; set; }
@@ -335,10 +334,6 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
             currentSetting.StreamingClientUserAgent = request.StreamingClientUserAgent;
         }
 
-        if (request.OverWriteM3UChannels != null && request.OverWriteM3UChannels != currentSetting.OverWriteM3UChannels)
-        {
-            currentSetting.OverWriteM3UChannels = (bool)request.OverWriteM3UChannels;
-        }
         if (!string.IsNullOrEmpty(request.ApiKey) && request.ApiKey != currentSetting.ApiKey)
         {
             currentSetting.ApiKey = request.ApiKey;

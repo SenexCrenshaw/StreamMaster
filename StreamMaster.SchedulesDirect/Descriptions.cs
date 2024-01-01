@@ -11,7 +11,7 @@ public partial class SchedulesDirect
 
     private bool BuildAllGenericSeriesInfoDescriptions()
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         // reset counters
         seriesDescriptionQueue = [];
         seriesDescriptionResponses = [];
@@ -131,7 +131,7 @@ public partial class SchedulesDirect
 
     private void ProcessSeriesDescriptionsResponses()
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         // process request response
         foreach (KeyValuePair<string, GenericDescription> response in seriesDescriptionResponses)
         {
@@ -275,7 +275,7 @@ public partial class SchedulesDirect
     }
     private void UpdateSeriesAirdate(string seriesId, DateTime airdate)
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         // write the mxf entry
         schedulesDirectData.FindOrCreateSeriesInfo(seriesId.Substring(2, 8)).StartAirdate = airdate.ToString("yyyy-MM-dd");
 

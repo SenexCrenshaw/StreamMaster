@@ -12,7 +12,7 @@ internal class GetEPGFileHandler(ILogger<GetEPGFile> logger, IRepositoryWrapper 
             return null;
         }
         EPGFileDto epgFileDto = Mapper.Map<EPGFileDto>(epgFile);
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(epgFileDto.Id);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetEPGData(epgFileDto.Id);
         int programmes = schedulesDirectData.Programs.Count;
         int channels = schedulesDirectData.Services.Count;
 

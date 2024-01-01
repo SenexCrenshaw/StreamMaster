@@ -15,7 +15,7 @@ public partial class SchedulesDirect
     private ConcurrentBag<ProgramMetadata> movieImageResponses = [];
     private async Task<bool> GetAllMoviePosters(CancellationToken cancellationToken)
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
 
         List<MxfProgram> moviePrograms = schedulesDirectData.ProgramsToProcess.Where(arg => arg.IsMovie).Where(arg => !arg.IsAdultOnly).ToList();
 
@@ -91,7 +91,7 @@ public partial class SchedulesDirect
             {
                 continue;
             }
-            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
 
             // determine which program this belongs to
             MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(response.ProgramId);

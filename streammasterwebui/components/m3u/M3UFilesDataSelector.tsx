@@ -16,6 +16,7 @@ interface M3UUpdateProperties {
   auto?: boolean | null;
   hours?: number | null;
   maxStreams?: number | null;
+  overwriteChannelNumbers?: boolean | null;
   name?: string | null;
   url?: string | null;
   startingChannelNumber?: number | null;
@@ -37,7 +38,7 @@ const M3UFilesDataSelector = () => {
         return;
       }
 
-      const { auto, hours, maxStreams, name, url, startingChannelNumber } = restProperties;
+      const { auto, hours, maxStreams, name, url, startingChannelNumber, overwriteChannelNumbers } = restProperties;
 
       const tosend = {} as UpdateM3UFileRequest;
       tosend.id = id;
@@ -50,8 +51,16 @@ const M3UFilesDataSelector = () => {
         tosend.hoursToUpdate = hours;
       }
 
+      if (hours) {
+        tosend.hoursToUpdate = hours;
+      }
+
       if (name) {
         tosend.name = name;
+      }
+
+      if (overwriteChannelNumbers !== undefined) {
+        tosend.overWriteChannels = overwriteChannelNumbers;
       }
 
       if (maxStreams) {
@@ -228,7 +237,7 @@ const M3UFilesDataSelector = () => {
     return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.stationCount}</div>;
   }, []);
 
-  const targetActionBodyTemplate = useCallback(
+  const actionBodyTemplate = useCallback(
     (rowData: M3UFileDto) => {
       if (rowData.id === 0) {
         return <div />;
@@ -257,6 +266,14 @@ const M3UFilesDataSelector = () => {
             </div>
           </div>
           <div className="col-4 p-0 justify-content-end align-items-center">
+            <Checkbox
+              checked={rowData.overwriteChannelNumbers}
+              onChange={async (e: CheckboxChangeEvent) => {
+                await onM3UUpdateClick({ overwriteChannelNumbers: e.checked ?? false, id: rowData.id });
+              }}
+              tooltip="Enable Channel Overwrite"
+              tooltipOptions={getTopToolOptions}
+            />
             <M3UFileRefreshDialog selectedFile={rowData} />
             <M3UFileRemoveDialog selectedFile={rowData} />
           </div>
@@ -273,7 +290,7 @@ const M3UFilesDataSelector = () => {
         field: 'name',
         header: 'Name',
         sortable: true,
-        width: '32rem'
+        width: '22rem'
       },
       // {
       //   bodyTemplate: StreamURLPrefixEditorBodyTemplate,
@@ -312,9 +329,9 @@ const M3UFilesDataSelector = () => {
       { bodyTemplate: urlEditorBodyTemplate, field: 'url', sortable: true },
       {
         align: 'center',
-        bodyTemplate: targetActionBodyTemplate,
+        bodyTemplate: actionBodyTemplate,
         field: 'autoUpdate',
-        width: '10rem'
+        width: '16rem'
       }
     ],
     [
@@ -323,7 +340,7 @@ const M3UFilesDataSelector = () => {
       nameEditorBodyTemplate,
       startingChannelNumberTemplate,
       stationCountTemplate,
-      targetActionBodyTemplate,
+      actionBodyTemplate,
       urlEditorBodyTemplate
     ]
   );

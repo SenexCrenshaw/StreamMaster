@@ -37,6 +37,7 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, I
             string fullName = Path.Combine(fd.DirectoryLocation, command.Name + ".xmltv");
 
             var num = command.EPGNumber;
+
             if (await Repository.EPGFile.GetEPGFileByNumber(command.EPGNumber).ConfigureAwait(false) != null)
             {
                 num = await Repository.EPGFile.GetNextAvailableEPGNumberAsync(cancellationToken).ConfigureAwait(false);

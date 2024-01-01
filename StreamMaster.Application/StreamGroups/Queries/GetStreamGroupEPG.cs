@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Application.Common.Extensions;
+using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Net;
 using System.Xml;
@@ -24,7 +25,7 @@ public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
     }
 }
 
-public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupEPG> logger, ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupEPG, string>
+public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ILogger<GetStreamGroupEPG> logger, ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupEPG, string>
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
@@ -88,6 +89,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
                 Id = videoStream.Id,
                 M3UFileId = videoStream.M3UFileId,
                 User_Tvg_name = videoStream.User_Tvg_name,
+                Tvg_ID = videoStream.Tvg_ID,
                 User_Tvg_ID = videoStream.User_Tvg_ID,
                 User_Tvg_Logo = videoStream.User_Tvg_logo,
                 User_Tvg_chno = videoStream.User_Tvg_chno,
@@ -99,9 +101,54 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         HashSet<string> epgids = [];
 
+        var dummyData = schedulesDirectDataService.DummyData();
+
+        var allservices = schedulesDirectDataService.AllServices;
+
         foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs)
         {
-            videoStreamConfig.IsDummy = videoStreamConfig.User_Tvg_ID.Equals("DUMMY");
+            if (videoStreamConfig.Id == "282476628d303b54eaec5b63457d0447")
+            {
+                var a = 1;
+            }
+
+            videoStreamConfig.IsDummy = epgHelper.IsDummy(videoStreamConfig.User_Tvg_ID);
+
+            if (videoStreamConfig.IsDummy)
+            {
+                // Initialize a variable to hold the service
+                MxfService? service = null;
+
+                // Check if User_Tvg_ID is not empty and assign the corresponding service
+                if (!string.IsNullOrEmpty(videoStreamConfig.User_Tvg_ID))
+                {
+                    service = allservices.Find(a => a.StationId.Equals(videoStreamConfig.User_Tvg_ID, StringComparison.CurrentCultureIgnoreCase));
+                }
+                // If service is still null and Tvg_ID is not empty, assign the corresponding service
+                else if (!string.IsNullOrEmpty(videoStreamConfig.Tvg_ID))
+                {
+                    service = allservices.Find(a => a.StationId.Equals(videoStreamConfig.Tvg_ID, StringComparison.CurrentCultureIgnoreCase));
+                }
+
+                // If a service is found, update User_Tvg_ID accordingly
+                if (service != null)
+                {
+                    videoStreamConfig.User_Tvg_ID = $"{service.EPGNumber}-{service.StationId}";
+                    videoStreamConfig.IsDummy = false;
+                }
+                else
+                {
+                    if (videoStreamConfig.User_Tvg_chno == 2117)
+                    {
+                        var aaa = 1;
+                    }
+                    // If no service is found, set a default value for User_Tvg_ID and create dummy data
+                    videoStreamConfig.User_Tvg_ID = EPGHelper.DummyId + "-" + videoStreamConfig.Id;
+
+                    dummyData.FindOrCreateDummyService(videoStreamConfig.Id, videoStreamConfig);
+                }
+            }
+
             if (epgids.Contains(videoStreamConfig.User_Tvg_ID))
             {
                 videoStreamConfig.IsDuplicate = true;
@@ -112,10 +159,13 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
             }
         }
 
-        XMLTV epgData = schedulesDirectDataService.CreateXmlTv(_httpContextAccessor.GetUrl(), videoStreamConfigs) ?? new XMLTV();
+        XMLTV epgData = xMLTVBuilder.CreateXmlTv(_httpContextAccessor.GetUrl(), videoStreamConfigs) ?? new XMLTV();
 
         return SerializeXMLTVData(epgData);
     }
+
+
+
 
     private static string SerializeXMLTVData(XMLTV xmltv)
     {

@@ -26,7 +26,7 @@ public partial class SchedulesDirect
             return true;
         }
 
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         var toProcess = schedulesDirectData.SeasonsToProcess;
         // scan through each series in the mxf
         logger.LogInformation("Entering GetAllSeasonImages() for {totalObjects} seasons.", toProcess.Count);

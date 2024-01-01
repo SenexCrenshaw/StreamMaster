@@ -116,7 +116,7 @@ public partial class SchedulesDirect
         }
 
         SemaphoreSlim semaphore = new(MaxParallelDownloads);
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         Task[] tasks = StationLogosToDownload.Select(async serviceLogo =>
         {
             await semaphore.WaitAsync(cancellationToken);

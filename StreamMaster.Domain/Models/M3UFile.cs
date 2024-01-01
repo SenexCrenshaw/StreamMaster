@@ -11,9 +11,9 @@ public class M3UFile : AutoUpdateEntity
 {
     public void WriteJSON()
     {
-        string txtName = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Path.GetFileNameWithoutExtension(Source) + ".json");
+        string jsonPath = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Path.GetFileNameWithoutExtension(Source) + ".json");
         string jsonString = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(txtName, jsonString);
+        File.WriteAllText(jsonPath, jsonString);
     }
 
     public M3UFile()
@@ -22,6 +22,7 @@ public class M3UFile : AutoUpdateEntity
         SMFileType = FileDefinitions.M3U.SMFileType;
     }
 
+    public bool OverwriteChannelNumbers { get; set; }
     public int MaxStreamCount { get; set; }
     public int StartingChannelNumber { get; set; }
     public int StationCount { get; set; }
@@ -43,6 +44,18 @@ public class M3UFile : AutoUpdateEntity
         return ret;
     }
 
+    public M3UFile? ReadJSON()
+    {
+        string jsonPath = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Path.GetFileNameWithoutExtension(Source) + ".json");
+
+        if (!File.Exists(jsonPath))
+        {
+            return null;
+        }
+        string jsonString = File.ReadAllText(jsonPath);
+        return JsonSerializer.Deserialize<M3UFile>(jsonString);
+
+    }
     public static M3UFile? ReadJSON(FileInfo fileInfo)
     {
         string filePath = Path.Combine(fileInfo.DirectoryName, Path.GetFileNameWithoutExtension(fileInfo.FullName) + ".json");

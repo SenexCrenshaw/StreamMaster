@@ -59,9 +59,9 @@ public class JobStatusService : IJobStatusService
         UpdateStatus(key, status => status.SetIsRunning(isRunning), _locks.GetOrAdd(key, new object()));
     }
 
-    private void ClearForce(string ePGSyncKey)
+    private void ClearForce(string key)
     {
-        throw new NotImplementedException();
+        UpdateStatus(key, status => status.SetForceNextRun(false), _locks.GetOrAdd(key, new object()));
     }
 
     public void SetSyncSuccessful()

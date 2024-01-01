@@ -4,18 +4,12 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Repository;
-
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
 /// <summary>
 /// Provides methods for performing CRUD operations on M3UFile entities.
 /// </summary>
-public class M3UFileRepository(ILogger<M3UFileRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper) : RepositoryBase<M3UFile>(repositoryContext, logger), IM3UFileRepository
+public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryContext repositoryContext, IMapper mapper) : RepositoryBase<M3UFile>(repositoryContext, intLogger), IM3UFileRepository
 {
 
     public PagedResponse<M3UFileDto> CreateEmptyPagedResponse()
@@ -30,7 +24,6 @@ public class M3UFileRepository(ILogger<M3UFileRepository> logger, RepositoryCont
             logger.LogError("Attempted to create a null M3UFile.");
             throw new ArgumentNullException(nameof(m3uFile));
         }
-
         Create(m3uFile);
         logger.LogInformation($"Created M3UFile with ID: {m3uFile.Id}.");
     }
@@ -86,24 +79,11 @@ public class M3UFileRepository(ILogger<M3UFileRepository> logger, RepositoryCont
         return m3uFile;
     }
 
-    //public async Task<M3UFileDto?> GetM3UFileById(int Id)
-    //{
-    //    M3UFile? m3uFile = await FindByCondition(c => c.Id == Id)
-    //                        .AsNoTracking()
-    //                        .FirstOrDefaultAsync()
-    //                        .ConfigureAwait(false);
-
-    //    return m3uFile != null ? mapper.Map<M3UFileDto>(m3uFile) : null;
-    //}
-
     /// <inheritdoc/>
     public async Task<int> GetM3UMaxStreamCount()
     {
         return await FindAll().SumAsync(a => a.MaxStreamCount).ConfigureAwait(false);
     }
-
-
-
 
     /// <inheritdoc/>
     public async Task<PagedResponse<M3UFileDto>> GetPagedM3UFiles(M3UFileParameters parameters)
@@ -121,8 +101,8 @@ public class M3UFileRepository(ILogger<M3UFileRepository> logger, RepositoryCont
             logger.LogError("Attempted to update a null M3UFile.");
             throw new ArgumentNullException(nameof(m3uFile));
         }
-
         Update(m3uFile);
+        m3uFile.WriteJSON();
         logger.LogInformation($"Updated M3UFile with ID: {m3uFile.Id}.");
     }
 

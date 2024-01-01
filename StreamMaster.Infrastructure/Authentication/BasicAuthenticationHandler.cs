@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -70,7 +71,7 @@ namespace StreamMaster.Infrastructure.Authentication
 
         protected override Task HandleChallengeAsync(AuthenticationProperties properties)
         {
-            Response.Headers.Add("WWW-Authenticate", $"Basic realm=\"{_appName}\"");
+            Response.Headers.Append("WWW-Authenticate", $"Basic realm=\"{_appName}\"");
             Response.StatusCode = 401;
             return Task.CompletedTask;
         }

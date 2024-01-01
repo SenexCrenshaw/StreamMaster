@@ -13,17 +13,32 @@ import EPGFileRemoveDialog from './EPGFileRemoveDialog';
 import EPGPreviewDialog from './EPGPreviewDialog';
 
 const EPGFilesDataSelector = () => {
+  interface EPGUpdateProperties {
+    id: number;
+    auto?: boolean | null;
+    hours?: number | null;
+    name?: string | null;
+    url?: string | null;
+    color?: string | null;
+    epgNumber?: number | null;
+  }
+
   const toast = useRef<Toast>(null);
 
   const [epgFilesUpdateEpgFileMutation] = useEpgFilesUpdateEpgFileMutation();
 
   const onEPGUpdateClick = useCallback(
-    async (id: number, auto?: boolean | null, hours?: number | null, name?: string | null, url?: string | null, color?: string | null) => {
-      if (id < 1) {
+    async (props: EPGUpdateProperties) => {
+      const { id, ...restProperties } = props;
+
+      // Check if all values of the rest of the properties are null or undefined
+      if (Object.values(restProperties).every((value) => value === null || value === undefined)) {
         return;
       }
 
-      if (auto === undefined && !url && !hours && !name) {
+      const { auto, hours, color, name, url, epgNumber } = restProperties;
+
+      if (id < 1) {
         return;
       }
 
@@ -41,6 +56,10 @@ const EPGFilesDataSelector = () => {
 
       if (hours) {
         tosend.hoursToUpdate = hours;
+      }
+
+      if (epgNumber !== null && epgNumber !== undefined) {
+        tosend.epgNumber = epgNumber;
       }
 
       if (name) {
@@ -105,7 +124,7 @@ const EPGFilesDataSelector = () => {
       return (
         <StringEditorBodyTemplate
           onChange={async (e) => {
-            await onEPGUpdateClick(rowData.id, null, null, e);
+            await onEPGUpdateClick({ id: rowData.id, name: e });
           }}
           value={rowData.name}
         />
@@ -136,7 +155,7 @@ const EPGFilesDataSelector = () => {
         <ColorEditor
           onChange={async (e) => {
             console.log(e);
-            await onEPGUpdateClick(rowData.id, null, null, null, null, e);
+            await onEPGUpdateClick({ id: rowData.id, color: e });
           }}
           color={rowData.color}
         />
@@ -161,6 +180,22 @@ const EPGFilesDataSelector = () => {
     return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.programmeCount}</div>;
   }, []);
 
+  const epgNumberBodyTemplate = useCallback((rowData: EpgFileDto) => {
+    if (rowData.id === 0) {
+      return <div />;
+    }
+
+    return (
+      <NumberEditorBodyTemplate
+        onChange={async (e) => {
+          await onEPGUpdateClick({ id: rowData.id, epgNumber: e });
+        }}
+        value={rowData.epgNumber}
+      />
+    );
+    //return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.epgNumber}</div>;
+  }, []);
+
   const actionBodyTemplate = useCallback(
     (rowData: EpgFileDto) => {
       if (rowData.id === 0) {
@@ -168,26 +203,29 @@ const EPGFilesDataSelector = () => {
       }
 
       return (
-        <div className="flex col-12 grid p-0 justify-content-end align-items-center">
-          <div className="col-6 p-0 justify-content-between align-items-center">
-            <Checkbox
-              checked={rowData.autoUpdate}
-              onChange={async (e: CheckboxChangeEvent) => {
-                await onEPGUpdateClick(rowData.id, e.checked ?? false);
-              }}
-              tooltip="Enable Auto Update"
-              tooltipOptions={getTopToolOptions}
-            />
+        <div className="flex grid p-0 justify-content-end align-items-center">
+          <div className="col-8 flex p-0 justify-content-between align-items-center">
+            <div className="col-8 flex p-0 justify-content-between align-items-center">
+              <Checkbox
+                checked={rowData.autoUpdate}
+                onChange={async (e: CheckboxChangeEvent) => {
+                  await onEPGUpdateClick({ id: rowData.id, auto: e.checked ?? false });
+                }}
+                tooltip="Enable Auto Update"
+                tooltipOptions={getTopToolOptions}
+              />
 
-            <NumberEditorBodyTemplate
-              onChange={async (e) => {
-                await onEPGUpdateClick(rowData.id, null, e);
-              }}
-              suffix=" hours"
-              value={rowData.hoursToUpdate}
-            />
+              <NumberEditorBodyTemplate
+                onChange={async (e) => {
+                  await onEPGUpdateClick({ id: rowData.id, hours: e });
+                }}
+                suffix=" hours"
+                value={rowData.hoursToUpdate}
+              />
+            </div>
           </div>
-          <div className="col-6 p-0 justify-content-end  align-items-center">
+
+          <div className="col-4 p-0 justify-content-end align-items-center">
             <EPGPreviewDialog selectedFile={rowData} />
             <EPGFileRefreshDialog selectedFile={rowData} />
             <EPGFileRemoveDialog selectedFile={rowData} />
@@ -219,7 +257,7 @@ const EPGFilesDataSelector = () => {
       return (
         <StringEditorBodyTemplate
           onChange={async (e) => {
-            await onEPGUpdateClick(rowData.id, null, null, null, e);
+            await onEPGUpdateClick({ id: rowData.id, url: e });
           }}
           tooltip={rowData.url}
           value={rowData.url}
@@ -243,7 +281,13 @@ const EPGFilesDataSelector = () => {
         filter: true,
         header: 'Name',
         sortable: true,
-        width: '32rem'
+        width: '22rem'
+      },
+      {
+        bodyTemplate: epgNumberBodyTemplate,
+        field: 'epgNumber',
+        header: 'Number',
+        width: '4rem'
       },
       {
         bodyTemplate: lastDownloadedTemplate,
@@ -271,7 +315,7 @@ const EPGFilesDataSelector = () => {
         align: 'center',
         bodyTemplate: actionBodyTemplate,
         field: 'autoUpdate',
-        width: '10rem'
+        width: '16rem'
       }
     ],
     [colorTemplate, nameEditorBodyTemplate, lastDownloadedTemplate, channelCountTemplate, programmeCountTemplate, urlEditorBodyTemplate, actionBodyTemplate]

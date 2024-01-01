@@ -109,6 +109,10 @@ public static partial class CacheManagerExtensions
 
     public static List<ChannelGroupStreamCount> ChannelGroupStreamCounts(this IMemoryCache cache)
     {
+        if (cache.GetListFromCache<ChannelGroupStreamCount>(ChannelGroupStreamCountsConfig.Key) == null)
+        {
+            _ = cache.Set(ChannelGroupStreamCountsConfig.Key, new List<ChannelGroupStreamCount>());
+        }
         return cache.GetListFromCache<ChannelGroupStreamCount>(ChannelGroupStreamCountsConfig.Key);
     }
 

@@ -140,10 +140,6 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/icons/automatchicontostreams`, method: 'POST', body: queryArg }),
         invalidatesTags: ['Icons']
       }),
-      iconsGetIcon: build.query<IconsGetIconApiResponse, IconsGetIconApiArg>({
-        query: (queryArg) => ({ url: `/api/icons/geticon/${queryArg}` }),
-        providesTags: ['Icons']
-      }),
       iconsGetIconFromSource: build.query<IconsGetIconFromSourceApiResponse, IconsGetIconFromSourceApiArg>({
         query: (queryArg) => ({ url: `/api/icons/geticonfromsource`, params: { value: queryArg } }),
         providesTags: ['Icons']
@@ -787,8 +783,6 @@ export type EpgFilesUpdateEpgFileApiResponse = unknown;
 export type EpgFilesUpdateEpgFileApiArg = UpdateEpgFileRequest;
 export type IconsAutoMatchIconToStreamsApiResponse = unknown;
 export type IconsAutoMatchIconToStreamsApiArg = AutoMatchIconToStreamsRequest;
-export type IconsGetIconApiResponse = /** status 200  */ IconFileDto;
-export type IconsGetIconApiArg = number;
 export type IconsGetIconFromSourceApiResponse = /** status 200  */ IconFileDto;
 export type IconsGetIconFromSourceApiArg = string;
 export type IconsGetPagedIconsApiResponse = /** status 200  */ PagedResponseOfIconFileDto;
@@ -1003,6 +997,7 @@ export type M3UFilesCreateM3UFileFromFormApiResponse = unknown;
 export type M3UFilesCreateM3UFileFromFormApiArg = {
   Description?: string | null;
   MaxStreamCount?: number;
+  OverWriteChannels?: boolean | null;
   StartingChannelNumber?: number | null;
   FormFile?: Blob | null;
   Name?: string;
@@ -1153,6 +1148,7 @@ export type DeleteEpgFileRequest = {
 };
 export type EpgColorDto = {
   id?: number;
+  epgNumber?: number;
   stationId?: string;
   color?: string;
 };
@@ -1358,6 +1354,7 @@ export type Country = {
   onePostalCode?: boolean;
 };
 export type CountryData = {
+  id?: string;
   key?: string;
   countries?: Country[];
 };
@@ -1803,6 +1800,7 @@ export type SmFileTypes = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
 export type CreateM3UFileRequest = {
   description?: string | null;
   maxStreamCount?: number;
+  overWriteChannels?: boolean | null;
   startingChannelNumber?: number | null;
   formFile?: Blob | null;
   name?: string;
@@ -1817,6 +1815,7 @@ export type DeleteM3UFileRequest = {
   id?: number;
 };
 export type M3UFileDto = BaseFileDto & {
+  overwriteChannelNumbers: boolean;
   startingChannelNumber: number;
   maxStreamCount: number;
   stationCount: number;
@@ -1831,6 +1830,7 @@ export type PagedResponseOfM3UFileDto = {
 };
 export type ProcessM3UFileRequest = {
   id?: number;
+  overWriteChannels?: boolean | null;
 };
 export type RefreshM3UFileRequest = {
   id?: number;
@@ -1838,6 +1838,7 @@ export type RefreshM3UFileRequest = {
 export type UpdateM3UFileRequest = BaseFileRequest & {
   maxStreamCount?: number | null;
   startingChannelNumber?: number | null;
+  overWriteChannels?: boolean | null;
 };
 export type ImageDownloadServiceStatus = {
   id?: number;
@@ -1920,7 +1921,6 @@ export type BaseSettings = M3USettings & {
   globalStreamLimit?: number;
   maxConnectRetry?: number;
   maxConnectRetryTimeMS?: number;
-  overWriteM3UChannels?: boolean;
   preloadPercentage?: number;
   ringBufferSizeMB?: number;
   nameRegex?: string[];
@@ -1997,7 +1997,6 @@ export type UpdateSettingRequest = {
   m3UIgnoreEmptyEPGID?: boolean | null;
   maxConnectRetry?: number | null;
   maxConnectRetryTimeMS?: number | null;
-  overWriteM3UChannels?: boolean | null;
   preloadPercentage?: number | null;
   ringBufferSizeMB?: number | null;
   sourceBufferPreBufferPercentage?: number | null;
@@ -2051,7 +2050,6 @@ export const {
   useEpgFilesScanDirectoryForEpgFilesMutation,
   useEpgFilesUpdateEpgFileMutation,
   useIconsAutoMatchIconToStreamsMutation,
-  useIconsGetIconQuery,
   useIconsGetIconFromSourceQuery,
   useIconsGetPagedIconsQuery,
   useIconsGetIconsSimpleQueryQuery,

@@ -25,7 +25,7 @@ public partial class SchedulesDirect
         Setting settings = await settingsService.GetSettingsAsync(cancellationToken);
         int days = settings.SDSettings.SDEPGDays;
         days = Math.Clamp(days, 1, 14);
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         ICollection<MxfService> toProcess = schedulesDirectData.Services.Values;
 
         logger.LogInformation("Entering GetAllScheduleEntryMd5s() for {days} days on {Count} stations.", days, toProcess.Count);
@@ -94,7 +94,7 @@ public partial class SchedulesDirect
 
     private async Task<bool> GetMd5ScheduleEntries(string[] dates, int start, CancellationToken cancellationToken)
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         ICollection<MxfService> toProcess = schedulesDirectData.Services.Values;
         // reject 0 requests
         if (toProcess.Count - start < 1)
@@ -335,7 +335,7 @@ public partial class SchedulesDirect
 
 
         // determine which service entry applies to
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         MxfService mxfService = schedulesDirectData.FindOrCreateService(schedule.StationId);
 
         // process each program schedule entry

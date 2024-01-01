@@ -23,7 +23,7 @@ public partial class SchedulesDirect
         Setting setting = await settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
         string preferredLogoStyle = string.IsNullOrEmpty(setting.SDSettings.PreferredLogoStyle) ? "DARK" : setting.SDSettings.PreferredLogoStyle;
         string alternateLogoStyle = string.IsNullOrEmpty(setting.SDSettings.AlternateLogoStyle) ? "WHITE" : setting.SDSettings.AlternateLogoStyle;
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
 
         foreach (SubscribedLineup clientLineup in clientLineups.Lineups)
         {

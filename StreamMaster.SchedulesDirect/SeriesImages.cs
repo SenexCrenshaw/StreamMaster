@@ -24,7 +24,7 @@ public partial class SchedulesDirect
         seriesImageQueue = [];
         seriesImageResponses = [];
         //IncrementNextStage(toProcess.Count);
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         List<MxfSeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess;
 
         logger.LogInformation("Entering GetAllSeriesImages() for {totalObjects} series.", toProcess.Count);
@@ -149,7 +149,7 @@ public partial class SchedulesDirect
             string programId = response.ProgramId!;
             string uid = response.ProgramId!;
 
-            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
             MxfSeriesInfo? series = null;
             if (programId.StartsWith("SP"))
             {
@@ -230,7 +230,7 @@ public partial class SchedulesDirect
         {
             image = artwork.SingleOrDefault(arg => arg.Aspect.ToLower().Equals("4x3"));
         }
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetSchedulesDirectData(0);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         return image != null ? schedulesDirectData.FindOrCreateGuideImage(image.Uri) : null;
     }
 }

@@ -17,6 +17,7 @@ using StreamMaster.Infrastructure.VideoStreamManager.Clients;
 using StreamMaster.Infrastructure.VideoStreamManager.Factories;
 using StreamMaster.Infrastructure.VideoStreamManager.Statistics;
 using StreamMaster.Infrastructure.VideoStreamManager.Streams;
+using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Reflection;
 
@@ -42,6 +43,7 @@ public static class ConfigureServices
         _ = services.AddSingleton<IStreamManager, StreamManager>();
         _ = services.AddSingleton<ICacheableSpecification, CacheableSpecification>();
         _ = services.AddSingleton<IJobStatusService, JobStatusService>();
+        _ = services.AddSingleton<IEPGHelper, EPGHelper>();
 
         _ = services.AddSingleton<IFileLoggingServiceFactory, FileLoggingServiceFactory>();
 
