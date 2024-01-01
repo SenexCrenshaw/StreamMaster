@@ -161,7 +161,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, ISched
                         MxfProgram program = new(programs.Count + 1, $"SM-{service.StationId}")
                         {
                             Title = service.Name,
-                            Description = settings.SDSettings.XmltvFillerProgramDescription,
+                            Description = service.Name,// settings.SDSettings.XmltvFillerProgramDescription,
                             IsGeneric = true
                         };
 

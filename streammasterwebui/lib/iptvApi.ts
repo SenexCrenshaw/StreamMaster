@@ -1890,7 +1890,6 @@ export type SdSettings = {
   sdStationIds?: StationIdLineup[];
   seasonEventImages?: boolean;
   xmltvAddFillerData?: boolean;
-  xmltvFillerProgramDescription?: string;
   xmltvFillerProgramLength?: number;
   xmltvIncludeChannelNumbers?: boolean;
   xmltvExtendedInfoInTitleDescriptions?: boolean;
@@ -1965,7 +1964,6 @@ export type SdSettingsRequest = {
   sdStationIds?: StationIdLineup[] | null;
   seasonEventImages?: boolean | null;
   xmltvAddFillerData?: boolean | null;
-  xmltvFillerProgramDescription?: string | null;
   xmltvFillerProgramLength?: number | null;
   xmltvIncludeChannelNumbers?: boolean | null;
   xmltvExtendedInfoInTitleDescriptions?: boolean | null;

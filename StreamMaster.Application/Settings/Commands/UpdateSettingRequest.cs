@@ -160,10 +160,10 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
             destination.XmltvAddFillerData = (bool)source.XmltvAddFillerData;
         }
 
-        if (source.XmltvFillerProgramDescription != null)
-        {
-            destination.XmltvFillerProgramDescription = source.XmltvFillerProgramDescription;
-        }
+        //if (source.XmltvFillerProgramDescription != null)
+        //{
+        //    destination.XmltvFillerProgramDescription = source.XmltvFillerProgramDescription;
+        //}
 
         if (source.XmltvFillerProgramLength != null)
         {
