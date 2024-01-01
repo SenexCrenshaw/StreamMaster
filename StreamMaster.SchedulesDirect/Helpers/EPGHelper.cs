@@ -67,7 +67,7 @@ public class EPGHelper(IMemoryCache memoryCache) : IEPGHelper
         return epgNumber == SchedulesDirectId;
     }
 
-    public static bool IsValidEPGId(string epgId)
+    public bool IsValidEPGId(string epgId)
     {
         var matches = Regex.Matches(epgId, EPGMatch);
         return matches.Count > 0;

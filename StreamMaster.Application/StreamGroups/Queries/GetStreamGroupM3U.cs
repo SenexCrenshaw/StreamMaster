@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Domain.Authentication;
+using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Collections.Concurrent;
 using System.Net;
@@ -25,7 +26,7 @@ public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
 }
 
 
-public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupM3U> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupM3U, string>
+public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, IEPGHelper epgHelper, ILogger<GetStreamGroupM3U> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupM3U, string>
 {
     public string GetIconUrl(string iconOriginalSource, Setting setting)
     {
@@ -137,23 +138,29 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
     {
         bool showM3UFieldTvgId = setting.M3UFieldTvgId;
 
-        int epgNumber;
+        int epgNumber = EPGHelper.DummyId;
         string stationId;
 
         if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
         {
-            epgNumber = 1000;
             stationId = videoStream.User_Tvg_group;
         }
         else
         {
-            (epgNumber, stationId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
+            if (epgHelper.IsValidEPGId(videoStream.User_Tvg_ID))
+            {
+                (epgNumber, stationId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
+            }
+            else
+            {
+                stationId = videoStream.User_Tvg_ID;
+            }
         }
 
-        bool isUserTvgIdInvalid = string.IsNullOrEmpty(stationId)
-                      || StringComparer.OrdinalIgnoreCase.Equals(stationId, "dummy");
+        //bool isUserTvgIdInvalid = string.IsNullOrEmpty(stationId)
+        //              || StringComparer.OrdinalIgnoreCase.Equals(stationId, "dummy");
 
-        if (setting.M3UIgnoreEmptyEPGID && isUserTvgIdInvalid)
+        if (setting.M3UIgnoreEmptyEPGID)
         {
             if (setting.M3UFieldTvgId)
             {
@@ -161,7 +168,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
             }
             else
             {
-                return (999, "");
+                return (0, "");
             }
         }
 
@@ -246,7 +253,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
 
         }
 
-        if (epgNumber == 0)
+        if (epgNumber == EPGHelper.SchedulesDirectId)
         {
             fieldList.Add($"tvc-guide-stationid=\"{stationId}\"");
         }

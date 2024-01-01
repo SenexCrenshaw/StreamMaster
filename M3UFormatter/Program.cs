@@ -10,6 +10,7 @@ using StreamMaster.SchedulesDirect.Converters;
 using StreamMaster.SchedulesDirect.Data;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.XmltvXml;
+using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Xml;
 using System.Xml.Serialization;
@@ -28,6 +29,7 @@ namespace M3UFormatter
             .AddSingleton<ISchedulesDirectDataService, SchedulesDirectDataService>()
             .AddSingleton<IXmltv2Mxf, XmlTv2Mxf>()
             .AddSingleton<IMemoryCache, MemoryCache>()
+            .AddSingleton<IEPGHelper, EPGHelper>()
             .AddSingleton<ISettingsService, SettingsService>()
             .AddSingleton<IXMLTVBuilder, XMLTVBuilder>()
             .BuildServiceProvider();
