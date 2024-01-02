@@ -111,8 +111,12 @@ public sealed class ClientReadStream : Stream, IClientReadStream
         linkedCts.CancelAfter(TimeSpan.FromSeconds(30));
 
         int bytesRead = 0;
-        SemaphoreSlim semaphore = _bufferSwitchSemaphores.GetOrAdd(config.ClientId, new SemaphoreSlim(1, 1));
 
+        SemaphoreSlim semaphore = _bufferSwitchSemaphores.GetOrAdd(config.ClientId, new SemaphoreSlim(1, 1));
+        if (semaphore.CurrentCount == 0)
+        {
+            var aa = 1;
+        }
         try
         {
             // Use the ReadChunkMemory method to read data

@@ -1,9 +1,8 @@
-﻿using StreamMaster.Domain.Models;
-
-namespace StreamMaster.Application.Common.Interfaces;
+﻿namespace StreamMaster.Application.Common.Interfaces;
 
 public interface IStreamHandler : IDisposable
 {
+    bool IsFailed { get; }
     VideoInfo GetVideoInfo();
     string VideoStreamName { get; }
 

@@ -53,8 +53,10 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
         if (oldStreamHandler != null && oldStreamHandler.VideoStreamId == videoStreamDto.Id)
         {
             logger.LogDebug("Matching ids, stopping original stream");
-            oldStreamHandler.Stop();
+            oldStreamHandler.SetFailed();
+
             channelStatus.FailoverInProgress = false;
+            oldStreamHandler.Stop();
             return true;
         }
 

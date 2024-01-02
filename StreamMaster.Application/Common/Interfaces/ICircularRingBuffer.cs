@@ -5,7 +5,7 @@ namespace StreamMaster.Application.Common.Interfaces;
 public interface ICircularRingBuffer : IDisposable
 {
     VideoInfo? VideoInfo { get; set; }
-    //Memory<byte> GetBufferSlice(int length);
+    Memory<byte> GetBufferSlice(int length);
     //Task WaitForDataAvailability(Guid clientId, CancellationToken cancellationToken);
     int BufferSize { get; }
     //event EventHandler<Guid> DataAvailable;

@@ -92,6 +92,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             {
                 var videoMemoryArray = videoMemory.ToArray();
                 VideoInfo ret = await CreateFFProbeStream(ffprobeExec, videoMemoryArray).ConfigureAwait(false);
+
                 logger.LogInformation("Retrieved video information for {name}", VideoStreamName);
                 return;
             }
@@ -201,8 +202,8 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
     public async Task StartVideoStreamingAsync(Stream stream)
     {
-        const int chunkSize = 128 * 1024;
-        const int minWriteSize = 16 * 1024;
+        const int chunkSize = 64 * 1024;
+        //const int minWriteSize = chunkSize / 2;
 
         var stopVideoStreamingToken = new CancellationTokenSource();
         var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(stopVideoStreamingToken.Token, VideoStreamingCancellationToken.Token);
@@ -213,14 +214,13 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
         Memory<byte> videoMemory = new byte[1 * 1024 * 1024];
         Memory<byte> bufferMemory = new byte[chunkSize];
-        Memory<byte> tempBuffer = new byte[chunkSize];
-        int tempBufferIndex = 0;
+
         int startMemoryIndex = 0;
         bool startMemoryFilled = false;
 
         using (stream)
         {
-            Stopwatch timeBetweenWrites = new Stopwatch(); // Initialize the stopwatch
+            Stopwatch timeBetweenWrites = Stopwatch.StartNew(); // Initialize the stopwatch
 
             while (!linkedToken.IsCancellationRequested)// && retryCount < maxRetries)
             {
@@ -235,7 +235,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                     {
                         if (!startMemoryFilled)
                         {
-                            if (startMemoryIndex < videoMemory.Length)
+                            if (startMemoryIndex < 1024 * 1024)
                             {
                                 // Calculate the maximum number of bytes that can be copied
                                 int bytesToCopy = Math.Min(videoMemory.Length - startMemoryIndex, bytesRead);
@@ -254,39 +254,25 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                         }
                         else
                         {
-                            if (_videoInfo == null && !runningGetVideo)
+                            if (GetVideoInfoErrors < 4 && _videoInfo == null && !runningGetVideo)
                             {
                                 _ = BuildVideoInfo(videoMemory);//Run in background
                             }
                         }
 
-                        // Accumulate read data in tempBuffer
-                        int bytesToAccumulate = Math.Min(bytesRead, tempBuffer.Length - tempBufferIndex);
-                        bufferMemory[..bytesToAccumulate].CopyTo(tempBuffer[tempBufferIndex..]);
-                        tempBufferIndex += bytesToAccumulate;
-                        if (timeBetweenWrites.IsRunning)
+                        if (timeBetweenWrites.ElapsedMilliseconds is > 30000 and < 60000000000000)
                         {
-                            if (timeBetweenWrites.ElapsedMilliseconds is > 15000 and < 60000000000000)
-                            {
-                                logger.LogWarning($"Input stream is slow: {VideoStreamName} {timeBetweenWrites.ElapsedMilliseconds}ms elapsed since last set.");
 
-                                break;
-                            }
+                            logger.LogWarning($"Input stream is slow: {VideoStreamName} {timeBetweenWrites.ElapsedMilliseconds}ms elapsed since last set.");
+
+                            break;
                         }
 
-                        // Check if tempBuffer has enough data to write
-                        if (tempBufferIndex >= minWriteSize)
-                        {
-                            if (timeBetweenWrites.IsRunning)
-                            {
-                                //logger.LogInformation("Time between writes: {ElapsedMilliseconds}ms for {StreamUrl}", timeBetweenWrites.ElapsedMilliseconds, StreamUrl);
-                                timeBetweenWrites.Reset(); // Reset for the next iteration
-                            }
+                        startMemoryIndex += bytesRead;
+                        await CircularRingBuffer.WriteChunk(bufferMemory[..bytesRead], VideoStreamingCancellationToken.Token).ConfigureAwait(false);
 
-                            await CircularRingBuffer.WriteChunk(tempBuffer[..tempBufferIndex], VideoStreamingCancellationToken.Token).ConfigureAwait(false);
-                            tempBufferIndex = 0; // Reset tempBufferIndex after writing
-                        }
-                        //_ = await CircularRingBuffer.WriteChunk(bufferMemory[..bytesRead], VideoStreamingCancellationToken.Token);
+                        timeBetweenWrites.Reset();
+
                     }
                 }
                 catch (TaskCanceledException)
@@ -324,6 +310,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
     public void Stop()
     {
+        SetFailed();
         if (VideoStreamingCancellationToken?.IsCancellationRequested == false)
         {
             VideoStreamingCancellationToken.Cancel();

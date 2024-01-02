@@ -76,11 +76,11 @@ public sealed class StreamManager(
     {
         _ = _streamHandlers.TryGetValue(videoStreamDto.User_Url, out IStreamHandler? streamHandler);
 
-        //if (streamHandler is not null && streamHandler.IsFailed == true)
-        //{
-        //    _ = StopAndUnRegisterHandler(videoStreamDto.User_Url);
-        //    _ = _streamHandlers.TryGetValue(videoStreamDto.User_Url, out streamHandler);
-        //}
+        if (streamHandler is not null && streamHandler.IsFailed == true)
+        {
+            _ = StopAndUnRegisterHandler(videoStreamDto.User_Url);
+            _ = _streamHandlers.TryGetValue(videoStreamDto.User_Url, out streamHandler);
+        }
 
         if (streamHandler is null)
         {
