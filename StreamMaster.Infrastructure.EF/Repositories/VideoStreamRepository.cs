@@ -1065,13 +1065,13 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
 
     public async Task<List<VideoStreamDto>> VideoStreamChangeEPGNumber(int oldEPGNumber, int newEPGNumber, CancellationToken cancellationToken)
     {
-        var stopWatch = Stopwatch.StartNew();
+        Stopwatch stopWatch = Stopwatch.StartNew();
         logger.LogInformation($"Starting VideoStreamChangeEPGNumber {oldEPGNumber} {newEPGNumber}");
 
-        var starts = $"{oldEPGNumber}-";
+        string starts = $"{oldEPGNumber}-";
 
         // Using raw SQL for bulk update
-        var sql = $"UPDATE VideoStreams SET User_Tvg_ID = REPLACE(User_Tvg_ID, '{starts}', '{newEPGNumber}-') WHERE User_Tvg_ID LIKE '{starts}%'";
+        string sql = $"UPDATE VideoStreams SET User_Tvg_ID = REPLACE(User_Tvg_ID, '{starts}', '{newEPGNumber}-') WHERE User_Tvg_ID LIKE '{starts}%'";
         await RepositoryContext.Database.ExecuteSqlRawAsync(sql, cancellationToken);
 
 
@@ -1084,7 +1084,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
 
         //await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        var results = await RepositoryContext.VideoStreams
+        List<VideoStream> results = await RepositoryContext.VideoStreams
     .Where(a => a.User_Tvg_ID.StartsWith($"{newEPGNumber}-"))
 
     .ToListAsync(cancellationToken: cancellationToken)

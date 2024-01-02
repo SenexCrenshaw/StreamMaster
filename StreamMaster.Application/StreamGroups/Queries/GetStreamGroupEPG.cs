@@ -101,16 +101,12 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         HashSet<string> epgids = [];
 
-        var dummyData = schedulesDirectDataService.DummyData();
+        ISchedulesDirectData dummyData = schedulesDirectDataService.DummyData();
 
-        var allservices = schedulesDirectDataService.AllServices;
+        List<MxfService> allservices = schedulesDirectDataService.AllServices;
 
         foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs)
         {
-            if (videoStreamConfig.Id == "282476628d303b54eaec5b63457d0447")
-            {
-                var a = 1;
-            }
 
             videoStreamConfig.IsDummy = epgHelper.IsDummy(videoStreamConfig.User_Tvg_ID);
 
@@ -140,7 +136,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
                 {
                     if (videoStreamConfig.User_Tvg_chno == 2117)
                     {
-                        var aaa = 1;
+                        int aaa = 1;
                     }
                     // If no service is found, set a default value for User_Tvg_ID and create dummy data
                     videoStreamConfig.User_Tvg_ID = EPGHelper.DummyId + "-" + videoStreamConfig.Id;

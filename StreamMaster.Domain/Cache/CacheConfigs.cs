@@ -17,12 +17,12 @@ internal static class ChannelLogosConfig
     public static readonly object Lock = new();
 }
 
-internal static class TVLogosConfig
-{
-    public static readonly MemoryCacheEntryOptions CacheEntryOptions = CacheManagerExtensions.NeverRemoveCacheEntryOptions;
-    public static readonly string Key = "TVLogos";
-    public static readonly object Lock = new();
-}
+//internal static class TVLogosConfig
+//{
+//    public static readonly MemoryCacheEntryOptions CacheEntryOptions = CacheManagerExtensions.NeverRemoveCacheEntryOptions;
+//    public static readonly string Key = "TVLogos";
+//    public static readonly object Lock = new();
+//}
 
 internal static class ChannelGroupStreamCountsConfig
 {

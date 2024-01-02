@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
 
+using Microsoft.Extensions.Caching.Memory;
+
+using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
@@ -7,9 +10,10 @@ using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.Services;
 
 using System.Collections.Concurrent;
+using System.Web;
 
 namespace StreamMaster.Infrastructure.Services;
-public class IconService(IMapper mapper) : IIconService
+public class IconService(IMapper mapper, IMemoryCache memoryCache) : IIconService
 {
     private ConcurrentDictionary<string, IconFileDto> Icons { get; set; } = [];
     private ConcurrentDictionary<string, TvLogoFile> TvLogos { get; set; } = [];
@@ -45,6 +49,11 @@ public class IconService(IMapper mapper) : IIconService
         Icons.Clear();
     }
 
+    public List<TvLogoFile> GetTvLogos()
+    {
+        return [.. TvLogos.Values];
+    }
+
     public void ClearTvLogos()
     {
         TvLogos.Clear();
@@ -53,6 +62,97 @@ public class IconService(IMapper mapper) : IIconService
     public IconFileDto? GetIconBySource(string source)
     {
         return Icons.TryGetValue(source, out IconFileDto? icon) ? icon : null;
+    }
+
+    public ImagePath? GetValidImagePath(string URL)
+    {
+        string source = HttpUtility.UrlDecode(URL);
+        string fileName = "";
+        string returnName = "";
+
+        string fullPath = source.GetSDImageFullPath();
+        if (File.Exists(fullPath))
+        {
+            return new ImagePath
+            {
+                ReturnName = Path.GetFileName(fullPath),
+                FullPath = fullPath,
+                SMFileType = SMFileTypes.SDImage
+            };
+        }
+
+        List<TvLogoFile> a = GetTvLogos();
+        TvLogoFile? cache = GetTvLogos().FirstOrDefault(a => a.Source == source);
+        if (cache != null)
+        {
+            returnName = cache.Source;
+            fileName = FileDefinitions.TVLogo.DirectoryLocation + returnName;
+            return new ImagePath
+            {
+                ReturnName = returnName,
+                FullPath = fileName,
+                SMFileType = SMFileTypes.TvLogo
+            };
+
+        }
+
+        Setting setting = memoryCache.GetSetting();
+
+        IconFileDto? icon = GetIconBySource(source);
+
+        if (icon is null)
+        {
+            return null;
+        }
+        FileDefinition fd = FileDefinitions.Icon;
+
+        //switch (IPTVFileType)
+        //{
+        //    case SMFileTypes.Icon:
+        //        fd = FileDefinitions.Icon;
+        //        break;
+
+        //    case SMFileTypes.ProgrammeIcon:
+        //        fd = FileDefinitions.ProgrammeIcon;
+        //        break;
+
+        //    case SMFileTypes.M3U:
+        //        break;
+
+        //    case SMFileTypes.EPG:
+        //        break;
+
+        //    case SMFileTypes.HDHR:
+        //        break;
+
+        //    case SMFileTypes.Channel:
+        //        break;
+
+        //    case SMFileTypes.M3UStream:
+        //        break;
+
+        //    case SMFileTypes.Image:
+        //        break;
+
+        //    case SMFileTypes.TvLogo:
+        //        fd = FileDefinitions.TVLogo;
+        //        break;
+
+        //    default:
+        //        fd = FileDefinitions.Icon;
+        //        break;
+        //}
+        returnName = $"{icon.Name}.{icon.Extension}";
+        fileName = $"{fd.DirectoryLocation}{returnName}";
+
+        return File.Exists(fileName)
+            ? new ImagePath
+            {
+                ReturnName = returnName,
+                SMFileType = SMFileTypes.Icon,
+                FullPath = fileName,
+            }
+            : null;
     }
 
     public List<IconFileDto> GetIcons(SMFileTypes? SMFileType = null)
@@ -69,12 +169,7 @@ public class IconService(IMapper mapper) : IIconService
             icons.AddRange(Icons.Values);
         }
 
-        //int index = 0;
         IOrderedEnumerable<IconFileDto> ret = icons.OrderBy(a => a.Name);
-        //foreach (IconFileDto? c in ret)
-        //{
-        //    c.Id = index++;
-        //}
 
         return [.. ret];
     }

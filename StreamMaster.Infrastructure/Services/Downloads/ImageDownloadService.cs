@@ -7,6 +7,7 @@ using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Application.Hubs;
 using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.Services;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;

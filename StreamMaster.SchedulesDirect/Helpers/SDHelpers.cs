@@ -3,8 +3,6 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-using StreamMaster.Domain.Common;
-
 using System.Security.Cryptography;
 using System.Text;
 
@@ -108,13 +106,7 @@ public static partial class SDHelpers
         }
     }
 
-    public static string GetSDImageFullPath(this string fileName)
-    {
-        string subdirectoryName = fileName[0].ToString().ToLower();
-        string logoPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName, fileName);
 
-        return logoPath;
-    }
 
     public static List<ProgramArtwork> GetArtWork(this MxfProgram program)
     {

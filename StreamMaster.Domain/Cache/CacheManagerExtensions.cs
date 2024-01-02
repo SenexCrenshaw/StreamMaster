@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 
 using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
 
 namespace StreamMaster.Domain.Cache;
 
@@ -121,10 +120,10 @@ public static partial class CacheManagerExtensions
         ChannelGroupStreamCount? ret = cache.ChannelGroupStreamCounts().Find(a => a.ChannelGroupId == channelGroupId);
         return ret;
     }
-    public static List<TvLogoFile> GetTvLogos(this IMemoryCache cache)
-    {
-        return cache.GetListFromCache<TvLogoFile>(TVLogosConfig.Key);
-    }
+    //public static List<TvLogoFile> GetTvLogos(this IMemoryCache cache)
+    //{
+    //    return cache.GetListFromCache<TvLogoFile>(TVLogosConfig.Key);
+    //}
 
     private static T? GetFromCache<T>(this IMemoryCache cache, string key)
     {

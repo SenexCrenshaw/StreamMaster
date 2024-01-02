@@ -4,13 +4,14 @@ using Microsoft.Extensions.Logging;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Extensions;
+using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Services;
 
 using System.Globalization;
 using System.Net;
 
 namespace StreamMaster.SchedulesDirect;
-public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger) : IXMLTVBuilder
+public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconService iconService, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger) : IXMLTVBuilder
 {
     private string _baseUrl = "";
     //private ISchedulesDirectDataService schedulesDirectDataService;
@@ -82,7 +83,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, ISched
 
                 if (videoStreamConfig.Id == "282476628d303b54eaec5b63457d0447")
                 {
-                    var aa = 1;
+                    int aa = 1;
                 }
                 (epgNumber, stationId) = ePGHelper.ExtractEPGNumberAndStationId(videoStreamConfig.User_Tvg_ID);
                 //}
@@ -104,7 +105,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, ISched
                 int chNo = videoStreamConfig.User_Tvg_chno;
                 if (chNos.Contains(chNo))
                 {
-                    foreach (var num in existingChNos.Concat(chNos))
+                    foreach (int num in existingChNos.Concat(chNos))
                     {
                         if (num != chNo)
                         {
@@ -125,21 +126,15 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, ISched
                 newService.extras = origService.extras;
                 newService.extras.AddOrUpdate("videoStreamConfig", videoStreamConfig);
 
-                if (!settings.VideoStreamAlwaysUseEPGLogo && !string.IsNullOrEmpty(videoStreamConfig.User_Tvg_Logo))
+
+                if (!string.IsNullOrEmpty(videoStreamConfig.User_Tvg_Logo))
                 {
-                    if (newService.extras.TryGetValue("logo", out dynamic? value))
+                    newService.extras.AddOrUpdate("logo", new StationImage
                     {
-                        value.Url = videoStreamConfig.User_Tvg_Logo;
-                    }
-                    else
-                    {
+                        Url = videoStreamConfig.User_Tvg_Logo
 
-                        newService.extras.Add("logo", new StationImage
-                        {
-                            Url = videoStreamConfig.User_Tvg_Logo
+                    });
 
-                        });
-                    }
                 }
 
                 toProcess.Add(newService);
@@ -196,14 +191,14 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, ISched
                 List<XmltvProgramme> a = xmlTv.Programs.Where(a => a == null || a.Channel == null || a.StartDateTime == null).ToList();
 
                 xmlTv.Channels = xmlTv.Channels
-          .Select(c => new { Channel = c, IsNumeric = int.TryParse(c.Id, out var num), NumericId = num })
+          .Select(c => new { Channel = c, IsNumeric = int.TryParse(c.Id, out int num), NumericId = num })
           .OrderBy(c => c.IsNumeric)
           .ThenBy(c => c.NumericId)
           .Select(c => c.Channel)
           .ToList();
 
                 xmlTv.Programs = xmlTv.Programs
-        .Select(c => new { Program = c, IsNumeric = int.TryParse(c.Channel, out var num), NumericId = num })
+        .Select(c => new { Program = c, IsNumeric = int.TryParse(c.Channel, out int num), NumericId = num })
         .OrderBy(c => c.IsNumeric)
         .ThenBy(c => c.NumericId)
         .ThenBy(c => c.Program.StartDateTime)
@@ -253,15 +248,11 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, ISched
 
         if (ePGHelper.IsSchedulesDirect(EPGNumber))
         {
-            if (iconOriginalSource.StartsWith("http"))
-            {
-                return iconOriginalSource;
-            }
-            else
-            {
-                return GetApiUrl(sMFileTypes ?? SMFileTypes.SDImage, iconOriginalSource);
-            }
+            return iconOriginalSource.StartsWith("http") ? iconOriginalSource : GetApiUrl(sMFileTypes ?? SMFileTypes.SDImage, iconOriginalSource);
         }
+
+        ImagePath? imagePath = iconService.GetValidImagePath(iconOriginalSource);
+
 
 
         Setting settings = memoryCache.GetSetting();
@@ -278,17 +269,20 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, ISched
             iconOriginalSource = iconOriginalSource[1..];
         }
 
-        if (iconOriginalSource.StartsWith("images/"))
+        SMFileTypes? smtype = sMFileTypes;
+        if (smtype == null)
         {
-            return $"{_baseUrl}/{iconOriginalSource}";
-        }
+            if (imagePath != null)
+            {
+                smtype = imagePath.SMFileType;
+            }
 
-        if (settings.CacheIcons)
-        {
-            return GetApiUrl(sMFileTypes ?? SMFileTypes.Icon, originalUrl);
         }
+        smtype ??= SMFileTypes.Icon;
 
-        return iconOriginalSource;
+        string icon = settings.CacheIcons ? GetApiUrl((SMFileTypes)smtype, originalUrl) : iconOriginalSource;
+
+        return icon;
     }
 
     private string GetApiUrl(SMFileTypes path, string source)
@@ -351,7 +345,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, ISched
 
         if (mxfService.EPGNumber < 0)
         {
-            var a = 1;
+            int a = 1;
         }
 
         // add logo if available
