@@ -61,7 +61,7 @@ new GaugeConfiguration
     LabelNames = ["circular_buffer_id", "video_stream_name"]
 });
 
-    private const int maxWaitTimeMs = 250;
+    private const int maxWaitTimeMs = 500;
 
     public event EventHandler<Guid> DataAvailable;
 
@@ -387,7 +387,7 @@ new GaugeConfiguration
         TimeSpan elapsed = now - lastNotificationTime;
         _dataArrival.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Set(elapsed.TotalMilliseconds);
 
-        if (elapsed.TotalMilliseconds is > 15000 and < 60000000000000)
+        if (elapsed.TotalMilliseconds is > 30000 and < 60000000000000)
         {
             // Log the elapsed time here
             _logger.LogWarning($"Input stream is slow: {StreamInfo.VideoStreamName} {elapsed.TotalMilliseconds}ms elapsed since last set. Cancelling Stream");
@@ -427,9 +427,29 @@ new GaugeConfiguration
                 if (IsPreBuffered())
                 {
                     waitTime = CalculateDynamicWaitTime();
+                    var elapsed = 0; // Track the elapsed time
+                    const int notifyInterval = 50; // Interval for notification
+
                     if (waitTime > 0)
                     {
-                        await Task.Delay(waitTime, cancellationToken);
+                        while (elapsed < waitTime)
+                        {
+                            NotifyClients(); // Call NotifyClients every iteration
+
+                            // Wait for either 50ms or the remaining time if less than 50ms
+                            var delayTime = Math.Min(notifyInterval, waitTime - elapsed);
+                            await Task.Delay(delayTime, cancellationToken);
+
+                            // Check for cancellation
+                            if (cancellationToken.IsCancellationRequested)
+                            {
+                                _logger.LogInformation("Operation cancelled during dynamic wait.");
+                                break;
+                            }
+
+                            elapsed += delayTime; // Increment elapsed time
+                        }
+
                         _logger.LogWarning($"Dynamically adjusting write wait: {StreamInfo.VideoStreamName} waiting {waitTime}ms. Is Pre Buffered: {IsPreBuffered()}");
                     }
                 }
