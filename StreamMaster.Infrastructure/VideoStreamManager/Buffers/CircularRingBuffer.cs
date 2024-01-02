@@ -428,10 +428,12 @@ new GaugeConfiguration
                 {
                     waitTime = CalculateDynamicWaitTime();
                     var elapsed = 0; // Track the elapsed time
-                    const int notifyInterval = 50; // Interval for notification
+                    const int notifyInterval = 10; // Interval for notification
 
                     if (waitTime > 0)
                     {
+                        _logger.LogWarning($"Dynamically adjusting write wait: {StreamInfo.VideoStreamName} waiting {waitTime}ms. Is Pre Buffered: {IsPreBuffered()}");
+
                         while (elapsed < waitTime)
                         {
                             NotifyClients(); // Call NotifyClients every iteration
@@ -450,7 +452,7 @@ new GaugeConfiguration
                             elapsed += delayTime; // Increment elapsed time
                         }
 
-                        _logger.LogWarning($"Dynamically adjusting write wait: {StreamInfo.VideoStreamName} waiting {waitTime}ms. Is Pre Buffered: {IsPreBuffered()}");
+
                     }
                 }
 
