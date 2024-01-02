@@ -14,7 +14,7 @@ public class IconFileDto : IMapFrom<IconFile>
     [JsonIgnore]
     public int FileId { get; set; }
 
-    public int Id { get; set; } //= Guid.NewGuid();
+    public string Id => Source;
 
     public string Name { get; set; } = string.Empty;
 

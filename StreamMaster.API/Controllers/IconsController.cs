@@ -6,7 +6,9 @@ using StreamMaster.Application.Icons.Queries;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Pagination;
 
-namespace StreamMasterAPI.Controllers;
+using StreamMasterAPI.Controllers;
+
+namespace StreamMaster.API.Controllers;
 
 public class IconsController : ApiControllerBase, IIconController
 {
@@ -24,6 +26,14 @@ public class IconsController : ApiControllerBase, IIconController
     {
         IconFileDto? data = await Mediator.Send(request).ConfigureAwait(false);
         return data != null ? (ActionResult<IconFileDto>)data : (ActionResult<IconFileDto>)NotFound();
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<IActionResult> ReadDirectoryLogos()
+    {
+        await Mediator.Send(new ReadDirectoryLogosRequest()).ConfigureAwait(false);
+        return Ok();
     }
 
     [HttpGet]
