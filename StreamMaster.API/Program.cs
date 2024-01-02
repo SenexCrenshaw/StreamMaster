@@ -13,6 +13,7 @@ using StreamMaster.Infrastructure.EF;
 using StreamMaster.Infrastructure.Logging;
 using StreamMaster.Infrastructure.Middleware;
 using StreamMaster.SchedulesDirect.Services;
+using StreamMaster.Streams;
 
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -69,6 +70,7 @@ builder.Services.AddSchedulesDirectAPIServices();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureEFServices();
 builder.Services.AddInfrastructureServices();
+builder.Services.AddStreamsServices();
 builder.Services.AddWebUIServices();
 
 builder.Services.Configure<RouteOptions>(options =>

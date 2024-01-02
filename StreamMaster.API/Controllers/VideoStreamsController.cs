@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Application.Common.Interfaces;
-using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.StreamGroups.Commands;
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Application.VideoStreams;
@@ -12,12 +10,15 @@ using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Pagination;
 using StreamMaster.Domain.Requests;
-using StreamMaster.Infrastructure.VideoStreamManager.Clients;
+using StreamMaster.Infrastructure.Clients;
+using StreamMaster.Streams.Domain.Interfaces;
+using StreamMaster.Streams.Domain.Models;
 
-namespace StreamMasterAPI.Controllers;
+using StreamMasterAPI.Controllers;
+
+namespace StreamMaster.API.Controllers;
 
 public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 {
@@ -129,7 +130,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
         HttpContext.Session.Remove("ClientId");
 
-        var redirect = videoStream.StreamingProxyType == StreamingProxyTypes.None;
+        bool redirect = videoStream.StreamingProxyType == StreamingProxyTypes.None;
         if (!redirect && videoStream.StreamingProxyType == StreamingProxyTypes.SystemDefault && setting.StreamingProxyType == StreamingProxyTypes.None)
         {
             redirect = true;

@@ -1,5 +1,6 @@
 ﻿using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.StreamGroups.Queries;
+using StreamMaster.Streams.Domain.Models;
 
 namespace StreamMaster.Application.Common.Interfaces;
 

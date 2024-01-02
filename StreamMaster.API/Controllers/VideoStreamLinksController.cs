@@ -2,15 +2,16 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Pagination;
-
-using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Application.VideoStreamLinks;
 using StreamMaster.Application.VideoStreamLinks.Commands;
 using StreamMaster.Application.VideoStreamLinks.Queries;
+using StreamMaster.Domain.Dto;
+using StreamMaster.Domain.Pagination;
+using StreamMaster.Streams.Domain.Interfaces;
 
-namespace StreamMasterAPI.Controllers;
+using StreamMasterAPI.Controllers;
+
+namespace StreamMaster.API.Controllers;
 
 public class VideoStreamLinksController : ApiControllerBase, IVideoStreamLinkController
 {

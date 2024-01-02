@@ -1,9 +1,5 @@
 ﻿using FluentValidation;
 
-using MediatR;
-
-using StreamMaster.Domain.Attributes;
-
 namespace StreamMaster.Application.StreamGroups.Commands;
 
 [RequireAll]

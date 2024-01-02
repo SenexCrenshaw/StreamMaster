@@ -32,6 +32,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\StreamMaster.Infrastructure.EF\StreamMaster.Infrastructure.EF.csproj" />
+    <ProjectReference Include="..\StreamMaster.Logging\StreamMaster.Logging.csproj" />
     <ProjectReference Include="..\StreamMaster.SchedulesDirect\StreamMaster.SchedulesDirect.csproj" />
+    <ProjectReference Include="..\StreamMaster.Streams\StreamMaster.Streams.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="VideoStreamManager\" />
   </ItemGroup>
 </Project>

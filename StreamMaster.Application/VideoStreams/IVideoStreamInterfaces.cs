@@ -1,14 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Requests;
-
-using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.StreamGroups.Commands;
 using StreamMaster.Application.VideoStreams.Commands;
 using StreamMaster.Application.VideoStreams.Queries;
+using StreamMaster.Domain.Pagination;
+using StreamMaster.Domain.Requests;
+
 
 namespace StreamMaster.Application.VideoStreams;
 

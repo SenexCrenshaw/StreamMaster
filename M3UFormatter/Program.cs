@@ -21,10 +21,11 @@ namespace M3UFormatter
 {
     internal class Program
     {
-        private static ILogger<Program> _logger;
-        static async Task Main(string[] args)
+        private static readonly ILogger<Program> _logger;
+
+        private static async Task Main(string[] args)
         {
-            var serviceProvider = new ServiceCollection()
+            ServiceProvider serviceProvider = new ServiceCollection()
             .AddLogging(configure => configure.AddConsole())
             .AddSingleton<ISchedulesDirectDataService, SchedulesDirectDataService>()
             .AddSingleton<IXmltv2Mxf, XmlTv2Mxf>()
@@ -38,21 +39,21 @@ namespace M3UFormatter
             GlobalLoggerProvider.Configure(loggerFactory);
 
             // Resolve the service
-            var xmltv2Mxf = serviceProvider.GetService<IXmltv2Mxf>();
+            IXmltv2Mxf? xmltv2Mxf = serviceProvider.GetService<IXmltv2Mxf>();
 
-            var logger = serviceProvider.GetService<ILogger<Program>>();
+            ILogger<Program>? logger = serviceProvider.GetService<ILogger<Program>>();
 
 
             if (args.Length != 1 || string.IsNullOrEmpty(args[0]))
             {
-                Console.WriteLine("Usage: M3UFormatter <m3u file>");
+                _logger.LogInformation("Usage: M3UFormatter <m3u file>");
                 return;
             }
 
-            var fullName = args[0];
+            string fullName = args[0];
             if (File.Exists(fullName) == false)
             {
-                Console.WriteLine($"File {fullName} does not exist");
+                _logger.LogInformation($"File {fullName} does not exist");
                 return;
             }
 
@@ -62,8 +63,8 @@ namespace M3UFormatter
                 logger.LogCritical("Exception EPG {fullName} format is not supported", fullName);
                 return;
             }
-            var name = Path.GetFileNameWithoutExtension(fullName);
-            var text = SerializeXMLTVData(epgData);
+            string name = Path.GetFileNameWithoutExtension(fullName);
+            string text = SerializeXMLTVData(epgData);
             File.WriteAllText($"C:\\Users\\senex\\git\\test\\{name}_clean.xml", text);
         }
 

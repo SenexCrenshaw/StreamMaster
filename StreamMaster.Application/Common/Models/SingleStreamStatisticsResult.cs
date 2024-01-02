@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.Common.Models;
+﻿using StreamMaster.Streams.Domain.Models;
+
+namespace StreamMaster.Application.Common.Models;
 
 public class SingleStreamStatisticsResult
 {

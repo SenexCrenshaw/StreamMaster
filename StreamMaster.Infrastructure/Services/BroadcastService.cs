@@ -2,10 +2,11 @@
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Application.Common.Interfaces;
-using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.Hubs;
 using StreamMaster.Domain.Services;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
+using StreamMaster.Streams.Domain.Interfaces;
+using StreamMaster.Streams.Domain.Models;
 
 using System.Diagnostics;
 

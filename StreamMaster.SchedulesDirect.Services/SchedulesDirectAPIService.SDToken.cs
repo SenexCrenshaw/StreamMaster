@@ -1,9 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Common;
-using StreamMaster.SchedulesDirect.Domain.Enums;
-
 namespace StreamMaster.SchedulesDirect;
 public partial class SchedulesDirectAPIService
 {
@@ -19,12 +15,7 @@ public partial class SchedulesDirectAPIService
     public async Task<bool> GetToken()
     {
         Setting setting = memoryCache.GetSetting();
-        if (!setting.SDSettings.SDEnabled)
-        {
-            return false;
-        }
-
-        return await GetToken(setting.SDSettings.SDUserName, setting.SDSettings.SDPassword);
+        return setting.SDSettings.SDEnabled && await GetToken(setting.SDSettings.SDUserName, setting.SDSettings.SDPassword);
     }
 
     public void ClearToken()
@@ -86,9 +77,4 @@ public partial class SchedulesDirectAPIService
 
     }
 
-    private async Task<bool> ValidateToken()
-    {
-        LineupResponse? ret = await GetApiResponse<LineupResponse>(APIMethod.GET, "lineups");
-        return ret != null && ret.Code == 0;
-    }
 }

@@ -52,12 +52,7 @@ public class IconService(IMapper mapper) : IIconService
 
     public IconFileDto? GetIconBySource(string source)
     {
-        if (Icons.TryGetValue(source, out IconFileDto? icon))
-        {
-            return icon;
-        }
-        return null;
-
+        return Icons.TryGetValue(source, out IconFileDto? icon) ? icon : null;
     }
 
     public List<IconFileDto> GetIcons(SMFileTypes? SMFileType = null)
@@ -118,9 +113,9 @@ public class IconService(IMapper mapper) : IIconService
         )
     });
 
-        var tvLogoFiles = await FileUtil.GetTVLogosFromDirectory(dirInfo, dirInfo.FullName, TvLogos.Count, cancellationToken).ConfigureAwait(false);
+        List<TvLogoFile> tvLogoFiles = await FileUtil.GetTVLogosFromDirectory(dirInfo, dirInfo.FullName, TvLogos.Count, cancellationToken).ConfigureAwait(false);
 
-        foreach (var tvLogoFile in tvLogoFiles)
+        foreach (TvLogoFile tvLogoFile in tvLogoFiles)
         {
             TvLogos.TryAdd(tvLogoFile.Name, tvLogoFile);
         }
@@ -130,7 +125,7 @@ public class IconService(IMapper mapper) : IIconService
 
     public void RemoveIconsByM3UFileId(int id)
     {
-        foreach (var icon in Icons.Where(a => a.Value.FileId == id))
+        foreach (KeyValuePair<string, IconFileDto> icon in Icons.Where(a => a.Value.FileId == id))
         {
             Icons.TryRemove(icon.Key, out _);
         }

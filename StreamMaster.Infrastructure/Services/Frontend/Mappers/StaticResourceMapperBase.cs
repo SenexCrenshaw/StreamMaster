@@ -9,7 +9,7 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 {
     public abstract class StaticResourceMapperBase : IMapHttpRequestsToDisk
     {
-        private readonly StringComparison _caseSensitive;
+
         private readonly ILogger _logger;
         private readonly IContentTypeProvider _mimeTypeProvider;
 
