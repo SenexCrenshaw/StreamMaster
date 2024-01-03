@@ -4,12 +4,13 @@ import { FileUpload, type FileUploadHeaderTemplateOptions, type FileUploadSelect
 import { ProgressBar } from 'primereact/progressbar';
 import React, { useEffect, useRef, useState } from 'react';
 
+import BooleanInput from '@components/inputs/BooleanInput';
+import M3UFileTags from '@components/m3u/M3UFileTags';
 import { upload } from '@lib/FileUploadService';
 import { isValidUrl } from '@lib/common/common';
 import { M3UFileStreamUrlPrefix } from '@lib/common/streammaster_enums';
 import { GetEpgNextEpgNumber } from '@lib/smAPI/EpgFiles/EpgFilesGetAPI';
 import { Accordion, AccordionTab } from 'primereact/accordion';
-import { Chips } from 'primereact/chips';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import AddButton from '../buttons/AddButton';
 import NumberInput from '../inputs/NumberInput';
@@ -39,6 +40,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
   const [streamURLPrefix, setStreamURLPrefix] = React.useState<M3UFileStreamUrlPrefix>(0);
   const [activeFile, setActiveFile] = useState<File | undefined>();
   const [name, setName] = useState<string>('');
+  const [overwriteChannelNumbers, setOverwriteChannelNumbers] = React.useState<boolean>(true);
   const [vodTags, setVodTags] = useState<string[]>([]);
   const [maxStreams, setMaxStreams] = useState<number>(1);
   const [epgNumber, setEpgNumber] = useState<number | undefined>(undefined);
@@ -185,18 +187,20 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
 
     if (source === '') {
       await upload({
-        description: name,
+        name,
+        source,
+        maxStreams,
+        startingChannelNumber,
+        overwriteChannelNumbers,
+        vodTags,
         file: activeFile,
         fileType,
-        name,
         onUploadProgress: (event: axios.AxiosProgressEvent) => {
           setUploadedBytes(event.loaded);
           const total = event.total === undefined ? 1 : event.total;
           const prog = Math.round((100 * event.loaded) / total);
           setProgress(prog);
-        },
-        source,
-        streamURLPrefix
+        }
       })
         .then(() => {
           setInfoMessage(`Uploaded ${labelName}`);
@@ -247,12 +251,12 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
         onClose={() => {
           ReturnToParent();
         }}
-        overlayColSize={6}
+        overlayColSize={8}
         show={showOverlay || show === true}
       >
         <div className="flex grid w-full justify-content-between align-items-center">
           <div className="flex col-12">
-            <div className={`flex col-${fileType === 'm3u' ? '8' : '8'}`}>
+            <div className={`flex col-${fileType === 'm3u' ? '4' : '4'}`}>
               <TextInput
                 label="Name"
                 onChange={(value) => {
@@ -271,15 +275,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
                 value={name}
               />
             </div>
-            <div className={`flex col-${fileType === 'm3u' ? '8' : '8'}`}>
-              <Chips
-                value={vodTags}
-                onChange={(e) => {
-                  console.log(e.value);
-                  setVodTags(e.value ?? []);
-                }}
-              />
-            </div>
+
             {fileType === 'epg' && (
               <div className="flex col-4">
                 <div className="flex col-6">
@@ -296,9 +292,10 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
                 </div>
               </div>
             )}
+
             {fileType === 'm3u' && (
-              <div className="flex col-4">
-                <div className="flex col-6">
+              <div className="flex col-8">
+                <div className="flex col-3">
                   <NumberInput
                     label="Max Streams"
                     onChange={(e) => {
@@ -308,7 +305,8 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
                     value={maxStreams}
                   />
                 </div>
-                <div className="flex col-6">
+
+                <div className="flex col-3">
                   <NumberInput
                     label="Starting Channel #"
                     onChange={(e) => {
@@ -317,6 +315,18 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
                     showClear
                     value={startingChannelNumber}
                   />
+                </div>
+                <div className="flex col-3">
+                  <BooleanInput
+                    label="Autoset Channel #s"
+                    onChange={(e) => {
+                      setOverwriteChannelNumbers(e ?? true);
+                    }}
+                    checked={overwriteChannelNumbers}
+                  />
+                </div>
+                <div className={`flex col-3`}>
+                  <M3UFileTags vodTags={vodTags} onChange={(e) => setVodTags(e)} />
                 </div>
                 {/* <div className="flex col-5">
                   <StreamURLPrefixSelector

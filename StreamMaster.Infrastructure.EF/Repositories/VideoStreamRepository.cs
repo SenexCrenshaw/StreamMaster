@@ -908,13 +908,11 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
         return FindAll();
     }
 
-
-
     private async Task<List<VideoStreamDto>> AutoSetEPGs(IQueryable<VideoStream> videoStreams, CancellationToken cancellationToken)
     {
 
         List<StationChannelName> stationChannelNames = await sender.Send(new GetStationChannelNames(), cancellationToken).ConfigureAwait(false);
-
+        stationChannelNames = stationChannelNames.OrderBy(a => a.Channel).ToList();
         Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
         List<string> tomatch = stationChannelNames.Select(a => a.DisplayName).Distinct().ToList();
         string tomatchString = string.Join(',', tomatch);

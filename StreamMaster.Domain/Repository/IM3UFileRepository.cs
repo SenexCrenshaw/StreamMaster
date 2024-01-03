@@ -5,6 +5,7 @@ using StreamMaster.Domain.Pagination;
 namespace StreamMaster.Domain.Repository;
 public interface IM3UFileRepository : IRepositoryBase<M3UFile>
 {
+    Task<M3UFile?> GetM3UFileByTrackedId(int Id);
     PagedResponse<M3UFileDto> CreateEmptyPagedResponse();
 
     /// <summary>

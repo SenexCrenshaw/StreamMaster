@@ -913,6 +913,7 @@ export type M3UFilesCreateM3UFileFromFormApiArg = {
   FormFile?: Blob | null;
   Name?: string;
   UrlSource?: string | null;
+  VODTags?: string[] | null;
 };
 export type M3UFilesChangeM3UFileNameApiResponse = unknown;
 export type M3UFilesChangeM3UFileNameApiArg = ChangeM3UFileNameRequest;
@@ -1623,6 +1624,7 @@ export type CreateM3UFileRequest = {
   formFile?: Blob | null;
   name?: string;
   urlSource?: string | null;
+  vodTags?: string[] | null;
 };
 export type ChangeM3UFileNameRequest = {
   id?: number;
@@ -1653,6 +1655,7 @@ export type ProcessM3UFileRequest = {
 };
 export type RefreshM3UFileRequest = {
   id?: number;
+  forceRun?: boolean;
 };
 export type UpdateM3UFileRequest = BaseFileRequest & {
   maxStreamCount?: number | null;

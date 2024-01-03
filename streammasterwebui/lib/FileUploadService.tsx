@@ -1,33 +1,48 @@
 import { type AxiosProgressEvent } from 'axios';
 import http from './axios';
-import { M3UFileStreamUrlPrefix } from './common/streammaster_enums';
 
 export interface UploadProperties {
-  name: string | null;
-  source: string | null;
-  description: string | null;
-  streamURLPrefix: M3UFileStreamUrlPrefix | null;
+  name: string;
+  source: string;
+  maxStreams: number;
+  startingChannelNumber: number;
+  overwriteChannelNumbers: boolean;
+  vodTags: string[];
   file: File | undefined;
   fileType: 'epg' | 'm3u';
   onUploadProgress: (progressEvent: AxiosProgressEvent) => void;
 }
 
-export const upload = async ({ name, source, description, streamURLPrefix, file, fileType, onUploadProgress }: UploadProperties) => {
+export const upload = async ({
+  name,
+  source,
+  maxStreams,
+  startingChannelNumber,
+  overwriteChannelNumbers,
+  vodTags,
+  file,
+  fileType,
+  onUploadProgress
+}: UploadProperties) => {
   const formData = new FormData();
 
   if (file) {
     formData.append('FormFile', file);
   }
 
-  if (name) formData.append('name', name);
-
-  if (streamURLPrefix) formData.append('streamURLPrefixInt', streamURLPrefix?.toString() ?? '0');
+  formData.append('name', name);
 
   if (source) {
     formData.append('fileSource', source);
   } else if (file) formData.append('fileSource', file.name);
 
-  if (description) formData.append('description', description);
+  formData.append('overWriteChannels', overwriteChannelNumbers?.toString() ?? 'true');
+  formData.append('maxStreamCount', maxStreams?.toString() ?? '1');
+  formData.append('startingChannelNumber', startingChannelNumber?.toString() ?? '1');
+
+  vodTags.forEach((tag) => {
+    formData.append('vodTags[]', tag);
+  });
 
   let url = '';
 

@@ -31,7 +31,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
     {
         try
         {
-            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileById(request.Id).ConfigureAwait(false);
+            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileByTrackedId(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
             {
                 Logger.LogCritical("Could not find M3U file");
@@ -44,11 +44,6 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
                 Logger.LogCritical("Error while processing M3U file, bad format");
                 return null;
             }
-
-            //if (streams.Count == 0)
-            //{
-            //    return m3uFile;
-            //}
 
             if (!ShouldUpdate(m3uFile, m3uFile.VODTags, request.OverWriteChannels))
             {

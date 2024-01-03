@@ -11,7 +11,7 @@ import M3UFileRefreshDialog from './M3UFileRefreshDialog';
 import M3UFileRemoveDialog from './M3UFileRemoveDialog';
 
 import DataSelector from '../dataSelector/DataSelector';
-import M3UFileTags from './M3UFileTags';
+import M3UFileTagsDialog from './M3UFileTagsDialog';
 interface M3UUpdateProperties {
   id: number;
   auto?: boolean | null;
@@ -205,7 +205,7 @@ const M3UFilesDataSelector = () => {
       );
     }
 
-    return <M3UFileTags m3uFileDto={rowData} />;
+    return <M3UFileTagsDialog m3uFileDto={rowData} />;
   }, []);
 
   const maxStreamCountTemplate = useCallback(
@@ -286,7 +286,7 @@ const M3UFilesDataSelector = () => {
               onChange={async (e: CheckboxChangeEvent) => {
                 await onM3UUpdateClick({ overwriteChannelNumbers: e.checked ?? false, id: rowData.id });
               }}
-              tooltip="Enable Channel Number Overwrite"
+              tooltip="Autoset Channel #s"
               tooltipOptions={getTopToolOptions}
             />
             <M3UFileRefreshDialog selectedFile={rowData} />
