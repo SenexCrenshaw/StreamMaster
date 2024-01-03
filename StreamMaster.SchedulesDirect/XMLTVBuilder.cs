@@ -139,50 +139,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
             try
             {
-                Parallel.ForEach(toProcess, service =>
-                {
-
-                    xmlTv.Channels.Add(BuildXmltvChannel(service));
-
-                    if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && settings.SDSettings.XmltvAddFillerData)
-                    {
-                        // add a program specific for this service
-                        MxfProgram program = new(programs.Count + 1, $"SM-{service.StationId}")
-                        {
-                            Title = service.Name,
-                            Description = service.Name,
-                            IsGeneric = true
-                        };
-
-                        // populate the schedule entries
-                        DateTime startTime = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 0, 0, 0);
-                        DateTime stopTime = startTime + TimeSpan.FromDays(settings.SDSettings.SDEPGDays);
-                        do
-                        {
-                            service.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
-                            {
-                                Duration = settings.SDSettings.XmltvFillerProgramLength * 60 * 60,
-                                mxfProgram = program,
-                                StartTime = startTime,
-                                IsRepeat = true
-                            });
-                            startTime += TimeSpan.FromHours(settings.SDSettings.XmltvFillerProgramLength);
-                        } while (startTime < stopTime);
-                    }
-
-                    List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
-
-                    string channelId = service.CallSign;
-
-                    Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, scheduleEntry =>
-                    {
-                        XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channelId);
-                        xmlTv.Programs.Add(program);
-                    });
-
-                });
-
-                //List<XmltvProgramme> a = xmlTv.Programs.Where(a => a == null || a.Channel == null || a.StartDateTime == null).ToList();
+                DoPrograms(toProcess, programs, xmlTv);
 
                 xmlTv.Channels = [.. xmlTv.Channels.OrderBy(a => a.Id)];
                 xmlTv.Programs = [.. xmlTv.Programs.OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime)];
@@ -253,78 +210,11 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
             List<MxfProgram> programs = schedulesDirectDataService.GetAllSDPrograms;
 
-            int newServiceCount = 0;
-            try
-            {
-                Parallel.ForEach(services, service =>
-                {
-                    int.TryParse(service.StationId, out int chno);
+            DoPrograms(services, programs, xmlTv);
 
-                    service.ChNo = chno;
-                    Interlocked.Increment(ref newServiceCount);
+            xmlTv.Channels = [.. xmlTv.Channels.OrderBy(a => a.Id)];
+            xmlTv.Programs = [.. xmlTv.Programs.OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime)];
 
-                    xmlTv.Channels.Add(BuildXmltvChannel(service));
-
-                    if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && settings.SDSettings.XmltvAddFillerData)
-                    {
-                        // add a program specific for this service
-                        MxfProgram program = new(programs.Count + 1, $"SM-{service.StationId}")
-                        {
-                            Title = service.Name,
-                            Description = service.Name,// settings.SDSettings.XmltvFillerProgramDescription,
-                            IsGeneric = true
-                        };
-
-                        // populate the schedule entries
-                        DateTime startTime = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 0, 0, 0);
-                        DateTime stopTime = startTime + TimeSpan.FromDays(settings.SDSettings.SDEPGDays);
-                        do
-                        {
-                            service.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
-                            {
-                                Duration = settings.SDSettings.XmltvFillerProgramLength * 60 * 60,
-                                mxfProgram = program,
-                                StartTime = startTime,
-                                IsRepeat = true
-                            });
-                            startTime += TimeSpan.FromHours(settings.SDSettings.XmltvFillerProgramLength);
-                        } while (startTime < stopTime);
-                    }
-
-                    List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
-
-                    string channelId = service.StationId;
-
-                    Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, scheduleEntry =>
-                {
-                    XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channelId);
-                    xmlTv.Programs.Add(program);
-                });
-
-                });
-
-                List<XmltvProgramme> a = xmlTv.Programs.Where(a => a == null || a.Channel == null || a.StartDateTime == null).ToList();
-
-                xmlTv.Channels = xmlTv.Channels
-          .Select(c => new { Channel = c, IsNumeric = int.TryParse(c.Id, out int num), NumericId = num })
-          .OrderBy(c => c.IsNumeric)
-          .ThenBy(c => c.NumericId)
-          .Select(c => c.Channel)
-          .ToList();
-
-                xmlTv.Programs = xmlTv.Programs
-        .Select(c => new { Program = c, IsNumeric = int.TryParse(c.Channel, out int num), NumericId = num })
-        .OrderBy(c => c.IsNumeric)
-        .ThenBy(c => c.NumericId)
-        .ThenBy(c => c.Program.StartDateTime)
-        .Select(c => c.Program)
-        .ToList();
-
-            }
-            catch (Exception ex)
-            {
-                return xmlTv;
-            }
 
             return xmlTv;
         }
@@ -333,6 +223,60 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
             logger.LogInformation($"Failed to create the XMLTV file. Exception:{FileUtil.ReportExceptionMessages(ex)}");
         }
         return null;
+    }
+
+    private void DoPrograms(List<MxfService> services, List<MxfProgram> programs, XMLTV xmlTv)
+    {
+        Setting settings = memoryCache.GetSetting();
+        int newServiceCount = 0;
+        try
+        {
+            Parallel.ForEach(services, service =>
+            {
+                xmlTv.Channels.Add(BuildXmltvChannel(service));
+
+                if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && settings.SDSettings.XmltvAddFillerData)
+                {
+                    // add a program specific for this service
+                    MxfProgram program = new(programs.Count + 1, $"SM-{service.StationId}")
+                    {
+                        Title = service.Name,
+                        Description = service.Name,
+                        IsGeneric = true
+                    };
+
+                    // populate the schedule entries
+                    DateTime startTime = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 0, 0, 0);
+                    DateTime stopTime = startTime + TimeSpan.FromDays(settings.SDSettings.SDEPGDays);
+                    do
+                    {
+                        service.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
+                        {
+                            Duration = settings.SDSettings.XmltvFillerProgramLength * 60 * 60,
+                            mxfProgram = program,
+                            StartTime = startTime,
+                            IsRepeat = true
+                        });
+                        startTime += TimeSpan.FromHours(settings.SDSettings.XmltvFillerProgramLength);
+                    } while (startTime < stopTime);
+                }
+
+                List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
+
+                string channelId = service.CallSign;
+
+                Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, scheduleEntry =>
+                {
+                    XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channelId);
+                    xmlTv.Programs.Add(program);
+                });
+            });
+
+        }
+        catch (Exception ex)
+        {
+
+        }
     }
 
     private void CreateDummyLineupChannels()

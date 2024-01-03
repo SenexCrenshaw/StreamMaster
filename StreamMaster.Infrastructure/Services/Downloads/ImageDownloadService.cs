@@ -258,7 +258,11 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                     await downloadSemaphore.WaitAsync(cancellationToken);
                     try
                     {
-                        string logoPath = art.Uri.GetSDImageFullPath();
+                        string? logoPath = art.Uri.GetSDImageFullPath();
+                        if (logoPath == null)
+                        {
+                            continue;
+                        }
 
                         string url = art.Uri.StartsWith("http") ? art.Uri : $"image/{art.Uri}";// await sDToken.GetAPIUrl($"image/{art.Uri}", cancellationToken);
 

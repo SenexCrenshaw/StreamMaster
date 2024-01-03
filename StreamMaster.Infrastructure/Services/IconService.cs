@@ -70,8 +70,8 @@ public class IconService(IMapper mapper, IMemoryCache memoryCache) : IIconServic
         string fileName = "";
         string returnName = "";
 
-        string fullPath = source.GetSDImageFullPath();
-        if (File.Exists(fullPath))
+        string? fullPath = source.GetSDImageFullPath();
+        if (fullPath != null && File.Exists(fullPath))
         {
             return new ImagePath
             {
