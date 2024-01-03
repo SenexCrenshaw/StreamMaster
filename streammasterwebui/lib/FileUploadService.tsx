@@ -5,6 +5,8 @@ export interface UploadProperties {
   name: string;
   source: string;
   maxStreams: number;
+  epgNumber: number | undefined;
+  color: string;
   startingChannelNumber: number;
   overwriteChannelNumbers: boolean;
   vodTags: string[];
@@ -17,6 +19,8 @@ export const upload = async ({
   name,
   source,
   maxStreams,
+  epgNumber,
+  color,
   startingChannelNumber,
   overwriteChannelNumbers,
   vodTags,
@@ -36,10 +40,15 @@ export const upload = async ({
     formData.append('fileSource', source);
   } else if (file) formData.append('fileSource', file.name);
 
+  if (epgNumber !== undefined) {
+    formData.append('epgNumber', epgNumber?.toString() ?? '1');
+  }
+
+  formData.append('color', color);
   formData.append('overWriteChannels', overwriteChannelNumbers?.toString() ?? 'true');
   formData.append('maxStreamCount', maxStreams?.toString() ?? '1');
   formData.append('startingChannelNumber', startingChannelNumber?.toString() ?? '1');
-
+  formData.append('epgNumber', epgNumber?.toString() ?? '1');
   vodTags.forEach((tag) => {
     formData.append('vodTags[]', tag);
   });

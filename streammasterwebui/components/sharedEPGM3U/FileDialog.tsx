@@ -4,9 +4,11 @@ import { FileUpload, type FileUploadHeaderTemplateOptions, type FileUploadSelect
 import { ProgressBar } from 'primereact/progressbar';
 import React, { useEffect, useRef, useState } from 'react';
 
+import ColorEditor from '@components/ColorEditor';
 import BooleanInput from '@components/inputs/BooleanInput';
 import M3UFileTags from '@components/m3u/M3UFileTags';
 import { upload } from '@lib/FileUploadService';
+import { getColorByNumber } from '@lib/common/colors';
 import { isValidUrl } from '@lib/common/common';
 import { M3UFileStreamUrlPrefix } from '@lib/common/streammaster_enums';
 import { GetEpgNextEpgNumber } from '@lib/smAPI/EpgFiles/EpgFilesGetAPI';
@@ -44,6 +46,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
   const [vodTags, setVodTags] = useState<string[]>([]);
   const [maxStreams, setMaxStreams] = useState<number>(1);
   const [epgNumber, setEpgNumber] = useState<number | undefined>(undefined);
+  const [color, setColor] = useState<string | undefined>(undefined);
   const [startingChannelNumber, setStartingChannelNumber] = useState<number>(1);
   const [progress, setProgress] = useState<number>(0);
   const [source, setSource] = useState<string>('');
@@ -174,6 +177,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
     setSource('');
     setActiveIndex(0);
     setEpgNumber(undefined);
+    setColor(undefined);
     setBlock(false);
     onHide?.(didUpload ?? false);
   };
@@ -186,10 +190,14 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
     setBlock(true);
 
     if (source === '') {
+      const meColor = color ?? getColorByNumber(epgNumber ?? 0);
+
       await upload({
         name,
         source,
         maxStreams,
+        epgNumber,
+        color: meColor,
         startingChannelNumber,
         overwriteChannelNumbers,
         vodTags,
@@ -288,6 +296,18 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
                     }}
                     showClear
                     value={epgNumber || 999999}
+                  />
+                </div>
+                <div className="flex col-4 flex-column align-items-center">
+                  <label className="text-sm" htmlFor="color">
+                    EPG Color
+                  </label>
+                  <ColorEditor
+                    id="color"
+                    onChange={async (e) => {
+                      setColor(e);
+                    }}
+                    color={color ?? getColorByNumber(epgNumber ?? 0)}
                   />
                 </div>
               </div>

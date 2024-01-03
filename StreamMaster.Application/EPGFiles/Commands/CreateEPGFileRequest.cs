@@ -7,7 +7,7 @@ using StreamMaster.Domain.Color;
 using System.Web;
 namespace StreamMaster.Application.EPGFiles.Commands;
 
-public record CreateEPGFileRequest(string? Description, IFormFile? FormFile, string Name, int EPGNumber, string? UrlSource, string? Color) : IRequest<EPGFileDto?> { }
+public record CreateEPGFileRequest(IFormFile? FormFile, string Name, int EPGNumber, string? UrlSource, string? Color) : IRequest<EPGFileDto?> { }
 public class CreateEPGFileRequestValidator : AbstractValidator<CreateEPGFileRequest>
 {
     public CreateEPGFileRequestValidator()
@@ -36,7 +36,7 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, I
 
             string fullName = Path.Combine(fd.DirectoryLocation, command.Name + ".xmltv");
 
-            var num = command.EPGNumber;
+            int num = command.EPGNumber;
 
             if (await Repository.EPGFile.GetEPGFileByNumber(command.EPGNumber).ConfigureAwait(false) != null)
             {
@@ -45,7 +45,7 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, I
 
             EPGFile epgFile = new()
             {
-                Description = command.Description ?? "",
+
                 Name = command.Name,
                 Source = command.Name + ".xmltv",
                 Color = command.Color ?? ColorHelper.GetColor(command.Name),
