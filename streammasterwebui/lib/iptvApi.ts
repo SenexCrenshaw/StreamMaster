@@ -752,7 +752,6 @@ export type EpgFilesCreateEpgFileApiResponse = unknown;
 export type EpgFilesCreateEpgFileApiArg = CreateEpgFileRequest;
 export type EpgFilesCreateEpgFileFromFormApiResponse = unknown;
 export type EpgFilesCreateEpgFileFromFormApiArg = {
-  Description?: string | null;
   FormFile?: Blob | null;
   Name?: string;
   EPGNumber?: number;
@@ -1142,7 +1141,6 @@ export type GetChannelGroupsForStreamGroupRequest = {
   streamGroupId?: number;
 };
 export type CreateEpgFileRequest = {
-  description?: string | null;
   formFile?: Blob | null;
   name?: string;
   epgNumber?: number;

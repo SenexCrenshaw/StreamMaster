@@ -192,17 +192,7 @@ const M3UFilesDataSelector = () => {
 
   const tagEditorBodyTemplate = useCallback((rowData: M3UFileDto) => {
     if (rowData.id === 0) {
-      return (
-        <div
-          className="p-0 relative"
-          style={{
-            backgroundColor: 'var(--mask-bg)',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
-          }}
-        ></div>
-      );
+      return <div></div>;
     }
 
     return <M3UFileTagsDialog m3uFileDto={rowData} />;

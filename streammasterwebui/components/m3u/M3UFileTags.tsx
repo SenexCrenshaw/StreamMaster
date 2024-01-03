@@ -29,9 +29,9 @@ const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) =
   }, [intTags]);
 
   return (
-    <div className="w-full bordered-text" ref={anchorReference}>
+    <div className="w-full bordered-text tag-editor p-0 m-0" ref={anchorReference}>
       <Button
-        className="text-sm"
+        className="text-sm tag-editor"
         icon="pi pi-chevron-down"
         label={buttonTags}
         text={true}
