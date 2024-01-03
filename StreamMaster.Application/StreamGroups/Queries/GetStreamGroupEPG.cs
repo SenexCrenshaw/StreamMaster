@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Application.Common.Extensions;
+using StreamMaster.Domain.Requests;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Net;
@@ -12,9 +13,6 @@ using System.Xml.Serialization;
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 
 namespace StreamMaster.Application.StreamGroups.Queries;
-
-[RequireAll]
-public record GetStreamGroupEPG(int StreamGroupId) : IRequest<string>;
 
 public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
 {
@@ -33,40 +31,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     {
         MaxDegreeOfParallelism = Environment.ProcessorCount
     };
-
-    public string GetIconUrl(string iconOriginalSource, Setting setting)
-    {
-        string url = _httpContextAccessor.GetUrl();
-
-        if (string.IsNullOrEmpty(iconOriginalSource))
-        {
-            return $"{url}{setting.DefaultIcon}";
-        }
-
-        string originalUrl = iconOriginalSource;
-
-        if (iconOriginalSource.StartsWith('/'))
-        {
-            iconOriginalSource = iconOriginalSource[1..];
-        }
-
-        if (iconOriginalSource.StartsWith("images/"))
-        {
-            return $"{url}/{iconOriginalSource}";
-        }
-        else if (!iconOriginalSource.StartsWith("http"))
-        {
-            return GetApiUrl(SMFileTypes.TvLogo, originalUrl);
-        }
-        else if (setting.CacheIcons)
-        {
-            return iconOriginalSource.StartsWith("https://json.schedulesdirect.org")
-                ? GetApiUrl(SMFileTypes.SDImage, originalUrl)
-                : GetApiUrl(SMFileTypes.Icon, originalUrl);
-        }
-
-        return iconOriginalSource;
-    }
 
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
@@ -134,11 +98,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
                 }
                 else
                 {
-                    if (videoStreamConfig.User_Tvg_chno == 2117)
-                    {
-                        int aaa = 1;
-                    }
-                    // If no service is found, set a default value for User_Tvg_ID and create dummy data
+
                     videoStreamConfig.User_Tvg_ID = EPGHelper.DummyId + "-" + videoStreamConfig.Id;
 
                     dummyData.FindOrCreateDummyService(videoStreamConfig.Id, videoStreamConfig);
@@ -159,9 +119,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         return SerializeXMLTVData(epgData);
     }
-
-
-
 
     private static string SerializeXMLTVData(XMLTV xmltv)
     {
@@ -192,7 +149,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         return xmlText;
     }
-
     private string GetApiUrl(SMFileTypes path, string source)
     {
         string url = _httpContextAccessor.GetUrl();

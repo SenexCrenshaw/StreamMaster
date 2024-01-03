@@ -60,8 +60,8 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryC
     /// <inheritdoc/>
     public async Task<M3UFile?> GetM3UFileById(int Id)
     {
-        M3UFile? m3uFile = await FindByCondition(c => c.Id == Id)
-                            .AsNoTracking()
+        M3UFile? m3uFile = await FindByConditionTracked(c => c.Id == Id)
+                            //.AsNoTracking()
                             .FirstOrDefaultAsync()
                             .ConfigureAwait(false);
 

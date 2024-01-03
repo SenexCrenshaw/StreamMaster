@@ -13,11 +13,6 @@ const SDEditorHeadEndsAndLineUps = () => {
 
   const isSDReady = useMemo((): boolean => {
     return settings.data?.sdSettings?.sdEnabled ?? false;
-    // if (!getStatusQuery.data?.systemStatus || getStatusQuery.data?.systemStatus.length === 0 || settings.data?.sdSettings?.sdEnabled !== true) {
-    //   return false;
-    // }
-
-    // return getStatusQuery.data.systemStatus[0].status?.toLocaleLowerCase() === 'online';
   }, [settings.data?.sdSettings?.sdEnabled]);
 
   const status = useMemo(() => {
@@ -39,10 +34,10 @@ const SDEditorHeadEndsAndLineUps = () => {
   return (
     <BlockUI blocked={!isSDReady}>
       <StandardHeader displayName={status} icon={<SDIcon />}>
-        <div className="col-6 m-0 p-0 pr-1">
+        <div className="col-7 m-0 p-0 pr-1">
           <SchedulesDirectHeadendDataSelector />
         </div>
-        <div className="col-6 m-0 p-0 border-2 border-round surface-border">
+        <div className="col-5 m-0 p-0 border-2 border-round surface-border">
           <div className="flex grid col-12 pl-1 justify-content-start align-items-center m-0 w-full smallpt"></div>
           <SchedulesDirectLineUpsDataSelector id={'SDEditor'} />
         </div>

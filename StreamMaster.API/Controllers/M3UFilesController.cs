@@ -78,7 +78,8 @@ public class M3UFilesController(IBackgroundTaskQueue taskQueue) : ApiControllerB
     [Route("[action]")]
     public async Task<ActionResult> RefreshM3UFile(RefreshM3UFileRequest request)
     {
-        M3UFile? data = await Mediator.Send(request).ConfigureAwait(false);
+        RefreshM3UFileRequest re = new(request.Id, true);
+        M3UFile? data = await Mediator.Send(re).ConfigureAwait(false);
         return data == null ? NotFound() : NoContent();
     }
 

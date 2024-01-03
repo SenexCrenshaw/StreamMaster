@@ -9,7 +9,7 @@ import { Accordion, AccordionTab } from 'primereact/accordion';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
-import { memo, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import StreamingProxyTypeSelector from '../videoStream/StreamingProxyTypeSelector';
 import InputWrapper from './InputWrapper';
 import VideoStreamDataSelector from './VideoStreamDataSelector';
@@ -53,9 +53,9 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
     }
   }, [group]);
 
-  const groupTitlesString = () => {
+  const groupTitlesString = useCallback(() => {
     return groupTitles.join(';');
-  };
+  }, [groupTitles]);
 
   useEffect(() => {
     const {

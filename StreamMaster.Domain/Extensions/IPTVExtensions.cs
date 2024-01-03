@@ -13,7 +13,7 @@ namespace StreamMaster.Domain.Common;
 public static partial class IPTVExtensions
 {
     [LogExecutionTimeAspect]
-    public static async Task<List<VideoStream>?> ConvertToVideoStreamAsync(Stream dataStream, int Id, string Name, ILogger logger, CancellationToken cancellationToken)
+    public static async Task<List<VideoStream>?> ConvertToVideoStreamAsync(Stream dataStream, int Id, string Name, List<string> vodExclusion, ILogger logger, CancellationToken cancellationToken)
     {
 
         BlockingCollection<KeyValuePair<int, VideoStream>> blockingCollection = new(new ConcurrentQueue<KeyValuePair<int, VideoStream>>());
@@ -27,7 +27,6 @@ public static partial class IPTVExtensions
         {
             try
             {
-
                 while (!reader.EndOfStream)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -79,8 +78,14 @@ public static partial class IPTVExtensions
 
             if (videoStream != null)
             {
+                if (vodExclusion.Count != 0 && CheckExcluded(videoStream.Url))
+                {
+                    return;
+                }
+
                 UpdateVideoStreamProperties(videoStream, Id, Name);
-                blockingCollection.Add(new KeyValuePair<int, VideoStream>(segmentNum, videoStream));
+
+                blockingCollection.Add(new KeyValuePair<int, VideoStream>(segmentNum, videoStream), cancellationToken);
 
                 lock (lockObj)
                 {
@@ -92,10 +97,20 @@ public static partial class IPTVExtensions
                 }
             }
         }
+
+        bool CheckExcluded(string URL)
+        {
+            foreach (string vod in vodExclusion)
+            {
+                if (URL.Contains($"/{vod}/", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
     }
-
-
-
 
     [LogExecutionTimeAspect]
     public static async Task<List<VideoStream>?> ConvertToVideoStreamAsync2(Stream dataStream, int Id, string Name, ILogger logger, CancellationToken cancellationToken)

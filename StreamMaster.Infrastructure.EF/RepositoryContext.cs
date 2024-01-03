@@ -14,9 +14,14 @@ namespace StreamMaster.Infrastructure.EF
             await Database.ExecuteSqlRawAsync("VACUUM;");
         }
 
+        public bool IsEntityTracked<TEntity>(TEntity entity) where TEntity : class
+        {
+            return ChangeTracker.Entries<TEntity>().Any(e => e.Entity == entity);
+        }
+
         public async Task MigrateData(List<MxfService> allServices)
         {
-            var currentMigration = Database.GetAppliedMigrations().LastOrDefault();
+            string? currentMigration = Database.GetAppliedMigrations().LastOrDefault();
             if (currentMigration == null)
             {
                 return;
@@ -24,7 +29,7 @@ namespace StreamMaster.Infrastructure.EF
 
             if (currentMigration.Equals("20231229192654_SystemKeyValues") && !SystemKeyValues.Any(a => a.Key == "MigratedDB" && a.Value == "20231229192654_SystemKeyValues"))
             {
-                var videoStreams = VideoStreams.Where(a => a.User_Tvg_ID != null && a.User_Tvg_ID != "" && !Regex.IsMatch(a.User_Tvg_ID, @"^\d+-")).ToList();
+                List<VideoStream> videoStreams = VideoStreams.Where(a => a.User_Tvg_ID != null && a.User_Tvg_ID != "" && !Regex.IsMatch(a.User_Tvg_ID, @"^\d+-")).ToList();
 
                 if (videoStreams.Count == 0)
                 {
@@ -34,18 +39,18 @@ namespace StreamMaster.Infrastructure.EF
                 }
 
                 Console.WriteLine($"Migrating {videoStreams.Count} video streams to new EPGNumber format");
-                var updateCount = 0;
-                var updated = false;
+                int updateCount = 0;
+                bool updated = false;
 
 
-                foreach (var videoStream in videoStreams)
+                foreach (VideoStream? videoStream in videoStreams)
                 {
                     if (!string.IsNullOrEmpty(videoStream.User_Tvg_ID))
                     {
-                        var service = allServices.FirstOrDefault(a => a.StationId == videoStream.User_Tvg_ID);
+                        MxfService? service = allServices.FirstOrDefault(a => a.StationId == videoStream.User_Tvg_ID);
                         if (service != null)
                         {
-                            var EPGID = $"{service.EPGNumber}-{videoStream.User_Tvg_ID}";
+                            string EPGID = $"{service.EPGNumber}-{videoStream.User_Tvg_ID}";
                             videoStream.User_Tvg_ID = EPGID;
                             updated = true;
                         }

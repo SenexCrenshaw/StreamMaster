@@ -9,14 +9,11 @@ namespace StreamMaster.Streams.Buffers;
 
 public sealed class ClientReadStream : Stream, IClientReadStream
 {
-    //private Func<ICircularRingBuffer> _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
     private CancellationTokenSource _clientMasterToken;
-
-
     private readonly ILogger<ClientReadStream> logger;
     private readonly IClientStreamerConfiguration config;
     private Func<ICircularRingBuffer> _bufferDelegate;
-    //private readonly System.Timers.Timer bpsTimer;
+
     private long accumulatedBytesRead = 0;
     public ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, ILogger<ClientReadStream> logger, IClientStreamerConfiguration config)
     {
@@ -95,9 +92,6 @@ public sealed class ClientReadStream : Stream, IClientReadStream
         }
         Stopwatch stopWatch = Stopwatch.StartNew();
 
-
-        //PerformanceBpsMetrics metrics = _performanceMetrics.GetOrAdd(ClientId, key => new PerformanceBpsMetrics(ClientId));
-
         if (_readCancel == null || _readCancel.IsCancellationRequested)
         {
             _readCancel = new CancellationTokenSource();
@@ -134,7 +128,6 @@ public sealed class ClientReadStream : Stream, IClientReadStream
             double bps = metrics.GetBitsPerSecond();
             if (bps > -1)
             {
-                //logger.LogDebug("Read {BytesRead} bytes for ClientId: {ClientId} {Bps} bps {elapsedMilliseconds}", metricBytesRead, ClientId, bps, elapsedMilliseconds);
                 _bitsPerSecond.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Set(bps);
 
                 _bytesReadCounter.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Inc(bytesRead);
@@ -147,7 +140,12 @@ public sealed class ClientReadStream : Stream, IClientReadStream
                 logger.LogDebug("Read 0 bytes for ClientId: {ClientId}", ClientId);
                 bytesRead = 1;
             }
-            _ = semaphore.Release();
+
+            if (semaphore.CurrentCount == 0)
+            {
+                _ = semaphore.Release();
+            }
+
         }
 
         return bytesRead;

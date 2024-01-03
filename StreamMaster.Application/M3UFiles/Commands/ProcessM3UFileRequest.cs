@@ -45,15 +45,16 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
                 return null;
             }
 
-            if (streams.Count == 0)
+            //if (streams.Count == 0)
+            //{
+            //    return m3uFile;
+            //}
+
+            if (!ShouldUpdate(m3uFile, m3uFile.VODTags, request.OverWriteChannels))
             {
                 return m3uFile;
             }
 
-            if (!ShouldUpdate(m3uFile, request.OverWriteChannels))
-            {
-                return m3uFile;
-            }
 
             await ProcessAndUpdateStreams(m3uFile, streams, streamCount).ConfigureAwait(false);
             await UpdateChannelGroups(streams, cancellationToken).ConfigureAwait(false);
@@ -88,26 +89,23 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         return (streams, streamsCount);
     }
 
-    private static bool ShouldUpdate(M3UFile m3uFile, bool? OverWriteChannels)
+    private static bool ShouldUpdate(M3UFile m3uFile, List<string> VODTags, bool? OverWriteChannels)
     {
+        if (VODTags.Count > 0)
+        {
+            return true;
+        }
+
         if (OverWriteChannels is not null)
         {
             return true;
         }
 
-        var json = m3uFile.ReadJSON();
-        if (json is null)
-        {
-            return true;
-        }
-
-        if (m3uFile.OverwriteChannelNumbers != json.OverwriteChannelNumbers)
-        {
-            return true;
-        }
-
-        return m3uFile.LastWrite() >= m3uFile.LastUpdated;
+        M3UFile? json = m3uFile.ReadJSON();
+        return json is null || m3uFile.OverwriteChannelNumbers != json.OverwriteChannelNumbers || m3uFile.LastWrite() >= m3uFile.LastUpdated;
     }
+
+
 
     [LogExecutionTimeAspect]
     private async Task ProcessAndUpdateStreams(M3UFile m3uFile, List<VideoStream> streams, int streamCount)
@@ -116,7 +114,6 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
 
         List<VideoStream> existing = await Repository.VideoStream.GetVideoStreamQuery().Where(a => a.M3UFileId == m3uFile.Id).ToListAsync().ConfigureAwait(false);
         existingChannels = new SimpleIntList(m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber);
-
 
         List<ChannelGroup> groups = await Repository.ChannelGroup.GetChannelGroups();
 
@@ -130,7 +127,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
             m3uFile.StationCount = streamCount;
         }
 
-        //Repository.M3UFile.UpdateM3UFile(m3uFile);
+        Repository.M3UFile.UpdateM3UFile(m3uFile);
         _ = await Repository.SaveAsync().ConfigureAwait(false);
     }
 
@@ -175,8 +172,8 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
 
         _ = Parallel.ForEach(streams.Select((stream, index) => (stream, index)), tuple =>
         {
-            var stream = tuple.stream;
-            var index = tuple.index;
+            VideoStream stream = tuple.stream;
+            int index = tuple.index;
 
             if (processed.TryAdd(stream.Id, true))
             {

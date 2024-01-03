@@ -87,7 +87,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, I
             }
 
 
-            m3UFile.StationCount = streams.Count;
+            //m3UFile.StationCount = streams.Count;
 
             Repository.M3UFile.CreateM3UFile(m3UFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);

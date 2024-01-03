@@ -7,6 +7,7 @@ import '@lib/styles/theme.css'; // theme
 import store, { persistor } from '@lib/redux/store';
 import 'primeflex/primeflex.css'; // css utility
 import 'primeicons/primeicons.css'; // icons
+import { PrimeReactProvider } from 'primereact/api';
 import 'primereact/resources/primereact.css'; // core css
 import 'primereact/resources/themes/viva-dark/theme.css'; // theme
 import ReactDOM from 'react-dom/client';
@@ -20,7 +21,9 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <PersistGate persistor={persistor} />
-      <App />
+      <PrimeReactProvider value={{ ripple: true }}>
+        <App />
+      </PrimeReactProvider>
     </Provider>
   </React.StrictMode>
 );

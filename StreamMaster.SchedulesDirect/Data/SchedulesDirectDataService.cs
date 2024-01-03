@@ -82,8 +82,10 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, IEP
     {
         return SchedulesDirectDatas.GetOrAdd(EPGHelper.SchedulesDirectId, (epgId) =>
         {
-            SchedulesDirectData data = new(logger, ePGHelper, memoryCache, EPGHelper.SchedulesDirectId);
-            data.EPGNumber = EPGHelper.SchedulesDirectId;
+            SchedulesDirectData data = new(logger, ePGHelper, memoryCache, EPGHelper.SchedulesDirectId)
+            {
+                EPGNumber = EPGHelper.SchedulesDirectId
+            };
             return data;
         });
     }
@@ -92,8 +94,10 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, IEP
     {
         return SchedulesDirectDatas.GetOrAdd(EPGHelper.DummyId, (epgId) =>
         {
-            SchedulesDirectData data = new(logger, ePGHelper, memoryCache, EPGHelper.DummyId);
-            data.EPGNumber = EPGHelper.DummyId;
+            SchedulesDirectData data = new(logger, ePGHelper, memoryCache, EPGHelper.DummyId)
+            {
+                EPGNumber = EPGHelper.DummyId
+            };
             return data;
         });
     }
@@ -127,9 +131,28 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, IEP
 
     public void ChangeServiceEPGNumber(int oldEPGNumber, int newEPGNumber)
     {
-        foreach (var service in GetEPGData(oldEPGNumber).Services.Values)
+        foreach (MxfService service in GetEPGData(oldEPGNumber).Services.Values)
         {
             service.EPGNumber = newEPGNumber;
         }
     }
+
+    public List<MxfProgram> GetAllSDPrograms
+    {
+        get
+        {
+            List<MxfProgram> programs = SchedulesDirectData().Programs.Select(a => a.Value).ToList();
+            return programs;
+        }
+    }
+
+    public List<MxfService> GetAllSDServices
+    {
+        get
+        {
+            List<MxfService> services = SchedulesDirectData().Services.Select(a => a.Value).ToList();
+            return services;
+        }
+    }
 }
+

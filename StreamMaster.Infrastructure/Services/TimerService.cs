@@ -118,6 +118,7 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
                     logger.LogInformation("EPGSync started. {status}", jobStatusService.GetSyncJobStatus());
 
                     _ = await mediator.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
+                    await hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
 
                     logger.LogInformation("EPGSync completed. {status}", jobStatusService.GetSyncJobStatus());
                 }

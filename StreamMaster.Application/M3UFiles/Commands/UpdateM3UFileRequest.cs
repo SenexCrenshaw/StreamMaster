@@ -6,6 +6,7 @@ public class UpdateM3UFileRequest : BaseFileRequest, IRequest<M3UFile?>
     public int? MaxStreamCount { get; set; }
     public int? StartingChannelNumber { get; set; }
     public bool? OverWriteChannels { get; set; }
+    public List<string>? VODTags { get; set; }
 }
 
 
@@ -25,6 +26,7 @@ public class UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, I
 
             bool isChanged = false;
             bool needsUpdate = false;
+            bool needsRefresh = false;
 
             if (!string.IsNullOrEmpty(request.Description) && m3uFile.Description != request.Description)
             {
@@ -32,11 +34,13 @@ public class UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, I
                 m3uFile.Description = request.Description;
             }
 
-            //if (request.StreamURLPrefixInt != null && m3uFile.StreamURLPrefix != (M3UFileStreamURLPrefix)request.StreamURLPrefixInt)
-            //{
-            //    isChanged = true;
-            //    m3uFile.StreamURLPrefix = (M3UFileStreamURLPrefix)request.StreamURLPrefixInt;
-            //}
+            if (request.VODTags != null)
+            {
+                isChanged = true;
+                needsUpdate = true;
+                m3uFile.VODTags = request.VODTags;
+            }
+
 
             if (!string.IsNullOrEmpty(request.Url) && m3uFile.Url != request.Url)
             {
@@ -84,6 +88,13 @@ public class UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, I
 
             Repository.M3UFile.UpdateM3UFile(m3uFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
+
+            if (needsRefresh)
+            {
+
+                await Sender.Send(new RefreshM3UFileRequest(m3uFile.Id, true), cancellationToken).ConfigureAwait(false);
+            }
+
 
             if (needsUpdate)
             {

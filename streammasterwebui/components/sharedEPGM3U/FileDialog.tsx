@@ -9,6 +9,7 @@ import { isValidUrl } from '@lib/common/common';
 import { M3UFileStreamUrlPrefix } from '@lib/common/streammaster_enums';
 import { GetEpgNextEpgNumber } from '@lib/smAPI/EpgFiles/EpgFilesGetAPI';
 import { Accordion, AccordionTab } from 'primereact/accordion';
+import { Chips } from 'primereact/chips';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import AddButton from '../buttons/AddButton';
 import NumberInput from '../inputs/NumberInput';
@@ -23,7 +24,8 @@ export interface FileDialogProperties {
     source: string,
     maxStreams: number,
     startingChannelNumber: number,
-    streamURLPrefix: M3UFileStreamUrlPrefix
+    streamURLPrefix: M3UFileStreamUrlPrefix,
+    vodTags: string[]
   ) => void;
   readonly onHide?: (didUpload: boolean) => void;
   readonly show?: boolean | null;
@@ -37,6 +39,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
   const [streamURLPrefix, setStreamURLPrefix] = React.useState<M3UFileStreamUrlPrefix>(0);
   const [activeFile, setActiveFile] = useState<File | undefined>();
   const [name, setName] = useState<string>('');
+  const [vodTags, setVodTags] = useState<string[]>([]);
   const [maxStreams, setMaxStreams] = useState<number>(1);
   const [epgNumber, setEpgNumber] = useState<number | undefined>(undefined);
   const [startingChannelNumber, setStartingChannelNumber] = useState<number>(1);
@@ -164,6 +167,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
     setProgress(0);
     setUploadedBytes(0);
     setName('');
+    setVodTags([]);
     setNameFromFileName(false);
     setSource('');
     setActiveIndex(0);
@@ -203,7 +207,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
           }
         });
     } else {
-      onCreateFromSource?.(name, source, maxStreams, startingChannelNumber, streamURLPrefix);
+      onCreateFromSource?.(name, source, maxStreams, startingChannelNumber, streamURLPrefix, vodTags);
     }
   };
 
@@ -265,6 +269,15 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
                 }}
                 showClear
                 value={name}
+              />
+            </div>
+            <div className={`flex col-${fileType === 'm3u' ? '8' : '8'}`}>
+              <Chips
+                value={vodTags}
+                onChange={(e) => {
+                  console.log(e.value);
+                  setVodTags(e.value ?? []);
+                }}
               />
             </div>
             {fileType === 'epg' && (

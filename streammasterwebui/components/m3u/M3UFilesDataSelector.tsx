@@ -11,6 +11,7 @@ import M3UFileRefreshDialog from './M3UFileRefreshDialog';
 import M3UFileRemoveDialog from './M3UFileRemoveDialog';
 
 import DataSelector from '../dataSelector/DataSelector';
+import M3UFileTags from './M3UFileTags';
 interface M3UUpdateProperties {
   id: number;
   auto?: boolean | null;
@@ -70,10 +71,6 @@ const M3UFilesDataSelector = () => {
       if (url) {
         tosend.url = url;
       }
-
-      // if (streamURLPrefix !== null) {
-      //   tosend.streamURLPrefixInt = parseInt(streamURLPrefix?.toString() ?? '0');
-      // }
 
       if (startingChannelNumber) {
         tosend.startingChannelNumber = startingChannelNumber;
@@ -193,6 +190,24 @@ const M3UFilesDataSelector = () => {
     [onM3UUpdateClick]
   );
 
+  const tagEditorBodyTemplate = useCallback((rowData: M3UFileDto) => {
+    if (rowData.id === 0) {
+      return (
+        <div
+          className="p-0 relative"
+          style={{
+            backgroundColor: 'var(--mask-bg)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}
+        ></div>
+      );
+    }
+
+    return <M3UFileTags m3uFileDto={rowData} />;
+  }, []);
+
   const maxStreamCountTemplate = useCallback(
     (rowData: M3UFileDto) => {
       if (rowData.id === 0) {
@@ -271,7 +286,7 @@ const M3UFilesDataSelector = () => {
               onChange={async (e: CheckboxChangeEvent) => {
                 await onM3UUpdateClick({ overwriteChannelNumbers: e.checked ?? false, id: rowData.id });
               }}
-              tooltip="Enable Channel Overwrite"
+              tooltip="Enable Channel Number Overwrite"
               tooltipOptions={getTopToolOptions}
             />
             <M3UFileRefreshDialog selectedFile={rowData} />
@@ -327,6 +342,8 @@ const M3UFilesDataSelector = () => {
         width: '6rem'
       },
       { bodyTemplate: urlEditorBodyTemplate, field: 'url', sortable: true },
+      { align: 'center', bodyTemplate: tagEditorBodyTemplate, field: 'vodTags', header: 'VODs (ignore)', width: '8rem' },
+
       {
         align: 'center',
         bodyTemplate: actionBodyTemplate,
@@ -335,13 +352,14 @@ const M3UFilesDataSelector = () => {
       }
     ],
     [
-      lastDownloadedTemplate,
-      maxStreamCountTemplate,
       nameEditorBodyTemplate,
+      lastDownloadedTemplate,
       startingChannelNumberTemplate,
+      maxStreamCountTemplate,
       stationCountTemplate,
-      actionBodyTemplate,
-      urlEditorBodyTemplate
+      urlEditorBodyTemplate,
+      tagEditorBodyTemplate,
+      actionBodyTemplate
     ]
   );
 

@@ -22,7 +22,10 @@ public class M3UFile : AutoUpdateEntity
         SMFileType = FileDefinitions.M3U.SMFileType;
     }
 
-    public bool OverwriteChannelNumbers { get; set; }
+    public List<string> VODTags { get; set; } = [];
+
+    //  public string OverwriteChannelNumbers { get; set; }
+    public bool OverwriteChannelNumbers { get; set; } = true;
     public int MaxStreamCount { get; set; }
     public int StartingChannelNumber { get; set; }
     public int StationCount { get; set; }
@@ -40,7 +43,8 @@ public class M3UFile : AutoUpdateEntity
     public async Task<List<VideoStream>?> GetM3U(ILogger logger, CancellationToken cancellationToken)
     {
         using Stream dataStream = FileUtil.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source));
-        List<VideoStream>? ret = await IPTVExtensions.ConvertToVideoStreamAsync(dataStream, Id, Name, logger, cancellationToken);
+        logger.LogInformation("Reading m3ufile {Name} and ignoring urls with {vods}", Name, string.Join(',', VODTags));
+        List<VideoStream>? ret = await IPTVExtensions.ConvertToVideoStreamAsync(dataStream, Id, Name, VODTags, logger, cancellationToken);
         return ret;
     }
 

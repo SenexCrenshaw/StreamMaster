@@ -3,10 +3,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Filtering;
-using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Repository;
 
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
@@ -93,6 +90,11 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression)
     {
         return RepositoryContext.Set<T>().Where(expression).AsNoTracking();
+    }
+
+    public IQueryable<T> FindByConditionTracked(Expression<Func<T, bool>> expression)
+    {
+        return RepositoryContext.Set<T>().Where(expression);
     }
 
     // ... [Other methods, following similar patterns]

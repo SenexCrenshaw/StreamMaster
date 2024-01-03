@@ -2,21 +2,21 @@ import { emptySplitApi as api } from './redux/emptyApi';
 export const addTagTypes = [
   'ChannelGroups',
   'EPGFiles',
-  'Icons',
   'Logs',
   'Programmes',
   'SchedulesDirect',
   'StreamGroupChannelGroup',
   'StreamGroupVideoStreams',
   'Test',
-  'VideoStreamLinks',
-  'VideoStreams',
   'Files',
+  'Icons',
   'M3UFiles',
   'Misc',
   'Queue',
   'Settings',
-  'StreamGroups'
+  'StreamGroups',
+  'VideoStreamLinks',
+  'VideoStreams'
 ] as const;
 const injectedRtkApi = api
   .enhanceEndpoints({
@@ -135,46 +135,6 @@ const injectedRtkApi = api
       epgFilesUpdateEpgFile: build.mutation<EpgFilesUpdateEpgFileApiResponse, EpgFilesUpdateEpgFileApiArg>({
         query: (queryArg) => ({ url: `/api/epgfiles/updateepgfile`, method: 'PATCH', body: queryArg }),
         invalidatesTags: ['EPGFiles']
-      }),
-      iconsAutoMatchIconToStreams: build.mutation<IconsAutoMatchIconToStreamsApiResponse, IconsAutoMatchIconToStreamsApiArg>({
-        query: (queryArg) => ({ url: `/api/icons/automatchicontostreams`, method: 'POST', body: queryArg }),
-        invalidatesTags: ['Icons']
-      }),
-      iconsGetIconFromSource: build.query<IconsGetIconFromSourceApiResponse, IconsGetIconFromSourceApiArg>({
-        query: (queryArg) => ({ url: `/api/icons/geticonfromsource`, params: { value: queryArg } }),
-        providesTags: ['Icons']
-      }),
-      iconsGetPagedIcons: build.query<IconsGetPagedIconsApiResponse, IconsGetPagedIconsApiArg>({
-        query: (queryArg) => ({
-          url: `/api/icons`,
-          params: {
-            Count: queryArg.count,
-            First: queryArg.first,
-            Last: queryArg.last,
-            PageNumber: queryArg.pageNumber,
-            PageSize: queryArg.pageSize,
-            OrderBy: queryArg.orderBy,
-            JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString
-          }
-        }),
-        providesTags: ['Icons']
-      }),
-      iconsGetIconsSimpleQuery: build.query<IconsGetIconsSimpleQueryApiResponse, IconsGetIconsSimpleQueryApiArg>({
-        query: (queryArg) => ({
-          url: `/api/icons/geticonssimplequery`,
-          params: {
-            Count: queryArg.count,
-            First: queryArg.first,
-            Last: queryArg.last,
-            PageNumber: queryArg.pageNumber,
-            PageSize: queryArg.pageSize,
-            OrderBy: queryArg.orderBy,
-            JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString
-          }
-        }),
-        providesTags: ['Icons']
       }),
       logsGetLog: build.query<LogsGetLogApiResponse, LogsGetLogApiArg>({
         query: (queryArg) => ({ url: `/api/logs/getlog`, params: { LastId: queryArg.lastId, MaxLines: queryArg.maxLines } }),
@@ -354,6 +314,207 @@ const injectedRtkApi = api
       testEpgSync: build.mutation<TestEpgSyncApiResponse, TestEpgSyncApiArg>({
         query: () => ({ url: `/api/test/epgsync`, method: 'PUT' }),
         invalidatesTags: ['Test']
+      }),
+      filesGetFile: build.query<FilesGetFileApiResponse, FilesGetFileApiArg>({
+        query: (queryArg) => ({ url: `/api/files/${queryArg.filetype}/${queryArg.source}` }),
+        providesTags: ['Files']
+      }),
+      iconsAutoMatchIconToStreams: build.mutation<IconsAutoMatchIconToStreamsApiResponse, IconsAutoMatchIconToStreamsApiArg>({
+        query: (queryArg) => ({ url: `/api/icons/automatchicontostreams`, method: 'POST', body: queryArg }),
+        invalidatesTags: ['Icons']
+      }),
+      iconsGetIconFromSource: build.query<IconsGetIconFromSourceApiResponse, IconsGetIconFromSourceApiArg>({
+        query: (queryArg) => ({ url: `/api/icons/geticonfromsource`, params: { value: queryArg } }),
+        providesTags: ['Icons']
+      }),
+      iconsReadDirectoryLogos: build.query<IconsReadDirectoryLogosApiResponse, IconsReadDirectoryLogosApiArg>({
+        query: () => ({ url: `/api/icons/readdirectorylogos` }),
+        providesTags: ['Icons']
+      }),
+      iconsGetPagedIcons: build.query<IconsGetPagedIconsApiResponse, IconsGetPagedIconsApiArg>({
+        query: (queryArg) => ({
+          url: `/api/icons`,
+          params: {
+            Count: queryArg.count,
+            First: queryArg.first,
+            Last: queryArg.last,
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
+        }),
+        providesTags: ['Icons']
+      }),
+      iconsGetIconsSimpleQuery: build.query<IconsGetIconsSimpleQueryApiResponse, IconsGetIconsSimpleQueryApiArg>({
+        query: (queryArg) => ({
+          url: `/api/icons/geticonssimplequery`,
+          params: {
+            Count: queryArg.count,
+            First: queryArg.first,
+            Last: queryArg.last,
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
+        }),
+        providesTags: ['Icons']
+      }),
+      m3UFilesCreateM3UFile: build.mutation<M3UFilesCreateM3UFileApiResponse, M3UFilesCreateM3UFileApiArg>({
+        query: (queryArg) => ({ url: `/api/m3ufiles/createm3ufile`, method: 'POST', body: queryArg }),
+        invalidatesTags: ['M3UFiles']
+      }),
+      m3UFilesCreateM3UFileFromForm: build.mutation<M3UFilesCreateM3UFileFromFormApiResponse, M3UFilesCreateM3UFileFromFormApiArg>({
+        query: (queryArg) => ({ url: `/api/m3ufiles/createm3ufilefromform`, method: 'POST', body: queryArg }),
+        invalidatesTags: ['M3UFiles']
+      }),
+      m3UFilesChangeM3UFileName: build.mutation<M3UFilesChangeM3UFileNameApiResponse, M3UFilesChangeM3UFileNameApiArg>({
+        query: (queryArg) => ({ url: `/api/m3ufiles/changem3ufilename`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['M3UFiles']
+      }),
+      m3UFilesDeleteM3UFile: build.mutation<M3UFilesDeleteM3UFileApiResponse, M3UFilesDeleteM3UFileApiArg>({
+        query: (queryArg) => ({ url: `/api/m3ufiles/deletem3ufile`, method: 'DELETE', body: queryArg }),
+        invalidatesTags: ['M3UFiles']
+      }),
+      m3UFilesGetM3UFile: build.query<M3UFilesGetM3UFileApiResponse, M3UFilesGetM3UFileApiArg>({
+        query: (queryArg) => ({ url: `/api/m3ufiles/${queryArg}` }),
+        providesTags: ['M3UFiles']
+      }),
+      m3UFilesGetPagedM3UFiles: build.query<M3UFilesGetPagedM3UFilesApiResponse, M3UFilesGetPagedM3UFilesApiArg>({
+        query: (queryArg) => ({
+          url: `/api/m3ufiles`,
+          params: {
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
+        }),
+        providesTags: ['M3UFiles']
+      }),
+      m3UFilesProcessM3UFile: build.mutation<M3UFilesProcessM3UFileApiResponse, M3UFilesProcessM3UFileApiArg>({
+        query: (queryArg) => ({ url: `/api/m3ufiles/processm3ufile`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['M3UFiles']
+      }),
+      m3UFilesRefreshM3UFile: build.mutation<M3UFilesRefreshM3UFileApiResponse, M3UFilesRefreshM3UFileApiArg>({
+        query: (queryArg) => ({ url: `/api/m3ufiles/refreshm3ufile`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['M3UFiles']
+      }),
+      m3UFilesScanDirectoryForM3UFiles: build.mutation<M3UFilesScanDirectoryForM3UFilesApiResponse, M3UFilesScanDirectoryForM3UFilesApiArg>({
+        query: () => ({ url: `/api/m3ufiles/scandirectoryform3ufiles`, method: 'PATCH' }),
+        invalidatesTags: ['M3UFiles']
+      }),
+      m3UFilesUpdateM3UFile: build.mutation<M3UFilesUpdateM3UFileApiResponse, M3UFilesUpdateM3UFileApiArg>({
+        query: (queryArg) => ({ url: `/api/m3ufiles/updatem3ufile`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['M3UFiles']
+      }),
+      m3UFilesGetM3UFileNames: build.query<M3UFilesGetM3UFileNamesApiResponse, M3UFilesGetM3UFileNamesApiArg>({
+        query: () => ({ url: `/api/m3ufiles/getm3ufilenames` }),
+        providesTags: ['M3UFiles']
+      }),
+      miscGetDownloadServiceStatus: build.query<MiscGetDownloadServiceStatusApiResponse, MiscGetDownloadServiceStatusApiArg>({
+        query: () => ({ url: `/api/misc/getdownloadservicestatus` }),
+        providesTags: ['Misc']
+      }),
+      miscGetTestM3U: build.query<MiscGetTestM3UApiResponse, MiscGetTestM3UApiArg>({
+        query: (queryArg) => ({ url: `/api/misc/gettestm3u`, params: { numberOfStreams: queryArg } }),
+        providesTags: ['Misc']
+      }),
+      queueGetQueueStatus: build.query<QueueGetQueueStatusApiResponse, QueueGetQueueStatusApiArg>({
+        query: () => ({ url: `/api/queue/getqueuestatus` }),
+        providesTags: ['Queue']
+      }),
+      settingsGetIsSystemReady: build.query<SettingsGetIsSystemReadyApiResponse, SettingsGetIsSystemReadyApiArg>({
+        query: () => ({ url: `/api/settings/getissystemready` }),
+        providesTags: ['Settings']
+      }),
+      settingsGetSetting: build.query<SettingsGetSettingApiResponse, SettingsGetSettingApiArg>({
+        query: () => ({ url: `/api/settings/getsetting` }),
+        providesTags: ['Settings']
+      }),
+      settingsGetSystemStatus: build.query<SettingsGetSystemStatusApiResponse, SettingsGetSystemStatusApiArg>({
+        query: () => ({ url: `/api/settings/getsystemstatus` }),
+        providesTags: ['Settings']
+      }),
+      settingsLogIn: build.query<SettingsLogInApiResponse, SettingsLogInApiArg>({
+        query: (queryArg) => ({ url: `/api/settings/login`, body: queryArg }),
+        providesTags: ['Settings']
+      }),
+      settingsUpdateSetting: build.mutation<SettingsUpdateSettingApiResponse, SettingsUpdateSettingApiArg>({
+        query: (queryArg) => ({ url: `/api/settings/updatesetting`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['Settings']
+      }),
+      streamGroupsCreateStreamGroup: build.mutation<StreamGroupsCreateStreamGroupApiResponse, StreamGroupsCreateStreamGroupApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/createstreamgroup`, method: 'POST', body: queryArg }),
+        invalidatesTags: ['StreamGroups']
+      }),
+      streamGroupsDeleteStreamGroup: build.mutation<StreamGroupsDeleteStreamGroupApiResponse, StreamGroupsDeleteStreamGroupApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/deletestreamgroup`, method: 'DELETE', body: queryArg }),
+        invalidatesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroup: build.query<StreamGroupsGetStreamGroupApiResponse, StreamGroupsGetStreamGroupApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/getstreamgroup/${queryArg}` }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroupCapability: build.query<StreamGroupsGetStreamGroupCapabilityApiResponse, StreamGroupsGetStreamGroupCapabilityApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}` }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroupCapability2: build.query<StreamGroupsGetStreamGroupCapability2ApiResponse, StreamGroupsGetStreamGroupCapability2ApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/capability` }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroupCapability3: build.query<StreamGroupsGetStreamGroupCapability3ApiResponse, StreamGroupsGetStreamGroupCapability3ApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/device.xml` }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroupDiscover: build.query<StreamGroupsGetStreamGroupDiscoverApiResponse, StreamGroupsGetStreamGroupDiscoverApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/discover.json` }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroupEpg: build.query<StreamGroupsGetStreamGroupEpgApiResponse, StreamGroupsGetStreamGroupEpgApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/epg.xml` }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroupLineup: build.query<StreamGroupsGetStreamGroupLineupApiResponse, StreamGroupsGetStreamGroupLineupApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/lineup.json` }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroupLineupStatus: build.query<StreamGroupsGetStreamGroupLineupStatusApiResponse, StreamGroupsGetStreamGroupLineupStatusApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/lineup_status.json` }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroupM3U: build.query<StreamGroupsGetStreamGroupM3UApiResponse, StreamGroupsGetStreamGroupM3UApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/m3u.m3u` }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsGetPagedStreamGroups: build.query<StreamGroupsGetPagedStreamGroupsApiResponse, StreamGroupsGetPagedStreamGroupsApiArg>({
+        query: (queryArg) => ({
+          url: `/api/streamgroups`,
+          params: {
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
+        }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsUpdateStreamGroup: build.mutation<StreamGroupsUpdateStreamGroupApiResponse, StreamGroupsUpdateStreamGroupApiArg>({
+        query: (queryArg) => ({ url: `/api/streamgroups/updatestreamgroup`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['StreamGroups']
+      }),
+      streamGroupsGetStreamGroupVideoStreamUrl: build.query<
+        StreamGroupsGetStreamGroupVideoStreamUrlApiResponse,
+        StreamGroupsGetStreamGroupVideoStreamUrlApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/streamgroups/getstreamgroupvideostreamurl`, params: { VideoStreamId: queryArg } }),
+        providesTags: ['StreamGroups']
       }),
       videoStreamLinksAddVideoStreamToVideoStream: build.mutation<
         VideoStreamLinksAddVideoStreamToVideoStreamApiResponse,
@@ -556,163 +717,6 @@ const injectedRtkApi = api
       videoStreamsGetVideoStreamInfoFromUrl: build.query<VideoStreamsGetVideoStreamInfoFromUrlApiResponse, VideoStreamsGetVideoStreamInfoFromUrlApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/getvideostreaminfofromurl`, params: { streamUrl: queryArg } }),
         providesTags: ['VideoStreams']
-      }),
-      filesGetFile: build.query<FilesGetFileApiResponse, FilesGetFileApiArg>({
-        query: (queryArg) => ({ url: `/api/files/${queryArg.filetype}/${queryArg.source}` }),
-        providesTags: ['Files']
-      }),
-      m3UFilesCreateM3UFile: build.mutation<M3UFilesCreateM3UFileApiResponse, M3UFilesCreateM3UFileApiArg>({
-        query: (queryArg) => ({ url: `/api/m3ufiles/createm3ufile`, method: 'POST', body: queryArg }),
-        invalidatesTags: ['M3UFiles']
-      }),
-      m3UFilesCreateM3UFileFromForm: build.mutation<M3UFilesCreateM3UFileFromFormApiResponse, M3UFilesCreateM3UFileFromFormApiArg>({
-        query: (queryArg) => ({ url: `/api/m3ufiles/createm3ufilefromform`, method: 'POST', body: queryArg }),
-        invalidatesTags: ['M3UFiles']
-      }),
-      m3UFilesChangeM3UFileName: build.mutation<M3UFilesChangeM3UFileNameApiResponse, M3UFilesChangeM3UFileNameApiArg>({
-        query: (queryArg) => ({ url: `/api/m3ufiles/changem3ufilename`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['M3UFiles']
-      }),
-      m3UFilesDeleteM3UFile: build.mutation<M3UFilesDeleteM3UFileApiResponse, M3UFilesDeleteM3UFileApiArg>({
-        query: (queryArg) => ({ url: `/api/m3ufiles/deletem3ufile`, method: 'DELETE', body: queryArg }),
-        invalidatesTags: ['M3UFiles']
-      }),
-      m3UFilesGetM3UFile: build.query<M3UFilesGetM3UFileApiResponse, M3UFilesGetM3UFileApiArg>({
-        query: (queryArg) => ({ url: `/api/m3ufiles/${queryArg}` }),
-        providesTags: ['M3UFiles']
-      }),
-      m3UFilesGetPagedM3UFiles: build.query<M3UFilesGetPagedM3UFilesApiResponse, M3UFilesGetPagedM3UFilesApiArg>({
-        query: (queryArg) => ({
-          url: `/api/m3ufiles`,
-          params: {
-            PageNumber: queryArg.pageNumber,
-            PageSize: queryArg.pageSize,
-            OrderBy: queryArg.orderBy,
-            JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString
-          }
-        }),
-        providesTags: ['M3UFiles']
-      }),
-      m3UFilesProcessM3UFile: build.mutation<M3UFilesProcessM3UFileApiResponse, M3UFilesProcessM3UFileApiArg>({
-        query: (queryArg) => ({ url: `/api/m3ufiles/processm3ufile`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['M3UFiles']
-      }),
-      m3UFilesRefreshM3UFile: build.mutation<M3UFilesRefreshM3UFileApiResponse, M3UFilesRefreshM3UFileApiArg>({
-        query: (queryArg) => ({ url: `/api/m3ufiles/refreshm3ufile`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['M3UFiles']
-      }),
-      m3UFilesScanDirectoryForM3UFiles: build.mutation<M3UFilesScanDirectoryForM3UFilesApiResponse, M3UFilesScanDirectoryForM3UFilesApiArg>({
-        query: () => ({ url: `/api/m3ufiles/scandirectoryform3ufiles`, method: 'PATCH' }),
-        invalidatesTags: ['M3UFiles']
-      }),
-      m3UFilesUpdateM3UFile: build.mutation<M3UFilesUpdateM3UFileApiResponse, M3UFilesUpdateM3UFileApiArg>({
-        query: (queryArg) => ({ url: `/api/m3ufiles/updatem3ufile`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['M3UFiles']
-      }),
-      m3UFilesGetM3UFileNames: build.query<M3UFilesGetM3UFileNamesApiResponse, M3UFilesGetM3UFileNamesApiArg>({
-        query: () => ({ url: `/api/m3ufiles/getm3ufilenames` }),
-        providesTags: ['M3UFiles']
-      }),
-      miscGetDownloadServiceStatus: build.query<MiscGetDownloadServiceStatusApiResponse, MiscGetDownloadServiceStatusApiArg>({
-        query: () => ({ url: `/api/misc/getdownloadservicestatus` }),
-        providesTags: ['Misc']
-      }),
-      miscGetTestM3U: build.query<MiscGetTestM3UApiResponse, MiscGetTestM3UApiArg>({
-        query: (queryArg) => ({ url: `/api/misc/gettestm3u`, params: { numberOfStreams: queryArg } }),
-        providesTags: ['Misc']
-      }),
-      queueGetQueueStatus: build.query<QueueGetQueueStatusApiResponse, QueueGetQueueStatusApiArg>({
-        query: () => ({ url: `/api/queue/getqueuestatus` }),
-        providesTags: ['Queue']
-      }),
-      settingsGetIsSystemReady: build.query<SettingsGetIsSystemReadyApiResponse, SettingsGetIsSystemReadyApiArg>({
-        query: () => ({ url: `/api/settings/getissystemready` }),
-        providesTags: ['Settings']
-      }),
-      settingsGetSetting: build.query<SettingsGetSettingApiResponse, SettingsGetSettingApiArg>({
-        query: () => ({ url: `/api/settings/getsetting` }),
-        providesTags: ['Settings']
-      }),
-      settingsGetSystemStatus: build.query<SettingsGetSystemStatusApiResponse, SettingsGetSystemStatusApiArg>({
-        query: () => ({ url: `/api/settings/getsystemstatus` }),
-        providesTags: ['Settings']
-      }),
-      settingsLogIn: build.query<SettingsLogInApiResponse, SettingsLogInApiArg>({
-        query: (queryArg) => ({ url: `/api/settings/login`, body: queryArg }),
-        providesTags: ['Settings']
-      }),
-      settingsUpdateSetting: build.mutation<SettingsUpdateSettingApiResponse, SettingsUpdateSettingApiArg>({
-        query: (queryArg) => ({ url: `/api/settings/updatesetting`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['Settings']
-      }),
-      streamGroupsCreateStreamGroup: build.mutation<StreamGroupsCreateStreamGroupApiResponse, StreamGroupsCreateStreamGroupApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/createstreamgroup`, method: 'POST', body: queryArg }),
-        invalidatesTags: ['StreamGroups']
-      }),
-      streamGroupsDeleteStreamGroup: build.mutation<StreamGroupsDeleteStreamGroupApiResponse, StreamGroupsDeleteStreamGroupApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/deletestreamgroup`, method: 'DELETE', body: queryArg }),
-        invalidatesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroup: build.query<StreamGroupsGetStreamGroupApiResponse, StreamGroupsGetStreamGroupApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/getstreamgroup/${queryArg}` }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroupCapability: build.query<StreamGroupsGetStreamGroupCapabilityApiResponse, StreamGroupsGetStreamGroupCapabilityApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}` }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroupCapability2: build.query<StreamGroupsGetStreamGroupCapability2ApiResponse, StreamGroupsGetStreamGroupCapability2ApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/capability` }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroupCapability3: build.query<StreamGroupsGetStreamGroupCapability3ApiResponse, StreamGroupsGetStreamGroupCapability3ApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/device.xml` }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroupDiscover: build.query<StreamGroupsGetStreamGroupDiscoverApiResponse, StreamGroupsGetStreamGroupDiscoverApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/discover.json` }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroupEpg: build.query<StreamGroupsGetStreamGroupEpgApiResponse, StreamGroupsGetStreamGroupEpgApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/epg.xml` }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroupLineup: build.query<StreamGroupsGetStreamGroupLineupApiResponse, StreamGroupsGetStreamGroupLineupApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/lineup.json` }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroupLineupStatus: build.query<StreamGroupsGetStreamGroupLineupStatusApiResponse, StreamGroupsGetStreamGroupLineupStatusApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/lineup_status.json` }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroupM3U: build.query<StreamGroupsGetStreamGroupM3UApiResponse, StreamGroupsGetStreamGroupM3UApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/m3u.m3u` }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsGetPagedStreamGroups: build.query<StreamGroupsGetPagedStreamGroupsApiResponse, StreamGroupsGetPagedStreamGroupsApiArg>({
-        query: (queryArg) => ({
-          url: `/api/streamgroups`,
-          params: {
-            PageNumber: queryArg.pageNumber,
-            PageSize: queryArg.pageSize,
-            OrderBy: queryArg.orderBy,
-            JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString
-          }
-        }),
-        providesTags: ['StreamGroups']
-      }),
-      streamGroupsUpdateStreamGroup: build.mutation<StreamGroupsUpdateStreamGroupApiResponse, StreamGroupsUpdateStreamGroupApiArg>({
-        query: (queryArg) => ({ url: `/api/streamgroups/updatestreamgroup`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['StreamGroups']
-      }),
-      streamGroupsGetStreamGroupVideoStreamUrl: build.query<
-        StreamGroupsGetStreamGroupVideoStreamUrlApiResponse,
-        StreamGroupsGetStreamGroupVideoStreamUrlApiArg
-      >({
-        query: (queryArg) => ({ url: `/api/streamgroups/getstreamgroupvideostreamurl`, params: { VideoStreamId: queryArg } }),
-        providesTags: ['StreamGroups']
       })
     }),
     overrideExisting: false
@@ -781,32 +785,6 @@ export type EpgFilesScanDirectoryForEpgFilesApiResponse = unknown;
 export type EpgFilesScanDirectoryForEpgFilesApiArg = void;
 export type EpgFilesUpdateEpgFileApiResponse = unknown;
 export type EpgFilesUpdateEpgFileApiArg = UpdateEpgFileRequest;
-export type IconsAutoMatchIconToStreamsApiResponse = unknown;
-export type IconsAutoMatchIconToStreamsApiArg = AutoMatchIconToStreamsRequest;
-export type IconsGetIconFromSourceApiResponse = /** status 200  */ IconFileDto;
-export type IconsGetIconFromSourceApiArg = string;
-export type IconsGetPagedIconsApiResponse = /** status 200  */ PagedResponseOfIconFileDto;
-export type IconsGetPagedIconsApiArg = {
-  count?: number;
-  first?: number;
-  last?: number;
-  pageNumber?: number;
-  pageSize?: number;
-  orderBy?: string;
-  jsonArgumentString?: string | null;
-  jsonFiltersString?: string | null;
-};
-export type IconsGetIconsSimpleQueryApiResponse = /** status 200  */ IconFileDto[];
-export type IconsGetIconsSimpleQueryApiArg = {
-  count?: number;
-  first?: number;
-  last?: number;
-  pageNumber?: number;
-  pageSize?: number;
-  orderBy?: string;
-  jsonArgumentString?: string | null;
-  jsonFiltersString?: string | null;
-};
 export type LogsGetLogApiResponse = /** status 200  */ LogEntryDto[];
 export type LogsGetLogApiArg = {
   lastId?: number;
@@ -891,6 +869,125 @@ export type StreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersApiRes
 export type StreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersApiArg = SetStreamGroupVideoStreamChannelNumbersRequest;
 export type TestEpgSyncApiResponse = /** status 200  */ boolean;
 export type TestEpgSyncApiArg = void;
+export type FilesGetFileApiResponse = unknown;
+export type FilesGetFileApiArg = {
+  source: string;
+  filetype: SmFileTypes;
+};
+export type IconsAutoMatchIconToStreamsApiResponse = unknown;
+export type IconsAutoMatchIconToStreamsApiArg = AutoMatchIconToStreamsRequest;
+export type IconsGetIconFromSourceApiResponse = /** status 200  */ IconFileDto;
+export type IconsGetIconFromSourceApiArg = string;
+export type IconsReadDirectoryLogosApiResponse = unknown;
+export type IconsReadDirectoryLogosApiArg = void;
+export type IconsGetPagedIconsApiResponse = /** status 200  */ PagedResponseOfIconFileDto;
+export type IconsGetPagedIconsApiArg = {
+  count?: number;
+  first?: number;
+  last?: number;
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type IconsGetIconsSimpleQueryApiResponse = /** status 200  */ IconFileDto[];
+export type IconsGetIconsSimpleQueryApiArg = {
+  count?: number;
+  first?: number;
+  last?: number;
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type M3UFilesCreateM3UFileApiResponse = unknown;
+export type M3UFilesCreateM3UFileApiArg = CreateM3UFileRequest;
+export type M3UFilesCreateM3UFileFromFormApiResponse = unknown;
+export type M3UFilesCreateM3UFileFromFormApiArg = {
+  Description?: string | null;
+  MaxStreamCount?: number;
+  OverWriteChannels?: boolean | null;
+  StartingChannelNumber?: number | null;
+  FormFile?: Blob | null;
+  Name?: string;
+  UrlSource?: string | null;
+};
+export type M3UFilesChangeM3UFileNameApiResponse = unknown;
+export type M3UFilesChangeM3UFileNameApiArg = ChangeM3UFileNameRequest;
+export type M3UFilesDeleteM3UFileApiResponse = unknown;
+export type M3UFilesDeleteM3UFileApiArg = DeleteM3UFileRequest;
+export type M3UFilesGetM3UFileApiResponse = /** status 200  */ M3UFileDto;
+export type M3UFilesGetM3UFileApiArg = number;
+export type M3UFilesGetPagedM3UFilesApiResponse = /** status 200  */ PagedResponseOfM3UFileDto;
+export type M3UFilesGetPagedM3UFilesApiArg = {
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type M3UFilesProcessM3UFileApiResponse = unknown;
+export type M3UFilesProcessM3UFileApiArg = ProcessM3UFileRequest;
+export type M3UFilesRefreshM3UFileApiResponse = unknown;
+export type M3UFilesRefreshM3UFileApiArg = RefreshM3UFileRequest;
+export type M3UFilesScanDirectoryForM3UFilesApiResponse = unknown;
+export type M3UFilesScanDirectoryForM3UFilesApiArg = void;
+export type M3UFilesUpdateM3UFileApiResponse = unknown;
+export type M3UFilesUpdateM3UFileApiArg = UpdateM3UFileRequest;
+export type M3UFilesGetM3UFileNamesApiResponse = /** status 200  */ string[];
+export type M3UFilesGetM3UFileNamesApiArg = void;
+export type MiscGetDownloadServiceStatusApiResponse = /** status 200  */ ImageDownloadServiceStatus;
+export type MiscGetDownloadServiceStatusApiArg = void;
+export type MiscGetTestM3UApiResponse = unknown;
+export type MiscGetTestM3UApiArg = number;
+export type QueueGetQueueStatusApiResponse = /** status 200  */ TaskQueueStatus[];
+export type QueueGetQueueStatusApiArg = void;
+export type SettingsGetIsSystemReadyApiResponse = /** status 200  */ boolean;
+export type SettingsGetIsSystemReadyApiArg = void;
+export type SettingsGetSettingApiResponse = /** status 200  */ SettingDto;
+export type SettingsGetSettingApiArg = void;
+export type SettingsGetSystemStatusApiResponse = /** status 200  */ SdSystemStatus;
+export type SettingsGetSystemStatusApiArg = void;
+export type SettingsLogInApiResponse = /** status 200  */ boolean;
+export type SettingsLogInApiArg = LogInRequest;
+export type SettingsUpdateSettingApiResponse = unknown;
+export type SettingsUpdateSettingApiArg = UpdateSettingRequest;
+export type StreamGroupsCreateStreamGroupApiResponse = unknown;
+export type StreamGroupsCreateStreamGroupApiArg = CreateStreamGroupRequest;
+export type StreamGroupsDeleteStreamGroupApiResponse = unknown;
+export type StreamGroupsDeleteStreamGroupApiArg = DeleteStreamGroupRequest;
+export type StreamGroupsGetStreamGroupApiResponse = /** status 200  */ StreamGroupDto;
+export type StreamGroupsGetStreamGroupApiArg = number;
+export type StreamGroupsGetStreamGroupCapabilityApiResponse = unknown;
+export type StreamGroupsGetStreamGroupCapabilityApiArg = string;
+export type StreamGroupsGetStreamGroupCapability2ApiResponse = unknown;
+export type StreamGroupsGetStreamGroupCapability2ApiArg = string;
+export type StreamGroupsGetStreamGroupCapability3ApiResponse = unknown;
+export type StreamGroupsGetStreamGroupCapability3ApiArg = string;
+export type StreamGroupsGetStreamGroupDiscoverApiResponse = unknown;
+export type StreamGroupsGetStreamGroupDiscoverApiArg = string;
+export type StreamGroupsGetStreamGroupEpgApiResponse = unknown;
+export type StreamGroupsGetStreamGroupEpgApiArg = string;
+export type StreamGroupsGetStreamGroupLineupApiResponse = unknown;
+export type StreamGroupsGetStreamGroupLineupApiArg = string;
+export type StreamGroupsGetStreamGroupLineupStatusApiResponse = unknown;
+export type StreamGroupsGetStreamGroupLineupStatusApiArg = string;
+export type StreamGroupsGetStreamGroupM3UApiResponse = unknown;
+export type StreamGroupsGetStreamGroupM3UApiArg = string;
+export type StreamGroupsGetPagedStreamGroupsApiResponse = /** status 200  */ PagedResponseOfStreamGroupDto;
+export type StreamGroupsGetPagedStreamGroupsApiArg = {
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type StreamGroupsUpdateStreamGroupApiResponse = unknown;
+export type StreamGroupsUpdateStreamGroupApiArg = UpdateStreamGroupRequest;
+export type StreamGroupsGetStreamGroupVideoStreamUrlApiResponse = /** status 200  */ string;
+export type StreamGroupsGetStreamGroupVideoStreamUrlApiArg = string;
 export type VideoStreamLinksAddVideoStreamToVideoStreamApiResponse = unknown;
 export type VideoStreamLinksAddVideoStreamToVideoStreamApiArg = AddVideoStreamToVideoStreamRequest;
 export type VideoStreamLinksGetVideoStreamVideoStreamIdsApiResponse = /** status 200  */ string[];
@@ -986,97 +1083,6 @@ export type VideoStreamsGetVideoStreamInfoFromIdApiResponse = /** status 200  */
 export type VideoStreamsGetVideoStreamInfoFromIdApiArg = string;
 export type VideoStreamsGetVideoStreamInfoFromUrlApiResponse = /** status 200  */ VideoInfo;
 export type VideoStreamsGetVideoStreamInfoFromUrlApiArg = string;
-export type FilesGetFileApiResponse = unknown;
-export type FilesGetFileApiArg = {
-  source: string;
-  filetype: SmFileTypes;
-};
-export type M3UFilesCreateM3UFileApiResponse = unknown;
-export type M3UFilesCreateM3UFileApiArg = CreateM3UFileRequest;
-export type M3UFilesCreateM3UFileFromFormApiResponse = unknown;
-export type M3UFilesCreateM3UFileFromFormApiArg = {
-  Description?: string | null;
-  MaxStreamCount?: number;
-  OverWriteChannels?: boolean | null;
-  StartingChannelNumber?: number | null;
-  FormFile?: Blob | null;
-  Name?: string;
-  UrlSource?: string | null;
-};
-export type M3UFilesChangeM3UFileNameApiResponse = unknown;
-export type M3UFilesChangeM3UFileNameApiArg = ChangeM3UFileNameRequest;
-export type M3UFilesDeleteM3UFileApiResponse = unknown;
-export type M3UFilesDeleteM3UFileApiArg = DeleteM3UFileRequest;
-export type M3UFilesGetM3UFileApiResponse = /** status 200  */ M3UFileDto;
-export type M3UFilesGetM3UFileApiArg = number;
-export type M3UFilesGetPagedM3UFilesApiResponse = /** status 200  */ PagedResponseOfM3UFileDto;
-export type M3UFilesGetPagedM3UFilesApiArg = {
-  pageNumber?: number;
-  pageSize?: number;
-  orderBy?: string;
-  jsonArgumentString?: string | null;
-  jsonFiltersString?: string | null;
-};
-export type M3UFilesProcessM3UFileApiResponse = unknown;
-export type M3UFilesProcessM3UFileApiArg = ProcessM3UFileRequest;
-export type M3UFilesRefreshM3UFileApiResponse = unknown;
-export type M3UFilesRefreshM3UFileApiArg = RefreshM3UFileRequest;
-export type M3UFilesScanDirectoryForM3UFilesApiResponse = unknown;
-export type M3UFilesScanDirectoryForM3UFilesApiArg = void;
-export type M3UFilesUpdateM3UFileApiResponse = unknown;
-export type M3UFilesUpdateM3UFileApiArg = UpdateM3UFileRequest;
-export type M3UFilesGetM3UFileNamesApiResponse = /** status 200  */ string[];
-export type M3UFilesGetM3UFileNamesApiArg = void;
-export type MiscGetDownloadServiceStatusApiResponse = /** status 200  */ ImageDownloadServiceStatus;
-export type MiscGetDownloadServiceStatusApiArg = void;
-export type MiscGetTestM3UApiResponse = unknown;
-export type MiscGetTestM3UApiArg = number;
-export type QueueGetQueueStatusApiResponse = /** status 200  */ TaskQueueStatus[];
-export type QueueGetQueueStatusApiArg = void;
-export type SettingsGetIsSystemReadyApiResponse = /** status 200  */ boolean;
-export type SettingsGetIsSystemReadyApiArg = void;
-export type SettingsGetSettingApiResponse = /** status 200  */ SettingDto;
-export type SettingsGetSettingApiArg = void;
-export type SettingsGetSystemStatusApiResponse = /** status 200  */ SdSystemStatus;
-export type SettingsGetSystemStatusApiArg = void;
-export type SettingsLogInApiResponse = /** status 200  */ boolean;
-export type SettingsLogInApiArg = LogInRequest;
-export type SettingsUpdateSettingApiResponse = unknown;
-export type SettingsUpdateSettingApiArg = UpdateSettingRequest;
-export type StreamGroupsCreateStreamGroupApiResponse = unknown;
-export type StreamGroupsCreateStreamGroupApiArg = CreateStreamGroupRequest;
-export type StreamGroupsDeleteStreamGroupApiResponse = unknown;
-export type StreamGroupsDeleteStreamGroupApiArg = DeleteStreamGroupRequest;
-export type StreamGroupsGetStreamGroupApiResponse = /** status 200  */ StreamGroupDto;
-export type StreamGroupsGetStreamGroupApiArg = number;
-export type StreamGroupsGetStreamGroupCapabilityApiResponse = unknown;
-export type StreamGroupsGetStreamGroupCapabilityApiArg = string;
-export type StreamGroupsGetStreamGroupCapability2ApiResponse = unknown;
-export type StreamGroupsGetStreamGroupCapability2ApiArg = string;
-export type StreamGroupsGetStreamGroupCapability3ApiResponse = unknown;
-export type StreamGroupsGetStreamGroupCapability3ApiArg = string;
-export type StreamGroupsGetStreamGroupDiscoverApiResponse = unknown;
-export type StreamGroupsGetStreamGroupDiscoverApiArg = string;
-export type StreamGroupsGetStreamGroupEpgApiResponse = unknown;
-export type StreamGroupsGetStreamGroupEpgApiArg = string;
-export type StreamGroupsGetStreamGroupLineupApiResponse = unknown;
-export type StreamGroupsGetStreamGroupLineupApiArg = string;
-export type StreamGroupsGetStreamGroupLineupStatusApiResponse = unknown;
-export type StreamGroupsGetStreamGroupLineupStatusApiArg = string;
-export type StreamGroupsGetStreamGroupM3UApiResponse = unknown;
-export type StreamGroupsGetStreamGroupM3UApiArg = string;
-export type StreamGroupsGetPagedStreamGroupsApiResponse = /** status 200  */ PagedResponseOfStreamGroupDto;
-export type StreamGroupsGetPagedStreamGroupsApiArg = {
-  pageNumber?: number;
-  pageSize?: number;
-  orderBy?: string;
-  jsonArgumentString?: string | null;
-  jsonFiltersString?: string | null;
-};
-export type StreamGroupsUpdateStreamGroupApiResponse = unknown;
-export type StreamGroupsUpdateStreamGroupApiArg = UpdateStreamGroupRequest;
-export type StreamGroupsGetStreamGroupVideoStreamUrlApiResponse = /** status 200  */ string;
-export type StreamGroupsGetStreamGroupVideoStreamUrlApiArg = string;
 export type CreateChannelGroupRequest = {
   groupName: string;
   isReadOnly: boolean;
@@ -1205,22 +1211,6 @@ export type BaseFileRequest = {
 export type UpdateEpgFileRequest = BaseFileRequest & {
   epgNumber?: number | null;
   color?: string | null;
-};
-export type AutoMatchIconToStreamsRequest = {
-  ids?: string[];
-};
-export type IconFileDto = {
-  id: number;
-  name: string;
-  source: string;
-};
-export type PagedResponseOfIconFileDto = {
-  data: IconFileDto[];
-  pageNumber: number;
-  pageSize: number;
-  totalPageCount: number;
-  totalItemCount: number;
-  first: number;
 };
 export type LogLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type LogEntry = {
@@ -1608,6 +1598,252 @@ export type SetStreamGroupVideoStreamChannelNumbersRequest = {
   startingNumber?: number;
   orderBy?: string;
 };
+export type SmFileTypes = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
+export type AutoMatchIconToStreamsRequest = {
+  ids?: string[];
+};
+export type IconFileDto = {
+  id: string;
+  name: string;
+  source: string;
+};
+export type PagedResponseOfIconFileDto = {
+  data: IconFileDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalPageCount: number;
+  totalItemCount: number;
+  first: number;
+};
+export type CreateM3UFileRequest = {
+  description?: string | null;
+  maxStreamCount?: number;
+  overWriteChannels?: boolean | null;
+  startingChannelNumber?: number | null;
+  formFile?: Blob | null;
+  name?: string;
+  urlSource?: string | null;
+};
+export type ChangeM3UFileNameRequest = {
+  id?: number;
+  name?: string;
+};
+export type DeleteM3UFileRequest = {
+  deleteFile?: boolean;
+  id?: number;
+};
+export type M3UFileDto = BaseFileDto & {
+  vodTags: string[];
+  overwriteChannelNumbers: boolean;
+  startingChannelNumber: number;
+  maxStreamCount: number;
+  stationCount: number;
+};
+export type PagedResponseOfM3UFileDto = {
+  data: M3UFileDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalPageCount: number;
+  totalItemCount: number;
+  first: number;
+};
+export type ProcessM3UFileRequest = {
+  id?: number;
+  overWriteChannels?: boolean | null;
+};
+export type RefreshM3UFileRequest = {
+  id?: number;
+};
+export type UpdateM3UFileRequest = BaseFileRequest & {
+  maxStreamCount?: number | null;
+  startingChannelNumber?: number | null;
+  overWriteChannels?: boolean | null;
+  vodTags?: string[] | null;
+};
+export type ImageDownloadServiceStatus = {
+  id?: number;
+  totalDownloadAttempts?: number;
+  totalInQueue?: number;
+  totalSuccessful?: number;
+  totalAlreadyExists?: number;
+  totalNoArt?: number;
+  totalErrors?: number;
+};
+export type TaskQueueStatus = {
+  command?: string;
+  id?: number;
+  isRunning?: boolean;
+  queueTS?: string;
+  startTS?: string;
+  stopTS?: string;
+  elapsedTS?: string;
+};
+export type M3USettings = {
+  m3UFieldChannelId?: boolean;
+  m3UFieldChannelNumber?: boolean;
+  m3UFieldCUID?: boolean;
+  m3UFieldGroupTitle?: boolean;
+  m3UFieldTvgChno?: boolean;
+  m3UFieldTvgId?: boolean;
+  m3UFieldTvgLogo?: boolean;
+  m3UFieldTvgName?: boolean;
+  m3UIgnoreEmptyEPGID?: boolean;
+};
+export type SdSettings = {
+  seriesPosterArt?: boolean;
+  seriesWsArt?: boolean;
+  seriesPosterAspect?: string;
+  artworkSize?: string;
+  excludeCastAndCrew?: boolean;
+  alternateSEFormat?: boolean;
+  prefixEpisodeDescription?: boolean;
+  prefixEpisodeTitle?: boolean;
+  appendEpisodeDesc?: boolean;
+  sdepgDays?: number;
+  sdEnabled?: boolean;
+  sdUserName?: string;
+  sdCountry?: string;
+  sdPassword?: string;
+  sdPostalCode?: string;
+  preferredLogoStyle?: string;
+  alternateLogoStyle?: string;
+  sdStationIds?: StationIdLineup[];
+  seasonEventImages?: boolean;
+  xmltvAddFillerData?: boolean;
+  xmltvFillerProgramLength?: number;
+  xmltvIncludeChannelNumbers?: boolean;
+  xmltvExtendedInfoInTitleDescriptions?: boolean;
+  xmltvSingleImage?: boolean;
+};
+export type AuthenticationType = 0 | 2;
+export type BaseSettings = M3USettings & {
+  maxConcurrentDownloads?: number;
+  sdSettings?: SdSettings;
+  expectedServiceCount?: number;
+  adminPassword?: string;
+  adminUserName?: string;
+  defaultIcon?: string;
+  uiFolder?: string;
+  urlBase?: string;
+  logPerformance?: string[];
+  apiKey?: string;
+  authenticationMethod?: AuthenticationType;
+  cacheIcons?: boolean;
+  cleanURLs?: boolean;
+  clientUserAgent?: string;
+  deviceID?: string;
+  dummyRegex?: string;
+  ffMpegOptions?: string;
+  enableSSL?: boolean;
+  ffmPegExecutable?: string;
+  ffProbeExecutable?: string;
+  globalStreamLimit?: number;
+  maxConnectRetry?: number;
+  maxConnectRetryTimeMS?: number;
+  preloadPercentage?: number;
+  ringBufferSizeMB?: number;
+  nameRegex?: string[];
+  sslCertPassword?: string;
+  sslCertPath?: string;
+  streamingClientUserAgent?: string;
+  streamingProxyType?: StreamingProxyTypes;
+  videoStreamAlwaysUseEPGLogo?: boolean;
+  showClientHostNames?: boolean;
+};
+export type SettingDto = BaseSettings & {
+  release?: string;
+  version?: string;
+  ffmpegDefaultOptions?: string;
+  isDebug?: boolean;
+};
+export type SdSystemStatus = {
+  isSystemReady?: boolean;
+};
+export type LogInRequest = {
+  password?: string;
+  userName?: string;
+};
+export type SdSettingsRequest = {
+  preferredLogoStyle?: string | null;
+  alternateLogoStyle?: string | null;
+  seriesPosterArt?: boolean | null;
+  seriesWsArt?: boolean | null;
+  seriesPosterAspect?: string | null;
+  artworkSize?: string | null;
+  excludeCastAndCrew?: boolean | null;
+  alternateSEFormat?: boolean | null;
+  prefixEpisodeDescription?: boolean | null;
+  prefixEpisodeTitle?: boolean | null;
+  appendEpisodeDesc?: boolean | null;
+  sdepgDays?: number | null;
+  sdEnabled?: boolean | null;
+  sdUserName?: string | null;
+  sdCountry?: string | null;
+  sdPassword?: string | null;
+  sdPostalCode?: string | null;
+  sdStationIds?: StationIdLineup[] | null;
+  seasonEventImages?: boolean | null;
+  xmltvAddFillerData?: boolean | null;
+  xmltvFillerProgramLength?: number | null;
+  xmltvIncludeChannelNumbers?: boolean | null;
+  xmltvExtendedInfoInTitleDescriptions?: boolean | null;
+  xmltvSingleImage?: boolean | null;
+};
+export type UpdateSettingRequest = {
+  sdSettings?: SdSettingsRequest | null;
+  showClientHostNames?: boolean | null;
+  adminPassword?: string | null;
+  adminUserName?: string | null;
+  apiKey?: string | null;
+  authenticationMethod?: AuthenticationType | null;
+  cacheIcons?: boolean | null;
+  cleanURLs?: boolean | null;
+  clientUserAgent?: string | null;
+  deviceID?: string | null;
+  dummyRegex?: string | null;
+  enableSSL?: boolean | null;
+  ffmPegExecutable?: string | null;
+  globalStreamLimit?: number | null;
+  m3UFieldChannelId?: boolean | null;
+  m3UFieldChannelNumber?: boolean | null;
+  m3UFieldCUID?: boolean | null;
+  m3UFieldGroupTitle?: boolean | null;
+  m3UFieldTvgChno?: boolean | null;
+  m3UFieldTvgId?: boolean | null;
+  m3UFieldTvgLogo?: boolean | null;
+  m3UFieldTvgName?: boolean | null;
+  m3UIgnoreEmptyEPGID?: boolean | null;
+  maxConnectRetry?: number | null;
+  maxConnectRetryTimeMS?: number | null;
+  preloadPercentage?: number | null;
+  ringBufferSizeMB?: number | null;
+  sourceBufferPreBufferPercentage?: number | null;
+  sslCertPassword?: string | null;
+  sslCertPath?: string | null;
+  streamingClientUserAgent?: string | null;
+  streamingProxyType?: StreamingProxyTypes | null;
+  videoStreamAlwaysUseEPGLogo?: boolean | null;
+  nameRegex?: string[] | null;
+};
+export type CreateStreamGroupRequest = {
+  name: string;
+};
+export type DeleteStreamGroupRequest = {
+  id?: number;
+};
+export type PagedResponseOfStreamGroupDto = {
+  data: StreamGroupDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalPageCount: number;
+  totalItemCount: number;
+  first: number;
+};
+export type UpdateStreamGroupRequest = {
+  streamGroupId?: number;
+  name?: string | null;
+  autoSetChannelNumbers?: boolean | null;
+};
 export type AddVideoStreamToVideoStreamRequest = {
   parentVideoStreamId: string;
   childVideoStreamId: string;
@@ -1796,234 +2032,6 @@ export type VideoInfo = {
   streams?: VideoStreamInfo[];
   format?: Format;
 };
-export type SmFileTypes = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
-export type CreateM3UFileRequest = {
-  description?: string | null;
-  maxStreamCount?: number;
-  overWriteChannels?: boolean | null;
-  startingChannelNumber?: number | null;
-  formFile?: Blob | null;
-  name?: string;
-  urlSource?: string | null;
-};
-export type ChangeM3UFileNameRequest = {
-  id?: number;
-  name?: string;
-};
-export type DeleteM3UFileRequest = {
-  deleteFile?: boolean;
-  id?: number;
-};
-export type M3UFileDto = BaseFileDto & {
-  overwriteChannelNumbers: boolean;
-  startingChannelNumber: number;
-  maxStreamCount: number;
-  stationCount: number;
-};
-export type PagedResponseOfM3UFileDto = {
-  data: M3UFileDto[];
-  pageNumber: number;
-  pageSize: number;
-  totalPageCount: number;
-  totalItemCount: number;
-  first: number;
-};
-export type ProcessM3UFileRequest = {
-  id?: number;
-  overWriteChannels?: boolean | null;
-};
-export type RefreshM3UFileRequest = {
-  id?: number;
-};
-export type UpdateM3UFileRequest = BaseFileRequest & {
-  maxStreamCount?: number | null;
-  startingChannelNumber?: number | null;
-  overWriteChannels?: boolean | null;
-};
-export type ImageDownloadServiceStatus = {
-  id?: number;
-  totalDownloadAttempts?: number;
-  totalInQueue?: number;
-  totalSuccessful?: number;
-  totalAlreadyExists?: number;
-  totalNoArt?: number;
-  totalErrors?: number;
-};
-export type TaskQueueStatus = {
-  command?: string;
-  id?: number;
-  isRunning?: boolean;
-  queueTS?: string;
-  startTS?: string;
-  stopTS?: string;
-  elapsedTS?: string;
-};
-export type M3USettings = {
-  m3UFieldChannelId?: boolean;
-  m3UFieldChannelNumber?: boolean;
-  m3UFieldCUID?: boolean;
-  m3UFieldGroupTitle?: boolean;
-  m3UFieldTvgChno?: boolean;
-  m3UFieldTvgId?: boolean;
-  m3UFieldTvgLogo?: boolean;
-  m3UFieldTvgName?: boolean;
-  m3UIgnoreEmptyEPGID?: boolean;
-};
-export type SdSettings = {
-  seriesPosterArt?: boolean;
-  seriesWsArt?: boolean;
-  seriesPosterAspect?: string;
-  artworkSize?: string;
-  excludeCastAndCrew?: boolean;
-  alternateSEFormat?: boolean;
-  prefixEpisodeDescription?: boolean;
-  prefixEpisodeTitle?: boolean;
-  appendEpisodeDesc?: boolean;
-  sdepgDays?: number;
-  sdEnabled?: boolean;
-  sdUserName?: string;
-  sdCountry?: string;
-  sdPassword?: string;
-  sdPostalCode?: string;
-  preferredLogoStyle?: string;
-  alternateLogoStyle?: string;
-  sdStationIds?: StationIdLineup[];
-  seasonEventImages?: boolean;
-  xmltvAddFillerData?: boolean;
-  xmltvFillerProgramLength?: number;
-  xmltvIncludeChannelNumbers?: boolean;
-  xmltvExtendedInfoInTitleDescriptions?: boolean;
-  xmltvSingleImage?: boolean;
-};
-export type AuthenticationType = 0 | 2;
-export type BaseSettings = M3USettings & {
-  maxConcurrentDownloads?: number;
-  sdSettings?: SdSettings;
-  expectedServiceCount?: number;
-  adminPassword?: string;
-  adminUserName?: string;
-  defaultIcon?: string;
-  uiFolder?: string;
-  urlBase?: string;
-  logPerformance?: string[];
-  apiKey?: string;
-  authenticationMethod?: AuthenticationType;
-  cacheIcons?: boolean;
-  cleanURLs?: boolean;
-  clientUserAgent?: string;
-  deviceID?: string;
-  dummyRegex?: string;
-  ffMpegOptions?: string;
-  enableSSL?: boolean;
-  ffmPegExecutable?: string;
-  ffProbeExecutable?: string;
-  globalStreamLimit?: number;
-  maxConnectRetry?: number;
-  maxConnectRetryTimeMS?: number;
-  preloadPercentage?: number;
-  ringBufferSizeMB?: number;
-  nameRegex?: string[];
-  sslCertPassword?: string;
-  sslCertPath?: string;
-  streamingClientUserAgent?: string;
-  streamingProxyType?: StreamingProxyTypes;
-  videoStreamAlwaysUseEPGLogo?: boolean;
-  showClientHostNames?: boolean;
-};
-export type SettingDto = BaseSettings & {
-  release?: string;
-  version?: string;
-  ffmpegDefaultOptions?: string;
-  isDebug?: boolean;
-};
-export type SdSystemStatus = {
-  isSystemReady?: boolean;
-};
-export type LogInRequest = {
-  password?: string;
-  userName?: string;
-};
-export type SdSettingsRequest = {
-  preferredLogoStyle?: string | null;
-  alternateLogoStyle?: string | null;
-  seriesPosterArt?: boolean | null;
-  seriesWsArt?: boolean | null;
-  seriesPosterAspect?: string | null;
-  artworkSize?: string | null;
-  excludeCastAndCrew?: boolean | null;
-  alternateSEFormat?: boolean | null;
-  prefixEpisodeDescription?: boolean | null;
-  prefixEpisodeTitle?: boolean | null;
-  appendEpisodeDesc?: boolean | null;
-  sdepgDays?: number | null;
-  sdEnabled?: boolean | null;
-  sdUserName?: string | null;
-  sdCountry?: string | null;
-  sdPassword?: string | null;
-  sdPostalCode?: string | null;
-  sdStationIds?: StationIdLineup[] | null;
-  seasonEventImages?: boolean | null;
-  xmltvAddFillerData?: boolean | null;
-  xmltvFillerProgramLength?: number | null;
-  xmltvIncludeChannelNumbers?: boolean | null;
-  xmltvExtendedInfoInTitleDescriptions?: boolean | null;
-  xmltvSingleImage?: boolean | null;
-};
-export type UpdateSettingRequest = {
-  sdSettings?: SdSettingsRequest | null;
-  showClientHostNames?: boolean | null;
-  adminPassword?: string | null;
-  adminUserName?: string | null;
-  apiKey?: string | null;
-  authenticationMethod?: AuthenticationType | null;
-  cacheIcons?: boolean | null;
-  cleanURLs?: boolean | null;
-  clientUserAgent?: string | null;
-  deviceID?: string | null;
-  dummyRegex?: string | null;
-  enableSSL?: boolean | null;
-  ffmPegExecutable?: string | null;
-  globalStreamLimit?: number | null;
-  m3UFieldChannelId?: boolean | null;
-  m3UFieldChannelNumber?: boolean | null;
-  m3UFieldCUID?: boolean | null;
-  m3UFieldGroupTitle?: boolean | null;
-  m3UFieldTvgChno?: boolean | null;
-  m3UFieldTvgId?: boolean | null;
-  m3UFieldTvgLogo?: boolean | null;
-  m3UFieldTvgName?: boolean | null;
-  m3UIgnoreEmptyEPGID?: boolean | null;
-  maxConnectRetry?: number | null;
-  maxConnectRetryTimeMS?: number | null;
-  preloadPercentage?: number | null;
-  ringBufferSizeMB?: number | null;
-  sourceBufferPreBufferPercentage?: number | null;
-  sslCertPassword?: string | null;
-  sslCertPath?: string | null;
-  streamingClientUserAgent?: string | null;
-  streamingProxyType?: StreamingProxyTypes | null;
-  videoStreamAlwaysUseEPGLogo?: boolean | null;
-  nameRegex?: string[] | null;
-};
-export type CreateStreamGroupRequest = {
-  name: string;
-};
-export type DeleteStreamGroupRequest = {
-  id?: number;
-};
-export type PagedResponseOfStreamGroupDto = {
-  data: StreamGroupDto[];
-  pageNumber: number;
-  pageSize: number;
-  totalPageCount: number;
-  totalItemCount: number;
-  first: number;
-};
-export type UpdateStreamGroupRequest = {
-  streamGroupId?: number;
-  name?: string | null;
-  autoSetChannelNumbers?: boolean | null;
-};
 export const {
   useChannelGroupsCreateChannelGroupMutation,
   useChannelGroupsDeleteAllChannelGroupsFromParametersMutation,
@@ -2047,10 +2055,6 @@ export const {
   useEpgFilesRefreshEpgFileMutation,
   useEpgFilesScanDirectoryForEpgFilesMutation,
   useEpgFilesUpdateEpgFileMutation,
-  useIconsAutoMatchIconToStreamsMutation,
-  useIconsGetIconFromSourceQuery,
-  useIconsGetPagedIconsQuery,
-  useIconsGetIconsSimpleQueryQuery,
   useLogsGetLogQuery,
   useProgrammesGetProgrammeQuery,
   useProgrammesGetProgrammesQuery,
@@ -2079,6 +2083,45 @@ export const {
   useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteMutation,
   useStreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersMutation,
   useTestEpgSyncMutation,
+  useFilesGetFileQuery,
+  useIconsAutoMatchIconToStreamsMutation,
+  useIconsGetIconFromSourceQuery,
+  useIconsReadDirectoryLogosQuery,
+  useIconsGetPagedIconsQuery,
+  useIconsGetIconsSimpleQueryQuery,
+  useM3UFilesCreateM3UFileMutation,
+  useM3UFilesCreateM3UFileFromFormMutation,
+  useM3UFilesChangeM3UFileNameMutation,
+  useM3UFilesDeleteM3UFileMutation,
+  useM3UFilesGetM3UFileQuery,
+  useM3UFilesGetPagedM3UFilesQuery,
+  useM3UFilesProcessM3UFileMutation,
+  useM3UFilesRefreshM3UFileMutation,
+  useM3UFilesScanDirectoryForM3UFilesMutation,
+  useM3UFilesUpdateM3UFileMutation,
+  useM3UFilesGetM3UFileNamesQuery,
+  useMiscGetDownloadServiceStatusQuery,
+  useMiscGetTestM3UQuery,
+  useQueueGetQueueStatusQuery,
+  useSettingsGetIsSystemReadyQuery,
+  useSettingsGetSettingQuery,
+  useSettingsGetSystemStatusQuery,
+  useSettingsLogInQuery,
+  useSettingsUpdateSettingMutation,
+  useStreamGroupsCreateStreamGroupMutation,
+  useStreamGroupsDeleteStreamGroupMutation,
+  useStreamGroupsGetStreamGroupQuery,
+  useStreamGroupsGetStreamGroupCapabilityQuery,
+  useStreamGroupsGetStreamGroupCapability2Query,
+  useStreamGroupsGetStreamGroupCapability3Query,
+  useStreamGroupsGetStreamGroupDiscoverQuery,
+  useStreamGroupsGetStreamGroupEpgQuery,
+  useStreamGroupsGetStreamGroupLineupQuery,
+  useStreamGroupsGetStreamGroupLineupStatusQuery,
+  useStreamGroupsGetStreamGroupM3UQuery,
+  useStreamGroupsGetPagedStreamGroupsQuery,
+  useStreamGroupsUpdateStreamGroupMutation,
+  useStreamGroupsGetStreamGroupVideoStreamUrlQuery,
   useVideoStreamLinksAddVideoStreamToVideoStreamMutation,
   useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery,
   useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery,
@@ -2115,39 +2158,5 @@ export const {
   useVideoStreamsSetVideoStreamTimeShiftsMutation,
   useVideoStreamsSetVideoStreamTimeShiftFromParametersMutation,
   useVideoStreamsGetVideoStreamInfoFromIdQuery,
-  useVideoStreamsGetVideoStreamInfoFromUrlQuery,
-  useFilesGetFileQuery,
-  useM3UFilesCreateM3UFileMutation,
-  useM3UFilesCreateM3UFileFromFormMutation,
-  useM3UFilesChangeM3UFileNameMutation,
-  useM3UFilesDeleteM3UFileMutation,
-  useM3UFilesGetM3UFileQuery,
-  useM3UFilesGetPagedM3UFilesQuery,
-  useM3UFilesProcessM3UFileMutation,
-  useM3UFilesRefreshM3UFileMutation,
-  useM3UFilesScanDirectoryForM3UFilesMutation,
-  useM3UFilesUpdateM3UFileMutation,
-  useM3UFilesGetM3UFileNamesQuery,
-  useMiscGetDownloadServiceStatusQuery,
-  useMiscGetTestM3UQuery,
-  useQueueGetQueueStatusQuery,
-  useSettingsGetIsSystemReadyQuery,
-  useSettingsGetSettingQuery,
-  useSettingsGetSystemStatusQuery,
-  useSettingsLogInQuery,
-  useSettingsUpdateSettingMutation,
-  useStreamGroupsCreateStreamGroupMutation,
-  useStreamGroupsDeleteStreamGroupMutation,
-  useStreamGroupsGetStreamGroupQuery,
-  useStreamGroupsGetStreamGroupCapabilityQuery,
-  useStreamGroupsGetStreamGroupCapability2Query,
-  useStreamGroupsGetStreamGroupCapability3Query,
-  useStreamGroupsGetStreamGroupDiscoverQuery,
-  useStreamGroupsGetStreamGroupEpgQuery,
-  useStreamGroupsGetStreamGroupLineupQuery,
-  useStreamGroupsGetStreamGroupLineupStatusQuery,
-  useStreamGroupsGetStreamGroupM3UQuery,
-  useStreamGroupsGetPagedStreamGroupsQuery,
-  useStreamGroupsUpdateStreamGroupMutation,
-  useStreamGroupsGetStreamGroupVideoStreamUrlQuery
+  useVideoStreamsGetVideoStreamInfoFromUrlQuery
 } = injectedRtkApi;

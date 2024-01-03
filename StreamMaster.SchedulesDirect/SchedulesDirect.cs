@@ -36,7 +36,9 @@ public partial class SchedulesDirect : ISchedulesDirect
     private readonly IServiceProvider serviceProvider;
     private readonly IJobStatusService jobStatusService;
     private readonly IIconService iconService;
-    public SchedulesDirect(ILogger<SchedulesDirect> logger, IIconService iconService, IJobStatusService jobStatusService, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IEPGCache epgCache, ISchedulesDirectDataService schedulesDirectDataService, ISchedulesDirectAPIService schedulesDirectAPI, ISettingsService settingsService, IMemoryCache memoryCache)
+    private readonly IXMLTVBuilder xMLTVBuilder;
+
+    public SchedulesDirect(ILogger<SchedulesDirect> logger, IIconService iconService, IXMLTVBuilder xMLTVBuilder, IJobStatusService jobStatusService, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IEPGCache epgCache, ISchedulesDirectDataService schedulesDirectDataService, ISchedulesDirectAPIService schedulesDirectAPI, ISettingsService settingsService, IMemoryCache memoryCache)
     {
         this.logger = logger;
         this.epgCache = epgCache;
@@ -48,6 +50,7 @@ public partial class SchedulesDirect : ISchedulesDirect
         this.serviceProvider = serviceProvider;
         this.jobStatusService = jobStatusService;
         this.iconService = iconService;
+        this.xMLTVBuilder = xMLTVBuilder;
         if (memoryCache.GetSetting().SDSettings.SDEnabled)
         {
             _ = CheckToken();
@@ -114,11 +117,12 @@ public partial class SchedulesDirect : ISchedulesDirect
                     epgCache.WriteCache();
                 }
                 HandleDummies();
-                //var xml = CreateXmltv("");
-                //if (xml is not null)
-                //{
-                //    WriteXmltv(xml);
-                //}
+
+                XMLTV? xml = xMLTVBuilder.CreateSDXmlTv("");
+                if (xml is not null)
+                {
+                    WriteXmltv(xml);
+                }
 
                 logger.LogInformation("Completed Schedules Direct update execution. SUCCESS.");
                 jobStatusService.SetSyncSuccessful();

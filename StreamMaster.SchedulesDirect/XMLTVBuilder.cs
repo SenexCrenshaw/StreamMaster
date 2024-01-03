@@ -19,10 +19,8 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
     private Dictionary<string, string> keywordDict = [];
 
 
-    //[LogExecutionTimeAspect]
     public XMLTV? CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs)
     {
-
         _baseUrl = baseUrl;
         try
         {
@@ -31,10 +29,10 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
             XMLTV xmlTv = new()
             {
                 Date = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture),
-                SourceInfoUrl = "http://schedulesdirect.org",
-                SourceInfoName = "Schedules Direct",
+                SourceInfoUrl = "https://github.com/SenexCrenshaw/StreamMaster",
+                SourceInfoName = "Stream Master",
                 GeneratorInfoName = "StreamMaster",
-                GeneratorInfoUrl = "https://github.com/SenexCrenshaw/StreamMaster/",
+                GeneratorInfoUrl = "https://github.com/SenexCrenshaw/StreamMaster",
                 Channels = [],
                 Programs = []
             };
@@ -143,7 +141,140 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
                 Parallel.ForEach(toProcess, service =>
                 {
 
-                    xmlTv.Channels.Add(BuildXmltvChannel(service, videoStreamConfigs));
+                    xmlTv.Channels.Add(BuildXmltvChannel(service));
+
+                    if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && settings.SDSettings.XmltvAddFillerData)
+                    {
+                        // add a program specific for this service
+                        MxfProgram program = new(programs.Count + 1, $"SM-{service.StationId}")
+                        {
+                            Title = service.Name,
+                            Description = service.Name,
+                            IsGeneric = true
+                        };
+
+                        // populate the schedule entries
+                        DateTime startTime = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 0, 0, 0);
+                        DateTime stopTime = startTime + TimeSpan.FromDays(settings.SDSettings.SDEPGDays);
+                        do
+                        {
+                            service.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
+                            {
+                                Duration = settings.SDSettings.XmltvFillerProgramLength * 60 * 60,
+                                mxfProgram = program,
+                                StartTime = startTime,
+                                IsRepeat = true
+                            });
+                            startTime += TimeSpan.FromHours(settings.SDSettings.XmltvFillerProgramLength);
+                        } while (startTime < stopTime);
+                    }
+
+                    List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
+
+                    string channelId = service.ChNo.ToString();
+
+                    Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, scheduleEntry =>
+                    {
+                        XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channelId);
+                        xmlTv.Programs.Add(program);
+                    });
+
+                });
+
+                List<XmltvProgramme> a = xmlTv.Programs.Where(a => a == null || a.Channel == null || a.StartDateTime == null).ToList();
+
+                xmlTv.Channels = xmlTv.Channels
+          .Select(c => new { Channel = c, IsNumeric = int.TryParse(c.Id, out int num), NumericId = num })
+          .OrderBy(c => c.IsNumeric)
+          .ThenBy(c => c.NumericId)
+          .Select(c => c.Channel)
+          .ToList();
+
+                xmlTv.Programs = xmlTv.Programs
+        .Select(c => new { Program = c, IsNumeric = int.TryParse(c.Channel, out int num), NumericId = num })
+        .OrderBy(c => c.IsNumeric)
+        .ThenBy(c => c.NumericId)
+        .ThenBy(c => c.Program.StartDateTime)
+        .Select(c => c.Program)
+        .ToList();
+
+            }
+            catch (Exception ex)
+            {
+                return xmlTv;
+            }
+
+            return xmlTv;
+        }
+        catch (Exception ex)
+        {
+            logger.LogInformation($"Failed to create the XMLTV file. Exception:{FileUtil.ReportExceptionMessages(ex)}");
+        }
+        return null;
+    }
+
+    //[LogExecutionTimeAspect]
+    public XMLTV? CreateSDXmlTv(string baseUrl)
+    {
+        _baseUrl = baseUrl;
+        try
+        {
+            //CreateDummyLineupChannels();
+
+            XMLTV xmlTv = new()
+            {
+                Date = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture),
+                SourceInfoUrl = "https://github.com/SenexCrenshaw/StreamMaster",
+                SourceInfoName = "Stream Master",
+                GeneratorInfoName = "StreamMaster",
+                GeneratorInfoUrl = "https://github.com/SenexCrenshaw/StreamMaster",
+                Channels = [],
+                Programs = []
+            };
+
+            Setting settings = memoryCache.GetSetting();
+
+            // Pre-process all keywords into a HashSet for faster lookup
+            keywordDict = schedulesDirectDataService.AllKeywords
+     .Where(k => !string.Equals(k.Word, "Uncategorized", StringComparison.OrdinalIgnoreCase) &&
+                 !k.Word.Contains("premiere", StringComparison.OrdinalIgnoreCase))
+     .GroupBy(k => k.Id)
+     .ToDictionary(
+         g => g.Key,
+         g =>
+         {
+             string word = g.First().Word;
+             return string.Equals(word, "Movies", StringComparison.OrdinalIgnoreCase) ? "Movie" : word;
+         }
+     );
+            foreach (MxfSeriesInfo seriesInfo in schedulesDirectDataService.AllSeriesInfos)
+            {
+                if (seriesDict.ContainsKey(seriesInfo.Index))
+                {
+                    MxfSeriesInfo a = seriesDict[seriesInfo.Index];
+                    // Handle the duplicate key scenario, e.g., log it or throw an exception
+                    // LogWarning($"Duplicate series index found: {seriesInfo.Index}");
+                    continue;
+                }
+                seriesDict.Add(seriesInfo.Index, seriesInfo);
+            }
+            Func<ISchedulesDirectData> data = schedulesDirectDataService.SchedulesDirectData;
+
+            List<MxfService> services = schedulesDirectDataService.GetAllSDServices;
+
+            List<MxfProgram> programs = schedulesDirectDataService.GetAllSDPrograms;
+
+            int newServiceCount = 0;
+            try
+            {
+                Parallel.ForEach(services, service =>
+                {
+                    int.TryParse(service.StationId, out int chno);
+
+                    service.ChNo = chno;
+                    Interlocked.Increment(ref newServiceCount);
+
+                    xmlTv.Channels.Add(BuildXmltvChannel(service));
 
                     if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && settings.SDSettings.XmltvAddFillerData)
                     {
@@ -173,7 +304,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
                     List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
 
-                    string channelId = service.ChNo.ToString();
+                    string channelId = service.StationId;
 
                     Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, scheduleEntry =>
                 {
@@ -288,7 +419,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
 
     #region ========== XMLTV Channels and Functions ==========
-    private XmltvChannel BuildXmltvChannel(MxfService mxfService, List<VideoStreamConfig> videoStreamConfigs)
+    private XmltvChannel BuildXmltvChannel(MxfService mxfService)
     {
         Setting settings = memoryCache.GetSetting();
 
@@ -336,11 +467,6 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
         if (!string.IsNullOrEmpty(affiliate) && !mxfService.Name.Equals(affiliate))
         {
             ret.DisplayNames.Add(new XmltvText { Text = affiliate });
-        }
-
-        if (mxfService.EPGNumber < 0)
-        {
-            int a = 1;
         }
 
         // add logo if available

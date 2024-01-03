@@ -63,7 +63,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
     private byte[] iv = [];
 
     private const string DefaultReturn = "#EXTM3U\r\n";
-    private ConcurrentBag<int> chNos = [];
+    private readonly ConcurrentBag<int> chNos = [];
     private ConcurrentBag<int> existingChNos = [];
 
     [LogExecutionTimeAspect]
@@ -95,7 +95,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
      .WithDegreeOfParallelism(Environment.ProcessorCount)
      .Select((videoStream, index) =>
      {
-         var (ChNo, m3uLine) = BuildM3ULineForVideoStream(videoStream, url, request, index, setting);
+         (int ChNo, string m3uLine) = BuildM3ULineForVideoStream(videoStream, url, request, index, setting);
          return new
          {
              ChNo,
@@ -158,8 +158,6 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
             }
         }
 
-        //bool isUserTvgIdInvalid = string.IsNullOrEmpty(stationId)
-        //              || StringComparer.OrdinalIgnoreCase.Equals(stationId, "dummy");
 
         if (setting.M3UIgnoreEmptyEPGID)
         {
@@ -208,7 +206,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         int chNo = videoStream.User_Tvg_chno;
         if (chNos.Contains(chNo))
         {
-            foreach (var num in existingChNos.Concat(chNos))
+            foreach (int num in existingChNos.Concat(chNos))
             {
                 if (num != chNo)
                 {
@@ -233,25 +231,25 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
 
         if (showM3UFieldTvgId)
         {
-            fieldList.Add($"tvg-id=\"{chNo}\"");
+            fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_ID}\"");
         }
 
         if (setting.M3UFieldTvgLogo)
         {
             fieldList.Add($"tvg-logo=\"{videoStream.User_Tvg_logo}\"");
         }
+
         if (setting.M3UFieldGroupTitle)
         {
             if (!string.IsNullOrEmpty(videoStream.GroupTitle))
             {
                 fieldList.Add($"group-title=\"{videoStream.GroupTitle}\"");
-                fieldList.Add($"tvc-guide-categories\r\n=\"{videoStream.GroupTitle.Replace(';', ',')}\"");
+                //fieldList.Add($"tvc-guide-categories\r\n=\"{videoStream.GroupTitle.Replace(';', ',')}\"");
             }
             else
             {
                 fieldList.Add($"group-title=\"{videoStream.User_Tvg_group}\"");
             }
-
         }
 
         if (epgNumber == EPGHelper.SchedulesDirectId)

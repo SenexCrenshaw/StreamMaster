@@ -74,15 +74,16 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
       if (isIconSelector) {
         return cacheData.find((item) => item.source.toString() === toMatch);
       }
+
       return cacheData.find((item) => item.id.toString() === toMatch);
     },
-    [cacheData, props.dataKey]
+    [cacheData, isIconSelector]
   );
 
   //Add props.value to the cache if it is not already there
   useEffect(() => {
-    if (selectedItem !== null && selectedItem !== undefined) return;
     if (props.value === null || props.value === null) return;
+    if (selectedItem !== null && selectedItem !== undefined && selectedItem.id === props.value) return;
 
     fetchAndAddItem({ value: props.value } as StringArgument).catch((error) => {
       console.error(error);
@@ -91,7 +92,8 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
 
   //Set the selected item if the value is set
   useEffect(() => {
-    if (selectedItem === undefined && props.value !== undefined && filteredDataSource && filteredDataSource.length > 0) {
+    // if (selectedItem === undefined && props.value !== undefined && filteredDataSource && filteredDataSource.length > 0) {
+    if (props.value !== undefined && filteredDataSource && filteredDataSource.length > 0) {
       const item = getItemByValue(props.value);
 
       if (!item) {

@@ -69,4 +69,6 @@ public interface ISchedulesDirectDataService
     ISchedulesDirectData SchedulesDirectData();
     ISchedulesDirectData DummyData();
     void ChangeServiceEPGNumber(int oldEPGNumber, int newEPGNumber);
+    List<MxfService> GetAllSDServices { get; }
+    List<MxfProgram> GetAllSDPrograms { get; }
 }

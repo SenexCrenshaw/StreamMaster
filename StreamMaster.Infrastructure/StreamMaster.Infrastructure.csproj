@@ -36,7 +36,4 @@
     <ProjectReference Include="..\StreamMaster.SchedulesDirect\StreamMaster.SchedulesDirect.csproj" />
     <ProjectReference Include="..\StreamMaster.Streams\StreamMaster.Streams.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="VideoStreamManager\" />
-  </ItemGroup>
 </Project>

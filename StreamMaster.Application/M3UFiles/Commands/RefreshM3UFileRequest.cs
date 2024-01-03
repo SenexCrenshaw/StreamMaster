@@ -2,7 +2,7 @@
 
 namespace StreamMaster.Application.M3UFiles.Commands;
 
-public record RefreshM3UFileRequest(int Id) : IRequest<M3UFile?> { }
+public record RefreshM3UFileRequest(int Id, bool forceRun = false) : IRequest<M3UFile?> { }
 
 public class RefreshM3UFileRequestValidator : AbstractValidator<RefreshM3UFileRequest>
 {
@@ -28,7 +28,7 @@ public class RefreshM3UFileRequestHandler : BaseMediatorRequestHandler, IRequest
                 return null;
             }
 
-            if (m3uFile.LastDownloadAttempt.AddMinutes(m3uFile.MinimumMinutesBetweenDownloads) < DateTime.Now)
+            if (request.forceRun || m3uFile.LastDownloadAttempt.AddMinutes(m3uFile.MinimumMinutesBetweenDownloads) < DateTime.Now)
             {
                 FileDefinition fd = FileDefinitions.M3U;
                 string fullName = Path.Combine(fd.DirectoryLocation, m3uFile.Source);
@@ -65,10 +65,6 @@ public class RefreshM3UFileRequestHandler : BaseMediatorRequestHandler, IRequest
                     return null;
                 }
 
-                if (m3uFile.StationCount != streams.Count)
-                {
-                    m3uFile.StationCount = streams.Count;
-                }
                 m3uFile.LastUpdated = DateTime.Now;
                 Repository.M3UFile.UpdateM3UFile(m3uFile);
                 _ = await Repository.SaveAsync().ConfigureAwait(false);

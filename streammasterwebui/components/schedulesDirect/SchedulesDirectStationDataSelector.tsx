@@ -160,7 +160,7 @@ const SchedulesDirectStationDataSelector = () => {
 
   const columns = useMemo((): ColumnMeta[] => {
     const columnConfigs: ColumnMeta[] = [
-      { field: 'stationId', filter: true, header: 'Station Id', sortable: true, width: '18rem' },
+      { field: 'stationId', filter: true, header: 'Station Id', sortable: true, width: '10rem' },
       { bodyTemplate: imageBodyTemplate, field: 'logo', fieldType: 'image' }
     ];
     // // columnConfigs.push(channelGroupConfig);

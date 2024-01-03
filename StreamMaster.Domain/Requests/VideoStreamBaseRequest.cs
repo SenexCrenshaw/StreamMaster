@@ -1,5 +1,4 @@
 ﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Enums;
 
 namespace StreamMaster.Domain.Requests;
 
