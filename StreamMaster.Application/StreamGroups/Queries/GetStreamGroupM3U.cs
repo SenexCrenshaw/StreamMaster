@@ -26,7 +26,7 @@ public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
 }
 
 
-public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, IEPGHelper epgHelper, ILogger<GetStreamGroupM3U> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupM3U, string>
+public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, ISchedulesDirectDataService schedulesDirectDataService, IEPGHelper epgHelper, ILogger<GetStreamGroupM3U> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupM3U, string>
 {
     public string GetIconUrl(string iconOriginalSource, Setting setting)
     {
@@ -163,7 +163,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         {
             if (setting.M3UFieldTvgId)
             {
-                showM3UFieldTvgId = false;
+                showM3UFieldTvgId = !(string.IsNullOrEmpty(videoStream.Tvg_ID) && string.IsNullOrEmpty(videoStream.User_Tvg_ID));
             }
             else
             {
@@ -231,7 +231,8 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
 
         if (showM3UFieldTvgId)
         {
-            fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_ID}\"");
+            MxfService? service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId == stationId);
+            fieldList.Add($"tvg-id=\"{service?.CallSign ?? stationId}\"");
         }
 
         if (setting.M3UFieldTvgLogo)

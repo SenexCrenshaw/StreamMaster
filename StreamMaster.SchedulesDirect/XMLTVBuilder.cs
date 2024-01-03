@@ -88,6 +88,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
                     continue;
                 }
 
+
                 MxfService newService = new(newServiceCount++, videoStreamConfig.User_Tvg_ID);// schedulesDirectDataService.FindOrCreateService(stationId);
 
                 if (origService.MxfScheduleEntries is not null)
@@ -171,7 +172,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
                     List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
 
-                    string channelId = service.ChNo.ToString();
+                    string channelId = service.CallSign;
 
                     Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, scheduleEntry =>
                     {
@@ -181,22 +182,10 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
                 });
 
-                List<XmltvProgramme> a = xmlTv.Programs.Where(a => a == null || a.Channel == null || a.StartDateTime == null).ToList();
+                //List<XmltvProgramme> a = xmlTv.Programs.Where(a => a == null || a.Channel == null || a.StartDateTime == null).ToList();
 
-                xmlTv.Channels = xmlTv.Channels
-          .Select(c => new { Channel = c, IsNumeric = int.TryParse(c.Id, out int num), NumericId = num })
-          .OrderBy(c => c.IsNumeric)
-          .ThenBy(c => c.NumericId)
-          .Select(c => c.Channel)
-          .ToList();
-
-                xmlTv.Programs = xmlTv.Programs
-        .Select(c => new { Program = c, IsNumeric = int.TryParse(c.Channel, out int num), NumericId = num })
-        .OrderBy(c => c.IsNumeric)
-        .ThenBy(c => c.NumericId)
-        .ThenBy(c => c.Program.StartDateTime)
-        .Select(c => c.Program)
-        .ToList();
+                xmlTv.Channels = [.. xmlTv.Channels.OrderBy(a => a.Id)];
+                xmlTv.Programs = [.. xmlTv.Programs.OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime)];
 
             }
             catch (Exception ex)
@@ -426,7 +415,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
         // initialize the return channel
         XmltvChannel ret = new()
         {
-            Id = mxfService.ChNo.ToString(),
+            Id = mxfService.CallSign,
             DisplayNames = []
         };
 
