@@ -80,11 +80,6 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
                 string prefix = videoStreamConfig.IsDummy ? "DUMMY" : "SM";
                 int epgNumber;
                 string stationId;
-
-                if (videoStreamConfig.Id == "282476628d303b54eaec5b63457d0447")
-                {
-                    int aa = 1;
-                }
                 (epgNumber, stationId) = ePGHelper.ExtractEPGNumberAndStationId(videoStreamConfig.User_Tvg_ID);
                 //}
 
