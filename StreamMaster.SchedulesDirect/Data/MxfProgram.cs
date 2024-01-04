@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Extensions;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Data;
@@ -14,6 +12,11 @@ public partial class SchedulesDirectData
 
     public MxfProgram FindOrCreateProgram(string programId)
     {
+        if (!Programs.ContainsKey(programId))
+        {
+            WriteToCSV(programsCSV, $"{Programs.Count + 1},{programId}");
+
+        }
         (MxfProgram program, bool created) = Programs.FindOrCreateWithStatus(programId, key => new MxfProgram(Programs.Count + 1, programId));
         if (created)
         {

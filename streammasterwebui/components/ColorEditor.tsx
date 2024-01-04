@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
 interface ColorEditorProperties {
-  readonly id: string;
+  readonly id?: string;
   readonly color: string;
   onChange(event: string): void;
 }

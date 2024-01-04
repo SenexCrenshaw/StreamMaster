@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Extensions;
+﻿using StreamMaster.Domain.Common;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
@@ -9,13 +6,15 @@ using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect;
-public partial class SchedulesDirect
+public partial class SchedulesDirectImages
 {
-    private List<MxfProgram> sportEvents = [];
+    public List<MxfProgram> sportEvents { get; set; } = [];
     private List<string> sportsImageQueue = [];
     private ConcurrentBag<ProgramMetadata> sportsImageResponses = [];
-    private bool GetAllSportsImages()
+
+    public async Task<bool> GetAllSportsImages()
     {
+
         Setting settings = memoryCache.GetSetting();
         // reset counters
         sportsImageQueue = [];
@@ -40,7 +39,7 @@ public partial class SchedulesDirect
                 if (artwork != null)
                 {
                     sportEvent.extras.AddOrUpdate("artwork", artwork);
-                    sportEvent.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Program);
+                    sportEvent.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Program);
                 }
             }
             else
@@ -53,26 +52,68 @@ public partial class SchedulesDirect
         // maximum 500 queries at a time
         if (sportsImageQueue.Count > 0)
         {
-            _ = Parallel.For(0, (sportsImageQueue.Count / MaxImgQueries) + 1, new ParallelOptions { MaxDegreeOfParallelism = MaxParallelDownloads }, i =>
-            {
-                DownloadImageResponses(sportsImageQueue, sportsImageResponses, i * MaxImgQueries);
-            });
+            SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads, SchedulesDirect.MaxParallelDownloads);
+            List<Task> tasks = [];
+            int processedCount = 0;
 
+            for (int i = 0; i <= (sportsImageQueue.Count / SchedulesDirect.MaxImgQueries); i++)
+            {
+                int startIndex = i * SchedulesDirect.MaxImgQueries;
+                tasks.Add(Task.Run(async () =>
+                {
+                    await semaphore.WaitAsync();
+                    try
+                    {
+                        int itemCount = Math.Min(sportsImageQueue.Count - startIndex, SchedulesDirect.MaxImgQueries);
+                        await DownloadImageResponsesAsync(sportsImageQueue, sportsImageResponses, startIndex).ConfigureAwait(false);
+                        Interlocked.Add(ref processedCount, itemCount);
+                        logger.LogInformation("Downloaded sport event images {ProcessedCount} of {TotalCount}", processedCount, sportsImageQueue.Count);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Error downloading sport event images at {StartIndex}", startIndex);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }));
+            }
+
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+
+            // Continue with the rest of your processing
             ProcessSportsImageResponses();
             imageDownloadQueue.EnqueueProgramMetadataCollection(sportsImageResponses);
-            //await DownloadImages(sportsImageResponses, cancellationToken);
+
             if (processedObjects != totalObjects)
             {
-                logger.LogWarning($"Failed to download and process {sportEvents.Count - processedObjects} sport event image links.");
+                logger.LogWarning("Failed to download and process {FailedCount} sport event image links.", sportEvents.Count - processedObjects);
             }
         }
+
+        //if (sportsImageQueue.Count > 0)
+        //{
+        //    _ = Parallel.For(0, (sportsImageQueue.Count / SchedulesDirect.MaxImgQueries) + 1, new ParallelOptions { MaxDegreeOfParallelism = SchedulesDirect.MaxParallelDownloads }, i =>
+        //    {
+        //        DownloadImageResponses(sportsImageQueue, sportsImageResponses, i * SchedulesDirect.MaxImgQueries);
+        //    });
+
+        //    ProcessSportsImageResponses();
+        //    imageDownloadQueue.EnqueueProgramMetadataCollection(sportsImageResponses);
+        //    //await DownloadImages(sportsImageResponses, cancellationToken);
+        //    if (processedObjects != totalObjects)
+        //    {
+        //        logger.LogWarning($"Failed to download and process {sportEvents.Count - processedObjects} sport event image links.");
+        //    }
+        //}
 
         //UpdateIcons(sportEvents);
 
         logger.LogInformation("Exiting GetAllSportsImages(). SUCCESS.");
 
         sportsImageQueue = []; sportsImageResponses = []; sportEvents.Clear();
-
+        epgCache.SaveCache();
         return true;
     }
 
@@ -107,7 +148,7 @@ public partial class SchedulesDirect
             List<ProgramArtwork> artwork = SDHelpers.GetTieredImages(response.Data, ["team event", "sport event"], artworkSize);
             mxfProgram.extras.AddOrUpdate("artwork", artwork);
 
-            mxfProgram.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Program, mxfProgram.extras["md5"]);
+            mxfProgram.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Program, mxfProgram.extras["md5"]);
         }
     }
 }

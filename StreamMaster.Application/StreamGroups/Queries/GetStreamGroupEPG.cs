@@ -46,7 +46,9 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         List<VideoStreamConfig> videoStreamConfigs = [];
 
-        foreach (VideoStreamDto? videoStream in videoStreams.Where(a => !a.IsHidden))
+        logger.LogInformation("GetStreamGroupEPGHandler: Handling {0} videoStreams", videoStreams.Count);
+
+        foreach (VideoStreamDto? videoStream in videoStreams.Where(a => !a.IsHidden))// && a.User_Tvg_ID.StartsWith($"{EPGHelper.SchedulesDirectId}-")))
         {
             videoStreamConfigs.Add(new VideoStreamConfig
             {

@@ -17,7 +17,7 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
     if (selectedStreamProxytype === undefined && value !== undefined) {
       setSelectedStreamProxytype(value);
     }
-  }, [value]);
+  }, [selectedStreamProxytype, value]);
 
   const getHandlersOptions = (): SelectItem[] => {
     const test = Object.entries(StreamingProxyTypesEnum)

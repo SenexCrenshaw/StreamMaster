@@ -133,12 +133,14 @@ public static partial class SDHelpers
 
     public static List<ProgramArtwork> GetTieredImages(List<ProgramArtwork> sdImages, List<string> tiers, string artWorkSize)
     {
-
+        List<string> Tiers = sdImages.Select(a => a.Tier).Distinct().ToList();
+        List<string> Sizes = sdImages.Select(a => a.Size).Distinct().ToList();
+        List<string> Categories = sdImages.Select(a => a.Size).Distinct().ToList();
         List<ProgramArtwork> ret = [];
         IEnumerable<ProgramArtwork> images = sdImages.Where(arg =>
             !string.IsNullOrEmpty(arg.Category) && !string.IsNullOrEmpty(arg.Aspect) && !string.IsNullOrEmpty(arg.Uri) &&
             (string.IsNullOrEmpty(arg.Tier) || tiers.Contains(arg.Tier.ToLower())) &&
-            !string.IsNullOrEmpty(arg.Size) && arg.Size.Equals(artWorkSize));
+            !string.IsNullOrEmpty(arg.Size) && arg.Size.Equals(artWorkSize, StringComparison.InvariantCultureIgnoreCase));
 
         // get the aspect ratios available and fix the URI
         HashSet<string> aspects = [];

@@ -25,9 +25,10 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
     private readonly SemaphoreSlim downloadSemaphore;
     private readonly IMemoryCache memoryCache;
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> hubContext;
-    //private readonly ConcurrentQueue<ProgramMetadata> downloadQueue = new();
-    private readonly ISchedulesDirect schedulesDirect;
+
     private readonly IImageDownloadQueue imageDownloadQueue;
+    private readonly ISchedulesDirectAPIService schedulesDirectAPI;
+
     private bool IsActive = false;
     private bool ImageLockOut => ImageLockOutDate.AddHours(1) >= DateTime.Now;
     private DateTime ImageLockOutDate = DateTime.MinValue;
@@ -54,17 +55,16 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
         };
     }
 
-    public ImageDownloadService(ILogger<ImageDownloadService> logger, IImageDownloadQueue imageDownloadQueue, ISchedulesDirect schedulesDirect, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache, ISchedulesDirectDataService schedulesDirectDataService)
+    public ImageDownloadService(ILogger<ImageDownloadService> logger, ISchedulesDirectAPIService schedulesDirectAPI, IImageDownloadQueue imageDownloadQueue, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache, ISchedulesDirectDataService schedulesDirectDataService)
     {
         this.logger = logger;
         this.hubContext = hubContext;
         this.schedulesDirectDataService = schedulesDirectDataService;
+        this.schedulesDirectAPI = schedulesDirectAPI;
         this.memoryCache = memoryCache;
-        this.schedulesDirect = schedulesDirect;
         this.imageDownloadQueue = imageDownloadQueue;
         Setting settings = memoryCache.GetSetting();
         downloadSemaphore = new(settings.MaxConcurrentDownloads);
-        _ = schedulesDirect.CheckToken();
 
     }
 
@@ -158,7 +158,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
 
             for (int retryCount = 0; retryCount <= maxRetryCount; retryCount++)
             {
-                HttpResponseMessage response = await schedulesDirect.GetSdImage(uri).ConfigureAwait(false);
+                HttpResponseMessage response = await GetSdImage(uri).ConfigureAwait(false);
                 //HttpResponseMessage response = await httpClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
 
                 if (response.StatusCode == HttpStatusCode.NotFound)
@@ -213,6 +213,11 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
         }
         ++TotalErrors;
         return false;
+    }
+
+    private async Task<HttpResponseMessage> GetSdImage(string uri)
+    {
+        return await schedulesDirectAPI.GetSdImage(uri);
     }
 
     private async Task DownloadImagesAsync(CancellationToken cancellationToken)

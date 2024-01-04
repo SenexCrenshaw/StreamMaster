@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Common;
+﻿using StreamMaster.Domain.Common;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
@@ -8,12 +6,12 @@ using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect;
-public partial class SchedulesDirect
+public partial class SchedulesDirectImages
 {
     private List<MxfSeason> seasons = [];
     private List<string> seasonImageQueue = [];
     private ConcurrentBag<ProgramMetadata> seasonImageResponses = [];
-    private async Task<bool> GetAllSeasonImages(CancellationToken cancellationToken)
+    public async Task<bool> GetAllSeasonImages()
     {
         Setting settings = memoryCache.GetSetting();
 
@@ -27,7 +25,7 @@ public partial class SchedulesDirect
         }
 
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-        var toProcess = schedulesDirectData.SeasonsToProcess;
+        List<MxfSeason> toProcess = schedulesDirectData.SeasonsToProcess;
         // scan through each series in the mxf
         logger.LogInformation("Entering GetAllSeasonImages() for {totalObjects} seasons.", toProcess.Count);
         foreach (MxfSeason season in toProcess)
@@ -48,10 +46,14 @@ public partial class SchedulesDirect
                     season.extras.Add("artwork", artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(reader.ReadToEnd()));
                 }
 
-                season.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Season);
+                season.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Season);
             }
             else if (!string.IsNullOrEmpty(season.ProtoTypicalProgram))
             {
+                if (seasons.Contains(season))
+                {
+                    continue;
+                }
                 seasons.Add(season);
                 seasonImageQueue.Add(season.ProtoTypicalProgram);
             }
@@ -65,23 +67,66 @@ public partial class SchedulesDirect
         // maximum 500 queries at a time
         if (seasonImageQueue.Count > 0)
         {
-            _ = Parallel.For(0, (seasonImageQueue.Count / MaxImgQueries) + 1, new ParallelOptions { MaxDegreeOfParallelism = MaxParallelDownloads }, i =>
-            {
-                DownloadImageResponses(seasonImageQueue, seriesImageResponses, i * MaxImgQueries);
-            });
+            SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads, SchedulesDirect.MaxParallelDownloads);
+            List<Task> tasks = [];
+            int processedCount = 0;
 
+            for (int i = 0; i <= (seasonImageQueue.Count / SchedulesDirect.MaxImgQueries); i++)
+            {
+                int startIndex = i * SchedulesDirect.MaxImgQueries;
+                tasks.Add(Task.Run(async () =>
+                {
+                    await semaphore.WaitAsync();
+                    try
+                    {
+                        int itemCount = Math.Min(seasonImageQueue.Count - startIndex, SchedulesDirect.MaxImgQueries);
+                        await DownloadImageResponsesAsync(seasonImageQueue, seasonImageResponses, startIndex).ConfigureAwait(false);
+                        Interlocked.Add(ref processedCount, itemCount);
+                        logger.LogInformation("Downloaded season images {ProcessedCount} of {TotalCount}", processedCount, seasonImageQueue.Count);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Error downloading season images at {StartIndex}", startIndex);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }));
+            }
+
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+
+            // Continue with the rest of your processing
             ProcessSeasonImageResponses();
             imageDownloadQueue.EnqueueProgramMetadataCollection(seasonImageResponses);
 
-            //await DownloadImages(seasonImageResponses, cancellationToken);
             if (processedObjects != totalObjects)
             {
-                logger.LogWarning($"Failed to download and process {seasons.Count - processedObjects} season image links.");
+                logger.LogWarning("Failed to download and process {FailedCount} season image links.", seasons.Count - processedObjects);
             }
         }
+
+        //if (seasonImageQueue.Count > 0)
+        //{
+        //    _ = Parallel.For(0, (seasonImageQueue.Count / SchedulesDirect.MaxImgQueries) + 1, new ParallelOptions { MaxDegreeOfParallelism = SchedulesDirect.MaxParallelDownloads }, i =>
+        //    {
+        //        DownloadImageResponses(seasonImageQueue, seriesImageResponses, i * SchedulesDirect.MaxImgQueries);
+        //    });
+
+        //    ProcessSeasonImageResponses();
+        //    imageDownloadQueue.EnqueueProgramMetadataCollection(seasonImageResponses);
+
+        //    //await DownloadImages(seasonImageResponses, cancellationToken);
+        //    if (processedObjects != totalObjects)
+        //    {
+        //        logger.LogWarning($"Failed to download and process {seasons.Count - processedObjects} season image links.");
+        //    }
+        //}
         //UpdateSeasonIcons(schedulesDirectData.SeasonsToProcess);
         logger.LogInformation("Exiting GetAllSeasonImages(). SUCCESS.");
         seasonImageQueue = []; seasonImageResponses = []; seasons.Clear();
+        epgCache.SaveCache();
         return true;
     }
 
@@ -117,7 +162,7 @@ public partial class SchedulesDirect
                 epgCache.AddAsset(uid, null);
             }
 
-            season.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Season, uid);
+            season.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Season, uid);
         }
     }
 }

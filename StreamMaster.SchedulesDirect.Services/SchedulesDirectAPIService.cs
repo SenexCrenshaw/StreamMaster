@@ -1,9 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Common;
-
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
@@ -18,6 +15,7 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
     private readonly ILogger<SchedulesDirectAPIService> logger;
     private readonly IMemoryCache memoryCache;
     public HttpClient _httpClient = null!;
+    private readonly SemaphoreSlim tokenSemaphore = new(1, 1);
     private const string BaseAddress = "https://json.schedulesdirect.org/20141201/";
 
     public SchedulesDirectAPIService(ILogger<SchedulesDirectAPIService> logger, IMemoryCache memoryCache)
@@ -131,7 +129,7 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
     {
         try
         {
-            await tokenSemaphore.WaitAsync(cancellationToken);
+            //await tokenSemaphore.WaitAsync(cancellationToken);
 
             //if (!GoodToken)
             //{
@@ -160,7 +158,7 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
         }
         finally
         {
-            tokenSemaphore.Release();
+            //tokenSemaphore.Release();
         }
         return default;
     }

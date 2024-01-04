@@ -1,12 +1,16 @@
 import react from '@vitejs/plugin-react';
 import path from 'node:path';
 
+import { builtinModules } from 'module';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
   clearScreen: true,
   appType: 'spa',
   build: {
+    rollupOptions: {
+      external: builtinModules
+    },
     emptyOutDir: true
     // outDir: '../StreamMasterAPI/bin/Debug/net7.0/wwwroot/'
     //   rollupOptions: {

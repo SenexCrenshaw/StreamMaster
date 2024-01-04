@@ -1,61 +1,39 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Services;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect;
-public partial class SchedulesDirect : ISchedulesDirect
+public partial class SchedulesDirect(
+    ILogger<SchedulesDirect> logger,
+    IIconService iconService,
+    IXMLTVBuilder xMLTVBuilder,
+    IJobStatusService jobStatusService,
+    ISchedulesDirectDataService schedulesDirectDataService,
+    ISchedulesDirectAPIService schedulesDirectAPI,
+    IMemoryCache memoryCache,
+    IDescriptions descriptions,
+    IKeywords keywords,
+    ILineups lineups,
+    IPrograms programs,
+    ISchedules schedules,
+    ISchedulesDirectImages schedulesDirectImages
+) : ISchedulesDirect
 {
     public static readonly int MAX_RETRIES = 3;
     private readonly TimeSpan CacheDuration = TimeSpan.FromHours(23);
     private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
     private readonly SemaphoreSlim _syncSemaphore = new(1, 1);
-    private readonly object fileLock = new();
-    private const int MaxQueries = 1250;
-    private const int MaxImgQueries = 125;
-    public const int MaxParallelDownloads = 8;
 
-    private static int processedObjects;
-    private static int totalObjects;
-    private static int processStage;
 
-    private readonly ILogger<SchedulesDirect> logger;
-    public IEPGCache epgCache;
-    private readonly ISchedulesDirectDataService schedulesDirectDataService;
-
-    private readonly ISchedulesDirectAPIService schedulesDirectAPI;
-    private readonly ISettingsService settingsService;
-    private readonly IImageDownloadQueue imageDownloadQueue;
-    private readonly IMemoryCache memoryCache;
-    private readonly IServiceProvider serviceProvider;
-    private readonly IJobStatusService jobStatusService;
-    private readonly IIconService iconService;
-    private readonly IXMLTVBuilder xMLTVBuilder;
-
-    public SchedulesDirect(ILogger<SchedulesDirect> logger, IIconService iconService, IXMLTVBuilder xMLTVBuilder, IJobStatusService jobStatusService, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IEPGCache epgCache, ISchedulesDirectDataService schedulesDirectDataService, ISchedulesDirectAPIService schedulesDirectAPI, ISettingsService settingsService, IMemoryCache memoryCache)
-    {
-        this.logger = logger;
-        this.epgCache = epgCache;
-        this.schedulesDirectDataService = schedulesDirectDataService;
-        this.schedulesDirectAPI = schedulesDirectAPI;
-        this.settingsService = settingsService;
-        this.memoryCache = memoryCache;
-        this.imageDownloadQueue = imageDownloadQueue;
-        this.serviceProvider = serviceProvider;
-        this.jobStatusService = jobStatusService;
-        this.iconService = iconService;
-        this.xMLTVBuilder = xMLTVBuilder;
-        if (memoryCache.GetSetting().SDSettings.SDEnabled)
-        {
-            _ = CheckToken();
-        }
-    }
+    public static readonly int MaxQueries = 1250;
+    public static readonly int MaxDescriptionQueries = 500;
+    public static readonly int MaxImgQueries = 125;
+    public static readonly int MaxParallelDownloads = 8;
 
     public async Task<bool> SDSync(int EPGNumber, CancellationToken cancellationToken)
     {
@@ -96,26 +74,27 @@ public partial class SchedulesDirect : ISchedulesDirect
 
             // load cache file
             ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-            if (EPGNumber == 0)
-            {
-                epgCache.LoadCache();
-            }
+
             if (
-                 await BuildLineupServices(cancellationToken) &&
-                    await GetAllScheduleEntryMd5S(cancellationToken) &&
-                    BuildAllProgramEntries() &&
-                    BuildAllGenericSeriesInfoDescriptions() &&
-                    await GetAllMoviePosters(cancellationToken) &&
-                    GetAllSeriesImages() &&
-                    await GetAllSeasonImages(cancellationToken) &&
-                    GetAllSportsImages() &&
-                    BuildKeywords()
+
+            await lineups.BuildLineupServices(cancellationToken) &&
+                    await schedules.GetAllScheduleEntryMd5S(cancellationToken) &&
+                    await programs.BuildAllProgramEntries(cancellationToken) &&
+                    await descriptions.BuildAllGenericSeriesInfoDescriptions() &&
+                    keywords.BuildKeywords()
                 )
             {
-                if (EPGNumber == 0)
-                {
-                    epgCache.WriteCache();
-                }
+                await schedulesDirectImages.GetAllMoviePosters().ConfigureAwait(false);
+                await schedulesDirectImages.GetAllSeriesImages().ConfigureAwait(false);
+                await schedulesDirectImages.GetAllSeasonImages().ConfigureAwait(false);
+                await schedulesDirectImages.GetAllSportsImages().ConfigureAwait(false);
+
+                lineups.ClearCache();
+                schedules.ClearCache();
+                programs.ClearCache();
+                descriptions.ClearCache();
+                schedulesDirectImages.ClearCache();
+
                 HandleDummies();
 
                 XMLTV? xml = xMLTVBuilder.CreateSDXmlTv("");
@@ -157,7 +136,6 @@ public partial class SchedulesDirect : ISchedulesDirect
         logger.LogInformation($"Completed save of the XMLTV file to \"{fileName}\". ({FileUtil.BytesToString(fi.Length)})");
         logger.LogDebug($"Generated XMLTV file contains {xmltv.Channels.Count} channels and {xmltv.Programs.Count} programs with {imageCount} distinct program image links.");
     }
-
 
     private void HandleDummies()
     {
@@ -268,28 +246,12 @@ public partial class SchedulesDirect : ISchedulesDirect
 
     public void ResetEPGCache()
     {
-        ScheduleEntries = [];
-        suppressedPrefixes = [];
-        seriesDescriptionQueue = [];
-        seriesDescriptionResponses = [];
-        StationLogosToDownload = [];
-        movieImageQueue = [];
-        movieImageResponses = [];
-        seasonImageQueue = [];
-        seasonImageResponses = [];
-        sportsImageQueue = [];
-        sportsImageResponses = [];
-        programQueue = [];
-        programResponses = [];
-        cachedSchedules = 0;
-        processedObjects = 0;
-        downloadedSchedules = 0;
-        missingGuide = 0;
-        seasons = [];
-        sportsSeries = [];
-        sportEvents = [];
-        epgCache.ResetEPGCache();
+        descriptions.ResetCache();
+        lineups.ResetCache();
+        schedules.ResetCache();
+        schedulesDirectImages.ResetCache();
+        programs.ResetCache();
 
-        schedulesDirectDataService.Reset(0);
+        schedulesDirectDataService.Reset(EPGHelper.SchedulesDirectId);
     }
 }

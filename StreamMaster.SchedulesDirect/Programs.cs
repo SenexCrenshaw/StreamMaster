@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
 
 using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Extensions;
 using StreamMaster.SchedulesDirect.Data;
+using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Collections.Concurrent;
@@ -11,27 +11,32 @@ using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect;
 
-public partial class SchedulesDirect
+public class Programs(ILogger<Programs> logger, IMemoryCache memoryCache, ISchedulesDirectImages schedulesDirectImages, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Programs> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : IPrograms
 {
     private List<string> programQueue = [];
     private ConcurrentBag<Programme> programResponses = [];
+    private readonly int totalObjects;
+    private readonly int processedObjects;
 
-    private bool BuildAllProgramEntries()
+    public async Task<bool> BuildAllProgramEntries(CancellationToken cancellationToken)
     {
+
         // reset counters
         programQueue = [];
         programResponses = [];
-        sportsSeries = [];
+
         //sportsEvents = new List<MxfProgram>();
         //IncrementNextStage(mxf.ProgramsToProcess.Count);
-        logger.LogInformation($"Entering BuildAllProgramEntries() for {totalObjects} programs.");
+
 
         // fill mxf programs with cached values and queue the rest
         programQueue = [];
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         ICollection<MxfProgram> toProcess = schedulesDirectData.Programs.Values;
+        logger.LogInformation($"Entering BuildAllProgramEntries() for {toProcess.Count} programs.");
         foreach (MxfProgram mxfProgram in toProcess)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (!mxfProgram.extras.ContainsKey("md5"))
             {
                 continue;
@@ -58,22 +63,49 @@ public partial class SchedulesDirect
         }
         logger.LogDebug($"Found {processedObjects} cached program descriptions.");
 
-        // maximum 5000 queries at a time
-        if (programQueue.Count > 0)
-        {
-            Parallel.For(0, (programQueue.Count / MaxQueries) + 1, new ParallelOptions { MaxDegreeOfParallelism = MaxParallelDownloads }, i =>
-            {
-                DownloadProgramResponses(i * MaxQueries);
-            });
+        //// maximum 5000 queries at a time
+        //if (programQueue.Count > 0)
+        //{
+        //    Parallel.For(0, (programQueue.Count / SchedulesDirect.MaxQueries) + 1, new ParallelOptions { MaxDegreeOfParallelism = SchedulesDirect.MaxParallelDownloads }, i =>
+        //    {
+        //        logger.LogInformation($"Download programs {i * SchedulesDirect.MaxQueries} of {programQueue.Count}");
+        //        DownloadProgramResponses(i * SchedulesDirect.MaxQueries);
+        //    });
 
-            ProcessProgramResponses();
-            if (processedObjects != totalObjects)
+        //    ProcessProgramResponses();
+        //    if (processedObjects != totalObjects)
+        //    {
+        //        logger.LogWarning($"Failed to download and process {schedulesDirectData.ProgramsToProcess.Count - processedObjects} program descriptions.");
+        //    }
+        //}
+
+        SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads);
+        List<Task> tasks = [];
+
+        for (int i = 0; i <= (programQueue.Count / SchedulesDirect.MaxQueries); i++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            int index = i;
+            tasks.Add(Task.Run(async () =>
             {
-                logger.LogWarning($"Failed to download and process {schedulesDirectData.ProgramsToProcess.Count - processedObjects} program descriptions.");
-            }
+                await semaphore.WaitAsync();
+                try
+                {
+                    logger.LogInformation($"Download programs {index * SchedulesDirect.MaxQueries} of {programQueue.Count}");
+                    DownloadProgramResponses(index * SchedulesDirect.MaxQueries);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }));
         }
+
+        await Task.WhenAll(tasks).ConfigureAwait(false);
+
         logger.LogInformation("Exiting BuildAllProgramEntries(). SUCCESS.");
         programQueue = []; programResponses = [];
+        epgCache.SaveCache();
         return true;
     }
 
@@ -86,7 +118,7 @@ public partial class SchedulesDirect
         }
 
         // build the array of programs to request for
-        string[] programs = new string[Math.Min(programQueue.Count - start, MaxQueries)];
+        string[] programs = new string[Math.Min(programQueue.Count - start, SchedulesDirect.MaxQueries)];
         for (int i = 0; i < programs.Length; ++i)
         {
             programs[i] = programQueue[start + i];
@@ -102,6 +134,23 @@ public partial class SchedulesDirect
             });
         }
     }
+
+    private async Task<List<Programme>?> GetProgramsAsync(string[] request, CancellationToken cancellationToken)
+    {
+        DateTime dtStart = DateTime.Now;
+        List<Programme>? ret = await schedulesDirectAPI.GetApiResponse<List<Programme>?>(APIMethod.POST, "programs", request, cancellationToken);
+        if (ret != null)
+        {
+            logger.LogDebug($"Successfully retrieved {ret.Count}/{request.Length} program descriptions. ({DateTime.Now - dtStart:G})");
+        }
+        else
+        {
+            logger.LogError($"Did not receive a response from Schedules Direct for {request.Length} program descriptions. ({DateTime.Now - dtStart:G})");
+        }
+
+        return ret;
+    }
+
 
     private void ProcessProgramResponses()
     {
@@ -308,7 +357,7 @@ public partial class SchedulesDirect
         // queue up the sport event to get the event image
         if (SDHelpers.TableContains(types, "Event"))// && (sd.HasSportsArtwork | sd.HasEpisodeArtwork | sd.HasSeriesArtwork | sd.HasImageArtwork))
         {
-            sportEvents.Add(prg);
+            schedulesDirectImages.sportEvents.Add(prg);
         }
     }
 
@@ -444,7 +493,7 @@ public partial class SchedulesDirect
         {
             string name = mxfProgram.Title.Replace(' ', '_');
             mxfSeriesInfo = schedulesDirectData.FindOrCreateSeriesInfo(name);
-            sportsSeries.Add(name, mxfProgram.ProgramId);
+            schedulesDirectImages.sportsSeries.Add(name, mxfProgram.ProgramId);
         }
         else
         {
@@ -760,5 +809,17 @@ public partial class SchedulesDirect
 
         // return rounded number of half stars in a 4 star scale
         return maxValue > 0.0 ? (int)((8.0 * maxValue) + 0.125) : 0;
+    }
+
+    public void ResetCache()
+    {
+        programQueue = [];
+        programResponses = [];
+
+    }
+
+    public void ClearCache()
+    {
+        epgCache.ResetCache();
     }
 }

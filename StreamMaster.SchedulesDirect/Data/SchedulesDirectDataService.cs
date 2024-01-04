@@ -1,14 +1,12 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Services;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Collections.Concurrent;
 
 namespace StreamMaster.SchedulesDirect.Data;
 
-public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, IEPGHelper ePGHelper, ISettingsService settingsService, IMemoryCache memoryCache) : ISchedulesDirectDataService
+public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, ILogger<EPGImportLogger> _epgImportLogger, IEPGHelper ePGHelper, ISettingsService settingsService, IMemoryCache memoryCache) : ISchedulesDirectDataService
 {
 
     public ConcurrentDictionary<int, ISchedulesDirectData> SchedulesDirectDatas { get; private set; } = new();
@@ -73,7 +71,7 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, IEP
     {
         return SchedulesDirectDatas.GetOrAdd(EPGNumber, (epgId) =>
         {
-            SchedulesDirectData data = new(logger, ePGHelper, memoryCache, EPGNumber);
+            SchedulesDirectData data = new(logger, _epgImportLogger, ePGHelper, memoryCache, EPGNumber);
             return data;
         });
     }
@@ -82,7 +80,7 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, IEP
     {
         return SchedulesDirectDatas.GetOrAdd(EPGHelper.SchedulesDirectId, (epgId) =>
         {
-            SchedulesDirectData data = new(logger, ePGHelper, memoryCache, EPGHelper.SchedulesDirectId)
+            SchedulesDirectData data = new(logger, _epgImportLogger, ePGHelper, memoryCache, EPGHelper.SchedulesDirectId)
             {
                 EPGNumber = EPGHelper.SchedulesDirectId
             };
@@ -94,7 +92,7 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, IEP
     {
         return SchedulesDirectDatas.GetOrAdd(EPGHelper.DummyId, (epgId) =>
         {
-            SchedulesDirectData data = new(logger, ePGHelper, memoryCache, EPGHelper.DummyId)
+            SchedulesDirectData data = new(logger, _epgImportLogger, ePGHelper, memoryCache, EPGHelper.DummyId)
             {
                 EPGNumber = EPGHelper.DummyId
             };

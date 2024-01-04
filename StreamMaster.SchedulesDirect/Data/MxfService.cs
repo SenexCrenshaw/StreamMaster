@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Extensions;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Data;
@@ -17,6 +15,11 @@ public partial class SchedulesDirectData
 
     public MxfService FindOrCreateService(string stationId)
     {
+        if (!Services.ContainsKey(stationId))
+        {
+            WriteToCSV(serviceCSV, $"{Services.Count + 1},{stationId}");
+        }
+
         (MxfService service, bool created) = Services.FindOrCreateWithStatus(stationId, key => new MxfService(Services.Count + 1, stationId)
         {
             EPGNumber = EPGNumber
@@ -34,6 +37,10 @@ public partial class SchedulesDirectData
 
     public MxfService FindOrCreateDummyService(string stationId, VideoStreamConfig videoStreamConfig)
     {
+        if (!Services.ContainsKey(stationId))
+        {
+            WriteToCSV(serviceCSV, $"FindOrCreateService: {stationId}");
+        }
         (MxfService service, bool created) = Services.FindOrCreateWithStatus(stationId, key => new MxfService(Services.Count + 1, stationId)
         {
             EPGNumber = EPGNumber

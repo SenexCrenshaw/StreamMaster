@@ -180,21 +180,23 @@ const EPGFilesDataSelector = () => {
     return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.programmeCount}</div>;
   }, []);
 
-  const epgNumberBodyTemplate = useCallback((rowData: EpgFileDto) => {
-    if (rowData.id === 0) {
-      return <div />;
-    }
+  const epgNumberBodyTemplate = useCallback(
+    (rowData: EpgFileDto) => {
+      if (rowData.id === 0) {
+        return <div />;
+      }
 
-    return (
-      <NumberEditorBodyTemplate
-        onChange={async (e) => {
-          await onEPGUpdateClick({ id: rowData.id, epgNumber: e });
-        }}
-        value={rowData.epgNumber}
-      />
-    );
-    //return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.epgNumber}</div>;
-  }, []);
+      return (
+        <NumberEditorBodyTemplate
+          onChange={async (e) => {
+            await onEPGUpdateClick({ id: rowData.id, epgNumber: e });
+          }}
+          value={rowData.epgNumber}
+        />
+      );
+    },
+    [onEPGUpdateClick]
+  );
 
   const actionBodyTemplate = useCallback(
     (rowData: EpgFileDto) => {
@@ -318,7 +320,16 @@ const EPGFilesDataSelector = () => {
         width: '16rem'
       }
     ],
-    [colorTemplate, nameEditorBodyTemplate, lastDownloadedTemplate, channelCountTemplate, programmeCountTemplate, urlEditorBodyTemplate, actionBodyTemplate]
+    [
+      colorTemplate,
+      nameEditorBodyTemplate,
+      epgNumberBodyTemplate,
+      lastDownloadedTemplate,
+      channelCountTemplate,
+      programmeCountTemplate,
+      urlEditorBodyTemplate,
+      actionBodyTemplate
+    ]
   );
 
   return (

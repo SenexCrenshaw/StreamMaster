@@ -6,7 +6,6 @@ public partial class SchedulesDirectAPIService
     public static string Token { get; private set; }
     public static DateTime TokenTimestamp = DateTime.MinValue;
     public static bool GoodToken;
-    private readonly SemaphoreSlim tokenSemaphore = new(1, 1);
 
     /// <summary>
     /// Retrieves a session token from Schedules Direct

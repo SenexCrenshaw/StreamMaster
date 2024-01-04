@@ -5,3 +5,5 @@ public class OverWLogger { }
 public class ReadsLogger { }
 public class WriteLogger { }
 public class WaitsLogger { }
+
+public class EPGImportLogger { }

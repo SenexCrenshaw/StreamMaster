@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Extensions;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Data;

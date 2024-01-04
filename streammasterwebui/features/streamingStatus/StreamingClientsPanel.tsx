@@ -20,7 +20,9 @@ const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProper
 
   useEffect(() => {
     if (getStreamingStatus.data === undefined || getStreamingStatus.data.length === 0 || getStreamingStatus.data === null) {
-      setDataSource([]);
+      if (dataSource !== undefined && dataSource.length > 0) {
+        setDataSource([]);
+      }
       return;
     }
 
@@ -31,15 +33,25 @@ const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProper
       if (index === -1) {
         data.push(item);
       } else {
+        // data[index] = {
+        //   ...data[index],
+        //   clientIPAddress: item.clientIPAddress !== data[index].clientIPAddress ? item.clientIPAddress : data[index].clientIPAddress,
+        //   clientAgent: item.clientAgent !== data[index].clientAgent ? item.clientAgent : data[index].clientAgent,
+        //   videoStreamName: item.videoStreamName !== data[index].videoStreamName ? item.videoStreamName : data[index].videoStreamName,
+        //   clientStartTime: item.clientStartTime !== data[index].clientStartTime ? item.clientStartTime : data[index].clientStartTime,
+        //   clientElapsedTime: item.clientElapsedTime !== data[index].clientElapsedTime ? item.clientElapsedTime : data[index].clientElapsedTime,
+        //   clientBitsPerSecond: item.clientBitsPerSecond !== data[index].clientBitsPerSecond ? item.clientBitsPerSecond : data[index].clientBitsPerSecond,
+        //   inputStartTime: item.inputStartTime !== data[index].inputStartTime ? item.inputStartTime : data[index].inputStartTime
+        // };
         data[index] = {
           ...data[index],
-          clientIPAddress: item.clientIPAddress !== data[index].clientIPAddress ? item.clientIPAddress : data[index].clientIPAddress,
-          clientAgent: item.clientAgent !== data[index].clientAgent ? item.clientAgent : data[index].clientAgent,
-          videoStreamName: item.videoStreamName !== data[index].videoStreamName ? item.videoStreamName : data[index].videoStreamName,
-          clientStartTime: item.clientStartTime !== data[index].clientStartTime ? item.clientStartTime : data[index].clientStartTime,
-          clientElapsedTime: item.clientElapsedTime !== data[index].clientElapsedTime ? item.clientElapsedTime : data[index].clientElapsedTime,
-          clientBitsPerSecond: item.clientBitsPerSecond !== data[index].clientBitsPerSecond ? item.clientBitsPerSecond : data[index].clientBitsPerSecond,
-          inputStartTime: item.inputStartTime !== data[index].inputStartTime ? item.inputStartTime : data[index].inputStartTime
+          clientIPAddress: item.clientIPAddress,
+          clientAgent: item.clientAgent,
+          videoStreamName: item.videoStreamName,
+          clientStartTime: item.clientStartTime,
+          clientElapsedTime: item.clientElapsedTime,
+          clientBitsPerSecond: item.clientBitsPerSecond,
+          inputStartTime: item.inputStartTime
         };
       }
     }

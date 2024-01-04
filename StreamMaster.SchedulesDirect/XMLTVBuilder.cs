@@ -1,11 +1,8 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Services;
 
 using System.Globalization;
 using System.Net;
@@ -228,7 +225,8 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
     private void DoPrograms(List<MxfService> services, List<MxfProgram> programs, XMLTV xmlTv)
     {
         Setting settings = memoryCache.GetSetting();
-        int newServiceCount = 0;
+        ParallelOptions options = new() { MaxDegreeOfParallelism = Environment.ProcessorCount * 4 };
+
         try
         {
             Parallel.ForEach(services, service =>
@@ -265,7 +263,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
                 string channelId = service.CallSign;
 
-                Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, scheduleEntry =>
+                Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, options, scheduleEntry =>
                 {
                     XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channelId);
                     xmlTv.Programs.Add(program);
@@ -422,6 +420,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
     #region ========== XMLTV Programmes and Functions ==========
 
+    //[LogExecutionTimeAspect]
     private XmltvProgramme BuildXmltvProgram(MxfScheduleEntry scheduleEntry, string channelId)
     {
         Setting settings = memoryCache.GetSetting();

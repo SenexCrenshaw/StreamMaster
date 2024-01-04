@@ -7,6 +7,7 @@ namespace StreamMaster.SchedulesDirect.Domain.Interfaces
 {
     public interface ISchedulesDirectData
     {
+
         ConcurrentDictionary<string, MxfAffiliate> Affiliates { get; set; }
         ConcurrentDictionary<string, MxfGuideImage> GuideImages { get; set; }
         ConcurrentBag<MxfKeyword> Keywords { get; set; }
@@ -22,7 +23,7 @@ namespace StreamMaster.SchedulesDirect.Domain.Interfaces
         ConcurrentDictionary<string, MxfSeason> Seasons { get; set; }
         ConcurrentDictionary<string, MxfSeriesInfo> SeriesInfos { get; set; }
         List<MxfSeriesInfo> SeriesInfosToProcess { get; set; }
-
+        List<MxfScheduleEntries> ScheduleEntries { get; set; }
         List<MxfSeason> SeasonsToProcess { get; set; }
 
 

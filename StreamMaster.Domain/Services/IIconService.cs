@@ -5,6 +5,7 @@ namespace StreamMaster.Domain.Services
 {
     public interface IIconService
     {
+        void AddIcon(string artworkUri, string title);
         ImagePath? GetValidImagePath(string URL);
         List<TvLogoFile> GetTvLogos();
         void AddIcon(IconFileDto iconFile);

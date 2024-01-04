@@ -21,7 +21,7 @@ namespace M3UFormatter
 {
     internal class Program
     {
-        private static readonly ILogger<Program> _logger;
+        private static ILogger<Program> _logger;
 
         private static async Task Main(string[] args)
         {
@@ -37,11 +37,10 @@ namespace M3UFormatter
 
             ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
             GlobalLoggerProvider.Configure(loggerFactory);
+            _logger = serviceProvider.GetService<ILogger<Program>>()!;
 
             // Resolve the service
-            IXmltv2Mxf? xmltv2Mxf = serviceProvider.GetService<IXmltv2Mxf>();
-
-            ILogger<Program>? logger = serviceProvider.GetService<ILogger<Program>>();
+            IXmltv2Mxf? xmltv2Mxf = serviceProvider.GetService<IXmltv2Mxf>()!;
 
 
             if (args.Length != 1 || string.IsNullOrEmpty(args[0]))
@@ -60,7 +59,7 @@ namespace M3UFormatter
             XMLTV? epgData = xmltv2Mxf.ConvertToMxf(fullName, 0);
             if (epgData == null)
             {
-                logger.LogCritical("Exception EPG {fullName} format is not supported", fullName);
+                _logger.LogCritical("Exception EPG {fullName} format is not supported", fullName);
                 return;
             }
             string name = Path.GetFileNameWithoutExtension(fullName);

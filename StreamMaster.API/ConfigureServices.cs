@@ -47,7 +47,7 @@ public static class ConfigureServices
 
         services.AddLogging(logging =>
         {
-            logging.AddFilter("StreamMasterDomain.Logging.CustomLogger", LogLevel.Information);
+            logging.AddFilter("StreamMaster.Domain.Logging.CustomLogger", LogLevel.Information);
             logging.AddProvider(new StatsLoggerProvider());
             logging.AddConsole();
             logging.AddDebug();

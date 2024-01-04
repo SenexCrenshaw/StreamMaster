@@ -12,7 +12,6 @@ namespace StreamMaster.Infrastructure.VideoStreamManager.Buffers;
 public sealed partial class CircularRingBuffer : ICircularRingBuffer
 {
     private TaskCompletionSource<bool> _writeSignal = new(TaskCreationOptions.RunContinuationsAsynchronously);
-    private readonly PriorityQueue<Guid, int> _readerPriorityQueue = new();
 
     public async Task<int> ReadChunkMemory(Guid ClientId, Memory<byte> target, CancellationToken cancellationToken)
     {

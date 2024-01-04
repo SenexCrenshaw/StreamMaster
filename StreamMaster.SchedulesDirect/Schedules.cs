@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Extensions;
+﻿using StreamMaster.Domain.Common;
+using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text.Json;
@@ -10,23 +8,29 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.SchedulesDirect;
 
-public partial class SchedulesDirect
+public class Schedules(ILogger<Schedules> logger, ISettingsService settingsService, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Schedules> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : ISchedules
 {
-    private Dictionary<string, string[]> ScheduleEntries = [];
-    private List<string> suppressedPrefixes = [];
-
     private int cachedSchedules;
     private int downloadedSchedules;
 
     private int missingGuide;
+    private int processedObjects;
+    private int totalObjects;
+    private int processStage;
 
-    private async Task<bool> GetAllScheduleEntryMd5S(CancellationToken cancellationToken)
+    public async Task<bool> GetAllScheduleEntryMd5S(CancellationToken cancellationToken)
     {
+        Dictionary<string, string[]> tempScheduleEntries = [];
         Setting settings = await settingsService.GetSettingsAsync(cancellationToken);
         int days = settings.SDSettings.SDEPGDays;
         days = Math.Clamp(days, 1, 14);
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         ICollection<MxfService> toProcess = schedulesDirectData.Services.Values;
+
+        IEnumerable<string> duplicateStationIds = toProcess
+    .GroupBy(service => service.StationId)
+    .Where(group => group.Count() > 1)
+    .Select(group => group.Key);
 
         logger.LogInformation("Entering GetAllScheduleEntryMd5s() for {days} days on {Count} stations.", days, toProcess.Count);
         if (days <= 0)
@@ -41,7 +45,7 @@ public partial class SchedulesDirect
         // reset counter
         processedObjects = 0;
         totalObjects = toProcess.Count * days;
-        ++processStage;
+        //++processStage;
 
         // build date array for requests
         DateTime dt = DateTime.UtcNow;
@@ -54,10 +58,13 @@ public partial class SchedulesDirect
             dt = dt.AddDays(1.0);
         }
 
-        // maximum 5000 queries at a time
-        for (int i = 0; i < toProcess.Count; i += MaxQueries / dates.Length)
+
+        int toAdd = SchedulesDirect.MaxQueries / dates.Length;
+        for (int i = 0; i < toProcess.Count; i += SchedulesDirect.MaxQueries / dates.Length)
         {
-            if (await GetMd5ScheduleEntries(dates, i, cancellationToken))
+            logger.LogInformation($"Getting {i} of {toProcess.Count} schedules from SD.");
+
+            if (await GetMd5ScheduleEntries(dates, i, tempScheduleEntries, cancellationToken))
             {
                 continue;
             }
@@ -65,8 +72,8 @@ public partial class SchedulesDirect
             logger.LogError("Problem occurred during GetMd5ScheduleEntries(). Exiting.");
             return false;
         }
-        logger.LogDebug("Found {cachedSchedules} cached daily schedules.", cachedSchedules);
-        logger.LogDebug("Downloaded {downloadedSchedules} daily schedules.", downloadedSchedules);
+        logger.LogInformation("Found {cachedSchedules} cached daily schedules.", cachedSchedules);
+        logger.LogInformation("Downloaded {downloadedSchedules} daily schedules.", downloadedSchedules);
 
         double missing = (double)missingGuide / toProcess.Count;
         if (missing > 0.1)
@@ -77,11 +84,11 @@ public partial class SchedulesDirect
 
         // reset counters again
         processedObjects = 0;
-        totalObjects = ScheduleEntries.Count;
+        totalObjects = tempScheduleEntries.Count;
         ++processStage;
 
         // process all schedules
-        foreach (string md5 in ScheduleEntries.Keys)
+        foreach (string md5 in tempScheduleEntries.Keys)
         {
             ++processedObjects;
             ProcessMd5ScheduleEntry(md5);
@@ -89,40 +96,33 @@ public partial class SchedulesDirect
         logger.LogInformation("Processed {totalObjects} daily schedules for {Count} stations for average of {totalObjects:N1} days per station.",
             totalObjects, toProcess.Count, (double)totalObjects / toProcess.Count);
         logger.LogInformation("Exiting GetAllScheduleEntryMd5s(). SUCCESS.");
+        epgCache.SaveCache();
         return true;
     }
 
-    private async Task<bool> GetMd5ScheduleEntries(string[] dates, int start, CancellationToken cancellationToken)
+    private async Task<bool> GetMd5ScheduleEntries(string[] dates, int start, Dictionary<string, string[]> tempScheduleEntries, CancellationToken cancellationToken)
     {
+
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-        ICollection<MxfService> toProcess = schedulesDirectData.Services.Values;
+        List<MxfService> toProcess = schedulesDirectData.Services.Values.ToList();
         // reject 0 requests
         if (toProcess.Count - start < 1)
         {
             return true;
         }
 
+
         // build request for station schedules
-        ScheduleRequest[] requests = new ScheduleRequest[Math.Min(toProcess.Count - start, MaxQueries / dates.Length)];
-        int i = 0;
 
-        foreach (MxfService service in toProcess)
+        ScheduleRequest[] requests = new ScheduleRequest[Math.Min(toProcess.Count - start, SchedulesDirect.MaxQueries / dates.Length)];
+
+        for (int i = 0; i < requests.Length; ++i)
         {
-            if (service.StationId == "DUMMY")
+            requests[i] = new ScheduleRequest()
             {
-                continue;
-            }
-
-            requests[i++] = new ScheduleRequest()
-            {
-                StationId = service.StationId,
+                StationId = toProcess[start + i].StationId,
                 Date = dates
             };
-
-            if (i >= requests.Length)
-            {
-                break;
-            }
         }
 
 
@@ -133,13 +133,27 @@ public partial class SchedulesDirect
             return false;
         }
 
+
+
         // build request of daily schedules not downloaded yet
         List<ScheduleRequest> newRequests = [];
         foreach (ScheduleRequest request in requests.Where(a => a is not null))
         {
 
             Dictionary<int, string> requestErrors = [];
+
             MxfService mxfService = schedulesDirectData.FindOrCreateService(request.StationId);
+            IEnumerable<KeyValuePair<string, MxfService>> test = schedulesDirectData.Services.Where(arg => arg.Value.StationId.Equals(request.StationId));
+
+            if (!schedulesDirectData.Services.ContainsKey(request.StationId))
+            {
+                int aaa = 1;
+            }
+            else
+            {
+                MxfService b = schedulesDirectData.Services[request.StationId];
+            }
+
             if (stationResponses.TryGetValue(request.StationId, out Dictionary<string, ScheduleMd5Response>? stationResponse))
             {
                 // if the station return is empty, go to next station
@@ -176,16 +190,16 @@ public partial class SchedulesDirect
                             newDateRequests.Add(day);
                         }
 
-                        if (!ScheduleEntries.TryGetValue(dayResponse.Md5, out string[]? value))
+                        if (!tempScheduleEntries.TryGetValue(dayResponse.Md5, out string[]? value))
                         {
-                            ScheduleEntries.Add(dayResponse.Md5, [request.StationId, day]);
+                            tempScheduleEntries.Add(dayResponse.Md5, [request.StationId, day]);
                         }
                         else
                         {
 
                             string previous = value[1];
-                            //string comment = $"Duplicate schedule Md5 return for stationId {mxfService.StationId} ({mxfService.CallSign}) on {day} with {previous}.";
-                            //logger.LogWarning(comment);
+                            string comment = $"Duplicate schedule Md5 return for stationId {mxfService.StationId} ({mxfService.CallSign}) on {day} with {previous}.";
+                            logger.LogWarning(comment);
                             dupeMd5s.Add(dayResponse.Md5);
                         }
                     }
@@ -198,10 +212,10 @@ public partial class SchedulesDirect
                 // clear out dupe entries
                 foreach (string dupe in dupeMd5s)
                 {
-                    string previous = ScheduleEntries[dupe][1];
+                    string previous = tempScheduleEntries[dupe][1];
                     //string comment = $"Removing duplicate Md5 schedule entry for stationId {mxfService.StationId} ({mxfService.CallSign}) on {previous}.";
                     //logger.LogWarning(comment);
-                    ScheduleEntries.Remove(dupe);
+                    tempScheduleEntries.Remove(dupe);
                 }
 
                 // create the new request for the station
@@ -255,7 +269,7 @@ public partial class SchedulesDirect
                 ++downloadedSchedules;
 
                 // serialize JSON directly to a file
-                if (ScheduleEntries.TryGetValue(response.Metadata.Md5, out string[]? serviceDate))
+                if (tempScheduleEntries.TryGetValue(response.Metadata.Md5, out string[]? serviceDate))
                 {
                     try
                     {
@@ -279,7 +293,7 @@ public partial class SchedulesDirect
                 {
                     try
                     {
-                        KeyValuePair<string, string[]> compare = ScheduleEntries
+                        KeyValuePair<string, string[]> compare = tempScheduleEntries
                             .Where(arg => arg.Value[0].Equals(response.StationId))
                             .Single(arg => arg.Value[1].Equals(response.Metadata.StartDate));
                         logger.LogWarning($"Md5 mismatch for station {compare.Value[0]} on {compare.Value[1]}. Expected: {compare.Key} - Downloaded: {response.Metadata.Md5}");
@@ -293,6 +307,22 @@ public partial class SchedulesDirect
         }
 
         return true;
+    }
+
+    private async Task<List<ScheduleResponse>?> GetScheduleListingsAsync(ScheduleRequest[] request)
+    {
+        DateTime dtStart = DateTime.Now;
+        List<ScheduleResponse>? ret = await schedulesDirectAPI.GetApiResponse<List<ScheduleResponse>?>(APIMethod.POST, "schedules", request);
+        if (ret != null)
+        {
+            logger.LogDebug($"Successfully retrieved {request.Length} stations' daily schedules. ({DateTime.Now - dtStart:G})");
+        }
+        else
+        {
+            logger.LogError($"Did not receive a response from Schedules Direct for {request.Length} stations' daily schedules. ({DateTime.Now - dtStart:G})");
+        }
+
+        return ret;
     }
 
     private void ProcessMd5ScheduleEntry(string md5)
@@ -466,9 +496,37 @@ public partial class SchedulesDirect
         return maxValue;
     }
 
+    private async Task<Dictionary<string, Dictionary<string, ScheduleMd5Response>>?> GetScheduleMd5sAsync(ScheduleRequest[] request, CancellationToken cancellationToken)
+    {
+        DateTime dtStart = DateTime.Now;
+        Dictionary<string, Dictionary<string, ScheduleMd5Response>>? ret = await schedulesDirectAPI.GetApiResponse<Dictionary<string, Dictionary<string, ScheduleMd5Response>>>(APIMethod.POST, "schedules/md5", request, cancellationToken);
+        if (ret != null)
+        {
+            logger.LogDebug($"Successfully retrieved Md5s for {ret.Count}/{request.Length} stations' daily schedules. ({DateTime.Now - dtStart:G})");
+        }
+        else
+        {
+            logger.LogError($"Did not receive a response from Schedules Direct for Md5s of {request.Length} stations' daily schedules. ({DateTime.Now - dtStart:G})");
+        }
+
+        return ret;
+    }
+
+
     private static string? SafeFilename(string md5)
     {
         return md5 == null ? null : Regex.Replace(md5, @"[^\w\.@-]", "-");
     }
 
+    public void ResetCache()
+    {
+        cachedSchedules = 0;
+        downloadedSchedules = 0;
+        missingGuide = 0;
+    }
+
+    public void ClearCache()
+    {
+        epgCache.ResetCache();
+    }
 }

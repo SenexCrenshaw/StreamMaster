@@ -1,27 +1,36 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using StreamMaster.SchedulesDirect.Domain.Enums;
 
 using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect;
-public partial class SchedulesDirect
+public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Descriptions> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : IDescriptions
 {
-    private List<string> seriesDescriptionQueue;
-    private ConcurrentDictionary<string, GenericDescription> seriesDescriptionResponses;
+    private readonly int processedObjects;
+    private readonly int totalObjects;
+    private List<string> seriesDescriptionQueue = [];
+    private ConcurrentDictionary<string, GenericDescription> seriesDescriptionResponses = [];
 
-    private bool BuildAllGenericSeriesInfoDescriptions()
+    public void ResetCache()
+    {
+        seriesDescriptionQueue = [];
+        seriesDescriptionResponses = [];
+    }
+
+    public async Task<bool> BuildAllGenericSeriesInfoDescriptions()
     {
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         // reset counters
         seriesDescriptionQueue = [];
         seriesDescriptionResponses = [];
-        ////IncrementNextStage(mxf.SeriesInfosToProcess.Count);
-        logger.LogInformation($"Entering BuildAllGenericSeriesInfoDescriptions() for {totalObjects} series.");
 
         List<MxfSeriesInfo> a = schedulesDirectData.SeriesInfosToProcess;
         ConcurrentDictionary<string, MxfProgram> b = schedulesDirectData.Programs;
         ConcurrentBag<MxfProvider> c = schedulesDirectData.Providers;
         List<MxfSeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess;
+
+        logger.LogInformation($"Entering BuildAllGenericSeriesInfoDescriptions() for {toProcess.Count} series.");
+
         // fill mxf programs with cached values and queue the rest
         foreach (MxfSeriesInfo series in toProcess)
         {
@@ -77,26 +86,99 @@ public partial class SchedulesDirect
                 seriesDescriptionQueue.Add($"{series.ProtoTypicalProgram}");
             }
         }
-        logger.LogDebug($"Found {processedObjects} cached/unavailable series descriptions.");
+        logger.LogInformation($"Found {processedObjects} cached/unavailable series descriptions.");
 
         // maximum 500 queries at a time
+        //if (seriesDescriptionQueue.Count > 0)
+        //{
+        //    Parallel.For(0, (seriesDescriptionQueue.Count / SchedulesDirect.MaxDescriptionQueries) + 1, new ParallelOptions { MaxDegreeOfParallelism = SchedulesDirect.MaxParallelDownloads }, i =>
+        //    {
+        //        DownloadGenericSeriesDescriptions(i * SchedulesDirect.MaxDescriptionQueries);
+        //    });
+
+        //    ProcessSeriesDescriptionsResponses();
+        //    if (processedObjects != totalObjects)
+        //    {
+        //        logger.LogWarning($"Failed to download and process {schedulesDirectData.SeriesInfosToProcess.Count - processedObjects} series descriptions.");
+        //    }
+        //}
+        int processedCount = 0;
         if (seriesDescriptionQueue.Count > 0)
         {
-            Parallel.For(0, (seriesDescriptionQueue.Count / MaxImgQueries) + 1, new ParallelOptions { MaxDegreeOfParallelism = MaxParallelDownloads }, i =>
-            {
-                DownloadGenericSeriesDescriptions(i * MaxImgQueries);
-            });
+            SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads, SchedulesDirect.MaxParallelDownloads);
+            List<Task> tasks = [];
 
+            for (int i = 0; i <= (seriesDescriptionQueue.Count / SchedulesDirect.MaxDescriptionQueries); i++)
+            {
+                int startIndex = i * SchedulesDirect.MaxDescriptionQueries;
+                tasks.Add(Task.Run(async () =>
+                {
+                    await semaphore.WaitAsync();
+                    try
+                    {
+                        int itemCount = Math.Min(seriesDescriptionQueue.Count - startIndex, SchedulesDirect.MaxDescriptionQueries);
+                        await DownloadGenericSeriesDescriptionsAsync(startIndex).ConfigureAwait(false);
+                        Interlocked.Add(ref processedCount, itemCount);
+                        logger.LogInformation("Downloaded series descriptions {ProcessedCount} of {TotalCount}", processedCount, seriesDescriptionQueue.Count);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Error downloading series descriptions at {StartIndex}", startIndex);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }));
+            }
+
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+
+            // Continue with the rest of your processing
             ProcessSeriesDescriptionsResponses();
+
             if (processedObjects != totalObjects)
             {
-                logger.LogWarning($"Failed to download and process {schedulesDirectData.SeriesInfosToProcess.Count - processedObjects} series descriptions.");
+                logger.LogWarning("Failed to download and process {FailedCount} series descriptions.", schedulesDirectData.SeriesInfosToProcess.Count - processedObjects);
             }
         }
+
+
         logger.LogInformation("Exiting BuildAllGenericSeriesInfoDescriptions(). SUCCESS.");
         seriesDescriptionQueue = []; seriesDescriptionResponses = [];
+        epgCache.SaveCache();
         return true;
     }
+
+    private async Task DownloadGenericSeriesDescriptionsAsync(int start = 0)
+    {
+        // Reject 0 requests
+        if (seriesDescriptionQueue.Count - start < 1)
+        {
+            return;
+        }
+
+        // Build the array of series to request descriptions for
+        string[] series = new string[Math.Min(seriesDescriptionQueue.Count - start, SchedulesDirect.MaxImgQueries)];
+        for (int i = 0; i < series.Length; ++i)
+        {
+            series[i] = seriesDescriptionQueue[start + i];
+        }
+
+        // Request descriptions from Schedules Direct
+        Dictionary<string, GenericDescription>? responses = await schedulesDirectAPI.GetApiResponse<Dictionary<string, GenericDescription>?>(APIMethod.POST, "metadata/description/", series).ConfigureAwait(false);
+
+        if (responses != null)
+        {
+            // Process responses in parallel
+            Parallel.ForEach(responses, (response) =>
+            {
+                seriesDescriptionResponses.TryAdd(response.Key, response.Value);
+            });
+        }
+    }
+
+
 
     private void DownloadGenericSeriesDescriptions(int start = 0)
     {
@@ -107,19 +189,20 @@ public partial class SchedulesDirect
         }
 
         // build the array of series to request descriptions for
-        string[] series = new string[Math.Min(seriesDescriptionQueue.Count - start, MaxImgQueries)];
+        string[] series = new string[Math.Min(seriesDescriptionQueue.Count - start, SchedulesDirect.MaxDescriptionQueries)];
         for (int i = 0; i < series.Length; ++i)
         {
             series[i] = seriesDescriptionQueue[start + i];
         }
 
         IEnumerable<string> test = series.Where(string.IsNullOrEmpty);
-        if (test.Any())
-        {
-            int aaa = 1;
-        }
+        //if (test.Any())
+        //{
+        //    int aaa = 1;
+        //}
         // request descriptions from Schedules Direct
-        Dictionary<string, GenericDescription>? responses = GetGenericDescriptionsAsync(series, CancellationToken.None).Result;
+        //Dictionary<string, GenericDescription>? responses = GetGenericDescriptionsAsync(series, CancellationToken.None).Result;
+        Dictionary<string, GenericDescription>? responses = schedulesDirectAPI.GetApiResponse<Dictionary<string, GenericDescription>?>(APIMethod.POST, "metadata/description/", series).Result;
         if (responses != null)
         {
             Parallel.ForEach(responses, (response) =>
@@ -161,114 +244,6 @@ public partial class SchedulesDirect
         }
     }
 
-    //private  bool BuildAllExtendedSeriesDataForUiPlus()
-    //{
-    //    // reset counters
-    //    //IncrementNextStage(mxf.With.SeriesInfos.Count);
-    //    seriesDescriptionQueue = new List<string>();
-    //    return true;
-    //    //if (!config.ModernMediaUiPlusSupport) return true;
-    //    //logger.LogInformation($"Entering BuildAllExtendedSeriesDataForUiPlus() for {totalObjects} series.");
-
-    //    //// read in cached ui+ extended information
-    //    //var oldPrograms = new Dictionary<string, ModernMediaUiPlusPrograms>();
-    //    //if (File.Exists(Helper.Epg123MmuiplusJsonPath))
-    //    //{
-    //    //    using (var sr = new StreamReader(Helper.Epg123MmuiplusJsonPath))
-    //    //    {
-    //    //        oldPrograms = JsonConvert.DeserializeObject<Dictionary<string, ModernMediaUiPlusPrograms>>(sr.ReadToEnd());
-    //    //    }
-    //    //}
-
-    //    //// fill mxf programs with cached values and queue the rest
-    //    //foreach (var series in mxf.With.SeriesInfos)
-    //    //{
-    //    //    // sports events will not have a generic description
-    //    //    if (!series.SeriesId.StartsWith("SH"))
-    //    //    {
-    //    //        //IncrementProgress();
-    //    //        continue;
-    //    //    }
-
-    //    //    var seriesId = $"SH{series.SeriesId}0000";
-
-    //    //    // generic series information already in support file array
-    //    //    if (ModernMediaUiPlus.Programs.ContainsKey(seriesId))
-    //    //    {
-    //    //        //IncrementProgress();
-    //    //        if (ModernMediaUiPlus.Programs.TryGetValue(seriesId, out var program) && program.OriginalAirDate != null)
-    //    //        {
-    //    //            UpdateSeriesAirdate(seriesId, program.OriginalAirDate);
-    //    //        }
-    //    //        continue;
-    //    //    }
-
-    //    //    // extended information in current json file
-    //    //    if (oldPrograms.ContainsKey(seriesId))
-    //    //    {
-    //    //        //IncrementProgress();
-    //    //        if (oldPrograms.TryGetValue(seriesId, out var program) && !string.IsNullOrEmpty(program.OriginalAirDate))
-    //    //        {
-    //    //            ModernMediaUiPlus.Programs.Add(seriesId, program);
-    //    //            UpdateSeriesAirdate(seriesId, program.OriginalAirDate);
-    //    //        }
-    //    //        continue;
-    //    //    }
-
-    //    //    // add to queue
-    //    //    seriesDescriptionQueue.Add(seriesId);
-    //    //}
-    //    //logger.LogDebug($"Found {processedObjects} cached extended series descriptions.");
-
-    //    //// maximum 5000 queries at a time
-    //    //if (seriesDescriptionQueue.Count > 0)
-    //    //{
-    //    //    for (var i = 0; i < seriesDescriptionQueue.Count; i += MaxQueries)
-    //    //    {
-    //    //        if (GetExtendedSeriesDataForUiPlus(i)) continue;
-    //    //        logger.LogWarning($"Failed to download and process {mxf.With.SeriesInfos.Count - processedObjects} extended series descriptions.");
-    //    //        return true;
-    //    //    }
-    //    //}
-    //    //logger.LogInformation("Exiting BuildAllExtendedSeriesDataForUiPlus(). SUCCESS.");
-    //    //seriesDescriptionQueue = null; seriesDescriptionResponses = null;
-    //    //return true;
-    //}
-    //private  async bool GetExtendedSeriesDataForUiPlus(int start = 0)
-    //{
-    //    // build the array of programs to request for
-    //    var programs = new string[Math.Min(seriesDescriptionQueue.Count - start, MaxQueries)];
-    //    for (var i = 0; i < programs.Length; ++i)
-    //    {
-    //        programs[i] = seriesDescriptionQueue[start + i];
-    //    }
-
-    //    // request programs from Schedules Direct
-    //    var responses = await .GetPrograms(programs);
-    //    if (responses == null) return false;
-
-    //    // process request response
-    //    var idx = 0;
-    //    foreach (var response in responses)
-    //    {
-    //        if (response == null)
-    //        {
-    //            logger.LogWarning($"Did not receive data for program {programs[idx++]}.");
-    //            continue;
-    //        }
-    //        ++idx; //IncrementProgress();
-
-    //        //// add the series extended data to the file if not already present from program builds
-    //        //if (!ModernMediaUiPlus.Programs.ContainsKey(response.ProgramId))
-    //        //{
-    //        //    AddModernMediaUiPlusProgram(response);
-    //        //}
-
-    //        // add the series start air date if available
-    //        UpdateSeriesAirdate(response.ProgramId, response.OriginalAirDate);
-    //    }
-    //    return true;
-    //}
     private void UpdateSeriesAirdate(string seriesId, string originalAirdate)
     {
         UpdateSeriesAirdate(seriesId, DateTime.Parse(originalAirdate));
@@ -303,6 +278,26 @@ public partial class SchedulesDirect
         {
             // ignored
         }
+    }
+
+    private async Task<Dictionary<string, GenericDescription>?> GetGenericDescriptionsAsync(string[] request, CancellationToken cancellationToken)
+    {
+        DateTime dtStart = DateTime.Now;
+        Dictionary<string, GenericDescription>? ret = await schedulesDirectAPI.GetApiResponse<Dictionary<string, GenericDescription>?>(APIMethod.POST, "metadata/description/", request, cancellationToken);
+        if (ret != null)
+        {
+            logger.LogDebug($"Successfully retrieved {ret.Count}/{request.Length} generic program descriptions. ({DateTime.Now - dtStart:G})");
+        }
+        else
+        {
+            logger.LogError($"Did not receive a response from Schedules Direct for {request.Length} generic program descriptions. ({DateTime.Now - dtStart:G})");
+        }
+
+        return ret;
+    }
+    public void ClearCache()
+    {
+        epgCache.ResetCache();
     }
 }
 

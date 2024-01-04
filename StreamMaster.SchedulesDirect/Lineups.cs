@@ -1,20 +1,29 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
 
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 using StreamMaster.Domain.Common;
+using StreamMaster.SchedulesDirect.Domain.Enums;
+using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text.RegularExpressions;
 
 
 namespace StreamMaster.SchedulesDirect;
-public partial class SchedulesDirect
+public class Lineups(ILogger<Lineups> logger, IMemoryCache memoryCache, IIconService iconService, ISchedulesDirectAPIService schedulesDirectAPI, ISettingsService settingsService, IEPGCache<Lineups> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : ILineups
 {
-    private static List<KeyValuePair<MxfService, string[]>> StationLogosToDownload = [];
+    private List<KeyValuePair<MxfService, string[]>> StationLogosToDownload = [];
 
-    private async Task<bool> BuildLineupServices(CancellationToken cancellationToken = default)
+    public void ResetCache()
+    {
+        StationLogosToDownload = [];
+    }
+
+    public async Task<bool> BuildLineupServices(CancellationToken cancellationToken = default)
     {
         LineupResponse? clientLineups = await GetSubscribedLineups(cancellationToken).ConfigureAwait(false);
+
         if (clientLineups == null || !clientLineups.Lineups.Any())
         {
             return false;
@@ -255,10 +264,260 @@ public partial class SchedulesDirect
 
 
             logger.LogInformation("Exiting BuildLineupServices(). SUCCESS.");
+            epgCache.SaveCache();
             return true;
         }
 
         logger.LogError($"There are 0 stations queued for download from {clientLineups.Lineups.Count} subscribed lineups. Exiting.");
         return false;
     }
+
+    public async Task<List<StationChannelMap>> GetStationChannelMaps(CancellationToken cancellationToken)
+    {
+
+        List<StationChannelMap> ret = [];
+        foreach (Station station in await GetStations(cancellationToken))
+        {
+            StationChannelMap? s = await GetStationChannelMap(station.Lineup, cancellationToken);
+            if (s is not null)
+            {
+                ret.Add(s);
+            }
+        }
+        return ret;
+    }
+
+    private void UpdateIcons(ICollection<MxfService> Services)
+    {
+        foreach (MxfService? service in Services.Where(a => a.extras.ContainsKey("logo")))
+        {
+            StationImage artwork = service.extras["logo"];
+            iconService.AddIcon(artwork.Url, service.CallSign);
+        }
+        //iconService.SetIndexes();
+
+    }
+
+    public async Task<List<StationPreview>> GetStationPreviews(CancellationToken cancellationToken)
+    {
+        List<Station>? stations = await GetStations(cancellationToken).ConfigureAwait(false);
+        if (stations is null)
+        {
+            return [];
+        }
+        List<StationPreview> ret = [];
+        for (int index = 0; index < stations.Count; index++)
+        {
+            Station station = stations[index];
+            StationPreview sp = new(station);
+            sp.Affiliate ??= "";
+            ret.Add(sp);
+        }
+        return ret;
+    }
+
+
+    private async Task<StationChannelMap?> GetStationChannelMap(string lineup, CancellationToken cancellationToken)
+    {
+        //StationChannelMap? cache = await GetValidCachedDataAsync<StationChannelMap>("StationChannelMap-" + lineup).ConfigureAwait(false);
+        //if (cache != null)
+        //{
+        //    return cache;
+        //}
+
+
+        StationChannelMap? ret = await schedulesDirectAPI.GetApiResponse<StationChannelMap>(APIMethod.GET, $"lineups/{lineup}");
+        if (ret != null)
+        {
+            //await WriteToCacheAsync("StationChannelMap-" + lineup, ret).ConfigureAwait(false);
+
+            logger.LogDebug($"Successfully retrieved the station mapping for lineup {lineup}. ({ret.Stations.Count} stations; {ret.Map.Count} channels)");
+        }
+        else
+        {
+            logger.LogError($"Did not receive a response from Schedules Direct for retrieval of lineup {lineup}.");
+        }
+
+        return ret;
+    }
+
+    private async Task<LineupResponse?> GetSubscribedLineups(CancellationToken cancellationToken)
+    {
+        //LineupResponse? cache = await GetValidCachedDataAsync<LineupResponse>("SubscribedLineups", cancellationToken).ConfigureAwait(false);
+        //if (cache != null)
+        //{
+        //    return cache;
+        //}
+
+
+        LineupResponse? cache = await schedulesDirectAPI.GetApiResponse<LineupResponse>(APIMethod.GET, "lineups", cancellationToken: cancellationToken).ConfigureAwait(false);
+        if (cache != null)
+        {
+            logger.LogDebug("Successfully requested listing of subscribed lineups from Schedules Direct.");
+            //await WriteToCacheAsync("SubscribedLineups", cache, cancellationToken).ConfigureAwait(false);
+        }
+        else
+        {
+            logger.LogError("Did not receive a response from Schedules Direct for list of subscribed lineups.");
+        }
+
+        return cache;
+    }
+
+    public async Task<List<SubscribedLineup>> GetLineups(CancellationToken cancellationToken)
+    {
+        List<LineupPreviewChannel> res = [];
+        LineupResponse? lineups = await GetSubscribedLineups(cancellationToken);
+
+        return lineups is null ? ([]) : lineups.Lineups;
+    }
+
+    private async Task<List<Station>> GetStations(CancellationToken cancellationToken)
+    {
+        List<Station> ret = [];
+
+        List<SubscribedLineup> lineups = await GetLineups(cancellationToken).ConfigureAwait(false);
+        if (lineups?.Any() != true)
+        {
+            return ret;
+        }
+
+        foreach (SubscribedLineup lineup in lineups)
+        {
+            LineupResult? res = await GetLineup(lineup.Lineup, cancellationToken).ConfigureAwait(false);
+            if (res == null)
+            {
+                continue;
+            }
+
+            foreach (Station station in res.Stations)
+            {
+                station.Lineup = lineup.Lineup;
+            }
+
+            HashSet<string> existingIds = new(ret.Select(station => station.StationId));
+
+            foreach (Station station in res.Stations)
+            {
+                station.Lineup = lineup.Lineup;
+                if (!existingIds.Contains(station.StationId))
+                {
+                    ret.Add(station);
+                    _ = existingIds.Add(station.StationId);
+                }
+            }
+        }
+
+        return ret;
+    }
+    private async Task<LineupResult?> GetLineup(string lineup, CancellationToken cancellationToken)
+    {
+        LineupResult? cache = await epgCache.GetValidCachedDataAsync<LineupResult>("Lineup-" + lineup, cancellationToken).ConfigureAwait(false);
+        if (cache != null)
+        {
+            return cache;
+        }
+        cache = await schedulesDirectAPI.GetApiResponse<LineupResult>(APIMethod.GET, $"lineups/{lineup}", cancellationToken, cancellationToken).ConfigureAwait(false);
+        if (cache != null)
+        {
+            await epgCache.WriteToCacheAsync("Lineup-" + lineup, cache, cancellationToken).ConfigureAwait(false);
+            logger.LogDebug($"Successfully retrieved the channels in lineup {lineup}.");
+            return cache;
+        }
+        else
+        {
+            logger.LogError($"Did not receive a response from Schedules Direct for retrieval of lineup {lineup}.");
+        }
+        return null;
+    }
+
+    private async Task<bool> DownloadStationLogos(CancellationToken cancellationToken)
+    {
+        Setting setting = memoryCache.GetSetting();
+        if (!setting.SDSettings.SDEnabled)
+        {
+            return false;
+        }
+
+        if (StationLogosToDownload.Count == 0)
+        {
+            return false;
+        }
+
+        SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+        Task[] tasks = StationLogosToDownload.Select(async serviceLogo =>
+        {
+            await semaphore.WaitAsync(cancellationToken);
+
+            try
+            {
+                string logoPath = serviceLogo.Value[0];
+                if (!File.Exists(logoPath))
+                {
+                    (int width, int height) = await DownloadSdLogoAsync(serviceLogo.Value[1], logoPath, cancellationToken).ConfigureAwait(false);
+                    if (width == 0)
+                    {
+                        return;
+                    }
+                    serviceLogo.Key.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(logoPath);
+
+                    //if (File.Exists(logoPath))
+                    //{
+                    serviceLogo.Key.extras["logo"].Height = height;
+                    serviceLogo.Key.extras["logo"].Width = width;
+                    _ = StationLogosToDownload.Remove(serviceLogo);
+                    //}
+                }
+            }
+            finally
+            {
+                _ = semaphore.Release();
+            }
+        }).ToArray();
+
+        await Task.WhenAll(tasks);
+
+        return true;
+    }
+
+    private async Task<(int width, int height)> DownloadSdLogoAsync(string uri, string filePath, CancellationToken cancellationToken)
+    {
+        try
+        {
+            using HttpClient httpClient = new();
+            HttpResponseMessage response = await httpClient.GetAsync(uri, cancellationToken);
+
+            if (response.IsSuccessStatusCode)
+            {
+                using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+
+                using Image<Rgba32> image = await Image.LoadAsync<Rgba32>(stream, cancellationToken).ConfigureAwait(false);
+                using Image? cropImg = SDHelpers.CropAndResizeImage(image);
+                if (cropImg == null)
+                {
+                    return (0, 0);
+                }
+                using FileStream outputFileStream = File.Create(filePath);
+                SixLabors.ImageSharp.Formats.IImageFormat? a = image.Metadata.DecodedImageFormat;
+                cropImg.Save(outputFileStream, image.Metadata.DecodedImageFormat);
+                return (cropImg.Width, cropImg.Height);
+            }
+            else
+            {
+                logger.LogError($"HTTP request failed with status code: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError($"An exception occurred during DownloadSDLogoAsync(). Message:{FileUtil.ReportExceptionMessages(ex)}");
+        }
+        return (0, 0);
+    }
+
+    public void ClearCache()
+    {
+        epgCache.ResetCache();
+    }
+
 }

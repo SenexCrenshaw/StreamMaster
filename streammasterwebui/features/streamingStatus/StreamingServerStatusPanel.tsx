@@ -35,27 +35,32 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
 
   useEffect(() => {
     if (getStreamingStatus.data === undefined || getStreamingStatus.data.length === 0 || getStreamingStatus.data === null) {
-      setDataSource([]);
-      setData([]);
+      if (dataSource !== undefined && dataSource.length > 0) {
+        setDataSource([]);
+      }
+      if (data !== undefined && data.length > 0) {
+        setData([]);
+      }
+
       return;
     }
 
-    let data = [...dataSource];
+    let dataDS = [...dataSource];
 
     for (const item of getStreamingStatus.data) {
-      const index = data.findIndex((x) => x.circularBufferId === item.circularBufferId);
+      const index = dataDS.findIndex((x) => x.circularBufferId === item.circularBufferId);
       if (index === -1) {
-        data.push(item);
+        dataDS.push(item);
       } else {
-        data[index] = {
-          ...data[index],
-          logo: item.logo !== data[index].logo ? item.logo : data[index].logo,
-          channelName: item.channelName !== data[index].channelName ? item.channelName : data[index].channelName,
-          rank: item.rank !== data[index].rank ? item.rank : data[index].rank,
-          videoStreamName: item.videoStreamName !== data[index].videoStreamName ? item.videoStreamName : data[index].videoStreamName,
-          inputElapsedTime: item.inputElapsedTime !== data[index].inputElapsedTime ? item.inputElapsedTime : data[index].inputElapsedTime,
-          inputBitsPerSecond: item.inputBitsPerSecond !== data[index].inputBitsPerSecond ? item.inputBitsPerSecond : data[index].inputBitsPerSecond,
-          inputStartTime: item.inputStartTime !== data[index].inputStartTime ? item.inputStartTime : data[index].inputStartTime
+        dataDS[index] = {
+          ...dataDS[index],
+          logo: item.logo !== dataDS[index].logo ? item.logo : dataDS[index].logo,
+          channelName: item.channelName !== dataDS[index].channelName ? item.channelName : dataDS[index].channelName,
+          rank: item.rank !== dataDS[index].rank ? item.rank : dataDS[index].rank,
+          videoStreamName: item.videoStreamName !== dataDS[index].videoStreamName ? item.videoStreamName : dataDS[index].videoStreamName,
+          inputElapsedTime: item.inputElapsedTime !== dataDS[index].inputElapsedTime ? item.inputElapsedTime : dataDS[index].inputElapsedTime,
+          inputBitsPerSecond: item.inputBitsPerSecond !== dataDS[index].inputBitsPerSecond ? item.inputBitsPerSecond : dataDS[index].inputBitsPerSecond,
+          inputStartTime: item.inputStartTime !== dataDS[index].inputStartTime ? item.inputStartTime : dataDS[index].inputStartTime
         };
       }
     }
@@ -63,11 +68,11 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
     for (const item of dataSource) {
       const index = getStreamingStatus.data.findIndex((x) => x.circularBufferId === item.circularBufferId);
       if (index === -1) {
-        data = data.filter((x) => x.circularBufferId !== item.circularBufferId);
+        dataDS = dataDS.filter((x) => x.circularBufferId !== item.circularBufferId);
       }
     }
     setData(getStreamingStatus.data);
-    setDataSource(data);
+    setDataSource(dataDS);
   }, [getStreamingStatus.data]);
 
   const onChangeVideoStreamChannel = useCallback(async (playingVideoStreamId: string, newVideoStreamId: string) => {

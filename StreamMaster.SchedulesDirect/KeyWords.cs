@@ -1,11 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Extensions;
-
-namespace StreamMaster.SchedulesDirect;
-public partial class SchedulesDirect
+﻿namespace StreamMaster.SchedulesDirect;
+public class Keywords(ILogger<Keywords> logger, ISchedulesDirectDataService schedulesDirectDataService) : IKeywords
 {
-    private bool BuildKeywords()
+    public bool BuildKeywords()
     {
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         foreach (MxfKeywordGroup? group in schedulesDirectData.KeywordGroups.Values)

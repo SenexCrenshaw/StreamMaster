@@ -23,6 +23,24 @@ public class IconService(IMapper mapper, IMemoryCache memoryCache) : IIconServic
         Icons.TryAdd(iconFile.Source, iconFile);
     }
 
+    public void AddIcon(string artworkUri, string title)
+    {
+        if (string.IsNullOrEmpty(artworkUri))
+        {
+            return;
+        }
+
+        List<IconFileDto> icons = GetIcons();
+
+        if (icons.Any(a => a.SMFileType == SMFileTypes.SDImage && a.Source == artworkUri))
+        {
+            return;
+        }
+
+        AddIcon(new IconFileDto { Source = artworkUri, SMFileType = SMFileTypes.SDImage, Name = title });
+
+    }
+
     //public void SetIndexes()
     //{
     //    //var index = 0;

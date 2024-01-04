@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Extensions;
+﻿using StreamMaster.Domain.Common;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
@@ -9,11 +6,11 @@ using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect;
-public partial class SchedulesDirect
+public partial class SchedulesDirectImages
 {
     private List<string> movieImageQueue = [];
     private ConcurrentBag<ProgramMetadata> movieImageResponses = [];
-    private async Task<bool> GetAllMoviePosters(CancellationToken cancellationToken)
+    public async Task<bool> GetAllMoviePosters()
     {
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
 
@@ -44,7 +41,7 @@ public partial class SchedulesDirect
                 if (artwork != null)
                 {
                     mxfProgram.extras.AddOrUpdate("artwork", artwork);
-                    mxfProgram.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Movie);
+                    mxfProgram.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Movie);
                 }
 
             }
@@ -58,24 +55,50 @@ public partial class SchedulesDirect
         // maximum 500 queries at a time
         if (movieImageQueue.Count > 0)
         {
-            _ = Parallel.For(0, (movieImageQueue.Count / MaxImgQueries) + 1, new ParallelOptions { MaxDegreeOfParallelism = MaxParallelDownloads }, i =>
-            {
-                DownloadImageResponses(movieImageQueue, movieImageResponses, i * MaxImgQueries);
-            });
+            SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads, SchedulesDirect.MaxParallelDownloads);
+            List<Task> tasks = [];
+            int processedCount = 0;
 
+            for (int i = 0; i <= (movieImageQueue.Count / SchedulesDirect.MaxImgQueries); i++)
+            {
+                int startIndex = i * SchedulesDirect.MaxImgQueries;
+                tasks.Add(Task.Run(async () =>
+                {
+                    await semaphore.WaitAsync();
+                    try
+                    {
+                        int itemCount = Math.Min(movieImageQueue.Count - startIndex, SchedulesDirect.MaxImgQueries);
+                        await DownloadImageResponsesAsync(movieImageQueue, movieImageResponses, startIndex).ConfigureAwait(false);
+                        int localProcessedCount = Interlocked.Add(ref processedCount, itemCount);
+                        logger.LogInformation("Downloaded movie image information {LocalProcessedCount} of {TotalCount}", localProcessedCount, movieImageQueue.Count);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Error downloading movie images at {StartIndex}", startIndex);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }));
+            }
+
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+
+            // Continue with the rest of your processing
             ProcessMovieImageResponses();
             imageDownloadQueue.EnqueueProgramMetadataCollection(movieImageResponses);
-            //await DownloadImages(movieImageResponses, cancellationToken);
+
             if (processedObjects != totalObjects)
             {
-                logger.LogWarning($"Failed to download and process {moviePrograms.Count - processedObjects} movie poster links.");
+                logger.LogWarning("Failed to download and process {FailedCount} movie poster links.", moviePrograms.Count - processedObjects);
             }
         }
 
-        //UpdateIcons(moviePrograms);
 
         logger.LogInformation("Exiting GetAllMoviePosters(). SUCCESS.");
         movieImageQueue = []; movieImageResponses = [];
+        epgCache.SaveCache();
         return true;
     }
 
@@ -103,7 +126,7 @@ public partial class SchedulesDirect
             {
                 mxfProgram.extras.AddOrUpdate("artwork", artwork);
 
-                mxfProgram.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Movie, mxfProgram.extras["md5"]);
+                mxfProgram.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Movie, mxfProgram.extras["md5"]);
             }
             //// second choice is from TMDb if allowed and available
             //if (artwork.Count == 0 || artwork[0].Category.Equals("Staple"))
@@ -115,7 +138,7 @@ public partial class SchedulesDirect
             // regardless if image is found or not, store the final result in xml file
             // this avoids hitting the tmdb server every update for every movie missing cover art
             //mxfProgram.extras.Add("artwork", artwork);
-            //mxfProgram.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Movie, mxfProgram.extras["md5"]);
+            //mxfProgram.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Movie, mxfProgram.extras["md5"]);
         }
     }
 

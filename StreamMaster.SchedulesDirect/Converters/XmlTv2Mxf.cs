@@ -2,6 +2,7 @@
 
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Extensions;
+using StreamMaster.Logging;
 using StreamMaster.SchedulesDirect.Data;
 
 using System.Globalization;
@@ -9,7 +10,7 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.SchedulesDirect.Converters;
 
-public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService schedulesDirectDataService) : IXmltv2Mxf
+public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ILogger<EPGImportLogger> _epgImportLogger, ISchedulesDirectDataService schedulesDirectDataService) : IXmltv2Mxf
 {
     private ISchedulesDirectData schedulesDirectData;
 
@@ -103,7 +104,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
                     int subNumber = numbers.Length > 1 ? int.Parse(numbers[1]) : 0;
                     if (number == 2117 || subNumber == 2117)
                     {
-                        var aaa = 1;
+                        int aaa = 1;
                     }
                     MxfChannel newChannel = new(mxfLineup, mxfService, number, subNumber);
 
@@ -112,9 +113,9 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
             }
             else
             {
-                if (mxfService.ChNo == 2117 || mxfService.ChNo == 2117)
+                if (mxfService.ChNo is 2117 or 2117)
                 {
-                    var aaa = 1;
+                    int aaa = 1;
                 }
                 mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
             }
