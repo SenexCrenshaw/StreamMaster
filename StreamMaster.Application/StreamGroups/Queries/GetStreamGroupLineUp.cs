@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Domain.Authentication;
+using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text.Json;
 using System.Web;
@@ -23,7 +24,7 @@ public class GetStreamGroupLineupValidator : AbstractValidator<GetStreamGroupLin
 }
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupLineup, string>
+public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupLineup, string>
 {
     public async Task<string> Handle(GetStreamGroupLineup request, CancellationToken cancellationToken)
     {
@@ -75,15 +76,43 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
 
             //string videoUrl = videoStream.Url;
 
+            int epgNumber = EPGHelper.DummyId;
+            string stationId;
+
+
+            if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
+            {
+                stationId = videoStream.User_Tvg_group;
+            }
+            else
+            {
+                if (epgHelper.IsValidEPGId(videoStream.User_Tvg_ID))
+                {
+                    (epgNumber, stationId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
+                }
+                else
+                {
+                    stationId = videoStream.User_Tvg_ID;
+                }
+
+            }
             string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, setting.ServerKey, iv);
 
             string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
             string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
+            MxfService? service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId == stationId);
+            string graceNote = service?.CallSign ?? stationId;
+            string id = graceNote;
+            if (setting.M3UUseChnoForId)
+            {
+                id = videoStream.User_Tvg_chno.ToString();
+            }
+
             SGLineup lu = new()
             {
-                GuideNumber = videoStream.User_Tvg_chno.ToString(),
                 GuideName = videoStream.User_Tvg_name,
+                GuideNumber = id,
                 URL = videoUrl
             };
 

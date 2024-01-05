@@ -37,6 +37,8 @@ export function FilesEPGM3USettings(): React.ReactElement {
         {getCheckBoxLine({ field: 'm3UFieldTvgId', selectedCurrentSettingDto, onChange })}
         {getCheckBoxLine({ field: 'm3UFieldTvgLogo', selectedCurrentSettingDto, onChange })}
         {getCheckBoxLine({ field: 'm3UFieldGroupTitle', selectedCurrentSettingDto, onChange })}
+        {getCheckBoxLine({ field: 'm3UUseChnoForId', selectedCurrentSettingDto, onChange })}
+        {getCheckBoxLine({ field: 'm3UStationId', selectedCurrentSettingDto, onChange })}
       </Fieldset>
     </Fieldset>
   );

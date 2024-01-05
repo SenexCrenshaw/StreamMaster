@@ -1,16 +1,20 @@
-﻿using StreamMaster.Domain.Common;
+﻿using Microsoft.Extensions.Caching.Memory;
+
+using StreamMaster.Domain.Common;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Collections.Concurrent;
 using System.Text.Json;
 
-namespace StreamMaster.SchedulesDirect;
-public partial class SchedulesDirectImages
+namespace StreamMaster.SchedulesDirect.Images;
+public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> epgCache, IImageDownloadQueue imageDownloadQueue, IMemoryCache memoryCache, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService) : ISeasonImages
 {
-    private List<MxfSeason> seasons = [];
+    private readonly List<MxfSeason> seasons = [];
     private List<string> seasonImageQueue = [];
     private ConcurrentBag<ProgramMetadata> seasonImageResponses = [];
+    private int processedObjects;
+    private int totalObjects;
     public async Task<bool> GetAllSeasonImages()
     {
         Setting settings = memoryCache.GetSetting();
@@ -43,7 +47,7 @@ public partial class SchedulesDirectImages
                 List<ProgramArtwork> artwork;
                 using (StringReader reader = new(epgCache.JsonFiles[uid].Images))
                 {
-                    season.extras.Add("artwork", artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(reader.ReadToEnd()));
+                    season.extras.AddOrUpdate("artwork", artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(reader.ReadToEnd()));
                 }
 
                 season.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Season);
@@ -71,7 +75,7 @@ public partial class SchedulesDirectImages
             List<Task> tasks = [];
             int processedCount = 0;
 
-            for (int i = 0; i <= (seasonImageQueue.Count / SchedulesDirect.MaxImgQueries); i++)
+            for (int i = 0; i <= seasonImageQueue.Count / SchedulesDirect.MaxImgQueries; i++)
             {
                 int startIndex = i * SchedulesDirect.MaxImgQueries;
                 tasks.Add(Task.Run(async () =>
@@ -80,7 +84,7 @@ public partial class SchedulesDirectImages
                     try
                     {
                         int itemCount = Math.Min(seasonImageQueue.Count - startIndex, SchedulesDirect.MaxImgQueries);
-                        await DownloadImageResponsesAsync(seasonImageQueue, seasonImageResponses, startIndex).ConfigureAwait(false);
+                        await schedulesDirectAPI.DownloadImageResponsesAsync(seasonImageQueue, seasonImageResponses, startIndex).ConfigureAwait(false);
                         Interlocked.Add(ref processedCount, itemCount);
                         logger.LogInformation("Downloaded season images {ProcessedCount} of {TotalCount}", processedCount, seasonImageQueue.Count);
                     }
@@ -164,5 +168,19 @@ public partial class SchedulesDirectImages
 
             season.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Season, uid);
         }
+    }
+
+    public void ResetCache()
+    {
+        seasons.Clear();
+        seasonImageQueue.Clear();
+        seasonImageResponses.Clear();
+        processedObjects = 0;
+        totalObjects = 0;
+    }
+
+    public void ClearCache()
+    {
+        epgCache.ResetCache();
     }
 }

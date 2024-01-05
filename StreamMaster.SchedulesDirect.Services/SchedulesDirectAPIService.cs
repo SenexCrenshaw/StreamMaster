@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
@@ -23,6 +24,53 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
         this.logger = logger;
         this.memoryCache = memoryCache;
         CreateHttpClient();
+    }
+
+    private async Task<List<ProgramMetadata>?> GetArtworkAsync(string[] request)
+    {
+        DateTime dtStart = DateTime.Now;
+        List<ProgramMetadata>? ret = await GetApiResponse<List<ProgramMetadata>>(APIMethod.POST, "metadata/programs/", request);
+        if (ret != null)
+        {
+            logger.LogDebug($"Successfully retrieved artwork info for {ret.Count}/{request.Length} programs. ({DateTime.Now - dtStart:G})");
+        }
+        else
+        {
+            logger.LogDebug($"Did not receive a response from Schedules Direct for artwork info of {request.Length} programs. ({DateTime.Now - dtStart:G})");
+        }
+
+        return ret;
+    }
+
+    public async Task DownloadImageResponsesAsync(List<string> imageQueue, ConcurrentBag<ProgramMetadata> metadata, int start = 0)
+    {
+        // Reject 0 requests
+        if (imageQueue.Count - start < 1)
+        {
+            return;
+        }
+
+        // Build the array of series to request images for
+        string[] series = new string[Math.Min(imageQueue.Count - start, SchedulesDirect.MaxImgQueries)];
+        for (int i = 0; i < series.Length; ++i)
+        {
+            series[i] = imageQueue[start + i];
+        }
+
+        // Request images from Schedules Direct
+        List<ProgramMetadata>? responses = await GetArtworkAsync(series).ConfigureAwait(false);
+        if (responses != null)
+        {
+            foreach (ProgramMetadata response in responses)
+            {
+
+                metadata.Add(response);
+            }
+        }
+        else
+        {
+            logger.LogInformation("Did not receive a response from Schedules Direct for artwork info of {count} programs, first entry {entry}.", series.Length, series.Any() ? series[0] : "");
+        }
     }
 
     public async Task<HttpResponseMessage?> GetSdImage(string uri)//, DateTimeOffset ifModifiedSince)

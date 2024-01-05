@@ -81,48 +81,16 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
 
         }
     }
-    //public void EnqueueProgramMetadataCollection(IEnumerable<ProgramMetadata> metadataCollection)
-    //{
-    //    foreach (var metadata in metadataCollection)
-    //    {
-    //        logger.LogDebug("Enqueue Program Metadata for program id {programId}", metadata.ProgramId);
-    //        downloadQueue.Enqueue(metadata);
-    //    }
-    //    CheckStart();
-    //}
 
-    //// Method to add ProgramMetadata to the download queue
-    //public void EnqueueProgramMetadata(ProgramMetadata metadata)
-    //{
-    //    logger.LogDebug("Enqueue Program Metadata for program id {programId}", metadata.ProgramId);
-    //    downloadQueue.Enqueue(metadata);
-
-    //    CheckStart();
-    //}
-
-    private bool lockedlogged = false;
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested && !exitLoop)
         {
-            if (!ImageLockOut)
-            {
-                lockedlogged = false;
-                //schedulesDirect.CheckToken();
-                Setting setting = FileUtil.GetSetting();
+            Setting setting = FileUtil.GetSetting();
 
-                if (setting.SDSettings.SDEnabled && !imageDownloadQueue.IsEmpty() && BuildInfo.SetIsSystemReady)
-                {
-                    await DownloadImagesAsync(cancellationToken);
-                }
-            }
-            else
+            if (setting.SDSettings.SDEnabled && !imageDownloadQueue.IsEmpty() && BuildInfo.SetIsSystemReady)
             {
-                if (!lockedlogged)
-                {
-                    logger.LogError($"Image downloads locked out,too many requests");
-                    lockedlogged = true;
-                }
+                await DownloadImagesAsync(cancellationToken);
             }
 
             await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
@@ -149,32 +117,44 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                 return false;
             }
 
-            Setting setting = FileUtil.GetSetting();
+            if (ImageLockOut)
+            {
+                return false;
+            }
 
-            //HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
-            //using var httpClient = new HttpClient();
+            Setting setting = FileUtil.GetSetting();
 
             int maxRetryCount = 1; // Set the maximum number of retries
 
             for (int retryCount = 0; retryCount <= maxRetryCount; retryCount++)
             {
                 HttpResponseMessage response = await GetSdImage(uri).ConfigureAwait(false);
-                //HttpResponseMessage response = await httpClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
 
                 if (response.StatusCode == HttpStatusCode.NotFound)
                 {
+                    logger.LogDebug("Art download got error, could not be found");
                     ++TotalErrors;
                     return false;
                 }
 
                 if (response.StatusCode == HttpStatusCode.Forbidden)
                 {
+                    logger.LogDebug("Art download got error, forbidden");
                     ++TotalErrors;
-                    return false; // Maximum retry attempts reached
+                    return false;
+                }
+
+
+                if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                {
+                    logger.LogDebug("Art download limit reached, locking out for 24 hours");
+                    ImageLockOutDate = DateTime.Now;
+                    return false;
                 }
 
                 if (response.IsSuccessStatusCode)
                 {
+                    logger.LogDebug("Art downloaded successfully");
                     Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
                     if (stream != null)
                     {
@@ -198,11 +178,6 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                 else
                 {
                     ++TotalErrors;
-                    if (response.StatusCode == HttpStatusCode.TooManyRequests)
-                    {
-                        ImageLockOutDate = DateTime.Now;
-                        return false;
-                    }
                     logger.LogError($"Failed to download image from {uri} to {logoPath}: {response.StatusCode}");
                 }
             }
@@ -215,7 +190,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
         return false;
     }
 
-    private async Task<HttpResponseMessage> GetSdImage(string uri)
+    private async Task<HttpResponseMessage?> GetSdImage(string uri)
     {
         return await schedulesDirectAPI.GetSdImage(uri);
     }
@@ -225,16 +200,21 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
         Setting setting = memoryCache.GetSetting();
         string artworkSize = string.IsNullOrEmpty(setting.SDSettings.ArtworkSize) ? "Md" : setting.SDSettings.ArtworkSize;
 
-
         while (!cancellationToken.IsCancellationRequested)
         {
-            if (!imageDownloadQueue.TryDequeue(out ProgramMetadata? response))
+
+            ProgramMetadata? response = imageDownloadQueue.GetNext();
+
+            if (response == null)
             {
+                logger.LogDebug("No jobs");
                 // If the queue is empty, break out of the loop and wait for more items
                 break;
             }
+
             try
             {
+                logger.LogDebug("Got next job from queue");
                 string programId = response.ProgramId;
                 List<ProgramArtwork> artwork = [];
 
@@ -244,20 +224,25 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                     artwork = program.GetArtWork();
                 }
 
-                if (!artwork.Any())
+                if (artwork.Count == 0)
                 {
-                    if (response.Data != null && response.Data.Any())
+                    if (response.Data != null && response.Data.Count != 0)
                     {
                         artwork = SDHelpers.GetTieredImages(response.Data, ["series", "sport", "episode"], artworkSize);
                     }
                     else
                     {
+                        logger.LogDebug("No artwork to download, removing job");
                         ++TotalNoArt;
                         await hubContext.Clients.All.MiscRefresh();
-                        return;
+
+                        imageDownloadQueue.TryDequeue(response.ProgramId);
+
+                        break;
                     }
                 }
 
+                bool deq = true;
                 foreach (ProgramArtwork art in artwork)
                 {
                     await downloadSemaphore.WaitAsync(cancellationToken);
@@ -269,9 +254,19 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                             continue;
                         }
 
-                        string url = art.Uri.StartsWith("http") ? art.Uri : $"image/{art.Uri}";// await sDToken.GetAPIUrl($"image/{art.Uri}", cancellationToken);
+                        if (File.Exists(logoPath))
+                        {
+                            ++TotalAlreadyExists;
+                            continue;
+                        }
 
-                        _ = await DownloadLogo(url, logoPath, cancellationToken);
+                        string url = art.Uri.StartsWith("http") ? art.Uri : $"image/{art.Uri}";
+
+                        if (!await DownloadLogo(url, logoPath, cancellationToken) && !ImageLockOut)
+                        {
+                            deq = false;
+                        }
+
                     }
                     catch (Exception ex)
                     {
@@ -279,9 +274,18 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                     }
                     finally
                     {
-                        await hubContext.Clients.All.MiscRefresh();
                         _ = downloadSemaphore.Release();
+                        await hubContext.Clients.All.MiscRefresh();
                     }
+                }
+                if (deq)
+                {
+                    logger.LogDebug("All art for job downloaded, removing job");
+                    imageDownloadQueue.TryDequeue(response.ProgramId);
+                }
+                else
+                {
+                    logger.LogDebug("Some or all art for job has had issues, NOT removing job");
                 }
             }
             catch (Exception ex)

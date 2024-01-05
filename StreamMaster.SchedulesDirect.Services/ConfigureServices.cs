@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using StreamMaster.Domain.Services;
 using StreamMaster.SchedulesDirect.Converters;
 using StreamMaster.SchedulesDirect.Data;
+using StreamMaster.SchedulesDirect.Images;
 using StreamMaster.SchedulesDirect.Services.Extensions;
 
 namespace StreamMaster.SchedulesDirect.Services;
@@ -23,7 +24,11 @@ public static class ConfigureServices
         _ = services.AddSingleton<ISchedules, Schedules>();
         _ = services.AddSingleton<IPrograms, Programs>();
         _ = services.AddSingleton<IKeywords, Keywords>();
-        _ = services.AddSingleton<ISchedulesDirectImages, SchedulesDirectImages>();
+
+        _ = services.AddSingleton<IMovieImages, MovieImages>();
+        _ = services.AddSingleton<ISeriesImages, SeriesImages>();
+        _ = services.AddSingleton<ISeasonImages, SeasonImages>();
+        _ = services.AddSingleton<ISportsImages, SportsImages>();
         return services;
     }
 }

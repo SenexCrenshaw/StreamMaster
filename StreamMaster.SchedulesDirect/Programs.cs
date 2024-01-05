@@ -11,7 +11,7 @@ using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect;
 
-public class Programs(ILogger<Programs> logger, IMemoryCache memoryCache, ISchedulesDirectImages schedulesDirectImages, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Programs> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : IPrograms
+public class Programs(ILogger<Programs> logger, IMemoryCache memoryCache, ISeriesImages seriesImages, ISportsImages sportsImages, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Programs> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : IPrograms
 {
     private List<string> programQueue = [];
     private ConcurrentBag<Programme> programResponses = [];
@@ -63,22 +63,6 @@ public class Programs(ILogger<Programs> logger, IMemoryCache memoryCache, ISched
         }
         logger.LogDebug($"Found {processedObjects} cached program descriptions.");
 
-        //// maximum 5000 queries at a time
-        //if (programQueue.Count > 0)
-        //{
-        //    Parallel.For(0, (programQueue.Count / SchedulesDirect.MaxQueries) + 1, new ParallelOptions { MaxDegreeOfParallelism = SchedulesDirect.MaxParallelDownloads }, i =>
-        //    {
-        //        logger.LogInformation($"Download programs {i * SchedulesDirect.MaxQueries} of {programQueue.Count}");
-        //        DownloadProgramResponses(i * SchedulesDirect.MaxQueries);
-        //    });
-
-        //    ProcessProgramResponses();
-        //    if (processedObjects != totalObjects)
-        //    {
-        //        logger.LogWarning($"Failed to download and process {schedulesDirectData.ProgramsToProcess.Count - processedObjects} program descriptions.");
-        //    }
-        //}
-
         SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads);
         List<Task> tasks = [];
 
@@ -91,7 +75,7 @@ public class Programs(ILogger<Programs> logger, IMemoryCache memoryCache, ISched
                 await semaphore.WaitAsync();
                 try
                 {
-                    logger.LogInformation($"Download programs {index * SchedulesDirect.MaxQueries} of {programQueue.Count}");
+                    logger.LogInformation($"Download program information {index * SchedulesDirect.MaxQueries} of {programQueue.Count}");
                     DownloadProgramResponses(index * SchedulesDirect.MaxQueries);
                 }
                 finally
@@ -102,6 +86,7 @@ public class Programs(ILogger<Programs> logger, IMemoryCache memoryCache, ISched
         }
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
+        ProcessProgramResponses();
 
         logger.LogInformation("Exiting BuildAllProgramEntries(). SUCCESS.");
         programQueue = []; programResponses = [];
@@ -357,7 +342,7 @@ public class Programs(ILogger<Programs> logger, IMemoryCache memoryCache, ISched
         // queue up the sport event to get the event image
         if (SDHelpers.TableContains(types, "Event"))// && (sd.HasSportsArtwork | sd.HasEpisodeArtwork | sd.HasSeriesArtwork | sd.HasImageArtwork))
         {
-            schedulesDirectImages.sportEvents.Add(prg);
+            sportsImages.SportEvents.Add(prg);
         }
     }
 
@@ -493,7 +478,7 @@ public class Programs(ILogger<Programs> logger, IMemoryCache memoryCache, ISched
         {
             string name = mxfProgram.Title.Replace(' ', '_');
             mxfSeriesInfo = schedulesDirectData.FindOrCreateSeriesInfo(name);
-            schedulesDirectImages.sportsSeries.Add(name, mxfProgram.ProgramId);
+            seriesImages.SportsSeries.Add(name, mxfProgram.ProgramId);
         }
         else
         {

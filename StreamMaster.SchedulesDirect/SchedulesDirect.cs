@@ -21,7 +21,10 @@ public partial class SchedulesDirect(
     ILineups lineups,
     IPrograms programs,
     ISchedules schedules,
-    ISchedulesDirectImages schedulesDirectImages
+    ISportsImages sportsImages,
+        ISeasonImages seasonImages,
+            ISeriesImages seriesImages,
+            IMovieImages movieImages
 ) : ISchedulesDirect
 {
     public static readonly int MAX_RETRIES = 3;
@@ -84,16 +87,20 @@ public partial class SchedulesDirect(
                     keywords.BuildKeywords()
                 )
             {
-                await schedulesDirectImages.GetAllMoviePosters().ConfigureAwait(false);
-                await schedulesDirectImages.GetAllSeriesImages().ConfigureAwait(false);
-                await schedulesDirectImages.GetAllSeasonImages().ConfigureAwait(false);
-                await schedulesDirectImages.GetAllSportsImages().ConfigureAwait(false);
+                await movieImages.GetAllMoviePosters().ConfigureAwait(false);
+                await seriesImages.GetAllSeriesImages().ConfigureAwait(false);
+                await seasonImages.GetAllSeasonImages().ConfigureAwait(false);
+                await sportsImages.GetAllSportsImages().ConfigureAwait(false);
 
                 lineups.ClearCache();
                 schedules.ClearCache();
                 programs.ClearCache();
                 descriptions.ClearCache();
-                schedulesDirectImages.ClearCache();
+
+                movieImages.ClearCache();
+                seriesImages.ClearCache();
+                seasonImages.ClearCache();
+                sportsImages.ClearCache();
 
                 HandleDummies();
 
@@ -249,8 +256,12 @@ public partial class SchedulesDirect(
         descriptions.ResetCache();
         lineups.ResetCache();
         schedules.ResetCache();
-        schedulesDirectImages.ResetCache();
         programs.ResetCache();
+
+        movieImages.ResetCache();
+        seriesImages.ResetCache();
+        seasonImages.ResetCache();
+        sportsImages.ResetCache();
 
         schedulesDirectDataService.Reset(EPGHelper.SchedulesDirectId);
     }

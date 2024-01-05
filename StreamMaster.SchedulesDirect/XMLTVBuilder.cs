@@ -3,6 +3,7 @@
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Models;
+using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Globalization;
 using System.Net;
@@ -93,6 +94,14 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
                     newService.MxfScheduleEntries = origService.MxfScheduleEntries;
                 }
 
+                string callSign = origService.CallSign;
+
+                if (origService.EPGNumber == EPGHelper.DummyId && !string.IsNullOrEmpty(videoStreamConfig.Tvg_ID))
+                {
+
+                    callSign = videoStreamConfig.Tvg_ID;
+                }
+
                 int chNo = videoStreamConfig.User_Tvg_chno;
                 if (chNos.Contains(chNo))
                 {
@@ -111,7 +120,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
                 newService.ChNo = chNo;
                 newService.Name = videoStreamConfig.User_Tvg_name;
                 newService.Affiliate = origService.Affiliate;
-                newService.CallSign = origService.CallSign;
+                newService.CallSign = callSign;
                 newService.LogoImage = videoStreamConfig.User_Tvg_Logo;
 
                 newService.extras = origService.extras;
@@ -136,7 +145,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
             try
             {
-                DoPrograms(toProcess, programs, xmlTv);
+                DoPrograms(toProcess, programs.Count, xmlTv);
 
                 xmlTv.Channels = [.. xmlTv.Channels.OrderBy(a => a.Id)];
                 xmlTv.Programs = [.. xmlTv.Programs.OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime)];
@@ -207,7 +216,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
             List<MxfProgram> programs = schedulesDirectDataService.GetAllSDPrograms;
 
-            DoPrograms(services, programs, xmlTv);
+            DoPrograms(services, programs.Count, xmlTv);
 
             xmlTv.Channels = [.. xmlTv.Channels.OrderBy(a => a.Id)];
             xmlTv.Programs = [.. xmlTv.Programs.OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime)];
@@ -222,21 +231,24 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
         return null;
     }
 
-    private void DoPrograms(List<MxfService> services, List<MxfProgram> programs, XMLTV xmlTv)
+    private void DoPrograms(List<MxfService> services, int progCount, XMLTV xmlTv)
     {
+
         Setting settings = memoryCache.GetSetting();
-        ParallelOptions options = new() { MaxDegreeOfParallelism = Environment.ProcessorCount * 4 };
+        ParallelOptions options = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
 
         try
         {
-            Parallel.ForEach(services, service =>
+            //Parallel.ForEach(services, service =>
+            foreach (MxfService service in services)
             {
-                xmlTv.Channels.Add(BuildXmltvChannel(service));
+                XmltvChannel channel = BuildXmltvChannel(service);
+                xmlTv.Channels.Add(channel);
 
                 if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && settings.SDSettings.XmltvAddFillerData)
                 {
                     // add a program specific for this service
-                    MxfProgram program = new(programs.Count + 1, $"SM-{service.StationId}")
+                    MxfProgram program = new(progCount + 1, $"SM-{service.StationId}")
                     {
                         Title = service.Name,
                         Description = service.Name,
@@ -261,14 +273,13 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
                 List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
 
-                string channelId = service.CallSign;
 
                 Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, options, scheduleEntry =>
                 {
-                    XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channelId);
+                    XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channel.Id);
                     xmlTv.Programs.Add(program);
                 });
-            });
+            };
 
         }
         catch (Exception ex)
@@ -354,10 +365,16 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
     {
         Setting settings = memoryCache.GetSetting();
 
+        string id = mxfService.CallSign;
+        if (settings.M3UUseChnoForId)
+        {
+            id = mxfService.ChNo.ToString();
+        }
+
         // initialize the return channel
         XmltvChannel ret = new()
         {
-            Id = mxfService.CallSign,
+            Id = id,
             DisplayNames = []
         };
 
@@ -612,19 +629,19 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
             Date = BuildProgramDate(mxfProgram),
             Categories = BuildProgramCategories(mxfProgram),
             Language = MxfStringToXmlText(!string.IsNullOrEmpty(mxfProgram.Language) ? mxfProgram.Language[..2] : null),
-            Icons = BuildProgramIcons(mxfProgram),
-            Sport = GrabSportEvent(mxfProgram),
-            Teams = BuildSportTeams(mxfProgram),
-            EpisodeNums = BuildEpisodeNumbers(scheduleEntry),
-            Video = BuildProgramVideo(scheduleEntry),
-            Audio = BuildProgramAudio(scheduleEntry),
-            PreviouslyShown = BuildProgramPreviouslyShown(scheduleEntry),
-            Premiere = BuildProgramPremiere(scheduleEntry),
-            Live = BuildLiveFlag(scheduleEntry),
-            New = (!scheduleEntry.IsRepeat) ? string.Empty : null,
-            SubTitles2 = BuildProgramSubtitles(scheduleEntry),
-            //Rating = BuildProgramRatings(mxfProgram, scheduleEntry),
-            //StarRating = BuildProgramStarRatings(mxfProgram)
+            //Icons = BuildProgramIcons(mxfProgram),
+            //Sport = GrabSportEvent(mxfProgram),
+            //Teams = BuildSportTeams(mxfProgram),
+            //EpisodeNums = BuildEpisodeNumbers(scheduleEntry),
+            //Video = BuildProgramVideo(scheduleEntry),
+            //Audio = BuildProgramAudio(scheduleEntry),
+            //PreviouslyShown = BuildProgramPreviouslyShown(scheduleEntry),
+            //Premiere = BuildProgramPremiere(scheduleEntry),
+            //Live = BuildLiveFlag(scheduleEntry),
+            //New = (!scheduleEntry.IsRepeat) ? string.Empty : null,
+            //SubTitles2 = BuildProgramSubtitles(scheduleEntry),
+            ////Rating = BuildProgramRatings(mxfProgram, scheduleEntry),
+            ////StarRating = BuildProgramStarRatings(mxfProgram)
         };
     }
 

@@ -49,6 +49,8 @@ public class VideoStream
 
     public string Tvg_name { get; set; } = string.Empty;
 
+    public string StationId { get; set; } = string.Empty;
+
     public string Url { get; set; } = string.Empty;
     public string GroupTitle { get; set; } = string.Empty;
 

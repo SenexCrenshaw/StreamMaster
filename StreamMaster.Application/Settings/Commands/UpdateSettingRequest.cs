@@ -26,10 +26,11 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public bool? M3UFieldCUID { get; set; }
     public bool? M3UFieldGroupTitle { get; set; }
     public bool? M3UFieldTvgChno { get; set; }
-
+    public bool? M3UStationId { get; set; }
     public bool? M3UFieldTvgId { get; set; }
     public bool? M3UFieldTvgLogo { get; set; }
     public bool? M3UFieldTvgName { get; set; }
+    public bool? M3UUseChnoForId { get; set; }
     public bool? M3UIgnoreEmptyEPGID { get; set; }
     public int? MaxConnectRetry { get; set; }
     public int? MaxConnectRetryTimeMS { get; set; }
@@ -262,6 +263,11 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
             currentSetting.M3UFieldCUID = (bool)request.M3UFieldCUID;
         }
 
+        if (request.M3UUseChnoForId != null)
+        {
+            currentSetting.M3UUseChnoForId = (bool)request.M3UUseChnoForId;
+        }
+
         if (request.M3UFieldChannelId != null)
         {
             currentSetting.M3UFieldChannelId = (bool)request.M3UFieldChannelId;
@@ -297,6 +303,11 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
         if (request.M3UFieldTvgChno != null)
         {
             currentSetting.M3UFieldTvgChno = (bool)request.M3UFieldTvgChno;
+        }
+
+        if (request.M3UStationId != null)
+        {
+            currentSetting.M3UStationId = (bool)request.M3UStationId;
         }
 
         if (request.M3UFieldTvgId != null)

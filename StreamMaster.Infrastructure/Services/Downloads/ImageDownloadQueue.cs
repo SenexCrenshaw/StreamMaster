@@ -7,24 +7,30 @@ namespace StreamMaster.Infrastructure.Services.Downloads;
 
 public class ImageDownloadQueue : IImageDownloadQueue
 {
-    private readonly ConcurrentQueue<ProgramMetadata> downloadQueue = new();
+    private readonly ConcurrentDictionary<string, ProgramMetadata> downloadQueue = new();
 
     public void EnqueueProgramMetadataCollection(IEnumerable<ProgramMetadata> metadataCollection)
     {
         foreach (ProgramMetadata metadata in metadataCollection)
         {
-            downloadQueue.Enqueue(metadata);
+            downloadQueue.TryAdd(metadata.ProgramId, metadata);
         }
     }
 
     public void EnqueueProgramMetadata(ProgramMetadata metadata)
     {
-        downloadQueue.Enqueue(metadata);
+        downloadQueue.TryAdd(metadata.ProgramId, metadata);
     }
 
-    public bool TryDequeue(out ProgramMetadata metadata)
+    public ProgramMetadata? GetNext()
     {
-        return downloadQueue.TryDequeue(out metadata);
+        return downloadQueue.Keys.Count == 0 ? null : downloadQueue.First().Value;
+    }
+
+    public void TryDequeue(string Id)
+    {
+
+        downloadQueue.TryRemove(Id, out _);
     }
 
     public int Count()

@@ -1,15 +1,19 @@
-﻿using StreamMaster.Domain.Common;
+﻿using Microsoft.Extensions.Caching.Memory;
+
+using StreamMaster.Domain.Common;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Collections.Concurrent;
 using System.Text.Json;
 
-namespace StreamMaster.SchedulesDirect;
-public partial class SchedulesDirectImages
+namespace StreamMaster.SchedulesDirect.Images;
+public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epgCache, IImageDownloadQueue imageDownloadQueue, IMemoryCache memoryCache, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService) : IMovieImages
 {
     private List<string> movieImageQueue = [];
     private ConcurrentBag<ProgramMetadata> movieImageResponses = [];
+    private int processedObjects;
+    private int totalObjects;
     public async Task<bool> GetAllMoviePosters()
     {
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
@@ -59,7 +63,7 @@ public partial class SchedulesDirectImages
             List<Task> tasks = [];
             int processedCount = 0;
 
-            for (int i = 0; i <= (movieImageQueue.Count / SchedulesDirect.MaxImgQueries); i++)
+            for (int i = 0; i <= movieImageQueue.Count / SchedulesDirect.MaxImgQueries; i++)
             {
                 int startIndex = i * SchedulesDirect.MaxImgQueries;
                 tasks.Add(Task.Run(async () =>
@@ -68,7 +72,7 @@ public partial class SchedulesDirectImages
                     try
                     {
                         int itemCount = Math.Min(movieImageQueue.Count - startIndex, SchedulesDirect.MaxImgQueries);
-                        await DownloadImageResponsesAsync(movieImageQueue, movieImageResponses, startIndex).ConfigureAwait(false);
+                        await schedulesDirectAPI.DownloadImageResponsesAsync(movieImageQueue, movieImageResponses, startIndex).ConfigureAwait(false);
                         int localProcessedCount = Interlocked.Add(ref processedCount, itemCount);
                         logger.LogInformation("Downloaded movie image information {LocalProcessedCount} of {TotalCount}", localProcessedCount, movieImageQueue.Count);
                     }
@@ -161,6 +165,21 @@ public partial class SchedulesDirectImages
     //            }
     //        };
     //}
+
+    public void ResetCache()
+    {
+
+        movieImageQueue.Clear();
+        movieImageResponses.Clear();
+
+        processedObjects = 0;
+        totalObjects = 0;
+    }
+
+    public void ClearCache()
+    {
+        epgCache.ResetCache();
+    }
 
 }
 

@@ -1,16 +1,21 @@
-﻿using StreamMaster.Domain.Common;
+﻿using Microsoft.Extensions.Caching.Memory;
+
+using StreamMaster.Domain.Common;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Collections.Concurrent;
 using System.Text.Json;
 
-namespace StreamMaster.SchedulesDirect;
-public partial class SchedulesDirectImages
+namespace StreamMaster.SchedulesDirect.Images;
+public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> epgCache, IImageDownloadQueue imageDownloadQueue, IMemoryCache memoryCache, ISchedulesDirectAPIService schedulesDirectAPI) : ISportsImages
 {
-    public List<MxfProgram> sportEvents { get; set; } = [];
+    public List<MxfProgram> SportEvents { get; set; } = [];
     private List<string> sportsImageQueue = [];
     private ConcurrentBag<ProgramMetadata> sportsImageResponses = [];
+
+    private int processedObjects;
+    private int totalObjects;
 
     public async Task<bool> GetAllSportsImages()
     {
@@ -19,15 +24,15 @@ public partial class SchedulesDirectImages
         // reset counters
         sportsImageQueue = [];
         sportsImageResponses = [];
-        //IncrementNextStage(sportEvents.Count);
+        //IncrementNextStage(SportEvents.Count);
         if (!settings.SDSettings.SeasonEventImages)
         {
             return true;
         }
 
         // scan through each series in the mxf
-        logger.LogInformation("Entering GetAllSportsImages() for {totalObjects} sports events.", sportEvents.Count);
-        foreach (MxfProgram sportEvent in sportEvents)
+        logger.LogInformation("Entering GetAllSportsImages() for {totalObjects} sports events.", SportEvents.Count);
+        foreach (MxfProgram sportEvent in SportEvents)
         {
             string md5 = sportEvent.extras["md5"];
             if (epgCache.JsonFiles.ContainsKey(md5) && !string.IsNullOrEmpty(epgCache.JsonFiles[md5].Images))
@@ -56,7 +61,7 @@ public partial class SchedulesDirectImages
             List<Task> tasks = [];
             int processedCount = 0;
 
-            for (int i = 0; i <= (sportsImageQueue.Count / SchedulesDirect.MaxImgQueries); i++)
+            for (int i = 0; i <= sportsImageQueue.Count / SchedulesDirect.MaxImgQueries; i++)
             {
                 int startIndex = i * SchedulesDirect.MaxImgQueries;
                 tasks.Add(Task.Run(async () =>
@@ -65,7 +70,7 @@ public partial class SchedulesDirectImages
                     try
                     {
                         int itemCount = Math.Min(sportsImageQueue.Count - startIndex, SchedulesDirect.MaxImgQueries);
-                        await DownloadImageResponsesAsync(sportsImageQueue, sportsImageResponses, startIndex).ConfigureAwait(false);
+                        await schedulesDirectAPI.DownloadImageResponsesAsync(sportsImageQueue, sportsImageResponses, startIndex).ConfigureAwait(false);
                         Interlocked.Add(ref processedCount, itemCount);
                         logger.LogInformation("Downloaded sport event images {ProcessedCount} of {TotalCount}", processedCount, sportsImageQueue.Count);
                     }
@@ -88,7 +93,7 @@ public partial class SchedulesDirectImages
 
             if (processedObjects != totalObjects)
             {
-                logger.LogWarning("Failed to download and process {FailedCount} sport event image links.", sportEvents.Count - processedObjects);
+                logger.LogWarning("Failed to download and process {FailedCount} sport event image links.", SportEvents.Count - processedObjects);
             }
         }
 
@@ -104,15 +109,15 @@ public partial class SchedulesDirectImages
         //    //await DownloadImages(sportsImageResponses, cancellationToken);
         //    if (processedObjects != totalObjects)
         //    {
-        //        logger.LogWarning($"Failed to download and process {sportEvents.Count - processedObjects} sport event image links.");
+        //        logger.LogWarning($"Failed to download and process {SportEvents.Count - processedObjects} sport event image links.");
         //    }
         //}
 
-        //UpdateIcons(sportEvents);
+        //UpdateIcons(SportEvents);
 
         logger.LogInformation("Exiting GetAllSportsImages(). SUCCESS.");
 
-        sportsImageQueue = []; sportsImageResponses = []; sportEvents.Clear();
+        sportsImageQueue = []; sportsImageResponses = []; SportEvents.Clear();
         epgCache.SaveCache();
         return true;
     }
@@ -132,13 +137,14 @@ public partial class SchedulesDirectImages
 
         foreach (ProgramMetadata response in sportsImageResponses)
         {
+            ++processedObjects;
             //IncrementProgress();
             if (response.Data == null)
             {
                 continue;
             }
 
-            MxfProgram? mxfProgram = sportEvents.SingleOrDefault(arg => arg.ProgramId == response.ProgramId);
+            MxfProgram? mxfProgram = SportEvents.SingleOrDefault(arg => arg.ProgramId == response.ProgramId);
             if (mxfProgram == null)
             {
                 continue;
@@ -150,6 +156,21 @@ public partial class SchedulesDirectImages
 
             mxfProgram.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Program, mxfProgram.extras["md5"]);
         }
+    }
+
+    public void ResetCache()
+    {
+        SportEvents.Clear();
+        sportsImageQueue.Clear();
+        sportsImageResponses.Clear();
+
+        processedObjects = 0;
+        totalObjects = 0;
+    }
+
+    public void ClearCache()
+    {
+        epgCache.ResetCache();
     }
 }
 

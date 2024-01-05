@@ -138,6 +138,8 @@ const MessagesEn: messages_enType = {
   'sdSettings.preferredLogoStyle': 'Preferred Logo Style',
   'sdSettings.alternateLogoStyle': 'Alternate Logo Style',
   'sdSettings.xmltvFillerProgramLength': 'Dummy Program Length (hrs)',
+  m3UStationId: 'Enable tvc-guide-stationid',
+  m3UUseChnoForId: 'Use Channel Number for channel id',
 
   loading: 'Loading',
   set: 'Set',

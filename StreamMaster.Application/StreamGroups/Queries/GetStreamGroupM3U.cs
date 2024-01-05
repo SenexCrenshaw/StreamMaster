@@ -25,7 +25,6 @@ public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
     }
 }
 
-
 public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, ISchedulesDirectDataService schedulesDirectDataService, IEPGHelper epgHelper, ILogger<GetStreamGroupM3U> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupM3U, string>
 {
     public string GetIconUrl(string iconOriginalSource, Setting setting)
@@ -142,6 +141,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         int epgNumber = EPGHelper.DummyId;
         string stationId;
 
+
         if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
         {
             stationId = videoStream.User_Tvg_group;
@@ -157,6 +157,10 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
                 stationId = videoStream.User_Tvg_ID;
             }
         }
+
+        MxfService? service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId == stationId);
+        string graceNote = service?.CallSign ?? stationId;
+        string name = videoStream.User_Tvg_name;// videoStream.User_Tvg_ID;// service?.CallSign ?? videoStream.User_Tvg_name;
 
 
         if (setting.M3UIgnoreEmptyEPGID)
@@ -187,6 +191,12 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, setting.ServerKey, iv);
         string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
+        string id = graceNote;
+        if (setting.M3UUseChnoForId)
+        {
+            id = videoStream.User_Tvg_chno.ToString();
+        }
+
         List<string> fieldList =
     [
         $"#EXTINF:0 CUID=\"{videoStream.Id}\""
@@ -194,13 +204,13 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
 
         if (setting.M3UFieldChannelId)
         {
-            fieldList.Add($"channel-id=\"{videoStream.Id}\"");
+            fieldList.Add($"channel-id=\"{id}\"");
         }
 
 
         if (setting.M3UFieldTvgName)
         {
-            fieldList.Add($"tvg-name=\"{videoStream.User_Tvg_name}\"");
+            fieldList.Add($"tvg-name=\"{name}\"");
         }
 
         int chNo = videoStream.User_Tvg_chno;
@@ -231,13 +241,19 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
 
         if (showM3UFieldTvgId)
         {
-            MxfService? service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId == stationId);
-            fieldList.Add($"tvg-id=\"{service?.CallSign ?? stationId}\"");
+
+            fieldList.Add($"tvg-id=\"{id}\"");
         }
 
         if (setting.M3UFieldTvgLogo)
         {
             fieldList.Add($"tvg-logo=\"{videoStream.User_Tvg_logo}\"");
+        }
+
+        if (setting.M3UStationId)
+        {
+            string toDisplay = string.IsNullOrEmpty(videoStream.StationId) ? stationId : videoStream.StationId;
+            fieldList.Add($"tvc-guide-stationid=\"{toDisplay}\"");
         }
 
         if (setting.M3UFieldGroupTitle)
@@ -253,13 +269,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
             }
         }
 
-        if (epgNumber == EPGHelper.SchedulesDirectId)
-        {
-            fieldList.Add($"tvc-guide-stationid=\"{stationId}\"");
-        }
-
-
-        string lines = string.Join(" ", fieldList.ToArray());
+        string lines = string.Join(" ", fieldList.Order().ToArray());
         lines += $",{videoStream.User_Tvg_name}\r\n";
         lines += $"{videoUrl}";
 

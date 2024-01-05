@@ -39,6 +39,12 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
             int clientReadIndex = _clientReadIndexes[ClientId];
 
+            if (clientReadIndex + availableBytes > bufferLength)
+            {
+                _logger.LogError($"ReadChunkMemory {clientReadIndex} {availableBytes} {bufferLength} overrun");
+                clientReadIndex = GetOldestReadIndex();
+                availableBytes = GetAvailableBytes(ClientId, correlationId);
+            }
             // Calculate the number of bytes to read before wrap-around
             int bytesToRead = Math.Min(bufferLength - clientReadIndex, availableBytes); ;
 
@@ -55,21 +61,24 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         metrics.RecordBytesProcessed(bytesRead);
         _statisticsManager.AddBytesRead(ClientId, bytesRead);
 
-        // Enhanced structured logging
-        var logData = new
+        if (_clientReadIndexes.ContainsKey(ClientId))
         {
-            Event = "ReadChunkMemory",
-            CorrelationId = correlationId,
-            ClientId,
-            VideoStreamName,
-            ClientReadIndex = _clientReadIndexes[ClientId],
-            BytesRead = bytesRead,
-            ReadDurationMs = stopwatch.ElapsedMilliseconds,
-            BufferOccupancy = CalculateBufferOccupancy(),
-            ActiveReaders = _clientReadIndexes.Count,
-            DistanceToOldestReader = CalculateDistanceToOldestReader(correlationId)
-        };
-        _readLogger.LogDebug(JsonSerializer.Serialize(logData));
+            // Enhanced structured logging
+            var logData = new
+            {
+                Event = "ReadChunkMemory",
+                CorrelationId = correlationId,
+                ClientId,
+                VideoStreamName,
+                ClientReadIndex = _clientReadIndexes[ClientId],
+                BytesRead = bytesRead,
+                ReadDurationMs = stopwatch.ElapsedMilliseconds,
+                BufferOccupancy = CalculateBufferOccupancy(),
+                ActiveReaders = _clientReadIndexes.Count,
+                DistanceToOldestReader = CalculateDistanceToOldestReader(correlationId)
+            };
+            _readLogger.LogDebug(JsonSerializer.Serialize(logData));
+        }
 
         stopwatch.Stop();
         return bytesRead;

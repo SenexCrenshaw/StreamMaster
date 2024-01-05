@@ -15,6 +15,7 @@ using NSwag.Generation.Processors.Security;
 
 using Prometheus;
 
+using StreamMaster.API.Services;
 using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Application.Hubs;
 using StreamMaster.Application.Services;
@@ -30,7 +31,6 @@ using StreamMaster.Infrastructure.Services.Frontend;
 using StreamMaster.Infrastructure.Services.QueueService;
 
 using StreamMasterAPI.SchemaHelpers;
-using StreamMasterAPI.Services;
 
 namespace StreamMaster.API;
 

@@ -85,15 +85,10 @@ public class EPGCache<T> : IEPGCache<T>
     {
         try
         {
-
-            //Directory.CreateDirectory(Path.GetDirectoryName(GetFilename()));
-
             JsonSerializerOptions jsonSerializerOptions = new()
             {
-                // Add any desired JsonSerializerOptions here
-                // For example, to ignore null values during serialization:
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                WriteIndented = false // Formatting.None equivalent
+                WriteIndented = false
             };
 
             using FileStream stream = File.Create(GetFilename());
@@ -110,13 +105,14 @@ public class EPGCache<T> : IEPGCache<T>
 
     public void SaveCache()
     {
-        if (!isDirty || JsonFiles.Count <= 0)
+        if (JsonFiles.Count <= 0)
         {
+            logger.LogWarning($"Nothing to save for {GetFilename()}");
             return;
         }
 
         logger.LogInformation($"Saving cache file {GetFilename()}");
-        //CleanDictionary();
+        CleanDictionary();
         if (!WriteJsonFile(JsonFiles))
         {
             logger.LogInformation("Deleting cache file to be rebuilt on next update.");
@@ -219,15 +215,15 @@ public class EPGCache<T> : IEPGCache<T>
         isDirty = true;
     }
 
-    //public void CleanDictionary()
-    //{
-    //    List<string> keysToDelete = (from asset in JsonFiles where !asset.Value.Current select asset.Key).ToList();
-    //    foreach (string? key in keysToDelete)
-    //    {
-    //        JsonFiles.Remove(key);
-    //    }
-    //    logger.LogInformation($"{keysToDelete.Count} entries deleted from the cache file during cleanup.");
-    //}
+    public void CleanDictionary()
+    {
+        List<string> keysToDelete = (from asset in JsonFiles where !asset.Value.Current select asset.Key).ToList();
+        foreach (string? key in keysToDelete)
+        {
+            JsonFiles.Remove(key);
+        }
+        logger.LogInformation($"{keysToDelete.Count} entries deleted from the cache file during cleanup.");
+    }
 
     public void ResetCache()
     {

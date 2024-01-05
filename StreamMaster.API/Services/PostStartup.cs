@@ -2,7 +2,7 @@
 using StreamMaster.Infrastructure.EF;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
-namespace StreamMasterAPI.Services;
+namespace StreamMaster.API.Services;
 
 public class PostStartup(ILogger<PostStartup> logger, IServiceProvider serviceProvider, IBackgroundTaskQueue taskQueue) : BackgroundService
 {

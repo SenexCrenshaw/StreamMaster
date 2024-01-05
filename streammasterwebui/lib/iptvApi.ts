@@ -1553,6 +1553,7 @@ export type BaseVideoStreamDto = {
   tvg_group: string;
   timeShift: string;
   tvg_ID: string;
+  stationId: string;
   tvg_logo: string;
   tvg_name: string;
   url: string;
@@ -1689,6 +1690,8 @@ export type M3USettings = {
   m3UFieldTvgLogo?: boolean;
   m3UFieldTvgName?: boolean;
   m3UIgnoreEmptyEPGID?: boolean;
+  m3UUseChnoForId?: boolean;
+  m3UStationId?: boolean;
 };
 export type SdSettings = {
   seriesPosterArt?: boolean;
@@ -1810,9 +1813,11 @@ export type UpdateSettingRequest = {
   m3UFieldCUID?: boolean | null;
   m3UFieldGroupTitle?: boolean | null;
   m3UFieldTvgChno?: boolean | null;
+  m3UStationId?: boolean | null;
   m3UFieldTvgId?: boolean | null;
   m3UFieldTvgLogo?: boolean | null;
   m3UFieldTvgName?: boolean | null;
+  m3UUseChnoForId?: boolean | null;
   m3UIgnoreEmptyEPGID?: boolean | null;
   maxConnectRetry?: number | null;
   maxConnectRetryTimeMS?: number | null;
