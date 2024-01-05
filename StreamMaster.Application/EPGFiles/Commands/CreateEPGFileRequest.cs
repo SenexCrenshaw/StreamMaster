@@ -79,6 +79,14 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, I
                 (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(source, fullName, cancellationToken).ConfigureAwait(false);
                 if (success)
                 {
+                    //If EPG file gzipped decompress it
+                    if (FileUtil.IsFileGzipped(fullName))
+                    {
+                        var fi = new FileInfo(fullName);
+                        FileUtil.Decompress(fi);
+                        File.Delete(fullName);
+                        fullName = fullName.Remove(fullName.Length - fi.Extension.Length);
+                    }
                     epgFile.LastDownloaded = File.GetLastWriteTime(fullName);
                     epgFile.FileExists = true;
                 }
