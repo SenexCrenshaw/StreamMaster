@@ -22,8 +22,6 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
         _baseUrl = baseUrl;
         try
         {
-            CreateDummyLineupChannels();
-
             XMLTV xmlTv = new()
             {
                 Date = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture),
@@ -73,7 +71,6 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
             foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs.OrderBy(a => a.User_Tvg_chno))
             {
-                string prefix = videoStreamConfig.IsDummy ? "DUMMY" : "SM";
                 int epgNumber;
                 string stationId;
                 (epgNumber, stationId) = ePGHelper.ExtractEPGNumberAndStationId(videoStreamConfig.User_Tvg_ID);
@@ -288,24 +285,6 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
         }
     }
 
-    private void CreateDummyLineupChannels()
-    {
-        //using IServiceScope scope = serviceProvider.CreateScope();
-        //IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-        //List<VideoStream> dummies = [.. repository.VideoStream.FindByCondition(x => x.User_Tvg_ID == "DUMMY")];
-
-        //foreach (VideoStream dummy in dummies)
-        //{
-        //    string dummyName = "DUMMY-" + dummy.Id;
-
-        //    MxfService mxfService = schedulesDirectData.FindOrCreateService(dummyName);
-        //    mxfService.CallSign = dummy.User_Tvg_name;
-        //    mxfService.Name = dummy.User_Tvg_name;
-
-        //    MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup($"ZZZ-{dummyName}-StreamMaster", $"ZZZSM {dummyName} Lineup");
-        //    mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
-        //}
-    }
 
     private string GetIconUrl(int EPGNumber, string iconOriginalSource, SMFileTypes? sMFileTypes = null)
     {
@@ -799,14 +778,14 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
         List<XmltvEpisodeNum> list = [];
         MxfProgram mxfProgram = mxfScheduleEntry.mxfProgram;
 
-        if (!mxfProgram.ProgramId.StartsWith("StreamMaster"))
-        {
-            list.Add(new XmltvEpisodeNum
-            {
-                System = "dd_progid",
-                Text = mxfProgram.Uid[9..].Replace("_", ".")
-            });
-        }
+        //if (!mxfProgram.ProgramId.StartsWith("StreamMaster"))
+        //{
+        //    list.Add(new XmltvEpisodeNum
+        //    {
+        //        System = "dd_progid",
+        //        Text = mxfProgram.Uid[9..].Replace("_", ".")
+        //    });
+        //}
 
         if (mxfProgram.EpisodeNumber != 0 || mxfScheduleEntry.Part != 0)
         {
@@ -818,7 +797,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
             list.Add(new XmltvEpisodeNum { System = "xmltv_ns", Text = text });
         }
-        else if (mxfProgram.ProgramId.StartsWith("StreamMaster"))
+        else if (mxfProgram.EPGNumber == EPGHelper.DummyId)
         {
             list.Add(new XmltvEpisodeNum { System = "original-air-date", Text = $"{mxfScheduleEntry.StartTime.ToLocalTime():yyyy-MM-dd HH:mm:ss}" });
         }

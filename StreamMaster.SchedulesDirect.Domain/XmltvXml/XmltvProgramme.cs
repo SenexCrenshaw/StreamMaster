@@ -128,7 +128,7 @@ namespace StreamMaster.SchedulesDirect.Domain.XmltvXml
         public List<XmltvText>? Teams { get; set; }
 
         [XmlElement("episode-num")]
-        public List<XmltvEpisodeNum> EpisodeNums { get; set; }
+        public List<XmltvEpisodeNum>? EpisodeNums { get; set; }
 
         [XmlElement("video")]
         public XmltvVideo? Video { get; set; }
