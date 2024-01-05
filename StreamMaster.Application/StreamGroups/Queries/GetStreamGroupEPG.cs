@@ -132,10 +132,10 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         XmlWriterSettings settings = new()
         {
-            Indent = true,
+            Indent = false,
             OmitXmlDeclaration = true,
-            NewLineHandling = NewLineHandling.Entitize,
-            NewLineChars = "\n"
+            NewLineHandling = NewLineHandling.None,
+            //NewLineChars = "\n"
         };
 
         // Create an XmlWriter using Utf8StringWriter

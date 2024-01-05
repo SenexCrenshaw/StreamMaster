@@ -100,9 +100,25 @@ public static partial class IPTVExtensions
 
         bool CheckExcluded(string URL)
         {
-            foreach (string vod in vodExclusion)
+            foreach (string vodPattern in vodExclusion)
             {
-                if (URL.Contains($"/{vod}/", StringComparison.CurrentCultureIgnoreCase))
+                string regexPattern;
+
+                // Check if vodPattern is a simple substring (no special regex characters)
+                if (vodPattern.Any(ch => char.IsPunctuation(ch) && ch != '_'))
+                {
+                    // vodPattern contains special characters, so use it as a regex pattern
+                    regexPattern = vodPattern;
+                }
+                else
+                {
+                    // vodPattern is a simple substring, so create a regex pattern for 'string.Contains' behavior
+                    regexPattern = ".*" + Regex.Escape(vodPattern) + ".*";
+                }
+
+                Regex regex = new(regexPattern, RegexOptions.IgnoreCase);
+
+                if (regex.IsMatch(URL))
                 {
                     return true;
                 }

@@ -332,7 +332,7 @@ const M3UFilesDataSelector = () => {
         width: '6rem'
       },
       { bodyTemplate: urlEditorBodyTemplate, field: 'url', sortable: true },
-      { align: 'center', bodyTemplate: tagEditorBodyTemplate, field: 'vodTags', header: 'VODs (ignore)', width: '8rem' },
+      { align: 'center', bodyTemplate: tagEditorBodyTemplate, field: 'vodTags', header: 'URL Regex (ignore)', width: '8rem' },
 
       {
         align: 'center',
