@@ -25,7 +25,7 @@ public interface ICircularRingBuffer : IDisposable
     bool IsPreBuffered();
     //Task<byte> Read(Guid clientId, CancellationToken cancellationToken);
 
-    Task<int> ReadChunkMemory(Guid clientId, Memory<byte> target, CancellationToken cancellationToken);
+    Task<int> ReadChunkMemory(ulong index, Memory<byte> target, CancellationToken cancellationToken);
     //Task<int> ReadChunk(Guid clientId, byte[] buffer, int offset, int count, CancellationToken cancellationToken);
 
     void RegisterClient(IClientStreamerConfiguration streamerConfiguration);

@@ -17,8 +17,6 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
     private const int maxDynamicWaitTimeMs = 100;
     private const int maxDataWaitTimeMs = 20;
 
-    public ulong CurrentIndex { get; private set; } = 0;
-
     public event EventHandler<Guid> DataAvailable;
 
     private readonly ConcurrentDictionary<Guid, PerformanceBpsMetrics> _performanceMetrics = new();
@@ -37,7 +35,8 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
     //private int _oldestDataIndex;
     private readonly float _preBuffPercent;
-    private uint _writeIndex;
+    private int _writeIndex { get; set; } = 0;
+    private long _writeBytes { get; set; } = 0;
 
     private readonly ILogger<ICircularRingBuffer> _logger;
     private readonly ILogger<ReadsLogger> _readLogger;

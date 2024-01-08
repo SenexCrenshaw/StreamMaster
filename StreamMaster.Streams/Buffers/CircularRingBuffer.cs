@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using System.Diagnostics;
-using System.Text.Json;
 
 namespace StreamMaster.Infrastructure.VideoStreamManager.Buffers;
 
@@ -13,7 +12,8 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 {
     private TaskCompletionSource<bool> _writeSignal = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
-    public async Task<int> ReadChunkMemory(ulong index, Memory<byte> target, CancellationToken cancellationToken)
+
+    public async Task<int> ReadChunkMemory(long readIndex, Memory<byte> target, CancellationToken cancellationToken)
     {
         Guid correlationId = Guid.NewGuid();
         Stopwatch stopwatch = Stopwatch.StartNew();
@@ -25,16 +25,19 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         int bytesRead = 0;
         int bufferLength = _buffer.Length;
 
+        long clientReadIndex = _writeBytes - readIndex;
+
         while (!linkedToken.IsCancellationRequested && bytesRead < target.Length)
         {
-            ulong availableBytes = _writeIndex - CurrentIndex;// Math.Min(GetAvailableBytes(ClientId, correlationId), target.Length - bytesRead);
+            long availableBytes = GetAvailableBytes(readIndex, correlationId);// Math.Min(_writeIndex - readIndex, target.Length - bytesRead);
+
             while (availableBytes == 0)
             {
                 await _writeSignal.Task; // Wait for signal from writer
-                availableBytes = Math.Min(GetAvailableBytes(ClientId, correlationId), target.Length - bytesRead);
+                availableBytes = Math.Min(GetAvailableBytes(readIndex, correlationId), target.Length - bytesRead);
             }
 
-            int clientReadIndex = _clientReadIndexes[ClientId];
+            //int clientReadIndex = _clientReadIndexes[ClientId];
 
             // Calculate the number of bytes to read before wrap-around
             int bytesToRead = Math.Min(bufferLength - clientReadIndex, availableBytes); ;
@@ -45,30 +48,30 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
             bytesRead += bytesToRead;
 
             // Update the client's read index, wrapping around if necessary
-            _clientReadIndexes[ClientId] = (clientReadIndex + bytesToRead) % bufferLength;
+            //_clientReadIndexes[ClientId] = (clientReadIndex + bytesToRead) % bufferLength;
         }
 
-        metrics.RecordBytesProcessed(bytesRead);
-        _statisticsManager.AddBytesRead(ClientId, bytesRead);
+        //metrics.RecordBytesProcessed(bytesRead);
+        //_statisticsManager.AddBytesRead(ClientId, bytesRead);
 
-        if (_clientReadIndexes.TryGetValue(ClientId, out int value))
-        {
-            // Enhanced structured logging
-            var logData = new
-            {
-                Event = "ReadChunkMemory",
-                CorrelationId = correlationId,
-                ClientId,
-                VideoStreamName,
-                ClientReadIndex = value,
-                BytesRead = bytesRead,
-                ReadDurationMs = stopwatch.ElapsedMilliseconds,
-                BufferOccupancy = CalculateBufferOccupancy(),
-                ActiveReaders = _clientReadIndexes.Count,
-                DistanceToOldestReader = CalculateDistanceToOldestReader(correlationId)
-            };
-            _readLogger.LogDebug(JsonSerializer.Serialize(logData));
-        }
+        //if (_clientReadIndexes.TryGetValue(ClientId, out int value))
+        //{
+        //    // Enhanced structured logging
+        //    var logData = new
+        //    {
+        //        Event = "ReadChunkMemory",
+        //        CorrelationId = correlationId,
+        //        ClientId,
+        //        VideoStreamName,
+        //        ClientReadIndex = value,
+        //        BytesRead = bytesRead,
+        //        ReadDurationMs = stopwatch.ElapsedMilliseconds,
+        //        BufferOccupancy = CalculateBufferOccupancy(),
+        //        ActiveReaders = _clientReadIndexes.Count,
+        //        DistanceToOldestReader = CalculateDistanceToOldestReader(correlationId)
+        //    };
+        //    _readLogger.LogDebug(JsonSerializer.Serialize(logData));
+        //}
 
         stopwatch.Stop();
         return bytesRead;
@@ -79,7 +82,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
     {
         Guid correlationId = Guid.NewGuid();
         Stopwatch stopwatch = Stopwatch.StartNew();
-        int bytesWritten = 0;
+        int _bytesWritten = 0;
         int bytesToWrite = data.Length;
 
         try
@@ -88,25 +91,25 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
             while (data.Length > 0)
             {
                 int elapsedTime = 0;
-                int waitTime = CalculateThrottleWaitTime(correlationId);
+                //int waitTime = CalculateThrottleWaitTime(correlationId);
 
-                while (elapsedTime < waitTime && !cancellationToken.IsCancellationRequested)
-                {
-                    // Use a shorter wait interval (e.g., 10ms) for each iteration
-                    int delayTime = Math.Min(maxDynamicWaitTimeMs / 10, waitTime - elapsedTime);
-                    await Task.Delay(delayTime, cancellationToken);
-                    elapsedTime += delayTime;
+                //while (elapsedTime < waitTime && !cancellationToken.IsCancellationRequested)
+                //{
+                //    // Use a shorter wait interval (e.g., 10ms) for each iteration
+                //    int delayTime = Math.Min(maxDynamicWaitTimeMs / 10, waitTime - elapsedTime);
+                //    await Task.Delay(delayTime, cancellationToken);
+                //    elapsedTime += delayTime;
 
-                    SignalReaders();
-                    // Update waitTime if needed, based on changing conditions
-                    waitTime = CalculateThrottleWaitTime(correlationId);
-                }
+                //    SignalReaders();
+                //    // Update waitTime if needed, based on changing conditions
+                //    //waitTime = CalculateThrottleWaitTime(correlationId);
+                //}
 
 
                 if (cancellationToken.IsCancellationRequested)
                 {
                     _writeLogger.LogDebug("WriteChunkAsync was cancelled during wait.");
-                    return bytesWritten; // Or handle the cancellation in an appropriate manner
+                    return _bytesWritten; // Or handle the cancellation in an appropriate manner
                 }
 
                 int availableSpace = _buffer.Length - _writeIndex;
@@ -118,18 +121,20 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
                 int lengthToWrite = Math.Min(data.Length, availableSpace);
 
-                CheckAndReportClientOverwrites(lengthToWrite, correlationId);
+                //CheckAndReportClientOverwrites(lengthToWrite, correlationId);
 
                 Memory<byte> bufferSlice = _buffer.Slice(_writeIndex, lengthToWrite);
                 data[..lengthToWrite].CopyTo(bufferSlice);
 
-                if (!HasBufferFlipped && _writeIndex + lengthToWrite >= _buffer.Length)
-                {
-                    HasBufferFlipped = true;
-                }
+                //if (!HasBufferFlipped && _writeIndex + lengthToWrite >= _buffer.Length)
+                //{
+                //    HasBufferFlipped = true;
+                //}
 
                 _writeIndex = (_writeIndex + lengthToWrite) % _buffer.Length;
-                bytesWritten += lengthToWrite;
+                _writeBytes += lengthToWrite;
+                _bytesWritten += lengthToWrite;
+
                 data = data[lengthToWrite..];
             }
             var logData = new
@@ -139,10 +144,10 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                 VideoStreamName,
                 WriteIndex = _writeIndex,
                 BytesToWrite = bytesToWrite,
-                BytesWritten = bytesWritten,
-                BufferOccupancy = CalculateBufferOccupancy(),
+                BytesWritten = _bytesWritten,
+                //BufferOccupancy = CalculateBufferOccupancy(),
                 //ActiveReaders = _clientReadIndexes.Count,
-                DistanceToOldestReader = CalculateDistanceToOldestReader(correlationId),
+                //DistanceToOldestReader = CalculateDistanceToOldestReader(correlationId),
                 WriteDurationMs = stopwatch.ElapsedMilliseconds // Add timing information
             };
             _writeLogger.LogDebug(System.Text.Json.JsonSerializer.Serialize(logData));
@@ -156,15 +161,14 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         {
             stopwatch.Stop();
 
-            _bytesWrittenCounter.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Inc(bytesWritten);
-            _writeMetric.RecordBytesProcessed(bytesWritten);
+            _bytesWrittenCounter.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Inc(_bytesWritten);
+            _writeMetric.RecordBytesProcessed(_bytesWritten);
             _bitsPerSecond.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Set(_writeMetric.GetBitsPerSecond());
-            _inputStreamStatistics.AddBytesWritten(bytesWritten);
+            _inputStreamStatistics.AddBytesWritten(_bytesWritten);
             SignalReadersAfterWrite();
         }
 
-        CurrentIndex += (uint)bytesWritten;
-        return bytesWritten;
+        return _bytesWritten;
     }
 
     private void SignalReaders()
@@ -191,33 +195,33 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
     /// that has been written but not necessarily read by all clients.
     /// </summary>
     /// <returns>The total number of bytes occupied in the buffer.</returns>
-    private int CalculateBufferOccupancy()
-    {
-        // If the buffer hasn't flipped (i.e., write index hasn't reached the end of the buffer),
-        // occupancy is simply the current position of the write index.
-        if (!HasBufferFlipped)
-        {
-            return _writeIndex;
-        }
+    //private int CalculateBufferOccupancy()
+    //{
+    //    // If the buffer hasn't flipped (i.e., write index hasn't reached the end of the buffer),
+    //    // occupancy is simply the current position of the write index.
+    //    if (!HasBufferFlipped)
+    //    {
+    //        return _writeIndex;
+    //    }
 
-        // When the buffer has flipped, it means the write operation has wrapped around to the start
-        // and may be overwriting older data. In this case, the method needs to find the oldest 
-        // (furthest behind) read index among all clients. This index helps in understanding
-        // the part of the buffer that has data which might not have been read yet.
-        int oldestReadIndex = _clientReadIndexes.Values.DefaultIfEmpty(_buffer.Length).Min();
+    //    // When the buffer has flipped, it means the write operation has wrapped around to the start
+    //    // and may be overwriting older data. In this case, the method needs to find the oldest 
+    //    // (furthest behind) read index among all clients. This index helps in understanding
+    //    // the part of the buffer that has data which might not have been read yet.
+    //    int oldestReadIndex = _clientReadIndexes.Values.DefaultIfEmpty(_buffer.Length).Min();
 
-        // If there are no readers, the whole buffer is considered occupied.
-        if (oldestReadIndex == _buffer.Length)
-        {
-            return _buffer.Length;
-        }
+    //    // If there are no readers, the whole buffer is considered occupied.
+    //    if (oldestReadIndex == _buffer.Length)
+    //    {
+    //        return _buffer.Length;
+    //    }
 
-        // Calculate the occupied space based on the distance between the write index and the oldest read index.
-        // This helps determine how much new data can be accepted before overwriting unread data.
-        return _writeIndex >= oldestReadIndex ?
-            _writeIndex - oldestReadIndex : // Write index is ahead of the oldest read index
-            _buffer.Length - oldestReadIndex + _writeIndex; // Write index has wrapped around past the oldest read index
-    }
+    //    // Calculate the occupied space based on the distance between the write index and the oldest read index.
+    //    // This helps determine how much new data can be accepted before overwriting unread data.
+    //    return _writeIndex >= oldestReadIndex ?
+    //        _writeIndex - oldestReadIndex : // Write index is ahead of the oldest read index
+    //        _buffer.Length - oldestReadIndex + _writeIndex; // Write index has wrapped around past the oldest read index
+    //}
 
 
 
@@ -227,61 +231,61 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
     /// </summary>
     /// <param name="correlationId">Correlation identifier for logging purposes.</param>
     /// <returns>The maximum distance to the oldest reader in the buffer.</returns>
-    private int CalculateDistanceToOldestReader(Guid correlationId)
-    {
-        int maxDistance = 0;
-        foreach (KeyValuePair<Guid, int> clientReadIndexEntry in _clientReadIndexes)
-        {
-            int distance = CalculateDistance(clientReadIndexEntry.Value, correlationId);
-            if (distance > maxDistance)
-            {
-                maxDistance = distance;
-            }
-        }
+    //private int CalculateDistanceToOldestReader(Guid correlationId)
+    //{
+    //    int maxDistance = 0;
+    //    foreach (KeyValuePair<Guid, int> clientReadIndexEntry in _clientReadIndexes)
+    //    {
+    //        int distance = CalculateDistance(clientReadIndexEntry.Value, correlationId);
+    //        if (distance > maxDistance)
+    //        {
+    //            maxDistance = distance;
+    //        }
+    //    }
 
-        // Structured logging
-        var logData = new
-        {
-            Event = "CalculateDistanceToOldestReader",
-            CorrelationId = correlationId,
-            VideoStreamName,
-            MaxDistanceToOldestReader = maxDistance
-        };
-        _distanceLogger.LogDebug(System.Text.Json.JsonSerializer.Serialize(logData));
+    //    // Structured logging
+    //    var logData = new
+    //    {
+    //        Event = "CalculateDistanceToOldestReader",
+    //        CorrelationId = correlationId,
+    //        VideoStreamName,
+    //        MaxDistanceToOldestReader = maxDistance
+    //    };
+    //    _distanceLogger.LogDebug(System.Text.Json.JsonSerializer.Serialize(logData));
 
-        return maxDistance;
-    }
+    //    return maxDistance;
+    //}
 
     /// <summary>
     /// Finds the closest read index to the write index, indicating the nearest reader.
     /// </summary>
     /// <param name="correlationId">Correlation identifier for logging purposes.</param>
     /// <returns>The shortest distance to the nearest reader in the buffer.</returns>
-    private int CalculateClosestReadIndexDistance(Guid correlationId)
-    {
-        int closestDistance = _buffer.Length;
+    //private int CalculateClosestReadIndexDistance(Guid correlationId)
+    //{
+    //    int closestDistance = _buffer.Length;
 
-        foreach (KeyValuePair<Guid, int> clientReadIndexEntry in _clientReadIndexes)
-        {
-            int distance = CalculateDistance(clientReadIndexEntry.Value, correlationId);
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-            }
-        }
+    //    foreach (KeyValuePair<Guid, int> clientReadIndexEntry in _clientReadIndexes)
+    //    {
+    //        int distance = CalculateDistance(clientReadIndexEntry.Value, correlationId);
+    //        if (distance < closestDistance)
+    //        {
+    //            closestDistance = distance;
+    //        }
+    //    }
 
-        // Structured logging
-        var logData = new
-        {
-            Event = "CalculateClosestReadIndexDistance",
-            CorrelationId = correlationId,
-            ClosestDistance = closestDistance,
-            ActiveReaders = _clientReadIndexes.Count
-        };
-        _distanceLogger.LogDebug(JsonSerializer.Serialize(logData));
+    //    // Structured logging
+    //    var logData = new
+    //    {
+    //        Event = "CalculateClosestReadIndexDistance",
+    //        CorrelationId = correlationId,
+    //        ClosestDistance = closestDistance,
+    //        ActiveReaders = _clientReadIndexes.Count
+    //    };
+    //    _distanceLogger.LogDebug(JsonSerializer.Serialize(logData));
 
-        return closestDistance;
-    }
+    //    return closestDistance;
+    //}
 
     /// <summary>
     /// Calculates the distance between a given read index and the current write index.
@@ -342,102 +346,102 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
     //    }
     //}
 
-    private void CheckAndReportClientOverwrites(int lengthToWrite, Guid correlationId)
-    {
-        int newWriteIndex = (_writeIndex + lengthToWrite) % _buffer.Length;
+    //private void CheckAndReportClientOverwrites(int lengthToWrite, Guid correlationId)
+    //{
+    //    int newWriteIndex = (_writeIndex + lengthToWrite) % _buffer.Length;
 
-        foreach (KeyValuePair<Guid, int> clientReadIndexEntry in _clientReadIndexes)
-        {
-            int clientReadIndex = clientReadIndexEntry.Value;
+    //    foreach (KeyValuePair<Guid, int> clientReadIndexEntry in _clientReadIndexes)
+    //    {
+    //        int clientReadIndex = clientReadIndexEntry.Value;
 
-            if (IsClientOverwritten(clientReadIndex, _writeIndex, newWriteIndex))
-            {
-                AdjustClientReadIndex(clientReadIndexEntry.Key, newWriteIndex, correlationId);
-            }
-        }
-    }
+    //        if (IsClientOverwritten(clientReadIndex, _writeIndex, newWriteIndex))
+    //        {
+    //            AdjustClientReadIndex(clientReadIndexEntry.Key, newWriteIndex, correlationId);
+    //        }
+    //    }
+    //}
 
 
     /// <summary>
     /// Adjusts the read index of a client to a safe position to avoid overwrites.
     /// </summary>
-    private void AdjustClientReadIndex(Guid clientId, int newWriteIndex, Guid correlationId)
-    {
-        int safeReadIndex = CalculateSafeReadIndex(newWriteIndex);
-        _clientReadIndexes[clientId] = safeReadIndex;
+    //private void AdjustClientReadIndex(Guid clientId, int newWriteIndex, Guid correlationId)
+    //{
+    //    int safeReadIndex = CalculateSafeReadIndex(newWriteIndex);
+    //    _clientReadIndexes[clientId] = safeReadIndex;
 
-        // Log the adjustment for debugging and monitoring
-        _overwriteLogger.LogWarning(JsonSerializer.Serialize(new
-        {
-            Event = "AdjustClientReadIndex",
-            CorrelationId = correlationId,
-            ClientId = clientId,
-            SafeReadIndex = safeReadIndex,
-            OriginalReadIndex = _clientReadIndexes[clientId]
-        }));
-    }
+    //    // Log the adjustment for debugging and monitoring
+    //    _overwriteLogger.LogWarning(JsonSerializer.Serialize(new
+    //    {
+    //        Event = "AdjustClientReadIndex",
+    //        CorrelationId = correlationId,
+    //        ClientId = clientId,
+    //        SafeReadIndex = safeReadIndex,
+    //        OriginalReadIndex = _clientReadIndexes[clientId]
+    //    }));
+    //}
 
-    private int CalculateThrottleWaitTime(Guid correlationId)
-    {
-        int throttleThreshold = (int)(_buffer.Length * 0.10); // Threshold for throttling (10% of buffer size)
-        int closestReadIndexDistance = CalculateClosestReadIndexDistance(correlationId);
+    //private int CalculateThrottleWaitTime(Guid correlationId)
+    //{
+    //    int throttleThreshold = (int)(_buffer.Length * 0.10); // Threshold for throttling (10% of buffer size)
+    //    int closestReadIndexDistance = CalculateClosestReadIndexDistance(correlationId);
 
-        if (closestReadIndexDistance > throttleThreshold)
-        {
-            return 0; // No throttling required
-        }
+    //    if (closestReadIndexDistance > throttleThreshold)
+    //    {
+    //        return 0; // No throttling required
+    //    }
 
-        if (closestReadIndexDistance == 0)
-        {
-            return maxDynamicWaitTimeMs; // Maximum wait if a client is immediately behind the write index
-        }
+    //    if (closestReadIndexDistance == 0)
+    //    {
+    //        return maxDynamicWaitTimeMs; // Maximum wait if a client is immediately behind the write index
+    //    }
 
-        // Calculate proportional wait time based on proximity to the closest reader
-        double proximity = (double)closestReadIndexDistance / throttleThreshold;
-        int calculatedWaitTime = (int)(-maxDynamicWaitTimeMs * Math.Log(proximity));
+    //    // Calculate proportional wait time based on proximity to the closest reader
+    //    double proximity = (double)closestReadIndexDistance / throttleThreshold;
+    //    int calculatedWaitTime = (int)(-maxDynamicWaitTimeMs * Math.Log(proximity));
 
-        // Log the calculated wait time for monitoring
-        LogDynamicWaitTime(correlationId, throttleThreshold, closestReadIndexDistance, calculatedWaitTime);
+    //    // Log the calculated wait time for monitoring
+    //    LogDynamicWaitTime(correlationId, throttleThreshold, closestReadIndexDistance, calculatedWaitTime);
 
-        return Math.Min(calculatedWaitTime, maxDynamicWaitTimeMs); // Cap the wait time to a maximum value
-    }
-
-
-    private int CalculateSafeReadIndex(int newWriteIndex)
-    {
-        int bufferLength = _buffer.Length;
-
-        newWriteIndex += ((int)(bufferLength * 0.10)) % bufferLength;
-
-        // Implement logic to calculate a safe read index for the client
-        // This might be the new write index, or some position before it, depending on your buffer's logic
-        return newWriteIndex;
-    }
-
-    private bool IsClientOverwritten(int clientReadIndex, int initialWriteIndex, int newWriteIndex)
-    {
-        _overwriteLogger.LogDebug($"IsClientOverwritten {clientReadIndex} {initialWriteIndex} {newWriteIndex}");
-
-        if (clientReadIndex == initialWriteIndex) // Client is waiting for data
-        {
-            return false;
-        }
+    //    return Math.Min(calculatedWaitTime, maxDynamicWaitTimeMs); // Cap the wait time to a maximum value
+    //}
 
 
-        //Write doesnt wrap
-        if (initialWriteIndex <= newWriteIndex)
-        {
-            //In the middle of the write
-            bool test = clientReadIndex > initialWriteIndex && clientReadIndex <= newWriteIndex;
-            _overwriteLogger.LogDebug($"IsClientOverwritten No wrap {test}");
-            return test;
-        }
-        // Write wraps around
+    //private int CalculateSafeReadIndex(int newWriteIndex)
+    //{
+    //    int bufferLength = _buffer.Length;
 
-        // Check if clientReadIndex is outside the range of newWriteIndex to initialWriteIndex
-        bool isOverwritten = !(clientReadIndex > newWriteIndex && clientReadIndex <= initialWriteIndex);
-        _overwriteLogger.LogDebug($"IsClientOverwritten wrap {isOverwritten}");
-        return isOverwritten;
-    }
+    //    newWriteIndex += ((int)(bufferLength * 0.10)) % bufferLength;
+
+    //    // Implement logic to calculate a safe read index for the client
+    //    // This might be the new write index, or some position before it, depending on your buffer's logic
+    //    return newWriteIndex;
+    //}
+
+    //private bool IsClientOverwritten(int clientReadIndex, int initialWriteIndex, int newWriteIndex)
+    //{
+    //    _overwriteLogger.LogDebug($"IsClientOverwritten {clientReadIndex} {initialWriteIndex} {newWriteIndex}");
+
+    //    if (clientReadIndex == initialWriteIndex) // Client is waiting for data
+    //    {
+    //        return false;
+    //    }
+
+
+    //    //Write doesnt wrap
+    //    if (initialWriteIndex <= newWriteIndex)
+    //    {
+    //        //In the middle of the write
+    //        bool test = clientReadIndex > initialWriteIndex && clientReadIndex <= newWriteIndex;
+    //        _overwriteLogger.LogDebug($"IsClientOverwritten No wrap {test}");
+    //        return test;
+    //    }
+    //    // Write wraps around
+
+    //    // Check if clientReadIndex is outside the range of newWriteIndex to initialWriteIndex
+    //    bool isOverwritten = !(clientReadIndex > newWriteIndex && clientReadIndex <= initialWriteIndex);
+    //    _overwriteLogger.LogDebug($"IsClientOverwritten wrap {isOverwritten}");
+    //    return isOverwritten;
+    //}
 
 }

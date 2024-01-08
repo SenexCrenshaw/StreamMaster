@@ -7,34 +7,6 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 {
     private readonly object bufferLock = new();
 
-    public Memory<byte> GetBufferSlice(int length)
-    {
-        int bufferEnd = _writeIndex + length;
-
-        if (bufferEnd <= _bufferSize)
-        {
-            // No wrap-around needed
-            return _buffer.Slice(_writeIndex, length);
-        }
-        else
-        {
-            // Handle wrap-around
-            int lengthToEnd = _bufferSize - _writeIndex;
-            int lengthFromStart = length - lengthToEnd;
-
-            // Create a temporary array to hold the wrapped data
-            byte[] result = new byte[length];
-
-            // Copy from _oldestDataIndex to the end of the buffer
-            _buffer.Slice(_writeIndex, lengthToEnd).CopyTo(result);
-
-            // Copy from start of the buffer to fill the remaining length
-            _buffer[..lengthFromStart].CopyTo(result.AsMemory(lengthToEnd));
-
-            return result;
-        }
-    }
-
 
     public List<StreamStatisticsResult> GetAllStatisticsForAllUrls()
     {
@@ -42,35 +14,35 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
         IInputStreamingStatistics input = GetInputStreamStatistics();
 
-        foreach (ClientStreamingStatistics stat in _statisticsManager.GetAllClientStatisticsByClientIds(_clientReadIndexes.Keys))
-        {
-            allStatistics.Add(new StreamStatisticsResult
-            {
-                Id = Guid.NewGuid().ToString(),
-                CircularBufferId = Id.ToString(),
-                ChannelId = StreamInfo.ChannelId,
-                ChannelName = StreamInfo.ChannelName,
-                VideoStreamId = StreamInfo.VideoStreamId,
-                VideoStreamName = StreamInfo.VideoStreamName,
-                M3UStreamingProxyType = StreamInfo.StreamingProxyType,
-                Logo = StreamInfo.Logo,
-                Rank = StreamInfo.Rank,
+        //foreach (ClientStreamingStatistics stat in _statisticsManager.GetAllClientStatisticsByClientIds(_clientReadIndexes.Keys))
+        //{
+        //    allStatistics.Add(new StreamStatisticsResult
+        //    {
+        //        Id = Guid.NewGuid().ToString(),
+        //        CircularBufferId = Id.ToString(),
+        //        ChannelId = StreamInfo.ChannelId,
+        //        ChannelName = StreamInfo.ChannelName,
+        //        VideoStreamId = StreamInfo.VideoStreamId,
+        //        VideoStreamName = StreamInfo.VideoStreamName,
+        //        M3UStreamingProxyType = StreamInfo.StreamingProxyType,
+        //        Logo = StreamInfo.Logo,
+        //        Rank = StreamInfo.Rank,
 
-                InputBytesRead = input.BytesRead,
-                InputBytesWritten = input.BytesWritten,
-                InputBitsPerSecond = input.BitsPerSecond,
-                InputStartTime = input.StartTime,
+        //        InputBytesRead = input.BytesRead,
+        //        InputBytesWritten = input.BytesWritten,
+        //        InputBitsPerSecond = input.BitsPerSecond,
+        //        InputStartTime = input.StartTime,
 
-                StreamUrl = StreamInfo.StreamUrl,
+        //        StreamUrl = StreamInfo.StreamUrl,
 
-                ClientBitsPerSecond = stat.ReadBitsPerSecond,
-                ClientBytesRead = stat.BytesRead,
-                ClientId = stat.ClientId,
-                ClientStartTime = stat.StartTime,
-                ClientAgent = stat.ClientAgent,
-                ClientIPAddress = stat.ClientIPAddress
-            });
-        }
+        //        ClientBitsPerSecond = stat.ReadBitsPerSecond,
+        //        ClientBytesRead = stat.BytesRead,
+        //        ClientId = stat.ClientId,
+        //        ClientStartTime = stat.StartTime,
+        //        ClientAgent = stat.ClientAgent,
+        //        ClientIPAddress = stat.ClientIPAddress
+        //    });
+        //}
 
         return allStatistics;
     }
@@ -85,34 +57,30 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         }
     }
 
-    private int GetOldestReadIndex()
-    {
-        return _clientReadIndexes.Values.DefaultIfEmpty(0).Min();
-    }
 
-    public void RegisterClient(IClientStreamerConfiguration streamerConfiguration)
-    {
-        int index = 0;
-        if (HasBufferFlipped)
-        {
-            int bufferLength = _buffer.Length;
+    //public void RegisterClient(IClientStreamerConfiguration streamerConfiguration)
+    //{
+    //    int index = 0;
+    //    if (HasBufferFlipped)
+    //    {
+    //        int bufferLength = _buffer.Length;
 
-            //int increaseBy = (int)(currentSize * 0.20); // 20% increase
-            //int maxSize = _originalBufferSize * 4; // Max
+    //        //int increaseBy = (int)(currentSize * 0.20); // 20% increase
+    //        //int maxSize = _originalBufferSize * 4; // Max
 
-            index = (_writeIndex + (int)(bufferLength * 0.10)) % bufferLength;
-        }
+    //        index = (_writeIndex + (int)(bufferLength * 0.10)) % bufferLength;
+    //    }
 
-        if (_clientReadIndexes.TryAdd(streamerConfiguration.ClientId, index))
-        {
-            _statisticsManager.RegisterClient(streamerConfiguration);
-            _logger.LogInformation("Registered new client {ClientId} with read index {ReadIndex}", streamerConfiguration.ClientId, index);
-        }
-        else
-        {
-            _logger.LogWarning("Failed to add new client {ClientId} to read indexes.", streamerConfiguration.ClientId);
-        }
-    }
+    //    if (_clientReadIndexes.TryAdd(streamerConfiguration.ClientId, index))
+    //    {
+    //        _statisticsManager.RegisterClient(streamerConfiguration);
+    //        _logger.LogInformation("Registered new client {ClientId} with read index {ReadIndex}", streamerConfiguration.ClientId, index);
+    //    }
+    //    else
+    //    {
+    //        _logger.LogWarning("Failed to add new client {ClientId} to read indexes.", streamerConfiguration.ClientId);
+    //    }
+    //}
 
     private void ResizeBuffer()
     {
@@ -144,28 +112,28 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         }
     }
 
-    public void UnRegisterClient(Guid clientId)
-    {
-        _ = _clientReadIndexes.TryRemove(clientId, out _);
-        _statisticsManager.UnRegisterClient(clientId);
+    //public void UnRegisterClient(Guid clientId)
+    //{
+    //    _ = _clientReadIndexes.TryRemove(clientId, out _);
+    //    _statisticsManager.UnRegisterClient(clientId);
 
-        _logger.LogInformation("UnRegisterClient for clientId: {clientId}  {VideoStreamName}", clientId, StreamInfo.VideoStreamName);
-    }
+    //    _logger.LogInformation("UnRegisterClient for clientId: {clientId}  {VideoStreamName}", clientId, StreamInfo.VideoStreamName);
+    //}
 
-    public ICollection<Guid> GetClientIds()
-    {
-        return _clientReadIndexes.Keys;
-    }
+    //public ICollection<Guid> GetClientIds()
+    //{
+    //    return _clientReadIndexes.Keys;
+    //}
 
     private IInputStreamingStatistics GetInputStreamStatistics()
     {
         return _inputStreamStatistics;
     }
 
-    public int GetReadIndex(Guid clientId)
-    {
-        return _clientReadIndexes[clientId];
-    }
+    //public int GetReadIndex(Guid clientId)
+    //{
+    //    return _clientReadIndexes[clientId];
+    //}
 
     private void DoDispose(bool disposing)
     {
@@ -184,11 +152,11 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                 _bytesWrittenCounter.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
                 _writeErrorsCounter.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
                 _dataArrival.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
-                foreach (KeyValuePair<Guid, int> item in _clientReadIndexes)
-                {
-                    _statisticsManager.UnRegisterClient(item.Key);
-                }
-                _clientReadIndexes.Clear();
+                //foreach (KeyValuePair<Guid, int> item in _clientReadIndexes)
+                //{
+                //    _statisticsManager.UnRegisterClient(item.Key);
+                //}
+                //_clientReadIndexes.Clear();
                 _clientLastReadBeforeOverwrite.Clear();
                 _performanceMetrics.Clear();
             }

@@ -39,27 +39,23 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         _distanceLogger.LogDebug(System.Text.Json.JsonSerializer.Serialize(logData));
     }
 
-    private int GetAvailableBytes(Guid clientId, Guid correlationId)
+    private int GetAvailableBytes(long readIndex, Guid correlationId)
     {
-        if (_clientReadIndexes.TryGetValue(clientId, out int readIndex))
+        long availableBytes = _writeBytes - readIndex;
+        if (availableBytes == 0)
         {
-            int availableBytes = (_writeIndex - readIndex + _buffer.Length) % _buffer.Length;
-            if (availableBytes == 0)
+            _readLogger.LogDebug(JsonSerializer.Serialize(new
             {
-                _readLogger.LogDebug(JsonSerializer.Serialize(new
-                {
-                    Event = "CheckAvailableBytes",
-                    CorrelationId = correlationId,
-                    ClientId = clientId,
-                    VideoStreamName,
-                    ReadIndex = readIndex,
-                    WriteIndex = _writeIndex,
-                    AvailableBytes = availableBytes
-                }));
-            }
-            return availableBytes;
+                Event = "CheckAvailableBytes",
+                CorrelationId = correlationId,
+                //ClientId = clientId,
+                VideoStreamName,
+                ReadIndex = readIndex,
+                WriteIndex = _writeIndex,
+                AvailableBytes = availableBytes
+            }));
         }
-        return 0;
+        return (int)availableBytes;
     }
 
     public bool IsPreBuffered()
@@ -70,7 +66,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
             return true;
         }
 
-        int dataInBuffer = _writeIndex % _buffer.Length;
+        long dataInBuffer = _writeIndex % _buffer.Length;
         float percentBuffered = (float)dataInBuffer / _buffer.Length * 100;
 
         InternalIsPreBuffered = percentBuffered >= _preBuffPercent;
