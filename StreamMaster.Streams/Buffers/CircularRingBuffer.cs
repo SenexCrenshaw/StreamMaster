@@ -19,8 +19,14 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
     private int CalculateClientReadIndex(long readByteIndex)
     {
-        // Calculate the preliminary client read index.
-        int clientReadIndex = _writeIndex - (int)(_writeBytes - readByteIndex);
+        // Calculate the byte difference
+        long byteDifference = _writeBytes - readByteIndex;
+
+        // Convert byte difference to buffer index difference
+        int indexDifference = (int)(byteDifference % _buffer.Length);
+
+        // Calculate client read index
+        int clientReadIndex = _writeIndex - indexDifference;
 
         // Adjust for circular buffer wrap-around.
         if (clientReadIndex < 0)
@@ -28,11 +34,9 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
             clientReadIndex += _buffer.Length;
         }
 
-        // Ensure the index is within the bounds of the buffer.
-        clientReadIndex %= _buffer.Length;
-
         return clientReadIndex;
     }
+
 
 
     public async Task<int> ReadChunkMemory(long readIndex, Memory<byte> target, CancellationToken cancellationToken)
