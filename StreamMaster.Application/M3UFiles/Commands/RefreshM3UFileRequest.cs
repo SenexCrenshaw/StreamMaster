@@ -28,8 +28,11 @@ public class RefreshM3UFileRequestHandler : BaseMediatorRequestHandler, IRequest
                 return null;
             }
 
+            bool publish = false;
+
             if (request.forceRun || m3uFile.LastDownloadAttempt.AddMinutes(m3uFile.MinimumMinutesBetweenDownloads) < DateTime.Now)
             {
+                publish = true;
                 FileDefinition fd = FileDefinitions.M3U;
                 string fullName = Path.Combine(fd.DirectoryLocation, m3uFile.Source);
 
@@ -64,12 +67,15 @@ public class RefreshM3UFileRequestHandler : BaseMediatorRequestHandler, IRequest
                     }
                     return null;
                 }
+            }
 
-                m3uFile.LastUpdated = DateTime.Now;
-                Repository.M3UFile.UpdateM3UFile(m3uFile);
-                _ = await Repository.SaveAsync().ConfigureAwait(false);
+            m3uFile.LastUpdated = DateTime.Now;
+            Repository.M3UFile.UpdateM3UFile(m3uFile);
+            _ = await Repository.SaveAsync().ConfigureAwait(false);
 
-                M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
+            M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
+            if (publish)
+            {
                 await Publisher.Publish(new M3UFileAddedEvent(ret.Id), cancellationToken).ConfigureAwait(false);
             }
 
