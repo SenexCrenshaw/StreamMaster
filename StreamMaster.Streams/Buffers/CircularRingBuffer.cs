@@ -98,7 +98,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                 if (cancellationToken.IsCancellationRequested)
                 {
                     _writeLogger.LogDebug("WriteChunkAsync was cancelled during wait.");
-                    return _bytesWritten; // Or handle the cancellation in an appropriate manner
+                    return _bytesWritten;
                 }
 
                 int availableSpace = _buffer.Length - _writeIndex;
@@ -112,24 +112,13 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
                 Memory<byte> bufferSlice = _buffer.Slice(_writeIndex, lengthToWrite);
                 data[..lengthToWrite].CopyTo(bufferSlice);
+                data = data[lengthToWrite..];
 
                 _writeIndex = (_writeIndex + lengthToWrite) % _buffer.Length;
-                WriteBytes += lengthToWrite;
                 _bytesWritten += lengthToWrite;
+                WriteBytes += lengthToWrite;
 
-                data = data[lengthToWrite..];
             }
-            var logData = new
-            {
-                Event = "WriteChunk",
-                CorrelationId = correlationId,
-                VideoStreamName,
-                WriteIndex = _writeIndex,
-                BytesToWrite = bytesToWrite,
-                BytesWritten = _bytesWritten,
-                WriteDurationMs = stopwatch.ElapsedMilliseconds // Add timing information
-            };
-            _writeLogger.LogDebug(System.Text.Json.JsonSerializer.Serialize(logData));
         }
         catch (Exception ex)
         {
@@ -144,7 +133,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
             _writeMetric.RecordBytesProcessed(_bytesWritten);
             _bitsPerSecond.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Set(_writeMetric.GetBitsPerSecond());
             _inputStreamStatistics.AddBytesWritten(_bytesWritten);
-            SignalReadersAfterWrite();
+            SignalReaders();
         }
 
         return _bytesWritten;
@@ -158,13 +147,4 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
             _writeSignal = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         }
     }
-
-    /// <summary>
-    /// Signals all waiting readers that new data has been written.
-    /// </summary>
-    private void SignalReadersAfterWrite()
-    {
-        SignalReaders();
-    }
-
 }
