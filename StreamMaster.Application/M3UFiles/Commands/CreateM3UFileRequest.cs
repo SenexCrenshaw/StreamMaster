@@ -93,7 +93,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, I
             Repository.M3UFile.CreateM3UFile(m3UFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
 
-            m3UFile.WriteJSON();
+            m3UFile.WriteJSON(Logger);
 
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3UFile);
             await Publisher.Publish(new M3UFileAddedEvent(ret.Id), cancellationToken).ConfigureAwait(false);

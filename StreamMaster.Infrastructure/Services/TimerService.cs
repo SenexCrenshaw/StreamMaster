@@ -81,13 +81,14 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
 
         SDSystemStatus status = new() { IsSystemReady = BuildInfo.SetIsSystemReady };
 
-        if (!status.IsSystemReady)
+        lock (Lock)
         {
-            lock (Lock)
+            if (!status.IsSystemReady)
             {
                 isActive = false;
+                return;
             }
-            return;
+            isActive = true;
         }
 
         IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
@@ -97,9 +98,6 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
         Setting setting = memoryCache.GetSetting();
         DateTime now = DateTime.Now;
 
-
-        //if (setting.SDSettings.SDEnabled)
-        //{
         JobStatus jobStatus = jobStatusService.GetSyncJobStatus();
         if (!jobStatus.IsRunning)
         {
@@ -111,8 +109,7 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
                 {
                     jobStatusService.ClearSyncForce();
                 }
-                //if (jobStatus.ForceNextRun)// || jobStatus.IsErrored || (now - jobStatus.LastSuccessful).TotalMinutes > 60)
-                //{
+
                 if (setting.SDSettings.SDEnabled)
                 {
                     logger.LogInformation("EPGSync started. {status}", jobStatusService.GetSyncJobStatus());
@@ -122,32 +119,34 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
 
                     logger.LogInformation("EPGSync completed. {status}", jobStatusService.GetSyncJobStatus());
                 }
-                //}
-            }
-
-        }
-        //}
-
-        IEnumerable<EPGFileDto> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
-        IEnumerable<M3UFileDto> m3uFilesToUpdated = await mediator.Send(new GetM3UFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
-
-        if (epgFilesToUpdated.Any())
-        {
-            logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFilesToUpdated.Count());
-
-            foreach (EPGFileDto epg in epgFilesToUpdated)
-            {
-                _ = await mediator.Send(new RefreshEPGFileRequest(epg.Id), cancellationToken).ConfigureAwait(false);
             }
         }
 
-        if (m3uFilesToUpdated.Any())
+        if (!jobStatusService.GetEPGJobStatus().IsRunning)
         {
-            logger.LogInformation("M3U Files to update count: {m3uFiles.Count()}", m3uFilesToUpdated.Count());
-
-            foreach (M3UFileDto? m3uFile in m3uFilesToUpdated)
+            IEnumerable<EPGFileDto> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
+            if (epgFilesToUpdated.Any())
             {
-                _ = await mediator.Send(new RefreshM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
+                logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFilesToUpdated.Count());
+
+                foreach (EPGFileDto epg in epgFilesToUpdated)
+                {
+                    _ = await mediator.Send(new RefreshEPGFileRequest(epg.Id), cancellationToken).ConfigureAwait(false);
+                }
+            }
+        }
+
+        if (!jobStatusService.GetM3UJobStatus().IsRunning)
+        {
+            IEnumerable<M3UFileDto> m3uFilesToUpdated = await mediator.Send(new GetM3UFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
+            if (m3uFilesToUpdated.Any())
+            {
+                logger.LogInformation("M3U Files to update count: {m3uFiles.Count()}", m3uFilesToUpdated.Count());
+
+                foreach (M3UFileDto? m3uFile in m3uFilesToUpdated)
+                {
+                    _ = await mediator.Send(new RefreshM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
+                }
             }
         }
 

@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using Microsoft.Extensions.Logging;
+
+using System.Text.Json;
 
 namespace StreamMaster.Domain.Models;
 
@@ -20,11 +22,19 @@ public class EPGFile : AutoUpdateEntity
         return JsonSerializer.Deserialize<EPGFile>(jsonString);
     }
 
-    public void WriteJSON()
+    public void WriteJSON(ILogger logger)
     {
-        string txtName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(Source) + ".json");
-        string jsonString = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(txtName, jsonString);
+        try
+        {
+            string txtName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(Source) + ".json");
+            string jsonString = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(txtName, jsonString);
+        }
+        catch
+(Exception ex)
+        {
+            logger.LogError(ex.Message);
+        }
     }
     public EPGFile()
     {
