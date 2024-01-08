@@ -1,12 +1,5 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 namespace StreamMaster.Application.EPGFiles.Commands;
 
 [RequireAll]
@@ -32,13 +25,16 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> logger,
                 return null;
             }
 
+            bool publish = false;
             if (epgFile.LastDownloadAttempt.AddMinutes(epgFile.MinimumMinutesBetweenDownloads) < DateTime.Now)
             {
+
                 FileDefinition fd = FileDefinitions.EPG;
                 string fullName = Path.Combine(fd.DirectoryLocation, epgFile.Source);
 
                 if (epgFile.Url != null && epgFile.Url.Contains("://"))
                 {
+                    publish = true;
                     Logger.LogInformation("Refresh EPG From URL {epgFile.Url}", epgFile.Url);
 
                     epgFile.LastDownloadAttempt = DateTime.Now;
@@ -55,14 +51,19 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> logger,
                         ++epgFile.DownloadErrors;
                         Logger.LogCritical("Exception EPG From URL {ex}", ex);
                     }
-                    Repository.EPGFile.UpdateEPGFile(epgFile);
-                    _ = await Repository.SaveAsync().ConfigureAwait(false);
-
                 }
+            }
 
-                EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);
-                await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
-                return ret;
+            epgFile.LastUpdated = DateTime.Now;
+            Repository.EPGFile.UpdateEPGFile(epgFile);
+
+            _ = await Repository.SaveAsync().ConfigureAwait(false);
+
+            if (publish)
+            {
+                EPGFileDto toPublish = Mapper.Map<EPGFileDto>(epgFile);
+                await Publisher.Publish(new EPGFileAddedEvent(toPublish), cancellationToken).ConfigureAwait(false);
+                return toPublish;
             }
         }
         catch (Exception)
