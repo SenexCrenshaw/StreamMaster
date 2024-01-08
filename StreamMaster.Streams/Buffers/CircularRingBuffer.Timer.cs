@@ -14,15 +14,15 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         {
             Event = "BufferHealthCheck",
             WriteIndex = _writeIndex,
-            ClientBufferStatuses = _clientReadIndexes.Select(clientReadIndex =>
-                new
-                {
-                    ClientId = clientReadIndex.Key,
-                    ReadIndex = clientReadIndex.Value,
-                    DistanceToWriteIndex = CalculateDistanceToWriteIndex(clientReadIndex.Value),
-                    BufferHealth = CalculateBufferHealth(clientReadIndex.Value)
-                }
-            ).ToList()
+            //ClientBufferStatuses = _clientReadIndexes.Select(clientReadIndex =>
+            //    new
+            //    {
+            //        ClientId = clientReadIndex.Key,
+            //        ReadIndex = clientReadIndex.Value,
+            //        DistanceToWriteIndex = CalculateDistanceToWriteIndex(clientReadIndex.Value),
+            //        BufferHealth = CalculateBufferHealth(clientReadIndex.Value)
+            //    }
+            //).ToList()
         };
 
         _statsLogger.LogDebug(JsonSerializer.Serialize(bufferHealthData));

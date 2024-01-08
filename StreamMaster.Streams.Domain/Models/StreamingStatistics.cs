@@ -2,12 +2,14 @@
 
 public class StreamingStatistics
 {
-    public StreamingStatistics(string ClientAgent, string ClientIPAddress)
+    public string ChannelName { get; set; }
+    public StreamingStatistics(IClientStreamerConfiguration streamerConfiguration)
     {
         BytesRead = 0;
         StartTime = DateTime.UtcNow;
-        this.ClientAgent = ClientAgent;
-        this.ClientIPAddress = ClientIPAddress;
+        ClientAgent = streamerConfiguration.ClientUserAgent;
+        ClientIPAddress = streamerConfiguration.ClientIPAddress;
+        ChannelName = streamerConfiguration.ChannelName;
     }
 
     public double ReadBitsPerSecond

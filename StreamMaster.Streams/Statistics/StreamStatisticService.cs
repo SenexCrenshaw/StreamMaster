@@ -7,17 +7,49 @@ using System.Net.Sockets;
 
 namespace StreamMaster.Streams.Statistics;
 
-public sealed class StreamStatisticService(IStreamManager streamManager, ISettingsService settingsService, IMemoryCache memoryCache) : IStreamStatisticService
+public sealed class StreamStatisticService(IStreamManager streamManager, IStatisticsManager statisticsManager, ISettingsService settingsService, IMemoryCache memoryCache) : IStreamStatisticService
 {
 
     public async Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls(CancellationToken cancellationToken = default)
     {
         List<StreamStatisticsResult> allStatistics = [];
 
-        List<IStreamHandler> infos = streamManager.GetStreamHandlers();
-        foreach (IStreamHandler? info in infos.Where(a => a.CircularRingBuffer != null))
+        //List<IStreamHandler> infos = streamManager.GetStreamHandlers();
+        //foreach (IStreamHandler? info in infos.Where(a => a.CircularRingBuffer != null))
+        //{
+        //    allStatistics.AddRange(info.GetAllStatisticsForAllUrls());
+        //}
+
+        foreach (ClientStreamingStatistics stat in statisticsManager.GetAllClientStatistics())
         {
-            allStatistics.AddRange(info.CircularRingBuffer.GetAllStatisticsForAllUrls());
+            cancellationToken.ThrowIfCancellationRequested();
+            allStatistics.Add(new StreamStatisticsResult
+            {
+                Id = Guid.NewGuid().ToString(),
+                //CircularBufferId = Id.ToString(),
+                //ChannelId = StreamInfo.ChannelId,
+                //ChannelName = StreamInfo.ChannelName,
+                //VideoStreamId = StreamInfo.VideoStreamId,
+                //VideoStreamName = StreamInfo.VideoStreamName,
+                //M3UStreamingProxyType = StreamInfo.StreamingProxyType,
+                //Logo = StreamInfo.Logo,
+                //Rank = StreamInfo.Rank,
+
+                //InputBytesRead = input.BytesRead,
+                //InputBytesWritten = input.BytesWritten,
+                //InputBitsPerSecond = input.BitsPerSecond,
+                //InputStartTime = input.StartTime,
+
+                //StreamUrl = StreamInfo.StreamUrl,
+
+                ClientBitsPerSecond = stat.ReadBitsPerSecond,
+                ClientBytesRead = stat.BytesRead,
+                ClientId = stat.ClientId,
+                ClientStartTime = stat.StartTime,
+                ClientAgent = stat.ClientAgent,
+                ClientIPAddress = stat.ClientIPAddress
+            });
+
         }
 
         Setting settings = await settingsService.GetSettingsAsync(cancellationToken);

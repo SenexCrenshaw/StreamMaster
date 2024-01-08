@@ -2,9 +2,10 @@
 
 public class ClientStreamingStatistics : StreamingStatistics
 {
-    public ClientStreamingStatistics(string ClientAgent, string ClientIPAddress) : base(ClientAgent, ClientIPAddress)
+    public ClientStreamingStatistics(IClientStreamerConfiguration streamerConfiguration) : base(streamerConfiguration)
     {
     }
+
 
     public Guid ClientId { get; set; }
 }

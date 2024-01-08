@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using StreamMaster.Streams.Streams;
+
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
@@ -11,24 +13,31 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
     private readonly ILogger<ClientReadStream> logger;
     private readonly IClientStreamerConfiguration config;
     private Func<ICircularRingBuffer> _bufferDelegate;
-
+    private readonly IStatisticsManager _statisticsManager;
     private long accumulatedBytesRead = 0;
-    public ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, ILogger<ClientReadStream> logger, IClientStreamerConfiguration config)
+    public ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, IStatisticsManager _statisticsManager, ILogger<ClientReadStream> logger, IClientStreamerConfiguration config)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.config = config ?? throw new ArgumentNullException(nameof(config));
+
         ClientId = config.ClientId;
         _clientMasterToken = config.ClientMasterToken;
         _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
-
+        _lastReadIndex = bufferDelegate().GetNextReadIndex();
+        this._statisticsManager = _statisticsManager;
+        if (_lastReadIndex > StreamHandler.ChunkSize)
+        {
+            _lastReadIndex -= StreamHandler.ChunkSize;
+        }
+        _statisticsManager.RegisterClient(config);
+        logger.LogInformation("Starting client read stream for ClientId: {ClientId} at index {_lastReadIndex} ", ClientId, _lastReadIndex);
     }
 
     private readonly ConcurrentDictionary<Guid, SemaphoreSlim> _bufferSwitchSemaphores = new();
 
-    //private readonly ConcurrentDictionary<Guid, PerformanceBpsMetrics> _performanceMetrics = new();
-
     private CancellationTokenSource _readCancel = new();
 
+    private long _lastReadIndex;
     private bool IsCancelled { get; set; }
     private Guid ClientId { get; set; }
     public ICircularRingBuffer Buffer => _bufferDelegate();
@@ -70,7 +79,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
             // Use the ReadChunkMemory method to read data
 
             await semaphore.WaitAsync(cancellationToken);
-            bytesRead = await Buffer.ReadChunkMemory(ClientId, buffer, linkedCts.Token);
+            bytesRead = await Buffer.ReadChunkMemory(_lastReadIndex, buffer, linkedCts.Token);
             accumulatedBytesRead += bytesRead;
             metrics.RecordBytesProcessed(bytesRead);
         }
@@ -104,7 +113,8 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
             }
 
         }
-
+        _lastReadIndex += bytesRead;
+        _statisticsManager.AddBytesRead(ClientId, bytesRead);
         return bytesRead;
     }
 
@@ -119,7 +129,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
         try
         {
             // Directly use ReadChunkMemory to read data into the buffer
-            bytesRead = await Buffer.ReadChunkMemory(ClientId, buffer, cancellationToken);
+            bytesRead = await Buffer.ReadChunkMemory(_lastReadIndex, buffer, cancellationToken);
         }
         catch (TaskCanceledException ex)
         {
@@ -191,6 +201,8 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
         {
             if (disposing)
             {
+                _statisticsManager.UnRegisterClient(ClientId);
+
                 _bitsPerSecond.RemoveLabelled(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName);
                 _readDuration.RemoveLabelled(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName);
                 _bytesReadCounter.RemoveLabelled(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName);

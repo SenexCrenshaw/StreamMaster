@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace StreamMaster.Infrastructure.VideoStreamManager.Buffers;
+﻿namespace StreamMaster.Infrastructure.VideoStreamManager.Buffers;
 
 
 public sealed partial class CircularRingBuffer : ICircularRingBuffer
@@ -8,54 +6,54 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
     private readonly object bufferLock = new();
 
 
-    public List<StreamStatisticsResult> GetAllStatisticsForAllUrls()
-    {
-        List<StreamStatisticsResult> allStatistics = [];
+    //public List<StreamStatisticsResult> GetInputStatisticsForAllUrls()
+    //{
+    //    List<StreamStatisticsResult> allStatistics = [];
 
-        IInputStreamingStatistics input = GetInputStreamStatistics();
+    //    IInputStreamingStatistics input = GetInputStreamStatistics();
 
-        //foreach (ClientStreamingStatistics stat in _statisticsManager.GetAllClientStatisticsByClientIds(_clientReadIndexes.Keys))
-        //{
-        //    allStatistics.Add(new StreamStatisticsResult
-        //    {
-        //        Id = Guid.NewGuid().ToString(),
-        //        CircularBufferId = Id.ToString(),
-        //        ChannelId = StreamInfo.ChannelId,
-        //        ChannelName = StreamInfo.ChannelName,
-        //        VideoStreamId = StreamInfo.VideoStreamId,
-        //        VideoStreamName = StreamInfo.VideoStreamName,
-        //        M3UStreamingProxyType = StreamInfo.StreamingProxyType,
-        //        Logo = StreamInfo.Logo,
-        //        Rank = StreamInfo.Rank,
+    //    //foreach (ClientStreamingStatistics stat in _statisticsManager.GetAllClientStatisticsByClientIds(_clientReadIndexes.Keys))
+    //    //{
+    //    //    allStatistics.Add(new StreamStatisticsResult
+    //    //    {
+    //    //        Id = Guid.NewGuid().ToString(),
+    //    //        CircularBufferId = Id.ToString(),
+    //    //        ChannelId = StreamInfo.ChannelId,
+    //    //        ChannelName = StreamInfo.ChannelName,
+    //    //        VideoStreamId = StreamInfo.VideoStreamId,
+    //    //        VideoStreamName = StreamInfo.VideoStreamName,
+    //    //        M3UStreamingProxyType = StreamInfo.StreamingProxyType,
+    //    //        Logo = StreamInfo.Logo,
+    //    //        Rank = StreamInfo.Rank,
 
-        //        InputBytesRead = input.BytesRead,
-        //        InputBytesWritten = input.BytesWritten,
-        //        InputBitsPerSecond = input.BitsPerSecond,
-        //        InputStartTime = input.StartTime,
+    //    //        InputBytesRead = input.BytesRead,
+    //    //        InputBytesWritten = input.BytesWritten,
+    //    //        InputBitsPerSecond = input.BitsPerSecond,
+    //    //        InputStartTime = input.StartTime,
 
-        //        StreamUrl = StreamInfo.StreamUrl,
+    //    //        StreamUrl = StreamInfo.StreamUrl,
 
-        //        ClientBitsPerSecond = stat.ReadBitsPerSecond,
-        //        ClientBytesRead = stat.BytesRead,
-        //        ClientId = stat.ClientId,
-        //        ClientStartTime = stat.StartTime,
-        //        ClientAgent = stat.ClientAgent,
-        //        ClientIPAddress = stat.ClientIPAddress
-        //    });
-        //}
+    //    //        ClientBitsPerSecond = stat.ReadBitsPerSecond,
+    //    //        ClientBytesRead = stat.BytesRead,
+    //    //        ClientId = stat.ClientId,
+    //    //        ClientStartTime = stat.StartTime,
+    //    //        ClientAgent = stat.ClientAgent,
+    //    //        ClientIPAddress = stat.ClientIPAddress
+    //    //    });
+    //    //}
 
-        return allStatistics;
-    }
+    //    return allStatistics;
+    //}
 
-    public void ResizeBuffer(int newSize)
-    {
-        lock (bufferLock) // Ensure exclusive access
-        {
-            Memory<byte> newBuffer = new byte[newSize];
-            _buffer.CopyTo(newBuffer);
-            _buffer = newBuffer;
-        }
-    }
+    //public void ResizeBuffer(int newSize)
+    //{
+    //    lock (bufferLock) // Ensure exclusive access
+    //    {
+    //        Memory<byte> newBuffer = new byte[newSize];
+    //        _buffer.CopyTo(newBuffer);
+    //        _buffer = newBuffer;
+    //    }
+    //}
 
 
     //public void RegisterClient(IClientStreamerConfiguration streamerConfiguration)
@@ -82,35 +80,35 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
     //    }
     //}
 
-    private void ResizeBuffer()
-    {
-        int currentSize = _buffer.Length;
+    //private void ResizeBuffer()
+    //{
+    //    int currentSize = _buffer.Length;
 
-        int increaseBy = (int)(currentSize * 0.20); // 20% increase
-        int maxSize = _originalBufferSize * 4; // Maximum size, e.g., 4 times the original size
+    //    int increaseBy = (int)(currentSize * 0.20); // 20% increase
+    //    int maxSize = _originalBufferSize * 4; // Maximum size, e.g., 4 times the original size
 
-        // Calculate the new size, ensuring it's not greater than the max
-        int newSize = Math.Min(currentSize + increaseBy, maxSize);
+    //    // Calculate the new size, ensuring it's not greater than the max
+    //    int newSize = Math.Min(currentSize + increaseBy, maxSize);
 
-        // Check if new size is actually larger than current size
-        if (newSize > currentSize)
-        {
-            _logger.LogInformation($"Resizing buffer from {currentSize} to {newSize}");
-            try
-            {
-                ResizeBuffer(newSize);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while resizing the buffer");
-                // Handle or rethrow the exception as needed
-            }
-        }
-        else
-        {
-            //_logger.LogInformation("Buffer resize not required or maximum size reached.");
-        }
-    }
+    //    // Check if new size is actually larger than current size
+    //    if (newSize > currentSize)
+    //    {
+    //        _logger.LogInformation($"Resizing buffer from {currentSize} to {newSize}");
+    //        try
+    //        {
+    //            ResizeBuffer(newSize);
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            _logger.LogError(ex, "Error occurred while resizing the buffer");
+    //            // Handle or rethrow the exception as needed
+    //        }
+    //    }
+    //    else
+    //    {
+    //        //_logger.LogInformation("Buffer resize not required or maximum size reached.");
+    //    }
+    //}
 
     //public void UnRegisterClient(Guid clientId)
     //{

@@ -16,7 +16,7 @@ namespace StreamMaster.Streams.Streams;
 /// </summary>
 public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, IMemoryCache memoryCache, ILogger<IStreamHandler> logger, ICircularRingBuffer ringBuffer) : IStreamHandler
 {
-
+    public static int ChunkSize = 64 * 1024;
 
     private readonly SemaphoreSlim getVideoInfo = new(1);
     private bool runningGetVideo { get; set; } = false;
@@ -199,7 +199,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
     public async Task StartVideoStreamingAsync(Stream stream)
     {
-        const int chunkSize = 64 * 1024;
+
         //const int minWriteSize = chunkSize / 2;
 
         CancellationTokenSource stopVideoStreamingToken = new();
@@ -207,10 +207,10 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
         CircularRingBuffer.StopVideoStreamingToken = stopVideoStreamingToken;
 
-        logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} name: {name} circularRingbuffer id: {circularRingbuffer}", chunkSize, StreamUrl, VideoStreamName, CircularRingBuffer.Id);
+        logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} name: {name} circularRingbuffer id: {circularRingbuffer}", ChunkSize, StreamUrl, VideoStreamName, CircularRingBuffer.Id);
 
         Memory<byte> videoMemory = new byte[1 * 1024 * 1024];
-        Memory<byte> bufferMemory = new byte[chunkSize];
+        Memory<byte> bufferMemory = new byte[ChunkSize];
 
         int startMemoryIndex = 0;
         bool startMemoryFilled = false;
@@ -332,7 +332,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         try
         {
             _ = clientStreamerIds.TryAdd(streamerConfiguration.ClientId, streamerConfiguration.ClientId);
-            CircularRingBuffer.RegisterClient(streamerConfiguration);
+            //CircularRingBuffer.RegisterClient(streamerConfiguration);
 
             logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId} {name} {RingBuffer.Id}", streamerConfiguration.ClientId, VideoStreamId, VideoStreamName, CircularRingBuffer.Id);
         }
@@ -349,7 +349,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         {
             logger.LogInformation("UnRegisterClientStreamer ClientId: {ClientId} {name} {RingBuffer.Id}", ClientId, VideoStreamName, CircularRingBuffer.Id);
             bool result = clientStreamerIds.TryRemove(ClientId, out _);
-            CircularRingBuffer.UnRegisterClient(ClientId);
+            //CircularRingBuffer.UnRegisterClient(ClientId);
 
             return result;
         }
