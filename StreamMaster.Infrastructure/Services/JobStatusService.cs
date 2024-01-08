@@ -4,11 +4,8 @@ using System.Collections.Concurrent;
 
 namespace StreamMaster.Infrastructure.Services;
 
-public class JobStatusService : IJobStatusService
+public partial class JobStatusService : IJobStatusService
 {
-    private static readonly string EPGSyncKey = "EPGSync";
-
-
     private readonly ConcurrentDictionary<string, JobStatus> _jobs = [];
     private readonly ConcurrentDictionary<string, object> _locks = [];
 
@@ -62,36 +59,6 @@ public class JobStatusService : IJobStatusService
     private void ClearForce(string key)
     {
         UpdateStatus(key, status => status.SetForceNextRun(false), _locks.GetOrAdd(key, new object()));
-    }
-
-    public void SetSyncSuccessful()
-    {
-        SetSuccessful(EPGSyncKey);
-    }
-
-    public void SetSyncError()
-    {
-        SetError(EPGSyncKey);
-    }
-
-    public void SetSyncForceNextRun(bool Extra = false)
-    {
-        SetForceNextRun(EPGSyncKey, Extra);
-    }
-
-    public void SetSyncIsRunning(bool isRunning)
-    {
-        SetIsRunning(EPGSyncKey, isRunning);
-    }
-
-    public JobStatus GetSyncJobStatus()
-    {
-        return GetStatus(EPGSyncKey);
-    }
-
-    public void ClearSyncForce()
-    {
-        ClearForce(EPGSyncKey);
     }
 
 

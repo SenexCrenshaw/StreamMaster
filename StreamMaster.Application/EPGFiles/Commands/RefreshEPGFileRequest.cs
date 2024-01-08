@@ -13,12 +13,23 @@ public class RefreshEPGFileRequestValidator : AbstractValidator<RefreshEPGFileRe
     }
 }
 
-public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> logger, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<RefreshEPGFileRequest, EPGFileDto?>
+public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> logger, IJobStatusService jobStatusService, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<RefreshEPGFileRequest, EPGFileDto?>
 {
+    private readonly object lockObject = new();
     public async Task<EPGFileDto?> Handle(RefreshEPGFileRequest request, CancellationToken cancellationToken)
     {
         try
         {
+            lock (lockObject)
+            {
+                if (jobStatusService.GetEPGJobStatus().IsRunning)
+                {
+                    return null;
+                }
+                jobStatusService.SetEPGIsRunning(true);
+
+            }
+
             EPGFile? epgFile = await Repository.EPGFile.GetEPGFileById(request.Id).ConfigureAwait(false);
             if (epgFile == null)
             {
@@ -59,17 +70,17 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> logger,
 
             _ = await Repository.SaveAsync().ConfigureAwait(false);
 
+            EPGFileDto toPublish = Mapper.Map<EPGFileDto>(epgFile);
             if (publish)
             {
-                EPGFileDto toPublish = Mapper.Map<EPGFileDto>(epgFile);
                 await Publisher.Publish(new EPGFileAddedEvent(toPublish), cancellationToken).ConfigureAwait(false);
-                return toPublish;
             }
+            return toPublish;
+
         }
-        catch (Exception)
+        finally
         {
-            return null;
+            jobStatusService.SetEPGIsRunning(false);
         }
-        return null;
     }
 }

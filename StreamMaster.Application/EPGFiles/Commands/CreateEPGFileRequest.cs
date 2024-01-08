@@ -107,7 +107,7 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, I
 
             Repository.EPGFile.CreateEPGFile(epgFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
-            epgFile.WriteJSON();
+            epgFile.WriteJSON(Logger);
 
             EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);
             await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);

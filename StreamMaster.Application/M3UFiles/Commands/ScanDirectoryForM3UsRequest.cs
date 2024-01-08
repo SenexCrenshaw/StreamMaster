@@ -84,13 +84,13 @@ public class ScanDirectoryForM3UFilesRequestHandler : BaseMediatorRequestHandler
         Repository.M3UFile.CreateM3UFile(m3uFile);
 
         _ = await Repository.SaveAsync().ConfigureAwait(false);
-        m3uFile.WriteJSON();
+        m3uFile.WriteJSON(Logger);
 
         if (string.IsNullOrEmpty(m3uFile.Url))
         {
             m3uFile.LastDownloaded = DateTime.Now;
             _ = await Repository.SaveAsync().ConfigureAwait(false);
-            m3uFile.WriteJSON();
+            m3uFile.WriteJSON(Logger);
         }
 
 

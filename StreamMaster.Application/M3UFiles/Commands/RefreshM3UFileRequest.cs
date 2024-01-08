@@ -13,15 +13,22 @@ public class RefreshM3UFileRequestValidator : AbstractValidator<RefreshM3UFileRe
 }
 
 [LogExecutionTimeAspect]
-public class RefreshM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<RefreshM3UFileRequest, M3UFile?>
+public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> logger, IJobStatusService jobStatusService, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<RefreshM3UFileRequest, M3UFile?>
 {
-    public RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
- : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
-
+    private readonly object lockObject = new();
     public async Task<M3UFile?> Handle(RefreshM3UFileRequest request, CancellationToken cancellationToken)
     {
         try
         {
+            lock (lockObject)
+            {
+                if (jobStatusService.GetM3UJobStatus().IsRunning)
+                {
+                    return null;
+                }
+                jobStatusService.SetM3UIsRunning(true);
+            }
+
             M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileById(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
             {
@@ -81,10 +88,10 @@ public class RefreshM3UFileRequestHandler : BaseMediatorRequestHandler, IRequest
 
             return m3uFile;
         }
-        catch (Exception)
+        finally
         {
+            jobStatusService.SetM3UIsRunning(false);
         }
 
-        return null;
     }
 }

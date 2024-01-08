@@ -111,7 +111,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryC
             throw new ArgumentNullException(nameof(m3uFile));
         }
         Update(m3uFile);
-        m3uFile.WriteJSON();
+        m3uFile.WriteJSON(logger);
         logger.LogInformation($"Updated M3UFile with ID: {m3uFile.Id}.");
     }
 

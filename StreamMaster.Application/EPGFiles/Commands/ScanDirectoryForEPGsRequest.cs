@@ -1,9 +1,4 @@
 ﻿using StreamMaster.Domain.Color;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
 
 namespace StreamMaster.Application.EPGFiles.Commands;
 
@@ -87,14 +82,14 @@ public class ScanDirectoryForEPGFilesRequestHandler : BaseMediatorRequestHandler
     {
         Repository.EPGFile.CreateEPGFile(epgFile);
         _ = await Repository.SaveAsync().ConfigureAwait(false);
-        epgFile.WriteJSON();
+        epgFile.WriteJSON(Logger);
 
         if (string.IsNullOrEmpty(epgFile.Url))
         {
             epgFile.LastDownloaded = DateTime.Now;
             Repository.EPGFile.UpdateEPGFile(epgFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
-            epgFile.WriteJSON();
+            epgFile.WriteJSON(Logger);
         }
 
     }

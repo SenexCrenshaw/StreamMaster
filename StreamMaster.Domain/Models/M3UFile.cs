@@ -9,11 +9,18 @@ namespace StreamMaster.Domain.Models;
 
 public class M3UFile : AutoUpdateEntity
 {
-    public void WriteJSON()
+    public void WriteJSON(ILogger logger)
     {
-        string jsonPath = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Path.GetFileNameWithoutExtension(Source) + ".json");
-        string jsonString = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(jsonPath, jsonString);
+        try
+        {
+            string jsonPath = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Path.GetFileNameWithoutExtension(Source) + ".json");
+            string jsonString = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(jsonPath, jsonString);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex.Message);
+        }
     }
 
     public M3UFile()
