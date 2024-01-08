@@ -13,12 +13,12 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 {
     private TaskCompletionSource<bool> _writeSignal = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
-    public async Task<int> ReadChunkMemory(Guid ClientId, Memory<byte> target, CancellationToken cancellationToken)
+    public async Task<int> ReadChunkMemory(ulong index, Memory<byte> target, CancellationToken cancellationToken)
     {
         Guid correlationId = Guid.NewGuid();
         Stopwatch stopwatch = Stopwatch.StartNew();
 
-        PerformanceBpsMetrics metrics = _performanceMetrics.GetOrAdd(ClientId, key => new PerformanceBpsMetrics());
+        //PerformanceBpsMetrics metrics = _performanceMetrics.GetOrAdd(ClientId, key => new PerformanceBpsMetrics());
 
         CancellationToken linkedToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, StopVideoStreamingToken.Token).Token;
 
@@ -27,7 +27,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
         while (!linkedToken.IsCancellationRequested && bytesRead < target.Length)
         {
-            int availableBytes = Math.Min(GetAvailableBytes(ClientId, correlationId), target.Length - bytesRead);
+            ulong availableBytes = _writeIndex - CurrentIndex;// Math.Min(GetAvailableBytes(ClientId, correlationId), target.Length - bytesRead);
             while (availableBytes == 0)
             {
                 await _writeSignal.Task; // Wait for signal from writer
@@ -141,7 +141,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                 BytesToWrite = bytesToWrite,
                 BytesWritten = bytesWritten,
                 BufferOccupancy = CalculateBufferOccupancy(),
-                ActiveReaders = _clientReadIndexes.Count,
+                //ActiveReaders = _clientReadIndexes.Count,
                 DistanceToOldestReader = CalculateDistanceToOldestReader(correlationId),
                 WriteDurationMs = stopwatch.ElapsedMilliseconds // Add timing information
             };
@@ -163,6 +163,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
             SignalReadersAfterWrite();
         }
 
+        CurrentIndex += (uint)bytesWritten;
         return bytesWritten;
     }
 
