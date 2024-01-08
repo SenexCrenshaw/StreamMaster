@@ -28,8 +28,6 @@ public interface IVideoStreamController
 
     IActionResult FailClient(FailClientRequest request);
 
-    Task<ActionResult<List<StreamStatisticsResult>>> GetAllStatisticsForAllUrls();
-
     Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id);
 
     Task<ActionResult<List<IdName>>> GetVideoStreamNames();

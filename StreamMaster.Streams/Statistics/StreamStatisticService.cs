@@ -7,56 +7,58 @@ using System.Net.Sockets;
 
 namespace StreamMaster.Streams.Statistics;
 
-public sealed class StreamStatisticService(IStreamManager streamManager, IStatisticsManager statisticsManager, ISettingsService settingsService, IMemoryCache memoryCache) : IStreamStatisticService
+public sealed class StreamStatisticService(IStreamManager streamManager, IInputStatisticsManager inputStatisticsManager, IStatisticsManager statisticsManager, ISettingsService settingsService, IMemoryCache memoryCache) : IStreamStatisticService
 {
-
-    public async Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls(CancellationToken cancellationToken = default)
+    public async Task<List<InputStreamingStatistics>> GetInputStatistics(CancellationToken cancellationToken = default)
     {
-        List<StreamStatisticsResult> allStatistics = [];
 
-        //List<IStreamHandler> infos = streamManager.GetStreamHandlers();
-        //foreach (IStreamHandler? info in infos.Where(a => a.CircularRingBuffer != null))
+        return inputStatisticsManager.GetAllInputStreamStatistics();
+    }
+
+    public async Task<List<ClientStreamingStatistics>> GetClientStatistics(CancellationToken cancellationToken = default)
+    {
+        //List<StreamStatisticsResult> allStatistics = [];
+
+
+        //foreach (ClientStreamingStatistics stat in statisticsManager.GetAllClientStatistics())
         //{
-        //    allStatistics.AddRange(info.GetAllStatisticsForAllUrls());
+
+        //    cancellationToken.ThrowIfCancellationRequested();
+        //    allStatistics.Add(new StreamStatisticsResult
+        //    {
+        //        Id = Guid.NewGuid().ToString(),
+        //        //CircularBufferId = Id.ToString(),
+        //        //ChannelId = StreamInfo.ChannelId,
+        //        VideoStreamName = stat.VideoStreamName,
+        //        //VideoStreamId = StreamInfo.VideoStreamId,
+        //        //VideoStreamName = StreamInfo.VideoStreamName,
+        //        //M3UStreamingProxyType = StreamInfo.StreamingProxyType,
+        //        //Logo = StreamInfo.Logo,
+        //        //Rank = StreamInfo.Rank,
+
+        //        //InputBytesRead = input.BytesRead,
+        //        //InputBytesWritten = input.BytesWritten,
+        //        //InputBitsPerSecond = input.BitsPerSecond,
+        //        //InputStartTime = input.StartTime,
+
+        //        //StreamUrl = StreamInfo.StreamUrl,
+
+        //        ClientBitsPerSecond = stat.ReadBitsPerSecond,
+        //        ClientBytesRead = stat.BytesRead,
+        //        ClientId = stat.ClientId,
+        //        ClientStartTime = stat.StartTime,
+        //        ClientAgent = stat.ClientAgent,
+        //        ClientIPAddress = stat.ClientIPAddress
+        //    });
+
         //}
 
-        foreach (ClientStreamingStatistics stat in statisticsManager.GetAllClientStatistics())
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            allStatistics.Add(new StreamStatisticsResult
-            {
-                Id = Guid.NewGuid().ToString(),
-                //CircularBufferId = Id.ToString(),
-                //ChannelId = StreamInfo.ChannelId,
-                //ChannelName = StreamInfo.ChannelName,
-                //VideoStreamId = StreamInfo.VideoStreamId,
-                //VideoStreamName = StreamInfo.VideoStreamName,
-                //M3UStreamingProxyType = StreamInfo.StreamingProxyType,
-                //Logo = StreamInfo.Logo,
-                //Rank = StreamInfo.Rank,
-
-                //InputBytesRead = input.BytesRead,
-                //InputBytesWritten = input.BytesWritten,
-                //InputBitsPerSecond = input.BitsPerSecond,
-                //InputStartTime = input.StartTime,
-
-                //StreamUrl = StreamInfo.StreamUrl,
-
-                ClientBitsPerSecond = stat.ReadBitsPerSecond,
-                ClientBytesRead = stat.BytesRead,
-                ClientId = stat.ClientId,
-                ClientStartTime = stat.StartTime,
-                ClientAgent = stat.ClientAgent,
-                ClientIPAddress = stat.ClientIPAddress
-            });
-
-        }
-
+        List<ClientStreamingStatistics> clientStreamingStatistics = statisticsManager.GetAllClientStatistics();
         Setting settings = await settingsService.GetSettingsAsync(cancellationToken);
 
         if (settings.ShowClientHostNames)
         {
-            foreach (StreamStatisticsResult streamStatisticsResult in allStatistics)
+            foreach (ClientStreamingStatistics streamStatisticsResult in clientStreamingStatistics)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 try
@@ -74,7 +76,7 @@ public sealed class StreamStatisticService(IStreamManager streamManager, IStatis
             }
         }
 
-        return allStatistics;
+        return clientStreamingStatistics;
     }
 
     private async Task<string> GetHostNameAsync(string ipAddress, CancellationToken cancellationToken)

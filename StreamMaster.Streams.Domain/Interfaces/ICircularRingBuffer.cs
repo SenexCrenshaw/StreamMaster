@@ -2,6 +2,8 @@
 
 public interface ICircularRingBuffer : IDisposable
 {
+    void IncrementClient();
+    void DecrementClient();
     long GetNextReadIndex();
     VideoInfo? VideoInfo { get; set; }
     int BufferSize { get; }

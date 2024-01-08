@@ -4,27 +4,26 @@ using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Statistics;
 
-public sealed class StatisticsManager(ILogger<StatisticsManager> logger) : IStatisticsManager
+public sealed class ClientStatisticsManager(ILogger<ClientStatisticsManager> logger) : IStatisticsManager
 {
-    private readonly ConcurrentDictionary<Guid, IClientStreamerConfiguration> _clientConfigs = new();
-    private readonly ConcurrentDictionary<Guid, StreamingStatistics> _clientStatistics = new();
-    private readonly ILogger<StatisticsManager> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly ConcurrentDictionary<Guid, ClientStreamingStatistics> _clientStatistics = new();
+    private readonly ILogger<ClientStatisticsManager> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     public void RegisterClient(IClientStreamerConfiguration streamerConfiguration)
     {
-        _clientConfigs.TryAdd(streamerConfiguration.ClientId, streamerConfiguration);
-        _clientStatistics.TryAdd(streamerConfiguration.ClientId, new StreamingStatistics(streamerConfiguration));
+        _clientStatistics.TryAdd(streamerConfiguration.ClientId, new ClientStreamingStatistics(streamerConfiguration));
     }
 
     public void UnRegisterClient(Guid clientId)
     {
-        _clientConfigs.TryRemove(clientId, out _);
+
         _clientStatistics.TryRemove(clientId, out _);
     }
 
     public void AddBytesRead(Guid clientId, int count)
     {
-        if (_clientStatistics.TryGetValue(clientId, out StreamingStatistics? clientStats))
+        if (_clientStatistics.TryGetValue(clientId, out ClientStreamingStatistics? clientStats))
         {
             clientStats.AddBytesRead(count);
         }
@@ -35,26 +34,7 @@ public sealed class StatisticsManager(ILogger<StatisticsManager> logger) : IStat
     }
     public List<ClientStreamingStatistics> GetAllClientStatistics()
     {
-        List<ClientStreamingStatistics> statisticsList = [];
-
-        foreach (KeyValuePair<Guid, StreamingStatistics> entry in _clientStatistics)
-        {
-
-            IClientStreamerConfiguration? config = _clientConfigs[entry.Key];
-
-            if (config != null)
-            {
-                statisticsList.Add(new ClientStreamingStatistics(config)
-                {
-                    ClientId = entry.Key,
-                    BytesRead = entry.Value.BytesRead,
-                    StartTime = entry.Value.StartTime,
-                    ChannelName = entry.Value.ChannelName
-                });
-            }
-        }
-
-        return statisticsList;
+        return _clientStatistics.Values.ToList();
     }
 
     public List<Guid> GetAllClientIds()
@@ -82,7 +62,7 @@ public sealed class StatisticsManager(ILogger<StatisticsManager> logger) : IStat
 
     public void IncrementBytesRead(Guid clientId)
     {
-        if (_clientStatistics.TryGetValue(clientId, out StreamingStatistics? clientStats))
+        if (_clientStatistics.TryGetValue(clientId, out ClientStreamingStatistics? clientStats))
         {
             clientStats.IncrementBytesRead();
         }

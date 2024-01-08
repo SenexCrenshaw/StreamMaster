@@ -11,4 +11,5 @@ public interface IClientStreamerConfiguration
     string ClientUserAgent { get; set; }
     IClientReadStream? ReadBuffer { get; set; }
     CancellationTokenSource ClientMasterToken { get; set; }
+    string VideoStreamName { get; set; }
 }

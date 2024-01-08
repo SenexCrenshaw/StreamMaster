@@ -19,7 +19,7 @@ internal class GetProgrammeNamesDtoHandler(ILogger<GetProgrammeNamesDto> logger,
             //IEnumerable<ProgrammeNameDto> progs = programmes.GroupBy(a => a.Channel).Select(group => group.First()).Select(a => new ProgrammeNameDto
             //{
             //    Channel = a.Channel,
-            //    ChannelName = a.ChannelName,
+            //    VideoStreamName = a.VideoStreamName,
             //    DisplayName = a.DisplayName
             //});
 
@@ -28,7 +28,7 @@ internal class GetProgrammeNamesDtoHandler(ILogger<GetProgrammeNamesDto> logger,
             //ret.Insert(0, new ProgrammeNameDto
             //{
             //    Channel = "Dummy",
-            //    ChannelName = "Dummy",
+            //    VideoStreamName = "Dummy",
             //    DisplayName = "Dummy"
             //});
 

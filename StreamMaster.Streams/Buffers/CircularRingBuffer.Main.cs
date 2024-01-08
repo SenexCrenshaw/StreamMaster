@@ -26,7 +26,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
     private readonly IInputStatisticsManager _inputStatisticsManager;
     private readonly IInputStreamingStatistics _inputStreamStatistics;
     public readonly StreamInfo StreamInfo;
-    private Memory<byte> _buffer;
+    private readonly Memory<byte> _buffer;
     private readonly int _bufferSize;
     private readonly int _originalBufferSize;
     //private readonly ConcurrentDictionary<Guid, int> _clientReadIndexes = new();
@@ -48,7 +48,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
 
     private bool _disposed = false;
-    private bool HasBufferFlipped;
+    private readonly bool HasBufferFlipped;
     public string VideoStreamName => StreamInfo.VideoStreamName;
     public Guid Id { get; } = Guid.NewGuid();
     public int BufferSize => _buffer.Length;
@@ -63,7 +63,6 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         Setting setting = memoryCache.GetSetting();
         _statisticsManager = statisticsManager ?? throw new ArgumentNullException(nameof(statisticsManager));
         _inputStatisticsManager = inputStatisticsManager ?? throw new ArgumentNullException(nameof(inputStatisticsManager));
-        _inputStreamStatistics = _inputStatisticsManager.RegisterReader(videoStreamDto.Id);
 
         _logger = loggerFactory.CreateLogger<CircularRingBuffer>();
         _readLogger = loggerFactory.CreateLogger<ReadsLogger>();
@@ -98,10 +97,14 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
             Rank = rank
         };
 
+
+        _inputStreamStatistics = _inputStatisticsManager.RegisterInputReader(StreamInfo);
+
+
         _buffer = new byte[_bufferSize];
         _originalBufferSize = _bufferSize;
         _writeIndex = 0;
-        //_oldestDataIndex = 0;
+
         _bufferHealthLogger = new System.Threading.Timer(LogBufferHealth, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
         _logger.LogInformation("New Circular Buffer {Id} for stream {videoStreamId} {name}", Id, videoStreamDto.Id, videoStreamDto.User_Tvg_name);
     }

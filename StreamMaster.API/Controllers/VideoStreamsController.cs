@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Application.StreamGroups.Commands;
-using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Application.VideoStreams;
 using StreamMaster.Application.VideoStreams.Commands;
 using StreamMaster.Application.VideoStreams.Queries;
@@ -63,13 +62,6 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         return Ok();
     }
 
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<List<StreamStatisticsResult>>> GetAllStatisticsForAllUrls()
-    {
-        List<StreamStatisticsResult> data = await Mediator.Send(new GetAllStatisticsForAllUrls()).ConfigureAwait(false);
-        return Ok(data);
-    }
 
     [HttpGet]
     [Route("{id}")]

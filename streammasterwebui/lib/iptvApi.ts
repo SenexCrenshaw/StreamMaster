@@ -14,6 +14,7 @@ export const addTagTypes = [
   'Misc',
   'Queue',
   'Settings',
+  'Statistics',
   'StreamGroups',
   'VideoStreamLinks',
   'VideoStreams'
@@ -448,6 +449,14 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/settings/updatesetting`, method: 'PATCH', body: queryArg }),
         invalidatesTags: ['Settings']
       }),
+      statisticsGetClientStatistics: build.query<StatisticsGetClientStatisticsApiResponse, StatisticsGetClientStatisticsApiArg>({
+        query: () => ({ url: `/api/statistics/getclientstatistics` }),
+        providesTags: ['Statistics']
+      }),
+      statisticsGetInputStatistics: build.query<StatisticsGetInputStatisticsApiResponse, StatisticsGetInputStatisticsApiArg>({
+        query: () => ({ url: `/api/statistics/getinputstatistics` }),
+        providesTags: ['Statistics']
+      }),
       streamGroupsCreateStreamGroup: build.mutation<StreamGroupsCreateStreamGroupApiResponse, StreamGroupsCreateStreamGroupApiArg>({
         query: (queryArg) => ({ url: `/api/streamgroups/createstreamgroup`, method: 'POST', body: queryArg }),
         invalidatesTags: ['StreamGroups']
@@ -568,10 +577,6 @@ const injectedRtkApi = api
       videoStreamsFailClient: build.mutation<VideoStreamsFailClientApiResponse, VideoStreamsFailClientApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/failclient`, method: 'POST', body: queryArg }),
         invalidatesTags: ['VideoStreams']
-      }),
-      videoStreamsGetAllStatisticsForAllUrls: build.query<VideoStreamsGetAllStatisticsForAllUrlsApiResponse, VideoStreamsGetAllStatisticsForAllUrlsApiArg>({
-        query: () => ({ url: `/api/videostreams/getallstatisticsforallurls` }),
-        providesTags: ['VideoStreams']
       }),
       videoStreamsGetVideoStream: build.query<VideoStreamsGetVideoStreamApiResponse, VideoStreamsGetVideoStreamApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/${queryArg}` }),
@@ -954,6 +959,10 @@ export type SettingsLogInApiResponse = /** status 200  */ boolean;
 export type SettingsLogInApiArg = LogInRequest;
 export type SettingsUpdateSettingApiResponse = unknown;
 export type SettingsUpdateSettingApiArg = UpdateSettingRequest;
+export type StatisticsGetClientStatisticsApiResponse = /** status 200  */ ClientStreamingStatistics[];
+export type StatisticsGetClientStatisticsApiArg = void;
+export type StatisticsGetInputStatisticsApiResponse = /** status 200  */ InputStreamingStatistics[];
+export type StatisticsGetInputStatisticsApiArg = void;
 export type StreamGroupsCreateStreamGroupApiResponse = unknown;
 export type StreamGroupsCreateStreamGroupApiArg = CreateStreamGroupRequest;
 export type StreamGroupsDeleteStreamGroupApiResponse = unknown;
@@ -1010,8 +1019,6 @@ export type VideoStreamsDeleteVideoStreamApiResponse = unknown;
 export type VideoStreamsDeleteVideoStreamApiArg = DeleteVideoStreamRequest;
 export type VideoStreamsFailClientApiResponse = unknown;
 export type VideoStreamsFailClientApiArg = FailClientRequest;
-export type VideoStreamsGetAllStatisticsForAllUrlsApiResponse = /** status 200  */ StreamStatisticsResult[];
-export type VideoStreamsGetAllStatisticsForAllUrlsApiArg = void;
 export type VideoStreamsGetVideoStreamApiResponse = /** status 200  */ VideoStreamDto;
 export type VideoStreamsGetVideoStreamApiArg = string;
 export type VideoStreamsGetVideoStreamNamesApiResponse = /** status 200  */ IdName[];
@@ -1313,7 +1320,7 @@ export type XmltvProgramme = {
   countries?: XmltvText[];
   sport?: XmltvText | null;
   teams?: XmltvText[] | null;
-  episodeNums?: XmltvEpisodeNum[];
+  episodeNums?: XmltvEpisodeNum[] | null;
   video?: XmltvVideo | null;
   audio?: XmltvAudio | null;
   previouslyShown?: XmltvPreviouslyShown | null;
@@ -1831,6 +1838,31 @@ export type UpdateSettingRequest = {
   videoStreamAlwaysUseEPGLogo?: boolean | null;
   nameRegex?: string[] | null;
 };
+export type ClientStreamingStatistics = {
+  readBitsPerSecond?: number;
+  bytesRead?: number;
+  channelName?: string;
+  videoStreamName?: string;
+  clientId?: string;
+  clientAgent?: string;
+  clientIPAddress?: string;
+  elapsedTime?: string;
+  startTime?: string;
+};
+export type InputStreamingStatistics = {
+  bitsPerSecond?: number;
+  rank?: number;
+  streamUrl?: string | null;
+  bytesRead?: number;
+  bytesWritten?: number;
+  elapsedTime?: string;
+  startTime?: string;
+  id?: string;
+  channelName?: string;
+  channelId?: string;
+  logo?: string | null;
+  clients?: number;
+};
 export type CreateStreamGroupRequest = {
   name: string;
 };
@@ -1882,31 +1914,6 @@ export type DeleteVideoStreamRequest = {
 };
 export type FailClientRequest = {
   clientId: string;
-};
-export type StreamStatisticsResult = {
-  id?: string;
-  circularBufferId?: string;
-  clientAgent?: string;
-  clientBitsPerSecond?: number;
-  clientBytesRead?: number;
-  clientBytesWritten?: number;
-  clientElapsedTime?: string;
-  clientId?: string;
-  clientStartTime?: string;
-  inputBitsPerSecond?: number;
-  inputBytesRead?: number;
-  inputBytesWritten?: number;
-  inputElapsedTime?: string;
-  inputStartTime?: string;
-  logo?: string | null;
-  m3UStreamingProxyType?: StreamingProxyTypes;
-  rank?: number;
-  streamUrl?: string | null;
-  videoStreamId?: string;
-  channelName?: string;
-  videoStreamName?: string;
-  clientIPAddress?: string;
-  channelId?: string;
 };
 export type IdName = {
   id: string;
@@ -2114,6 +2121,8 @@ export const {
   useSettingsGetSystemStatusQuery,
   useSettingsLogInQuery,
   useSettingsUpdateSettingMutation,
+  useStatisticsGetClientStatisticsQuery,
+  useStatisticsGetInputStatisticsQuery,
   useStreamGroupsCreateStreamGroupMutation,
   useStreamGroupsDeleteStreamGroupMutation,
   useStreamGroupsGetStreamGroupQuery,
@@ -2136,7 +2145,6 @@ export const {
   useVideoStreamsChangeVideoStreamChannelMutation,
   useVideoStreamsDeleteVideoStreamMutation,
   useVideoStreamsFailClientMutation,
-  useVideoStreamsGetAllStatisticsForAllUrlsQuery,
   useVideoStreamsGetVideoStreamQuery,
   useVideoStreamsGetVideoStreamNamesQuery,
   useVideoStreamsGetPagedVideoStreamsQuery,

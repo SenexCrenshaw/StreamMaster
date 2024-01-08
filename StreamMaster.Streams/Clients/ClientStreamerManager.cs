@@ -57,6 +57,7 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         {
             logger.LogDebug("Adding client {ClientId} {ReaderID} to {Circular Buffer ID} ", clientId, streamerConfiguration.ReadBuffer?.Id ?? Guid.NewGuid(), streamHandler.CircularRingBuffer.Id);
             streamHandler.RegisterClientStreamer(streamerConfiguration);
+            streamerConfiguration.VideoStreamName = streamHandler.VideoStreamName;
             await SetClientBufferDelegate(streamerConfiguration, streamHandler.CircularRingBuffer);
         }
         else
@@ -128,7 +129,6 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
 
         await clientStreamerConfiguration.ReadBuffer.SetBufferDelegate(() => RingBuffer, clientStreamerConfiguration);
     }
-
 
     public async Task<bool> CancelClient(Guid clientId, bool includeAbort)
     {

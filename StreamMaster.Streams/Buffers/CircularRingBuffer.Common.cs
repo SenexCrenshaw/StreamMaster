@@ -19,7 +19,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
     //    //        Id = Guid.NewGuid().ToString(),
     //    //        CircularBufferId = Id.ToString(),
     //    //        ChannelId = StreamInfo.ChannelId,
-    //    //        ChannelName = StreamInfo.ChannelName,
+    //    //        VideoStreamName = StreamInfo.VideoStreamName,
     //    //        VideoStreamId = StreamInfo.VideoStreamId,
     //    //        VideoStreamName = StreamInfo.VideoStreamName,
     //    //        M3UStreamingProxyType = StreamInfo.StreamingProxyType,

@@ -331,8 +331,9 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
     {
         try
         {
+
             _ = clientStreamerIds.TryAdd(streamerConfiguration.ClientId, streamerConfiguration.ClientId);
-            //CircularRingBuffer.RegisterClient(streamerConfiguration);
+            CircularRingBuffer.IncrementClient();
 
             logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId} {name} {RingBuffer.Id}", streamerConfiguration.ClientId, VideoStreamId, VideoStreamName, CircularRingBuffer.Id);
         }
@@ -350,6 +351,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             logger.LogInformation("UnRegisterClientStreamer ClientId: {ClientId} {name} {RingBuffer.Id}", ClientId, VideoStreamName, CircularRingBuffer.Id);
             bool result = clientStreamerIds.TryRemove(ClientId, out _);
             //CircularRingBuffer.UnRegisterClient(ClientId);
+            CircularRingBuffer.DecrementClient();
 
             return result;
         }

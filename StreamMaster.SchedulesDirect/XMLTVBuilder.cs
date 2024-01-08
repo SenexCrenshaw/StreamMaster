@@ -216,7 +216,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
             DoPrograms(services, programs.Count, xmlTv);
 
             xmlTv.Channels = [.. xmlTv.Channels.OrderBy(a => a.Id)];
-            xmlTv.Programs = [.. xmlTv.Programs.OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime)];
+            xmlTv.Programs = [.. xmlTv.Programs.Where(a => a is not null).OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime)];
 
 
             return xmlTv;

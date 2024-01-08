@@ -2,7 +2,8 @@
 {
     public interface IInputStatisticsManager
     {
-        IInputStreamingStatistics RegisterReader(string videoStreamId);
-        public IInputStreamingStatistics GetInputStreamStatistics(string videoStreamId);
+        List<InputStreamingStatistics> GetAllInputStreamStatistics();
+        IInputStreamingStatistics RegisterInputReader(StreamInfo StreamInfo);
+        public IInputStreamingStatistics? GetInputStreamStatistics(string videoStreamId);
     }
 }

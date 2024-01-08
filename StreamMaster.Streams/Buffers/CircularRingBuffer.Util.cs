@@ -24,6 +24,16 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         _waitLogger.LogDebug(System.Text.Json.JsonSerializer.Serialize(logData));
     }
 
+    public void IncrementClient()
+    {
+        _inputStreamStatistics.IncrementClient();
+    }
+
+    public void DecrementClient()
+    {
+        _inputStreamStatistics.DecrementClient();
+    }
+
     private void LogCalculateDistance(Guid correlationId, int readIndex, int distance, string message)
     {
         var logData = new

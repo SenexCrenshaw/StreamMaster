@@ -6,7 +6,6 @@ using StreamMaster.Application.Hubs;
 using StreamMaster.Domain.Services;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.Streams.Domain.Interfaces;
-using StreamMaster.Streams.Domain.Models;
 
 using System.Diagnostics;
 
@@ -96,17 +95,17 @@ public class BroadcastService : IBroadcastService, IDisposable
         try
         {
             //LogDebug();
-            List<StreamStatisticsResult> statisticsResults = streamStatisticService.GetAllStatisticsForAllUrls().Result;
+            List<Streams.Domain.Models.ClientStreamingStatistics> statisticsResults = streamStatisticService.GetClientStatistics().Result;
             if (statisticsResults.Any())
             {
-                _ = hub.Clients.All.StreamStatisticsResultsUpdate(statisticsResults).ConfigureAwait(false);
+                _ = hub.Clients.All.ClientStreamingStatisticsUpdate(statisticsResults).ConfigureAwait(false);
 
             }
             else
             {
                 //if (!sentEmpty)
                 //{
-                _ = hub.Clients.All.StreamStatisticsResultsUpdate(statisticsResults).ConfigureAwait(false);
+                _ = hub.Clients.All.ClientStreamingStatisticsUpdate(statisticsResults).ConfigureAwait(false);
                 //}
                 //sentEmpty = true;
             }
