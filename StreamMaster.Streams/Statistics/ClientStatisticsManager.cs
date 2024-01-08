@@ -42,24 +42,6 @@ public sealed class ClientStatisticsManager(ILogger<ClientStatisticsManager> log
         return [.. _clientStatistics.Keys];
     }
 
-    //public List<ClientStreamingStatistics> GetAllClientStatisticsByClientIds(ICollection<Guid> ClientIds)
-    //{
-    //    List<ClientStreamingStatistics> statisticsList = [];
-
-    //    foreach (KeyValuePair<Guid, StreamingStatistics> entry in _clientStatistics.Where(a => ClientIds.Contains(a.Key)))
-    //    {
-
-    //        //statisticsList.Add(new ClientStreamingStatistics(entry.Value.ClientAgent, entry.Value.ClientIPAddress)
-    //        //{
-    //        //    ClientId = entry.Key,
-    //        //    BytesRead = entry.Value.BytesRead,
-    //        //    StartTime = entry.Value.StartTime,
-    //        //});
-    //    }
-
-    //    return statisticsList;
-    //}
-
     public void IncrementBytesRead(Guid clientId)
     {
         if (_clientStatistics.TryGetValue(clientId, out ClientStreamingStatistics? clientStats))

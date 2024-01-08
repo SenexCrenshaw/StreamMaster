@@ -12,8 +12,6 @@ public interface ICircularRingBuffer : IDisposable
     public string VideoStreamName { get; }
     CancellationTokenSource StopVideoStreamingToken { get; set; }
 
-    //List<StreamStatisticsResult> GetAllStatisticsForAllUrls();
-
     Task<int> ReadChunkMemory(long index, Memory<byte> target, CancellationToken cancellationToken);
 
     Task<int> WriteChunk(Memory<byte> data, CancellationToken cancellationToken);
