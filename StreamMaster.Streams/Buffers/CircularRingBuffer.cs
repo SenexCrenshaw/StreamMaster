@@ -27,29 +27,19 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
         while (!linkedToken.IsCancellationRequested && bytesRead < target.Length)
         {
-            int availableBytes = GetAvailableBytes(ClientId, correlationId);
+            int availableBytes = Math.Min(GetAvailableBytes(ClientId, correlationId), target.Length - bytesRead);
             while (availableBytes == 0)
             {
                 await _writeSignal.Task; // Wait for signal from writer
-                availableBytes = GetAvailableBytes(ClientId, correlationId);
+                availableBytes = Math.Min(GetAvailableBytes(ClientId, correlationId), target.Length - bytesRead);
             }
-
-            //Available bytes in the buffer or what is needed to fill the target
-            availableBytes = Math.Min(GetAvailableBytes(ClientId, correlationId), target.Length - bytesRead);
 
             int clientReadIndex = _clientReadIndexes[ClientId];
 
-            if (clientReadIndex + availableBytes > bufferLength)
-            {
-                _logger.LogError($"ReadChunkMemory {clientReadIndex} {availableBytes} {bufferLength} overrun");
-                clientReadIndex = GetOldestReadIndex();
-                availableBytes = GetAvailableBytes(ClientId, correlationId);
-            }
             // Calculate the number of bytes to read before wrap-around
             int bytesToRead = Math.Min(bufferLength - clientReadIndex, availableBytes); ;
 
             // Copy data to the target buffer
-
             Memory<byte> bufferSlice = _buffer.Slice(clientReadIndex, bytesToRead);
             bufferSlice.CopyTo(target[bytesRead..]);
             bytesRead += bytesToRead;
@@ -61,7 +51,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         metrics.RecordBytesProcessed(bytesRead);
         _statisticsManager.AddBytesRead(ClientId, bytesRead);
 
-        if (_clientReadIndexes.ContainsKey(ClientId))
+        if (_clientReadIndexes.TryGetValue(ClientId, out int value))
         {
             // Enhanced structured logging
             var logData = new
@@ -70,7 +60,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                 CorrelationId = correlationId,
                 ClientId,
                 VideoStreamName,
-                ClientReadIndex = _clientReadIndexes[ClientId],
+                ClientReadIndex = value,
                 BytesRead = bytesRead,
                 ReadDurationMs = stopwatch.ElapsedMilliseconds,
                 BufferOccupancy = CalculateBufferOccupancy(),
@@ -84,12 +74,14 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         return bytesRead;
     }
 
+
     public async Task<int> WriteChunk(Memory<byte> data, CancellationToken cancellationToken)
     {
         Guid correlationId = Guid.NewGuid();
         Stopwatch stopwatch = Stopwatch.StartNew();
         int bytesWritten = 0;
         int bytesToWrite = data.Length;
+
         try
         {
 
@@ -97,6 +89,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
             {
                 int elapsedTime = 0;
                 int waitTime = CalculateThrottleWaitTime(correlationId);
+
                 while (elapsedTime < waitTime && !cancellationToken.IsCancellationRequested)
                 {
                     // Use a shorter wait interval (e.g., 10ms) for each iteration
@@ -104,9 +97,6 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                     await Task.Delay(delayTime, cancellationToken);
                     elapsedTime += delayTime;
 
-                    // Check if the wait conditions have changed, potentially breaking the loop earlier
-                    // This could involve checking buffer occupancy, reader status, etc.
-                    // Example: if (conditionToResumeWriting()) break;
                     SignalReaders();
                     // Update waitTime if needed, based on changing conditions
                     waitTime = CalculateThrottleWaitTime(correlationId);
@@ -127,10 +117,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                 }
 
                 int lengthToWrite = Math.Min(data.Length, availableSpace);
-                if (lengthToWrite == 0)
-                {
-                    int aa = 1;
-                }
+
                 CheckAndReportClientOverwrites(lengthToWrite, correlationId);
 
                 Memory<byte> bufferSlice = _buffer.Slice(_writeIndex, lengthToWrite);

@@ -218,59 +218,54 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         using (stream)
         {
             Stopwatch timeBetweenWrites = Stopwatch.StartNew(); // Initialize the stopwatch
-
+            int bytesRead = bufferMemory.Length;
             while (!linkedToken.IsCancellationRequested)// && retryCount < maxRetries)
             {
                 try
                 {
-                    int bytesRead = await stream.ReadAsync(bufferMemory);
-                    if (bytesRead < 1)
+
+                    await stream.ReadExactlyAsync(bufferMemory, linkedToken.Token);
+                    await CircularRingBuffer.WriteChunk(bufferMemory, VideoStreamingCancellationToken.Token).ConfigureAwait(false);
+
+                    timeBetweenWrites.Reset();
+
+                    if (!startMemoryFilled)
                     {
-                        break;
-                    }
-                    else
-                    {
-                        if (!startMemoryFilled)
+                        if (startMemoryIndex < 1024 * 1024)
                         {
-                            if (startMemoryIndex < 1024 * 1024)
-                            {
-                                // Calculate the maximum number of bytes that can be copied
-                                int bytesToCopy = Math.Min(videoMemory.Length - startMemoryIndex, bytesRead);
+                            // Calculate the maximum number of bytes that can be copied
+                            int bytesToCopy = Math.Min(videoMemory.Length - startMemoryIndex, bytesRead);
 
-                                // Directly copy the data from bufferMemory to startMemory
-                                bufferMemory[..bytesToCopy].CopyTo(videoMemory[startMemoryIndex..]);
+                            // Directly copy the data from bufferMemory to startMemory
+                            bufferMemory[..bytesToCopy].CopyTo(videoMemory[startMemoryIndex..]);
 
-                                // Update startMemoryIndex
-                                startMemoryIndex += bytesToCopy;
-                            }
-                            else
-                            {
-                                startMemoryFilled = true;
-
-                            }
+                            // Update startMemoryIndex
+                            startMemoryIndex += bytesToCopy;
                         }
                         else
                         {
-                            if (GetVideoInfoErrors < 4 && _videoInfo == null && !runningGetVideo)
-                            {
-                                _ = BuildVideoInfo(videoMemory);//Run in background
-                            }
+                            startMemoryFilled = true;
+
                         }
-
-                        if (timeBetweenWrites.ElapsedMilliseconds is > 30000 and < 60000000000000)
-                        {
-
-                            logger.LogWarning($"Input stream is slow: {VideoStreamName} {timeBetweenWrites.ElapsedMilliseconds}ms elapsed since last set.");
-
-                            break;
-                        }
-
                         startMemoryIndex += bytesRead;
-                        await CircularRingBuffer.WriteChunk(bufferMemory[..bytesRead], VideoStreamingCancellationToken.Token).ConfigureAwait(false);
-
-                        timeBetweenWrites.Reset();
-
                     }
+                    else
+                    {
+                        if (GetVideoInfoErrors < 4 && _videoInfo == null && !runningGetVideo)
+                        {
+                            _ = BuildVideoInfo(videoMemory);//Run in background
+                        }
+                    }
+
+                    if (timeBetweenWrites.ElapsedMilliseconds is > 30000 and < 60000000000000)
+                    {
+
+                        logger.LogWarning($"Input stream is slow: {VideoStreamName} {timeBetweenWrites.ElapsedMilliseconds}ms elapsed since last set.");
+
+                        break;
+                    }
+
+
                 }
                 catch (TaskCanceledException)
                 {
