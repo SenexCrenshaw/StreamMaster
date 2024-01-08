@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace StreamMaster.Application.M3UFiles.Commands;
 
-public record ProcessM3UFileRequest(int Id, bool? OverWriteChannels = null) : IRequest<M3UFile?> { }
+public record ProcessM3UFileRequest(int Id, bool? OverWriteChannels = null, bool forceRun = false) : IRequest<M3UFile?> { }
 
 public class ProcessM3UFileRequestValidator : AbstractValidator<ProcessM3UFileRequest>
 {
@@ -45,7 +45,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
                 return null;
             }
 
-            if (!ShouldUpdate(m3uFile, m3uFile.VODTags, request.OverWriteChannels))
+            if (!request.forceRun && !ShouldUpdate(m3uFile, m3uFile.VODTags, request.OverWriteChannels))
             {
                 return m3uFile;
             }
