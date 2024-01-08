@@ -80,7 +80,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
             streams = RemoveDuplicates(streams);
         }
 
-        Logger.LogInformation($"Processing M3U streams took {sw.Elapsed.TotalSeconds} seconds");
+        Logger.LogInformation($"Processing M3U {streamsCount}, streams took {sw.Elapsed.TotalSeconds} seconds");
         return (streams, streamsCount);
     }
 
@@ -285,6 +285,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
             foreach (string regex in setting.NameRegex)
             {
                 List<VideoStream> toIgnore = ListHelper.GetMatchingProperty(streams, "Tvg_name", regex);
+                Logger.LogInformation($"Ignoring {toIgnore.Count} streams with regex {regex}");
                 _ = streams.RemoveAll(toIgnore.Contains);
             }
         }
@@ -298,11 +299,13 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         return ids.Count;
     }
 
-    private static List<VideoStream> RemoveDuplicates(List<VideoStream> streams)
+    private List<VideoStream> RemoveDuplicates(List<VideoStream> streams)
     {
         List<VideoStream> cleanStreams = streams.GroupBy(s => s.Id)
                   .Select(g => g.First())
                   .ToList();
+
+        logger.LogInformation($"Removed {streams.Count - cleanStreams.Count} duplicate streams");
 
         return cleanStreams;
     }

@@ -78,9 +78,12 @@ public static partial class IPTVExtensions
 
             if (videoStream != null)
             {
-                if (vodExclusion.Count != 0 && CheckExcluded(videoStream.Url))
+                if (vodExclusion.Count > 0)
                 {
-                    return;
+                    if (CheckExcluded(videoStream.Url))
+                    {
+                        return;
+                    }
                 }
 
                 UpdateVideoStreamProperties(videoStream, Id, Name);
@@ -127,96 +130,6 @@ public static partial class IPTVExtensions
         }
 
     }
-
-    [LogExecutionTimeAspect]
-    public static async Task<List<VideoStream>?> ConvertToVideoStreamAsync2(Stream dataStream, int Id, string Name, ILogger logger, CancellationToken cancellationToken)
-    {
-
-        BlockingCollection<KeyValuePair<int, VideoStream>> blockingCollection = new(new ConcurrentQueue<KeyValuePair<int, VideoStream>>());
-        int segmentNumber = 0;
-        int processedCount = 0;
-        object lockObj = new();
-        StringBuilder segmentBuilder = new();
-
-        using StreamReader reader = new(dataStream);
-        string body = await reader.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
-
-        if (!IsValidM3UFile(body))
-        {
-            logger.LogWarning("Invalid M3U file, an extended M3U file is required.");
-            return null;
-        }
-
-        List<string> lines = body.Split("\n", StringSplitOptions.RemoveEmptyEntries).ToList();
-        lines.RemoveAt(0);
-        try
-        {
-
-            foreach (string line in lines)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-
-                if (string.IsNullOrWhiteSpace(line))
-                {
-                    continue;
-                }
-
-                if (line.StartsWith("#EXTINF"))
-                {
-                    if (segmentBuilder.Length > 0)
-                    {
-                        ProcessSegment(segmentNumber++, segmentBuilder.ToString());
-                        segmentBuilder.Clear();
-                    }
-                }
-                else
-                {
-                    if (segmentBuilder.Length == 0)
-                    {
-                        continue;
-                    }
-                }
-
-                segmentBuilder.AppendLine(line);
-            }
-
-            // Process the last segment
-            if (segmentBuilder.Length > 0)
-            {
-                ProcessSegment(segmentNumber, segmentBuilder.ToString());
-            }
-        }
-        finally
-        {
-            blockingCollection.CompleteAdding();
-        }
-
-        List<VideoStream> results = blockingCollection.OrderBy(kvp => kvp.Key).Select(kvp => kvp.Value).ToList();
-        logger.LogInformation($"Imported {processedCount} streams.");
-        return results;
-        void ProcessSegment(int segmentNum, string segment)
-        {
-            VideoStream? videoStream = segment.StringToVideoStream();
-
-            if (videoStream != null)
-            {
-                UpdateVideoStreamProperties(videoStream, Id, Name);
-                blockingCollection.Add(new KeyValuePair<int, VideoStream>(segmentNum, videoStream));
-
-                lock (lockObj)
-                {
-                    processedCount++;
-                    if (processedCount % 5000 == 0)
-                    {
-                        logger.LogInformation($"Importing {processedCount} streams.");
-                    }
-                }
-            }
-        }
-    }
-
-
 
     private static void UpdateVideoStreamProperties(VideoStream videoStream, int m3uFileId, string m3uFileName)
     {
