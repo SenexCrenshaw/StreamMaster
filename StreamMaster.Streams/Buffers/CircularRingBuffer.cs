@@ -82,25 +82,16 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         return bytesRead;
     }
 
-    public async Task<int> WriteChunk(Memory<byte> data, CancellationToken cancellationToken)
+    public int WriteChunk(Memory<byte> data)
     {
-        Guid correlationId = Guid.NewGuid();
         Stopwatch stopwatch = Stopwatch.StartNew();
         int _bytesWritten = 0;
-        int bytesToWrite = data.Length;
 
         try
         {
 
             while (data.Length > 0)
             {
-
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    _writeLogger.LogDebug("WriteChunkAsync was cancelled during wait.");
-                    return _bytesWritten;
-                }
-
                 int availableSpace = _buffer.Length - _writeIndex;
                 if (availableSpace <= 0)
                 {

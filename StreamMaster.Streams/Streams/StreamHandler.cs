@@ -225,7 +225,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                 {
 
                     await stream.ReadExactlyAsync(bufferMemory, linkedToken.Token);
-                    await CircularRingBuffer.WriteChunk(bufferMemory, VideoStreamingCancellationToken.Token).ConfigureAwait(false);
+                    CircularRingBuffer.WriteChunk(bufferMemory);
 
                     timeBetweenWrites.Reset();
 
