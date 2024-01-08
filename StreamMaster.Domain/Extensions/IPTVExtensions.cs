@@ -78,9 +78,12 @@ public static partial class IPTVExtensions
 
             if (videoStream != null)
             {
-                if (vodExclusion.Count != 0 && CheckExcluded(videoStream.Url))
+                if (vodExclusion.Count > 0)
                 {
-                    return;
+                    if (CheckExcluded(videoStream.Url))
+                    {
+                        return;
+                    }
                 }
 
                 UpdateVideoStreamProperties(videoStream, Id, Name);
