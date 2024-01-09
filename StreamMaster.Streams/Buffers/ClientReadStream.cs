@@ -33,6 +33,12 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
         logger.LogInformation("Starting client read stream for ClientId: {ClientId} at index {_lastReadIndex} ", ClientId, _lastReadIndex);
     }
 
+    public void SetLastIndex(long index)
+    {
+        logger.LogInformation("Setting last index for ClientId: {ClientId} to {index} was {_lastReadIndex}", ClientId, index, _lastReadIndex);
+        _lastReadIndex = index;
+    }
+
     private readonly ConcurrentDictionary<Guid, SemaphoreSlim> _bufferSwitchSemaphores = new();
 
     private CancellationTokenSource _readCancel = new();

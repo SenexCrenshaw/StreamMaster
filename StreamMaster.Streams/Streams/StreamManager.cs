@@ -98,14 +98,36 @@ public sealed class StreamManager(
         return streamHandler;
     }
 
-    private void StreamHandler_OnStreamingStoppedEvent(object? sender, string VideoStreamUrl)
+    private async void StreamHandler_OnStreamingStoppedEvent(object? sender, StreamHandlerStopped StoppedEvent)
     {
         if (sender is IStreamHandler streamHandler)
         {
             if (streamHandler is not null)
             {
-                OnStreamingStoppedEvent?.Invoke(sender, streamHandler);
-                //_ = StopAndUnRegisterHandler(VideoStreamUrl);
+                if (StoppedEvent.InputStreamError)
+                {
+                    if (await streamHandlerFactory.RestartStreamHandlerAsync(streamHandler).ConfigureAwait(false) == null)
+                    {
+                        OnStreamingStoppedEvent?.Invoke(sender, streamHandler);
+                    }
+                    else
+                    {
+                        //streamHandler.RestartCount = 0;
+                        foreach (Guid clientId in streamHandler.GetClientStreamerClientIds())
+                        {
+                            IClientStreamerConfiguration? clientStreamerConfiguration = await clientStreamerManager.GetClientStreamerConfiguration(clientId);
+                            if (clientStreamerConfiguration != null && clientStreamerConfiguration.ReadBuffer != null)
+                            {
+                                long last = streamHandler.CircularRingBuffer.GetNextReadIndex();
+                                clientStreamerConfiguration.ReadBuffer.SetLastIndex(last);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    OnStreamingStoppedEvent?.Invoke(sender, streamHandler);
+                }
             }
         }
     }
@@ -120,7 +142,6 @@ public sealed class StreamManager(
     {
         return _streamHandlers.Values.FirstOrDefault(x => x.StreamUrl == streamUrl);
     }
-
     public int GetStreamsCountForM3UFile(int m3uFileId)
     {
         return _streamHandlers.Count(x => x.Value.M3UFileId == m3uFileId);

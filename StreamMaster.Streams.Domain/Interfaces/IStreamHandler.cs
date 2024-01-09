@@ -2,11 +2,14 @@
 
 public interface IStreamHandler : IDisposable
 {
+    Task StartVideoStreamingAsync(Stream stream);
+    int ProcessId { get; set; }
+    VideoStreamDto VideoStreamDto { get; }
     bool IsFailed { get; }
     VideoInfo GetVideoInfo();
     string VideoStreamName { get; }
 
-    event EventHandler<string> OnStreamingStoppedEvent;
+    event EventHandler<StreamHandlerStopped> OnStreamingStoppedEvent;
 
     /// <summary>
     /// true if there is an existing client registered; otherwise, false.
@@ -35,6 +38,7 @@ public interface IStreamHandler : IDisposable
     ///// Gets the current number of clients connected.
     ///// </summary>
     int ClientCount { get; }
+    int RestartCount { get; set; }
 
     /// <summary>
     /// Registers a client streamer with the given configuration.

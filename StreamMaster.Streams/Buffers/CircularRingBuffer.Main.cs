@@ -103,6 +103,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         _writeIndex = 0;
 
         _logger.LogInformation("New Circular Buffer {Id} for stream {videoStreamId} {name}", Id, videoStreamDto.Id, videoStreamDto.User_Tvg_name);
+        PauseReaders(false);
     }
 
 

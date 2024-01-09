@@ -65,7 +65,9 @@ public sealed class ChannelManager : IChannelManager
                         continue;
                     }
 
-                    if (streamHandler.ClientCount == 0 || !await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId))
+                    bool didSwitch = await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
+
+                    if (streamHandler.ClientCount == 0 || !didSwitch)
                     {
                         clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(channelStatus.ChannelVideoStreamId)
                             .ForEach(async x =>
