@@ -21,12 +21,16 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
         ClientId = config.ClientId;
         _clientMasterToken = config.ClientMasterToken;
         _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
-        _lastReadIndex = bufferDelegate().GetNextReadIndex();
+
         this._statisticsManager = _statisticsManager;
+
+        _lastReadIndex = bufferDelegate().GetNextReadIndex();
+
         //if (_lastReadIndex > StreamHandler.ChunkSize)
         //{
         //    _lastReadIndex -= StreamHandler.ChunkSize;
         //}
+
         _statisticsManager.RegisterClient(config);
         logger.LogInformation("Starting client read stream for ClientId: {ClientId} at index {_lastReadIndex} ", ClientId, _lastReadIndex);
     }
@@ -85,14 +89,17 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
 
             await semaphore.WaitAsync(cancellationToken);
             bytesRead = await Buffer.ReadChunkMemory(_lastReadIndex, buffer, linkedCts.Token);
-            accumulatedBytesRead += bytesRead;
-            metrics.RecordBytesProcessed(bytesRead);
+            if (bytesRead != 0)
+            {
+                accumulatedBytesRead += bytesRead;
+                metrics.RecordBytesProcessed(bytesRead);
+            }
         }
         catch (TaskCanceledException ex)
         {
             logger.LogInformation(ex, "ReadAsync cancelled ended for ClientId: {ClientId}", ClientId);
-            logger.LogInformation(ex, "ReadAsync {_readCancel.Token}", _readCancel.Token.IsCancellationRequested);
-            logger.LogInformation(ex, "ReadAsync {cancellationToken}", cancellationToken.IsCancellationRequested);
+            logger.LogInformation("ReadAsync {_readCancel.Token}", _readCancel.Token.IsCancellationRequested);
+            logger.LogInformation("ReadAsync {cancellationToken}", cancellationToken.IsCancellationRequested);
             bytesRead = 1;
         }
         finally
@@ -111,7 +118,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
             if (bytesRead == 0)
             {
                 logger.LogDebug("Read 0 bytes for ClientId: {ClientId}", ClientId);
-                bytesRead = 1;
+                // bytesRead = 1;
             }
 
             if (semaphore.CurrentCount == 0)

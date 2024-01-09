@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Extensions;
-
 using System.Diagnostics;
 
 namespace StreamMaster.Infrastructure.VideoStreamManager.Buffers;
@@ -106,14 +104,14 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                     break;
 
                 }
-                await _pauseSignal.WaitWithTimeoutAsync("PauseSignal", 10000, linkedToken);
+                await _pauseSignal.Task;// .WaitWithTimeoutAsync("PauseSignal", 10000, linkedToken);
 
 
                 availableBytes = GetAvailableBytes(readIndex, correlationId);
 
                 while (availableBytes == 0)
                 {
-                    await _writeSignal.WaitWithTimeoutAsync("WriteSignal", 10000, linkedToken);
+                    await _writeSignal.Task;//.WaitWithTimeoutAsync("WriteSignal", 30000, linkedToken);
                     if (_writeSignal.Task.IsCanceled)
                     {
                         _readLogger.LogDebug("ReadChunkMemory _writeSignal.Task.IsCanceled");
@@ -156,11 +154,18 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         }
         catch (TaskCanceledException ex)
         {
-            logger.LogInformation(ex, "ReadChunkMemory cancelled");
-            logger.LogInformation(ex, "ReadChunkMemory {timeOutToken.Token}", timeOutToken.Token.IsCancellationRequested);
-            logger.LogInformation(ex, "ReadChunkMemory {cancellationToken}", cancellationToken.IsCancellationRequested);
-            logger.LogInformation(ex, "ReadChunkMemory {StopVideoStreamingToken}", StopVideoStreamingToken.IsCancellationRequested);
-            bytesRead = -1;
+            _readLogger.LogDebug(ex, "ReadChunkMemory cancelled");
+            _readLogger.LogDebug("ReadChunkMemory {timeOutToken.Token}", timeOutToken.Token.IsCancellationRequested);
+            _readLogger.LogDebug("ReadChunkMemory {cancellationToken}", cancellationToken.IsCancellationRequested);
+            _readLogger.LogDebug("ReadChunkMemory {StopVideoStreamingToken}", StopVideoStreamingToken.IsCancellationRequested);
+            //bytesRead = -1;
+        }
+        catch (TimeoutException ex)
+        {
+            _readLogger.LogDebug(ex, "ReadChunkMemory timeout");
+            _readLogger.LogDebug("ReadChunkMemory {timeOutToken.Token}", timeOutToken.Token.IsCancellationRequested);
+            _readLogger.LogDebug("ReadChunkMemory {cancellationToken}", cancellationToken.IsCancellationRequested);
+            _readLogger.LogDebug("ReadChunkMemory {StopVideoStreamingToken}", StopVideoStreamingToken.IsCancellationRequested);
         }
         catch (ArgumentOutOfRangeException ex)
         {
@@ -168,6 +173,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
             int a = clientReadIndex;
             int b = bytesToRead;
             int c = availableBytes;
+            _readLogger.LogDebug(ex, "ReadChunkMemory arg exception _buffer.Length: {l} clientReadIndex: {a} bytesToRead: {b} availableBytes: {c}", l, a, b, c);
         }
         finally
         {
@@ -179,11 +185,12 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         if (bytesRead < 1000)
         {
             logger.LogInformation("ReadChunkMemory bytesRead");
+            bytesRead = 1;
         }
         return bytesRead;
     }
 
-    private bool IsPaused()
+    public bool IsPaused()
     {
         return !_pauseSignal.Task.IsCompleted;
     }

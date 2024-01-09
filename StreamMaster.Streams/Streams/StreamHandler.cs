@@ -201,6 +201,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
     private readonly Memory<byte> videoMemory = new byte[1 * 1024 * 1024];
     private bool startMemoryFilled = false;
     private bool testRan = false;
+
     public async Task StartVideoStreamingAsync(Stream stream)
     {
 
@@ -230,21 +231,21 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             linkedToken = CancellationTokenSource.CreateLinkedTokenSource(stopVideoStreamingToken.Token, VideoStreamingCancellationToken.Token);
         }
 
-        foreach (Guid clientId in GetClientStreamerClientIds())
-        {
-            IClientStreamerConfiguration? clientStreamerConfiguration = await clientStreamerManager.GetClientStreamerConfiguration(clientId);
-            if (clientStreamerConfiguration != null && clientStreamerConfiguration.ReadBuffer != null)
-            {
-                long _lastReadIndex = CircularRingBuffer.GetNextReadIndex();
-                if (_lastReadIndex > StreamHandler.ChunkSize)
-                {
-                    _lastReadIndex -= StreamHandler.ChunkSize;
-                }
-                clientStreamerConfiguration.ReadBuffer.SetLastIndex(_lastReadIndex);
-            }
-        }
+        //foreach (Guid clientId in GetClientStreamerClientIds())
+        //{
+        //    IClientStreamerConfiguration? clientStreamerConfiguration = await clientStreamerManager.GetClientStreamerConfiguration(clientId);
+        //    if (clientStreamerConfiguration != null && clientStreamerConfiguration.ReadBuffer != null)
+        //    {
+        //        long _lastReadIndex = CircularRingBuffer.GetNextReadIndex();
+        //        //if (_lastReadIndex > StreamHandler.ChunkSize)
+        //        //{
+        //        //    _lastReadIndex -= StreamHandler.ChunkSize;
+        //        //}
+        //        clientStreamerConfiguration.ReadBuffer.SetLastIndex(_lastReadIndex);
+        //    }
+        //}
 
-        CircularRingBuffer.UnPauseReaders();
+
         using (stream)
         {
             Stopwatch timeBetweenWrites = Stopwatch.StartNew(); // Initialize the stopwatch
@@ -255,7 +256,10 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                 {
                     await stream.ReadExactlyAsync(bufferMemory, linkedToken.Token);
                     CircularRingBuffer.WriteChunk(bufferMemory);
-
+                    if (CircularRingBuffer.IsPaused())
+                    {
+                        CircularRingBuffer.UnPauseReaders();
+                    }
                     timeBetweenWrites.Reset();
 
                     if (!startMemoryFilled)
