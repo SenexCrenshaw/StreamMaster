@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Extensions;
+
 using System.Diagnostics;
 
 namespace StreamMaster.Infrastructure.VideoStreamManager.Buffers;
@@ -93,8 +95,6 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
             return 0;
         }
 
-        //SetupCancellation(timeOutToken.Token, StopVideoStreamingToken.Token, cancellationToken);
-
         try
         {
             while (!linkedToken.IsCancellationRequested && bytesRead < target.Length)
@@ -106,14 +106,14 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                     break;
 
                 }
-                await _pauseSignal.Task;
+                await _pauseSignal.WaitWithTimeoutAsync("PauseSignal", 10000, linkedToken);
 
 
                 availableBytes = GetAvailableBytes(readIndex, correlationId);
 
                 while (availableBytes == 0)
                 {
-                    await _writeSignal.Task;
+                    await _writeSignal.WaitWithTimeoutAsync("WriteSignal", 10000, linkedToken);
                     if (_writeSignal.Task.IsCanceled)
                     {
                         _readLogger.LogDebug("ReadChunkMemory _writeSignal.Task.IsCanceled");
