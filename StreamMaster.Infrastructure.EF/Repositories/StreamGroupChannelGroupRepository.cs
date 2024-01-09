@@ -8,17 +8,12 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Application.VideoStreams.Queries;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class StreamGroupChannelGroupRepository(ILogger<StreamGroupChannelGroupRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, ISender sender) : RepositoryBase<StreamGroupChannelGroup>(repositoryContext, logger), IStreamGroupChannelGroupRepository
+public class StreamGroupChannelGroupRepository(ILogger<StreamGroupChannelGroupRepository> intLogger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISender sender) : RepositoryBase<StreamGroupChannelGroup>(repositoryContext, intLogger), IStreamGroupChannelGroupRepository
 {
     /// <summary>
     /// Synchronizes channel groups for a stream group, adding and removing them as necessary.
@@ -133,7 +128,7 @@ public class StreamGroupChannelGroupRepository(ILogger<StreamGroupChannelGroupRe
             IQueryable<StreamGroupChannelGroup> deleteSGQ = RepositoryContext.StreamGroupChannelGroups
                 .Where(x => x.StreamGroupId == StreamGroupId && cgsToRemove.Contains(x.ChannelGroupId));
 
-            await repositoryContext.BulkDeleteAsync(deleteSGQ, cancellationToken: cancellationToken).ConfigureAwait(false);
+            await RepositoryContext.BulkDeleteAsync(deleteSGQ, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             // Remove video streams from the stream group.
             List<VideoStreamDto> toDelete = await sender.Send(new GetVideoStreamsForChannelGroups(cgsToRemove), cancellationToken).ConfigureAwait(false);

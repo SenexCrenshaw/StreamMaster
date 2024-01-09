@@ -5,7 +5,8 @@ namespace StreamMaster.Application.VideoStreams.Commands;
 public record VideoStreamChangeEPGNumberRequest(int OldEPGNumber, int NewEPGNumber) : IRequest { }
 
 [LogExecutionTimeAspect]
-public class VideoStreamChangeEPGNumberRequestHandler(ILogger<VideoStreamChangeEPGNumberRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<VideoStreamChangeEPGNumberRequest>
+public class VideoStreamChangeEPGNumberRequestHandler(ILogger<VideoStreamChangeEPGNumberRequest> logger, IRepositoryWrapper Repository, IPublisher Publisher, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+    : IRequestHandler<VideoStreamChangeEPGNumberRequest>
 {
     public async Task Handle(VideoStreamChangeEPGNumberRequest request, CancellationToken cancellationToken)
     {

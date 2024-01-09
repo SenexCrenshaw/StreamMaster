@@ -6,13 +6,6 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 using StreamMaster.Application.StreamGroups.Queries;
 
 using System.Linq.Dynamic.Core;
@@ -20,7 +13,7 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, ISender sender) : RepositoryBase<StreamGroupVideoStream>(repositoryContext, logger), IStreamGroupVideoStreamRepository
+public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISender sender) : RepositoryBase<StreamGroupVideoStream>(repositoryContext, logger), IStreamGroupVideoStreamRepository
 {
     public async Task AddStreamGroupVideoStreams(int StreamGroupId, List<string> toAdd, bool IsReadOnly, CancellationToken cancellationToken)
     {

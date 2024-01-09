@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
 using StreamMaster.Application.Icons;
 using StreamMaster.Application.Icons.Commands;
 using StreamMaster.Application.Icons.Queries;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Pagination;
-
-using StreamMasterAPI.Controllers;
 
 namespace StreamMaster.API.Controllers;
 

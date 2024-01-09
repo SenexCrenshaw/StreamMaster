@@ -1,12 +1,8 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Requests;
-using StreamMaster.Domain.Services;
-
 using StreamMaster.Application.ChannelGroups.Commands;
 using StreamMaster.Application.VideoStreams.Events;
+using StreamMaster.Domain.Requests;
 
 namespace StreamMaster.Application.VideoStreams.Commands;
 
@@ -19,7 +15,8 @@ public class UpdateVideoStreamRequestValidator : AbstractValidator<UpdateVideoSt
 }
 
 [LogExecutionTimeAspect]
-public class UpdateVideoStreamRequestHandler(ILogger<UpdateVideoStreamRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateVideoStreamRequest, VideoStreamDto?>
+public class UpdateVideoStreamRequestHandler(ILogger<UpdateVideoStreamRequest> logger, IRepositoryWrapper Repository, IPublisher Publisher, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+    : IRequestHandler<UpdateVideoStreamRequest, VideoStreamDto?>
 {
     public async Task<VideoStreamDto?> Handle(UpdateVideoStreamRequest request, CancellationToken cancellationToken)
     {

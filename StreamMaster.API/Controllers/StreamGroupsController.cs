@@ -5,12 +5,9 @@ using StreamMaster.Application.StreamGroups;
 using StreamMaster.Application.StreamGroups.Commands;
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Pagination;
 using StreamMaster.Domain.Requests;
-
-using StreamMasterAPI.Controllers;
 
 using System.Text;
 
@@ -60,8 +57,8 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [Route("{encodedId}/device.xml")]
     public async Task<IActionResult> GetStreamGroupCapability(string encodedId)
     {
-        Setting setting = await SettingsService.GetSettingsAsync();
-        int? streamGroupId = encodedId.DecodeValue128(setting.ServerKey);
+
+        int? streamGroupId = encodedId.DecodeValue128(Settings.ServerKey);
         if (streamGroupId == null)
         {
             return new NotFoundResult();
@@ -81,8 +78,8 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [Route("{encodedId}/discover.json")]
     public async Task<IActionResult> GetStreamGroupDiscover(string encodedId)
     {
-        Setting setting = await SettingsService.GetSettingsAsync();
-        int? streamGroupNumber = encodedId.DecodeValue128(setting.ServerKey);
+
+        int? streamGroupNumber = encodedId.DecodeValue128(Settings.ServerKey);
         if (streamGroupNumber == null)
         {
             return new NotFoundResult();
@@ -102,8 +99,8 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [Route("{encodedId}/epg.xml")]
     public async Task<IActionResult> GetStreamGroupEPG(string encodedId)
     {
-        Setting setting = await SettingsService.GetSettingsAsync();
-        int? streamGroupNumber = encodedId.DecodeValue128(setting.ServerKey);
+
+        int? streamGroupNumber = encodedId.DecodeValue128(Settings.ServerKey);
         if (streamGroupNumber == null)
         {
             return new NotFoundResult();
@@ -122,8 +119,8 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [Route("{encodedId}/lineup.json")]
     public async Task<IActionResult> GetStreamGroupLineup(string encodedId)
     {
-        Setting setting = await SettingsService.GetSettingsAsync();
-        int? streamGroupNumber = encodedId.DecodeValue128(setting.ServerKey);
+
+        int? streamGroupNumber = encodedId.DecodeValue128(Settings.ServerKey);
         if (streamGroupNumber == null)
         {
             return new NotFoundResult();
@@ -143,8 +140,8 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [Route("{encodedId}/lineup_status.json")]
     public async Task<IActionResult> GetStreamGroupLineupStatus(string encodedId)
     {
-        Setting setting = await SettingsService.GetSettingsAsync();
-        int? streamGroupNumber = encodedId.DecodeValue128(setting.ServerKey);
+
+        int? streamGroupNumber = encodedId.DecodeValue128(Settings.ServerKey);
         if (streamGroupNumber == null)
         {
             return new NotFoundResult();
@@ -163,8 +160,8 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [Route("{encodedId}/m3u.m3u")]
     public async Task<IActionResult> GetStreamGroupM3U(string encodedId)
     {
-        Setting setting = await SettingsService.GetSettingsAsync();
-        int? streamGroupNumber = encodedId.DecodeValue128(setting.ServerKey);
+
+        int? streamGroupNumber = encodedId.DecodeValue128(Settings.ServerKey);
         if (streamGroupNumber == null)
         {
             return new NotFoundResult();

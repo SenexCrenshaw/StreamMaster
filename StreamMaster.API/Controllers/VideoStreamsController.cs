@@ -6,7 +6,6 @@ using StreamMaster.Application.VideoStreams;
 using StreamMaster.Application.VideoStreams.Commands;
 using StreamMaster.Application.VideoStreams.Queries;
 using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Pagination;
@@ -14,8 +13,6 @@ using StreamMaster.Domain.Requests;
 using StreamMaster.Infrastructure.Clients;
 using StreamMaster.Streams.Domain.Interfaces;
 using StreamMaster.Streams.Domain.Models;
-
-using StreamMasterAPI.Controllers;
 
 namespace StreamMaster.API.Controllers;
 
@@ -95,8 +92,8 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [Route("stream/{encodedIds}/{name}")]
     public async Task<ActionResult> GetVideoStreamStream(string encodedIds, string name, CancellationToken cancellationToken)
     {
-        Setting setting = await SettingsService.GetSettingsAsync(cancellationToken);
-        (int? StreamGroupNumberNull, string? StreamIdNull) = encodedIds.DecodeTwoValuesAsString128(setting.ServerKey);
+
+        (int? StreamGroupNumberNull, string? StreamIdNull) = encodedIds.DecodeTwoValuesAsString128(Settings.ServerKey);
         if (StreamGroupNumberNull == null || StreamIdNull == null)
         {
             return new NotFoundResult();
@@ -123,7 +120,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         HttpContext.Session.Remove("ClientId");
 
         bool redirect = videoStream.StreamingProxyType == StreamingProxyTypes.None;
-        if (!redirect && videoStream.StreamingProxyType == StreamingProxyTypes.SystemDefault && setting.StreamingProxyType == StreamingProxyTypes.None)
+        if (!redirect && videoStream.StreamingProxyType == StreamingProxyTypes.SystemDefault && Settings.StreamingProxyType == StreamingProxyTypes.None)
         {
             redirect = true;
         }

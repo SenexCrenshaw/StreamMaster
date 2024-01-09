@@ -1,14 +1,11 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-using StreamMaster.Application.Programmes.Queries;
+﻿using StreamMaster.Application.Programmes.Queries;
 
 namespace StreamMaster.Application.EPG.Queries;
 
 public record GetEPGChannelNameByDisplayName(string displayName) : IRequest<string?>;
 
-internal class GetEPGChannelNameByDisplayNameHandler(ILogger<GetEPGChannelNameByDisplayName> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetEPGChannelNameByDisplayName, string?>
+internal class GetEPGChannelNameByDisplayNameHandler(ILogger<GetEPGChannelNameByDisplayName> logger, ISender Sender)
+    : IRequestHandler<GetEPGChannelNameByDisplayName, string?>
 {
     public async Task<string?> Handle(GetEPGChannelNameByDisplayName request, CancellationToken cancellationToken = default)
     {

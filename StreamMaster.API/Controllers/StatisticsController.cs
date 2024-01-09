@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
 using StreamMaster.Application.Statistics;
 using StreamMaster.Application.Statistics.Queries;
 using StreamMaster.Streams.Domain.Models;
-
-using StreamMasterAPI.Controllers;
 
 namespace StreamMaster.API.Controllers;
 

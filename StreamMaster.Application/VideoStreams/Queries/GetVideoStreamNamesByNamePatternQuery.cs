@@ -1,13 +1,11 @@
-﻿using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace StreamMaster.Application.VideoStreams.Queries;
 
 public record GetVideoStreamNamesByNamePatternQuery(string pattern) : IRequest<IEnumerable<string>> { }
 
-internal class GetVideoStreamNamesByNamePatternQueryHandler(ILogger<GetVideoStreamNamesByNamePatternQuery> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetVideoStreamNamesByNamePatternQuery, IEnumerable<string>>
+internal class GetVideoStreamNamesByNamePatternQueryHandler(ILogger<GetVideoStreamNamesByNamePatternQuery> logger, IRepositoryWrapper Repository)
+    : IRequestHandler<GetVideoStreamNamesByNamePatternQuery, IEnumerable<string>>
 {
     public async Task<IEnumerable<string>> Handle(GetVideoStreamNamesByNamePatternQuery request, CancellationToken cancellationToken)
     {

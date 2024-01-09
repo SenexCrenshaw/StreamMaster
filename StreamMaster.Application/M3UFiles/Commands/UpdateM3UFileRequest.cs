@@ -11,7 +11,8 @@ public class UpdateM3UFileRequest : BaseFileRequest, IRequest<M3UFile?>
 
 
 [LogExecutionTimeAspect]
-public class UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateM3UFileRequest, M3UFile?>
+public class UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, IRepositoryWrapper Repository, IMapper Mapper, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+    : IRequestHandler<UpdateM3UFileRequest, M3UFile?>
 {
     public async Task<M3UFile?> Handle(UpdateM3UFileRequest request, CancellationToken cancellationToken)
     {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.SchedulesDirect.Domain.Models;
@@ -93,7 +94,6 @@ namespace StreamMaster.Infrastructure.EF
         public DbSet<VideoStreamLink> VideoStreamLinks { get; set; }
         public DbSet<ChannelGroup> ChannelGroups { get; set; }
         public DbSet<VideoStream> VideoStreams { get; set; }
-        //public DbSet<ChannelGroupStreamCount> ChannelGroupStreamCounts { get; set; }
 
         public DbSet<StreamGroupChannelGroup> StreamGroupChannelGroups { get; set; }
         public DbSet<StreamGroup> StreamGroups { get; set; }
@@ -147,6 +147,34 @@ namespace StreamMaster.Infrastructure.EF
                 );
             SQLitePCL.Batteries.Init();
         }
+        private bool _disposed = false;
+
+        public override void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+
+        }
+
+
+        protected void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+
+
+                if (disposing)
+                {
+#if DEBUG
+                    SqliteConnection.ClearAllPools();
+#endif
+                    base.Dispose();
+
+                }
+            }
+            _disposed = true;
+        }
+
 
     }
 }

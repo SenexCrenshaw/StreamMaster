@@ -11,6 +11,8 @@ public class InputStreamingStatistics : IInputStreamingStatistics
         StartTime = DateTimeOffset.UtcNow;
     }
 
+    public InputStreamingStatistics() { }
+
     public StreamInfo StreamInfo;
 
     public double BitsPerSecond

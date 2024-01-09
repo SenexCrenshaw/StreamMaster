@@ -1,19 +1,20 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Services;
 
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace StreamMaster.Streams.Factories;
 
-public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpClientFactory, ISettingsService settingsService) : IProxyFactory
+public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpClientFactory, IMemoryCache memoryCache) : IProxyFactory
 {
     public async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl, string streamName, StreamingProxyTypes streamProxyType, CancellationToken cancellationToken)
     {
-        Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
+        Setting setting = memoryCache.GetSetting();
 
         Stream? stream;
         ProxyStreamError? error;
@@ -57,7 +58,7 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
 
     private async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetFFMpegStream(string streamUrl)
     {
-        Setting settings = await settingsService.GetSettingsAsync().ConfigureAwait(false);
+        Setting settings = memoryCache.GetSetting();
 
         string ffmpegExec = Path.Combine(BuildInfo.AppDataFolder, settings.FFMPegExecutable);
 
@@ -89,7 +90,7 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
     {
         try
         {
-            Setting settings = await settingsService.GetSettingsAsync().ConfigureAwait(false);
+            Setting settings = memoryCache.GetSetting();
 
             string options = string.IsNullOrEmpty(settings.FFMpegOptions) ? BuildInfo.FFMPEGDefaultOptions : settings.FFMpegOptions;
 
@@ -137,7 +138,7 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
 
         try
         {
-            Setting settings = await settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
+            Setting settings = memoryCache.GetSetting();
             HttpClient client = CreateHttpClient(settings.StreamingClientUserAgent);
             HttpResponseMessage? response = await client.GetWithRedirectAsync(sourceUrl, cancellationToken: cancellationToken).ConfigureAwait(false);
 

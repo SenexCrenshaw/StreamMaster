@@ -1,15 +1,12 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-using StreamMaster.Application.VideoStreams.Commands;
+﻿using StreamMaster.Application.VideoStreams.Commands;
 
 namespace StreamMaster.Application.StreamGroupVideoStreams.Commands;
 
 public record SetStreamGroupVideoStreamChannelNumbersRequest(int StreamGroupId, int StartingNumber, string OrderBy) : IRequest { }
 
 [LogExecutionTimeAspect]
-public class SetStreamGroupVideoStreamChannelNumbersHandler(ILogger<SetStreamGroupVideoStreamChannelNumbersRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<SetStreamGroupVideoStreamChannelNumbersRequest>
+public class SetStreamGroupVideoStreamChannelNumbersHandler(ILogger<SetStreamGroupVideoStreamChannelNumbersRequest> logger, IRepositoryWrapper Repository, ISender Sender)
+    : IRequestHandler<SetStreamGroupVideoStreamChannelNumbersRequest>
 {
     public async Task Handle(SetStreamGroupVideoStreamChannelNumbersRequest request, CancellationToken cancellationToken)
     {

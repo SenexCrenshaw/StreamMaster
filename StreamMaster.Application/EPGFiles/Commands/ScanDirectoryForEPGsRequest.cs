@@ -4,11 +4,8 @@ namespace StreamMaster.Application.EPGFiles.Commands;
 
 public record ScanDirectoryForEPGFilesRequest : IRequest<bool> { }
 
-public class ScanDirectoryForEPGFilesRequestHandler : BaseMediatorRequestHandler, IRequestHandler<ScanDirectoryForEPGFilesRequest, bool>
+public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGFilesRequest> Logger, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<ScanDirectoryForEPGFilesRequest, bool>
 {
-
-    public ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGFilesRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-  : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
     public async Task<bool> Handle(ScanDirectoryForEPGFilesRequest command, CancellationToken cancellationToken)
     {
         IEnumerable<FileInfo> epgFiles = GetEPGFilesFromDirectory();

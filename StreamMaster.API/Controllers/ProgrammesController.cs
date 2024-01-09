@@ -4,6 +4,7 @@ using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 
 using StreamMaster.Application.Programmes;
 using StreamMaster.Application.Programmes.Queries;
+using StreamMaster.API.Controllers;
 
 namespace StreamMasterAPI.Controllers;
 

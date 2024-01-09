@@ -7,7 +7,7 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 public record CreateM3UFileRequest(string? Description, int MaxStreamCount, bool? OverWriteChannels, int? StartingChannelNumber, IFormFile? FormFile, string Name, string? UrlSource, List<string>? VODTags) : IRequest<bool> { }
 
 [LogExecutionTimeAspect]
-public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<CreateM3UFileRequest, bool>
+public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateM3UFileRequest, bool>
 {
     public async Task<bool> Handle(CreateM3UFileRequest command, CancellationToken cancellationToken)
     {
@@ -70,7 +70,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, I
 
             m3UFile.MaxStreamCount = Math.Max(0, command.MaxStreamCount);
 
-            List<VideoStream>? streams = await m3UFile.GetM3U(logger, cancellationToken).ConfigureAwait(false);
+            List<VideoStream>? streams = await m3UFile.GetM3U(Logger, cancellationToken).ConfigureAwait(false);
             if (streams == null || streams.Count == 0)
             {
                 Logger.LogCritical("Exception M3U {fullName} format is not supported", fullName);

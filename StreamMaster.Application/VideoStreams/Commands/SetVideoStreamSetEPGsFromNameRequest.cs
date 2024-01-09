@@ -1,21 +1,13 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-using StreamMaster.Application.VideoStreams.Events;
+﻿using StreamMaster.Application.VideoStreams.Events;
 
 namespace StreamMaster.Application.VideoStreams.Commands;
 
 public record SetVideoStreamSetEPGsFromNameRequest(List<string> VideoStreamIds) : IRequest<List<VideoStreamDto>> { }
 
 [LogExecutionTimeAspect]
-public class SetVideoStreamSetEPGsFromNameRequestHandler : BaseMediatorRequestHandler, IRequestHandler<SetVideoStreamSetEPGsFromNameRequest, List<VideoStreamDto>>
+public class SetVideoStreamSetEPGsFromNameRequestHandler(ILogger<SetVideoStreamSetEPGsFromNameRequest> logger, IRepositoryWrapper Repository, IPublisher Publisher)
+    : IRequestHandler<SetVideoStreamSetEPGsFromNameRequest, List<VideoStreamDto>>
 {
-
-    public SetVideoStreamSetEPGsFromNameRequestHandler(ILogger<SetVideoStreamSetEPGsFromNameRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-    : base(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache) { }
-
-
     public async Task<List<VideoStreamDto>> Handle(SetVideoStreamSetEPGsFromNameRequest request, CancellationToken cancellationToken)
     {
         List<VideoStreamDto> results = await Repository.VideoStream.SetVideoStreamSetEPGsFromName(request.VideoStreamIds, cancellationToken).ConfigureAwait(false);

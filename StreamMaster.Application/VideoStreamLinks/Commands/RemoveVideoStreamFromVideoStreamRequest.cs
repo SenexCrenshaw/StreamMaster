@@ -1,17 +1,11 @@
-﻿using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-namespace StreamMaster.Application.VideoStreamLinks.Commands;
+﻿namespace StreamMaster.Application.VideoStreamLinks.Commands;
 
 [RequireAll]
 public record RemoveVideoStreamFromVideoStreamRequest(string ParentVideoStreamId, string ChildVideoStreamId) : IRequest { }
 
-public class RemoveVideoStreamFromVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequestHandler<RemoveVideoStreamFromVideoStreamRequest>
+public class RemoveVideoStreamFromVideoStreamRequestHandler(ILogger<RemoveVideoStreamFromVideoStreamRequest> logger, IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+    : IRequestHandler<RemoveVideoStreamFromVideoStreamRequest>
 {
-
-    public RemoveVideoStreamFromVideoStreamRequestHandler(ILogger<RemoveVideoStreamFromVideoStreamRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-  : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
-
     public async Task Handle(RemoveVideoStreamFromVideoStreamRequest request, CancellationToken cancellationToken)
     {
         await Repository.VideoStreamLink.RemoveVideoStreamFromVideoStream(request.ParentVideoStreamId, request.ChildVideoStreamId, cancellationToken);

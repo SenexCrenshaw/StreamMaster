@@ -1,8 +1,4 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-using StreamMaster.Application.VideoStreams.Events;
+﻿using StreamMaster.Application.VideoStreams.Events;
 
 namespace StreamMaster.Application.VideoStreams.Commands;
 
@@ -10,11 +6,9 @@ namespace StreamMaster.Application.VideoStreams.Commands;
 public record SetVideoStreamChannelNumbersRequest(List<string> Ids, bool OverWriteExisting, int StartNumber, string OrderBy) : IRequest { }
 
 [LogExecutionTimeAspect]
-public class SetVideoStreamChannelNumbersRequestHandler : BaseMediatorRequestHandler, IRequestHandler<SetVideoStreamChannelNumbersRequest>
+public class SetVideoStreamChannelNumbersRequestHandler(ILogger<SetVideoStreamChannelNumbersRequest> logger, IRepositoryWrapper Repository, IPublisher Publisher)
+    : IRequestHandler<SetVideoStreamChannelNumbersRequest>
 {
-
-    public SetVideoStreamChannelNumbersRequestHandler(ILogger<SetVideoStreamChannelNumbersRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-    : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
     public async Task Handle(SetVideoStreamChannelNumbersRequest request, CancellationToken cancellationToken)
     {
         string orderBy = string.IsNullOrEmpty(request.OrderBy) ? "user_tvg_name desc" : request.OrderBy;

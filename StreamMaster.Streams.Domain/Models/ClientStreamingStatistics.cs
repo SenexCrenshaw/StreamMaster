@@ -1,22 +1,23 @@
 ﻿using System.Text.Json.Serialization;
+using System.Xml.Serialization;
 
 namespace StreamMaster.Streams.Domain.Models;
 
 public class ClientStreamingStatistics
 {
-
-
     [JsonIgnore]
+    [XmlIgnore]
     public IClientStreamerConfiguration StreamerConfiguration { get; set; }
 
     public ClientStreamingStatistics(IClientStreamerConfiguration StreamerConfiguration)
     {
-
         BytesRead = 0;
         StartTime = DateTime.UtcNow;
         this.StreamerConfiguration = StreamerConfiguration;
         ClientIPAddress = StreamerConfiguration.ClientIPAddress;
     }
+
+    public ClientStreamingStatistics() { }
 
     public double ReadBitsPerSecond
     {

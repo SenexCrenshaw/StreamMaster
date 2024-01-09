@@ -86,7 +86,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
     {
         while (!cancellationToken.IsCancellationRequested && !exitLoop)
         {
-            Setting setting = FileUtil.GetSetting();
+            Setting setting = memoryCache.GetSetting();
 
             if (setting.SDSettings.SDEnabled && !imageDownloadQueue.IsEmpty() && BuildInfo.SetIsSystemReady)
             {
@@ -122,7 +122,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                 return false;
             }
 
-            Setting setting = FileUtil.GetSetting();
+            Setting setting = memoryCache.GetSetting();
 
             int maxRetryCount = 1; // Set the maximum number of retries
 

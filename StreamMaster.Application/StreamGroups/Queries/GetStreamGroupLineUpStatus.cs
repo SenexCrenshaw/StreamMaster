@@ -1,9 +1,5 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 using StreamMaster.Application.Common.Models;
 
 using System.Text.Json;
@@ -23,7 +19,8 @@ public class GetStreamGroupLineupStatusValidator : AbstractValidator<GetStreamGr
 }
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupLineupStatusHandler(ILogger<GetStreamGroupLineupStatus> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupLineupStatus, string>
+public class GetStreamGroupLineupStatusHandler(ILogger<GetStreamGroupLineupStatus> logger, IRepositoryWrapper Repository)
+    : IRequestHandler<GetStreamGroupLineupStatus, string>
 {
     public Task<string> Handle(GetStreamGroupLineupStatus request, CancellationToken cancellationToken)
     {

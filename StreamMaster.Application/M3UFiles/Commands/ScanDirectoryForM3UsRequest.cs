@@ -4,13 +4,8 @@ public record ScanDirectoryForM3UFilesRequest : IRequest<bool> { }
 
 
 [LogExecutionTimeAspect]
-public class ScanDirectoryForM3UFilesRequestHandler : BaseMediatorRequestHandler, IRequestHandler<ScanDirectoryForM3UFilesRequest, bool>
+public class ScanDirectoryForM3UFilesRequestHandler(ILogger<ScanDirectoryForM3UFilesRequest> Logger, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<ScanDirectoryForM3UFilesRequest, bool>
 {
-
-    public ScanDirectoryForM3UFilesRequestHandler(ILogger<ScanDirectoryForM3UFilesRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
- : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
-
-
     public async Task<bool> Handle(ScanDirectoryForM3UFilesRequest command, CancellationToken cancellationToken)
     {
         IEnumerable<FileInfo> m3uFiles = GetM3UFilesFromDirectory();

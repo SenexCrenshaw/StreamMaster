@@ -2,12 +2,12 @@
 
 public record AddLineup(string lineup) : IRequest<bool>;
 
-public class AddLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusService jobStatusService, ILogger<AddLineup> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<AddLineup, bool>
+public class AddLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusService jobStatusService, ILogger<AddLineup> logger, IMemoryCache memoryCache)
+: IRequestHandler<AddLineup, bool>
 {
     public async Task<bool> Handle(AddLineup request, CancellationToken cancellationToken)
     {
-        Setting setting = await GetSettingsAsync().ConfigureAwait(false);
+        Setting setting = memoryCache.GetSetting();
         if (!setting.SDSettings.SDEnabled)
         {
             return false;

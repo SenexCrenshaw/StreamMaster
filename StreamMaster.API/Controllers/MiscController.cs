@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
 using StreamMaster.Domain.Services;
-
-using StreamMasterAPI.Controllers;
 
 using System.Text;
 

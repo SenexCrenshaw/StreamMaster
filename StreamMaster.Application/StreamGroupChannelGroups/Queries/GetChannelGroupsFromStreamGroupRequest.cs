@@ -1,13 +1,10 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-namespace StreamMaster.Application.StreamGroupChannelGroups.Queries;
+﻿namespace StreamMaster.Application.StreamGroupChannelGroups.Queries;
 
 public record GetChannelGroupsFromStreamGroupRequest(int StreamGroupId) : IRequest<IEnumerable<ChannelGroupDto>>;
 
 [LogExecutionTimeAspect]
-internal class GetChannelGroupsFromStreamGroupRequestHandler(ILogger<GetChannelGroupsFromStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetChannelGroupsFromStreamGroupRequest, IEnumerable<ChannelGroupDto>>
+internal class GetChannelGroupsFromStreamGroupRequestHandler(ILogger<GetChannelGroupsFromStreamGroupRequest> logger, IRepositoryWrapper Repository)
+    : IRequestHandler<GetChannelGroupsFromStreamGroupRequest, IEnumerable<ChannelGroupDto>>
 {
     public async Task<IEnumerable<ChannelGroupDto>> Handle(GetChannelGroupsFromStreamGroupRequest request, CancellationToken cancellationToken = default)
     {

@@ -1,9 +1,5 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 namespace StreamMaster.Application.ChannelGroups.Commands;
 
 [RequireAll]
@@ -15,11 +11,11 @@ public class UpdateChannelGroupsRequestValidator : AbstractValidator<UpdateChann
 {
 }
 
-public class UpdateChannelGroupsRequestHandler(ILogger<UpdateChannelGroupsRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateChannelGroupsRequest>
+public class UpdateChannelGroupsRequestHandler(ILogger<UpdateChannelGroupsRequest> logger, ISender Sender) : IRequestHandler<UpdateChannelGroupsRequest>
 {
     public async Task Handle(UpdateChannelGroupsRequest requests, CancellationToken cancellationToken)
     {
-        List<ChannelGroupDto> results = new();
+        List<ChannelGroupDto> results = [];
 
         foreach (UpdateChannelGroupRequest request in requests.ChannelGroupRequests)
         {

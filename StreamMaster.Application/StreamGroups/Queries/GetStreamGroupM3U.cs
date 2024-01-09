@@ -25,7 +25,8 @@ public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
     }
 }
 
-public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, ISchedulesDirectDataService schedulesDirectDataService, IEPGHelper epgHelper, ILogger<GetStreamGroupM3U> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupM3U, string>
+public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, ISchedulesDirectDataService schedulesDirectDataService, IEPGHelper epgHelper, ILogger<GetStreamGroupM3U> logger, IRepositoryWrapper Repository, IMemoryCache memoryCache)
+    : IRequestHandler<GetStreamGroupM3U, string>
 {
     public string GetIconUrl(string iconOriginalSource, Setting setting)
     {
@@ -68,7 +69,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupM3U request, CancellationToken cancellationToken)
     {
-        Setting setting = await GetSettingsAsync();
+        Setting setting = memoryCache.GetSetting();
         string url = httpContextAccessor.GetUrl();
         string requestPath = httpContextAccessor.HttpContext.Request.Path.Value.ToString();
         byte[]? iv = requestPath.GetIVFromPath(setting.ServerKey, 128);

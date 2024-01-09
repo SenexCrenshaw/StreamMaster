@@ -1,11 +1,10 @@
 ﻿using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
 
 namespace StreamMaster.Application.SchedulesDirect.Queries;
 public record GetStationChannelNamesSimpleQuery(StationChannelNameParameters Parameters) : IRequest<List<StationChannelName>>;
 
-public class GetStationChannelNamesSimpleQueryHandler(ILogger<GetStationChannelNamesSimpleQuery> logger, ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStationChannelNamesSimpleQuery, List<StationChannelName>>
+public class GetStationChannelNamesSimpleQueryHandler(ILogger<GetStationChannelNamesSimpleQuery> logger, ISchedulesDirectDataService schedulesDirectDataService)
+    : IRequestHandler<GetStationChannelNamesSimpleQuery, List<StationChannelName>>
 {
     public Task<List<StationChannelName>> Handle(GetStationChannelNamesSimpleQuery request, CancellationToken cancellationToken)
     {

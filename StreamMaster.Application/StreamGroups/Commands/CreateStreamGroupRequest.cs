@@ -1,12 +1,7 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Requests;
-using StreamMaster.Domain.Services;
-
 using StreamMaster.Application.StreamGroups.Events;
+using StreamMaster.Domain.Requests;
 
 namespace StreamMaster.Application.StreamGroups.Commands;
 
@@ -22,7 +17,8 @@ public class CreateStreamGroupRequestValidator : AbstractValidator<CreateStreamG
 }
 
 [LogExecutionTimeAspect]
-public class CreateStreamGroupRequestHandler(ILogger<CreateStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<CreateStreamGroupRequest>
+public class CreateStreamGroupRequestHandler(ILogger<CreateStreamGroupRequest> logger, IRepositoryWrapper Repository, IPublisher Publisher, IMapper Mapper)
+    : IRequestHandler<CreateStreamGroupRequest>
 {
     public async Task Handle(CreateStreamGroupRequest request, CancellationToken cancellationToken)
     {

@@ -1,9 +1,5 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 using StreamMaster.Application.VideoStreams.Events;
 
 namespace StreamMaster.Application.VideoStreams.Commands;
@@ -19,7 +15,8 @@ public class DeleteVideoStreamRequestValidator : AbstractValidator<DeleteVideoSt
 }
 
 [LogExecutionTimeAspect]
-public class DeleteVideoStreamRequestHandler(ILogger<DeleteVideoStreamRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<DeleteVideoStreamRequest, bool>
+public class DeleteVideoStreamRequestHandler(ILogger<DeleteVideoStreamRequest> logger, IRepositoryWrapper Repository, IPublisher Publisher)
+    : IRequestHandler<DeleteVideoStreamRequest, bool>
 {
     public async Task<bool> Handle(DeleteVideoStreamRequest request, CancellationToken cancellationToken)
     {

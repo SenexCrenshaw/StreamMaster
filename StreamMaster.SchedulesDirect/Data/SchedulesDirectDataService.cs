@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 
 namespace StreamMaster.SchedulesDirect.Data;
 
-public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, ILogger<EPGImportLogger> _epgImportLogger, IEPGHelper ePGHelper, ISettingsService settingsService, IMemoryCache memoryCache) : ISchedulesDirectDataService
+public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, ILogger<EPGImportLogger> _epgImportLogger, IEPGHelper ePGHelper, IMemoryCache memoryCache) : ISchedulesDirectDataService
 {
 
     public ConcurrentDictionary<int, ISchedulesDirectData> SchedulesDirectDatas { get; private set; } = new();

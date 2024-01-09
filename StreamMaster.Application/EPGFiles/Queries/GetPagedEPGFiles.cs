@@ -1,17 +1,11 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
+﻿using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Application.EPGFiles.Queries;
 
 public record GetPagedEPGFiles(EPGFileParameters Parameters) : IRequest<PagedResponse<EPGFileDto>>;
 
-internal class GetPagedEPGFilesHandler : BaseMediatorRequestHandler, IRequestHandler<GetPagedEPGFiles, PagedResponse<EPGFileDto>>
+internal class GetPagedEPGFilesHandler(ILogger<GetPagedEPGFiles> logger, IRepositoryWrapper Repository)
 {
-    public GetPagedEPGFilesHandler(ILogger<GetPagedEPGFiles> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
-
     public async Task<PagedResponse<EPGFileDto>> Handle(GetPagedEPGFiles request, CancellationToken cancellationToken = default)
     {
         PagedResponse<EPGFileDto> epgFiles = await Repository.EPGFile.GetPagedEPGFiles(request.Parameters);

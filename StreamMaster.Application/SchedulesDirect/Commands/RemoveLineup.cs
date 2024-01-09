@@ -2,12 +2,12 @@
 
 public record RemoveLineup(string lineup) : IRequest<bool>;
 
-public class RemoveLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusService jobStatusService, ILogger<RemoveLineup> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<RemoveLineup, bool>
+public class RemoveLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusService jobStatusService, ILogger<RemoveLineup> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IMemoryCache memoryCache)
+: IRequestHandler<RemoveLineup, bool>
 {
     public async Task<bool> Handle(RemoveLineup request, CancellationToken cancellationToken)
     {
-        Setting setting = await GetSettingsAsync().ConfigureAwait(false);
+        Setting setting = memoryCache.GetSetting();
         if (!setting.SDSettings.SDEnabled)
         {
             return false;

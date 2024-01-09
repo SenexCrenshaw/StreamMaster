@@ -1,8 +1,4 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-using StreamMaster.Application.VideoStreams.Events;
+﻿using StreamMaster.Application.VideoStreams.Events;
 
 namespace StreamMaster.Application.VideoStreams.Commands;
 
@@ -10,11 +6,9 @@ namespace StreamMaster.Application.VideoStreams.Commands;
 public record SetVideoStreamTimeShiftsRequest(List<string> Ids, string TimeShift) : IRequest { }
 
 [LogExecutionTimeAspect]
-public class SetVideoStreamTimeShiftsRequestHandler : BaseMediatorRequestHandler, IRequestHandler<SetVideoStreamTimeShiftsRequest>
+public class SetVideoStreamTimeShiftsRequestHandler(ILogger<SetVideoStreamTimeShiftsRequest> logger, IRepositoryWrapper Repository, IPublisher Publisher)
+    : IRequestHandler<SetVideoStreamTimeShiftsRequest>
 {
-
-    public SetVideoStreamTimeShiftsRequestHandler(ILogger<SetVideoStreamTimeShiftsRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-    : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
     public async Task Handle(SetVideoStreamTimeShiftsRequest request, CancellationToken cancellationToken)
     {
 

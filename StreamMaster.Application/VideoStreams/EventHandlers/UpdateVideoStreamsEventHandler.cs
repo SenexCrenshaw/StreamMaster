@@ -1,15 +1,10 @@
-﻿using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-using StreamMaster.Application.VideoStreams.Events;
+﻿using StreamMaster.Application.VideoStreams.Events;
 
 namespace StreamMaster.Application.VideoStreams.EventHandlers;
 
-public class UpdateVideoStreamsEventHandler : BaseMediatorRequestHandler, INotificationHandler<UpdateVideoStreamsEvent>
+public class UpdateVideoStreamsEventHandler(ILogger<UpdateVideoStreamsEvent> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+    : INotificationHandler<UpdateVideoStreamsEvent>
 {
-    public UpdateVideoStreamsEventHandler(ILogger<UpdateVideoStreamsEvent> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
-
     public async Task Handle(UpdateVideoStreamsEvent notification, CancellationToken cancellationToken = default)
     {
         //if (notification.UpdateChannelGroup)

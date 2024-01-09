@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
 using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.Queue;
 using StreamMaster.Application.Queue.Queries;
-
-using StreamMasterAPI.Controllers;
 
 namespace StreamMaster.API.Controllers;
 

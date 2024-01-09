@@ -1,12 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 using StreamMaster.Application.Common.Extensions;
+using StreamMaster.Domain.Authentication;
 
 using System.Text.Json;
 using System.Web;
@@ -15,7 +10,8 @@ namespace StreamMaster.Application.StreamGroups.Queries;
 
 public record GetStreamGroupVideoStreamUrl(string VideoStreamId) : IRequest<string?>;
 
-internal class GetStreamGroupVideoStreamUrlHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupVideoStreamUrl> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupVideoStreamUrl, string?>
+internal class GetStreamGroupVideoStreamUrlHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupVideoStreamUrl> logger, IRepositoryWrapper Repository, IMemoryCache memoryCache)
+    : IRequestHandler<GetStreamGroupVideoStreamUrl, string?>
 {
     public async Task<string?> Handle(GetStreamGroupVideoStreamUrl request, CancellationToken cancellationToken = default)
     {
@@ -29,7 +25,7 @@ internal class GetStreamGroupVideoStreamUrlHandler(IHttpContextAccessor httpCont
             return null;
         }
 
-        Setting setting = await GetSettingsAsync();
+        Setting setting = memoryCache.GetSetting();
 
         string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
                 .Replace("/", "")

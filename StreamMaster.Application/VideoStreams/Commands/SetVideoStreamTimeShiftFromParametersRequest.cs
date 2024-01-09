@@ -1,22 +1,14 @@
-﻿using StreamMaster.Domain.Dto;
+﻿using StreamMaster.Application.VideoStreams.Events;
 using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-using StreamMaster.Application.VideoStreams.Events;
 
 namespace StreamMaster.Application.VideoStreams.Commands;
 
 public record SetVideoStreamTimeShiftFromParametersRequest(VideoStreamParameters Parameters, string TimeShift) : IRequest<List<VideoStreamDto>> { }
 
 [LogExecutionTimeAspect]
-public class SetVideoStreamTimeShiftFromParametersRequestHandler : BaseMediatorRequestHandler, IRequestHandler<SetVideoStreamTimeShiftFromParametersRequest, List<VideoStreamDto>>
+public class SetVideoStreamTimeShiftFromParametersRequestHandler(ILogger<SetVideoStreamTimeShiftFromParametersRequest> logger, IRepositoryWrapper Repository, IPublisher Publisher)
+    : IRequestHandler<SetVideoStreamTimeShiftFromParametersRequest, List<VideoStreamDto>>
 {
-
-    public SetVideoStreamTimeShiftFromParametersRequestHandler(ILogger<SetVideoStreamTimeShiftFromParametersRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
-
-
     public async Task<List<VideoStreamDto>> Handle(SetVideoStreamTimeShiftFromParametersRequest request, CancellationToken cancellationToken)
     {
         List<VideoStreamDto> results = await Repository.VideoStream.SetVideoStreamTimeShiftFromParameters(request.Parameters, request.TimeShift, cancellationToken).ConfigureAwait(false);

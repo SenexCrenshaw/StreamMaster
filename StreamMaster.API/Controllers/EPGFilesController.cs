@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
+using StreamMaster.API.Controllers;
 using StreamMaster.Application.EPGFiles;
 using StreamMaster.Application.EPGFiles.Commands;
 using StreamMaster.Application.EPGFiles.Queries;

@@ -2,13 +2,13 @@
 
 public record BuildIconCachesRequest : IRequest { }
 
-public class BuildIconCachesRequestHandler(ILogger<BuildIconCachesRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<BuildIconCachesRequest>
+public class BuildIconCachesRequestHandler(ISender Sender, IMemoryCache memoryCache) : IRequestHandler<BuildIconCachesRequest>
+
 {
     public async Task Handle(BuildIconCachesRequest request, CancellationToken cancellationToken)
     {
-        Setting setting = await GetSettingsAsync();
-        if (!setting.CacheIcons)
+
+        if (!memoryCache.GetSetting().CacheIcons)
         {
             return;
         }

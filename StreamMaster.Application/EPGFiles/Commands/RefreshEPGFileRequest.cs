@@ -13,7 +13,7 @@ public class RefreshEPGFileRequestValidator : AbstractValidator<RefreshEPGFileRe
     }
 }
 
-public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> logger, IJobStatusService jobStatusService, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<RefreshEPGFileRequest, EPGFileDto?>
+public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger, IMapper Mapper, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IPublisher Publisher) : IRequestHandler<RefreshEPGFileRequest, EPGFileDto?>
 {
     private readonly object lockObject = new();
     public async Task<EPGFileDto?> Handle(RefreshEPGFileRequest request, CancellationToken cancellationToken)

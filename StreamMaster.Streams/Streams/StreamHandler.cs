@@ -200,8 +200,6 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
     public async Task StartVideoStreamingAsync(Stream stream)
     {
 
-        //const int minWriteSize = chunkSize / 2;
-
         CancellationTokenSource stopVideoStreamingToken = new();
         CancellationTokenSource linkedToken = CancellationTokenSource.CreateLinkedTokenSource(stopVideoStreamingToken.Token, VideoStreamingCancellationToken.Token);
 
@@ -215,12 +213,27 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         int startMemoryIndex = 0;
         bool startMemoryFilled = false;
 
+        if (memoryCache.GetSetting().TestSettings.DropInputSeconds > 0)
+        {
+            stopVideoStreamingToken.CancelAfter(memoryCache.GetSetting().TestSettings.DropInputSeconds * 1000);
+        }
+
         using (stream)
         {
             Stopwatch timeBetweenWrites = Stopwatch.StartNew(); // Initialize the stopwatch
             int bytesRead = bufferMemory.Length;
             while (!linkedToken.IsCancellationRequested)// && retryCount < maxRetries)
             {
+                //if (memoryCache.GetSetting().TestSettings.DropInputConnections)
+                //{
+                //    if (testSW.ElapsedMilliseconds > 30 * 1000)
+                //    {
+                //        logger.LogWarning("Test drop connection for: {name}", VideoStreamName);
+                //        VideoStreamingCancellationToken.Cancel();
+                //        testSW.Stop();
+                //        continue;
+                //    }
+                //}
                 try
                 {
 
@@ -233,13 +246,11 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                     {
                         if (startMemoryIndex < 1024 * 1024)
                         {
-                            // Calculate the maximum number of bytes that can be copied
+
                             int bytesToCopy = Math.Min(videoMemory.Length - startMemoryIndex, bytesRead);
 
-                            // Directly copy the data from bufferMemory to startMemory
                             bufferMemory[..bytesToCopy].CopyTo(videoMemory[startMemoryIndex..]);
 
-                            // Update startMemoryIndex
                             startMemoryIndex += bytesToCopy;
                         }
                         else
@@ -270,6 +281,11 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                 catch (TaskCanceledException)
                 {
                     logger.LogInformation("Stream requested to stop for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
+                    break;
+                }
+                catch (EndOfStreamException)
+                {
+                    logger.LogInformation("End of Stream reached for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
                     break;
                 }
                 catch (Exception ex)

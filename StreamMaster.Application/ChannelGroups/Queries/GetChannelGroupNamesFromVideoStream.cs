@@ -1,16 +1,10 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-namespace StreamMaster.Application.ChannelGroups.Queries;
+﻿namespace StreamMaster.Application.ChannelGroups.Queries;
 
 public record GetChannelGroupNameFromVideoStream(VideoStreamDto VideoStreamDto) : IRequest<string?>;
 
-internal class GetChannelGroupNameFromVideoStreamHandler : BaseMediatorRequestHandler, IRequestHandler<GetChannelGroupNameFromVideoStream, string?>
+internal class GetChannelGroupNameFromVideoStreamHandler(ILogger<GetChannelGroupNameFromVideoStream> logger, IRepositoryWrapper Repository)
+    : IRequestHandler<GetChannelGroupNameFromVideoStream, string?>
 {
-
-    public GetChannelGroupNameFromVideoStreamHandler(ILogger<GetChannelGroupNameFromVideoStream> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
- : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
     public async Task<string?> Handle(GetChannelGroupNameFromVideoStream request, CancellationToken cancellationToken)
     {
 

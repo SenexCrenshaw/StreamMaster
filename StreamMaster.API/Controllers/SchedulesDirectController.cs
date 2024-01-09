@@ -6,6 +6,7 @@ using StreamMaster.Domain.Pagination;
 using StreamMaster.Application.SchedulesDirect;
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.SchedulesDirect.Queries;
+using StreamMaster.API.Controllers;
 
 namespace StreamMasterAPI.Controllers;
 
