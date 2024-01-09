@@ -2,7 +2,8 @@
 
 public interface ICircularRingBuffer : IDisposable
 {
-    void PauseReaders(bool pause);
+    void UnPauseReaders();
+    void PauseReaders();
     void IncrementClient();
     void DecrementClient();
     long GetNextReadIndex();

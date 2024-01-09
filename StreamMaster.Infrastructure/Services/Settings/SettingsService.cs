@@ -68,15 +68,13 @@ public class SettingsService : ISettingsService
             }
 
             memoryCache.SetSetting(settings);
-
+            return settings;
         }
         finally
         {
             _semaphore.Release();
         }
 
-
-        return settings ?? throw new InvalidOperationException("Failed to retrieve settings.");
     }
 
 

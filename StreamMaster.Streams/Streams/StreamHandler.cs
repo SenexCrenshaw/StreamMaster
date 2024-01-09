@@ -14,7 +14,7 @@ namespace StreamMaster.Streams.Streams;
 /// <summary>
 /// Manages the streaming of a single video stream, including client registrations and circularRingbuffer handling.
 /// </summary>
-public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, IMemoryCache memoryCache, ILogger<IStreamHandler> logger, ICircularRingBuffer ringBuffer) : IStreamHandler
+public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, IMemoryCache memoryCache, IClientStreamerManager clientStreamerManager, ILogger<IStreamHandler> logger, ICircularRingBuffer ringBuffer) : IStreamHandler
 {
     public static int ChunkSize = 64 * 1024;
 
@@ -217,18 +217,34 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         bool inputStreamError = false;
 
         CancellationTokenSource linkedToken;
+        CancellationTokenSource timeOutToken = new();
 
-        CancellationTokenSource testToken = new();
         if (!testRan && memoryCache.GetSetting().TestSettings.DropInputSeconds > 0)
         {
-            testToken.CancelAfter(memoryCache.GetSetting().TestSettings.DropInputSeconds * 1000);
-            linkedToken = CancellationTokenSource.CreateLinkedTokenSource(stopVideoStreamingToken.Token, VideoStreamingCancellationToken.Token, testToken.Token);
+            logger.LogInformation($"Testing: Will stop stream in {memoryCache.GetSetting().TestSettings.DropInputSeconds} seconds.");
+            timeOutToken.CancelAfter(memoryCache.GetSetting().TestSettings.DropInputSeconds * 1000);
+            linkedToken = CancellationTokenSource.CreateLinkedTokenSource(stopVideoStreamingToken.Token, VideoStreamingCancellationToken.Token, timeOutToken.Token);
         }
         else
         {
             linkedToken = CancellationTokenSource.CreateLinkedTokenSource(stopVideoStreamingToken.Token, VideoStreamingCancellationToken.Token);
         }
-        CircularRingBuffer.PauseReaders(false);
+
+        foreach (Guid clientId in GetClientStreamerClientIds())
+        {
+            IClientStreamerConfiguration? clientStreamerConfiguration = await clientStreamerManager.GetClientStreamerConfiguration(clientId);
+            if (clientStreamerConfiguration != null && clientStreamerConfiguration.ReadBuffer != null)
+            {
+                long _lastReadIndex = CircularRingBuffer.GetNextReadIndex();
+                if (_lastReadIndex > StreamHandler.ChunkSize)
+                {
+                    _lastReadIndex -= StreamHandler.ChunkSize;
+                }
+                clientStreamerConfiguration.ReadBuffer.SetLastIndex(_lastReadIndex);
+            }
+        }
+
+        CircularRingBuffer.UnPauseReaders();
         using (stream)
         {
             Stopwatch timeBetweenWrites = Stopwatch.StartNew(); // Initialize the stopwatch
@@ -278,9 +294,12 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
 
                 }
-                catch (TaskCanceledException)
+                catch (TaskCanceledException ex)
                 {
+
                     logger.LogInformation("Stream requested to stop for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
+                    logger.LogInformation("Stream requested to stop for: {VideoStreamingCancellationToken}", VideoStreamingCancellationToken.IsCancellationRequested);
+                    logger.LogInformation("Stream requested to stop for: {stopVideoStreamingToken.Token}", stopVideoStreamingToken.Token.IsCancellationRequested);
                     break;
                 }
                 catch (EndOfStreamException)
@@ -297,7 +316,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             }
         }
 
-        CircularRingBuffer.PauseReaders(true);
+        CircularRingBuffer.PauseReaders();
 
         if (!stopVideoStreamingToken.IsCancellationRequested)
         {
@@ -306,7 +325,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         stream.Close();
         stream.Dispose();
 
-        OnStreamingStopped(inputStreamError || (testToken.IsCancellationRequested && !testRan));
+        OnStreamingStopped(inputStreamError || (timeOutToken.IsCancellationRequested && !testRan));
         testRan = true;
     }
 

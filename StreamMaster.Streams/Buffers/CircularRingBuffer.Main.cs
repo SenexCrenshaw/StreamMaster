@@ -38,7 +38,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
     private int _writeIndex { get; set; } = 0;
     private long WriteBytes { get; set; } = 0;
 
-    private readonly ILogger<ICircularRingBuffer> _logger;
+    private readonly ILogger<ICircularRingBuffer> logger;
     private readonly ILogger<ReadsLogger> _readLogger;
     private readonly ILogger<WriteLogger> _writeLogger;
     private readonly ILogger<OverWLogger> _overwriteLogger;
@@ -63,7 +63,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         Setting setting = memoryCache.GetSetting();
         _inputStatisticsManager = inputStatisticsManager ?? throw new ArgumentNullException(nameof(inputStatisticsManager));
 
-        _logger = loggerFactory.CreateLogger<CircularRingBuffer>();
+        logger = loggerFactory.CreateLogger<CircularRingBuffer>();
         _readLogger = loggerFactory.CreateLogger<ReadsLogger>();
         _writeLogger = loggerFactory.CreateLogger<WriteLogger>();
         _overwriteLogger = loggerFactory.CreateLogger<OverWLogger>();
@@ -102,8 +102,8 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
         _writeIndex = 0;
 
-        _logger.LogInformation("New Circular Buffer {Id} for stream {videoStreamId} {name}", Id, videoStreamDto.Id, videoStreamDto.User_Tvg_name);
-        PauseReaders(false);
+        logger.LogInformation("New Circular Buffer {Id} for stream {videoStreamId} {name}", Id, videoStreamDto.Id, videoStreamDto.User_Tvg_name);
+        UnPauseReaders();
     }
 
 

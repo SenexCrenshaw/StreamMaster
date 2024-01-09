@@ -12,27 +12,40 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 {
     private TaskCompletionSource<bool> _writeSignal = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private TaskCompletionSource<bool> _pauseSignal = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private CancellationTokenRegistration _registration;
 
     public long GetNextReadIndex()
     {
         return WriteBytes;
     }
 
-    private void SetupCancellation(CancellationToken token)
+    private void SetupCancellation(CancellationToken token1, CancellationToken token2, CancellationToken token3)
     {
+        CancellationToken linkedToken = CancellationTokenSource.CreateLinkedTokenSource(token1, token2, token3).Token;
         // Register a callback to complete the _pauseSignal when the token is canceled
-        token.Register(() =>
+        _registration = linkedToken.Register(() =>
         {
             if (!_pauseSignal.Task.IsCompleted)
             {
+                bool a1 = token1.IsCancellationRequested;
+                bool a2 = token2.IsCancellationRequested;
+                bool a3 = token3.IsCancellationRequested;
                 _pauseSignal.TrySetCanceled();
             }
 
             if (!_writeSignal.Task.IsCompleted)
             {
+                bool a1 = token1.IsCancellationRequested;
+                bool a2 = token2.IsCancellationRequested;
+                bool a3 = token3.IsCancellationRequested;
                 _writeSignal.TrySetCanceled();
             }
         });
+    }
+
+    public void UnregisterCancellation()
+    {
+        _registration.Unregister();
     }
 
     private int CalculateClientReadIndex(long readByteIndex)
@@ -55,48 +68,71 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         return clientReadIndex;
     }
 
-    private int clientReadIndex;
-    private int bytesToRead;
+
     public async Task<int> ReadChunkMemory(long readIndex, Memory<byte> target, CancellationToken cancellationToken)
     {
+        int bytesRead = 0;
+        int bytesToRead = 0;
+        int clientReadIndex = CalculateClientReadIndex(readIndex);
+
         Guid correlationId = Guid.NewGuid();
 
-        StopVideoStreamingToken.CancelAfter(TimeSpan.FromSeconds(10));
+        CancellationTokenSource timeOutToken = new();
+        timeOutToken.CancelAfter(TimeSpan.FromSeconds(10));
 
         Stopwatch stopwatch = Stopwatch.StartNew();
-        CancellationToken linkedToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, StopVideoStreamingToken.Token).Token;
+        CancellationToken linkedToken = CancellationTokenSource.CreateLinkedTokenSource(timeOutToken.Token, StopVideoStreamingToken.Token, cancellationToken).Token;
 
-        int bytesRead = 0;
 
-        clientReadIndex = CalculateClientReadIndex(readIndex);
-
-        SetupCancellation(linkedToken);
+        int availableBytes = 0;
 
         if (clientReadIndex < 0)
         {
-            _logger.LogError("clientReadIndex < 0 ");
+            logger.LogError("clientReadIndex < 0");
+            _readLogger.LogDebug("ReadChunkMemory return 0");
             return 0;
         }
+
+        //SetupCancellation(timeOutToken.Token, StopVideoStreamingToken.Token, cancellationToken);
+
         try
         {
             while (!linkedToken.IsCancellationRequested && bytesRead < target.Length)
             {
+
+                if (_pauseSignal.Task.IsCanceled)
+                {
+                    _readLogger.LogDebug("ReadChunkMemory _pauseSignal.Task.IsCanceled");
+                    break;
+
+                }
                 await _pauseSignal.Task;
 
-                int availableBytes = GetAvailableBytes(readIndex, correlationId);
+
+                availableBytes = GetAvailableBytes(readIndex, correlationId);
 
                 while (availableBytes == 0)
                 {
                     await _writeSignal.Task;
+                    if (_writeSignal.Task.IsCanceled)
+                    {
+                        _readLogger.LogDebug("ReadChunkMemory _writeSignal.Task.IsCanceled");
+                        break;
+                    }
                     if (IsPaused())
                     {
                         if (bytesRead > 0)
                         {
+                            _readLogger.LogDebug("ReadChunkMemory bytes Read > 0");
                             return bytesRead;
                         }
                         continue;
                     }
                     availableBytes = GetAvailableBytes(readIndex, correlationId);
+                    if (availableBytes == 0)
+                    {
+                        int aa = 1;
+                    }
                 }
 
                 availableBytes = Math.Min(availableBytes, target.Length - bytesRead);
@@ -115,16 +151,35 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
                 // Update the client's read index, wrapping around if necessary
                 clientReadIndex = (clientReadIndex + bytesToRead) % _buffer.Length;
+                _readLogger.LogDebug("ReadChunkMemory {bytesRead} {bytesToRead} {clientReadIndex} {writeindex} {availableBytes} {target.Length}", bytesRead, bytesToRead, clientReadIndex, _writeIndex, availableBytes, target.Length);
             }
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogInformation(ex, "ReadChunkMemory cancelled");
+            logger.LogInformation(ex, "ReadChunkMemory {timeOutToken.Token}", timeOutToken.Token.IsCancellationRequested);
+            logger.LogInformation(ex, "ReadChunkMemory {cancellationToken}", cancellationToken.IsCancellationRequested);
+            logger.LogInformation(ex, "ReadChunkMemory {StopVideoStreamingToken}", StopVideoStreamingToken.IsCancellationRequested);
+            bytesRead = -1;
         }
         catch (ArgumentOutOfRangeException ex)
         {
             int l = _buffer.Length;
             int a = clientReadIndex;
             int b = bytesToRead;
+            int c = availableBytes;
+        }
+        finally
+        {
+            // Ensure that the registration is disposed of
+            //UnregisterCancellation();
         }
 
         stopwatch.Stop();
+        if (bytesRead < 1000)
+        {
+            logger.LogInformation("ReadChunkMemory bytesRead");
+        }
         return bytesRead;
     }
 
@@ -133,23 +188,24 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         return !_pauseSignal.Task.IsCompleted;
     }
 
-    public void PauseReaders(bool pause)
+    public void PauseReaders()
     {
-        if (pause)
-        {
-            if (!_pauseSignal.Task.IsCompleted)
-            {
-                return;
-            }
-            // Reset the TaskCompletionSource to an uncompleted state
-            _pauseSignal = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        }
 
-        else
+        if (!_pauseSignal.Task.IsCompleted)
         {
-            // Complete the TaskCompletionSource
-            _pauseSignal.TrySetResult(true);
+            return;
         }
+        // Reset the TaskCompletionSource to an uncompleted state
+        _pauseSignal = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+    }
+
+    public void UnPauseReaders()
+    {
+
+        // Complete the TaskCompletionSource
+        _pauseSignal.TrySetResult(true);
+
     }
 
     public int WriteChunk(Memory<byte> data)
@@ -184,7 +240,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         catch (Exception ex)
         {
             _writeErrorsCounter.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Inc();
-            _logger.LogError(ex, "WriteChunk error occurred while writing chunk for {VideoStreamName}.", VideoStreamName);
+            logger.LogError(ex, "WriteChunk error occurred while writing chunk for {VideoStreamName}.", VideoStreamName);
         }
         finally
         {
@@ -196,7 +252,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
             _inputStreamStatistics.AddBytesWritten(_bytesWritten);
             SignalReaders();
         }
-
+        _writeLogger.LogDebug("WriteChunk {VideoStreamName} {bytesWritten} {elapsedMilliseconds}", VideoStreamName, _bytesWritten, stopwatch.ElapsedMilliseconds);
         return _bytesWritten;
     }
 

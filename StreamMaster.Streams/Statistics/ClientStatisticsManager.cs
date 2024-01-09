@@ -29,7 +29,7 @@ public sealed class ClientStatisticsManager(ILogger<ClientStatisticsManager> log
         }
         else
         {
-            //_logger.LogWarning("Client {clientId} not found when trying to add bytes read.", clientId);
+            //logger.LogWarning("Client {clientId} not found when trying to add bytes read.", clientId);
         }
     }
     public List<ClientStreamingStatistics> GetAllClientStatistics()

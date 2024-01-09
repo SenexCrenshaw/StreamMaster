@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMaster.Streams.Streams;
-
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
@@ -25,18 +23,18 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
         _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
         _lastReadIndex = bufferDelegate().GetNextReadIndex();
         this._statisticsManager = _statisticsManager;
-        if (_lastReadIndex > StreamHandler.ChunkSize)
-        {
-            _lastReadIndex -= StreamHandler.ChunkSize;
-        }
+        //if (_lastReadIndex > StreamHandler.ChunkSize)
+        //{
+        //    _lastReadIndex -= StreamHandler.ChunkSize;
+        //}
         _statisticsManager.RegisterClient(config);
         logger.LogInformation("Starting client read stream for ClientId: {ClientId} at index {_lastReadIndex} ", ClientId, _lastReadIndex);
     }
 
     public void SetLastIndex(long index)
     {
-        logger.LogInformation("Setting last index for ClientId: {ClientId} to {index} was {_lastReadIndex}", ClientId, index, _lastReadIndex);
-        _lastReadIndex = index;
+        //logger.LogInformation("Setting last index for ClientId: {ClientId} to {index} was {_lastReadIndex}", ClientId, index, _lastReadIndex);
+        //_lastReadIndex = index;
     }
 
     private readonly ConcurrentDictionary<Guid, SemaphoreSlim> _bufferSwitchSemaphores = new();
@@ -58,6 +56,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
 
     public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken)
     {
+
         if (IsCancelled)
         {
             return 0;
@@ -71,7 +70,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
 
         using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_readCancel.Token, cancellationToken);
 
-        linkedCts.CancelAfter(TimeSpan.FromSeconds(30));
+        //linkedCts.CancelAfter(TimeSpan.FromSeconds(30));
 
         int bytesRead = 0;
 
@@ -92,6 +91,8 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
         catch (TaskCanceledException ex)
         {
             logger.LogInformation(ex, "ReadAsync cancelled ended for ClientId: {ClientId}", ClientId);
+            logger.LogInformation(ex, "ReadAsync {_readCancel.Token}", _readCancel.Token.IsCancellationRequested);
+            logger.LogInformation(ex, "ReadAsync {cancellationToken}", cancellationToken.IsCancellationRequested);
             bytesRead = 1;
         }
         finally
