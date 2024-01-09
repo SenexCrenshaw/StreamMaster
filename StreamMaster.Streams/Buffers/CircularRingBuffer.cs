@@ -18,6 +18,23 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         return WriteBytes;
     }
 
+    private void SetupCancellation(CancellationToken token)
+    {
+        // Register a callback to complete the _pauseSignal when the token is canceled
+        token.Register(() =>
+        {
+            if (!_pauseSignal.Task.IsCompleted)
+            {
+                _pauseSignal.TrySetCanceled();
+            }
+
+            if (!_writeSignal.Task.IsCompleted)
+            {
+                _writeSignal.TrySetCanceled();
+            }
+        });
+    }
+
     private int CalculateClientReadIndex(long readByteIndex)
     {
         // Calculate the byte difference
@@ -44,13 +61,16 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
     {
         Guid correlationId = Guid.NewGuid();
 
+        StopVideoStreamingToken.CancelAfter(TimeSpan.FromSeconds(10));
+
         Stopwatch stopwatch = Stopwatch.StartNew();
         CancellationToken linkedToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, StopVideoStreamingToken.Token).Token;
 
         int bytesRead = 0;
-        //int bufferLength = _buffer.Length;
 
         clientReadIndex = CalculateClientReadIndex(readIndex);
+
+        SetupCancellation(linkedToken);
 
         if (clientReadIndex < 0)
         {
