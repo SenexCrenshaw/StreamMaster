@@ -12,6 +12,7 @@ interface CacheContextType<T> {
   cache: Map<string, CacheItem<T>>;
   updateCache: (key: string, data: T[]) => void;
   removeFromCache: (key: string) => void;
+  clearCache: () => void;
 }
 
 /**
@@ -51,6 +52,12 @@ export const CacheProvider = <T extends unknown>({ children }: { children: React
     localStorage.setItem('cache', JSON.stringify(Array.from(newCache.entries())));
   };
 
+  const clearCache = () => {
+    const newCache = new Map<string, CacheItem<T>>();
+    setCache(newCache);
+    localStorage.removeItem('cache'); // Clear the cache in local storage
+  };
+
   const checkAndCleanCache = () => {
     // Check and clear expired items from the cache
     const newCache = new Map(cache);
@@ -62,7 +69,7 @@ export const CacheProvider = <T extends unknown>({ children }: { children: React
     return newCache;
   };
 
-  return <CacheContext.Provider value={{ cache: checkAndCleanCache(), updateCache, removeFromCache }}>{children}</CacheContext.Provider>;
+  return <CacheContext.Provider value={{ cache: checkAndCleanCache(), updateCache, removeFromCache, clearCache }}>{children}</CacheContext.Provider>;
 };
 
 /**

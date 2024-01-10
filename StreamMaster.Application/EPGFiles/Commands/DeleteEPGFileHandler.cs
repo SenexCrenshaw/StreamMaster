@@ -32,6 +32,11 @@ public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, I
                 {
                     File.Delete(txtName);
                 }
+                txtName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(epgFile.Source) + ".url");
+                if (File.Exists(txtName))
+                {
+                    File.Delete(txtName);
+                }
             }
             else
             {

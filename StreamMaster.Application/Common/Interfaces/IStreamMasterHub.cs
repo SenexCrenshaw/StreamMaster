@@ -14,6 +14,7 @@ public interface IStreamMasterHub : ISharedHub
     Task M3UFilesRefresh(M3UFileDto[]? results = null);
     Task IconsRefresh();
     Task ProgrammesRefresh();
+    Task CacheHandler(string cacheType);
     Task SchedulesDirectsRefresh();
     Task StreamGroupsRefresh(StreamGroupDto[]? results = null);
     Task StreamGroupVideoStreamsRefresh(StreamGroupVideoStream[]? results = null);

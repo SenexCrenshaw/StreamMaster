@@ -16,5 +16,6 @@ public class EPGFileDeletedEventHandler : INotificationHandler<EPGFileDeletedEve
         await _hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
         await _hubContext.Clients.All.ChannelGroupsRefresh().ConfigureAwait(false);
         await _hubContext.Clients.All.SchedulesDirectsRefresh().ConfigureAwait(false);
+        await _hubContext.Clients.All.CacheHandler("epgSelector").ConfigureAwait(false);
     }
 }
