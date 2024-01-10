@@ -22,7 +22,7 @@ public class ProcessM3UFileRequestValidator : AbstractValidator<ProcessM3UFileRe
 }
 
 
-public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IRepositoryWrapper repository, IPublisher publisher, ISender sender, IMemoryCache memoryCache) : IRequestHandler<ProcessM3UFileRequest, M3UFile?>
+public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IRepositoryWrapper repository, IJobStatusService jobStatusService, IPublisher publisher, ISender sender, IMemoryCache memoryCache) : IRequestHandler<ProcessM3UFileRequest, M3UFile?>
 {
     private readonly SimpleIntList existingChannels = new(0);
 
