@@ -49,7 +49,7 @@ public class ScanDirectoryForM3UFilesRequestHandler(ILogger<ScanDirectoryForM3UF
         {
 
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
-            await Publisher.Publish(new M3UFileAddedEvent(ret.Id), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new M3UFileAddedEvent(ret.Id, false), cancellationToken).ConfigureAwait(false);
         }
     }
 

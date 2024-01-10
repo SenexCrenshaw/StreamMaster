@@ -76,21 +76,21 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
                 }
             }
 
-            m3uFile.LastUpdated = DateTime.Now;
+            //m3uFile.LastUpdated = DateTime.Now;
             Repository.M3UFile.UpdateM3UFile(m3uFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
 
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
             if (publish)
             {
-                await Publisher.Publish(new M3UFileAddedEvent(ret.Id), cancellationToken).ConfigureAwait(false);
+                await Publisher.Publish(new M3UFileAddedEvent(ret.Id, request.forceRun), cancellationToken).ConfigureAwait(false);
             }
 
             return m3uFile;
         }
         finally
         {
-            jobStatusService.SetM3UIsRunning(false);
+
         }
 
     }
