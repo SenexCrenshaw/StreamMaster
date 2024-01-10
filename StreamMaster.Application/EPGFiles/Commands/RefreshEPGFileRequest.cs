@@ -80,7 +80,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
         }
         finally
         {
-            jobStatusService.SetEPGIsRunning(false);
+
         }
     }
 }
