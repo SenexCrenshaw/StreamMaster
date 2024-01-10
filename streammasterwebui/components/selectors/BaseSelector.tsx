@@ -192,7 +192,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
 
       setIndex(d?.length ?? 0);
       if (d.length > 1 && d.length < 100) {
-        console.log(d);
+        // console.log(d);
       }
       setFiltered(d);
     }

@@ -1,7 +1,4 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
+﻿using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Application.VideoStreams.Queries;
 

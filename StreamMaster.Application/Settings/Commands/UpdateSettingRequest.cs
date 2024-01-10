@@ -20,6 +20,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public string? DummyRegex { get; set; }
     public bool? EnableSSL { get; set; }
     public string? FFMPegExecutable { get; set; }
+    public string? FFMpegOptions { get; set; }
     public int? GlobalStreamLimit { get; set; }
     public bool? M3UFieldChannelId { get; set; }
     public bool? M3UFieldChannelNumber { get; set; }
@@ -371,6 +372,12 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
         {
             currentSetting.FFMPegExecutable = request.FFMPegExecutable;
         }
+
+        if (!string.IsNullOrEmpty(request.FFMpegOptions) && request.FFMpegOptions != currentSetting.FFMpegOptions)
+        {
+            currentSetting.FFMpegOptions = request.FFMpegOptions;
+        }
+
 
         if (request.MaxConnectRetry != null && request.MaxConnectRetry >= 0 && request.MaxConnectRetry != currentSetting.MaxConnectRetry)
         {
