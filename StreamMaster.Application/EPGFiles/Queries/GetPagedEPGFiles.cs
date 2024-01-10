@@ -4,7 +4,8 @@ namespace StreamMaster.Application.EPGFiles.Queries;
 
 public record GetPagedEPGFiles(EPGFileParameters Parameters) : IRequest<PagedResponse<EPGFileDto>>;
 
-internal class GetPagedEPGFilesHandler(ILogger<GetPagedEPGFiles> logger, IRepositoryWrapper Repository)
+public class GetPagedEPGFilesHandler(ILogger<GetPagedEPGFiles> logger, IRepositoryWrapper Repository)
+    : IRequestHandler<GetPagedEPGFiles, PagedResponse<EPGFileDto>>
 {
     public async Task<PagedResponse<EPGFileDto>> Handle(GetPagedEPGFiles request, CancellationToken cancellationToken = default)
     {
