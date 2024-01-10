@@ -312,6 +312,12 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                     logger.LogInformation("End of Stream reached for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
                     break;
                 }
+                catch (HttpIOException ex)
+                {
+                    inputStreamError = true;
+                    logger.LogInformation(ex, "HTTP IO for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
+                    break;
+                }
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "Stream error for: {StreamUrl} {name}", StreamUrl, VideoStreamName);

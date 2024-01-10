@@ -509,8 +509,8 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
     const newFilters = generateFilterData(props.columns, event.filters);
 
     if (props.selectedItemsKey === 'selectSelectedVideoStreamDtoItems') {
-      console.log(props.selectedItemsKey);
-      console.log(props.selectedItemsKey);
+      // console.log(props.selectedItemsKey);
+      // console.log(props.selectedItemsKey);
       // setters.setSelectSelectedItems([]);
     }
 
