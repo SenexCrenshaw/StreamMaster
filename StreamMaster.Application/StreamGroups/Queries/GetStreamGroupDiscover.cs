@@ -22,10 +22,9 @@ public class GetStreamGroupDiscoverValidator : AbstractValidator<GetStreamGroupD
 }
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupDiscoverHandler(ILogger<GetStreamGroupDiscover> logger, IRepositoryWrapper Repository)
+public class GetStreamGroupDiscoverHandler(ILogger<GetStreamGroupDiscover> logger, IHttpContextAccessor httpContextAccessor, IRepositoryWrapper Repository)
     : IRequestHandler<GetStreamGroupDiscover, string>
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public async Task<string> Handle(GetStreamGroupDiscover request, CancellationToken cancellationToken)
     {
@@ -38,7 +37,7 @@ public class GetStreamGroupDiscoverHandler(ILogger<GetStreamGroupDiscover> logge
             }
         }
 
-        string url = _httpContextAccessor.GetUrlWithPath();
+        string url = httpContextAccessor.GetUrlWithPath();
 
         int maxTuners = await Repository.M3UFile.GetM3UMaxStreamCount();
         Discover discover = new(url, request.StreamGroupId, maxTuners);

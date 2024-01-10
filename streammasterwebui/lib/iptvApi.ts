@@ -1658,6 +1658,7 @@ export type PagedResponseOfM3UFileDto = {
 export type ProcessM3UFileRequest = {
   id?: number;
   overWriteChannels?: boolean | null;
+  forceRun?: boolean;
 };
 export type RefreshM3UFileRequest = {
   id?: number;
@@ -1814,6 +1815,7 @@ export type UpdateSettingRequest = {
   dummyRegex?: string | null;
   enableSSL?: boolean | null;
   ffmPegExecutable?: string | null;
+  ffMpegOptions?: string | null;
   globalStreamLimit?: number | null;
   m3UFieldChannelId?: boolean | null;
   m3UFieldChannelNumber?: boolean | null;
