@@ -136,7 +136,11 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                 availableBytes = Math.Min(availableBytes, target.Length - bytesRead);
                 // Calculate the number of bytes to read before wrap-around
                 bytesToRead = Math.Min(_buffer.Length - clientReadIndex, availableBytes); ;
-
+                if (bytesToRead == 0)
+                {
+                    _readLogger.LogDebug("ReadChunkMemory bytesToRead == 0");
+                    continue;
+                }
                 if (clientReadIndex + bytesToRead > _buffer.Length)
                 {
                     int aaa = 1;
