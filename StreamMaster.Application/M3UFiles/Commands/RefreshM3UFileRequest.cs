@@ -76,7 +76,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> logger,
                 }
             }
 
-            m3uFile.LastUpdated = DateTime.Now;
+            //m3uFile.LastUpdated = DateTime.Now;
             Repository.M3UFile.UpdateM3UFile(m3uFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
 
@@ -90,7 +90,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> logger,
         }
         finally
         {
-            jobStatusService.SetM3UIsRunning(false);
+
         }
 
     }

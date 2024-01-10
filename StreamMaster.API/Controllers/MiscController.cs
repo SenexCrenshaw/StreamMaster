@@ -34,7 +34,7 @@ public class MiscController : ApiControllerBase
         for (int i = 0; i < numberOfStreams; i++)
         {
             string id = Guid.NewGuid().ToString();
-            lines.Add($"#EXTINF:-1 tvg-id=\"Channel_{i}\" tvg-name=\"Channel {i}\" tvg-logo=\"https://logo{i}.png\" group-title =\"TEST CHANNEL GROUP\", Channel {i}");
+            lines.Add($"#EXTINF:-1 tvg-id=\"Channel_{i}\" tvg-name=\"Channel {i}\" tvg-chno=\"{i}\" tvg-logo=\"https://logo{i}.png\" group-title =\"TEST CHANNEL GROUP\", Channel {i}");
             lines.Add($"http://channelfake.test/live/{id}.ts");
         }
 
