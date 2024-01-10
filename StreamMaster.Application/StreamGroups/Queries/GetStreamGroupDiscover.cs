@@ -2,13 +2,8 @@
 
 using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Application.Common.Models;
-
-using StreamMaster.Domain.Authentication;
 
 using System.Text.Json;
 
@@ -30,7 +25,6 @@ public class GetStreamGroupDiscoverValidator : AbstractValidator<GetStreamGroupD
 public class GetStreamGroupDiscoverHandler : BaseMediatorRequestHandler, IRequestHandler<GetStreamGroupDiscover, string>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
-
     public GetStreamGroupDiscoverHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupDiscover> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
 : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { _httpContextAccessor = httpContextAccessor; }
 
@@ -45,7 +39,7 @@ public class GetStreamGroupDiscoverHandler : BaseMediatorRequestHandler, IReques
             }
         }
 
-        var url = _httpContextAccessor.GetUrlWithPath();
+        string url = _httpContextAccessor.GetUrlWithPath();
 
         int maxTuners = await Repository.M3UFile.GetM3UMaxStreamCount();
         Discover discover = new(url, request.StreamGroupId, maxTuners);
@@ -54,5 +48,5 @@ public class GetStreamGroupDiscoverHandler : BaseMediatorRequestHandler, IReques
         return jsonString;
     }
 
-  
+
 }

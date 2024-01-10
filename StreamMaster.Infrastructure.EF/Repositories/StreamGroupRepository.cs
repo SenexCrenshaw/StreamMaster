@@ -83,6 +83,11 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
                             .FirstOrDefaultAsync()
                             .ConfigureAwait(false);
 
+        if (streamGroup == null)
+        {
+            return null;
+        }
+
         StreamGroupDto ret = mapper.Map<StreamGroupDto>(streamGroup);
 
         await SetStreamGroupsLink(ret);
