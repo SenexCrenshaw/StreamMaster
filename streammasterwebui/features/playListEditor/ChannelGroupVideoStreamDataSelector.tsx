@@ -7,7 +7,6 @@ import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
 import VideoStreamSetTimeShiftDialog from '@components/videoStream/VideoStreamSetTimeShiftDialog';
 import VideoStreamSetTimeShiftsDialog from '@components/videoStream/VideoStreamSetTimeShiftsDialog';
-
 import { useM3UFileNameColumnConfig } from '@components/columns/useM3UFileNameColumnConfig';
 import DataSelector from '@components/dataSelector/DataSelector';
 import AutoSetChannelNumbers from '@components/videoStream/AutoSetChannelNumbers';
@@ -27,9 +26,7 @@ import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import PlayListDataSelectorDropDown from './PlayListDataSelectorDropDown';
-
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
-
 interface ChannelGroupVideoStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
   readonly id: string;
@@ -42,19 +39,13 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
   const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
 
+  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit });
   const { columnConfig: m3uFileNameColumnConfig } = useM3UFileNameColumnConfig({ enableEdit: false });
   const { columnConfig: epgColumnConfig } = useEPGColumnConfig({ enableEdit });
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit, useFilter: false });
-  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit });
   const { columnConfig: channelLogoColumnConfig } = useChannelLogoColumnConfig({ enableEdit });
 
   const channelGroupNames = useMemo(() => selectSelectedItems.map((channelGroup) => channelGroup.name), [selectSelectedItems]);
-
-  // const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig({
-  //   enableEdit,
-  //   values: [...(channelGroupNames ?? [])].sort()
-  // });
-
   const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig({ enableEdit });
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
   const { setSelectedVideoStreams } = useSelectedVideoStreams(dataKey);
@@ -102,9 +93,6 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
       epgColumnConfig,
       m3uFileNameColumnConfig
     ];
-
-    // columnConfigs.push(channelGroupConfig);
-    // columnConfigs.push(epgColumnConfig);
 
     columnConfigs.push({
       bodyTemplate: targetActionBodyTemplate,
