@@ -1313,7 +1313,7 @@ export type XmltvProgramme = {
   countries?: XmltvText[];
   sport?: XmltvText | null;
   teams?: XmltvText[] | null;
-  episodeNums?: XmltvEpisodeNum[];
+  episodeNums?: XmltvEpisodeNum[] | null;
   video?: XmltvVideo | null;
   audio?: XmltvAudio | null;
   previouslyShown?: XmltvPreviouslyShown | null;
@@ -1651,6 +1651,7 @@ export type PagedResponseOfM3UFileDto = {
 export type ProcessM3UFileRequest = {
   id?: number;
   overWriteChannels?: boolean | null;
+  forceRun?: boolean;
 };
 export type RefreshM3UFileRequest = {
   id?: number;
@@ -1807,6 +1808,7 @@ export type UpdateSettingRequest = {
   dummyRegex?: string | null;
   enableSSL?: boolean | null;
   ffmPegExecutable?: string | null;
+  ffMpegOptions?: string | null;
   globalStreamLimit?: number | null;
   m3UFieldChannelId?: boolean | null;
   m3UFieldChannelNumber?: boolean | null;
