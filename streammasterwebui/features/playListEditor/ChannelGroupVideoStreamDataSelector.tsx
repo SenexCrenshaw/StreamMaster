@@ -23,11 +23,12 @@ import VideoStreamSetLogosFromEPGDialog from '@components/videoStream/VideoStrea
 import VideoStreamVisibleDialog from '@components/videoStream/VideoStreamVisibleDialog';
 import { GetMessage, arraysContainSameStrings } from '@lib/common/common';
 import { ChannelGroupDto, VideoStreamDto, useVideoStreamsGetPagedVideoStreamsQuery } from '@lib/iptvApi';
-import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import PlayListDataSelectorDropDown from './PlayListDataSelectorDropDown';
+
+import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 
 interface ChannelGroupVideoStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
@@ -37,6 +38,7 @@ interface ChannelGroupVideoStreamDataSelectorProperties {
 
 const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: ChannelGroupVideoStreamDataSelectorProperties) => {
   const dataKey = `${id}-ChannelGroupVideoStreamDataSelector`;
+
   const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
 
@@ -48,10 +50,12 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
 
   const channelGroupNames = useMemo(() => selectSelectedItems.map((channelGroup) => channelGroup.name), [selectSelectedItems]);
 
-  const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig({
-    enableEdit,
-    values: [...(channelGroupNames ?? [])].sort()
-  });
+  // const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig({
+  //   enableEdit,
+  //   values: [...(channelGroupNames ?? [])].sort()
+  // });
+
+  const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig({ enableEdit });
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
   const { setSelectedVideoStreams } = useSelectedVideoStreams(dataKey);
 

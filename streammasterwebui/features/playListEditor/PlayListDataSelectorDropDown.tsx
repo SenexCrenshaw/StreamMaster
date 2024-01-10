@@ -4,20 +4,10 @@ import { memo, useRef, useState } from 'react';
 import PlayListDataSelector from './PlayListDataSelector';
 
 interface PlayListDataSelectorDropDownProperties {
-  readonly hideAddRemoveControls?: boolean;
-  readonly hideControls?: boolean;
   readonly id: string;
-  readonly name?: string;
-  readonly useReadOnly?: boolean;
 }
 
-const PlayListDataSelectorDropDown = ({
-  hideAddRemoveControls = false,
-  hideControls = false,
-  id,
-  name = 'PlayListDataSelectorDropDown',
-  useReadOnly = true
-}: PlayListDataSelectorDropDownProperties) => {
+const PlayListDataSelectorDropDown = ({ id }: PlayListDataSelectorDropDownProperties) => {
   const op = useRef<OverlayPanel>(null);
   const anchorReference = useRef(null);
 
