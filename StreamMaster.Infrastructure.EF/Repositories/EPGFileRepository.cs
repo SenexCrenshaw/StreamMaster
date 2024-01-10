@@ -16,14 +16,14 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryCont
 {
     public async Task<int> GetNextAvailableEPGNumberAsync(CancellationToken cancellationToken)
     {
-        var epgNumbers = await FindAll()
+        List<int> epgNumbers = await FindAll()
                                         .Select(x => x.EPGNumber)
                                         .OrderBy(x => x)
                                         .ToListAsync(cancellationToken)
                                         .ConfigureAwait(false);
 
         int nextAvailableNumber = 1;
-        foreach (var num in epgNumbers)
+        foreach (int num in epgNumbers)
         {
             if (num != nextAvailableNumber)
             {
@@ -80,7 +80,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryCont
         }
 
         Create(EPGFile);
-        logger.LogInformation($"EPGFile with ID {EPGFile.Id} was created.");
+        logger.LogInformation($"EPGFile with number {EPGFile.EPGNumber} was created.");
     }
 
     /// <summary>
@@ -189,7 +189,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryCont
         }
 
         Update(EPGFile);
-        logger.LogInformation($"EPGFile with ID {EPGFile.Id} was updated.");
+        logger.LogInformation($"EPGFile with number {EPGFile.EPGNumber} was updated.");
     }
 
     public List<EPGColorDto> GetEPGColors()

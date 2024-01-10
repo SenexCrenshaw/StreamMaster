@@ -188,8 +188,11 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         stopwatch.Stop();
         if (bytesRead < 1000)
         {
-            logger.LogInformation("ReadChunkMemory bytesRead");
-            bytesRead = 1;
+            logger.LogInformation("ReadChunkMemory bytesRead {bytesRead}");
+            //if (bytesRead == 0)
+            //{
+            //    bytesRead = 0;
+            //}
         }
         return bytesRead;
     }
