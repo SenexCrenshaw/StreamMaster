@@ -5,10 +5,10 @@ import { VideoStreamSelector } from '@components/videoStream/VideoStreamSelector
 import { formatJSONDateString, getIconUrl, getTopToolOptions } from '@lib/common/common';
 import {
   ChangeVideoStreamChannelRequest,
+  InputStreamingStatistics,
   SimulateStreamFailureRequest,
-  StreamStatisticsResult,
   VideoInfo,
-  useVideoStreamsGetAllStatisticsForAllUrlsQuery
+  useStatisticsGetInputStatisticsQuery
 } from '@lib/iptvApi';
 import { GetVideoStreamInfoFromId } from '@lib/smAPI/VideoStreams/VideoStreamsGetAPI';
 import { ChangeVideoStreamChannel, SimulateStreamFailure } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
@@ -29,9 +29,10 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
   const toast = useRef<Toast>(null);
   const [videoInfo, setVideoInfo] = useState<VideoInfo | undefined>(undefined);
   const [channelName, setChannelName] = useState<string>('');
-  const getStreamingStatus = useVideoStreamsGetAllStatisticsForAllUrlsQuery();
-  const [dataSource, setDataSource] = useState<StreamStatisticsResult[]>([]);
-  const [data, setData] = useState<StreamStatisticsResult[]>([]);
+
+  const getStreamingStatus = useStatisticsGetInputStatisticsQuery(undefined, { pollingInterval: 1000 * 1 });
+  const [dataSource, setDataSource] = useState<InputStreamingStatistics[]>([]);
+  const [data, setData] = useState<InputStreamingStatistics[]>([]);
 
   useEffect(() => {
     if (getStreamingStatus.data === undefined || getStreamingStatus.data.length === 0 || getStreamingStatus.data === null) {
@@ -48,7 +49,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
     let dataDS = [...dataSource];
 
     for (const item of getStreamingStatus.data) {
-      const index = dataDS.findIndex((x) => x.circularBufferId === item.circularBufferId);
+      const index = dataDS.findIndex((x) => x.id === item.id);
       if (index === -1) {
         dataDS.push(item);
       } else {
@@ -57,18 +58,17 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
           logo: item.logo !== dataDS[index].logo ? item.logo : dataDS[index].logo,
           channelName: item.channelName !== dataDS[index].channelName ? item.channelName : dataDS[index].channelName,
           rank: item.rank !== dataDS[index].rank ? item.rank : dataDS[index].rank,
-          videoStreamName: item.videoStreamName !== dataDS[index].videoStreamName ? item.videoStreamName : dataDS[index].videoStreamName,
-          inputElapsedTime: item.inputElapsedTime !== dataDS[index].inputElapsedTime ? item.inputElapsedTime : dataDS[index].inputElapsedTime,
-          inputBitsPerSecond: item.inputBitsPerSecond !== dataDS[index].inputBitsPerSecond ? item.inputBitsPerSecond : dataDS[index].inputBitsPerSecond,
-          inputStartTime: item.inputStartTime !== dataDS[index].inputStartTime ? item.inputStartTime : dataDS[index].inputStartTime
+          elapsedTime: item.elapsedTime !== dataDS[index].elapsedTime ? item.elapsedTime : dataDS[index].elapsedTime,
+          bitsPerSecond: item.bitsPerSecond !== dataDS[index].bitsPerSecond ? item.bitsPerSecond : dataDS[index].bitsPerSecond,
+          clients: item.clients !== dataDS[index].clients ? item.clients : dataDS[index].clients
         };
       }
     }
 
     for (const item of dataSource) {
-      const index = getStreamingStatus.data.findIndex((x) => x.circularBufferId === item.circularBufferId);
+      const index = getStreamingStatus.data.findIndex((x) => x.id === item.id);
       if (index === -1) {
-        dataDS = dataDS.filter((x) => x.circularBufferId !== item.circularBufferId);
+        dataDS = dataDS.filter((x) => x.id !== item.id);
       }
     }
     setData(getStreamingStatus.data);
@@ -109,18 +109,18 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
   }, []);
 
   const videoStreamTemplate = useCallback(
-    (rowData: StreamStatisticsResult) => (
+    (rowData: InputStreamingStatistics) => (
       <VideoStreamSelector
         onChange={async (e) => {
-          await onChangeVideoStreamChannel(rowData.videoStreamId ?? '', e.id);
+          await onChangeVideoStreamChannel(rowData.id ?? '', e.id);
         }}
-        value={rowData.videoStreamName}
+        value={rowData.channelName}
       />
     ),
     [onChangeVideoStreamChannel]
   );
 
-  const onFailStream = useCallback(async (rowData: StreamStatisticsResult) => {
+  const onFailStream = useCallback(async (rowData: InputStreamingStatistics) => {
     if (!rowData.streamUrl || rowData.streamUrl === undefined || rowData.streamUrl === '') {
       return;
     }
@@ -152,7 +152,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
   }, []);
 
   const imageBodyTemplate = useCallback(
-    (rowData: StreamStatisticsResult) => {
+    (rowData: InputStreamingStatistics) => {
       const iconUrl = getIconUrl(rowData.logo, setting.defaultIcon, setting.cacheIcon);
 
       return (
@@ -169,31 +169,31 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
     [setting]
   );
 
-  const inputBitsPerSecondTemplate = useCallback((rowData: StreamStatisticsResult) => {
-    if (rowData.inputBitsPerSecond === undefined) return <div>0</div>;
+  const inputBitsPerSecondTemplate = useCallback((rowData: InputStreamingStatistics) => {
+    if (rowData.bitsPerSecond === undefined) return <div>0</div>;
 
-    const kbps = rowData.inputBitsPerSecond / 1000;
+    const kbps = rowData.bitsPerSecond / 1000;
     const roundedKbps = Math.ceil(kbps);
 
     return <div>{roundedKbps.toLocaleString('en-US')}</div>;
   }, []);
 
-  const inputStartTimeTemplate = useCallback((rowData: StreamStatisticsResult) => <div>{formatJSONDateString(rowData.inputStartTime ?? '')}</div>, []);
+  const inputStartTimeTemplate = useCallback((rowData: InputStreamingStatistics) => <div>{formatJSONDateString(rowData.startTime ?? '')}</div>, []);
 
   const streamCount = useCallback(
-    (rowData: StreamStatisticsResult) => {
+    (rowData: InputStreamingStatistics) => {
       if (data === undefined || data === null) {
         return <div>0</div>;
       }
 
-      return <div>{data.filter((x) => x.videoStreamId === rowData.videoStreamId).length}</div>;
+      return <div>{data.filter((x) => x.id === rowData.id).length}</div>;
     },
     [data]
   );
 
-  const onPreview = useCallback(async (rowData: StreamStatisticsResult) => {
-    if (rowData.videoStreamName !== undefined && rowData.videoStreamName === '') {
-      setChannelName(rowData.videoStreamName);
+  const onPreview = useCallback(async (rowData: InputStreamingStatistics) => {
+    if (rowData.channelName !== undefined && rowData.channelName === '') {
+      setChannelName(rowData.channelName);
     }
 
     if (rowData.channelId === undefined || rowData.channelId === '') {
@@ -208,7 +208,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
   }, []);
 
   const targetActionBodyTemplate = useCallback(
-    (rowData: StreamStatisticsResult) => (
+    (rowData: InputStreamingStatistics) => (
       <div className="dataselector p-inputgroup align-items-center justify-content-end">
         <BookButton iconFilled={false} onClick={(e) => onPreview(rowData)} tooltip="ffprobe" />
         <Button
@@ -250,8 +250,8 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
 
       {
         align: 'center',
-        bodyTemplate: streamCount,
-        field: 'Count',
+        // bodyTemplate: streamCount,
+        field: 'clients',
         header: 'Streams',
         width: '4rem'
       },

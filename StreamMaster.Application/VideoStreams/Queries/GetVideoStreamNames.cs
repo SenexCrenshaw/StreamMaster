@@ -1,16 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 using StreamMaster.Application.M3UFiles.Commands;
 
 namespace StreamMaster.Application.VideoStreams.Queries;
 
 public record GetVideoStreamNamesRequest() : IRequest<List<IdName>>;
 
-internal class GetVideoStreamNamesHandler(ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService) : BaseRequestHandler(logger, repository, mapper, settingsService), IRequestHandler<GetVideoStreamNamesRequest, List<IdName>>
+internal class GetVideoStreamNamesHandler(ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper Repository) : IRequestHandler<GetVideoStreamNamesRequest, List<IdName>>
 {
     public async Task<List<IdName>> Handle(GetVideoStreamNamesRequest request, CancellationToken cancellationToken)
     {

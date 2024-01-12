@@ -13,7 +13,7 @@ public class RefreshM3UFileRequestValidator : AbstractValidator<RefreshM3UFileRe
 }
 
 [LogExecutionTimeAspect]
-public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> logger, IJobStatusService jobStatusService, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<RefreshM3UFileRequest, M3UFile?>
+public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<RefreshM3UFileRequest, M3UFile?>
 {
     private readonly object lockObject = new();
     public async Task<M3UFile?> Handle(RefreshM3UFileRequest request, CancellationToken cancellationToken)

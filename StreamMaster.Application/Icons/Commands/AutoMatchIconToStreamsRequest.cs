@@ -1,9 +1,5 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 namespace StreamMaster.Application.Icons.Commands;
 
 public record AutoMatchIconToStreamsRequest(List<string> Ids) : IRequest<IconFileDto?> { }
@@ -16,14 +12,9 @@ public class AutoMatchIconToStreamsRequestValidator : AbstractValidator<AutoMatc
     }
 }
 
-public class AutoMatchIconToStreamsRequestHandler : BaseMediatorRequestHandler, IRequestHandler<AutoMatchIconToStreamsRequest, IconFileDto?>
+public class AutoMatchIconToStreamsRequestHandler(ILogger<AutoMatchIconToStreamsRequest> logger, IRepositoryWrapper Repository)
+    : IRequestHandler<AutoMatchIconToStreamsRequest, IconFileDto?>
 {
-
-    public AutoMatchIconToStreamsRequestHandler(ILogger<AutoMatchIconToStreamsRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
-
-
-
     public async Task<IconFileDto?> Handle(AutoMatchIconToStreamsRequest request, CancellationToken cancellationToken)
     {
         if (request.Ids == null || request.Ids.Count == 0)

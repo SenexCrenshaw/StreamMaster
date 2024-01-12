@@ -6,23 +6,24 @@ export interface SingletonListener {
 }
 
 export function createSingletonListener<T>(messageName: string, connection: signalR.HubConnection): SingletonListener {
-  let listenerCount = 0;
+  const listenerCounts = new Map<string, number>();
 
-  return {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    addListener: (callback: (data: T) => void) => {
-      if (listenerCount === 0) {
-        if (isDevelopment) {
-          console.log(`Add listener for ${messageName}`);
-        }
-        connection.on(messageName, callback);
+  const addListener = (callback: (data: T) => void) => {
+    const currentCount = listenerCounts.get(messageName) || 0;
+    if (currentCount === 0) {
+      if (isDevelopment) {
+        console.log(`Add listener for ${messageName}`);
       }
+      connection.on(messageName, callback);
+    }
+    listenerCounts.set(messageName, currentCount + 1);
+  };
 
-      listenerCount++;
-    },
-    removeListener: (callback: (data: T) => void) => {
-      listenerCount--;
-      if (listenerCount === 0) {
+  const removeListener = (callback: (data: T) => void) => {
+    const currentCount = listenerCounts.get(messageName) || 0;
+    if (currentCount > 0) {
+      listenerCounts.set(messageName, currentCount - 1);
+      if (currentCount - 1 === 0) {
         if (isDevelopment) {
           console.log(`Remove listener for ${messageName}`);
         }
@@ -30,4 +31,6 @@ export function createSingletonListener<T>(messageName: string, connection: sign
       }
     }
   };
+
+  return { addListener, removeListener };
 }

@@ -1,23 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
-
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-
-
-namespace StreamMaster.Application.Programmes.Queries;
+﻿namespace StreamMaster.Application.Programmes.Queries;
 
 public record GetProgrammesRequest : IRequest<List<XmltvProgramme>>;
 
-public class GetProgrammesRequestHandler(ILogger<GetProgrammesRequest> logger, IHttpContextAccessor httpContextAccessor, ISchedulesDirect schedulesDirect, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetProgrammesRequest, List<XmltvProgramme>>
+public class GetProgrammesRequestHandler(ILogger<GetProgrammesRequest> logger)
+: IRequestHandler<GetProgrammesRequest, List<XmltvProgramme>>
 {
     public async Task<List<XmltvProgramme>> Handle(GetProgrammesRequest request, CancellationToken cancellationToken)
     {
         //List<EPGProgramme> programmes = MemoryCache.Programmes();
 
-        Setting setting = await GetSettingsAsync();
+        //Setting setting = await GetSettingsAsync();
         //if (setting.SDSettings.SDEnabled)
         //{        
 

@@ -4,7 +4,8 @@ namespace StreamMaster.Application.EPGFiles.Queries;
 
 public record GetEPGColors() : IRequest<List<EPGColorDto>>;
 
-internal class GetEPGColorsHandler(ILogger<GetEPGColors> logger, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetEPGColors, List<EPGColorDto>>
+internal class GetEPGColorsHandler(ILogger<GetEPGColors> logger, IRepositoryWrapper Repository, ISchedulesDirectDataService schedulesDirectDataService)
+    : IRequestHandler<GetEPGColors, List<EPGColorDto>>
 {
     public async Task<List<EPGColorDto>> Handle(GetEPGColors request, CancellationToken cancellationToken = default)
     {

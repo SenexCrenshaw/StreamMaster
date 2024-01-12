@@ -1,12 +1,9 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-namespace StreamMaster.Application.Programmes.Queries;
+﻿namespace StreamMaster.Application.Programmes.Queries;
 
 public record GetProgrammeNames : IRequest<List<string>>;
 
-internal class GetProgrammeNamesHandler(ILogger<GetProgrammeNames> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetProgrammeNames, List<string>>
+internal class GetProgrammeNamesHandler(ILogger<GetProgrammeNames> logger, ISender Sender)
+    : IRequestHandler<GetProgrammeNames, List<string>>
 {
     public async Task<List<string>> Handle(GetProgrammeNames request, CancellationToken cancellationToken)
     {

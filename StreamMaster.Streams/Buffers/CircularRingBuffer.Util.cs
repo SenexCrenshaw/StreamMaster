@@ -1,8 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-using System.Text.Json;
-
-namespace StreamMaster.Infrastructure.VideoStreamManager.Buffers;
+﻿namespace StreamMaster.Infrastructure.VideoStreamManager.Buffers;
 
 
 /// <summary>
@@ -10,77 +6,20 @@ namespace StreamMaster.Infrastructure.VideoStreamManager.Buffers;
 /// </summary>
 public sealed partial class CircularRingBuffer : ICircularRingBuffer
 {
-    private void LogDynamicWaitTime(Guid correlationId, int throttleThreshold, int closestReadIndexDistance, int waitTime)
+    public void IncrementClient()
     {
-        var logData = new
-        {
-            Event = "CalculateDynamicWaitTime",
-            CorrelationId = correlationId,
-            VideoStreamName,
-            ThrottleThreshold = throttleThreshold,
-            ClosestReadIndexDistance = closestReadIndexDistance,
-            CalculatedWaitTime = waitTime
-        };
-        _waitLogger.LogDebug(System.Text.Json.JsonSerializer.Serialize(logData));
+        _inputStreamStatistics.IncrementClient();
     }
 
-    private void LogCalculateDistance(Guid correlationId, int readIndex, int distance, string message)
+    public void DecrementClient()
     {
-        var logData = new
-        {
-            Event = "CalculateDistance",
-            CorrelationId = correlationId,
-            VideoStreamName,
-            ReadIndex = readIndex,
-            WriteIndex = _writeIndex,
-            CalculatedDistance = distance,
-            Message = message
-        };
-        _distanceLogger.LogDebug(System.Text.Json.JsonSerializer.Serialize(logData));
+        _inputStreamStatistics.DecrementClient();
     }
 
-    private int GetAvailableBytes(Guid clientId, Guid correlationId)
+    private int GetAvailableBytes(long readIndex, Guid correlationId)
     {
-        if (_clientReadIndexes.TryGetValue(clientId, out int readIndex))
-        {
-            int availableBytes = (_writeIndex - readIndex + _buffer.Length) % _buffer.Length;
-            if (availableBytes == 0)
-            {
-                _readLogger.LogDebug(JsonSerializer.Serialize(new
-                {
-                    Event = "CheckAvailableBytes",
-                    CorrelationId = correlationId,
-                    ClientId = clientId,
-                    VideoStreamName,
-                    ReadIndex = readIndex,
-                    WriteIndex = _writeIndex,
-                    AvailableBytes = availableBytes
-                }));
-            }
-            return availableBytes;
-        }
-        return 0;
+        long availableBytes = WriteBytes - readIndex;
+
+        return (int)availableBytes;
     }
-
-    public bool IsPreBuffered()
-    {
-        if (InternalIsPreBuffered || HasBufferFlipped)
-        {
-            //_logger.LogDebug("Finished IsPreBuffered with true  {VideoStreamName}", VideoStreamName);
-            return true;
-        }
-
-        int dataInBuffer = _writeIndex % _buffer.Length;
-        float percentBuffered = (float)dataInBuffer / _buffer.Length * 100;
-
-        InternalIsPreBuffered = percentBuffered >= _preBuffPercent;
-        if (InternalIsPreBuffered)
-        {
-            _logger.LogInformation("Finished IsPreBuffered {VideoStreamName}", VideoStreamName);
-        }
-
-        //_logger.LogDebug($"IsPreBuffered check  with true dataInBuffer: {dataInBuffer} percentBuffered: {percentBuffered} preBuffPercent: {_preBuffPercent}");
-        return InternalIsPreBuffered;
-    }
-
 }

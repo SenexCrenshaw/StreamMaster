@@ -22,22 +22,23 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
     private readonly ConcurrentDictionary<Guid, PerformanceBpsMetrics> _performanceMetrics = new();
     private readonly ConcurrentDictionary<Guid, int> _clientLastReadBeforeOverwrite = new();
     private readonly PerformanceBpsMetrics _writeMetric = new();
-    private readonly IStatisticsManager _statisticsManager;
+
     private readonly IInputStatisticsManager _inputStatisticsManager;
     private readonly IInputStreamingStatistics _inputStreamStatistics;
+
     public readonly StreamInfo StreamInfo;
-    private Memory<byte> _buffer;
+
+    private readonly Memory<byte> _buffer;
     private readonly int _bufferSize;
-    private readonly int _originalBufferSize;
-    private readonly ConcurrentDictionary<Guid, int> _clientReadIndexes = new();
-    private readonly DateTime _lastNotificationTime = new();
+
     public VideoInfo? VideoInfo { get; set; } = null;
 
     //private int _oldestDataIndex;
     private readonly float _preBuffPercent;
-    private int _writeIndex;
+    private int _writeIndex { get; set; } = 0;
+    private long WriteBytes { get; set; } = 0;
 
-    private readonly ILogger<ICircularRingBuffer> _logger;
+    private readonly ILogger<ICircularRingBuffer> logger;
     private readonly ILogger<ReadsLogger> _readLogger;
     private readonly ILogger<WriteLogger> _writeLogger;
     private readonly ILogger<OverWLogger> _overwriteLogger;
@@ -47,7 +48,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
 
     private bool _disposed = false;
-    private bool HasBufferFlipped;
+    private readonly bool HasBufferFlipped;
     public string VideoStreamName => StreamInfo.VideoStreamName;
     public Guid Id { get; } = Guid.NewGuid();
     public int BufferSize => _buffer.Length;
@@ -57,14 +58,12 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
     public CancellationTokenSource StopVideoStreamingToken { get; set; }
 
-    public CircularRingBuffer(VideoStreamDto videoStreamDto, string channelId, string channelName, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILoggerFactory loggerFactory)
+    public CircularRingBuffer(VideoStreamDto videoStreamDto, string channelId, string channelName, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILoggerFactory loggerFactory)
     {
         Setting setting = memoryCache.GetSetting();
-        _statisticsManager = statisticsManager ?? throw new ArgumentNullException(nameof(statisticsManager));
         _inputStatisticsManager = inputStatisticsManager ?? throw new ArgumentNullException(nameof(inputStatisticsManager));
-        _inputStreamStatistics = _inputStatisticsManager.RegisterReader(videoStreamDto.Id);
 
-        _logger = loggerFactory.CreateLogger<CircularRingBuffer>();
+        logger = loggerFactory.CreateLogger<CircularRingBuffer>();
         _readLogger = loggerFactory.CreateLogger<ReadsLogger>();
         _writeLogger = loggerFactory.CreateLogger<WriteLogger>();
         _overwriteLogger = loggerFactory.CreateLogger<OverWLogger>();
@@ -97,11 +96,50 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
             Rank = rank
         };
 
+        _inputStreamStatistics = _inputStatisticsManager.RegisterInputReader(StreamInfo);
+
         _buffer = new byte[_bufferSize];
-        _originalBufferSize = _bufferSize;
+
         _writeIndex = 0;
-        //_oldestDataIndex = 0;
-        _bufferHealthLogger = new System.Threading.Timer(LogBufferHealth, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
-        _logger.LogInformation("New Circular Buffer {Id} for stream {videoStreamId} {name}", Id, videoStreamDto.Id, videoStreamDto.User_Tvg_name);
+
+        logger.LogInformation("New Circular Buffer {Id} for stream {videoStreamId} {name}", Id, videoStreamDto.Id, videoStreamDto.User_Tvg_name);
+        UnPauseReaders();
     }
+
+
+    private void DoDispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _writeSignal.TrySetCanceled();
+                _waitTime.GetAllLabelValues().ToList().ForEach(x => _waitTime.RemoveLabelled(x[0], x[1], x[2]));
+                _bitsPerSecond.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
+                _bytesWrittenCounter.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
+                _writeErrorsCounter.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
+                _dataArrival.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
+                _clientLastReadBeforeOverwrite.Clear();
+                _performanceMetrics.Clear();
+            }
+
+            // Dispose unmanaged resources here if any
+
+            _disposed = true;
+        }
+    }
+
+    // Public implementation of Dispose pattern callable by consumers
+    public void Dispose()
+    {
+        DoDispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    // Finalizer in case Dispose wasn't called
+    ~CircularRingBuffer()
+    {
+        DoDispose(false);
+    }
+
 }

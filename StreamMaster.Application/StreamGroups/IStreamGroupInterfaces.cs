@@ -1,12 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Domain.Dto;
+using StreamMaster.Application.StreamGroups.Commands;
 using StreamMaster.Domain.Pagination;
 using StreamMaster.Domain.Requests;
-
-using StreamMaster.Application.Common.Models;
-using StreamMaster.Application.StreamGroups.Commands;
-using StreamMaster.Application.StreamGroups.Queries;
 
 namespace StreamMaster.Application.StreamGroups;
 
@@ -40,7 +36,7 @@ public interface IStreamGroupHub
     Task DeleteStreamGroup(DeleteStreamGroupRequest request);
 
     Task FailClient(FailClientRequest request);
-    Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls();
+
 
     Task<StreamGroupDto?> GetStreamGroup(int StreamGroupNumber);
 

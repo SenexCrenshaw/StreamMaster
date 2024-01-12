@@ -2,17 +2,12 @@
 
 using Microsoft.EntityFrameworkCore;
 
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 namespace StreamMaster.Application.ChannelGroups.Commands;
 
 public record UpdateChannelGroupCountsRequest(List<ChannelGroupDto>? ChannelGroups) : IRequest<List<ChannelGroupDto>> { }
 
 [LogExecutionTimeAspect]
-public class UpdateChannelGroupCountsRequestHandler(ILogger<UpdateChannelGroupCountsRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateChannelGroupCountsRequest, List<ChannelGroupDto>>
+public class UpdateChannelGroupCountsRequestHandler(ILogger<UpdateChannelGroupCountsRequest> Logger, IRepositoryWrapper Repository, IMapper mapper, IMemoryCache MemoryCache) : IRequestHandler<UpdateChannelGroupCountsRequest, List<ChannelGroupDto>>
 {
     private class ChannelGroupBrief
     {
@@ -44,8 +39,8 @@ public class UpdateChannelGroupCountsRequestHandler(ILogger<UpdateChannelGroupCo
                     vs.IsHidden
                 }).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
-            Dictionary<string, List<string>> videoStreamsForGroups = new();
-            Dictionary<string, int> hiddenCounts = new();
+            Dictionary<string, List<string>> videoStreamsForGroups = [];
+            Dictionary<string, int> hiddenCounts = [];
             ChannelGroupDto? c = dtos.Find(a => a.Id == 29);
 
             foreach (ChannelGroupDto cg in dtos)
@@ -95,6 +90,6 @@ public class UpdateChannelGroupCountsRequestHandler(ILogger<UpdateChannelGroupCo
             Logger.LogError(ex, "Error while handling UpdateChannelGroupCountsRequest.");
             throw; // Re-throw the exception if needed or handle accordingly.
         }
-        return new();
+        return [];
     }
 }

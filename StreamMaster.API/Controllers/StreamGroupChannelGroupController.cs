@@ -5,6 +5,7 @@ using StreamMaster.Domain.Dto;
 using StreamMaster.Application.StreamGroupChannelGroups;
 using StreamMaster.Application.StreamGroupChannelGroups.Commands;
 using StreamMaster.Application.StreamGroupChannelGroups.Queries;
+using StreamMaster.API.Controllers;
 
 namespace StreamMasterAPI.Controllers;
 

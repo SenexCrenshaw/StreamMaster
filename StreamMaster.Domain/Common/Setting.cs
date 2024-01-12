@@ -80,9 +80,16 @@ public class SDSettingsRequest
     public bool? XmltvSingleImage { get; set; }
 }
 
+public class TestSettings
+{
+    public int DropInputSeconds { get; set; } = 0;
+    public int DropClientSeconds { get; set; } = 0;
+}
+
 public class BaseSettings : M3USettings
 {
-
+    public int MaxStreamReStart { get; set; } = 3;
+    public TestSettings TestSettings { get; set; } = new();
     public int MaxConcurrentDownloads { get; set; } = 8;
     public SDSettings SDSettings { get; set; } = new();
     public int ExpectedServiceCount { get; set; } = 20;

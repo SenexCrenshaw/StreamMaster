@@ -2,14 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
-
 using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Services;
-
-using StreamMasterAPI.Controllers;
 using StreamMasterAPI.Interfaces;
 
 using System.Web;

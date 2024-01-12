@@ -24,11 +24,12 @@ public class GetStreamGroupLineupValidator : AbstractValidator<GetStreamGroupLin
 }
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupLineup, string>
+public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper Repository, IMemoryCache memoryCache)
+    : IRequestHandler<GetStreamGroupLineup, string>
 {
     public async Task<string> Handle(GetStreamGroupLineup request, CancellationToken cancellationToken)
     {
-        Setting setting = await GetSettingsAsync();
+        Setting setting = memoryCache.GetSetting();
         string requestPath = httpContextAccessor.GetUrlWithPathValue();
         byte[]? iv = requestPath.GetIVFromPath(setting.ServerKey, 128);
         if (iv == null)

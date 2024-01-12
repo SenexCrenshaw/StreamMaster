@@ -34,13 +34,14 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
   const [index, setIndex] = useState<number>(0);
   const [totalItems, setTotalItems] = useState<number>(0);
   const [filteredDataSource, setFilteredDataSource] = useState<T[]>([]);
+
   const { cacheData, updateCache, fetchAndAddItem } = useCache<T>(props.dataKey, props.querySelectedItem);
 
   const isIconSelector = props.dataKey === 'iconSelector';
 
   const [simpleQuery, setSimpleQuery] = useState<SimpleQueryApiArgument>({
     first: 0,
-    last: 200
+    last: 1000
   });
 
   const query = props.queryHook(simpleQuery);
@@ -54,6 +55,14 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
       // console.log(data);
     }
   }, []);
+
+  useEffect(() => {
+    if (filteredDataSource.length === 0 && cacheData.length > 0) {
+      //   logSmallData(cacheData);
+      setFilteredDataSource(cacheData);
+      // }
+    }
+  }, [cacheData, filteredDataSource.length]);
 
   const setFiltered = useCallback(
     (data: T[]) => {
@@ -88,7 +97,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
     fetchAndAddItem({ value: props.value } as StringArgument).catch((error) => {
       console.error(error);
     });
-  }, [cacheData, fetchAndAddItem, filteredDataSource, props.value, queryFilter, selectedItem, setFiltered]);
+  }, [cacheData, fetchAndAddItem, props.value, selectedItem]);
 
   //Set the selected item if the value is set
   useEffect(() => {
@@ -114,10 +123,10 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
   //Data was Filtered
   useEffect(() => {
     if (queryFilter === undefined || !queryFilter.jsonFiltersString) {
-      if (cacheData.length > 0 && filteredDataSource.length === 0) {
-        logSmallData(cacheData);
-        setFiltered(cacheData);
-      }
+      // if (cacheData.length > 0 && filteredDataSource.length === 0) {
+      //   logSmallData(cacheData);
+      //   setFilteredDataSource(cacheData);
+      // }
       return;
     }
 
@@ -139,9 +148,8 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
         ds = ds.concat(newItems);
         updateCache(ds);
         setIndex(ds.length);
-      } else {
-        return;
       }
+
       if (filteredData.length === 0) {
         if (ds.length > 1 && ds.length < 100) {
           console.log(ds);
@@ -165,7 +173,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
 
       setFiltered(cacheData);
     }
-  }, [cacheData, filterQuery, filteredDataSource, logSmallData, queryFilter, selectedItem, setFiltered, totalItems, updateCache]);
+  }, [cacheData, filterQuery, logSmallData, queryFilter, selectedItem, setFiltered, totalItems, updateCache]);
 
   //New Data, new page
   useEffect(() => {
@@ -224,6 +232,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
 
   const onFilter = (event: DropdownFilterEvent) => {
     if (event.filter === '') {
+      setFilteredDataSource(cacheData);
       return;
     }
     const toSend = [] as SMDataTableFilterMetaData[];
@@ -246,6 +255,10 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
         itemTemplate={props.itemTemplate}
         onChange={onChange}
         onFilter={onFilter}
+        onHide={() => {
+          setQueryFilter(undefined);
+          setFiltered(cacheData);
+        }}
         optionLabel={props.optionLabel}
         // optionValue={props.optionValue}
         options={filteredDataSource}

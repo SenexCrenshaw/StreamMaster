@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
 using StreamMaster.Application.M3UFiles;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.M3UFiles.Queries;
@@ -7,8 +6,6 @@ using StreamMaster.Application.Services;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Pagination;
-
-using StreamMasterAPI.Controllers;
 
 namespace StreamMaster.API.Controllers;
 

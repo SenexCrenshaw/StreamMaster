@@ -1,10 +1,5 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 using StreamMaster.Application.ChannelGroups.Events;
 
 namespace StreamMaster.Application.ChannelGroups.Commands;
@@ -22,7 +17,7 @@ public class DeleteChannelGroupRequestValidator : AbstractValidator<DeleteChanne
     }
 }
 
-public class DeleteChannelGroupRequestHandler(ILogger<DeleteChannelGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<DeleteChannelGroupRequest, bool>
+public class DeleteChannelGroupRequestHandler(ILogger<DeleteChannelGroupRequest> logger, IRepositoryWrapper Repository, IPublisher Publisher, IMemoryCache MemoryCache) : IRequestHandler<DeleteChannelGroupRequest, bool>
 {
     public async Task<bool> Handle(DeleteChannelGroupRequest request, CancellationToken cancellationToken)
     {

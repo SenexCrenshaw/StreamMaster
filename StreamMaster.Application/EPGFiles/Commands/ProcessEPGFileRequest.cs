@@ -16,7 +16,8 @@ public class ProcessEPGFileRequestValidator : AbstractValidator<ProcessEPGFileRe
     }
 }
 
-public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<ProcessEPGFileRequest, EPGFileDto?>
+public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger, IJobStatusService jobStatusService, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+    : IRequestHandler<ProcessEPGFileRequest, EPGFileDto?>
 {
     [LogExecutionTimeAspect]
     public async Task<EPGFileDto?> Handle(ProcessEPGFileRequest request, CancellationToken cancellationToken)
@@ -51,8 +52,13 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
 
             return ret;
         }
-        catch (Exception)
+
+        catch (Exception ex)
         {
+        }
+        finally
+        {
+            jobStatusService.SetEPGIsRunning(false);
         }
         return null;
     }

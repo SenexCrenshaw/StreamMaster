@@ -307,25 +307,35 @@ public sealed class FileUtil
         return ret;
     }
 
-    public static Setting GetSetting()
+    public static readonly object FileLock = new();
+    public static Setting? GetSetting()
     {
-        string jsonString;
-        Setting? ret;
-
-        if (File.Exists(BuildInfo.SettingFile))
+        lock (FileLock)
         {
-            jsonString = File.ReadAllText(BuildInfo.SettingFile);
-            ret = JsonSerializer.Deserialize<Setting>(jsonString);
-            if (ret != null)
+            string jsonString;
+            Setting? ret;
+
+            try
             {
-                return ret;
+                if (File.Exists(BuildInfo.SettingFile))
+                {
+                    jsonString = File.ReadAllText(BuildInfo.SettingFile);
+                    ret = JsonSerializer.Deserialize<Setting>(jsonString);
+                    if (ret != null)
+                    {
+                        return ret;
+                    }
+                }
             }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            ret = new Setting();
+            UpdateSetting(ret);
+
+            return ret;
         }
-
-        ret = new Setting();
-        UpdateSetting(ret);
-
-        return ret;
     }
 
     public static bool IsFileGzipped(string filePath)

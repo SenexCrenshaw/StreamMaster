@@ -2,18 +2,12 @@
 
 using Microsoft.EntityFrameworkCore;
 
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 namespace StreamMaster.Application.ChannelGroups.Commands;
 
 public record UpdateChannelGroupCountsByIdsRequest(List<int>? ChannelGroupIds = null) : IRequest<List<ChannelGroupDto>> { }
 
 [LogExecutionTimeAspect]
-public class UpdateChannelGroupCountsByIdsRequestHandler(ILogger<UpdateChannelGroupCountsByIdsRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateChannelGroupCountsByIdsRequest, List<ChannelGroupDto>>
+public class UpdateChannelGroupCountsByIdsRequestHandler(ILogger<UpdateChannelGroupCountsByIdsRequest> logger, IRepositoryWrapper repository, IMapper mapper, IMemoryCache memoryCache) : IRequestHandler<UpdateChannelGroupCountsByIdsRequest, List<ChannelGroupDto>>
 {
     private class ChannelGroupBrief
     {
@@ -35,20 +29,20 @@ public class UpdateChannelGroupCountsByIdsRequestHandler(ILogger<UpdateChannelGr
             //// Get the required channel groups.
             //IQueryable<ChannelGroup> cgsQuery = Repository.ChannelGroup.GetChannelGroupQuery().Select(a => new ChannelGroupBrief { Name = a.Name, Id = a.Id });
 
-            cgs = await Repository.ChannelGroup.GetChannelGroups(request.ChannelGroupIds);
+            cgs = await repository.ChannelGroup.GetChannelGroups(request.ChannelGroupIds);
 
             if (!cgs.Any())
             {
-                Logger.LogInformation("No channel groups found based on the request.");
-                return new();
+                logger.LogInformation("No channel groups found based on the request.");
+                return [];
             }
 
-            var dtos = mapper.Map<List<ChannelGroupDto>>(cgs);
+            List<ChannelGroupDto> dtos = mapper.Map<List<ChannelGroupDto>>(cgs);
 
             List<string> cgNames = dtos.Select(a => a.Name).ToList();
 
             // Fetch relevant video streams.
-            var allVideoStreams = await Repository.VideoStream.GetVideoStreamQuery()
+            var allVideoStreams = await repository.VideoStream.GetVideoStreamQuery()
                 .Where(a => cgNames.Contains(a.User_Tvg_group))
                 .Select(vs => new
                 {
@@ -57,11 +51,11 @@ public class UpdateChannelGroupCountsByIdsRequestHandler(ILogger<UpdateChannelGr
                     vs.IsHidden
                 }).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
-            Dictionary<string, List<string>> videoStreamsForGroups = new();
-            Dictionary<string, int> hiddenCounts = new();
-            var c = dtos.FirstOrDefault(a => a.Id == 29);
+            Dictionary<string, List<string>> videoStreamsForGroups = [];
+            Dictionary<string, int> hiddenCounts = [];
+            ChannelGroupDto? c = dtos.FirstOrDefault(a => a.Id == 29);
 
-            foreach (var cg in dtos)
+            foreach (ChannelGroupDto cg in dtos)
             {
                 if (cg == null)
                 {
@@ -76,7 +70,7 @@ public class UpdateChannelGroupCountsByIdsRequestHandler(ILogger<UpdateChannelGr
 
             if (dtos.Any())
             {
-                foreach (var cg in dtos)
+                foreach (ChannelGroupDto cg in dtos)
                 {
                     cg.TotalCount = videoStreamsForGroups[cg.Name].Count;
                     cg.ActiveCount = videoStreamsForGroups[cg.Name].Count - hiddenCounts[cg.Name];
@@ -84,7 +78,7 @@ public class UpdateChannelGroupCountsByIdsRequestHandler(ILogger<UpdateChannelGr
                     cg.IsHidden = hiddenCounts[cg.Name] != 0;
                 }
 
-                MemoryCache.AddOrUpdateChannelGroupVideoStreamCounts(dtos);
+                memoryCache.AddOrUpdateChannelGroupVideoStreamCounts(dtos);
                 return dtos;
                 //await HubContext.Clients.All.ChannelGroupsRefresh(dtos.ToArray()).ConfigureAwait(false);
 
@@ -105,9 +99,9 @@ public class UpdateChannelGroupCountsByIdsRequestHandler(ILogger<UpdateChannelGr
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error while handling UpdateChannelGroupCountsByIdsRequest.");
+            logger.LogError(ex, "Error while handling UpdateChannelGroupCountsByIdsRequest.");
             throw; // Re-throw the exception if needed or handle accordingly.
         }
-        return new();
+        return [];
     }
 }

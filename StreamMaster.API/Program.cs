@@ -1,4 +1,7 @@
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Primitives;
 
 using Prometheus;
 
@@ -22,6 +25,7 @@ using System.Text.Json.Serialization;
 FileUtil.SetupDirectories();
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
 
 builder.WebHost.ConfigureKestrel((context, serverOptions) =>
 {
@@ -89,6 +93,16 @@ builder.Services.AddControllers(options =>
 });
 
 WebApplication app = builder.Build();
+var lifetime = app.Services.GetService<IHostApplicationLifetime>();
+if (lifetime != null)
+{    
+   lifetime.ApplicationStopped.Register(OnShutdown);
+}
+
+void OnShutdown()
+{
+    SqliteConnection.ClearAllPools();
+}
 
 app.UseOpenApi();
 app.UseSwaggerUi();
@@ -135,12 +149,12 @@ using (IServiceScope scope = app.Services.CreateScope())
 
     var mem = scope.ServiceProvider.GetRequiredService<IMemoryCache>();
     var setting = FileUtil.GetSetting();
+    if  (setting != null)
     mem.SetSetting(setting);
 
     IImageDownloadService imageDownloadService = scope.ServiceProvider.GetRequiredService<IImageDownloadService>();
     imageDownloadService.Start();
 }
-
 
 app.UseDefaultFiles();
 

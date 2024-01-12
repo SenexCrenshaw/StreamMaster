@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
 
 namespace StreamMaster.Streams.Channels;
 
@@ -12,7 +11,7 @@ public sealed class ChannelManager : IChannelManager
 
     private readonly object _disposeLock = new();
     private readonly ILogger<ChannelManager> logger;
-    private readonly IBroadcastService broadcastService;
+    //private readonly IBroadcastService broadcastService;
     private readonly IStreamSwitcher streamSwitcher;
     private readonly IChannelService channelService;
     private readonly IStreamManager streamManager;
@@ -23,7 +22,7 @@ public sealed class ChannelManager : IChannelManager
 
     public ChannelManager(
         ILogger<ChannelManager> logger,
-        IBroadcastService broadcastService,
+        //IBroadcastService broadcastService,
         IStreamSwitcher streamSwitcher,
         IChannelService channelService,
         IStreamManager streamManager,
@@ -33,7 +32,7 @@ public sealed class ChannelManager : IChannelManager
     )
     {
         this.logger = logger;
-        this.broadcastService = broadcastService;
+        //this.broadcastService = broadcastService;
         this.streamSwitcher = streamSwitcher;
         this.channelService = channelService;
         this.streamManager = streamManager;
@@ -66,7 +65,9 @@ public sealed class ChannelManager : IChannelManager
                         continue;
                     }
 
-                    if (streamHandler.ClientCount == 0 || !await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId))
+                    bool didSwitch = await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
+
+                    if (streamHandler.ClientCount == 0 || !didSwitch)
                     {
                         clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(channelStatus.ChannelVideoStreamId)
                             .ForEach(async x =>
@@ -134,7 +135,7 @@ public sealed class ChannelManager : IChannelManager
 
             try
             {
-                broadcastService.StopBroadcasting();
+                //broadcastService.StopBroadcasting();
                 streamManager.Dispose();
                 channelService.Dispose();
                 clientStreamerManager.Dispose();
@@ -171,7 +172,7 @@ public sealed class ChannelManager : IChannelManager
             return null;
         }
 
-        broadcastService.StartBroadcasting();
+        //broadcastService.StartBroadcasting();
         return res;
     }
 

@@ -1,30 +1,29 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 
-using StreamMaster.Domain.Services;
+using StreamMaster.Domain.Cache;
 
 using System.Net;
 using System.Net.Sockets;
 
 namespace StreamMaster.Streams.Statistics;
 
-public sealed class StreamStatisticService(IStreamManager streamManager, ISettingsService settingsService, IMemoryCache memoryCache) : IStreamStatisticService
+public sealed class StreamStatisticService(IInputStatisticsManager inputStatisticsManager, IStatisticsManager statisticsManager, IMemoryCache memoryCache) : IStreamStatisticService
 {
-
-    public async Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls(CancellationToken cancellationToken = default)
+    public async Task<List<InputStreamingStatistics>> GetInputStatistics(CancellationToken cancellationToken = default)
     {
-        List<StreamStatisticsResult> allStatistics = [];
 
-        List<IStreamHandler> infos = streamManager.GetStreamHandlers();
-        foreach (IStreamHandler? info in infos.Where(a => a.CircularRingBuffer != null))
-        {
-            allStatistics.AddRange(info.CircularRingBuffer.GetAllStatisticsForAllUrls());
-        }
+        return inputStatisticsManager.GetAllInputStreamStatistics();
+    }
 
-        Setting settings = await settingsService.GetSettingsAsync(cancellationToken);
+    public async Task<List<ClientStreamingStatistics>> GetClientStatistics(CancellationToken cancellationToken = default)
+    {
+
+        List<ClientStreamingStatistics> clientStreamingStatistics = statisticsManager.GetAllClientStatistics();
+        Setting settings = memoryCache.GetSetting();
 
         if (settings.ShowClientHostNames)
         {
-            foreach (StreamStatisticsResult streamStatisticsResult in allStatistics)
+            foreach (ClientStreamingStatistics streamStatisticsResult in clientStreamingStatistics)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 try
@@ -42,7 +41,7 @@ public sealed class StreamStatisticService(IStreamManager streamManager, ISettin
             }
         }
 
-        return allStatistics;
+        return clientStreamingStatistics;
     }
 
     private async Task<string> GetHostNameAsync(string ipAddress, CancellationToken cancellationToken)

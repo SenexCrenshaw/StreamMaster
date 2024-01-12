@@ -1,9 +1,10 @@
-﻿using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Services;
+﻿using Microsoft.Extensions.Caching.Memory;
+
+using StreamMaster.Domain.Cache;
 
 namespace StreamMaster.Domain.Logging;
 
-public class LoggingUtils(ISettingsService settingsService) : ILoggingUtils
+public class LoggingUtils(IMemoryCache memoryCache) : ILoggingUtils
 {
     private bool? _cleanUrlsCache;
 
@@ -21,7 +22,7 @@ public class LoggingUtils(ISettingsService settingsService) : ILoggingUtils
 
     private async Task<bool> LoadCleanUrlsSettingAsync()
     {
-        Setting settings = await settingsService.GetSettingsAsync();
+        Setting settings = memoryCache.GetSetting();
         return settings.CleanURLs;
     }
 

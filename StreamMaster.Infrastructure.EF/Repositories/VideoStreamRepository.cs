@@ -26,7 +26,7 @@ using System.Linq.Dynamic.Core;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISchedulesDirectDataService schedulesDirectDataService, IEPGHelper epgHelper, IIconService iconService, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender, ISettingsService settingsService) : RepositoryBase<VideoStream>(repositoryContext, intLogger), IVideoStreamRepository
+public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISchedulesDirectDataService schedulesDirectDataService, IEPGHelper epgHelper, IIconService iconService, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : RepositoryBase<VideoStream>(repositoryContext, intLogger), IVideoStreamRepository
 {
     public PagedResponse<VideoStreamDto> CreateEmptyPagedResponse()
     {
@@ -372,7 +372,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
 
     private async Task<VideoStream> UpdateVideoStreamValues(VideoStream videoStream, VideoStreamBaseRequest request, CancellationToken cancellationToken)
     {
-        Setting setting = await settingsService.GetSettingsAsync();
+        Setting setting = memoryCache.GetSetting();
 
         _ = MergeVideoStream(videoStream, request);
         bool epglogo = false;
@@ -913,7 +913,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
 
         List<StationChannelName> stationChannelNames = await sender.Send(new GetStationChannelNames(), cancellationToken).ConfigureAwait(false);
         stationChannelNames = stationChannelNames.OrderBy(a => a.Channel).ToList();
-        Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
+        Setting setting = memoryCache.GetSetting();
         List<string> tomatch = stationChannelNames.Select(a => a.DisplayName).Distinct().ToList();
         string tomatchString = string.Join(',', tomatch);
 

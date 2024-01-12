@@ -7,7 +7,8 @@ namespace StreamMaster.Application.SchedulesDirect.Queries;
 
 public record GetPagedStationChannelNameSelections(StationChannelNameParameters Parameters) : IRequest<PagedResponse<StationChannelName>>;
 
-internal class GetPagedStationChannelNamesHandler(ILogger<GetPagedStationChannelNameSelections> logger, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetPagedStationChannelNameSelections, PagedResponse<StationChannelName>>
+internal class GetPagedStationChannelNamesHandler(ILogger<GetPagedStationChannelNameSelections> logger, ISchedulesDirectDataService schedulesDirectDataService)
+    : IRequestHandler<GetPagedStationChannelNameSelections, PagedResponse<StationChannelName>>
 {
     public async Task<PagedResponse<StationChannelName>> Handle(GetPagedStationChannelNameSelections request, CancellationToken cancellationToken)
     {

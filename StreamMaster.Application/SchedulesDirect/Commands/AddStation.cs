@@ -6,8 +6,8 @@ public record StationRequest(string StationId, string LineUp);
 
 public record AddStation(List<StationRequest> Requests) : IRequest<bool>;
 
-public class AddStationHandler(ILogger<AddStation> logger, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<AddStation, bool>
+public class AddStationHandler(ILogger<AddStation> logger, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IMemoryCache memoryCache)
+: IRequestHandler<AddStation, bool>
 {
     public async Task<bool> Handle(AddStation request, CancellationToken cancellationToken)
     {
@@ -16,7 +16,7 @@ public class AddStationHandler(ILogger<AddStation> logger, IJobStatusService job
             return true;
         }
 
-        Setting setting = await GetSettingsAsync().ConfigureAwait(false);
+        Setting setting = memoryCache.GetSetting();
         if (!setting.SDSettings.SDEnabled)
         {
             return true;

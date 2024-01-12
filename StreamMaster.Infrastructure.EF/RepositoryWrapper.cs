@@ -30,8 +30,7 @@ namespace StreamMaster.Infrastructure.EF
         IMemoryCache memoryCache,
         ISender sender,
         IEPGHelper epgHelper,
-        IHttpContextAccessor httpContextAccessor,
-        ISettingsService settingsService) : IRepositoryWrapper
+        IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
     {
         private IStreamGroupRepository _streamGroup;
 
@@ -39,7 +38,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, repositoryContext, this, streamGroupSortHelper, mapper, memoryCache, sender, httpContextAccessor, settingsService);
+                _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, repositoryContext, mapper, memoryCache, httpContextAccessor);
                 return _streamGroup;
             }
         }
@@ -72,7 +71,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _videoStreamLink ??= new VideoStreamLinkRepository(VideoStreamLinkRepositoryLogger, repositoryContext, mapper, memoryCache, sender);
+                _videoStreamLink ??= new VideoStreamLinkRepository(VideoStreamLinkRepositoryLogger, repositoryContext, mapper);
                 return _videoStreamLink;
             }
         }
@@ -94,7 +93,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _videoStream ??= new VideoStreamRepository(VideoStreamRepositoryLogger, schedulesDirectDataService, epgHelper, iconService, repositoryContext, mapper, memoryCache, sender, settingsService);
+                _videoStream ??= new VideoStreamRepository(VideoStreamRepositoryLogger, schedulesDirectDataService, epgHelper, iconService, repositoryContext, mapper, memoryCache, sender);
                 return _videoStream;
             }
         }
@@ -105,7 +104,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _streamGroupVideoStream ??= new StreamGroupVideoStreamRepository(StreamGroupVideoStreamRepositoryLogger, repositoryContext, this, mapper, settingsService, sender);
+                _streamGroupVideoStream ??= new StreamGroupVideoStreamRepository(StreamGroupVideoStreamRepositoryLogger, repositoryContext, this, mapper, sender);
                 return _streamGroupVideoStream;
             }
         }
@@ -115,7 +114,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _streamGroupChannelGroup ??= new StreamGroupChannelGroupRepository(StreamGroupChannelGroupRepositoryLogger, repositoryContext, this, mapper, settingsService, sender);
+                _streamGroupChannelGroup ??= new StreamGroupChannelGroupRepository(StreamGroupChannelGroupRepositoryLogger, repositoryContext, this, mapper, sender);
                 return _streamGroupChannelGroup;
             }
         }

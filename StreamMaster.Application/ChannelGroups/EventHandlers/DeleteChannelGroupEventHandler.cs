@@ -1,12 +1,9 @@
-﻿using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-using StreamMaster.Application.ChannelGroups.Events;
+﻿using StreamMaster.Application.ChannelGroups.Events;
 
 namespace StreamMaster.Application.ChannelGroups.EventHandlers;
 
-public class DeleteChannelGroupEventHandler(ILogger<DeleteChannelGroupEvent> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), INotificationHandler<DeleteChannelGroupEvent>
+public class DeleteChannelGroupEventHandler(ILogger<DeleteChannelGroupEvent> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+: INotificationHandler<DeleteChannelGroupEvent>
 {
     public async Task Handle(DeleteChannelGroupEvent notification, CancellationToken cancellationToken)
     {

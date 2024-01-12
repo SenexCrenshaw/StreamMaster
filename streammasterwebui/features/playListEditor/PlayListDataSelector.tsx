@@ -27,8 +27,6 @@ const PlayListDataSelector = ({
   const dataKey = `${id}-PlayListDataSelector`;
   const { showHidden, setShowHidden } = useShowHidden(dataKey);
 
-  // const dispatch: AppDispatch = useDispatch();
-
   useEffect(() => {
     if (showHidden === undefined && showHidden !== null) {
       setShowHidden(null);
@@ -98,7 +96,7 @@ const PlayListDataSelector = ({
       id={dataKey}
       // onSelectionChange={(value, selectAll) => {
       //   console.log('onSelectionChange', value, selectAll);
-      //   dispatch(iptvApi.util.invalidateTags(['ChannelGroups']));
+      //   console.log('onSelectionChange', selectSelectedItems);
       // }}
       queryFilter={useChannelGroupsGetPagedChannelGroupsQuery}
       selectedItemsKey="selectSelectedChannelGroupDtoItems"

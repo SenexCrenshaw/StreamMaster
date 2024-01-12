@@ -52,8 +52,8 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public List<string>? NameRegex { get; set; } = [];
 }
 
-public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger<UpdateSettingRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
+public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger<UpdateSettingRequest> Logger, IMapper Mapper, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IMemoryCache MemoryCache)
+: IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
 {
     public static void CopyNonNullFields(SDSettingsRequest source, SDSettings destination)
     {
@@ -190,19 +190,20 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
 
     public async Task<UpdateSettingResponse> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
     {
-        Setting currentSetting = await GetSettingsAsync();
+        Setting currentSetting = MemoryCache.GetSetting();
 
         bool needsLogOut = await UpdateSetting(currentSetting, request, cancellationToken);
 
         Logger.LogInformation("UpdateSettingRequest");
         FileUtil.UpdateSetting(currentSetting);
 
-        MemoryCacheEntryOptions cacheEntryOptions = new()
-        {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
-        };
+        //MemoryCacheEntryOptions cacheEntryOptions = new()
+        //{
+        //    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
+        //};
 
-        _ = memoryCache.Set("Setting", currentSetting, cacheEntryOptions);
+        MemoryCache.SetSetting(currentSetting);
+        //_ = memoryCache.Set("Setting", currentSetting, cacheEntryOptions);
 
         SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
         await HubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);

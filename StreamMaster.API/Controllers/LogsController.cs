@@ -4,6 +4,7 @@ using StreamMaster.Domain.Dto;
 
 using StreamMaster.Application.LogApp;
 using StreamMaster.Application.LogApp.Queries;
+using StreamMaster.API.Controllers;
 
 namespace StreamMasterAPI.Controllers;
 

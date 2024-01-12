@@ -1,21 +1,12 @@
 ﻿using AutoMapper;
 
-using MediatR;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Repository;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class VideoStreamLinkRepository(ILogger<VideoStreamLinkRepository> logger, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : RepositoryBase<VideoStreamLink>(repositoryContext, logger), IVideoStreamLinkRepository
+public class VideoStreamLinkRepository(ILogger<VideoStreamLinkRepository> logger, RepositoryContext repositoryContext, IMapper mapper) : RepositoryBase<VideoStreamLink>(repositoryContext, logger), IVideoStreamLinkRepository
 {
     public async Task<List<string>> GetVideoStreamVideoStreamIds(string videoStreamId, CancellationToken cancellationToken)
     {

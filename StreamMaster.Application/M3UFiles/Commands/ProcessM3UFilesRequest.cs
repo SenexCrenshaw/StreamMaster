@@ -2,7 +2,7 @@
 
 public record ProcessM3UFilesRequest : IRequest { }
 
-public class ProcessM3UFilesRequestHandler(ILogger<ProcessM3UFilesRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<ProcessM3UFilesRequest>
+public class ProcessM3UFilesRequestHandler(ILogger<ProcessM3UFilesRequest> Logger, IRepositoryWrapper Repository, ISender Sender) : IRequestHandler<ProcessM3UFilesRequest>
 {
     public async Task Handle(ProcessM3UFilesRequest command, CancellationToken cancellationToken)
     {

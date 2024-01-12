@@ -2,12 +2,6 @@
 
 using Microsoft.EntityFrameworkCore;
 
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 namespace StreamMaster.Application.ChannelGroups.Commands;
 public record UpdateChannelGroupCountRequest(ChannelGroupDto ChannelGroupDto, bool Publish) : IRequest<ChannelGroupDto> { }
 
@@ -20,7 +14,7 @@ public class UpdateChannelGroupCountRequestValidator : AbstractValidator<UpdateC
 }
 
 [LogExecutionTimeAspect]
-public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCountRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateChannelGroupCountRequest, ChannelGroupDto>
+public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCountRequest> logger, IRepositoryWrapper repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : IRequestHandler<UpdateChannelGroupCountRequest, ChannelGroupDto>
 {
     /// <summary>
     /// Updates the video stream counts (total, active, and hidden) for a given channel group based on the provided request.
@@ -35,7 +29,7 @@ public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCou
     {
         try
         {
-            IQueryable<VideoStream> videoStreamsForGroupQuery = Repository.VideoStream.GetVideoStreamQuery().Where(vs => vs.User_Tvg_group == request.ChannelGroupDto.Name);
+            IQueryable<VideoStream> videoStreamsForGroupQuery = repository.VideoStream.GetVideoStreamQuery().Where(vs => vs.User_Tvg_group == request.ChannelGroupDto.Name);
 
             // Optimize to reduce the database hits by fetching counts together
             var counts = await videoStreamsForGroupQuery.GroupBy(vs => vs.IsHidden).Select(g => new { IsHidden = g.Key, Count = g.Count() }).ToListAsync(cancellationToken);
@@ -76,10 +70,10 @@ public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCou
                 //    ChannelGroupId = request.ChannelGroupDto.Id
                 //};
 
-                MemoryCache.AddOrUpdateChannelGroupVideoStreamCount(request.ChannelGroupDto);
+                memoryCache.AddOrUpdateChannelGroupVideoStreamCount(request.ChannelGroupDto);
                 if (request.Publish)
                 {
-                    await HubContext.Clients.All.ChannelGroupsRefresh([request.ChannelGroupDto]).ConfigureAwait(false);
+                    await hubContext.Clients.All.ChannelGroupsRefresh([request.ChannelGroupDto]).ConfigureAwait(false);
                 }
             }
 
@@ -87,7 +81,7 @@ public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCou
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error while processing UpdateChannelGroupCountRequest.");
+            logger.LogError(ex, "Error while processing UpdateChannelGroupCountRequest.");
             throw; // Re-throw the exception or handle as needed
         }
     }

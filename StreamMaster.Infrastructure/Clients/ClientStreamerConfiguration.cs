@@ -87,4 +87,5 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
     //Current Streaming info
     public string ChannelVideoStreamId { get; set; }
     public string ChannelName { get; set; }
+    public string VideoStreamName { get; set; }
 }

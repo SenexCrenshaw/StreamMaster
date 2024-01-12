@@ -6,27 +6,41 @@ namespace StreamMaster.Streams.Statistics;
 
 public sealed class InputStatisticsManager(ILogger<InputStatisticsManager> logger) : IInputStatisticsManager
 {
-    private readonly ConcurrentDictionary<string, IInputStreamingStatistics> _inputStatistics = new();
+    private readonly ConcurrentDictionary<string, InputStreamingStatistics> _inputStatistics = new();
     private readonly ILogger<InputStatisticsManager> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-    public IInputStreamingStatistics RegisterReader(string videoStreamId)
+    public IInputStreamingStatistics RegisterInputReader(StreamInfo StreamInfo)
     {
-        if (!_inputStatistics.ContainsKey(videoStreamId))
+        if (!_inputStatistics.ContainsKey(StreamInfo.VideoStreamId))
         {
-            _inputStatistics.TryAdd(videoStreamId, new InputStreamingStatistics());
+            _inputStatistics.TryAdd(StreamInfo.VideoStreamId, new InputStreamingStatistics(StreamInfo));
         }
 
-        return _inputStatistics[videoStreamId];
+        return _inputStatistics[StreamInfo.VideoStreamId];
     }
 
-    public IInputStreamingStatistics GetInputStreamStatistics(string videoStreamId)
+    public IInputStreamingStatistics? GetInputStreamStatistics(string videoStreamId)
     {
-        if (!_inputStatistics.TryGetValue(videoStreamId, out IInputStreamingStatistics? _inputStreamStatistics))
+
+        if (!_inputStatistics.TryGetValue(videoStreamId, out InputStreamingStatistics? _inputStreamStatistics))
         {
             _logger.LogWarning("Video stream {videoStreamId} not found when trying to get input stream statistics.", videoStreamId);
-            return new InputStreamingStatistics();
+            return null;
         }
 
         return _inputStreamStatistics;
+    }
+    public List<InputStreamingStatistics> GetAllInputStreamStatistics()
+    {
+        foreach (KeyValuePair<string, InputStreamingStatistics> stat in _inputStatistics)
+        {
+            if (stat.Value.Clients == 0)
+            {
+                _inputStatistics.TryRemove(stat.Key, out _);
+            }
+
+        }
+
+        return [.. _inputStatistics.Values];
     }
 }

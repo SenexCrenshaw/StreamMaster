@@ -22,7 +22,7 @@ public class ApiKeyAuthenticationOptions : AuthenticationSchemeOptions
     public string Scheme => DefaultScheme;
 }
 
-public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options, ISettingsService settingsService, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock) : AuthenticationHandler<ApiKeyAuthenticationOptions>(options, logger, encoder, clock)
+public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options, ISettingsService settingsService, ILoggerFactory logger, UrlEncoder encoder) : AuthenticationHandler<ApiKeyAuthenticationOptions>(options, logger, encoder)
 {
     private readonly ILogger<ApiKeyAuthenticationHandler> _logger = logger.CreateLogger<ApiKeyAuthenticationHandler>();
 

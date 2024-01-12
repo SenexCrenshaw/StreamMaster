@@ -1,4 +1,6 @@
-﻿using StreamMaster.Domain.Filtering;
+﻿using Microsoft.EntityFrameworkCore;
+
+using StreamMaster.Domain.Filtering;
 
 using System.Collections.Concurrent;
 using System.Linq.Dynamic.Core;
@@ -30,6 +32,7 @@ public static class FilterHelper<T> where T : class
         {
             query = query.OrderBy(orderBy);
         }
+        string t = query.ToQueryString();
         return query;
     }
 

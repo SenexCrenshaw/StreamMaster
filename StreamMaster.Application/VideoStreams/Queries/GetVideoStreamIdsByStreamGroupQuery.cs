@@ -1,16 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 using StreamMaster.Application.M3UFiles.Commands;
 
 namespace StreamMaster.Application.VideoStreams.Queries;
 
 public record GetVideoStreamIdsByStreamGroupQuery(int StreamGroupId) : IRequest<List<string>> { }
 
-internal class GetVideoStreamIdsByStreamGroupQueryHandler(ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService) : BaseRequestHandler(logger, repository, mapper, settingsService), IRequestHandler<GetVideoStreamIdsByStreamGroupQuery, List<string>>
+internal class GetVideoStreamIdsByStreamGroupQueryHandler(ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper Repository) : IRequestHandler<GetVideoStreamIdsByStreamGroupQuery, List<string>>
 {
     public async Task<List<string>> Handle(GetVideoStreamIdsByStreamGroupQuery request, CancellationToken cancellationToken)
     {
@@ -20,7 +16,7 @@ internal class GetVideoStreamIdsByStreamGroupQueryHandler(ILogger<ChangeM3UFileN
             .SingleOrDefault(sg => sg.Id == request.StreamGroupId);
         if (streamGroup == null)
         {
-            return new();
+            return [];
         }
 
         // Fetch all channel group names

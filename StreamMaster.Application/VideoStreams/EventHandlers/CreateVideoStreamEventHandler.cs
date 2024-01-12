@@ -1,15 +1,12 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-using StreamMaster.Application.ChannelGroups.Commands;
+﻿using StreamMaster.Application.ChannelGroups.Commands;
 using StreamMaster.Application.ChannelGroups.Events;
 using StreamMaster.Application.ChannelGroups.Queries;
 using StreamMaster.Application.VideoStreams.Events;
 
 namespace StreamMaster.Application.VideoStreams.EventHandlers;
 
-public class CreateVideoStreamEventHandler(ILogger<CreateVideoStreamEvent> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), INotificationHandler<CreateVideoStreamEvent>
+public class CreateVideoStreamEventHandler(ILogger<CreateVideoStreamEvent> logger, IPublisher Publisher, ISender Sender)
+    : INotificationHandler<CreateVideoStreamEvent>
 {
     public async Task Handle(CreateVideoStreamEvent notification, CancellationToken cancellationToken = default)
     {

@@ -1,13 +1,9 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-namespace StreamMaster.Application.StreamGroupVideoStreams.Queries;
+﻿namespace StreamMaster.Application.StreamGroupVideoStreams.Queries;
 
 public record GetStreamGroupVideoStreamsListRequest(int StreamGroupId) : IRequest<List<VideoStreamDto>>;
 
 [LogExecutionTimeAspect]
-internal class GetStreamGroupVideoStreamsListRequestHandler(ILogger<GetStreamGroupVideoStreamsListRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService) : BaseRequestHandler(logger, repository, mapper, settingsService), IRequestHandler<GetStreamGroupVideoStreamsListRequest, List<VideoStreamDto>>
+internal class GetStreamGroupVideoStreamsListRequestHandler(ILogger<GetStreamGroupVideoStreamsListRequest> logger, IRepositoryWrapper Repository) : IRequestHandler<GetStreamGroupVideoStreamsListRequest, List<VideoStreamDto>>
 {
     public async Task<List<VideoStreamDto>> Handle(GetStreamGroupVideoStreamsListRequest request, CancellationToken cancellationToken)
     {

@@ -6,7 +6,8 @@ namespace StreamMaster.Application.ChannelGroups.Queries;
 public record GetPagedChannelGroups(ChannelGroupParameters Parameters) : IRequest<PagedResponse<ChannelGroupDto>>;
 
 [LogExecutionTimeAspect]
-internal class GetPagedChannelGroupsQueryHandler(ILogger<GetPagedChannelGroups> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetPagedChannelGroups, PagedResponse<ChannelGroupDto>>
+internal class GetPagedChannelGroupsQueryHandler(ILogger<GetPagedChannelGroups> logger, IRepositoryWrapper Repository, ISender Sender, IMapper Mapper)
+    : IRequestHandler<GetPagedChannelGroups, PagedResponse<ChannelGroupDto>>
 {
     public async Task<PagedResponse<ChannelGroupDto>> Handle(GetPagedChannelGroups request, CancellationToken cancellationToken)
     {

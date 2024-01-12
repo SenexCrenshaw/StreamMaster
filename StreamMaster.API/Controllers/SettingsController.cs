@@ -5,10 +5,7 @@ using StreamMaster.Application.General.Queries;
 using StreamMaster.Application.Settings;
 using StreamMaster.Application.Settings.Commands;
 using StreamMaster.Application.Settings.Queries;
-using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Dto;
-
-using StreamMasterAPI.Controllers;
 
 namespace StreamMaster.API.Controllers;
 
@@ -39,10 +36,9 @@ public class SettingsController : ApiControllerBase, ISettingController
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<bool>> LogIn(LogInRequest logInRequest)
+    public ActionResult<bool> LogIn(LogInRequest logInRequest)
     {
-        Setting setting = await SettingsService.GetSettingsAsync();
-        return setting.AdminUserName == logInRequest.UserName && setting.AdminPassword == logInRequest.Password;
+        return Settings.AdminUserName == logInRequest.UserName && Settings.AdminPassword == logInRequest.Password;
     }
 
     [HttpPatch]

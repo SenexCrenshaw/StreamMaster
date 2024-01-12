@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useAppInfo } from '../redux/slices/useAppInfo';
 import { isClient } from '../settings';
 import { hubConnection } from './signalr';
+import { AddConnections, RemoveConnections } from './signalrCommands';
 
 export const SignalRConnection = ({ children }: React.PropsWithChildren): JSX.Element => {
   const { setHubConnected, setHubDisconnected } = useAppInfo();
@@ -10,7 +11,7 @@ export const SignalRConnection = ({ children }: React.PropsWithChildren): JSX.El
 
   const maxRetries = 5; // define a maximum number of retry attempts
   const initialDelay = 1000; // start with 1 second delay
-  const maxDelay = 30_000; // max delay is 30 seconds
+  const maxDelay = 30000; // max delay is 30 seconds
 
   const startConnection = useCallback(() => {
     if (!isClient) {
@@ -51,15 +52,18 @@ export const SignalRConnection = ({ children }: React.PropsWithChildren): JSX.El
     }
 
     if (hubConnection.state === HubConnectionState.Disconnected) {
+      RemoveConnections();
       startConnection();
     }
 
     if (hubConnection.state === HubConnectionState.Connected) {
       const onClose = (): void => {
+        RemoveConnections();
         console.log('Hub Connection closed. Attempting to reconnect...');
         startConnection(); // reset retries and start connection attempt
       };
 
+      AddConnections();
       hubConnection.onclose(onClose);
     }
   }, [setHubConnected, setHubDisconnected, startConnection]);

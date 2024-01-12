@@ -1,9 +1,5 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 namespace StreamMaster.Application.StreamGroupVideoStreams.Commands;
 
 [RequireAll]
@@ -20,7 +16,8 @@ public class SyncVideoStreamToStreamGroupRequestValidator : AbstractValidator<Sy
 }
 
 [LogExecutionTimeAspect]
-public class SyncVideoStreamToStreamGroupRequestHandler(ILogger<SyncVideoStreamToStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<SyncVideoStreamToStreamGroupRequest>
+public class SyncVideoStreamToStreamGroupRequestHandler(ILogger<SyncVideoStreamToStreamGroupRequest> logger, IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+    : IRequestHandler<SyncVideoStreamToStreamGroupRequest>
 {
     public async Task Handle(SyncVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken)
     {
@@ -32,7 +29,7 @@ public class SyncVideoStreamToStreamGroupRequestHandler(ILogger<SyncVideoStreamT
         StreamGroupDto? ret = await Repository.StreamGroupVideoStream.SyncVideoStreamToStreamGroup(request.StreamGroupId, request.VideoStreamId, cancellationToken).ConfigureAwait(false);
         if (ret != null)
         {
-            StreamGroupDto? dto = await repository.StreamGroup.GetStreamGroupById(ret.Id).ConfigureAwait(false);
+            StreamGroupDto? dto = await Repository.StreamGroup.GetStreamGroupById(ret.Id).ConfigureAwait(false);
             await HubContext.Clients.All.StreamGroupsRefresh([dto]).ConfigureAwait(false);
         }
     }

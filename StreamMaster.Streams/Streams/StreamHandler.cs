@@ -14,17 +14,18 @@ namespace StreamMaster.Streams.Streams;
 /// <summary>
 /// Manages the streaming of a single video stream, including client registrations and circularRingbuffer handling.
 /// </summary>
-public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, IMemoryCache memoryCache, ILogger<IStreamHandler> logger, ICircularRingBuffer ringBuffer) : IStreamHandler
+public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, IMemoryCache memoryCache, IClientStreamerManager clientStreamerManager, ILogger<IStreamHandler> logger, ICircularRingBuffer ringBuffer) : IStreamHandler
 {
-
+    public static int ChunkSize = 64 * 1024;
 
     private readonly SemaphoreSlim getVideoInfo = new(1);
     private bool runningGetVideo { get; set; } = false;
 
-    public event EventHandler<string> OnStreamingStoppedEvent;
+    public event EventHandler<StreamHandlerStopped> OnStreamingStoppedEvent;
 
     private readonly ConcurrentDictionary<Guid, Guid> clientStreamerIds = new();
 
+    public VideoStreamDto VideoStreamDto { get; } = videoStreamDto;
     public int M3UFileId { get; } = videoStreamDto.M3UFileId;
     public int ProcessId { get; set; } = processId;
     public ICircularRingBuffer CircularRingBuffer { get; } = ringBuffer;
@@ -38,10 +39,11 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
     public int ClientCount => clientStreamerIds.Count;
 
     public bool IsFailed { get; private set; }
+    public int RestartCount { get; set; }
 
-    private void OnStreamingStopped()
+    private void OnStreamingStopped(bool InputStreamError)
     {
-        OnStreamingStoppedEvent?.Invoke(this, StreamUrl);
+        OnStreamingStoppedEvent?.Invoke(this, new StreamHandlerStopped { StreamUrl = StreamUrl, InputStreamError = InputStreamError });
     }
 
     public VideoInfo GetVideoInfo()
@@ -196,24 +198,53 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         return process.ExitCode == 0;
     }
 
+    private readonly Memory<byte> videoMemory = new byte[1 * 1024 * 1024];
+    private bool startMemoryFilled = false;
+    private bool testRan = false;
 
     public async Task StartVideoStreamingAsync(Stream stream)
     {
-        const int chunkSize = 64 * 1024;
-        //const int minWriteSize = chunkSize / 2;
 
+        VideoStreamingCancellationToken = new();
         CancellationTokenSource stopVideoStreamingToken = new();
-        CancellationTokenSource linkedToken = CancellationTokenSource.CreateLinkedTokenSource(stopVideoStreamingToken.Token, VideoStreamingCancellationToken.Token);
 
         CircularRingBuffer.StopVideoStreamingToken = stopVideoStreamingToken;
 
-        logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} name: {name} circularRingbuffer id: {circularRingbuffer}", chunkSize, StreamUrl, VideoStreamName, CircularRingBuffer.Id);
+        logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} name: {name} circularRingbuffer id: {circularRingbuffer}", ChunkSize, StreamUrl, VideoStreamName, CircularRingBuffer.Id);
 
-        Memory<byte> videoMemory = new byte[1 * 1024 * 1024];
-        Memory<byte> bufferMemory = new byte[chunkSize];
+        Memory<byte> bufferMemory = new byte[ChunkSize];
 
         int startMemoryIndex = 0;
-        bool startMemoryFilled = false;
+        bool inputStreamError = false;
+
+        CancellationTokenSource linkedToken;
+        CancellationTokenSource timeOutToken = new();
+
+        if (!testRan && memoryCache.GetSetting().TestSettings.DropInputSeconds > 0)
+        {
+            logger.LogInformation($"Testing: Will stop stream in {memoryCache.GetSetting().TestSettings.DropInputSeconds} seconds.");
+            timeOutToken.CancelAfter(memoryCache.GetSetting().TestSettings.DropInputSeconds * 1000);
+            linkedToken = CancellationTokenSource.CreateLinkedTokenSource(stopVideoStreamingToken.Token, VideoStreamingCancellationToken.Token, timeOutToken.Token);
+        }
+        else
+        {
+            linkedToken = CancellationTokenSource.CreateLinkedTokenSource(stopVideoStreamingToken.Token, VideoStreamingCancellationToken.Token);
+        }
+
+        //foreach (Guid clientId in GetClientStreamerClientIds())
+        //{
+        //    IClientStreamerConfiguration? clientStreamerConfiguration = await clientStreamerManager.GetClientStreamerConfiguration(clientId);
+        //    if (clientStreamerConfiguration != null && clientStreamerConfiguration.ReadBuffer != null)
+        //    {
+        //        long _lastReadIndex = CircularRingBuffer.GetNextReadIndex();
+        //        //if (_lastReadIndex > StreamHandler.ChunkSize)
+        //        //{
+        //        //    _lastReadIndex -= StreamHandler.ChunkSize;
+        //        //}
+        //        clientStreamerConfiguration.ReadBuffer.SetLastIndex(_lastReadIndex);
+        //    }
+        //}
+
 
         using (stream)
         {
@@ -223,23 +254,23 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             {
                 try
                 {
-
                     await stream.ReadExactlyAsync(bufferMemory, linkedToken.Token);
-                    await CircularRingBuffer.WriteChunk(bufferMemory, VideoStreamingCancellationToken.Token).ConfigureAwait(false);
-
+                    CircularRingBuffer.WriteChunk(bufferMemory);
+                    if (CircularRingBuffer.IsPaused())
+                    {
+                        CircularRingBuffer.UnPauseReaders();
+                    }
                     timeBetweenWrites.Reset();
 
                     if (!startMemoryFilled)
                     {
                         if (startMemoryIndex < 1024 * 1024)
                         {
-                            // Calculate the maximum number of bytes that can be copied
+
                             int bytesToCopy = Math.Min(videoMemory.Length - startMemoryIndex, bytesRead);
 
-                            // Directly copy the data from bufferMemory to startMemory
                             bufferMemory[..bytesToCopy].CopyTo(videoMemory[startMemoryIndex..]);
 
-                            // Update startMemoryIndex
                             startMemoryIndex += bytesToCopy;
                         }
                         else
@@ -267,9 +298,24 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
 
                 }
-                catch (TaskCanceledException)
+                catch (TaskCanceledException ex)
                 {
+
                     logger.LogInformation("Stream requested to stop for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
+                    logger.LogInformation("Stream requested to stop for: {VideoStreamingCancellationToken}", VideoStreamingCancellationToken.IsCancellationRequested);
+                    logger.LogInformation("Stream requested to stop for: {stopVideoStreamingToken.Token}", stopVideoStreamingToken.Token.IsCancellationRequested);
+                    break;
+                }
+                catch (EndOfStreamException)
+                {
+                    inputStreamError = true;
+                    logger.LogInformation("End of Stream reached for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
+                    break;
+                }
+                catch (HttpIOException ex)
+                {
+                    inputStreamError = true;
+                    logger.LogInformation(ex, "HTTP IO for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
                     break;
                 }
                 catch (Exception ex)
@@ -280,6 +326,8 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             }
         }
 
+        CircularRingBuffer.PauseReaders();
+
         if (!stopVideoStreamingToken.IsCancellationRequested)
         {
             stopVideoStreamingToken.Cancel();
@@ -287,9 +335,8 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         stream.Close();
         stream.Dispose();
 
-        //logger.LogInformation("Stream stopped for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
-
-        OnStreamingStopped();
+        OnStreamingStopped(inputStreamError || (timeOutToken.IsCancellationRequested && !testRan));
+        testRan = true;
     }
 
     public void Dispose()
@@ -331,8 +378,9 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
     {
         try
         {
+
             _ = clientStreamerIds.TryAdd(streamerConfiguration.ClientId, streamerConfiguration.ClientId);
-            CircularRingBuffer.RegisterClient(streamerConfiguration);
+            CircularRingBuffer.IncrementClient();
 
             logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId} {name} {RingBuffer.Id}", streamerConfiguration.ClientId, VideoStreamId, VideoStreamName, CircularRingBuffer.Id);
         }
@@ -349,7 +397,8 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         {
             logger.LogInformation("UnRegisterClientStreamer ClientId: {ClientId} {name} {RingBuffer.Id}", ClientId, VideoStreamName, CircularRingBuffer.Id);
             bool result = clientStreamerIds.TryRemove(ClientId, out _);
-            CircularRingBuffer.UnRegisterClient(ClientId);
+            //CircularRingBuffer.UnRegisterClient(ClientId);
+            CircularRingBuffer.DecrementClient();
 
             return result;
         }

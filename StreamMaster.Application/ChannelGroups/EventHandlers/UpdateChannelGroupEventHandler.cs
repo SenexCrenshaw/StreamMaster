@@ -1,14 +1,11 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
-using StreamMaster.Application.ChannelGroups.Commands;
+﻿using StreamMaster.Application.ChannelGroups.Commands;
 using StreamMaster.Application.ChannelGroups.Events;
 using StreamMaster.Application.StreamGroupChannelGroups.Queries;
 
 namespace StreamMaster.Application.ChannelGroups.EventHandlers;
 
-public class UpdateChannelGroupEventHandler(ILogger<UpdateChannelGroupEvent> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), INotificationHandler<UpdateChannelGroupEvent>
+public class UpdateChannelGroupEventHandler(ILogger<UpdateChannelGroupEvent> logger, IRepositoryWrapper Repository, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+    : INotificationHandler<UpdateChannelGroupEvent>
 {
     public async Task Handle(UpdateChannelGroupEvent notification, CancellationToken cancellationToken)
     {
@@ -18,7 +15,7 @@ public class UpdateChannelGroupEventHandler(ILogger<UpdateChannelGroupEvent> log
             await Sender.Send(new UpdateChannelGroupCountRequest(notification.ChannelGroup, true), cancellationToken).ConfigureAwait(false);
             await HubContext.Clients.All.ChannelGroupsRefresh().ConfigureAwait(false);
 
-            List<VideoStreamDto> streams = await repository.VideoStream.GetVideoStreamsForChannelGroup(notification.ChannelGroup.Id, cancellationToken).ConfigureAwait(false);
+            List<VideoStreamDto> streams = await Repository.VideoStream.GetVideoStreamsForChannelGroup(notification.ChannelGroup.Id, cancellationToken).ConfigureAwait(false);
             if (streams.Any())
             {
                 await HubContext.Clients.All.VideoStreamsRefresh([.. streams]).ConfigureAwait(false);

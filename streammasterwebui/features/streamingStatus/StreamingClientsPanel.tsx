@@ -1,7 +1,7 @@
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { formatJSONDateString, getTopToolOptions } from '@lib/common/common';
-import { FailClientRequest, StreamStatisticsResult, useVideoStreamsGetAllStatisticsForAllUrlsQuery } from '@lib/iptvApi';
+import { ClientStreamingStatistics, FailClientRequest, useStatisticsGetClientStatisticsQuery } from '@lib/iptvApi';
 import { FailClient } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
@@ -14,9 +14,9 @@ interface StreamingClientsPanelProperties {
 
 const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProperties) => {
   const toast = useRef<Toast>(null);
-  const [dataSource, setDataSource] = useState<StreamStatisticsResult[]>([]);
+  const [dataSource, setDataSource] = useState<ClientStreamingStatistics[]>([]);
 
-  const getStreamingStatus = useVideoStreamsGetAllStatisticsForAllUrlsQuery();
+  const getStreamingStatus = useStatisticsGetClientStatisticsQuery(undefined, { pollingInterval: 1000 * 1 });
 
   useEffect(() => {
     if (getStreamingStatus.data === undefined || getStreamingStatus.data.length === 0 || getStreamingStatus.data === null) {
@@ -48,10 +48,9 @@ const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProper
           clientIPAddress: item.clientIPAddress,
           clientAgent: item.clientAgent,
           videoStreamName: item.videoStreamName,
-          clientStartTime: item.clientStartTime,
-          clientElapsedTime: item.clientElapsedTime,
-          clientBitsPerSecond: item.clientBitsPerSecond,
-          inputStartTime: item.inputStartTime
+          startTime: item.startTime,
+          elapsedTime: item.elapsedTime,
+          readBitsPerSecond: item.readBitsPerSecond
         };
       }
     }
@@ -66,18 +65,18 @@ const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProper
     setDataSource(data);
   }, [getStreamingStatus.data]);
 
-  const clientBitsPerSecondTemplate = (rowData: StreamStatisticsResult) => {
-    if (rowData.clientBitsPerSecond === undefined) return <div />;
+  const clientBitsPerSecondTemplate = (rowData: ClientStreamingStatistics) => {
+    if (rowData.readBitsPerSecond === undefined) return <div />;
 
-    const kbps = rowData.clientBitsPerSecond / 1000;
+    const kbps = rowData.readBitsPerSecond / 1000;
     const roundedKbps = Math.ceil(kbps);
 
     return <div>{roundedKbps.toLocaleString('en-US')}</div>;
   };
 
-  const clientStartTimeTemplate = (rowData: StreamStatisticsResult) => <div>{formatJSONDateString(rowData.clientStartTime ?? '')}</div>;
+  const clientStartTimeTemplate = (rowData: ClientStreamingStatistics) => <div>{formatJSONDateString(rowData.startTime ?? '')}</div>;
 
-  const onFailClient = async (rowData: StreamStatisticsResult) => {
+  const onFailClient = async (rowData: ClientStreamingStatistics) => {
     if (!rowData.clientId || rowData.clientId === undefined || rowData.clientId === '') {
       return;
     }
@@ -109,7 +108,7 @@ const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProper
       });
   };
 
-  const targetActionBodyTemplate = (rowData: StreamStatisticsResult) => (
+  const targetActionBodyTemplate = (rowData: ClientStreamingStatistics) => (
     <div className="dataselector p-inputgroup align-items-center justify-content-end">
       <Button
         className="p-button-danger"
@@ -171,7 +170,7 @@ const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProper
         <DataSelector
           className={className}
           columns={columns()}
-          defaultSortField="clientStartTime"
+          defaultSortField="videoStreamName"
           dataSource={dataSource}
           emptyMessage="No Clients Streaming"
           id="StreamingServerStatusPanel"

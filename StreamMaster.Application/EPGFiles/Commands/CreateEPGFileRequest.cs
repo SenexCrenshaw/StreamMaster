@@ -21,7 +21,7 @@ public class CreateEPGFileRequestValidator : AbstractValidator<CreateEPGFileRequ
     }
 }
 
-public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<CreateEPGFileRequest, EPGFileDto?>
+public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateEPGFileRequest, EPGFileDto?>
 {
     public async Task<EPGFileDto?> Handle(CreateEPGFileRequest command, CancellationToken cancellationToken)
     {

@@ -7,6 +7,7 @@ using StreamMaster.Infrastructure;
 using StreamMaster.Application.ChannelGroups;
 using StreamMaster.Application.ChannelGroups.Commands;
 using StreamMaster.Application.ChannelGroups.Queries;
+using StreamMaster.API.Controllers;
 
 
 namespace StreamMasterAPI.Controllers;

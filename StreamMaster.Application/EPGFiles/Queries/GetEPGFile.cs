@@ -2,7 +2,8 @@
 
 public record GetEPGFile(int Id) : IRequest<EPGFileDto?>;
 
-internal class GetEPGFileHandler(ILogger<GetEPGFile> logger, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetEPGFile, EPGFileDto?>
+internal class GetEPGFileHandler(ILogger<GetEPGFile> logger, IRepositoryWrapper Repository, ISchedulesDirectDataService schedulesDirectDataService, IMapper Mapper)
+    : IRequestHandler<GetEPGFile, EPGFileDto?>
 {
     public async Task<EPGFileDto?> Handle(GetEPGFile request, CancellationToken cancellationToken = default)
     {

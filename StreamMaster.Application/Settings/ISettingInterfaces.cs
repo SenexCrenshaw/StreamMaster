@@ -10,7 +10,7 @@ public interface ISettingController
 
     Task<ActionResult<SDSystemStatus>> GetSystemStatus();
 
-    Task<ActionResult<bool>> LogIn(LogInRequest logInRequest);
+    ActionResult<bool> LogIn(LogInRequest logInRequest);
 
     Task<IActionResult> UpdateSetting(UpdateSettingRequest command);
 }

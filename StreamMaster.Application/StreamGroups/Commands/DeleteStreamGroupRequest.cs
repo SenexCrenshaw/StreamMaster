@@ -1,8 +1,5 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 using StreamMaster.Application.StreamGroups.Events;
 
 namespace StreamMaster.Application.StreamGroups.Commands;
@@ -19,13 +16,9 @@ public class DeleteStreamGroupRequestValidator : AbstractValidator<DeleteStreamG
     }
 }
 
-public class DeleteStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<DeleteStreamGroupRequest, int?>
+public class DeleteStreamGroupRequestHandler(ILogger<DeleteStreamGroupRequest> logger, IRepositoryWrapper Repository, IPublisher Publisher)
+    : IRequestHandler<DeleteStreamGroupRequest, int?>
 {
-
-    public DeleteStreamGroupRequestHandler(ILogger<DeleteStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-  : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
-
-
     public async Task<int?> Handle(DeleteStreamGroupRequest request, CancellationToken cancellationToken = default)
     {
         if (request.Id < 1)

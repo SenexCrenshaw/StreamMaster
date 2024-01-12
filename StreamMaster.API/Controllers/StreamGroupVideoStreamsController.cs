@@ -6,6 +6,7 @@ using StreamMaster.Domain.Pagination;
 using StreamMaster.Application.StreamGroupVideoStreams;
 using StreamMaster.Application.StreamGroupVideoStreams.Commands;
 using StreamMaster.Application.StreamGroupVideoStreams.Queries;
+using StreamMaster.API.Controllers;
 
 namespace StreamMasterAPI.Controllers;
 

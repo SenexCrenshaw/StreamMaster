@@ -1,9 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-
 using StreamMaster.Application.Common.Models;
 
 using System.Xml.Serialization;
@@ -16,7 +12,8 @@ namespace StreamMaster.Application.StreamGroups.Queries;
 public record GetStreamGroupCapability(int StreamGroupId) : IRequest<string>;
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupCapabilityHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupCapability> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupCapability, string>
+public class GetStreamGroupCapabilityHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupCapability> logger, IRepositoryWrapper Repository, IMemoryCache MemoryCache)
+    : IRequestHandler<GetStreamGroupCapability, string>
 {
     public async Task<string> Handle(GetStreamGroupCapability request, CancellationToken cancellationToken)
     {
@@ -28,7 +25,7 @@ public class GetStreamGroupCapabilityHandler(IHttpContextAccessor httpContextAcc
                 return "";
             }
         }
-        Setting setting = await GetSettingsAsync();
+        Setting setting = MemoryCache.GetSetting();
 
         Capability capability = new(GetUrl(), $"{setting.DeviceID}-{request.StreamGroupId}");
 

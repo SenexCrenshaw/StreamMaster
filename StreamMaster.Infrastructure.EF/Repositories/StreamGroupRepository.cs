@@ -1,26 +1,16 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 
-using MediatR;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
-using StreamMaster.Domain.Sorting;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, ISortHelper<StreamGroup> StreamGroupSortHelper, IMapper mapper, IMemoryCache memoryCache, ISender sender, IHttpContextAccessor httpContextAccessor, ISettingsService settingsService) : RepositoryBase<StreamGroup>(repositoryContext, logger), IStreamGroupRepository
+public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, IHttpContextAccessor httpContextAccessor) : RepositoryBase<StreamGroup>(repositoryContext, logger), IStreamGroupRepository
 {
     public PagedResponse<StreamGroupDto> CreateEmptyPagedResponse()
     {
@@ -40,7 +30,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
     private async Task SetStreamGroupsLinks(List<StreamGroupDto> streamGroupDtos)
     {
         string Url = httpContextAccessor.GetUrl();
-        Setting setting = await settingsService.GetSettingsAsync();
+        Setting setting = memoryCache.GetSetting();
 
         foreach (StreamGroupDto sg in streamGroupDtos)
         {
@@ -51,7 +41,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
     private async Task SetStreamGroupsLink(StreamGroupDto streamGroupDto)
     {
         string Url = httpContextAccessor.GetUrl();
-        Setting setting = await settingsService.GetSettingsAsync();
+        Setting setting = memoryCache.GetSetting();
 
         SetStreamGroupLinks(streamGroupDto, Url, setting);
     }

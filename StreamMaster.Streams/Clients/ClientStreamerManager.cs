@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Clients;
 
-public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger, ILogger<ClientReadStream> ringBufferReadStreamLogger) : IClientStreamerManager
+public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger, IStatisticsManager statisticsManager, ILogger<ClientReadStream> ringBufferReadStreamLogger) : IClientStreamerManager
 {
     private readonly ConcurrentDictionary<Guid, IClientStreamerConfiguration> clientStreamerConfigurations = new();
     private readonly object _disposeLock = new();
@@ -57,6 +57,7 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         {
             logger.LogDebug("Adding client {ClientId} {ReaderID} to {Circular Buffer ID} ", clientId, streamerConfiguration.ReadBuffer?.Id ?? Guid.NewGuid(), streamHandler.CircularRingBuffer.Id);
             streamHandler.RegisterClientStreamer(streamerConfiguration);
+            streamerConfiguration.VideoStreamName = streamHandler.VideoStreamName;
             await SetClientBufferDelegate(streamerConfiguration, streamHandler.CircularRingBuffer);
         }
         else
@@ -123,12 +124,11 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
 
     public async Task SetClientBufferDelegate(IClientStreamerConfiguration clientStreamerConfiguration, ICircularRingBuffer RingBuffer)
     {
-        clientStreamerConfiguration.ReadBuffer ??= new ClientReadStream(() => RingBuffer, ringBufferReadStreamLogger, clientStreamerConfiguration);
+        clientStreamerConfiguration.ReadBuffer ??= new ClientReadStream(() => RingBuffer, statisticsManager, ringBufferReadStreamLogger, clientStreamerConfiguration);
 
 
         await clientStreamerConfiguration.ReadBuffer.SetBufferDelegate(() => RingBuffer, clientStreamerConfiguration);
     }
-
 
     public async Task<bool> CancelClient(Guid clientId, bool includeAbort)
     {

@@ -5,7 +5,8 @@ namespace StreamMaster.Application.Icons.Commands;
 public class BuildIconsCacheFromVideoStreamRequest : IRequest<bool> { }
 
 [LogExecutionTimeAspect]
-public class BuildIconsCacheFromVideoStreamRequestHandler(ILogger<BuildIconsCacheFromVideoStreamRequest> logger, IIconService iconService, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<BuildIconsCacheFromVideoStreamRequest, bool>
+public class BuildIconsCacheFromVideoStreamRequestHandler(ILogger<BuildIconsCacheFromVideoStreamRequest> logger, IIconService iconService, IRepositoryWrapper Repository)
+    : IRequestHandler<BuildIconsCacheFromVideoStreamRequest, bool>
 {
     public Task<bool> Handle(BuildIconsCacheFromVideoStreamRequest command, CancellationToken cancellationToken)
     {

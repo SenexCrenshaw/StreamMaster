@@ -1,6 +1,8 @@
 import { createSingletonListener } from './createSingletonListener';
 import { hubConnection } from './signalr';
 
+export const singletonCacheHandlerListener = createSingletonListener('CacheHandler', hubConnection);
+
 export const singletonChannelGroupsListener = createSingletonListener('ChannelGroupsRefresh', hubConnection);
 export const singletonEPGFilesListener = createSingletonListener('EPGFilesRefresh', hubConnection);
 export const singletonM3UFilesListener = createSingletonListener('M3UFilesRefresh', hubConnection);

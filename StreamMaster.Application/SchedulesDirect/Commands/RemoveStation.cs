@@ -5,12 +5,12 @@ namespace StreamMaster.Application.SchedulesDirect.Commands;
 
 public record RemoveStation(List<StationRequest> Requests) : IRequest<bool>;
 
-public class RemoveStationHandler(ILogger<RemoveStation> logger, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<RemoveStation, bool>
+public class RemoveStationHandler(ILogger<RemoveStation> logger, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IMemoryCache memoryCache)
+: IRequestHandler<RemoveStation, bool>
 {
     public async Task<bool> Handle(RemoveStation request, CancellationToken cancellationToken)
     {
-        Setting setting = await GetSettingsAsync().ConfigureAwait(false);
+        Setting setting = memoryCache.GetSetting();
         if (!setting.SDSettings.SDEnabled)
         {
             return false;

@@ -1,11 +1,9 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Requests;
-
-using StreamMaster.Application.Common.Models;
+﻿using StreamMaster.Application.Statistics.Queries;
 using StreamMaster.Application.StreamGroups;
 using StreamMaster.Application.StreamGroups.Commands;
 using StreamMaster.Application.StreamGroups.Queries;
+using StreamMaster.Domain.Pagination;
+using StreamMaster.Domain.Requests;
 
 namespace StreamMaster.Application.Hubs;
 
@@ -28,9 +26,9 @@ public partial class StreamMasterHub : IStreamGroupHub
     }
 
     [JustUpdates]
-    public async Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls()
+    public async Task<List<ClientStreamingStatistics>> GetAllStatisticsForAllUrls()
     {
-        return await mediator.Send(new GetAllStatisticsForAllUrls()).ConfigureAwait(false);
+        return await mediator.Send(new GetClientStreamingStatistics()).ConfigureAwait(false);
     }
 
     public async Task<StreamGroupDto?> GetStreamGroup(int id)
@@ -63,4 +61,5 @@ public partial class StreamMasterHub : IStreamGroupHub
         string? res = await mediator.Send(new GetStreamGroupVideoStreamUrl(VideoStreamId)).ConfigureAwait(false);
         return res;
     }
+
 }
