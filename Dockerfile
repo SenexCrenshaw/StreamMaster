@@ -5,6 +5,7 @@ ARG BUILDPLATFORM
 WORKDIR /app
 EXPOSE 7095
 ENV ASPNETCORE_URLS=http://+:7095
+
 RUN apt-get update -yq \
     && apt-get upgrade -yq \
     && apt-get install -yq ffmpeg gosu
