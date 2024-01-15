@@ -20,6 +20,8 @@ public class BaseVideoStreamDto /*: IMapFrom<VideoStream>*/
     [Required]
     public string Id { get; set; }
 
+    public string ShortId { get; set; }
+
     /// <summary>
     /// Gets or sets a value indicating whether the video stream is currently active.
     /// </summary>

@@ -89,6 +89,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [HttpHead]
     [Route("stream/{encodedIds}")]
     [Route("stream/{encodedIds}.mp4")]
+    [Route("stream/{encodedIds}.ts")]
     [Route("stream/{encodedIds}/{name}")]
     public async Task<ActionResult> GetVideoStreamStream(string encodedIds, string name, CancellationToken cancellationToken)
     {
@@ -111,7 +112,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
             return NotFound();
         }
 
-        if (string.IsNullOrEmpty(videoStream.User_Url) && !videoStream.ChildVideoStreams.Any() && string.IsNullOrEmpty(videoStream.ChildVideoStreams.First().User_Url))
+        if (string.IsNullOrEmpty(videoStream.User_Url) && videoStream.ChildVideoStreams.Count == 0 && string.IsNullOrEmpty(videoStream.ChildVideoStreams.First().User_Url))
         {
             _logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} missing url or additional streams", streamGroupNumber, videoStreamId);
             return new NotFoundResult();
@@ -141,23 +142,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
 
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(_channelManager, config));
-        if (stream != null)
-        {
-            return new FileStreamResult(stream, "video/mp4");
-        }
-        //else if (error != null)
-        //{
-        //    // Log the error using the built-in logging framework
-        //    _logger.LogError("Error getting FFmpeg stream: {error.Message}", error.Message);
-
-        //    return GetStatus(error.ErrorCode);
-        //    // Return an appropriate error response to the client
-        //}
-        else
-        {
-            // Unknown error occurred
-            return StatusCode(StatusCodes.Status404NotFound);
-        }
+        return stream != null ? new FileStreamResult(stream, "video/mp4") : StatusCode(StatusCodes.Status404NotFound);
     }
 
     public async Task ReadAndWriteAsync(Stream sourceStream, string filePath, CancellationToken cancellationToken = default)

@@ -25,10 +25,6 @@ public class VersionedApiControllerAttribute : Attribute, IRouteTemplateProvider
     public string Template { get; }
 }
 
-public class V1ApiControllerAttribute : VersionedApiControllerAttribute
+public class V1ApiControllerAttribute(string resource = "[controller]") : VersionedApiControllerAttribute(1, resource)
 {
-    public V1ApiControllerAttribute(string resource = "[controller]")
-        : base(1, resource)
-    {
-    }
 }

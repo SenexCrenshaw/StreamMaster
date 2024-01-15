@@ -39,6 +39,8 @@ public class VideoStream
     public string M3UFileName { get; set; }
     public int Tvg_chno { get; set; } = 0;
 
+    public string ShortId { get; set; } = "000000";
+
     public string TimeShift { get; set; } = "0000";
 
     public string Tvg_group { get; set; } = "All";

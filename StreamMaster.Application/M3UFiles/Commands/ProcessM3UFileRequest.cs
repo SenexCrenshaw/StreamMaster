@@ -168,6 +168,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         bool overwriteChannelNumbers = m3uFile.OverwriteChannelNumbers;
 
         int processedCount = 0;
+        HashSet<string> generatedIds = streams.Select(a => a.ShortId).ToHashSet();
 
         _ = Parallel.ForEach(streams.Select((stream, index) => (stream, index)), tuple =>
         {
@@ -181,6 +182,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
                 if (!existingLookup.TryGetValue(stream.Id, out VideoStream? existingStream))
                 {
                     ProcessNewStream(stream, group?.IsHidden ?? false, m3uFile.Name, overwriteChannelNumbers, index);
+                    stream.ShortId = UniqueHexGenerator.GenerateUniqueHex(generatedIds);
                     toWrite.Add(stream);
                 }
                 else
@@ -398,6 +400,13 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
                 dbStream.User_Tvg_name = stream.Tvg_name;
             }
             dbStream.Tvg_name = stream.Tvg_name;
+        }
+
+        if (dbStream.ShortId != stream.ShortId)
+        {
+            changed = true;
+
+            dbStream.ShortId = stream.ShortId;
         }
 
         if (dbStream.FilePosition != index)
