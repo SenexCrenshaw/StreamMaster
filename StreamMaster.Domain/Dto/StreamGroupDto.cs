@@ -1,7 +1,5 @@
-﻿using StreamMaster.Domain.Mappings;
+﻿using StreamMaster.Domain.Attributes;
 using StreamMaster.Domain.Models;
-
-using StreamMaster.Domain.Attributes;
 
 namespace StreamMaster.Domain.Dto;
 
@@ -21,4 +19,5 @@ public class StreamGroupDto : IMapFrom<StreamGroup>
     public string Name { get; set; } = string.Empty;
     //public int StreamGroupNumber { get; set; }
     public string XMLLink { get; set; } = string.Empty;
+    public string ShortLink { get; set; } = string.Empty;
 }

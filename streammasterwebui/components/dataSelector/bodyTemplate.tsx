@@ -48,6 +48,10 @@ function m3uLinkTemplate(data: object) {
   return <LinkButton filled link={getRecordString(data, 'm3ULink')} />;
 }
 
+function shortLinkTemplate(data: object) {
+  return <LinkButton filled link={getRecordString(data, 'shortLink')} />;
+}
+
 function epgLinkTemplate(data: object) {
   return <LinkButton filled link={getRecordString(data, 'xmlLink')} />;
 }
@@ -103,6 +107,9 @@ function bodyTemplate(data: object, fieldName: string, fieldType: ColumnFieldTyp
     }
     case 'm3ulink': {
       return m3uLinkTemplate(data);
+    }
+    case 'shortlink': {
+      return shortLinkTemplate(data);
     }
     case 'epglink': {
       return epgLinkTemplate(data);

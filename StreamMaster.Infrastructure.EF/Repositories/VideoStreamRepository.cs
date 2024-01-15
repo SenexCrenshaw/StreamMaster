@@ -394,6 +394,11 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
             videoStream.GroupTitle = request.GroupTitle;
         }
 
+        if (request.StationId != null && videoStream.StationId != request.StationId)
+        {
+            videoStream.StationId = request.StationId;
+        }
+
         if (request.StreamingProxyType != null && videoStream.StreamingProxyType != request.StreamingProxyType)
         {
             videoStream.StreamingProxyType = (StreamingProxyTypes)request.StreamingProxyType;

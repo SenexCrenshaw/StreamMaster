@@ -24,7 +24,7 @@ public class ProcessM3UFileRequestValidator : AbstractValidator<ProcessM3UFileRe
 
 public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IRepositoryWrapper repository, IJobStatusService jobStatusService, IPublisher publisher, ISender sender, IMemoryCache memoryCache) : IRequestHandler<ProcessM3UFileRequest, M3UFile?>
 {
-    private readonly SimpleIntList existingChannels = new(0);
+    private SimpleIntList existingChannels = new(0);
 
     [LogExecutionTimeAspect]
     public async Task<M3UFile?> Handle(ProcessM3UFileRequest request, CancellationToken cancellationToken)
@@ -112,7 +112,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         await RemoveMissing(streams, m3uFile.Id);
 
         List<VideoStream> existing = await repository.VideoStream.GetVideoStreamQuery().Where(a => a.M3UFileId == m3uFile.Id).ToListAsync().ConfigureAwait(false);
-        //existingChannels = new SimpleIntList(m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber);
+        existingChannels = new SimpleIntList(m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber);
 
         List<ChannelGroup> groups = await repository.ChannelGroup.GetChannelGroups();
 
@@ -168,6 +168,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         bool overwriteChannelNumbers = m3uFile.OverwriteChannelNumbers;
 
         int processedCount = 0;
+        HashSet<string> generatedIds = streams.Select(a => a.ShortId).ToHashSet();
 
         _ = Parallel.ForEach(streams.Select((stream, index) => (stream, index)), tuple =>
         {
@@ -181,6 +182,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
                 if (!existingLookup.TryGetValue(stream.Id, out VideoStream? existingStream))
                 {
                     ProcessNewStream(stream, group?.IsHidden ?? false, m3uFile.Name, overwriteChannelNumbers, index);
+                    stream.ShortId = UniqueHexGenerator.GenerateUniqueHex(generatedIds);
                     toWrite.Add(stream);
                 }
                 else
@@ -398,6 +400,13 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
                 dbStream.User_Tvg_name = stream.Tvg_name;
             }
             dbStream.Tvg_name = stream.Tvg_name;
+        }
+
+        if (dbStream.ShortId != stream.ShortId)
+        {
+            changed = true;
+
+            dbStream.ShortId = stream.ShortId;
         }
 
         if (dbStream.FilePosition != index)

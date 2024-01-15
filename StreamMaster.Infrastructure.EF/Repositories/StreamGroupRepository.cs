@@ -8,6 +8,8 @@ using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Authentication;
 
+using System.Web;
+
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
 public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, IHttpContextAccessor httpContextAccessor) : RepositoryBase<StreamGroup>(repositoryContext, logger), IStreamGroupRepository
@@ -58,9 +60,15 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
             //var sg = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == streamGroupDto.Id);
             count = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == streamGroupDto.Id).Count();
         }
-        RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == streamGroupDto.Id).Count();
+
         string encodedStreamGroupNumber = streamGroupDto.Id.EncodeValue128(setting.ServerKey);
+
+        string encodedName = HttpUtility.HtmlEncode(streamGroupDto.Name).Trim()
+                    .Replace("/", "")
+                    .Replace(" ", "_");
+
         streamGroupDto.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
+        streamGroupDto.ShortLink = $"{Url}/v/s/{encodedName}.m3u";
         streamGroupDto.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
         streamGroupDto.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
         streamGroupDto.StreamCount = count;

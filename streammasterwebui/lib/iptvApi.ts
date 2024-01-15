@@ -16,6 +16,7 @@ export const addTagTypes = [
   'Settings',
   'Statistics',
   'StreamGroups',
+  'V',
   'VideoStreamLinks',
   'VideoStreams'
 ] as const;
@@ -525,6 +526,34 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/streamgroups/getstreamgroupvideostreamurl`, params: { VideoStreamId: queryArg } }),
         providesTags: ['StreamGroups']
       }),
+      vGetVideoStreamStreamGet: build.query<VGetVideoStreamStreamGetApiResponse, VGetVideoStreamStreamGetApiArg>({
+        query: (queryArg) => ({ url: `/v/${queryArg}` }),
+        providesTags: ['V']
+      }),
+      vGetVideoStreamStreamHead: build.mutation<VGetVideoStreamStreamHeadApiResponse, VGetVideoStreamStreamHeadApiArg>({
+        query: (queryArg) => ({ url: `/v/${queryArg}`, method: 'HEAD' }),
+        invalidatesTags: ['V']
+      }),
+      vGetVideoStreamStreamGet2: build.query<VGetVideoStreamStreamGet2ApiResponse, VGetVideoStreamStreamGet2ApiArg>({
+        query: (queryArg) => ({ url: `/v/${queryArg}.ts` }),
+        providesTags: ['V']
+      }),
+      vGetVideoStreamStreamHead2: build.mutation<VGetVideoStreamStreamHead2ApiResponse, VGetVideoStreamStreamHead2ApiArg>({
+        query: (queryArg) => ({ url: `/v/${queryArg}.ts`, method: 'HEAD' }),
+        invalidatesTags: ['V']
+      }),
+      vGetStreamGroupM3U: build.query<VGetStreamGroupM3UApiResponse, VGetStreamGroupM3UApiArg>({
+        query: (queryArg) => ({ url: `/s/${queryArg}` }),
+        providesTags: ['V']
+      }),
+      vGetStreamGroupM3U2: build.query<VGetStreamGroupM3U2ApiResponse, VGetStreamGroupM3U2ApiArg>({
+        query: (queryArg) => ({ url: `/s/${queryArg}.m3u` }),
+        providesTags: ['V']
+      }),
+      vGetStreamGroupM3U3: build.query<VGetStreamGroupM3U3ApiResponse, VGetStreamGroupM3U3ApiArg>({
+        query: (queryArg) => ({ url: `/v`, params: { streamGroupName: queryArg } }),
+        providesTags: ['V']
+      }),
       videoStreamLinksAddVideoStreamToVideoStream: build.mutation<
         VideoStreamLinksAddVideoStreamToVideoStreamApiResponse,
         VideoStreamLinksAddVideoStreamToVideoStreamApiArg
@@ -620,10 +649,18 @@ const injectedRtkApi = api
         invalidatesTags: ['VideoStreams']
       }),
       videoStreamsGetVideoStreamStreamGet3: build.query<VideoStreamsGetVideoStreamStreamGet3ApiResponse, VideoStreamsGetVideoStreamStreamGet3ApiArg>({
-        query: (queryArg) => ({ url: `/api/videostreams/stream/${queryArg.encodedIds}/${queryArg.name}` }),
+        query: (queryArg) => ({ url: `/api/videostreams/stream/${queryArg}.ts` }),
         providesTags: ['VideoStreams']
       }),
       videoStreamsGetVideoStreamStreamHead3: build.mutation<VideoStreamsGetVideoStreamStreamHead3ApiResponse, VideoStreamsGetVideoStreamStreamHead3ApiArg>({
+        query: (queryArg) => ({ url: `/api/videostreams/stream/${queryArg}.ts`, method: 'HEAD' }),
+        invalidatesTags: ['VideoStreams']
+      }),
+      videoStreamsGetVideoStreamStreamGet4: build.query<VideoStreamsGetVideoStreamStreamGet4ApiResponse, VideoStreamsGetVideoStreamStreamGet4ApiArg>({
+        query: (queryArg) => ({ url: `/api/videostreams/stream/${queryArg.encodedIds}/${queryArg.name}` }),
+        providesTags: ['VideoStreams']
+      }),
+      videoStreamsGetVideoStreamStreamHead4: build.mutation<VideoStreamsGetVideoStreamStreamHead4ApiResponse, VideoStreamsGetVideoStreamStreamHead4ApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/stream/${queryArg.encodedIds}/${queryArg.name}`, method: 'HEAD' }),
         invalidatesTags: ['VideoStreams']
       }),
@@ -997,6 +1034,20 @@ export type StreamGroupsUpdateStreamGroupApiResponse = unknown;
 export type StreamGroupsUpdateStreamGroupApiArg = UpdateStreamGroupRequest;
 export type StreamGroupsGetStreamGroupVideoStreamUrlApiResponse = /** status 200  */ string;
 export type StreamGroupsGetStreamGroupVideoStreamUrlApiArg = string;
+export type VGetVideoStreamStreamGetApiResponse = unknown;
+export type VGetVideoStreamStreamGetApiArg = string;
+export type VGetVideoStreamStreamHeadApiResponse = unknown;
+export type VGetVideoStreamStreamHeadApiArg = string;
+export type VGetVideoStreamStreamGet2ApiResponse = unknown;
+export type VGetVideoStreamStreamGet2ApiArg = string;
+export type VGetVideoStreamStreamHead2ApiResponse = unknown;
+export type VGetVideoStreamStreamHead2ApiArg = string;
+export type VGetStreamGroupM3UApiResponse = unknown;
+export type VGetStreamGroupM3UApiArg = string;
+export type VGetStreamGroupM3U2ApiResponse = unknown;
+export type VGetStreamGroupM3U2ApiArg = string;
+export type VGetStreamGroupM3U3ApiResponse = unknown;
+export type VGetStreamGroupM3U3ApiArg = string;
 export type VideoStreamLinksAddVideoStreamToVideoStreamApiResponse = unknown;
 export type VideoStreamLinksAddVideoStreamToVideoStreamApiArg = AddVideoStreamToVideoStreamRequest;
 export type VideoStreamLinksGetVideoStreamVideoStreamIdsApiResponse = /** status 200  */ string[];
@@ -1045,12 +1096,16 @@ export type VideoStreamsGetVideoStreamStreamGet2ApiArg = string;
 export type VideoStreamsGetVideoStreamStreamHead2ApiResponse = unknown;
 export type VideoStreamsGetVideoStreamStreamHead2ApiArg = string;
 export type VideoStreamsGetVideoStreamStreamGet3ApiResponse = unknown;
-export type VideoStreamsGetVideoStreamStreamGet3ApiArg = {
+export type VideoStreamsGetVideoStreamStreamGet3ApiArg = string;
+export type VideoStreamsGetVideoStreamStreamHead3ApiResponse = unknown;
+export type VideoStreamsGetVideoStreamStreamHead3ApiArg = string;
+export type VideoStreamsGetVideoStreamStreamGet4ApiResponse = unknown;
+export type VideoStreamsGetVideoStreamStreamGet4ApiArg = {
   encodedIds: string;
   name: string;
 };
-export type VideoStreamsGetVideoStreamStreamHead3ApiResponse = unknown;
-export type VideoStreamsGetVideoStreamStreamHead3ApiArg = {
+export type VideoStreamsGetVideoStreamStreamHead4ApiResponse = unknown;
+export type VideoStreamsGetVideoStreamStreamHead4ApiArg = {
   encodedIds: string;
   name: string;
 };
@@ -1533,6 +1588,7 @@ export type StreamGroupDto = {
   m3ULink: string;
   name: string;
   xmlLink: string;
+  shortLink: string;
 };
 export type SyncStreamGroupChannelGroupsRequest = {
   streamGroupId?: number;
@@ -1547,6 +1603,7 @@ export type StreamingProxyTypes = 0 | 1 | 2 | 3;
 export type VideoStreamHandlers = 0 | 1 | 2;
 export type BaseVideoStreamDto = {
   id: string;
+  shortId: string;
   isActive: boolean;
   isDeleted: boolean;
   isHidden: boolean;
@@ -1701,6 +1758,10 @@ export type M3USettings = {
   m3UUseChnoForId?: boolean;
   m3UStationId?: boolean;
 };
+export type TestSettings = {
+  dropInputSeconds?: number;
+  dropClientSeconds?: number;
+};
 export type SdSettings = {
   seriesPosterArt?: boolean;
   seriesWsArt?: boolean;
@@ -1729,6 +1790,8 @@ export type SdSettings = {
 };
 export type AuthenticationType = 0 | 2;
 export type BaseSettings = M3USettings & {
+  maxStreamReStart?: number;
+  testSettings?: TestSettings;
   maxConcurrentDownloads?: number;
   sdSettings?: SdSettings;
   expectedServiceCount?: number;
@@ -1894,6 +1957,7 @@ export type RemoveVideoStreamFromVideoStreamRequest = {
   childVideoStreamId: string;
 };
 export type VideoStreamBaseRequest = {
+  stationId?: string | null;
   streamingProxyType?: StreamingProxyTypes | null;
   toggleVisibility?: boolean | null;
   groupTitle?: string | null;
@@ -2139,6 +2203,13 @@ export const {
   useStreamGroupsGetPagedStreamGroupsQuery,
   useStreamGroupsUpdateStreamGroupMutation,
   useStreamGroupsGetStreamGroupVideoStreamUrlQuery,
+  useVGetVideoStreamStreamGetQuery,
+  useVGetVideoStreamStreamHeadMutation,
+  useVGetVideoStreamStreamGet2Query,
+  useVGetVideoStreamStreamHead2Mutation,
+  useVGetStreamGroupM3UQuery,
+  useVGetStreamGroupM3U2Query,
+  useVGetStreamGroupM3U3Query,
   useVideoStreamLinksAddVideoStreamToVideoStreamMutation,
   useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery,
   useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery,
@@ -2157,6 +2228,8 @@ export const {
   useVideoStreamsGetVideoStreamStreamHead2Mutation,
   useVideoStreamsGetVideoStreamStreamGet3Query,
   useVideoStreamsGetVideoStreamStreamHead3Mutation,
+  useVideoStreamsGetVideoStreamStreamGet4Query,
+  useVideoStreamsGetVideoStreamStreamHead4Mutation,
   useVideoStreamsReSetVideoStreamsLogoMutation,
   useVideoStreamsSetVideoStreamChannelNumbersMutation,
   useVideoStreamsSetVideoStreamsLogoFromEpgMutation,

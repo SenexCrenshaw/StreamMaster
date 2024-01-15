@@ -18,6 +18,9 @@ function getHeader(field: string, header: string | undefined, fieldType: ColumnF
     case 'm3ulink': {
       return 'M3U';
     }
+    case 'shortlink': {
+      return 'Short';
+    }
     case 'epglink': {
       return 'EPG';
     }

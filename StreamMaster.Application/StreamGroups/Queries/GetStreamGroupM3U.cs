@@ -14,7 +14,7 @@ using System.Web;
 namespace StreamMaster.Application.StreamGroups.Queries;
 
 [RequireAll]
-public record GetStreamGroupM3U(int StreamGroupId) : IRequest<string>;
+public record GetStreamGroupM3U(int StreamGroupId, bool UseShortId) : IRequest<string>;
 
 public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
 {
@@ -73,7 +73,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         string url = httpContextAccessor.GetUrl();
         string requestPath = httpContextAccessor.HttpContext.Request.Path.Value.ToString();
         byte[]? iv = requestPath.GetIVFromPath(setting.ServerKey, 128);
-        if (iv == null)
+        if (iv == null && !request.UseShortId)
         {
             return DefaultReturn;
         }
@@ -185,12 +185,22 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         string logo = GetIconUrl(videoStream.User_Tvg_logo, setting);
         videoStream.User_Tvg_logo = logo;
 
-        string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
-                .Replace("/", "")
-                .Replace(" ", "_");
+        string videoUrl = string.Empty;
 
-        string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, setting.ServerKey, iv);
-        string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+        if (request.UseShortId)
+        {
+            videoUrl = $"{url}/v/v/{videoStream.ShortId}";
+
+        }
+        else
+        {
+            string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
+                     .Replace("/", "")
+                     .Replace(" ", "_");
+
+            string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, setting.ServerKey, iv);
+            videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+        }
 
         string id = graceNote;
         if (setting.M3UUseChnoForId)
@@ -277,7 +287,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         return (chNo, lines);
     }
 
-    private string AssembleReturnString(ConcurrentDictionary<int, string> retlist)
+    private static string AssembleReturnString(ConcurrentDictionary<int, string> retlist)
     {
         StringBuilder ret = new("#EXTM3U\r\n");
         foreach (int rl in retlist.Keys.Order())

@@ -167,7 +167,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
             return new NotFoundResult();
         }
 
-        string data = await Mediator.Send(new GetStreamGroupM3U((int)streamGroupNumber)).ConfigureAwait(false);
+        string data = await Mediator.Send(new GetStreamGroupM3U((int)streamGroupNumber, false)).ConfigureAwait(false);
 
         return new FileContentResult(Encoding.UTF8.GetBytes(data), "application/x-mpegURL")
         {

@@ -5,6 +5,7 @@ namespace StreamMaster.Domain.Requests;
 public class VideoStreamBaseRequest
 
 {
+    public string? StationId { get; set; }
     public StreamingProxyTypes? StreamingProxyType { get; set; }
     public bool? ToggleVisibility { get; set; }
 

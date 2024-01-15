@@ -27,7 +27,66 @@ namespace StreamMaster.Infrastructure.EF
             {
                 return;
             }
+            await Migrate_SystemKeyValues(allServices);
 
+            await VidShortId();
+        }
+
+
+        private async Task VidShortId()
+        {
+            string? currentMigration = Database.GetAppliedMigrations().LastOrDefault();
+            if (currentMigration == null)
+            {
+                return;
+            }
+            if (currentMigration.Equals("20240115145416_VidShortId") && !SystemKeyValues.Any(a => a.Key == "MigratedDB" && a.Value == "20240115145416_VidShortId"))
+            {
+                List<VideoStream> videoStreams = VideoStreams.Where(a => string.IsNullOrEmpty(a.ShortId) || a.ShortId == "000000").ToList();
+
+                if (videoStreams.Count == 0)
+                {
+                    SystemKeyValues.Add(new SystemKeyValue { Key = "MigratedDB", Value = "20240115145416_VidShortId" });
+                    await SaveChangesAsync().ConfigureAwait(false);
+                    return;
+                }
+
+                Console.WriteLine($"Setting {videoStreams.Count} video streams short Id");
+                int updateCount = 0;
+
+                HashSet<string> generatedIds = [];
+
+                foreach (VideoStream? videoStream in videoStreams)
+                {
+
+                    videoStream.ShortId = UniqueHexGenerator.GenerateUniqueHex(generatedIds);
+
+                    ++updateCount;
+
+                    if (updateCount % 500 == 0)
+                    {
+                        updateCount = 0;
+                        await SaveChangesAsync().ConfigureAwait(false);
+                    }
+
+                }
+
+                SystemKeyValues.Add(new SystemKeyValue { Key = "MigratedDB", Value = "20240115145416_VidShortId" });
+                await SaveChangesAsync().ConfigureAwait(false);
+
+                Console.WriteLine("Completed setting video streams short Id");
+
+            }
+
+        }
+
+        private async Task Migrate_SystemKeyValues(List<MxfService> allServices)
+        {
+            string? currentMigration = Database.GetAppliedMigrations().LastOrDefault();
+            if (currentMigration == null)
+            {
+                return;
+            }
             if (currentMigration.Equals("20231229192654_SystemKeyValues") && !SystemKeyValues.Any(a => a.Key == "MigratedDB" && a.Value == "20231229192654_SystemKeyValues"))
             {
                 List<VideoStream> videoStreams = VideoStreams.Where(a => a.User_Tvg_ID != null && a.User_Tvg_ID != "" && !Regex.IsMatch(a.User_Tvg_ID, @"^\d+-")).ToList();
@@ -82,6 +141,7 @@ namespace StreamMaster.Infrastructure.EF
                 Console.WriteLine("Completed migrating data to new EPGNumber format");
 
             }
+
         }
 
 
@@ -132,6 +192,11 @@ namespace StreamMaster.Infrastructure.EF
             modelBuilder.Entity<VideoStream>()
                 .HasIndex(p => p.User_Tvg_chno)
                 .HasDatabaseName("IX_VideoStream_User_Tvg_chno");
+
+
+            modelBuilder.Entity<VideoStream>()
+                .HasIndex(p => p.ShortId)
+                .HasDatabaseName("IX_VideoStream_ShortId");
 
             //modelBuilder.OnHangfireModelCreating();
             base.OnModelCreating(modelBuilder);
