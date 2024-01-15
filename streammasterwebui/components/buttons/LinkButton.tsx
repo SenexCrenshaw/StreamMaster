@@ -1,9 +1,21 @@
 import useCopyToClipboard from '@lib/hooks/useCopyToClipboard';
 import { useState } from 'react';
 
-export const LinkButton = ({ link, filled }: { readonly link: string; readonly filled?: boolean }) => {
+export const LinkButton = ({
+  link,
+  filled,
+  title,
+  bolt
+}: {
+  readonly link: string;
+  readonly filled?: boolean;
+  readonly title: string;
+  readonly bolt?: boolean;
+}) => {
   const [, copyToClipboard] = useCopyToClipboard(true);
   const [copied, setCopied] = useState(false);
+
+  const icon = bolt ? 'pi pi-bolt' : filled === true ? 'pi pi-bookmark-fill' : 'pi pi-bookmark';
 
   return (
     <div style={{ position: 'relative' }}>
@@ -20,10 +32,10 @@ export const LinkButton = ({ link, filled }: { readonly link: string; readonly f
           }}
           rel="noopener noreferrer"
           target="_blank"
-          title="Copy link to clipboard"
+          title={title}
         >
           {/* Conditionally render the icon based on the copied state */}
-          <i className={copied ? 'pi pi-copy' : filled === true ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'} />
+          <i className={copied ? 'pi pi-copy' : icon} />
         </a>
       </div>
     </div>

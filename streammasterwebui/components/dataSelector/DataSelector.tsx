@@ -372,7 +372,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
       } as CSSProperties;
     }
 
-    if (col.fieldType === 'm3ulink' || col.fieldType === 'epglink' || col.fieldType === 'shortlink' || col.fieldType === 'url') {
+    if (col.fieldType === 'm3ulink' || col.fieldType === 'epglink' || col.fieldType === 'url') {
       return {
         maxWidth: '3rem',
         width: '3rem'

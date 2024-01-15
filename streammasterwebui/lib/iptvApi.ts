@@ -527,31 +527,27 @@ const injectedRtkApi = api
         providesTags: ['StreamGroups']
       }),
       vGetVideoStreamStreamGet: build.query<VGetVideoStreamStreamGetApiResponse, VGetVideoStreamStreamGetApiArg>({
-        query: (queryArg) => ({ url: `/v/${queryArg}` }),
+        query: (queryArg) => ({ url: `/v/v/v/${queryArg}` }),
         providesTags: ['V']
       }),
       vGetVideoStreamStreamHead: build.mutation<VGetVideoStreamStreamHeadApiResponse, VGetVideoStreamStreamHeadApiArg>({
-        query: (queryArg) => ({ url: `/v/${queryArg}`, method: 'HEAD' }),
+        query: (queryArg) => ({ url: `/v/v/v/${queryArg}`, method: 'HEAD' }),
         invalidatesTags: ['V']
       }),
       vGetVideoStreamStreamGet2: build.query<VGetVideoStreamStreamGet2ApiResponse, VGetVideoStreamStreamGet2ApiArg>({
-        query: (queryArg) => ({ url: `/v/${queryArg}.ts` }),
+        query: (queryArg) => ({ url: `/v/v/v/${queryArg}.ts` }),
         providesTags: ['V']
       }),
       vGetVideoStreamStreamHead2: build.mutation<VGetVideoStreamStreamHead2ApiResponse, VGetVideoStreamStreamHead2ApiArg>({
-        query: (queryArg) => ({ url: `/v/${queryArg}.ts`, method: 'HEAD' }),
+        query: (queryArg) => ({ url: `/v/v/v/${queryArg}.ts`, method: 'HEAD' }),
         invalidatesTags: ['V']
       }),
       vGetStreamGroupM3U: build.query<VGetStreamGroupM3UApiResponse, VGetStreamGroupM3UApiArg>({
-        query: (queryArg) => ({ url: `/s/${queryArg}` }),
+        query: (queryArg) => ({ url: `/v/v/s/${queryArg}.m3u` }),
         providesTags: ['V']
       }),
-      vGetStreamGroupM3U2: build.query<VGetStreamGroupM3U2ApiResponse, VGetStreamGroupM3U2ApiArg>({
-        query: (queryArg) => ({ url: `/s/${queryArg}.m3u` }),
-        providesTags: ['V']
-      }),
-      vGetStreamGroupM3U3: build.query<VGetStreamGroupM3U3ApiResponse, VGetStreamGroupM3U3ApiArg>({
-        query: (queryArg) => ({ url: `/v`, params: { streamGroupName: queryArg } }),
+      vGetStreamGroupEpg: build.query<VGetStreamGroupEpgApiResponse, VGetStreamGroupEpgApiArg>({
+        query: (queryArg) => ({ url: `/v/v/s/${queryArg}.xml` }),
         providesTags: ['V']
       }),
       videoStreamLinksAddVideoStreamToVideoStream: build.mutation<
@@ -1044,10 +1040,8 @@ export type VGetVideoStreamStreamHead2ApiResponse = unknown;
 export type VGetVideoStreamStreamHead2ApiArg = string;
 export type VGetStreamGroupM3UApiResponse = unknown;
 export type VGetStreamGroupM3UApiArg = string;
-export type VGetStreamGroupM3U2ApiResponse = unknown;
-export type VGetStreamGroupM3U2ApiArg = string;
-export type VGetStreamGroupM3U3ApiResponse = unknown;
-export type VGetStreamGroupM3U3ApiArg = string;
+export type VGetStreamGroupEpgApiResponse = unknown;
+export type VGetStreamGroupEpgApiArg = string;
 export type VideoStreamLinksAddVideoStreamToVideoStreamApiResponse = unknown;
 export type VideoStreamLinksAddVideoStreamToVideoStreamApiArg = AddVideoStreamToVideoStreamRequest;
 export type VideoStreamLinksGetVideoStreamVideoStreamIdsApiResponse = /** status 200  */ string[];
@@ -1588,7 +1582,8 @@ export type StreamGroupDto = {
   m3ULink: string;
   name: string;
   xmlLink: string;
-  shortLink: string;
+  shortM3ULink: string;
+  shortEPGLink: string;
 };
 export type SyncStreamGroupChannelGroupsRequest = {
   streamGroupId?: number;
@@ -2208,8 +2203,7 @@ export const {
   useVGetVideoStreamStreamGet2Query,
   useVGetVideoStreamStreamHead2Mutation,
   useVGetStreamGroupM3UQuery,
-  useVGetStreamGroupM3U2Query,
-  useVGetStreamGroupM3U3Query,
+  useVGetStreamGroupEpgQuery,
   useVideoStreamLinksAddVideoStreamToVideoStreamMutation,
   useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery,
   useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery,

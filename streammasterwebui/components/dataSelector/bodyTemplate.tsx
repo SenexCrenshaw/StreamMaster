@@ -4,6 +4,7 @@ import { LinkButton } from '../buttons/LinkButton';
 import { type ColumnFieldType } from './DataSelectorTypes';
 import getRecord from './getRecord';
 import getRecordString from './getRecordString';
+import { StreamGroupDto } from '@lib/iptvApi';
 
 function epgSourceTemplate(tvgid: string) {
   return (
@@ -44,20 +45,26 @@ function streamsBodyTemplate(activeCount: string, totalCount: string) {
   );
 }
 
-function m3uLinkTemplate(data: object) {
-  return <LinkButton filled link={getRecordString(data, 'm3ULink')} />;
-}
-
-function shortLinkTemplate(data: object) {
-  return <LinkButton filled link={getRecordString(data, 'shortLink')} />;
+function m3uLinkTemplate(data: StreamGroupDto) {
+  return (
+    <div className="flex justify-content-center align-items-center gap-1">
+      <LinkButton filled link={getRecordString(data, 'm3ULink')} title="M3U Link" />
+      <LinkButton bolt link={getRecordString(data, 'shortM3ULink')} title="Unsecure M3U Link" />
+    </div>
+  );
 }
 
 function epgLinkTemplate(data: object) {
-  return <LinkButton filled link={getRecordString(data, 'xmlLink')} />;
+  return (
+    <div className="flex justify-content-center align-items-center gap-1">
+      <LinkButton filled link={getRecordString(data, 'xmlLink')} title="EPG Link" />
+      <LinkButton bolt link={getRecordString(data, 'shortEPGLink')} title="Unsecure EPG Link" />
+    </div>
+  );
 }
 
 function urlTemplate(data: object) {
-  return <LinkButton filled link={getRecordString(data, 'hdhrLink')} />;
+  return <LinkButton filled link={getRecordString(data, 'hdhrLink')} title="HDHR Link" />;
 }
 
 function blankTemplate() {
@@ -106,11 +113,9 @@ function bodyTemplate(data: object, fieldName: string, fieldType: ColumnFieldTyp
       return blankTemplate();
     }
     case 'm3ulink': {
-      return m3uLinkTemplate(data);
+      return m3uLinkTemplate(data as StreamGroupDto);
     }
-    case 'shortlink': {
-      return shortLinkTemplate(data);
-    }
+
     case 'epglink': {
       return epgLinkTemplate(data);
     }

@@ -68,7 +68,8 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
                     .Replace(" ", "_");
 
         streamGroupDto.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
-        streamGroupDto.ShortLink = $"{Url}/v/s/{encodedName}.m3u";
+        streamGroupDto.ShortM3ULink = $"{Url}/v/s/{encodedName}.m3u";
+        streamGroupDto.ShortEPGLink = $"{Url}/v/s/{encodedName}.xml";
         streamGroupDto.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
         streamGroupDto.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
         streamGroupDto.StreamCount = count;

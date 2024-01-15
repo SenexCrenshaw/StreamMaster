@@ -40,10 +40,6 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
       {
         field: 'm3ulink',
         fieldType: 'm3ulink'
-      },
-      {
-        field: 'shortLink',
-        fieldType: 'shortlink'
       }
     ],
     []
