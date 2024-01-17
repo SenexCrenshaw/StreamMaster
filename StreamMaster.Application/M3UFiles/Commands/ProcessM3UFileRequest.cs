@@ -190,6 +190,11 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
                     if (ProcessExistingStream(stream, existingStream, m3uFile.Name, overwriteChannelNumbers, index))
                     {
                         existingStream.M3UFileId = m3uFile.Id;
+                        if (string.IsNullOrEmpty(existingStream.ShortId) || existingStream.ShortId == "000000")
+                        {
+                            existingStream.ShortId = UniqueHexGenerator.GenerateUniqueHex(generatedIds);
+                        }
+
                         toUpdate.Add(existingStream);
                     }
                 }
