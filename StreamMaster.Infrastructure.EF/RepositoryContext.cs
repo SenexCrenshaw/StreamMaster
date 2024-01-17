@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.SchedulesDirect.Domain.Models;
 
+using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 
 namespace StreamMaster.Infrastructure.EF
@@ -42,7 +43,7 @@ namespace StreamMaster.Infrastructure.EF
             }
             if (currentMigration.Equals("20240115145416_VidShortId") && !SystemKeyValues.Any(a => a.Key == "MigratedDB" && a.Value == "20240115145416_VidShortId"))
             {
-                List<VideoStream> videoStreams = VideoStreams.Where(a => string.IsNullOrEmpty(a.ShortId) || a.ShortId == "000000").ToList();
+                List<VideoStream> videoStreams = [.. VideoStreams.Where(a => string.IsNullOrEmpty(a.ShortId) || a.ShortId == UniqueHexGenerator.ShortIdEmpty)];
 
                 if (videoStreams.Count == 0)
                 {
@@ -54,12 +55,12 @@ namespace StreamMaster.Infrastructure.EF
                 Console.WriteLine($"Setting {videoStreams.Count} video streams short Id");
                 int updateCount = 0;
 
-                HashSet<string> generatedIds = [];
+                ConcurrentDictionary<string, byte> generatedIdsDict = new();
 
                 foreach (VideoStream? videoStream in videoStreams)
                 {
 
-                    videoStream.ShortId = UniqueHexGenerator.GenerateUniqueHex(generatedIds);
+                    videoStream.ShortId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
 
                     ++updateCount;
 

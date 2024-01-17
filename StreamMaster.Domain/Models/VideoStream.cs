@@ -1,5 +1,7 @@
 ﻿using AutoMapper.Configuration.Annotations;
 
+using StreamMaster.Domain.Extensions;
+
 using System.ComponentModel.DataAnnotations;
 
 namespace StreamMaster.Domain.Models;
@@ -39,7 +41,7 @@ public class VideoStream
     public string M3UFileName { get; set; }
     public int Tvg_chno { get; set; } = 0;
 
-    public string ShortId { get; set; } = "000000";
+    public string ShortId { get; set; } = UniqueHexGenerator.ShortIdEmpty;
 
     public string TimeShift { get; set; } = "0000";
 

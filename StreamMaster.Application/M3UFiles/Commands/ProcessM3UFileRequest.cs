@@ -168,7 +168,13 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         bool overwriteChannelNumbers = m3uFile.OverwriteChannelNumbers;
 
         int processedCount = 0;
-        HashSet<string> generatedIds = streams.Select(a => a.ShortId).ToHashSet();
+        //HashSet<string> generatedIds = streams.Select(a => a.ShortId).ToHashSet();
+        ConcurrentDictionary<string, byte> generatedIdsDict = new();
+
+        foreach (VideoStream stream in streams)
+        {
+            generatedIdsDict.TryAdd(stream.ShortId, 0);
+        }
 
         _ = Parallel.ForEach(streams.Select((stream, index) => (stream, index)), tuple =>
         {
@@ -182,7 +188,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
                 if (!existingLookup.TryGetValue(stream.Id, out VideoStream? existingStream))
                 {
                     ProcessNewStream(stream, group?.IsHidden ?? false, m3uFile.Name, overwriteChannelNumbers, index);
-                    stream.ShortId = UniqueHexGenerator.GenerateUniqueHex(generatedIds);
+                    stream.ShortId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
                     toWrite.Add(stream);
                 }
                 else
@@ -190,9 +196,9 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
                     if (ProcessExistingStream(stream, existingStream, m3uFile.Name, overwriteChannelNumbers, index))
                     {
                         existingStream.M3UFileId = m3uFile.Id;
-                        if (string.IsNullOrEmpty(existingStream.ShortId) || existingStream.ShortId == "000000")
+                        if (string.IsNullOrEmpty(existingStream.ShortId) || existingStream.ShortId == UniqueHexGenerator.ShortIdEmpty)
                         {
-                            existingStream.ShortId = UniqueHexGenerator.GenerateUniqueHex(generatedIds);
+                            existingStream.ShortId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
                         }
 
                         toUpdate.Add(existingStream);
