@@ -168,7 +168,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         bool overwriteChannelNumbers = m3uFile.OverwriteChannelNumbers;
 
         int processedCount = 0;
-        //HashSet<string> generatedIds = streams.Select(a => a.ShortId).ToHashSet();
+
         ConcurrentDictionary<string, byte> generatedIdsDict = new();
 
         foreach (VideoStream stream in streams)
