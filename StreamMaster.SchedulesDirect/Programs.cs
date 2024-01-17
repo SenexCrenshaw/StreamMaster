@@ -645,7 +645,7 @@ public class Programs(ILogger<Programs> logger, IMemoryCache memoryCache, ISerie
     private void DetermineContentAdvisory(MxfProgram mxfProgram, Programme sdProgram)
     {
         // fill content ratings and advisories; set flags
-        HashSet<string> advisories = [];
+        ConcurrentHashSet<string> advisories = [];
         if (sdProgram.ContentRating != null)
         {
             //var origins = !string.IsNullOrEmpty(config.RatingsOrigin) ? config.RatingsOrigin.Split(',') : new[] { RegionInfo.CurrentRegion.ThreeLetterISORegionName };

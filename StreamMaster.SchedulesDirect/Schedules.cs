@@ -177,7 +177,7 @@ public class Schedules(ILogger<Schedules> logger, IMemoryCache memoryCache, ISch
 
                 // scan through all the dates returned for the station and request dates that are not cached
                 List<string> newDateRequests = [];
-                HashSet<string> dupeMd5s = [];
+                ConcurrentHashSet<string> dupeMd5s = [];
                 foreach (string day in dates)
                 {
                     if (stationResponse.TryGetValue(day, out ScheduleMd5Response? dayResponse) && (dayResponse.Code == 0) && !string.IsNullOrEmpty(dayResponse.Md5))

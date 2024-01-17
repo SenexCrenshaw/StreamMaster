@@ -1,8 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Extensions;
-using StreamMaster.Logging;
+﻿using StreamMaster.Domain.Common;
 using StreamMaster.SchedulesDirect.Data;
 
 using System.Globalization;
@@ -82,7 +78,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ILogger<EPGImportLogger> _epgI
             }
 
             // gather possible channel number(s)
-            HashSet<string> lcns = [];
+            ConcurrentHashSet<string> lcns = new();
             foreach (XmltvText lcn in channel.Lcn)
             {
                 lcns.Add(lcn.Text ??= "");

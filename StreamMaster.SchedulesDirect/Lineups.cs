@@ -62,7 +62,7 @@ public class Lineups(ILogger<Lineups> logger, IMemoryCache memoryCache, IIconSer
             }
 
             // use hashset to make sure we don't duplicate channel entries for this station
-            HashSet<string> channelNumbers = [];
+            ConcurrentHashSet<string> channelNumbers = [];
 
             // build the services and lineup
             foreach (LineupStation station in lineupMap.Stations)
@@ -395,7 +395,7 @@ public class Lineups(ILogger<Lineups> logger, IMemoryCache memoryCache, IIconSer
                 station.Lineup = lineup.Lineup;
             }
 
-            HashSet<string> existingIds = new(ret.Select(station => station.StationId));
+            ConcurrentHashSet<string> existingIds = new(ret.Select(station => station.StationId));
 
             foreach (Station station in res.Stations)
             {

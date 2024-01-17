@@ -1,14 +1,16 @@
-﻿namespace StreamMaster.Domain.Common;
+﻿using StreamMaster.Domain.Extensions;
+
+namespace StreamMaster.Domain.Common;
 
 public class SimpleIntList
 {
-    private readonly HashSet<int> intSet;
+    private readonly ConcurrentHashSet<int> intSet;
     private readonly int startingValue;
     private int nextAvailableInt;
 
     public SimpleIntList(int startingValue)
     {
-        intSet = [];
+        intSet = new();
         this.startingValue = startingValue;
         nextAvailableInt = startingValue;
     }
@@ -23,7 +25,7 @@ public class SimpleIntList
         return intSet.Contains(value);
     }
 
-    private readonly object lockObject = new object();
+    private readonly object lockObject = new();
 
     public int GetNextInt(int? value = null, int? index = null)
     {

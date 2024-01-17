@@ -23,7 +23,7 @@ public class SignalRMessage
 
 public partial class StreamMasterHub(ISender mediator, ISettingsService settingsService, IBackgroundTaskQueue taskQueue) : Hub<IStreamMasterHub>, ISharedHub
 {
-    private static readonly HashSet<string> _connections = [];
+    private static readonly ConcurrentHashSet<string> _connections = new();
 
     public static bool IsConnected
     {

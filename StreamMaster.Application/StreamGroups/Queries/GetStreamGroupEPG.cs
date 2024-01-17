@@ -66,7 +66,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         }
 
 
-        HashSet<string> epgids = [];
+        ConcurrentHashSet<string> epgids = new();
 
         ISchedulesDirectData dummyData = schedulesDirectDataService.DummyData();
 

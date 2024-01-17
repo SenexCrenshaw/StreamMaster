@@ -65,8 +65,8 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
             List<MxfService> services = schedulesDirectDataService.AllServices;
 
-            HashSet<int> chNos = [];
-            HashSet<int> existingChNos = videoStreamConfigs.Select(a => a.User_Tvg_chno).Distinct().ToHashSet();
+            ConcurrentHashSet<int> chNos = [];
+            ConcurrentHashSet<int> existingChNos = new(videoStreamConfigs.Select(a => a.User_Tvg_chno).Distinct());
 
 
             foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs.OrderBy(a => a.User_Tvg_chno))
@@ -366,7 +366,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
         // add channel number if requested
         if (settings.SDSettings.XmltvIncludeChannelNumbers)
         {
-            HashSet<string> numbers = [];
+            ConcurrentHashSet<string> numbers = [];
 
             foreach (MxfLineup mxfLineup in schedulesDirectDataService.AllLineups)
             {
@@ -688,7 +688,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
             return null;
         }
 
-        HashSet<string> categories = [];
+        ConcurrentHashSet<string> categories = [];
 
         foreach (string keywordId in mxfProgram.Keywords.Split(','))
         {
@@ -924,7 +924,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
     private static void AddProgramRating(MxfScheduleEntry mxfScheduleEntry, List<XmltvRating> list)
     {
-        HashSet<string> hashSet = [];
+        ConcurrentHashSet<string> hashSet = [];
         if (mxfScheduleEntry.extras.TryGetValue("ratings", out dynamic? value))
         {
             foreach (KeyValuePair<string, string> rating in value)

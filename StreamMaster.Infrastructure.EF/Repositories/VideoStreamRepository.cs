@@ -695,7 +695,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
         return await SetVideoStreamChannelNumbers(videoStreams, OverWriteExisting, StartNumber, cancellationToken).ConfigureAwait(false);
     }
 
-    private int GetNextNumber(int startNumber, HashSet<int> existingNumbers)
+    private int GetNextNumber(int startNumber, ConcurrentHashSet<int> existingNumbers)
     {
         while (existingNumbers.Contains(startNumber))
         {
@@ -706,7 +706,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
 
     private async Task<List<VideoStreamDto>> SetVideoStreamChannelNumbers(IQueryable<VideoStream> videoStreams, bool overWriteExisting, int startNumber, CancellationToken cancellationToken)
     {
-        HashSet<int> existingNumbers = [];
+        ConcurrentHashSet<int> existingNumbers = [];
 
         if (!overWriteExisting)
         {

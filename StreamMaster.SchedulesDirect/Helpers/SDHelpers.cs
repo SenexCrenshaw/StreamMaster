@@ -143,7 +143,7 @@ public static partial class SDHelpers
             !string.IsNullOrEmpty(arg.Size) && arg.Size.Equals(artWorkSize, StringComparison.InvariantCultureIgnoreCase));
 
         // get the aspect ratios available and fix the URI
-        HashSet<string> aspects = [];
+        ConcurrentHashSet<string> aspects = new();
         foreach (ProgramArtwork? image in images)
         {
             _ = aspects.Add(image.Aspect);
