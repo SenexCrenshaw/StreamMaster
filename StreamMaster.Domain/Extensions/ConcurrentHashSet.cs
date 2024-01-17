@@ -1,24 +1,30 @@
-﻿namespace StreamMaster.Domain.Extensions;
+﻿using System.Collections;
 
+namespace StreamMaster.Domain.Extensions;
+
+
+/// <summary>
+/// Represents a thread-safe set of values.
+/// </summary>
+/// <typeparam name="T">The type of elements in the hash set.</typeparam>
 public class ConcurrentHashSet<T> : IEnumerable<T>
 {
     private readonly HashSet<T> _hashSet = [];
     private readonly object _lock = new();
 
+    /// <summary>
+    /// Initializes a new instance of the ConcurrentHashSet class that is empty or contains elements copied from the specified collection.
+    /// </summary>
+    /// <param name="collection">The collection whose elements are copied to the new set.</param>
     public ConcurrentHashSet(IEnumerable<T>? collection = null)
     {
-        if (collection is null)
-        {
-            _hashSet = [];
-        }
-        else
-        {
-            // Initialize the HashSet with the provided collection.
-            // Note that this operation is not thread-safe; it's expected to be done at construction time only.
-            _hashSet = new HashSet<T>(collection);
-        }
+        _hashSet = collection is null ? ([]) : new HashSet<T>(collection);
     }
 
+    /// <summary>
+    /// Adds all elements in the specified collection to the current set.
+    /// </summary>
+    /// <param name="other">The collection of items to add to the set.</param>
     public void UnionWith(IEnumerable<T> other)
     {
         ArgumentNullException.ThrowIfNull(other);
@@ -32,6 +38,11 @@ public class ConcurrentHashSet<T> : IEnumerable<T>
         }
     }
 
+    /// <summary>
+    /// Adds the specified element to the set.
+    /// </summary>
+    /// <param name="item">The element to add to the set.</param>
+    /// <returns>true if the element is added to the set; false if the element is already present.</returns>
     public bool Add(T item)
     {
         lock (_lock)
@@ -40,6 +51,11 @@ public class ConcurrentHashSet<T> : IEnumerable<T>
         }
     }
 
+    /// <summary>
+    /// Removes the specified element from the set.
+    /// </summary>
+    /// <param name="item">The element to remove.</param>
+    /// <returns>true if the element is successfully found and removed; otherwise, false.</returns>
     public bool Remove(T item)
     {
         lock (_lock)
@@ -48,6 +64,9 @@ public class ConcurrentHashSet<T> : IEnumerable<T>
         }
     }
 
+    /// <summary>
+    /// Gets the number of elements contained in the set.
+    /// </summary>
     public int Count
     {
         get
@@ -59,6 +78,11 @@ public class ConcurrentHashSet<T> : IEnumerable<T>
         }
     }
 
+    /// <summary>
+    /// Determines whether the set contains a specific value.
+    /// </summary>
+    /// <param name="item">The object to locate in the set.</param>
+    /// <returns>true if the object is found in the set; otherwise, false.</returns>
     public bool Contains(T item)
     {
         lock (_lock)
@@ -67,19 +91,24 @@ public class ConcurrentHashSet<T> : IEnumerable<T>
         }
     }
 
+    /// <summary>
+    /// Returns an enumerator that iterates through the set.
+    /// </summary>
+    /// <returns>An enumerator for the set.</returns>
     public IEnumerator<T> GetEnumerator()
     {
         lock (_lock)
         {
-            // To provide a snapshot of the current state of the collection,
-            // we create a new HashSet from the original one.
             HashSet<T> snapshot = new(_hashSet);
             return snapshot.GetEnumerator();
         }
     }
 
-    // Explicit implementation for the non-generic interface
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+    /// <summary>
+    /// Returns a non-generic enumerator that iterates through the set.
+    /// </summary>
+    /// <returns>A non-generic enumerator for the set.</returns>
+    IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
     }
