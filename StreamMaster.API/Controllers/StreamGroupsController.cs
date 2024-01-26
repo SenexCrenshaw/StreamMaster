@@ -1,19 +1,28 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
+using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Application.StreamGroups;
 using StreamMaster.Application.StreamGroups.Commands;
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.Authentication;
+using StreamMaster.Domain.Cache;
+using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Pagination;
+using StreamMaster.Domain.Repository;
 using StreamMaster.Domain.Requests;
+using StreamMaster.Domain.Services;
+using StreamMaster.SchedulesDirect.Domain.Interfaces;
+using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text;
+using System.Web;
 
 namespace StreamMaster.API.Controllers;
 
-public class StreamGroupsController : ApiControllerBase, IStreamGroupController
+public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextAccessor httpContextAccessor, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, IMemoryCache memoryCache) : ApiControllerBase, IStreamGroupController
 {
 
     //private static int GenerateMediaSequence()
@@ -48,6 +57,74 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         StreamGroupDto? data = await Mediator.Send(new GetStreamGroup(id)).ConfigureAwait(false);
 
         return data != null ? (ActionResult<StreamGroupDto>)data : (ActionResult<StreamGroupDto>)NotFound();
+    }
+
+
+    [Authorize(Policy = "SGLinks")]
+    [HttpGet]
+    [HttpHead]
+    [Route("{encodedId}/auto/v{channelId}")]
+    public async Task<ActionResult> GetVideoStreamStreamFromAuto(string encodedId, string channelId, CancellationToken cancellationToken)
+    {
+        int? streamGroupId = encodedId.DecodeValue128(Settings.ServerKey);
+        if (streamGroupId == null)
+        {
+            return new NotFoundResult();
+        }
+
+        List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams((int)streamGroupId, cancellationToken);
+
+        if (videoStreams.Count == 0)
+        {
+            return NotFound();
+        }
+
+        Setting setting = memoryCache.GetSetting();
+        int epgNumber = EPGHelper.DummyId;
+
+        foreach (VideoStreamDto videoStream in videoStreams)
+        {
+            string stationId;
+
+
+            if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
+            {
+                stationId = videoStream.User_Tvg_group;
+            }
+            else
+            {
+                if (epgHelper.IsValidEPGId(videoStream.User_Tvg_ID))
+                {
+                    (epgNumber, stationId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
+                }
+                else
+                {
+                    stationId = videoStream.User_Tvg_ID;
+                }
+            }
+
+            MxfService? service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId == stationId);
+            string graceNote = service?.CallSign ?? stationId;
+
+            string id = graceNote;
+            if (setting.M3UUseChnoForId)
+            {
+                id = videoStream.User_Tvg_chno.ToString();
+            }
+            if (id.Equals(channelId))
+            {
+                string url = httpContextAccessor.GetUrl();
+                string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
+                    .Replace("/", "")
+                    .Replace(" ", "_");
+
+                string encodedNumbers = ((int)streamGroupId).EncodeValues128(videoStream.Id, setting.ServerKey);
+                string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+                return Redirect(videoUrl);
+            }
+        }
+
+        return NotFound();
     }
 
     [HttpGet]
