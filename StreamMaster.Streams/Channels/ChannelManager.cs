@@ -11,7 +11,6 @@ public sealed class ChannelManager : IChannelManager
 
     private readonly object _disposeLock = new();
     private readonly ILogger<ChannelManager> logger;
-    //private readonly IBroadcastService broadcastService;
     private readonly IStreamSwitcher streamSwitcher;
     private readonly IChannelService channelService;
     private readonly IStreamManager streamManager;
@@ -32,7 +31,6 @@ public sealed class ChannelManager : IChannelManager
     )
     {
         this.logger = logger;
-        //this.broadcastService = broadcastService;
         this.streamSwitcher = streamSwitcher;
         this.channelService = channelService;
         this.streamManager = streamManager;
@@ -135,7 +133,6 @@ public sealed class ChannelManager : IChannelManager
 
             try
             {
-                //broadcastService.StopBroadcasting();
                 streamManager.Dispose();
                 channelService.Dispose();
                 clientStreamerManager.Dispose();
@@ -172,7 +169,6 @@ public sealed class ChannelManager : IChannelManager
             return null;
         }
 
-        //broadcastService.StartBroadcasting();
         return res;
     }
 
