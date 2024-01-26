@@ -43,6 +43,13 @@ public partial class SchedulesDirect(
 
         try
         {
+            await _syncSemaphore.WaitAsync(cancellationToken);
+            if (cancellationToken.IsCancellationRequested)
+            {
+                jobStatusService.SetSyncSuccessful();
+                return false;
+            }
+
             Setting setting = memoryCache.GetSetting();
             if (!setting.SDSettings.SDEnabled)
             {
@@ -56,7 +63,6 @@ public partial class SchedulesDirect(
                 return false;
             }
 
-            await _syncSemaphore.WaitAsync(cancellationToken);
             jobStatusService.SetSyncIsRunning(true);
             //ResetEPGCache();
             int maxRetry = 3;
@@ -139,7 +145,7 @@ public partial class SchedulesDirect(
         }
 
         FileInfo fi = new(fileName);
-        int imageCount = xmltv.Programs.SelectMany(program => program.Icons?.Select(icon => icon.Src) ?? new List<string>()).Distinct().Count();
+        int imageCount = xmltv.Programs.SelectMany(program => program.Icons?.Select(icon => icon.Src) ?? []).Distinct().Count();
         logger.LogInformation($"Completed save of the XMLTV file to \"{fileName}\". ({FileUtil.BytesToString(fi.Length)})");
         logger.LogDebug($"Generated XMLTV file contains {xmltv.Channels.Count} channels and {xmltv.Programs.Count} programs with {imageCount} distinct program image links.");
     }
