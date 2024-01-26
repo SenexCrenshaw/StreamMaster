@@ -51,10 +51,11 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         return _videoInfo ?? new();
     }
 
-    private async Task BuildVideoInfo(Memory<byte> videoMemory)
+    private async Task BuildVideoInfo()
     {
         try
         {
+
             if (runningGetVideo)
             {
                 return;
@@ -89,8 +90,12 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
             try
             {
-                byte[] videoMemoryArray = videoMemory.ToArray();
-                VideoInfo ret = await CreateFFProbeStream(ffprobeExec, videoMemoryArray).ConfigureAwait(false);
+                long start = CircularRingBuffer.GetNextReadIndex() - 1000000;
+                byte[] videoMemory = new byte[1 * 1024 * 1024];
+
+                int mem = await CircularRingBuffer.ReadChunkMemory(start, videoMemory, CancellationToken.None);
+                //byte[] videoMemoryArray = videoMemory.ToArray();
+                VideoInfo ret = await CreateFFProbeStream(ffprobeExec, videoMemory).ConfigureAwait(false);
 
                 logger.LogInformation("Retrieved video information for {name}", VideoStreamName);
                 return;
@@ -142,8 +147,6 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                 logger.LogError("CreateFFProbeStream Error: Failed to start FFProbe process");
                 return new();
             }
-
-            //byte[] buffer = videoMemory.ToArray(); // Convert Memory<byte> to byte array
 
             using Timer timer = new(delegate { process.Kill(); }, null, 5000, Timeout.Infinite);
 
@@ -198,8 +201,8 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         return process.ExitCode == 0;
     }
 
-    private readonly Memory<byte> videoMemory = new byte[1 * 1024 * 1024];
-    private bool startMemoryFilled = false;
+    //private readonly Memory<byte> videoMemory = new byte[1 * 1024 * 1024];
+    private readonly bool startMemoryFilled = false;
     private bool testRan = false;
 
     public async Task StartVideoStreamingAsync(Stream stream)
@@ -263,29 +266,29 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                     }
                     timeBetweenWrites.Reset();
 
-                    if (!startMemoryFilled)
+                    if (CircularRingBuffer.GetNextReadIndex() > 1000000)
                     {
-                        if (startMemoryIndex < 1024 * 1024)
-                        {
+                        //    if (startMemoryIndex < 1024 * 1024)
+                        //    {
 
-                            int bytesToCopy = Math.Min(videoMemory.Length - startMemoryIndex, bytesRead);
+                        //        int bytesToCopy = Math.Min(videoMemory.Length - startMemoryIndex, bytesRead);
 
-                            bufferMemory[..bytesToCopy].CopyTo(videoMemory[startMemoryIndex..]);
+                        //        bufferMemory[..bytesToCopy].CopyTo(videoMemory[startMemoryIndex..]);
 
-                            startMemoryIndex += bytesToCopy;
-                        }
-                        else
-                        {
-                            startMemoryFilled = true;
+                        //        startMemoryIndex += bytesToCopy;
+                        //    }
+                        //    else
+                        //    {
+                        //        startMemoryFilled = true;
 
-                        }
-                        startMemoryIndex += bytesRead;
-                    }
-                    else
-                    {
+                        //    }
+                        //    startMemoryIndex += bytesRead;
+                        //}
+                        //else
+                        //{
                         if (GetVideoInfoErrors < 4 && _videoInfo == null && !runningGetVideo)
                         {
-                            _ = BuildVideoInfo(videoMemory);//Run in background
+                            _ = BuildVideoInfo();//Run in background
                         }
                     }
 
