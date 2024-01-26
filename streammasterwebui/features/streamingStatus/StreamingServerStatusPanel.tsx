@@ -258,20 +258,20 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
       {
         align: 'center',
         bodyTemplate: inputBitsPerSecondTemplate,
-        field: 'inputBitsPerSecond',
+        field: 'bitsPerSecond',
         header: 'Input kbps',
         width: '10rem'
       },
       {
         align: 'center',
-        field: 'inputElapsedTime',
+        field: 'elapsedTime',
         header: 'Input Elapsed',
         width: '10rem'
       },
       {
         align: 'center',
         bodyTemplate: inputStartTimeTemplate,
-        field: 'inputStartTime',
+        field: 'startTime',
         header: 'Input Start',
         width: '10rem'
       },
@@ -282,7 +282,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
         width: '8rem'
       }
     ],
-    [imageBodyTemplate, inputBitsPerSecondTemplate, inputStartTimeTemplate, streamCount, targetActionBodyTemplate, videoStreamTemplate]
+    [imageBodyTemplate, inputBitsPerSecondTemplate, inputStartTimeTemplate, targetActionBodyTemplate, videoStreamTemplate]
   );
 
   const onHide = useCallback(() => {

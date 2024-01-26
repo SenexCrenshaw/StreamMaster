@@ -138,20 +138,20 @@ const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProper
     {
       align: 'center',
       bodyTemplate: clientStartTimeTemplate,
-      field: 'clientStartTime',
+      field: 'startTime',
       header: 'Client Start',
       width: '10rem'
     },
     {
       align: 'center',
-      field: 'clientElapsedTime',
+      field: 'elapsedTime',
       header: 'Client Elapsed',
       width: '10rem'
     },
     {
       align: 'center',
       bodyTemplate: clientBitsPerSecondTemplate,
-      field: 'clientBitsPerSecond',
+      field: 'bitsPerSecond',
       header: 'Client kbps',
       width: '10rem'
     },
