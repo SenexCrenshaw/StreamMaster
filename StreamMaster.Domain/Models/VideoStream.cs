@@ -10,7 +10,7 @@ public class VideoStream
 {
     public VideoStream()
     {
-        StreamGroups = new List<StreamGroupVideoStream>();
+        StreamGroups = [];
     }
 
     public StreamingProxyTypes StreamingProxyType { get; set; } = StreamingProxyTypes.SystemDefault;

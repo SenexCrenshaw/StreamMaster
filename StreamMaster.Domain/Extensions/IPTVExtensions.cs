@@ -254,6 +254,11 @@ public static partial class IPTVExtensions
                             VideoStream.Tvg_logo = parameter.Skip(1).Aggregate((current, next) => current + next).Trim();
                             break;
 
+                        case "tvc-guide-stationid":
+                            string StationIdnum = parameter[1].Trim();
+                            VideoStream.StationId = StationIdnum;// int.TryParse(StationIdnum, out int stationId) ? chanchno : 0;
+                            break;
+
                         case "group-title":
                             VideoStream.Tvg_group = parameter[1].Trim();
                             break;
