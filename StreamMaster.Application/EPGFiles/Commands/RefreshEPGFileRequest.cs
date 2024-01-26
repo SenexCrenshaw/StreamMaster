@@ -71,10 +71,14 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
             _ = await Repository.SaveAsync().ConfigureAwait(false);
 
             EPGFileDto toPublish = Mapper.Map<EPGFileDto>(epgFile);
-            if (publish)
-            {
-                await Publisher.Publish(new EPGFileAddedEvent(toPublish), cancellationToken).ConfigureAwait(false);
-            }
+            //if (publish)
+            //{
+            await Publisher.Publish(new EPGFileAddedEvent(toPublish), cancellationToken).ConfigureAwait(false);
+            //}
+            //else
+            //{
+            //    jobStatusService.SetEPGIsRunning(false);
+            //}
             return toPublish;
 
         }

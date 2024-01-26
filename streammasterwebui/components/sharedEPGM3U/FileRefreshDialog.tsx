@@ -8,9 +8,10 @@ interface FileRefreshDialogProperties {
   readonly fileType: 'epg' | 'm3u';
   readonly inputInfoMessage?: string;
   readonly onRefreshFile: () => void;
+  readonly OnClose: () => void;
 }
 
-const FileRefreshDialog = ({ fileType, inputInfoMessage, onRefreshFile }: FileRefreshDialogProperties) => {
+const FileRefreshDialog = ({ fileType, OnClose, inputInfoMessage, onRefreshFile }: FileRefreshDialogProperties) => {
   const labelName = fileType.toUpperCase();
 
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
@@ -25,7 +26,8 @@ const FileRefreshDialog = ({ fileType, inputInfoMessage, onRefreshFile }: FileRe
     setShowOverlay(false);
     setInfoMessage('');
     setBlock(false);
-  }, []);
+    OnClose();
+  }, [OnClose]);
 
   return (
     <>

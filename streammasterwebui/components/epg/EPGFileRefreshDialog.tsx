@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 
 import { useEpgFilesRefreshEpgFileMutation, type EpgFileDto, type EpgFilesRefreshEpgFileApiArg } from '@lib/iptvApi';
 import FileRefreshDialog from '../sharedEPGM3U/FileRefreshDialog';
@@ -10,6 +10,10 @@ interface EPGFileRefreshDialogProperties {
 const EPGFileRefreshDialog = ({ selectedFile }: EPGFileRefreshDialogProperties) => {
   const [infoMessage, setInfoMessage] = useState('');
   const [epgFilesRefreshEpgFileMutation] = useEpgFilesRefreshEpgFileMutation();
+
+  const OnClose = useCallback(() => {
+    setInfoMessage('');
+  }, []);
 
   const refreshFile = async () => {
     if (!selectedFile?.id) {
@@ -28,7 +32,7 @@ const EPGFileRefreshDialog = ({ selectedFile }: EPGFileRefreshDialogProperties) 
       });
   };
 
-  return <FileRefreshDialog fileType="epg" inputInfoMessage={infoMessage} onRefreshFile={refreshFile} />;
+  return <FileRefreshDialog fileType="epg" inputInfoMessage={infoMessage} onRefreshFile={refreshFile} OnClose={OnClose} />;
 };
 
 EPGFileRefreshDialog.displayName = 'EPGFileRefreshDialog';
