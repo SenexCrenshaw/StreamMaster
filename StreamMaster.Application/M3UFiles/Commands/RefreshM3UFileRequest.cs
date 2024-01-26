@@ -81,10 +81,10 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
             _ = await Repository.SaveAsync().ConfigureAwait(false);
 
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
-            if (publish)
-            {
-                await Publisher.Publish(new M3UFileAddedEvent(ret.Id, request.forceRun), cancellationToken).ConfigureAwait(false);
-            }
+            //if (publish)
+            //{
+            await Publisher.Publish(new M3UFileAddedEvent(ret.Id, request.forceRun), cancellationToken).ConfigureAwait(false);
+            //}
 
             return m3uFile;
         }
