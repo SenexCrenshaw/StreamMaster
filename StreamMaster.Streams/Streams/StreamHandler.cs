@@ -16,6 +16,8 @@ namespace StreamMaster.Streams.Streams;
 /// </summary>
 public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, IMemoryCache memoryCache, IClientStreamerManager clientStreamerManager, ILogger<IStreamHandler> logger, ICircularRingBuffer ringBuffer) : IStreamHandler
 {
+    private readonly int videoBufferSize = 1024 * 1000;
+
     public static int ChunkSize = 64 * 1024;
 
     private readonly SemaphoreSlim getVideoInfo = new(1);
@@ -53,6 +55,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
     private async Task BuildVideoInfo()
     {
+
         try
         {
 
@@ -90,17 +93,22 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
             try
             {
-                long start = CircularRingBuffer.GetNextReadIndex() - 1000000;
-                byte[] videoMemory = new byte[1 * 1024 * 1024];
+                long start = 0;
+                if (_videoInfo != null)
+                {
+                    start = CircularRingBuffer.GetNextReadIndex() - videoBufferSize;
+                }
+
+                byte[] videoMemory = new byte[videoBufferSize];
 
                 int mem = await CircularRingBuffer.ReadChunkMemory(start, videoMemory, CancellationToken.None);
-                //byte[] videoMemoryArray = videoMemory.ToArray();
+
                 VideoInfo ret = await CreateFFProbeStream(ffprobeExec, videoMemory).ConfigureAwait(false);
 
                 logger.LogInformation("Retrieved video information for {name}", VideoStreamName);
                 return;
             }
-            catch (IOException ex)
+            catch (IOException)
             {
 
             }
@@ -266,7 +274,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                     }
                     timeBetweenWrites.Reset();
 
-                    if (CircularRingBuffer.GetNextReadIndex() > 1000000)
+                    if (CircularRingBuffer.GetNextReadIndex() > videoBufferSize)
                     {
                         //    if (startMemoryIndex < 1024 * 1024)
                         //    {
