@@ -245,12 +245,13 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         //    }
         //}
 
-
+        int retryCount = 0;
+        int maxRetries = 3;
         using (stream)
         {
             Stopwatch timeBetweenWrites = Stopwatch.StartNew(); // Initialize the stopwatch
             int bytesRead = bufferMemory.Length;
-            while (!linkedToken.IsCancellationRequested)// && retryCount < maxRetries)
+            while (!linkedToken.IsCancellationRequested && retryCount < maxRetries)
             {
                 try
                 {
@@ -295,8 +296,6 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
                         break;
                     }
-
-
                 }
                 catch (TaskCanceledException ex)
                 {
@@ -306,11 +305,16 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                     logger.LogInformation("Stream requested to stop for: {stopVideoStreamingToken.Token}", stopVideoStreamingToken.Token.IsCancellationRequested);
                     break;
                 }
-                catch (EndOfStreamException)
+                catch (EndOfStreamException ex)
                 {
                     inputStreamError = true;
-                    logger.LogInformation("End of Stream reached for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
-                    break;
+                    ++retryCount;
+                    logger.LogInformation("End of Stream reached for: {StreamUrl} {name}. Error: {ErrorMessage} at {Time} {test}", StreamUrl, VideoStreamName, ex.Message, DateTime.UtcNow, stream.CanRead);
+                    if (!stream.CanRead)
+                    {
+                        break;
+                    }
+
                 }
                 catch (HttpIOException ex)
                 {
