@@ -95,6 +95,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
         try
         {
+            _readLogger.LogDebug("------------------------------------------------");
             while (!linkedToken.IsCancellationRequested && bytesRead < target.Length)
             {
 
@@ -106,8 +107,8 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                 }
                 await _pauseSignal.Task;// .WaitWithTimeoutAsync("PauseSignal", 10000, linkedToken);
 
-
                 availableBytes = GetAvailableBytes(readIndex, correlationId);
+                _readLogger.LogDebug("Start bytesRead: {bytesRead} bytesToRead: {bytesToRead} clientReadIndex: {clientReadIndex} writeindex: {writeindex} writebytes: {writebytes} availableBytes: {availableBytes} target.Length: {target.Length} readIndex: {readIndex}", bytesRead, bytesToRead, clientReadIndex, _writeIndex, WriteBytes, availableBytes, target.Length, readIndex);
 
                 while (availableBytes == 0)
                 {
@@ -127,7 +128,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                         continue;
                     }
                     availableBytes = GetAvailableBytes(readIndex, correlationId);
-                    if (availableBytes == 0)
+                    if (availableBytes < 1)
                     {
                         int aa = 1;
                     }
@@ -136,7 +137,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                 availableBytes = Math.Min(availableBytes, target.Length - bytesRead);
                 // Calculate the number of bytes to read before wrap-around
                 bytesToRead = Math.Min(_buffer.Length - clientReadIndex, availableBytes); ;
-                if (bytesToRead == 0)
+                if (bytesToRead <= 0)
                 {
                     _readLogger.LogDebug("ReadChunkMemory bytesToRead == 0");
                     continue;
@@ -152,8 +153,12 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                 bytesRead += bytesToRead;
 
                 // Update the client's read index, wrapping around if necessary
-                clientReadIndex = (clientReadIndex + bytesToRead) % _buffer.Length;
-                _readLogger.LogDebug("ReadChunkMemory {bytesRead} {bytesToRead} {clientReadIndex} {writeindex} {availableBytes} {target.Length}", bytesRead, bytesToRead, clientReadIndex, _writeIndex, availableBytes, target.Length);
+                //clientReadIndex = (clientReadIndex + bytesToRead) % _buffer.Length;
+                readIndex += bytesToRead;
+                clientReadIndex = CalculateClientReadIndex(readIndex);
+
+
+                _readLogger.LogDebug("End bytesRead: {bytesRead} bytesToRead: {bytesToRead} clientReadIndex: {clientReadIndex} writeindex: {writeindex} writebytes: {writebytes} availableBytes: {availableBytes} target.Length: {target.Length} readIndex: {readIndex}", bytesRead, bytesToRead, clientReadIndex, _writeIndex, WriteBytes, availableBytes, target.Length, readIndex);
             }
         }
         catch (TaskCanceledException ex)
@@ -183,16 +188,14 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         {
             // Ensure that the registration is disposed of
             //UnregisterCancellation();
+            _readLogger.LogDebug("------------------------------------------------");
         }
 
         stopwatch.Stop();
-        if (bytesRead < 1000)
+        if (bytesRead < 65536)
         {
-            logger.LogInformation("ReadChunkMemory bytesRead {bytesRead}");
-            //if (bytesRead == 0)
-            //{
-            //    bytesRead = 0;
-            //}
+            logger.LogInformation($"ReadChunkMemory bytesRead {bytesRead} {readIndex}");
+
         }
         return bytesRead;
     }
@@ -232,6 +235,10 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
             while (data.Length > 0)
             {
+                if (data.Length < 10000)
+                {
+                    int aaaa = 1;
+                }
                 int availableSpace = _buffer.Length - _writeIndex;
                 if (availableSpace <= 0)
                 {
@@ -266,7 +273,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
             _inputStreamStatistics.AddBytesWritten(_bytesWritten);
             SignalReaders();
         }
-        _writeLogger.LogDebug("WriteChunk {VideoStreamName} {bytesWritten} {elapsedMilliseconds}", VideoStreamName, _bytesWritten, stopwatch.ElapsedMilliseconds);
+        _writeLogger.LogDebug("WriteChunk {VideoStreamName} {bytesWritten} {_writeIndex} {elapsedMilliseconds}ms", VideoStreamName, _bytesWritten, _writeIndex, stopwatch.ElapsedMilliseconds);
         return _bytesWritten;
     }
 

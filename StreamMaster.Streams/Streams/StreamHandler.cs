@@ -222,10 +222,8 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         CircularRingBuffer.StopVideoStreamingToken = stopVideoStreamingToken;
 
         logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} name: {name} circularRingbuffer id: {circularRingbuffer}", ChunkSize, StreamUrl, VideoStreamName, CircularRingBuffer.Id);
-
         Memory<byte> bufferMemory = new byte[ChunkSize];
 
-        int startMemoryIndex = 0;
         bool inputStreamError = false;
 
         CancellationTokenSource linkedToken;
@@ -266,8 +264,11 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             {
                 try
                 {
-                    await stream.ReadExactlyAsync(bufferMemory, linkedToken.Token);
-                    CircularRingBuffer.WriteChunk(bufferMemory);
+
+                    int readBytes = await stream.ReadAsync(bufferMemory, linkedToken.Token);
+
+                    CircularRingBuffer.WriteChunk(bufferMemory[..readBytes]);
+
                     if (CircularRingBuffer.IsPaused())
                     {
                         CircularRingBuffer.UnPauseReaders();
@@ -276,24 +277,6 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
                     if (CircularRingBuffer.GetNextReadIndex() > videoBufferSize)
                     {
-                        //    if (startMemoryIndex < 1024 * 1024)
-                        //    {
-
-                        //        int bytesToCopy = Math.Min(videoMemory.Length - startMemoryIndex, bytesRead);
-
-                        //        bufferMemory[..bytesToCopy].CopyTo(videoMemory[startMemoryIndex..]);
-
-                        //        startMemoryIndex += bytesToCopy;
-                        //    }
-                        //    else
-                        //    {
-                        //        startMemoryFilled = true;
-
-                        //    }
-                        //    startMemoryIndex += bytesRead;
-                        //}
-                        //else
-                        //{
                         if (GetVideoInfoErrors < 4 && _videoInfo == null && !runningGetVideo)
                         {
                             _ = BuildVideoInfo();//Run in background
