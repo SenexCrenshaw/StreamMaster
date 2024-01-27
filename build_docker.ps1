@@ -27,8 +27,7 @@ if ($TagAndPush) {
     git add -A
 
     # Commit changes
-    $commitMessage = "Auto-commit: $semVer-$buildMetaDataPadded"
-    git commit -m $commitMessage
+    git commit 
 
     # Tag the commit
     $tagName = "v$semVer-$buildMetaDataPadded"
@@ -40,7 +39,6 @@ if ($TagAndPush) {
     # Push tag to the remote repository
     git push origin $tagName
 }
-
 
 # Multiple tags
 $tags = if ($BuildProd) {
