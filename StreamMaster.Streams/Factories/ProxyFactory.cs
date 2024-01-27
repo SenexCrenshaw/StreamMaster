@@ -167,7 +167,7 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
 
             return (stream, -1, null);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or Exception)
         {
             stopwatch.Stop();
             ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = ex.Message };

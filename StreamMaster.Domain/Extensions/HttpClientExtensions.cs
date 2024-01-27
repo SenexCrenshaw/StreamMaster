@@ -18,16 +18,16 @@ public static class HttpClientExtensions
         {
             httpClient.DefaultRequestHeaders.Range = null;
 
-            try
-            {
-                response = await httpClient.GetAsync(redirectUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false); ;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-                //return null;
-            }
+            //try
+            //{
+            response = await httpClient.GetAsync(redirectUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false); ;
+            //}
+            //catch ()
+            //{
+            //    //Console.WriteLine(ex.Message);
+            //    throw;
+            //    //return null;
+            //}
             if (response.StatusCode == HttpStatusCode.Redirect)
             {
                 if (response.Headers.Location != null)
