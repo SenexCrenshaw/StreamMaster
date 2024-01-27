@@ -1,13 +1,7 @@
-﻿using StreamMaster.Domain.Common;
+﻿namespace StreamMaster.Application.VideoStreams.Events;
 
-namespace StreamMaster.Application.VideoStreams.Events;
-
-public class DeleteVideoStreamEvent : BaseEvent
+public class DeleteVideoStreamEvent(string videoStreamId, ChannelGroup? ChannelGroup) : BaseEvent
 {
-    public DeleteVideoStreamEvent(string videoStreamId)
-    {
-        VideoStreamId = videoStreamId;
-    }
-
-    public string VideoStreamId { get; }
+    public ChannelGroup? ChannelGroup { get; } = ChannelGroup;
+    public string VideoStreamId { get; } = videoStreamId;
 }

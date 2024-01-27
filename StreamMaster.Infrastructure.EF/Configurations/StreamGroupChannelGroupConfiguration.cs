@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using StreamMaster.Domain.Models;
-
 namespace StreamMaster.Infrastructure.EF.Configurations;
 
 public class StreamGroupChannelGroupConfiguration : IEntityTypeConfiguration<StreamGroupChannelGroup>
@@ -16,6 +14,6 @@ public class StreamGroupChannelGroupConfiguration : IEntityTypeConfiguration<Str
             .HasOne(sgcg => sgcg.StreamGroup)
             .WithMany(sg => sg.ChannelGroups)
             .HasForeignKey(sgcg => sgcg.StreamGroupId)
-            .OnDelete(DeleteBehavior.Restrict); // Prevent cascading delete
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

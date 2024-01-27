@@ -144,8 +144,6 @@ namespace StreamMaster.Infrastructure.EF
             }
 
         }
-
-
         public string DbPath { get; } = Path.Join(BuildInfo.DataFolder, "StreamMaster.db");
 
         public DbSet<SystemKeyValue> SystemKeyValues { get; set; }

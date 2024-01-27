@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using StreamMaster.Domain.Models;
-
 namespace StreamMaster.Infrastructure.EF.Configurations;
 
 public class StreamGroupVideoStreamConfiguration : IEntityTypeConfiguration<StreamGroupVideoStream>
@@ -16,7 +14,7 @@ public class StreamGroupVideoStreamConfiguration : IEntityTypeConfiguration<Stre
             .HasOne(sgvs => sgvs.ChildVideoStream)
             .WithMany(vs => vs.StreamGroups)
             .HasForeignKey(sgvs => sgvs.ChildVideoStreamId)
-            .OnDelete(DeleteBehavior.Restrict); // Prevent cascading delete
+            .OnDelete(DeleteBehavior.Cascade);
 
     }
 }

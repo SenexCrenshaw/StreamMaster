@@ -112,7 +112,10 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
             return NotFound();
         }
 
-        if (string.IsNullOrEmpty(videoStream.User_Url) && videoStream.ChildVideoStreams.Count == 0 && string.IsNullOrEmpty(videoStream.ChildVideoStreams.First().User_Url))
+        if (
+            string.IsNullOrEmpty(videoStream.User_Url) &&
+            (videoStream.ChildVideoStreams.Count == 0 || string.IsNullOrEmpty(videoStream.ChildVideoStreams.First().User_Url))
+        )
         {
             _logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} missing url or additional streams", streamGroupNumber, videoStreamId);
             return new NotFoundResult();
