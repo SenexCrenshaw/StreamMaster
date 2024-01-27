@@ -22,7 +22,6 @@ $branchName = $obj.BranchName
 
 $obj |  Write-Output
 
-
 if ($TagAndPush) {
     # Stage all changes
     git add -A
