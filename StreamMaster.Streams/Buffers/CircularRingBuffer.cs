@@ -95,7 +95,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
         try
         {
-            _readLogger.LogDebug("------------------------------------------------");
+            _readLogger.LogDebug($"-------------------{VideoStreamName}-----------------------------");
             while (!linkedToken.IsCancellationRequested && bytesRead < target.Length)
             {
 
@@ -105,7 +105,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                     break;
 
                 }
-                await _pauseSignal.Task;// .WaitWithTimeoutAsync("PauseSignal", 10000, linkedToken);
+                await _pauseSignal.Task;
 
                 availableBytes = GetAvailableBytes(readIndex, correlationId);
                 _readLogger.LogDebug("Start bytesRead: {bytesRead} bytesToRead: {bytesToRead} clientReadIndex: {clientReadIndex} writeindex: {writeindex} writebytes: {writebytes} availableBytes: {availableBytes} target.Length: {target.Length} readIndex: {readIndex}", bytesRead, bytesToRead, clientReadIndex, _writeIndex, WriteBytes, availableBytes, target.Length, readIndex);
@@ -118,13 +118,13 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                         _readLogger.LogDebug("ReadChunkMemory _writeSignal.Task.IsCanceled");
                         break;
                     }
-                    if (IsPaused())
+                    if (IsPaused)
                     {
-                        if (bytesRead > 0)
-                        {
-                            _readLogger.LogDebug("ReadChunkMemory bytes Read > 0");
-                            return bytesRead;
-                        }
+                        //if (bytesRead > 0)
+                        //{
+                        //    _readLogger.LogDebug("ReadChunkMemory bytes Read > 0");
+                        //    return bytesRead;
+                        //}
                         continue;
                     }
                     availableBytes = GetAvailableBytes(readIndex, correlationId);
@@ -188,27 +188,23 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         {
             // Ensure that the registration is disposed of
             //UnregisterCancellation();
-            _readLogger.LogDebug("------------------------------------------------");
+            _readLogger.LogDebug($"-------------------{VideoStreamName}-----------------------------");
         }
 
         stopwatch.Stop();
         if (bytesRead < 65536)
         {
-            logger.LogInformation($"ReadChunkMemory bytesRead {bytesRead} {readIndex}");
+            logger.LogInformation($"ReadChunkMemory bytesRead {bytesRead} {readIndex} {VideoStreamName}");
 
         }
         return bytesRead;
     }
 
-    public bool IsPaused()
-    {
-        return !_pauseSignal.Task.IsCompleted;
-    }
+    public bool IsPaused => !_pauseSignal.Task.IsCompleted;
 
     public void PauseReaders()
     {
-
-        if (!_pauseSignal.Task.IsCompleted)
+        if (IsPaused)
         {
             return;
         }

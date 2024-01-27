@@ -67,12 +67,12 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
         }
         Stopwatch stopWatch = Stopwatch.StartNew();
 
-        if (_readCancel == null || _readCancel.IsCancellationRequested)
-        {
-            _readCancel = new CancellationTokenSource();
-        }
+        //if (_readCancel == null || _readCancel.IsCancellationRequested)
+        //{
+        //    _readCancel = new CancellationTokenSource();
+        //}
 
-        using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_readCancel.Token, cancellationToken);
+        //using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_readCancel.Token, cancellationToken);
 
         //linkedCts.CancelAfter(TimeSpan.FromSeconds(30));
 
@@ -85,14 +85,31 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
         }
         try
         {
-            // Use the ReadChunkMemory method to read data
-
-            await semaphore.WaitAsync(cancellationToken);
-            bytesRead = await Buffer.ReadChunkMemory(_lastReadIndex, buffer, linkedCts.Token);
-            if (bytesRead != 0)
+            while (true)
             {
-                accumulatedBytesRead += bytesRead;
-                metrics.RecordBytesProcessed(bytesRead);
+                await semaphore.WaitAsync(cancellationToken);
+                if (_readCancel == null || _readCancel.IsCancellationRequested)
+                {
+                    _readCancel = new CancellationTokenSource();
+                }
+
+                using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_readCancel.Token, cancellationToken);
+
+                //maybe skip on pause loop
+                bytesRead = await Buffer.ReadChunkMemory(_lastReadIndex, buffer, linkedCts.Token);
+                if (bytesRead != 0)
+                {
+                    accumulatedBytesRead += bytesRead;
+                    metrics.RecordBytesProcessed(bytesRead);
+                }
+
+                _lastReadIndex += bytesRead;
+                _ = semaphore.Release();
+                if (!Buffer.IsPaused)
+                {
+                    break;
+                }
+
             }
         }
         catch (TaskCanceledException ex)
@@ -127,7 +144,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
             }
 
         }
-        _lastReadIndex += bytesRead;
+        //_lastReadIndex += bytesRead;
         _statisticsManager.AddBytesRead(ClientId, bytesRead);
         return bytesRead;
     }
@@ -174,6 +191,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
             ClientId = config.ClientId;
             _clientMasterToken = config.ClientMasterToken;
             _bufferDelegate = bufferDelegate;
+            _lastReadIndex = bufferDelegate().GetNextReadIndex();
         }
         finally
         {

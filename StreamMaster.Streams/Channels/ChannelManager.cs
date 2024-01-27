@@ -65,7 +65,7 @@ public sealed class ChannelManager : IChannelManager
 
                     bool didSwitch = await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
 
-                    if (streamHandler.ClientCount == 0 || !didSwitch)
+                    if (streamHandler.ClientCount == 0 && !didSwitch)
                     {
                         clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(channelStatus.ChannelVideoStreamId)
                             .ForEach(async x =>
@@ -174,6 +174,7 @@ public sealed class ChannelManager : IChannelManager
 
     public async Task RemoveClient(IClientStreamerConfiguration config)
     {
+        logger.LogInformation("Client exited");
         await UnRegisterWithChannelManager(config);
     }
 

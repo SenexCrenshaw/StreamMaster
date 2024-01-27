@@ -1,0 +1,81 @@
+﻿{
+   "CodeGenerationMode": 4,
+   "ContextClassName": "C:\\config\\StreamMaster.dbContext",
+   "ContextNamespace": null,
+   "DefaultDacpacSchema": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": true,
+   "ModelNamespace": null,
+   "OutputContextPath": null,
+   "OutputPath": "Models",
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "StreamMaster.Infrastructure.EF",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 2,
+   "SelectedToBeGenerated": 0,
+   "T4TemplatePath": null,
+   "Tables": [
+      {
+         "Name": "ChannelGroups",
+         "ObjectType": 0
+      },
+      {
+         "Name": "DataProtectionKeys",
+         "ObjectType": 0
+      },
+      {
+         "Name": "EPGFiles",
+         "ObjectType": 0
+      },
+      {
+         "Name": "M3UFiles",
+         "ObjectType": 0
+      },
+      {
+         "Name": "StreamGroupChannelGroups",
+         "ObjectType": 0
+      },
+      {
+         "Name": "StreamGroups",
+         "ObjectType": 0
+      },
+      {
+         "Name": "StreamGroupVideoStreams",
+         "ObjectType": 0
+      },
+      {
+         "Name": "SystemKeyValues",
+         "ObjectType": 0
+      },
+      {
+         "Name": "VideoStreamLinks",
+         "ObjectType": 0
+      },
+      {
+         "Name": "VideoStreams",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": "C:\\config\\StreamMaster.db",
+   "UncountableWords": null,
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDateOnlyTimeOnly": true,
+   "UseDbContextSplitting": false,
+   "UseDecimalDataAnnotationForSprocResult": true,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": true,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": false,
+   "UseSchemaFolders": false,
+   "UseSchemaNamespaces": false,
+   "UseSpatial": false,
+   "UseT4": false
+}

@@ -184,7 +184,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             return videoInfo;
 
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is IOException or JsonException or Exception)
         {
             logger.LogError(ex, "CreateFFProbeStream Error: {ErrorMessage}", ex.Message);
             process.Kill();
@@ -254,22 +254,26 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         //    }
         //}
 
-        int retryCount = 0;
-        int maxRetries = 3;
+        //int retryCount = 0;
+        //int maxRetries = 3;
         using (stream)
         {
             Stopwatch timeBetweenWrites = Stopwatch.StartNew(); // Initialize the stopwatch
             int bytesRead = bufferMemory.Length;
-            while (!linkedToken.IsCancellationRequested && retryCount < maxRetries)
+            while (!linkedToken.IsCancellationRequested)//&& retryCount < maxRetries)
             {
                 try
                 {
 
                     int readBytes = await stream.ReadAsync(bufferMemory, linkedToken.Token);
+                    if (readBytes == 0)
+                    {
+                        throw new EndOfStreamException();
+                    }
 
                     CircularRingBuffer.WriteChunk(bufferMemory[..readBytes]);
 
-                    if (CircularRingBuffer.IsPaused())
+                    if (CircularRingBuffer.IsPaused)
                     {
                         CircularRingBuffer.UnPauseReaders();
                     }
@@ -302,13 +306,9 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                 catch (EndOfStreamException ex)
                 {
                     inputStreamError = true;
-                    ++retryCount;
+                    //++retryCount;
                     logger.LogInformation("End of Stream reached for: {StreamUrl} {name}. Error: {ErrorMessage} at {Time} {test}", StreamUrl, VideoStreamName, ex.Message, DateTime.UtcNow, stream.CanRead);
-                    if (!stream.CanRead)
-                    {
-                        break;
-                    }
-
+                    break;
                 }
                 catch (HttpIOException ex)
                 {
