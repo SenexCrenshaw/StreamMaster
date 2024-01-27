@@ -470,6 +470,20 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/streamgroups/getstreamgroup/${queryArg}` }),
         providesTags: ['StreamGroups']
       }),
+      streamGroupsGetVideoStreamStreamFromAutoGet: build.query<
+        StreamGroupsGetVideoStreamStreamFromAutoGetApiResponse,
+        StreamGroupsGetVideoStreamStreamFromAutoGetApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg.encodedId}/auto/v${queryArg.channelId}` }),
+        providesTags: ['StreamGroups']
+      }),
+      streamGroupsGetVideoStreamStreamFromAutoHead: build.mutation<
+        StreamGroupsGetVideoStreamStreamFromAutoHeadApiResponse,
+        StreamGroupsGetVideoStreamStreamFromAutoHeadApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg.encodedId}/auto/v${queryArg.channelId}`, method: 'HEAD' }),
+        invalidatesTags: ['StreamGroups']
+      }),
       streamGroupsGetStreamGroupCapability: build.query<StreamGroupsGetStreamGroupCapabilityApiResponse, StreamGroupsGetStreamGroupCapabilityApiArg>({
         query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}` }),
         providesTags: ['StreamGroups']
@@ -527,27 +541,27 @@ const injectedRtkApi = api
         providesTags: ['StreamGroups']
       }),
       vGetVideoStreamStreamGet: build.query<VGetVideoStreamStreamGetApiResponse, VGetVideoStreamStreamGetApiArg>({
-        query: (queryArg) => ({ url: `/v/v/v/${queryArg}` }),
+        query: (queryArg) => ({ url: `/v/v/${queryArg}` }),
         providesTags: ['V']
       }),
       vGetVideoStreamStreamHead: build.mutation<VGetVideoStreamStreamHeadApiResponse, VGetVideoStreamStreamHeadApiArg>({
-        query: (queryArg) => ({ url: `/v/v/v/${queryArg}`, method: 'HEAD' }),
+        query: (queryArg) => ({ url: `/v/v/${queryArg}`, method: 'HEAD' }),
         invalidatesTags: ['V']
       }),
       vGetVideoStreamStreamGet2: build.query<VGetVideoStreamStreamGet2ApiResponse, VGetVideoStreamStreamGet2ApiArg>({
-        query: (queryArg) => ({ url: `/v/v/v/${queryArg}.ts` }),
+        query: (queryArg) => ({ url: `/v/v/${queryArg}.ts` }),
         providesTags: ['V']
       }),
       vGetVideoStreamStreamHead2: build.mutation<VGetVideoStreamStreamHead2ApiResponse, VGetVideoStreamStreamHead2ApiArg>({
-        query: (queryArg) => ({ url: `/v/v/v/${queryArg}.ts`, method: 'HEAD' }),
+        query: (queryArg) => ({ url: `/v/v/${queryArg}.ts`, method: 'HEAD' }),
         invalidatesTags: ['V']
       }),
       vGetStreamGroupM3U: build.query<VGetStreamGroupM3UApiResponse, VGetStreamGroupM3UApiArg>({
-        query: (queryArg) => ({ url: `/v/v/s/${queryArg}.m3u` }),
+        query: (queryArg) => ({ url: `/v/s/${queryArg}.m3u` }),
         providesTags: ['V']
       }),
       vGetStreamGroupEpg: build.query<VGetStreamGroupEpgApiResponse, VGetStreamGroupEpgApiArg>({
-        query: (queryArg) => ({ url: `/v/v/s/${queryArg}.xml` }),
+        query: (queryArg) => ({ url: `/v/s/${queryArg}.xml` }),
         providesTags: ['V']
       }),
       videoStreamLinksAddVideoStreamToVideoStream: build.mutation<
@@ -1002,6 +1016,16 @@ export type StreamGroupsDeleteStreamGroupApiResponse = unknown;
 export type StreamGroupsDeleteStreamGroupApiArg = DeleteStreamGroupRequest;
 export type StreamGroupsGetStreamGroupApiResponse = /** status 200  */ StreamGroupDto;
 export type StreamGroupsGetStreamGroupApiArg = number;
+export type StreamGroupsGetVideoStreamStreamFromAutoGetApiResponse = unknown;
+export type StreamGroupsGetVideoStreamStreamFromAutoGetApiArg = {
+  encodedId: string;
+  channelId: string;
+};
+export type StreamGroupsGetVideoStreamStreamFromAutoHeadApiResponse = unknown;
+export type StreamGroupsGetVideoStreamStreamFromAutoHeadApiArg = {
+  encodedId: string;
+  channelId: string;
+};
 export type StreamGroupsGetStreamGroupCapabilityApiResponse = unknown;
 export type StreamGroupsGetStreamGroupCapabilityApiArg = string;
 export type StreamGroupsGetStreamGroupCapability2ApiResponse = unknown;
@@ -1963,7 +1987,7 @@ export type VideoStreamBaseRequest = {
   tvg_logo?: string | null;
   tvg_name?: string | null;
   url?: string | null;
-  videoStreams?: VideoStreamDto[] | null;
+  childVideoStreams?: VideoStreamDto[] | null;
 };
 export type CreateVideoStreamRequest = VideoStreamBaseRequest & object;
 export type ChangeVideoStreamChannelRequest = {
@@ -2187,6 +2211,8 @@ export const {
   useStreamGroupsCreateStreamGroupMutation,
   useStreamGroupsDeleteStreamGroupMutation,
   useStreamGroupsGetStreamGroupQuery,
+  useStreamGroupsGetVideoStreamStreamFromAutoGetQuery,
+  useStreamGroupsGetVideoStreamStreamFromAutoHeadMutation,
   useStreamGroupsGetStreamGroupCapabilityQuery,
   useStreamGroupsGetStreamGroupCapability2Query,
   useStreamGroupsGetStreamGroupCapability3Query,

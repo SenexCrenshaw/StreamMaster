@@ -3,7 +3,7 @@ import { GetMessage } from '@lib/common/common';
 import { VideoStreamDto, VideoStreamsUpdateVideoStreamApiArg, useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery } from '@lib/iptvApi';
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
-import { memo, useCallback, useEffect, useMemo, type CSSProperties } from 'react';
+import { memo, useCallback, useEffect, useMemo } from 'react';
 import XButton from '../buttons/XButton';
 import { useChannelNameColumnConfig } from '../columns/useChannelNameColumnConfig';
 import { useChannelNumberColumnConfig } from '../columns/useChannelNumberColumnConfig';
@@ -79,10 +79,7 @@ const VideoStreamSelectedVideoStreamDataSelector = ({
         header: 'X',
         resizeable: false,
         sortable: false,
-        style: {
-          maxWidth: '2rem',
-          width: '2rem'
-        } as CSSProperties
+        width: '2rem'
       }
     ],
     [channelNumberColumnConfig, channelNameColumnConfig, targetActionBodyTemplate]
@@ -103,7 +100,7 @@ const VideoStreamSelectedVideoStreamDataSelector = ({
     const toSend = {} as VideoStreamsUpdateVideoStreamApiArg;
 
     toSend.id = videoStreamId;
-    toSend.videoStreams = newData;
+    toSend.childVideoStreams = newData;
 
     await UpdateVideoStream(toSend)
       .then(() => {})

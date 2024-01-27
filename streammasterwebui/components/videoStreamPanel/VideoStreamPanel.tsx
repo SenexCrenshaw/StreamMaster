@@ -313,7 +313,6 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
 
                   ds.push(e);
                   setDataSource(ds);
-                  // console.log(e);
                 }}
                 videoStreamId={videoStream?.id}
               />
