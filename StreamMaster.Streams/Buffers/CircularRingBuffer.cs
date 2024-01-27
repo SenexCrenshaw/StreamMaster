@@ -96,7 +96,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         try
         {
             _readLogger.LogDebug($"-------------------{VideoStreamName}-----------------------------");
-            while (!linkedToken.IsCancellationRequested && bytesRead < target.Length)
+            while (!linkedToken.IsCancellationRequested && bytesRead == 0)
             {
 
                 if (_pauseSignal.Task.IsCanceled)
@@ -192,7 +192,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         }
 
         stopwatch.Stop();
-        if (bytesRead < 65536)
+        if (bytesRead == 0)
         {
             logger.LogInformation($"ReadChunkMemory bytesRead {bytesRead} {readIndex} {VideoStreamName}");
 

@@ -146,7 +146,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
             }
 
         }
-        //_lastReadIndex += bytesRead;
+
         _statisticsManager.AddBytesRead(ClientId, bytesRead);
         return bytesRead;
     }
