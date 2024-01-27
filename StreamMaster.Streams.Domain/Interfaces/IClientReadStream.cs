@@ -11,6 +11,9 @@ public interface IClientReadStream : IDisposable
     /// </summary>
     ICircularRingBuffer Buffer { get; }
 
+    void Pause();
+    void UnPause();
+
     /// <summary>
     /// Gets a value indicating whether the stream supports reading.
     /// </summary>

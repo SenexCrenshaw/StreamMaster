@@ -49,7 +49,7 @@ public interface IStreamHandler : IDisposable
     /// <summary>
     /// Stops all video streaming activities.
     /// </summary>
-    void Stop();
+    Task Stop();
 
     /// <summary>
     /// Unregisters a client streamer with the given configuration.

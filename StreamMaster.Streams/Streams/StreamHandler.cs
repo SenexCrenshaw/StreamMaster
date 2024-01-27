@@ -276,7 +276,11 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                     if (CircularRingBuffer.IsPaused)
                     {
                         CircularRingBuffer.UnPauseReaders();
+
                     }
+
+                    await UnPauseClients();
+
                     timeBetweenWrites.Reset();
 
                     if (CircularRingBuffer.GetNextReadIndex() > videoBufferSize)
@@ -298,6 +302,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                 catch (TaskCanceledException ex)
                 {
 
+                    CircularRingBuffer.PauseReaders();
                     logger.LogInformation("Stream requested to stop for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
                     logger.LogInformation("Stream requested to stop for: {VideoStreamingCancellationToken}", VideoStreamingCancellationToken.IsCancellationRequested);
                     logger.LogInformation("Stream requested to stop for: {stopVideoStreamingToken.Token}", stopVideoStreamingToken.Token.IsCancellationRequested);
@@ -305,6 +310,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                 }
                 catch (EndOfStreamException ex)
                 {
+                    CircularRingBuffer.PauseReaders();
                     inputStreamError = true;
                     //++retryCount;
                     logger.LogInformation("End of Stream reached for: {StreamUrl} {name}. Error: {ErrorMessage} at {Time} {test}", StreamUrl, VideoStreamName, ex.Message, DateTime.UtcNow, stream.CanRead);
@@ -312,12 +318,14 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                 }
                 catch (HttpIOException ex)
                 {
+                    CircularRingBuffer.PauseReaders();
                     inputStreamError = true;
                     logger.LogInformation(ex, "HTTP IO for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
                     break;
                 }
                 catch (Exception ex)
                 {
+                    CircularRingBuffer.PauseReaders();
                     logger.LogError(ex, "Stream error for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
                     break;
                 }
@@ -337,6 +345,31 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         testRan = true;
     }
 
+
+
+    private async Task PauseClients()
+    {
+        foreach (Guid clientId in GetClientStreamerClientIds())
+        {
+            IClientStreamerConfiguration? clientStreamerConfiguration = await clientStreamerManager.GetClientStreamerConfiguration(clientId);
+            if (clientStreamerConfiguration != null && clientStreamerConfiguration.ReadBuffer != null)
+            {
+                clientStreamerConfiguration.ReadBuffer.Pause();
+            }
+        }
+    }
+
+    private async Task UnPauseClients()
+    {
+        foreach (Guid clientId in GetClientStreamerClientIds())
+        {
+            IClientStreamerConfiguration? clientStreamerConfiguration = await clientStreamerManager.GetClientStreamerConfiguration(clientId);
+            if (clientStreamerConfiguration != null && clientStreamerConfiguration.ReadBuffer != null)
+            {
+                clientStreamerConfiguration.ReadBuffer.UnPause();
+            }
+        }
+    }
     public void Dispose()
     {
         CircularRingBuffer?.Dispose();
@@ -345,8 +378,9 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         GC.SuppressFinalize(this);
     }
 
-    public void Stop()
+    public async Task Stop()
     {
+        await PauseClients();
         SetFailed();
         if (VideoStreamingCancellationToken?.IsCancellationRequested == false)
         {
@@ -369,6 +403,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                 logger.LogError(ex, "Error killing process {ProcessId}.", ProcessId);
             }
         }
+
         CircularRingBuffer?.Dispose();
     }
 

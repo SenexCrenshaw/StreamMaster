@@ -186,7 +186,7 @@ public sealed class ChannelManager : IChannelManager
         {
             handler.Stop();
 
-            logger.LogInformation("Simulating stream failure for: {StreamUrl}", streamUrl);
+            logger.LogInformation("Simulating stream failure for: {VideoStreamName}", handler.VideoStreamName);
         }
         else
         {

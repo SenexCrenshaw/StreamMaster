@@ -60,6 +60,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
     public CircularRingBuffer(VideoStreamDto videoStreamDto, string channelId, string channelName, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILoggerFactory loggerFactory)
     {
+        PauseReaders();
         Setting setting = memoryCache.GetSetting();
         _inputStatisticsManager = inputStatisticsManager ?? throw new ArgumentNullException(nameof(inputStatisticsManager));
 

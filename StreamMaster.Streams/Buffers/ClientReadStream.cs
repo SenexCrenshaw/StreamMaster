@@ -13,6 +13,8 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
     private Func<ICircularRingBuffer> _bufferDelegate;
     private readonly IStatisticsManager _statisticsManager;
     private long accumulatedBytesRead = 0;
+    private bool _paused = false;
+
     public ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, IStatisticsManager _statisticsManager, ILogger<ClientReadStream> logger, IClientStreamerConfiguration config)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -105,7 +107,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
 
                 _lastReadIndex += bytesRead;
                 _ = semaphore.Release();
-                if (!Buffer.IsPaused)
+                if (!_paused && !Buffer.IsPaused)
                 {
                     break;
                 }
@@ -258,6 +260,18 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
     {
         Dispose(true);
         GC.SuppressFinalize(this);
+    }
+
+
+
+    public void Pause()
+    {
+        _paused = true;
+    }
+
+    public void UnPause()
+    {
+        _paused = false;
     }
 
     // Finalizer in case Dispose wasn't called
