@@ -1,7 +1,8 @@
 param (
     [switch]$DebugLog,
     [switch]$BuildProd,
-    [switch]$PrintCommands
+    [switch]$PrintCommands,
+    [switch]$TagAndPush = $true
 )
 
 $env:DOCKER_BUILDKIT = 1
@@ -21,6 +22,26 @@ $branchName = $obj.BranchName
 
 $obj |  Write-Output
 
+if ($TagAndPush) {
+    # Stage all changes
+    git add -A
+
+    # Commit changes
+    $commitMessage = "Auto-commit: $semVer-$buildMetaDataPadded"
+    git commit -m $commitMessage
+
+    # Tag the commit
+    $tagName = "v$semVer-$buildMetaDataPadded"
+    git tag -a $tagName -m "Release $tagName"
+
+    # Push commits to the remote repository
+    git push origin $branchName
+
+    # Push tag to the remote repository
+    git push origin $tagName
+}
+
+
 # Multiple tags
 $tags = if ($BuildProd) {
     "${imageName}:latest",
@@ -38,13 +59,10 @@ $buildCommand = "docker buildx build --platform ""linux/amd64,linux/arm64"" -f .
 if ($PrintCommands) {    
     Write-Output "Build Command: $buildCommand"
 }
-# Show the build command if either PrintOnly or DebugLog is set
 
 # Capture the start time
 $startTime = Get-Date
 
-# Initialize line counter
-# $lineCounter = 0
 
 # Prefix for the dots
 Write-Host -NoNewline "Building Image "
@@ -56,25 +74,6 @@ if ($PrintCommands) {
 }
 
 Invoke-Expression $buildCommand
-
-# # Run the build and push operation, displaying a dot for every 10 lines of output
-# try {
-#     Invoke-Expression $buildCommand 2>&1 | ForEach-Object {
-#         if ($DebugLog) {
-#             Write-Host $_ # Output the line for logging purposes if DebugLog flag is set
-#         }
-#         else {
-#             $lineCounter++
-#             if ($lineCounter % 10 -eq 0) {
-#                 Write-Host -NoNewline "."
-#             }
-#         }
-#     }
-# }
-# catch {
-#     Write-Error "Docker build failed with error: $_"
-#     exit 1
-# }
 
 # Capture the end time
 $endTime = Get-Date
