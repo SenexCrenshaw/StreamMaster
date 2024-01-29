@@ -104,6 +104,13 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
                     accumulatedBytesRead += bytesRead;
                     metrics.RecordBytesProcessed(bytesRead);
                 }
+                else
+                {
+                    if (_paused || Buffer.IsPaused)
+                    {
+                        logger.LogWarning("OK FYI: Read 0 bytes for ClientId: {ClientId} {_paused} {Buffer}", ClientId, _paused, Buffer.IsPaused);
+                    }
+                }
 
                 _lastReadIndex += bytesRead;
                 _ = semaphore.Release();

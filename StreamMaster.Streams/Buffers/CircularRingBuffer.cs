@@ -53,11 +53,12 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
         Guid correlationId = Guid.NewGuid();
 
-        CancellationTokenSource timeOutToken = new();
-        timeOutToken.CancelAfter(TimeSpan.FromSeconds(10));
+        //CancellationTokenSource timeOutToken = new();
+        //timeOutToken.CancelAfter(TimeSpan.FromSeconds(10));
 
         Stopwatch stopwatch = Stopwatch.StartNew();
-        CancellationToken linkedToken = CancellationTokenSource.CreateLinkedTokenSource(timeOutToken.Token, StopVideoStreamingToken.Token, cancellationToken).Token;
+        CancellationToken linkedToken = CancellationTokenSource.CreateLinkedTokenSource(StopVideoStreamingToken.Token, cancellationToken).Token;
+        //CancellationToken linkedToken = CancellationTokenSource.CreateLinkedTokenSource(timeOutToken.Token, StopVideoStreamingToken.Token, cancellationToken).Token;
 
 
         int availableBytes = 0;
@@ -135,7 +136,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         catch (TaskCanceledException ex)
         {
             _readLogger.LogDebug(ex, "ReadChunkMemory cancelled");
-            _readLogger.LogDebug("ReadChunkMemory {timeOutToken.Token}", timeOutToken.Token.IsCancellationRequested);
+            //_readLogger.LogDebug("ReadChunkMemory {timeOutToken.Token}", timeOutToken.Token.IsCancellationRequested);
             _readLogger.LogDebug("ReadChunkMemory {cancellationToken}", cancellationToken.IsCancellationRequested);
             _readLogger.LogDebug("ReadChunkMemory {StopVideoStreamingToken}", StopVideoStreamingToken.IsCancellationRequested);
             //bytesRead = -1;
@@ -143,7 +144,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         catch (TimeoutException ex)
         {
             _readLogger.LogDebug(ex, "ReadChunkMemory timeout");
-            _readLogger.LogDebug("ReadChunkMemory {timeOutToken.Token}", timeOutToken.Token.IsCancellationRequested);
+            //_readLogger.LogDebug("ReadChunkMemory {timeOutToken.Token}", timeOutToken.Token.IsCancellationRequested);
             _readLogger.LogDebug("ReadChunkMemory {cancellationToken}", cancellationToken.IsCancellationRequested);
             _readLogger.LogDebug("ReadChunkMemory {StopVideoStreamingToken}", StopVideoStreamingToken.IsCancellationRequested);
         }
@@ -159,6 +160,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         {
             // Ensure that the registration is disposed of
             //UnregisterCancellation();
+            //timeOutToken.Dispose();
             _readLogger.LogDebug($"-------------------{VideoStreamName}-----------------------------");
         }
 
