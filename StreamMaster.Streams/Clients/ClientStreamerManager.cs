@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 using StreamMaster.Streams.Buffers;
 
@@ -6,7 +7,7 @@ using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Clients;
 
-public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger, IStatisticsManager statisticsManager, ILogger<ClientReadStream> ringBufferReadStreamLogger) : IClientStreamerManager
+public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger, IMemoryCache memoryCache, IStatisticsManager statisticsManager, ILogger<ClientReadStream> ringBufferReadStreamLogger) : IClientStreamerManager
 {
     private readonly ConcurrentDictionary<Guid, IClientStreamerConfiguration> clientStreamerConfigurations = new();
     private readonly object _disposeLock = new();
@@ -124,7 +125,7 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
 
     public async Task SetClientBufferDelegate(IClientStreamerConfiguration clientStreamerConfiguration, ICircularRingBuffer RingBuffer)
     {
-        clientStreamerConfiguration.ReadBuffer ??= new ClientReadStream(() => RingBuffer, statisticsManager, ringBufferReadStreamLogger, clientStreamerConfiguration);
+        clientStreamerConfiguration.ReadBuffer ??= new ClientReadStream(() => RingBuffer, memoryCache, statisticsManager, ringBufferReadStreamLogger, clientStreamerConfiguration);
 
 
         await clientStreamerConfiguration.ReadBuffer.SetBufferDelegate(() => RingBuffer, clientStreamerConfiguration);

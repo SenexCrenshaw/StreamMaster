@@ -88,6 +88,7 @@ public class TestSettings
 
 public class BaseSettings : M3USettings
 {
+    public bool EnablePrometheus { get; set; } = false;
     public int MaxStreamReStart { get; set; } = 3;
     public TestSettings TestSettings { get; set; } = new();
     public int MaxConcurrentDownloads { get; set; } = 8;

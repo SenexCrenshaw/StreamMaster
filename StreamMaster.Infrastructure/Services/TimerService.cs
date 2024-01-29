@@ -54,7 +54,7 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
         return Task.CompletedTask;
     }
 
-    private async Task DoWorkAsync(object? state, CancellationToken cancellationToken)
+    private async Task DoWorkAsync(object? _, CancellationToken cancellationToken)
     {
         if (isActive)
         {
@@ -145,7 +145,7 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
 
                 foreach (M3UFileDto? m3uFile in m3uFilesToUpdated)
                 {
-                    _ = await mediator.Send(new RefreshM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
+                    await mediator.Send(new RefreshM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
                 }
             }
         }

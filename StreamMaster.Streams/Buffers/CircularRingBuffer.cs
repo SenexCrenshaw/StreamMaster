@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Cache;
+
 using System.Diagnostics;
 
 namespace StreamMaster.Infrastructure.VideoStreamManager.Buffers;
@@ -12,6 +14,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 {
     private TaskCompletionSource<bool> _writeSignal = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private TaskCompletionSource<bool> _pauseSignal = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
     private readonly CancellationTokenRegistration _registration;
 
     public long GetNextReadIndex()
@@ -230,22 +233,26 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         }
         catch (Exception ex)
         {
-            _writeErrorsCounter.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Inc();
+            Setting setting = memoryCache.GetSetting();
+            if (setting.EnablePrometheus)
+            {
+                _writeErrorsCounter.WithLabels(StreamInfo.VideoStreamName).Inc();
+            }
+
             logger.LogError(ex, "WriteChunk error occurred while writing chunk for {VideoStreamName}.", VideoStreamName);
         }
         finally
         {
             stopwatch.Stop();
+            SetMetrics(_bytesWritten);
 
-            _bytesWrittenCounter.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Inc(_bytesWritten);
-            _writeMetric.RecordBytesProcessed(_bytesWritten);
-            _bitsPerSecond.WithLabels(Id.ToString(), StreamInfo.VideoStreamName).Set(_writeMetric.GetBitsPerSecond());
-            _inputStreamStatistics.AddBytesWritten(_bytesWritten);
             SignalReaders();
         }
         _writeLogger.LogDebug("WriteChunk {VideoStreamName} {bytesWritten} {_writeIndex} {elapsedMilliseconds}ms", VideoStreamName, _bytesWritten, _writeIndex, stopwatch.ElapsedMilliseconds);
         return _bytesWritten;
     }
+
+
 
     private void SignalReaders()
     {

@@ -373,9 +373,13 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
     public void Dispose()
     {
         CircularRingBuffer?.Dispose();
+        ringBuffer = null;
         clientStreamerIds.Clear();
         Stop();
         GC.SuppressFinalize(this);
+
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
     }
 
     public async Task Stop()

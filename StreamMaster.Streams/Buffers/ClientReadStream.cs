@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+
+using StreamMaster.Domain.Cache;
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -14,9 +17,11 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
     private readonly IStatisticsManager _statisticsManager;
     private long accumulatedBytesRead = 0;
     private bool _paused = false;
+    private readonly IMemoryCache memoryCache;
 
-    public ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, IStatisticsManager _statisticsManager, ILogger<ClientReadStream> logger, IClientStreamerConfiguration config)
+    public ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, IMemoryCache memoryCache, IStatisticsManager _statisticsManager, ILogger<ClientReadStream> logger, IClientStreamerConfiguration config)
     {
+        this.memoryCache = memoryCache;
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.config = config ?? throw new ArgumentNullException(nameof(config));
 
@@ -69,15 +74,6 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
         }
         Stopwatch stopWatch = Stopwatch.StartNew();
 
-        //if (_readCancel == null || _readCancel.IsCancellationRequested)
-        //{
-        //    _readCancel = new CancellationTokenSource();
-        //}
-
-        //using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_readCancel.Token, cancellationToken);
-
-        //linkedCts.CancelAfter(TimeSpan.FromSeconds(30));
-
         int bytesRead = 0;
 
         SemaphoreSlim semaphore = _bufferSwitchSemaphores.GetOrAdd(config.ClientId, new SemaphoreSlim(1, 1));
@@ -99,6 +95,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
 
                 //maybe skip on pause loop
                 bytesRead = await Buffer.ReadChunkMemory(_lastReadIndex, buffer, linkedCts.Token);
+                linkedCts.Dispose();
                 if (bytesRead != 0)
                 {
                     accumulatedBytesRead += bytesRead;
@@ -118,7 +115,6 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
                 {
                     break;
                 }
-
             }
         }
         catch (TaskCanceledException ex)
@@ -131,15 +127,8 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
         finally
         {
             stopWatch.Stop();
-            double bps = metrics.GetBitsPerSecond();
-            if (bps > -1)
-            {
-                _bitsPerSecond.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Set(bps);
 
-                _bytesReadCounter.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Inc(bytesRead);
-
-                _readDuration.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Set(stopWatch.ElapsedMilliseconds);
-            }
+            SetMetrics(bytesRead);
 
             if (bytesRead == 0)
             {
@@ -147,11 +136,11 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
                 // bytesRead = 1;
             }
 
-            if (semaphore.CurrentCount == 0)
-            {
-                _ = semaphore.Release();
-            }
+        }
 
+        if (semaphore.CurrentCount == 0)
+        {
+            _ = semaphore.Release();
         }
 
         _statisticsManager.AddBytesRead(ClientId, bytesRead);
@@ -173,12 +162,21 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
         }
         catch (TaskCanceledException ex)
         {
-            _readCancellationCounter.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Inc();
+            //if (_statsEnabled)
+            //{
+            //    _readCancellationCounter.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Inc();
+            //}
+
             logger.LogInformation(ex, "Read Task ended for ClientId: {ClientId}", ClientId);
         }
         catch (Exception ex)
         {
-            _readErrorsCounter.WithLabels(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName).Inc();
+            Setting setting = memoryCache.GetSetting();
+            if (setting.EnablePrometheus)
+            {
+                _readErrorsCounter.WithLabels(ClientId.ToString(), Buffer.VideoStreamName).Inc();
+            }
+
             logger.LogError(ex, "Error reading buffer for ClientId: {ClientId}", ClientId);
         }
 
@@ -244,11 +242,15 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
             {
                 _statisticsManager.UnRegisterClient(ClientId);
 
-                _bitsPerSecond.RemoveLabelled(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName);
-                _readDuration.RemoveLabelled(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName);
-                _bytesReadCounter.RemoveLabelled(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName);
-                _readErrorsCounter.RemoveLabelled(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName);
-                _readCancellationCounter.RemoveLabelled(ClientId.ToString(), Buffer.Id.ToString(), Buffer.VideoStreamName);
+                _bitsPerSecond.RemoveLabelled(ClientId.ToString(), Buffer.VideoStreamName);
+                _bitsPerSecond.Unpublish();
+
+                _bytesReadCounter.RemoveLabelled(ClientId.ToString(), Buffer.VideoStreamName);
+                _bitsPerSecond.Unpublish();
+
+                _readErrorsCounter.RemoveLabelled(ClientId.ToString(), Buffer.VideoStreamName);
+                _readErrorsCounter.Unpublish();
+
                 _bufferSwitchSemaphores.Clear();
 
             }

@@ -1,24 +1,18 @@
 ﻿using Prometheus;
 
+using StreamMaster.Domain.Cache;
+
 namespace StreamMaster.Infrastructure.VideoStreamManager.Buffers;
 
 public sealed partial class CircularRingBuffer : ICircularRingBuffer
 {
-    private static readonly Gauge _waitTime = Metrics.CreateGauge(
-        "sm_circular_buffer_read_wait_for_data_availability_duration_milliseconds",
-        "Client waiting duration in milliseconds for data availability",
-        new GaugeConfiguration
-        {
-            LabelNames = ["circular_buffer_id", "client_id", "video_stream_name"]
-        }
-    );
 
     private static readonly Gauge _bitsPerSecond = Metrics.CreateGauge(
         "sm_circular_buffer_read_stream_bits_per_second",
         "Bits per second read from the input stream.",
         new GaugeConfiguration
         {
-            LabelNames = ["circular_buffer_id", "video_stream_name"]
+            LabelNames = ["video_stream_name"]
         }
     );
 
@@ -27,7 +21,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         "Total number of bytes written.",
         new CounterConfiguration
         {
-            LabelNames = ["circular_buffer_id", "video_stream_name"]
+            LabelNames = ["video_stream_name"]
         }
     );
 
@@ -36,7 +30,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         "Total number of write errors.",
         new CounterConfiguration
         {
-            LabelNames = ["circular_buffer_id", "video_stream_name"]
+            LabelNames = ["video_stream_name"]
         }
     );
 
@@ -45,7 +39,28 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         "Data arrival times in milliseconds.",
         new GaugeConfiguration
         {
-            LabelNames = ["circular_buffer_id", "video_stream_name"]
+            LabelNames = ["video_stream_name"]
         }
     );
+
+    private DateTime _lastUpdateTime = DateTime.UtcNow;
+    private int acculmativeBytesWritten = 0;
+    private void SetMetrics(int bytesWritten)
+    {
+        DateTime currentTime = DateTime.UtcNow;
+        _writeMetric.RecordBytesProcessed(bytesWritten);
+
+        Setting setting = memoryCache.GetSetting();
+
+        if (setting.EnablePrometheus && (currentTime - _lastUpdateTime > TimeSpan.FromSeconds(5)))
+        {
+            _bytesWrittenCounter.WithLabels(StreamInfo.VideoStreamName).Inc(acculmativeBytesWritten);
+            _bitsPerSecond.WithLabels(StreamInfo.VideoStreamName).Set(_writeMetric.GetBitsPerSecond());
+            _inputStreamStatistics.AddBytesWritten(acculmativeBytesWritten);
+            _lastUpdateTime = currentTime;
+            acculmativeBytesWritten = 0;
+        }
+
+        acculmativeBytesWritten += bytesWritten;
+    }
 }

@@ -112,9 +112,9 @@ public static class ConfigureServices
                 .AllowAnyHeader());
         });
 
-        _ = services.AddSession();
+        services.AddSession();
 
-        _ = services.AddDatabaseDeveloperPageExceptionFilter();
+        services.AddDatabaseDeveloperPageExceptionFilter();
 
         services
             .AddControllers(options =>
@@ -125,36 +125,36 @@ public static class ConfigureServices
             .AddApplicationPart(typeof(StaticResourceController).Assembly)
             .AddControllersAsServices();
 
-        _ = services.AddSingleton<IAppFolderInfo, AppFolderInfo>();
+        services.AddSingleton<IAppFolderInfo, AppFolderInfo>();
 
-        _ = services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
 
-        _ = services.AddHttpContextAccessor();
+        services.AddHttpContextAccessor();
 
-        _ = services.AddFluentValidationAutoValidation();
+        services.AddFluentValidationAutoValidation();
 
         services.AddHttpClient();
 
         services.AddControllersWithViews();
-        _ = services.AddRazorPages();
+        services.AddRazorPages();
 
-        _ = services.Configure<ApiBehaviorOptions>(options =>
+        services.Configure<ApiBehaviorOptions>(options =>
             options.SuppressModelStateInvalidFilter = true);
 
-        _ = services.AddHostedService<QueuedHostedService>();
+        services.AddHostedService<QueuedHostedService>();
 
-        _ = services.AddSingleton<IBackgroundTaskQueue>(x =>
+        services.AddSingleton<IBackgroundTaskQueue>(x =>
        {
            int queueCapacity = 100;
            return new BackgroundTaskQueue(queueCapacity, x.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>(), x.GetRequiredService<ILogger<BackgroundTaskQueue>>(), x.GetRequiredService<ISender>());
        });
 
-        _ = services.AddOpenApiDocument(configure =>
+        services.AddOpenApiDocument(configure =>
         {
             configure.Title = "StreamMaster API";
             configure.SchemaSettings.SchemaProcessors.Add(new InheritanceSchemaProcessor());
 
-            configure.AddSecurity("apikey", Enumerable.Empty<string>(), new OpenApiSecurityScheme
+            configure.AddSecurity("apikey", [], new OpenApiSecurityScheme
             {
                 Type = OpenApiSecuritySchemeType.ApiKey,
                 Name = "x-api-key",
@@ -165,30 +165,70 @@ public static class ConfigureServices
        new AspNetCoreOperationSecurityScopeProcessor("apikey"));
         });
 
-        _ = services.AddHostedService<PostStartup>();
-        _ = services.AddSingleton<PostStartup>();
+        services.AddHostedService<PostStartup>();
+        services.AddSingleton<PostStartup>();
+
+        //services.AddAuthorization(options =>
+        //{
+        //    options.AddPolicy("SignalR", policy =>
+        //    {
+        //        policy.AuthenticationSchemes.Add("SignalR");
+        //        policy.RequireAuthenticatedUser();
+        //    });
+
+        //    options.AddPolicy("SGLinks", policy =>
+        //    {
+        //        policy.AuthenticationSchemes.Add("SGLinks");
+        //        policy.RequireAuthenticatedUser();
+        //    });
+
+        //    // Require auth on everything except those marked [AllowAnonymous]
+        //    options.FallbackPolicy = new AuthorizationPolicyBuilder(AuthenticationType.Forms.ToString(), "API")
+        //    .RequireAuthenticatedUser()
+        //    .Build();
+        //});
 
         services.AddAuthorization(options =>
         {
-            options.AddPolicy("SignalR", policy =>
-            {
-                policy.AuthenticationSchemes.Add("SignalR");
-                policy.RequireAuthenticatedUser();
-            });
 
-            options.AddPolicy("SGLinks", policy =>
-            {
-                policy.AuthenticationSchemes.Add("SGLinks");
-                policy.RequireAuthenticatedUser();
-            });
+            AuthorizationPolicy signalRPolicy = new AuthorizationPolicyBuilder()
+                .AddAuthenticationSchemes("SignalR")
+                .RequireAuthenticatedUser()
+                .Build();
 
-            // Require auth on everything except those marked [AllowAnonymous]
-            options.FallbackPolicy = new AuthorizationPolicyBuilder(AuthenticationType.Forms.ToString(), "API")
-            .RequireAuthenticatedUser()
-            .Build();
+            AuthorizationPolicy sgLinksPolicy = new AuthorizationPolicyBuilder()
+                .AddAuthenticationSchemes("SGLinks")
+                .RequireAuthenticatedUser()
+                .Build();
+
+            AuthorizationPolicy fallbackPolicy = new AuthorizationPolicyBuilder(AuthenticationType.Forms.ToString(), "API")
+                .RequireAuthenticatedUser()
+                .Build();
+
+            options.AddPolicy("SignalR", signalRPolicy);
+            options.AddPolicy("SGLinks", sgLinksPolicy);
+            options.FallbackPolicy = fallbackPolicy;
+
+            //// Define the "SignalR" policy
+            //options.AddPolicy("SignalR", policyBuilder =>
+            //    policyBuilder
+            //        .AddAuthenticationSchemes("SignalR")
+            //        .RequireAuthenticatedUser()
+            //);
+
+            //// Define the "SGLinks" policy
+            //options.AddPolicy("SGLinks", policyBuilder =>
+            //    policyBuilder
+            //        .AddAuthenticationSchemes("SGLinks")
+            //        .RequireAuthenticatedUser()
+            //);
+
+            // Define the FallbackPolicy
+
         });
 
-        _ = services.AddSignalR();//.AddMessagePackProtocol();
+
+        services.AddSignalR();//.AddMessagePackProtocol();
 
         services.AddDataProtection()
              .PersistKeysToDbContext<RepositoryContext>();

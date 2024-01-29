@@ -14,10 +14,10 @@ namespace StreamMaster.Infrastructure.VideoStreamManager.Buffers;
 /// </summary>
 public sealed partial class CircularRingBuffer : ICircularRingBuffer
 {
-    private const int maxDynamicWaitTimeMs = 100;
-    private const int maxDataWaitTimeMs = 20;
+
 
     public event EventHandler<Guid> DataAvailable;
+    private readonly IMemoryCache memoryCache;
 
     private readonly ConcurrentDictionary<Guid, PerformanceBpsMetrics> _performanceMetrics = new();
     private readonly ConcurrentDictionary<Guid, int> _clientLastReadBeforeOverwrite = new();
@@ -28,13 +28,11 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
     public readonly StreamInfo StreamInfo;
 
-    private readonly Memory<byte> _buffer;
+    private Memory<byte> _buffer;
     private readonly int _bufferSize;
 
     public VideoInfo? VideoInfo { get; set; } = null;
 
-    //private int _oldestDataIndex;
-    //private readonly float _preBuffPercent;
     private int _writeIndex { get; set; } = 0;
     private long WriteBytes { get; set; } = 0;
 
@@ -42,18 +40,14 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
     private readonly ILogger<ReadsLogger> _readLogger;
     private readonly ILogger<WriteLogger> _writeLogger;
     private readonly ILogger<CircularBufferLogger> _circularBufferLogger;
-    private readonly ILogger<WaitsLogger> _waitLogger;
-    private readonly ILogger<Dist_Logger> _distanceLogger;
-    private readonly ILogger<StatsLogger> _statsLogger;
-
 
     private bool _disposed = false;
-    private readonly bool HasBufferFlipped;
+
     public string VideoStreamName => StreamInfo.VideoStreamName;
     public Guid Id { get; } = Guid.NewGuid();
     public int BufferSize => _buffer.Length;
     public string VideoStreamId => StreamInfo.VideoStreamId;
-    private bool InternalIsPreBuffered { get; set; } = false;
+
 
 
     public CancellationTokenSource StopVideoStreamingToken { get; set; }
@@ -64,9 +58,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         _readLogger = loggerFactory.CreateLogger<ReadsLogger>();
         _writeLogger = loggerFactory.CreateLogger<WriteLogger>();
         _circularBufferLogger = loggerFactory.CreateLogger<CircularBufferLogger>();
-        _waitLogger = loggerFactory.CreateLogger<WaitsLogger>();
-        _distanceLogger = loggerFactory.CreateLogger<Dist_Logger>();
-        _statsLogger = loggerFactory.CreateLogger<StatsLogger>();
+        this.memoryCache = memoryCache;
 
         PauseReaders();
         Setting setting = memoryCache.GetSetting();
@@ -106,6 +98,8 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         _writeIndex = 0;
 
         logger.LogInformation("New Circular Buffer {Id} for stream {videoStreamId} {name}", Id, videoStreamDto.Id, videoStreamDto.User_Tvg_name);
+
+
         //UnPauseReaders();
     }
 
@@ -116,14 +110,38 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         {
             if (disposing)
             {
-                _writeSignal.TrySetCanceled();
-                _waitTime.GetAllLabelValues().ToList().ForEach(x => _waitTime.RemoveLabelled(x[0], x[1], x[2]));
-                _bitsPerSecond.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
-                _bytesWrittenCounter.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
-                _writeErrorsCounter.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
-                _dataArrival.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
+                //_writeSignal.TrySetCanceled();
+                //_waitTime.GetAllLabelValues().ToList().ForEach(x => _waitTime.RemoveLabelled(x[0], x[1], x[2]));
+                //_waitTime.Unpublish();
+
+                //_bitsPerSecond.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
+                //_bitsPerSecond.Unpublish();
+
+                //_bytesWrittenCounter.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
+                //_bytesWrittenCounter.Unpublish();
+
+                //_writeErrorsCounter.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
+                //_writeErrorsCounter.Unpublish();
+
+                //_dataArrival.RemoveLabelled(Id.ToString(), StreamInfo.VideoStreamName);
+                //_dataArrival.Unpublish();
+
+                _bitsPerSecond.RemoveLabelled(StreamInfo.VideoStreamName);
+                _bitsPerSecond.Unpublish();
+
+                _bytesWrittenCounter.RemoveLabelled(StreamInfo.VideoStreamName);
+                _bytesWrittenCounter.Unpublish();
+
+                _writeErrorsCounter.RemoveLabelled(StreamInfo.VideoStreamName);
+                _writeErrorsCounter.Unpublish();
+
+                _dataArrival.RemoveLabelled(StreamInfo.VideoStreamName);
+                _dataArrival.Unpublish();
+
                 _clientLastReadBeforeOverwrite.Clear();
                 _performanceMetrics.Clear();
+
+                _buffer = null;
             }
 
             // Dispose unmanaged resources here if any
