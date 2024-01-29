@@ -34,14 +34,14 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
     public VideoInfo? VideoInfo { get; set; } = null;
 
     //private int _oldestDataIndex;
-    private readonly float _preBuffPercent;
+    //private readonly float _preBuffPercent;
     private int _writeIndex { get; set; } = 0;
     private long WriteBytes { get; set; } = 0;
 
     private readonly ILogger<ICircularRingBuffer> logger;
     private readonly ILogger<ReadsLogger> _readLogger;
     private readonly ILogger<WriteLogger> _writeLogger;
-    private readonly ILogger<OverWLogger> _overwriteLogger;
+    private readonly ILogger<CircularBufferLogger> _circularBufferLogger;
     private readonly ILogger<WaitsLogger> _waitLogger;
     private readonly ILogger<Dist_Logger> _distanceLogger;
     private readonly ILogger<StatsLogger> _statsLogger;
@@ -60,21 +60,23 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
     public CircularRingBuffer(VideoStreamDto videoStreamDto, string channelId, string channelName, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILoggerFactory loggerFactory)
     {
+        logger = loggerFactory.CreateLogger<CircularRingBuffer>();
+        _readLogger = loggerFactory.CreateLogger<ReadsLogger>();
+        _writeLogger = loggerFactory.CreateLogger<WriteLogger>();
+        _circularBufferLogger = loggerFactory.CreateLogger<CircularBufferLogger>();
+        _waitLogger = loggerFactory.CreateLogger<WaitsLogger>();
+        _distanceLogger = loggerFactory.CreateLogger<Dist_Logger>();
+        _statsLogger = loggerFactory.CreateLogger<StatsLogger>();
+
         PauseReaders();
         Setting setting = memoryCache.GetSetting();
         _inputStatisticsManager = inputStatisticsManager ?? throw new ArgumentNullException(nameof(inputStatisticsManager));
 
-        logger = loggerFactory.CreateLogger<CircularRingBuffer>();
-        _readLogger = loggerFactory.CreateLogger<ReadsLogger>();
-        _writeLogger = loggerFactory.CreateLogger<WriteLogger>();
-        _overwriteLogger = loggerFactory.CreateLogger<OverWLogger>();
-        _waitLogger = loggerFactory.CreateLogger<WaitsLogger>();
-        _distanceLogger = loggerFactory.CreateLogger<Dist_Logger>();
-        _statsLogger = loggerFactory.CreateLogger<StatsLogger>();
-        if (setting.PreloadPercentage is < 0 or > 100)
-        {
-            setting.PreloadPercentage = 0;
-        }
+
+        //if (setting.PreloadPercentage is < 0 or > 100)
+        //{
+        //    setting.PreloadPercentage = 0;
+        //}
 
         if (setting.RingBufferSizeMB is < 1 or > 256)
         {
@@ -82,7 +84,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         }
 
         _bufferSize = setting.RingBufferSizeMB * 1024 * 1000;
-        _preBuffPercent = setting.PreloadPercentage;
+        //_preBuffPercent = setting.PreloadPercentage;
 
         StreamInfo = new StreamInfo
         {

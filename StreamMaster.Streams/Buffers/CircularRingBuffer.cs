@@ -12,35 +12,11 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 {
     private TaskCompletionSource<bool> _writeSignal = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private TaskCompletionSource<bool> _pauseSignal = new(TaskCreationOptions.RunContinuationsAsynchronously);
-    private CancellationTokenRegistration _registration;
+    private readonly CancellationTokenRegistration _registration;
 
     public long GetNextReadIndex()
     {
         return WriteBytes;
-    }
-
-    private void SetupCancellation(CancellationToken token1, CancellationToken token2, CancellationToken token3)
-    {
-        CancellationToken linkedToken = CancellationTokenSource.CreateLinkedTokenSource(token1, token2, token3).Token;
-        // Register a callback to complete the _pauseSignal when the token is canceled
-        _registration = linkedToken.Register(() =>
-        {
-            if (!_pauseSignal.Task.IsCompleted)
-            {
-                bool a1 = token1.IsCancellationRequested;
-                bool a2 = token2.IsCancellationRequested;
-                bool a3 = token3.IsCancellationRequested;
-                _pauseSignal.TrySetCanceled();
-            }
-
-            if (!_writeSignal.Task.IsCompleted)
-            {
-                bool a1 = token1.IsCancellationRequested;
-                bool a2 = token2.IsCancellationRequested;
-                bool a3 = token3.IsCancellationRequested;
-                _writeSignal.TrySetCanceled();
-            }
-        });
     }
 
     public void UnregisterCancellation()
@@ -120,11 +96,6 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                     }
                     if (IsPaused)
                     {
-                        //if (bytesRead > 0)
-                        //{
-                        //    _readLogger.LogDebug("ReadChunkMemory bytes Read > 0");
-                        //    return bytesRead;
-                        //}
                         continue;
                     }
                     availableBytes = GetAvailableBytes(readIndex, correlationId);
@@ -204,6 +175,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
     public void PauseReaders()
     {
+        _circularBufferLogger.LogDebug("Pause Readers");
         if (IsPaused)
         {
             return;
@@ -215,7 +187,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
     public void UnPauseReaders()
     {
-
+        _circularBufferLogger.LogDebug("UnPause Readers");
         // Complete the TaskCompletionSource
         _pauseSignal.TrySetResult(true);
 
@@ -275,6 +247,12 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
     private void SignalReaders()
     {
+        if (IsPaused)
+        {
+            return;
+        }
+
+        _circularBufferLogger.LogDebug("Signal Readers");
         if (!_writeSignal.Task.IsCompleted)
         {
             _writeSignal.TrySetResult(true);
