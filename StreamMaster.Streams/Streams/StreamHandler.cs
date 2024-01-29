@@ -210,7 +210,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
     }
 
     //private readonly Memory<byte> videoMemory = new byte[1 * 1024 * 1024];
-    private readonly bool startMemoryFilled = false;
+    //private readonly bool startMemoryFilled = false;
     private bool testRan = false;
 
     public async Task StartVideoStreamingAsync(Stream stream)

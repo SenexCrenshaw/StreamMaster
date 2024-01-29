@@ -1809,6 +1809,9 @@ export type SdSettings = {
 };
 export type AuthenticationType = 0 | 2;
 export type BaseSettings = M3USettings & {
+  maxLogFiles?: number;
+  maxLogFileSizeMB?: number;
+  enablePrometheus?: boolean;
   maxStreamReStart?: number;
   testSettings?: TestSettings;
   maxConcurrentDownloads?: number;
@@ -1834,7 +1837,6 @@ export type BaseSettings = M3USettings & {
   globalStreamLimit?: number;
   maxConnectRetry?: number;
   maxConnectRetryTimeMS?: number;
-  preloadPercentage?: number;
   ringBufferSizeMB?: number;
   nameRegex?: string[];
   sslCertPassword?: string;
@@ -1912,7 +1914,6 @@ export type UpdateSettingRequest = {
   m3UIgnoreEmptyEPGID?: boolean | null;
   maxConnectRetry?: number | null;
   maxConnectRetryTimeMS?: number | null;
-  preloadPercentage?: number | null;
   ringBufferSizeMB?: number | null;
   sourceBufferPreBufferPercentage?: number | null;
   sslCertPassword?: string | null;
@@ -1920,6 +1921,9 @@ export type UpdateSettingRequest = {
   streamingClientUserAgent?: string | null;
   streamingProxyType?: StreamingProxyTypes | null;
   videoStreamAlwaysUseEPGLogo?: boolean | null;
+  enablePrometheus?: boolean | null;
+  maxLogFiles?: number | null;
+  maxLogFileSizeMB?: number | null;
   nameRegex?: string[] | null;
 };
 export type ClientStreamingStatistics = {

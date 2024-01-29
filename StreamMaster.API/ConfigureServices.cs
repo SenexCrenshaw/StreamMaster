@@ -45,34 +45,58 @@ public static class ConfigureServices
         //services.AddSingleton<ILoggerProvider, FileLoggerDebugProvider>(provider =>
         //    new FileLoggerDebugProvider(provider.GetRequiredService<IFileLoggingServiceFactory>()));
 
-        services.AddLogging(logging =>
+        //services.AddLogging(logging =>
+        //{
+        //    logging.AddFilter("StreamMaster.Domain.Logging.CustomLogger", LogLevel.Information);
+        //    logging.AddProvider(new StatsLoggerProvider());
+        //    logging.AddConsole();
+        //    logging.AddDebug();
+
+        //    ServiceProvider serviceProvider = logging.Services.BuildServiceProvider();
+        //    ILoggerProvider loggerProvider = serviceProvider.GetRequiredService<ILoggerProvider>();
+
+        //    logging.AddProvider(loggerProvider);
+
+        //    logging.AddFilter<StatsLoggerProvider>((category, logLevel) =>
+        //    {
+        //        // List of classes to use with CustomLogger
+        //        List<string> classesToLog = ["BroadcastService"];
+        //        return category is not null && category.Contains("BroadcastService", StringComparison.OrdinalIgnoreCase);
+        //    });
+
+        //});
+
+        // Add logging configuration
+        services.AddLogging(loggingBuilder =>
         {
-            logging.AddFilter("StreamMaster.Domain.Logging.CustomLogger", LogLevel.Information);
-            logging.AddProvider(new StatsLoggerProvider());
-            logging.AddConsole();
-            logging.AddDebug();
+            loggingBuilder.AddFilter("StreamMaster.Domain.Logging.CustomLogger", LogLevel.Information);
+            loggingBuilder.AddConsole();
+            loggingBuilder.AddDebug();
+            loggingBuilder.AddProvider(new StatsLoggerProvider());
 
-            ServiceProvider serviceProvider = logging.Services.BuildServiceProvider();
-            ILoggerProvider loggerProvider = serviceProvider.GetRequiredService<ILoggerProvider>();
-
-            logging.AddProvider(loggerProvider);
-
-            logging.AddFilter<StatsLoggerProvider>((category, logLevel) =>
+            // Add specific filters for StatsLoggerProvider
+            loggingBuilder.AddFilter<StatsLoggerProvider>((category, logLevel) =>
             {
                 // List of classes to use with CustomLogger
                 List<string> classesToLog = ["BroadcastService"];
-                return category is not null && category.Contains("BroadcastService", StringComparison.OrdinalIgnoreCase);
+                return category != null && classesToLog.Any(c => category.Contains(c, StringComparison.OrdinalIgnoreCase));
             });
 
+            // Consider not manually adding ILoggerProvider here, it's already added above
+            ServiceProvider serviceProvider = loggingBuilder.Services.BuildServiceProvider();
+            // ILoggerProvider loggerProvider = serviceProvider.GetRequiredService<ILoggerProvider>();
+            // loggingBuilder.AddProvider(loggerProvider);
+            ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+            GlobalLoggerProvider.Configure(loggerFactory);
         });
 
         services.AddHttpLogging(o => o = new HttpLoggingOptions());
         services.UseHttpClientMetrics();
 
-        services.AddTransient(typeof(ILogger<>), typeof(CustomLogger<>));
+        //services.AddTransient(typeof(ILogger<>), typeof(CustomLogger<>));
 
-        ILoggerFactory loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
-        GlobalLoggerProvider.Configure(loggerFactory);
+        //ILoggerFactory loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
+        //GlobalLoggerProvider.Configure(loggerFactory);
 
         services.Configure<ForwardedHeadersOptions>(options =>
         {

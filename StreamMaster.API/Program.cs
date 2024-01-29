@@ -1,7 +1,5 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Primitives;
 
 using Prometheus;
 
@@ -10,6 +8,7 @@ using StreamMaster.Application;
 using StreamMaster.Application.Hubs;
 using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.EF;

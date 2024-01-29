@@ -44,6 +44,10 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public string? StreamingClientUserAgent { get; set; }
     public StreamingProxyTypes? StreamingProxyType { get; set; }
     public bool? VideoStreamAlwaysUseEPGLogo { get; set; }
+
+    public bool? EnablePrometheus { get; set; }
+    public int? MaxLogFiles { get; set; }
+    public int? MaxLogFileSizeMB { get; set; }
     public List<string>? NameRegex { get; set; } = [];
 }
 
@@ -260,6 +264,26 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
             currentSetting.M3UFieldCUID = (bool)request.M3UFieldCUID;
         }
 
+
+        if (request.MaxLogFiles != null)
+        {
+            currentSetting.MaxLogFiles = (int)request.MaxLogFiles;
+        }
+
+        if (request.MaxLogFileSizeMB != null)
+        {
+            currentSetting.MaxLogFileSizeMB = (int)request.MaxLogFileSizeMB;
+        }
+
+        if (request.EnablePrometheus != null)
+        {
+            currentSetting.EnablePrometheus = (bool)request.EnablePrometheus;
+        }
+
+        if (request.MaxLogFiles != null)
+        {
+            currentSetting.MaxLogFiles = (int)request.MaxLogFiles;
+        }
         if (request.M3UUseChnoForId != null)
         {
             currentSetting.M3UUseChnoForId = (bool)request.M3UUseChnoForId;

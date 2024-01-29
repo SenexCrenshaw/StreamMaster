@@ -15,8 +15,8 @@ public static class BuildInfo
         Branch = "unknow";
         Release = Version.ToString();
 
-        string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-        LogFilePath = Path.Combine(LogFolder, $"StreamMasterAPI_{timestamp}.log");
+        //string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        //LogFilePath = Path.Combine(LogFolder, $"StreamMasterAPI_{timestamp}.log");
 
         AssemblyInformationalVersionAttribute? informationalVersion = attributes.OfType<AssemblyInformationalVersionAttribute>().FirstOrDefault();
         if (informationalVersion is not null)
@@ -46,7 +46,7 @@ public static class BuildInfo
     public static readonly string DataFolder = $"{AppDataFolder}";
 
     public static readonly string CacheFolder = $"{AppDataFolder}Cache{Path.DirectorySeparatorChar}";
-    public static readonly string LogFolder = $"{AppDataFolder}Logs{Path.DirectorySeparatorChar}";
+    public static readonly string LogFolder = Path.Combine(AppDataFolder, "Logs");
     public static readonly string PlayListFolder = $"{AppDataFolder}PlayLists{Path.DirectorySeparatorChar}";
 
     public static readonly string TVLogoDataFolder = $"{AppDataFolder}tv-logos{Path.DirectorySeparatorChar}";
@@ -70,7 +70,7 @@ public static class BuildInfo
     public static readonly string IconDefault = "images/default.png";
     public static readonly string FFMPEGDefaultOptions = "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1";
 
-    public static readonly string LogFilePath = $"{LogFolder}StreamMasterAPI.log";
+    public static readonly string LogFilePath = Path.Combine(LogFolder, "StreamMasterAPI.log");
     public static DateTime BuildDateTime
     {
         get

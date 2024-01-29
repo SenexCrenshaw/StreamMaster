@@ -5,7 +5,7 @@ using StreamMaster.Infrastructure.Services;
 
 namespace StreamMaster.Infrastructure.Logger;
 
-public class FileLoggingServiceFactory : IFileLoggingServiceFactory
+public class FileLoggingServiceFactory() : IFileLoggingServiceFactory
 {
     public IFileLoggingService Create(string key)
     {

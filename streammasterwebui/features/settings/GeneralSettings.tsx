@@ -3,6 +3,7 @@ import React from 'react';
 // Import the getLine function
 import { Fieldset } from 'primereact/fieldset';
 import { getCheckBoxLine } from './getCheckBoxLine';
+import { getInputNumberLine } from './getInputNumberLine';
 import { getInputTextLine } from './getInputTextLine';
 import { getPasswordLine } from './getPasswordLine';
 import { useSettingChangeHandler } from './useSettingChangeHandler';
@@ -30,6 +31,9 @@ export function GeneralSettings(): React.ReactElement {
           {getPasswordLine({ field: 'sslCertPassword', warning: GetMessage('changesServiceRestart'), selectedCurrentSettingDto, onChange })}
         </>
       )}
+      {getCheckBoxLine({ field: 'enablePrometheus', selectedCurrentSettingDto, onChange })}
+      {getInputNumberLine({ field: 'maxLogFiles', selectedCurrentSettingDto, onChange })}
+      {getInputNumberLine({ field: 'maxLogFileSizeMB', selectedCurrentSettingDto, onChange })}
     </Fieldset>
   );
 }

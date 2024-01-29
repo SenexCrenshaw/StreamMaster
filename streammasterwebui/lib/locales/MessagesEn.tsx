@@ -140,7 +140,9 @@ const MessagesEn: messages_enType = {
   'sdSettings.xmltvFillerProgramLength': 'Dummy Program Length (hrs)',
   m3UStationId: 'Enable tvc-guide-stationid',
   m3UUseChnoForId: 'Use Channel Number for channel id',
-
+  maxLogFiles: 'Max Log Files',
+  maxLogFileSizeMB: 'Max Log File Size (MB)',
+  enablePrometheus: 'Enable Prometheus Metrics',
   loading: 'Loading',
   set: 'Set',
 

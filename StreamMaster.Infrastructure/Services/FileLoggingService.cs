@@ -1,4 +1,5 @@
-﻿using StreamMaster.Domain.Services;
+﻿using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Services;
 
 using System.Collections.Concurrent;
 using System.Text;
@@ -65,16 +66,85 @@ public class FileLoggingService : IFileLoggingService, IDisposable
     {
         try
         {
+            RotateLogIfNeeded();
+
             using FileStream stream = new(_logFilePath, FileMode.Append, FileAccess.Write, FileShare.Read);
             using StreamWriter writer = new(stream);
             await writer.WriteLineAsync(logEntry);
         }
         catch (Exception ex)
         {
-            Exception a = ex;
+            //Exception a = ex;
         }
 
     }
+
+    private void RotateLogIfNeeded()
+    {
+        Setting setting = FileUtil.GetSetting();
+        FileInfo logFileInfo = new(_logFilePath);
+        long maxFileSizeInBytes = Math.Max(1 * 1024 * 1024, Math.Min(setting.MaxLogFileSizeMB * 1024 * 1024, 100 * 1024 * 1024)); // Convert MB to Bytes
+
+        if (logFileInfo.Exists && logFileInfo.Length > maxFileSizeInBytes)
+        {
+            string directory = logFileInfo.DirectoryName;
+            string baseFileName = Path.GetFileNameWithoutExtension(logFileInfo.FullName);
+            string extension = logFileInfo.Extension;
+
+            // Bump log files, renaming log.N.log to log.(N+1).log
+            for (int i = setting.MaxLogFiles - 1; i >= 1; i--)
+            {
+                string oldFileName = Path.Combine(directory, $"{baseFileName}.{i}{extension}");
+                string newFileName = Path.Combine(directory, $"{baseFileName}.{i + 1}{extension}");
+
+                if (File.Exists(newFileName))
+                {
+                    File.Delete(newFileName);
+                }
+
+                if (File.Exists(oldFileName))
+                {
+                    File.Move(oldFileName, newFileName);
+                }
+            }
+
+            // Rename the current log to .1.log
+            string rotatedFileName = Path.Combine(directory, $"{baseFileName}.1{extension}");
+            File.Move(_logFilePath, rotatedFileName);
+
+            // Create a new log file
+            using (FileStream fs = File.Create(_logFilePath)) { }
+
+            // Optionally, limit the number of historical log files
+            CleanUpOldLogFiles(logFileInfo);
+        }
+    }
+
+
+    private void CleanUpOldLogFiles(FileInfo logFileInfo)
+    {
+        Setting setting = FileUtil.GetSetting();
+        string? directory = logFileInfo.DirectoryName;
+        string baseFileName = Path.GetFileNameWithoutExtension(logFileInfo.FullName);
+        string extension = logFileInfo.Extension;
+
+        if (directory != null)
+        {
+            DirectoryInfo di = new(directory);
+            FileInfo[] logFiles = di.GetFiles($"{baseFileName}.*{extension}")
+                                    .OrderByDescending(f => f.Name)
+                                    .ToArray();
+
+            if (logFiles.Length > setting.MaxLogFiles)
+            {
+                foreach (FileInfo file in logFiles.Skip(setting.MaxLogFiles))
+                {
+                    file.Delete();
+                }
+            }
+        }
+    }
+
 
     public async Task StopLoggingAsync()
     {
@@ -88,4 +158,3 @@ public class FileLoggingService : IFileLoggingService, IDisposable
         _writeLock.Dispose();
     }
 }
-
