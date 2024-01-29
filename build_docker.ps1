@@ -28,7 +28,11 @@ if ($TagAndPush) {
 
     # Commit changes
     git commit 
-
+    $json = &$gitVersion /output json | Out-String
+    $obj = $json | ConvertFrom-Json 
+    $semVer = $obj.SemVer
+    $buildMetaDataPadded = $obj.BuildMetaDataPadded
+    $branchName = $obj.BranchName
     # Tag the commit
     $tagName = "v$semVer-$buildMetaDataPadded"
     git tag -a $tagName -m "Release $tagName"
