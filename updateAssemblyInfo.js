@@ -1,7 +1,7 @@
 const fs = require("fs").promises;
 
 const version = process.argv[2]; // version from semantic-release
-const filePath = "./StreamMaster.APIAssemblyInfo.cs";
+const filePath = "./StreamMaster.API/AssemblyInfo.cs";
 const content = `
 using System.Reflection;
 
