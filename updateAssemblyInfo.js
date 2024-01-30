@@ -1,13 +1,14 @@
 const fs = require("fs").promises;
 
-const version = process.argv[2]; // version from semantic-release
+const version = process.argv[2];
+const sha = process.argv[3];
 const filePath = "./StreamMaster.API/AssemblyInfo.cs";
 const content = `
 using System.Reflection;
 
 [assembly: AssemblyVersion("${version}")]
 [assembly: AssemblyFileVersion("${version}")]
-[assembly: AssemblyInformationalVersion("${version}-versioning.2+Branch.versioning.Sha.20b37a4dc75ef87d51d9f92cece2ff764ce59788")]
+[assembly: AssemblyInformationalVersion("${version}-versioning.2+Branch.versioning.Sha.{sha}")]
 `;
 
 async function createOrUpdateAssemblyInfo() {

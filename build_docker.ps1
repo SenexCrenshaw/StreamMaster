@@ -1,8 +1,8 @@
 param (
     [switch]$DebugLog,
     [switch]$BuildProd,
-    [switch]$PrintCommands = $true,
-    [switch]$TagAndPush = $false
+    [switch]$PrintCommands = $false
+    # [switch]$TagAndPush = $false
 )
 
 $env:DOCKER_BUILDKIT = 1
@@ -22,29 +22,29 @@ $buildMetaDataPadded = $obj.BuildMetaDataPadded
 $branchName = $obj.BranchName
 
 
-if ($TagAndPush) {
-    # Stage all changes
-    git add -A
+# if ($TagAndPush) {
+#     # Stage all changes
+#     git add -A
 
-    # Commit changes
-    git commit 
+#     # Commit changes
+#     git commit 
 
-    $json = &$gitVersion /output json | Out-String
-    $obj = $json | ConvertFrom-Json 
-    $semVer = $obj.SemVer
-    $buildMetaDataPadded = $obj.BuildMetaDataPadded
-    $branchName = $obj.BranchName
+#     $json = &$gitVersion /output json | Out-String
+#     $obj = $json | ConvertFrom-Json 
+#     $semVer = $obj.SemVer
+#     $buildMetaDataPadded = $obj.BuildMetaDataPadded
+#     $branchName = $obj.BranchName
 
-    # # Tag the commit
-    # $tagName = "v$semVer-$buildMetaDataPadded"
-    # git tag -a $tagName -m "Release $tagName"
+#     # # Tag the commit
+#     # $tagName = "v$semVer-$buildMetaDataPadded"
+#     # git tag -a $tagName -m "Release $tagName"
 
-    # Push commits to the remote repository
-    git push origin $branchName
+#     # Push commits to the remote repository
+#     git push origin $branchName
 
-    # Push tag to the remote repository
-    # git push origin $tagName
-}
+#     # Push tag to the remote repository
+#     # git push origin $tagName
+# }
 $obj |  Write-Output
 
 # Multiple tags
