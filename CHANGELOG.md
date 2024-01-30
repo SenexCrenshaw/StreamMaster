@@ -1,3 +1,10 @@
+# [0.6.0-versioning.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.6.0-versioning.1...v0.6.0-versioning.2) (2024-01-30)
+
+
+### Features
+
+* Add Get-AssemblyInfo function ([fded9a3](https://github.com/SenexCrenshaw/StreamMaster/commit/fded9a3b5cecafc049e88abed620d0e3320b6b98))
+
 # [0.6.0-versioning.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.5.0...v0.6.0-versioning.1) (2024-01-30)
 
 
