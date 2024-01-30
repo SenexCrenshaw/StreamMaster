@@ -15,8 +15,8 @@ module.exports = {
     //   prerelease: true
     // },
     {
-      name: "!main"
-      // prerelease: true
+      name: "!main",
+      prerelease: true
     }
   ],
   ci: false,

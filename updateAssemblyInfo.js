@@ -2,13 +2,14 @@ const fs = require("fs").promises;
 
 const version = process.argv[2];
 const sha = process.argv[3];
+const branch = process.argv[4];
 const filePath = "./StreamMaster.API/AssemblyInfo.cs";
 const content = `
 using System.Reflection;
 
 [assembly: AssemblyVersion("${version}")]
 [assembly: AssemblyFileVersion("${version}")]
-[assembly: AssemblyInformationalVersion("${version}-versioning.2+Branch.versioning.Sha.{sha}")]
+[assembly: AssemblyInformationalVersion("${version}.Sha.${sha}")]
 `;
 
 async function createOrUpdateAssemblyInfo() {
