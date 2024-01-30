@@ -38,7 +38,7 @@
         "@semantic-release/exec",
         {
           "verifyConditionsCmd": ":",
-          "publishCmd": "node updateAssemblyInfo.js ${nextRelease.version} && ./publish.sh ${nextRelease.version} ${branch.name} ${commits.length} ${Date.now()}"
+          "publishCmd": "node updateAssemblyInfo.js ${nextRelease.version}"
         }
       ],
       [
