@@ -1,3 +1,10 @@
+# [0.5.0-versioning.8](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.5.0-versioning.7...v0.5.0-versioning.8) (2024-01-30)
+
+
+### Bug Fixes
+
+* **build:** :zap: fix up build ([b3b85d2](https://github.com/SenexCrenshaw/StreamMaster/commit/b3b85d2efd2ea46c83d0ec2938f1c16d4ff58b05))
+
 # [0.5.0-versioning.7](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.5.0-versioning.6...v0.5.0-versioning.7) (2024-01-30)
 
 
