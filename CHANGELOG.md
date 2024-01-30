@@ -1,3 +1,10 @@
+# [0.5.0-versioning.4](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.5.0-versioning.3...v0.5.0-versioning.4) (2024-01-30)
+
+
+### Bug Fixes
+
+* **packaging:** Update versioning ([761977a](https://github.com/SenexCrenshaw/StreamMaster/commit/761977a101f24d92574476a70027a0dc6396aeac))
+
 # [0.5.0-versioning.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.5.0-versioning.2...v0.5.0-versioning.3) (2024-01-30)
 
 
