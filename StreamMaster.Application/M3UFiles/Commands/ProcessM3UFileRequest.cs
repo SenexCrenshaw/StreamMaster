@@ -80,7 +80,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         if (streams != null)
         {
             streamsCount = GetRealStreamCount(streams);
-            streams = await RemoveIgnoredStreams(streams);
+            streams = RemoveIgnoredStreams(streams);
             streams = RemoveDuplicates(streams);
         }
 
@@ -294,7 +294,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         }
     }
 
-    private async Task<List<VideoStream>> RemoveIgnoredStreams(List<VideoStream> streams)
+    private List<VideoStream> RemoveIgnoredStreams(List<VideoStream> streams)
     {
         Setting setting = memoryCache.GetSetting();
         if (setting.NameRegex.Any())
