@@ -16,7 +16,7 @@ module.exports = {
     // },
     {
       name: "!main",
-      prerelease: true
+      prerelease: false
     }
   ],
   ci: false,
