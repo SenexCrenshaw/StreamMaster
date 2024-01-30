@@ -22,16 +22,23 @@ $result  |  Write-Output
 
 $semVer = $result.Version
 # $buildMetaDataPadded = $result.Version
-$branchName = $result.Branch
+# Check if Branch is empty or 'N/A'
+if ([string]::IsNullOrEmpty($result.Branch) -or $result.Branch -eq 'N/A') {
+    $branchName = $semVer
+}
+else {
+    # If branch is present, append it to the semVer
+    $branchName = "$($result.Branch)-$semVer"
+}
 
 # Multiple tags
 $tags = if ($BuildProd) {
     "${imageName}:latest",
-    "${imageName}:$branchName-$semVer"
+    "${imageName}:$branchName"
     # "${imageName}:$semVer-$buildMetaDataPadded"
 }
 else {
-    "${imageName}:$branchName-$semVer"
+    "${imageName}:$branchName"
 }
 
 Write-Output "Tags to be used:"
