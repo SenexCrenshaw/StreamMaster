@@ -8,7 +8,7 @@ import ColorEditor from '@components/ColorEditor';
 import BooleanInput from '@components/inputs/BooleanInput';
 import M3UFileTags from '@components/m3u/M3UFileTags';
 import { upload } from '@lib/FileUploadService';
-import { getColorByNumber, getColorHex } from '@lib/common/colors';
+import { getColorHex } from '@lib/common/colors';
 import { isValidUrl } from '@lib/common/common';
 import { M3UFileStreamUrlPrefix } from '@lib/common/streammaster_enums';
 import { GetEpgNextEpgNumber } from '@lib/smAPI/EpgFiles/EpgFilesGetAPI';
@@ -190,7 +190,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
     setBlock(true);
 
     if (source === '') {
-      const meColor = color ?? getColorByNumber(epgNumber ?? 0);
+      const meColor = color ?? getColorHex(epgNumber ?? 0);
 
       await upload({
         name,

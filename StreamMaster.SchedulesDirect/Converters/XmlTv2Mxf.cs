@@ -638,14 +638,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ILogger<EPGImportLogger> _epgI
 
     private void DetermineGuideImage(MxfProgram mxfProgram, XmltvProgramme xmltvProgramme)
     {
-        if (xmltvProgramme.Icons.Count > 1)
-        {
-            int a = 1;
-        }
-        if (xmltvProgramme.Titles.Any(a => a.Text.Contains("CBS News")))
-        {
-            int a = 1;
-        }
+
         if (xmltvProgramme.Icons == null || !xmltvProgramme.Icons.Any())
         {
 

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 
 interface CacheItem<T> {
   data: T[];
@@ -24,7 +24,7 @@ const EXPIRATION_TIME = 4 * 24 * 60 * 60 * 1000; // 4 days in milliseconds
 
 export const CacheProvider = <T extends unknown>({ children }: { children: ReactNode }) => {
   const loadCache = (): Map<string, CacheItem<T>> => {
-    const savedCache = localStorage.getItem('cache');
+    const savedCache = sessionStorage.getItem('cache');
     return savedCache ? new Map<string, CacheItem<T>>(JSON.parse(savedCache)) : new Map<string, CacheItem<T>>();
   };
 
@@ -42,20 +42,20 @@ export const CacheProvider = <T extends unknown>({ children }: { children: React
     const newCache = new Map(cache);
     newCache.set(key, { data, timestamp: Date.now() });
     setCache(newCache);
-    localStorage.setItem('cache', JSON.stringify(Array.from(newCache.entries())));
+    sessionStorage.setItem('cache', JSON.stringify(Array.from(newCache.entries())));
   };
 
   const removeFromCache = (key: string) => {
     const newCache = new Map(cache);
     newCache.delete(key);
     setCache(newCache);
-    localStorage.setItem('cache', JSON.stringify(Array.from(newCache.entries())));
+    sessionStorage.setItem('cache', JSON.stringify(Array.from(newCache.entries())));
   };
 
   const clearCache = () => {
     const newCache = new Map<string, CacheItem<T>>();
     setCache(newCache);
-    localStorage.removeItem('cache'); // Clear the cache in local storage
+    sessionStorage.removeItem('cache'); // Clear the cache in local storage
   };
 
   const checkAndCleanCache = () => {
