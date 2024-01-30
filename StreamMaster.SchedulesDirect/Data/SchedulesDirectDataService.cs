@@ -10,11 +10,11 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, ILo
 {
 
     public ConcurrentDictionary<int, ISchedulesDirectData> SchedulesDirectDatas { get; private set; } = new();
-    public void Reset(int? epgId = null)
+    public void Reset(int? EPGNumber = null)
     {
-        if (epgId.HasValue)
+        if (EPGNumber.HasValue)
         {
-            SchedulesDirectDatas.TryRemove(epgId.Value, out _);
+            SchedulesDirectDatas.TryRemove(EPGNumber.Value, out _);
         }
         else
         {

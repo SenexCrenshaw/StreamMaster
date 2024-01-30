@@ -22,10 +22,10 @@ public interface ISchedulesDirectDataService
     ConcurrentDictionary<int, ISchedulesDirectData> SchedulesDirectDatas { get; }
 
     /// <summary>
-    /// Resets the data service for a specific EPG ID or all data if no ID is provided.
+    /// Resets the data service for a specific EPG Number or all data if no ID is provided.
     /// </summary>
-    /// <param name="epgId">Optional EPG ID to reset data for. If null, resets all data.</param>
-    void Reset(int? epgId = null);
+    /// <param name="EPGNumber">Optional EPG Number to reset data for. If null, resets all data.</param>
+    void Reset(int? EPGNumber = null);
 
     /// <summary>
     /// Gets all keywords.
