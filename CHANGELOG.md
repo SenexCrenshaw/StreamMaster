@@ -1,3 +1,10 @@
+## [0.7.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.7.0...v0.7.1) (2024-01-30)
+
+
+### Bug Fixes
+
+* Update cache provider to use sessionStorage ([bf366c0](https://github.com/SenexCrenshaw/StreamMaster/commit/bf366c066d6b2c29200b6896a7fbc45fdb9c8fde))
+
 # [0.7.0](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.6.1...v0.7.0) (2024-01-30)
 
 
