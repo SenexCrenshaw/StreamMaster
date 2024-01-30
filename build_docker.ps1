@@ -26,20 +26,22 @@ if ($TagAndPush) {
 
     # Commit changes
     git commit 
+
     $json = &$gitVersion /output json | Out-String
     $obj = $json | ConvertFrom-Json 
     $semVer = $obj.SemVer
     $buildMetaDataPadded = $obj.BuildMetaDataPadded
     $branchName = $obj.BranchName
-    # Tag the commit
-    $tagName = "v$semVer-$buildMetaDataPadded"
-    git tag -a $tagName -m "Release $tagName"
+
+    # # Tag the commit
+    # $tagName = "v$semVer-$buildMetaDataPadded"
+    # git tag -a $tagName -m "Release $tagName"
 
     # Push commits to the remote repository
     git push origin $branchName
 
     # Push tag to the remote repository
-    git push origin $tagName
+    # git push origin $tagName
 }
 $obj |  Write-Output
 
