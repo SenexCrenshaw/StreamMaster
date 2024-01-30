@@ -1,3 +1,10 @@
+# [0.5.0-versioning.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.5.0-versioning.2...v0.5.0-versioning.3) (2024-01-30)
+
+
+### Features
+
+* **packaging:** Add exec ([50cf0d0](https://github.com/SenexCrenshaw/StreamMaster/commit/50cf0d0e78f8b886fc707f885f37dcc94d96ee19))
+
 # [0.5.0-versioning.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.5.0-versioning.1...v0.5.0-versioning.2) (2024-01-30)
 
 
