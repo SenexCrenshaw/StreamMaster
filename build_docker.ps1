@@ -21,6 +21,7 @@ $semVer = $obj.SemVer
 $buildMetaDataPadded = $obj.BuildMetaDataPadded
 $branchName = $obj.BranchName
 
+
 if ($TagAndPush) {
     # Stage all changes
     git add -A
