@@ -1,3 +1,10 @@
+# [0.5.0-versioning.10](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.5.0-versioning.9...v0.5.0-versioning.10) (2024-01-30)
+
+
+### Features
+
+* Add support for prerelease versions in release configuration ([cb754f9](https://github.com/SenexCrenshaw/StreamMaster/commit/cb754f91db5234d7ac944405416c34e54c21e370))
+
 # [0.5.0-versioning.9](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.5.0-versioning.8...v0.5.0-versioning.9) (2024-01-30)
 
 
