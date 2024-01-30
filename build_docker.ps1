@@ -20,8 +20,6 @@ $semVer = $obj.SemVer
 $buildMetaDataPadded = $obj.BuildMetaDataPadded
 $branchName = $obj.BranchName
 
-$obj |  Write-Output
-
 if ($TagAndPush) {
     # Stage all changes
     git add -A
@@ -43,6 +41,7 @@ if ($TagAndPush) {
     # Push tag to the remote repository
     git push origin $tagName
 }
+$obj |  Write-Output
 
 # Multiple tags
 $tags = if ($BuildProd) {
