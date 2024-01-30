@@ -1,6 +1,7 @@
 {
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/exec": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "semantic-release": "^23.0.0"
   },
@@ -34,7 +35,22 @@
         }
       ],
       [
+        "@semantic-release/exec",
+        {
+          "verifyConditionsCmd": ":",
+          "publishCmd": "node updateAssemblyInfo.js ${nextRelease.version} && ./publish.sh ${nextRelease.version} ${branch.name} ${commits.length} ${Date.now()}"
+        }
+      ],
+      [
         "@semantic-release/git",
+        {
+          "assets": [
+            "CHANGELOG.md"
+          ]
+        }
+      ],
+      [
+        "@semantic-release/github",
         {
           "assets": [
             "CHANGELOG.md"
