@@ -1,3 +1,10 @@
+# [0.6.0-versioning.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.5.0...v0.6.0-versioning.1) (2024-01-30)
+
+
+### Features
+
+* Add version extraction from AssemblyInfo.cs ([903b0ea](https://github.com/SenexCrenshaw/StreamMaster/commit/903b0eac9f30b0a0e86902d6d402bef2abe9b90f))
+
 # [0.5.0](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.4.0...v0.5.0) (2024-01-30)
 
 
