@@ -29,9 +29,9 @@ module.exports = {
         preset: "angular",
         releaseRules: [
           { type: "docs", scope: "README", release: "patch" },
-          { type: "refactor", release: "patch" },
+          { type: "refactor", release: "minor" },
           { type: "style", release: "patch" },
-          { type: "add", release: "patch" }
+          { type: "update", release: "minor" }
         ],
         parserOpts: {
           noteKeywords: ["BREAKING CHANGE", "BREAKING CHANGES"]
