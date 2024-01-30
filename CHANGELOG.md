@@ -4,6 +4,8 @@
 
 # [0.5.0](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.4.0...v0.5.0) (2024-01-30)
 
+# [0.5.0](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.4.0...v0.5.0) (2024-01-30)
+
 # [0.6.0-versioning.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.6.0-versioning.1...v0.6.0-versioning.2) (2024-01-30)
 
 
