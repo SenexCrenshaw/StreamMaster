@@ -1,7 +1,7 @@
 param (
     [switch]$DebugLog,
     [switch]$BuildProd,
-    [switch]$PrintCommands,
+    [switch]$PrintCommands=$true,
     [switch]$TagAndPush = $false
 )
 
