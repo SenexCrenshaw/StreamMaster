@@ -8,17 +8,36 @@ param (
 $env:DOCKER_BUILDKIT = 1
 $env:COMPOSE_DOCKER_CLI_BUILD = 1
 
-# Define the base image name
-$imageName = "docker.io/senexcrenshaw/streammaster"
+# Define the path to your AssemblyInfo.cs file
+$assemblyInfoPath = "./StreamMaster.API/AssemblyInfo.cs"
 
-$gitVersion = "dotnet-gitversion"
-&$gitVersion /updateAssemblyInfo | Out-Null
+# Read the content of the AssemblyInfo.cs file
+$content = Get-Content $assemblyInfoPath -Raw
 
-$json = &$gitVersion /output json | Out-String
-$obj = $json | ConvertFrom-Json 
-$semVer = $obj.SemVer
-$buildMetaDataPadded = $obj.BuildMetaDataPadded
-$branchName = $obj.BranchName
+# Define the regex pattern for AssemblyInformationalVersion with branch and SHA capture
+$assemblyInformationalVersionPattern = '\[assembly: AssemblyInformationalVersion\("([0-9.]+)-([^.]+)\.[0-9]+\.Sha\.([a-fA-F0-9]+)"\)\]'
+
+# Find matches in the content
+$assemblyInformationalVersionMatch = [regex]::Match($content, $assemblyInformationalVersionPattern)
+
+# Extract and display the version numbers, branch, and SHA
+if ($assemblyInformationalVersionMatch.Success) {
+    $version = $assemblyInformationalVersionMatch.Groups[1].Value
+    $branch = $assemblyInformationalVersionMatch.Groups[2].Value
+    $sha = $assemblyInformationalVersionMatch.Groups[3].Value
+
+    "Version: $version"
+    "Branch: $branch"
+    "Sha: $sha"
+}
+else {
+    "Version information not found in the file."
+}
+
+
+$semVer = $assemblyVersion
+$buildMetaDataPadded = $assemblyInformationalVersion
+$branchName = $branch
 
 # if ($TagAndPush) {
 #     # Stage all changes
@@ -43,7 +62,7 @@ $branchName = $obj.BranchName
 #     # Push tag to the remote repository
 #     # git push origin $tagName
 # }
-$obj |  Write-Output
+#$obj |  Write-Output
 
 # Multiple tags
 $tags = if ($BuildProd) {
