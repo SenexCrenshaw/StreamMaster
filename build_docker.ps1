@@ -8,6 +8,7 @@ param (
 $env:DOCKER_BUILDKIT = 1
 $env:COMPOSE_DOCKER_CLI_BUILD = 1
 
+
 # Define the base image name
 $imageName = "docker.io/senexcrenshaw/streammaster"
 
