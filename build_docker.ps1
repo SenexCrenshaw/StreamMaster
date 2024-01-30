@@ -14,42 +14,15 @@ if ( !$SkipRelease) {
     npx semantic-release
 }
 
-# Dot-source the script to import the Get-AssemblyInfo function
 . ".\Get-AssemblyInfo.ps1"
 
-# Now you can call Get-AssemblyInfo from your main script
 $result = Get-AssemblyInfo -assemblyInfoPath "./StreamMaster.API/AssemblyInfo.cs"
 
 $result  |  Write-Output
 
 $semVer = $result.Version
-$buildMetaDataPadded = $result.Version
+# $buildMetaDataPadded = $result.Version
 $branchName = $result.Branch
-
-# if ($TagAndPush) {
-#     # Stage all changes
-#     git add -A
-
-#     # Commit changes
-#     git commit 
-
-#     $json = &$gitVersion /output json | Out-String
-#     $obj = $json | ConvertFrom-Json 
-#     $semVer = $obj.SemVer
-#     $buildMetaDataPadded = $obj.BuildMetaDataPadded
-#     $branchName = $obj.BranchName
-
-#     # # Tag the commit
-#     # $tagName = "v$semVer-$buildMetaDataPadded"
-#     # git tag -a $tagName -m "Release $tagName"
-
-#     # Push commits to the remote repository
-#     git push origin $branchName
-
-#     # Push tag to the remote repository
-#     # git push origin $tagName
-# }
-#$obj |  Write-Output
 
 # Multiple tags
 $tags = if ($BuildProd) {

@@ -36,7 +36,7 @@ module.exports = {
       {
         verifyConditionsCmd: ":",
         publishCmd: [
-          "node updateAssemblyInfo.js ${nextRelease.version} ${nextRelease.gitHead} ${nextRelease.channel} ${commits}",
+          "node updateAssemblyInfo.js ${nextRelease.version} ${nextRelease.gitHead} ${nextRelease.channel}",
           "git add ./StreamMaster.API/AssemblyInfo.cs",
           'git diff-index --quiet HEAD || git commit -m "chore: update AssemblyInfo.cs to version ${nextRelease.version}"'
         ].join(" && ")
