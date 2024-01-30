@@ -66,7 +66,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         }
 
 
-        ConcurrentHashSet<string> epgids = new();
+        ConcurrentHashSet<string> epgids = [];
 
         ISchedulesDirectData dummyData = schedulesDirectDataService.DummyData();
 
@@ -123,8 +123,9 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         return SerializeXMLTVData(epgData);
     }
 
-    private static string SerializeXMLTVData(XMLTV xmltv)
+    private string SerializeXMLTVData(XMLTV xmltv)
     {
+        Setting setting = MemoryCache.GetSetting();
         XmlSerializerNamespaces ns = new();
         ns.Add("", "");
 
@@ -133,7 +134,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         XmlWriterSettings settings = new()
         {
-            Indent = false,
+            Indent = setting.PrettyEPG,
             OmitXmlDeclaration = true,
             NewLineHandling = NewLineHandling.None,
             //NewLineChars = "\n"

@@ -88,6 +88,8 @@ public class TestSettings
 
 public class BaseSettings : M3USettings
 {
+
+    public bool PrettyEPG { get; set; } = false;
     public int MaxLogFiles { get; set; } = 10;
     public int MaxLogFileSizeMB { get; set; } = 1;
     public bool EnablePrometheus { get; set; } = false;
@@ -139,5 +141,4 @@ public class ProtectedSettings : BaseSettings
 
 public class Setting : ProtectedSettings
 {
-
 }

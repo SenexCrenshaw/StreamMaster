@@ -70,6 +70,7 @@ const MessagesEn: messages_enType = {
   logPerformance: 'Log API Performance',
 
   m3UFieldCUID: 'Enable M3U CUID',
+  prettyEPG: 'Format EPG output',
 
   m3UFieldChannelId: 'Enable M3U Channel ID',
 

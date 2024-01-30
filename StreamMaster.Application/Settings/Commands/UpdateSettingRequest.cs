@@ -33,6 +33,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public bool? M3UFieldTvgName { get; set; }
     public bool? M3UUseChnoForId { get; set; }
     public bool? M3UIgnoreEmptyEPGID { get; set; }
+    public bool? PrettyEPG { get; set; }
     public int? MaxConnectRetry { get; set; }
     public int? MaxConnectRetryTimeMS { get; set; }
     //public int? PreloadPercentage { get; set; }
@@ -253,6 +254,11 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
         //{
         //    currentSetting.EPGAlwaysUseVideoStreamName = (bool)request.EPGAlwaysUseVideoStreamName;
         //}
+
+        if (request.PrettyEPG.HasValue)
+        {
+            currentSetting.PrettyEPG = request.PrettyEPG.Value;
+        }
 
         if (request.M3UIgnoreEmptyEPGID != null)
         {

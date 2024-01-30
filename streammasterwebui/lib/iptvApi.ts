@@ -1809,6 +1809,7 @@ export type SdSettings = {
 };
 export type AuthenticationType = 0 | 2;
 export type BaseSettings = M3USettings & {
+  prettyEPG?: boolean;
   maxLogFiles?: number;
   maxLogFileSizeMB?: number;
   enablePrometheus?: boolean;
@@ -1912,6 +1913,7 @@ export type UpdateSettingRequest = {
   m3UFieldTvgName?: boolean | null;
   m3UUseChnoForId?: boolean | null;
   m3UIgnoreEmptyEPGID?: boolean | null;
+  prettyEPG?: boolean | null;
   maxConnectRetry?: number | null;
   maxConnectRetryTimeMS?: number | null;
   ringBufferSizeMB?: number | null;
