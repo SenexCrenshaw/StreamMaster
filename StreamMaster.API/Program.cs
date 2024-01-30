@@ -29,10 +29,10 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel((context, serverOptions) =>
 {
     serverOptions.AllowSynchronousIO = true;
-    serverOptions.Limits.MaxRequestBodySize = null;
+    serverOptions.Limits.MaxRequestBodySize = null;    
 });
 
-string settingFile = $"{BuildInfo.AppDataFolder}settings.json";
+string settingFile = BuildInfo.SettingFile;// $"{BuildInfo.AppDataFolder}settings.json";
 
 builder.Configuration.AddJsonFile(settingFile, true, false);
 builder.Services.Configure<Setting>(builder.Configuration);

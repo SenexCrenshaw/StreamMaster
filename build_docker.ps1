@@ -1,57 +1,37 @@
 param (
     [switch]$DebugLog,
     [switch]$BuildProd,
-    [switch]$PrintCommands,
-    [switch]$TagAndPush = $false
+    [switch]$PrintCommands = $false,
+    [switch]$SkipRelease = $false
 )
 
 $env:DOCKER_BUILDKIT = 1
 $env:COMPOSE_DOCKER_CLI_BUILD = 1
 
-# Define the base image name
 $imageName = "docker.io/senexcrenshaw/streammaster"
 
-$gitVersion = "dotnet-gitversion"
-&$gitVersion /updateAssemblyInfo | Out-Null
-
-$json = &$gitVersion /output json | Out-String
-$obj = $json | ConvertFrom-Json 
-$semVer = $obj.SemVer
-$buildMetaDataPadded = $obj.BuildMetaDataPadded
-$branchName = $obj.BranchName
-
-$obj |  Write-Output
-
-if ($TagAndPush) {
-    # Stage all changes
-    git add -A
-
-    # Commit changes
-    git commit 
-    $json = &$gitVersion /output json | Out-String
-    $obj = $json | ConvertFrom-Json 
-    $semVer = $obj.SemVer
-    $buildMetaDataPadded = $obj.BuildMetaDataPadded
-    $branchName = $obj.BranchName
-    # Tag the commit
-    $tagName = "v$semVer-$buildMetaDataPadded"
-    git tag -a $tagName -m "Release $tagName"
-
-    # Push commits to the remote repository
-    git push origin $branchName
-
-    # Push tag to the remote repository
-    git push origin $tagName
+if ( !$SkipRelease) {
+    npx semantic-release
 }
+
+. ".\Get-AssemblyInfo.ps1"
+
+$result = Get-AssemblyInfo -assemblyInfoPath "./StreamMaster.API/AssemblyInfo.cs"
+
+$result  |  Write-Output
+
+$semVer = $result.Version
+# $buildMetaDataPadded = $result.Version
+$branchName = $result.Branch
 
 # Multiple tags
 $tags = if ($BuildProd) {
     "${imageName}:latest",
-    "${imageName}:$semVer",
-    "${imageName}:$semVer-$buildMetaDataPadded"
+    "${imageName}:$branchName-$semVer"
+    # "${imageName}:$semVer-$buildMetaDataPadded"
 }
 else {
-    "${imageName}:$branchName-$semVer-$buildMetaDataPadded"
+    "${imageName}:$branchName-$semVer"
 }
 
 Write-Output "Tags to be used:"
@@ -64,7 +44,6 @@ if ($PrintCommands) {
 
 # Capture the start time
 $startTime = Get-Date
-
 
 # Prefix for the dots
 Write-Host -NoNewline "Building Image "

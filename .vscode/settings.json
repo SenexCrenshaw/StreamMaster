@@ -1,3 +1,4 @@
 {
-  "dotnet.defaultSolution": "StreamMaster.sln"
+  "dotnet.defaultSolution": "StreamMaster.sln",
+  "conventionalCommits.scopes": ["build"]
 }
