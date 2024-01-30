@@ -2,7 +2,7 @@ param (
     [switch]$DebugLog,
     [switch]$BuildProd,
     [switch]$PrintCommands,
-    [switch]$TagAndPush = $true
+    [switch]$TagAndPush = $false
 )
 
 $env:DOCKER_BUILDKIT = 1
