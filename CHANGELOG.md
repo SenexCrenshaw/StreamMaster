@@ -1,3 +1,10 @@
+# [0.5.0-versioning.9](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.5.0-versioning.8...v0.5.0-versioning.9) (2024-01-30)
+
+
+### Features
+
+* remove unnecessary empty line in build_docker.ps1 ([f33c8f5](https://github.com/SenexCrenshaw/StreamMaster/commit/f33c8f5e1d1001200c47ffe7bfdb19314e597f80))
+
 # [0.5.0-versioning.8](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.5.0-versioning.7...v0.5.0-versioning.8) (2024-01-30)
 
 
