@@ -24,13 +24,14 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ILogger<EPGImportLogger> _epgI
 
     public XMLTV? ConvertToMxf(string filePath, int EPGNumber)
     {
-
         XMLTV? xmlTv = FileUtil.ReadXmlFile(filePath);
         return xmlTv == null ? null : ConvertToMxf(xmlTv, EPGNumber);
     }
 
     private XMLTV? ConvertToMxf(XMLTV xmlTv, int EPGNumber)
     {
+        schedulesDirectDataService.Reset(EPGNumber);
+
         schedulesDirectData = schedulesDirectDataService.GetEPGData(EPGNumber);
 
         if (
@@ -78,7 +79,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ILogger<EPGImportLogger> _epgI
             }
 
             // gather possible channel number(s)
-            ConcurrentHashSet<string> lcns = new();
+            ConcurrentHashSet<string> lcns = [];
             foreach (XmltvText lcn in channel.Lcn)
             {
                 lcns.Add(lcn.Text ??= "");

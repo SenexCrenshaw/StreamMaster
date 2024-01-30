@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
 
-
-
 namespace StreamMaster.Application.EPGFiles.Commands;
 
 public record ProcessEPGFileRequest(int Id) : IRequest<EPGFileDto?> { }
