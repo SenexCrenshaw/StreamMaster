@@ -3,6 +3,10 @@ const fs = require("fs").promises;
 const version = process.argv[2];
 const sha = process.argv[3];
 const branch = process.argv[4];
+const commits = process.argv[5];
+
+console.log(commits);
+
 const filePath = "./StreamMaster.API/AssemblyInfo.cs";
 const content = `
 using System.Reflection;

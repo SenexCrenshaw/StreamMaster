@@ -1,43 +1,30 @@
 param (
     [switch]$DebugLog,
     [switch]$BuildProd,
-    [switch]$PrintCommands = $false
-    # [switch]$TagAndPush = $false
+    [switch]$PrintCommands = $false,
+    [switch]$SkipRelease = $false
 )
 
 $env:DOCKER_BUILDKIT = 1
 $env:COMPOSE_DOCKER_CLI_BUILD = 1
 
-# Define the path to your AssemblyInfo.cs file
-$assemblyInfoPath = "./StreamMaster.API/AssemblyInfo.cs"
+$imageName = "docker.io/senexcrenshaw/streammaster"
 
-# Read the content of the AssemblyInfo.cs file
-$content = Get-Content $assemblyInfoPath -Raw
-
-# Define the regex pattern for AssemblyInformationalVersion with branch and SHA capture
-$assemblyInformationalVersionPattern = '\[assembly: AssemblyInformationalVersion\("([0-9.]+)-([^.]+)\.[0-9]+\.Sha\.([a-fA-F0-9]+)"\)\]'
-
-# Find matches in the content
-$assemblyInformationalVersionMatch = [regex]::Match($content, $assemblyInformationalVersionPattern)
-
-# Extract and display the version numbers, branch, and SHA
-if ($assemblyInformationalVersionMatch.Success) {
-    $version = $assemblyInformationalVersionMatch.Groups[1].Value
-    $branch = $assemblyInformationalVersionMatch.Groups[2].Value
-    $sha = $assemblyInformationalVersionMatch.Groups[3].Value
-
-    "Version: $version"
-    "Branch: $branch"
-    "Sha: $sha"
-}
-else {
-    "Version information not found in the file."
+if ( !$SkipRelease) {
+    npx semantic-release
 }
 
+# Dot-source the script to import the Get-AssemblyInfo function
+. ".\Get-AssemblyInfo.ps1"
 
-$semVer = $assemblyVersion
-$buildMetaDataPadded = $assemblyInformationalVersion
-$branchName = $branch
+# Now you can call Get-AssemblyInfo from your main script
+$result = Get-AssemblyInfo -assemblyInfoPath "./StreamMaster.API/AssemblyInfo.cs"
+
+$result  |  Write-Output
+
+$semVer = $result.Version
+$buildMetaDataPadded = $result.Version
+$branchName = $result.Branch
 
 # if ($TagAndPush) {
 #     # Stage all changes
@@ -67,11 +54,11 @@ $branchName = $branch
 # Multiple tags
 $tags = if ($BuildProd) {
     "${imageName}:latest",
-    "${imageName}:$semVer",
-    "${imageName}:$semVer-$buildMetaDataPadded"
+    "${imageName}:$branchName-$semVer"
+    # "${imageName}:$semVer-$buildMetaDataPadded"
 }
 else {
-    "${imageName}:$branchName-$semVer-$buildMetaDataPadded"
+    "${imageName}:$branchName-$semVer"
 }
 
 Write-Output "Tags to be used:"
@@ -84,7 +71,6 @@ if ($PrintCommands) {
 
 # Capture the start time
 $startTime = Get-Date
-
 
 # Prefix for the dots
 Write-Host -NoNewline "Building Image "
