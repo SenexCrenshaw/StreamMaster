@@ -1,60 +1,96 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Services;
+using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.EF;
-using StreamMaster.Infrastructure.Services;
-using StreamMaster.Infrastructure.Services.Settings;
 using StreamMaster.SchedulesDirect;
 using StreamMaster.SchedulesDirect.Converters;
 using StreamMaster.SchedulesDirect.Data;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
-using StreamMaster.SchedulesDirect.Helpers;
-
-using System.Reflection;
+using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 
 namespace TestCreator
 {
     internal class Program
     {
-        private static void Main(string[] args)
+        private static ILogger<Program>? _logger;
+
+        private static void Main()
         {
             ServiceProvider serviceProvider = new ServiceCollection()
                 .AddLogging(configure => configure.AddConsole())
                 .AddSingleton<ISchedulesDirectDataService, SchedulesDirectDataService>()
                 .AddTransient<IXmltv2Mxf, XmlTv2Mxf>()
-                .AddSingleton<IMemoryCache, MemoryCache>()
-                .AddSingleton<IEPGHelper, EPGHelper>()
-                .AddSingleton<ISettingsService, SettingsService>()
-                .AddSingleton<IIconService, IconService>()
                 .AddSingleton<IXMLTVBuilder, XMLTVBuilder>()
+                .AddInfrastructureServices()
                 .AddInfrastructureEFServices()
-                .AddAutoMapper(
-                    Assembly.Load("StreamMaster.Domain"),
-                    Assembly.Load("StreamMaster.Application"),
-                    Assembly.Load("StreamMaster.Infrastructure"),
-                    Assembly.Load("StreamMaster.Streams")
-                )
                 .BuildServiceProvider();
 
-            RepositoryContext? wrapper = serviceProvider.GetService<RepositoryContext>();
-            StreamGroup sg = wrapper.StreamGroups.First(a => a.Id == 4);
+            ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+            GlobalLoggerProvider.Configure(loggerFactory);
+            _logger = serviceProvider.GetService<ILogger<Program>>()!;
 
-            IQueryable<string> testStreams = wrapper.VideoStreams.Where(a => a.User_Tvg_group == "LOCAL CHANNELS - USA").Select(a => a.Id);
-            List<string> childStreams = wrapper.StreamGroupVideoStreams.Where(a => a.StreamGroupId == 4).Select(a => a.ChildVideoStreamId).ToList();
 
-            IQueryable<string> missing = testStreams.Except(childStreams);
+            IXmltv2Mxf? xmltv2Mxf = serviceProvider.GetService<IXmltv2Mxf>()!;
 
-            Console.WriteLine($"Total test streams {testStreams.Count()}");
-            Console.WriteLine($"Total test streams to update {missing.Count()}");
-
-            foreach (string miss in missing)
+            string fullName = "C:\\config\\PlayLists\\epg123.xml";
+            if (File.Exists(fullName) == false)
             {
-                wrapper.StreamGroupVideoStreams.Add(new StreamGroupVideoStream { StreamGroupId = 4, ChildVideoStreamId = miss });
+                _logger.LogInformation("File {fullName} does not exist", fullName);
+                return;
             }
-            wrapper.SaveChanges();
+
+            XMLTV? epgData = xmltv2Mxf.ConvertToMxf(fullName, 0);
+            if (epgData == null)
+            {
+                _logger.LogCritical("Exception EPG {fullName} format is not supported", fullName);
+                return;
+            }
+
+            List<string> channelNames = epgData.Programs.Select(a => a.Channel).Distinct().ToList();
+
+            RepositoryContext? context = serviceProvider.GetService<RepositoryContext>();
+            if (context == null)
+            {
+                _logger.LogCritical("RepositoryContext is null");
+                return;
+            }
+            StreamGroup sg = context.StreamGroups.First(a => a.Id == 4);
+
+            context.StreamGroupVideoStreams.RemoveRange(context.StreamGroupVideoStreams.Where(a => a.StreamGroupId == 4));
+
+            context.VideoStreams.RemoveRange(context.VideoStreams
+                .Where(a => a.User_Tvg_group == "LOCAL CHANNELS - USA" && a.User_Tvg_name.StartsWith("Tester")));
+
+            context.SaveChanges();
+
+            Console.WriteLine($"Creating {channelNames.Count} test streams");
+            foreach (string a in channelNames)
+            {
+
+                VideoStream videoStream = new()
+                {
+                    Id = IdConverter.GetID(),
+                    IsUserCreated = true,
+                    M3UFileName = "CUSTOM",
+                    Tvg_group = "TESTING",
+                    User_Tvg_group = "TESTING",
+                    Tvg_ID = a,
+                    User_Tvg_ID = a,
+                    Tvg_name = $"Test {a}",
+                    User_Tvg_name = $"Test {a}",
+                };
+
+
+                context.VideoStreams.Add(videoStream);
+                context.StreamGroupVideoStreams.Add(new StreamGroupVideoStream { StreamGroupId = 4, ChildVideoStreamId = videoStream.Id });
+            }
+
+            context.SaveChanges();
         }
     }
 }
