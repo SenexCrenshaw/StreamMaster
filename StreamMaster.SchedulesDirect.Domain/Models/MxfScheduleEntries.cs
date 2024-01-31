@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using StreamMaster.SchedulesDirect.Domain.XmltvXml;
+
+using System.ComponentModel;
 using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Domain.Models
@@ -16,7 +18,11 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
             DateTime endTime = DateTime.MinValue;
             foreach (MxfScheduleEntry entry in ScheduleEntry)
             {
-                if (entry.StartTime != endTime) entry.IncludeStartTime = true;
+                if (entry.StartTime != endTime)
+                {
+                    entry.IncludeStartTime = true;
+                }
+
                 endTime = entry.StartTime + TimeSpan.FromSeconds(entry.Duration);
             }
             return true;
@@ -29,6 +35,7 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
         private int _tvRating;
 
         [XmlIgnore] public MxfProgram mxfProgram;
+        [XmlIgnore] public XmltvProgramme? XmltvProgramme { get; set; }
         [XmlIgnore] public bool IncludeStartTime;
         [XmlIgnore] public Dictionary<string, dynamic> extras = [];
 
@@ -74,7 +81,7 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
         public int Program
         {
             get => _program > 0 ? _program : mxfProgram?.Id ?? 0;
-            set { _program = value; }
+            set => _program = value;
         }
 
         /// <summary>
@@ -256,7 +263,10 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
         {
             get
             {
-                if (_tvRating > 0) return _tvRating;
+                if (_tvRating > 0)
+                {
+                    return _tvRating;
+                }
 
                 Dictionary<string, string> ratings = [];
                 if (extras.ContainsKey("ratings"))
