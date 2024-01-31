@@ -394,10 +394,9 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
         {
             videoStream.User_Tvg_name = request.Tvg_name;
             await SetVideoStreamLogoFromEPG(videoStream, cancellationToken).ConfigureAwait(false);
-            //UpdateVideoStream(videoStream);
         }
 
-        if (request.TimeShift != null && videoStream.TimeShift != request.Tvg_name)
+        if (request.TimeShift != null && videoStream.TimeShift != request.TimeShift)
         {
             videoStream.TimeShift = request.TimeShift;
         }
