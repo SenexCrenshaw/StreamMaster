@@ -92,7 +92,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _videoStream ??= new VideoStreamRepository(VideoStreamRepositoryLogger, schedulesDirectDataService, epgHelper, iconService, repositoryContext, mapper, memoryCache, sender);
+                _videoStream ??= new VideoStreamRepository(VideoStreamRepositoryLogger, schedulesDirectDataService, iconService, repositoryContext, mapper, memoryCache, sender);
                 return _videoStream;
             }
         }

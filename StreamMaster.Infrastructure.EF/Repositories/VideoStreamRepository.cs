@@ -26,7 +26,7 @@ using System.Linq.Dynamic.Core;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISchedulesDirectDataService schedulesDirectDataService, IEPGHelper epgHelper, IIconService iconService, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : RepositoryBase<VideoStream>(repositoryContext, intLogger), IVideoStreamRepository
+public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISchedulesDirectDataService schedulesDirectDataService, IIconService iconService, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : RepositoryBase<VideoStream>(repositoryContext, intLogger), IVideoStreamRepository
 {
     public PagedResponse<VideoStreamDto> CreateEmptyPagedResponse()
     {
