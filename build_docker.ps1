@@ -1,6 +1,6 @@
 param (
     [switch]$DebugLog,
-    [switch]$BuildProd,
+    [switch]$BuildProd = $false,
     [switch]$PrintCommands = $false,
     [switch]$SkipRelease = $false
 )
@@ -13,7 +13,10 @@ $env:GH_TOKEN = $ghtoken
 
 $imageName = "docker.io/senexcrenshaw/streammaster"
 
-if ( !$SkipRelease) {
+if (-not $SkipRelease ) {
+    #-and $BuildProd) {
+    # Write-Host $SkipRelease;
+    # Write-Host $BuildProd;
     npx semantic-release
 }
 

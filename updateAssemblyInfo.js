@@ -1,6 +1,6 @@
 const fs = require("fs").promises;
 
-const version = process.argv[2];
+const rawVersion = process.argv[2];
 const sha = process.argv[3];
 const branch = process.argv[4];
 const commits = process.argv[5];
@@ -8,6 +8,17 @@ const commits = process.argv[5];
 console.log(commits);
 
 const filePath = "./StreamMaster.API/AssemblyInfo.cs";
+
+function toSemVer(rawVersion) {
+  const parts = rawVersion.match(/^(\d+\.\d+\.\d+)-.*\.(\d+)$/);
+  if (!parts) {
+    throw new Error(`Invalid version format: ${rawVersion}`);
+  }
+  return `${parts[1]}.${parts[2]}`; // Returns 'MAJOR.MINOR.PATCH.BUILD'
+}
+
+const version = toSemVer(rawVersion);
+
 const content = `
 using System.Reflection;
 
