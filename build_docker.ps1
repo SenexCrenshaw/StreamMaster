@@ -20,6 +20,7 @@ if (-not $SkipRelease ) {
     npx semantic-release
 }
 
+
 . ".\Get-AssemblyInfo.ps1"
 
 $result = Get-AssemblyInfo -assemblyInfoPath "./StreamMaster.API/AssemblyInfo.cs"
