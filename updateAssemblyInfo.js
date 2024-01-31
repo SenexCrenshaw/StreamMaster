@@ -24,7 +24,7 @@ using System.Reflection;
 
 [assembly: AssemblyVersion("${version}")]
 [assembly: AssemblyFileVersion("${version}")]
-[assembly: AssemblyInformationalVersion("${version}.Sha.${sha}")]
+[assembly: AssemblyInformationalVersion("${rawVersion}.Sha.${sha}")]
 `;
 
 async function createOrUpdateAssemblyInfo() {
