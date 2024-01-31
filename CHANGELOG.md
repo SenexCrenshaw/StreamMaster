@@ -1,3 +1,10 @@
+# [0.8.0-epg-rapid-rover.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-epg-rapid-rover.2...v0.8.0-epg-rapid-rover.3) (2024-01-31)
+
+
+### Bug Fixes
+
+* version bump ([d6988ed](https://github.com/SenexCrenshaw/StreamMaster/commit/d6988ed3b2722b439de6607787629e0effa94a06))
+
 # [0.8.0-epg-rapid-rover.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-epg-rapid-rover.1...v0.8.0-epg-rapid-rover.2) (2024-01-31)
 
 
