@@ -41,7 +41,7 @@ namespace EPGTester
 
             IXmltv2Mxf? xmltv2Mxf = serviceProvider.GetService<IXmltv2Mxf>()!;
 
-            string fullName = "C:\\config\\PlayLists\\test.xmltv";
+            string fullName = "C:\\Users\\senex\\git\\test\\epg123.xml";
             if (File.Exists(fullName) == false)
             {
                 _logger.LogInformation($"File {fullName} does not exist");
