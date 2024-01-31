@@ -69,9 +69,10 @@ namespace TestCreator
             context.SaveChanges();
 
             Console.WriteLine($"Creating {channelNames.Count} test streams");
+            int count = 0;
             foreach (string a in channelNames)
             {
-
+                ++count;
                 VideoStream videoStream = new()
                 {
                     Id = IdConverter.GetID(),
@@ -79,10 +80,12 @@ namespace TestCreator
                     M3UFileName = "CUSTOM",
                     Tvg_group = "TESTING",
                     User_Tvg_group = "TESTING",
-                    Tvg_ID = a,
-                    User_Tvg_ID = a,
+                    Tvg_ID = $"2-{a}",
+                    User_Tvg_ID = $"2-{a}",
                     Tvg_name = $"Test {a}",
                     User_Tvg_name = $"Test {a}",
+                    User_Tvg_chno = count,
+                    Tvg_chno = count,
                 };
 
 
