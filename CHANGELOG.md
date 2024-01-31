@@ -1,3 +1,10 @@
+# [0.8.0-epg-rapid-rover.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-epg-rapid-rover.1...v0.8.0-epg-rapid-rover.2) (2024-01-31)
+
+
+### Bug Fixes
+
+* Updated regex pattern to capture version, branch, and build/revision number ([809feb6](https://github.com/SenexCrenshaw/StreamMaster/commit/809feb663a9acd6aec062cd387cb87f38dfcc308))
+
 # [0.8.0-epg-rapid-rover.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.7.1...v0.8.0-epg-rapid-rover.1) (2024-01-31)
 
 
