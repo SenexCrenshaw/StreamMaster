@@ -10,6 +10,9 @@ namespace StreamMaster.SchedulesDirect.Domain.Interfaces;
 /// </summary>
 public interface ISchedulesDirectDataService
 {
+
+    void Set(int EPGNumber, ISchedulesDirectData schedulesDirectData);
+
     /// <summary>
     /// Gets a list of station channel names.
     /// </summary>

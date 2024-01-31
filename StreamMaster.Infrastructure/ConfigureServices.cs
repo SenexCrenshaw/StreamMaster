@@ -89,7 +89,7 @@ public static class ConfigureServices
         _ = services.AddSingleton<IBroadcastService, BroadcastService>();
 
         _ = services.AddHostedService<TimerService>();
-        //_ = services.AddHostedService<ImageDownloadService>();
+
         _ = services.AddSingleton<IImageDownloadService, ImageDownloadService>();
         return services;
     }
