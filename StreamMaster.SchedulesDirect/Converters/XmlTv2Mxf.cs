@@ -1,4 +1,7 @@
-﻿using StreamMaster.Domain.Common;
+﻿using Microsoft.Extensions.Caching.Memory;
+
+using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Logging;
 using StreamMaster.SchedulesDirect.Data;
 
 using System.Globalization;
@@ -6,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.SchedulesDirect.Converters;
 
-public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ILogger<EPGImportLogger> _epgImportLogger, ISchedulesDirectDataService schedulesDirectDataService) : IXmltv2Mxf
+public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IEPGHelper ePGHelper, IMemoryCache memoryCache, ILogger<EPGImportLogger> _epgImportLogger, ISchedulesDirectDataService schedulesDirectDataService) : IXmltv2Mxf
 {
     private ISchedulesDirectData schedulesDirectData;
 
@@ -22,6 +25,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ILogger<EPGImportLogger> _epgI
         public int NumberOfParts;
     }
 
+    [LogExecutionTimeAspect]
     public XMLTV? ConvertToMxf(string filePath, int EPGNumber)
     {
         XMLTV? xmlTv = FileUtil.ReadXmlFile(filePath);
@@ -30,10 +34,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ILogger<EPGImportLogger> _epgI
 
     private XMLTV? ConvertToMxf(XMLTV xmlTv, int EPGNumber)
     {
-        schedulesDirectDataService.Reset(EPGNumber);
-
-        schedulesDirectData = schedulesDirectDataService.GetEPGData(EPGNumber);
-
+        schedulesDirectData = new SchedulesDirectData(logger, _epgImportLogger, ePGHelper, memoryCache, EPGNumber);
         if (
             !BuildLineupAndChannelServices(xmlTv) ||
             !BuildScheduleEntries(xmlTv)
@@ -43,6 +44,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ILogger<EPGImportLogger> _epgI
         }
 
         BuildKeywords();
+        schedulesDirectDataService.Set(EPGNumber, schedulesDirectData);
         return xmlTv;
     }
 
