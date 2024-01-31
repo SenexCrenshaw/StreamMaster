@@ -12,12 +12,13 @@ using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 using StreamMaster.SchedulesDirect.Helpers;
 
+using System.Text.Json;
 using System.Xml;
 using System.Xml.Serialization;
 
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 
-namespace M3UFormatter
+namespace EPGFormatter
 {
     internal class Program
     {
@@ -42,14 +43,14 @@ namespace M3UFormatter
             // Resolve the service
             IXmltv2Mxf? xmltv2Mxf = serviceProvider.GetService<IXmltv2Mxf>()!;
 
+            string fullName = "C:\\Users\\senex\\git\\test\\epg123.xml";
+            //if (args.Length != 1 || string.IsNullOrEmpty(args[0]))
+            //{
+            //    _logger.LogInformation("Usage: M3UFormatter <m3u file>");
+            //    return;
+            //}
 
-            if (args.Length != 1 || string.IsNullOrEmpty(args[0]))
-            {
-                _logger.LogInformation("Usage: M3UFormatter <m3u file>");
-                return;
-            }
-
-            string fullName = args[0];
+            //string fullName = args[0];
             if (File.Exists(fullName) == false)
             {
                 _logger.LogInformation($"File {fullName} does not exist");
@@ -64,7 +65,9 @@ namespace M3UFormatter
             }
             string name = Path.GetFileNameWithoutExtension(fullName);
             string text = SerializeXMLTVData(epgData);
+            string json = JsonSerializer.Serialize(epgData);
             File.WriteAllText($"C:\\Users\\senex\\git\\test\\{name}_clean.xml", text);
+            File.WriteAllText($"C:\\Users\\senex\\git\\test\\{name}_json.json", json);
         }
 
         private static string SerializeXMLTVData(XMLTV xmltv)
