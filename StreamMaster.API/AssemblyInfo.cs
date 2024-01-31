@@ -1,5 +1,5 @@
 using System.Reflection;
 
-[assembly: AssemblyVersion("0.7.1")]
-[assembly: AssemblyFileVersion("0.7.1")]
-[assembly: AssemblyInformationalVersion("0.7.1.Sha.7fc7281efea5817963e66be6bffd93c7c119a99a")]
+[assembly: AssemblyVersion("0.8.0-epg-rapid-rover.1")]
+[assembly: AssemblyFileVersion("0.8.0-epg-rapid-rover.1")]
+[assembly: AssemblyInformationalVersion("0.8.0-epg-rapid-rover.1.Sha.03618006abf7d9db0e19ec41cfbb62793c617535")]
