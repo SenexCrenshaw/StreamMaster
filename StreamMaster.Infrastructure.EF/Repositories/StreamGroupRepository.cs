@@ -50,17 +50,9 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
 
     private void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url, Setting setting)
     {
-        int count = 0;
-        if (streamGroupDto.Id == 1)
-        {
-            count = RepositoryContext.VideoStreams.Count();
-        }
-        else
-        {
-            //var sg = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == streamGroupDto.Id);
-            count = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == streamGroupDto.Id).Count();
-        }
-
+        int count = streamGroupDto.Id == 1
+            ? RepositoryContext.VideoStreams.Count()
+            : RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == streamGroupDto.Id).Count();
         string encodedStreamGroupNumber = streamGroupDto.Id.EncodeValue128(setting.ServerKey);
 
         string encodedName = HttpUtility.HtmlEncode(streamGroupDto.Name).Trim()
