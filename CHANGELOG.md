@@ -1,3 +1,10 @@
+# [0.8.0-epg-rapid-rover.5](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-epg-rapid-rover.4...v0.8.0-epg-rapid-rover.5) (2024-02-01)
+
+
+### Bug Fixes
+
+* changed tvlogos to use dictionary lookups ([fe7910a](https://github.com/SenexCrenshaw/StreamMaster/commit/fe7910ad786ad6ca144a11018dd1b5d1a401a4bf))
+
 # [0.8.0-epg-rapid-rover.4](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-epg-rapid-rover.3...v0.8.0-epg-rapid-rover.4) (2024-02-01)
 
 
