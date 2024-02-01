@@ -1,3 +1,10 @@
+# [0.8.0-epg-rapid-rover.6](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-epg-rapid-rover.5...v0.8.0-epg-rapid-rover.6) (2024-02-01)
+
+
+### Bug Fixes
+
+* Update build_docker.ps1 ([b0cbe5d](https://github.com/SenexCrenshaw/StreamMaster/commit/b0cbe5df3098decc6cd00b21e86db872dde5fb33))
+
 # [0.8.0-epg-rapid-rover.5](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-epg-rapid-rover.4...v0.8.0-epg-rapid-rover.5) (2024-02-01)
 
 
