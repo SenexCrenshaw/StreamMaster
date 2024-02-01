@@ -450,6 +450,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
             scheduleEntry.XmltvProgramme.Channel = channelId;
             scheduleEntry.XmltvProgramme.Descriptions = MxfStringToXmlTextArray((descriptionExtended + mxfProgram.Description).Trim());
             scheduleEntry.XmltvProgramme.Icons = BuildProgramIcons(mxfProgram, logger, settings, ePGHelper, iconService, _baseUrl);
+            scheduleEntry.XmltvProgramme.Categories = BuildProgramCategories(mxfProgram);
             //    //scheduleEntry.XmltvProgramme.StarRating = BuildProgramStarRatings(mxfProgram);
             //    //scheduleEntry.XmltvProgramme.Rating = BuildProgramRatings(scheduleEntry);
             //    //scheduleEntry.XmltvProgramme.StarRating = BuildProgramStarRatings(mxfProgram);
