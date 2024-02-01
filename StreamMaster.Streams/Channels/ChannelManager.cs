@@ -7,7 +7,7 @@ namespace StreamMaster.Streams.Channels;
 
 public sealed class ChannelManager : IChannelManager
 {
-    private readonly SemaphoreSlim _registerSemaphore = new(1);
+    private readonly SemaphoreSlim _registerSemaphore = new(1, 1);
 
     private readonly object _disposeLock = new();
     private readonly ILogger<ChannelManager> logger;
