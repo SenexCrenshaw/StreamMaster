@@ -1,3 +1,5 @@
+# [0.8.0-epg-rapid-rover.7](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-epg-rapid-rover.6...v0.8.0-epg-rapid-rover.7) (2024-02-01)
+
 # [0.8.0-epg-rapid-rover.6](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-epg-rapid-rover.5...v0.8.0-epg-rapid-rover.6) (2024-02-01)
 
 
