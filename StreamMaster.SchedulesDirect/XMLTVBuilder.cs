@@ -28,6 +28,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
     public XMLTV? CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs)
     {
         seriesDict = [];
+        keywordDict = [];
         _baseUrl = baseUrl;
         try
         {
@@ -36,7 +37,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
                 Date = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture),
                 SourceInfoUrl = "https://github.com/SenexCrenshaw/StreamMaster",
                 SourceInfoName = "Stream Master",
-                GeneratorInfoName = "StreamMaster",
+                GeneratorInfoName = "Stream Master",
                 GeneratorInfoUrl = "https://github.com/SenexCrenshaw/StreamMaster",
                 Channels = [],
                 Programs = []
@@ -47,32 +48,22 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
             int newServiceCount = 0;
 
-            // Pre-process all keywords into a HashSet for faster lookup
-            if (keywordDict.Count == 0)
-            {
-                keywordDict = schedulesDirectDataService.AllKeywords
-         .Where(k => !string.Equals(k.Word, "Uncategorized", StringComparison.OrdinalIgnoreCase) &&
-                     !k.Word.Contains("premiere", StringComparison.OrdinalIgnoreCase))
-                     .GroupBy(k => k.Id)
-                     .ToDictionary(
-                         g => g.Key,
-                         g =>
-                         {
-                             string word = g.First().Word;
-                             return string.Equals(word, "Movies", StringComparison.OrdinalIgnoreCase) ? "Movie" : word;
-                         }
-                     );
-            }
+            keywordDict = schedulesDirectDataService.AllKeywords
+     .Where(k => !string.Equals(k.Word, "Uncategorized", StringComparison.OrdinalIgnoreCase) &&
+                 !k.Word.Contains("premiere", StringComparison.OrdinalIgnoreCase))
+                 .GroupBy(k => k.Id)
+                 .ToDictionary(
+                     g => g.Key,
+                     g =>
+                     {
+                         string word = g.First().Word;
+                         return string.Equals(word, "Movies", StringComparison.OrdinalIgnoreCase) ? "Movie" : word;
+                     }
+                 );
+
             foreach (MxfSeriesInfo seriesInfo in schedulesDirectDataService.AllSeriesInfos)
             {
-                if (seriesDict.ContainsKey(seriesInfo.Index))
-                {
-                    MxfSeriesInfo a = seriesDict[seriesInfo.Index];
-                    // Handle the duplicate key scenario, e.g., log it or throw an exception
-                    // LogWarning($"Duplicate series index found: {seriesInfo.Index}");
-                    continue;
-                }
-                seriesDict.Add(seriesInfo.Index, seriesInfo);
+                seriesDict.TryAdd(seriesInfo.Index, seriesInfo);
             }
 
             List<MxfService> services = schedulesDirectDataService.AllServices;
@@ -86,17 +77,16 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
                 int epgNumber;
                 string stationId;
                 (epgNumber, stationId) = ePGHelper.ExtractEPGNumberAndStationId(videoStreamConfig.User_Tvg_ID);
-                //}
 
-                MxfService? origService = services.FirstOrDefault(a => a.StationId == stationId && a.EPGNumber == epgNumber);
+                MxfService? origService = services.FirstOrDefault(a => a.StationId == videoStreamConfig.User_Tvg_ID && a.EPGNumber == epgNumber);
+
 
                 if (origService == null)
                 {
                     continue;
                 }
 
-
-                MxfService newService = new(newServiceCount++, videoStreamConfig.User_Tvg_ID);// schedulesDirectDataService.FindOrCreateService(stationId);
+                MxfService newService = new(newServiceCount++, videoStreamConfig.User_Tvg_ID); // videoStreamConfig.User_Tvg_ID);
 
                 if (origService.MxfScheduleEntries is not null)
                 {
@@ -290,15 +280,11 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
                     XmltvProgramme program = BuildXmltvProgram(scheduleEntry, logger, channel.Id, settings, ePGHelper, iconService, _baseUrl);
                     xmlTv.Programs.Add(program);
                     ++count;
-                    if (count % 1000 == 0)
-                    {
-                        sw.Stop();
-                        logger.LogInformation($"Processed {count} programs in {sw.ElapsedMilliseconds} ms");
-                        sw.Restart();
-                    }
+
                 });
             };
-            logger.LogInformation($"Finsihed processing {count} programs");
+            sw.Stop();
+            logger.LogInformation($"Finsihed processing {count} programs in {sw.ElapsedMilliseconds} ms");
         }
         catch (Exception ex)
         {

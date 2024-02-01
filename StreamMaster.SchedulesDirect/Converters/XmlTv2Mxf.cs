@@ -36,8 +36,8 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IEPGHelper ePGHelper, IMemoryC
     {
         schedulesDirectData = new SchedulesDirectData(logger, _epgImportLogger, ePGHelper, memoryCache, EPGNumber);
         if (
-            !BuildLineupAndChannelServices(xmlTv) ||
-            !BuildScheduleEntries(xmlTv)
+            !BuildLineupAndChannelServices(xmlTv, EPGNumber) ||
+            !BuildScheduleEntries(xmlTv, EPGNumber)
             )
         {
             return null;
@@ -48,7 +48,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IEPGHelper ePGHelper, IMemoryC
         return xmlTv;
     }
 
-    private bool BuildLineupAndChannelServices(XMLTV xmlTv, string lineupName = "SM+ Default Lineup Name")
+    private bool BuildLineupAndChannelServices(XMLTV xmlTv, int epgNumber, string lineupName = "SM+ Default Lineup Name")
     {
 
         logger.LogInformation("Building lineup and channel services.");
@@ -56,8 +56,9 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IEPGHelper ePGHelper, IMemoryC
 
         foreach (XmltvChannel channel in xmlTv.Channels)
         {
-            MxfService mxfService = schedulesDirectData.FindOrCreateService(channel.Id);
-
+            string serviceName = $"{epgNumber}-{channel.Id}";
+            MxfService mxfService = schedulesDirectData.FindOrCreateService(serviceName);
+    
             if (string.IsNullOrEmpty(mxfService.CallSign))
             {
                 // add "callsign" and "station name"
@@ -123,7 +124,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IEPGHelper ePGHelper, IMemoryC
         return true;
     }
 
-    private bool BuildScheduleEntries(XMLTV xmlTv)
+    private bool BuildScheduleEntries(XMLTV xmlTv, int epgNumber)
     {
         Setting settings = memoryCache.GetSetting();
 
@@ -132,7 +133,8 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IEPGHelper ePGHelper, IMemoryC
         {
             SeriesEpisodeInfo info = GetSeriesEpisodeInfo(program);
 
-            MxfService mxfService = schedulesDirectData.FindOrCreateService(program.Channel);
+            string serviceName = $"{epgNumber}-{program.Channel}";
+            MxfService mxfService = schedulesDirectData.FindOrCreateService(serviceName);
             MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(DetermineProgramUid(program));
 
             if (mxfProgram.Title == null)

@@ -74,13 +74,15 @@ public class Lineups(ILogger<Lineups> logger, IMemoryCache memoryCache, IIconSer
                 }
 
                 // build the service if necessary
-                MxfService mxfService = schedulesDirectData.FindOrCreateService(station.StationId);
+                string serviceName = $"{EPGHelper.SchedulesDirectId}-{station.StationId}";
+
+                MxfService mxfService = schedulesDirectData.FindOrCreateService(serviceName);
 
                 if (string.IsNullOrEmpty(mxfService.CallSign))
                 {
                     // instantiate stationLogo and override uid
                     StationImage? stationLogo = null;
-                    mxfService.UidOverride = $"!Service!STREAMMASTER_{station.StationId}";
+                    mxfService.UidOverride = $"!Service!STREAMMASTER_{serviceName}";
 
                     // add callsign and station name
                     mxfService.CallSign = station.Callsign;
