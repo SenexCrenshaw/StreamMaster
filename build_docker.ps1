@@ -35,7 +35,7 @@ if ([string]::IsNullOrEmpty($result.Branch) -or $result.Branch -eq 'N/A') {
     $branchName = $semVer
 }
 else {
-    # If branch is present, append it to the semVer
+    $devTag = $result.Branch;
     $branchName = "$($result.Branch)-$semVer"
 }
 
@@ -47,9 +47,9 @@ if (![string]::IsNullOrEmpty($result.BuildOrRevision) ) {
 $tags = if ($BuildProd) {
     "${imageName}:latest",
     "${imageName}:$branchName"
-    # "${imageName}:$semVer-$buildMetaDataPadded"
 }
 else {
+    "${imageName}:$devTag",
     "${imageName}:$branchName"
 }
 
