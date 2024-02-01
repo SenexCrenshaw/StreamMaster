@@ -119,7 +119,7 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
 
             ret.Add(lu);
         }
-        string jsonString = JsonSerializer.Serialize(ret, new JsonSerializerOptions { WriteIndented = true });
+        string jsonString = JsonSerializer.Serialize(ret);
         return jsonString;
     }
 }
