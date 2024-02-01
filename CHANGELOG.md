@@ -1,3 +1,10 @@
+# [0.8.0-epg-rapid-rover.4](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-epg-rapid-rover.3...v0.8.0-epg-rapid-rover.4) (2024-02-01)
+
+
+### Features
+
+* Add Get-AssemblyInfo function ([fbc0a14](https://github.com/SenexCrenshaw/StreamMaster/commit/fbc0a14df7073a3ca9f6e5c24582342793813cd3))
+
 # [0.8.0-epg-rapid-rover.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-epg-rapid-rover.2...v0.8.0-epg-rapid-rover.3) (2024-01-31)
 
 
