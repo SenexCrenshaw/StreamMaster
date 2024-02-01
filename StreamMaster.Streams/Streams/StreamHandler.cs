@@ -20,7 +20,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
     public static int ChunkSize = 64 * 1024;
 
-    private readonly SemaphoreSlim getVideoInfo = new(1);
+    private readonly SemaphoreSlim getVideoInfo = new(1, 1);
     private bool runningGetVideo { get; set; } = false;
 
     public event EventHandler<StreamHandlerStopped> OnStreamingStoppedEvent;
@@ -118,8 +118,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             }
             finally
             {
-                runningGetVideo = false;
-                _ = getVideoInfo.Release();
+
             }
 
             return;
