@@ -322,9 +322,11 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
         bool isChanged = false;
         try
         {
+            int rank = 0;
             foreach (VideoStreamDto ch in childVideoStreams)
             {
-                await AddOrUpdateChildToVideoStreamAsync(videoStream.Id, ch.Id, ch.Rank, cancellationToken).ConfigureAwait(false);
+                await AddOrUpdateChildToVideoStreamAsync(videoStream.Id, ch.Id, rank, cancellationToken).ConfigureAwait(false);
+                ++rank;
             }
 
             await RemoveNonExistingVideoStreamLinksAsync(videoStream.Id, childVideoStreams.ToList(), cancellationToken).ConfigureAwait(false);
