@@ -1,3 +1,5 @@
+# [0.8.0-stream.7](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.6...v0.8.0-stream.7) (2024-02-01)
+
 # [0.8.0-stream.6](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.5...v0.8.0-stream.6) (2024-02-01)
 
 
