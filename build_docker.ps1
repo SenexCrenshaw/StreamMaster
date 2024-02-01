@@ -26,6 +26,7 @@ if (-not $SkipRelease ) {
 $result = Get-AssemblyInfo -assemblyInfoPath "./StreamMaster.API/AssemblyInfo.cs"
 
 $result  |  Write-Output
+[System.Console]::Out.Flush()
 
 $semVer = $result.Version
 # $buildMetaDataPadded = $result.Version
@@ -35,7 +36,7 @@ if ([string]::IsNullOrEmpty($result.Branch) -or $result.Branch -eq 'N/A') {
 }
 else {
     # If branch is present, append it to the semVer
-    $branchName = "$($result.Branch)-$semVer-$($result.BuildOrRevision)"
+    $branchName = "$($result.Branch)-$semVer"
 }
 
 if (![string]::IsNullOrEmpty($result.BuildOrRevision) ) {
