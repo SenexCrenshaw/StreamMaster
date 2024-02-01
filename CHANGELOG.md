@@ -1,3 +1,17 @@
+# [0.8.0-stream.4](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.3...v0.8.0-stream.4) (2024-02-01)
+
+
+### Bug Fixes
+
+* Fix video stream service retrieval bug ([5cc615e](https://github.com/SenexCrenshaw/StreamMaster/commit/5cc615edbba2d8d2973c3cda126f74809726f779))
+
+
+### Features
+
+* Add new properties to SGup ([982d3d7](https://github.com/SenexCrenshaw/StreamMaster/commit/982d3d7597a84ba92a2aad441831ad0edbf86599))
+* Add option to serialize stream group lineup without indentation ([0dcfd55](https://github.com/SenexCrenshaw/StreamMaster/commit/0dcfd556b16c7fe065030e08b6dfc1e3e2ad111e))
+* service id based of epgnumber ([1371be0](https://github.com/SenexCrenshaw/StreamMaster/commit/1371be02c88add151d170e6bdaeb89cbda3c0553))
+
 # [0.8.0-stream.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.2...v0.8.0-stream.3) (2024-02-01)
 
 
