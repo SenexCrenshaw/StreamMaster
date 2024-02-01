@@ -5,6 +5,7 @@ using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Models;
 using StreamMaster.SchedulesDirect.Helpers;
 
+using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 
@@ -246,9 +247,10 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
         try
         {
-
-            Parallel.ForEach(services, service =>
-            //foreach (MxfService service in services)
+            int count = 0;
+            //Parallel.ForEach(services, service =>
+            Stopwatch sw = Stopwatch.StartNew();
+            foreach (MxfService service in services)
             {
                 XmltvChannel channel = BuildXmltvChannel(service);
                 xmlTv.Channels.Add(channel);
@@ -284,11 +286,19 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
                 Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, options, scheduleEntry =>
                 {
-                    XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channel.Id, settings, ePGHelper, iconService, _baseUrl);
-                    xmlTv.Programs.Add(program);
-                });
-            });
 
+                    XmltvProgramme program = BuildXmltvProgram(scheduleEntry, logger, channel.Id, settings, ePGHelper, iconService, _baseUrl);
+                    xmlTv.Programs.Add(program);
+                    ++count;
+                    if (count % 1000 == 0)
+                    {
+                        sw.Stop();
+                        logger.LogInformation($"Processed {count} programs in {sw.ElapsedMilliseconds} ms");
+                        sw.Restart();
+                    }
+                });
+            };
+            logger.LogInformation($"Finsihed processing {count} programs");
         }
         catch (Exception ex)
         {
@@ -297,7 +307,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
     }
 
 
-    private static string GetIconUrl(int EPGNumber, string iconOriginalSource, Setting settings, IEPGHelper ePGHelper, IIconService iconService, string _baseUrl, SMFileTypes? sMFileTypes = null)
+    private static string GetIconUrl(int EPGNumber, ILogger logger, string iconOriginalSource, Setting settings, IEPGHelper ePGHelper, IIconService iconService, string _baseUrl, SMFileTypes? sMFileTypes = null)
     {
         if (ePGHelper.IsDummy(EPGNumber))
         {
@@ -308,8 +318,6 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
         {
             return iconOriginalSource.StartsWith("http") ? iconOriginalSource : GetApiUrl(sMFileTypes ?? SMFileTypes.SDImage, iconOriginalSource, _baseUrl);
         }
-
-        ImagePath? imagePath = iconService.GetValidImagePath(iconOriginalSource);
 
         //Setting settings = memoryCache.GetSetting();
 
@@ -328,6 +336,8 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
         SMFileTypes? smtype = sMFileTypes;
         if (smtype == null)
         {
+            ImagePath? imagePath = iconService.GetValidImagePath(iconOriginalSource);
+
             if (imagePath != null)
             {
                 smtype = imagePath.SMFileType;
@@ -345,8 +355,6 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
     {
         return $"{_baseUrl}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
     }
-
-
 
     #region ========== XMLTV Channels and Functions ==========
     private XmltvChannel BuildXmltvChannel(MxfService mxfService)
@@ -413,7 +421,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
             ret.Icons =
                 [
                     new() {
-                        Src = GetIconUrl(mxfService.EPGNumber, mxfService.extras["logo"].Url,settings,ePGHelper,iconService,_baseUrl),
+                        Src = GetIconUrl(mxfService.EPGNumber, logger, mxfService.extras["logo"].Url,settings,ePGHelper,iconService,_baseUrl),
                         Height = mxfService.extras["logo"].Height,
                         Width = mxfService.extras["logo"].Width
                     }
@@ -427,21 +435,21 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
     #region ========== XMLTV Programmes and Functions ==========
 
     //[LogExecutionTimeAspect]
-    public static XmltvProgramme BuildXmltvProgram(MxfScheduleEntry scheduleEntry, string channelId, Setting settings, IEPGHelper ePGHelper, IIconService iconService, string _baseUrl)
+    public static XmltvProgramme BuildXmltvProgram(MxfScheduleEntry scheduleEntry, ILogger logger, string channelId, Setting settings, IEPGHelper ePGHelper, IIconService iconService, string _baseUrl)
     {
         //Setting settings = memoryCache.GetSetting();
         MxfProgram mxfProgram = scheduleEntry.mxfProgram;
 
         string descriptionExtended = settings.SDSettings.XmltvExtendedInfoInTitleDescriptions
-            ? GetDescriptionExtended(mxfProgram, scheduleEntry, settings)
-            :
+                                                  ? GetDescriptionExtended(mxfProgram, scheduleEntry, settings)
+                                                  :
             string.Empty;
 
         if (scheduleEntry.XmltvProgramme != null)
         {
             scheduleEntry.XmltvProgramme.Channel = channelId;
-            //    //scheduleEntry.XmltvProgramme.Descriptions = MxfStringToXmlTextArray((descriptionExtended + mxfProgram.Description).Trim());
-            scheduleEntry.XmltvProgramme.Icons = BuildProgramIcons(mxfProgram, settings, ePGHelper, iconService, _baseUrl);
+            scheduleEntry.XmltvProgramme.Descriptions = MxfStringToXmlTextArray((descriptionExtended + mxfProgram.Description).Trim());
+            scheduleEntry.XmltvProgramme.Icons = BuildProgramIcons(mxfProgram, logger, settings, ePGHelper, iconService, _baseUrl);
             //    //scheduleEntry.XmltvProgramme.StarRating = BuildProgramStarRatings(mxfProgram);
             //    //scheduleEntry.XmltvProgramme.Rating = BuildProgramRatings(scheduleEntry);
             //    //scheduleEntry.XmltvProgramme.StarRating = BuildProgramStarRatings(mxfProgram);
@@ -464,7 +472,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
             Date = BuildProgramDate(mxfProgram),
             Categories = BuildProgramCategories(mxfProgram),
             Language = MxfStringToXmlText(!string.IsNullOrEmpty(mxfProgram.Language) ? mxfProgram.Language[..2] : null),
-            Icons = BuildProgramIcons(mxfProgram, settings, ePGHelper, iconService, _baseUrl),
+            Icons = BuildProgramIcons(mxfProgram, logger, settings, ePGHelper, iconService, _baseUrl),
             Sport = GrabSportEvent(mxfProgram),
             Teams = BuildSportTeams(mxfProgram),
             EpisodeNums = BuildEpisodeNumbers(scheduleEntry),
@@ -790,7 +798,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
     }
 
     // Icons    
-    private static List<XmltvIcon>? BuildProgramIcons(MxfProgram mxfProgram, Setting settings, IEPGHelper ePGHelper, IIconService iconService, string _baseUrl)
+    private static List<XmltvIcon>? BuildProgramIcons(MxfProgram mxfProgram, ILogger logger, Setting settings, IEPGHelper ePGHelper, IIconService iconService, string _baseUrl)
     {
 
         if (settings.SDSettings.XmltvSingleImage || !mxfProgram.extras.ContainsKey("artwork"))
@@ -800,7 +808,9 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
                           mxfProgram.mxfSeason?.mxfGuideImage?.ImageUrl ??
                           mxfProgram.mxfSeriesInfo?.mxfGuideImage?.ImageUrl;
 
-            return url != null ? [new XmltvIcon { Src = GetIconUrl(mxfProgram.EPGNumber, url, settings, ePGHelper, iconService, _baseUrl) }] : null;
+            return url != null ? [new XmltvIcon {
+                Src = GetIconUrl(mxfProgram.EPGNumber,logger, url, settings, ePGHelper, iconService, _baseUrl)
+            }] : null;
         }
 
         // Retrieve artwork from the program, season, or series info
@@ -811,7 +821,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
         // Convert artwork to XmltvIcon list
         return artwork?.Select(image => new XmltvIcon
         {
-            Src = GetIconUrl(mxfProgram.EPGNumber, image.Uri, settings, ePGHelper, iconService, _baseUrl),
+            Src = GetIconUrl(mxfProgram.EPGNumber, logger, image.Uri, settings, ePGHelper, iconService, _baseUrl),
             Height = image.Height,
             Width = image.Width
         }).ToList();

@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
@@ -10,10 +10,11 @@ using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.Services;
 
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Web;
 
 namespace StreamMaster.Infrastructure.Services;
-public class IconService(IMapper mapper, IMemoryCache memoryCache) : IIconService
+public class IconService(IMapper mapper, IMemoryCache memoryCache, ILogger<IconService> logger) : IIconService
 {
     private ConcurrentDictionary<string, IconFileDto> Icons { get; set; } = [];
     private ConcurrentDictionary<string, TvLogoFile> TvLogos { get; set; } = [];
@@ -88,20 +89,22 @@ public class IconService(IMapper mapper, IMemoryCache memoryCache) : IIconServic
         string fileName = "";
         string returnName = "";
 
-        string? fullPath = source.GetSDImageFullPath();
-        if (fullPath != null && File.Exists(fullPath))
+        if (!source.StartsWith("http"))
         {
-            return new ImagePath
+            string? fullPath = source.GetSDImageFullPath();
+            if (fullPath != null && File.Exists(fullPath))
             {
-                ReturnName = Path.GetFileName(fullPath),
-                FullPath = fullPath,
-                SMFileType = SMFileTypes.SDImage
-            };
+                return new ImagePath
+                {
+                    ReturnName = Path.GetFileName(fullPath),
+                    FullPath = fullPath,
+                    SMFileType = SMFileTypes.SDImage
+                };
+            }
         }
 
-        List<TvLogoFile> a = GetTvLogos();
-        TvLogoFile? cache = GetTvLogos().FirstOrDefault(a => a.Source == source);
-        if (cache != null)
+
+        if (TvLogos.TryGetValue(source, out TvLogoFile? cache))
         {
             returnName = cache.Source;
             fileName = FileDefinitions.TVLogo.DirectoryLocation + returnName;
@@ -111,55 +114,23 @@ public class IconService(IMapper mapper, IMemoryCache memoryCache) : IIconServic
                 FullPath = fileName,
                 SMFileType = SMFileTypes.TvLogo
             };
-
         }
 
-        Setting setting = memoryCache.GetSetting();
-
+        Stopwatch sw = Stopwatch.StartNew();
         IconFileDto? icon = GetIconBySource(source);
 
         if (icon is null)
         {
+            sw.Stop();
+            if (sw.ElapsedMilliseconds > 10)
+            {
+                logger.LogInformation($"GetValidImagePath GetIconBySource took {sw.ElapsedMilliseconds}ms");
+            }
             return null;
         }
+
         FileDefinition fd = FileDefinitions.Icon;
 
-        //switch (IPTVFileType)
-        //{
-        //    case SMFileTypes.Icon:
-        //        fd = FileDefinitions.Icon;
-        //        break;
-
-        //    case SMFileTypes.ProgrammeIcon:
-        //        fd = FileDefinitions.ProgrammeIcon;
-        //        break;
-
-        //    case SMFileTypes.M3U:
-        //        break;
-
-        //    case SMFileTypes.EPG:
-        //        break;
-
-        //    case SMFileTypes.HDHR:
-        //        break;
-
-        //    case SMFileTypes.Channel:
-        //        break;
-
-        //    case SMFileTypes.M3UStream:
-        //        break;
-
-        //    case SMFileTypes.Image:
-        //        break;
-
-        //    case SMFileTypes.TvLogo:
-        //        fd = FileDefinitions.TVLogo;
-        //        break;
-
-        //    default:
-        //        fd = FileDefinitions.Icon;
-        //        break;
-        //}
         returnName = $"{icon.Name}.{icon.Extension}";
         fileName = $"{fd.DirectoryLocation}{returnName}";
 
@@ -202,10 +173,10 @@ public class IconService(IMapper mapper, IMemoryCache memoryCache) : IIconServic
 
         DirectoryInfo dirInfo = new(BuildInfo.TVLogoDataFolder);
 
-        TvLogos = new ConcurrentDictionary<string, TvLogoFile>(new List<KeyValuePair<string, TvLogoFile>>
-    {
+        TvLogos = new ConcurrentDictionary<string, TvLogoFile>(
+    [
         new(
-            "Default Icon",
+            BuildInfo.IconDefault,
             new TvLogoFile
             {
                 Id = 0,
@@ -215,7 +186,7 @@ public class IconService(IMapper mapper, IMemoryCache memoryCache) : IIconServic
             }
         ),
         new (
-            "Stream Master",
+            "images/StreamMaster.png",
             new TvLogoFile
             {
                 Id = 1,
@@ -224,13 +195,13 @@ public class IconService(IMapper mapper, IMemoryCache memoryCache) : IIconServic
                 Name = "Stream Master"
             }
         )
-    });
+    ]);
 
         List<TvLogoFile> tvLogoFiles = await FileUtil.GetTVLogosFromDirectory(dirInfo, dirInfo.FullName, TvLogos.Count, cancellationToken).ConfigureAwait(false);
 
         foreach (TvLogoFile tvLogoFile in tvLogoFiles)
         {
-            TvLogos.TryAdd(tvLogoFile.Name, tvLogoFile);
+            TvLogos.TryAdd(tvLogoFile.Source, tvLogoFile);
         }
 
         return true;
