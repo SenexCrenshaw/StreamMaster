@@ -5,6 +5,7 @@ using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Models;
 using StreamMaster.SchedulesDirect.Helpers;
 
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net;
@@ -273,15 +274,18 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
                 List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
 
+                ConcurrentBag<XmltvProgramme> xmltvProgrammes = [];
 
                 Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, options, scheduleEntry =>
                 {
 
                     XmltvProgramme program = BuildXmltvProgram(scheduleEntry, logger, channel.Id, settings, ePGHelper, iconService, _baseUrl);
-                    xmlTv.Programs.Add(program);
+                    xmltvProgrammes.Add(program);
                     ++count;
 
                 });
+
+                xmlTv.Programs.AddRange(xmltvProgrammes);
             };
             sw.Stop();
             logger.LogInformation($"Finsihed processing {count} programs in {sw.ElapsedMilliseconds} ms");
