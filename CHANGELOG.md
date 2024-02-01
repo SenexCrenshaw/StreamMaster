@@ -1,3 +1,10 @@
+# [0.8.0-stream.5](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.4...v0.8.0-stream.5) (2024-02-01)
+
+
+### Features
+
+* Add concurrent processing for XMLTVBuilder ([1a65391](https://github.com/SenexCrenshaw/StreamMaster/commit/1a6539158715e1bcba238ce4ab59314f51afd88c))
+
 # [0.8.0-stream.4](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.3...v0.8.0-stream.4) (2024-02-01)
 
 
