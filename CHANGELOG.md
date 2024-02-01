@@ -1,3 +1,11 @@
+# [0.8.0-stream.6](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.5...v0.8.0-stream.6) (2024-02-01)
+
+
+### Features
+
+* Add NumericStringComparer class ([6b6002b](https://github.com/SenexCrenshaw/StreamMaster/commit/6b6002b2ecc3373b613aa786e91228187ad3073c))
+* Add support for displaying logos in stream group lineup ([afff393](https://github.com/SenexCrenshaw/StreamMaster/commit/afff393b3bd7095a542de50eb6900bf89e383465))
+
 # [0.8.0-stream.5](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.4...v0.8.0-stream.5) (2024-02-01)
 
 
