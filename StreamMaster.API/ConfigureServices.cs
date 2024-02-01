@@ -36,7 +36,7 @@ namespace StreamMaster.API;
 
 public static class ConfigureServices
 {
-    public static IServiceCollection AddWebUIServices(this IServiceCollection services)
+    public static IServiceCollection AddWebUIServices(this IServiceCollection services, WebApplicationBuilder builder)
     {
         // Register SMLoggerProvider with DI
         services.AddSingleton<ILoggerProvider, SMLoggerProvider>(provider =>
@@ -65,13 +65,13 @@ public static class ConfigureServices
         //    });
 
         //});
-
         // Add logging configuration
         services.AddLogging(loggingBuilder =>
         {
             loggingBuilder.AddFilter("StreamMaster.Domain.Logging.CustomLogger", LogLevel.Information);
             loggingBuilder.AddConsole();
             loggingBuilder.AddDebug();
+            loggingBuilder.AddConfiguration(builder.Configuration.GetSection("Logging"));
             loggingBuilder.AddProvider(new StatsLoggerProvider());
 
             // Add specific filters for StatsLoggerProvider

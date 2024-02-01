@@ -66,7 +66,13 @@ public static class BuildInfo
     public static readonly string M3UFolder = $"{PlayListFolder}M3U{Path.DirectorySeparatorChar}";
 
     public static readonly string SettingFileName = "settings.json";
+
+    public static readonly string LoggingFileName = "logsettings.json";
     public static readonly string SettingFile = $"{AppDataFolder}{SettingFileName}";
+
+
+    public static readonly string LoggingFile = File.Exists(Path.Combine(AppDataFolder, LoggingFileName)) ? Path.Combine(AppDataFolder, LoggingFileName) : LoggingFileName;
+
     public static readonly string IconDefault = "images/default.png";
     public static readonly string FFMPEGDefaultOptions = "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1";
 
