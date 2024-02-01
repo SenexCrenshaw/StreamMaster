@@ -1,3 +1,10 @@
+# [0.8.0-stream.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.1...v0.8.0-stream.2) (2024-02-01)
+
+
+### Features
+
+* Normalize version format in updateAssemblyInfo.js ([4a64455](https://github.com/SenexCrenshaw/StreamMaster/commit/4a644553c1ddc37810ace606e717cc246f4d4e2d))
+
 # [0.8.0-stream.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.7.1...v0.8.0-stream.1) (2024-02-01)
 
 
