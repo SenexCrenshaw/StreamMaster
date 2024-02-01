@@ -1,33 +1,36 @@
 function Get-AssemblyInfo {
     [CmdletBinding()]
     Param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$assemblyInfoPath
     )
 
     if (Test-Path $assemblyInfoPath) {
         $content = Get-Content $assemblyInfoPath -Raw
 
-        # Adjusted regex pattern to capture version, optional branch, and build/revision number
-        $assemblyVersionPattern = '\[assembly: AssemblyVersion\("(\d+\.\d+\.\d+)(?:-([^\.\"]+))?(?:\.(\d+))?"\)\]'
+        # Adjusted regex pattern to capture version, branch, build/revision number, and SHA
+        $assemblyInformationalVersionPattern = '\[assembly: AssemblyInformationalVersion\("(\d+\.\d+\.\d+)-([^.]+)\.(\d+)\.Sha\.([a-fA-F0-9]+)"\)\]'
 
-        $assemblyVersionMatch = [regex]::Match($content, $assemblyVersionPattern)
+        $assemblyInformationalVersionMatch = [regex]::Match($content, $assemblyInformationalVersionPattern)
 
-        if ($assemblyVersionMatch.Success) {
-            $version = $assemblyVersionMatch.Groups[1].Value
-            $branch = $assemblyVersionMatch.Groups[2].Success ? $assemblyVersionMatch.Groups[2].Value : "N/A"
-            $buildOrRevision = $assemblyVersionMatch.Groups[3].Success ? $assemblyVersionMatch.Groups[3].Value : "N/A"
+        if ($assemblyInformationalVersionMatch.Success) {
+            $version = $assemblyInformationalVersionMatch.Groups[1].Value
+            $branch = $assemblyInformationalVersionMatch.Groups[2].Value
+            $buildOrRevision = $assemblyInformationalVersionMatch.Groups[3].Value
+            $sha = $assemblyInformationalVersionMatch.Groups[4].Value
 
             [PSCustomObject]@{
-                Version = $version
-                Branch = $branch
+                Version         = $version
+                Branch          = $branch
                 BuildOrRevision = $buildOrRevision
+                Sha             = $sha
             }
         }
         else {
             Write-Warning "Version information not found in the file."
         }
-    } else {
+    }
+    else {
         Write-Error "File $assemblyInfoPath not found."
     }
 }
