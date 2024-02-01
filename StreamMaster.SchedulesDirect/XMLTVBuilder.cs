@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 
 using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Comparer;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Models;
 using StreamMaster.SchedulesDirect.Helpers;
@@ -147,7 +148,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
             {
                 DoPrograms(toProcess, programs.Count, xmlTv);
 
-                xmlTv.Channels = [.. xmlTv.Channels.OrderBy(a => a.Id)];
+                xmlTv.Channels = [.. xmlTv.Channels.OrderBy(a => a.Id, new NumericStringComparer())];
                 xmlTv.Programs = [.. xmlTv.Programs.OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime)];
 
             }
@@ -217,7 +218,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
             DoPrograms(services, programs.Count, xmlTv);
 
-            xmlTv.Channels = [.. xmlTv.Channels.OrderBy(a => a.Id)];
+            xmlTv.Channels = [.. xmlTv.Channels.OrderBy(a => a.Id, new NumericStringComparer())];
             xmlTv.Programs = [.. xmlTv.Programs.Where(a => a is not null).OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime)];
 
 
