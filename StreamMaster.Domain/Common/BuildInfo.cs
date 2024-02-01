@@ -9,6 +9,17 @@ public static class BuildInfo
         Assembly? assembly = Assembly.GetEntryAssembly();
 
         Version = assembly.GetName().Version;
+        //    string informationalVersion = assembly
+        //.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
+        //.OfType<AssemblyInformationalVersionAttribute>()
+        //.FirstOrDefault()
+        //?.InformationalVersion;
+
+        //    string productVersion = assembly
+        //        .GetCustomAttributes(typeof(AssemblyProductAttribute), false)
+        //        .OfType<AssemblyProductAttribute>()
+        //        .FirstOrDefault()
+        //        ?.Product;
 
         object[] attributes = assembly.GetCustomAttributes(true);
 
@@ -21,17 +32,8 @@ public static class BuildInfo
         AssemblyInformationalVersionAttribute? informationalVersion = attributes.OfType<AssemblyInformationalVersionAttribute>().FirstOrDefault();
         if (informationalVersion is not null)
         {
-            string[] parts = informationalVersion.InformationalVersion.ToString().Split('+');
 
-            if (parts.Length == 2)
-            {
-                string release = parts[1];
-                if (release.Contains("."))
-                {
-                    release = release[..release.IndexOf(".")];
-                }
-                Release = $"{parts[0]}-{release}";
-            }
+            Release = informationalVersion.InformationalVersion[..(informationalVersion.InformationalVersion.IndexOf("Sha") - 1)];
         }
     }
 
