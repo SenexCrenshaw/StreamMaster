@@ -1,4 +1,7 @@
-﻿using StreamMaster.Domain.Common;
+﻿using Microsoft.Extensions.Caching.Memory;
+
+using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Logging;
 using StreamMaster.SchedulesDirect.Data;
 
 using System.Globalization;
@@ -6,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.SchedulesDirect.Converters;
 
-public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ILogger<EPGImportLogger> _epgImportLogger, ISchedulesDirectDataService schedulesDirectDataService) : IXmltv2Mxf
+public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IEPGHelper ePGHelper, IMemoryCache memoryCache, IIconService iconService, ILogger<EPGImportLogger> _epgImportLogger, ISchedulesDirectDataService schedulesDirectDataService) : IXmltv2Mxf
 {
     private ISchedulesDirectData schedulesDirectData;
 
@@ -22,6 +25,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ILogger<EPGImportLogger> _epgI
         public int NumberOfParts;
     }
 
+    [LogExecutionTimeAspect]
     public XMLTV? ConvertToMxf(string filePath, int EPGNumber)
     {
         XMLTV? xmlTv = FileUtil.ReadXmlFile(filePath);
@@ -30,10 +34,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ILogger<EPGImportLogger> _epgI
 
     private XMLTV? ConvertToMxf(XMLTV xmlTv, int EPGNumber)
     {
-        schedulesDirectDataService.Reset(EPGNumber);
-
-        schedulesDirectData = schedulesDirectDataService.GetEPGData(EPGNumber);
-
+        schedulesDirectData = new SchedulesDirectData(logger, _epgImportLogger, ePGHelper, memoryCache, EPGNumber);
         if (
             !BuildLineupAndChannelServices(xmlTv) ||
             !BuildScheduleEntries(xmlTv)
@@ -43,6 +44,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ILogger<EPGImportLogger> _epgI
         }
 
         BuildKeywords();
+        schedulesDirectDataService.Set(EPGNumber, schedulesDirectData);
         return xmlTv;
     }
 
@@ -123,6 +125,8 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ILogger<EPGImportLogger> _epgI
 
     private bool BuildScheduleEntries(XMLTV xmlTv)
     {
+        Setting settings = memoryCache.GetSetting();
+
         logger.LogInformation("Building schedule entries and programs.");
         foreach (XmltvProgramme program in xmlTv.Programs)
         {
@@ -272,37 +276,83 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ILogger<EPGImportLogger> _epgI
             }
 
             DateTime dtStart = DateTime.ParseExact(program.Start, "yyyyMMddHHmmss zzz", CultureInfo.InvariantCulture).ToUniversalTime();
-            mxfService.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
+            int Duration = (int)(DateTime.ParseExact(program.Stop, "yyyyMMddHHmmss zzz", CultureInfo.InvariantCulture).ToUniversalTime() - dtStart).TotalSeconds;
+
+            program.Start = $"{dtStart:yyyyMMddHHmmss} +0000";
+            program.Stop = $"{dtStart + TimeSpan.FromSeconds(Duration):yyyyMMddHHmmss} +0000";
+
+            string channelId = mxfService.CallSign;
+            if (settings.M3UUseChnoForId)
+            {
+                channelId = mxfService.ChNo.ToString();
+            }
+
+            MxfScheduleEntry scheduleEntry = new()
             {
                 mxfProgram = mxfProgram,
-
                 StartTime = dtStart,
-                Duration = (int)(DateTime.ParseExact(program.Stop, "yyyyMMddHHmmss zzz", CultureInfo.InvariantCulture).ToUniversalTime() - dtStart).TotalSeconds,
-                IsCc = program.SubTitles2?.Any(arg => arg.Type.Equals("teletext", StringComparison.OrdinalIgnoreCase)) ?? false,
-                IsSigned = program.SubTitles2?.Any(arg => arg.Type.Equals("deaf-signed", StringComparison.OrdinalIgnoreCase)) ?? false,
-                AudioFormat = DetermineAudioFormat(program),
-                IsLive = program.Live != null,
-                IsLiveSports = program.Live != null && mxfProgram.IsSports,
-                //IsTape = NOT PART OF XMLTV
-                //IsDelay = NOT PART OF XMLTV
-                IsSubtitled = program.SubTitles2?.Any(arg => arg.Type.Equals("onscreen", StringComparison.OrdinalIgnoreCase)) ?? false,
-                IsPremiere = program.Premiere != null,
-                //IsFinale = NOT PART OF XMLTV
-                //IsInProgress = NOT PART OF XMLTV
-                //IsSap = NOT PART OF XMLTV
-                //IsBlackout = NOT PART OF XMLTV
-                //IsEnhanced = NOT PART OF XMLTV
-                //Is3D = NOT PART OF XMLTV
-                //IsLetterbox = NOT PART OF XMLTV
-                IsHdtv = program.Video?.Quality?.ToLower().Contains("hd") ?? false,
-                //IsHdtvSimulcast = NOT PART OF XMLTV
-                //IsDvs = NOT PART OF XMLTV
-                Part = info.NumberOfParts > 1 ? info.PartNumber : 0,
-                Parts = info.NumberOfParts > 1 ? info.NumberOfParts : 0,
-                TvRating = DetermineTvRatings(program),
-                //IsClassroom = NOT PART OF XMLTV
-                IsRepeat = !mxfProgram.IsMovie && program.PreviouslyShown != null
-            });
+                Duration = Duration,
+                XmltvProgramme = program
+                //Duration = (int)(DateTime.ParseExact(program.Stop, "yyyyMMddHHmmss zzz", CultureInfo.InvariantCulture).ToUniversalTime() - dtStart).TotalSeconds,
+                //IsCc = program.SubTitles2?.Any(arg => arg.Type.Equals("teletext", StringComparison.OrdinalIgnoreCase)) ?? false,
+                //IsSigned = program.SubTitles2?.Any(arg => arg.Type.Equals("deaf-signed", StringComparison.OrdinalIgnoreCase)) ?? false,
+                //AudioFormat = DetermineAudioFormat(program),
+                //IsLive = program.Live != null,
+                //IsLiveSports = program.Live != null && mxfProgram.IsSports,
+                ////IsTape = NOT PART OF XMLTV
+                ////IsDelay = NOT PART OF XMLTV
+                //IsSubtitled = program.SubTitles2?.Any(arg => arg.Type.Equals("onscreen", StringComparison.OrdinalIgnoreCase)) ?? false,
+                //IsPremiere = program.Premiere != null,
+                ////IsFinale = NOT PART OF XMLTV
+                ////IsInProgress = NOT PART OF XMLTV
+                ////IsSap = NOT PART OF XMLTV
+                ////IsBlackout = NOT PART OF XMLTV
+                ////IsEnhanced = NOT PART OF XMLTV
+                ////Is3D = NOT PART OF XMLTV
+                ////IsLetterbox = NOT PART OF XMLTV
+                //IsHdtv = program.Video?.Quality?.ToLower().Contains("hd") ?? false,
+                ////IsHdtvSimulcast = NOT PART OF XMLTV
+                ////IsDvs = NOT PART OF XMLTV
+                //Part = info.NumberOfParts > 1 ? info.PartNumber : 0,
+                //Parts = info.NumberOfParts > 1 ? info.NumberOfParts : 0,
+                //TvRating = DetermineTvRatings(program),
+                ////IsClassroom = NOT PART OF XMLTV
+                //IsRepeat = !mxfProgram.IsMovie && program.PreviouslyShown != null,
+
+            };
+            mxfService.MxfScheduleEntries.ScheduleEntry.Add(scheduleEntry);
+            //mxfService.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
+            //{
+            //    // XmltvProgramme = program,
+            //    mxfProgram = mxfProgram,
+
+            //    StartTime = dtStart,
+            //    Duration = (int)(DateTime.ParseExact(program.Stop, "yyyyMMddHHmmss zzz", CultureInfo.InvariantCulture).ToUniversalTime() - dtStart).TotalSeconds,
+            //    IsCc = program.SubTitles2?.Any(arg => arg.Type.Equals("teletext", StringComparison.OrdinalIgnoreCase)) ?? false,
+            //    IsSigned = program.SubTitles2?.Any(arg => arg.Type.Equals("deaf-signed", StringComparison.OrdinalIgnoreCase)) ?? false,
+            //    AudioFormat = DetermineAudioFormat(program),
+            //    IsLive = program.Live != null,
+            //    IsLiveSports = program.Live != null && mxfProgram.IsSports,
+            //    //IsTape = NOT PART OF XMLTV
+            //    //IsDelay = NOT PART OF XMLTV
+            //    IsSubtitled = program.SubTitles2?.Any(arg => arg.Type.Equals("onscreen", StringComparison.OrdinalIgnoreCase)) ?? false,
+            //    IsPremiere = program.Premiere != null,
+            //    //IsFinale = NOT PART OF XMLTV
+            //    //IsInProgress = NOT PART OF XMLTV
+            //    //IsSap = NOT PART OF XMLTV
+            //    //IsBlackout = NOT PART OF XMLTV
+            //    //IsEnhanced = NOT PART OF XMLTV
+            //    //Is3D = NOT PART OF XMLTV
+            //    //IsLetterbox = NOT PART OF XMLTV
+            //    IsHdtv = program.Video?.Quality?.ToLower().Contains("hd") ?? false,
+            //    //IsHdtvSimulcast = NOT PART OF XMLTV
+            //    //IsDvs = NOT PART OF XMLTV
+            //    Part = info.NumberOfParts > 1 ? info.PartNumber : 0,
+            //    Parts = info.NumberOfParts > 1 ? info.NumberOfParts : 0,
+            //    TvRating = DetermineTvRatings(program),
+            //    //IsClassroom = NOT PART OF XMLTV
+            //    IsRepeat = !mxfProgram.IsMovie && program.PreviouslyShown != null
+            //});
         }
         return true;
     }
@@ -653,23 +703,21 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ILogger<EPGImportLogger> _epgI
         }
 
         XmltvIcon? posters = xmltvProgramme.Icons.FirstOrDefault(arg => arg.Width / (double)arg.Height < 0.7);
-        if (posters != null)
-        {
-            mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(posters.Src);
+        mxfProgram.mxfGuideImage = posters != null
+            ? schedulesDirectData.FindOrCreateGuideImage(posters.Src)
+            : schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
 
-            return;
-        }
-
-        mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
 
         List<ProgramArtwork> artworks = xmltvProgramme.Icons.Select(arg => new ProgramArtwork
         {
-            Uri = arg.Src
+            Uri = arg.Src,
+            Width = arg.Width,
+            Height = arg.Height
         }).ToList();
 
         mxfProgram.extras.AddOrUpdate("artwork", artworks);
 
-        mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
+        //mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
     }
 
     private bool BuildKeywords()

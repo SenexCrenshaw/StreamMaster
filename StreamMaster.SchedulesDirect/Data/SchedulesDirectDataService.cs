@@ -22,6 +22,12 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, ILo
         }
 
     }
+
+    public void Set(int EPGNumber, ISchedulesDirectData schedulesDirectData)
+    {
+        SchedulesDirectDatas.AddOrUpdate(EPGNumber, schedulesDirectData, (key, oldValue) => schedulesDirectData);
+    }
+
     public List<MxfService> AllServices
     {
         get

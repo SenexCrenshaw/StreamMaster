@@ -151,8 +151,6 @@ namespace StreamMaster.SchedulesDirect.Domain.XmltvXml
         [XmlElement("live")]
         public string? Live { get; set; }
 
-
-
         [XmlElement("rating")]
         public List<XmltvRating>? Rating { get; set; }
 

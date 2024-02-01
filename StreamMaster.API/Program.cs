@@ -74,6 +74,7 @@ builder.Services.AddSchedulesDirectAPIServices();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureEFServices();
 builder.Services.AddInfrastructureServices();
+builder.Services.AddInfrastructureServicesEx();
 builder.Services.AddStreamsServices();
 builder.Services.AddWebUIServices(builder);
 

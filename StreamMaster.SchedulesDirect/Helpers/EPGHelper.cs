@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 
-using StreamMaster.Domain.Services;
-
 using System.Text.RegularExpressions;
 
 namespace StreamMaster.SchedulesDirect.Helpers;
@@ -19,19 +17,16 @@ public class EPGHelper(IMemoryCache memoryCache) : IEPGHelper
             throw new ArgumentException("Input string cannot be null or whitespace.");
         }
 
-        var matches = Regex.Matches(epgId, EPGMatch);
+        MatchCollection matches = Regex.Matches(epgId, EPGMatch);
 
         if (matches.Count == 0 || !matches[0].Success || matches[0].Groups.Count != 3)
         {
             throw new FormatException("Input string is not in the expected format.");
         }
 
-        if (!int.TryParse(matches[0].Groups[1].Value, out var epgNumber))
-        {
-            throw new FormatException("Input string is not in the expected format.");
-        }
-
-        return (epgNumber, matches[0].Groups[2].Value);
+        return !int.TryParse(matches[0].Groups[1].Value, out int epgNumber)
+            ? throw new FormatException("Input string is not in the expected format.")
+            : ((int epgNumber, string stationId))(epgNumber, matches[0].Groups[2].Value);
     }
 
     public bool IsDummy(string? user_tvg_id)
@@ -46,15 +41,9 @@ public class EPGHelper(IMemoryCache memoryCache) : IEPGHelper
             return true;
         }
 
-        var setting = memoryCache.GetSetting();
+        StreamMaster.Domain.Common.Setting setting = memoryCache.GetSetting();
 
-        if (Regex.IsMatch(user_tvg_id, setting.DummyRegex, RegexOptions.IgnoreCase))
-        {
-            return true;
-        }
-
-        return !IsValidEPGId(user_tvg_id);
-
+        return Regex.IsMatch(user_tvg_id, setting.DummyRegex, RegexOptions.IgnoreCase) || !IsValidEPGId(user_tvg_id);
     }
 
     public bool IsDummy(int epgNumber)
@@ -69,7 +58,7 @@ public class EPGHelper(IMemoryCache memoryCache) : IEPGHelper
 
     public bool IsValidEPGId(string epgId)
     {
-        var matches = Regex.Matches(epgId, EPGMatch);
+        MatchCollection matches = Regex.Matches(epgId, EPGMatch);
         return matches.Count > 0;
     }
 

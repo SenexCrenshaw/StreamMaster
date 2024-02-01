@@ -5,6 +5,7 @@ using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Models;
 using StreamMaster.SchedulesDirect.Helpers;
 
+using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 
@@ -13,12 +14,20 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 {
     private string _baseUrl = "";
     //private ISchedulesDirectDataService schedulesDirectDataService;
-    private readonly Dictionary<int, MxfSeriesInfo> seriesDict = [];
-    private Dictionary<string, string> keywordDict = [];
+    private static Dictionary<int, MxfSeriesInfo> seriesDict = [];
+    private static Dictionary<string, string> keywordDict = [];
 
+    private static readonly string[] tvRatings = [ "", "TV-Y", "TV-Y7", "TV-G", "TV-PG", "TV-14", "TV-MA",
+                "", "Kinder bis 12 Jahren", "Freigabe ab 12 Jahren", "Freigabe ab 16 Jahren", "Keine Jugendfreigabe",
+                "", "Déconseillé aux moins de 10 ans", "Déconseillé aux moins de 12 ans", "Déconseillé aux moins de 16 ans", "Déconseillé aux moins de 18 ans",
+                "모든 연령 시청가", "7세 이상 시청가", "12세 이상 시청가", "15세 이상 시청가", "19세 이상 시청가",
+                "SKY-UC", "SKY-U", "SKY-PG", "SKY-12", "SKY-15", "SKY-18", "SKY-R18" ];
+
+    private static readonly string[] mpaaRatings = ["", "G", "PG", "PG-13", "R", "NC-17", "X", "NR", "AO"];
 
     public XMLTV? CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs)
     {
+        seriesDict = [];
         _baseUrl = baseUrl;
         try
         {
@@ -39,18 +48,21 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
             int newServiceCount = 0;
 
             // Pre-process all keywords into a HashSet for faster lookup
-            keywordDict = schedulesDirectDataService.AllKeywords
-     .Where(k => !string.Equals(k.Word, "Uncategorized", StringComparison.OrdinalIgnoreCase) &&
-                 !k.Word.Contains("premiere", StringComparison.OrdinalIgnoreCase))
-     .GroupBy(k => k.Id)
-     .ToDictionary(
-         g => g.Key,
-         g =>
-         {
-             string word = g.First().Word;
-             return string.Equals(word, "Movies", StringComparison.OrdinalIgnoreCase) ? "Movie" : word;
-         }
-     );
+            if (keywordDict.Count == 0)
+            {
+                keywordDict = schedulesDirectDataService.AllKeywords
+         .Where(k => !string.Equals(k.Word, "Uncategorized", StringComparison.OrdinalIgnoreCase) &&
+                     !k.Word.Contains("premiere", StringComparison.OrdinalIgnoreCase))
+                     .GroupBy(k => k.Id)
+                     .ToDictionary(
+                         g => g.Key,
+                         g =>
+                         {
+                             string word = g.First().Word;
+                             return string.Equals(word, "Movies", StringComparison.OrdinalIgnoreCase) ? "Movie" : word;
+                         }
+                     );
+            }
             foreach (MxfSeriesInfo seriesInfo in schedulesDirectDataService.AllSeriesInfos)
             {
                 if (seriesDict.ContainsKey(seriesInfo.Index))
@@ -65,8 +77,8 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
             List<MxfService> services = schedulesDirectDataService.AllServices;
 
-            ConcurrentHashSet<int> chNos = [];
-            ConcurrentHashSet<int> existingChNos = new(videoStreamConfigs.Select(a => a.User_Tvg_chno).Distinct());
+            List<int> chNos = [];
+            List<int> existingChNos = new(videoStreamConfigs.Select(a => a.User_Tvg_chno).Distinct());
 
 
             foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs.OrderBy(a => a.User_Tvg_chno))
@@ -201,13 +213,12 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
                 if (seriesDict.ContainsKey(seriesInfo.Index))
                 {
                     MxfSeriesInfo a = seriesDict[seriesInfo.Index];
-                    // Handle the duplicate key scenario, e.g., log it or throw an exception
-                    // LogWarning($"Duplicate series index found: {seriesInfo.Index}");
+
                     continue;
                 }
                 seriesDict.Add(seriesInfo.Index, seriesInfo);
             }
-            Func<ISchedulesDirectData> data = schedulesDirectDataService.SchedulesDirectData;
+            //Func<ISchedulesDirectData> data = schedulesDirectDataService.SchedulesDirectData;
 
             List<MxfService> services = schedulesDirectDataService.GetAllSDServices;
 
@@ -236,7 +247,9 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
         try
         {
+            int count = 0;
             //Parallel.ForEach(services, service =>
+            Stopwatch sw = Stopwatch.StartNew();
             foreach (MxfService service in services)
             {
                 XmltvChannel channel = BuildXmltvChannel(service);
@@ -273,11 +286,19 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
                 Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, options, scheduleEntry =>
                 {
-                    XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channel.Id);
+
+                    XmltvProgramme program = BuildXmltvProgram(scheduleEntry, logger, channel.Id, settings, ePGHelper, iconService, _baseUrl);
                     xmlTv.Programs.Add(program);
+                    ++count;
+                    if (count % 1000 == 0)
+                    {
+                        sw.Stop();
+                        logger.LogInformation($"Processed {count} programs in {sw.ElapsedMilliseconds} ms");
+                        sw.Restart();
+                    }
                 });
             };
-
+            logger.LogInformation($"Finsihed processing {count} programs");
         }
         catch (Exception ex)
         {
@@ -286,7 +307,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
     }
 
 
-    private string GetIconUrl(int EPGNumber, string iconOriginalSource, SMFileTypes? sMFileTypes = null)
+    private static string GetIconUrl(int EPGNumber, ILogger logger, string iconOriginalSource, Setting settings, IEPGHelper ePGHelper, IIconService iconService, string _baseUrl, SMFileTypes? sMFileTypes = null)
     {
         if (ePGHelper.IsDummy(EPGNumber))
         {
@@ -295,14 +316,10 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
         if (ePGHelper.IsSchedulesDirect(EPGNumber))
         {
-            return iconOriginalSource.StartsWith("http") ? iconOriginalSource : GetApiUrl(sMFileTypes ?? SMFileTypes.SDImage, iconOriginalSource);
+            return iconOriginalSource.StartsWith("http") ? iconOriginalSource : GetApiUrl(sMFileTypes ?? SMFileTypes.SDImage, iconOriginalSource, _baseUrl);
         }
 
-        ImagePath? imagePath = iconService.GetValidImagePath(iconOriginalSource);
-
-
-
-        Setting settings = memoryCache.GetSetting();
+        //Setting settings = memoryCache.GetSetting();
 
         if (string.IsNullOrEmpty(iconOriginalSource))
         {
@@ -319,6 +336,8 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
         SMFileTypes? smtype = sMFileTypes;
         if (smtype == null)
         {
+            ImagePath? imagePath = iconService.GetValidImagePath(iconOriginalSource);
+
             if (imagePath != null)
             {
                 smtype = imagePath.SMFileType;
@@ -327,17 +346,15 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
         }
         smtype ??= SMFileTypes.Icon;
 
-        string icon = settings.CacheIcons ? GetApiUrl((SMFileTypes)smtype, originalUrl) : iconOriginalSource;
+        string icon = settings.CacheIcons ? GetApiUrl((SMFileTypes)smtype, originalUrl, _baseUrl) : iconOriginalSource;
 
         return icon;
     }
 
-    private string GetApiUrl(SMFileTypes path, string source)
+    private static string GetApiUrl(SMFileTypes path, string source, string _baseUrl)
     {
         return $"{_baseUrl}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
     }
-
-
 
     #region ========== XMLTV Channels and Functions ==========
     private XmltvChannel BuildXmltvChannel(MxfService mxfService)
@@ -366,7 +383,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
         // add channel number if requested
         if (settings.SDSettings.XmltvIncludeChannelNumbers)
         {
-            ConcurrentHashSet<string> numbers = [];
+            List<string> numbers = [];
 
             foreach (MxfLineup mxfLineup in schedulesDirectDataService.AllLineups)
             {
@@ -378,11 +395,12 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
                     }
 
                     string num = $"{mxfChannel.Number}" + (mxfChannel.SubNumber > 0 ? $".{mxfChannel.SubNumber}" : "");
-                    if (!numbers.Add(num))
+
+                    if (numbers.Contains(num))
                     {
                         continue;
                     }
-
+                    numbers.Add(num);
                     ret.DisplayNames.Add(new XmltvText { Text = num + " " + mxfService.CallSign });
                     ret.DisplayNames.Add(new XmltvText { Text = num });
                 }
@@ -403,7 +421,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
             ret.Icons =
                 [
                     new() {
-                        Src = GetIconUrl(mxfService.EPGNumber, mxfService.extras["logo"].Url),
+                        Src = GetIconUrl(mxfService.EPGNumber, logger, mxfService.extras["logo"].Url,settings,ePGHelper,iconService,_baseUrl),
                         Height = mxfService.extras["logo"].Height,
                         Width = mxfService.extras["logo"].Width
                     }
@@ -417,45 +435,128 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
     #region ========== XMLTV Programmes and Functions ==========
 
     //[LogExecutionTimeAspect]
-    private XmltvProgramme BuildXmltvProgram(MxfScheduleEntry scheduleEntry, string channelId)
+    public static XmltvProgramme BuildXmltvProgram(MxfScheduleEntry scheduleEntry, ILogger logger, string channelId, Setting settings, IEPGHelper ePGHelper, IIconService iconService, string _baseUrl)
     {
-        Setting settings = memoryCache.GetSetting();
+        //Setting settings = memoryCache.GetSetting();
         MxfProgram mxfProgram = scheduleEntry.mxfProgram;
-        string descriptionExtended = string.Empty;
-        if (!settings.SDSettings.XmltvExtendedInfoInTitleDescriptions || mxfProgram.IsPaidProgramming)
-        {
-            //List<string> svcs = schedulesDirectData.Services.Select(a => a.StationId).ToList();
-            //MxfService? svc = schedulesDirectData.GetService(channelId);
-            return new XmltvProgramme()
-            {
-                // added +0000 for NPVR; otherwise it would assume local time instead of UTC
-                Start = $"{scheduleEntry.StartTime:yyyyMMddHHmmss} +0000",
-                Stop = $"{scheduleEntry.StartTime + TimeSpan.FromSeconds(scheduleEntry.Duration):yyyyMMddHHmmss} +0000",
-                Channel = channelId,
 
-                Titles = MxfStringToXmlTextArray(mxfProgram.Title),
-                SubTitles = MxfStringToXmlTextArray(mxfProgram.EpisodeTitle),
-                Descriptions = MxfStringToXmlTextArray((descriptionExtended + mxfProgram.Description).Trim()),
-                Credits = BuildProgramCredits(mxfProgram),
-                Date = BuildProgramDate(mxfProgram),
-                Categories = BuildProgramCategories(mxfProgram),
-                Language = MxfStringToXmlText(!string.IsNullOrEmpty(mxfProgram.Language) ? mxfProgram.Language[..2] : null),
-                Icons = BuildProgramIcons(mxfProgram),
-                Sport = GrabSportEvent(mxfProgram),
-                Teams = BuildSportTeams(mxfProgram),
-                EpisodeNums = BuildEpisodeNumbers(scheduleEntry),
-                Video = BuildProgramVideo(scheduleEntry),
-                Audio = BuildProgramAudio(scheduleEntry),
-                PreviouslyShown = BuildProgramPreviouslyShown(scheduleEntry),
-                Premiere = BuildProgramPremiere(scheduleEntry),
-                Live = BuildLiveFlag(scheduleEntry),
-                New = !scheduleEntry.IsRepeat ? string.Empty : null,
-                SubTitles2 = BuildProgramSubtitles(scheduleEntry),
-                Rating = BuildProgramRatings(scheduleEntry),
-                StarRating = BuildProgramStarRatings(mxfProgram)
-            };
+        string descriptionExtended = settings.SDSettings.XmltvExtendedInfoInTitleDescriptions
+                                                  ? GetDescriptionExtended(mxfProgram, scheduleEntry, settings)
+                                                  :
+            string.Empty;
+
+        if (scheduleEntry.XmltvProgramme != null)
+        {
+            scheduleEntry.XmltvProgramme.Channel = channelId;
+            scheduleEntry.XmltvProgramme.Descriptions = MxfStringToXmlTextArray((descriptionExtended + mxfProgram.Description).Trim());
+            scheduleEntry.XmltvProgramme.Icons = BuildProgramIcons(mxfProgram, logger, settings, ePGHelper, iconService, _baseUrl);
+            //scheduleEntry.XmltvProgramme.Categories = BuildProgramCategories(mxfProgram);
+            //    //scheduleEntry.XmltvProgramme.StarRating = BuildProgramStarRatings(mxfProgram);
+            //    //scheduleEntry.XmltvProgramme.Rating = BuildProgramRatings(scheduleEntry);
+            //    //scheduleEntry.XmltvProgramme.StarRating = BuildProgramStarRatings(mxfProgram);
+            //    //return scheduleEntry.XmltvProgramme;
+            return scheduleEntry.XmltvProgramme;
         }
 
+        XmltvProgramme ret = new()
+        {
+
+
+            Start = $"{scheduleEntry.StartTime:yyyyMMddHHmmss} +0000",
+            Stop = $"{scheduleEntry.StartTime + TimeSpan.FromSeconds(scheduleEntry.Duration):yyyyMMddHHmmss} +0000",
+            Channel = channelId,
+
+            Titles = MxfStringToXmlTextArray(mxfProgram.Title),
+            SubTitles = MxfStringToXmlTextArray(mxfProgram.EpisodeTitle),
+            Descriptions = MxfStringToXmlTextArray((descriptionExtended + mxfProgram.Description).Trim()),
+            Credits = BuildProgramCredits(mxfProgram),
+            Date = BuildProgramDate(mxfProgram),
+            Categories = BuildProgramCategories(mxfProgram),
+            Language = MxfStringToXmlText(!string.IsNullOrEmpty(mxfProgram.Language) ? mxfProgram.Language[..2] : null),
+            Icons = BuildProgramIcons(mxfProgram, logger, settings, ePGHelper, iconService, _baseUrl),
+            Sport = GrabSportEvent(mxfProgram),
+            Teams = BuildSportTeams(mxfProgram),
+            EpisodeNums = BuildEpisodeNumbers(scheduleEntry),
+            Video = BuildProgramVideo(scheduleEntry),
+            Audio = BuildProgramAudio(scheduleEntry),
+            PreviouslyShown = BuildProgramPreviouslyShown(scheduleEntry),
+            Premiere = BuildProgramPremiere(scheduleEntry),
+            Live = BuildLiveFlag(scheduleEntry),
+            New = !scheduleEntry.IsRepeat ? string.Empty : null,
+            SubTitles2 = BuildProgramSubtitles(scheduleEntry),
+            Rating = BuildProgramRatings(scheduleEntry),
+            StarRating = BuildProgramStarRatings(mxfProgram)
+        };
+        return ret;
+
+        //return new XmltvProgramme()
+        //{
+        //    // added +0000 for NPVR; otherwise it would assume local time instead of UTC
+        //    Start = $"{scheduleEntry.StartTime:yyyyMMddHHmmss} +0000",
+        //    Stop = $"{scheduleEntry.StartTime + TimeSpan.FromSeconds(scheduleEntry.Duration):yyyyMMddHHmmss} +0000",
+        //    Channel = channelId,
+
+        //    Titles = MxfStringToXmlTextArray(mxfProgram.Title),
+        //    SubTitles = MxfStringToXmlTextArray(mxfProgram.EpisodeTitle),
+        //    Descriptions = MxfStringToXmlTextArray((descriptionExtended + mxfProgram.Description).Trim()),
+        //    Credits = BuildProgramCredits(mxfProgram),
+        //    Date = BuildProgramDate(mxfProgram),
+        //    Categories = BuildProgramCategories(mxfProgram),
+        //    Language = MxfStringToXmlText(!string.IsNullOrEmpty(mxfProgram.Language) ? mxfProgram.Language[..2] : null),
+        //    Icons = BuildProgramIcons(mxfProgram),
+        //    Sport = GrabSportEvent(mxfProgram),
+        //    Teams = BuildSportTeams(mxfProgram),
+        //    EpisodeNums = BuildEpisodeNumbers(scheduleEntry),
+        //    Video = BuildProgramVideo(scheduleEntry),
+        //    Audio = BuildProgramAudio(scheduleEntry),
+        //    PreviouslyShown = BuildProgramPreviouslyShown(scheduleEntry),
+        //    Premiere = BuildProgramPremiere(scheduleEntry),
+        //    Live = BuildLiveFlag(scheduleEntry),
+        //    New = !scheduleEntry.IsRepeat ? string.Empty : null,
+        //    SubTitles2 = BuildProgramSubtitles(scheduleEntry),
+        //    Rating = BuildProgramRatings(scheduleEntry),
+        //    StarRating = BuildProgramStarRatings(mxfProgram)
+        //};
+
+
+
+        //string descriptionExtended = GetDescriptionExtended(mxfProgram, scheduleEntry);
+
+        //return new XmltvProgramme()
+        //{
+        //    // added +0000 for NPVR; otherwise it would assume local time instead of UTC
+        //    Start = $"{scheduleEntry.StartTime:yyyyMMddHHmmss} +0000",
+        //    Stop = $"{scheduleEntry.StartTime + TimeSpan.FromSeconds(scheduleEntry.Duration):yyyyMMddHHmmss} +0000",
+        //    Channel = channelId,
+
+        //    Titles = MxfStringToXmlTextArray(mxfProgram.Title),
+        //    SubTitles = MxfStringToXmlTextArray(mxfProgram.EpisodeTitle),
+        //    Descriptions = MxfStringToXmlTextArray((descriptionExtended + mxfProgram.Description).Trim()),
+        //    Credits = BuildProgramCredits(mxfProgram),
+        //    Date = BuildProgramDate(mxfProgram),
+        //    Categories = BuildProgramCategories(mxfProgram),
+        //    Language = MxfStringToXmlText(!string.IsNullOrEmpty(mxfProgram.Language) ? mxfProgram.Language[..2] : null),
+        //    Icons = BuildProgramIcons(mxfProgram),
+        //    Sport = mxfProgram.Sport,
+        //    Teams = mxfProgram.Teams,
+        //    EpisodeNums = mxfProgram.EpisodeNums, //BuildEpisodeNumbers(scheduleEntry),
+        //    Video = mxfProgram.Video,
+        //    Audio = mxfProgram.Audio,
+        //    LastChance = mxfProgram.LastChance,
+        //    PreviouslyShown = mxfProgram.PreviouslyShown,
+        //    Premiere = mxfProgram.Premiere,
+        //    Live = mxfProgram.Live,
+        //    New = (!scheduleEntry.IsRepeat) ? string.Empty : null,
+        //    SubTitles2 = mxfProgram.SubTitles2,
+        //    Rating = mxfProgram.Rating,
+        //    StarRating = mxfProgram.StarRating
+        //};
+    }
+
+    private static string GetDescriptionExtended(MxfProgram mxfProgram, MxfScheduleEntry scheduleEntry, Setting settings)
+    {
+
+        string descriptionExtended = "";
         if (mxfProgram.IsMovie && mxfProgram.Year > 0)
         {
             descriptionExtended = $"{mxfProgram.Year}";
@@ -503,12 +604,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
         //if (scheduleEntry.IsSap) descriptionExtended += " SAP";
         //if (scheduleEntry.IsSubtitled) descriptionExtended += " SUB";
 
-        string[] tvRatings = [ "", "TV-Y", "TV-Y7", "TV-G", "TV-PG", "TV-14", "TV-MA",
-                "", "Kinder bis 12 Jahren", "Freigabe ab 12 Jahren", "Freigabe ab 16 Jahren", "Keine Jugendfreigabe",
-                "", "Déconseillé aux moins de 10 ans", "Déconseillé aux moins de 12 ans", "Déconseillé aux moins de 16 ans", "Déconseillé aux moins de 18 ans",
-                "모든 연령 시청가", "7세 이상 시청가", "12세 이상 시청가", "15세 이상 시청가", "19세 이상 시청가",
-                "SKY-UC", "SKY-U", "SKY-PG", "SKY-12", "SKY-15", "SKY-18", "SKY-R18" ];
-        string[] mpaaRatings = ["", "G", "PG", "PG-13", "R", "NC-17", "X", "NR", "AO"];
+
 
         if (!string.IsNullOrEmpty(tvRatings[scheduleEntry.TvRating]))
         {
@@ -522,60 +618,13 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
         {
             descriptionExtended += $" {mpaaRatings[mxfProgram.MpaaRating]}";
         }
+        string advisories = GetAdvisories(mxfProgram);
 
+        if (!string.IsNullOrEmpty(advisories))
         {
-            string advisories = string.Empty;
-            if (mxfProgram.HasAdult)
-            {
-                advisories += "Adult Situations,";
-            }
-
-            if (mxfProgram.HasGraphicLanguage)
-            {
-                advisories += "Graphic Language,";
-            }
-            else if (mxfProgram.HasLanguage)
-            {
-                advisories += "Language,";
-            }
-
-            if (mxfProgram.HasStrongSexualContent)
-            {
-                advisories += "Strong Sexual Content,";
-            }
-
-            if (mxfProgram.HasGraphicViolence)
-            {
-                advisories += "Graphic Violence,";
-            }
-            else if (mxfProgram.HasMildViolence)
-            {
-                advisories += "Mild Violence,";
-            }
-            else if (mxfProgram.HasViolence)
-            {
-                advisories += "Violence,";
-            }
-
-            if (mxfProgram.HasNudity)
-            {
-                advisories += "Nudity,";
-            }
-            else if (mxfProgram.HasBriefNudity)
-            {
-                advisories += "Brief Nudity,";
-            }
-
-            if (mxfProgram.HasRape)
-            {
-                advisories += "Rape,";
-            }
-
-            if (!string.IsNullOrEmpty(advisories))
-            {
-                descriptionExtended += $" ({advisories.Trim().TrimEnd(',').Replace(",", ", ")})";
-            }
+            descriptionExtended += $" ({advisories.Trim().TrimEnd(',').Replace(",", ", ")})";
         }
+
 
         if (mxfProgram.IsMovie && mxfProgram.HalfStars > 0)
         {
@@ -594,34 +643,59 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
             descriptionExtended = descriptionExtended.Trim() + "\u000D\u000A";
         }
 
-        return new XmltvProgramme()
-        {
-            // added +0000 for NPVR; otherwise it would assume local time instead of UTC
-            Start = $"{scheduleEntry.StartTime:yyyyMMddHHmmss} +0000",
-            Stop = $"{scheduleEntry.StartTime + TimeSpan.FromSeconds(scheduleEntry.Duration):yyyyMMddHHmmss} +0000",
-            Channel = channelId,
+        return descriptionExtended;
+    }
 
-            Titles = MxfStringToXmlTextArray(mxfProgram.Title),
-            SubTitles = MxfStringToXmlTextArray(mxfProgram.EpisodeTitle),
-            Descriptions = MxfStringToXmlTextArray((descriptionExtended + mxfProgram.Description).Trim()),
-            Credits = BuildProgramCredits(mxfProgram),
-            Date = BuildProgramDate(mxfProgram),
-            Categories = BuildProgramCategories(mxfProgram),
-            Language = MxfStringToXmlText(!string.IsNullOrEmpty(mxfProgram.Language) ? mxfProgram.Language[..2] : null),
-            //Icons = BuildProgramIcons(mxfProgram),
-            //Sport = GrabSportEvent(mxfProgram),
-            //Teams = BuildSportTeams(mxfProgram),
-            //EpisodeNums = BuildEpisodeNumbers(scheduleEntry),
-            //Video = BuildProgramVideo(scheduleEntry),
-            //Audio = BuildProgramAudio(scheduleEntry),
-            //PreviouslyShown = BuildProgramPreviouslyShown(scheduleEntry),
-            //Premiere = BuildProgramPremiere(scheduleEntry),
-            //Live = BuildLiveFlag(scheduleEntry),
-            //New = (!scheduleEntry.IsRepeat) ? string.Empty : null,
-            //SubTitles2 = BuildProgramSubtitles(scheduleEntry),
-            ////Rating = BuildProgramRatings(mxfProgram, scheduleEntry),
-            ////StarRating = BuildProgramStarRatings(mxfProgram)
-        };
+    private static string GetAdvisories(MxfProgram mxfProgram)
+    {
+        string advisories = string.Empty;
+        if (mxfProgram.HasAdult)
+        {
+            advisories += "Adult Situations,";
+        }
+
+        if (mxfProgram.HasGraphicLanguage)
+        {
+            advisories += "Graphic Language,";
+        }
+        else if (mxfProgram.HasLanguage)
+        {
+            advisories += "Language,";
+        }
+
+        if (mxfProgram.HasStrongSexualContent)
+        {
+            advisories += "Strong Sexual Content,";
+        }
+
+        if (mxfProgram.HasGraphicViolence)
+        {
+            advisories += "Graphic Violence,";
+        }
+        else if (mxfProgram.HasMildViolence)
+        {
+            advisories += "Mild Violence,";
+        }
+        else if (mxfProgram.HasViolence)
+        {
+            advisories += "Violence,";
+        }
+
+        if (mxfProgram.HasNudity)
+        {
+            advisories += "Nudity,";
+        }
+        else if (mxfProgram.HasBriefNudity)
+        {
+            advisories += "Brief Nudity,";
+        }
+
+        if (mxfProgram.HasRape)
+        {
+            advisories += "Rape,";
+        }
+
+        return advisories;
     }
 
 
@@ -633,7 +707,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
     // Credits
 
-    private XmltvCredit? BuildProgramCredits(MxfProgram mxfProgram)
+    private static XmltvCredit? BuildProgramCredits(MxfProgram mxfProgram)
     {
         // Check if there are any roles with associated persons
         bool hasCredits = mxfProgram.DirectorRole?.Any() == true ||
@@ -681,14 +755,14 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
     // Categories
 
-    private List<XmltvText>? BuildProgramCategories(MxfProgram mxfProgram)
+    private static List<XmltvText>? BuildProgramCategories(MxfProgram mxfProgram)
     {
         if (string.IsNullOrEmpty(mxfProgram.Keywords))
         {
             return null;
         }
 
-        ConcurrentHashSet<string> categories = [];
+        List<string> categories = [];
 
         foreach (string keywordId in mxfProgram.Keywords.Split(','))
         {
@@ -725,10 +799,8 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
     }
 
     // Icons    
-    private List<XmltvIcon>? BuildProgramIcons(MxfProgram mxfProgram)
+    private static List<XmltvIcon>? BuildProgramIcons(MxfProgram mxfProgram, ILogger logger, Setting settings, IEPGHelper ePGHelper, IIconService iconService, string _baseUrl)
     {
-        Setting settings = memoryCache.GetSetting();
-
 
         if (settings.SDSettings.XmltvSingleImage || !mxfProgram.extras.ContainsKey("artwork"))
         {
@@ -737,7 +809,9 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
                           mxfProgram.mxfSeason?.mxfGuideImage?.ImageUrl ??
                           mxfProgram.mxfSeriesInfo?.mxfGuideImage?.ImageUrl;
 
-            return url != null ? [new XmltvIcon { Src = GetIconUrl(mxfProgram.EPGNumber, url) }] : null;
+            return url != null ? [new XmltvIcon {
+                Src = GetIconUrl(mxfProgram.EPGNumber,logger, url, settings, ePGHelper, iconService, _baseUrl)
+            }] : null;
         }
 
         // Retrieve artwork from the program, season, or series info
@@ -748,7 +822,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
         // Convert artwork to XmltvIcon list
         return artwork?.Select(image => new XmltvIcon
         {
-            Src = GetIconUrl(mxfProgram.EPGNumber, image.Uri),
+            Src = GetIconUrl(mxfProgram.EPGNumber, logger, image.Uri, settings, ePGHelper, iconService, _baseUrl),
             Height = image.Height,
             Width = image.Width
         }).ToList();
@@ -773,7 +847,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
     private static readonly Random RandomNumber = new();
 
-    private List<XmltvEpisodeNum> BuildEpisodeNumbers(MxfScheduleEntry mxfScheduleEntry)
+    private static List<XmltvEpisodeNum> BuildEpisodeNumbers(MxfScheduleEntry mxfScheduleEntry)
     {
         List<XmltvEpisodeNum> list = [];
         MxfProgram mxfProgram = mxfScheduleEntry.mxfProgram;
@@ -924,7 +998,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
     private static void AddProgramRating(MxfScheduleEntry mxfScheduleEntry, List<XmltvRating> list)
     {
-        ConcurrentHashSet<string> hashSet = [];
+        List<string> hashSet = [];
         if (mxfScheduleEntry.extras.TryGetValue("ratings", out dynamic? value))
         {
             foreach (KeyValuePair<string, string> rating in value)

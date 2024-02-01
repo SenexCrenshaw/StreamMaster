@@ -32,6 +32,7 @@ const branch = process.argv[4];
 const commits = process.argv[5];
 
 const filePath = "./StreamMaster.API/AssemblyInfo.cs";
+
 const content = `
 using System.Reflection;
 
