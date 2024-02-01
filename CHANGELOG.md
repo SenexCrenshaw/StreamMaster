@@ -1,3 +1,27 @@
+# [0.8.0-stream.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.2...v0.8.0-stream.3) (2024-02-01)
+
+
+### Bug Fixes
+
+* changed tvlogos to use dictionary lookups ([fe7910a](https://github.com/SenexCrenshaw/StreamMaster/commit/fe7910ad786ad6ca144a11018dd1b5d1a401a4bf))
+* cleanup ([740584a](https://github.com/SenexCrenshaw/StreamMaster/commit/740584a02daf1b77aad01a146788ab62e63ac925))
+* Update build_docker.ps1 ([b0cbe5d](https://github.com/SenexCrenshaw/StreamMaster/commit/b0cbe5df3098decc6cd00b21e86db872dde5fb33))
+* Update VideoStreamRepository ([dae2a2d](https://github.com/SenexCrenshaw/StreamMaster/commit/dae2a2daf4813812d5340f3aede99c182d90ed0c))
+* Updated regex pattern to capture version, branch, and build/revision number ([809feb6](https://github.com/SenexCrenshaw/StreamMaster/commit/809feb663a9acd6aec062cd387cb87f38dfcc308))
+* version bump ([d6988ed](https://github.com/SenexCrenshaw/StreamMaster/commit/d6988ed3b2722b439de6607787629e0effa94a06))
+
+
+### Features
+
+* Add BuildXmltvProgram function ([01abec6](https://github.com/SenexCrenshaw/StreamMaster/commit/01abec6c3d0828fbc4c0b2b187085fd89dcbde16))
+* Add EPGTester project ([0569fa9](https://github.com/SenexCrenshaw/StreamMaster/commit/0569fa97bd6b0d858140a5d45643300bdf4f2cde))
+* Add Get-AssemblyInfo function ([fbc0a14](https://github.com/SenexCrenshaw/StreamMaster/commit/fbc0a14df7073a3ca9f6e5c24582342793813cd3))
+* Add infrastructure services extension ([72f66ae](https://github.com/SenexCrenshaw/StreamMaster/commit/72f66ae15076e2712a256c0ae628ab6f4dabda12))
+* Add method to set SchedulesDirectData ([c20d9a2](https://github.com/SenexCrenshaw/StreamMaster/commit/c20d9a2ca438fb0727833f5a29bbce69c6a083aa))
+* Add program categories to XMLTVBuilderThis commit adds the functionality to build program categories in XMLTVBuilder. This feature will trigger a release bumping a MINOR version. ([f9cecf2](https://github.com/SenexCrenshaw/StreamMaster/commit/f9cecf2769cab850fecad4a7540cf5b9c2f1c234))
+* Add XmltvProgramme property to XmlTv2Mxf class ([94aad5b](https://github.com/SenexCrenshaw/StreamMaster/commit/94aad5b42c286abb35a099cc4f67893bc6c2f73e))
+* Create test streams with updated Tvg_ID and User_Tvg_ID values ([eb6afa5](https://github.com/SenexCrenshaw/StreamMaster/commit/eb6afa5891cc41a1d0f67962a6d18e62d14982b8))
+
 # [0.8.0-stream.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.1...v0.8.0-stream.2) (2024-02-01)
 
 ### Features
