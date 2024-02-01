@@ -122,8 +122,8 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, ILo
             string channelNameSuffix = station.CallSign;
 
             StationChannelName stationChannelName = new()
-            {
-                Channel = $"{station.EPGNumber}-{station.StationId}",
+            {                
+                Channel = station.StationId,
                 DisplayName = $"[{station.CallSign}] {station.Name}",
                 ChannelName = station.CallSign
             };
