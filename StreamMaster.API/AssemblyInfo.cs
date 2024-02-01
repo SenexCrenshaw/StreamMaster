@@ -1,5 +1,5 @@
 using System.Reflection;
 
-[assembly: AssemblyVersion("0.7.1")]
-[assembly: AssemblyFileVersion("0.7.1")]
-[assembly: AssemblyInformationalVersion("0.7.1.Sha.7fc7281efea5817963e66be6bffd93c7c119a99a")]
+[assembly: AssemblyVersion("0.8.0-stream.1")]
+[assembly: AssemblyFileVersion("0.8.0-stream.1")]
+[assembly: AssemblyInformationalVersion("0.8.0-stream.1.Sha.9b9a48e67bacb4e7932db0f55236f75c7cbdc43f")]
