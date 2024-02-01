@@ -35,7 +35,11 @@ if ([string]::IsNullOrEmpty($result.Branch) -or $result.Branch -eq 'N/A') {
 }
 else {
     # If branch is present, append it to the semVer
-    $branchName = "$($result.Branch)-$semVer"
+    $branchName = "$($result.Branch)-$semVer-$($result.BuildOrRevision)"
+}
+
+if (![string]::IsNullOrEmpty($result.BuildOrRevision) ) {
+    $branchName = "$branchName.$($result.BuildOrRevision)"
 }
 
 # Multiple tags
