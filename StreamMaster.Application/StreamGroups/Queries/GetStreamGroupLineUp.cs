@@ -102,7 +102,7 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
             string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
             string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
-            MxfService? service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId == stationId);
+            MxfService? service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId == videoStream.User_Tvg_ID);
             string graceNote = service?.CallSign ?? stationId;
             string id = graceNote;
             if (setting.M3UUseChnoForId)
@@ -114,11 +114,14 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
             {
                 GuideName = videoStream.User_Tvg_name,
                 GuideNumber = id,
+                Station = id,
+                Logo = service?.mxfGuideImage.ImageUrl,
                 URL = videoUrl
             };
 
             ret.Add(lu);
         }
+
         string jsonString = JsonSerializer.Serialize(ret);
         return jsonString;
     }
