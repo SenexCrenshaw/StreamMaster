@@ -35,6 +35,19 @@
 ### Features
 
 * Add program categories to XMLTVBuilderThis commit adds the functionality to build program categories in XMLTVBuilder. This feature will trigger a release bumping a MINOR version. ([f9cecf2](https://github.com/SenexCrenshaw/StreamMaster/commit/f9cecf2769cab850fecad4a7540cf5b9c2f1c234))
+* Add XmltvProgramme property to XmlTv2Mxf class ([94aad5b](https://github.com/SenexCrenshaw/StreamMaster/commit/94aad5b42c286abb35a099cc4f67893bc6c2f73e))
+
+# [0.8.0-epg-rapid-rover.5](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-epg-rapid-rover.4...v0.8.0-epg-rapid-rover.5) (2024-02-01)
+
+
+### Bug Fixes
+
+* changed tvlogos to use dictionary lookups ([fe7910a](https://github.com/SenexCrenshaw/StreamMaster/commit/fe7910ad786ad6ca144a11018dd1b5d1a401a4bf))
+
+
+### Features
+
+* Add program categories to XMLTVBuilderThis commit adds the functionality to build program categories in XMLTVBuilder. This feature will trigger a release bumping a MINOR version. ([f9cecf2](https://github.com/SenexCrenshaw/StreamMaster/commit/f9cecf2769cab850fecad4a7540cf5b9c2f1c234))
 
 # [0.8.0-epg-rapid-rover.5](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-epg-rapid-rover.4...v0.8.0-epg-rapid-rover.5) (2024-02-01)
 
