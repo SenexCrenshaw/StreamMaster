@@ -702,23 +702,21 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IEPGHelper ePGHelper, IMemoryC
         }
 
         XmltvIcon? posters = xmltvProgramme.Icons.FirstOrDefault(arg => arg.Width / (double)arg.Height < 0.7);
-        if (posters != null)
-        {
-            mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(posters.Src);
+        mxfProgram.mxfGuideImage = posters != null
+            ? schedulesDirectData.FindOrCreateGuideImage(posters.Src)
+            : schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
 
-            return;
-        }
-
-        mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
 
         List<ProgramArtwork> artworks = xmltvProgramme.Icons.Select(arg => new ProgramArtwork
         {
-            Uri = arg.Src
+            Uri = arg.Src,
+            Width = arg.Width,
+            Height = arg.Height
         }).ToList();
 
         mxfProgram.extras.AddOrUpdate("artwork", artworks);
 
-        mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
+        //mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
     }
 
     private bool BuildKeywords()
