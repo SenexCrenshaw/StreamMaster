@@ -292,6 +292,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IEPGHelper ePGHelper, IMemoryC
                 mxfProgram = mxfProgram,
                 StartTime = dtStart,
                 Duration = Duration,
+                XmltvProgramme = program
                 //Duration = (int)(DateTime.ParseExact(program.Stop, "yyyyMMddHHmmss zzz", CultureInfo.InvariantCulture).ToUniversalTime() - dtStart).TotalSeconds,
                 //IsCc = program.SubTitles2?.Any(arg => arg.Type.Equals("teletext", StringComparison.OrdinalIgnoreCase)) ?? false,
                 //IsSigned = program.SubTitles2?.Any(arg => arg.Type.Equals("deaf-signed", StringComparison.OrdinalIgnoreCase)) ?? false,
@@ -317,7 +318,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IEPGHelper ePGHelper, IMemoryC
                 //TvRating = DetermineTvRatings(program),
                 ////IsClassroom = NOT PART OF XMLTV
                 //IsRepeat = !mxfProgram.IsMovie && program.PreviouslyShown != null,
-                XmltvProgramme = program
+
             };
             mxfService.MxfScheduleEntries.ScheduleEntry.Add(scheduleEntry);
             //mxfService.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
