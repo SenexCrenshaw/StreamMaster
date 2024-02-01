@@ -1,3 +1,15 @@
+# [0.8.0-stream.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.7.1...v0.8.0-stream.1) (2024-02-01)
+
+
+### Bug Fixes
+
+* locking for buffer delegate ([53e2589](https://github.com/SenexCrenshaw/StreamMaster/commit/53e2589ef14c3d9fc06817489c97743a08a6cd02))
+
+
+### Features
+
+* Improve performance of ChannelManager ([7f4f616](https://github.com/SenexCrenshaw/StreamMaster/commit/7f4f616081c4c22912d18b4552f88083a9dda98b))
+
 ## [0.7.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.7.0...v0.7.1) (2024-01-30)
 
 
