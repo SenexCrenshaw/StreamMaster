@@ -1,3 +1,10 @@
+# [0.8.0-stream.12](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.11...v0.8.0-stream.12) (2024-02-02)
+
+
+### Bug Fixes
+
+* refactor BuildEpisodeNumbers and original air date ([1d22906](https://github.com/SenexCrenshaw/StreamMaster/commit/1d2290617ad37a37de5218c653d8c3a7bde8f56b))
+
 # [0.8.0-stream.11](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.10...v0.8.0-stream.11) (2024-02-02)
 
 
