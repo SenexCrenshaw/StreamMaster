@@ -119,7 +119,7 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
             string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
             string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
-            MxfService? service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId == videoStream.User_Tvg_ID);
+            MxfService? service = schedulesDirectDataService.AllServices.GetMxfService(videoStream.User_Tvg_ID);
             if (service == null)
             {
                 continue;

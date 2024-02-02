@@ -11,8 +11,8 @@ using StreamMaster.Infrastructure.Services;
 using StreamMaster.Infrastructure.Services.Downloads;
 using StreamMaster.Infrastructure.Services.Frontend.Mappers;
 using StreamMaster.Infrastructure.Services.Settings;
+using StreamMaster.SchedulesDirect.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Helpers;
-
 
 using System.Reflection;
 

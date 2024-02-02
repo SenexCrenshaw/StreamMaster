@@ -68,7 +68,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
                 seriesDict.TryAdd(seriesInfo.Index, seriesInfo);
             }
 
-            List<MxfService> services = schedulesDirectDataService.AllServices;
+            List<MxfService> services = [.. schedulesDirectDataService.AllServices.OrderBy(a => a.EPGNumber)];
 
             List<int> chNos = [];
             List<int> existingChNos = new(videoStreamConfigs.Select(a => a.User_Tvg_chno).Distinct());
@@ -76,17 +76,34 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
             foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs.OrderBy(a => a.User_Tvg_chno))
             {
-                int epgNumber;
-                string stationId;
-                (epgNumber, stationId) = ePGHelper.ExtractEPGNumberAndStationId(videoStreamConfig.User_Tvg_ID);
-
-                MxfService? origService = services.FirstOrDefault(a => a.StationId == videoStreamConfig.User_Tvg_ID && a.EPGNumber == epgNumber);
-
+                MxfService? origService = services.GetMxfService(videoStreamConfig.User_Tvg_ID);
+                //    .FirstOrDefault(a => a.StationId == videoStreamConfig.User_Tvg_ID);
+                //if (origService == null)
+                //{
+                //    if (!ePGHelper.IsValidEPGId(videoStreamConfig.User_Tvg_ID))
+                //    {
+                //        stationId = videoStreamConfig.User_Tvg_ID;
+                //        string toTest = $"-{stationId}";
+                //        origService = services.FirstOrDefault(a => a.StationId.Contains(toTest, StringComparison.OrdinalIgnoreCase));
+                //        if (origService == null)
+                //        {
+                //            continue;
+                //        }
+                //        epgNumber = origService.EPGNumber;
+                //    }
+                //    else
+                //    {
+                //        continue;
+                //    }
+                // }
 
                 if (origService == null)
                 {
                     continue;
                 }
+
+                string stationId = videoStreamConfig.User_Tvg_ID;
+                int epgNumber = origService.EPGNumber;
 
                 MxfService newService = new(newServiceCount++, videoStreamConfig.User_Tvg_ID); // videoStreamConfig.User_Tvg_ID);
 

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Domain.Requests;
+using StreamMaster.SchedulesDirect.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Net;
@@ -74,14 +75,17 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs)
         {
-
+            if (videoStreamConfig.User_Tvg_ID == "FOXWCOV.us")
+            {
+                int aaa = 1;
+            }
             videoStreamConfig.IsDummy = epgHelper.IsDummy(videoStreamConfig.User_Tvg_ID);
 
             if (videoStreamConfig.IsDummy)
-            {              
+            {
                 videoStreamConfig.User_Tvg_ID = $"{EPGHelper.DummyId}-{videoStreamConfig.Id}";
 
-                dummyData.FindOrCreateDummyService(videoStreamConfig.User_Tvg_ID, videoStreamConfig);                
+                dummyData.FindOrCreateDummyService(videoStreamConfig.User_Tvg_ID, videoStreamConfig);
             }
 
             if (epgids.Contains(videoStreamConfig.User_Tvg_ID))

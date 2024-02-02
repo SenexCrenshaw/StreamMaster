@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using StreamMaster.SchedulesDirect.Domain.Helpers;
 
 using System.Text.RegularExpressions;
 
 namespace StreamMaster.SchedulesDirect.Helpers;
 
-public class EPGHelper(IMemoryCache memoryCache) : IEPGHelper
+public class EPGHelper() : IEPGHelper
 {
     public const int SchedulesDirectId = -1;
     public const int DummyId = -2;
@@ -33,14 +33,15 @@ public class EPGHelper(IMemoryCache memoryCache) : IEPGHelper
             return true;
         }
 
-        if (user_tvg_id.StartsWith($"{EPGHelper.DummyId}-"))
+        if (user_tvg_id.StartsWith($"{DummyId}-"))
         {
             return true;
         }
 
-        StreamMaster.Domain.Common.Setting setting = memoryCache.GetSetting();
-
-        return Regex.IsMatch(user_tvg_id, setting.DummyRegex, RegexOptions.IgnoreCase) || !IsValidEPGId(user_tvg_id);
+        //Setting setting = memoryCache.GetSetting();
+        //bool test = IsValidEPGId(user_tvg_id);
+        //return test || Regex.IsMatch(user_tvg_id, setting.DummyRegex, RegexOptions.IgnoreCase) || !string.IsNullOrEmpty(user_tvg_id);
+        return false;
     }
 
     public bool IsDummy(int epgNumber)
@@ -55,8 +56,7 @@ public class EPGHelper(IMemoryCache memoryCache) : IEPGHelper
 
     public bool IsValidEPGId(string epgId)
     {
-        MatchCollection matches = Regex.Matches(epgId, EPGMatch);
-        return matches.Count > 0;
+        return EPGChecks.IsValidEPGId(epgId);
     }
 
 }

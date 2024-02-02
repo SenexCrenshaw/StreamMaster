@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Domain.Authentication;
+using StreamMaster.SchedulesDirect.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Collections.Concurrent;

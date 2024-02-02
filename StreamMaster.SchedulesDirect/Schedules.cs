@@ -2,6 +2,7 @@
 
 using StreamMaster.Domain.Common;
 using StreamMaster.SchedulesDirect.Domain.Enums;
+using StreamMaster.SchedulesDirect.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text.Json;

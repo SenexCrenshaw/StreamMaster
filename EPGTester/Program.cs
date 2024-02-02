@@ -8,6 +8,7 @@ using StreamMaster.Infrastructure.Services.Settings;
 using StreamMaster.SchedulesDirect;
 using StreamMaster.SchedulesDirect.Converters;
 using StreamMaster.SchedulesDirect.Data;
+using StreamMaster.SchedulesDirect.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 using StreamMaster.SchedulesDirect.Helpers;
