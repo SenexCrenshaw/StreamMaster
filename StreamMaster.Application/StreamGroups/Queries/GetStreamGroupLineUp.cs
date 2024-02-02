@@ -67,19 +67,36 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
             return JsonSerializer.Serialize(ret);
         }
 
+        ISchedulesDirectData dummyData = schedulesDirectDataService.DummyData();
         foreach (VideoStreamDto videoStream in videoStreams.OrderBy(a => a.User_Tvg_chno))
         {
-            if (setting.M3UIgnoreEmptyEPGID &&
-            (string.IsNullOrEmpty(videoStream.User_Tvg_ID) || videoStream.User_Tvg_ID.ToLower() == "dummy"))
+            if (setting.M3UIgnoreEmptyEPGID && string.IsNullOrEmpty(videoStream.User_Tvg_ID))
             {
                 continue;
             }
 
-            //string videoUrl = videoStream.Url;
+            bool isDummy = epgHelper.IsDummy(videoStream.User_Tvg_ID);
+
+            if (isDummy)
+            {
+                videoStream.User_Tvg_ID = $"{EPGHelper.DummyId}-{videoStream.Id}";
+                VideoStreamConfig videoStreamConfig = new()
+                {
+                    Id = videoStream.Id,
+                    M3UFileId = videoStream.M3UFileId,
+                    User_Tvg_name = videoStream.User_Tvg_name,
+                    Tvg_ID = videoStream.Tvg_ID,
+                    User_Tvg_ID = videoStream.User_Tvg_ID,
+                    User_Tvg_Logo = videoStream.User_Tvg_logo,
+                    User_Tvg_chno = videoStream.User_Tvg_chno,
+                    IsDuplicate = false,
+                    IsDummy = false
+                };
+                dummyData.FindOrCreateDummyService(videoStream.User_Tvg_ID, videoStreamConfig);
+            }
 
             int epgNumber = EPGHelper.DummyId;
             string stationId;
-
 
             if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
             {
