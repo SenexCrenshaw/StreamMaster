@@ -108,8 +108,6 @@ public partial class SchedulesDirect(
                 seasonImages.ClearCache();
                 sportsImages.ClearCache();
 
-                HandleDummies();
-
                 XMLTV? xml = xMLTVBuilder.CreateSDXmlTv("");
                 if (xml is not null)
                 {
@@ -150,17 +148,17 @@ public partial class SchedulesDirect(
         logger.LogDebug($"Generated XMLTV file contains {xmltv.Channels.Count} channels and {xmltv.Programs.Count} programs with {imageCount} distinct program image links.");
     }
 
-    private void HandleDummies()
-    {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-        MxfService mxfService = schedulesDirectData.FindOrCreateService("DUMMY");
-        mxfService.CallSign = "DUMMY";
-        mxfService.Name = "DUMMY Station";
+    //private void HandleDummies()
+    //{
+    //    ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+    //    MxfService mxfService = schedulesDirectData.FindOrCreateService($"{EPGHelper.DummyId}-DUMMY");
+    //    mxfService.CallSign = "DUMMY";
+    //    mxfService.Name = "DUMMY EPG";
 
-        MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup("ZZZ-DUMMY-StreamMaster", "ZZZSM Dummy Lineup");
-        mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
+    //    //MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup("ZZZ-DUMMY-StreamMaster", "ZZZSM Dummy Lineup");
+    //    //mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
 
-    }
+    //}
 
     public async Task<UserStatus> GetUserStatus(CancellationToken cancellationToken)
     {

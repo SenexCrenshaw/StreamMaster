@@ -19,12 +19,9 @@ public class EPGHelper(IMemoryCache memoryCache) : IEPGHelper
 
         MatchCollection matches = Regex.Matches(epgId, EPGMatch);
 
-        if (matches.Count == 0 || !matches[0].Success || matches[0].Groups.Count != 3)
-        {
-            throw new FormatException("Input string is not in the expected format.");
-        }
-
-        return !int.TryParse(matches[0].Groups[1].Value, out int epgNumber)
+        return matches.Count == 0 || !matches[0].Success || matches[0].Groups.Count != 3
+            ? throw new FormatException("Input string is not in the expected format.")
+            : !int.TryParse(matches[0].Groups[1].Value, out int epgNumber)
             ? throw new FormatException("Input string is not in the expected format.")
             : ((int epgNumber, string stationId))(epgNumber, matches[0].Groups[2].Value);
     }
@@ -36,7 +33,7 @@ public class EPGHelper(IMemoryCache memoryCache) : IEPGHelper
             return true;
         }
 
-        if (user_tvg_id.StartsWith("DUMMY", StringComparison.OrdinalIgnoreCase))
+        if (user_tvg_id.StartsWith($"{EPGHelper.DummyId}-"))
         {
             return true;
         }
