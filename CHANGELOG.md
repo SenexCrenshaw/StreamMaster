@@ -1,3 +1,10 @@
+# [0.8.0-stream.10](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.9...v0.8.0-stream.10) (2024-02-02)
+
+
+### Bug Fixes
+
+* issue with retrieving MxfService ([b8f4cd3](https://github.com/SenexCrenshaw/StreamMaster/commit/b8f4cd3a9ce186a538c1a92f1c1ba8fece26ddab))
+
 # [0.8.0-stream.9](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.8...v0.8.0-stream.9) (2024-02-02)
 
 
