@@ -1,3 +1,10 @@
+# [0.8.0-stream.9](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.8...v0.8.0-stream.9) (2024-02-02)
+
+
+### Features
+
+* Add functionality to handle dummy video streams ([e666c4d](https://github.com/SenexCrenshaw/StreamMaster/commit/e666c4d3c3c832b9e16f4fb4d8fa5f888e00d1f8))
+
 # [0.8.0-stream.8](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.7...v0.8.0-stream.8) (2024-02-02)
 
 
