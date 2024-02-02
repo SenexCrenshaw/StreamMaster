@@ -78,34 +78,10 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
             videoStreamConfig.IsDummy = epgHelper.IsDummy(videoStreamConfig.User_Tvg_ID);
 
             if (videoStreamConfig.IsDummy)
-            {
-                // Initialize a variable to hold the service
-                MxfService? service = null;
+            {              
+                videoStreamConfig.User_Tvg_ID = $"{EPGHelper.DummyId}-{videoStreamConfig.Id}";
 
-                // Check if User_Tvg_ID is not empty and assign the corresponding service
-                if (!string.IsNullOrEmpty(videoStreamConfig.User_Tvg_ID))
-                {
-                    service = allservices.Find(a => a.StationId.Equals(videoStreamConfig.User_Tvg_ID, StringComparison.CurrentCultureIgnoreCase));
-                }
-                // If service is still null and Tvg_ID is not empty, assign the corresponding service
-                else if (!string.IsNullOrEmpty(videoStreamConfig.Tvg_ID))
-                {
-                    service = allservices.Find(a => a.StationId.Equals(videoStreamConfig.Tvg_ID, StringComparison.CurrentCultureIgnoreCase));
-                }
-
-                // If a service is found, update User_Tvg_ID accordingly
-                if (service != null)
-                {
-                    videoStreamConfig.User_Tvg_ID = $"{service.EPGNumber}-{service.StationId}";
-                    videoStreamConfig.IsDummy = false;
-                }
-                else
-                {
-
-                    videoStreamConfig.User_Tvg_ID = EPGHelper.DummyId + "-" + videoStreamConfig.Id;
-
-                    dummyData.FindOrCreateDummyService(videoStreamConfig.Id, videoStreamConfig);
-                }
+                dummyData.FindOrCreateDummyService(videoStreamConfig.User_Tvg_ID, videoStreamConfig);                
             }
 
             if (epgids.Contains(videoStreamConfig.User_Tvg_ID))

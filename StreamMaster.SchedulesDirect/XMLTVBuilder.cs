@@ -99,8 +99,8 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IEPGHelper ePGHelper, IIconS
 
                 if (origService.EPGNumber == EPGHelper.DummyId && !string.IsNullOrEmpty(videoStreamConfig.Tvg_ID))
                 {
-
-                    callSign = videoStreamConfig.Tvg_ID;
+                    (epgNumber, stationId) = ePGHelper.ExtractEPGNumberAndStationId(videoStreamConfig.Tvg_ID);
+                    callSign = stationId;
                 }
 
                 int chNo = videoStreamConfig.User_Tvg_chno;
