@@ -58,10 +58,12 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryCont
                 continue;
             }
 
+            (int EPGNumber, string stationId) = service.StationId.ExtractEPGNumberAndStationId();
+
             ret.Add(new EPGFilePreviewDto
             {
                 ChannelName = service.Name,
-                ChannelNumber = service.StationId,
+                ChannelNumber = stationId,
                 ChannelLogo = service?.mxfGuideImage?.ImageUrl ?? "",
             });
 
