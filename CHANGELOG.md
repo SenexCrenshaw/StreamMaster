@@ -1,3 +1,11 @@
+# [0.8.0-stream.8](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.7...v0.8.0-stream.8) (2024-02-02)
+
+
+### Bug Fixes
+
+* Dummies ([08a0d97](https://github.com/SenexCrenshaw/StreamMaster/commit/08a0d970acd65f050bdfc929e085c550bfd1b830))
+* Dummies ([6b2568f](https://github.com/SenexCrenshaw/StreamMaster/commit/6b2568f2bffd53e6206bcd2916d3cf91810403dd))
+
 # [0.8.0-stream.7](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.6...v0.8.0-stream.7) (2024-02-01)
 
 # [0.8.0-stream.6](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.5...v0.8.0-stream.6) (2024-02-01)
