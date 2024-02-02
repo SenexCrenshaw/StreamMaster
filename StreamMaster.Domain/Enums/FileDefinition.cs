@@ -1,5 +1,7 @@
 ﻿using AutoMapper.Configuration.Annotations;
 
+using StreamMaster.SchedulesDirect.Domain.Enums;
+
 namespace StreamMaster.Domain.Enums;
 
 public class FileDefinition

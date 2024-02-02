@@ -1,5 +1,5 @@
 ﻿using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Enums;
+using StreamMaster.SchedulesDirect.Domain.Enums;
 
 namespace StreamMaster.Domain.Models;
 

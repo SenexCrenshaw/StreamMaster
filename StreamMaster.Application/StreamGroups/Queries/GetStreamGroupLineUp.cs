@@ -24,7 +24,7 @@ public class GetStreamGroupLineupValidator : AbstractValidator<GetStreamGroupLin
 }
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper Repository, IMemoryCache memoryCache)
+public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, IIconHelper iconHelper, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper Repository, IMemoryCache memoryCache)
     : IRequestHandler<GetStreamGroupLineup, string>
 {
     public async Task<string> Handle(GetStreamGroupLineup request, CancellationToken cancellationToken)
@@ -135,6 +135,8 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
             if (service != null && service.mxfGuideImage != null && !string.IsNullOrEmpty(service.mxfGuideImage.ImageUrl))
             {
                 logo = service.mxfGuideImage.ImageUrl;
+                string _baseUrl = httpContextAccessor.GetUrl();
+                logo = iconHelper.GetIconUrl(service.EPGNumber, service.extras["logo"].Url, _baseUrl);
             }
 
             SGLineup lu = new()
