@@ -803,7 +803,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IIconHelper iconHelper, IEPG
 
     private static readonly Random RandomNumber = new();
 
-    private static List<XmltvEpisodeNum> BuildEpisodeNumbers(MxfScheduleEntry mxfScheduleEntry)
+    private static List<XmltvEpisodeNum>? BuildEpisodeNumbers(MxfScheduleEntry mxfScheduleEntry)
     {
         List<XmltvEpisodeNum> list = [];
         MxfProgram mxfProgram = mxfScheduleEntry.mxfProgram;
@@ -829,15 +829,30 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IIconHelper iconHelper, IEPG
         }
         else if (mxfProgram.EPGNumber == EPGHelper.DummyId)
         {
-            list.Add(new XmltvEpisodeNum { System = "original-air-date", Text = $"{mxfScheduleEntry.StartTime.ToLocalTime():yyyy-MM-dd HH:mm:ss}" });
+            list.Add(new XmltvEpisodeNum { System = "original-air-date", Text = $"{mxfScheduleEntry.StartTime.ToLocalTime():yyyy-MM-dd}" });
         }
         else if (!mxfProgram.ProgramId.StartsWith("MV"))
         {
-            string? oad = mxfProgram.OriginalAirdate;
-            oad = !mxfScheduleEntry.IsRepeat
-                ? $"{mxfScheduleEntry.StartTime.ToLocalTime():yyyy-MM-dd HH:mm}:{RandomNumber.Next(1, 60):00}"
-                : !string.IsNullOrEmpty(oad) ? $"{DateTime.Parse(oad):yyyy-MM-dd}" : "1900-01-01";
-            list.Add(new XmltvEpisodeNum { System = "original-air-date", Text = oad });
+            if (string.IsNullOrEmpty(mxfProgram.OriginalAirdate))
+            {
+                list.Add(new XmltvEpisodeNum { System = "original-air-date", Text = $"{mxfScheduleEntry.StartTime.ToLocalTime():yyyy-MM-dd}" });
+            }
+            else
+            {
+                string oad = mxfProgram.OriginalAirdate;
+
+                oad = !mxfScheduleEntry.IsRepeat
+                    ? $"{mxfScheduleEntry.StartTime.ToLocalTime():yyyy-MM-dd HH:mm}:{RandomNumber.Next(1, 60):00}"
+                    : $"{DateTime.Parse(oad):yyyy-MM-dd}";
+
+                list.Add(new XmltvEpisodeNum
+                {
+                    System = "original-air-date",
+                    Text = oad
+                }
+                );
+
+            }
         }
 
         if (mxfProgram.Series != null)
@@ -848,8 +863,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IIconHelper iconHelper, IEPG
                 list.Add(new XmltvEpisodeNum { System = "thetvdb.com", Text = $"series/{value}" });
             }
         }
-
-        return list;
+        return list.Count > 0 ? list : null;
     }
 
 
