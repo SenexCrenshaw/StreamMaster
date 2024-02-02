@@ -1,3 +1,10 @@
+# [0.8.0-stream.11](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.10...v0.8.0-stream.11) (2024-02-02)
+
+
+### Bug Fixes
+
+* refactor GetIconUrl to use IIconHelper ([6ef22c0](https://github.com/SenexCrenshaw/StreamMaster/commit/6ef22c0452cecad50ce06127938f71fadff641a9))
+
 # [0.8.0-stream.10](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.9...v0.8.0-stream.10) (2024-02-02)
 
 
