@@ -1,3 +1,12 @@
+# [0.9.0-i-am-not-drunk.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.1...v0.9.0-i-am-not-drunk.1) (2024-02-03)
+
+
+### Features
+
+*  Migrate from SQLite to PostgreSQL ([5e5b91b](https://github.com/SenexCrenshaw/StreamMaster/commit/5e5b91b9cefd1ff8dd468cae580208c6ffa5df57))
+* add in psql support ([13a2bd1](https://github.com/SenexCrenshaw/StreamMaster/commit/13a2bd15ae8c840c8e437c6c31c2f5f47f32e156))
+* pgsql ([281ad7b](https://github.com/SenexCrenshaw/StreamMaster/commit/281ad7b0c6bb66fd7454d3d4e67d260601d7bce5))
+
 ## [0.8.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0...v0.8.1) (2024-02-03)
 
 
