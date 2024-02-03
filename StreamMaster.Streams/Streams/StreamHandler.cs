@@ -20,7 +20,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
     public static int ChunkSize = 64 * 1024;
 
-    private readonly SemaphoreSlim getVideoInfo = new(1);
+    private readonly SemaphoreSlim getVideoInfo = new(1, 1);
     private bool runningGetVideo { get; set; } = false;
 
     public event EventHandler<StreamHandlerStopped> OnStreamingStoppedEvent;
@@ -102,7 +102,10 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                 byte[] videoMemory = new byte[videoBufferSize];
 
                 int mem = await CircularRingBuffer.ReadChunkMemory(start, videoMemory, CancellationToken.None);
-
+                if (mem != videoBufferSize)
+                {
+                    return;
+                }
                 VideoInfo ret = await CreateFFProbeStream(ffprobeExec, videoMemory).ConfigureAwait(false);
 
                 logger.LogInformation("Retrieved video information for {name}", VideoStreamName);
@@ -118,8 +121,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             }
             finally
             {
-                runningGetVideo = false;
-                _ = getVideoInfo.Release();
+
             }
 
             return;
@@ -375,7 +377,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         CircularRingBuffer?.Dispose();
         ringBuffer = null;
         clientStreamerIds.Clear();
-        Stop();
+        Stop().Wait();
         GC.SuppressFinalize(this);
 
         GC.Collect();

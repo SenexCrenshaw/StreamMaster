@@ -1,4 +1,4 @@
-﻿namespace StreamMaster.Domain.Enums;
+﻿namespace StreamMaster.SchedulesDirect.Domain.Enums;
 
 public enum SMFileTypes
 {

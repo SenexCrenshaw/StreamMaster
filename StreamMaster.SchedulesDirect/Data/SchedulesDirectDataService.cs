@@ -1,13 +1,27 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 
+using StreamMaster.SchedulesDirect.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Collections.Concurrent;
 
 namespace StreamMaster.SchedulesDirect.Data;
 
-public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, ILogger<EPGImportLogger> _epgImportLogger, IEPGHelper ePGHelper, IMemoryCache memoryCache) : ISchedulesDirectDataService
+public class SchedulesDirectDataService : ISchedulesDirectDataService
 {
+    private readonly ILogger<SchedulesDirectData> logger;
+    private readonly ILogger<EPGImportLogger> epgImportLogger;
+    private readonly IEPGHelper ePGHelper;
+    private readonly IMemoryCache memoryCache;
+
+    public SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, ILogger<EPGImportLogger> _epgImportLogger, IEPGHelper ePGHelper, IMemoryCache memoryCache)
+    {
+        this.logger = logger;
+        epgImportLogger = _epgImportLogger;
+        this.ePGHelper = ePGHelper;
+        this.memoryCache = memoryCache;
+        DummyData();
+    }
 
     public ConcurrentDictionary<int, ISchedulesDirectData> SchedulesDirectDatas { get; private set; } = new();
     public void Reset(int? EPGNumber = null)
@@ -22,6 +36,12 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, ILo
         }
 
     }
+
+    public void Set(int EPGNumber, ISchedulesDirectData schedulesDirectData)
+    {
+        SchedulesDirectDatas.AddOrUpdate(EPGNumber, schedulesDirectData, (key, oldValue) => schedulesDirectData);
+    }
+
     public List<MxfService> AllServices
     {
         get
@@ -71,7 +91,7 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, ILo
     {
         return SchedulesDirectDatas.GetOrAdd(EPGNumber, (epgId) =>
         {
-            SchedulesDirectData data = new(logger, _epgImportLogger, ePGHelper, memoryCache, EPGNumber);
+            SchedulesDirectData data = new(logger, epgImportLogger, ePGHelper, memoryCache, EPGNumber);
             return data;
         });
     }
@@ -80,7 +100,7 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, ILo
     {
         return SchedulesDirectDatas.GetOrAdd(EPGHelper.SchedulesDirectId, (epgId) =>
         {
-            SchedulesDirectData data = new(logger, _epgImportLogger, ePGHelper, memoryCache, EPGHelper.SchedulesDirectId)
+            SchedulesDirectData data = new(logger, epgImportLogger, ePGHelper, memoryCache, EPGHelper.SchedulesDirectId)
             {
                 EPGNumber = EPGHelper.SchedulesDirectId
             };
@@ -90,12 +110,20 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, ILo
 
     public ISchedulesDirectData DummyData()
     {
+        List<KeyValuePair<int, ISchedulesDirectData>> test = SchedulesDirectDatas.Where(a => a.Key == EPGHelper.DummyId).ToList();
+
+
         return SchedulesDirectDatas.GetOrAdd(EPGHelper.DummyId, (epgId) =>
         {
-            SchedulesDirectData data = new(logger, _epgImportLogger, ePGHelper, memoryCache, EPGHelper.DummyId)
+            SchedulesDirectData data = new(logger, epgImportLogger, ePGHelper, memoryCache, EPGHelper.DummyId)
             {
                 EPGNumber = EPGHelper.DummyId
             };
+
+            MxfService mxfService = data.FindOrCreateService($"{EPGHelper.DummyId}-DUMMY");
+            mxfService.CallSign = "DUMMY";
+            mxfService.Name = "DUMMY EPG";
+
             return data;
         });
     }
@@ -117,7 +145,7 @@ public class SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, ILo
 
             StationChannelName stationChannelName = new()
             {
-                Channel = $"{station.EPGNumber}-{station.StationId}",
+                Channel = station.StationId,
                 DisplayName = $"[{station.CallSign}] {station.Name}",
                 ChannelName = station.CallSign
             };

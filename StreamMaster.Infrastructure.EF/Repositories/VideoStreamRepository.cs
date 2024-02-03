@@ -26,7 +26,7 @@ using System.Linq.Dynamic.Core;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISchedulesDirectDataService schedulesDirectDataService, IEPGHelper epgHelper, IIconService iconService, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : RepositoryBase<VideoStream>(repositoryContext, intLogger), IVideoStreamRepository
+public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISchedulesDirectDataService schedulesDirectDataService, IIconService iconService, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : RepositoryBase<VideoStream>(repositoryContext, intLogger), IVideoStreamRepository
 {
     public PagedResponse<VideoStreamDto> CreateEmptyPagedResponse()
     {
@@ -322,9 +322,11 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
         bool isChanged = false;
         try
         {
+            int rank = 0;
             foreach (VideoStreamDto ch in childVideoStreams)
             {
-                await AddOrUpdateChildToVideoStreamAsync(videoStream.Id, ch.Id, ch.Rank, cancellationToken).ConfigureAwait(false);
+                await AddOrUpdateChildToVideoStreamAsync(videoStream.Id, ch.Id, rank, cancellationToken).ConfigureAwait(false);
+                ++rank;
             }
 
             await RemoveNonExistingVideoStreamLinksAsync(videoStream.Id, childVideoStreams.ToList(), cancellationToken).ConfigureAwait(false);
@@ -394,10 +396,9 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
         {
             videoStream.User_Tvg_name = request.Tvg_name;
             await SetVideoStreamLogoFromEPG(videoStream, cancellationToken).ConfigureAwait(false);
-            //UpdateVideoStream(videoStream);
         }
 
-        if (request.TimeShift != null && videoStream.TimeShift != request.Tvg_name)
+        if (request.TimeShift != null && videoStream.TimeShift != request.TimeShift)
         {
             videoStream.TimeShift = request.TimeShift;
         }

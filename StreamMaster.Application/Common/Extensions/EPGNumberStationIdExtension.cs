@@ -1,4 +1,5 @@
-﻿using StreamMaster.SchedulesDirect.Helpers;
+﻿using StreamMaster.SchedulesDirect.Domain.Helpers;
+using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text.RegularExpressions;
 

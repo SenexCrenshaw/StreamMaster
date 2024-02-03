@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Domain.Enums;
+using StreamMaster.SchedulesDirect.Domain.Enums;
 
 namespace StreamMasterAPI.Interfaces;
 

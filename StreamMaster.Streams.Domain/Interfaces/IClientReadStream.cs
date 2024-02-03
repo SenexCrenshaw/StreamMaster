@@ -5,7 +5,6 @@
 /// </summary>
 public interface IClientReadStream : IDisposable
 {
-    void SetLastIndex(long index);
     /// <summary>
     /// Gets the underlying circular ring buffer.
     /// </summary>

@@ -24,7 +24,7 @@ public class GetStreamGroupLineupValidator : AbstractValidator<GetStreamGroupLin
 }
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper Repository, IMemoryCache memoryCache)
+public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, IIconHelper iconHelper, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper Repository, IMemoryCache memoryCache)
     : IRequestHandler<GetStreamGroupLineup, string>
 {
     public async Task<string> Handle(GetStreamGroupLineup request, CancellationToken cancellationToken)
@@ -67,19 +67,36 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
             return JsonSerializer.Serialize(ret);
         }
 
+        ISchedulesDirectData dummyData = schedulesDirectDataService.DummyData();
         foreach (VideoStreamDto videoStream in videoStreams.OrderBy(a => a.User_Tvg_chno))
         {
-            if (setting.M3UIgnoreEmptyEPGID &&
-            (string.IsNullOrEmpty(videoStream.User_Tvg_ID) || videoStream.User_Tvg_ID.ToLower() == "dummy"))
+            if (setting.M3UIgnoreEmptyEPGID && string.IsNullOrEmpty(videoStream.User_Tvg_ID))
             {
                 continue;
             }
 
-            //string videoUrl = videoStream.Url;
+            bool isDummy = epgHelper.IsDummy(videoStream.User_Tvg_ID);
+
+            if (isDummy)
+            {
+                videoStream.User_Tvg_ID = $"{EPGHelper.DummyId}-{videoStream.Id}";
+                VideoStreamConfig videoStreamConfig = new()
+                {
+                    Id = videoStream.Id,
+                    M3UFileId = videoStream.M3UFileId,
+                    User_Tvg_name = videoStream.User_Tvg_name,
+                    Tvg_ID = videoStream.Tvg_ID,
+                    User_Tvg_ID = videoStream.User_Tvg_ID,
+                    User_Tvg_Logo = videoStream.User_Tvg_logo,
+                    User_Tvg_chno = videoStream.User_Tvg_chno,
+                    IsDuplicate = false,
+                    IsDummy = false
+                };
+                dummyData.FindOrCreateDummyService(videoStream.User_Tvg_ID, videoStreamConfig);
+            }
 
             int epgNumber = EPGHelper.DummyId;
             string stationId;
-
 
             if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
             {
@@ -102,7 +119,11 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
             string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
             string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
-            MxfService? service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId == stationId);
+            MxfService? service = schedulesDirectDataService.AllServices.GetMxfService(videoStream.User_Tvg_ID);
+            if (service == null)
+            {
+                continue;
+            }
             string graceNote = service?.CallSign ?? stationId;
             string id = graceNote;
             if (setting.M3UUseChnoForId)
@@ -110,16 +131,27 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
                 id = videoStream.User_Tvg_chno.ToString();
             }
 
+            string? logo = "";
+            if (service != null && service.mxfGuideImage != null && !string.IsNullOrEmpty(service.mxfGuideImage.ImageUrl))
+            {
+                logo = service.mxfGuideImage.ImageUrl;
+                string _baseUrl = httpContextAccessor.GetUrl();
+                logo = iconHelper.GetIconUrl(service.EPGNumber, service.extras["logo"].Url, _baseUrl);
+            }
+
             SGLineup lu = new()
             {
                 GuideName = videoStream.User_Tvg_name,
                 GuideNumber = id,
+                Station = id,
+                Logo = logo,
                 URL = videoUrl
             };
 
             ret.Add(lu);
         }
-        string jsonString = JsonSerializer.Serialize(ret, new JsonSerializerOptions { WriteIndented = true });
+
+        string jsonString = JsonSerializer.Serialize(ret);
         return jsonString;
     }
 }

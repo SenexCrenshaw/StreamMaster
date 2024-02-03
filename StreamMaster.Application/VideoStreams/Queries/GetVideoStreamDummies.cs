@@ -1,4 +1,6 @@
 ﻿using StreamMaster.Application.M3UFiles.Commands;
+using StreamMaster.SchedulesDirect.Domain.Helpers;
+using StreamMaster.SchedulesDirect.Helpers;
 
 namespace StreamMaster.Application.VideoStreams.Queries;
 
@@ -8,7 +10,7 @@ internal class GetVideoStreamDummiesHandler(ILogger<ChangeM3UFileNameRequestHand
 {
     public Task<List<VideoStreamDto>> Handle(GetVideoStreamDummies request, CancellationToken cancellationToken)
     {
-        List<VideoStream> dummies = [.. Repository.VideoStream.FindByCondition(x => x.User_Tvg_ID == "DUMMY")];
+        List<VideoStream> dummies = [.. Repository.VideoStream.FindByCondition(x => x.User_Tvg_ID.StartsWith($"{EPGHelper.DummyId}-"))];
         return Task.FromResult(Mapper.Map<List<VideoStreamDto>>(dummies));
     }
 }

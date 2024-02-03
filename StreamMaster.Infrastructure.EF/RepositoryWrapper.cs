@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Sorting;
 using StreamMaster.Infrastructure.EF.Repositories;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
@@ -24,7 +23,7 @@ namespace StreamMaster.Infrastructure.EF
         ISchedulesDirectDataService schedulesDirectDataService,
 
         RepositoryContext repositoryContext,
-        ISortHelper<StreamGroup> streamGroupSortHelper,
+        //ISortHelper<StreamGroup> streamGroupSortHelper,
         IMapper mapper,
         IIconService iconService,
         IMemoryCache memoryCache,
@@ -93,7 +92,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _videoStream ??= new VideoStreamRepository(VideoStreamRepositoryLogger, schedulesDirectDataService, epgHelper, iconService, repositoryContext, mapper, memoryCache, sender);
+                _videoStream ??= new VideoStreamRepository(VideoStreamRepositoryLogger, schedulesDirectDataService, iconService, repositoryContext, mapper, memoryCache, sender);
                 return _videoStream;
             }
         }

@@ -40,10 +40,10 @@ public interface IChannelManager : IDisposable
     /// Simulates a stream failure for testing purposes.
     /// </summary>
     /// <param name="streamUrl">The URL of the stream to fail.</param>
-    void SimulateStreamFailure(string streamUrl);
+    Task SimulateStreamFailure(string streamUrl);
 
     /// <summary>
     /// Simulates a stream failure for all streams for testing purposes.
     /// </summary>
-    void SimulateStreamFailureForAll();
+    Task SimulateStreamFailureForAll();
 }

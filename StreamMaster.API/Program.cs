@@ -34,8 +34,9 @@ builder.WebHost.ConfigureKestrel((context, serverOptions) =>
 
 string settingFile = BuildInfo.SettingFile;// $"{BuildInfo.AppDataFolder}settings.json";
 
-builder.Configuration.AddJsonFile(settingFile, true, false);
-builder.Services.Configure<Setting>(builder.Configuration);
+//builder.Configuration.AddJsonFile(settingFile, true, false);
+builder.Configuration.AddJsonFile(BuildInfo.LoggingFile, optional: true, reloadOnChange: true);
+//builder.Services.Configure<Setting>(builder.Configuration);
 
 bool enableSsl = false;
 
@@ -73,8 +74,9 @@ builder.Services.AddSchedulesDirectAPIServices();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureEFServices();
 builder.Services.AddInfrastructureServices();
+builder.Services.AddInfrastructureServicesEx();
 builder.Services.AddStreamsServices();
-builder.Services.AddWebUIServices();
+builder.Services.AddWebUIServices(builder);
 
 builder.Services.Configure<RouteOptions>(options =>
 {

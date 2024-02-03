@@ -3,7 +3,7 @@
 namespace StreamMaster.Application.SchedulesDirect.Queries;
 public record GetStationChannelNamesSimpleQuery(StationChannelNameParameters Parameters) : IRequest<List<StationChannelName>>;
 
-public class GetStationChannelNamesSimpleQueryHandler(ILogger<GetStationChannelNamesSimpleQuery> logger, ISchedulesDirectDataService schedulesDirectDataService)
+public class GetStationChannelNamesSimpleQueryHandler(ISchedulesDirectDataService schedulesDirectDataService)
     : IRequestHandler<GetStationChannelNamesSimpleQuery, List<StationChannelName>>
 {
     public Task<List<StationChannelName>> Handle(GetStationChannelNamesSimpleQuery request, CancellationToken cancellationToken)
@@ -13,7 +13,7 @@ public class GetStationChannelNamesSimpleQueryHandler(ILogger<GetStationChannelN
         // Retrieve and filter Programmes
         List<StationChannelName> stationChannelNames = schedulesDirectDataService.GetStationChannelNames();
 
-        if (stationChannelNames.Any())
+        if (stationChannelNames.Count != 0)
         {
             // Get distinct channel names in order and take the required amount
             List<string> distinctChannels = stationChannelNames

@@ -1,6 +1,6 @@
 param (
     [switch]$DebugLog,
-    [switch]$BuildProd,
+    [switch]$BuildProd = $false,
     [switch]$PrintCommands = $false,
     [switch]$SkipRelease = $false
 )
@@ -13,15 +13,20 @@ $env:GH_TOKEN = $ghtoken
 
 $imageName = "docker.io/senexcrenshaw/streammaster"
 
-if ( !$SkipRelease) {
+if (-not $SkipRelease ) {
+    #-and $BuildProd) {
+    # Write-Host $SkipRelease;
+    # Write-Host $BuildProd;
     npx semantic-release
 }
+
 
 . ".\Get-AssemblyInfo.ps1"
 
 $result = Get-AssemblyInfo -assemblyInfoPath "./StreamMaster.API/AssemblyInfo.cs"
 
 $result  |  Write-Output
+[System.Console]::Out.Flush()
 
 $semVer = $result.Version
 # $buildMetaDataPadded = $result.Version
@@ -30,17 +35,21 @@ if ([string]::IsNullOrEmpty($result.Branch) -or $result.Branch -eq 'N/A') {
     $branchName = $semVer
 }
 else {
-    # If branch is present, append it to the semVer
+    $devTag = $result.Branch;
     $branchName = "$($result.Branch)-$semVer"
+}
+
+if (![string]::IsNullOrEmpty($result.BuildOrRevision) ) {
+    $branchName = "$branchName.$($result.BuildOrRevision)"
 }
 
 # Multiple tags
 $tags = if ($BuildProd) {
     "${imageName}:latest",
     "${imageName}:$branchName"
-    # "${imageName}:$semVer-$buildMetaDataPadded"
 }
 else {
+    "${imageName}:$devTag",
     "${imageName}:$branchName"
 }
 

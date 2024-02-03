@@ -2,6 +2,7 @@
 
 using StreamMaster.Domain.Common;
 using StreamMaster.SchedulesDirect.Domain.Enums;
+using StreamMaster.SchedulesDirect.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text.Json;
@@ -10,7 +11,7 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.SchedulesDirect;
 
-public class Schedules(ILogger<Schedules> logger, IMemoryCache memoryCache, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Schedules> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : ISchedules
+public class Schedules(ILogger<Schedules> logger, IMemoryCache memoryCache, IEPGHelper ePGHelper, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Schedules> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : ISchedules
 {
     private int cachedSchedules;
     private int downloadedSchedules;
@@ -120,9 +121,10 @@ public class Schedules(ILogger<Schedules> logger, IMemoryCache memoryCache, ISch
 
         for (int i = 0; i < requests.Length; ++i)
         {
+            (int epgNumber, string stationId) = ePGHelper.ExtractEPGNumberAndStationId(toProcess[start + i].StationId);
             requests[i] = new ScheduleRequest()
             {
-                StationId = toProcess[start + i].StationId,
+                StationId = stationId,
                 Date = dates
             };
         }
@@ -143,18 +145,10 @@ public class Schedules(ILogger<Schedules> logger, IMemoryCache memoryCache, ISch
         {
 
             Dictionary<int, string> requestErrors = [];
+            string serviceName = $"{EPGHelper.SchedulesDirectId}-{request.StationId}";
+            MxfService mxfService = schedulesDirectData.FindOrCreateService(serviceName);
+            IEnumerable<KeyValuePair<string, MxfService>> test = schedulesDirectData.Services.Where(arg => arg.Value.StationId.Equals(serviceName));
 
-            MxfService mxfService = schedulesDirectData.FindOrCreateService(request.StationId);
-            IEnumerable<KeyValuePair<string, MxfService>> test = schedulesDirectData.Services.Where(arg => arg.Value.StationId.Equals(request.StationId));
-
-            if (!schedulesDirectData.Services.ContainsKey(request.StationId))
-            {
-                int aaa = 1;
-            }
-            else
-            {
-                MxfService b = schedulesDirectData.Services[request.StationId];
-            }
 
             if (stationResponses.TryGetValue(request.StationId, out Dictionary<string, ScheduleMd5Response>? stationResponse))
             {
@@ -368,7 +362,8 @@ public class Schedules(ILogger<Schedules> logger, IMemoryCache memoryCache, ISch
 
         // determine which service entry applies to
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-        MxfService mxfService = schedulesDirectData.FindOrCreateService(schedule.StationId);
+        string serviceName = $"{EPGHelper.SchedulesDirectId}-{schedule.StationId}";
+        MxfService mxfService = schedulesDirectData.FindOrCreateService(serviceName);
 
         // process each program schedule entry
         foreach (ScheduleProgram scheduleProgram in schedule.Programs)

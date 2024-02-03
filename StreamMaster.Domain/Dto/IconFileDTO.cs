@@ -1,5 +1,6 @@
 ﻿using StreamMaster.Domain.Attributes;
 using StreamMaster.Domain.Models;
+using StreamMaster.SchedulesDirect.Domain.Enums;
 
 using System.Text.Json.Serialization;
 

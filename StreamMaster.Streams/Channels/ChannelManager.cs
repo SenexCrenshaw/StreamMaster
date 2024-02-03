@@ -7,7 +7,7 @@ namespace StreamMaster.Streams.Channels;
 
 public sealed class ChannelManager : IChannelManager
 {
-    private readonly SemaphoreSlim _registerSemaphore = new(1);
+    private readonly SemaphoreSlim _registerSemaphore = new(1, 1);
 
     private readonly object _disposeLock = new();
     private readonly ILogger<ChannelManager> logger;
@@ -80,7 +80,7 @@ public sealed class ChannelManager : IChannelManager
             }
             if (streamHandler.ClientCount == 0)
             {
-                streamHandler.Stop();
+                await streamHandler.Stop();
             }
 
         }
@@ -178,13 +178,13 @@ public sealed class ChannelManager : IChannelManager
         await UnRegisterWithChannelManager(config);
     }
 
-    public void SimulateStreamFailure(string streamUrl)
+    public async Task SimulateStreamFailure(string streamUrl)
     {
         IStreamHandler? handler = streamManager.GetStreamHandlerFromStreamUrl(streamUrl);
 
         if (handler is not null)
         {
-            handler.Stop();
+            await handler.Stop();
 
             logger.LogInformation("Simulating stream failure for: {VideoStreamName}", handler.VideoStreamName);
         }
@@ -194,11 +194,11 @@ public sealed class ChannelManager : IChannelManager
         }
     }
 
-    public void SimulateStreamFailureForAll()
+    public async Task SimulateStreamFailureForAll()
     {
         foreach (IStreamHandler s in streamManager.GetStreamHandlers())
         {
-            s.Stop();
+            await s.Stop();
         }
     }
 
@@ -324,7 +324,7 @@ public sealed class ChannelManager : IChannelManager
                     {
 
                         logger.LogInformation("ChannelManager No more clients, stopping streaming for {clientId}  {name}", config.ClientId, config.ChannelName);
-                        _ = streamManager.StopAndUnRegisterHandler(channelStatus.CurrentVideoStream.User_Url);
+                        await streamManager.StopAndUnRegisterHandler(channelStatus.CurrentVideoStream.User_Url);
 
                         channelService.UnRegisterChannel(config.ChannelVideoStreamId);
                     }

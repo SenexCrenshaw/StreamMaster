@@ -86,6 +86,7 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
         {
             string stationId;
 
+            MxfService? service = null;
 
             if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
             {
@@ -96,14 +97,17 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
                 if (epgHelper.IsValidEPGId(videoStream.User_Tvg_ID))
                 {
                     (epgNumber, stationId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
+                    service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId == stationId);
                 }
                 else
                 {
                     stationId = videoStream.User_Tvg_ID;
+                    string toTest = $"{stationId}-";
+                    service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId.StartsWith(toTest));
                 }
             }
 
-            MxfService? service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId == stationId);
+
             string graceNote = service?.CallSign ?? stationId;
 
             string id = graceNote;

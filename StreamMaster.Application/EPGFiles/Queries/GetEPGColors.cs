@@ -1,4 +1,5 @@
-﻿using StreamMaster.SchedulesDirect.Helpers;
+﻿using StreamMaster.SchedulesDirect.Domain.Helpers;
+using StreamMaster.SchedulesDirect.Helpers;
 
 namespace StreamMaster.Application.EPGFiles.Queries;
 
@@ -28,7 +29,7 @@ internal class GetEPGColorsHandler(ILogger<GetEPGColors> logger, IRepositoryWrap
             ret.Add(new EPGColorDto
             {
                 Id = index++,
-                StationId = $"{svc.EPGNumber}-{svc.StationId}",
+                StationId = svc.StationId,
                 Color = color,
             });
 

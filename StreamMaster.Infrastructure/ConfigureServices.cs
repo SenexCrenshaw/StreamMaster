@@ -11,8 +11,8 @@ using StreamMaster.Infrastructure.Services;
 using StreamMaster.Infrastructure.Services.Downloads;
 using StreamMaster.Infrastructure.Services.Frontend.Mappers;
 using StreamMaster.Infrastructure.Services.Settings;
+using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Helpers;
-
 
 using System.Reflection;
 
@@ -30,7 +30,7 @@ public static class ConfigureServices
         _ = services.AddSingleton<ICacheableSpecification, CacheableSpecification>();
         _ = services.AddSingleton<IJobStatusService, JobStatusService>();
         _ = services.AddSingleton<IEPGHelper, EPGHelper>();
-
+        _ = services.AddSingleton<IIconHelper, IconHelper>();
         _ = services.AddSingleton<IFileLoggingServiceFactory, FileLoggingServiceFactory>();
 
         // If needed, you can also pre-register specific instances
@@ -46,19 +46,6 @@ public static class ConfigureServices
             return factory.Create("FileLoggerDebug");
         });
 
-        // Dynamically find and register services implementing IMapHttpRequestsToDisk
-        Assembly assembly = Assembly.GetExecutingAssembly();
-        IEnumerable<Type> mapHttpRequestsToDiskImplementations = assembly.GetTypes()
-            .Where(type => typeof(IMapHttpRequestsToDisk).IsAssignableFrom(type) && !type.IsInterface);
-
-        foreach (Type? implementation in mapHttpRequestsToDiskImplementations)
-        {
-            if (implementation.Name.EndsWith("Base"))
-            {
-                continue;
-            }
-            _ = services.AddSingleton(typeof(IMapHttpRequestsToDisk), implementation);
-        }
 
         _ = services.AddAutoMapper(
             Assembly.Load("StreamMaster.Domain"),
@@ -85,11 +72,34 @@ public static class ConfigureServices
 
         _ = services.AddScoped<ILogDB>(provider => provider.GetRequiredService<LogDbContext>());
 
+        return services;
+    }
+
+    public static IServiceCollection AddInfrastructureServicesEx(this IServiceCollection services)
+    {
 
         _ = services.AddSingleton<IBroadcastService, BroadcastService>();
 
         _ = services.AddHostedService<TimerService>();
-        //_ = services.AddHostedService<ImageDownloadService>();
+
+        // Dynamically find and register services implementing IMapHttpRequestsToDisk
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        IEnumerable<Type> mapHttpRequestsToDiskImplementations = assembly.GetTypes()
+            .Where(type => typeof(IMapHttpRequestsToDisk).IsAssignableFrom(type) && !type.IsInterface);
+
+        foreach (Type? implementation in mapHttpRequestsToDiskImplementations)
+        {
+            if (implementation.Name.EndsWith("Base"))
+            {
+                continue;
+            }
+            _ = services.AddSingleton(typeof(IMapHttpRequestsToDisk), implementation);
+        }
+
+        _ = services.AddSingleton<IBroadcastService, BroadcastService>();
+
+        _ = services.AddHostedService<TimerService>();
+
         _ = services.AddSingleton<IImageDownloadService, ImageDownloadService>();
         return services;
     }

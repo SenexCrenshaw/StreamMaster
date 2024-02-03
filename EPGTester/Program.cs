@@ -8,6 +8,7 @@ using StreamMaster.Infrastructure.Services.Settings;
 using StreamMaster.SchedulesDirect;
 using StreamMaster.SchedulesDirect.Converters;
 using StreamMaster.SchedulesDirect.Data;
+using StreamMaster.SchedulesDirect.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 using StreamMaster.SchedulesDirect.Helpers;
@@ -17,18 +18,18 @@ using System.Xml.Serialization;
 
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 
-namespace M3UFormatter
+namespace EPGTester
 {
     internal class Program
     {
         private static ILogger<Program> _logger;
 
-        private static async Task Main(string[] args)
+        private static void Main(string[] args)
         {
             ServiceProvider serviceProvider = new ServiceCollection()
             .AddLogging(configure => configure.AddConsole())
             .AddSingleton<ISchedulesDirectDataService, SchedulesDirectDataService>()
-            .AddSingleton<IXmltv2Mxf, XmlTv2Mxf>()
+            .AddTransient<IXmltv2Mxf, XmlTv2Mxf>()
             .AddSingleton<IMemoryCache, MemoryCache>()
             .AddSingleton<IEPGHelper, EPGHelper>()
             .AddSingleton<ISettingsService, SettingsService>()
@@ -39,17 +40,9 @@ namespace M3UFormatter
             GlobalLoggerProvider.Configure(loggerFactory);
             _logger = serviceProvider.GetService<ILogger<Program>>()!;
 
-            // Resolve the service
             IXmltv2Mxf? xmltv2Mxf = serviceProvider.GetService<IXmltv2Mxf>()!;
 
-
-            if (args.Length != 1 || string.IsNullOrEmpty(args[0]))
-            {
-                _logger.LogInformation("Usage: M3UFormatter <m3u file>");
-                return;
-            }
-
-            string fullName = args[0];
+            string fullName = "C:\\Users\\senex\\git\\test\\epg123.xml";
             if (File.Exists(fullName) == false)
             {
                 _logger.LogInformation($"File {fullName} does not exist");
@@ -62,6 +55,12 @@ namespace M3UFormatter
                 _logger.LogCritical("Exception EPG {fullName} format is not supported", fullName);
                 return;
             }
+            string channel = "ABCWAAY.us";
+
+            List<XmltvProgramme> a = epgData.Programs.Where(a => a.Channel == channel).ToList();
+
+            _logger.LogInformation("EPG {channel} has {a.Count} programs", channel, a.Count);
+
             string name = Path.GetFileNameWithoutExtension(fullName);
             string text = SerializeXMLTVData(epgData);
             File.WriteAllText($"C:\\Users\\senex\\git\\test\\{name}_clean.xml", text);

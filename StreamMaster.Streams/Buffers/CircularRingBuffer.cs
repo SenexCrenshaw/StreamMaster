@@ -29,6 +29,10 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
     private int CalculateClientReadIndex(long readByteIndex)
     {
+        if (_buffer.Length == 0)
+        {
+            return 0;
+        }
         // Calculate the byte difference
         long byteDifference = WriteBytes - readByteIndex;
 
@@ -56,13 +60,8 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
 
         Guid correlationId = Guid.NewGuid();
 
-        //CancellationTokenSource timeOutToken = new();
-        //timeOutToken.CancelAfter(TimeSpan.FromSeconds(10));
-
         Stopwatch stopwatch = Stopwatch.StartNew();
         CancellationToken linkedToken = CancellationTokenSource.CreateLinkedTokenSource(StopVideoStreamingToken.Token, cancellationToken).Token;
-        //CancellationToken linkedToken = CancellationTokenSource.CreateLinkedTokenSource(timeOutToken.Token, StopVideoStreamingToken.Token, cancellationToken).Token;
-
 
         int availableBytes = 0;
 
@@ -90,10 +89,10 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                 availableBytes = GetAvailableBytes(readIndex, correlationId);
                 _readLogger.LogDebug("Start bytesRead: {bytesRead} bytesToRead: {bytesToRead} clientReadIndex: {clientReadIndex} writeindex: {writeindex} writebytes: {writebytes} availableBytes: {availableBytes} target.Length: {target.Length} readIndex: {readIndex}", bytesRead, bytesToRead, clientReadIndex, _writeIndex, WriteBytes, availableBytes, target.Length, readIndex);
 
-                while (availableBytes == 0)
+                while (availableBytes == 0 && !cancellationToken.IsCancellationRequested)
                 {
-                    await _writeSignal.Task;//.WaitWithTimeoutAsync("WriteSignal", 30000, linkedToken);
-                    if (_writeSignal.Task.IsCanceled)
+                    await _writeSignal.Task.WaitAsync(cancellationToken);//.WaitWithTimeoutAsync("WriteSignal", 30000, linkedToken);
+                    if (_writeSignal.Task.IsCanceled || cancellationToken.IsCancellationRequested)
                     {
                         _readLogger.LogDebug("ReadChunkMemory _writeSignal.Task.IsCanceled");
                         break;
@@ -128,7 +127,6 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                 bytesRead += bytesToRead;
 
                 // Update the client's read index, wrapping around if necessary
-                //clientReadIndex = (clientReadIndex + bytesToRead) % _buffer.Length;
                 readIndex += bytesToRead;
                 clientReadIndex = CalculateClientReadIndex(readIndex);
 
@@ -139,15 +137,12 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         catch (TaskCanceledException ex)
         {
             _readLogger.LogDebug(ex, "ReadChunkMemory cancelled");
-            //_readLogger.LogDebug("ReadChunkMemory {timeOutToken.Token}", timeOutToken.Token.IsCancellationRequested);
             _readLogger.LogDebug("ReadChunkMemory {cancellationToken}", cancellationToken.IsCancellationRequested);
             _readLogger.LogDebug("ReadChunkMemory {StopVideoStreamingToken}", StopVideoStreamingToken.IsCancellationRequested);
-            //bytesRead = -1;
         }
         catch (TimeoutException ex)
         {
             _readLogger.LogDebug(ex, "ReadChunkMemory timeout");
-            //_readLogger.LogDebug("ReadChunkMemory {timeOutToken.Token}", timeOutToken.Token.IsCancellationRequested);
             _readLogger.LogDebug("ReadChunkMemory {cancellationToken}", cancellationToken.IsCancellationRequested);
             _readLogger.LogDebug("ReadChunkMemory {StopVideoStreamingToken}", StopVideoStreamingToken.IsCancellationRequested);
         }
@@ -161,18 +156,12 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         }
         finally
         {
-            // Ensure that the registration is disposed of
-            //UnregisterCancellation();
-            //timeOutToken.Dispose();
+
             _readLogger.LogDebug($"-------------------{VideoStreamName}-----------------------------");
         }
 
         stopwatch.Stop();
-        if (bytesRead == 0)
-        {
-            logger.LogInformation($"ReadChunkMemory bytesRead {bytesRead} {readIndex} {VideoStreamName}");
 
-        }
         return bytesRead;
     }
 
@@ -206,7 +195,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         try
         {
 
-            while (data.Length > 0)
+            while (data.Length > 0 && _buffer.Length > 0)
             {
                 if (data.Length < 10000)
                 {
