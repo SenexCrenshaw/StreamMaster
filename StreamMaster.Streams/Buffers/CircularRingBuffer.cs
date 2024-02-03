@@ -195,7 +195,7 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         try
         {
 
-            while (data.Length > 0)
+            while (data.Length > 0 && _buffer.Length > 0)
             {
                 if (data.Length < 10000)
                 {
