@@ -1,3 +1,24 @@
+## [0.8.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0...v0.8.1) (2024-02-03)
+
+
+### Bug Fixes
+
+* Adjusted regex pattern to capture optional build/revision number ([3b6a1f1](https://github.com/SenexCrenshaw/StreamMaster/commit/3b6a1f13aa4d87660f26baebbf8d5b3b5a8608ca))
+
+## [0.8.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0...v0.8.1) (2024-02-03)
+
+
+### Bug Fixes
+
+* Adjusted regex pattern to capture optional build/revision number ([3b6a1f1](https://github.com/SenexCrenshaw/StreamMaster/commit/3b6a1f13aa4d87660f26baebbf8d5b3b5a8608ca))
+
+# [0.8.0](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.7.1...v0.8.0) (2024-02-03)
+
+
+### Features
+
+* Add new feature for user ([d9afed5](https://github.com/SenexCrenshaw/StreamMaster/commit/d9afed5d81a5376cb6bad4958eed791b676f17a8))
+
 # [0.8.0-stream.12](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0-stream.11...v0.8.0-stream.12) (2024-02-02)
 
 
