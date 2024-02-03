@@ -1,3 +1,10 @@
+# [0.9.0-i-am-not-drunk.5](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.4...v0.9.0-i-am-not-drunk.5) (2024-02-03)
+
+
+### Bug Fixes
+
+* Fix ownership of /config folder ([6cb6f16](https://github.com/SenexCrenshaw/StreamMaster/commit/6cb6f16fea4e01d52a7867dced8dd66e3385fc21))
+
 # [0.9.0-i-am-not-drunk.4](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.3...v0.9.0-i-am-not-drunk.4) (2024-02-03)
 
 
