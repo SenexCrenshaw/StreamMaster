@@ -1,5 +1,5 @@
 ﻿using StreamMaster.Application.Services;
-using StreamMaster.Infrastructure.EF.PSQL;
+using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 namespace StreamMaster.API.Services;

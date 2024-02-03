@@ -25,7 +25,7 @@ using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.Authentication;
-using StreamMaster.Infrastructure.EF.PSQL;
+using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.Logger;
 using StreamMaster.Infrastructure.Services.Frontend;
 using StreamMaster.Infrastructure.Services.QueueService;

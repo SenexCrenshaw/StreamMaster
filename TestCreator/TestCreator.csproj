@@ -32,7 +32,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\StreamMaster.Infrastructure.EF.PSQL\StreamMaster.Infrastructure.EF.PSQL.csproj" />
     <ProjectReference Include="..\StreamMaster.Infrastructure\StreamMaster.Infrastructure.csproj" />
   </ItemGroup>
 
