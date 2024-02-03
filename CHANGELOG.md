@@ -1,3 +1,15 @@
+# [0.9.0-i-am-not-drunk.4](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.3...v0.9.0-i-am-not-drunk.4) (2024-02-03)
+
+
+### Bug Fixes
+
+* Optimzied filtering ([078ad2e](https://github.com/SenexCrenshaw/StreamMaster/commit/078ad2e0b0490464812b8b4ddc422eb3d22a368c))
+
+
+### Features
+
+* Add support for database settings ([9a2b472](https://github.com/SenexCrenshaw/StreamMaster/commit/9a2b47223f32b4821616f78170e464c762070b04))
+
 # [0.9.0-i-am-not-drunk.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.2...v0.9.0-i-am-not-drunk.3) (2024-02-03)
 
 # [0.9.0-i-am-not-drunk.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.1...v0.9.0-i-am-not-drunk.2) (2024-02-03)
