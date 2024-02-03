@@ -10,14 +10,6 @@ module.exports = {
       name: "main",
       prerelease: false
     },
-    // {
-    //   name: "beta",
-    //   prerelease: true
-    // },
-    // {
-    //   name: "alpha",
-    //   prerelease: true
-    // },
     {
       name: "!main",
       prerelease: true
