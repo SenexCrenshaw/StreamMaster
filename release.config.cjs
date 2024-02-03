@@ -5,7 +5,10 @@
 module.exports = {
   branches: [
     // "+([0-9])?(.{+([0-9]),x}).x",
-    "main",
+    {
+      name: "main",
+      prerelease: false
+    },
     // {
     //   name: "beta",
     //   prerelease: true
