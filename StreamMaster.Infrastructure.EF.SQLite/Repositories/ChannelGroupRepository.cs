@@ -12,7 +12,7 @@ using System.Linq.Dynamic.Core;
 
 namespace StreamMaster.Infrastructure.EF.SQLite.Repositories;
 
-public class ChannelGroupRepository(ILogger<ChannelGroupRepository> intLogger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMemoryCache memoryCache, ISender sender) : RepositoryBase<ChannelGroup>(repositoryContext, intLogger), IChannelGroupRepository
+public class ChannelGroupRepository(ILogger<ChannelGroupRepository> intLogger, SQLiteRepositoryContext repositoryContext, IRepositoryWrapper repository, IMemoryCache memoryCache, ISender sender) : RepositoryBase<ChannelGroup>(repositoryContext, intLogger), IChannelGroupRepository
 {
     /// <summary>
     /// Retrieves all channel groups from the database.

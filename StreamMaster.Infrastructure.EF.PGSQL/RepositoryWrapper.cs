@@ -7,7 +7,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Infrastructure.EF.PGSQL.Repositories;
-using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 namespace StreamMaster.Infrastructure.EF.PGSQL
@@ -29,7 +28,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
         IIconService iconService,
         IMemoryCache memoryCache,
         ISender sender,
-        IEPGHelper epgHelper,
         IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
     {
         private IStreamGroupRepository _streamGroup;

@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.Infrastructure.EF.SQLite
 {
-    public partial class RepositoryContext(DbContextOptions<RepositoryContext> options) : DbContext(options), IDataProtectionKeyContext
+    public partial class SQLiteRepositoryContext(DbContextOptions<SQLiteRepositoryContext> options) : DbContext(options), IDataProtectionKeyContext
     {
         public async Task VacuumDatabaseAsync()
         {
@@ -144,7 +144,7 @@ namespace StreamMaster.Infrastructure.EF.SQLite
             }
 
         }
-        public string DbPath { get; } = Path.Join(BuildInfo.DataFolder, "StreamMaster.db");
+        public string DbPath { get; } = Path.Join(BuildInfo.AppDataFolder, "StreamMaster.db");
 
         public DbSet<SystemKeyValue> SystemKeyValues { get; set; }
 
@@ -163,7 +163,7 @@ namespace StreamMaster.Infrastructure.EF.SQLite
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
-            _ = modelBuilder.ApplyConfigurationsFromAssembly(typeof(RepositoryContext).Assembly);
+            _ = modelBuilder.ApplyConfigurationsFromAssembly(typeof(SQLiteRepositoryContext).Assembly);
             modelBuilder.UseCollation("NOCASE_UTF8");
 
             _ = modelBuilder.Entity<VideoStream>()
@@ -206,7 +206,7 @@ namespace StreamMaster.Infrastructure.EF.SQLite
         {
             FileUtil.SetupDirectories();
             _ = options.UseSqlite(
-                $"Data Source={DbPath}",
+                $"Data Source={DbPath};Pooling=False",
                 o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
                 );
             SQLitePCL.Batteries.Init();

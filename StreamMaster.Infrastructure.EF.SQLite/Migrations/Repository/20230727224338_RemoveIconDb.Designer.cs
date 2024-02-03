@@ -12,7 +12,7 @@ using StreamMaster.Infrastructure.EF.SQLite;
 
 namespace StreamMaster.Infrastructure.Persistence.Migrations
 {
-    [DbContext(typeof(RepositoryContext))]
+    [DbContext(typeof(SQLiteRepositoryContext))]
     [Migration("20230727224338_RemoveIconDb")]
     partial class RemoveIconDb
     {

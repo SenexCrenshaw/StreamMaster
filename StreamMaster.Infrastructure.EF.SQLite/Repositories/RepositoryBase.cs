@@ -16,10 +16,10 @@ namespace StreamMaster.Infrastructure.EF.SQLite.Repositories;
 /// <typeparam name="T">Type of the entity managed by this repository.</typeparam>
 public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
 {
-    protected readonly RepositoryContext RepositoryContext;
+    protected readonly SQLiteRepositoryContext RepositoryContext;
     protected readonly ILogger logger;
 
-    public RepositoryBase(RepositoryContext repositoryContext, ILogger logger)
+    public RepositoryBase(SQLiteRepositoryContext repositoryContext, ILogger logger)
     {
         RepositoryContext = repositoryContext ?? throw new ArgumentNullException(nameof(repositoryContext));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));

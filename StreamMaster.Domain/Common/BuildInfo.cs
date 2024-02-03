@@ -32,8 +32,11 @@ public static class BuildInfo
         AssemblyInformationalVersionAttribute? informationalVersion = attributes.OfType<AssemblyInformationalVersionAttribute>().FirstOrDefault();
         if (informationalVersion is not null)
         {
+            Release = informationalVersion.InformationalVersion.Contains("Sha")
+            ? informationalVersion.InformationalVersion[..(informationalVersion.InformationalVersion.IndexOf("Sha") - 1)]
+            : informationalVersion.InformationalVersion;
 
-            Release = informationalVersion.InformationalVersion[..(informationalVersion.InformationalVersion.IndexOf("Sha") - 1)];
+
         }
     }
 
@@ -45,7 +48,7 @@ public static class BuildInfo
     public static string Release { get; }
     //public static string AppDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{AppName.ToLower()}{Path.DirectorySeparatorChar}";
     public static string AppDataFolder = "/config/";
-    public static readonly string DataFolder = $"{AppDataFolder}";
+    public static readonly string DataFolder = Path.Combine(AppDataFolder, "DB");
 
     public static readonly string CacheFolder = $"{AppDataFolder}Cache{Path.DirectorySeparatorChar}";
     public static readonly string LogFolder = Path.Combine(AppDataFolder, "Logs");

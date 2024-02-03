@@ -64,7 +64,7 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
     {
         if (taskQueueStatuses.TryGetValue(Id, out TaskQueueStatus? status))
         {
-            status.QueueTS = DateTime.Now;
+            status.QueueTS = DateTime.UtcNow;
             status.IsRunning = true;
             await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
         }

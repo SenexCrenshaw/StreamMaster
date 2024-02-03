@@ -1,5 +1,6 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 
 using Prometheus;
 
@@ -13,6 +14,7 @@ using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.EF.PGSQL.Logging;
+using StreamMaster.Infrastructure.EF.SQLite;
 using StreamMaster.Infrastructure.Middleware;
 using StreamMaster.SchedulesDirect.Services;
 using StreamMaster.Streams;
@@ -73,6 +75,7 @@ if (!string.IsNullOrEmpty(sslCertPath))
 builder.Services.AddSchedulesDirectAPIServices();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureEFServices();
+builder.Services.AddInfrastructureEFSQLiteServices();
 builder.Services.AddInfrastructureServices();
 builder.Services.AddInfrastructureServicesEx();
 builder.Services.AddStreamsServices();
@@ -148,6 +151,19 @@ using (IServiceScope scope = app.Services.CreateScope())
         initialiser.MigrateData();
     }
 
+
+    string sqliteDB = Path.Join(BuildInfo.AppDataFolder, "StreamMaster.db");
+    if (File.Exists(sqliteDB))
+    {
+        RepositoryContext repositoryContext = scope.ServiceProvider.GetRequiredService<RepositoryContext>();
+        SQLiteRepositoryContext sQLiteRepositoryContext = scope.ServiceProvider.GetRequiredService<SQLiteRepositoryContext>();
+        if ( MigrateFromSQLite.MigrateFromSQLiteDatabaseToPostgres(repositoryContext, sQLiteRepositoryContext))
+        {
+            sQLiteRepositoryContext.Dispose();
+            SqliteConnection.ClearAllPools();
+            File.Move(sqliteDB, sqliteDB+".old");
+        }
+    }
 
     var mem = scope.ServiceProvider.GetRequiredService<IMemoryCache>();
     var setting = FileUtil.GetSetting();

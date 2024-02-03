@@ -11,6 +11,10 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
     public partial class RepositoryContext(DbContextOptions<RepositoryContext> options) : DbContext(options), IDataProtectionKeyContext
     {
 
+        //public static string DbPath => Path.Join(BuildInfo.DataFolder, "StreamMasterPsql.db");
+        public static string DbConnectionString = $"Host=postgres;Database=StreamMaster;Username=postgres;Password=sm123";
+
+
         public bool IsEntityTracked<TEntity>(TEntity entity) where TEntity : class
         {
             return ChangeTracker.Entries<TEntity>().Any(e => e.Entity == entity);
@@ -24,8 +28,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
                 return;
             }
         }
-
-        public static string DbPath => Path.Join(BuildInfo.DataFolder, "StreamMasterPsql.db");
 
         public DbSet<SystemKeyValue> SystemKeyValues { get; set; }
 
@@ -43,10 +45,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasCollation("sm_collation", locale: "C.utf8", provider: "icu", deterministic: false);
+            //modelBuilder.HasCollation("sm_collation", locale: "C.utf8", provider: "icu", deterministic: false);
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(RepositoryContext).Assembly);
-            modelBuilder.UseCollation("NOCASE_UTF8");
 
             _ = modelBuilder.Entity<VideoStream>()
              .HasIndex(e => e.User_Tvg_group)
@@ -88,12 +89,21 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             FileUtil.SetupDirectories();
-            _ = options.UseSqlite(
-                 $"Host=postgres;Data Source={DbPath};Username=postgres;Password=sm123",
-                o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            options.UseNpgsql(DbConnectionString,
+                o =>
+                {
+                    o.UseNodaTime();
+                    o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                }
                 );
 
         }
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            //configurationBuilder.Properties<string>().UseCollation("sm_collation");
+        }
+
         private bool _disposed = false;
 
         public override void Dispose()

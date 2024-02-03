@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.Infrastructure.EF.SQLite.Repositories;
 
-public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISender sender) : RepositoryBase<StreamGroupVideoStream>(repositoryContext, logger), IStreamGroupVideoStreamRepository
+public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepository> logger, SQLiteRepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISender sender) : RepositoryBase<StreamGroupVideoStream>(repositoryContext, logger), IStreamGroupVideoStreamRepository
 {
     public async Task AddStreamGroupVideoStreams(int StreamGroupId, List<string> toAdd, bool IsReadOnly, CancellationToken cancellationToken)
     {
@@ -142,7 +142,7 @@ public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepo
         }
 
         IQueryable<StreamGroupVideoStream> toDelete = FindByCondition(a => a.StreamGroupId == StreamGroupId && toRemove.Contains(a.ChildVideoStreamId));
-        //await RepositoryContext.BulkDeleteAsync(toDelete, cancellationToken: cancellationToken).ConfigureAwait(false);
+        //await SQLiteRepositoryContext.BulkDeleteAsync(toDelete, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         RepositoryContext.StreamGroupVideoStreams.RemoveRange(toDelete);
         await repository.SaveAsync().ConfigureAwait(false);

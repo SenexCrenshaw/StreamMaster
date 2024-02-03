@@ -16,7 +16,7 @@ public class JobStatus
 
     public void SetSuccessful()
     {
-        LastRun = DateTime.Now;
+        LastRun = DateTime.UtcNow;
         IsRunning = false;
         LastSuccessful = LastRun;
         ForceNextRun = false;
@@ -24,7 +24,7 @@ public class JobStatus
 
     public void SetError()
     {
-        LastRun = DateTime.Now;
+        LastRun = DateTime.UtcNow;
         LastError = LastRun;
         IsRunning = false;
         ForceNextRun = false;

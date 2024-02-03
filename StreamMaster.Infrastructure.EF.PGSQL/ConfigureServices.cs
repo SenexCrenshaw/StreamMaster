@@ -2,9 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
+using Npgsql;
+
 using StreamMaster.Application.LogApp;
 using StreamMaster.Infrastructure.EF.PGSQL.Logging;
-using StreamMaster.Infrastructure.EF.PGSQL;
 
 namespace StreamMaster.Infrastructure.EF.PGSQL;
 
@@ -13,21 +14,26 @@ public static class ConfigureServices
     public static IServiceCollection AddInfrastructureEFServices(this IServiceCollection services)
     {
 
-        string DbPath = Path.Join(BuildInfo.DataFolder, "StreamMasterPsql.db");
-        string LogDbPath = Path.Join(BuildInfo.DataFolder, "StreamMasterPsql_Log.db");
+        NpgsqlDataSourceBuilder dataSourceBuilder = new(RepositoryContext.DbConnectionString);
+        dataSourceBuilder.UseNodaTime();
+        NpgsqlDataSource dataSource = dataSourceBuilder.Build();
 
         _ = services.AddDbContextFactory<RepositoryContext>(options =>
-            options.UseNpgsql(
-                $"Host=postgres;Data Source={DbPath};Username=postgres;Password=sm123",
-                builder => builder.MigrationsAssembly(typeof(RepositoryContext).Assembly.FullName)
-            )
+            options.UseNpgsql(dataSource, pgsqlOptions =>
+            {
+                pgsqlOptions.MigrationsAssembly(typeof(RepositoryContext).Assembly.FullName);
+                pgsqlOptions.UseNodaTime();
+            }
+            )//.ReplaceService<IQueryTranslationPostprocessorFactory, MyQueryTranslationPostprocessorFactory>()
         );
 
         _ = services.AddDbContextFactory<LogDbContext>(options =>
+        {
             options.UseNpgsql(
-                $"Host=postgres;Data Source={LogDbPath};Username=postgres;Password=sm123",
-                builder => builder.MigrationsAssembly(typeof(RepositoryContext).Assembly.FullName)
-            )
+               LogDbContext.DbConnectionString,
+                pgsqlOptions => pgsqlOptions.MigrationsAssembly(typeof(LogDbContext).Assembly.FullName)
+            );//.ReplaceService<IQueryTranslationPostprocessorFactory, MyQueryTranslationPostprocessorFactory>();
+        }
         );
 
         _ = services.AddScoped<LogDbContextInitialiser>();

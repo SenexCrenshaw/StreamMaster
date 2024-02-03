@@ -22,7 +22,7 @@ public class FileLoggingService : IFileLoggingService, IDisposable
 
     public void EnqueueLogEntry(string format, params object[] args)
     {
-        string formattedMessage = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}" + string.Format(format, args);
+        string formattedMessage = $"{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}" + string.Format(format, args);
         _logQueue.Enqueue(formattedMessage);
     }
 

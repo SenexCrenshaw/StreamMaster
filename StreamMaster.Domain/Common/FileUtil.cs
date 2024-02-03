@@ -285,7 +285,7 @@ public sealed class FileUtil
                 Name = Path.GetFileNameWithoutExtension(name),
                 FileExists = true,
                 ContentType = "image/png",
-                LastDownloaded = DateTime.Now,
+                LastDownloaded = DateTime.UtcNow,
                 Source = $"{basePath}{Path.DirectorySeparatorChar}{file.Name}"
             };
 

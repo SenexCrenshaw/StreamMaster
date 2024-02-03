@@ -14,6 +14,7 @@ public class BuildIconsCacheFromVideoStreamRequestHandler(ILogger<BuildIconsCach
     {
 
         IQueryable<VideoStream> streams = Repository.VideoStream.GetVideoStreamQuery()
+         //        .Where(a => a.User_Tvg_logo != null && EF.Functions.ILike(a.User_Tvg_logo, "://"))
          .Where(a => a.User_Tvg_logo != null && a.User_Tvg_logo.Contains("://"))
          .AsQueryable();
 

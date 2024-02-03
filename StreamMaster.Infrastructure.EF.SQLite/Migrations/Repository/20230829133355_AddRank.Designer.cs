@@ -10,7 +10,7 @@ using StreamMaster.Infrastructure.EF.SQLite;
 
 namespace StreamMaster.Infrastructure.EF.Migrations.Repository
 {
-    [DbContext(typeof(RepositoryContext))]
+    [DbContext(typeof(SQLiteRepositoryContext))]
     [Migration("20230829133355_AddRank")]
     partial class AddRank
     {

@@ -9,7 +9,7 @@ public class FileLoggingServiceFactory() : IFileLoggingServiceFactory
 {
     public IFileLoggingService Create(string key)
     {
-        string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        string timestamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
         string debugLogPath = Path.Combine(BuildInfo.LogFolder, $"StreamMasterAPI_{timestamp}_debug.log");
 
         string logFilePath = key switch

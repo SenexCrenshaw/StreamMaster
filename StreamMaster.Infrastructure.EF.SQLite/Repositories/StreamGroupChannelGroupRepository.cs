@@ -13,7 +13,7 @@ using StreamMaster.Application.VideoStreams.Queries;
 
 namespace StreamMaster.Infrastructure.EF.SQLite.Repositories;
 
-public class StreamGroupChannelGroupRepository(ILogger<StreamGroupChannelGroupRepository> intLogger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISender sender) : RepositoryBase<StreamGroupChannelGroup>(repositoryContext, intLogger), IStreamGroupChannelGroupRepository
+public class StreamGroupChannelGroupRepository(ILogger<StreamGroupChannelGroupRepository> intLogger, SQLiteRepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISender sender) : RepositoryBase<StreamGroupChannelGroup>(repositoryContext, intLogger), IStreamGroupChannelGroupRepository
 {
     /// <summary>
     /// Synchronizes channel groups for a stream group, adding and removing them as necessary.

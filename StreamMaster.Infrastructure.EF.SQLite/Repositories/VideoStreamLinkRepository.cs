@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace StreamMaster.Infrastructure.EF.SQLite.Repositories;
 
-public class VideoStreamLinkRepository(ILogger<VideoStreamLinkRepository> logger, RepositoryContext repositoryContext, IMapper mapper) : RepositoryBase<VideoStreamLink>(repositoryContext, logger), IVideoStreamLinkRepository
+public class VideoStreamLinkRepository(ILogger<VideoStreamLinkRepository> logger, SQLiteRepositoryContext repositoryContext, IMapper mapper) : RepositoryBase<VideoStreamLink>(repositoryContext, logger), IVideoStreamLinkRepository
 {
     public async Task<List<string>> GetVideoStreamVideoStreamIds(string videoStreamId, CancellationToken cancellationToken)
     {
@@ -37,7 +37,7 @@ public class VideoStreamLinkRepository(ILogger<VideoStreamLinkRepository> logger
 
         //var ids = links.Select(a => a.ChildVideoStreamId);
 
-        //var videoStreams = await RepositoryContext.VideoStreams.Where(a => ids.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        //var videoStreams = await SQLiteRepositoryContext.VideoStreams.Where(a => ids.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
         List<VideoStreamDto> cgs = [];
 

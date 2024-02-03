@@ -3,14 +3,14 @@ using Microsoft.Extensions.Logging;
 
 namespace StreamMaster.Infrastructure.EF.SQLite;
 
-public class RepositoryContextInitializer
+public class SQLiteRepositoryContextInitializer
 {
-    private readonly RepositoryContext _context;
-    private readonly ILogger<RepositoryContextInitializer> _logger;
+    private readonly SQLiteRepositoryContext _context;
+    private readonly ILogger<SQLiteRepositoryContextInitializer> _logger;
 
-    public RepositoryContextInitializer(
-        ILogger<RepositoryContextInitializer> logger,
-        RepositoryContext context
+    public SQLiteRepositoryContextInitializer(
+        ILogger<SQLiteRepositoryContextInitializer> logger,
+        SQLiteRepositoryContext context
         )
     {
         _logger = logger;

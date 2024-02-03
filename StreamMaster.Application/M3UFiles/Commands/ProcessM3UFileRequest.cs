@@ -120,7 +120,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
 
         //_ = await Repository.SaveAsync().ConfigureAwait(false);
 
-        m3uFile.LastUpdated = DateTime.Now;
+        m3uFile.LastUpdated = DateTime.UtcNow;
         if (m3uFile.StationCount != streamCount)
         {
             m3uFile.StationCount = streamCount;
@@ -327,19 +327,19 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         return cleanStreams;
     }
 
-    private void LogDuplicatesToCSV(List<VideoStream> dupes)
-    {
-        string fileName = $"dupes.csv";
-        List<string> lines = [VideoStream.GetCsvHeader(), .. dupes.Select(a => a.ToString())];
+    //private void LogDuplicatesToCSV(List<VideoStream> dupes)
+    //{
+    //    string fileName = $"dupes.csv";
+    //    List<string> lines = [VideoStream.GetCsvHeader(), .. dupes.Select(a => a.ToString())];
 
-        using StreamWriter file = new(fileName);
-        foreach (string line in lines)
-        {
-            file.WriteLine(line);
-        }
+    //    using StreamWriter file = new(fileName);
+    //    foreach (string line in lines)
+    //    {
+    //        file.WriteLine(line);
+    //    }
 
-        logger.LogError($"Found duplicate streams. Details logged to {fileName}");
-    }
+    //    logger.LogError($"Found duplicate streams. Details logged to {fileName}");
+    //}
 
     private bool ProcessExistingStream(VideoStream stream, VideoStream dbStream, string mu3FileName, bool overWriteChannels, int index)
     {

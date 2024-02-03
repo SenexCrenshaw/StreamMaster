@@ -37,7 +37,7 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
                 epgFile.ProgrammeCount = tv.Programs != null ? tv.Programs.Count : 0;
             }
 
-            epgFile.LastUpdated = DateTime.Now;
+            epgFile.LastUpdated = DateTime.UtcNow;
             Repository.EPGFile.UpdateEPGFile(epgFile);
 
             _ = await Repository.SaveAsync().ConfigureAwait(false);

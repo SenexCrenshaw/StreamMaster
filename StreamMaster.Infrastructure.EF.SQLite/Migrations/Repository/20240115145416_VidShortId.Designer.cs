@@ -10,7 +10,7 @@ using StreamMaster.Infrastructure.EF.SQLite;
 
 namespace StreamMaster.Infrastructure.EF.Migrations.Repository
 {
-    [DbContext(typeof(RepositoryContext))]
+    [DbContext(typeof(SQLiteRepositoryContext))]
     [Migration("20240115145416_VidShortId")]
     partial class VidShortId
     {

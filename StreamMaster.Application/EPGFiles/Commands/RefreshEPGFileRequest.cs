@@ -37,7 +37,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
             }
 
             bool publish = false;
-            if (epgFile.LastDownloadAttempt.AddMinutes(epgFile.MinimumMinutesBetweenDownloads) < DateTime.Now)
+            if (epgFile.LastDownloadAttempt.AddMinutes(epgFile.MinimumMinutesBetweenDownloads) < DateTime.UtcNow)
             {
 
                 FileDefinition fd = FileDefinitions.EPG;
@@ -48,7 +48,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
                     publish = true;
                     Logger.LogInformation("Refresh EPG From URL {epgFile.Url}", epgFile.Url);
 
-                    epgFile.LastDownloadAttempt = DateTime.Now;
+                    epgFile.LastDownloadAttempt = DateTime.UtcNow;
 
                     (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(epgFile.Url, fullName, cancellationToken).ConfigureAwait(false);
                     if (success)
@@ -65,7 +65,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
                 }
             }
 
-            epgFile.LastUpdated = DateTime.Now;
+            epgFile.LastUpdated = DateTime.UtcNow;
             Repository.EPGFile.UpdateEPGFile(epgFile);
 
             _ = await Repository.SaveAsync().ConfigureAwait(false);

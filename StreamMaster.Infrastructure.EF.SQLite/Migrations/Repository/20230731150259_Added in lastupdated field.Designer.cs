@@ -12,7 +12,7 @@ using StreamMaster.Infrastructure.EF.SQLite;
 
 namespace StreamMaster.Infrastructure.Persistence.Migrations
 {
-    [DbContext(typeof(RepositoryContext))]
+    [DbContext(typeof(SQLiteRepositoryContext))]
     [Migration("20230731150259_Added in lastupdated field")]
     partial class Addedinlastupdatedfield
     {

@@ -12,7 +12,7 @@ namespace StreamMaster.Infrastructure.EF.SQLite.Repositories;
 /// <summary>
 /// Repository to manage EPGFile entities in the database.
 /// </summary>
-public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper) : RepositoryBase<EPGFile>(repositoryContext, logger), IEPGFileRepository
+public class EPGFileRepository(ILogger<EPGFileRepository> logger, SQLiteRepositoryContext repositoryContext, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper) : RepositoryBase<EPGFile>(repositoryContext, logger), IEPGFileRepository
 {
     public async Task<int> GetNextAvailableEPGNumberAsync(CancellationToken cancellationToken)
     {

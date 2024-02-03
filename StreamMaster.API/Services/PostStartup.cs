@@ -39,6 +39,7 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
 
         using IServiceScope scope = serviceProvider.CreateScope();
         RepositoryContext repositoryContext = scope.ServiceProvider.GetRequiredService<RepositoryContext>();
+
         ISchedulesDirectDataService schedulesDirectService = scope.ServiceProvider.GetRequiredService<ISchedulesDirectDataService>();
         await repositoryContext.MigrateData(schedulesDirectService.AllServices);
     }

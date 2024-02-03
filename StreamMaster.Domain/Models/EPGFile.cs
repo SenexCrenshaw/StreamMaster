@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 
 namespace StreamMaster.Domain.Models;
@@ -8,6 +9,7 @@ public class EPGFile : AutoUpdateEntity
 {
     public int EPGNumber { get; set; }
 
+    [Column(TypeName = "citext")]
     public string Color { get; set; }
 
     public static EPGFile? ReadJSON(FileInfo fileInfo)

@@ -6,17 +6,17 @@ using StreamMaster.Domain.Common;
 
 namespace StreamMaster.Infrastructure.EF.SQLite;
 
-public class DesignTimeRepositoryContextFactory : IDesignTimeDbContextFactory<RepositoryContext>
+public class DesignTimeRepositoryContextFactory : IDesignTimeDbContextFactory<SQLiteRepositoryContext>
 {
     private readonly string DbPath = Path.Join(BuildInfo.DataFolder, "file.db");
 
-    public RepositoryContext CreateDbContext(string[] args)
+    public SQLiteRepositoryContext CreateDbContext(string[] args)
     {
         IServiceCollection services = new ServiceCollection();
 
-        _ = services.AddDbContext<RepositoryContext>(options => options.UseSqlite(DbPath));
+        _ = services.AddDbContext<SQLiteRepositoryContext>(options => options.UseSqlite(DbPath));
 
-        RepositoryContext? context = services.BuildServiceProvider().GetService<RepositoryContext>();
+        SQLiteRepositoryContext? context = services.BuildServiceProvider().GetService<SQLiteRepositoryContext>();
         if (context == null)
         {
             throw new ApplicationException("Couldnt create context");

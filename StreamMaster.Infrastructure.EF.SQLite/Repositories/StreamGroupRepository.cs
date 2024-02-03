@@ -12,7 +12,7 @@ using System.Web;
 
 namespace StreamMaster.Infrastructure.EF.SQLite.Repositories;
 
-public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, IHttpContextAccessor httpContextAccessor) : RepositoryBase<StreamGroup>(repositoryContext, logger), IStreamGroupRepository
+public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, SQLiteRepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, IHttpContextAccessor httpContextAccessor) : RepositoryBase<StreamGroup>(repositoryContext, logger), IStreamGroupRepository
 {
     public PagedResponse<StreamGroupDto> CreateEmptyPagedResponse()
     {

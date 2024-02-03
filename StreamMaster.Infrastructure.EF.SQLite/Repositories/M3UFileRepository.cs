@@ -9,7 +9,7 @@ namespace StreamMaster.Infrastructure.EF.SQLite.Repositories;
 /// <summary>
 /// Provides methods for performing CRUD operations on M3UFile entities.
 /// </summary>
-public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryContext repositoryContext, IMapper mapper) : RepositoryBase<M3UFile>(repositoryContext, intLogger), IM3UFileRepository
+public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, SQLiteRepositoryContext repositoryContext, IMapper mapper) : RepositoryBase<M3UFile>(repositoryContext, intLogger), IM3UFileRepository
 {
 
     public PagedResponse<M3UFileDto> CreateEmptyPagedResponse()

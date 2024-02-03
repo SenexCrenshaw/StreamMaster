@@ -39,6 +39,7 @@
   <ItemGroup>
     <ProjectReference Include="..\StreamMaster.Application\StreamMaster.Application.csproj" />
     <ProjectReference Include="..\StreamMaster.Infrastructure.EF.PGSQL\StreamMaster.Infrastructure.EF.PGSQL.csproj" />
+    <ProjectReference Include="..\StreamMaster.Infrastructure.EF.SQLite\StreamMaster.Infrastructure.EF.SQLite.csproj" />
     <ProjectReference Include="..\StreamMaster.Logging\StreamMaster.Logging.csproj" />
     <ProjectReference Include="..\StreamMaster.SchedulesDirect\StreamMaster.SchedulesDirect.csproj" />
     <ProjectReference Include="..\StreamMaster.Streams\StreamMaster.Streams.csproj" />

@@ -6,7 +6,8 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Logging;
 
 public class LogDbContext : DbContext, ILogDB
 {
-    public static string DbPath => Path.Join(BuildInfo.DataFolder, "StreamMaster_LogPsql.db");
+    //public static string DbPath => Path.Join(BuildInfo.DataFolder, "StreamMaster_LogPsql.db");
+    public static string DbConnectionString = $"Host=postgres;Database=StreamMaster_Log;Username=postgres;Password=sm123";
 
     public LogDbContext(DbContextOptions<LogDbContext> options)
       : base(options)
@@ -25,7 +26,7 @@ public class LogDbContext : DbContext, ILogDB
     {
 
         optionsBuilder.UseNpgsql(
-               $"Host=postgres;Data Source={DbPath};Username=postgres;Password=sm123",
+              DbConnectionString,
               o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
               );
 
@@ -33,8 +34,13 @@ public class LogDbContext : DbContext, ILogDB
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasCollation("sm_collation", locale: "C.utf8", provider: "icu", deterministic: false);
+        //modelBuilder.HasCollation("sm_collation", locale: "C.utf8", provider: "icu", deterministic: false);
         _ = modelBuilder.ApplyConfigurationsFromAssembly(typeof(LogDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
+    }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        //configurationBuilder.Properties<string>().UseCollation("sm_collation");
     }
 }

@@ -88,7 +88,7 @@ public class SMLogger : ILogger
         string message = formatter(state, exception);
 
         // Format the log entry as CSV, including the EventId
-        string csvFormattedEntry = $"\"{DateTime.Now:yyyy-MM-dd HH:mm:ss}\",\"{logLevel}\",\"{eventId.Id}\",\"{eventId.Name}\",\"{message.Replace("\"", "\"\"")}\"";
+        string csvFormattedEntry = $"\"{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}\",\"{logLevel}\",\"{eventId.Id}\",\"{eventId.Name}\",\"{message.Replace("\"", "\"\"")}\"";
         if (exception != null)
         {
             csvFormattedEntry += $",\"{exception.ToString().Replace("\"", "\"\"")}\"";

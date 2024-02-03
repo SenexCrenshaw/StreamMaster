@@ -11,7 +11,7 @@ using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 namespace StreamMaster.Infrastructure.EF.SQLite
 {
-    public class RepositoryWrapper(
+    public class SQLiteRepositoryWrapper(
         ILogger<ChannelGroupRepository> ChannelGroupRepositoryLogger,
         ILogger<StreamGroupRepository> StreamGroupRepositoryLogger,
         ILogger<M3UFileRepository> M3UFileRepositoryLogger,
@@ -22,14 +22,14 @@ namespace StreamMaster.Infrastructure.EF.SQLite
         ILogger<StreamGroupChannelGroupRepository> StreamGroupChannelGroupRepositoryLogger,
         ISchedulesDirectDataService schedulesDirectDataService,
 
-        RepositoryContext repositoryContext,
+        SQLiteRepositoryContext repositoryContext,
         //ISortHelper<StreamGroup> streamGroupSortHelper,
         IMapper mapper,
         IIconService iconService,
         IMemoryCache memoryCache,
         ISender sender,
         IEPGHelper epgHelper,
-        IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
+        IHttpContextAccessor httpContextAccessor) : ISQLiteRepositoryWrapper
     {
         private IStreamGroupRepository _streamGroup;
 
@@ -42,16 +42,16 @@ namespace StreamMaster.Infrastructure.EF.SQLite
             }
         }
 
-        private IChannelGroupRepository _channelGroup;
+        //private IChannelGroupRepository _channelGroup;
 
-        public IChannelGroupRepository ChannelGroup
-        {
-            get
-            {
-                _channelGroup ??= new ChannelGroupRepository(ChannelGroupRepositoryLogger, repositoryContext, this, memoryCache, sender);
-                return _channelGroup;
-            }
-        }
+        //public IChannelGroupRepository ChannelGroup
+        //{
+        //    get
+        //    {
+        //        _channelGroup ??= new ChannelGroupRepository(ChannelGroupRepositoryLogger, repositoryContext, this, memoryCache, sender);
+        //        return _channelGroup;
+        //    }
+        //}
 
         private IM3UFileRepository _m3uFile;
 
@@ -75,16 +75,16 @@ namespace StreamMaster.Infrastructure.EF.SQLite
             }
         }
 
-        private IEPGFileRepository _epgFile;
+        private readonly IEPGFileRepository _epgFile;
 
-        public IEPGFileRepository EPGFile
-        {
-            get
-            {
-                _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, repositoryContext, this, schedulesDirectDataService, mapper);
-                return _epgFile;
-            }
-        }
+        //public IEPGFileRepository EPGFile
+        //{
+        //    get
+        //    {
+        //        _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, repositoryContext, this, schedulesDirectDataService, mapper);
+        //        return _epgFile;
+        //    }
+        //}
 
         private IVideoStreamRepository _videoStream;
 
@@ -98,25 +98,25 @@ namespace StreamMaster.Infrastructure.EF.SQLite
         }
 
 
-        private IStreamGroupVideoStreamRepository _streamGroupVideoStream;
-        public IStreamGroupVideoStreamRepository StreamGroupVideoStream
-        {
-            get
-            {
-                _streamGroupVideoStream ??= new StreamGroupVideoStreamRepository(StreamGroupVideoStreamRepositoryLogger, repositoryContext, this, mapper, sender);
-                return _streamGroupVideoStream;
-            }
-        }
+        //private IStreamGroupVideoStreamRepository _streamGroupVideoStream;
+        //public IStreamGroupVideoStreamRepository StreamGroupVideoStream
+        //{
+        //    get
+        //    {
+        //        _streamGroupVideoStream ??= new StreamGroupVideoStreamRepository(StreamGroupVideoStreamRepositoryLogger, repositoryContext, this, mapper, sender);
+        //        return _streamGroupVideoStream;
+        //    }
+        //}
 
-        private IStreamGroupChannelGroupRepository _streamGroupChannelGroup;
-        public IStreamGroupChannelGroupRepository StreamGroupChannelGroup
-        {
-            get
-            {
-                _streamGroupChannelGroup ??= new StreamGroupChannelGroupRepository(StreamGroupChannelGroupRepositoryLogger, repositoryContext, this, mapper, sender);
-                return _streamGroupChannelGroup;
-            }
-        }
+        //private IStreamGroupChannelGroupRepository _streamGroupChannelGroup;
+        //public IStreamGroupChannelGroupRepository StreamGroupChannelGroup
+        //{
+        //    get
+        //    {
+        //        _streamGroupChannelGroup ??= new StreamGroupChannelGroupRepository(StreamGroupChannelGroupRepositoryLogger, repositoryContext, this, mapper, sender);
+        //        return _streamGroupChannelGroup;
+        //    }
+        //}
 
 
 
