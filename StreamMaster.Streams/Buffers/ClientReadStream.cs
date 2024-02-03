@@ -22,7 +22,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
         {
             while (true)
             {
-                await _bufferSwitchSemaphore.WaitAsync(cancellationToken);
+                await _bufferSwitchSemaphore.WaitAsync(_readCancel.Token);
 
                 using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_readCancel.Token, cancellationToken);
 
@@ -32,6 +32,8 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
                 }
                 catch (TaskCanceledException ex)
                 {
+                    logger.LogWarning("ReadAsync cancellationToken {cancellationToken}", cancellationToken.IsCancellationRequested);
+                    logger.LogWarning("ReadAsync _readCancel {_readCancel}", _readCancel.IsCancellationRequested);
 
                 }
                 finally
