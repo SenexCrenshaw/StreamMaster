@@ -102,7 +102,10 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                 byte[] videoMemory = new byte[videoBufferSize];
 
                 int mem = await CircularRingBuffer.ReadChunkMemory(start, videoMemory, CancellationToken.None);
-
+                if (mem != videoBufferSize)
+                {
+                    return;
+                }
                 VideoInfo ret = await CreateFFProbeStream(ffprobeExec, videoMemory).ConfigureAwait(false);
 
                 logger.LogInformation("Retrieved video information for {name}", VideoStreamName);
@@ -374,7 +377,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         CircularRingBuffer?.Dispose();
         ringBuffer = null;
         clientStreamerIds.Clear();
-        Stop();
+        Stop().Wait();
         GC.SuppressFinalize(this);
 
         GC.Collect();
