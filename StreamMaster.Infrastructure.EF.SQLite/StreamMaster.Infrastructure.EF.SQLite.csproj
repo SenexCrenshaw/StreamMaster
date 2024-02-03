@@ -11,10 +11,9 @@
     <None Remove="Extensions\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="EFCore.BulkExtensions.PostgreSql" Version="8.0.1" />
+    <PackageReference Include="Azure.Identity" Version="1.10.4" />
     <PackageReference Include="EFCore.BulkExtensions.Sqlite" Version="8.0.1" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.5" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.3.8" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="8.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.1">

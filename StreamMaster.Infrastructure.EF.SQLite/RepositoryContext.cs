@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.Infrastructure.EF
 {
-    public class RepositoryContext(DbContextOptions<RepositoryContext> options) : DbContext(options), IDataProtectionKeyContext
+    public partial class RepositoryContext(DbContextOptions<RepositoryContext> options) : DbContext(options), IDataProtectionKeyContext
     {
         public async Task VacuumDatabaseAsync()
         {
@@ -90,7 +90,7 @@ namespace StreamMaster.Infrastructure.EF
             }
             if (currentMigration.Equals("20231229192654_SystemKeyValues") && !SystemKeyValues.Any(a => a.Key == "MigratedDB" && a.Value == "20231229192654_SystemKeyValues"))
             {
-                List<VideoStream> videoStreams = VideoStreams.Where(a => a.User_Tvg_ID != null && a.User_Tvg_ID != "" && !Regex.IsMatch(a.User_Tvg_ID, @"^\d+-")).ToList();
+                List<VideoStream> videoStreams = [.. VideoStreams.Where(a => a.User_Tvg_ID != null && a.User_Tvg_ID != "" && !UserTVGIDRegex().IsMatch(a.User_Tvg_ID))];
 
                 if (videoStreams.Count == 0)
                 {
@@ -239,6 +239,7 @@ namespace StreamMaster.Infrastructure.EF
             _disposed = true;
         }
 
-
+        [GeneratedRegex(@"^\d+-")]
+        private static partial Regex UserTVGIDRegex();
     }
 }
