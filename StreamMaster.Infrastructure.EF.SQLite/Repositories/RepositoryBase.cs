@@ -8,7 +8,7 @@ using StreamMaster.Domain.Filtering;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 
-namespace StreamMaster.Infrastructure.EF.Repositories;
+namespace StreamMaster.Infrastructure.EF.SQLite.Repositories;
 
 /// <summary>
 /// Provides base functionalities for repositories.

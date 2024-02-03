@@ -11,8 +11,8 @@ using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure;
-using StreamMaster.Infrastructure.EF;
-using StreamMaster.Infrastructure.Logging;
+using StreamMaster.Infrastructure.EF.PSQL;
+using StreamMaster.Infrastructure.EF.PSQL.Logging;
 using StreamMaster.Infrastructure.Middleware;
 using StreamMaster.SchedulesDirect.Services;
 using StreamMaster.Streams;
@@ -139,6 +139,7 @@ using (IServiceScope scope = app.Services.CreateScope())
 
     }
 
+  
     RepositoryContextInitializer initialiser = scope.ServiceProvider.GetRequiredService<RepositoryContextInitializer>();
     await initialiser.InitialiseAsync().ConfigureAwait(false);
     if (app.Environment.IsDevelopment())

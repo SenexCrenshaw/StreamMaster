@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace StreamMaster.Infrastructure.EF;
+namespace StreamMaster.Infrastructure.EF.SQLite;
 
 public class RepositoryContextInitializer
 {

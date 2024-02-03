@@ -4,7 +4,7 @@ using System.Linq.Dynamic.Core;
 using System.Reflection;
 using System.Text;
 
-namespace StreamMaster.Infrastructure.EF.Helpers
+namespace StreamMaster.Infrastructure.EF.SQLite.Helpers
 {
     public class SortHelper<T> : ISortHelper<T>
     {

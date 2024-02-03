@@ -7,7 +7,7 @@ using StreamMaster.SchedulesDirect.Domain.Models;
 using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 
-namespace StreamMaster.Infrastructure.EF
+namespace StreamMaster.Infrastructure.EF.SQLite
 {
     public partial class RepositoryContext(DbContextOptions<RepositoryContext> options) : DbContext(options), IDataProtectionKeyContext
     {

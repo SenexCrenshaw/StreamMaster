@@ -10,7 +10,7 @@ using StreamMaster.Application.VideoStreams.Queries;
 
 using System.Linq.Dynamic.Core;
 
-namespace StreamMaster.Infrastructure.EF.Repositories;
+namespace StreamMaster.Infrastructure.EF.SQLite.Repositories;
 
 public class ChannelGroupRepository(ILogger<ChannelGroupRepository> intLogger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMemoryCache memoryCache, ISender sender) : RepositoryBase<ChannelGroup>(repositoryContext, intLogger), IChannelGroupRepository
 {

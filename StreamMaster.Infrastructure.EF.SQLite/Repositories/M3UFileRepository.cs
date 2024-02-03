@@ -4,7 +4,7 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace StreamMaster.Infrastructure.EF.Repositories;
+namespace StreamMaster.Infrastructure.EF.SQLite.Repositories;
 
 /// <summary>
 /// Provides methods for performing CRUD operations on M3UFile entities.

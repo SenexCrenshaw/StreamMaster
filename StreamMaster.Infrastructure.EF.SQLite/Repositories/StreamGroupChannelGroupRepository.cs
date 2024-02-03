@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Application.VideoStreams.Queries;
 
-namespace StreamMaster.Infrastructure.EF.Repositories;
+namespace StreamMaster.Infrastructure.EF.SQLite.Repositories;
 
 public class StreamGroupChannelGroupRepository(ILogger<StreamGroupChannelGroupRepository> intLogger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISender sender) : RepositoryBase<StreamGroupChannelGroup>(repositoryContext, intLogger), IStreamGroupChannelGroupRepository
 {

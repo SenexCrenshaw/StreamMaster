@@ -14,8 +14,7 @@ using StreamMaster.Application.EPG.Queries;
 using StreamMaster.Application.Icons.Queries;
 using StreamMaster.Application.M3UFiles.Queries;
 using StreamMaster.Application.SchedulesDirect.Queries;
-
-using StreamMaster.Infrastructure.EF.Helpers;
+using StreamMaster.Infrastructure.EF.SQLite.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
 using StreamMaster.SchedulesDirect.Domain.Models;
@@ -24,7 +23,7 @@ using System.Diagnostics;
 using System.Linq.Dynamic.Core;
 
 
-namespace StreamMaster.Infrastructure.EF.Repositories;
+namespace StreamMaster.Infrastructure.EF.SQLite.Repositories;
 
 public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISchedulesDirectDataService schedulesDirectDataService, IIconService iconService, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : RepositoryBase<VideoStream>(repositoryContext, intLogger), IVideoStreamRepository
 {
@@ -887,7 +886,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
         {
             return (null, null);
         }
-        bool updateChannelGroup = request.ToggleVisibility == true || (request.Tvg_group != null && videoStream.User_Tvg_group != request.Tvg_group);
+        bool updateChannelGroup = request.ToggleVisibility == true || request.Tvg_group != null && videoStream.User_Tvg_group != request.Tvg_group;
         videoStream = await UpdateVideoStreamValues(videoStream, request, cancellationToken).ConfigureAwait(false);
         UpdateVideoStream(videoStream);
 

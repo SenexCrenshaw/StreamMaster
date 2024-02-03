@@ -37,6 +37,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\StreamMaster.Application\StreamMaster.Application.csproj" />
     <ProjectReference Include="..\StreamMaster.Logging\StreamMaster.Logging.csproj" />
     <ProjectReference Include="..\StreamMaster.SchedulesDirect\StreamMaster.SchedulesDirect.csproj" />
     <ProjectReference Include="..\StreamMaster.Streams\StreamMaster.Streams.csproj" />

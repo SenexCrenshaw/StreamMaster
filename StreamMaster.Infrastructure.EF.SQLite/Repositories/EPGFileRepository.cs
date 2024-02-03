@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.Models;
 
-namespace StreamMaster.Infrastructure.EF.Repositories;
+namespace StreamMaster.Infrastructure.EF.SQLite.Repositories;
 
 /// <summary>
 /// Repository to manage EPGFile entities in the database.

@@ -1,4 +1,4 @@
-﻿namespace StreamMaster.Infrastructure.EF.Repositories;
+﻿namespace StreamMaster.Infrastructure.EF.SQLite.Repositories;
 
 internal class ChannelNamePair
 {

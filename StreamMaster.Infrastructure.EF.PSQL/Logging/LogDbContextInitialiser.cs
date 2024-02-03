@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Common;
 
-namespace StreamMaster.Infrastructure.Logging;
+namespace StreamMaster.Infrastructure.EF.PSQL.Logging;
 
 public class LogDbContextInitialiser
 {

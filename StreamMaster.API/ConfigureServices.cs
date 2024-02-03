@@ -25,7 +25,7 @@ using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.Authentication;
-using StreamMaster.Infrastructure.EF;
+using StreamMaster.Infrastructure.EF.PSQL;
 using StreamMaster.Infrastructure.Logger;
 using StreamMaster.Infrastructure.Services.Frontend;
 using StreamMaster.Infrastructure.Services.QueueService;
@@ -254,8 +254,7 @@ public static class ConfigureServices
 
         services.AddSignalR();//.AddMessagePackProtocol();
 
-        services.AddDataProtection()
-             .PersistKeysToDbContext<RepositoryContext>();
+        services.AddDataProtection().PersistKeysToDbContext<RepositoryContext>();
 
         services.AddSingleton<IAuthorizationPolicyProvider, UiAuthorizationPolicyProvider>();
 

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 
-namespace StreamMaster.Infrastructure.EF.Repositories;
+namespace StreamMaster.Infrastructure.EF.SQLite.Repositories;
 
 public class VideoStreamLinkRepository(ILogger<VideoStreamLinkRepository> logger, RepositoryContext repositoryContext, IMapper mapper) : RepositoryBase<VideoStreamLink>(repositoryContext, logger), IVideoStreamLinkRepository
 {

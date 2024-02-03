@@ -2,7 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace StreamMaster.Infrastructure.EF;
+using StreamMaster.Application.LogApp;
+using StreamMaster.Infrastructure.EF.SQLite.Logging;
+
+namespace StreamMaster.Infrastructure.EF.SQLite;
 
 public static class ConfigureServices
 {
@@ -10,10 +13,13 @@ public static class ConfigureServices
     {
 
         string DbPath = Path.Join(BuildInfo.DataFolder, "StreamMaster.db");
-
+        string LogDbPath = Path.Join(BuildInfo.DataFolder, "StreamMaster_Log.db");
 
         _ = services.AddDbContextFactory<RepositoryContext>(options => options.UseSqlite($"Data Source={DbPath}", builder => builder.MigrationsAssembly(typeof(RepositoryContext).Assembly.FullName)));
+        _ = services.AddDbContext<LogDbContext>(options => options.UseSqlite($"Data Source={LogDbPath}", builder => builder.MigrationsAssembly(typeof(LogDbContext).Assembly.FullName)));
+        _ = services.AddScoped<LogDbContextInitialiser>();
 
+        _ = services.AddScoped<ILogDB>(provider => provider.GetRequiredService<LogDbContext>());
 
         _ = services.AddScoped<RepositoryContextInitializer>();
 

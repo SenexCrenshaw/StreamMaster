@@ -11,7 +11,7 @@ using StreamMaster.Application.StreamGroups.Queries;
 using System.Linq.Dynamic.Core;
 using System.Text.RegularExpressions;
 
-namespace StreamMaster.Infrastructure.EF.Repositories;
+namespace StreamMaster.Infrastructure.EF.SQLite.Repositories;
 
 public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISender sender) : RepositoryBase<StreamGroupVideoStream>(repositoryContext, logger), IStreamGroupVideoStreamRepository
 {

@@ -6,7 +6,7 @@ using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure;
-using StreamMaster.Infrastructure.EF;
+using StreamMaster.Infrastructure.EF.PSQL;
 using StreamMaster.SchedulesDirect;
 using StreamMaster.SchedulesDirect.Converters;
 using StreamMaster.SchedulesDirect.Data;

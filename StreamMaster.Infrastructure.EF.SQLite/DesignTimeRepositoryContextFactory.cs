@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Domain.Common;
 
-namespace StreamMaster.Infrastructure.EF;
+namespace StreamMaster.Infrastructure.EF.SQLite;
 
 public class DesignTimeRepositoryContextFactory : IDesignTimeDbContextFactory<RepositoryContext>
 {

@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Infrastructure.EF.Repositories;
+using StreamMaster.Infrastructure.EF.SQLite.Repositories;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
-namespace StreamMaster.Infrastructure.EF
+namespace StreamMaster.Infrastructure.EF.SQLite
 {
     public class RepositoryWrapper(
         ILogger<ChannelGroupRepository> ChannelGroupRepositoryLogger,

@@ -3,7 +3,7 @@
 using StreamMaster.Application.LogApp;
 using StreamMaster.Domain.Common;
 
-namespace StreamMaster.Infrastructure.Logging;
+namespace StreamMaster.Infrastructure.EF.SQLite.Logging;
 
 public class LogDbContext : DbContext, ILogDB
 {

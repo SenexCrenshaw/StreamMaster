@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace StreamMaster.Infrastructure.EF.Configurations;
+namespace StreamMaster.Infrastructure.EF.SQLite.Configurations;
 
 public class StreamGroupVideoStreamConfiguration : IEntityTypeConfiguration<StreamGroupVideoStream>
 {

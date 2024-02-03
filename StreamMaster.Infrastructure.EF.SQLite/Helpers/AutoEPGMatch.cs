@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
 
-namespace StreamMaster.Infrastructure.EF.Helpers
+namespace StreamMaster.Infrastructure.EF.SQLite.Helpers
 {
     internal static class AutoEPGMatch
     {

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-using StreamMaster.Infrastructure.EF;
+using StreamMaster.Infrastructure.EF.SQLite;
 
 #nullable disable
 

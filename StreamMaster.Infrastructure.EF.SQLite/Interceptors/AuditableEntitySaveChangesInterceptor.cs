@@ -6,7 +6,7 @@ using StreamMaster.Domain.Common;
 
 using StreamMaster.Application.Common.Interfaces;
 
-namespace StreamMaster.Infrastructure.EF.Interceptors;
+namespace StreamMaster.Infrastructure.EF.SQLite.Interceptors;
 
 public class AuditableEntitySaveChangesInterceptor : SaveChangesInterceptor
 {
