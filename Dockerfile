@@ -23,8 +23,6 @@ RUN dotnet restore "StreamMaster.API/StreamMaster.API.csproj" -a $TARGETARCH
 
 COPY . .
 
-WORKDIR "/src/StreamMaster.API"
-RUN dotnet build "StreamMaster.API.csproj" -c Debug -o /app/build -a $TARGETARCH
 RUN mkdir -p /etc/apt/keyrings
 RUN apt-get update -yq \
     && apt-get upgrade -yq \
@@ -36,6 +34,9 @@ RUN curl -sL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --d
     && apt-get update && apt-get install -yq nodejs build-essential 
 
 RUN rm -rf /var/lib/apt/lists/* 
+
+WORKDIR "/src/StreamMaster.API"
+RUN dotnet build "StreamMaster.API.csproj" -c Debug -o /app/build -a $TARGETARCH
 
 WORKDIR /src/streammasterwebui
 COPY ["streammasterwebui/", "."]
