@@ -12,8 +12,14 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
     {
 
         //public static string DbPath => Path.Join(BuildInfo.DataFolder, "StreamMasterPsql.db");
-        public static string DbConnectionString = $"Host=postgres;Database=StreamMaster;Username=postgres;Password=sm123";
-
+        public static string DbConnectionString
+        {
+            get
+            {
+                Setting? setting = FileUtil.GetSetting();
+                return $"Host={setting.DB.DBHost};Database={setting.DB.DBName};Username={setting.DB.DBUser};Password={setting.DB.DBPassword}";
+            }
+        }
 
         public bool IsEntityTracked<TEntity>(TEntity entity) where TEntity : class
         {

@@ -6,8 +6,15 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Logging;
 
 public class LogDbContext : DbContext, ILogDB
 {
-    //public static string DbPath => Path.Join(BuildInfo.DataFolder, "StreamMaster_LogPsql.db");
-    public static string DbConnectionString = $"Host=postgres;Database=StreamMaster_Log;Username=postgres;Password=sm123";
+
+    public static string DbConnectionString
+    {
+        get
+        {
+            Setting? setting = FileUtil.GetSetting();
+            return $"Host={setting.DB.DBHost};Database={setting.DB.DBName + "_Log"};Username={setting.DB.DBUser};Password={setting.DB.DBPassword}";
+        }
+    }
 
     public LogDbContext(DbContextOptions<LogDbContext> options)
       : base(options)
