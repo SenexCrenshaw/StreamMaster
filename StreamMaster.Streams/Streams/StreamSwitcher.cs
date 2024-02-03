@@ -54,7 +54,7 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
             oldStreamHandler.SetFailed();
 
             channelStatus.FailoverInProgress = false;
-            oldStreamHandler.Stop();
+            await oldStreamHandler.Stop();
             return true;
         }
 

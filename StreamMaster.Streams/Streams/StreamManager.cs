@@ -32,7 +32,7 @@ public sealed class StreamManager(
                 {
                     try
                     {
-                        streamHandler.Stop();
+                        streamHandler.Stop().Wait();
                         streamHandler.Dispose();
                     }
                     catch (Exception ex)
@@ -75,7 +75,7 @@ public sealed class StreamManager(
 
         if (streamHandler is not null && streamHandler.IsFailed == true)
         {
-            _ = StopAndUnRegisterHandler(videoStreamDto.User_Url);
+            await StopAndUnRegisterHandler(videoStreamDto.User_Url);
             _ = _streamHandlers.TryGetValue(videoStreamDto.User_Url, out streamHandler);
         }
 
@@ -187,7 +187,7 @@ public sealed class StreamManager(
         if (oldStreamHandler.ClientCount == 0)
         {
             //await Task.Delay(100);
-            _ = StopAndUnRegisterHandler(oldStreamHandler.StreamUrl);
+            await StopAndUnRegisterHandler(oldStreamHandler.StreamUrl);
 
         }
     }
@@ -197,11 +197,11 @@ public sealed class StreamManager(
         return _streamHandlers.Values.FirstOrDefault(x => x.HasClient(ClientId));
     }
 
-    public bool StopAndUnRegisterHandler(string VideoStreamUrl)
+    public async Task<bool> StopAndUnRegisterHandler(string VideoStreamUrl)
     {
         if (_streamHandlers.TryRemove(VideoStreamUrl, out IStreamHandler? streamHandler))
         {
-            streamHandler.Stop();
+            await streamHandler.Stop();
             return true;
         }
 

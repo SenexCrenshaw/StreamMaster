@@ -63,5 +63,5 @@ public interface IStreamManager
     /// </summary>
     /// <param name="VideoStreamUrl">The URL of the video stream to stop.</param>
     /// <returns>Returns true if the stopped stream, false if CurrentVideoStreamId not found.</returns>
-    bool StopAndUnRegisterHandler(string VideoStreamUrl);
+    Task<bool> StopAndUnRegisterHandler(string VideoStreamUrl);
 }
