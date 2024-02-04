@@ -20,6 +20,8 @@ if (-not $SkipRelease ) {
     npx semantic-release
 }
 
+curl -s 'https://raw.githubusercontent.com/docker-library/postgres/master/docker-entrypoint.sh' -o .\docker-entrypoint.sh  
+curl -s 'https://raw.githubusercontent.com/docker-library/postgres/master/docker-ensure-initdb.sh' -o .\docker-ensure-initdb.sh
 
 . ".\Get-AssemblyInfo.ps1"
 
@@ -39,7 +41,7 @@ else {
     $branchName = "$($result.Branch)-$semVer"
 }
 
-if (![string]::IsNullOrEmpty($result.BuildOrRevision) ) {
+if (![string]::IsNullOrEmpty($result.BuildOrRevision) -and $result.BuildOrRevision -ne 'N/A') {
     $branchName = "$branchName.$($result.BuildOrRevision)"
 }
 
@@ -55,7 +57,7 @@ else {
 
 Write-Output "Tags to be used:"
 $tags | ForEach-Object { Write-Output $_ }
-$buildCommand = "docker buildx build --platform ""linux/amd64,linux/arm64"" -f ./Dockerfile . --push " + ($tags | ForEach-Object { "--tag=$_" })
+$buildCommand = "docker buildx build --platform ""linux/amd64,linux/arm64"" -f ./Dockerfile.orig . --push " + ($tags | ForEach-Object { "--tag=$_" })
 
 if ($PrintCommands) {    
     Write-Output "Build Command: $buildCommand"

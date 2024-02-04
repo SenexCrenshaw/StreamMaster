@@ -1,0 +1,20 @@
+FROM --platform=$BUILDPLATFORM streammaster_builds:build AS build
+ARG TARGETPLATFORM
+ARG TARGETARCH
+ARG BUILDPLATFORM
+WORKDIR /src
+
+COPY . .
+RUN dotnet restore "StreamMaster.API/StreamMaster.API.csproj" -a $TARGETARCH
+
+WORKDIR "/src/StreamMaster.API"
+RUN dotnet build "StreamMaster.API.csproj" -c Debug -o /app/build -a $TARGETARCH
+
+WORKDIR /src/streammasterwebui
+COPY ["streammasterwebui/", "."]
+RUN npm install \
+    && npm run build \
+    && cp -r dist/* /src/StreamMaster.API/wwwroot/
+
+WORKDIR "/src/StreamMaster.API"
+RUN dotnet publish --no-restore "StreamMaster.API.csproj" -c Debug -o /app/publish /p:UseAppHost=false -a $TARGETARCH

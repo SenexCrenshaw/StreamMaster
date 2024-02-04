@@ -1,0 +1,23 @@
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+ARG TARGETPLATFORM
+ARG TARGETARCH
+ARG BUILDPLATFORM
+WORKDIR /app
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update -yq \
+    && apt-get upgrade -yq \
+    && apt-get install -yq --no-install-recommends ffmpeg gosu postgresql postgresql-common curl gnupg
+ 
+#  RUN curl -fsS 'https://github.com/docker-library/postgres/raw/master/docker-ensure-initdb.sh' -o /usr/local/bin/docker-ensure-initdb.sh && chmod +x /usr/local/bin/docker-ensure-initdb.sh
+#  RUN curl -fsS 'https://github.com/docker-library/postgres/raw/master/docker-entrypoint.sh' -o /usr/local/bin/docker-entrypoint.sh && chomd +x /usr/local/bin/docker-entrypoint.sh
+
+RUN curl -fsS https://www.pgadmin.org/static/packages_pgadmin_org.pub |  gpg --dearmor -o /usr/share/keyrings/packages-pgadmin-org.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/packages-pgadmin-org.gpg] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/bookworm pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list
+
+RUN apt-get update -yq && \
+    apt-get install --no-install-recommends -yq apache2 apache2-utils libapache2-mod-wsgi-py3 libexpat1 ssl-cert
+
+RUN apt-get install -y pgadmin4-web 
+
+RUN mkdir /docker-entrypoint-initdb.d
