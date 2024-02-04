@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM streammaster_builds:build AS build
+FROM --platform=$BUILDPLATFORM docker.io/senexcrenshaw/streammaster:build-i-am-not-drunk AS build
 ARG TARGETPLATFORM
 ARG TARGETARCH
 ARG BUILDPLATFORM

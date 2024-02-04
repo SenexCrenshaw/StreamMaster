@@ -56,9 +56,9 @@ echo "  Data Directory: $PGDATA"
 # Start the database
 /usr/local/bin/docker-entrypoint.sh postgres &
 
-PGADMIN_PLATFORM_TYPE=$PGADMIN_PLATFORM_TYPE PGADMIN_SETUP_EMAIL=$PGADMIN_SETUP_EMAIL PGADMIN_SETUP_PASSWORD=$PGADMIN_SETUP_PASSWORD /usr/pgadmin4/bin/setup-web.sh --yes
+#PGADMIN_PLATFORM_TYPE=$PGADMIN_PLATFORM_TYPE PGADMIN_SETUP_EMAIL=$PGADMIN_SETUP_EMAIL PGADMIN_SETUP_PASSWORD=$PGADMIN_SETUP_PASSWORD /usr/pgadmin4/bin/setup-web.sh --yes
 # service postgresql start
-service apache2 start
+#service apache2 start
 
 # Execute the main application as the specified user
 if [ "$PUID" -ne 0 ] && [ "$PGID" -ne 0 ]; then

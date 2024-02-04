@@ -1,0 +1,206 @@
+param (
+    [switch]$DebugLog,
+    [switch]$BuildAll = $false,
+    [switch]$BuildBase = $false,
+    [switch]$BuildBuild = $false,
+    [switch]$BuildSM = $false,
+    [switch]$BuildProd = $false,
+    [switch]$PrintCommands = $false,
+    [switch]$SkipRelease = $false
+)
+
+function Main {
+    Set-EnvironmentVariables
+
+    # Read GitHub token and set it as an environment variable
+    $ghtoken = Get-Content ghtoken -Raw
+    $env:GH_TOKEN = $ghtoken
+    
+    if (-not $SkipRelease) {
+        npx semantic-release
+    }
+
+    DownloadFiles
+
+    $imageName = "docker.io/senexcrenshaw/streammaster"
+
+    $result = Get-AssemblyInfo -assemblyInfoPath "./StreamMaster.API/AssemblyInfo.cs"
+    $processedAssemblyInfo = ProcessAssemblyInfo $result
+
+    if ($BuildBase || $BuildAll) {
+        $dockerFile = "Dockerfile.base"
+        $tags = @("$("${imageName}:base-"+$processedAssemblyInfo.BranchName)")
+        BuildImage -result $processedAssemblyInfo -tags $tags -imageName $imageName -dockerFile $dockerFile
+    }
+
+    if ($BuildBuild || $BuildAll) {
+        $dockerFile = "Dockerfile.build"
+        $tags = @("$("${imageName}:build-"+$processedAssemblyInfo.BranchName)")
+        BuildImage -result $processedAssemblyInfo -tags $tags -imageName $imageName -dockerFile $dockerFile        
+    }
+
+    if ($BuildSM || $BuildBase || $BuildBuild || $BuildAll) {
+        $dockerFile = "Dockerfile.sm"
+        $tags = @("$("${imageName}:sm-"+$processedAssemblyInfo.BranchName)")
+        Replace-TextInFile -filePath  $dockerFile -searchPattern 'streammaster_builds:build' -replacementText "${imageName}:build-$($processedAssemblyInfo.BranchName)"     
+        BuildImage -result $processedAssemblyInfo -tags $tags -imageName $imageName -dockerFile $dockerFile
+    }
+
+    $dockerFile = "Dockerfile"
+    Replace-TextInFile -filePath  $dockerFile -searchPattern 'streammaster_builds:sm' -replacementText "${imageName}:sm-$($processedAssemblyInfo.BranchName)"     
+    Replace-TextInFile -filePath  $dockerFile -searchPattern 'streammaster_builds:base' -replacementText "${imageName}:base-$($processedAssemblyInfo.BranchName)"     
+    $tags = DetermineTags -result $processedAssemblyInfo -imageName $imageName
+    BuildImage -result $processedAssemblyInfo -tags $tags -imageName $imageName -dockerFile $dockerFile
+}
+
+function Replace-TextInFile {
+    param (
+        [string]$filePath,
+        [string]$searchPattern,
+        [string]$replacementText
+    )
+
+    # Read the content of the file
+    $fileContent = Get-Content -Path $filePath
+
+    # Replace the search pattern with the replacement text in the content
+    $modifiedContent = $fileContent -replace [regex]::Escape($searchPattern), $replacementText
+
+    # Write the modified content back to the file
+    $modifiedContent | Set-Content -Path $filePath
+}
+
+function Set-EnvironmentVariables {
+    $env:DOCKER_BUILDKIT = 1
+    $env:COMPOSE_DOCKER_CLI_BUILD = 1
+}
+
+function DownloadFiles {
+    curl -s 'https://raw.githubusercontent.com/docker-library/postgres/master/docker-entrypoint.sh' -o .\docker-entrypoint.sh  
+    curl -s 'https://raw.githubusercontent.com/docker-library/postgres/master/docker-ensure-initdb.sh' -o .\docker-ensure-initdb.sh
+}
+
+function ProcessAssemblyInfo($result) {
+    # Output the raw assembly information (as received in $result)    
+    Write-Host "Raw Assembly Information:"
+    $result | Write-Host
+
+    # Ensuring the output is properly flushed to the console
+    [System.Console]::Out.Flush()
+
+    # Extracting and processing specific parts of the assembly information
+    $semVer = $result.Version
+    Write-Host "Semantic Version: $semVer"
+
+    # Check if Branch is empty or 'N/A'
+    if ([string]::IsNullOrEmpty($result.Branch) -or $result.Branch -eq 'N/A') {
+        $branchName = $semVer
+        $branchNameVersion = $semVer
+    }
+    else {
+        $branchName = $result.Branch
+        $branchNameVersion = "$($result.Branch)-$semVer"
+    }
+
+    Write-Host "Branch Name: $branchName"
+    Write-Host "Branch Name Version: $branchNameVersion"
+    $BranchNameRevision = $branchName;
+    # Process build or revision if available and not 'N/A'
+    if (![string]::IsNullOrEmpty($result.BuildOrRevision) -and $result.BuildOrRevision -ne 'N/A') {
+        $BranchNameRevision = "$branchNameVersion.$($result.BuildOrRevision)"
+        Write-Host "Branch Name with Build or Revision: $BranchNameRevision"
+    }
+
+    # Return the processed information as a custom object for further use
+    $processedInfo = New-Object -TypeName PSObject -Property @{
+        SemVer             = $semVer
+        BranchName         = $branchName
+        BranchNameVersion  = $branchNameVersion
+        BranchNameRevision = $BranchNameRevision
+        # Include other properties as needed
+    }
+
+    return $processedInfo
+}
+
+function BuildImage {
+    param (
+        [Parameter(Mandatory = $true)]
+        $result,
+
+        [Parameter(Mandatory = $true)]
+        [string[]]$tags,
+
+        [Parameter(Mandatory = $true)]
+        $dockerFile,
+
+        [Parameter(Mandatory = $true)]
+        [string]$imageName
+
+    )
+  
+    # Show the tags to be used
+    Write-Host "Tags to be used:"
+    $tags | ForEach-Object { Write-Host $_ }
+
+    # Construct the Docker build command using the tags and the specified Dockerfile
+    $buildCommand = "docker buildx build --platform ""linux/amd64,linux/arm64"" -f ./$dockerFile . --push"
+    foreach ($tag in $tags) {
+        $buildCommand += " --tag=$tag"
+    }
+
+    if ($PrintCommands) {
+        Write-Host "Build Command: $buildCommand"
+        Write-Host "PrintOnly flag is set. Exiting without building."
+        return
+    }
+
+    Invoke-Build $buildCommand
+}
+
+function DetermineTags {
+    param (
+        [Parameter(Mandatory = $true)]
+        $result,
+
+        [Parameter(Mandatory = $true)]
+        [string]$imageName
+    )
+   
+    $BranchName = $result.BranchName
+    $BranchNameRevision = $result.BranchNameRevision
+
+    $tags = @()
+    if ($BuildProd) {
+        $tags += "${imageName}:latest"
+    }
+    else {
+        $tags += "${imageName}:${BranchName}"
+    }
+    $tags += "${imageName}:${BranchNameRevision}"
+    return $tags
+}
+
+function ConstructBuildCommand($tags) {
+    $buildCommand = "docker buildx build --platform ""linux/amd64,linux/arm64"" -f ./Dockerfile.orig . --push"
+    foreach ($tag in $tags) {
+        $buildCommand += " --tag=$tag"
+    }
+    return $buildCommand
+}
+
+function Invoke-Build($buildCommand) {
+    $startTime = Get-Date
+    Write-Host -NoNewline "Building Image "
+
+    Invoke-Expression $buildCommand
+
+    $endTime = Get-Date
+    $overallTime = $endTime - $startTime
+    Write-Host "`nOverall time taken: $($overallTime.TotalSeconds) seconds"
+}
+
+. ".\Get-AssemblyInfo.ps1"
+
+# Entry point of the script
+Main

@@ -1,7 +1,7 @@
 
 
-FROM streammaster_builds:sm AS build
-FROM streammaster_builds:base AS final
+FROM docker.io/senexcrenshaw/streammaster:sm-i-am-not-drunk AS build
+FROM docker.io/senexcrenshaw/streammaster:base-i-am-not-drunk AS final
 ARG TARGETPLATFORM
 ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}
 ARG TARGETARCH
