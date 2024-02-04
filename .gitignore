@@ -365,3 +365,5 @@ ffmpeg/ffmpeg
 epg.xml
 m3u.m3u
 ghtoken
+docker-ensure-initdb.sh
+docker-entrypoint.sh
