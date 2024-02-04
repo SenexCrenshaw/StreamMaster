@@ -73,7 +73,7 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, I
             {
                 string source = HttpUtility.UrlDecode(command.UrlSource);
                 epgFile.Url = source;
-                epgFile.LastDownloadAttempt = DateTime.UtcNow;
+                epgFile.LastDownloadAttempt = SMDT.UtcNow;
 
                 Logger.LogInformation("Add EPG From URL {command.UrlSource}", command.UrlSource);
                 (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(source, fullName, cancellationToken).ConfigureAwait(false);

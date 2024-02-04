@@ -8,6 +8,7 @@ using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.Hubs;
 using StreamMaster.Application.Services;
 using StreamMaster.Domain.Enums;
+using StreamMaster.Domain.Extensions;
 
 using System.Collections.Concurrent;
 using System.Threading.Channels;
@@ -64,7 +65,7 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
     {
         if (taskQueueStatuses.TryGetValue(Id, out TaskQueueStatus? status))
         {
-            status.QueueTS = DateTime.UtcNow;
+            status.QueueTS = SMDT.UtcNow;
             status.IsRunning = true;
             await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
         }

@@ -1,5 +1,3 @@
-FROM --platform=$BUILDPLATFORM docker.io/senexcrenshaw/streammaster:i-am-not-drunk-sm AS sm
-FROM --platform=$BUILDPLATFORM docker.io/senexcrenshaw/streammaster:i-am-not-drunk-base AS base
 ARG TARGETPLATFORM
 ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}
 ARG TARGETARCH

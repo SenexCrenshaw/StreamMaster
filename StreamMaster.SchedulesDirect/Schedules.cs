@@ -2,7 +2,6 @@
 
 using StreamMaster.Domain.Common;
 using StreamMaster.SchedulesDirect.Domain.Enums;
-using StreamMaster.SchedulesDirect.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text.Json;
@@ -51,7 +50,7 @@ public class Schedules(ILogger<Schedules> logger, IMemoryCache memoryCache, IEPG
         //++processStage;
 
         // build date array for requests
-        DateTime dt = DateTime.UtcNow;
+        DateTime dt = SMDT.UtcNow;
 
         // build the date array to request
         string[] dates = new string[days];
@@ -370,7 +369,7 @@ public class Schedules(ILogger<Schedules> logger, IMemoryCache memoryCache, IEPG
         {
 
             // limit requests to airing programs now or in the future
-            if (scheduleProgram.AirDateTime + TimeSpan.FromSeconds(scheduleProgram.Duration) < DateTime.UtcNow)
+            if (scheduleProgram.AirDateTime + TimeSpan.FromSeconds(scheduleProgram.Duration) < SMDT.UtcNow)
             {
                 continue;
             }

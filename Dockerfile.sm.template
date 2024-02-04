@@ -1,4 +1,3 @@
-FROM --platform=$BUILDPLATFORM docker.io/senexcrenshaw/streammaster:i-am-not-drunk-build AS build
 ARG TARGETPLATFORM
 ARG TARGETARCH
 ARG BUILDPLATFORM

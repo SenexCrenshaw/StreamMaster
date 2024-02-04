@@ -1,6 +1,7 @@
 ﻿using Prometheus;
 
 using StreamMaster.Domain.Cache;
+using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Infrastructure.VideoStreamManager.Buffers;
 
@@ -43,11 +44,11 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         }
     );
 
-    private DateTime _lastUpdateTime = DateTime.UtcNow;
+    private DateTime _lastUpdateTime = SMDT.UtcNow;
     private int acculmativeBytesWritten = 0;
     private void SetMetrics(int bytesWritten)
     {
-        DateTime currentTime = DateTime.UtcNow;
+        DateTime currentTime = SMDT.UtcNow;
         _writeMetric.RecordBytesProcessed(bytesWritten);
 
         Setting setting = memoryCache.GetSetting();

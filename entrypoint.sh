@@ -5,6 +5,30 @@ group_name="nonRootGroup"
 
 . /env.sh
 
+wait_for_postgres() {
+    local host="$1"
+    local port="$2"
+    local max_attempts="$3"
+    local wait_interval="$4"
+    
+    local attempt=0
+    
+    while [ $attempt -lt $max_attempts ]; do
+        if pg_isready -h "$host" -p "$port" >/dev/null 2>&1; then
+            echo "PostgreSQL is ready on $host:$port"
+            return 0
+        else
+            attempt=$((attempt + 1))
+            echo "Attempt $attempt: PostgreSQL is not yet ready on $host:$port. Retrying in $wait_interval seconds..."
+            sleep "$wait_interval"
+        fi
+    done
+    
+    echo "Error: PostgreSQL on $host:$port is not ready after $max_attempts attempts."
+    return 1
+}
+
+
 # Check if PUID or PGID is set to a non-root value
 if [ "$PUID" -ne 0 ]; then
     if getent passwd $PUID > /dev/null 2>&1; then
@@ -56,8 +80,18 @@ echo "  Data Directory: $PGDATA"
 # Start the database
 /usr/local/bin/docker-entrypoint.sh postgres &
 
+wait_for_postgres "127.0.0.1" "5432" 20 5
+if [ $? -eq 0 ]; then
+    # PostgreSQL is ready, you can proceed with your tasks
+    echo "Postgres is up"
+else
+    # PostgreSQL is not ready after max_attempts, handle the error
+    echo "Error: PostgreSQL is not ready."
+    exit 1
+fi
+
 #PGADMIN_PLATFORM_TYPE=$PGADMIN_PLATFORM_TYPE PGADMIN_SETUP_EMAIL=$PGADMIN_SETUP_EMAIL PGADMIN_SETUP_PASSWORD=$PGADMIN_SETUP_PASSWORD /usr/pgadmin4/bin/setup-web.sh --yes
-# service postgresql start
+#service postgresql start
 #service apache2 start
 
 # Execute the main application as the specified user

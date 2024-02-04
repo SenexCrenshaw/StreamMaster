@@ -120,7 +120,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
 
         //_ = await Repository.SaveAsync().ConfigureAwait(false);
 
-        m3uFile.LastUpdated = DateTime.UtcNow;
+        m3uFile.LastUpdated = SMDT.UtcNow;
         if (m3uFile.StationCount != streamCount)
         {
             m3uFile.StationCount = streamCount;

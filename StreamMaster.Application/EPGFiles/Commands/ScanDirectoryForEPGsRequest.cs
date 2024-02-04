@@ -83,7 +83,7 @@ public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGF
 
         if (string.IsNullOrEmpty(epgFile.Url))
         {
-            epgFile.LastDownloaded = DateTime.UtcNow;
+            epgFile.LastDownloaded = SMDT.UtcNow;
             Repository.EPGFile.UpdateEPGFile(epgFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
             epgFile.WriteJSON(Logger);

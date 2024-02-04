@@ -40,6 +40,36 @@ public static class BuildInfo
         }
     }
 
+    public static string DBName
+    {
+        get
+        {
+            string envHost = Environment.GetEnvironmentVariable("POSTGRES_DB");
+            return !string.IsNullOrEmpty(envHost) ? envHost : "StreamMaster";
+        }
+
+    }
+
+    public static string DBUser
+    {
+        get
+        {
+            string envHost = Environment.GetEnvironmentVariable("POSTGRES_USER");
+            return !string.IsNullOrEmpty(envHost) ? envHost : "postgres";
+        }
+
+    }
+
+    public static string DBPassword
+    {
+        get
+        {
+            string envHost = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
+            return !string.IsNullOrEmpty(envHost) ? envHost : "sm123";
+        }
+
+    }
+
     public static string AppName { get; } = "StreamMaster";
 
     public static bool SetIsSystemReady { get; set; } = false;

@@ -33,7 +33,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IIconHelper iconHelper, IEPG
         {
             XMLTV xmlTv = new()
             {
-                Date = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture),
+                Date = SMDT.UtcNow.ToString(CultureInfo.InvariantCulture),
                 SourceInfoUrl = "https://github.com/SenexCrenshaw/StreamMaster",
                 SourceInfoName = "Stream Master",
                 GeneratorInfoName = "Stream Master",
@@ -190,7 +190,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IIconHelper iconHelper, IEPG
 
             XMLTV xmlTv = new()
             {
-                Date = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture),
+                Date = SMDT.UtcNow.ToString(CultureInfo.InvariantCulture),
                 SourceInfoUrl = "https://github.com/SenexCrenshaw/StreamMaster",
                 SourceInfoName = "Stream Master",
                 GeneratorInfoName = "StreamMaster",
@@ -272,7 +272,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IIconHelper iconHelper, IEPG
                     };
 
                     // populate the schedule entries
-                    DateTime startTime = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 0, 0, 0);
+                    DateTime startTime = new(SMDT.UtcNow.Year, SMDT.UtcNow.Month, SMDT.UtcNow.Day, 0, 0, 0);
                     DateTime stopTime = startTime + TimeSpan.FromDays(settings.SDSettings.SDEPGDays);
                     do
                     {

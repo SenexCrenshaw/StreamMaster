@@ -61,7 +61,7 @@ public class ScanDirectoryForM3UFilesRequestHandler(ILogger<ScanDirectoryForM3UF
             Source = m3uFileInfo.Name,
             Description = $"Imported from {m3uFileInfo.Name}",
             LastDownloaded = m3uFileInfo.LastWriteTime,
-            LastDownloadAttempt = DateTime.UtcNow,
+            LastDownloadAttempt = SMDT.UtcNow,
             FileExists = true,
             MaxStreamCount = 1,
             StartingChannelNumber = 1,
@@ -83,7 +83,7 @@ public class ScanDirectoryForM3UFilesRequestHandler(ILogger<ScanDirectoryForM3UF
 
         if (string.IsNullOrEmpty(m3uFile.Url))
         {
-            m3uFile.LastDownloaded = DateTime.UtcNow;
+            m3uFile.LastDownloaded = SMDT.UtcNow;
             _ = await Repository.SaveAsync().ConfigureAwait(false);
             m3uFile.WriteJSON(Logger);
         }

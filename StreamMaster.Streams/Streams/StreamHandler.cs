@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Cache;
+using StreamMaster.Domain.Extensions;
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -315,7 +316,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                     CircularRingBuffer.PauseReaders();
                     inputStreamError = true;
                     //++retryCount;
-                    logger.LogInformation("End of Stream reached for: {StreamUrl} {name}. Error: {ErrorMessage} at {Time} {test}", StreamUrl, VideoStreamName, ex.Message, DateTime.UtcNow, stream.CanRead);
+                    logger.LogInformation("End of Stream reached for: {StreamUrl} {name}. Error: {ErrorMessage} at {Time} {test}", StreamUrl, VideoStreamName, ex.Message, SMDT.UtcNow, stream.CanRead);
                     break;
                 }
                 catch (HttpIOException ex)

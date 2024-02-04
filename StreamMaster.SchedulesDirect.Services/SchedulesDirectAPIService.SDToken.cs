@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Extensions;
+
 namespace StreamMaster.SchedulesDirect;
 public partial class SchedulesDirectAPIService
 {
@@ -53,12 +55,12 @@ public partial class SchedulesDirectAPIService
 
     public bool CheckToken(bool forceReset = false)
     {
-        return (!forceReset && DateTime.UtcNow - TokenTimestamp <= TimeSpan.FromHours(23)) || GetToken().Result;
+        return (!forceReset && SMDT.UtcNow - TokenTimestamp <= TimeSpan.FromHours(23)) || GetToken().Result;
     }
 
     private async Task<bool> GetToken(string? username = null, string? password = null, bool requestNew = false, CancellationToken cancellationToken = default)
     {
-        if (!requestNew && DateTime.UtcNow - TokenTimestamp < TimeSpan.FromMinutes(1))
+        if (!requestNew && SMDT.UtcNow - TokenTimestamp < TimeSpan.FromMinutes(1))
         {
             return true;
         }

@@ -37,7 +37,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
 
             bool publish = false;
 
-            if (request.forceRun || m3uFile.LastDownloadAttempt.AddMinutes(m3uFile.MinimumMinutesBetweenDownloads) < DateTime.UtcNow)
+            if (request.forceRun || m3uFile.LastDownloadAttempt.AddMinutes(m3uFile.MinimumMinutesBetweenDownloads) < SMDT.UtcNow)
             {
                 publish = true;
                 FileDefinition fd = FileDefinitions.M3U;
@@ -47,7 +47,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
                 {
                     Logger.LogInformation("Refresh M3U From URL {m3uFile.Url}", m3uFile.Url);
 
-                    m3uFile.LastDownloadAttempt = DateTime.UtcNow;
+                    m3uFile.LastDownloadAttempt = SMDT.UtcNow;
 
                     (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(m3uFile.Url, fullName, cancellationToken).ConfigureAwait(false);
                     if (success)
@@ -76,7 +76,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
                 }
             }
 
-            //m3uFile.LastUpdated = DateTime.UtcNow;
+            //m3uFile.LastUpdated = SMDT.UtcNow;
             Repository.M3UFile.UpdateM3UFile(m3uFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
 

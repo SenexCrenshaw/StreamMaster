@@ -16,8 +16,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
         {
             get
             {
-                Setting? setting = FileUtil.GetSetting();
-                return $"Host={setting.DB.DBHost};Database={setting.DB.DBName};Username={setting.DB.DBUser};Password={setting.DB.DBPassword}";
+                string con = $"Host=127.0.0.1;Database={BuildInfo.DBName};Username={BuildInfo.DBUser};Password={BuildInfo.DBPassword}";
+                Console.WriteLine($"DbConnectionString: {con}");
+                return con;
             }
         }
 
@@ -87,6 +88,8 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
                 .HasDatabaseName("IX_VideoStream_ShortId");
 
             //modelBuilder.OnHangfireModelCreating();
+
+            modelBuilder.ApplyUtcDateTimeConverter();
 
             base.OnModelCreating(modelBuilder);
 

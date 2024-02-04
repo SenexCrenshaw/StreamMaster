@@ -1,6 +1,7 @@
 ﻿using Prometheus;
 
 using StreamMaster.Domain.Cache;
+using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Streams.Buffers;
 
@@ -30,11 +31,11 @@ public sealed partial class ClientReadStream
     );
 
     private readonly PerformanceBpsMetrics metrics = new();
-    private DateTime _lastUpdateTime = DateTime.UtcNow;
+    private DateTime _lastUpdateTime = SMDT.UtcNow;
     private int acculmativeBytesRead = 0;
     private void SetMetrics(int bytesRead)
     {
-        DateTime currentTime = DateTime.UtcNow;
+        DateTime currentTime = SMDT.UtcNow;
         Setting setting = memoryCache.GetSetting();
 
         if (setting.EnablePrometheus && (currentTime - _lastUpdateTime > TimeSpan.FromSeconds(5)))

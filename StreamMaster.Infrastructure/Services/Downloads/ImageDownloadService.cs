@@ -30,7 +30,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
     private readonly ISchedulesDirectAPIService schedulesDirectAPI;
 
     private bool IsActive = false;
-    private bool ImageLockOut => ImageLockOutDate.AddHours(1) >= DateTime.UtcNow;
+    private bool ImageLockOut => ImageLockOutDate.AddHours(1) >= SMDT.UtcNow;
     private DateTime ImageLockOutDate = DateTime.MinValue;
     private readonly object Lock = new();
 
@@ -148,7 +148,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                 if (response.StatusCode == HttpStatusCode.TooManyRequests)
                 {
                     logger.LogDebug("Art download limit reached, locking out for 24 hours");
-                    ImageLockOutDate = DateTime.UtcNow;
+                    ImageLockOutDate = SMDT.UtcNow;
                     return false;
                 }
 

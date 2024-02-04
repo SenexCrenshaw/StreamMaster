@@ -275,7 +275,7 @@ public class EPGCache<T> : IEPGCache<T>
                 Data = data,
                 Command = name,
                 Content = "",
-                Timestamp = DateTime.UtcNow
+                Timestamp = SMDT.UtcNow
             };
 
             string contentToCache = JsonSerializer.Serialize(cacheEntry);

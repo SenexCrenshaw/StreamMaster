@@ -1,3 +1,4 @@
+using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.Models;
 using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 
@@ -285,7 +286,7 @@ public sealed class FileUtil
                 Name = Path.GetFileNameWithoutExtension(name),
                 FileExists = true,
                 ContentType = "image/png",
-                LastDownloaded = DateTime.UtcNow,
+                LastDownloaded = SMDT.UtcNow,
                 Source = $"{basePath}{Path.DirectorySeparatorChar}{file.Name}"
             };
 

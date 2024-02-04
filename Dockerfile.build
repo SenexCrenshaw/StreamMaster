@@ -3,16 +3,20 @@ ARG TARGETPLATFORM
 ARG TARGETARCH
 ARG BUILDPLATFORM
 
-RUN mkdir -p /etc/apt/keyrings
-RUN apt-get update -yq \
-    && apt-get upgrade -yq \
-    && apt-get install -yq ca-certificates curl gnupg git
+# RUN mkdir -p /etc/apt/keyrings
+# RUN apt-get update -yq \
+#     && apt-get upgrade -yq \
+#     && apt-get install -yq ca-certificates curl gnupg git
     
-RUN curl -sL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
-    && update-ca-certificates
+# RUN curl -sL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+#     && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
+#     && update-ca-certificates
 
-RUN apt-get update && \
-    apt-get install -yq nodejs build-essential 
+# RUN apt-get update && \
+#     apt-get install -yq nodejs build-essential 
 
-RUN rm -rf /var/lib/apt/lists/*
+RUN curl -fsSL https://deb.nodesource.com/setup_21.x | bash - &&\
+    apt-get install -y nodejs
+
+RUN rm -rf /var/lib/apt/lists/* \
+    && apt-get clean

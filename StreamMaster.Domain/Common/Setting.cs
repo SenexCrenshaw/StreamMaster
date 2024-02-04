@@ -132,22 +132,12 @@ public class BaseSettings : M3USettings
 
     public bool ShowClientHostNames { get; set; }
 
-    public DBSettings DB { get; set; } = new();
 }
 
 public class ProtectedSettings : BaseSettings
 {
     [NoMap]
     public string ServerKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
-}
-
-public class DBSettings
-{
-    public string DBHost { get; set; } = "postgres";
-    public string DBName { get; set; } = "StreamMaster";
-    public string DBUser { get; set; } = "postgres";
-    public string DBPassword { get; set; } = "sm123";
-
 }
 
 public class Setting : ProtectedSettings

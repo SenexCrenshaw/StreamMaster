@@ -28,7 +28,7 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
     //private static int GenerateMediaSequence()
     //{
     //    DateTime epochStart = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-    //    TimeSpan elapsedTime = DateTime.UtcNow - epochStart;
+    //    TimeSpan elapsedTime = SMDT.UtcNow - epochStart;
     //    int mediaSequence = (int)(elapsedTime.TotalSeconds / 10);
 
     //    return mediaSequence;

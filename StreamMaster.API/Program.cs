@@ -161,7 +161,7 @@ using (IServiceScope scope = app.Services.CreateScope())
         {
             sQLiteRepositoryContext.Dispose();
             SqliteConnection.ClearAllPools();
-            File.Move(sqliteDB, sqliteDB+".old");
+            File.Move(sqliteDB, sqliteDB+".old",true);
         }
     }
 

@@ -52,7 +52,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
             {
                 string source = HttpUtility.UrlDecode(command.UrlSource);
                 m3UFile.Url = source;
-                m3UFile.LastDownloadAttempt = DateTime.UtcNow;
+                m3UFile.LastDownloadAttempt = SMDT.UtcNow;
 
                 Logger.LogInformation("Add M3U From URL {command.UrlSource}", command.UrlSource);
                 (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(source, fullName, cancellationToken).ConfigureAwait(false);
