@@ -1,3 +1,10 @@
+# [0.9.0-i-am-not-drunk.7](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.6...v0.9.0-i-am-not-drunk.7) (2024-02-05)
+
+
+### Bug Fixes
+
+* Add PostgreSQL configuration settings ([39f7c1d](https://github.com/SenexCrenshaw/StreamMaster/commit/39f7c1d2f28648cdd2a062db143987e6078e0fbc))
+
 # [0.9.0-i-am-not-drunk.6](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.5...v0.9.0-i-am-not-drunk.6) (2024-02-05)
 
 
