@@ -83,12 +83,3 @@ export function getColorHex(index: number): string {
   }
   return '#000000'; // Fallback color
 }
-
-export function getColor2(index: number): string {
-  const PRIME1 = 137;
-  const PRIME2 = 157;
-  const hue = (index * PRIME1) % 360;
-  const saturation = 90 + ((index * PRIME2) % 10); // Values between 90% and 100%
-  const lightness = 65 + (index % 5); // Values between 65% and 70%
-  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-}
