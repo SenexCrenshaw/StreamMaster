@@ -9,12 +9,7 @@ namespace StreamMaster.Domain.Common
     {
         static BuildInfo()
         {
-            Assembly? assembly = Assembly.GetEntryAssembly();
-            if (assembly is null)
-            {
-                throw new InvalidOperationException("Failed to get entry assembly.");
-            }
-
+            Assembly? assembly = Assembly.GetEntryAssembly() ?? throw new InvalidOperationException("Failed to get entry assembly.");
             Version = assembly.GetName().Version ?? new Version(0, 0, 0, 0);
             object[] attributes = assembly.GetCustomAttributes(true);
 
@@ -146,7 +141,7 @@ namespace StreamMaster.Domain.Common
         /// <returns>The environment variable's value or the default value.</returns>
         private static string GetEnvironmentVariableOrDefault(string name, string defaultValue)
         {
-            string envVar = Environment.GetEnvironmentVariable(name);
+            string? envVar = Environment.GetEnvironmentVariable(name);
             return !string.IsNullOrEmpty(envVar) ? envVar : defaultValue;
         }
 

@@ -62,6 +62,29 @@ if [ "$PUID" -ne 0 ] || [ "$PGID" -ne 0 ]; then
 
 fi
 
+# File path
+FILE="/config/DB/postgresql.conf"
+# Line to add
+LINE="listen_addresses = '*'"
+
+# Check if the line already exists in the file
+if ! grep -qF "$LINE" "$FILE"; then
+    # If the line does not exist, append it to the file
+    echo "$LINE" | tee -a "$FILE" > /dev/null
+fi
+
+# File path
+FILE="/config/DB/pg_hba.conf"
+# Line to add
+LINE="host    all             all             0.0.0.0/0               trust"
+
+# Check if the line already exists in the file
+if ! grep -qF "$LINE" "$FILE"; then
+    # If the line does not exist, append it to the file
+    echo "$LINE" | tee -a "$FILE" > /dev/null
+fi
+
+
 chown -R postgres:postgres $PGDATA
 
 # Pretty printing the configuration

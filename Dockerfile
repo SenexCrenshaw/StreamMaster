@@ -25,6 +25,8 @@ COPY env.sh /env.sh
 RUN chmod +x /entrypoint.sh /env.sh
 RUN mkdir /config
 
+EXPOSE 5432
+
 ENTRYPOINT ["/entrypoint.sh", "dotnet", "StreamMaster.API.dll"]
 
 STOPSIGNAL SIGINT
