@@ -28,35 +28,35 @@ function Main {
     $result = Get-AssemblyInfo -assemblyInfoPath "./StreamMaster.API/AssemblyInfo.cs"
     $processedAssemblyInfo = ProcessAssemblyInfo $result
 
-    if ($BuildBase || $BuildAll) {
+    if ($BuildBase -or $BuildAll) {
         $dockerFile = "Dockerfile.base"
         $tags = @("$("${imageName}:"+$processedAssemblyInfo.BranchName)-base")
         BuildImage -result $processedAssemblyInfo -tags $tags -imageName $imageName -dockerFile $dockerFile
     }
 
-    if ($BuildBuild || $BuildAll) {
+    if ($BuildBuild -or $BuildAll) {
         $dockerFile = "Dockerfile.build"
         $tags = @("$("${imageName}:"+$processedAssemblyInfo.BranchName)-build")
         BuildImage -result $processedAssemblyInfo -tags $tags -imageName $imageName -dockerFile $dockerFile        
     }
 
-    if ($BuildSM || $BuildBuild || $BuildAll) {
+    if ($BuildSM -or $BuildBuild -or $BuildAll) {
         $dockerFile = "Dockerfile.sm"
         $tags = @("$("${imageName}:"+$processedAssemblyInfo.BranchName)-sm")
 
-        $contentArray=@('FROM --platform=$BUILDPLATFORM '+"${imageName}:$($processedAssemblyInfo.BranchName)-build"+' AS build');
+        $contentArray = @('FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-build" + ' AS build');
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
 
         BuildImage -result $processedAssemblyInfo -tags $tags -imageName $imageName -dockerFile $dockerFile
     }
 
-    if ( -not $SkipMainBuild || $BuildAll){
+    if ( -not $SkipMainBuild -or $BuildAll) {
         $dockerFile = "Dockerfile"
 
-        $contentArray=@();
+        $contentArray = @();
 
-        $contentArray+='FROM --platform=$BUILDPLATFORM '+"${imageName}:$($processedAssemblyInfo.BranchName)-sm"+' AS sm'
-        $contentArray+='FROM --platform=$BUILDPLATFORM '+"${imageName}:$($processedAssemblyInfo.BranchName)-base"+' AS base'
+        $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-sm" + ' AS sm'
+        $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-base" + ' AS base'
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
         
         $tags = DetermineTags -result $processedAssemblyInfo -imageName $imageName
@@ -69,11 +69,11 @@ Function Add-ContentAtTop {
         [string[]]$contentArray
     )
 
-    $templatePath="$filePath.template"
+    $templatePath = "$filePath.template"
 
     # Check if the file exists
     if (Test-Path $templatePath) {
-       try {
+        try {
             # Read all lines of the existing content of the file
             $existingContent = [System.IO.File]::ReadAllLines($templatePath)
 
@@ -82,7 +82,7 @@ Function Add-ContentAtTop {
 
             # Add each line from contentArray to the new content
             foreach ($line in $contentArray) {
-                 Write-Output $line
+                Write-Output $line
                 [void]$newContent.Add($line)
             }
 
