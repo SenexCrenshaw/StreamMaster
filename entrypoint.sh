@@ -5,6 +5,8 @@ group_name="nonRootGroup"
 
 . /env.sh
 
+
+
 wait_for_postgres() {
     local host="$1"
     local port="$2"
@@ -61,29 +63,6 @@ if [ "$PUID" -ne 0 ] || [ "$PGID" -ne 0 ]; then
     find /config -mindepth 1 -maxdepth 1 -type d -not -path '/config/DB' -exec chown -R ${PUID:-0}:${PGID:-0} {} \;
 
 fi
-
-# File path
-FILE="/config/DB/postgresql.conf"
-# Line to add
-LINE="listen_addresses = '*'"
-
-# Check if the line already exists in the file
-if ! grep -qF "$LINE" "$FILE"; then
-    # If the line does not exist, append it to the file
-    echo "$LINE" | tee -a "$FILE" > /dev/null
-fi
-
-# File path
-FILE="/config/DB/pg_hba.conf"
-# Line to add
-LINE="host    all             all             0.0.0.0/0               trust"
-
-# Check if the line already exists in the file
-if ! grep -qF "$LINE" "$FILE"; then
-    # If the line does not exist, append it to the file
-    echo "$LINE" | tee -a "$FILE" > /dev/null
-fi
-
 
 chown -R postgres:postgres $PGDATA
 

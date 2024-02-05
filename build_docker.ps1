@@ -21,7 +21,7 @@ function Main {
         npx semantic-release
     }
 
-    DownloadFiles
+    # DownloadFiles
 
     $imageName = "docker.io/senexcrenshaw/streammaster"
 
