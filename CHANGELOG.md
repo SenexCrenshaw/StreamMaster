@@ -1,3 +1,10 @@
+# [0.9.0-i-am-not-drunk.20](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.19...v0.9.0-i-am-not-drunk.20) (2024-02-07)
+
+
+### Bug Fixes
+
+* Fix permission in entrypoint.sh ([285f80a](https://github.com/SenexCrenshaw/StreamMaster/commit/285f80a7dadd262ead9d90c0f3585c9e4a8e2172))
+
 # [0.9.0-i-am-not-drunk.19](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.18...v0.9.0-i-am-not-drunk.19) (2024-02-07)
 
 # [0.9.0-i-am-not-drunk.18](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.17...v0.9.0-i-am-not-drunk.18) (2024-02-07)
