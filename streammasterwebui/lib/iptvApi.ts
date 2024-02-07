@@ -1765,14 +1765,7 @@ export type TaskQueueStatus = {
   elapsedTS?: string;
 };
 export type M3USettings = {
-  m3UFieldChannelId?: boolean;
-  m3UFieldChannelNumber?: boolean;
-  m3UFieldCUID?: boolean;
   m3UFieldGroupTitle?: boolean;
-  m3UFieldTvgChno?: boolean;
-  m3UFieldTvgId?: boolean;
-  m3UFieldTvgLogo?: boolean;
-  m3UFieldTvgName?: boolean;
   m3UIgnoreEmptyEPGID?: boolean;
   m3UUseChnoForId?: boolean;
   m3UStationId?: boolean;
@@ -1902,22 +1895,14 @@ export type UpdateSettingRequest = {
   ffmPegExecutable?: string | null;
   ffMpegOptions?: string | null;
   globalStreamLimit?: number | null;
-  m3UFieldChannelId?: boolean | null;
-  m3UFieldChannelNumber?: boolean | null;
-  m3UFieldCUID?: boolean | null;
   m3UFieldGroupTitle?: boolean | null;
-  m3UFieldTvgChno?: boolean | null;
   m3UStationId?: boolean | null;
-  m3UFieldTvgId?: boolean | null;
-  m3UFieldTvgLogo?: boolean | null;
-  m3UFieldTvgName?: boolean | null;
   m3UUseChnoForId?: boolean | null;
   m3UIgnoreEmptyEPGID?: boolean | null;
   prettyEPG?: boolean | null;
   maxConnectRetry?: number | null;
   maxConnectRetryTimeMS?: number | null;
   ringBufferSizeMB?: number | null;
-  sourceBufferPreBufferPercentage?: number | null;
   sslCertPassword?: string | null;
   sslCertPath?: string | null;
   streamingClientUserAgent?: string | null;

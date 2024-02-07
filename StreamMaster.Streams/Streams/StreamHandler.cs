@@ -259,18 +259,25 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
         //int retryCount = 0;
         //int maxRetries = 3;
+        bool ran = false;
         using (stream)
         {
             Stopwatch timeBetweenWrites = Stopwatch.StartNew(); // Initialize the stopwatch
             int bytesRead = bufferMemory.Length;
             using BufferedStream bufferedStream = new(stream, bufferSize: bufferMemory.Length);
 
+            Stopwatch testSw = Stopwatch.StartNew();
             while (!linkedToken.IsCancellationRequested)
             {
                 try
                 {
-                    //int readBytes = await stream.ReadAtLeastAsync(bufferMemory, 4096, true, linkedToken.Token);
                     int readBytes = await bufferedStream.ReadAsync(bufferMemory, linkedToken.Token);
+                    if (!ran)
+                    {
+                        ran = true;
+                        testSw.Stop();
+                        logger.LogInformation($"Test ran in {testSw.ElapsedMilliseconds}ms");
+                    }
                     if (readBytes == 0)
                     {
                         throw new EndOfStreamException();

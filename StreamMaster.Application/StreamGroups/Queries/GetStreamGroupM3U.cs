@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.SchedulesDirect.Domain.Enums;
-using StreamMaster.SchedulesDirect.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Collections.Concurrent;
@@ -136,14 +135,30 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         return ret.ToString();
     }
 
+    private int GetNextChNo(int chNo)
+    {
+        if (chNos.Contains(chNo))
+        {
+            foreach (int num in existingChNos.Concat(chNos))
+            {
+                if (num != chNo)
+                {
+                    break;
+                }
+                chNo++;
+            }
+        }
+        chNos.Add(chNo);
+
+        return chNo;
+    }
 
     private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(VideoStreamDto videoStream, string url, GetStreamGroupM3U request, int cid, Setting setting)
     {
-        bool showM3UFieldTvgId = setting.M3UFieldTvgId;
-
         int epgNumber = EPGHelper.DummyId;
         string stationId;
 
+        string channelId = string.Empty;
 
         if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
         {
@@ -154,6 +169,8 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
             if (epgHelper.IsValidEPGId(videoStream.User_Tvg_ID))
             {
                 (epgNumber, stationId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
+                MxfService? service = schedulesDirectDataService.GetService(videoStream.User_Tvg_ID);
+                channelId = service?.CallSign ?? stationId;
             }
             else
             {
@@ -161,22 +178,12 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
             }
         }
 
-        MxfService? service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId == stationId);
-        string graceNote = service?.CallSign ?? stationId;
-        string name = videoStream.User_Tvg_name;// videoStream.User_Tvg_ID;// service?.CallSign ?? videoStream.User_Tvg_name;
+        string name = videoStream.User_Tvg_name;
 
-
-        if (setting.M3UIgnoreEmptyEPGID)
-        {
-            if (setting.M3UFieldTvgId)
-            {
-                showM3UFieldTvgId = !(string.IsNullOrEmpty(videoStream.Tvg_ID) && string.IsNullOrEmpty(videoStream.User_Tvg_ID));
-            }
-            else
-            {
-                return (0, "");
-            }
-        }
+        //if (setting.M3UIgnoreEmptyEPGID)
+        //{
+        //    showM3UFieldTvgId = !(string.IsNullOrEmpty(videoStream.Tvg_ID) && string.IsNullOrEmpty(videoStream.User_Tvg_ID));
+        //}
 
 
         if (request.StreamGroupId == 1 && videoStream.User_Tvg_chno == 0)
@@ -187,8 +194,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         string logo = GetIconUrl(videoStream.User_Tvg_logo, setting);
         videoStream.User_Tvg_logo = logo;
 
-        string videoUrl = string.Empty;
-
+        string videoUrl;
         if (request.UseShortId)
         {
             videoUrl = $"{url}/v/v/{videoStream.ShortId}";
@@ -204,83 +210,42 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
             videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
         }
 
-        string id = graceNote;
         if (setting.M3UUseChnoForId)
         {
-            id = videoStream.User_Tvg_chno.ToString();
+            channelId = videoStream.User_Tvg_chno.ToString();
         }
 
-        List<string> fieldList =
-    [
-        $"#EXTINF:0 CUID=\"{videoStream.Id}\""
-    ];
+        List<string> fieldList = [$"#EXTINF:0 CUID=\"{videoStream.Id}\""];
 
-        if (setting.M3UFieldChannelId)
-        {
-            fieldList.Add($"channel-id=\"{id}\"");
-        }
+        fieldList.Add($"tvg-name=\"{name}\"");
 
+        fieldList.Add($"channel-id=\"{channelId}\"");
+        fieldList.Add($"tvg-id=\"{channelId}\"");
 
-        if (setting.M3UFieldTvgName)
-        {
-            fieldList.Add($"tvg-name=\"{name}\"");
-        }
+        fieldList.Add($"tvg-logo=\"{videoStream.User_Tvg_logo}\"");
 
-        int chNo = videoStream.User_Tvg_chno;
-        if (chNos.Contains(chNo))
-        {
-            foreach (int num in existingChNos.Concat(chNos))
-            {
-                if (num != chNo)
-                {
-                    break;
-                }
-                chNo++;
-            }
-        }
-        chNos.Add(chNo);
-
-        if (setting.M3UFieldTvgChno)
-        {
-
-            fieldList.Add($"tvg-chno=\"{chNo}\"");
-        }
-
-        if (setting.M3UFieldChannelNumber)
-        {
-
-            fieldList.Add($"channel-number=\"{chNo}\"");
-        }
-
-        if (showM3UFieldTvgId)
-        {
-
-            fieldList.Add($"tvg-id=\"{id}\"");
-        }
-
-        if (setting.M3UFieldTvgLogo)
-        {
-            fieldList.Add($"tvg-logo=\"{videoStream.User_Tvg_logo}\"");
-        }
-
-        if (setting.M3UStationId)
-        {
-            string toDisplay = string.IsNullOrEmpty(videoStream.StationId) ? stationId : videoStream.StationId;
-            fieldList.Add($"tvc-guide-stationid=\"{toDisplay}\"");
-        }
+        int chNo = GetNextChNo(videoStream.User_Tvg_chno);
+        fieldList.Add($"tvg-chno=\"{chNo}\"");
+        fieldList.Add($"channel-number=\"{chNo}\"");
 
         if (setting.M3UFieldGroupTitle)
         {
+            if (setting.M3UStationId)
+            {
+                string toDisplay = string.IsNullOrEmpty(videoStream.StationId) ? stationId : videoStream.StationId;
+                fieldList.Add($"tvc-guide-stationid=\"{toDisplay}\"");
+            }
+
             if (!string.IsNullOrEmpty(videoStream.GroupTitle))
             {
                 fieldList.Add($"group-title=\"{videoStream.GroupTitle}\"");
-                //fieldList.Add($"tvc-guide-categories\r\n=\"{videoStream.GroupTitle.Replace(';', ',')}\"");
             }
             else
             {
                 fieldList.Add($"group-title=\"{videoStream.User_Tvg_group}\"");
             }
         }
+
 
         string lines = string.Join(" ", fieldList.Order().ToArray());
         lines += $",{videoStream.User_Tvg_name}\r\n";

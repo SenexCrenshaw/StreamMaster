@@ -30,13 +30,6 @@ export function FilesEPGM3USettings(): React.ReactElement {
       </Fieldset>
       <Fieldset className="mt-4 pt-10" collapsed legend={GetMessage('m3uSettings')} toggleable>
         {getCheckBoxLine({ field: 'm3UIgnoreEmptyEPGID', selectedCurrentSettingDto, onChange })}
-        {getCheckBoxLine({ field: 'm3UFieldCUID', selectedCurrentSettingDto, onChange })}
-        {getCheckBoxLine({ field: 'm3UFieldChannelId', selectedCurrentSettingDto, onChange })}
-        {getCheckBoxLine({ field: 'm3UFieldChannelNumber', selectedCurrentSettingDto, onChange })}
-        {getCheckBoxLine({ field: 'm3UFieldTvgName', selectedCurrentSettingDto, onChange })}
-        {getCheckBoxLine({ field: 'm3UFieldTvgChno', selectedCurrentSettingDto, onChange })}
-        {getCheckBoxLine({ field: 'm3UFieldTvgId', selectedCurrentSettingDto, onChange })}
-        {getCheckBoxLine({ field: 'm3UFieldTvgLogo', selectedCurrentSettingDto, onChange })}
         {getCheckBoxLine({ field: 'm3UFieldGroupTitle', selectedCurrentSettingDto, onChange })}
         {getCheckBoxLine({ field: 'm3UUseChnoForId', selectedCurrentSettingDto, onChange })}
         {getCheckBoxLine({ field: 'm3UStationId', selectedCurrentSettingDto, onChange })}

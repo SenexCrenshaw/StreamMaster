@@ -62,7 +62,7 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
         }
 
         context.SaveChanges();
-        Console.WriteLine($"Fixing {videos.Count} empty shortids");
+        Console.WriteLine($"Done fixing empty shortids");
     }
 }
 

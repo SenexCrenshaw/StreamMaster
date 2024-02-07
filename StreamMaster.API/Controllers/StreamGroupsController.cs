@@ -97,7 +97,7 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
                 if (epgHelper.IsValidEPGId(videoStream.User_Tvg_ID))
                 {
                     (epgNumber, stationId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
-                    service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId == stationId);
+                    service = schedulesDirectDataService.GetService(stationId);
                 }
                 else
                 {

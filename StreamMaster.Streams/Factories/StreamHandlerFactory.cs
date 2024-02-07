@@ -20,7 +20,7 @@ public sealed class StreamHandlerFactory(ICircularRingBufferFactory circularRing
         StreamHandler streamHandler = new(videoStreamDto, processId, memoryCache, clientStreamerManager, streamHandlerLogger, ringBuffer);
 
         _ = Task.Run(() => streamHandler.StartVideoStreamingAsync(stream), cancellationToken);
-
+        
         return streamHandler;
     }
 

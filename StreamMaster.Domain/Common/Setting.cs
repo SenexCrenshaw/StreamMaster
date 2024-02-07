@@ -5,14 +5,14 @@ namespace StreamMaster.Domain.Common;
 
 public class M3USettings
 {
-    public bool M3UFieldChannelId { get; set; } = true;
-    public bool M3UFieldChannelNumber { get; set; } = true;
-    public bool M3UFieldCUID { get; set; } = true;
+    //public bool M3UFieldChannelId { get; set; } = true;
+    //public bool M3UFieldChannelNumber { get; set; } = true;
+    //public bool M3UFieldCUID { get; set; } = true;
     public bool M3UFieldGroupTitle { get; set; } = true;
-    public bool M3UFieldTvgChno { get; set; } = true;
-    public bool M3UFieldTvgId { get; set; } = true;
-    public bool M3UFieldTvgLogo { get; set; } = true;
-    public bool M3UFieldTvgName { get; set; } = true;
+    //public bool M3UFieldTvgChno { get; set; } = true;
+    //public bool M3UFieldTvgId { get; set; } = true;
+    //public bool M3UFieldTvgLogo { get; set; } = true;
+    //public bool M3UFieldTvgName { get; set; } = true;
     public bool M3UIgnoreEmptyEPGID { get; set; } = true;
     public bool M3UUseChnoForId { get; set; } = true;
     public bool M3UStationId { get; set; } = false;

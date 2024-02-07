@@ -8,7 +8,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 
-namespace StreamMaster.SchedulesDirect;
+namespace StreamMaster.SchedulesDirect.Converters;
 public class XMLTVBuilder(IMemoryCache memoryCache, IIconHelper iconHelper, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger) : IXMLTVBuilder
 {
     private string _baseUrl = "";
