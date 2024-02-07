@@ -193,7 +193,7 @@ function BuildImage {
     $tags | ForEach-Object { Write-Host $_ }
 
     # Construct the Docker build command using the tags and the specified Dockerfile
-    $buildCommand = "docker buildx build --platform ""linux/amd64,linux/arm64"" -f ./$dockerFile . --push"
+    $buildCommand = "docker buildx build --pull --platform ""linux/amd64,linux/arm64"" -f ./$dockerFile . --push"
     foreach ($tag in $tags) {
         $buildCommand += " --tag=$tag"
     }
