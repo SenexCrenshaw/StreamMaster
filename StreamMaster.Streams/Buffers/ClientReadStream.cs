@@ -79,7 +79,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
                     break;
                 }
 
-                await Task.Delay(5);
+                await Task.Delay(5, cancellationToken);
             }
         }
         catch (TaskCanceledException ex)

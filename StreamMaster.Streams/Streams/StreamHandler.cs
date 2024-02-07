@@ -107,9 +107,17 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                 {
                     return;
                 }
-                VideoInfo ret = await CreateFFProbeStream(ffprobeExec, videoMemory).ConfigureAwait(false);
+                VideoInfo? ret = await CreateFFProbeStream(ffprobeExec, videoMemory).ConfigureAwait(false);
 
-                logger.LogInformation("Retrieved video information for {name}", VideoStreamName);
+                if (ret == null)
+                {
+                    logger.LogError("CreateFFProbeStream Error: Failed to deserialize FFProbe output");
+                }
+                else
+                {
+                    logger.LogInformation("Retrieved video information for {name}", VideoStreamName);
+                }
+
                 return;
             }
             catch (IOException)
@@ -135,7 +143,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
     }
 
     private int GetVideoInfoErrors = 0;
-    private async Task<VideoInfo> CreateFFProbeStream(string ffProbeExec, byte[] videoMemory)
+    private async Task<VideoInfo?> CreateFFProbeStream(string ffProbeExec, byte[] videoMemory)
     {
         using Process process = new();
         try
@@ -156,7 +164,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             if (!processStarted)
             {
                 logger.LogError("CreateFFProbeStream Error: Failed to start FFProbe process");
-                return new();
+                return null;
             }
 
             using Timer timer = new(delegate { process.Kill(); }, null, 5000, Timeout.Infinite);
@@ -180,7 +188,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             if (videoInfo == null)
             {
                 logger.LogError("CreateFFProbeStream Error: Failed to deserialize FFProbe output");
-                return new();
+                return null;
             }
             _videoInfo = videoInfo;
             CircularRingBuffer.VideoInfo = videoInfo;
