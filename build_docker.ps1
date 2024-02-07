@@ -38,7 +38,7 @@ function Main {
     if ($BuildBuild -or $BuildAll) {
         $dockerFile = "Dockerfile.build"
         $global:tags = @("$("${imageName}:"+$processedAssemblyInfo.BranchName)-build")
-        BuildImage -result $processedAssemblyInfo -imageName $imageName -dockerFile $dockerFile        
+        BuildImage -result $processedAssemblyInfo -imageName $imageName -dockerFile $dockerFile
     }
 
     if ($BuildSM -or $BuildBuild -or $BuildAll) {
