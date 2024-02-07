@@ -12,7 +12,7 @@ using StreamMaster.Infrastructure.EF.PGSQL;
 
 namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 {
-    [DbContext(typeof(RepositoryContext))]
+    [DbContext(typeof(PGSQLRepositoryContext))]
     [Migration("20240203170649_InitialCreate")]
     partial class InitialCreate
     {

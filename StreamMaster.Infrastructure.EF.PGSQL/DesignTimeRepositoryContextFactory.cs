@@ -4,16 +4,16 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace StreamMaster.Infrastructure.EF.PGSQL;
 
-public class DesignTimeRepositoryContextFactory : IDesignTimeDbContextFactory<RepositoryContext>
+public class DesignTimeRepositoryContextFactory : IDesignTimeDbContextFactory<PGSQLRepositoryContext>
 {
 
-    public RepositoryContext CreateDbContext(string[] args)
+    public PGSQLRepositoryContext CreateDbContext(string[] args)
     {
         IServiceCollection services = new ServiceCollection();
 
-        _ = services.AddDbContext<RepositoryContext>(options => options.UseNpgsql(RepositoryContext.DbConnectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+        _ = services.AddDbContext<PGSQLRepositoryContext>(options => options.UseNpgsql(PGSQLRepositoryContext.DbConnectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
-        RepositoryContext? context = services.BuildServiceProvider().GetService<RepositoryContext>();
+        PGSQLRepositoryContext? context = services.BuildServiceProvider().GetService<PGSQLRepositoryContext>();
         return context == null ? throw new ApplicationException("Couldnt create context") : context;
     }
 }

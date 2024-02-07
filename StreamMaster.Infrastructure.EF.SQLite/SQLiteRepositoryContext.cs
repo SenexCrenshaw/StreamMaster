@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+﻿using EFCore.BulkExtensions;
+
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +11,7 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.Infrastructure.EF.SQLite
 {
-    public partial class SQLiteRepositoryContext(DbContextOptions<SQLiteRepositoryContext> options) : DbContext(options), IDataProtectionKeyContext
+    public partial class SQLiteRepositoryContext(DbContextOptions<SQLiteRepositoryContext> options) : DbContext(options), IDataProtectionKeyContext, IRepositoryContext
     {
         public async Task VacuumDatabaseAsync()
         {
@@ -239,7 +241,34 @@ namespace StreamMaster.Infrastructure.EF.SQLite
             _disposed = true;
         }
 
+
+        public int ExecuteSqlRaw(string sql, params object[] parameters)
+        {
+            return Database.ExecuteSqlRaw(sql, parameters);
+        }
+
+        public Task<int> ExecuteSqlRawAsyncEntities(string sql, CancellationToken cancellationToken = default)
+        {
+            return Database.ExecuteSqlRawAsync(sql, cancellationToken);
+        }
+
+        public void BulkUpdateEntities<TEntity>(IEnumerable<TEntity> entities, BulkConfig? bulkConfig = null, Action<decimal>? progress = null, Type? type = null) where TEntity : class
+        {
+            this.BulkUpdate(entities, bulkConfig, progress, type);
+        }
+
+        public void BulkInsertEntities<TEntity>(IEnumerable<TEntity> entities, Action<BulkConfig>? bulkAction, Action<decimal>? progress = null, Type? type = null) where TEntity : class
+        {
+            this.BulkInsert(entities, bulkAction, progress, type);
+        }
+
+        public Task BulkDeleteAsyncEntities<T>(IEnumerable<T> entities, BulkConfig? bulkConfig = null, Action<decimal>? progress = null, Type? type = null, CancellationToken cancellationToken = default) where T : class
+        {
+            return this.BulkDeleteAsync(entities, bulkConfig, progress, type, cancellationToken);
+        }
+
         [GeneratedRegex(@"^\d+-")]
         private static partial Regex UserTVGIDRegex();
     }
+
 }

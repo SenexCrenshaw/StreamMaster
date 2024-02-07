@@ -12,8 +12,8 @@ using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure;
+using StreamMaster.Infrastructure.EF;
 using StreamMaster.Infrastructure.EF.PGSQL;
-using StreamMaster.Infrastructure.EF.PGSQL.Logging;
 using StreamMaster.Infrastructure.EF.SQLite;
 using StreamMaster.Infrastructure.Middleware;
 using StreamMaster.SchedulesDirect.Services;
@@ -74,8 +74,9 @@ if (!string.IsNullOrEmpty(sslCertPath))
 // Add services to the container.
 builder.Services.AddSchedulesDirectAPIServices();
 builder.Services.AddApplicationServices();
-builder.Services.AddInfrastructureEFServices();
+builder.Services.AddInfrastructureEFPGSQLServices();
 builder.Services.AddInfrastructureEFSQLiteServices();
+builder.Services.AddInfrastructureEFServices();
 builder.Services.AddInfrastructureServices();
 builder.Services.AddInfrastructureServicesEx();
 builder.Services.AddStreamsServices();
@@ -134,15 +135,15 @@ app.UseSession();
 
 using (IServiceScope scope = app.Services.CreateScope())
 {
-    LogDbContextInitialiser logInitialiser = scope.ServiceProvider.GetRequiredService<LogDbContextInitialiser>();
-    await logInitialiser.InitialiseAsync().ConfigureAwait(false);
-    if (app.Environment.IsDevelopment())
-    {
-        logInitialiser.TrySeed();
+    //LogDbContextInitialiser logInitialiser = scope.ServiceProvider.GetRequiredService<LogDbContextInitialiser>();
+    //await logInitialiser.InitialiseAsync().ConfigureAwait(false);
+    //if (app.Environment.IsDevelopment())
+    //{
+    //    logInitialiser.TrySeed();
 
-    }
+    //}
 
-  
+
     RepositoryContextInitializer initialiser = scope.ServiceProvider.GetRequiredService<RepositoryContextInitializer>();
     await initialiser.InitialiseAsync().ConfigureAwait(false);
     if (app.Environment.IsDevelopment())
@@ -155,7 +156,7 @@ using (IServiceScope scope = app.Services.CreateScope())
     string sqliteDB = Path.Join(BuildInfo.AppDataFolder, "StreamMaster.db");
     if (File.Exists(sqliteDB))
     {
-        RepositoryContext repositoryContext = scope.ServiceProvider.GetRequiredService<RepositoryContext>();
+        PGSQLRepositoryContext repositoryContext = scope.ServiceProvider.GetRequiredService<PGSQLRepositoryContext>();
         SQLiteRepositoryContext sQLiteRepositoryContext = scope.ServiceProvider.GetRequiredService<SQLiteRepositoryContext>();
         if ( MigrateFromSQLite.MigrateFromSQLiteDatabaseToPostgres(repositoryContext, sQLiteRepositoryContext))
         {

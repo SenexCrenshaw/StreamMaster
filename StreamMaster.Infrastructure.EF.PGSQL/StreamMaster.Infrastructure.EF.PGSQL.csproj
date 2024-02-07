@@ -31,7 +31,6 @@
     <ProjectReference Include="..\StreamMaster.Domain\StreamMaster.Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Logging\Migrations\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 </Project>

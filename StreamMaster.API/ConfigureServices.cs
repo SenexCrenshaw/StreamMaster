@@ -254,7 +254,7 @@ public static class ConfigureServices
 
         services.AddSignalR();//.AddMessagePackProtocol();
 
-        services.AddDataProtection().PersistKeysToDbContext<RepositoryContext>();
+        services.AddDataProtection().PersistKeysToDbContext<PGSQLRepositoryContext>();
 
         services.AddSingleton<IAuthorizationPolicyProvider, UiAuthorizationPolicyProvider>();
 

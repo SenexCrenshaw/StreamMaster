@@ -11,7 +11,7 @@ using StreamMaster.Infrastructure.EF.PGSQL;
 
 namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 {
-    [DbContext(typeof(RepositoryContext))]
+    [DbContext(typeof(PGSQLRepositoryContext))]
     partial class RepositoryContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

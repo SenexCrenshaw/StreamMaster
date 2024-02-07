@@ -38,7 +38,7 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
         await taskQueue.SetIsSystemReady(true, cancellationToken).ConfigureAwait(false);
 
         using IServiceScope scope = serviceProvider.CreateScope();
-        RepositoryContext repositoryContext = scope.ServiceProvider.GetRequiredService<RepositoryContext>();
+        PGSQLRepositoryContext repositoryContext = scope.ServiceProvider.GetRequiredService<PGSQLRepositoryContext>();
 
         ISchedulesDirectDataService schedulesDirectService = scope.ServiceProvider.GetRequiredService<ISchedulesDirectDataService>();
         await repositoryContext.MigrateData(schedulesDirectService.AllServices);

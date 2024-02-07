@@ -6,7 +6,7 @@ namespace StreamMaster.Infrastructure
 {
     public static class MigrateFromSQLite
     {
-        public static bool MigrateFromSQLiteDatabaseToPostgres(RepositoryContext repositoryContext, SQLiteRepositoryContext sQLiteRepositoryContext)
+        public static bool MigrateFromSQLiteDatabaseToPostgres(PGSQLRepositoryContext repositoryContext, SQLiteRepositoryContext sQLiteRepositoryContext)
         {
             try
             {
@@ -14,15 +14,6 @@ namespace StreamMaster.Infrastructure
                 if (File.Exists(sqliteDB))
                 {
                     Console.WriteLine("Migrating from SQLite to Postgres");
-
-                    //List<DataProtectionKey> dataProtectionKeys = sQLiteRepositoryContext.DataProtectionKeys.ToList();
-                    //if (dataProtectionKeys.Count > 0)
-                    //{
-                    //    Console.WriteLine($"Migrating {dataProtectionKeys.Count} DataProtectionKeys");
-                    //    repositoryContext.DataProtectionKeys.AddRange(dataProtectionKeys);
-                    //    repositoryContext.SaveChanges();
-                    //    Console.WriteLine("Migrated DataProtectionKeys");
-                    //}
 
                     List<EPGFile> epgFiles = sQLiteRepositoryContext.EPGFiles.ToList();
                     if (epgFiles.Count > 0)

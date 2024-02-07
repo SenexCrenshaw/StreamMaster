@@ -16,7 +16,7 @@ public interface IRepositoryBase<T> where T : class
     /// <param name="query">The query determining which entities to delete.</param>
     void BulkDelete(IQueryable<T> query);
 
-    Task BulkDeleteAsync(IQueryable<T> query);
+    Task BulkDeleteAsync(IQueryable<T> query, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Performs a bulk insert operation.
