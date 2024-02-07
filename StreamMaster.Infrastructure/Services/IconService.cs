@@ -108,7 +108,7 @@ public class IconService(IMapper mapper, IMemoryCache memoryCache, ILogger<IconS
         if (TvLogos.TryGetValue(source, out TvLogoFile? cache))
         {
             returnName = cache.Source;
-            fileName = FileDefinitions.TVLogo.DirectoryLocation + returnName;
+            fileName = Path.Combine(BuildInfo.TVLogoDataFolder, returnName);
             return new ImagePath
             {
                 ReturnName = returnName,
@@ -133,7 +133,7 @@ public class IconService(IMapper mapper, IMemoryCache memoryCache, ILogger<IconS
         FileDefinition fd = FileDefinitions.Icon;
 
         returnName = $"{icon.Name}.{icon.Extension}";
-        fileName = $"{fd.DirectoryLocation}{returnName}";
+        fileName = Path.Combine(fd.DirectoryLocation, returnName);
 
         return File.Exists(fileName)
             ? new ImagePath
