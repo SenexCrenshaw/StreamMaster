@@ -1,3 +1,5 @@
+# [0.9.0-i-am-not-drunk.11](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.10...v0.9.0-i-am-not-drunk.11) (2024-02-07)
+
 # [0.9.0-i-am-not-drunk.10](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.9...v0.9.0-i-am-not-drunk.10) (2024-02-07)
 
 
