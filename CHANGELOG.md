@@ -1,3 +1,10 @@
+# [0.9.0-i-am-not-drunk.18](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.17...v0.9.0-i-am-not-drunk.18) (2024-02-07)
+
+
+### Features
+
+* Add repository context initialization before migration ([b0d4b44](https://github.com/SenexCrenshaw/StreamMaster/commit/b0d4b4477ec784f5b154f674211b7b507ba44a4f))
+
 # [0.9.0-i-am-not-drunk.17](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.16...v0.9.0-i-am-not-drunk.17) (2024-02-07)
 
 
