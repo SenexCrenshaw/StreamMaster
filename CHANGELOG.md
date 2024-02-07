@@ -1,3 +1,10 @@
+# [0.9.0-i-am-not-drunk.17](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.16...v0.9.0-i-am-not-drunk.17) (2024-02-07)
+
+
+### Features
+
+* Add pause and resume functionality for stream readers ([404c4fe](https://github.com/SenexCrenshaw/StreamMaster/commit/404c4fe793c10565f32a2b38320c45180bdf4bc1))
+
 # [0.9.0-i-am-not-drunk.16](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.15...v0.9.0-i-am-not-drunk.16) (2024-02-07)
 
 
