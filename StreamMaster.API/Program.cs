@@ -157,15 +157,13 @@ using (IServiceScope scope = app.Services.CreateScope())
         }
     }
 
-
     RepositoryContextInitializer initialiser = scope.ServiceProvider.GetRequiredService<RepositoryContextInitializer>();
     await initialiser.InitialiseAsync().ConfigureAwait(false);
     if (app.Environment.IsDevelopment())
     {
-        initialiser.TrySeed();
-        initialiser.MigrateData();
+        initialiser.TrySeed();      
     }
-
+    initialiser.MigrateData();
 
     var mem = scope.ServiceProvider.GetRequiredService<IMemoryCache>();
     var setting = FileUtil.GetSetting();
