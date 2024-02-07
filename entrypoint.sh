@@ -61,8 +61,9 @@ if [ "$PUID" -ne 0 ] || [ "$PGID" -ne 0 ]; then
     chown -R ${PUID:-0}:${PGID:-0} /app
     echo "Changing ownership of /config to ${PUID:-0}:${PGID:-0}"
     find /config -mindepth 1 -maxdepth 1 -type d -not -path '/config/tv-logos' -not -path '/config/DB' -exec chown -R ${PUID:-0}:${PGID:-0} {} \;
-
 fi
+
+chown ${PUID:-0}:${PGID:-0} '/config/tv-logos'
 
 chown -R postgres:postgres $PGDATA
 

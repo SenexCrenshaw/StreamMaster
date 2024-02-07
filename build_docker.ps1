@@ -9,6 +9,7 @@ param (
     [switch]$SkipRelease = $false,
     [switch]$SkipMainBuild = $false
 )
+$global:tags
 
 function Main {
     Set-EnvironmentVariables
@@ -30,24 +31,24 @@ function Main {
 
     if ($BuildBase -or $BuildAll) {
         $dockerFile = "Dockerfile.base"
-        $tags = @("$("${imageName}:"+$processedAssemblyInfo.BranchName)-base")
-        BuildImage -result $processedAssemblyInfo -tags $tags -imageName $imageName -dockerFile $dockerFile
+        $global:tags = @("$("${imageName}:"+$processedAssemblyInfo.BranchName)-base")
+        BuildImage -result $processedAssemblyInfo -imageName $imageName -dockerFile $dockerFile
     }
 
     if ($BuildBuild -or $BuildAll) {
         $dockerFile = "Dockerfile.build"
-        $tags = @("$("${imageName}:"+$processedAssemblyInfo.BranchName)-build")
-        BuildImage -result $processedAssemblyInfo -tags $tags -imageName $imageName -dockerFile $dockerFile        
+        $global:tags = @("$("${imageName}:"+$processedAssemblyInfo.BranchName)-build")
+        BuildImage -result $processedAssemblyInfo -imageName $imageName -dockerFile $dockerFile        
     }
 
     if ($BuildSM -or $BuildBuild -or $BuildAll) {
         $dockerFile = "Dockerfile.sm"
-        $tags = @("$("${imageName}:"+$processedAssemblyInfo.BranchName)-sm")
+        $global:tags = @("$("${imageName}:"+$processedAssemblyInfo.BranchName)-sm")
 
         $contentArray = @('FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-build" + ' AS build');
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
 
-        BuildImage -result $processedAssemblyInfo -tags $tags -imageName $imageName -dockerFile $dockerFile
+        BuildImage -result $processedAssemblyInfo -imageName $imageName -dockerFile $dockerFile
     }
 
     if ( -not $SkipMainBuild -or $BuildAll) {
@@ -59,8 +60,8 @@ function Main {
         $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-base" + ' AS base'
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
         
-        $tags = DetermineTags -result $processedAssemblyInfo -imageName $imageName
-        BuildImage -result $processedAssemblyInfo -tags $tags -imageName $imageName -dockerFile $dockerFile
+        $global:tags = DetermineTags -result $processedAssemblyInfo -imageName $imageName
+        BuildImage -result $processedAssemblyInfo -imageName $imageName -dockerFile $dockerFile
     }
 }
 Function Add-ContentAtTop {
@@ -178,9 +179,6 @@ function BuildImage {
         $result,
 
         [Parameter(Mandatory = $true)]
-        [string[]]$tags,
-
-        [Parameter(Mandatory = $true)]
         $dockerFile,
 
         [Parameter(Mandatory = $true)]
@@ -190,11 +188,11 @@ function BuildImage {
   
     # Show the tags to be used
     Write-Host "Tags to be used:"
-    $tags | ForEach-Object { Write-Host $_ }
+    $global:tags | ForEach-Object { Write-Host $_ }
 
     # Construct the Docker build command using the tags and the specified Dockerfile
     $buildCommand = "docker buildx build --pull --platform ""linux/amd64,linux/arm64"" -f ./$dockerFile . --push"
-    foreach ($tag in $tags) {
+    foreach ($tag in $global:tags) {
         $buildCommand += " --tag=$tag"
     }
 
@@ -219,21 +217,21 @@ function DetermineTags {
     $BranchName = $result.BranchName
     $BranchNameRevision = $result.BranchNameRevision
 
-    $tags = @()
+    $global:tags = @()
     if ($BuildProd) {
-        $tags += "${imageName}:latest"
+        $global:tags += "${imageName}:latest"
     }
     else {
-        $tags += "${imageName}:${BranchName}"
+        $global:tags += "${imageName}:${BranchName}"
     }
-    $tags += "${imageName}:${BranchNameRevision}"
-    return $tags
+    $global:tags += "${imageName}:${BranchNameRevision}"
+    return $global:tags
 }
 
-function ConstructBuildCommand($tags) {
+function ConstructBuildCommand() {
     $buildCommand = "docker buildx build --platform ""linux/amd64,linux/arm64"" -f ./Dockerfile.orig . --push"
-    foreach ($tag in $tags) {
-        $buildCommand += " --tag=$tag"
+    foreach ($tag in $global:tags) {
+        $buildCommand += " --tag=$global:tags"
     }
     return $buildCommand
 }
@@ -253,3 +251,6 @@ function Invoke-Build($buildCommand) {
 
 # Entry point of the script
 Main
+
+Write-Host "Tags to be used:"
+$global:tags | ForEach-Object { Write-Host $_ }
