@@ -39,7 +39,6 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     //public int? PreloadPercentage { get; set; }
     public int? RingBufferSizeMB { get; set; }
 
-    public int? SourceBufferPreBufferPercentage { get; set; }
     public string? SSLCertPassword { get; set; }
     public string? SSLCertPath { get; set; }
     public string? StreamingClientUserAgent { get; set; }
