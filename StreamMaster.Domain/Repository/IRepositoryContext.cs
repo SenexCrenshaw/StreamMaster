@@ -1,6 +1,4 @@
-﻿using EFCore.BulkExtensions;
-
-using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Domain.Models;
@@ -16,11 +14,9 @@ namespace StreamMaster.Domain.Repository
 
         int ExecuteSqlRaw(string sql, params object[] parameters);
         Task<int> ExecuteSqlRawAsyncEntities(string sql, CancellationToken cancellationToken = default);
-
-        void BulkUpdateEntities<TEntity>(IEnumerable<TEntity> entities, BulkConfig? bulkConfig = null, Action<decimal>? progress = null, Type? type = null) where TEntity : class;
-        void BulkInsertEntities<TEntity>(IEnumerable<TEntity> entities, Action<BulkConfig>? bulkAction = null, Action<decimal>? progress = null, Type? type = null) where TEntity : class;
-        Task BulkDeleteAsyncEntities<T>(IEnumerable<T> entities, BulkConfig? bulkConfig = null, Action<decimal>? progress = null, Type? type = null, CancellationToken cancellationToken = default) where T : class;
-
+        void BulkUpdateEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : class;
+        void BulkInsertEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : class;
+        Task BulkDeleteAsyncEntities<TEntity>(IQueryable<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class;
         DbSet<ChannelGroup> ChannelGroups
         { get; set; }
         DbSet<DataProtectionKey> DataProtectionKeys { get; set; }

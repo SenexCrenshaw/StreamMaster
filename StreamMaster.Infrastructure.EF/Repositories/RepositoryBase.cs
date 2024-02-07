@@ -220,7 +220,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         await RepositoryContext.BulkDeleteAsyncEntities(query, cancellationToken: cancellationToken);
     }
 
-    /// <summary>
+/// <summary>
     /// Performs a bulk update on a set of entities.
     /// </summary>
     /// <param name="entities">Entities to be updated.</param>

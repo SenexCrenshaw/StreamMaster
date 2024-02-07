@@ -148,19 +148,19 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             return Database.ExecuteSqlRawAsync(sql, cancellationToken);
         }
 
-        public void BulkUpdateEntities<TEntity>(IEnumerable<TEntity> entities, BulkConfig? bulkConfig = null, Action<decimal>? progress = null, Type? type = null) where TEntity : class
+        public void BulkUpdateEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
         {
-            this.BulkUpdate(entities, bulkConfig, progress, type);
+            this.BulkUpdate(entities);
         }
 
-        public void BulkInsertEntities<TEntity>(IEnumerable<TEntity> entities, Action<BulkConfig>? bulkAction, Action<decimal>? progress = null, Type? type = null) where TEntity : class
+        public void BulkInsertEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
         {
-            this.BulkInsert(entities, bulkAction, progress, type);
+            this.BulkInsert(entities);
         }
 
-        public Task BulkDeleteAsyncEntities<T>(IEnumerable<T> entities, BulkConfig? bulkConfig = null, Action<decimal>? progress = null, Type? type = null, CancellationToken cancellationToken = default) where T : class
+        public Task BulkDeleteAsyncEntities<TEntity>(IQueryable<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class
         {
-            return this.BulkDeleteAsync(entities, bulkConfig, progress, type, cancellationToken);
+            return entities.ExecuteDeleteAsync(cancellationToken);
         }
     }
 }
