@@ -1,3 +1,11 @@
+# [0.9.0-i-am-not-drunk.8](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.7...v0.9.0-i-am-not-drunk.8) (2024-02-07)
+
+
+### Bug Fixes
+
+* fix LastDownloaded time to be in universal time format ([014d4df](https://github.com/SenexCrenshaw/StreamMaster/commit/014d4df8cd779998c44c0d137f0577b0796aeef8))
+* Icon paths ([f1b0fe2](https://github.com/SenexCrenshaw/StreamMaster/commit/f1b0fe2fa02fce3398c009f88cb3bb7fb8c9d2a4))
+
 # [0.9.0-i-am-not-drunk.7](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.6...v0.9.0-i-am-not-drunk.7) (2024-02-05)
 
 
