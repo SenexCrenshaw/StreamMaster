@@ -268,18 +268,20 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         //int retryCount = 0;
         //int maxRetries = 3;
         bool ran = false;
+        //Stopwatch timeBetweenWrites = Stopwatch.StartNew(); // Initialize the stopwatch
+        Stopwatch testSw = Stopwatch.StartNew();
+
+
+        CircularRingBuffer.UnPauseReaders();
+        await UnPauseClients();
+
         using (stream)
         {
-            Stopwatch timeBetweenWrites = Stopwatch.StartNew(); // Initialize the stopwatch
-            int bytesRead = bufferMemory.Length;
-            using BufferedStream bufferedStream = new(stream, bufferSize: bufferMemory.Length);
-
-            Stopwatch testSw = Stopwatch.StartNew();
             while (!linkedToken.IsCancellationRequested)
             {
                 try
                 {
-                    int readBytes = await bufferedStream.ReadAsync(bufferMemory, linkedToken.Token);
+                    int readBytes = await stream.ReadAsync(bufferMemory, linkedToken.Token);
                     if (!ran)
                     {
                         ran = true;
@@ -293,14 +295,9 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
                     CircularRingBuffer.WriteChunk(bufferMemory[..readBytes]);
 
-                    if (CircularRingBuffer.IsPaused)
-                    {
-                        CircularRingBuffer.UnPauseReaders();
-                    }
 
-                    await UnPauseClients();
 
-                    timeBetweenWrites.Reset();
+                    //timeBetweenWrites.Reset();
 
                     if (CircularRingBuffer.GetNextReadIndex() > videoBufferSize)
                     {
@@ -310,13 +307,13 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                         }
                     }
 
-                    if (timeBetweenWrites.ElapsedMilliseconds is > 30000 and < 60000000000000)
-                    {
+                    //if (timeBetweenWrites.ElapsedMilliseconds is > 30000 and < 60000000000000)
+                    //{
 
-                        logger.LogWarning($"Input stream is slow: {VideoStreamName} {timeBetweenWrites.ElapsedMilliseconds}ms elapsed since last set.");
+                    //    logger.LogWarning($"Input stream is slow: {VideoStreamName} {timeBetweenWrites.ElapsedMilliseconds}ms elapsed since last set.");
 
-                        break;
-                    }
+                    //    break;
+                    //}
                 }
                 catch (TaskCanceledException ex)
                 {
