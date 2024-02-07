@@ -53,7 +53,7 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
             return;
         }
 
-        Console.WriteLine("Fixing {videos.Count} empty shortids", videos.Count);
+        Console.WriteLine($"Fixing {videos.Count} empty shortids");
 
         HashSet<string> ids = [.. context.VideoStreams.Select(a => a.ShortId)];
 
@@ -63,7 +63,7 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
         }
 
         context.SaveChanges();
-        Console.WriteLine("Fixing {videos.Count} empty shortids", videos.Count);
+        Console.WriteLine($"Fixing {videos.Count} empty shortids");
     }
 }
 
