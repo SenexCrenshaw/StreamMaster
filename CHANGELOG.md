@@ -1,3 +1,11 @@
+# [0.9.0-i-am-not-drunk.14](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.13...v0.9.0-i-am-not-drunk.14) (2024-02-07)
+
+
+### Bug Fixes
+
+* CG ID ([bcd8524](https://github.com/SenexCrenshaw/StreamMaster/commit/bcd8524e90be05a3521bbda569e3d2cf574f5088))
+* Fix stream handler restart issue ([98c4f43](https://github.com/SenexCrenshaw/StreamMaster/commit/98c4f434380ccbec49f30784489e34e977b8000a))
+
 # [0.9.0-i-am-not-drunk.13](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.12...v0.9.0-i-am-not-drunk.13) (2024-02-07)
 
 # [0.9.0-i-am-not-drunk.12](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.11...v0.9.0-i-am-not-drunk.12) (2024-02-07)
