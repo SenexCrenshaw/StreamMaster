@@ -276,7 +276,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                     {
                         ran = true;
                         testSw.Stop();
-                        logger.LogInformation($"Test ran in {testSw.ElapsedMilliseconds}ms");
+                        logger.LogInformation($"Input stream took {testSw.ElapsedMilliseconds}ms before reading first bytes {readBytes}");
                     }
                     if (readBytes == 0)
                     {
