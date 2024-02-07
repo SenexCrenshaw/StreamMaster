@@ -1,3 +1,15 @@
+# [0.9.0-i-am-not-drunk.12](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.11...v0.9.0-i-am-not-drunk.12) (2024-02-07)
+
+
+### Bug Fixes
+
+* Fixing empty shortids count output in RepositoryContextInitializer ([8076d79](https://github.com/SenexCrenshaw/StreamMaster/commit/8076d79ddde4e04a28d070999eb73bb9ca31ba05))
+
+
+### Features
+
+* Add support for M3U settings in the API ([f7fee73](https://github.com/SenexCrenshaw/StreamMaster/commit/f7fee73dadb06f2c0a8e8d9de48978f1e4f80ab1))
+
 # [0.9.0-i-am-not-drunk.11](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.10...v0.9.0-i-am-not-drunk.11) (2024-02-07)
 
 # [0.9.0-i-am-not-drunk.10](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.9...v0.9.0-i-am-not-drunk.10) (2024-02-07)
