@@ -5,8 +5,6 @@ group_name="nonRootGroup"
 
 . /env.sh
 
-
-
 wait_for_postgres() {
     local host="$1"
     local port="$2"
@@ -65,8 +63,6 @@ fi
 
 chown ${PUID:-0}:${PGID:-0} '/config/tv-logos' 2> /dev/null
 
-chown -R postgres:postgres $PGDATA
-
 # Pretty printing the configuration
 echo "Configuration:"
 echo "--------------"
@@ -79,9 +75,15 @@ echo "  User: $POSTGRES_USER"
 echo "  Password: ********" #$POSTGRES_PASSWORD"
 echo "  DB Name: $POSTGRES_DB"
 echo "  Data Directory: $PGDATA"
+echo "  Set Perms: $POSTGRES_SET_PERMS"
 echo "OS:"
 echo "  User: $POSTGRES_USER Group: $POSTGRES_USER"
 echo "  UID: $(id -u $POSTGRES_USER) GID: $(id -g $POSTGRES_USER)"
+
+
+if ( $POSTGRES_SET_PERMS -eq 1){
+    chown -R postgres:postgres $PGDATA
+}
 
 # Start the database
 /usr/local/bin/docker-entrypoint.sh postgres &
