@@ -22,28 +22,19 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public string? FFMPegExecutable { get; set; }
     public string? FFMpegOptions { get; set; }
     public int? GlobalStreamLimit { get; set; }
-    //public bool? M3UFieldChannelId { get; set; }
-    //public bool? M3UFieldChannelNumber { get; set; }
-    //public bool? M3UFieldCUID { get; set; }
     public bool? M3UFieldGroupTitle { get; set; }
-    //public bool? M3UFieldTvgChno { get; set; }
     public bool? M3UStationId { get; set; }
-    //public bool? M3UFieldTvgId { get; set; }
-    //public bool? M3UFieldTvgLogo { get; set; }
-    //public bool? M3UFieldTvgName { get; set; }
     public bool? M3UUseChnoForId { get; set; }
     public bool? M3UIgnoreEmptyEPGID { get; set; }
     public bool? PrettyEPG { get; set; }
     public int? MaxConnectRetry { get; set; }
     public int? MaxConnectRetryTimeMS { get; set; }
     public int? RingBufferSizeMB { get; set; }
-
     public string? SSLCertPassword { get; set; }
     public string? SSLCertPath { get; set; }
     public string? StreamingClientUserAgent { get; set; }
     public StreamingProxyTypes? StreamingProxyType { get; set; }
     public bool? VideoStreamAlwaysUseEPGLogo { get; set; }
-
     public bool? EnablePrometheus { get; set; }
     public int? MaxLogFiles { get; set; }
     public int? MaxLogFileSizeMB { get; set; }

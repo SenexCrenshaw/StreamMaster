@@ -229,7 +229,7 @@ public static partial class IPTVExtensions
                             break;
 
                         case "channel-id":
-                            //VideoStream.Id = parameter[1].Trim();
+                            VideoStream.Tvg_ID = parameter[1].Trim();
                             break;
 
                         case "channel-number":

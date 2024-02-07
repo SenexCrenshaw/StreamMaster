@@ -228,14 +228,15 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         fieldList.Add($"tvg-chno=\"{chNo}\"");
         fieldList.Add($"channel-number=\"{chNo}\"");
 
+
+        if (setting.M3UStationId)
+        {
+            string toDisplay = string.IsNullOrEmpty(videoStream.StationId) ? stationId : videoStream.StationId;
+            fieldList.Add($"tvc-guide-stationid=\"{toDisplay}\"");
+        }
+
         if (setting.M3UFieldGroupTitle)
         {
-            if (setting.M3UStationId)
-            {
-                string toDisplay = string.IsNullOrEmpty(videoStream.StationId) ? stationId : videoStream.StationId;
-                fieldList.Add($"tvc-guide-stationid=\"{toDisplay}\"");
-            }
-
             if (!string.IsNullOrEmpty(videoStream.GroupTitle))
             {
                 fieldList.Add($"group-title=\"{videoStream.GroupTitle}\"");
@@ -247,24 +248,11 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         }
 
 
-        string lines = string.Join(" ", fieldList.Order().ToArray());
+        string lines = string.Join(" ", [.. fieldList.Order()]);
         lines += $",{videoStream.User_Tvg_name}\r\n";
         lines += $"{videoUrl}";
 
         return (chNo, lines);
-    }
-
-    private static string AssembleReturnString(ConcurrentDictionary<int, string> retlist)
-    {
-        StringBuilder ret = new("#EXTM3U\r\n");
-        foreach (int rl in retlist.Keys.Order())
-        {
-            if (retlist.TryGetValue(rl, out string? str) && !string.IsNullOrEmpty(str))
-            {
-                ret.AppendLine(str);
-            }
-        }
-        return ret.ToString();
     }
 
     private string GetApiUrl(SMFileTypes path, string source)
