@@ -1,3 +1,15 @@
+# [0.9.0-i-am-not-drunk.15](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.14...v0.9.0-i-am-not-drunk.15) (2024-02-07)
+
+
+### Bug Fixes
+
+* Fix timeout issue in ClientReadStream ([b5625e9](https://github.com/SenexCrenshaw/StreamMaster/commit/b5625e927c7916c927e339a6d6318f2892e31627))
+
+
+### Performance Improvements
+
+* Improve logging message in StreamHandler.cs ([3cd00f3](https://github.com/SenexCrenshaw/StreamMaster/commit/3cd00f3d23919a976f302a0286c11f8853036431))
+
 # [0.9.0-i-am-not-drunk.14](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.13...v0.9.0-i-am-not-drunk.14) (2024-02-07)
 
 
