@@ -36,7 +36,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
                 return null;
             }
 
-            bool publish = false;
+
             if (epgFile.LastDownloadAttempt.AddMinutes(epgFile.MinimumMinutesBetweenDownloads) < SMDT.UtcNow)
             {
 
@@ -45,7 +45,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
 
                 if (epgFile.Url != null && epgFile.Url.Contains("://"))
                 {
-                    publish = true;
+
                     Logger.LogInformation("Refresh EPG From URL {epgFile.Url}", epgFile.Url);
 
                     epgFile.LastDownloadAttempt = SMDT.UtcNow;

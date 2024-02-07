@@ -144,15 +144,6 @@ using (IServiceScope scope = app.Services.CreateScope())
     //}
 
 
-    RepositoryContextInitializer initialiser = scope.ServiceProvider.GetRequiredService<RepositoryContextInitializer>();
-    await initialiser.InitialiseAsync().ConfigureAwait(false);
-    if (app.Environment.IsDevelopment())
-    {
-        initialiser.TrySeed();
-        initialiser.MigrateData();
-    }
-
-
     string sqliteDB = Path.Join(BuildInfo.AppDataFolder, "StreamMaster.db");
     if (File.Exists(sqliteDB))
     {
@@ -165,6 +156,16 @@ using (IServiceScope scope = app.Services.CreateScope())
             File.Move(sqliteDB, sqliteDB+".old",true);
         }
     }
+
+
+    RepositoryContextInitializer initialiser = scope.ServiceProvider.GetRequiredService<RepositoryContextInitializer>();
+    await initialiser.InitialiseAsync().ConfigureAwait(false);
+    if (app.Environment.IsDevelopment())
+    {
+        initialiser.TrySeed();
+        initialiser.MigrateData();
+    }
+
 
     var mem = scope.ServiceProvider.GetRequiredService<IMemoryCache>();
     var setting = FileUtil.GetSetting();

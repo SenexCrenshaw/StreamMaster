@@ -49,8 +49,11 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
         List<VideoStream> videos = [.. context.VideoStreams.Where(a => a.ShortId == UniqueHexGenerator.ShortIdEmpty)];
         if (videos.Count == 0)
         {
+            Console.WriteLine("No shortids need fixing", videos.Count);
             return;
         }
+
+        Console.WriteLine("Fixing {videos.Count} empty shortids", videos.Count);
 
         HashSet<string> ids = [.. context.VideoStreams.Select(a => a.ShortId)];
 
@@ -60,6 +63,7 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
         }
 
         context.SaveChanges();
+        Console.WriteLine("Fixing {videos.Count} empty shortids", videos.Count);
     }
 }
 

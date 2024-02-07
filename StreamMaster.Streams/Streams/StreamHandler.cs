@@ -311,6 +311,12 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                     logger.LogInformation("Stream requested to stop for: {stopVideoStreamingToken.Token}", stopVideoStreamingToken.Token.IsCancellationRequested);
                     break;
                 }
+                catch (OperationCanceledException ex)
+                {
+                    CircularRingBuffer.PauseReaders();
+                    logger.LogInformation(ex, "Stream Operation stopped for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
+                    break;
+                }
                 catch (EndOfStreamException ex)
                 {
                     CircularRingBuffer.PauseReaders();
@@ -326,6 +332,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                     logger.LogInformation(ex, "HTTP IO for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
                     break;
                 }
+
                 catch (Exception ex)
                 {
                     CircularRingBuffer.PauseReaders();

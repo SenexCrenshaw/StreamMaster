@@ -35,11 +35,8 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
                 return null;
             }
 
-            bool publish = false;
-
             if (request.forceRun || m3uFile.LastDownloadAttempt.AddMinutes(m3uFile.MinimumMinutesBetweenDownloads) < SMDT.UtcNow)
             {
-                publish = true;
                 FileDefinition fd = FileDefinitions.M3U;
                 string fullName = Path.Combine(fd.DirectoryLocation, m3uFile.Source);
 
