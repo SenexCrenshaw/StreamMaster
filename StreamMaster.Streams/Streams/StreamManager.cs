@@ -104,7 +104,7 @@ public sealed class StreamManager(
         {
             if (streamHandler is not null)
             {
-                if (StoppedEvent.InputStreamError)
+                if (StoppedEvent.InputStreamError && streamHandler.ClientCount > 0)
                 {
                     if (await streamHandlerFactory.RestartStreamHandlerAsync(streamHandler).ConfigureAwait(false) == null)
                     {
@@ -112,7 +112,7 @@ public sealed class StreamManager(
                     }
                     else
                     {
-                        streamHandler.RestartCount = 0;
+                        //streamHandler.RestartCount = 0;
                         //foreach (Guid clientId in streamHandler.GetClientStreamerClientIds())
                         //{
                         //    IClientStreamerConfiguration? clientStreamerConfiguration = await clientStreamerManager.GetClientStreamerConfiguration(clientId);
