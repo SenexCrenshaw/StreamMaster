@@ -47,7 +47,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //modelBuilder.HasCollation("sm_collation", locale: "C.utf8", provider: "icu", deterministic: false);
-
+            modelBuilder.UseIdentityByDefaultColumns();
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(PGSQLRepositoryContext).Assembly);
 
             _ = modelBuilder.Entity<VideoStream>()

@@ -1,11 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StreamMaster.Domain.Models;
 
 public class ChannelGroup : BaseEntity
 {
-
-    public new int Id { get; set; }
+    [Key]
+    public int Id { get; set; }
     public bool IsHidden { get; set; } = false;
     public bool IsReadOnly { get; set; }
     [Column(TypeName = "citext")]
