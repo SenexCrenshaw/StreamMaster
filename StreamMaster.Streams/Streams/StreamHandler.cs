@@ -189,7 +189,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         }
         catch (Exception ex) when (ex is IOException or JsonException or Exception)
         {
-            logger.LogError(ex, "CreateFFProbeStream Error: {ErrorMessage}", ex.Message);
+            //logger.LogError( "CreateFFProbeStream Error: {ErrorMessage}");
             process.Kill();
         }
         return new();
@@ -263,12 +263,14 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         {
             Stopwatch timeBetweenWrites = Stopwatch.StartNew(); // Initialize the stopwatch
             int bytesRead = bufferMemory.Length;
-            while (!linkedToken.IsCancellationRequested)//&& retryCount < maxRetries)
+            using BufferedStream bufferedStream = new(stream, bufferSize: bufferMemory.Length);
+
+            while (!linkedToken.IsCancellationRequested)
             {
                 try
                 {
-
-                    int readBytes = await stream.ReadAsync(bufferMemory, linkedToken.Token);
+                    //int readBytes = await stream.ReadAtLeastAsync(bufferMemory, 4096, true, linkedToken.Token);
+                    int readBytes = await bufferedStream.ReadAsync(bufferMemory, linkedToken.Token);
                     if (readBytes == 0)
                     {
                         throw new EndOfStreamException();
@@ -279,7 +281,6 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                     if (CircularRingBuffer.IsPaused)
                     {
                         CircularRingBuffer.UnPauseReaders();
-
                     }
 
                     await UnPauseClients();

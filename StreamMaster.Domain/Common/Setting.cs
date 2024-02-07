@@ -119,7 +119,7 @@ public class BaseSettings : M3USettings
     public int GlobalStreamLimit { get; set; } = 1;
     public int MaxConnectRetry { get; set; } = 20;
     public int MaxConnectRetryTimeMS { get; set; } = 200;
-    //public int PreloadPercentage { get; set; } = 25;
+
     public int RingBufferSizeMB { get; set; } = 4;
 
     public List<string> NameRegex { get; set; } = [];

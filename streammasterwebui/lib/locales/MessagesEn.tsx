@@ -108,8 +108,6 @@ const MessagesEn: messages_enType = {
 
   playlist: 'Playlist',
 
-  preloadPercentage: 'Buffer Preload Percentage',
-
   regex: 'Regex',
 
   rememberme: 'Remember Me',

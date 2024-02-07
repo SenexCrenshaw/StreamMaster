@@ -36,7 +36,6 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public bool? PrettyEPG { get; set; }
     public int? MaxConnectRetry { get; set; }
     public int? MaxConnectRetryTimeMS { get; set; }
-    //public int? PreloadPercentage { get; set; }
     public int? RingBufferSizeMB { get; set; }
 
     public string? SSLCertPassword { get; set; }
@@ -418,11 +417,6 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
         {
             currentSetting.GlobalStreamLimit = (int)request.GlobalStreamLimit;
         }
-
-        //if (request.PreloadPercentage != null && request.PreloadPercentage >= 0 && request.PreloadPercentage <= 100 && request.PreloadPercentage != currentSetting.PreloadPercentage)
-        //{
-        //    currentSetting.PreloadPercentage = (int)request.PreloadPercentage;
-        //}
 
         if (request.RingBufferSizeMB != null && request.RingBufferSizeMB >= 0 && request.RingBufferSizeMB != currentSetting.RingBufferSizeMB)
         {

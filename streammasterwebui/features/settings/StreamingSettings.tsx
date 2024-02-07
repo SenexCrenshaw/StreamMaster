@@ -40,7 +40,6 @@ export function StreamingSettings(): React.ReactElement {
       {getDropDownLine({ field: 'streamingProxyType', options: getHandlersOptions(), selectedCurrentSettingDto, onChange })}
       {getInputNumberLine({ field: 'globalStreamLimit', selectedCurrentSettingDto, onChange })}
       {getInputNumberLine({ field: 'ringBufferSizeMB', min: 1, max: 256, selectedCurrentSettingDto, onChange })}
-      {getInputNumberLine({ field: 'preloadPercentage', max: 999, selectedCurrentSettingDto, onChange })}
 
       {/* {getInputNumberLine('maxConnectRetry', 999)}
             {getInputNumberLine('maxConnectRetryTimeMS', 999)} */}

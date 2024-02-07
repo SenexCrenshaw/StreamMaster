@@ -84,13 +84,16 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
                     break;
 
                 }
+                _readLogger.LogDebug("_pauseSignal");
                 await _pauseSignal.Task;
-
+                _readLogger.LogDebug("GetAvailableBytes");
                 availableBytes = GetAvailableBytes(readIndex, correlationId);
                 _readLogger.LogDebug("Start bytesRead: {bytesRead} bytesToRead: {bytesToRead} clientReadIndex: {clientReadIndex} writeindex: {writeindex} writebytes: {writebytes} availableBytes: {availableBytes} target.Length: {target.Length} readIndex: {readIndex}", bytesRead, bytesToRead, clientReadIndex, _writeIndex, WriteBytes, availableBytes, target.Length, readIndex);
 
                 while (availableBytes == 0 && !cancellationToken.IsCancellationRequested)
                 {
+                    _readLogger.LogDebug("_writeSignal");
+
                     await _writeSignal.Task.WaitAsync(cancellationToken);//.WaitWithTimeoutAsync("WriteSignal", 30000, linkedToken);
                     if (_writeSignal.Task.IsCanceled || cancellationToken.IsCancellationRequested)
                     {
