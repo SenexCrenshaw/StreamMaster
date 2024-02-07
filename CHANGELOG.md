@@ -1,3 +1,12 @@
+# [0.9.0-i-am-not-drunk.10](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.9...v0.9.0-i-am-not-drunk.10) (2024-02-07)
+
+
+### Bug Fixes
+
+* Fixed logging message in StreamHandler ([8d8100e](https://github.com/SenexCrenshaw/StreamMaster/commit/8d8100e25a841a00a948cefef9fc1dfdf2b199a9))
+* Remove preloadPercentage from settings ([099e643](https://github.com/SenexCrenshaw/StreamMaster/commit/099e643c19b974fe539bba63f187c163999958d6))
+* stuff ([e4202dd](https://github.com/SenexCrenshaw/StreamMaster/commit/e4202dd3f415054e732451e22d608fe519a03885))
+
 # [0.9.0-i-am-not-drunk.9](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.8...v0.9.0-i-am-not-drunk.9) (2024-02-07)
 
 
