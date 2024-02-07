@@ -22,11 +22,13 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
         {
             while (true)
             {
-                CancellationTokenSource timedToken = new(TimeSpan.FromSeconds(10));
+                await _bufferSwitchSemaphore.WaitAsync(_readCancel.Token);
+
+                CancellationTokenSource timedToken = new(TimeSpan.FromSeconds(30));
 
                 using CancellationTokenSource readLinked = CancellationTokenSource.CreateLinkedTokenSource(_readCancel.Token, timedToken.Token);
 
-                await _bufferSwitchSemaphore.WaitAsync(_readCancel.Token);
+
                 if (timedToken.IsCancellationRequested)
                 {
                     logger.LogWarning("ReadAsync timedToken cancelled for ClientId: {ClientId}", ClientId);
@@ -40,7 +42,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
                 {
                     bytesRead = !linkedCts.IsCancellationRequested ? await Buffer.ReadChunkMemory(_lastReadIndex, buffer, linkedCts.Token) : 0;
                 }
-                catch (TaskCanceledException ex)
+                catch (TaskCanceledException)
                 {
                     logger.LogWarning("ReadAsync cancellationToken {cancellationToken}", cancellationToken.IsCancellationRequested);
                     logger.LogWarning("ReadAsync _readCancel {_readCancel}", _readCancel.IsCancellationRequested);
