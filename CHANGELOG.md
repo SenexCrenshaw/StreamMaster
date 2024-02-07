@@ -1,3 +1,10 @@
+# [0.9.0-i-am-not-drunk.9](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.8...v0.9.0-i-am-not-drunk.9) (2024-02-07)
+
+
+### Bug Fixes
+
+* Fix shortid fix logic in RepositoryContextInitializer ([ed0a47e](https://github.com/SenexCrenshaw/StreamMaster/commit/ed0a47edcc6a8214935600055e85e232422b8993))
+
 # [0.9.0-i-am-not-drunk.8](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.7...v0.9.0-i-am-not-drunk.8) (2024-02-07)
 
 
