@@ -1,3 +1,10 @@
+# [0.9.0-i-am-not-drunk.16](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.15...v0.9.0-i-am-not-drunk.16) (2024-02-07)
+
+
+### Features
+
+* Add cancellationToken parameter to Task.Delay in ClientReadStream ([b1ca262](https://github.com/SenexCrenshaw/StreamMaster/commit/b1ca262086de8d7493672092b74679bfdf34a225))
+
 # [0.9.0-i-am-not-drunk.15](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.14...v0.9.0-i-am-not-drunk.15) (2024-02-07)
 
 
