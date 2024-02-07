@@ -79,6 +79,9 @@ echo "  User: $POSTGRES_USER"
 echo "  Password: ********" #$POSTGRES_PASSWORD"
 echo "  DB Name: $POSTGRES_DB"
 echo "  Data Directory: $PGDATA"
+echo "OS:"
+echo "  User: $POSTGRES_USER Group: $POSTGRES_USER"
+echo "  UID: $(id -u $POSTGRES_USER) GID: $(id -g $POSTGRES_USER)"
 
 # Start the database
 /usr/local/bin/docker-entrypoint.sh postgres &
