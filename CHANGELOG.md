@@ -1,3 +1,10 @@
+# [0.9.0-i-am-not-drunk.26](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.25...v0.9.0-i-am-not-drunk.26) (2024-02-08)
+
+
+### Bug Fixes
+
+* epg gz files ([844203e](https://github.com/SenexCrenshaw/StreamMaster/commit/844203eab733acb2d953c78ff282ea3d5bd07537))
+
 # [0.9.0-i-am-not-drunk.25](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.24...v0.9.0-i-am-not-drunk.25) (2024-02-08)
 
 
