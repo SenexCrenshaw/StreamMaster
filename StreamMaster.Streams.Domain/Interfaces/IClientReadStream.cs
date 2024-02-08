@@ -5,6 +5,7 @@
 /// </summary>
 public interface IClientReadStream : IDisposable
 {
+    bool IsPaused { get; }
     /// <summary>
     /// Gets the underlying circular ring buffer.
     /// </summary>

@@ -418,12 +418,8 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         {
             try
             {
-                string? procName = CheckProcessExists();
-                if (procName != null)
-                {
-                    Process process = Process.GetProcessById(ProcessId);
-                    process.Kill();
-                }
+                KillProcess();
+
             }
             catch (Exception ex)
             {
@@ -469,20 +465,19 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         }
     }
 
-    private string? CheckProcessExists()
+    private void KillProcess()
     {
-        try
+
+        foreach (Process process in Process.GetProcesses())
         {
-            Process process = Process.GetProcessById(ProcessId);
-            // logger.LogInformation($"Process with ID {processId} exists. Name: {process.ProcessName}");
-            return process.ProcessName;
+            if (process.Id == ProcessId)
+            {
+                process.Kill();
+            }
         }
-        catch (ArgumentException)
-        {
-            // logger.LogWarning($"Process with ID {processId} does not exist.");
-            return null;
-        }
+
     }
+
 
 
     public IEnumerable<Guid> GetClientStreamerClientIds()
