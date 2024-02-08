@@ -8,7 +8,9 @@ param (
     [switch]$PrintCommands = $false,
     [switch]$SkipRelease = $false,
     [switch]$SkipMainBuild = $false,
-    [string]$BuildVer = ''
+    [string]$BuildBaseVer = '',
+    [string]$BuildBuildVer = '',
+    [string]$BuildSMVer = ''
 )
 
 $global:tags
@@ -47,7 +49,13 @@ function Main {
         $dockerFile = "Dockerfile.sm"
         $global:tags = @("$("${imageName}:"+$processedAssemblyInfo.BranchName)-sm")
 
-        $contentArray = @('FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-build" + ' AS build');
+        if ( $BuildBuildVer -ne '' ) {
+            $contentArray = @('FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($BuildBuildVer)-build" + ' AS build');  
+        }
+        else {
+            $contentArray = @('FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-build" + ' AS build');
+        }
+
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
 
         BuildImage -result $processedAssemblyInfo -imageName $imageName -dockerFile $dockerFile
@@ -57,16 +65,22 @@ function Main {
         $dockerFile = "Dockerfile"
 
         $contentArray = @();
-        if ( $BuildVer -ne '' ) {
-            $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($BuildVer)-sm" + ' AS sm'
-            $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($BuildVer)-base" + ' AS base'
+        if ( $BuildSMVer -ne '' ) {
+            $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($BuildSMVer)-sm" + ' AS sm'          
         }
         else {
             $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-sm" + ' AS sm'
-            $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-base" + ' AS base'
         }
+
+        if ( $BuildBaseVer -ne '' ) {
+            $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($BuildBaseVer)-base" + ' AS base'          
+        }
+        else {
+            $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-base" + ' AS base'          
+        }
+
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
-        
+
         $global:tags = DetermineTags -result $processedAssemblyInfo -imageName $imageName
         BuildImage -result $processedAssemblyInfo -imageName $imageName -dockerFile $dockerFile
     }

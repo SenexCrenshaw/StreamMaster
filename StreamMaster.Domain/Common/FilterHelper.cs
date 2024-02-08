@@ -15,7 +15,7 @@ public static class FilterHelper<T> where T : class
     private static readonly ConcurrentDictionary<Type, ParameterExpression> ParameterCache = new();
     private static readonly ConcurrentDictionary<(Type, string), PropertyInfo> PropertyCache = new();
 
-    public static IQueryable<T> ApplyFiltersAndSort(IQueryable<T> query, List<DataTableFilterMetaData>? filters, string orderBy)
+    public static IQueryable<T> ApplyFiltersAndSort(IQueryable<T> query, List<DataTableFilterMetaData>? filters, string orderBy, bool forceToLower = false)
     {
 
         if (filters != null)
@@ -23,7 +23,7 @@ public static class FilterHelper<T> where T : class
             // Apply filters
             foreach (DataTableFilterMetaData filter in filters)
             {
-                query = FilterHelper<T>.ApplyFilter(query, filter);
+                query = FilterHelper<T>.ApplyFilter(query, filter, forceToLower);
             }
         }
 
@@ -36,7 +36,7 @@ public static class FilterHelper<T> where T : class
         return query;
     }
 
-    public static IQueryable<T> ApplyFilter(IQueryable<T> query, DataTableFilterMetaData filter)
+    public static IQueryable<T> ApplyFilter(IQueryable<T> query, DataTableFilterMetaData filter, bool forceToLower)
     {
         if (!ParameterCache.TryGetValue(typeof(T), out ParameterExpression? parameter))
         {
@@ -53,20 +53,8 @@ public static class FilterHelper<T> where T : class
 
         Expression propertyAccess = Expression.Property(parameter, property);
 
-        Expression filterExpression = CreateArrayExpression(filter, propertyAccess);
-        //filter.MatchMode switch
-        //{
-        //    //case "channelGroups":
-        //    //    filterExpression = CreateArrayExpression(filter, propertyAccess, filter.MatchMode);
-        //    //    break;
-        //    //case "contains":
-        //    //case "startsWith":
-        //    //case "endsWith":
-        //    //    filterExpression = CreateArrayExpression(filter, propertyAccess, filter.MatchMode);
-        //    //    break;
-        //    "equals" => Expression.Equal(propertyAccess, Expression.Constant(ConvertValue(filter.Value, property.PropertyType))),
-        //    _ => CreateArrayExpression(filter, propertyAccess),
-        //};
+        Expression filterExpression = CreateArrayExpression(filter, propertyAccess, forceToLower);
+
         Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(filterExpression, parameter);
         return query.Where(lambda);
     }
@@ -87,7 +75,7 @@ public static class FilterHelper<T> where T : class
             : Expression.Call(stringExpression, methodInfoString, searchStringExpression);
     }
 
-    private static Expression CreateArrayExpression(DataTableFilterMetaData filter, Expression propertyAccess)
+    private static Expression CreateArrayExpression(DataTableFilterMetaData filter, Expression propertyAccess, bool forceToLower)
     {
         string stringValue = filter.Value?.ToString() ?? string.Empty;
 
@@ -115,8 +103,18 @@ public static class FilterHelper<T> where T : class
                 }
                 else
                 {
-                    MethodCallExpression containsCall = StringExpression(filter.MatchMode, propertyAccess, Expression.Constant(value));
-                    containsExpressions.Add(containsCall);
+                    if (forceToLower)
+                    {
+                        MethodInfo? methodInfoString = GetMethodCaseInsensitive(typeof(string), filter.MatchMode, new[] { typeof(string) });
+                        MethodCallExpression toLowerCall = Expression.Call(propertyAccess, typeof(string).GetMethod("ToLower", Type.EmptyTypes));
+                        MethodCallExpression matchCall = Expression.Call(toLowerCall, methodInfoString, Expression.Constant(value.ToLower()));
+                        containsExpressions.Add(matchCall);
+                    }
+                    else
+                    {
+                        MethodCallExpression containsCall = StringExpression(filter.MatchMode, propertyAccess, Expression.Constant(value));
+                        containsExpressions.Add(containsCall);
+                    }
                 }
             }
         }
@@ -139,8 +137,18 @@ public static class FilterHelper<T> where T : class
             }
             else
             {
-                MethodCallExpression containsCall = StringExpression(filter.MatchMode, propertyAccess, Expression.Constant(stringValue));
-                containsExpressions.Add(containsCall);
+                if (forceToLower)
+                {
+                    MethodInfo? methodInfoString = GetMethodCaseInsensitive(typeof(string), filter.MatchMode, new[] { typeof(string) });
+                    MethodCallExpression toLowerCall = Expression.Call(propertyAccess, typeof(string).GetMethod("ToLower", Type.EmptyTypes));
+                    MethodCallExpression matchCall = Expression.Call(toLowerCall, methodInfoString, Expression.Constant(stringValue.ToLower()));
+                    containsExpressions.Add(matchCall);
+                }
+                else
+                {
+                    MethodCallExpression containsCall = StringExpression(filter.MatchMode, propertyAccess, Expression.Constant(stringValue));
+                    containsExpressions.Add(containsCall);
+                }
             }
         }
 

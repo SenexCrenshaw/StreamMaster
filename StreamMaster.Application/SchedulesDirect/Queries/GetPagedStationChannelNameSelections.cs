@@ -34,7 +34,7 @@ internal class GetPagedStationChannelNamesHandler(ILogger<GetPagedStationChannel
                 {
                     nameFilter.FieldName = "DisplayName";
                 }
-                programmes = FilterHelper<StationChannelName>.ApplyFiltersAndSort(programmes, filters, "DisplayName asc");
+                programmes = FilterHelper<StationChannelName>.ApplyFiltersAndSort(programmes, filters, "DisplayName asc", true);
             }
         }
 

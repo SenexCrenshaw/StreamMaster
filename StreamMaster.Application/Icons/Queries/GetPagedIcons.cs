@@ -13,8 +13,10 @@ internal class GetPagedIconsHandler(IIconService iconService) : IRequestHandler<
     {
         if (request.IconFileParameters.PageSize == 0)
         {
-            PagedResponse<IconFileDto> emptyResponse = new();
-            emptyResponse.TotalItemCount = iconService.GetIcons().Count;
+            PagedResponse<IconFileDto> emptyResponse = new()
+            {
+                TotalItemCount = iconService.GetIcons().Count
+            };
             return emptyResponse;
         }
 
@@ -25,7 +27,7 @@ internal class GetPagedIconsHandler(IIconService iconService) : IRequestHandler<
             if (!string.IsNullOrEmpty(request.IconFileParameters.JSONFiltersString))
             {
                 List<DataTableFilterMetaData>? filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(request.IconFileParameters.JSONFiltersString);
-                icons = FilterHelper<IconFileDto>.ApplyFiltersAndSort(icons, filters, "Name asc");
+                icons = FilterHelper<IconFileDto>.ApplyFiltersAndSort(icons, filters, "Name asc", true);
             }
         }
 
