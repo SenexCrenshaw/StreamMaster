@@ -1,3 +1,10 @@
+## [0.9.4](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.3...v0.9.4) (2024-02-08)
+
+
+### Bug Fixes
+
+* epg ([d303367](https://github.com/SenexCrenshaw/StreamMaster/commit/d303367cc598575753bafb9cd794eee4149022f7))
+
 ## [0.9.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.2...v0.9.3) (2024-02-08)
 
 
