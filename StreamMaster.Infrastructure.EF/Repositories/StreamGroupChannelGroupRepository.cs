@@ -238,7 +238,16 @@ public class StreamGroupChannelGroupRepository(ILogger<StreamGroupChannelGroupRe
                 .Select(x => x.StreamGroup)
                 .ProjectTo<StreamGroupDto>(mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            .ConfigureAwait(false);
+
+            foreach (StreamGroupDto sg in streamGroups)
+            {
+                int count = sg.Id == 1
+              ? RepositoryContext.VideoStreams.Count()
+              : RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == sg.Id).Count();
+                sg.StreamCount = count;
+            }
+
 
             return streamGroups;
         }
@@ -310,6 +319,14 @@ public class StreamGroupChannelGroupRepository(ILogger<StreamGroupChannelGroupRe
                 .ProjectTo<StreamGroupDto>(mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
+
+            foreach (StreamGroupDto sg in streamGroups)
+            {
+                int count = sg.Id == 1
+              ? RepositoryContext.VideoStreams.Count()
+              : RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == sg.Id).Count();
+                sg.StreamCount = count;
+            }
 
             return streamGroups;
         }
