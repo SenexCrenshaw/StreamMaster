@@ -77,14 +77,13 @@ echo "  DB Name: $POSTGRES_DB"
 echo "  Data Directory: $PGDATA"
 echo "  Set Perms: $POSTGRES_SET_PERMS"
 echo "OS:"
-echo "  User: $POSTGRES_USER Group: $POSTGRES_USER"
-echo "  UID: $(id -u $POSTGRES_USER) GID: $(id -g $POSTGRES_USER)"
+echo "  User: postgres Group: postgres"
+echo "  UID: $(id -u postgres) GID: $(id -g postgres)"
 
 
 if [ $POSTGRES_SET_PERMS -eq 1 ]; then
     chown -R postgres:postgres $PGDATA
 fi
-
 
 # Start the database
 /usr/local/bin/docker-entrypoint.sh postgres &

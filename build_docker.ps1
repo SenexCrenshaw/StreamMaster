@@ -7,8 +7,10 @@ param (
     [switch]$BuildProd = $false,
     [switch]$PrintCommands = $false,
     [switch]$SkipRelease = $false,
-    [switch]$SkipMainBuild = $false
+    [switch]$SkipMainBuild = $false,
+    [string]$BuildVer = ''
 )
+
 $global:tags
 
 function Main {
@@ -55,9 +57,14 @@ function Main {
         $dockerFile = "Dockerfile"
 
         $contentArray = @();
-
-        $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-sm" + ' AS sm'
-        $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-base" + ' AS base'
+        if ( $BuildVer -ne '' ) {
+            $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($BuildVer)-sm" + ' AS sm'
+            $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($BuildVer)-base" + ' AS base'
+        }
+        else {
+            $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-sm" + ' AS sm'
+            $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-base" + ' AS base'
+        }
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
         
         $global:tags = DetermineTags -result $processedAssemblyInfo -imageName $imageName

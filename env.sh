@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Define default values
 default_email="admin@sm.com"
 default_password="sm123"
