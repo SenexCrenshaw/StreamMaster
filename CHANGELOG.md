@@ -1,3 +1,10 @@
+# [0.9.0-i-am-not-drunk.27](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.26...v0.9.0-i-am-not-drunk.27) (2024-02-08)
+
+
+### Features
+
+* Update RootSideBar component to display different logo based on system readiness ([71ee097](https://github.com/SenexCrenshaw/StreamMaster/commit/71ee0976a5218f1bb5003232f2f8bc53c7afbe71))
+
 # [0.9.0-i-am-not-drunk.26](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.25...v0.9.0-i-am-not-drunk.26) (2024-02-08)
 
 
