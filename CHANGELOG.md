@@ -1,3 +1,10 @@
+## [0.9.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.1...v0.9.2) (2024-02-08)
+
+
+### Bug Fixes
+
+* Update Dockerfile and entrypoint.sh ([80270b6](https://github.com/SenexCrenshaw/StreamMaster/commit/80270b6a420c3a0142eb6e72874bce3ba787419f))
+
 ## [0.9.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0...v0.9.1) (2024-02-08)
 
 # [0.9.0](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.2...v0.9.0) (2024-02-08)
