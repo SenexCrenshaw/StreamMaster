@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace StreamMaster.Domain.Common;
@@ -43,9 +44,16 @@ public sealed class FileUtil
 
         try
         {
+            XmlReaderSettings settings = new()
+            {
+                DtdProcessing = DtdProcessing.Parse,
+                ValidationType = ValidationType.DTD,
+                MaxCharactersFromEntities = 1024
+            };
 
             XmlSerializer serializer = new(typeof(XMLTV));
-            using Stream reader = GetFileDataStream(filepath);
+            using Stream fileStream = GetFileDataStream(filepath);
+            using XmlReader reader = XmlReader.Create(fileStream, settings);
             object? result = serializer.Deserialize(reader);
             return (XMLTV?)result;
         }
