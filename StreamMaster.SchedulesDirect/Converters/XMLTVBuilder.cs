@@ -323,6 +323,13 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IIconHelper iconHelper, IEPG
             id = mxfService.ChNo.ToString();
         }
 
+        //if (settings.M3UUseCUIDForChannelID)
+        //{
+        //    VideoStreamConfig? vc = mxfService.extras["videoStreamConfig"] as VideoStreamConfig;
+        //    id = vc.Id;
+        //    //id = mxfService.ChNo.ToString();
+        //}
+
         // initialize the return channel
         XmltvChannel ret = new()
         {

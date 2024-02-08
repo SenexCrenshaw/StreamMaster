@@ -132,7 +132,7 @@ const MessagesEn: messages_enType = {
   enablePrometheus: 'Enable Prometheus Metrics',
   loading: 'Loading',
   set: 'Set',
-
+  m3UUseCUIDForChannelID: 'Use CUID for channel id',
   settings: 'Settings',
 
   show: 'Show',

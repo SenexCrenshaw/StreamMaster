@@ -26,6 +26,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public bool? M3UStationId { get; set; }
     public bool? M3UUseChnoForId { get; set; }
     public bool? M3UIgnoreEmptyEPGID { get; set; }
+    public bool? M3UUseCUIDForChannelID { get; set; }
     public bool? PrettyEPG { get; set; }
     public int? MaxConnectRetry { get; set; }
     public int? MaxConnectRetryTimeMS { get; set; }
@@ -244,6 +245,10 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
             currentSetting.M3UIgnoreEmptyEPGID = (bool)request.M3UIgnoreEmptyEPGID;
         }
 
+        if (request.M3UUseCUIDForChannelID != null)
+        {
+            currentSetting.M3UUseCUIDForChannelID = (bool)request.M3UUseCUIDForChannelID;
+        }
 
         if (request.MaxLogFiles != null)
         {

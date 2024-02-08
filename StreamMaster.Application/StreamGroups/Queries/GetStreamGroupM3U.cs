@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.SchedulesDirect.Domain.Enums;
-using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Collections.Concurrent;
 using System.Net;
@@ -155,26 +154,28 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
 
     private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(VideoStreamDto videoStream, string url, GetStreamGroupM3U request, int cid, Setting setting)
     {
-        int epgNumber = EPGHelper.DummyId;
-        string stationId;
+
+        string epgChannelId;
 
         string channelId = string.Empty;
+        string tvgID = string.Empty;
 
         if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
         {
-            stationId = videoStream.User_Tvg_group;
+            epgChannelId = videoStream.User_Tvg_group;
         }
         else
         {
             if (epgHelper.IsValidEPGId(videoStream.User_Tvg_ID))
             {
-                (epgNumber, stationId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
+                (_, epgChannelId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
                 MxfService? service = schedulesDirectDataService.GetService(videoStream.User_Tvg_ID);
-                channelId = service?.CallSign ?? stationId;
+                tvgID = service?.CallSign ?? epgChannelId;
+                channelId = setting.M3UUseCUIDForChannelID ? videoStream.Id : tvgID;
             }
             else
             {
-                stationId = videoStream.User_Tvg_ID;
+                epgChannelId = tvgID = channelId = videoStream.User_Tvg_ID;
             }
         }
 
@@ -212,7 +213,11 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
 
         if (setting.M3UUseChnoForId)
         {
-            channelId = videoStream.User_Tvg_chno.ToString();
+            tvgID = videoStream.User_Tvg_chno.ToString();
+            if (!setting.M3UUseCUIDForChannelID)
+            {
+                channelId = tvgID;
+            }
         }
 
         List<string> fieldList = [$"#EXTINF:0 CUID=\"{videoStream.Id}\""];
@@ -220,7 +225,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         fieldList.Add($"tvg-name=\"{name}\"");
 
         fieldList.Add($"channel-id=\"{channelId}\"");
-        fieldList.Add($"tvg-id=\"{channelId}\"");
+        fieldList.Add($"tvg-id=\"{tvgID}\"");
 
         fieldList.Add($"tvg-logo=\"{videoStream.User_Tvg_logo}\"");
 
@@ -231,7 +236,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
 
         if (setting.M3UStationId)
         {
-            string toDisplay = string.IsNullOrEmpty(videoStream.StationId) ? stationId : videoStream.StationId;
+            string toDisplay = string.IsNullOrEmpty(videoStream.StationId) ? epgChannelId : videoStream.StationId;
             fieldList.Add($"tvc-guide-stationid=\"{toDisplay}\"");
         }
 

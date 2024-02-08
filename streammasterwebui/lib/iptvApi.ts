@@ -1623,10 +1623,7 @@ export type VideoStreamHandlers = 0 | 1 | 2;
 export type BaseVideoStreamDto = {
   id: string;
   shortId: string;
-  isActive: boolean;
-  isDeleted: boolean;
   isHidden: boolean;
-  isReadOnly: boolean;
   isUserCreated: boolean;
   m3UFileId: number;
   m3UFileName: string;
@@ -1650,6 +1647,7 @@ export type BaseVideoStreamDto = {
   videoStreamHandler: VideoStreamHandlers;
 };
 export type VideoStreamDto = BaseVideoStreamDto & {
+  isReadOnly: boolean;
   maxStreams: number;
   isLoading: boolean;
   channelGroupId: number;
@@ -1768,6 +1766,7 @@ export type M3USettings = {
   m3UFieldGroupTitle?: boolean;
   m3UIgnoreEmptyEPGID?: boolean;
   m3UUseChnoForId?: boolean;
+  m3UUseCUIDForChannelID?: boolean;
   m3UStationId?: boolean;
 };
 export type TestSettings = {
@@ -1899,6 +1898,7 @@ export type UpdateSettingRequest = {
   m3UStationId?: boolean | null;
   m3UUseChnoForId?: boolean | null;
   m3UIgnoreEmptyEPGID?: boolean | null;
+  m3UUseCUIDForChannelID?: boolean | null;
   prettyEPG?: boolean | null;
   maxConnectRetry?: number | null;
   maxConnectRetryTimeMS?: number | null;

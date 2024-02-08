@@ -15,6 +15,7 @@ public class M3USettings
     //public bool M3UFieldTvgName { get; set; } = true;
     public bool M3UIgnoreEmptyEPGID { get; set; } = true;
     public bool M3UUseChnoForId { get; set; } = true;
+    public bool M3UUseCUIDForChannelID { get; set; } = false;
     public bool M3UStationId { get; set; } = false;
 }
 
