@@ -1,3 +1,10 @@
+# [0.9.0-i-am-not-drunk.23](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.22...v0.9.0-i-am-not-drunk.23) (2024-02-08)
+
+
+### Bug Fixes
+
+* Stream Group channel groups ([910d3df](https://github.com/SenexCrenshaw/StreamMaster/commit/910d3df1fe2ceacbf4c6fc486985b4d512f76ebb))
+
 # [0.9.0-i-am-not-drunk.22](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.21...v0.9.0-i-am-not-drunk.22) (2024-02-08)
 
 
