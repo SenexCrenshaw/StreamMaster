@@ -28,7 +28,9 @@ export interface FileDialogProperties {
     maxStreams: number,
     startingChannelNumber: number,
     streamURLPrefix: M3UFileStreamUrlPrefix,
-    vodTags: string[]
+    vodTags: string[],
+    epgNumber: number,
+    color: string
   ) => void;
   readonly onHide?: (didUpload: boolean) => void;
   readonly show?: boolean | null;
@@ -224,7 +226,8 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
           }
         });
     } else {
-      onCreateFromSource?.(name, source, maxStreams, startingChannelNumber, streamURLPrefix, vodTags);
+      const meColor = color ?? getColorHex(epgNumber ?? 0);
+      onCreateFromSource?.(name, source, maxStreams, startingChannelNumber, streamURLPrefix, vodTags, epgNumber ?? 1, meColor);
     }
   };
 

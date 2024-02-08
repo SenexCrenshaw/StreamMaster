@@ -38,7 +38,7 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, I
 
             int num = command.EPGNumber;
 
-            if (await Repository.EPGFile.GetEPGFileByNumber(command.EPGNumber).ConfigureAwait(false) != null)
+            if (num == 0 || await Repository.EPGFile.GetEPGFileByNumber(command.EPGNumber).ConfigureAwait(false) != null)
             {
                 num = await Repository.EPGFile.GetNextAvailableEPGNumberAsync(cancellationToken).ConfigureAwait(false);
             }
