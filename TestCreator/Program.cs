@@ -7,7 +7,7 @@ using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.EF;
-using StreamMaster.SchedulesDirect;
+using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.SchedulesDirect.Converters;
 using StreamMaster.SchedulesDirect.Data;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
@@ -53,7 +53,7 @@ namespace TestCreator
 
             List<string> channelNames = epgData.Programs.Select(a => a.Channel).Distinct().ToList();
 
-            RepositoryContext? context = serviceProvider.GetService<RepositoryContext>();
+            PGSQLRepositoryContext? context = serviceProvider.GetService<PGSQLRepositoryContext>();
             if (context == null)
             {
                 _logger.LogCritical("RepositoryContext is null");

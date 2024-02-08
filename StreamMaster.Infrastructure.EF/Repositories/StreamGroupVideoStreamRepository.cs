@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISender sender) : RepositoryBase<StreamGroupVideoStream>(repositoryContext, logger), IStreamGroupVideoStreamRepository
+public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepository> logger, IRepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISender sender) : RepositoryBase<StreamGroupVideoStream>(repositoryContext, logger), IStreamGroupVideoStreamRepository
 {
     public async Task AddStreamGroupVideoStreams(int StreamGroupId, List<string> toAdd, bool IsReadOnly, CancellationToken cancellationToken)
     {
@@ -142,7 +142,7 @@ public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepo
         }
 
         IQueryable<StreamGroupVideoStream> toDelete = FindByCondition(a => a.StreamGroupId == StreamGroupId && toRemove.Contains(a.ChildVideoStreamId));
-        //await RepositoryContext.BulkDeleteAsync(toDelete, cancellationToken: cancellationToken).ConfigureAwait(false);
+        //await PGSQLRepositoryContext.BulkDeleteAsync(toDelete, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         RepositoryContext.StreamGroupVideoStreams.RemoveRange(toDelete);
         await repository.SaveAsync().ConfigureAwait(false);
@@ -212,7 +212,7 @@ public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepo
             {
                 return null;
             }
-            await RemoveStreamGroupVideoStreams(StreamGroupId, new List<string> { VideoStreamId }, cancellationToken).ConfigureAwait(false);
+            await RemoveStreamGroupVideoStreams(StreamGroupId, [VideoStreamId], cancellationToken).ConfigureAwait(false);
         }
         else
         {

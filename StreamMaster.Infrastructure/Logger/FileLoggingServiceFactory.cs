@@ -1,4 +1,5 @@
 ﻿using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.Services;
 
 using StreamMaster.Infrastructure.Services;
@@ -9,7 +10,7 @@ public class FileLoggingServiceFactory() : IFileLoggingServiceFactory
 {
     public IFileLoggingService Create(string key)
     {
-        string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        string timestamp = SMDT.UtcNow.ToString("yyyyMMdd_HHmmss");
         string debugLogPath = Path.Combine(BuildInfo.LogFolder, $"StreamMasterAPI_{timestamp}_debug.log");
 
         string logFilePath = key switch

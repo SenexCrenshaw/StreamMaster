@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 
 using StreamMaster.Application.ChannelGroups.Events;
+using StreamMaster.Application.StreamGroupChannelGroups.Commands;
 
 namespace StreamMaster.Application.ChannelGroups.Commands;
 
@@ -17,7 +18,7 @@ public class CreateChannelGroupRequestValidator : AbstractValidator<CreateChanne
 }
 
 
-public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest> logger, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateChannelGroupRequest, ChannelGroupDto?>
+public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest> logger, ISender sender, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateChannelGroupRequest, ChannelGroupDto?>
 {
     public async Task<ChannelGroupDto?> Handle(CreateChannelGroupRequest request, CancellationToken cancellationToken)
     {
@@ -29,6 +30,8 @@ public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest>
         ChannelGroup channelGroup = new() { Name = request.GroupName, IsReadOnly = request.IsReadOnly };
         Repository.ChannelGroup.CreateChannelGroup(channelGroup);
         _ = await Repository.SaveAsync().ConfigureAwait(false);
+
+        await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(channelGroup.Id), cancellationToken).ConfigureAwait(false);
 
         ChannelGroupDto channelGroupDto = Mapper.Map<ChannelGroupDto>(channelGroup);
         await Publisher.Publish(new CreateChannelGroupEvent(channelGroupDto), cancellationToken).ConfigureAwait(false);

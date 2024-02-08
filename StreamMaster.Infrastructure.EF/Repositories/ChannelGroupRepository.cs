@@ -1,9 +1,6 @@
-﻿using EFCore.BulkExtensions;
-
-using MediatR;
+﻿using MediatR;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Application.VideoStreams.Queries;
@@ -12,7 +9,12 @@ using System.Linq.Dynamic.Core;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class ChannelGroupRepository(ILogger<ChannelGroupRepository> intLogger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMemoryCache memoryCache, ISender sender) : RepositoryBase<ChannelGroup>(repositoryContext, intLogger), IChannelGroupRepository
+public class ChannelGroupRepository(
+    ILogger<ChannelGroupRepository> intLogger,
+    IRepositoryContext repositoryContext,
+    IRepositoryWrapper repository,
+    ISender sender
+    ) : RepositoryBase<ChannelGroup>(repositoryContext, intLogger), IChannelGroupRepository
 {
     /// <summary>
     /// Retrieves all channel groups from the database.
@@ -385,7 +387,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> intLogger, R
 
         logger.LogInformation($"Preparing to bulk delete {channelGroupIds.Count} ChannelGroups.");
 
-        await RepositoryContext.BulkDeleteAsync(toDeleteQuery, cancellationToken: cancellationToken).ConfigureAwait(false);
+        await RepositoryContext.BulkDeleteAsyncEntities(toDeleteQuery, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         logger.LogInformation($"Successfully deleted {channelGroupIds.Count} ChannelGroups.");
 

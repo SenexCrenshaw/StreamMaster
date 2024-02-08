@@ -1,6 +1,4 @@
-﻿using StreamMaster.SchedulesDirect.Domain.XmltvXml;
-
-namespace StreamMaster.Application.Programmes.Queries;
+﻿namespace StreamMaster.Application.Programmes.Queries;
 
 public record GetProgramme(string Channel) : IRequest<IEnumerable<XmltvProgramme>?>;
 

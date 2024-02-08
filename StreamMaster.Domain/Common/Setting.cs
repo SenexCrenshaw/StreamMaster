@@ -5,16 +5,17 @@ namespace StreamMaster.Domain.Common;
 
 public class M3USettings
 {
-    public bool M3UFieldChannelId { get; set; } = true;
-    public bool M3UFieldChannelNumber { get; set; } = true;
-    public bool M3UFieldCUID { get; set; } = true;
+    //public bool M3UFieldChannelId { get; set; } = true;
+    //public bool M3UFieldChannelNumber { get; set; } = true;
+    //public bool M3UFieldCUID { get; set; } = true;
     public bool M3UFieldGroupTitle { get; set; } = true;
-    public bool M3UFieldTvgChno { get; set; } = true;
-    public bool M3UFieldTvgId { get; set; } = true;
-    public bool M3UFieldTvgLogo { get; set; } = true;
-    public bool M3UFieldTvgName { get; set; } = true;
+    //public bool M3UFieldTvgChno { get; set; } = true;
+    //public bool M3UFieldTvgId { get; set; } = true;
+    //public bool M3UFieldTvgLogo { get; set; } = true;
+    //public bool M3UFieldTvgName { get; set; } = true;
     public bool M3UIgnoreEmptyEPGID { get; set; } = true;
     public bool M3UUseChnoForId { get; set; } = true;
+    public bool M3UUseCUIDForChannelID { get; set; } = false;
     public bool M3UStationId { get; set; } = false;
 }
 
@@ -119,7 +120,7 @@ public class BaseSettings : M3USettings
     public int GlobalStreamLimit { get; set; } = 1;
     public int MaxConnectRetry { get; set; } = 20;
     public int MaxConnectRetryTimeMS { get; set; } = 200;
-    //public int PreloadPercentage { get; set; } = 25;
+
     public int RingBufferSizeMB { get; set; } = 4;
 
     public List<string> NameRegex { get; set; } = [];
@@ -131,6 +132,7 @@ public class BaseSettings : M3USettings
     public bool VideoStreamAlwaysUseEPGLogo { get; set; } = true;
 
     public bool ShowClientHostNames { get; set; }
+
 }
 
 public class ProtectedSettings : BaseSettings
@@ -141,4 +143,5 @@ public class ProtectedSettings : BaseSettings
 
 public class Setting : ProtectedSettings
 {
+
 }

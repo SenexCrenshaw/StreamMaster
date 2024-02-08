@@ -1,8 +1,11 @@
-﻿namespace StreamMaster.Domain.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace StreamMaster.Domain.Models;
 
 public class StreamGroupVideoStream
 {
     public VideoStream ChildVideoStream { get; set; }
+    [Column(TypeName = "citext")]
     public string ChildVideoStreamId { get; set; }
 
     public bool IsReadOnly

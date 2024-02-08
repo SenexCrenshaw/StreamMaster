@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Cache;
+using StreamMaster.Domain.Extensions;
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -106,9 +107,17 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                 {
                     return;
                 }
-                VideoInfo ret = await CreateFFProbeStream(ffprobeExec, videoMemory).ConfigureAwait(false);
+                VideoInfo? ret = await CreateFFProbeStream(ffprobeExec, videoMemory).ConfigureAwait(false);
 
-                logger.LogInformation("Retrieved video information for {name}", VideoStreamName);
+                if (ret == null)
+                {
+                    logger.LogError("CreateFFProbeStream Error: Failed to deserialize FFProbe output");
+                }
+                else
+                {
+                    logger.LogInformation("Retrieved video information for {name}", VideoStreamName);
+                }
+
                 return;
             }
             catch (IOException)
@@ -134,7 +143,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
     }
 
     private int GetVideoInfoErrors = 0;
-    private async Task<VideoInfo> CreateFFProbeStream(string ffProbeExec, byte[] videoMemory)
+    private async Task<VideoInfo?> CreateFFProbeStream(string ffProbeExec, byte[] videoMemory)
     {
         using Process process = new();
         try
@@ -155,7 +164,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             if (!processStarted)
             {
                 logger.LogError("CreateFFProbeStream Error: Failed to start FFProbe process");
-                return new();
+                return null;
             }
 
             using Timer timer = new(delegate { process.Kill(); }, null, 5000, Timeout.Infinite);
@@ -179,7 +188,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
             if (videoInfo == null)
             {
                 logger.LogError("CreateFFProbeStream Error: Failed to deserialize FFProbe output");
-                return new();
+                return null;
             }
             _videoInfo = videoInfo;
             CircularRingBuffer.VideoInfo = videoInfo;
@@ -188,7 +197,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         }
         catch (Exception ex) when (ex is IOException or JsonException or Exception)
         {
-            logger.LogError(ex, "CreateFFProbeStream Error: {ErrorMessage}", ex.Message);
+            //logger.LogError( "CreateFFProbeStream Error: {ErrorMessage}");
             process.Kill();
         }
         return new();
@@ -258,16 +267,27 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
         //int retryCount = 0;
         //int maxRetries = 3;
+        bool ran = false;
+        //Stopwatch timeBetweenWrites = Stopwatch.StartNew(); // Initialize the stopwatch
+        Stopwatch testSw = Stopwatch.StartNew();
+
+
+        CircularRingBuffer.UnPauseReaders();
+        await UnPauseClients();
+
         using (stream)
         {
-            Stopwatch timeBetweenWrites = Stopwatch.StartNew(); // Initialize the stopwatch
-            int bytesRead = bufferMemory.Length;
-            while (!linkedToken.IsCancellationRequested)//&& retryCount < maxRetries)
+            while (!linkedToken.IsCancellationRequested)
             {
                 try
                 {
-
                     int readBytes = await stream.ReadAsync(bufferMemory, linkedToken.Token);
+                    if (!ran)
+                    {
+                        ran = true;
+                        testSw.Stop();
+                        logger.LogInformation($"Input stream took {testSw.ElapsedMilliseconds}ms before reading first bytes {readBytes}");
+                    }
                     if (readBytes == 0)
                     {
                         throw new EndOfStreamException();
@@ -275,15 +295,9 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
                     CircularRingBuffer.WriteChunk(bufferMemory[..readBytes]);
 
-                    if (CircularRingBuffer.IsPaused)
-                    {
-                        CircularRingBuffer.UnPauseReaders();
 
-                    }
 
-                    await UnPauseClients();
-
-                    timeBetweenWrites.Reset();
+                    //timeBetweenWrites.Reset();
 
                     if (CircularRingBuffer.GetNextReadIndex() > videoBufferSize)
                     {
@@ -293,13 +307,13 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                         }
                     }
 
-                    if (timeBetweenWrites.ElapsedMilliseconds is > 30000 and < 60000000000000)
-                    {
+                    //if (timeBetweenWrites.ElapsedMilliseconds is > 30000 and < 60000000000000)
+                    //{
 
-                        logger.LogWarning($"Input stream is slow: {VideoStreamName} {timeBetweenWrites.ElapsedMilliseconds}ms elapsed since last set.");
+                    //    logger.LogWarning($"Input stream is slow: {VideoStreamName} {timeBetweenWrites.ElapsedMilliseconds}ms elapsed since last set.");
 
-                        break;
-                    }
+                    //    break;
+                    //}
                 }
                 catch (TaskCanceledException ex)
                 {
@@ -310,12 +324,18 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                     logger.LogInformation("Stream requested to stop for: {stopVideoStreamingToken.Token}", stopVideoStreamingToken.Token.IsCancellationRequested);
                     break;
                 }
+                catch (OperationCanceledException)
+                {
+                    CircularRingBuffer.PauseReaders();
+                    logger.LogInformation("Stream Operation stopped for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
+                    break;
+                }
                 catch (EndOfStreamException ex)
                 {
                     CircularRingBuffer.PauseReaders();
                     inputStreamError = true;
                     //++retryCount;
-                    logger.LogInformation("End of Stream reached for: {StreamUrl} {name}. Error: {ErrorMessage} at {Time} {test}", StreamUrl, VideoStreamName, ex.Message, DateTime.UtcNow, stream.CanRead);
+                    logger.LogInformation("End of Stream reached for: {StreamUrl} {name}. Error: {ErrorMessage} at {Time} {test}", StreamUrl, VideoStreamName, ex.Message, SMDT.UtcNow, stream.CanRead);
                     break;
                 }
                 catch (HttpIOException ex)
@@ -325,6 +345,7 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
                     logger.LogInformation(ex, "HTTP IO for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
                     break;
                 }
+
                 catch (Exception ex)
                 {
                     CircularRingBuffer.PauseReaders();
@@ -397,12 +418,8 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         {
             try
             {
-                string? procName = CheckProcessExists();
-                if (procName != null)
-                {
-                    Process process = Process.GetProcessById(ProcessId);
-                    process.Kill();
-                }
+                KillProcess();
+
             }
             catch (Exception ex)
             {
@@ -448,20 +465,19 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
         }
     }
 
-    private string? CheckProcessExists()
+    private void KillProcess()
     {
-        try
+
+        foreach (Process process in Process.GetProcesses())
         {
-            Process process = Process.GetProcessById(ProcessId);
-            // logger.LogInformation($"Process with ID {processId} exists. Name: {process.ProcessName}");
-            return process.ProcessName;
+            if (process.Id == ProcessId)
+            {
+                process.Kill();
+            }
         }
-        catch (ArgumentException)
-        {
-            // logger.LogWarning($"Process with ID {processId} does not exist.");
-            return null;
-        }
+
     }
+
 
 
     public IEnumerable<Guid> GetClientStreamerClientIds()

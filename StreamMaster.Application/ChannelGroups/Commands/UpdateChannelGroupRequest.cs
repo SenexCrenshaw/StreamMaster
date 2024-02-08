@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 
 using StreamMaster.Application.ChannelGroups.Events;
+using StreamMaster.Application.StreamGroupChannelGroups.Commands;
 
 namespace StreamMaster.Application.ChannelGroups.Commands;
 
@@ -50,6 +51,8 @@ public class UpdateChannelGroupRequestHandler(ILogger<UpdateChannelGroupRequest>
             _ = await Repository.VideoStream.SetVideoStreamChannelGroupName(nameChanged, request.NewGroupName, cancellationToken).ConfigureAwait(false);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
         }
+
+        await Sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(request.ChannelGroupId), cancellationToken).ConfigureAwait(false);
 
         if (checkCounts || nameChanged != null)
         {

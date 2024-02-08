@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.EF.Repositories;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
@@ -22,13 +23,12 @@ namespace StreamMaster.Infrastructure.EF
         ILogger<StreamGroupChannelGroupRepository> StreamGroupChannelGroupRepositoryLogger,
         ISchedulesDirectDataService schedulesDirectDataService,
 
-        RepositoryContext repositoryContext,
+        PGSQLRepositoryContext repositoryContext,
         //ISortHelper<StreamGroup> streamGroupSortHelper,
         IMapper mapper,
         IIconService iconService,
         IMemoryCache memoryCache,
         ISender sender,
-        IEPGHelper epgHelper,
         IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
     {
         private IStreamGroupRepository _streamGroup;
@@ -48,7 +48,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _channelGroup ??= new ChannelGroupRepository(ChannelGroupRepositoryLogger, repositoryContext, this, memoryCache, sender);
+                _channelGroup ??= new ChannelGroupRepository(ChannelGroupRepositoryLogger, repositoryContext, this, sender);
                 return _channelGroup;
             }
         }
@@ -92,7 +92,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _videoStream ??= new VideoStreamRepository(VideoStreamRepositoryLogger, schedulesDirectDataService, iconService, repositoryContext, mapper, memoryCache, sender);
+                _videoStream ??= new VideoStreamRepository(VideoStreamRepositoryLogger, this, schedulesDirectDataService, iconService, repositoryContext, mapper, memoryCache, sender);
                 return _videoStream;
             }
         }

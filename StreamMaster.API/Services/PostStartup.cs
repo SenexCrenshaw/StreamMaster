@@ -1,5 +1,5 @@
 ﻿using StreamMaster.Application.Services;
-using StreamMaster.Infrastructure.EF;
+using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 namespace StreamMaster.API.Services;
@@ -38,7 +38,8 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
         await taskQueue.SetIsSystemReady(true, cancellationToken).ConfigureAwait(false);
 
         using IServiceScope scope = serviceProvider.CreateScope();
-        RepositoryContext repositoryContext = scope.ServiceProvider.GetRequiredService<RepositoryContext>();
+        PGSQLRepositoryContext repositoryContext = scope.ServiceProvider.GetRequiredService<PGSQLRepositoryContext>();
+
         ISchedulesDirectDataService schedulesDirectService = scope.ServiceProvider.GetRequiredService<ISchedulesDirectDataService>();
         await repositoryContext.MigrateData(schedulesDirectService.AllServices);
     }

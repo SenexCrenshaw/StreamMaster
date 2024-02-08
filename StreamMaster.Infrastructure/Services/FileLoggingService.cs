@@ -1,4 +1,5 @@
 ﻿using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.Services;
 
 using System.Collections.Concurrent;
@@ -22,7 +23,7 @@ public class FileLoggingService : IFileLoggingService, IDisposable
 
     public void EnqueueLogEntry(string format, params object[] args)
     {
-        string formattedMessage = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}" + string.Format(format, args);
+        string formattedMessage = $"{SMDT.UtcNow:yyyy-MM-dd HH:mm:ss}" + string.Format(format, args);
         _logQueue.Enqueue(formattedMessage);
     }
 

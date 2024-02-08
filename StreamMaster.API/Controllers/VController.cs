@@ -29,7 +29,7 @@ public class VController(IRepositoryWrapper Repository, ISender sender, IMemoryC
     [Route("v/v/{shortId}.ts")]
     public IActionResult GetVideoStreamStream(string shortId)
     {
-        VideoStream? videoStream = Repository.VideoStream.FindByCondition(a => a.ShortId.ToLower() == shortId.ToLower()).FirstOrDefault();
+        VideoStream? videoStream = Repository.VideoStream.FindByCondition(a => a.ShortId == shortId).FirstOrDefault();
 
         if (videoStream == null)
         {

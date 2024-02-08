@@ -4,6 +4,7 @@ import http from './axios';
 export interface UploadProperties {
   name: string;
   source: string;
+  fileName: string;
   maxStreams: number;
   epgNumber: number | undefined;
   color: string;
@@ -18,6 +19,7 @@ export interface UploadProperties {
 export const upload = async ({
   name,
   source,
+  fileName,
   maxStreams,
   epgNumber,
   color,
@@ -40,9 +42,8 @@ export const upload = async ({
     formData.append('fileSource', source);
   } else if (file) formData.append('fileSource', file.name);
 
-  if (epgNumber !== undefined) {
-    formData.append('epgNumber', epgNumber?.toString() ?? '1');
-  }
+  formData.append('fileName', fileName);
+  formData.append('color', color);
 
   formData.append('color', color);
   formData.append('overWriteChannels', overwriteChannelNumbers?.toString() ?? 'true');

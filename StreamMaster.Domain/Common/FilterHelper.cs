@@ -78,6 +78,15 @@ public static class FilterHelper<T> where T : class
                                         && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes));
     }
 
+    public static MethodCallExpression StringExpression(string MatchMode, Expression stringExpression, Expression searchStringExpression)
+    {
+        MethodInfo? methodInfoString = GetMethodCaseInsensitive(typeof(string), MatchMode, [typeof(string)]);
+
+        return methodInfoString == null
+            ? throw new InvalidOperationException("No suitable Contains method found.")
+            : Expression.Call(stringExpression, methodInfoString, searchStringExpression);
+    }
+
     private static Expression CreateArrayExpression(DataTableFilterMetaData filter, Expression propertyAccess)
     {
         string stringValue = filter.Value?.ToString() ?? string.Empty;
@@ -93,8 +102,6 @@ public static class FilterHelper<T> where T : class
 
         List<Expression> containsExpressions = [];
 
-        MethodInfo? methodInfoString = GetMethodCaseInsensitive(typeof(string), filter.MatchMode, new[] { typeof(string) });
-
         if (stringValue.StartsWith("[\"") && stringValue.EndsWith("\"]"))
         {
             string[] values = JsonSerializer.Deserialize<string[]>(stringValue) ?? Array.Empty<string>();
@@ -108,9 +115,8 @@ public static class FilterHelper<T> where T : class
                 }
                 else
                 {
-                    MethodCallExpression toLowerCall = Expression.Call(propertyAccess, typeof(string).GetMethod("ToLower", Type.EmptyTypes));
-                    MethodCallExpression matchCall = Expression.Call(toLowerCall, methodInfoString, Expression.Constant(value.ToLower()));
-                    containsExpressions.Add(matchCall);
+                    MethodCallExpression containsCall = StringExpression(filter.MatchMode, propertyAccess, Expression.Constant(value));
+                    containsExpressions.Add(containsCall);
                 }
             }
         }
@@ -133,9 +139,8 @@ public static class FilterHelper<T> where T : class
             }
             else
             {
-                MethodCallExpression toLowerCall = Expression.Call(propertyAccess, typeof(string).GetMethod("ToLower", Type.EmptyTypes));
-                MethodCallExpression matchCall = Expression.Call(toLowerCall, methodInfoString, Expression.Constant(stringValue.ToLower()));
-                containsExpressions.Add(matchCall);
+                MethodCallExpression containsCall = StringExpression(filter.MatchMode, propertyAccess, Expression.Constant(stringValue));
+                containsExpressions.Add(containsCall);
             }
         }
 

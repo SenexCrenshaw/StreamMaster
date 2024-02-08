@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 
-using EFCore.BulkExtensions;
-
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +12,7 @@ using StreamMaster.Application.EPG.Queries;
 using StreamMaster.Application.Icons.Queries;
 using StreamMaster.Application.M3UFiles.Queries;
 using StreamMaster.Application.SchedulesDirect.Queries;
-
+using StreamMaster.Application.StreamGroupChannelGroups.Commands;
 using StreamMaster.Infrastructure.EF.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
@@ -26,7 +24,7 @@ using System.Linq.Dynamic.Core;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISchedulesDirectDataService schedulesDirectDataService, IIconService iconService, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : RepositoryBase<VideoStream>(repositoryContext, intLogger), IVideoStreamRepository
+public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IIconService iconService, IRepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : RepositoryBase<VideoStream>(repositoryContext, intLogger), IVideoStreamRepository
 {
     public PagedResponse<VideoStreamDto> CreateEmptyPagedResponse()
     {
@@ -93,7 +91,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
             return (videoStream.VideoStreamHandler, new List<VideoStreamDto> { videoStreamDto });
         }
 
-        //List<VideoStreamLink> links = await RepositoryContext.VideoStreamLinks.Where(a => a.ParentVideoStreamId == videoStream.Id).ToListAsync(cancellationToken: cancellationToken);
+
         List<VideoStream> childVideoStreams =
         [
             .. RepositoryContext.VideoStreamLinks
@@ -198,28 +196,28 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
 
         // Remove associated VideoStreamLinks where the VideoStream is a parent
         IQueryable<VideoStreamLink> parentLinks = RepositoryContext.VideoStreamLinks.Where(vsl => videoStreamIds.Contains(vsl.ParentVideoStreamId));
-        //await RepositoryContext.VideoStreamLinks.Where(vsl => videoStreamIds.Contains(vsl.ParentVideoStreamId)).ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        //await PGSQLRepositoryContext.VideoStreamLinks.Where(vsl => videoStreamIds.Contains(vsl.ParentVideoStreamId)).ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         await parentLinks.ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
-        //await RepositoryContext.BulkDeleteAsync(parentLinks, cancellationToken: cancellationToken).ConfigureAwait(false);
+        //await PGSQLRepositoryContext.BulkDeleteAsync(parentLinks, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         // Remove associated VideoStreamLinks where the VideoStream is a child
         IQueryable<VideoStreamLink> childLinks = RepositoryContext.VideoStreamLinks.Where(vsl => videoStreamIds.Contains(vsl.ChildVideoStreamId));
-        //await RepositoryContext.BulkDeleteAsync(childLinks, cancellationToken: cancellationToken).ConfigureAwait(false);
+        //await PGSQLRepositoryContext.BulkDeleteAsync(childLinks, cancellationToken: cancellationToken).ConfigureAwait(false);
         await childLinks.ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
 
         IQueryable<StreamGroupVideoStream> streamgroupLinks = RepositoryContext.StreamGroupVideoStreams.Where(vsl => videoStreamIds.Contains(vsl.ChildVideoStreamId));
-        // await RepositoryContext.BulkDeleteAsync(streamgroupLinks, cancellationToken: cancellationToken).ConfigureAwait(false);
+        // await PGSQLRepositoryContext.BulkDeleteAsync(streamgroupLinks, cancellationToken: cancellationToken).ConfigureAwait(false);
         await streamgroupLinks.ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-        //await RepositoryContext.VideoStreamLinks.Where(vsl => videoStreamIds.Contains(vsl.ChildVideoStreamId)).ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        //await PGSQLRepositoryContext.VideoStreamLinks.Where(vsl => videoStreamIds.Contains(vsl.ChildVideoStreamId)).ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
         await query.ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
         //// Save changes
         //try
         //{
-        //    _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        //    _ = await PGSQLRepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         //}
         //catch (Exception)
         //{
@@ -228,7 +226,6 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
         //}
 
         await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        await RepositoryContext.VacuumDatabaseAsync().ConfigureAwait(false);
 
         return await query.ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider).ToListAsync(cancellationToken).ConfigureAwait(false);
     }
@@ -236,27 +233,28 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
     [LogExecutionTimeAspect]
     public async Task<List<string>> DeleteVideoStreamsAsync(IQueryable<VideoStream> videoStreams, CancellationToken cancellationToken)
     {
-        // Get the VideoStreams
-        List<string> videoStreamIds = videoStreams.Select(vs => vs.Id).ToList();
 
         if (!videoStreams.Any())
         {
             return [];
         }
 
+        // Get the VideoStreams
+        List<string> videoStreamIds = videoStreams.Select(vs => vs.Id).ToList();
+        List<string> cgNames = videoStreams.Select(vs => vs.User_Tvg_group).ToList();
 
         int deletedCount = 0;
 
         // Remove associated VideoStreamLinks where the VideoStream is a parent
         IQueryable<VideoStreamLink> parentLinks = RepositoryContext.VideoStreamLinks.Where(vsl => videoStreamIds.Contains(vsl.ParentVideoStreamId));
-        await RepositoryContext.BulkDeleteAsync(parentLinks, cancellationToken: cancellationToken).ConfigureAwait(false);
+        await RepositoryContext.BulkDeleteAsyncEntities(parentLinks, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         // Remove associated VideoStreamLinks where the VideoStream is a child
         IQueryable<VideoStreamLink> childLinks = RepositoryContext.VideoStreamLinks.Where(vsl => videoStreamIds.Contains(vsl.ChildVideoStreamId));
-        await RepositoryContext.BulkDeleteAsync(childLinks, cancellationToken: cancellationToken).ConfigureAwait(false);
+        await RepositoryContext.BulkDeleteAsyncEntities(childLinks, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         IQueryable<StreamGroupVideoStream> streamgroupLinks = RepositoryContext.StreamGroupVideoStreams.Where(vsl => videoStreamIds.Contains(vsl.ChildVideoStreamId));
-        await RepositoryContext.BulkDeleteAsync(streamgroupLinks, cancellationToken: cancellationToken).ConfigureAwait(false);
+        await RepositoryContext.BulkDeleteAsyncEntities(streamgroupLinks, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         // Remove the VideoStreams
         int count = 0;
@@ -286,7 +284,14 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
             // You can decide how to handle exceptions here, for example by
             // logging them. In this case, we're simply swallowing the exception.
         }
-        await RepositoryContext.VacuumDatabaseAsync().ConfigureAwait(false);
+
+        foreach (string cgName in cgNames)
+        {
+            ChannelGroup? cg = await RepositoryContext.ChannelGroups.FirstOrDefaultAsync(a => a.Name == cgName, cancellationToken: cancellationToken).ConfigureAwait(false);
+            await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(cg.Id), cancellationToken).ConfigureAwait(false);
+        }
+
+
         return videoStreamIds;
     }
     public async Task<VideoStreamDto?> DeleteVideoStream(string videoStreamId, CancellationToken cancellationToken)
@@ -365,11 +370,16 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
 
     public async Task<VideoStream?> CreateVideoStreamAsync(CreateVideoStreamRequest request, CancellationToken cancellationToken)
     {
+        HashSet<string> shortIds = [.. FindAll().Select(v => v.ShortId)];
+
+        string ShortId = UniqueHexGenerator.GenerateUniqueHex(shortIds);
+
         VideoStream videoStream = new()
         {
             Id = IdConverter.GetID(),
             IsUserCreated = true,
             M3UFileName = "CUSTOM",
+            ShortId = ShortId,
         };
 
         videoStream = await UpdateVideoStreamValues(videoStream, request, cancellationToken).ConfigureAwait(false);
@@ -381,6 +391,9 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
         {
             _ = await SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
         }
+
+        ChannelGroupDto? cg = await sender.Send(new GetChannelGroupByName(videoStream.User_Tvg_group)).ConfigureAwait(false);
+        await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(cg.Id), cancellationToken).ConfigureAwait(false);
 
         return videoStream;
     }
@@ -660,7 +673,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
 
     //public async Task AddVideoStreamToVideoStream(string ParentVideoStreamId, string ChildVideoStreamId, int? Rank, CancellationToken cancellationToken)
     //{
-    //    List<VideoStreamLink> childVideoStreamIds = await RepositoryContext.VideoStreamLinks.Where(a => a.ParentVideoStreamId == ParentVideoStreamId).OrderBy(a => a.Rank).AsNoTracking().ToListAsync(cancellationToken: cancellationToken);
+    //    List<VideoStreamLink> childVideoStreamIds = await PGSQLRepositoryContext.VideoStreamLinks.Where(a => a.ParentVideoStreamId == ParentVideoStreamId).OrderBy(a => a.Rank).AsNoTracking().ToListAsync(cancellationToken: cancellationToken);
 
     //    childVideoStreamIds ??= new();
 
@@ -676,17 +689,17 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
     //    }
 
     //    VideoStreamLink newL = new() { ParentVideoStreamId = ParentVideoStreamId, ChildVideoStreamId = ChildVideoStreamId, Rank = rank };
-    //    _ = await RepositoryContext.VideoStreamLinks.AddAsync(newL, cancellationToken).ConfigureAwait(false);
+    //    _ = await PGSQLRepositoryContext.VideoStreamLinks.AddAsync(newL, cancellationToken).ConfigureAwait(false);
     //    childVideoStreamIds.Insert(rank, newL);
 
     //    for (int i = 0; i < childVideoStreamIds.Count; i++)
     //    {
     //        VideoStreamLink? childVideoStreamId = childVideoStreamIds[i];
     //        childVideoStreamId.Rank = i;
-    //        _ = RepositoryContext.VideoStreamLinks.Update(childVideoStreamId);
+    //        _ = PGSQLRepositoryContext.VideoStreamLinks.Update(childVideoStreamId);
     //    }
 
-    //    _ = await RepositoryContext.SaveChangesAsync(cancellationToken);
+    //    _ = await PGSQLRepositoryContext.SaveChangesAsync(cancellationToken);
     //}
 
     public async Task RemoveVideoStreamFromVideoStream(string ParentVideoStreamId, string ChildVideoStreamId, CancellationToken cancellationToken)
@@ -887,7 +900,17 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
         {
             return (null, null);
         }
-        bool updateChannelGroup = request.ToggleVisibility == true || (request.Tvg_group != null && videoStream.User_Tvg_group != request.Tvg_group);
+
+
+        string UpdateSGCG = string.Empty;
+        if (request.Tvg_group != null && videoStream.User_Tvg_group != request.Tvg_group)
+        {
+            UpdateSGCG = videoStream.User_Tvg_group;
+        }
+
+        bool updateChannelGroup = request.ToggleVisibility == true || !string.IsNullOrEmpty(UpdateSGCG);
+
+
         videoStream = await UpdateVideoStreamValues(videoStream, request, cancellationToken).ConfigureAwait(false);
         UpdateVideoStream(videoStream);
 
@@ -897,8 +920,22 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
         {
             _ = await SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
         }
+
         VideoStreamDto? dto = mapper.Map<VideoStreamDto?>(videoStream);
         ChannelGroupDto? cg = await sender.Send(new GetChannelGroupByName(dto.User_Tvg_group), cancellationToken).ConfigureAwait(false);
+        if (!string.IsNullOrEmpty(UpdateSGCG))
+        {
+            ChannelGroupDto? origCg = await sender.Send(new GetChannelGroupByName(UpdateSGCG), cancellationToken).ConfigureAwait(false);
+            List<StreamGroupVideoStream> sgvids = RepositoryContext.StreamGroupVideoStreams.Where(a => a.ChildVideoStreamId == videoStream.Id).ToList();
+            if (sgvids.Count > 0)
+            {
+                RepositoryContext.StreamGroupVideoStreams.RemoveRange(sgvids);
+                await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            }
+
+            await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(cg.Id), cancellationToken).ConfigureAwait(false);
+        }
+
         return (dto, cg);
     }
 
@@ -1091,17 +1128,17 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
 
         // Using raw SQL for bulk update
         string sql = $"UPDATE VideoStreams SET User_Tvg_ID = REPLACE(User_Tvg_ID, '{starts}', '{newEPGNumber}-') WHERE User_Tvg_ID LIKE '{starts}%'";
-        await RepositoryContext.Database.ExecuteSqlRawAsync(sql, cancellationToken);
+        await RepositoryContext.ExecuteSqlRawAsyncEntities(sql, cancellationToken: cancellationToken);
 
 
-        //var results = await RepositoryContext.VideoStreams.Where(a => a.User_Tvg_ID.StartsWith(starts)).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        //var results = await PGSQLRepositoryContext.VideoStreams.Where(a => a.User_Tvg_ID.StartsWith(starts)).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         //foreach (var videoStream in results)
         //{
         //    var (epgNumber, stationId) = epgHelper.ExtractEPGNumberAndStationId(videoStream.User_Tvg_ID);
         //    videoStream.User_Tvg_ID = videoStream.User_Tvg_ID = $"{newEPGNumber}-{stationId}";
         //}
 
-        //await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        //await PGSQLRepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         List<VideoStream> results = await RepositoryContext.VideoStreams
     .Where(a => a.User_Tvg_ID.StartsWith($"{newEPGNumber}-"))

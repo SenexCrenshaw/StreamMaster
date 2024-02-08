@@ -22,30 +22,20 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public string? FFMPegExecutable { get; set; }
     public string? FFMpegOptions { get; set; }
     public int? GlobalStreamLimit { get; set; }
-    public bool? M3UFieldChannelId { get; set; }
-    public bool? M3UFieldChannelNumber { get; set; }
-    public bool? M3UFieldCUID { get; set; }
     public bool? M3UFieldGroupTitle { get; set; }
-    public bool? M3UFieldTvgChno { get; set; }
     public bool? M3UStationId { get; set; }
-    public bool? M3UFieldTvgId { get; set; }
-    public bool? M3UFieldTvgLogo { get; set; }
-    public bool? M3UFieldTvgName { get; set; }
     public bool? M3UUseChnoForId { get; set; }
     public bool? M3UIgnoreEmptyEPGID { get; set; }
+    public bool? M3UUseCUIDForChannelID { get; set; }
     public bool? PrettyEPG { get; set; }
     public int? MaxConnectRetry { get; set; }
     public int? MaxConnectRetryTimeMS { get; set; }
-    //public int? PreloadPercentage { get; set; }
     public int? RingBufferSizeMB { get; set; }
-
-    public int? SourceBufferPreBufferPercentage { get; set; }
     public string? SSLCertPassword { get; set; }
     public string? SSLCertPath { get; set; }
     public string? StreamingClientUserAgent { get; set; }
     public StreamingProxyTypes? StreamingProxyType { get; set; }
     public bool? VideoStreamAlwaysUseEPGLogo { get; set; }
-
     public bool? EnablePrometheus { get; set; }
     public int? MaxLogFiles { get; set; }
     public int? MaxLogFileSizeMB { get; set; }
@@ -162,11 +152,6 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
             destination.XmltvAddFillerData = (bool)source.XmltvAddFillerData;
         }
 
-        //if (source.XmltvFillerProgramDescription != null)
-        //{
-        //    destination.XmltvFillerProgramDescription = source.XmltvFillerProgramDescription;
-        //}
-
         if (source.XmltvFillerProgramLength != null)
         {
             destination.XmltvFillerProgramLength = (int)source.XmltvFillerProgramLength;
@@ -250,11 +235,6 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
             currentSetting.VideoStreamAlwaysUseEPGLogo = (bool)request.VideoStreamAlwaysUseEPGLogo;
         }
 
-        //if (request.EPGAlwaysUseVideoStreamName != null && request.EPGAlwaysUseVideoStreamName != currentSetting.EPGAlwaysUseVideoStreamName)
-        //{
-        //    currentSetting.EPGAlwaysUseVideoStreamName = (bool)request.EPGAlwaysUseVideoStreamName;
-        //}
-
         if (request.PrettyEPG.HasValue)
         {
             currentSetting.PrettyEPG = request.PrettyEPG.Value;
@@ -265,11 +245,10 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
             currentSetting.M3UIgnoreEmptyEPGID = (bool)request.M3UIgnoreEmptyEPGID;
         }
 
-        if (request.M3UFieldCUID != null)
+        if (request.M3UUseCUIDForChannelID != null)
         {
-            currentSetting.M3UFieldCUID = (bool)request.M3UFieldCUID;
+            currentSetting.M3UUseCUIDForChannelID = (bool)request.M3UUseCUIDForChannelID;
         }
-
 
         if (request.MaxLogFiles != null)
         {
@@ -295,56 +274,19 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
             currentSetting.M3UUseChnoForId = (bool)request.M3UUseChnoForId;
         }
 
-        if (request.M3UFieldChannelId != null)
-        {
-            currentSetting.M3UFieldChannelId = (bool)request.M3UFieldChannelId;
-        }
-
-        if (request.M3UFieldChannelNumber != null)
-        {
-            currentSetting.M3UFieldChannelNumber = (bool)request.M3UFieldChannelNumber;
-        }
-
-        if (request.M3UFieldTvgName != null)
-        {
-            currentSetting.M3UFieldTvgName = (bool)request.M3UFieldTvgName;
-        }
-
         if (request.ShowClientHostNames != null)
         {
             currentSetting.ShowClientHostNames = (bool)request.ShowClientHostNames;
         }
-
-        //if (request.SDEnabled != null)
-        //{
-        //    currentSetting.SDSettings.SDEnabled = (bool)request.SDEnabled;
-
-        //    needsSetProgrammes = request.SDEnabled != null && request.SDEnabled == true;
-        //}
 
         if (request.DummyRegex != null)
         {
             currentSetting.DummyRegex = request.DummyRegex;
         }
 
-        if (request.M3UFieldTvgChno != null)
-        {
-            currentSetting.M3UFieldTvgChno = (bool)request.M3UFieldTvgChno;
-        }
-
         if (request.M3UStationId != null)
         {
             currentSetting.M3UStationId = (bool)request.M3UStationId;
-        }
-
-        if (request.M3UFieldTvgId != null)
-        {
-            currentSetting.M3UFieldTvgId = (bool)request.M3UFieldTvgId;
-        }
-
-        if (request.M3UFieldTvgLogo != null)
-        {
-            currentSetting.M3UFieldTvgLogo = (bool)request.M3UFieldTvgLogo;
         }
 
         if (request.M3UFieldGroupTitle != null)
@@ -419,11 +361,6 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
         {
             currentSetting.GlobalStreamLimit = (int)request.GlobalStreamLimit;
         }
-
-        //if (request.PreloadPercentage != null && request.PreloadPercentage >= 0 && request.PreloadPercentage <= 100 && request.PreloadPercentage != currentSetting.PreloadPercentage)
-        //{
-        //    currentSetting.PreloadPercentage = (int)request.PreloadPercentage;
-        //}
 
         if (request.RingBufferSizeMB != null && request.RingBufferSizeMB >= 0 && request.RingBufferSizeMB != currentSetting.RingBufferSizeMB)
         {

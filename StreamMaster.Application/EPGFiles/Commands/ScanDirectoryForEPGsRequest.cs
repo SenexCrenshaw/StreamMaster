@@ -43,7 +43,7 @@ public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGF
         EPGFile? epgFile = await Repository.EPGFile.GetEPGFileBySource(epgFileInfo.Name);
         if (epgFile == null)
         {
-            epgFile = CreateOrUpdateEPGFile(epgFileInfo);
+            epgFile = await CreateOrUpdateEPGFile(epgFileInfo);
             await SaveAndPublishEPGFile(epgFile, cancellationToken);
         }
 
@@ -51,7 +51,7 @@ public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGF
         await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
     }
 
-    private EPGFile CreateOrUpdateEPGFile(FileInfo epgFileInfo)
+    private async Task<EPGFile> CreateOrUpdateEPGFile(FileInfo epgFileInfo)
     {
         EPGFile epgFile = EPGFile.ReadJSON(epgFileInfo) ?? new EPGFile
         {
@@ -61,9 +61,24 @@ public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGF
             FileExists = true,
             LastDownloaded = epgFileInfo.LastWriteTime,
             LastDownloadAttempt = epgFileInfo.LastWriteTime,
-            Color = ColorHelper.GetColor(epgFileInfo.Name),
             Url = ""
         };
+
+        if (epgFile.EPGNumber == default)
+        {
+            int num = 1;
+
+            if (await Repository.EPGFile.GetEPGFileByNumber(num).ConfigureAwait(false) != null)
+            {
+                num = await Repository.EPGFile.GetNextAvailableEPGNumberAsync(CancellationToken.None).ConfigureAwait(false);
+            }
+            epgFile.EPGNumber = num;
+        }
+
+        if (epgFile.Color == default)
+        {
+            epgFile.Color = ColorHelper.GetColorHex(epgFile.EPGNumber);
+        }
 
         if (epgFile.LastUpdated == default)
         {
@@ -83,7 +98,7 @@ public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGF
 
         if (string.IsNullOrEmpty(epgFile.Url))
         {
-            epgFile.LastDownloaded = DateTime.Now;
+            epgFile.LastDownloaded = SMDT.UtcNow;
             Repository.EPGFile.UpdateEPGFile(epgFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
             epgFile.WriteJSON(Logger);

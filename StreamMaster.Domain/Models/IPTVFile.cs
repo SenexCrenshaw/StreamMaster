@@ -1,4 +1,4 @@
-﻿using StreamMaster.Domain.Common;
+﻿using StreamMaster.Domain.Extensions;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 
 namespace StreamMaster.Domain.Models;
@@ -9,7 +9,7 @@ public abstract class IPTVFile : BaseEntity
 
     public IPTVFile()
     {
-        LastUpdated = DateTime.Now;
+        LastUpdated = SMDT.UtcNow;
         LastModified = LastUpdated;
     }
 
@@ -17,7 +17,7 @@ public abstract class IPTVFile : BaseEntity
     {
         FileSource = fileSource;
         FileName = fileSource;
-        LastUpdated = DateTime.Now;
+        LastUpdated = SMDT.UtcNow;
         LastModified = LastUpdated;
     }
 

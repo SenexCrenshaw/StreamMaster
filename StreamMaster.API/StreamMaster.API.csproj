@@ -70,7 +70,6 @@
     <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\StreamMaster.Infrastructure.EF\StreamMaster.Infrastructure.EF.csproj" />
     <ProjectReference Include="..\StreamMaster.Infrastructure\StreamMaster.Infrastructure.csproj" />
     <ProjectReference Include="..\StreamMaster.SchedulesDirect.Services\StreamMaster.SchedulesDirect.Services.csproj" />
     <ProjectReference Include="..\StreamMaster.Streams\StreamMaster.Streams.csproj" />

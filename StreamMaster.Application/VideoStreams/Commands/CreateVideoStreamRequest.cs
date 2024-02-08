@@ -24,6 +24,7 @@ public class CreateVideoStreamRequestHandler(ILogger<CreateVideoStreamRequest> l
         if (stream != null)
         {
             VideoStreamDto streamDto = Mapper.Map<VideoStreamDto>(stream);
+
             await Publisher.Publish(new CreateVideoStreamEvent(streamDto), cancellationToken).ConfigureAwait(false);
             return streamDto;
         }

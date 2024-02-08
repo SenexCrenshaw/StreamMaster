@@ -1,11 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-using StreamMaster.Application.LogApp;
-using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure.Logger;
-using StreamMaster.Infrastructure.Logging;
 using StreamMaster.Infrastructure.Middleware;
 using StreamMaster.Infrastructure.Services;
 using StreamMaster.Infrastructure.Services.Downloads;
@@ -63,15 +59,6 @@ public static class ConfigureServices
                 Assembly.Load("StreamMaster.Streams")
             );
         });
-
-        string DbPath = Path.Join(BuildInfo.DataFolder, "StreamMaster.db");
-        string LogDbPath = Path.Join(BuildInfo.DataFolder, "StreamMaster_Log.db");
-
-        _ = services.AddDbContext<LogDbContext>(options => options.UseSqlite($"Data Source={LogDbPath}", builder => builder.MigrationsAssembly(typeof(LogDbContext).Assembly.FullName)));
-        _ = services.AddScoped<LogDbContextInitialiser>();
-
-        _ = services.AddScoped<ILogDB>(provider => provider.GetRequiredService<LogDbContext>());
-
         return services;
     }
 

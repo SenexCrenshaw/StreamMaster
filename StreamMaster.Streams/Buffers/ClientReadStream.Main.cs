@@ -13,7 +13,6 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
     private Func<ICircularRingBuffer> _bufferDelegate;
     private readonly IStatisticsManager _statisticsManager;
     private long accumulatedBytesRead = 0;
-    private bool _paused = false;
     private readonly IMemoryCache memoryCache;
 
     public ClientReadStream(Func<ICircularRingBuffer> bufferDelegate, IMemoryCache memoryCache, IStatisticsManager _statisticsManager, ILogger<ClientReadStream> logger, IClientStreamerConfiguration config)
@@ -36,6 +35,8 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
 
     private long _lastReadIndex;
     private bool IsCancelled { get; set; }
+
+    public bool IsPaused { get; set; }
     private Guid ClientId { get; set; }
     public ICircularRingBuffer Buffer => _bufferDelegate();
     public Guid Id { get; } = Guid.NewGuid();
@@ -148,12 +149,12 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
 
     public void Pause()
     {
-        _paused = true;
+        IsPaused = true;
     }
 
     public void UnPause()
     {
-        _paused = false;
+        IsPaused = false;
     }
 
     // Finalizer in case Dispose wasn't called

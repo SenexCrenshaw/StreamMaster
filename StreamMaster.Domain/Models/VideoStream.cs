@@ -3,6 +3,7 @@
 using StreamMaster.Domain.Extensions;
 
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StreamMaster.Domain.Models;
 
@@ -21,6 +22,7 @@ public class VideoStream
     public int FilePosition { get; set; }
 
     [Key]
+    [Column(TypeName = "citext")]
     public string Id { get; set; } = string.Empty;
 
     public bool IsActive { get; set; } = true;
@@ -38,36 +40,41 @@ public class VideoStream
     public ICollection<StreamGroupVideoStream> StreamGroups { get; set; }
 
     public StreamingProxyTypes StreamProxyType { get; set; } = StreamingProxyTypes.SystemDefault;
+    [Column(TypeName = "citext")]
     public string M3UFileName { get; set; }
     public int Tvg_chno { get; set; } = 0;
 
+    [Column(TypeName = "citext")]
     public string ShortId { get; set; } = UniqueHexGenerator.ShortIdEmpty;
 
     public string TimeShift { get; set; } = "0000";
 
+    [Column(TypeName = "citext")]
     public string Tvg_group { get; set; } = "All";
 
+    [Column(TypeName = "citext")]
     public string Tvg_ID { get; set; } = string.Empty;
-
+    [Column(TypeName = "citext")]
     public string Tvg_logo { get; set; } = string.Empty;
-
+    [Column(TypeName = "citext")]
     public string Tvg_name { get; set; } = string.Empty;
-
+    [Column(TypeName = "citext")]
     public string StationId { get; set; } = string.Empty;
-
+    [Column(TypeName = "citext")]
     public string Url { get; set; } = string.Empty;
+    [Column(TypeName = "citext")]
     public string GroupTitle { get; set; } = string.Empty;
 
     public int User_Tvg_chno { get; set; } = 0;
-
+    [Column(TypeName = "citext")]
     public string User_Tvg_group { get; set; } = "All";
-
+    [Column(TypeName = "citext")]
     public string User_Tvg_ID { get; set; } = string.Empty;
-
+    [Column(TypeName = "citext")]
     public string User_Tvg_logo { get; set; } = string.Empty;
-
+    [Column(TypeName = "citext")]
     public string User_Tvg_name { get; set; } = string.Empty;
-
+    [Column(TypeName = "citext")]
     public string User_Url { get; set; } = string.Empty;
 
     public VideoStreamHandlers VideoStreamHandler { get; set; } = VideoStreamHandlers.SystemDefault;
@@ -116,41 +123,41 @@ public class VideoStream
 
     //return sb.ToString();
     //}
-    public static string GetCsvHeader()
-    {
-        return "Id,Url,FilePosition,IsActive,IsDeleted,IsHidden,IsReadOnly,IsUserCreated,M3UFileId,Tvg_chno,Tvg_group,Tvg_ID,Tvg_logo,Tvg_name,User_Tvg_chno,User_Tvg_group,User_Tvg_ID,User_Tvg_logo,User_Tvg_name,User_Url,StreamProxyType,VideoStreamHandler,StreamGroups,ChildVideoStreams";
-    }
+    //public static string GetCsvHeader()
+    //{
+    //    return "Id,Url,FilePosition,IsActive,IsDeleted,IsHidden,IsReadOnly,IsUserCreated,M3UFileId,Tvg_chno,Tvg_group,Tvg_ID,Tvg_logo,Tvg_name,User_Tvg_chno,User_Tvg_group,User_Tvg_ID,User_Tvg_logo,User_Tvg_name,User_Url,StreamProxyType,VideoStreamHandler,StreamGroups,ChildVideoStreams";
+    //}
 
-    public override string ToString()
-    {
-        List<string> properties =
-        [
-            Id,
-            Url,
-            FilePosition.ToString(),
-            IsActive.ToString(),
-            IsDeleted.ToString(),
-            IsHidden.ToString(),
-            IsReadOnly.ToString(),
-            IsUserCreated.ToString(),
-            M3UFileId.ToString(),
-            Tvg_chno.ToString(),
-            Tvg_group,
-            Tvg_ID,
-            Tvg_logo,
-            Tvg_name,
-            User_Tvg_chno.ToString(),
-            User_Tvg_group,
-            User_Tvg_ID,
-            User_Tvg_logo,
-            User_Tvg_name,
-            User_Url,
-            StreamProxyType.ToString(),
-            VideoStreamHandler.ToString(),
-            StreamGroups?.ToString() ?? "N/A",
-            ChildVideoStreams?.ToString() ?? "N/A"
-        ];
+    //public override string ToString()
+    //{
+    //    List<string> properties =
+    //    [
+    //        Id,
+    //        Url,
+    //        FilePosition.ToString(),
+    //        IsActive.ToString(),
+    //        IsDeleted.ToString(),
+    //        IsHidden.ToString(),
+    //        IsReadOnly.ToString(),
+    //        IsUserCreated.ToString(),
+    //        M3UFileId.ToString(),
+    //        Tvg_chno.ToString(),
+    //        Tvg_group,
+    //        Tvg_ID,
+    //        Tvg_logo,
+    //        Tvg_name,
+    //        User_Tvg_chno.ToString(),
+    //        User_Tvg_group,
+    //        User_Tvg_ID,
+    //        User_Tvg_logo,
+    //        User_Tvg_name,
+    //        User_Url,
+    //        StreamProxyType.ToString(),
+    //        VideoStreamHandler.ToString(),
+    //        StreamGroups?.ToString() ?? "N/A",
+    //        ChildVideoStreams?.ToString() ?? "N/A"
+    //    ];
 
-        return string.Join(",", properties);
-    }
+    //    return string.Join(",", properties);
+    //}
 }

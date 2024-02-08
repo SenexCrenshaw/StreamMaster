@@ -26,7 +26,7 @@ public class BaseVideoStreamDto /*: IMapFrom<VideoStream>*/
     /// Gets or sets a value indicating whether the video stream is currently active.
     /// </summary>
     /// <value>True if the video stream is currently active; otherwise, false.</value>
-    public bool IsActive { get; set; } = false;
+    //public bool IsActive { get; set; } = false;
 
     /// <summary>
     /// Gets or sets a value indicating whether the video stream has been marked
@@ -35,7 +35,7 @@ public class BaseVideoStreamDto /*: IMapFrom<VideoStream>*/
     /// <value>
     /// True if the video stream has been marked as deleted; otherwise, false.
     /// </value>
-    public bool IsDeleted { get; set; } = false;
+    //public bool IsDeleted { get; set; } = false;
 
     /// <summary>
     /// Gets or sets a value indicating whether the video stream should be hidden.
@@ -47,7 +47,7 @@ public class BaseVideoStreamDto /*: IMapFrom<VideoStream>*/
     /// Gets or sets a value indicating whether the video stream is read-only.
     /// </summary>
     /// <value>True if the video stream is read-only; otherwise, false.</value>
-    public bool IsReadOnly { get; set; } = false;
+    //public bool IsReadOnly { get; set; } = false;
 
     /// <summary>
     /// Gets or sets a value indicating whether the video stream was created by

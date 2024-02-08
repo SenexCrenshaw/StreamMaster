@@ -5,7 +5,6 @@ using SixLabors.ImageSharp.PixelFormats;
 
 using StreamMaster.Domain.Common;
 using StreamMaster.SchedulesDirect.Domain.Enums;
-using StreamMaster.SchedulesDirect.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text.RegularExpressions;
@@ -114,15 +113,16 @@ public class Lineups(ILogger<Lineups> logger, IMemoryCache memoryCache, IIconSer
                         string urlLogoPath = string.Empty;
 
                         string logoFilename = $"{station.Callsign}_c.png";
-                        if (File.Exists($"{BuildInfo.SDStationLogos}{logoFilename}"))
+                        string file = Path.Combine(BuildInfo.SDStationLogos, logoFilename);
+                        if (File.Exists(file))
                         {
-                            logoPath = $"{BuildInfo.SDStationLogos}{logoFilename}";
+                            logoPath = file;
                             urlLogoPath = stationLogo.Url;
                         }
                         else if (stationLogo != null)
                         {
                             logoFilename = $"{stationLogo.Md5}.png";
-                            logoPath = $"{BuildInfo.SDStationLogosCache}{logoFilename}";
+                            logoPath = Path.Combine(BuildInfo.SDStationLogosCache, logoFilename);
                             urlLogoPath = stationLogo.Url;
 
                             if (!File.Exists(logoPath))

@@ -1,4 +1,4 @@
-﻿using StreamMaster.Domain.Common;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StreamMaster.Domain.Models;
 
@@ -6,14 +6,15 @@ public class StreamGroup : BaseEntity
 {
     public StreamGroup()
     {
-        ChildVideoStreams = new List<StreamGroupVideoStream>();
-        ChannelGroups = new List<StreamGroupChannelGroup>();
+        ChildVideoStreams = [];
+        ChannelGroups = [];
     }
 
     public ICollection<StreamGroupChannelGroup> ChannelGroups { get; set; }
     public ICollection<StreamGroupVideoStream> ChildVideoStreams { get; set; }
     public bool IsReadOnly { get; set; } = false;
     public bool AutoSetChannelNumbers { get; set; } = false;
+    [Column(TypeName = "citext")]
     public string Name { get; set; } = string.Empty;
     //public int StreamGroupNumber { get; set; }
 }

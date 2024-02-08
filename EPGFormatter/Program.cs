@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure.Services.Settings;
-using StreamMaster.SchedulesDirect;
 using StreamMaster.SchedulesDirect.Converters;
 using StreamMaster.SchedulesDirect.Data;
 using StreamMaster.SchedulesDirect.Domain.Helpers;

@@ -16,10 +16,10 @@ namespace StreamMaster.Infrastructure.EF.Repositories;
 /// <typeparam name="T">Type of the entity managed by this repository.</typeparam>
 public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
 {
-    protected readonly RepositoryContext RepositoryContext;
+    protected readonly IRepositoryContext RepositoryContext;
     protected readonly ILogger logger;
 
-    public RepositoryBase(RepositoryContext repositoryContext, ILogger logger)
+    public RepositoryBase(IRepositoryContext repositoryContext, ILogger logger)
     {
         RepositoryContext = repositoryContext ?? throw new ArgumentNullException(nameof(repositoryContext));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -165,13 +165,13 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     /// <param name="entities">Entities to be inserted.</param>
     public void BulkInsert(List<T> entities)
     {
-        if (entities == null || !entities.Any())
+        if (entities == null || entities.Count == 0)
         {
             logger.LogWarning("Attempted to perform a bulk insert with null or empty entities.");
             throw new ArgumentNullException(nameof(entities));
         }
 
-        RepositoryContext.BulkInsert(entities);
+        RepositoryContext.BulkInsertEntities(entities);
     }
 
     /// <summary>
@@ -186,7 +186,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
             throw new ArgumentNullException(nameof(entities));
         }
 
-        RepositoryContext.BulkInsert(entities);
+        RepositoryContext.BulkInsertEntities(entities);
     }
 
     /// <summary>
@@ -200,15 +200,16 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
             logger.LogWarning("Attempted to perform a bulk delete with a null or empty query.");
             throw new ArgumentNullException(nameof(query));
         }
+        DbContext context = RepositoryContext as DbContext;
 
-        RepositoryContext.BulkDelete(query);
+        context.BulkDelete(query);
     }
 
     /// <summary>
     /// Deletes a group of entities based on a query.
     /// </summary>
     /// <param name="query">The IQueryable to select entities to be deleted.</param>
-    public async Task BulkDeleteAsync(IQueryable<T> query)
+    public async Task BulkDeleteAsync(IQueryable<T> query, CancellationToken cancellationToken = default)
     {
         if (query == null || !query.Any())
         {
@@ -216,10 +217,10 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
             throw new ArgumentNullException(nameof(query));
         }
 
-        await RepositoryContext.BulkDeleteAsync(query);
+        await RepositoryContext.BulkDeleteAsyncEntities(query, cancellationToken: cancellationToken);
     }
 
-    /// <summary>
+/// <summary>
     /// Performs a bulk update on a set of entities.
     /// </summary>
     /// <param name="entities">Entities to be updated.</param>
@@ -231,7 +232,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
             throw new ArgumentNullException(nameof(entities));
         }
 
-        RepositoryContext.BulkUpdate(entities);
+        RepositoryContext.BulkUpdateEntities(entities);
     }
 
     public void BulkUpdate(List<T> entities)
@@ -242,7 +243,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
             throw new ArgumentNullException(nameof(entities));
         }
 
-        RepositoryContext.BulkUpdate(entities);
+        RepositoryContext.BulkUpdateEntities(entities);
     }
 
     /// <summary>

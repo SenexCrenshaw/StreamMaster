@@ -1,5 +1,6 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 
 using Prometheus;
 
@@ -12,7 +13,8 @@ using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.EF;
-using StreamMaster.Infrastructure.Logging;
+using StreamMaster.Infrastructure.EF.PGSQL;
+using StreamMaster.Infrastructure.EF.SQLite;
 using StreamMaster.Infrastructure.Middleware;
 using StreamMaster.SchedulesDirect.Services;
 using StreamMaster.Streams;
@@ -72,6 +74,8 @@ if (!string.IsNullOrEmpty(sslCertPath))
 // Add services to the container.
 builder.Services.AddSchedulesDirectAPIServices();
 builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureEFPGSQLServices();
+builder.Services.AddInfrastructureEFSQLiteServices();
 builder.Services.AddInfrastructureEFServices();
 builder.Services.AddInfrastructureServices();
 builder.Services.AddInfrastructureServicesEx();
@@ -131,22 +135,36 @@ app.UseSession();
 
 using (IServiceScope scope = app.Services.CreateScope())
 {
-    LogDbContextInitialiser logInitialiser = scope.ServiceProvider.GetRequiredService<LogDbContextInitialiser>();
-    await logInitialiser.InitialiseAsync().ConfigureAwait(false);
-    if (app.Environment.IsDevelopment())
-    {
-        logInitialiser.TrySeed();
+    //LogDbContextInitialiser logInitialiser = scope.ServiceProvider.GetRequiredService<LogDbContextInitialiser>();
+    //await logInitialiser.InitialiseAsync().ConfigureAwait(false);
+    //if (app.Environment.IsDevelopment())
+    //{
+    //    logInitialiser.TrySeed();
 
-    }
+    //}
 
     RepositoryContextInitializer initialiser = scope.ServiceProvider.GetRequiredService<RepositoryContextInitializer>();
     await initialiser.InitialiseAsync().ConfigureAwait(false);
     if (app.Environment.IsDevelopment())
     {
         initialiser.TrySeed();
-        initialiser.MigrateData();
     }
 
+    string sqliteDB = Path.Join(BuildInfo.AppDataFolder, "StreamMaster.db");
+    if (File.Exists(sqliteDB))
+    {
+        PGSQLRepositoryContext repositoryContext = scope.ServiceProvider.GetRequiredService<PGSQLRepositoryContext>();
+        SQLiteRepositoryContext sQLiteRepositoryContext = scope.ServiceProvider.GetRequiredService<SQLiteRepositoryContext>();
+        if ( MigrateFromSQLite.MigrateFromSQLiteDatabaseToPostgres(repositoryContext, sQLiteRepositoryContext))
+        {
+            sQLiteRepositoryContext.Dispose();
+            SqliteConnection.ClearAllPools();
+            File.Move(sqliteDB, sqliteDB+".old",true);
+        }
+    }
+
+   
+    initialiser.MigrateData();
 
     var mem = scope.ServiceProvider.GetRequiredService<IMemoryCache>();
     var setting = FileUtil.GetSetting();

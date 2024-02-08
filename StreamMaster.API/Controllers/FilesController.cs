@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Services;
 using StreamMaster.SchedulesDirect.Domain.Enums;
@@ -19,7 +18,7 @@ public class FilesController(IMemoryCache memoryCache, IIconService iconService,
 {
     [AllowAnonymous]
     [Route("{filetype}/{source}")]
-    [LogExecutionTimeAspect]
+
     public async Task<IActionResult> GetFile(string source, SMFileTypes filetype, CancellationToken cancellationToken)
     {
         string sourceDecoded = HttpUtility.UrlDecode(source);

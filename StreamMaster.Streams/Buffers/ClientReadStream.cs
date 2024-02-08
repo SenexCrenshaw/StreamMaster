@@ -24,13 +24,25 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
             {
                 await _bufferSwitchSemaphore.WaitAsync(_readCancel.Token);
 
-                using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_readCancel.Token, cancellationToken);
+                CancellationTokenSource timedToken = new(TimeSpan.FromSeconds(30));
+
+                using CancellationTokenSource readLinked = CancellationTokenSource.CreateLinkedTokenSource(_readCancel.Token, timedToken.Token);
+
+
+                if (timedToken.IsCancellationRequested)
+                {
+                    logger.LogWarning("ReadAsync timedToken cancelled for ClientId: {ClientId}", ClientId);
+                    _bufferSwitchSemaphore.Release();
+                    break;
+                }
+
+                using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_readCancel.Token, timedToken.Token, cancellationToken);
 
                 try
                 {
                     bytesRead = !linkedCts.IsCancellationRequested ? await Buffer.ReadChunkMemory(_lastReadIndex, buffer, linkedCts.Token) : 0;
                 }
-                catch (TaskCanceledException ex)
+                catch (TaskCanceledException)
                 {
                     logger.LogWarning("ReadAsync cancellationToken {cancellationToken}", cancellationToken.IsCancellationRequested);
                     logger.LogWarning("ReadAsync _readCancel {_readCancel}", _readCancel.IsCancellationRequested);
@@ -39,7 +51,20 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
                 finally
                 {
                     linkedCts.Dispose();
-                    _bufferSwitchSemaphore.Release();
+                    try
+                    {
+                        _bufferSwitchSemaphore.Release();
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                    }
+
+                }
+
+                if (timedToken.IsCancellationRequested)
+                {
+                    logger.LogWarning("ReadAsync timedToken cancelled for ClientId: {ClientId}", ClientId);
+                    break;
                 }
 
                 if (bytesRead != 0)
@@ -49,12 +74,12 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
                     _lastReadIndex += bytesRead;
                 }
 
-                if (!_paused && !Buffer.IsPaused)
+                if (!IsPaused && !Buffer.IsPaused)
                 {
                     break;
                 }
 
-                await Task.Delay(5);
+                await Task.Delay(5, cancellationToken);
             }
         }
         catch (TaskCanceledException ex)

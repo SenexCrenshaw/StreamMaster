@@ -65,18 +65,12 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
         _inputStatisticsManager = inputStatisticsManager ?? throw new ArgumentNullException(nameof(inputStatisticsManager));
 
 
-        //if (setting.PreloadPercentage is < 0 or > 100)
-        //{
-        //    setting.PreloadPercentage = 0;
-        //}
-
         if (setting.RingBufferSizeMB is < 1 or > 256)
         {
             setting.RingBufferSizeMB = 4;
         }
 
         _bufferSize = setting.RingBufferSizeMB * 1024 * 1000;
-        //_preBuffPercent = setting.PreloadPercentage;
 
         StreamInfo = new StreamInfo
         {

@@ -180,16 +180,16 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
 
   const inputStartTimeTemplate = useCallback((rowData: InputStreamingStatistics) => <div>{formatJSONDateString(rowData.startTime ?? '')}</div>, []);
 
-  const streamCount = useCallback(
-    (rowData: InputStreamingStatistics) => {
-      if (data === undefined || data === null) {
-        return <div>0</div>;
-      }
+  // const streamCount = useCallback(
+  //   (rowData: InputStreamingStatistics) => {
+  //     if (data === undefined || data === null) {
+  //       return <div>0</div>;
+  //     }
 
-      return <div>{data.filter((x) => x.id === rowData.id).length}</div>;
-    },
-    [data]
-  );
+  //     return <div>{data.filter((x) => x.id === rowData.id).length}</div>;
+  //   },
+  //   [data]
+  // );
 
   const onPreview = useCallback(async (rowData: InputStreamingStatistics) => {
     if (rowData.channelName !== undefined && rowData.channelName === '') {

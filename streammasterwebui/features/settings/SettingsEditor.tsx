@@ -1,4 +1,6 @@
 import StandardHeader from '@components/StandardHeader';
+import ResetButton from '@components/buttons/ResetButton';
+import SaveButton from '@components/buttons/SaveButton';
 import { GetMessage, isEmptyObject } from '@lib/common/common';
 import { SettingsEditorIcon } from '@lib/common/icons';
 import { AuthenticationType } from '@lib/common/streammaster_enums';
@@ -6,10 +8,6 @@ import { SettingDto, UpdateSettingRequest, useSettingsGetSettingQuery } from '@l
 import { useSelectCurrentSettingDto } from '@lib/redux/slices/selectedCurrentSettingDto';
 import { useSelectUpdateSettingRequest } from '@lib/redux/slices/selectedUpdateSettingRequestSlice';
 import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
-import HistoryIcon from '@mui/icons-material/History';
-import SaveIcon from '@mui/icons-material/Save';
-import { Dock } from 'primereact/dock';
-import { type MenuItem } from 'primereact/menuitem';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { AuthenticationSettings } from './AuthenticationSettings';
@@ -50,8 +48,6 @@ export const SettingsEditor = () => {
   }, [selectedCurrentSettingDto?.adminPassword, selectedCurrentSettingDto?.authenticationMethod]);
 
   const isSaveEnabled = useMemo((): boolean => {
-    // console.log('Start', isEmptyObject(selectUpdateSettingRequest), selectUpdateSettingRequest);
-
     if (selectedCurrentSettingDto?.enableSSL === true && selectedCurrentSettingDto?.sslCertPath === '') {
       console.log('enableSSL');
       return false;
@@ -63,16 +59,9 @@ export const SettingsEditor = () => {
     }
 
     if (isEmptyObject(selectUpdateSettingRequest)) {
-      // console.log('selectUpdateSettingRequest', selectUpdateSettingRequest);
       return false;
     }
 
-    // if (JSON.stringify(selectedCurrentSettingDto) === JSON.stringify(originalData)) {
-    //   console.log('equals');
-    //   return false;
-    // }
-
-    // console.log(true);
     return true;
   }, [adminPasswordError, adminUserNameError, selectUpdateSettingRequest, selectedCurrentSettingDto?.enableSSL, selectedCurrentSettingDto?.sslCertPath]);
 
@@ -92,42 +81,33 @@ export const SettingsEditor = () => {
       .finally(() => {});
   }, [isSaveEnabled, selectUpdateSettingRequest, setSelectedUpdateSettingRequest]);
 
-  const items: MenuItem[] = [
-    {
-      command: () => {
-        onSave();
-      },
-      disabled: !isSaveEnabled,
-      icon: <SaveIcon sx={{ fontSize: 40 }} />,
-      label: 'Save'
-    },
-    {
-      command: () => {
-        setSelectedCurrentSettingDto({ ...originalData });
-      },
-      disabled: !isSaveEnabled,
-      icon: <HistoryIcon sx={{ fontSize: 40 }} />,
-      label: 'Undo'
-    }
-  ];
+  const resetData = useCallback(() => {
+    setSelectedCurrentSettingDto({ ...originalData });
+  }, [originalData, setSelectedCurrentSettingDto]);
 
   return (
     <StandardHeader displayName={GetMessage('settings')} icon={<SettingsEditorIcon />}>
-      <ScrollPanel style={{ height: 'calc(100vh - 58px)', width: '100%' }}>
-        <Dock model={items} position="right" />
+      <div className="flex flex-column">
+        <ScrollPanel style={{ height: 'calc(100vh - 100px)', width: '100%' }}>
+          <GeneralSettings />
 
-        <GeneralSettings />
+          <AuthenticationSettings />
 
-        <AuthenticationSettings />
+          <StreamingSettings />
 
-        <StreamingSettings />
+          <SDSettings />
 
-        <SDSettings />
+          <FilesEPGM3USettings />
 
-        <FilesEPGM3USettings />
-
-        <DevelopmentSettings />
-      </ScrollPanel>
+          <DevelopmentSettings />
+        </ScrollPanel>
+        <div className="flex mt-2 justify-content-center align-items-end">
+          <div className="flex justify-content-center align-items-center gap-2">
+            <SaveButton disabled={!isSaveEnabled} onClick={() => onSave()} iconFilled label="Save Settings" />
+            <ResetButton disabled={!isSaveEnabled} onClick={() => resetData()} iconFilled label="Reset Settings" />
+          </div>
+        </div>
+      </div>
     </StandardHeader>
   );
 };

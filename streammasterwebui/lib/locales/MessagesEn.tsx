@@ -72,19 +72,7 @@ const MessagesEn: messages_enType = {
   m3UFieldCUID: 'Enable M3U CUID',
   prettyEPG: 'Format EPG output',
 
-  m3UFieldChannelId: 'Enable M3U Channel ID',
-
-  m3UFieldChannelNumber: 'Enable M3U Channel Number',
-
   m3UFieldGroupTitle: 'Enable M3U Group Title',
-
-  m3UFieldTvgChno: 'Enable M3U Tvg Chno',
-
-  m3UFieldTvgId: 'Enable M3U Tvg Id',
-
-  m3UFieldTvgLogo: 'Enable M3U Tvg Logo',
-
-  m3UFieldTvgName: 'Enable M3U Tvg Name',
 
   m3UIgnoreEmptyEPGID: 'Ignore Empty EPG ID',
 
@@ -107,8 +95,6 @@ const MessagesEn: messages_enType = {
   password: 'Password',
 
   playlist: 'Playlist',
-
-  preloadPercentage: 'Buffer Preload Percentage',
 
   regex: 'Regex',
 
@@ -146,7 +132,7 @@ const MessagesEn: messages_enType = {
   enablePrometheus: 'Enable Prometheus Metrics',
   loading: 'Loading',
   set: 'Set',
-
+  m3UUseCUIDForChannelID: 'Use CUID for channel id',
   settings: 'Settings',
 
   show: 'Show',

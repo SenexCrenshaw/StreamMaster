@@ -27,7 +27,6 @@ const help_en: help_enType = {
   maxConnectRetryTimeMS: 'Receiving Data Retry Timeout in MS',
   overWriteM3UChannels: 'Overwrite M3U Channels Numbers even if they are set',
   password: 'Password',
-  preloadPercentage: 'How much of the buffer (in percentage) to preload before starting playback. 0 Disables preloading',
   rememberme: 'Remember Me',
   ringBufferSizeMB: 'Buffer Size (MB)',
   sdPassword: 'ScheduleDirect Password - The displayed value is encypted and not the real password. Re-enter the real password to change',
@@ -49,9 +48,6 @@ const help_en: help_enType = {
     'Always use EPG Logo for Video Stream. If the EPG is changed to one containing a logo then the video stream logo will be set to that',
 
   'sdSettings.alternateSEFormat': 'True: "S{0}:E{1} "  False: "s{0:D2}e{1:D2} ";'
-  // 'sdSettings.preferredLogoStyle': 'Dark, Gray, Light, White',
-  // 'sdSettings.alternateLogoStyle': 'Dark, Gray, Light, White',
-  // 'sdSettings.artworkSize': 'Sm, Md, Lg'
 };
 
 export const getHelp = (key: string) => help_en[key];

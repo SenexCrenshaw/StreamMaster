@@ -28,7 +28,7 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
     //private static int GenerateMediaSequence()
     //{
     //    DateTime epochStart = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-    //    TimeSpan elapsedTime = DateTime.UtcNow - epochStart;
+    //    TimeSpan elapsedTime = SMDT.UtcNow - epochStart;
     //    int mediaSequence = (int)(elapsedTime.TotalSeconds / 10);
 
     //    return mediaSequence;
@@ -97,7 +97,7 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
                 if (epgHelper.IsValidEPGId(videoStream.User_Tvg_ID))
                 {
                     (epgNumber, stationId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
-                    service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId == stationId);
+                    service = schedulesDirectDataService.GetService(stationId);
                 }
                 else
                 {

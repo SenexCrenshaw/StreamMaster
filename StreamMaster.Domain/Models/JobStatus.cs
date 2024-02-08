@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Domain.Models;
+﻿using StreamMaster.Domain.Extensions;
+
+namespace StreamMaster.Domain.Models;
 
 public class JobStatus
 {
@@ -16,7 +18,7 @@ public class JobStatus
 
     public void SetSuccessful()
     {
-        LastRun = DateTime.Now;
+        LastRun = SMDT.UtcNow;
         IsRunning = false;
         LastSuccessful = LastRun;
         ForceNextRun = false;
@@ -24,7 +26,7 @@ public class JobStatus
 
     public void SetError()
     {
-        LastRun = DateTime.Now;
+        LastRun = SMDT.UtcNow;
         LastError = LastRun;
         IsRunning = false;
         ForceNextRun = false;

@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Domain.Cache;
+﻿using StreamMaster.Domain.Extensions;
+
+namespace StreamMaster.Domain.Cache;
 
 public class Cache<T>(Func<T> valueFetcher, TimeSpan refreshInterval) where T : notnull
 {
@@ -8,10 +10,10 @@ public class Cache<T>(Func<T> valueFetcher, TimeSpan refreshInterval) where T : 
 
     public T GetValue()
     {
-        if (_cachedValue is null || DateTime.UtcNow - _lastFetchedTime > refreshInterval)
+        if (_cachedValue is null || SMDT.UtcNow - _lastFetchedTime > refreshInterval)
         {
             _cachedValue = _valueFetcher() ?? throw new InvalidOperationException("Fetched value cannot be null");
-            _lastFetchedTime = DateTime.UtcNow;
+            _lastFetchedTime = SMDT.UtcNow;
         }
 
         return _cachedValue;

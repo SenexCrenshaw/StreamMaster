@@ -1,3 +1,224 @@
+# [0.9.0-i-am-not-drunk.27](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.26...v0.9.0-i-am-not-drunk.27) (2024-02-08)
+
+
+### Features
+
+* Update RootSideBar component to display different logo based on system readiness ([71ee097](https://github.com/SenexCrenshaw/StreamMaster/commit/71ee0976a5218f1bb5003232f2f8bc53c7afbe71))
+
+# [0.9.0-i-am-not-drunk.26](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.25...v0.9.0-i-am-not-drunk.26) (2024-02-08)
+
+
+### Bug Fixes
+
+* epg gz files ([844203e](https://github.com/SenexCrenshaw/StreamMaster/commit/844203eab733acb2d953c78ff282ea3d5bd07537))
+
+# [0.9.0-i-am-not-drunk.25](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.24...v0.9.0-i-am-not-drunk.25) (2024-02-08)
+
+
+### Bug Fixes
+
+* killproc ([a4d711c](https://github.com/SenexCrenshaw/StreamMaster/commit/a4d711cbf6a335ad81194daa5e9103bb0b2a8fe4))
+
+
+### Features
+
+* Add ResetButton and SaveButton components to SettingsEditor ([3c3291c](https://github.com/SenexCrenshaw/StreamMaster/commit/3c3291ca6a55ce4e7f3a8f18901e36c115f94a95))
+
+# [0.9.0-i-am-not-drunk.24](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.23...v0.9.0-i-am-not-drunk.24) (2024-02-08)
+
+
+### Bug Fixes
+
+* sg stream count ([c4aada3](https://github.com/SenexCrenshaw/StreamMaster/commit/c4aada3d1857a6e5db2958db86f94c074092b495))
+
+# [0.9.0-i-am-not-drunk.23](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.22...v0.9.0-i-am-not-drunk.23) (2024-02-08)
+
+
+### Bug Fixes
+
+* Stream Group channel groups ([910d3df](https://github.com/SenexCrenshaw/StreamMaster/commit/910d3df1fe2ceacbf4c6fc486985b4d512f76ebb))
+
+# [0.9.0-i-am-not-drunk.22](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.21...v0.9.0-i-am-not-drunk.22) (2024-02-08)
+
+
+### Features
+
+* add Use CUID for channel id ([d1130f3](https://github.com/SenexCrenshaw/StreamMaster/commit/d1130f3d0fbde82e0f1b4a68d5ff8cd8e1de424f))
+
+# [0.9.0-i-am-not-drunk.21](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.20...v0.9.0-i-am-not-drunk.21) (2024-02-07)
+
+# [0.9.0-i-am-not-drunk.20](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.19...v0.9.0-i-am-not-drunk.20) (2024-02-07)
+
+
+### Bug Fixes
+
+* Fix permission in entrypoint.sh ([285f80a](https://github.com/SenexCrenshaw/StreamMaster/commit/285f80a7dadd262ead9d90c0f3585c9e4a8e2172))
+
+# [0.9.0-i-am-not-drunk.19](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.18...v0.9.0-i-am-not-drunk.19) (2024-02-07)
+
+# [0.9.0-i-am-not-drunk.18](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.17...v0.9.0-i-am-not-drunk.18) (2024-02-07)
+
+
+### Features
+
+* Add repository context initialization before migration ([b0d4b44](https://github.com/SenexCrenshaw/StreamMaster/commit/b0d4b4477ec784f5b154f674211b7b507ba44a4f))
+
+# [0.9.0-i-am-not-drunk.17](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.16...v0.9.0-i-am-not-drunk.17) (2024-02-07)
+
+
+### Features
+
+* Add pause and resume functionality for stream readers ([404c4fe](https://github.com/SenexCrenshaw/StreamMaster/commit/404c4fe793c10565f32a2b38320c45180bdf4bc1))
+
+# [0.9.0-i-am-not-drunk.16](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.15...v0.9.0-i-am-not-drunk.16) (2024-02-07)
+
+
+### Features
+
+* Add cancellationToken parameter to Task.Delay in ClientReadStream ([b1ca262](https://github.com/SenexCrenshaw/StreamMaster/commit/b1ca262086de8d7493672092b74679bfdf34a225))
+
+# [0.9.0-i-am-not-drunk.15](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.14...v0.9.0-i-am-not-drunk.15) (2024-02-07)
+
+
+### Bug Fixes
+
+* Fix timeout issue in ClientReadStream ([b5625e9](https://github.com/SenexCrenshaw/StreamMaster/commit/b5625e927c7916c927e339a6d6318f2892e31627))
+
+
+### Performance Improvements
+
+* Improve logging message in StreamHandler.cs ([3cd00f3](https://github.com/SenexCrenshaw/StreamMaster/commit/3cd00f3d23919a976f302a0286c11f8853036431))
+
+# [0.9.0-i-am-not-drunk.14](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.13...v0.9.0-i-am-not-drunk.14) (2024-02-07)
+
+
+### Bug Fixes
+
+* CG ID ([bcd8524](https://github.com/SenexCrenshaw/StreamMaster/commit/bcd8524e90be05a3521bbda569e3d2cf574f5088))
+* Fix stream handler restart issue ([98c4f43](https://github.com/SenexCrenshaw/StreamMaster/commit/98c4f434380ccbec49f30784489e34e977b8000a))
+
+# [0.9.0-i-am-not-drunk.13](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.12...v0.9.0-i-am-not-drunk.13) (2024-02-07)
+
+# [0.9.0-i-am-not-drunk.12](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.11...v0.9.0-i-am-not-drunk.12) (2024-02-07)
+
+
+### Bug Fixes
+
+* Fixing empty shortids count output in RepositoryContextInitializer ([8076d79](https://github.com/SenexCrenshaw/StreamMaster/commit/8076d79ddde4e04a28d070999eb73bb9ca31ba05))
+
+
+### Features
+
+* Add support for M3U settings in the API ([f7fee73](https://github.com/SenexCrenshaw/StreamMaster/commit/f7fee73dadb06f2c0a8e8d9de48978f1e4f80ab1))
+
+# [0.9.0-i-am-not-drunk.11](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.10...v0.9.0-i-am-not-drunk.11) (2024-02-07)
+
+# [0.9.0-i-am-not-drunk.10](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.9...v0.9.0-i-am-not-drunk.10) (2024-02-07)
+
+
+### Bug Fixes
+
+* Fixed logging message in StreamHandler ([8d8100e](https://github.com/SenexCrenshaw/StreamMaster/commit/8d8100e25a841a00a948cefef9fc1dfdf2b199a9))
+* Remove preloadPercentage from settings ([099e643](https://github.com/SenexCrenshaw/StreamMaster/commit/099e643c19b974fe539bba63f187c163999958d6))
+* stuff ([e4202dd](https://github.com/SenexCrenshaw/StreamMaster/commit/e4202dd3f415054e732451e22d608fe519a03885))
+
+# [0.9.0-i-am-not-drunk.9](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.8...v0.9.0-i-am-not-drunk.9) (2024-02-07)
+
+
+### Bug Fixes
+
+* Fix shortid fix logic in RepositoryContextInitializer ([ed0a47e](https://github.com/SenexCrenshaw/StreamMaster/commit/ed0a47edcc6a8214935600055e85e232422b8993))
+
+# [0.9.0-i-am-not-drunk.8](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.7...v0.9.0-i-am-not-drunk.8) (2024-02-07)
+
+
+### Bug Fixes
+
+* fix LastDownloaded time to be in universal time format ([014d4df](https://github.com/SenexCrenshaw/StreamMaster/commit/014d4df8cd779998c44c0d137f0577b0796aeef8))
+* Icon paths ([f1b0fe2](https://github.com/SenexCrenshaw/StreamMaster/commit/f1b0fe2fa02fce3398c009f88cb3bb7fb8c9d2a4))
+
+# [0.9.0-i-am-not-drunk.7](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.6...v0.9.0-i-am-not-drunk.7) (2024-02-05)
+
+
+### Bug Fixes
+
+* Add PostgreSQL configuration settings ([39f7c1d](https://github.com/SenexCrenshaw/StreamMaster/commit/39f7c1d2f28648cdd2a062db143987e6078e0fbc))
+
+# [0.9.0-i-am-not-drunk.6](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.5...v0.9.0-i-am-not-drunk.6) (2024-02-05)
+
+
+### Bug Fixes
+
+* utc ([d3b0e9d](https://github.com/SenexCrenshaw/StreamMaster/commit/d3b0e9da95603e62e2e8f8a6a37b24122c2a1ef5))
+
+
+### Features
+
+* Add Dockerfile changes and expose port 5432 ([78afc55](https://github.com/SenexCrenshaw/StreamMaster/commit/78afc55b32bd4032ea60e90ce659596a2d1cb586))
+
+# [0.9.0-i-am-not-drunk.6](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.5...v0.9.0-i-am-not-drunk.6) (2024-02-05)
+
+
+### Bug Fixes
+
+* utc ([d3b0e9d](https://github.com/SenexCrenshaw/StreamMaster/commit/d3b0e9da95603e62e2e8f8a6a37b24122c2a1ef5))
+
+
+### Features
+
+* Add Dockerfile changes and expose port 5432 ([78afc55](https://github.com/SenexCrenshaw/StreamMaster/commit/78afc55b32bd4032ea60e90ce659596a2d1cb586))
+
+# [0.9.0-i-am-not-drunk.6](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.5...v0.9.0-i-am-not-drunk.6) (2024-02-05)
+
+
+### Bug Fixes
+
+* utc ([d3b0e9d](https://github.com/SenexCrenshaw/StreamMaster/commit/d3b0e9da95603e62e2e8f8a6a37b24122c2a1ef5))
+
+
+### Features
+
+* Add Dockerfile changes and expose port 5432 ([78afc55](https://github.com/SenexCrenshaw/StreamMaster/commit/78afc55b32bd4032ea60e90ce659596a2d1cb586))
+
+# [0.9.0-i-am-not-drunk.6](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.5...v0.9.0-i-am-not-drunk.6) (2024-02-05)
+
+
+### Bug Fixes
+
+* utc ([d3b0e9d](https://github.com/SenexCrenshaw/StreamMaster/commit/d3b0e9da95603e62e2e8f8a6a37b24122c2a1ef5))
+
+# [0.9.0-i-am-not-drunk.5](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.4...v0.9.0-i-am-not-drunk.5) (2024-02-03)
+
+
+### Bug Fixes
+
+* Fix ownership of /config folder ([6cb6f16](https://github.com/SenexCrenshaw/StreamMaster/commit/6cb6f16fea4e01d52a7867dced8dd66e3385fc21))
+
+# [0.9.0-i-am-not-drunk.4](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.3...v0.9.0-i-am-not-drunk.4) (2024-02-03)
+
+
+### Bug Fixes
+
+* Optimzied filtering ([078ad2e](https://github.com/SenexCrenshaw/StreamMaster/commit/078ad2e0b0490464812b8b4ddc422eb3d22a368c))
+
+
+### Features
+
+* Add support for database settings ([9a2b472](https://github.com/SenexCrenshaw/StreamMaster/commit/9a2b47223f32b4821616f78170e464c762070b04))
+
+# [0.9.0-i-am-not-drunk.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.2...v0.9.0-i-am-not-drunk.3) (2024-02-03)
+
+# [0.9.0-i-am-not-drunk.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.1...v0.9.0-i-am-not-drunk.2) (2024-02-03)
+
+# [0.9.0-i-am-not-drunk.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.1...v0.9.0-i-am-not-drunk.1) (2024-02-03)
+
+
+### Features
+
+*  Migrate from SQLite to PostgreSQL ([5e5b91b](https://github.com/SenexCrenshaw/StreamMaster/commit/5e5b91b9cefd1ff8dd468cae580208c6ffa5df57))
+* add in psql support ([13a2bd1](https://github.com/SenexCrenshaw/StreamMaster/commit/13a2bd15ae8c840c8e437c6c31c2f5f47f32e156))
+* pgsql ([281ad7b](https://github.com/SenexCrenshaw/StreamMaster/commit/281ad7b0c6bb66fd7454d3d4e67d260601d7bce5))
+
 ## [0.8.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.0...v0.8.1) (2024-02-03)
 
 

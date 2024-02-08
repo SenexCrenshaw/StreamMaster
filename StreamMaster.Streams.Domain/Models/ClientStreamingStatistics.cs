@@ -1,4 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿using StreamMaster.Domain.Extensions;
+
+using System.Text.Json.Serialization;
 using System.Xml.Serialization;
 
 namespace StreamMaster.Streams.Domain.Models;
@@ -12,7 +14,7 @@ public class ClientStreamingStatistics
     public ClientStreamingStatistics(IClientStreamerConfiguration StreamerConfiguration)
     {
         BytesRead = 0;
-        StartTime = DateTime.UtcNow;
+        StartTime = SMDT.UtcNow;
         this.StreamerConfiguration = StreamerConfiguration;
         ClientIPAddress = StreamerConfiguration.ClientIPAddress;
     }

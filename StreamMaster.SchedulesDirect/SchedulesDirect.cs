@@ -3,7 +3,6 @@
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Models;
 using StreamMaster.SchedulesDirect.Domain.Enums;
-using StreamMaster.SchedulesDirect.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text.Json;
@@ -169,7 +168,7 @@ public partial class SchedulesDirect(
             logger.LogInformation($"Status request successful. account expires: {ret.Account.Expires:s}Z , lineups: {ret.Lineups.Count}/{ret.Account.MaxLineups} , lastDataUpdate: {ret.LastDataUpdate:s}Z");
             logger.LogInformation($"System status: {ret.SystemStatus[0].Status} , message: {ret.SystemStatus[0].Message}");
 
-            TimeSpan expires = ret.Account.Expires - DateTime.UtcNow;
+            TimeSpan expires = ret.Account.Expires - SMDT.UtcNow;
             if (expires >= TimeSpan.FromDays(7.0))
             {
                 return ret;
@@ -211,7 +210,7 @@ public partial class SchedulesDirect(
                 Data = data,
                 Command = name,
                 Content = "",
-                Timestamp = DateTime.UtcNow
+                Timestamp = SMDT.UtcNow
             };
 
             string contentToCache = JsonSerializer.Serialize(cacheEntry);

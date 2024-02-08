@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 
+using StreamMaster.Domain.Extensions;
+
 namespace StreamMaster.Infrastructure.Extensions;
 
 public static class RequestExtensions
@@ -15,7 +17,7 @@ public static class RequestExtensions
     public static void EnableCache(this IHeaderDictionary headers)
     {
         headers["Cache-Control"] = "max-age=31536000, public";
-        headers["Last-Modified"] = DateTime.Now.ToString("r");
+        headers["Last-Modified"] = SMDT.UtcNow.ToString("r");
     }
 
     public static string GetRemoteIP(this HttpContext context)

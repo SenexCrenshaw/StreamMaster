@@ -1,3 +1,4 @@
+using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.Models;
 using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 
@@ -43,7 +44,7 @@ public sealed class FileUtil
         try
         {
             XmlSerializer serializer = new(typeof(XMLTV));
-            using StreamReader reader = new(filepath, Encoding.Default);
+            using Stream reader = GetFileDataStream(filepath);
             object? result = serializer.Deserialize(reader);
             return (XMLTV?)result;
         }
@@ -285,7 +286,7 @@ public sealed class FileUtil
                 Name = Path.GetFileNameWithoutExtension(name),
                 FileExists = true,
                 ContentType = "image/png",
-                LastDownloaded = DateTime.Now,
+                LastDownloaded = SMDT.UtcNow,
                 Source = $"{basePath}{Path.DirectorySeparatorChar}{file.Name}"
             };
 
