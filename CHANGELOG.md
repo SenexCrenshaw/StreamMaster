@@ -1,3 +1,10 @@
+## [0.8.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.1...v0.8.2) (2024-02-08)
+
+
+### Bug Fixes
+
+* version bump ([e10bef6](https://github.com/SenexCrenshaw/StreamMaster/commit/e10bef671770fcfff43e1aa8147bc4dd6c111240))
+
 # [0.9.0-i-am-not-drunk.27](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.26...v0.9.0-i-am-not-drunk.27) (2024-02-08)
 
 
