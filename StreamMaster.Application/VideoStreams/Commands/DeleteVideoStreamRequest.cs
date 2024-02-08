@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 
+using StreamMaster.Application.StreamGroupChannelGroups.Commands;
 using StreamMaster.Application.VideoStreams.Events;
 
 namespace StreamMaster.Application.VideoStreams.Commands;
@@ -15,7 +16,7 @@ public class DeleteVideoStreamRequestValidator : AbstractValidator<DeleteVideoSt
 }
 
 [LogExecutionTimeAspect]
-public class DeleteVideoStreamRequestHandler(ILogger<DeleteVideoStreamRequest> logger, IRepositoryWrapper Repository, IPublisher Publisher)
+public class DeleteVideoStreamRequestHandler(ILogger<DeleteVideoStreamRequest> logger, ISender sender, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<DeleteVideoStreamRequest, bool>
 {
     public async Task<bool> Handle(DeleteVideoStreamRequest request, CancellationToken cancellationToken)
@@ -26,6 +27,7 @@ public class DeleteVideoStreamRequestHandler(ILogger<DeleteVideoStreamRequest> l
         if (stream != null)
         {
             ChannelGroup? cg = await Repository.ChannelGroup.GetChannelGroupByName(stream.User_Tvg_group);
+            await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(cg.Id), cancellationToken).ConfigureAwait(false);
 
             await Publisher.Publish(new DeleteVideoStreamEvent(stream.Id, cg), cancellationToken).ConfigureAwait(false);
             return true;

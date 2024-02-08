@@ -50,6 +50,31 @@ public class StreamGroupChannelGroupRepository(ILogger<StreamGroupChannelGroupRe
         return await sender.Send(new GetStreamGroup(StreamGroupId), cancellationToken);
     }
 
+    public async Task AddVideoStreamtsToStreamGroup(int StreamGroupId, List<int> cgsToAdd, CancellationToken cancellationToken)
+    {
+        // Fetch existing video streams for the stream group.
+        List<string> existingVideoStreamIds = await RepositoryContext.StreamGroupVideoStreams
+            .Where(a => a.StreamGroupId == StreamGroupId)
+            .Select(a => a.ChildVideoStreamId)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        // Handle additions...
+        List<VideoStreamDto> toAddVids = await sender.Send(new GetVideoStreamsForChannelGroups(cgsToAdd), cancellationToken).ConfigureAwait(false);
+        List<string> toAdd = toAddVids.Select(a => a.Id).Except(existingVideoStreamIds).ToList();
+        List<string> toUpdate = toAddVids.Select(a => a.Id).Intersect(existingVideoStreamIds).ToList();
+
+        if (toAdd.Any())
+        {
+            await repository.StreamGroupVideoStream.AddStreamGroupVideoStreams(StreamGroupId, toAdd, true, cancellationToken).ConfigureAwait(false);
+        }
+
+        if (toUpdate.Any())
+        {
+            await repository.StreamGroupVideoStream.SetStreamGroupVideoStreamsIsReadOnly(StreamGroupId, toUpdate, true, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
     /// <summary>
     /// Handles the addition of channel groups and associated video streams to a stream group.
     /// </summary>
@@ -76,27 +101,7 @@ public class StreamGroupChannelGroupRepository(ILogger<StreamGroupChannelGroupRe
             await RepositoryContext.StreamGroupChannelGroups.AddRangeAsync(streamGroupChannelGroups, cancellationToken).ConfigureAwait(false);
             await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            // Fetch existing video streams for the stream group.
-            List<string> existingVideoStreamIds = await RepositoryContext.StreamGroupVideoStreams
-                .Where(a => a.StreamGroupId == StreamGroupId)
-                .Select(a => a.ChildVideoStreamId)
-                .ToListAsync(cancellationToken)
-                .ConfigureAwait(false);
-
-            // Handle additions...
-            List<VideoStreamDto> toAddVids = await sender.Send(new GetVideoStreamsForChannelGroups(cgsToAdd), cancellationToken).ConfigureAwait(false);
-            List<string> toAdd = toAddVids.Select(a => a.Id).Except(existingVideoStreamIds).ToList();
-            List<string> toUpdate = toAddVids.Select(a => a.Id).Intersect(existingVideoStreamIds).ToList();
-
-            if (toAdd.Any())
-            {
-                await repository.StreamGroupVideoStream.AddStreamGroupVideoStreams(StreamGroupId, toAdd, true, cancellationToken).ConfigureAwait(false);
-            }
-
-            if (toUpdate.Any())
-            {
-                await repository.StreamGroupVideoStream.SetStreamGroupVideoStreamsIsReadOnly(StreamGroupId, toUpdate, true, cancellationToken).ConfigureAwait(false);
-            }
+            await AddVideoStreamtsToStreamGroup(StreamGroupId, cgsToAdd, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -314,5 +319,22 @@ public class StreamGroupChannelGroupRepository(ILogger<StreamGroupChannelGroupRe
             logger.LogError(ex, $"An error occurred while getting stream groups for channel group with ID {channelGroupId}.");
             throw; // Re-throw the exception to the caller
         }
+    }
+
+    public async Task<List<StreamGroupDto>?> SyncStreamGroupChannelGroupByChannelIdRequest(int ChannelGroupId, CancellationToken cancellationToken)
+    {
+        List<StreamGroupDto> ret = [];
+
+        IQueryable<StreamGroupChannelGroup> sgs = RepositoryContext.StreamGroupChannelGroups.Where(a => a.ChannelGroupId == ChannelGroupId).Include(a => a.StreamGroup); ;
+        List<int> sgIds = sgs.Select(a => a.StreamGroupId).Distinct().ToList();
+        foreach (int sgId in sgIds)
+        {
+            StreamGroupChannelGroup sg = sgs.First(a => a.StreamGroupId == sgId);
+            ret.Add(mapper.Map<StreamGroupDto>(sg.StreamGroup));
+            List<int> cgs = sgs.Where(x => x.StreamGroupId == sgId).Select(x => x.ChannelGroupId).ToList();
+            await repository.StreamGroupChannelGroup.AddVideoStreamtsToStreamGroup(sg.StreamGroupId, [ChannelGroupId], cancellationToken);
+        }
+
+        return ret.Count == 0 ? null : ret;
     }
 }

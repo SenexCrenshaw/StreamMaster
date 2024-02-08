@@ -170,8 +170,16 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
             {
                 (_, epgChannelId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
                 MxfService? service = schedulesDirectDataService.GetService(videoStream.User_Tvg_ID);
-                tvgID = service?.CallSign ?? epgChannelId;
-                channelId = setting.M3UUseCUIDForChannelID ? videoStream.Id : tvgID;
+                if (setting.M3UUseCUIDForChannelID)
+                {
+                    tvgID = epgChannelId;
+                    channelId = videoStream.Id;
+                }
+                else
+                {
+                    tvgID = service?.CallSign ?? epgChannelId;
+                    channelId = tvgID;
+                }
             }
             else
             {

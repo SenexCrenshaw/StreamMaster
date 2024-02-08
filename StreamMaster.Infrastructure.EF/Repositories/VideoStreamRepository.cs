@@ -12,6 +12,7 @@ using StreamMaster.Application.EPG.Queries;
 using StreamMaster.Application.Icons.Queries;
 using StreamMaster.Application.M3UFiles.Queries;
 using StreamMaster.Application.SchedulesDirect.Queries;
+using StreamMaster.Application.StreamGroupChannelGroups.Commands;
 using StreamMaster.Infrastructure.EF.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
@@ -23,7 +24,7 @@ using System.Linq.Dynamic.Core;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISchedulesDirectDataService schedulesDirectDataService, IIconService iconService, IRepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : RepositoryBase<VideoStream>(repositoryContext, intLogger), IVideoStreamRepository
+public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IIconService iconService, IRepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : RepositoryBase<VideoStream>(repositoryContext, intLogger), IVideoStreamRepository
 {
     public PagedResponse<VideoStreamDto> CreateEmptyPagedResponse()
     {
@@ -232,14 +233,15 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
     [LogExecutionTimeAspect]
     public async Task<List<string>> DeleteVideoStreamsAsync(IQueryable<VideoStream> videoStreams, CancellationToken cancellationToken)
     {
-        // Get the VideoStreams
-        List<string> videoStreamIds = videoStreams.Select(vs => vs.Id).ToList();
 
         if (!videoStreams.Any())
         {
             return [];
         }
 
+        // Get the VideoStreams
+        List<string> videoStreamIds = videoStreams.Select(vs => vs.Id).ToList();
+        List<string> cgNames = videoStreams.Select(vs => vs.User_Tvg_group).ToList();
 
         int deletedCount = 0;
 
@@ -282,6 +284,13 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
             // You can decide how to handle exceptions here, for example by
             // logging them. In this case, we're simply swallowing the exception.
         }
+
+        foreach (string cgName in cgNames)
+        {
+            ChannelGroup? cg = await RepositoryContext.ChannelGroups.FirstOrDefaultAsync(a => a.Name == cgName, cancellationToken: cancellationToken).ConfigureAwait(false);
+            await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(cg.Id), cancellationToken).ConfigureAwait(false);
+        }
+
 
         return videoStreamIds;
     }
@@ -382,6 +391,9 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
         {
             _ = await SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
         }
+
+        ChannelGroupDto? cg = await sender.Send(new GetChannelGroupByName(videoStream.User_Tvg_group)).ConfigureAwait(false);
+        await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(cg.Id), cancellationToken).ConfigureAwait(false);
 
         return videoStream;
     }
@@ -888,7 +900,17 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
         {
             return (null, null);
         }
-        bool updateChannelGroup = request.ToggleVisibility == true || (request.Tvg_group != null && videoStream.User_Tvg_group != request.Tvg_group);
+
+
+        string UpdateSGCG = string.Empty;
+        if (request.Tvg_group != null && videoStream.User_Tvg_group != request.Tvg_group)
+        {
+            UpdateSGCG = videoStream.User_Tvg_group;
+        }
+
+        bool updateChannelGroup = request.ToggleVisibility == true || !string.IsNullOrEmpty(UpdateSGCG);
+
+
         videoStream = await UpdateVideoStreamValues(videoStream, request, cancellationToken).ConfigureAwait(false);
         UpdateVideoStream(videoStream);
 
@@ -898,8 +920,22 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, ISc
         {
             _ = await SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
         }
+
         VideoStreamDto? dto = mapper.Map<VideoStreamDto?>(videoStream);
         ChannelGroupDto? cg = await sender.Send(new GetChannelGroupByName(dto.User_Tvg_group), cancellationToken).ConfigureAwait(false);
+        if (!string.IsNullOrEmpty(UpdateSGCG))
+        {
+            ChannelGroupDto? origCg = await sender.Send(new GetChannelGroupByName(UpdateSGCG), cancellationToken).ConfigureAwait(false);
+            List<StreamGroupVideoStream> sgvids = RepositoryContext.StreamGroupVideoStreams.Where(a => a.ChildVideoStreamId == videoStream.Id).ToList();
+            if (sgvids.Count > 0)
+            {
+                RepositoryContext.StreamGroupVideoStreams.RemoveRange(sgvids);
+                await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            }
+
+            await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(cg.Id), cancellationToken).ConfigureAwait(false);
+        }
+
         return (dto, cg);
     }
 
