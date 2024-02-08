@@ -1,3 +1,15 @@
+# [0.10.0](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.4...v0.10.0) (2024-02-08)
+
+
+### Bug Fixes
+
+* Fix FileUtil.GetFileDataStream to return a ([7eace41](https://github.com/SenexCrenshaw/StreamMaster/commit/7eace4175c3d3104ebf6e2819fd5d9c19b81ec78))
+
+
+### Features
+
+* Add new API method for checking if system is ready ([33093d7](https://github.com/SenexCrenshaw/StreamMaster/commit/33093d735c16fdcca2b9af515c50483272d99f92))
+
 ## [0.9.4](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.3...v0.9.4) (2024-02-08)
 
 
