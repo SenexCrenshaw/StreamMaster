@@ -46,7 +46,7 @@ public sealed class FileUtil
         {
             XmlReaderSettings settings = new()
             {
-                DtdProcessing = DtdProcessing.Parse,
+                DtdProcessing = DtdProcessing.Ignore,
                 ValidationType = ValidationType.DTD,
                 MaxCharactersFromEntities = 1024
             };
