@@ -10,7 +10,8 @@ param (
     [switch]$SkipMainBuild = $false,
     [string]$BuildBaseVer = '',
     [string]$BuildBuildVer = '',
-    [string]$BuildSMVer = ''
+    [string]$BuildSMVer = '',
+    [string]$BuildVer = ''
 )
 
 $global:tags

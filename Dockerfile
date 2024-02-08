@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM docker.io/senexcrenshaw/streammaster:0.9.0-sm AS sm
+FROM --platform=$BUILDPLATFORM docker.io/senexcrenshaw/streammaster:0.9.3-sm AS sm
 FROM --platform=$BUILDPLATFORM docker.io/senexcrenshaw/streammaster:0.9.0-base AS base
 ARG TARGETPLATFORM
 ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}

@@ -43,8 +43,9 @@ public sealed class FileUtil
 
         try
         {
+
             XmlSerializer serializer = new(typeof(XMLTV));
-            using Stream reader = GetFileDataStream(filepath);
+            using StreamReader reader = GetFileDataStream(filepath);
             object? result = serializer.Deserialize(reader);
             return (XMLTV?)result;
         }
@@ -228,14 +229,18 @@ public sealed class FileUtil
 
 
 
-    public static Stream GetFileDataStream(string source)
+    public static StreamReader GetFileDataStream(string source)
     {
+
         if (!IsFileGzipped(source))
         {
-            return File.OpenRead(source);
+            using StreamReader readerf = new(source, Encoding.Default);
+            return readerf;
         }
-        FileStream fs = File.OpenRead(source);
-        return new GZipStream(fs, CompressionMode.Decompress);
+        using FileStream fs = File.OpenRead(source);
+        using GZipStream gzStream = new(fs, CompressionMode.Decompress);
+        using StreamReader reader = new(gzStream, Encoding.Default);
+        return reader;
     }
 
     public static async Task<string> GetFileData(string source)
