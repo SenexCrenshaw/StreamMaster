@@ -7,7 +7,7 @@ using StreamMaster.Domain.Color;
 using System.Web;
 namespace StreamMaster.Application.EPGFiles.Commands;
 
-public record CreateEPGFileRequest(IFormFile? FormFile, string Name, int EPGNumber, string? UrlSource, string? Color) : IRequest<EPGFileDto?> { }
+public record CreateEPGFileRequest(IFormFile? FormFile, string Name, string FileName, int EPGNumber, string? UrlSource, string? Color) : IRequest<EPGFileDto?> { }
 public class CreateEPGFileRequestValidator : AbstractValidator<CreateEPGFileRequest>
 {
     public CreateEPGFileRequestValidator()
@@ -54,7 +54,8 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, I
 
             if (command.FormFile != null)
             {
-                epgFile.Source = command.Name + ".xmltv";
+                fullName = Path.Combine(fd.DirectoryLocation, command.FileName);
+                epgFile.Source = command.FileName;
 
                 Logger.LogInformation("Adding EPG From Form: {fullName}", fullName);
                 (bool success, Exception? ex) = await FormHelper.SaveFormFileAsync(command.FormFile!, fullName).ConfigureAwait(false);

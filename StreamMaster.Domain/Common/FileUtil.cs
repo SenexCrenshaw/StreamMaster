@@ -44,7 +44,7 @@ public sealed class FileUtil
         try
         {
             XmlSerializer serializer = new(typeof(XMLTV));
-            using StreamReader reader = new(filepath, Encoding.Default);
+            using Stream reader = GetFileDataStream(filepath);
             object? result = serializer.Deserialize(reader);
             return (XMLTV?)result;
         }

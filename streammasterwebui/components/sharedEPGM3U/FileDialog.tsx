@@ -42,6 +42,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
   const [streamURLPrefix, setStreamURLPrefix] = React.useState<M3UFileStreamUrlPrefix>(0);
   const [activeFile, setActiveFile] = useState<File | undefined>();
   const [name, setName] = useState<string>('');
+  const [fileName, setFileName] = useState<string>('');
   const [overwriteChannelNumbers, setOverwriteChannelNumbers] = React.useState<boolean>(true);
   const [vodTags, setVodTags] = useState<string[]>([]);
   const [maxStreams, setMaxStreams] = useState<number>(1);
@@ -80,7 +81,9 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
 
     if (name === '' || nameFromFileName) {
       setNameFromFileName(true);
-      setName(e.files[0].name.replace(/\.[^./]+$/, ''));
+      const parts = e.files[0].name.split('.');
+      setFileName(e.files[0].name);
+      setName(parts[0]);
     }
   };
 
@@ -176,6 +179,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
     setNameFromFileName(false);
     setSource('');
     setActiveIndex(0);
+    setFileName('');
     setEpgNumber(undefined);
     setColor(undefined);
     setBlock(false);
@@ -195,6 +199,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
       await upload({
         name,
         source,
+        fileName,
         maxStreams,
         epgNumber,
         color: meColor,
