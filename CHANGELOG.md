@@ -1,3 +1,10 @@
+# [0.9.0](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.2...v0.9.0) (2024-02-08)
+
+
+### Features
+
+* pgsql ([315d5ea](https://github.com/SenexCrenshaw/StreamMaster/commit/315d5ead57e6c0e563cda2d942d16e29197473b8))
+
 ## [0.8.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.8.1...v0.8.2) (2024-02-08)
 
 
