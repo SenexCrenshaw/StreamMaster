@@ -12,7 +12,7 @@ import {
   StreamGroupEditorIcon,
   StreamingStatusIcon
 } from '@lib/common/icons';
-import { useSettingsGetIsSystemReadyQuery } from '@lib/iptvApi';
+import { GetIsSystemReady } from '@lib/smAPI/Settings/SettingsGetAPI';
 import useSettings from '@lib/useSettings';
 import { useLocalStorage } from 'primereact/hooks';
 import { Tooltip } from 'primereact/tooltip';
@@ -23,22 +23,23 @@ export const RootSideBar = () => {
   const [collapsed, setCollapsed] = useLocalStorage<boolean>(true, 'app-menu-collapsed');
   const [isReady, setIsReady] = useState(false);
 
-  const getIsSystemReady = useSettingsGetIsSystemReadyQuery(undefined, { pollingInterval: 1000 * 1 });
+  // const getIsSystemReady = useSettingsGetIsSystemReadyQuery(undefined, { pollingInterval: 1000 * 1 });
 
   const settings = useSettings();
 
   useEffect(() => {
-    if (getIsSystemReady.isFetching) {
-      return;
-    }
-    if (!getIsSystemReady.isError && getIsSystemReady.isSuccess) {
-      if (getIsSystemReady.data !== null) {
-        setIsReady(getIsSystemReady.data ?? false);
-      }
-    } else {
-      setIsReady(false);
-    }
-  }, [getIsSystemReady]);
+    const intervalId = setInterval(() => {
+      GetIsSystemReady()
+        .then((result) => {
+          setIsReady(result ?? false);
+        })
+        .catch(() => {
+          setIsReady(false);
+        });
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   const onsetCollapsed = useCallback(
     (isCollapsed: boolean) => {

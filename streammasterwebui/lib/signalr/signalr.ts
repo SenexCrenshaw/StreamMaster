@@ -22,7 +22,7 @@ export function isSignalRConnected() {
 }
 
 const blacklistedMethods: string[] = ['GetLog', 'GetIconFromSource'];
-const whitelistedMethods: string[] = ['GetEpgNextEpgNumber'];
+const whitelistedMethods: string[] = [];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const invokeHubConnection = async <T>(methodName: string, argument?: any): Promise<T | null> => {
