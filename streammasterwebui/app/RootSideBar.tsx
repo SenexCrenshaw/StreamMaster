@@ -28,8 +28,15 @@ export const RootSideBar = () => {
   const settings = useSettings();
 
   useEffect(() => {
-    if (getIsSystemReady.data !== null) {
-      setIsReady(getIsSystemReady.data ?? false);
+    if (getIsSystemReady.isFetching) {
+      return;
+    }
+    if (!getIsSystemReady.isError && getIsSystemReady.isSuccess) {
+      if (getIsSystemReady.data !== null) {
+        setIsReady(getIsSystemReady.data ?? false);
+      }
+    } else {
+      setIsReady(false);
     }
   }, [getIsSystemReady]);
 
