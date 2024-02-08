@@ -1,3 +1,10 @@
+# [0.9.0-i-am-not-drunk.24](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.23...v0.9.0-i-am-not-drunk.24) (2024-02-08)
+
+
+### Bug Fixes
+
+* sg stream count ([c4aada3](https://github.com/SenexCrenshaw/StreamMaster/commit/c4aada3d1857a6e5db2958db86f94c074092b495))
+
 # [0.9.0-i-am-not-drunk.23](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.22...v0.9.0-i-am-not-drunk.23) (2024-02-08)
 
 
