@@ -23,7 +23,7 @@ public class SignalRMessage
 
 public partial class StreamMasterHub(ISender mediator, ISettingsService settingsService, IBackgroundTaskQueue taskQueue) : Hub<IStreamMasterHub>, ISharedHub
 {
-    private static readonly ConcurrentHashSet<string> _connections = new();
+    private static readonly ConcurrentHashSet<string> _connections = [];
 
     public static bool IsConnected
     {
@@ -49,7 +49,7 @@ public partial class StreamMasterHub(ISender mediator, ISettingsService settings
 
 
 
-    public Task<bool> GetIsSystemReady()
+    public Task<bool> GetIsSystemReady(object waste)
     {
         return mediator.Send(new GetIsSystemReadyRequest());
     }
