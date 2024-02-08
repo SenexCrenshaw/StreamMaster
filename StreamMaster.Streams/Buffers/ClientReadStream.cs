@@ -74,7 +74,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
                     _lastReadIndex += bytesRead;
                 }
 
-                if (!_paused && !Buffer.IsPaused)
+                if (!IsPaused && !Buffer.IsPaused)
                 {
                     break;
                 }
