@@ -85,6 +85,7 @@ if [ $POSTGRES_SET_PERMS -eq 1 ]; then
     chown -R postgres:postgres $PGDATA
 fi
 
+
 # Start the database
 /usr/local/bin/docker-entrypoint.sh postgres &
 
