@@ -1,3 +1,11 @@
+## [0.10.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.10.0...v0.10.1) (2024-02-08)
+
+
+### Bug Fixes
+
+* DTD processing ([643b704](https://github.com/SenexCrenshaw/StreamMaster/commit/643b704c812d66b780c10c10f94740554bc286c6))
+* Fix DtdProcessing in FileUtil.cs ([737d448](https://github.com/SenexCrenshaw/StreamMaster/commit/737d448a0dda4aef989c878f6948cff6e2cf099f))
+
 # [0.10.0](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.4...v0.10.0) (2024-02-08)
 
 
