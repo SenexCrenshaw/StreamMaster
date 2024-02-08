@@ -1,3 +1,10 @@
+# [0.9.0-i-am-not-drunk.22](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.21...v0.9.0-i-am-not-drunk.22) (2024-02-08)
+
+
+### Features
+
+* add Use CUID for channel id ([d1130f3](https://github.com/SenexCrenshaw/StreamMaster/commit/d1130f3d0fbde82e0f1b4a68d5ff8cd8e1de424f))
+
 # [0.9.0-i-am-not-drunk.21](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.20...v0.9.0-i-am-not-drunk.21) (2024-02-07)
 
 # [0.9.0-i-am-not-drunk.20](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.19...v0.9.0-i-am-not-drunk.20) (2024-02-07)
