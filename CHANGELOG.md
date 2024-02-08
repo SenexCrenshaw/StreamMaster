@@ -1,3 +1,10 @@
+## [0.9.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.2...v0.9.3) (2024-02-08)
+
+
+### Bug Fixes
+
+* epg number/color on create ([4e71fd7](https://github.com/SenexCrenshaw/StreamMaster/commit/4e71fd7a2c3e4144c30471a04b6b64d38fa40277))
+
 ## [0.9.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.1...v0.9.2) (2024-02-08)
 
 
