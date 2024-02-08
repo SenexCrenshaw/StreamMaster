@@ -12,16 +12,26 @@ import {
   StreamGroupEditorIcon,
   StreamingStatusIcon
 } from '@lib/common/icons';
+import { useSettingsGetIsSystemReadyQuery } from '@lib/iptvApi';
 import useSettings from '@lib/useSettings';
 import { useLocalStorage } from 'primereact/hooks';
 import { Tooltip } from 'primereact/tooltip';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Menu, MenuItem, Sidebar, sidebarClasses } from 'react-pro-sidebar';
 
 export const RootSideBar = () => {
   const [collapsed, setCollapsed] = useLocalStorage<boolean>(true, 'app-menu-collapsed');
+  const [isReady, setIsReady] = useState(false);
+
+  const getIsSystemReady = useSettingsGetIsSystemReadyQuery(undefined, { pollingInterval: 1000 * 1 });
 
   const settings = useSettings();
+
+  useEffect(() => {
+    if (getIsSystemReady.data !== null) {
+      setIsReady(getIsSystemReady.data ?? false);
+    }
+  }, [getIsSystemReady]);
 
   const onsetCollapsed = useCallback(
     (isCollapsed: boolean) => {
@@ -79,7 +89,7 @@ export const RootSideBar = () => {
 
       <div className="absolute bottom-0 left-0 pb-2 flex flex-column m-0 p-0 justify-content-center align-items-center">
         <div className="flex col-12 justify-content-center align-items-center">
-          <img alt="Stream Master Logo" src="/images/StreamMasterx32.png" />
+          <img alt="Stream Master Logo" src={isReady ? '/images/StreamMasterx32Ready.png' : '/images/StreamMasterx32NotReady.png'} />
         </div>
         <Tooltip target=".custom-target-icon" />
         <div
