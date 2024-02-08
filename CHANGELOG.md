@@ -1,3 +1,15 @@
+# [0.9.0-i-am-not-drunk.25](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.24...v0.9.0-i-am-not-drunk.25) (2024-02-08)
+
+
+### Bug Fixes
+
+* killproc ([a4d711c](https://github.com/SenexCrenshaw/StreamMaster/commit/a4d711cbf6a335ad81194daa5e9103bb0b2a8fe4))
+
+
+### Features
+
+* Add ResetButton and SaveButton components to SettingsEditor ([3c3291c](https://github.com/SenexCrenshaw/StreamMaster/commit/3c3291ca6a55ce4e7f3a8f18901e36c115f94a95))
+
 # [0.9.0-i-am-not-drunk.24](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.9.0-i-am-not-drunk.23...v0.9.0-i-am-not-drunk.24) (2024-02-08)
 
 
