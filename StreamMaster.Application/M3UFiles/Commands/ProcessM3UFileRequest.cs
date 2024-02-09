@@ -65,7 +65,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         }
         finally
         {
-            jobStatusService.SetM3UIsRunning(false);
+            jobStatusService.SetM3UStop();
         }
     }
 

@@ -53,7 +53,14 @@ public partial class JobStatusService : IJobStatusService
 
     private void SetIsRunning(string key, bool isRunning)
     {
-        UpdateStatus(key, status => status.SetIsRunning(isRunning), _locks.GetOrAdd(key, new object()));
+        if (isRunning)
+        {
+            UpdateStatus(key, status => status.SetStart(), _locks.GetOrAdd(key, new object()));
+        }
+        else
+        {
+            UpdateStatus(key, status => status.SetStop(), _locks.GetOrAdd(key, new object()));
+        }
     }
 
     private void ClearForce(string key)

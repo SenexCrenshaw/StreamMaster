@@ -56,7 +56,7 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
         }
         finally
         {
-            jobStatusService.SetEPGIsRunning(false);
+            jobStatusService.SetEPGStop();
         }
         return null;
     }

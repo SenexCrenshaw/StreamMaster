@@ -89,6 +89,9 @@ public class TestSettings
 
 public class BaseSettings : M3USettings
 {
+    public bool BackupEnabled { get; set; } = true;
+    public int BackupVersionsToKeep { get; set; } = 18;
+    public int BackupInterval { get; set; } = 4;
 
     public bool PrettyEPG { get; set; } = false;
     public int MaxLogFiles { get; set; } = 10;

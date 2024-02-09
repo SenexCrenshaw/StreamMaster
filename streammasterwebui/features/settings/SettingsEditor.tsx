@@ -11,6 +11,7 @@ import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { AuthenticationSettings } from './AuthenticationSettings';
+import { BackupSettings } from './BackupSettings';
 import { DevelopmentSettings } from './DevelopmentSettings';
 import { FilesEPGM3USettings } from './FilesEPGM3USettings';
 import { GeneralSettings } from './GeneralSettings';
@@ -90,6 +91,8 @@ export const SettingsEditor = () => {
       <div className="flex flex-column">
         <ScrollPanel style={{ height: 'calc(100vh - 100px)', width: '100%' }}>
           <GeneralSettings />
+
+          <BackupSettings />
 
           <AuthenticationSettings />
 

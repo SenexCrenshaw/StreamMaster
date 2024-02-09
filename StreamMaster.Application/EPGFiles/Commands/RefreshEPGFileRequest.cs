@@ -26,7 +26,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
                 {
                     return null;
                 }
-                jobStatusService.SetEPGIsRunning(true);
+                jobStatusService.SetEPGStart();
 
             }
 

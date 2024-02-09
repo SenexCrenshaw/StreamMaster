@@ -22,9 +22,14 @@ public partial class JobStatusService : IJobStatusService
         SetForceNextRun(RefreshEPGSyncKey, Extra);
     }
 
-    public void SetEPGIsRunning(bool isRunning)
+    public void SetEPGStart()
     {
-        SetIsRunning(RefreshEPGSyncKey, isRunning);
+        SetIsRunning(RefreshEPGSyncKey, true);
+    }
+
+    public void SetEPGStop()
+    {
+        SetIsRunning(RefreshEPGSyncKey, false);
     }
 
     public JobStatus GetEPGJobStatus()

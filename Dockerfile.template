@@ -1,7 +1,8 @@
 ARG TARGETPLATFORM
-ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}
 ARG TARGETARCH
 ARG BUILDPLATFORM
+ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}
+
 LABEL org.opencontainers.image.url="https://hub.docker.com/r/SenexCrenshaw/streammaster/" \
     org.opencontainers.image.source="https://github.com/SenexCrenshaw/StreamMaster" \
     org.opencontainers.image.vendor="SenexCrenshaw" \
@@ -18,9 +19,10 @@ COPY docker-entrypoint.sh docker-ensure-initdb.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh /usr/local/bin/docker-ensure-initdb.sh
 RUN ln -sT docker-ensure-initdb.sh /usr/local/bin/docker-enforce-initdb.sh
 
+COPY backup.sh /usr/local/bin/backup.sh
 COPY entrypoint.sh /entrypoint.sh
 COPY env.sh /env.sh
-RUN chmod +x /entrypoint.sh /env.sh
+RUN chmod +x /entrypoint.sh /env.sh /usr/local/bin/backup.sh
 RUN mkdir /config
 
 EXPOSE 5432

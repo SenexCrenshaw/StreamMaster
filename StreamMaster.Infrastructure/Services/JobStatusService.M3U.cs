@@ -22,9 +22,14 @@ public partial class JobStatusService : IJobStatusService
         SetForceNextRun(RefreshM3USyncKey, Extra);
     }
 
-    public void SetM3UIsRunning(bool isRunning)
+    public void SetM3UStart()
     {
-        SetIsRunning(RefreshM3USyncKey, isRunning);
+        SetIsRunning(RefreshM3USyncKey, true);
+    }
+
+    public void SetM3UStop()
+    {
+        SetIsRunning(RefreshM3USyncKey, false);
     }
 
     public JobStatus GetM3UJobStatus()

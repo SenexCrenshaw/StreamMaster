@@ -7,6 +7,9 @@ namespace StreamMaster.Application.Settings.Commands;
 
 public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
 {
+    public bool? BackupEnabled { get; set; }
+    public int? BackupVersionsToKeep { get; set; }
+    public int? BackupInterval { get; set; }
     public SDSettingsRequest? SDSettings { get; set; }
     public bool? ShowClientHostNames { get; set; }
     public string? AdminPassword { get; set; }
@@ -272,6 +275,21 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
         if (request.M3UUseChnoForId != null)
         {
             currentSetting.M3UUseChnoForId = (bool)request.M3UUseChnoForId;
+        }
+
+        if (request.BackupEnabled != null)
+        {
+            currentSetting.BackupEnabled = (bool)request.BackupEnabled;
+        }
+
+        if (request.BackupVersionsToKeep.HasValue)
+        {
+            currentSetting.BackupVersionsToKeep = request.BackupVersionsToKeep.Value;
+        }
+
+        if (request.BackupInterval.HasValue)
+        {
+            currentSetting.BackupInterval = request.BackupInterval.Value;
         }
 
         if (request.ShowClientHostNames != null)

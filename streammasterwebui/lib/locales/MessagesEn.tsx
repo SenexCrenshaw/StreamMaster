@@ -134,8 +134,11 @@ const MessagesEn: messages_enType = {
   set: 'Set',
   m3UUseCUIDForChannelID: 'Use CUID for channel id',
   settings: 'Settings',
-
+  backups: 'Backups',
   show: 'Show',
+  backupEnabled: 'Backup Enabled',
+  backupVersionsToKeep: 'Backup Versions to Keep',
+  backupInterval: 'Backup Interval (hours)',
 
   showClientHostNames: 'Show Client Hostnames',
 

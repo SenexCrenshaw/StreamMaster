@@ -47,8 +47,13 @@ public class JobStatus
         Extra = false;
     }
 
-    public void SetIsRunning(bool isRunning)
+    public void SetStart()
     {
-        IsRunning = isRunning;
+        IsRunning = true;
+    }
+
+    public void SetStop()
+    {
+        IsRunning = false;
     }
 }

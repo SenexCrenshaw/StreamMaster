@@ -12,30 +12,33 @@ namespace StreamMaster.Streams.Factories;
 
 public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpClientFactory, IMemoryCache memoryCache) : IProxyFactory
 {
-    public async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl, string streamName, StreamingProxyTypes streamProxyType, CancellationToken cancellationToken)
+    private StreamingProxyTypes GetStreamingProxyType(StreamingProxyTypes videoStreamStreamingProxyType)
     {
         Setting setting = memoryCache.GetSetting();
 
+        return videoStreamStreamingProxyType == StreamingProxyTypes.SystemDefault
+            ? setting.StreamingProxyType
+            : videoStreamStreamingProxyType;
+    }
+
+    public async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl, string streamName, StreamingProxyTypes streamProxyType, CancellationToken cancellationToken)
+    {
         Stream? stream;
         ProxyStreamError? error;
         int processId;
 
-        StreamingProxyTypes proxyType = setting.StreamingProxyType;
+        StreamingProxyTypes proxyType = GetStreamingProxyType(streamProxyType);
 
-        if (proxyType.Equals(StreamingProxyTypes.None))
+        if (proxyType == StreamingProxyTypes.None)
         {
             logger.LogInformation("No proxy stream needed for {StreamUrl} {streamName}", streamUrl, streamName);
             return (null, -1, null);
         }
 
-        if (proxyType.Equals(StreamingProxyTypes.SystemDefault))
-        {
-            proxyType = setting.StreamingProxyType;
-        }
-
         if (proxyType == StreamingProxyTypes.FFMpeg)
         {
-            (stream, processId, error) = await GetFFMpegStream(streamUrl);
+
+            (stream, processId, error) = await GetFFMpegStream(streamUrl, streamName);
             LogErrorIfAny(stream, error, streamUrl, streamName);
         }
         else
@@ -56,7 +59,7 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
         }
     }
 
-    private async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetFFMpegStream(string streamUrl)
+    private async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetFFMpegStream(string streamUrl, string streamName)
     {
         Setting settings = memoryCache.GetSetting();
 
@@ -74,7 +77,7 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
 
         try
         {
-            return await CreateFFMpegStream(ffmpegExec, streamUrl).ConfigureAwait(false);
+            return await CreateFFMpegStream(ffmpegExec, streamUrl, streamName).ConfigureAwait(false);
         }
         catch (IOException ex)
         {
@@ -86,10 +89,11 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
         }
     }
 
-    private async Task<(Stream? stream, int processId, ProxyStreamError? error)> CreateFFMpegStream(string ffmpegExec, string streamUrl)
+    private async Task<(Stream? stream, int processId, ProxyStreamError? error)> CreateFFMpegStream(string ffmpegExec, string streamUrl, string streamName)
     {
         try
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
             Setting settings = memoryCache.GetSetting();
 
             string options = string.IsNullOrEmpty(settings.FFMpegOptions) ? BuildInfo.FFMPEGDefaultOptions : settings.FFMpegOptions;
@@ -103,17 +107,22 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
 
             bool processStarted = process.Start();
+            stopwatch.Stop();
             if (!processStarted)
             {
                 // Log and return an error if the process couldn't be started
                 ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.ProcessStartFailed, Message = "Failed to start FFmpeg process" };
                 logger.LogError("CreateFFMpegStream Error: {ErrorMessage}", error.Message);
+
                 return (null, -1, error);
             }
 
             // Return the standard output stream of the process
+
+            logger.LogInformation("Opened ffmpeg stream for {streamName} with args \"{formattedArgs}\" in {ElapsedMilliseconds} ms", streamName, formattedArgs, stopwatch.ElapsedMilliseconds);
             return (await Task.FromResult(process.StandardOutput.BaseStream).ConfigureAwait(false), process.Id, null);
         }
         catch (Exception ex)
@@ -134,7 +143,7 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
 
     private async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxyStream(string sourceUrl, string streamName, CancellationToken cancellationToken)
     {
-        Stopwatch stopwatch = Stopwatch.StartNew(); // Start the stopwatch
+        Stopwatch stopwatch = Stopwatch.StartNew();
 
         try
         {
@@ -158,12 +167,12 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
                 )
             {
                 logger.LogInformation("Stream URL has HLS content, using FFMpeg for streaming: {StreamUrl} {streamName}", sourceUrl, streamName);
-                return await GetFFMpegStream(sourceUrl).ConfigureAwait(false);
+                return await GetFFMpegStream(sourceUrl, streamName).ConfigureAwait(false);
             }
 
             Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
             stopwatch.Stop(); // Stop the stopwatch when the stream is retrieved
-            logger.LogInformation("Successfully retrieved stream for: {StreamUrl} {streamName} in {ElapsedMilliseconds} ms", sourceUrl, streamName, stopwatch.ElapsedMilliseconds);
+            logger.LogInformation("Opened stream for {streamName} in {ElapsedMilliseconds} ms", streamName, stopwatch.ElapsedMilliseconds);
 
             return (stream, -1, null);
         }

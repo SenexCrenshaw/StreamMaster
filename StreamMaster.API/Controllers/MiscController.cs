@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
+using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Services;
 
 using System.Text;
@@ -42,5 +43,13 @@ public class MiscController : ApiControllerBase
         {
             FileDownloadName = $"m3u-test-{numberOfStreams}.m3u"
         };
+    }
+
+    [HttpPut]
+    [Route("[action]")]
+    public async Task<IActionResult> Backup()
+    {
+        await FileUtil.Backup();
+        return Ok();
     }
 }

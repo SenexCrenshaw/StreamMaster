@@ -30,7 +30,7 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
 
     private Timer? _timer;
     private bool isActive = false;
-
+    private static DateTime LastBackupTime = DateTime.UtcNow;
     public void Dispose()
     {
         GC.SuppressFinalize(this);
@@ -70,8 +70,6 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
             isActive = true;
         }
 
-
-
         using IServiceScope scope = serviceProvider.CreateScope();
         IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
         IHubContext<StreamMasterHub, IStreamMasterHub> hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>();
@@ -101,7 +99,7 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
         JobStatus jobStatus = jobStatusService.GetSyncJobStatus();
         if (!jobStatus.IsRunning)
         {
-            jobStatus.SetIsRunning(true);
+            jobStatus.SetStart();
 
             if (jobStatus.ForceNextRun || (now - jobStatus.LastRun).TotalMinutes > 15 || (now - jobStatus.LastSuccessful).TotalMinutes > 60)
             {
@@ -122,8 +120,10 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
             }
         }
 
-        if (!jobStatusService.GetEPGJobStatus().IsRunning)
+        jobStatus = jobStatusService.GetEPGJobStatus();
+        if (!jobStatus.IsRunning)
         {
+            jobStatus.SetStart();
             IEnumerable<EPGFileDto> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
             if (epgFilesToUpdated.Any())
             {
@@ -134,10 +134,13 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
                     _ = await mediator.Send(new RefreshEPGFileRequest(epg.Id), cancellationToken).ConfigureAwait(false);
                 }
             }
+            jobStatus.SetStop();
         }
 
-        if (!jobStatusService.GetM3UJobStatus().IsRunning)
+        jobStatus = jobStatusService.GetM3UJobStatus();
+        if (!jobStatus.IsRunning)
         {
+            jobStatus.SetStart();
             IEnumerable<M3UFileDto> m3uFilesToUpdated = await mediator.Send(new GetM3UFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
             if (m3uFilesToUpdated.Any())
             {
@@ -148,6 +151,26 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
                     await mediator.Send(new RefreshM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
                 }
             }
+            jobStatus.SetStop();
+        }
+
+        jobStatus = jobStatusService.GetBackupJobStatus();
+        if (setting.BackupEnabled && !jobStatus.IsRunning)
+        {
+            jobStatus.SetStart();
+
+            if (LastBackupTime.AddHours(setting.BackupInterval) <= DateTime.UtcNow)
+            {
+                logger.LogInformation("Backup started. {status}", jobStatusService.GetBackupJobStatus());
+
+                await FileUtil.Backup().ConfigureAwait(false);
+
+                logger.LogInformation("Backup completed. {status}", jobStatusService.GetBackupJobStatus());
+                LastBackupTime = DateTime.UtcNow;
+                jobStatus.SetStop();
+            }
+
+            jobStatus.SetStop();
         }
 
         lock (Lock)

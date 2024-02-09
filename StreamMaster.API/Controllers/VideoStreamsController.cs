@@ -6,6 +6,8 @@ using StreamMaster.Application.VideoStreams;
 using StreamMaster.Application.VideoStreams.Commands;
 using StreamMaster.Application.VideoStreams.Queries;
 using StreamMaster.Domain.Authentication;
+using StreamMaster.Domain.Cache;
+using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Pagination;
@@ -84,6 +86,15 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         return Ok(res);
     }
 
+    private StreamingProxyTypes GetStreamingProxyType(VideoStreamDto videoStream)
+    {
+        Setting setting = MemoryCache.GetSetting();
+
+        return videoStream.StreamingProxyType == StreamingProxyTypes.SystemDefault
+            ? setting.StreamingProxyType
+            : videoStream.StreamingProxyType;
+    }
+
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [HttpHead]
@@ -123,11 +134,8 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
         HttpContext.Session.Remove("ClientId");
 
-        bool redirect = videoStream.StreamingProxyType == StreamingProxyTypes.None;
-        if (!redirect && videoStream.StreamingProxyType == StreamingProxyTypes.SystemDefault && Settings.StreamingProxyType == StreamingProxyTypes.None)
-        {
-            redirect = true;
-        }
+        StreamingProxyTypes proxyType = GetStreamingProxyType(videoStream);
+        bool redirect = proxyType == StreamingProxyTypes.None;
 
         if (redirect)
         {

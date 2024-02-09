@@ -15,16 +15,9 @@ public sealed partial class CircularRingBuffer : ICircularRingBuffer
     private TaskCompletionSource<bool> _writeSignal = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private TaskCompletionSource<bool> _pauseSignal = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
-    private readonly CancellationTokenRegistration _registration;
-
     public long GetNextReadIndex()
     {
         return WriteBytes;
-    }
-
-    public void UnregisterCancellation()
-    {
-        _registration.Unregister();
     }
 
     private int CalculateClientReadIndex(long readByteIndex)

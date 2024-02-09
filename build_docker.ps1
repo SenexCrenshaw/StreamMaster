@@ -16,6 +16,35 @@ param (
 
 $global:tags
 
+function Write-StringToFile {
+    param (
+        [string]$Path,
+        [string]$Content
+    )
+    try {
+        $Content | Out-File -FilePath $Path -Encoding UTF8 -Force
+        Write-Host "Content written to file: $Path"
+    }
+    catch {
+        Write-Host "An error occurred: $_"
+    }
+}
+function Read-StringFromFile {
+    param (
+        [string]$Path
+    )
+    try {
+        $Content = Get-Content -Path $Path -Raw
+        Write-Host "Content read from file: $Path"
+        return $Content
+    }
+    catch {
+        Write-Host "An error occurred: $_"
+        return $null
+    }
+}
+
+
 function Main {
     Set-EnvironmentVariables
 
@@ -30,57 +59,67 @@ function Main {
     # DownloadFiles
 
     $imageName = "docker.io/senexcrenshaw/streammaster"
+    $buildName = $imageName + "-builds"
 
     $result = Get-AssemblyInfo -assemblyInfoPath "./StreamMaster.API/AssemblyInfo.cs"
     $processedAssemblyInfo = ProcessAssemblyInfo $result
 
     if ($BuildBase -or $BuildAll) {
         $dockerFile = "Dockerfile.base"
-        $global:tags = @("$("${imageName}:"+$processedAssemblyInfo.BranchName)-base")
-        BuildImage -result $processedAssemblyInfo -imageName $imageName -dockerFile $dockerFile
+        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchName)-base")
+        BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile
+        Write-StringToFile -Path "basever" -Content $processedAssemblyInfo.BranchName 
     }
 
     if ($BuildBuild -or $BuildAll) {
         $dockerFile = "Dockerfile.build"
-        $global:tags = @("$("${imageName}:"+$processedAssemblyInfo.BranchName)-build")
-        BuildImage -result $processedAssemblyInfo -imageName $imageName -dockerFile $dockerFile
+        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchName)-build")
+        BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile
+        Write-StringToFile -Path "buildver" -Content $processedAssemblyInfo.BranchName 
     }
 
     
     if ($BuildSM -or $BuildBuild -or $BuildAll) {
         $dockerFile = "Dockerfile.sm"
         $global:tags = @("$("${imageName}:"+$processedAssemblyInfo.BranchName)-sm")
-
+        
         if ( $BuildBuildVer -ne '' ) {
             $contentArray = @('FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($BuildBuildVer)-build" + ' AS build');  
+            $smver = $BuildBuildVer;
         }
         else {
-            $contentArray = @('FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-build" + ' AS build');
+            $buildver = Read-StringFromFile -Path "buildver";
+            $smver = $buildver;
+            $contentArray = @('FROM --platform=$BUILDPLATFORM ' + "${imageName}:{$buildver}-build" + ' AS build');
         }
 
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
 
         BuildImage -result $processedAssemblyInfo -imageName $imageName -dockerFile $dockerFile
+        Write-StringToFile -Path "smver" -Content $smver
     }
 
     if ( -not $SkipMainBuild -or $BuildAll) {
         $dockerFile = "Dockerfile"
 
         $contentArray = @();
-        if ( $BuildSMVer -ne '' ) {
-            $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($BuildSMVer)-sm" + ' AS sm'          
-        }
-        else {
-            $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-sm" + ' AS sm'
-        }
+        # if ( $BuildSMVer -ne '' ) {
+        #     $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($BuildSMVer)-sm" + ' AS sm'          
+        # }
+        # else {
+        #     $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-sm" + ' AS sm'
+        # }
 
-        if ( $BuildBaseVer -ne '' ) {
-            $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($BuildBaseVer)-base" + ' AS base'          
-        }
-        else {
-            $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-base" + ' AS base'          
-        }
-
+        # if ( $BuildBaseVer -ne '' ) {
+        #     $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($BuildBaseVer)-base" + ' AS base'          
+        # }
+        # else {
+        #     $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-base" + ' AS base'          
+        # }
+        $basever = Read-StringFromFile -Path "basever";
+        $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${buildName}:$($basever)-base" + ' AS base'  
+        $smver = Read-StringFromFile -Path "smver";
+        $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${buildName}:$($smver)-sm" + ' AS sm'      
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
 
         $global:tags = DetermineTags -result $processedAssemblyInfo -imageName $imageName

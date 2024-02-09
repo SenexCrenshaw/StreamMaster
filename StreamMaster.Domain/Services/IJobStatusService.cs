@@ -8,7 +8,8 @@ namespace StreamMaster.Domain.Services
         JobStatus GetSyncJobStatus();
         void SetSyncError();
         void SetSyncForceNextRun(bool Extra = false);
-        void SetSyncIsRunning(bool v);
+        void SetSyncStop();
+        void SetSyncStart();
         void SetSyncSuccessful();
 
 
@@ -16,7 +17,8 @@ namespace StreamMaster.Domain.Services
         void SetM3USuccessful();
         void SetM3UError();
         void SetM3UForceNextRun(bool Extra = false);
-        void SetM3UIsRunning(bool v);
+        void SetM3UStop();
+        void SetM3UStart();
         JobStatus GetM3UJobStatus();
         void ClearM3UForce();
 
@@ -25,8 +27,18 @@ namespace StreamMaster.Domain.Services
         void SetEPGSuccessful();
         void SetEPGError();
         void SetEPGForceNextRun(bool Extra = false);
-        void SetEPGIsRunning(bool v);
+        void SetEPGStop();
+        void SetEPGStart();
         JobStatus GetEPGJobStatus();
         void ClearEPGForce();
+
+        // Backup
+        void SetBackupSuccessful();
+        void SetBackupError();
+        void SetBackupForceNextRun(bool Extra = false);
+        void SetBackupStop();
+        void SetBackupStart();
+        JobStatus GetBackupJobStatus();
+        void ClearBackupForce();
     }
 }

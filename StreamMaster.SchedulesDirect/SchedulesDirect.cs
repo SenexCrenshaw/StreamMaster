@@ -63,7 +63,7 @@ public partial class SchedulesDirect(
                 return false;
             }
 
-            jobStatusService.SetSyncIsRunning(true);
+            jobStatusService.SetSyncStart();
             //ResetEPGCache();
             int maxRetry = 3;
             int retryCount = 0;

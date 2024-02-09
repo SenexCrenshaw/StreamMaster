@@ -2,6 +2,7 @@ using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.Models;
 using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Net;
 using System.Text;
@@ -247,6 +248,57 @@ public sealed class FileUtil
         FileStream fs = File.OpenRead(source);
         return new GZipStream(fs, CompressionMode.Decompress);
     }
+    public static async Task Backup(int? versionsToKeep = null)
+    {
+        Setting? setting = GetSetting();
+        if (setting.BackupEnabled == false)
+        {
+            return;
+        }
+
+        try
+        {
+            versionsToKeep ??= GetSetting()?.BackupVersionsToKeep ?? 5;
+            using Process process = new();
+            process.StartInfo.FileName = "/bin/bash";
+            process.StartInfo.Arguments = $"/usr/local/bin/backup.sh {versionsToKeep}";
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
+
+            process.Start();
+
+            string output = await process.StandardOutput.ReadToEndAsync();
+            string error = await process.StandardError.ReadToEndAsync();
+
+            await process.WaitForExitAsync();
+
+            if (!string.IsNullOrEmpty(output))
+            {
+                Console.WriteLine($"Backup Output: {output}");
+            }
+
+            if (!string.IsNullOrEmpty(error))
+            {
+                Console.WriteLine($"Backup Error: {error}");
+            }
+
+            if (process.ExitCode == 0)
+            {
+                Console.WriteLine("Backup executed successfully.");
+            }
+            else
+            {
+                Console.WriteLine($"Backup execution failed with exit code: {process.ExitCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Backup Exception occurred: {ex.Message}");
+        }
+
+    }
 
     public static async Task<string> GetFileData(string source)
     {
@@ -436,6 +488,7 @@ public sealed class FileUtil
         CreateDir(BuildInfo.SDStationLogosCache);
         CreateDir(BuildInfo.SDJSONFolder);
         CreateDir(BuildInfo.LogFolder);
+        CreateDir(BuildInfo.BackupPath);
 
         for (char c = '0'; c <= '9'; c++)
         {

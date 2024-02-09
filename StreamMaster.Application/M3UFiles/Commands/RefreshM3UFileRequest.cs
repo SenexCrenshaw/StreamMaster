@@ -26,7 +26,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
                 {
                     return null;
                 }
-                jobStatusService.SetM3UIsRunning(true);
+                jobStatusService.SetM3UStart();
             }
 
             M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileById(request.Id).ConfigureAwait(false);

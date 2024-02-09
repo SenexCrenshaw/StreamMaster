@@ -416,10 +416,23 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
         if (ProcessId > 0)
         {
+            //try
+            //{
+            //    KillProcess();
+
+            //}
+            //catch (Exception ex)
+            //{
+            //    logger.LogError(ex, "Error killing process {ProcessId}.", ProcessId);
+            //}
             try
             {
-                KillProcess();
-
+                string? procName = CheckProcessExists();
+                if (procName != null)
+                {
+                    Process process = Process.GetProcessById(ProcessId);
+                    process.Kill();
+                }
             }
             catch (Exception ex)
             {
@@ -478,6 +491,18 @@ public sealed class StreamHandler(VideoStreamDto videoStreamDto, int processId, 
 
     }
 
+    private string? CheckProcessExists()
+    {
+        try
+        {
+            Process process = Process.GetProcessById(ProcessId);
+            return process.ProcessName;
+        }
+        catch (ArgumentException)
+        {
+            return null;
+        }
+    }
 
 
     public IEnumerable<Guid> GetClientStreamerClientIds()

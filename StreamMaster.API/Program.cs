@@ -101,12 +101,24 @@ WebApplication app = builder.Build();
 var lifetime = app.Services.GetService<IHostApplicationLifetime>();
 if (lifetime != null)
 {    
-   lifetime.ApplicationStopped.Register(OnShutdown);
+   lifetime.ApplicationStopping.Register(OnShutdown);
 }
 
 void OnShutdown()
 {
     SqliteConnection.ClearAllPools();
+    PGSQLRepositoryContext repositoryContext = app.Services.GetRequiredService<PGSQLRepositoryContext>();
+    repositoryContext.Dispose();
+    SQLiteRepositoryContext sQLiteRepositoryContext = app.Services.GetRequiredService<SQLiteRepositoryContext>();
+    sQLiteRepositoryContext.Dispose();
+    IImageDownloadService imageDownloadService = app.Services.GetRequiredService<IImageDownloadService>();
+    imageDownloadService.StopAsync(CancellationToken.None).Wait();
+    
+    FileUtil.Backup().Wait();
+    //LogDbContext logDbContext = app.Services.GetRequiredService<LogDbContext>();
+    //logDbContext.Dispose();
+    //LogDbContextInitialiser logInitialiser = app.Services.GetRequiredService<LogDbContextInitialiser>();
+    //logInitialiser.Dispose();
 }
 
 app.UseOpenApi();

@@ -806,6 +806,7 @@ export type EpgFilesCreateEpgFileFromFormApiResponse = unknown;
 export type EpgFilesCreateEpgFileFromFormApiArg = {
   FormFile?: Blob | null;
   Name?: string;
+  FileName?: string;
   EPGNumber?: number;
   UrlSource?: string | null;
   Color?: string | null;
@@ -1223,6 +1224,7 @@ export type GetChannelGroupsForStreamGroupRequest = {
 export type CreateEpgFileRequest = {
   formFile?: Blob | null;
   name?: string;
+  fileName?: string;
   epgNumber?: number;
   urlSource?: string | null;
   color?: string | null;
@@ -1801,6 +1803,9 @@ export type SdSettings = {
 };
 export type AuthenticationType = 0 | 2;
 export type BaseSettings = M3USettings & {
+  backupEnabled?: boolean;
+  backupVersionsToKeep?: number;
+  backupInterval?: number;
   prettyEPG?: boolean;
   maxLogFiles?: number;
   maxLogFileSizeMB?: number;
@@ -1879,6 +1884,9 @@ export type SdSettingsRequest = {
   xmltvSingleImage?: boolean | null;
 };
 export type UpdateSettingRequest = {
+  backupEnabled?: boolean | null;
+  backupVersionsToKeep?: number | null;
+  backupInterval?: number | null;
   sdSettings?: SdSettingsRequest | null;
   showClientHostNames?: boolean | null;
   adminPassword?: string | null;

@@ -27,6 +27,21 @@ namespace StreamMaster.Domain.Common
             InitializePaths();
         }
 
+        private static DateTime _startTime;
+
+        public static DateTime StartTime
+        {
+            get
+            {
+                if (_startTime == DateTime.MinValue)
+                {
+                    _startTime = DateTime.Now;
+                }
+
+                return _startTime;
+            }
+        }
+
         #region Database Configuration Properties
 
         /// <summary>
@@ -118,6 +133,7 @@ namespace StreamMaster.Domain.Common
         public static readonly string IconDefault = Path.Combine("images", "default.png");
         public static readonly string FFMPEGDefaultOptions = "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1";
         public static readonly string LogFilePath = Path.Combine(LogFolder, "StreamMasterAPI.log");
+        public static readonly string BackupPath = Path.Combine(AppDataFolder, "backups");
 
         #endregion
 
