@@ -1,5 +1,6 @@
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 ARG TARGETPLATFORM
+ARG TARGETARCH
 ARG BUILDPLATFORM
 
 RUN apt-get update -yq \
