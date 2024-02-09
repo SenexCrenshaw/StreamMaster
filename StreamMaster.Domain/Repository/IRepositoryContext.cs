@@ -31,6 +31,6 @@ namespace StreamMaster.Domain.Repository
 
         void Dispose();
         bool IsEntityTracked<TEntity>(TEntity entity) where TEntity : class;
-        Task MigrateData(List<MxfService> allServices);
+        Task MigrateData(List<MxfService>? allServices = null);
     }
 }

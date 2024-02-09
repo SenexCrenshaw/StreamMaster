@@ -20,14 +20,46 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             return ChangeTracker.Entries<TEntity>().Any(e => e.Entity == entity);
         }
 
-        public async Task MigrateData(List<MxfService> allServices)
+        public async Task MigrateData(List<MxfService>? allServices = null)
         {
             string? currentMigration = Database.GetAppliedMigrations().LastOrDefault();
             if (currentMigration == null)
             {
                 return;
             }
+
+            if (!SystemKeyValues.Any(a => a.Key == "ChangeIDAlways"))
+            {
+                await FixIDs().ConfigureAwait(false);
+                SystemKeyValues.Add(new SystemKeyValue { Key = "ChangeIDAlways", Value = "1" });
+                await SaveChangesAsync().ConfigureAwait(false);
+            }
         }
+
+        private async Task FixIDs()
+        {
+            int startValue = ChannelGroups.Max(a => a.Id) + 1;
+            await DoFixID("ChannelGroups", startValue).ConfigureAwait(false);
+            startValue = EPGFiles.Max(a => a.Id) + 1;
+            await DoFixID("EPGFiles", startValue).ConfigureAwait(false);
+            startValue = M3UFiles.Max(a => a.Id) + 1;
+            await DoFixID("M3UFiles", startValue).ConfigureAwait(false);
+            startValue = StreamGroups.Max(a => a.Id) + 1;
+            await DoFixID("StreamGroups", startValue).ConfigureAwait(false);
+        }
+
+        private async Task DoFixID(string tableName, int startValue)
+        {
+            ExecuteSqlRaw($"ALTER TABLE public.\"{tableName}\" ALTER COLUMN \"Id\" SET GENERATED ALWAYS;");
+
+            string sequenceName = $"{tableName}_Id_seq";
+            string alterSequenceCmd = $"ALTER SEQUENCE \"{sequenceName}\" RESTART WITH {startValue}";
+
+            ExecuteSqlRaw(alterSequenceCmd);
+
+            await SaveChangesAsync().ConfigureAwait(false);
+        }
+
 
 
         public DbSet<SystemKeyValue> SystemKeyValues { get; set; }
