@@ -1,3 +1,10 @@
+## [0.11.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.11.1...v0.11.2) (2024-02-09)
+
+
+### Bug Fixes
+
+* M3U Refresh from UI ([7cd0f54](https://github.com/SenexCrenshaw/StreamMaster/commit/7cd0f54abb62f6539106ce44eca6ae4df606db1b))
+
 ## [0.11.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.11.0...v0.11.1) (2024-02-09)
 
 
