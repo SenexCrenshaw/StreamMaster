@@ -7,11 +7,7 @@ param (
     [switch]$BuildProd = $false,
     [switch]$PrintCommands = $false,
     [switch]$SkipRelease = $false,
-    [switch]$SkipMainBuild = $false,
-    [string]$BuildBaseVer = '',
-    [string]$BuildBuildVer = '',
-    [string]$BuildSMVer = '',
-    [string]$BuildVer = ''
+    [switch]$SkipMainBuild = $false
 )
 
 $global:tags
@@ -22,7 +18,7 @@ function Write-StringToFile {
         [string]$Content
     )
     try {
-        $Content | Out-File -FilePath $Path -Encoding UTF8 -Force
+        Set-Content -Path $Path -Value $Content -NoNewline -Encoding UTF8
         Write-Host "Content written to file: $Path"
     }
     catch {
@@ -70,32 +66,25 @@ function Main {
         BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile
         Write-StringToFile -Path "basever" -Content $processedAssemblyInfo.BranchName 
     }
-
+   
     if ($BuildBuild -or $BuildAll) {
         $dockerFile = "Dockerfile.build"
         $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchName)-build")
         BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile
         Write-StringToFile -Path "buildver" -Content $processedAssemblyInfo.BranchName 
     }
-
     
     if ($BuildSM -or $BuildBuild -or $BuildAll) {
         $dockerFile = "Dockerfile.sm"
-        $global:tags = @("$("${imageName}:"+$processedAssemblyInfo.BranchName)-sm")
+        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchName)-sm")
         
-        if ( $BuildBuildVer -ne '' ) {
-            $contentArray = @('FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($BuildBuildVer)-build" + ' AS build');  
-            $smver = $BuildBuildVer;
-        }
-        else {
-            $buildver = Read-StringFromFile -Path "buildver";
-            $smver = $buildver;
-            $contentArray = @('FROM --platform=$BUILDPLATFORM ' + "${imageName}:{$buildver}-build" + ' AS build');
-        }
+        $buildver = Read-StringFromFile -Path "buildver";
+        $smver = $buildver;
+        $contentArray = @('FROM --platform=$BUILDPLATFORM ' + "${buildName}:$($buildver)-build" + ' AS build');
 
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
 
-        BuildImage -result $processedAssemblyInfo -imageName $imageName -dockerFile $dockerFile
+        BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile
         Write-StringToFile -Path "smver" -Content $smver
     }
 
@@ -103,23 +92,13 @@ function Main {
         $dockerFile = "Dockerfile"
 
         $contentArray = @();
-        # if ( $BuildSMVer -ne '' ) {
-        #     $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($BuildSMVer)-sm" + ' AS sm'          
-        # }
-        # else {
-        #     $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-sm" + ' AS sm'
-        # }
 
-        # if ( $BuildBaseVer -ne '' ) {
-        #     $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($BuildBaseVer)-base" + ' AS base'          
-        # }
-        # else {
-        #     $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${imageName}:$($processedAssemblyInfo.BranchName)-base" + ' AS base'          
-        # }
         $basever = Read-StringFromFile -Path "basever";
-        $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${buildName}:$($basever)-base" + ' AS base'  
         $smver = Read-StringFromFile -Path "smver";
+
         $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${buildName}:$($smver)-sm" + ' AS sm'      
+        $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${buildName}:$($basever)-base" + ' AS base'  
+        
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
 
         $global:tags = DetermineTags -result $processedAssemblyInfo -imageName $imageName
@@ -163,23 +142,6 @@ Function Add-ContentAtTop {
     else {
         Write-Error "The file '$filePath' does not exist."
     }
-}
-
-function Replace-TextInFile {
-    param (
-        [string]$filePath,
-        [string]$searchPattern,
-        [string]$replacementText
-    )
-
-    # Read the content of the file
-    $fileContent = Get-Content -Path $filePath
-
-    # Replace the search pattern with the replacement text in the content
-    $modifiedContent = $fileContent -replace [regex]::Escape($searchPattern), $replacementText
-
-    # Write the modified content back to the file
-    $modifiedContent | Set-Content -Path $filePath
 }
 
 function Set-EnvironmentVariables {

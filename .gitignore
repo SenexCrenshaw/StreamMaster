@@ -367,3 +367,6 @@ m3u.m3u
 ghtoken
 Dockerfile
 Dockerfile.sm
+basever
+buildver
+smver
