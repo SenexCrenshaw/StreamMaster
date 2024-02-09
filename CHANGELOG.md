@@ -1,3 +1,10 @@
+## [0.11.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.11.0...v0.11.1) (2024-02-09)
+
+
+### Bug Fixes
+
+* Change ID to always ([dc56aa9](https://github.com/SenexCrenshaw/StreamMaster/commit/dc56aa931268001051960dc45f90d6b22a6b4610))
+
 # [0.11.0](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.10.2...v0.11.0) (2024-02-09)
 
 
