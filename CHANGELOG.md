@@ -1,3 +1,10 @@
+# [0.11.0](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.10.2...v0.11.0) (2024-02-09)
+
+
+### Features
+
+* Backups ([3a6174f](https://github.com/SenexCrenshaw/StreamMaster/commit/3a6174ff9bfbc9131fadc4e71588655104c0496f))
+
 ## [0.10.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.10.1...v0.10.2) (2024-02-09)
 
 
