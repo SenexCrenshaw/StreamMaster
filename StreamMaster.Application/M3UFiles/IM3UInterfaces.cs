@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Pagination;
-
 using StreamMaster.Application.M3UFiles.Commands;
+using StreamMaster.Domain.Pagination;
 
 
 
@@ -61,7 +59,7 @@ public interface IM3UFileHub
 
 public interface IM3UFileTasks
 {
-    ValueTask ProcessM3UFile(int Id, bool immediate = false, CancellationToken cancellationToken = default);
+    ValueTask ProcessM3UFile(ProcessM3UFileRequest pr, bool immediate = false, CancellationToken cancellationToken = default);
 
     ValueTask ProcessM3UFiles(CancellationToken cancellationToken = default);
 

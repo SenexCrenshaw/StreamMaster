@@ -24,8 +24,7 @@ public partial class StreamMasterHub : IM3UFileHub
 
     public async Task ProcessM3UFile(ProcessM3UFileRequest request)
     {
-        await taskQueue.ProcessM3UFile(request.Id).ConfigureAwait(false);
-        //await mediator.Send(request).ConfigureAwait(false);
+        await taskQueue.ProcessM3UFile(request).ConfigureAwait(false);
     }
 
     public async Task RefreshM3UFile(RefreshM3UFileRequest request)

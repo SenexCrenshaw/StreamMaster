@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+
 using StreamMaster.Application.M3UFiles;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.M3UFiles.Queries;
@@ -66,7 +67,7 @@ public class M3UFilesController(IBackgroundTaskQueue taskQueue) : ApiControllerB
     [Route("[action]")]
     public async Task<ActionResult> ProcessM3UFile(ProcessM3UFileRequest request)
     {
-        await taskQueue.ProcessM3UFile(request.Id).ConfigureAwait(false);
+        await taskQueue.ProcessM3UFile(request).ConfigureAwait(false);
         //M3UFile? data = await Mediator.Send(request).ConfigureAwait(false);
         return NoContent();
     }

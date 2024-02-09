@@ -1,4 +1,5 @@
-﻿using StreamMaster.Application.Services;
+﻿using StreamMaster.Application.M3UFiles.Commands;
+using StreamMaster.Application.Services;
 
 namespace StreamMaster.Application.M3UFiles.EventHandlers;
 
@@ -18,7 +19,8 @@ public class M3UFileAddedEventHandler : INotificationHandler<M3UFileAddedEvent>
 
     public async Task Handle(M3UFileAddedEvent notification, CancellationToken cancellationToken)
     {
-        await _taskQueue.ProcessM3UFile(notification.M3UFileId, cancellationToken: cancellationToken).ConfigureAwait(false);
+        ProcessM3UFileRequest processM3UFileRequest = new(notification.M3UFileId, forceRun: notification.ForecRun);
+        await _taskQueue.ProcessM3UFile(processM3UFileRequest, cancellationToken: cancellationToken).ConfigureAwait(false);
 
     }
 }

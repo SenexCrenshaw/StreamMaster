@@ -86,9 +86,9 @@ public sealed class QueuedHostedService(
 
                     case SMQueCommand.ProcessM3UFile:
 
-                        if (command.Entity is not null && command.Entity.GetType() == typeof(int))
+                        if (command.Entity is not null && command.Entity.GetType() == typeof(ProcessM3UFileRequest))
                         {
-                            _ = await _sender.Send(new ProcessM3UFileRequest((int)command.Entity), cancellationToken).ConfigureAwait(false);
+                            _ = await _sender.Send(command.Entity as ProcessM3UFileRequest, cancellationToken).ConfigureAwait(false);
                         }
                         break;
 
