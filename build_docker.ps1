@@ -46,6 +46,7 @@ function Main {
         BuildImage -result $processedAssemblyInfo -imageName $imageName -dockerFile $dockerFile
     }
 
+    
     if ($BuildSM -or $BuildBuild -or $BuildAll) {
         $dockerFile = "Dockerfile.sm"
         $global:tags = @("$("${imageName}:"+$processedAssemblyInfo.BranchName)-sm")
