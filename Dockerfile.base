@@ -1,0 +1,12 @@
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+
+RUN apt-get update -yq \
+    && apt-get upgrade -yq \
+    && apt-get install -yq --no-install-recommends ffmpeg gosu postgresql postgresql-common curl gnupg lsb-release 
+
+RUN rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+RUN mkdir /docker-entrypoint-initdb.d
