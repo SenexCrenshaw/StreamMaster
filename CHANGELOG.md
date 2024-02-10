@@ -1,3 +1,10 @@
+# [0.12.0-debuffer.4](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.3...v0.12.0-debuffer.4) (2024-02-10)
+
+
+### Bug Fixes
+
+* m3u refresh ([d9b509f](https://github.com/SenexCrenshaw/StreamMaster/commit/d9b509f233f8b7aabf4669dd89fa559aa91909e0))
+
 # [0.12.0-debuffer.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.2...v0.12.0-debuffer.3) (2024-02-10)
 
 
