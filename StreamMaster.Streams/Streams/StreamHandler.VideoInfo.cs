@@ -73,13 +73,13 @@ public sealed partial class StreamHandler
             isLocked = await buildVideoInfoSemaphore.WaitAsync(0).ConfigureAwait(false);
             if (!isLocked)
             {
-                logger.LogWarning("BuildVideoInfo execution is skipped because another operation is already running.");
+                //logger.LogWarning("BuildVideoInfo execution is skipped because another operation is already running.");
                 return;
             }
 
             if (GetVideoInfoErrors > 3)
             {
-                logger.LogWarning("Skipped BuildVideoInfo due to excessive errors.");
+                //logger.LogWarning("Skipped BuildVideoInfo due to excessive errors.");
                 return;
             }
 
