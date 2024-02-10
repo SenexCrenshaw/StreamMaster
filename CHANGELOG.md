@@ -1,3 +1,15 @@
+# [0.12.0-debuffer.7](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.6...v0.12.0-debuffer.7) (2024-02-10)
+
+
+### Bug Fixes
+
+* Handle case when toRead is less than 0 in StreamHandler ([81e637a](https://github.com/SenexCrenshaw/StreamMaster/commit/81e637ab7160ee355021d301e8985099fc7d4c80))
+
+
+### Features
+
+* Add logo to input statistics ([29376f8](https://github.com/SenexCrenshaw/StreamMaster/commit/29376f883b212239a270a0457c5af62d54458799))
+
 # [0.12.0-debuffer.6](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.5...v0.12.0-debuffer.6) (2024-02-10)
 
 
