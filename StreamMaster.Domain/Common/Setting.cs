@@ -124,8 +124,6 @@ public class BaseSettings : M3USettings
     public int MaxConnectRetry { get; set; } = 20;
     public int MaxConnectRetryTimeMS { get; set; } = 200;
 
-    public int RingBufferSizeMB { get; set; } = 4;
-
     public List<string> NameRegex { get; set; } = [];
 
     public string SSLCertPassword { get; set; } = string.Empty;

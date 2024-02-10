@@ -426,6 +426,10 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/misc/gettestm3u`, params: { numberOfStreams: queryArg } }),
         providesTags: ['Misc']
       }),
+      miscBackup: build.mutation<MiscBackupApiResponse, MiscBackupApiArg>({
+        query: () => ({ url: `/api/misc/backup`, method: 'PUT' }),
+        invalidatesTags: ['Misc']
+      }),
       queueGetQueueStatus: build.query<QueueGetQueueStatusApiResponse, QueueGetQueueStatusApiArg>({
         query: () => ({ url: `/api/queue/getqueuestatus` }),
         providesTags: ['Queue']
@@ -995,6 +999,8 @@ export type MiscGetDownloadServiceStatusApiResponse = /** status 200  */ ImageDo
 export type MiscGetDownloadServiceStatusApiArg = void;
 export type MiscGetTestM3UApiResponse = unknown;
 export type MiscGetTestM3UApiArg = number;
+export type MiscBackupApiResponse = unknown;
+export type MiscBackupApiArg = void;
 export type QueueGetQueueStatusApiResponse = /** status 200  */ TaskQueueStatus[];
 export type QueueGetQueueStatusApiArg = void;
 export type SettingsGetIsSystemReadyApiResponse = /** status 200  */ boolean;
@@ -1835,7 +1841,6 @@ export type BaseSettings = M3USettings & {
   globalStreamLimit?: number;
   maxConnectRetry?: number;
   maxConnectRetryTimeMS?: number;
-  ringBufferSizeMB?: number;
   nameRegex?: string[];
   sslCertPassword?: string;
   sslCertPath?: string;
@@ -1910,7 +1915,6 @@ export type UpdateSettingRequest = {
   prettyEPG?: boolean | null;
   maxConnectRetry?: number | null;
   maxConnectRetryTimeMS?: number | null;
-  ringBufferSizeMB?: number | null;
   sslCertPassword?: string | null;
   sslCertPath?: string | null;
   streamingClientUserAgent?: string | null;
@@ -2199,6 +2203,7 @@ export const {
   useM3UFilesGetM3UFileNamesQuery,
   useMiscGetDownloadServiceStatusQuery,
   useMiscGetTestM3UQuery,
+  useMiscBackupMutation,
   useQueueGetQueueStatusQuery,
   useSettingsGetIsSystemReadyQuery,
   useSettingsGetSettingQuery,

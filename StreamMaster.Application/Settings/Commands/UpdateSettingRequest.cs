@@ -33,7 +33,6 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public bool? PrettyEPG { get; set; }
     public int? MaxConnectRetry { get; set; }
     public int? MaxConnectRetryTimeMS { get; set; }
-    public int? RingBufferSizeMB { get; set; }
     public string? SSLCertPassword { get; set; }
     public string? SSLCertPath { get; set; }
     public string? StreamingClientUserAgent { get; set; }
@@ -379,13 +378,6 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
         {
             currentSetting.GlobalStreamLimit = (int)request.GlobalStreamLimit;
         }
-
-        if (request.RingBufferSizeMB != null && request.RingBufferSizeMB >= 0 && request.RingBufferSizeMB != currentSetting.RingBufferSizeMB)
-        {
-            currentSetting.RingBufferSizeMB = (int)request.RingBufferSizeMB;
-        }
-
-
 
         if (request.NameRegex != null)
         {

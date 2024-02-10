@@ -100,8 +100,6 @@ const MessagesEn: messages_enType = {
 
   rememberme: 'Remember Me',
 
-  ringBufferSizeMB: 'Buffer Size (MB)',
-
   'sdSettings.sdEnabled': 'ScheduleDirect Enabled',
 
   'sdSettings.sdPassword': 'ScheduleDirect Password',
