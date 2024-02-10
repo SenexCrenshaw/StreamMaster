@@ -171,7 +171,7 @@ public sealed partial class StreamHandler
         //{
         //    clientStreamerConfig.ReadBuffer?.ReadChannel.Writer.Complete();
         //}
-
+        IsFailed = true;
         stream.Close();
         stream.Dispose();
 

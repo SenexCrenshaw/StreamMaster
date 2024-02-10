@@ -281,6 +281,12 @@ public sealed class ChannelManager : IChannelManager
                 logger.LogError("Could not find handler for {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.ChannelVideoStreamId, channelVideoStream.User_Tvg_name);
                 return null;
             }
+            if (handler.IsFailed)
+            {
+                logger.LogInformation("Existing hanlder is failed, creating");
+
+                await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
+            }
 
             await clientStreamerManager.AddClientToHandler(config.ClientId, handler);
             logger.LogInformation("Reuse existing stream handler for {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.ChannelVideoStreamId, channelVideoStream.User_Tvg_name);
