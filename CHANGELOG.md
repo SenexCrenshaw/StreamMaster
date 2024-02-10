@@ -1,3 +1,10 @@
+# [0.12.0-debuffer.8](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.7...v0.12.0-debuffer.8) (2024-02-10)
+
+
+### Bug Fixes
+
+* Set IsFailed flag and close stream in StreamHandler ([c321a9f](https://github.com/SenexCrenshaw/StreamMaster/commit/c321a9faf1320cd843bd6c23de3cbeb8b1c11d2e))
+
 # [0.12.0-debuffer.7](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.6...v0.12.0-debuffer.7) (2024-02-10)
 
 
