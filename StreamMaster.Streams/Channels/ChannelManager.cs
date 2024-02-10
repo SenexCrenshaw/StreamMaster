@@ -22,7 +22,6 @@ public sealed class ChannelManager : IChannelManager
 
     public ChannelManager(
         ILogger<ChannelManager> logger,
-        //IBroadcastService broadcastService,
         IStreamSwitcher streamSwitcher,
         IChannelService channelService,
         IStreamManager streamManager,
