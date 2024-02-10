@@ -143,16 +143,19 @@ public sealed partial class StreamHandler : IStreamHandler
         }
     }
 
-    private void KillProcess()
+    private bool KillProcess()
     {
-
-        foreach (Process process in Process.GetProcesses())
+        try
         {
-            if (process.Id == ProcessId)
-            {
-                process.Kill();
-            }
+            Process process = Process.GetProcessById(ProcessId);
+            return true;
         }
+        catch (ArgumentException)
+        {
+
+        }
+        return false;
+
 
     }
 

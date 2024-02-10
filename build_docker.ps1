@@ -78,11 +78,11 @@ function Main {
         $dockerFile = "Dockerfile.sm"
         $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-sm")
         
-        $buildver = Read-StringFromFile -Path "buildver";
-        $smver = $buildver;
+        $buildver = Read-StringFromFile -Path "buildver";      
         $contentArray = @('FROM --platform=$BUILDPLATFORM ' + "${buildName}:$($buildver)-build" + ' AS build');
-
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
+
+        $smver = $processedAssemblyInfo.BranchNameRevision ;
 
         BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile
         Write-StringToFile -Path "smver" -Content $smver
