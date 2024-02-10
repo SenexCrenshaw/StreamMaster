@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Models;
-
-namespace StreamMaster.Application.VideoStreams.Queries;
+﻿namespace StreamMaster.Application.VideoStreams.Queries;
 public record GetVideoStreamInfoFromIdRequest(string channelVideoStreamId) : IRequest<VideoInfo> { }
 
 

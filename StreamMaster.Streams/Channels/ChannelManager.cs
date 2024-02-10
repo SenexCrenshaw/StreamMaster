@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Repository;
 
 namespace StreamMaster.Streams.Channels;
@@ -80,7 +81,7 @@ public sealed class ChannelManager : IChannelManager
             }
             if (streamHandler.ClientCount == 0)
             {
-                await streamHandler.Stop();
+                streamHandler.Stop();
             }
 
         }
@@ -184,7 +185,7 @@ public sealed class ChannelManager : IChannelManager
 
         if (handler is not null)
         {
-            await handler.Stop();
+            handler.Stop();
 
             logger.LogInformation("Simulating stream failure for: {VideoStreamName}", handler.VideoStreamName);
         }
@@ -198,7 +199,7 @@ public sealed class ChannelManager : IChannelManager
     {
         foreach (IStreamHandler s in streamManager.GetStreamHandlers())
         {
-            await s.Stop();
+            s.Stop();
         }
     }
 

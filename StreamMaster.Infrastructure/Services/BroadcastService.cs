@@ -76,7 +76,7 @@ public class BroadcastService : IBroadcastService, IDisposable
 
         foreach (IStreamHandler handler in streamManager.GetStreamHandlers())
         {
-            printDebug("Stream: {0} {1} {2} {3}", handler.ClientCount, handler.CircularRingBuffer.Id, handler.VideoStreamName, handler.StreamUrl);
+            printDebug("Stream: {0} {2} {3}", handler.ClientCount, handler.VideoStreamName, handler.StreamUrl);
         }
     }
 

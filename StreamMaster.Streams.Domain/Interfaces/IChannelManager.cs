@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Streams.Domain.Interfaces;
+﻿using StreamMaster.Domain.Models;
+
+namespace StreamMaster.Streams.Domain.Interfaces;
 
 /// <summary>
 /// Provides methods for managing video streams and clients in a channel.

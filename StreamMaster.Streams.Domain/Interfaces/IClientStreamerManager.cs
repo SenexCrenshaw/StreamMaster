@@ -12,10 +12,6 @@
         /// </summary>
         List<IClientStreamerConfiguration> GetClientStreamerConfigurationsByChannelVideoStreamId(string ChannelVideoStreamId);
 
-        /// <summary>
-        /// Asynchronously sets the client buffer delegate.
-        /// </summary>
-        Task SetClientBufferDelegate(IClientStreamerConfiguration clientStreamerConfiguration, ICircularRingBuffer RingBuffer);
 
         /// <summary>
         /// Gets the count of clients for a specific channel video stream Url.

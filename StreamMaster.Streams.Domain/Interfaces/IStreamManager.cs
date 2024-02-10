@@ -1,4 +1,6 @@
 ﻿
+using StreamMaster.Domain.Models;
+
 namespace StreamMaster.Streams.Domain.Interfaces;
 
 /// <summary>

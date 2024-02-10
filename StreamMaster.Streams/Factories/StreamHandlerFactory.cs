@@ -5,7 +5,7 @@ using StreamMaster.Domain.Cache;
 using StreamMaster.Streams.Streams;
 namespace StreamMaster.Streams.Factories;
 
-public sealed class StreamHandlerFactory(ICircularRingBufferFactory circularRingBufferFactory, IClientStreamerManager clientStreamerManager, IMemoryCache memoryCache, ILogger<StreamHandler> streamHandlerLogger, IProxyFactory proxyFactory) : IStreamHandlerFactory
+public sealed class StreamHandlerFactory(IClientStreamerManager clientStreamerManager, IMemoryCache memoryCache, ILoggerFactory loggerFactory, IProxyFactory proxyFactory) : IStreamHandlerFactory
 {
     public async Task<IStreamHandler?> CreateStreamHandlerAsync(VideoStreamDto videoStreamDto, string ChannelId, string ChannelName, int rank, CancellationToken cancellationToken)
     {
@@ -15,12 +15,10 @@ public sealed class StreamHandlerFactory(ICircularRingBufferFactory circularRing
             return null;
         }
 
-        ICircularRingBuffer ringBuffer = circularRingBufferFactory.CreateCircularRingBuffer(videoStreamDto, ChannelId, ChannelName, rank);
-
-        StreamHandler streamHandler = new(videoStreamDto, processId, memoryCache, clientStreamerManager, streamHandlerLogger, ringBuffer);
+        StreamHandler streamHandler = new(videoStreamDto, processId, memoryCache, loggerFactory);
 
         _ = Task.Run(() => streamHandler.StartVideoStreamingAsync(stream), cancellationToken);
-        
+
         return streamHandler;
     }
 

@@ -1,18 +1,14 @@
-﻿namespace StreamMaster.Streams.Domain.Interfaces;
+﻿using System.Threading.Channels;
+
+namespace StreamMaster.Streams.Domain.Interfaces;
 
 /// <summary>
 /// Provides an interface for reading from a ring buffer stream.
 /// </summary>
 public interface IClientReadStream : IDisposable
 {
-    bool IsPaused { get; }
-    /// <summary>
-    /// Gets the underlying circular ring buffer.
-    /// </summary>
-    ICircularRingBuffer Buffer { get; }
-
-    void Pause();
-    void UnPause();
+    string VideoStreamName { get; set; }
+    Channel<byte[]> ReadChannel { get; }
 
     /// <summary>
     /// Gets a value indicating whether the stream supports reading.
@@ -63,11 +59,6 @@ public interface IClientReadStream : IDisposable
     /// Sets the position within the current stream.
     /// </summary>
     long Seek(long offset, SeekOrigin origin);
-
-    /// <summary>
-    /// Sets the buffer delegate and configuration for the stream.
-    /// </summary>
-    Task SetBufferDelegate(Func<ICircularRingBuffer> bufferDelegate, IClientStreamerConfiguration config);
 
     /// <summary>
     /// Sets the length of the current stream.

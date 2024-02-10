@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Streams.Domain.Interfaces;
+﻿using StreamMaster.Domain.Models;
+
+namespace StreamMaster.Streams.Domain.Interfaces;
 
 public interface IStreamHandler : IDisposable
 {
@@ -16,10 +18,6 @@ public interface IStreamHandler : IDisposable
     /// </summary>
     bool HasClient(Guid clientId);
 
-    /// <summary>
-    /// Gets the ring buffer used for storing video chunks.
-    /// </summary>
-    ICircularRingBuffer CircularRingBuffer { get; }
 
     /// <summary>
     /// Gets or sets the M3U file ID.
@@ -49,7 +47,7 @@ public interface IStreamHandler : IDisposable
     /// <summary>
     /// Stops all video streaming activities.
     /// </summary>
-    Task Stop();
+    void Stop();
 
     /// <summary>
     /// Unregisters a client streamer with the given configuration.

@@ -10,11 +10,11 @@ using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
+using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Pagination;
 using StreamMaster.Domain.Requests;
 using StreamMaster.Infrastructure.Clients;
 using StreamMaster.Streams.Domain.Interfaces;
-using StreamMaster.Streams.Domain.Models;
 
 namespace StreamMaster.API.Controllers;
 

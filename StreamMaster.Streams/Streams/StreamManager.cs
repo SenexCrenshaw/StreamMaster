@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Models;
+
 using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Streams;
@@ -32,7 +34,7 @@ public sealed class StreamManager(
                 {
                     try
                     {
-                        streamHandler.Stop().Wait();
+                        streamHandler.Stop();
                         streamHandler.Dispose();
                     }
                     catch (Exception ex)
@@ -201,7 +203,7 @@ public sealed class StreamManager(
     {
         if (_streamHandlers.TryRemove(VideoStreamUrl, out IStreamHandler? streamHandler))
         {
-            await streamHandler.Stop();
+            streamHandler.Stop();
             return true;
         }
 

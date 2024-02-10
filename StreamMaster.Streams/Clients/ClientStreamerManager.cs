@@ -7,7 +7,7 @@ using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Clients;
 
-public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger, IMemoryCache memoryCache, IStatisticsManager statisticsManager, ILogger<ClientReadStream> ringBufferReadStreamLogger) : IClientStreamerManager
+public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger, IMemoryCache memoryCache, IStatisticsManager statisticsManager, ILoggerFactory loggerFactory) : IClientStreamerManager
 {
     private readonly ConcurrentDictionary<Guid, IClientStreamerConfiguration> clientStreamerConfigurations = new();
     private readonly object _disposeLock = new();
@@ -56,14 +56,16 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         IClientStreamerConfiguration? streamerConfiguration = await GetClientStreamerConfiguration(clientId);
         if (streamerConfiguration != null)
         {
-            logger.LogDebug("Adding client {ClientId} {ReaderID} to {Circular Buffer ID} ", clientId, streamerConfiguration.ReadBuffer?.Id ?? Guid.NewGuid(), streamHandler.CircularRingBuffer.Id);
-            streamHandler.RegisterClientStreamer(streamerConfiguration);
             streamerConfiguration.VideoStreamName = streamHandler.VideoStreamName;
-            await SetClientBufferDelegate(streamerConfiguration, streamHandler.CircularRingBuffer);
+            streamerConfiguration.ReadBuffer ??= new ClientReadStream(memoryCache, statisticsManager, loggerFactory, streamerConfiguration);
+
+            logger.LogDebug("Adding client {ClientId} {ReaderID} ", clientId, streamerConfiguration.ReadBuffer?.Id ?? Guid.NewGuid());
+            streamHandler.RegisterClientStreamer(streamerConfiguration);
+
         }
         else
         {
-            logger.LogDebug("Error adding client {ClientId} to {Circular Buffer ID}, client status is null", clientId, streamHandler.CircularRingBuffer.Id);
+            logger.LogDebug("Error adding client {ClientId}, client status is null", clientId);
         }
     }
 
@@ -123,13 +125,6 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         return test;
     }
 
-    public async Task SetClientBufferDelegate(IClientStreamerConfiguration clientStreamerConfiguration, ICircularRingBuffer RingBuffer)
-    {
-        clientStreamerConfiguration.ReadBuffer ??= new ClientReadStream(() => RingBuffer, memoryCache, statisticsManager, ringBufferReadStreamLogger, clientStreamerConfiguration);
-
-
-        await clientStreamerConfiguration.ReadBuffer.SetBufferDelegate(() => RingBuffer, clientStreamerConfiguration);
-    }
 
     public async Task<bool> CancelClient(Guid clientId, bool includeAbort)
     {
@@ -137,8 +132,6 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         if (config == null) { return false; }
 
         logger.LogDebug("Cancelling client {ClientId}", clientId);
-
-        //int test = GetAllClientStreamerConfigurations.Count(a => a.HttpContextId == config.HttpContextId);
 
         await config.CancelClient(includeAbort).ConfigureAwait(false);
 
