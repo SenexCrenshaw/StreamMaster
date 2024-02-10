@@ -108,14 +108,24 @@ public sealed partial class StreamHandler
                     {
                         int overAge = accumulatedBytes + readBytes - videoBufferSize;
                         int toRead = readBytes - overAge;
-                        videoBuffer.Write(clientDataToSend[..toRead]);
+                        if (toRead < 0)
+                        {
+                            logger.LogError(overAge, "toRead is less than {overAge}", overAge);
+                            logger.LogError(overAge, "accumulatedBytes {accumulatedBytes}", accumulatedBytes);
+                            logger.LogError(overAge, "readBytes {readBytes}", readBytes);
+                            logger.LogError(overAge, "readBytes {videoBufferSize}", videoBufferSize);
+                        }
+                        else
+                        {
+                            videoBuffer.Write(clientDataToSend[..toRead]);
 
-                        byte[] videoMemory = videoBuffer.ReadLatestData();
-                        Task task = BuildVideoInfoAsync(videoMemory);
+                            byte[] videoMemory = videoBuffer.ReadLatestData();
+                            Task task = BuildVideoInfoAsync(videoMemory);
 
-                        ++toRead;
-                        accumulatedBytes = readBytes - toRead;
-                        videoBuffer.Write(clientDataToSend[toRead..readBytes]);
+                            ++toRead;
+                            accumulatedBytes = readBytes - toRead;
+                            videoBuffer.Write(clientDataToSend[toRead..readBytes]);
+                        }
                     }
                     else
                     {
