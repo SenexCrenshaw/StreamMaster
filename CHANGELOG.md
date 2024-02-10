@@ -1,3 +1,10 @@
+# [0.12.0-debuffer.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.1...v0.12.0-debuffer.2) (2024-02-10)
+
+
+### Bug Fixes
+
+* CRLF -> LF ([dc2ede3](https://github.com/SenexCrenshaw/StreamMaster/commit/dc2ede3d9949bec4917fa69562137fe1800a3d3f))
+
 # [0.12.0-debuffer.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.11.2...v0.12.0-debuffer.1) (2024-02-10)
 
 
