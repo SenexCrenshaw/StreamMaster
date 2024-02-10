@@ -5,7 +5,6 @@ using StreamMaster.Domain.Models;
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Streams;
 
@@ -23,6 +22,9 @@ public sealed partial class StreamHandler : IStreamHandler
     private readonly IMemoryCache memoryCache;
     private readonly ILogger<IStreamHandler> logger;
 
+    private readonly IInputStatisticsManager inputStatisticsManager;
+    private readonly IInputStreamingStatistics inputStreamStatistics;
+
     public VideoStreamDto VideoStreamDto { get; }
     public int M3UFileId { get; }
     public int ProcessId { get; set; }
@@ -37,8 +39,21 @@ public sealed partial class StreamHandler : IStreamHandler
 
     public bool IsFailed { get; private set; }
     public int RestartCount { get; set; }
+    public readonly StreamInfo StreamInfo;
 
-    public StreamHandler(VideoStreamDto videoStreamDto, int processId, IMemoryCache memoryCache, ILoggerFactory loggerFactory)
+    /// <summary>
+    /// Initializes a new instance of the StreamHandler class, setting up the video stream handling,
+    /// logging, and statistics tracking based on the provided parameters.
+    /// </summary>
+    /// <param name="videoStreamDto">A DTO containing the video stream information, such as stream URL, name, and ID.</param>
+    /// <param name="processId">The process ID associated with this stream handler instance.</param>
+    /// <param name="channelId">The unique identifier for the channel associated with the video stream.</param>
+    /// <param name="channelName">The name of the channel associated with the video stream.</param>
+    /// <param name="rank">The rank or priority of the video stream, used for sorting or prioritization.</param>
+    /// <param name="memoryCache">An IMemoryCache instance for caching purposes within the stream handler.</param>
+    /// <param name="loggerFactory">An ILoggerFactory instance used to create loggers for logging information and events.</param>
+    /// <param name="inputStatisticsManager">An IInputStatisticsManager instance for managing and tracking input statistics.</param>
+    public StreamHandler(VideoStreamDto videoStreamDto, int processId, string channelId, string channelName, int rank, IMemoryCache memoryCache, ILoggerFactory loggerFactory, IInputStatisticsManager inputStatisticsManager)
     {
         this.memoryCache = memoryCache;
         logger = loggerFactory.CreateLogger<StreamHandler>();
@@ -48,18 +63,25 @@ public sealed partial class StreamHandler : IStreamHandler
         StreamUrl = videoStreamDto.User_Url;
         VideoStreamId = videoStreamDto.Id;
         VideoStreamName = videoStreamDto.User_Tvg_name;
-
-        BoundedChannelOptions options = new(videoBufferSize)
-        {
-            Capacity = videoBufferSize,
-            FullMode = BoundedChannelFullMode.DropOldest,
-            SingleReader = true,
-            SingleWriter = true
-        };
-
-        //videoChannel = Channel.CreateBounded<Memory<byte>>(options);
+        this.inputStatisticsManager = inputStatisticsManager;
 
         _writeLogger = loggerFactory.CreateLogger<WriteLogger>();
+
+        StreamInfo = new StreamInfo
+        {
+            ChannelId = channelId,
+            ChannelName = channelName,
+            VideoStreamId = videoStreamDto.Id,
+            VideoStreamName = videoStreamDto.User_Tvg_name,
+            Logo = videoStreamDto.User_Tvg_logo,
+            StreamingProxyType = videoStreamDto.StreamingProxyType,
+            StreamUrl = videoStreamDto.User_Url,
+
+            Rank = rank
+        };
+
+        inputStreamStatistics = inputStatisticsManager.RegisterInputReader(StreamInfo);
+
     }
 
     private void OnStreamingStopped(bool InputStreamError)
@@ -115,6 +137,7 @@ public sealed partial class StreamHandler : IStreamHandler
         {
 
             _ = clientStreamerConfigs.TryAdd(streamerConfiguration.ClientId, streamerConfiguration);
+            inputStreamStatistics.IncrementClient();
             ++ClientCount;
 
             logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId} {name}", streamerConfiguration.ClientId, VideoStreamId, VideoStreamName);
@@ -132,6 +155,7 @@ public sealed partial class StreamHandler : IStreamHandler
         {
             logger.LogInformation("UnRegisterClientStreamer ClientId: {ClientId} {name}", ClientId, VideoStreamName);
             bool result = clientStreamerConfigs.TryRemove(ClientId, out _);
+            inputStreamStatistics.DecrementClient();
             --ClientCount;
 
             return result;

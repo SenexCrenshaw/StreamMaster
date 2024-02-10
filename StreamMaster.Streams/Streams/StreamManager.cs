@@ -108,27 +108,28 @@ public sealed class StreamManager(
             {
                 if (StoppedEvent.InputStreamError && streamHandler.ClientCount > 0)
                 {
-                    if (await streamHandlerFactory.RestartStreamHandlerAsync(streamHandler).ConfigureAwait(false) == null)
-                    {
-                        OnStreamingStoppedEvent?.Invoke(sender, streamHandler);
-                    }
-                    else
-                    {
-                        //streamHandler.RestartCount = 0;
-                        //foreach (Guid clientId in streamHandler.GetClientStreamerClientIds())
-                        //{
-                        //    IClientStreamerConfiguration? clientStreamerConfiguration = await clientStreamerManager.GetClientStreamerConfiguration(clientId);
-                        //    if (clientStreamerConfiguration != null && clientStreamerConfiguration.ReadBuffer != null)
-                        //    {
-                        //        long _lastReadIndex = streamHandler.CircularRingBuffer.GetNextReadIndex();
-                        //        //if (_lastReadIndex > StreamHandler.ChunkSize)
-                        //        //{
-                        //        //    _lastReadIndex -= StreamHandler.ChunkSize;
-                        //        //}
-                        //        clientStreamerConfiguration.ReadBuffer.SetLastIndex(_lastReadIndex);
-                        //    }
-                        //}
-                    }
+                    OnStreamingStoppedEvent?.Invoke(sender, streamHandler);
+                    //if (await streamHandlerFactory.RestartStreamHandlerAsync(streamHandler).ConfigureAwait(false) == null)
+                    //{
+                    //    OnStreamingStoppedEvent?.Invoke(sender, streamHandler);
+                    //}
+                    //else
+                    //{
+                    //    //streamHandler.RestartCount = 0;
+                    //    //foreach (Guid clientId in streamHandler.GetClientStreamerClientIds())
+                    //    //{
+                    //    //    IClientStreamerConfiguration? clientStreamerConfiguration = await clientStreamerManager.GetClientStreamerConfiguration(clientId);
+                    //    //    if (clientStreamerConfiguration != null && clientStreamerConfiguration.ReadBuffer != null)
+                    //    //    {
+                    //    //        long _lastReadIndex = streamHandler.CircularRingBuffer.GetNextReadIndex();
+                    //    //        //if (_lastReadIndex > StreamHandler.ChunkSize)
+                    //    //        //{
+                    //    //        //    _lastReadIndex -= StreamHandler.ChunkSize;
+                    //    //        //}
+                    //    //        clientStreamerConfiguration.ReadBuffer.SetLastIndex(_lastReadIndex);
+                    //    //    }
+                    //    //}
+                    //}
                 }
                 else
                 {

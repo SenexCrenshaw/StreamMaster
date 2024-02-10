@@ -157,10 +157,10 @@ public sealed partial class StreamHandler
             }
         }
 
-        foreach (IClientStreamerConfiguration clientStreamerConfig in clientStreamerConfigs.Values)
-        {
-            clientStreamerConfig.ReadBuffer?.ReadChannel.Writer.Complete();
-        }
+        //foreach (IClientStreamerConfiguration clientStreamerConfig in clientStreamerConfigs.Values)
+        //{
+        //    clientStreamerConfig.ReadBuffer?.ReadChannel.Writer.Complete();
+        //}
 
         stream.Close();
         stream.Dispose();
