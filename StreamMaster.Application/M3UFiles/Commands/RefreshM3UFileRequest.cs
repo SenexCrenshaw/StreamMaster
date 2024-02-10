@@ -22,7 +22,8 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
         {
             lock (lockObject)
             {
-                if (jobStatusService.GetM3UJobStatus().IsRunning)
+                JobStatus status = jobStatusService.GetM3UJobStatus();
+                if (status.IsRunning)
                 {
                     return null;
                 }
