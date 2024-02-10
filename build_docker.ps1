@@ -62,21 +62,21 @@ function Main {
 
     if ($BuildBase -or $BuildAll) {
         $dockerFile = "Dockerfile.base"
-        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchName)-base")
+        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-base")
         BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile
-        Write-StringToFile -Path "basever" -Content $processedAssemblyInfo.BranchName 
+        Write-StringToFile -Path "basever" -Content $processedAssemblyInfo.BranchNameRevision 
     }
-   
+
     if ($BuildBuild -or $BuildAll) {
         $dockerFile = "Dockerfile.build"
-        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchName)-build")
+        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-build")
         BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile
-        Write-StringToFile -Path "buildver" -Content $processedAssemblyInfo.BranchName 
+        Write-StringToFile -Path "buildver" -Content $processedAssemblyInfo.BranchNameRevision 
     }
     
     if ($BuildSM -or $BuildBuild -or $BuildAll) {
         $dockerFile = "Dockerfile.sm"
-        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchName)-sm")
+        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-sm")
         
         $buildver = Read-StringFromFile -Path "buildver";
         $smver = $buildver;
