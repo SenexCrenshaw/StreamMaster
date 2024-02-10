@@ -1,3 +1,13 @@
+# [0.12.0-debuffer.5](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.4...v0.12.0-debuffer.5) (2024-02-10)
+
+
+### Bug Fixes
+
+* Commented out log messages to skipInfo execution ([23f9e15](https://github.com/SenexCrenshaw/StreamMaster/commit/23f9e15f1a10329cfbb464f3f82e14a5eee20378))
+* Complete read channel writer in ClientConfiguration ([c995fbe](https://github.com/SenexCrenshaw/StreamMaster/commit/c995fbe887785d27a0594bd1ebe92ca7184d60f0))
+* Fix issue with unregistering client streamers ([fe55a97](https://github.com/SenexCrenshaw/StreamMaster/commit/fe55a971f5320c9796868574e3cc784b4ef2e621))
+* stats ([623fab1](https://github.com/SenexCrenshaw/StreamMaster/commit/623fab16dc3e758bdf963d9192ddcb9915c42b53))
+
 # [0.12.0-debuffer.4](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.3...v0.12.0-debuffer.4) (2024-02-10)
 
 
