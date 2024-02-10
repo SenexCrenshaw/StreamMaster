@@ -1,3 +1,10 @@
+# [0.12.0-debuffer.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.2...v0.12.0-debuffer.3) (2024-02-10)
+
+
+### Bug Fixes
+
+* ffmpeg kill ([e91b357](https://github.com/SenexCrenshaw/StreamMaster/commit/e91b357e57d04684a1f111cf43cb03e13ea97475))
+
 # [0.12.0-debuffer.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.1...v0.12.0-debuffer.2) (2024-02-10)
 
 
