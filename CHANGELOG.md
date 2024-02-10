@@ -1,3 +1,10 @@
+# [0.12.0-debuffer.6](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.5...v0.12.0-debuffer.6) (2024-02-10)
+
+
+### Bug Fixes
+
+* Removed ringBufferSizeMB ([88c913f](https://github.com/SenexCrenshaw/StreamMaster/commit/88c913fd2ccecd7897e022dca5031ab6e66cecd8))
+
 # [0.12.0-debuffer.5](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.4...v0.12.0-debuffer.5) (2024-02-10)
 
 
