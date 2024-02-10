@@ -71,6 +71,7 @@ public sealed class ChannelManager : IChannelManager
                         clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(channelStatus.ChannelVideoStreamId)
                             .ForEach(async x =>
                             {
+                                await x.CancelClient();
                                 await UnRegisterWithChannelManager(x).ConfigureAwait(false);
                             }
                             );
