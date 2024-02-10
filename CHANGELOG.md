@@ -1,3 +1,10 @@
+# [0.12.0-debuffer.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.11.2...v0.12.0-debuffer.1) (2024-02-10)
+
+
+### Features
+
+* removed buffer, optimized streaming ([b9fbf82](https://github.com/SenexCrenshaw/StreamMaster/commit/b9fbf82b96fa0031e2f0c40d6d7397d17c958dde))
+
 ## [0.11.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.11.1...v0.11.2) (2024-02-09)
 
 
