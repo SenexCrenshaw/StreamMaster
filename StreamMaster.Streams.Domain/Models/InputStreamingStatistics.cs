@@ -9,6 +9,7 @@ public class InputStreamingStatistics : IInputStreamingStatistics
         BytesRead = 0;
         BytesWritten = 0;
         StartTime = DateTimeOffset.UtcNow;
+        Logo = StreamInfo.Logo;
     }
 
     public InputStreamingStatistics() { }
