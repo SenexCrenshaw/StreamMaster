@@ -79,7 +79,7 @@ function Main {
         $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-sm")
         
         $buildver = Read-StringFromFile -Path "buildver";      
-        $contentArray = @('FROM --platform=$BUILDPLATFORM ' + "${buildName}:$($buildver)-build" + ' AS build');
+        $contentArray = @('FROM --platform=$TARGETPLATFORM ' + "${buildName}:$($buildver)-build" + ' AS build');
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
 
         $smver = $processedAssemblyInfo.BranchNameRevision ;
@@ -96,8 +96,8 @@ function Main {
         $basever = Read-StringFromFile -Path "basever";
         $smver = Read-StringFromFile -Path "smver";
 
-        $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${buildName}:$($smver)-sm" + ' AS sm'      
-        $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${buildName}:$($basever)-base" + ' AS base'  
+        $contentArray += 'FROM --platform=$TARGETPLATFORM ' + "${buildName}:$($smver)-sm" + ' AS sm'      
+        $contentArray += 'FROM --platform=$TARGETPLATFORM ' + "${buildName}:$($basever)-base" + ' AS base'  
         
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
 
