@@ -34,8 +34,9 @@ public class LogDbContext : DbContext, ILogDB
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        //modelBuilder.HasCollation("sm_collation", locale: "C.utf8", provider: "icu", deterministic: false);
-        _ = modelBuilder.ApplyConfigurationsFromAssembly(typeof(LogDbContext).Assembly);
+        modelBuilder.UseIdentityAlwaysColumns();
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(LogDbContext).Assembly);
+
         base.OnModelCreating(modelBuilder);
     }
 

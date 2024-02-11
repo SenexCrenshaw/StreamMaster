@@ -28,52 +28,51 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
                 return;
             }
 
-            if (!SystemKeyValues.Any(a => a.Key == "ChangeIDAlways"))
-            {
-                await FixIDs().ConfigureAwait(false);
-                SystemKeyValues.Add(new SystemKeyValue { Key = "ChangeIDAlways", Value = "1" });
-                await SaveChangesAsync().ConfigureAwait(false);
-            }
+            //if (!SystemKeyValues.Any(a => a.Key == "ChangeIDAlways"))
+            //{
+            //    await FixIDs().ConfigureAwait(false);
+            //    SystemKeyValues.Add(new SystemKeyValue { Key = "ChangeIDAlways", Value = "1" });
+            //    await SaveChangesAsync().ConfigureAwait(false);
+            //}
         }
 
-        private async Task FixIDs()
-        {
-            int startValue = 0;
-            if (ChannelGroups.Any())
-            {
-                startValue = ChannelGroups.Max(a => a.Id) + 1;
-                await DoFixID("ChannelGroups", startValue).ConfigureAwait(false);
-            }
+        //private async Task FixIDs()
+        //{
+        //    int startValue = 0;
+        //    if (ChannelGroups.Any())
+        //    {
+        //        startValue = ChannelGroups.Max(a => a.Id) + 1;
+        //        await DoFixID("ChannelGroups", startValue).ConfigureAwait(false);
+        //    }
 
-            if (EPGFiles.Any())
-            {
-                startValue = EPGFiles.Max(a => a.Id) + 1;
-                await DoFixID("EPGFiles", startValue).ConfigureAwait(false);
-            }
-            if (M3UFiles.Any())
-            {
-                startValue = M3UFiles.Max(a => a.Id) + 1;
-                await DoFixID("M3UFiles", startValue).ConfigureAwait(false);
-            }
-            if (StreamGroups.Any())
-            {
-                startValue = StreamGroups.Max(a => a.Id) + 1;
-                await DoFixID("StreamGroups", startValue).ConfigureAwait(false);
-            }
-        }
+        //    if (EPGFiles.Any())
+        //    {
+        //        startValue = EPGFiles.Max(a => a.Id) + 1;
+        //        await DoFixID("EPGFiles", startValue).ConfigureAwait(false);
+        //    }
+        //    if (M3UFiles.Any())
+        //    {
+        //        startValue = M3UFiles.Max(a => a.Id) + 1;
+        //        await DoFixID("M3UFiles", startValue).ConfigureAwait(false);
+        //    }
+        //    if (StreamGroups.Any())
+        //    {
+        //        startValue = StreamGroups.Max(a => a.Id) + 1;
+        //        await DoFixID("StreamGroups", startValue).ConfigureAwait(false);
+        //    }
+        //}
 
-        private async Task DoFixID(string tableName, int startValue)
-        {
-            ExecuteSqlRaw($"ALTER TABLE public.\"{tableName}\" ALTER COLUMN \"Id\" SET GENERATED ALWAYS;");
+        //private async Task DoFixID(string tableName, int startValue)
+        //{
+        //    ExecuteSqlRaw($"ALTER TABLE public.\"{tableName}\" ALTER COLUMN \"Id\" SET GENERATED ALWAYS;");
 
-            string sequenceName = $"{tableName}_Id_seq";
-            string alterSequenceCmd = $"ALTER SEQUENCE \"{sequenceName}\" RESTART WITH {startValue}";
+        //    string sequenceName = $"{tableName}_Id_seq";
+        //    string alterSequenceCmd = $"ALTER SEQUENCE \"{sequenceName}\" RESTART WITH {startValue}";
 
-            ExecuteSqlRaw(alterSequenceCmd);
+        //    ExecuteSqlRaw(alterSequenceCmd);
 
-            await SaveChangesAsync().ConfigureAwait(false);
-        }
-
+        //    await SaveChangesAsync().ConfigureAwait(false);
+        //}
 
 
         public DbSet<SystemKeyValue> SystemKeyValues { get; set; }
@@ -92,8 +91,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.HasCollation("sm_collation", locale: "C.utf8", provider: "icu", deterministic: false);
-            modelBuilder.UseIdentityByDefaultColumns();
+            modelBuilder.UseIdentityAlwaysColumns();
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(PGSQLRepositoryContext).Assembly);
 
             _ = modelBuilder.Entity<VideoStream>()

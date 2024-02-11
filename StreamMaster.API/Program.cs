@@ -14,6 +14,7 @@ using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.EF;
 using StreamMaster.Infrastructure.EF.PGSQL;
+using StreamMaster.Infrastructure.EF.PGSQL.Logging;
 using StreamMaster.Infrastructure.EF.SQLite;
 using StreamMaster.Infrastructure.Middleware;
 using StreamMaster.SchedulesDirect.Services;
@@ -34,7 +35,7 @@ builder.WebHost.ConfigureKestrel((context, serverOptions) =>
     serverOptions.Limits.MaxRequestBodySize = null;    
 });
 
-string settingFile = BuildInfo.SettingFile;// $"{BuildInfo.AppDataFolder}settings.json";
+string settingFile = BuildInfo.SettingFile;
 
 //builder.Configuration.AddJsonFile(settingFile, true, false);
 builder.Configuration.AddJsonFile(BuildInfo.LoggingFile, optional: true, reloadOnChange: true);
@@ -115,15 +116,10 @@ void OnShutdown()
     imageDownloadService.StopAsync(CancellationToken.None).Wait();
     
     FileUtil.Backup().Wait();
-    //LogDbContext logDbContext = app.Services.GetRequiredService<LogDbContext>();
-    //logDbContext.Dispose();
-    //LogDbContextInitialiser logInitialiser = app.Services.GetRequiredService<LogDbContextInitialiser>();
-    //logInitialiser.Dispose();
 }
 
 app.UseOpenApi();
 app.UseSwaggerUi();
-//app.UseSwaggerUi3();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -147,13 +143,13 @@ app.UseSession();
 
 using (IServiceScope scope = app.Services.CreateScope())
 {
-    //LogDbContextInitialiser logInitialiser = scope.ServiceProvider.GetRequiredService<LogDbContextInitialiser>();
-    //await logInitialiser.InitialiseAsync().ConfigureAwait(false);
-    //if (app.Environment.IsDevelopment())
-    //{
-    //    logInitialiser.TrySeed();
+    LogDbContextInitialiser logInitialiser = scope.ServiceProvider.GetRequiredService<LogDbContextInitialiser>();
+    await logInitialiser.InitialiseAsync().ConfigureAwait(false);
+    if (app.Environment.IsDevelopment())
+    {
+        logInitialiser.TrySeed();
 
-    //}
+    }
 
     RepositoryContextInitializer initialiser = scope.ServiceProvider.GetRequiredService<RepositoryContextInitializer>();
     await initialiser.InitialiseAsync().ConfigureAwait(false);
