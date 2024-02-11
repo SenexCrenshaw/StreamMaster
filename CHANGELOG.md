@@ -1,3 +1,5 @@
+# [0.13.0](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.3...v0.13.0) (2024-02-11)
+
 ## [0.12.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.2...v0.12.3) (2024-02-11)
 
 ## [0.12.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.1...v0.12.2) (2024-02-11)
