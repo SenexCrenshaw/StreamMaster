@@ -3,7 +3,7 @@
 user_name="nonRootUser"
 group_name="nonRootGroup"
 
-. /app/env.sh
+. /env.sh
 
 wait_for_postgres() {
     local host="$1"

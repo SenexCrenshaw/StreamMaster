@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Source environment variables
-. /app/env.sh
+. /env.sh
 
 # Configuration
 backup_dirs="/config/PlayLists /config/Logs /config/Cache/SDJson" # Space-separated list of directories

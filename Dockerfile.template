@@ -10,19 +10,19 @@ RUN mkdir /config
 ENV PUID=0
 ENV PGID=0
 
-COPY --from=sm /app/publish /app
+COPY --from=sm /app/publish /
 
 COPY docker-entrypoint.sh docker-ensure-initdb.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh /usr/local/bin/docker-ensure-initdb.sh
 RUN ln -sT docker-ensure-initdb.sh /usr/local/bin/docker-enforce-initdb.sh
 
 COPY backup.sh /usr/local/bin/backup.sh
-COPY entrypoint.sh /app/entrypoint.sh
-COPY env.sh /app/env.sh
-RUN chmod +x /app/entrypoint.sh /app/env.sh /usr/local/bin/backup.sh
+COPY entrypoint.sh /entrypoint.sh
+COPY env.sh /env.sh
+RUN chmod +x /entrypoint.sh /env.sh /usr/local/bin/backup.sh
 
 EXPOSE 5432
 
-ENTRYPOINT ["/app/entrypoint.sh", "dotnet", "/app/StreamMaster.API.dll"]
+ENTRYPOINT ["/entrypoint.sh", "dotnet", "StreamMaster.API.dll"]
 
 STOPSIGNAL SIGINT
