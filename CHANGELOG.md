@@ -1,3 +1,10 @@
+## [0.13.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.13.0...v0.13.1) (2024-02-11)
+
+
+### Bug Fixes
+
+* EPG/M3U refresh/proc ([aabc523](https://github.com/SenexCrenshaw/StreamMaster/commit/aabc523592e677dc00b02c4e5f15f32566148431))
+
 # [0.13.0](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.3...v0.13.0) (2024-02-11)
 
 ## [0.12.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.2...v0.12.3) (2024-02-11)
