@@ -271,7 +271,7 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
         return entity == null ? NotFound() : NoContent();
     }
 
-    //private ObjectResult GetStatus(ProxyStreamErrorCode proxyStreamErrorCode)
+    //private ObjectResult Status(ProxyStreamErrorCode proxyStreamErrorCode)
     //{
     //    return proxyStreamErrorCode switch
     //    {

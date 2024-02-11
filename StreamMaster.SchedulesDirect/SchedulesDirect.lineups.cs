@@ -1,4 +1,7 @@
-﻿using StreamMaster.SchedulesDirect.Domain.Enums;
+﻿using StreamMaster.Domain.Enums;
+using StreamMaster.Domain.Models;
+using StreamMaster.SchedulesDirect.Domain.Enums;
+using StreamMaster.SchedulesDirect.Helpers;
 
 
 namespace StreamMaster.SchedulesDirect;
@@ -106,7 +109,8 @@ public partial class SchedulesDirect
         if (ret != null)
         {
             logger.LogDebug($"Successfully removed lineup {lineup} from account. serverID: {ret.ServerId} , message: {ret.Message} , changesRemaining: {ret.ChangesRemaining}");
-            jobStatusService.SetSyncForceNextRun(true);
+            JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
+            jobManager.SetForceNextRun(true);
         }
         else
         {

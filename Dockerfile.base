@@ -1,8 +1,4 @@
-FROM --platform=$TARGETPLATFORM  mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-ARG TARGETPLATFORM
-ARG TARGETARCH
-ARG BUILDPLATFORM
-ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 
 RUN apt-get update -yq \
     && apt-get upgrade -yq \

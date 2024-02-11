@@ -1,4 +1,5 @@
 ﻿using StreamMaster.Application.Settings.Commands;
+using StreamMaster.SchedulesDirect.Helpers;
 
 namespace StreamMaster.Application.SchedulesDirect.Commands;
 
@@ -21,6 +22,8 @@ public class AddStationHandler(ILogger<AddStation> logger, IJobStatusService job
         {
             return true;
         }
+
+        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
 
         UpdateSettingRequest updateSettingRequest = new()
         {
@@ -45,7 +48,7 @@ public class AddStationHandler(ILogger<AddStation> logger, IJobStatusService job
         _ = await Sender.Send(updateSettingRequest, cancellationToken).ConfigureAwait(false);
 
         schedulesDirect.ResetCache("SubscribedLineups");
-        jobStatusService.SetSyncForceNextRun();
+        jobManager.SetForceNextRun();
 
         //await HubContext.Clients.All.SchedulesDirectsRefresh();
         return true;

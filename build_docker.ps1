@@ -40,16 +40,24 @@ function Read-StringFromFile {
     }
 }
 
-
 function Main {
     Set-EnvironmentVariables
 
     # Read GitHub token and set it as an environment variable
     $ghtoken = Get-Content ghtoken -Raw
     $env:GH_TOKEN = $ghtoken
-    
+
+    if (  $SkipMainBuild) {
+        $BuildProd = $false
+    }
+
     if (-not $SkipRelease) {
-        npx semantic-release
+        if ( $BuildProd -and -not $SkipMainBuild) {
+            npx semantic-release -e release.gh
+        }
+        else {
+            npx semantic-release
+        }
     }
 
     # DownloadFiles
@@ -79,7 +87,7 @@ function Main {
         $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-sm")
         
         $buildver = Read-StringFromFile -Path "buildver";      
-        $contentArray = @('FROM --platform=$TARGETPLATFORM ' + "${buildName}:$($buildver)-build" + ' AS build');
+        $contentArray = @('FROM --platform=$BUILDPLATFORM ' + "${buildName}:$($buildver)-build" + ' AS build');
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
 
         $smver = $processedAssemblyInfo.BranchNameRevision ;
@@ -96,8 +104,8 @@ function Main {
         $basever = Read-StringFromFile -Path "basever";
         $smver = Read-StringFromFile -Path "smver";
 
-        $contentArray += 'FROM --platform=$TARGETPLATFORM ' + "${buildName}:$($smver)-sm" + ' AS sm'      
-        $contentArray += 'FROM --platform=$TARGETPLATFORM ' + "${buildName}:$($basever)-base" + ' AS base'  
+        $contentArray += 'FROM ' + "${buildName}:$($smver)-sm" + ' AS sm'      
+        $contentArray += 'FROM ' + "${buildName}:$($basever)-base" + ' AS base'  
         
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
 

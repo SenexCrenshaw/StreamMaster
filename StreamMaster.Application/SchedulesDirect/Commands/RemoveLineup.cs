@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.SchedulesDirect.Commands;
+﻿using StreamMaster.SchedulesDirect.Helpers;
+
+namespace StreamMaster.Application.SchedulesDirect.Commands;
 
 public record RemoveLineup(string lineup) : IRequest<bool>;
 
@@ -7,6 +9,7 @@ public class RemoveLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusSer
 {
     public async Task<bool> Handle(RemoveLineup request, CancellationToken cancellationToken)
     {
+        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
         Setting setting = memoryCache.GetSetting();
         if (!setting.SDSettings.SDEnabled)
         {
@@ -15,7 +18,7 @@ public class RemoveLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusSer
         logger.LogInformation("Remove line up {lineup}", request.lineup);
         if (await schedulesDirect.RemoveLineup(request.lineup, cancellationToken).ConfigureAwait(false))
         {
-            if (await schedulesDirect.SDSync(0, cancellationToken))
+            if (await schedulesDirect.SDSync(cancellationToken))
             {
                 await HubContext.Clients.All.SchedulesDirectsRefresh();
 
@@ -24,7 +27,7 @@ public class RemoveLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusSer
             //schedulesDirect.ResetCache(SDCommands.LineUps);
             //await hubContext.Clients.All.SchedulesDirectsRefresh();
             schedulesDirect.ResetCache("SubscribedLineups");
-            jobStatusService.SetSyncForceNextRun();
+            jobManager.SetForceNextRun();
 
             return true;
         }

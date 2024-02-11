@@ -1,8 +1,4 @@
-FROM --platform=$TARGETPLATFORM  mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG TARGETPLATFORM
-ARG TARGETARCH
-ARG BUILDPLATFORM
-ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 RUN apt-get update -yq \
     && apt-get upgrade -yq \

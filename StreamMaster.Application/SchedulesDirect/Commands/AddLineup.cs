@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.SchedulesDirect.Commands;
+﻿using StreamMaster.SchedulesDirect.Helpers;
+
+namespace StreamMaster.Application.SchedulesDirect.Commands;
 
 public record AddLineup(string lineup) : IRequest<bool>;
 
@@ -7,6 +9,8 @@ public class AddLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusServic
 {
     public async Task<bool> Handle(AddLineup request, CancellationToken cancellationToken)
     {
+        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
+
         Setting setting = memoryCache.GetSetting();
         if (!setting.SDSettings.SDEnabled)
         {
@@ -16,7 +20,7 @@ public class AddLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusServic
         if (await schedulesDirect.AddLineup(request.lineup, cancellationToken).ConfigureAwait(false))
         {
             schedulesDirect.ResetCache("SubscribedLineups");
-            jobStatusService.SetSyncForceNextRun();
+            jobManager.SetForceNextRun();
             //await HubContext.Clients.All.SchedulesDirectsRefresh();
             return true;
         }

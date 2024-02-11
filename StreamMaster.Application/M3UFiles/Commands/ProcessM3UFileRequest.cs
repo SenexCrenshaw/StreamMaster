@@ -30,7 +30,13 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
     [LogExecutionTimeAspect]
     public async Task<M3UFile?> Handle(ProcessM3UFileRequest request, CancellationToken cancellationToken)
     {
-        jobStatusService.SetM3UStart();
+        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.ProcessM3U, request.Id);
+        if (jobManager.IsRunning)
+        {
+            return null;
+        }
+
+        jobManager.Start();
         M3UFile? m3uFile = null;
         try
         {
@@ -59,7 +65,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
             await publisher.Publish(new M3UFileProcessedEvent(), cancellationToken).ConfigureAwait(false);
             lock (lockObject)
             {
-                jobStatusService.SetM3USuccessful();
+                jobManager.SetSuccessful();
             }
             return m3uFile;
         }
@@ -67,7 +73,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         {
             lock (lockObject)
             {
-                jobStatusService.SetM3UError();
+                jobManager.SetError();
             }
             logger.LogCritical(ex, "Error while processing M3U file");
             return null;
@@ -81,7 +87,6 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
                 repository.M3UFile.UpdateM3UFile(m3uFile);
                 _ = await repository.SaveAsync().ConfigureAwait(false);
             }
-            // jobStatusService.SetM3UStop();
         }
     }
 

@@ -18,3 +18,5 @@ RUN npm install \
 
 WORKDIR "/src/StreamMaster.API"
 RUN dotnet publish --no-restore "StreamMaster.API.csproj" -c Debug -o /app/publish /p:UseAppHost=false -a $TARGETARCH
+
+RUN rm -rf /src

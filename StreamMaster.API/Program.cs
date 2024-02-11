@@ -17,6 +17,7 @@ using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.EF.PGSQL.Logging;
 using StreamMaster.Infrastructure.EF.SQLite;
 using StreamMaster.Infrastructure.Middleware;
+using StreamMaster.Infrastructure.Services;
 using StreamMaster.SchedulesDirect.Services;
 using StreamMaster.Streams;
 
@@ -114,7 +115,10 @@ void OnShutdown()
     sQLiteRepositoryContext.Dispose();
     IImageDownloadService imageDownloadService = app.Services.GetRequiredService<IImageDownloadService>();
     imageDownloadService.StopAsync(CancellationToken.None).Wait();
-    
+
+    //var timerService = app.Services.GetRequiredService<TimerService>();
+    //timerService.StopAsync(CancellationToken.None).Wait();
+
     FileUtil.Backup().Wait();
 }
 
