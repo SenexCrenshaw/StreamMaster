@@ -1,3 +1,10 @@
+# [0.12.0-debuffer.9](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.8...v0.12.0-debuffer.9) (2024-02-11)
+
+
+### Features
+
+* Add logging db ([adefa7e](https://github.com/SenexCrenshaw/StreamMaster/commit/adefa7e99d2e592a89953fe4f5a40219f66a9aed))
+
 # [0.12.0-debuffer.8](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.7...v0.12.0-debuffer.8) (2024-02-10)
 
 
