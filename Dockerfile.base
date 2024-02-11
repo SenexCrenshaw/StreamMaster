@@ -1,5 +1,7 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 
+WORKDIR /app
+
 RUN apt-get update -yq \
     && apt-get upgrade -yq \
     && apt-get install -yq --no-install-recommends ffmpeg gosu postgresql postgresql-common curl gnupg lsb-release \

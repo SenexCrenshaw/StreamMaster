@@ -5,12 +5,14 @@ LABEL org.opencontainers.image.url="https://hub.docker.com/r/SenexCrenshaw/strea
     org.opencontainers.image.description="Dockerized Stream Master by SenexCrenshaw" \
     org.opencontainers.image.authors="SenexCrenshaw"
 
+WORKDIR /app
+
 RUN mkdir /config
 
 ENV PUID=0
 ENV PGID=0
 
-COPY --from=sm /app/publish /
+COPY --from=sm /app/publish .
 
 COPY docker-entrypoint.sh docker-ensure-initdb.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh /usr/local/bin/docker-ensure-initdb.sh
@@ -21,6 +23,7 @@ COPY entrypoint.sh /entrypoint.sh
 COPY env.sh /env.sh
 RUN chmod +x /entrypoint.sh /env.sh /usr/local/bin/backup.sh
 
+EXPOSE 7095
 EXPOSE 5432
 
 ENTRYPOINT ["/entrypoint.sh", "dotnet", "StreamMaster.API.dll"]
