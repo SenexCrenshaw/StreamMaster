@@ -54,6 +54,12 @@ module.exports = {
       }
     ],
     [
+      "@semantic-release/github",
+      {
+        assets: ["CHANGELOG.md"]
+      }
+    ],
+    [
       "@semantic-release/git",
       {
         assets: ["CHANGELOG.md"]

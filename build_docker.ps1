@@ -51,9 +51,9 @@ function Main {
         $BuildProd = $false
     }
 
-    if (-not $SkipRelease) {
+    if (-not $SkipRelease -and -not $PrintCommands) {
         if ( $BuildProd -and -not $SkipMainBuild) {
-            npx semantic-release -e release.gh
+            npx semantic-release # -e release.gh
         }
         else {
             npx semantic-release
