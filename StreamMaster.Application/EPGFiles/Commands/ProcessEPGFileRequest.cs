@@ -33,6 +33,7 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
 
             if (epgFile == null)
             {
+                jobManager.SetError();
                 return null;
             }
 

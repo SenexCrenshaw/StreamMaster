@@ -31,6 +31,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
             M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileById(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
             {
+                jobManager.SetError();
                 return null;
             }
 
@@ -68,6 +69,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
                     {
                         File.Delete(fullName);
                     }
+                    jobManager.SetError();
                     return null;
                 }
             }

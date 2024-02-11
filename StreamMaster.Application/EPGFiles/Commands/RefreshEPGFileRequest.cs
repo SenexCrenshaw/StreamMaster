@@ -32,6 +32,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
             EPGFile? epgFile = await Repository.EPGFile.GetEPGFileById(request.Id).ConfigureAwait(false);
             if (epgFile == null)
             {
+                jobManager.SetError();
                 return null;
             }
 

@@ -24,7 +24,7 @@ public class ProcessM3UFileRequestValidator : AbstractValidator<ProcessM3UFileRe
 
 public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IRepositoryWrapper repository, IJobStatusService jobStatusService, IPublisher publisher, ISender sender, IMemoryCache memoryCache) : IRequestHandler<ProcessM3UFileRequest, M3UFile?>
 {
-    private readonly object lockObject = new();
+
     private SimpleIntList existingChannels = new(0);
 
     [LogExecutionTimeAspect]
@@ -44,6 +44,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
             if (m3uFile == null)
             {
                 logger.LogCritical("Could not find M3U file");
+                jobManager.SetError();
                 return null;
             }
 
@@ -51,11 +52,13 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
             if (streams == null)
             {
                 logger.LogCritical("Error while processing M3U file, bad format");
+                jobManager.SetError();
                 return null;
             }
 
             if (!request.forceRun && !ShouldUpdate(m3uFile, m3uFile.VODTags, request.OverWriteChannels))
             {
+                jobManager.SetSuccessful();
                 return m3uFile;
             }
 
@@ -63,18 +66,16 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
             await UpdateChannelGroups(streams, cancellationToken).ConfigureAwait(false);
 
             await publisher.Publish(new M3UFileProcessedEvent(), cancellationToken).ConfigureAwait(false);
-            lock (lockObject)
-            {
-                jobManager.SetSuccessful();
-            }
+
+            jobManager.SetSuccessful();
+
             return m3uFile;
         }
         catch (Exception ex)
         {
-            lock (lockObject)
-            {
-                jobManager.SetError();
-            }
+
+            jobManager.SetError();
+
             logger.LogCritical(ex, "Error while processing M3U file");
             return null;
         }
