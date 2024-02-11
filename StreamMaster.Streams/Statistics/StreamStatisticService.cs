@@ -28,7 +28,6 @@ public sealed class StreamStatisticService(IInputStatisticsManager inputStatisti
                 cancellationToken.ThrowIfCancellationRequested();
                 try
                 {
-                    //IPHostEntry host = await Dns.GetHostEntryAsync(streamStatisticsResult.ClientIPAddress).ConfigureAwait(false);
                     string hostName = await GetHostNameAsync(streamStatisticsResult.ClientIPAddress, cancellationToken).ConfigureAwait(false);
                     streamStatisticsResult.ClientIPAddress = hostName;
                 }
@@ -57,8 +56,7 @@ public sealed class StreamStatisticService(IInputStatisticsManager inputStatisti
         // Set cache options. Adjust the expiration time as needed.
         MemoryCacheEntryOptions cacheEntryOptions = new()
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1), // e.g., 1 hour cache
-            //SlidingExpiration = TimeSpan.FromMinutes(30) // e.g., extend cache life for another 30 minutes if accessed
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(8),
         };
 
         memoryCache.Set(ipAddress, hostName, cacheEntryOptions);

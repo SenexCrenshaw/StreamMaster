@@ -28,7 +28,6 @@ const help_en: help_enType = {
   overWriteM3UChannels: 'Overwrite M3U Channels Numbers even if they are set',
   password: 'Password',
   rememberme: 'Remember Me',
-  ringBufferSizeMB: 'Buffer Size (MB)',
   sdPassword: 'ScheduleDirect Password - The displayed value is encypted and not the real password. Re-enter the real password to change',
   sdUserName: 'ScheduleDirect Username',
   settings: 'Settings',

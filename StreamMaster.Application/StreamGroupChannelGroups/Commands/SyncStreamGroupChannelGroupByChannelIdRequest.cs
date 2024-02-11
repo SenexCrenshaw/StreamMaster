@@ -3,7 +3,7 @@
 public record SyncStreamGroupChannelGroupByChannelIdRequest(int ChannelGroupId) : IRequest;
 
 [LogExecutionTimeAspect]
-internal class SSyncStreamGroupChannelGroupsByChannelIdRequestupsRequestHandler(ILogger<SyncStreamGroupChannelGroupByChannelIdRequest> logger, IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+internal class SyncStreamGroupChannelGroupsByChannelIdsRequestHandler(ILogger<SyncStreamGroupChannelGroupByChannelIdRequest> logger, IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
     : IRequestHandler<SyncStreamGroupChannelGroupByChannelIdRequest>
 {
     public async Task Handle(SyncStreamGroupChannelGroupByChannelIdRequest request, CancellationToken cancellationToken = default)

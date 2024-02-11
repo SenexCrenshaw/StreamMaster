@@ -1,4 +1,5 @@
 ﻿using StreamMaster.Application.Settings.Commands;
+using StreamMaster.SchedulesDirect.Helpers;
 
 namespace StreamMaster.Application.SchedulesDirect.Commands;
 
@@ -10,6 +11,8 @@ public class RemoveStationHandler(ILogger<RemoveStation> logger, IJobStatusServi
 {
     public async Task<bool> Handle(RemoveStation request, CancellationToken cancellationToken)
     {
+        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
+
         Setting setting = memoryCache.GetSetting();
         if (!setting.SDSettings.SDEnabled)
         {
@@ -45,7 +48,7 @@ public class RemoveStationHandler(ILogger<RemoveStation> logger, IJobStatusServi
             _ = await Sender.Send(updateSettingRequest, cancellationToken).ConfigureAwait(false);
 
             schedulesDirect.ResetEPGCache();
-            jobStatusService.SetSyncForceNextRun();
+            jobManager.SetForceNextRun();
 
             //foreach (EPGFileDto epg in await Repository.EPGFile.GetEPGFiles())
             //{

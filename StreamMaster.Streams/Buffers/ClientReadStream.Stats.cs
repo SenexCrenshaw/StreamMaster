@@ -42,8 +42,8 @@ public sealed partial class ClientReadStream
         {
             double bps = metrics.GetBitsPerSecond();
 
-            _bitsPerSecond.WithLabels(ClientId.ToString(), Buffer.VideoStreamName).Set(bps);
-            _bytesReadCounter.WithLabels(ClientId.ToString(), Buffer.VideoStreamName).Inc(acculmativeBytesRead);
+            _bitsPerSecond.WithLabels(ClientId.ToString(), VideoStreamName).Set(bps);
+            _bytesReadCounter.WithLabels(ClientId.ToString(), VideoStreamName).Inc(acculmativeBytesRead);
 
             acculmativeBytesRead = 0;
             _lastUpdateTime = currentTime;

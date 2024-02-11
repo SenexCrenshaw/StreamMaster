@@ -1,15 +1,23 @@
-﻿using StreamMaster.Domain.Services;
+﻿using Microsoft.Extensions.Logging;
+
+using StreamMaster.Domain.Enums;
+using StreamMaster.Domain.Services;
 
 using System.Collections.Concurrent;
 
 namespace StreamMaster.Infrastructure.Services;
 
-public partial class JobStatusService : IJobStatusService
+public partial class JobStatusService(ILogger<JobStatusService> logger) : IJobStatusService
 {
-    private readonly ConcurrentDictionary<string, JobStatus> _jobs = [];
-    private readonly ConcurrentDictionary<string, object> _locks = [];
+    public readonly ConcurrentDictionary<string, JobStatus> _jobs = [];
+    public readonly ConcurrentDictionary<string, object> _locks = [];
 
-    private JobStatus GetStatus(string key)
+    public JobStatusManager GetJobManager(JobType jobType, int id)
+    {
+        return new JobStatusManager(this, jobType, id);
+    }
+
+    public JobStatus GetStatus(string key)
     {
         if (!_jobs.TryGetValue(key, out JobStatus? status))
         {
@@ -21,52 +29,88 @@ public partial class JobStatusService : IJobStatusService
 
     }
 
-    private void SetStatus(string key, JobStatus status)
+    public void SetStatus(string key, JobStatus status)
     {
-        _ = _jobs.AddOrUpdate(key, status, (key, value) => value = status);
-    }
-
-    private void UpdateStatus(string key, Action<JobStatus> updateAction, object lockObject)
-    {
-        lock (lockObject)
+        try
         {
-            JobStatus status = GetStatus(key);
-            updateAction(status);
-            SetStatus(key, status);
+            _jobs.AddOrUpdate(key, addValueFactory: _ => status, updateValueFactory: (_, _) => status);
+            //logger.LogInformation("Status for {JobKey} has been updated successfully.", key);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to update status for {JobKey}.", key);
+            throw;
         }
     }
 
-    private void SetSuccessful(string key)
+    public void UpdateStatus(string key, Action<JobStatus> updateAction)
     {
-        UpdateStatus(key, status => status.SetSuccessful(), _locks.GetOrAdd(key, new object()));
+        object lockObject = _locks.GetOrAdd(key, _ => new object());
+        lock (lockObject)
+        {
+            try
+            {
+                JobStatus status = GetStatus(key);
+                updateAction(status);
+                SetStatus(key, status);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error updating status for {JobKey}.", key);
+                throw; // Rethrow if you want the exception to be handled further up the call stack
+            }
+        }
     }
 
-    private void SetError(string key)
+    public void SetSuccessful(string key)
     {
-        UpdateStatus(key, status => status.SetError(), _locks.GetOrAdd(key, new object()));
+        UpdateStatus(key, status => status.SetSuccessful());
     }
 
-    private void SetForceNextRun(string key, bool Extra = false)
+    public void SetError(string key)
     {
-        UpdateStatus(key, status => status.SetForceNextRun(Extra), _locks.GetOrAdd(key, new object()));
+        UpdateStatus(key, status => status.SetError());
     }
 
-    private void SetIsRunning(string key, bool isRunning)
+    public void SetForceNextRun(string key, bool Extra = false)
+    {
+        UpdateStatus(key, status => status.SetForceNextRun(Extra));
+    }
+
+    public void SetIsRunning(string key, bool isRunning)
     {
         if (isRunning)
         {
-            UpdateStatus(key, status => status.SetStart(), _locks.GetOrAdd(key, new object()));
+            UpdateStatus(key, status => status.SetStart());
         }
         else
         {
-            UpdateStatus(key, status => status.SetStop(), _locks.GetOrAdd(key, new object()));
+            UpdateStatus(key, status => status.SetStop());
         }
     }
 
-    private void ClearForce(string key)
+    public void ClearForce(string key)
     {
-        UpdateStatus(key, status => status.SetForceNextRun(false), _locks.GetOrAdd(key, new object()));
+        UpdateStatus(key, status => status.SetForceNextRun(false));
     }
 
+    public bool IsRunning(string key)
+    {
+        return GetStatus(key).IsRunning;
+    }
 
+    public bool ForceNextRun(string key)
+    {
+        return GetStatus(key).ForceNextRun;
+    }
+
+    public DateTime LastRun(string key)
+    {
+        return GetStatus(key).LastRun;
+    }
+
+    public DateTime LastSuccessful(string key)
+    {
+        return GetStatus(key).LastSuccessful;
+    }
 }

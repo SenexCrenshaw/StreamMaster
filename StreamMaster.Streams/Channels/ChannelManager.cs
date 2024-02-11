@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Repository;
 
 namespace StreamMaster.Streams.Channels;
@@ -21,7 +22,6 @@ public sealed class ChannelManager : IChannelManager
 
     public ChannelManager(
         ILogger<ChannelManager> logger,
-        //IBroadcastService broadcastService,
         IStreamSwitcher streamSwitcher,
         IChannelService channelService,
         IStreamManager streamManager,
@@ -70,6 +70,7 @@ public sealed class ChannelManager : IChannelManager
                         clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(channelStatus.ChannelVideoStreamId)
                             .ForEach(async x =>
                             {
+                                await x.CancelClient();
                                 await UnRegisterWithChannelManager(x).ConfigureAwait(false);
                             }
                             );
@@ -80,7 +81,7 @@ public sealed class ChannelManager : IChannelManager
             }
             if (streamHandler.ClientCount == 0)
             {
-                await streamHandler.Stop();
+                streamHandler.Stop();
             }
 
         }
@@ -184,7 +185,7 @@ public sealed class ChannelManager : IChannelManager
 
         if (handler is not null)
         {
-            await handler.Stop();
+            handler.Stop();
 
             logger.LogInformation("Simulating stream failure for: {VideoStreamName}", handler.VideoStreamName);
         }
@@ -198,7 +199,7 @@ public sealed class ChannelManager : IChannelManager
     {
         foreach (IStreamHandler s in streamManager.GetStreamHandlers())
         {
-            await s.Stop();
+            s.Stop();
         }
     }
 
@@ -279,6 +280,12 @@ public sealed class ChannelManager : IChannelManager
             {
                 logger.LogError("Could not find handler for {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.ChannelVideoStreamId, channelVideoStream.User_Tvg_name);
                 return null;
+            }
+            if (handler.IsFailed)
+            {
+                logger.LogInformation("Existing hanlder is failed, creating");
+
+                await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
             }
 
             await clientStreamerManager.AddClientToHandler(config.ClientId, handler);

@@ -40,16 +40,24 @@ function Read-StringFromFile {
     }
 }
 
-
 function Main {
     Set-EnvironmentVariables
 
     # Read GitHub token and set it as an environment variable
     $ghtoken = Get-Content ghtoken -Raw
     $env:GH_TOKEN = $ghtoken
-    
+
+    if (  $SkipMainBuild) {
+        $BuildProd = $false
+    }
+
     if (-not $SkipRelease) {
-        npx semantic-release
+        if ( $BuildProd -and -not $SkipMainBuild) {
+            npx semantic-release -e release.gh
+        }
+        else {
+            npx semantic-release
+        }
     }
 
     # DownloadFiles
@@ -62,27 +70,27 @@ function Main {
 
     if ($BuildBase -or $BuildAll) {
         $dockerFile = "Dockerfile.base"
-        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchName)-base")
+        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-base")
         BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile
-        Write-StringToFile -Path "basever" -Content $processedAssemblyInfo.BranchName 
+        Write-StringToFile -Path "basever" -Content $processedAssemblyInfo.BranchNameRevision 
     }
-   
+
     if ($BuildBuild -or $BuildAll) {
         $dockerFile = "Dockerfile.build"
-        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchName)-build")
+        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-build")
         BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile
-        Write-StringToFile -Path "buildver" -Content $processedAssemblyInfo.BranchName 
+        Write-StringToFile -Path "buildver" -Content $processedAssemblyInfo.BranchNameRevision 
     }
     
     if ($BuildSM -or $BuildBuild -or $BuildAll) {
         $dockerFile = "Dockerfile.sm"
-        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchName)-sm")
+        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-sm")
         
-        $buildver = Read-StringFromFile -Path "buildver";
-        $smver = $buildver;
+        $buildver = Read-StringFromFile -Path "buildver";      
         $contentArray = @('FROM --platform=$BUILDPLATFORM ' + "${buildName}:$($buildver)-build" + ' AS build');
-
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
+
+        $smver = $processedAssemblyInfo.BranchNameRevision ;
 
         BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile
         Write-StringToFile -Path "smver" -Content $smver
@@ -96,8 +104,8 @@ function Main {
         $basever = Read-StringFromFile -Path "basever";
         $smver = Read-StringFromFile -Path "smver";
 
-        $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${buildName}:$($smver)-sm" + ' AS sm'      
-        $contentArray += 'FROM --platform=$BUILDPLATFORM ' + "${buildName}:$($basever)-base" + ' AS base'  
+        $contentArray += 'FROM ' + "${buildName}:$($smver)-sm" + ' AS sm'      
+        $contentArray += 'FROM ' + "${buildName}:$($basever)-base" + ' AS base'  
         
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
 

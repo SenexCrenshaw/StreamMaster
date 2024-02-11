@@ -1,8 +1,3 @@
-ARG TARGETPLATFORM
-ARG TARGETARCH
-ARG BUILDPLATFORM
-ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}
-
 LABEL org.opencontainers.image.url="https://hub.docker.com/r/SenexCrenshaw/streammaster/" \
     org.opencontainers.image.source="https://github.com/SenexCrenshaw/StreamMaster" \
     org.opencontainers.image.vendor="SenexCrenshaw" \
@@ -10,10 +5,12 @@ LABEL org.opencontainers.image.url="https://hub.docker.com/r/SenexCrenshaw/strea
     org.opencontainers.image.description="Dockerized Stream Master by SenexCrenshaw" \
     org.opencontainers.image.authors="SenexCrenshaw"
 
-ENV STREAMMASTER_BASEHOSTURL=http://localhost:7095/
+RUN mkdir /config
+
 ENV PUID=0
 ENV PGID=0
-COPY --from=sm /app/publish .
+
+COPY --from=sm /app/publish /app
 
 COPY docker-entrypoint.sh docker-ensure-initdb.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh /usr/local/bin/docker-ensure-initdb.sh
@@ -23,10 +20,9 @@ COPY backup.sh /usr/local/bin/backup.sh
 COPY entrypoint.sh /entrypoint.sh
 COPY env.sh /env.sh
 RUN chmod +x /entrypoint.sh /env.sh /usr/local/bin/backup.sh
-RUN mkdir /config
 
 EXPOSE 5432
 
-ENTRYPOINT ["/entrypoint.sh", "dotnet", "StreamMaster.API.dll"]
+ENTRYPOINT ["/entrypoint.sh", "dotnet", "/app/StreamMaster.API.dll"]
 
 STOPSIGNAL SIGINT

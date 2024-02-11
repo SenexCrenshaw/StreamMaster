@@ -14,15 +14,22 @@ public class ProcessEPGFileRequestValidator : AbstractValidator<ProcessEPGFileRe
     }
 }
 
-public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger, IJobStatusService jobStatusService, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger, IRepositoryWrapper repository, IJobStatusService jobStatusService, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
     : IRequestHandler<ProcessEPGFileRequest, EPGFileDto?>
 {
     [LogExecutionTimeAspect]
     public async Task<EPGFileDto?> Handle(ProcessEPGFileRequest request, CancellationToken cancellationToken)
     {
+        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.ProcessEPG, request.Id);
+        if (jobManager.IsRunning)
+        {
+            return null;
+        }
+
+        EPGFile? epgFile = null;
         try
         {
-            EPGFile? epgFile = await Repository.EPGFile.GetEPGFileById(request.Id).ConfigureAwait(false);
+            epgFile = await Repository.EPGFile.GetEPGFileById(request.Id).ConfigureAwait(false);
 
             if (epgFile == null)
             {
@@ -47,18 +54,27 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
             await HubContext.Clients.All.ProgrammesRefresh().ConfigureAwait(false);
 
             await Publisher.Publish(new EPGFileProcessedEvent(ret), cancellationToken).ConfigureAwait(false);
-
+            jobManager.SetSuccessful();
             return ret;
         }
 
         catch (Exception ex)
         {
+            jobManager.SetError();
+            logger.LogCritical(ex, "Error while processing EPG file");
+            return null;
         }
         finally
         {
-            jobStatusService.SetEPGStop();
+            if (epgFile != null)
+            {
+
+                epgFile.LastUpdated = SMDT.UtcNow;
+
+                repository.EPGFile.UpdateEPGFile(epgFile);
+                _ = await repository.SaveAsync().ConfigureAwait(false);
+            }
         }
-        return null;
     }
 
 }

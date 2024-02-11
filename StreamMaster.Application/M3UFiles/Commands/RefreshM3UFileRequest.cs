@@ -15,19 +15,18 @@ public class RefreshM3UFileRequestValidator : AbstractValidator<RefreshM3UFileRe
 [LogExecutionTimeAspect]
 public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<RefreshM3UFileRequest, M3UFile?>
 {
-    private readonly object lockObject = new();
+
     public async Task<M3UFile?> Handle(RefreshM3UFileRequest request, CancellationToken cancellationToken)
     {
+        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.RefreshM3U, request.Id);
         try
         {
-            lock (lockObject)
+            if (jobManager.IsRunning)
             {
-                if (jobStatusService.GetM3UJobStatus().IsRunning)
-                {
-                    return null;
-                }
-                jobStatusService.SetM3UStart();
+                return null;
             }
+            jobManager.Start();
+
 
             M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileById(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
@@ -82,12 +81,13 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
             //{
             await Publisher.Publish(new M3UFileAddedEvent(ret.Id, request.forceRun), cancellationToken).ConfigureAwait(false);
             //}
-
+            jobManager.SetSuccessful();
             return m3uFile;
         }
-        finally
+        catch
         {
-
+            jobManager.SetError();
+            return null;
         }
 
     }

@@ -24,14 +24,23 @@ public class ProcessM3UFileRequestValidator : AbstractValidator<ProcessM3UFileRe
 
 public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IRepositoryWrapper repository, IJobStatusService jobStatusService, IPublisher publisher, ISender sender, IMemoryCache memoryCache) : IRequestHandler<ProcessM3UFileRequest, M3UFile?>
 {
+    private readonly object lockObject = new();
     private SimpleIntList existingChannels = new(0);
 
     [LogExecutionTimeAspect]
     public async Task<M3UFile?> Handle(ProcessM3UFileRequest request, CancellationToken cancellationToken)
     {
+        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.ProcessM3U, request.Id);
+        if (jobManager.IsRunning)
+        {
+            return null;
+        }
+
+        jobManager.Start();
+        M3UFile? m3uFile = null;
         try
         {
-            M3UFile? m3uFile = await repository.M3UFile.GetM3UFileByTrackedId(request.Id).ConfigureAwait(false);
+            m3uFile = await repository.M3UFile.GetM3UFileByTrackedId(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
             {
                 logger.LogCritical("Could not find M3U file");
@@ -50,22 +59,34 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
                 return m3uFile;
             }
 
-
             await ProcessAndUpdateStreams(m3uFile, streams, streamCount).ConfigureAwait(false);
             await UpdateChannelGroups(streams, cancellationToken).ConfigureAwait(false);
 
             await publisher.Publish(new M3UFileProcessedEvent(), cancellationToken).ConfigureAwait(false);
-
+            lock (lockObject)
+            {
+                jobManager.SetSuccessful();
+            }
             return m3uFile;
         }
         catch (Exception ex)
         {
+            lock (lockObject)
+            {
+                jobManager.SetError();
+            }
             logger.LogCritical(ex, "Error while processing M3U file");
             return null;
         }
         finally
         {
-            jobStatusService.SetM3UStop();
+            if (m3uFile != null)
+            {
+                m3uFile.LastUpdated = SMDT.UtcNow;
+
+                repository.M3UFile.UpdateM3UFile(m3uFile);
+                _ = await repository.SaveAsync().ConfigureAwait(false);
+            }
         }
     }
 

@@ -36,6 +36,7 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
     {
         if (ReadBuffer != null)
         {
+            ReadBuffer.ReadChannel?.Writer.Complete();
             ReadBuffer.Cancel();
             ReadBuffer.Dispose();
             ReadBuffer = null;

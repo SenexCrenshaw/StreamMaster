@@ -19,7 +19,6 @@ public static class ConfigureServices
         _ = services.AddSingleton<IClientStreamerManager, ClientStreamerManager>();
         _ = services.AddSingleton<IStreamHandlerFactory, StreamHandlerFactory>();
         _ = services.AddSingleton<IStreamStatisticService, StreamStatisticService>();
-        _ = services.AddSingleton<ICircularRingBufferFactory, CircularRingBufferFactory>();
         _ = services.AddSingleton<IStatisticsManager, ClientStatisticsManager>();
         _ = services.AddSingleton<IInputStatisticsManager, InputStatisticsManager>();
         _ = services.AddSingleton<IStreamManager, StreamManager>();

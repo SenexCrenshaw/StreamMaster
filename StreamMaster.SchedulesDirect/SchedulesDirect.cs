@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 
 using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Models;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
@@ -38,32 +39,32 @@ public partial class SchedulesDirect(
     public static readonly int MaxImgQueries = 125;
     public static readonly int MaxParallelDownloads = 8;
 
-    public async Task<bool> SDSync(int EPGNumber, CancellationToken cancellationToken)
+    public async Task<bool> SDSync(CancellationToken cancellationToken)
     {
-
+        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
         try
         {
             await _syncSemaphore.WaitAsync(cancellationToken);
             if (cancellationToken.IsCancellationRequested)
             {
-                jobStatusService.SetSyncSuccessful();
+                jobManager.SetSuccessful();
                 return false;
             }
 
             Setting setting = memoryCache.GetSetting();
             if (!setting.SDSettings.SDEnabled)
             {
-                jobStatusService.SetSyncSuccessful();
+                jobManager.SetSuccessful();
                 return true;
             }
 
-            if (jobStatusService.GetSyncJobStatus().IsRunning)
+            if (jobManager.IsRunning)
             {
-                jobStatusService.SetSyncForceNextRun();
+                jobManager.SetForceNextRun();
                 return false;
             }
 
-            jobStatusService.SetSyncStart();
+            jobManager.Start();
             //ResetEPGCache();
             int maxRetry = 3;
             int retryCount = 0;
@@ -74,7 +75,7 @@ public partial class SchedulesDirect(
 
             if (!CheckToken())
             {
-                jobStatusService.SetSyncError();
+                jobManager.SetError();
                 return false;
             }
 
@@ -115,7 +116,7 @@ public partial class SchedulesDirect(
                 }
 
                 logger.LogInformation("Completed Schedules Direct update execution. SUCCESS.");
-                jobStatusService.SetSyncSuccessful();
+                jobManager.SetSuccessful();
                 return true;
             }
             //StationLogosToDownload = [];
@@ -130,7 +131,7 @@ public partial class SchedulesDirect(
             _ = _syncSemaphore.Release();
         }
 
-        jobStatusService.SetSyncError();
+        jobManager.SetError();
         return false;
     }
 

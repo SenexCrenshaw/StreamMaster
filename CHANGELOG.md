@@ -1,3 +1,74 @@
+# [0.12.0-debuffer.9](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.8...v0.12.0-debuffer.9) (2024-02-11)
+
+
+### Features
+
+* Add logging db ([adefa7e](https://github.com/SenexCrenshaw/StreamMaster/commit/adefa7e99d2e592a89953fe4f5a40219f66a9aed))
+
+# [0.12.0-debuffer.8](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.7...v0.12.0-debuffer.8) (2024-02-10)
+
+
+### Bug Fixes
+
+* Set IsFailed flag and close stream in StreamHandler ([c321a9f](https://github.com/SenexCrenshaw/StreamMaster/commit/c321a9faf1320cd843bd6c23de3cbeb8b1c11d2e))
+
+# [0.12.0-debuffer.7](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.6...v0.12.0-debuffer.7) (2024-02-10)
+
+
+### Bug Fixes
+
+* Handle case when toRead is less than 0 in StreamHandler ([81e637a](https://github.com/SenexCrenshaw/StreamMaster/commit/81e637ab7160ee355021d301e8985099fc7d4c80))
+
+
+### Features
+
+* Add logo to input statistics ([29376f8](https://github.com/SenexCrenshaw/StreamMaster/commit/29376f883b212239a270a0457c5af62d54458799))
+
+# [0.12.0-debuffer.6](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.5...v0.12.0-debuffer.6) (2024-02-10)
+
+
+### Bug Fixes
+
+* Removed ringBufferSizeMB ([88c913f](https://github.com/SenexCrenshaw/StreamMaster/commit/88c913fd2ccecd7897e022dca5031ab6e66cecd8))
+
+# [0.12.0-debuffer.5](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.4...v0.12.0-debuffer.5) (2024-02-10)
+
+
+### Bug Fixes
+
+* Commented out log messages to skipInfo execution ([23f9e15](https://github.com/SenexCrenshaw/StreamMaster/commit/23f9e15f1a10329cfbb464f3f82e14a5eee20378))
+* Complete read channel writer in ClientConfiguration ([c995fbe](https://github.com/SenexCrenshaw/StreamMaster/commit/c995fbe887785d27a0594bd1ebe92ca7184d60f0))
+* Fix issue with unregistering client streamers ([fe55a97](https://github.com/SenexCrenshaw/StreamMaster/commit/fe55a971f5320c9796868574e3cc784b4ef2e621))
+* stats ([623fab1](https://github.com/SenexCrenshaw/StreamMaster/commit/623fab16dc3e758bdf963d9192ddcb9915c42b53))
+
+# [0.12.0-debuffer.4](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.3...v0.12.0-debuffer.4) (2024-02-10)
+
+
+### Bug Fixes
+
+* m3u refresh ([d9b509f](https://github.com/SenexCrenshaw/StreamMaster/commit/d9b509f233f8b7aabf4669dd89fa559aa91909e0))
+
+# [0.12.0-debuffer.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.2...v0.12.0-debuffer.3) (2024-02-10)
+
+
+### Bug Fixes
+
+* ffmpeg kill ([e91b357](https://github.com/SenexCrenshaw/StreamMaster/commit/e91b357e57d04684a1f111cf43cb03e13ea97475))
+
+# [0.12.0-debuffer.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.12.0-debuffer.1...v0.12.0-debuffer.2) (2024-02-10)
+
+
+### Bug Fixes
+
+* CRLF -> LF ([dc2ede3](https://github.com/SenexCrenshaw/StreamMaster/commit/dc2ede3d9949bec4917fa69562137fe1800a3d3f))
+
+# [0.12.0-debuffer.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.11.2...v0.12.0-debuffer.1) (2024-02-10)
+
+
+### Features
+
+* removed buffer, optimized streaming ([b9fbf82](https://github.com/SenexCrenshaw/StreamMaster/commit/b9fbf82b96fa0031e2f0c40d6d7397d17c958dde))
+
 ## [0.11.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.11.1...v0.11.2) (2024-02-09)
 
 

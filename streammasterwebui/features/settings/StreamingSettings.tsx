@@ -39,10 +39,6 @@ export function StreamingSettings(): React.ReactElement {
     <Fieldset className="mt-4 pt-10" legend={GetMessage('streaming')} toggleable>
       {getDropDownLine({ field: 'streamingProxyType', options: getHandlersOptions(), selectedCurrentSettingDto, onChange })}
       {getInputNumberLine({ field: 'globalStreamLimit', selectedCurrentSettingDto, onChange })}
-      {getInputNumberLine({ field: 'ringBufferSizeMB', min: 1, max: 256, selectedCurrentSettingDto, onChange })}
-
-      {/* {getInputNumberLine('maxConnectRetry', 999)}
-            {getInputNumberLine('maxConnectRetryTimeMS', 999)} */}
       {getInputTextLine({ field: 'clientUserAgent', selectedCurrentSettingDto, onChange })}
       {getInputTextLine({ field: 'streamingClientUserAgent', selectedCurrentSettingDto, onChange })}
       {getInputTextLine({ field: 'ffMpegOptions', selectedCurrentSettingDto, onChange })}

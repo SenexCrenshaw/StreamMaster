@@ -18,9 +18,11 @@ using StreamMaster.Application.Settings.Queries;
 using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Dto;
+using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Repository;
 using StreamMaster.Domain.Services;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
+using StreamMaster.SchedulesDirect.Helpers;
 
 namespace StreamMaster.Infrastructure.Services;
 
@@ -38,17 +40,14 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        //_logger.LogInformation("Timer Service running.");
 
-        _timer = new Timer(async state => await DoWorkAsync(state, cancellationToken), null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+        _timer = new Timer(async state => await DoWorkAsync(state, cancellationToken), null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
 
         return Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
-        //_logger.LogInformation("Timer Service is stopping.");
-
         _ = (_timer?.Change(Timeout.Infinite, 0));
 
         return Task.CompletedTask;
@@ -96,81 +95,106 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
         Setting setting = memoryCache.GetSetting();
         DateTime now = DateTime.Now;
 
-        JobStatus jobStatus = jobStatusService.GetSyncJobStatus();
-        if (!jobStatus.IsRunning)
+        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
+        if (!jobManager.IsRunning)
         {
-            jobStatus.SetStart();
-
-            if (jobStatus.ForceNextRun || (now - jobStatus.LastRun).TotalMinutes > 15 || (now - jobStatus.LastSuccessful).TotalMinutes > 60)
+            try
             {
-                if (jobStatus.ForceNextRun)
+                jobManager.Start();
+
+                if (jobManager.ForceNextRun || (now - jobManager.LastRun).TotalMinutes > 15 || (now - jobManager.LastSuccessful).TotalMinutes > 60)
                 {
-                    jobStatusService.ClearSyncForce();
+                    if (jobManager.ForceNextRun)
+                    {
+                        jobManager.ClearForce();
+                    }
+
+                    if (setting.SDSettings.SDEnabled)
+                    {
+                        logger.LogInformation("SDSync started. {status}", jobManager.Status);
+
+                        _ = await mediator.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
+                        await hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
+
+                        logger.LogInformation("SDSync completed. {status}", jobManager.Status);
+                    }
                 }
-
-                if (setting.SDSettings.SDEnabled)
-                {
-                    logger.LogInformation("EPGSync started. {status}", jobStatusService.GetSyncJobStatus());
-
-                    _ = await mediator.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
-                    await hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
-
-                    logger.LogInformation("EPGSync completed. {status}", jobStatusService.GetSyncJobStatus());
-                }
+                jobManager.SetSuccessful();
+            }
+            catch
+            {
+                jobManager.SetError();
             }
         }
 
-        jobStatus = jobStatusService.GetEPGJobStatus();
-        if (!jobStatus.IsRunning)
+        jobManager = jobStatusService.GetJobManager(JobType.TimerEPG, 0);
+        if (!jobManager.IsRunning)
         {
-            jobStatus.SetStart();
-            IEnumerable<EPGFileDto> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
-            if (epgFilesToUpdated.Any())
+            try
             {
-                logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFilesToUpdated.Count());
-
-                foreach (EPGFileDto epg in epgFilesToUpdated)
+                jobManager.Start();
+                IEnumerable<EPGFileDto> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
+                if (epgFilesToUpdated.Any())
                 {
-                    _ = await mediator.Send(new RefreshEPGFileRequest(epg.Id), cancellationToken).ConfigureAwait(false);
+                    logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFilesToUpdated.Count());
+
+                    foreach (EPGFileDto epg in epgFilesToUpdated)
+                    {
+                        _ = await mediator.Send(new RefreshEPGFileRequest(epg.Id), cancellationToken).ConfigureAwait(false);
+                    }
                 }
+                jobManager.SetSuccessful();
             }
-            jobStatus.SetStop();
+            catch
+            {
+                jobManager.SetError();
+            }
         }
 
-        jobStatus = jobStatusService.GetM3UJobStatus();
-        if (!jobStatus.IsRunning)
+        jobManager = jobStatusService.GetJobManager(JobType.TimerM3U, 0);
+        if (!jobManager.IsRunning)
         {
-            jobStatus.SetStart();
-            IEnumerable<M3UFileDto> m3uFilesToUpdated = await mediator.Send(new GetM3UFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
-            if (m3uFilesToUpdated.Any())
+            try
             {
-                logger.LogInformation("M3U Files to update count: {m3uFiles.Count()}", m3uFilesToUpdated.Count());
-
-                foreach (M3UFileDto? m3uFile in m3uFilesToUpdated)
+                jobManager.Start();
+                IEnumerable<M3UFileDto> m3uFilesToUpdated = await mediator.Send(new GetM3UFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
+                if (m3uFilesToUpdated.Any())
                 {
-                    await mediator.Send(new RefreshM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
+                    logger.LogInformation("M3U Files to update count: {m3uFiles.Count()}", m3uFilesToUpdated.Count());
+
+                    foreach (M3UFileDto? m3uFile in m3uFilesToUpdated)
+                    {
+                        await mediator.Send(new RefreshM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
+                    }
                 }
+                jobManager.SetSuccessful();
             }
-            jobStatus.SetStop();
+            catch
+            {
+                jobManager.SetError();
+            }
         }
 
-        jobStatus = jobStatusService.GetBackupJobStatus();
-        if (setting.BackupEnabled && !jobStatus.IsRunning)
+        jobManager = jobStatusService.GetJobManager(JobType.TimerBackup, 0);
+        if (setting.BackupEnabled && !jobManager.IsRunning && LastBackupTime.AddHours(setting.BackupInterval) <= DateTime.UtcNow)
         {
-            jobStatus.SetStart();
-
-            if (LastBackupTime.AddHours(setting.BackupInterval) <= DateTime.UtcNow)
+            try
             {
-                logger.LogInformation("Backup started. {status}", jobStatusService.GetBackupJobStatus());
+                jobManager.Start();
+
+                logger.LogInformation("Backup started. {status}", jobManager.Status);
 
                 await FileUtil.Backup().ConfigureAwait(false);
 
-                logger.LogInformation("Backup completed. {status}", jobStatusService.GetBackupJobStatus());
+                logger.LogInformation("Backup completed. {status}", jobManager.Status);
                 LastBackupTime = DateTime.UtcNow;
-                jobStatus.SetStop();
-            }
 
-            jobStatus.SetStop();
+                jobManager.SetSuccessful();
+            }
+            catch
+            {
+                jobManager.SetError();
+            }
         }
 
         lock (Lock)
