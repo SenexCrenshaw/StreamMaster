@@ -110,7 +110,7 @@ function Main {
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
 
         $global:tags = DetermineTags -result $processedAssemblyInfo -imageName $imageName
-        BuildImage -result $processedAssemblyInfo -imageName $imageName -dockerFile $dockerFile
+        BuildImage -result $processedAssemblyInfo -imageName $imageName -dockerFile $dockerFile -push $true
     }
 }
 Function Add-ContentAtTop {
@@ -214,7 +214,10 @@ function BuildImage {
         $dockerFile,
 
         [Parameter(Mandatory = $true)]
-        [string]$imageName
+        [string]$imageName,
+
+        [Parameter()]
+        [bool]$push = $false
 
     )
   
@@ -223,7 +226,13 @@ function BuildImage {
     $global:tags | ForEach-Object { Write-Host $_ }
 
     # Construct the Docker build command using the tags and the specified Dockerfile
-    $buildCommand = "docker buildx build --pull --platform ""linux/amd64,linux/arm64"" -f ./$dockerFile . --push"
+    $buildCommand = "docker buildx build --pull --platform ""linux/amd64,linux/arm64"" -f ./$dockerFile ."
+    if ( $push) {
+        $buildCommand += " --push"
+    }
+    else {      
+        $buildCommand += " --load"
+    }
     foreach ($tag in $global:tags) {
         $buildCommand += " --tag=$tag"
     }
