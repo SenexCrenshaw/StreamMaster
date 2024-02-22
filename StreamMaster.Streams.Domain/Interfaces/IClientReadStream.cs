@@ -8,7 +8,7 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 public interface IClientReadStream : IDisposable
 {
     string VideoStreamName { get; set; }
-    Channel<byte[]> ReadChannel { get; }
+    Channel<byte[]> Channel { get; }
 
     /// <summary>
     /// Gets a value indicating whether the stream supports reading.

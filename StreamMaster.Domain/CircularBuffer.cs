@@ -1,98 +1,125 @@
-﻿namespace StreamMaster.Domain;
-
-public class CircularBuffer
+﻿namespace StreamMaster.Domain
 {
-    private readonly byte[] buffer;
-    private int writePosition = 0;
-    private readonly object lockObj = new();
-
-    public CircularBuffer(int capacity)
+    public class CircularBuffer
     {
-        if (capacity <= 0)
-        {
-            throw new ArgumentException("Capacity must be greater than 0", nameof(capacity));
-        }
+        private readonly byte[] buffer;
+        private int writePosition = 0;
+        private readonly object lockObj = new();
 
-        Capacity = capacity;
-        buffer = new byte[capacity];
-    }
-
-    public void Write(byte[] data)
-    {
-        if (data == null)
+        /// <summary>
+        /// Initializes a new instance of the CircularBuffer class with a specified capacity.
+        /// </summary>
+        /// <param name="capacity">The maximum amount of data the buffer can hold.</param>
+        /// <exception cref="ArgumentException">Thrown when capacity is less than or equal to 0.</exception>
+        public CircularBuffer(int capacity)
         {
-            throw new ArgumentNullException(nameof(data));
-        }
-
-        lock (lockObj)
-        {
-            int dataLength = data.Length;
-            if (dataLength > Capacity)
+            if (capacity <= 0)
             {
-                // If data is larger than the capacity, write only the last part of data that fits.
-                Array.Copy(data, dataLength - Capacity, buffer, 0, Capacity);
-                writePosition = 0;
-                AvailableData = Capacity;
+                throw new ArgumentException("Capacity must be greater than 0.", nameof(capacity));
             }
-            else
-            {
-                int part1Len = Math.Min(Capacity - writePosition, dataLength);
-                Array.Copy(data, 0, buffer, writePosition, part1Len);
 
-                if (part1Len < dataLength)
+            Capacity = capacity;
+            buffer = new byte[capacity];
+        }
+
+        /// <summary>
+        /// Writes data into the circular buffer. If the buffer does not have enough space,
+        /// older data will be overwritten.
+        /// </summary>
+        /// <param name="data">The byte array to write into the buffer.</param>
+        /// <exception cref="ArgumentNullException">Thrown when data is null.</exception>
+        public void Write(byte[] data)
+        {
+            if (data == null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
+            lock (lockObj)
+            {
+                int dataLength = data.Length;
+                if (dataLength > Capacity)
                 {
-                    // If the data was split, write the remaining part at the beginning of the buffer.
-                    Array.Copy(data, part1Len, buffer, 0, dataLength - part1Len);
-                }
-
-                writePosition = (writePosition + dataLength) % Capacity;
-                AvailableData = Math.Min(AvailableData + dataLength, Capacity);
-            }
-        }
-    }
-
-    public byte[] ReadLatestData()
-    {
-        lock (lockObj)
-        {
-            byte[] latestData = new byte[AvailableData]; // Prepare an array to hold the latest data.
-
-            if (AvailableData == 0)
-            {
-                // No data available to read.
-                return latestData;
-            }
-
-            if (writePosition == 0 || AvailableData == Capacity)
-            {
-                // If writePosition is 0, it means the buffer has just wrapped around or is exactly full,
-                // so the latest data is the entire buffer.
-                Array.Copy(buffer, 0, latestData, 0, AvailableData);
-            }
-            else
-            {
-                // Calculate the start position for the latest data that's not contiguous.
-                int startIdx = writePosition - AvailableData;
-                if (startIdx < 0)
-                {
-                    // The data wraps around; copy the end segment and then the start segment.
-                    startIdx += Capacity; // Correct the start index to a positive value.
-                    int part1Length = Capacity - startIdx;
-                    Array.Copy(buffer, startIdx, latestData, 0, part1Length);
-                    Array.Copy(buffer, 0, latestData, part1Length, writePosition);
+                    // Overwrite the buffer with the last 'Capacity' bytes of 'data'
+                    Array.Copy(data, dataLength - Capacity, buffer, 0, Capacity);
+                    writePosition = 0;
+                    AvailableData = Capacity;
                 }
                 else
                 {
-                    // All available data is contiguous and can be copied directly.
-                    Array.Copy(buffer, startIdx, latestData, 0, AvailableData);
+                    // Calculate how much data can be written without wrapping
+                    int part1Len = Math.Min(Capacity - writePosition, dataLength);
+                    Array.Copy(data, 0, buffer, writePosition, part1Len);
+
+                    if (part1Len < dataLength)
+                    {
+                        // Wrap and write the remaining data
+                        Array.Copy(data, part1Len, buffer, 0, dataLength - part1Len);
+                    }
+
+                    // Update write position and available data, wrapping the write position if necessary
+                    writePosition = (writePosition + dataLength) % Capacity;
+                    AvailableData = Math.Min(AvailableData + dataLength, Capacity);
                 }
             }
-
-            return latestData;
         }
+
+        /// <summary>
+        /// Reads the most recent data written into the buffer without removing it.
+        /// </summary>
+        /// <returns>A byte array containing the latest data. The size of the array is up to the amount of available data.</returns>
+        public byte[] ReadLatestData()
+        {
+            lock (lockObj)
+            {
+                byte[] latestData = new byte[AvailableData];
+
+                if (AvailableData == 0)
+                {
+                    return latestData; // Early exit if no data available
+                }
+
+                if (writePosition == 0 || AvailableData == Capacity)
+                {
+                    // Buffer is exactly full, or just wrapped around
+                    Array.Copy(buffer, 0, latestData, 0, AvailableData);
+                }
+                else
+                {
+                    // Data wraps around the buffer end; copy in two segments
+                    int startIdx = (Capacity + writePosition - AvailableData) % Capacity;
+                    int part1Length = Math.Min(AvailableData, Capacity - startIdx);
+                    Array.Copy(buffer, startIdx, latestData, 0, part1Length);
+                    if (part1Length < AvailableData)
+                    {
+                        Array.Copy(buffer, 0, latestData, part1Length, AvailableData - part1Length);
+                    }
+                }
+
+                return latestData;
+            }
+        }
+        /// <summary>
+        /// Gets the capacity of the buffer.
+        /// </summary>
+        public int Capacity { get; }
+
+        /// <summary>
+        /// Gets the amount of data currently stored in the buffer.
+        /// </summary>
+        public int AvailableData { get; private set; } = 0;
+
+        /// <summary>
+        /// Clears all data from the buffer, resetting its state.
+        /// </summary>
+        public void Clear()
+        {
+            lock (lockObj)
+            {
+                writePosition = 0;
+                AvailableData = 0;
+            }
+        }
+
     }
-
-
-    public int Capacity { get; }
-    public int AvailableData { get; private set; } = 0;
 }

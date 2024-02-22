@@ -35,12 +35,12 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
             SingleReader = true,
             SingleWriter = true
         };
-        ReadChannel = Channel.CreateUnbounded<byte[]>(options);
+        Channel = System.Threading.Channels.Channel.CreateUnbounded<byte[]>(options);
 
         logger.LogInformation("Starting client read stream for ClientId: {ClientId}", ClientId);
     }
 
-    public Channel<byte[]> ReadChannel { get; private set; }
+    public Channel<byte[]> Channel { get; private set; }
 
     private bool IsCancelled { get; set; }
 

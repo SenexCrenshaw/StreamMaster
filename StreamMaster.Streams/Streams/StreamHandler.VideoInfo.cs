@@ -7,7 +7,6 @@ using StreamMaster.Domain.Models;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.Json;
-using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Streams;
 
@@ -25,43 +24,6 @@ public sealed partial class StreamHandler
     public VideoInfo GetVideoInfo()
     {
         return _videoInfo ?? new();
-    }
-
-
-    private async Task FillVideoMemoryAsync(byte[] videoMemory, ChannelReader<Memory<byte>> videoChannelReader, CancellationToken cancellationToken)
-    {
-        int position = 0;
-
-        try
-        {
-            while (await videoChannelReader.WaitToReadAsync(cancellationToken).ConfigureAwait(false))
-            {
-                while (videoChannelReader.TryRead(out Memory<byte> mem) && mem.Length > 0)
-                {
-                    if (position + mem.Length > videoMemory.Length)
-                    {
-                        mem = mem[..(videoMemory.Length - position)];
-                    }
-
-                    mem.Span.CopyTo(new Span<byte>(videoMemory, position, mem.Length));
-                    position += mem.Length;
-
-                    if (position >= videoMemory.Length)
-                    {
-                        return;
-                    }
-                }
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            logger.LogInformation("Operation was cancelled.");
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "An error occurred while filling video memory.");
-            throw;
-        }
     }
 
     public async Task BuildVideoInfoAsync(byte[] videoMemory)
@@ -126,13 +88,6 @@ public sealed partial class StreamHandler
             }
         }
     }
-
-    //private async Task<byte[]> PrepareVideoMemoryAsync()
-    //{
-    //    byte[] videoMemory = new byte[videoBufferSize];
-    //    await FillVideoMemoryAsync(videoMemory, videoChannel.Reader, cancellationTokenSource.Token).ConfigureAwait(false);
-    //    return videoMemory;
-    //}
 
     private string GetFFProbeExecutablePath(Setting settings)
     {

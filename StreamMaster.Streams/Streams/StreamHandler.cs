@@ -23,6 +23,29 @@ public sealed partial class StreamHandler
 
     private DateTime LastVideoInfoRun = DateTime.MinValue;
 
+    // Write to all clients with separate buffers
+    private async Task WriteToAllClientsAsync(byte[] data, CancellationToken cancellationToken)
+    {
+        IEnumerable<Task> tasks = clientStreamerConfigs.Values
+            .Where(c => c.Stream != null)
+            .Select(async clientStreamerConfig =>
+            {
+                if (clientStreamerConfig.Stream != null)
+                {
+                    try
+                    {
+                        await clientStreamerConfig.Stream.Channel.Writer.WriteAsync(data, cancellationToken).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Failed to write to client {ClientId}", clientStreamerConfig.ClientId);
+                    }
+                }
+            });
+
+        await Task.WhenAll(tasks);
+    }
+
     public async Task StartVideoStreamingAsync(Stream stream)
     {
 
@@ -50,10 +73,8 @@ public sealed partial class StreamHandler
         bool ran = false;
         int accumulatedBytes = 0;
         Stopwatch testSw = Stopwatch.StartNew();
+        Memory<byte> bufferMemory = new byte[ChunkSize];
 
-        Memory<byte> test = new(new byte[videoBufferSize]);
-
-        byte[] firstByte = new byte[videoBufferSize];
         using (stream)
         {
             while (!linkedToken.IsCancellationRequested)
@@ -71,10 +92,9 @@ public sealed partial class StreamHandler
 
                 try
                 {
-                    Memory<byte> bufferMemory = new byte[ChunkSize];
                     _writeLogger.LogDebug("-------------------{VideoStreamName}-----------------------------", VideoStreamName);
                     int readBytes = await stream.ReadAsync(bufferMemory, linkedToken.Token);
-                    _writeLogger.LogDebug("End bytes written: {byteswritten}", readBytes);
+                    _writeLogger.LogDebug("End bytes read from input stream: {byteswritten}", readBytes);
                     if (readBytes == 0)
                     {
                         throw new EndOfStreamException();
@@ -89,94 +109,22 @@ public sealed partial class StreamHandler
 
                     byte[] clientDataToSend = new byte[readBytes];
                     bufferMemory[..readBytes].CopyTo(clientDataToSend);
+                    await WriteToAllClientsAsync(clientDataToSend, linkedToken.Token).ConfigureAwait(false);
 
-                    foreach (IClientStreamerConfiguration clientStreamerConfig in clientStreamerConfigs.Values)
-                    {
-                        if (clientStreamerConfig.ReadBuffer != null)
-                        {
-                            await clientStreamerConfig.ReadBuffer.ReadChannel.Writer.WriteAsync(clientDataToSend);
-                        }
-                        else
-                        {
-                            logger.LogError("ClientStreamerConfig ReadBuffer is null for {ClientId}", clientStreamerConfig.ClientId);
-                        }
-
-                    }
+                    videoBuffer.Write(clientDataToSend);
+                    accumulatedBytes += readBytes;
 
                     TimeSpan lastRun = SMDT.UtcNow - LastVideoInfoRun;
-                    if (lastRun.TotalMinutes >= 30)
+                    if (lastRun.TotalMinutes >= 3)
                     {
                         if (accumulatedBytes > videoBufferSize)
                         {
-                            // Calculate the amount of data to process now, which is the size of the video buffer.
-                            int dataToProcessNow = videoBufferSize;
+                            var processData = videoBuffer.ReadLatestData();
+                            _ = BuildVideoInfoAsync(processData);
 
-                            // Calculate the overage, which is the total accumulated bytes minus what we're processing now.
-                            int overage = accumulatedBytes - dataToProcessNow;
-
-                            // Process the data up to `dataToProcessNow`. This part remains as is, assuming you have logic to handle this.
-                            byte[] processData = new byte[dataToProcessNow];
-                            Array.Copy(clientDataToSend, processData, dataToProcessNow);
-                            Task task = BuildVideoInfoAsync(processData);
-
-                            // Now handle the overage.
-                            // Instead of directly writing to `videoBuffer`, adjust your logic to manage the overage bytes.
-                            // Since `clientDataToSend` might not directly correspond to `videoBuffer` contents,
-                            // ensure you have a way to reference the correct segment of overage data.
-                            if (overage > 0)
-                            {
-                                byte[] overageData = new byte[overage];
-                                Array.Copy(clientDataToSend, dataToProcessNow, overageData, 0, overage);
-                                videoBuffer.Write(overageData); // Write the overage back into the buffer
-                            }
-
-                            // Reset `accumulatedBytes` to reflect only the overage, since everything else has been processed.
-                            accumulatedBytes = overage;
-                        }
-                        else
-                        {
-                            // If accumulated bytes are within the buffer size, process as usual.
-                            Task task = BuildVideoInfoAsync(clientDataToSend);
-                            // After processing, reset accumulatedBytes as all data has been handled.
                             accumulatedBytes = 0;
                         }
                     }
-                    else
-                    {
-                        // For regular writes outside the 30-minute check.
-                        videoBuffer.Write(clientDataToSend);
-                        accumulatedBytes += readBytes;
-                    }
-
-                    //if (lastRun.TotalMinutes >= 30 && accumulatedBytes + readBytes > videoBufferSize)
-                    //{
-
-                    //    int overAge = accumulatedBytes + readBytes - videoBufferSize;
-                    //    int toRead = readBytes - overAge;
-                    //    if (toRead < 0)
-                    //    {
-                    //        logger.LogError(overAge, "toRead is less than {overAge}", overAge);
-                    //        logger.LogError(overAge, "accumulatedBytes {accumulatedBytes}", accumulatedBytes);
-                    //        logger.LogError(overAge, "readBytes {readBytes}", readBytes);
-                    //        logger.LogError(overAge, "readBytes {videoBufferSize}", videoBufferSize);
-                    //    }
-                    //    else
-                    //    {
-                    //        videoBuffer.Write(clientDataToSend[..toRead]);
-
-                    //        byte[] videoMemory = videoBuffer.ReadLatestData();
-                    //        Task task = BuildVideoInfoAsync(videoMemory);
-
-                    //        ++toRead;
-                    //        accumulatedBytes = readBytes - toRead;
-                    //        videoBuffer.Write(clientDataToSend[toRead..readBytes]);
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    videoBuffer.Write(clientDataToSend);
-                    //    accumulatedBytes += readBytes;
-                    //}
                 }
                 catch (TaskCanceledException)
                 {
@@ -214,7 +162,7 @@ public sealed partial class StreamHandler
 
         //foreach (IClientStreamerConfiguration clientStreamerConfig in clientStreamerConfigs.Values)
         //{
-        //    clientStreamerConfig.ReadBuffer?.ReadChannel.Writer.Complete();
+        //    clientStreamerConfig.Stream?.Channel.Writer.Complete();
         //}
         IsFailed = true;
         stream.Close();

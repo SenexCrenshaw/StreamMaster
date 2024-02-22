@@ -209,7 +209,7 @@ public sealed class ChannelManager : IChannelManager
 
 
         IChannelStatus? channelStatus = await RegisterWithChannelManager(config);
-        if (channelStatus is null || config.ReadBuffer is null)
+        if (channelStatus is null || config.Stream is null)
         {
             channelService.UnRegisterChannel(config.ChannelVideoStreamId);
             logger.LogInformation("Exiting Register Client with null due to channelStatus or Read Buffer being null");
@@ -217,7 +217,7 @@ public sealed class ChannelManager : IChannelManager
         }
 
         logger.LogInformation("Finished Register Client");
-        return (Stream)config.ReadBuffer;
+        return (Stream)config.Stream;
     }
 
     private async Task<IChannelStatus?> RegisterWithChannelManager(IClientStreamerConfiguration config)
