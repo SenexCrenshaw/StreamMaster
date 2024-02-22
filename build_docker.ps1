@@ -4,7 +4,7 @@ param (
     [switch]$BuildBase = $false,
     [switch]$BuildBuild = $false,
     [switch]$BuildSM = $false,
-    [switch]$BuildProd = $false,
+    [switch]$Prod = $false,
     [switch]$PrintCommands = $false,
     [switch]$SkipRelease = $false,
     [switch]$SkipMainBuild = $false
@@ -68,17 +68,15 @@ function Copy-File {
 function Main {
     Set-EnvironmentVariables
 
-    # Read GitHub token and set it as an environment variable
-    $ghtoken = Get-Content ghtoken -Raw
-    $env:GH_TOKEN = $ghtoken
+   
 
     if (  $SkipMainBuild) {
-        $BuildProd = $false
+        $Prod = $false
     }
 
     if (-not $SkipRelease -and -not $PrintCommands) {
 
-        if ( $BuildProd ) { #} -and -not $SkipMainBuild) {
+        if ( $Prod ) { #} -and -not $SkipMainBuild) {
             Copy-File -sourcePath "release.config.release.cjs" -destinationPath "release.config.cjs"
         }
         else {
@@ -183,6 +181,11 @@ Function Add-ContentAtTop {
 function Set-EnvironmentVariables {
     $env:DOCKER_BUILDKIT = 1
     $env:COMPOSE_DOCKER_CLI_BUILD = 1
+
+     # Read GitHub token and set it as an environment variable
+    $ghtoken = Get-Content ghtoken -Raw
+    Write-Output "GitHub Token: $ghtoken"
+    $env:GH_TOKEN = $ghtoken
 }
 
 function DownloadFiles {
@@ -295,7 +298,7 @@ function DetermineTags {
     $BranchNameRevision = $result.BranchNameRevision
 
     $global:tags = @()
-    if ($BuildProd) {
+    if ($Prod) {
         $global:tags += "${imageName}:latest"
     }
     else {

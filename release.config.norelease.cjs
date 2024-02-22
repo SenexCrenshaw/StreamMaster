@@ -40,6 +40,8 @@ module.exports = {
       "@semantic-release/exec",
       {
         verifyConditionsCmd: ":",
+        prepareCmd:
+          "node updateAssemblyInfo.js ${nextRelease.version} ${nextRelease.gitHead} ${nextRelease.channel}",
         publishCmd: [
           "node updateAssemblyInfo.js ${nextRelease.version} ${nextRelease.gitHead} ${nextRelease.channel}",
           "git add ./StreamMaster.API/AssemblyInfo.cs",
