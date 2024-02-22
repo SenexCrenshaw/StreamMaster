@@ -25,6 +25,7 @@ function Write-StringToFile {
         Write-Host "An error occurred: $_"
     }
 }
+
 function Read-StringFromFile {
     param (
         [string]$Path
@@ -40,6 +41,30 @@ function Read-StringFromFile {
     }
 }
 
+function Copy-File {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$sourcePath,
+
+        [Parameter(Mandatory=$true)]
+        [string]$destinationPath
+    )
+
+    try {
+        # Check if the source file exists
+        if (-Not (Test-Path -Path $sourcePath -PathType Leaf)) {
+            Write-Host "Source file does not exist: '$sourcePath'"
+            return
+        }
+
+        # Copy the file to the destination
+        Copy-Item -Path $sourcePath -Destination $destinationPath -ErrorAction Stop
+        Write-Host "File copied successfully from '$sourcePath' to '$destinationPath'."
+    } catch {
+        Write-Host "An error occurred while copying the file: $_"
+    }
+}
+
 function Main {
     Set-EnvironmentVariables
 
@@ -52,18 +77,21 @@ function Main {
     }
 
     if (-not $SkipRelease -and -not $PrintCommands) {
-        if ( $BuildProd -and -not $SkipMainBuild) {
-            npx semantic-release # -e release.gh
+
+        if ( $BuildProd ) { #} -and -not $SkipMainBuild) {
+            Copy-File -sourcePath "release.config.release.cjs" -destinationPath "release.config.cjs"
         }
         else {
-            npx semantic-release
+            Copy-File -sourcePath "release.config.norelease.cjs" -destinationPath "release.config.cjs"
         }
+
+        npx semantic-release
     }
 
     # DownloadFiles
 
     $imageName = "docker.io/senexcrenshaw/streammaster"
-    $buildName = "streammaster-builds"#$imageName + "-builds"
+    $buildName = "streammaster-builds"
 
     $result = Get-AssemblyInfo -assemblyInfoPath "./StreamMaster.API/AssemblyInfo.cs"
     $processedAssemblyInfo = ProcessAssemblyInfo $result
@@ -71,14 +99,14 @@ function Main {
     if ($BuildBase -or $BuildAll) {
         $dockerFile = "Dockerfile.base"
         $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-base")
-        BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile --pull $true
+        BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile -pull $true
         Write-StringToFile -Path "basever" -Content $processedAssemblyInfo.BranchNameRevision 
     }
 
     if ($BuildBuild -or $BuildAll) {
         $dockerFile = "Dockerfile.build"
         $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-build")
-        BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile --pull $true
+        BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile -pull $true
         Write-StringToFile -Path "buildver" -Content $processedAssemblyInfo.BranchNameRevision 
     }
     
