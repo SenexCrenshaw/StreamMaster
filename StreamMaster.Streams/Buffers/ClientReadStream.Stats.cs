@@ -1,6 +1,5 @@
 ﻿using Prometheus;
 
-using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Streams.Buffers;
@@ -31,23 +30,23 @@ public sealed partial class ClientReadStream
     );
 
     private readonly PerformanceBpsMetrics metrics = new();
-    private DateTime _lastUpdateTime = SMDT.UtcNow;
+    private readonly DateTime _lastUpdateTime = SMDT.UtcNow;
     private int acculmativeBytesRead = 0;
     private void SetMetrics(int bytesRead)
     {
-        DateTime currentTime = SMDT.UtcNow;
-        Setting setting = memoryCache.GetSetting();
+        //DateTime currentTime = SMDT.UtcNow;
+        //Setting setting = memoryCache.GetSetting();
 
-        if (setting.EnablePrometheus && (currentTime - _lastUpdateTime > TimeSpan.FromSeconds(5)))
-        {
-            double bps = metrics.GetBitsPerSecond();
+        //if (setting.EnablePrometheus && (currentTime - _lastUpdateTime > TimeSpan.FromSeconds(5)))
+        //{
+        //    double bps = metrics.GetBitsPerSecond();
 
-            _bitsPerSecond.WithLabels(ClientId.ToString(), VideoStreamName).Set(bps);
-            _bytesReadCounter.WithLabels(ClientId.ToString(), VideoStreamName).Inc(acculmativeBytesRead);
+        //    _bitsPerSecond.WithLabels(ClientId.ToString(), VideoStreamName).Set(bps);
+        //    _bytesReadCounter.WithLabels(ClientId.ToString(), VideoStreamName).Inc(acculmativeBytesRead);
 
-            acculmativeBytesRead = 0;
-            _lastUpdateTime = currentTime;
-        }
+        //    acculmativeBytesRead = 0;
+        //    _lastUpdateTime = currentTime;
+        //}
 
         acculmativeBytesRead += bytesRead;
     }
