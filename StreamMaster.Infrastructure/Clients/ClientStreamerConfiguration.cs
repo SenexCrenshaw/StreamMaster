@@ -34,12 +34,12 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
 
     public async Task CancelClient(bool includeAbort = true)
     {
-        if (ReadBuffer != null)
+        if (Stream != null)
         {
-            ReadBuffer.ReadChannel?.Writer.Complete();
-            ReadBuffer.Cancel();
-            ReadBuffer.Dispose();
-            ReadBuffer = null;
+            Stream.Channel?.Writer.Complete();
+            Stream.Cancel();
+            Stream.Dispose();
+            Stream = null;
         }
 
         try
@@ -71,7 +71,7 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
     }
 
     //Buffering
-    public IClientReadStream? ReadBuffer { get; set; }
+    public IClientReadStream? Stream { get; set; }
 
     //Tokens
     private CancellationToken ClientHTTPRequestCancellationToken { get; }

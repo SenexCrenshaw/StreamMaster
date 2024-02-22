@@ -57,9 +57,9 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         if (streamerConfiguration != null)
         {
             streamerConfiguration.VideoStreamName = streamHandler.VideoStreamName;
-            streamerConfiguration.ReadBuffer ??= new ClientReadStream(memoryCache, statisticsManager, loggerFactory, streamerConfiguration);
+            streamerConfiguration.Stream ??= new ClientReadStream(memoryCache, statisticsManager, loggerFactory, streamerConfiguration);
 
-            logger.LogDebug("Adding client {ClientId} {ReaderID} ", clientId, streamerConfiguration.ReadBuffer?.Id ?? Guid.NewGuid());
+            logger.LogDebug("Adding client {ClientId} {ReaderID} ", clientId, streamerConfiguration.Stream?.Id ?? Guid.NewGuid());
             streamHandler.RegisterClientStreamer(streamerConfiguration);
 
         }

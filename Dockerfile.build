@@ -1,6 +1,14 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG TARGETPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
+ARG TARGETVARIANT
 
-RUN apt-get update -yq \
+RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+
+RUN \
+    --mount=type=cache,id=apt-$TARGETARCH$TARGETVARIANT,sharing=locked,target=/var/cache/apt \
+    apt-get update -yq \
     && apt-get upgrade -yq \
     && curl -fsSL https://deb.nodesource.com/setup_21.x | bash - \
     && apt-get install --no-install-recommends -yq nodejs \

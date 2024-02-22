@@ -119,14 +119,14 @@ public sealed class StreamManager(
                     //    //foreach (Guid clientId in streamHandler.GetClientStreamerClientIds())
                     //    //{
                     //    //    IClientStreamerConfiguration? clientStreamerConfiguration = await clientStreamerManager.GetClientStreamerConfiguration(clientId);
-                    //    //    if (clientStreamerConfiguration != null && clientStreamerConfiguration.ReadBuffer != null)
+                    //    //    if (clientStreamerConfiguration != null && clientStreamerConfiguration.Stream != null)
                     //    //    {
                     //    //        long _lastReadIndex = streamHandler.CircularRingBuffer.GetNextReadIndex();
                     //    //        //if (_lastReadIndex > StreamHandler.ChunkSize)
                     //    //        //{
                     //    //        //    _lastReadIndex -= StreamHandler.ChunkSize;
                     //    //        //}
-                    //    //        clientStreamerConfiguration.ReadBuffer.SetLastIndex(_lastReadIndex);
+                    //    //        clientStreamerConfiguration.Stream.SetLastIndex(_lastReadIndex);
                     //    //    }
                     //    //}
                     //}

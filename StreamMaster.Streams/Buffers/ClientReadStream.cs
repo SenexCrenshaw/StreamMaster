@@ -9,9 +9,6 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
 {
     private readonly CancellationTokenSource _readCancel = new();
     private readonly ILogger<ReadsLogger> _readLogger;
-    //private int currentPosition = 0;
-    //private int GetVideoInfoCount = 0;
-    //private readonly Memory<byte> test = new(new byte[2 * 1024 * 1000]);
 
     public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken)
     {
@@ -31,7 +28,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
             CancellationTokenSource timedToken = new(TimeSpan.FromSeconds(30));
             using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_readCancel.Token, timedToken.Token, cancellationToken);
 
-            byte[] read = await ReadChannel.Reader.ReadAsync(linkedCts.Token);
+            byte[] read = await Channel.Reader.ReadAsync(linkedCts.Token);
             bytesRead = read.Length;
             _readLogger.LogDebug("End bytesRead: {bytesRead}", bytesRead);
             if (bytesRead == 0)
@@ -39,21 +36,6 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
                 return 0;
             }
             read[..bytesRead].CopyTo(buffer);
-            //if (GetVideoInfoCount < 1)
-            //{
-            //    if (bytesRead + currentPosition > test.Length)
-            //    {
-            //        string filePath = Path.Combine(BuildInfo.AppDataFolder, $"streamread_{GetVideoInfoCount}.mp4");
-            //        await File.WriteAllBytesAsync(filePath, test.ToArray()).ConfigureAwait(false);
-            //        ++GetVideoInfoCount;
-            //        currentPosition = 0;
-            //    }
-            //    else
-            //    {
-            //        read[..bytesRead].CopyTo(test[currentPosition..]);
-            //        currentPosition += bytesRead;
-            //    }
-            //}
 
             metrics.RecordBytesProcessed(bytesRead);
 

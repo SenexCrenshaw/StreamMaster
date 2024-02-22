@@ -9,7 +9,7 @@ public interface IClientStreamerConfiguration
     Guid ClientId { get; set; }
     string ClientIPAddress { get; set; }
     string ClientUserAgent { get; set; }
-    IClientReadStream? ReadBuffer { get; set; }
+    IClientReadStream? Stream { get; set; }
     CancellationTokenSource ClientMasterToken { get; set; }
     string VideoStreamName { get; set; }
 }

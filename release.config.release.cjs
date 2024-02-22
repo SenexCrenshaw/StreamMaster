@@ -27,7 +27,8 @@ module.exports = {
           { type: "docs", scope: "README", release: "patch" },
           { type: "refactor", release: "minor" },
           { type: "style", release: "patch" },
-          { type: "build", release: "false" },
+          // { type: "build", release: "false" },
+          { scope: "no-release", release: false },
           { type: "update", release: "patch" }
         ],
         parserOpts: {

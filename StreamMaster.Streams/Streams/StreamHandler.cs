@@ -23,6 +23,29 @@ public sealed partial class StreamHandler
 
     private DateTime LastVideoInfoRun = DateTime.MinValue;
 
+    // Write to all clients with separate buffers
+    private async Task WriteToAllClientsAsync(byte[] data, CancellationToken cancellationToken)
+    {
+        IEnumerable<Task> tasks = clientStreamerConfigs.Values
+            .Where(c => c.Stream != null)
+            .Select(async clientStreamerConfig =>
+            {
+                if (clientStreamerConfig.Stream != null)
+                {
+                    try
+                    {
+                        await clientStreamerConfig.Stream.Channel.Writer.WriteAsync(data, cancellationToken).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Failed to write to client {ClientId}", clientStreamerConfig.ClientId);
+                    }
+                }
+            });
+
+        await Task.WhenAll(tasks);
+    }
+
     public async Task StartVideoStreamingAsync(Stream stream)
     {
 
@@ -50,10 +73,8 @@ public sealed partial class StreamHandler
         bool ran = false;
         int accumulatedBytes = 0;
         Stopwatch testSw = Stopwatch.StartNew();
+        Memory<byte> bufferMemory = new byte[ChunkSize];
 
-        Memory<byte> test = new(new byte[videoBufferSize]);
-
-        byte[] firstByte = new byte[videoBufferSize];
         using (stream)
         {
             while (!linkedToken.IsCancellationRequested)
@@ -71,10 +92,9 @@ public sealed partial class StreamHandler
 
                 try
                 {
-                    Memory<byte> bufferMemory = new byte[ChunkSize];
                     _writeLogger.LogDebug("-------------------{VideoStreamName}-----------------------------", VideoStreamName);
                     int readBytes = await stream.ReadAsync(bufferMemory, linkedToken.Token);
-                    _writeLogger.LogDebug("End bytes written: {byteswritten}", readBytes);
+                    _writeLogger.LogDebug("End bytes read from input stream: {byteswritten}", readBytes);
                     if (readBytes == 0)
                     {
                         throw new EndOfStreamException();
@@ -89,48 +109,21 @@ public sealed partial class StreamHandler
 
                     byte[] clientDataToSend = new byte[readBytes];
                     bufferMemory[..readBytes].CopyTo(clientDataToSend);
+                    await WriteToAllClientsAsync(clientDataToSend, linkedToken.Token).ConfigureAwait(false);
 
-                    foreach (IClientStreamerConfiguration clientStreamerConfig in clientStreamerConfigs.Values)
-                    {
-                        if (clientStreamerConfig.ReadBuffer != null)
-                        {
-                            await clientStreamerConfig.ReadBuffer.ReadChannel.Writer.WriteAsync(clientDataToSend);
-                        }
-                        else
-                        {
-                            logger.LogError("ClientStreamerConfig ReadBuffer is null for {ClientId}", clientStreamerConfig.ClientId);
-                        }
-
-                    }
+                    videoBuffer.Write(clientDataToSend);
+                    accumulatedBytes += readBytes;
 
                     TimeSpan lastRun = SMDT.UtcNow - LastVideoInfoRun;
-                    if (lastRun.TotalMinutes >= 30 && accumulatedBytes + readBytes > videoBufferSize)
+                    if (lastRun.TotalMinutes >= 10)
                     {
-                        int overAge = accumulatedBytes + readBytes - videoBufferSize;
-                        int toRead = readBytes - overAge;
-                        if (toRead < 0)
+                        if (accumulatedBytes > videoBufferSize)
                         {
-                            logger.LogError(overAge, "toRead is less than {overAge}", overAge);
-                            logger.LogError(overAge, "accumulatedBytes {accumulatedBytes}", accumulatedBytes);
-                            logger.LogError(overAge, "readBytes {readBytes}", readBytes);
-                            logger.LogError(overAge, "readBytes {videoBufferSize}", videoBufferSize);
-                        }
-                        else
-                        {
-                            videoBuffer.Write(clientDataToSend[..toRead]);
+                            byte[] processData = videoBuffer.ReadLatestData();
+                            _ = BuildVideoInfoAsync(processData);
 
-                            byte[] videoMemory = videoBuffer.ReadLatestData();
-                            Task task = BuildVideoInfoAsync(videoMemory);
-
-                            ++toRead;
-                            accumulatedBytes = readBytes - toRead;
-                            videoBuffer.Write(clientDataToSend[toRead..readBytes]);
+                            accumulatedBytes = 0;
                         }
-                    }
-                    else
-                    {
-                        videoBuffer.Write(clientDataToSend);
-                        accumulatedBytes += readBytes;
                     }
                 }
                 catch (TaskCanceledException)
@@ -169,7 +162,7 @@ public sealed partial class StreamHandler
 
         //foreach (IClientStreamerConfiguration clientStreamerConfig in clientStreamerConfigs.Values)
         //{
-        //    clientStreamerConfig.ReadBuffer?.ReadChannel.Writer.Complete();
+        //    clientStreamerConfig.Stream?.Channel.Writer.Complete();
         //}
         IsFailed = true;
         stream.Close();

@@ -1,3 +1,31 @@
+## [0.13.2-sh.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.13.2-sh.1...v0.13.2-sh.2) (2024-02-22)
+
+
+### Bug Fixes
+
+* Client writing ([d3f4f54](https://github.com/SenexCrenshaw/StreamMaster/commit/d3f4f54dcfa39b0d9ccb65e5a974bd72f0848d62))
+
+## [0.13.2-sh.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.13.2-sh.1...v0.13.2-sh.2) (2024-02-22)
+
+
+### Bug Fixes
+
+* Client writing ([d3f4f54](https://github.com/SenexCrenshaw/StreamMaster/commit/d3f4f54dcfa39b0d9ccb65e5a974bd72f0848d62))
+
+## [0.13.2-sh.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.13.2-sh.1...v0.13.2-sh.2) (2024-02-22)
+
+
+### Bug Fixes
+
+* Client writing ([d3f4f54](https://github.com/SenexCrenshaw/StreamMaster/commit/d3f4f54dcfa39b0d9ccb65e5a974bd72f0848d62))
+
+## [0.13.2-sh.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.13.1...v0.13.2-sh.1) (2024-02-21)
+
+
+### Bug Fixes
+
+* update videoinfo ([f7231ac](https://github.com/SenexCrenshaw/StreamMaster/commit/f7231ac323601b3a0387e4d48e7c3c3260eea728))
+
 ## [0.13.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.13.0...v0.13.1) (2024-02-11)
 
 

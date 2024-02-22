@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Cache;
-
 using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Buffers;
@@ -37,12 +35,12 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
             SingleReader = true,
             SingleWriter = true
         };
-        ReadChannel = Channel.CreateUnbounded<byte[]>(options);
+        Channel = System.Threading.Channels.Channel.CreateUnbounded<byte[]>(options);
 
         logger.LogInformation("Starting client read stream for ClientId: {ClientId}", ClientId);
     }
 
-    public Channel<byte[]> ReadChannel { get; private set; }
+    public Channel<byte[]> Channel { get; private set; }
 
     private bool IsCancelled { get; set; }
 
@@ -75,11 +73,11 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
         }
         catch (Exception ex)
         {
-            Setting setting = memoryCache.GetSetting();
-            if (setting.EnablePrometheus)
-            {
-                _readErrorsCounter.WithLabels(ClientId.ToString(), VideoStreamName).Inc();
-            }
+            //Setting setting = memoryCache.GetSetting();
+            //if (setting.EnablePrometheus)
+            //{
+            //    _readErrorsCounter.WithLabels(ClientId.ToString(), VideoStreamName).Inc();
+            //}
 
             logger.LogError(ex, "Error reading buffer for ClientId: {ClientId}", ClientId);
         }

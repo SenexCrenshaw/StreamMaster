@@ -1,5 +1,4 @@
-﻿using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Extensions;
+﻿using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Streams.Streams;
 
@@ -13,16 +12,16 @@ public sealed partial class StreamHandler
     private int acculmativeBytesWritten = 0;
     private void SetMetrics(int bytesWritten)
     {
-        DateTime currentTime = SMDT.UtcNow;
+        //DateTime currentTime = SMDT.UtcNow;
 
-        Setting setting = memoryCache.GetSetting();
+        //Setting setting = memoryCache.GetSetting();
 
-        if (setting.EnablePrometheus && (currentTime - _lastUpdateTime > TimeSpan.FromSeconds(5)))
-        {
-            inputStreamStatistics.AddBytesWritten(acculmativeBytesWritten);
-            _lastUpdateTime = currentTime;
-            acculmativeBytesWritten = 0;
-        }
+        //if (setting.EnablePrometheus && (currentTime - _lastUpdateTime > TimeSpan.FromSeconds(5)))
+        //{
+        //    inputStreamStatistics.AddBytesWritten(acculmativeBytesWritten);
+        //    _lastUpdateTime = currentTime;
+        //    acculmativeBytesWritten = 0;
+        //}
 
         acculmativeBytesWritten += bytesWritten;
     }
