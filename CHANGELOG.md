@@ -5,6 +5,13 @@
 
 * Client writing ([d3f4f54](https://github.com/SenexCrenshaw/StreamMaster/commit/d3f4f54dcfa39b0d9ccb65e5a974bd72f0848d62))
 
+## [0.13.2-sh.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.13.2-sh.1...v0.13.2-sh.2) (2024-02-22)
+
+
+### Bug Fixes
+
+* Client writing ([d3f4f54](https://github.com/SenexCrenshaw/StreamMaster/commit/d3f4f54dcfa39b0d9ccb65e5a974bd72f0848d62))
+
 ## [0.13.2-sh.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.13.1...v0.13.2-sh.1) (2024-02-21)
 
 
