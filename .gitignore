@@ -370,3 +370,4 @@ Dockerfile.sm
 basever
 buildver
 smver
+release.config.cjs
