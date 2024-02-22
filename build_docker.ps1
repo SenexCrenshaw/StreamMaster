@@ -63,7 +63,7 @@ function Main {
     # DownloadFiles
 
     $imageName = "docker.io/senexcrenshaw/streammaster"
-    $buildName = $imageName + "-builds"
+    $buildName = "streammaster-builds"#$imageName + "-builds"
 
     $result = Get-AssemblyInfo -assemblyInfoPath "./StreamMaster.API/AssemblyInfo.cs"
     $processedAssemblyInfo = ProcessAssemblyInfo $result
@@ -71,14 +71,14 @@ function Main {
     if ($BuildBase -or $BuildAll) {
         $dockerFile = "Dockerfile.base"
         $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-base")
-        BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile
+        BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile --pull $true
         Write-StringToFile -Path "basever" -Content $processedAssemblyInfo.BranchNameRevision 
     }
 
     if ($BuildBuild -or $BuildAll) {
         $dockerFile = "Dockerfile.build"
         $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-build")
-        BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile
+        BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile --pull $true
         Write-StringToFile -Path "buildver" -Content $processedAssemblyInfo.BranchNameRevision 
     }
     
@@ -217,7 +217,10 @@ function BuildImage {
         [string]$imageName,
 
         [Parameter()]
-        [bool]$push = $false
+        [bool]$push = $false,
+
+        [Parameter()]
+        [bool]$pull = $false
 
     )
   
@@ -226,7 +229,12 @@ function BuildImage {
     $global:tags | ForEach-Object { Write-Host $_ }
 
     # Construct the Docker build command using the tags and the specified Dockerfile
-    $buildCommand = "docker buildx build --pull --platform ""linux/amd64,linux/arm64"" -f ./$dockerFile ."
+    $buildCommand = "docker buildx build "
+     if ( $pull) {
+        $buildCommand += " --pull"
+    }
+    $buildCommand += " --platform ""linux/amd64,linux/arm64"" -f ./$dockerFile ."
+
     if ( $push) {
         $buildCommand += " --push"
     }

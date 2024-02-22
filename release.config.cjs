@@ -28,7 +28,7 @@ module.exports = {
           { type: "refactor", release: "minor" },
           { type: "style", release: "patch" },
           // { type: "build", release: "false" },
-          { "scope": "no-release", "release": false },
+          { scope: "no-release", release: false },
           { type: "update", release: "patch" }
         ],
         parserOpts: {
@@ -54,12 +54,12 @@ module.exports = {
         ].join(" && ")
       }
     ],
-    [
-      "@semantic-release/github",
-      {
-        assets: ["CHANGELOG.md"]
-      }
-    ],
+    // [
+    //   "@semantic-release/github",
+    //   {
+    //     assets: ["CHANGELOG.md"]
+    //   }
+    // ],
     [
       "@semantic-release/git",
       {
