@@ -115,11 +115,11 @@ public sealed partial class StreamHandler
                     accumulatedBytes += readBytes;
 
                     TimeSpan lastRun = SMDT.UtcNow - LastVideoInfoRun;
-                    if (lastRun.TotalMinutes >= 3)
+                    if (lastRun.TotalMinutes >= 10)
                     {
                         if (accumulatedBytes > videoBufferSize)
                         {
-                            var processData = videoBuffer.ReadLatestData();
+                            byte[] processData = videoBuffer.ReadLatestData();
                             _ = BuildVideoInfoAsync(processData);
 
                             accumulatedBytes = 0;
