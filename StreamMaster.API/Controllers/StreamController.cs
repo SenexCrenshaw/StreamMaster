@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace StreamMaster.API.Controllers
 {
-    public class StreamController(IVideoStreamService videoStreamService, IAccessTracker accessTracker, IHLSManager hLsManager) : ApiControllerBase
+    public class StreamController(ILogger<StreamController> logger, IVideoStreamService videoStreamService, IAccessTracker accessTracker, IHLSManager hLsManager) : ApiControllerBase
     {
         [Authorize(Policy = "SGLinks")]
         [HttpGet]
@@ -53,15 +53,23 @@ namespace StreamMaster.API.Controllers
             {
                 return NotFound();
             }
+            try
+            {
+                accessTracker.UpdateAccessTime(videoStreamId, TimeSpan.FromSeconds(4));
 
-            accessTracker.UpdateAccessTime(videoStreamId, TimeSpan.FromSeconds(4));
+                HttpContext.Response.Headers.Connection = "close";
+                HttpContext.Response.Headers.AccessControlAllowOrigin = "*";
+                HttpContext.Response.Headers.CacheControl = "no-cache";
 
-            HttpContext.Response.Headers.Connection = "close";
-            HttpContext.Response.Headers.AccessControlAllowOrigin = "*";
-            HttpContext.Response.Headers.CacheControl = "no-cache";
 
-            FileStream stream = new(tsFile, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
-            return new FileStreamResult(stream, "video/mp2t");
+                FileStream stream = new(tsFile, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
+                return new FileStreamResult(stream, "video/mp2t");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error streaming video file {FileName}", tsFile);
+                return StatusCode(500, "Error streaming video");
+            }
         }
     }
 }
