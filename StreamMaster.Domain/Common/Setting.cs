@@ -91,6 +91,7 @@ public class HLSSettings : M3USettings
 {
     public int HLSSegmentDurantionInSeconds { get; set; } = 2;
     public int HLSSegmentCount { get; set; } = 20;
+    public int HLSM3U8TimeOutInSeconds { get; set; } = 10;
 }
 public class BaseSettings : HLSSettings
 {

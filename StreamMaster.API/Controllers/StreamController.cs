@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 
 
 namespace StreamMaster.API.Controllers
 {
-    public class StreamController(ILogger<StreamController> logger, IVideoStreamService videoStreamService, IAccessTracker accessTracker, IHLSManager hLsManager) : ApiControllerBase
+    public class StreamController(ILogger<StreamController> logger, IVideoStreamService videoStreamService, IAccessTracker accessTracker, IHLSManager hLsManager, IMemoryCache memoryCache) : ApiControllerBase
     {
         [Authorize(Policy = "SGLinks")]
         [HttpGet]
@@ -22,9 +23,11 @@ namespace StreamMaster.API.Controllers
             hLsManager.GetOrAdd(videoStreamDto);
 
             string m3u8File = Path.Combine(BuildInfo.HLSOutputFolder, videoStreamId, $"index.m3u8");
+            Setting setting = memoryCache.GetSetting();
 
-            if (!await FileUtil.WaitForFileAsync(m3u8File, 10, 100, cancellationToken))
+            if (!await FileUtil.WaitForFileAsync(m3u8File, setting.HLSM3U8TimeOutInSeconds, 100, cancellationToken))
             {
+                logger.LogWarning("HLS file not found {FileName}, exiting", m3u8File);
                 hLsManager.Stop(videoStreamId);
                 return NotFound();
             }

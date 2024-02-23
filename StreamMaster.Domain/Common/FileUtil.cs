@@ -503,11 +503,8 @@ public sealed class FileUtil
             return;
         }
         setupDirectories = true;
-        Setting? setting = GetSetting();
-        if (setting == null)
-        {
-            throw new Exception("Failed to load settings from file.");
-        }
+
+
         Console.WriteLine($"Using settings file {BuildInfo.SettingFile}");
         CreateDir(BuildInfo.AppDataFolder);
         CreateDir(BuildInfo.CacheFolder);
