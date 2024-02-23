@@ -9,6 +9,7 @@ using StreamMaster.Application;
 using StreamMaster.Application.Hubs;
 using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure;
@@ -118,6 +119,8 @@ void OnShutdown()
 
     //var timerService = app.Services.GetRequiredService<TimerService>();
     //timerService.StopAsync(CancellationToken.None).Wait();
+
+    DirectoryHelper.EmptyDirectory(BuildInfo.HLSOutputFolder, app.Services.GetRequiredService<ILogger<DirectoryHelper>>());
 
     FileUtil.Backup().Wait();
 }

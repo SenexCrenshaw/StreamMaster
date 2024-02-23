@@ -42,10 +42,7 @@ public class HLSHandler(ILogger<HLSHandler> logger, ILogger<FFMPEGRunner> FFMPEG
         KillProcess();
 
         string directory = Path.Combine(BuildInfo.HLSOutputFolder, Id);
-        if (Directory.Exists(directory))
-        {
-            DirectoryHelper.DeleteAllFiles(directory, logger);
-        }
+        DirectoryHelper.DeleteDirectory(directory, logger);
     }
 
     private bool KillProcess()
