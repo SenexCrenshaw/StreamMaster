@@ -73,7 +73,7 @@ if (!string.IsNullOrEmpty(sslCertPath))
     ));
 }
 
-// Add services to the container.
+// GetOrAdd services to the container.
 builder.Services.AddSchedulesDirectAPIServices();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureEFPGSQLServices();

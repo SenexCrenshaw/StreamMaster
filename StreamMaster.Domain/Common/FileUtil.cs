@@ -14,8 +14,42 @@ namespace StreamMaster.Domain.Common;
 
 public sealed class FileUtil
 {
-    private static bool setupDirectories = false;
+    //private static bool setupDirectories = false;
 
+    public static async Task<bool> WaitForFileAsync(string filePath, int timeoutSeconds, int checkIntervalMilliseconds, CancellationToken cancellationToken)
+    {
+        CancellationTokenSource timeoutTokenSource = new(TimeSpan.FromSeconds(timeoutSeconds));
+        CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutTokenSource.Token);
+
+        try
+        {
+            string? dir = Path.GetDirectoryName(filePath);
+            if (dir != null && !Directory.Exists(dir))
+            {
+                while (!Directory.Exists(dir))
+                {
+                    await Task.Delay(checkIntervalMilliseconds, linkedTokenSource.Token).ConfigureAwait(false);
+                }
+            }
+
+            while (!File.Exists(filePath))
+            {
+                await Task.Delay(checkIntervalMilliseconds, linkedTokenSource.Token).ConfigureAwait(false);
+            }
+
+            return true;
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            // Timeout has occurred
+            return false;
+        }
+        catch (OperationCanceledException)
+        {
+            // External cancellation request
+            throw;
+        }
+    }
 
     public static string CleanUpFileName(string fullName)
     {
@@ -464,11 +498,11 @@ public sealed class FileUtil
 
     public static void SetupDirectories(bool alwaysRun = false)
     {
-        if (setupDirectories && !alwaysRun)
-        {
-            return;
-        }
-        setupDirectories = true;
+        //if (setupDirectories && !alwaysRun)
+        //{
+        //    return;
+        //}
+        //setupDirectories = true;
         Setting? setting = GetSetting();
         if (setting == null)
         {
@@ -489,6 +523,7 @@ public sealed class FileUtil
         CreateDir(BuildInfo.SDJSONFolder);
         CreateDir(BuildInfo.LogFolder);
         CreateDir(BuildInfo.BackupPath);
+        CreateDir(BuildInfo.HLSOutputFolder);
 
         for (char c = '0'; c <= '9'; c++)
         {

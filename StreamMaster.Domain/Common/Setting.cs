@@ -87,8 +87,15 @@ public class TestSettings
     public int DropClientSeconds { get; set; } = 0;
 }
 
-public class BaseSettings : M3USettings
+public class HLSSettings : M3USettings
 {
+    public int HLSSegmentDurantionInSeconds { get; set; } = 2;
+    public int HLSSegmentCount { get; set; } = 20;
+}
+public class BaseSettings : HLSSettings
+{
+
+
     public bool BackupEnabled { get; set; } = true;
     public int BackupVersionsToKeep { get; set; } = 18;
     public int BackupInterval { get; set; } = 4;
@@ -144,5 +151,7 @@ public class ProtectedSettings : BaseSettings
 
 public class Setting : ProtectedSettings
 {
+
+
 
 }

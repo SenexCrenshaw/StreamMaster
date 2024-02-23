@@ -7,18 +7,13 @@ using StreamMaster.Application.StreamGroups;
 using StreamMaster.Application.StreamGroups.Commands;
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Pagination;
 using StreamMaster.Domain.Repository;
 using StreamMaster.Domain.Requests;
-using StreamMaster.Domain.Services;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text;
-using System.Web;
 
 namespace StreamMaster.API.Controllers;
 
@@ -118,12 +113,13 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
             if (id.Equals(channelId))
             {
                 string url = httpContextAccessor.GetUrl();
-                string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
-                    .Replace("/", "")
-                    .Replace(" ", "_");
+                //string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
+                //    .Replace("/", "")
+                //    .Replace(" ", "_");
 
-                string encodedNumbers = ((int)streamGroupId).EncodeValues128(videoStream.Id, setting.ServerKey);
-                string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+                //string encodedNumbers = ((int)streamGroupId).EncodeValues128(videoStream.Id, setting.ServerKey);
+                //string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+                string videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
                 return Redirect(videoUrl);
             }
         }

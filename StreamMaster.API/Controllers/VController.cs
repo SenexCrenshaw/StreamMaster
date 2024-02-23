@@ -6,10 +6,6 @@ using Microsoft.Extensions.Caching.Memory;
 
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Application.StreamGroups.Queries;
-using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Repository;
 using StreamMaster.Domain.Requests;
@@ -43,8 +39,9 @@ public class VController(IRepositoryWrapper Repository, ISender sender, IMemoryC
         Setting setting = memoryCache.GetSetting();
 
         string url = httpContextAccessor.GetUrl();
-        string encodedNumbers = 0.EncodeValues128(videoStream.Id, setting.ServerKey);
-        string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+        //string encodedNumbers = 0.EncodeValues128(videoStream.Id, setting.ServerKey);
+        //string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+        string videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
         return Redirect(videoUrl);
     }
 

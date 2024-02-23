@@ -19,7 +19,7 @@ public static class ConfigureServices
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
         _ = services.AddMemoryCache();
-
+        services.AddSingleton<IVideoStreamService, VideoStreamService>();
         _ = services.AddSingleton<ISettingsService, SettingsService>();
         _ = services.AddSingleton<IIconService, IconService>();
         _ = services.AddSingleton<IImageDownloadQueue, ImageDownloadQueue>();
@@ -42,6 +42,8 @@ public static class ConfigureServices
             return factory.Create("FileLoggerDebug");
         });
 
+        services.AddSingleton<IAccessTracker, AccessTracker>();
+        services.AddHostedService<InactiveStreamMonitor>();
 
         _ = services.AddAutoMapper(
             Assembly.Load("StreamMaster.Domain"),

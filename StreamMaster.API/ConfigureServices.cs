@@ -65,7 +65,7 @@ public static class ConfigureServices
         //    });
 
         //});
-        // Add logging configuration
+        // GetOrAdd logging configuration
         services.AddLogging(loggingBuilder =>
         {
             loggingBuilder.AddFilter("StreamMaster.Domain.Logging.CustomLogger", LogLevel.Information);
@@ -74,7 +74,7 @@ public static class ConfigureServices
             loggingBuilder.AddConfiguration(builder.Configuration.GetSection("Logging"));
             loggingBuilder.AddProvider(new StatsLoggerProvider());
 
-            // Add specific filters for StatsLoggerProvider
+            // GetOrAdd specific filters for StatsLoggerProvider
             loggingBuilder.AddFilter<StatsLoggerProvider>((category, logLevel) =>
             {
                 // List of classes to use with CustomLogger
@@ -196,13 +196,13 @@ public static class ConfigureServices
         //{
         //    options.AddPolicy("SignalR", policy =>
         //    {
-        //        policy.AuthenticationSchemes.Add("SignalR");
+        //        policy.AuthenticationSchemes.GetOrAdd("SignalR");
         //        policy.RequireAuthenticatedUser();
         //    });
 
         //    options.AddPolicy("SGLinks", policy =>
         //    {
-        //        policy.AuthenticationSchemes.Add("SGLinks");
+        //        policy.AuthenticationSchemes.GetOrAdd("SGLinks");
         //        policy.RequireAuthenticatedUser();
         //    });
 

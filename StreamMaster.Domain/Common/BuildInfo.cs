@@ -129,6 +129,7 @@ namespace StreamMaster.Domain.Common
         public static readonly string SettingFileName = "settings.json";
         public static readonly string LoggingFileName = "logsettings.json";
         public static readonly string SettingFile = Path.Combine(AppDataFolder, SettingFileName);
+        public static readonly string HLSOutputFolder = Path.Combine(AppDataFolder, "hls");
         public static readonly string LoggingFile = File.Exists(Path.Combine(AppDataFolder, LoggingFileName)) ? Path.Combine(AppDataFolder, LoggingFileName) : LoggingFileName;
         public static readonly string IconDefault = Path.Combine("images", "default.png");
         public static readonly string FFMPEGDefaultOptions = "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1";

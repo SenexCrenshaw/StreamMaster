@@ -42,25 +42,25 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         }
     }
 
-    public async Task AddClientsToHandler(string ChannelVideoStreamId, IStreamHandler streamHandler)
+    public async Task AddClientsToHandler(string ChannelVideoStreamId)
     {
         List<Guid> clientIds = GetClientStreamerConfigurationsByChannelVideoStreamId(ChannelVideoStreamId).ConvertAll(a => a.ClientId);
         foreach (Guid clientId in clientIds)
         {
-            await AddClientToHandler(clientId, streamHandler).ConfigureAwait(false);
+            await AddClientToHandler(clientId).ConfigureAwait(false);
         }
     }
 
-    public async Task AddClientToHandler(Guid clientId, IStreamHandler streamHandler)
+    public async Task AddClientToHandler(Guid clientId)
     {
         IClientStreamerConfiguration? streamerConfiguration = await GetClientStreamerConfiguration(clientId);
         if (streamerConfiguration != null)
         {
-            streamerConfiguration.VideoStreamName = streamHandler.VideoStreamName;
+            //streamerConfiguration.VideoStreamName = streamHandler.VideoStreamName;
             streamerConfiguration.Stream ??= new ClientReadStream(memoryCache, statisticsManager, loggerFactory, streamerConfiguration);
 
             logger.LogDebug("Adding client {ClientId} {ReaderID} ", clientId, streamerConfiguration.Stream?.Id ?? Guid.NewGuid());
-            streamHandler.RegisterClientStreamer(streamerConfiguration);
+
 
         }
         else

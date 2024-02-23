@@ -9,7 +9,6 @@ using StreamMaster.SchedulesDirect.Domain.Enums;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Text;
-using System.Web;
 
 namespace StreamMaster.Application.StreamGroups.Queries;
 
@@ -207,16 +206,16 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         if (request.UseShortId)
         {
             videoUrl = $"{url}/v/v/{videoStream.ShortId}";
-
         }
         else
         {
-            string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
-                     .Replace("/", "")
-                     .Replace(" ", "_");
+            //string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
+            //         .Replace("/", "")
+            //         .Replace(" ", "_");
 
-            string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, setting.ServerKey, iv);
-            videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+            //string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, setting.ServerKey, iv);
+            //videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+            videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
         }
 
         if (setting.M3UUseChnoForId)

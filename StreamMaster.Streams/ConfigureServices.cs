@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
+using StreamMaster.Domain.Services;
 using StreamMaster.Streams.Channels;
 using StreamMaster.Streams.Clients;
 using StreamMaster.Streams.Factories;
@@ -22,6 +23,7 @@ public static class ConfigureServices
         _ = services.AddSingleton<IStatisticsManager, ClientStatisticsManager>();
         _ = services.AddSingleton<IInputStatisticsManager, InputStatisticsManager>();
         _ = services.AddSingleton<IStreamManager, StreamManager>();
+        _ = services.AddSingleton<IHLSManager, HLSManager>();
 
         return services;
     }

@@ -8,10 +8,11 @@ using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Repository;
+using StreamMaster.Domain.Services;
 
 namespace StreamMaster.Streams.Streams;
 
-public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStreamerManager clientStreamerManager, IChannelService channelService, IServiceProvider serviceProvider, IMemoryCache memoryCache, IStreamManager streamManager) : IStreamSwitcher
+public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IHLSManager hLSManager, IClientStreamerManager clientStreamerManager, IChannelService channelService, IServiceProvider serviceProvider, IMemoryCache memoryCache) : IStreamSwitcher
 {
     public async Task<bool> SwitchToNextVideoStreamAsync(string ChannelVideoStreamId, string? overrideNextVideoStreamId = null)
     {
@@ -38,7 +39,7 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
 
         logger.LogDebug("Starting SwitchToNextVideoStream with channelStatus: {channelStatus} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus, overrideNextVideoStreamId);
 
-        IStreamHandler? oldStreamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStream.User_Url);
+        //IStreamHandler? oldStreamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStream.User_Url);
 
         VideoStreamDto? videoStreamDto = await RetrieveNextChildVideoStream(channelStatus, overrideNextVideoStreamId);
         if (videoStreamDto is null)
@@ -48,33 +49,31 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
             return false;
         }
 
-        if (oldStreamHandler != null && oldStreamHandler.VideoStreamId == videoStreamDto.Id)
-        {
-            logger.LogDebug("Matching ids, stopping original stream");
-            oldStreamHandler.SetFailed();
+        //if (oldStreamHandler != null && oldStreamHandler.VideoStreamId == videoStreamDto.Id)
+        //{
+        //    logger.LogDebug("Matching ids, stopping original stream");
+        //    oldStreamHandler.SetFailed();
 
-            channelStatus.FailoverInProgress = false;
-            oldStreamHandler.Stop();
-            return true;
-        }
+        //    channelStatus.FailoverInProgress = false;
+        //    oldStreamHandler.Stop();
+        //    return true;
+        //}
 
-        IStreamHandler? newStreamHandler = await streamManager.GetOrCreateStreamHandler(videoStreamDto, channelStatus.ChannelVideoStreamId, channelStatus.ChannelName, channelStatus.Rank);
 
-        if (newStreamHandler is null)
-        {
-            logger.LogDebug("Exiting SwitchToNextVideoStream with false due to channelStatus. newStreamHandler is null");
-            channelStatus.FailoverInProgress = false;
-            return false;
-        }
 
-        if (channelStatus.CurrentVideoStream is not null && oldStreamHandler is not null)
-        {
-            await streamManager.MoveClientStreamers(oldStreamHandler, newStreamHandler);
-        }
-        else
-        {
-            await clientStreamerManager.AddClientsToHandler(ChannelVideoStreamId, newStreamHandler);
-        }
+        //IStreamHandler? newStreamHandler = await streamManager.GetOrCreateStreamHandler(videoStreamDto, channelStatus.ChannelVideoStreamId, channelStatus.ChannelName, channelStatus.Rank);
+
+        //if (newStreamHandler is null)
+        //{
+        //    logger.LogDebug("Exiting SwitchToNextVideoStream with false due to channelStatus. newStreamHandler is null");
+        //    channelStatus.FailoverInProgress = false;
+        //    return false;
+        //}
+
+
+        IHLSHandler hls = hLSManager.GetOrAdd(videoStreamDto);
+
+        await clientStreamerManager.AddClientsToHandler(ChannelVideoStreamId);
 
         channelStatus.CurrentVideoStream = videoStreamDto;
         channelStatus.FailoverInProgress = false;
@@ -116,7 +115,7 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
             return vs;
         }
 
-        int allStreamsCount = streamManager.GetStreamsCountForM3UFile(vs.M3UFileId);
+        int allStreamsCount = 0;// streamManager.GetStreamsCountForM3UFile(vs.M3UFileId);
 
         if (vs.Id != channelStatus.CurrentVideoStream.Id && allStreamsCount >= m3uFile.MaxStreamCount)
         {
@@ -174,7 +173,7 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
             }
             else
             {
-                int allStreamsCount = streamManager.GetStreamsCountForM3UFile(toReturn.M3UFileId);
+                int allStreamsCount = 0;// streamManager.GetStreamsCountForM3UFile(toReturn.M3UFileId);
                 if (allStreamsCount >= m3uFile.MaxStreamCount)
                 {
                     logger.LogInformation("Max stream count {MaxStreams} reached for stream: {StreamUrl}", toReturn.MaxStreams, toReturn.User_Url);

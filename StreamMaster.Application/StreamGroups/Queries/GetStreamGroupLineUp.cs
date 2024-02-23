@@ -7,7 +7,6 @@ using StreamMaster.Domain.Authentication;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text.Json;
-using System.Web;
 
 namespace StreamMaster.Application.StreamGroups.Queries;
 
@@ -114,10 +113,11 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
                 }
 
             }
-            string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, setting.ServerKey, iv);
+            //string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, setting.ServerKey, iv);
 
-            string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
-            string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+            //string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
+            //string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+            string videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
 
             MxfService? service = schedulesDirectDataService.AllServices.GetMxfService(videoStream.User_Tvg_ID);
             if (service == null)
