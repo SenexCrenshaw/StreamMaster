@@ -87,13 +87,16 @@ public class TestSettings
     public int DropClientSeconds { get; set; } = 0;
 }
 
-public class HLSSettings : M3USettings
+public class HLSSettings
 {
     public int HLSSegmentDurantionInSeconds { get; set; } = 2;
     public int HLSSegmentCount { get; set; } = 20;
     public int HLSM3U8TimeOutInSeconds { get; set; } = 30;
+
+    public int HLSM3U8ReadTimeOutInSeconds { get; set; } = 4;
+    public int HLSTSReadTimeOutInSeconds { get; set; } = 4;
 }
-public class BaseSettings : HLSSettings
+public class BaseSettings : M3USettings
 {
     public bool BackupEnabled { get; set; } = true;
     public int BackupVersionsToKeep { get; set; } = 18;
@@ -106,6 +109,8 @@ public class BaseSettings : HLSSettings
     public int MaxStreamReStart { get; set; } = 3;
     public TestSettings TestSettings { get; set; } = new();
     public int MaxConcurrentDownloads { get; set; } = 8;
+
+    public HLSSettings HLS { get; set; } = new();
     public SDSettings SDSettings { get; set; } = new();
     public int ExpectedServiceCount { get; set; } = 20;
     public string AdminPassword { get; set; } = string.Empty;

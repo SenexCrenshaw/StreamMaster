@@ -78,8 +78,8 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
                      "-hls_flags +delete_segments " +
                      $"-user_agent \"{settings.StreamingClientUserAgent}\"";
 
-            formattedArgs += $" -hls_time {settings.HLSSegmentDurantionInSeconds}" +
-                              $" -hls_list_size {settings.HLSSegmentCount}";
+            formattedArgs += $" -hls_time {settings.HLS.HLSSegmentDurantionInSeconds}" +
+                              $" -hls_list_size {settings.HLS.HLSSegmentCount}";
 
             formattedArgs += $" -hls_base_url \"{videoStream.Id}/\"" +
                               $" -hls_segment_filename \"{outputdir}%d.ts\"" +

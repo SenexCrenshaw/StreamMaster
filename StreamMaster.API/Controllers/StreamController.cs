@@ -25,14 +25,14 @@ namespace StreamMaster.API.Controllers
             string m3u8File = Path.Combine(BuildInfo.HLSOutputFolder, videoStreamId, $"index.m3u8");
             Setting setting = memoryCache.GetSetting();
 
-            if (!await FileUtil.WaitForFileAsync(m3u8File, setting.HLSM3U8TimeOutInSeconds, 100, cancellationToken))
+            if (!await FileUtil.WaitForFileAsync(m3u8File, setting.HLS.HLSM3U8TimeOutInSeconds, 100, cancellationToken))
             {
                 logger.LogWarning("HLS file not found {FileName}, exiting", m3u8File);
                 hLsManager.Stop(videoStreamId);
                 return NotFound();
             }
 
-            accessTracker.UpdateAccessTime(videoStreamId, TimeSpan.FromSeconds(4));
+            accessTracker.UpdateAccessTime(videoStreamId, TimeSpan.FromSeconds(setting.HLS.HLSM3U8ReadTimeOutInSeconds));
 
             HttpContext.Response.Headers.Connection = "close";
             HttpContext.Response.Headers.AccessControlAllowOrigin = "*";
@@ -58,7 +58,8 @@ namespace StreamMaster.API.Controllers
             }
             try
             {
-                accessTracker.UpdateAccessTime(videoStreamId, TimeSpan.FromSeconds(4));
+                Setting setting = memoryCache.GetSetting();
+                accessTracker.UpdateAccessTime(videoStreamId, TimeSpan.FromSeconds(setting.HLS.HLSTSReadTimeOutInSeconds));
 
                 HttpContext.Response.Headers.Connection = "close";
                 HttpContext.Response.Headers.AccessControlAllowOrigin = "*";
