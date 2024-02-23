@@ -43,6 +43,7 @@ public class HLSManager(ILogger<HLSManager> logger, ILogger<HLSHandler> HLSHandl
         {
             logger.LogInformation("Stopping HLSHandler for {name}", handler.Name);
             handler.Stop();
+            hlsHandlers.TryRemove(handler.Url, out _);
         }
         HLSCancellationTokenSource.Cancel();
     }

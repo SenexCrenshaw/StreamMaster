@@ -15,7 +15,7 @@ public class HLSHandler(ILogger<HLSHandler> logger, ILogger<FFMPEGRunner> FFMPEG
 
     public string Id => videoStream.Id;
     public string Name => videoStream.User_Tvg_name;
-
+    public string Url => videoStream.User_Url;
     public void Start()
     {
         if (Started)
