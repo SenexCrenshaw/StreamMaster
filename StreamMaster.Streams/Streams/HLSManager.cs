@@ -18,6 +18,11 @@ public class HLSManager(ILogger<HLSManager> logger, ILogger<HLSHandler> HLSHandl
             logger.LogInformation("Adding HLSHandler for {name}", videoStream.User_Tvg_name);
             HLSHandler handler = new(HLSHandlerlogger, FFMPEGRunnerlogger, videoStream, memoryCache);
             handler.Start();
+            handler.ProcessExited += (sender, args) =>
+            {
+                logger.LogInformation("HLSHandler Process Exited for {Name} with exit code {ExitCode}", videoStream.User_Tvg_name, args.ExitCode);
+                hlsHandlers.TryRemove(videoStream.User_Url, out HLSHandler? _);
+            };
             return handler;
         });
     }
@@ -26,15 +31,6 @@ public class HLSManager(ILogger<HLSManager> logger, ILogger<HLSHandler> HLSHandl
     {
         return hlsHandlers.Values.FirstOrDefault(a => a.Id == VideoStreamId);
     }
-
-    //public void Start(string url)
-    //{
-    //    if (hlsHandlers.TryGetValue(url, out HLSHandler? handler))
-    //    {
-    //        logger.LogInformation("Starting HLSHandler for {url}", url);
-    //        handler.Start();
-    //    }
-    //}
 
     public void Stop(string VideoStreamId)
     {

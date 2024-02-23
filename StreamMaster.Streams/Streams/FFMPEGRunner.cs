@@ -2,14 +2,15 @@
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Cache;
+using StreamMaster.Domain.Models;
 
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace StreamMaster.Streams.Streams;
-
 public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache)
 {
+    public event EventHandler<ProcessExitEventArgs> ProcessExited;
     private string? GetFFPMpegExec()
     {
         Setting settings = memoryCache.GetSetting();
@@ -29,7 +30,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
 
         return ffmpegExec;
     }
-
+    private Process process;
     public (int processId, ProxyStreamError? error) CreateFFMpegHLS(VideoStreamDto videoStream)
     {
         try
@@ -43,7 +44,6 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
                 return (-1, error);
             }
 
-            Stopwatch stopwatch = Stopwatch.StartNew();
             Setting settings = memoryCache.GetSetting();
 
             string outputdir = Path.Combine(BuildInfo.HLSOutputFolder, videoStream.Id);
@@ -85,16 +85,18 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
                               $" -hls_segment_filename \"{outputdir}%d.ts\"" +
                               $" \"{outputdir}index.m3u8\"";
 
-            using Process process = new();
+            process = new();
             process.StartInfo.FileName = ffmpegExec;
             process.StartInfo.Arguments = formattedArgs;
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
+            process.EnableRaisingEvents = true;
+            process.Exited += OnProcessExited;
 
             bool processStarted = process.Start();
-            stopwatch.Stop();
+
             if (!processStarted)
             {
                 // Log and return an error if the process couldn't be started
@@ -104,9 +106,19 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
                 return (-1, error);
             }
 
+            //StreamReader myStreamReader = process.StandardError;
+            //string standardError = myStreamReader.ReadToEnd();
+            //if (!string.IsNullOrEmpty(standardError))
+            //{
+            //    ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.ProcessStartFailed, Message = standardError };
+            //    logger.LogError("CreateFFMpegHLS Error: {ErrorMessage}", error.Message);
+
+            //    return (-1, error);
+            //}
+
             // Return the standard output stream of the process
 
-            logger.LogInformation("Opened ffmpeg stream for {streamName} with args \"{formattedArgs}\" in {ElapsedMilliseconds} ms", videoStream.User_Tvg_name, formattedArgs, stopwatch.ElapsedMilliseconds);
+            logger.LogInformation("Opened ffmpeg stream for {streamName} with args \"{formattedArgs}\"", videoStream.User_Tvg_name, formattedArgs);
             return (process.Id, null);
         }
         catch (Exception ex)
@@ -116,6 +128,12 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
             logger.LogError(ex, "CreateFFMpegHLS Error: {ErrorMessage}", error.Message);
             return (-1, error);
         }
+    }
+
+    protected virtual void OnProcessExited(object? sender, EventArgs e)
+    {
+        logger.LogInformation("FFMpeg process exited with code {ExitCode}", process.ExitCode);
+        ProcessExited?.Invoke(this, new ProcessExitEventArgs { ExitCode = process.ExitCode });
     }
 
     public async Task<(Stream? stream, int processId, ProxyStreamError? error)> CreateFFMpegStream(string streamUrl, string streamName)
@@ -139,7 +157,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
             string formattedArgs = options.Replace("{streamUrl}", $"\"{streamUrl}\"");
             formattedArgs += $" -user_agent \"{settings.StreamingClientUserAgent}\"";
 
-            using Process process = new();
+            process = new();
             process.StartInfo.FileName = ffmpegExec;
             process.StartInfo.Arguments = formattedArgs;
             process.StartInfo.CreateNoWindow = true;

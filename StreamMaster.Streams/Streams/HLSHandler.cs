@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Models;
 
 using System.Diagnostics;
 
@@ -8,6 +9,7 @@ namespace StreamMaster.Streams.Streams;
 
 public class HLSHandler(ILogger<HLSHandler> logger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, VideoStreamDto videoStream, IMemoryCache memoryCache) : IHLSHandler, IDisposable
 {
+    public event EventHandler<ProcessExitEventArgs> ProcessExited;
     private readonly CancellationTokenSource HLSCancellationTokenSource = new();
     private readonly FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerlogger, memoryCache);
     private bool Started;
@@ -30,6 +32,12 @@ public class HLSHandler(ILogger<HLSHandler> logger, ILogger<FFMPEGRunner> FFMPEG
             logger.LogError("Failed to start HLSHandler for {Name} {error}", videoStream.User_Tvg_name, error);
             return;
         }
+        ffmpegRunner.ProcessExited += (sender, args) =>
+        {
+            logger.LogInformation("FFMPEG Process Exited for {Name} with exit code {ExitCode}", videoStream.User_Tvg_name, args.ExitCode);
+            Stop();
+            ProcessExited?.Invoke(this, args);
+        };
         Started = true;
     }
 
