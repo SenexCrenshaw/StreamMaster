@@ -15,7 +15,7 @@
       "StreamMaster.Logging": "Information",
       "StreamMaster.Logging.ReadsLogger": "Information",
       "StreamMaster.Logging.WriteLogger": "Information",
-
+      "StreamMaster.Streams.Streams.FFMPEGRunner": "Information",
       "StreamMaster.Logging.StatsLogger": "Information",
 
       "StreamMaster.Logging.CircularBufferLogger": "Information",

@@ -30,8 +30,35 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
 
         return ffmpegExec;
     }
+
+    public int ProcessId => process.Id;
+
+    // Start the streaming process in the background
+    public Task StartStreamingInBackgroundAsync(VideoStreamDto videoStream, CancellationToken cancellationToken)
+    {
+        // Start the streaming task without awaiting it here, letting it run in the background
+        Task<(int processId, ProxyStreamError? error)> streamingTask = Task.Run(() => CreateFFMpegHLS(videoStream, cancellationToken), cancellationToken);
+
+        // Optionally handle completion, including logging or re-throwing errors
+        streamingTask.ContinueWith(task =>
+        {
+            if (task.IsFaulted)
+            {
+                // Log the exception or handle it as needed
+                logger.LogError($"Streaming task failed: {task.Exception?.GetBaseException().Message}");
+            }
+            else if (task.IsCompletedSuccessfully)
+            {
+                logger.LogInformation("Streaming task completed successfully.");
+            }
+            // No need to handle task.IsCanceled separately as OperationCanceledException will be caught in StartStreamingAsync
+        }, TaskScheduler.Default);
+
+        return streamingTask; // Return the task for optional further management
+    }
+
     private Process process;
-    public (int processId, ProxyStreamError? error) CreateFFMpegHLS(VideoStreamDto videoStream)
+    public async Task<(int processId, ProxyStreamError? error)> CreateFFMpegHLS(VideoStreamDto videoStream, CancellationToken cancellationToken)
     {
         try
         {
@@ -47,7 +74,16 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
             Setting settings = memoryCache.GetSetting();
 
             string outputdir = Path.Combine(BuildInfo.HLSOutputFolder, videoStream.Id);
-            outputdir += Path.DirectorySeparatorChar;
+
+            if (BuildInfo.IsWindows)
+            {
+                outputdir = "c:" + outputdir;
+            }
+
+            if (!outputdir.EndsWith(Path.DirectorySeparatorChar.ToString()))
+            {
+                outputdir += Path.DirectorySeparatorChar.ToString();
+            }
 
             if (!Directory.Exists(outputdir))
             {
@@ -55,8 +91,11 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
             }
             string formattedArgs = $"-i \"{videoStream.User_Url}\"";
 
-            formattedArgs += $" -c:a copy " +
+            formattedArgs +=
+                     " -reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_on_network_error 1 -reconnect_on_http_error 1 -reconnect_delay_max 4096 " +
+                    $"-c:a copy " +
                      "-c:v copy " +
+                     "-err_detect ignore_err " +
                      "-sn " +
                      "-flags -global_header " +
                      "-avoid_negative_ts disabled " +
@@ -64,26 +103,28 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
                      "-start_at_zero " +
                      "-copyts " +
                      "-flags -global_header " +
-                     "-vsync cfr " +
+                     //"-vsync cfr " +
+                     "-fps_mode passthrough -copyts " +
                      "-y " +
                      "-nostats " +
                      "-hide_banner " +
                      "-f hls " +
                      "-hls_segment_type mpegts " +
-                     "-hls_init_time 1 " +
-                     "-hls_allow_cache 1 " +
-                     "-hls_flags +omit_endlist " +
-                     "-hls_flags +round_durations " +
+                     //"-hls_init_time 1 " +
+                     //"-hls_allow_cache 1 " +
+                     $"-hls_delete_threshold {settings.HLS.HLSSegmentCount} " +
+                     "-hls_flags omit_endlist+delete_segments+discont_start+round_durations " +
                      "-hls_flags +discont_start " +
                      "-hls_flags +delete_segments " +
-                     $"-user_agent \"{settings.StreamingClientUserAgent}\"";
+                     $"-user_agent \"{settings.StreamingClientUserAgent}\" ";
 
-            formattedArgs += $" -hls_time {settings.HLS.HLSSegmentDurantionInSeconds}" +
-                              $" -hls_list_size {settings.HLS.HLSSegmentCount}";
+            formattedArgs += $"-hls_time {settings.HLS.HLSSegmentDurantionInSeconds} " +
+                             $"-hls_list_size {settings.HLS.HLSSegmentCount} ";
 
-            formattedArgs += $" -hls_base_url \"{videoStream.Id}/\"" +
-                              $" -hls_segment_filename \"{outputdir}%d.ts\"" +
-                              $" \"{outputdir}index.m3u8\"";
+
+            formattedArgs += $"-hls_base_url \"{videoStream.Id}/\" " +
+                             $"-hls_segment_filename \"{outputdir}%d.ts\" " +
+                             $"\"{outputdir}index.m3u8\"";
 
             process = new();
             process.StartInfo.FileName = ffmpegExec;
@@ -92,10 +133,14 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
+
             process.EnableRaisingEvents = true;
             process.Exited += OnProcessExited;
-
+            process.ErrorDataReceived += (sender, args) => logger.LogDebug(args.Data);
             bool processStarted = process.Start();
+
+
+            process.BeginErrorReadLine();
 
             if (!processStarted)
             {
@@ -105,6 +150,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
 
                 return (-1, error);
             }
+
 
             //StreamReader myStreamReader = process.StandardError;
             //string standardError = myStreamReader.ReadToEnd();
@@ -119,6 +165,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
             // Return the standard output stream of the process
 
             logger.LogInformation("Opened ffmpeg stream for {streamName} with args \"{formattedArgs}\"", videoStream.User_Tvg_name, formattedArgs);
+            await process.WaitForExitAsync().ConfigureAwait(false);
             return (process.Id, null);
         }
         catch (Exception ex)
@@ -132,7 +179,16 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
 
     protected virtual void OnProcessExited(object? sender, EventArgs e)
     {
-        logger.LogInformation("FFMpeg process exited with code {ExitCode}", process.ExitCode);
+        if (sender != null)
+        {
+            Process? p = sender as Process;
+            logger.LogInformation("FFMpeg process exited with code {ExitCode}", p.ExitCode);
+        }
+        else
+        {
+            logger.LogInformation("FFMpeg process exited with code {ExitCode}", process.ExitCode);
+        }
+
         ProcessExited?.Invoke(this, new ProcessExitEventArgs { ExitCode = process.ExitCode });
     }
 

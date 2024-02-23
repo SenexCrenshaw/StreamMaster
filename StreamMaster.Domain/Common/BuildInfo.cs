@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace StreamMaster.Domain.Common
 {
@@ -26,6 +27,11 @@ namespace StreamMaster.Domain.Common
 
             InitializePaths();
         }
+
+        public static bool IsLinux => RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+        public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        public static bool IsOSX => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+        public static bool IsFreeBSD => RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD);
 
         private static DateTime _startTime;
 
@@ -109,7 +115,7 @@ namespace StreamMaster.Domain.Common
 
         #region File and Directory Path Fields
 
-        public static string AppDataFolder { get; private set; } = "/config/";
+        public static string AppDataFolder { get; private set; } = $"{Path.DirectorySeparatorChar}config{Path.DirectorySeparatorChar}";
 
         public static readonly string DataFolder = Path.Combine(AppDataFolder, "DB");
         public static readonly string CacheFolder = Path.Combine(AppDataFolder, "Cache");
@@ -146,7 +152,7 @@ namespace StreamMaster.Domain.Common
         /// </summary>
         private static void InitializePaths()
         {
-            AppDataFolder = "/config/";
+            AppDataFolder = $"{Path.DirectorySeparatorChar}config{Path.DirectorySeparatorChar}";
             // Initialize other paths based on AppDataFolder...
         }
 

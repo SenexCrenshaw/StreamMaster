@@ -13,12 +13,12 @@ public class HLSHandler(ILogger<HLSHandler> logger, ILogger<FFMPEGRunner> FFMPEG
     private readonly CancellationTokenSource HLSCancellationTokenSource = new();
     private readonly FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerlogger, memoryCache);
     private bool Started;
-    private int processId;
+
 
     public string Id => videoStream.Id;
     public string Name => videoStream.User_Tvg_name;
     public string Url => videoStream.User_Url;
-    public void Start()
+    public async Task Start()
     {
         if (Started)
         {
@@ -26,12 +26,17 @@ public class HLSHandler(ILogger<HLSHandler> logger, ILogger<FFMPEGRunner> FFMPEG
         }
 
         logger.LogInformation("Starting HLSHandler for {Name}", videoStream.User_Tvg_name);
-        (processId, ProxyStreamError? error) = ffmpegRunner.CreateFFMpegHLS(videoStream);
-        if (processId == -1)
-        {
-            logger.LogError("Failed to start HLSHandler for {Name} {error}", videoStream.User_Tvg_name, error);
-            return;
-        }
+
+        Task backgroundTask = ffmpegRunner.StartStreamingInBackgroundAsync(videoStream, HLSCancellationTokenSource.Token);
+
+        //processId = ffmpegRunner.ProcessId;
+        ////(processId, ProxyStreamError? error) = await ffmpegRunner.CreateFFMpegHLS(videoStream, HLSCancellationTokenSource.Token);
+        //if (processId == -1)
+        //{
+        //    logger.LogError("Failed to start HLSHandler for {Name} {error}", videoStream.User_Tvg_name);
+        //    return;
+        //}
+
         ffmpegRunner.ProcessExited += (sender, args) =>
         {
             logger.LogInformation("FFMPEG Process Exited for {Name} with exit code {ExitCode}", videoStream.User_Tvg_name, args.ExitCode);
@@ -55,13 +60,13 @@ public class HLSHandler(ILogger<HLSHandler> logger, ILogger<FFMPEGRunner> FFMPEG
 
     private bool KillProcess()
     {
-        if (processId == -1)
+        if (ffmpegRunner.ProcessId < 1024)
         {
             return true;
         }
         try
         {
-            Process process = Process.GetProcessById(processId);
+            Process process = Process.GetProcessById(ffmpegRunner.ProcessId);
             process.Kill();
             return true;
         }
