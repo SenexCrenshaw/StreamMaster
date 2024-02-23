@@ -14,7 +14,7 @@ namespace StreamMaster.Domain.Common;
 
 public sealed class FileUtil
 {
-    //private static bool setupDirectories = false;
+    private static bool setupDirectories = false;
 
     public static async Task<bool> WaitForFileAsync(string filePath, int timeoutSeconds, int checkIntervalMilliseconds, CancellationToken cancellationToken)
     {
@@ -498,11 +498,11 @@ public sealed class FileUtil
 
     public static void SetupDirectories(bool alwaysRun = false)
     {
-        //if (setupDirectories && !alwaysRun)
-        //{
-        //    return;
-        //}
-        //setupDirectories = true;
+        if (setupDirectories && !alwaysRun)
+        {
+            return;
+        }
+        setupDirectories = true;
         Setting? setting = GetSetting();
         if (setting == null)
         {
