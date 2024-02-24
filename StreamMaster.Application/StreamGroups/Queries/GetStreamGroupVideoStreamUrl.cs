@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Application.Common.Extensions;
+using StreamMaster.Domain.Authentication;
 
 using System.Text.Json;
+using System.Web;
 
 namespace StreamMaster.Application.StreamGroups.Queries;
 
@@ -23,17 +25,25 @@ internal class GetStreamGroupVideoStreamUrlHandler(IHttpContextAccessor httpCont
             return null;
         }
 
-        //Setting setting = memoryCache.GetSetting();
+        Setting setting = memoryCache.GetSetting();
 
-        //string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
-        //        .Replace("/", "")
-        //        .Replace(" ", "_");
-
-        //string encodedNumbers = 0.EncodeValues128(request.VideoStreamId, setting.ServerKey);
         string url = httpContextAccessor.GetUrl();
-        //string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+        string videoUrl;
 
-        string videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
+        if (setting.HLS.HLSM3U8Enable)
+        {
+            videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
+        }
+        else
+        {
+            string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
+                    .Replace("/", "")
+                    .Replace(" ", "_");
+
+            string encodedNumbers = 0.EncodeValues128(request.VideoStreamId, setting.ServerKey);
+            videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+
+        }
 
         string jsonString = JsonSerializer.Serialize(videoUrl);
 

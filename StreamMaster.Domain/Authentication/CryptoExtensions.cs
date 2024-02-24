@@ -242,7 +242,6 @@ public static class CryptoExtension
 
             string crypt = requestPath.Replace("/api/videostreams/stream/", "", StringComparison.InvariantCultureIgnoreCase);
             crypt = crypt.Replace("/api/streamgroups/stream/", "", StringComparison.InvariantCultureIgnoreCase);
-
             crypt = crypt.Replace("/api/videostreams/", "", StringComparison.InvariantCultureIgnoreCase);
             crypt = crypt.Replace("/api/streamgroups/", "", StringComparison.InvariantCultureIgnoreCase);
 
@@ -256,7 +255,7 @@ public static class CryptoExtension
             string base64String = crypt
                 .Replace('-', '+')
                 .Replace('_', '/')
-                .PadRight(crypt.Length + (4 - crypt.Length % 4) % 4, '=');
+                .PadRight(crypt.Length + ((4 - (crypt.Length % 4)) % 4), '=');
             byte[] encodedBytes = Convert.FromBase64String(base64String);
             byte[] hmacBytes = new byte[HMACSize];
             byte[] encryptedBytes = new byte[encodedBytes.Length - HMACSize];
@@ -330,7 +329,7 @@ public static class CryptoExtension
             string base64String = valueKey
                 .Replace('-', '+')
                 .Replace('_', '/')
-                .PadRight(valueKey.Length + (4 - valueKey.Length % 4) % 4, '=');
+                .PadRight(valueKey.Length + ((4 - (valueKey.Length % 4)) % 4), '=');
             byte[] encodedBytes = Convert.FromBase64String(base64String);
             byte[] hmacBytes = new byte[HMACSize];
             byte[] encryptedBytes = new byte[encodedBytes.Length - HMACSize];

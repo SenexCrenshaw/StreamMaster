@@ -14,6 +14,7 @@ using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text;
+using System.Web;
 
 namespace StreamMaster.API.Controllers;
 
@@ -102,7 +103,6 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
                 }
             }
 
-
             string graceNote = service?.CallSign ?? stationId;
 
             string id = graceNote;
@@ -113,13 +113,20 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
             if (id.Equals(channelId))
             {
                 string url = httpContextAccessor.GetUrl();
-                //string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
-                //    .Replace("/", "")
-                //    .Replace(" ", "_");
+                string videoUrl;
+                if (setting.HLS.HLSM3U8Enable)
+                {
+                    videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
+                    return Redirect(videoUrl);
+                }
 
-                //string encodedNumbers = ((int)streamGroupId).EncodeValues128(videoStream.Id, setting.ServerKey);
-                //string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
-                string videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
+                string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
+                    .Replace("/", "")
+                    .Replace(" ", "_");
+
+                string encodedNumbers = ((int)streamGroupId).EncodeValues128(videoStream.Id, setting.ServerKey);
+                videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+
                 return Redirect(videoUrl);
             }
         }
