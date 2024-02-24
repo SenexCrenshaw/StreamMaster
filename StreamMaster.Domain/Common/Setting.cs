@@ -93,7 +93,7 @@ public class HLSSettings
     public int HLSReconnectDurationInSeconds { get; set; } = 4;
     public int HLSSegmentDurantionInSeconds { get; set; } = 2;
     public int HLSSegmentCount { get; set; } = 10;
-    public int HLSM3U8TimeOutInSeconds { get; set; } = 30;
+    public int HLSM3U8CreationTimeOutInSeconds { get; set; } = 30;
 
     public int HLSM3U8ReadTimeOutInSeconds { get; set; } = 20;
     public int HLSTSReadTimeOutInSeconds { get; set; } = 4;
