@@ -32,8 +32,8 @@ public class HLSHandler(ILogger<HLSHandler> logger, ILogger<FFMPEGRunner> FFMPEG
         ffmpegRunner.ProcessExited += (sender, args) =>
         {
             logger.LogInformation("FFMPEG Process Exited for {Name} with exit code {ExitCode}", videoStream.User_Tvg_name, args.ExitCode);
-            //Stop();
-            //ProcessExited?.Invoke(this, args);
+            Stop();
+            ProcessExited?.Invoke(this, args);
         };
         Started = true;
     }

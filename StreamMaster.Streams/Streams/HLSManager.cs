@@ -21,7 +21,7 @@ public class HLSManager(ILogger<HLSManager> logger, ILogger<HLSHandler> HLSHandl
             handler.ProcessExited += (sender, args) =>
             {
                 logger.LogInformation("HLSHandler Process Exited for {Name} with exit code {ExitCode}", videoStream.User_Tvg_name, args.ExitCode);
-                hlsHandlers.TryRemove(videoStream.User_Url, out HLSHandler? _);
+                Stop(videoStream.Id);
             };
             return handler;
         });
@@ -40,6 +40,11 @@ public class HLSManager(ILogger<HLSManager> logger, ILogger<HLSHandler> HLSHandl
         {
             logger.LogInformation("Stopping HLSHandler for {name}", handler.Name);
             handler.Stop();
+            IHLSHandler? hand = Get(VideoStreamId);
+            if (hand is not null)
+            {
+                hlsHandlers.TryRemove(hand.Url, out _);
+            }
         }
         HLSCancellationTokenSource.Cancel();
     }
