@@ -435,6 +435,10 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/queue/getqueuestatus` }),
         providesTags: ['Queue']
       }),
+      settingsAddFfmpegProfile: build.mutation<SettingsAddFfmpegProfileApiResponse, SettingsAddFfmpegProfileApiArg>({
+        query: (queryArg) => ({ url: `/api/settings/addffmpegprofile`, method: 'PUT', body: queryArg }),
+        invalidatesTags: ['Settings']
+      }),
       settingsGetIsSystemReady: build.query<SettingsGetIsSystemReadyApiResponse, SettingsGetIsSystemReadyApiArg>({
         query: () => ({ url: `/api/settings/getissystemready` }),
         providesTags: ['Settings']
@@ -450,6 +454,10 @@ const injectedRtkApi = api
       settingsLogIn: build.query<SettingsLogInApiResponse, SettingsLogInApiArg>({
         query: (queryArg) => ({ url: `/api/settings/login`, body: queryArg }),
         providesTags: ['Settings']
+      }),
+      settingsRemoveFfmpegProfile: build.mutation<SettingsRemoveFfmpegProfileApiResponse, SettingsRemoveFfmpegProfileApiArg>({
+        query: (queryArg) => ({ url: `/api/settings/removeffmpegprofile`, method: 'DELETE', body: queryArg }),
+        invalidatesTags: ['Settings']
       }),
       settingsUpdateSetting: build.mutation<SettingsUpdateSettingApiResponse, SettingsUpdateSettingApiArg>({
         query: (queryArg) => ({ url: `/api/settings/updatesetting`, method: 'PATCH', body: queryArg }),
@@ -1024,6 +1032,8 @@ export type MiscBackupApiResponse = unknown;
 export type MiscBackupApiArg = void;
 export type QueueGetQueueStatusApiResponse = /** status 200  */ TaskQueueStatus[];
 export type QueueGetQueueStatusApiArg = void;
+export type SettingsAddFfmpegProfileApiResponse = /** status 200  */ UpdateSettingResponse;
+export type SettingsAddFfmpegProfileApiArg = AddFfmpegProfileRequest;
 export type SettingsGetIsSystemReadyApiResponse = /** status 200  */ boolean;
 export type SettingsGetIsSystemReadyApiArg = void;
 export type SettingsGetSettingApiResponse = /** status 200  */ SettingDto;
@@ -1032,6 +1042,8 @@ export type SettingsGetSystemStatusApiResponse = /** status 200  */ SdSystemStat
 export type SettingsGetSystemStatusApiArg = void;
 export type SettingsLogInApiResponse = /** status 200  */ boolean;
 export type SettingsLogInApiArg = LogInRequest;
+export type SettingsRemoveFfmpegProfileApiResponse = /** status 200  */ UpdateSettingResponse;
+export type SettingsRemoveFfmpegProfileApiArg = RemoveFfmpegProfileRequest;
 export type SettingsUpdateSettingApiResponse = unknown;
 export type SettingsUpdateSettingApiArg = UpdateSettingRequest;
 export type StatisticsGetClientStatisticsApiResponse = /** status 200  */ ClientStreamingStatistics[];
@@ -1642,6 +1654,7 @@ export type RemoveStation = {
   requests?: StationRequest[];
 };
 export type StreamGroupDto = {
+  ffmpegProfileId: string;
   isLoading: boolean;
   hdhrLink: string;
   isReadOnly: boolean;
@@ -1818,11 +1831,18 @@ export type TestSettings = {
   dropInputSeconds?: number;
   dropClientSeconds?: number;
 };
+export type FfmpegProfile = {
+  id: string;
+  name: string;
+  parameters: string;
+  timeout: number;
+  isM3U8: boolean;
+};
 export type HlsSettings = {
   hlsM3U8Enable?: boolean;
   hlsffmpegOptions?: string;
   hlsReconnectDurationInSeconds?: number;
-  hlsSegmentDurantionInSeconds?: number;
+  hlsSegmentDurationInSeconds?: number;
   hlsSegmentCount?: number;
   hlsM3U8CreationTimeOutInSeconds?: number;
   hlsM3U8ReadTimeOutInSeconds?: number;
@@ -1866,6 +1886,7 @@ export type BaseSettings = M3USettings & {
   maxStreamReStart?: number;
   testSettings?: TestSettings;
   maxConcurrentDownloads?: number;
+  ffmpegProfiles?: FfmpegProfile[];
   hls?: HlsSettings;
   sdSettings?: SdSettings;
   expectedServiceCount?: number;
@@ -1903,12 +1924,25 @@ export type SettingDto = BaseSettings & {
   ffmpegDefaultOptions?: string;
   isDebug?: boolean;
 };
+export type UpdateSettingResponse = {
+  needsLogOut?: boolean;
+  settings?: SettingDto;
+};
+export type AddFfmpegProfileRequest = {
+  name?: string;
+  parameters?: string;
+  timeOut?: number;
+  isM3U8?: boolean;
+};
 export type SdSystemStatus = {
   isSystemReady?: boolean;
 };
 export type LogInRequest = {
   password?: string;
   userName?: string;
+};
+export type RemoveFfmpegProfileRequest = {
+  id?: string;
 };
 export type SdSettingsRequest = {
   preferredLogoStyle?: string | null;
@@ -2016,6 +2050,7 @@ export type UpdateStreamGroupRequest = {
   streamGroupId?: number;
   name?: string | null;
   autoSetChannelNumbers?: boolean | null;
+  ffmpegProfileId?: string | null;
 };
 export type AddVideoStreamToVideoStreamRequest = {
   parentVideoStreamId: string;
@@ -2258,10 +2293,12 @@ export const {
   useMiscGetTestM3UQuery,
   useMiscBackupMutation,
   useQueueGetQueueStatusQuery,
+  useSettingsAddFfmpegProfileMutation,
   useSettingsGetIsSystemReadyQuery,
   useSettingsGetSettingQuery,
   useSettingsGetSystemStatusQuery,
   useSettingsLogInQuery,
+  useSettingsRemoveFfmpegProfileMutation,
   useSettingsUpdateSettingMutation,
   useStatisticsGetClientStatisticsQuery,
   useStatisticsGetInputStatisticsQuery,

@@ -1,11 +1,11 @@
 ﻿using StreamMaster.Domain.Attributes;
-using StreamMaster.Domain.Models;
 
 namespace StreamMaster.Domain.Dto;
 
 [RequireAll]
 public class StreamGroupDto : IMapFrom<StreamGroup>
 {
+    public string FFMPEGProfileId { get; set; } = string.Empty;
     public bool IsLoading { get; set; } = false;
     //public List<ChannelGroupDto> ChannelGroups { get; set; } = new();
     //public List<VideoStreamDto> ChildVideoStreams { get; set; } = new();

@@ -12,7 +12,6 @@ internal class GetStreamGroupHandler(ILogger<GetStreamGroup> logger, IRepository
             return new StreamGroupDto { Id = 0, Name = "All" };
         }
 
-
         StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupById(request.Id).ConfigureAwait(false);
         return streamGroup;
     }

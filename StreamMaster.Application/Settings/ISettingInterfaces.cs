@@ -12,15 +12,17 @@ public interface ISettingController
 
     ActionResult<bool> LogIn(LogInRequest logInRequest);
 
+    Task<ActionResult<UpdateSettingResponse>> AddFFMPEGProfile(AddFFMPEGProfileRequest request);
+    Task<ActionResult<UpdateSettingResponse>> RemoveFFMPEGProfile(RemoveFFMPEGProfileRequest request);
+
     Task<IActionResult> UpdateSetting(UpdateSettingRequest command);
 }
 
-public interface ISettingDB
-{
-}
 
 public interface ISettingHub
 {
+    Task<UpdateSettingResponse> AddFFMPEGProfile(AddFFMPEGProfileRequest request);
+    Task<UpdateSettingResponse> RemoveFFMPEGProfile(RemoveFFMPEGProfileRequest request);
     Task<SettingDto> GetSetting();
 
     Task<SDSystemStatus> GetSystemStatus();
@@ -28,10 +30,6 @@ public interface ISettingHub
     Task<bool> LogIn(LogInRequest logInRequest);
 
     Task UpdateSetting(UpdateSettingRequest command);
-}
-
-public interface ISettingScoped
-{
 }
 
 public interface ISettingTasks

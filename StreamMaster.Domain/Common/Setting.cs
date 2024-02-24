@@ -113,6 +113,8 @@ public class BaseSettings : M3USettings
     public TestSettings TestSettings { get; set; } = new();
     public int MaxConcurrentDownloads { get; set; } = 8;
 
+    public List<FFMPEGProfile> FFMPEGProfiles { get; set; } = [];
+
     public HLSSettings HLS { get; set; } = new();
     public SDSettings SDSettings { get; set; } = new();
     public int ExpectedServiceCount { get; set; } = 20;

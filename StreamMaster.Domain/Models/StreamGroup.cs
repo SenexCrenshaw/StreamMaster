@@ -10,6 +10,7 @@ public class StreamGroup : BaseEntity
         ChannelGroups = [];
     }
 
+    public string FFMPEGProfileId { get; set; }
     public ICollection<StreamGroupChannelGroup> ChannelGroups { get; set; }
     public ICollection<StreamGroupVideoStream> ChildVideoStreams { get; set; }
     public bool IsReadOnly { get; set; } = false;

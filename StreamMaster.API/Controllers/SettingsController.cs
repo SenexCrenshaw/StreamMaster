@@ -5,12 +5,17 @@ using StreamMaster.Application.General.Queries;
 using StreamMaster.Application.Settings;
 using StreamMaster.Application.Settings.Commands;
 using StreamMaster.Application.Settings.Queries;
-using StreamMaster.Domain.Dto;
 
 namespace StreamMaster.API.Controllers;
 
 public class SettingsController : ApiControllerBase, ISettingController
 {
+    [HttpPut]
+    [Route("[action]")]
+    public async Task<ActionResult<UpdateSettingResponse>> AddFFMPEGProfile(AddFFMPEGProfileRequest request)
+    {
+        return await Mediator.Send(request).ConfigureAwait(false);
+    }
 
     [HttpGet]
     [Route("[action]")]
@@ -41,11 +46,18 @@ public class SettingsController : ApiControllerBase, ISettingController
         return Settings.AdminUserName == logInRequest.UserName && Settings.AdminPassword == logInRequest.Password;
     }
 
+    [HttpDelete]
+    [Route("[action]")]
+    public async Task<ActionResult<UpdateSettingResponse>> RemoveFFMPEGProfile(RemoveFFMPEGProfileRequest request)
+    {
+        return await Mediator.Send(request).ConfigureAwait(false);
+    }
+
     [HttpPatch]
     [Route("[action]")]
     public async Task<IActionResult> UpdateSetting(UpdateSettingRequest command)
     {
-        UpdateSettingRequestHandler.UpdateSettingResponse updateSettingResponse = await Mediator.Send(command).ConfigureAwait(false);
+        UpdateSettingResponse updateSettingResponse = await Mediator.Send(command).ConfigureAwait(false);
 
         return updateSettingResponse.NeedsLogOut ? Redirect("/logout") : updateSettingResponse == null ? NotFound() : NoContent();
     }

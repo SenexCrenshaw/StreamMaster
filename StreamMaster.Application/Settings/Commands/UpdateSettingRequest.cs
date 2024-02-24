@@ -44,7 +44,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public List<string>? NameRegex { get; set; } = [];
 }
 
-public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger<UpdateSettingRequest> Logger, IMapper Mapper, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IMemoryCache MemoryCache)
+public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger<UpdateSettingRequest> Logger, IMapper Mapper, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IMemoryCache MemoryCache)
 : IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
 {
     public static void CopyNonNullFields(SDSettingsRequest source, SDSettings destination)
@@ -401,11 +401,5 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
         }
 
         return needsLogOut;
-    }
-
-    public class UpdateSettingResponse
-    {
-        public bool NeedsLogOut { get; set; }
-        public SettingDto Settings { get; set; }
     }
 }
