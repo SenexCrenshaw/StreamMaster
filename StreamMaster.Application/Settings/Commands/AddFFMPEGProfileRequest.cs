@@ -11,13 +11,20 @@ public class AddFFMPEGProfileRequestHandler(ILogger<AddFFMPEGProfileRequest> Log
 
         FFMPEGProfile profile = new()
         {
-            Name = request.Name,
             Parameters = request.Parameters,
             Timeout = request.TimeOut,
             IsM3U8 = request.IsM3U8
         };
 
-        currentSetting.FFMPEGProfiles.Add(profile);
+        if (currentSetting.FFMPEGProfiles.TryGetValue(request.Name, out FFMPEGProfile? existingProfile))
+        {
+            currentSetting.FFMPEGProfiles[request.Name] = profile;
+        }
+        else
+        {
+            currentSetting.FFMPEGProfiles.Add(request.Name, profile);
+        }
+
 
         Logger.LogInformation("AddFFMPEGProfileRequest");
 

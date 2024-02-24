@@ -1,6 +1,6 @@
 ﻿namespace StreamMaster.Application.Settings.Commands;
 
-public record RemoveFFMPEGProfileRequest(string Id) : IRequest<UpdateSettingResponse> { }
+public record RemoveFFMPEGProfileRequest(string Name) : IRequest<UpdateSettingResponse> { }
 
 public class RemoveFFMPEGProfileRequestHandler(ILogger<RemoveFFMPEGProfileRequest> Logger, IMapper Mapper, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IMemoryCache MemoryCache)
 : IRequestHandler<RemoveFFMPEGProfileRequest, UpdateSettingResponse>
@@ -9,23 +9,20 @@ public class RemoveFFMPEGProfileRequestHandler(ILogger<RemoveFFMPEGProfileReques
     {
         Setting currentSetting = MemoryCache.GetSetting();
 
-
-        FFMPEGProfile? profile = currentSetting.FFMPEGProfiles.FirstOrDefault(x => x.Id == request.Id);
-        if (profile == null)
+        if (currentSetting.FFMPEGProfiles.TryGetValue(request.Name, out FFMPEGProfile? profile))
         {
-            SettingDto retNull = Mapper.Map<SettingDto>(currentSetting);
-            return new UpdateSettingResponse { Settings = retNull, NeedsLogOut = false };
+            currentSetting.FFMPEGProfiles.Remove(request.Name);
+
+            Logger.LogInformation("RemoveFFMPEGProfileRequest");
+
+            FileUtil.UpdateSetting(currentSetting);
+            MemoryCache.SetSetting(currentSetting);
         }
 
-        currentSetting.FFMPEGProfiles.Add(profile);
+        SettingDto retNull = Mapper.Map<SettingDto>(currentSetting);
+        return new UpdateSettingResponse { Settings = retNull, NeedsLogOut = false };
 
-        Logger.LogInformation("RemoveFFMPEGProfileRequest");
 
-        FileUtil.UpdateSetting(currentSetting);
-        MemoryCache.SetSetting(currentSetting);
-
-        SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
-        return new UpdateSettingResponse { Settings = ret, NeedsLogOut = false };
     }
 
 }

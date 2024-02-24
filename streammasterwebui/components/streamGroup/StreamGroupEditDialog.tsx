@@ -4,6 +4,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
 
+import FFMPEGProfileDropDown from '@features/streamGroupEditor/FFMPEGProfileDropDown';
 import StreamGroupChannelGroupsSelector from '@features/streamGroupEditor/StreamGroupChannelGroupsSelector';
 import { UpdateStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsMutateAPI';
 import { v4 as uuidv4 } from 'uuid';
@@ -20,7 +21,8 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProperties) => {
   const [block, setBlock] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
   const [name, setName] = useState<string>('');
-  // const [autoSetChannelNumbers, setAutoSetChannelNumbers] = useState<boolean>(false);
+  const [ffmpegProfileId, setFfmpegProfileId] = useState<string>('');
+
   const uuid = uuidv4();
   const { selectedStreamGroup } = useSelectedStreamGroup(props.id);
 
@@ -31,6 +33,10 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProperties) => {
 
     if (selectedStreamGroup.name !== undefined) {
       setName(selectedStreamGroup.name);
+    }
+
+    if (selectedStreamGroup.ffmpegProfileId !== undefined && selectedStreamGroup.ffmpegProfileId !== '') {
+      setFfmpegProfileId(selectedStreamGroup.ffmpegProfileId);
     }
   }, [selectedStreamGroup]);
 
@@ -57,8 +63,12 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProperties) => {
       return true;
     }
 
+    if (ffmpegProfileId && ffmpegProfileId !== '') {
+      return true;
+    }
+
     return false;
-  }, [name, selectedStreamGroup]);
+  }, [name, ffmpegProfileId, selectedStreamGroup]);
 
   const onUpdate = useCallback(() => {
     setBlock(true);
@@ -72,6 +82,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProperties) => {
     const data = {} as UpdateStreamGroupRequest;
     data.name = name;
     data.streamGroupId = selectedStreamGroup.id;
+    data.ffmpegProfileId = ffmpegProfileId;
 
     UpdateStreamGroup(data)
       .then(() => {
@@ -80,7 +91,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProperties) => {
       .catch((error) => {
         setInfoMessage(`Stream Group Edit Error: ${error.message}`);
       });
-  }, [ReturnToParent, isSaveEnabled, name, selectedStreamGroup]);
+  }, [ReturnToParent, ffmpegProfileId, isSaveEnabled, name, selectedStreamGroup]);
 
   useEffect(() => {
     const callback = (event: KeyboardEvent) => {
@@ -119,13 +130,24 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProperties) => {
               Name:{' '}
             </label>
             <div className="col-8 ">
-              <InputText autoFocus className="bordered-text-large" id={uuid} onChange={(e) => setName(e.target.value)} type="text" value={name} />
+              <InputText autoFocus className="bordered-text-large w-full" id={uuid} onChange={(e) => setName(e.target.value)} type="text" value={name} />
             </div>
           </div>
           <div className="flex col-12 ">
             <label className="col-2 ">Groups: </label>
             <div className="col-8 ">
               <StreamGroupChannelGroupsSelector streamGroupId={selectedStreamGroup?.id ?? undefined} />
+            </div>
+          </div>
+          <div className="flex col-12 ">
+            <label className="col-2 ">Profile: </label>
+            <div className="col-8 ">
+              <FFMPEGProfileDropDown
+                id={props.id}
+                onChange={(e) => {
+                  setFfmpegProfileId(e);
+                }}
+              />
             </div>
           </div>
           {/* <div className="flex col-12 ">

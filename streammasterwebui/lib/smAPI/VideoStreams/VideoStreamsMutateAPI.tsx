@@ -27,6 +27,9 @@ export const GetVideoStreamStreamHEAD2 = async (argument: string): Promise<void 
 export const GetVideoStreamStreamHEAD3 = async (argument: string): Promise<void | null> => {
   await invokeHubConnection<void>('GetVideoStreamStreamHEAD3', argument);
 };
+export const GetVideoStreamStreamHEAD4 = async (argument: string): Promise<void | null> => {
+  await invokeHubConnection<void>('GetVideoStreamStreamHEAD4', argument);
+};
 export const ReSetVideoStreamsLogo = async (argument: iptv.ReSetVideoStreamsLogoRequest): Promise<void | null> => {
   await invokeHubConnection<void>('ReSetVideoStreamsLogo', argument);
 };

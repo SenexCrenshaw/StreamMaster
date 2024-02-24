@@ -156,7 +156,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         }
 
         Update(streamGroup);
-
+        await RepositoryContext.SaveChangesAsync();
         StreamGroupDto ret = mapper.Map<StreamGroupDto>(streamGroup);
 
         await SetStreamGroupsLink(ret);

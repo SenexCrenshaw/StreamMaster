@@ -1832,8 +1832,6 @@ export type TestSettings = {
   dropClientSeconds?: number;
 };
 export type FfmpegProfile = {
-  id: string;
-  name: string;
   parameters: string;
   timeout: number;
   isM3U8: boolean;
@@ -1886,7 +1884,9 @@ export type BaseSettings = M3USettings & {
   maxStreamReStart?: number;
   testSettings?: TestSettings;
   maxConcurrentDownloads?: number;
-  ffmpegProfiles?: FfmpegProfile[];
+  ffmpegProfiles?: {
+    [key: string]: FfmpegProfile;
+  };
   hls?: HlsSettings;
   sdSettings?: SdSettings;
   expectedServiceCount?: number;
@@ -1942,7 +1942,7 @@ export type LogInRequest = {
   userName?: string;
 };
 export type RemoveFfmpegProfileRequest = {
-  id?: string;
+  name?: string;
 };
 export type SdSettingsRequest = {
   preferredLogoStyle?: string | null;
