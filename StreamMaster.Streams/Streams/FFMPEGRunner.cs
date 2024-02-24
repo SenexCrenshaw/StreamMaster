@@ -42,6 +42,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
         // Optionally handle completion, including logging or re-throwing errors
         streamingTask.ContinueWith(task =>
         {
+
             if (task.IsFaulted)
             {
                 // Log the exception or handle it as needed
@@ -51,6 +52,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
             {
                 logger.LogInformation("Streaming task completed successfully.");
             }
+            ProcessExited?.Invoke(this, new ProcessExitEventArgs { ExitCode = process.ExitCode });
             // No need to handle task.IsCanceled separately as OperationCanceledException will be caught in StartStreamingAsync
         }, TaskScheduler.Default);
 
@@ -89,38 +91,51 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
             {
                 Directory.CreateDirectory(outputdir);
             }
-            string formattedArgs = $"-i \"{videoStream.User_Url}\"";
+
+            string formattedArgs = settings.HLS.HLSFFMPEGOptions.Replace("{streamUrl}", $"\"{videoStream.User_Url}\"").Trim();
+            formattedArgs = formattedArgs += " ";
+
+            //string formattedArgs = $"-i \"{videoStream.User_Url}\" ";
+            //formattedArgs += "-start_at_zero " +
+            //                 "-copyts " +
+            //                 "-flags +global_header ";
+
+            //formattedArgs +=
+            //         "-reconnect 1 " +
+            //         "-reconnect_at_eof 1 " +
+            //         "-reconnect_streamed 1 " +
+            //         "-reconnect_on_network_error 1 " +
+            //         "-reconnect_on_http_error 1 " +
+            //        $"-c:a copy " +
+            //         "-c:v copy " +
+            //         //"-sn " +
+
+            //         //"-avoid_negative_ts disabled " +
+            //         //"-map_metadata -1 " +
+            //         //"-vsync cfr " +
+            //         "-fps_mode passthrough " +
+            //         "-y " +
+            //         "-nostats " +
+            //         "-hide_banner " +
+            //         "-f hls " +
+            //         "-hls_segment_type mpegts " +
+            //         "-hls_init_time 1 " +
+            //         "-hls_allow_cache 0 " +
+            //         "-hls_flags temp_file  " +
+            //         "-hls_flags omit_endlist " +
+            //         "-hls_flags discont_start " +
+            //         "-hls_flags delete_segments " +
+            //         "-hls_flags split_by_time ";
+
 
             formattedArgs +=
-                     " -reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_on_network_error 1 -reconnect_on_http_error 1 -reconnect_delay_max 4096 " +
-                    $"-c:a copy " +
-                     "-c:v copy " +
-                     "-err_detect ignore_err " +
-                     "-sn " +
-                     "-flags -global_header " +
-                     "-avoid_negative_ts disabled " +
-                     "-map_metadata -1 " +
-                     "-start_at_zero " +
-                     "-copyts " +
-                     "-flags -global_header " +
-                     //"-vsync cfr " +
-                     "-fps_mode passthrough -copyts " +
-                     "-y " +
-                     "-nostats " +
-                     "-hide_banner " +
-                     "-f hls " +
-                     "-hls_segment_type mpegts " +
-                     //"-hls_init_time 1 " +
-                     //"-hls_allow_cache 1 " +
-                     $"-hls_delete_threshold {settings.HLS.HLSSegmentCount} " +
-                     "-hls_flags omit_endlist+delete_segments+discont_start+round_durations " +
-                     "-hls_flags +discont_start " +
-                     "-hls_flags +delete_segments " +
-                     $"-user_agent \"{settings.StreamingClientUserAgent}\" ";
+       $"-reconnect_delay_max {settings.HLS.HLSReconnectDurationInSeconds} " +
+       $"-user_agent \"{settings.StreamingClientUserAgent}\" ";
+
 
             formattedArgs += $"-hls_time {settings.HLS.HLSSegmentDurantionInSeconds} " +
-                             $"-hls_list_size {settings.HLS.HLSSegmentCount} ";
-
+                              $"-hls_list_size {settings.HLS.HLSSegmentCount} " +
+                              $"-hls_delete_threshold {settings.HLS.HLSSegmentCount} ";
 
             formattedArgs += $"-hls_base_url \"{videoStream.Id}/\" " +
                              $"-hls_segment_filename \"{outputdir}%d.ts\" " +
@@ -135,7 +150,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
             process.StartInfo.RedirectStandardError = true;
 
             process.EnableRaisingEvents = true;
-            process.Exited += OnProcessExited;
+            //process.Exited += OnProcessExited;
             process.ErrorDataReceived += (sender, args) => logger.LogDebug(args.Data);
             bool processStarted = process.Start();
 
@@ -151,19 +166,6 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
                 return (-1, error);
             }
 
-
-            //StreamReader myStreamReader = process.StandardError;
-            //string standardError = myStreamReader.ReadToEnd();
-            //if (!string.IsNullOrEmpty(standardError))
-            //{
-            //    ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.ProcessStartFailed, Message = standardError };
-            //    logger.LogError("CreateFFMpegHLS Error: {ErrorMessage}", error.Message);
-
-            //    return (-1, error);
-            //}
-
-            // Return the standard output stream of the process
-
             logger.LogInformation("Opened ffmpeg stream for {streamName} with args \"{formattedArgs}\"", videoStream.User_Tvg_name, formattedArgs);
             await process.WaitForExitAsync().ConfigureAwait(false);
             return (process.Id, null);
@@ -177,20 +179,20 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
         }
     }
 
-    protected virtual void OnProcessExited(object? sender, EventArgs e)
-    {
-        if (sender != null)
-        {
-            Process? p = sender as Process;
-            logger.LogInformation("FFMpeg process exited with code {ExitCode}", p.ExitCode);
-        }
-        else
-        {
-            logger.LogInformation("FFMpeg process exited with code {ExitCode}", process.ExitCode);
-        }
+    //protected virtual void OnProcessExited(object? sender, EventArgs e)
+    //{
+    //    if (sender != null)
+    //    {
+    //        Process? p = sender as Process;
+    //        logger.LogInformation("FFMpeg process exited with code {ExitCode}", p.ExitCode);
+    //    }
+    //    else
+    //    {
+    //        logger.LogInformation("FFMpeg process exited with code {ExitCode}", process.ExitCode);
+    //    }
 
-        ProcessExited?.Invoke(this, new ProcessExitEventArgs { ExitCode = process.ExitCode });
-    }
+    //    ProcessExited?.Invoke(this, new ProcessExitEventArgs { ExitCode = process.ExitCode });
+    //}
 
     public async Task<(Stream? stream, int processId, ProxyStreamError? error)> CreateFFMpegStream(string streamUrl, string streamName)
     {

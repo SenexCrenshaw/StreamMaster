@@ -181,7 +181,7 @@ public sealed class StreamManager(
                 return;
             }
 
-            //await clientStreamerManager.AddClientToHandler(streamerConfiguration.ClientId, newStreamHandler);
+            await clientStreamerManager.AddClientToHandler(streamerConfiguration.ClientId, newStreamHandler);
             _ = oldStreamHandler.UnRegisterClientStreamer(clientId);
 
         }

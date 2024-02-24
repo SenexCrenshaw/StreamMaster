@@ -5,8 +5,8 @@
     /// </summary>
     public interface IClientStreamerManager
     {
-        Task AddClientToHandler(Guid clientId);
-        Task AddClientsToHandler(string ChannelVideoStreamId);
+        Task AddClientToHandler(Guid clientId, IStreamHandler streamHandler);
+        Task AddClientsToHandler(string ChannelVideoStreamId, IStreamHandler streamHandler);
         /// <summary>
         /// Gets client streamer configurations by channel video stream Url.
         /// </summary>

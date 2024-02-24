@@ -2,16 +2,13 @@
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Services;
 using StreamMaster.Streams.Streams;
 namespace StreamMaster.Streams.Factories;
 
-public sealed class StreamHandlerFactory(IInputStatisticsManager inputStatisticsManager, IHLSManager hLSManager, IMemoryCache memoryCache, ILoggerFactory loggerFactory, IProxyFactory proxyFactory) : IStreamHandlerFactory
+public sealed class StreamHandlerFactory(IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, ILoggerFactory loggerFactory, IProxyFactory proxyFactory) : IStreamHandlerFactory
 {
     public async Task<IStreamHandler?> CreateStreamHandlerAsync(VideoStreamDto videoStreamDto, string ChannelId, string ChannelName, int rank, CancellationToken cancellationToken)
     {
-
-
         (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(videoStreamDto.User_Url, videoStreamDto.User_Tvg_name, videoStreamDto.StreamingProxyType, cancellationToken).ConfigureAwait(false);
         if (stream == null || error != null || processId == 0)
         {

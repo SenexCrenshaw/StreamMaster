@@ -4,14 +4,13 @@ using Microsoft.Extensions.Logging;
 using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Services;
 
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace StreamMaster.Streams.Factories;
 
-public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpClientFactory, IMemoryCache memoryCache, IHLSManager hLSManager) : IProxyFactory
+public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpClientFactory, IMemoryCache memoryCache) : IProxyFactory
 {
     private StreamingProxyTypes GetStreamingProxyType(StreamingProxyTypes videoStreamStreamingProxyType)
     {
@@ -168,7 +167,6 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
                 )
             {
                 logger.LogInformation("Stream URL has HLS content, using FFMpeg for streaming: {StreamUrl} {streamName}", sourceUrl, streamName);
-
                 return await GetFFMpegStream(sourceUrl, streamName).ConfigureAwait(false);
             }
 

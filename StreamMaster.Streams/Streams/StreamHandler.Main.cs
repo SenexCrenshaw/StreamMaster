@@ -172,7 +172,6 @@ public sealed partial class StreamHandler : IStreamHandler
         try
         {
             Process process = Process.GetProcessById(ProcessId);
-            process.Kill();
             return true;
         }
         catch (ArgumentException)
