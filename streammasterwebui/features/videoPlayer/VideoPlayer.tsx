@@ -39,18 +39,6 @@ const VideoPlayer = () => {
     }, 5000);
   };
 
-  // useEffect(() => {
-  //   const mediaPlayerElement = document.querySelector('.videoPlayer');
-  //   mediaPlayerElement?.addEventListener('mousemove', handleMouseMove);
-
-  //   return () => {
-  //     mediaPlayerElement?.removeEventListener('mousemove', handleMouseMove);
-  //     if (hideDropdownTimeoutRef.current) {
-  //       clearTimeout(hideDropdownTimeoutRef.current);
-  //     }
-  //   };
-  // }, []);
-
   return (
     <StandardHeader className="videoPlayer flex flex-column h-full" displayName="Video" icon={<VideoPlayerIcon />}>
       <MediaPlayer

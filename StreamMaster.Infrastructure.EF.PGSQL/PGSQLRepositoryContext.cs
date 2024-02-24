@@ -36,44 +36,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             //}
         }
 
-        //private async Task FixIDs()
-        //{
-        //    int startValue = 0;
-        //    if (ChannelGroups.Any())
-        //    {
-        //        startValue = ChannelGroups.Max(a => a.Id) + 1;
-        //        await DoFixID("ChannelGroups", startValue).ConfigureAwait(false);
-        //    }
-
-        //    if (EPGFiles.Any())
-        //    {
-        //        startValue = EPGFiles.Max(a => a.Id) + 1;
-        //        await DoFixID("EPGFiles", startValue).ConfigureAwait(false);
-        //    }
-        //    if (M3UFiles.Any())
-        //    {
-        //        startValue = M3UFiles.Max(a => a.Id) + 1;
-        //        await DoFixID("M3UFiles", startValue).ConfigureAwait(false);
-        //    }
-        //    if (StreamGroups.Any())
-        //    {
-        //        startValue = StreamGroups.Max(a => a.Id) + 1;
-        //        await DoFixID("StreamGroups", startValue).ConfigureAwait(false);
-        //    }
-        //}
-
-        //private async Task DoFixID(string tableName, int startValue)
-        //{
-        //    ExecuteSqlRaw($"ALTER TABLE public.\"{tableName}\" ALTER COLUMN \"Id\" SET GENERATED ALWAYS;");
-
-        //    string sequenceName = $"{tableName}_Id_seq";
-        //    string alterSequenceCmd = $"ALTER SEQUENCE \"{sequenceName}\" RESTART WITH {startValue}";
-
-        //    ExecuteSqlRaw(alterSequenceCmd);
-
-        //    await SaveChangesAsync().ConfigureAwait(false);
-        //}
-
 
         public DbSet<SystemKeyValue> SystemKeyValues { get; set; }
 
