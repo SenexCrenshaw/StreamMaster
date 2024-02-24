@@ -12,6 +12,7 @@ const VideoPlayer = () => {
   const [selectedID, setSelectedID] = React.useState<IdNameUrl | null>(null);
   const [title, setTitle] = React.useState<string>('');
   const [src, setSrc] = React.useState<string>('');
+  const [dropdownFocus, setDropdownFocus] = React.useState<boolean>(false);
   const [showDropdown, setShowDropdown] = React.useState<boolean>(true);
   const hideDropdownTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
@@ -22,6 +23,13 @@ const VideoPlayer = () => {
   }, [namesAndUrlsQuery.data]);
 
   const handleMouseMove = (show: boolean) => {
+    if (dropdownFocus) {
+      if (hideDropdownTimeoutRef.current) {
+        clearTimeout(hideDropdownTimeoutRef.current);
+      }
+      return true;
+    }
+
     setShowDropdown(show);
     if (hideDropdownTimeoutRef.current) {
       clearTimeout(hideDropdownTimeoutRef.current);
@@ -57,6 +65,14 @@ const VideoPlayer = () => {
         {showDropdown && (
           <div className="flex absolute top-0 left-0 justify-content-center h-full w-full p-0 m-0 w-full z-5">
             <Dropdown
+              onShow={() => {
+                console.log('focus');
+                setDropdownFocus(true);
+              }}
+              onHide={() => {
+                console.log('onBlur');
+                setDropdownFocus(false);
+              }}
               filter
               optionLabel="name"
               value={selectedID}
