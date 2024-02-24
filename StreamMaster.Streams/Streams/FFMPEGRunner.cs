@@ -133,7 +133,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
        $"-user_agent \"{settings.StreamingClientUserAgent}\" ";
 
 
-            formattedArgs += $"-hls_time {settings.HLS.HLSSegmentDurantionInSeconds} " +
+            formattedArgs += $"-hls_time {settings.HLS.HLSSegmentDurationInSeconds} " +
                               $"-hls_list_size {settings.HLS.HLSSegmentCount} " +
                               $"-hls_delete_threshold {settings.HLS.HLSSegmentCount} ";
 

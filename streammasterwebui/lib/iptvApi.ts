@@ -15,6 +15,7 @@ export const addTagTypes = [
   'Queue',
   'Settings',
   'Statistics',
+  'Stream',
   'StreamGroups',
   'V',
   'VideoStreamLinks',
@@ -462,6 +463,22 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/statistics/getinputstatistics` }),
         providesTags: ['Statistics']
       }),
+      streamGetM3U8Get: build.query<StreamGetM3U8GetApiResponse, StreamGetM3U8GetApiArg>({
+        query: (queryArg) => ({ url: `/api/stream/${queryArg}.m3u8` }),
+        providesTags: ['Stream']
+      }),
+      streamGetM3U8Head: build.mutation<StreamGetM3U8HeadApiResponse, StreamGetM3U8HeadApiArg>({
+        query: (queryArg) => ({ url: `/api/stream/${queryArg}.m3u8`, method: 'HEAD' }),
+        invalidatesTags: ['Stream']
+      }),
+      streamGetVideoStreamGet: build.query<StreamGetVideoStreamGetApiResponse, StreamGetVideoStreamGetApiArg>({
+        query: (queryArg) => ({ url: `/api/stream/${queryArg.videoStreamId}/${queryArg.num}.ts` }),
+        providesTags: ['Stream']
+      }),
+      streamGetVideoStreamHead: build.mutation<StreamGetVideoStreamHeadApiResponse, StreamGetVideoStreamHeadApiArg>({
+        query: (queryArg) => ({ url: `/api/stream/${queryArg.videoStreamId}/${queryArg.num}.ts`, method: 'HEAD' }),
+        invalidatesTags: ['Stream']
+      }),
       streamGroupsCreateStreamGroup: build.mutation<StreamGroupsCreateStreamGroupApiResponse, StreamGroupsCreateStreamGroupApiArg>({
         query: (queryArg) => ({ url: `/api/streamgroups/createstreamgroup`, method: 'POST', body: queryArg }),
         invalidatesTags: ['StreamGroups']
@@ -773,6 +790,10 @@ const injectedRtkApi = api
       videoStreamsGetVideoStreamInfoFromUrl: build.query<VideoStreamsGetVideoStreamInfoFromUrlApiResponse, VideoStreamsGetVideoStreamInfoFromUrlApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/getvideostreaminfofromurl`, params: { streamUrl: queryArg } }),
         providesTags: ['VideoStreams']
+      }),
+      videoStreamsGetVideoStreamNamesAndUrls: build.query<VideoStreamsGetVideoStreamNamesAndUrlsApiResponse, VideoStreamsGetVideoStreamNamesAndUrlsApiArg>({
+        query: () => ({ url: `/api/videostreams/getvideostreamnamesandurls` }),
+        providesTags: ['VideoStreams']
       })
     }),
     overrideExisting: false
@@ -1017,6 +1038,20 @@ export type StatisticsGetClientStatisticsApiResponse = /** status 200  */ Client
 export type StatisticsGetClientStatisticsApiArg = void;
 export type StatisticsGetInputStatisticsApiResponse = /** status 200  */ InputStreamingStatistics[];
 export type StatisticsGetInputStatisticsApiArg = void;
+export type StreamGetM3U8GetApiResponse = unknown;
+export type StreamGetM3U8GetApiArg = string;
+export type StreamGetM3U8HeadApiResponse = unknown;
+export type StreamGetM3U8HeadApiArg = string;
+export type StreamGetVideoStreamGetApiResponse = unknown;
+export type StreamGetVideoStreamGetApiArg = {
+  videoStreamId: string;
+  num: number;
+};
+export type StreamGetVideoStreamHeadApiResponse = unknown;
+export type StreamGetVideoStreamHeadApiArg = {
+  videoStreamId: string;
+  num: number;
+};
 export type StreamGroupsCreateStreamGroupApiResponse = unknown;
 export type StreamGroupsCreateStreamGroupApiArg = CreateStreamGroupRequest;
 export type StreamGroupsDeleteStreamGroupApiResponse = unknown;
@@ -1170,6 +1205,8 @@ export type VideoStreamsGetVideoStreamInfoFromIdApiResponse = /** status 200  */
 export type VideoStreamsGetVideoStreamInfoFromIdApiArg = string;
 export type VideoStreamsGetVideoStreamInfoFromUrlApiResponse = /** status 200  */ VideoInfo;
 export type VideoStreamsGetVideoStreamInfoFromUrlApiArg = string;
+export type VideoStreamsGetVideoStreamNamesAndUrlsApiResponse = /** status 200  */ IdNameUrl[];
+export type VideoStreamsGetVideoStreamNamesAndUrlsApiArg = void;
 export type CreateChannelGroupRequest = {
   groupName: string;
   isReadOnly: boolean;
@@ -1781,6 +1818,16 @@ export type TestSettings = {
   dropInputSeconds?: number;
   dropClientSeconds?: number;
 };
+export type HlsSettings = {
+  hlsM3U8Enable?: boolean;
+  hlsffmpegOptions?: string;
+  hlsReconnectDurationInSeconds?: number;
+  hlsSegmentDurantionInSeconds?: number;
+  hlsSegmentCount?: number;
+  hlsM3U8CreationTimeOutInSeconds?: number;
+  hlsM3U8ReadTimeOutInSeconds?: number;
+  hlstsReadTimeOutInSeconds?: number;
+};
 export type SdSettings = {
   seriesPosterArt?: boolean;
   seriesWsArt?: boolean;
@@ -1819,6 +1866,7 @@ export type BaseSettings = M3USettings & {
   maxStreamReStart?: number;
   testSettings?: TestSettings;
   maxConcurrentDownloads?: number;
+  hls?: HlsSettings;
   sdSettings?: SdSettings;
   expectedServiceCount?: number;
   adminPassword?: string;
@@ -2133,6 +2181,11 @@ export type VideoInfo = {
   streams?: VideoStreamInfo[];
   format?: Format;
 };
+export type IdNameUrl = {
+  id: string;
+  name: string;
+  url: string;
+};
 export const {
   useChannelGroupsCreateChannelGroupMutation,
   useChannelGroupsDeleteAllChannelGroupsFromParametersMutation,
@@ -2212,6 +2265,10 @@ export const {
   useSettingsUpdateSettingMutation,
   useStatisticsGetClientStatisticsQuery,
   useStatisticsGetInputStatisticsQuery,
+  useStreamGetM3U8GetQuery,
+  useStreamGetM3U8HeadMutation,
+  useStreamGetVideoStreamGetQuery,
+  useStreamGetVideoStreamHeadMutation,
   useStreamGroupsCreateStreamGroupMutation,
   useStreamGroupsDeleteStreamGroupMutation,
   useStreamGroupsGetStreamGroupQuery,
@@ -2271,5 +2328,6 @@ export const {
   useVideoStreamsSetVideoStreamTimeShiftsMutation,
   useVideoStreamsSetVideoStreamTimeShiftFromParametersMutation,
   useVideoStreamsGetVideoStreamInfoFromIdQuery,
-  useVideoStreamsGetVideoStreamInfoFromUrlQuery
+  useVideoStreamsGetVideoStreamInfoFromUrlQuery,
+  useVideoStreamsGetVideoStreamNamesAndUrlsQuery
 } = injectedRtkApi;

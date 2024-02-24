@@ -10,7 +10,8 @@ import {
   SettingsEditorIcon,
   SideBarMenuIcon,
   StreamGroupEditorIcon,
-  StreamingStatusIcon
+  StreamingStatusIcon,
+  VideoPlayerIcon
 } from '@lib/common/icons';
 import { GetIsSystemReady } from '@lib/smAPI/Settings/SettingsGetAPI';
 import useSettings from '@lib/useSettings';
@@ -82,6 +83,7 @@ export const RootSideBar = () => {
         <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/editor/playlist" name="Playlist" />
         <MenuItemSM collapsed={collapsed} icon={<StreamGroupEditorIcon />} link="/editor/streamgroup" name="Stream Group" />
         <MenuItemSM collapsed={collapsed} icon={<FilesEditorIcon />} link="/editor/files" name="Files" />
+        <MenuItemSM collapsed={collapsed} icon={<VideoPlayerIcon />} link="/viewer/player" name="Player" />
         {settings.data.sdSettings?.sdEnabled === true ? (
           <MenuItemSM collapsed={collapsed} icon={<SDIcon />} link="/editor/sdHeadEndLineUps" name="SD HeadEnds" />
         ) : null}

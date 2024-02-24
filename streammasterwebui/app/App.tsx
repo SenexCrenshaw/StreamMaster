@@ -14,6 +14,7 @@ import SDEditorHeadEndsAndLineUps from '@features/sdEditor/SDEditorHeadEndsAndLi
 import SettingsEditor from '@features/settings/SettingsEditor';
 import StreamGroupEditor from '@features/streamGroupEditor/StreamGroupEditor';
 import StreamingStatus from '@features/streamingStatus/StreamingStatus';
+import VideoPlayer from '@features/videoPlayer/VideoPlayer';
 import { IconFileDto, StationChannelName } from '@lib/iptvApi';
 import MessagesEn from '@lib/locales/MessagesEn';
 import { CacheProvider } from '@lib/redux/CacheProvider';
@@ -66,6 +67,7 @@ const App = (): JSX.Element => {
         <Route element={<SettingsEditor />} path="/settings" />
 
         <Route element={<LogViewer />} path="/viewer/logviewer" />
+        <Route element={<VideoPlayer />} path="/viewer/player" />
       </Route>
     )
   );

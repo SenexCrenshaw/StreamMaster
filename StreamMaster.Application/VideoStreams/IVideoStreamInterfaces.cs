@@ -11,6 +11,7 @@ namespace StreamMaster.Application.VideoStreams;
 
 public interface IVideoStreamController
 {
+    Task<ActionResult<List<IdNameUrl>>> GetVideoStreamNamesAndUrls();
     Task<ActionResult<VideoInfo>> GetVideoStreamInfoFromId(GetVideoStreamInfoFromIdRequest request);
     Task<ActionResult<VideoInfo>> GetVideoStreamInfoFromUrl(GetVideoStreamInfoFromUrlRequest request);
 
@@ -57,6 +58,7 @@ public interface IVideoStreamController
 
 public interface IVideoStreamHub
 {
+    Task<List<IdNameUrl>> GetVideoStreamNamesAndUrls();
     Task<VideoInfo> GetVideoStreamInfoFromId(string channelVideoStreamId);
     Task<VideoInfo> GetVideoStreamInfoFromUrl(string channelVideoStreamId);
 

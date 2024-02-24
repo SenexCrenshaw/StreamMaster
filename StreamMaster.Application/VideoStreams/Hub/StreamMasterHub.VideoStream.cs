@@ -1,10 +1,8 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Requests;
-
-using StreamMaster.Application.VideoStreams;
+﻿using StreamMaster.Application.VideoStreams;
 using StreamMaster.Application.VideoStreams.Commands;
 using StreamMaster.Application.VideoStreams.Queries;
+using StreamMaster.Domain.Pagination;
+using StreamMaster.Domain.Requests;
 
 namespace StreamMaster.Application.Hubs;
 
@@ -135,5 +133,10 @@ public partial class StreamMasterHub : IVideoStreamHub
     {
         return await mediator.Send(new GetVideoStreamInfoFromUrlRequest(channelVideoStreamId)).ConfigureAwait(false);
 
+    }
+
+    public async Task<List<IdNameUrl>> GetVideoStreamNamesAndUrls()
+    {
+        return await mediator.Send(new GetVideoStreamNamesAndUrlsRequest()).ConfigureAwait(false);
     }
 }
