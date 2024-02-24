@@ -18,7 +18,7 @@ public class HLSHandler(ILogger<HLSHandler> logger, ILogger<FFMPEGRunner> FFMPEG
     public string Id => videoStream.Id;
     public string Name => videoStream.User_Tvg_name;
     public string Url => videoStream.User_Url;
-    public async Task Start()
+    public void Start()
     {
         if (Started)
         {
@@ -29,19 +29,11 @@ public class HLSHandler(ILogger<HLSHandler> logger, ILogger<FFMPEGRunner> FFMPEG
 
         Task backgroundTask = ffmpegRunner.StartStreamingInBackgroundAsync(videoStream, HLSCancellationTokenSource.Token);
 
-        //processId = ffmpegRunner.ProcessId;
-        ////(processId, ProxyStreamError? error) = await ffmpegRunner.CreateFFMpegHLS(videoStream, HLSCancellationTokenSource.Token);
-        //if (processId == -1)
-        //{
-        //    logger.LogError("Failed to start HLSHandler for {Name} {error}", videoStream.User_Tvg_name);
-        //    return;
-        //}
-
         ffmpegRunner.ProcessExited += (sender, args) =>
         {
             logger.LogInformation("FFMPEG Process Exited for {Name} with exit code {ExitCode}", videoStream.User_Tvg_name, args.ExitCode);
-            Stop();
-            ProcessExited?.Invoke(this, args);
+            //Stop();
+            //ProcessExited?.Invoke(this, args);
         };
         Started = true;
     }

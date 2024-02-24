@@ -76,7 +76,7 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
             await clientStreamerManager.AddClientsToHandler(ChannelVideoStreamId, newStreamHandler);
         }
 
-        channelStatus.CurrentVideoStream = videoStreamDto;
+        channelStatus.SetCurrentVideoStream(videoStreamDto);
         channelStatus.FailoverInProgress = false;
 
         logger.LogDebug("Finished SwitchToNextVideoStream");

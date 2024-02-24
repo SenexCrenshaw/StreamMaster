@@ -64,6 +64,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
     {
         try
         {
+
             string? ffmpegExec = GetFFPMpegExec();
             if (ffmpegExec == null)
             {
@@ -94,39 +95,6 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
 
             string formattedArgs = settings.HLS.HLSFFMPEGOptions.Replace("{streamUrl}", $"\"{videoStream.User_Url}\"").Trim();
             formattedArgs = formattedArgs += " ";
-
-            //string formattedArgs = $"-i \"{videoStream.User_Url}\" ";
-            //formattedArgs += "-start_at_zero " +
-            //                 "-copyts " +
-            //                 "-flags +global_header ";
-
-            //formattedArgs +=
-            //         "-reconnect 1 " +
-            //         "-reconnect_at_eof 1 " +
-            //         "-reconnect_streamed 1 " +
-            //         "-reconnect_on_network_error 1 " +
-            //         "-reconnect_on_http_error 1 " +
-            //        $"-c:a copy " +
-            //         "-c:v copy " +
-            //         //"-sn " +
-
-            //         //"-avoid_negative_ts disabled " +
-            //         //"-map_metadata -1 " +
-            //         //"-vsync cfr " +
-            //         "-fps_mode passthrough " +
-            //         "-y " +
-            //         "-nostats " +
-            //         "-hide_banner " +
-            //         "-f hls " +
-            //         "-hls_segment_type mpegts " +
-            //         "-hls_init_time 1 " +
-            //         "-hls_allow_cache 0 " +
-            //         "-hls_flags temp_file  " +
-            //         "-hls_flags omit_endlist " +
-            //         "-hls_flags discont_start " +
-            //         "-hls_flags delete_segments " +
-            //         "-hls_flags split_by_time ";
-
 
             formattedArgs +=
        $"-reconnect_delay_max {settings.HLS.HLSReconnectDurationInSeconds} " +

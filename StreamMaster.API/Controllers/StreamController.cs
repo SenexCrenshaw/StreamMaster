@@ -2,11 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 
+using StreamMaster.Streams.Domain.Interfaces;
+
 
 
 namespace StreamMaster.API.Controllers
 {
-    public class StreamController(ILogger<StreamController> logger, IVideoStreamService videoStreamService, IAccessTracker accessTracker, IHLSManager hLsManager, IMemoryCache memoryCache) : ApiControllerBase
+    public class StreamController(ILogger<StreamController> logger, IChannelService channelService, IVideoStreamService videoStreamService, IAccessTracker accessTracker, IHLSManager hLsManager, IMemoryCache memoryCache) : ApiControllerBase
     {
         [Authorize(Policy = "SGLinks")]
         [HttpGet]
@@ -20,19 +22,26 @@ namespace StreamMaster.API.Controllers
                 return NotFound();
             }
 
-            hLsManager.GetOrAdd(videoStreamDto);
+            IChannelStatus? channelStatus = await channelService.RegisterChannel(videoStreamDto, true);
 
-            string m3u8File = Path.Combine(BuildInfo.HLSOutputFolder, videoStreamId, $"index.m3u8");
+            if (channelStatus == null || channelStatus.CurrentVideoStream == null)
+            {
+                return NotFound();
+            }
+
+            IHLSHandler hlsHandler = hLsManager.GetOrAdd(channelStatus.CurrentVideoStream);
+
+            string m3u8File = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.CurrentVideoStream.Id, $"index.m3u8");
             Setting setting = memoryCache.GetSetting();
 
             if (!await FileUtil.WaitForFileAsync(m3u8File, setting.HLS.HLSM3U8CreationTimeOutInSeconds, 100, cancellationToken))
             {
-                logger.LogWarning("HLS file not found {FileName}, exiting", m3u8File);
-                hLsManager.Stop(videoStreamId);
+                logger.LogWarning("HLS segment not found {FileName}, exiting", m3u8File);
+                hLsManager.Stop(channelStatus.CurrentVideoStream.Id);
                 return NotFound();
             }
 
-            accessTracker.UpdateAccessTime(videoStreamId, TimeSpan.FromSeconds(setting.HLS.HLSM3U8ReadTimeOutInSeconds));
+            accessTracker.UpdateAccessTime(channelStatus.CurrentVideoStream.Id, TimeSpan.FromSeconds(setting.HLS.HLSM3U8ReadTimeOutInSeconds));
 
             HttpContext.Response.Headers.Connection = "close";
             HttpContext.Response.Headers.AccessControlAllowOrigin = "*";

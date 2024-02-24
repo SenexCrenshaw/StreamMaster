@@ -260,7 +260,7 @@ public sealed class ChannelManager : IChannelManager
 
         if (channelStatus == null)
         {
-            channelStatus = channelService.RegisterChannel(channelVideoStream);
+            channelStatus = await channelService.RegisterChannel(channelVideoStream);
             if (channelStatus == null)
             {
                 logger.LogError("Could not register new channel for {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.ChannelVideoStreamId, channelVideoStream.User_Tvg_name);

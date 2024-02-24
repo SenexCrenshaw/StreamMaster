@@ -1,6 +1,8 @@
 ﻿using StreamMaster.Domain.Attributes;
 using StreamMaster.SchedulesDirect.Domain.Models;
 
+using System.Xml.Serialization;
+
 namespace StreamMaster.Domain.Common;
 
 public class M3USettings
@@ -113,6 +115,7 @@ public class BaseSettings : M3USettings
     public TestSettings TestSettings { get; set; } = new();
     public int MaxConcurrentDownloads { get; set; } = 8;
 
+    [XmlIgnore]
     public Dictionary<string, FFMPEGProfile> FFMPEGProfiles { get; set; } = [];
 
     public HLSSettings HLS { get; set; } = new();
