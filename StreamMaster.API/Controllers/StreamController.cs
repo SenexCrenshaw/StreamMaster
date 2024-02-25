@@ -110,7 +110,6 @@ namespace StreamMaster.API.Controllers
                 ffmpegRunner.ProcessExited += (sender, args) =>
                 {
                     logger.LogInformation("MP4Handler Process Exited for {Name} with exit code {ExitCode}", videoStreamDto.User_Tvg_name, args.ExitCode);
-                    //check streams
                 };
                 (Stream? stream, int processId, ProxyStreamError? error) = await ffmpegRunner.CreateFFMpegStream(url, videoStreamDto.User_Tvg_name);
 
