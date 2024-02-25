@@ -3,17 +3,17 @@ using AutoMapper.QueryableExtensions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Authentication;
-
+using StreamMaster.Domain.Configuration;
 using System.Web;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, IHttpContextAccessor httpContextAccessor) : RepositoryBase<StreamGroup>(repositoryContext, logger), IStreamGroupRepository
+public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intsettings, IHttpContextAccessor httpContextAccessor) : RepositoryBase<StreamGroup>(repositoryContext, logger), IStreamGroupRepository
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public PagedResponse<StreamGroupDto> CreateEmptyPagedResponse()
     {
         return PagedExtensions.CreateEmptyPagedResponse<StreamGroupDto>(Count());
@@ -32,20 +32,20 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
     private async Task SetStreamGroupsLinks(List<StreamGroupDto> streamGroupDtos)
     {
         string Url = httpContextAccessor.GetUrl();
-        Setting setting = memoryCache.GetSetting();
+
 
         foreach (StreamGroupDto sg in streamGroupDtos)
         {
-            SetStreamGroupLinks(sg, Url, setting);
+            SetStreamGroupLinks(sg, Url, settings);
         }
     }
 
     private async Task SetStreamGroupsLink(StreamGroupDto streamGroupDto)
     {
         string Url = httpContextAccessor.GetUrl();
-        Setting setting = memoryCache.GetSetting();
 
-        SetStreamGroupLinks(streamGroupDto, Url, setting);
+
+        SetStreamGroupLinks(streamGroupDto, Url, settings);
     }
 
     private void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url, Setting setting)

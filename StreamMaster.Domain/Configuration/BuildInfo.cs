@@ -1,7 +1,8 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace StreamMaster.Domain.Common
+namespace StreamMaster.Domain.Configuration
 {
     /// <summary>
     /// Provides information about the build and environment settings.
@@ -25,7 +26,6 @@ namespace StreamMaster.Domain.Common
                     : informationalVersion.InformationalVersion;
             }
 
-            InitializePaths();
         }
 
         public static bool IsLinux => RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
@@ -133,6 +133,7 @@ namespace StreamMaster.Domain.Common
         public static readonly string M3UFolder = Path.Combine(PlayListFolder, "M3U");
         public static readonly string HLSOutputFolder = Path.Combine(AppDataFolder, "hls");
         public static readonly string BackupFolder = Path.Combine(AppDataFolder, "backups");
+        public static readonly string SettingsFolder = Path.Combine(AppDataFolder, "settings");
 
         public static readonly string SDEPGCacheFile = Path.Combine(SDJSONFolder, "epgCache.json");
         public static readonly string IconDefault = Path.Combine("images", "default.png");
@@ -140,32 +141,70 @@ namespace StreamMaster.Domain.Common
         public static readonly string LogFilePath = Path.Combine(LogFolder, "StreamMasterAPI.log");
 
         public static readonly string LoggingFileName = "logsettings.json";
-        public static readonly string LoggingFile = GetSettingFilePath(LoggingFileName);
+        public static readonly string LoggingSettingsFile = GetSettingFilePath(LoggingFileName);
 
         public static readonly string SettingFileName = "settings.json";
-        public static readonly string SettingFile = GetSettingFilePath(SettingFileName);
+        public static readonly string SettingsFile = GetSettingFilePath(SettingFileName, AppDataFolder);
+
+        public static readonly string SDSettingFileName = "sdsettings.json";
+        public static readonly string SDSettingsFile = GetSettingFilePath(SDSettingFileName);
+
+        public static readonly string HLSSettingFileName = "hlssettings.json";
+        public static readonly string HLSSettingsFile = GetSettingFilePath(HLSSettingFileName);
 
         public static readonly string ProfileFileName = "profiles.json";
-        public static readonly string ProfileFile = GetSettingFilePath(ProfileFileName);
+        public static readonly string ProfileSettingsFile = GetSettingFilePath(ProfileFileName);
 
         #endregion
 
+        public static List<string> GetSettingFiles()
+        {
+
+            Type targetType = typeof(BuildInfo);
+
+            // Get fields marked with [CreateDir] or named "*Folder"
+            IEnumerable<string?> fieldPaths = targetType.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                            .Where(f => f.Name.EndsWith("SettingsFile") && f.FieldType == typeof(string))
+                            .Select(f => (string)f.GetValue(null));
+
+            // Get properties marked with [CreateDir] or named "*Folder"
+            IEnumerable<string?> propertyPaths = targetType.GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                                .Where(p => p.Name.EndsWith("SettingsFile") && p.PropertyType == typeof(string))
+                                .Select(p => (string)p.GetValue(null));
+
+            // Combine paths from fields and properties
+            List<string> paths = fieldPaths.Concat(propertyPaths).Where(a => !string.IsNullOrEmpty(a)).Order().ToList();
+
+            return paths;
+        }
 
         #region Helper Methods
 
-        private static string GetSettingFilePath(string settingFileName)
+        private static void Log(string format, params object[] args)
         {
-            return File.Exists(Path.Combine(AppDataFolder, settingFileName)) ? Path.Combine(AppDataFolder, settingFileName) : settingFileName;
+            string message = string.Format(format, args);
+            Console.WriteLine(message);
+            Debug.WriteLine(message);
         }
 
-        /// <summary>
-        /// Initializes paths for various application data folders.
-        /// </summary>
-        private static void InitializePaths()
+        private static string GetSettingFilePath(string settingFileName, string? folder = null)
         {
-            AppDataFolder = $"{Path.DirectorySeparatorChar}config{Path.DirectorySeparatorChar}";
-            // Initialize other paths based on AppDataFolder...
+            if (string.IsNullOrEmpty(folder))
+            {
+                folder = SettingsFolder;
+            }
+
+            return File.Exists(Path.Combine(folder, settingFileName)) ? Path.Combine(folder, settingFileName) : settingFileName;
         }
+
+        ///// <summary>
+        ///// Initializes paths for various application data folders.
+        ///// </summary>
+        //private static void InitializePaths()
+        //{
+        //    AppDataFolder = $"{Path.DirectorySeparatorChar}config{Path.DirectorySeparatorChar}";
+        //    // Initialize other paths based on AppDataFolder...
+        //}
 
         /// <summary>
         /// Gets an environment variable's value or a default value if not set.

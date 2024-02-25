@@ -17,7 +17,7 @@ public class DeleteAllChannelGroupsFromParametersRequestValidator : AbstractVali
     }
 }
 
-public class DeleteAllChannelGroupsFromParametersRequestHandler(ILogger<DeleteAllChannelGroupsFromParametersRequest> logger, IRepositoryWrapper Repository, IPublisher Publisher, IMemoryCache MemoryCache) : IRequestHandler<DeleteAllChannelGroupsFromParametersRequest, bool>
+public class DeleteAllChannelGroupsFromParametersRequestHandler(ILogger<DeleteAllChannelGroupsFromParametersRequest> logger, IRepositoryWrapper Repository, IPublisher Publisher, IMemoryCache memoryCache) : IRequestHandler<DeleteAllChannelGroupsFromParametersRequest, bool>
 {
     public async Task<bool> Handle(DeleteAllChannelGroupsFromParametersRequest request, CancellationToken cancellationToken)
     {
@@ -30,7 +30,7 @@ public class DeleteAllChannelGroupsFromParametersRequestHandler(ILogger<DeleteAl
 
             foreach (int id in ChannelGroupIds)
             {
-                MemoryCache.RemoveChannelGroupStreamCount(id);
+                memoryCache.RemoveChannelGroupStreamCount(id);
             }
 
 

@@ -3,7 +3,7 @@
 using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Application.ChannelGroups.Commands;
-
+using StreamMaster.Domain.Configuration;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
@@ -22,8 +22,9 @@ public class ProcessM3UFileRequestValidator : AbstractValidator<ProcessM3UFileRe
 }
 
 
-public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IRepositoryWrapper repository, IJobStatusService jobStatusService, IPublisher publisher, ISender sender, IMemoryCache memoryCache) : IRequestHandler<ProcessM3UFileRequest, M3UFile?>
+public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IRepositoryWrapper repository, IJobStatusService jobStatusService, IPublisher publisher, ISender sender, IOptionsMonitor<Setting> intsettings) : IRequestHandler<ProcessM3UFileRequest, M3UFile?>
 {
+    private readonly Setting settings = intsettings.CurrentValue;
 
     private SimpleIntList existingChannels = new(0);
 
@@ -318,10 +319,10 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
 
     private List<VideoStream> RemoveIgnoredStreams(List<VideoStream> streams)
     {
-        Setting setting = memoryCache.GetSetting();
-        if (setting.NameRegex.Any())
+
+        if (settings.NameRegex.Any())
         {
-            foreach (string regex in setting.NameRegex)
+            foreach (string regex in settings.NameRegex)
             {
                 List<VideoStream> toIgnore = ListHelper.GetMatchingProperty(streams, "Tvg_name", regex);
                 logger.LogInformation($"Ignoring {toIgnore.Count} streams with regex {regex}");

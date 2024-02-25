@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-
-using StreamMaster.Domain.Common;
+﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Models;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
@@ -19,13 +17,16 @@ public class EPGCache<T> : IEPGCache<T>
     private readonly TimeSpan CacheDuration = TimeSpan.FromHours(4);
     private readonly ILogger<EPGCache<T>> logger;
     private readonly ISchedulesDirectDataService schedulesDirectDataService;
-    private readonly IMemoryCache memoryCache;
 
-    public EPGCache(ILogger<EPGCache<T>> logger, ISchedulesDirectDataService schedulesDirectDataService, IMemoryCache memoryCache)
+    private readonly Setting settings = new();
+
+    public EPGCache(ILogger<EPGCache<T>> logger,
+                    ISchedulesDirectDataService schedulesDirectDataService,
+                    IOptionsMonitor<Setting> intsettings)
     {
+        settings = intsettings.CurrentValue;
         this.logger = logger;
         this.schedulesDirectDataService = schedulesDirectDataService;
-        this.memoryCache = memoryCache;
         LoadCache();
     }
 
@@ -305,7 +306,6 @@ public class EPGCache<T> : IEPGCache<T>
             UpdateAssetImages(cacheKey, artworkJson);
         }
 
-        Setting setting = memoryCache.GetSetting();
         ProgramArtwork? image = null;
         if (type == ImageType.Movie)
         {
@@ -313,7 +313,7 @@ public class EPGCache<T> : IEPGCache<T>
         }
         else
         {
-            string aspect = setting.SDSettings.SeriesPosterArt ? "2x3" : setting.SDSettings.SeriesWsArt ? "16x9" : setting.SDSettings.SeriesPosterAspect;
+            string aspect = settings.SDSettings.SeriesPosterArt ? "2x3" : settings.SDSettings.SeriesWsArt ? "16x9" : settings.SDSettings.SeriesPosterAspect;
             image = artwork.SingleOrDefault(arg => arg.Aspect.ToLower().Equals(aspect));
         }
 

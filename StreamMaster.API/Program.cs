@@ -1,27 +1,25 @@
 using Microsoft.Data.Sqlite;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
 
 using Prometheus;
 
 using StreamMaster.API;
 using StreamMaster.Application;
 using StreamMaster.Application.Hubs;
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Common;
+
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
-using StreamMaster.Domain.Logging;
-using StreamMaster.Domain.Services;
+
 using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.EF;
 using StreamMaster.Infrastructure.EF.PGSQL;
-using StreamMaster.Infrastructure.EF.PGSQL.Logging;
+
 using StreamMaster.Infrastructure.EF.SQLite;
 using StreamMaster.Infrastructure.Middleware;
-using StreamMaster.Infrastructure.Services;
+
 using StreamMaster.SchedulesDirect.Services;
 using StreamMaster.Streams;
 
+using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
@@ -30,6 +28,12 @@ DirectoryHelper.CreateApplicationDirectories();
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+ static void Log(string format, params object[] args)
+{
+    string message = string.Format(format, args);
+    Console.WriteLine(message);
+    Debug.WriteLine(message);
+}
 
 builder.WebHost.ConfigureKestrel((context, serverOptions) =>
 {
@@ -37,11 +41,21 @@ builder.WebHost.ConfigureKestrel((context, serverOptions) =>
     serverOptions.Limits.MaxRequestBodySize = null;    
 });
 
-string settingFile = BuildInfo.SettingFile;
+string settingFile = BuildInfo.SettingsFile;
 
-//builder.Configuration.AddJsonFile(settingFile, true, false);
-builder.Configuration.AddJsonFile(BuildInfo.LoggingFile, optional: true, reloadOnChange: true);
-//builder.Services.Configure<Setting>(builder.Configuration);
+var settingsFiles = BuildInfo.GetSettingFiles();
+builder.Configuration.SetBasePath(BuildInfo.StartUpPath).AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+foreach (var file in settingsFiles)
+{
+    if (File.Exists(file))
+    {
+        Log($"Using settings file {file}");
+        builder.Configuration.AddJsonFile(file, optional: true, reloadOnChange: true);
+    }
+}
+
+builder.Services.Configure<Setting>(builder.Configuration);
 
 bool enableSsl = false;
 
@@ -117,9 +131,6 @@ void OnShutdown()
     IImageDownloadService imageDownloadService = app.Services.GetRequiredService<IImageDownloadService>();
     imageDownloadService.StopAsync(CancellationToken.None).Wait();
 
-    //var timerService = app.Services.GetRequiredService<TimerService>();
-    //timerService.StopAsync(CancellationToken.None).Wait();
-
     DirectoryHelper.EmptyDirectory(BuildInfo.HLSOutputFolder);
 
     FileUtil.Backup().Wait();
@@ -180,11 +191,6 @@ using (IServiceScope scope = app.Services.CreateScope())
 
    
     initialiser.MigrateData();
-
-    var mem = scope.ServiceProvider.GetRequiredService<IMemoryCache>();
-    var setting = FileUtil.GetSetting();
-    if  (setting != null)
-    mem.SetSetting(setting);
 
     IImageDownloadService imageDownloadService = scope.ServiceProvider.GetRequiredService<IImageDownloadService>();
     imageDownloadService.Start();

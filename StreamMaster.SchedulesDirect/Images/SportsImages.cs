@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-
-using StreamMaster.Domain.Common;
+﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
@@ -8,11 +6,12 @@ using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect.Images;
-public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> epgCache, IImageDownloadQueue imageDownloadQueue, IMemoryCache memoryCache, ISchedulesDirectAPIService schedulesDirectAPI) : ISportsImages
+public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<Setting> intsettings, ISchedulesDirectAPIService schedulesDirectAPI) : ISportsImages
 {
     public List<MxfProgram> SportEvents { get; set; } = [];
     private List<string> sportsImageQueue = [];
     private ConcurrentBag<ProgramMetadata> sportsImageResponses = [];
+    private readonly Setting settings = intsettings.CurrentValue;
 
     private int processedObjects;
     private int totalObjects;
@@ -20,7 +19,6 @@ public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> 
     public async Task<bool> GetAllSportsImages()
     {
 
-        Setting settings = memoryCache.GetSetting();
         // reset counters
         sportsImageQueue = [];
         sportsImageResponses = [];
@@ -132,8 +130,8 @@ public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> 
             return;
         }
 
-        Setting setting = memoryCache.GetSetting();
-        string artworkSize = string.IsNullOrEmpty(setting.SDSettings.ArtworkSize) ? "Md" : setting.SDSettings.ArtworkSize;
+
+        string artworkSize = string.IsNullOrEmpty(settings.SDSettings.ArtworkSize) ? "Md" : settings.SDSettings.ArtworkSize;
 
         foreach (ProgramMetadata response in sportsImageResponses)
         {

@@ -1,17 +1,20 @@
-﻿using StreamMaster.SchedulesDirect.Helpers;
+﻿using StreamMaster.Domain.Configuration;
+using StreamMaster.SchedulesDirect.Helpers;
 
 namespace StreamMaster.Application.SchedulesDirect.Commands;
 
 public record RemoveLineup(string lineup) : IRequest<bool>;
 
-public class RemoveLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusService jobStatusService, ILogger<RemoveLineup> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IMemoryCache memoryCache)
+public class RemoveLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusService jobStatusService, ILogger<RemoveLineup> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<Setting> intsettings)
 : IRequestHandler<RemoveLineup, bool>
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public async Task<bool> Handle(RemoveLineup request, CancellationToken cancellationToken)
     {
         JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
-        Setting setting = memoryCache.GetSetting();
-        if (!setting.SDSettings.SDEnabled)
+
+        if (!settings.SDSettings.SDEnabled)
         {
             return false;
         }

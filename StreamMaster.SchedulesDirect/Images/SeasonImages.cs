@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-
-using StreamMaster.Domain.Common;
+﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
@@ -8,16 +6,17 @@ using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect.Images;
-public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> epgCache, IImageDownloadQueue imageDownloadQueue, IMemoryCache memoryCache, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService) : ISeasonImages
+public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<Setting> intsettings, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService) : ISeasonImages
 {
     private readonly List<MxfSeason> seasons = [];
     private List<string> seasonImageQueue = [];
     private ConcurrentBag<ProgramMetadata> seasonImageResponses = [];
     private int processedObjects;
     private int totalObjects;
+
+    private readonly Setting settings = intsettings.CurrentValue;
     public async Task<bool> GetAllSeasonImages()
     {
-        Setting settings = memoryCache.GetSetting();
 
         // reset counters
         seasonImageQueue = [];
@@ -136,8 +135,8 @@ public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> 
 
     private void ProcessSeasonImageResponses()
     {
-        Setting setting = memoryCache.GetSetting();
-        string artworkSize = string.IsNullOrEmpty(setting.SDSettings.ArtworkSize) ? "Md" : setting.SDSettings.ArtworkSize;
+
+        string artworkSize = string.IsNullOrEmpty(settings.SDSettings.ArtworkSize) ? "Md" : settings.SDSettings.ArtworkSize;
 
         // process request response
         foreach (ProgramMetadata response in seasonImageResponses)

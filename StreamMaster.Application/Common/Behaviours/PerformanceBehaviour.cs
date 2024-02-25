@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Services;
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace StreamMaster.Application.Common.Behaviours;
 
@@ -8,10 +6,10 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
 {
     private readonly ILogger<TRequest> _logger;
     private readonly Stopwatch _timer;
-    private readonly ISettingsService _settingsService;
-    public PerformanceBehaviour(ILogger<TRequest> logger, ISettingsService settingsService)
+
+    public PerformanceBehaviour(ILogger<TRequest> logger)
     {
-        _settingsService = settingsService;
+
         _timer = new Stopwatch();
         _logger = logger;
     }

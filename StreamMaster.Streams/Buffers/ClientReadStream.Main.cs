@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using System.Threading.Channels;
+﻿using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Buffers;
 
@@ -11,13 +8,11 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
     private readonly ILogger<ClientReadStream> logger;
     private readonly IClientStreamerConfiguration config;
     private readonly IStatisticsManager _statisticsManager;
-    private readonly IMemoryCache memoryCache;
 
     public string VideoStreamName { get; set; }
 
-    public ClientReadStream(IMemoryCache memoryCache, IStatisticsManager _statisticsManager, ILoggerFactory loggerFactory, IClientStreamerConfiguration config)
+    public ClientReadStream(IStatisticsManager _statisticsManager, ILoggerFactory loggerFactory, IClientStreamerConfiguration config)
     {
-        this.memoryCache = memoryCache;
 
         this.config = config ?? throw new ArgumentNullException(nameof(config));
 
@@ -73,7 +68,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
         }
         catch (Exception ex)
         {
-            //Setting setting = memoryCache.GetSetting();
+            //
             //if (setting.EnablePrometheus)
             //{
             //    _readErrorsCounter.WithLabels(ClientId.ToString(), VideoStreamName).Inc();

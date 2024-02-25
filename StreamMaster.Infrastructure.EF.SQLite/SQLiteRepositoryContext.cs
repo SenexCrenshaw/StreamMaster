@@ -3,7 +3,7 @@
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Models;
 

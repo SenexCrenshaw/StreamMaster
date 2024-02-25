@@ -1,18 +1,16 @@
 ﻿using AutoMapper;
 
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Repository;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Streams.Streams;
 
-public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStreamerManager clientStreamerManager, IChannelService channelService, IServiceProvider serviceProvider, IMemoryCache memoryCache, IStreamManager streamManager) : IStreamSwitcher
+public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStreamerManager clientStreamerManager, IChannelService channelService, IServiceProvider serviceProvider, IOptionsMonitor<Setting> intsettings, IStreamManager streamManager) : IStreamSwitcher
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
+
     public async Task<bool> SwitchToNextVideoStreamAsync(string ChannelVideoStreamId, string? overrideNextVideoStreamId = null)
     {
 
@@ -91,7 +89,6 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
 
     private async Task<VideoStreamDto?> HandleOverrideStream(string overrideNextVideoStreamId, IRepositoryWrapper repository, IChannelStatus channelStatus)
     {
-        Setting setting = memoryCache.GetSetting();
 
         VideoStreamDto? vs = await repository.VideoStream.GetVideoStreamById(overrideNextVideoStreamId);
         if (vs == null)
@@ -105,7 +102,7 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
 
         if (m3uFile == null)
         {
-            if (GetGlobalStreamsCount() > setting.GlobalStreamLimit)
+            if (GetGlobalStreamsCount() > settings.GlobalStreamLimit)
             {
                 logger.LogInformation("Max Global stream count {GlobalStreamsCount} reached for stream: {StreamUrl}", GetGlobalStreamsCount(), vs.User_Url);
                 return null;
@@ -133,7 +130,6 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
 
     private async Task<VideoStreamDto?> FetchNextChildVideoStream(IChannelStatus channelStatus, IRepositoryWrapper repository)
     {
-        Setting setting = memoryCache.GetSetting();
         (VideoStreamHandlers videoStreamHandler, List<VideoStreamDto> childVideoStreamDtos)? result = await repository.VideoStream.GetStreamsFromVideoStreamById(channelStatus.ChannelVideoStreamId);
         if (result == null)
         {
@@ -163,7 +159,7 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
             M3UFileDto? m3uFile = m3uFilesRepo.Find(a => a.Id == toReturn.M3UFileId);
             if (m3uFile == null)
             {
-                if (GetGlobalStreamsCount() >= setting.GlobalStreamLimit)
+                if (GetGlobalStreamsCount() >= settings.GlobalStreamLimit)
                 {
                     logger.LogInformation("Max Global stream count {GlobalStreamsCount} reached for stream: {StreamUrl}", GetGlobalStreamsCount(), toReturn.User_Url);
                     continue;

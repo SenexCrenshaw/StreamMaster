@@ -1,14 +1,16 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 
-using StreamMaster.Domain.Cache;
+using StreamMaster.Domain.Configuration;
 
 using System.Net;
 using System.Net.Sockets;
 
 namespace StreamMaster.Streams.Statistics;
 
-public sealed class StreamStatisticService(IInputStatisticsManager inputStatisticsManager, IStatisticsManager statisticsManager, IMemoryCache memoryCache) : IStreamStatisticService
+public sealed class StreamStatisticService(IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, IStatisticsManager statisticsManager, IOptionsMonitor<Setting> intsettings) : IStreamStatisticService
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public async Task<List<InputStreamingStatistics>> GetInputStatistics(CancellationToken cancellationToken = default)
     {
 
@@ -19,7 +21,6 @@ public sealed class StreamStatisticService(IInputStatisticsManager inputStatisti
     {
 
         List<ClientStreamingStatistics> clientStreamingStatistics = statisticsManager.GetAllClientStatistics();
-        Setting settings = memoryCache.GetSetting();
 
         if (settings.ShowClientHostNames)
         {

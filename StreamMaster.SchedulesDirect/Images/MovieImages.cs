@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-
-using StreamMaster.Domain.Common;
+﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
@@ -8,8 +6,10 @@ using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect.Images;
-public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epgCache, IImageDownloadQueue imageDownloadQueue, IMemoryCache memoryCache, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService) : IMovieImages
+public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<Setting> intsettings, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService) : IMovieImages
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     private List<string> movieImageQueue = [];
     private ConcurrentBag<ProgramMetadata> movieImageResponses = [];
     private int processedObjects;
@@ -108,8 +108,8 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
 
     private void ProcessMovieImageResponses()
     {
-        Setting setting = memoryCache.GetSetting();
-        string artworkSize = string.IsNullOrEmpty(setting.SDSettings.ArtworkSize) ? "Md" : setting.SDSettings.ArtworkSize;
+
+        string artworkSize = string.IsNullOrEmpty(settings.SDSettings.ArtworkSize) ? "Md" : settings.SDSettings.ArtworkSize;
         // process request response
         foreach (ProgramMetadata response in movieImageResponses)
         {

@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-
-using StreamMaster.SchedulesDirect.Domain.Helpers;
-using StreamMaster.SchedulesDirect.Helpers;
+﻿using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Collections.Concurrent;
 
@@ -10,16 +7,11 @@ namespace StreamMaster.SchedulesDirect.Data;
 public class SchedulesDirectDataService : ISchedulesDirectDataService
 {
     private readonly ILogger<SchedulesDirectData> logger;
-    private readonly ILogger<EPGImportLogger> epgImportLogger;
-    private readonly IEPGHelper ePGHelper;
-    private readonly IMemoryCache memoryCache;
 
-    public SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, ILogger<EPGImportLogger> _epgImportLogger, IEPGHelper ePGHelper, IMemoryCache memoryCache)
+    public SchedulesDirectDataService(ILogger<SchedulesDirectData> logger)
     {
         this.logger = logger;
-        epgImportLogger = _epgImportLogger;
-        this.ePGHelper = ePGHelper;
-        this.memoryCache = memoryCache;
+
         DummyData();
     }
 
@@ -91,7 +83,7 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
     {
         return SchedulesDirectDatas.GetOrAdd(EPGNumber, (epgId) =>
         {
-            SchedulesDirectData data = new(logger, epgImportLogger, ePGHelper, memoryCache, EPGNumber);
+            SchedulesDirectData data = new(logger, EPGNumber);
             return data;
         });
     }
@@ -100,7 +92,7 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
     {
         return SchedulesDirectDatas.GetOrAdd(EPGHelper.SchedulesDirectId, (epgId) =>
         {
-            SchedulesDirectData data = new(logger, epgImportLogger, ePGHelper, memoryCache, EPGHelper.SchedulesDirectId)
+            SchedulesDirectData data = new(logger, EPGHelper.SchedulesDirectId)
             {
                 EPGNumber = EPGHelper.SchedulesDirectId
             };
@@ -115,7 +107,7 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
 
         return SchedulesDirectDatas.GetOrAdd(EPGHelper.DummyId, (epgId) =>
         {
-            SchedulesDirectData data = new(logger, epgImportLogger, ePGHelper, memoryCache, EPGHelper.DummyId)
+            SchedulesDirectData data = new(logger, EPGHelper.DummyId)
             {
                 EPGNumber = EPGHelper.DummyId
             };

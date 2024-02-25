@@ -8,7 +8,7 @@ using StreamMaster.Application.Settings.Queries;
 
 namespace StreamMaster.API.Controllers;
 
-public class SettingsController : ApiControllerBase, ISettingController
+public class SettingsController() : ApiControllerBase, ISettingController
 {
     [HttpPut]
     [Route("[action]")]

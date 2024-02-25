@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Domain.Authentication;
+using StreamMaster.Domain.Configuration;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 
 using System.Collections.Concurrent;
@@ -25,9 +26,11 @@ public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
     }
 }
 
-public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, ISchedulesDirectDataService schedulesDirectDataService, IEPGHelper epgHelper, ILogger<GetStreamGroupM3U> logger, IRepositoryWrapper Repository, IMemoryCache memoryCache)
+public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, ISchedulesDirectDataService schedulesDirectDataService, IEPGHelper epgHelper, ILogger<GetStreamGroupM3U> logger, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intsettings)
     : IRequestHandler<GetStreamGroupM3U, string>
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public string GetIconUrl(string iconOriginalSource, Setting setting)
     {
         string url = httpContextAccessor.GetUrl();
@@ -69,10 +72,10 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupM3U request, CancellationToken cancellationToken)
     {
-        Setting setting = memoryCache.GetSetting();
+
         string url = httpContextAccessor.GetUrl();
         string requestPath = httpContextAccessor.HttpContext.Request.Path.Value.ToString();
-        byte[]? iv = requestPath.GetIVFromPath(setting.ServerKey, 128);
+        byte[]? iv = requestPath.GetIVFromPath(settings.ServerKey, 128);
         if (iv == null && !request.UseShortId)
         {
             return DefaultReturn;
@@ -95,7 +98,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
      .WithDegreeOfParallelism(Environment.ProcessorCount)
      .Select((videoStream, index) =>
      {
-         (int ChNo, string m3uLine) = BuildM3ULineForVideoStream(videoStream, url, request, index, setting);
+         (int ChNo, string m3uLine) = BuildM3ULineForVideoStream(videoStream, url, request, index, settings);
          return new
          {
              ChNo,

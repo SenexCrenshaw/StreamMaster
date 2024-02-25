@@ -7,7 +7,7 @@ namespace StreamMaster.Application.ChannelGroups.Commands;
 public record UpdateChannelGroupCountsByIdsRequest(List<int>? ChannelGroupIds = null) : IRequest<List<ChannelGroupDto>> { }
 
 [LogExecutionTimeAspect]
-public class UpdateChannelGroupCountsByIdsRequestHandler(ILogger<UpdateChannelGroupCountsByIdsRequest> logger, IRepositoryWrapper repository, IMapper mapper, IMemoryCache memoryCache) : IRequestHandler<UpdateChannelGroupCountsByIdsRequest, List<ChannelGroupDto>>
+public class UpdateChannelGroupCountsByIdsRequestHandler(ILogger<UpdateChannelGroupCountsByIdsRequest> logger, IRepositoryWrapper repository, IMapper mapper, IMemoryCache MemoryCache) : IRequestHandler<UpdateChannelGroupCountsByIdsRequest, List<ChannelGroupDto>>
 {
     private class ChannelGroupBrief
     {
@@ -78,7 +78,7 @@ public class UpdateChannelGroupCountsByIdsRequestHandler(ILogger<UpdateChannelGr
                     cg.IsHidden = hiddenCounts[cg.Name] != 0;
                 }
 
-                memoryCache.AddOrUpdateChannelGroupVideoStreamCounts(dtos);
+                MemoryCache.AddOrUpdateChannelGroupVideoStreamCounts(dtos);
                 return dtos;
                 //await HubContext.Clients.All.ChannelGroupsRefresh(dtos.ToArray()).ConfigureAwait(false);
 

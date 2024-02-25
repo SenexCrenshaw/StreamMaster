@@ -2,7 +2,7 @@
 
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Domain.Authentication;
-
+using StreamMaster.Domain.Configuration;
 using System.Text.Json;
 using System.Web;
 
@@ -10,9 +10,11 @@ namespace StreamMaster.Application.StreamGroups.Queries;
 
 public record GetStreamGroupVideoStreamUrl(string VideoStreamId) : IRequest<string?>;
 
-internal class GetStreamGroupVideoStreamUrlHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupVideoStreamUrl> logger, IRepositoryWrapper Repository, IMemoryCache memoryCache)
+internal class GetStreamGroupVideoStreamUrlHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupVideoStreamUrl> logger, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intsettings)
     : IRequestHandler<GetStreamGroupVideoStreamUrl, string?>
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public async Task<string?> Handle(GetStreamGroupVideoStreamUrl request, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(request.VideoStreamId))
@@ -25,12 +27,12 @@ internal class GetStreamGroupVideoStreamUrlHandler(IHttpContextAccessor httpCont
             return null;
         }
 
-        Setting setting = memoryCache.GetSetting();
+
 
         string url = httpContextAccessor.GetUrl();
         string videoUrl;
 
-        if (setting.HLS.HLSM3U8Enable)
+        if (settings.HLS.HLSM3U8Enable)
         {
             videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
         }
@@ -40,7 +42,7 @@ internal class GetStreamGroupVideoStreamUrlHandler(IHttpContextAccessor httpCont
                     .Replace("/", "")
                     .Replace(" ", "_");
 
-            string encodedNumbers = 0.EncodeValues128(request.VideoStreamId, setting.ServerKey);
+            string encodedNumbers = 0.EncodeValues128(request.VideoStreamId, settings.ServerKey);
             videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
         }

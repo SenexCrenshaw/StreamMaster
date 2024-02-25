@@ -14,7 +14,7 @@ public sealed partial class StreamHandler
     {
         //DateTime currentTime = SMDT.UtcNow;
 
-        //Setting setting = memoryCache.GetSetting();
+        //
 
         //if (setting.EnablePrometheus && (currentTime - _lastUpdateTime > TimeSpan.FromSeconds(5)))
         //{

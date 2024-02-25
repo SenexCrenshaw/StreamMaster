@@ -38,7 +38,7 @@ public class EPGHelper() : IEPGHelper
             return true;
         }
 
-        //Setting setting = memoryCache.GetSetting();
+        //
         //bool test = IsValidEPGId(user_tvg_id);
         //return test || Regex.IsMatch(user_tvg_id, setting.DummyRegex, RegexOptions.IgnoreCase) || !string.IsNullOrEmpty(user_tvg_id);
         return false;

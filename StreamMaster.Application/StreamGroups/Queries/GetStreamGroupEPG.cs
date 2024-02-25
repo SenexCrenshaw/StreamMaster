@@ -3,9 +3,9 @@
 using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Application.Common.Extensions;
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Requests;
 using StreamMaster.SchedulesDirect.Domain.Enums;
-using StreamMaster.SchedulesDirect.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Net;
@@ -25,10 +25,12 @@ public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
     }
 }
 
-public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ILogger<GetStreamGroupEPG> logger, ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper Repository, IMemoryCache MemoryCache)
+public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ILogger<GetStreamGroupEPG> logger, ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intsettings)
     : IRequestHandler<GetStreamGroupEPG, string>
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+    private readonly Setting settings = intsettings.CurrentValue;
+
 
     private readonly ParallelOptions parallelOptions = new()
     {
@@ -38,8 +40,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
-
-        Setting settings = MemoryCache.GetSetting();
 
         List<VideoStreamDto> videoStreams = [];
 
@@ -106,23 +106,23 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
     private string SerializeXMLTVData(XMLTV xmltv)
     {
-        Setting setting = MemoryCache.GetSetting();
+
         XmlSerializerNamespaces ns = new();
         ns.Add("", "");
 
         // Create a Utf8StringWriter
         using Utf8StringWriter textWriter = new();
 
-        XmlWriterSettings settings = new()
+        XmlWriterSettings xmlSettings = new()
         {
-            Indent = setting.PrettyEPG,
+            Indent = settings.PrettyEPG,
             OmitXmlDeclaration = true,
             NewLineHandling = NewLineHandling.None,
             //NewLineChars = "\n"
         };
 
         // Create an XmlWriter using Utf8StringWriter
-        using XmlWriter writer = XmlWriter.Create(textWriter, settings);
+        using XmlWriter writer = XmlWriter.Create(textWriter, xmlSettings);
 
         XmlSerializer xml = new(typeof(XMLTV));
 

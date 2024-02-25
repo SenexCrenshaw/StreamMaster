@@ -1,13 +1,16 @@
-﻿namespace StreamMaster.Application.SchedulesDirect.Queries;
+﻿using StreamMaster.Domain.Configuration;
+
+namespace StreamMaster.Application.SchedulesDirect.Queries;
 
 public record GetStationPreviews : IRequest<List<StationPreview>>;
 
-internal class GetStationPreviewsHandler(ILineups lineups, ISender sender) : IRequestHandler<GetStationPreviews, List<StationPreview>>
+internal class GetStationPreviewsHandler(ILineups lineups, IOptionsMonitor<Setting> intsettings, ISender sender) : IRequestHandler<GetStationPreviews, List<StationPreview>>
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public async Task<List<StationPreview>> Handle(GetStationPreviews request, CancellationToken cancellationToken)
     {
-        SettingDto setting = await sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
-        if (!setting.SDSettings.SDEnabled)
+        if (!settings.SDSettings.SDEnabled)
         {
             return [];
         }

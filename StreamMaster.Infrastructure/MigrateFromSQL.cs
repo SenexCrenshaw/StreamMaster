@@ -1,4 +1,4 @@
-﻿using StreamMaster.Domain.Common;
+﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.EF.SQLite;
 

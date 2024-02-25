@@ -1,4 +1,5 @@
 ﻿using StreamMaster.Application.Services;
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Infrastructure.EF.PGSQL;
 

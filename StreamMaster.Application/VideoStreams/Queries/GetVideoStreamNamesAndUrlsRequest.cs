@@ -3,24 +3,26 @@ using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Domain.Authentication;
-
+using StreamMaster.Domain.Configuration;
 using System.Web;
 
 namespace StreamMaster.Application.VideoStreams.Queries;
 
 public record GetVideoStreamNamesAndUrlsRequest() : IRequest<List<IdNameUrl>>;
 
-internal class GetVideoStreamNamesAndUrlsHandler(ILogger<GetVideoStreamNamesAndUrlsRequest> logger, IMemoryCache memoryCache, IHttpContextAccessor httpContextAccessor, IRepositoryWrapper Repository) : IRequestHandler<GetVideoStreamNamesAndUrlsRequest, List<IdNameUrl>>
+internal class GetVideoStreamNamesAndUrlsHandler(ILogger<GetVideoStreamNamesAndUrlsRequest> logger, IOptionsMonitor<Setting> intsettings, IHttpContextAccessor httpContextAccessor, IRepositoryWrapper Repository) : IRequestHandler<GetVideoStreamNamesAndUrlsRequest, List<IdNameUrl>>
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public async Task<List<IdNameUrl>> Handle(GetVideoStreamNamesAndUrlsRequest request, CancellationToken cancellationToken)
     {
         string url = httpContextAccessor.GetUrl();
-        Setting setting = memoryCache.GetSetting();
+
 
         List<IdNameUrl> matchedIds = await Repository.VideoStream.GetVideoStreamQuery()
             .Where(vs => !vs.IsHidden)
             .OrderBy(vs => vs.User_Tvg_name)
-            .Select(vs => new IdNameUrl(vs.Id, vs.User_Tvg_name, GetVideoStreamUrl(vs, setting, url)))
+            .Select(vs => new IdNameUrl(vs.Id, vs.User_Tvg_name, GetVideoStreamUrl(vs, settings, url)))
             .ToListAsync(cancellationToken: cancellationToken);
 
 

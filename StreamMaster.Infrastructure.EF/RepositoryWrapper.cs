@@ -3,9 +3,7 @@
 using MediatR;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.EF.Repositories;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
@@ -27,7 +25,7 @@ namespace StreamMaster.Infrastructure.EF
         //ISortHelper<StreamGroup> streamGroupSortHelper,
         IMapper mapper,
         IIconService iconService,
-        IMemoryCache memoryCache,
+        IOptionsMonitor<Setting> intsettings,
         ISender sender,
         IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
     {
@@ -37,7 +35,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, repositoryContext, mapper, memoryCache, httpContextAccessor);
+                _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, repositoryContext, mapper, intsettings, httpContextAccessor);
                 return _streamGroup;
             }
         }
@@ -92,7 +90,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _videoStream ??= new VideoStreamRepository(VideoStreamRepositoryLogger, this, schedulesDirectDataService, iconService, repositoryContext, mapper, memoryCache, sender);
+                _videoStream ??= new VideoStreamRepository(VideoStreamRepositoryLogger, this, schedulesDirectDataService, iconService, repositoryContext, mapper, intsettings, sender);
                 return _videoStream;
             }
         }

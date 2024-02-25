@@ -1,7 +1,6 @@
 ﻿using StreamMaster.Application.Services;
+using StreamMaster.Domain.Configuration;
 using StreamMaster.SchedulesDirect;
-
-using static StreamMaster.Application.Settings.Commands.UpdateSettingRequestHandler;
 
 namespace StreamMaster.Application.Settings.Commands;
 
@@ -44,9 +43,11 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public List<string>? NameRegex { get; set; } = [];
 }
 
-public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger<UpdateSettingRequest> Logger, IMapper Mapper, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IMemoryCache MemoryCache)
+public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger<UpdateSettingRequest> Logger, IMapper Mapper, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<Setting> intsettings)
 : IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public static void CopyNonNullFields(SDSettingsRequest source, SDSettings destination)
     {
         if (source == null || destination == null)
@@ -177,7 +178,7 @@ public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue,
 
     public async Task<UpdateSettingResponse> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
     {
-        Setting currentSetting = MemoryCache.GetSetting();
+        Setting currentSetting = settings;
 
         bool needsLogOut = await UpdateSetting(currentSetting, request, cancellationToken);
 
@@ -189,7 +190,7 @@ public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue,
         //    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
         //};
 
-        MemoryCache.SetSetting(currentSetting);
+        // MemoryCache.SetSetting(currentSetting);
         //_ = memoryCache.Set("Setting", currentSetting, cacheEntryOptions);
 
         SettingDto ret = Mapper.Map<SettingDto>(currentSetting);

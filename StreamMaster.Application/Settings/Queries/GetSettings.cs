@@ -1,16 +1,17 @@
-﻿using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Services;
+﻿using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Application.Settings.Queries;
 
 public record GetSettings : IRequest<SettingDto>;
 
-internal class GetSettingsHandler(IMapper mapper, ISettingsService settingsService) : IRequestHandler<GetSettings, SettingDto>
+internal class GetSettingsHandler(IMapper mapper, IOptionsMonitor<Setting> intsettings) : IRequestHandler<GetSettings, SettingDto>
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public async Task<SettingDto> Handle(GetSettings request, CancellationToken cancellationToken)
     {
-        Setting setting = await settingsService.GetSettingsAsync();
-        return mapper.Map<SettingDto>(setting);
+        SettingDto a = mapper.Map<SettingDto>(settings);
+
+        return mapper.Map<SettingDto>(settings);
     }
 }

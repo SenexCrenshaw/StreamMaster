@@ -1,3 +1,4 @@
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;
 using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 
@@ -413,9 +414,9 @@ public sealed class FileUtil
 
             try
             {
-                if (File.Exists(BuildInfo.SettingFile))
+                if (File.Exists(BuildInfo.SettingsFile))
                 {
-                    jsonString = File.ReadAllText(BuildInfo.SettingFile);
+                    jsonString = File.ReadAllText(BuildInfo.SettingsFile);
                     ret = JsonSerializer.Deserialize<Setting>(jsonString);
                     if (ret != null)
                     {
@@ -504,7 +505,7 @@ public sealed class FileUtil
             _ = Directory.CreateDirectory(BuildInfo.AppDataFolder);
         }
         string jsonString = JsonSerializer.Serialize(setting, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(BuildInfo.SettingFile, jsonString);
+        File.WriteAllText(BuildInfo.SettingsFile, jsonString);
     }
 
     private static bool WriteUrlToFile(string filePath, string url)

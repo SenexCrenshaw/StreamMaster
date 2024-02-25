@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Domain.Authentication;
+using StreamMaster.Domain.Configuration;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text.Json;
@@ -24,14 +25,16 @@ public class GetStreamGroupLineupValidator : AbstractValidator<GetStreamGroupLin
 }
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, IIconHelper iconHelper, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper Repository, IMemoryCache memoryCache)
+public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, IIconHelper iconHelper, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intsettings)
     : IRequestHandler<GetStreamGroupLineup, string>
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public async Task<string> Handle(GetStreamGroupLineup request, CancellationToken cancellationToken)
     {
-        Setting setting = memoryCache.GetSetting();
+
         string requestPath = httpContextAccessor.GetUrlWithPathValue();
-        byte[]? iv = requestPath.GetIVFromPath(setting.ServerKey, 128);
+        byte[]? iv = requestPath.GetIVFromPath(settings.ServerKey, 128);
         if (iv == null)
         {
             return "";
@@ -70,7 +73,7 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
         ISchedulesDirectData dummyData = schedulesDirectDataService.DummyData();
         foreach (VideoStreamDto videoStream in videoStreams.OrderBy(a => a.User_Tvg_chno))
         {
-            if (setting.M3UIgnoreEmptyEPGID && string.IsNullOrEmpty(videoStream.User_Tvg_ID))
+            if (settings.M3UIgnoreEmptyEPGID && string.IsNullOrEmpty(videoStream.User_Tvg_ID))
             {
                 continue;
             }
@@ -116,13 +119,13 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
             }
 
             string videoUrl;
-            if (setting.HLS.HLSM3U8Enable)
+            if (settings.HLS.HLSM3U8Enable)
             {
                 videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
             }
             else
             {
-                string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, setting.ServerKey, iv);
+                string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, settings.ServerKey, iv);
 
                 string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
                 videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
@@ -135,7 +138,7 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
             }
             string graceNote = service?.CallSign ?? stationId;
             string id = graceNote;
-            if (setting.M3UUseChnoForId)
+            if (settings.M3UUseChnoForId)
             {
                 id = videoStream.User_Tvg_chno.ToString();
             }

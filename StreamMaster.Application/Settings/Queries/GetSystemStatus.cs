@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.Settings.Queries;
+﻿using StreamMaster.Domain.Configuration;
+
+namespace StreamMaster.Application.Settings.Queries;
 
 public record GetSystemStatus : IRequest<SDSystemStatus>;
 

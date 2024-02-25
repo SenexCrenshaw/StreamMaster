@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Extensions;
+﻿using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.SchedulesDirect;
 public partial class SchedulesDirectAPIService
@@ -15,8 +13,8 @@ public partial class SchedulesDirectAPIService
     /// <returns>true if successful</returns>
     public async Task<bool> GetToken()
     {
-        Setting setting = memoryCache.GetSetting();
-        return setting.SDSettings.SDEnabled && await GetToken(setting.SDSettings.SDUserName, setting.SDSettings.SDPassword);
+
+        return settings.SDSettings.SDEnabled && await GetToken(settings.SDSettings.SDUserName, settings.SDSettings.SDPassword);
     }
 
     public void ClearToken()

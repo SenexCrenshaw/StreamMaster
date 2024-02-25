@@ -1,13 +1,17 @@
-﻿namespace StreamMaster.Application.Settings.Commands;
+﻿using StreamMaster.Domain.Configuration;
+
+namespace StreamMaster.Application.Settings.Commands;
 
 public record AddFFMPEGProfileRequest(string Name, string Parameters, int TimeOut, bool IsM3U8) : IRequest<UpdateSettingResponse> { }
 
-public class AddFFMPEGProfileRequestHandler(ILogger<AddFFMPEGProfileRequest> Logger, IMapper Mapper, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IMemoryCache MemoryCache)
+public class AddFFMPEGProfileRequestHandler(ILogger<AddFFMPEGProfileRequest> Logger, IMapper Mapper, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<Setting> intsettings)
 : IRequestHandler<AddFFMPEGProfileRequest, UpdateSettingResponse>
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public async Task<UpdateSettingResponse> Handle(AddFFMPEGProfileRequest request, CancellationToken cancellationToken)
     {
-        Setting currentSetting = MemoryCache.GetSetting();
+        Setting currentSetting = settings;
 
         FFMPEGProfile profile = new()
         {
@@ -29,7 +33,7 @@ public class AddFFMPEGProfileRequestHandler(ILogger<AddFFMPEGProfileRequest> Log
         Logger.LogInformation("AddFFMPEGProfileRequest");
 
         FileUtil.UpdateSetting(currentSetting);
-        MemoryCache.SetSetting(currentSetting);
+
 
         SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
         return new UpdateSettingResponse { Settings = ret, NeedsLogOut = false };

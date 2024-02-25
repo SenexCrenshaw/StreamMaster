@@ -1,8 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Enums;
+﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;
 
 using System.Diagnostics;
@@ -10,14 +6,15 @@ using System.Runtime.InteropServices;
 
 namespace StreamMaster.Streams.Factories;
 
-public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpClientFactory, IMemoryCache memoryCache) : IProxyFactory
+public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpClientFactory, IOptionsMonitor<Setting> intsettings) : IProxyFactory
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     private StreamingProxyTypes GetStreamingProxyType(StreamingProxyTypes videoStreamStreamingProxyType)
     {
-        Setting setting = memoryCache.GetSetting();
 
         return videoStreamStreamingProxyType == StreamingProxyTypes.SystemDefault
-            ? setting.StreamingProxyType
+            ? settings.StreamingProxyType
             : videoStreamStreamingProxyType;
     }
 
@@ -61,7 +58,6 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
 
     private async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetFFMpegStream(string streamUrl, string streamName)
     {
-        Setting settings = memoryCache.GetSetting();
 
         string ffmpegExec = Path.Combine(BuildInfo.AppDataFolder, settings.FFMPegExecutable);
 
@@ -94,7 +90,6 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
         try
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
-            Setting settings = memoryCache.GetSetting();
 
             string options = string.IsNullOrEmpty(settings.FFMpegOptions) ? BuildInfo.FFMPEGDefaultOptions : settings.FFMpegOptions;
 
@@ -147,7 +142,7 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
 
         try
         {
-            Setting settings = memoryCache.GetSetting();
+
             HttpClient client = CreateHttpClient(settings.StreamingClientUserAgent);
             HttpResponseMessage? response = await client.GetWithRedirectAsync(sourceUrl, cancellationToken: cancellationToken).ConfigureAwait(false);
 

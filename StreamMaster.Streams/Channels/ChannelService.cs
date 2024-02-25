@@ -1,17 +1,15 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
 
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Repository;
+using StreamMaster.Domain.Configuration;
 
 using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Channels;
 
-public sealed class ChannelService(ILogger<ChannelService> logger, IServiceProvider serviceProvider, IMemoryCache memoryCache) : IChannelService
+public sealed class ChannelService(ILogger<ChannelService> logger, IServiceProvider serviceProvider, IOptionsMonitor<Setting> intsettings) : IChannelService
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     private readonly ConcurrentDictionary<string, IChannelStatus> _channelStatuses = new();
 
     private readonly object _disposeLock = new();
@@ -97,7 +95,7 @@ public sealed class ChannelService(ILogger<ChannelService> logger, IServiceProvi
         IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
 
         IChannelStatus? channelStatus = GetChannelStatus(channelVideoStreamId);
-        Setting setting = memoryCache.GetSetting();
+
         (VideoStreamHandlers videoStreamHandler, List<VideoStreamDto> childVideoStreamDtos)? result = await repository.VideoStream.GetStreamsFromVideoStreamById(channelStatus.ChannelVideoStreamId);
         if (result == null)
         {
@@ -129,7 +127,7 @@ public sealed class ChannelService(ILogger<ChannelService> logger, IServiceProvi
             M3UFileDto? m3uFile = m3uFilesRepo.Find(a => a.Id == toReturn.M3UFileId);
             if (m3uFile == null)
             {
-                if (GetGlobalStreamsCount() >= setting.GlobalStreamLimit)
+                if (GetGlobalStreamsCount() >= settings.GlobalStreamLimit)
                 {
                     logger.LogInformation("Max Global stream count {GlobalStreamsCount} reached for stream: {StreamUrl}", GetGlobalStreamsCount(), toReturn.User_Url);
                     continue;

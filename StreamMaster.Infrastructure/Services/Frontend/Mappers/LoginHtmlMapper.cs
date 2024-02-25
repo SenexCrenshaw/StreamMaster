@@ -1,12 +1,13 @@
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Services;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 {
-    public class LoginHtmlMapper(ISettingsService settingsService, ILogger<LoginHtmlMapper> logger) : HtmlMapperBase(logger)
+    public class LoginHtmlMapper(IOptionsMonitor<Setting> intsettings, ILogger<LoginHtmlMapper> logger) : HtmlMapperBase(logger)
     {
+        private readonly Setting settings = intsettings.CurrentValue;
+
         public override bool CanHandle(string resourceUrl)
         {
             return resourceUrl.StartsWith("/login");
@@ -14,8 +15,8 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 
         public override async Task<string> Map(string resourceUrl)
         {
-            Setting setting = await settingsService.GetSettingsAsync();
-            HtmlPath = Path.Combine(BuildInfo.StartUpPath, setting.UiFolder, "login.html");
+
+            HtmlPath = Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, "login.html");
             return HtmlPath;
         }
     }

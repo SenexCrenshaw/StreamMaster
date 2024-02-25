@@ -1,11 +1,10 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
+﻿using StreamMaster.Domain.Configuration;
 
 using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Streams;
 
-public class HLSManager(ILogger<HLSManager> logger, ILogger<HLSHandler> HLSHandlerlogger, ILogger<MP4Handler> MP4Handlerlogger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IMemoryCache memoryCache) : IHLSManager
+public class HLSManager(ILogger<HLSManager> logger, ILogger<HLSHandler> HLSHandlerlogger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IOptionsMonitor<Setting> intsettings) : IHLSManager
 {
     private readonly ConcurrentDictionary<string, IHLSHandler> hlsHandlers = new();
 
@@ -20,7 +19,7 @@ public class HLSManager(ILogger<HLSManager> logger, ILogger<HLSHandler> HLSHandl
 
 
         logger.LogInformation("Adding HLSHandler for {name}", videoStream.User_Tvg_name);
-        HLSHandler hlsHandler = new(HLSHandlerlogger, FFMPEGRunnerlogger, videoStream, memoryCache);
+        HLSHandler hlsHandler = new(HLSHandlerlogger, FFMPEGRunnerlogger, videoStream, intsettings);
         hlsHandler.Start();
         hlsHandler.ProcessExited += (sender, args) =>
         {

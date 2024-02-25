@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
+﻿using StreamMaster.Domain.Configuration;
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -14,15 +13,15 @@ namespace StreamMaster.SchedulesDirect;
 public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
 {
     private readonly ILogger<SchedulesDirectAPIService> logger;
-    private readonly IMemoryCache memoryCache;
+    private readonly Setting settings;
     public HttpClient _httpClient = null!;
-    private readonly SemaphoreSlim tokenSemaphore = new(1, 1);
+
     private const string BaseAddress = "https://json.schedulesdirect.org/20141201/";
 
-    public SchedulesDirectAPIService(ILogger<SchedulesDirectAPIService> logger, IMemoryCache memoryCache)
+    public SchedulesDirectAPIService(ILogger<SchedulesDirectAPIService> logger, IOptionsMonitor<Setting> intsettings)
     {
         this.logger = logger;
-        this.memoryCache = memoryCache;
+        settings = intsettings.CurrentValue;
         CreateHttpClient();
     }
 
@@ -320,7 +319,7 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
 
     private void CreateHttpClient()
     {
-        Setting setting = memoryCache.GetSetting();
+
         _httpClient = new(new HttpClientHandler()
         {
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
@@ -332,7 +331,7 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
         };
         _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
         _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
-        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(setting.ClientUserAgent);
+        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(settings.ClientUserAgent);
         _httpClient.DefaultRequestHeaders.ExpectContinue = true;
     }
 

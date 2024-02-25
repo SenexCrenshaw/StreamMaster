@@ -1,15 +1,14 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
+﻿using StreamMaster.Domain.Configuration;
 
 using System.Diagnostics;
 
 namespace StreamMaster.Streams.Streams;
 
-public class MP4HandlerBase(ILogger logger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, VideoStreamDto videoStream, IMemoryCache memoryCache)
+public class MP4HandlerBase(ILogger logger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, VideoStreamDto videoStream, IOptionsMonitor<Setting> intsettings)
 {
 
     internal readonly CancellationTokenSource HLSCancellationTokenSource = new();
-    internal readonly FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerlogger, memoryCache);
+    internal readonly FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerlogger, intsettings);
     internal bool Started;
 
     public string Id => videoStream.Id;

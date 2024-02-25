@@ -1,5 +1,5 @@
 ﻿using StreamMaster.Domain.Attributes;
-
+using StreamMaster.Domain.Configuration;
 using System.ComponentModel.DataAnnotations;
 
 namespace StreamMaster.Domain.Dto;

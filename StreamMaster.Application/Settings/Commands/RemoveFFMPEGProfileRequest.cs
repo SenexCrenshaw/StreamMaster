@@ -1,13 +1,17 @@
-﻿namespace StreamMaster.Application.Settings.Commands;
+﻿using StreamMaster.Domain.Configuration;
+
+namespace StreamMaster.Application.Settings.Commands;
 
 public record RemoveFFMPEGProfileRequest(string Name) : IRequest<UpdateSettingResponse> { }
 
-public class RemoveFFMPEGProfileRequestHandler(ILogger<RemoveFFMPEGProfileRequest> Logger, IMapper Mapper, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IMemoryCache MemoryCache)
+public class RemoveFFMPEGProfileRequestHandler(ILogger<RemoveFFMPEGProfileRequest> Logger, IMapper Mapper, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<Setting> intsettings)
 : IRequestHandler<RemoveFFMPEGProfileRequest, UpdateSettingResponse>
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public async Task<UpdateSettingResponse> Handle(RemoveFFMPEGProfileRequest request, CancellationToken cancellationToken)
     {
-        Setting currentSetting = MemoryCache.GetSetting();
+        Setting currentSetting = settings;
 
         if (currentSetting.FFMPEGProfiles.TryGetValue(request.Name, out FFMPEGProfile? profile))
         {
@@ -16,7 +20,7 @@ public class RemoveFFMPEGProfileRequestHandler(ILogger<RemoveFFMPEGProfileReques
             Logger.LogInformation("RemoveFFMPEGProfileRequest");
 
             FileUtil.UpdateSetting(currentSetting);
-            MemoryCache.SetSetting(currentSetting);
+
         }
 
         SettingDto retNull = Mapper.Map<SettingDto>(currentSetting);

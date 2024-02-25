@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Application.LogApp;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.EF.PGSQL.Logging;
 

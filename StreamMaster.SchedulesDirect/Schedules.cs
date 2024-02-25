@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-
-using StreamMaster.Domain.Common;
+﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
@@ -10,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.SchedulesDirect;
 
-public class Schedules(ILogger<Schedules> logger, IMemoryCache memoryCache, IEPGHelper ePGHelper, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Schedules> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : ISchedules
+public class Schedules(ILogger<Schedules> logger, IOptionsMonitor<Setting> intsettings, IEPGHelper ePGHelper, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Schedules> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : ISchedules
 {
     private int cachedSchedules;
     private int downloadedSchedules;
@@ -19,11 +17,12 @@ public class Schedules(ILogger<Schedules> logger, IMemoryCache memoryCache, IEPG
     private int processedObjects;
     private int totalObjects;
     private int processStage;
+    private readonly Setting settings = intsettings.CurrentValue;
 
     public async Task<bool> GetAllScheduleEntryMd5S(CancellationToken cancellationToken)
     {
         Dictionary<string, string[]> tempScheduleEntries = [];
-        Setting settings = memoryCache.GetSetting();
+
         int days = settings.SDSettings.SDEPGDays;
         days = Math.Clamp(days, 1, 14);
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();

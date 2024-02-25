@@ -2,12 +2,11 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Models;
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Repository;
 using StreamMaster.Domain.Requests;
 
@@ -17,8 +16,10 @@ using System.Web;
 namespace StreamMaster.API.Controllers;
 
 
-public class VController(IRepositoryWrapper Repository, ISender sender, IMemoryCache memoryCache, IHttpContextAccessor httpContextAccessor) : Controller
+public class VController(IRepositoryWrapper Repository, ISender sender, IOptionsMonitor<Setting> intsettings, IHttpContextAccessor httpContextAccessor) : Controller
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [HttpHead]
@@ -33,11 +34,10 @@ public class VController(IRepositoryWrapper Repository, ISender sender, IMemoryC
             return new NotFoundResult();
         }
 
-        Setting setting = memoryCache.GetSetting();
 
         string videoUrl;
         string url = httpContextAccessor.GetUrl();
-        if (setting.HLS.HLSM3U8Enable)
+        if (settings.HLS.HLSM3U8Enable)
         {
             videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
             return Redirect(videoUrl);
@@ -47,7 +47,7 @@ public class VController(IRepositoryWrapper Repository, ISender sender, IMemoryC
         .Replace("/", "")
         .Replace(" ", "_");
 
-        string encodedNumbers = 0.EncodeValues128(videoStream.Id, setting.ServerKey);
+        string encodedNumbers = 0.EncodeValues128(videoStream.Id, settings.ServerKey);
         videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
         return Redirect(videoUrl);

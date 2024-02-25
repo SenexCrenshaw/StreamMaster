@@ -1,18 +1,21 @@
-﻿using StreamMaster.SchedulesDirect.Helpers;
+﻿using StreamMaster.Domain.Configuration;
+using StreamMaster.SchedulesDirect.Helpers;
 
 namespace StreamMaster.Application.SchedulesDirect.Commands;
 
 public record AddLineup(string lineup) : IRequest<bool>;
 
-public class AddLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusService jobStatusService, ILogger<AddLineup> logger, IMemoryCache memoryCache)
+public class AddLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusService jobStatusService, ILogger<AddLineup> logger, IOptionsMonitor<Setting> intsettings)
 : IRequestHandler<AddLineup, bool>
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public async Task<bool> Handle(AddLineup request, CancellationToken cancellationToken)
     {
         JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
 
-        Setting setting = memoryCache.GetSetting();
-        if (!setting.SDSettings.SDEnabled)
+
+        if (!settings.SDSettings.SDEnabled)
         {
             return false;
         }

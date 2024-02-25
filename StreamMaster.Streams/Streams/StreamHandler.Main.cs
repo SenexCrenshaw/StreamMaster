@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Models;
+﻿using StreamMaster.Domain.Configuration;
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -19,11 +16,11 @@ public sealed partial class StreamHandler : IStreamHandler
     private readonly ILogger<WriteLogger> _writeLogger;
 
     private readonly ConcurrentDictionary<Guid, IClientStreamerConfiguration> clientStreamerConfigs = new();
-    private readonly IMemoryCache memoryCache;
     private readonly ILogger<IStreamHandler> logger;
 
     private readonly IInputStatisticsManager inputStatisticsManager;
     private readonly IInputStreamingStatistics inputStreamStatistics;
+    private readonly Setting settings;
 
     public VideoStreamDto VideoStreamDto { get; }
     public int M3UFileId { get; }
@@ -53,9 +50,9 @@ public sealed partial class StreamHandler : IStreamHandler
     /// <param name="memoryCache">An IMemoryCache instance for caching purposes within the stream handler.</param>
     /// <param name="loggerFactory">An ILoggerFactory instance used to create loggers for logging information and events.</param>
     /// <param name="inputStatisticsManager">An IInputStatisticsManager instance for managing and tracking input statistics.</param>
-    public StreamHandler(VideoStreamDto videoStreamDto, int processId, string channelId, string channelName, int rank, IMemoryCache memoryCache, ILoggerFactory loggerFactory, IInputStatisticsManager inputStatisticsManager)
+    public StreamHandler(VideoStreamDto videoStreamDto, int processId, string channelId, string channelName, int rank, IOptionsMonitor<Setting> intsettings, ILoggerFactory loggerFactory, IInputStatisticsManager inputStatisticsManager)
     {
-        this.memoryCache = memoryCache;
+        settings = intsettings.CurrentValue;
         logger = loggerFactory.CreateLogger<StreamHandler>();
         VideoStreamDto = videoStreamDto;
         M3UFileId = videoStreamDto.M3UFileId;

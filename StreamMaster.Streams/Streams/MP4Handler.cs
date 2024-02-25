@@ -1,11 +1,8 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Models;
+﻿using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Streams.Streams;
-public class MP4Handler(ILogger<MP4Handler> logger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, VideoStreamDto parentvideoStream, IMemoryCache memoryCache)
-    : MP4HandlerBase(logger, FFMPEGRunnerlogger, parentvideoStream, memoryCache), IHLSHandler, IDisposable
+public class MP4Handler(ILogger<MP4Handler> logger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, VideoStreamDto parentvideoStream, IOptionsMonitor<Setting> intsettings)
+    : MP4HandlerBase(logger, FFMPEGRunnerlogger, parentvideoStream, intsettings), IHLSHandler, IDisposable
 {
     public event EventHandler<ProcessExitEventArgs> ProcessExited;
 

@@ -9,7 +9,7 @@ using StreamMaster.Domain.Services;
 
 namespace StreamMaster.Infrastructure.Services;
 
-public class VideoStreamService(IServiceProvider serviceProvider, IMemoryCache cache, ISender sender) : IVideoStreamService
+public class VideoStreamService(IServiceProvider serviceProvider, IMemoryCache cache) : IVideoStreamService
 {
     public void RemoveVideoStreamDto(string videoStreamId)
     {

@@ -1,11 +1,10 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-
-using StreamMaster.Domain.Cache;
+﻿using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Domain.Logging;
 
-public class LoggingUtils(IMemoryCache memoryCache) : ILoggingUtils
+public class LoggingUtils(IOptionsMonitor<Setting> intsettings) : ILoggingUtils
 {
+    private readonly Setting settings = intsettings.CurrentValue;
     private bool? _cleanUrlsCache;
 
     public string GetLoggableURL(string sourceUrl)
@@ -22,7 +21,6 @@ public class LoggingUtils(IMemoryCache memoryCache) : ILoggingUtils
 
     private async Task<bool> LoadCleanUrlsSettingAsync()
     {
-        Setting settings = memoryCache.GetSetting();
         return settings.CleanURLs;
     }
 

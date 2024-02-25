@@ -7,7 +7,6 @@ using StreamMaster.Application.VideoStreams.Commands;
 using StreamMaster.Application.VideoStreams.Queries;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Pagination;
 using StreamMaster.Domain.Requests;
 using StreamMaster.Infrastructure.Clients;
@@ -85,10 +84,9 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     private StreamingProxyTypes GetStreamingProxyType(VideoStreamDto videoStream)
     {
-        Setting setting = MemoryCache.GetSetting();
 
         return videoStream.StreamingProxyType == StreamingProxyTypes.SystemDefault
-            ? setting.StreamingProxyType
+            ? Settings.StreamingProxyType
             : videoStream.StreamingProxyType;
     }
 

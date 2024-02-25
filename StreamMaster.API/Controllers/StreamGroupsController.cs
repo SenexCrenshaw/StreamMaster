@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Application.StreamGroups;
@@ -18,7 +17,7 @@ using System.Web;
 
 namespace StreamMaster.API.Controllers;
 
-public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextAccessor httpContextAccessor, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, IMemoryCache memoryCache) : ApiControllerBase, IStreamGroupController
+public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextAccessor httpContextAccessor, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService) : ApiControllerBase, IStreamGroupController
 {
 
     //private static int GenerateMediaSequence()
@@ -75,7 +74,7 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
             return NotFound();
         }
 
-        Setting setting = memoryCache.GetSetting();
+
         int epgNumber = EPGHelper.DummyId;
 
         foreach (VideoStreamDto videoStream in videoStreams)
@@ -106,7 +105,7 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
             string graceNote = service?.CallSign ?? stationId;
 
             string id = graceNote;
-            if (setting.M3UUseChnoForId)
+            if (Settings.M3UUseChnoForId)
             {
                 id = videoStream.User_Tvg_chno.ToString();
             }
@@ -114,7 +113,7 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
             {
                 string url = httpContextAccessor.GetUrl();
                 string videoUrl;
-                if (setting.HLS.HLSM3U8Enable)
+                if (Settings.HLS.HLSM3U8Enable)
                 {
                     videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
                     return Redirect(videoUrl);
@@ -124,7 +123,7 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
                     .Replace("/", "")
                     .Replace(" ", "_");
 
-                string encodedNumbers = ((int)streamGroupId).EncodeValues128(videoStream.Id, setting.ServerKey);
+                string encodedNumbers = ((int)streamGroupId).EncodeValues128(videoStream.Id, Settings.ServerKey);
                 videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
                 return Redirect(videoUrl);

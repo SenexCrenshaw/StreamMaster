@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Comparer;
+﻿using StreamMaster.Domain.Comparer;
+using StreamMaster.Domain.Configuration;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Collections.Concurrent;
@@ -9,8 +7,10 @@ using System.Diagnostics;
 using System.Globalization;
 
 namespace StreamMaster.SchedulesDirect.Converters;
-public class XMLTVBuilder(IMemoryCache memoryCache, IIconHelper iconHelper, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger) : IXMLTVBuilder
+public class XMLTVBuilder(IOptionsMonitor<Setting> intsettings, IIconHelper iconHelper, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger) : IXMLTVBuilder
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     private string _baseUrl = "";
     //private ISchedulesDirectDataService schedulesDirectDataService;
     private static Dictionary<int, MxfSeriesInfo> seriesDict = [];
@@ -42,7 +42,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IIconHelper iconHelper, IEPG
                 Programs = []
             };
 
-            Setting settings = memoryCache.GetSetting();
+
             List<MxfService> toProcess = [];
 
             int newServiceCount = 0;
@@ -199,7 +199,6 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IIconHelper iconHelper, IEPG
                 Programs = []
             };
 
-            Setting settings = memoryCache.GetSetting();
 
             // Pre-process all keywords into a HashSet for faster lookup
             keywordDict = schedulesDirectDataService.AllKeywords
@@ -248,7 +247,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IIconHelper iconHelper, IEPG
     private void DoPrograms(List<MxfService> services, int progCount, XMLTV xmlTv)
     {
 
-        Setting settings = memoryCache.GetSetting();
+
         ParallelOptions options = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
 
         try
@@ -315,7 +314,6 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IIconHelper iconHelper, IEPG
     #region ========== XMLTV Channels and Functions ==========
     private XmltvChannel BuildXmltvChannel(MxfService mxfService)
     {
-        Setting settings = memoryCache.GetSetting();
 
         string id = mxfService.CallSign;
         if (settings.M3UUseChnoForId)
@@ -399,7 +397,7 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IIconHelper iconHelper, IEPG
     //[LogExecutionTimeAspect]
     public XmltvProgramme BuildXmltvProgram(MxfScheduleEntry scheduleEntry, string channelId)
     {
-        Setting settings = memoryCache.GetSetting();
+
         MxfProgram mxfProgram = scheduleEntry.mxfProgram;
 
         string descriptionExtended = settings.SDSettings.XmltvExtendedInfoInTitleDescriptions
@@ -763,7 +761,6 @@ public class XMLTVBuilder(IMemoryCache memoryCache, IIconHelper iconHelper, IEPG
     // Icons    
     private List<XmltvIcon>? BuildProgramIcons(MxfProgram mxfProgram)
     {
-        Setting settings = memoryCache.GetSetting();
 
         if (settings.SDSettings.XmltvSingleImage || !mxfProgram.extras.ContainsKey("artwork"))
         {

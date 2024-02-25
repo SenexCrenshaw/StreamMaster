@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Services;
 
 using StreamMaster.Infrastructure.Extensions;
 
@@ -18,16 +17,18 @@ public interface IAuthenticationService
     void LogUnauthorized(HttpRequest context);
 }
 
-public class AuthenticationService(ILogger<AuthenticationService> logger, ISettingsService settingsService) : IAuthenticationService
+public class AuthenticationService(ILogger<AuthenticationService> logger, IOptionsMonitor<Setting> intsettings) : IAuthenticationService
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     private async Task<AuthenticationType> GetAuthMethod()
     {
-        Setting setting = await settingsService.GetSettingsAsync();
-        string AdminPassword = setting.AdminPassword;
-        string AdminUserName = setting.AdminUserName;
+
+        string AdminPassword = settings.AdminPassword;
+        string AdminUserName = settings.AdminUserName;
         AuthenticationType authMethod = AuthenticationType.None;
         if (
-            setting.AuthenticationMethod != AuthenticationType.None &&
+            settings.AuthenticationMethod != AuthenticationType.None &&
             !string.IsNullOrEmpty(AdminPassword) && !string.IsNullOrEmpty(AdminUserName)
             )
         {
@@ -37,9 +38,9 @@ public class AuthenticationService(ILogger<AuthenticationService> logger, ISetti
     }
     public async Task<User> Login(HttpRequest request, string username, string password)
     {
-        Setting setting = await settingsService.GetSettingsAsync();
-        string AdminPassword = setting.AdminPassword;
-        string AdminUserName = setting.AdminUserName;
+
+        string AdminPassword = settings.AdminPassword;
+        string AdminUserName = settings.AdminUserName;
         AuthenticationType authMethod = await GetAuthMethod();
 
         if (authMethod == AuthenticationType.None)

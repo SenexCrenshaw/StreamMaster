@@ -22,9 +22,8 @@ public partial class StreamMasterHub : ISettingHub
 
     public async Task<bool> LogIn(LogInRequest logInRequest)
     {
-        Setting setting = await settingsService.GetSettingsAsync();
 
-        return setting.AdminUserName == logInRequest.UserName && setting.AdminPassword == logInRequest.Password;
+        return settings.AdminUserName == logInRequest.UserName && settings.AdminPassword == logInRequest.Password;
     }
 
     public async Task<UpdateSettingResponse> RemoveFFMPEGProfile(RemoveFFMPEGProfileRequest request)

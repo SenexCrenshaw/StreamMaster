@@ -1,5 +1,6 @@
 ﻿using StreamMaster.Application.General.Queries;
 using StreamMaster.Application.Services;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Application.Hubs;
 
@@ -21,9 +22,10 @@ public class SignalRMessage
     public ModelAction Action { get; set; }
 }
 
-public partial class StreamMasterHub(ISender mediator, ISettingsService settingsService, IBackgroundTaskQueue taskQueue) : Hub<IStreamMasterHub>, ISharedHub
+public partial class StreamMasterHub(ISender mediator, IBackgroundTaskQueue taskQueue, IOptionsMonitor<Setting> intsettings) : Hub<IStreamMasterHub>, ISharedHub
 {
     private static readonly ConcurrentHashSet<string> _connections = [];
+    private readonly Setting settings = intsettings.CurrentValue;
 
     public static bool IsConnected
     {

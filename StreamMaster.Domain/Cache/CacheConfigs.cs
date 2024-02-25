@@ -31,12 +31,12 @@ internal static class ChannelGroupStreamCountsConfig
     public static readonly object Lock = new();
 }
 
-internal static class SettingConfig
-{
-    public static readonly MemoryCacheEntryOptions CacheEntryOptions = CacheManagerExtensions.NeverRemoveCacheEntryOptions;
-    public static readonly string Key = "Setting";
-    public static readonly object Lock = new();
-}
+//internal static class SettingConfig
+//{
+//    public static readonly MemoryCacheEntryOptions CacheEntryOptions = CacheManagerExtensions.NeverRemoveCacheEntryOptions;
+//    public static readonly string Key = "Setting";
+//    public static readonly object Lock = new();
+//}
 
 internal static class IconsConfig
 {

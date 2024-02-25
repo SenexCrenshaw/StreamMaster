@@ -1,13 +1,14 @@
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Services;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 {
-    public class IndexHtmlMapper(ISettingsService settingsService,
+    public class IndexHtmlMapper(IOptionsMonitor<Setting> intsettings,
                            ILogger<IndexHtmlMapper> logger) : HtmlMapperBase(logger)
     {
+        private readonly Setting settings = intsettings.CurrentValue;
+
         public override bool CanHandle(string resourceUrl)
         {
             resourceUrl = resourceUrl.ToLowerInvariant();
@@ -20,8 +21,8 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 
         public override async Task<string> Map(string resourceUrl)
         {
-            Setting setting = await settingsService.GetSettingsAsync();
-            string HtmlPath = Path.Combine(BuildInfo.StartUpPath, setting.UiFolder, "index.html");
+
+            string HtmlPath = Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, "index.html");
             return HtmlPath;
         }
     }

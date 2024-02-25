@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Streams.Domain.Interfaces;
 using StreamMaster.Streams.Domain.Models;
 using StreamMaster.Streams.Streams;
@@ -9,7 +8,7 @@ using StreamMaster.Streams.Streams;
 
 namespace StreamMaster.API.Controllers
 {
-    public class StreamController(ILogger<StreamController> logger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IChannelService channelService, IVideoStreamService videoStreamService, IAccessTracker accessTracker, IHLSManager hLsManager, IMemoryCache memoryCache) : ApiControllerBase
+    public class StreamController(ILogger<StreamController> logger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IChannelService channelService, IVideoStreamService videoStreamService, IAccessTracker accessTracker, IHLSManager hLsManager) : ApiControllerBase
     {
         [Authorize(Policy = "SGLinks")]
         [HttpGet]
@@ -33,16 +32,15 @@ namespace StreamMaster.API.Controllers
             IHLSHandler hlsHandler = await hLsManager.GetOrAdd(channelStatus.CurrentVideoStream);
 
             string m3u8File = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.CurrentVideoStream.Id, $"index.m3u8");
-            Setting setting = memoryCache.GetSetting();
 
-            if (!await FileUtil.WaitForFileAsync(m3u8File, setting.HLS.HLSM3U8CreationTimeOutInSeconds, 100, cancellationToken))
+            if (!await FileUtil.WaitForFileAsync(m3u8File, Settings.HLS.HLSM3U8CreationTimeOutInSeconds, 100, cancellationToken))
             {
                 logger.LogWarning("HLS segment not found {FileName}, exiting", m3u8File);
                 hLsManager.Stop(channelStatus.CurrentVideoStream.Id);
                 return NotFound();
             }
 
-            accessTracker.UpdateAccessTime(channelStatus.CurrentVideoStream.Id, TimeSpan.FromSeconds(setting.HLS.HLSM3U8ReadTimeOutInSeconds));
+            accessTracker.UpdateAccessTime(channelStatus.CurrentVideoStream.Id, TimeSpan.FromSeconds(Settings.HLS.HLSM3U8ReadTimeOutInSeconds));
 
             HttpContext.Response.Headers.Connection = "close";
             HttpContext.Response.Headers.AccessControlAllowOrigin = "*";
@@ -68,8 +66,8 @@ namespace StreamMaster.API.Controllers
             }
             try
             {
-                Setting setting = memoryCache.GetSetting();
-                accessTracker.UpdateAccessTime(videoStreamId, TimeSpan.FromSeconds(setting.HLS.HLSTSReadTimeOutInSeconds));
+
+                accessTracker.UpdateAccessTime(videoStreamId, TimeSpan.FromSeconds(Settings.HLS.HLSTSReadTimeOutInSeconds));
 
                 HttpContext.Response.Headers.Connection = "close";
                 HttpContext.Response.Headers.AccessControlAllowOrigin = "*";
@@ -100,13 +98,13 @@ namespace StreamMaster.API.Controllers
 
             try
             {
-                Setting setting = memoryCache.GetSetting();
+
                 HttpRequest request = HttpContext.Request;
                 string url = GetUrl(request);
                 url += "/api/stream/" + videoStreamId + ".m3u8";
 
                 logger.LogInformation("Adding MP4Handler for {name}", videoStreamDto.User_Tvg_name);
-                FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerlogger, memoryCache);
+                FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerlogger, intsettings);
                 ffmpegRunner.ProcessExited += (sender, args) =>
                 {
                     logger.LogInformation("MP4Handler Process Exited for {Name} with exit code {ExitCode}", videoStreamDto.User_Tvg_name, args.ExitCode);

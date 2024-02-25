@@ -1,14 +1,18 @@
-﻿namespace StreamMaster.Application.SchedulesDirect.Commands;
+﻿using StreamMaster.Domain.Configuration;
+
+namespace StreamMaster.Application.SchedulesDirect.Commands;
 
 public record EPGSync() : IRequest<bool>;
 
-public class SDSyncHandler(ISchedulesDirect schedulesDirect, ILogger<EPGSync> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IMemoryCache memoryCache)
+public class SDSyncHandler(ISchedulesDirect schedulesDirect, ILogger<EPGSync> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<Setting> intsettings)
 : IRequestHandler<EPGSync, bool>
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public async Task<bool> Handle(EPGSync request, CancellationToken cancellationToken)
     {
-        Setting setting = memoryCache.GetSetting();
-        if (setting.SDSettings.SDEnabled)
+
+        if (settings.SDSettings.SDEnabled)
         {
             if (await schedulesDirect.SDSync(cancellationToken).ConfigureAwait(false))
             {

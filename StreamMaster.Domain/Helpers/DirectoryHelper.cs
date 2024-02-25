@@ -1,5 +1,5 @@
 ﻿using StreamMaster.Domain.Attributes;
-
+using StreamMaster.Domain.Configuration;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -23,7 +23,7 @@ public static class DirectoryHelper
         }
         setupDirectories = true;
 
-        Log($"Using settings file {BuildInfo.SettingFile}");
+        Log($"Using settings file {BuildInfo.SettingsFile}");
 
         Type targetType = typeof(BuildInfo);
 
@@ -85,7 +85,6 @@ public static class DirectoryHelper
             }
         }
     }
-
 
     public static void DeleteDirectory(string directoryPath)
     {

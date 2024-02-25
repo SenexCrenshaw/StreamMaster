@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Extensions;
@@ -15,7 +15,7 @@ using System.Diagnostics;
 using System.Web;
 
 namespace StreamMaster.Infrastructure.Services;
-public class IconService(IMapper mapper, IMemoryCache memoryCache, ILogger<IconService> logger) : IIconService
+public class IconService(IMapper mapper, IOptionsMonitor<Setting> intsettings, ILogger<IconService> logger) : IIconService
 {
     private ConcurrentDictionary<string, IconFileDto> Icons { get; set; } = [];
     private ConcurrentDictionary<string, TvLogoFile> TvLogos { get; set; } = [];

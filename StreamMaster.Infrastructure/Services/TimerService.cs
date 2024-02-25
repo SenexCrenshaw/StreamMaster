@@ -1,7 +1,6 @@
 ﻿using MediatR;
 
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -15,8 +14,8 @@ using StreamMaster.Application.M3UFiles.Queries;
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.Services;
 using StreamMaster.Application.Settings.Queries;
-using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Repository;
@@ -26,9 +25,10 @@ using StreamMaster.SchedulesDirect.Helpers;
 
 namespace StreamMaster.Infrastructure.Services;
 
-public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryCache, IJobStatusService jobStatusService, ILogger<TimerService> logger) : IHostedService, IDisposable
+public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Setting> intsettings, IJobStatusService jobStatusService, ILogger<TimerService> logger) : IHostedService, IDisposable
 {
     private readonly object Lock = new();
+    private readonly Setting settings = intsettings.CurrentValue;
 
     private Timer? _timer;
     private bool isActive = false;
@@ -92,7 +92,7 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
         ISchedulesDirect schedulesDirect = scope.ServiceProvider.GetRequiredService<ISchedulesDirect>();
 
 
-        Setting setting = memoryCache.GetSetting();
+
         DateTime now = DateTime.Now;
 
         JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
@@ -109,7 +109,7 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
                         jobManager.ClearForce();
                     }
 
-                    if (setting.SDSettings.SDEnabled)
+                    if (settings.SDSettings.SDEnabled)
                     {
                         logger.LogInformation("SDSync started. {status}", jobManager.Status);
 
@@ -176,7 +176,7 @@ public class TimerService(IServiceProvider serviceProvider, IMemoryCache memoryC
         }
 
         jobManager = jobStatusService.GetJobManager(JobType.TimerBackup, 0);
-        if (setting.BackupEnabled && !jobManager.IsRunning && LastBackupTime.AddHours(setting.BackupInterval) <= DateTime.UtcNow)
+        if (settings.BackupEnabled && !jobManager.IsRunning && LastBackupTime.AddHours(settings.BackupInterval) <= DateTime.UtcNow)
         {
             try
             {

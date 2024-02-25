@@ -1,19 +1,16 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Models;
+﻿using StreamMaster.Domain.Configuration;
 
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace StreamMaster.Streams.Streams;
-public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache)
+public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting> intsettings)
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public event EventHandler<ProcessExitEventArgs> ProcessExited;
     private string? GetFFPMpegExec()
     {
-        Setting settings = memoryCache.GetSetting();
 
         string ffmpegExec = Path.Combine(BuildInfo.AppDataFolder, settings.FFMPegExecutable);
 
@@ -72,8 +69,6 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
 
                 return (-1, error);
             }
-
-            Setting settings = memoryCache.GetSetting();
 
             string outputdir = Path.Combine(BuildInfo.HLSOutputFolder, videoStream.Id);
 
@@ -154,7 +149,6 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
             }
 
             Stopwatch stopwatch = Stopwatch.StartNew();
-            Setting settings = memoryCache.GetSetting();
 
             string options = string.IsNullOrEmpty(settings.FFMpegOptions) ? BuildInfo.FFMPEGDefaultOptions : settings.FFMpegOptions;
 
