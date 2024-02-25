@@ -16,7 +16,7 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
 
         logger.LogInformation($"Stream Master is starting.");
 
-        DirectoryHelper.EmptyDirectory(BuildInfo.HLSOutputFolder, logger);
+        DirectoryHelper.EmptyDirectory(BuildInfo.HLSOutputFolder);
 
         using IServiceScope scope = serviceProvider.CreateScope();
         PGSQLRepositoryContext repositoryContext = scope.ServiceProvider.GetRequiredService<PGSQLRepositoryContext>();

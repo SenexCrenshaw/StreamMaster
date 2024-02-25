@@ -3,16 +3,33 @@ import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import StreamGroupAddDialog from '@components/streamGroup/StreamGroupAddDialog';
 import StreamGroupDeleteDialog from '@components/streamGroup/StreamGroupDeleteDialog';
 import StreamGroupEditDialog from '@components/streamGroup/StreamGroupEditDialog';
-import { StreamGroupDto, useStreamGroupsGetPagedStreamGroupsQuery } from '@lib/iptvApi';
+import { StreamGroupDto, useStreamGroupsGetPagedStreamGroupsQuery, useStreamGroupsGetStreamGroupQuery } from '@lib/iptvApi';
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
-import { memo, useMemo, type CSSProperties } from 'react';
-
+import { skipToken } from '@reduxjs/toolkit/dist/query/react';
+import { memo, useEffect, useMemo, type CSSProperties } from 'react';
 export interface StreamGroupDataSelectorProperties {
   readonly id: string;
 }
 
 const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
-  const { setSelectedStreamGroup } = useSelectedStreamGroup(id);
+  const { selectedStreamGroup, setSelectedStreamGroup } = useSelectedStreamGroup(id);
+
+  const testq = useStreamGroupsGetStreamGroupQuery(selectedStreamGroup?.id ?? skipToken);
+
+  useEffect(() => {
+    if (testq.data !== undefined && selectedStreamGroup.id !== undefined) {
+      if (testq.data.ffmpegProfileId !== selectedStreamGroup.ffmpegProfileId) {
+        setSelectedStreamGroup(testq.data);
+      }
+      if (testq.data.name !== selectedStreamGroup.name) {
+        setSelectedStreamGroup(testq.data);
+      }
+
+      if (testq.data.streamCount !== selectedStreamGroup.streamCount) {
+        setSelectedStreamGroup(testq.data);
+      }
+    }
+  }, [selectedStreamGroup, setSelectedStreamGroup, testq.data]);
 
   const StreamGroupColumns = useMemo(
     (): ColumnMeta[] => [

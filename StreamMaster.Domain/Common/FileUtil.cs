@@ -1,5 +1,4 @@
 using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Models;
 using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 
 using System.Diagnostics;
@@ -14,7 +13,7 @@ namespace StreamMaster.Domain.Common;
 
 public sealed class FileUtil
 {
-    private static bool setupDirectories = false;
+
 
     public static async Task<bool> WaitForFileAsync(string filePath, int timeoutSeconds, int checkIntervalMilliseconds, CancellationToken cancellationToken)
     {
@@ -159,33 +158,33 @@ public sealed class FileUtil
     //    return textWriter.ToString();
     //}
 
-    public static void CreateDirectory(string fileName)
-    {
-        string? directory = Path.EndsInDirectorySeparator(fileName) ? fileName : Path.GetDirectoryName(fileName);
-        if (directory == null || string.IsNullOrEmpty(directory))
-        {
-            return;
-        }
+    //public static void CreateDirectory(string fileName)
+    //{
+    //    string? directory = Path.EndsInDirectorySeparator(fileName) ? fileName : Path.GetDirectoryName(fileName);
+    //    if (directory == null || string.IsNullOrEmpty(directory))
+    //    {
+    //        return;
+    //    }
 
-        if (!IsSubdirectory(directory, BuildInfo.AppDataFolder))
-        {
-            throw new Exception($"Illegal directory outside of {BuildInfo.AppDataFolder} : {directory}");
-        }
+    //    if (!IsSubdirectory(directory, BuildInfo.AppDataFolder))
+    //    {
+    //        throw new Exception($"Illegal directory outside of {BuildInfo.AppDataFolder} : {directory}");
+    //    }
 
-        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-        {
-            _ = Directory.CreateDirectory(directory);
-        }
-    }
-    public static bool IsSubdirectory(string candidate, string parent)
-    {
-        candidate = Path.GetFullPath(candidate).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-                                    .ToLowerInvariant();
-        parent = Path.GetFullPath(parent).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-                                .ToLowerInvariant();
+    //    if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+    //    {
+    //        _ = Directory.CreateDirectory(directory);
+    //    }
+    //}
+    //public static bool IsSubdirectory(string candidate, string parent)
+    //{
+    //    candidate = Path.GetFullPath(candidate).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+    //                                .ToLowerInvariant();
+    //    parent = Path.GetFullPath(parent).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+    //                            .ToLowerInvariant();
 
-        return candidate.StartsWith(parent);
-    }
+    //    return candidate.StartsWith(parent);
+    //}
 
     public static async Task<(bool success, Exception? ex)> DownloadUrlAsync(string url, string fullName, CancellationToken cancellationdefault)
     {
@@ -496,56 +495,6 @@ public sealed class FileUtil
         }
     }
 
-    public static void SetupDirectories(bool alwaysRun = false)
-    {
-        if (setupDirectories && !alwaysRun)
-        {
-            return;
-        }
-        setupDirectories = true;
-
-
-        Console.WriteLine($"Using settings file {BuildInfo.SettingFile}");
-        CreateDir(BuildInfo.AppDataFolder);
-        CreateDir(BuildInfo.CacheFolder);
-        CreateDir(BuildInfo.PlayListFolder);
-        CreateDir(BuildInfo.IconDataFolder);
-        CreateDir(BuildInfo.ChannelIconDataFolder);
-        CreateDir(BuildInfo.ProgrammeIconDataFolder);
-        CreateDir(BuildInfo.EPGFolder);
-        CreateDir(BuildInfo.M3UFolder);
-        CreateDir(BuildInfo.SDImagesFolder);
-        CreateDir(BuildInfo.SDStationLogos);
-        CreateDir(BuildInfo.SDStationLogosCache);
-        CreateDir(BuildInfo.SDJSONFolder);
-        CreateDir(BuildInfo.LogFolder);
-        CreateDir(BuildInfo.BackupPath);
-        CreateDir(BuildInfo.HLSOutputFolder);
-
-        for (char c = '0'; c <= '9'; c++)
-        {
-            string subdirectoryName = c.ToString();
-            string subdirectoryPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName);
-
-            // Create the subdirectory if it doesn't exist
-            if (!Directory.Exists(subdirectoryPath))
-            {
-                Directory.CreateDirectory(subdirectoryPath);
-            }
-        }
-
-        for (char c = 'a'; c <= 'f'; c++)
-        {
-            string subdirectoryName = c.ToString();
-            string subdirectoryPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName);
-
-            // Create the subdirectory if it doesn't exist
-            if (!Directory.Exists(subdirectoryPath))
-            {
-                Directory.CreateDirectory(subdirectoryPath);
-            }
-        }
-    }
 
 
     public static void UpdateSetting(Setting setting)
@@ -572,11 +521,5 @@ public sealed class FileUtil
             Console.WriteLine("An error occurred while writing the URL to the file: " + ex.Message);
             return false;
         }
-    }
-
-    private static void CreateDir(string directory)
-    {
-        Console.WriteLine($"Checking directory for {directory}");
-        CreateDirectory(directory);
     }
 }

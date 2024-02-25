@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Helpers;
 using StreamMaster.Infrastructure.EF.PGSQL.Logging;
 
 namespace StreamMaster.Infrastructure.EF;
@@ -35,6 +36,6 @@ public class LogDbContextInitialiser
 
     public void TrySeed()
     {
-        FileUtil.SetupDirectories();
+        DirectoryHelper.CreateApplicationDirectories();
     }
 }

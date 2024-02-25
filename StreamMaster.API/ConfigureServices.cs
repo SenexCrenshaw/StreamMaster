@@ -20,9 +20,7 @@ using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Application.Hubs;
 using StreamMaster.Application.Services;
 using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.EnvironmentInfo;
 using StreamMaster.Domain.Logging;
-using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.Authentication;
 using StreamMaster.Infrastructure.EF.PGSQL;
@@ -148,8 +146,6 @@ public static class ConfigureServices
             })
             .AddApplicationPart(typeof(StaticResourceController).Assembly)
             .AddControllersAsServices();
-
-        services.AddSingleton<IAppFolderInfo, AppFolderInfo>();
 
         services.AddScoped<IAuthenticationService, AuthenticationService>();
 

@@ -32,6 +32,7 @@ namespace StreamMaster.Domain.Common
         public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         public static bool IsOSX => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
         public static bool IsFreeBSD => RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD);
+        public static string StartUpPath = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName;
 
         private static DateTime _startTime;
 
@@ -115,8 +116,7 @@ namespace StreamMaster.Domain.Common
 
         #region File and Directory Path Fields
 
-        public static string AppDataFolder { get; private set; } = $"{Path.DirectorySeparatorChar}config{Path.DirectorySeparatorChar}";
-
+        public static string AppDataFolder { get; private set; } = IsWindows ? $"c:{Path.DirectorySeparatorChar}config{Path.DirectorySeparatorChar}" : $"{Path.DirectorySeparatorChar}config{Path.DirectorySeparatorChar}";
         public static readonly string DataFolder = Path.Combine(AppDataFolder, "DB");
         public static readonly string CacheFolder = Path.Combine(AppDataFolder, "Cache");
         public static readonly string LogFolder = Path.Combine(AppDataFolder, "Logs");
@@ -126,26 +126,37 @@ namespace StreamMaster.Domain.Common
         public static readonly string ChannelIconDataFolder = Path.Combine(CacheFolder, "ChannelIcons");
         public static readonly string ProgrammeIconDataFolder = Path.Combine(CacheFolder, "ProgrammeIcons");
         public static readonly string SDJSONFolder = Path.Combine(CacheFolder, "SDJson");
-        public static readonly string SDStationLogos = Path.Combine(CacheFolder, "SDStationLogos");
-        public static readonly string SDStationLogosCache = Path.Combine(CacheFolder, "SDStationLogosCache");
+        public static readonly string SDStationLogosFolder = Path.Combine(CacheFolder, "SDStationLogos");
+        public static readonly string SDStationLogosCacheFolder = Path.Combine(CacheFolder, "SDStationLogosCache");
         public static readonly string SDImagesFolder = Path.Combine(CacheFolder, "SDImages");
-        public static readonly string SDEPGCacheFile = Path.Combine(SDJSONFolder, "epgCache.json");
         public static readonly string EPGFolder = Path.Combine(PlayListFolder, "EPG");
         public static readonly string M3UFolder = Path.Combine(PlayListFolder, "M3U");
-        public static readonly string SettingFileName = "settings.json";
-        public static readonly string LoggingFileName = "logsettings.json";
-        public static readonly string SettingFile = Path.Combine(AppDataFolder, SettingFileName);
         public static readonly string HLSOutputFolder = Path.Combine(AppDataFolder, "hls");
-        public static readonly string LoggingFile = File.Exists(Path.Combine(AppDataFolder, LoggingFileName)) ? Path.Combine(AppDataFolder, LoggingFileName) : LoggingFileName;
+        public static readonly string BackupFolder = Path.Combine(AppDataFolder, "backups");
+
+        public static readonly string SDEPGCacheFile = Path.Combine(SDJSONFolder, "epgCache.json");
         public static readonly string IconDefault = Path.Combine("images", "default.png");
         public static readonly string FFMPEGDefaultOptions = "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1";
         public static readonly string LogFilePath = Path.Combine(LogFolder, "StreamMasterAPI.log");
-        public static readonly string BackupPath = Path.Combine(AppDataFolder, "backups");
+
+        public static readonly string LoggingFileName = "logsettings.json";
+        public static readonly string LoggingFile = GetSettingFilePath(LoggingFileName);
+
+        public static readonly string SettingFileName = "settings.json";
+        public static readonly string SettingFile = GetSettingFilePath(SettingFileName);
+
+        public static readonly string ProfileFileName = "profiles.json";
+        public static readonly string ProfileFile = GetSettingFilePath(ProfileFileName);
 
         #endregion
 
 
         #region Helper Methods
+
+        private static string GetSettingFilePath(string settingFileName)
+        {
+            return File.Exists(Path.Combine(AppDataFolder, settingFileName)) ? Path.Combine(AppDataFolder, settingFileName) : settingFileName;
+        }
 
         /// <summary>
         /// Initializes paths for various application data folders.

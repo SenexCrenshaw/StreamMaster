@@ -15,6 +15,7 @@ import { BackupSettings } from './BackupSettings';
 import { DevelopmentSettings } from './DevelopmentSettings';
 import { FilesEPGM3USettings } from './FilesEPGM3USettings';
 import { GeneralSettings } from './GeneralSettings';
+import { ProfileSettings } from './ProfileSettings';
 import { SDSettings } from './SDSettings';
 import { StreamingSettings } from './StreamingSettings';
 
@@ -97,6 +98,8 @@ export const SettingsEditor = () => {
           <AuthenticationSettings />
 
           <StreamingSettings />
+
+          <ProfileSettings />
 
           <SDSettings />
 

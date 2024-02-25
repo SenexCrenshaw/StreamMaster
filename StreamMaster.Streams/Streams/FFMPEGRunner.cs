@@ -77,11 +77,6 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
 
             string outputdir = Path.Combine(BuildInfo.HLSOutputFolder, videoStream.Id);
 
-            if (BuildInfo.IsWindows)
-            {
-                outputdir = "c:" + outputdir;
-            }
-
             if (!outputdir.EndsWith(Path.DirectorySeparatorChar.ToString()))
             {
                 outputdir += Path.DirectorySeparatorChar.ToString();

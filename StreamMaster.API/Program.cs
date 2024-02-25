@@ -26,7 +26,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
 
-FileUtil.SetupDirectories();
+DirectoryHelper.CreateApplicationDirectories();
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -120,7 +120,7 @@ void OnShutdown()
     //var timerService = app.Services.GetRequiredService<TimerService>();
     //timerService.StopAsync(CancellationToken.None).Wait();
 
-    DirectoryHelper.EmptyDirectory(BuildInfo.HLSOutputFolder, app.Services.GetRequiredService<ILogger<DirectoryHelper>>());
+    DirectoryHelper.EmptyDirectory(BuildInfo.HLSOutputFolder);
 
     FileUtil.Backup().Wait();
 }

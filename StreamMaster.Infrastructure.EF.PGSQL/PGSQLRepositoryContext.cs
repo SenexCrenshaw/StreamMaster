@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
+using StreamMaster.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Models;
 
 using System.Text.RegularExpressions;
@@ -97,7 +98,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            FileUtil.SetupDirectories();
+            DirectoryHelper.CreateApplicationDirectories();
             options.UseNpgsql(DbConnectionString,
                 o =>
                 {

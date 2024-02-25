@@ -56,7 +56,7 @@ public static class FileDefinitions
 
     public static FileDefinition SDStationLogos => new()
     {
-        DirectoryLocation = BuildInfo.SDStationLogos,
+        DirectoryLocation = BuildInfo.SDStationLogosFolder,
         FileExtension = ".png",
         SMFileType = SMFileTypes.SDStationLogo
     };

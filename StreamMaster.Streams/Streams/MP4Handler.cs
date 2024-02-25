@@ -37,7 +37,7 @@ public class MP4Handler(ILogger<MP4Handler> logger, ILogger<FFMPEGRunner> FFMPEG
         KillProcess();
 
         string directory = Path.Combine(BuildInfo.HLSOutputFolder, Id);
-        DirectoryHelper.DeleteDirectory(directory, logger);
+        DirectoryHelper.DeleteDirectory(directory);
     }
 
     public void Dispose()

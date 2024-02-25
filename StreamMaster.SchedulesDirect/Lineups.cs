@@ -113,7 +113,7 @@ public class Lineups(ILogger<Lineups> logger, IMemoryCache memoryCache, IIconSer
                         string urlLogoPath = string.Empty;
 
                         string logoFilename = $"{station.Callsign}_c.png";
-                        string file = Path.Combine(BuildInfo.SDStationLogos, logoFilename);
+                        string file = Path.Combine(BuildInfo.SDStationLogosFolder, logoFilename);
                         if (File.Exists(file))
                         {
                             logoPath = file;
@@ -122,7 +122,7 @@ public class Lineups(ILogger<Lineups> logger, IMemoryCache memoryCache, IIconSer
                         else if (stationLogo != null)
                         {
                             logoFilename = $"{stationLogo.Md5}.png";
-                            logoPath = Path.Combine(BuildInfo.SDStationLogosCache, logoFilename);
+                            logoPath = Path.Combine(BuildInfo.SDStationLogosCacheFolder, logoFilename);
                             urlLogoPath = stationLogo.Url;
 
                             if (!File.Exists(logoPath))

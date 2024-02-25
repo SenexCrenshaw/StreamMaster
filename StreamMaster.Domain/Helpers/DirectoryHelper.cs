@@ -1,11 +1,93 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using StreamMaster.Domain.Attributes;
+
+using System.Diagnostics;
+using System.Reflection;
 
 namespace StreamMaster.Domain.Helpers;
 
-public class DirectoryHelper
+public static class DirectoryHelper
 {
+    private static bool setupDirectories = false;
+    private static void Log(string format, params object[] args)
+    {
+        string message = string.Format(format, args);
+        Console.WriteLine(message);
+        Debug.WriteLine(message);
+    }
 
-    public static void DeleteDirectory(string directoryPath, ILogger logger)
+    public static void CreateApplicationDirectories(bool alwaysRun = false)
+    {
+        if (setupDirectories && !alwaysRun)
+        {
+            return;
+        }
+        setupDirectories = true;
+
+        Log($"Using settings file {BuildInfo.SettingFile}");
+
+        Type targetType = typeof(BuildInfo);
+
+        // Get fields marked with [CreateDir] or named "*Folder"
+        IEnumerable<string?> fieldPaths = targetType.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                        .Where(f => (f.IsDefined(typeof(CreateDirAttribute), false) || f.Name.EndsWith("Folder")) && f.FieldType == typeof(string))
+                        .Select(f => (string)f.GetValue(null));
+
+        // Get properties marked with [CreateDir] or named "*Folder"
+        IEnumerable<string?> propertyPaths = targetType.GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                            .Where(p => (p.IsDefined(typeof(CreateDirAttribute), false) || p.Name.EndsWith("Folder")) && p.PropertyType == typeof(string))
+                            .Select(p => (string)p.GetValue(null));
+
+        // Combine paths from fields and properties
+        IEnumerable<string?> paths = fieldPaths.Concat(propertyPaths);
+        Log("Checking Directories:");
+        foreach (string? newPath in paths)
+        {
+            string? path = newPath;
+
+            Log($"Directory: {path}");
+            if (!string.IsNullOrEmpty(path) && !Directory.Exists(path))
+            {
+                try
+                {
+                    Directory.CreateDirectory(path);
+
+                }
+                catch (Exception ex)
+                {
+                    Log("Failed to create directory: {path} {ex}", path, ex);
+                    //throw;
+                }
+            }
+        }
+
+        for (char c = '0'; c <= '9'; c++)
+        {
+            string subdirectoryName = c.ToString();
+            string subdirectoryPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName);
+
+            Log($"Directory: {subdirectoryPath}");
+            // Create the subdirectory if it doesn't exist
+            if (!Directory.Exists(subdirectoryPath))
+            {
+                Directory.CreateDirectory(subdirectoryPath);
+            }
+        }
+
+        for (char c = 'a'; c <= 'f'; c++)
+        {
+            string subdirectoryName = c.ToString();
+            string subdirectoryPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName);
+            Log($"Directory: {subdirectoryPath}");
+            // Create the subdirectory if it doesn't exist
+            if (!Directory.Exists(subdirectoryPath))
+            {
+                Directory.CreateDirectory(subdirectoryPath);
+            }
+        }
+    }
+
+
+    public static void DeleteDirectory(string directoryPath)
     {
         try
         {
@@ -18,25 +100,23 @@ public class DirectoryHelper
         }
         catch (OperationCanceledException)
         {
-            logger.LogError("Operation was canceled.");
+            Log("Operation was canceled.");
         }
         catch (Exception ex)
         {
-            // Log or handle the global error
-            logger.LogError($"An error occurred: {ex.Message}");
-            // Depending on the severity of the function, you might want to rethrow or handle the exception gracefully
+            Log($"An error occurred: {ex.Message}");
+
         }
     }
 
-
-    public static void EmptyDirectory(string directoryPath, ILogger logger)
+    public static void EmptyDirectory(string directoryPath)
     {
         try
         {
             // Check if the directory exists
             if (!Directory.Exists(directoryPath))
             {
-                logger.LogWarning("Attempted to empty a non-existing directory: {DirectoryPath}", directoryPath);
+                Log("Attempted to empty a non-existing directory: {DirectoryPath}", directoryPath);
                 return;
             }
 
@@ -48,11 +128,11 @@ public class DirectoryHelper
                 try
                 {
                     file.Delete();
-                    logger.LogInformation("File deleted: {FilePath}", file.FullName);
+                    Log("File deleted: {FilePath}", file.FullName);
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Failed to delete file: {FilePath}", file.FullName);
+                    Log("Failed to delete file: {FilePath} {ex}", file.FullName, ex);
                 }
             }
 
@@ -62,22 +142,22 @@ public class DirectoryHelper
                 try
                 {
                     dir.Delete(true); // true to remove directories, subdirectories, and files
-                    logger.LogInformation("Directory deleted: {DirectoryPath}", dir.FullName);
+                    Log("Directory deleted: {DirectoryPath}", dir.FullName);
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Failed to delete directory: {DirectoryPath}", dir.FullName);
+                    Log("Failed to delete directory: {DirectoryPath} {ex}", dir.FullName, ex);
                 }
             }
         }
         catch (OperationCanceledException)
         {
-            logger.LogWarning("Operation cancelled while emptying directory: {DirectoryPath}", directoryPath);
+            Log("Operation cancelled while emptying directory: {DirectoryPath}", directoryPath);
             throw; // Propagate the cancellation exception
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An unexpected error occurred while emptying directory: {DirectoryPath}", directoryPath);
+            Log("An unexpected error occurred while emptying directory: {DirectoryPath} {ex}", directoryPath, ex);
         }
     }
 }
