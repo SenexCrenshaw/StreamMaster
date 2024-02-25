@@ -8,10 +8,10 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
 const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => {
-  const [originalValue, setOriginalValue] = useState<string>('');
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const overlayReference = useRef<HTMLDivElement | null>(null);
 
+  const [originalValue, setOriginalValue] = useState<string>('');
   const [inputValue, setInputValue] = useState<string>('');
 
   const debounced = useDebouncedCallback(
@@ -19,6 +19,7 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
       (value: string) => {
         if (value !== originalValue && !props.isLoading) {
           setInputValue(value);
+          setOriginalValue(value);
           props.onChange(value);
         }
       },
@@ -36,8 +37,10 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
 
       debounced.cancel();
       if (forceValueSave === undefined) {
+        setOriginalValue(inputValue);
         props.onChange(inputValue);
       } else {
+        setOriginalValue(forceValueSave);
         props.onChange(forceValueSave);
       }
     },

@@ -19,6 +19,7 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProperties) => 
       (value) => {
         if (value !== originalValue) {
           setInputValue(value);
+          setOriginalValue(value);
           props.onChange(value);
         }
       },
@@ -37,8 +38,10 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProperties) => 
       debounced.cancel();
 
       if (forceValueSave === undefined) {
+        setOriginalValue(inputValue);
         props.onChange(inputValue);
       } else {
+        setOriginalValue(forceValueSave);
         props.onChange(forceValueSave);
       }
     },

@@ -1,8 +1,11 @@
 import { FfmpegProfileDto, FfmpegProfileDtos } from '@lib/iptvApi';
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
+import ProfileIsM3U8Editor from './ProfileIsM3U8Editor';
 import ProfileNameEditor from './ProfileNameEditor';
+import ProfileParameterEditor from './ProfileParameterEditor';
+import ProfileTimeOutEditor from './ProfileTimeOutEditor';
 
 interface SettingsProfilesDataSelectorProperties {
   readonly data: FfmpegProfileDtos | undefined;
@@ -13,6 +16,17 @@ const SettingsProfilesDataSelector = (props: SettingsProfilesDataSelectorPropert
     return <ProfileNameEditor data={data} />;
   };
 
+  const parameterEditor = (data: FfmpegProfileDto) => {
+    return <ProfileParameterEditor data={data} />;
+  };
+
+  const timeoutEditor = (data: FfmpegProfileDto) => {
+    return <ProfileTimeOutEditor data={data} />;
+  };
+
+  const ism3u8Editor = (data: FfmpegProfileDto) => {
+    return <ProfileIsM3U8Editor data={data} />;
+  };
   const sourceActionBodyTemplate = React.useCallback((data: FfmpegProfileDto) => <div className="flex p-0 justify-content-end align-items-center"></div>, []);
 
   const sourceColumns = React.useMemo(
@@ -25,7 +39,18 @@ const SettingsProfilesDataSelector = (props: SettingsProfilesDataSelectorPropert
 
       {
         field: 'parameters',
-        width: '10rem'
+        width: '10rem',
+        bodyTemplate: parameterEditor
+      },
+      {
+        field: 'timeout',
+        width: '6rem',
+        bodyTemplate: timeoutEditor
+      },
+      {
+        field: 'isM3U8',
+        width: '6rem',
+        bodyTemplate: ism3u8Editor
       },
       {
         align: 'right',

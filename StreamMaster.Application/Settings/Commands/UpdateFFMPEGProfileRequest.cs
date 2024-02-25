@@ -8,6 +8,7 @@ public class UpdateFFMPEGProfileRequestHandler(
     ILogger<UpdateFFMPEGProfileRequest> Logger,
     IOptionsMonitor<FFMPEGProfiles> intprofilesettings,
     IMapper Mapper,
+    ISender Sender,
     IRepositoryWrapper repositoryWrapper
     )
 : IRequestHandler<UpdateFFMPEGProfileRequest, UpdateSettingResponse>
@@ -50,7 +51,7 @@ public class UpdateFFMPEGProfileRequestHandler(
             FileUtil.UpdateSetting(profilesettings);
 
         }
-        SettingDto ret = Mapper.Map<SettingDto>(profilesettings);
+        SettingDto ret = await Sender.Send(new GetSettings(), cancellationToken);
         return new UpdateSettingResponse { Settings = ret, NeedsLogOut = false };
     }
 

@@ -1,31 +1,23 @@
 import StringEditorBodyTemplate from '@components/StringEditorBodyTemplate';
 import { FfmpegProfileDto, UpdateFfmpegProfileRequest } from '@lib/iptvApi';
 import { UpdateFFMPEGProfile } from '@lib/smAPI/Settings/SettingsMutateAPI';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
-export interface ProfileNameEditorProperties {
+export interface ProfileParameterEditorProperties {
   readonly data: FfmpegProfileDto;
 }
 
-const ProfileNameEditor = (props: ProfileNameEditorProperties) => {
-  const [oldName, setOldName] = useState<string | undefined>(undefined);
-
-  useEffect(() => {
-    if (oldName === undefined && props.data.name !== undefined) {
-      setOldName(props.data.name);
-    }
-  }, [oldName, props.data.name]);
-
+const ProfileParameterEditor = (props: ProfileParameterEditorProperties) => {
   const onUpdateFfmpegProfileDto = React.useCallback(
-    async (name: string) => {
-      if (!name || name === '' || oldName === name) {
+    async (parameters: string) => {
+      if (!parameters || parameters === '') {
         return;
       }
 
       const data = {} as UpdateFfmpegProfileRequest;
 
-      data.name = oldName;
-      data.newName = name;
+      data.name = props.data.name;
+      data.parameters = parameters;
 
       await UpdateFFMPEGProfile(data)
         .then(() => {})
@@ -33,7 +25,7 @@ const ProfileNameEditor = (props: ProfileNameEditorProperties) => {
           console.error(error);
         });
     },
-    [oldName]
+    [props.data]
   );
 
   if (props.data.name === undefined) {
@@ -45,11 +37,11 @@ const ProfileNameEditor = (props: ProfileNameEditorProperties) => {
       onChange={async (e) => {
         await onUpdateFfmpegProfileDto(e);
       }}
-      value={props.data.name}
+      value={props.data.parameters}
     />
   );
 };
 
-ProfileNameEditor.displayName = 'Channel Number Editor';
+ProfileParameterEditor.displayName = 'Channel Number Editor';
 
-export default React.memo(ProfileNameEditor);
+export default React.memo(ProfileParameterEditor);
