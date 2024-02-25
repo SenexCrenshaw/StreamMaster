@@ -6,12 +6,12 @@ using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect.Images;
-public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<Setting> intsettings, ISchedulesDirectAPIService schedulesDirectAPI) : ISportsImages
+public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> intsettings, ISchedulesDirectAPIService schedulesDirectAPI) : ISportsImages
 {
     public List<MxfProgram> SportEvents { get; set; } = [];
     private List<string> sportsImageQueue = [];
     private ConcurrentBag<ProgramMetadata> sportsImageResponses = [];
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intsettings.CurrentValue;
 
     private int processedObjects;
     private int totalObjects;
@@ -23,7 +23,7 @@ public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> 
         sportsImageQueue = [];
         sportsImageResponses = [];
         //IncrementNextStage(SportEvents.Count);
-        if (!settings.SDSettings.SeasonEventImages)
+        if (!sdsettings.SeasonEventImages)
         {
             return true;
         }
@@ -131,7 +131,7 @@ public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> 
         }
 
 
-        string artworkSize = string.IsNullOrEmpty(settings.SDSettings.ArtworkSize) ? "Md" : settings.SDSettings.ArtworkSize;
+        string artworkSize = string.IsNullOrEmpty(sdsettings.ArtworkSize) ? "Md" : sdsettings.ArtworkSize;
 
         foreach (ProgramMetadata response in sportsImageResponses)
         {

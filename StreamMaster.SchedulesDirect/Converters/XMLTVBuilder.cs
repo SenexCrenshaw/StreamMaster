@@ -7,8 +7,9 @@ using System.Diagnostics;
 using System.Globalization;
 
 namespace StreamMaster.SchedulesDirect.Converters;
-public class XMLTVBuilder(IOptionsMonitor<Setting> intsettings, IIconHelper iconHelper, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger) : IXMLTVBuilder
+public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMonitor<Setting> intsettings, IIconHelper iconHelper, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger) : IXMLTVBuilder
 {
+    private readonly SDSettings sdsettings = intsdsettings.CurrentValue;
     private readonly Setting settings = intsettings.CurrentValue;
 
     private string _baseUrl = "";
@@ -260,7 +261,7 @@ public class XMLTVBuilder(IOptionsMonitor<Setting> intsettings, IIconHelper icon
                 XmltvChannel channel = BuildXmltvChannel(service);
                 xmlTv.Channels.Add(channel);
 
-                if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && settings.SDSettings.XmltvAddFillerData)
+                if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && sdsettings.XmltvAddFillerData)
                 {
                     // add a program specific for this service
                     MxfProgram program = new(progCount + 1, $"SM-{service.StationId}")
@@ -272,17 +273,17 @@ public class XMLTVBuilder(IOptionsMonitor<Setting> intsettings, IIconHelper icon
 
                     // populate the schedule entries
                     DateTime startTime = new(SMDT.UtcNow.Year, SMDT.UtcNow.Month, SMDT.UtcNow.Day, 0, 0, 0);
-                    DateTime stopTime = startTime + TimeSpan.FromDays(settings.SDSettings.SDEPGDays);
+                    DateTime stopTime = startTime + TimeSpan.FromDays(sdsettings.SDEPGDays);
                     do
                     {
                         service.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
                         {
-                            Duration = settings.SDSettings.XmltvFillerProgramLength * 60 * 60,
+                            Duration = sdsettings.XmltvFillerProgramLength * 60 * 60,
                             mxfProgram = program,
                             StartTime = startTime,
                             IsRepeat = true
                         });
-                        startTime += TimeSpan.FromHours(settings.SDSettings.XmltvFillerProgramLength);
+                        startTime += TimeSpan.FromHours(sdsettings.XmltvFillerProgramLength);
                     } while (startTime < stopTime);
                 }
 
@@ -321,7 +322,7 @@ public class XMLTVBuilder(IOptionsMonitor<Setting> intsettings, IIconHelper icon
             id = mxfService.ChNo.ToString();
         }
 
-        //if (settings.M3UUseCUIDForChannelID)
+        //if (sdsettings.M3UUseCUIDForChannelID)
         //{
         //    VideoStreamConfig? vc = mxfService.extras["videoStreamConfig"] as VideoStreamConfig;
         //    id = vc.Id;
@@ -342,7 +343,7 @@ public class XMLTVBuilder(IOptionsMonitor<Setting> intsettings, IIconHelper icon
         }
 
         // add channel number if requested
-        if (settings.SDSettings.XmltvIncludeChannelNumbers)
+        if (sdsettings.XmltvIncludeChannelNumbers)
         {
             List<string> numbers = [];
 
@@ -400,8 +401,8 @@ public class XMLTVBuilder(IOptionsMonitor<Setting> intsettings, IIconHelper icon
 
         MxfProgram mxfProgram = scheduleEntry.mxfProgram;
 
-        string descriptionExtended = settings.SDSettings.XmltvExtendedInfoInTitleDescriptions
-                                                  ? GetDescriptionExtended(mxfProgram, scheduleEntry, settings)
+        string descriptionExtended = sdsettings.XmltvExtendedInfoInTitleDescriptions
+                                                  ? GetDescriptionExtended(mxfProgram, scheduleEntry, sdsettings)
                                                   :
             string.Empty;
 
@@ -513,7 +514,7 @@ public class XMLTVBuilder(IOptionsMonitor<Setting> intsettings, IIconHelper icon
         //};
     }
 
-    private static string GetDescriptionExtended(MxfProgram mxfProgram, MxfScheduleEntry scheduleEntry, Setting settings)
+    private static string GetDescriptionExtended(MxfProgram mxfProgram, MxfScheduleEntry scheduleEntry, SDSettings sdsettings)
     {
 
         string descriptionExtended = "";
@@ -544,7 +545,7 @@ public class XMLTVBuilder(IOptionsMonitor<Setting> intsettings, IIconHelper icon
                 descriptionExtended = "[REPEAT]";
             }
 
-            if (!settings.SDSettings.PrefixEpisodeTitle && !settings.SDSettings.PrefixEpisodeDescription && !settings.SDSettings.AppendEpisodeDesc)
+            if (!sdsettings.PrefixEpisodeTitle && !sdsettings.PrefixEpisodeDescription && !sdsettings.AppendEpisodeDesc)
             {
                 if (mxfProgram.SeasonNumber > 0 && mxfProgram.EpisodeNumber > 0)
                 {
@@ -762,7 +763,7 @@ public class XMLTVBuilder(IOptionsMonitor<Setting> intsettings, IIconHelper icon
     private List<XmltvIcon>? BuildProgramIcons(MxfProgram mxfProgram)
     {
 
-        if (settings.SDSettings.XmltvSingleImage || !mxfProgram.extras.ContainsKey("artwork"))
+        if (sdsettings.XmltvSingleImage || !mxfProgram.extras.ContainsKey("artwork"))
         {
             // Use the first available image URL
             string? url = mxfProgram.mxfGuideImage?.ImageUrl ??

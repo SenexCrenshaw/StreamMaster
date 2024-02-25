@@ -55,6 +55,13 @@ public class SettingsController() : ApiControllerBase, ISettingController
 
     [HttpPatch]
     [Route("[action]")]
+    public async Task<ActionResult<UpdateSettingResponse>> UpdateFFMPEGProfile(UpdateFFMPEGProfileRequest request)
+    {
+        return await Mediator.Send(request).ConfigureAwait(false);
+    }
+
+    [HttpPatch]
+    [Route("[action]")]
     public async Task<IActionResult> UpdateSetting(UpdateSettingRequest command)
     {
         UpdateSettingResponse updateSettingResponse = await Mediator.Send(command).ConfigureAwait(false);

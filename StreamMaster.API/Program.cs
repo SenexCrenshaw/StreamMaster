@@ -20,6 +20,7 @@ using StreamMaster.SchedulesDirect.Services;
 using StreamMaster.Streams;
 
 using System.Diagnostics;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
@@ -41,10 +42,40 @@ builder.WebHost.ConfigureKestrel((context, serverOptions) =>
     serverOptions.Limits.MaxRequestBodySize = null;    
 });
 
-string settingFile = BuildInfo.SettingsFile;
 
 var settingsFiles = BuildInfo.GetSettingFiles();
+
 builder.Configuration.SetBasePath(BuildInfo.StartUpPath).AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+var profileSetting = FileUtil.GetSetting<FFMPEGProfiles>(BuildInfo.ProfileSettingsFile);
+if (profileSetting == default(FFMPEGProfiles))
+{    
+    FileUtil.UpdateSetting(SettingFiles.DefaultProfileSetting);
+}
+
+var hlsSetting = FileUtil.GetSetting<HLSSettings>(BuildInfo.HLSSettingsFile);
+if (hlsSetting == default(HLSSettings))
+{
+    FileUtil.UpdateSetting(new HLSSettings());
+}
+
+var mainSetting = FileUtil.GetSetting<OldSetting>(BuildInfo.SettingsFile);
+if (mainSetting != default(OldSetting))
+{
+    if (mainSetting.SDSettings != default(SDSettings) )
+    {
+        FileUtil.UpdateSetting(mainSetting.SDSettings);
+        var toWrite = mainSetting.ConvertToSetting();
+        FileUtil.UpdateSetting(toWrite);
+    }
+}
+
+var sdSettings = FileUtil.GetSetting<SDSettings>(BuildInfo.SDSettingsFile);
+if (sdSettings == default(SDSettings))
+{
+    FileUtil.UpdateSetting(new SDSettings());
+}
+
 
 foreach (var file in settingsFiles)
 {
@@ -56,6 +87,9 @@ foreach (var file in settingsFiles)
 }
 
 builder.Services.Configure<Setting>(builder.Configuration);
+builder.Services.Configure<SDSettings>(builder.Configuration);
+builder.Services.Configure<HLSSettings>(builder.Configuration);
+builder.Services.Configure<FFMPEGProfiles>(builder.Configuration);
 
 bool enableSsl = false;
 

@@ -18,13 +18,13 @@ public class EPGCache<T> : IEPGCache<T>
     private readonly ILogger<EPGCache<T>> logger;
     private readonly ISchedulesDirectDataService schedulesDirectDataService;
 
-    private readonly Setting settings = new();
+    private readonly SDSettings sdsettings = new();
 
     public EPGCache(ILogger<EPGCache<T>> logger,
                     ISchedulesDirectDataService schedulesDirectDataService,
-                    IOptionsMonitor<Setting> intsettings)
+                    IOptionsMonitor<SDSettings> intsettings)
     {
-        settings = intsettings.CurrentValue;
+        sdsettings = intsettings.CurrentValue;
         this.logger = logger;
         this.schedulesDirectDataService = schedulesDirectDataService;
         LoadCache();
@@ -313,7 +313,7 @@ public class EPGCache<T> : IEPGCache<T>
         }
         else
         {
-            string aspect = settings.SDSettings.SeriesPosterArt ? "2x3" : settings.SDSettings.SeriesWsArt ? "16x9" : settings.SDSettings.SeriesPosterAspect;
+            string aspect = sdsettings.SeriesPosterArt ? "2x3" : sdsettings.SeriesWsArt ? "16x9" : sdsettings.SeriesPosterAspect;
             image = artwork.SingleOrDefault(arg => arg.Aspect.ToLower().Equals(aspect));
         }
 

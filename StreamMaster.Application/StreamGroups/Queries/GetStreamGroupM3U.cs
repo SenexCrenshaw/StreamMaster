@@ -26,10 +26,11 @@ public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
     }
 }
 
-public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, ISchedulesDirectDataService schedulesDirectDataService, IEPGHelper epgHelper, ILogger<GetStreamGroupM3U> logger, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intsettings)
+public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, ISchedulesDirectDataService schedulesDirectDataService, IEPGHelper epgHelper, ILogger<GetStreamGroupM3U> logger, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intsettings, IOptionsMonitor<HLSSettings> inthlssettings)
     : IRequestHandler<GetStreamGroupM3U, string>
 {
     private readonly Setting settings = intsettings.CurrentValue;
+    private readonly HLSSettings hlssettings = inthlssettings.CurrentValue;
 
     public string GetIconUrl(string iconOriginalSource, Setting setting)
     {
@@ -213,7 +214,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         }
         else
         {
-            if (setting.HLS.HLSM3U8Enable)
+            if (hlssettings.HLSM3U8Enable)
             {
                 videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
             }

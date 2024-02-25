@@ -459,6 +459,10 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/settings/removeffmpegprofile`, method: 'DELETE', body: queryArg }),
         invalidatesTags: ['Settings']
       }),
+      settingsUpdateFfmpegProfile: build.mutation<SettingsUpdateFfmpegProfileApiResponse, SettingsUpdateFfmpegProfileApiArg>({
+        query: (queryArg) => ({ url: `/api/settings/updateffmpegprofile`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['Settings']
+      }),
       settingsUpdateSetting: build.mutation<SettingsUpdateSettingApiResponse, SettingsUpdateSettingApiArg>({
         query: (queryArg) => ({ url: `/api/settings/updatesetting`, method: 'PATCH', body: queryArg }),
         invalidatesTags: ['Settings']
@@ -485,6 +489,14 @@ const injectedRtkApi = api
       }),
       streamGetVideoStreamHead: build.mutation<StreamGetVideoStreamHeadApiResponse, StreamGetVideoStreamHeadApiArg>({
         query: (queryArg) => ({ url: `/api/stream/${queryArg.videoStreamId}/${queryArg.num}.ts`, method: 'HEAD' }),
+        invalidatesTags: ['Stream']
+      }),
+      streamGetVideoStreamMp4Get: build.query<StreamGetVideoStreamMp4GetApiResponse, StreamGetVideoStreamMp4GetApiArg>({
+        query: (queryArg) => ({ url: `/api/stream/${queryArg}.mp4` }),
+        providesTags: ['Stream']
+      }),
+      streamGetVideoStreamMp4Head: build.mutation<StreamGetVideoStreamMp4HeadApiResponse, StreamGetVideoStreamMp4HeadApiArg>({
+        query: (queryArg) => ({ url: `/api/stream/${queryArg}.mp4`, method: 'HEAD' }),
         invalidatesTags: ['Stream']
       }),
       streamGroupsCreateStreamGroup: build.mutation<StreamGroupsCreateStreamGroupApiResponse, StreamGroupsCreateStreamGroupApiArg>({
@@ -1044,6 +1056,8 @@ export type SettingsLogInApiResponse = /** status 200  */ boolean;
 export type SettingsLogInApiArg = LogInRequest;
 export type SettingsRemoveFfmpegProfileApiResponse = /** status 200  */ UpdateSettingResponse;
 export type SettingsRemoveFfmpegProfileApiArg = RemoveFfmpegProfileRequest;
+export type SettingsUpdateFfmpegProfileApiResponse = /** status 200  */ UpdateSettingResponse;
+export type SettingsUpdateFfmpegProfileApiArg = UpdateFfmpegProfileRequest;
 export type SettingsUpdateSettingApiResponse = unknown;
 export type SettingsUpdateSettingApiArg = UpdateSettingRequest;
 export type StatisticsGetClientStatisticsApiResponse = /** status 200  */ ClientStreamingStatistics[];
@@ -1064,6 +1078,10 @@ export type StreamGetVideoStreamHeadApiArg = {
   videoStreamId: string;
   num: number;
 };
+export type StreamGetVideoStreamMp4GetApiResponse = unknown;
+export type StreamGetVideoStreamMp4GetApiArg = string;
+export type StreamGetVideoStreamMp4HeadApiResponse = unknown;
+export type StreamGetVideoStreamMp4HeadApiArg = string;
 export type StreamGroupsCreateStreamGroupApiResponse = unknown;
 export type StreamGroupsCreateStreamGroupApiArg = CreateStreamGroupRequest;
 export type StreamGroupsDeleteStreamGroupApiResponse = unknown;
@@ -1820,60 +1838,13 @@ export type TaskQueueStatus = {
   stopTS?: string;
   elapsedTS?: string;
 };
-export type M3USettings = {
+export type AuthenticationType = 0 | 2;
+export type BaseSettings = {
   m3UFieldGroupTitle?: boolean;
   m3UIgnoreEmptyEPGID?: boolean;
   m3UUseChnoForId?: boolean;
   m3UUseCUIDForChannelID?: boolean;
   m3UStationId?: boolean;
-};
-export type TestSettings = {
-  dropInputSeconds?: number;
-  dropClientSeconds?: number;
-};
-export type FfmpegProfile = {
-  parameters: string;
-  timeout: number;
-  isM3U8: boolean;
-};
-export type HlsSettings = {
-  hlsM3U8Enable?: boolean;
-  hlsffmpegOptions?: string;
-  hlsReconnectDurationInSeconds?: number;
-  hlsSegmentDurationInSeconds?: number;
-  hlsSegmentCount?: number;
-  hlsM3U8CreationTimeOutInSeconds?: number;
-  hlsM3U8ReadTimeOutInSeconds?: number;
-  hlstsReadTimeOutInSeconds?: number;
-};
-export type SdSettings = {
-  seriesPosterArt?: boolean;
-  seriesWsArt?: boolean;
-  seriesPosterAspect?: string;
-  artworkSize?: string;
-  excludeCastAndCrew?: boolean;
-  alternateSEFormat?: boolean;
-  prefixEpisodeDescription?: boolean;
-  prefixEpisodeTitle?: boolean;
-  appendEpisodeDesc?: boolean;
-  sdepgDays?: number;
-  sdEnabled?: boolean;
-  sdUserName?: string;
-  sdCountry?: string;
-  sdPassword?: string;
-  sdPostalCode?: string;
-  preferredLogoStyle?: string;
-  alternateLogoStyle?: string;
-  sdStationIds?: StationIdLineup[];
-  seasonEventImages?: boolean;
-  xmltvAddFillerData?: boolean;
-  xmltvFillerProgramLength?: number;
-  xmltvIncludeChannelNumbers?: boolean;
-  xmltvExtendedInfoInTitleDescriptions?: boolean;
-  xmltvSingleImage?: boolean;
-};
-export type AuthenticationType = 0 | 2;
-export type BaseSettings = M3USettings & {
   backupEnabled?: boolean;
   backupVersionsToKeep?: number;
   backupInterval?: number;
@@ -1882,13 +1853,7 @@ export type BaseSettings = M3USettings & {
   maxLogFileSizeMB?: number;
   enablePrometheus?: boolean;
   maxStreamReStart?: number;
-  testSettings?: TestSettings;
   maxConcurrentDownloads?: number;
-  ffmpegProfiles?: {
-    [key: string]: FfmpegProfile;
-  };
-  hls?: HlsSettings;
-  sdSettings?: SdSettings;
   expectedServiceCount?: number;
   adminPassword?: string;
   adminUserName?: string;
@@ -1918,7 +1883,55 @@ export type BaseSettings = M3USettings & {
   videoStreamAlwaysUseEPGLogo?: boolean;
   showClientHostNames?: boolean;
 };
+export type FfmpegProfile = {
+  parameters: string;
+  timeout: number;
+  isM3U8: boolean;
+};
+export type FfmpegProfileDto = FfmpegProfile & {
+  name: string;
+};
+export type FfmpegProfileDtos = FfmpegProfileDto[];
+export type SdSettings = {
+  alternateSEFormat?: boolean;
+  alternateLogoStyle?: string;
+  appendEpisodeDesc?: boolean;
+  artworkSize?: string;
+  excludeCastAndCrew?: boolean;
+  preferredLogoStyle?: string;
+  prefixEpisodeDescription?: boolean;
+  prefixEpisodeTitle?: boolean;
+  sdEnabled?: boolean;
+  sdepgDays?: number;
+  sdCountry?: string;
+  sdPassword?: string;
+  sdPostalCode?: string;
+  sdStationIds?: StationIdLineup[];
+  sdUserName?: string;
+  seasonEventImages?: boolean;
+  seriesPosterArt?: boolean;
+  seriesPosterAspect?: string;
+  seriesWsArt?: boolean;
+  xmltvAddFillerData?: boolean;
+  xmltvFillerProgramLength?: number;
+  xmltvExtendedInfoInTitleDescriptions?: boolean;
+  xmltvIncludeChannelNumbers?: boolean;
+  xmltvSingleImage?: boolean;
+};
+export type HlsSettings = {
+  hlsM3U8Enable?: boolean;
+  hlsffmpegOptions?: string;
+  hlsReconnectDurationInSeconds?: number;
+  hlsSegmentDurationInSeconds?: number;
+  hlsSegmentCount?: number;
+  hlsM3U8CreationTimeOutInSeconds?: number;
+  hlsM3U8ReadTimeOutInSeconds?: number;
+  hlstsReadTimeOutInSeconds?: number;
+};
 export type SettingDto = BaseSettings & {
+  ffmpegProfiles?: FfmpegProfileDtos;
+  sdSettings?: SdSettings;
+  hls?: HlsSettings;
   release?: string;
   version?: string;
   ffmpegDefaultOptions?: string;
@@ -1943,6 +1956,13 @@ export type LogInRequest = {
 };
 export type RemoveFfmpegProfileRequest = {
   name?: string;
+};
+export type UpdateFfmpegProfileRequest = {
+  name?: string;
+  newName?: string | null;
+  parameters?: string | null;
+  timeOut?: number | null;
+  isM3U8?: boolean | null;
 };
 export type SdSettingsRequest = {
   preferredLogoStyle?: string | null;
@@ -2299,6 +2319,7 @@ export const {
   useSettingsGetSystemStatusQuery,
   useSettingsLogInQuery,
   useSettingsRemoveFfmpegProfileMutation,
+  useSettingsUpdateFfmpegProfileMutation,
   useSettingsUpdateSettingMutation,
   useStatisticsGetClientStatisticsQuery,
   useStatisticsGetInputStatisticsQuery,
@@ -2306,6 +2327,8 @@ export const {
   useStreamGetM3U8HeadMutation,
   useStreamGetVideoStreamGetQuery,
   useStreamGetVideoStreamHeadMutation,
+  useStreamGetVideoStreamMp4GetQuery,
+  useStreamGetVideoStreamMp4HeadMutation,
   useStreamGroupsCreateStreamGroupMutation,
   useStreamGroupsDeleteStreamGroupMutation,
   useStreamGroupsGetStreamGroupQuery,

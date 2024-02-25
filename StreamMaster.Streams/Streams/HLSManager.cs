@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Streams;
 
-public class HLSManager(ILogger<HLSManager> logger, ILogger<HLSHandler> HLSHandlerlogger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IOptionsMonitor<Setting> intsettings) : IHLSManager
+public class HLSManager(ILogger<HLSManager> logger, ILogger<HLSHandler> HLSHandlerlogger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intsettings) : IHLSManager
 {
     private readonly ConcurrentDictionary<string, IHLSHandler> hlsHandlers = new();
 
@@ -19,7 +19,7 @@ public class HLSManager(ILogger<HLSManager> logger, ILogger<HLSHandler> HLSHandl
 
 
         logger.LogInformation("Adding HLSHandler for {name}", videoStream.User_Tvg_name);
-        HLSHandler hlsHandler = new(HLSHandlerlogger, FFMPEGRunnerlogger, videoStream, intsettings);
+        HLSHandler hlsHandler = new(HLSHandlerlogger, FFMPEGRunnerlogger, videoStream, intsettings, inthlssettings);
         hlsHandler.Start();
         hlsHandler.ProcessExited += (sender, args) =>
         {

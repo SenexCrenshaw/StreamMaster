@@ -25,11 +25,11 @@ using StreamMaster.SchedulesDirect.Helpers;
 
 namespace StreamMaster.Infrastructure.Services;
 
-public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Setting> intsettings, IJobStatusService jobStatusService, ILogger<TimerService> logger) : IHostedService, IDisposable
+public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Setting> intsettings, IOptionsMonitor<SDSettings> intsdsettings, IJobStatusService jobStatusService, ILogger<TimerService> logger) : IHostedService, IDisposable
 {
     private readonly object Lock = new();
     private readonly Setting settings = intsettings.CurrentValue;
-
+    private readonly SDSettings sdsettings = intsdsettings.CurrentValue;
     private Timer? _timer;
     private bool isActive = false;
     private static DateTime LastBackupTime = DateTime.UtcNow;
@@ -109,7 +109,7 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
                         jobManager.ClearForce();
                     }
 
-                    if (settings.SDSettings.SDEnabled)
+                    if (sdsettings.SDEnabled)
                     {
                         logger.LogInformation("SDSync started. {status}", jobManager.Status);
 

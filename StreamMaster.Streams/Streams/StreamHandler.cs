@@ -54,11 +54,11 @@ public sealed partial class StreamHandler
         //CancellationTokenSource linkedToken;
         //CancellationTokenSource? timeOutToken = null;
 
-        //if (!testRan && settings.TestSettings.DropInputSeconds > 0)
+        //if (!testRan && hlssettings.TestSettings.DropInputSeconds > 0)
         //{
         //    timeOutToken = new();
-        //    logger.LogInformation("Testing: Will stop stream in {DropInputSeconds} seconds.", settings.TestSettings.DropInputSeconds);
-        //    timeOutToken.CancelAfter(settings.TestSettings.DropInputSeconds * 1000);
+        //    logger.LogInformation("Testing: Will stop stream in {DropInputSeconds} seconds.", hlssettings.TestSettings.DropInputSeconds);
+        //    timeOutToken.CancelAfter(hlssettings.TestSettings.DropInputSeconds * 1000);
         //    linkedToken = CancellationTokenSource.CreateLinkedTokenSource(VideoStreamingCancellationToken.Token, timeOutToken.Token);
         //}
         //else

@@ -10,7 +10,13 @@ public class FFMPEGProfile
     public bool IsM3U8 { get; set; } = true;
 }
 
-public class FFMPEGProfiles : List<FFMPEGProfile>
+public class FFMPEGProfileDto : FFMPEGProfile
 {
-
+    public string Name { get; set; } = "";
 }
+
+public class FFMPEGProfileDtos : List<FFMPEGProfileDto>
+{
+}
+
+

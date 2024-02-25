@@ -7,17 +7,17 @@ namespace StreamMaster.Application.SchedulesDirect.Commands;
 
 public record RemoveStation(List<StationRequest> Requests) : IRequest<bool>;
 
-public class RemoveStationHandler(ILogger<RemoveStation> logger, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<Setting> intsettings)
+public class RemoveStationHandler(ILogger<RemoveStation> logger, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intsettings)
 : IRequestHandler<RemoveStation, bool>
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intsettings.CurrentValue;
 
     public async Task<bool> Handle(RemoveStation request, CancellationToken cancellationToken)
     {
         JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
 
 
-        if (!settings.SDSettings.SDEnabled)
+        if (!sdsettings.SDEnabled)
         {
             return false;
         }
@@ -26,7 +26,7 @@ public class RemoveStationHandler(ILogger<RemoveStation> logger, IJobStatusServi
         {
             SDSettings = new SDSettingsRequest
             {
-                SDStationIds = settings.SDSettings.SDStationIds
+                SDStationIds = sdsettings.SDStationIds
             }
         };
 

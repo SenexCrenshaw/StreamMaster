@@ -2,18 +2,13 @@
 
 namespace StreamMaster.Domain.Configuration;
 
-
-public class M3USettings
+public class BaseSettings
 {
     public bool M3UFieldGroupTitle { get; set; } = true;
     public bool M3UIgnoreEmptyEPGID { get; set; } = true;
     public bool M3UUseChnoForId { get; set; } = true;
     public bool M3UUseCUIDForChannelID { get; set; } = false;
     public bool M3UStationId { get; set; } = false;
-}
-
-public class BaseSettings : M3USettings
-{
     public bool BackupEnabled { get; set; } = true;
     public int BackupVersionsToKeep { get; set; } = 18;
     public int BackupInterval { get; set; } = 4;
@@ -53,23 +48,79 @@ public class BaseSettings : M3USettings
     public bool ShowClientHostNames { get; set; }
 }
 
-//public class ProtectedSettings
-//{
-//    [NoMap]
-//    public string ServerKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
-//}
-
 public class Setting : BaseSettings
 {
     [NoMap]
     public string ServerKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
+}
 
+public class OldSetting : BaseSettings
+{
+    public Setting ConvertToSetting()
+    {
+        Setting setting = new()
+        {
+            ServerKey = ServerKey,
+            M3UFieldGroupTitle = M3UFieldGroupTitle,
+            M3UIgnoreEmptyEPGID = M3UIgnoreEmptyEPGID,
+            M3UUseChnoForId = M3UUseChnoForId,
+            M3UUseCUIDForChannelID = M3UUseCUIDForChannelID,
+            M3UStationId = M3UStationId,
+            BackupEnabled = BackupEnabled,
+            BackupVersionsToKeep = BackupVersionsToKeep,
+            BackupInterval = BackupInterval,
+            PrettyEPG = PrettyEPG,
+            MaxLogFiles = MaxLogFiles,
+            MaxLogFileSizeMB = MaxLogFileSizeMB,
+            EnablePrometheus = EnablePrometheus,
+            MaxStreamReStart = MaxStreamReStart,
+            MaxConcurrentDownloads = MaxConcurrentDownloads,
+            ExpectedServiceCount = ExpectedServiceCount,
+            AdminPassword = AdminPassword,
+            AdminUserName = AdminUserName,
+            DefaultIcon = DefaultIcon,
+            UiFolder = UiFolder,
+            UrlBase = UrlBase,
+            LogPerformance = new List<string>(LogPerformance),
+            ApiKey = ApiKey,
+            AuthenticationMethod = AuthenticationMethod,
+            CacheIcons = CacheIcons,
+            CleanURLs = CleanURLs,
+            ClientUserAgent = ClientUserAgent,
+            DeviceID = DeviceID,
+            DummyRegex = DummyRegex,
+            FFMpegOptions = FFMpegOptions,
+            EnableSSL = EnableSSL,
+            FFMPegExecutable = FFMPegExecutable,
+            FFProbeExecutable = FFProbeExecutable,
+            GlobalStreamLimit = GlobalStreamLimit,
+            MaxConnectRetry = MaxConnectRetry,
+            MaxConnectRetryTimeMS = MaxConnectRetryTimeMS,
+            NameRegex = new List<string>(NameRegex),
+            SSLCertPassword = SSLCertPassword,
+            SSLCertPath = SSLCertPath,
+            StreamingClientUserAgent = StreamingClientUserAgent,
+            StreamingProxyType = StreamingProxyType,
+            VideoStreamAlwaysUseEPGLogo = VideoStreamAlwaysUseEPGLogo,
+            ShowClientHostNames = ShowClientHostNames
+        };
 
-    public Dictionary<string, FFMPEGProfile> FFMPEGProfiles { get; set; } = [];
+        return setting;
+    }
 
+    [NoMap]
+    public string ServerKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
 
-    public SDSettings SDSettings { get; set; } = new();
+    public SDSettings? SDSettings { get; set; }
 
+}
 
-    public HLSSettings HLS { get; set; } = new();
+public class FFMPEGProfiles
+{
+    public Dictionary<string, FFMPEGProfile> Profiles { get; set; } = [];
+}
+
+public class FFMPEGProfilesDto
+{
+    public Dictionary<string, FFMPEGProfile> Profiles { get; set; } = [];
 }

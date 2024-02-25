@@ -7,9 +7,9 @@ using System.Collections.Specialized;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect.Images;
-public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<Setting> intsettings, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService) : ISeriesImages
+public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> intsettings, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService) : ISeriesImages
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intsettings.CurrentValue;
 
     private List<string> seriesImageQueue = [];
     private ConcurrentBag<ProgramMetadata> seriesImageResponses = [];
@@ -50,7 +50,7 @@ public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> 
             bool refresh = false;
             if (int.TryParse(series.SeriesId, out int digits))
             {
-                refresh = (digits * settings.SDSettings.SDStationIds.Count % DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month)) + 1 == DateTime.Now.Day;
+                refresh = (digits * sdsettings.SDStationIds.Count % DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month)) + 1 == DateTime.Now.Day;
                 seriesId = $"SH{series.SeriesId}0000";
             }
             else
@@ -163,7 +163,7 @@ public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> 
     private void ProcessSeriesImageResponses()
     {
 
-        string artworkSize = string.IsNullOrEmpty(settings.SDSettings.ArtworkSize) ? "Md" : settings.SDSettings.ArtworkSize;
+        string artworkSize = string.IsNullOrEmpty(sdsettings.ArtworkSize) ? "Md" : sdsettings.ArtworkSize;
         // process request response
         IEnumerable<ProgramMetadata> toProcess = seriesImageResponses.Where(a => !string.IsNullOrEmpty(a.ProgramId) && a.Data != null && a.Code == 0);
         logger.LogInformation("Processing {count} series image responses.", toProcess.Count());

@@ -9,10 +9,10 @@ using System.Text.RegularExpressions;
 
 
 namespace StreamMaster.SchedulesDirect;
-public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<Setting> intsettings, IIconService iconService, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Lineups> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : ILineups
+public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intsettings, IIconService iconService, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Lineups> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : ILineups
 {
     private List<KeyValuePair<MxfService, string[]>> StationLogosToDownload = [];
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intsettings.CurrentValue;
 
     public void ResetCache()
     {
@@ -28,14 +28,14 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<Setting> intsettin
             return false;
         }
 
-        string preferredLogoStyle = string.IsNullOrEmpty(settings.SDSettings.PreferredLogoStyle) ? "DARK" : settings.SDSettings.PreferredLogoStyle;
-        string alternateLogoStyle = string.IsNullOrEmpty(settings.SDSettings.AlternateLogoStyle) ? "WHITE" : settings.SDSettings.AlternateLogoStyle;
+        string preferredLogoStyle = string.IsNullOrEmpty(sdsettings.PreferredLogoStyle) ? "DARK" : sdsettings.PreferredLogoStyle;
+        string alternateLogoStyle = string.IsNullOrEmpty(sdsettings.AlternateLogoStyle) ? "WHITE" : sdsettings.AlternateLogoStyle;
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
 
         foreach (SubscribedLineup clientLineup in clientLineups.Lineups)
         {
             // don't download station map if lineup not included
-            if (settings.SDSettings.SDStationIds.FirstOrDefault(a => a.Lineup == clientLineup.Lineup) == null)
+            if (sdsettings.SDStationIds.FirstOrDefault(a => a.Lineup == clientLineup.Lineup) == null)
             {
                 //logger.LogWarning($"Subscribed lineup {clientLineup.Lineup} has been EXCLUDED by user from download and processing.");
                 continue;
@@ -66,7 +66,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<Setting> intsettin
             foreach (LineupStation station in lineupMap.Stations)
             {
                 // check if station should be downloaded and processed
-                if (station == null || settings.SDSettings.SDStationIds.FirstOrDefault(a => a.StationId == station.StationId) == null)
+                if (station == null || sdsettings.SDStationIds.FirstOrDefault(a => a.StationId == station.StationId) == null)
                 {
                     continue;
                 }
@@ -435,7 +435,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<Setting> intsettin
     private async Task<bool> DownloadStationLogos(CancellationToken cancellationToken)
     {
 
-        if (!settings.SDSettings.SDEnabled)
+        if (!sdsettings.SDEnabled)
         {
             return false;
         }

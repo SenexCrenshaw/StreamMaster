@@ -31,6 +31,11 @@ public partial class StreamMasterHub : ISettingHub
         return await mediator.Send(request).ConfigureAwait(false);
     }
 
+    public async Task<UpdateSettingResponse> UpdateFFMPEGProfile(UpdateFFMPEGProfileRequest request)
+    {
+        return await mediator.Send(request).ConfigureAwait(false);
+    }
+
     public async Task UpdateSetting(UpdateSettingRequest command)
     {
         _ = await mediator.Send(command).ConfigureAwait(false);

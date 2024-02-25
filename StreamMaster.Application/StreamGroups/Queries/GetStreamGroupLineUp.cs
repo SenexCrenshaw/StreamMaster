@@ -25,10 +25,11 @@ public class GetStreamGroupLineupValidator : AbstractValidator<GetStreamGroupLin
 }
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, IIconHelper iconHelper, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intsettings)
+public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, IIconHelper iconHelper, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper Repository, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intsettings)
     : IRequestHandler<GetStreamGroupLineup, string>
 {
     private readonly Setting settings = intsettings.CurrentValue;
+    private readonly HLSSettings hlssettings = inthlssettings.CurrentValue;
 
     public async Task<string> Handle(GetStreamGroupLineup request, CancellationToken cancellationToken)
     {
@@ -42,26 +43,6 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
 
         string url = httpContextAccessor.GetUrl();
         List<SGLineup> ret = [];
-
-        //IEnumerable<VideoStream> videoStreams;
-        //if (request.StreamGroupId > 1)
-        //{
-        //    StreamGroup? streamGroup = await Repository.StreamGroup
-        //            .FindAll()
-        //            .Include(a => a.ChildVideoStreams)
-        //            .FirstOrDefaultAsync(a => a.StreamGroupNumber == request.StreamGroupNumber, cancellationToken: cancellationToken)
-        //            .ConfigureAwait(false);
-
-        //    if (streamGroup == null)
-        //    {
-        //        return "";
-        //    }
-        //    videoStreams = streamGroup.ChildVideoStreams.Select(a => a.ChildVideoStream).Where(a => !a.IsHidden);
-        //}
-        //else
-        //{
-        //    videoStreams = Repository.VideoStream.GetVideoStreamsNotHidden();
-        //}
 
         List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
 
@@ -119,7 +100,7 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
             }
 
             string videoUrl;
-            if (settings.HLS.HLSM3U8Enable)
+            if (hlssettings.HLSM3U8Enable)
             {
                 videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
             }

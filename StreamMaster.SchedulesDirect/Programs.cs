@@ -9,9 +9,9 @@ using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect;
 
-public class Programs(ILogger<Programs> logger, IOptionsMonitor<Setting> intsettings, ISeriesImages seriesImages, ISportsImages sportsImages, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Programs> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : IPrograms
+public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intsettings, ISeriesImages seriesImages, ISportsImages sportsImages, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Programs> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : IPrograms
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intsettings.CurrentValue;
 
     private List<string> programQueue = [];
     private ConcurrentBag<Programme> programResponses = [];
@@ -236,7 +236,7 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<Setting> intsett
 
             // if short description is empty, not a movie, and append episode option is enabled
             // copy long description into short description
-            if (settings.SDSettings.AppendEpisodeDesc && !mxfProgram.IsMovie && string.IsNullOrEmpty(mxfProgram.ShortDescription))
+            if (sdsettings.AppendEpisodeDesc && !mxfProgram.IsMovie && string.IsNullOrEmpty(mxfProgram.ShortDescription))
             {
                 mxfProgram.ShortDescription = mxfProgram.Description;
             }
@@ -265,7 +265,7 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<Setting> intsett
         {
             if (description.DescriptionLanguage[..2] == CultureInfo.CurrentUICulture.TwoLetterISOLanguageName)
             {
-                // optimal selection ... description language matches computer culture settings
+                // optimal selection ... description language matches computer culture sdsettings
                 language = description.DescriptionLanguage;
                 ret = description.Description;
                 break;
@@ -577,7 +577,7 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<Setting> intsett
                 sdProgram.HasSeasonArtwork ? mxfProgram.ProgramId : null);
 
 
-            if (settings.SDSettings.AppendEpisodeDesc || settings.SDSettings.PrefixEpisodeDescription || settings.SDSettings.PrefixEpisodeTitle)
+            if (sdsettings.AppendEpisodeDesc || sdsettings.PrefixEpisodeDescription || sdsettings.PrefixEpisodeTitle)
             {
                 mxfProgram.mxfSeason.HideSeasonTitle = true;
             }
@@ -597,19 +597,19 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<Setting> intsett
         }
 
 
-        string se = settings.SDSettings.AlternateSEFormat ? "S{0}:E{1} " : "s{0:D2}e{1:D2} ";
+        string se = sdsettings.AlternateSEFormat ? "S{0}:E{1} " : "s{0:D2}e{1:D2} ";
         se = mxfProgram.SeasonNumber != 0
             ? string.Format(se, mxfProgram.SeasonNumber, mxfProgram.EpisodeNumber)
             : mxfProgram.EpisodeNumber != 0 ? $"#{mxfProgram.EpisodeNumber} " : string.Empty;
 
         // prefix episode title with season and episode numbers as configured
-        if (settings.SDSettings.PrefixEpisodeTitle)
+        if (sdsettings.PrefixEpisodeTitle)
         {
             mxfProgram.EpisodeTitle = se + mxfProgram.EpisodeTitle;
         }
 
         // prefix episode description with season and episode numbers as configured
-        if (settings.SDSettings.PrefixEpisodeDescription)
+        if (sdsettings.PrefixEpisodeDescription)
         {
             mxfProgram.Description = se + mxfProgram.Description;
             if (!string.IsNullOrEmpty(mxfProgram.ShortDescription))
@@ -619,7 +619,7 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<Setting> intsett
         }
 
         // append season and episode numbers to the program description as configured
-        if (settings.SDSettings.AppendEpisodeDesc)
+        if (sdsettings.AppendEpisodeDesc)
         {
             // add space before appending season and episode numbers in case there is no short description
             if (mxfProgram.SeasonNumber != 0 && mxfProgram.EpisodeNumber != 0)
@@ -704,7 +704,7 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<Setting> intsett
     private void DetermineCastAndCrew(MxfProgram prg, Programme sd)
     {
 
-        if (settings.SDSettings.ExcludeCastAndCrew)
+        if (sdsettings.ExcludeCastAndCrew)
         {
             return;
         }

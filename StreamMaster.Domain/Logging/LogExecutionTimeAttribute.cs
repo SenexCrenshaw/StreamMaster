@@ -1,6 +1,6 @@
 ﻿using AspectInjector.Broker;
 
-using Microsoft.Extensions.Logging;
+using StreamMaster.Domain.Configuration;
 
 using System.Diagnostics;
 using System.Reflection;
@@ -21,7 +21,7 @@ public class LogExecutionTimeAspect : Attribute
     [Argument(Source.ReturnType)] Type retType,
     [Argument(Source.Triggers)] Attribute[] triggers)
     {
-        List<string> LogPerformance = FileUtil.GetSetting().LogPerformance;
+        List<string> LogPerformance = FileUtil.GetSetting<Setting>(BuildInfo.SettingFileName).LogPerformance;
         string abbreviatedNamespace = AbbreviateNamespace(method.DeclaringType.FullName);
         string nameToLog = $"{abbreviatedNamespace}.{name}";
 

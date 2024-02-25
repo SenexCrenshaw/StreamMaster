@@ -13,16 +13,19 @@ namespace StreamMaster.SchedulesDirect;
 public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
 {
     private readonly ILogger<SchedulesDirectAPIService> logger;
+    private readonly SDSettings sdsettings;
     private readonly Setting settings;
     public HttpClient _httpClient = null!;
 
     private const string BaseAddress = "https://json.schedulesdirect.org/20141201/";
 
-    public SchedulesDirectAPIService(ILogger<SchedulesDirectAPIService> logger, IOptionsMonitor<Setting> intsettings)
+    public SchedulesDirectAPIService(ILogger<SchedulesDirectAPIService> logger, IOptionsMonitor<SDSettings> intsdsettings, IOptionsMonitor<Setting> intsettings)
     {
         this.logger = logger;
+        sdsettings = intsdsettings.CurrentValue;
         settings = intsettings.CurrentValue;
         CreateHttpClient();
+
     }
 
     private async Task<List<ProgramMetadata>?> GetArtworkAsync(string[] request)

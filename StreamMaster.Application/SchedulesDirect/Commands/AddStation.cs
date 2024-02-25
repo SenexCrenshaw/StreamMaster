@@ -8,10 +8,10 @@ public record StationRequest(string StationId, string LineUp);
 
 public record AddStation(List<StationRequest> Requests) : IRequest<bool>;
 
-public class AddStationHandler(ILogger<AddStation> logger, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<Setting> intsettings)
+public class AddStationHandler(ILogger<AddStation> logger, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intsettings)
 : IRequestHandler<AddStation, bool>
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intsettings.CurrentValue;
 
     public async Task<bool> Handle(AddStation request, CancellationToken cancellationToken)
     {
@@ -21,7 +21,7 @@ public class AddStationHandler(ILogger<AddStation> logger, IJobStatusService job
         }
 
 
-        if (!settings.SDSettings.SDEnabled)
+        if (!sdsettings.SDEnabled)
         {
             return true;
         }
@@ -32,7 +32,7 @@ public class AddStationHandler(ILogger<AddStation> logger, IJobStatusService job
         {
             SDSettings = new SDSettingsRequest
             {
-                SDStationIds = settings.SDSettings.SDStationIds
+                SDStationIds = sdsettings.SDStationIds
             }
         };
 

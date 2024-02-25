@@ -14,7 +14,7 @@ public partial class SchedulesDirect(
     IJobStatusService jobStatusService,
     ISchedulesDirectDataService schedulesDirectDataService,
     ISchedulesDirectAPIService schedulesDirectAPI,
-    IOptionsMonitor<Setting> intsettings,
+    IOptionsMonitor<SDSettings> intsettings,
     IDescriptions descriptions,
     IKeywords keywords,
     ILineups lineups,
@@ -30,7 +30,7 @@ public partial class SchedulesDirect(
     private readonly TimeSpan CacheDuration = TimeSpan.FromHours(23);
     private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
     private readonly SemaphoreSlim _syncSemaphore = new(1, 1);
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intsettings.CurrentValue;
 
 
     public static readonly int MaxQueries = 1250;
@@ -51,7 +51,7 @@ public partial class SchedulesDirect(
             }
 
 
-            if (!settings.SDSettings.SDEnabled)
+            if (!sdsettings.SDEnabled)
             {
                 jobManager.SetSuccessful();
                 return true;
@@ -79,7 +79,7 @@ public partial class SchedulesDirect(
             }
 
 
-            logger.LogInformation($"DaysToDownload: {settings.SDSettings.SDEPGDays}");
+            logger.LogInformation($"DaysToDownload: {sdsettings.SDEPGDays}");
 
             // load cache file
             ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();

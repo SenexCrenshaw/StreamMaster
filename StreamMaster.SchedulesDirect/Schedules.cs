@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.SchedulesDirect;
 
-public class Schedules(ILogger<Schedules> logger, IOptionsMonitor<Setting> intsettings, IEPGHelper ePGHelper, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Schedules> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : ISchedules
+public class Schedules(ILogger<Schedules> logger, IOptionsMonitor<SDSettings> intsettings, IEPGHelper ePGHelper, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Schedules> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : ISchedules
 {
     private int cachedSchedules;
     private int downloadedSchedules;
@@ -17,13 +17,13 @@ public class Schedules(ILogger<Schedules> logger, IOptionsMonitor<Setting> intse
     private int processedObjects;
     private int totalObjects;
     private int processStage;
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intsettings.CurrentValue;
 
     public async Task<bool> GetAllScheduleEntryMd5S(CancellationToken cancellationToken)
     {
         Dictionary<string, string[]> tempScheduleEntries = [];
 
-        int days = settings.SDSettings.SDEPGDays;
+        int days = sdsettings.SDEPGDays;
         days = Math.Clamp(days, 1, 14);
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         ICollection<MxfService> toProcess = schedulesDirectData.Services.Values;

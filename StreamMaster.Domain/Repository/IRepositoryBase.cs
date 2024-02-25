@@ -15,7 +15,7 @@ public interface IRepositoryBase<T> where T : class
     /// </summary>
     /// <param name="query">The query determining which entities to delete.</param>
     void BulkDelete(IQueryable<T> query);
-
+    Task SaveChangesAsync();
     Task BulkDeleteAsync(IQueryable<T> query, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -55,7 +55,7 @@ public interface IRepositoryBase<T> where T : class
     /// <param name="expression">Condition to be checked.</param>
     /// <returns>IQueryable of entities that satisfy the condition.</returns>
     public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression);
-
+    public IQueryable<T> FindByConditionTracked(Expression<Func<T, bool>> expression);
     /// <summary>
     /// Counts the total number of entities.
     /// </summary>

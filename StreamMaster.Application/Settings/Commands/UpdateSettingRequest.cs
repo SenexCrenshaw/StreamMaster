@@ -43,10 +43,11 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public List<string>? NameRegex { get; set; } = [];
 }
 
-public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger<UpdateSettingRequest> Logger, IMapper Mapper, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<Setting> intsettings)
+public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, IOptionsMonitor<SDSettings> intsdsettings, ILogger<UpdateSettingRequest> Logger, IMapper Mapper, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<Setting> intsettings)
 : IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
 {
     private readonly Setting settings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intsdsettings.CurrentValue;
 
     public static void CopyNonNullFields(SDSettingsRequest source, SDSettings destination)
     {
@@ -180,7 +181,7 @@ public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue,
     {
         Setting currentSetting = settings;
 
-        bool needsLogOut = await UpdateSetting(currentSetting, request, cancellationToken);
+        bool needsLogOut = await UpdateSetting(currentSetting, sdsettings, request, cancellationToken);
 
         Logger.LogInformation("UpdateSettingRequest");
         FileUtil.UpdateSetting(currentSetting);
@@ -209,7 +210,7 @@ public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue,
     /// <param name="currentSetting">The current setting.</param>
     /// <param name="request">The update setting request.</param>
     /// <returns>The updated setting as a SettingDto object.</returns>
-    private async Task<bool> UpdateSetting(Setting currentSetting, UpdateSettingRequest request, CancellationToken cancellationToken)
+    private async Task<bool> UpdateSetting(Setting currentSetting, SDSettings sdsettings, UpdateSettingRequest request, CancellationToken cancellationToken)
     {
         bool needsLogOut = false;
         bool needsSetProgrammes = false;
@@ -225,7 +226,8 @@ public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue,
 
         if (request.SDSettings != null)
         {
-            CopyNonNullFields(request.SDSettings, currentSetting.SDSettings);
+            CopyNonNullFields(request.SDSettings, sdsettings);
+            FileUtil.UpdateSetting(sdsettings);
         }
 
         if (request.EnableSSL != null && request.EnableSSL != currentSetting.EnableSSL)

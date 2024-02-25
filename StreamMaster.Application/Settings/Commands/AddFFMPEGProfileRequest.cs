@@ -4,14 +4,14 @@ namespace StreamMaster.Application.Settings.Commands;
 
 public record AddFFMPEGProfileRequest(string Name, string Parameters, int TimeOut, bool IsM3U8) : IRequest<UpdateSettingResponse> { }
 
-public class AddFFMPEGProfileRequestHandler(ILogger<AddFFMPEGProfileRequest> Logger, IMapper Mapper, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<Setting> intsettings)
+public class AddFFMPEGProfileRequestHandler(ILogger<AddFFMPEGProfileRequest> Logger, IOptionsMonitor<FFMPEGProfiles> intprofilesettings, IMapper Mapper)
 : IRequestHandler<AddFFMPEGProfileRequest, UpdateSettingResponse>
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+
+    private readonly FFMPEGProfiles profilesettings = intprofilesettings.CurrentValue;
 
     public async Task<UpdateSettingResponse> Handle(AddFFMPEGProfileRequest request, CancellationToken cancellationToken)
     {
-        Setting currentSetting = settings;
 
         FFMPEGProfile profile = new()
         {
@@ -20,22 +20,22 @@ public class AddFFMPEGProfileRequestHandler(ILogger<AddFFMPEGProfileRequest> Log
             IsM3U8 = request.IsM3U8
         };
 
-        if (currentSetting.FFMPEGProfiles.TryGetValue(request.Name, out FFMPEGProfile? existingProfile))
+        if (profilesettings.Profiles.TryGetValue(request.Name, out FFMPEGProfile? existingProfile))
         {
-            currentSetting.FFMPEGProfiles[request.Name] = profile;
+            profilesettings.Profiles[request.Name] = profile;
         }
         else
         {
-            currentSetting.FFMPEGProfiles.Add(request.Name, profile);
+            profilesettings.Profiles.Add(request.Name, profile);
         }
 
 
         Logger.LogInformation("AddFFMPEGProfileRequest");
 
-        FileUtil.UpdateSetting(currentSetting);
+        FileUtil.UpdateSetting(profilesettings);
 
 
-        SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
+        SettingDto ret = Mapper.Map<SettingDto>(profilesettings);
         return new UpdateSettingResponse { Settings = ret, NeedsLogOut = false };
     }
 

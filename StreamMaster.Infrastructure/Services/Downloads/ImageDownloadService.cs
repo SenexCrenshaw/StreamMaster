@@ -54,19 +54,20 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
         };
     }
 
-    public ImageDownloadService(ILogger<ImageDownloadService> logger, ISchedulesDirectAPIService schedulesDirectAPI, IImageDownloadQueue imageDownloadQueue, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> intsettings, ISchedulesDirectDataService schedulesDirectDataService)
+    public ImageDownloadService(ILogger<ImageDownloadService> logger, IOptionsMonitor<SDSettings> intsdsettings, ISchedulesDirectAPIService schedulesDirectAPI, IImageDownloadQueue imageDownloadQueue, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> intsettings, ISchedulesDirectDataService schedulesDirectDataService)
     {
         this.logger = logger;
         this.hubContext = hubContext;
         this.schedulesDirectDataService = schedulesDirectDataService;
         this.schedulesDirectAPI = schedulesDirectAPI;
-
+        sdsettings = intsdsettings.CurrentValue;
         this.imageDownloadQueue = imageDownloadQueue;
         settings = intsettings.CurrentValue;
 
         downloadSemaphore = new(settings.MaxConcurrentDownloads);
 
     }
+    private readonly SDSettings sdsettings;
 
     public void Start()
     {
@@ -87,7 +88,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
         while (!cancellationToken.IsCancellationRequested && !exitLoop)
         {
 
-            if (settings.SDSettings.SDEnabled && !imageDownloadQueue.IsEmpty() && BuildInfo.SetIsSystemReady)
+            if (sdsettings.SDEnabled && !imageDownloadQueue.IsEmpty() && BuildInfo.SetIsSystemReady)
             {
                 await DownloadImagesAsync(cancellationToken);
             }
@@ -195,7 +196,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
 
     private async Task DownloadImagesAsync(CancellationToken cancellationToken)
     {
-        string artworkSize = string.IsNullOrEmpty(settings.SDSettings.ArtworkSize) ? "Md" : settings.SDSettings.ArtworkSize;
+        string artworkSize = string.IsNullOrEmpty(sdsettings.ArtworkSize) ? "Md" : sdsettings.ArtworkSize;
 
         while (!cancellationToken.IsCancellationRequested)
         {

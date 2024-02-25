@@ -5,16 +5,16 @@ namespace StreamMaster.Application.SchedulesDirect.Commands;
 
 public record RemoveLineup(string lineup) : IRequest<bool>;
 
-public class RemoveLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusService jobStatusService, ILogger<RemoveLineup> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<Setting> intsettings)
+public class RemoveLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusService jobStatusService, ILogger<RemoveLineup> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<SDSettings> intsettings)
 : IRequestHandler<RemoveLineup, bool>
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intsettings.CurrentValue;
 
     public async Task<bool> Handle(RemoveLineup request, CancellationToken cancellationToken)
     {
         JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
 
-        if (!settings.SDSettings.SDEnabled)
+        if (!sdsettings.SDEnabled)
         {
             return false;
         }

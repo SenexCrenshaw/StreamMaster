@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Configuration;
+
 using System.Web;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
@@ -163,6 +164,8 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
         return ret;
     }
+
+
 
     public void UpdateStreamGroup(StreamGroup StreamGroup)
     {

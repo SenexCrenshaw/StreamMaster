@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect.Images;
-public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<Setting> intsettings, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService) : ISeasonImages
+public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> intsettings, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService) : ISeasonImages
 {
     private readonly List<MxfSeason> seasons = [];
     private List<string> seasonImageQueue = [];
@@ -14,7 +14,7 @@ public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> 
     private int processedObjects;
     private int totalObjects;
 
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intsettings.CurrentValue;
     public async Task<bool> GetAllSeasonImages()
     {
 
@@ -22,7 +22,7 @@ public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> 
         seasonImageQueue = [];
         seasonImageResponses = [];
         //IncrementNextStage(mxf.SeasonsToProcess.Count);
-        if (!settings.SDSettings.SeasonEventImages)
+        if (!sdsettings.SeasonEventImages)
         {
             return true;
         }
@@ -136,7 +136,7 @@ public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> 
     private void ProcessSeasonImageResponses()
     {
 
-        string artworkSize = string.IsNullOrEmpty(settings.SDSettings.ArtworkSize) ? "Md" : settings.SDSettings.ArtworkSize;
+        string artworkSize = string.IsNullOrEmpty(sdsettings.ArtworkSize) ? "Md" : sdsettings.ArtworkSize;
 
         // process request response
         foreach (ProgramMetadata response in seasonImageResponses)

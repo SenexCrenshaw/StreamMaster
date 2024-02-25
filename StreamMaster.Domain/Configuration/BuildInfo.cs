@@ -25,7 +25,7 @@ namespace StreamMaster.Domain.Configuration
                     ? informationalVersion.InformationalVersion[..(informationalVersion.InformationalVersion.IndexOf("Sha", StringComparison.Ordinal) - 1)]
                     : informationalVersion.InformationalVersion;
             }
-
+            GetSettingFiles();
         }
 
         public static bool IsLinux => RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
@@ -141,7 +141,7 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string LogFilePath = Path.Combine(LogFolder, "StreamMasterAPI.log");
 
         public static readonly string LoggingFileName = "logsettings.json";
-        public static readonly string LoggingSettingsFile = GetSettingFilePath(LoggingFileName);
+        public static readonly string LoggingSettingsFile = GetSettingFilePath(LoggingFileName, AppDataFolder);
 
         public static readonly string SettingFileName = "settings.json";
         public static readonly string SettingsFile = GetSettingFilePath(SettingFileName, AppDataFolder);
@@ -193,8 +193,10 @@ namespace StreamMaster.Domain.Configuration
             {
                 folder = SettingsFolder;
             }
+            return Path.Combine(folder, settingFileName);
 
-            return File.Exists(Path.Combine(folder, settingFileName)) ? Path.Combine(folder, settingFileName) : settingFileName;
+
+            //return File.Exists(Path.Combine(folder, settingFileName)) ? Path.Combine(folder, settingFileName) : settingFileName;
         }
 
         ///// <summary>

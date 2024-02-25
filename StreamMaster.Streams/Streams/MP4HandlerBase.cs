@@ -4,11 +4,15 @@ using System.Diagnostics;
 
 namespace StreamMaster.Streams.Streams;
 
-public class MP4HandlerBase(ILogger logger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, VideoStreamDto videoStream, IOptionsMonitor<Setting> intsettings)
+public class MP4HandlerBase(ILogger logger,
+                            ILogger<FFMPEGRunner> FFMPEGRunnerlogger,
+                            VideoStreamDto videoStream,
+                            IOptionsMonitor<Setting> intsettings,
+                            IOptionsMonitor<HLSSettings> inthlssettings)
 {
 
     internal readonly CancellationTokenSource HLSCancellationTokenSource = new();
-    internal readonly FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerlogger, intsettings);
+    internal readonly FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerlogger, intsettings, inthlssettings);
     internal bool Started;
 
     public string Id => videoStream.Id;

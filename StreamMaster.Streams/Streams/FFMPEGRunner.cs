@@ -4,8 +4,9 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace StreamMaster.Streams.Streams;
-public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting> intsettings)
+public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting> intsettings, IOptionsMonitor<HLSSettings> inthlssettings)
 {
+    private readonly HLSSettings hlssettings = inthlssettings.CurrentValue;
     private readonly Setting settings = intsettings.CurrentValue;
 
     public event EventHandler<ProcessExitEventArgs> ProcessExited;
@@ -82,17 +83,17 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
                 Directory.CreateDirectory(outputdir);
             }
 
-            string formattedArgs = settings.HLS.HLSFFMPEGOptions.Replace("{streamUrl}", $"\"{videoStream.User_Url}\"").Trim();
+            string formattedArgs = hlssettings.HLSFFMPEGOptions.Replace("{streamUrl}", $"\"{videoStream.User_Url}\"").Trim();
             formattedArgs = formattedArgs += " ";
 
             formattedArgs +=
-       $"-reconnect_delay_max {settings.HLS.HLSReconnectDurationInSeconds} " +
+       $"-reconnect_delay_max {hlssettings.HLSReconnectDurationInSeconds} " +
        $"-user_agent \"{settings.StreamingClientUserAgent}\" ";
 
 
-            formattedArgs += $"-hls_time {settings.HLS.HLSSegmentDurationInSeconds} " +
-                              $"-hls_list_size {settings.HLS.HLSSegmentCount} " +
-                              $"-hls_delete_threshold {settings.HLS.HLSSegmentCount} ";
+            formattedArgs += $"-hls_time {hlssettings.HLSSegmentDurationInSeconds} " +
+                              $"-hls_list_size {hlssettings.HLSSegmentCount} " +
+                              $"-hls_delete_threshold {hlssettings.HLSSegmentCount} ";
 
             formattedArgs += $"-hls_base_url \"{videoStream.Id}/\" " +
                              $"-hls_segment_filename \"{outputdir}%d.ts\" " +

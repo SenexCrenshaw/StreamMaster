@@ -14,7 +14,7 @@ public partial class SchedulesDirectAPIService
     public async Task<bool> GetToken()
     {
 
-        return settings.SDSettings.SDEnabled && await GetToken(settings.SDSettings.SDUserName, settings.SDSettings.SDPassword);
+        return sdsettings.SDEnabled && await GetToken(sdsettings.SDUserName, sdsettings.SDPassword);
     }
 
     public void ClearToken()

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Streams.Domain.Interfaces;
 using StreamMaster.Streams.Domain.Models;
@@ -33,14 +34,14 @@ namespace StreamMaster.API.Controllers
 
             string m3u8File = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.CurrentVideoStream.Id, $"index.m3u8");
 
-            if (!await FileUtil.WaitForFileAsync(m3u8File, Settings.HLS.HLSM3U8CreationTimeOutInSeconds, 100, cancellationToken))
+            if (!await FileUtil.WaitForFileAsync(m3u8File, HLSSettings.HLSM3U8CreationTimeOutInSeconds, 100, cancellationToken))
             {
                 logger.LogWarning("HLS segment not found {FileName}, exiting", m3u8File);
                 hLsManager.Stop(channelStatus.CurrentVideoStream.Id);
                 return NotFound();
             }
 
-            accessTracker.UpdateAccessTime(channelStatus.CurrentVideoStream.Id, TimeSpan.FromSeconds(Settings.HLS.HLSM3U8ReadTimeOutInSeconds));
+            accessTracker.UpdateAccessTime(channelStatus.CurrentVideoStream.Id, TimeSpan.FromSeconds(HLSSettings.HLSM3U8ReadTimeOutInSeconds));
 
             HttpContext.Response.Headers.Connection = "close";
             HttpContext.Response.Headers.AccessControlAllowOrigin = "*";
@@ -67,7 +68,7 @@ namespace StreamMaster.API.Controllers
             try
             {
 
-                accessTracker.UpdateAccessTime(videoStreamId, TimeSpan.FromSeconds(Settings.HLS.HLSTSReadTimeOutInSeconds));
+                accessTracker.UpdateAccessTime(videoStreamId, TimeSpan.FromSeconds(HLSSettings.HLSTSReadTimeOutInSeconds));
 
                 HttpContext.Response.Headers.Connection = "close";
                 HttpContext.Response.Headers.AccessControlAllowOrigin = "*";
@@ -104,7 +105,7 @@ namespace StreamMaster.API.Controllers
                 url += "/api/stream/" + videoStreamId + ".m3u8";
 
                 logger.LogInformation("Adding MP4Handler for {name}", videoStreamDto.User_Tvg_name);
-                FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerlogger, intsettings);
+                FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerlogger, intsettings, inthlssettings);
                 ffmpegRunner.ProcessExited += (sender, args) =>
                 {
                     logger.LogInformation("MP4Handler Process Exited for {Name} with exit code {ExitCode}", videoStreamDto.User_Tvg_name, args.ExitCode);

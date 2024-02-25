@@ -113,7 +113,7 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
             {
                 string url = httpContextAccessor.GetUrl();
                 string videoUrl;
-                if (Settings.HLS.HLSM3U8Enable)
+                if (HLSSettings.HLSM3U8Enable)
                 {
                     videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
                     return Redirect(videoUrl);

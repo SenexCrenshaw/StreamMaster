@@ -5,17 +5,17 @@ namespace StreamMaster.Application.SchedulesDirect.Commands;
 
 public record AddLineup(string lineup) : IRequest<bool>;
 
-public class AddLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusService jobStatusService, ILogger<AddLineup> logger, IOptionsMonitor<Setting> intsettings)
+public class AddLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusService jobStatusService, ILogger<AddLineup> logger, IOptionsMonitor<SDSettings> intsettings)
 : IRequestHandler<AddLineup, bool>
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intsettings.CurrentValue;
 
     public async Task<bool> Handle(AddLineup request, CancellationToken cancellationToken)
     {
         JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
 
 
-        if (!settings.SDSettings.SDEnabled)
+        if (!sdsettings.SDEnabled)
         {
             return false;
         }

@@ -16,9 +16,10 @@ using System.Web;
 namespace StreamMaster.API.Controllers;
 
 
-public class VController(IRepositoryWrapper Repository, ISender sender, IOptionsMonitor<Setting> intsettings, IHttpContextAccessor httpContextAccessor) : Controller
+public class VController(IRepositoryWrapper Repository, ISender sender, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intsettings, IHttpContextAccessor httpContextAccessor) : Controller
 {
     private readonly Setting settings = intsettings.CurrentValue;
+    private readonly HLSSettings hlssettings = inthlssettings.CurrentValue;
 
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
@@ -37,7 +38,7 @@ public class VController(IRepositoryWrapper Repository, ISender sender, IOptions
 
         string videoUrl;
         string url = httpContextAccessor.GetUrl();
-        if (settings.HLS.HLSM3U8Enable)
+        if (hlssettings.HLSM3U8Enable)
         {
             videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
             return Redirect(videoUrl);

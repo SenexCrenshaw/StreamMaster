@@ -1,12 +1,17 @@
 using StreamMaster.Domain.Configuration;
 
+using System.Xml.Serialization;
+
 namespace StreamMaster.Domain.Dto;
 
 
 public class SettingDto : BaseSettings, IMapFrom<Setting>
 {
-    public Dictionary<string, FFMPEGProfile> FFMPEGProfiles { get; set; } = [];
+    [XmlIgnore]
+    public FFMPEGProfileDtos FFMPEGProfiles { get; set; } = [];
+    [XmlIgnore]
     public SDSettings SDSettings { get; set; } = new();
+    [XmlIgnore]
     public HLSSettings HLS { get; set; } = new();
 
     public string Release { get; set; } = BuildInfo.Release.ToString();
