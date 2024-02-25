@@ -21,7 +21,7 @@ public class LogExecutionTimeAspect : Attribute
     [Argument(Source.ReturnType)] Type retType,
     [Argument(Source.Triggers)] Attribute[] triggers)
     {
-        List<string> LogPerformance = FileUtil.GetSetting<Setting>(BuildInfo.SettingFileName).LogPerformance;
+        List<string> LogPerformance = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingFileName).LogPerformance;
         string abbreviatedNamespace = AbbreviateNamespace(method.DeclaringType.FullName);
         string nameToLog = $"{abbreviatedNamespace}.{name}";
 

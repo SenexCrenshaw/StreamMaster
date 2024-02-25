@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Net;
 using System.Text;
-using System.Text.Json;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -242,7 +241,7 @@ public sealed class FileUtil
 
     public static async Task Backup(int? versionsToKeep = null)
     {
-        Setting? setting = GetSetting<Setting>(BuildInfo.SettingFileName);
+        Setting? setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingFileName);
         if (setting.BackupEnabled == false)
         {
             return;
@@ -250,7 +249,7 @@ public sealed class FileUtil
 
         try
         {
-            versionsToKeep ??= GetSetting<Setting>(BuildInfo.SettingFileName)?.BackupVersionsToKeep ?? 5;
+            versionsToKeep ??= SettingsHelper.GetSetting<Setting>(BuildInfo.SettingFileName)?.BackupVersionsToKeep ?? 5;
             using Process process = new();
             process.StartInfo.FileName = "/bin/bash";
             process.StartInfo.Arguments = $"/usr/local/bin/backup.sh {versionsToKeep}";
@@ -362,31 +361,6 @@ public sealed class FileUtil
         return ret;
     }
 
-    public static readonly object FileLock = new();
-    public static T? GetSetting<T>(string SettingsFile)
-    {
-        lock (FileLock)
-        {
-            if (!File.Exists(SettingsFile))
-            {
-                return default;
-            }
-
-            string jsonString;
-            T? ret;
-
-            try
-            {
-                jsonString = File.ReadAllText(SettingsFile);
-                ret = JsonSerializer.Deserialize<T>(jsonString);
-                return ret != null ? ret : default;
-            }
-            catch (Exception ex)
-            {
-                return default;
-            }
-        }
-    }
 
     public static bool IsFileGzipped(string filePath)
     {
@@ -408,46 +382,5 @@ public sealed class FileUtil
         }
     }
 
-    public static void UpdateSetting(dynamic setting)
-    {
-        string fileName = "";
-        string? dir = null;
 
-        if (typeof(Setting).IsAssignableFrom(setting.GetType()))
-        {
-            fileName = BuildInfo.SettingsFile;
-            dir = Path.GetDirectoryName(fileName);
-        }
-
-        if (typeof(FFMPEGProfiles).IsAssignableFrom(setting.GetType()))
-        {
-            fileName = BuildInfo.ProfileSettingsFile;
-            dir = Path.GetDirectoryName(fileName);
-        }
-
-        if (typeof(HLSSettings).IsAssignableFrom(setting.GetType()))
-        {
-            fileName = BuildInfo.HLSSettingsFile;
-            dir = Path.GetDirectoryName(fileName);
-        }
-
-        if (typeof(SDSettings).IsAssignableFrom(setting.GetType()))
-        {
-            fileName = BuildInfo.SDSettingsFile;
-            dir = Path.GetDirectoryName(fileName);
-        }
-
-        if (string.IsNullOrEmpty(dir))
-        {
-            return;
-        }
-
-        if (!Directory.Exists(dir))
-        {
-            Directory.CreateDirectory(dir);
-        }
-
-        string jsonString = JsonSerializer.Serialize(setting, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(fileName, jsonString);
-    }
 }

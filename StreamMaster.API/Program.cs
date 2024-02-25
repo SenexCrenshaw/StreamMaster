@@ -47,33 +47,33 @@ var settingsFiles = BuildInfo.GetSettingFiles();
 
 builder.Configuration.SetBasePath(BuildInfo.StartUpPath).AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
-var profileSetting = FileUtil.GetSetting<FFMPEGProfiles>(BuildInfo.ProfileSettingsFile);
+var profileSetting = SettingsHelper.GetSetting<FFMPEGProfiles>(BuildInfo.ProfileSettingsFile);
 if (profileSetting == default(FFMPEGProfiles))
 {    
-    FileUtil.UpdateSetting(SettingFiles.DefaultProfileSetting);
+    SettingsHelper.UpdateSetting(SettingFiles.DefaultProfileSetting);
 }
 
-var hlsSetting = FileUtil.GetSetting<HLSSettings>(BuildInfo.HLSSettingsFile);
+var hlsSetting = SettingsHelper.GetSetting<HLSSettings>(BuildInfo.HLSSettingsFile);
 if (hlsSetting == default(HLSSettings))
 {
-    FileUtil.UpdateSetting(new HLSSettings());
+    SettingsHelper.UpdateSetting(new HLSSettings());
 }
 
-var mainSetting = FileUtil.GetSetting<OldSetting>(BuildInfo.SettingsFile);
+var mainSetting = SettingsHelper.GetSetting<OldSetting>(BuildInfo.SettingsFile);
 if (mainSetting != default(OldSetting))
 {
     if (mainSetting.SDSettings != default(SDSettings) )
     {
-        FileUtil.UpdateSetting(mainSetting.SDSettings);
+        SettingsHelper.UpdateSetting(mainSetting.SDSettings);
         var toWrite = mainSetting.ConvertToSetting();
-        FileUtil.UpdateSetting(toWrite);
+        SettingsHelper.UpdateSetting(toWrite);
     }
 }
 
-var sdSettings = FileUtil.GetSetting<SDSettings>(BuildInfo.SDSettingsFile);
+var sdSettings = SettingsHelper.GetSetting<SDSettings>(BuildInfo.SDSettingsFile);
 if (sdSettings == default(SDSettings))
 {
-    FileUtil.UpdateSetting(new SDSettings());
+    SettingsHelper.UpdateSetting(new SDSettings());
 }
 
 

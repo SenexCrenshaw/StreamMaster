@@ -184,15 +184,7 @@ public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue,
         bool needsLogOut = await UpdateSetting(currentSetting, sdsettings, request, cancellationToken);
 
         Logger.LogInformation("UpdateSettingRequest");
-        FileUtil.UpdateSetting(currentSetting);
-
-        //MemoryCacheEntryOptions cacheEntryOptions = new()
-        //{
-        //    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
-        //};
-
-        // MemoryCache.SetSetting(currentSetting);
-        //_ = memoryCache.Set("Setting", currentSetting, cacheEntryOptions);
+        SettingsHelper.UpdateSetting(currentSetting);
 
         SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
         await HubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);
@@ -227,7 +219,7 @@ public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue,
         if (request.SDSettings != null)
         {
             CopyNonNullFields(request.SDSettings, sdsettings);
-            FileUtil.UpdateSetting(sdsettings);
+            SettingsHelper.UpdateSetting(sdsettings);
         }
 
         if (request.EnableSSL != null && request.EnableSSL != currentSetting.EnableSSL)

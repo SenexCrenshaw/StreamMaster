@@ -32,7 +32,7 @@ public class AddFFMPEGProfileRequestHandler(ILogger<AddFFMPEGProfileRequest> Log
 
         Logger.LogInformation("AddFFMPEGProfileRequest");
 
-        FileUtil.UpdateSetting(profilesettings);
+        SettingsHelper.UpdateSetting(profilesettings);
 
 
         SettingDto ret = Mapper.Map<SettingDto>(profilesettings);

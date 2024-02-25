@@ -4,7 +4,7 @@
 . /env.sh
 
 # Configuration
-backup_dirs="/config/PlayLists /config/Logs /config/Cache/SDJson" # Space-separated list of directories
+backup_dirs="/config/PlayLists /config/Logs /config/Cache/SDJson /config/Settings" # Space-separated list of directories
 backup_files="/config/settings.json /config/logsettings.json" # Space-separated list of files
 backup_path="/config/backups"
 versions_to_keep=5

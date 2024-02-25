@@ -18,7 +18,7 @@ public class RemoveFFMPEGProfileRequestHandler(IOptionsMonitor<FFMPEGProfiles> i
 
             Logger.LogInformation("RemoveFFMPEGProfileRequest");
 
-            FileUtil.UpdateSetting(profilesettings);
+            SettingsHelper.UpdateSetting(profilesettings);
 
         }
 

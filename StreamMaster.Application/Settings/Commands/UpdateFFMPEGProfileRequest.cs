@@ -48,7 +48,7 @@ public class UpdateFFMPEGProfileRequestHandler(
             }
             Logger.LogInformation("UpdateFFMPEGProfileRequest");
 
-            FileUtil.UpdateSetting(profilesettings);
+            SettingsHelper.UpdateSetting(profilesettings);
 
         }
         SettingDto ret = await Sender.Send(new GetSettings(), cancellationToken);
