@@ -4,13 +4,13 @@ using Microsoft.Extensions.Logging;
 using StreamMaster.Domain.Models;
 
 namespace StreamMaster.Streams.Streams;
-
-public class HLSHandler(ILogger<HLSHandler> logger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, VideoStreamDto parentvideoStream, IMemoryCache memoryCache)
-     : MP4HandlerBase(logger, FFMPEGRunnerlogger, parentvideoStream, memoryCache), IHLSHandler, IDisposable
+public class MP4Handler(ILogger<MP4Handler> logger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, VideoStreamDto parentvideoStream, IMemoryCache memoryCache)
+    : MP4HandlerBase(logger, FFMPEGRunnerlogger, parentvideoStream, memoryCache), IHLSHandler, IDisposable
 {
     public event EventHandler<ProcessExitEventArgs> ProcessExited;
+
     public Stream? Stream { get; private set; }
-    public void Start()
+    public async Task Start()
     {
         if (Started)
         {
@@ -19,7 +19,7 @@ public class HLSHandler(ILogger<HLSHandler> logger, ILogger<FFMPEGRunner> FFMPEG
 
         logger.LogInformation("Starting MP4Handler for {Name}", Name);
 
-        Task backgroundTask = ffmpegRunner.HLSStartStreamingInBackgroundAsync(parentvideoStream, HLSCancellationTokenSource.Token);
+        (Stream, int processId, ProxyStreamError? error) = await ffmpegRunner.CreateFFMpegStream(Url, Name);
 
         ffmpegRunner.ProcessExited += (sender, args) =>
         {
@@ -39,9 +39,9 @@ public class HLSHandler(ILogger<HLSHandler> logger, ILogger<FFMPEGRunner> FFMPEG
         string directory = Path.Combine(BuildInfo.HLSOutputFolder, Id);
         DirectoryHelper.DeleteDirectory(directory, logger);
     }
+
     public void Dispose()
     {
         HLSCancellationTokenSource.Cancel();
-
     }
 }

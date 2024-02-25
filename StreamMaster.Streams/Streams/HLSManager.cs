@@ -5,26 +5,32 @@ using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Streams;
 
-public class HLSManager(ILogger<HLSManager> logger, ILogger<HLSHandler> HLSHandlerlogger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IMemoryCache memoryCache) : IHLSManager
+public class HLSManager(ILogger<HLSManager> logger, ILogger<HLSHandler> HLSHandlerlogger, ILogger<MP4Handler> MP4Handlerlogger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IMemoryCache memoryCache) : IHLSManager
 {
-    private readonly ConcurrentDictionary<string, HLSHandler> hlsHandlers = new();
+    private readonly ConcurrentDictionary<string, IHLSHandler> hlsHandlers = new();
 
     private readonly CancellationTokenSource HLSCancellationTokenSource = new();
 
-    public IHLSHandler GetOrAdd(VideoStreamDto videoStream)
+    public async Task<IHLSHandler> GetOrAdd(VideoStreamDto videoStream)
     {
-        return hlsHandlers.GetOrAdd(videoStream.User_Url, _ =>
+        if (hlsHandlers.ContainsKey(videoStream.User_Url))
         {
-            logger.LogInformation("Adding HLSHandler for {name}", videoStream.User_Tvg_name);
-            HLSHandler handler = new(HLSHandlerlogger, FFMPEGRunnerlogger, videoStream, memoryCache);
-            handler.Start();
-            handler.ProcessExited += (sender, args) =>
-            {
-                logger.LogInformation("HLSHandler Process Exited for {Name} with exit code {ExitCode}", videoStream.User_Tvg_name, args.ExitCode);
-                Stop(videoStream.Id);
-            };
-            return handler;
-        });
+            return hlsHandlers[videoStream.User_Url];
+        }
+
+
+        logger.LogInformation("Adding HLSHandler for {name}", videoStream.User_Tvg_name);
+        HLSHandler hlsHandler = new(HLSHandlerlogger, FFMPEGRunnerlogger, videoStream, memoryCache);
+        hlsHandler.Start();
+        hlsHandler.ProcessExited += (sender, args) =>
+        {
+            logger.LogInformation("HLSHandler Process Exited for {Name} with exit code {ExitCode}", videoStream.User_Tvg_name, args.ExitCode);
+            Stop(videoStream.Id);
+        };
+        hlsHandlers.TryAdd(videoStream.User_Url, hlsHandler);
+        return hlsHandler;
+
+
     }
 
 

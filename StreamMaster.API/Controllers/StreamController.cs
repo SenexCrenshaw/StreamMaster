@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMaster.Streams.Domain.Interfaces;
-
+using StreamMaster.Streams.Domain.Models;
+using StreamMaster.Streams.Streams;
 
 
 namespace StreamMaster.API.Controllers
 {
-    public class StreamController(ILogger<StreamController> logger, IChannelService channelService, IVideoStreamService videoStreamService, IAccessTracker accessTracker, IHLSManager hLsManager, IMemoryCache memoryCache) : ApiControllerBase
+    public class StreamController(ILogger<StreamController> logger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IChannelService channelService, IVideoStreamService videoStreamService, IAccessTracker accessTracker, IHLSManager hLsManager, IMemoryCache memoryCache) : ApiControllerBase
     {
         [Authorize(Policy = "SGLinks")]
         [HttpGet]
@@ -29,7 +30,7 @@ namespace StreamMaster.API.Controllers
                 return NotFound();
             }
 
-            IHLSHandler hlsHandler = hLsManager.GetOrAdd(channelStatus.CurrentVideoStream);
+            IHLSHandler hlsHandler = await hLsManager.GetOrAdd(channelStatus.CurrentVideoStream);
 
             string m3u8File = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.CurrentVideoStream.Id, $"index.m3u8");
             Setting setting = memoryCache.GetSetting();
@@ -84,5 +85,65 @@ namespace StreamMaster.API.Controllers
                 return StatusCode(500, "Error streaming video");
             }
         }
+
+        [Authorize(Policy = "SGLinks")]
+        [HttpGet]
+        [HttpHead]
+        [Route("{videoStreamId}.mp4")]
+        public async Task<ActionResult> GetVideoStreamMP4(string videoStreamId, CancellationToken cancellationToken)
+        {
+            VideoStreamDto? videoStreamDto = await videoStreamService.GetVideoStreamDtoAsync(videoStreamId, cancellationToken);
+            if (videoStreamDto is null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                Setting setting = memoryCache.GetSetting();
+                HttpRequest request = HttpContext.Request;
+                string url = GetUrl(request);
+                url += "/api/stream/" + videoStreamId + ".m3u8";
+
+                logger.LogInformation("Adding MP4Handler for {name}", videoStreamDto.User_Tvg_name);
+                FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerlogger, memoryCache);
+                ffmpegRunner.ProcessExited += (sender, args) =>
+                {
+                    logger.LogInformation("MP4Handler Process Exited for {Name} with exit code {ExitCode}", videoStreamDto.User_Tvg_name, args.ExitCode);
+                    //check streams
+                };
+                (Stream? stream, int processId, ProxyStreamError? error) = await ffmpegRunner.CreateFFMpegStream(url, videoStreamDto.User_Tvg_name);
+
+                return stream != null ? new FileStreamResult(stream, "video/mp4") : StatusCode(StatusCodes.Status404NotFound);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error streaming video file {videoStreamId}", videoStreamId);
+                return StatusCode(500, "Error streaming video");
+            }
+        }
+        private class UnregisterClientOnDispose(IChannelService _channelService, IChannelStatus channelStatus, string _channelVideoStreamId) : IDisposable
+        {
+            private readonly IChannelService _channelService = _channelService;
+            private readonly string _channelVideoStreamId = _channelVideoStreamId;
+            private readonly IChannelStatus _channelStatus = channelStatus;
+
+            public void Dispose()
+            {
+
+                int count = _channelService.GetChannelStatusesFromVideoStreamId(_channelVideoStreamId).Count();
+                if (count == 0)
+                {
+                    _channelService.UnRegisterChannel(_channelVideoStreamId);
+                }
+            }
+        }
+        private string GetUrl(HttpRequest request)
+        {
+
+            return $"{request.Scheme}://{request.Host}";
+        }
     }
+
+
 }

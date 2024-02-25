@@ -34,7 +34,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
     public int ProcessId => process.Id;
 
     // Start the streaming process in the background
-    public Task StartStreamingInBackgroundAsync(VideoStreamDto videoStream, CancellationToken cancellationToken)
+    public Task HLSStartStreamingInBackgroundAsync(VideoStreamDto videoStream, CancellationToken cancellationToken)
     {
         // Start the streaming task without awaiting it here, letting it run in the background
         Task<(int processId, ProxyStreamError? error)> streamingTask = Task.Run(() => CreateFFMpegHLS(videoStream, cancellationToken), cancellationToken);
@@ -60,11 +60,10 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
     }
 
     private Process process;
-    public async Task<(int processId, ProxyStreamError? error)> CreateFFMpegHLS(VideoStreamDto videoStream, CancellationToken cancellationToken)
+    private async Task<(int processId, ProxyStreamError? error)> CreateFFMpegHLS(VideoStreamDto videoStream, CancellationToken cancellationToken)
     {
         try
         {
-
             string? ffmpegExec = GetFFPMpegExec();
             if (ffmpegExec == null)
             {
@@ -117,11 +116,10 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
 
-            process.EnableRaisingEvents = true;
+            //process.EnableRaisingEvents = true;
             //process.Exited += OnProcessExited;
             process.ErrorDataReceived += (sender, args) => logger.LogDebug(args.Data);
             bool processStarted = process.Start();
-
 
             process.BeginErrorReadLine();
 
@@ -146,21 +144,6 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
             return (-1, error);
         }
     }
-
-    //protected virtual void OnProcessExited(object? sender, EventArgs e)
-    //{
-    //    if (sender != null)
-    //    {
-    //        Process? p = sender as Process;
-    //        logger.LogInformation("FFMpeg process exited with code {ExitCode}", p.ExitCode);
-    //    }
-    //    else
-    //    {
-    //        logger.LogInformation("FFMpeg process exited with code {ExitCode}", process.ExitCode);
-    //    }
-
-    //    ProcessExited?.Invoke(this, new ProcessExitEventArgs { ExitCode = process.ExitCode });
-    //}
 
     public async Task<(Stream? stream, int processId, ProxyStreamError? error)> CreateFFMpegStream(string streamUrl, string streamName)
     {
@@ -190,9 +173,15 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
-
+            process.EnableRaisingEvents = true;
+            process.Exited += (sender, args) =>
+            {
+                ProcessExited?.Invoke(this, new ProcessExitEventArgs { ExitCode = process.ExitCode });
+            };
+            process.ErrorDataReceived += (sender, args) => logger.LogDebug(args.Data);
             bool processStarted = process.Start();
-            stopwatch.Stop();
+            process.BeginErrorReadLine();
+
             if (!processStarted)
             {
                 // Log and return an error if the process couldn't be started
@@ -205,6 +194,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IMemoryCache memoryCache
             // Return the standard output stream of the process
 
             logger.LogInformation("Opened ffmpeg stream for {streamName} with args \"{formattedArgs}\" in {ElapsedMilliseconds} ms", streamName, formattedArgs, stopwatch.ElapsedMilliseconds);
+
             return (await Task.FromResult(process.StandardOutput.BaseStream).ConfigureAwait(false), process.Id, null);
         }
         catch (Exception ex)
