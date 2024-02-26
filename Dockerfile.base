@@ -3,6 +3,7 @@ ARG TARGETPLATFORM
 ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
+ARG DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /app
 
@@ -12,7 +13,17 @@ RUN \
     --mount=type=cache,id=apt-$TARGETARCH$TARGETVARIANT,sharing=locked,target=/var/cache/apt \
     apt-get update -yq \
     && apt-get upgrade -yq \
-    && apt-get install -yq --no-install-recommends ffmpeg gosu postgresql postgresql-common curl gnupg lsb-release \
+    && apt-get install -yq --no-install-recommends xz-utils gosu postgresql postgresql-common curl gnupg lsb-release \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \    
+    && rm -rf /var/lib/apt/lists/* \
     && mkdir /docker-entrypoint-initdb.d
+
+RUN if [ "$TARGETARCH" = "arm64" ]; then curl -L -o /tmp/ffmpeg.tar.xz https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz; else curl -L -o /tmp/ffmpeg.tar.xz https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz; fi
+
+RUN mkdir /tmp/ffmpeg/ \
+    && tar -Jxvvf /tmp/ffmpeg.tar.xz --strip-components=1 -C /tmp/ffmpeg/ \
+    && cp /tmp/ffmpeg/bin/ffmpeg /usr/local/bin \
+    && cp /tmp/ffmpeg/bin/ffprobe /usr/local/bin \
+    && chmod +x /usr/local/bin/ffmpeg /usr/local/bin/ffprobe \
+    && rm -rf /tmp/ffmpeg.tar.xz /tmp/ffmpeg/ \
+    && /usr/local/bin/ffmpeg -version
