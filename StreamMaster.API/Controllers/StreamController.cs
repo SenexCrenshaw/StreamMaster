@@ -53,11 +53,11 @@ namespace StreamMaster.API.Controllers
                     hLsManager.Stop(channelStatus.CurrentVideoStream.Id);
                     return NotFound();
                 }
-            }
 
-            if (streamTracker.AddStream(channelStatus.CurrentVideoStream.Id))
-            {
-                //timeOut = HLSSettings.HLSM3U8CreationTimeOutInSeconds;
+                if (streamTracker.AddStream(channelStatus.CurrentVideoStream.Id))
+                {
+                    //timeOut = HLSSettings.HLSM3U8CreationTimeOutInSeconds;
+                }
             }
 
             accessTracker.UpdateAccessTime(channelStatus.CurrentVideoStream.Id, TimeSpan.FromSeconds(HLSSettings.HLSM3U8ReadTimeOutInSeconds));
