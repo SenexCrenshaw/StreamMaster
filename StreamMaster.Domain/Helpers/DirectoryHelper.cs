@@ -16,6 +16,14 @@ public static class DirectoryHelper
         Debug.WriteLine(message);
     }
 
+    public static void RenameDirectory(string oldName, string newName)
+    {
+        if (Directory.Exists(oldName))
+        {
+            Directory.Move(oldName, newName);
+        }
+    }
+
     public static void CreateApplicationDirectories(bool alwaysRun = false)
     {
         if (setupDirectories && !alwaysRun)

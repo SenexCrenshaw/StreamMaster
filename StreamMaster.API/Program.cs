@@ -27,6 +27,10 @@ using System.Text.Json.Serialization;
 
 ProcessHelper.KillProcessByName("ffmpeg");
 
+DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "hls"), BuildInfo.HLSOutputFolder);
+DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "settings"), BuildInfo.SettingsFolder);
+DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "backups"), BuildInfo.BackupFolder);
+
 DirectoryHelper.CreateApplicationDirectories();
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -48,6 +52,12 @@ builder.WebHost.ConfigureKestrel((context, serverOptions) =>
 var settingsFiles = BuildInfo.GetSettingFiles();
 
 builder.Configuration.SetBasePath(BuildInfo.StartUpPath).AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+
+if ( Directory.Exists(BuildInfo.SettingsFolder))
+{
+    builder.Configuration.SetBasePath(BuildInfo.AppDataFolder);
+}
 
 var profileSetting = SettingsHelper.GetSetting<FFMPEGProfiles>(BuildInfo.ProfileSettingsFile);
 if (profileSetting == default(FFMPEGProfiles))
@@ -297,6 +307,8 @@ static string GetRoutePattern(Endpoint endpoint)
         ? routeEndpoint.RoutePattern.RawText
         : "<unknown>";
 }
+
+
 
 static X509Certificate2 ValidateSslCertificate(string cert, string password)
 {

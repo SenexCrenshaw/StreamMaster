@@ -77,7 +77,7 @@ namespace StreamMaster.API.Controllers
         [HttpGet]
         [HttpHead]
         [Route("{videoStreamId}/{num}.ts")]
-        public ActionResult GetVideoStream(string videoStreamId, int num, CancellationToken cancellationToken)
+        public IActionResult GetVideoStream(string videoStreamId, int num, CancellationToken cancellationToken)
         {
             string tsFile = Path.Combine(BuildInfo.HLSOutputFolder, videoStreamId, $"{num}.ts");
             if (!System.IO.File.Exists(tsFile))

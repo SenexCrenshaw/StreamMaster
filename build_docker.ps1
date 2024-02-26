@@ -110,7 +110,7 @@ function Main {
         Write-StringToFile -Path "buildver" -Content $processedAssemblyInfo.BranchNameRevision 
     }
     
-    if ($BuildSM -or $BuildAll) {
+    if ($BuildSM -or $BuildBuild -or $BuildAll) {
         $dockerFile = "Dockerfile.sm"
         $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-sm")
         
@@ -134,7 +134,7 @@ function Main {
 
         $contentArray += 'FROM ' + "${buildName}:$($smver)-sm" + ' AS sm'      
         $contentArray += 'FROM ' + "${buildName}:$($basever)-base" + ' AS base'  
-        
+
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
 
         $global:tags = DetermineTags -result $processedAssemblyInfo -imageName $imageName
