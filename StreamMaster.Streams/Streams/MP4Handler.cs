@@ -31,7 +31,7 @@ public class MP4Handler(ILogger<MP4Handler> logger, ILogger<FFMPEGRunner> FFMPEG
         Started = false;
         logger.LogInformation("Stopping MP4Handler for {Name}", Name);
         HLSCancellationTokenSource.Cancel();
-        KillProcess();
+        ProcessHelper.KillProcessById(ffmpegRunner.ProcessId);
 
         string directory = Path.Combine(BuildInfo.HLSOutputFolder, Id);
         DirectoryHelper.DeleteDirectory(directory);

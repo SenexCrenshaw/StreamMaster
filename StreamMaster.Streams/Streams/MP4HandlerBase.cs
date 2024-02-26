@@ -1,7 +1,5 @@
 ﻿using StreamMaster.Domain.Configuration;
 
-using System.Diagnostics;
-
 namespace StreamMaster.Streams.Streams;
 
 public class MP4HandlerBase(ILogger logger,
@@ -19,32 +17,9 @@ public class MP4HandlerBase(ILogger logger,
     public string Name => videoStream.User_Tvg_name;
     public string Url => videoStream.User_Url;
 
-
-    internal bool KillProcess()
-    {
-        if (ffmpegRunner.ProcessId < 1024)
-        {
-            return true;
-        }
-        try
-        {
-            Process process = Process.GetProcessById(ffmpegRunner.ProcessId);
-            process.Kill();
-            return true;
-        }
-        catch (ArgumentException)
-        {
-
-        }
-        return false;
-
-
-    }
-
     public void Dispose()
     {
-        KillProcess();
+        ProcessHelper.KillProcessById(ffmpegRunner.ProcessId);
         HLSCancellationTokenSource.Cancel();
-
     }
 }

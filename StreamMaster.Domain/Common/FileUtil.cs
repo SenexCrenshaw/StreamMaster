@@ -1,5 +1,6 @@
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;
+using StreamMaster.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 
 using System.Diagnostics;

@@ -25,6 +25,8 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
 
+ProcessHelper.KillProcessByName("ffmpeg");
+
 DirectoryHelper.CreateApplicationDirectories();
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -157,6 +159,7 @@ if (lifetime != null)
 
 void OnShutdown()
 {
+    ProcessHelper.KillProcessByName("ffmpeg");
     SqliteConnection.ClearAllPools();
     PGSQLRepositoryContext repositoryContext = app.Services.GetRequiredService<PGSQLRepositoryContext>();
     repositoryContext.Dispose();

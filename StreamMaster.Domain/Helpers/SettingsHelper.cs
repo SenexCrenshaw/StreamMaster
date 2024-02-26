@@ -1,6 +1,8 @@
-﻿using System.Text.Json;
+﻿using StreamMaster.Domain.Configuration;
 
-namespace StreamMaster.Domain.Configuration;
+using System.Text.Json;
+
+namespace StreamMaster.Domain.Helpers;
 
 public static class SettingsHelper
 {

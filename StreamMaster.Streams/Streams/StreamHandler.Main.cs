@@ -1,7 +1,6 @@
 ﻿using StreamMaster.Domain.Configuration;
 
 using System.Collections.Concurrent;
-using System.Diagnostics;
 
 namespace StreamMaster.Streams.Streams;
 
@@ -110,13 +109,7 @@ public sealed partial class StreamHandler : IStreamHandler
 
             try
             {
-                //string? procName = CheckProcessExists();
-                //if (procName != null)
-                //{
-                //    Process process = Process.GetProcessById(ProcessId);
-                //    process.Kill();
-                //}
-                KillProcess();
+                ProcessHelper.KillProcessById(ProcessId);
 
             }
             catch (Exception ex)
@@ -163,35 +156,6 @@ public sealed partial class StreamHandler : IStreamHandler
             return false;
         }
     }
-
-    private bool KillProcess()
-    {
-        try
-        {
-            Process process = Process.GetProcessById(ProcessId);
-            return true;
-        }
-        catch (ArgumentException)
-        {
-
-        }
-        return false;
-
-
-    }
-
-    //private string? CheckProcessExists()
-    //{
-    //    try
-    //    {
-    //        Process process = Process.GetProcessById(ProcessId);
-    //        return process.ProcessName;
-    //    }
-    //    catch (ArgumentException)
-    //    {
-    //        return null;
-    //    }
-    //}
 
 
     public IEnumerable<Guid> GetClientStreamerClientIds()

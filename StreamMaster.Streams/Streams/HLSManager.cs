@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Streams;
 
-public class HLSManager(ILogger<HLSManager> logger, ILogger<HLSHandler> HLSHandlerlogger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intsettings) : IHLSManager
+public class HLSManager(ILogger<HLSManager> logger, IStreamTracker streamTracker, ILogger<HLSHandler> HLSHandlerlogger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intsettings) : IHLSManager
 {
     private readonly ConcurrentDictionary<string, IHLSHandler> hlsHandlers = new();
 
@@ -24,12 +24,9 @@ public class HLSManager(ILogger<HLSManager> logger, ILogger<HLSHandler> HLSHandl
         hlsHandler.ProcessExited += (sender, args) =>
         {
             logger.LogInformation("HLSHandler Process Exited for {Name} with exit code {ExitCode}", videoStream.User_Tvg_name, args.ExitCode);
-            Stop(videoStream.Id);
         };
         hlsHandlers.TryAdd(videoStream.User_Url, hlsHandler);
         return hlsHandler;
-
-
     }
 
 
@@ -41,6 +38,7 @@ public class HLSManager(ILogger<HLSManager> logger, ILogger<HLSHandler> HLSHandl
     public void Stop(string VideoStreamId)
     {
         IHLSHandler? handler = Get(VideoStreamId);
+        streamTracker.RemoveStream(VideoStreamId);
         if (handler is not null)
         {
             logger.LogInformation("Stopping HLSHandler for {name}", handler.Name);

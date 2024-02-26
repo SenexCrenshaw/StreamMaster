@@ -1,5 +1,6 @@
 ﻿using StreamMaster.Domain.Attributes;
 using StreamMaster.Domain.Configuration;
+
 using System.Diagnostics;
 using System.Reflection;
 
@@ -131,7 +132,7 @@ public static class DirectoryHelper
                 }
                 catch (Exception ex)
                 {
-                    Log("Failed to delete file: {FilePath} {ex}", file.FullName, ex);
+                    Log("Failed to delete file: {FilePath} {ex}", file.FullName, ex.InnerException);
                 }
             }
 
@@ -145,7 +146,7 @@ public static class DirectoryHelper
                 }
                 catch (Exception ex)
                 {
-                    Log("Failed to delete directory: {DirectoryPath} {ex}", dir.FullName, ex);
+                    Log("Failed to delete directory: {DirectoryPath} {ex}", dir.FullName, ex.InnerException);
                 }
             }
         }
@@ -156,7 +157,7 @@ public static class DirectoryHelper
         }
         catch (Exception ex)
         {
-            Log("An unexpected error occurred while emptying directory: {DirectoryPath} {ex}", directoryPath, ex);
+            Log("An unexpected error occurred while emptying directory: {DirectoryPath} {ex}", directoryPath, ex.InnerException);
         }
     }
 }

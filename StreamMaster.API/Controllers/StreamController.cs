@@ -9,8 +9,9 @@ using StreamMaster.Streams.Streams;
 
 namespace StreamMaster.API.Controllers
 {
-    public class StreamController(ILogger<StreamController> logger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IChannelService channelService, IVideoStreamService videoStreamService, IAccessTracker accessTracker, IHLSManager hLsManager) : ApiControllerBase
+    public class StreamController(ILogger<StreamController> logger, IStreamTracker streamTracker, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IChannelService channelService, IVideoStreamService videoStreamService, IAccessTracker accessTracker, IHLSManager hLsManager) : ApiControllerBase
     {
+
         [Authorize(Policy = "SGLinks")]
         [HttpGet]
         [HttpHead]
@@ -30,23 +31,33 @@ namespace StreamMaster.API.Controllers
                 return NotFound();
             }
 
-            IHLSHandler hlsHandler = await hLsManager.GetOrAdd(channelStatus.CurrentVideoStream);
+            await hLsManager.GetOrAdd(channelStatus.CurrentVideoStream);
 
+            int timeOut = HLSSettings.HLSTSReadTimeOutInSeconds;
             string m3u8File = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.CurrentVideoStream.Id, $"index.m3u8");
-            string tsFile = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.CurrentVideoStream.Id, $"1.ts");
 
-            if (!await FileUtil.WaitForFileAsync(m3u8File, HLSSettings.HLSM3U8CreationTimeOutInSeconds, 100, cancellationToken))
+            if (!streamTracker.HasStream(channelStatus.CurrentVideoStream.Id))
             {
-                logger.LogWarning("HLS segment timeout {FileName}, exiting", m3u8File);
-                hLsManager.Stop(channelStatus.CurrentVideoStream.Id);
-                return NotFound();
+                if (!await FileUtil.WaitForFileAsync(m3u8File, timeOut, 100, cancellationToken))
+                {
+                    logger.LogWarning("HLS segment timeout {FileName}, exiting", m3u8File);
+                    hLsManager.Stop(channelStatus.CurrentVideoStream.Id);
+                    return NotFound();
+                }
+
+                string tsFile = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.CurrentVideoStream.Id, $"2.ts");
+
+                if (!await FileUtil.WaitForFileAsync(tsFile, timeOut, 100, cancellationToken))
+                {
+                    logger.LogWarning("TS segment timeout {FileName}, exiting", tsFile);
+                    hLsManager.Stop(channelStatus.CurrentVideoStream.Id);
+                    return NotFound();
+                }
             }
 
-            if (!await FileUtil.WaitForFileAsync(tsFile, HLSSettings.HLSM3U8CreationTimeOutInSeconds, 100, cancellationToken))
+            if (streamTracker.AddStream(channelStatus.CurrentVideoStream.Id))
             {
-                logger.LogWarning("TS segment timeout {FileName}, exiting", tsFile);
-                hLsManager.Stop(channelStatus.CurrentVideoStream.Id);
-                return NotFound();
+                //timeOut = HLSSettings.HLSM3U8CreationTimeOutInSeconds;
             }
 
             accessTracker.UpdateAccessTime(channelStatus.CurrentVideoStream.Id, TimeSpan.FromSeconds(HLSSettings.HLSM3U8ReadTimeOutInSeconds));
@@ -80,7 +91,7 @@ namespace StreamMaster.API.Controllers
 
                 HttpContext.Response.Headers.Connection = "close";
                 HttpContext.Response.Headers.AccessControlAllowOrigin = "*";
-                HttpContext.Response.Headers.CacheControl = "no-cache";
+                //HttpContext.Response.Headers.CacheControl = "no-cache";
 
 
                 FileStream stream = new(tsFile, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
