@@ -33,10 +33,18 @@ namespace StreamMaster.API.Controllers
             IHLSHandler hlsHandler = await hLsManager.GetOrAdd(channelStatus.CurrentVideoStream);
 
             string m3u8File = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.CurrentVideoStream.Id, $"index.m3u8");
+            string tsFile = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.CurrentVideoStream.Id, $"1.ts");
 
             if (!await FileUtil.WaitForFileAsync(m3u8File, HLSSettings.HLSM3U8CreationTimeOutInSeconds, 100, cancellationToken))
             {
-                logger.LogWarning("HLS segment not found {FileName}, exiting", m3u8File);
+                logger.LogWarning("HLS segment timeout {FileName}, exiting", m3u8File);
+                hLsManager.Stop(channelStatus.CurrentVideoStream.Id);
+                return NotFound();
+            }
+
+            if (!await FileUtil.WaitForFileAsync(tsFile, HLSSettings.HLSM3U8CreationTimeOutInSeconds, 100, cancellationToken))
+            {
+                logger.LogWarning("TS segment timeout {FileName}, exiting", tsFile);
                 hLsManager.Stop(channelStatus.CurrentVideoStream.Id);
                 return NotFound();
             }
