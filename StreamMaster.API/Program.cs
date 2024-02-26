@@ -25,7 +25,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
 
-ProcessHelper.KillProcessByName("ffmpeg");
+//ProcessHelper.KillProcessByName("ffmpeg");
 
 DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "hls"), BuildInfo.HLSOutputFolder);
 DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "settings"), BuildInfo.SettingsFolder);

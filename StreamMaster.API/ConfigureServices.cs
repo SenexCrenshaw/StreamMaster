@@ -188,26 +188,6 @@ public static class ConfigureServices
         services.AddHostedService<PostStartup>();
         services.AddSingleton<PostStartup>();
 
-        //services.AddAuthorization(options =>
-        //{
-        //    options.AddPolicy("SignalR", policy =>
-        //    {
-        //        policy.AuthenticationSchemes.GetOrAdd("SignalR");
-        //        policy.RequireAuthenticatedUser();
-        //    });
-
-        //    options.AddPolicy("SGLinks", policy =>
-        //    {
-        //        policy.AuthenticationSchemes.GetOrAdd("SGLinks");
-        //        policy.RequireAuthenticatedUser();
-        //    });
-
-        //    // Require auth on everything except those marked [AllowAnonymous]
-        //    options.FallbackPolicy = new AuthorizationPolicyBuilder(AuthenticationType.Forms.ToString(), "API")
-        //    .RequireAuthenticatedUser()
-        //    .Build();
-        //});
-
         services.AddAuthorization(options =>
         {
 
@@ -228,22 +208,6 @@ public static class ConfigureServices
             options.AddPolicy("SignalR", signalRPolicy);
             options.AddPolicy("SGLinks", sgLinksPolicy);
             options.FallbackPolicy = fallbackPolicy;
-
-            //// Define the "SignalR" policy
-            //options.AddPolicy("SignalR", policyBuilder =>
-            //    policyBuilder
-            //        .AddAuthenticationSchemes("SignalR")
-            //        .RequireAuthenticatedUser()
-            //);
-
-            //// Define the "SGLinks" policy
-            //options.AddPolicy("SGLinks", policyBuilder =>
-            //    policyBuilder
-            //        .AddAuthenticationSchemes("SGLinks")
-            //        .RequireAuthenticatedUser()
-            //);
-
-            // Define the FallbackPolicy
 
         });
 

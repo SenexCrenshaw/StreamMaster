@@ -8,6 +8,12 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
 {
     private readonly HLSSettings hlssettings = inthlssettings.CurrentValue;
     private readonly Setting settings = intsettings.CurrentValue;
+    // private static readonly Regex ProgressRegex = new(@"time=(\d\d:\d\d:\d\d.\d\d?)", RegexOptions.Compiled);
+    // private Action<double>? _onPercentageProgress;
+    // private Action<TimeSpan>? _onTimeProgress;
+    // private Action<string>? _onOutput;
+    // private Action<string>? _onError;
+    // private TimeSpan? _totalTimespan;
 
     public event EventHandler<ProcessExitEventArgs> ProcessExited;
     private string? GetFFPMpegExec()
@@ -50,7 +56,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
             {
                 logger.LogInformation("Streaming task completed successfully.");
             }
-            ProcessExited?.Invoke(this, new ProcessExitEventArgs { ExitCode = process.ExitCode });
+            //ProcessExited?.Invoke(this, new ProcessExitEventArgs { ExitCode = process.ExitCode });
             // No need to handle task.IsCanceled separately as OperationCanceledException will be caught in StartStreamingAsync
         }, TaskScheduler.Default);
 
@@ -107,9 +113,11 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
 
-            //process.EnableRaisingEvents = true;
-            //process.Exited += OnProcessExited;
-            process.ErrorDataReceived += (sender, args) => logger.LogDebug(args.Data);
+            //process.OutputDataReceived += Process_OutputDataReceived;
+            process.ErrorDataReceived += Process_ErrorDataReceived;
+            process.EnableRaisingEvents = true;
+            process.Exited += Process_Exited;
+            //process.ErrorDataReceived += (sender, args) => logger.LogDebug(args.Data);
             bool processStarted = process.Start();
 
             process.BeginErrorReadLine();
@@ -135,6 +143,95 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
             return (-1, error);
         }
     }
+
+    private void Process_Exited(object? sender, EventArgs e)
+    {
+        //_onPercentageProgress?.Invoke(100.0);
+        //if (_totalTimespan.HasValue)
+        //{
+        //    _onTimeProgress?.Invoke(_totalTimespan.Value);
+        //}
+        ProcessExited?.Invoke(this, new ProcessExitEventArgs { ExitCode = process.ExitCode });
+    }
+
+
+    private void Process_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+    {
+        string? msg = e.Data;
+        if (string.IsNullOrEmpty(msg))
+        {
+            return;
+        }
+        logger.LogDebug(msg);
+
+        //_onError?.Invoke(msg);
+
+        //Match match = ProgressRegex.Match(msg);
+        //if (!match.Success)
+        //{
+        //    return;
+        //}
+
+        //TimeSpan processed = TimeSpan.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+        //_onTimeProgress?.Invoke(processed);
+
+        //if (_onPercentageProgress == null || _totalTimespan == null)
+        //{
+        //    return;
+        //}
+
+        //double percentage = Math.Round(processed.TotalSeconds / _totalTimespan.Value.TotalSeconds * 100, 2);
+        //_onPercentageProgress(percentage);
+    }
+
+    //private void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
+    //{
+    //    string? msg = e.Data;
+    //    if (string.IsNullOrEmpty(msg))
+    //    {
+    //        return;
+    //    }
+    //    Debug.WriteLine(msg);
+    //    //_onOutput?.Invoke(msg);
+    //}
+
+    /// <summary>
+    /// Register action that will be invoked during the ffmpeg processing, when a progress time is output and parsed and progress percentage is calculated.
+    /// Total time is needed to calculate the percentage that has been processed of the full file.
+    /// </summary>
+    /// <param name="onPercentageProgress">Action to invoke when progress percentage is updated</param>
+    /// <param name="totalTimeSpan">The total timespan of the mediafile being processed</param>
+    //public FFMPEGRunner NotifyOnProgress(Action<double> onPercentageProgress, TimeSpan totalTimeSpan)
+    //{
+    //    _totalTimespan = totalTimeSpan;
+    //    _onPercentageProgress = onPercentageProgress;
+    //    return this;
+    //}
+    /// <summary>
+    /// Register action that will be invoked during the ffmpeg processing, when a progress time is output and parsed
+    /// </summary>
+    /// <param name="onTimeProgress">Action that will be invoked with the parsed timestamp as argument</param>
+    //public FFMPEGRunner NotifyOnProgress(Action<TimeSpan> onTimeProgress)
+    //{
+    //    _onTimeProgress = onTimeProgress;
+    //    return this;
+    //}
+
+    /// <summary>
+    /// Register action that will be invoked during the ffmpeg processing, when a line is output
+    /// </summary>
+    /// <param name="onOutput"></param>
+    //public FFMPEGRunner NotifyOnOutput(Action<string> onOutput)
+    //{
+    //    _onOutput = onOutput;
+    //    return this;
+    //}
+    //public FFMPEGRunner NotifyOnError(Action<string> onError)
+    //{
+    //    _onError = onError;
+    //    return this;
+    //}
+
 
     public async Task<(Stream? stream, int processId, ProxyStreamError? error)> CreateFFMpegStream(string streamUrl, string streamName)
     {
