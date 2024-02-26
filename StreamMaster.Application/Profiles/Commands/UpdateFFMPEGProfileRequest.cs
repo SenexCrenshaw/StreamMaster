@@ -1,7 +1,4 @@
-﻿using StreamMaster.Domain.Configuration;
-using StreamMaster.Domain.Helpers;
-
-namespace StreamMaster.Application.Settings.Commands;
+﻿namespace StreamMaster.Application.Profiles.Commands;
 
 public record UpdateFFMPEGProfileRequest(string Name, string? NewName, string? Parameters, int? TimeOut, bool? IsM3U8) : IRequest<UpdateSettingResponse> { }
 

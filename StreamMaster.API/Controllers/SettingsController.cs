@@ -10,12 +10,7 @@ namespace StreamMaster.API.Controllers;
 
 public class SettingsController() : ApiControllerBase, ISettingController
 {
-    [HttpPut]
-    [Route("[action]")]
-    public async Task<ActionResult<UpdateSettingResponse>> AddFFMPEGProfile(AddFFMPEGProfileRequest request)
-    {
-        return await Mediator.Send(request).ConfigureAwait(false);
-    }
+
 
     [HttpGet]
     [Route("[action]")]
@@ -46,19 +41,6 @@ public class SettingsController() : ApiControllerBase, ISettingController
         return Settings.AdminUserName == logInRequest.UserName && Settings.AdminPassword == logInRequest.Password;
     }
 
-    [HttpDelete]
-    [Route("[action]")]
-    public async Task<ActionResult<UpdateSettingResponse>> RemoveFFMPEGProfile(RemoveFFMPEGProfileRequest request)
-    {
-        return await Mediator.Send(request).ConfigureAwait(false);
-    }
-
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<ActionResult<UpdateSettingResponse>> UpdateFFMPEGProfile(UpdateFFMPEGProfileRequest request)
-    {
-        return await Mediator.Send(request).ConfigureAwait(false);
-    }
 
     [HttpPatch]
     [Route("[action]")]

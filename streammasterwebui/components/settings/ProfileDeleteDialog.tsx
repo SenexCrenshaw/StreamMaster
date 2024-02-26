@@ -1,5 +1,5 @@
 import DeleteButton from '@components/buttons/DeleteButton';
-import { FfmpegProfileDto, SettingsRemoveFfmpegProfileApiArg, useSettingsRemoveFfmpegProfileMutation } from '@lib/iptvApi';
+import { FfmpegProfileDto, ProfilesRemoveFfmpegProfileApiArg, useProfilesRemoveFfmpegProfileMutation } from '@lib/iptvApi';
 import { memo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import OKButton from '../buttons/OKButton';
@@ -17,7 +17,7 @@ const ProfileDeleteDialog = ({ iconFilled, onClose, skipOverLayer, data }: Profi
 
   const [block, setBlock] = useState<boolean>(false);
 
-  const [settingsRemoveFfmpegProfileMutation] = useSettingsRemoveFfmpegProfileMutation();
+  const [settingsRemoveFfmpegProfileMutation] = useProfilesRemoveFfmpegProfileMutation();
 
   const ReturnToParent = () => {
     setShowOverlay(false);
@@ -33,7 +33,7 @@ const ProfileDeleteDialog = ({ iconFilled, onClose, skipOverLayer, data }: Profi
       ReturnToParent();
       return;
     }
-    const tosend: SettingsRemoveFfmpegProfileApiArg = {};
+    const tosend: ProfilesRemoveFfmpegProfileApiArg = {};
     tosend.name = data.name;
 
     await settingsRemoveFfmpegProfileMutation(tosend)

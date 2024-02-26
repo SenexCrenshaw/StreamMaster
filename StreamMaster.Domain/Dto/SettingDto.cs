@@ -7,8 +7,8 @@ namespace StreamMaster.Domain.Dto;
 
 public class SettingDto : BaseSettings, IMapFrom<Setting>
 {
-    [XmlIgnore]
-    public FFMPEGProfileDtos FFMPEGProfiles { get; set; } = [];
+    //[XmlIgnore]
+    //public FFMPEGProfileDtos FFMPEGProfiles { get; set; } = [];
     [XmlIgnore]
     public SDSettings SDSettings { get; set; } = new();
     [XmlIgnore]

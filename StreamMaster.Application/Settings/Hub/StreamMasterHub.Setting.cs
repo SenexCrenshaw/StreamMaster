@@ -5,10 +5,6 @@ namespace StreamMaster.Application.Hubs;
 
 public partial class StreamMasterHub : ISettingHub
 {
-    public async Task<UpdateSettingResponse> AddFFMPEGProfile(AddFFMPEGProfileRequest request)
-    {
-        return await mediator.Send(request).ConfigureAwait(false);
-    }
 
     public async Task<SettingDto> GetSetting()
     {
@@ -26,15 +22,7 @@ public partial class StreamMasterHub : ISettingHub
         return settings.AdminUserName == logInRequest.UserName && settings.AdminPassword == logInRequest.Password;
     }
 
-    public async Task<UpdateSettingResponse> RemoveFFMPEGProfile(RemoveFFMPEGProfileRequest request)
-    {
-        return await mediator.Send(request).ConfigureAwait(false);
-    }
 
-    public async Task<UpdateSettingResponse> UpdateFFMPEGProfile(UpdateFFMPEGProfileRequest request)
-    {
-        return await mediator.Send(request).ConfigureAwait(false);
-    }
 
     public async Task UpdateSetting(UpdateSettingRequest command)
     {

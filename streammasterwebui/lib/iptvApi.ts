@@ -12,6 +12,7 @@ export const addTagTypes = [
   'Icons',
   'M3UFiles',
   'Misc',
+  'Profiles',
   'Queue',
   'Settings',
   'Statistics',
@@ -431,13 +432,25 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/misc/backup`, method: 'PUT' }),
         invalidatesTags: ['Misc']
       }),
+      profilesGetFfmpegProfiles: build.query<ProfilesGetFfmpegProfilesApiResponse, ProfilesGetFfmpegProfilesApiArg>({
+        query: () => ({ url: `/api/profiles/getffmpegprofiles` }),
+        providesTags: ['Profiles']
+      }),
+      profilesAddFfmpegProfile: build.mutation<ProfilesAddFfmpegProfileApiResponse, ProfilesAddFfmpegProfileApiArg>({
+        query: (queryArg) => ({ url: `/api/profiles/addffmpegprofile`, method: 'PUT', body: queryArg }),
+        invalidatesTags: ['Profiles']
+      }),
+      profilesRemoveFfmpegProfile: build.mutation<ProfilesRemoveFfmpegProfileApiResponse, ProfilesRemoveFfmpegProfileApiArg>({
+        query: (queryArg) => ({ url: `/api/profiles/removeffmpegprofile`, method: 'DELETE', body: queryArg }),
+        invalidatesTags: ['Profiles']
+      }),
+      profilesUpdateFfmpegProfile: build.mutation<ProfilesUpdateFfmpegProfileApiResponse, ProfilesUpdateFfmpegProfileApiArg>({
+        query: (queryArg) => ({ url: `/api/profiles/updateffmpegprofile`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['Profiles']
+      }),
       queueGetQueueStatus: build.query<QueueGetQueueStatusApiResponse, QueueGetQueueStatusApiArg>({
         query: () => ({ url: `/api/queue/getqueuestatus` }),
         providesTags: ['Queue']
-      }),
-      settingsAddFfmpegProfile: build.mutation<SettingsAddFfmpegProfileApiResponse, SettingsAddFfmpegProfileApiArg>({
-        query: (queryArg) => ({ url: `/api/settings/addffmpegprofile`, method: 'PUT', body: queryArg }),
-        invalidatesTags: ['Settings']
       }),
       settingsGetIsSystemReady: build.query<SettingsGetIsSystemReadyApiResponse, SettingsGetIsSystemReadyApiArg>({
         query: () => ({ url: `/api/settings/getissystemready` }),
@@ -454,14 +467,6 @@ const injectedRtkApi = api
       settingsLogIn: build.query<SettingsLogInApiResponse, SettingsLogInApiArg>({
         query: (queryArg) => ({ url: `/api/settings/login`, body: queryArg }),
         providesTags: ['Settings']
-      }),
-      settingsRemoveFfmpegProfile: build.mutation<SettingsRemoveFfmpegProfileApiResponse, SettingsRemoveFfmpegProfileApiArg>({
-        query: (queryArg) => ({ url: `/api/settings/removeffmpegprofile`, method: 'DELETE', body: queryArg }),
-        invalidatesTags: ['Settings']
-      }),
-      settingsUpdateFfmpegProfile: build.mutation<SettingsUpdateFfmpegProfileApiResponse, SettingsUpdateFfmpegProfileApiArg>({
-        query: (queryArg) => ({ url: `/api/settings/updateffmpegprofile`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['Settings']
       }),
       settingsUpdateSetting: build.mutation<SettingsUpdateSettingApiResponse, SettingsUpdateSettingApiArg>({
         query: (queryArg) => ({ url: `/api/settings/updatesetting`, method: 'PATCH', body: queryArg }),
@@ -1042,10 +1047,16 @@ export type MiscGetTestM3UApiResponse = unknown;
 export type MiscGetTestM3UApiArg = number;
 export type MiscBackupApiResponse = unknown;
 export type MiscBackupApiArg = void;
+export type ProfilesGetFfmpegProfilesApiResponse = /** status 200  */ FfmpegProfileDtos;
+export type ProfilesGetFfmpegProfilesApiArg = void;
+export type ProfilesAddFfmpegProfileApiResponse = /** status 200  */ UpdateSettingResponse;
+export type ProfilesAddFfmpegProfileApiArg = AddFfmpegProfileRequest;
+export type ProfilesRemoveFfmpegProfileApiResponse = /** status 200  */ UpdateSettingResponse;
+export type ProfilesRemoveFfmpegProfileApiArg = RemoveFfmpegProfileRequest;
+export type ProfilesUpdateFfmpegProfileApiResponse = /** status 200  */ UpdateSettingResponse;
+export type ProfilesUpdateFfmpegProfileApiArg = UpdateFfmpegProfileRequest;
 export type QueueGetQueueStatusApiResponse = /** status 200  */ TaskQueueStatus[];
 export type QueueGetQueueStatusApiArg = void;
-export type SettingsAddFfmpegProfileApiResponse = /** status 200  */ UpdateSettingResponse;
-export type SettingsAddFfmpegProfileApiArg = AddFfmpegProfileRequest;
 export type SettingsGetIsSystemReadyApiResponse = /** status 200  */ boolean;
 export type SettingsGetIsSystemReadyApiArg = void;
 export type SettingsGetSettingApiResponse = /** status 200  */ SettingDto;
@@ -1054,10 +1065,6 @@ export type SettingsGetSystemStatusApiResponse = /** status 200  */ SdSystemStat
 export type SettingsGetSystemStatusApiArg = void;
 export type SettingsLogInApiResponse = /** status 200  */ boolean;
 export type SettingsLogInApiArg = LogInRequest;
-export type SettingsRemoveFfmpegProfileApiResponse = /** status 200  */ UpdateSettingResponse;
-export type SettingsRemoveFfmpegProfileApiArg = RemoveFfmpegProfileRequest;
-export type SettingsUpdateFfmpegProfileApiResponse = /** status 200  */ UpdateSettingResponse;
-export type SettingsUpdateFfmpegProfileApiArg = UpdateFfmpegProfileRequest;
 export type SettingsUpdateSettingApiResponse = unknown;
 export type SettingsUpdateSettingApiArg = UpdateSettingRequest;
 export type StatisticsGetClientStatisticsApiResponse = /** status 200  */ ClientStreamingStatistics[];
@@ -1829,15 +1836,15 @@ export type ImageDownloadServiceStatus = {
   totalNoArt?: number;
   totalErrors?: number;
 };
-export type TaskQueueStatus = {
-  command?: string;
-  id?: number;
-  isRunning?: boolean;
-  queueTS?: string;
-  startTS?: string;
-  stopTS?: string;
-  elapsedTS?: string;
+export type FfmpegProfile = {
+  parameters: string;
+  timeout: number;
+  isM3U8: boolean;
 };
+export type FfmpegProfileDto = FfmpegProfile & {
+  name: string;
+};
+export type FfmpegProfileDtos = FfmpegProfileDto[];
 export type AuthenticationType = 0 | 2;
 export type BaseSettings = {
   m3UFieldGroupTitle?: boolean;
@@ -1883,15 +1890,6 @@ export type BaseSettings = {
   videoStreamAlwaysUseEPGLogo?: boolean;
   showClientHostNames?: boolean;
 };
-export type FfmpegProfile = {
-  parameters: string;
-  timeout: number;
-  isM3U8: boolean;
-};
-export type FfmpegProfileDto = FfmpegProfile & {
-  name: string;
-};
-export type FfmpegProfileDtos = FfmpegProfileDto[];
 export type SdSettings = {
   alternateSEFormat?: boolean;
   alternateLogoStyle?: string;
@@ -1929,7 +1927,6 @@ export type HlsSettings = {
   hlstsReadTimeOutInSeconds?: number;
 };
 export type SettingDto = BaseSettings & {
-  ffmpegProfiles?: FfmpegProfileDtos;
   sdSettings?: SdSettings;
   hls?: HlsSettings;
   release?: string;
@@ -1947,13 +1944,6 @@ export type AddFfmpegProfileRequest = {
   timeOut?: number;
   isM3U8?: boolean;
 };
-export type SdSystemStatus = {
-  isSystemReady?: boolean;
-};
-export type LogInRequest = {
-  password?: string;
-  userName?: string;
-};
 export type RemoveFfmpegProfileRequest = {
   name?: string;
 };
@@ -1963,6 +1953,22 @@ export type UpdateFfmpegProfileRequest = {
   parameters?: string | null;
   timeOut?: number | null;
   isM3U8?: boolean | null;
+};
+export type TaskQueueStatus = {
+  command?: string;
+  id?: number;
+  isRunning?: boolean;
+  queueTS?: string;
+  startTS?: string;
+  stopTS?: string;
+  elapsedTS?: string;
+};
+export type SdSystemStatus = {
+  isSystemReady?: boolean;
+};
+export type LogInRequest = {
+  password?: string;
+  userName?: string;
 };
 export type SdSettingsRequest = {
   preferredLogoStyle?: string | null;
@@ -2312,14 +2318,15 @@ export const {
   useMiscGetDownloadServiceStatusQuery,
   useMiscGetTestM3UQuery,
   useMiscBackupMutation,
+  useProfilesGetFfmpegProfilesQuery,
+  useProfilesAddFfmpegProfileMutation,
+  useProfilesRemoveFfmpegProfileMutation,
+  useProfilesUpdateFfmpegProfileMutation,
   useQueueGetQueueStatusQuery,
-  useSettingsAddFfmpegProfileMutation,
   useSettingsGetIsSystemReadyQuery,
   useSettingsGetSettingQuery,
   useSettingsGetSystemStatusQuery,
   useSettingsLogInQuery,
-  useSettingsRemoveFfmpegProfileMutation,
-  useSettingsUpdateFfmpegProfileMutation,
   useSettingsUpdateSettingMutation,
   useStatisticsGetClientStatisticsQuery,
   useStatisticsGetInputStatisticsQuery,

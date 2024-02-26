@@ -2,7 +2,7 @@ import AddButton from '@components/buttons/AddButton';
 import SaveButton from '@components/buttons/SaveButton';
 import InputWrapper from '@components/videoStreamPanel/InputWrapper';
 import { getTopToolOptions } from '@lib/common/common';
-import { SettingsAddFfmpegProfileApiArg, useSettingsAddFfmpegProfileMutation } from '@lib/iptvApi';
+import { ProfilesAddFfmpegProfileApiArg, useProfilesAddFfmpegProfileMutation } from '@lib/iptvApi';
 import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
 import { InputText } from 'primereact/inputtext';
 import { memo, useMemo, useState } from 'react';
@@ -26,7 +26,7 @@ const ProfileAddDialog = ({ onClose }: ProfileAddDialogProperties) => {
 
   const [block, setBlock] = useState<boolean>(false);
 
-  const [settingsAddFfmpegProfileMutation] = useSettingsAddFfmpegProfileMutation();
+  const [settingsAddFfmpegProfileMutation] = useProfilesAddFfmpegProfileMutation();
 
   const ReturnToParent = () => {
     setShowOverlay(false);
@@ -46,7 +46,7 @@ const ProfileAddDialog = ({ onClose }: ProfileAddDialogProperties) => {
       ReturnToParent();
       return;
     }
-    const tosend: SettingsAddFfmpegProfileApiArg = {};
+    const tosend: ProfilesAddFfmpegProfileApiArg = {};
     tosend.name = name;
     tosend.parameters = parameters;
     tosend.isM3U8 = isM3U8;

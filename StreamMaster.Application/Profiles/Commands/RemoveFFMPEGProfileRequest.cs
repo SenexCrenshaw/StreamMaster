@@ -1,7 +1,4 @@
-﻿using StreamMaster.Domain.Configuration;
-using StreamMaster.Domain.Helpers;
-
-namespace StreamMaster.Application.Settings.Commands;
+﻿namespace StreamMaster.Application.Profiles.Commands;
 
 public record RemoveFFMPEGProfileRequest(string Name) : IRequest<UpdateSettingResponse> { }
 

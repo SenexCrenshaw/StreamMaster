@@ -1,4 +1,4 @@
-import { FfmpegProfileDto, FfmpegProfileDtos } from '@lib/iptvApi';
+import { FfmpegProfileDto, useProfilesGetFfmpegProfilesQuery } from '@lib/iptvApi';
 import React from 'react';
 import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
@@ -8,11 +8,9 @@ import ProfileIsM3U8Editor from './ProfileIsM3U8Editor';
 import ProfileNameEditor from './ProfileNameEditor';
 import ProfileParameterEditor from './ProfileParameterEditor';
 
-interface SettingsProfilesDataSelectorProperties {
-  readonly data: FfmpegProfileDtos | undefined;
-}
+const SettingsProfilesDataSelector = () => {
+  const settingsQuery = useProfilesGetFfmpegProfilesQuery();
 
-const SettingsProfilesDataSelector = (props: SettingsProfilesDataSelectorProperties) => {
   const nameEditor = React.useCallback((data: FfmpegProfileDto) => {
     return <ProfileNameEditor data={data} />;
   }, []);
@@ -85,7 +83,7 @@ const SettingsProfilesDataSelector = (props: SettingsProfilesDataSelectorPropert
 
       <DataSelector
         columns={sourceColumns}
-        dataSource={props.data}
+        dataSource={settingsQuery.data}
         defaultSortField="rank"
         emptyMessage="No Data"
         id="SettingsProfilesDataSelector"
