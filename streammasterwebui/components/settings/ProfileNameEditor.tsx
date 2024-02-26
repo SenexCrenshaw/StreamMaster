@@ -28,7 +28,9 @@ const ProfileNameEditor = (props: ProfileNameEditorProperties) => {
       data.newName = name;
 
       await UpdateFFMPEGProfile(data)
-        .then(() => {})
+        .then(() => {
+          setOldName(name);
+        })
         .catch((error) => {
           console.error(error);
         });

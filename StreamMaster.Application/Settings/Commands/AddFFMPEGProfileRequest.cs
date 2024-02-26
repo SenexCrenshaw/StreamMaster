@@ -5,7 +5,7 @@ namespace StreamMaster.Application.Settings.Commands;
 
 public record AddFFMPEGProfileRequest(string Name, string Parameters, int TimeOut, bool IsM3U8) : IRequest<UpdateSettingResponse> { }
 
-public class AddFFMPEGProfileRequestHandler(ILogger<AddFFMPEGProfileRequest> Logger, IOptionsMonitor<FFMPEGProfiles> intprofilesettings, IMapper Mapper)
+public class AddFFMPEGProfileRequestHandler(ILogger<AddFFMPEGProfileRequest> Logger, ISender Sender, IOptionsMonitor<FFMPEGProfiles> intprofilesettings, IMapper Mapper)
 : IRequestHandler<AddFFMPEGProfileRequest, UpdateSettingResponse>
 {
 
@@ -35,8 +35,7 @@ public class AddFFMPEGProfileRequestHandler(ILogger<AddFFMPEGProfileRequest> Log
 
         SettingsHelper.UpdateSetting(profilesettings);
 
-
-        SettingDto ret = Mapper.Map<SettingDto>(profilesettings);
+        SettingDto ret = await Sender.Send(new GetSettings(), cancellationToken);
         return new UpdateSettingResponse { Settings = ret, NeedsLogOut = false };
     }
 

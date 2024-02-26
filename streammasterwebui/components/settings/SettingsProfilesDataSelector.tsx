@@ -1,33 +1,41 @@
 import { FfmpegProfileDto, FfmpegProfileDtos } from '@lib/iptvApi';
-import React, { CSSProperties } from 'react';
+import React from 'react';
 import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
+import ProfileAddDialog from './ProfileAddDialog';
+import ProfileDeleteDialog from './ProfileDeleteDialog';
 import ProfileIsM3U8Editor from './ProfileIsM3U8Editor';
 import ProfileNameEditor from './ProfileNameEditor';
 import ProfileParameterEditor from './ProfileParameterEditor';
-import ProfileTimeOutEditor from './ProfileTimeOutEditor';
 
 interface SettingsProfilesDataSelectorProperties {
   readonly data: FfmpegProfileDtos | undefined;
 }
 
 const SettingsProfilesDataSelector = (props: SettingsProfilesDataSelectorProperties) => {
-  const nameEditor = (data: FfmpegProfileDto) => {
+  const nameEditor = React.useCallback((data: FfmpegProfileDto) => {
     return <ProfileNameEditor data={data} />;
-  };
+  }, []);
 
-  const parameterEditor = (data: FfmpegProfileDto) => {
+  const parameterEditor = React.useCallback((data: FfmpegProfileDto) => {
     return <ProfileParameterEditor data={data} />;
-  };
+  }, []);
 
-  const timeoutEditor = (data: FfmpegProfileDto) => {
-    return <ProfileTimeOutEditor data={data} />;
-  };
+  // const timeoutEditor = React.useCallback((data: FfmpegProfileDto) => {
+  //   return <ProfileTimeOutEditor data={data} />;
+  // }, []);
 
-  const ism3u8Editor = (data: FfmpegProfileDto) => {
+  const ism3u8Editor = React.useCallback((data: FfmpegProfileDto) => {
     return <ProfileIsM3U8Editor data={data} />;
-  };
-  const sourceActionBodyTemplate = React.useCallback((data: FfmpegProfileDto) => <div className="flex p-0 justify-content-end align-items-center"></div>, []);
+  }, []);
+
+  const sourceActionBodyTemplate = React.useCallback((data: FfmpegProfileDto) => {
+    return (
+      <div className="flex p-0 justify-content-end align-items-center">
+        <ProfileDeleteDialog data={data} iconFilled={false} />
+      </div>
+    );
+  }, []);
 
   const sourceColumns = React.useMemo(
     (): ColumnMeta[] => [
@@ -42,11 +50,11 @@ const SettingsProfilesDataSelector = (props: SettingsProfilesDataSelectorPropert
         width: '10rem',
         bodyTemplate: parameterEditor
       },
-      {
-        field: 'timeout',
-        width: '6rem',
-        bodyTemplate: timeoutEditor
-      },
+      // {
+      //   field: 'timeout',
+      //   width: '6rem',
+      //   bodyTemplate: timeoutEditor
+      // },
       {
         field: 'isM3U8',
         width: '6rem',
@@ -58,12 +66,10 @@ const SettingsProfilesDataSelector = (props: SettingsProfilesDataSelectorPropert
         field: 'isHidden',
         fieldType: 'isHidden',
         header: 'Actions',
-        style: {
-          width: '4rem'
-        } as CSSProperties
+        width: '4rem'
       }
     ],
-    [sourceActionBodyTemplate]
+    [ism3u8Editor, nameEditor, parameterEditor, sourceActionBodyTemplate]
   );
 
   return (
@@ -72,9 +78,9 @@ const SettingsProfilesDataSelector = (props: SettingsProfilesDataSelectorPropert
         <span className="m-0 p-0 gap-1" style={{ color: 'var(--orange-color)' }}>
           List of Profiles
         </span>
-        {/* <div className="m-0 p-0 flex gap-1">
-          <SettingsNameRegexAddDialog values={dataSource.map((a) => a.value)} />
-        </div> */}
+        <div className="m-0 p-0 flex gap-1">
+          <ProfileAddDialog />
+        </div>
       </div>
 
       <DataSelector

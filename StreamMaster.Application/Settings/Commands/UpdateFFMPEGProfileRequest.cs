@@ -21,7 +21,7 @@ public class UpdateFFMPEGProfileRequestHandler(
     {
         if (!profilesettings.Profiles.ContainsKey(request.Name))
         {
-            SettingDto ret1 = Mapper.Map<SettingDto>(profilesettings);
+            SettingDto ret1 = await Sender.Send(new GetSettings(), cancellationToken);
             return new UpdateSettingResponse { Settings = ret1, NeedsLogOut = false };
         }
 
