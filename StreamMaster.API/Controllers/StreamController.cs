@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Domain.Configuration;
 using StreamMaster.Streams.Domain.Interfaces;
 using StreamMaster.Streams.Domain.Models;
 using StreamMaster.Streams.Streams;
@@ -120,8 +119,8 @@ namespace StreamMaster.API.Controllers
             {
 
                 HttpRequest request = HttpContext.Request;
-                string url = GetUrl(request);
-                url += "/api/stream/" + videoStreamId + ".m3u8";
+                //string url = GetUrl(request);
+                string url = "http://127.0.0.1:7095/api/stream/" + videoStreamId + ".m3u8";
 
                 logger.LogInformation("Adding MP4Handler for {name}", videoStreamDto.User_Tvg_name);
                 FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerlogger, intsettings, inthlssettings);
