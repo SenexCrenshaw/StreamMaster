@@ -33,7 +33,7 @@ namespace StreamMaster.API.Controllers
 
             await hLsManager.GetOrAdd(channelStatus.CurrentVideoStream);
 
-            int timeOut = HLSSettings.HLSTSReadTimeOutInSeconds;
+            int timeOut = HLSSettings.HLSM3U8CreationTimeOutInSeconds;
             string m3u8File = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.CurrentVideoStream.Id, $"index.m3u8");
 
             if (!streamTracker.HasStream(channelStatus.CurrentVideoStream.Id))
