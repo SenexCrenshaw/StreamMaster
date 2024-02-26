@@ -22,8 +22,8 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then curl -L -o /tmp/ffmpeg.tar.xz https://g
 
 RUN mkdir /tmp/ffmpeg/ \
     && tar -Jxvvf /tmp/ffmpeg.tar.xz --strip-components=1 -C /tmp/ffmpeg/ \
-    && cp /tmp/ffmpeg/bin/ffmpeg /usr/local/bin \
-    && cp /tmp/ffmpeg/bin/ffprobe /usr/local/bin \
+    && cp /tmp/ffmpeg/bin/ffmpeg /usr/local/bin/ \
+    && cp /tmp/ffmpeg/bin/ffprobe /usr/local/bin/ \
     && chmod +x /usr/local/bin/ffmpeg /usr/local/bin/ffprobe \
-    && rm -rf /tmp/ffmpeg.tar.xz /tmp/ffmpeg/ \
-    && /usr/local/bin/ffmpeg -version
+    && rm -rf /tmp/ffmpeg.tar.xz /tmp/ffmpeg/ 
+    # && /usr/local/bin/ffmpeg -version
