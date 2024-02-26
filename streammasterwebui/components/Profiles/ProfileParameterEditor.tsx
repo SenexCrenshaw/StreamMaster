@@ -1,23 +1,24 @@
-import NumberEditorBodyTemplate from '@components/NumberEditorBodyTemplate';
+import StringEditorBodyTemplate from '@components/StringEditorBodyTemplate';
 import { FfmpegProfileDto, UpdateFfmpegProfileRequest } from '@lib/iptvApi';
-import { UpdateFFMPEGProfile } from '@lib/smAPI/Settings/SettingsMutateAPI';
+import { UpdateFFMPEGProfile } from '@lib/smAPI/Profiles/ProfilesMutateAPI';
+
 import React from 'react';
 
-export interface ProfileTimeOutEditorProperties {
+export interface ProfileParameterEditorProperties {
   readonly data: FfmpegProfileDto;
 }
 
-const ProfileTimeOutEditor = (props: ProfileTimeOutEditorProperties) => {
+const ProfileParameterEditor = (props: ProfileParameterEditorProperties) => {
   const onUpdateFfmpegProfileDto = React.useCallback(
-    async (timeOut: number) => {
-      if (!timeOut || timeOut === 0) {
+    async (parameters: string) => {
+      if (!parameters || parameters === '') {
         return;
       }
 
       const data = {} as UpdateFfmpegProfileRequest;
 
       data.name = props.data.name;
-      data.timeOut = timeOut;
+      data.parameters = parameters;
 
       await UpdateFFMPEGProfile(data)
         .then(() => {})
@@ -33,15 +34,15 @@ const ProfileTimeOutEditor = (props: ProfileTimeOutEditorProperties) => {
   }
 
   return (
-    <NumberEditorBodyTemplate
+    <StringEditorBodyTemplate
       onChange={async (e) => {
         await onUpdateFfmpegProfileDto(e);
       }}
-      value={props.data.timeout}
+      value={props.data.parameters}
     />
   );
 };
 
-ProfileTimeOutEditor.displayName = 'Channel Number Editor';
+ProfileParameterEditor.displayName = 'Channel Number Editor';
 
-export default React.memo(ProfileTimeOutEditor);
+export default React.memo(ProfileParameterEditor);

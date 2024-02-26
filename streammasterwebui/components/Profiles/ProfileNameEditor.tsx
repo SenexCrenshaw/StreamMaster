@@ -1,6 +1,7 @@
 import StringEditorBodyTemplate from '@components/StringEditorBodyTemplate';
 import { FfmpegProfileDto, UpdateFfmpegProfileRequest } from '@lib/iptvApi';
-import { UpdateFFMPEGProfile } from '@lib/smAPI/Settings/SettingsMutateAPI';
+import { UpdateFFMPEGProfile } from '@lib/smAPI/Profiles/ProfilesMutateAPI';
+
 import React, { useEffect, useState } from 'react';
 
 export interface ProfileNameEditorProperties {

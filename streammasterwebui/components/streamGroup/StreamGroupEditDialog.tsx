@@ -1,10 +1,10 @@
-import { type StreamGroupDto, type UpdateStreamGroupRequest } from '@lib/iptvApi';
+import { useSettingsGetSettingQuery, type StreamGroupDto, type UpdateStreamGroupRequest } from '@lib/iptvApi';
 import { InputText } from 'primereact/inputtext';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
 
-import FFMPEGProfileDropDown from '@features/streamGroupEditor/FFMPEGProfileDropDown';
+import ProfilesDropDown from '@components/Profiles/ProfilesDropDown';
 import StreamGroupChannelGroupsSelector from '@features/streamGroupEditor/StreamGroupChannelGroupsSelector';
 import { UpdateStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsMutateAPI';
 import { v4 as uuidv4 } from 'uuid';
@@ -23,6 +23,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProperties) => {
   const [name, setName] = useState<string>('');
   const [ffmpegProfileId, setFfmpegProfileId] = useState<string>('');
 
+  const settingsQuery = useSettingsGetSettingQuery();
   const uuid = uuidv4();
   const { selectedStreamGroup } = useSelectedStreamGroup(props.id);
 
@@ -139,31 +140,21 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProperties) => {
               <StreamGroupChannelGroupsSelector streamGroupId={selectedStreamGroup?.id ?? undefined} />
             </div>
           </div>
-          <div className="flex col-12 ">
-            <label className="col-2 ">Profile: </label>
-            <div className="col-8 ">
-              <FFMPEGProfileDropDown
-                id={props.id}
-                onChange={(e) => {
-                  setFfmpegProfileId(e);
-                }}
-              />
-            </div>
-          </div>
-          {/* <div className="flex col-12 ">
-            <label className="col-6">Auto Set Channel Numbers: </label>
-            <div className="col-2">
-              <Checkbox
-                checked={autoSetChannelNumbers}
-                onChange={async (e: CheckboxChangeEvent) => {
-                  setAutoSetChannelNumbers(e.checked ?? false);
-                }}
-                tooltip="Enable Auto Channel Numbering"
-                tooltipOptions={getTopToolOptions}
-              />
-            </div>
-          </div> */}
-
+          {settingsQuery.data?.hls?.hlsM3U8Enable && (
+            <>
+              <div className="flex col-12 ">
+                <label className="col-2 ">Profile: </label>
+                <div className="col-8 ">
+                  <ProfilesDropDown
+                    id={props.id}
+                    onChange={(e) => {
+                      setFfmpegProfileId(e);
+                    }}
+                  />
+                </div>
+              </div>
+            </>
+          )}
           <div className="flex col-12 mt-3 gap-2 justify-content-end">
             <EditButton disabled={!isSaveEnabled} label="Edit Stream Group" onClick={() => onUpdate()} tooltip="Edit Stream Group" />
           </div>

@@ -1,16 +1,16 @@
+import { useProfilesGetFfmpegProfilesQuery } from '@lib/iptvApi';
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
-import useSettings from '@lib/useSettings';
 import { Dropdown } from 'primereact/dropdown';
 import { memo, useEffect, useMemo, useState } from 'react';
 
-interface FFMPEGProfileDropDownProperties {
+interface ProfilesDropDownProperties {
   readonly id: string;
   readonly onChange: (FfmpegProfileId: string) => void;
 }
 
-const FFMPEGProfileDropDown = ({ id, onChange }: FFMPEGProfileDropDownProperties): JSX.Element => {
+const ProfilesDropDown = ({ id, onChange }: ProfilesDropDownProperties): JSX.Element => {
   const [FfmpegProfile, setFfmpegProfile] = useState<string | null>(null);
-  const settings = useSettings();
+  const settingsQuery = useProfilesGetFfmpegProfilesQuery();
   const { selectedStreamGroup } = useSelectedStreamGroup(id);
 
   useEffect(() => {
@@ -24,18 +24,18 @@ const FFMPEGProfileDropDown = ({ id, onChange }: FFMPEGProfileDropDownProperties
   }, [selectedStreamGroup]);
 
   const profiles = useMemo(() => {
-    if (settings.data.ffmpegProfiles === undefined) {
+    if (settingsQuery.data === undefined) {
       return [];
     }
 
-    const toRet = Object.keys(settings.data.ffmpegProfiles).map((key) => {
+    const toRet = Object.keys(settingsQuery.data).map((key) => {
       return {
         label: key,
         value: key
       };
     });
     return toRet;
-  }, [settings.data.ffmpegProfiles]);
+  }, [settingsQuery.data]);
 
   console.log(FfmpegProfile);
   return (
@@ -52,4 +52,4 @@ const FFMPEGProfileDropDown = ({ id, onChange }: FFMPEGProfileDropDownProperties
   );
 };
 
-export default memo(FFMPEGProfileDropDown);
+export default memo(ProfilesDropDown);

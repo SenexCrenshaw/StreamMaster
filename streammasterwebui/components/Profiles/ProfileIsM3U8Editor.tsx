@@ -1,6 +1,7 @@
 import { getTopToolOptions } from '@lib/common/common';
 import { FfmpegProfileDto, UpdateFfmpegProfileRequest } from '@lib/iptvApi';
-import { UpdateFFMPEGProfile } from '@lib/smAPI/Settings/SettingsMutateAPI';
+import { UpdateFFMPEGProfile } from '@lib/smAPI/Profiles/ProfilesMutateAPI';
+
 import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
 import React, { useEffect } from 'react';
 

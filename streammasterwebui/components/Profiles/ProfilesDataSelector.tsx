@@ -8,7 +8,7 @@ import ProfileIsM3U8Editor from './ProfileIsM3U8Editor';
 import ProfileNameEditor from './ProfileNameEditor';
 import ProfileParameterEditor from './ProfileParameterEditor';
 
-const SettingsProfilesDataSelector = () => {
+const ProfilesDataSelector = () => {
   const settingsQuery = useProfilesGetFfmpegProfilesQuery();
 
   const nameEditor = React.useCallback((data: FfmpegProfileDto) => {
@@ -83,16 +83,17 @@ const SettingsProfilesDataSelector = () => {
 
       <DataSelector
         columns={sourceColumns}
+        dataKey="name"
         dataSource={settingsQuery.data}
         defaultSortField="rank"
         emptyMessage="No Data"
-        id="SettingsProfilesDataSelector"
+        id="ProfilesDataSelector"
         selectedItemsKey="selectSelectedItems"
       />
     </div>
   );
 };
 
-SettingsProfilesDataSelector.displayName = 'SettingsProfilesDataSelector';
+ProfilesDataSelector.displayName = 'ProfilesDataSelector';
 
-export default React.memo(SettingsProfilesDataSelector);
+export default React.memo(ProfilesDataSelector);
