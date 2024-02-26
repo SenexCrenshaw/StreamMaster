@@ -5,13 +5,23 @@ import { singletonCacheHandlerListener } from './singletonListeners';
  * @param key - The key of the cache item to clear.
  */
 function clearCacheItemByKey(key: string): void {
-  const cacheRaw = localStorage.getItem('cache');
+  let cacheRaw = localStorage.getItem('cache');
   if (cacheRaw) {
     const cache = new Map<string, any>(JSON.parse(cacheRaw));
 
     if (cache.has(key)) {
       cache.delete(key);
       localStorage.setItem('cache', JSON.stringify(Array.from(cache.entries())));
+    }
+  }
+
+  cacheRaw = sessionStorage.getItem('cache');
+  if (cacheRaw) {
+    const cache = new Map<string, any>(JSON.parse(cacheRaw));
+
+    if (cache.has(key)) {
+      cache.delete(key);
+      sessionStorage.setItem('cache', JSON.stringify(Array.from(cache.entries())));
     }
   }
 }

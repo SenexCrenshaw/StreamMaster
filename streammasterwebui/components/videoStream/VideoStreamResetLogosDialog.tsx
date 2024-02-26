@@ -119,6 +119,6 @@ const VideoStreamResetLogosDialog = ({ id }: VideoStreamResetLogosDialogProperti
   );
 };
 
-VideoStreamResetLogosDialog.displayName = 'Auto Set Channel Numbers';
+VideoStreamResetLogosDialog.displayName = 'VideoStreamResetLogosDialog';
 
 export default memo(VideoStreamResetLogosDialog);

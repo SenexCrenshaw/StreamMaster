@@ -15,8 +15,6 @@ type EPGSelectorProperties = BaseSelectorProperties<StationChannelName> & {
 };
 
 const EPGSelector: React.FC<Partial<EPGSelectorProperties>> = ({ enableEditMode = true, onChange, ...restProperties }) => {
-  // const epgFilesGetEpgColorsQuery = useEpgFilesGetEpgColorsQuery();
-
   const [colors, setColors] = useState<EpgColorDto[]>([]);
 
   useEffect(() => {
