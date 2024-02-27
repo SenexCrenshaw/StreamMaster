@@ -15,7 +15,7 @@ import SettingsEditor from '@features/settings/SettingsEditor';
 import StreamGroupEditor from '@features/streamGroupEditor/StreamGroupEditor';
 import StreamingStatus from '@features/streamingStatus/StreamingStatus';
 import VideoPlayer from '@features/videoPlayer/VideoPlayer';
-import { IconFileDto, StationChannelName } from '@lib/iptvApi';
+import { IconFileDto, StationChannelName, useEpgFilesGetEpgColorsQuery, useSchedulesDirectGetStationChannelNamesQuery } from '@lib/iptvApi';
 import MessagesEn from '@lib/locales/MessagesEn';
 import { CacheProvider } from '@lib/redux/CacheProvider';
 import { SignalRConnection } from '@lib/signalr/SignalRConnection';
@@ -71,6 +71,8 @@ const App = (): JSX.Element => {
       </Route>
     )
   );
+  useSchedulesDirectGetStationChannelNamesQuery();
+  useEpgFilesGetEpgColorsQuery();
 
   return (
     <IntlProvider locale={locale} messages={messages}>

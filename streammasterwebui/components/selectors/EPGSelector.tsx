@@ -1,62 +1,52 @@
-import {
-  EpgColorDto,
-  StationChannelName,
-  useSchedulesDirectGetPagedStationChannelNameSelectionsQuery,
-  useSchedulesDirectGetStationChannelNamesSimpleQueryQuery
-} from '@lib/iptvApi';
+import { EpgColorDto, StationChannelName, useEpgFilesGetEpgColorsQuery, useSchedulesDirectGetStationChannelNamesQuery } from '@lib/iptvApi';
+import { Dropdown } from 'primereact/dropdown';
+import { classNames } from 'primereact/utils';
+import React, { useEffect, useState } from 'react';
 
-import { GetEpgColors } from '@lib/smAPI/EpgFiles/EpgFilesGetAPI';
-import { GetStationChannelNameFromDisplayName } from '@lib/smAPI/SchedulesDirect/SchedulesDirectGetAPI';
-import React, { useCallback, useEffect, useState } from 'react';
-import BaseSelector, { type BaseSelectorProperties } from './BaseSelector';
-
-type EPGSelectorProperties = BaseSelectorProperties<StationChannelName> & {
-  enableEditMode?: boolean;
+type EPGSelectorProperties = {
+  readonly enableEditMode?: boolean;
+  readonly disabled?: boolean;
+  readonly editable?: boolean | undefined;
+  readonly value?: string;
+  readonly onChange?: (value: string) => void;
 };
 
-const EPGSelector: React.FC<Partial<EPGSelectorProperties>> = ({ enableEditMode = true, onChange, ...restProperties }) => {
+const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChange }: EPGSelectorProperties) => {
   const [colors, setColors] = useState<EpgColorDto[]>([]);
+  const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
+  const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
+
+  const query = useSchedulesDirectGetStationChannelNamesQuery();
+  const colorsQuery = useEpgFilesGetEpgColorsQuery();
 
   useEffect(() => {
-    GetEpgColors()
-      .then((x) => {
-        if (x) {
-          setColors(x);
-        }
-      })
-      .catch((e) => {
-        console.error(e);
-      });
-  }, []);
-
-  const selectedTemplate = (option: any) => {
-    const entry = colors.find((x) => x.stationId === restProperties.value);
-    let color = '#FFFFFF';
-    if (entry?.color) {
-      // console.log('entry', entry);
-
-      color = entry.color;
-    }
-    // const background = adjustBackgroundColorIfNeeded(color);
-
-    return <div style={{ color: color }}>{option?.displayName}</div>;
-  };
-
-  const handleOnChange = useCallback(
-    (event: string) => {
-      if (event && onChange) {
-        onChange(event);
+    if (checkValue === undefined && query.isSuccess && value) {
+      setCheckValue(value);
+      const entry = query.data?.find((x) => x.channel === value);
+      if (entry && entry.id !== stationChannelName?.id) {
+        setStationChannelName(entry);
+      } else {
+        setStationChannelName(undefined);
       }
-    },
-    [onChange]
-  );
+    }
+  }, [checkValue, query, stationChannelName?.id, value]);
 
-  const itemTemplate = (option: any): JSX.Element => {
+  useEffect(() => {
+    if (colors.length === 0 && colorsQuery.isSuccess && colorsQuery.data) {
+      setColors(colorsQuery.data);
+    }
+  }, [colors.length, colorsQuery.data, colorsQuery.isSuccess]);
+
+  const itemTemplate = (option: StationChannelName): JSX.Element => {
+    if (!option) {
+      return <div>{value}</div>;
+    }
+
     let inputString = option?.displayName ?? '';
     const splitIndex = inputString.indexOf(']') + 1;
     const beforeCallSign = inputString.substring(0, splitIndex);
     const afterCallSign = inputString.substring(splitIndex).trim();
-    // console.log('options', option);
+
     const entry = colors.find((x) => x.stationId === option.channel);
     let color = '#FFFFFF';
     if (entry?.color) {
@@ -76,40 +66,60 @@ const EPGSelector: React.FC<Partial<EPGSelectorProperties>> = ({ enableEditMode 
 
     return (
       <div className="flex grid w-full align-items-center p-0 m-0">
-        {/* <div className="col-5 align-items-center p-0 m-0 border-round"> */}
         <div className="align-items-center pl-1 m-0 border-round ">
           <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
           <span className="text-md">{beforeCallSign}</span>
           <div className="text-xs ml-5">{afterCallSign}</div>
         </div>
-        {/* </div> */}
-        {/* <div className="col-fixed" style={{ width: '100px' }}>
-          {afterCallSign}
-        </div> */}
       </div>
     );
   };
 
+  const className = classNames('BaseSelector align-contents-center p-0 m-0 max-w-full w-full epgSelector', {
+    'p-disabled': disabled
+  });
+
   if (!enableEditMode) {
-    return <div className="flex h-full justify-content-center align-items-center p-0 m-0">{restProperties.value ?? 'Dummy'}</div>;
+    return <div className="flex w-full h-full justify-content-center align-items-center p-0 m-0">{value ?? 'Dummy'}</div>;
   }
 
+  const loading = !query.isSuccess || query.isFetching || query.isLoading;
+
   return (
-    <BaseSelector
-      {...restProperties}
-      dataKey="epgSelector"
-      editable
-      itemSize={32}
-      itemTemplate={itemTemplate}
-      onChange={handleOnChange}
-      optionLabel="channelName"
-      optionValue="channel"
-      queryFilter={useSchedulesDirectGetPagedStationChannelNameSelectionsQuery}
-      queryHook={useSchedulesDirectGetStationChannelNamesSimpleQueryQuery}
-      querySelectedItem={GetStationChannelNameFromDisplayName}
-      selectName="EPG"
-      selectedTemplate={selectedTemplate}
-    />
+    <div className="BaseSelector flex align-contents-center w-full min-w-full">
+      <Dropdown
+        className={className}
+        disabled={loading}
+        editable={editable}
+        autoFocus
+        filter
+        filterBy="displayName"
+        itemTemplate={itemTemplate}
+        loading={loading}
+        onChange={(e) => {
+          setStationChannelName(e.value);
+          if (onChange) {
+            onChange(e.value.id);
+          }
+        }}
+        onHide={() => {}}
+        optionLabel="displayName"
+        options={query.data}
+        placeholder="placeholder"
+        resetFilterOnHide
+        showFilterClear
+        value={stationChannelName}
+        valueTemplate={itemTemplate}
+        virtualScrollerOptions={{
+          itemSize: 32,
+          style: {
+            minWidth: '400px',
+            width: '400px',
+            maxWidth: '50vw'
+          }
+        }}
+      />
+    </div>
   );
 };
 

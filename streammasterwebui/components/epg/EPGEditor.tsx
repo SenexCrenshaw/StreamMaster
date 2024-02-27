@@ -16,7 +16,6 @@ const EPGEditor = ({ data, enableEditMode }: EPGEditorProperties) => {
     }
 
     const toSend = {} as UpdateVideoStreamRequest;
-
     toSend.id = data.id;
 
     if (epg && epg !== '' && data.user_Tvg_ID !== epg) {

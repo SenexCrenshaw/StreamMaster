@@ -21,10 +21,10 @@ const StreamGroupEditor = (): JSX.Element => {
           blocked={selectedStreamGroup === undefined || selectedStreamGroup.id === undefined || selectedStreamGroup.id <= 1 || selectedStreamGroup.isReadOnly}
         >
           <div className="grid grid-nogutter flex flex-wrap justify-content-between h-full col-12 p-0">
-            <div className="col-6">
+            <div className="col-7">
               <StreamGroupVideoStreamDataSelector id={id} />
             </div>
-            <div className="col-6">
+            <div className="col-5">
               <StreamGroupSelectedVideoStreamDataSelector id={id} />
             </div>
           </div>

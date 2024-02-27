@@ -4,7 +4,6 @@ export const addTagTypes = [
   'EPGFiles',
   'Logs',
   'Programmes',
-  'SchedulesDirect',
   'StreamGroupChannelGroup',
   'StreamGroupVideoStreams',
   'Test',
@@ -14,6 +13,7 @@ export const addTagTypes = [
   'Misc',
   'Profiles',
   'Queue',
+  'SchedulesDirect',
   'Settings',
   'Statistics',
   'Stream',
@@ -151,103 +151,6 @@ const injectedRtkApi = api
       programmesGetProgrammes: build.query<ProgrammesGetProgrammesApiResponse, ProgrammesGetProgrammesApiArg>({
         query: () => ({ url: `/api/programmes/getprogrammes` }),
         providesTags: ['Programmes']
-      }),
-      schedulesDirectAddLineup: build.mutation<SchedulesDirectAddLineupApiResponse, SchedulesDirectAddLineupApiArg>({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/addlineup`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectAddStation: build.mutation<SchedulesDirectAddStationApiResponse, SchedulesDirectAddStationApiArg>({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/addstation`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetAvailableCountries: build.query<SchedulesDirectGetAvailableCountriesApiResponse, SchedulesDirectGetAvailableCountriesApiArg>({
-        query: () => ({ url: `/api/schedulesdirect/getavailablecountries` }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetChannelNames: build.query<SchedulesDirectGetChannelNamesApiResponse, SchedulesDirectGetChannelNamesApiArg>({
-        query: () => ({ url: `/api/schedulesdirect/getchannelnames` }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetHeadends: build.query<SchedulesDirectGetHeadendsApiResponse, SchedulesDirectGetHeadendsApiArg>({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/getheadends`, body: queryArg }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetLineupPreviewChannel: build.query<SchedulesDirectGetLineupPreviewChannelApiResponse, SchedulesDirectGetLineupPreviewChannelApiArg>({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/getlineuppreviewchannel`, body: queryArg }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetLineups: build.query<SchedulesDirectGetLineupsApiResponse, SchedulesDirectGetLineupsApiArg>({
-        query: () => ({ url: `/api/schedulesdirect/getlineups` }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetPagedStationChannelNameSelections: build.query<
-        SchedulesDirectGetPagedStationChannelNameSelectionsApiResponse,
-        SchedulesDirectGetPagedStationChannelNameSelectionsApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/schedulesdirect/getpagedstationchannelnameselections`,
-          params: {
-            Count: queryArg.count,
-            First: queryArg.first,
-            Last: queryArg.last,
-            PageNumber: queryArg.pageNumber,
-            PageSize: queryArg.pageSize,
-            OrderBy: queryArg.orderBy,
-            JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString
-          }
-        }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetSelectedStationIds: build.query<SchedulesDirectGetSelectedStationIdsApiResponse, SchedulesDirectGetSelectedStationIdsApiArg>({
-        query: () => ({ url: `/api/schedulesdirect/getselectedstationids` }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetStationChannelMaps: build.query<SchedulesDirectGetStationChannelMapsApiResponse, SchedulesDirectGetStationChannelMapsApiArg>({
-        query: () => ({ url: `/api/schedulesdirect/getstationchannelmaps` }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetStationChannelNameFromDisplayName: build.query<
-        SchedulesDirectGetStationChannelNameFromDisplayNameApiResponse,
-        SchedulesDirectGetStationChannelNameFromDisplayNameApiArg
-      >({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/getstationchannelnamefromdisplayname`, body: queryArg }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetStationChannelNamesSimpleQuery: build.query<
-        SchedulesDirectGetStationChannelNamesSimpleQueryApiResponse,
-        SchedulesDirectGetStationChannelNamesSimpleQueryApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/schedulesdirect/getstationchannelnamessimplequery`,
-          params: {
-            Count: queryArg.count,
-            First: queryArg.first,
-            Last: queryArg.last,
-            PageNumber: queryArg.pageNumber,
-            PageSize: queryArg.pageSize,
-            OrderBy: queryArg.orderBy,
-            JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString
-          }
-        }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetStationPreviews: build.query<SchedulesDirectGetStationPreviewsApiResponse, SchedulesDirectGetStationPreviewsApiArg>({
-        query: () => ({ url: `/api/schedulesdirect/getstationpreviews` }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetUserStatus: build.query<SchedulesDirectGetUserStatusApiResponse, SchedulesDirectGetUserStatusApiArg>({
-        query: () => ({ url: `/api/schedulesdirect/getuserstatus` }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectRemoveLineup: build.mutation<SchedulesDirectRemoveLineupApiResponse, SchedulesDirectRemoveLineupApiArg>({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/removelineup`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectRemoveStation: build.mutation<SchedulesDirectRemoveStationApiResponse, SchedulesDirectRemoveStationApiArg>({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/removestation`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['SchedulesDirect']
       }),
       streamGroupChannelGroupSyncStreamGroupChannelGroups: build.mutation<
         StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiResponse,
@@ -451,6 +354,107 @@ const injectedRtkApi = api
       queueGetQueueStatus: build.query<QueueGetQueueStatusApiResponse, QueueGetQueueStatusApiArg>({
         query: () => ({ url: `/api/queue/getqueuestatus` }),
         providesTags: ['Queue']
+      }),
+      schedulesDirectAddLineup: build.mutation<SchedulesDirectAddLineupApiResponse, SchedulesDirectAddLineupApiArg>({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/addlineup`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectAddStation: build.mutation<SchedulesDirectAddStationApiResponse, SchedulesDirectAddStationApiArg>({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/addstation`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetAvailableCountries: build.query<SchedulesDirectGetAvailableCountriesApiResponse, SchedulesDirectGetAvailableCountriesApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getavailablecountries` }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetChannelNames: build.query<SchedulesDirectGetChannelNamesApiResponse, SchedulesDirectGetChannelNamesApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getchannelnames` }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetHeadends: build.query<SchedulesDirectGetHeadendsApiResponse, SchedulesDirectGetHeadendsApiArg>({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/getheadends`, body: queryArg }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetLineupPreviewChannel: build.query<SchedulesDirectGetLineupPreviewChannelApiResponse, SchedulesDirectGetLineupPreviewChannelApiArg>({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/getlineuppreviewchannel`, body: queryArg }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetLineups: build.query<SchedulesDirectGetLineupsApiResponse, SchedulesDirectGetLineupsApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getlineups` }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetPagedStationChannelNameSelections: build.query<
+        SchedulesDirectGetPagedStationChannelNameSelectionsApiResponse,
+        SchedulesDirectGetPagedStationChannelNameSelectionsApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/schedulesdirect/getpagedstationchannelnameselections`,
+          params: {
+            Count: queryArg.count,
+            First: queryArg.first,
+            Last: queryArg.last,
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
+        }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetSelectedStationIds: build.query<SchedulesDirectGetSelectedStationIdsApiResponse, SchedulesDirectGetSelectedStationIdsApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getselectedstationids` }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetStationChannelMaps: build.query<SchedulesDirectGetStationChannelMapsApiResponse, SchedulesDirectGetStationChannelMapsApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getstationchannelmaps` }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetStationChannelNameFromDisplayName: build.query<
+        SchedulesDirectGetStationChannelNameFromDisplayNameApiResponse,
+        SchedulesDirectGetStationChannelNameFromDisplayNameApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/getstationchannelnamefromdisplayname`, body: queryArg }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetStationChannelNames: build.query<SchedulesDirectGetStationChannelNamesApiResponse, SchedulesDirectGetStationChannelNamesApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getstationchannelnames` }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetStationChannelNamesSimpleQuery: build.query<
+        SchedulesDirectGetStationChannelNamesSimpleQueryApiResponse,
+        SchedulesDirectGetStationChannelNamesSimpleQueryApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/schedulesdirect/getstationchannelnamessimplequery`,
+          params: {
+            Count: queryArg.count,
+            First: queryArg.first,
+            Last: queryArg.last,
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
+        }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetStationPreviews: build.query<SchedulesDirectGetStationPreviewsApiResponse, SchedulesDirectGetStationPreviewsApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getstationpreviews` }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetUserStatus: build.query<SchedulesDirectGetUserStatusApiResponse, SchedulesDirectGetUserStatusApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getuserstatus` }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectRemoveLineup: build.mutation<SchedulesDirectRemoveLineupApiResponse, SchedulesDirectRemoveLineupApiArg>({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/removelineup`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectRemoveStation: build.mutation<SchedulesDirectRemoveStationApiResponse, SchedulesDirectRemoveStationApiArg>({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/removestation`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['SchedulesDirect']
       }),
       settingsGetIsSystemReady: build.query<SettingsGetIsSystemReadyApiResponse, SettingsGetIsSystemReadyApiArg>({
         query: () => ({ url: `/api/settings/getissystemready` }),
@@ -896,56 +900,6 @@ export type ProgrammesGetProgrammeApiResponse = /** status 200  */ XmltvProgramm
 export type ProgrammesGetProgrammeApiArg = string;
 export type ProgrammesGetProgrammesApiResponse = /** status 200  */ XmltvProgramme[];
 export type ProgrammesGetProgrammesApiArg = void;
-export type SchedulesDirectAddLineupApiResponse = /** status 200  */ boolean;
-export type SchedulesDirectAddLineupApiArg = AddLineup;
-export type SchedulesDirectAddStationApiResponse = /** status 200  */ boolean;
-export type SchedulesDirectAddStationApiArg = AddStation;
-export type SchedulesDirectGetAvailableCountriesApiResponse = /** status 200  */ CountryData[];
-export type SchedulesDirectGetAvailableCountriesApiArg = void;
-export type SchedulesDirectGetChannelNamesApiResponse = /** status 200  */ string[];
-export type SchedulesDirectGetChannelNamesApiArg = void;
-export type SchedulesDirectGetHeadendsApiResponse = /** status 200  */ HeadendDto[];
-export type SchedulesDirectGetHeadendsApiArg = GetHeadends;
-export type SchedulesDirectGetLineupPreviewChannelApiResponse = /** status 200  */ LineupPreviewChannel[];
-export type SchedulesDirectGetLineupPreviewChannelApiArg = GetLineupPreviewChannel;
-export type SchedulesDirectGetLineupsApiResponse = /** status 200  */ SubscribedLineup[];
-export type SchedulesDirectGetLineupsApiArg = void;
-export type SchedulesDirectGetPagedStationChannelNameSelectionsApiResponse = /** status 200  */ PagedResponseOfStationChannelName;
-export type SchedulesDirectGetPagedStationChannelNameSelectionsApiArg = {
-  count?: number;
-  first?: number;
-  last?: number;
-  pageNumber?: number;
-  pageSize?: number;
-  orderBy?: string;
-  jsonArgumentString?: string | null;
-  jsonFiltersString?: string | null;
-};
-export type SchedulesDirectGetSelectedStationIdsApiResponse = /** status 200  */ StationIdLineup[];
-export type SchedulesDirectGetSelectedStationIdsApiArg = void;
-export type SchedulesDirectGetStationChannelMapsApiResponse = /** status 200  */ StationChannelMap[];
-export type SchedulesDirectGetStationChannelMapsApiArg = void;
-export type SchedulesDirectGetStationChannelNameFromDisplayNameApiResponse = /** status 200  */ StationChannelName;
-export type SchedulesDirectGetStationChannelNameFromDisplayNameApiArg = GetStationChannelNameFromDisplayName;
-export type SchedulesDirectGetStationChannelNamesSimpleQueryApiResponse = /** status 200  */ StationChannelName[];
-export type SchedulesDirectGetStationChannelNamesSimpleQueryApiArg = {
-  count?: number;
-  first?: number;
-  last?: number;
-  pageNumber?: number;
-  pageSize?: number;
-  orderBy?: string;
-  jsonArgumentString?: string | null;
-  jsonFiltersString?: string | null;
-};
-export type SchedulesDirectGetStationPreviewsApiResponse = /** status 200  */ StationPreview[];
-export type SchedulesDirectGetStationPreviewsApiArg = void;
-export type SchedulesDirectGetUserStatusApiResponse = /** status 200  */ UserStatus;
-export type SchedulesDirectGetUserStatusApiArg = void;
-export type SchedulesDirectRemoveLineupApiResponse = /** status 200  */ boolean;
-export type SchedulesDirectRemoveLineupApiArg = RemoveLineup;
-export type SchedulesDirectRemoveStationApiResponse = /** status 200  */ boolean;
-export type SchedulesDirectRemoveStationApiArg = RemoveStation;
 export type StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiResponse = /** status 200  */ StreamGroupDto;
 export type StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiArg = SyncStreamGroupChannelGroupsRequest;
 export type StreamGroupChannelGroupGetChannelGroupsFromStreamGroupApiResponse = /** status 200  */ ChannelGroupDto[];
@@ -1057,6 +1011,58 @@ export type ProfilesUpdateFfmpegProfileApiResponse = /** status 200  */ UpdateSe
 export type ProfilesUpdateFfmpegProfileApiArg = UpdateFfmpegProfileRequest;
 export type QueueGetQueueStatusApiResponse = /** status 200  */ TaskQueueStatus[];
 export type QueueGetQueueStatusApiArg = void;
+export type SchedulesDirectAddLineupApiResponse = /** status 200  */ boolean;
+export type SchedulesDirectAddLineupApiArg = AddLineup;
+export type SchedulesDirectAddStationApiResponse = /** status 200  */ boolean;
+export type SchedulesDirectAddStationApiArg = AddStation;
+export type SchedulesDirectGetAvailableCountriesApiResponse = /** status 200  */ CountryData[];
+export type SchedulesDirectGetAvailableCountriesApiArg = void;
+export type SchedulesDirectGetChannelNamesApiResponse = /** status 200  */ string[];
+export type SchedulesDirectGetChannelNamesApiArg = void;
+export type SchedulesDirectGetHeadendsApiResponse = /** status 200  */ HeadendDto[];
+export type SchedulesDirectGetHeadendsApiArg = GetHeadends;
+export type SchedulesDirectGetLineupPreviewChannelApiResponse = /** status 200  */ LineupPreviewChannel[];
+export type SchedulesDirectGetLineupPreviewChannelApiArg = GetLineupPreviewChannel;
+export type SchedulesDirectGetLineupsApiResponse = /** status 200  */ SubscribedLineup[];
+export type SchedulesDirectGetLineupsApiArg = void;
+export type SchedulesDirectGetPagedStationChannelNameSelectionsApiResponse = /** status 200  */ PagedResponseOfStationChannelName;
+export type SchedulesDirectGetPagedStationChannelNameSelectionsApiArg = {
+  count?: number;
+  first?: number;
+  last?: number;
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type SchedulesDirectGetSelectedStationIdsApiResponse = /** status 200  */ StationIdLineup[];
+export type SchedulesDirectGetSelectedStationIdsApiArg = void;
+export type SchedulesDirectGetStationChannelMapsApiResponse = /** status 200  */ StationChannelMap[];
+export type SchedulesDirectGetStationChannelMapsApiArg = void;
+export type SchedulesDirectGetStationChannelNameFromDisplayNameApiResponse = /** status 200  */ StationChannelName;
+export type SchedulesDirectGetStationChannelNameFromDisplayNameApiArg = GetStationChannelNameFromDisplayName;
+export type SchedulesDirectGetStationChannelNamesApiResponse = /** status 200  */ StationChannelName[];
+export type SchedulesDirectGetStationChannelNamesApiArg = void;
+export type SchedulesDirectGetStationChannelNamesSimpleQueryApiResponse = /** status 200  */ StationChannelName[];
+export type SchedulesDirectGetStationChannelNamesSimpleQueryApiArg = {
+  count?: number;
+  first?: number;
+  last?: number;
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type SchedulesDirectGetStationPreviewsApiResponse = /** status 200  */ StationPreview[];
+export type SchedulesDirectGetStationPreviewsApiArg = void;
+export type SchedulesDirectGetUserStatusApiResponse = /** status 200  */ UserStatus;
+export type SchedulesDirectGetUserStatusApiArg = void;
+export type SchedulesDirectRemoveLineupApiResponse = /** status 200  */ boolean;
+export type SchedulesDirectRemoveLineupApiArg = RemoveLineup;
+export type SchedulesDirectRemoveStationApiResponse = /** status 200  */ boolean;
+export type SchedulesDirectRemoveStationApiArg = RemoveStation;
 export type SettingsGetIsSystemReadyApiResponse = /** status 200  */ boolean;
 export type SettingsGetIsSystemReadyApiArg = void;
 export type SettingsGetSettingApiResponse = /** status 200  */ SettingDto;
@@ -1487,197 +1493,6 @@ export type XmltvProgramme = {
   starRating?: XmltvRating[] | null;
   review?: XmltvReview[] | null;
 };
-export type AddLineup = {
-  lineup?: string;
-};
-export type StationRequest = {
-  stationId?: string;
-  lineUp?: string;
-};
-export type AddStation = {
-  requests?: StationRequest[];
-};
-export type Country = {
-  fullName?: string;
-  shortName?: string;
-  postalCodeExample?: string;
-  postalCode?: string;
-  onePostalCode?: boolean;
-};
-export type CountryData = {
-  id?: string;
-  key?: string;
-  countries?: Country[];
-};
-export type HeadendDto = {
-  id?: string;
-  headendId?: string;
-  lineup?: string;
-  location?: string;
-  name?: string;
-  transport?: string;
-};
-export type GetHeadends = {
-  country?: string;
-  postalCode?: string;
-};
-export type LineupPreviewChannel = {
-  id?: number;
-  channel?: string;
-  name?: string;
-  callsign?: string;
-  affiliate?: string;
-};
-export type GetLineupPreviewChannel = {
-  lineup?: string;
-};
-export type SubscribedLineup = {
-  id?: string;
-  lineup?: string;
-  name?: string;
-  transport?: string;
-  location?: string;
-  uri?: string;
-  isDeleted?: boolean;
-};
-export type StationChannelName = {
-  id: string;
-  channel: string;
-  channelName: string;
-  displayName: string;
-};
-export type PagedResponseOfStationChannelName = {
-  data: StationChannelName[];
-  pageNumber: number;
-  pageSize: number;
-  totalPageCount: number;
-  totalItemCount: number;
-  first: number;
-};
-export type StationIdLineup = {
-  lineup?: string;
-  stationId?: string;
-  id?: string;
-};
-export type LineupChannel = {
-  channelNumber?: string;
-  myChannelNumber?: number;
-  myChannelSubnumber?: number;
-  stationID?: string;
-  uhfVhf?: number | null;
-  atscMajor?: number | null;
-  atscMinor?: number | null;
-  atscType?: string;
-  frequencyHz?: number | null;
-  polarization?: string;
-  deliverySystem?: string;
-  modulationSystem?: string;
-  symbolrate?: number | null;
-  fec?: string;
-  serviceID?: number | null;
-  networkID?: number | null;
-  transportID?: number | null;
-  channel?: string;
-  virtualChannel?: string;
-  channelMajor?: number | null;
-  channelMinor?: number | null;
-  providerChannel?: string;
-  providerCallsign?: string;
-  logicalChannelNumber?: string;
-  matchType?: string;
-};
-export type StationBroadcaster = {
-  city?: string;
-  state?: string;
-  postalcode?: string;
-  country?: string;
-};
-export type StationImage = {
-  URL?: string;
-  height?: number;
-  width?: number;
-  md5?: string;
-  source?: string;
-  category?: string;
-};
-export type LineupStation = {
-  stationID?: string;
-  name?: string;
-  callsign?: string;
-  affiliate?: string;
-  broadcastLanguage?: string[];
-  descriptionLanguage?: string[];
-  broadcaster?: StationBroadcaster;
-  isCommercialFree?: boolean | null;
-  stationLogo?: StationImage[];
-  logo?: StationImage;
-};
-export type LineupMetadata = {
-  lineup?: string;
-  modified?: string;
-  transport?: string;
-  modulation?: string;
-};
-export type StationChannelMap = {
-  map?: LineupChannel[];
-  stations?: LineupStation[];
-  metadata?: LineupMetadata | null;
-};
-export type GetStationChannelNameFromDisplayName = {
-  value?: string;
-};
-export type Logo = {
-  URL?: string;
-  height?: number;
-  width?: number;
-  md5?: string;
-};
-export type StationPreview = {
-  logo?: Logo;
-  affiliate?: string;
-  callsign?: string;
-  id?: string;
-  lineup?: string;
-  name?: string;
-  stationId?: string;
-};
-export type BaseResponse = {
-  response?: string;
-  code?: number;
-  serverID?: string;
-  message?: string;
-  datetime?: string;
-  uuid?: string;
-};
-export type StatusAccount = {
-  expires?: string;
-  messages?: string[];
-  maxLineups?: number;
-};
-export type StatusLineup = {
-  lineup?: string;
-  modified?: string;
-  uri?: string;
-  isDeleted?: boolean;
-};
-export type SystemStatus = {
-  date?: string;
-  status?: string;
-  message?: string;
-};
-export type UserStatus = BaseResponse & {
-  account?: StatusAccount;
-  lineups?: StatusLineup[];
-  lastDataUpdate?: string;
-  notifications?: string[];
-  systemStatus?: SystemStatus[];
-};
-export type RemoveLineup = {
-  lineup?: string;
-};
-export type RemoveStation = {
-  requests?: StationRequest[];
-};
 export type StreamGroupDto = {
   ffmpegProfileId: string;
   isLoading: boolean;
@@ -1890,6 +1705,11 @@ export type BaseSettings = {
   videoStreamAlwaysUseEPGLogo?: boolean;
   showClientHostNames?: boolean;
 };
+export type StationIdLineup = {
+  lineup?: string;
+  stationId?: string;
+  id?: string;
+};
 export type SdSettings = {
   alternateSEFormat?: boolean;
   alternateLogoStyle?: string;
@@ -1962,6 +1782,192 @@ export type TaskQueueStatus = {
   startTS?: string;
   stopTS?: string;
   elapsedTS?: string;
+};
+export type AddLineup = {
+  lineup?: string;
+};
+export type StationRequest = {
+  stationId?: string;
+  lineUp?: string;
+};
+export type AddStation = {
+  requests?: StationRequest[];
+};
+export type Country = {
+  fullName?: string;
+  shortName?: string;
+  postalCodeExample?: string;
+  postalCode?: string;
+  onePostalCode?: boolean;
+};
+export type CountryData = {
+  id?: string;
+  key?: string;
+  countries?: Country[];
+};
+export type HeadendDto = {
+  id?: string;
+  headendId?: string;
+  lineup?: string;
+  location?: string;
+  name?: string;
+  transport?: string;
+};
+export type GetHeadends = {
+  country?: string;
+  postalCode?: string;
+};
+export type LineupPreviewChannel = {
+  id?: number;
+  channel?: string;
+  name?: string;
+  callsign?: string;
+  affiliate?: string;
+};
+export type GetLineupPreviewChannel = {
+  lineup?: string;
+};
+export type SubscribedLineup = {
+  id?: string;
+  lineup?: string;
+  name?: string;
+  transport?: string;
+  location?: string;
+  uri?: string;
+  isDeleted?: boolean;
+};
+export type StationChannelName = {
+  id: string;
+  channel: string;
+  channelName: string;
+  displayName: string;
+};
+export type PagedResponseOfStationChannelName = {
+  data: StationChannelName[];
+  pageNumber: number;
+  pageSize: number;
+  totalPageCount: number;
+  totalItemCount: number;
+  first: number;
+};
+export type LineupChannel = {
+  channelNumber?: string;
+  myChannelNumber?: number;
+  myChannelSubnumber?: number;
+  stationID?: string;
+  uhfVhf?: number | null;
+  atscMajor?: number | null;
+  atscMinor?: number | null;
+  atscType?: string;
+  frequencyHz?: number | null;
+  polarization?: string;
+  deliverySystem?: string;
+  modulationSystem?: string;
+  symbolrate?: number | null;
+  fec?: string;
+  serviceID?: number | null;
+  networkID?: number | null;
+  transportID?: number | null;
+  channel?: string;
+  virtualChannel?: string;
+  channelMajor?: number | null;
+  channelMinor?: number | null;
+  providerChannel?: string;
+  providerCallsign?: string;
+  logicalChannelNumber?: string;
+  matchType?: string;
+};
+export type StationBroadcaster = {
+  city?: string;
+  state?: string;
+  postalcode?: string;
+  country?: string;
+};
+export type StationImage = {
+  URL?: string;
+  height?: number;
+  width?: number;
+  md5?: string;
+  source?: string;
+  category?: string;
+};
+export type LineupStation = {
+  stationID?: string;
+  name?: string;
+  callsign?: string;
+  affiliate?: string;
+  broadcastLanguage?: string[];
+  descriptionLanguage?: string[];
+  broadcaster?: StationBroadcaster;
+  isCommercialFree?: boolean | null;
+  stationLogo?: StationImage[];
+  logo?: StationImage;
+};
+export type LineupMetadata = {
+  lineup?: string;
+  modified?: string;
+  transport?: string;
+  modulation?: string;
+};
+export type StationChannelMap = {
+  map?: LineupChannel[];
+  stations?: LineupStation[];
+  metadata?: LineupMetadata | null;
+};
+export type GetStationChannelNameFromDisplayName = {
+  value?: string;
+};
+export type Logo = {
+  URL?: string;
+  height?: number;
+  width?: number;
+  md5?: string;
+};
+export type StationPreview = {
+  logo?: Logo;
+  affiliate?: string;
+  callsign?: string;
+  id?: string;
+  lineup?: string;
+  name?: string;
+  stationId?: string;
+};
+export type BaseResponse = {
+  response?: string;
+  code?: number;
+  serverID?: string;
+  message?: string;
+  datetime?: string;
+  uuid?: string;
+};
+export type StatusAccount = {
+  expires?: string;
+  messages?: string[];
+  maxLineups?: number;
+};
+export type StatusLineup = {
+  lineup?: string;
+  modified?: string;
+  uri?: string;
+  isDeleted?: boolean;
+};
+export type SystemStatus = {
+  date?: string;
+  status?: string;
+  message?: string;
+};
+export type UserStatus = BaseResponse & {
+  account?: StatusAccount;
+  lineups?: StatusLineup[];
+  lastDataUpdate?: string;
+  notifications?: string[];
+  systemStatus?: SystemStatus[];
+};
+export type RemoveLineup = {
+  lineup?: string;
+};
+export type RemoveStation = {
+  requests?: StationRequest[];
 };
 export type SdSystemStatus = {
   isSystemReady?: boolean;
@@ -2273,22 +2279,6 @@ export const {
   useLogsGetLogQuery,
   useProgrammesGetProgrammeQuery,
   useProgrammesGetProgrammesQuery,
-  useSchedulesDirectAddLineupMutation,
-  useSchedulesDirectAddStationMutation,
-  useSchedulesDirectGetAvailableCountriesQuery,
-  useSchedulesDirectGetChannelNamesQuery,
-  useSchedulesDirectGetHeadendsQuery,
-  useSchedulesDirectGetLineupPreviewChannelQuery,
-  useSchedulesDirectGetLineupsQuery,
-  useSchedulesDirectGetPagedStationChannelNameSelectionsQuery,
-  useSchedulesDirectGetSelectedStationIdsQuery,
-  useSchedulesDirectGetStationChannelMapsQuery,
-  useSchedulesDirectGetStationChannelNameFromDisplayNameQuery,
-  useSchedulesDirectGetStationChannelNamesSimpleQueryQuery,
-  useSchedulesDirectGetStationPreviewsQuery,
-  useSchedulesDirectGetUserStatusQuery,
-  useSchedulesDirectRemoveLineupMutation,
-  useSchedulesDirectRemoveStationMutation,
   useStreamGroupChannelGroupSyncStreamGroupChannelGroupsMutation,
   useStreamGroupChannelGroupGetChannelGroupsFromStreamGroupQuery,
   useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery,
@@ -2323,6 +2313,23 @@ export const {
   useProfilesRemoveFfmpegProfileMutation,
   useProfilesUpdateFfmpegProfileMutation,
   useQueueGetQueueStatusQuery,
+  useSchedulesDirectAddLineupMutation,
+  useSchedulesDirectAddStationMutation,
+  useSchedulesDirectGetAvailableCountriesQuery,
+  useSchedulesDirectGetChannelNamesQuery,
+  useSchedulesDirectGetHeadendsQuery,
+  useSchedulesDirectGetLineupPreviewChannelQuery,
+  useSchedulesDirectGetLineupsQuery,
+  useSchedulesDirectGetPagedStationChannelNameSelectionsQuery,
+  useSchedulesDirectGetSelectedStationIdsQuery,
+  useSchedulesDirectGetStationChannelMapsQuery,
+  useSchedulesDirectGetStationChannelNameFromDisplayNameQuery,
+  useSchedulesDirectGetStationChannelNamesQuery,
+  useSchedulesDirectGetStationChannelNamesSimpleQueryQuery,
+  useSchedulesDirectGetStationPreviewsQuery,
+  useSchedulesDirectGetUserStatusQuery,
+  useSchedulesDirectRemoveLineupMutation,
+  useSchedulesDirectRemoveStationMutation,
   useSettingsGetIsSystemReadyQuery,
   useSettingsGetSettingQuery,
   useSettingsGetSystemStatusQuery,

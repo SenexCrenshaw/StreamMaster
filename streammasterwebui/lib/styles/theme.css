@@ -33,6 +33,10 @@
   height: var(--input-height);
 } */
 
+.p-multiselect-panel {
+  max-width: 4rem;
+}
+
 .p-inputtext.p-component.p-column-filter.p-column-filter {
   min-width: 4rem;
 }

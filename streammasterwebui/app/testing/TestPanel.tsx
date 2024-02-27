@@ -1,6 +1,6 @@
-import ChannelLogoEditor from '@components/ChannelLogoEditor';
-import { VideoStreamDto, useVideoStreamsGetVideoStreamQuery } from '@lib/iptvApi';
-import { memo } from 'react';
+import EPGSelector from '@components/selectors/EPGSelector';
+import { VideoStreamDto } from '@lib/iptvApi';
+import { memo, useState } from 'react';
 
 export interface StreamDataSelectorProperties {
   readonly data: VideoStreamDto;
@@ -8,10 +8,23 @@ export interface StreamDataSelectorProperties {
 }
 
 const TestPanel = () => {
-  const videoStreamsGetVideoStreamQuery = useVideoStreamsGetVideoStreamQuery('3c8ef639142e3ffc5dfe169c9dd70979');
-  // const { columnConfig: channelLogoColumnConfig } = useChannelLogoColumnConfig({ enableEdit: false });
-  if (videoStreamsGetVideoStreamQuery.data === undefined) return <div>loading</div>;
-
-  return <ChannelLogoEditor enableEditMode={false} data={videoStreamsGetVideoStreamQuery.data} />;
+  const [epg, setEpg] = useState<string | undefined>('5USA.uk');
+  // const [iconSource, setIconSource] = useState<string | undefined>(undefined);
+  return (
+    <div className="col-5">
+      <div className="">
+        <EPGSelector
+          enableEditMode
+          onChange={(e: string) => {
+            console.log(e);
+          }}
+          value={epg}
+        />
+      </div>
+      {/* <div className="col-3">
+        <IconSelector className="w-full bordered-text mr-2" onChange={setIconSource} value={iconSource} />
+      </div> */}
+    </div>
+  );
 };
 export default memo(TestPanel);

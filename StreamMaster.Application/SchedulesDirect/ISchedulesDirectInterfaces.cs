@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Pagination;
-
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.SchedulesDirect.Queries;
+using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Application.SchedulesDirect;
 
@@ -40,6 +38,8 @@ public interface ISchedulesDirectController
     Task<ActionResult<List<StationChannelName>>> GetStationChannelNamesSimpleQuery([FromQuery] StationChannelNameParameters Parameters);
     Task<ActionResult<PagedResponse<StationChannelName>>> GetPagedStationChannelNameSelections([FromQuery] StationChannelNameParameters Parameters);
     Task<ActionResult<StationChannelName>> GetStationChannelNameFromDisplayName(GetStationChannelNameFromDisplayName request);
+
+    Task<ActionResult<List<StationChannelName>>> GetStationChannelNames();
     Task<ActionResult<List<CountryData>?>> GetAvailableCountries();
     Task<ActionResult<List<string>>> GetChannelNames();
     Task<ActionResult<UserStatus>> GetUserStatus();
@@ -49,6 +49,7 @@ public interface ISchedulesDirectController
 
 public interface ISchedulesDirectHub
 {
+    Task<List<StationChannelName>> GetStationChannelNames();
     Task<List<LineupPreviewChannel>> GetLineupPreviewChannel(GetLineupPreviewChannel request);
     Task<bool> AddLineup(AddLineup request);
     Task<bool> AddStation(AddStation request);

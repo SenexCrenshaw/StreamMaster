@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Pagination;
-
 using StreamMaster.Application.SchedulesDirect;
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.SchedulesDirect.Queries;
+using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Application.Hubs;
 
@@ -69,6 +67,11 @@ public partial class StreamMasterHub : ISchedulesDirectHub
     public async Task<List<StationChannelName>> GetStationChannelNamesSimpleQuery([FromQuery] StationChannelNameParameters Parameters)
     {
         return await mediator.Send(new GetStationChannelNamesSimpleQuery(Parameters)).ConfigureAwait(false);
+    }
+
+    public async Task<List<StationChannelName>> GetStationChannelNames()
+    {
+        return await mediator.Send(new GetStationChannelNames()).ConfigureAwait(false);
     }
 
     public async Task<List<StationPreview>> GetStationPreviews()
