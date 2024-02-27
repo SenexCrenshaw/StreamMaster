@@ -53,7 +53,7 @@ const StreamGroupDeleteDialog = ({ id, onHide }: StreamGroupDeleteDialogProperti
       <InfoMessageOverLayDialog
         blocked={block}
         closable
-        header="Delete Stream Group?"
+        header={'Delete Stream Group '} // + selectedStreamGroup?.name ? '"' + selectedStreamGroup.name + '"' : '?'}
         infoMessage={infoMessage}
         onClose={() => {
           ReturnToParent();

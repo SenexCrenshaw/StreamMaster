@@ -70,6 +70,13 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
     public async Task<StreamGroupDto?> GetStreamGroupById(int streamGroupId)
     {
+        if (streamGroupId == 0)
+        {
+            StreamGroupDto dto = new() { Id = 0, Name = "All" };
+            await SetStreamGroupsLink(dto);
+            return dto;
+        }
+
         StreamGroup? streamGroup = await FindByCondition(c => c.Id == streamGroupId)
                             .AsNoTracking()
                             .FirstOrDefaultAsync()
@@ -81,7 +88,6 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         }
 
         StreamGroupDto ret = mapper.Map<StreamGroupDto>(streamGroup);
-
         await SetStreamGroupsLink(ret);
         return ret;
     }

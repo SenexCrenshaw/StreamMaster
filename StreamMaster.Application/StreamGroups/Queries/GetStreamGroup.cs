@@ -7,10 +7,7 @@ internal class GetStreamGroupHandler(ILogger<GetStreamGroup> logger, IRepository
 {
     public async Task<StreamGroupDto?> Handle(GetStreamGroup request, CancellationToken cancellationToken = default)
     {
-        if (request.Id == 0)
-        {
-            return new StreamGroupDto { Id = 0, Name = "All" };
-        }
+
 
         StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupById(request.Id).ConfigureAwait(false);
         return streamGroup;

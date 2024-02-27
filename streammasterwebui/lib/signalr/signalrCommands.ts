@@ -27,7 +27,6 @@ function clearCacheItemByKey(key: string): void {
 }
 
 function updateCachedDataWithResults(data: any): void {
-  console.log(data);
   if (data === 'epgSelector') {
     clearCacheItemByKey(data);
   }

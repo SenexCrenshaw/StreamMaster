@@ -154,7 +154,6 @@ const EPGFilesDataSelector = () => {
       return (
         <ColorEditor
           onChange={async (e) => {
-            console.log(e);
             await onEPGUpdateClick({ id: rowData.id, color: e });
           }}
           color={rowData.color}
