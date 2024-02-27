@@ -18,10 +18,10 @@ using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
+using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Repository;
 using StreamMaster.Domain.Services;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
-using StreamMaster.SchedulesDirect.Helpers;
 
 namespace StreamMaster.Infrastructure.Services;
 

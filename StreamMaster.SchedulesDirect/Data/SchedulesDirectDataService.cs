@@ -1,4 +1,4 @@
-﻿using StreamMaster.SchedulesDirect.Helpers;
+﻿using StreamMaster.Domain.Helpers;
 
 using System.Collections.Concurrent;
 

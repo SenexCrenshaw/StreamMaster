@@ -47,7 +47,7 @@ public class VideoStream
     [Column(TypeName = "citext")]
     public string ShortId { get; set; } = UniqueHexGenerator.ShortIdEmpty;
 
-    public string TimeShift { get; set; } = "0000";
+    public int TimeShift { get; set; } = 0;
 
     [Column(TypeName = "citext")]
     public string Tvg_group { get; set; } = "All";

@@ -3,7 +3,7 @@ using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Application.VideoStreams.Commands;
 
-public record SetVideoStreamTimeShiftFromParametersRequest(VideoStreamParameters Parameters, string TimeShift) : IRequest<List<VideoStreamDto>> { }
+public record SetVideoStreamTimeShiftFromParametersRequest(VideoStreamParameters Parameters, int TimeShift) : IRequest<List<VideoStreamDto>> { }
 
 [LogExecutionTimeAspect]
 public class SetVideoStreamTimeShiftFromParametersRequestHandler(ILogger<SetVideoStreamTimeShiftFromParametersRequest> logger, IRepositoryWrapper Repository, IPublisher Publisher)

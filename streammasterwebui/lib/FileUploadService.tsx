@@ -7,6 +7,7 @@ export interface UploadProperties {
   fileName: string;
   maxStreams: number;
   epgNumber: number | undefined;
+  timeShift: number | undefined;
   color: string;
   startingChannelNumber: number;
   overwriteChannelNumbers: boolean;
@@ -22,6 +23,7 @@ export const upload = async ({
   fileName,
   maxStreams,
   epgNumber,
+  timeShift,
   color,
   startingChannelNumber,
   overwriteChannelNumbers,
@@ -41,6 +43,8 @@ export const upload = async ({
   if (source) {
     formData.append('fileSource', source);
   } else if (file) formData.append('fileSource', file.name);
+
+  formData.append('timeShift', timeShift?.toString() ?? '0');
 
   formData.append('fileName', fileName);
   formData.append('color', color);

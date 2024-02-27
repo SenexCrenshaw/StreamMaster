@@ -412,9 +412,9 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
             await SetVideoStreamLogoFromEPG(videoStream, cancellationToken).ConfigureAwait(false);
         }
 
-        if (request.TimeShift != null && videoStream.TimeShift != request.TimeShift)
+        if (request.TimeShift.HasValue)
         {
-            videoStream.TimeShift = request.TimeShift;
+            videoStream.TimeShift = request.TimeShift.Value;
         }
 
         if (request.GroupTitle != null && videoStream.GroupTitle != request.GroupTitle)
@@ -1093,25 +1093,25 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
         return true;
     }
 
-    public async Task<List<VideoStreamDto>> SetVideoStreamTimeShiftsFromIds(List<string> ids, string timeShift, CancellationToken cancellationToken)
+    public async Task<List<VideoStreamDto>> SetVideoStreamTimeShiftsFromIds(List<string> ids, int timeShift, CancellationToken cancellationToken)
     {
         IQueryable<VideoStream> videoStreams = FindByCondition(a => ids.Contains(a.Id));
         return await SetVideoStreamTimeShifts(videoStreams, timeShift, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<List<VideoStreamDto>> SetVideoStreamTimeShiftFromParameters(VideoStreamParameters parameters, string timeShift, CancellationToken cancellationToken)
+    public async Task<List<VideoStreamDto>> SetVideoStreamTimeShiftFromParameters(VideoStreamParameters parameters, int timeShift, CancellationToken cancellationToken)
     {
         IQueryable<VideoStream> videoStreams = GetIQueryableForEntity(parameters);
         return await SetVideoStreamTimeShifts(videoStreams, timeShift, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<List<VideoStreamDto>> SetVideoStreamTimeShifts(IQueryable<VideoStream> videoStreams, string timeShift, CancellationToken cancellationToken)
+    public async Task<List<VideoStreamDto>> SetVideoStreamTimeShifts(IQueryable<VideoStream> videoStreams, int timeShift, CancellationToken cancellationToken)
     {
         List<VideoStreamDto> results = [];
 
         foreach (VideoStream? videoStream in videoStreams)
         {
-            videoStream.TimeShift = GetFirstFourOrBlank(timeShift);
+            videoStream.TimeShift = timeShift;// GetFirstFourOrBlank(timeShift);
             Update(videoStream);
             results.Add(mapper.Map<VideoStreamDto>(videoStream));
         }

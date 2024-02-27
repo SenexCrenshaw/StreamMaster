@@ -9,6 +9,7 @@ public class UpdateEPGFileRequest : BaseFileRequest, IRequest<EPGFileDto?>
 {
     public int? EPGNumber { get; set; }
     public string? Color { get; set; }
+    public int? TimeShift { get; set; }
 }
 
 public class UpdateEPGFileRequestValidator : AbstractValidator<UpdateEPGFileRequest>
@@ -43,20 +44,15 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
                 epgFile.Description = request.Description;
             }
 
-            if (request.EPGNumber != null && request.EPGNumber >= 0 && epgFile.EPGNumber != request.EPGNumber)
+            if (request.EPGNumber.HasValue)
             {
                 isChanged = true;
-                if (!Repository.EPGFile.FindByCondition(x => x.EPGNumber == request.EPGNumber).Any())
+                if (!Repository.EPGFile.FindByCondition(x => x.EPGNumber == request.EPGNumber.Value).Any())
                 {
                     oldEPGNumber = epgFile.EPGNumber;
-                    epgFile.EPGNumber = (int)request.EPGNumber;
-                }
-                else
-                {
-
+                    epgFile.EPGNumber = request.EPGNumber.Value;
                 }
             }
-
 
             if (request.Url != null && epgFile.Url != request.Url)
             {
@@ -68,6 +64,12 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
             {
                 isChanged = true;
                 epgFile.Color = request.Color;
+            }
+
+            if (request.TimeShift.HasValue)
+            {
+                isChanged = true;
+                epgFile.TimeShift = request.TimeShift.Value;
             }
 
             if (!string.IsNullOrEmpty(request.Name) && epgFile.Name != request.Name)

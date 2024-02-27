@@ -1,13 +1,17 @@
-﻿using StreamMaster.Domain.Comparer;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+using StreamMaster.Domain.Comparer;
 using StreamMaster.Domain.Configuration;
-using StreamMaster.SchedulesDirect.Helpers;
+using StreamMaster.Domain.Helpers;
+using StreamMaster.Domain.Models;
+using StreamMaster.Domain.Repository;
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 
 namespace StreamMaster.SchedulesDirect.Converters;
-public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMonitor<Setting> intsettings, IIconHelper iconHelper, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger) : IXMLTVBuilder
+public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServiceProvider serviceProvider, IOptionsMonitor<Setting> intsettings, IIconHelper iconHelper, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger) : IXMLTVBuilder
 {
     private readonly SDSettings sdsettings = intsdsettings.CurrentValue;
     private readonly Setting settings = intsettings.CurrentValue;
@@ -49,17 +53,17 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
             int newServiceCount = 0;
 
             keywordDict = schedulesDirectDataService.AllKeywords
-     .Where(k => !string.Equals(k.Word, "Uncategorized", StringComparison.OrdinalIgnoreCase) &&
-                 !k.Word.Contains("premiere", StringComparison.OrdinalIgnoreCase))
-                 .GroupBy(k => k.Id)
-                 .ToDictionary(
-                     g => g.Key,
-                     g =>
-                     {
-                         string word = g.First().Word;
-                         return string.Equals(word, "Movies", StringComparison.OrdinalIgnoreCase) ? "Movie" : word;
-                     }
-                 );
+                .Where(k => !string.Equals(k.Word, "Uncategorized", StringComparison.OrdinalIgnoreCase) &&
+                !k.Word.Contains("premiere", StringComparison.OrdinalIgnoreCase))
+                .GroupBy(k => k.Id)
+                .ToDictionary(
+                    g => g.Key,
+                    g =>
+                    {
+                        string word = g.First().Word;
+                        return string.Equals(word, "Movies", StringComparison.OrdinalIgnoreCase) ? "Movie" : word;
+                    }
+                );
 
             foreach (MxfSeriesInfo seriesInfo in schedulesDirectDataService.AllSeriesInfos)
             {
@@ -229,6 +233,15 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
 
         ParallelOptions options = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
 
+        List<EPGFile> epgs = [];
+        if (videoStreamConfigs is not null)
+        {
+            using IServiceScope scope = serviceProvider.CreateScope();
+            IRepositoryContext repositoryContext = scope.ServiceProvider.GetRequiredService<IRepositoryContext>();
+
+            epgs = repositoryContext.EPGFiles.ToList();
+        }
+
         try
         {
             int count = 0;
@@ -237,7 +250,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
             foreach (MxfService service in services)
             {
 
-                VideoStreamConfig? videoStreamConfig = videoStreamConfigs.FirstOrDefault(a => service.StationId == a.User_Tvg_ID);
+
 
                 XmltvChannel channel = BuildXmltvChannel(service);
                 xmlTv.Channels.Add(channel);
@@ -272,9 +285,41 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
 
                 ConcurrentBag<XmltvProgramme> xmltvProgrammes = [];
 
+                int timeShift = 0;
+                if (videoStreamConfigs is not null)
+                {
+                    VideoStreamConfig? videoStreamConfig = videoStreamConfigs.FirstOrDefault(a => service.StationId == a.User_Tvg_ID);
+                    if (videoStreamConfig is not null)
+                    {
+                        if (videoStreamConfig?.TimeShift > 0)
+                        {
+                            timeShift = videoStreamConfig.TimeShift;
+                        }
+                        else
+                        {
+                            (int epgNumber, string stationId) = videoStreamConfig.User_Tvg_ID.ExtractEPGNumberAndStationId();
+
+                            if (epgNumber > 0)
+                            {
+                                EPGFile? epg = epgs.FirstOrDefault(a => a.EPGNumber == epgNumber);
+                                if (epg is not null)
+                                {
+                                    timeShift = epg.TimeShift;
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+                if (timeShift > 0)
+                {
+                    int a = 1;
+                }
+
                 Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, options, scheduleEntry =>
                 {
-                    XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channel.Id, videoStreamConfig);
+                    XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channel.Id, timeShift);
                     xmltvProgrammes.Add(program);
                     ++count;
 
@@ -376,19 +421,9 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
     #region ========== XMLTV Programmes and Functions ==========
 
     //[LogExecutionTimeAspect]
-    public XmltvProgramme BuildXmltvProgram(MxfScheduleEntry scheduleEntry, string channelId, VideoStreamConfig? videoStreamConfig)
+    public XmltvProgramme BuildXmltvProgram(MxfScheduleEntry scheduleEntry, string channelId, int timeShift)
     {
-        int timeShift = 0;
 
-        if (!string.IsNullOrEmpty(videoStreamConfig?.TimeShift))
-        {
-            _ = int.TryParse(videoStreamConfig.TimeShift, out timeShift);
-        }
-
-        if (timeShift > 0)
-        {
-            int a = 1;
-        }
         MxfProgram mxfProgram = scheduleEntry.mxfProgram;
 
         string descriptionExtended = sdsettings.XmltvExtendedInfoInTitleDescriptions

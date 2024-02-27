@@ -862,6 +862,7 @@ export type EpgFilesCreateEpgFileFromFormApiArg = {
   Name?: string;
   FileName?: string;
   EPGNumber?: number;
+  TimeShift?: number | null;
   UrlSource?: string | null;
   Color?: string | null;
 };
@@ -1312,6 +1313,7 @@ export type CreateEpgFileRequest = {
   name?: string;
   fileName?: string;
   epgNumber?: number;
+  timeShift?: number | null;
   urlSource?: string | null;
   color?: string | null;
 };
@@ -1339,6 +1341,7 @@ export type BaseFileDto = {
   url: string;
 };
 export type EpgFileDto = BaseFileDto & {
+  timeShift: number;
   epgNumber: number;
   color: string;
   channelCount: number;
@@ -1378,6 +1381,7 @@ export type BaseFileRequest = {
 export type UpdateEpgFileRequest = BaseFileRequest & {
   epgNumber?: number | null;
   color?: string | null;
+  timeShift?: number | null;
 };
 export type LogLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type LogEntry = {
@@ -1529,7 +1533,7 @@ export type BaseVideoStreamDto = {
   groupTitle: string;
   tvg_chno: number;
   tvg_group: string;
-  timeShift: string;
+  timeShift: number;
   tvg_ID: string;
   stationId: string;
   tvg_logo: string;
@@ -2100,7 +2104,7 @@ export type VideoStreamBaseRequest = {
   groupTitle?: string | null;
   tvg_chno?: number | null;
   tvg_group?: string | null;
-  timeShift?: string | null;
+  timeShift?: number | null;
   tvg_ID?: string | null;
   tvg_logo?: string | null;
   tvg_name?: string | null;
@@ -2173,11 +2177,11 @@ export type AutoSetEpgFromParametersRequest = {
 };
 export type SetVideoStreamTimeShiftsRequest = {
   ids: string[];
-  timeShift: string;
+  timeShift: number;
 };
 export type SetVideoStreamTimeShiftFromParametersRequest = {
   parameters?: VideoStreamParameters;
-  timeShift?: string;
+  timeShift?: number;
 };
 export type Disposition = {
   default?: number;

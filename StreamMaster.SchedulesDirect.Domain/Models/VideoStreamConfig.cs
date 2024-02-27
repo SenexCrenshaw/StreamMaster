@@ -11,7 +11,7 @@ public class VideoStreamConfig
     public bool IsDuplicate { get; set; }
     public bool IsDummy { get; set; }
     public string Tvg_ID { get; set; }
-    public string TimeShift { get; set; }
+    public int TimeShift { get; set; }
 }
 
 

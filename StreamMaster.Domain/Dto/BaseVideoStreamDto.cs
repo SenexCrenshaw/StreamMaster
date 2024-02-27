@@ -1,5 +1,6 @@
 ﻿using StreamMaster.Domain.Attributes;
 using StreamMaster.Domain.Configuration;
+
 using System.ComponentModel.DataAnnotations;
 
 namespace StreamMaster.Domain.Dto;
@@ -80,7 +81,7 @@ public class BaseVideoStreamDto /*: IMapFrom<VideoStream>*/
     /// </summary>
     /// <value>The EPG group for the video stream.</value>
     public string Tvg_group { get; set; } = "All";
-    public string TimeShift { get; set; } = "0000";
+    public int TimeShift { get; set; }
     /// <summary>
     /// Gets or sets the EPG ID for the video stream.
     /// </summary>

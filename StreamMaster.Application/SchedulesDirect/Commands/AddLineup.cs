@@ -1,5 +1,4 @@
 ﻿using StreamMaster.Domain.Configuration;
-using StreamMaster.SchedulesDirect.Helpers;
 
 namespace StreamMaster.Application.SchedulesDirect.Commands;
 

@@ -21,6 +21,7 @@ const EPGFilesDataSelector = () => {
     url?: string | null;
     color?: string | null;
     epgNumber?: number | null;
+    timeShift?: number | null;
   }
 
   const toast = useRef<Toast>(null);
@@ -36,7 +37,7 @@ const EPGFilesDataSelector = () => {
         return;
       }
 
-      const { auto, hours, color, name, url, epgNumber } = restProperties;
+      const { auto, hours, color, name, url, epgNumber, timeShift } = restProperties;
 
       if (id < 1) {
         return;
@@ -60,6 +61,10 @@ const EPGFilesDataSelector = () => {
 
       if (epgNumber !== null && epgNumber !== undefined) {
         tosend.epgNumber = epgNumber;
+      }
+
+      if (timeShift !== null && timeShift !== undefined) {
+        tosend.timeShift = timeShift;
       }
 
       if (name) {
@@ -196,6 +201,20 @@ const EPGFilesDataSelector = () => {
     },
     [onEPGUpdateClick]
   );
+  const timeShiftNumberBodyTemplate = useCallback((rowData: EpgFileDto) => {
+    if (rowData.id === 0) {
+      return <div />;
+    }
+
+    return (
+      <NumberEditorBodyTemplate
+        onChange={async (e) => {
+          await onEPGUpdateClick({ id: rowData.id, timeShift: e });
+        }}
+        value={rowData.timeShift}
+      />
+    );
+  }, []);
 
   const actionBodyTemplate = useCallback(
     (rowData: EpgFileDto) => {
@@ -288,7 +307,13 @@ const EPGFilesDataSelector = () => {
         bodyTemplate: epgNumberBodyTemplate,
         field: 'epgNumber',
         header: 'Number',
-        width: '4rem'
+        width: '2rem'
+      },
+      {
+        bodyTemplate: timeShiftNumberBodyTemplate,
+        field: 'timeShift',
+        header: 'TS Shift (hrs)',
+        width: '2rem'
       },
       {
         bodyTemplate: lastDownloadedTemplate,
@@ -323,6 +348,7 @@ const EPGFilesDataSelector = () => {
       colorTemplate,
       nameEditorBodyTemplate,
       epgNumberBodyTemplate,
+      timeShiftNumberBodyTemplate,
       lastDownloadedTemplate,
       channelCountTemplate,
       programmeCountTemplate,

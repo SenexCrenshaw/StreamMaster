@@ -1,8 +1,9 @@
-﻿using StreamMaster.SchedulesDirect.Domain.Helpers;
+﻿using StreamMaster.Domain.Services;
+using StreamMaster.SchedulesDirect.Domain.Helpers;
 
 using System.Text.RegularExpressions;
 
-namespace StreamMaster.SchedulesDirect.Helpers;
+namespace StreamMaster.Domain.Helpers;
 
 public class EPGHelper() : IEPGHelper
 {

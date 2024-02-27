@@ -1,5 +1,4 @@
 ﻿using StreamMaster.SchedulesDirect.Domain.Helpers;
-using StreamMaster.SchedulesDirect.Helpers;
 
 namespace StreamMaster.Application.EPGFiles.Queries;
 

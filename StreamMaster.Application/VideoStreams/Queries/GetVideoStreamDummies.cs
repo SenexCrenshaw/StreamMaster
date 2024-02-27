@@ -1,6 +1,4 @@
-﻿using StreamMaster.SchedulesDirect.Helpers;
-
-namespace StreamMaster.Application.VideoStreams.Queries;
+﻿namespace StreamMaster.Application.VideoStreams.Queries;
 
 public record GetVideoStreamDummies() : IRequest<List<VideoStreamDto>>;
 

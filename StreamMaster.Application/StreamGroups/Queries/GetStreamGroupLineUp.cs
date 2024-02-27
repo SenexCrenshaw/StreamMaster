@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Configuration;
-using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text.Json;
 using System.Web;

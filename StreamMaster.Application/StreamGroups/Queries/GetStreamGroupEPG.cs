@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Domain.Requests;
 using StreamMaster.SchedulesDirect.Domain.Enums;
-using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Net;
 using System.Xml;

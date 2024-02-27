@@ -6,11 +6,11 @@ using StreamMaster.Application.StreamGroups;
 using StreamMaster.Application.StreamGroups.Commands;
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.Authentication;
+using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Pagination;
 using StreamMaster.Domain.Repository;
 using StreamMaster.Domain.Requests;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
-using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text;
 using System.Web;

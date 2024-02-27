@@ -30,6 +30,7 @@ export interface FileDialogProperties {
     streamURLPrefix: M3UFileStreamUrlPrefix,
     vodTags: string[],
     epgNumber: number,
+    timeShift: number,
     color: string
   ) => void;
   readonly onHide?: (didUpload: boolean) => void;
@@ -49,6 +50,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
   const [vodTags, setVodTags] = useState<string[]>([]);
   const [maxStreams, setMaxStreams] = useState<number>(1);
   const [epgNumber, setEpgNumber] = useState<number | undefined>(undefined);
+  const [timeShift, setTimeShift] = useState<number | undefined>(undefined);
   const [color, setColor] = useState<string | undefined>(undefined);
   const [startingChannelNumber, setStartingChannelNumber] = useState<number>(1);
   const [progress, setProgress] = useState<number>(0);
@@ -183,6 +185,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
     setActiveIndex(0);
     setFileName('');
     setEpgNumber(undefined);
+    setTimeShift(undefined);
     setColor(undefined);
     setBlock(false);
     onHide?.(didUpload ?? false);
@@ -204,6 +207,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
         fileName,
         maxStreams,
         epgNumber,
+        timeShift,
         color: meColor,
         startingChannelNumber,
         overwriteChannelNumbers,
@@ -227,7 +231,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
         });
     } else {
       const meColor = color ?? getColorHex(epgNumber ?? 0);
-      onCreateFromSource?.(name, source, maxStreams, startingChannelNumber, streamURLPrefix, vodTags, epgNumber ?? 1, meColor);
+      onCreateFromSource?.(name, source, maxStreams, startingChannelNumber, streamURLPrefix, vodTags, epgNumber ?? 1, timeShift ?? 0, meColor);
     }
   };
 
@@ -303,7 +307,21 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
                       setEpgNumber(e);
                     }}
                     showClear
+                    showButtons
                     value={epgNumber || 999999}
+                  />
+                </div>
+                <div className="flex col-6">
+                  <NumberInput
+                    label="Time Shift (hrs)"
+                    min={0}
+                    max={99}
+                    onChange={(e) => {
+                      setTimeShift(e);
+                    }}
+                    showClear
+                    showButtons
+                    value={timeShift || 0}
                   />
                 </div>
                 <div className="flex col-4 flex-column align-items-center">
