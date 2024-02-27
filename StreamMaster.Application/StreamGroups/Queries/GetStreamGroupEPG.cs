@@ -3,7 +3,6 @@
 using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Application.Common.Extensions;
-using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Requests;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
@@ -32,10 +31,10 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     private readonly Setting settings = intsettings.CurrentValue;
 
 
-    private readonly ParallelOptions parallelOptions = new()
-    {
-        MaxDegreeOfParallelism = Environment.ProcessorCount
-    };
+    //private readonly ParallelOptions parallelOptions = new()
+    //{
+    //    MaxDegreeOfParallelism = Environment.ProcessorCount
+    //};
 
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
@@ -62,6 +61,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
                 User_Tvg_ID = videoStream.User_Tvg_ID,
                 User_Tvg_Logo = videoStream.User_Tvg_logo,
                 User_Tvg_chno = videoStream.User_Tvg_chno,
+                TimeShift = videoStream.TimeShift,
                 IsDuplicate = false,
                 IsDummy = false
             });
@@ -76,10 +76,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs)
         {
-            if (videoStreamConfig.User_Tvg_ID == "FOXWCOV.us")
-            {
-                int aaa = 1;
-            }
+
             videoStreamConfig.IsDummy = epgHelper.IsDummy(videoStreamConfig.User_Tvg_ID);
 
             if (videoStreamConfig.IsDummy)

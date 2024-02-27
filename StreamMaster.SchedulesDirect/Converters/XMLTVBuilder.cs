@@ -71,30 +71,9 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
             List<int> chNos = [];
             List<int> existingChNos = new(videoStreamConfigs.Select(a => a.User_Tvg_chno).Distinct());
 
-
             foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs.OrderBy(a => a.User_Tvg_chno))
             {
                 MxfService? origService = services.GetMxfService(videoStreamConfig.User_Tvg_ID);
-                //    .FirstOrDefault(a => a.StationId == videoStreamConfig.User_Tvg_ID);
-                //if (origService == null)
-                //{
-                //    if (!ePGHelper.IsValidEPGId(videoStreamConfig.User_Tvg_ID))
-                //    {
-                //        stationId = videoStreamConfig.User_Tvg_ID;
-                //        string toTest = $"-{stationId}";
-                //        origService = services.FirstOrDefault(a => a.StationId.Contains(toTest, StringComparison.OrdinalIgnoreCase));
-                //        if (origService == null)
-                //        {
-                //            continue;
-                //        }
-                //        epgNumber = origService.EPGNumber;
-                //    }
-                //    else
-                //    {
-                //        continue;
-                //    }
-                // }
-
                 if (origService == null)
                 {
                     continue;
@@ -103,7 +82,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
                 string stationId = videoStreamConfig.User_Tvg_ID;
                 int epgNumber = origService.EPGNumber;
 
-                MxfService newService = new(newServiceCount++, videoStreamConfig.User_Tvg_ID); // videoStreamConfig.User_Tvg_ID);
+                MxfService newService = new(newServiceCount++, videoStreamConfig.User_Tvg_ID);
 
                 if (origService.MxfScheduleEntries is not null)
                 {
@@ -142,7 +121,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
                 newService.extras = origService.extras;
                 newService.extras.AddOrUpdate("videoStreamConfig", videoStreamConfig);
 
-
                 if (!string.IsNullOrEmpty(videoStreamConfig.User_Tvg_Logo))
                 {
                     newService.extras.AddOrUpdate("logo", new StationImage
@@ -150,7 +128,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
                         Url = videoStreamConfig.User_Tvg_Logo
 
                     });
-
                 }
 
                 toProcess.Add(newService);
@@ -161,7 +138,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
 
             try
             {
-                DoPrograms(toProcess, programs.Count, xmlTv);
+                DoPrograms(toProcess, programs.Count, xmlTv, videoStreamConfigs);
 
                 xmlTv.Channels = [.. xmlTv.Channels.OrderBy(a => a.Id, new NumericStringComparer())];
                 xmlTv.Programs = [.. xmlTv.Programs.OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime)];
@@ -245,9 +222,10 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
         return null;
     }
 
-    private void DoPrograms(List<MxfService> services, int progCount, XMLTV xmlTv)
+    private void DoPrograms(List<MxfService> services, int progCount, XMLTV xmlTv, List<VideoStreamConfig>? videoStreamConfigs = null)
     {
 
+        videoStreamConfigs ??= [];
 
         ParallelOptions options = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
 
@@ -258,6 +236,9 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
             Stopwatch sw = Stopwatch.StartNew();
             foreach (MxfService service in services)
             {
+
+                VideoStreamConfig? videoStreamConfig = videoStreamConfigs.FirstOrDefault(a => service.StationId == a.User_Tvg_ID);
+
                 XmltvChannel channel = BuildXmltvChannel(service);
                 xmlTv.Channels.Add(channel);
 
@@ -293,8 +274,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
 
                 Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, options, scheduleEntry =>
                 {
-
-                    XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channel.Id);
+                    XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channel.Id, videoStreamConfig);
                     xmltvProgrammes.Add(program);
                     ++count;
 
@@ -396,18 +376,33 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
     #region ========== XMLTV Programmes and Functions ==========
 
     //[LogExecutionTimeAspect]
-    public XmltvProgramme BuildXmltvProgram(MxfScheduleEntry scheduleEntry, string channelId)
+    public XmltvProgramme BuildXmltvProgram(MxfScheduleEntry scheduleEntry, string channelId, VideoStreamConfig? videoStreamConfig)
     {
+        int timeShift = 0;
 
+        if (!string.IsNullOrEmpty(videoStreamConfig?.TimeShift))
+        {
+            _ = int.TryParse(videoStreamConfig.TimeShift, out timeShift);
+        }
+
+        if (timeShift > 0)
+        {
+            int a = 1;
+        }
         MxfProgram mxfProgram = scheduleEntry.mxfProgram;
 
         string descriptionExtended = sdsettings.XmltvExtendedInfoInTitleDescriptions
                                                   ? GetDescriptionExtended(mxfProgram, scheduleEntry, sdsettings)
-                                                  :
-            string.Empty;
+                                                  : string.Empty;
 
         if (scheduleEntry.XmltvProgramme != null)
         {
+            if (timeShift > 0)
+            {
+                scheduleEntry.XmltvProgramme.Start = $"{scheduleEntry.XmltvProgramme.StartDateTime.AddHours(timeShift):yyyyMMddHHmmss} +0000";
+                scheduleEntry.XmltvProgramme.Stop = $"{scheduleEntry.XmltvProgramme.StartDateTime.AddHours(timeShift) + TimeSpan.FromSeconds(scheduleEntry.Duration):yyyyMMddHHmmss} +0000";
+            }
+
             scheduleEntry.XmltvProgramme.Channel = channelId;
             scheduleEntry.XmltvProgramme.Descriptions = MxfStringToXmlTextArray((descriptionExtended + mxfProgram.Description).Trim());
             scheduleEntry.XmltvProgramme.Icons = BuildProgramIcons(mxfProgram);
@@ -423,8 +418,8 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
         {
 
 
-            Start = $"{scheduleEntry.StartTime:yyyyMMddHHmmss} +0000",
-            Stop = $"{scheduleEntry.StartTime + TimeSpan.FromSeconds(scheduleEntry.Duration):yyyyMMddHHmmss} +0000",
+            Start = $"{scheduleEntry.StartTime.AddHours(timeShift):yyyyMMddHHmmss} +0000",
+            Stop = $"{scheduleEntry.StartTime.AddHours(timeShift) + TimeSpan.FromSeconds(scheduleEntry.Duration):yyyyMMddHHmmss} +0000",
             Channel = channelId,
 
             Titles = MxfStringToXmlTextArray(mxfProgram.Title),
@@ -449,69 +444,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
             StarRating = BuildProgramStarRatings(mxfProgram)
         };
         return ret;
-
-        //return new XmltvProgramme()
-        //{
-        //    // added +0000 for NPVR; otherwise it would assume local time instead of UTC
-        //    Start = $"{scheduleEntry.StartTime:yyyyMMddHHmmss} +0000",
-        //    Stop = $"{scheduleEntry.StartTime + TimeSpan.FromSeconds(scheduleEntry.Duration):yyyyMMddHHmmss} +0000",
-        //    Channel = channelId,
-
-        //    Titles = MxfStringToXmlTextArray(mxfProgram.Title),
-        //    SubTitles = MxfStringToXmlTextArray(mxfProgram.EpisodeTitle),
-        //    Descriptions = MxfStringToXmlTextArray((descriptionExtended + mxfProgram.Description).Trim()),
-        //    Credits = BuildProgramCredits(mxfProgram),
-        //    Date = BuildProgramDate(mxfProgram),
-        //    Categories = BuildProgramCategories(mxfProgram),
-        //    Language = MxfStringToXmlText(!string.IsNullOrEmpty(mxfProgram.Language) ? mxfProgram.Language[..2] : null),
-        //    Icons = BuildProgramIcons(mxfProgram),
-        //    Sport = GrabSportEvent(mxfProgram),
-        //    Teams = BuildSportTeams(mxfProgram),
-        //    EpisodeNums = BuildEpisodeNumbers(scheduleEntry),
-        //    Video = BuildProgramVideo(scheduleEntry),
-        //    Audio = BuildProgramAudio(scheduleEntry),
-        //    PreviouslyShown = BuildProgramPreviouslyShown(scheduleEntry),
-        //    Premiere = BuildProgramPremiere(scheduleEntry),
-        //    Live = BuildLiveFlag(scheduleEntry),
-        //    New = !scheduleEntry.IsRepeat ? string.Empty : null,
-        //    SubTitles2 = BuildProgramSubtitles(scheduleEntry),
-        //    Rating = BuildProgramRatings(scheduleEntry),
-        //    StarRating = BuildProgramStarRatings(mxfProgram)
-        //};
-
-
-
-        //string descriptionExtended = GetDescriptionExtended(mxfProgram, scheduleEntry);
-
-        //return new XmltvProgramme()
-        //{
-        //    // added +0000 for NPVR; otherwise it would assume local time instead of UTC
-        //    Start = $"{scheduleEntry.StartTime:yyyyMMddHHmmss} +0000",
-        //    Stop = $"{scheduleEntry.StartTime + TimeSpan.FromSeconds(scheduleEntry.Duration):yyyyMMddHHmmss} +0000",
-        //    Channel = channelId,
-
-        //    Titles = MxfStringToXmlTextArray(mxfProgram.Title),
-        //    SubTitles = MxfStringToXmlTextArray(mxfProgram.EpisodeTitle),
-        //    Descriptions = MxfStringToXmlTextArray((descriptionExtended + mxfProgram.Description).Trim()),
-        //    Credits = BuildProgramCredits(mxfProgram),
-        //    Date = BuildProgramDate(mxfProgram),
-        //    Categories = BuildProgramCategories(mxfProgram),
-        //    Language = MxfStringToXmlText(!string.IsNullOrEmpty(mxfProgram.Language) ? mxfProgram.Language[..2] : null),
-        //    Icons = BuildProgramIcons(mxfProgram),
-        //    Sport = mxfProgram.Sport,
-        //    Teams = mxfProgram.Teams,
-        //    EpisodeNums = mxfProgram.EpisodeNums, //BuildEpisodeNumbers(scheduleEntry),
-        //    Video = mxfProgram.Video,
-        //    Audio = mxfProgram.Audio,
-        //    LastChance = mxfProgram.LastChance,
-        //    PreviouslyShown = mxfProgram.PreviouslyShown,
-        //    Premiere = mxfProgram.Premiere,
-        //    Live = mxfProgram.Live,
-        //    New = (!scheduleEntry.IsRepeat) ? string.Empty : null,
-        //    SubTitles2 = mxfProgram.SubTitles2,
-        //    Rating = mxfProgram.Rating,
-        //    StarRating = mxfProgram.StarRating
-        //};
     }
 
     private static string GetDescriptionExtended(MxfProgram mxfProgram, MxfScheduleEntry scheduleEntry, SDSettings sdsettings)
