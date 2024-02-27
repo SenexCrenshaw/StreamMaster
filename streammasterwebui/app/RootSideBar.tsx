@@ -24,8 +24,6 @@ export const RootSideBar = () => {
   const [collapsed, setCollapsed] = useLocalStorage<boolean>(true, 'app-menu-collapsed');
   const [isReady, setIsReady] = useState(false);
 
-  // const getIsSystemReady = useSettingsGetIsSystemReadyQuery(undefined, { pollingInterval: 1000 * 1 });
-
   const settings = useSettings();
 
   useEffect(() => {
@@ -51,8 +49,9 @@ export const RootSideBar = () => {
 
   return (
     <Sidebar
-      className="app sidebar max-h-screen "
-      defaultCollapsed={collapsed}
+      className="app sidebar max-h-screen justify-content-start align-items-start"
+      collapsed={collapsed}
+      collapsedWidth="52px"
       rootStyles={{
         [`.${sidebarClasses.container}`]: {
           backgroundColor: 'var(--mask-bg)'
@@ -97,13 +96,14 @@ export const RootSideBar = () => {
         <MenuItemSM collapsed={collapsed} icon={<HelpIcon />} link="https://github.com/SenexCrenshaw/StreamMaster/wiki" name="Wiki" newWindow />
       </Menu>
 
-      <div className="absolute bottom-0 left-0 pb-2 flex flex-column m-0 p-0 justify-content-center align-items-center">
-        <div className="flex col-12 justify-content-center align-items-center">
-          <img alt="Stream Master Logo" src={isReady ? '/images/StreamMasterx32Ready.png' : '/images/StreamMasterx32NotReady.png'} />
+      <div className="absolute bottom-0 left-0 pb-2 flex flex-column m-0 p-0">
+        <div className="col-6 p-0 m-0 justify-content-center align-content-center">
+          <img className="p-0 m-0" alt="Stream Master Logo" src={isReady ? '/images/StreamMasterx32Ready.png' : '/images/StreamMasterx32NotReady.png'} />
         </div>
+
         <Tooltip target=".custom-target-icon" />
         <div
-          className="custom-target-icon flex flex-column m-0 p-0 justify-content-center align-items-center text-xs text-center"
+          className="custom-target-icon col-6 m-0 p-0 justify-content-center align-content-start text-xs text-center"
           data-pr-position="right"
           data-pr-tooltip={settings.data.release ?? ''}
         >

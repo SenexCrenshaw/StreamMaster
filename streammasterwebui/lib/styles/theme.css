@@ -181,6 +181,10 @@
   transition: border-color 0.3s;
 }
 
+.ps-menu-button {
+  padding: 0.2rem !important;
+}
+
 .p-paginator .p-dropdown.p-component.p-inputwrapper.p-inputwrapper-filled {
   align-items: center;
   border: 2px solid var(--common-border-color) !important;

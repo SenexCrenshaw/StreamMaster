@@ -24,7 +24,6 @@ import 'primeicons/primeicons.css'; // icons
 import 'primereact/resources/primereact.css'; // core css
 import 'primereact/resources/themes/viva-dark/theme.css'; // theme
 import { IntlProvider } from 'react-intl';
-import { ProSidebarProvider } from 'react-pro-sidebar';
 import { useStore } from 'react-redux';
 import { persistStore } from 'redux-persist';
 import { RootLayout } from './RootLayout';
@@ -77,13 +76,11 @@ const App = (): JSX.Element => {
   return (
     <IntlProvider locale={locale} messages={messages}>
       <SignalRConnection>
-        <ProSidebarProvider>
-          <CacheProvider<IconFileDto>>
-            <CacheProvider<StationChannelName>>
-              <RouterProvider router={router} />
-            </CacheProvider>
+        <CacheProvider<IconFileDto>>
+          <CacheProvider<StationChannelName>>
+            <RouterProvider router={router} />
           </CacheProvider>
-        </ProSidebarProvider>
+        </CacheProvider>
       </SignalRConnection>
     </IntlProvider>
   );

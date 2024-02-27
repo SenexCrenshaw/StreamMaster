@@ -14,7 +14,7 @@
     "react": "latest",
     "react-dom": "latest",
     "react-intl": "^6.6.2",
-    "react-pro-sidebar": "^1.0.0",
+    "react-pro-sidebar": "^1.1.0",
     "react-redux": "latest",
     "react-router-dom": "^6.22.1",
     "redux": "^4.2.1",
