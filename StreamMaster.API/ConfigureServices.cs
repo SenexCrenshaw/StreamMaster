@@ -5,7 +5,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.StaticFiles;
@@ -40,30 +39,6 @@ public static class ConfigureServices
         services.AddSingleton<ILoggerProvider, SMLoggerProvider>(provider =>
             new SMLoggerProvider(provider.GetRequiredService<IFileLoggingServiceFactory>()));
 
-        //services.AddSingleton<ILoggerProvider, FileLoggerDebugProvider>(provider =>
-        //    new FileLoggerDebugProvider(provider.GetRequiredService<IFileLoggingServiceFactory>()));
-
-        //services.AddLogging(logging =>
-        //{
-        //    logging.AddFilter("StreamMaster.Domain.Logging.CustomLogger", LogLevel.Information);
-        //    logging.AddProvider(new StatsLoggerProvider());
-        //    logging.AddConsole();
-        //    logging.AddDebug();
-
-        //    ServiceProvider serviceProvider = logging.Services.BuildServiceProvider();
-        //    ILoggerProvider loggerProvider = serviceProvider.GetRequiredService<ILoggerProvider>();
-
-        //    logging.AddProvider(loggerProvider);
-
-        //    logging.AddFilter<StatsLoggerProvider>((category, logLevel) =>
-        //    {
-        //        // List of classes to use with CustomLogger
-        //        List<string> classesToLog = ["BroadcastService"];
-        //        return category is not null && category.Contains("BroadcastService", StringComparison.OrdinalIgnoreCase);
-        //    });
-
-        //});
-        // GetOrAdd logging configuration
         services.AddLogging(loggingBuilder =>
         {
             loggingBuilder.AddFilter("StreamMaster.Domain.Logging.CustomLogger", LogLevel.Information);
@@ -91,17 +66,6 @@ public static class ConfigureServices
         services.AddHttpLogging(o => o = new HttpLoggingOptions());
         services.UseHttpClientMetrics();
 
-        //services.AddTransient(typeof(ILogger<>), typeof(CustomLogger<>));
-
-        //ILoggerFactory loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
-        //GlobalLoggerProvider.Configure(loggerFactory);
-
-        services.Configure<ForwardedHeadersOptions>(options =>
-        {
-            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
-            options.KnownNetworks.Clear();
-            options.KnownProxies.Clear();
-        });
         services.AddSingleton<IContentTypeProvider, FileExtensionContentTypeProvider>();
         services.AddRouting(options => options.LowercaseUrls = true);
 

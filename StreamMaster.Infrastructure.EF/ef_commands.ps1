@@ -7,6 +7,9 @@
 # dotnet ef database drop -f -c AppDbContext
 
 #rm -Recurse .\Persistence\Migrations\
+
+//SQLiteRepositoryContext
+
 dotnet ef migrations add InitialCreate -c PGSQLRepositoryContext -o .\Migrations\Repository\
 
 dotnet ef migrations add InitialCreate -c LogDbContext -o .\Migrations\Logging\

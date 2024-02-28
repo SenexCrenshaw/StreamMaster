@@ -1,19 +1,18 @@
 #!/bin/bash
 
 # Configuration
-restore_path="/config/DB/Restore"
-temp_restore_path="/tmp/restore_temp"
+temp_RESTORE_DIR=$(mktemp -d -t restore.XXXXXX)
 timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
 
 # Ensure the restore path exists
-if [ ! -d "$restore_path" ]; then
-    echo "Restore path does not exist: $restore_path"
+if [ ! -d "$RESTORE_DIR" ]; then
+    echo "Restore path does not exist: $RESTORE_DIR"
     exit 0
 fi
 
 # List available backups and prompt user for selection
 echo "Available backups:"
-select backup_file in $(ls $restore_path/backup_*.tar.gz); do
+select backup_file in $(ls $RESTORE_DIR/backup_*.tar.gz); do
     test -n "$backup_file" && break
     echo ">>> Invalid Selection"
 done
@@ -21,15 +20,17 @@ done
 echo "Selected backup file: $backup_file"
 
 # Create temporary restore directory
-mkdir -p "$temp_restore_path"
-tar -xzf "$restore_path/$backup_file" -C "$temp_restore_path"
+mkdir -p "$temp_RESTORE_DIR"
+tar -xzf "$RESTORE_DIR/$backup_file" -C "$temp_RESTORE_DIR"
 
 # Extract database and files backup names
-db_backup_file=$(ls $temp_restore_path/db_*.gz)
-files_backup_file=$(ls $temp_restore_path/files_*.tar.gz)
+db_backup_file=$(ls $temp_RESTORE_DIR/db_*.gz)
+files_backup_file=$(ls $temp_RESTORE_DIR/files_*.tar.gz)
 
 # Restore PostgreSQL database
 restore_database() {
+    dropdb -U $POSTGRES_USER -h localhost -p 5432 $POSTGRES_DB --force
+    createdb -U $POSTGRES_USER -h localhost -p 5432 -e $POSTGRES_DB
     gzip -d < "$db_backup_file" | psql -U $POSTGRES_USER $POSTGRES_DB
     echo "Database restore completed."
 }
@@ -46,5 +47,5 @@ restore_database
 restore_files_and_dirs
 
 # Cleanup temporary files
-rm -rf "$temp_restore_path"
+rm -rf "$temp_RESTORE_DIR"
 echo "Restore process finished."

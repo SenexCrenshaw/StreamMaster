@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Data.Sqlite;
 
 using Prometheus;
@@ -35,7 +36,16 @@ DirectoryHelper.CreateApplicationDirectories();
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
- static void Log(string format, params object[] args)
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+
+static void Log(string format, params object[] args)
 {
     string message = string.Format(format, args);
     Console.WriteLine(message);
@@ -103,6 +113,7 @@ builder.Services.Configure<SDSettings>(builder.Configuration);
 builder.Services.Configure<HLSSettings>(builder.Configuration);
 builder.Services.Configure<FFMPEGProfiles>(builder.Configuration);
 
+
 bool enableSsl = false;
 
 string? sslCertPath = builder.Configuration["SSLCertPath"];
@@ -112,7 +123,7 @@ if (!bool.TryParse(builder.Configuration["EnableSSL"], out enableSsl))
 {
 }
 
-List<string> urls = new() { "http://0.0.0.0:7095" };
+List<string> urls = ["http://0.0.0.0:7095"];
 
 if (enableSsl && !string.IsNullOrEmpty(sslCertPath))
 {
@@ -159,8 +170,11 @@ builder.Services.AddControllers(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
+;
 
 WebApplication app = builder.Build();
+ app.UseForwardedHeaders();
+
 var lifetime = app.Services.GetService<IHostApplicationLifetime>();
 if (lifetime != null)
 {    
@@ -191,12 +205,11 @@ if (app.Environment.IsDevelopment())
 {
     _ = app.UseDeveloperExceptionPage();
     _ = app.UseMigrationsEndPoint();
-    _ = app.UseForwardedHeaders();
+
 }
 else
 {
     _ = app.UseExceptionHandler("/Error");
-    _ = app.UseForwardedHeaders();
     _ = app.UseHsts();
 }
 

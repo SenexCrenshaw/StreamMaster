@@ -6,23 +6,26 @@ group_name="nonRootGroup"
 . /env.sh
 
 # Function to check for any file ready to be restored in /config/DB/Restore
-check_files_ready_for_restore() {
-    local restore_path="/config/DB/Restore"
+check_files_ready_for_restore() {    
     local file_found=0
 
     # Check if the restore directory exists
-    if [ ! -d "$restore_path" ]; then
-        echo "Restore path does not exist: $restore_path"
+    if [ ! -d "$RESTORE_DIR" ]; then
+        echo "Restore path does not exist: $RESTORE_DIR"
+        return 1
+    fi
+
+    # Initialize an array to hold the files that match the pattern
+    local files=("$RESTORE_DIR"/backup_*.tar.gz)
+
+    # Check if files array is empty (meaning no files found)
+    if [ ${#files[@]} -eq 0 ] || [ ! -e "${files[0]}" ]; then
+        echo "No backup files found in $RESTORE_DIR."
         return 1
     fi
 
     # Iterate over files matching the expected backup file pattern
-    for file in "$restore_path"/backup_*.tar.gz; do
-        # Check if glob gets expanded to existing files. If not, file will be "/config/DB/Restore/backup_*.tar.gz".
-        if [[ ! -e $file ]]; then
-            echo "No backup files found in $restore_path."
-            break
-        fi
+    for file in "${files[@]}"; do
         # Check if file is not empty
         if [ -s "$file" ]; then
             echo "File is ready for restore: $(basename "$file")"
@@ -82,6 +85,8 @@ mkdir -p /config/DB
 mkdir -p /config/Logs
 mkdir -p /config/PlayLists/EPG
 mkdir -p /config/PlayLists/M3U
+mkdir -p $BACKUP_DIR
+mkdir -p $RESTORE_DIR
 mkdir -p $PGDATA
 
 # Change ownership of the /app directory
@@ -92,6 +97,8 @@ if [ "$PUID" -ne 0 ] || [ "$PGID" -ne 0 ]; then
     find /config -mindepth 1 -maxdepth 1 -type d -not -path '/config/tv-logos' -not -path '/config/DB' -exec chown -R ${PUID:-0}:${PGID:-0} {} \;
 fi
 
+chmod 777 $BACKUP_DIR
+chmod 777 $RESTORE_DIR
 chown ${PUID:-0}:${PGID:-0} '/config/tv-logos' 2> /dev/null
 
 # Pretty printing the configuration
@@ -118,8 +125,15 @@ fi
 
 # Check if any file is ready for restore and run restore.sh if so
 if check_files_ready_for_restore; then
+    # Print a warning message about the restoration process
+    echo "WARNING: You are about to restore the database. This operation cannot be undone."
+    echo "The restoration process will begin in 10 seconds. Press Ctrl+C to cancel."
+
+    # Pause for 10 seconds to give the user a chance to cancel
+    sleep 10
+    
     echo "Initiating restoration process..."
-    ./restore.sh
+    /usr/local/bin/restore.sh
 else
     echo "No files ready for restoration."
 fi
