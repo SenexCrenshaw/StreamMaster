@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
 using StreamMaster.Application.StreamGroups.Commands;
 using StreamMaster.Application.VideoStreams;
 using StreamMaster.Application.VideoStreams.Commands;
@@ -144,8 +143,15 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
             return Redirect(videoStream.User_Url);
         }
 
-
-        string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+        string? ipAddress;
+        if (HttpContext.Request.Headers.ContainsKey("X-Forwarded-For"))
+        {
+            ipAddress = HttpContext.Request.Headers["X-Forwarded-For"].ToString();
+        }
+        else
+        {
+            ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+        }
 
         ClientStreamerConfiguration config = new(videoStream.Id, videoStream.User_Tvg_name, Request.Headers["User-Agent"].ToString(), ipAddress ?? "unkown", cancellationToken, HttpContext.Response);
 
