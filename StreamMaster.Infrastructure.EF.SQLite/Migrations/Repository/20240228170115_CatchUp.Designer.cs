@@ -2,17 +2,20 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StreamMaster.Infrastructure.EF.SQLite;
 
 #nullable disable
 
-namespace StreamMaster.Infrastructure.Persistence.Migrations
+namespace StreamMaster.Infrastructure.EF.SQLite.Migrations.Repository
 {
     [DbContext(typeof(SQLiteRepositoryContext))]
-    partial class RepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20240228170115_CatchUp")]
+    partial class CatchUp
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
