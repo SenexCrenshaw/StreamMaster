@@ -5,6 +5,37 @@ group_name="nonRootGroup"
 
 . /env.sh
 
+# Function to check for any file ready to be restored in /config/DB/Restore
+check_files_ready_for_restore() {
+    local restore_path="/config/DB/Restore"
+    local file_found=0
+
+    # Check if the restore directory exists
+    if [ ! -d "$restore_path" ]; then
+        echo "Restore path does not exist: $restore_path"
+        return 1
+    fi
+
+    # Iterate over files matching the expected backup file pattern
+    for file in "$restore_path"/backup_*.tar.gz; do
+        # Check if glob gets expanded to existing files. If not, file will be "/config/DB/Restore/backup_*.tar.gz".
+        if [[ ! -e $file ]]; then
+            echo "No backup files found in $restore_path."
+            break
+        fi
+        # Check if file is not empty
+        if [ -s "$file" ]; then
+            echo "File is ready for restore: $(basename "$file")"
+            file_found=1
+            break # Break after finding the first ready file
+        else
+            echo "Found an empty backup file: $(basename "$file")"
+        fi
+    done
+
+    return $file_found
+}
+
 wait_for_postgres() {
     local host="$1"
     local port="$2"
@@ -83,6 +114,14 @@ echo "  UID: $(id -u postgres) GID: $(id -g postgres)"
 
 if [ $POSTGRES_SET_PERMS -eq 1 ]; then
     chown -R postgres:postgres $PGDATA
+fi
+
+# Check if any file is ready for restore and run restore.sh if so
+if check_files_ready_for_restore; then
+    echo "Initiating restoration process..."
+    ./restore.sh
+else
+    echo "No files ready for restoration."
 fi
 
 # Start the database
