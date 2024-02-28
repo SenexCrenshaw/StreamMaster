@@ -86,10 +86,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
                 string stationId = videoStreamConfig.User_Tvg_ID;
                 int epgNumber = origService.EPGNumber;
                 logger.LogDebug($"Processing {videoStreamConfig.User_Tvg_name} - {videoStreamConfig.User_Tvg_ID}");
-                //if (videoStreamConfig.User_Tvg_ID.StartsWith("-2"))
-                //{
-                //    int aa = 1;
-                //}
+
                 MxfService newService = new(newServiceCount++, videoStreamConfig.User_Tvg_ID);
 
                 if (origService.MxfScheduleEntries is not null)
