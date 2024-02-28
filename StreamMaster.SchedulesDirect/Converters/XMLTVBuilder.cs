@@ -85,7 +85,11 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
                 string stationId = videoStreamConfig.User_Tvg_ID;
                 int epgNumber = origService.EPGNumber;
-
+                logger.LogDebug($"Processing {videoStreamConfig.User_Tvg_name} - {videoStreamConfig.User_Tvg_ID}");
+                //if (videoStreamConfig.User_Tvg_ID.StartsWith("-2"))
+                //{
+                //    int aa = 1;
+                //}
                 MxfService newService = new(newServiceCount++, videoStreamConfig.User_Tvg_ID);
 
                 if (origService.MxfScheduleEntries is not null)
@@ -97,8 +101,9 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
                 if (origService.EPGNumber == EPGHelper.DummyId && !string.IsNullOrEmpty(videoStreamConfig.Tvg_ID))
                 {
-                    (epgNumber, stationId) = ePGHelper.ExtractEPGNumberAndStationId(videoStreamConfig.Tvg_ID);
-                    callSign = stationId;
+                    //(epgNumber, stationId) = ePGHelper.ExtractEPGNumberAndStationId(videoStreamConfig.Tvg_ID);
+                    epgNumber = EPGHelper.DummyId;
+                    callSign = videoStreamConfig.Tvg_ID;
                 }
 
                 int chNo = videoStreamConfig.User_Tvg_chno;
