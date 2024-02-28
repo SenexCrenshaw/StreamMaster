@@ -134,6 +134,7 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string HLSOutputFolder = Path.Combine(AppDataFolder, "HLS");
         public static readonly string BackupFolder = Path.Combine(AppDataFolder, "Backups");
         public static readonly string SettingsFolder = Path.Combine(AppDataFolder, "Settings");
+        public static readonly string RestoreFolder = Path.Combine(DataFolder, "Restore");
 
         public static readonly string SDEPGCacheFile = Path.Combine(SDJSONFolder, "epgCache.json");
         public static readonly string IconDefault = Path.Combine("images", "default.png");

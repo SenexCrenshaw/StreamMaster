@@ -50,7 +50,6 @@ public sealed class ChannelService(ILogger<ChannelService> logger, IServiceProvi
                 return channelStatus;
             }
 
-
             await SetNextChildVideoStream(ChannelVideoStream.Id);
         }
 
