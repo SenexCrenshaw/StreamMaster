@@ -7,6 +7,20 @@ import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
+export interface StringEditorBodyTemplateProperties {
+  readonly autofocus?: boolean;
+  readonly disableDebounce?: boolean;
+  readonly debounceMs?: number;
+  readonly isLoading?: boolean;
+  readonly onChange: (value: string) => void;
+  readonly onClick?: () => void;
+  readonly placeholder?: string;
+  readonly resetValue?: string | undefined;
+  readonly tooltip?: string | undefined;
+  readonly tooltipOptions?: TooltipOptions | undefined;
+  readonly value: string | undefined;
+}
+
 const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const overlayReference = useRef<HTMLDivElement | null>(null);
@@ -106,10 +120,13 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
       )}
       {originalValue !== inputValue && <i className="absolute right-0 pt-1 pi pi-save pr-2 text-500" />}
       <InputText
+        autoFocus={props.autofocus}
         className="p-0 flex justify-content-start w-full h-full"
         onChange={(e) => {
           setInputValue(e.target.value as string);
-          debounced(e.target.value as string);
+          if (!props.disableDebounce) {
+            debounced(e.target.value as string);
+          }
         }}
         onClick={() => {
           props.onClick?.();
@@ -125,17 +142,5 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
 };
 
 StringEditorBodyTemplate.displayName = 'String Editor Body Template';
-
-export interface StringEditorBodyTemplateProperties {
-  readonly debounceMs?: number;
-  readonly isLoading?: boolean;
-  readonly onChange: (value: string) => void;
-  readonly onClick?: () => void;
-  readonly placeholder?: string;
-  readonly resetValue?: string | undefined;
-  readonly tooltip?: string | undefined;
-  readonly tooltipOptions?: TooltipOptions | undefined;
-  readonly value: string | undefined;
-}
 
 export default memo(StringEditorBodyTemplate);

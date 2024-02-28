@@ -1,6 +1,6 @@
 import { type UpdateVideoStreamRequest, type VideoStreamDto } from '@lib/iptvApi';
 import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
-import { memo, useEffect, useState } from 'react';
+import { memo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import ClockButton from '../buttons/ClockButton';
 import NumberInput from '../inputs/NumberInput';
@@ -17,13 +17,6 @@ const VideoStreamSetTimeShiftDialog = ({ iconFilled, onClose, value }: VideoStre
   const [block, setBlock] = useState<boolean>(false);
 
   const [timshift, setTimshift] = useState<number>(0);
-
-  useEffect(() => {
-    if (value?.timeShift !== undefined && value.timeShift.length === 4) {
-      const digit = value.timeShift.charAt(1);
-      setTimshift(Number(digit));
-    }
-  }, [value]);
 
   const ReturnToParent = () => {
     setShowOverlay(false);
@@ -44,7 +37,7 @@ const VideoStreamSetTimeShiftDialog = ({ iconFilled, onClose, value }: VideoStre
     const toSend = {} as UpdateVideoStreamRequest;
 
     toSend.id = value.id;
-    toSend.timeShift = timshift.toString(); // formatToFourDigits(timshift);
+    toSend.timeShift = timshift;
 
     await UpdateVideoStream(toSend)
       .then(() => {})

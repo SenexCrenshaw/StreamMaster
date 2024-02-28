@@ -1,4 +1,4 @@
-import StringEditorBodyTemplate from '@components/StringEditorBodyTemplate';
+import StringEditorBodyTemplate from '@components/inputs/StringEditorBodyTemplate';
 import { FfmpegProfileDto, UpdateFfmpegProfileRequest } from '@lib/iptvApi';
 import { UpdateFFMPEGProfile } from '@lib/smAPI/Profiles/ProfilesMutateAPI';
 

@@ -80,7 +80,17 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
                 MxfService? origService = services.GetMxfService(videoStreamConfig.User_Tvg_ID);
                 if (origService == null)
                 {
-                    continue;
+                    if (!videoStreamConfig.User_Tvg_ID.StartsWith(EPGHelper.DummyId.ToString()) && !videoStreamConfig.User_Tvg_ID.StartsWith(EPGHelper.SchedulesDirectId.ToString()))
+                    {
+                        origService = schedulesDirectDataService.SchedulesDirectData().FindOrCreateService(videoStreamConfig.User_Tvg_ID);
+                        origService.EPGNumber = EPGHelper.DummyId;
+                        origService.CallSign = videoStreamConfig.User_Tvg_ID;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
                 }
 
                 string stationId = videoStreamConfig.User_Tvg_ID;
@@ -251,9 +261,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
             Stopwatch sw = Stopwatch.StartNew();
             foreach (MxfService service in services)
             {
-
-
-
                 XmltvChannel channel = BuildXmltvChannel(service);
                 xmlTv.Channels.Add(channel);
 
@@ -299,14 +306,16 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
                         }
                         else
                         {
-                            (int epgNumber, string stationId) = videoStreamConfig.User_Tvg_ID.ExtractEPGNumberAndStationId();
-
-                            if (epgNumber > 0)
+                            if (EPGHelper.IsValidEPGId(videoStreamConfig.User_Tvg_ID))
                             {
-                                EPGFile? epg = epgs.FirstOrDefault(a => a.EPGNumber == epgNumber);
-                                if (epg is not null)
+                                (int epgNumber, string stationId) = videoStreamConfig.User_Tvg_ID.ExtractEPGNumberAndStationId();
+                                if (epgNumber > 0)
                                 {
-                                    timeShift = epg.TimeShift;
+                                    EPGFile? epg = epgs.FirstOrDefault(a => a.EPGNumber == epgNumber);
+                                    if (epg is not null)
+                                    {
+                                        timeShift = epg.TimeShift;
+                                    }
                                 }
                             }
                         }

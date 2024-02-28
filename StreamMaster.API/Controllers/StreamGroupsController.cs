@@ -17,7 +17,7 @@ using System.Web;
 
 namespace StreamMaster.API.Controllers;
 
-public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextAccessor httpContextAccessor, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService) : ApiControllerBase, IStreamGroupController
+public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextAccessor httpContextAccessor, ISchedulesDirectDataService schedulesDirectDataService) : ApiControllerBase, IStreamGroupController
 {
 
     //private static int GenerateMediaSequence()
@@ -89,7 +89,7 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
             }
             else
             {
-                if (epgHelper.IsValidEPGId(videoStream.User_Tvg_ID))
+                if (EPGHelper.IsValidEPGId(videoStream.User_Tvg_ID))
                 {
                     (epgNumber, stationId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
                     service = schedulesDirectDataService.GetService(stationId);

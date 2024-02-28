@@ -1,3 +1,5 @@
+import EditButton from '@components/buttons/EditButton';
+import PopUpStringEditor from '@components/inputs/PopUpStringEditor';
 import { EpgColorDto, StationChannelName, useEpgFilesGetEpgColorsQuery, useSchedulesDirectGetStationChannelNamesQuery } from '@lib/iptvApi';
 import { Dropdown } from 'primereact/dropdown';
 import { classNames } from 'primereact/utils';
@@ -15,21 +17,31 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   const [colors, setColors] = useState<EpgColorDto[]>([]);
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
+  const [visible, setVisible] = useState<boolean>(false);
+  const [input, setInput] = useState<string | undefined>(undefined);
 
   const query = useSchedulesDirectGetStationChannelNamesQuery();
   const colorsQuery = useEpgFilesGetEpgColorsQuery();
 
   useEffect(() => {
-    if (checkValue === undefined && query.isSuccess && value) {
-      setCheckValue(value);
-      const entry = query.data?.find((x) => x.channel === value);
+    console.log('EPGSelector', value, input);
+    if (value && !input) {
+      setInput(value);
+    }
+  }, [value, input]);
+
+  useEffect(() => {
+    if (checkValue === undefined && query.isSuccess && input) {
+      console.log('checkValue', input);
+      setCheckValue(input);
+      const entry = query.data?.find((x) => x.channel === input);
       if (entry && entry.id !== stationChannelName?.id) {
         setStationChannelName(entry);
       } else {
         setStationChannelName(undefined);
       }
     }
-  }, [checkValue, query, stationChannelName?.id, value]);
+  }, [checkValue, input, query, stationChannelName?.id]);
 
   useEffect(() => {
     if (colors.length === 0 && colorsQuery.isSuccess && colorsQuery.data) {
@@ -39,7 +51,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
 
   const itemTemplate = (option: StationChannelName): JSX.Element => {
     if (!option) {
-      return <div>{value}</div>;
+      return <div>{input}</div>;
     }
 
     let inputString = option?.displayName ?? '';
@@ -80,10 +92,10 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   });
 
   if (!enableEditMode) {
-    return <div className="flex w-full h-full justify-content-center align-items-center p-0 m-0">{value ?? 'Dummy'}</div>;
+    return <div className="flex w-full h-full justify-content-center align-items-center p-0 m-0">{input ?? 'Dummy'}</div>;
   }
 
-  const loading = !query.isSuccess || query.isFetching || query.isLoading;
+  const loading = !query.isSuccess || query.isFetching || query.isLoading || !query.data;
 
   return (
     <div className="BaseSelector flex align-contents-center w-full min-w-full">
@@ -91,15 +103,17 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
         className={className}
         disabled={loading}
         editable={editable}
-        autoFocus
         filter
         filterBy="displayName"
         itemTemplate={itemTemplate}
         loading={loading}
         onChange={(e) => {
-          setStationChannelName(e.value);
-          if (onChange) {
-            onChange(e.value.id);
+          if (e?.value?.id) {
+            setInput(e.value.id);
+            setStationChannelName(e.value);
+            if (onChange) {
+              onChange(e.value.id);
+            }
           }
         }}
         onHide={() => {}}
@@ -119,6 +133,28 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
           }
         }}
       />
+      <div>
+        <PopUpStringEditor
+          value={input}
+          visible={visible}
+          onClose={(value) => {
+            console.log(value);
+            setVisible(false);
+            if (value) {
+              setCheckValue(undefined);
+              setInput(value);
+              onChange && onChange(value);
+            }
+          }}
+        />
+        <EditButton
+          tooltip="Custom ID"
+          iconFilled={false}
+          onClick={(e) => {
+            setVisible(true);
+          }}
+        />
+      </div>
     </div>
   );
 };

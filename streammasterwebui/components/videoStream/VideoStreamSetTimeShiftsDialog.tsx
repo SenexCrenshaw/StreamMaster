@@ -1,4 +1,3 @@
-import { formatToFourDigits } from '@lib/common/common';
 import { VideoStreamDto, VideoStreamsSetVideoStreamTimeShiftFromParametersApiArg, VideoStreamsSetVideoStreamTimeShiftsApiArg } from '@lib/iptvApi';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
@@ -43,7 +42,7 @@ const VideoStreamSetTimeShiftsDialog = ({ id }: VideoStreamSetTimeShiftsDialogPr
       const toSendAll = {} as VideoStreamsSetVideoStreamTimeShiftFromParametersApiArg;
 
       toSendAll.parameters = queryFilter;
-      toSendAll.timeShift = formatToFourDigits(timshift);
+      toSendAll.timeShift = timshift;
 
       SetVideoStreamTimeShiftFromParameters(toSendAll)
         .then(() => {

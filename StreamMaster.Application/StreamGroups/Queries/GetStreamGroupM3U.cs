@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Configuration;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 
 using System.Collections.Concurrent;
@@ -170,7 +169,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         }
         else
         {
-            if (epgHelper.IsValidEPGId(videoStream.User_Tvg_ID))
+            if (EPGHelper.IsValidEPGId(videoStream.User_Tvg_ID))
             {
                 (_, epgChannelId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
                 MxfService? service = schedulesDirectDataService.GetService(videoStream.User_Tvg_ID);

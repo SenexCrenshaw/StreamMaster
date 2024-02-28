@@ -55,7 +55,7 @@ public class EPGHelper() : IEPGHelper
         return epgNumber == SchedulesDirectId;
     }
 
-    public bool IsValidEPGId(string epgId)
+    public static bool IsValidEPGId(string epgId)
     {
         return EPGChecks.IsValidEPGId(epgId);
     }

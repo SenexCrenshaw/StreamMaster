@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Configuration;
 
 using System.Text.Json;
 using System.Web;
@@ -87,7 +86,7 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
             }
             else
             {
-                if (epgHelper.IsValidEPGId(videoStream.User_Tvg_ID))
+                if (EPGHelper.IsValidEPGId(videoStream.User_Tvg_ID))
                 {
                     (epgNumber, stationId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
                 }

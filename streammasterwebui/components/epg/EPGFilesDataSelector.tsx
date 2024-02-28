@@ -4,10 +4,10 @@ import { useEpgFilesGetPagedEpgFilesQuery, useEpgFilesUpdateEpgFileMutation, typ
 import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox';
 import { Toast } from 'primereact/toast';
 import { memo, useCallback, useMemo, useRef } from 'react';
-import NumberEditorBodyTemplate from '../NumberEditorBodyTemplate';
-import StringEditorBodyTemplate from '../StringEditorBodyTemplate';
 import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
+import NumberEditorBodyTemplate from '../inputs/NumberEditorBodyTemplate';
+import StringEditorBodyTemplate from '../inputs/StringEditorBodyTemplate';
 import EPGFileRefreshDialog from './EPGFileRefreshDialog';
 import EPGFileRemoveDialog from './EPGFileRemoveDialog';
 import EPGPreviewDialog from './EPGPreviewDialog';

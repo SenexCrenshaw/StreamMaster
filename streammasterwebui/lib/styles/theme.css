@@ -202,6 +202,11 @@
   transition: border-color 0.3s;
 }
 
+.small-button {
+  width: var(--input-height);
+  height: var(--input-height);
+}
+
 .p-dropdown-filter-container {
   height: var(--input-height);
 }
