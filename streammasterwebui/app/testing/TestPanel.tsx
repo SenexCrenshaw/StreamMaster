@@ -1,4 +1,4 @@
-import EPGSelector from '@components/selectors/EPGSelector';
+import EPGSelector from '@components/epg/EPGSelector';
 import { VideoStreamDto } from '@lib/iptvApi';
 import { memo, useState } from 'react';
 
