@@ -125,6 +125,7 @@ mkdir -p $BACKUP_DIR
 mkdir -p $RESTORE_DIR
 mkdir -p $PGDATA
 
+
 rename_directory /config/settings /config/Settings
 rename_directory /config/backups /config/Backups
 
