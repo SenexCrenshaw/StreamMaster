@@ -270,6 +270,10 @@ const injectedRtkApi = api
         }),
         providesTags: ['Icons']
       }),
+      iconsGetIcons: build.query<IconsGetIconsApiResponse, IconsGetIconsApiArg>({
+        query: () => ({ url: `/api/icons/geticons` }),
+        providesTags: ['Icons']
+      }),
       m3UFilesCreateM3UFile: build.mutation<M3UFilesCreateM3UFileApiResponse, M3UFilesCreateM3UFileApiArg>({
         query: (queryArg) => ({ url: `/api/m3ufiles/createm3ufile`, method: 'POST', body: queryArg }),
         invalidatesTags: ['M3UFiles']
@@ -959,6 +963,8 @@ export type IconsGetIconsSimpleQueryApiArg = {
   jsonArgumentString?: string | null;
   jsonFiltersString?: string | null;
 };
+export type IconsGetIconsApiResponse = /** status 200  */ IconFileDto[];
+export type IconsGetIconsApiArg = void;
 export type M3UFilesCreateM3UFileApiResponse = unknown;
 export type M3UFilesCreateM3UFileApiArg = CreateM3UFileRequest;
 export type M3UFilesCreateM3UFileFromFormApiResponse = unknown;
@@ -2298,6 +2304,7 @@ export const {
   useIconsReadDirectoryLogosQuery,
   useIconsGetPagedIconsQuery,
   useIconsGetIconsSimpleQueryQuery,
+  useIconsGetIconsQuery,
   useM3UFilesCreateM3UFileMutation,
   useM3UFilesCreateM3UFileFromFormMutation,
   useM3UFilesChangeM3UFileNameMutation,

@@ -11,16 +11,23 @@ public static class DirectoryHelper
     private static bool setupDirectories = false;
     private static void Log(string format, params object[] args)
     {
-                string message = string.Format(format, args);
+        string message = string.Format(format, args);
         Console.WriteLine(message);
         Debug.WriteLine(message);
     }
 
     public static void RenameDirectory(string oldName, string newName)
     {
-        if (Directory.Exists(oldName))
+        try
         {
-            Directory.Move(oldName, newName);
+            if (Directory.Exists(oldName))
+            {
+                Directory.Move(oldName, newName);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log($"Failed to rename directory: {oldName} to {newName} {ex.InnerException}");
         }
     }
 

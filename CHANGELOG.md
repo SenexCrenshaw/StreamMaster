@@ -1,3 +1,10 @@
+## [0.14.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.14.0...v0.14.1) (2024-02-29)
+
+
+### Bug Fixes
+
+* Icon selector ([aee88ca](https://github.com/SenexCrenshaw/StreamMaster/commit/aee88ca71ce7694f7cd58a013ac929a2b7f42906))
+
 # [0.14.0](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.13.3...v0.14.0) (2024-02-29)
 
 ## [0.13.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.13.2...v0.13.3) (2024-02-29)

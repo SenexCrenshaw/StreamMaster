@@ -1,7 +1,8 @@
-import EditButton from '@components/buttons/EditButton';
-import PopUpStringEditor from '@components/inputs/PopUpStringEditor';
+import AddButton from '@components/buttons/AddButton';
+import StringEditorBodyTemplate from '@components/inputs/StringEditorBodyTemplate';
 import { EpgColorDto, StationChannelName, useEpgFilesGetEpgColorsQuery, useSchedulesDirectGetStationChannelNamesQuery } from '@lib/iptvApi';
 import { Dropdown } from 'primereact/dropdown';
+import { ProgressSpinner } from 'primereact/progressspinner';
 import { classNames } from 'primereact/utils';
 import React, { useEffect, useState } from 'react';
 
@@ -17,14 +18,12 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   const [colors, setColors] = useState<EpgColorDto[]>([]);
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
-  const [visible, setVisible] = useState<boolean>(false);
   const [input, setInput] = useState<string | undefined>(undefined);
 
   const query = useSchedulesDirectGetStationChannelNamesQuery();
   const colorsQuery = useEpgFilesGetEpgColorsQuery();
 
   useEffect(() => {
-    console.log('EPGSelector', value, input);
     if (value && !input) {
       setInput(value);
     }
@@ -32,7 +31,6 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
 
   useEffect(() => {
     if (checkValue === undefined && query.isSuccess && input) {
-      console.log('checkValue', input);
       setCheckValue(input);
       const entry = query.data?.find((x) => x.channel === input);
       if (entry && entry.id !== stationChannelName?.id) {
@@ -87,6 +85,56 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
     );
   };
 
+  const handleOnChange = (channel: string) => {
+    if (!channel) {
+      return;
+    }
+
+    const entry = query.data?.find((x) => x.channel === channel);
+    if (entry && entry.channel !== stationChannelName?.channel) {
+      setStationChannelName(entry);
+    } else {
+      setStationChannelName(undefined);
+    }
+
+    setInput(channel);
+    onChange && onChange(channel);
+  };
+
+  const panelTemplate = (option: any) => {
+    return (
+      <div className="flex grid col-12 m-0 p-0 justify-content-between align-items-center">
+        <div className="col-11 m-0 p-0 pl-2">
+          <StringEditorBodyTemplate
+            disableDebounce={true}
+            placeholder="Custom URL"
+            value={input}
+            onChange={(value) => {
+              if (value) {
+                setInput(value);
+              }
+            }}
+          />
+        </div>
+        <div className="col-1 m-0 p-0">
+          <AddButton
+            tooltip="Add Custom URL"
+            iconFilled={false}
+            onClick={(e) => {
+              if (input) {
+                handleOnChange(input);
+              }
+            }}
+            style={{
+              width: 'var(--input-height)',
+              height: 'var(--input-height)'
+            }}
+          />
+        </div>
+      </div>
+    );
+  };
+
   const className = classNames('BaseSelector align-contents-center p-0 m-0 max-w-full w-full epgSelector', {
     'p-disabled': disabled
   });
@@ -97,28 +145,26 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
 
   const loading = !query.isSuccess || query.isFetching || query.isLoading || !query.data;
 
+  if (loading) {
+    return <ProgressSpinner />;
+  }
+
   return (
     <div className="BaseSelector flex align-contents-center w-full min-w-full">
       <Dropdown
         className={className}
         disabled={loading}
-        editable={editable}
         filter
         filterBy="displayName"
         itemTemplate={itemTemplate}
         loading={loading}
         onChange={(e) => {
-          if (e?.value?.id) {
-            setInput(e.value.id);
-            setStationChannelName(e.value);
-            if (onChange) {
-              onChange(e.value.id);
-            }
-          }
+          handleOnChange(e?.value?.id);
         }}
         onHide={() => {}}
         optionLabel="displayName"
         options={query.data}
+        panelFooterTemplate={panelTemplate}
         placeholder="placeholder"
         resetFilterOnHide
         showFilterClear
@@ -133,28 +179,6 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
           }
         }}
       />
-      <div>
-        <PopUpStringEditor
-          value={input}
-          visible={visible}
-          onClose={(value) => {
-            console.log(value);
-            setVisible(false);
-            if (value) {
-              setCheckValue(undefined);
-              setInput(value);
-              onChange && onChange(value);
-            }
-          }}
-        />
-        <EditButton
-          tooltip="Custom ID"
-          iconFilled={false}
-          onClick={(e) => {
-            setVisible(true);
-          }}
-        />
-      </div>
     </div>
   );
 };

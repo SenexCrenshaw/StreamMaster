@@ -29,4 +29,9 @@ public partial class StreamMasterHub : IIconHub
         IEnumerable<IconFileDto> data = await mediator.Send(new GetIconsSimpleQuery(iconFileParameters)).ConfigureAwait(false);
         return data;
     }
+
+    public async Task<List<IconFileDto>> GetIcons()
+    {
+        return await mediator.Send(new GetIcons()).ConfigureAwait(false);
+    }
 }

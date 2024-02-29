@@ -39,6 +39,37 @@ check_files_ready_for_restore() {
     return $file_found
 }
 
+rename_directory() {
+    local src="$1"
+    local dest="$2"
+
+    # Check if the source directory exists
+    if [ ! -d "$src" ]; then
+        echo "Source directory does not exist: $src"
+        return 1
+    fi
+
+    # Check for case sensitivity and existence of the destination directory
+    if [ "$src" = "$dest" ]; then
+       #echo "Source and destination are the same in a case-insensitive filesystem."
+        return 1
+    elif [ -d "$dest" ]; then
+        #echo "Destination directory already exists: $dest"
+        return 1
+    fi
+
+    # Perform the rename
+    mv "$src" "$dest"
+    if [ $? -eq 0 ]; then
+        echo "Directory renamed successfully from $src to $dest"
+    else
+        echo "Failed to rename directory from $src to $dest"
+        return 1
+    fi
+}
+
+
+
 wait_for_postgres() {
     local host="$1"
     local port="$2"
@@ -80,14 +111,23 @@ if [ "$PGID" -ne 0 ]; then
     fi
 fi
 
+if [ ]
+
+rm -rf /config/hls
+
 mkdir -p /config/Cache
 mkdir -p /config/DB
 mkdir -p /config/Logs
 mkdir -p /config/PlayLists/EPG
 mkdir -p /config/PlayLists/M3U
+mkdir -p /config/HLS
 mkdir -p $BACKUP_DIR
 mkdir -p $RESTORE_DIR
 mkdir -p $PGDATA
+
+
+rename_directory /config/settings /config/Settings
+rename_directory /config/backups /config/Backups
 
 # Change ownership of the /app directory
 if [ "$PUID" -ne 0 ] || [ "$PGID" -ne 0 ]; then
