@@ -79,6 +79,7 @@ export const RootSideBar = () => {
           </MenuItem>
         </div>
         {/* <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/testpanel" name='Test Panel' /> */}
+        <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/editor/streams" name="Streams" />
         <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/editor/playlist" name="Playlist" />
         <MenuItemSM collapsed={collapsed} icon={<StreamGroupEditorIcon />} link="/editor/streamgroup" name="Stream Group" />
         <MenuItemSM collapsed={collapsed} icon={<FilesEditorIcon />} link="/editor/files" name="Files" />

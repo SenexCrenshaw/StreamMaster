@@ -13,6 +13,7 @@ import SDEditorChannels from '@features/sdEditor/SDEditorChannels';
 import SDEditorHeadEndsAndLineUps from '@features/sdEditor/SDEditorHeadEndsAndLineUps';
 import SettingsEditor from '@features/settings/SettingsEditor';
 import StreamGroupEditor from '@features/streamGroupEditor/StreamGroupEditor';
+import StreamEditor from '@features/streameditor/StreamEditor';
 import StreamingStatus from '@features/streamingStatus/StreamingStatus';
 import VideoPlayer from '@features/videoPlayer/VideoPlayer';
 import {
@@ -64,6 +65,8 @@ const App = (): JSX.Element => {
         <Route element={<SDEditorHeadEndsAndLineUps />} path="/editor/sdHeadEndLineUps" />
 
         <Route element={<SDEditorChannels />} path="/editor/sdChannels" />
+
+        <Route element={<StreamEditor />} path="/editor/streams" />
 
         <Route element={<StreamingStatus />} path="/streamingstatus" />
 

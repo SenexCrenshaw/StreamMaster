@@ -3,6 +3,7 @@
 using MediatR;
 
 using Microsoft.AspNetCore.Http;
+
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.EF.Repositories;
@@ -17,18 +18,41 @@ namespace StreamMaster.Infrastructure.EF
         ILogger<VideoStreamLinkRepository> VideoStreamLinkRepositoryLogger,
         ILogger<EPGFileRepository> EPGFileRepositoryLogger,
         ILogger<VideoStreamRepository> VideoStreamRepositoryLogger,
+        ILogger<SMChannelRepository> SMChannelLogger,
+        ILogger<SMStreamRepository> SMStreamLogger,
         ILogger<StreamGroupVideoStreamRepository> StreamGroupVideoStreamRepositoryLogger,
         ILogger<StreamGroupChannelGroupRepository> StreamGroupChannelGroupRepositoryLogger,
         ISchedulesDirectDataService schedulesDirectDataService,
-
         PGSQLRepositoryContext repositoryContext,
-        //ISortHelper<StreamGroup> streamGroupSortHelper,
         IMapper mapper,
         IIconService iconService,
         IOptionsMonitor<Setting> intsettings,
         ISender sender,
         IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
     {
+
+        private ISMChannelRepository _smChannel;
+
+        public ISMChannelRepository SMChannel
+        {
+            get
+            {
+                _smChannel ??= new SMChannelRepository(SMChannelLogger, repositoryContext, mapper);
+                return _smChannel;
+            }
+        }
+
+        private ISMStreamRepository _smStream;
+
+        public ISMStreamRepository SMStream
+        {
+            get
+            {
+                _smStream ??= new SMStreamRepository(SMStreamLogger, repositoryContext, mapper);
+                return _smStream;
+            }
+        }
+
         private IStreamGroupRepository _streamGroup;
 
         public IStreamGroupRepository StreamGroup

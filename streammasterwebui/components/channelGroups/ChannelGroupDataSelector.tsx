@@ -9,7 +9,7 @@ import { ChannelGroupDto, useChannelGroupsGetPagedChannelGroupsQuery } from '@li
 import { useShowHidden } from '@lib/redux/slices/useShowHidden';
 import { memo, useCallback, useEffect, useMemo } from 'react';
 
-export interface PlayListDataSelectorProperties {
+export interface ChannelGroupDataSelectorProperties {
   readonly hideAddRemoveControls?: boolean;
   readonly hideControls?: boolean;
   readonly id: string;
@@ -17,14 +17,14 @@ export interface PlayListDataSelectorProperties {
   readonly useReadOnly?: boolean;
 }
 
-const PlayListDataSelector = ({
+const ChannelGroupDataSelector = ({
   hideAddRemoveControls = false,
   hideControls = false,
   id,
   name = 'Playlist',
   useReadOnly = true
-}: PlayListDataSelectorProperties) => {
-  const dataKey = `${id}-PlayListDataSelector`;
+}: ChannelGroupDataSelectorProperties) => {
+  const dataKey = `${id}-ChannelGroupDataSelector`;
   const { showHidden, setShowHidden } = useShowHidden(dataKey);
 
   useEffect(() => {
@@ -94,18 +94,14 @@ const PlayListDataSelector = ({
       headerRightTemplate={hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()}
       hideControls={hideControls}
       id={dataKey}
-      // onSelectionChange={(value, selectAll) => {
-      //   console.log('onSelectionChange', value, selectAll);
-      //   console.log('onSelectionChange', selectSelectedItems);
-      // }}
       queryFilter={useChannelGroupsGetPagedChannelGroupsQuery}
       selectedItemsKey="selectSelectedChannelGroupDtoItems"
       selectionMode="multiple"
-      style={{ height: '70vh' }}
+      style={{ height: 'calc(100vh - 40px)' }}
     />
   );
 };
 
-PlayListDataSelector.displayName = 'Play List Editor';
+ChannelGroupDataSelector.displayName = 'Play List Editor';
 
-export default memo(PlayListDataSelector);
+export default memo(ChannelGroupDataSelector);

@@ -1,7 +1,7 @@
+import ChannelGroupDataSelector from '@components/channelGroups/ChannelGroupDataSelector';
 import { Button } from 'primereact/button';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { memo, useRef, useState } from 'react';
-import PlayListDataSelector from './PlayListDataSelector';
 
 interface PlayListDataSelectorDropDownProperties {
   readonly id: string;
@@ -29,7 +29,7 @@ const PlayListDataSelectorDropDown = ({ id }: PlayListDataSelectorDropDownProper
         }}
       />
       <OverlayPanel ref={op} onHide={() => setIsOpen(false)}>
-        <PlayListDataSelector id={id} />
+        <ChannelGroupDataSelector id={id} />
       </OverlayPanel>
     </div>
   );

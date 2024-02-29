@@ -14,6 +14,7 @@ import { enhancedApiStreamGroups } from '@lib/smAPI/StreamGroups/StreamGroupsEnh
 import { enhancedApiVideoStreamLinks } from '@lib/smAPI/VideoStreamLinks/VideoStreamLinksEnhancedAPI';
 import { enhancedApiVideoStreams } from '@lib/smAPI/VideoStreams/VideoStreamsEnhancedAPI';
 
+import selectSMStreamsReducer from '@lib/redux/slices/SMStreams';
 import anySliceReducer from '@lib/redux/slices/anySlice';
 import channelGroupToRemoveSliceReducer from '@lib/redux/slices/channelGroupToRemoveSlice';
 import queryAdditionalFiltersReducer from '@lib/redux/slices/queryAdditionalFiltersSlice';
@@ -59,6 +60,11 @@ const showHiddenConfig = {
 
 const selectedVideoStreamsConfig = {
   key: 'selectedVideoStreams',
+  storage
+};
+
+const selectSMStreamsConfig = {
+  key: 'selectedVSMStreams',
   storage
 };
 
@@ -133,8 +139,8 @@ const rootReducer = combineReducers({
   showHidden: persistReducer(showHiddenConfig, showHiddenSliceReducer),
   showSelections: persistReducer(showSelectionsConfig, showSelectionsSliceReducer),
   sortInfo: persistReducer(sortInfoConfig, sortInfoSliceReducer),
-  //selectanySlice: anySliceReducer
-  selectanySlice: persistReducer(anyConfig, anySliceReducer)
+  selectanySlice: persistReducer(anyConfig, anySliceReducer),
+  selectSMStreams: persistReducer(selectSMStreamsConfig, selectSMStreamsReducer)
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

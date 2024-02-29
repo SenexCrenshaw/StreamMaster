@@ -56,6 +56,15 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     }
 
     /// <summary>
+    /// Retrieve all entities.
+    /// </summary>
+    /// <returns>IQueryable of all entities.</returns>
+    internal IQueryable<T> FindAllWithTracking()
+    {
+        return RepositoryContext.Set<T>();
+    }
+
+    /// <summary>
     /// Retrieve entities based on given parameters.
     /// </summary>
     /// <param name="parameters">Query parameters.</param>
