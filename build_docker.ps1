@@ -9,68 +9,9 @@ param (
     [switch]$SkipRelease = $false,
     [switch]$SkipMainBuild = $false
 )
-
-
 $global:tags
-
-function Write-StringToFile {
-    param (
-        [string]$Path,
-        [string]$Content
-    )
-    try {
-        Set-Content -Path $Path -Value $Content -NoNewline -Encoding UTF8
-        Write-Host "Content written to file: $Path"
-    }
-    catch {
-        Write-Host "An error occurred: $_"
-    }
-}
-
-function Read-StringFromFile {
-    param (
-        [string]$Path
-    )
-    try {
-        $Content = Get-Content -Path $Path -Raw
-        Write-Host "Content read from file: $Path"
-        return $Content
-    }
-    catch {
-        Write-Host "An error occurred: $_"
-        return $null
-    }
-}
-
-function Copy-File {
-    param (
-        [Parameter(Mandatory = $true)]
-        [string]$sourcePath,
-
-        [Parameter(Mandatory = $true)]
-        [string]$destinationPath
-    )
-
-    try {
-        # Check if the source file exists
-        if (-Not (Test-Path -Path $sourcePath -PathType Leaf)) {
-            Write-Host "Source file does not exist: '$sourcePath'"
-            return
-        }
-
-        # Copy the file to the destination
-        Copy-Item -Path $sourcePath -Destination $destinationPath -ErrorAction Stop
-        Write-Host "File copied successfully from '$sourcePath' to '$destinationPath'."
-    }
-    catch {
-        Write-Host "An error occurred while copying the file: $_"
-    }
-}
-
 function Main {
     Set-EnvironmentVariables
-
-   
 
     if (  $SkipMainBuild) {
         $Prod = $false
@@ -142,6 +83,62 @@ function Main {
         BuildImage -result $processedAssemblyInfo -imageName $imageName -dockerFile $dockerFile -push $true
     }
 }
+
+
+function Write-StringToFile {
+    param (
+        [string]$Path,
+        [string]$Content
+    )
+    try {
+        Set-Content -Path $Path -Value $Content -NoNewline -Encoding UTF8
+        Write-Host "Content written to file: $Path"
+    }
+    catch {
+        Write-Host "An error occurred: $_"
+    }
+}
+
+function Read-StringFromFile {
+    param (
+        [string]$Path
+    )
+    try {
+        $Content = Get-Content -Path $Path -Raw
+        Write-Host "Content read from file: $Path"
+        return $Content
+    }
+    catch {
+        Write-Host "An error occurred: $_"
+        return $null
+    }
+}
+
+function Copy-File {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$sourcePath,
+
+        [Parameter(Mandatory = $true)]
+        [string]$destinationPath
+    )
+
+    try {
+        # Check if the source file exists
+        if (-Not (Test-Path -Path $sourcePath -PathType Leaf)) {
+            Write-Host "Source file does not exist: '$sourcePath'"
+            return
+        }
+
+        # Copy the file to the destination
+        Copy-Item -Path $sourcePath -Destination $destinationPath -ErrorAction Stop
+        Write-Host "File copied successfully from '$sourcePath' to '$destinationPath'."
+    }
+    catch {
+        Write-Host "An error occurred while copying the file: $_"
+    }
+}
+
 Function Add-ContentAtTop {
     param(
         [string]$filePath,
