@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+
 using StreamMaster.Application.Icons;
 using StreamMaster.Application.Icons.Commands;
 using StreamMaster.Application.Icons.Queries;
-using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.API.Controllers;
@@ -46,5 +46,12 @@ public class IconsController : ApiControllerBase, IIconController
     {
         IEnumerable<IconFileDto> result = await Mediator.Send(new GetIconsSimpleQuery(iconFileParameters)).ConfigureAwait(false);
         return Ok(result);
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<IconFileDto>>> GetIcons()
+    {
+        return await Mediator.Send(new GetIcons());
     }
 }
