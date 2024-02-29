@@ -111,8 +111,6 @@ if [ "$PGID" -ne 0 ]; then
     fi
 fi
 
-if [ ]
-
 rm -rf /config/hls
 
 mkdir -p /config/Cache
