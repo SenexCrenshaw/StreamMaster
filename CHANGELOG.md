@@ -1,3 +1,10 @@
+## [0.13.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.13.2...v0.13.3) (2024-02-29)
+
+
+### Bug Fixes
+
+* Initial ([#212](https://github.com/SenexCrenshaw/StreamMaster/issues/212)) ([6bcc3a0](https://github.com/SenexCrenshaw/StreamMaster/commit/6bcc3a07ce6d500e4ac154ecf9bba56fd3ac08f9))
+
 ## [0.13.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.13.1...v0.13.2) (2024-02-22)
 
 ## [0.13.2-sh.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.13.2-sh.1...v0.13.2-sh.2) (2024-02-22)
