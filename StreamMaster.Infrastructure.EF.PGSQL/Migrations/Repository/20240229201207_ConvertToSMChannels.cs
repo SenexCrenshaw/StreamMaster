@@ -2,6 +2,8 @@
 
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
+using StreamMaster.Infrastructure.EF.PGSQL.Extenstions;
+
 #nullable disable
 
 namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
@@ -10,22 +12,23 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
     public partial class ConvertToSMChannels : Migration
     {
         /// <inheritdoc />
-        protected override async void Up(MigrationBuilder migrationBuilder)
+        protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable("SystemKeyValues");
+            migrationBuilder.DropTableIfExists("SystemKeyValues");
 
             migrationBuilder.CreateTable(
                 name: "SystemKeyValues",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
                     Key = table.Column<string>(type: "citext", nullable: false),
                     Value = table.Column<string>(type: "citext", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SystemKeyValues", x => x.Id);
-                }).Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn);
+                });
 
 
             migrationBuilder.CreateTable(
@@ -152,14 +155,21 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
             migrationBuilder.DropTable(
                 name: "SMChannels");
 
-            migrationBuilder.AlterColumn<Guid>(
-                name: "Id",
-                table: "SystemKeyValues",
-                type: "uuid",
-                nullable: false,
-                oldClrType: typeof(int),
-                oldType: "integer")
-                .OldAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn);
+            migrationBuilder.DropTable(
+                name: "SystemKeyValues");
+
+            migrationBuilder.CreateTable(
+                 name: "SystemKeyValues",
+                 columns: table => new
+                 {
+                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                     Key = table.Column<string>(type: "citext", nullable: false),
+                     Value = table.Column<string>(type: "citext", nullable: false)
+                 },
+                 constraints: table =>
+                 {
+                     table.PrimaryKey("PK_SystemKeyValues", x => x.Id);
+                 });
         }
     }
 }

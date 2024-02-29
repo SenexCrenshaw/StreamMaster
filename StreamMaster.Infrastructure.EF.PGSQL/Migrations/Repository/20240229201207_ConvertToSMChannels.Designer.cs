@@ -13,7 +13,7 @@ using StreamMaster.Infrastructure.EF.PGSQL;
 namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 {
     [DbContext(typeof(PGSQLRepositoryContext))]
-    [Migration("20240229195617_ConvertToSMChannels")]
+    [Migration("20240229201207_ConvertToSMChannels")]
     partial class ConvertToSMChannels
     {
         /// <inheritdoc />

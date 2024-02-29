@@ -7,6 +7,7 @@ public class SystemKeyValue
 {
     [Key]
     public int Id { get; set; }
+
     [Column(TypeName = "citext")]
     public string Key { get; set; } = string.Empty;
     [Column(TypeName = "citext")]
