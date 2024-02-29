@@ -10,6 +10,7 @@ param (
     [switch]$SkipMainBuild = $false
 )
 
+
 $global:tags
 
 function Write-StringToFile {
