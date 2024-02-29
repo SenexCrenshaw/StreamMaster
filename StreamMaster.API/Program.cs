@@ -7,21 +7,18 @@ using StreamMaster.API;
 using StreamMaster.Application;
 using StreamMaster.Application.Hubs;
 
-using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
 
 using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.EF;
 using StreamMaster.Infrastructure.EF.PGSQL;
 
-using StreamMaster.Infrastructure.EF.SQLite;
 using StreamMaster.Infrastructure.Middleware;
 
 using StreamMaster.SchedulesDirect.Services;
 using StreamMaster.Streams;
 
 using System.Diagnostics;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
@@ -149,7 +146,6 @@ if (!string.IsNullOrEmpty(sslCertPath))
 builder.Services.AddSchedulesDirectAPIServices();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureEFPGSQLServices();
-builder.Services.AddInfrastructureEFSQLiteServices();
 builder.Services.AddInfrastructureEFServices();
 builder.Services.AddInfrastructureServices();
 builder.Services.AddInfrastructureServicesEx();
@@ -186,9 +182,7 @@ void OnShutdown()
     ProcessHelper.KillProcessByName("ffmpeg");
     SqliteConnection.ClearAllPools();
     PGSQLRepositoryContext repositoryContext = app.Services.GetRequiredService<PGSQLRepositoryContext>();
-    repositoryContext.Dispose();
-    SQLiteRepositoryContext sQLiteRepositoryContext = app.Services.GetRequiredService<SQLiteRepositoryContext>();
-    sQLiteRepositoryContext.Dispose();
+    repositoryContext.Dispose();  
     IImageDownloadService imageDownloadService = app.Services.GetRequiredService<IImageDownloadService>();
     imageDownloadService.StopAsync(CancellationToken.None).Wait();
 
@@ -235,21 +229,7 @@ using (IServiceScope scope = app.Services.CreateScope())
     {
         initialiser.TrySeed();
     }
-
-    string sqliteDB = Path.Join(BuildInfo.AppDataFolder, "StreamMaster.db");
-    if (File.Exists(sqliteDB))
-    {
-        PGSQLRepositoryContext repositoryContext = scope.ServiceProvider.GetRequiredService<PGSQLRepositoryContext>();
-        SQLiteRepositoryContext sQLiteRepositoryContext = scope.ServiceProvider.GetRequiredService<SQLiteRepositoryContext>();
-        if ( MigrateFromSQLite.MigrateFromSQLiteDatabaseToPostgres(repositoryContext, sQLiteRepositoryContext))
-        {
-            sQLiteRepositoryContext.Dispose();
-            SqliteConnection.ClearAllPools();
-            File.Move(sqliteDB, sqliteDB+".old",true);
-        }
-    }
-
-   
+    
     initialiser.MigrateData();
 
     IImageDownloadService imageDownloadService = scope.ServiceProvider.GetRequiredService<IImageDownloadService>();

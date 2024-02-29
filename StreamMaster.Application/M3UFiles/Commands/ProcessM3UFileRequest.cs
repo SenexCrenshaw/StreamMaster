@@ -457,10 +457,10 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
     //{
     //    bool changed = false;
 
-    //    if (dbStream.User_Tvg_group != stream.Tvg_group)
+    //    if (dbStream.User_Tvg_group != stream.Group)
     //    {
     //        changed = true;
-    //        dbStream.User_Tvg_group = stream.Tvg_group;
+    //        dbStream.User_Tvg_group = stream.Group;
     //    }
 
     //    if (string.IsNullOrEmpty(dbStream.M3UFileName) || dbStream.M3UFileName != mu3FileName)
@@ -470,9 +470,9 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
     //    }
 
 
-    //    if (overWriteChannels || dbStream.User_Tvg_chno != stream.Tvg_chno)
+    //    if (overWriteChannels || dbStream.User_Tvg_chno != stream.ChannelNumber)
     //    {
-    //        int localNextChno = overWriteChannels ? existingChannels.GetNextInt() : existingChannels.GetNextInt(stream.Tvg_chno);
+    //        int localNextChno = overWriteChannels ? existingChannels.GetNextInt() : existingChannels.GetNextInt(stream.ChannelNumber);
     //        if (dbStream.User_Tvg_chno != localNextChno)
     //        {
     //            changed = true;
@@ -480,24 +480,24 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
     //        }
     //    }
 
-    //    if (dbStream.User_Tvg_ID != stream.Tvg_ID)
+    //    if (dbStream.User_Tvg_ID != stream.EPGId)
     //    {
     //        changed = true;
-    //        dbStream.User_Tvg_ID = stream.Tvg_ID;
+    //        dbStream.User_Tvg_ID = stream.EPGId;
     //    }
 
-    //    if (dbStream.User_Tvg_logo != stream.Tvg_logo)
+    //    if (dbStream.User_Tvg_logo != stream.Logo)
     //    {
     //        changed = true;
 
-    //        dbStream.User_Tvg_logo = stream.Tvg_logo;
+    //        dbStream.User_Tvg_logo = stream.Logo;
     //    }
 
-    //    if (dbStream.User_Tvg_name != stream.Tvg_name)
+    //    if (dbStream.User_Tvg_name != stream.Name)
     //    {
     //        changed = true;
 
-    //        dbStream.User_Tvg_name = stream.Tvg_name;
+    //        dbStream.User_Tvg_name = stream.Name;
     //    }
 
     //    if (dbStream.FilePosition != index)

@@ -434,7 +434,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
         if (request.Tvg_ID != null && (videoStream.User_Tvg_ID != request.Tvg_ID || videoStream.IsUserCreated))
         {
-            //string? test = _memoryCache.GetEPGChannelNameByDisplayName(request.Tvg_ID);
+            //string? test = _memoryCache.GetEPGChannelNameByDisplayName(request.EPGId);
             videoStream.User_Tvg_ID = request.Tvg_ID;
             if (settings.VideoStreamAlwaysUseEPGLogo && videoStream.User_Tvg_ID != null)
             {

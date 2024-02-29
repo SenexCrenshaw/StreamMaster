@@ -1,173 +1,144 @@
-﻿using EFCore.BulkExtensions;
+﻿using Microsoft.EntityFrameworkCore;
 
-using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
+using StreamMaster.Infrastructure.EF.Base;
 using StreamMaster.SchedulesDirect.Domain.Models;
 
-using System.Text.RegularExpressions;
-
-namespace StreamMaster.Infrastructure.EF.PGSQL
+namespace StreamMaster.Infrastructure.EF.PGSQL;
+public partial class PGSQLRepositoryContext(DbContextOptions<PGSQLRepositoryContext> options) : BaseRepositoryContext(options)
 {
-    public partial class PGSQLRepositoryContext(DbContextOptions<PGSQLRepositoryContext> options) : DbContext(options), IDataProtectionKeyContext, IRepositoryContext
+    public static string DbConnectionString => $"Host=127.0.0.1;Database={BuildInfo.DBName};Username={BuildInfo.DBUser};Password={BuildInfo.DBPassword};Include Error Detail=true";
+
+    public async Task MigrateData(List<MxfService>? allServices = null)
     {
-
-        public static string DbConnectionString => $"Host=127.0.0.1;Database={BuildInfo.DBName};Username={BuildInfo.DBUser};Password={BuildInfo.DBPassword}";
-
-        public bool IsEntityTracked<TEntity>(TEntity entity) where TEntity : class
+        string? currentMigration = Database.GetAppliedMigrations().LastOrDefault();
+        if (currentMigration == null)
         {
-            return ChangeTracker.Entries<TEntity>().Any(e => e.Entity == entity);
+            return;
         }
 
-        public async Task MigrateData(List<MxfService>? allServices = null)
+        if (currentMigration == "20240229162620_ConvertToSMChannels")
         {
-            string? currentMigration = Database.GetAppliedMigrations().LastOrDefault();
-            if (currentMigration == null)
+            if (!SystemKeyValues.Any(a => a.Key == "MigrateData_20240229162620_ConvertToSMChannels"))
             {
-                return;
+                MigrateData_20240229162620_ConvertToSMChannels();
+                SystemKeyValues.Add(new SystemKeyValue { Key = "MigrateData_20240229162620_ConvertToSMChannels", Value = "1" });
+                await SaveChangesAsync().ConfigureAwait(false);
             }
 
-            //if (!SystemKeyValues.Any(a => a.Key == "ChangeIDAlways"))
-            //{
-            //    await FixIDs().ConfigureAwait(false);
-            //    SystemKeyValues.Add(new SystemKeyValue { Key = "ChangeIDAlways", Value = "1" });
-            //    await SaveChangesAsync().ConfigureAwait(false);
-            //}
-        }
-
-
-        public DbSet<SystemKeyValue> SystemKeyValues { get; set; }
-
-        public DbSet<EPGFile> EPGFiles { get; set; }
-        public DbSet<M3UFile> M3UFiles { get; set; }
-        public DbSet<VideoStreamLink> VideoStreamLinks { get; set; }
-        public DbSet<ChannelGroup> ChannelGroups { get; set; }
-        public DbSet<VideoStream> VideoStreams { get; set; }
-
-        public DbSet<StreamGroupChannelGroup> StreamGroupChannelGroups { get; set; }
-        public DbSet<StreamGroup> StreamGroups { get; set; }
-        public DbSet<StreamGroupVideoStream> StreamGroupVideoStreams { get; set; }
-
-        public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.UseIdentityAlwaysColumns();
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(PGSQLRepositoryContext).Assembly);
-
-            _ = modelBuilder.Entity<VideoStream>()
-             .HasIndex(e => e.User_Tvg_group)
-             .HasDatabaseName("idx_User_Tvg_group");
-
-            // Composite index on User_Tvg_group and IsHidden
-            _ = modelBuilder.Entity<VideoStream>()
-                .HasIndex(e => new { e.User_Tvg_group, e.IsHidden })
-                .HasDatabaseName("idx_User_Tvg_group_IsHidden");
-
-            _ = modelBuilder.Entity<ChannelGroup>()
-               .HasIndex(e => e.Name)
-               .HasDatabaseName("idx_Name");
-
-            // Composite index on User_Tvg_group and IsHidden
-            _ = modelBuilder.Entity<ChannelGroup>()
-                .HasIndex(e => new { e.Name, e.IsHidden })
-                .HasDatabaseName("idx_Name_IsHidden");
-
-            _ = modelBuilder.Entity<VideoStream>()
-              .HasIndex(e => e.User_Tvg_name)
-              .HasDatabaseName("IX_VideoStream_User_Tvg_name");
-
-            modelBuilder.Entity<VideoStream>()
-                .HasIndex(p => p.User_Tvg_chno)
-                .HasDatabaseName("IX_VideoStream_User_Tvg_chno");
-
-
-            modelBuilder.Entity<VideoStream>()
-                .HasIndex(p => p.ShortId)
-                .HasDatabaseName("IX_VideoStream_ShortId");
-
-            //modelBuilder.OnHangfireModelCreating();
-
-            modelBuilder.ApplyUtcDateTimeConverter();
-
-            base.OnModelCreating(modelBuilder);
-
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-        {
-            DirectoryHelper.CreateApplicationDirectories();
-            options.UseNpgsql(DbConnectionString,
-                o =>
-                {
-                    o.UseNodaTime();
-                    o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
-                }
-                );
-
-        }
-
-        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-        {
-            //configurationBuilder.Properties<string>().UseCollation("sm_collation");
-        }
-
-        private bool _disposed = false;
-
-        public override void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-
-        }
-
-
-        protected void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-
-
-                if (disposing)
-                {
-#if DEBUG
-                    SqliteConnection.ClearAllPools();
-#endif
-                    base.Dispose();
-
-                }
-            }
-            _disposed = true;
-        }
-
-        [GeneratedRegex(@"^\d+-")]
-        private static partial Regex UserTVGIDRegex();
-
-        public int ExecuteSqlRaw(string sql, params object[] parameters)
-        {
-            return Database.ExecuteSqlRaw(sql, parameters);
-        }
-
-        public Task<int> ExecuteSqlRawAsyncEntities(string sql, CancellationToken cancellationToken = default)
-        {
-            return Database.ExecuteSqlRawAsync(sql, cancellationToken);
-        }
-
-        public void BulkUpdateEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
-        {
-            this.BulkUpdate(entities);
-        }
-
-        public void BulkInsertEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
-        {
-            this.BulkInsert(entities);
-        }
-
-        public Task BulkDeleteAsyncEntities<TEntity>(IQueryable<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class
-        {
-            return entities.ExecuteDeleteAsync(cancellationToken);
         }
     }
+
+    protected void MigrateData_20240229162620_ConvertToSMChannels()
+    {
+        Console.WriteLine("Migrating videostream custom information to SMChannels");
+        SMChannels.RemoveRange(SMChannels);
+        SMStreams.RemoveRange(SMStreams);
+        SMChannelStreamLinks.RemoveRange(SMChannelStreamLinks);
+        StreamGroupSMChannels.RemoveRange(StreamGroupSMChannels);
+        SaveChanges();
+
+        int counter = 0;
+        List<VideoStream> videoStreams = [.. VideoStreams];
+        foreach (VideoStream videoStream in videoStreams)
+        {
+            SMChannel channel = new()
+            {
+                ChannelNumber = videoStream.User_Tvg_chno,
+                Group = videoStream.User_Tvg_group,
+                EPGId = videoStream.User_Tvg_ID,
+                Logo = videoStream.User_Tvg_logo,
+                Name = videoStream.User_Tvg_name,
+                StationId = videoStream.StationId,
+                TimeShift = videoStream.TimeShift,
+                VideoStreamHandler = videoStream.VideoStreamHandler,
+                IsHidden = videoStream.IsHidden,
+                GroupTitle = videoStream.GroupTitle,
+                StreamingProxyType = videoStream.StreamingProxyType,
+                VideoStreamId = videoStream.Id
+            };
+            SMChannels.Add(channel);
+
+            SMStream smStream = new()
+            {
+                Id = videoStream.Id,
+                FilePosition = videoStream.FilePosition,
+                IsHidden = videoStream.IsHidden,
+                IsUserCreated = videoStream.IsUserCreated,
+                M3UFileId = videoStream.M3UFileId,
+                M3UFileName = videoStream.M3UFileName,
+                Tvg_chno = videoStream.Tvg_chno,
+                ShortId = videoStream.ShortId,
+                StationId = videoStream.StationId,
+                Group = videoStream.Tvg_group,
+                EPGID = videoStream.Tvg_ID,
+                Logo = videoStream.Tvg_logo,
+                Name = videoStream.Tvg_name,
+                Url = videoStream.Url
+            };
+            SMStreams.Add(smStream);
+
+            counter++;
+            if (counter >= 500) // Check if 500 entities have been processed
+            {
+                SaveChanges();
+                counter = 0; // Reset the counter after saving
+            }
+        }
+
+        if (counter > 0) // Check if there are any remaining entities to save after the loop
+        {
+            SaveChanges(); // Save the remaining entities
+            counter = 0;
+        }
+
+        List<StreamGroupVideoStream> streamGroupVideoStreams = [.. StreamGroupVideoStreams];
+        foreach (StreamGroupVideoStream streamGroupVideoStream in streamGroupVideoStreams)
+        {
+            int channelId = SMChannels.First(a => a.VideoStreamId == streamGroupVideoStream.ChildVideoStreamId).Id;
+            StreamGroupSMChannel streamGroupSMChannel = new()
+            {
+                SMChannelId = channelId,
+                StreamGroupId = streamGroupVideoStream.StreamGroupId,
+                Rank = streamGroupVideoStream.Rank,
+                IsReadOnly = streamGroupVideoStream.IsReadOnly
+            };
+            StreamGroupSMChannels.Add(streamGroupSMChannel);
+        }
+        SaveChanges();
+
+        List<VideoStreamLink> videoStreamLinks = VideoStreamLinks.ToList();
+        foreach (VideoStreamLink videoStreamLink in videoStreamLinks)
+        {
+            int channelId = SMChannels.First(a => a.VideoStreamId == videoStreamLink.ParentVideoStreamId).Id;
+            SMChannelStreamLink smChannelStreamLink = new()
+            {
+                SMChannelId = channelId,
+                SMStreamId = videoStreamLink.ChildVideoStreamId,
+                Rank = videoStreamLink.Rank
+            };
+            SMChannelStreamLinks.Add(smChannelStreamLink);
+        }
+        SaveChanges();
+    }
+
+
+    protected override void OnConfiguring(DbContextOptionsBuilder options)
+    {
+        DirectoryHelper.CreateApplicationDirectories();
+        options.UseNpgsql(DbConnectionString,
+            o =>
+            {
+                o.UseNodaTime();
+                o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+            }
+            );
+
+    }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+    }
+
 }
