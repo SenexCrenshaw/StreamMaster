@@ -21,7 +21,7 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
         {
             //var path = resourceUrl.Replace("/images/", "");
 
-            //var ret = Path.Combine(_appFolderInfo.StartUpFolder, _setting.UiFolder, "images", path);
+            //var ret = Path.Combine(_appFolderInfo.StartUpPath, _setting.UiFolder, "images", path);
             return Task.FromResult(resourceUrl);
         }
     }

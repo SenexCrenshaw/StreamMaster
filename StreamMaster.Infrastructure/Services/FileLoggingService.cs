@@ -1,4 +1,4 @@
-﻿using StreamMaster.Domain.Common;
+﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.Services;
 
@@ -14,9 +14,11 @@ public class FileLoggingService : IFileLoggingService, IDisposable
     private readonly CancellationTokenSource _cts = new();
     private readonly Task _loggingTask;
     private readonly string _logFilePath;
+    private readonly IOptionsMonitor<Setting> intsettings;
 
-    public FileLoggingService(string logFilePath)
+    public FileLoggingService(string logFilePath, IOptionsMonitor<Setting> intsettings)
     {
+        this.intsettings = intsettings;
         _logFilePath = logFilePath;
         _loggingTask = Task.Run(ProcessLogQueue);
     }
@@ -82,9 +84,9 @@ public class FileLoggingService : IFileLoggingService, IDisposable
 
     private void RotateLogIfNeeded()
     {
-        Setting setting = FileUtil.GetSetting();
+
         FileInfo logFileInfo = new(_logFilePath);
-        long maxFileSizeInBytes = Math.Max(1 * 1024 * 1024, Math.Min(setting.MaxLogFileSizeMB * 1024 * 1024, 100 * 1024 * 1024)); // Convert MB to Bytes
+        long maxFileSizeInBytes = Math.Max(1 * 1024 * 1024, Math.Min(intsettings.CurrentValue.MaxLogFileSizeMB * 1024 * 1024, 100 * 1024 * 1024)); // Convert MB to Bytes
 
         if (logFileInfo.Exists && logFileInfo.Length > maxFileSizeInBytes)
         {
@@ -93,7 +95,7 @@ public class FileLoggingService : IFileLoggingService, IDisposable
             string extension = logFileInfo.Extension;
 
             // Bump log files, renaming log.N.log to log.(N+1).log
-            for (int i = setting.MaxLogFiles - 1; i >= 1; i--)
+            for (int i = intsettings.CurrentValue.MaxLogFiles - 1; i >= 1; i--)
             {
                 string oldFileName = Path.Combine(directory, $"{baseFileName}.{i}{extension}");
                 string newFileName = Path.Combine(directory, $"{baseFileName}.{i + 1}{extension}");
@@ -124,7 +126,7 @@ public class FileLoggingService : IFileLoggingService, IDisposable
 
     private void CleanUpOldLogFiles(FileInfo logFileInfo)
     {
-        Setting setting = FileUtil.GetSetting();
+
         string? directory = logFileInfo.DirectoryName;
         string baseFileName = Path.GetFileNameWithoutExtension(logFileInfo.FullName);
         string extension = logFileInfo.Extension;
@@ -136,9 +138,9 @@ public class FileLoggingService : IFileLoggingService, IDisposable
                                     .OrderByDescending(f => f.Name)
                                     .ToArray();
 
-            if (logFiles.Length > setting.MaxLogFiles)
+            if (logFiles.Length > intsettings.CurrentValue.MaxLogFiles)
             {
-                foreach (FileInfo file in logFiles.Skip(setting.MaxLogFiles))
+                foreach (FileInfo file in logFiles.Skip(intsettings.CurrentValue.MaxLogFiles))
                 {
                     file.Delete();
                 }

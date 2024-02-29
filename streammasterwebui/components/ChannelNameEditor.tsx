@@ -1,7 +1,7 @@
 import { UpdateVideoStreamRequest, VideoStreamDto } from '@lib/iptvApi';
 import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import React from 'react';
-import StringEditorBodyTemplate from './StringEditorBodyTemplate';
+import StringEditorBodyTemplate from './inputs/StringEditorBodyTemplate';
 
 const ChannelNameEditor = (props: ChannelNameEditorProperties) => {
   const onUpdateM3UStream = React.useCallback(

@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.General.Commands;
+﻿using StreamMaster.Domain.Configuration;
+
+namespace StreamMaster.Application.General.Commands;
 
 public record SetIsSystemReadyRequest(bool IsSystemReady) : IRequest;
 

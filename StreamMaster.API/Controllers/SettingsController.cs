@@ -5,12 +5,12 @@ using StreamMaster.Application.General.Queries;
 using StreamMaster.Application.Settings;
 using StreamMaster.Application.Settings.Commands;
 using StreamMaster.Application.Settings.Queries;
-using StreamMaster.Domain.Dto;
 
 namespace StreamMaster.API.Controllers;
 
-public class SettingsController : ApiControllerBase, ISettingController
+public class SettingsController() : ApiControllerBase, ISettingController
 {
+
 
     [HttpGet]
     [Route("[action]")]
@@ -41,11 +41,12 @@ public class SettingsController : ApiControllerBase, ISettingController
         return Settings.AdminUserName == logInRequest.UserName && Settings.AdminPassword == logInRequest.Password;
     }
 
+
     [HttpPatch]
     [Route("[action]")]
     public async Task<IActionResult> UpdateSetting(UpdateSettingRequest command)
     {
-        UpdateSettingRequestHandler.UpdateSettingResponse updateSettingResponse = await Mediator.Send(command).ConfigureAwait(false);
+        UpdateSettingResponse updateSettingResponse = await Mediator.Send(command).ConfigureAwait(false);
 
         return updateSettingResponse.NeedsLogOut ? Redirect("/logout") : updateSettingResponse == null ? NotFound() : NoContent();
     }

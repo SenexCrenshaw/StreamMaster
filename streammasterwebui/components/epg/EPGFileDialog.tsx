@@ -16,6 +16,7 @@ const EPGFileDialog: React.FC<Partial<FileDialogProperties>> = () => {
     streamURLPrefix: M3UFileStreamUrlPrefix,
     vodTags: string[],
     epgNumber: number,
+    timeShift: number,
     color: string
   ) => {
     const addEpgFileRequest = {} as CreateEpgFileRequest;
@@ -25,6 +26,7 @@ const EPGFileDialog: React.FC<Partial<FileDialogProperties>> = () => {
     addEpgFileRequest.name = name;
     addEpgFileRequest.formFile = null;
     addEpgFileRequest.urlSource = source;
+    addEpgFileRequest.timeShift = timeShift;
 
     await epgFilesCreateEpgFileMutation(addEpgFileRequest)
       .then(() => {

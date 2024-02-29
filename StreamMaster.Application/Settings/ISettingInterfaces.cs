@@ -15,9 +15,6 @@ public interface ISettingController
     Task<IActionResult> UpdateSetting(UpdateSettingRequest command);
 }
 
-public interface ISettingDB
-{
-}
 
 public interface ISettingHub
 {
@@ -28,10 +25,6 @@ public interface ISettingHub
     Task<bool> LogIn(LogInRequest logInRequest);
 
     Task UpdateSetting(UpdateSettingRequest command);
-}
-
-public interface ISettingScoped
-{
 }
 
 public interface ISettingTasks

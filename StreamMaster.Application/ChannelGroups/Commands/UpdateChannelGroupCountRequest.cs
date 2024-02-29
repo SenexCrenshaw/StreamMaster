@@ -14,7 +14,7 @@ public class UpdateChannelGroupCountRequestValidator : AbstractValidator<UpdateC
 }
 
 [LogExecutionTimeAspect]
-public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCountRequest> logger, IRepositoryWrapper repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : IRequestHandler<UpdateChannelGroupCountRequest, ChannelGroupDto>
+public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCountRequest> logger, IRepositoryWrapper repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache MemoryCache) : IRequestHandler<UpdateChannelGroupCountRequest, ChannelGroupDto>
 {
     /// <summary>
     /// Updates the video stream counts (total, active, and hidden) for a given channel group based on the provided request.
@@ -70,7 +70,7 @@ public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCou
                 //    ChannelGroupId = request.ChannelGroupDto.Id
                 //};
 
-                memoryCache.AddOrUpdateChannelGroupVideoStreamCount(request.ChannelGroupDto);
+                MemoryCache.AddOrUpdateChannelGroupVideoStreamCount(request.ChannelGroupDto);
                 if (request.Publish)
                 {
                     await hubContext.Clients.All.ChannelGroupsRefresh([request.ChannelGroupDto]).ConfigureAwait(false);

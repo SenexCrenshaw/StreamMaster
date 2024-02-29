@@ -6,6 +6,7 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 /// </summary>
 public interface IChannelService : IDisposable
 {
+    //Task<VideoStreamDto?> FetchNextChildVideoStream(string channelVideoStreamId);
     List<IChannelStatus> GetChannelStatusesFromVideoStreamId(string VideoStreamId);
 
     //void UpdateChannelStatusVideoStreamId(string videoStreamId);
@@ -40,7 +41,7 @@ public interface IChannelService : IDisposable
     /// </summary>    
     /// <param name="ChannelVideoStream">The video stream to associate with the channel.</param>
     /// <returns>An IChannelStatus object representing the newly registered channel.</returns>
-    IChannelStatus RegisterChannel(VideoStreamDto ChannelVideoStream);
+    Task<IChannelStatus?> RegisterChannel(VideoStreamDto ChannelVideoStream, bool fetch = false);
 
     /// <summary>
     /// Unregisters a channel by its video stream ID.

@@ -1,4 +1,6 @@
-﻿global using StreamMaster.Domain.Cache;
+﻿global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Options;
+
 global using StreamMaster.Domain.Common;
 global using StreamMaster.SchedulesDirect.Domain;
 global using StreamMaster.SchedulesDirect.Domain.Enums;

@@ -38,6 +38,7 @@ import { TriSelectShowSelection } from '../selectors/TriSelectShowSelection';
 import { useSetQueryFilter } from './useSetQueryFilter';
 
 const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => {
+  const debug = false;
   const { state, setters } = useDataSelectorState<T>(props.id, props.selectedItemsKey);
 
   useEffect(() => {
@@ -64,13 +65,18 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
     }
   }, [props.defaultSortField, props.defaultSortOrder, setters, state.sortOrder]);
 
-  const { queryFilter } = useQueryFilter(props.id);
-
   useSetQueryFilter(props.id, props.columns, state.first, state.filters, state.page, state.rows, props.selectedStreamGroupId);
+
+  const { queryFilter } = useQueryFilter(props.id);
 
   const tableReference = useRef<DataTable<T[]>>(null);
 
   const setting = useSettings();
+
+  if (debug && props.id === 'streamgroupeditor-StreamGroupSelectedVideoStreamDataSelector') {
+    console.log(props.id, props.selectedStreamGroupId, props.selectedItemsKey);
+    console.log(queryFilter);
+  }
 
   const { data, isLoading, isFetching } = props.queryFilter
     ? props.queryFilter(queryFilter ?? skipToken)
@@ -78,6 +84,10 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
 
   const onSetSelection = useCallback(
     (e: T | T[], overRideSelectAll?: boolean): T | T[] | undefined => {
+      // if (e === undefined) {
+      //   return;
+      // }
+
       let selected: T[] = Array.isArray(e) ? e : [e];
 
       if (state.selectSelectedItems === selected) {
@@ -127,6 +137,10 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
   );
 
   useEffect(() => {
+    if (debug && props.id === 'streamgroupeditor-StreamGroupSelectedVideoStreamDataSelector') {
+      console.log('data', data);
+    }
+
     if (!data) {
       return;
     }
@@ -147,7 +161,9 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
     if (data && isPagedTableDto<T>(data)) {
       if (!state.dataSource || (state.dataSource && !areArraysEqual(data.data, state.dataSource))) {
         setters.setDataSource((data as PagedResponseDto<T>).data);
-
+        if (debug && props.id === 'streamgroupeditor-StreamGroupSelectedVideoStreamDataSelector') {
+          console.log('data', (data as PagedResponseDto<T>).data);
+        }
         if (state.selectAll && data !== undefined) {
           setters.setSelectSelectedItems((data as PagedResponseDto<T>).data as T[]);
         }
@@ -165,7 +181,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
         setters.setPagedInformation(data);
       }
     }
-  }, [data, setters, state.dataSource, state.selectAll]);
+  }, [data, props.id, setters, state.dataSource, state.selectAll]);
 
   useEffect(() => {
     if (!props.dataSource) {
@@ -275,13 +291,17 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
 
   const onSelectionChange = useCallback(
     (e: DataTableSelectionMultipleChangeEvent<T[]> | DataTableSelectionSingleChangeEvent<T[]>) => {
-      if (e.value === null || e.value === undefined) {
+      if (e.value === null || e.value === undefined || e.value.length === 0 || !Array.isArray(e.value)) {
         return;
       }
 
       if (props.selectionMode === 'single') {
         if (e.value !== undefined && Array.isArray(e.value)) {
-          onSetSelection(e.value[1]);
+          if (e.value.length > 1) {
+            onSetSelection(e.value[1]);
+          } else {
+            onSetSelection(e.value[0]);
+          }
         } else {
           onSetSelection(e.value);
         }
@@ -518,6 +538,10 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
   };
 
   const onSelectAllChange = (event: DataTableSelectAllChangeEvent) => {
+    if (event.checked === undefined) {
+      return;
+    }
+
     const newSelectAll = event.checked;
 
     setters.setSelectAll(newSelectAll);

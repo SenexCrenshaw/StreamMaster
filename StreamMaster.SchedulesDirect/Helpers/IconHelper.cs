@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-
-using StreamMaster.Domain.Common;
+﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Models;
@@ -11,8 +9,10 @@ using System.Web;
 
 namespace StreamMaster.SchedulesDirect.Helpers;
 
-public class IconHelper(IEPGHelper ePGHelper, IIconService iconService, IMemoryCache memoryCache) : IIconHelper
+public class IconHelper(IEPGHelper ePGHelper, IIconService iconService, IOptionsMonitor<Setting> intsettings) : IIconHelper
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public string GetIconUrl(int EPGNumber, string iconOriginalSource, string _baseUrl, SMFileTypes? sMFileTypes = null)
     {
 
@@ -26,7 +26,6 @@ public class IconHelper(IEPGHelper ePGHelper, IIconService iconService, IMemoryC
             return iconOriginalSource.StartsWith("http") ? iconOriginalSource : GetApiUrl(sMFileTypes ?? SMFileTypes.SDImage, iconOriginalSource, _baseUrl);
         }
 
-        Setting settings = memoryCache.GetSetting();
 
         if (string.IsNullOrEmpty(iconOriginalSource))
         {
@@ -96,7 +95,7 @@ public class IconHelper(IEPGHelper ePGHelper, IIconService iconService, IMemoryC
     ///// <param name="setting"></param>
     ///// <param name="cancellationToken"></param>
     ///// <returns></returns>
-    //public static IconFileDto AddIcon(string sourceUrl, string? recommendedName, int fileId, int Id, IMemoryCache memoryCache, FileDefinition fileDefinition, CancellationToken cancellationToken, bool ignoreAdd = false)
+    //public static IconFileDto AddIcon(string sourceUrl, string? recommendedName, int fileId, int Id, IOptionsMonitor<Setting> intsettings, FileDefinition fileDefinition, CancellationToken cancellationToken, bool ignoreAdd = false)
     //{
     //    string source = HttpUtility.UrlDecode(sourceUrl);
 
@@ -130,7 +129,7 @@ public class IconHelper(IEPGHelper ePGHelper, IIconService iconService, IMemoryC
     //    return icon;
     //}
 
-    //public static async Task<bool> ReadDirectoryLogos(IMemoryCache memoryCache, CancellationToken cancellationToken = default)
+    //public static async Task<bool> ReadDirectoryLogos(IOptionsMonitor<Setting> intsettings, CancellationToken cancellationToken = default)
     //{
     //    FileDefinition fd = FileDefinitions.TVLogo;
     //    if (!Directory.Exists(fd.DirectoryLocation))

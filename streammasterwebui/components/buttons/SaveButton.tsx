@@ -1,4 +1,5 @@
-import BaseButton, { type ChildButtonProperties } from './BaseButton';
+import BaseButton from './BaseButton';
+import { ChildButtonProperties } from './ChildButtonProperties';
 
 const SaveButton: React.FC<ChildButtonProperties> = ({ className = '', disabled = false, iconFilled, label, onClick, tooltip = 'Add' }) => (
   <BaseButton

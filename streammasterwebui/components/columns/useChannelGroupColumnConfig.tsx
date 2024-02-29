@@ -6,5 +6,5 @@ export const useChannelGroupColumnConfig = createMultiSelectColumnConfigHook({
   dataField: 'user_Tvg_group',
   headerTitle: 'Group',
   // queryHook: useChannelGroupsGetChannelGroupNamesQuery,
-  width: 16
+  width: 10
 });

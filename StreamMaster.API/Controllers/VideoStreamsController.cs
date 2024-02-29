@@ -6,11 +6,7 @@ using StreamMaster.Application.VideoStreams;
 using StreamMaster.Application.VideoStreams.Commands;
 using StreamMaster.Application.VideoStreams.Queries;
 using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Pagination;
 using StreamMaster.Domain.Requests;
 using StreamMaster.Infrastructure.Clients;
@@ -88,10 +84,9 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     private StreamingProxyTypes GetStreamingProxyType(VideoStreamDto videoStream)
     {
-        Setting setting = MemoryCache.GetSetting();
 
         return videoStream.StreamingProxyType == StreamingProxyTypes.SystemDefault
-            ? setting.StreamingProxyType
+            ? Settings.StreamingProxyType
             : videoStream.StreamingProxyType;
     }
 
@@ -338,6 +333,15 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     public async Task<ActionResult<VideoInfo>> GetVideoStreamInfoFromUrl([FromQuery] GetVideoStreamInfoFromUrlRequest request)
     {
         VideoInfo res = await Mediator.Send(request).ConfigureAwait(false);
+        return Ok(res);
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+
+    public async Task<ActionResult<List<IdNameUrl>>> GetVideoStreamNamesAndUrls()
+    {
+        List<IdNameUrl> res = await Mediator.Send(new GetVideoStreamNamesAndUrlsRequest()).ConfigureAwait(false);
         return Ok(res);
     }
 

@@ -1,13 +1,13 @@
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.EnvironmentInfo;
-using StreamMaster.Domain.Services;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 {
-    public class ImagesMapper(IAppFolderInfo appFolderInfo, ILogger<ImagesMapper> logger, ISettingsService settingsService) : StaticResourceMapperBase(logger)
+    public class ImagesMapper(ILogger<ImagesMapper> logger, IOptionsMonitor<Setting> intsettings) : StaticResourceMapperBase(logger)
     {
+        private readonly Setting settings = intsettings.CurrentValue;
+
         public override bool CanHandle(string resourceUrl)
         {
             resourceUrl = resourceUrl.ToLowerInvariant();
@@ -18,10 +18,9 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 
         public override async Task<string> Map(string resourceUrl)
         {
-            Setting setting = await settingsService.GetSettingsAsync();
             string path = resourceUrl.Replace("/images/", "");
 
-            string ret = Path.Combine(appFolderInfo.StartUpFolder, setting.UiFolder, "images", path);
+            string ret = Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, "images", path);
             return ret;
         }
     }

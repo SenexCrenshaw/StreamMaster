@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain;
-using StreamMaster.Domain.Cache;
+﻿using StreamMaster.Domain;
 using StreamMaster.Domain.Extensions;
 
 using System.Diagnostics;
@@ -19,7 +16,6 @@ public sealed partial class StreamHandler
     public const int ChunkSize = 64 * 1024;
 
     private readonly CircularBuffer videoBuffer = new(videoBufferSize);
-    private bool testRan = false;
 
     private DateTime LastVideoInfoRun = DateTime.MinValue;
 
@@ -55,21 +51,21 @@ public sealed partial class StreamHandler
 
         bool inputStreamError = false;
 
-        CancellationTokenSource linkedToken;
-        CancellationTokenSource? timeOutToken = null;
+        //CancellationTokenSource linkedToken;
+        //CancellationTokenSource? timeOutToken = null;
 
-        if (!testRan && memoryCache.GetSetting().TestSettings.DropInputSeconds > 0)
-        {
-            timeOutToken = new();
-            logger.LogInformation("Testing: Will stop stream in {DropInputSeconds} seconds.", memoryCache.GetSetting().TestSettings.DropInputSeconds);
-            timeOutToken.CancelAfter(memoryCache.GetSetting().TestSettings.DropInputSeconds * 1000);
-            linkedToken = CancellationTokenSource.CreateLinkedTokenSource(VideoStreamingCancellationToken.Token, timeOutToken.Token);
-        }
-        else
-        {
-            linkedToken = VideoStreamingCancellationToken;
-        }
-
+        //if (!testRan && hlssettings.TestSettings.DropInputSeconds > 0)
+        //{
+        //    timeOutToken = new();
+        //    logger.LogInformation("Testing: Will stop stream in {DropInputSeconds} seconds.", hlssettings.TestSettings.DropInputSeconds);
+        //    timeOutToken.CancelAfter(hlssettings.TestSettings.DropInputSeconds * 1000);
+        //    linkedToken = CancellationTokenSource.CreateLinkedTokenSource(VideoStreamingCancellationToken.Token, timeOutToken.Token);
+        //}
+        //else
+        //{
+        //    linkedToken = VideoStreamingCancellationToken;
+        //}
+        CancellationTokenSource linkedToken = VideoStreamingCancellationToken;
         bool ran = false;
         int accumulatedBytes = 0;
         Stopwatch testSw = Stopwatch.StartNew();
@@ -168,8 +164,8 @@ public sealed partial class StreamHandler
         stream.Close();
         stream.Dispose();
 
-        OnStreamingStopped(inputStreamError || (timeOutToken != null && timeOutToken.IsCancellationRequested && !testRan));
-        testRan = true;
+        OnStreamingStopped(inputStreamError);
+
     }
 
 }

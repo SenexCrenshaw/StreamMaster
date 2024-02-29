@@ -1,11 +1,18 @@
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Mappings;
+using StreamMaster.Domain.Configuration;
+
+using System.Xml.Serialization;
 
 namespace StreamMaster.Domain.Dto;
 
 
-public class SettingDto : BaseSettings, IMapFrom<BaseSettings>
+public class SettingDto : BaseSettings, IMapFrom<Setting>
 {
+    //[XmlIgnore]
+    //public FFMPEGProfileDtos FFMPEGProfiles { get; set; } = [];
+    [XmlIgnore]
+    public SDSettings SDSettings { get; set; } = new();
+    [XmlIgnore]
+    public HLSSettings HLS { get; set; } = new();
 
     public string Release { get; set; } = BuildInfo.Release.ToString();
 

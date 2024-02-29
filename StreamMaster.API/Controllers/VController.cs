@@ -2,15 +2,11 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Repository;
 using StreamMaster.Domain.Requests;
 
@@ -20,8 +16,11 @@ using System.Web;
 namespace StreamMaster.API.Controllers;
 
 
-public class VController(IRepositoryWrapper Repository, ISender sender, IMemoryCache memoryCache, IHttpContextAccessor httpContextAccessor) : Controller
+public class VController(IRepositoryWrapper Repository, ISender sender, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intsettings, IHttpContextAccessor httpContextAccessor) : Controller
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly HLSSettings hlssettings = inthlssettings.CurrentValue;
+
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [HttpHead]
@@ -36,15 +35,22 @@ public class VController(IRepositoryWrapper Repository, ISender sender, IMemoryC
             return new NotFoundResult();
         }
 
+
+        string videoUrl;
+        string url = httpContextAccessor.GetUrl();
+        if (hlssettings.HLSM3U8Enable)
+        {
+            videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
+            return Redirect(videoUrl);
+        }
+
         string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
         .Replace("/", "")
         .Replace(" ", "_");
 
-        Setting setting = memoryCache.GetSetting();
+        string encodedNumbers = 0.EncodeValues128(videoStream.Id, settings.ServerKey);
+        videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
-        string url = httpContextAccessor.GetUrl();
-        string encodedNumbers = 0.EncodeValues128(videoStream.Id, setting.ServerKey);
-        string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
         return Redirect(videoUrl);
     }
 

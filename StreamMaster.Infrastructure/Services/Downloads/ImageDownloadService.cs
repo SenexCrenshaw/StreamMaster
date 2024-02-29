@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Application.Hubs;
-using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.Services;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
@@ -23,9 +22,9 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
     private readonly ILogger<ImageDownloadService> logger;
     private readonly ISchedulesDirectDataService schedulesDirectDataService;
     private readonly SemaphoreSlim downloadSemaphore;
-    private readonly IMemoryCache memoryCache;
+    private readonly IOptionsMonitor<Setting> intsettings;
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> hubContext;
-
+    private readonly Setting settings;
     private readonly IImageDownloadQueue imageDownloadQueue;
     private readonly ISchedulesDirectAPIService schedulesDirectAPI;
 
@@ -55,18 +54,20 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
         };
     }
 
-    public ImageDownloadService(ILogger<ImageDownloadService> logger, ISchedulesDirectAPIService schedulesDirectAPI, IImageDownloadQueue imageDownloadQueue, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache, ISchedulesDirectDataService schedulesDirectDataService)
+    public ImageDownloadService(ILogger<ImageDownloadService> logger, IOptionsMonitor<SDSettings> intsdsettings, ISchedulesDirectAPIService schedulesDirectAPI, IImageDownloadQueue imageDownloadQueue, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> intsettings, ISchedulesDirectDataService schedulesDirectDataService)
     {
         this.logger = logger;
         this.hubContext = hubContext;
         this.schedulesDirectDataService = schedulesDirectDataService;
         this.schedulesDirectAPI = schedulesDirectAPI;
-        this.memoryCache = memoryCache;
+        sdsettings = intsdsettings.CurrentValue;
         this.imageDownloadQueue = imageDownloadQueue;
-        Setting settings = memoryCache.GetSetting();
+        settings = intsettings.CurrentValue;
+
         downloadSemaphore = new(settings.MaxConcurrentDownloads);
 
     }
+    private readonly SDSettings sdsettings;
 
     public void Start()
     {
@@ -86,9 +87,8 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
     {
         while (!cancellationToken.IsCancellationRequested && !exitLoop)
         {
-            Setting setting = memoryCache.GetSetting();
 
-            if (setting.SDSettings.SDEnabled && !imageDownloadQueue.IsEmpty() && BuildInfo.SetIsSystemReady)
+            if (sdsettings.SDEnabled && !imageDownloadQueue.IsEmpty() && BuildInfo.SetIsSystemReady)
             {
                 await DownloadImagesAsync(cancellationToken);
             }
@@ -122,7 +122,6 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                 return false;
             }
 
-            Setting setting = memoryCache.GetSetting();
 
             int maxRetryCount = 1; // Set the maximum number of retries
 
@@ -197,8 +196,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
 
     private async Task DownloadImagesAsync(CancellationToken cancellationToken)
     {
-        Setting setting = memoryCache.GetSetting();
-        string artworkSize = string.IsNullOrEmpty(setting.SDSettings.ArtworkSize) ? "Md" : setting.SDSettings.ArtworkSize;
+        string artworkSize = string.IsNullOrEmpty(sdsettings.ArtworkSize) ? "Md" : sdsettings.ArtworkSize;
 
         while (!cancellationToken.IsCancellationRequested)
         {

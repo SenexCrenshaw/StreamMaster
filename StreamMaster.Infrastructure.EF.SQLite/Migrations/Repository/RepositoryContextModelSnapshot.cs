@@ -50,11 +50,11 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<string>("RegexMatch")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.HasKey("Id");
 
@@ -81,15 +81,15 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Color")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<string>("ContentType")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<int>("DownloadErrors")
                         .HasColumnType("INTEGER");
@@ -102,7 +102,7 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("FileExtension")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<int>("HoursToUpdate")
                         .HasColumnType("INTEGER");
@@ -121,7 +121,7 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<int>("ProgrammeCount")
                         .HasColumnType("INTEGER");
@@ -131,13 +131,13 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Source")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
-                    b.Property<float>("TimeShift")
-                        .HasColumnType("REAL");
+                    b.Property<int>("TimeShift")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Url")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.HasKey("Id");
 
@@ -155,11 +155,11 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("ContentType")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<int>("DownloadErrors")
                         .HasColumnType("INTEGER");
@@ -169,7 +169,7 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("FileExtension")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<int>("HoursToUpdate")
                         .HasColumnType("INTEGER");
@@ -191,7 +191,7 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<bool>("OverwriteChannelNumbers")
                         .HasColumnType("INTEGER");
@@ -201,7 +201,7 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Source")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<int>("StartingChannelNumber")
                         .HasColumnType("INTEGER");
@@ -210,7 +210,7 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Url")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<string>("VODTags")
                         .IsRequired()
@@ -230,12 +230,16 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
                     b.Property<bool>("AutoSetChannelNumbers")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("FFMPEGProfileId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsReadOnly")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.HasKey("Id");
 
@@ -260,7 +264,7 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("StreamMaster.Domain.Models.StreamGroupVideoStream", b =>
                 {
                     b.Property<string>("ChildVideoStreamId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<int>("StreamGroupId")
                         .HasColumnType("INTEGER");
@@ -286,11 +290,11 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Key")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<string>("Value")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.HasKey("Id");
 
@@ -300,14 +304,14 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("StreamMaster.Domain.Models.VideoStream", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<int>("FilePosition")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("GroupTitle")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
@@ -329,15 +333,15 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("M3UFileName")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<string>("ShortId")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<string>("StationId")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<int>("StreamProxyType")
                         .HasColumnType("INTEGER");
@@ -345,55 +349,54 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
                     b.Property<int>("StreamingProxyType")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("TimeShift")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("TimeShift")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Tvg_ID")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<int>("Tvg_chno")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Tvg_group")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<string>("Tvg_logo")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<string>("Tvg_name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<string>("Url")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<string>("User_Tvg_ID")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<int>("User_Tvg_chno")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("User_Tvg_group")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<string>("User_Tvg_logo")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<string>("User_Tvg_name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<string>("User_Url")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<int>("VideoStreamHandler")
                         .HasColumnType("INTEGER");
@@ -421,10 +424,10 @@ namespace StreamMaster.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("StreamMaster.Domain.Models.VideoStreamLink", b =>
                 {
                     b.Property<string>("ParentVideoStreamId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<string>("ChildVideoStreamId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("citext");
 
                     b.Property<int>("Rank")
                         .HasColumnType("INTEGER");

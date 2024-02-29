@@ -10,6 +10,7 @@ param (
     [switch]$SkipMainBuild = $false
 )
 
+
 $global:tags
 
 function Write-StringToFile {
@@ -43,10 +44,10 @@ function Read-StringFromFile {
 
 function Copy-File {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$sourcePath,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$destinationPath
     )
 
@@ -60,7 +61,8 @@ function Copy-File {
         # Copy the file to the destination
         Copy-Item -Path $sourcePath -Destination $destinationPath -ErrorAction Stop
         Write-Host "File copied successfully from '$sourcePath' to '$destinationPath'."
-    } catch {
+    }
+    catch {
         Write-Host "An error occurred while copying the file: $_"
     }
 }
@@ -76,7 +78,8 @@ function Main {
 
     if (-not $SkipRelease -and -not $PrintCommands) {
 
-        if ( $Prod ) { #} -and -not $SkipMainBuild) {
+        if ( $Prod ) {
+            #} -and -not $SkipMainBuild) {
             Copy-File -sourcePath "release.config.release.cjs" -destinationPath "release.config.cjs"
         }
         else {
@@ -108,7 +111,7 @@ function Main {
         Write-StringToFile -Path "buildver" -Content $processedAssemblyInfo.BranchNameRevision 
     }
     
-    if ($BuildSM -or $BuildAll) {
+    if ($BuildSM -or $BuildBuild -or $BuildAll) {
         $dockerFile = "Dockerfile.sm"
         $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-sm")
         
@@ -132,7 +135,7 @@ function Main {
 
         $contentArray += 'FROM ' + "${buildName}:$($smver)-sm" + ' AS sm'      
         $contentArray += 'FROM ' + "${buildName}:$($basever)-base" + ' AS base'  
-        
+
         Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
 
         $global:tags = DetermineTags -result $processedAssemblyInfo -imageName $imageName
@@ -158,7 +161,7 @@ Function Add-ContentAtTop {
 
             # Add each line from contentArray to the new content
             foreach ($line in $contentArray) {
-                Write-Output $line
+                # Write-Output $line
                 [void]$newContent.Add($line)
             }
 
@@ -182,7 +185,7 @@ function Set-EnvironmentVariables {
     $env:DOCKER_BUILDKIT = 1
     $env:COMPOSE_DOCKER_CLI_BUILD = 1
 
-     # Read GitHub token and set it as an environment variable
+    # Read GitHub token and set it as an environment variable
     $ghtoken = Get-Content ghtoken -Raw
     Write-Output "GitHub Token: $ghtoken"
     $env:GH_TOKEN = $ghtoken
@@ -261,7 +264,7 @@ function BuildImage {
 
     # Construct the Docker build command using the tags and the specified Dockerfile
     $buildCommand = "docker buildx build "
-     if ( $pull) {
+    if ( $pull) {
         $buildCommand += " --pull"
     }
     $buildCommand += " --platform ""linux/amd64,linux/arm64"" -f ./$dockerFile ."

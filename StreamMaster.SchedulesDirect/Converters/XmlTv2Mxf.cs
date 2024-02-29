@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-
-using StreamMaster.Domain.Common;
+﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Logging;
 using StreamMaster.SchedulesDirect.Data;
 
@@ -9,9 +7,10 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.SchedulesDirect.Converters;
 
-public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IEPGHelper ePGHelper, IMemoryCache memoryCache, IIconService iconService, ILogger<EPGImportLogger> _epgImportLogger, ISchedulesDirectDataService schedulesDirectDataService) : IXmltv2Mxf
+public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intsettings, ISchedulesDirectDataService schedulesDirectDataService) : IXmltv2Mxf
 {
     private ISchedulesDirectData schedulesDirectData;
+    private readonly Setting settings = intsettings.CurrentValue;
 
     private class SeriesEpisodeInfo
     {
@@ -34,7 +33,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IEPGHelper ePGHelper, IMemoryC
 
     private XMLTV? ConvertToMxf(XMLTV xmlTv, int EPGNumber)
     {
-        schedulesDirectData = new SchedulesDirectData(logger, _epgImportLogger, ePGHelper, memoryCache, EPGNumber);
+        schedulesDirectData = new SchedulesDirectData(logger, EPGNumber);
         if (
             !BuildLineupAndChannelServices(xmlTv, EPGNumber) ||
             !BuildScheduleEntries(xmlTv, EPGNumber)
@@ -58,7 +57,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IEPGHelper ePGHelper, IMemoryC
         {
             string serviceName = $"{epgNumber}-{channel.Id}";
             MxfService mxfService = schedulesDirectData.FindOrCreateService(serviceName);
-    
+
             if (string.IsNullOrEmpty(mxfService.CallSign))
             {
                 // add "callsign" and "station name"
@@ -126,7 +125,6 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IEPGHelper ePGHelper, IMemoryC
 
     private bool BuildScheduleEntries(XMLTV xmlTv, int epgNumber)
     {
-        Setting settings = memoryCache.GetSetting();
 
         logger.LogInformation("Building schedule entries and programs.");
         foreach (XmltvProgramme program in xmlTv.Programs)

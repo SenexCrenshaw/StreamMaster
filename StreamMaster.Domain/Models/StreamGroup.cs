@@ -10,11 +10,12 @@ public class StreamGroup : BaseEntity
         ChannelGroups = [];
     }
 
+    public string FFMPEGProfileId { get; set; } = string.Empty;
     public ICollection<StreamGroupChannelGroup> ChannelGroups { get; set; }
     public ICollection<StreamGroupVideoStream> ChildVideoStreams { get; set; }
     public bool IsReadOnly { get; set; } = false;
     public bool AutoSetChannelNumbers { get; set; } = false;
     [Column(TypeName = "citext")]
     public string Name { get; set; } = string.Empty;
-    //public int StreamGroupNumber { get; set; }
+
 }

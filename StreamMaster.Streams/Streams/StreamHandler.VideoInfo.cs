@@ -1,8 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Cache;
+﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Models;
 
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -45,7 +42,7 @@ public sealed partial class StreamHandler
                 return;
             }
 
-            Setting settings = memoryCache.GetSetting();
+
             string ffprobeExec = GetFFProbeExecutablePath(settings);
 
             if (string.IsNullOrEmpty(ffprobeExec))
@@ -104,7 +101,6 @@ public sealed partial class StreamHandler
         using Process process = new();
         try
         {
-            Setting settings = memoryCache.GetSetting();
 
             string options = "-loglevel error -print_format json -show_format -sexagesimal -show_streams - ";
 

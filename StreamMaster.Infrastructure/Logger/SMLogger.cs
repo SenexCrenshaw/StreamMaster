@@ -49,7 +49,7 @@ public class SMLogger : ILogger
 
     //    // Save the log entry to the SQLite database
     //    using LogDbContext db = new();
-    //    db.LogEntries.Add(new LogEntry
+    //    db.LogEntries.GetOrAdd(new LogEntry
     //    {
     //        LogLevel = logLevel,
     //        Message = message,
@@ -59,7 +59,7 @@ public class SMLogger : ILogger
     //    // If there's an exception, log its details separately
     //    if (exception != null)
     //    {
-    //        db.LogEntries.Add(new LogEntry
+    //        db.LogEntries.GetOrAdd(new LogEntry
     //        {
     //            LogLevel = LogLevel.Error,
     //            Message = exception.ToString(),

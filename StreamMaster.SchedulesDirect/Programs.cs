@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-
-using StreamMaster.Domain.Common;
+﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.SchedulesDirect.Data;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
@@ -11,8 +9,10 @@ using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect;
 
-public class Programs(ILogger<Programs> logger, IMemoryCache memoryCache, ISeriesImages seriesImages, ISportsImages sportsImages, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Programs> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : IPrograms
+public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intsettings, ISeriesImages seriesImages, ISportsImages sportsImages, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Programs> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : IPrograms
 {
+    private readonly SDSettings sdsettings = intsettings.CurrentValue;
+
     private List<string> programQueue = [];
     private ConcurrentBag<Programme> programResponses = [];
     private readonly int totalObjects;
@@ -113,10 +113,7 @@ public class Programs(ILogger<Programs> logger, IMemoryCache memoryCache, ISerie
         List<Programme>? responses = GetProgramsAsync(programs, CancellationToken.None).Result;
         if (responses != null)
         {
-            Parallel.ForEach(responses, (response) =>
-            {
-                programResponses.Add(response);
-            });
+            Parallel.ForEach(responses, programResponses.Add);
         }
     }
 
@@ -217,7 +214,7 @@ public class Programs(ILogger<Programs> logger, IMemoryCache memoryCache, ISerie
 
     private void DetermineTitlesAndDescriptions(MxfProgram mxfProgram, Programme sdProgram)
     {
-        Setting setting = memoryCache.GetSetting();
+
         // populate titles
         if (sdProgram.Titles != null)
         {
@@ -239,7 +236,7 @@ public class Programs(ILogger<Programs> logger, IMemoryCache memoryCache, ISerie
 
             // if short description is empty, not a movie, and append episode option is enabled
             // copy long description into short description
-            if (setting.SDSettings.AppendEpisodeDesc && !mxfProgram.IsMovie && string.IsNullOrEmpty(mxfProgram.ShortDescription))
+            if (sdsettings.AppendEpisodeDesc && !mxfProgram.IsMovie && string.IsNullOrEmpty(mxfProgram.ShortDescription))
             {
                 mxfProgram.ShortDescription = mxfProgram.Description;
             }
@@ -268,7 +265,7 @@ public class Programs(ILogger<Programs> logger, IMemoryCache memoryCache, ISerie
         {
             if (description.DescriptionLanguage[..2] == CultureInfo.CurrentUICulture.TwoLetterISOLanguageName)
             {
-                // optimal selection ... description language matches computer culture settings
+                // optimal selection ... description language matches computer culture sdsettings
                 language = description.DescriptionLanguage;
                 ret = description.Description;
                 break;
@@ -579,8 +576,8 @@ public class Programs(ILogger<Programs> logger, IMemoryCache memoryCache, ISerie
             mxfProgram.mxfSeason = schedulesDirectData.FindOrCreateSeason(mxfProgram.mxfSeriesInfo.SeriesId, mxfProgram.SeasonNumber,
                 sdProgram.HasSeasonArtwork ? mxfProgram.ProgramId : null);
 
-            Setting setting = memoryCache.GetSetting();
-            if (setting.SDSettings.AppendEpisodeDesc || setting.SDSettings.PrefixEpisodeDescription || setting.SDSettings.PrefixEpisodeTitle)
+
+            if (sdsettings.AppendEpisodeDesc || sdsettings.PrefixEpisodeDescription || sdsettings.PrefixEpisodeTitle)
             {
                 mxfProgram.mxfSeason.HideSeasonTitle = true;
             }
@@ -599,20 +596,20 @@ public class Programs(ILogger<Programs> logger, IMemoryCache memoryCache, ISerie
             return;
         }
 
-        Setting setting = memoryCache.GetSetting();
-        string se = setting.SDSettings.AlternateSEFormat ? "S{0}:E{1} " : "s{0:D2}e{1:D2} ";
+
+        string se = sdsettings.AlternateSEFormat ? "S{0}:E{1} " : "s{0:D2}e{1:D2} ";
         se = mxfProgram.SeasonNumber != 0
             ? string.Format(se, mxfProgram.SeasonNumber, mxfProgram.EpisodeNumber)
             : mxfProgram.EpisodeNumber != 0 ? $"#{mxfProgram.EpisodeNumber} " : string.Empty;
 
         // prefix episode title with season and episode numbers as configured
-        if (setting.SDSettings.PrefixEpisodeTitle)
+        if (sdsettings.PrefixEpisodeTitle)
         {
             mxfProgram.EpisodeTitle = se + mxfProgram.EpisodeTitle;
         }
 
         // prefix episode description with season and episode numbers as configured
-        if (setting.SDSettings.PrefixEpisodeDescription)
+        if (sdsettings.PrefixEpisodeDescription)
         {
             mxfProgram.Description = se + mxfProgram.Description;
             if (!string.IsNullOrEmpty(mxfProgram.ShortDescription))
@@ -622,7 +619,7 @@ public class Programs(ILogger<Programs> logger, IMemoryCache memoryCache, ISerie
         }
 
         // append season and episode numbers to the program description as configured
-        if (setting.SDSettings.AppendEpisodeDesc)
+        if (sdsettings.AppendEpisodeDesc)
         {
             // add space before appending season and episode numbers in case there is no short description
             if (mxfProgram.SeasonNumber != 0 && mxfProgram.EpisodeNumber != 0)
@@ -706,8 +703,8 @@ public class Programs(ILogger<Programs> logger, IMemoryCache memoryCache, ISerie
 
     private void DetermineCastAndCrew(MxfProgram prg, Programme sd)
     {
-        Setting setting = memoryCache.GetSetting();
-        if (setting.SDSettings.ExcludeCastAndCrew)
+
+        if (sdsettings.ExcludeCastAndCrew)
         {
             return;
         }

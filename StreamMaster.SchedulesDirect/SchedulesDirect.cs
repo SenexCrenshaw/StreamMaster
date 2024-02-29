@@ -1,7 +1,6 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-
-using StreamMaster.Domain.Common;
+﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Enums;
+using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Models;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
@@ -16,22 +15,23 @@ public partial class SchedulesDirect(
     IJobStatusService jobStatusService,
     ISchedulesDirectDataService schedulesDirectDataService,
     ISchedulesDirectAPIService schedulesDirectAPI,
-    IMemoryCache memoryCache,
+    IOptionsMonitor<SDSettings> intsettings,
     IDescriptions descriptions,
     IKeywords keywords,
     ILineups lineups,
     IPrograms programs,
     ISchedules schedules,
     ISportsImages sportsImages,
-        ISeasonImages seasonImages,
-            ISeriesImages seriesImages,
-            IMovieImages movieImages
+    ISeasonImages seasonImages,
+    ISeriesImages seriesImages,
+    IMovieImages movieImages
 ) : ISchedulesDirect
 {
     public static readonly int MAX_RETRIES = 3;
     private readonly TimeSpan CacheDuration = TimeSpan.FromHours(23);
     private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
     private readonly SemaphoreSlim _syncSemaphore = new(1, 1);
+    private readonly SDSettings sdsettings = intsettings.CurrentValue;
 
 
     public static readonly int MaxQueries = 1250;
@@ -51,8 +51,8 @@ public partial class SchedulesDirect(
                 return false;
             }
 
-            Setting setting = memoryCache.GetSetting();
-            if (!setting.SDSettings.SDEnabled)
+
+            if (!sdsettings.SDEnabled)
             {
                 jobManager.SetSuccessful();
                 return true;
@@ -80,7 +80,7 @@ public partial class SchedulesDirect(
             }
 
 
-            logger.LogInformation($"DaysToDownload: {setting.SDSettings.SDEPGDays}");
+            logger.LogInformation($"DaysToDownload: {sdsettings.SDEPGDays}");
 
             // load cache file
             ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();

@@ -1,13 +1,13 @@
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.EnvironmentInfo;
-using StreamMaster.Domain.Services;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 {
-    public class NextStaticResourceMapper(IAppFolderInfo appFolderInfo, ISettingsService settingsService, ILogger<NextStaticResourceMapper> logger) : StaticResourceMapperBase(logger)
+    public class NextStaticResourceMapper(IOptionsMonitor<Setting> intsettings, ILogger<NextStaticResourceMapper> logger) : StaticResourceMapperBase(logger)
     {
+        private readonly Setting settings = intsettings.CurrentValue;
+
         public override bool CanHandle(string resourceUrl)
         {
             resourceUrl = resourceUrl.ToLowerInvariant();
@@ -49,8 +49,6 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 
         public override async Task<string> Map(string resourceUrl)
         {
-            Setting setting = await settingsService.GetSettingsAsync();
-
             string path = resourceUrl.Replace('/', Path.DirectorySeparatorChar);
             //if (path.StartsWith("\\_next\\"))
             //{
@@ -59,7 +57,7 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 
             path = path.Trim(Path.DirectorySeparatorChar);
 
-            return Path.Combine(appFolderInfo.StartUpFolder, setting.UiFolder, path);
+            return Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, path);
         }
     }
 }

@@ -1,12 +1,12 @@
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Models;
+using StreamMaster.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Net;
 using System.Text;
-using System.Text.Json;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -14,8 +14,40 @@ namespace StreamMaster.Domain.Common;
 
 public sealed class FileUtil
 {
-    private static bool setupDirectories = false;
+    public static async Task<bool> WaitForFileAsync(string filePath, int timeoutSeconds, int checkIntervalMilliseconds, CancellationToken cancellationToken)
+    {
+        CancellationTokenSource timeoutTokenSource = new(TimeSpan.FromSeconds(timeoutSeconds));
+        CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutTokenSource.Token);
 
+        try
+        {
+            string? dir = Path.GetDirectoryName(filePath);
+            if (dir != null && !Directory.Exists(dir))
+            {
+                while (!Directory.Exists(dir))
+                {
+                    await Task.Delay(checkIntervalMilliseconds, linkedTokenSource.Token).ConfigureAwait(false);
+                }
+            }
+
+            while (!File.Exists(filePath))
+            {
+                await Task.Delay(checkIntervalMilliseconds, linkedTokenSource.Token).ConfigureAwait(false);
+            }
+
+            return true;
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            // Timeout has occurred
+            return false;
+        }
+        catch (OperationCanceledException)
+        {
+            // External cancellation request
+            throw;
+        }
+    }
 
     public static string CleanUpFileName(string fullName)
     {
@@ -114,45 +146,6 @@ public sealed class FileUtil
         return ret;
     }
 
-    //public static string SerializeEpgData(Tv epgData)
-    //{
-    //    XmlSerializerNamespaces ns = new();
-    //    ns.Add("", "");
-
-    //    using Utf8StringWriter textWriter = new();
-    //    XmlSerializer serializer = new(typeof(Tv));
-    //    serializer.Serialize(textWriter, epgData, ns);
-    //    return textWriter.ToString();
-    //}
-
-    public static void CreateDirectory(string fileName)
-    {
-        string? directory = Path.EndsInDirectorySeparator(fileName) ? fileName : Path.GetDirectoryName(fileName);
-        if (directory == null || string.IsNullOrEmpty(directory))
-        {
-            return;
-        }
-
-        if (!IsSubdirectory(directory, BuildInfo.AppDataFolder))
-        {
-            throw new Exception($"Illegal directory outside of {BuildInfo.AppDataFolder} : {directory}");
-        }
-
-        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-        {
-            _ = Directory.CreateDirectory(directory);
-        }
-    }
-    public static bool IsSubdirectory(string candidate, string parent)
-    {
-        candidate = Path.GetFullPath(candidate).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-                                    .ToLowerInvariant();
-        parent = Path.GetFullPath(parent).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-                                .ToLowerInvariant();
-
-        return candidate.StartsWith(parent);
-    }
-
     public static async Task<(bool success, Exception? ex)> DownloadUrlAsync(string url, string fullName, CancellationToken cancellationdefault)
     {
         if (url == null || !url.Contains("://"))
@@ -191,8 +184,8 @@ public sealed class FileUtil
                     await stream.CopyToAsync(fileStream, cancellationdefault).ConfigureAwait(false);
                     stream.Close();
 
-                    string filePath = Path.Combine(path, Path.GetFileNameWithoutExtension(fullName) + ".url");
-                    _ = WriteUrlToFile(filePath, url);
+                    //string filePath = Path.Combine(path, Path.GetFileNameWithoutExtension(fullName) + ".url");
+                    //_ = WriteUrlToFile(filePath, url);
                 }
                 fileStream.Close();
 
@@ -236,8 +229,6 @@ public sealed class FileUtil
         }
     }
 
-
-
     public static Stream GetFileDataStream(string source)
     {
 
@@ -248,9 +239,10 @@ public sealed class FileUtil
         FileStream fs = File.OpenRead(source);
         return new GZipStream(fs, CompressionMode.Decompress);
     }
+
     public static async Task Backup(int? versionsToKeep = null)
     {
-        Setting? setting = GetSetting();
+        Setting? setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingFileName);
         if (setting.BackupEnabled == false)
         {
             return;
@@ -258,7 +250,7 @@ public sealed class FileUtil
 
         try
         {
-            versionsToKeep ??= GetSetting()?.BackupVersionsToKeep ?? 5;
+            versionsToKeep ??= SettingsHelper.GetSetting<Setting>(BuildInfo.SettingFileName)?.BackupVersionsToKeep ?? 5;
             using Process process = new();
             process.StartInfo.FileName = "/bin/bash";
             process.StartInfo.Arguments = $"/usr/local/bin/backup.sh {versionsToKeep}";
@@ -370,36 +362,6 @@ public sealed class FileUtil
         return ret;
     }
 
-    public static readonly object FileLock = new();
-    public static Setting? GetSetting()
-    {
-        lock (FileLock)
-        {
-            string jsonString;
-            Setting? ret;
-
-            try
-            {
-                if (File.Exists(BuildInfo.SettingFile))
-                {
-                    jsonString = File.ReadAllText(BuildInfo.SettingFile);
-                    ret = JsonSerializer.Deserialize<Setting>(jsonString);
-                    if (ret != null)
-                    {
-                        return ret;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-            ret = new Setting();
-            UpdateSetting(ret);
-
-            return ret;
-        }
-    }
 
     public static bool IsFileGzipped(string filePath)
     {
@@ -421,130 +383,5 @@ public sealed class FileUtil
         }
     }
 
-    public static bool ReadUrlFromFile(string filePath, out string? url)
-    {
-        url = null;
-        try
-        {
-            if (File.Exists(filePath))
-            {
-                string[] lines = File.ReadAllLines(filePath);
-                if (lines.Length == 1)
-                {
-                    url = lines[0];
-                    _ = WriteUrlToFile(filePath, url);
-                    return true;
-                }
 
-                string? urlLine = lines.FirstOrDefault(line => line.StartsWith("URL="));
-
-                if (urlLine != null)
-                {
-                    url = urlLine["URL=".Length..];
-                    return true;
-                }
-                else
-                {
-                    Console.WriteLine("No URL found in file: " + filePath);
-                    return false;
-                }
-            }
-            else
-            {
-                Console.WriteLine("File not found: " + filePath);
-                return false;
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("An error occurred while reading the file: " + ex.Message);
-            return false;
-        }
-    }
-
-    public static void SetupDirectories(bool alwaysRun = false)
-    {
-        if (setupDirectories && !alwaysRun)
-        {
-            return;
-        }
-        setupDirectories = true;
-        Setting? setting = GetSetting();
-        if (setting == null)
-        {
-            throw new Exception("Failed to load settings from file.");
-        }
-        Console.WriteLine($"Using settings file {BuildInfo.SettingFile}");
-        CreateDir(BuildInfo.AppDataFolder);
-        CreateDir(BuildInfo.CacheFolder);
-        CreateDir(BuildInfo.PlayListFolder);
-        CreateDir(BuildInfo.IconDataFolder);
-        CreateDir(BuildInfo.ChannelIconDataFolder);
-        CreateDir(BuildInfo.ProgrammeIconDataFolder);
-        CreateDir(BuildInfo.EPGFolder);
-        CreateDir(BuildInfo.M3UFolder);
-        CreateDir(BuildInfo.SDImagesFolder);
-        CreateDir(BuildInfo.SDStationLogos);
-        CreateDir(BuildInfo.SDStationLogosCache);
-        CreateDir(BuildInfo.SDJSONFolder);
-        CreateDir(BuildInfo.LogFolder);
-        CreateDir(BuildInfo.BackupPath);
-
-        for (char c = '0'; c <= '9'; c++)
-        {
-            string subdirectoryName = c.ToString();
-            string subdirectoryPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName);
-
-            // Create the subdirectory if it doesn't exist
-            if (!Directory.Exists(subdirectoryPath))
-            {
-                Directory.CreateDirectory(subdirectoryPath);
-            }
-        }
-
-        for (char c = 'a'; c <= 'f'; c++)
-        {
-            string subdirectoryName = c.ToString();
-            string subdirectoryPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName);
-
-            // Create the subdirectory if it doesn't exist
-            if (!Directory.Exists(subdirectoryPath))
-            {
-                Directory.CreateDirectory(subdirectoryPath);
-            }
-        }
-    }
-
-
-    public static void UpdateSetting(Setting setting)
-    {
-        if (!Directory.Exists(BuildInfo.AppDataFolder))
-        {
-            _ = Directory.CreateDirectory(BuildInfo.AppDataFolder);
-        }
-        string jsonString = JsonSerializer.Serialize(setting, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(BuildInfo.SettingFile, jsonString);
-    }
-
-    private static bool WriteUrlToFile(string filePath, string url)
-    {
-        try
-        {
-            string content = "[InternetShortcut]\nURL=" + url;
-            File.WriteAllText(filePath, content);
-            //Console.WriteLine("URL successfully written to file.");
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("An error occurred while writing the URL to the file: " + ex.Message);
-            return false;
-        }
-    }
-
-    private static void CreateDir(string directory)
-    {
-        Console.WriteLine($"Checking directory for {directory}");
-        CreateDirectory(directory);
-    }
 }

@@ -1,7 +1,7 @@
 import { type UpdateVideoStreamRequest, type VideoStreamDto } from '@lib/iptvApi';
 import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import { memo } from 'react';
-import EPGSelector from '../selectors/EPGSelector';
+import EPGSelector from './EPGSelector';
 
 interface EPGEditorProperties {
   readonly data: VideoStreamDto;
@@ -16,7 +16,6 @@ const EPGEditor = ({ data, enableEditMode }: EPGEditorProperties) => {
     }
 
     const toSend = {} as UpdateVideoStreamRequest;
-
     toSend.id = data.id;
 
     if (epg && epg !== '' && data.user_Tvg_ID !== epg) {

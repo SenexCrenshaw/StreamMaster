@@ -2,15 +2,13 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Services;
-using StreamMaster.Infrastructure.Services.Settings;
 using StreamMaster.SchedulesDirect.Converters;
 using StreamMaster.SchedulesDirect.Data;
-using StreamMaster.SchedulesDirect.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.XmltvXml;
-using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Xml;
 using System.Xml.Serialization;
@@ -31,7 +29,7 @@ namespace EPGTester
             .AddTransient<IXmltv2Mxf, XmlTv2Mxf>()
             .AddSingleton<IMemoryCache, MemoryCache>()
             .AddSingleton<IEPGHelper, EPGHelper>()
-            .AddSingleton<ISettingsService, SettingsService>()
+            //.AddSingleton<ISettingsService, SettingsService>()
             .AddSingleton<IXMLTVBuilder, XMLTVBuilder>()
             .BuildServiceProvider();
 

@@ -1,4 +1,4 @@
-﻿using StreamMaster.Domain.Common;
+﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.Services;
 
@@ -6,7 +6,7 @@ using StreamMaster.Infrastructure.Services;
 
 namespace StreamMaster.Infrastructure.Logger;
 
-public class FileLoggingServiceFactory() : IFileLoggingServiceFactory
+public class FileLoggingServiceFactory(IOptionsMonitor<Setting> intsettings) : IFileLoggingServiceFactory
 {
     public IFileLoggingService Create(string key)
     {
@@ -20,6 +20,6 @@ public class FileLoggingServiceFactory() : IFileLoggingServiceFactory
             _ => throw new ArgumentException("Invalid key for file logging service", nameof(key)),
         };
 
-        return new FileLoggingService(logFilePath);
+        return new FileLoggingService(logFilePath, intsettings);
     }
 }

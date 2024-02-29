@@ -9,6 +9,9 @@ export const CreateStreamGroup = async (argument: iptv.CreateStreamGroupRequest)
 export const DeleteStreamGroup = async (argument: iptv.DeleteStreamGroupRequest): Promise<void | null> => {
   await invokeHubConnection<void>('DeleteStreamGroup', argument);
 };
+export const GetVideoStreamStreamFromAutoHEAD = async (argument: string): Promise<void | null> => {
+  await invokeHubConnection<void>('GetVideoStreamStreamFromAutoHEAD', argument);
+};
 export const UpdateStreamGroup = async (argument: iptv.UpdateStreamGroupRequest): Promise<void | null> => {
   await invokeHubConnection<void>('UpdateStreamGroup', argument);
 };

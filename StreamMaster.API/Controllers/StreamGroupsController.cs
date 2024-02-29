@@ -1,28 +1,23 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Application.StreamGroups;
 using StreamMaster.Application.StreamGroups.Commands;
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
+using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Pagination;
 using StreamMaster.Domain.Repository;
 using StreamMaster.Domain.Requests;
-using StreamMaster.Domain.Services;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
-using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text;
 using System.Web;
 
 namespace StreamMaster.API.Controllers;
 
-public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextAccessor httpContextAccessor, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, IMemoryCache memoryCache) : ApiControllerBase, IStreamGroupController
+public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextAccessor httpContextAccessor, ISchedulesDirectDataService schedulesDirectDataService) : ApiControllerBase, IStreamGroupController
 {
 
     //private static int GenerateMediaSequence()
@@ -79,7 +74,7 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
             return NotFound();
         }
 
-        Setting setting = memoryCache.GetSetting();
+
         int epgNumber = EPGHelper.DummyId;
 
         foreach (VideoStreamDto videoStream in videoStreams)
@@ -94,7 +89,7 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
             }
             else
             {
-                if (epgHelper.IsValidEPGId(videoStream.User_Tvg_ID))
+                if (EPGHelper.IsValidEPGId(videoStream.User_Tvg_ID))
                 {
                     (epgNumber, stationId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
                     service = schedulesDirectDataService.GetService(stationId);
@@ -107,23 +102,30 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
                 }
             }
 
-
             string graceNote = service?.CallSign ?? stationId;
 
             string id = graceNote;
-            if (setting.M3UUseChnoForId)
+            if (Settings.M3UUseChnoForId)
             {
                 id = videoStream.User_Tvg_chno.ToString();
             }
             if (id.Equals(channelId))
             {
                 string url = httpContextAccessor.GetUrl();
+                string videoUrl;
+                if (HLSSettings.HLSM3U8Enable)
+                {
+                    videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
+                    return Redirect(videoUrl);
+                }
+
                 string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
                     .Replace("/", "")
                     .Replace(" ", "_");
 
-                string encodedNumbers = ((int)streamGroupId).EncodeValues128(videoStream.Id, setting.ServerKey);
-                string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+                string encodedNumbers = ((int)streamGroupId).EncodeValues128(videoStream.Id, Settings.ServerKey);
+                videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+
                 return Redirect(videoUrl);
             }
         }

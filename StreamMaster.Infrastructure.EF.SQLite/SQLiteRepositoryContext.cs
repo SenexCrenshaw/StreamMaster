@@ -3,7 +3,8 @@
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-
+using StreamMaster.Domain.Configuration;
+using StreamMaster.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Models;
 
 using System.Collections.Concurrent;
@@ -206,7 +207,7 @@ namespace StreamMaster.Infrastructure.EF.SQLite
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            FileUtil.SetupDirectories();
+            DirectoryHelper.CreateApplicationDirectories();
             _ = options.UseSqlite(
                 $"Data Source={DbPath};Pooling=False",
                 o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)

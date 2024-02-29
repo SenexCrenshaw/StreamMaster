@@ -5,7 +5,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.StaticFiles;
@@ -20,9 +19,7 @@ using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Application.Hubs;
 using StreamMaster.Application.Services;
 using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.EnvironmentInfo;
 using StreamMaster.Domain.Logging;
-using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.Authentication;
 using StreamMaster.Infrastructure.EF.PGSQL;
@@ -42,30 +39,6 @@ public static class ConfigureServices
         services.AddSingleton<ILoggerProvider, SMLoggerProvider>(provider =>
             new SMLoggerProvider(provider.GetRequiredService<IFileLoggingServiceFactory>()));
 
-        //services.AddSingleton<ILoggerProvider, FileLoggerDebugProvider>(provider =>
-        //    new FileLoggerDebugProvider(provider.GetRequiredService<IFileLoggingServiceFactory>()));
-
-        //services.AddLogging(logging =>
-        //{
-        //    logging.AddFilter("StreamMaster.Domain.Logging.CustomLogger", LogLevel.Information);
-        //    logging.AddProvider(new StatsLoggerProvider());
-        //    logging.AddConsole();
-        //    logging.AddDebug();
-
-        //    ServiceProvider serviceProvider = logging.Services.BuildServiceProvider();
-        //    ILoggerProvider loggerProvider = serviceProvider.GetRequiredService<ILoggerProvider>();
-
-        //    logging.AddProvider(loggerProvider);
-
-        //    logging.AddFilter<StatsLoggerProvider>((category, logLevel) =>
-        //    {
-        //        // List of classes to use with CustomLogger
-        //        List<string> classesToLog = ["BroadcastService"];
-        //        return category is not null && category.Contains("BroadcastService", StringComparison.OrdinalIgnoreCase);
-        //    });
-
-        //});
-        // Add logging configuration
         services.AddLogging(loggingBuilder =>
         {
             loggingBuilder.AddFilter("StreamMaster.Domain.Logging.CustomLogger", LogLevel.Information);
@@ -74,7 +47,7 @@ public static class ConfigureServices
             loggingBuilder.AddConfiguration(builder.Configuration.GetSection("Logging"));
             loggingBuilder.AddProvider(new StatsLoggerProvider());
 
-            // Add specific filters for StatsLoggerProvider
+            // GetOrAdd specific filters for StatsLoggerProvider
             loggingBuilder.AddFilter<StatsLoggerProvider>((category, logLevel) =>
             {
                 // List of classes to use with CustomLogger
@@ -93,17 +66,6 @@ public static class ConfigureServices
         services.AddHttpLogging(o => o = new HttpLoggingOptions());
         services.UseHttpClientMetrics();
 
-        //services.AddTransient(typeof(ILogger<>), typeof(CustomLogger<>));
-
-        //ILoggerFactory loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
-        //GlobalLoggerProvider.Configure(loggerFactory);
-
-        services.Configure<ForwardedHeadersOptions>(options =>
-        {
-            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
-            options.KnownNetworks.Clear();
-            options.KnownProxies.Clear();
-        });
         services.AddSingleton<IContentTypeProvider, FileExtensionContentTypeProvider>();
         services.AddRouting(options => options.LowercaseUrls = true);
 
@@ -149,8 +111,6 @@ public static class ConfigureServices
             .AddApplicationPart(typeof(StaticResourceController).Assembly)
             .AddControllersAsServices();
 
-        services.AddSingleton<IAppFolderInfo, AppFolderInfo>();
-
         services.AddScoped<IAuthenticationService, AuthenticationService>();
 
         services.AddHttpContextAccessor();
@@ -192,26 +152,6 @@ public static class ConfigureServices
         services.AddHostedService<PostStartup>();
         services.AddSingleton<PostStartup>();
 
-        //services.AddAuthorization(options =>
-        //{
-        //    options.AddPolicy("SignalR", policy =>
-        //    {
-        //        policy.AuthenticationSchemes.Add("SignalR");
-        //        policy.RequireAuthenticatedUser();
-        //    });
-
-        //    options.AddPolicy("SGLinks", policy =>
-        //    {
-        //        policy.AuthenticationSchemes.Add("SGLinks");
-        //        policy.RequireAuthenticatedUser();
-        //    });
-
-        //    // Require auth on everything except those marked [AllowAnonymous]
-        //    options.FallbackPolicy = new AuthorizationPolicyBuilder(AuthenticationType.Forms.ToString(), "API")
-        //    .RequireAuthenticatedUser()
-        //    .Build();
-        //});
-
         services.AddAuthorization(options =>
         {
 
@@ -232,22 +172,6 @@ public static class ConfigureServices
             options.AddPolicy("SignalR", signalRPolicy);
             options.AddPolicy("SGLinks", sgLinksPolicy);
             options.FallbackPolicy = fallbackPolicy;
-
-            //// Define the "SignalR" policy
-            //options.AddPolicy("SignalR", policyBuilder =>
-            //    policyBuilder
-            //        .AddAuthenticationSchemes("SignalR")
-            //        .RequireAuthenticatedUser()
-            //);
-
-            //// Define the "SGLinks" policy
-            //options.AddPolicy("SGLinks", policyBuilder =>
-            //    policyBuilder
-            //        .AddAuthenticationSchemes("SGLinks")
-            //        .RequireAuthenticatedUser()
-            //);
-
-            // Define the FallbackPolicy
 
         });
 

@@ -54,7 +54,7 @@ const createMultiSelectColumnConfigHook =
 
     const filterTemplate = (options: ColumnFilterElementTemplateOptions) => (
       <MultiSelect
-        className="p-column-filter text-xs"
+        className="p-column-filter text-xs border-1"
         filter
         itemTemplate={itemTemplate}
         maxSelectedLabels={1}

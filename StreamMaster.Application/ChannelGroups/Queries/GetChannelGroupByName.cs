@@ -2,7 +2,10 @@
 
 public record GetChannelGroupByName(string Name) : IRequest<ChannelGroupDto?>;
 
-internal class GetChannelGroupByNameHandler(ILogger<GetChannelGroupByName> logger, IRepositoryWrapper Repository, IMapper Mapper, IMemoryCache MemoryCache)
+internal class GetChannelGroupByNameHandler(ILogger<GetChannelGroupByName> logger,
+                                            IRepositoryWrapper Repository,
+                                            IMapper Mapper,
+                                            IMemoryCache MemoryCache)
     : IRequestHandler<GetChannelGroupByName, ChannelGroupDto?>
 {
     public async Task<ChannelGroupDto?> Handle(GetChannelGroupByName request, CancellationToken cancellationToken)

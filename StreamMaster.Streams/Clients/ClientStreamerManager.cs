@@ -1,13 +1,10 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMaster.Streams.Buffers;
+﻿using StreamMaster.Streams.Buffers;
 
 using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Clients;
 
-public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger, IMemoryCache memoryCache, IStatisticsManager statisticsManager, ILoggerFactory loggerFactory) : IClientStreamerManager
+public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger, IStatisticsManager statisticsManager, ILoggerFactory loggerFactory) : IClientStreamerManager
 {
     private readonly ConcurrentDictionary<Guid, IClientStreamerConfiguration> clientStreamerConfigurations = new();
     private readonly object _disposeLock = new();
@@ -57,7 +54,7 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         if (streamerConfiguration != null)
         {
             streamerConfiguration.VideoStreamName = streamHandler.VideoStreamName;
-            streamerConfiguration.Stream ??= new ClientReadStream(memoryCache, statisticsManager, loggerFactory, streamerConfiguration);
+            streamerConfiguration.Stream ??= new ClientReadStream(statisticsManager, loggerFactory, streamerConfiguration);
 
             logger.LogDebug("Adding client {ClientId} {ReaderID} ", clientId, streamerConfiguration.Stream?.Id ?? Guid.NewGuid());
             streamHandler.RegisterClientStreamer(streamerConfiguration);

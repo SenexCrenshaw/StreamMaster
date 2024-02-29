@@ -1,13 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.EnvironmentInfo;
-using StreamMaster.Domain.Services;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 {
-    public class ManifestMapper(IAppFolderInfo appFolderInfo, ISettingsService settingsService, ILogger<ManifestMapper> logger) : StaticResourceMapperBase(logger)
+    public class ManifestMapper(IOptionsMonitor<Setting> intsettings, ILogger<ManifestMapper> logger) : StaticResourceMapperBase(logger)
     {
+        private readonly Setting settings = intsettings.CurrentValue;
+
         public override bool CanHandle(string resourceUrl)
         {
             return resourceUrl.StartsWith("/Content/Images/Icons/manifest");
@@ -15,11 +15,11 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 
         public override async Task<string> Map(string resourceUrl)
         {
-            Setting setting = await settingsService.GetSettingsAsync();
+
             string path = resourceUrl.Replace('/', Path.DirectorySeparatorChar);
             path = path.Trim(Path.DirectorySeparatorChar);
 
-            return Path.ChangeExtension(Path.Combine(appFolderInfo.StartUpFolder, setting.UiFolder, path), "json");
+            return Path.ChangeExtension(Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, path), "json");
         }
     }
 }

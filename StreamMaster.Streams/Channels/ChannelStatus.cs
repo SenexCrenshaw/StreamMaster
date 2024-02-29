@@ -12,7 +12,12 @@ public sealed class ChannelStatus(VideoStreamDto videoStreamDto) : IChannelStatu
 
     public string VideoStreamURL { get; set; } = videoStreamDto.User_Url;
     public string ChannelName { get; set; } = videoStreamDto.User_Tvg_name;
-    public VideoStreamDto CurrentVideoStream { get; set; } = new();
+    public VideoStreamDto? CurrentVideoStream { get; private set; } = videoStreamDto;
+
+    public void SetCurrentVideoStream(VideoStreamDto? CurrentVideoStream)
+    {
+        this.CurrentVideoStream = CurrentVideoStream;
+    }
 
     public void SetIsGlobal()
     {

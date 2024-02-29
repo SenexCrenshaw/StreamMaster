@@ -1,7 +1,7 @@
 ﻿using StreamMaster.Application.Services;
+using StreamMaster.Domain.Configuration;
+using StreamMaster.Domain.Helpers;
 using StreamMaster.SchedulesDirect;
-
-using static StreamMaster.Application.Settings.Commands.UpdateSettingRequestHandler;
 
 namespace StreamMaster.Application.Settings.Commands;
 
@@ -44,9 +44,12 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public List<string>? NameRegex { get; set; } = [];
 }
 
-public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger<UpdateSettingRequest> Logger, IMapper Mapper, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IMemoryCache MemoryCache)
+public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, IOptionsMonitor<SDSettings> intsdsettings, ILogger<UpdateSettingRequest> Logger, IMapper Mapper, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<Setting> intsettings)
 : IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intsdsettings.CurrentValue;
+
     public static void CopyNonNullFields(SDSettingsRequest source, SDSettings destination)
     {
         if (source == null || destination == null)
@@ -177,20 +180,12 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
 
     public async Task<UpdateSettingResponse> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
     {
-        Setting currentSetting = MemoryCache.GetSetting();
+        Setting currentSetting = settings;
 
-        bool needsLogOut = await UpdateSetting(currentSetting, request, cancellationToken);
+        bool needsLogOut = await UpdateSetting(currentSetting, sdsettings, request, cancellationToken);
 
         Logger.LogInformation("UpdateSettingRequest");
-        FileUtil.UpdateSetting(currentSetting);
-
-        //MemoryCacheEntryOptions cacheEntryOptions = new()
-        //{
-        //    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
-        //};
-
-        MemoryCache.SetSetting(currentSetting);
-        //_ = memoryCache.Set("Setting", currentSetting, cacheEntryOptions);
+        SettingsHelper.UpdateSetting(currentSetting);
 
         SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
         await HubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);
@@ -208,7 +203,7 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
     /// <param name="currentSetting">The current setting.</param>
     /// <param name="request">The update setting request.</param>
     /// <returns>The updated setting as a SettingDto object.</returns>
-    private async Task<bool> UpdateSetting(Setting currentSetting, UpdateSettingRequest request, CancellationToken cancellationToken)
+    private async Task<bool> UpdateSetting(Setting currentSetting, SDSettings sdsettings, UpdateSettingRequest request, CancellationToken cancellationToken)
     {
         bool needsLogOut = false;
         bool needsSetProgrammes = false;
@@ -224,7 +219,8 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
 
         if (request.SDSettings != null)
         {
-            CopyNonNullFields(request.SDSettings, currentSetting.SDSettings);
+            CopyNonNullFields(request.SDSettings, sdsettings);
+            SettingsHelper.UpdateSetting(sdsettings);
         }
 
         if (request.EnableSSL != null && request.EnableSSL != currentSetting.EnableSSL)
@@ -401,11 +397,5 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
         }
 
         return needsLogOut;
-    }
-
-    public class UpdateSettingResponse
-    {
-        public bool NeedsLogOut { get; set; }
-        public SettingDto Settings { get; set; }
     }
 }

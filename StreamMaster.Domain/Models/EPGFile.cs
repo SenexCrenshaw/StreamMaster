@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 
 namespace StreamMaster.Domain.Models;
@@ -53,6 +51,6 @@ public class EPGFile : AutoUpdateEntity
     }
     public int ChannelCount { get; set; }
     public int ProgrammeCount { get; set; }
-    public float TimeShift { get; set; } = 0;
+    public int TimeShift { get; set; } = 0;
 
 }

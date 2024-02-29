@@ -1,6 +1,7 @@
 ﻿global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Options;
 
-global using StreamMaster.Domain.Cache;
+global using StreamMaster.Domain.Common;
 global using StreamMaster.Domain.Extensions;
 global using StreamMaster.Domain.Services;
 global using StreamMaster.Logging;

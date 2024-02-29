@@ -3,7 +3,7 @@
 namespace StreamMaster.Application.VideoStreams.Commands;
 
 [RequireAll]
-public record SetVideoStreamTimeShiftsRequest(List<string> Ids, string TimeShift) : IRequest { }
+public record SetVideoStreamTimeShiftsRequest(List<string> Ids, int TimeShift) : IRequest { }
 
 [LogExecutionTimeAspect]
 public class SetVideoStreamTimeShiftsRequestHandler(ILogger<SetVideoStreamTimeShiftsRequest> logger, IRepositoryWrapper Repository, IPublisher Publisher)

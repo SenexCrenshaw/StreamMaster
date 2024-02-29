@@ -1,13 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.EnvironmentInfo;
-using StreamMaster.Domain.Services;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 {
-    public class FaviconMapper(IAppFolderInfo appFolderInfo, ILogger<FaviconMapper> logger, ISettingsService settingsService) : StaticResourceMapperBase(logger)
+    public class FaviconMapper(ILogger<FaviconMapper> logger, IOptionsMonitor<Setting> intsettings) : StaticResourceMapperBase(logger)
     {
+        private readonly Setting settings = intsettings.CurrentValue;
+
         public override bool CanHandle(string resourceUrl)
         {
             return resourceUrl.Equals("/favicon.ico");
@@ -15,8 +15,8 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 
         public override async Task<string> Map(string resourceUrl)
         {
-            Setting setting = await settingsService.GetSettingsAsync();
-            return Path.Combine(appFolderInfo.StartUpFolder, setting.UiFolder, "favicon.ico");
+
+            return Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, "favicon.ico");
         }
     }
 }

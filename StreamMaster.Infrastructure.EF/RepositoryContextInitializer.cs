@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Helpers;
 using StreamMaster.Infrastructure.EF.PGSQL;
 
 namespace StreamMaster.Infrastructure.EF;
@@ -35,7 +36,7 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
 
     public void TrySeed()
     {
-        FileUtil.SetupDirectories();
+        DirectoryHelper.CreateApplicationDirectories();
     }
 
     public void MigrateData()

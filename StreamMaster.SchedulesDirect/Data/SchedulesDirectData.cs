@@ -1,11 +1,9 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Data;
 
-public partial class SchedulesDirectData(ILogger logger, ILogger<EPGImportLogger> _epgImportLogger, IEPGHelper ePGHelper, IMemoryCache memoryCache, int EPGNumber) : ISchedulesDirectData
+public partial class SchedulesDirectData(ILogger logger, int EPGNumber) : ISchedulesDirectData
 {
     public int EPGNumber { get; set; } = EPGNumber;
 

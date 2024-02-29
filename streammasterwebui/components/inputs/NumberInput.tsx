@@ -16,6 +16,7 @@ interface NumberInputProperties {
   readonly placeHolder?: string;
   readonly showClear?: boolean;
   readonly showCopy?: boolean;
+  readonly showButtons?: boolean;
   readonly value: number;
 }
 
@@ -31,6 +32,7 @@ const NumberInput = ({
   placeHolder,
   showClear = true,
   showCopy = false,
+  showButtons = false,
   value
 }: NumberInputProperties) => {
   const [input, setInput] = useState<number>(1);
@@ -101,6 +103,7 @@ const NumberInput = ({
           id={uuid}
           min={min}
           max={max}
+          showButtons={showButtons}
           onChange={(event) => {
             if (event.value !== null && event.value !== undefined) {
               setInput(event.value);

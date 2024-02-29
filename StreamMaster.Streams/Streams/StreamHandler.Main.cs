@@ -1,10 +1,6 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Models;
+﻿using StreamMaster.Domain.Configuration;
 
 using System.Collections.Concurrent;
-using System.Diagnostics;
 
 namespace StreamMaster.Streams.Streams;
 
@@ -19,11 +15,11 @@ public sealed partial class StreamHandler : IStreamHandler
     private readonly ILogger<WriteLogger> _writeLogger;
 
     private readonly ConcurrentDictionary<Guid, IClientStreamerConfiguration> clientStreamerConfigs = new();
-    private readonly IMemoryCache memoryCache;
     private readonly ILogger<IStreamHandler> logger;
 
     private readonly IInputStatisticsManager inputStatisticsManager;
     private readonly IInputStreamingStatistics inputStreamStatistics;
+    private readonly Setting settings;
 
     public VideoStreamDto VideoStreamDto { get; }
     public int M3UFileId { get; }
@@ -53,9 +49,9 @@ public sealed partial class StreamHandler : IStreamHandler
     /// <param name="memoryCache">An IMemoryCache instance for caching purposes within the stream handler.</param>
     /// <param name="loggerFactory">An ILoggerFactory instance used to create loggers for logging information and events.</param>
     /// <param name="inputStatisticsManager">An IInputStatisticsManager instance for managing and tracking input statistics.</param>
-    public StreamHandler(VideoStreamDto videoStreamDto, int processId, string channelId, string channelName, int rank, IMemoryCache memoryCache, ILoggerFactory loggerFactory, IInputStatisticsManager inputStatisticsManager)
+    public StreamHandler(VideoStreamDto videoStreamDto, int processId, string channelId, string channelName, int rank, IOptionsMonitor<Setting> intsettings, ILoggerFactory loggerFactory, IInputStatisticsManager inputStatisticsManager)
     {
-        this.memoryCache = memoryCache;
+        settings = intsettings.CurrentValue;
         logger = loggerFactory.CreateLogger<StreamHandler>();
         VideoStreamDto = videoStreamDto;
         M3UFileId = videoStreamDto.M3UFileId;
@@ -113,13 +109,7 @@ public sealed partial class StreamHandler : IStreamHandler
 
             try
             {
-                //string? procName = CheckProcessExists();
-                //if (procName != null)
-                //{
-                //    Process process = Process.GetProcessById(ProcessId);
-                //    process.Kill();
-                //}
-                KillProcess();
+                ProcessHelper.KillProcessById(ProcessId);
 
             }
             catch (Exception ex)
@@ -166,35 +156,6 @@ public sealed partial class StreamHandler : IStreamHandler
             return false;
         }
     }
-
-    private bool KillProcess()
-    {
-        try
-        {
-            Process process = Process.GetProcessById(ProcessId);
-            return true;
-        }
-        catch (ArgumentException)
-        {
-
-        }
-        return false;
-
-
-    }
-
-    //private string? CheckProcessExists()
-    //{
-    //    try
-    //    {
-    //        Process process = Process.GetProcessById(ProcessId);
-    //        return process.ProcessName;
-    //    }
-    //    catch (ArgumentException)
-    //    {
-    //        return null;
-    //    }
-    //}
 
 
     public IEnumerable<Guid> GetClientStreamerClientIds()

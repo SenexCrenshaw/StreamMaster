@@ -1,12 +1,8 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Models;
 using StreamMaster.Infrastructure.Authentication;
 
 using System.Security.Claims;
@@ -18,8 +14,10 @@ namespace StreamMaster.API.Controllers
     [ApiExplorerSettings(IgnoreApi = true)]
     [AllowAnonymous]
     [ApiController]
-    public class AuthenticationController(IAuthenticationService authService, IMemoryCache memoryCache) : Controller
+    public class AuthenticationController(IAuthenticationService authService, IOptionsMonitor<Setting> intsettings) : Controller
     {
+        private readonly Setting settings = intsettings.CurrentValue;
+
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromForm] LoginResource resource, [FromQuery] string? returnUrl = null)
@@ -45,17 +43,15 @@ namespace StreamMaster.API.Controllers
 
             await HttpContext.SignInAsync(AuthenticationType.Forms.ToString(), new ClaimsPrincipal(new ClaimsIdentity(claims, "Cookies", "user", "identifier")), authProperties);
 
-            Setting setting = memoryCache.GetSetting();
-            return Redirect(setting.UrlBase + "/");
+            return Redirect(settings.UrlBase + "/");
         }
 
         [HttpGet("logout")]
         public async Task<IActionResult> Logout()
         {
-            Setting setting = memoryCache.GetSetting();
             await authService.Logout(HttpContext);
             await HttpContext.SignOutAsync(AuthenticationType.Forms.ToString());
-            return Redirect(setting.UrlBase + "/");
+            return Redirect(settings.UrlBase + "/");
         }
     }
 }

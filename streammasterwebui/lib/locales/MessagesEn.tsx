@@ -99,7 +99,7 @@ const MessagesEn: messages_enType = {
   regex: 'Regex',
 
   rememberme: 'Remember Me',
-
+  profiles: 'Profiles',
   'sdSettings.sdEnabled': 'ScheduleDirect Enabled',
 
   'sdSettings.sdPassword': 'ScheduleDirect Password',

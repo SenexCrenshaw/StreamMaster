@@ -41,7 +41,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
 
   const [simpleQuery, setSimpleQuery] = useState<SimpleQueryApiArgument>({
     first: 0,
-    last: 1000
+    last: 2
   });
 
   const query = props.queryHook(simpleQuery);

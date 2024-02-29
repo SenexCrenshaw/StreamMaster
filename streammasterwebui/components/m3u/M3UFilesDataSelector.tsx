@@ -4,9 +4,9 @@ import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesMutateAPI';
 import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox';
 import { Toast } from 'primereact/toast';
 import { memo, useCallback, useMemo, useRef } from 'react';
-import NumberEditorBodyTemplate from '../NumberEditorBodyTemplate';
-import StringEditorBodyTemplate from '../StringEditorBodyTemplate';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
+import NumberEditorBodyTemplate from '../inputs/NumberEditorBodyTemplate';
+import StringEditorBodyTemplate from '../inputs/StringEditorBodyTemplate';
 import M3UFileRefreshDialog from './M3UFileRefreshDialog';
 import M3UFileRemoveDialog from './M3UFileRemoveDialog';
 

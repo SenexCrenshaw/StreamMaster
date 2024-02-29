@@ -1,23 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Options;
 
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Services;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.Authentication
 {
-    public class UiAuthorizationPolicyProvider : IAuthorizationPolicyProvider
+    public class UiAuthorizationPolicyProvider(IOptions<AuthorizationOptions> options, IOptions<Setting> settings, IServiceProvider serviceProvider) : IAuthorizationPolicyProvider
     {
         private const string POLICY_NAME = "UI";
-        private readonly ISettingsService _settingsService;
 
-        public UiAuthorizationPolicyProvider(IOptions<AuthorizationOptions> options, ISettingsService settingsService)
-        {
-            FallbackPolicyProvider = new DefaultAuthorizationPolicyProvider(options);
-            _settingsService = settingsService;
-        }
-
-        public DefaultAuthorizationPolicyProvider FallbackPolicyProvider { get; }
+        public DefaultAuthorizationPolicyProvider FallbackPolicyProvider { get; } = new DefaultAuthorizationPolicyProvider(options);
 
         public Task<AuthorizationPolicy> GetDefaultPolicyAsync()
         {
@@ -33,8 +24,8 @@ namespace StreamMaster.Infrastructure.Authentication
         {
             if (policyName.Equals(POLICY_NAME, StringComparison.OrdinalIgnoreCase))
             {
-                Setting setting = await _settingsService.GetSettingsAsync();
-                AuthorizationPolicyBuilder policy = new AuthorizationPolicyBuilder(setting.AuthenticationMethod.ToString())
+
+                AuthorizationPolicyBuilder policy = new AuthorizationPolicyBuilder(settings.Value.AuthenticationMethod.ToString())
                     .RequireAuthenticatedUser();
                 return policy.Build();
             }

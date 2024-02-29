@@ -1,6 +1,6 @@
 import SaveButton from '@components/buttons/SaveButton';
 import ChannelGroupSelector from '@components/channelGroups/ChannelGroupSelector';
-import EPGSelector from '@components/selectors/EPGSelector';
+import EPGSelector from '@components/epg/EPGSelector';
 import IconSelector from '@components/selectors/IconSelector';
 import { getIconUrl } from '@lib/common/common';
 import { CreateVideoStreamRequest, UpdateVideoStreamRequest, VideoStreamDto, useChannelGroupsGetChannelGroupNamesQuery } from '@lib/iptvApi';

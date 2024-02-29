@@ -4,14 +4,13 @@
 . /env.sh
 
 # Configuration
-backup_dirs="/config/PlayLists /config/Logs /config/Cache/SDJson" # Space-separated list of directories
+backup_dirs="/config/PlayLists /config/Logs /config/Cache/SDJson /config/Settings" # Space-separated list of directories
 backup_files="/config/settings.json /config/logsettings.json" # Space-separated list of files
-backup_path="/config/backups"
 versions_to_keep=5
 timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
 db_backup_file="db_$timestamp.gz"
 files_backup_file="files_$timestamp.tar.gz"
-backup_file="$backup_path/backup_$timestamp.tar.gz"
+backup_file="$BACKUP_DIR/backup_$timestamp.tar.gz"
 
 # Determine versions to keep from command line argument, environment variable, or default
 if [ ! -z "$1" ]; then
@@ -23,13 +22,13 @@ else
 fi
 
 # Check if backup directory exists, if not, create it
-if [ ! -d "$backup_path" ]; then
-    mkdir -p "$backup_path"
+if [ ! -d "$BACKUP_DIR" ]; then
+    mkdir -p "$BACKUP_DIR"
 fi
 
 # Backup PostgreSQL database
 backup_database() {
-    pg_dump -U $POSTGRES_USER $POSTGRES_DB | gzip > "$backup_path/$db_backup_file"
+    pg_dump -U $POSTGRES_USER $POSTGRES_DB | gzip > "$BACKUP_DIR/$db_backup_file"
     echo "Database backup completed: $db_backup_file"
 }
 
@@ -45,7 +44,7 @@ backup_files_and_dirs() {
     done
     
     if [ ${#items_to_backup[@]} -gt 0 ]; then
-        tar -czf "$backup_path/$files_backup_file" "${items_to_backup[@]}"  2>/dev/null
+        tar -czf "$BACKUP_DIR/$files_backup_file" "${items_to_backup[@]}"  2>/dev/null
         echo "Directories and files backup completed: $files_backup_file"
     else
         echo "No files or directories exist for backup."
@@ -54,13 +53,13 @@ backup_files_and_dirs() {
 
 # Create one backup file
 create_backup() {
-    tar -czf "$backup_file" -C "$backup_path" $db_backup_file $files_backup_file  2>/dev/null
+    tar -czf "$backup_file" -C "$BACKUP_DIR" $db_backup_file $files_backup_file  2>/dev/null
     echo "Backup file created: $backup_file"
 }
 
 # Function to limit the number of backups
 limit_backups() {
-    cd $backup_path
+    cd $BACKUP_DIR
     # Remove individual db and files backups to clean up
     rm -f $db_backup_file $files_backup_file
     # Keep only the specified number of backup versions

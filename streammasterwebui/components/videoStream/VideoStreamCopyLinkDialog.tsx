@@ -18,7 +18,7 @@ const VideoStreamCopyLinkDialog = ({ iconFilled, onClose, value }: VideoStreamCo
     }
   }, [url]);
 
-  return <LinkButton link={url.data ?? ''} />;
+  return <LinkButton link={url.data ?? ''} title='Stream Link' />;
 };
 
 VideoStreamCopyLinkDialog.displayName = 'VideoStreamCopyLinkDialog';

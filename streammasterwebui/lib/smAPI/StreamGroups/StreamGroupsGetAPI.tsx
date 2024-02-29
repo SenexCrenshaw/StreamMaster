@@ -6,6 +6,9 @@ import { invokeHubConnection } from '@lib/signalr/signalr';
 
 export const GetStreamGroup = async (argument: iptv.StreamGroupDto): Promise<iptv.StreamGroupDto | null> =>
   invokeHubConnection<iptv.StreamGroupDto>('GetStreamGroup', argument);
+export const GetVideoStreamStreamFromAutoGET = async (argument: string): Promise<void | null> => {
+  await invokeHubConnection<void>('GetVideoStreamStreamFromAutoGET', argument);
+};
 export const GetStreamGroupCapability = async (argument: string): Promise<void | null> => {
   await invokeHubConnection<void>('GetStreamGroupCapability', argument);
 };

@@ -35,7 +35,7 @@ public sealed partial class ClientReadStream
     private void SetMetrics(int bytesRead)
     {
         //DateTime currentTime = SMDT.UtcNow;
-        //Setting setting = memoryCache.GetSetting();
+        //
 
         //if (setting.EnablePrometheus && (currentTime - _lastUpdateTime > TimeSpan.FromSeconds(5)))
         //{

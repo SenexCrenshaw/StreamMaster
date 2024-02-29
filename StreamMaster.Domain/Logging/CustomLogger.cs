@@ -1,16 +1,14 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Cache;
-using StreamMaster.Domain.Common;
+﻿
 
 using System.Text.RegularExpressions;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Domain.Logging;
-public class CustomLogger<T>(ILoggerFactory loggerFactory, ILoggingUtils loggingUtils, IMemoryCache memoryCache) : ILogger<T>
+public class CustomLogger<T>(ILoggerFactory loggerFactory, ILoggingUtils loggingUtils, IOptionsMonitor<Setting> intsettings) : ILogger<T>
 {
     private readonly ILogger _innerLogger = loggerFactory.CreateLogger<T>();
     private readonly ILoggingUtils _loggingUtils = loggingUtils ?? throw new ArgumentNullException(nameof(loggingUtils));
+    private readonly Setting settings = intsettings.CurrentValue;
 
     public IDisposable BeginScope<TState>(TState state)
     {
@@ -24,8 +22,7 @@ public class CustomLogger<T>(ILoggerFactory loggerFactory, ILoggingUtils logging
 
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
     {
-        Setting setting = memoryCache.GetSetting();
-        if (!setting.CleanURLs)
+        if (!settings.CleanURLs)
         {
             _innerLogger.Log(logLevel, eventId, state, exception, formatter);
             return;

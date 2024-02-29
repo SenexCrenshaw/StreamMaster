@@ -4,7 +4,6 @@ export const addTagTypes = [
   'EPGFiles',
   'Logs',
   'Programmes',
-  'SchedulesDirect',
   'StreamGroupChannelGroup',
   'StreamGroupVideoStreams',
   'Test',
@@ -12,9 +11,12 @@ export const addTagTypes = [
   'Icons',
   'M3UFiles',
   'Misc',
+  'Profiles',
   'Queue',
+  'SchedulesDirect',
   'Settings',
   'Statistics',
+  'Stream',
   'StreamGroups',
   'V',
   'VideoStreamLinks',
@@ -149,103 +151,6 @@ const injectedRtkApi = api
       programmesGetProgrammes: build.query<ProgrammesGetProgrammesApiResponse, ProgrammesGetProgrammesApiArg>({
         query: () => ({ url: `/api/programmes/getprogrammes` }),
         providesTags: ['Programmes']
-      }),
-      schedulesDirectAddLineup: build.mutation<SchedulesDirectAddLineupApiResponse, SchedulesDirectAddLineupApiArg>({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/addlineup`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectAddStation: build.mutation<SchedulesDirectAddStationApiResponse, SchedulesDirectAddStationApiArg>({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/addstation`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetAvailableCountries: build.query<SchedulesDirectGetAvailableCountriesApiResponse, SchedulesDirectGetAvailableCountriesApiArg>({
-        query: () => ({ url: `/api/schedulesdirect/getavailablecountries` }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetChannelNames: build.query<SchedulesDirectGetChannelNamesApiResponse, SchedulesDirectGetChannelNamesApiArg>({
-        query: () => ({ url: `/api/schedulesdirect/getchannelnames` }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetHeadends: build.query<SchedulesDirectGetHeadendsApiResponse, SchedulesDirectGetHeadendsApiArg>({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/getheadends`, body: queryArg }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetLineupPreviewChannel: build.query<SchedulesDirectGetLineupPreviewChannelApiResponse, SchedulesDirectGetLineupPreviewChannelApiArg>({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/getlineuppreviewchannel`, body: queryArg }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetLineups: build.query<SchedulesDirectGetLineupsApiResponse, SchedulesDirectGetLineupsApiArg>({
-        query: () => ({ url: `/api/schedulesdirect/getlineups` }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetPagedStationChannelNameSelections: build.query<
-        SchedulesDirectGetPagedStationChannelNameSelectionsApiResponse,
-        SchedulesDirectGetPagedStationChannelNameSelectionsApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/schedulesdirect/getpagedstationchannelnameselections`,
-          params: {
-            Count: queryArg.count,
-            First: queryArg.first,
-            Last: queryArg.last,
-            PageNumber: queryArg.pageNumber,
-            PageSize: queryArg.pageSize,
-            OrderBy: queryArg.orderBy,
-            JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString
-          }
-        }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetSelectedStationIds: build.query<SchedulesDirectGetSelectedStationIdsApiResponse, SchedulesDirectGetSelectedStationIdsApiArg>({
-        query: () => ({ url: `/api/schedulesdirect/getselectedstationids` }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetStationChannelMaps: build.query<SchedulesDirectGetStationChannelMapsApiResponse, SchedulesDirectGetStationChannelMapsApiArg>({
-        query: () => ({ url: `/api/schedulesdirect/getstationchannelmaps` }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetStationChannelNameFromDisplayName: build.query<
-        SchedulesDirectGetStationChannelNameFromDisplayNameApiResponse,
-        SchedulesDirectGetStationChannelNameFromDisplayNameApiArg
-      >({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/getstationchannelnamefromdisplayname`, body: queryArg }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetStationChannelNamesSimpleQuery: build.query<
-        SchedulesDirectGetStationChannelNamesSimpleQueryApiResponse,
-        SchedulesDirectGetStationChannelNamesSimpleQueryApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/schedulesdirect/getstationchannelnamessimplequery`,
-          params: {
-            Count: queryArg.count,
-            First: queryArg.first,
-            Last: queryArg.last,
-            PageNumber: queryArg.pageNumber,
-            PageSize: queryArg.pageSize,
-            OrderBy: queryArg.orderBy,
-            JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString
-          }
-        }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetStationPreviews: build.query<SchedulesDirectGetStationPreviewsApiResponse, SchedulesDirectGetStationPreviewsApiArg>({
-        query: () => ({ url: `/api/schedulesdirect/getstationpreviews` }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectGetUserStatus: build.query<SchedulesDirectGetUserStatusApiResponse, SchedulesDirectGetUserStatusApiArg>({
-        query: () => ({ url: `/api/schedulesdirect/getuserstatus` }),
-        providesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectRemoveLineup: build.mutation<SchedulesDirectRemoveLineupApiResponse, SchedulesDirectRemoveLineupApiArg>({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/removelineup`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['SchedulesDirect']
-      }),
-      schedulesDirectRemoveStation: build.mutation<SchedulesDirectRemoveStationApiResponse, SchedulesDirectRemoveStationApiArg>({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/removestation`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['SchedulesDirect']
       }),
       streamGroupChannelGroupSyncStreamGroupChannelGroups: build.mutation<
         StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiResponse,
@@ -430,9 +335,126 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/misc/backup`, method: 'PUT' }),
         invalidatesTags: ['Misc']
       }),
+      profilesGetFfmpegProfiles: build.query<ProfilesGetFfmpegProfilesApiResponse, ProfilesGetFfmpegProfilesApiArg>({
+        query: () => ({ url: `/api/profiles/getffmpegprofiles` }),
+        providesTags: ['Profiles']
+      }),
+      profilesAddFfmpegProfile: build.mutation<ProfilesAddFfmpegProfileApiResponse, ProfilesAddFfmpegProfileApiArg>({
+        query: (queryArg) => ({ url: `/api/profiles/addffmpegprofile`, method: 'PUT', body: queryArg }),
+        invalidatesTags: ['Profiles']
+      }),
+      profilesRemoveFfmpegProfile: build.mutation<ProfilesRemoveFfmpegProfileApiResponse, ProfilesRemoveFfmpegProfileApiArg>({
+        query: (queryArg) => ({ url: `/api/profiles/removeffmpegprofile`, method: 'DELETE', body: queryArg }),
+        invalidatesTags: ['Profiles']
+      }),
+      profilesUpdateFfmpegProfile: build.mutation<ProfilesUpdateFfmpegProfileApiResponse, ProfilesUpdateFfmpegProfileApiArg>({
+        query: (queryArg) => ({ url: `/api/profiles/updateffmpegprofile`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['Profiles']
+      }),
       queueGetQueueStatus: build.query<QueueGetQueueStatusApiResponse, QueueGetQueueStatusApiArg>({
         query: () => ({ url: `/api/queue/getqueuestatus` }),
         providesTags: ['Queue']
+      }),
+      schedulesDirectAddLineup: build.mutation<SchedulesDirectAddLineupApiResponse, SchedulesDirectAddLineupApiArg>({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/addlineup`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectAddStation: build.mutation<SchedulesDirectAddStationApiResponse, SchedulesDirectAddStationApiArg>({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/addstation`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetAvailableCountries: build.query<SchedulesDirectGetAvailableCountriesApiResponse, SchedulesDirectGetAvailableCountriesApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getavailablecountries` }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetChannelNames: build.query<SchedulesDirectGetChannelNamesApiResponse, SchedulesDirectGetChannelNamesApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getchannelnames` }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetHeadends: build.query<SchedulesDirectGetHeadendsApiResponse, SchedulesDirectGetHeadendsApiArg>({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/getheadends`, body: queryArg }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetLineupPreviewChannel: build.query<SchedulesDirectGetLineupPreviewChannelApiResponse, SchedulesDirectGetLineupPreviewChannelApiArg>({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/getlineuppreviewchannel`, body: queryArg }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetLineups: build.query<SchedulesDirectGetLineupsApiResponse, SchedulesDirectGetLineupsApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getlineups` }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetPagedStationChannelNameSelections: build.query<
+        SchedulesDirectGetPagedStationChannelNameSelectionsApiResponse,
+        SchedulesDirectGetPagedStationChannelNameSelectionsApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/schedulesdirect/getpagedstationchannelnameselections`,
+          params: {
+            Count: queryArg.count,
+            First: queryArg.first,
+            Last: queryArg.last,
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
+        }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetSelectedStationIds: build.query<SchedulesDirectGetSelectedStationIdsApiResponse, SchedulesDirectGetSelectedStationIdsApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getselectedstationids` }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetStationChannelMaps: build.query<SchedulesDirectGetStationChannelMapsApiResponse, SchedulesDirectGetStationChannelMapsApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getstationchannelmaps` }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetStationChannelNameFromDisplayName: build.query<
+        SchedulesDirectGetStationChannelNameFromDisplayNameApiResponse,
+        SchedulesDirectGetStationChannelNameFromDisplayNameApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/getstationchannelnamefromdisplayname`, body: queryArg }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetStationChannelNames: build.query<SchedulesDirectGetStationChannelNamesApiResponse, SchedulesDirectGetStationChannelNamesApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getstationchannelnames` }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetStationChannelNamesSimpleQuery: build.query<
+        SchedulesDirectGetStationChannelNamesSimpleQueryApiResponse,
+        SchedulesDirectGetStationChannelNamesSimpleQueryApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/schedulesdirect/getstationchannelnamessimplequery`,
+          params: {
+            Count: queryArg.count,
+            First: queryArg.first,
+            Last: queryArg.last,
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
+        }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetStationPreviews: build.query<SchedulesDirectGetStationPreviewsApiResponse, SchedulesDirectGetStationPreviewsApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getstationpreviews` }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetUserStatus: build.query<SchedulesDirectGetUserStatusApiResponse, SchedulesDirectGetUserStatusApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getuserstatus` }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectRemoveLineup: build.mutation<SchedulesDirectRemoveLineupApiResponse, SchedulesDirectRemoveLineupApiArg>({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/removelineup`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectRemoveStation: build.mutation<SchedulesDirectRemoveStationApiResponse, SchedulesDirectRemoveStationApiArg>({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/removestation`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['SchedulesDirect']
       }),
       settingsGetIsSystemReady: build.query<SettingsGetIsSystemReadyApiResponse, SettingsGetIsSystemReadyApiArg>({
         query: () => ({ url: `/api/settings/getissystemready` }),
@@ -461,6 +483,30 @@ const injectedRtkApi = api
       statisticsGetInputStatistics: build.query<StatisticsGetInputStatisticsApiResponse, StatisticsGetInputStatisticsApiArg>({
         query: () => ({ url: `/api/statistics/getinputstatistics` }),
         providesTags: ['Statistics']
+      }),
+      streamGetM3U8Get: build.query<StreamGetM3U8GetApiResponse, StreamGetM3U8GetApiArg>({
+        query: (queryArg) => ({ url: `/api/stream/${queryArg}.m3u8` }),
+        providesTags: ['Stream']
+      }),
+      streamGetM3U8Head: build.mutation<StreamGetM3U8HeadApiResponse, StreamGetM3U8HeadApiArg>({
+        query: (queryArg) => ({ url: `/api/stream/${queryArg}.m3u8`, method: 'HEAD' }),
+        invalidatesTags: ['Stream']
+      }),
+      streamGetVideoStreamGet: build.query<StreamGetVideoStreamGetApiResponse, StreamGetVideoStreamGetApiArg>({
+        query: (queryArg) => ({ url: `/api/stream/${queryArg.videoStreamId}/${queryArg.num}.ts` }),
+        providesTags: ['Stream']
+      }),
+      streamGetVideoStreamHead: build.mutation<StreamGetVideoStreamHeadApiResponse, StreamGetVideoStreamHeadApiArg>({
+        query: (queryArg) => ({ url: `/api/stream/${queryArg.videoStreamId}/${queryArg.num}.ts`, method: 'HEAD' }),
+        invalidatesTags: ['Stream']
+      }),
+      streamGetVideoStreamMp4Get: build.query<StreamGetVideoStreamMp4GetApiResponse, StreamGetVideoStreamMp4GetApiArg>({
+        query: (queryArg) => ({ url: `/api/stream/${queryArg}.mp4` }),
+        providesTags: ['Stream']
+      }),
+      streamGetVideoStreamMp4Head: build.mutation<StreamGetVideoStreamMp4HeadApiResponse, StreamGetVideoStreamMp4HeadApiArg>({
+        query: (queryArg) => ({ url: `/api/stream/${queryArg}.mp4`, method: 'HEAD' }),
+        invalidatesTags: ['Stream']
       }),
       streamGroupsCreateStreamGroup: build.mutation<StreamGroupsCreateStreamGroupApiResponse, StreamGroupsCreateStreamGroupApiArg>({
         query: (queryArg) => ({ url: `/api/streamgroups/createstreamgroup`, method: 'POST', body: queryArg }),
@@ -773,6 +819,10 @@ const injectedRtkApi = api
       videoStreamsGetVideoStreamInfoFromUrl: build.query<VideoStreamsGetVideoStreamInfoFromUrlApiResponse, VideoStreamsGetVideoStreamInfoFromUrlApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/getvideostreaminfofromurl`, params: { streamUrl: queryArg } }),
         providesTags: ['VideoStreams']
+      }),
+      videoStreamsGetVideoStreamNamesAndUrls: build.query<VideoStreamsGetVideoStreamNamesAndUrlsApiResponse, VideoStreamsGetVideoStreamNamesAndUrlsApiArg>({
+        query: () => ({ url: `/api/videostreams/getvideostreamnamesandurls` }),
+        providesTags: ['VideoStreams']
       })
     }),
     overrideExisting: false
@@ -812,6 +862,7 @@ export type EpgFilesCreateEpgFileFromFormApiArg = {
   Name?: string;
   FileName?: string;
   EPGNumber?: number;
+  TimeShift?: number | null;
   UrlSource?: string | null;
   Color?: string | null;
 };
@@ -850,56 +901,6 @@ export type ProgrammesGetProgrammeApiResponse = /** status 200  */ XmltvProgramm
 export type ProgrammesGetProgrammeApiArg = string;
 export type ProgrammesGetProgrammesApiResponse = /** status 200  */ XmltvProgramme[];
 export type ProgrammesGetProgrammesApiArg = void;
-export type SchedulesDirectAddLineupApiResponse = /** status 200  */ boolean;
-export type SchedulesDirectAddLineupApiArg = AddLineup;
-export type SchedulesDirectAddStationApiResponse = /** status 200  */ boolean;
-export type SchedulesDirectAddStationApiArg = AddStation;
-export type SchedulesDirectGetAvailableCountriesApiResponse = /** status 200  */ CountryData[];
-export type SchedulesDirectGetAvailableCountriesApiArg = void;
-export type SchedulesDirectGetChannelNamesApiResponse = /** status 200  */ string[];
-export type SchedulesDirectGetChannelNamesApiArg = void;
-export type SchedulesDirectGetHeadendsApiResponse = /** status 200  */ HeadendDto[];
-export type SchedulesDirectGetHeadendsApiArg = GetHeadends;
-export type SchedulesDirectGetLineupPreviewChannelApiResponse = /** status 200  */ LineupPreviewChannel[];
-export type SchedulesDirectGetLineupPreviewChannelApiArg = GetLineupPreviewChannel;
-export type SchedulesDirectGetLineupsApiResponse = /** status 200  */ SubscribedLineup[];
-export type SchedulesDirectGetLineupsApiArg = void;
-export type SchedulesDirectGetPagedStationChannelNameSelectionsApiResponse = /** status 200  */ PagedResponseOfStationChannelName;
-export type SchedulesDirectGetPagedStationChannelNameSelectionsApiArg = {
-  count?: number;
-  first?: number;
-  last?: number;
-  pageNumber?: number;
-  pageSize?: number;
-  orderBy?: string;
-  jsonArgumentString?: string | null;
-  jsonFiltersString?: string | null;
-};
-export type SchedulesDirectGetSelectedStationIdsApiResponse = /** status 200  */ StationIdLineup[];
-export type SchedulesDirectGetSelectedStationIdsApiArg = void;
-export type SchedulesDirectGetStationChannelMapsApiResponse = /** status 200  */ StationChannelMap[];
-export type SchedulesDirectGetStationChannelMapsApiArg = void;
-export type SchedulesDirectGetStationChannelNameFromDisplayNameApiResponse = /** status 200  */ StationChannelName;
-export type SchedulesDirectGetStationChannelNameFromDisplayNameApiArg = GetStationChannelNameFromDisplayName;
-export type SchedulesDirectGetStationChannelNamesSimpleQueryApiResponse = /** status 200  */ StationChannelName[];
-export type SchedulesDirectGetStationChannelNamesSimpleQueryApiArg = {
-  count?: number;
-  first?: number;
-  last?: number;
-  pageNumber?: number;
-  pageSize?: number;
-  orderBy?: string;
-  jsonArgumentString?: string | null;
-  jsonFiltersString?: string | null;
-};
-export type SchedulesDirectGetStationPreviewsApiResponse = /** status 200  */ StationPreview[];
-export type SchedulesDirectGetStationPreviewsApiArg = void;
-export type SchedulesDirectGetUserStatusApiResponse = /** status 200  */ UserStatus;
-export type SchedulesDirectGetUserStatusApiArg = void;
-export type SchedulesDirectRemoveLineupApiResponse = /** status 200  */ boolean;
-export type SchedulesDirectRemoveLineupApiArg = RemoveLineup;
-export type SchedulesDirectRemoveStationApiResponse = /** status 200  */ boolean;
-export type SchedulesDirectRemoveStationApiArg = RemoveStation;
 export type StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiResponse = /** status 200  */ StreamGroupDto;
 export type StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiArg = SyncStreamGroupChannelGroupsRequest;
 export type StreamGroupChannelGroupGetChannelGroupsFromStreamGroupApiResponse = /** status 200  */ ChannelGroupDto[];
@@ -1001,8 +1002,68 @@ export type MiscGetTestM3UApiResponse = unknown;
 export type MiscGetTestM3UApiArg = number;
 export type MiscBackupApiResponse = unknown;
 export type MiscBackupApiArg = void;
+export type ProfilesGetFfmpegProfilesApiResponse = /** status 200  */ FfmpegProfileDtos;
+export type ProfilesGetFfmpegProfilesApiArg = void;
+export type ProfilesAddFfmpegProfileApiResponse = /** status 200  */ UpdateSettingResponse;
+export type ProfilesAddFfmpegProfileApiArg = AddFfmpegProfileRequest;
+export type ProfilesRemoveFfmpegProfileApiResponse = /** status 200  */ UpdateSettingResponse;
+export type ProfilesRemoveFfmpegProfileApiArg = RemoveFfmpegProfileRequest;
+export type ProfilesUpdateFfmpegProfileApiResponse = /** status 200  */ UpdateSettingResponse;
+export type ProfilesUpdateFfmpegProfileApiArg = UpdateFfmpegProfileRequest;
 export type QueueGetQueueStatusApiResponse = /** status 200  */ TaskQueueStatus[];
 export type QueueGetQueueStatusApiArg = void;
+export type SchedulesDirectAddLineupApiResponse = /** status 200  */ boolean;
+export type SchedulesDirectAddLineupApiArg = AddLineup;
+export type SchedulesDirectAddStationApiResponse = /** status 200  */ boolean;
+export type SchedulesDirectAddStationApiArg = AddStation;
+export type SchedulesDirectGetAvailableCountriesApiResponse = /** status 200  */ CountryData[];
+export type SchedulesDirectGetAvailableCountriesApiArg = void;
+export type SchedulesDirectGetChannelNamesApiResponse = /** status 200  */ string[];
+export type SchedulesDirectGetChannelNamesApiArg = void;
+export type SchedulesDirectGetHeadendsApiResponse = /** status 200  */ HeadendDto[];
+export type SchedulesDirectGetHeadendsApiArg = GetHeadends;
+export type SchedulesDirectGetLineupPreviewChannelApiResponse = /** status 200  */ LineupPreviewChannel[];
+export type SchedulesDirectGetLineupPreviewChannelApiArg = GetLineupPreviewChannel;
+export type SchedulesDirectGetLineupsApiResponse = /** status 200  */ SubscribedLineup[];
+export type SchedulesDirectGetLineupsApiArg = void;
+export type SchedulesDirectGetPagedStationChannelNameSelectionsApiResponse = /** status 200  */ PagedResponseOfStationChannelName;
+export type SchedulesDirectGetPagedStationChannelNameSelectionsApiArg = {
+  count?: number;
+  first?: number;
+  last?: number;
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type SchedulesDirectGetSelectedStationIdsApiResponse = /** status 200  */ StationIdLineup[];
+export type SchedulesDirectGetSelectedStationIdsApiArg = void;
+export type SchedulesDirectGetStationChannelMapsApiResponse = /** status 200  */ StationChannelMap[];
+export type SchedulesDirectGetStationChannelMapsApiArg = void;
+export type SchedulesDirectGetStationChannelNameFromDisplayNameApiResponse = /** status 200  */ StationChannelName;
+export type SchedulesDirectGetStationChannelNameFromDisplayNameApiArg = GetStationChannelNameFromDisplayName;
+export type SchedulesDirectGetStationChannelNamesApiResponse = /** status 200  */ StationChannelName[];
+export type SchedulesDirectGetStationChannelNamesApiArg = void;
+export type SchedulesDirectGetStationChannelNamesSimpleQueryApiResponse = /** status 200  */ StationChannelName[];
+export type SchedulesDirectGetStationChannelNamesSimpleQueryApiArg = {
+  count?: number;
+  first?: number;
+  last?: number;
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type SchedulesDirectGetStationPreviewsApiResponse = /** status 200  */ StationPreview[];
+export type SchedulesDirectGetStationPreviewsApiArg = void;
+export type SchedulesDirectGetUserStatusApiResponse = /** status 200  */ UserStatus;
+export type SchedulesDirectGetUserStatusApiArg = void;
+export type SchedulesDirectRemoveLineupApiResponse = /** status 200  */ boolean;
+export type SchedulesDirectRemoveLineupApiArg = RemoveLineup;
+export type SchedulesDirectRemoveStationApiResponse = /** status 200  */ boolean;
+export type SchedulesDirectRemoveStationApiArg = RemoveStation;
 export type SettingsGetIsSystemReadyApiResponse = /** status 200  */ boolean;
 export type SettingsGetIsSystemReadyApiArg = void;
 export type SettingsGetSettingApiResponse = /** status 200  */ SettingDto;
@@ -1017,6 +1078,24 @@ export type StatisticsGetClientStatisticsApiResponse = /** status 200  */ Client
 export type StatisticsGetClientStatisticsApiArg = void;
 export type StatisticsGetInputStatisticsApiResponse = /** status 200  */ InputStreamingStatistics[];
 export type StatisticsGetInputStatisticsApiArg = void;
+export type StreamGetM3U8GetApiResponse = unknown;
+export type StreamGetM3U8GetApiArg = string;
+export type StreamGetM3U8HeadApiResponse = unknown;
+export type StreamGetM3U8HeadApiArg = string;
+export type StreamGetVideoStreamGetApiResponse = unknown;
+export type StreamGetVideoStreamGetApiArg = {
+  videoStreamId: string;
+  num: number;
+};
+export type StreamGetVideoStreamHeadApiResponse = unknown;
+export type StreamGetVideoStreamHeadApiArg = {
+  videoStreamId: string;
+  num: number;
+};
+export type StreamGetVideoStreamMp4GetApiResponse = unknown;
+export type StreamGetVideoStreamMp4GetApiArg = string;
+export type StreamGetVideoStreamMp4HeadApiResponse = unknown;
+export type StreamGetVideoStreamMp4HeadApiArg = string;
 export type StreamGroupsCreateStreamGroupApiResponse = unknown;
 export type StreamGroupsCreateStreamGroupApiArg = CreateStreamGroupRequest;
 export type StreamGroupsDeleteStreamGroupApiResponse = unknown;
@@ -1170,6 +1249,8 @@ export type VideoStreamsGetVideoStreamInfoFromIdApiResponse = /** status 200  */
 export type VideoStreamsGetVideoStreamInfoFromIdApiArg = string;
 export type VideoStreamsGetVideoStreamInfoFromUrlApiResponse = /** status 200  */ VideoInfo;
 export type VideoStreamsGetVideoStreamInfoFromUrlApiArg = string;
+export type VideoStreamsGetVideoStreamNamesAndUrlsApiResponse = /** status 200  */ IdNameUrl[];
+export type VideoStreamsGetVideoStreamNamesAndUrlsApiArg = void;
 export type CreateChannelGroupRequest = {
   groupName: string;
   isReadOnly: boolean;
@@ -1232,6 +1313,7 @@ export type CreateEpgFileRequest = {
   name?: string;
   fileName?: string;
   epgNumber?: number;
+  timeShift?: number | null;
   urlSource?: string | null;
   color?: string | null;
 };
@@ -1259,6 +1341,7 @@ export type BaseFileDto = {
   url: string;
 };
 export type EpgFileDto = BaseFileDto & {
+  timeShift: number;
   epgNumber: number;
   color: string;
   channelCount: number;
@@ -1298,6 +1381,7 @@ export type BaseFileRequest = {
 export type UpdateEpgFileRequest = BaseFileRequest & {
   epgNumber?: number | null;
   color?: string | null;
+  timeShift?: number | null;
 };
 export type LogLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type LogEntry = {
@@ -1413,198 +1497,8 @@ export type XmltvProgramme = {
   starRating?: XmltvRating[] | null;
   review?: XmltvReview[] | null;
 };
-export type AddLineup = {
-  lineup?: string;
-};
-export type StationRequest = {
-  stationId?: string;
-  lineUp?: string;
-};
-export type AddStation = {
-  requests?: StationRequest[];
-};
-export type Country = {
-  fullName?: string;
-  shortName?: string;
-  postalCodeExample?: string;
-  postalCode?: string;
-  onePostalCode?: boolean;
-};
-export type CountryData = {
-  id?: string;
-  key?: string;
-  countries?: Country[];
-};
-export type HeadendDto = {
-  id?: string;
-  headendId?: string;
-  lineup?: string;
-  location?: string;
-  name?: string;
-  transport?: string;
-};
-export type GetHeadends = {
-  country?: string;
-  postalCode?: string;
-};
-export type LineupPreviewChannel = {
-  id?: number;
-  channel?: string;
-  name?: string;
-  callsign?: string;
-  affiliate?: string;
-};
-export type GetLineupPreviewChannel = {
-  lineup?: string;
-};
-export type SubscribedLineup = {
-  id?: string;
-  lineup?: string;
-  name?: string;
-  transport?: string;
-  location?: string;
-  uri?: string;
-  isDeleted?: boolean;
-};
-export type StationChannelName = {
-  id: string;
-  channel: string;
-  channelName: string;
-  displayName: string;
-};
-export type PagedResponseOfStationChannelName = {
-  data: StationChannelName[];
-  pageNumber: number;
-  pageSize: number;
-  totalPageCount: number;
-  totalItemCount: number;
-  first: number;
-};
-export type StationIdLineup = {
-  lineup?: string;
-  stationId?: string;
-  id?: string;
-};
-export type LineupChannel = {
-  channelNumber?: string;
-  myChannelNumber?: number;
-  myChannelSubnumber?: number;
-  stationID?: string;
-  uhfVhf?: number | null;
-  atscMajor?: number | null;
-  atscMinor?: number | null;
-  atscType?: string;
-  frequencyHz?: number | null;
-  polarization?: string;
-  deliverySystem?: string;
-  modulationSystem?: string;
-  symbolrate?: number | null;
-  fec?: string;
-  serviceID?: number | null;
-  networkID?: number | null;
-  transportID?: number | null;
-  channel?: string;
-  virtualChannel?: string;
-  channelMajor?: number | null;
-  channelMinor?: number | null;
-  providerChannel?: string;
-  providerCallsign?: string;
-  logicalChannelNumber?: string;
-  matchType?: string;
-};
-export type StationBroadcaster = {
-  city?: string;
-  state?: string;
-  postalcode?: string;
-  country?: string;
-};
-export type StationImage = {
-  URL?: string;
-  height?: number;
-  width?: number;
-  md5?: string;
-  source?: string;
-  category?: string;
-};
-export type LineupStation = {
-  stationID?: string;
-  name?: string;
-  callsign?: string;
-  affiliate?: string;
-  broadcastLanguage?: string[];
-  descriptionLanguage?: string[];
-  broadcaster?: StationBroadcaster;
-  isCommercialFree?: boolean | null;
-  stationLogo?: StationImage[];
-  logo?: StationImage;
-};
-export type LineupMetadata = {
-  lineup?: string;
-  modified?: string;
-  transport?: string;
-  modulation?: string;
-};
-export type StationChannelMap = {
-  map?: LineupChannel[];
-  stations?: LineupStation[];
-  metadata?: LineupMetadata | null;
-};
-export type GetStationChannelNameFromDisplayName = {
-  value?: string;
-};
-export type Logo = {
-  URL?: string;
-  height?: number;
-  width?: number;
-  md5?: string;
-};
-export type StationPreview = {
-  logo?: Logo;
-  affiliate?: string;
-  callsign?: string;
-  id?: string;
-  lineup?: string;
-  name?: string;
-  stationId?: string;
-};
-export type BaseResponse = {
-  response?: string;
-  code?: number;
-  serverID?: string;
-  message?: string;
-  datetime?: string;
-  uuid?: string;
-};
-export type StatusAccount = {
-  expires?: string;
-  messages?: string[];
-  maxLineups?: number;
-};
-export type StatusLineup = {
-  lineup?: string;
-  modified?: string;
-  uri?: string;
-  isDeleted?: boolean;
-};
-export type SystemStatus = {
-  date?: string;
-  status?: string;
-  message?: string;
-};
-export type UserStatus = BaseResponse & {
-  account?: StatusAccount;
-  lineups?: StatusLineup[];
-  lastDataUpdate?: string;
-  notifications?: string[];
-  systemStatus?: SystemStatus[];
-};
-export type RemoveLineup = {
-  lineup?: string;
-};
-export type RemoveStation = {
-  requests?: StationRequest[];
-};
 export type StreamGroupDto = {
+  ffmpegProfileId: string;
   isLoading: boolean;
   hdhrLink: string;
   isReadOnly: boolean;
@@ -1639,7 +1533,7 @@ export type BaseVideoStreamDto = {
   groupTitle: string;
   tvg_chno: number;
   tvg_group: string;
-  timeShift: string;
+  timeShift: number;
   tvg_ID: string;
   stationId: string;
   tvg_logo: string;
@@ -1761,54 +1655,22 @@ export type ImageDownloadServiceStatus = {
   totalNoArt?: number;
   totalErrors?: number;
 };
-export type TaskQueueStatus = {
-  command?: string;
-  id?: number;
-  isRunning?: boolean;
-  queueTS?: string;
-  startTS?: string;
-  stopTS?: string;
-  elapsedTS?: string;
+export type FfmpegProfile = {
+  parameters: string;
+  timeout: number;
+  isM3U8: boolean;
 };
-export type M3USettings = {
+export type FfmpegProfileDto = FfmpegProfile & {
+  name: string;
+};
+export type FfmpegProfileDtos = FfmpegProfileDto[];
+export type AuthenticationType = 0 | 2;
+export type BaseSettings = {
   m3UFieldGroupTitle?: boolean;
   m3UIgnoreEmptyEPGID?: boolean;
   m3UUseChnoForId?: boolean;
   m3UUseCUIDForChannelID?: boolean;
   m3UStationId?: boolean;
-};
-export type TestSettings = {
-  dropInputSeconds?: number;
-  dropClientSeconds?: number;
-};
-export type SdSettings = {
-  seriesPosterArt?: boolean;
-  seriesWsArt?: boolean;
-  seriesPosterAspect?: string;
-  artworkSize?: string;
-  excludeCastAndCrew?: boolean;
-  alternateSEFormat?: boolean;
-  prefixEpisodeDescription?: boolean;
-  prefixEpisodeTitle?: boolean;
-  appendEpisodeDesc?: boolean;
-  sdepgDays?: number;
-  sdEnabled?: boolean;
-  sdUserName?: string;
-  sdCountry?: string;
-  sdPassword?: string;
-  sdPostalCode?: string;
-  preferredLogoStyle?: string;
-  alternateLogoStyle?: string;
-  sdStationIds?: StationIdLineup[];
-  seasonEventImages?: boolean;
-  xmltvAddFillerData?: boolean;
-  xmltvFillerProgramLength?: number;
-  xmltvIncludeChannelNumbers?: boolean;
-  xmltvExtendedInfoInTitleDescriptions?: boolean;
-  xmltvSingleImage?: boolean;
-};
-export type AuthenticationType = 0 | 2;
-export type BaseSettings = M3USettings & {
   backupEnabled?: boolean;
   backupVersionsToKeep?: number;
   backupInterval?: number;
@@ -1817,9 +1679,7 @@ export type BaseSettings = M3USettings & {
   maxLogFileSizeMB?: number;
   enablePrometheus?: boolean;
   maxStreamReStart?: number;
-  testSettings?: TestSettings;
   maxConcurrentDownloads?: number;
-  sdSettings?: SdSettings;
   expectedServiceCount?: number;
   adminPassword?: string;
   adminUserName?: string;
@@ -1849,11 +1709,269 @@ export type BaseSettings = M3USettings & {
   videoStreamAlwaysUseEPGLogo?: boolean;
   showClientHostNames?: boolean;
 };
+export type StationIdLineup = {
+  lineup?: string;
+  stationId?: string;
+  id?: string;
+};
+export type SdSettings = {
+  alternateSEFormat?: boolean;
+  alternateLogoStyle?: string;
+  appendEpisodeDesc?: boolean;
+  artworkSize?: string;
+  excludeCastAndCrew?: boolean;
+  preferredLogoStyle?: string;
+  prefixEpisodeDescription?: boolean;
+  prefixEpisodeTitle?: boolean;
+  sdEnabled?: boolean;
+  sdepgDays?: number;
+  sdCountry?: string;
+  sdPassword?: string;
+  sdPostalCode?: string;
+  sdStationIds?: StationIdLineup[];
+  sdUserName?: string;
+  seasonEventImages?: boolean;
+  seriesPosterArt?: boolean;
+  seriesPosterAspect?: string;
+  seriesWsArt?: boolean;
+  xmltvAddFillerData?: boolean;
+  xmltvFillerProgramLength?: number;
+  xmltvExtendedInfoInTitleDescriptions?: boolean;
+  xmltvIncludeChannelNumbers?: boolean;
+  xmltvSingleImage?: boolean;
+};
+export type HlsSettings = {
+  hlsM3U8Enable?: boolean;
+  hlsffmpegOptions?: string;
+  hlsReconnectDurationInSeconds?: number;
+  hlsSegmentDurationInSeconds?: number;
+  hlsSegmentCount?: number;
+  hlsM3U8CreationTimeOutInSeconds?: number;
+  hlsM3U8ReadTimeOutInSeconds?: number;
+  hlstsReadTimeOutInSeconds?: number;
+};
 export type SettingDto = BaseSettings & {
+  sdSettings?: SdSettings;
+  hls?: HlsSettings;
   release?: string;
   version?: string;
   ffmpegDefaultOptions?: string;
   isDebug?: boolean;
+};
+export type UpdateSettingResponse = {
+  needsLogOut?: boolean;
+  settings?: SettingDto;
+};
+export type AddFfmpegProfileRequest = {
+  name?: string;
+  parameters?: string;
+  timeOut?: number;
+  isM3U8?: boolean;
+};
+export type RemoveFfmpegProfileRequest = {
+  name?: string;
+};
+export type UpdateFfmpegProfileRequest = {
+  name?: string;
+  newName?: string | null;
+  parameters?: string | null;
+  timeOut?: number | null;
+  isM3U8?: boolean | null;
+};
+export type TaskQueueStatus = {
+  command?: string;
+  id?: number;
+  isRunning?: boolean;
+  queueTS?: string;
+  startTS?: string;
+  stopTS?: string;
+  elapsedTS?: string;
+};
+export type AddLineup = {
+  lineup?: string;
+};
+export type StationRequest = {
+  stationId?: string;
+  lineUp?: string;
+};
+export type AddStation = {
+  requests?: StationRequest[];
+};
+export type Country = {
+  fullName?: string;
+  shortName?: string;
+  postalCodeExample?: string;
+  postalCode?: string;
+  onePostalCode?: boolean;
+};
+export type CountryData = {
+  id?: string;
+  key?: string;
+  countries?: Country[];
+};
+export type HeadendDto = {
+  id?: string;
+  headendId?: string;
+  lineup?: string;
+  location?: string;
+  name?: string;
+  transport?: string;
+};
+export type GetHeadends = {
+  country?: string;
+  postalCode?: string;
+};
+export type LineupPreviewChannel = {
+  id?: number;
+  channel?: string;
+  name?: string;
+  callsign?: string;
+  affiliate?: string;
+};
+export type GetLineupPreviewChannel = {
+  lineup?: string;
+};
+export type SubscribedLineup = {
+  id?: string;
+  lineup?: string;
+  name?: string;
+  transport?: string;
+  location?: string;
+  uri?: string;
+  isDeleted?: boolean;
+};
+export type StationChannelName = {
+  id: string;
+  channel: string;
+  channelName: string;
+  displayName: string;
+};
+export type PagedResponseOfStationChannelName = {
+  data: StationChannelName[];
+  pageNumber: number;
+  pageSize: number;
+  totalPageCount: number;
+  totalItemCount: number;
+  first: number;
+};
+export type LineupChannel = {
+  channelNumber?: string;
+  myChannelNumber?: number;
+  myChannelSubnumber?: number;
+  stationID?: string;
+  uhfVhf?: number | null;
+  atscMajor?: number | null;
+  atscMinor?: number | null;
+  atscType?: string;
+  frequencyHz?: number | null;
+  polarization?: string;
+  deliverySystem?: string;
+  modulationSystem?: string;
+  symbolrate?: number | null;
+  fec?: string;
+  serviceID?: number | null;
+  networkID?: number | null;
+  transportID?: number | null;
+  channel?: string;
+  virtualChannel?: string;
+  channelMajor?: number | null;
+  channelMinor?: number | null;
+  providerChannel?: string;
+  providerCallsign?: string;
+  logicalChannelNumber?: string;
+  matchType?: string;
+};
+export type StationBroadcaster = {
+  city?: string;
+  state?: string;
+  postalcode?: string;
+  country?: string;
+};
+export type StationImage = {
+  URL?: string;
+  height?: number;
+  width?: number;
+  md5?: string;
+  source?: string;
+  category?: string;
+};
+export type LineupStation = {
+  stationID?: string;
+  name?: string;
+  callsign?: string;
+  affiliate?: string;
+  broadcastLanguage?: string[];
+  descriptionLanguage?: string[];
+  broadcaster?: StationBroadcaster;
+  isCommercialFree?: boolean | null;
+  stationLogo?: StationImage[];
+  logo?: StationImage;
+};
+export type LineupMetadata = {
+  lineup?: string;
+  modified?: string;
+  transport?: string;
+  modulation?: string;
+};
+export type StationChannelMap = {
+  map?: LineupChannel[];
+  stations?: LineupStation[];
+  metadata?: LineupMetadata | null;
+};
+export type GetStationChannelNameFromDisplayName = {
+  value?: string;
+};
+export type Logo = {
+  URL?: string;
+  height?: number;
+  width?: number;
+  md5?: string;
+};
+export type StationPreview = {
+  logo?: Logo;
+  affiliate?: string;
+  callsign?: string;
+  id?: string;
+  lineup?: string;
+  name?: string;
+  stationId?: string;
+};
+export type BaseResponse = {
+  response?: string;
+  code?: number;
+  serverID?: string;
+  message?: string;
+  datetime?: string;
+  uuid?: string;
+};
+export type StatusAccount = {
+  expires?: string;
+  messages?: string[];
+  maxLineups?: number;
+};
+export type StatusLineup = {
+  lineup?: string;
+  modified?: string;
+  uri?: string;
+  isDeleted?: boolean;
+};
+export type SystemStatus = {
+  date?: string;
+  status?: string;
+  message?: string;
+};
+export type UserStatus = BaseResponse & {
+  account?: StatusAccount;
+  lineups?: StatusLineup[];
+  lastDataUpdate?: string;
+  notifications?: string[];
+  systemStatus?: SystemStatus[];
+};
+export type RemoveLineup = {
+  lineup?: string;
+};
+export type RemoveStation = {
+  requests?: StationRequest[];
 };
 export type SdSystemStatus = {
   isSystemReady?: boolean;
@@ -1968,6 +2086,7 @@ export type UpdateStreamGroupRequest = {
   streamGroupId?: number;
   name?: string | null;
   autoSetChannelNumbers?: boolean | null;
+  ffmpegProfileId?: string | null;
 };
 export type AddVideoStreamToVideoStreamRequest = {
   parentVideoStreamId: string;
@@ -1985,7 +2104,7 @@ export type VideoStreamBaseRequest = {
   groupTitle?: string | null;
   tvg_chno?: number | null;
   tvg_group?: string | null;
-  timeShift?: string | null;
+  timeShift?: number | null;
   tvg_ID?: string | null;
   tvg_logo?: string | null;
   tvg_name?: string | null;
@@ -2058,11 +2177,11 @@ export type AutoSetEpgFromParametersRequest = {
 };
 export type SetVideoStreamTimeShiftsRequest = {
   ids: string[];
-  timeShift: string;
+  timeShift: number;
 };
 export type SetVideoStreamTimeShiftFromParametersRequest = {
   parameters?: VideoStreamParameters;
-  timeShift?: string;
+  timeShift?: number;
 };
 export type Disposition = {
   default?: number;
@@ -2133,6 +2252,11 @@ export type VideoInfo = {
   streams?: VideoStreamInfo[];
   format?: Format;
 };
+export type IdNameUrl = {
+  id: string;
+  name: string;
+  url: string;
+};
 export const {
   useChannelGroupsCreateChannelGroupMutation,
   useChannelGroupsDeleteAllChannelGroupsFromParametersMutation,
@@ -2159,22 +2283,6 @@ export const {
   useLogsGetLogQuery,
   useProgrammesGetProgrammeQuery,
   useProgrammesGetProgrammesQuery,
-  useSchedulesDirectAddLineupMutation,
-  useSchedulesDirectAddStationMutation,
-  useSchedulesDirectGetAvailableCountriesQuery,
-  useSchedulesDirectGetChannelNamesQuery,
-  useSchedulesDirectGetHeadendsQuery,
-  useSchedulesDirectGetLineupPreviewChannelQuery,
-  useSchedulesDirectGetLineupsQuery,
-  useSchedulesDirectGetPagedStationChannelNameSelectionsQuery,
-  useSchedulesDirectGetSelectedStationIdsQuery,
-  useSchedulesDirectGetStationChannelMapsQuery,
-  useSchedulesDirectGetStationChannelNameFromDisplayNameQuery,
-  useSchedulesDirectGetStationChannelNamesSimpleQueryQuery,
-  useSchedulesDirectGetStationPreviewsQuery,
-  useSchedulesDirectGetUserStatusQuery,
-  useSchedulesDirectRemoveLineupMutation,
-  useSchedulesDirectRemoveStationMutation,
   useStreamGroupChannelGroupSyncStreamGroupChannelGroupsMutation,
   useStreamGroupChannelGroupGetChannelGroupsFromStreamGroupQuery,
   useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery,
@@ -2204,7 +2312,28 @@ export const {
   useMiscGetDownloadServiceStatusQuery,
   useMiscGetTestM3UQuery,
   useMiscBackupMutation,
+  useProfilesGetFfmpegProfilesQuery,
+  useProfilesAddFfmpegProfileMutation,
+  useProfilesRemoveFfmpegProfileMutation,
+  useProfilesUpdateFfmpegProfileMutation,
   useQueueGetQueueStatusQuery,
+  useSchedulesDirectAddLineupMutation,
+  useSchedulesDirectAddStationMutation,
+  useSchedulesDirectGetAvailableCountriesQuery,
+  useSchedulesDirectGetChannelNamesQuery,
+  useSchedulesDirectGetHeadendsQuery,
+  useSchedulesDirectGetLineupPreviewChannelQuery,
+  useSchedulesDirectGetLineupsQuery,
+  useSchedulesDirectGetPagedStationChannelNameSelectionsQuery,
+  useSchedulesDirectGetSelectedStationIdsQuery,
+  useSchedulesDirectGetStationChannelMapsQuery,
+  useSchedulesDirectGetStationChannelNameFromDisplayNameQuery,
+  useSchedulesDirectGetStationChannelNamesQuery,
+  useSchedulesDirectGetStationChannelNamesSimpleQueryQuery,
+  useSchedulesDirectGetStationPreviewsQuery,
+  useSchedulesDirectGetUserStatusQuery,
+  useSchedulesDirectRemoveLineupMutation,
+  useSchedulesDirectRemoveStationMutation,
   useSettingsGetIsSystemReadyQuery,
   useSettingsGetSettingQuery,
   useSettingsGetSystemStatusQuery,
@@ -2212,6 +2341,12 @@ export const {
   useSettingsUpdateSettingMutation,
   useStatisticsGetClientStatisticsQuery,
   useStatisticsGetInputStatisticsQuery,
+  useStreamGetM3U8GetQuery,
+  useStreamGetM3U8HeadMutation,
+  useStreamGetVideoStreamGetQuery,
+  useStreamGetVideoStreamHeadMutation,
+  useStreamGetVideoStreamMp4GetQuery,
+  useStreamGetVideoStreamMp4HeadMutation,
   useStreamGroupsCreateStreamGroupMutation,
   useStreamGroupsDeleteStreamGroupMutation,
   useStreamGroupsGetStreamGroupQuery,
@@ -2271,5 +2406,6 @@ export const {
   useVideoStreamsSetVideoStreamTimeShiftsMutation,
   useVideoStreamsSetVideoStreamTimeShiftFromParametersMutation,
   useVideoStreamsGetVideoStreamInfoFromIdQuery,
-  useVideoStreamsGetVideoStreamInfoFromUrlQuery
+  useVideoStreamsGetVideoStreamInfoFromUrlQuery,
+  useVideoStreamsGetVideoStreamNamesAndUrlsQuery
 } = injectedRtkApi;

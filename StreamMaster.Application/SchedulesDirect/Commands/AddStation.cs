@@ -1,5 +1,5 @@
 ﻿using StreamMaster.Application.Settings.Commands;
-using StreamMaster.SchedulesDirect.Helpers;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Application.SchedulesDirect.Commands;
 
@@ -7,9 +7,11 @@ public record StationRequest(string StationId, string LineUp);
 
 public record AddStation(List<StationRequest> Requests) : IRequest<bool>;
 
-public class AddStationHandler(ILogger<AddStation> logger, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IMemoryCache memoryCache)
+public class AddStationHandler(ILogger<AddStation> logger, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intsettings)
 : IRequestHandler<AddStation, bool>
 {
+    private readonly SDSettings sdsettings = intsettings.CurrentValue;
+
     public async Task<bool> Handle(AddStation request, CancellationToken cancellationToken)
     {
         if (!request.Requests.Any())
@@ -17,8 +19,8 @@ public class AddStationHandler(ILogger<AddStation> logger, IJobStatusService job
             return true;
         }
 
-        Setting setting = memoryCache.GetSetting();
-        if (!setting.SDSettings.SDEnabled)
+
+        if (!sdsettings.SDEnabled)
         {
             return true;
         }
@@ -29,7 +31,7 @@ public class AddStationHandler(ILogger<AddStation> logger, IJobStatusService job
         {
             SDSettings = new SDSettingsRequest
             {
-                SDStationIds = setting.SDSettings.SDStationIds
+                SDStationIds = sdsettings.SDStationIds
             }
         };
 

@@ -1,9 +1,8 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-
-using SixLabors.ImageSharp;
+﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Configuration;
+using StreamMaster.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
@@ -11,9 +10,10 @@ using System.Text.RegularExpressions;
 
 
 namespace StreamMaster.SchedulesDirect;
-public class Lineups(ILogger<Lineups> logger, IMemoryCache memoryCache, IIconService iconService, ISchedulesDirectAPIService schedulesDirectAPI, ISettingsService settingsService, IEPGCache<Lineups> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : ILineups
+public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intsettings, IIconService iconService, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Lineups> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : ILineups
 {
     private List<KeyValuePair<MxfService, string[]>> StationLogosToDownload = [];
+    private readonly SDSettings sdsettings = intsettings.CurrentValue;
 
     public void ResetCache()
     {
@@ -29,15 +29,14 @@ public class Lineups(ILogger<Lineups> logger, IMemoryCache memoryCache, IIconSer
             return false;
         }
 
-        Setting setting = await settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
-        string preferredLogoStyle = string.IsNullOrEmpty(setting.SDSettings.PreferredLogoStyle) ? "DARK" : setting.SDSettings.PreferredLogoStyle;
-        string alternateLogoStyle = string.IsNullOrEmpty(setting.SDSettings.AlternateLogoStyle) ? "WHITE" : setting.SDSettings.AlternateLogoStyle;
+        string preferredLogoStyle = string.IsNullOrEmpty(sdsettings.PreferredLogoStyle) ? "DARK" : sdsettings.PreferredLogoStyle;
+        string alternateLogoStyle = string.IsNullOrEmpty(sdsettings.AlternateLogoStyle) ? "WHITE" : sdsettings.AlternateLogoStyle;
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
 
         foreach (SubscribedLineup clientLineup in clientLineups.Lineups)
         {
             // don't download station map if lineup not included
-            if (setting.SDSettings.SDStationIds.FirstOrDefault(a => a.Lineup == clientLineup.Lineup) == null)
+            if (sdsettings.SDStationIds.FirstOrDefault(a => a.Lineup == clientLineup.Lineup) == null)
             {
                 //logger.LogWarning($"Subscribed lineup {clientLineup.Lineup} has been EXCLUDED by user from download and processing.");
                 continue;
@@ -68,7 +67,7 @@ public class Lineups(ILogger<Lineups> logger, IMemoryCache memoryCache, IIconSer
             foreach (LineupStation station in lineupMap.Stations)
             {
                 // check if station should be downloaded and processed
-                if (station == null || setting.SDSettings.SDStationIds.FirstOrDefault(a => a.StationId == station.StationId) == null)
+                if (station == null || sdsettings.SDStationIds.FirstOrDefault(a => a.StationId == station.StationId) == null)
                 {
                     continue;
                 }
@@ -113,7 +112,7 @@ public class Lineups(ILogger<Lineups> logger, IMemoryCache memoryCache, IIconSer
                         string urlLogoPath = string.Empty;
 
                         string logoFilename = $"{station.Callsign}_c.png";
-                        string file = Path.Combine(BuildInfo.SDStationLogos, logoFilename);
+                        string file = Path.Combine(BuildInfo.SDStationLogosFolder, logoFilename);
                         if (File.Exists(file))
                         {
                             logoPath = file;
@@ -122,7 +121,7 @@ public class Lineups(ILogger<Lineups> logger, IMemoryCache memoryCache, IIconSer
                         else if (stationLogo != null)
                         {
                             logoFilename = $"{stationLogo.Md5}.png";
-                            logoPath = Path.Combine(BuildInfo.SDStationLogosCache, logoFilename);
+                            logoPath = Path.Combine(BuildInfo.SDStationLogosCacheFolder, logoFilename);
                             urlLogoPath = stationLogo.Url;
 
                             if (!File.Exists(logoPath))
@@ -436,8 +435,8 @@ public class Lineups(ILogger<Lineups> logger, IMemoryCache memoryCache, IIconSer
 
     private async Task<bool> DownloadStationLogos(CancellationToken cancellationToken)
     {
-        Setting setting = memoryCache.GetSetting();
-        if (!setting.SDSettings.SDEnabled)
+
+        if (!sdsettings.SDEnabled)
         {
             return false;
         }

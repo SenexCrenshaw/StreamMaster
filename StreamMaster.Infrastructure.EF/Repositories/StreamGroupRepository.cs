@@ -3,17 +3,18 @@ using AutoMapper.QueryableExtensions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Authentication;
+using StreamMaster.Domain.Configuration;
 
 using System.Web;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, IHttpContextAccessor httpContextAccessor) : RepositoryBase<StreamGroup>(repositoryContext, logger), IStreamGroupRepository
+public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intsettings, IHttpContextAccessor httpContextAccessor) : RepositoryBase<StreamGroup>(repositoryContext, logger), IStreamGroupRepository
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public PagedResponse<StreamGroupDto> CreateEmptyPagedResponse()
     {
         return PagedExtensions.CreateEmptyPagedResponse<StreamGroupDto>(Count());
@@ -32,20 +33,20 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
     private async Task SetStreamGroupsLinks(List<StreamGroupDto> streamGroupDtos)
     {
         string Url = httpContextAccessor.GetUrl();
-        Setting setting = memoryCache.GetSetting();
+
 
         foreach (StreamGroupDto sg in streamGroupDtos)
         {
-            SetStreamGroupLinks(sg, Url, setting);
+            SetStreamGroupLinks(sg, Url, settings);
         }
     }
 
     private async Task SetStreamGroupsLink(StreamGroupDto streamGroupDto)
     {
         string Url = httpContextAccessor.GetUrl();
-        Setting setting = memoryCache.GetSetting();
 
-        SetStreamGroupLinks(streamGroupDto, Url, setting);
+
+        SetStreamGroupLinks(streamGroupDto, Url, settings);
     }
 
     private void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url, Setting setting)
@@ -69,6 +70,13 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
     public async Task<StreamGroupDto?> GetStreamGroupById(int streamGroupId)
     {
+        if (streamGroupId == 0)
+        {
+            StreamGroupDto dto = new() { Id = 0, Name = "All" };
+            await SetStreamGroupsLink(dto);
+            return dto;
+        }
+
         StreamGroup? streamGroup = await FindByCondition(c => c.Id == streamGroupId)
                             .AsNoTracking()
                             .FirstOrDefaultAsync()
@@ -80,7 +88,6 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         }
 
         StreamGroupDto ret = mapper.Map<StreamGroupDto>(streamGroup);
-
         await SetStreamGroupsLink(ret);
         return ret;
     }
@@ -145,19 +152,26 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
             streamGroup.Name = request.Name;
         }
 
+        if (!string.IsNullOrEmpty(request.FFMPEGProfileId))
+        {
+            streamGroup.FFMPEGProfileId = request.FFMPEGProfileId;
+        }
+
         if (request.AutoSetChannelNumbers != null)
         {
             streamGroup.AutoSetChannelNumbers = (bool)request.AutoSetChannelNumbers;
         }
 
         Update(streamGroup);
-
+        await RepositoryContext.SaveChangesAsync();
         StreamGroupDto ret = mapper.Map<StreamGroupDto>(streamGroup);
 
         await SetStreamGroupsLink(ret);
 
         return ret;
     }
+
+
 
     public void UpdateStreamGroup(StreamGroup StreamGroup)
     {

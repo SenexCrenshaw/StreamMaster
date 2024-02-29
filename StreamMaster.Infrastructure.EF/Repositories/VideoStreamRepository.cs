@@ -4,8 +4,6 @@ using AutoMapper.QueryableExtensions;
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 
 using StreamMaster.Application.ChannelGroups.Queries;
 using StreamMaster.Application.EPG.Queries;
@@ -13,6 +11,7 @@ using StreamMaster.Application.Icons.Queries;
 using StreamMaster.Application.M3UFiles.Queries;
 using StreamMaster.Application.SchedulesDirect.Queries;
 using StreamMaster.Application.StreamGroupChannelGroups.Commands;
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Infrastructure.EF.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
@@ -24,8 +23,10 @@ using System.Linq.Dynamic.Core;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IIconService iconService, IRepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : RepositoryBase<VideoStream>(repositoryContext, intLogger), IVideoStreamRepository
+public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IIconService iconService, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intsettings, ISender sender) : RepositoryBase<VideoStream>(repositoryContext, intLogger), IVideoStreamRepository
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public PagedResponse<VideoStreamDto> CreateEmptyPagedResponse()
     {
         return PagedExtensions.CreateEmptyPagedResponse<VideoStreamDto>(Count());
@@ -400,7 +401,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
     private async Task<VideoStream> UpdateVideoStreamValues(VideoStream videoStream, VideoStreamBaseRequest request, CancellationToken cancellationToken)
     {
-        Setting setting = memoryCache.GetSetting();
+
 
         _ = MergeVideoStream(videoStream, request);
         bool epglogo = false;
@@ -411,9 +412,9 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
             await SetVideoStreamLogoFromEPG(videoStream, cancellationToken).ConfigureAwait(false);
         }
 
-        if (request.TimeShift != null && videoStream.TimeShift != request.TimeShift)
+        if (request.TimeShift.HasValue)
         {
-            videoStream.TimeShift = request.TimeShift;
+            videoStream.TimeShift = request.TimeShift.Value;
         }
 
         if (request.GroupTitle != null && videoStream.GroupTitle != request.GroupTitle)
@@ -435,7 +436,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
         {
             //string? test = _memoryCache.GetEPGChannelNameByDisplayName(request.Tvg_ID);
             videoStream.User_Tvg_ID = request.Tvg_ID;
-            if (setting.VideoStreamAlwaysUseEPGLogo && videoStream.User_Tvg_ID != null)
+            if (settings.VideoStreamAlwaysUseEPGLogo && videoStream.User_Tvg_ID != null)
             {
                 epglogo = await SetVideoStreamLogoFromEPG(videoStream, cancellationToken).ConfigureAwait(false);
             }
@@ -971,7 +972,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
         List<StationChannelName> stationChannelNames = await sender.Send(new GetStationChannelNames(), cancellationToken).ConfigureAwait(false);
         stationChannelNames = stationChannelNames.OrderBy(a => a.Channel).ToList();
-        Setting setting = memoryCache.GetSetting();
+
         List<string> tomatch = stationChannelNames.Select(a => a.DisplayName).Distinct().ToList();
         string tomatchString = string.Join(',', tomatch);
 
@@ -1044,7 +1045,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
                 videoStream.User_Tvg_ID = scoredMatches[0].Channel.Channel;
                 UpdateVideoStream(videoStream);
 
-                if (setting.VideoStreamAlwaysUseEPGLogo)
+                if (settings.VideoStreamAlwaysUseEPGLogo)
                 {
                     await SetVideoStreamLogoFromEPG(videoStream, token).ConfigureAwait(false);
                 }
@@ -1092,25 +1093,25 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
         return true;
     }
 
-    public async Task<List<VideoStreamDto>> SetVideoStreamTimeShiftsFromIds(List<string> ids, string timeShift, CancellationToken cancellationToken)
+    public async Task<List<VideoStreamDto>> SetVideoStreamTimeShiftsFromIds(List<string> ids, int timeShift, CancellationToken cancellationToken)
     {
         IQueryable<VideoStream> videoStreams = FindByCondition(a => ids.Contains(a.Id));
         return await SetVideoStreamTimeShifts(videoStreams, timeShift, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<List<VideoStreamDto>> SetVideoStreamTimeShiftFromParameters(VideoStreamParameters parameters, string timeShift, CancellationToken cancellationToken)
+    public async Task<List<VideoStreamDto>> SetVideoStreamTimeShiftFromParameters(VideoStreamParameters parameters, int timeShift, CancellationToken cancellationToken)
     {
         IQueryable<VideoStream> videoStreams = GetIQueryableForEntity(parameters);
         return await SetVideoStreamTimeShifts(videoStreams, timeShift, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<List<VideoStreamDto>> SetVideoStreamTimeShifts(IQueryable<VideoStream> videoStreams, string timeShift, CancellationToken cancellationToken)
+    public async Task<List<VideoStreamDto>> SetVideoStreamTimeShifts(IQueryable<VideoStream> videoStreams, int timeShift, CancellationToken cancellationToken)
     {
         List<VideoStreamDto> results = [];
 
         foreach (VideoStream? videoStream in videoStreams)
         {
-            videoStream.TimeShift = GetFirstFourOrBlank(timeShift);
+            videoStream.TimeShift = timeShift;// GetFirstFourOrBlank(timeShift);
             Update(videoStream);
             results.Add(mapper.Map<VideoStreamDto>(videoStream));
         }

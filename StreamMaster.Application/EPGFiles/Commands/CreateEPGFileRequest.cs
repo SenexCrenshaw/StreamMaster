@@ -7,7 +7,7 @@ using StreamMaster.Domain.Color;
 using System.Web;
 namespace StreamMaster.Application.EPGFiles.Commands;
 
-public record CreateEPGFileRequest(IFormFile? FormFile, string Name, string FileName, int EPGNumber, string? UrlSource, string? Color) : IRequest<EPGFileDto?> { }
+public record CreateEPGFileRequest(IFormFile? FormFile, string Name, string FileName, int EPGNumber, int? TimeShift, string? UrlSource, string? Color) : IRequest<EPGFileDto?> { }
 public class CreateEPGFileRequestValidator : AbstractValidator<CreateEPGFileRequest>
 {
     public CreateEPGFileRequestValidator()
@@ -104,7 +104,10 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, I
 
             epgFile.ChannelCount = tv.Channels != null ? tv.Channels.Count : 0;
             epgFile.ProgrammeCount = tv.Programs != null ? tv.Programs.Count : 0;
-
+            if (command.TimeShift.HasValue)
+            {
+                epgFile.TimeShift = command.TimeShift.Value;
+            }
 
             Repository.EPGFile.CreateEPGFile(epgFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);

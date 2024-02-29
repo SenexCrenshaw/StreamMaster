@@ -41,5 +41,7 @@ public interface IChannelStatus
     /// <summary>
     /// Gets or sets the name of the video stream associated with this channel.
     /// </summary>
-    VideoStreamDto CurrentVideoStream { get; set; }
+    VideoStreamDto? CurrentVideoStream { get; }
+
+    void SetCurrentVideoStream(VideoStreamDto? CurrentVideoStream);
 }

@@ -1,12 +1,11 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Cache;
+﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.Streams.Streams;
 namespace StreamMaster.Streams.Factories;
 
-public sealed class StreamHandlerFactory(IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, ILoggerFactory loggerFactory, IProxyFactory proxyFactory) : IStreamHandlerFactory
+public sealed class StreamHandlerFactory(IInputStatisticsManager inputStatisticsManager, IOptionsMonitor<Setting> intsettings, ILoggerFactory loggerFactory, IProxyFactory proxyFactory) : IStreamHandlerFactory
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public async Task<IStreamHandler?> CreateStreamHandlerAsync(VideoStreamDto videoStreamDto, string ChannelId, string ChannelName, int rank, CancellationToken cancellationToken)
     {
         (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(videoStreamDto.User_Url, videoStreamDto.User_Tvg_name, videoStreamDto.StreamingProxyType, cancellationToken).ConfigureAwait(false);
@@ -15,7 +14,7 @@ public sealed class StreamHandlerFactory(IInputStatisticsManager inputStatistics
             return null;
         }
 
-        StreamHandler streamHandler = new(videoStreamDto, processId, ChannelId, ChannelName, rank, memoryCache, loggerFactory, inputStatisticsManager);
+        StreamHandler streamHandler = new(videoStreamDto, processId, ChannelId, ChannelName, rank, intsettings, loggerFactory, inputStatisticsManager);
 
         _ = Task.Run(() => streamHandler.StartVideoStreamingAsync(stream), cancellationToken);
 
@@ -24,9 +23,9 @@ public sealed class StreamHandlerFactory(IInputStatisticsManager inputStatistics
 
     public async Task<IStreamHandler?> RestartStreamHandlerAsync(IStreamHandler StreamHandler)
     {
-        Setting setting = memoryCache.GetSetting();
 
-        if (StreamHandler.RestartCount > setting.MaxStreamReStart)
+
+        if (StreamHandler.RestartCount > settings.MaxStreamReStart)
         {
             return null;
         }

@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Services;
 
 using System.Diagnostics;
 using System.Security.Claims;
@@ -22,14 +20,15 @@ public class ApiKeyAuthenticationOptions : AuthenticationSchemeOptions
     public string Scheme => DefaultScheme;
 }
 
-public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options, ISettingsService settingsService, ILoggerFactory logger, UrlEncoder encoder) : AuthenticationHandler<ApiKeyAuthenticationOptions>(options, logger, encoder)
+public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options, IOptionsMonitor<Setting> intsettings, ILoggerFactory logger, UrlEncoder encoder) : AuthenticationHandler<ApiKeyAuthenticationOptions>(options, logger, encoder)
 {
     private readonly ILogger<ApiKeyAuthenticationHandler> _logger = logger.CreateLogger<ApiKeyAuthenticationHandler>();
+    private readonly Setting settings = intsettings.CurrentValue;
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        Setting setting = await settingsService.GetSettingsAsync();
-        bool needsAuth = setting.AuthenticationMethod != AuthenticationType.None;
+
+        bool needsAuth = settings.AuthenticationMethod != AuthenticationType.None;
 
         if (!needsAuth)
         {
@@ -46,7 +45,7 @@ public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOpt
             return AuthenticateResult.Success(ticket);
         }
 
-        string? providedApiKey = ParseApiKey(setting.ApiKey, setting.ServerKey);
+        string? providedApiKey = ParseApiKey(settings.ApiKey, settings.ServerKey);
 
         if (string.IsNullOrWhiteSpace(providedApiKey))
         {
@@ -54,7 +53,7 @@ public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOpt
             return AuthenticateResult.NoResult();
         }
 
-        if (setting.ApiKey == providedApiKey || setting.ServerKey == providedApiKey)
+        if (settings.ApiKey == providedApiKey || settings.ServerKey == providedApiKey)
         {
             List<Claim> claims =
             [

@@ -4,6 +4,6 @@ import createMultiSelectColumnConfigHook from './createMultiSelectColumnConfigHo
 export const useM3UFileNameColumnConfig = createMultiSelectColumnConfigHook({
   dataField: 'm3UFileName',
   headerTitle: 'File',
-  maxWidth: 6,
+  width: 6,
   queryHook: useM3UFilesGetM3UFileNamesQuery
 });

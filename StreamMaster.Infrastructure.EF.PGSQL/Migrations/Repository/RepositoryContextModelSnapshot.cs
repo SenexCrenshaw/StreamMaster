@@ -144,8 +144,8 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .IsRequired()
                         .HasColumnType("citext");
 
-                    b.Property<float>("TimeShift")
-                        .HasColumnType("real");
+                    b.Property<int>("TimeShift")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Url")
                         .HasColumnType("citext");
@@ -244,6 +244,10 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.Property<bool>("AutoSetChannelNumbers")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("FFMPEGProfileId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsReadOnly")
                         .HasColumnType("boolean");
@@ -360,9 +364,8 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.Property<int>("StreamingProxyType")
                         .HasColumnType("integer");
 
-                    b.Property<string>("TimeShift")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("TimeShift")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Tvg_ID")
                         .IsRequired()

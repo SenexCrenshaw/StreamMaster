@@ -1,7 +1,7 @@
 import React, { type CSSProperties } from 'react';
 import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
-import SettingsNameRegexAddDialog from './SettingsNameRegexAddDialog';
+import ProfileNameRegexAddDialog from './SettingsNameRegexAddDialog';
 import SettingsNameRegexDeleteDialog from './SettingsNameRegexDeleteDialog';
 
 interface RankedString {
@@ -63,7 +63,7 @@ const SettingsNameRegexDataSelector = (props: SettingsNameRegexDataSelectorPrope
           List of blacklist regexe to match on tvg-name. Stops at first match
         </span>
         <div className="m-0 p-0 flex gap-1">
-          <SettingsNameRegexAddDialog values={dataSource.map((a) => a.value)} />
+          <ProfileNameRegexAddDialog values={dataSource.map((a) => a.value)} />
         </div>
       </div>
 

@@ -5,6 +5,40 @@ group_name="nonRootGroup"
 
 . /env.sh
 
+# Function to check for any file ready to be restored in /config/DB/Restore
+check_files_ready_for_restore() {    
+    local file_found=0
+
+    # Check if the restore directory exists
+    if [ ! -d "$RESTORE_DIR" ]; then
+        echo "Restore path does not exist: $RESTORE_DIR"
+        return 1
+    fi
+
+    # Initialize an array to hold the files that match the pattern
+    local files=("$RESTORE_DIR"/backup_*.tar.gz)
+
+    # Check if files array is empty (meaning no files found)
+    if [ ${#files[@]} -eq 0 ] || [ ! -e "${files[0]}" ]; then
+        echo "No backup files found in $RESTORE_DIR."
+        return 1
+    fi
+
+    # Iterate over files matching the expected backup file pattern
+    for file in "${files[@]}"; do
+        # Check if file is not empty
+        if [ -s "$file" ]; then
+            echo "File is ready for restore: $(basename "$file")"
+            file_found=1
+            break # Break after finding the first ready file
+        else
+            echo "Found an empty backup file: $(basename "$file")"
+        fi
+    done
+
+    return $file_found
+}
+
 wait_for_postgres() {
     local host="$1"
     local port="$2"
@@ -51,6 +85,8 @@ mkdir -p /config/DB
 mkdir -p /config/Logs
 mkdir -p /config/PlayLists/EPG
 mkdir -p /config/PlayLists/M3U
+mkdir -p $BACKUP_DIR
+mkdir -p $RESTORE_DIR
 mkdir -p $PGDATA
 
 # Change ownership of the /app directory
@@ -61,6 +97,8 @@ if [ "$PUID" -ne 0 ] || [ "$PGID" -ne 0 ]; then
     find /config -mindepth 1 -maxdepth 1 -type d -not -path '/config/tv-logos' -not -path '/config/DB' -exec chown -R ${PUID:-0}:${PGID:-0} {} \;
 fi
 
+chmod 777 $BACKUP_DIR
+chmod 777 $RESTORE_DIR
 chown ${PUID:-0}:${PGID:-0} '/config/tv-logos' 2> /dev/null
 
 # Pretty printing the configuration
@@ -83,6 +121,21 @@ echo "  UID: $(id -u postgres) GID: $(id -g postgres)"
 
 if [ $POSTGRES_SET_PERMS -eq 1 ]; then
     chown -R postgres:postgres $PGDATA
+fi
+
+# Check if any file is ready for restore and run restore.sh if so
+if check_files_ready_for_restore; then
+    # Print a warning message about the restoration process
+    echo "WARNING: You are about to restore the database. This operation cannot be undone."
+    echo "The restoration process will begin in 10 seconds. Press Ctrl+C to cancel."
+
+    # Pause for 10 seconds to give the user a chance to cancel
+    sleep 10
+    
+    echo "Initiating restoration process..."
+    /usr/local/bin/restore.sh
+else
+    echo "No files ready for restoration."
 fi
 
 # Start the database

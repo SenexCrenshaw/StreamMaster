@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Domain.Extensions;
+﻿using StreamMaster.Domain.Configuration;
+
+namespace StreamMaster.Domain.Extensions;
 
 public static class ImageExtensions
 {

@@ -100,11 +100,11 @@ public static partial class CacheManagerExtensions
     private static readonly object _lock = new();
 
 
-    public static Setting GetSetting(this IMemoryCache cache)
-    {
-        _ = cache.TryGetValue(SettingConfig.Key, out Setting? settings);
-        return settings ?? new Setting();
-    }
+    //public static Setting GetSetting(this IMemoryCache cache)
+    //{
+    //    _ = cache.TryGetValue(SettingConfig.Key, out Setting? settings);
+    //    return settings ?? new Setting();
+    //    }
 
     public static List<ChannelGroupStreamCount> ChannelGroupStreamCounts(this IMemoryCache cache)
     {
@@ -153,11 +153,11 @@ public static partial class CacheManagerExtensions
     }
 
 
-    public static void SetSetting(this IMemoryCache cache, Setting setting)
-    {
-        lock (SettingConfig.Lock)
-        {
-            _ = cache.Set(SettingConfig.Key, setting, SettingConfig.CacheEntryOptions);
-        }
-    }
+    //public static void SetSetting(this IMemoryCache cache, Setting setting)
+    //{
+    //    lock (SettingConfig.Lock)
+    //    {
+    //        _ = cache.Set(SettingConfig.Key, setting, SettingConfig.CacheEntryOptions);
+    //    }
+    //}
 }

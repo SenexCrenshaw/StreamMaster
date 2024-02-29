@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.DependencyInjection;
-
-using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.EF.SQLite;
 
@@ -17,11 +16,6 @@ public class DesignTimeRepositoryContextFactory : IDesignTimeDbContextFactory<SQ
         _ = services.AddDbContext<SQLiteRepositoryContext>(options => options.UseSqlite(DbPath));
 
         SQLiteRepositoryContext? context = services.BuildServiceProvider().GetService<SQLiteRepositoryContext>();
-        if (context == null)
-        {
-            throw new ApplicationException("Couldnt create context");
-        }
-        FileUtil.CreateDirectory(DbPath);
-        return context;
+        return context == null ? throw new ApplicationException("Couldnt create context") : context;
     }
 }

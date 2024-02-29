@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-
-using StreamMaster.Domain.Common;
+﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 using StreamMaster.SchedulesDirect.Helpers;
 
@@ -9,8 +7,9 @@ using System.Collections.Specialized;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect.Images;
-public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> epgCache, IImageDownloadQueue imageDownloadQueue, IMemoryCache memoryCache, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService) : ISeriesImages
+public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> intsettings, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService) : ISeriesImages
 {
+    private readonly SDSettings sdsettings = intsettings.CurrentValue;
 
     private List<string> seriesImageQueue = [];
     private ConcurrentBag<ProgramMetadata> seriesImageResponses = [];
@@ -33,7 +32,7 @@ public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> 
         logger.LogInformation("Entering GetAllSeriesImages() for {totalObjects} series.", toProcess.Count);
         int refreshing = 0;
 
-        Setting setting = memoryCache.GetSetting();
+
 
         // scan through each series in the mxf
         foreach (MxfSeriesInfo series in toProcess)
@@ -51,7 +50,7 @@ public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> 
             bool refresh = false;
             if (int.TryParse(series.SeriesId, out int digits))
             {
-                refresh = (digits * setting.SDSettings.SDStationIds.Count % DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month)) + 1 == DateTime.Now.Day;
+                refresh = (digits * sdsettings.SDStationIds.Count % DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month)) + 1 == DateTime.Now.Day;
                 seriesId = $"SH{series.SeriesId}0000";
             }
             else
@@ -163,8 +162,8 @@ public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> 
 
     private void ProcessSeriesImageResponses()
     {
-        Setting setting = memoryCache.GetSetting();
-        string artworkSize = string.IsNullOrEmpty(setting.SDSettings.ArtworkSize) ? "Md" : setting.SDSettings.ArtworkSize;
+
+        string artworkSize = string.IsNullOrEmpty(sdsettings.ArtworkSize) ? "Md" : sdsettings.ArtworkSize;
         // process request response
         IEnumerable<ProgramMetadata> toProcess = seriesImageResponses.Where(a => !string.IsNullOrEmpty(a.ProgramId) && a.Data != null && a.Code == 0);
         logger.LogInformation("Processing {count} series image responses.", toProcess.Count());

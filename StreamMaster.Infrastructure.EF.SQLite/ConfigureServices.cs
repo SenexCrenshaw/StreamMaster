@@ -1,6 +1,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.EF.SQLite;
 

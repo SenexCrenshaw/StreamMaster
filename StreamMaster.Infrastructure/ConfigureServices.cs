@@ -1,12 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 
+using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure.Logger;
 using StreamMaster.Infrastructure.Middleware;
 using StreamMaster.Infrastructure.Services;
 using StreamMaster.Infrastructure.Services.Downloads;
 using StreamMaster.Infrastructure.Services.Frontend.Mappers;
-using StreamMaster.Infrastructure.Services.Settings;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Helpers;
 
@@ -19,8 +19,7 @@ public static class ConfigureServices
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
         _ = services.AddMemoryCache();
-
-        _ = services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<IVideoStreamService, VideoStreamService>();
         _ = services.AddSingleton<IIconService, IconService>();
         _ = services.AddSingleton<IImageDownloadQueue, ImageDownloadQueue>();
         _ = services.AddSingleton<ICacheableSpecification, CacheableSpecification>();
@@ -28,6 +27,7 @@ public static class ConfigureServices
         _ = services.AddSingleton<IEPGHelper, EPGHelper>();
         _ = services.AddSingleton<IIconHelper, IconHelper>();
         _ = services.AddSingleton<IFileLoggingServiceFactory, FileLoggingServiceFactory>();
+        _ = services.AddSingleton<IStreamTracker, StreamTracker>();
 
         // If needed, you can also pre-register specific instances
         _ = services.AddSingleton(provider =>
@@ -42,6 +42,8 @@ public static class ConfigureServices
             return factory.Create("FileLoggerDebug");
         });
 
+        services.AddSingleton<IAccessTracker, AccessTracker>();
+        services.AddHostedService<InactiveStreamMonitor>();
 
         _ = services.AddAutoMapper(
             Assembly.Load("StreamMaster.Domain"),

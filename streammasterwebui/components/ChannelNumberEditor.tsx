@@ -4,7 +4,7 @@ import { getTopToolOptions } from '@lib/common/common';
 import { UpdateVideoStreamRequest, VideoStreamDto } from '@lib/iptvApi';
 import { isDev } from '@lib/settings';
 import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
-import NumberEditorBodyTemplate from './NumberEditorBodyTemplate';
+import NumberEditorBodyTemplate from './inputs/NumberEditorBodyTemplate';
 
 interface ChannelNumberEditorProperties {
   readonly data: VideoStreamDto;

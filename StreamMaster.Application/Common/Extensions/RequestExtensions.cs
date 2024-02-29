@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-
-using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Application.Common.Extensions;
 

@@ -1,4 +1,4 @@
-﻿using StreamMaster.Domain.Common;
+﻿using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Application
 {

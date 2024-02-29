@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Application.Common.Models;
-
+using StreamMaster.Domain.Configuration;
 using System.Xml.Serialization;
 
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
@@ -12,9 +12,11 @@ namespace StreamMaster.Application.StreamGroups.Queries;
 public record GetStreamGroupCapability(int StreamGroupId) : IRequest<string>;
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupCapabilityHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupCapability> logger, IRepositoryWrapper Repository, IMemoryCache MemoryCache)
+public class GetStreamGroupCapabilityHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupCapability> logger, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intsettings)
     : IRequestHandler<GetStreamGroupCapability, string>
 {
+    private readonly Setting settings = intsettings.CurrentValue;
+
     public async Task<string> Handle(GetStreamGroupCapability request, CancellationToken cancellationToken)
     {
         if (request.StreamGroupId > 1)
@@ -25,9 +27,8 @@ public class GetStreamGroupCapabilityHandler(IHttpContextAccessor httpContextAcc
                 return "";
             }
         }
-        Setting setting = MemoryCache.GetSetting();
 
-        Capability capability = new(GetUrl(), $"{setting.DeviceID}-{request.StreamGroupId}");
+        Capability capability = new(GetUrl(), $"{settings.DeviceID}-{request.StreamGroupId}");
 
         using Utf8StringWriter textWriter = new();
         XmlSerializer serializer = new(typeof(Capability));

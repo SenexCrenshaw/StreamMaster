@@ -1,4 +1,4 @@
-﻿using StreamMaster.Domain.Common;
+﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 
 namespace StreamMaster.Domain.Enums;
@@ -56,7 +56,7 @@ public static class FileDefinitions
 
     public static FileDefinition SDStationLogos => new()
     {
-        DirectoryLocation = BuildInfo.SDStationLogos,
+        DirectoryLocation = BuildInfo.SDStationLogosFolder,
         FileExtension = ".png",
         SMFileType = SMFileTypes.SDStationLogo
     };
