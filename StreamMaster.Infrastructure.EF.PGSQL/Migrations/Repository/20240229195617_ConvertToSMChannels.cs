@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
+
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -9,8 +10,24 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
     public partial class ConvertToSMChannels : Migration
     {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
+        protected override async void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable("SystemKeyValues");
+
+            migrationBuilder.CreateTable(
+                name: "SystemKeyValues",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Key = table.Column<string>(type: "citext", nullable: false),
+                    Value = table.Column<string>(type: "citext", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SystemKeyValues", x => x.Id);
+                }).Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn);
+
+
             migrationBuilder.CreateTable(
                 name: "SMChannels",
                 columns: table => new
@@ -134,6 +151,15 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
             migrationBuilder.DropTable(
                 name: "SMChannels");
+
+            migrationBuilder.AlterColumn<Guid>(
+                name: "Id",
+                table: "SystemKeyValues",
+                type: "uuid",
+                nullable: false,
+                oldClrType: typeof(int),
+                oldType: "integer")
+                .OldAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn);
         }
     }
 }

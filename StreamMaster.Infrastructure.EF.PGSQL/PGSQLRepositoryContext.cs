@@ -18,19 +18,19 @@ public partial class PGSQLRepositoryContext(DbContextOptions<PGSQLRepositoryCont
             return;
         }
 
-        if (currentMigration == "20240229162620_ConvertToSMChannels")
+        if (currentMigration == "20240229195617_ConvertToSMChannels")
         {
-            if (!SystemKeyValues.Any(a => a.Key == "MigrateData_20240229162620_ConvertToSMChannels"))
+            if (!SystemKeyValues.Any(a => a.Key == "MigrateData_20240229195617_ConvertToSMChannels"))
             {
-                MigrateData_20240229162620_ConvertToSMChannels();
-                SystemKeyValues.Add(new SystemKeyValue { Key = "MigrateData_20240229162620_ConvertToSMChannels", Value = "1" });
+                MigrateData_20240229195617_ConvertToSMChannels();
+                SystemKeyValues.Add(new SystemKeyValue { Key = "MigrateData_20240229195617_ConvertToSMChannels", Value = "1" });
                 await SaveChangesAsync().ConfigureAwait(false);
             }
 
         }
     }
 
-    protected void MigrateData_20240229162620_ConvertToSMChannels()
+    protected void MigrateData_20240229195617_ConvertToSMChannels()
     {
         Console.WriteLine("Migrating videostream custom information to SMChannels");
         SMChannels.RemoveRange(SMChannels);
