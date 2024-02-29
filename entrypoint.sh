@@ -98,8 +98,8 @@ wait_for_postgres() {
 if [ "$PUID" -ne 0 ]; then
     if getent passwd $PUID > /dev/null 2>&1; then
         user_name=$(getent passwd $PUID | cut -d: -f1)
-    else
-        adduser --uid $PUID --disabled-password --gecos "nonRootUser" --force-badname "nonRootUser"
+    else        
+        useradd --uid $PUID -K UID_MIN=100 --comment "nonRootUser" --shell /bin/bash nonRootUser
     fi
 fi
 
@@ -110,8 +110,6 @@ if [ "$PGID" -ne 0 ]; then
         addgroup --gid $PGID --force-badname "nonRootGroup"
     fi
 fi
-
-if [ ]
 
 rm -rf /config/hls
 
@@ -190,10 +188,6 @@ else
     echo "Error: PostgreSQL is not ready."
     exit 1
 fi
-
-#PGADMIN_PLATFORM_TYPE=$PGADMIN_PLATFORM_TYPE PGADMIN_SETUP_EMAIL=$PGADMIN_SETUP_EMAIL PGADMIN_SETUP_PASSWORD=$PGADMIN_SETUP_PASSWORD /usr/pgadmin4/bin/setup-web.sh --yes
-#service postgresql start
-#service apache2 start
 
 # Execute the main application as the specified user
 if [ "$PUID" -ne 0 ] && [ "$PGID" -ne 0 ]; then
