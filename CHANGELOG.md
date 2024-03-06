@@ -1,3 +1,10 @@
+## [0.14.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.14.1...v0.14.2) (2024-03-06)
+
+
+### Bug Fixes
+
+* startup ([2659421](https://github.com/SenexCrenshaw/StreamMaster/commit/26594218b4e34a168d8de60176796d7823a4c9b1))
+
 ## [0.14.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.14.0...v0.14.1) (2024-02-29)
 
 
