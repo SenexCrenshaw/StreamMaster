@@ -44,8 +44,7 @@ rename_directory() {
     local dest="$2"
 
     # Check if the source directory exists
-    if [ ! -d "$src" ]; then
-        echo "Source directory does not exist: $src"
+    if [ ! -d "$src" ]; then       
         return 1
     fi
 
@@ -67,8 +66,6 @@ rename_directory() {
         return 1
     fi
 }
-
-
 
 wait_for_postgres() {
     local host="$1"
@@ -93,13 +90,12 @@ wait_for_postgres() {
     return 1
 }
 
-
 # Check if PUID or PGID is set to a non-root value
 if [ "$PUID" -ne 0 ]; then
     if getent passwd $PUID > /dev/null 2>&1; then
         user_name=$(getent passwd $PUID | cut -d: -f1)
     else        
-        useradd --uid $PUID -K UID_MIN=100 --comment "nonRootUser" --shell /bin/bash nonRootUser
+        useradd --uid $PUID -K UID_MIN=10 --comment "nonRootUser" --shell /bin/bash nonRootUser
     fi
 fi
 
@@ -112,17 +108,13 @@ if [ "$PGID" -ne 0 ]; then
 fi
 
 rm -rf /config/hls
-
 mkdir -p /config/Cache
 mkdir -p /config/DB
 mkdir -p /config/Logs
 mkdir -p /config/PlayLists/EPG
 mkdir -p /config/PlayLists/M3U
 mkdir -p /config/HLS
-mkdir -p $BACKUP_DIR
-mkdir -p $RESTORE_DIR
 mkdir -p $PGDATA
-
 
 rename_directory /config/settings /config/Settings
 rename_directory /config/backups /config/Backups
@@ -135,8 +127,6 @@ if [ "$PUID" -ne 0 ] || [ "$PGID" -ne 0 ]; then
     find /config -mindepth 1 -maxdepth 1 -type d -not -path '/config/tv-logos' -not -path '/config/DB' -exec chown -R ${PUID:-0}:${PGID:-0} {} \;
 fi
 
-chmod 777 $BACKUP_DIR
-chmod 777 $RESTORE_DIR
 chown ${PUID:-0}:${PGID:-0} '/config/tv-logos' 2> /dev/null
 
 # Pretty printing the configuration
@@ -188,6 +178,13 @@ else
     echo "Error: PostgreSQL is not ready."
     exit 1
 fi
+
+mkdir -p $BACKUP_DIR
+mkdir -p $RESTORE_DIR
+chown ${PUID:-0}:${PGID:-0} $BACKUP_DIR
+chown ${PUID:-0}:${PGID:-0} $RESTORE_DIR
+chmod 777 $BACKUP_DIR
+chmod 777 $RESTORE_DIR
 
 # Execute the main application as the specified user
 if [ "$PUID" -ne 0 ] && [ "$PGID" -ne 0 ]; then
