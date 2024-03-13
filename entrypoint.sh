@@ -95,7 +95,7 @@ if [ "$PUID" -ne 0 ]; then
     if getent passwd $PUID > /dev/null 2>&1; then
         user_name=$(getent passwd $PUID | cut -d: -f1)
     else        
-        useradd --uid $PUID -K UID_MIN=100 --comment "nonRootUser" --shell /bin/bash nonRootUser
+        useradd --uid $PUID -K UID_MIN=10 --comment "nonRootUser" --shell /bin/bash nonRootUser
     fi
 fi
 
