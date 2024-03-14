@@ -48,4 +48,5 @@ restore_files_and_dirs
 
 # Cleanup temporary files
 rm -rf "$temp_RESTORE_DIR"
+rm -f "$RESTORE_DIR/$backup_file" 
 echo "Restore process finished."
