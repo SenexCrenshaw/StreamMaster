@@ -126,11 +126,14 @@ public sealed partial class StreamHandler : IStreamHandler
         try
         {
 
-            _ = clientStreamerConfigs.TryAdd(streamerConfiguration.ClientId, streamerConfiguration);
-            inputStreamStatistics.IncrementClient();
-            ++ClientCount;
+            if (clientStreamerConfigs.TryAdd(streamerConfiguration.ClientId, streamerConfiguration))
+            {
+                inputStreamStatistics.IncrementClient();
+                ++ClientCount;
 
-            logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId} {name}", streamerConfiguration.ClientId, VideoStreamId, VideoStreamName);
+                logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId} {name}", streamerConfiguration.ClientId, VideoStreamId, VideoStreamName);
+            }
+
         }
         catch (Exception ex)
         {
