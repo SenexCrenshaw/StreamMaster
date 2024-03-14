@@ -5,6 +5,38 @@ group_name="nonRootGroup"
 
 . /env.sh
 
+moveFilesAndDeleteDir() {
+    local source_dir=$1
+    local destination_dir=$2
+
+    # Check if the source directory exists
+    if [ -d "$source_dir" ]; then
+        # Ensure the destination directory exists, create if not
+        if [ ! -d "$destination_dir" ]; then
+            mkdir -p "$destination_dir"
+        fi
+
+        # Move files from source to destination
+        mv "$source_dir"/* "$destination_dir"/ 2>/dev/null
+
+        # Check if move operation was successful
+        if [ $? -eq 0 ]; then
+            echo "Files moved successfully from $source_dir to $destination_dir."
+            # Remove the source directory
+            rmdir "$source_dir" 2>/dev/null
+            if [ $? -eq 0 ]; then
+                echo "Source directory $source_dir removed."
+            else
+                echo "Failed to remove source directory $source_dir. It might not be empty."
+            fi
+        else
+            echo "Failed to move files from $source_dir to $destination_dir."
+        fi
+    # else
+    #     echo "Source directory $source_dir does not exist."
+    fi
+}
+
 # Function to check for any file ready to be restored in /config/DB/Restore
 check_files_ready_for_restore() {    
     local file_found=0
@@ -143,9 +175,9 @@ echo "  DB Name: $POSTGRES_DB"
 echo "  Data Directory: $PGDATA"
 echo "  Set Perms: $POSTGRES_SET_PERMS"
 echo "OS:"
+echo "  User: ${PUID:-0} Group: ${PGID:-0}"
 echo "  User: postgres Group: postgres"
 echo "  UID: $(id -u postgres) GID: $(id -g postgres)"
-
 
 if [ $POSTGRES_SET_PERMS -eq 1 ]; then
     chown -R postgres:postgres $PGDATA
@@ -181,10 +213,22 @@ fi
 
 mkdir -p $BACKUP_DIR
 mkdir -p $RESTORE_DIR
+
+moveFilesAndDeleteDir /config/DB/Backup $BACKUP_DIR
+
 chown ${PUID:-0}:${PGID:-0} $BACKUP_DIR
 chown ${PUID:-0}:${PGID:-0} $RESTORE_DIR
 chmod 777 $BACKUP_DIR
 chmod 777 $RESTORE_DIR
+
+if  [ "$PGID" -ne 0 ]; then
+    if usermod -aG postgres "$username"; then
+        echo "User $username added to group postgres successfully."
+        chmod -R 775 $PGDATA
+    else
+        echo "Failed to add user $username to group postgres."
+    fi
+fi
 
 # Execute the main application as the specified user
 if [ "$PUID" -ne 0 ] && [ "$PGID" -ne 0 ]; then
