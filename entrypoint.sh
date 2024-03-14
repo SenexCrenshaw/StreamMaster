@@ -148,7 +148,6 @@ fi
 
 rm -rf /config/hls
 mkdir -p /config/Cache
-mkdir -p /config/DB
 mkdir -p /config/Logs
 mkdir -p /config/PlayLists/EPG
 mkdir -p /config/PlayLists/M3U
