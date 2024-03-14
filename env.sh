@@ -18,5 +18,5 @@ export POSTGRES_DB="${POSTGRES_DB:-$default_db}"
 export POSTGRES_SET_PERMS="${POSTGRES_SET_PERMS:-$default_set_perms}" 
 export BACKUP_VERSIONS_TO_KEEP="${BACKUP_VERSIONS_TO_KEEP:-$default_backup_versions_to_keep}" 
 export PATH=$PATH:/usr/lib/postgresql/15/bin
-export BACKUP_DIR=/config/Backup
+export BACKUP_DIR=/config/Backups
 export RESTORE_DIR=/config/Restore

@@ -16,26 +16,33 @@ moveFilesAndDeleteDir() {
             mkdir -p "$destination_dir"
         fi
 
-        # Move files from source to destination
-        mv "$source_dir"/* "$destination_dir"/ 2>/dev/null
+        # Check if there are any files or directories in source_dir
+        local files=("$source_dir"/*)
+        if [ -e "${files[0]}" ]; then
+            # Move files from source to destination
+            mv "$source_dir"/* "$destination_dir"/ 2>/dev/null
 
-        # Check if move operation was successful
-        if [ $? -eq 0 ]; then
-            echo "Files moved successfully from $source_dir to $destination_dir."
-            # Remove the source directory
-            rmdir "$source_dir" 2>/dev/null
+            # Check if move operation was successful
             if [ $? -eq 0 ]; then
-                echo "Source directory $source_dir removed."
+                echo "Files moved successfully from $source_dir to $destination_dir."
             else
-                echo "Failed to remove source directory $source_dir. It might not be empty."
+                echo "Failed to move files from $source_dir to $destination_dir."
+                return  # Exit the function if moving files failed
             fi
         else
-            echo "Failed to move files from $source_dir to $destination_dir."
+            echo "No files to move from $source_dir."
         fi
-    # else
-    #     echo "Source directory $source_dir does not exist."
+
+        # Remove the source directory
+        rmdir "$source_dir" 2>/dev/null
+        if [ $? -eq 0 ]; then
+            echo "Source directory $source_dir removed."
+        else
+            echo "Failed to remove source directory $source_dir. It might not be empty."
+        fi
     fi
 }
+
 
 # Function to check for any file ready to be restored in /config/DB/Restore
 check_files_ready_for_restore() {    
@@ -221,12 +228,12 @@ chown ${PUID:-0}:${PGID:-0} $RESTORE_DIR
 chmod 777 $BACKUP_DIR
 chmod 777 $RESTORE_DIR
 
-if  [ "$PGID" -ne 0 ]; then
-    if usermod -aG postgres "$username"; then
-        echo "User $username added to group postgres successfully."
+if  [ "$PUID" -ne 0 ]; then
+    if usermod -aG postgres "$user_name"; then
+        echo "User $user_name added to group postgres successfully."
         chmod -R 775 $PGDATA
     else
-        echo "Failed to add user $username to group postgres."
+        echo "Failed to add user $user_name to group postgres."
     fi
 fi
 
