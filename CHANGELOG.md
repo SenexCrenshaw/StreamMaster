@@ -1,3 +1,10 @@
+## [0.14.4](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.14.3...v0.14.4) (2024-03-14)
+
+
+### Bug Fixes
+
+* moved backup dir ([a583171](https://github.com/SenexCrenshaw/StreamMaster/commit/a583171c2ee954022c81ff69d9d64592d40d6fb5))
+
 ## [0.14.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.14.2...v0.14.3) (2024-03-14)
 
 
