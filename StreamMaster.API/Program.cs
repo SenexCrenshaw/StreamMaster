@@ -322,7 +322,6 @@ static string GetRoutePattern(Endpoint endpoint)
 }
 
 
-
 static X509Certificate2 ValidateSslCertificate(string cert, string password)
 {
     X509Certificate2 certificate;
