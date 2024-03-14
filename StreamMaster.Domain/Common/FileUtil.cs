@@ -243,7 +243,7 @@ public sealed class FileUtil
     public static async Task Backup(int? versionsToKeep = null)
     {
         Setting? setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingFileName);
-        if (setting.BackupEnabled == false)
+        if (setting == null || setting.BackupEnabled == false)
         {
             return;
         }
