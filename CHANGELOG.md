@@ -1,3 +1,11 @@
+## [0.14.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.14.2...v0.14.3) (2024-03-14)
+
+
+### Bug Fixes
+
+* allow UIDs >= 10 ([40dee89](https://github.com/SenexCrenshaw/StreamMaster/commit/40dee89c24040844fce42abbb7925fea3c3a1bf7))
+* client registration dupe ([9195fcb](https://github.com/SenexCrenshaw/StreamMaster/commit/9195fcb1be96174ea86d0e92908a428557caa768))
+
 ## [0.14.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.14.1...v0.14.2) (2024-03-06)
 
 
