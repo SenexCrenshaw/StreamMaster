@@ -16,20 +16,20 @@
     "react-intl": "^6.6.2",
     "react-pro-sidebar": "^1.1.0",
     "react-redux": "latest",
-    "react-router-dom": "^6.22.1",
+    "react-router-dom": "^6.22.3",
     "redux": "^4.2.1",
     "redux-persist": "^6.0.0",
     "use-debounce": "^9.0.4",
     "uuid": "^9.0.1",
-    "vite": "^5.1.4"
+    "vite": "^5.1.6"
   },
   "devDependencies": {
-    "@mui/icons-material": "^5.15.11",
+    "@mui/icons-material": "^5.15.13",
     "@rtk-query/codegen-openapi": "^1.0.0",
     "@types/chroma-js": "^2.4.4",
-    "@types/node": "^20.11.20",
-    "@types/react": "^18.2.60",
-    "@types/react-dom": "^18.2.19",
+    "@types/node": "^20.11.27",
+    "@types/react": "^18.2.65",
+    "@types/react-dom": "^18.2.22",
     "@types/react-redux": "^7.1.33",
     "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
@@ -44,13 +44,13 @@
     "eslint-plugin-etc": "^2.0.3",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jsx-a11y": "^6.8.0",
-    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react": "^7.34.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-sort-keys-fix": "^1.1.2",
-    "eslint-plugin-tailwindcss": "^3.14.3",
+    "eslint-plugin-tailwindcss": "^3.15.1",
     "eslint-plugin-unicorn": "^49.0.0",
     "eslint-plugin-unused-imports": "^3.1.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.2"
   },
   "eslintConfig": {
     "extends": [
