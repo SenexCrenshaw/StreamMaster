@@ -32,7 +32,6 @@ const ChannelLogoEditor = ({ data, enableEditMode }: StreamDataSelectorPropertie
 
   return (
     <IconSelector
-      className="p-inputtext-sm"
       enableEditMode={enableEditMode || enableEditMode === undefined}
       onChange={async (e: string) => {
         await onUpdateVideoStream(e);

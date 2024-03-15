@@ -60,7 +60,10 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
 
   const columns = useMemo(
     (): ColumnMeta[] => [
+      { field: 'logo', fieldType: 'image' },
       { field: 'name', filter: true, sortable: true },
+      { field: 'group', filter: true, sortable: true },
+      { field: 'm3UFileName', filter: true, sortable: true },
       {
         align: 'right',
         bodyTemplate: targetActionBodyTemplate,
@@ -96,7 +99,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
       defaultSortField="name"
       defaultSortOrder={1}
       emptyMessage="No Streams"
-      headerName={GetMessage('streams')}
+      headerName={GetMessage('m3ustreams').toUpperCase()}
       headerRightTemplate={rightHeaderTemplate}
       id={dataKey}
       onSelectionChange={(value, selectAll) => {
@@ -105,7 +108,6 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
         }
       }}
       queryFilter={useSmStreamsGetPagedSmStreamsQuery}
-      reorderable={reorderable}
       selectedItemsKey="selectSelectedSMStreamDtoItems"
       selectionMode="multiple"
       style={{ height: 'calc(100vh - 40px)' }}

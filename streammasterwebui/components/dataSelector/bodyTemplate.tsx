@@ -1,10 +1,9 @@
 import { camel2title } from '@lib/common/common';
-import { type SyntheticEvent } from 'react';
+import { StreamGroupDto } from '@lib/iptvApi';
 import { LinkButton } from '../buttons/LinkButton';
 import { type ColumnFieldType } from './DataSelectorTypes';
 import getRecord from './getRecord';
 import getRecordString from './getRecordString';
-import { StreamGroupDto } from '@lib/iptvApi';
 
 function epgSourceTemplate(tvgid: string) {
   return (
@@ -18,11 +17,10 @@ function imageBodyTemplate(data: object, fieldName: string, defaultIcon: string)
   const record = getRecordString(data, fieldName);
 
   return (
-    <div className="flex flex-nowrap justify-content-center align-items-center p-0">
+    <div className="iconselector flex align-contents-center w-full min-w-full">
       <img
         alt={record ?? 'Logo'}
         className="max-h-1rem max-w-full p-0"
-        onError={(e: SyntheticEvent<HTMLImageElement, Event>) => (e.currentTarget.src = e.currentTarget.src = +'/' + defaultIcon)}
         src={`${encodeURI(record ?? '')}`}
         style={{
           objectFit: 'contain'

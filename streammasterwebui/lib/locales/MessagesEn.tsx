@@ -68,7 +68,7 @@ const MessagesEn: messages_enType = {
   keywordSearch: 'Keyword Search',
 
   logPerformance: 'Log API Performance',
-
+  m3ustreams: 'M3U Streams',
   m3UFieldCUID: 'Enable M3U CUID',
   prettyEPG: 'Format EPG output',
 

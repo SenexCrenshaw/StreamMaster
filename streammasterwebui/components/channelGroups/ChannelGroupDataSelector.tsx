@@ -90,7 +90,7 @@ const ChannelGroupDataSelector = ({
       columns={columns}
       defaultSortField="name"
       emptyMessage="No Channel Groups"
-      headerName={name === undefined ? 'Playlist' : name}
+      headerName={name === undefined ? 'PLAYLIST' : name.toUpperCase()}
       headerRightTemplate={hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()}
       hideControls={hideControls}
       id={dataKey}
