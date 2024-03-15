@@ -1,4 +1,3 @@
-import '@lib/styles/MenuItemSM.css';
 import { Tooltip } from 'primereact/tooltip';
 import React from 'react';
 import { MenuItem } from 'react-pro-sidebar';

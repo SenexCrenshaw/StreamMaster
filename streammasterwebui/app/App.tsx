@@ -1,10 +1,6 @@
 import { useLocalStorage } from 'primereact/hooks';
 import { Navigate, Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
 
-import '@lib/styles/dataSelector.css';
-import '@lib/styles/index.css';
-import '@lib/styles/theme.css'; // theme
-
 import FilesEditor from '@features/filesEditor/FilesEditor';
 import LogViewer from '@features/logViewer/LogViewer';
 import PlayListEditor from '@features/playListEditor/PlayListEditor';
@@ -26,15 +22,19 @@ import {
 import MessagesEn from '@lib/locales/MessagesEn';
 import { CacheProvider } from '@lib/redux/CacheProvider';
 import { SignalRConnection } from '@lib/signalr/SignalRConnection';
-import 'primeflex/primeflex.css'; // css utility
-import 'primeicons/primeicons.css'; // icons
-import 'primereact/resources/primereact.css'; // core css
-import 'primereact/resources/themes/viva-dark/theme.css'; // theme
+
 import { IntlProvider } from 'react-intl';
 import { useStore } from 'react-redux';
 import { persistStore } from 'redux-persist';
 import { RootLayout } from './RootLayout';
 import TestPanel from './testing/TestPanel';
+
+// import '@lib/styles/dataSelector.css';
+import '@lib/styles/index.css';
+import '@lib/styles/streammaster-dark.css'; //theme
+// import '@lib/styles/theme.css'; // theme
+import 'primeicons/primeicons.css'; //icons
+import 'primereact/resources/primereact.min.css'; //core css
 
 // const albert_sans = Albert_Sans({
 //   subsets: ['latin'],
@@ -84,15 +84,17 @@ const App = (): JSX.Element => {
   useIconsGetIconsQuery();
 
   return (
-    <IntlProvider locale={locale} messages={messages}>
-      <SignalRConnection>
-        <CacheProvider<IconFileDto>>
-          <CacheProvider<StationChannelName>>
-            <RouterProvider router={router} />
+    <div className="App p-fluid">
+      <IntlProvider locale={locale} messages={messages}>
+        <SignalRConnection>
+          <CacheProvider<IconFileDto>>
+            <CacheProvider<StationChannelName>>
+              <RouterProvider router={router} />
+            </CacheProvider>
           </CacheProvider>
-        </CacheProvider>
-      </SignalRConnection>
-    </IntlProvider>
+        </SignalRConnection>
+      </IntlProvider>
+    </div>
   );
 };
 

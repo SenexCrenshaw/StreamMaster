@@ -3,7 +3,7 @@ import { type ColumnEditorOptions, type ColumnEvent, type ColumnFilterElementTem
 import { type DataTableFilterMeta } from 'primereact/datatable';
 import { type CSSProperties } from 'react';
 
-export type ColumnFieldType = 'blank' | 'deleted' | 'epg' | 'epglink' | 'image' | 'isHidden' | 'm3ulink' | 'streams' | 'url' | undefined;
+export type ColumnFieldType = 'blank' | 'deleted' | 'epg' | 'epglink' | 'image' | 'isHidden' | 'm3ulink' | 'streams' | 'url' | 'actions' | undefined;
 export type ColumnAlign = 'center' | 'left' | 'right' | null | undefined;
 export type DataSelectorSelectionMode = 'checkbox' | 'multiple' | 'multipleNoCheckBox' | 'multipleNoRowCheckBox' | 'selectable' | 'single' | undefined;
 
@@ -86,4 +86,6 @@ export interface ColumnMeta {
    */
   style?: CSSProperties;
   width?: string;
+  removed?: boolean;
+  removable?: boolean;
 }

@@ -1,7 +1,7 @@
-:root {
+/* :root {
   --font-family: 'Albert Sans', sans-serif !important;
   font-family: 'Albert Sans', sans-serif !important;
-}
+} */
 
 body {
   background: var(--surface-ground);
@@ -14,11 +14,6 @@ body {
 
 h2 {
   color: #165a72;
-}
-
-.menu1 {
-  margin-bottom: 40px;
-  margin-top: 20px;
 }
 
 .card {

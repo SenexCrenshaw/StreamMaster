@@ -1,0 +1,99 @@
+//core
+.p-togglebutton {
+    position: relative;
+    display: inline-flex;
+    user-select: none;
+    vertical-align: bottom;
+}
+
+.p-togglebutton-input {
+    cursor: pointer;
+}
+
+.p-togglebutton .p-button {
+    flex: 1 1 auto;
+}
+//theme
+.p-togglebutton {
+    .p-togglebutton-input {
+        appearance: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        opacity: 0;
+        z-index: 1;
+        outline: 0 none;
+        border: $toggleButtonBorder;
+        border-radius: $borderRadius;
+    }
+
+    .p-button {
+        background: $toggleButtonBg;
+        border: $toggleButtonBorder;
+        color: $toggleButtonTextColor;
+        transition: $formElementTransition;
+        outline-color: transparent;
+
+        .p-button-icon-left,
+        .p-button-icon-right {
+            color: $toggleButtonIconColor;
+        }
+    }
+
+    &.p-highlight {
+        .p-button {
+            background: $toggleButtonActiveBg;
+            border-color: $toggleButtonActiveBorderColor;
+            color: $toggleButtonTextActiveColor;
+
+            .p-button-icon-left,
+            .p-button-icon-right {
+                color: $toggleButtonIconActiveColor;
+            }
+        }
+    }
+
+    &:not(.p-disabled) {
+        &:has(.p-togglebutton-input:hover) {
+            &:not(.p-highlight) {
+                .p-button {
+                    background: $toggleButtonHoverBg;
+                    border-color: $toggleButtonHoverBorderColor;
+                    color: $toggleButtonTextHoverColor;
+
+                    .p-button-icon-left,
+                    .p-button-icon-right {
+                        color: $toggleButtonIconHoverColor;
+                    }
+                }
+            }
+
+            &.p-highlight {
+                .p-button {
+                    background: $toggleButtonActiveHoverBg;
+                    border-color: $toggleButtonActiveHoverBorderColor;
+                    color: $toggleButtonTextActiveHoverColor;
+
+                    .p-button-icon-left,
+                    .p-button-icon-right {
+                        color: $toggleButtonIconActiveHoverColor;
+                    }
+                }
+            }
+        }
+
+        &:has(.p-togglebutton-input:focus-visible) {
+            .p-button {
+                @include focused-input();
+            }
+        }
+    }
+
+    &.p-invalid > .p-button {
+        @include invalid-input();
+    }
+}

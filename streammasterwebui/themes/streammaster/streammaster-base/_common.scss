@@ -1,0 +1,25 @@
+.sm-text-color {
+    color: $streamMasterColor;
+}
+
+.multiselectcolumn {
+    width: 10rem;
+}
+
+.p-multiselect-label-container {
+    font-size: var(--common-font-size) !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: start !important;
+}
+
+.p-multiselect-label,
+.p-accordion .p-accordion-header .p-accordion-header-link {
+    padding-left: $datatable-padding !important;
+    padding-top: $datatable-padding !important;
+    padding-bottom: $datatable-padding !important;
+    font-size: .875rem;
+}

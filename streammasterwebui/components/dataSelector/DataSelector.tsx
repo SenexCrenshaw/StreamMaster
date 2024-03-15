@@ -4,7 +4,7 @@ import useSettings from '@lib/useSettings';
 import { areArraysEqual } from '@mui/base';
 import { skipToken } from '@reduxjs/toolkit/dist/query/react';
 import { Button } from 'primereact/button';
-import { Column } from 'primereact/column';
+import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import {
   DataTable,
   type DataTableExpandedRows,
@@ -31,7 +31,9 @@ import getRecordString from './getRecordString';
 import isPagedTableDto from './isPagedTableDto';
 import useDataSelectorState from './useDataSelectorState';
 
+import StringTracker from '@components/inputs/StringTracker';
 import { PagedResponseDto } from '@lib/common/dataTypes';
+import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import BanButton from '../buttons/BanButton';
 import ResetButton from '../buttons/ResetButton';
 import { TriSelectShowSelection } from '../selectors/TriSelectShowSelection';
@@ -40,6 +42,16 @@ import { useSetQueryFilter } from './useSetQueryFilter';
 const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => {
   const debug = false;
   const { state, setters } = useDataSelectorState<T>(props.id, props.selectedItemsKey);
+
+  useEffect(() => {
+    if (props.columns === undefined || state.visibleColumns !== undefined || state.visibleColumns === null) {
+      return;
+    }
+    if (setters.setVisibleColumns === null) {
+      console.log('setters.setVisibleColumns is null');
+    }
+    setters.setVisibleColumns(props.columns);
+  }, [props.columns, setters, state.visibleColumns]);
 
   useEffect(() => {
     if (!props.defaultSortField) {
@@ -181,7 +193,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
         setters.setPagedInformation(data);
       }
     }
-  }, [data, props.id, setters, state.dataSource, state.selectAll]);
+  }, [data, debug, props.id, setters, state.dataSource, state.selectAll]);
 
   useEffect(() => {
     if (!props.dataSource) {
@@ -369,13 +381,13 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
     return align;
   }, []);
 
-  const getFilter = useCallback((filter: boolean | undefined, fieldType: ColumnFieldType): boolean | undefined => {
-    if (fieldType === 'image') {
-      return false;
-    }
+  // const getFilter = useCallback((filter: boolean | undefined, fieldType: ColumnFieldType): boolean | undefined => {
+  //   if (fieldType === 'image') {
+  //     return false;
+  //   }
 
-    return filter;
-  }, []);
+  //   return filter;
+  // }, []);
 
   const getStyle = useCallback((col: ColumnMeta): CSSProperties | undefined => {
     if (col.fieldType === 'blank') {
@@ -548,7 +560,6 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
     if (newSelectAll === true) {
       setters.setSelectSelectedItems([]);
     }
-    // props.onSelectAllChange?.(newSelectAll);
 
     if (newSelectAll && state.dataSource) {
       onSetSelection(state.dataSource, true);
@@ -556,6 +567,135 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
       onSetSelection([]);
     }
   };
+
+  const getSortIcon = useCallback(
+    (field: string) => {
+      if (state.sortField !== field || state.sortOrder === 0) {
+        return 'pi pi-sort-alt';
+      }
+
+      return state.sortOrder === 1 ? 'pi pi-sort-amount-up' : 'pi pi-sort-amount-down';
+    },
+    [state.sortField, state.sortOrder]
+  );
+
+  const getHeaderFromField = useCallback(
+    (field: string): string => {
+      let col = props.columns.find((column) => column.field === field);
+      let header = '';
+
+      if (col) {
+        header = getHeader(col.field, col.header, col.fieldType) as string;
+      }
+      return header;
+    },
+    [props.columns]
+  );
+
+  const visibleColumnsTemplate = useCallback(
+    (option: ColumnMeta) => {
+      if (option === undefined || option === undefined) {
+        return <div />;
+      }
+      const header = getHeaderFromField(option.field);
+      return <div>{header}</div>;
+    },
+    [getHeaderFromField]
+  );
+
+  const onColumnToggle = useCallback(
+    (selectedColumns: ColumnMeta[]) => {
+      // let selectedColumns = event.value as ColumnMeta[];
+      const newData = [...props.columns];
+
+      newData
+        .filter((col) => col.removable === true)
+        .forEach((col) => {
+          col.removed = true;
+        });
+
+      if (selectedColumns !== undefined) {
+        selectedColumns.forEach((col) => {
+          let propscol = newData.find((column) => column.field === col.field);
+          if (propscol) {
+            console.log('Setting ' + propscol.field + ' false');
+            propscol.removed = false;
+          }
+        });
+      }
+
+      setters.setVisibleColumns(newData);
+    },
+    [props.columns, setters]
+  );
+
+  const rowFilterTemplate = useCallback(
+    (options: ColumnFilterElementTemplateOptions) => {
+      let col = props.columns.find((column) => column.field === options.field);
+      let header = '';
+
+      if (col) {
+        header = getHeader(col.field, col.header, col.fieldType) as string;
+      } else {
+        return <div />;
+      }
+
+      if (col.fieldType === 'actions') {
+        let selectedCols = [] as ColumnMeta[];
+
+        let cols = props.columns.filter((col) => col.removable === true); //.map((col) => col.field);
+        if (cols.length > 0 && state.visibleColumns !== null && state.visibleColumns !== undefined) {
+          selectedCols = state.visibleColumns.filter((col) => col.removable === true && col.removed !== true);
+        } else {
+          return <div />;
+        }
+
+        return (
+          <MultiSelect
+            className="multiselectcolumn"
+            value={selectedCols}
+            options={cols}
+            optionLabel="field"
+            itemTemplate={visibleColumnsTemplate}
+            selectedItemTemplate={visibleColumnsTemplate}
+            maxSelectedLabels={0}
+            onChange={(e: MultiSelectChangeEvent) => {
+              onColumnToggle(e.value);
+            }}
+          />
+        );
+      }
+
+      if (col.filter !== true) {
+        return <div>{header}</div>;
+      }
+
+      const stringTrackerkey = props.id + '-' + options.field;
+
+      return (
+        <div className="flex justify-content-end">
+          <StringTracker
+            id={stringTrackerkey}
+            onChange={async (e) => {
+              options.filterApplyCallback(e);
+            }}
+            placeholder={header ?? ''}
+            value={options.value}
+          />
+
+          <Button
+            className="p-button-text p-0 m-0"
+            onClick={() => {
+              setters.setSortField(options.field);
+              setters.setSortOrder(state.sortOrder === 1 ? -1 : 1);
+            }}
+            icon={getSortIcon(options.field)}
+          />
+        </div>
+      );
+    },
+    [getSortIcon, onColumnToggle, props.columns, props.id, setters, state.sortOrder, state.visibleColumns, visibleColumnsTemplate]
+  );
 
   return (
     <div className="dataselector flex w-full min-w-full  justify-content-start align-items-center">
@@ -615,11 +755,15 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
           sortOrder={props.reorderable ? 0 : state.sortOrder}
           stateKey={`${props.id}-table`}
           showSelectAll={props.disableSelectAll !== true}
-          stateStorage={props.enableState !== undefined && props.enableState !== true ? 'custom' : 'local'}
+          stateStorage="custom"
+          // stateStorage={props.enableState !== undefined && props.enableState !== true ? 'custom' : 'local'}
           stripedRows
           style={props.style}
           totalRecords={state.pagedInformation ? state.pagedInformation.totalItemCount : undefined}
           value={state.dataSource}
+          // pt={{
+          //   headerRow: { style: { display: 'none' } }
+          // }}
         >
           <Column
             className="max-w-2rem p-0 justify-content-center align-items-center"
@@ -632,48 +776,59 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
           <Column
             align="center"
             alignHeader="center"
-            className={`justify-content-center align-items-center multiselect ${props.selectionMode}`}
-            header={multiselectHeader}
-            headerStyle={{ padding: '0px', width: '3rem' }}
+            className={`flex multiselectcolumn justify-content-left align-items-center border-1 ${props.selectionMode}`}
+            filter
+            filterElement={multiselectHeader}
+            // header={multiselectHeader}
+            // headerStyle={{ padding: '0px', width: '3rem' }}
             hidden={
               !props.showSelections &&
               props.selectionMode !== 'multiple' &&
               props.selectionMode !== 'checkbox' &&
               props.selectionMode !== 'multipleNoRowCheckBox'
             }
+            showFilterMenu={false}
+            showFilterOperator={false}
             resizeable={false}
             selectionMode="multiple"
           />
-          {props.columns.map((col) => (
-            <Column
-              align={getAlign(col.align, col.fieldType)}
-              alignHeader={getAlignHeader(col.align, col.fieldType)}
-              className={col.className}
-              body={(e) => (col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, setting.defaultIcon, col.camelize))}
-              editor={col.editor}
-              field={col.field}
-              filter={getFilter(col.filter, col.fieldType)}
-              filterElement={col.filterElement}
-              // filterMenuStyle={{ width: '14rem' }}
-              filterPlaceholder={col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)}
-              header={getHeader(col.field, col.header, col.fieldType)}
-              hidden={
-                col.isHidden === true || (props.hideControls === true && getHeader(col.field, col.header, col.fieldType) === 'Actions') ? true : undefined
-              }
-              key={col.fieldType ? col.field + col.fieldType : col.field}
-              onCellEditComplete={col.handleOnCellEditComplete}
-              resizeable={col.resizeable}
-              showAddButton
-              showApplyButton
-              showClearButton
-              showFilterMatchModes
-              showFilterMenu={col.filterElement === undefined}
-              showFilterMenuOptions
-              showFilterOperator
-              sortable={props.reorderable ? false : col.sortable}
-              style={getStyle(col)}
-            />
-          ))}
+          {state.visibleColumns &&
+            state.visibleColumns
+              .filter((col) => col.removed !== true)
+              .map((col) => (
+                <Column
+                  align={getAlign(col.align, col.fieldType)}
+                  alignHeader={getAlignHeader(col.align, col.fieldType)}
+                  className={col.className}
+                  body={(e) => (col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, setting.defaultIcon, col.camelize))}
+                  editor={col.editor}
+                  field={col.field}
+                  filter //={getFilter(col.filter, col.fieldType)}
+                  filterElement={col.filterElement ?? rowFilterTemplate}
+                  // filterMenuStyle={{ width: '14rem' }}
+                  filterPlaceholder={col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)}
+                  // header={getHeader(col.field, col.header, col.fieldType)}
+                  hidden={
+                    col.isHidden === true || (props.hideControls === true && getHeader(col.field, col.header, col.fieldType) === 'Actions') ? true : undefined
+                  }
+                  key={col.fieldType ? col.field + col.fieldType : col.field}
+                  onCellEditComplete={col.handleOnCellEditComplete}
+                  resizeable={col.resizeable}
+                  showAddButton
+                  showApplyButton
+                  showClearButton
+                  showFilterMatchModes
+                  showFilterMenu={col.filterElement === undefined && col.filter === true}
+                  showFilterMenuOptions
+                  showFilterOperator
+                  // sortable={props.reorderable ? false : col.sortable}
+                  style={getStyle(col)}
+                  pt={{
+                    headerCell: { style: { width: '25%' } },
+                    headerTitle: { style: { width: '25%' } }
+                  }}
+                />
+              ))}
         </DataTable>
       </div>
     </div>

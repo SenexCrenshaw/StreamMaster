@@ -12,10 +12,11 @@ export interface StringEditorBodyTemplateProperties {
   readonly disableDebounce?: boolean;
   readonly debounceMs?: number;
   readonly isLoading?: boolean;
-  readonly onChange: (value: string) => void;
+  readonly onChange: (value: string | undefined) => void;
   readonly onClick?: () => void;
   readonly placeholder?: string;
   readonly resetValue?: string | undefined;
+  readonly showSave?: boolean;
   readonly tooltip?: string | undefined;
   readonly tooltipOptions?: TooltipOptions | undefined;
   readonly value: string | undefined;
@@ -25,8 +26,8 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const overlayReference = useRef<HTMLDivElement | null>(null);
 
-  const [originalValue, setOriginalValue] = useState<string>('');
-  const [inputValue, setInputValue] = useState<string>('');
+  const [originalValue, setOriginalValue] = useState<string | undefined>('');
+  const [inputValue, setInputValue] = useState<string | undefined>('');
 
   const debounced = useDebouncedCallback(
     useCallback(
@@ -96,6 +97,9 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
     if (!props.isLoading && props.value !== null && props.value !== undefined) {
       setInputValue(props.value);
       setOriginalValue(props.value);
+    } else {
+      setInputValue('');
+      setOriginalValue('');
     }
   }, [props.value, props.isLoading, setInputValue]);
 
@@ -118,7 +122,7 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
           tooltipOptions={getTopToolOptions}
         />
       )}
-      {originalValue !== inputValue && <i className="absolute right-0 pt-1 pi pi-save pr-2 text-500" />}
+      {props.showSave !== false && originalValue !== inputValue && <i className="absolute right-0 pt-1 pi pi-save pr-2 text-500" />}
       <InputText
         autoFocus={props.autofocus}
         className="p-0 flex justify-content-start w-full h-full"

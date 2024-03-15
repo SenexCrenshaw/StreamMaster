@@ -13,7 +13,8 @@
     "sourceType": "module",
     "project": "./tsconfig.json"
   },
-  "plugins": ["unused-imports"],
+  "plugins": ["unused-imports", "html"],
+  "ignorePatterns": [ "*.css", "node_modules/", "dist/"],
   "rules": {
     "no-lone-blocks": "off",
     "unused-imports/no-unused-imports-ts": "error",

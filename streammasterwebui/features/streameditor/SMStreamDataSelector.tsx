@@ -62,15 +62,15 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
     (): ColumnMeta[] => [
       { field: 'logo', fieldType: 'image' },
       { field: 'name', filter: true, sortable: true },
-      { field: 'group', filter: true, sortable: true },
-      { field: 'm3UFileName', filter: true, sortable: true },
+      { field: 'group', filter: true, removable: true, sortable: true },
+      { field: 'm3UFileName', filter: true, header: 'M3U', removable: true, sortable: true },
       {
         align: 'right',
         bodyTemplate: targetActionBodyTemplate,
         field: 'isHidden',
-        fieldType: 'isHidden',
+        fieldType: 'actions',
         header: 'Actions',
-        width: '8rem'
+        width: '12rem'
       }
     ],
     [targetActionBodyTemplate]

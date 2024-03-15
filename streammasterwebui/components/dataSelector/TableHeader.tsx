@@ -21,15 +21,15 @@ const TableHeader: React.FC<TableHeaderProperties> = ({
   exportCSV,
   dataSelectorProps
 }) => (
-  <div className="flex grid flex-row w-full flex-wrap grid align-items-center w-full col-12 h-full p-0 debug">
-    <div className="flex col-2 h-full text-sm align-items-center p-0 debug">
+  <div className="flex grid flex-row flex-wrap align-items-center justify-content-between debug">
+    <div className="col-2 text-sm debug ">
       <SMTextColor text={headerName} />
       <div hidden={dataSelectorProps.selectionMode !== 'selectable'}>
         <MultiSelectCheckbox onMultiSelectClick={onMultiSelectClick} rowClick={rowClick} setRowClick={setRowClick} />
       </div>
     </div>
-    <div className="flex col-10 h-full align-items-center p-0 px-2 m-0 debug">
-      <div className="grid mt-2 flex flex-nowrap flex-row justify-content-between align-items-center col-12 px-0">
+    <div className="col-10 debug p-0">
+      <div className="flex flex-nowrap flex-row justify-content-between">
         <HeaderLeft props={dataSelectorProps} />
         {dataSelectorProps.headerRightTemplate}
         {enableExport && <ExportComponent exportCSV={exportCSV} />}

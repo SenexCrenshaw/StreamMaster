@@ -1,0 +1,46 @@
+.p-datatable {
+
+    .p-datatable-tbody {
+        >tr {
+            padding-top: 0rem;
+            padding-bottom: 0rem;
+
+            >td {
+                padding: $datatable-padding 0;
+                height: $datatable-row-height;
+                max-height: $datatable-row-height;
+            }
+        }
+    }
+
+    .p-datatable-thead {
+        >tr:nth-child(1) {
+            display: none;
+        }
+    }
+
+    .p-button.p-button-icon-only {
+        padding: 0.5rem 0;
+        width: $input-height;
+    }
+
+    .p-button.p-button-icon-only.p-button-rounded {
+        height: $input-height;
+        padding: 0rem 0;
+    }
+
+    .p-column-filter-clear-button.p-link.p-hidden-space {
+        display: none;
+    }
+
+    font-size: $common-font-size;
+}
+
+.p-filter-column {
+    padding-top: $datatable-padding !important;
+    padding-bottom: $datatable-padding !important;
+
+    .p-inputtext {
+        @include datatable-text-style;
+    }
+}
