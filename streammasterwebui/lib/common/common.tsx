@@ -48,6 +48,12 @@ export const getLeftToolOptions = {
   position: 'left',
   showDelay: 400
 } as TooltipOptions;
+export const getRightToolOptions = {
+  autoHide: true,
+  hideDelay: 100,
+  position: 'right',
+  showDelay: 400
+} as TooltipOptions;
 <FormattedMessage defaultMessage="Stream Master" id="app.title" />;
 
 export function compareStationPreviews(source: StationPreview[], changes: StationPreview[]): { added: StationPreview[]; removed: StationPreview[] } {

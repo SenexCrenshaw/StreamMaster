@@ -1,4 +1,5 @@
 import MenuItemSM from '@components/MenuItemSM';
+import SunButton from '@components/buttons/SunButton';
 import {
   FilesEditorIcon,
   HelpIcon,
@@ -14,16 +15,19 @@ import {
   VideoPlayerIcon
 } from '@lib/common/icons';
 import { GetIsSystemReady } from '@lib/smAPI/Settings/SettingsGetAPI';
+
 import useSettings from '@lib/useSettings';
+import PrimeReact, { PrimeReactContext } from 'primereact/api';
 import { useLocalStorage } from 'primereact/hooks';
 import { Tooltip } from 'primereact/tooltip';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { Menu, MenuItem, Sidebar, sidebarClasses } from 'react-pro-sidebar';
-
 export const RootSideBar = () => {
+  const [dark, setDark] = useLocalStorage(true, 'dark');
+  const context = useContext(PrimeReactContext);
+
   const [collapsed, setCollapsed] = useLocalStorage<boolean>(true, 'app-menu-collapsed');
   const [isReady, setIsReady] = useState(false);
-
   const settings = useSettings();
 
   useEffect(() => {
@@ -47,6 +51,19 @@ export const RootSideBar = () => {
     [setCollapsed]
   );
 
+  const toggleColorScheme = () => {
+    const newTheme = !dark ? 'dark' : 'light';
+    const theme = dark ? 'dark' : 'light';
+
+    const onThemeChanged = () => setDark(!dark);
+
+    if (context?.changeTheme) {
+      context.changeTheme(theme, newTheme, 'theme-link', onThemeChanged);
+    } else if (PrimeReact?.changeTheme) {
+      PrimeReact.changeTheme(theme, newTheme, 'theme-link', onThemeChanged);
+    }
+  };
+
   return (
     <Sidebar
       className="app sidebar max-h-screen justify-content-start align-items-start"
@@ -54,7 +71,7 @@ export const RootSideBar = () => {
       collapsedWidth="52px"
       rootStyles={{
         [`.${sidebarClasses.container}`]: {
-          backgroundColor: 'var(--mask-bg)'
+          backgroundColor: 'var(--surface-a)'
         }
       }}
       style={{ height: 'calc(100vh - 10px)' }}
@@ -95,6 +112,17 @@ export const RootSideBar = () => {
         <MenuItemSM collapsed={collapsed} icon={<SettingsEditorIcon />} link="/settings" name="Settings" />
         <MenuItemSM collapsed={collapsed} icon={<LogIcon />} link="/viewer/logviewer" name="Log" />
         <MenuItemSM collapsed={collapsed} icon={<HelpIcon />} link="https://github.com/SenexCrenshaw/StreamMaster/wiki" name="Wiki" newWindow />
+
+        <MenuItem
+          component={
+            <SunButton
+              isDark={dark}
+              onClick={(e) => {
+                toggleColorScheme();
+              }}
+            />
+          }
+        />
       </Menu>
 
       <div className="absolute bottom-0 left-0 pb-2 flex flex-column m-0 p-0">

@@ -1,5 +1,6 @@
 :root {
   --surface-c: #edf0fa;
+  color-scheme: light;
 }
 
 /* poppins-300 - latin-ext_latin */
@@ -78,7 +79,6 @@
   --maskbg: rgba(0, 0, 0, 0.4);
   --highlight-bg: #ced6f1;
   --highlight-text-color: #585858;
-  color-scheme: dark;
 }
 
 .sm-text-color {

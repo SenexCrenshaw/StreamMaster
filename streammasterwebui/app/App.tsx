@@ -29,17 +29,11 @@ import { persistStore } from 'redux-persist';
 import { RootLayout } from './RootLayout';
 import TestPanel from './testing/TestPanel';
 
-// import '@lib/styles/dataSelector.css';
 import '@lib/styles/index.css';
-import '@lib/styles/streammaster-dark.css'; //theme
+// import '@lib/styles/streammaster-dark.css'; //theme
 // import '@lib/styles/theme.css'; // theme
 import 'primeicons/primeicons.css'; //icons
 import 'primereact/resources/primereact.min.css'; //core css
-
-// const albert_sans = Albert_Sans({
-//   subsets: ['latin'],
-//   display: 'swap',
-// });
 
 const App = (): JSX.Element => {
   const [locale] = useLocalStorage('en', 'locale');

@@ -4,48 +4,6 @@ import { MenuItem } from 'react-pro-sidebar';
 import { Link, useLocation } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 
-const MenuItemSM = (props: MenuItemSMProperties) => {
-  const tooltipClassName = React.useMemo(() => `menuitemsm-${uuidv4()}`, []);
-
-  const location = useLocation();
-  const { pathname } = location;
-
-  if (props.collapsed) {
-    return (
-      <>
-        <Tooltip target={`.${tooltipClassName}`} />
-        <div
-          className={`${tooltipClassName} border-white`}
-          data-pr-hidedelay={100}
-          data-pr-position="right"
-          data-pr-showdelay={500}
-          data-pr-tooltip={props.tooltip ?? props.name}
-        >
-          <MenuItem
-            active={pathname === props.link}
-            component={<Link className="link" target={props.newWindow === null ? '' : props.newWindow ? '_blank' : ''} to={props.link} />}
-            icon={props.icon}
-          >
-            {props.children}
-            {props.name}
-          </MenuItem>
-        </div>
-      </>
-    );
-  }
-
-  return (
-    <MenuItem
-      active={pathname === props.link}
-      component={<Link className="link" target={props.newWindow === null ? '' : props.newWindow ? '_blank' : ''} to={props.link} />}
-      icon={props.icon}
-    >
-      {props.children}
-      {props.name}
-    </MenuItem>
-  );
-};
-
 export interface MenuItemSMProperties {
   readonly children?: React.ReactNode;
   readonly collapsed?: boolean;
@@ -55,5 +13,47 @@ export interface MenuItemSMProperties {
   readonly newWindow?: boolean;
   readonly tooltip?: string;
 }
+
+const MenuItemSM = ({ children, collapsed, icon, link, name, newWindow, tooltip }: MenuItemSMProperties) => {
+  const tooltipClassName = React.useMemo(() => `menuitemsm-${uuidv4()}`, []);
+
+  const location = useLocation();
+  const { pathname } = location;
+
+  if (collapsed) {
+    return (
+      <>
+        <Tooltip target={`.${tooltipClassName}`} />
+        <div
+          className={`${tooltipClassName} border-white`}
+          data-pr-hidedelay={100}
+          data-pr-position="right"
+          data-pr-showdelay={500}
+          data-pr-tooltip={tooltip ?? name}
+        >
+          <MenuItem
+            active={pathname === link}
+            component={<Link className="link" target={newWindow === null ? '' : newWindow ? '_blank' : ''} to={link} />}
+            icon={icon}
+          >
+            {children}
+            {name}
+          </MenuItem>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <MenuItem
+      active={pathname === link}
+      component={<Link className="link" target={newWindow === null ? '' : newWindow ? '_blank' : ''} to={link} />}
+      icon={icon}
+    >
+      {children}
+      {name}
+    </MenuItem>
+  );
+};
 
 export default React.memo(MenuItemSM);
