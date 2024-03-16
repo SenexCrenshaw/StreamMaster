@@ -101,9 +101,17 @@ paths.forEach(({ sassInput, sassOutput, destinationPaths }) => {
 });
 
 // Copy font directory
-const fontSrc = 'themes/streammaster/streammaster-base/fonts';
-const fontDest = 'public/themes/fonts';
-copyDirectoryContents(fontSrc, fontDest);
+const FontSrc = 'themes/streammaster/streammaster-base/fonts';
+const darkFontDest = 'public/themes/streammaster-dark/fonts';
+copyDirectoryContents(FontSrc, darkFontDest);
+
+const ligthFontDest = 'public/themes/streammaster-light/fonts';
+copyDirectoryContents(FontSrc, ligthFontDest);
+
+let wwwrootFontDest = '..\\StreamMaster.API\\bin\\Debug\\net8.0\\wwwroot\\themes\\streammaster-light\\fonts';
+copyDirectoryContents(FontSrc, wwwrootFontDest);
+wwwrootFontDest = '..\\StreamMaster.API\\bin\\Debug\\net8.0\\wwwroot\\themes\\streammaster-dark\\fonts';
+copyDirectoryContents(FontSrc, wwwrootFontDest);
 
 let darkThemeSrc = 'lib/styles/streammaster-dark.css';
 let darkThemeDest = 'public/themes/streammaster-dark/theme.css';

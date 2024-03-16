@@ -18,12 +18,13 @@ import { GetIsSystemReady } from '@lib/smAPI/Settings/SettingsGetAPI';
 
 import useSettings from '@lib/useSettings';
 import PrimeReact, { PrimeReactContext } from 'primereact/api';
-import { useLocalStorage } from 'primereact/hooks';
+import { useLocalStorage, useSessionStorage } from 'primereact/hooks';
 import { Tooltip } from 'primereact/tooltip';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Menu, MenuItem, Sidebar, sidebarClasses } from 'react-pro-sidebar';
 export const RootSideBar = () => {
   const [dark, setDark] = useLocalStorage(true, 'dark');
+  const [currentDark, setCurrentDark] = useSessionStorage<boolean | null>(null, 'currentDark');
   const context = useContext(PrimeReactContext);
 
   const [collapsed, setCollapsed] = useLocalStorage<boolean>(true, 'app-menu-collapsed');
@@ -51,18 +52,34 @@ export const RootSideBar = () => {
     [setCollapsed]
   );
 
-  const toggleColorScheme = () => {
-    const newTheme = !dark ? 'dark' : 'light';
-    const theme = dark ? 'dark' : 'light';
+  const setTheme = useCallback(
+    (intDark: boolean, callback?: () => void) => {
+      const newTheme = intDark ? 'dark' : 'light';
+      const theme = !intDark ? 'dark' : 'light';
 
-    const onThemeChanged = () => setDark(!dark);
+      if (context?.changeTheme) {
+        context.changeTheme(theme, newTheme, 'theme-link', callback);
+      } else if (PrimeReact?.changeTheme) {
+        PrimeReact.changeTheme(theme, newTheme, 'theme-link', callback);
+      }
+    },
+    [context]
+  );
 
-    if (context?.changeTheme) {
-      context.changeTheme(theme, newTheme, 'theme-link', onThemeChanged);
-    } else if (PrimeReact?.changeTheme) {
-      PrimeReact.changeTheme(theme, newTheme, 'theme-link', onThemeChanged);
-    }
+  const toggleTheme = () => {
+    setTheme(!dark, () => {
+      setDark(!dark);
+    });
   };
+
+  // useEffect(() => {
+  //   if (currentDark === null || currentDark !== dark) {
+  //     setTheme(dark, () => {
+  //       console.log('setTheme', dark);
+  //       setCurrentDark(dark);
+  //     });
+  //   }
+  // }, [currentDark, dark, setCurrentDark, setTheme]);
 
   return (
     <Sidebar
@@ -118,7 +135,7 @@ export const RootSideBar = () => {
             <SunButton
               isDark={dark}
               onClick={(e) => {
-                toggleColorScheme();
+                toggleTheme();
               }}
             />
           }
