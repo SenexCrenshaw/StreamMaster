@@ -44,11 +44,11 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
   const { state, setters } = useDataSelectorState<T>(props.id, props.selectedItemsKey);
 
   useEffect(() => {
-    if (props.columns === undefined || state.visibleColumns !== undefined || state.visibleColumns === null) {
+    if (props.columns === undefined || state.visibleColumns === null) {
       return;
     }
-    if (setters.setVisibleColumns === null) {
-      console.log('setters.setVisibleColumns is null');
+    if (state.visibleColumns === null) {
+      console.log('state.visibleColumns is null');
     }
     setters.setVisibleColumns(props.columns);
   }, [props.columns, setters, state.visibleColumns]);
@@ -149,9 +149,9 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
   );
 
   useEffect(() => {
-    if (debug && props.id === 'streamgroupeditor-StreamGroupSelectedVideoStreamDataSelector') {
-      console.log('data', data);
-    }
+    // if (debug && props.id === 'streamgroupeditor-StreamGroupSelectedVideoStreamDataSelector') {
+    //   console.log('data', data);
+    // }
 
     if (!data) {
       return;
@@ -662,6 +662,12 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
             onChange={(e: MultiSelectChangeEvent) => {
               onColumnToggle(e.value);
             }}
+            showSelectAll={false}
+            pt={{
+              header: { style: { display: 'none' } },
+              checkbox: { style: { display: 'none' } }
+            }}
+            useOptionAsValue
           />
         );
       }
@@ -776,7 +782,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
           <Column
             align="center"
             alignHeader="center"
-            className={`flex multiselectcolumn justify-content-left align-items-center border-1 ${props.selectionMode}`}
+            className={`flex multiselectcolumn justify-content-left align-items-center ${props.selectionMode}`}
             filter
             filterElement={multiselectHeader}
             // header={multiselectHeader}
@@ -823,10 +829,6 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
                   showFilterOperator
                   // sortable={props.reorderable ? false : col.sortable}
                   style={getStyle(col)}
-                  pt={{
-                    headerCell: { style: { width: '25%' } },
-                    headerTitle: { style: { width: '25%' } }
-                  }}
                 />
               ))}
         </DataTable>

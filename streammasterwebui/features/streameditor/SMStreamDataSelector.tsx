@@ -45,6 +45,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
   const targetActionBodyTemplate = useCallback(
     (data: SmStreamDto) => (
       <div className="flex p-0 justify-content-end align-items-center">
+        I AM AN ACTION
         {/* <VideoStreamCopyLinkDialog value={data} />
         <VideoStreamSetTimeShiftDialog iconFilled={false} value={data} />
         <VideoStreamResetLogoDialog value={data} />
