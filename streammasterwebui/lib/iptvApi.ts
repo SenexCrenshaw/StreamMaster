@@ -494,6 +494,10 @@ const injectedRtkApi = api
         }),
         providesTags: ['SMStreams']
       }),
+      smStreamsToggleSmStreamVisible: build.query<SmStreamsToggleSmStreamVisibleApiResponse, SmStreamsToggleSmStreamVisibleApiArg>({
+        query: (queryArg) => ({ url: `/api/smstreams/togglesmstreamvisible`, body: queryArg }),
+        providesTags: ['SMStreams']
+      }),
       statisticsGetClientStatistics: build.query<StatisticsGetClientStatisticsApiResponse, StatisticsGetClientStatisticsApiArg>({
         query: () => ({ url: `/api/statistics/getclientstatistics` }),
         providesTags: ['Statistics']
@@ -1102,6 +1106,8 @@ export type SmStreamsGetPagedSmStreamsApiArg = {
   jsonArgumentString?: string | null;
   jsonFiltersString?: string | null;
 };
+export type SmStreamsToggleSmStreamVisibleApiResponse = /** status 200  */ boolean;
+export type SmStreamsToggleSmStreamVisibleApiArg = ToggleSmStreamVisibleRequest;
 export type StatisticsGetClientStatisticsApiResponse = /** status 200  */ ClientStreamingStatistics[];
 export type StatisticsGetClientStatisticsApiArg = void;
 export type StatisticsGetInputStatisticsApiResponse = /** status 200  */ InputStreamingStatistics[];
@@ -2087,7 +2093,9 @@ export type SmStream = {
   url?: string;
   stationId?: string;
 };
-export type SmStreamDto = SmStream & object;
+export type SmStreamDto = SmStream & {
+  realUrl?: string;
+};
 export type PagedResponseOfSmStreamDto = {
   data: SmStreamDto[];
   pageNumber: number;
@@ -2095,6 +2103,9 @@ export type PagedResponseOfSmStreamDto = {
   totalPageCount: number;
   totalItemCount: number;
   first: number;
+};
+export type ToggleSmStreamVisibleRequest = {
+  id?: string;
 };
 export type ClientStreamingStatistics = {
   readBitsPerSecond?: number;
@@ -2394,6 +2405,7 @@ export const {
   useSettingsLogInQuery,
   useSettingsUpdateSettingMutation,
   useSmStreamsGetPagedSmStreamsQuery,
+  useSmStreamsToggleSmStreamVisibleQuery,
   useStatisticsGetClientStatisticsQuery,
   useStatisticsGetInputStatisticsQuery,
   useStreamGetM3U8GetQuery,

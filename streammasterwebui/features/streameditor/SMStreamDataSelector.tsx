@@ -1,5 +1,7 @@
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
+import StreamCopyLinkDialog from '@components/streams/StreamCopyLinkDialog';
+import StreamVisibleDialog from '@components/streams/StreamVisibleDialog';
 import { GetMessage, arraysContainSameStrings } from '@lib/common/common';
 import { ChannelGroupDto, SmStreamDto, useSmStreamsGetPagedSmStreamsQuery } from '@lib/iptvApi';
 import { useSelectSMStreams } from '@lib/redux/slices/SMStreams';
@@ -45,7 +47,11 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
   const targetActionBodyTemplate = useCallback(
     (data: SmStreamDto) => (
       <div className="flex p-0 justify-content-end align-items-center">
-        I AM AN ACTION
+        <StreamCopyLinkDialog value={data} />
+        <StreamVisibleDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
+        {/* <VideoStreamSetAutoSetEPGDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} /> */}
+        {/* <VideoStreamDeleteDialog iconFilled={false} id={dataKey} values={[data]} /> */}
+        {/* <VideoStreamEditDialog value={data} /> */}
         {/* <VideoStreamCopyLinkDialog value={data} />
         <VideoStreamSetTimeShiftDialog iconFilled={false} value={data} />
         <VideoStreamResetLogoDialog value={data} />
@@ -56,7 +62,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
         <VideoStreamEditDialog value={data} /> */}
       </div>
     ),
-    []
+    [dataKey]
   );
 
   const columns = useMemo(

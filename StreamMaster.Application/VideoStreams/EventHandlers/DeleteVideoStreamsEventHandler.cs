@@ -10,7 +10,7 @@ public class DeleteVideoStreamsEventHandler(ILogger<DeleteVideoStreamsEvent> log
     public async Task Handle(DeleteVideoStreamsEvent notification, CancellationToken cancellationToken)
     {
         List<ChannelGroupDto> channelGroups = await Sender.Send(new GetChannelGroupsFromVideoStreamIds(notification.VideoStreamIds), cancellationToken).ConfigureAwait(false);
-        if (channelGroups.Any())
+        if (channelGroups.Count != 0)
         {
             await Publisher.Publish(new UpdateChannelGroupsEvent(channelGroups), cancellationToken).ConfigureAwait(false);
         }

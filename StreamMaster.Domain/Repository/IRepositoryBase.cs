@@ -15,7 +15,7 @@ public interface IRepositoryBase<T> where T : class
     /// </summary>
     /// <param name="query">The query determining which entities to delete.</param>
     void BulkDelete(IQueryable<T> query);
-    Task SaveChangesAsync();
+    Task<int> SaveChangesAsync();
     Task BulkDeleteAsync(IQueryable<T> query, CancellationToken cancellationToken = default);
 
     /// <summary>

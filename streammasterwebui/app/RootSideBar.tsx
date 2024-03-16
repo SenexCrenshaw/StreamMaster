@@ -18,13 +18,13 @@ import { GetIsSystemReady } from '@lib/smAPI/Settings/SettingsGetAPI';
 
 import useSettings from '@lib/useSettings';
 import PrimeReact, { PrimeReactContext } from 'primereact/api';
-import { useLocalStorage, useSessionStorage } from 'primereact/hooks';
+import { useLocalStorage } from 'primereact/hooks';
 import { Tooltip } from 'primereact/tooltip';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Menu, MenuItem, Sidebar, sidebarClasses } from 'react-pro-sidebar';
 export const RootSideBar = () => {
   const [dark, setDark] = useLocalStorage(true, 'dark');
-  const [currentDark, setCurrentDark] = useSessionStorage<boolean | null>(null, 'currentDark');
+  // const [currentDark, setCurrentDark] = useSessionStorage<boolean | null>(null, 'currentDark');
   const context = useContext(PrimeReactContext);
 
   const [collapsed, setCollapsed] = useLocalStorage<boolean>(true, 'app-menu-collapsed');

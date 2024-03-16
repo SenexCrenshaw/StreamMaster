@@ -1,13 +1,6 @@
-﻿using StreamMaster.Domain.Common;
+﻿namespace StreamMaster.Application.VideoStreams.Events;
 
-namespace StreamMaster.Application.VideoStreams.Events;
-
-public class DeleteVideoStreamsEvent : BaseEvent
+public class DeleteVideoStreamsEvent(IEnumerable<string> videoStreamIds) : BaseEvent
 {
-    public DeleteVideoStreamsEvent(IEnumerable<string> videoStreamIds)
-    {
-        VideoStreamIds = videoStreamIds;
-    }
-
-    public IEnumerable<string> VideoStreamIds { get; }
+    public IEnumerable<string> VideoStreamIds { get; } = videoStreamIds;
 }

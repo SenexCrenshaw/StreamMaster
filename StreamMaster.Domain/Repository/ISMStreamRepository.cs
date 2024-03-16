@@ -8,4 +8,7 @@ public interface ISMStreamRepository
     List<SMStreamDto> GetSMStreams();
     PagedResponse<SMStreamDto> CreateEmptyPagedResponse();
     Task<PagedResponse<SMStreamDto>> GetPagedSMStreams(SMStreamParameters parameters, CancellationToken cancellationToken);
+    Task<IEnumerable<string>> DeleteAllSMStreamsFromParameters(SMStreamParameters parameters, CancellationToken cancellationToken);
+    Task<SMStreamDto?> DeleteSMStreamById(string id, CancellationToken cancellationToken);
+    Task<SMStreamDto?> ToggleSMStreamVisibleById(string id, CancellationToken cancellationToken);
 }

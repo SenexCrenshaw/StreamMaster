@@ -24,9 +24,20 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task SaveChangesAsync()
+    public async Task<int> SaveChangesAsync()
     {
-        await RepositoryContext.SaveChangesAsync();
+
+        try
+        {
+            return await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            // You can decide how to handle exceptions here, for example by
+            // logging them. In this case, we're simply swallowing the exception.
+        }
+        return 0;
+
     }
 
     /// <summary>

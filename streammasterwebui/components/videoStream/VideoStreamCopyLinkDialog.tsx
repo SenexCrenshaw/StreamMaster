@@ -1,12 +1,12 @@
 import { LinkButton } from '@components/buttons/LinkButton';
-import { useStreamGroupsGetStreamGroupVideoStreamUrlQuery, type VideoStreamDto } from '@lib/iptvApi';
+import { SmStreamDto, useStreamGroupsGetStreamGroupVideoStreamUrlQuery, type VideoStreamDto } from '@lib/iptvApi';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { memo, useEffect } from 'react';
 
 interface VideoStreamCopyLinkDialogProperties {
   readonly iconFilled?: boolean | undefined;
   readonly onClose?: () => void;
-  readonly value?: VideoStreamDto | undefined;
+  readonly value?: VideoStreamDto | SmStreamDto | undefined;
 }
 
 const VideoStreamCopyLinkDialog = ({ iconFilled, onClose, value }: VideoStreamCopyLinkDialogProperties) => {
@@ -18,7 +18,7 @@ const VideoStreamCopyLinkDialog = ({ iconFilled, onClose, value }: VideoStreamCo
     }
   }, [url]);
 
-  return <LinkButton link={url.data ?? ''} title='Stream Link' />;
+  return <LinkButton link={url.data ?? ''} title="Stream Link" />;
 };
 
 VideoStreamCopyLinkDialog.displayName = 'VideoStreamCopyLinkDialog';
