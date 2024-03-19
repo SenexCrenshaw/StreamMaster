@@ -65,9 +65,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Common\Logging\" />
-    <Folder Include="SMChannels\Commands\" />
-    <Folder Include="SMChannels\Hub\" />
-    <Folder Include="SMChannels\Queries\" />
     <Folder Include="StreamGroupVideoStreams\EventHandlers\" />
     <Folder Include="StreamGroupVideoStreams\Events\" />
     <Folder Include="VideoStreamLinks\EventHandlers\" />

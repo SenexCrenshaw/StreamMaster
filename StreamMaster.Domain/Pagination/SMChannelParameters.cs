@@ -1,8 +1,8 @@
 ﻿namespace StreamMaster.Domain.Pagination;
 
-public class SMStreamParameters : QueryStringParameters
+public class SMChannelParameters : QueryStringParameters
 {
-    public SMStreamParameters()
+    public SMChannelParameters()
     {
         OrderBy = "name desc";
     }

@@ -3,7 +3,7 @@ export interface QueryHookResult<T> {
   error?: Error | string | null;
   isError: boolean;
   isLoading: boolean;
-  isFetching: boolean;
+  isFetching?: boolean | undefined;
 }
 
 export interface QueryHook<T> {
@@ -49,6 +49,24 @@ export type SMStream = {
   name?: string;
   url?: string;
   stationId?: string;
+};
+
+export type StreamingProxyTypes = 0 | 1 | 2 | 3;
+export type VideoStreamHandlers = 0 | 1 | 2;
+
+export type SMChannelDto = {
+  id: number;
+  streamingProxyType: StreamingProxyTypes;
+  videoStreamHandler: VideoStreamHandlers;
+  realUrl?: string;
+  isHidden?: boolean;
+  channelNumber?: number;
+  shortId?: string;
+  group?: string;
+  epgid?: string;
+  logo?: string;
+  name?: string;
+  [key: string]: any;
 };
 
 export type SMStreamDto = SMStream & {
@@ -102,6 +120,11 @@ export function areGetApiArgsEqual(object1?: GetApiArgument, object2?: GetApiArg
     compareProperties('pageSize', object1, object2) &&
     compareProperties('streamGroupId', object1, object2)
   );
+}
+
+export function removeKeyFromData<T extends Record<string, any>>(data: T, keyToRemove: keyof T): Omit<T, typeof keyToRemove> {
+  const { [keyToRemove]: _, ...rest } = data;
+  return rest;
 }
 
 export type FieldData = {

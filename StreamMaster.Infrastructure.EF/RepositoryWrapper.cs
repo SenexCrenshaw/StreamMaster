@@ -18,8 +18,9 @@ namespace StreamMaster.Infrastructure.EF
         ILogger<VideoStreamLinkRepository> VideoStreamLinkRepositoryLogger,
         ILogger<EPGFileRepository> EPGFileRepositoryLogger,
         ILogger<VideoStreamRepository> VideoStreamRepositoryLogger,
-        ILogger<SMChannelRepository> SMChannelLogger,
+        ILogger<SMChannelsRepository> SMChannelLogger,
         ILogger<SMStreamRepository> SMStreamLogger,
+        ILogger<SMChannelStreamLinksRepository> SMChannelStreamLinkLogger,
         ILogger<StreamGroupVideoStreamRepository> StreamGroupVideoStreamRepositoryLogger,
         ILogger<StreamGroupChannelGroupRepository> StreamGroupChannelGroupRepositoryLogger,
         ISchedulesDirectDataService schedulesDirectDataService,
@@ -31,13 +32,25 @@ namespace StreamMaster.Infrastructure.EF
         IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
     {
 
-        private ISMChannelRepository _smChannel;
+        private ISMChannelStreamLinksRepository _smChannelStreamLink;
 
-        public ISMChannelRepository SMChannel
+        public ISMChannelStreamLinksRepository SMChannelStreamLink
         {
             get
             {
-                _smChannel ??= new SMChannelRepository(SMChannelLogger, repositoryContext, mapper);
+                _smChannelStreamLink ??= new SMChannelStreamLinksRepository(SMChannelStreamLinkLogger, repositoryContext, mapper);
+                return _smChannelStreamLink;
+            }
+        }
+
+
+        private ISMChannelsRepository _smChannel;
+
+        public ISMChannelsRepository SMChannel
+        {
+            get
+            {
+                _smChannel ??= new SMChannelsRepository(SMChannelLogger, this, repositoryContext, mapper);
                 return _smChannel;
             }
         }

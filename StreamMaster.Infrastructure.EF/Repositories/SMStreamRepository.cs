@@ -123,4 +123,10 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
         await SaveChangesAsync();
         return mapper.Map<SMStreamDto>(stream);
     }
+
+    public SMStreamDto? GetSMStream(string streamId)
+    {
+        SMStream? channel = GetQuery().FirstOrDefault(a => a.Id == streamId);
+        return channel == null ? null : mapper.Map<SMStreamDto>(channel);
+    }
 }

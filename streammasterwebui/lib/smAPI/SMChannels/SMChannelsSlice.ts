@@ -1,11 +1,11 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import {FieldData,PagedResponse, removeKeyFromData, SMStreamDto } from '@lib/apiDefs';
-import { fetchGetPagedSMStreams } from '@lib/smAPI/SMStreams/SMStreamsFetch';
+import {FieldData,PagedResponse, removeKeyFromData, SMChannelDto } from '@lib/apiDefs';
+import { fetchGetPagedSMChannels } from '@lib/smAPI/SMChannels/SMChannelsFetch';
 import { updatePagedResponseFieldInData } from '@lib/redux/reduxutils';
 
 
 interface QueryState {
-  data: Record<string, PagedResponse<SMStreamDto> | undefined>;
+  data: Record<string, PagedResponse<SMChannelDto> | undefined>;
   isLoading: Record<string, boolean>;
   isError: Record<string, boolean>;
   error: Record<string, string>;
@@ -17,11 +17,11 @@ const initialState: QueryState = {
   isError: {},
   error: {}
 };
-const SMStreamsSlice = createSlice({
-  name: 'SMStreams',
+const SMChannelsSlice = createSlice({
+  name: 'SMChannels',
   initialState,
   reducers: {
-    updateSMStreams: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
+    updateSMChannels: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
       const { query, fieldData } = action.payload;
 
       if (query !== undefined) {
@@ -38,25 +38,25 @@ const SMStreamsSlice = createSlice({
           state.data[key] = updatePagedResponseFieldInData(state.data[key], fieldData);
         }
       }
-      console.log('updateSMStreams executed');
+      console.log('updateSMChannels executed');
     },
-    clearSMStreams: (state) => {
+    clearSMChannels: (state) => {
       for (const key in state.data) {
         const updatedData = removeKeyFromData(state.data, key);
         state.data = updatedData;
       }
-      console.log('clearSMStreams executed');
+      console.log('clearSMChannels executed');
     },
 
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchGetPagedSMStreams.pending, (state, action) => {
+      .addCase(fetchGetPagedSMChannels.pending, (state, action) => {
         const query = action.meta.arg;
         state.isLoading[query] = true;
         state.isError[query] = false; // Reset isError state on new fetch
       })
-      .addCase(fetchGetPagedSMStreams.fulfilled, (state, action) => {
+      .addCase(fetchGetPagedSMChannels.fulfilled, (state, action) => {
         if (action.payload) {
           const { query, value } = action.payload;
           state.data[query] = value;
@@ -64,7 +64,7 @@ const SMStreamsSlice = createSlice({
           state.isError[query] = false;
         }
       })
-      .addCase(fetchGetPagedSMStreams.rejected, (state, action) => {
+      .addCase(fetchGetPagedSMChannels.rejected, (state, action) => {
         const query = action.meta.arg;
         state.error[query] = action.error.message || 'Failed to fetch';
         state.isError[query] = true;
@@ -74,5 +74,5 @@ const SMStreamsSlice = createSlice({
   }
 });
 
-export const { clearSMStreams, updateSMStreams } = SMStreamsSlice.actions;
-export default SMStreamsSlice.reducer;
+export const { clearSMChannels, updateSMChannels } = SMChannelsSlice.actions;
+export default SMChannelsSlice.reducer;

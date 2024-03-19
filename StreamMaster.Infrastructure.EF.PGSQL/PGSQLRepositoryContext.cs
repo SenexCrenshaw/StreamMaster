@@ -43,22 +43,22 @@ public partial class PGSQLRepositoryContext(DbContextOptions<PGSQLRepositoryCont
         List<VideoStream> videoStreams = [.. VideoStreams];
         foreach (VideoStream videoStream in videoStreams)
         {
-            SMChannel channel = new()
-            {
-                ChannelNumber = videoStream.User_Tvg_chno,
-                Group = videoStream.User_Tvg_group,
-                EPGId = videoStream.User_Tvg_ID,
-                Logo = videoStream.User_Tvg_logo,
-                Name = videoStream.User_Tvg_name,
-                StationId = videoStream.StationId,
-                TimeShift = videoStream.TimeShift,
-                VideoStreamHandler = videoStream.VideoStreamHandler,
-                IsHidden = videoStream.IsHidden,
-                GroupTitle = videoStream.GroupTitle,
-                StreamingProxyType = videoStream.StreamingProxyType,
-                VideoStreamId = videoStream.Id
-            };
-            SMChannels.Add(channel);
+            //SMChannel channel = new()
+            //{
+            //    ChannelNumber = videoStream.User_Tvg_chno,
+            //    Group = videoStream.User_Tvg_group,
+            //    EPGId = videoStream.User_Tvg_ID,
+            //    Logo = videoStream.User_Tvg_logo,
+            //    Name = videoStream.User_Tvg_name,
+            //    StationId = videoStream.StationId,
+            //    TimeShift = videoStream.TimeShift,
+            //    VideoStreamHandler = videoStream.VideoStreamHandler,
+            //    IsHidden = videoStream.IsHidden,
+            //    GroupTitle = videoStream.GroupTitle,
+            //    StreamingProxyType = videoStream.StreamingProxyType,
+            //    VideoStreamId = videoStream.Id
+            //};
+            //SMChannels.Add(channel);
 
             SMStream smStream = new()
             {

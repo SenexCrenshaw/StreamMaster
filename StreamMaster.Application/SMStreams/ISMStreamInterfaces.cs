@@ -8,7 +8,7 @@ public interface ISMStreamsController
     Task<ActionResult<APIResponse<SMStreamDto>>> GetPagedSMStreams(SMStreamParameters parameters);
 }
 
-public interface ISMStreamHub
+public interface ISMStreamsHub
 {
     Task<DefaultAPIResponse> ToggleSMStreamVisibleById(string id);
     Task<APIResponse<SMStreamDto>> GetPagedSMStreams(SMStreamParameters parameters);

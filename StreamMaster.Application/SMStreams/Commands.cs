@@ -27,7 +27,7 @@ namespace StreamMaster.Application.SMStreams
 
 namespace StreamMaster.Application.Hubs
 {
-    public partial class StreamMasterHub : ISMStreamHub
+    public partial class StreamMasterHub : ISMStreamsHub
     {
         public async Task<APIResponse<SMStreamDto>> GetPagedSMStreams(SMStreamParameters Parameters)
         {

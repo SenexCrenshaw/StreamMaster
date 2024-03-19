@@ -30,7 +30,7 @@ const MessagesEn: messages_enType = {
   changesServiceRestart: 'Changes require a service restart',
 
   channel: 'Channel',
-
+  channels: 'Channels',
   cleanURLs: 'Clean URLs from Logs',
 
   clientUserAgent: 'Client User Agent',

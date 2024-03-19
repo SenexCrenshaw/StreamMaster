@@ -29,6 +29,7 @@ import selectedVideoStreamsSliceReducer from '@lib/redux/slices/selectedVideoStr
 import showHiddenSliceReducer from '@lib/redux/slices/showHiddenSlice';
 import showSelectionsSliceReducer from '@lib/redux/slices/showSelectionsSlice';
 import sortInfoSliceReducer from '@lib/redux/slices/sortInfoSlice';
+import SMChannelsSlice from '@lib/smAPI/SMChannels/SMChannelsSlice';
 import SMStreamsReducer from '@lib/smAPI/SMStreams/SMStreamsSlice';
 
 import { enhancedApiMisc } from '@lib/smAPI/Misc/MiscEnhancedAPI';
@@ -129,6 +130,7 @@ const rootReducer = combineReducers({
   queryAdditionalFilters: queryAdditionalFiltersReducer,
   queryFilter: queryFilterReducer,
   SMStreams: SMStreamsReducer,
+  SMChannels: SMChannelsSlice,
   selectUpdateSettingRequest: persistReducer(selectUpdateSettingRequestSliceConfig, selectUpdateSettingRequestReducer),
   selectCurrentSettingDto: persistReducer(currentSettingDtoSliceConfig, selectCurrentSettingDtoReducer),
   selectedPostalCode: persistReducer(selectedPostalCodeConfig, selectedPostalCodeSlice),

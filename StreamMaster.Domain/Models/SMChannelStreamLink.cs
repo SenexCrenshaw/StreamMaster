@@ -8,6 +8,7 @@ public class SMChannelStreamLink
     public int SMChannelId { get; set; }
 
     public SMStream SMStream { get; set; }
+
     [Column(TypeName = "citext")]
     public string SMStreamId { get; set; }
 

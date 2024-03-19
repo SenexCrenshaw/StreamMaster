@@ -12,6 +12,7 @@
 
         public static string GetStandardType(string originalType)
         {
+
             // Attempt to get the value from the dictionary; if found, return it, otherwise return the original type.
             if (typeMappings.TryGetValue(originalType, out string? standardType))
             {

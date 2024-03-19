@@ -27,7 +27,8 @@ public partial class StreamMasterHub(
     IBackgroundTaskQueue taskQueue,
     IRepositoryWrapper Repository,
     IOptionsMonitor<Setting> intsettings,
-    ISMStreamsService SMStreamsService
+    ISMStreamsService SMStreamsService,
+     ISMChannelsService SMChannelsService
     )
     : Hub<IStreamMasterHub>, ISharedHub
 {

@@ -1,15 +1,17 @@
 import { FieldData } from '@lib/apiDefs';
+import useSMChannels from '@lib/smAPI/SMChannels/useSMChannels';
 import useSMStreams from '@lib/smAPI/SMStreams/useSMStreams';
 import { HubConnectionState } from '@microsoft/signalr';
 import { useEffect, useRef } from 'react';
 import { useAppInfo } from '../redux/slices/useAppInfo';
 import { isClient } from '../settings';
 import { hubConnection } from './signalr';
-import { setFieldListener } from './singletonListeners';
+import { dataRefreshListener, setFieldListener } from './singletonListeners';
 
 export const SignalRConnection = ({ children }: React.PropsWithChildren): JSX.Element => {
   const { setHubConnected, setHubDisconnected } = useAppInfo();
   const { setSMStreamsField } = useSMStreams();
+  const { refreshSMChannels } = useSMChannels();
 
   const retries = useRef(0); // store the retry count
   const maxRetries = 5; // define a maximum number of retry attempts
@@ -51,12 +53,28 @@ export const SignalRConnection = ({ children }: React.PropsWithChildren): JSX.El
         });
     };
 
+    const setField = (fieldDatas: FieldData[]): void => {
+      fieldDatas.forEach((fieldData) => {
+        if (fieldData.entity === 'SMStreamDto') {
+          setSMStreamsField(fieldData);
+        }
+      });
+    };
+
+    const dataRefresh = (entity: string): void => {
+      if (entity === 'SMStreamDto') {
+        refreshSMChannels();
+      }
+    };
+
     const AddConnections = () => {
       setFieldListener.addListener(setField);
+      dataRefreshListener.addListener(dataRefresh);
     };
 
     const RemoveConnections = () => {
       setFieldListener.removeListener(setField);
+      dataRefreshListener.removeListener(dataRefresh);
     };
 
     const startConnectionAsync = () => {
@@ -64,14 +82,6 @@ export const SignalRConnection = ({ children }: React.PropsWithChildren): JSX.El
         RemoveConnections();
         startConnection();
       }
-    };
-
-    const setField = (fieldDatas: FieldData[]): void => {
-      fieldDatas.forEach((fieldData) => {
-        if (fieldData.entity === 'SMStreamDto') {
-          setSMStreamsField(fieldData);
-        }
-      });
     };
 
     const addConnectionsAndListeners = () => {

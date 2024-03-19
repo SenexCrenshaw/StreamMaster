@@ -21,3 +21,4 @@ export const singletonStatisticListener = createSingletonListener('StreamStatist
 export const singletonMiscListener = createSingletonListener('MiscRefresh', hubConnection);
 export const singletonQueueListener = createSingletonListener('TaskQueueStatusUpdate', hubConnection);
 export const setFieldListener = createSingletonListener('SetField', hubConnection);
+export const dataRefreshListener = createSingletonListener('DataRefresh', hubConnection);

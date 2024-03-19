@@ -47,7 +47,11 @@ public static class TypeScriptFetchGenerator
             content.AppendLine("});");
             content.AppendLine();
         }
-
+        string directory = Directory.GetParent(filePath).ToString();
+        if (!Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
         File.WriteAllText(filePath, content.ToString());
     }
 }

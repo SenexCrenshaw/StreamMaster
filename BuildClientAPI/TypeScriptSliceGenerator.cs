@@ -2,17 +2,17 @@
 
 public static class TypeScriptSliceGenerator
 {
-    public static void GenerateFile(string namespaceName, List<MethodDetails> methods, string filePath)
+    public static void GenerateFile(string namespaceName, string mainEntityName, List<MethodDetails> methods, string filePath)
     {
         foreach (MethodDetails method in methods)
         {
             StringBuilder content = new();
 
             // Add necessary imports
-            AddImports(content, method, namespaceName);
+            AddImports(content, mainEntityName, method, namespaceName);
 
             // Generate QueryState and initialState
-            content.Append(GenerateQueryStateAndInitialState(namespaceName));
+            content.Append(GenerateQueryStateAndInitialState(mainEntityName));
 
             // Define the slice
             content.AppendLine($"const {namespaceName}Slice = createSlice({{");
@@ -20,7 +20,6 @@ public static class TypeScriptSliceGenerator
             content.AppendLine("  initialState,");
             content.AppendLine("  reducers: {");
             content.AppendLine(GenerateReducers(namespaceName));
-            content.AppendLine("    // Add reducers here");
             content.AppendLine("  },");
             content.AppendLine("  extraReducers: (builder) => {");
             // Assuming methods contain fetch actions
@@ -34,22 +33,26 @@ public static class TypeScriptSliceGenerator
             content.AppendLine();
 
             // Export actions and reducer
-            content.AppendLine($"export const {{ update{namespaceName} }} = {namespaceName}Slice.actions;");
+            content.AppendLine($"export const {{ clear{namespaceName}, update{namespaceName} }} = {namespaceName}Slice.actions;");
             content.AppendLine($"export default {namespaceName}Slice.reducer;");
-
+            string directory = Directory.GetParent(filePath).ToString();
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
             File.WriteAllText(filePath, content.ToString());
         }
     }
 
-    private static void AddImports(StringBuilder content, MethodDetails method, string namespaceName)
+    private static void AddImports(StringBuilder content, string mainEntityName, MethodDetails method, string namespaceName)
     {
         //string[] imports = methods.Select(a => ParameterConverter.ExtractInnermostType(a.ReturnType)).ToArray();
 
         //string importsString = string.Join(",", imports);
-        string import = ParameterConverter.ExtractInnermostType(method.ReturnType);
+        //string import = ParameterConverter.ExtractInnermostType(method.ReturnType);
 
         content.AppendLine("import { PayloadAction, createSlice } from '@reduxjs/toolkit';");
-        content.AppendLine($"import {{FieldData,PagedResponse, {import} }} from '@lib/apiDefs';");
+        content.AppendLine($"import {{FieldData,PagedResponse, removeKeyFromData, {mainEntityName} }} from '@lib/apiDefs';");
         //foreach (MethodDetails? method in methods.Where(m => m.IncludeInHub))
         //{
         //    string fetchActionName = $"fetch{method.Name}";
@@ -62,22 +65,22 @@ public static class TypeScriptSliceGenerator
         content.AppendLine();
     }
 
-    private static string GenerateQueryStateAndInitialState(string namespaceName)
+    private static string GenerateQueryStateAndInitialState(string mainEntityName)
     {
-        return @"
-interface QueryState {
-  data: Record<string, PagedResponse<SMStreamDto> | undefined>;
+        return $@"
+interface QueryState {{
+  data: Record<string, PagedResponse<{mainEntityName}> | undefined>;
   isLoading: Record<string, boolean>;
   isError: Record<string, boolean>;
   error: Record<string, string>;
-}
+}}
 
-const initialState: QueryState = {
-  data: {},
-  isLoading: {},
-  isError: {},
-  error: {}
-};
+const initialState: QueryState = {{
+  data: {{}},
+  isLoading: {{}},
+  isError: {{}},
+  error: {{}}
+}};
 ";
     }
 
@@ -129,7 +132,16 @@ const initialState: QueryState = {
         sb.AppendLine($"          state.data[key] = updatePagedResponseFieldInData(state.data[key], fieldData);");
         sb.AppendLine($"        }}");
         sb.AppendLine($"      }}");
-        sb.AppendLine($"      console.log('update{namespaceName} executed');"); // Optional: Logging
+        sb.AppendLine($"      console.log('update{namespaceName} executed');");
+        sb.AppendLine($"    }},");
+
+        // Adding the new reducer for clearing SMChannels
+        sb.AppendLine($"    clear{namespaceName}: (state) => {{");
+        sb.AppendLine($"      for (const key in state.data) {{");
+        sb.AppendLine($"        const updatedData = removeKeyFromData(state.data, key);");
+        sb.AppendLine($"        state.data = updatedData;");
+        sb.AppendLine($"      }}");
+        sb.AppendLine($"      console.log('clear{namespaceName} executed');");
         sb.AppendLine($"    }},");
 
         return sb.ToString();

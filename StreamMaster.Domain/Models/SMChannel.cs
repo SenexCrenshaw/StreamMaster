@@ -1,7 +1,6 @@
-﻿using AutoMapper.Configuration.Annotations;
-
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace StreamMaster.Domain.Models;
 
@@ -9,15 +8,14 @@ public class SMChannel
 {
     public StreamingProxyTypes StreamingProxyType { get; set; } = StreamingProxyTypes.SystemDefault;
 
-    [Ignore]
+    [JsonIgnore]
     public ICollection<SMChannelStreamLink> SMStreams { get; set; } = [];
+    public ICollection<StreamGroupSMChannel> StreamGroups { get; set; } = [];
 
     [Key]
     public int Id { get; set; }
 
     public bool IsHidden { get; set; } = false;
-
-    public ICollection<StreamGroupSMChannel> StreamGroups { get; set; } = [];
 
     [Column(TypeName = "citext")]
     public int ChannelNumber { get; set; } = 0;
@@ -36,5 +34,5 @@ public class SMChannel
     public string GroupTitle { get; set; } = string.Empty;
 
     public VideoStreamHandlers VideoStreamHandler { get; set; } = VideoStreamHandlers.SystemDefault;
-    public string VideoStreamId { get; set; }
+    public string VideoStreamId { get; set; } = string.Empty;
 }

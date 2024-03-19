@@ -18,6 +18,7 @@ namespace BuildClientAPI
 
         private static void ScanForSMAPI()
         {
+            bool writeFiles = true;
             try
             {
                 Assembly assembly = Assembly.Load(AssemblyName);
@@ -30,23 +31,47 @@ namespace BuildClientAPI
                         SMAPIAttribute? smapiAttribute = method.GetCustomAttribute<SMAPIAttribute>();
                         if (smapiAttribute != null)
                         {
+
                             string classNamespace = GetNameSpaceParent(type);
                             if (!methodsByNamespace.TryGetValue(classNamespace, out List<MethodDetails> methodDetailsList))
                             {
                                 methodDetailsList = [];
                                 methodsByNamespace[classNamespace] = methodDetailsList;
+
                             }
+
+                            if (method.Name == "GetPagedSMChannels")
+                            {
+                                string returntype = GetCleanReturnType(method);
+                                string Parameters = ParameterConverter.ParamsToCSharp(method);
+                                string TsParameters = ParameterConverter.CSharpParamToTS(method); ;
+                            }
+
+                            string ps = ParameterConverter.ParamsToCSharp(method);
+                            string tsps = ParameterConverter.CSharpParamToTS(method); ;
 
                             MethodDetails methodDetails = new()
                             {
                                 Name = method.Name,
                                 ReturnType = GetCleanReturnType(method),
-                                Parameters = string.Join(", ", method.GetParameters().Select(p => $"{TypeStandardizer.GetStandardType(p.ParameterType.Name)} {p.Name}")),
+                                //Parameters = string.Join(", ", method.GetParameters().Select(p => $"{TypeStandardizer.GetStandardType(p.ParameterType.Name)} {p.Name}")),
+                                Parameters = ps,
                                 ParameterNames = string.Join(", ", method.GetParameters().Select(p => p.Name)),
-                                IncludeInHub = true
+                                IncludeInHub = true,
+                                // Convert and assign TypeScript parameters
+                                TsParameters = tsps,
+                                // For TypeScript parameter types, we can reuse the conversion logic but format it differently if needed
+                                TsParameterTypes = string.Join(", ", method.GetParameters().Select(p => ParameterConverter.MapCSharpTypeToTypeScript(ParameterConverter.GetTypeFullNameForParameter(p.ParameterType))))
                             };
 
+                            if (method.Name == "GetPagedSMChannels")
+                            {
+                                List<ParameterInfo> test = method.GetParameters().ToList();
+                                List<string> aa = method.GetParameters().Select(p => $"{p.ParameterType.Name}").ToList();
+                            }
+
                             methodDetailsList.Add(methodDetails);
+
                         }
                     }
                 }
@@ -55,26 +80,33 @@ namespace BuildClientAPI
                 {
                     string namespaceName = kvp.Key;
                     List<MethodDetails> methods = kvp.Value;
-                    string fileName = Path.Combine(CSharpFileNamePrefix, namespaceName, "Commands.cs");
-                    CSharpGenerator.GenerateFile(namespaceName, methods, fileName);
-
-                    string tsCommandFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Commands.ts");
-                    TypeScriptCommandGenerator.GenerateFile(namespaceName, methods, tsCommandFilePath);
-
-                    string tsFetchFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Fetch.ts");
-                    TypeScriptFetchGenerator.GenerateFile(namespaceName, methods, tsFetchFilePath);
-
                     List<MethodDetails> pagedMethods = methods.Where(a => a.Name.StartsWith("GetPaged")).ToList();
-                    if (pagedMethods.Count > 0)
+                    string entityName = ParameterConverter.ExtractInnermostType(pagedMethods.First().ReturnType);
+
+                    if (writeFiles)
                     {
-                        string tsSliceFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Slice.ts");
-                        TypeScriptSliceGenerator.GenerateFile(namespaceName, pagedMethods, tsSliceFilePath);
+                        string fileName = Path.Combine(CSharpFileNamePrefix, namespaceName, "Commands.cs");
+                        CSharpGenerator.GenerateFile(namespaceName, methods, fileName);
 
-                        string entityName = ParameterConverter.ExtractInnermostType(pagedMethods.First().ReturnType);
-                        string tsHookFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"use{namespaceName}.ts");
-                        TypeScriptHookGenerator.GenerateFile(namespaceName, entityName, methods, tsHookFilePath);
+                        string tsCommandFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Commands.ts");
+                        TypeScriptCommandGenerator.GenerateFile(namespaceName, entityName, methods, tsCommandFilePath);
 
+                        string tsFetchFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Fetch.ts");
+                        TypeScriptFetchGenerator.GenerateFile(namespaceName, methods, tsFetchFilePath);
+
+
+                        if (pagedMethods.Count > 0)
+                        {
+                            string tsSliceFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Slice.ts");
+                            TypeScriptSliceGenerator.GenerateFile(namespaceName, entityName, pagedMethods, tsSliceFilePath);
+
+
+                            string tsHookFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"use{namespaceName}.ts");
+                            TypeScriptHookGenerator.GenerateFile(namespaceName, entityName, methods, tsHookFilePath);
+
+                        }
                     }
+
                 }
             }
             catch (Exception ex)

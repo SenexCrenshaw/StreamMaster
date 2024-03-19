@@ -11,4 +11,5 @@ public interface ISMStreamRepository
     Task<IEnumerable<string>> DeleteAllSMStreamsFromParameters(SMStreamParameters parameters, CancellationToken cancellationToken);
     Task<SMStreamDto?> DeleteSMStreamById(string id, CancellationToken cancellationToken);
     Task<SMStreamDto?> ToggleSMStreamVisibleById(string id, CancellationToken cancellationToken);
+    SMStreamDto? GetSMStream(string streamId);
 }

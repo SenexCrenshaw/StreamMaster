@@ -25,10 +25,9 @@ import getHeader from './getHeader';
 import getRecord from './getRecord';
 import getRecordString from './getRecordString';
 import isPagedTableDto from './isPagedTableDto';
-import useDataSelectorState from './useDataSelectorState';
+import useDataSelectorState2 from './useDataSelectorState2';
 
 import AddButton from '@components/buttons/AddButton';
-import MinusButton from '@components/buttons/MinusButton';
 import StringTracker from '@components/inputs/StringTracker';
 import { GetApiArgument, PagedResponse, QueryHook } from '@lib/apiDefs';
 import { PagedResponseDto } from '@lib/common/dataTypes';
@@ -40,7 +39,7 @@ import { useSetQueryFilter } from './useSetQueryFilter';
 
 const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) => {
   const debug = false;
-  const { state, setters } = useDataSelectorState<T>(props.id, props.selectedItemsKey);
+  const { state, setters } = useDataSelectorState2<T>(props.id, props.selectedItemsKey);
 
   useEffect(() => {
     if (props.columns === undefined) {
@@ -659,23 +658,22 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
 
   function addOrRemoveTemplate(data: T) {
     const found = state.selectSelectedItems.some((item) => item.id === data.id);
-
     const isSelected = found ?? false;
-    if (!isSelected) {
-      return (
-        <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-          <MinusButton iconFilled={false} onClick={() => console.log('AddButton', data)} tooltip="Add Channel" />
-          {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />}
-        </div>
-      );
-    }
 
     return (
       <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-        <AddButton iconFilled={false} onClick={() => console.log('AddButton', data)} />
-        {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => removeSelection(data)} />}
+        {/* <MinusButton iconFilled={false} onClick={() => console.log('AddButton', data)} tooltip="Add Channel" /> */}
+        {props.onAdd !== undefined && <AddButton iconFilled={false} onClick={() => props.onAdd?.(data)} tooltip="Add Channel" />}
+        {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />}
       </div>
     );
+
+    // return (
+    //   <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+    //     {props.onAdd !== undefined && <AddButton iconFilled={false} onClick={() => props.onAdd?.(data)} tooltip="Add Channel" />}
+    //     {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => removeSelection(data)} />}
+    //   </div>
+    // );
   }
 
   function addOrRemoveHeaderTemplate() {
@@ -684,7 +682,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
     if (!isSelected) {
       return (
         <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-          <MinusButton iconFilled={false} onClick={() => console.log('AddButton')} />
+          {/* <AddButton iconFilled={false} onClick={() => console.log('AddButton')} tooltip="Add All Channels" /> */}
           {showSelection && <Checkbox checked={state.selectAll} className="pl-1" onChange={() => toggleAllSelection()} />}
         </div>
       );
@@ -706,6 +704,8 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
           dataKey={props.dataKey ?? 'id'}
           editMode="cell"
           emptyMessage={props.emptyMessage}
+          expandableRowGroups={props.groupRowsBy !== undefined && props.groupRowsBy !== ''}
+          expandedRows={state.expandedRows}
           exportFilename={props.exportFilename ?? 'streammaster'}
           filterDelay={500}
           filterDisplay={props.columns.some((a) => a.filter !== undefined) ? 'row' : undefined}
@@ -871,6 +871,8 @@ interface BaseDataSelector2Properties<T = any> {
   dataKey?: string | undefined;
 
   // onLazyLoad?: (e: any) => void;
+  onAdd?: (value: T) => void;
+  onDelete?: (value: T) => void;
   onMultiSelectClick?: (value: boolean) => void;
   OnReset?: () => void;
   onRowClick?: (event: DataTableRowClickEvent) => void;

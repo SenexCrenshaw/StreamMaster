@@ -17,11 +17,31 @@ public static class CSharpGenerator
         foreach (MethodDetails method in methods)
         {
             // Determine HTTP method attribute (simplified example)
-            string httpAttribute = method.Name.StartsWith("Get") ? "HttpGet" : "HttpPut";
+            string httpAttribute = "HttpPut";
+            if (method.Name.StartsWith("Get"))
+            {
+                httpAttribute = "HttpGet";
+            }
+            else if (method.Name.StartsWith("Delete"))
+            {
+                httpAttribute = "HttpDelete";
+
+            }
+            else if (method.Name.StartsWith("Create"))
+            {
+                httpAttribute = "HttpPost";
+            }
+
+
+            //string httpAttribute = method.Name.StartsWith("Get") ? "HttpGet" : "HttpPut";
             string fromQuery = method.Name.StartsWith("Get") ? "[FromQuery] " : "";
             string route = $"[Route(\"[action]\")]";
             string httpMethodLine = $"[{httpAttribute}]";
 
+            if (method.Name == "GetPagedSMChannels")
+            {
+                int a = 1;
+            }
             // Controller method signature
             controllerContent.AppendLine($"        {httpMethodLine}");
             controllerContent.AppendLine($"        {route}");
@@ -58,11 +78,16 @@ namespace StreamMaster.Application.{namespaceName}
 
 namespace StreamMaster.Application.Hubs
 {{
-    public partial class StreamMasterHub : ISMStreamHub
+    public partial class StreamMasterHub : I{namespaceName}Hub
     {{
 {hubContent}    }}
 }}
 ";
+        string directory = Directory.GetParent(filePath).ToString();
+        if (!Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
         File.WriteAllText(filePath, fileContent);
     }
 }

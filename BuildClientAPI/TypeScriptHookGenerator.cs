@@ -1,16 +1,34 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 
 public static class TypeScriptHookGenerator
 {
     public static void GenerateFile(string namespaceName, string mainEntityName, List<MethodDetails> methods, string filePath)
     {
         StringBuilder content = new();
-        //string[] imports = methods.Select(a => ParameterConverter.ExtractInnermostType(a.ReturnType)).ToArray();
 
-        //string importsString = string.Join(",", imports);
+        List<string> additionalImports = [];
+
+        if (methods.Any(a => !a.Name.StartsWith("GetPaged")))
+        {
+            additionalImports.Add("DefaultAPIResponse");
+        }
+
+        if (methods.Any(a => (!a.Name.StartsWith("GetPaged") && a.TsParameters.Contains("QueryStringParameters")) || a.ReturnType.Contains("QueryStringParameters")))
+        {
+            additionalImports.Add("QueryStringParameters");
+        }
+
+
+        string additionalImportsString = string.Join(",", additionalImports);
+        if (!string.IsNullOrEmpty(additionalImportsString))
+        {
+            additionalImportsString += ",";
+        }
+
         // Step 1: Add necessary imports
         content.AppendLine("import { useEffect } from 'react';");
-        content.AppendLine($"import {{ DefaultAPIResponse, FieldData, GetApiArgument, PagedResponse, QueryHookResult,{mainEntityName} }} from '@lib/apiDefs';");
+        content.AppendLine($"import {{ {additionalImportsString} FieldData, GetApiArgument, PagedResponse, QueryHookResult,{mainEntityName} }} from '@lib/apiDefs';");
         content.AppendLine("import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';");
 
         // Importing command and fetch methods
@@ -33,35 +51,51 @@ public static class TypeScriptHookGenerator
         }
 
         // Importing slice for actions
-        content.AppendLine($"import {{ update{namespaceName} }} from '@lib/smAPI/{namespaceName}/{namespaceName}Slice';");
+        content.AppendLine($"import {{ clear{namespaceName}, update{namespaceName} }} from '@lib/smAPI/{namespaceName}/{namespaceName}Slice';");
         content.AppendLine();
 
         // Step 2: Define the hook and its return type
-        content.Append(GenerateHookContent(namespaceName, mainEntityName, fetchMethod?.Name, methods.Where(m => m.IncludeInHub).Select(m => m.Name).ToList()));
+        content.Append(GenerateHookContent(namespaceName, mainEntityName, fetchMethod?.Name, methods));
 
         // Write to file
-
+        string directory = Directory.GetParent(filePath).ToString();
+        if (!Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
         File.WriteAllText(filePath, content.ToString());
     }
 
-    private static string GenerateHookContent(string namespaceName, string mainEntityName, string fetchMethodName, IEnumerable<string> commandMethodNames)
+    private static string GenerateHookContent(string namespaceName, string mainEntityName, string fetchMethodName, List<MethodDetails> methods)
     {
+        methods = methods.Where(m => m.IncludeInHub).ToList();
+        List<string> commandMethodNames = methods.Select(m => m.Name).ToList();
+
         StringBuilder sb = new();
 
         sb.AppendLine($"interface ExtendedQueryHookResult extends QueryHookResult<PagedResponse<{mainEntityName}> | undefined> {{}}");
         sb.AppendLine();
         sb.AppendLine($"interface {mainEntityName}Result extends ExtendedQueryHookResult {{");
 
-        foreach (string methodName in commandMethodNames)
+        foreach (MethodDetails method in methods)
         {
+            string methodName = method.Name;
             if (methodName.StartsWith("GetPaged"))
             {
                 continue;
             }
-            sb.AppendLine($"  {methodName.ToCamelCase()}: (id: string) => Promise<DefaultAPIResponse | null>;");
+
+            if (methodName == "DeleteAllSMChannelsFromParameters")
+            {
+                int aa = 1;
+            }
+
+            //(string parameterName, string tsParameterString) = GetReal(method);
+            sb.AppendLine($"  {methodName.ToCamelCase()}: ({method.TsParameters}) => Promise<DefaultAPIResponse | null>;");
         }
 
         sb.AppendLine("  set" + namespaceName + "Field: (fieldData: FieldData) => void;");
+        sb.AppendLine("  refresh" + namespaceName + ": () => void;");
         sb.AppendLine("}");
         sb.AppendLine();
 
@@ -91,15 +125,34 @@ public static class TypeScriptHookGenerator
         sb.AppendLine($"  }};");
         sb.AppendLine();
 
+        // Refresh field action
+        sb.AppendLine($"  const refresh{namespaceName} = (): void => {{");
+        sb.AppendLine($"    clear{namespaceName}();");
+        sb.AppendLine($"  }};");
+        sb.AppendLine();
+
         // Command methods
-        foreach (string methodName in commandMethodNames)
+        foreach (MethodDetails method in methods)
         {
+            string methodName = method.Name;
             if (methodName.StartsWith("GetPaged"))
             {
                 continue;
             }
-            sb.AppendLine($"  const {methodName.ToCamelCase()} = (id: string): Promise<DefaultAPIResponse | null> => {{");
-            sb.AppendLine($"    return {methodName}(id);");
+            if (methodName == "DeleteAllSMChannelsFromParameters")
+            {
+                int aa = 1;
+            }
+            //string tsParams = ParameterConverter.ConvertCSharpParametersToTypeScript(method.Parameters);
+            //string[] parts = tsParams.Split(':');
+            //string parameterName = parts[0].Trim();
+
+            //string pattern = @"\b\w*Parameters(?!\:)\b";
+            //tsParams = Regex.Replace(tsParams, pattern, "QueryStringParameters");
+            //(string parameterName, string tsParameterString) = GetReal(method);
+
+            sb.AppendLine($"  const {methodName.ToCamelCase()} = ({method.TsParameters}): Promise<DefaultAPIResponse | null> => {{");
+            sb.AppendLine($"    return {methodName}({method.ParameterNames});");
             sb.AppendLine($"  }};");
             sb.AppendLine();
         }
@@ -116,12 +169,23 @@ public static class TypeScriptHookGenerator
             sb.Append($", {methodName.ToCamelCase()}");
         }
 
-        sb.AppendLine($", set{namespaceName}Field }};");
+        sb.AppendLine($", refresh{namespaceName}, set{namespaceName}Field }};");
         sb.AppendLine("};");
         sb.AppendLine();
         sb.AppendLine($"export default use{namespaceName};");
 
         return sb.ToString();
+    }
+
+    public static (string parameterName, string tsParameterString) GetReal(MethodDetails method)
+    {
+        string tsParams = ParameterConverter.ConvertCSharpParametersToTypeScript(method.Parameters);
+        string[] parts = tsParams.Split(':');
+        string parameterName = parts[0].Trim();
+
+        string pattern = @"\b\w*Parameters(?!\:)\b";
+        tsParams = Regex.Replace(tsParams, pattern, "QueryStringParameters");
+        return (parameterName, tsParams);
     }
 }
 

@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+
+using StreamMaster.Application.SMChannels;
 using StreamMaster.Application.SMStreams;
 
 namespace StreamMaster.Application;
@@ -13,6 +15,7 @@ public static class ConfigureServices
         //_ = services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
 
         services.AddScoped<ISMStreamsService, SMStreamsService>();
+        services.AddScoped<ISMChannelsService, SMChannelsService>();
         return services;
     }
 }

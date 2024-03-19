@@ -1,28 +1,28 @@
+// import DataSelector2 from '@components/dataSelector/DataSelector2';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
+import ChannelDeleteDialog from '@components/smchannels/ChannelDeleteDialog';
 
-import { SMStreamDto } from '@lib/apiDefs';
+import { SMChannelDto } from '@lib/apiDefs';
 
 import { GetMessage, arraysContainSameStrings } from '@lib/common/common';
 import { ChannelGroupDto } from '@lib/iptvApi';
-import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreams';
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
-import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import useSMStreams from '@lib/smAPI/SMStreams/useSMStreams';
+import useSMChannels from '@lib/smAPI/SMChannels/useSMChannels';
 
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
 const DataSelector2 = lazy(() => import('@components/dataSelector/DataSelector2'));
 const StreamCopyLinkDialog = lazy(() => import('@components/smstreams/StreamCopyLinkDialog'));
-const StreamVisibleDialog = lazy(() => import('@components/smstreams/StreamVisibleDialog'));
+// const StreamVisibleDialog = lazy(() => import('@components/streams/StreamVisibleDialog'));
 
-interface SMStreamDataSelectorProperties {
+interface SMChannelDataSelectorProperties {
   readonly enableEdit?: boolean;
   readonly id: string;
   readonly reorderable?: boolean;
 }
 
-const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: SMStreamDataSelectorProperties) => {
-  const dataKey = `${id}-SMStreamDataSelector`;
+const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: SMChannelDataSelectorProperties) => {
+  const dataKey = `${id}-SMChannelDataSelector`;
 
   const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
@@ -30,8 +30,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
   const channelGroupNames = useMemo(() => selectSelectedItems.map((channelGroup) => channelGroup.name), [selectSelectedItems]);
 
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
-  const { setSelectedSMStreams } = useSelectSMStreams(dataKey);
-  const { isLoading } = useSMStreams();
+  const { isLoading } = useSMChannels();
 
   useEffect(() => {
     if (!arraysContainSameStrings(queryAdditionalFilter?.values, channelGroupNames)) {
@@ -52,11 +51,11 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
   }, [propsEnableEdit]);
 
   const targetActionBodyTemplate = useCallback(
-    (data: SMStreamDto) => (
+    (data: SMChannelDto) => (
       <div className="flex p-0 justify-content-end align-items-center">
         <Suspense>
-          <StreamCopyLinkDialog realUrl={data.realUrl} />
-          <StreamVisibleDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
+          <StreamCopyLinkDialog realUrl={data?.realUrl} />
+          <ChannelDeleteDialog iconFilled={false} id={dataKey} skipOverLayer value={data} />
         </Suspense>
         {/* <VideoStreamSetAutoSetEPGDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} /> */}
         {/* <VideoStreamDeleteDialog iconFilled={false} id={dataKey} values={[data]} /> */}
@@ -71,15 +70,15 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
         <VideoStreamEditDialog value={data} /> */}
       </div>
     ),
-    [dataKey]
+    []
   );
 
   const columns = useMemo(
     (): ColumnMeta[] => [
+      { field: 'channelNumber', width: '4rem' },
       { field: 'logo', fieldType: 'image', width: '4rem' },
       { field: 'name', filter: true, sortable: true },
       { field: 'group', filter: true, sortable: true, width: '5rem' },
-      { field: 'm3UFileName', filter: true, header: 'M3U', sortable: true, width: '5rem' },
       {
         align: 'right',
         bodyTemplate: targetActionBodyTemplate,
@@ -116,31 +115,19 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
         columns={columns}
         defaultSortField="name"
         defaultSortOrder={1}
-        emptyMessage="No Streams"
-        headerName={GetMessage('m3ustreams').toUpperCase()}
+        emptyMessage="No Channels"
+        headerName={GetMessage('channels').toUpperCase()}
         headerRightTemplate={rightHeaderTemplate}
         isLoading={isLoading}
         id={dataKey}
-        onAdd={(e) => {
-          console.log('Add', e);
-          CreateSMChannelFromStream(e.id)
-            .then((response) => {
-              console.log(response);
-            })
-            .catch((error) => {
-              console.error(error);
-            });
-        }}
-        onDelete={(e) => {
-          console.log('Delete', e);
-        }}
-        onSelectionChange={(value, selectAll) => {
-          if (selectAll !== true) {
-            setSelectedSMStreams(value as SMStreamDto[]);
-          }
-        }}
-        queryFilter={useSMStreams}
-        selectedItemsKey="selectSelectedSMStreamDtoItems"
+        // onSelectionChange={(value, selectAll) => {
+        //   if (selectAll !== true) {
+        //     setSelectedSMStreams(value as SMChannelDto[]);
+        //   }
+        // }}
+
+        queryFilter={useSMChannels}
+        selectedItemsKey="selectSelectedSMChannelDtoItems"
         // selectionMode="multiple"
         style={{ height: 'calc(100vh - 40px)' }}
       />
@@ -148,4 +135,4 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
   );
 };
 
-export default memo(SMStreamDataSelector);
+export default memo(SMChannelDataSelector);
