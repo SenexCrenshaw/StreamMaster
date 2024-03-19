@@ -22,6 +22,7 @@ const StringTracker = ({ id, onChange, placeholder, value }: StringTrackerProper
   return (
     <div>
       <StringEditorBodyTemplate
+        debounceMs={500}
         onChange={async (e) => {
           console.log(e);
           setIntValue(e);

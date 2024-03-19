@@ -27,13 +27,15 @@ import getRecordString from './getRecordString';
 import isPagedTableDto from './isPagedTableDto';
 import useDataSelectorState from './useDataSelectorState';
 
+import AddButton from '@components/buttons/AddButton';
+import MinusButton from '@components/buttons/MinusButton';
 import StringTracker from '@components/inputs/StringTracker';
 import { GetApiArgument, PagedResponse, QueryHook } from '@lib/apiDefs';
 import { PagedResponseDto } from '@lib/common/dataTypes';
+import { Checkbox } from 'primereact/checkbox';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import ResetButton from '../buttons/ResetButton';
 import TableHeader from './TableHeader';
-import { addOrRemoveTemplate } from './addOrRemoveTemplate';
 import { useSetQueryFilter } from './useSetQueryFilter';
 
 const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) => {
@@ -236,7 +238,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
 
   const onSelectionChange = useCallback(
     (e: DataTableSelectionMultipleChangeEvent<T[]> | DataTableSelectionSingleChangeEvent<T[]>) => {
-      if (e.value === null || e.value === undefined || e.value.length === 0 || !Array.isArray(e.value)) {
+      if (e.value === null || e.value === undefined || !Array.isArray(e.value)) {
         return;
       }
 
@@ -630,6 +632,72 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
     [getSortIcon, onColumnToggle, props.columns, props.id, setters, state.sortOrder, state.visibleColumns, visibleColumnsTemplate]
   );
 
+  function addSelection(data: T) {
+    const newSelectedItems = [...state.selectSelectedItems, data];
+    setters.setSelectSelectedItems(newSelectedItems);
+  }
+
+  function removeSelection(data: T) {
+    const newSelectedItems = state.selectSelectedItems.filter((item) => item.id !== data.id);
+
+    setters.setSelectSelectedItems(newSelectedItems);
+  }
+
+  function toggleAllSelection() {
+    if (state.selectAll) {
+      setters.setSelectAll(false);
+      setters.setSelectSelectedItems([]);
+    } else {
+      setters.setSelectAll(true);
+      setters.setSelectSelectedItems(state.dataSource ?? []);
+    }
+  }
+
+  const showSelection = useMemo(() => {
+    return props.showSelections || props.selectionMode === 'multiple' || props.selectionMode === 'checkbox' || props.selectionMode === 'multipleNoRowCheckBox';
+  }, [props.selectionMode, props.showSelections]);
+
+  function addOrRemoveTemplate(data: T) {
+    const found = state.selectSelectedItems.some((item) => item.id === data.id);
+
+    const isSelected = found ?? false;
+    if (!isSelected) {
+      return (
+        <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+          <MinusButton iconFilled={false} onClick={() => console.log('AddButton', data)} tooltip="Add Channel" />
+          {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />}
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+        <AddButton iconFilled={false} onClick={() => console.log('AddButton', data)} />
+        {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => removeSelection(data)} />}
+      </div>
+    );
+  }
+
+  function addOrRemoveHeaderTemplate() {
+    const isSelected = false;
+
+    if (!isSelected) {
+      return (
+        <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+          <MinusButton iconFilled={false} onClick={() => console.log('AddButton')} />
+          {showSelection && <Checkbox checked={state.selectAll} className="pl-1" onChange={() => toggleAllSelection()} />}
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+        <AddButton iconFilled={false} onClick={() => console.log('AddButton')} />
+        {showSelection && <Checkbox checked={state.selectAll} className="pl-1" onChange={() => toggleAllSelection()} />}
+      </div>
+    );
+  }
+
   return (
     <div className="dataselector flex w-full min-w-full  justify-content-start align-items-center">
       <div className={`${props.className === undefined ? '' : props.className} min-h-full w-full surface-overlay`}>
@@ -697,11 +765,19 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
         >
           <Column
             body={addOrRemoveTemplate}
-            className="max-w-2rem p-0 justify-content-center align-items-center"
+            className={
+              showSelection
+                ? 'w-3rem max-w-3rem p-0 justify-content-center align-items-center'
+                : 'w-2rem max-w-2rem p-0 justify-content-center align-items-center'
+            }
             field="addOrRemove"
-            header={<div>.</div>}
+            filter
+            filterElement={addOrRemoveHeaderTemplate}
             hidden={!props.addOrRemove}
-            style={{ width: '2rem', maxWidth: '2rem' }}
+            showFilterMenu={false}
+            showFilterOperator={false}
+            resizeable={false}
+            // style={{ width: '3rem', maxWidth: '3rem' }}
           />
           <Column
             className="max-w-2rem p-0 justify-content-center align-items-center"
@@ -711,7 +787,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
             rowReorder
             style={{ width: '2rem', maxWidth: '2rem' }}
           />
-          <Column
+          {/* <Column
             align="center"
             alignHeader="center"
             className="p-0 m-0 w-3rem"
@@ -731,7 +807,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
             showFilterOperator={false}
             resizeable={false}
             selectionMode="multiple"
-          />
+          /> */}
           {state.visibleColumns &&
             state.visibleColumns
               .filter((col) => col.removed !== true)
