@@ -12,7 +12,6 @@ import StreamGroupEditor from '@features/streamGroupEditor/StreamGroupEditor';
 import StreamEditor from '@features/streameditor/StreamEditor';
 import StreamingStatus from '@features/streamingStatus/StreamingStatus';
 import VideoPlayer from '@features/videoPlayer/VideoPlayer';
-import { CacheProvider } from '@lib/Cache/CacheProvider';
 import { useEpgFilesGetEpgColorsQuery, useIconsGetIconsQuery, useSchedulesDirectGetStationChannelNamesQuery } from '@lib/iptvApi';
 import MessagesEn from '@lib/locales/MessagesEn';
 import { SignalRConnection } from '@lib/signalr/SignalRConnection';
@@ -28,6 +27,8 @@ import '@lib/styles/index.css';
 // import '@lib/styles/theme.css'; // theme
 import 'primeicons/primeicons.css'; //icons
 import 'primereact/resources/primereact.min.css'; //core css
+// import 'primereact/resources/primereact.css'; // core css
+//import 'primereact/resources/themes/viva-dark/theme.css'; // theme
 
 const App = (): JSX.Element => {
   const [locale] = useLocalStorage('en', 'locale');
@@ -74,11 +75,9 @@ const App = (): JSX.Element => {
   return (
     <div className="App p-fluid">
       <IntlProvider locale={locale} messages={messages}>
-        <CacheProvider>
-          <SignalRConnection>
-            <RouterProvider router={router} />
-          </SignalRConnection>
-        </CacheProvider>
+        <SignalRConnection>
+          <RouterProvider router={router} />
+        </SignalRConnection>
       </IntlProvider>
     </div>
   );

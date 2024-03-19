@@ -1,9 +1,10 @@
 import { ExportComponent, HeaderLeft, MultiSelectCheckbox } from '@lib/common/common';
 import { SMTextColor } from '../SMTextColor';
 import { type DataSelectorProps as DataSelectorProperties } from './DataSelector';
+import { DataSelector2Props } from './DataSelector2';
 
 interface TableHeaderProperties {
-  dataSelectorProps: DataSelectorProperties;
+  dataSelectorProps: DataSelectorProperties | DataSelector2Props;
   enableExport: boolean;
   exportCSV: () => void;
   headerName?: string;

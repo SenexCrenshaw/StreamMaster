@@ -1,5 +1,5 @@
 $primaryColor: #9eade6 !default;
-$primaryTextColor: #121212 !default;
+
 
 $highlightBg: rgba($primaryColor, 0.16) !default;
 $highlightTextColor: $primaryColor !default;
@@ -15,6 +15,8 @@ $shade600: #263238 !default; //input bg, border, divider
 $shade700: #1e282c !default; //unused
 $shade800: #161d21 !default; //elevated surface
 $shade900: #0e1315 !default; //ground surface
+
+$primaryTextColor: $shade100 !default;
 
 $hoverBg: rgba($primaryColor, 0.08) !default;
 

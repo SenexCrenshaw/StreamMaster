@@ -43,7 +43,7 @@
   --text-color: #ffffff;
   --text-color-secondary: #f5f5f5;
   --primary-color: #5472d4;
-  --primary-color-text: #ffffff;
+  --primary-color-text: #898989;
   --surface-0: #0e1315;
   --surface-50: #262b2c;
   --surface-100: #3e4244;
@@ -83,10 +83,6 @@
 
 .sm-text-color {
   color: #fe7600;
-}
-
-.multiselectcolumn {
-  width: 9rem;
 }
 
 .p-multiselect-trigger {
@@ -917,7 +913,7 @@
   }
   .p-checkbox .p-checkbox-box .p-checkbox-icon {
     transition-duration: 0.3s;
-    color: #ffffff;
+    color: #898989;
     font-size: 14px;
   }
   .p-checkbox .p-checkbox-box .p-checkbox-icon.p-icon {
@@ -936,7 +932,7 @@
   }
   .p-checkbox .p-checkbox-box .p-checkbox-icon {
     transition-duration: 0.3s;
-    color: #ffffff;
+    color: #898989;
     font-size: 14px;
   }
   .p-checkbox .p-checkbox-box .p-checkbox-icon.p-icon {
@@ -953,7 +949,7 @@
   .p-checkbox:not(.p-disabled):has(.p-checkbox-input:hover).p-highlight .p-checkbox-box {
     border-color: #3c5ece;
     background: #3c5ece;
-    color: #ffffff;
+    color: #898989;
   }
   .p-checkbox:not(.p-disabled):has(.p-checkbox-input:focus-visible) .p-checkbox-box {
     outline: 0 none;
@@ -1995,7 +1991,7 @@
     width: 12px;
     height: 12px;
     transition-duration: 0.3s;
-    background-color: #ffffff;
+    background-color: #898989;
   }
   .p-radiobutton.p-highlight .p-radiobutton-box {
     border-color: #5472d4;
@@ -2009,7 +2005,7 @@
     background: #3c5ece;
   }
   .p-radiobutton:not(.p-disabled):has(.p-radiobutton-input:hover).p-highlight .p-radiobutton-box .p-radiobutton-icon {
-    background-color: #ffffff;
+    background-color: #898989;
   }
   .p-radiobutton:not(.p-disabled):has(.p-radiobutton-input:focus-visible) .p-radiobutton-box {
     outline: 0 none;
@@ -2361,7 +2357,7 @@
     border-color: #f88c79;
   }
   .p-button {
-    color: #ffffff;
+    color: #898989;
     background: #5472d4;
     border: 2px solid #5472d4;
     padding: 0.5rem 1rem;
@@ -2371,12 +2367,12 @@
   }
   .p-button:not(:disabled):hover {
     background: #4868d1;
-    color: #ffffff;
+    color: #898989;
     border-color: #4868d1;
   }
   .p-button:not(:disabled):active {
     background: #3c5ece;
-    color: #ffffff;
+    color: #898989;
     border-color: #3c5ece;
   }
   .p-button.p-button-outlined {
@@ -2458,7 +2454,7 @@
     height: 1rem;
     line-height: 1rem;
     color: #5472d4;
-    background-color: #ffffff;
+    background-color: #898989;
   }
   .p-button.p-button-raised {
     box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
@@ -4739,7 +4735,7 @@
   }
   .p-overlaypanel .p-overlaypanel-close {
     background: #5472d4;
-    color: #ffffff;
+    color: #898989;
     width: 2rem;
     height: 2rem;
     transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
@@ -4750,7 +4746,7 @@
   }
   .p-overlaypanel .p-overlaypanel-close:enabled:hover {
     background: #4868d1;
-    color: #ffffff;
+    color: #898989;
   }
   .p-overlaypanel:after {
     border: solid transparent;
@@ -6588,7 +6584,7 @@
   }
   .p-tag {
     background: #5472d4;
-    color: #ffffff;
+    color: #898989;
     font-size: 0.75rem;
     font-weight: 700;
     padding: 0.25rem 0.4rem;
@@ -6702,7 +6698,7 @@
     background: #5472d4;
   }
   .p-progressbar .p-progressbar-label {
-    color: #ffffff;
+    color: #898989;
     line-height: 1.5rem;
   }
   .p-terminal {
@@ -6718,7 +6714,7 @@
   }
   .p-badge {
     background: #5472d4;
-    color: #ffffff;
+    color: #898989;
     font-size: 0.75rem;
     font-weight: 700;
     min-width: 1.5rem;
@@ -6759,7 +6755,7 @@
   }
   .p-tag {
     background: #5472d4;
-    color: #ffffff;
+    color: #898989;
     font-size: 0.75rem;
     font-weight: 700;
     padding: 0.25rem 0.4rem;

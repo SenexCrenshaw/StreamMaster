@@ -28,8 +28,6 @@ import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStrea
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import PlayListDataSelectorDropDown from './PlayListDataSelectorDropDown';
 
-import '@lib/styles/theme.css'; // theme
-
 interface ChannelGroupVideoStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
   readonly id: string;

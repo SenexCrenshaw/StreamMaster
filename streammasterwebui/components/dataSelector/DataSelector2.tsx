@@ -31,14 +31,12 @@ import StringTracker from '@components/inputs/StringTracker';
 import { GetApiArgument, PagedResponse, QueryHook } from '@lib/apiDefs';
 import { PagedResponseDto } from '@lib/common/dataTypes';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
-import BanButton from '../buttons/BanButton';
 import ResetButton from '../buttons/ResetButton';
-import { TriSelectShowSelection } from '../selectors/TriSelectShowSelection';
 import TableHeader from './TableHeader';
 import { addOrRemoveTemplate } from './addOrRemoveTemplate';
 import { useSetQueryFilter } from './useSetQueryFilter';
 
-const DataSelector2 = <T extends DataTableValue>(props: DataSelectorProps<T>) => {
+const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) => {
   const debug = false;
   const { state, setters } = useDataSelectorState<T>(props.id, props.selectedItemsKey);
 
@@ -387,32 +385,34 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelectorProps<T>) =>
     [props]
   );
 
-  const multiselectHeader = () => {
-    if (props.showSelections === true) {
-      return <TriSelectShowSelection dataKey={props.id} />;
-    }
+  // const multiselectHeader = () => {
+  //   if (props.showSelections === true) {
+  //     return <TriSelectShowSelection dataKey={props.id} />;
+  //   }
 
-    if (props.disableSelectAll === true) {
-      return <div className="text-xs text-white text-500" />;
-    }
+  //   if (props.disableSelectAll === true) {
+  //     return <div className="text-xs text-white text-500" />;
+  //   }
 
-    return (
-      <div className="text-xs text-white text-500">
-        <BanButton
-          className="banbutton"
-          disabled={(state.selectSelectedItems || []).length === 0}
-          onClick={() => {
-            setters.setSelectSelectedItems([]);
-            setters.setSelectAll(false);
-            if (props.onSelectionChange) {
-              props.onSelectionChange([], state.selectAll);
-            }
-          }}
-          tooltip={`Clear ${(state.selectSelectedItems || []).length} Selections`}
-        />
-      </div>
-    );
-  };
+  //   return (
+  //     <div className="flex">
+  //       <div className="text-xs text-white text-500">
+  //         <BanButton
+  //           className="banbutton"
+  //           disabled={(state.selectSelectedItems || []).length === 0}
+  //           onClick={() => {
+  //             setters.setSelectSelectedItems([]);
+  //             setters.setSelectAll(false);
+  //             if (props.onSelectionChange) {
+  //               props.onSelectionChange([], state.selectAll);
+  //             }
+  //           }}
+  //           tooltip={`Clear ${(state.selectSelectedItems || []).length} Selections`}
+  //         />
+  //       </div>
+  //     </div>
+  //   );
+  // };
 
   const rowReorderHeader = () => (
     <div className=" text-xs text-white text-500">
@@ -701,7 +701,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelectorProps<T>) =>
             field="addOrRemove"
             header={<div>.</div>}
             hidden={!props.addOrRemove}
-            style={{ width: '2rem' }}
+            style={{ width: '2rem', maxWidth: '2rem' }}
           />
           <Column
             className="max-w-2rem p-0 justify-content-center align-items-center"
@@ -709,14 +709,16 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelectorProps<T>) =>
             header={rowReorderHeader}
             hidden={!props.reorderable}
             rowReorder
-            style={{ width: '2rem' }}
+            style={{ width: '2rem', maxWidth: '2rem' }}
           />
           <Column
             align="center"
             alignHeader="center"
-            className={`flex multiselectcolumn justify-content-left align-items-center ${props.selectionMode}`}
-            filter
-            filterElement={multiselectHeader}
+            className="p-0 m-0 w-3rem"
+            filterHeaderClassName="p-3 m-0 w-3rem"
+            // className="p-0 m-0"
+            // filter
+            // filterElement={multiselectHeader}
             // header={multiselectHeader}
             // headerStyle={{ padding: '0px', width: '3rem' }}
             hidden={
@@ -772,7 +774,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelectorProps<T>) =>
 DataSelector2.displayName = 'dataselector2';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-interface BaseDataSelectorProperties<T = any> {
+interface BaseDataSelector2Properties<T = any> {
   className?: string;
   columns: ColumnMeta[];
   defaultSortField: string;
@@ -817,12 +819,12 @@ interface BaseDataSelectorProperties<T = any> {
   // virtualScrollHeight?: string | undefined;
 }
 
-type QueryFilterProperties<T> = BaseDataSelectorProperties<T> & {
+type QueryFilterProperties<T> = BaseDataSelector2Properties<T> & {
   queryFilter: (params: GetApiArgument | undefined) => ReturnType<QueryHook<PagedResponse<T> | undefined>>;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type DataSelectorProps<T = any> = QueryFilterProperties<T>;
+export type DataSelector2Props<T = any> = QueryFilterProperties<T>;
 
 export interface PagedTableInformation {
   first: number;

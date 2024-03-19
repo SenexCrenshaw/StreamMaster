@@ -43,7 +43,7 @@
   --text-color: rgba(255, 255, 255, 0.87);
   --text-color-secondary: rgba(255, 255, 255, 0.6);
   --primary-color: #9eade6;
-  --primary-color-text: #121212;
+  --primary-color-text: rgba(255, 255, 255, 0.6);
   --surface-0: #0e1315;
   --surface-50: #262b2c;
   --surface-100: #3e4244;
@@ -83,10 +83,6 @@
 
 .sm-text-color {
   color: #fe7600;
-}
-
-.multiselectcolumn {
-  width: 9rem;
 }
 
 .p-multiselect-trigger {
@@ -917,7 +913,7 @@
   }
   .p-checkbox .p-checkbox-box .p-checkbox-icon {
     transition-duration: 0.3s;
-    color: #121212;
+    color: rgba(255, 255, 255, 0.6);
     font-size: 14px;
   }
   .p-checkbox .p-checkbox-box .p-checkbox-icon.p-icon {
@@ -936,7 +932,7 @@
   }
   .p-checkbox .p-checkbox-box .p-checkbox-icon {
     transition-duration: 0.3s;
-    color: #121212;
+    color: rgba(255, 255, 255, 0.6);
     font-size: 14px;
   }
   .p-checkbox .p-checkbox-box .p-checkbox-icon.p-icon {
@@ -953,7 +949,7 @@
   .p-checkbox:not(.p-disabled):has(.p-checkbox-input:hover).p-highlight .p-checkbox-box {
     border-color: #7f93de;
     background: #7f93de;
-    color: #121212;
+    color: rgba(255, 255, 255, 0.6);
   }
   .p-checkbox:not(.p-disabled):has(.p-checkbox-input:focus-visible) .p-checkbox-box {
     outline: 0 none;
@@ -1995,7 +1991,7 @@
     width: 12px;
     height: 12px;
     transition-duration: 0.3s;
-    background-color: #121212;
+    background-color: rgba(255, 255, 255, 0.6);
   }
   .p-radiobutton.p-highlight .p-radiobutton-box {
     border-color: #9eade6;
@@ -2009,7 +2005,7 @@
     background: #7f93de;
   }
   .p-radiobutton:not(.p-disabled):has(.p-radiobutton-input:hover).p-highlight .p-radiobutton-box .p-radiobutton-icon {
-    background-color: #121212;
+    background-color: rgba(255, 255, 255, 0.6);
   }
   .p-radiobutton:not(.p-disabled):has(.p-radiobutton-input:focus-visible) .p-radiobutton-box {
     outline: 0 none;
@@ -2361,7 +2357,7 @@
     border-color: #f78c79;
   }
   .p-button {
-    color: #121212;
+    color: rgba(255, 255, 255, 0.6);
     background: #9eade6;
     border: 2px solid #9eade6;
     padding: 0.5rem 1rem;
@@ -2371,12 +2367,12 @@
   }
   .p-button:not(:disabled):hover {
     background: #8fa0e2;
-    color: #121212;
+    color: rgba(255, 255, 255, 0.6);
     border-color: #8fa0e2;
   }
   .p-button:not(:disabled):active {
     background: #7f93de;
-    color: #121212;
+    color: rgba(255, 255, 255, 0.6);
     border-color: #7f93de;
   }
   .p-button.p-button-outlined {
@@ -2458,7 +2454,7 @@
     height: 1rem;
     line-height: 1rem;
     color: #9eade6;
-    background-color: #121212;
+    background-color: rgba(255, 255, 255, 0.6);
   }
   .p-button.p-button-raised {
     box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
@@ -4739,7 +4735,7 @@
   }
   .p-overlaypanel .p-overlaypanel-close {
     background: #9eade6;
-    color: #121212;
+    color: rgba(255, 255, 255, 0.6);
     width: 2rem;
     height: 2rem;
     transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
@@ -4750,7 +4746,7 @@
   }
   .p-overlaypanel .p-overlaypanel-close:enabled:hover {
     background: #8fa0e2;
-    color: #121212;
+    color: rgba(255, 255, 255, 0.6);
   }
   .p-overlaypanel:after {
     border: solid transparent;
@@ -6588,7 +6584,7 @@
   }
   .p-tag {
     background: #9eade6;
-    color: #121212;
+    color: rgba(255, 255, 255, 0.6);
     font-size: 0.75rem;
     font-weight: 700;
     padding: 0.25rem 0.4rem;
@@ -6702,7 +6698,7 @@
     background: #9eade6;
   }
   .p-progressbar .p-progressbar-label {
-    color: #121212;
+    color: rgba(255, 255, 255, 0.6);
     line-height: 1.5rem;
   }
   .p-terminal {
@@ -6718,7 +6714,7 @@
   }
   .p-badge {
     background: #9eade6;
-    color: #121212;
+    color: rgba(255, 255, 255, 0.6);
     font-size: 0.75rem;
     font-weight: 700;
     min-width: 1.5rem;
@@ -6759,7 +6755,7 @@
   }
   .p-tag {
     background: #9eade6;
-    color: #121212;
+    color: rgba(255, 255, 255, 0.6);
     font-size: 0.75rem;
     font-weight: 700;
     padding: 0.25rem 0.4rem;

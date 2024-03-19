@@ -1,4 +1,4 @@
-import DeleteButton from '@components/buttons/DeleteButton';
+import MinusButton from '@components/buttons/MinusButton';
 import { HeadendDto, SchedulesDirectRemoveLineupApiArg, useSchedulesDirectRemoveLineupMutation } from '@lib/iptvApi';
 import { memo } from 'react';
 
@@ -29,7 +29,7 @@ const SchedulesDirectAddHeadendDialog = ({ value }: SchedulesDirectAddHeadendDia
 
   return (
     <div className="flex">
-      <DeleteButton iconFilled={false} onClick={async () => await addHeadEnd()} />
+      <MinusButton iconFilled={false} onClick={async () => await addHeadEnd()} />
     </div>
   );
 };
