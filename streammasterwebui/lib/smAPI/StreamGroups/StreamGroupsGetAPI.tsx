@@ -1,40 +1,39 @@
 /* eslint unused-imports/no-unused-imports-ts: off */
 /* eslint @typescript-eslint/no-unused-vars: off */
-import { StringArgument } from '@lib/common/dataTypes';
 import type * as iptv from '@lib/iptvApi';
-import { invokeHubConnection } from '@lib/signalr/signalr';
+import { invokeHubCommand } from '@lib/signalr/signalr';
 
 export const GetStreamGroup = async (argument: iptv.StreamGroupDto): Promise<iptv.StreamGroupDto | null> =>
-  invokeHubConnection<iptv.StreamGroupDto>('GetStreamGroup', argument);
+  invokeHubCommand<iptv.StreamGroupDto>('GetStreamGroup', argument);
 export const GetVideoStreamStreamFromAutoGET = async (argument: string): Promise<void | null> => {
-  await invokeHubConnection<void>('GetVideoStreamStreamFromAutoGET', argument);
+  await invokeHubCommand<void>('GetVideoStreamStreamFromAutoGET', argument);
 };
 export const GetStreamGroupCapability = async (argument: string): Promise<void | null> => {
-  await invokeHubConnection<void>('GetStreamGroupCapability', argument);
+  await invokeHubCommand<void>('GetStreamGroupCapability', argument);
 };
 export const GetStreamGroupCapability2 = async (argument: string): Promise<void | null> => {
-  await invokeHubConnection<void>('GetStreamGroupCapability2', argument);
+  await invokeHubCommand<void>('GetStreamGroupCapability2', argument);
 };
 export const GetStreamGroupCapability3 = async (argument: string): Promise<void | null> => {
-  await invokeHubConnection<void>('GetStreamGroupCapability3', argument);
+  await invokeHubCommand<void>('GetStreamGroupCapability3', argument);
 };
 export const GetStreamGroupDiscover = async (argument: string): Promise<void | null> => {
-  await invokeHubConnection<void>('GetStreamGroupDiscover', argument);
+  await invokeHubCommand<void>('GetStreamGroupDiscover', argument);
 };
 export const GetStreamGroupEpg = async (argument: string): Promise<void | null> => {
-  await invokeHubConnection<void>('GetStreamGroupEpg', argument);
+  await invokeHubCommand<void>('GetStreamGroupEpg', argument);
 };
 export const GetStreamGroupLineup = async (argument: string): Promise<void | null> => {
-  await invokeHubConnection<void>('GetStreamGroupLineup', argument);
+  await invokeHubCommand<void>('GetStreamGroupLineup', argument);
 };
 export const GetStreamGroupLineupStatus = async (argument: string): Promise<void | null> => {
-  await invokeHubConnection<void>('GetStreamGroupLineupStatus', argument);
+  await invokeHubCommand<void>('GetStreamGroupLineupStatus', argument);
 };
 export const GetStreamGroupM3U = async (argument: string): Promise<void | null> => {
-  await invokeHubConnection<void>('GetStreamGroupM3U', argument);
+  await invokeHubCommand<void>('GetStreamGroupM3U', argument);
 };
 export const GetPagedStreamGroups = async (argument: iptv.PagedResponseOfStreamGroupDto): Promise<iptv.StreamGroupDto[] | null> =>
-  invokeHubConnection<iptv.StreamGroupDto[]>('GetPagedStreamGroups', argument);
+  invokeHubCommand<iptv.StreamGroupDto[]>('GetPagedStreamGroups', argument);
 export const GetStreamGroupVideoStreamUrl = async (argument: string): Promise<void | null> => {
-  await invokeHubConnection<void>('GetStreamGroupVideoStreamUrl', argument);
+  await invokeHubCommand<void>('GetStreamGroupVideoStreamUrl', argument);
 };

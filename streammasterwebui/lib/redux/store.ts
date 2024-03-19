@@ -14,8 +14,6 @@ import { enhancedApiStreamGroups } from '@lib/smAPI/StreamGroups/StreamGroupsEnh
 import { enhancedApiVideoStreamLinks } from '@lib/smAPI/VideoStreamLinks/VideoStreamLinksEnhancedAPI';
 import { enhancedApiVideoStreams } from '@lib/smAPI/VideoStreams/VideoStreamsEnhancedAPI';
 
-import selectSMStreamsReducer from '@lib/redux/slices/SMStreams';
-import anySliceReducer from '@lib/redux/slices/anySlice';
 import channelGroupToRemoveSliceReducer from '@lib/redux/slices/channelGroupToRemoveSlice';
 import queryAdditionalFiltersReducer from '@lib/redux/slices/queryAdditionalFiltersSlice';
 import queryFilterReducer from '@lib/redux/slices/queryFilterSlice';
@@ -24,12 +22,14 @@ import selectedCountrySlice from '@lib/redux/slices/selectedCountrySlice';
 import selectCurrentSettingDtoReducer from '@lib/redux/slices/selectedCurrentSettingDto';
 import selectedItemsSliceReducer from '@lib/redux/slices/selectedItemsSlice';
 import selectedPostalCodeSlice from '@lib/redux/slices/selectedPostalCodeSlice';
+import selectSMStreamsReducer from '@lib/redux/slices/selectedSMStreams';
 import selectedStreamGroupSliceReducer from '@lib/redux/slices/selectedStreamGroupSlice';
 import selectUpdateSettingRequestReducer from '@lib/redux/slices/selectedUpdateSettingRequestSlice';
 import selectedVideoStreamsSliceReducer from '@lib/redux/slices/selectedVideoStreamsSlice';
 import showHiddenSliceReducer from '@lib/redux/slices/showHiddenSlice';
 import showSelectionsSliceReducer from '@lib/redux/slices/showSelectionsSlice';
 import sortInfoSliceReducer from '@lib/redux/slices/sortInfoSlice';
+import SMStreamsReducer from '@lib/smAPI/SMStreams/SMStreamsSlice';
 
 import { enhancedApiMisc } from '@lib/smAPI/Misc/MiscEnhancedAPI';
 import { enhancedApiVideoStreamLinksLocal } from '@lib/smAPILocal/VideoStreamLinksEnhancedAPILocal';
@@ -128,6 +128,7 @@ const rootReducer = combineReducers({
   channelGroupToRemove: channelGroupToRemoveSliceReducer,
   queryAdditionalFilters: queryAdditionalFiltersReducer,
   queryFilter: queryFilterReducer,
+  SMStreams: SMStreamsReducer,
   selectUpdateSettingRequest: persistReducer(selectUpdateSettingRequestSliceConfig, selectUpdateSettingRequestReducer),
   selectCurrentSettingDto: persistReducer(currentSettingDtoSliceConfig, selectCurrentSettingDtoReducer),
   selectedPostalCode: persistReducer(selectedPostalCodeConfig, selectedPostalCodeSlice),
@@ -139,7 +140,6 @@ const rootReducer = combineReducers({
   showHidden: persistReducer(showHiddenConfig, showHiddenSliceReducer),
   showSelections: persistReducer(showSelectionsConfig, showSelectionsSliceReducer),
   sortInfo: persistReducer(sortInfoConfig, sortInfoSliceReducer),
-  selectanySlice: persistReducer(anyConfig, anySliceReducer),
   selectSMStreams: persistReducer(selectSMStreamsConfig, selectSMStreamsReducer)
 });
 

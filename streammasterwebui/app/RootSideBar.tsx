@@ -40,7 +40,7 @@ export const RootSideBar = () => {
         .catch(() => {
           setIsReady(false);
         });
-    }, 1000);
+    }, 5000);
 
     return () => clearInterval(intervalId);
   }, []);

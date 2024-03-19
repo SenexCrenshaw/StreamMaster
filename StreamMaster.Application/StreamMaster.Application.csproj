@@ -65,7 +65,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Common\Logging\" />
-    <Folder Include="SMStreams\Hub\" />
     <Folder Include="SMChannels\Commands\" />
     <Folder Include="SMChannels\Hub\" />
     <Folder Include="SMChannels\Queries\" />

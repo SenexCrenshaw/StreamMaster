@@ -1,9 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Application.Common.Extensions;
-using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Pagination;
-
 using System.Text.Json;
 using System.Web;
 

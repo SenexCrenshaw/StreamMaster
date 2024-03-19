@@ -1,17 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Application.SMStreams.Commands;
-using StreamMaster.Domain.Pagination;
-
 namespace StreamMaster.Application.SMStreams;
 
-public interface ISMStreamController
+public interface ISMStreamsController
 {
-    Task<ActionResult<PagedResponse<SMStreamDto>>> GetPagedSMStreams([FromQuery] SMStreamParameters Parameters);
-    Task<ActionResult<bool>> ToggleSMStreamVisible(ToggleSMStreamVisibleRequest request);
+    Task<ActionResult<DefaultAPIResponse>> ToggleSMStreamVisibleById(string id);
+    Task<ActionResult<APIResponse<SMStreamDto>>> GetPagedSMStreams(SMStreamParameters parameters);
 }
 
 public interface ISMStreamHub
 {
-
+    Task<DefaultAPIResponse> ToggleSMStreamVisibleById(string id);
+    Task<APIResponse<SMStreamDto>> GetPagedSMStreams(SMStreamParameters parameters);
 }

@@ -12,15 +12,9 @@ import StreamGroupEditor from '@features/streamGroupEditor/StreamGroupEditor';
 import StreamEditor from '@features/streameditor/StreamEditor';
 import StreamingStatus from '@features/streamingStatus/StreamingStatus';
 import VideoPlayer from '@features/videoPlayer/VideoPlayer';
-import {
-  IconFileDto,
-  StationChannelName,
-  useEpgFilesGetEpgColorsQuery,
-  useIconsGetIconsQuery,
-  useSchedulesDirectGetStationChannelNamesQuery
-} from '@lib/iptvApi';
+import { CacheProvider } from '@lib/Cache/CacheProvider';
+import { useEpgFilesGetEpgColorsQuery, useIconsGetIconsQuery, useSchedulesDirectGetStationChannelNamesQuery } from '@lib/iptvApi';
 import MessagesEn from '@lib/locales/MessagesEn';
-import { CacheProvider } from '@lib/redux/CacheProvider';
 import { SignalRConnection } from '@lib/signalr/SignalRConnection';
 
 import { IntlProvider } from 'react-intl';
@@ -80,13 +74,11 @@ const App = (): JSX.Element => {
   return (
     <div className="App p-fluid">
       <IntlProvider locale={locale} messages={messages}>
-        <SignalRConnection>
-          <CacheProvider<IconFileDto>>
-            <CacheProvider<StationChannelName>>
-              <RouterProvider router={router} />
-            </CacheProvider>
-          </CacheProvider>
-        </SignalRConnection>
+        <CacheProvider>
+          <SignalRConnection>
+            <RouterProvider router={router} />
+          </SignalRConnection>
+        </CacheProvider>
       </IntlProvider>
     </div>
   );

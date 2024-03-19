@@ -1,3 +1,4 @@
+import { CacheProvider } from '@lib/Cache/CacheProvider';
 import store, { persistor } from '@lib/redux/store';
 import 'primeicons/primeicons.css'; // icons
 import { PrimeReactProvider } from 'primereact/api';
@@ -14,7 +15,9 @@ root.render(
     <Provider store={store}>
       <PersistGate persistor={persistor} />
       <PrimeReactProvider value={{ ripple: true, inputStyle: 'outlined' }}>
-        <App />
+        <CacheProvider>
+          <App />
+        </CacheProvider>
       </PrimeReactProvider>
     </Provider>
   </React.StrictMode>

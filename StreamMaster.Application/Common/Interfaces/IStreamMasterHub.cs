@@ -5,6 +5,8 @@ namespace StreamMaster.Application.Common.Interfaces;
 
 public interface IStreamMasterHub : ISharedHub
 {
+    Task<DefaultAPIResponse> ToggleSMStreamVisibleRequest(string Id, CancellationToken cancellationToken);
+
     Task VideoStreamLinksRemove(string[]? results = null);
     Task VideoStreamLinksRefresh(string[]? results = null);
     Task BroadcastStartUpData();
@@ -32,4 +34,5 @@ public interface IStreamMasterHub : ISharedHub
     Task ChannelGroupsDelete(IEnumerable<int> ChannelGroupIds);
     Task VideoStreamsVisibilityRefresh(IEnumerable<IDIsHidden> results);
     Task UpdateChannelGroupVideoStreamCounts(List<ChannelGroupStreamCount> channelGroupStreamCounts);
+    Task SetField(FieldData fieldData);
 }

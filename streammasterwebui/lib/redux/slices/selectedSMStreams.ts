@@ -1,15 +1,15 @@
-import { SmStreamDto } from '@lib/iptvApi';
+import { SMStreamDto } from '@lib/iptvApi';
 import type { RootState } from '@lib/redux/store';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { useCallback } from 'react';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 interface SMStreamsPayload {
-  value: SmStreamDto[];
+  value: SMStreamDto[];
   typename: string;
 }
 
-type CurrentSMStreamsState = Record<string, SmStreamDto[] | undefined>;
+type CurrentSMStreamsState = Record<string, SMStreamDto[] | undefined>;
 
 const initialState: CurrentSMStreamsState = {};
 
@@ -39,7 +39,7 @@ export const useSelectSMStreams = (typename: string) => {
   const selectSMStreams = useTypedSelector(selectedSMStreams(typename));
 
   const handleSetcurrentSMStreamsSlice = useCallback(
-    (newValue: SmStreamDto[]) => {
+    (newValue: SMStreamDto[]) => {
       dispatch(selectedSMStreamsSlice.actions.setSelectedSMStreams({ typename, value: newValue }));
     },
     [dispatch, typename]

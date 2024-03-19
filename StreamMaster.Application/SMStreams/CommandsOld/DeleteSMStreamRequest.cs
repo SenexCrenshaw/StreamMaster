@@ -1,9 +1,8 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Application.SMStreams.Events;
 using StreamMaster.Application.StreamGroupChannelGroups.Commands;
 
-namespace StreamMaster.Application.SMStreams.Commands;
+namespace StreamMaster.Application.SMStreams.CommandsOld;
 
 public record DeleteSMStreamRequest(string Id) : IRequest<bool> { }
 
@@ -31,7 +30,7 @@ public class DeleteSMStreamRequestHandler(ILogger<DeleteSMStreamRequest> logger,
             {
                 await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(cg.Id), cancellationToken).ConfigureAwait(false);
             }
-            await Publisher.Publish(new DeleteStreamEvent(stream.Id, cg), cancellationToken).ConfigureAwait(false);
+            //await Publisher.Publish(new DeleteStreamEvent(stream.Id, cg), cancellationToken).ConfigureAwait(false);
             return true;
         }
 

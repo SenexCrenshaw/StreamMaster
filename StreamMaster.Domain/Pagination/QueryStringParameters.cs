@@ -16,7 +16,7 @@
                 }
                 return _pageSize;
             }
-            set => _pageSize = value;// > maxPageSize ? maxPageSize : value;
+            set => _pageSize = value;
         }
 
         public string OrderBy

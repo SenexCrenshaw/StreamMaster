@@ -20,3 +20,4 @@ export const singletonLogsListener = createSingletonListener('LogsRefresh', hubC
 export const singletonStatisticListener = createSingletonListener('StreamStatisticsResultsUpdate', hubConnection);
 export const singletonMiscListener = createSingletonListener('MiscRefresh', hubConnection);
 export const singletonQueueListener = createSingletonListener('TaskQueueStatusUpdate', hubConnection);
+export const setFieldListener = createSingletonListener('SetField', hubConnection);

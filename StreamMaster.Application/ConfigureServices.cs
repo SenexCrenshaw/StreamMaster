@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-
-using StreamMaster.Application.Common.Behaviours;
+using StreamMaster.Application.SMStreams;
 
 namespace StreamMaster.Application;
 
@@ -11,9 +10,9 @@ public static class ConfigureServices
         services.AddTransient<ILoggingUtils, LoggingUtils>();
         //_ = services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
         //_ = services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
-        _ = services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
+        //_ = services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
 
-
+        services.AddScoped<ISMStreamsService, SMStreamsService>();
         return services;
     }
 }

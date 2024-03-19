@@ -1,11 +1,11 @@
 import { LinkButton } from '@components/buttons/LinkButton';
-import { SmStreamDto } from '@lib/iptvApi';
+import { SMStreamDto } from '@lib/iptvApi';
 import { memo } from 'react';
 
 interface StreamCopyLinkDialogProperties {
   readonly iconFilled?: boolean | undefined;
   readonly onClose?: () => void;
-  readonly value?: SmStreamDto | undefined;
+  readonly value?: SMStreamDto | undefined;
 }
 
 const StreamCopyLinkDialog = ({ iconFilled, onClose, value }: StreamCopyLinkDialogProperties) => {

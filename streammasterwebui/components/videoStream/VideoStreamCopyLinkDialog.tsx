@@ -1,12 +1,12 @@
 import { LinkButton } from '@components/buttons/LinkButton';
-import { SmStreamDto, useStreamGroupsGetStreamGroupVideoStreamUrlQuery, type VideoStreamDto } from '@lib/iptvApi';
+import { SMStreamDto, useStreamGroupsGetStreamGroupVideoStreamUrlQuery, type VideoStreamDto } from '@lib/iptvApi';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { memo, useEffect } from 'react';
 
 interface VideoStreamCopyLinkDialogProperties {
   readonly iconFilled?: boolean | undefined;
   readonly onClose?: () => void;
-  readonly value?: VideoStreamDto | SmStreamDto | undefined;
+  readonly value?: VideoStreamDto | SMStreamDto | undefined;
 }
 
 const VideoStreamCopyLinkDialog = ({ iconFilled, onClose, value }: VideoStreamCopyLinkDialogProperties) => {

@@ -2093,11 +2093,11 @@ export type SmStream = {
   url?: string;
   stationId?: string;
 };
-export type SmStreamDto = SmStream & {
+export type SMStreamDto = SmStream & {
   realUrl?: string;
 };
 export type PagedResponseOfSmStreamDto = {
-  data: SmStreamDto[];
+  data: SMStreamDto[];
   pageNumber: number;
   pageSize: number;
   totalPageCount: number;

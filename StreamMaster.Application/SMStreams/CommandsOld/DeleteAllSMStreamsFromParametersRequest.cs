@@ -3,7 +3,7 @@
 using StreamMaster.Application.VideoStreams.Events;
 using StreamMaster.Domain.Pagination;
 
-namespace StreamMaster.Application.SMStreams.Commands;
+namespace StreamMaster.Application.SMStreams.CommandsOld;
 
 public record DeleteAllSMStreamsFromParametersRequest(SMStreamParameters Parameters) : IRequest<bool> { }
 

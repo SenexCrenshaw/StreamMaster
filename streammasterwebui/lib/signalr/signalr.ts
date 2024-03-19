@@ -5,7 +5,7 @@ const url = `${baseHostURL}/streammasterhub`;
 
 export const hubConnection = new HubConnectionBuilder()
   .configureLogging(LogLevel.Error)
-  // .withHubProtocol(new MessagePackHubProtocol())
+  // =.withHubProtocol(new MessagePackHubProtocol())
   .withUrl(url)
   .withAutomaticReconnect({
     nextRetryDelayInMilliseconds: (retryContext) => {
@@ -25,7 +25,7 @@ const blacklistedMethods: string[] = ['GetLog', 'GetIconFromSource'];
 const whitelistedMethods: string[] = [];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const invokeHubConnection = async <T>(methodName: string, argument?: any): Promise<T | null> => {
+export const invokeHubCommand = async <T>(methodName: string, argument?: any): Promise<T | null> => {
   const waitForConnection = async (timeout: number): Promise<boolean> => {
     const startTime = Date.now();
     while (Date.now() - startTime < timeout) {

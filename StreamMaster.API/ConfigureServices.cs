@@ -15,12 +15,12 @@ using NSwag.Generation.Processors.Security;
 using Prometheus;
 
 using StreamMaster.API.Services;
+using StreamMaster.Application.Common;
 using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Application.Hubs;
 using StreamMaster.Application.Services;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Logging;
-using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.Authentication;
 using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.Logger;
@@ -102,8 +102,7 @@ public static class ConfigureServices
 
         services.AddDatabaseDeveloperPageExceptionFilter();
 
-        services
-            .AddControllers(options =>
+        services.AddControllers(options =>
             {
                 options.RespectBrowserAcceptHeader = true;
                 options.ReturnHttpNotAcceptable = true;

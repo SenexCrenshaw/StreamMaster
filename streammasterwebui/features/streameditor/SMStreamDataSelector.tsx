@@ -1,12 +1,16 @@
-import DataSelector from '@components/dataSelector/DataSelector';
+import DataSelector2 from '@components/dataSelector/DataSelector2';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import StreamCopyLinkDialog from '@components/streams/StreamCopyLinkDialog';
 import StreamVisibleDialog from '@components/streams/StreamVisibleDialog';
+import { SMStreamDto } from '@lib/apiDefs';
+
 import { GetMessage, arraysContainSameStrings } from '@lib/common/common';
-import { ChannelGroupDto, SmStreamDto, useSmStreamsGetPagedSmStreamsQuery } from '@lib/iptvApi';
-import { useSelectSMStreams } from '@lib/redux/slices/SMStreams';
+import { ChannelGroupDto } from '@lib/iptvApi';
+import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreams';
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import useSMStreams from '@lib/smAPI/SMStreams/useSMStreams';
+
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 interface SMStreamDataSelectorProperties {
@@ -25,6 +29,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
 
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
   const { setSelectedSMStreams } = useSelectSMStreams(dataKey);
+  const { isLoading } = useSMStreams();
 
   useEffect(() => {
     if (!arraysContainSameStrings(queryAdditionalFilter?.values, channelGroupNames)) {
@@ -45,7 +50,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
   }, [propsEnableEdit]);
 
   const targetActionBodyTemplate = useCallback(
-    (data: SmStreamDto) => (
+    (data: SMStreamDto) => (
       <div className="flex p-0 justify-content-end align-items-center">
         <StreamCopyLinkDialog value={data} />
         <StreamVisibleDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
@@ -101,20 +106,21 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
   );
 
   return (
-    <DataSelector
+    <DataSelector2
       columns={columns}
       defaultSortField="name"
       defaultSortOrder={1}
       emptyMessage="No Streams"
       headerName={GetMessage('m3ustreams').toUpperCase()}
       headerRightTemplate={rightHeaderTemplate}
+      isLoading={isLoading}
       id={dataKey}
       onSelectionChange={(value, selectAll) => {
         if (selectAll !== true) {
-          setSelectedSMStreams(value as SmStreamDto[]);
+          setSelectedSMStreams(value as SMStreamDto[]);
         }
       }}
-      queryFilter={useSmStreamsGetPagedSmStreamsQuery}
+      queryFilter={useSMStreams}
       selectedItemsKey="selectSelectedSMStreamDtoItems"
       selectionMode="multiple"
       style={{ height: 'calc(100vh - 40px)' }}
