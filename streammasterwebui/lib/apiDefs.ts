@@ -3,6 +3,7 @@ export interface QueryHookResult<T> {
   error?: Error | string | null;
   isError: boolean;
   isLoading: boolean;
+  isFetching: boolean;
 }
 
 export interface QueryHook<T> {

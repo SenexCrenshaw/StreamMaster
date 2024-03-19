@@ -1,7 +1,6 @@
-import DataSelector2 from '@components/dataSelector/DataSelector2';
+// import DataSelector2 from '@components/dataSelector/DataSelector2';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
-import StreamCopyLinkDialog from '@components/streams/StreamCopyLinkDialog';
-import StreamVisibleDialog from '@components/streams/StreamVisibleDialog';
+
 import { SMStreamDto } from '@lib/apiDefs';
 
 import { GetMessage, arraysContainSameStrings } from '@lib/common/common';
@@ -11,7 +10,10 @@ import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalF
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import useSMStreams from '@lib/smAPI/SMStreams/useSMStreams';
 
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
+const DataSelector2 = lazy(() => import('@components/dataSelector/DataSelector2'));
+const StreamCopyLinkDialog = lazy(() => import('@components/streams/StreamCopyLinkDialog'));
+const StreamVisibleDialog = lazy(() => import('@components/streams/StreamVisibleDialog'));
 
 interface SMStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
@@ -52,8 +54,10 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
   const targetActionBodyTemplate = useCallback(
     (data: SMStreamDto) => (
       <div className="flex p-0 justify-content-end align-items-center">
-        <StreamCopyLinkDialog value={data} />
-        <StreamVisibleDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
+        <Suspense>
+          <StreamCopyLinkDialog value={data} />
+          <StreamVisibleDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
+        </Suspense>
         {/* <VideoStreamSetAutoSetEPGDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} /> */}
         {/* <VideoStreamDeleteDialog iconFilled={false} id={dataKey} values={[data]} /> */}
         {/* <VideoStreamEditDialog value={data} /> */}
@@ -74,15 +78,15 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
     (): ColumnMeta[] => [
       { field: 'logo', fieldType: 'image' },
       { field: 'name', filter: true, sortable: true },
-      { field: 'group', filter: true, removable: true, sortable: true },
-      { field: 'm3UFileName', filter: true, header: 'M3U', removable: true, sortable: true },
+      { field: 'group', filter: true, sortable: true },
+      { field: 'm3UFileName', filter: true, header: 'M3U', sortable: true },
       {
         align: 'right',
         bodyTemplate: targetActionBodyTemplate,
         field: 'isHidden',
         fieldType: 'actions',
         header: 'Actions',
-        width: '12rem'
+        width: '5rem'
       }
     ],
     [targetActionBodyTemplate]
@@ -106,25 +110,28 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
   );
 
   return (
-    <DataSelector2
-      columns={columns}
-      defaultSortField="name"
-      defaultSortOrder={1}
-      emptyMessage="No Streams"
-      headerName={GetMessage('m3ustreams').toUpperCase()}
-      headerRightTemplate={rightHeaderTemplate}
-      isLoading={isLoading}
-      id={dataKey}
-      onSelectionChange={(value, selectAll) => {
-        if (selectAll !== true) {
-          setSelectedSMStreams(value as SMStreamDto[]);
-        }
-      }}
-      queryFilter={useSMStreams}
-      selectedItemsKey="selectSelectedSMStreamDtoItems"
-      selectionMode="multiple"
-      style={{ height: 'calc(100vh - 40px)' }}
-    />
+    <Suspense fallback={<div>Loading...</div>}>
+      <DataSelector2
+        addOrRemove
+        columns={columns}
+        defaultSortField="name"
+        defaultSortOrder={1}
+        emptyMessage="No Streams"
+        headerName={GetMessage('m3ustreams').toUpperCase()}
+        headerRightTemplate={rightHeaderTemplate}
+        isLoading={isLoading}
+        id={dataKey}
+        onSelectionChange={(value, selectAll) => {
+          if (selectAll !== true) {
+            setSelectedSMStreams(value as SMStreamDto[]);
+          }
+        }}
+        queryFilter={useSMStreams}
+        selectedItemsKey="selectSelectedSMStreamDtoItems"
+        selectionMode="multiple"
+        style={{ height: 'calc(100vh - 40px)' }}
+      />
+    </Suspense>
   );
 };
 

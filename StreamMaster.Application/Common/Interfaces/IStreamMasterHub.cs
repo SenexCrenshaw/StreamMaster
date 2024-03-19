@@ -34,5 +34,5 @@ public interface IStreamMasterHub : ISharedHub
     Task ChannelGroupsDelete(IEnumerable<int> ChannelGroupIds);
     Task VideoStreamsVisibilityRefresh(IEnumerable<IDIsHidden> results);
     Task UpdateChannelGroupVideoStreamCounts(List<ChannelGroupStreamCount> channelGroupStreamCounts);
-    Task SetField(FieldData fieldData);
+    Task SetField(FieldData[] fieldData);
 }

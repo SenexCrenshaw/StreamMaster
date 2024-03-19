@@ -62,7 +62,7 @@ public partial class SMStreamsService(IRepositoryWrapper repository, IHttpContex
 
         FieldData fd = new(nameof(SMStreamDto), stream.Id, "isHidden", stream.IsHidden);
 
-        await hubContext.Clients.All.SetField(fd).ConfigureAwait(false);
+        await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
         return APIResponseFactory.Ok();
     }
 }

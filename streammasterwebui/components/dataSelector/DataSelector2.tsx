@@ -6,11 +6,9 @@ import { Button } from 'primereact/button';
 import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import {
   DataTable,
-  type DataTableExpandedRows,
   type DataTablePageEvent,
   type DataTableRowClickEvent,
   type DataTableRowData,
-  type DataTableRowToggleEvent,
   type DataTableSelectAllChangeEvent,
   type DataTableSelectionMultipleChangeEvent,
   type DataTableSelectionSingleChangeEvent,
@@ -36,6 +34,8 @@ import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import BanButton from '../buttons/BanButton';
 import ResetButton from '../buttons/ResetButton';
 import { TriSelectShowSelection } from '../selectors/TriSelectShowSelection';
+import TableHeader from './TableHeader';
+import { addOrRemoveTemplate } from './addOrRemoveTemplate';
 import { useSetQueryFilter } from './useSetQueryFilter';
 
 const DataSelector2 = <T extends DataTableValue>(props: DataSelectorProps<T>) => {
@@ -121,50 +121,8 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelectorProps<T>) =>
     [state.selectSelectedItems, state.selectAll, props, setters]
   );
 
-  // const selectedData = useCallback(
-  //   (inputData: T[]): T[] => {
-  //     if (props.showSelections !== true) {
-  //       return inputData;
-  //     }
-
-  //     if (state.showSelections === null) {
-  //       return inputData;
-  //     }
-
-  //     if (state.showSelections === true) {
-  //       return state.selectSelectedItems;
-  //     }
-
-  //     if (!state.selectSelectedItems) {
-  //       return [] as T[];
-  //     }
-
-  //     const returnValue = inputData.filter((d) => !state.selectSelectedItems?.some((s) => s.id === d.id));
-
-  //     return returnValue;
-  //   },
-  //   [props.showSelections, state.selectSelectedItems, state.showSelections]
-  // );
-
   useEffect(() => {
-    // if (debug && props.id === 'streamgroupeditor-StreamGroupSelectedVideoStreamDataSelector') {
-    //   console.log('data', data);
-    // }
-
     if (!data) {
-      return;
-    }
-
-    if (Array.isArray(data)) {
-      if (!state.dataSource || (state.dataSource && !areArraysEqual(data, state.dataSource))) {
-        setters.setDataSource(data);
-        setters.setPagedInformation(undefined);
-
-        if (state.selectAll) {
-          setters.setSelectSelectedItems(data);
-        }
-      }
-
       return;
     }
 
@@ -192,34 +150,6 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelectorProps<T>) =>
       }
     }
   }, [data, debug, props.id, setters, state.dataSource, state.selectAll]);
-
-  // useEffect(() => {
-  //   if (!props.dataSource) {
-  //     return;
-  //   }
-
-  //   let newData = [] as T[];
-
-  //   if (isPagedTableDto(props.dataSource)) {
-  //     newData = selectedData(props.dataSource.data);
-  //   } else {
-  //     newData = selectedData(props.dataSource);
-  //   }
-
-  //   if (!state.dataSource || (state.dataSource && !areArraysEqual(newData, state.dataSource))) {
-  //     if (props.reorderable) {
-  //       setters.setDataSource([...newData].sort((a, b) => a.rank - b.rank));
-  //     } else {
-  //       setters.setDataSource(newData);
-  //     }
-
-  //     setters.setPagedInformation(undefined);
-
-  //     if (state.selectAll) {
-  //       onSetSelection(newData);
-  //     }
-  //   }
-  // }, [onSetSelection, props.dataSource, props.reorderable, selectedData, setters, state.dataSource, state.selectAll]);
 
   const onRowReorder = (changed: T[]) => {
     setters.setDataSource(changed);
@@ -278,21 +208,21 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelectorProps<T>) =>
   }, [props.scrollTo]);
 
   const sourceRenderHeader = useMemo(() => {
-    if (!props.headerLeftTemplate && !props.headerRightTemplate) {
-      return null;
-    }
+    // if (!props.headerLeftTemplate && !props.headerRightTemplate) {
+    //   return null;
+    // }
 
     return (
-      <div>Header</div>
-      // <TableHeader
-      //   dataSelectorProps={props}
-      //   enableExport={props.enableExport ?? false}
-      //   exportCSV={exportCSV}
-      //   headerName={props.headerName}
-      //   onMultiSelectClick={props.onMultiSelectClick}
-      //   rowClick={state.rowClick}
-      //   setRowClick={setters.setRowClick}
-      // />
+      // <div>Header</div>
+      <TableHeader
+        dataSelectorProps={props}
+        enableExport={props.enableExport ?? true}
+        exportCSV={exportCSV}
+        headerName={props.headerName}
+        onMultiSelectClick={props.onMultiSelectClick}
+        rowClick={state.rowClick}
+        setRowClick={setters.setRowClick}
+      />
     );
   }, [props, state.rowClick, setters.setRowClick]);
 
@@ -385,14 +315,6 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelectorProps<T>) =>
 
     return align;
   }, []);
-
-  // const getFilter = useCallback((filter: boolean | undefined, fieldType: ColumnFieldType): boolean | undefined => {
-  //   if (fieldType === 'image') {
-  //     return false;
-  //   }
-
-  //   return filter;
-  // }, []);
 
   const getStyle = useCallback((col: ColumnMeta): CSSProperties | undefined => {
     if (col.fieldType === 'blank') {
@@ -716,8 +638,6 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelectorProps<T>) =>
           dataKey={props.dataKey ?? 'id'}
           editMode="cell"
           emptyMessage={props.emptyMessage}
-          expandableRowGroups={props.groupRowsBy !== undefined && props.groupRowsBy !== ''}
-          expandedRows={state.expandedRows}
           exportFilename={props.exportFilename ?? 'streammaster'}
           filterDelay={500}
           filterDisplay={props.columns.some((a) => a.filter !== undefined) ? 'row' : undefined}
@@ -733,7 +653,6 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelectorProps<T>) =>
           onRowReorder={(e) => {
             onRowReorder(e.value);
           }}
-          onRowToggle={(e: DataTableRowToggleEvent) => setters.setExpandedRows(e.data as DataTableExpandedRows)}
           onSelectAllChange={props.reorderable || props.disableSelectAll === true ? undefined : onSelectAllChange}
           onSelectionChange={(e: DataTableSelectionMultipleChangeEvent<T[]> | DataTableSelectionSingleChangeEvent<T[]>) => {
             if (props.reorderable === true) {
@@ -764,7 +683,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelectorProps<T>) =>
           sortField={props.reorderable ? 'rank' : state.sortField}
           sortMode="single"
           sortOrder={props.reorderable ? 0 : state.sortOrder}
-          stateKey={`${props.id}-table`}
+          // stateKey={`${props.id}-table`}
           showSelectAll={props.disableSelectAll !== true}
           stateStorage="custom"
           // stateStorage={props.enableState !== undefined && props.enableState !== true ? 'custom' : 'local'}
@@ -776,6 +695,14 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelectorProps<T>) =>
           //   headerRow: { style: { display: 'none' } }
           // }}
         >
+          <Column
+            body={addOrRemoveTemplate}
+            className="max-w-2rem p-0 justify-content-center align-items-center"
+            field="addOrRemove"
+            header={<div>.</div>}
+            hidden={!props.addOrRemove}
+            style={{ width: '2rem' }}
+          />
           <Column
             className="max-w-2rem p-0 justify-content-center align-items-center"
             field="rank"
@@ -874,6 +801,7 @@ interface BaseDataSelectorProperties<T = any> {
   onSelectionChange?: (value: T[], selectAll: boolean) => void;
   // onValueChanged?: (value: T[]) => void;
   reorderable?: boolean;
+  addOrRemove?: boolean;
   scrollTo?: number;
   selectedItemsKey: string;
   selectedStreamGroupId?: number;

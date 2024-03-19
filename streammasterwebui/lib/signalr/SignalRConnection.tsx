@@ -66,10 +66,12 @@ export const SignalRConnection = ({ children }: React.PropsWithChildren): JSX.El
       }
     };
 
-    const setField = (fieldData: FieldData): void => {
-      if (fieldData.entity === 'SMStreamDto') {
-        setSMStreamsField(fieldData);
-      }
+    const setField = (fieldDatas: FieldData[]): void => {
+      fieldDatas.forEach((fieldData) => {
+        if (fieldData.entity === 'SMStreamDto') {
+          setSMStreamsField(fieldData);
+        }
+      });
     };
 
     const addConnectionsAndListeners = () => {

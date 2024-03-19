@@ -104,7 +104,7 @@ const StreamVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, values }:
   if (skipOverLayer === true) {
     return (
       <VisibleButton
-        disabled={getTotalCount === 0}
+        disabled={!getTotalCount}
         iconFilled={false}
         label="Toggle Visibility"
         onClick={async () => await onVisiblesClick()}
