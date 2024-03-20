@@ -1,8 +1,5 @@
 ﻿using AutoMapper;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
-
 namespace StreamMaster.Domain.Mappings;
 
 public interface IMapFrom<T>
@@ -14,10 +11,22 @@ public interface IMapFrom<T>
             profile.CreateMap<VideoStream, VideoStreamDto>(MemberList.None)
             .ForMember(dest => dest.ChildVideoStreams, opt => opt.MapFrom(src => src.ChildVideoStreams.Select(cr => cr.ChildVideoStream)));
 
-            //profile.CreateMap<VideoStream, VideoStreamDto>(MemberList.None)
-            //    .ForMember(dest => dest.ChildVideoStreams, opt => opt.MapFrom(src => src.ChildVideoStreams.Select(cr => cr.ChildVideoStream)));
+
+
             return;
         }
+        if (typeof(T) == typeof(SMChannel))
+        {
+            profile.CreateMap<SMChannel, SMChannelDto>(MemberList.None)
+              .ForMember(dest => dest.SMStreams, opt => opt.MapFrom(src => src.SMStreams
+              .Where(cr => cr.SMStream != null)
+              .Select(cr => cr.SMStream)
+              ));
+
+            return;
+
+        }
+
 
         //if (typeof(T) == typeof(StreamGroup))
         //{

@@ -67,7 +67,7 @@
     "preview": "vite preview",
     "builddev": "npm run build && cp -r dist/* ..\\StreamMaster.API\\bin\\Debug\\net8.0\\wwwroot -force",
     "build:check": "npm run prettier:check && npm run lint && npm run type:check && npm run security:check",
-    "compile-sass": "node build_theme.js",
+    "compile-scss": "node build_theme.js",
     "security:check": "npm audit --omit=dev --audit-level high",
     "lint": "eslint --ignore-path .estlintignore . --ext .js,.jsx,.ts,.tsx",
     "type:check": "tsc",

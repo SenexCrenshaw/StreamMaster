@@ -3,34 +3,6 @@
   color-scheme: light;
 }
 
-/* poppins-300 - latin-ext_latin */
-@font-face {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 300;
-  src: local(""), url("./fonts/poppins-v15-latin-ext_latin-300.woff2") format("woff2"), url("./fonts/poppins-v15-latin-ext_latin-300.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
-}
-/* poppins-regular - latin-ext_latin */
-@font-face {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 400;
-  src: local(""), url("./fonts/poppins-v15-latin-ext_latin-regular.woff2") format("woff2"), url("./fonts/poppins-v15-latin-ext_latin-regular.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
-}
-/* poppins-600 - latin-ext_latin */
-@font-face {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 600;
-  src: local(""), url("./fonts/poppins-v15-latin-ext_latin-600.woff2") format("woff2"), url("./fonts/poppins-v15-latin-ext_latin-600.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
-}
-/* poppins-700 - latin-ext_latin */
-@font-face {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 700;
-  src: local(""), url("./fonts/poppins-v15-latin-ext_latin-700.woff2") format("woff2"), url("./fonts/poppins-v15-latin-ext_latin-700.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
-}
 :root {
   font-family: Poppins, sans-serif;
   --font-family: Poppins,
@@ -79,112 +51,6 @@
   --maskbg: rgba(0, 0, 0, 0.4);
   --highlight-bg: #ced6f1;
   --highlight-text-color: #585858;
-}
-
-.sm-text-color {
-  color: #fe7600;
-}
-
-.p-multiselect-trigger {
-  width: 1rem;
-  padding-right: 0.2rem;
-}
-
-.p-multiselect-label,
-.p-accordion .p-accordion-header .p-accordion-header-link {
-  padding-left: 0.2rem !important;
-  padding-top: 0.2rem !important;
-  padding-bottom: 0.2rem !important;
-  font-size: 0.875rem;
-}
-
-.p-multiselect-label.p-multiselect-items-label {
-  padding: 0;
-}
-
-.p-datatable {
-  font-size: small;
-}
-.p-datatable .p-datatable-tbody > tr {
-  padding-top: 0rem;
-  padding-bottom: 0rem;
-}
-.p-datatable .p-datatable-tbody > tr > td {
-  padding: 0.2rem 0;
-  height: 1.8rem;
-  max-height: 1.8rem;
-}
-.p-datatable .p-datatable-thead > tr:nth-child(1) {
-  display: none;
-}
-.p-datatable .p-button.p-button-icon-only {
-  padding: 0.5rem 0;
-  width: 1.4rem;
-}
-.p-datatable .p-button.p-button-icon-only.p-button-rounded {
-  height: 1.4rem;
-  padding: 0rem 0;
-}
-.p-datatable .p-column-filter-clear-button.p-link.p-hidden-space {
-  display: none;
-}
-
-.p-filter-column {
-  padding-top: 0.2rem !important;
-  padding-bottom: 0.2rem !important;
-}
-.p-filter-column .p-inputtext {
-  padding-left: 0.2rem !important;
-  padding-top: 0.2rem !important;
-  padding-bottom: 0.2rem !important;
-  font-size: 0.875rem;
-}
-
-.icon-template {
-  height: 1.4rem;
-  justify-content: start;
-  align-items: center;
-}
-
-.icon-template-large {
-  padding: 0rem !important;
-  margin-right: 1rem;
-  width: 8rem;
-  max-height: 8rem;
-  object-fit: contain;
-  justify-content: center;
-  align-items: center;
-}
-.icon-template-large img {
-  max-width: 6rem;
-  max-height: 5rem;
-  object-fit: contain;
-}
-
-.icon-template img,
-.default-icon {
-  max-width: 1.3rem;
-  max-height: 1.3rem;
-  object-fit: contain;
-}
-
-.icon-option-template {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  text-align: start;
-}
-
-.icon-option-template img {
-  max-width: 3rem;
-  max-height: 3.4rem;
-  object-fit: contain;
-}
-
-.icon-option-name {
-  padding: 0 0 0 1rem;
-  white-space: normal;
-  width: 100%;
 }
 
 :root {
@@ -3822,7 +3688,7 @@
     color: #898989;
     border: solid #ebebeb;
     border-width: 2px;
-    padding: 0.5rem 1rem;
+    padding: 0rem 1rem;
     border-radius: 6px;
   }
   .p-paginator .p-paginator-first,
@@ -3830,10 +3696,10 @@
   .p-paginator .p-paginator-next,
   .p-paginator .p-paginator-last {
     background-color: transparent;
-    border: 0 none;
+    border: 0 none !important;
     color: #898989;
-    min-width: 2.857rem;
-    height: 2.857rem;
+    min-width: 1.8rem;
+    height: 1.8rem;
     margin: 0.143rem;
     transition: box-shadow 0.3s;
     border-radius: 6px;
@@ -3856,7 +3722,7 @@
   }
   .p-paginator .p-dropdown {
     margin-left: 0.5rem;
-    height: 2.857rem;
+    height: 1.8rem;
   }
   .p-paginator .p-dropdown .p-dropdown-label {
     padding-right: 0;
@@ -3866,23 +3732,23 @@
     margin-right: 0.5rem;
   }
   .p-paginator .p-paginator-page-input .p-inputtext {
-    max-width: 2.857rem;
+    max-width: 1.8rem;
   }
   .p-paginator .p-paginator-current {
     background-color: transparent;
-    border: 0 none;
+    border: 0 none !important;
     color: #898989;
-    min-width: 2.857rem;
-    height: 2.857rem;
+    min-width: 1.8rem;
+    height: 1.8rem;
     margin: 0.143rem;
     padding: 0 0.5rem;
   }
   .p-paginator .p-paginator-pages .p-paginator-page {
     background-color: transparent;
-    border: 0 none;
+    border: 0 none !important;
     color: #898989;
-    min-width: 2.857rem;
-    height: 2.857rem;
+    min-width: 1.8rem;
+    height: 1.8rem;
     margin: 0.143rem;
     transition: box-shadow 0.3s;
     border-radius: 6px;
@@ -6778,6 +6644,378 @@
     color: #ffffff;
   }
 }
+/* poppins-300 - latin-ext_latin */
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 300;
+  src: local(""), url("./fonts/poppins-v15-latin-ext_latin-300.woff2") format("woff2"), url("./fonts/poppins-v15-latin-ext_latin-300.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+/* poppins-regular - latin-ext_latin */
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 400;
+  src: local(""), url("./fonts/poppins-v15-latin-ext_latin-regular.woff2") format("woff2"), url("./fonts/poppins-v15-latin-ext_latin-regular.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+/* poppins-600 - latin-ext_latin */
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 600;
+  src: local(""), url("./fonts/poppins-v15-latin-ext_latin-600.woff2") format("woff2"), url("./fonts/poppins-v15-latin-ext_latin-600.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+/* poppins-700 - latin-ext_latin */
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 700;
+  src: local(""), url("./fonts/poppins-v15-latin-ext_latin-700.woff2") format("woff2"), url("./fonts/poppins-v15-latin-ext_latin-700.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+:root {
+  font-family: Poppins, sans-serif;
+  --font-family: Poppins,
+      sans-serif;
+  --surface-a: #585858;
+  --surface-b: #3b3b3b;
+  --surface-d: #898989;
+  --surface-e: #585858;
+  --surface-f: #585858;
+  --text-color: #ffffff;
+  --text-color-secondary: #f5f5f5;
+  --primary-color: #5472d4;
+  --primary-color-text: #898989;
+  --surface-0: #0e1315;
+  --surface-50: #262b2c;
+  --surface-100: #3e4244;
+  --surface-200: #565a5b;
+  --surface-300: #6e7173;
+  --surface-400: #87898a;
+  --surface-500: #9fa1a1;
+  --surface-600: #b7b8b9;
+  --surface-700: #cfd0d0;
+  --surface-800: #e7e7e8;
+  --surface-900: #ffffff;
+  --gray-50: #e7e7e8;
+  --gray-100: #cfd0d0;
+  --gray-200: #b7b8b9;
+  --gray-300: #9fa1a1;
+  --gray-400: #87898a;
+  --gray-500: #6e7173;
+  --gray-600: #565a5b;
+  --gray-700: #3e4244;
+  --gray-800: #262b2c;
+  --gray-900: #0e1315;
+  --content-padding: 1rem;
+  --inline-spacing: 0.5rem;
+  --border-radius: 6px;
+  --surface-ground: #0e1315;
+  --surface-section: #0e1315;
+  --surface-card: #161d21;
+  --surface-overlay: #161d21;
+  --surface-border: #263238;
+  --surface-hover: rgba($primaryColor, 0.08
+  );
+  --focus-ring: 0 0 0 0.1rem #bbc7ee;
+  --maskbg: rgba(0, 0, 0, 0.4);
+  --highlight-bg: #ced6f1;
+  --highlight-text-color: #585858;
+}
+
+.sm-text-color {
+  color: #fe7600;
+}
+
+.p-multiselect-trigger {
+  width: 1rem;
+  padding-right: 0.2rem;
+}
+
+.p-multiselect-label,
+.p-accordion .p-accordion-header .p-accordion-header-link {
+  padding-left: 0.2rem !important;
+  padding-top: 0.2rem !important;
+  padding-bottom: 0.2rem !important;
+  font-size: 0.875rem;
+  max-height: 1.8rem;
+}
+
+.p-multiselect-label.p-multiselect-items-label {
+  padding: 0;
+}
+
+.p-datatable {
+  font-size: small;
+}
+.p-datatable .p-datatable-tbody > tr {
+  padding-top: 0rem;
+  padding-bottom: 0rem;
+}
+.p-datatable .p-datatable-tbody > tr > td {
+  padding: 0.2rem 0;
+  height: 1.8rem;
+  max-height: 1.8rem;
+}
+.p-datatable .p-datatable-thead > tr:nth-child(1) {
+  display: none;
+}
+.p-datatable .p-button.p-button-icon-only {
+  padding: 0.5rem 0;
+  width: 1.4rem;
+}
+.p-datatable .p-button.p-button-icon-only.p-button-rounded {
+  height: 1.4rem;
+  padding: 0rem 0;
+}
+.p-datatable .p-column-filter-clear-button.p-link.p-hidden-space {
+  display: none;
+}
+
+.p-filter-column {
+  padding-top: 0.2rem !important;
+  padding-bottom: 0.2rem !important;
+}
+.p-filter-column .p-inputtext {
+  padding-left: 0.2rem !important;
+  padding-top: 0.2rem !important;
+  padding-bottom: 0.2rem !important;
+  font-size: 0.875rem;
+  max-height: 1.8rem;
+}
+
+.p-inputtext {
+  font-family: var(--font-family);
+  font-feature-settings: var(--font-feature-settings, normal);
+  font-size: 1rem;
+  color: #6c6c6c;
+  background: #ffffff;
+  padding: 0.5rem 0.75rem;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
+  appearance: none;
+}
+.p-inputtext:enabled:hover {
+  border-color: #cecece;
+}
+.p-inputtext:enabled:focus {
+  outline: 0 none;
+  outline-offset: 0;
+  box-shadow: 0 0 0 0.1rem #bbc7ee;
+  border-color: #91a4e3;
+}
+.p-inputtext.p-invalid.p-component {
+  border-color: #f88c79;
+}
+.p-inputtext.p-inputtext-sm {
+  font-size: 0.875rem;
+  padding: 0.4375rem 0.65625rem;
+}
+.p-inputtext.p-inputtext-lg {
+  font-size: 1.25rem;
+  padding: 0.625rem 0.9375rem;
+}
+
+.p-float-label > label {
+  left: 0.75rem;
+  color: #898989;
+  transition-duration: 0.3s;
+}
+
+.p-float-label > label.p-error {
+  color: #f88c79;
+}
+
+.p-input-icon-left > i:first-of-type,
+.p-input-icon-left > svg:first-of-type,
+.p-input-icon-left > .p-input-prefix {
+  left: 0.75rem;
+  color: #898989;
+}
+
+.p-input-icon-left > .p-inputtext {
+  padding-left: 2.5rem;
+}
+
+.p-input-icon-left.p-float-label > label {
+  left: 2.5rem;
+}
+
+.p-input-icon-right > i:last-of-type,
+.p-input-icon-right > svg:last-of-type,
+.p-input-icon-right > .p-input-suffix {
+  right: 0.75rem;
+  color: #898989;
+}
+
+.p-input-icon-right > .p-inputtext {
+  padding-right: 2.5rem;
+}
+
+::-webkit-input-placeholder {
+  color: #898989;
+}
+
+:-moz-placeholder {
+  color: #898989;
+}
+
+::-moz-placeholder {
+  color: #898989;
+}
+
+:-ms-input-placeholder {
+  color: #898989;
+}
+
+.p-input-filled .p-inputtext {
+  background-color: #f2f2f2;
+}
+.p-input-filled .p-inputtext:enabled:hover {
+  background-color: #f2f2f2;
+}
+.p-input-filled .p-inputtext:enabled:focus {
+  background-color: #f2f2f2;
+}
+
+.p-inputtext-sm .p-inputtext {
+  font-size: 0.875rem;
+  padding: 0.4375rem 0.65625rem;
+}
+
+.p-inputtext-lg .p-inputtext {
+  font-size: 1.25rem;
+  padding: 0.625rem 0.9375rem;
+}
+
+.p-paginator {
+  background: #ffffff;
+  color: #898989;
+  border: solid #ebebeb;
+  border-width: 2px;
+  padding: 0rem 1rem;
+  border-radius: 6px;
+}
+.p-paginator .p-paginator-first,
+.p-paginator .p-paginator-prev,
+.p-paginator .p-paginator-next,
+.p-paginator .p-paginator-last {
+  background-color: transparent;
+  border: 0 none !important;
+  color: #898989;
+  min-width: 1.8rem;
+  height: 1.8rem;
+  margin: 0.143rem;
+  transition: box-shadow 0.3s;
+  border-radius: 6px;
+}
+.p-paginator .p-paginator-first:not(.p-disabled):not(.p-highlight):hover,
+.p-paginator .p-paginator-prev:not(.p-disabled):not(.p-highlight):hover,
+.p-paginator .p-paginator-next:not(.p-disabled):not(.p-highlight):hover,
+.p-paginator .p-paginator-last:not(.p-disabled):not(.p-highlight):hover {
+  background: #edf0fa;
+  border-color: transparent;
+  color: #6c6c6c;
+}
+.p-paginator .p-paginator-first {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+.p-paginator .p-paginator-last {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+.p-paginator .p-dropdown {
+  margin-left: 0.5rem;
+  height: 1.8rem;
+}
+.p-paginator .p-dropdown .p-dropdown-label {
+  padding: 0;
+  padding-top: 0.1rem !important;
+  padding-left: 0.5rem !important;
+}
+.p-paginator .p-paginator-page-input {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+.p-paginator .p-paginator-page-input .p-inputtext {
+  max-width: 1.8rem;
+}
+.p-paginator .p-paginator-current {
+  background-color: transparent;
+  border: 0 none !important;
+  color: #898989;
+  min-width: 1.8rem;
+  height: 1.8rem;
+  margin: 0.143rem;
+  padding: 0 0.5rem;
+}
+.p-paginator .p-paginator-pages .p-paginator-page {
+  background-color: transparent;
+  border: 0 none !important;
+  color: #898989;
+  min-width: 1.8rem;
+  height: 1.8rem;
+  margin: 0.143rem;
+  transition: box-shadow 0.3s;
+  border-radius: 6px;
+}
+.p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  background: #ced6f1;
+  border-color: #ced6f1;
+  color: #585858;
+}
+.p-paginator .p-paginator-pages .p-paginator-page:not(.p-highlight):hover {
+  background: #edf0fa;
+  border-color: transparent;
+  color: #6c6c6c;
+}
+
+.icon-template {
+  height: 1.4rem;
+  justify-content: start;
+  align-items: center;
+}
+
+.icon-template-large {
+  padding: 0rem !important;
+  margin-right: 1rem;
+  width: 8rem;
+  max-height: 8rem;
+  object-fit: contain;
+  justify-content: center;
+  align-items: center;
+}
+.icon-template-large img {
+  max-width: 6rem;
+  max-height: 5rem;
+  object-fit: contain;
+}
+
+.icon-template img,
+.default-icon {
+  max-width: 1.3rem;
+  max-height: 1.3rem;
+  object-fit: contain;
+}
+
+.icon-option-template {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  text-align: start;
+}
+
+.icon-option-template img {
+  max-width: 3rem;
+  max-height: 3.4rem;
+  object-fit: contain;
+}
+
+.icon-option-name {
+  padding: 0 0 0 1rem;
+  white-space: normal;
+  width: 100%;
+}
+
 /* Customizations to the designer theme should be defined here */
 @layer primereact {
   .p-button .p-button-label {

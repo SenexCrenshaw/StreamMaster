@@ -15,4 +15,6 @@ public interface ISMChannelsRepository
     SMChannel? GetSMChannel(int smchannelId);
     Task<DefaultAPIResponse> CreateSMChannelFromStream(string streamId);
     Task<DefaultAPIResponse> DeleteSMChannels(List<int> smchannelIds);
+    Task<DefaultAPIResponse> AddSMStreamToSMChannel(int SMChannelId, string SMStreamId);
+    Task<DefaultAPIResponse> RemoveSMStreamFromSMChannel(int SMChannelId, string SMStreamId);
 }

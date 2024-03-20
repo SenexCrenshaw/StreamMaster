@@ -40,7 +40,7 @@ namespace BuildClientAPI
 
                             }
 
-                            if (method.Name == "GetPagedSMChannels")
+                            if (method.Name == "DeleteSMChannels")
                             {
                                 string returntype = GetCleanReturnType(method);
                                 string Parameters = ParameterConverter.ParamsToCSharp(method);
@@ -64,7 +64,7 @@ namespace BuildClientAPI
                                 TsParameterTypes = string.Join(", ", method.GetParameters().Select(p => ParameterConverter.MapCSharpTypeToTypeScript(ParameterConverter.GetTypeFullNameForParameter(p.ParameterType))))
                             };
 
-                            if (method.Name == "GetPagedSMChannels")
+                            if (method.Name == "AddSMStreamToSMChannel")
                             {
                                 List<ParameterInfo> test = method.GetParameters().ToList();
                                 List<string> aa = method.GetParameters().Select(p => $"{p.ParameterType.Name}").ToList();

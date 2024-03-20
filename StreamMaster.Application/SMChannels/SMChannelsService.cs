@@ -57,7 +57,7 @@ public partial class SMChannelsService(IRepositoryWrapper repository, IHttpConte
     {
         await repository.SMChannel.CreateSMChannelFromStream(streamId);
 
-        await hubContext.Clients.All.DataRefresh("SMStreamDto").ConfigureAwait(false);
+        await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
 
         return APIResponseFactory.Ok();
     }
@@ -68,7 +68,7 @@ public partial class SMChannelsService(IRepositoryWrapper repository, IHttpConte
         DefaultAPIResponse ret = await repository.SMChannel.DeleteSMChannels(smchannelIds);
         if (!ret.IsError.HasValue)
         {
-            await hubContext.Clients.All.DataRefresh("SMStreamDto").ConfigureAwait(false);
+            await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
         }
 
         return ret;
@@ -85,7 +85,7 @@ public partial class SMChannelsService(IRepositoryWrapper repository, IHttpConte
 
         await repository.SMChannel.DeleteSMChannel(smchannelId);
 
-        await hubContext.Clients.All.DataRefresh("SMStreamDto").ConfigureAwait(false);
+        await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
 
         return APIResponseFactory.Ok();
     }
@@ -97,9 +97,31 @@ public partial class SMChannelsService(IRepositoryWrapper repository, IHttpConte
 
         if (ids.Count != 0)
         {
-            await hubContext.Clients.All.DataRefresh("SMStreamDto").ConfigureAwait(false);
+            await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
         }
 
         return APIResponseFactory.Ok();
+    }
+
+    [SMAPI]
+    public async Task<DefaultAPIResponse> AddSMStreamToSMChannel(SMStreamSMChannelRequest request)
+    {
+        DefaultAPIResponse ret = await repository.SMChannel.AddSMStreamToSMChannel(request.SMChannelId, request.SMStreamId).ConfigureAwait(false);
+        if (!ret.IsError.HasValue)
+        {
+            await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
+        }
+        return ret;
+    }
+
+    [SMAPI]
+    public async Task<DefaultAPIResponse> RemoveSMStreamFromSMChannel(SMStreamSMChannelRequest request)
+    {
+        DefaultAPIResponse ret = await repository.SMChannel.RemoveSMStreamFromSMChannel(request.SMChannelId, request.SMStreamId).ConfigureAwait(false);
+        if (!ret.IsError.HasValue)
+        {
+            await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
+        }
+        return ret;
     }
 }

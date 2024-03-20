@@ -1,3 +1,7 @@
+export interface SMStreamSMChannelRequest {
+  smChannelId: number;
+  smStreamId: string;
+}
 export interface QueryHookResult<T> {
   data?: T;
   error?: Error | string | null;
@@ -66,6 +70,7 @@ export type SMChannelDto = {
   epgid?: string;
   logo?: string;
   name?: string;
+  smStreams: SMStreamDto[];
   [key: string]: any;
 };
 

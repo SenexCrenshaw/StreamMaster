@@ -1,6 +1,5 @@
 $primaryColor: #9eade6 !default;
 
-
 $highlightBg: rgba($primaryColor, 0.16) !default;
 $highlightTextColor: $primaryColor !default;
 $highlightFocusBg: rgba($primaryColor, 0.24) !default;
@@ -140,8 +139,6 @@ $calendarCellDateHoverBg: $hoverBg !default;
 $calendarCellDateTodayBg: transparent !default;
 $calendarCellDateTodayTextColor: $primaryColor !default;
 
-
-
 //input switch
 $inputSwitchSliderOffBg: $shade600 !default;
 $inputSwitchHandleOffBg: $shade100 !default;
@@ -179,7 +176,6 @@ $accordionHeaderTextActiveColor: $shade000 !default;
 $accordionHeaderActiveHoverBg: $hoverBg !default;
 $accordionHeaderActiveHoverBorderColor: $shade600 !default;
 $accordionHeaderTextActiveHoverColor: $shade000 !default;
-
 
 //tabview
 $tabviewNavBorder: 1px solid $shade600 !default;
@@ -246,8 +242,6 @@ $tableFooterCellBorder: 2px solid $shade600 !default;
 $tableFooterBorder: 2px solid $shade600 !default;
 $tableFooterBg: $shade800 !default;
 $tableFooterTextColor: $shade000 !default;
-
-
 
 //dataview
 $dataViewListItemBorder: solid $shade600 !default;
@@ -327,11 +321,9 @@ $submenuHeaderBg: $shade800 !default;
 $submenuHeaderTextColor: $shade000 !default;
 $overlayMenuBorder: 2px solid $shade600 !default;
 
-
 $horizontalMenuBg: $menuBg !default;
 
 //badge and tag
-
 
 //carousel
 $carouselIndicatorBg: $shade600 !default;

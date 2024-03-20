@@ -46,6 +46,22 @@ namespace StreamMaster.Application.SMChannels
             return ret.IsError.HasValue && ret.IsError.Value ? NotFound(ret) : Ok(ret);
         }
 
+        [HttpPut]
+        [Route("[action]")]
+        public async Task<ActionResult<DefaultAPIResponse>> AddSMStreamToSMChannel(SMStreamSMChannelRequest request)
+        {
+            DefaultAPIResponse ret = await SMChannelsService.AddSMStreamToSMChannel(request).ConfigureAwait(false);
+            return ret.IsError.HasValue && ret.IsError.Value ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpDelete]
+        [Route("[action]")]
+        public async Task<ActionResult<DefaultAPIResponse>> RemoveSMStreamFromSMChannel(SMStreamSMChannelRequest request)
+        {
+            DefaultAPIResponse ret = await SMChannelsService.RemoveSMStreamFromSMChannel(request).ConfigureAwait(false);
+            return ret.IsError.HasValue && ret.IsError.Value ? NotFound(ret) : Ok(ret);
+        }
+
     }
 }
 
@@ -80,6 +96,18 @@ namespace StreamMaster.Application.Hubs
         public async Task<DefaultAPIResponse> DeleteAllSMChannelsFromParameters(SMChannelParameters Parameters)
         {
             DefaultAPIResponse ret = await SMChannelsService.DeleteAllSMChannelsFromParameters(Parameters).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<DefaultAPIResponse> AddSMStreamToSMChannel(SMStreamSMChannelRequest request)
+        {
+            DefaultAPIResponse ret = await SMChannelsService.AddSMStreamToSMChannel(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<DefaultAPIResponse> RemoveSMStreamFromSMChannel(SMStreamSMChannelRequest request)
+        {
+            DefaultAPIResponse ret = await SMChannelsService.RemoveSMStreamFromSMChannel(request).ConfigureAwait(false);
             return ret;
         }
 

@@ -10,8 +10,8 @@ import { dataRefreshListener, setFieldListener } from './singletonListeners';
 
 export const SignalRConnection = ({ children }: React.PropsWithChildren): JSX.Element => {
   const { setHubConnected, setHubDisconnected } = useAppInfo();
-  const { setSMStreamsField } = useSMStreams();
-  const { refreshSMChannels } = useSMChannels();
+  const { refreshSMStreams, setSMStreamsField } = useSMStreams();
+  const { refreshSMChannels, setSMChannelsField } = useSMChannels();
 
   const retries = useRef(0); // store the retry count
   const maxRetries = 5; // define a maximum number of retry attempts
@@ -57,13 +57,23 @@ export const SignalRConnection = ({ children }: React.PropsWithChildren): JSX.El
       fieldDatas.forEach((fieldData) => {
         if (fieldData.entity === 'SMStreamDto') {
           setSMStreamsField(fieldData);
+          return;
+        }
+        if (fieldData.entity === 'SMChannelDto') {
+          setSMChannelsField(fieldData);
+          return;
         }
       });
     };
 
     const dataRefresh = (entity: string): void => {
       if (entity === 'SMStreamDto') {
+        refreshSMStreams();
+        return;
+      }
+      if (entity === 'SMChannelDto') {
         refreshSMChannels();
+        return;
       }
     };
 

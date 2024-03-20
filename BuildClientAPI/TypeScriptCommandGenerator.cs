@@ -7,18 +7,12 @@ public static class TypeScriptCommandGenerator
         StringBuilder imports = new();
         StringBuilder tsCommands = new();
 
-        string needDefaultImport = methods.Any(a => !a.Name.StartsWith("GetPaged")) ? "DefaultAPIResponse," : "";
 
-        // Common imports for all generated files
-        imports.AppendLine($"import {{APIResponse,{needDefaultImport} PagedResponse, QueryStringParameters, {mainEntityName} }} from '@lib/apiDefs';");
         imports.AppendLine("import { invokeHubCommand } from '@lib/signalr/signalr';");
         imports.AppendLine();
-
+        HashSet<string> additionalImports = [];
         foreach (MethodDetails method in methods)
         {
-            // Generate parameter string, assuming method.Parameters already in "type name" format
-            string paramList = method.Parameters.Any() ? ParameterConverter.ConvertCSharpParametersToTypeScript(method.Parameters) : "";
-
             // Distinguish between return types to apply specific logic
             if (method.Name.StartsWith("GetPaged"))
             {
@@ -38,20 +32,43 @@ public static class TypeScriptCommandGenerator
             }
             else
             {
+                if (method.Name == "DeleteSMChannels")
                 {
-                    string tsReturnType = method.ReturnType == "DefaultAPIResponse" ? "DefaultAPIResponse | null" : "any | null";
-                    if (method.Name.EndsWith("Parameters"))
-                    {
-                        paramList = "Parameters: QueryStringParameters";
-                    }
-                    tsCommands.AppendLine($"export const {method.Name} = async ({method.TsParameters}): Promise<{tsReturnType}> => {{");
-                    tsCommands.AppendLine($"  return await invokeHubCommand<{method.ReturnType}>('{method.Name}', {method.ParameterNames});");
+                    int r1 = 1;
                 }
+                string tsReturnType = method.ReturnType == "DefaultAPIResponse" ? "DefaultAPIResponse | null" : "any | null";
+                if (method.Name.EndsWith("Parameters"))
+                {
+                    method.TsParameters = "Parameters: QueryStringParameters";
+                }
+                string? toImport = ParameterConverter.IsTSGeneric(method.TsParameters);
+                if (toImport != null)
+                {
+                    additionalImports.Add(toImport);
+                }
+
+                toImport = ParameterConverter.IsTSGeneric(method.ReturnType);
+                if (toImport != null)
+                {
+                    additionalImports.Add(toImport);
+                }
+
+                tsCommands.AppendLine($"export const {method.Name} = async ({method.TsParameters}): Promise<{tsReturnType}> => {{");
+                tsCommands.AppendLine($"  return await invokeHubCommand<{method.ReturnType}>('{method.Name}', {method.ParameterNames});");
+
             }
 
             tsCommands.AppendLine("};");
             tsCommands.AppendLine();
+
         }
+        string additionals = "QueryStringParameters";
+
+        if (additionalImports.Count > 0)
+        {
+            additionals = string.Join(",", additionalImports);
+        }
+        imports.Insert(0, $"import {{APIResponse, PagedResponse, {additionals}, {mainEntityName} }} from '@lib/apiDefs';\n");
 
         string directory = Directory.GetParent(filePath).ToString();
         if (!Directory.Exists(directory))

@@ -22,6 +22,8 @@ import selectedCountrySlice from '@lib/redux/slices/selectedCountrySlice';
 import selectCurrentSettingDtoReducer from '@lib/redux/slices/selectedCurrentSettingDto';
 import selectedItemsSliceReducer from '@lib/redux/slices/selectedItemsSlice';
 import selectedPostalCodeSlice from '@lib/redux/slices/selectedPostalCodeSlice';
+import SMChannelReducer from '@lib/redux/slices/selectedSMChannel';
+import SMStreamReducer from '@lib/redux/slices/selectedSMStream';
 import selectSMStreamsReducer from '@lib/redux/slices/selectedSMStreams';
 import selectedStreamGroupSliceReducer from '@lib/redux/slices/selectedStreamGroupSlice';
 import selectUpdateSettingRequestReducer from '@lib/redux/slices/selectedUpdateSettingRequestSlice';
@@ -131,6 +133,8 @@ const rootReducer = combineReducers({
   queryFilter: queryFilterReducer,
   SMStreams: SMStreamsReducer,
   SMChannels: SMChannelsSlice,
+  SMChannelReducer: SMChannelReducer,
+  SMStreamReducer: SMStreamReducer,
   selectUpdateSettingRequest: persistReducer(selectUpdateSettingRequestSliceConfig, selectUpdateSettingRequestReducer),
   selectCurrentSettingDto: persistReducer(currentSettingDtoSliceConfig, selectCurrentSettingDtoReducer),
   selectedPostalCode: persistReducer(selectedPostalCodeConfig, selectedPostalCodeSlice),

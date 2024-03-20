@@ -30,7 +30,7 @@
         border-top-left-radius: $paginatorElementBorderRadius;
         border-bottom-left-radius: $paginatorElementBorderRadius;
     }
-    
+
     .p-paginator-last {
         border-top-right-radius: $paginatorElementBorderRadius;
         border-bottom-right-radius: $paginatorElementBorderRadius;
@@ -41,7 +41,9 @@
         height: $paginatorElementHeight;
 
         .p-dropdown-label {
-            padding-right: 0;
+            padding: 0;
+            padding-top: 0.1rem !important;
+            padding-left: 0.5rem !important;
         }
     }
 
@@ -50,6 +52,7 @@
         margin-right: $inlineSpacing;
 
         .p-inputtext {
+
             max-width: $paginatorElementWidth;
         }
     }

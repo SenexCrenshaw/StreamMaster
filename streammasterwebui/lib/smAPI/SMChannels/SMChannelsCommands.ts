@@ -1,4 +1,4 @@
-import {APIResponse,DefaultAPIResponse, PagedResponse, QueryStringParameters, SMChannelDto } from '@lib/apiDefs';
+import {APIResponse, PagedResponse, DefaultAPIResponse,QueryStringParameters,SMStreamSMChannelRequest, SMChannelDto } from '@lib/apiDefs';
 import { invokeHubCommand } from '@lib/signalr/signalr';
 
 export const GetPagedSMChannels = async (parameters: QueryStringParameters): Promise<PagedResponse<SMChannelDto> | undefined> => {
@@ -29,5 +29,13 @@ export const DeleteSMChannel = async (smchannelId: number): Promise<DefaultAPIRe
 
 export const DeleteAllSMChannelsFromParameters = async (Parameters: QueryStringParameters): Promise<DefaultAPIResponse | null> => {
   return await invokeHubCommand<DefaultAPIResponse>('DeleteAllSMChannelsFromParameters', Parameters);
+};
+
+export const AddSMStreamToSMChannel = async (request: SMStreamSMChannelRequest): Promise<DefaultAPIResponse | null> => {
+  return await invokeHubCommand<DefaultAPIResponse>('AddSMStreamToSMChannel', request);
+};
+
+export const RemoveSMStreamFromSMChannel = async (request: SMStreamSMChannelRequest): Promise<DefaultAPIResponse | null> => {
+  return await invokeHubCommand<DefaultAPIResponse>('RemoveSMStreamFromSMChannel', request);
 };
 

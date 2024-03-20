@@ -9,4 +9,5 @@ $streamMasterColor: #fe7600 !default;
     padding-top: $datatable-padding !important;
     padding-bottom: $datatable-padding !important;
     font-size: .875rem;
+    max-height: $datatable-row-height;
 }

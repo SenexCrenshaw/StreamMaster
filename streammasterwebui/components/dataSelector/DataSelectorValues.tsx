@@ -1,13 +1,12 @@
 import { camel2title, isEmptyObject } from '@lib/common/common';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import useSettings from '@lib/useSettings';
-import { areArraysEqual } from '@mui/base';
 import { Button } from 'primereact/button';
 import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import {
   DataTable,
   DataTableExpandedRows,
-  DataTableRowExpansionTemplate,
+  DataTableRowToggleEvent,
   type DataTablePageEvent,
   type DataTableRowClickEvent,
   type DataTableRowData,
@@ -17,7 +16,7 @@ import {
   type DataTableStateEvent,
   type DataTableValue
 } from 'primereact/datatable';
-import { Suspense, memo, useCallback, useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
 
 import { type ColumnAlign, type ColumnFieldType, type ColumnMeta, type DataSelectorSelectionMode } from './DataSelectorTypes';
 import bodyTemplate from './bodyTemplate';
@@ -25,25 +24,20 @@ import generateFilterData from './generateFilterData';
 import getEmptyFilter from './getEmptyFilter';
 import getHeader from './getHeader';
 import getRecord from './getRecord';
-import isPagedTableDto from './isPagedTableDto';
+import getRecordString from './getRecordString';
 import useDataSelectorState2 from './useDataSelectorState2';
 
 import AddButton from '@components/buttons/AddButton';
 import StringTracker from '@components/inputs/StringTracker';
-
-import SMStreamDataSelectorValue from '@features/streameditor/SMStreamDataSelectorValue';
-import { GetApiArgument, PagedResponse, QueryHook, SMChannelDto, SMStreamDto, SMStreamSMChannelRequest } from '@lib/apiDefs';
-import { PagedResponseDto } from '@lib/common/dataTypes';
 import { Checkbox } from 'primereact/checkbox';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import ResetButton from '../buttons/ResetButton';
 import TableHeader from './TableHeader';
-import getRecordString from './getRecordString';
 import { useSetQueryFilter } from './useSetQueryFilter';
 
-const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) => {
+const DataSelectorValues = <T extends DataTableValue>(props: DataSelectorValuesProps<T>) => {
   const debug = false;
-  const { state, setters } = useDataSelectorState2<T>(props.id, props.selectedItemsKey, props.selectedSMChannelKey, props.selectedSMStreamKey);
+  const { state, setters } = useDataSelectorState2<T>(props.id, props.selectedItemsKey);
 
   useEffect(() => {
     if (props.columns === undefined) {
@@ -93,8 +87,6 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
     console.log(queryFilter);
   }
 
-  const { data, isLoading } = props.queryFilter ? props.queryFilter(queryFilter) : { data: undefined, isLoading: false };
-
   const onSetSelection = useCallback(
     (e: T | T[], overRideSelectAll?: boolean): T | T[] | undefined => {
       // if (e === undefined) {
@@ -124,36 +116,6 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
     [state.selectSelectedItems, state.selectAll, props, setters]
   );
 
-  useEffect(() => {
-    if (!data) {
-      return;
-    }
-
-    if (data && data.data && isPagedTableDto<T>(data)) {
-      if (!state.dataSource || (state.dataSource && !areArraysEqual(data.data, state.dataSource))) {
-        setters.setDataSource((data as PagedResponseDto<T>).data);
-        if (debug && props.id === 'streamgroupeditor-StreamGroupSelectedVideoStreamDataSelector') {
-          console.log('data', (data as PagedResponseDto<T>).data);
-        }
-        if (state.selectAll && data !== undefined) {
-          setters.setSelectSelectedItems((data as PagedResponseDto<T>).data as T[]);
-        }
-      }
-
-      if (data.pageNumber > 1 && data.totalPageCount === 0) {
-        const newData = { ...data };
-
-        newData.pageNumber += -1;
-        newData.first = (newData.pageNumber - 1) * newData.pageSize;
-        setters.setPage(newData.pageNumber);
-        setters.setFirst(newData.first);
-        setters.setPagedInformation(newData);
-      } else {
-        setters.setPagedInformation(data);
-      }
-    }
-  }, [data, debug, props.id, setters, state.dataSource, state.selectAll]);
-
   const onRowReorder = (changed: T[]) => {
     setters.setDataSource(changed);
 
@@ -165,31 +127,17 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
   };
 
   const rowClass = useCallback(
-    (data: DataTableRowData<T[]>) => {
+    (changed: DataTableRowData<T[]>) => {
       // const isLoading2 = getRecord(changed as T, 'isLoading');
 
-      const isHidden = getRecord(data as T, 'isHidden');
+      const isHidden = getRecord(changed as T, 'isHidden');
 
       if (isHidden === true) {
         return 'bg-red-900';
       }
 
-      if (props.selectRow === true && state.selectedSMChannel !== undefined) {
-        const id = getRecord(data, 'id') as number;
-        if (id === state.selectedSMChannel.id) {
-          return 'bg-orange-900';
-        }
-      }
-
-      if (props.selectRow === true && state.selectedSMStream !== undefined) {
-        const id = getRecordString(data, 'id');
-        if (id === state.selectedSMStream.id) {
-          return 'bg-yellow-900';
-        }
-      }
-
       if (props.videoStreamIdsIsReadOnly !== undefined && props.videoStreamIdsIsReadOnly.length > 0) {
-        const isReadOnly = props.videoStreamIdsIsReadOnly.find((vs) => vs === getRecord(data as T, 'id'));
+        const isReadOnly = props.videoStreamIdsIsReadOnly.find((vs) => vs === getRecord(changed as T, 'id'));
 
         if (isReadOnly !== undefined) {
           return 'videostreamSelected';
@@ -198,7 +146,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
 
       return {};
     },
-    [props.videoStreamIdsIsReadOnly, state.selectedSMChannel, state.selectedSMStream]
+    [props.videoStreamIdsIsReadOnly]
   );
 
   const exportCSV = () => {
@@ -218,11 +166,22 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
     }
 
     const scroller = tableReference.current?.getVirtualScroller();
+    // console.log('Scroll to', props.scrollTo ?? 0, 'smooth');
+    // scroller?.scrollTo({ behavior: 'auto', left: 0, top: props.scrollTo })
+    // scroller?.scrollInView({ behavior: 'auto', left: 0, top: props.scrollTo })
     scroller?.scrollToIndex(props.scrollTo ?? 0, 'smooth');
   }, [props.scrollTo]);
 
   const sourceRenderHeader = useMemo(() => {
+    // if (!props.headerLeftTemplate && !props.headerRightTemplate) {
+    //   return null;
+    // }
+    if (props.noSourceHeader === true) {
+      return null;
+    }
+
     return (
+      // <div>Header</div>
       <TableHeader
         dataSelectorProps={props}
         enableExport={props.enableExport ?? true}
@@ -237,6 +196,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getSelectionMultipleMode = useMemo((): any => {
+    // 'single' | 'checkbox' | 'multiple' | null => {
     if (props.selectionMode === 'multiple') {
       return 'checkbox';
     }
@@ -369,6 +329,61 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
     } as CSSProperties;
   }, []);
 
+  const rowGroupHeaderTemplate = useCallback(
+    (row: T) => {
+      if (!props.groupRowsBy) {
+        return <div />;
+      }
+
+      const record = getRecordString(row, props.groupRowsBy);
+
+      return (
+        <span className="vertical-align-middle ml-2 font-bold line-height-3">
+          {record}
+          {/* <Button
+            className={row.isHidden ? 'p-button-danger' : ''}
+            icon={`pi pi-eye ${row.isHidden ? 'text-red-500' : 'text-green-500'}`}
+            onClick={() => props?.onRowVisibleClick?.(row)}
+            rounded
+            text
+            tooltip="Set Hidden"
+            tooltipOptions={getTopToolOptions}
+          /> */}
+        </span>
+      );
+    },
+    [props]
+  );
+
+  // const multiselectHeader = () => {
+  //   if (props.showSelections === true) {
+  //     return <TriSelectShowSelection dataKey={props.id} />;
+  //   }
+
+  //   if (props.disableSelectAll === true) {
+  //     return <div className="text-xs text-white text-500" />;
+  //   }
+
+  //   return (
+  //     <div className="flex">
+  //       <div className="text-xs text-white text-500">
+  //         <BanButton
+  //           className="banbutton"
+  //           disabled={(state.selectSelectedItems || []).length === 0}
+  //           onClick={() => {
+  //             setters.setSelectSelectedItems([]);
+  //             setters.setSelectAll(false);
+  //             if (props.onSelectionChange) {
+  //               props.onSelectionChange([], state.selectAll);
+  //             }
+  //           }}
+  //           tooltip={`Clear ${(state.selectSelectedItems || []).length} Selections`}
+  //         />
+  //       </div>
+  //     </div>
+  //   );
+  // };
+
   const rowReorderHeader = () => (
     <div className=" text-xs text-white text-500">
       <ResetButton
@@ -421,6 +436,12 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
 
   const onFilter = (event: DataTableStateEvent) => {
     const newFilters = generateFilterData(props.columns, event.filters);
+
+    if (props.selectedItemsKey === 'selectSelectedVideoStreamDtoItems') {
+      // console.log(props.selectedItemsKey);
+      // console.log(props.selectedItemsKey);
+      // setters.setSelectSelectedItems([]);
+    }
 
     setters.setFilters(newFilters);
   };
@@ -481,6 +502,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
 
   const onColumnToggle = useCallback(
     (selectedColumns: ColumnMeta[]) => {
+      // let selectedColumns = event.value as ColumnMeta[];
       const newData = [...props.columns];
 
       newData
@@ -578,13 +600,16 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
     [getSortIcon, onColumnToggle, props.columns, props.id, setters, state.sortOrder, state.visibleColumns, visibleColumnsTemplate]
   );
 
-  const addSelection = useCallback(
-    (data: T) => {
-      const newSelectedItems = [...state.selectSelectedItems, data];
-      setters.setSelectSelectedItems(newSelectedItems);
-    },
-    [setters, state.selectSelectedItems]
-  );
+  function addSelection(data: T) {
+    const newSelectedItems = [...state.selectSelectedItems, data];
+    setters.setSelectSelectedItems(newSelectedItems);
+  }
+
+  // function removeSelection(data: T) {
+  //   const newSelectedItems = state.selectSelectedItems.filter((item) => item.id !== data.id);
+
+  //   setters.setSelectSelectedItems(newSelectedItems);
+  // }
 
   function toggleAllSelection() {
     if (state.selectAll) {
@@ -600,36 +625,25 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
     return props.showSelections || props.selectionMode === 'multiple' || props.selectionMode === 'checkbox' || props.selectionMode === 'multipleNoRowCheckBox';
   }, [props.selectionMode, props.showSelections]);
 
-  const addOrRemoveTemplate = useCallback(
-    (data: T) => {
-      const found = state.selectSelectedItems.some((item) => item.id === data.id);
-      const isSelected = found ?? false;
-      let toolTip = 'Add Channel';
-      if (state.selectedSMChannel !== undefined) {
-        toolTip = 'Add Stream To ' + state.selectedSMChannel.name;
-        return (
-          <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-            {props.onStreamAdd !== undefined && (
-              <AddButton
-                iconFilled={false}
-                onClick={() => props.onStreamAdd?.({ smStreamId: data.id, smChannelId: state.selectedSMChannel?.id ?? 0 })}
-                tooltip={toolTip}
-              />
-            )}
-            {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />}
-          </div>
-        );
-      }
+  function addOrRemoveTemplate(data: T) {
+    const found = state.selectSelectedItems.some((item) => item.id === data.id);
+    const isSelected = found ?? false;
 
-      return (
-        <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-          {props.onChannelAdd !== undefined && <AddButton iconFilled={false} onClick={() => props.onChannelAdd?.(data)} tooltip={toolTip} />}
-          {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />}
-        </div>
-      );
-    },
-    [addSelection, props, showSelection, state.selectSelectedItems, state.selectedSMChannel]
-  );
+    return (
+      <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+        {/* <MinusButton iconFilled={false} onClick={() => console.log('AddButton', data)} tooltip="Add Channel" /> */}
+        {props.onAdd !== undefined && <AddButton iconFilled={false} onClick={() => props.onAdd?.(data)} tooltip="Add Channel" />}
+        {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />}
+      </div>
+    );
+
+    // return (
+    //   <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+    //     {props.onAdd !== undefined && <AddButton iconFilled={false} onClick={() => props.onAdd?.(data)} tooltip="Add Channel" />}
+    //     {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => removeSelection(data)} />}
+    //   </div>
+    // );
+  }
 
   function addOrRemoveHeaderTemplate() {
     const isSelected = false;
@@ -651,24 +665,6 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
     );
   }
 
-  const rowExpansionTemplate = useCallback(
-    (data: DataTableRowData<T[]>, options: DataTableRowExpansionTemplate) => {
-      return (
-        <div className="surface-50 py-1 px-2">
-          <Suspense fallback={<div>Loading...</div>}>
-            <SMStreamDataSelectorValue
-              selectedSMChannelKey={props.selectedSMChannelKey}
-              data={data.smStreams}
-              isLoading={isLoading}
-              id={data.id + '-streams'}
-            />
-          </Suspense>
-        </div>
-      );
-    },
-    [isLoading, props.selectedSMChannelKey]
-  );
-
   return (
     <div className="dataselector flex w-full min-w-full  justify-content-start align-items-center">
       <div className={`${props.className === undefined ? '' : props.className} min-h-full w-full surface-overlay`}>
@@ -686,41 +682,15 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
           first={state.pagedInformation ? state.pagedInformation.first : state.first}
           header={sourceRenderHeader}
           lazy
-          loading={props.isLoading === true || isLoading === true}
+          loading={props.isLoading === true}
           // metaKeySelection={false}
           onFilter={onFilter}
           onPage={onPage}
-          onRowExpand={(e: any) => {
-            setters.setSelectedSMChannel(e.originalEvent.data as SMChannelDto);
-          }}
-          onRowCollapse={(e: any) => {
-            setters.setSelectedSMChannel(undefined);
-          }}
-          onRowClick={(e) => {
-            const isChannel = 'smStreams' in e.data;
-
-            if (isChannel) {
-              if (state.selectedSMChannel !== undefined && e.data !== undefined && e.data.id === state.selectedSMChannel.id) {
-                setters.setSelectedSMChannel(undefined);
-              } else {
-                setters.setSelectedSMChannel(e.data as SMChannelDto);
-              }
-            } else {
-              if (state.selectedSMStream !== undefined && e.data !== undefined && e.data.id === state.selectedSMStream.id) {
-                setters.setSelectedSMStream(undefined);
-              } else {
-                setters.setSelectedSMStream(e.data as SMStreamDto);
-              }
-            }
-
-            props.onRowClick?.(e);
-          }}
+          onRowClick={(e) => props.onRowClick?.(e)}
           onRowReorder={(e) => {
             onRowReorder(e.value);
           }}
-          onRowToggle={(e: any) => {
-            setters.setExpandedRows(e.data as DataTableExpandedRows);
-          }}
+          onRowToggle={(e: DataTableRowToggleEvent) => setters.setExpandedRows(e.data as DataTableExpandedRows)}
           onSelectAllChange={props.reorderable || props.disableSelectAll === true ? undefined : onSelectAllChange}
           onSelectionChange={(e: DataTableSelectionMultipleChangeEvent<T[]> | DataTableSelectionSingleChangeEvent<T[]>) => {
             if (props.reorderable === true) {
@@ -728,7 +698,6 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
             }
             onSelectionChange(e);
           }}
-          rowExpansionTemplate={rowExpansionTemplate}
           onSort={onSort}
           paginator={props.enablePaginator ?? true}
           paginatorClassName="text-xs p-0 m-0 withpadding"
@@ -738,6 +707,8 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
           reorderableRows={props.reorderable}
           resizableColumns
           rowClassName={rowClass}
+          rowGroupHeaderTemplate={rowGroupHeaderTemplate}
+          rowGroupMode={props.groupRowsBy !== undefined && props.groupRowsBy !== '' ? 'subheader' : undefined}
           rows={state.rows}
           rowsPerPageOptions={[10, 25, 50, 100, 250]}
           scrollHeight="flex"
@@ -757,7 +728,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
           stripedRows
           style={props.style}
           totalRecords={state.pagedInformation ? state.pagedInformation.totalItemCount : undefined}
-          value={state.dataSource}
+          value={props.dataSource}
           // pt={{
           //   headerRow: { style: { display: 'none' } }
           // }}
@@ -772,28 +743,10 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
             field="addOrRemove"
             filter
             filterElement={addOrRemoveHeaderTemplate}
-            hidden={!props.onStreamAdd || !props.onChannelAdd}
+            hidden={!props.addOrRemove}
             showFilterMenu={false}
             showFilterOperator={false}
             resizeable={false}
-            // style={{ width: '3rem', maxWidth: '3rem' }}
-          />
-          <Column
-            // body={ExpandTemplate}
-            className={
-              showSelection
-                ? 'w-3rem max-w-3rem p-0 justify-content-center align-items-center'
-                : 'w-2rem max-w-2rem p-0 justify-content-center align-items-center'
-            }
-            // field="expand"
-            // filter
-            // filterElement={<div />}
-
-            hidden={!props.showExpand}
-            showFilterMenu={false}
-            showFilterOperator={false}
-            resizeable={false}
-            expander
             // style={{ width: '3rem', maxWidth: '3rem' }}
           />
           <Column
@@ -804,6 +757,27 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
             rowReorder
             style={{ width: '2rem', maxWidth: '2rem' }}
           />
+          {/* <Column
+            align="center"
+            alignHeader="center"
+            className="p-0 m-0 w-3rem"
+            filterHeaderClassName="p-3 m-0 w-3rem"
+            // className="p-0 m-0"
+            // filter
+            // filterElement={multiselectHeader}
+            // header={multiselectHeader}
+            // headerStyle={{ padding: '0px', width: '3rem' }}
+            hidden={
+              !props.showSelections &&
+              props.selectionMode !== 'multiple' &&
+              props.selectionMode !== 'checkbox' &&
+              props.selectionMode !== 'multipleNoRowCheckBox'
+            }
+            showFilterMenu={false}
+            showFilterOperator={false}
+            resizeable={false}
+            selectionMode="multiple"
+          /> */}
           {state.visibleColumns &&
             state.visibleColumns
               .filter((col) => col.removed !== true)
@@ -815,7 +789,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
                   body={(e) => (col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, setting.defaultIcon, col.camelize))}
                   editor={col.editor}
                   field={col.field}
-                  filter //={getFilter(col.filter, col.fieldType)}
+                  filter={col.filter === true}
                   filterElement={col.filterElement ?? rowFilterTemplate}
                   // filterMenuStyle={{ width: '14rem' }}
                   filterPlaceholder={col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)}
@@ -828,11 +802,11 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
                   resizeable={col.resizeable}
                   showAddButton
                   showApplyButton
-                  showClearButton
-                  showFilterMatchModes
+                  showClearButton={false}
+                  showFilterMatchModes={false}
                   showFilterMenu={col.filterElement === undefined && col.filter === true}
-                  showFilterMenuOptions
-                  showFilterOperator
+                  showFilterMenuOptions={false}
+                  showFilterOperator={false}
                   // sortable={props.reorderable ? false : col.sortable}
                   style={getStyle(col)}
                 />
@@ -843,10 +817,10 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
   );
 };
 
-DataSelector2.displayName = 'dataselector2';
+DataSelectorValues.displayName = 'dataselectorvalues';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-interface BaseDataSelector2Properties<T = any> {
+interface BaseDataSelectorValuesProperties<T = any> {
   className?: string;
   columns: ColumnMeta[];
   defaultSortField: string;
@@ -862,17 +836,13 @@ interface BaseDataSelector2Properties<T = any> {
   headerName?: string;
   headerRightTemplate?: ReactNode;
   hideControls?: boolean;
-  selectRow?: boolean;
   id: string;
   isLoading?: boolean;
   dataKey?: string | undefined;
-  // setSMChannel?: boolean;
-  // setSMStream?: boolean;
-  selectedSMChannelKey: string;
-  selectedSMStreamKey: string;
+  noSourceHeader?: boolean;
+
   // onLazyLoad?: (e: any) => void;
-  onChannelAdd?: (value: T) => void;
-  onStreamAdd?: (value: SMStreamSMChannelRequest) => void;
+  onAdd?: (value: T) => void;
   onDelete?: (value: T) => void;
   onMultiSelectClick?: (value: boolean) => void;
   OnReset?: () => void;
@@ -882,7 +852,7 @@ interface BaseDataSelector2Properties<T = any> {
   onSelectionChange?: (value: T[], selectAll: boolean) => void;
   // onValueChanged?: (value: T[]) => void;
   reorderable?: boolean;
-  showExpand?: boolean;
+  addOrRemove?: boolean;
   scrollTo?: number;
   selectedItemsKey: string;
   selectedStreamGroupId?: number;
@@ -898,12 +868,12 @@ interface BaseDataSelector2Properties<T = any> {
   // virtualScrollHeight?: string | undefined;
 }
 
-type QueryFilterProperties<T> = BaseDataSelector2Properties<T> & {
-  queryFilter: (params: GetApiArgument | undefined) => ReturnType<QueryHook<PagedResponse<T> | undefined>>;
+type QueryFilterProperties<T> = BaseDataSelectorValuesProperties<T> & {
+  dataSource: T[] | undefined;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type DataSelector2Props<T = any> = QueryFilterProperties<T>;
+export type DataSelectorValuesProps<T = any> = QueryFilterProperties<T>;
 
 export interface PagedTableInformation {
   first: number;
@@ -920,4 +890,4 @@ export interface PagedDataDto<T> {
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type PagedTableDto<T> = PagedDataDto<T> & PagedTableInformation & {};
 
-export default memo(DataSelector2);
+export default memo(DataSelectorValues);

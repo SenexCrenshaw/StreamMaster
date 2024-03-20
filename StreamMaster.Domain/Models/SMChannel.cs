@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AutoMapper.Configuration.Annotations;
+
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -8,8 +10,11 @@ public class SMChannel
 {
     public StreamingProxyTypes StreamingProxyType { get; set; } = StreamingProxyTypes.SystemDefault;
 
+    [Ignore]
     [JsonIgnore]
     public ICollection<SMChannelStreamLink> SMStreams { get; set; } = [];
+    [Ignore]
+    [JsonIgnore]
     public ICollection<StreamGroupSMChannel> StreamGroups { get; set; } = [];
 
     [Key]

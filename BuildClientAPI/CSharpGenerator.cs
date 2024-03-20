@@ -11,7 +11,7 @@ public static class CSharpGenerator
         StringBuilder hubContent = new();
 
         string serviceName = $"{namespaceName}Service";
-        string serviceNameParameter = serviceName;// char.ToLowerInvariant(serviceName[0]) + serviceName[1..]; // Convert first letter to lowercase
+        string serviceNameParameter = serviceName;
 
         // Generate controller and hub content based on methods
         foreach (MethodDetails method in methods)
@@ -25,20 +25,21 @@ public static class CSharpGenerator
             else if (method.Name.StartsWith("Delete"))
             {
                 httpAttribute = "HttpDelete";
-
+            }
+            else if (method.Name.StartsWith("Remove"))
+            {
+                httpAttribute = "HttpDelete";
             }
             else if (method.Name.StartsWith("Create"))
             {
                 httpAttribute = "HttpPost";
             }
 
-
-            //string httpAttribute = method.Name.StartsWith("Get") ? "HttpGet" : "HttpPut";
             string fromQuery = method.Name.StartsWith("Get") ? "[FromQuery] " : "";
             string route = $"[Route(\"[action]\")]";
             string httpMethodLine = $"[{httpAttribute}]";
 
-            if (method.Name == "GetPagedSMChannels")
+            if (method.Name == "AddSMStreamToSMChannel")
             {
                 int a = 1;
             }

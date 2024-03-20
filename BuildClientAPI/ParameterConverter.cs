@@ -85,7 +85,33 @@ public static class ParameterConverter
         int lastIndex = fullTypeName.LastIndexOf('.');
         return lastIndex >= 0 ? fullTypeName[(lastIndex + 1)..] : fullTypeName;
     }
+    public static string? IsTSGeneric(string csharpType)
+    {
+        if (csharpType.Contains(":"))
+        {
+            csharpType = csharpType[(csharpType.IndexOf(": ") + 2)..];
+        }
+        string toTest = csharpType.ToLower();
 
+        if (toTest == "system.string" || toTest.StartsWith("string"))
+        {
+            return null;
+        }
+        else if (toTest == "system.int32" || toTest.StartsWith("number") || toTest == "int32")
+        {
+            return null;
+        }
+        else if (toTest is "system.double" or "double")
+        {
+            return null;
+        }
+        else if (toTest is "system.boolean" or "boolean")
+        {
+            return null;
+        }
+
+        return csharpType;
+    }
 
     public static string MapCSharpTypeToTypeScript(string csharpType)
     {
@@ -187,7 +213,13 @@ public static class ParameterConverter
         }
         else
         {
-            return type.FullName ?? type.Name;
+            string ret = type.FullName ?? type.Name;
+            if (ret.Contains("+"))
+            {
+                ret = type.Name;
+            }
+
+            return ret;
         }
     }
 

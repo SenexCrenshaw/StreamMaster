@@ -3,32 +3,14 @@ using System.Text.RegularExpressions;
 
 public static class TypeScriptHookGenerator
 {
+    private static HashSet<string> additionalImports = [];
     public static void GenerateFile(string namespaceName, string mainEntityName, List<MethodDetails> methods, string filePath)
     {
         StringBuilder content = new();
-
-        List<string> additionalImports = [];
-
-        if (methods.Any(a => !a.Name.StartsWith("GetPaged")))
-        {
-            additionalImports.Add("DefaultAPIResponse");
-        }
-
-        if (methods.Any(a => (!a.Name.StartsWith("GetPaged") && a.TsParameters.Contains("QueryStringParameters")) || a.ReturnType.Contains("QueryStringParameters")))
-        {
-            additionalImports.Add("QueryStringParameters");
-        }
+        additionalImports = [];
 
 
-        string additionalImportsString = string.Join(",", additionalImports);
-        if (!string.IsNullOrEmpty(additionalImportsString))
-        {
-            additionalImportsString += ",";
-        }
-
-        // Step 1: Add necessary imports
         content.AppendLine("import { useEffect } from 'react';");
-        content.AppendLine($"import {{ {additionalImportsString} FieldData, GetApiArgument, PagedResponse, QueryHookResult,{mainEntityName} }} from '@lib/apiDefs';");
         content.AppendLine("import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';");
 
         // Importing command and fetch methods
@@ -54,8 +36,16 @@ public static class TypeScriptHookGenerator
         content.AppendLine($"import {{ clear{namespaceName}, update{namespaceName} }} from '@lib/smAPI/{namespaceName}/{namespaceName}Slice';");
         content.AppendLine();
 
-        // Step 2: Define the hook and its return type
+
         content.Append(GenerateHookContent(namespaceName, mainEntityName, fetchMethod?.Name, methods));
+
+        string additionals = "QueryStringParameters";
+
+        if (additionalImports.Count > 0)
+        {
+            additionals = string.Join(",", additionalImports);
+        }
+        content.Insert(0, $"import {{ FieldData, GetApiArgument, PagedResponse, QueryHookResult,{mainEntityName},{additionals} }} from '@lib/apiDefs';\n");
 
         // Write to file
         string directory = Directory.GetParent(filePath).ToString();
@@ -88,6 +78,16 @@ public static class TypeScriptHookGenerator
             if (methodName == "DeleteAllSMChannelsFromParameters")
             {
                 int aa = 1;
+            }
+            string? toImport = ParameterConverter.IsTSGeneric(method.TsParameters);
+            if (toImport != null)
+            {
+                additionalImports.Add(toImport);
+            }
+            toImport = ParameterConverter.IsTSGeneric(method.ReturnType);
+            if (toImport != null)
+            {
+                additionalImports.Add(toImport);
             }
 
             //(string parameterName, string tsParameterString) = GetReal(method);
@@ -127,7 +127,7 @@ public static class TypeScriptHookGenerator
 
         // Refresh field action
         sb.AppendLine($"  const refresh{namespaceName} = (): void => {{");
-        sb.AppendLine($"    clear{namespaceName}();");
+        sb.AppendLine($"    dispatch(clear{namespaceName}());");
         sb.AppendLine($"  }};");
         sb.AppendLine();
 

@@ -17,6 +17,10 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
 
     public async Task CreateSMChannelStreamLink(SMChannelStreamLink sMChannelStreamLink)
     {
+        if (Any(a => a.SMStreamId == sMChannelStreamLink.SMStreamId && a.SMChannelId == sMChannelStreamLink.SMChannelId))
+        {
+            return;
+        }
         Create(sMChannelStreamLink);
         await SaveChangesAsync();
     }

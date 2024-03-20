@@ -1,13 +1,14 @@
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 
-import { SMStreamDto } from '@lib/apiDefs';
+import { SMStreamDto, SMStreamSMChannelRequest } from '@lib/apiDefs';
 
 import { GetMessage, arraysContainSameStrings } from '@lib/common/common';
 import { ChannelGroupDto } from '@lib/iptvApi';
 import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreams';
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
+import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
-import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { AddSMStreamToSMChannel, CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useSMStreams from '@lib/smAPI/SMStreams/useSMStreams';
 
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
@@ -31,7 +32,9 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
 
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
   const { setSelectedSMStreams } = useSelectSMStreams(dataKey);
-  const { isLoading } = useSMStreams();
+
+  const { queryFilter } = useQueryFilter(dataKey);
+  const { isLoading } = useSMStreams(queryFilter);
 
   useEffect(() => {
     if (!arraysContainSameStrings(queryAdditionalFilter?.values, channelGroupNames)) {
@@ -112,7 +115,6 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <DataSelector2
-        addOrRemove
         columns={columns}
         defaultSortField="name"
         defaultSortOrder={1}
@@ -121,14 +123,19 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
         headerRightTemplate={rightHeaderTemplate}
         isLoading={isLoading}
         id={dataKey}
-        onAdd={(e) => {
+        onChannelAdd={(e) => {
           console.log('Add', e);
           CreateSMChannelFromStream(e.id)
-            .then((response) => {
-              console.log(response);
-            })
+            .then((response) => {})
             .catch((error) => {
-              console.error(error);
+              console.error(error.message);
+            });
+        }}
+        onStreamAdd={(e: SMStreamSMChannelRequest) => {
+          AddSMStreamToSMChannel(e)
+            .then((response) => {})
+            .catch((error) => {
+              console.error(error.message);
             });
         }}
         onDelete={(e) => {
@@ -140,6 +147,8 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
           }
         }}
         queryFilter={useSMStreams}
+        selectedSMStreamKey="SMChannelDataSelector"
+        selectedSMChannelKey="SMChannelDataSelector"
         selectedItemsKey="selectSelectedSMStreamDtoItems"
         // selectionMode="multiple"
         style={{ height: 'calc(100vh - 40px)' }}

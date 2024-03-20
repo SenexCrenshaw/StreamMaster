@@ -27,7 +27,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
     public async Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(SMChannelParameters parameters)
     {
-        IQueryable<SMChannel> query = GetIQueryableForEntity(parameters).Include(a => a.SMStreams);
+        IQueryable<SMChannel> query = GetIQueryableForEntity(parameters).Include(a => a.SMStreams).ThenInclude(a => a.SMStream);
         return await query.GetPagedResponseAsync<SMChannel, SMChannelDto>(parameters.PageNumber, parameters.PageSize, mapper)
                           .ConfigureAwait(false);
     }
@@ -139,4 +139,33 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return [];
     }
 
+    public async Task<DefaultAPIResponse> AddSMStreamToSMChannel(int SMChannelId, string SMStreamId)
+    {
+        if (GetSMChannel(SMChannelId) == null || repository.SMStream.GetSMStream(SMStreamId) == null)
+        {
+            return APIResponseFactory.NotFound();
+        }
+
+        SMChannelStreamLink sMChannelStreamLink = new()
+        {
+            SMChannelId = SMChannelId,
+            SMStreamId = SMStreamId
+        };
+
+        await repository.SMChannelStreamLink.CreateSMChannelStreamLink(sMChannelStreamLink);
+        await SaveChangesAsync();
+
+        return APIResponseFactory.Ok();
+    }
+
+    public async Task<DefaultAPIResponse> RemoveSMStreamFromSMChannel(int SMChannelId, string SMStreamId)
+    {
+        IQueryable<SMChannelStreamLink> toDelete = repository.SMChannelStreamLink.GetQuery(true).Where(a => a.SMChannelId == SMChannelId && a.SMStreamId == SMStreamId);
+        if (!toDelete.Any())
+        {
+            return APIResponseFactory.NotFound();
+        }
+        await repository.SMChannelStreamLink.DeleteSMChannelStreamLinks(toDelete);
+        return APIResponseFactory.Ok();
+    }
 }

@@ -115,6 +115,11 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         return RepositoryContext.Set<T>().Where(expression).AsNoTracking();
     }
 
+    public bool Any(Expression<Func<T, bool>> expression)
+    {
+        return RepositoryContext.Set<T>().Any(expression);
+    }
+
     public IQueryable<T> FindByConditionTracked(Expression<Func<T, bool>> expression)
     {
         return RepositoryContext.Set<T>().Where(expression);

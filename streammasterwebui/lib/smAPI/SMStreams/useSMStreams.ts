@@ -1,5 +1,5 @@
+import { FieldData, GetApiArgument, PagedResponse, QueryHookResult,SMStreamDto,DefaultAPIResponse } from '@lib/apiDefs';
 import { useEffect } from 'react';
-import { DefaultAPIResponse, FieldData, GetApiArgument, PagedResponse, QueryHookResult,SMStreamDto } from '@lib/apiDefs';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { ToggleSMStreamVisibleById } from '@lib/smAPI/SMStreams/SMStreamsCommands';
 import { fetchGetPagedSMStreams } from '@lib/smAPI/SMStreams/SMStreamsFetch';
@@ -32,7 +32,7 @@ const useSMStreams = (params?: GetApiArgument | undefined): SMStreamDtoResult =>
   };
 
   const refreshSMStreams = (): void => {
-    clearSMStreams();
+    dispatch(clearSMStreams());
   };
 
   const toggleSMStreamVisibleById = (id: string): Promise<DefaultAPIResponse | null> => {

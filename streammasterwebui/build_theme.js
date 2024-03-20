@@ -54,10 +54,11 @@ async function copyDirectoryContents(srcDir, destDir) {
           await copyDirectoryContents(srcPath, destPath);
         } else {
           await fs.copyFile(srcPath, destPath);
-          console.log(`File ${file.name} successfully copied to ${destPath}`);
+          // console.log(`File ${file.name} successfully copied to ${destPath}`);
         }
       })
     );
+    console.log(`Copy Directory Contents ${srcDir} to ${destDir} successfull`);
   } catch (error) {
     console.error('Failed to copy directory contents:', error);
   }
