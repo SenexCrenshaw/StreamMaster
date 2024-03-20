@@ -7,6 +7,21 @@ export type ColumnFieldType = 'blank' | 'deleted' | 'epg' | 'epglink' | 'image' 
 export type ColumnAlign = 'center' | 'left' | 'right' | null | undefined;
 export type DataSelectorSelectionMode = 'checkbox' | 'multiple' | 'multipleNoCheckBox' | 'multipleNoRowCheckBox' | 'selectable' | 'single' | undefined;
 
+export interface PagedTableInformation {
+  first: number;
+  pageNumber: number;
+  pageSize: number;
+  totalItemCount: number;
+  totalPageCount: number;
+}
+
+export interface PagedDataDto<T> {
+  data?: T[];
+}
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type PagedTableDto<T> = PagedDataDto<T> & PagedTableInformation & {};
+
 export interface LazyTableState {
   filters: DataTableFilterMeta;
   first: number;
@@ -16,7 +31,6 @@ export interface LazyTableState {
   sortField?: string;
   sortOrder?: -1 | 0 | 1 | null | undefined;
   sortString: string;
-  // streamGroupId?: number;
 }
 
 /**

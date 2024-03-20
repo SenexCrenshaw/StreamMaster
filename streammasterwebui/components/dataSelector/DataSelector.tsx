@@ -717,19 +717,4 @@ type DataSourceProperties<T> = BaseDataSelectorProperties<T> & {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type DataSelectorProps<T = any> = DataSourceProperties<T> | QueryFilterProperties<T>;
 
-export interface PagedTableInformation {
-  first: number;
-  pageNumber: number;
-  pageSize: number;
-  totalItemCount: number;
-  totalPageCount: number;
-}
-
-export interface PagedDataDto<T> {
-  data?: T[];
-}
-
-// eslint-disable-next-line @typescript-eslint/ban-types
-export type PagedTableDto<T> = PagedDataDto<T> & PagedTableInformation & {};
-
 export default memo(DataSelector);

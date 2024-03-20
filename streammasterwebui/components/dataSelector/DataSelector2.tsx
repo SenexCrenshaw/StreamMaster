@@ -7,7 +7,10 @@ import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import {
   DataTable,
   DataTableExpandedRows,
+  DataTableRowEvent,
   DataTableRowExpansionTemplate,
+  DataTableRowReorderEvent,
+  DataTableRowToggleEvent,
   type DataTablePageEvent,
   type DataTableRowClickEvent,
   type DataTableRowData,
@@ -194,7 +197,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
 
       return {};
     },
-    [props.videoStreamIdsIsReadOnly, state.selectedSMChannel, state.selectedSMStream]
+    [props.selectRow, props.videoStreamIdsIsReadOnly, state.selectedSMChannel, state.selectedSMStream]
   );
 
   const exportCSV = () => {
@@ -655,14 +658,37 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
             <SMStreamDataSelectorValue
               selectedSMChannelKey={props.selectedSMChannelKey}
               data={data.smStreams}
-              isLoading={isLoading}
+              // isLoading={isLoading}
               id={data.id + '-streams'}
             />
           </Suspense>
         </div>
       );
     },
-    [isLoading, props.selectedSMChannelKey]
+    [props.selectedSMChannelKey]
+  );
+
+  const setSelectedSMEntity = useCallback(
+    (data: DataTableValue, toggle?: boolean) => {
+      if (props.selectRow === true) {
+        const isChannel = 'smStreams' in data;
+
+        if (isChannel) {
+          if (toggle === true && state.selectedSMChannel !== undefined && data !== undefined && data.id === state.selectedSMChannel.id) {
+            setters.setSelectedSMChannel(undefined);
+          } else {
+            setters.setSelectedSMChannel(data as SMChannelDto);
+          }
+        } else {
+          if (toggle === true && state.selectedSMStream !== undefined && data !== undefined && data.id === state.selectedSMStream.id) {
+            setters.setSelectedSMStream(undefined);
+          } else {
+            setters.setSelectedSMStream(data as SMStreamDto);
+          }
+        }
+      }
+    },
+    [props.selectRow, setters, state.selectedSMChannel, state.selectedSMStream]
   );
 
   return (
@@ -683,39 +709,20 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
           header={sourceRenderHeader}
           lazy
           loading={props.isLoading === true || isLoading === true}
-          // metaKeySelection={false}
           onFilter={onFilter}
           onPage={onPage}
-          onRowExpand={(e: any) => {
-            setters.setSelectedSMChannel(e.originalEvent.data as SMChannelDto);
+          onRowExpand={(e: DataTableRowEvent) => {
+            setSelectedSMEntity(e.data);
           }}
-          onRowCollapse={(e: any) => {
-            setters.setSelectedSMChannel(undefined);
-          }}
-          onRowClick={(e) => {
-            if (props.selectRow === true) {
-              const isChannel = 'smStreams' in e.data;
-
-              if (isChannel) {
-                if (state.selectedSMChannel !== undefined && e.data !== undefined && e.data.id === state.selectedSMChannel.id) {
-                  setters.setSelectedSMChannel(undefined);
-                } else {
-                  setters.setSelectedSMChannel(e.data as SMChannelDto);
-                }
-              } else {
-                if (state.selectedSMStream !== undefined && e.data !== undefined && e.data.id === state.selectedSMStream.id) {
-                  setters.setSelectedSMStream(undefined);
-                } else {
-                  setters.setSelectedSMStream(e.data as SMStreamDto);
-                }
-              }
-            }
+          onRowCollapse={(e: DataTableRowEvent) => {}}
+          onRowClick={(e: DataTableRowClickEvent) => {
+            setSelectedSMEntity(e.data as T, true);
             props.onRowClick?.(e);
           }}
-          onRowReorder={(e) => {
+          onRowReorder={(e: DataTableRowReorderEvent<T[]>) => {
             onRowReorder(e.value);
           }}
-          onRowToggle={(e: any) => {
+          onRowToggle={(e: DataTableRowToggleEvent) => {
             setters.setExpandedRows(e.data as DataTableExpandedRows);
           }}
           onSelectAllChange={props.reorderable || props.disableSelectAll === true ? undefined : onSelectAllChange}
@@ -901,20 +908,5 @@ type QueryFilterProperties<T> = BaseDataSelector2Properties<T> & {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type DataSelector2Props<T = any> = QueryFilterProperties<T>;
-
-export interface PagedTableInformation {
-  first: number;
-  pageNumber: number;
-  pageSize: number;
-  totalItemCount: number;
-  totalPageCount: number;
-}
-
-export interface PagedDataDto<T> {
-  data?: T[];
-}
-
-// eslint-disable-next-line @typescript-eslint/ban-types
-export type PagedTableDto<T> = PagedDataDto<T> & PagedTableInformation & {};
 
 export default memo(DataSelector2);

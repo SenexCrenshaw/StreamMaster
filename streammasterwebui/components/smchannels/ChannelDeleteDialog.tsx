@@ -69,12 +69,6 @@ const ChannelDeleteDialog = ({ iconFilled, id, onClose, skipOverLayer, value }: 
       return;
     }
 
-    // if (!selectVideoStreamsInternal || selectVideoStreamsInternal?.length === 0) {
-    //   ReturnToParent();
-
-    //   return;
-    // }
-
     const max = 500;
 
     let count = 0;

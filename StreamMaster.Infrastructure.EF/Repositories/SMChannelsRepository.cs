@@ -12,12 +12,12 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 {
     public List<SMChannelDto> GetSMChannels()
     {
-        return [.. FindAll().ProjectTo<SMChannelDto>(mapper.ConfigurationProvider)];
+        return [.. FindAll().Include(a => a.SMStreams).ThenInclude(a => a.SMStream).ProjectTo<SMChannelDto>(mapper.ConfigurationProvider)];
     }
 
     public IQueryable<SMChannel> GetQuery(bool tracking = false)
     {
-        return tracking ? FindAllWithTracking() : FindAll();
+        return tracking ? FindAllWithTracking().Include(a => a.SMStreams).ThenInclude(a => a.SMStream) : FindAll().Include(a => a.SMStreams).ThenInclude(a => a.SMStream);
     }
 
     public PagedResponse<SMChannelDto>? CreateEmptyPagedResponse()

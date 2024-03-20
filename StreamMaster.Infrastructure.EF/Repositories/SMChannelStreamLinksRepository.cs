@@ -27,7 +27,7 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
             return;
         }
 
-        int nextRank = GetQuery().Max(a => a.Rank) + 1;
+        int nextRank = GetMaxRank(SMChannelId);
         SMChannelStreamLink link = new()
         {
             SMChannelId = SMChannelId,
@@ -38,6 +38,18 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
         Create(link);
         await SaveChangesAsync();
     }
+
+    private int GetMaxRank(int SMChannelId)
+    {
+        List<SMChannelStreamLink> links = GetQuery(false).Where(a => a.SMChannelId == SMChannelId).ToList();
+        if (!links.Any())
+        {
+            return 0;
+        }
+        int nextRank = links.Max(a => a.Rank) + 1;
+        return nextRank;
+    }
+
     public async Task DeleteSMChannelStreamLink(SMChannelStreamLink sMChannelStreamLink)
     {
         Delete(sMChannelStreamLink);

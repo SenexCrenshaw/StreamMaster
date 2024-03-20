@@ -1,7 +1,7 @@
 import MinusButton from '@components/buttons/MinusButton';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 
-import { SMChannelRankRequest, SMChannelRankRequests, SMStreamDto, SMStreamSMChannelRequest } from '@lib/apiDefs';
+import { SMChannelRankRequest, SMStreamDto, SMStreamSMChannelRequest } from '@lib/apiDefs';
 
 import { GetMessage } from '@lib/common/common';
 import { useSelectedSMChannel } from '@lib/redux/slices/selectedSMChannel';
@@ -14,10 +14,10 @@ interface SMStreamDataSelectorValueProperties {
   readonly id: string;
   readonly selectedSMChannelKey: string;
   readonly data: SMStreamDto[];
-  readonly isLoading: boolean;
+  // readonly isLoading: boolean;
 }
 
-const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey, isLoading }: SMStreamDataSelectorValueProperties) => {
+const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey }: SMStreamDataSelectorValueProperties) => {
   const dataKey = `${id}-SMStreamDataSelectorValue`;
   const { selectedSMChannel } = useSelectedSMChannel(selectedSMChannelKey);
 
@@ -79,11 +79,13 @@ const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey, isLoading }
         emptyMessage="No Streams"
         headerName={GetMessage('streams').toUpperCase()}
         dataSource={[...data].sort((a, b) => a.rank - b.rank)}
+        selectedSMStreamKey="SMChannelDataSelector"
+        selectedSMChannelKey="SMChannelDataSelector"
         onRowReorder={(event) => {
           if (selectedSMChannel === undefined) {
             return;
           }
-          let tosend: SMChannelRankRequests = event.map((item, index) => {
+          let tosend: SMChannelRankRequest[] = event.map((item, index) => {
             return { smChannelId: selectedSMChannel.id, smStreamId: item.id, rank: index } as SMChannelRankRequest;
           });
           SetSMStreamRanks(tosend)
@@ -96,13 +98,10 @@ const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey, isLoading }
 
           console.log('tosend', tosend);
         }}
-        isLoading={isLoading}
+        // isLoading={isLoading}
         id={dataKey}
         selectedItemsKey={'SMStreamDataSelectorValue-selectSelectedSMStreamDtoItems'}
-        style={{ height: '30vh' }}
-        onRowClick={(event) => {
-          console.log('row click', event);
-        }}
+        style={{ height: '20vh' }}
       />
     </Suspense>
   );

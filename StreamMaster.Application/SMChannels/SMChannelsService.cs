@@ -5,7 +5,7 @@ using System.Web;
 
 namespace StreamMaster.Application.SMChannels;
 
-public partial class SMChannelsService(IRepositoryWrapper repository, IHttpContextAccessor httpContextAccessor, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intsettings)
+public partial class SMChannelsService(IRepositoryWrapper repository, IMapper mapper, IHttpContextAccessor httpContextAccessor, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intsettings)
     : ISMChannelsService
 
 {
@@ -115,13 +115,20 @@ public partial class SMChannelsService(IRepositoryWrapper repository, IHttpConte
         return APIResponseFactory.Ok();
     }
 
+
     [SMAPI]
     public async Task<DefaultAPIResponse> AddSMStreamToSMChannel(SMStreamSMChannelRequest request)
     {
         DefaultAPIResponse ret = await repository.SMChannel.AddSMStreamToSMChannel(request.SMChannelId, request.SMStreamId).ConfigureAwait(false);
         if (!ret.IsError.HasValue)
         {
-            await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
+            SMChannel? channel = repository.SMChannel.GetSMChannel(request.SMChannelId);
+            if (channel != null)
+            {
+                List<SMStreamDto> streams = UpdateStreamRanks(channel.Id, channel.SMStreams.Select(a => a.SMStream).ToList());
+                FieldData fd = new(nameof(SMChannelDto), channel.Id.ToString(), "smStreams", streams);
+                await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
+            }
         }
         return ret;
     }
@@ -132,7 +139,14 @@ public partial class SMChannelsService(IRepositoryWrapper repository, IHttpConte
         DefaultAPIResponse ret = await repository.SMChannel.RemoveSMStreamFromSMChannel(request.SMChannelId, request.SMStreamId).ConfigureAwait(false);
         if (!ret.IsError.HasValue)
         {
-            await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
+            SMChannel? channel = repository.SMChannel.GetSMChannel(request.SMChannelId);
+            if (channel != null)
+            {
+                List<SMStreamDto> streams = UpdateStreamRanks(channel.Id, channel.SMStreams.Select(a => a.SMStream).ToList());
+                FieldData fd = new(nameof(SMChannelDto), channel.Id.ToString(), "smStreams", streams);
+
+                await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
+            }
         }
         return ret;
     }
@@ -143,8 +157,41 @@ public partial class SMChannelsService(IRepositoryWrapper repository, IHttpConte
         DefaultAPIResponse ret = await repository.SMChannel.SetSMStreamRanks(requests).ConfigureAwait(false);
         if (!ret.IsError.HasValue)
         {
-            await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
+            List<FieldData> fieldDatas = [];
+            foreach (int smChannelId in requests.Select(a => a.SMChannelId).Distinct())
+            {
+                SMChannel? channel = repository.SMChannel.GetSMChannel(smChannelId);
+                if (channel != null)
+                {
+                    List<SMStreamDto> streams = UpdateStreamRanks(channel.Id, channel.SMStreams.Select(a => a.SMStream).ToList());
+                    FieldData fd = new(nameof(SMChannelDto), channel.Id.ToString(), "smStreams", streams);
+                    fieldDatas.Add(fd);
+                }
+
+            }
+            await hubContext.Clients.All.SetField(fieldDatas.ToArray()).ConfigureAwait(false);
         }
         return ret;
     }
+    private List<SMStreamDto> UpdateStreamRanks(int SMChannelId, List<SMStream> streams)
+    {
+
+        List<SMStreamDto> ret = [];
+
+        List<SMChannelStreamLink> links = [.. repository.SMChannelStreamLink.GetQuery(true).Where(a => a.SMChannelId == SMChannelId)];
+
+        foreach (SMStream stream in streams)
+        {
+            SMChannelStreamLink? link = links.FirstOrDefault(a => a.SMStreamId == stream.Id);
+
+            if (link != null)
+            {
+                SMStreamDto sm = mapper.Map<SMStreamDto>(stream);
+                sm.Rank = link.Rank;
+                ret.Add(sm);
+            }
+        }
+        return ret;
+    }
+
 }

@@ -5,11 +5,11 @@ import { GetMessage, arraysContainSameStrings } from '@lib/common/common';
 import { ChannelGroupDto } from '@lib/iptvApi';
 
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useSMChannels from '@lib/smAPI/SMChannels/useSMChannels';
-import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
 const DataSelector2 = lazy(() => import('@components/dataSelector/DataSelector2'));
@@ -29,8 +29,8 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
   const channelGroupNames = useMemo(() => selectSelectedItems.map((channelGroup) => channelGroup.name), [selectSelectedItems]);
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
 
-  const { queryFilter } = useQueryFilter(dataKey);
-  const { isLoading } = useSMChannels(queryFilter);
+  // const { queryFilter } = useQueryFilter(dataKey);
+  // const { isLoading } = useSMChannels(queryFilter);
 
   useEffect(() => {
     if (!arraysContainSameStrings(queryAdditionalFilter?.values, channelGroupNames)) {
@@ -59,13 +59,12 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
 
     const reject = () => {};
 
-    const confirm = () => {
-      confirmDialog({
+    const confirm = (event: any) => {
+      confirmPopup({
+        target: event.currentTarget,
         message: 'Delete "' + data.name + '" ?',
-        header: 'Delete Channel',
-        icon: 'pi pi-info-circle',
-        defaultFocus: 'reject',
-        acceptClassName: 'p-button-danger',
+        icon: 'pi pi-exclamation-triangle',
+        defaultFocus: 'accept',
         accept,
         reject
       });
@@ -73,12 +72,16 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
 
     return (
       <div className="flex p-0 justify-content-end align-items-center">
-        <Suspense>
-          <div className="flex p-0 justify-content-end align-items-center">
-            <StreamCopyLinkDialog realUrl={data?.realUrl} />
-            <ConfirmDialog />
-            <MinusButton iconFilled={false} onClick={confirm} tooltip="Remove Channel" />
-          </div>
+        <Suspense
+          fallback={
+            <div>
+              <ProgressSpinner>Loading...</ProgressSpinner>
+            </div>
+          }
+        >
+          <StreamCopyLinkDialog realUrl={data?.realUrl} />
+          <ConfirmPopup />
+          <MinusButton iconFilled={false} onClick={confirm} tooltip="Remove Channel" />
         </Suspense>
       </div>
     );
@@ -105,7 +108,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
         defaultSortOrder={1}
         emptyMessage="No Channels"
         headerName={GetMessage('channels').toUpperCase()}
-        isLoading={isLoading}
+        // isLoading={isLoading}
         id={dataKey}
         queryFilter={useSMChannels}
         selectedSMStreamKey="SMChannelDataSelector"
