@@ -1,5 +1,5 @@
 import EPGEditor from '../epg/EPGEditor';
-import createMultiSelectColumnConfigHook from './createMultiSelectColumnConfigHook';
+import createMultiSelectColumnConfigHook from './createVideoStreamMultiSelectColumnConfigHook';
 
 export const useEPGColumnConfig = createMultiSelectColumnConfigHook({
   EditorComponent: EPGEditor,

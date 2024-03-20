@@ -1,11 +1,12 @@
-import { isEmptyObject, type QueryHook } from '@lib/common/common';
-import { type ChannelGroupIdName, type VideoStreamDto } from '@lib/iptvApi';
+import { QueryHook, SMChannelDto } from '@lib/apiDefs';
+import { isEmptyObject } from '@lib/common/common';
+import { type ChannelGroupIdName } from '@lib/iptvApi';
 import { type ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { MultiSelect, type MultiSelectChangeEvent } from 'primereact/multiselect';
 import { type ColumnFieldType, type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 
-type DataField = keyof VideoStreamDto;
-type EditorComponent = React.ComponentType<{ data: VideoStreamDto }>;
+type DataField = keyof SMChannelDto;
+type EditorComponent = React.ComponentType<{ data: SMChannelDto }>;
 
 interface ColumnConfigInputs {
   EditorComponent?: EditorComponent;
@@ -19,12 +20,12 @@ interface ColumnConfigInputs {
   width?: number;
 }
 
-const createMultiSelectColumnConfigHook =
+const createSMChannelMultiSelectColumnConfigHook =
   ({ dataField, fieldType, headerTitle, maxWidth, minWidth, width, EditorComponent, queryHook }: ColumnConfigInputs) =>
   ({ enableEdit = false, useFilter = true, values }: { enableEdit?: boolean; useFilter?: boolean; values?: string[] | undefined }) => {
     const { data, isLoading, isFetching, isError } = queryHook ? queryHook() : { data: undefined, isError: false, isFetching: false, isLoading: false };
 
-    const bodyTemplate = (bodyData: VideoStreamDto | string) => {
+    const bodyTemplate = (bodyData: SMChannelDto | string) => {
       if (typeof bodyData === 'string') {
         return <span>{bodyData}</span>;
       }
@@ -78,10 +79,10 @@ const createMultiSelectColumnConfigHook =
     const columnConfig: ColumnMeta = {
       align: 'left',
       bodyTemplate,
-      field: dataField,
+      field: dataField as string,
       fieldType,
       filter: useFilter,
-      filterField: dataField,
+      filterField: dataField as string,
       header: headerTitle,
       sortable: true,
 
@@ -104,4 +105,4 @@ const createMultiSelectColumnConfigHook =
     };
   };
 
-export default createMultiSelectColumnConfigHook;
+export default createSMChannelMultiSelectColumnConfigHook;

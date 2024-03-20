@@ -1,8 +1,9 @@
 import MinusButton from '@components/buttons/MinusButton';
+import { useSMChannelLogoColumnConfig } from '@components/columns/useSMChannelLogoColumnConfig';
+
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { SMChannelDto } from '@lib/apiDefs';
 import { GetMessage } from '@lib/common/common';
-
 import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useSMChannels from '@lib/smAPI/SMChannels/useSMChannels';
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
@@ -22,22 +23,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
 
   // const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
-
-  // const channelGroupNames = useMemo(() => selectSelectedItems.map((channelGroup) => channelGroup.name), [selectSelectedItems]);
-  // const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
-
-  // const { queryFilter } = useQueryFilter(dataKey);
-  // const { isLoading } = useSMChannels(queryFilter);
-
-  // useEffect(() => {
-  //   if (!arraysContainSameStrings(queryAdditionalFilter?.values, channelGroupNames)) {
-  //     setQueryAdditionalFilter({
-  //       field: 'Group',
-  //       matchMode: 'equals',
-  //       values: channelGroupNames
-  //     });
-  //   }
-  // }, [channelGroupNames, dataKey, queryAdditionalFilter, setQueryAdditionalFilter]);
+  const { columnConfig: channelLogoColumnConfig } = useSMChannelLogoColumnConfig({ enableEdit });
 
   useEffect(() => {
     if (propsEnableEdit !== enableEdit) {
@@ -81,12 +67,13 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
   const columns = useMemo(
     (): ColumnMeta[] => [
       { field: 'channelNumber', width: '4rem' },
-      { field: 'logo', fieldType: 'image', width: '4rem' },
+      channelLogoColumnConfig,
+      // { field: 'logo', fieldType: 'image', width: '4rem' },
       { field: 'name', filter: true, sortable: true },
       { field: 'group', filter: true, sortable: true, width: '5rem' },
       { align: 'right', bodyTemplate: actionBodyTemplate, field: 'isHidden', fieldType: 'actions', header: 'Actions', width: '5rem' }
     ],
-    [actionBodyTemplate]
+    [actionBodyTemplate, channelLogoColumnConfig]
   );
 
   return (
@@ -99,7 +86,6 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
         defaultSortOrder={1}
         emptyMessage="No Channels"
         headerName={GetMessage('channels').toUpperCase()}
-        // isLoading={isLoading}
         id={dataKey}
         queryFilter={useSMChannels}
         selectedSMStreamKey="SMChannelDataSelector"

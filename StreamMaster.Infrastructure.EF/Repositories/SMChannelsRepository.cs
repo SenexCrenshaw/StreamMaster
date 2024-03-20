@@ -7,7 +7,7 @@ using StreamMaster.Domain.API;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper)
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IIconService iconService)
     : RepositoryBase<SMChannel>(repositoryContext, intLogger), ISMChannelsRepository
 {
     public List<SMChannelDto> GetSMChannels()
@@ -76,7 +76,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         SMStreamDto? smStream = repository.SMStream.GetSMStream(streamId);
         if (smStream == null)
         {
-            return APIResponseFactory.NotFound();
+            return APIResponseFactory.NotFound;
         }
 
         SMChannel smChannel = new()
@@ -92,7 +92,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         await CreateSMChannel(smChannel);
 
         await repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel.Id, smStream.Id);
-        return APIResponseFactory.Ok();
+        return APIResponseFactory.Ok;
     }
 
     public async Task<DefaultAPIResponse> DeleteSMChannels(List<int> smchannelIds)
@@ -100,12 +100,12 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         IQueryable<SMChannel> toDelete = GetQuery(true).Where(a => smchannelIds.Contains(a.Id));
         if (!toDelete.Any())
         {
-            return APIResponseFactory.NotFound();
+            return APIResponseFactory.NotFound;
         }
 
         await DeleteSMChannelsAsync(toDelete);
 
-        return APIResponseFactory.Ok();
+        return APIResponseFactory.Ok;
     }
 
 
@@ -137,13 +137,13 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
     {
         if (GetSMChannel(SMChannelId) == null || repository.SMStream.GetSMStream(SMStreamId) == null)
         {
-            return APIResponseFactory.NotFound();
+            return APIResponseFactory.NotFound;
         }
 
         await repository.SMChannelStreamLink.CreateSMChannelStreamLink(SMChannelId, SMStreamId);
         await SaveChangesAsync();
 
-        return APIResponseFactory.Ok();
+        return APIResponseFactory.Ok;
     }
 
     public async Task<DefaultAPIResponse> RemoveSMStreamFromSMChannel(int SMChannelId, string SMStreamId)
@@ -151,16 +151,46 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         IQueryable<SMChannelStreamLink> toDelete = repository.SMChannelStreamLink.GetQuery(true).Where(a => a.SMChannelId == SMChannelId && a.SMStreamId == SMStreamId);
         if (!toDelete.Any())
         {
-            return APIResponseFactory.NotFound();
+            return APIResponseFactory.NotFound;
         }
         await repository.SMChannelStreamLink.DeleteSMChannelStreamLinks(toDelete);
 
-        return APIResponseFactory.Ok();
+        return APIResponseFactory.Ok;
     }
 
     public async Task<DefaultAPIResponse> SetSMStreamRanks(List<SMChannelRankRequest> request)
     {
         return await repository.SMChannelStreamLink.SetSMStreamRank(request);
 
+    }
+
+    public async Task<string?> SetSMChannelLogo(SMChannelLogoRequest request)
+    {
+        SMChannel? channel = GetSMChannel(request.SMChannelId);
+        if (channel == null)
+        {
+            return null;
+        }
+
+        //if (string.IsNullOrEmpty(request.logo))
+        //{
+        //    channel.Logo = request.logo;
+        //    Update(channel);
+        //    await SaveChangesAsync();
+        //    return "";
+        //}
+
+        //List<IconFileDto> icons = iconService.GetIcons();
+        //if (icons.Any(a => a.Source == request.logo))
+        //{
+        //    channel.Logo = request.logo;
+        //    Update(channel);
+        //    await SaveChangesAsync();
+        //}
+        channel.Logo = request.logo;
+        Update(channel);
+        await SaveChangesAsync();
+
+        return request.logo;
     }
 }

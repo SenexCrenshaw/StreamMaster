@@ -1,9 +1,9 @@
 import { useChannelGroupColumnConfig } from '@components/columns/useChannelGroupColumnConfig';
-import { useChannelLogoColumnConfig } from '@components/columns/useChannelLogoColumnConfig';
 import { useChannelNameColumnConfig } from '@components/columns/useChannelNameColumnConfig';
 import { useChannelNumberColumnConfig } from '@components/columns/useChannelNumberColumnConfig';
 import { useEPGColumnConfig } from '@components/columns/useEPGColumnConfig';
 import { useM3UFileNameColumnConfig } from '@components/columns/useM3UFileNameColumnConfig';
+import { useVideoStreamLogoColumnConfig } from '@components/columns/useVideoStreamLogoColumnConfig';
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
@@ -44,7 +44,7 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
   const { columnConfig: m3uFileNameColumnConfig } = useM3UFileNameColumnConfig({ enableEdit: false });
   const { columnConfig: epgColumnConfig } = useEPGColumnConfig({ enableEdit });
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit, useFilter: false });
-  const { columnConfig: channelLogoColumnConfig } = useChannelLogoColumnConfig({ enableEdit });
+  const { columnConfig: videoStreamLogoColumnConfig } = useVideoStreamLogoColumnConfig({ enableEdit });
 
   const channelGroupNames = useMemo(() => selectSelectedItems.map((channelGroup) => channelGroup.name), [selectSelectedItems]);
   const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig({ enableEdit });
@@ -88,7 +88,7 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
   const columns = useMemo((): ColumnMeta[] => {
     const columnConfigs = [
       channelNumberColumnConfig,
-      channelLogoColumnConfig,
+      videoStreamLogoColumnConfig,
       channelNameColumnConfig,
       channelGroupConfig,
       epgColumnConfig,
@@ -108,7 +108,7 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
     return columnConfigs;
   }, [
     channelGroupConfig,
-    channelLogoColumnConfig,
+    videoStreamLogoColumnConfig,
     channelNameColumnConfig,
     channelNumberColumnConfig,
     enableEdit,

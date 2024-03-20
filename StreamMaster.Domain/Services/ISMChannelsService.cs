@@ -5,6 +5,7 @@ namespace StreamMaster.Domain.Services
 {
     public interface ISMChannelsService
     {
+        Task<DefaultAPIResponse> SetSMChannelLogo(SMChannelLogoRequest request);
         Task<DefaultAPIResponse> AddSMStreamToSMChannel(SMStreamSMChannelRequest request);
         Task<DefaultAPIResponse> RemoveSMStreamFromSMChannel(SMStreamSMChannelRequest request);
         Task<DefaultAPIResponse> DeleteSMChannels(List<int> smchannelIds);

@@ -61,7 +61,7 @@ public static class TypeScriptSliceGenerator
 
         string fetchActionName = $"fetch{method.Name}";
         content.AppendLine($"import {{ {fetchActionName} }} from '@lib/smAPI/{namespaceName}/{namespaceName}Fetch';");
-        content.AppendLine("import { updatePagedResponseFieldInData } from '@lib/redux/reduxutils';");
+        content.AppendLine("import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';");
         content.AppendLine();
     }
 

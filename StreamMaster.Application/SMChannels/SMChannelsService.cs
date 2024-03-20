@@ -71,7 +71,7 @@ public partial class SMChannelsService(IRepositoryWrapper repository, IMapper ma
 
         await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
 
-        return APIResponseFactory.Ok();
+        return APIResponseFactory.Ok;
     }
 
     [SMAPI]
@@ -92,14 +92,14 @@ public partial class SMChannelsService(IRepositoryWrapper repository, IMapper ma
         SMChannel? channel = repository.SMChannel.GetSMChannel(smchannelId);
         if (channel == null)
         {
-            return APIResponseFactory.NotFound();
+            return APIResponseFactory.NotFound;
         }
 
         await repository.SMChannel.DeleteSMChannel(smchannelId);
 
         await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
 
-        return APIResponseFactory.Ok();
+        return APIResponseFactory.Ok;
     }
 
     [SMAPI]
@@ -112,7 +112,7 @@ public partial class SMChannelsService(IRepositoryWrapper repository, IMapper ma
             await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
         }
 
-        return APIResponseFactory.Ok();
+        return APIResponseFactory.Ok;
     }
 
 
@@ -173,6 +173,22 @@ public partial class SMChannelsService(IRepositoryWrapper repository, IMapper ma
         }
         return ret;
     }
+
+    [SMAPI]
+    public async Task<DefaultAPIResponse> SetSMChannelLogo(SMChannelLogoRequest request)
+    {
+        string? logo = await repository.SMChannel.SetSMChannelLogo(request).ConfigureAwait(false);
+        if (logo == null)
+        {
+            return APIResponseFactory.NotFound;
+        }
+
+        FieldData fd = new(nameof(SMChannelDto), request.SMChannelId.ToString(), "logo", logo);
+
+        await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
+        return APIResponseFactory.Ok;
+    }
+
     private List<SMStreamDto> UpdateStreamRanks(int SMChannelId, List<SMStream> streams)
     {
 

@@ -18,4 +18,5 @@ public interface ISMChannelsRepository
     Task<DefaultAPIResponse> AddSMStreamToSMChannel(int SMChannelId, string SMStreamId);
     Task<DefaultAPIResponse> RemoveSMStreamFromSMChannel(int SMChannelId, string SMStreamId);
     Task<DefaultAPIResponse> SetSMStreamRanks(List<SMChannelRankRequest> request);
+    Task<string?> SetSMChannelLogo(SMChannelLogoRequest request);
 }

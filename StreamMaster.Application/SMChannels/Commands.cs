@@ -70,6 +70,14 @@ namespace StreamMaster.Application.SMChannels
             return ret.IsError.HasValue && ret.IsError.Value ? NotFound(ret) : Ok(ret);
         }
 
+        [HttpPut]
+        [Route("[action]")]
+        public async Task<ActionResult<DefaultAPIResponse>> SetSMChannelLogo(SMChannelLogoRequest request)
+        {
+            DefaultAPIResponse ret = await SMChannelsService.SetSMChannelLogo(request).ConfigureAwait(false);
+            return ret.IsError.HasValue && ret.IsError.Value ? NotFound(ret) : Ok(ret);
+        }
+
     }
 }
 
@@ -122,6 +130,12 @@ namespace StreamMaster.Application.Hubs
         public async Task<DefaultAPIResponse> SetSMStreamRanks(List<SMChannelRankRequest> requests)
         {
             DefaultAPIResponse ret = await SMChannelsService.SetSMStreamRanks(requests).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<DefaultAPIResponse> SetSMChannelLogo(SMChannelLogoRequest request)
+        {
+            DefaultAPIResponse ret = await SMChannelsService.SetSMChannelLogo(request).ConfigureAwait(false);
             return ret;
         }
 

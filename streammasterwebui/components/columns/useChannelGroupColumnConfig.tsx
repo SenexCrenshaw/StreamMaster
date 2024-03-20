@@ -1,5 +1,5 @@
 import ChannelGroupEditor from '../channelGroups/ChannelGroupEditor';
-import createMultiSelectColumnConfigHook from './createMultiSelectColumnConfigHook';
+import createMultiSelectColumnConfigHook from './createVideoStreamMultiSelectColumnConfigHook';
 
 export const useChannelGroupColumnConfig = createMultiSelectColumnConfigHook({
   EditorComponent: ChannelGroupEditor,

@@ -6744,6 +6744,33 @@
   padding: 0;
 }
 
+.iconselector.p-dropdown {
+  background-color: transparent;
+}
+.iconselector.p-dropdown.p-component.p-inputwrapper.p-inputwrapper-filled {
+  background-color: transparent;
+  border: none;
+  align-items: center;
+  justify-content: center;
+}
+.iconselector.p-dropdown .p-inputtext {
+  padding: 0;
+  padding-top: 0.24rem;
+  margin: 0;
+  background-color: transparent;
+  border: none;
+  height: 1.8rem;
+  max-width: 1.8rem;
+}
+.iconselector.p-progress-spinner {
+  align-items: center;
+  justify-content: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  padding: 0;
+  margin: 0;
+}
+
 .p-datatable {
   font-size: small;
 }

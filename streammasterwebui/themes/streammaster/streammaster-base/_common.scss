@@ -27,3 +27,35 @@
 .p-multiselect-label.p-multiselect-items-label {
     padding: 0;
 }
+
+.iconselector {
+    &.p-dropdown {
+        background-color: transparent;
+
+        &.p-component.p-inputwrapper.p-inputwrapper-filled {
+            background-color: transparent;
+            border: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .p-inputtext {
+            padding: 0;
+            padding-top: 0.24rem;
+            margin: 0;
+            background-color: transparent;
+            border: none;
+            height: $datatable-row-height;
+            max-width: $datatable-row-height;
+        }
+    }
+
+    &.p-progress-spinner {
+        align-items: center;
+        justify-content: center;
+        width: $datatable-row-height;
+        height: $datatable-row-height;
+        padding: 0;
+        margin: 0;
+    }
+}

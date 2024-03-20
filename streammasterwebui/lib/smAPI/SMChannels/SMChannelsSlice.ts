@@ -1,7 +1,8 @@
-import { FieldData, PagedResponse, SMChannelDto, removeKeyFromData } from '@lib/apiDefs';
-import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
-import { fetchGetPagedSMChannels } from '@lib/smAPI/SMChannels/SMChannelsFetch';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import {FieldData,PagedResponse, removeKeyFromData, SMChannelDto } from '@lib/apiDefs';
+import { fetchGetPagedSMChannels } from '@lib/smAPI/SMChannels/SMChannelsFetch';
+import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
+
 
 interface QueryState {
   data: Record<string, PagedResponse<SMChannelDto> | undefined>;
@@ -45,7 +46,8 @@ const SMChannelsSlice = createSlice({
         state.data = updatedData;
       }
       console.log('clearSMChannels executed');
-    }
+    },
+
   },
   extraReducers: (builder) => {
     builder
@@ -68,6 +70,7 @@ const SMChannelsSlice = createSlice({
         state.isError[query] = true;
         state.isLoading[query] = false;
       });
+
   }
 });
 

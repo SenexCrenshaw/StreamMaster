@@ -6,7 +6,7 @@ import useSettings from '@lib/useSettings';
 import { Dropdown } from 'primereact/dropdown';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { classNames } from 'primereact/utils';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 type IconSelectorProperties = {
   readonly enableEditMode?: boolean;
@@ -20,6 +20,7 @@ type IconSelectorProperties = {
 const IconSelector = ({ enableEditMode = true, value, disabled, editable = true, onChange, useDefault }: IconSelectorProperties) => {
   const setting = useSettings();
   const [input, setInput] = useState<string | undefined>(undefined);
+  const [filterValue, setFilterValue] = useState<string | undefined>(undefined);
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [icon, setIcon] = useState<IconFileDto | undefined>(undefined);
   const query = useIconsGetIconsQuery();
@@ -76,37 +77,76 @@ const IconSelector = ({ enableEditMode = true, value, disabled, editable = true,
 
   const panelTemplate = (option: any) => {
     return (
-      <div className="flex grid col-12 m-0 p-0 justify-content-between align-items-center">
-        <div className="col-11 m-0 p-0 pl-2">
-          <StringEditorBodyTemplate
-            disableDebounce={true}
-            placeholder="Custom URL"
-            value={input}
-            onChange={(value) => {
-              if (value) {
-                setInput(value);
-              }
-            }}
-          />
+      <div className="iconselector flex flex-row grid col-12 m-0 p-0 justify-content-between align-items-center">
+        <div className="col-12 m-0 p-0 flex flex-row">
+          <div className="col-10 m-0 p-0 pl-2">
+            <StringEditorBodyTemplate
+              autofocus
+              placeholder="Filter"
+              showSave={false}
+              value={filterValue}
+              onChange={(value) => {
+                if (value) {
+                  setFilterValue(value);
+                }
+              }}
+            />
+          </div>
+          <div className="col-1 m-0 p-0">
+            <AddButton
+              tooltip="Add Custom URL"
+              iconFilled={false}
+              onClick={(e) => {
+                if (input) {
+                  handleOnChange(input);
+                }
+              }}
+              style={{
+                width: 'var(--input-height)',
+                height: 'var(--input-height)'
+              }}
+            />
+          </div>
         </div>
-        <div className="col-1 m-0 p-0">
-          <AddButton
-            tooltip="Add Custom URL"
-            iconFilled={false}
-            onClick={(e) => {
-              if (input) {
-                handleOnChange(input);
-              }
-            }}
-            style={{
-              width: 'var(--input-height)',
-              height: 'var(--input-height)'
-            }}
-          />
+        <div className="col-12 m-0 p-0 flex flex-row">
+          <div className="col-11 m-0 p-0 pl-2">
+            <StringEditorBodyTemplate
+              disableDebounce={true}
+              placeholder="Custom URL"
+              value={input}
+              onChange={(value) => {
+                if (value) {
+                  setInput(value);
+                }
+              }}
+            />
+          </div>
+          <div className="col-1 m-0 p-0">
+            <AddButton
+              tooltip="Add Custom URL"
+              iconFilled={false}
+              onClick={(e) => {
+                if (input) {
+                  handleOnChange(input);
+                }
+              }}
+              style={{
+                width: 'var(--input-height)',
+                height: 'var(--input-height)'
+              }}
+            />
+          </div>
         </div>
       </div>
     );
   };
+
+  const filterData = useCallback(() => {
+    if (!query.data) return [];
+    var d = query.data.filter((x) => x.name?.toLowerCase().includes(filterValue?.toLowerCase() ?? ''));
+    console.log(d);
+    return d;
+  }, [filterValue, query.data]);
 
   const itemTemplate = (option: IconFileDto): JSX.Element => {
     if (!option) {
@@ -130,15 +170,15 @@ const IconSelector = ({ enableEditMode = true, value, disabled, editable = true,
     return <img alt="logo" className="default-icon" src={iconUrl} loading="lazy" />;
   }
 
-  const className = classNames('iconselector align-contents-center p-0 m-0 max-w-full w-full epgSelector', {
+  const className = classNames('align-contents-center p-0 m-0 max-w-full w-full iconselector', {
     'p-disabled': disabled
   });
 
-  if (!enableEditMode) {
-    return <div className="flex w-full h-full justify-content-center align-items-center p-0 m-0">{input ?? 'Dummy'}</div>;
-  }
-
   const loading = !query.isSuccess || query.isFetching || query.isLoading || !query.data;
+
+  if (!enableEditMode) {
+    return <div className="flex w-full h-full justify-content-center align-items-center p-0 m-0 iconselector">{input ?? 'Dummy'}</div>;
+  }
 
   if (loading) {
     return (
@@ -149,25 +189,25 @@ const IconSelector = ({ enableEditMode = true, value, disabled, editable = true,
   }
 
   return (
-    <div className="iconselector flex align-contents-center w-full min-w-full">
+    <div className="flex align-contents-center w-full min-w-full">
       <Dropdown
         className={className}
         disabled={loading}
-        filter
-        filterInputAutoFocus
-        filterBy="name"
         itemTemplate={itemTemplate}
-        loading={loading}
+        onFilter={(e) => {
+          console.log(e);
+          e.originalEvent.preventDefault();
+        }}
         onChange={(e) => {
           handleOnChange(e?.value?.id);
         }}
         onHide={() => {}}
         optionLabel="name"
-        options={query.data}
+        options={filterValue === '' ? query.data : filterData()}
         panelFooterTemplate={panelTemplate}
         placeholder="placeholder"
-        resetFilterOnHide
-        showFilterClear
+        // resetFilterOnHide
+        // showFilterClear
         value={icon}
         valueTemplate={selectedTemplate}
         virtualScrollerOptions={{

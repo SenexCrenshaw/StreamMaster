@@ -57,13 +57,13 @@ public partial class SMStreamsService(IRepositoryWrapper repository, IHttpContex
         SMStreamDto? stream = await repository.SMStream.ToggleSMStreamVisibleById(id, CancellationToken.None).ConfigureAwait(false);
         if (stream == null)
         {
-            return APIResponseFactory.NotFound();
+            return APIResponseFactory.NotFound;
         }
 
         FieldData fd = new(nameof(SMStreamDto), stream.Id, "isHidden", stream.IsHidden);
 
         await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
-        return APIResponseFactory.Ok();
+        return APIResponseFactory.Ok;
     }
 
 

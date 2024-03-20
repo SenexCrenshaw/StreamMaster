@@ -144,3 +144,8 @@ export type FieldData = {
   field: string;
   value: any;
 };
+
+export interface SMChannelLogoRequest {
+  smChannelId: number;
+  logo: string;
+}

@@ -50,7 +50,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _smChannel ??= new SMChannelsRepository(SMChannelLogger, this, repositoryContext, mapper);
+                _smChannel ??= new SMChannelsRepository(SMChannelLogger, this, repositoryContext, mapper, iconService);
                 return _smChannel;
             }
         }
