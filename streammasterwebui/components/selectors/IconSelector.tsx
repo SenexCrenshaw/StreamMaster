@@ -143,8 +143,10 @@ const IconSelector = ({ enableEditMode = true, value, disabled, editable = true,
 
   const filterData = useCallback(() => {
     if (!query.data) return [];
+    if (filterValue === undefined) {
+      return query.data;
+    }
     var d = query.data.filter((x) => x.name?.toLowerCase().includes(filterValue?.toLowerCase() ?? ''));
-    console.log(d);
     return d;
   }, [filterValue, query.data]);
 
