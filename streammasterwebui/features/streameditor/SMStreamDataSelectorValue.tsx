@@ -64,7 +64,7 @@ const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey, isLoading }
         width: '5rem'
       }
     ],
-    []
+    [actionBodyTemplate]
   );
 
   return (

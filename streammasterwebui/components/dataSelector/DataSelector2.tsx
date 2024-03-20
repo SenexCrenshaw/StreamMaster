@@ -97,10 +97,6 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
 
   const onSetSelection = useCallback(
     (e: T | T[], overRideSelectAll?: boolean): T | T[] | undefined => {
-      // if (e === undefined) {
-      //   return;
-      // }
-
       let selected: T[] = Array.isArray(e) ? e : [e];
 
       if (state.selectSelectedItems === selected) {
@@ -654,7 +650,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
   const rowExpansionTemplate = useCallback(
     (data: DataTableRowData<T[]>, options: DataTableRowExpansionTemplate) => {
       return (
-        <div className="surface-50 py-1 px-2">
+        <div className="border-2 border-round-lg border-200 ml-3 m-1">
           <Suspense fallback={<div>Loading...</div>}>
             <SMStreamDataSelectorValue
               selectedSMChannelKey={props.selectedSMChannelKey}
@@ -697,22 +693,23 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
             setters.setSelectedSMChannel(undefined);
           }}
           onRowClick={(e) => {
-            const isChannel = 'smStreams' in e.data;
+            if (props.selectRow === true) {
+              const isChannel = 'smStreams' in e.data;
 
-            if (isChannel) {
-              if (state.selectedSMChannel !== undefined && e.data !== undefined && e.data.id === state.selectedSMChannel.id) {
-                setters.setSelectedSMChannel(undefined);
+              if (isChannel) {
+                if (state.selectedSMChannel !== undefined && e.data !== undefined && e.data.id === state.selectedSMChannel.id) {
+                  setters.setSelectedSMChannel(undefined);
+                } else {
+                  setters.setSelectedSMChannel(e.data as SMChannelDto);
+                }
               } else {
-                setters.setSelectedSMChannel(e.data as SMChannelDto);
-              }
-            } else {
-              if (state.selectedSMStream !== undefined && e.data !== undefined && e.data.id === state.selectedSMStream.id) {
-                setters.setSelectedSMStream(undefined);
-              } else {
-                setters.setSelectedSMStream(e.data as SMStreamDto);
+                if (state.selectedSMStream !== undefined && e.data !== undefined && e.data.id === state.selectedSMStream.id) {
+                  setters.setSelectedSMStream(undefined);
+                } else {
+                  setters.setSelectedSMStream(e.data as SMStreamDto);
+                }
               }
             }
-
             props.onRowClick?.(e);
           }}
           onRowReorder={(e) => {

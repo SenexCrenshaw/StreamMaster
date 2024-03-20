@@ -1,11 +1,15 @@
+import MinusButton from '@components/buttons/MinusButton';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { SMChannelDto } from '@lib/apiDefs';
 import { GetMessage, arraysContainSameStrings } from '@lib/common/common';
 import { ChannelGroupDto } from '@lib/iptvApi';
+
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useSMChannels from '@lib/smAPI/SMChannels/useSMChannels';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
 const DataSelector2 = lazy(() => import('@components/dataSelector/DataSelector2'));
@@ -23,7 +27,6 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
 
   const channelGroupNames = useMemo(() => selectSelectedItems.map((channelGroup) => channelGroup.name), [selectSelectedItems]);
-
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
 
   const { queryFilter } = useQueryFilter(dataKey);
@@ -43,20 +46,43 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
     if (propsEnableEdit !== enableEdit) {
       setEnableEdit(propsEnableEdit ?? true);
     }
+  }, [enableEdit, propsEnableEdit]);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [propsEnableEdit]);
+  const actionBodyTemplate = useCallback((data: SMChannelDto) => {
+    const accept = () => {
+      DeleteSMChannel(data.id)
+        .then((response) => {})
+        .catch((error) => {
+          console.error('Remove Channel', error.message);
+        });
+    };
 
-  const actionBodyTemplate = useCallback(
-    (data: SMChannelDto) => (
+    const reject = () => {};
+
+    const confirm = () => {
+      confirmDialog({
+        message: 'Delete "' + data.name + '" ?',
+        header: 'Delete Channel',
+        icon: 'pi pi-info-circle',
+        defaultFocus: 'reject',
+        acceptClassName: 'p-button-danger',
+        accept,
+        reject
+      });
+    };
+
+    return (
       <div className="flex p-0 justify-content-end align-items-center">
         <Suspense>
-          <StreamCopyLinkDialog realUrl={data?.realUrl} />
+          <div className="flex p-0 justify-content-end align-items-center">
+            <StreamCopyLinkDialog realUrl={data?.realUrl} />
+            <ConfirmDialog />
+            <MinusButton iconFilled={false} onClick={confirm} tooltip="Remove Channel" />
+          </div>
         </Suspense>
       </div>
-    ),
-    []
-  );
+    );
+  }, []);
 
   const columns = useMemo(
     (): ColumnMeta[] => [
@@ -64,14 +90,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
       { field: 'logo', fieldType: 'image', width: '4rem' },
       { field: 'name', filter: true, sortable: true },
       { field: 'group', filter: true, sortable: true, width: '5rem' },
-      {
-        align: 'right',
-        bodyTemplate: actionBodyTemplate,
-        field: 'isHidden',
-        fieldType: 'actions',
-        header: 'Actions',
-        width: '5rem'
-      }
+      { align: 'right', bodyTemplate: actionBodyTemplate, field: 'isHidden', fieldType: 'actions', header: 'Actions', width: '5rem' }
     ],
     [actionBodyTemplate]
   );
