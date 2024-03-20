@@ -1,3 +1,8 @@
+export interface SMChannelRankRequest {
+  smChannelId: number;
+  smStreamId: string;
+  rank: number;
+}
 export interface SMStreamSMChannelRequest {
   smChannelId: number;
   smStreamId: string;
@@ -55,6 +60,12 @@ export type SMStream = {
   stationId?: string;
 };
 
+export type SMStreamDto = SMStream & {
+  realUrl?: string;
+  rank: number;
+  [key: string]: any;
+};
+
 export type StreamingProxyTypes = 0 | 1 | 2 | 3;
 export type VideoStreamHandlers = 0 | 1 | 2;
 
@@ -71,11 +82,6 @@ export type SMChannelDto = {
   logo?: string;
   name?: string;
   smStreams: SMStreamDto[];
-  [key: string]: any;
-};
-
-export type SMStreamDto = SMStream & {
-  realUrl?: string;
   [key: string]: any;
 };
 

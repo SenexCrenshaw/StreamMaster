@@ -37,7 +37,7 @@ import { useSetQueryFilter } from './useSetQueryFilter';
 
 const DataSelectorValues = <T extends DataTableValue>(props: DataSelectorValuesProps<T>) => {
   const debug = false;
-  const { state, setters } = useDataSelectorState2<T>(props.id, props.selectedItemsKey);
+  const { state, setters } = useDataSelectorState2<T>(props.id, props.selectedItemsKey, '', '');
 
   useEffect(() => {
     if (props.columns === undefined) {
@@ -664,6 +664,8 @@ const DataSelectorValues = <T extends DataTableValue>(props: DataSelectorValuesP
       </div>
     );
   }
+
+  console.log(props.dataSource);
 
   return (
     <div className="dataselector flex w-full min-w-full  justify-content-start align-items-center">

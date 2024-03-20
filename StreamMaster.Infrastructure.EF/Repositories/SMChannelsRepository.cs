@@ -91,13 +91,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
         await CreateSMChannel(smChannel);
 
-        SMChannelStreamLink sMChannelStreamLink = new()
-        {
-            SMChannelId = smChannel.Id,
-            SMStreamId = smStream.Id
-        };
-
-        await repository.SMChannelStreamLink.CreateSMChannelStreamLink(sMChannelStreamLink);
+        await repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel.Id, smStream.Id);
         return APIResponseFactory.Ok();
     }
 
@@ -146,13 +140,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             return APIResponseFactory.NotFound();
         }
 
-        SMChannelStreamLink sMChannelStreamLink = new()
-        {
-            SMChannelId = SMChannelId,
-            SMStreamId = SMStreamId
-        };
-
-        await repository.SMChannelStreamLink.CreateSMChannelStreamLink(sMChannelStreamLink);
+        await repository.SMChannelStreamLink.CreateSMChannelStreamLink(SMChannelId, SMStreamId);
         await SaveChangesAsync();
 
         return APIResponseFactory.Ok();
@@ -166,6 +154,13 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             return APIResponseFactory.NotFound();
         }
         await repository.SMChannelStreamLink.DeleteSMChannelStreamLinks(toDelete);
+
         return APIResponseFactory.Ok();
+    }
+
+    public async Task<DefaultAPIResponse> SetSMStreamRanks(List<SMChannelRankRequest> request)
+    {
+        return await repository.SMChannelStreamLink.SetSMStreamRank(request);
+
     }
 }

@@ -25,27 +25,39 @@ public partial class SMChannelsService(IRepositoryWrapper repository, IHttpConte
         PagedResponse<SMChannelDto> res = await repository.SMChannel.GetPagedSMChannels(Parameters).ConfigureAwait(false);
 
         string url = httpContextAccessor.GetUrl();
-        foreach (SMChannelDto stream in res.Data)
+
+        foreach (SMChannelDto channel in res.Data)
         {
+            List<SMChannelStreamLink> links = repository.SMChannelStreamLink.GetQuery(true).Where(a => a.SMChannelId == channel.Id).ToList();
+
             string videoUrl;
+            foreach (SMStreamDto stream in channel.SMStreams)
+            {
+                SMChannelStreamLink? link = links.FirstOrDefault(a => a.SMStreamId == stream.Id);
+
+                if (link != null)
+                {
+                    stream.Rank = link.Rank;
+                }
+            }
 
             if (hlssettings.HLSM3U8Enable)
             {
-                videoUrl = $"{url}/api/stream/{stream.Id}.m3u8";
+                videoUrl = $"{url}/api/stream/{channel.Id}.m3u8";
             }
             else
             {
-                string encodedName = HttpUtility.HtmlEncode(stream.Name).Trim()
+                string encodedName = HttpUtility.HtmlEncode(channel.Name).Trim()
                         .Replace("/", "")
                         .Replace(" ", "_");
 
-                string encodedNumbers = 0.EncodeValues128(stream.Id, settings.ServerKey);
+                string encodedNumbers = 0.EncodeValues128(channel.Id, settings.ServerKey);
                 videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
             }
 
             string jsonString = JsonSerializer.Serialize(videoUrl);
-            stream.RealUrl = jsonString;
+            channel.RealUrl = jsonString;
         }
 
         ret.PagedResponse = res;
@@ -118,6 +130,17 @@ public partial class SMChannelsService(IRepositoryWrapper repository, IHttpConte
     public async Task<DefaultAPIResponse> RemoveSMStreamFromSMChannel(SMStreamSMChannelRequest request)
     {
         DefaultAPIResponse ret = await repository.SMChannel.RemoveSMStreamFromSMChannel(request.SMChannelId, request.SMStreamId).ConfigureAwait(false);
+        if (!ret.IsError.HasValue)
+        {
+            await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
+        }
+        return ret;
+    }
+
+    [SMAPI]
+    public async Task<DefaultAPIResponse> SetSMStreamRanks(List<SMChannelRankRequest> requests)
+    {
+        DefaultAPIResponse ret = await repository.SMChannel.SetSMStreamRanks(requests).ConfigureAwait(false);
         if (!ret.IsError.HasValue)
         {
             await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);

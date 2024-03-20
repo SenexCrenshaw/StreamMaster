@@ -1,5 +1,9 @@
 ﻿using AutoMapper;
 
+using Microsoft.EntityFrameworkCore;
+
+using StreamMaster.Domain.API;
+
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
 public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksRepository> intLogger, IRepositoryContext repositoryContext, IMapper mapper)
@@ -15,13 +19,23 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
         return tracking ? FindAllWithTracking() : FindAll();
     }
 
-    public async Task CreateSMChannelStreamLink(SMChannelStreamLink sMChannelStreamLink)
+    public async Task CreateSMChannelStreamLink(int SMChannelId, string SMStreamId)
     {
-        if (Any(a => a.SMStreamId == sMChannelStreamLink.SMStreamId && a.SMChannelId == sMChannelStreamLink.SMChannelId))
+
+        if (Any(a => a.SMStreamId == SMStreamId && a.SMChannelId == SMChannelId))
         {
             return;
         }
-        Create(sMChannelStreamLink);
+
+        int nextRank = GetQuery().Max(a => a.Rank) + 1;
+        SMChannelStreamLink link = new()
+        {
+            SMChannelId = SMChannelId,
+            SMStreamId = SMStreamId,
+            Rank = nextRank
+        };
+
+        Create(link);
         await SaveChangesAsync();
     }
     public async Task DeleteSMChannelStreamLink(SMChannelStreamLink sMChannelStreamLink)
@@ -32,25 +46,60 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
 
     public async Task DeleteSMChannelStreamLinksFromParentId(int smchannelId)
     {
-        IQueryable<SMChannelStreamLink> links = GetQuery(true).Where(a => a.SMChannelId == smchannelId);
-        if (links.Any())
+        IQueryable<SMChannelStreamLink> linksToDelete = GetQuery(true).Where(a => a.SMChannelId == smchannelId);
+        if (linksToDelete.Any())
         {
-            foreach (SMChannelStreamLink? link in links)
+            foreach (SMChannelStreamLink? link in linksToDelete)
             {
                 Delete(link);
             }
             await SaveChangesAsync();
         }
-
+        List<int> smchannelIds = linksToDelete.Select(a => a.SMChannelId).ToList();
+        await UpdateRanks(smchannelIds);
     }
 
     public async Task DeleteSMChannelStreamLinks(IQueryable<SMChannelStreamLink> linksToDelete)
     {
         if (linksToDelete.Any())
         {
+            List<int> smchannelIds = linksToDelete.Select(a => a.SMChannelId).ToList();
             foreach (SMChannelStreamLink? link in linksToDelete)
             {
                 Delete(link);
+            }
+            await SaveChangesAsync();
+            await UpdateRanks(smchannelIds);
+        }
+    }
+
+    public async Task<DefaultAPIResponse> SetSMStreamRank(List<SMChannelRankRequest> request)
+    {
+        foreach (SMChannelRankRequest r in request)
+        {
+            SMChannelStreamLink? streamRank = await GetQuery(true).FirstOrDefaultAsync(a => a.SMChannelId == r.SMChannelId && a.SMStreamId == r.SMStreamId);
+            if (streamRank == null)
+            {
+                continue;
+            }
+            streamRank.Rank = r.Rank;
+            Update(streamRank);
+        }
+        await SaveChangesAsync();
+        return APIResponseFactory.Ok();
+
+    }
+
+    private async Task UpdateRanks(List<int> smchannelIds)
+    {
+
+        foreach (int smchannelId in smchannelIds)
+        {
+            int index = 0;
+            foreach (SMChannelStreamLink? link in GetQuery(true).Where(a => a.SMChannelId == smchannelId).OrderBy(a => a.Rank))
+            {
+                link.Rank = index++;
+                Update(link);
             }
             await SaveChangesAsync();
         }

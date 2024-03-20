@@ -12,5 +12,6 @@ namespace StreamMaster.Domain.Services
         Task<APIResponse<SMChannelDto>> GetPagedSMChannels(SMChannelParameters Parameters);
         Task<DefaultAPIResponse> CreateSMChannelFromStream(string streamId);
         Task<DefaultAPIResponse> DeleteSMChannel(int smchannelId);
+        Task<DefaultAPIResponse> SetSMStreamRanks(List<SMChannelRankRequest> request);
     }
 }

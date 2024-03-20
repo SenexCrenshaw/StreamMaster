@@ -110,6 +110,11 @@ public static class ParameterConverter
             return null;
         }
 
+        if (csharpType.EndsWith("[]"))
+        {
+            csharpType = csharpType[..^2];
+        }
+
         return csharpType;
     }
 

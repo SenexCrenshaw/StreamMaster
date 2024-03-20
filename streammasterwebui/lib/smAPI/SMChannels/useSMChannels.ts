@@ -1,25 +1,15 @@
-import {
-  DefaultAPIResponse,
-  FieldData,
-  GetApiArgument,
-  PagedResponse,
-  QueryHookResult,
-  QueryStringParameters,
-  SMChannelDto,
-  SMStreamSMChannelRequest
-} from '@lib/apiDefs';
+import { FieldData, GetApiArgument, PagedResponse, QueryHookResult,SMChannelDto,DefaultAPIResponse,QueryStringParameters,SMStreamSMChannelRequest,SMChannelRankRequest } from '@lib/apiDefs';
+import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
-import {
-  AddSMStreamToSMChannel,
-  CreateSMChannelFromStream,
-  DeleteAllSMChannelsFromParameters,
-  DeleteSMChannel,
-  DeleteSMChannels,
-  RemoveSMStreamFromSMChannel
-} from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { DeleteSMChannels } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { DeleteAllSMChannelsFromParameters } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { AddSMStreamToSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { SetSMStreamRanks } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { fetchGetPagedSMChannels } from '@lib/smAPI/SMChannels/SMChannelsFetch';
 import { clearSMChannels, updateSMChannels } from '@lib/smAPI/SMChannels/SMChannelsSlice';
-import { useEffect } from 'react';
 
 interface ExtendedQueryHookResult extends QueryHookResult<PagedResponse<SMChannelDto> | undefined> {}
 
@@ -30,6 +20,7 @@ interface SMChannelDtoResult extends ExtendedQueryHookResult {
   deleteAllSMChannelsFromParameters: (Parameters: QueryStringParameters) => Promise<DefaultAPIResponse | null>;
   addSMStreamToSMChannel: (request: SMStreamSMChannelRequest) => Promise<DefaultAPIResponse | null>;
   removeSMStreamFromSMChannel: (request: SMStreamSMChannelRequest) => Promise<DefaultAPIResponse | null>;
+  setSMStreamRanks: (requests: SMChannelRankRequest[]) => Promise<DefaultAPIResponse | null>;
   setSMChannelsField: (fieldData: FieldData) => void;
   refreshSMChannels: () => void;
 }
@@ -80,20 +71,11 @@ const useSMChannels = (params?: GetApiArgument | undefined): SMChannelDtoResult 
     return RemoveSMStreamFromSMChannel(request);
   };
 
-  return {
-    data,
-    error,
-    isError,
-    isLoading,
-    createSMChannelFromStream,
-    deleteSMChannels,
-    deleteSMChannel,
-    deleteAllSMChannelsFromParameters,
-    addSMStreamToSMChannel,
-    removeSMStreamFromSMChannel,
-    refreshSMChannels,
-    setSMChannelsField
+  const setSMStreamRanks = (requests: SMChannelRankRequest[]): Promise<DefaultAPIResponse | null> => {
+    return SetSMStreamRanks(requests);
   };
+
+  return { data, error, isError, isLoading, createSMChannelFromStream, deleteSMChannels, deleteSMChannel, deleteAllSMChannelsFromParameters, addSMStreamToSMChannel, removeSMStreamFromSMChannel, setSMStreamRanks, refreshSMChannels, setSMChannelsField };
 };
 
 export default useSMChannels;
