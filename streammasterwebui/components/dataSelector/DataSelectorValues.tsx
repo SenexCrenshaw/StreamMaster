@@ -541,7 +541,6 @@ const DataSelectorValues = <T extends DataTableValue>(props: DataSelectorValuesP
           first={state.pagedInformation ? state.pagedInformation.first : state.first}
           header={sourceRenderHeader}
           lazy
-          // loading={props.isLoading === true}
           onFilter={onFilter}
           onRowClick={(e) => props.onRowClick?.(e)}
           onRowReorder={(e) => {

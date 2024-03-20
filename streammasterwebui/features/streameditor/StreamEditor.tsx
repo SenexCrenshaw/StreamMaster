@@ -8,12 +8,10 @@ const StreamEditor = () => {
   return (
     // <StandardHeader className="streamEditor" displayName="STREAMS" icon={<PlayListEditorIcon />}>
     <div className="flex justify-content-between align-items-center">
-      <div className="col-4 m-0 p-0">
+      <div className="col-7 m-0 p-0">
         <SMChannelDataSelector id={id} />
       </div>
-      <div className="col-8 m-0 p-0">
-        <SMStreamDataSelector id={id} />
-      </div>
+      <div className="col-5 m-0 p-0">{<SMStreamDataSelector id={id} />}</div>
     </div>
     // </StandardHeader>
   );

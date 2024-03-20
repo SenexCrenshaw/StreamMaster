@@ -2,12 +2,9 @@ import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 
 import { SMStreamDto, SMStreamSMChannelRequest } from '@lib/apiDefs';
 
-import { GetMessage, arraysContainSameStrings } from '@lib/common/common';
-import { ChannelGroupDto } from '@lib/iptvApi';
+import { GetMessage } from '@lib/common/common';
 import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreams';
-import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { AddSMStreamToSMChannel, CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useSMStreams from '@lib/smAPI/SMStreams/useSMStreams';
 
@@ -19,32 +16,15 @@ const StreamVisibleDialog = lazy(() => import('@components/smstreams/StreamVisib
 interface SMStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
   readonly id: string;
-  readonly reorderable?: boolean;
 }
 
-const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: SMStreamDataSelectorProperties) => {
+const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataSelectorProperties) => {
   const dataKey = `${id}-SMStreamDataSelector`;
-
-  const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
-
-  const channelGroupNames = useMemo(() => selectSelectedItems.map((channelGroup) => channelGroup.name), [selectSelectedItems]);
-
-  const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
   const { setSelectedSMStreams } = useSelectSMStreams(dataKey);
 
   const { queryFilter } = useQueryFilter(dataKey);
   const { isLoading } = useSMStreams(queryFilter);
-
-  useEffect(() => {
-    if (!arraysContainSameStrings(queryAdditionalFilter?.values, channelGroupNames)) {
-      setQueryAdditionalFilter({
-        field: 'Group',
-        matchMode: 'equals',
-        values: channelGroupNames
-      });
-    }
-  }, [channelGroupNames, dataKey, queryAdditionalFilter, setQueryAdditionalFilter]);
 
   useEffect(() => {
     if (propsEnableEdit !== enableEdit) {
@@ -57,7 +37,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: 
   const targetActionBodyTemplate = useCallback(
     (data: SMStreamDto) => (
       <div className="flex p-0 justify-content-end align-items-center">
-        <Suspense>
+        <Suspense fallback={<div>Loading...</div>}>
           <StreamCopyLinkDialog realUrl={data.realUrl} />
           <StreamVisibleDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
         </Suspense>

@@ -1,49 +1,48 @@
 import MinusButton from '@components/buttons/MinusButton';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 
-import { SMChannelRankRequest, SMStreamDto, SMStreamSMChannelRequest } from '@lib/apiDefs';
+import { SMChannelDto, SMChannelRankRequest, SMStreamDto, SMStreamSMChannelRequest } from '@lib/apiDefs';
 
 import { GetMessage } from '@lib/common/common';
 import { useSelectedSMChannel } from '@lib/redux/slices/selectedSMChannel';
 import { RemoveSMStreamFromSMChannel, SetSMStreamRanks } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 
-import { Suspense, lazy, memo, useCallback, useMemo } from 'react';
+import { lazy, memo, useCallback, useMemo } from 'react';
 const DataSelectorValues = lazy(() => import('@components/dataSelector/DataSelectorValues'));
 
 interface SMStreamDataSelectorValueProperties {
   readonly id: string;
   readonly selectedSMChannelKey: string;
+  readonly selectedSMStreamKey: string;
   readonly data: SMStreamDto[];
-  // readonly isLoading: boolean;
+  readonly smChannel: SMChannelDto;
 }
 
-const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey }: SMStreamDataSelectorValueProperties) => {
+const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey, selectedSMStreamKey, smChannel }: SMStreamDataSelectorValueProperties) => {
   const dataKey = `${id}-SMStreamDataSelectorValue`;
-  const { selectedSMChannel } = useSelectedSMChannel(selectedSMChannelKey);
+  const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMChannel(selectedSMChannelKey);
 
   const actionBodyTemplate = useCallback(
     (data: SMStreamDto) => (
       <div className="flex p-0 justify-content-end align-items-center">
-        <Suspense>
-          <MinusButton
-            iconFilled={false}
-            onClick={() => {
-              if (!data.id || selectedSMChannel === undefined) {
-                return;
-              }
+        <MinusButton
+          iconFilled={false}
+          onClick={() => {
+            if (!data.id || selectedSMChannel === undefined) {
+              return;
+            }
 
-              const request: SMStreamSMChannelRequest = { smChannelId: selectedSMChannel.id, smStreamId: data.id };
-              RemoveSMStreamFromSMChannel(request)
-                .then((response) => {
-                  console.log('Remove Stream', response);
-                })
-                .catch((error) => {
-                  console.error('Remove Stream', error.message);
-                });
-            }}
-            tooltip="Remove Stream"
-          />
-        </Suspense>
+            const request: SMStreamSMChannelRequest = { smChannelId: selectedSMChannel.id, smStreamId: data.id };
+            RemoveSMStreamFromSMChannel(request)
+              .then((response) => {
+                console.log('Remove Stream', response);
+              })
+              .catch((error) => {
+                console.error('Remove Stream', error.message);
+              });
+          }}
+          tooltip="Remove Stream"
+        />
       </div>
     ),
     [selectedSMChannel]
@@ -69,18 +68,22 @@ const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey }: SMStreamD
   );
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <div
+      onClick={() => {
+        setSelectedSMChannel(smChannel);
+      }}
+    >
       <DataSelectorValues
         noSourceHeader
         reorderable
         columns={columns}
         defaultSortField="rank"
         defaultSortOrder={1}
+        dataSource={data && [...data].sort((a, b) => a.rank - b.rank)}
         emptyMessage="No Streams"
         headerName={GetMessage('streams').toUpperCase()}
-        dataSource={[...data].sort((a, b) => a.rank - b.rank)}
-        selectedSMStreamKey="SMChannelDataSelector"
-        selectedSMChannelKey="SMChannelDataSelector"
+        selectedSMStreamKey={selectedSMStreamKey}
+        selectedSMChannelKey={selectedSMChannelKey}
         onRowReorder={(event) => {
           if (selectedSMChannel === undefined) {
             return;
@@ -98,12 +101,11 @@ const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey }: SMStreamD
 
           console.log('tosend', tosend);
         }}
-        // isLoading={isLoading}
         id={dataKey}
         selectedItemsKey={'SMStreamDataSelectorValue-selectSelectedSMStreamDtoItems'}
         style={{ height: '20vh' }}
       />
-    </Suspense>
+    </div>
   );
 };
 

@@ -39,6 +39,7 @@ import { GetApiArgument, PagedResponse, QueryHook, SMChannelDto, SMStreamDto, SM
 import { PagedResponseDto } from '@lib/common/dataTypes';
 import { Checkbox } from 'primereact/checkbox';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
+import { ProgressSpinner } from 'primereact/progressspinner';
 import ResetButton from '../buttons/ResetButton';
 import TableHeader from './TableHeader';
 import getRecordString from './getRecordString';
@@ -652,20 +653,23 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
 
   const rowExpansionTemplate = useCallback(
     (data: DataTableRowData<T[]>, options: DataTableRowExpansionTemplate) => {
+      const channel = data as unknown as SMChannelDto;
+      console.log('rowExpansionTemplate', channel, props.selectedSMChannelKey, props.selectedSMStreamKey);
       return (
         <div className="border-2 border-round-lg border-200 ml-3 m-1">
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<ProgressSpinner>Loading...</ProgressSpinner>}>
             <SMStreamDataSelectorValue
+              selectedSMStreamKey={props.selectedSMStreamKey}
               selectedSMChannelKey={props.selectedSMChannelKey}
-              data={data.smStreams}
-              // isLoading={isLoading}
+              data={channel.smStreams}
+              smChannel={channel}
               id={data.id + '-streams'}
             />
           </Suspense>
         </div>
       );
     },
-    [props.selectedSMChannelKey]
+    [props.selectedSMChannelKey, props.selectedSMStreamKey]
   );
 
   const setSelectedSMEntity = useCallback(

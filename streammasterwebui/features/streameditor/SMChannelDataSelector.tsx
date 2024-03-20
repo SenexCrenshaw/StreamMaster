@@ -1,11 +1,8 @@
 import MinusButton from '@components/buttons/MinusButton';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { SMChannelDto } from '@lib/apiDefs';
-import { GetMessage, arraysContainSameStrings } from '@lib/common/common';
-import { ChannelGroupDto } from '@lib/iptvApi';
+import { GetMessage } from '@lib/common/common';
 
-import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useSMChannels from '@lib/smAPI/SMChannels/useSMChannels';
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
@@ -23,24 +20,24 @@ interface SMChannelDataSelectorProperties {
 const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: SMChannelDataSelectorProperties) => {
   const dataKey = `${id}-SMChannelDataSelector`;
 
-  const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
+  // const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
 
-  const channelGroupNames = useMemo(() => selectSelectedItems.map((channelGroup) => channelGroup.name), [selectSelectedItems]);
-  const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
+  // const channelGroupNames = useMemo(() => selectSelectedItems.map((channelGroup) => channelGroup.name), [selectSelectedItems]);
+  // const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
 
   // const { queryFilter } = useQueryFilter(dataKey);
   // const { isLoading } = useSMChannels(queryFilter);
 
-  useEffect(() => {
-    if (!arraysContainSameStrings(queryAdditionalFilter?.values, channelGroupNames)) {
-      setQueryAdditionalFilter({
-        field: 'Group',
-        matchMode: 'equals',
-        values: channelGroupNames
-      });
-    }
-  }, [channelGroupNames, dataKey, queryAdditionalFilter, setQueryAdditionalFilter]);
+  // useEffect(() => {
+  //   if (!arraysContainSameStrings(queryAdditionalFilter?.values, channelGroupNames)) {
+  //     setQueryAdditionalFilter({
+  //       field: 'Group',
+  //       matchMode: 'equals',
+  //       values: channelGroupNames
+  //     });
+  //   }
+  // }, [channelGroupNames, dataKey, queryAdditionalFilter, setQueryAdditionalFilter]);
 
   useEffect(() => {
     if (propsEnableEdit !== enableEdit) {
@@ -72,13 +69,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
 
     return (
       <div className="flex p-0 justify-content-end align-items-center">
-        <Suspense
-          fallback={
-            <div>
-              <ProgressSpinner>Loading...</ProgressSpinner>
-            </div>
-          }
-        >
+        <Suspense fallback={<ProgressSpinner>Loading...</ProgressSpinner>}>
           <StreamCopyLinkDialog realUrl={data?.realUrl} />
           <ConfirmPopup />
           <MinusButton iconFilled={false} onClick={confirm} tooltip="Remove Channel" />

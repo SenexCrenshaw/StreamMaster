@@ -1,8 +1,7 @@
-import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import {FieldData,PagedResponse, removeKeyFromData, SMStreamDto } from '@lib/apiDefs';
+import { FieldData, PagedResponse, SMStreamDto, removeKeyFromData } from '@lib/apiDefs';
+import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
 import { fetchGetPagedSMStreams } from '@lib/smAPI/SMStreams/SMStreamsFetch';
-import { updatePagedResponseFieldInData } from '@lib/redux/reduxutils';
-
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 interface QueryState {
   data: Record<string, PagedResponse<SMStreamDto> | undefined>;
@@ -46,8 +45,7 @@ const SMStreamsSlice = createSlice({
         state.data = updatedData;
       }
       console.log('clearSMStreams executed');
-    },
-
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -70,7 +68,6 @@ const SMStreamsSlice = createSlice({
         state.isError[query] = true;
         state.isLoading[query] = false;
       });
-
   }
 });
 
