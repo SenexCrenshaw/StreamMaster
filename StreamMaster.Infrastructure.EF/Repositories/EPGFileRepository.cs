@@ -17,7 +17,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
 {
     public async Task<int> GetNextAvailableEPGNumberAsync(CancellationToken cancellationToken)
     {
-        List<int> epgNumbers = await FindAll()
+        List<int> epgNumbers = await GetQuery()
                                         .Select(x => x.EPGNumber)
                                         .OrderBy(x => x)
                                         .ToListAsync(cancellationToken)
@@ -42,7 +42,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
             return [];
         }
 
-        EPGFile? epgFile = await FindByCondition(a => a.Id == Id).FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        EPGFile? epgFile = await GetQuery(a => a.Id == Id).FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         if (epgFile == null)
         {
             return [];
@@ -96,7 +96,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
             throw new ArgumentNullException(nameof(EPGFileId));
         }
 
-        EPGFile? epgFile = await FindByCondition(a => a.Id == EPGFileId).FirstOrDefaultAsync().ConfigureAwait(false);
+        EPGFile? epgFile = await GetQuery(a => a.Id == EPGFileId).FirstOrDefaultAsync().ConfigureAwait(false);
         if (epgFile == null)
         {
             return null;
@@ -112,7 +112,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
     /// </summary>
     public async Task<List<EPGFileDto>> GetEPGFiles()
     {
-        return await FindAll().ProjectTo<EPGFileDto>(mapper.ConfigurationProvider)
+        return await GetQuery().ProjectTo<EPGFileDto>(mapper.ConfigurationProvider)
                               .ToListAsync()
                               .ConfigureAwait(false);
     }
@@ -122,7 +122,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
     /// </summary>
     public async Task<EPGFile?> GetEPGFileById(int Id)
     {
-        return await FindByCondition(c => c.Id == Id)
+        return await GetQuery(c => c.Id == Id)
                            .AsNoTracking()
                            .FirstOrDefaultAsync()
                            .ConfigureAwait(false);
@@ -133,7 +133,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
     /// </summary>
     public async Task<EPGFile?> GetEPGFileBySource(string Source)
     {
-        return await FindByCondition(c => c.Source == Source)
+        return await GetQuery(c => c.Source == Source)
                           .AsNoTracking()
                           .FirstOrDefaultAsync()
                           .ConfigureAwait(false);
@@ -146,9 +146,9 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
     public async Task<List<EPGFileDto>> GetEPGFilesNeedUpdating()
     {
         List<EPGFileDto> ret = [];
-        List<EPGFileDto> epgFilesToUpdated = await FindByCondition(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < DateTime.Now).ProjectTo<EPGFileDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
+        List<EPGFileDto> epgFilesToUpdated = await GetQuery(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < DateTime.Now).ProjectTo<EPGFileDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
         ret.AddRange(epgFilesToUpdated);
-        foreach (EPGFile? epgFile in FindByCondition(a => string.IsNullOrEmpty(a.Url)))
+        foreach (EPGFile? epgFile in GetQuery(a => string.IsNullOrEmpty(a.Url)))
         {
             if (epgFile.LastWrite() >= epgFile.LastUpdated)
             {
@@ -170,7 +170,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
 
         try
         {
-            IQueryable<EPGFile> query = GetIQueryableForEntity(Parameters);
+            IQueryable<EPGFile> query = GetQuery(Parameters);
             return await query.GetPagedResponseAsync<EPGFile, EPGFileDto>(Parameters.PageNumber, Parameters.PageSize, mapper)
                               .ConfigureAwait(false);
         }
@@ -197,12 +197,12 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
 
     public List<EPGColorDto> GetEPGColors()
     {
-        return [.. FindAll().ProjectTo<EPGColorDto>(mapper.ConfigurationProvider)];
+        return [.. GetQuery().ProjectTo<EPGColorDto>(mapper.ConfigurationProvider)];
 
     }
 
     public async Task<EPGFile?> GetEPGFileByNumber(int EPGNumber)
     {
-        return await FindByCondition(a => a.EPGNumber == EPGNumber).FirstOrDefaultAsync();
+        return await GetQuery(a => a.EPGNumber == EPGNumber).FirstOrDefaultAsync();
     }
 }

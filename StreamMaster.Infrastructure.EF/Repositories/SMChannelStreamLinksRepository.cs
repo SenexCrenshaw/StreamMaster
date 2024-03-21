@@ -11,12 +11,7 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
 {
     public List<SMChannelStreamLink> GetSMChannelStreamLinks()
     {
-        return [.. FindAll()];
-    }
-
-    public IQueryable<SMChannelStreamLink> GetQuery(bool tracking = false)
-    {
-        return tracking ? FindAllWithTracking() : FindAll();
+        return [.. GetQuery()];
     }
 
     public async Task CreateSMChannelStreamLink(int SMChannelId, string SMStreamId)

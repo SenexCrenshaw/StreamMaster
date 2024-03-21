@@ -41,7 +41,7 @@ public class UpdateFFMPEGProfileRequestHandler(
             {
                 profilesettings.Profiles.Remove(request.Name);
                 profilesettings.Profiles.Add(request.NewName, existingProfile);
-                repositoryWrapper.StreamGroup.FindByConditionTracked(x => x.FFMPEGProfileId == request.Name).ToList().ForEach(x => x.FFMPEGProfileId = request.NewName);
+                repositoryWrapper.StreamGroup.GetQuery(x => x.FFMPEGProfileId == request.Name).ToList().ForEach(x => x.FFMPEGProfileId = request.NewName);
                 await repositoryWrapper.SaveAsync();
             }
             Logger.LogInformation("UpdateFFMPEGProfileRequest");

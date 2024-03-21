@@ -2,16 +2,15 @@
 using AutoMapper.QueryableExtensions;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
 /// <summary>
 /// Provides methods for performing CRUD operations on M3UFile entities.
 /// </summary>
-public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepositoryContext repositoryContext, IMapper mapper) : RepositoryBase<M3UFile>(repositoryContext, intLogger), IM3UFileRepository
+public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepositoryContext repositoryContext, IMapper mapper)
+    : RepositoryBase<M3UFile>(repositoryContext, intLogger), IM3UFileRepository
 {
-
     public PagedResponse<M3UFileDto> CreateEmptyPagedResponse()
     {
         return PagedExtensions.CreateEmptyPagedResponse<M3UFileDto>(Count());
@@ -37,7 +36,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
             throw new ArgumentNullException(nameof(M3UFileId));
         }
 
-        M3UFile? m3uFile = await FindByCondition(a => a.Id == M3UFileId).FirstOrDefaultAsync().ConfigureAwait(false);
+        M3UFile? m3uFile = await GetQuery(a => a.Id == M3UFileId).FirstOrDefaultAsync().ConfigureAwait(false);
         if (m3uFile == null)
         {
             return null;
@@ -51,7 +50,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
     /// <inheritdoc/>
     public async Task<List<M3UFileDto>> GetM3UFiles()
     {
-        return await FindAll()
+        return await GetQuery()
                      .ProjectTo<M3UFileDto>(mapper.ConfigurationProvider)
                      .ToListAsync()
                      .ConfigureAwait(false);
@@ -60,7 +59,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
     /// <inheritdoc/>
     public async Task<M3UFile?> GetM3UFileById(int Id)
     {
-        M3UFile? m3uFile = await FindByCondition(c => c.Id == Id)
+        M3UFile? m3uFile = await GetQuery(c => c.Id == Id)
                             .AsNoTracking()
                             .FirstOrDefaultAsync()
                             .ConfigureAwait(false);
@@ -68,9 +67,9 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
         return m3uFile;
     }
 
-    public async Task<M3UFile?> GetM3UFileByTrackedId(int Id)
+    public async Task<M3UFile?> GetM3UFile(int Id)
     {
-        M3UFile? m3uFile = await FindByConditionTracked(c => c.Id == Id)
+        M3UFile? m3uFile = await GetQuery(c => c.Id == Id, true)
                             .FirstOrDefaultAsync()
                             .ConfigureAwait(false);
 
@@ -80,7 +79,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
     /// <inheritdoc/>
     public async Task<M3UFile?> GetM3UFileBySource(string Source)
     {
-        M3UFile? m3uFile = await FindByCondition(c => c.Source == Source)
+        M3UFile? m3uFile = await GetQuery(c => c.Source == Source)
                             .AsNoTracking()
                             .FirstOrDefaultAsync()
                             .ConfigureAwait(false);
@@ -91,13 +90,13 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
     /// <inheritdoc/>
     public async Task<int> GetM3UMaxStreamCount()
     {
-        return await FindAll().SumAsync(a => a.MaxStreamCount).ConfigureAwait(false);
+        return await GetQuery().SumAsync(a => a.MaxStreamCount).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
     public async Task<PagedResponse<M3UFileDto>> GetPagedM3UFiles(M3UFileParameters parameters)
     {
-        IQueryable<M3UFile> query = GetIQueryableForEntity(parameters);
+        IQueryable<M3UFile> query = GetQuery(parameters);
         return await query.GetPagedResponseAsync<M3UFile, M3UFileDto>(parameters.PageNumber, parameters.PageSize, mapper)
                           .ConfigureAwait(false);
     }
@@ -118,7 +117,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
     /// <inheritdoc/>
     public async Task<List<string>> GetM3UFileNames()
     {
-        return await FindAll()
+        return await GetQuery()
                      .OrderBy(a => a.Name)
                      .Select(a => a.Name)
                      .ToListAsync()
@@ -128,9 +127,9 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
     public async Task<List<M3UFileDto>> GetM3UFilesNeedUpdating()
     {
         List<M3UFileDto> ret = [];
-        List<M3UFileDto> m3uFilesToUpdated = await FindByCondition(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < DateTime.Now).ProjectTo<M3UFileDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
+        List<M3UFileDto> m3uFilesToUpdated = await GetQuery(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < DateTime.Now).ProjectTo<M3UFileDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
         ret.AddRange(m3uFilesToUpdated);
-        foreach (M3UFile? m3uFile in FindByCondition(a => string.IsNullOrEmpty(a.Url)))
+        foreach (M3UFile? m3uFile in GetQuery(a => string.IsNullOrEmpty(a.Url)))
         {
             if (m3uFile.LastWrite() >= m3uFile.LastUpdated)
             {
@@ -143,7 +142,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
 
     public async Task<M3UFileDto?> ChangeM3UFileName(int M3UFileId, string newName)
     {
-        M3UFile? m3UFile = await FindByCondition(a => a.Id == M3UFileId).FirstOrDefaultAsync().ConfigureAwait(false);
+        M3UFile? m3UFile = await GetQuery(a => a.Id == M3UFileId).FirstOrDefaultAsync().ConfigureAwait(false);
         if (m3UFile == null)
         {
             return null;
@@ -156,6 +155,11 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
 
     public IQueryable<M3UFile> GetM3UFileQuery()
     {
-        return FindAll();
+        return GetQuery();
+    }
+
+    public Task<M3UFile?> GetM3UFileByTrackedId(int Id)
+    {
+        throw new NotImplementedException();
     }
 }

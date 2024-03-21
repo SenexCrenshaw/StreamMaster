@@ -9,12 +9,7 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
 {
     public List<SMStreamDto> GetSMStreams()
     {
-        return [.. FindAll().ProjectTo<SMStreamDto>(mapper.ConfigurationProvider)];
-    }
-
-    public IQueryable<SMStream> GetQuery(bool tracking = false)
-    {
-        return tracking ? FindAllWithTracking() : FindAll();
+        return [.. GetQuery().ProjectTo<SMStreamDto>(mapper.ConfigurationProvider)];
     }
 
     public PagedResponse<SMStreamDto> CreateEmptyPagedResponse()
@@ -24,14 +19,14 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
 
     public async Task<PagedResponse<SMStreamDto>> GetPagedSMStreams(SMStreamParameters parameters, CancellationToken cancellationToken)
     {
-        IQueryable<SMStream> query = GetIQueryableForEntity(parameters);
+        IQueryable<SMStream> query = GetQuery(parameters);
         return await query.GetPagedResponseAsync<SMStream, SMStreamDto>(parameters.PageNumber, parameters.PageSize, mapper)
                           .ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<string>> DeleteAllSMStreamsFromParameters(SMStreamParameters parameters, CancellationToken cancellationToken)
     {
-        IQueryable<SMStream> toDelete = GetIQueryableForEntity(parameters).Where(a => a.IsUserCreated);
+        IQueryable<SMStream> toDelete = GetQuery(parameters).Where(a => a.IsUserCreated);
         return await DeleteStreamsAsync(toDelete, cancellationToken).ConfigureAwait(false);
     }
 
@@ -96,7 +91,7 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
             throw new ArgumentNullException(nameof(id));
         }
 
-        SMStream? stream = await FindByConditionTracked(a => a.Id == id).FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        SMStream? stream = await GetQuery(a => a.Id == id).FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         if (stream == null)
         {
             return null;

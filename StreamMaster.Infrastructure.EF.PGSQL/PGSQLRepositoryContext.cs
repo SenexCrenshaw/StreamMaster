@@ -18,8 +18,8 @@ public partial class PGSQLRepositoryContext(DbContextOptions<PGSQLRepositoryCont
             return;
         }
 
-        if (currentMigration == "20240229201207_ConvertToSMChannels")
-        {
+        //if (currentMigration == "20240229201207_ConvertToSMChannels")
+        //{
             if (!SystemKeyValues.Any(a => a.Key == "MigrateData_20240229201207_ConvertToSMChannels"))
             {
                 MigrateData_20240229201207_ConvertToSMChannels();
@@ -27,7 +27,7 @@ public partial class PGSQLRepositoryContext(DbContextOptions<PGSQLRepositoryCont
                 await SaveChangesAsync().ConfigureAwait(false);
             }
 
-        }
+        //}
     }
 
     protected void MigrateData_20240229201207_ConvertToSMChannels()

@@ -26,7 +26,7 @@ public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepo
                 return;
             }
 
-            List<string> existing = await FindByCondition(a => a.StreamGroupId == StreamGroupId).Select(a => a.ChildVideoStreamId).ToListAsync(cancellationToken).ConfigureAwait(false);
+            List<string> existing = await GetQuery(a => a.StreamGroupId == StreamGroupId).Select(a => a.ChildVideoStreamId).ToListAsync(cancellationToken).ConfigureAwait(false);
 
             List<string> toRun = toAdd.Except(existing).ToList();
             if (!toRun.Any())
@@ -102,7 +102,7 @@ public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepo
                 return null;
             }
 
-            if (FindByCondition(a => a.StreamGroupId == StreamGroupId && a.ChildVideoStreamId == VideoStreamId).Any())
+            if (GetQuery(a => a.StreamGroupId == StreamGroupId && a.ChildVideoStreamId == VideoStreamId).Any())
             {
                 return null;
             }
@@ -141,7 +141,7 @@ public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepo
             return;
         }
 
-        IQueryable<StreamGroupVideoStream> toDelete = FindByCondition(a => a.StreamGroupId == StreamGroupId && toRemove.Contains(a.ChildVideoStreamId));
+        IQueryable<StreamGroupVideoStream> toDelete = GetQuery(a => a.StreamGroupId == StreamGroupId && toRemove.Contains(a.ChildVideoStreamId));
         //await PGSQLRepositoryContext.BulkDeleteAsync(toDelete, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         RepositoryContext.StreamGroupVideoStreams.RemoveRange(toDelete);
@@ -159,7 +159,7 @@ public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepo
             return;
         }
 
-        List<StreamGroupVideoStream> existing = FindByCondition(a => a.StreamGroupId == StreamGroupId).ToList();
+        List<StreamGroupVideoStream> existing = GetQuery(a => a.StreamGroupId == StreamGroupId).ToList();
         foreach (VideoStreamIDRank videoStreamIDRank in videoStreamIDRanks)
         {
             StreamGroupVideoStream? streamGroupVideoStream = existing.FirstOrDefault(a => a.ChildVideoStreamId == videoStreamIDRank.VideoStreamId);
@@ -174,7 +174,7 @@ public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepo
 
     private async Task UpdateRanks(int StreamGroupId, CancellationToken cancellationToken)
     {
-        List<StreamGroupVideoStream> sgVs = await FindByCondition(a => a.StreamGroupId == StreamGroupId).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        List<StreamGroupVideoStream> sgVs = await GetQuery(a => a.StreamGroupId == StreamGroupId).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         for (int i = 0; i < sgVs.Count; i++)
         {
             sgVs[i].Rank = i;
@@ -186,7 +186,7 @@ public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepo
 
     public async Task SetStreamGroupVideoStreamsIsReadOnly(int StreamGroupId, List<string> toUpdate, bool IsReadOnly, CancellationToken cancellationToken)
     {
-        await FindAll()
+        await GetQuery()
                .Where(a => a.StreamGroupId == StreamGroupId && toUpdate.Contains(a.ChildVideoStreamId))
                .ExecuteUpdateAsync(s => s.SetProperty(b => b.IsReadOnly, IsReadOnly), cancellationToken: cancellationToken)
                .ConfigureAwait(false);
@@ -203,7 +203,7 @@ public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepo
         }
 
         // Check if the stream is already associated with the group
-        StreamGroupVideoStream? isStreamAssociated = FindByCondition(stream => stream.StreamGroupId == StreamGroupId && stream.ChildVideoStreamId == VideoStreamId)
+        StreamGroupVideoStream? isStreamAssociated = GetQuery(stream => stream.StreamGroupId == StreamGroupId && stream.ChildVideoStreamId == VideoStreamId)
             .FirstOrDefault();
 
         if (isStreamAssociated != null)
@@ -230,7 +230,7 @@ public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepo
             return await repository.VideoStream.GetVideoStreamsNotHidden().ConfigureAwait(false);
         }
 
-        IQueryable<VideoStream> childQ = FindAll()
+        IQueryable<VideoStream> childQ = GetQuery()
        .Include(a => a.ChildVideoStream)
        .Where(a => a.StreamGroupId == StreamGroupId)
        .Select(a => a.ChildVideoStream)

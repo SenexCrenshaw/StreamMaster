@@ -15,13 +15,46 @@ namespace StreamMaster.Infrastructure.EF.Repositories;
 /// <typeparam name="T">Type of the entity managed by this repository.</typeparam>
 public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
 {
-    protected readonly IRepositoryContext RepositoryContext;
-    protected readonly ILogger logger;
+    internal readonly IRepositoryContext RepositoryContext;
+    internal readonly ILogger logger;
 
-    public RepositoryBase(IRepositoryContext repositoryContext, ILogger logger)
+    public RepositoryBase(IRepositoryContext RepositoryContext, ILogger logger)
     {
-        RepositoryContext = repositoryContext ?? throw new ArgumentNullException(nameof(repositoryContext));
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.RepositoryContext = RepositoryContext;
+        this.logger = logger;
+    }
+
+    public virtual IQueryable<T> GetQuery(bool tracking = false)
+    {
+        return tracking ? RepositoryContext.Set<T>() : RepositoryContext.Set<T>().AsNoTracking();
+    }
+
+    public IQueryable<T> GetQuery(QueryStringParameters parameters, bool tracking = false)
+    {
+        // If there are no filters or order specified, just return all entities.
+        if (string.IsNullOrEmpty(parameters.JSONFiltersString) && string.IsNullOrEmpty(parameters.OrderBy))
+        {
+            return GetQuery();
+        }
+
+        List<DataTableFilterMetaData> filters = Utils.GetFiltersFromJSON(parameters.JSONFiltersString);
+        return GetQuery(filters, parameters.OrderBy, tracking: tracking);
+    }
+
+    public IQueryable<T> GetQuery(List<DataTableFilterMetaData>? filters, string orderBy, IQueryable<T>? entities = null, bool tracking = false)
+    {
+        entities ??= GetQuery(tracking);
+        return FilterHelper<T>.ApplyFiltersAndSort(entities, filters, orderBy);
+    }
+
+    public IQueryable<T> GetQuery(Expression<Func<T, bool>> expression, bool tracking = false)
+    {
+        return GetQuery(tracking).Where(expression);
+    }
+
+    public bool Any(Expression<Func<T, bool>> expression)
+    {
+        return RepositoryContext.Set<T>().Any(expression);
     }
 
     public async Task<int> SaveChangesAsync()
@@ -57,73 +90,6 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         }
     }
 
-    /// <summary>
-    /// Retrieve all entities.
-    /// </summary>
-    /// <returns>IQueryable of all entities.</returns>
-    internal IQueryable<T> FindAll()
-    {
-        return RepositoryContext.Set<T>().AsNoTracking();
-    }
-
-    /// <summary>
-    /// Retrieve all entities.
-    /// </summary>
-    /// <returns>IQueryable of all entities.</returns>
-    internal IQueryable<T> FindAllWithTracking()
-    {
-        return RepositoryContext.Set<T>();
-    }
-
-    /// <summary>
-    /// Retrieve entities based on given parameters.
-    /// </summary>
-    /// <param name="parameters">Query parameters.</param>
-    /// <returns>IQueryable of entities that satisfy conditions from parameters.</returns>
-    public IQueryable<T> GetIQueryableForEntity(QueryStringParameters parameters)
-    {
-        // If there are no filters or order specified, just return all entities.
-        if (string.IsNullOrEmpty(parameters.JSONFiltersString) && string.IsNullOrEmpty(parameters.OrderBy))
-        {
-            return FindAll();
-        }
-
-        List<DataTableFilterMetaData> filters = Utils.GetFiltersFromJSON(parameters.JSONFiltersString);
-        return FindByCondition(filters, parameters.OrderBy);
-    }
-
-    /// <summary>
-    /// Filters and sorts entities based on conditions.
-    /// </summary>
-    /// <param name="filters">List of filters.</param>
-    /// <param name="orderBy">Ordering condition.</param>
-    /// <param name="entities">Optional: IQueryable of entities to start with.</param>
-    /// <returns>IQueryable of filtered and sorted entities.</returns>
-    public IQueryable<T> FindByCondition(List<DataTableFilterMetaData>? filters, string orderBy, IQueryable<T>? entities = null)
-    {
-        entities ??= RepositoryContext.Set<T>().AsNoTracking();
-        return FilterHelper<T>.ApplyFiltersAndSort(entities, filters, orderBy);
-    }
-
-    /// <summary>
-    /// Retrieves entities that satisfy the given condition.
-    /// </summary>
-    /// <param name="expression">Condition to be checked.</param>
-    /// <returns>IQueryable of entities that satisfy the condition.</returns>
-    public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression)
-    {
-        return RepositoryContext.Set<T>().Where(expression).AsNoTracking();
-    }
-
-    public bool Any(Expression<Func<T, bool>> expression)
-    {
-        return RepositoryContext.Set<T>().Any(expression);
-    }
-
-    public IQueryable<T> FindByConditionTracked(Expression<Func<T, bool>> expression)
-    {
-        return RepositoryContext.Set<T>().Where(expression);
-    }
 
     // ... [Other methods, following similar patterns]
 
@@ -295,17 +261,17 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     /// <param name="expression">The filtering condition.</param>
     /// <param name="orderBy">The property by which to order the entities.</param>
     /// <returns>An IQueryable of entities.</returns>
-    public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression, string orderBy)
+    public IQueryable<T> GetQuery(Expression<Func<T, bool>> expression, string orderBy)
     {
         if (expression == null)
         {
-            logger.LogWarning("The filtering expression provided to FindByCondition is null.");
+            logger.LogWarning("The filtering expression provided to GetQuery is null.");
             throw new ArgumentNullException(nameof(expression));
         }
 
         if (string.IsNullOrWhiteSpace(orderBy))
         {
-            logger.LogWarning("The orderBy parameter provided to FindByCondition is null or empty.");
+            logger.LogWarning("The orderBy parameter provided to GetQuery is null or empty.");
             throw new ArgumentException("Ordering parameter must not be null or empty.", nameof(orderBy));
         }
 

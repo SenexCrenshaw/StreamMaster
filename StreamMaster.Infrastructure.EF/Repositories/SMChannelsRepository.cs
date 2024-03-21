@@ -12,13 +12,10 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 {
     public List<SMChannelDto> GetSMChannels()
     {
-        return [.. FindAll().Include(a => a.SMStreams).ThenInclude(a => a.SMStream).ProjectTo<SMChannelDto>(mapper.ConfigurationProvider)];
+        return [.. GetQuery().Include(a => a.SMStreams).ThenInclude(a => a.SMStream).ProjectTo<SMChannelDto>(mapper.ConfigurationProvider)];
     }
 
-    public IQueryable<SMChannel> GetQuery(bool tracking = false)
-    {
-        return tracking ? FindAllWithTracking().Include(a => a.SMStreams).ThenInclude(a => a.SMStream) : FindAll().Include(a => a.SMStreams).ThenInclude(a => a.SMStream);
-    }
+
 
     public PagedResponse<SMChannelDto>? CreateEmptyPagedResponse()
     {
@@ -27,7 +24,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
     public async Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(SMChannelParameters parameters)
     {
-        IQueryable<SMChannel> query = GetIQueryableForEntity(parameters).Include(a => a.SMStreams).ThenInclude(a => a.SMStream);
+        IQueryable<SMChannel> query = GetQuery(parameters).Include(a => a.SMStreams).ThenInclude(a => a.SMStream);
         return await query.GetPagedResponseAsync<SMChannel, SMChannelDto>(parameters.PageNumber, parameters.PageSize, mapper)
                           .ConfigureAwait(false);
     }
@@ -62,7 +59,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
     public async Task<List<int>> DeleteAllSMChannelsFromParameters(SMChannelParameters parameters)
     {
-        IQueryable<SMChannel> toDelete = GetIQueryableForEntity(parameters);
+        IQueryable<SMChannel> toDelete = GetQuery(parameters);
         return await DeleteSMChannelsAsync(toDelete).ConfigureAwait(false);
     }
 
@@ -193,4 +190,10 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
         return request.logo;
     }
+
+    public override IQueryable<SMChannel> GetQuery(bool tracking = false)
+    {
+        return GetQuery(tracking).Include(a => a.SMStreams).ThenInclude(a => a.SMStream); ;
+    }
+
 }

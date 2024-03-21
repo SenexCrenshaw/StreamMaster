@@ -6,7 +6,7 @@ internal class GetVideoStreamDummiesHandler(ILogger<GetVideoStreamDummiesHandler
 {
     public Task<List<VideoStreamDto>> Handle(GetVideoStreamDummies request, CancellationToken cancellationToken)
     {
-        List<VideoStream> dummies = [.. Repository.VideoStream.FindByCondition(x => x.User_Tvg_ID.StartsWith($"{EPGHelper.DummyId}-"))];
+        List<VideoStream> dummies = [.. Repository.VideoStream.GetQuery(x => x.User_Tvg_ID.StartsWith($"{EPGHelper.DummyId}-"))];
         return Task.FromResult(Mapper.Map<List<VideoStreamDto>>(dummies));
     }
 }

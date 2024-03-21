@@ -47,7 +47,7 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
             if (request.EPGNumber.HasValue)
             {
                 isChanged = true;
-                if (!Repository.EPGFile.FindByCondition(x => x.EPGNumber == request.EPGNumber.Value).Any())
+                if (!Repository.EPGFile.GetQuery(x => x.EPGNumber == request.EPGNumber.Value).Any())
                 {
                     oldEPGNumber = epgFile.EPGNumber;
                     epgFile.EPGNumber = request.EPGNumber.Value;

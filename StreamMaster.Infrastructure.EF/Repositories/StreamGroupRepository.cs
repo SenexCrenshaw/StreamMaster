@@ -22,7 +22,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
     public async Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(StreamGroupParameters Parameters)
     {
-        IQueryable<StreamGroup> query = GetIQueryableForEntity(Parameters);
+        IQueryable<StreamGroup> query = GetQuery(Parameters);
         PagedResponse<StreamGroupDto> ret = await query.GetPagedResponseAsync<StreamGroup, StreamGroupDto>(Parameters.PageNumber, Parameters.PageSize, mapper)
                           .ConfigureAwait(false);
 
@@ -77,7 +77,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
             return dto;
         }
 
-        StreamGroup? streamGroup = await FindByCondition(c => c.Id == streamGroupId)
+        StreamGroup? streamGroup = await GetQuery(c => c.Id == streamGroupId)
                             .AsNoTracking()
                             .FirstOrDefaultAsync()
                             .ConfigureAwait(false);
@@ -94,18 +94,18 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
     public IQueryable<StreamGroup> GetAllStreamGroups()
     {
-        return FindAll();
+        return GetQuery();
     }
 
     public IQueryable<StreamGroup> GetAllStreamGroupsWithChannelGroups()
     {
-        return FindAll().Include(sg => sg.ChannelGroups)
+        return GetQuery().Include(sg => sg.ChannelGroups)
             .ThenInclude(sgcg => sgcg.ChannelGroup).OrderBy(p => p.Name);
     }
 
     public async Task<List<StreamGroupDto>> GetStreamGroups(CancellationToken cancellationToken)
     {
-        List<StreamGroupDto> ret = await FindAll()
+        List<StreamGroupDto> ret = await GetQuery()
                    .ProjectTo<StreamGroupDto>(mapper.ConfigurationProvider)
                    .ToListAsync(cancellationToken: cancellationToken)
                    .ConfigureAwait(false);
@@ -127,7 +127,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         RepositoryContext.StreamGroupChannelGroups.RemoveRange(channelGroups);
         await RepositoryContext.SaveChangesAsync();
 
-        StreamGroup? streamGroup = FindByCondition(c => c.Id == streamGroupId).FirstOrDefault();
+        StreamGroup? streamGroup = GetQuery(c => c.Id == streamGroupId).FirstOrDefault();
         if (streamGroup == null)
         {
             return null;
@@ -141,7 +141,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
     {
         int StreamGroupId = request.StreamGroupId;
 
-        StreamGroup? streamGroup = FindByCondition(c => c.Id == StreamGroupId).FirstOrDefault();
+        StreamGroup? streamGroup = GetQuery(c => c.Id == StreamGroupId).FirstOrDefault();
         if (streamGroup == null)
         {
             return null;
@@ -180,6 +180,6 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
     public IQueryable<StreamGroup> GetStreamGroupQuery()
     {
-        return FindAll();
+        return GetQuery();
     }
 }

@@ -3,7 +3,7 @@
 using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Application.ChannelGroups.Commands;
-using StreamMaster.Domain.Configuration;
+
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
@@ -157,18 +157,18 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
     {
         List<string> streamIds = streams.Select(a => a.Id).ToList();
 
-        IQueryable<VideoStream> toDelete = repository.VideoStream.FindByCondition(a => a.M3UFileId == m3uFileId && !streamIds.Contains(a.Id));
+        IQueryable<VideoStream> toDelete = repository.VideoStream.GetQuery(a => a.M3UFileId == m3uFileId && !streamIds.Contains(a.Id));
         if (toDelete.Any())
         {
             List<string> ids = [.. toDelete.Select(a => a.Id)];
 
-            IQueryable<VideoStreamLink> toVideoStreamLinkDel = repository.VideoStreamLink.FindByCondition(a => ids.Contains(a.ChildVideoStreamId) || ids.Contains(a.ParentVideoStreamId));
+            IQueryable<VideoStreamLink> toVideoStreamLinkDel = repository.VideoStreamLink.GetQuery(a => ids.Contains(a.ChildVideoStreamId) || ids.Contains(a.ParentVideoStreamId));
             if (toVideoStreamLinkDel.Any())
             {
                 await repository.VideoStreamLink.BulkDeleteAsync(toVideoStreamLinkDel);
             }
 
-            IQueryable<StreamGroupVideoStream> toStreamGroupVideoStreamDel = repository.StreamGroupVideoStream.FindByCondition(a => ids.Contains(a.ChildVideoStreamId));
+            IQueryable<StreamGroupVideoStream> toStreamGroupVideoStreamDel = repository.StreamGroupVideoStream.GetQuery(a => ids.Contains(a.ChildVideoStreamId));
             if (toStreamGroupVideoStreamDel.Any())
             {
                 await repository.StreamGroupVideoStream.BulkDeleteAsync(toStreamGroupVideoStreamDel);
@@ -289,8 +289,6 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
             }
         }
     }
-
-
 
     private async Task UpdateChannelGroups(List<VideoStream> streams, CancellationToken cancellationToken)
     {
