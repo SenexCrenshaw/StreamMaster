@@ -2,8 +2,8 @@
 using AutoMapper.QueryableExtensions;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.Models;
@@ -13,7 +13,8 @@ namespace StreamMaster.Infrastructure.EF.Repositories;
 /// <summary>
 /// Repository to manage EPGFile entities in the database.
 /// </summary>
-public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryContext repositoryContext, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper) : RepositoryBase<EPGFile>(repositoryContext, logger), IEPGFileRepository
+public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryContext repositoryContext, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IOptionsMonitor<Setting> intSettings, IMapper mapper)
+    : RepositoryBase<EPGFile>(repositoryContext, logger, intSettings), IEPGFileRepository
 {
     public async Task<int> GetNextAvailableEPGNumberAsync(CancellationToken cancellationToken)
     {
@@ -42,7 +43,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
             return [];
         }
 
-        EPGFile? epgFile = await GetQuery(a => a.Id == Id).FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        EPGFile? epgFile = await FirstOrDefaultAsync(a => a.Id == Id, cancellationToken: cancellationToken).ConfigureAwait(false);
         if (epgFile == null)
         {
             return [];
@@ -96,7 +97,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
             throw new ArgumentNullException(nameof(EPGFileId));
         }
 
-        EPGFile? epgFile = await GetQuery(a => a.Id == EPGFileId).FirstOrDefaultAsync().ConfigureAwait(false);
+        EPGFile? epgFile = await FirstOrDefaultAsync(a => a.Id == EPGFileId).ConfigureAwait(false);
         if (epgFile == null)
         {
             return null;
@@ -122,10 +123,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
     /// </summary>
     public async Task<EPGFile?> GetEPGFileById(int Id)
     {
-        return await GetQuery(c => c.Id == Id)
-                           .AsNoTracking()
-                           .FirstOrDefaultAsync()
-                           .ConfigureAwait(false);
+        return await FirstOrDefaultAsync(c => c.Id == Id).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -133,10 +131,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
     /// </summary>
     public async Task<EPGFile?> GetEPGFileBySource(string Source)
     {
-        return await GetQuery(c => c.Source == Source)
-                          .AsNoTracking()
-                          .FirstOrDefaultAsync()
-                          .ConfigureAwait(false);
+        return await FirstOrDefaultAsync(c => c.Source == Source).ConfigureAwait(false);
     }
 
     public PagedResponse<EPGFileDto> CreateEmptyPagedResponse()
@@ -203,6 +198,6 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
 
     public async Task<EPGFile?> GetEPGFileByNumber(int EPGNumber)
     {
-        return await GetQuery(a => a.EPGNumber == EPGNumber).FirstOrDefaultAsync();
+        return await FirstOrDefaultAsync(a => a.EPGNumber == EPGNumber);
     }
 }

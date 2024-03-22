@@ -1,9 +1,12 @@
 ﻿using StreamMaster.Domain.Pagination;
 
+using System.Linq.Expressions;
+
 namespace StreamMaster.Domain.Repository;
 
-public interface ISMStreamRepository
+public interface ISMStreamRepository : IRepositoryBase<SMStream>
 {
+    IQueryable<SMStream> GetQuery(Expression<Func<SMStream, bool>> expression, bool tracking = false);
     IQueryable<SMStream> GetQuery(bool tracking = false);
     List<SMStreamDto> GetSMStreams();
     PagedResponse<SMStreamDto> CreateEmptyPagedResponse();

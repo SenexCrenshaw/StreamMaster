@@ -1,33 +1,33 @@
-import { FieldData, GetApiArgument, PagedResponse, QueryHookResult,SMChannelDto,DefaultAPIResponse,QueryStringParameters,SMStreamSMChannelRequest,SMChannelRankRequest,SMChannelLogoRequest } from '@lib/apiDefs';
+import { FieldData, GetApiArgument, PagedResponse, QueryHookResult,,DefaultAPIResponse,QueryStringParameters,SMChannelRankRequest } from '@lib/apiDefs';
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
-import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import { DeleteSMChannels } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import { DeleteAllSMChannelsFromParameters } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { AddSMStreamToSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { DeleteAllSMChannelsFromParameters } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { DeleteSMChannels } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import { SetSMStreamRanks } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { SetSMChannelLogo } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { SetSMStreamRanks } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { fetchGetPagedSMChannels } from '@lib/smAPI/SMChannels/SMChannelsFetch';
 import { clearSMChannels, updateSMChannels } from '@lib/smAPI/SMChannels/SMChannelsSlice';
 
-interface ExtendedQueryHookResult extends QueryHookResult<PagedResponse<SMChannelDto> | undefined> {}
+interface ExtendedQueryHookResult extends QueryHookResult<PagedResponse<> | undefined> {}
 
-interface SMChannelDtoResult extends ExtendedQueryHookResult {
+interface Result extends ExtendedQueryHookResult {
+  addSMStreamToSMChannel: (SMChannelId: number, SMStreamId: string) => Promise<DefaultAPIResponse | null>;
   createSMChannelFromStream: (streamId: string) => Promise<DefaultAPIResponse | null>;
-  deleteSMChannels: (smchannelIds: number[]) => Promise<DefaultAPIResponse | null>;
-  deleteSMChannel: (smchannelId: number) => Promise<DefaultAPIResponse | null>;
   deleteAllSMChannelsFromParameters: (Parameters: QueryStringParameters) => Promise<DefaultAPIResponse | null>;
-  addSMStreamToSMChannel: (request: SMStreamSMChannelRequest) => Promise<DefaultAPIResponse | null>;
-  removeSMStreamFromSMChannel: (request: SMStreamSMChannelRequest) => Promise<DefaultAPIResponse | null>;
+  deleteSMChannel: (smChannelId: number) => Promise<DefaultAPIResponse | null>;
+  deleteSMChannels: (smChannelIds: number[]) => Promise<DefaultAPIResponse | null>;
+  removeSMStreamFromSMChannel: (SMChannelId: number, SMStreamId: string) => Promise<DefaultAPIResponse | null>;
+  setSMChannelLogo: (SMChannelId: number, logo: string) => Promise<DefaultAPIResponse | null>;
   setSMStreamRanks: (requests: SMChannelRankRequest[]) => Promise<DefaultAPIResponse | null>;
-  setSMChannelLogo: (request: SMChannelLogoRequest) => Promise<DefaultAPIResponse | null>;
   setSMChannelsField: (fieldData: FieldData) => void;
   refreshSMChannels: () => void;
 }
 
-const useSMChannels = (params?: GetApiArgument | undefined): SMChannelDtoResult => {
+const useSMChannels = (params?: GetApiArgument | undefined): Result => {
   const query = JSON.stringify(params);
   const dispatch = useAppDispatch();
 
@@ -49,39 +49,39 @@ const useSMChannels = (params?: GetApiArgument | undefined): SMChannelDtoResult 
     dispatch(clearSMChannels());
   };
 
+  const addSMStreamToSMChannel = (SMChannelId: number, SMStreamId: string): Promise<DefaultAPIResponse | null> => {
+    return AddSMStreamToSMChannel(SMChannelId, SMStreamId);
+  };
+
   const createSMChannelFromStream = (streamId: string): Promise<DefaultAPIResponse | null> => {
     return CreateSMChannelFromStream(streamId);
-  };
-
-  const deleteSMChannels = (smchannelIds: number[]): Promise<DefaultAPIResponse | null> => {
-    return DeleteSMChannels(smchannelIds);
-  };
-
-  const deleteSMChannel = (smchannelId: number): Promise<DefaultAPIResponse | null> => {
-    return DeleteSMChannel(smchannelId);
   };
 
   const deleteAllSMChannelsFromParameters = (Parameters: QueryStringParameters): Promise<DefaultAPIResponse | null> => {
     return DeleteAllSMChannelsFromParameters(Parameters);
   };
 
-  const addSMStreamToSMChannel = (request: SMStreamSMChannelRequest): Promise<DefaultAPIResponse | null> => {
-    return AddSMStreamToSMChannel(request);
+  const deleteSMChannel = (smChannelId: number): Promise<DefaultAPIResponse | null> => {
+    return DeleteSMChannel(smChannelId);
   };
 
-  const removeSMStreamFromSMChannel = (request: SMStreamSMChannelRequest): Promise<DefaultAPIResponse | null> => {
-    return RemoveSMStreamFromSMChannel(request);
+  const deleteSMChannels = (smChannelIds: number[]): Promise<DefaultAPIResponse | null> => {
+    return DeleteSMChannels(smChannelIds);
+  };
+
+  const removeSMStreamFromSMChannel = (SMChannelId: number, SMStreamId: string): Promise<DefaultAPIResponse | null> => {
+    return RemoveSMStreamFromSMChannel(SMChannelId, SMStreamId);
+  };
+
+  const setSMChannelLogo = (SMChannelId: number, logo: string): Promise<DefaultAPIResponse | null> => {
+    return SetSMChannelLogo(SMChannelId, logo);
   };
 
   const setSMStreamRanks = (requests: SMChannelRankRequest[]): Promise<DefaultAPIResponse | null> => {
     return SetSMStreamRanks(requests);
   };
 
-  const setSMChannelLogo = (request: SMChannelLogoRequest): Promise<DefaultAPIResponse | null> => {
-    return SetSMChannelLogo(request);
-  };
-
-  return { data, error, isError, isLoading, createSMChannelFromStream, deleteSMChannels, deleteSMChannel, deleteAllSMChannelsFromParameters, addSMStreamToSMChannel, removeSMStreamFromSMChannel, setSMStreamRanks, setSMChannelLogo, refreshSMChannels, setSMChannelsField };
+  return { data, error, isError, isLoading, addSMStreamToSMChannel, createSMChannelFromStream, deleteAllSMChannelsFromParameters, deleteSMChannel, deleteSMChannels, removeSMStreamFromSMChannel, setSMChannelLogo, setSMStreamRanks, refreshSMChannels, setSMChannelsField };
 };
 
 export default useSMChannels;

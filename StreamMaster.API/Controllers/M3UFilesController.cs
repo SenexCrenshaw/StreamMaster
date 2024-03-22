@@ -4,8 +4,6 @@ using StreamMaster.Application.M3UFiles;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.M3UFiles.Queries;
 using StreamMaster.Application.Services;
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.API.Controllers;
@@ -50,7 +48,7 @@ public class M3UFilesController(IBackgroundTaskQueue taskQueue) : ApiControllerB
     [Route("{id}")]
     public async Task<ActionResult<M3UFileDto>> GetM3UFile(int id)
     {
-        M3UFileDto? data = await Mediator.Send(new GetM3UFileByIdQuery(id)).ConfigureAwait(false);
+        M3UFileDto? data = await Mediator.Send(new GetM3UFileQuery(id)).ConfigureAwait(false);
 
         return data != null ? (ActionResult<M3UFileDto>)data : (ActionResult<M3UFileDto>)NotFound();
     }

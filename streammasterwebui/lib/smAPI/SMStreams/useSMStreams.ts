@@ -1,19 +1,19 @@
-import { FieldData, GetApiArgument, PagedResponse, QueryHookResult,SMStreamDto,DefaultAPIResponse } from '@lib/apiDefs';
+import { FieldData, GetApiArgument, PagedResponse, QueryHookResult,,DefaultAPIResponse } from '@lib/apiDefs';
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { ToggleSMStreamVisibleById } from '@lib/smAPI/SMStreams/SMStreamsCommands';
 import { fetchGetPagedSMStreams } from '@lib/smAPI/SMStreams/SMStreamsFetch';
 import { clearSMStreams, updateSMStreams } from '@lib/smAPI/SMStreams/SMStreamsSlice';
 
-interface ExtendedQueryHookResult extends QueryHookResult<PagedResponse<SMStreamDto> | undefined> {}
+interface ExtendedQueryHookResult extends QueryHookResult<PagedResponse<> | undefined> {}
 
-interface SMStreamDtoResult extends ExtendedQueryHookResult {
-  toggleSMStreamVisibleById: (id: string) => Promise<DefaultAPIResponse | null>;
+interface Result extends ExtendedQueryHookResult {
+  toggleSMStreamVisibleById: (Id: string) => Promise<DefaultAPIResponse | null>;
   setSMStreamsField: (fieldData: FieldData) => void;
   refreshSMStreams: () => void;
 }
 
-const useSMStreams = (params?: GetApiArgument | undefined): SMStreamDtoResult => {
+const useSMStreams = (params?: GetApiArgument | undefined): Result => {
   const query = JSON.stringify(params);
   const dispatch = useAppDispatch();
 
@@ -35,8 +35,8 @@ const useSMStreams = (params?: GetApiArgument | undefined): SMStreamDtoResult =>
     dispatch(clearSMStreams());
   };
 
-  const toggleSMStreamVisibleById = (id: string): Promise<DefaultAPIResponse | null> => {
-    return ToggleSMStreamVisibleById(id);
+  const toggleSMStreamVisibleById = (Id: string): Promise<DefaultAPIResponse | null> => {
+    return ToggleSMStreamVisibleById(Id);
   };
 
   return { data, error, isError, isLoading, toggleSMStreamVisibleById, refreshSMStreams, setSMStreamsField };

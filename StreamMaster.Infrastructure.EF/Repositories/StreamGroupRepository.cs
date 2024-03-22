@@ -11,9 +11,9 @@ using System.Web;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intsettings, IHttpContextAccessor httpContextAccessor) : RepositoryBase<StreamGroup>(repositoryContext, logger), IStreamGroupRepository
+public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor)
+    : RepositoryBase<StreamGroup>(repositoryContext, logger, intSettings), IStreamGroupRepository
 {
-    private readonly Setting settings = intsettings.CurrentValue;
 
     public PagedResponse<StreamGroupDto> CreateEmptyPagedResponse()
     {
@@ -37,7 +37,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
         foreach (StreamGroupDto sg in streamGroupDtos)
         {
-            SetStreamGroupLinks(sg, Url, settings);
+            SetStreamGroupLinks(sg, Url);
         }
     }
 
@@ -46,15 +46,16 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         string Url = httpContextAccessor.GetUrl();
 
 
-        SetStreamGroupLinks(streamGroupDto, Url, settings);
+        SetStreamGroupLinks(streamGroupDto, Url);
     }
 
-    private void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url, Setting setting)
+    private void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url)
     {
+
         int count = streamGroupDto.Id == 1
             ? RepositoryContext.VideoStreams.Count()
             : RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == streamGroupDto.Id).Count();
-        string encodedStreamGroupNumber = streamGroupDto.Id.EncodeValue128(setting.ServerKey);
+        string encodedStreamGroupNumber = streamGroupDto.Id.EncodeValue128(Settings.ServerKey);
 
         string encodedName = HttpUtility.HtmlEncode(streamGroupDto.Name).Trim()
                     .Replace("/", "")
@@ -127,7 +128,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         RepositoryContext.StreamGroupChannelGroups.RemoveRange(channelGroups);
         await RepositoryContext.SaveChangesAsync();
 
-        StreamGroup? streamGroup = GetQuery(c => c.Id == streamGroupId).FirstOrDefault();
+        StreamGroup? streamGroup = await FirstOrDefaultAsync(c => c.Id == streamGroupId);
         if (streamGroup == null)
         {
             return null;
@@ -141,7 +142,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
     {
         int StreamGroupId = request.StreamGroupId;
 
-        StreamGroup? streamGroup = GetQuery(c => c.Id == StreamGroupId).FirstOrDefault();
+        StreamGroup? streamGroup = await FirstOrDefaultAsync(c => c.Id == StreamGroupId);
         if (streamGroup == null)
         {
             return null;

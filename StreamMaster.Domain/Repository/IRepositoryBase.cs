@@ -1,4 +1,5 @@
-﻿using StreamMaster.Domain.Pagination;
+﻿using StreamMaster.Domain.Configuration;
+using StreamMaster.Domain.Pagination;
 
 using System.Linq.Expressions;
 
@@ -10,6 +11,10 @@ namespace StreamMaster.Domain.Repository;
 /// <typeparam name="T">The type of the entity.</typeparam>
 public interface IRepositoryBase<T> where T : class
 {
+    Setting Settings { get; }
+    Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> expression, bool tracking = false, CancellationToken cancellationToken = default);
+    T? FirstOrDefault(Expression<Func<T, bool>> expression, bool tracking = false);
+
     bool Any(Expression<Func<T, bool>> expression);
 
     IQueryable<T> GetQuery(Expression<Func<T, bool>> expression, bool tracking = false);
@@ -55,7 +60,7 @@ public interface IRepositoryBase<T> where T : class
     /// <param name="entity">Entity to remove.</param>
     void Delete(T entity);
 
-    Task BulkDeleteAsync(IQueryable<T> query, CancellationToken cancellationToken = default);
+    Task BulkDeleteAsync(IQueryable<T> query);
 
     /// <summary>
     /// Performs a bulk insert operation.

@@ -28,7 +28,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
             jobManager.Start();
 
 
-            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileById(request.Id).ConfigureAwait(false);
+            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFile(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
             {
                 jobManager.SetError();
@@ -60,7 +60,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
                     }
                 }
 
-                List<VideoStream>? streams = await m3uFile.GetM3U(Logger, cancellationToken);
+                List<VideoStream>? streams = await m3uFile.GetVideoStreamsFromM3U(Logger);
                 if (streams == null)
                 {
                     Logger.LogCritical("Exception M3U {fullName} format is not supported", fullName);

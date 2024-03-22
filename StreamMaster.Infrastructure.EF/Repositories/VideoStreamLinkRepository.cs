@@ -2,11 +2,13 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.Extensions.Logging;
+
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class VideoStreamLinkRepository(ILogger<VideoStreamLinkRepository> logger, IRepositoryContext repositoryContext, IMapper mapper) : RepositoryBase<VideoStreamLink>(repositoryContext, logger), IVideoStreamLinkRepository
+public class VideoStreamLinkRepository(ILogger<VideoStreamLinkRepository> logger, IRepositoryContext repositoryContext, IOptionsMonitor<Setting> intSettings, IMapper mapper)
+    : RepositoryBase<VideoStreamLink>(repositoryContext, logger, intSettings), IVideoStreamLinkRepository
 {
     public async Task<List<string>> GetVideoStreamVideoStreamIds(string videoStreamId, CancellationToken cancellationToken)
     {

@@ -8,12 +8,12 @@ public partial class StreamMasterHub : ISettingHub
 
     public async Task<SettingDto> GetSetting()
     {
-        return await mediator.Send(new GetSettings()).ConfigureAwait(false);
+        return await Sender.Send(new GetSettings()).ConfigureAwait(false);
     }
 
     public async Task<SDSystemStatus> GetSystemStatus()
     {
-        return await mediator.Send(new GetSystemStatus()).ConfigureAwait(false);
+        return await Sender.Send(new GetSystemStatus()).ConfigureAwait(false);
     }
 
     public async Task<bool> LogIn(LogInRequest logInRequest)
@@ -26,6 +26,6 @@ public partial class StreamMasterHub : ISettingHub
 
     public async Task UpdateSetting(UpdateSettingRequest command)
     {
-        _ = await mediator.Send(command).ConfigureAwait(false);
+        _ = await Sender.Send(command).ConfigureAwait(false);
     }
 }

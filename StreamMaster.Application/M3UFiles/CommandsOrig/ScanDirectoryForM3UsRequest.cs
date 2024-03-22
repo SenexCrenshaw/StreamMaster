@@ -79,13 +79,14 @@ public class ScanDirectoryForM3UFilesRequestHandler(ILogger<ScanDirectoryForM3UF
         Repository.M3UFile.CreateM3UFile(m3uFile);
 
         _ = await Repository.SaveAsync().ConfigureAwait(false);
-        m3uFile.WriteJSON(Logger);
+
+        m3uFile.WriteJSON();
 
         if (string.IsNullOrEmpty(m3uFile.Url))
         {
             m3uFile.LastDownloaded = SMDT.UtcNow;
             _ = await Repository.SaveAsync().ConfigureAwait(false);
-            m3uFile.WriteJSON(Logger);
+            m3uFile.WriteJSON();
         }
 
 

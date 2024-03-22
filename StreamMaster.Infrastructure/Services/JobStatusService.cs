@@ -11,6 +11,10 @@ public partial class JobStatusService(ILogger<JobStatusService> logger) : IJobSt
 {
     public readonly ConcurrentDictionary<string, JobStatus> _jobs = [];
     public readonly ConcurrentDictionary<string, object> _locks = [];
+    public JobStatusManager GetJobManagerProcessM3U(int id)
+    {
+        return new JobStatusManager(this, JobType.ProcessM3U, id);
+    }
 
     public JobStatusManager GetJobManager(JobType jobType, int id)
     {

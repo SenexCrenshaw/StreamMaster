@@ -1,6 +1,7 @@
 ﻿namespace StreamMaster.Domain.Attributes;
 
-[AttributeUsage(AttributeTargets.Method)]
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
 public class SMAPIAttribute() : Attribute
 {
 }
+

@@ -2,8 +2,6 @@
 
 using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Application.Common.Extensions;
-using StreamMaster.Domain.Authentication;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 
 using System.Collections.Concurrent;
@@ -82,7 +80,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         }
         this.iv = iv;
 
-        List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
+        List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId);
 
         if (!videoStreams.Any())
         {

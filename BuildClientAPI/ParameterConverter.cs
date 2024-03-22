@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 
 /// <summary>
@@ -30,34 +29,35 @@ public static class ParameterConverter
         return tsParameters;
     }
 
-    public static string ParamsToCSharp(MethodInfo method)
+    public static string ParamsToCSharp(Type recordType)
     {
-        // string.Join(", ", method.GetParameters().Select(p => $"{ParameterConverter.CleanupTypeName(ParameterConverter.GetTypeFullNameForParameter(p.ParameterType))} {p.Name}"));
-        StringBuilder stringBuilder = new();
-        ParameterInfo[] ps = method.GetParameters();
-        foreach (ParameterInfo p in ps)
+        // string.Join(", ", method.GetParameters().Select(p => $"{ParameterConverter2.CleanupTypeName(ParameterConverter2.GetTypeFullNameForParameter(p.ParameterType))} {p.Name}"));
+        List<string> stringBuilder = [];
+        ConstructorInfo[] constructors = recordType.GetConstructors();
+
+        ParameterInfo[] parameters = constructors[0].GetParameters();
+        foreach (ParameterInfo p in parameters)
         {
             string? name = p.Name;
             Type pType = p.ParameterType;
             string csSharptsTypeFullName = GetTypeFullNameForParameter(p.ParameterType);
             string csSharptsType = CleanupTypeName(csSharptsTypeFullName);
 
-            stringBuilder.Append($"{csSharptsType} {name}");
+            stringBuilder.Add($"{csSharptsType} {name}");
         }
         string ret = string.Join(", ", stringBuilder);
 
         return ret;
     }
 
-    public static string CSharpParamToTS(MethodInfo method)
+    public static string CSharpParamToTS(Type recordType)
     {
-        if (method.Name == "DeleteAllSMChannelsFromParameters")
-        {
-            int aa = 1;
-        }
-        StringBuilder stringBuilder = new();
-        ParameterInfo[] ps = method.GetParameters();
-        foreach (ParameterInfo p in ps)
+
+        List<string> stringBuilder = [];
+        ConstructorInfo[] constructors = recordType.GetConstructors();
+
+        ParameterInfo[] parameters = constructors[0].GetParameters();
+        foreach (ParameterInfo p in parameters)
         {
             string? name = p.Name;
             Type pType = p.ParameterType;
@@ -65,7 +65,7 @@ public static class ParameterConverter
             string tt = MapCSharpTypeToTypeScript(tsTypeFullName);
             string tsType = GetLastPartOfTypeName(tt);
             tsType = FixUpTSType(tsType);
-            stringBuilder.Append($"{name}: {tsType}");
+            stringBuilder.Add($"{name}: {tsType}");
 
         }
         string ret = string.Join(", ", stringBuilder);
@@ -164,8 +164,8 @@ public static class ParameterConverter
         string simplifiedType = fullTypeName
             .Replace("System.Int32", "int")
             .Replace("System.String", "string")
-            .Replace("System.Double", "Double")
-            .Replace("System.Boolean", "Boolean")
+            .Replace("System.Double", "double")
+            .Replace("System.Boolean", "bool")
             // Add more replacements as needed
             ;
 

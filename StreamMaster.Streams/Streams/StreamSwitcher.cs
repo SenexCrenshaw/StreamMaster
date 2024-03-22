@@ -98,7 +98,7 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
             return null;
         }
 
-        M3UFile? m3uFile = await repository.M3UFile.GetM3UFileById(vs.M3UFileId).ConfigureAwait(false);
+        M3UFile? m3uFile = await repository.M3UFile.GetM3UFile(vs.M3UFileId).ConfigureAwait(false);
 
         if (m3uFile == null)
         {

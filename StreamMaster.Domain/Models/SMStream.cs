@@ -14,7 +14,7 @@ public class SMStream
     public bool IsHidden { get; set; } = false;
     public bool IsUserCreated { get; set; } = false;
     public int M3UFileId { get; set; } = 0;
-    public int Tvg_chno { get; set; } = 0;
+    public int ChannelNumber { get; set; } = 0;
 
     [Column(TypeName = "citext")]
     public string M3UFileName { get; set; } = string.Empty;

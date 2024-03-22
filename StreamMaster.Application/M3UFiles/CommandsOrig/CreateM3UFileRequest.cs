@@ -70,7 +70,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
 
             m3UFile.MaxStreamCount = Math.Max(0, command.MaxStreamCount);
 
-            List<VideoStream>? streams = await m3UFile.GetM3U(Logger, cancellationToken).ConfigureAwait(false);
+            List<VideoStream>? streams = await m3UFile.GetVideoStreamsFromM3U(Logger).ConfigureAwait(false);
             if (streams == null || streams.Count == 0)
             {
                 Logger.LogCritical("Exception M3U {fullName} format is not supported", fullName);
@@ -93,7 +93,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
             Repository.M3UFile.CreateM3UFile(m3UFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
 
-            m3UFile.WriteJSON(Logger);
+            m3UFile.WriteJSON();
 
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3UFile);
             await Publisher.Publish(new M3UFileAddedEvent(ret.Id, false), cancellationToken).ConfigureAwait(false);

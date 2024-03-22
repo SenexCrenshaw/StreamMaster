@@ -2,6 +2,7 @@
 
 using Microsoft.EntityFrameworkCore;
 
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Filtering;
 
 using System.Linq.Dynamic.Core;
@@ -17,13 +18,18 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
 {
     internal readonly IRepositoryContext RepositoryContext;
     internal readonly ILogger logger;
+    internal readonly IOptionsMonitor<Setting> intSettings;
 
-    public RepositoryBase(IRepositoryContext RepositoryContext, ILogger logger)
+    public RepositoryBase(IRepositoryContext RepositoryContext, ILogger logger, IOptionsMonitor<Setting> intsettings)
     {
         this.RepositoryContext = RepositoryContext;
         this.logger = logger;
+        intSettings = intsettings;
     }
 
+    public Setting Settings => intSettings.CurrentValue;
+
+    #region Get 
     public virtual IQueryable<T> GetQuery(bool tracking = false)
     {
         return tracking ? RepositoryContext.Set<T>() : RepositoryContext.Set<T>().AsNoTracking();
@@ -47,9 +53,45 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         return FilterHelper<T>.ApplyFiltersAndSort(entities, filters, orderBy);
     }
 
-    public IQueryable<T> GetQuery(Expression<Func<T, bool>> expression, bool tracking = false)
+    public virtual IQueryable<T> GetQuery(Expression<Func<T, bool>> expression, bool tracking = false)
     {
         return GetQuery(tracking).Where(expression);
+    }
+
+    public IQueryable<T> GetQuery(Expression<Func<T, bool>> expression, string orderBy)
+    {
+        if (expression == null)
+        {
+            logger.LogWarning("The filtering expression provided to GetQuery is null.");
+            throw new ArgumentNullException(nameof(expression));
+        }
+
+        if (string.IsNullOrWhiteSpace(orderBy))
+        {
+            logger.LogWarning("The orderBy parameter provided to GetQuery is null or empty.");
+            throw new ArgumentException("Ordering parameter must not be null or empty.", nameof(orderBy));
+        }
+
+        try
+        {
+            IQueryable<T> test = RepositoryContext.Set<T>().Where(expression).AsNoTracking();
+            if (!orderBy.Contains(','))
+            {
+                return test.OrderBy(orderBy);
+            }
+            string[] orderByParts = orderBy.Trim().Split(',');
+            foreach (string orderByPart in orderByParts)
+            {
+                test = test.OrderBy(orderByPart);
+            }
+
+            return test;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Error occurred while trying to fetch and order entities based on condition and order '{orderBy}'.");
+            throw;
+        }
     }
 
     public bool Any(Expression<Func<T, bool>> expression)
@@ -57,6 +99,19 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         return RepositoryContext.Set<T>().Any(expression);
     }
 
+    public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> expression, bool tracking = false, CancellationToken cancellationToken = default)
+    {
+        return await GetQuery(tracking).FirstOrDefaultAsync(expression, cancellationToken);
+    }
+
+    public T? FirstOrDefault(Expression<Func<T, bool>> expression, bool tracking = false)
+    {
+        return FirstOrDefaultAsync(expression, tracking: tracking).Result;
+    }
+
+    #endregion
+
+    #region Util
     public async Task<int> SaveChangesAsync()
     {
 
@@ -90,7 +145,9 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         }
     }
 
+    #endregion
 
+    #region CRUD
     // ... [Other methods, following similar patterns]
 
     /// <summary>
@@ -203,7 +260,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     /// Deletes a group of entities based on a query.
     /// </summary>
     /// <param name="query">The IQueryable to select entities to be deleted.</param>
-    public async Task BulkDeleteAsync(IQueryable<T> query, CancellationToken cancellationToken = default)
+    public async Task BulkDeleteAsync(IQueryable<T> query)
     {
         if (query == null || !query.Any())
         {
@@ -211,7 +268,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
             throw new ArgumentNullException(nameof(query));
         }
 
-        await RepositoryContext.BulkDeleteAsyncEntities(query, cancellationToken: cancellationToken);
+        await RepositoryContext.BulkDeleteAsyncEntities(query);
     }
 
     /// <summary>
@@ -255,45 +312,5 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         RepositoryContext.Set<T>().AddRange(entities);
     }
 
-    /// <summary>
-    /// Retrieves entities that match the provided condition and orders them based on the provided string.
-    /// </summary>
-    /// <param name="expression">The filtering condition.</param>
-    /// <param name="orderBy">The property by which to order the entities.</param>
-    /// <returns>An IQueryable of entities.</returns>
-    public IQueryable<T> GetQuery(Expression<Func<T, bool>> expression, string orderBy)
-    {
-        if (expression == null)
-        {
-            logger.LogWarning("The filtering expression provided to GetQuery is null.");
-            throw new ArgumentNullException(nameof(expression));
-        }
-
-        if (string.IsNullOrWhiteSpace(orderBy))
-        {
-            logger.LogWarning("The orderBy parameter provided to GetQuery is null or empty.");
-            throw new ArgumentException("Ordering parameter must not be null or empty.", nameof(orderBy));
-        }
-
-        try
-        {
-            IQueryable<T> test = RepositoryContext.Set<T>().Where(expression).AsNoTracking();
-            if (!orderBy.Contains(','))
-            {
-                return test.OrderBy(orderBy);
-            }
-            string[] orderByParts = orderBy.Trim().Split(',');
-            foreach (string orderByPart in orderByParts)
-            {
-                test = test.OrderBy(orderByPart);
-            }
-
-            return test;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Error occurred while trying to fetch and order entities based on condition and order '{orderBy}'.");
-            throw;
-        }
-    }
+    #endregion
 }

@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Repository;
 using StreamMaster.Domain.Requests;
 
@@ -28,7 +27,7 @@ public class VController(IRepositoryWrapper Repository, ISender sender, IOptions
     [Route("v/v/{shortId}.ts")]
     public IActionResult GetVideoStreamStream(string shortId)
     {
-        VideoStream? videoStream = Repository.VideoStream.FindByCondition(a => a.ShortId == shortId).FirstOrDefault();
+        VideoStream? videoStream = Repository.VideoStream.FirstOrDefault(a => a.ShortId == shortId);
 
         if (videoStream == null)
         {

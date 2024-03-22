@@ -7,6 +7,6 @@ internal class GetStreamGroupVideoStreamsListRequestHandler(ILogger<GetStreamGro
 {
     public async Task<List<VideoStreamDto>> Handle(GetStreamGroupVideoStreamsListRequest request, CancellationToken cancellationToken)
     {
-        return await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken).ConfigureAwait(false);
+        return await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId).ConfigureAwait(false);
     }
 }

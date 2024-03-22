@@ -4,8 +4,9 @@ using System.Text.RegularExpressions;
 public static class TypeScriptHookGenerator
 {
     private static HashSet<string> additionalImports = [];
-    public static void GenerateFile(string namespaceName, string mainEntityName, List<MethodDetails> methods, string filePath)
+    public static void GenerateFile(string namespaceName, List<MethodDetails> methods, string filePath)
     {
+        string mainEntityName = "";
         StringBuilder content = new();
         additionalImports = [];
 
@@ -79,12 +80,12 @@ public static class TypeScriptHookGenerator
             {
                 int aa = 1;
             }
-            string? toImport = ParameterConverter.IsTSGeneric(method.TsParameters);
+            string? toImport = ParameterConverter2.IsTSGeneric(method.TsParameters);
             if (toImport != null)
             {
                 additionalImports.Add(toImport);
             }
-            toImport = ParameterConverter.IsTSGeneric(method.ReturnType);
+            toImport = ParameterConverter2.IsTSGeneric(method.ReturnType);
             if (toImport != null)
             {
                 additionalImports.Add(toImport);
@@ -143,7 +144,7 @@ public static class TypeScriptHookGenerator
             {
                 int aa = 1;
             }
-            //string tsParams = ParameterConverter.ConvertCSharpParametersToTypeScript(method.Parameters);
+            //string tsParams = ParameterConverter2.ConvertCSharpParametersToTypeScript(method.Parameters);
             //string[] parts = tsParams.Split(':');
             //string parameterName = parts[0].Trim();
 
@@ -179,7 +180,7 @@ public static class TypeScriptHookGenerator
 
     public static (string parameterName, string tsParameterString) GetReal(MethodDetails method)
     {
-        string tsParams = ParameterConverter.ConvertCSharpParametersToTypeScript(method.Parameters);
+        string tsParams = ParameterConverter2.ConvertCSharpParametersToTypeScript(method.Parameters);
         string[] parts = tsParams.Split(':');
         string parameterName = parts[0].Trim();
 

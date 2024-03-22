@@ -20,8 +20,7 @@ public sealed class QueuedHostedService(
     IBackgroundTaskQueue taskQueue,
     IServiceProvider serviceProvider,
     ILogger<QueuedHostedService> logger
-
-        ) : BackgroundService
+) : BackgroundService
 {
     public override async Task StopAsync(CancellationToken stoppingToken)
     {
@@ -48,6 +47,7 @@ public sealed class QueuedHostedService(
                 using IServiceScope scope = serviceProvider.CreateScope();
 
                 ISender _sender = scope.ServiceProvider.GetRequiredService<ISender>();
+
 
                 await taskQueue.SetStart(command.Id).ConfigureAwait(false);
 
@@ -88,7 +88,10 @@ public sealed class QueuedHostedService(
 
                         if (command.Entity is not null && command.Entity.GetType() == typeof(ProcessM3UFileRequest))
                         {
-                            _ = await _sender.Send(command.Entity as ProcessM3UFileRequest, cancellationToken).ConfigureAwait(false);
+                            //ProcessM3UFileRequest? p = command.Entity as ProcessM3UFileRequest;
+                            ProcessM3UFile toSend = new((command.Entity as ProcessM3UFileRequest).Id, true);
+
+                            _ = await _sender.Send(toSend, cancellationToken).ConfigureAwait(false);
                         }
                         break;
 

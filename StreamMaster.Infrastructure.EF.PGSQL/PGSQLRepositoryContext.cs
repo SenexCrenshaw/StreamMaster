@@ -20,12 +20,12 @@ public partial class PGSQLRepositoryContext(DbContextOptions<PGSQLRepositoryCont
 
         //if (currentMigration == "20240229201207_ConvertToSMChannels")
         //{
-            if (!SystemKeyValues.Any(a => a.Key == "MigrateData_20240229201207_ConvertToSMChannels"))
-            {
-                MigrateData_20240229201207_ConvertToSMChannels();
-                SystemKeyValues.Add(new SystemKeyValue { Key = "MigrateData_20240229201207_ConvertToSMChannels", Value = "1" });
-                await SaveChangesAsync().ConfigureAwait(false);
-            }
+        //if (!SystemKeyValues.Any(a => a.Key == "MigrateData_20240229201207_ConvertToSMChannels"))
+        //{
+        //    MigrateData_20240229201207_ConvertToSMChannels();
+        //    SystemKeyValues.Add(new SystemKeyValue { Key = "MigrateData_20240229201207_ConvertToSMChannels", Value = "1" });
+        //    await SaveChangesAsync().ConfigureAwait(false);
+        //}
 
         //}
     }
@@ -68,7 +68,7 @@ public partial class PGSQLRepositoryContext(DbContextOptions<PGSQLRepositoryCont
                 IsUserCreated = videoStream.IsUserCreated,
                 M3UFileId = videoStream.M3UFileId,
                 M3UFileName = videoStream.M3UFileName,
-                Tvg_chno = videoStream.Tvg_chno,
+                ChannelNumber = videoStream.Tvg_chno,
                 ShortId = videoStream.ShortId,
                 StationId = videoStream.StationId,
                 Group = videoStream.Tvg_group,

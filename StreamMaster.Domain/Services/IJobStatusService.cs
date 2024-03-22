@@ -1,9 +1,8 @@
-﻿using StreamMaster.Domain.Models;
-
-namespace StreamMaster.Domain.Services
+﻿namespace StreamMaster.Domain.Services
 {
     public interface IJobStatusService
     {
+        JobStatusManager GetJobManagerProcessM3U(int id);
         DateTime LastRun(string key);
         DateTime LastSuccessful(string key);
         JobStatusManager GetJobManager(JobType jobType, int id);

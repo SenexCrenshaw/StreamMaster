@@ -2,11 +2,11 @@
 
 public static class TypeScriptCommandGenerator
 {
-    public static void GenerateFile(string namespaceName, string mainEntityName, List<MethodDetails> methods, string filePath)
+    public static void GenerateFile(List<MethodDetails> methods, string filePath)
     {
         StringBuilder imports = new();
         StringBuilder tsCommands = new();
-
+        string mainEntityName = "mainEntityName";
 
         imports.AppendLine("import { invokeHubCommand } from '@lib/signalr/signalr';");
         imports.AppendLine();
@@ -16,6 +16,7 @@ public static class TypeScriptCommandGenerator
             // Distinguish between return types to apply specific logic
             if (method.Name.StartsWith("GetPaged"))
             {
+
                 method.ReturnType = method.ReturnType.Replace("APIResponse", "PagedResponse");
                 tsCommands.AppendLine($"export const {method.Name} = async (parameters: QueryStringParameters): Promise<{method.ReturnType} | undefined> => {{");
                 tsCommands.AppendLine($"  return await invokeHubCommand<APIResponse<{mainEntityName}>>('{method.Name}', parameters)");
@@ -41,13 +42,13 @@ public static class TypeScriptCommandGenerator
                 {
                     method.TsParameters = "Parameters: QueryStringParameters";
                 }
-                string? toImport = ParameterConverter.IsTSGeneric(method.TsParameters);
+                string? toImport = ParameterConverter2.IsTSGeneric(method.TsParameters);
                 if (toImport != null)
                 {
                     additionalImports.Add(toImport);
                 }
 
-                toImport = ParameterConverter.IsTSGeneric(method.ReturnType);
+                toImport = ParameterConverter2.IsTSGeneric(method.ReturnType);
                 if (toImport != null)
                 {
                     additionalImports.Add(toImport);

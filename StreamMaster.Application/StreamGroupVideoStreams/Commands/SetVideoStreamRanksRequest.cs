@@ -26,7 +26,7 @@ public class SetVideoStreamRanksRequestHandler(ILogger<SetVideoStreamRanksReques
             return;
         }
 
-        await Repository.StreamGroupVideoStream.SetVideoStreamRanks(request.StreamGroupId, request.VideoStreamIDRanks, cancellationToken).ConfigureAwait(false);
+        await Repository.StreamGroupVideoStream.SetVideoStreamRanks(request.StreamGroupId, request.VideoStreamIDRanks).ConfigureAwait(false);
 
     }
 }

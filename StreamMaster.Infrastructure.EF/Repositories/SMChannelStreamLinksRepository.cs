@@ -1,13 +1,12 @@
 ﻿using AutoMapper;
 
-using Microsoft.EntityFrameworkCore;
-
 using StreamMaster.Domain.API;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksRepository> intLogger, IRepositoryContext repositoryContext, IMapper mapper)
-    : RepositoryBase<SMChannelStreamLink>(repositoryContext, intLogger), ISMChannelStreamLinksRepository
+public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksRepository> intLogger, IRepositoryContext repositoryContext, IOptionsMonitor<Setting> intSettings, IMapper mapper)
+    : RepositoryBase<SMChannelStreamLink>(repositoryContext, intLogger, intSettings), ISMChannelStreamLinksRepository
 {
     public List<SMChannelStreamLink> GetSMChannelStreamLinks()
     {
@@ -84,7 +83,7 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
     {
         foreach (SMChannelRankRequest r in request)
         {
-            SMChannelStreamLink? streamRank = await GetQuery(true).FirstOrDefaultAsync(a => a.SMChannelId == r.SMChannelId && a.SMStreamId == r.SMStreamId);
+            SMChannelStreamLink? streamRank = await FirstOrDefaultAsync(a => a.SMChannelId == r.SMChannelId && a.SMStreamId == r.SMStreamId, tracking: true);
             if (streamRank == null)
             {
                 continue;

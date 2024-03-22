@@ -21,12 +21,12 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
 {
     public async Task<int?> Handle(DeleteM3UFileRequest request, CancellationToken cancellationToken = default)
     {
-        M3UFile? m3UFile = await Repository.M3UFile.GetM3UFileById(request.Id).ConfigureAwait(false);
+        M3UFile? m3UFile = await Repository.M3UFile.GetM3UFile(request.Id).ConfigureAwait(false);
         if (m3UFile == null)
         {
             return null;
         }
-        _ = await Repository.M3UFile.DeleteM3UFile(m3UFile.Id);
+        await Repository.M3UFile.DeleteM3UFile(m3UFile.Id);
 
 
         if (request.DeleteFile)

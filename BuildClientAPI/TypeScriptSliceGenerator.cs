@@ -2,8 +2,9 @@
 
 public static class TypeScriptSliceGenerator
 {
-    public static void GenerateFile(string namespaceName, string mainEntityName, List<MethodDetails> methods, string filePath)
+    public static void GenerateFile(string namespaceName, List<MethodDetails> methods, string filePath)
     {
+        string mainEntityName = "";
         foreach (MethodDetails method in methods)
         {
             StringBuilder content = new();
@@ -46,10 +47,10 @@ public static class TypeScriptSliceGenerator
 
     private static void AddImports(StringBuilder content, string mainEntityName, MethodDetails method, string namespaceName)
     {
-        //string[] imports = methods.Select(a => ParameterConverter.ExtractInnermostType(a.ReturnType)).ToArray();
+        //string[] imports = methods.Select(a => ParameterConverter2.ExtractInnermostType(a.ReturnType)).ToArray();
 
         //string importsString = string.Join(",", imports);
-        //string import = ParameterConverter.ExtractInnermostType(method.ReturnType);
+        //string import = ParameterConverter2.ExtractInnermostType(method.ReturnType);
 
         content.AppendLine("import { PayloadAction, createSlice } from '@reduxjs/toolkit';");
         content.AppendLine($"import {{FieldData,PagedResponse, removeKeyFromData, {mainEntityName} }} from '@lib/apiDefs';");

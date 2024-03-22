@@ -23,9 +23,9 @@ using System.Linq.Dynamic.Core;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IIconService iconService, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intsettings, ISender sender) : RepositoryBase<VideoStream>(repositoryContext, intLogger), IVideoStreamRepository
+public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IIconService iconService, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, ISender sender)
+    : RepositoryBase<VideoStream>(repositoryContext, intLogger, intSettings), IVideoStreamRepository
 {
-    private readonly Setting settings = intsettings.CurrentValue;
 
     public PagedResponse<VideoStreamDto> CreateEmptyPagedResponse()
     {
@@ -149,7 +149,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
         }
 
         VideoStream? videoStream = await
-            FindByConditionTracked(a => a.Id == VideoStreamId)
+            GetQuery(a => a.Id == VideoStreamId, true)
             .Include(a => a.ChildVideoStreams)
             .ThenInclude(a => a.ChildVideoStream)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -436,7 +436,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
         {
             //string? test = _memoryCache.GetEPGChannelNameByDisplayName(request.EPGId);
             videoStream.User_Tvg_ID = request.Tvg_ID;
-            if (settings.VideoStreamAlwaysUseEPGLogo && videoStream.User_Tvg_ID != null)
+            if (Settings.VideoStreamAlwaysUseEPGLogo && videoStream.User_Tvg_ID != null)
             {
                 epglogo = await SetVideoStreamLogoFromEPG(videoStream, cancellationToken).ConfigureAwait(false);
             }
@@ -595,7 +595,6 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
         VideoStream? ret = await GetQuery(c => c.Id == VideoStreamId)
                             .Include(a => a.ChildVideoStreams)
                             .ThenInclude(a => a.ChildVideoStream)
-                             .AsNoTracking()
                              .FirstOrDefaultAsync()
                              .ConfigureAwait(false);
 
@@ -619,7 +618,6 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
     public async Task<VideoStreamDto?> GetVideoStreamsById(string Id)
     {
         VideoStream? ret = await GetQuery(c => c.Id == Id)
-                            .AsNoTracking()
                             .FirstOrDefaultAsync()
                             .ConfigureAwait(false);
 
@@ -896,12 +894,11 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
     public async Task<(VideoStreamDto? videoStream, ChannelGroupDto? updatedChannelGroup)> UpdateVideoStreamAsync(UpdateVideoStreamRequest request, CancellationToken cancellationToken)
     {
-        VideoStream? videoStream = await GetQuery(a => a.Id == request.Id).FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        VideoStream? videoStream = await FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
         if (videoStream == null)
         {
             return (null, null);
         }
-
 
         string UpdateSGCG = string.Empty;
         if (request.Tvg_group != null && videoStream.User_Tvg_group != request.Tvg_group)
@@ -1045,7 +1042,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
                 videoStream.User_Tvg_ID = scoredMatches[0].Channel.Channel;
                 UpdateVideoStream(videoStream);
 
-                if (settings.VideoStreamAlwaysUseEPGLogo)
+                if (Settings.VideoStreamAlwaysUseEPGLogo)
                 {
                     await SetVideoStreamLogoFromEPG(videoStream, token).ConfigureAwait(false);
                 }

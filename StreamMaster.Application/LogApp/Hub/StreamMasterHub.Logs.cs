@@ -9,6 +9,6 @@ public partial class StreamMasterHub : ILogHub
 {
     public async Task<IEnumerable<LogEntryDto>> GetLog(GetLogRequest request)
     {
-        return await mediator.Send(request).ConfigureAwait(false);
+        return await Sender.Send(request).ConfigureAwait(false);
     }
 }

@@ -4,18 +4,19 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Domain.API;
+using StreamMaster.Domain.Configuration;
+
+using System.Linq.Expressions;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IIconService iconService)
-    : RepositoryBase<SMChannel>(repositoryContext, intLogger), ISMChannelsRepository
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IIconService iconService)
+    : RepositoryBase<SMChannel>(repositoryContext, intLogger, intSettings), ISMChannelsRepository
 {
     public List<SMChannelDto> GetSMChannels()
     {
         return [.. GetQuery().Include(a => a.SMStreams).ThenInclude(a => a.SMStream).ProjectTo<SMChannelDto>(mapper.ConfigurationProvider)];
     }
-
-
 
     public PagedResponse<SMChannelDto>? CreateEmptyPagedResponse()
     {
@@ -40,7 +41,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         try
         {
 
-            SMChannel? channel = GetQuery(true).FirstOrDefault(a => a.Id == smchannelId);
+            SMChannel? channel = FirstOrDefault(a => a.Id == smchannelId, tracking: true);
             if (channel == null)
             {
                 return;
@@ -65,7 +66,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
     public SMChannel? GetSMChannel(int smchannelId)
     {
-        return GetQuery(true).FirstOrDefault(a => a.Id == smchannelId);
+        return FirstOrDefault(a => a.Id == smchannelId, tracking: true);
     }
 
     public async Task<DefaultAPIResponse> CreateSMChannelFromStream(string streamId)
@@ -78,7 +79,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
         SMChannel smChannel = new()
         {
-            ChannelNumber = smStream.Tvg_chno,
+            ChannelNumber = smStream.ChannelNumber,
             Group = smStream.Group,
             Name = smStream.Name,
             Logo = smStream.Logo,
@@ -161,9 +162,9 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
     }
 
-    public async Task<string?> SetSMChannelLogo(SMChannelLogoRequest request)
+    public async Task<string?> SetSMChannelLogo(int SMChannelId, string logo)
     {
-        SMChannel? channel = GetSMChannel(request.SMChannelId);
+        SMChannel? channel = GetSMChannel(SMChannelId);
         if (channel == null)
         {
             return null;
@@ -184,16 +185,21 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         //    Update(channel);
         //    await SaveChangesAsync();
         //}
-        channel.Logo = request.logo;
+        channel.Logo = logo;
         Update(channel);
         await SaveChangesAsync();
 
-        return request.logo;
+        return logo;
     }
 
     public override IQueryable<SMChannel> GetQuery(bool tracking = false)
     {
-        return GetQuery(tracking).Include(a => a.SMStreams).ThenInclude(a => a.SMStream); ;
+        return base.GetQuery(tracking).Include(a => a.SMStreams).ThenInclude(a => a.SMStream);
+    }
+
+    public override IQueryable<SMChannel> GetQuery(Expression<Func<SMChannel, bool>> expression, bool tracking = false)
+    {
+        return base.GetQuery(expression, tracking).Include(a => a.SMStreams).ThenInclude(a => a.SMStream);
     }
 
 }

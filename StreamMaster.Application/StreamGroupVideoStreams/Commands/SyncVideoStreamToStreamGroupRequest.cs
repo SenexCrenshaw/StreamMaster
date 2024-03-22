@@ -26,7 +26,7 @@ public class SyncVideoStreamToStreamGroupRequestHandler(ILogger<SyncVideoStreamT
             return;
         }
 
-        StreamGroupDto? ret = await Repository.StreamGroupVideoStream.SyncVideoStreamToStreamGroup(request.StreamGroupId, request.VideoStreamId, cancellationToken).ConfigureAwait(false);
+        StreamGroupDto? ret = await Repository.StreamGroupVideoStream.SyncVideoStreamToStreamGroup(request.StreamGroupId, request.VideoStreamId).ConfigureAwait(false);
         if (ret != null)
         {
             StreamGroupDto? dto = await Repository.StreamGroup.GetStreamGroupById(ret.Id).ConfigureAwait(false);

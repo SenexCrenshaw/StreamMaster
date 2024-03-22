@@ -67,7 +67,7 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
             return new NotFoundResult();
         }
 
-        List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams((int)streamGroupId, cancellationToken);
+        List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams((int)streamGroupId);
 
         if (videoStreams.Count == 0)
         {

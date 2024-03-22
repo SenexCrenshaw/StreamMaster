@@ -8,13 +8,13 @@ public partial class StreamMasterHub : IStatisticsub
 
     public async Task<List<InputStreamingStatistics>> GetInputStatistics()
     {
-        List<InputStreamingStatistics> res = await mediator.Send(new GetInputStatistics()).ConfigureAwait(false);
+        List<InputStreamingStatistics> res = await Sender.Send(new GetInputStatistics()).ConfigureAwait(false);
         return res;
     }
 
     public async Task<List<ClientStreamingStatistics>> GetClientStatistics()
     {
-        List<ClientStreamingStatistics> res = await mediator.Send(new GetClientStreamingStatistics()).ConfigureAwait(false);
+        List<ClientStreamingStatistics> res = await Sender.Send(new GetClientStreamingStatistics()).ConfigureAwait(false);
         return res;
     }
 }

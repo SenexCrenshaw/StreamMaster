@@ -2,9 +2,12 @@
 using AutoMapper.QueryableExtensions;
 
 using Microsoft.EntityFrameworkCore;
+
+using StreamMaster.Domain.Configuration;
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IRepositoryContext repositoryContext, IMapper mapper) : RepositoryBase<SMStream>(repositoryContext, intLogger),
+public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IRepositoryContext repositoryContext, IOptionsMonitor<Setting> intSettings, IMapper mapper)
+    : RepositoryBase<SMStream>(repositoryContext, intLogger, intSettings),
     ISMStreamRepository
 {
     public List<SMStreamDto> GetSMStreams()
@@ -70,16 +73,8 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
         }
         catch (Exception)
         {
-            // You can decide how to handle exceptions here, for example by
-            // logging them. In this case, we're simply swallowing the exception.
+
         }
-
-        //foreach (string cgName in cgNames)
-        //{
-        //    ChannelGroup? cg = await RepositoryContext.ChannelGroups.FirstOrDefaultAsync(a => a.Name == cgName, cancellationToken: cancellationToken).ConfigureAwait(false);
-        //    await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(cg.Id), cancellationToken).ConfigureAwait(false);
-        //}
-
 
         return videoStreamIds;
     }
@@ -91,7 +86,7 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
             throw new ArgumentNullException(nameof(id));
         }
 
-        SMStream? stream = await GetQuery(a => a.Id == id).FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        SMStream? stream = await FirstOrDefaultAsync(a => a.Id == id, cancellationToken: cancellationToken).ConfigureAwait(false);
         if (stream == null)
         {
             return null;
@@ -109,19 +104,20 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
             throw new ArgumentNullException(nameof(id));
         }
 
-        SMStream? stream = await FindByConditionTracked(a => a.Id == id).FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        SMStream? stream = await FirstOrDefaultAsync(a => a.Id == id, cancellationToken: cancellationToken).ConfigureAwait(false);
         if (stream == null)
         {
             return null;
         }
         stream.IsHidden = !stream.IsHidden;
+        Update(stream);
         await SaveChangesAsync();
         return mapper.Map<SMStreamDto>(stream);
     }
 
     public SMStreamDto? GetSMStream(string streamId)
     {
-        SMStream? channel = GetQuery().FirstOrDefault(a => a.Id == streamId);
+        SMStream? channel = FirstOrDefault(a => a.Id == streamId);
         return channel == null ? null : mapper.Map<SMStreamDto>(channel);
     }
 }

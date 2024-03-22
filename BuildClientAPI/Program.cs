@@ -1,4 +1,6 @@
-﻿using StreamMaster.Domain.Attributes;
+﻿using MediatR;
+
+using StreamMaster.Domain.Attributes;
 
 using System.Reflection;
 
@@ -23,86 +25,91 @@ namespace BuildClientAPI
             {
                 Assembly assembly = Assembly.Load(AssemblyName);
                 Dictionary<string, List<MethodDetails>> methodsByNamespace = [];
+                List<Type> smapiAttributedTypes = assembly.GetTypes()
+            .Where(t => t.GetCustomAttributes(typeof(SMAPIAttribute), false).Any())
+            .ToList();
 
-                foreach (Type type in assembly.GetTypes())
+                foreach (Type recordType in smapiAttributedTypes)
                 {
-                    foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
+
+                    string classNamespace = GetNameSpaceParent(recordType);
+                    if (!methodsByNamespace.TryGetValue(classNamespace, out List<MethodDetails> methodDetailsList))
                     {
-                        SMAPIAttribute? smapiAttribute = method.GetCustomAttribute<SMAPIAttribute>();
-                        if (smapiAttribute != null)
-                        {
+                        methodDetailsList = [];
+                        methodsByNamespace[classNamespace] = methodDetailsList;
 
-                            string classNamespace = GetNameSpaceParent(type);
-                            if (!methodsByNamespace.TryGetValue(classNamespace, out List<MethodDetails> methodDetailsList))
-                            {
-                                methodDetailsList = [];
-                                methodsByNamespace[classNamespace] = methodDetailsList;
-
-                            }
-
-                            if (method.Name == "DeleteSMChannels")
-                            {
-                                string returntype = GetCleanReturnType(method);
-                                string Parameters = ParameterConverter.ParamsToCSharp(method);
-                                string TsParameters = ParameterConverter.CSharpParamToTS(method); ;
-                            }
-
-                            string ps = ParameterConverter.ParamsToCSharp(method);
-                            string tsps = ParameterConverter.CSharpParamToTS(method); ;
-
-                            MethodDetails methodDetails = new()
-                            {
-                                Name = method.Name,
-                                ReturnType = GetCleanReturnType(method),
-                                //Parameters = string.Join(", ", method.GetParameters().Select(p => $"{TypeStandardizer.GetStandardType(p.ParameterType.Name)} {p.Name}")),
-                                Parameters = ps,
-                                ParameterNames = string.Join(", ", method.GetParameters().Select(p => p.Name)),
-                                IncludeInHub = true,
-                                // Convert and assign TypeScript parameters
-                                TsParameters = tsps,
-                                // For TypeScript parameter types, we can reuse the conversion logic but format it differently if needed
-                                TsParameterTypes = string.Join(", ", method.GetParameters().Select(p => ParameterConverter.MapCSharpTypeToTypeScript(ParameterConverter.GetTypeFullNameForParameter(p.ParameterType))))
-                            };
-
-                            if (method.Name == "AddSMStreamToSMChannel")
-                            {
-                                List<ParameterInfo> test = method.GetParameters().ToList();
-                                List<string> aa = method.GetParameters().Select(p => $"{p.ParameterType.Name}").ToList();
-                            }
-
-                            methodDetailsList.Add(methodDetails);
-
-                        }
                     }
+
+                    if (recordType.Name == "DeleteSMChannels")
+                    {
+                        string returntype = GetCleanReturnType(recordType);
+                        string Parameters = ParameterConverter.ParamsToCSharp(recordType);
+                        string TsParameters = ParameterConverter.CSharpParamToTS(recordType); ;
+                    }
+
+                    string ps = ParameterConverter.ParamsToCSharp(recordType);
+                    string tsps = ParameterConverter.CSharpParamToTS(recordType); ;
+
+                    ConstructorInfo[] constructors = recordType.GetConstructors();
+                    ParameterInfo[] parameters = constructors[0].GetParameters();
+
+                    Type? iRequestInterface = recordType.GetInterfaces()
+                                                .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IRequest<>));
+
+                    if (iRequestInterface == null)
+                    {
+                        continue;
+                    }
+
+                    Type returnType = iRequestInterface.GenericTypeArguments[0];
+
+                    MethodDetails methodDetails = new()
+                    {
+                        Name = recordType.Name,
+                        ReturnType = GetCleanReturnType(returnType),
+                        Parameters = ps,
+                        ParameterNames = string.Join(", ", parameters.Select(p => p.Name)),
+                        IncludeInHub = true,
+                        TsParameters = tsps,
+                        TsParameterTypes = string.Join(", ", parameters.Select(p => ParameterConverter2.MapCSharpTypeToTypeScript(ParameterConverter2.GetTypeFullNameForParameter(p.ParameterType))))
+                    };
+
+                    if (recordType.Name == "AddSMStreamToSMChannel")
+                    {
+                        List<ParameterInfo> test = parameters.ToList();
+                        List<string> aa = parameters.Select(p => $"{p.ParameterType.Name}").ToList();
+                    }
+
+                    methodDetailsList.Add(methodDetails);
+
                 }
 
                 foreach (KeyValuePair<string, List<MethodDetails>> kvp in methodsByNamespace)
                 {
-                    string namespaceName = kvp.Key;
-                    List<MethodDetails> methods = kvp.Value;
-                    List<MethodDetails> pagedMethods = methods.Where(a => a.Name.StartsWith("GetPaged")).ToList();
-                    string entityName = ParameterConverter.ExtractInnermostType(pagedMethods.First().ReturnType);
-
                     if (writeFiles)
                     {
-                        string fileName = Path.Combine(CSharpFileNamePrefix, namespaceName, "Commands.cs");
+                        string namespaceName = kvp.Key;
+                        List<MethodDetails> methods = kvp.Value;
+                        List<MethodDetails> pagedMethods = methods.Where(a => a.Name.StartsWith("GetPaged")).ToList();
+                        //string entityName = ParameterConverter2.ExtractInnermostType(pagedMethods.First().ReturnType);
+
+                        string fileName = Path.Combine(CSharpFileNamePrefix, namespaceName, "ControllerAndHub.cs");
                         CSharpGenerator.GenerateFile(namespaceName, methods, fileName);
 
                         string tsCommandFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Commands.ts");
-                        TypeScriptCommandGenerator.GenerateFile(namespaceName, entityName, methods, tsCommandFilePath);
+                        TypeScriptCommandGenerator.GenerateFile(methods, tsCommandFilePath);
 
                         string tsFetchFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Fetch.ts");
                         TypeScriptFetchGenerator.GenerateFile(namespaceName, methods, tsFetchFilePath);
 
-
                         if (pagedMethods.Count > 0)
                         {
                             string tsSliceFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Slice.ts");
-                            TypeScriptSliceGenerator.GenerateFile(namespaceName, entityName, pagedMethods, tsSliceFilePath);
+                            TypeScriptSliceGenerator.GenerateFile(namespaceName, pagedMethods, tsSliceFilePath);
 
 
                             string tsHookFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"use{namespaceName}.ts");
-                            TypeScriptHookGenerator.GenerateFile(namespaceName, entityName, methods, tsHookFilePath);
+                            TypeScriptHookGenerator.GenerateFile(namespaceName, methods, tsHookFilePath);
 
                         }
                     }
@@ -130,10 +137,8 @@ namespace BuildClientAPI
 
         }
 
-        private static string GetCleanReturnType(MethodInfo method)
+        private static string GetCleanReturnType(Type returnType)
         {
-            Type returnType = method.ReturnType;
-
             if (typeof(Task).IsAssignableFrom(returnType))
             {
                 if (returnType.IsGenericType)

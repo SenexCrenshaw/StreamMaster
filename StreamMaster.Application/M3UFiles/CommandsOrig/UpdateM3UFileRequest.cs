@@ -19,7 +19,7 @@ public class UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, I
         try
         {
 
-            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileById(request.Id).ConfigureAwait(false);
+            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFile(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
             {
                 return null;
