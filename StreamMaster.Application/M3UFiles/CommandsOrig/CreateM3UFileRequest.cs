@@ -2,7 +2,7 @@
 
 using System.Web;
 
-namespace StreamMaster.Application.M3UFiles.Commands;
+namespace StreamMaster.Application.M3UFiles.CommandsOrig;
 
 public record CreateM3UFileRequest(string? Description, int MaxStreamCount, bool? OverWriteChannels, int? StartingChannelNumber, IFormFile? FormFile, string Name, string? UrlSource, List<string>? VODTags) : IRequest<bool> { }
 

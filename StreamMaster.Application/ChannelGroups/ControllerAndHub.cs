@@ -3,14 +3,14 @@ using StreamMaster.Application.ChannelGroups.Commands;
 
 namespace StreamMaster.Application.ChannelGroups
 {
-    public partial class ChannelGroupsController(ISender Sender) : ApiControllerBase
+    public partial class ChannelGroupsController(ISender Sender) : ApiControllerBase, IChannelGroupsController
     {        
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<ActionResult<ChannelGroupDto>> CreateChannelGroupRequest(CreateChannelGroupRequest request)
+        public async Task<ActionResult<DefaultAPIResponse?>> CreateChannelGroup(CreateChannelGroupRequest request)
         {
-            ChannelGroupDto? ret = await Sender.Send(request).ConfigureAwait(false);
+            DefaultAPIResponse? ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound() : Ok(ret);
         }
 
@@ -19,11 +19,11 @@ namespace StreamMaster.Application.ChannelGroups
 
 namespace StreamMaster.Application.Hubs
 {
-    public partial class StreamMasterHub 
+    public partial class StreamMasterHub : IChannelGroupsHub
     {
-        public async Task<ChannelGroupDto?> CreateChannelGroupRequest(CreateChannelGroupRequest request)
+        public async Task<DefaultAPIResponse?> CreateChannelGroup(CreateChannelGroupRequest request)
         {
-            ChannelGroupDto? ret = await Sender.Send(request).ConfigureAwait(false);
+            DefaultAPIResponse? ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 

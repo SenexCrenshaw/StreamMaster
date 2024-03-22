@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.M3UFiles.Commands;
+﻿using StreamMaster.Application.M3UFiles.Commands;
+
+namespace StreamMaster.Application.M3UFiles.CommandsOrig;
 
 public record ProcessM3UFilesRequest : IRequest { }
 

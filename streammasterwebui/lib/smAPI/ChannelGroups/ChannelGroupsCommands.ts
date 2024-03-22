@@ -1,7 +1,8 @@
-import {APIResponse, PagedResponse, ChannelGroupDto, mainEntityName } from '@lib/apiDefs';
+import {DefaultAPIResponse} from '@lib/apiDefs';
 import { invokeHubCommand } from '@lib/signalr/signalr';
 
-export const CreateChannelGroupRequest = async (GroupName: string, IsReadOnly: boolean): Promise<any | null> => {
-  return await invokeHubCommand<ChannelGroupDto>('CreateChannelGroupRequest', GroupName, IsReadOnly);
+import { CreateChannelGroupRequest } from './ChannelGroupsTypes';
+export const CreateChannelGroup = async (request: CreateChannelGroupRequest): Promise<DefaultAPIResponse | null> => {
+  return await invokeHubCommand<DefaultAPIResponse>('CreateChannelGroup', request);
 };
 

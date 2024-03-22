@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 
 /// <summary>
@@ -6,6 +7,8 @@ using System.Text.RegularExpressions;
 /// </summary>
 public static class ParameterConverter
 {
+
+
     /// <summary>
     /// Converts a C# parameters string to a TypeScript parameters string.
     /// </summary>
@@ -31,7 +34,6 @@ public static class ParameterConverter
 
     public static string ParamsToCSharp(Type recordType)
     {
-        // string.Join(", ", method.GetParameters().Select(p => $"{ParameterConverter2.CleanupTypeName(ParameterConverter2.GetTypeFullNameForParameter(p.ParameterType))} {p.Name}"));
         List<string> stringBuilder = [];
         ConstructorInfo[] constructors = recordType.GetConstructors();
 
@@ -52,7 +54,6 @@ public static class ParameterConverter
 
     public static string CSharpParamToTS(Type recordType)
     {
-
         List<string> stringBuilder = [];
         ConstructorInfo[] constructors = recordType.GetConstructors();
 
@@ -71,6 +72,63 @@ public static class ParameterConverter
         string ret = string.Join(", ", stringBuilder);
 
         return ret;
+    }
+    public static string CSharpPropsToTSInterface(string typeName, Assembly assembly)
+    {
+
+        // Attempt to find the type by name
+        Type? type = assembly.GetType(typeName, throwOnError: false);
+        if (type == null)
+        {
+            Console.WriteLine($"Type {typeName} not found in the specified assembly.");
+            return null;
+        }
+
+        StringBuilder sb = new();
+        //PropertyInfo[] properties = recordType.GetProperties();
+        //sb.AppendLine($"export interface {recordType.Name} {{");
+
+        //foreach (PropertyInfo p in properties)
+        //{
+        //    if (p.Name.Contains("Paged"))
+        //    {
+        //        int aa = 1;
+        //    }
+        //    string? name = p.Name;
+        //    Type pType = p.PropertyType;
+        //    string tsTypeFullName = GetTypeFullNameForParameter(pType);
+        //    string tt = MapCSharpTypeToTypeScript(tsTypeFullName);
+        //    string tsType = GetLastPartOfTypeName(tt);
+        //    tsType = FixUpTSType(tsType);
+        //    sb.AppendLine($"  {name.ToCamelCase()}: {tsType};");
+
+        //}
+        //sb.AppendLine("}");
+
+        return sb.ToString();
+    }
+
+    public static string CSharpPropsToTSInterface(Type recordType)
+    {
+
+        StringBuilder sb = new();
+        PropertyInfo[] properties = recordType.GetProperties();
+        sb.AppendLine($"export interface {recordType.Name} {{");
+
+        foreach (PropertyInfo p in properties)
+        {
+            string? name = p.Name;
+            Type pType = p.PropertyType;
+            string tsTypeFullName = GetTypeFullNameForParameter(pType);
+            string tt = MapCSharpTypeToTypeScript(tsTypeFullName);
+            string tsType = GetLastPartOfTypeName(tt);
+            tsType = FixUpTSType(tsType);
+            sb.AppendLine($"  {name.ToCamelCase()}: {tsType};");
+
+        }
+        sb.AppendLine("}");
+
+        return sb.ToString();
     }
 
     public static string FixUpTSType(string tsType)
@@ -120,6 +178,13 @@ public static class ParameterConverter
 
     public static string MapCSharpTypeToTypeScript(string csharpType)
     {
+        if (csharpType.StartsWith("System.Nullable<"))
+        {
+            string innerType = ExtractInnermostType(csharpType);
+            string tsInnerType = MapCSharpTypeToTypeScript(innerType);
+            return $"{tsInnerType} | undefined";
+        }
+
         // Handle basic types directly
         switch (csharpType)
         {
@@ -137,6 +202,8 @@ public static class ParameterConverter
             string tsInnerType = MapCSharpTypeToTypeScript(innerType); // Recursively convert the inner type
             return $"{tsInnerType}[]";
         }
+
+
 
         // Default fallback for unmapped types
         return csharpType;

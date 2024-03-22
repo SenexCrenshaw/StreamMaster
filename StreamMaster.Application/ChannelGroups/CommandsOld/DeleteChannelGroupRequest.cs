@@ -2,7 +2,7 @@
 
 using StreamMaster.Application.ChannelGroups.Events;
 
-namespace StreamMaster.Application.ChannelGroups.Commands;
+namespace StreamMaster.Application.ChannelGroups.CommandsOld;
 
 [RequireAll]
 public record DeleteChannelGroupRequest(int channelGroupId) : IRequest<bool>

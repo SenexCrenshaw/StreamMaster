@@ -1,28 +1,29 @@
-import {APIResponse, PagedResponse, DefaultAPIResponse,QueryStringParameters,SMChannelRankRequest, mainEntityName } from '@lib/apiDefs';
+import {DefaultAPIResponse,QueryStringParameters,SMChannelDto,APIResponse,PagedResponse} from '@lib/apiDefs';
 import { invokeHubCommand } from '@lib/signalr/signalr';
 
-export const AddSMStreamToSMChannel = async (SMChannelId: number, SMStreamId: string): Promise<DefaultAPIResponse | null> => {
-  return await invokeHubCommand<DefaultAPIResponse>('AddSMStreamToSMChannel', SMChannelId, SMStreamId);
+import { AddSMStreamToSMChannelRequest,CreateSMChannelFromStreamRequest,DeleteSMChannelRequest,DeleteSMChannelsFromParametersRequest,DeleteSMChannelsRequest,RemoveSMStreamFromSMChannelRequest,SetSMChannelLogoRequest,SetSMStreamRanksRequest } from './SMChannelsTypes';
+export const AddSMStreamToSMChannel = async (request: AddSMStreamToSMChannelRequest): Promise<DefaultAPIResponse | null> => {
+  return await invokeHubCommand<DefaultAPIResponse>('AddSMStreamToSMChannel', request);
 };
 
-export const CreateSMChannelFromStream = async (streamId: string): Promise<DefaultAPIResponse | null> => {
-  return await invokeHubCommand<DefaultAPIResponse>('CreateSMChannelFromStream', streamId);
+export const CreateSMChannelFromStream = async (request: CreateSMChannelFromStreamRequest): Promise<DefaultAPIResponse | null> => {
+  return await invokeHubCommand<DefaultAPIResponse>('CreateSMChannelFromStream', request);
 };
 
-export const DeleteAllSMChannelsFromParameters = async (Parameters: QueryStringParameters): Promise<DefaultAPIResponse | null> => {
-  return await invokeHubCommand<DefaultAPIResponse>('DeleteAllSMChannelsFromParameters', Parameters);
+export const DeleteSMChannel = async (request: DeleteSMChannelRequest): Promise<DefaultAPIResponse | null> => {
+  return await invokeHubCommand<DefaultAPIResponse>('DeleteSMChannel', request);
 };
 
-export const DeleteSMChannel = async (smChannelId: number): Promise<DefaultAPIResponse | null> => {
-  return await invokeHubCommand<DefaultAPIResponse>('DeleteSMChannel', smChannelId);
+export const DeleteSMChannelsFromParameters = async (request: DeleteSMChannelsFromParametersRequest): Promise<DefaultAPIResponse | null> => {
+  return await invokeHubCommand<DefaultAPIResponse>('DeleteSMChannelsFromParameters', request);
 };
 
-export const DeleteSMChannels = async (smChannelIds: number[]): Promise<DefaultAPIResponse | null> => {
-  return await invokeHubCommand<DefaultAPIResponse>('DeleteSMChannels', smChannelIds);
+export const DeleteSMChannels = async (request: DeleteSMChannelsRequest): Promise<DefaultAPIResponse | null> => {
+  return await invokeHubCommand<DefaultAPIResponse>('DeleteSMChannels', request);
 };
 
 export const GetPagedSMChannels = async (parameters: QueryStringParameters): Promise<PagedResponse<SMChannelDto> | undefined> => {
-  return await invokeHubCommand<APIResponse<mainEntityName>>('GetPagedSMChannels', parameters)
+  return await invokeHubCommand<APIResponse<SMChannelDto>>('GetPagedSMChannels', parameters)
     .then((response) => {
       if (response) {
         return response.pagedResponse;
@@ -35,15 +36,15 @@ export const GetPagedSMChannels = async (parameters: QueryStringParameters): Pro
     });
 };
 
-export const RemoveSMStreamFromSMChannel = async (SMChannelId: number, SMStreamId: string): Promise<DefaultAPIResponse | null> => {
-  return await invokeHubCommand<DefaultAPIResponse>('RemoveSMStreamFromSMChannel', SMChannelId, SMStreamId);
+export const RemoveSMStreamFromSMChannel = async (request: RemoveSMStreamFromSMChannelRequest): Promise<DefaultAPIResponse | null> => {
+  return await invokeHubCommand<DefaultAPIResponse>('RemoveSMStreamFromSMChannel', request);
 };
 
-export const SetSMChannelLogo = async (SMChannelId: number, logo: string): Promise<DefaultAPIResponse | null> => {
-  return await invokeHubCommand<DefaultAPIResponse>('SetSMChannelLogo', SMChannelId, logo);
+export const SetSMChannelLogo = async (request: SetSMChannelLogoRequest): Promise<DefaultAPIResponse | null> => {
+  return await invokeHubCommand<DefaultAPIResponse>('SetSMChannelLogo', request);
 };
 
-export const SetSMStreamRanks = async (requests: SMChannelRankRequest[]): Promise<DefaultAPIResponse | null> => {
-  return await invokeHubCommand<DefaultAPIResponse>('SetSMStreamRanks', requests);
+export const SetSMStreamRanks = async (request: SetSMStreamRanksRequest): Promise<DefaultAPIResponse | null> => {
+  return await invokeHubCommand<DefaultAPIResponse>('SetSMStreamRanks', request);
 };
 

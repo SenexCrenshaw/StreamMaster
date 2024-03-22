@@ -3,7 +3,7 @@
 using StreamMaster.Application.ChannelGroups.Events;
 using StreamMaster.Application.StreamGroupChannelGroups.Commands;
 
-namespace StreamMaster.Application.ChannelGroups.Commands;
+namespace StreamMaster.Application.ChannelGroups.CommandsOld;
 
 public class UpdateChannelGroupRequestValidator : AbstractValidator<UpdateChannelGroupRequest>
 {

@@ -7,11 +7,11 @@ using StreamMaster.Application.ChannelGroups.Commands;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
-namespace StreamMaster.Application.M3UFiles.Commands;
+namespace StreamMaster.Application.M3UFiles.CommandsOrig;
 
-public record ProcessM3UFileRequest(int Id, bool? OverWriteChannels = null, bool forceRun = false) : IRequest<M3UFile?> { }
+public record ProcessM3UFileRequest2(int Id, bool? OverWriteChannels = null, bool forceRun = false) : IRequest<M3UFile?> { }
 
-public class ProcessM3UFileRequestValidator : AbstractValidator<ProcessM3UFileRequest>
+public class ProcessM3UFileRequestValidator : AbstractValidator<ProcessM3UFileRequest2>
 {
     public ProcessM3UFileRequestValidator()
     {
@@ -22,14 +22,15 @@ public class ProcessM3UFileRequestValidator : AbstractValidator<ProcessM3UFileRe
 }
 
 
-public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IRepositoryWrapper repository, IJobStatusService jobStatusService, IPublisher publisher, ISender sender, IOptionsMonitor<Setting> intsettings) : IRequestHandler<ProcessM3UFileRequest, M3UFile?>
+public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest2> logger, IRepositoryWrapper repository, IJobStatusService jobStatusService, IPublisher publisher, ISender sender, IOptionsMonitor<Setting> intsettings)
+    : IRequestHandler<ProcessM3UFileRequest2, M3UFile?>
 {
     private readonly Setting settings = intsettings.CurrentValue;
 
     private SimpleIntList existingChannels = new(0);
 
     [LogExecutionTimeAspect]
-    public async Task<M3UFile?> Handle(ProcessM3UFileRequest request, CancellationToken cancellationToken)
+    public async Task<M3UFile?> Handle(ProcessM3UFileRequest2 request, CancellationToken cancellationToken)
     {
         JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.ProcessM3U, request.Id);
         if (jobManager.IsRunning)

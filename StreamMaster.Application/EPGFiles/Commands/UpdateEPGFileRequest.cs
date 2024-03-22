@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Application.M3UFiles.Commands;
+using StreamMaster.Application.M3UFiles.CommandsOrig;
 using StreamMaster.Application.VideoStreams.Commands;
 
 namespace StreamMaster.Application.EPGFiles.Commands;

@@ -14,7 +14,7 @@ public interface ISMChannelsRepository
     IQueryable<SMChannel> GetQuery(bool tracking = false);
     List<SMChannelDto> GetSMChannels();
     Task DeleteSMChannel(int smchannelId);
-    Task<List<int>> DeleteAllSMChannelsFromParameters(SMChannelParameters parameters);
+    Task<List<int>> DeleteSMChannelsFromParameters(SMChannelParameters parameters);
     SMChannel? GetSMChannel(int smchannelId);
     Task<DefaultAPIResponse> CreateSMChannelFromStream(string streamId);
     Task<DefaultAPIResponse> DeleteSMChannels(List<int> smchannelIds);

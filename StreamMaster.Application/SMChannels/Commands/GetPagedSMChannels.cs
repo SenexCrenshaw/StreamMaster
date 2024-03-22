@@ -8,7 +8,8 @@ namespace StreamMaster.Application.SMChannels.Commands;
 [SMAPI]
 public record GetPagedSMChannels(SMChannelParameters Parameters) : IRequest<APIResponse<SMChannelDto>>;
 
-internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor) : IRequestHandler<GetPagedSMChannels, APIResponse<SMChannelDto>>
+internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor)
+    : IRequestHandler<GetPagedSMChannels, APIResponse<SMChannelDto>>
 {
     public async Task<APIResponse<SMChannelDto>> Handle(GetPagedSMChannels request, CancellationToken cancellationToken)
     {

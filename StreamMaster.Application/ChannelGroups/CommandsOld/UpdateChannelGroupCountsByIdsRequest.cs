@@ -2,12 +2,12 @@
 
 using Microsoft.EntityFrameworkCore;
 
-namespace StreamMaster.Application.ChannelGroups.Commands;
+namespace StreamMaster.Application.ChannelGroups.CommandsOld;
 
-public record UpdateChannelGroupCountsRequest(List<ChannelGroupDto>? ChannelGroups) : IRequest<List<ChannelGroupDto>> { }
+public record UpdateChannelGroupCountsByIdsRequest(List<int>? ChannelGroupIds = null) : IRequest<List<ChannelGroupDto>> { }
 
 [LogExecutionTimeAspect]
-public class UpdateChannelGroupCountsRequestHandler(ILogger<UpdateChannelGroupCountsRequest> Logger, IRepositoryWrapper Repository, IMapper mapper, IMemoryCache MemoryCache) : IRequestHandler<UpdateChannelGroupCountsRequest, List<ChannelGroupDto>>
+public class UpdateChannelGroupCountsByIdsRequestHandler(ILogger<UpdateChannelGroupCountsByIdsRequest> logger, IRepositoryWrapper repository, IMapper mapper, IMemoryCache MemoryCache) : IRequestHandler<UpdateChannelGroupCountsByIdsRequest, List<ChannelGroupDto>>
 {
     private class ChannelGroupBrief
     {
@@ -15,7 +15,7 @@ public class UpdateChannelGroupCountsRequestHandler(ILogger<UpdateChannelGroupCo
         public int Id { get; set; }
     }
 
-    public async Task<List<ChannelGroupDto>> Handle(UpdateChannelGroupCountsRequest request, CancellationToken cancellationToken)
+    public async Task<List<ChannelGroupDto>> Handle(UpdateChannelGroupCountsByIdsRequest request, CancellationToken cancellationToken)
     {
         if (request == null)
         {
@@ -24,13 +24,25 @@ public class UpdateChannelGroupCountsRequestHandler(ILogger<UpdateChannelGroupCo
 
         try
         {
+            List<ChannelGroup> cgs;
 
-            List<ChannelGroupDto> dtos = mapper.Map<List<ChannelGroupDto>>(request.ChannelGroups);
+            //// Get the required channel groups.
+            //IQueryable<ChannelGroup> cgsQuery = Repository.ChannelGroup.GetChannelGroupQuery().Select(a => new ChannelGroupBrief { Name = a.Name, Id = a.Id });
 
-            List<string> cgNames = dtos.ConvertAll(a => a.Name);
+            cgs = await repository.ChannelGroup.GetChannelGroups(request.ChannelGroupIds);
+
+            if (!cgs.Any())
+            {
+                logger.LogInformation("No channel groups found based on the request.");
+                return [];
+            }
+
+            List<ChannelGroupDto> dtos = mapper.Map<List<ChannelGroupDto>>(cgs);
+
+            List<string> cgNames = dtos.Select(a => a.Name).ToList();
 
             // Fetch relevant video streams.
-            var allVideoStreams = await Repository.VideoStream.GetVideoStreamQuery()
+            var allVideoStreams = await repository.VideoStream.GetVideoStreamQuery()
                 .Where(a => cgNames.Contains(a.User_Tvg_group))
                 .Select(vs => new
                 {
@@ -41,7 +53,7 @@ public class UpdateChannelGroupCountsRequestHandler(ILogger<UpdateChannelGroupCo
 
             Dictionary<string, List<string>> videoStreamsForGroups = [];
             Dictionary<string, int> hiddenCounts = [];
-            ChannelGroupDto? c = dtos.Find(a => a.Id == 29);
+            ChannelGroupDto? c = dtos.FirstOrDefault(a => a.Id == 29);
 
             foreach (ChannelGroupDto cg in dtos)
             {
@@ -87,7 +99,7 @@ public class UpdateChannelGroupCountsRequestHandler(ILogger<UpdateChannelGroupCo
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error while handling UpdateChannelGroupCountsRequest.");
+            logger.LogError(ex, "Error while handling UpdateChannelGroupCountsByIdsRequest.");
             throw; // Re-throw the exception if needed or handle accordingly.
         }
         return [];

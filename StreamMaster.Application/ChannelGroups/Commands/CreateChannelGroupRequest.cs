@@ -5,21 +5,21 @@ namespace StreamMaster.Application.ChannelGroups.Commands;
 
 [SMAPI]
 [RequireAll]
-public record CreateChannelGroupRequest(string GroupName, bool IsReadOnly) : IRequest<ChannelGroupDto?> { }
+public record CreateChannelGroupRequest(string GroupName, bool IsReadOnly) : IRequest<DefaultAPIResponse> { }
 
-public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest> logger, ISender sender, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateChannelGroupRequest, ChannelGroupDto?>
+public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest> logger, ISender sender, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateChannelGroupRequest, DefaultAPIResponse>
 {
-    public async Task<ChannelGroupDto?> Handle(CreateChannelGroupRequest request, CancellationToken cancellationToken)
+    public async Task<DefaultAPIResponse> Handle(CreateChannelGroupRequest request, CancellationToken cancellationToken)
     {
         if (await Repository.ChannelGroup.GetChannelGroupByName(request.GroupName).ConfigureAwait(false) != null)
         {
-            return null;
+            return APIResponseFactory.NotFound;
         }
 
         ChannelGroupDto? channelGroupDto = await Repository.ChannelGroup.CreateChannelGroup(request.GroupName, request.IsReadOnly);
         if (channelGroupDto == null)
         {
-            return null;
+            return APIResponseFactory.NotFound;
         }
 
         _ = await Repository.SaveAsync().ConfigureAwait(false);
@@ -27,6 +27,6 @@ public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest>
         await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(channelGroupDto.Id), cancellationToken).ConfigureAwait(false);
 
         await Publisher.Publish(new CreateChannelGroupEvent(channelGroupDto), cancellationToken).ConfigureAwait(false);
-        return channelGroupDto;
+        return APIResponseFactory.Ok;
     }
 }

@@ -147,7 +147,7 @@ namespace StreamMaster.API.Controllers
             public void Dispose()
             {
 
-                int count = _channelService.GetChannelStatusesFromVideoStreamId(_channelVideoStreamId).Count();
+                int count = _channelService.GetChannelStatusesFromVideoStreamId(_channelVideoStreamId).Count;
                 if (count == 0)
                 {
                     _channelService.UnRegisterChannel(_channelVideoStreamId);

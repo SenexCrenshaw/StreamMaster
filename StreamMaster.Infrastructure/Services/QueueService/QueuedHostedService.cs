@@ -4,12 +4,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Application.ChannelGroups.Commands;
+using StreamMaster.Application.ChannelGroups.CommandsOld;
 using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.EPGFiles.Commands;
 using StreamMaster.Application.General.Commands;
 using StreamMaster.Application.Icons.Commands;
 using StreamMaster.Application.M3UFiles.Commands;
+using StreamMaster.Application.M3UFiles.CommandsOrig;
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.Services;
 using StreamMaster.Domain.Enums;
@@ -88,10 +89,8 @@ public sealed class QueuedHostedService(
 
                         if (command.Entity is not null && command.Entity.GetType() == typeof(ProcessM3UFileRequest))
                         {
-                            //ProcessM3UFileRequest? p = command.Entity as ProcessM3UFileRequest;
-                            ProcessM3UFile toSend = new((command.Entity as ProcessM3UFileRequest).Id, true);
-
-                            _ = await _sender.Send(toSend, cancellationToken).ConfigureAwait(false);
+                            ProcessM3UFileRequest? p = command.Entity as ProcessM3UFileRequest;
+                            _ = await _sender.Send(p, cancellationToken).ConfigureAwait(false);
                         }
                         break;
 

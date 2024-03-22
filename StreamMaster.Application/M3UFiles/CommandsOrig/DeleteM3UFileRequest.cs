@@ -2,7 +2,7 @@
 
 using StreamMaster.Application.VideoStreams.Events;
 
-namespace StreamMaster.Application.M3UFiles.Commands;
+namespace StreamMaster.Application.M3UFiles.CommandsOrig;
 
 public record DeleteM3UFileRequest(bool DeleteFile, int Id) : IRequest<int?> { }
 

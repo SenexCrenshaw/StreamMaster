@@ -3,7 +3,7 @@
 using StreamMaster.Application.ChannelGroups.Events;
 using StreamMaster.Domain.Pagination;
 
-namespace StreamMaster.Application.ChannelGroups.Commands;
+namespace StreamMaster.Application.ChannelGroups.CommandsOld;
 
 public record DeleteAllChannelGroupsFromParametersRequest(ChannelGroupParameters Parameters) : IRequest<bool>
 {

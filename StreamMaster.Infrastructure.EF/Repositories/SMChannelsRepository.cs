@@ -58,7 +58,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         }
     }
 
-    public async Task<List<int>> DeleteAllSMChannelsFromParameters(SMChannelParameters parameters)
+    public async Task<List<int>> DeleteSMChannelsFromParameters(SMChannelParameters parameters)
     {
         IQueryable<SMChannel> toDelete = GetQuery(parameters);
         return await DeleteSMChannelsAsync(toDelete).ConfigureAwait(false);

@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace StreamMaster.Application.M3UFiles.Commands;
+namespace StreamMaster.Application.M3UFiles.CommandsOrig;
 
 public record RefreshM3UFileRequest(int Id, bool forceRun = false) : IRequest<M3UFile?> { }
 

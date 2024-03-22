@@ -19,7 +19,7 @@ public class M3UFileAddedEventHandler : INotificationHandler<M3UFileAddedEvent>
 
     public async Task Handle(M3UFileAddedEvent notification, CancellationToken cancellationToken)
     {
-        ProcessM3UFileRequest processM3UFileRequest = new(notification.M3UFileId, forceRun: notification.ForecRun);
+        ProcessM3UFileRequest processM3UFileRequest = new(notification.M3UFileId, ForceRun: notification.ForecRun);
         await _taskQueue.ProcessM3UFile(processM3UFileRequest, cancellationToken: cancellationToken).ConfigureAwait(false);
 
     }

@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace StreamMaster.Application.M3UFiles.Commands;
+namespace StreamMaster.Application.M3UFiles.CommandsOrig;
 
 public record ChangeM3UFileNameRequest(int Id, string Name) : IRequest<M3UFileDto?> { }
 

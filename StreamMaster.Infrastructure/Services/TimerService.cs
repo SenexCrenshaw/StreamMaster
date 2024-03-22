@@ -9,7 +9,7 @@ using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Application.EPGFiles.Commands;
 using StreamMaster.Application.EPGFiles.Queries;
 using StreamMaster.Application.Hubs;
-using StreamMaster.Application.M3UFiles.Commands;
+using StreamMaster.Application.M3UFiles.CommandsOrig;
 using StreamMaster.Application.M3UFiles.Queries;
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.Services;

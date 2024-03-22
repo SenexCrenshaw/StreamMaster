@@ -4,9 +4,10 @@ public static class TypeScriptSliceGenerator
 {
     public static void GenerateFile(string namespaceName, List<MethodDetails> methods, string filePath)
     {
-        string mainEntityName = "";
+
         foreach (MethodDetails method in methods)
         {
+            string mainEntityName = ParameterConverter.IsTSGeneric(ParameterConverter.ExtractInnermostType(method.ReturnType));
             StringBuilder content = new();
 
             // Add necessary imports
@@ -24,7 +25,7 @@ public static class TypeScriptSliceGenerator
             content.AppendLine("  },");
             content.AppendLine("  extraReducers: (builder) => {");
             // Assuming methods contain fetch actions
-            //foreach (MethodDetails? method in methods.Where(m => m.IncludeInHub))
+            //foreach (MethodDetails? method in methods.Where(m => m.JustHub))
             //{
             string fetchActionName = $"fetch{method.Name}";
             content.AppendLine(GenerateExtraReducerForFetch(fetchActionName, method.Name));
@@ -54,7 +55,7 @@ public static class TypeScriptSliceGenerator
 
         content.AppendLine("import { PayloadAction, createSlice } from '@reduxjs/toolkit';");
         content.AppendLine($"import {{FieldData,PagedResponse, removeKeyFromData, {mainEntityName} }} from '@lib/apiDefs';");
-        //foreach (MethodDetails? method in methods.Where(m => m.IncludeInHub))
+        //foreach (MethodDetails? method in methods.Where(m => m.JustHub))
         //{
         //    string fetchActionName = $"fetch{method.Name}";
         //    content.AppendLine($"import {{ {fetchActionName} }} from '@lib/smAPI/{namespaceName}/{namespaceName}Fetch';");

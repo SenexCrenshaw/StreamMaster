@@ -6,22 +6,23 @@ public static class TypeScriptHookGenerator
     private static HashSet<string> additionalImports = [];
     public static void GenerateFile(string namespaceName, List<MethodDetails> methods, string filePath)
     {
-        string mainEntityName = "";
+
         StringBuilder content = new();
         additionalImports = [];
-
 
         content.AppendLine("import { useEffect } from 'react';");
         content.AppendLine("import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';");
 
+        string mainEntityName = "";
         // Importing command and fetch methods
         foreach (MethodDetails method in methods)
         {
-            if (method.Name.StartsWith("GetPaged"))
+            if (mainEntityName == "" && method.Name.StartsWith("GetPaged"))
             {
+                mainEntityName = ParameterConverter.IsTSGeneric(ParameterConverter.ExtractInnermostType(method.ReturnType));
                 continue;
             }
-            if (method.IncludeInHub)
+            if (method.JustHub)
             {
                 content.AppendLine($"import {{ {method.Name} }} from '@lib/smAPI/{namespaceName}/{namespaceName}Commands';");
             }
@@ -40,13 +41,13 @@ public static class TypeScriptHookGenerator
 
         content.Append(GenerateHookContent(namespaceName, mainEntityName, fetchMethod?.Name, methods));
 
-        string additionals = "QueryStringParameters";
+        string additionals = mainEntityName;
 
         if (additionalImports.Count > 0)
         {
             additionals = string.Join(",", additionalImports);
         }
-        content.Insert(0, $"import {{ FieldData, GetApiArgument, PagedResponse, QueryHookResult,{mainEntityName},{additionals} }} from '@lib/apiDefs';\n");
+        content.Insert(0, $"import {{ FieldData, GetApiArgument, PagedResponse, QueryHookResult,{additionals} }} from '@lib/apiDefs';\n");
 
         // Write to file
         string directory = Directory.GetParent(filePath).ToString();
@@ -59,7 +60,7 @@ public static class TypeScriptHookGenerator
 
     private static string GenerateHookContent(string namespaceName, string mainEntityName, string fetchMethodName, List<MethodDetails> methods)
     {
-        methods = methods.Where(m => m.IncludeInHub).ToList();
+        methods = methods.Where(m => m.JustHub).ToList();
         List<string> commandMethodNames = methods.Select(m => m.Name).ToList();
 
         StringBuilder sb = new();
@@ -71,6 +72,17 @@ public static class TypeScriptHookGenerator
         foreach (MethodDetails method in methods)
         {
             string methodName = method.Name;
+            string? toImport = ParameterConverter.IsTSGeneric(method.TsParameters);
+            if (toImport != null)
+            {
+                additionalImports.Add(toImport);
+            }
+            toImport = ParameterConverter.IsTSGeneric(method.ReturnType);
+            if (toImport != null)
+            {
+                additionalImports.Add(toImport);
+            }
+
             if (methodName.StartsWith("GetPaged"))
             {
                 continue;
@@ -80,16 +92,7 @@ public static class TypeScriptHookGenerator
             {
                 int aa = 1;
             }
-            string? toImport = ParameterConverter2.IsTSGeneric(method.TsParameters);
-            if (toImport != null)
-            {
-                additionalImports.Add(toImport);
-            }
-            toImport = ParameterConverter2.IsTSGeneric(method.ReturnType);
-            if (toImport != null)
-            {
-                additionalImports.Add(toImport);
-            }
+
 
             //(string parameterName, string tsParameterString) = GetReal(method);
             sb.AppendLine($"  {methodName.ToCamelCase()}: ({method.TsParameters}) => Promise<DefaultAPIResponse | null>;");
@@ -180,7 +183,7 @@ public static class TypeScriptHookGenerator
 
     public static (string parameterName, string tsParameterString) GetReal(MethodDetails method)
     {
-        string tsParams = ParameterConverter2.ConvertCSharpParametersToTypeScript(method.Parameters);
+        string tsParams = ParameterConverter.ConvertCSharpParametersToTypeScript(method.Parameters);
         string[] parts = tsParams.Split(':');
         string parameterName = parts[0].Trim();
 

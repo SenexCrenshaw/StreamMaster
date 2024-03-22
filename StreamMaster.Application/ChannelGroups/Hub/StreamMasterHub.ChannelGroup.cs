@@ -1,15 +1,9 @@
-﻿using StreamMaster.Application.ChannelGroups;
-using StreamMaster.Application.ChannelGroups.Commands;
-using StreamMaster.Application.ChannelGroups.Queries;
+﻿using StreamMaster.Application.ChannelGroups.Queries;
 
 namespace StreamMaster.Application.Hubs;
 
-public partial class StreamMasterHub : IChannelGroupHub
+public partial class StreamMasterHub
 {
-    public async Task CreateChannelGroup(CreateChannelGroupRequest request)
-    {
-        await Sender.Send(request).ConfigureAwait(false);
-    }
 
     public async Task DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request)
     {

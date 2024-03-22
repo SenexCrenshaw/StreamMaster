@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.M3UFiles.Commands;
+﻿using StreamMaster.Application.M3UFiles.Commands;
+
+namespace StreamMaster.Application.M3UFiles.CommandsOrig;
 
 public class UpdateM3UFileRequest : BaseFileRequest, IRequest<M3UFile?>
 {
@@ -99,7 +101,7 @@ public class UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, I
 
             if (needsUpdate)
             {
-                await Sender.Send(new ProcessM3UFileRequest(m3uFile.Id, request.OverWriteChannels), cancellationToken).ConfigureAwait(false);
+                await Sender.Send(new ProcessM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
             }
 
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);

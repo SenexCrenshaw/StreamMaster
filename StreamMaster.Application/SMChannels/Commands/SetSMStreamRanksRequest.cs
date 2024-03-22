@@ -3,11 +3,11 @@
 namespace StreamMaster.Application.SMChannels.Commands;
 
 [SMAPI]
-public record SetSMStreamRanks(List<SMChannelRankRequest> requests) : IRequest<DefaultAPIResponse>;
+public record SetSMStreamRanksRequest(List<SMChannelRankRequest> requests) : IRequest<DefaultAPIResponse>;
 
-internal class SetSMStreamRanksRequestHandler(IRepositoryWrapper Repository, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor) : IRequestHandler<SetSMStreamRanks, DefaultAPIResponse>
+internal class SetSMStreamRanksRequestHandler(IRepositoryWrapper Repository, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor) : IRequestHandler<SetSMStreamRanksRequest, DefaultAPIResponse>
 {
-    public async Task<DefaultAPIResponse> Handle(SetSMStreamRanks request, CancellationToken cancellationToken)
+    public async Task<DefaultAPIResponse> Handle(SetSMStreamRanksRequest request, CancellationToken cancellationToken)
     {
         DefaultAPIResponse ret = await Repository.SMChannel.SetSMStreamRanks(request.requests).ConfigureAwait(false);
         if (!ret.IsError.HasValue)
@@ -18,7 +18,7 @@ internal class SetSMStreamRanksRequestHandler(IRepositoryWrapper Repository, ISe
                 SMChannel? channel = Repository.SMChannel.GetSMChannel(smChannelId);
                 if (channel != null)
                 {
-                    List<SMStreamDto> streams = await Sender.Send(new UpdateStreamRanks(channel.Id, channel.SMStreams.Select(a => a.SMStream).ToList()));
+                    List<SMStreamDto> streams = await Sender.Send(new UpdateStreamRanksRequest(channel.Id, channel.SMStreams.Select(a => a.SMStream).ToList()));
                     FieldData fd = new(nameof(SMChannelDto), channel.Id.ToString(), "smStreams", streams);
                     fieldDatas.Add(fd);
                 }

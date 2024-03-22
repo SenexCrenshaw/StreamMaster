@@ -2,7 +2,7 @@
 
 using Microsoft.EntityFrameworkCore;
 
-namespace StreamMaster.Application.ChannelGroups.Commands;
+namespace StreamMaster.Application.ChannelGroups.CommandsOld;
 public record UpdateChannelGroupCountRequest(ChannelGroupDto ChannelGroupDto, bool Publish) : IRequest<ChannelGroupDto> { }
 
 public class UpdateChannelGroupCountRequestValidator : AbstractValidator<UpdateChannelGroupCountRequest>

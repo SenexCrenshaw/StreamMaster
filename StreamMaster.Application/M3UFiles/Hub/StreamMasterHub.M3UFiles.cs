@@ -1,7 +1,6 @@
 ﻿using StreamMaster.Application.M3UFiles;
-using StreamMaster.Application.M3UFiles.Commands;
+using StreamMaster.Application.M3UFiles.CommandsOrig;
 using StreamMaster.Application.M3UFiles.Queries;
-using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Application.Hubs;
 
@@ -22,10 +21,10 @@ public partial class StreamMasterHub : IM3UFileHub
         await Sender.Send(request).ConfigureAwait(false);
     }
 
-    public async Task ProcessM3UFile(ProcessM3UFileRequest request)
-    {
-        await taskQueue.ProcessM3UFile(request).ConfigureAwait(false);
-    }
+    //public async Task ProcessM3UFile(ProcessM3UFileRequest request)
+    //{
+    //    await taskQueue.ProcessM3UFile(request).ConfigureAwait(false);
+    //}
 
     public async Task RefreshM3UFile(RefreshM3UFileRequest request)
     {

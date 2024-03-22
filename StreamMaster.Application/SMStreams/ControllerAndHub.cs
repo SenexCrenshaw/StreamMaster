@@ -3,7 +3,7 @@ using StreamMaster.Application.SMStreams.Commands;
 
 namespace StreamMaster.Application.SMStreams
 {
-    public partial class SMStreamsController(ISender Sender) : ApiControllerBase
+    public partial class SMStreamsController(ISender Sender) : ApiControllerBase, ISMStreamsController
     {        
 
         [HttpGet]
@@ -14,9 +14,9 @@ namespace StreamMaster.Application.SMStreams
             return ret;
         }
 
-        [HttpPut]
+        [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> ToggleSMStreamVisibleById(ToggleSMStreamVisibleById request)
+        public async Task<ActionResult<DefaultAPIResponse?>> ToggleSMStreamVisibleById(ToggleSMStreamVisibleByIdRequest request)
         {
             DefaultAPIResponse? ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound() : Ok(ret);
@@ -27,15 +27,15 @@ namespace StreamMaster.Application.SMStreams
 
 namespace StreamMaster.Application.Hubs
 {
-    public partial class StreamMasterHub 
+    public partial class StreamMasterHub : ISMStreamsHub
     {
-        public async Task<APIResponse<SMStreamDto>?> GetPagedSMStreams(GetPagedSMStreams request)
+        public async Task<APIResponse<SMStreamDto>> GetPagedSMStreams(SMStreamParameters Parameters)
         {
-            APIResponse<SMStreamDto>? ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse<SMStreamDto> ret = await Sender.Send(new GetPagedSMStreams(Parameters)).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse?> ToggleSMStreamVisibleById(ToggleSMStreamVisibleById request)
+        public async Task<DefaultAPIResponse?> ToggleSMStreamVisibleById(ToggleSMStreamVisibleByIdRequest request)
         {
             DefaultAPIResponse? ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

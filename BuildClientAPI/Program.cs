@@ -13,6 +13,7 @@ namespace BuildClientAPI
         private const string SMAPIFileNamePrefix = @"..\..\..\..\streammasterwebui\lib\smAPI";
         private const string SMAPISliceNamePrefix = @"..\..\..\..\streammasterwebui\lib\redux\slices";
 
+        internal static List<string> AlreadyCreatedInterfaces = ["SMChannelRankRequest", "DefaultAPIResponse", "PagedResponse", "APIResponse`1"];
         private static void Main(string[] args)
         {
             ScanForSMAPI();
@@ -31,7 +32,6 @@ namespace BuildClientAPI
 
                 foreach (Type recordType in smapiAttributedTypes)
                 {
-
                     string classNamespace = GetNameSpaceParent(recordType);
                     if (!methodsByNamespace.TryGetValue(classNamespace, out List<MethodDetails> methodDetailsList))
                     {
@@ -40,12 +40,12 @@ namespace BuildClientAPI
 
                     }
 
-                    if (recordType.Name == "DeleteSMChannels")
-                    {
-                        string returntype = GetCleanReturnType(recordType);
-                        string Parameters = ParameterConverter.ParamsToCSharp(recordType);
-                        string TsParameters = ParameterConverter.CSharpParamToTS(recordType); ;
-                    }
+                    //if (recordType.Name == "DeleteSMChannels")
+                    //{
+                    //    string returntype = GetCleanReturnType(recordType);
+                    //    string Parameters = ParameterConverter.ParamsToCSharp(recordType);
+                    //    string TsParameters = ParameterConverter.CSharpParamToTS(recordType); ;
+                    //}
 
                     string ps = ParameterConverter.ParamsToCSharp(recordType);
                     string tsps = ParameterConverter.CSharpParamToTS(recordType); ;
@@ -63,16 +63,49 @@ namespace BuildClientAPI
 
                     Type returnType = iRequestInterface.GenericTypeArguments[0];
 
+                    string name = recordType.Name;
+                    if (recordType.Name.EndsWith("Request"))
+                    {
+                        name = recordType.Name[..^7];
+                    }
+
+                    SMAPIAttribute? smapiAttribute = recordType.GetCustomAttribute<SMAPIAttribute>();
+                    if (smapiAttribute == null)
+                    {
+                        continue;
+                    }
+
+
                     MethodDetails methodDetails = new()
                     {
-                        Name = recordType.Name,
+                        Name = name,
                         ReturnType = GetCleanReturnType(returnType),
                         Parameters = ps,
                         ParameterNames = string.Join(", ", parameters.Select(p => p.Name)),
-                        IncludeInHub = true,
                         TsParameters = tsps,
-                        TsParameterTypes = string.Join(", ", parameters.Select(p => ParameterConverter2.MapCSharpTypeToTypeScript(ParameterConverter2.GetTypeFullNameForParameter(p.ParameterType))))
+                        TsParameterTypes = string.Join(", ", parameters.Select(p => ParameterConverter.MapCSharpTypeToTypeScript(ParameterConverter.GetTypeFullNameForParameter(p.ParameterType)))),
+                        IsGet = name.StartsWith("Get"),
+                        IsTask = smapiAttribute.IsTask,
+                        JustHub = smapiAttribute.JustHub,
+                        JustController = smapiAttribute.JustController,
+                        TsReturnInterface = ""
                     };
+
+                    string? returnEntity = ParameterConverter.IsTSGeneric(ParameterConverter.ExtractInnermostType(methodDetails.ReturnType));
+                    if (returnEntity != null)
+                    {
+                        string aa = returnEntity;
+
+                    }
+
+                    //if (!AlreadyCreatedInterfaces.Contains(returnEntity))
+                    //{
+                    //    if (returnEntity.Contains("SMChannel") || returnEntity.Contains("SMChannel"))
+                    //    {
+                    //        int aaa = 1;
+                    //    }
+                    //    methodDetails.TsReturnInterface = ParameterConverter.CSharpPropsToTSInterface(returnType);
+                    //}
 
                     if (recordType.Name == "AddSMStreamToSMChannel")
                     {
@@ -94,10 +127,12 @@ namespace BuildClientAPI
                         //string entityName = ParameterConverter2.ExtractInnermostType(pagedMethods.First().ReturnType);
 
                         string fileName = Path.Combine(CSharpFileNamePrefix, namespaceName, "ControllerAndHub.cs");
-                        CSharpGenerator.GenerateFile(namespaceName, methods, fileName);
+                        string IFileName = Path.Combine(CSharpFileNamePrefix, namespaceName, "IControllerAndHub.cs");
+                        CSharpGenerator.GenerateFile(namespaceName, methods, fileName, IFileName);
 
                         string tsCommandFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Commands.ts");
-                        TypeScriptCommandGenerator.GenerateFile(methods, tsCommandFilePath);
+                        string tsTypeFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Types.ts");
+                        TypeScriptCommandGenerator.GenerateFile(methods, namespaceName, tsCommandFilePath, tsTypeFilePath);
 
                         string tsFetchFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Fetch.ts");
                         TypeScriptFetchGenerator.GenerateFile(namespaceName, methods, tsFetchFilePath);

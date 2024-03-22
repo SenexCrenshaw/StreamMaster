@@ -2,18 +2,10 @@
 
 namespace StreamMaster.Domain.Common;
 
-public class SimpleIntList
+public class SimpleIntList(int startingValue)
 {
-    private readonly ConcurrentHashSet<int> intSet;
-    private readonly int startingValue;
-    private int nextAvailableInt;
-
-    public SimpleIntList(int startingValue)
-    {
-        intSet = new();
-        this.startingValue = startingValue;
-        nextAvailableInt = startingValue;
-    }
+    private readonly ConcurrentHashSet<int> intSet = [];
+    private int nextAvailableInt = startingValue;
 
     public void AddInt(int value)
     {

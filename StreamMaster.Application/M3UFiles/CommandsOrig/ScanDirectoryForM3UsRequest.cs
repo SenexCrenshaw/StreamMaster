@@ -1,4 +1,4 @@
-﻿namespace StreamMaster.Application.M3UFiles.Commands;
+﻿namespace StreamMaster.Application.M3UFiles.CommandsOrig;
 
 public record ScanDirectoryForM3UFilesRequest : IRequest<bool> { }
 

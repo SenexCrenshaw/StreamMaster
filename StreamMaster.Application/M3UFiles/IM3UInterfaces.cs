@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Application.M3UFiles.Commands;
-using StreamMaster.Domain.Pagination;
+using StreamMaster.Application.M3UFiles.CommandsOrig;
 
 
 
@@ -22,7 +22,7 @@ public interface IM3UFileController
 
     Task<ActionResult<PagedResponse<M3UFileDto>>> GetPagedM3UFiles(M3UFileParameters Parameters);
 
-    Task<ActionResult> ProcessM3UFile(ProcessM3UFileRequest request);
+    //Task<ActionResult> ProcessM3UFile(ProcessM3UFileRequest request);
 
     Task<ActionResult> RefreshM3UFile(RefreshM3UFileRequest request);
 
@@ -48,7 +48,7 @@ public interface IM3UFileHub
 
     Task<PagedResponse<M3UFileDto>> GetPagedM3UFiles(M3UFileParameters Parameters);
 
-    Task ProcessM3UFile(ProcessM3UFileRequest request);
+    //Task ProcessM3UFile(ProcessM3UFileRequest request);
 
     Task RefreshM3UFile(RefreshM3UFileRequest request);
 

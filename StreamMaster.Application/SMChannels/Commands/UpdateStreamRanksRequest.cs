@@ -3,11 +3,11 @@
 namespace StreamMaster.Application.SMChannels.Commands;
 
 
-public record UpdateStreamRanks(int SMChannelId, List<SMStream> streams) : IRequest<List<SMStreamDto>>;
+public record UpdateStreamRanksRequest(int SMChannelId, List<SMStream> streams) : IRequest<List<SMStreamDto>>;
 
-internal class UpdateStreamRanksRequestHandler(IRepositoryWrapper Repository, IMapper mapper, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor) : IRequestHandler<UpdateStreamRanks, List<SMStreamDto>>
+internal class UpdateStreamRanksRequestHandler(IRepositoryWrapper Repository, IMapper mapper, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor) : IRequestHandler<UpdateStreamRanksRequest, List<SMStreamDto>>
 {
-    public async Task<List<SMStreamDto>> Handle(UpdateStreamRanks request, CancellationToken cancellationToken)
+    public async Task<List<SMStreamDto>> Handle(UpdateStreamRanksRequest request, CancellationToken cancellationToken)
     {
         List<SMStreamDto> ret = [];
 

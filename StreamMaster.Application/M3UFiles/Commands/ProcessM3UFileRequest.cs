@@ -1,10 +1,11 @@
 ﻿namespace StreamMaster.Application.M3UFiles.Commands;
 
-public record ProcessM3UFile(int M3UFileId, bool ForceRun = false) : IRequest<DefaultAPIResponse>;
+[SMAPI(JustHub: true, IsTask: true)]
+public record ProcessM3UFileRequest(int M3UFileId, bool ForceRun = false) : IRequest<DefaultAPIResponse>;
 
-internal class ProcessM3UFileHandler(ILogger<ProcessM3UFile> logger, IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<ProcessM3UFile, DefaultAPIResponse>
+internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<ProcessM3UFileRequest, DefaultAPIResponse>
 {
-    public async Task<DefaultAPIResponse> Handle(ProcessM3UFile request, CancellationToken cancellationToken)
+    public async Task<DefaultAPIResponse> Handle(ProcessM3UFileRequest request, CancellationToken cancellationToken)
     {
         try
         {

@@ -1,11 +1,11 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import {FieldData,PagedResponse, removeKeyFromData,  } from '@lib/apiDefs';
+import {FieldData,PagedResponse, removeKeyFromData, SMChannelDto } from '@lib/apiDefs';
 import { fetchGetPagedSMChannels } from '@lib/smAPI/SMChannels/SMChannelsFetch';
 import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
 
 
 interface QueryState {
-  data: Record<string, PagedResponse<> | undefined>;
+  data: Record<string, PagedResponse<SMChannelDto> | undefined>;
   isLoading: Record<string, boolean>;
   isError: Record<string, boolean>;
   error: Record<string, string>;
