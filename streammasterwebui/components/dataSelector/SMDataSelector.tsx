@@ -46,7 +46,7 @@ import getRecordString from './getRecordString';
 import { useSetQueryFilter } from './useSetQueryFilter';
 import { AddSMStreamToSMChannelRequest } from '@lib/smAPI/SMChannels/SMChannelsTypes';
 
-const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) => {
+const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>) => {
   const debug = false;
   const { state, setters } = useDataSelectorState2<T>(props.id, props.selectedItemsKey, props.selectedSMChannelKey, props.selectedSMStreamKey);
 
@@ -224,15 +224,16 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
 
   const sourceRenderHeader = useMemo(() => {
     return (
-      <TableHeader
-        dataSelectorProps={props}
-        enableExport={props.enableExport ?? true}
-        exportCSV={exportCSV}
-        headerName={props.headerName}
-        onMultiSelectClick={props.onMultiSelectClick}
-        rowClick={state.rowClick}
-        setRowClick={setters.setRowClick}
-      />
+      <div />
+      // <TableHeader
+      //   dataSelectorProps={props}
+      //   enableExport={props.enableExport ?? true}
+      //   exportCSV={exportCSV}
+      //   headerName={props.headerName}
+      //   onMultiSelectClick={props.onMultiSelectClick}
+      //   rowClick={state.rowClick}
+      //   setRowClick={setters.setRowClick}
+      // />
     );
   }, [props, state.rowClick, setters.setRowClick]);
 
@@ -732,15 +733,17 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
           }}
           onSelectAllChange={props.reorderable || props.disableSelectAll === true ? undefined : onSelectAllChange}
           onSelectionChange={(e: DataTableSelectionMultipleChangeEvent<T[]> | DataTableSelectionSingleChangeEvent<T[]>) => {
-            if (props.reorderable === true) {
-              return;
-            }
-            onSelectionChange(e);
+            // if (props.reorderable === true) {
+            //   return;
+            // }
+            // if (props.onSelectionChange) {
+            //   props.onSelectionChange(e.value, selectAll);
+            // }
           }}
           rowExpansionTemplate={rowExpansionTemplate}
           onSort={onSort}
           paginator={props.enablePaginator ?? true}
-          paginatorClassName="text-xs p-0 m-0 withpadding"
+          paginatorClassName="text-xs"
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
           ref={tableReference}
           removableSort={false}
@@ -759,17 +762,12 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
           sortField={props.reorderable ? 'rank' : state.sortField}
           sortMode="single"
           sortOrder={props.reorderable ? 0 : state.sortOrder}
-          // stateKey={`${props.id}-table`}
           showSelectAll={props.disableSelectAll !== true}
           stateStorage="custom"
-          // stateStorage={props.enableState !== undefined && props.enableState !== true ? 'custom' : 'local'}
           stripedRows
           style={props.style}
           totalRecords={state.pagedInformation ? state.pagedInformation.totalItemCount : undefined}
           value={state.dataSource}
-          // pt={{
-          //   headerRow: { style: { display: 'none' } }
-          // }}
         >
           <Column
             body={addOrRemoveTemplate}
@@ -852,10 +850,10 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
   );
 };
 
-DataSelector2.displayName = 'dataselector2';
+SMDataSelector.displayName = 'SMDataSelector';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-interface BaseDataSelector2Properties<T = any> {
+interface BaseSMDataSelectorProperties<T = any> {
   className?: string;
   columns: ColumnMeta[];
   defaultSortField: string;
@@ -875,11 +873,8 @@ interface BaseDataSelector2Properties<T = any> {
   id: string;
   isLoading?: boolean;
   dataKey?: string | undefined;
-  // setSMChannel?: boolean;
-  // setSMStream?: boolean;
   selectedSMChannelKey: string;
   selectedSMStreamKey: string;
-  // onLazyLoad?: (e: any) => void;
   onChannelAdd?: (value: T) => void;
   onStreamAdd?: (value: AddSMStreamToSMChannelRequest) => void;
   onDelete?: (value: T) => void;
@@ -889,7 +884,6 @@ interface BaseDataSelector2Properties<T = any> {
   onRowReorder?: (value: T[]) => void;
   onRowVisibleClick?: (value: T) => void;
   onSelectionChange?: (value: T[], selectAll: boolean) => void;
-  // onValueChanged?: (value: T[]) => void;
   reorderable?: boolean;
   showExpand?: boolean;
   scrollTo?: number;
@@ -907,11 +901,11 @@ interface BaseDataSelector2Properties<T = any> {
   // virtualScrollHeight?: string | undefined;
 }
 
-type QueryFilterProperties<T> = BaseDataSelector2Properties<T> & {
+type QueryFilterProperties<T> = BaseSMDataSelectorProperties<T> & {
   queryFilter: (params: GetApiArgument | undefined) => ReturnType<QueryHook<PagedResponse<T> | undefined>>;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type DataSelector2Props<T = any> = QueryFilterProperties<T>;
+export type SMDataSelectorProps<T = any> = QueryFilterProperties<T>;
 
-export default memo(DataSelector2);
+export default memo(SMDataSelector);

@@ -2,8 +2,8 @@ import { configureStore, type Action, type ThunkAction } from '@reduxjs/toolkit'
 import { combineReducers } from 'redux';
 
 import { enhancedApiChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsEnhancedAPI';
-import { enhancedApiEpgFiles } from '@lib/smAPI/EpgFiles/EpgFilesEnhancedAPI';
-import { enhancedApiM3UFiles } from '@lib/smAPI/M3UFiles/M3UFilesEnhancedAPI';
+// import { enhancedApiEpgFiles } from '@lib/smAPI/EpgFiles/EpgFilesEnhancedAPI';
+// import { enhancedApiM3UFiles } from '@lib/smAPI/M3UFiles/M3UFilesEnhancedAPI';
 import { enhancedApiProgrammes } from '@lib/smAPI/Programmes/ProgrammesEnhancedAPI';
 import { enhancedApiQueue } from '@lib/smAPI/Queue/QueueEnhancedAPI';
 import { enhancedApiSchedulesDirect } from '@lib/smAPI/SchedulesDirect/SchedulesDirectEnhancedAPI';
@@ -33,6 +33,7 @@ import showSelectionsSliceReducer from '@lib/redux/slices/showSelectionsSlice';
 import sortInfoSliceReducer from '@lib/redux/slices/sortInfoSlice';
 import SMChannelsSlice from '@lib/smAPI/SMChannels/SMChannelsSlice';
 import SMStreamsReducer from '@lib/smAPI/SMStreams/SMStreamsSlice';
+import M3UFilesReducer from '@lib/smAPI/M3UFiles/M3UFilesSlice';
 
 import { enhancedApiMisc } from '@lib/smAPI/Misc/MiscEnhancedAPI';
 import { enhancedApiVideoStreamLinksLocal } from '@lib/smAPILocal/VideoStreamLinksEnhancedAPILocal';
@@ -114,8 +115,8 @@ const selectedItemsConfig = {
 const rootReducer = combineReducers({
   appInfo: appInfoSliceReducer,
   [enhancedApiChannelGroups.reducerPath]: enhancedApiChannelGroups.reducer,
-  [enhancedApiEpgFiles.reducerPath]: enhancedApiEpgFiles.reducer,
-  [enhancedApiM3UFiles.reducerPath]: enhancedApiM3UFiles.reducer,
+  // [enhancedApiEpgFiles.reducerPath]: enhancedApiEpgFiles.reducer,
+  // [enhancedApiM3UFiles.reducerPath]: enhancedApiM3UFiles.reducer,
   [enhancedApiProgrammes.reducerPath]: enhancedApiProgrammes.reducer,
   [enhancedApiQueue.reducerPath]: enhancedApiQueue.reducer,
   [enhancedApiSchedulesDirect.reducerPath]: enhancedApiSchedulesDirect.reducer,
@@ -135,6 +136,7 @@ const rootReducer = combineReducers({
   SMChannels: SMChannelsSlice,
   SMChannelReducer: SMChannelReducer,
   SMStreamReducer: SMStreamReducer,
+  M3UFiles: M3UFilesReducer,
   selectUpdateSettingRequest: persistReducer(selectUpdateSettingRequestSliceConfig, selectUpdateSettingRequestReducer),
   selectCurrentSettingDto: persistReducer(currentSettingDtoSliceConfig, selectCurrentSettingDtoReducer),
   selectedPostalCode: persistReducer(selectedPostalCodeConfig, selectedPostalCodeSlice),
@@ -159,8 +161,8 @@ const store = configureStore({
       serializableCheck: false
     }).concat(
       enhancedApiChannelGroups.middleware,
-      enhancedApiEpgFiles.middleware,
-      enhancedApiM3UFiles.middleware,
+      // enhancedApiEpgFiles.middleware,
+      // enhancedApiM3UFiles.middleware,
       enhancedApiMisc.middleware,
       enhancedApiProgrammes.middleware,
       enhancedApiQueue.middleware,

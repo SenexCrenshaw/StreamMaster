@@ -28,6 +28,39 @@
     padding: 0;
 }
 
+.smfileupload {
+    .p-inputtext {
+        height: $datatable-row-height;
+    }
+}
+
+// .p-inputnumber {
+//     background-color: transparent;
+//     border-color: transparent !important;
+//     height: var(--input-height);
+//     font-size: var(--common-font-size) !important;
+//     // overflow: hidden !important;
+//     // padding: 0 !important;
+//     // text-overflow: ellipsis !important;
+//     // white-space: nowrap !important;
+//     transition: border-color 0.3s;
+// }
+
+.filesEditor {
+    padding: 0rem;
+
+    .header {
+        background-color: #0c243c;
+        height: $datatable-row-height;
+    }
+
+    .p-button {
+        height: $input-height;
+        width: $input-height;
+    }
+
+}
+
 .iconselector {
     &.p-dropdown {
         background-color: transparent;

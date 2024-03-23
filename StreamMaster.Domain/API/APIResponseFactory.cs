@@ -4,7 +4,7 @@ namespace StreamMaster.Domain.API;
 
 public static class APIResponseFactory
 {
-    private static APIResponse<T> IntOk<T>(PagedResponse<T>? pagedResponse = default)
+    public static APIResponse<T> OkWithData<T>(PagedResponse<T>? pagedResponse = default)
     {
         return new APIResponse<T> { Message = "OK", PagedResponse = pagedResponse };
     }

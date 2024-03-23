@@ -14,16 +14,35 @@ export interface BaseButtonProps {
   severity?: 'danger' | 'help' | 'info' | 'secondary' | 'success' | 'warning';
   tooltip?: string;
   style?: CSSProperties | undefined;
+  outlined?: boolean | undefined;
 }
 
 const BaseButton = forwardRef<Button, BaseButtonProps>(
-  ({ className, disabled = false, icon, iconFilled = true, isLeft = false, label, style, onClick, rounded = true, severity, tooltip = '', ...props }, ref) => (
+  (
+    {
+      className,
+      disabled = false,
+      icon,
+      iconFilled = true,
+      isLeft = false,
+      label,
+      style,
+      outlined = false,
+      onClick,
+      rounded = true,
+      severity,
+      tooltip = '',
+      ...props
+    },
+    ref
+  ) => (
     <Button
       className={className}
       disabled={disabled}
       icon={`pi ${icon}`}
       label={label}
       onClick={onClick}
+      outlined={outlined}
       rounded={rounded}
       severity={severity}
       size="small"
@@ -31,8 +50,11 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
       tooltip={tooltip}
       tooltipOptions={isLeft ? getLeftToolOptions : getTopToolOptions}
       ref={ref}
-      style={style && style}
+      style={style}
       {...props}
+      pt={{
+        label: { className: 'text-xs p-0 m-0' }
+      }}
     />
   )
 );

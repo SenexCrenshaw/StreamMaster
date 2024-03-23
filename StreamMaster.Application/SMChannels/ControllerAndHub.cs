@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+
 using StreamMaster.Application.SMChannels.Commands;
 
 namespace StreamMaster.Application.SMChannels
 {
     public partial class SMChannelsController(ISender Sender) : ApiControllerBase, ISMChannelsController
-    {        
+    {
 
         [HttpPatch]
         [Route("[action]")]

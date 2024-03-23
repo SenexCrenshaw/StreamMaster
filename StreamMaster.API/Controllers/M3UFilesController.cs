@@ -1,15 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Application.M3UFiles;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.M3UFiles.CommandsOrig;
 using StreamMaster.Application.M3UFiles.Queries;
 using StreamMaster.Domain.API;
-using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.API.Controllers;
 
-public class M3UFilesController() : ApiControllerBase, IM3UFileController
+public class M3UFilesController() : ApiControllerBase
 {
 
 
@@ -45,15 +43,6 @@ public class M3UFilesController() : ApiControllerBase, IM3UFileController
 
         return data != null ? (ActionResult<M3UFileDto>)data : (ActionResult<M3UFileDto>)NotFound();
     }
-
-    [HttpGet]
-    public async Task<ActionResult<PagedResponse<M3UFileDto>>> GetPagedM3UFiles([FromQuery] M3UFileParameters Parameters)
-    {
-        PagedResponse<M3UFileDto> m3uFiles = await Mediator.Send(new GetPagedM3UFiles(Parameters)).ConfigureAwait(false);
-
-        return Ok(m3uFiles);
-    }
-
 
     [HttpPatch]
     [Route("[action]")]

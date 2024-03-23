@@ -5,6 +5,7 @@ namespace StreamMaster.Application.SMChannels.Commands;
 [SMAPI]
 public record AddSMStreamToSMChannelRequest(int SMChannelId, string SMStreamId) : IRequest<DefaultAPIResponse>;
 
+
 internal class AddSMStreamToSMChannelRequestHandler(IRepositoryWrapper Repository, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor) : IRequestHandler<AddSMStreamToSMChannelRequest, DefaultAPIResponse>
 {
     public async Task<DefaultAPIResponse> Handle(AddSMStreamToSMChannelRequest request, CancellationToken cancellationToken)

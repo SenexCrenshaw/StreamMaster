@@ -8,7 +8,7 @@ const AddButton = React.forwardRef<Button, ChildButtonProperties>(({ disabled = 
     disabled={disabled}
     icon="pi-plus"
     iconFilled={iconFilled}
-    label={iconFilled === true ? undefined : label}
+    label={iconFilled === true ? undefined : label ?? undefined}
     onClick={onClick}
     ref={ref}
     severity="success"

@@ -13,8 +13,7 @@ using StreamMaster.Application.VideoStreams;
 namespace StreamMaster.Application.Common.Interfaces;
 
 public interface ISharedHub :
-    IEPGFileHub,
-    IM3UFileHub,
+
     ISchedulesDirectHub,
     IVideoStreamHub,
     ILogHub,

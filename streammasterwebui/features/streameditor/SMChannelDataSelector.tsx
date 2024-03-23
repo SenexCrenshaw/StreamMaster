@@ -5,6 +5,7 @@ import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { SMChannelDto } from '@lib/apiDefs';
 import { GetMessage } from '@lib/common/common';
 import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { DeleteSMChannelRequest } from '@lib/smAPI/SMChannels/SMChannelsTypes';
 import useSMChannels from '@lib/smAPI/SMChannels/useSMChannels';
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
 import { ProgressSpinner } from 'primereact/progressspinner';
@@ -33,7 +34,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
 
   const actionBodyTemplate = useCallback((data: SMChannelDto) => {
     const accept = () => {
-      DeleteSMChannel(data.id)
+      DeleteSMChannel({ smChannelId: data.id } as DeleteSMChannelRequest)
         .then((response) => {})
         .catch((error) => {
           console.error('Remove Channel', error.message);

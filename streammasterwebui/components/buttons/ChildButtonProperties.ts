@@ -8,4 +8,5 @@ export interface ChildButtonProperties {
   onClick: (e: SyntheticEvent) => void;
   style?: React.CSSProperties | undefined;
   tooltip?: string;
+  outlined?: boolean | undefined;
 }

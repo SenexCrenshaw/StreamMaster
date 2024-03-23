@@ -6733,15 +6733,31 @@
 
 .p-multiselect-label,
 .p-accordion .p-accordion-header .p-accordion-header-link {
-  padding-left: 0.2rem !important;
-  padding-top: 0.2rem !important;
-  padding-bottom: 0.2rem !important;
+  padding-left: 0.4rem !important;
+  padding-top: 0.4rem !important;
+  padding-bottom: 0.4rem !important;
   font-size: 0.875rem;
   max-height: 1.8rem;
 }
 
 .p-multiselect-label.p-multiselect-items-label {
   padding: 0;
+}
+
+.smfileupload .p-inputtext {
+  height: 1.8rem;
+}
+
+.filesEditor {
+  padding: 0rem;
+}
+.filesEditor .header {
+  background-color: #0c243c;
+  height: 1.8rem;
+}
+.filesEditor .p-button {
+  height: 1.4rem;
+  width: 1.4rem;
 }
 
 .iconselector.p-dropdown {
@@ -6779,7 +6795,7 @@
   padding-bottom: 0rem;
 }
 .p-datatable .p-datatable-tbody > tr > td {
-  padding: 0.2rem 0;
+  padding: 0.4rem 0;
   height: 1.8rem;
   max-height: 1.8rem;
 }
@@ -6799,13 +6815,13 @@
 }
 
 .p-filter-column {
-  padding-top: 0.2rem !important;
-  padding-bottom: 0.2rem !important;
+  padding-top: 0.4rem !important;
+  padding-bottom: 0.4rem !important;
 }
 .p-filter-column .p-inputtext {
-  padding-left: 0.2rem !important;
-  padding-top: 0.2rem !important;
-  padding-bottom: 0.2rem !important;
+  padding-left: 0.4rem !important;
+  padding-top: 0.4rem !important;
+  padding-bottom: 0.4rem !important;
   font-size: 0.875rem;
   max-height: 1.8rem;
 }

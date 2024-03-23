@@ -1,10 +1,9 @@
-﻿using StreamMaster.Application.M3UFiles;
-using StreamMaster.Application.M3UFiles.CommandsOrig;
+﻿using StreamMaster.Application.M3UFiles.CommandsOrig;
 using StreamMaster.Application.M3UFiles.Queries;
 
 namespace StreamMaster.Application.Hubs;
 
-public partial class StreamMasterHub : IM3UFileHub
+public partial class StreamMasterHub
 {
 
     public async Task ChangeM3UFileName(ChangeM3UFileNameRequest request)
@@ -35,11 +34,6 @@ public partial class StreamMasterHub : IM3UFileHub
     public async Task UpdateM3UFile(UpdateM3UFileRequest request)
     {
         await Sender.Send(request).ConfigureAwait(false);
-    }
-
-    public async Task<PagedResponse<M3UFileDto>> GetPagedM3UFiles(M3UFileParameters m3uFileParameters)
-    {
-        return await Sender.Send(new GetPagedM3UFiles(m3uFileParameters)).ConfigureAwait(false);
     }
 
     public async Task<M3UFileDto?> GetM3UFile(int id)

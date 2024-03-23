@@ -3,10 +3,10 @@ export interface SMChannelRankRequest {
   smStreamId: string;
   rank: number;
 }
-export interface SMStreamSMChannelRequest {
-  smChannelId: number;
-  smStreamId: string;
-}
+// export interface SMStreamSMChannelRequest {
+//   smChannelId: number;
+//   smStreamId: string;
+// }
 export interface QueryHookResult<T> {
   data?: T;
   error?: Error | string | null;
@@ -151,3 +151,34 @@ export interface SMChannelLogoRequest {
   smChannelId: number;
   logo: string;
 }
+
+export type M3UFileDto = BaseFileDto & {
+  vodTags: string[];
+  overwriteChannelNumbers: boolean;
+  startingChannelNumber: number;
+  maxStreamCount: number;
+  stationCount: number;
+};
+
+export type BaseFileDto = {
+  source: string;
+  autoUpdate: boolean;
+  description: string;
+  downloadErrors: number;
+  hoursToUpdate: number;
+  id: number;
+  lastDownloadAttempt: string;
+  lastDownloaded: string;
+  name: string;
+  needsUpdate: boolean;
+  url: string;
+};
+export type EpgFileDto = BaseFileDto & {
+  timeShift: number;
+  epgNumber: number;
+  color: string;
+  channelCount: number;
+  epgStartDate: string;
+  epgStopDate: string;
+  programmeCount: number;
+};

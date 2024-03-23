@@ -22,10 +22,10 @@ public static class TypeScriptHookGenerator
                 mainEntityName = Util.IsTSGeneric(Util.ExtractInnermostType(method.ReturnType));
                 continue;
             }
-            if (method.JustHub)
-            {
-                content.AppendLine($"import {{ {method.Name} }} from '@lib/smAPI/{namespaceName}/{namespaceName}Commands';");
-            }
+            //if (method.JustHub)
+            //{
+            //    content.AppendLine($"import {{ {method.Name} }} from '@lib/smAPI/{namespaceName}/{namespaceName}Commands';");
+            //}
         }
 
         MethodDetails? fetchMethod = methods.FirstOrDefault(m => m.Name.Contains("GetPaged"));
@@ -41,11 +41,11 @@ public static class TypeScriptHookGenerator
 
         content.Append(GenerateHookContent(namespaceName, mainEntityName, fetchMethod?.Name, methods));
 
-        string additionals = mainEntityName;
-
+        string additionals = "";
+        additionalImports.Add(mainEntityName);
         if (additionalImports.Count > 0)
         {
-            additionals = string.Join(",", additionalImports);
+            additionals += string.Join(",", additionalImports);
         }
         content.Insert(0, $"import {{ FieldData, GetApiArgument, PagedResponse, QueryHookResult,{additionals} }} from '@lib/apiDefs';\n");
 
@@ -69,34 +69,34 @@ public static class TypeScriptHookGenerator
         sb.AppendLine();
         sb.AppendLine($"interface {mainEntityName}Result extends ExtendedQueryHookResult {{");
 
-        foreach (MethodDetails method in methods)
-        {
-            string methodName = method.Name;
-            string? toImport = Util.IsTSGeneric(method.TsParameters);
-            if (toImport != null)
-            {
-                additionalImports.Add(toImport);
-            }
-            toImport = Util.IsTSGeneric(method.ReturnType);
-            if (toImport != null)
-            {
-                additionalImports.Add(toImport);
-            }
+        //foreach (MethodDetails method in methods)
+        //{
+        //    string methodName = method.Name;
+        //    string? toImport = Util.IsTSGeneric(method.TsParameters);
+        //    if (toImport != null)
+        //    {
+        //        additionalImports.Add(toImport);
+        //    }
+        //    toImport = Util.IsTSGeneric(method.ReturnType);
+        //    if (toImport != null)
+        //    {
+        //        additionalImports.Add(toImport);
+        //    }
 
-            if (methodName.StartsWith("GetPaged"))
-            {
-                continue;
-            }
+        //    if (methodName.StartsWith("GetPaged"))
+        //    {
+        //        continue;
+        //    }
 
-            if (methodName == "DeleteAllSMChannelsFromParameters")
-            {
-                int aa = 1;
-            }
+        //    if (methodName == "DeleteAllSMChannelsFromParameters")
+        //    {
+        //        int aa = 1;
+        //    }
 
 
-            //(string parameterName, string tsParameterString) = GetReal(method);
-            sb.AppendLine($"  {methodName.ToCamelCase()}: ({method.TsParameters}) => Promise<DefaultAPIResponse | null>;");
-        }
+        //    //(string parameterName, string tsParameterString) = GetReal(method);
+        //    sb.AppendLine($"  {methodName.ToCamelCase()}: ({method.TsParameters}) => Promise<DefaultAPIResponse | null>;");
+        //}
 
         sb.AppendLine("  set" + namespaceName + "Field: (fieldData: FieldData) => void;");
         sb.AppendLine("  refresh" + namespaceName + ": () => void;");
@@ -136,42 +136,42 @@ public static class TypeScriptHookGenerator
         sb.AppendLine();
 
         // Command methods
-        foreach (MethodDetails method in methods)
-        {
-            string methodName = method.Name;
-            if (methodName.StartsWith("GetPaged"))
-            {
-                continue;
-            }
-            if (methodName == "DeleteAllSMChannelsFromParameters")
-            {
-                int aa = 1;
-            }
-            //string tsParams = ParameterConverter2.ConvertCSharpParametersToTypeScript(method.Parameters);
-            //string[] parts = tsParams.Split(':');
-            //string parameterName = parts[0].Trim();
+        //foreach (MethodDetails method in methods)
+        //{
+        //    string methodName = method.Name;
+        //    if (methodName.StartsWith("GetPaged"))
+        //    {
+        //        continue;
+        //    }
+        //    if (methodName == "DeleteAllSMChannelsFromParameters")
+        //    {
+        //        int aa = 1;
+        //    }
+        //    //string tsParams = ParameterConverter2.ConvertCSharpParametersToTypeScript(method.Parameters);
+        //    //string[] parts = tsParams.Split(':');
+        //    //string parameterName = parts[0].Trim();
 
-            //string pattern = @"\b\w*Parameters(?!\:)\b";
-            //tsParams = Regex.Replace(tsParams, pattern, "QueryStringParameters");
-            //(string parameterName, string tsParameterString) = GetReal(method);
+        //    //string pattern = @"\b\w*Parameters(?!\:)\b";
+        //    //tsParams = Regex.Replace(tsParams, pattern, "QueryStringParameters");
+        //    //(string parameterName, string tsParameterString) = GetReal(method);
 
-            sb.AppendLine($"  const {methodName.ToCamelCase()} = ({method.TsParameters}): Promise<DefaultAPIResponse | null> => {{");
-            sb.AppendLine($"    return {methodName}({method.ParameterNames});");
-            sb.AppendLine($"  }};");
-            sb.AppendLine();
-        }
+        //    sb.AppendLine($"  const {methodName.ToCamelCase()} = ({method.TsParameters}): Promise<DefaultAPIResponse | null> => {{");
+        //    sb.AppendLine($"    return {methodName}({method.ParameterNames});");
+        //    sb.AppendLine($"  }};");
+        //    sb.AppendLine();
+        //}
 
         // Return statement
         sb.Append($"  return {{ data, error, isError, isLoading");
 
-        foreach (string methodName in commandMethodNames)
-        {
-            if (methodName.StartsWith("GetPaged"))
-            {
-                continue;
-            }
-            sb.Append($", {methodName.ToCamelCase()}");
-        }
+        //foreach (string methodName in commandMethodNames)
+        //{
+        //    if (methodName.StartsWith("GetPaged"))
+        //    {
+        //        continue;
+        //    }
+        //    sb.Append($", {methodName.ToCamelCase()}");
+        //}
 
         sb.AppendLine($", refresh{namespaceName}, set{namespaceName}Field }};");
         sb.AppendLine("};");

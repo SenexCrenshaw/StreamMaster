@@ -1,4 +1,4 @@
-import { IFormFile } from '@lib/apiDefs';
+import { IFormFile,QueryStringParameters } from '@lib/apiDefs';
 export interface CreateM3UFileRequest {
   name: string;
   maxStreamCount: number;
@@ -7,6 +7,10 @@ export interface CreateM3UFileRequest {
   startingChannelNumber?: number;
   formFile?: IFormFile;
   vODTags?: string[];
+ }
+
+export interface GetPagedM3UFilesRequest {
+  parameters?: QueryStringParameters;
  }
 
 export interface ProcessM3UFileRequest {

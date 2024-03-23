@@ -32,7 +32,6 @@ public partial class StreamMasterHub(
 {
     private static readonly ConcurrentHashSet<string> _connections = [];
     private readonly Setting settings = intsettings.CurrentValue;
-    private StreamMasterHub HubContext => this;
     public static bool IsConnected
     {
         get

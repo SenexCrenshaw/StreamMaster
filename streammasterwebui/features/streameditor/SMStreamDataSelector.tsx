@@ -1,4 +1,5 @@
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
+import M3UFilesEditor2 from '@components/m3u/M3UFilesEditor2';
 
 import { SMStreamDto, SMStreamSMChannelRequest } from '@lib/apiDefs';
 
@@ -6,6 +7,7 @@ import { GetMessage } from '@lib/common/common';
 import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreams';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { AddSMStreamToSMChannel, CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { AddSMStreamToSMChannelRequest, CreateSMChannelFromStreamRequest } from '@lib/smAPI/SMChannels/SMChannelsTypes';
 import useSMStreams from '@lib/smAPI/SMStreams/useSMStreams';
 
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
@@ -78,6 +80,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataS
   const rightHeaderTemplate = useMemo(
     () => (
       <div className="flex justify-content-end align-items-center w-full gap-1">
+        <M3UFilesEditor2 />
         {/* <TriSelectShowHidden dataKey={dataKey} />
         <VideoStreamSetTimeShiftsDialog id={dataKey} />
         <VideoStreamResetLogosDialog id={dataKey} />
@@ -105,13 +108,13 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataS
         id={dataKey}
         onChannelAdd={(e) => {
           console.log('Add', e);
-          CreateSMChannelFromStream(e.id)
+          CreateSMChannelFromStream({ streamId: e.id } as CreateSMChannelFromStreamRequest)
             .then((response) => {})
             .catch((error) => {
               console.error(error.message);
             });
         }}
-        onStreamAdd={(e: SMStreamSMChannelRequest) => {
+        onStreamAdd={(e: AddSMStreamToSMChannelRequest) => {
           AddSMStreamToSMChannel(e)
             .then((response) => {})
             .catch((error) => {

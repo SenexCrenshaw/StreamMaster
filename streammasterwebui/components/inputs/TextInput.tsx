@@ -127,7 +127,7 @@ const TextInput = ({
 
         <InputText
           autoFocus={autoFocus}
-          className={`text-large w-full ${isValid ? '' : 'p-invalid'}`}
+          className={`w-full ${isValid ? '' : 'p-invalid'}`}
           id={uuid}
           onChange={(event) => {
             setInput(processValue(event.target.value));

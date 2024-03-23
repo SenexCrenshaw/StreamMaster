@@ -1,7 +1,9 @@
-$input-height: 1.4rem;
 $datatable-row-height: 1.8rem;
+$datatable-padding: 0.4rem;
+$input-height: $datatable-row-height - $datatable-padding;
+
 $common-font-size: small;
-$datatable-padding: 0.2rem;
+
 $streamMasterColor: #fe7600 !default;
 
 @mixin datatable-text-style {

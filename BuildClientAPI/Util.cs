@@ -93,91 +93,7 @@ public static class Util
         return ret;
     }
 
-    public static bool IsParameterNullable(ParameterInfo parameter)
-    {
-        // Check for a value type that is nullable
-        if (Nullable.GetUnderlyingType(parameter.ParameterType) != null)
-        {
-            return true; // It's a nullable value type
-        }
 
-        // For reference types, check the Nullable attribute
-        if (!parameter.ParameterType.IsValueType)
-        {
-
-            CustomAttributeData? nullableAttribute = parameter.CustomAttributes
-                .FirstOrDefault(a => a.AttributeType.FullName == "System.Runtime.CompilerServices.NullableAttribute");
-            if (nullableAttribute != null)
-            {
-                byte? flag = nullableAttribute.ConstructorArguments.FirstOrDefault().Value as byte?;
-                if (flag != null)
-                {
-                    if (flag == 2)
-                    {
-                        return true; // Parameter is nullable
-                    }
-                    else if (flag == 1)
-                    {
-                        return false; // Parameter is not nullable
-                    }
-                }
-            }
-
-            CustomAttributeData? contextAttribute = parameter.Member.CustomAttributes
-                .FirstOrDefault(a => a.AttributeType.FullName == "System.Runtime.CompilerServices.NullableContextAttribute");
-            if (contextAttribute != null)
-            {
-                byte flag = (byte)contextAttribute.ConstructorArguments.FirstOrDefault().Value;
-                if (flag == 2)
-                {
-                    return true; // Context suggests nullable
-                }
-                else if (flag == 1)
-                {
-                    return false; // Context suggests non-nullable
-                }
-            }
-        }
-
-        // If no explicit information, conservative default for reference types is nullable,
-        // but for value types without Nullable<T>, default is non-nullable.
-        return !parameter.ParameterType.IsValueType;
-    }
-
-    public static string CSharpPropsToTSInterface(string typeName, Assembly assembly)
-    {
-
-        // Attempt to find the type by name
-        Type? type = assembly.GetType(typeName, throwOnError: false);
-        if (type == null)
-        {
-            Console.WriteLine($"Type {typeName} not found in the specified assembly.");
-            return null;
-        }
-
-        StringBuilder sb = new();
-        //PropertyInfo[] properties = recordType.GetProperties();
-        //sb.AppendLine($"export interface {recordType.Name} {{");
-
-        //foreach (PropertyInfo p in properties)
-        //{
-        //    if (p.Name.Contains("Paged"))
-        //    {
-        //        int aa = 1;
-        //    }
-        //    string? name = p.Name;
-        //    Type pType = p.PropertyType;
-        //    string tsTypeFullName = GetTypeFullNameForParameter(pType);
-        //    string tt = MapCSharpTypeToTypeScript(tsTypeFullName);
-        //    string tsType = GetLastPartOfTypeName(tt);
-        //    tsType = FixUpTSType(tsType);
-        //    sb.AppendLine($"  {name.ToCamelCase()}: {tsType};");
-
-        //}
-        //sb.AppendLine("}");
-
-        return sb.ToString();
-    }
 
     public static string CSharpPropsToTSInterface(Type recordType)
     {
@@ -245,6 +161,56 @@ public static class Util
         }
 
         return csharpType;
+    }
+    public static bool IsParameterNullable(ParameterInfo parameter)
+    {
+        // Check for a value type that is nullable
+        if (Nullable.GetUnderlyingType(parameter.ParameterType) != null)
+        {
+            return true; // It's a nullable value type
+        }
+
+        // For reference types, check the Nullable attribute
+        if (!parameter.ParameterType.IsValueType)
+        {
+
+            CustomAttributeData? nullableAttribute = parameter.CustomAttributes
+                .FirstOrDefault(a => a.AttributeType.FullName == "System.Runtime.CompilerServices.NullableAttribute");
+            if (nullableAttribute != null)
+            {
+                byte? flag = nullableAttribute.ConstructorArguments.FirstOrDefault().Value as byte?;
+                if (flag != null)
+                {
+                    if (flag == 2)
+                    {
+                        return true; // Parameter is nullable
+                    }
+                    else if (flag == 1)
+                    {
+                        return false; // Parameter is not nullable
+                    }
+                }
+            }
+
+            CustomAttributeData? contextAttribute = parameter.Member.CustomAttributes
+                .FirstOrDefault(a => a.AttributeType.FullName == "System.Runtime.CompilerServices.NullableContextAttribute");
+            if (contextAttribute != null)
+            {
+                byte flag = (byte)contextAttribute.ConstructorArguments.FirstOrDefault().Value;
+                if (flag == 2)
+                {
+                    return true; // Context suggests nullable
+                }
+                else if (flag == 1)
+                {
+                    return false; // Context suggests non-nullable
+                }
+            }
+        }
+
+        // If no explicit information, conservative default for reference types is nullable,
+        // but for value types without Nullable<T>, default is non-nullable.
+        return !parameter.ParameterType.IsValueType;
     }
 
     public static string MapCSharpTypeToTypeScript(string csharpType)

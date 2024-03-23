@@ -24,7 +24,7 @@ internal class SetSMStreamRanksRequestHandler(IRepositoryWrapper Repository, ISe
                 }
 
             }
-            await hubContext.Clients.All.SetField(fieldDatas.ToArray()).ConfigureAwait(false);
+            await hubContext.Clients.All.SetField([.. fieldDatas]).ConfigureAwait(false);
         }
         return ret;
     }

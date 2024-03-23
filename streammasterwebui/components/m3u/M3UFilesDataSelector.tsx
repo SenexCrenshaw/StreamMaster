@@ -1,6 +1,6 @@
 import { formatJSONDateString, getTopToolOptions } from '@lib/common/common';
-import { useM3UFilesGetPagedM3UFilesQuery, type M3UFileDto, type UpdateM3UFileRequest } from '@lib/iptvApi';
-import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesMutateAPI';
+import { type M3UFileDto, type UpdateM3UFileRequest } from '@lib/iptvApi';
+
 import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox';
 import { Toast } from 'primereact/toast';
 import { memo, useCallback, useMemo, useRef } from 'react';
@@ -10,8 +10,9 @@ import StringEditorBodyTemplate from '../inputs/StringEditorBodyTemplate';
 import M3UFileRefreshDialog from './M3UFileRefreshDialog';
 import M3UFileRemoveDialog from './M3UFileRemoveDialog';
 
-import DataSelector from '../dataSelector/DataSelector';
 import M3UFileTagsDialog from './M3UFileTagsDialog';
+import useM3UFiles from '@lib/smAPI/M3UFiles/useM3UFiles';
+import SMDataSelector from '@components/dataSelector/SMDataSelector';
 interface M3UUpdateProperties {
   id: number;
   auto?: boolean | null;
@@ -76,27 +77,27 @@ const M3UFilesDataSelector = () => {
         tosend.startingChannelNumber = startingChannelNumber;
       }
 
-      await UpdateM3UFile(tosend)
-        .then(() => {
-          if (toast.current) {
-            toast.current.show({
-              detail: 'M3U File Update Successful',
-              life: 3000,
-              severity: 'success',
-              summary: 'Successful'
-            });
-          }
-        })
-        .catch((error) => {
-          if (toast.current) {
-            toast.current.show({
-              detail: 'M3U File Update Failed',
-              life: 3000,
-              severity: 'error',
-              summary: `Error ${error.message}`
-            });
-          }
-        });
+      // await UpdateM3UFile(tosend)
+      //   .then(() => {
+      //     if (toast.current) {
+      //       toast.current.show({
+      //         detail: 'M3U File Update Successful',
+      //         life: 3000,
+      //         severity: 'success',
+      //         summary: 'Successful'
+      //       });
+      //     }
+      //   })
+      //   .catch((error) => {
+      //     if (toast.current) {
+      //       toast.current.show({
+      //         detail: 'M3U File Update Failed',
+      //         life: 3000,
+      //         severity: 'error',
+      //         summary: `Error ${error.message}`
+      //       });
+      //     }
+      //   });
     },
     [toast]
   );
@@ -297,12 +298,6 @@ const M3UFilesDataSelector = () => {
         sortable: true,
         width: '22rem'
       },
-      // {
-      //   bodyTemplate: StreamURLPrefixEditorBodyTemplate,
-      //   field: 'streamURLPrefix',
-      //   header: 'Output Type',
-      //   width: '14rem',
-      // },
       {
         bodyTemplate: lastDownloadedTemplate,
         field: 'lastDownloaded',
@@ -357,14 +352,16 @@ const M3UFilesDataSelector = () => {
     <>
       <Toast position="bottom-right" ref={toast} />
 
-      <DataSelector
+      <SMDataSelector
         columns={columns}
         defaultSortField="name"
         emptyMessage="No M3U Files"
         id="m3ufilesdataselector"
-        queryFilter={useM3UFilesGetPagedM3UFilesQuery}
-        selectedItemsKey="selectSelectedM3UFileDtoItems"
-        style={{ height: 'calc(50vh - 120px)' }}
+        queryFilter={useM3UFiles}
+        selectedItemsKey="selectedM3UFileDtoItems"
+        selectedSMStreamKey="SMChannelDataSelector"
+        selectedSMChannelKey="SMChannelDataSelector"
+        style={{ height: '30vh' }}
       />
     </>
   );
