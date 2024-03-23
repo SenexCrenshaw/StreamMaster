@@ -7,36 +7,23 @@ import { useAppInfo } from '../redux/slices/useAppInfo';
 import { isClient } from '../settings';
 import { hubConnection } from './signalr';
 import { dataRefreshListener, setFieldListener, smMessagesListener } from './singletonListeners';
-import { Toast } from 'primereact/toast';
+
 import { useAppSelector } from '@lib/redux/hooks';
 import { SMMessage } from './SMMessage';
 import { useSMMessages } from '@lib/redux/slices/messagesSlice';
 import useM3UFiles from '@lib/smAPI/M3UFiles/useM3UFiles';
 
 export const SignalRConnection = ({ children }: React.PropsWithChildren): JSX.Element => {
-  const toast = useRef<Toast>(null);
-  const smMessages = useAppSelector((state) => state.messages);
-
   const { setHubConnected, setHubDisconnected } = useAppInfo();
   const { refreshSMStreams, setSMStreamsField } = useSMStreams();
   const { refreshSMChannels, setSMChannelsField } = useSMChannels();
   const { refreshM3UFiles, setM3UFilesField } = useM3UFiles();
-  const { AddMessage, ClearMessages } = useSMMessages();
+  const { AddMessage } = useSMMessages();
 
   const retries = useRef(0); // store the retry count
   const maxRetries = 5; // define a maximum number of retry attempts
   const initialDelay = 1000; // start with 1 second delay
   const maxDelay = 30000; // max delay is 30 seconds
-
-  useEffect(() => {
-    if (smMessages.length === 0) return;
-
-    smMessages.forEach((message) => {
-      toast?.current?.show({ severity: message.severity, summary: message.summary, detail: message.detail, life: message.life });
-    });
-
-    ClearMessages();
-  }, [smMessages]);
 
   useEffect(() => {
     let isActive = true; // Flag to control async operations
@@ -157,14 +144,5 @@ export const SignalRConnection = ({ children }: React.PropsWithChildren): JSX.El
     };
   }, [setHubConnected, setHubDisconnected, setSMStreamsField]);
 
-  //  const showContrast = () => {
-  //    toast?.current?.show({ severity: 'contrast', summary: 'Contrast', detail: 'Message Content', life: 3000 });
-  //  };
-
-  return (
-    <>
-      <Toast ref={toast} />
-      {children}
-    </>
-  );
+  return <>{children}</>;
 };

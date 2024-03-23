@@ -27,6 +27,7 @@ import '@lib/styles/index.css';
 // import '@lib/styles/theme.css'; // theme
 import 'primeicons/primeicons.css'; //icons
 import 'primereact/resources/primereact.min.css'; //core css
+import { MessageProcessor } from '@lib/signalr/MessageProcessor';
 // import 'primereact/resources/primereact.css'; // core css
 //import 'primereact/resources/themes/viva-dark/theme.css'; // theme
 
@@ -75,9 +76,11 @@ const App = (): JSX.Element => {
   return (
     <div className="App p-fluid">
       <IntlProvider locale={locale} messages={messages}>
-        <SignalRConnection>
-          <RouterProvider router={router} />
-        </SignalRConnection>
+        <MessageProcessor>
+          <SignalRConnection>
+            <RouterProvider router={router} />
+          </SignalRConnection>
+        </MessageProcessor>
       </IntlProvider>
     </div>
   );
