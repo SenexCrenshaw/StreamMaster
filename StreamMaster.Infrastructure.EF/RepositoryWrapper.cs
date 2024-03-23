@@ -62,7 +62,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _smStream ??= new SMStreamRepository(SMStreamLogger, repositoryContext, intSettings, mapper);
+                _smStream ??= new SMStreamRepository(SMStreamLogger, this, repositoryContext, intSettings, mapper);
                 return _smStream;
             }
         }

@@ -17,9 +17,10 @@ export interface M3UFileDialogProperties {
   readonly onHide?: (didUpload: boolean) => void;
   readonly show?: boolean | null;
   readonly showButton?: boolean | null;
+  readonly onUploadComplete: () => void;
 }
 
-export const M3UFileCreateDialog = ({ onHide, show, showButton }: M3UFileDialogProperties) => {
+export const M3UFileCreateDialog = ({ onHide, onUploadComplete, show, showButton }: M3UFileDialogProperties) => {
   const fileUploadReference = useRef<FileUpload>(null);
 
   const [overwriteChannelNumbers, setOverwriteChannelNumbers] = React.useState<boolean>(true);
@@ -42,6 +43,7 @@ export const M3UFileCreateDialog = ({ onHide, show, showButton }: M3UFileDialogP
 
     setBlock(false);
     onHide?.(didUpload ?? false);
+    onUploadComplete();
   };
 
   const onCreateFromSource = useCallback(async (name: string, source: string) => {
@@ -56,10 +58,13 @@ export const M3UFileCreateDialog = ({ onHide, show, showButton }: M3UFileDialogP
 
     await CreateM3UFile(createM3UFileRequest)
       .then(() => {
-        // setInfoMessage('Uploaded M3U';
+        //setInfoMessage('Uploaded M3U';
       })
       .catch((error) => {
         // setInfoMessage(`Error Uploading M3U: ${error.message}`);
+      })
+      .finally(() => {
+        ReturnToParent(true);
       });
   }, []);
 
@@ -124,6 +129,9 @@ export const M3UFileCreateDialog = ({ onHide, show, showButton }: M3UFileDialogP
             overwriteChannelNumbers={overwriteChannelNumbers}
             vodTags={vodTags}
             onCreateFromSource={onCreateFromSource}
+            onUploadComplete={() => {
+              ReturnToParent(true);
+            }}
             settingTemplate={settingTemplate()}
           />
         </div>

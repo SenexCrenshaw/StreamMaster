@@ -8,12 +8,13 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 public record CreateM3UFileRequest(string Name, int MaxStreamCount, string? UrlSource, bool? OverWriteChannels, int? StartingChannelNumber, IFormFile? FormFile, List<string>? VODTags) : IRequest<DefaultAPIResponse> { }
 
 [LogExecutionTimeAspect]
-public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateM3UFileRequest, DefaultAPIResponse>
+public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, IMessageSevice messageSevice, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateM3UFileRequest, DefaultAPIResponse>
 {
     public async Task<DefaultAPIResponse> Handle(CreateM3UFileRequest command, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(command.UrlSource) && command.FormFile != null && command.FormFile.Length <= 0)
         {
+
             return APIResponseFactory.NotFound;
         }
 
@@ -96,10 +97,16 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3UFile);
             await Publisher.Publish(new M3UFileAddedEvent(ret.Id, false), cancellationToken).ConfigureAwait(false);
 
+            await hubContext.Clients.All.DataRefresh("M3UFileDto").ConfigureAwait(false);
+            await hubContext.Clients.All.DataRefresh("SMStreamDto").ConfigureAwait(false);
+
+            await messageSevice.SendSuccess("M3U '" + m3UFile.Name + "' added successfully");
+
             return APIResponseFactory.Ok;
         }
         catch (Exception exception)
         {
+            await messageSevice.SendError("Exception adding M3U", exception.Message);
             Logger.LogCritical("Exception M3U From Form {exception}", exception);
         }
         return APIResponseFactory.NotFound;

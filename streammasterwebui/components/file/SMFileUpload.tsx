@@ -11,6 +11,7 @@ import { memo, useMemo, useRef, useState } from 'react';
 type SMFileUploadProperties = UploadParamsSettings & {
   readonly onCreateFromSource: (name: string, source: string) => void;
   readonly settingTemplate: JSX.Element;
+  readonly onUploadComplete: () => void;
 };
 
 const SMFileUpload = (props: SMFileUploadProperties) => {
@@ -37,6 +38,7 @@ const SMFileUpload = (props: SMFileUploadProperties) => {
     setFileName('');
     setBlock(false);
     setSource('');
+    props.onUploadComplete();
   };
 
   const startUpload = async () => {
@@ -47,11 +49,13 @@ const SMFileUpload = (props: SMFileUploadProperties) => {
 
     setBlock(true);
 
-    doUpload({
+    await doUpload({
       ...props,
       name: name,
       fileName: fileName,
       file: file
+    }).finally(() => {
+      ReturnToParent(true);
     });
   };
 

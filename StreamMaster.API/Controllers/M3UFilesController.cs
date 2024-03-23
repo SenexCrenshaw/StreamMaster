@@ -27,13 +27,6 @@ public class M3UFilesController() : ApiControllerBase
         return result ? Ok() : BadRequest();
     }
 
-    [HttpDelete]
-    [Route("[action]")]
-    public async Task<ActionResult> DeleteM3UFile(DeleteM3UFileRequest request)
-    {
-        int? data = await Mediator.Send(request).ConfigureAwait(false);
-        return data == null ? NotFound() : NoContent();
-    }
 
     [HttpGet]
     [Route("{id}")]

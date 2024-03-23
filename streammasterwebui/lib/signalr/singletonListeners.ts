@@ -22,3 +22,4 @@ export const singletonMiscListener = createSingletonListener('MiscRefresh', hubC
 export const singletonQueueListener = createSingletonListener('TaskQueueStatusUpdate', hubConnection);
 export const setFieldListener = createSingletonListener('SetField', hubConnection);
 export const dataRefreshListener = createSingletonListener('DataRefresh', hubConnection);
+export const smMessagesListener = createSingletonListener('SendMessage', hubConnection);

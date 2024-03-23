@@ -34,6 +34,7 @@ import sortInfoSliceReducer from '@lib/redux/slices/sortInfoSlice';
 import SMChannelsSlice from '@lib/smAPI/SMChannels/SMChannelsSlice';
 import SMStreamsReducer from '@lib/smAPI/SMStreams/SMStreamsSlice';
 import M3UFilesReducer from '@lib/smAPI/M3UFiles/M3UFilesSlice';
+import SMMessagesReducer from '@lib/redux/slices/messagesSlice';
 
 import { enhancedApiMisc } from '@lib/smAPI/Misc/MiscEnhancedAPI';
 import { enhancedApiVideoStreamLinksLocal } from '@lib/smAPILocal/VideoStreamLinksEnhancedAPILocal';
@@ -148,7 +149,8 @@ const rootReducer = combineReducers({
   showHidden: persistReducer(showHiddenConfig, showHiddenSliceReducer),
   showSelections: persistReducer(showSelectionsConfig, showSelectionsSliceReducer),
   sortInfo: persistReducer(sortInfoConfig, sortInfoSliceReducer),
-  selectSMStreams: persistReducer(selectSMStreamsConfig, selectSMStreamsReducer)
+  selectSMStreams: persistReducer(selectSMStreamsConfig, selectSMStreamsReducer),
+  messages: SMMessagesReducer
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

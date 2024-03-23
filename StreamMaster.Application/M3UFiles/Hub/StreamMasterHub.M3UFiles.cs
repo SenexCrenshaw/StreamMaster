@@ -11,16 +11,6 @@ public partial class StreamMasterHub
         await Sender.Send(request).ConfigureAwait(false);
     }
 
-    public async Task DeleteM3UFile(DeleteM3UFileRequest request)
-    {
-        await Sender.Send(request).ConfigureAwait(false);
-    }
-
-    //public async Task ProcessM3UFile(ProcessM3UFileRequest request)
-    //{
-    //    await taskQueue.ProcessM3UFile(request).ConfigureAwait(false);
-    //}
-
     public async Task RefreshM3UFile(RefreshM3UFileRequest request)
     {
         await Sender.Send(request).ConfigureAwait(false);

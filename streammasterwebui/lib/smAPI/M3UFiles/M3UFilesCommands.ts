@@ -1,9 +1,13 @@
-import {DefaultAPIResponse,QueryStringParameters,M3UFileDto,APIResponse,PagedResponse} from '@lib/apiDefs';
+import { DefaultAPIResponse, QueryStringParameters, M3UFileDto, APIResponse, PagedResponse } from '@lib/apiDefs';
 import { invokeHubCommand } from '@lib/signalr/signalr';
 
-import { CreateM3UFileRequest,ProcessM3UFileRequest } from './M3UFilesTypes';
+import { CreateM3UFileRequest, DeleteM3UFileRequest, ProcessM3UFileRequest } from './M3UFilesTypes';
 export const CreateM3UFile = async (request: CreateM3UFileRequest): Promise<DefaultAPIResponse | null> => {
   return await invokeHubCommand<DefaultAPIResponse>('CreateM3UFile', request);
+};
+
+export const DeleteM3UFile = async (request: DeleteM3UFileRequest): Promise<DefaultAPIResponse | null> => {
+  return await invokeHubCommand<DefaultAPIResponse>('DeleteM3UFile', request);
 };
 
 export const GetPagedM3UFiles = async (parameters: QueryStringParameters): Promise<PagedResponse<M3UFileDto> | undefined> => {
@@ -23,4 +27,3 @@ export const GetPagedM3UFiles = async (parameters: QueryStringParameters): Promi
 export const ProcessM3UFile = async (request: ProcessM3UFileRequest): Promise<DefaultAPIResponse | null> => {
   return await invokeHubCommand<DefaultAPIResponse>('ProcessM3UFile', request);
 };
-

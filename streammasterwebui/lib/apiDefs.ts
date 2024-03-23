@@ -3,10 +3,7 @@ export interface SMChannelRankRequest {
   smStreamId: string;
   rank: number;
 }
-// export interface SMStreamSMChannelRequest {
-//   smChannelId: number;
-//   smStreamId: string;
-// }
+
 export interface QueryHookResult<T> {
   data?: T;
   error?: Error | string | null;

@@ -1,5 +1,4 @@
-﻿using StreamMaster.Application.ChannelGroups.Events;
-using StreamMaster.Application.StreamGroupChannelGroups.Commands;
+﻿using StreamMaster.Application.StreamGroupChannelGroups.Commands;
 
 namespace StreamMaster.Application.ChannelGroups.Commands;
 
@@ -7,7 +6,7 @@ namespace StreamMaster.Application.ChannelGroups.Commands;
 [RequireAll]
 public record CreateChannelGroupRequest(string GroupName, bool IsReadOnly) : IRequest<DefaultAPIResponse> { }
 
-public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest> logger, ISender sender, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateChannelGroupRequest, DefaultAPIResponse>
+public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest> logger, IMessageSevice messageSevice, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ISender sender, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateChannelGroupRequest, DefaultAPIResponse>
 {
     public async Task<DefaultAPIResponse> Handle(CreateChannelGroupRequest request, CancellationToken cancellationToken)
     {
@@ -26,7 +25,8 @@ public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest>
 
         await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(channelGroupDto.Id), cancellationToken).ConfigureAwait(false);
 
-        await Publisher.Publish(new CreateChannelGroupEvent(channelGroupDto), cancellationToken).ConfigureAwait(false);
+        await hubContext.Clients.All.DataRefresh("ChannelGroupDto").ConfigureAwait(false);
+        await messageSevice.SendSuccess("Created CG '" + channelGroupDto.Name);
         return APIResponseFactory.Ok;
     }
 }

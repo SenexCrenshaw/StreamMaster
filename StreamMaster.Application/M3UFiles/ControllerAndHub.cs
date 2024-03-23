@@ -6,6 +6,14 @@ namespace StreamMaster.Application.M3UFiles
     public partial class M3UFilesController(ISender Sender) : ApiControllerBase, IM3UFilesController
     {        
 
+        [HttpDelete]
+        [Route("[action]")]
+        public async Task<ActionResult<DefaultAPIResponse>> DeleteM3UFile(DeleteM3UFileRequest request)
+        {
+            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse<M3UFileDto>>> GetPagedM3UFiles([FromQuery] M3UFileParameters Parameters)
@@ -22,6 +30,12 @@ namespace StreamMaster.Application.Hubs
     public partial class StreamMasterHub : IM3UFilesHub
     {
         public async Task<DefaultAPIResponse> CreateM3UFile(CreateM3UFileRequest request)
+        {
+            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<DefaultAPIResponse> DeleteM3UFile(DeleteM3UFileRequest request)
         {
             DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

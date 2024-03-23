@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 
+using Microsoft.EntityFrameworkCore;
+
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 
@@ -55,14 +57,10 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
         IQueryable<SMChannelStreamLink> linksToDelete = GetQuery(true).Where(a => a.SMChannelId == smchannelId);
         if (linksToDelete.Any())
         {
-            foreach (SMChannelStreamLink? link in linksToDelete)
-            {
-                Delete(link);
-            }
-            await SaveChangesAsync();
+            await linksToDelete.ExecuteDeleteAsync().ConfigureAwait(false);
         }
         List<int> smchannelIds = linksToDelete.Select(a => a.SMChannelId).ToList();
-        await UpdateRanks(smchannelIds);
+        await UpdateRanks([smchannelId]);
     }
 
     public async Task DeleteSMChannelStreamLinks(IQueryable<SMChannelStreamLink> linksToDelete)

@@ -1,7 +1,7 @@
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import M3UFilesEditor2 from '@components/m3u/M3UFilesEditor2';
 
-import { SMStreamDto, SMStreamSMChannelRequest } from '@lib/apiDefs';
+import { SMStreamDto } from '@lib/apiDefs';
 
 import { GetMessage } from '@lib/common/common';
 import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreams';

@@ -36,4 +36,5 @@ public interface IStreamMasterHub : ISharedHub
     Task UpdateChannelGroupVideoStreamCounts(List<ChannelGroupStreamCount> channelGroupStreamCounts);
     Task SetField(FieldData[] fieldData);
     Task DataRefresh(string entityName);
+    Task SendMessage(SMMessage smMessage);
 }

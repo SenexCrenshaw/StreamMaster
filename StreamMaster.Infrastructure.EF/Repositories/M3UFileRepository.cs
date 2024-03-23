@@ -293,7 +293,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
 
     public async Task<M3UFile?> GetM3UFile(int Id)
     {
-        return await FirstOrDefaultAsync(c => c.Id == Id, true).ConfigureAwait(false);
+        return await FirstOrDefaultAsync(c => c.Id == Id, false).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>

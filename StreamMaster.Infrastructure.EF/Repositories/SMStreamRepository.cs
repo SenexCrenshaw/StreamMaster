@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using StreamMaster.Domain.Configuration;
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IRepositoryContext repositoryContext, IOptionsMonitor<Setting> intSettings, IMapper mapper)
+public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IOptionsMonitor<Setting> intSettings, IMapper mapper)
     : RepositoryBase<SMStream>(repositoryContext, intLogger, intSettings),
     ISMStreamRepository
 {
@@ -119,5 +119,26 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
     {
         SMStream? channel = FirstOrDefault(a => a.Id == streamId);
         return channel == null ? null : mapper.Map<SMStreamDto>(channel);
+    }
+
+    public async Task DeleteSMStreamsByM3UFiledId(int id, CancellationToken cancellationToken)
+    {
+        IQueryable<SMStream> query = GetQuery(a => a.M3UFileId == id);
+
+        List<string> videoStreamIds = [.. query.Select(vs => vs.Id)];
+
+        if (!query.Any())
+        {
+            return;
+        }
+
+        IQueryable<SMChannelStreamLink> childLinks = repository.SMChannelStreamLink.GetQuery().Where(vsl => videoStreamIds.Contains(vsl.SMStreamId));
+        await childLinks.ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        await query.ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        return;
     }
 }

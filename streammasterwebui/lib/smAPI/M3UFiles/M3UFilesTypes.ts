@@ -9,6 +9,11 @@ export interface CreateM3UFileRequest {
   vODTags?: string[];
  }
 
+export interface DeleteM3UFileRequest {
+  deleteFile: boolean;
+  id: number;
+ }
+
 export interface GetPagedM3UFilesRequest {
   parameters?: QueryStringParameters;
  }
