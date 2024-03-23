@@ -1,9 +1,9 @@
 import { QueryStringParameters } from '@lib/apiDefs';
 export interface GetPagedSMStreamsRequest {
-  Parameters: QueryStringParameters;
+  parameters?: QueryStringParameters;
  }
 
 export interface ToggleSMStreamVisibleByIdRequest {
-  Id: string;
+  id?: string;
  }
 

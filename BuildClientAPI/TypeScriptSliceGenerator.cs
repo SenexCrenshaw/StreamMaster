@@ -7,7 +7,7 @@ public static class TypeScriptSliceGenerator
 
         foreach (MethodDetails method in methods)
         {
-            string mainEntityName = ParameterConverter.IsTSGeneric(ParameterConverter.ExtractInnermostType(method.ReturnType));
+            string mainEntityName = Util.IsTSGeneric(Util.ExtractInnermostType(method.ReturnType));
             StringBuilder content = new();
 
             // Add necessary imports

@@ -15,6 +15,8 @@ export interface QueryHookResult<T> {
   isFetching?: boolean | undefined;
 }
 
+export type IFormFile = Blob;
+
 export interface QueryHook<T> {
   (): QueryHookResult<T>;
 }

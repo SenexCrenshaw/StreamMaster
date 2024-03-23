@@ -9,12 +9,12 @@ interface UploadParams {
   source: string;
   fileName: string;
   fileType: 'epg' | 'm3u';
-  maxStreams: number;
+  maxStreams?: number;
   epgNumber?: number;
   timeShift?: number;
   color?: string;
-  startingChannelNumber: number;
-  overwriteChannelNumbers: boolean;
+  startingChannelNumber?: number;
+  overwriteChannelNumbers?: boolean;
   vodTags: string[];
   file?: File;
 }
@@ -64,7 +64,7 @@ export function useFileUpload() {
             maxStreams: params.maxStreams,
             epgNumber: params.epgNumber,
             timeShift: params.timeShift,
-            color: params.color ?? 'FFFFFF',
+            color: params.color,
             startingChannelNumber: params.startingChannelNumber,
             overwriteChannelNumbers: params.overwriteChannelNumbers,
             vodTags: params.vodTags,

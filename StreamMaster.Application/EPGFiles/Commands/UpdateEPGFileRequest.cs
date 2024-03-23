@@ -38,12 +38,6 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
             bool isNameChanged = false;
             int? oldEPGNumber = null;
 
-            if (!string.IsNullOrEmpty(request.Description) && epgFile.Description != request.Description)
-            {
-                isChanged = true;
-                epgFile.Description = request.Description;
-            }
-
             if (request.EPGNumber.HasValue)
             {
                 isChanged = true;

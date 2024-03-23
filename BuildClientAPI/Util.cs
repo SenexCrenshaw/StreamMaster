@@ -5,8 +5,10 @@ using System.Text.RegularExpressions;
 /// <summary>
 /// Provides utilities for converting C# parameter and type information into TypeScript equivalents.
 /// </summary>
-public static class ParameterConverter
+public static class Util
 {
+    private static readonly char[] separator = new[] { ',', ' ' };
+
 
 
     /// <summary>
@@ -21,9 +23,9 @@ public static class ParameterConverter
             return string.Empty;
         }
 
-        IEnumerable<string> types = csharpParameters.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries)
+        IEnumerable<string> types = csharpParameters.Split(separator, StringSplitOptions.RemoveEmptyEntries)
             .Where((_, index) => index % 2 == 0);
-        IEnumerable<string> names = csharpParameters.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries)
+        IEnumerable<string> names = csharpParameters.Split(separator, StringSplitOptions.RemoveEmptyEntries)
             .Where((_, index) => index % 2 != 0);
 
         string tsParameters = types.Zip(names, (type, name) => $"{name}: {MapCSharpTypeToTypeScript(type)}")
@@ -58,21 +60,90 @@ public static class ParameterConverter
         ConstructorInfo[] constructors = recordType.GetConstructors();
 
         ParameterInfo[] parameters = constructors[0].GetParameters();
+
         foreach (ParameterInfo p in parameters)
         {
             string? name = p.Name;
+
+            bool isNull = IsParameterNullable(p);
+            if (isNull)
+            {
+                int aaaa = 1;
+            }
+
             Type pType = p.ParameterType;
             string tsTypeFullName = GetTypeFullNameForParameter(pType);
+
             string tt = MapCSharpTypeToTypeScript(tsTypeFullName);
             string tsType = GetLastPartOfTypeName(tt);
             tsType = FixUpTSType(tsType);
-            stringBuilder.Add($"{name}: {tsType}");
+            if (isNull)
+            {
+                stringBuilder.Add($"{name}?: {tsType}");
+            }
+            else
+            {
+                stringBuilder.Add($"{name}: {tsType}");
+            }
+
 
         }
         string ret = string.Join(", ", stringBuilder);
 
         return ret;
     }
+
+    public static bool IsParameterNullable(ParameterInfo parameter)
+    {
+        // Check for a value type that is nullable
+        if (Nullable.GetUnderlyingType(parameter.ParameterType) != null)
+        {
+            return true; // It's a nullable value type
+        }
+
+        // For reference types, check the Nullable attribute
+        if (!parameter.ParameterType.IsValueType)
+        {
+
+            CustomAttributeData? nullableAttribute = parameter.CustomAttributes
+                .FirstOrDefault(a => a.AttributeType.FullName == "System.Runtime.CompilerServices.NullableAttribute");
+            if (nullableAttribute != null)
+            {
+                byte? flag = nullableAttribute.ConstructorArguments.FirstOrDefault().Value as byte?;
+                if (flag != null)
+                {
+                    if (flag == 2)
+                    {
+                        return true; // Parameter is nullable
+                    }
+                    else if (flag == 1)
+                    {
+                        return false; // Parameter is not nullable
+                    }
+                }
+            }
+
+            CustomAttributeData? contextAttribute = parameter.Member.CustomAttributes
+                .FirstOrDefault(a => a.AttributeType.FullName == "System.Runtime.CompilerServices.NullableContextAttribute");
+            if (contextAttribute != null)
+            {
+                byte flag = (byte)contextAttribute.ConstructorArguments.FirstOrDefault().Value;
+                if (flag == 2)
+                {
+                    return true; // Context suggests nullable
+                }
+                else if (flag == 1)
+                {
+                    return false; // Context suggests non-nullable
+                }
+            }
+        }
+
+        // If no explicit information, conservative default for reference types is nullable,
+        // but for value types without Nullable<T>, default is non-nullable.
+        return !parameter.ParameterType.IsValueType;
+    }
+
     public static string CSharpPropsToTSInterface(string typeName, Assembly assembly)
     {
 
@@ -178,11 +249,11 @@ public static class ParameterConverter
 
     public static string MapCSharpTypeToTypeScript(string csharpType)
     {
-        if (csharpType.StartsWith("System.Nullable<"))
+        if (csharpType.StartsWith("System.Nullable<") || csharpType.EndsWith(" | undefined"))
         {
             string innerType = ExtractInnermostType(csharpType);
             string tsInnerType = MapCSharpTypeToTypeScript(innerType);
-            return $"{tsInnerType} | undefined";
+            return $"{tsInnerType}";
         }
 
         // Handle basic types directly
@@ -203,6 +274,10 @@ public static class ParameterConverter
             return $"{tsInnerType}[]";
         }
 
+        //if (csharpType == "IFormFile")
+        //{
+        //    csharpType = "Blob";
+        //}
 
 
         // Default fallback for unmapped types
@@ -251,17 +326,13 @@ public static class ParameterConverter
         if (start > 0 && end > start)
         {
             return genericTypeString[start..end];
-            //return innerType switch
-            //{
-            //    "System.String" => "string",
-            //    "System.Int32" => "number",
-            //    "System.Double" => "number",
-            //    "System.Boolean" => "boolean",
-            //    // Handle other cases as necessary
-            //    _ => innerType,// Fallback or further processing for other types
-            //};
         }
-        return genericTypeString; // Fallback for non-generic types
+
+        if (genericTypeString.EndsWith(" | undefined"))
+        {
+            genericTypeString = genericTypeString[..^12];
+        }
+        return genericTypeString;
     }
 
 
@@ -272,15 +343,6 @@ public static class ParameterConverter
             string typeName = type.GetGenericTypeDefinition().FullName;
             typeName = typeName[..typeName.IndexOf('`')]; // Remove the backtick and generic parameter count
             string genericArguments = string.Join(", ", type.GetGenericArguments().Select(GetTypeFullNameForParameter)); // Recursive call for generic arguments
-            //genericArguments = MapCSharpTypeToTypeScript(genericArguments);
-            //if (typeName.StartsWith("System.Collections.Generic."))
-            //{
-            //    typeName = typeName.Replace("System.Collections.Generic.", "");
-
-
-            //}
-            //string test = MapCSharpTypeToTypeScript($"{typeName}<{genericArguments}>");
-            //return test;
             return $"{typeName}<{genericArguments}>";
         }
         else

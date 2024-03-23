@@ -1,5 +1,5 @@
 export interface CreateChannelGroupRequest {
-  GroupName: string;
-  IsReadOnly: boolean;
+  groupName?: string;
+  isReadOnly: boolean;
  }
 

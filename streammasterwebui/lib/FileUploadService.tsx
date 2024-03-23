@@ -5,12 +5,12 @@ export interface UploadProperties {
   name: string;
   source: string;
   fileName: string;
-  maxStreams: number;
-  epgNumber: number | undefined;
-  timeShift: number | undefined;
-  color: string;
-  startingChannelNumber: number;
-  overwriteChannelNumbers: boolean;
+  maxStreams?: number;
+  epgNumber?: number;
+  timeShift?: number;
+  color?: string;
+  startingChannelNumber?: number;
+  overwriteChannelNumbers?: boolean;
   vodTags: string[];
   file: File | undefined;
   fileType: 'epg' | 'm3u';
@@ -44,16 +44,17 @@ export const upload = async ({
     formData.append('fileSource', source);
   } else if (file) formData.append('fileSource', file.name);
 
-  formData.append('timeShift', timeShift?.toString() ?? '0');
+  if (timeShift) formData.append('timeShift', timeShift?.toString() ?? '0');
 
   formData.append('fileName', fileName);
-  formData.append('color', color);
 
-  formData.append('color', color);
-  formData.append('overWriteChannels', overwriteChannelNumbers?.toString() ?? 'true');
-  formData.append('maxStreamCount', maxStreams?.toString() ?? '1');
-  formData.append('startingChannelNumber', startingChannelNumber?.toString() ?? '1');
-  formData.append('epgNumber', epgNumber?.toString() ?? '1');
+  if (color) formData.append('color', color);
+
+  if (overwriteChannelNumbers) formData.append('overWriteChannels', overwriteChannelNumbers?.toString() ?? 'true');
+  if (maxStreams) formData.append('maxStreamCount', maxStreams?.toString() ?? '1');
+  if (startingChannelNumber) formData.append('startingChannelNumber', startingChannelNumber?.toString() ?? '1');
+  if (epgNumber) formData.append('epgNumber', epgNumber?.toString() ?? '1');
+
   vodTags.forEach((tag) => {
     formData.append('vodTags[]', tag);
   });

@@ -1,11 +1,11 @@
 import { QueryStringParameters,SMChannelRankRequest } from '@lib/apiDefs';
 export interface AddSMStreamToSMChannelRequest {
-  SMChannelId: number;
-  SMStreamId: string;
+  sMChannelId: number;
+  sMStreamId?: string;
  }
 
 export interface CreateSMChannelFromStreamRequest {
-  streamId: string;
+  streamId?: string;
  }
 
 export interface DeleteSMChannelRequest {
@@ -13,28 +13,28 @@ export interface DeleteSMChannelRequest {
  }
 
 export interface DeleteSMChannelsFromParametersRequest {
-  Parameters: QueryStringParameters;
+  parameters?: QueryStringParameters;
  }
 
 export interface DeleteSMChannelsRequest {
-  smChannelIds: number[];
+  smChannelIds?: number[];
  }
 
 export interface GetPagedSMChannelsRequest {
-  Parameters: QueryStringParameters;
+  parameters?: QueryStringParameters;
  }
 
 export interface RemoveSMStreamFromSMChannelRequest {
-  SMChannelId: number;
-  SMStreamId: string;
+  sMChannelId: number;
+  sMStreamId?: string;
  }
 
 export interface SetSMChannelLogoRequest {
-  SMChannelId: number;
-  logo: string;
+  sMChannelId: number;
+  logo?: string;
  }
 
 export interface SetSMStreamRanksRequest {
-  requests: SMChannelRankRequest[];
+  requests?: SMChannelRankRequest[];
  }
 

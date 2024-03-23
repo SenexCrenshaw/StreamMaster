@@ -1,20 +1,19 @@
-import * as axios from 'axios';
-import { M3UFileStreamUrlPrefix } from '@lib/common/streammaster_enums';
-import { useM3UFilesCreateM3UFileMutation, type CreateM3UFileRequest } from '@lib/iptvApi';
+import { useM3UFilesCreateM3UFileMutation } from '@lib/iptvApi';
 import React, { useRef, useState } from 'react';
 import InfoMessageOverLayDialog from '@components/InfoMessageOverLayDialog';
 import AddButton from '@components/buttons/AddButton';
 import BooleanInput from '@components/inputs/BooleanInput';
 import NumberInput from '@components/inputs/NumberInput';
 import TextInput from '@components/inputs/TextInput';
-import { getColorHex } from '@lib/common/colors';
+
 import { isValidUrl } from '@lib/common/common';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { FileUpload, FileUploadHeaderTemplateOptions, FileUploadSelectEvent } from 'primereact/fileupload';
 import M3UFileTags from './M3UFileTags';
-import { upload } from '@lib/FileUploadService';
 import { ProgressBar } from 'primereact/progressbar';
 import { useFileUpload } from '@components/sharedEPGM3U/useFileUpload';
+import { CreateM3UFileRequest } from '@lib/smAPI/M3UFiles/M3UFilesTypes';
+import { CreateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 
 export interface M3UFileDialogProperties {
   readonly infoMessage?: string;
@@ -25,26 +24,19 @@ export interface M3UFileDialogProperties {
 
 const M3UFileDialog2 = ({ onHide, show, showButton }: M3UFileDialogProperties) => {
   const fileUploadReference = useRef<FileUpload>(null);
-  const [streamURLPrefix, setStreamURLPrefix] = React.useState<M3UFileStreamUrlPrefix>(0);
   const [activeFile, setActiveFile] = useState<File | undefined>();
   const [name, setName] = useState<string>('');
   const [fileName, setFileName] = useState<string>('');
   const [overwriteChannelNumbers, setOverwriteChannelNumbers] = React.useState<boolean>(true);
   const [vodTags, setVodTags] = useState<string[]>([]);
   const [maxStreams, setMaxStreams] = useState<number>(1);
-  const [epgNumber, setEpgNumber] = useState<number | undefined>(undefined);
-  const [timeShift, setTimeShift] = useState<number | undefined>(undefined);
-  const [color, setColor] = useState<string | undefined>(undefined);
   const [startingChannelNumber, setStartingChannelNumber] = useState<number>(1);
-  // const [progress, setProgress] = useState<number>(0);
   const [source, setSource] = useState<string>('');
-  const [uploadedBytes, setUploadedBytes] = useState<number>(0);
-  // const [infoMessage, setInfoMessage] = useState<string | undefined>();
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [nameFromFileName, setNameFromFileName] = useState<boolean>(false);
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
-  const { doUpload, progress, infoMessage, isUploading, resetUploadState } = useFileUpload();
+  const { doUpload, progress, infoMessage, isUploading, uploadedBytes, resetUploadState } = useFileUpload();
 
   const [M3UFilesCreateM3UFileMutation] = useM3UFilesCreateM3UFileMutation();
 
@@ -55,19 +47,13 @@ const M3UFileDialog2 = ({ onHide, show, showButton }: M3UFileDialogProperties) =
     resetUploadState();
     setShowOverlay(false);
     setBlock(false);
-    // setInfoMessage(undefined);
-    setStreamURLPrefix(0);
-    // setProgress(0);
-    setUploadedBytes(0);
     setName('');
     setVodTags([]);
     setNameFromFileName(false);
     setSource('');
     setActiveIndex(0);
     setFileName('');
-    setEpgNumber(undefined);
-    setTimeShift(undefined);
-    setColor(undefined);
+
     setBlock(false);
     onHide?.(didUpload ?? false);
   };
@@ -87,16 +73,16 @@ const M3UFileDialog2 = ({ onHide, show, showButton }: M3UFileDialogProperties) =
   };
 
   const onCreateFromSource = async (name: string, source: string, maxStreams: number, startingChannelNumber: number, vodTags: string[]) => {
-    const addM3UFileRequest = {} as CreateM3UFileRequest;
+    const createM3UFileRequest = {} as CreateM3UFileRequest;
 
-    addM3UFileRequest.name = name;
-    addM3UFileRequest.formFile = null;
-    addM3UFileRequest.urlSource = source;
-    addM3UFileRequest.maxStreamCount = maxStreams;
-    addM3UFileRequest.startingChannelNumber = startingChannelNumber;
-    addM3UFileRequest.vodTags = vodTags;
+    createM3UFileRequest.name = name;
+    createM3UFileRequest.formFile = undefined;
+    createM3UFileRequest.urlSource = source;
+    createM3UFileRequest.maxStreamCount = maxStreams;
+    createM3UFileRequest.startingChannelNumber = startingChannelNumber;
+    createM3UFileRequest.vODTags = vodTags;
 
-    await M3UFilesCreateM3UFileMutation(addM3UFileRequest)
+    await CreateM3UFile(createM3UFileRequest)
       .then(() => {
         // setInfoMessage('Uploaded M3U';
       })
@@ -113,15 +99,14 @@ const M3UFileDialog2 = ({ onHide, show, showButton }: M3UFileDialogProperties) =
     setBlock(true);
 
     if (source === '') {
-      const meColor = color ?? getColorHex(epgNumber ?? 0);
       doUpload({
         name,
         source,
         fileName,
         maxStreams,
-        epgNumber,
-        timeShift,
-        color: meColor,
+        epgNumber: undefined,
+        timeShift: undefined,
+        color: undefined,
         startingChannelNumber,
         overwriteChannelNumbers,
         vodTags,

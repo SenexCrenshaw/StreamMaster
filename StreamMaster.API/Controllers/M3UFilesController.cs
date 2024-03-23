@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Application.M3UFiles;
+using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.M3UFiles.CommandsOrig;
 using StreamMaster.Application.M3UFiles.Queries;
+using StreamMaster.Domain.API;
 using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.API.Controllers;
@@ -13,18 +15,10 @@ public class M3UFilesController() : ApiControllerBase, IM3UFileController
 
     [HttpPost]
     [Route("[action]")]
-    public async Task<ActionResult> CreateM3UFile(CreateM3UFileRequest request)
+    public async Task<ActionResult<DefaultAPIResponse>> CreateM3UFileFromForm([FromForm] CreateM3UFileRequest request)
     {
-        bool result = await Mediator.Send(request).ConfigureAwait(false);
-        return result ? Ok() : BadRequest();
-    }
-
-    [HttpPost]
-    [Route("[action]")]
-    public async Task<ActionResult> CreateM3UFileFromForm([FromForm] CreateM3UFileRequest request)
-    {
-        bool result = await Mediator.Send(request).ConfigureAwait(false);
-        return result ? Ok() : BadRequest();
+        DefaultAPIResponse result = await Mediator.Send(request).ConfigureAwait(false);
+        return result;
     }
 
     [HttpPatch]

@@ -1,4 +1,4 @@
-﻿using StreamMaster.Application.M3UFiles.CommandsOrig;
+﻿using StreamMaster.Application.M3UFiles.Commands;
 
 namespace StreamMaster.Application.M3UFiles.Queries;
 

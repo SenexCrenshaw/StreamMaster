@@ -43,12 +43,19 @@ namespace BuildClientAPI
                     //if (recordType.Name == "DeleteSMChannels")
                     //{
                     //    string returntype = GetCleanReturnType(recordType);
-                    //    string Parameters = ParameterConverter.ParamsToCSharp(recordType);
-                    //    string TsParameters = ParameterConverter.CSharpParamToTS(recordType); ;
+                    //    string Parameters = Util.ParamsToCSharp(recordType);
+                    //    string TsParameters = Util.CSharpParamToTS(recordType); ;
                     //}
 
-                    string ps = ParameterConverter.ParamsToCSharp(recordType);
-                    string tsps = ParameterConverter.CSharpParamToTS(recordType); ;
+                    if (recordType.Name == "CreateM3UFileRequest")
+                    {
+                        string returntype = GetCleanReturnType(recordType);
+                        string Parameters = Util.ParamsToCSharp(recordType);
+                        string TsParameters = Util.CSharpParamToTS(recordType); ;
+                    }
+
+                    string ps = Util.ParamsToCSharp(recordType);
+                    string tsps = Util.CSharpParamToTS(recordType); ;
 
                     ConstructorInfo[] constructors = recordType.GetConstructors();
                     ParameterInfo[] parameters = constructors[0].GetParameters();
@@ -83,7 +90,7 @@ namespace BuildClientAPI
                         Parameters = ps,
                         ParameterNames = string.Join(", ", parameters.Select(p => p.Name)),
                         TsParameters = tsps,
-                        TsParameterTypes = string.Join(", ", parameters.Select(p => ParameterConverter.MapCSharpTypeToTypeScript(ParameterConverter.GetTypeFullNameForParameter(p.ParameterType)))),
+                        TsParameterTypes = string.Join(", ", parameters.Select(p => Util.MapCSharpTypeToTypeScript(Util.GetTypeFullNameForParameter(p.ParameterType)))),
                         IsGet = name.StartsWith("Get"),
                         IsTask = smapiAttribute.IsTask,
                         JustHub = smapiAttribute.JustHub,
@@ -91,7 +98,7 @@ namespace BuildClientAPI
                         TsReturnInterface = ""
                     };
 
-                    string? returnEntity = ParameterConverter.IsTSGeneric(ParameterConverter.ExtractInnermostType(methodDetails.ReturnType));
+                    string? returnEntity = Util.IsTSGeneric(Util.ExtractInnermostType(methodDetails.ReturnType));
                     if (returnEntity != null)
                     {
                         string aa = returnEntity;
@@ -104,7 +111,7 @@ namespace BuildClientAPI
                     //    {
                     //        int aaa = 1;
                     //    }
-                    //    methodDetails.TsReturnInterface = ParameterConverter.CSharpPropsToTSInterface(returnType);
+                    //    methodDetails.TsReturnInterface = Util.CSharpPropsToTSInterface(returnType);
                     //}
 
                     if (recordType.Name == "AddSMStreamToSMChannel")

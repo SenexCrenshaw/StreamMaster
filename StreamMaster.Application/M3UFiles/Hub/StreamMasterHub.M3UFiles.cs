@@ -6,10 +6,6 @@ namespace StreamMaster.Application.Hubs;
 
 public partial class StreamMasterHub : IM3UFileHub
 {
-    public async Task CreateM3UFile(CreateM3UFileRequest request)
-    {
-        await Sender.Send(request).ConfigureAwait(false);
-    }
 
     public async Task ChangeM3UFileName(ChangeM3UFileNameRequest request)
     {

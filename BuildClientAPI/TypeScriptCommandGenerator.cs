@@ -44,7 +44,7 @@ public static class TypeScriptCommandGenerator
             string? toImport = null;
             if (!method.TsParameters.Contains("[]"))
             {
-                toImport = ParameterConverter.IsTSGeneric(method.TsParameters);
+                toImport = Util.IsTSGeneric(method.TsParameters);
                 if (toImport != null)
                 {
                     if (toImport == "SMChannelRankRequest")
@@ -55,7 +55,7 @@ public static class TypeScriptCommandGenerator
                 }
             }
 
-            toImport = ParameterConverter.IsTSGeneric(ParameterConverter.ExtractInnermostType(method.ReturnType));
+            toImport = Util.IsTSGeneric(Util.ExtractInnermostType(method.ReturnType));
             if (toImport != null)
             {
                 if (toImport == "SMChannelRankRequest")
@@ -146,10 +146,15 @@ public static class TypeScriptCommandGenerator
             string[] parts = pair.Split(":");
             string type = parts[1].Trim();
             string name = parts[0].Trim();
-            imports.AppendLine($"  {name}: {type};");
-            string? a = ParameterConverter.IsTSGeneric(type);
+            imports.AppendLine($"  {name.ToCamelCase()}: {type};");
+            string? a = Util.IsTSGeneric(type);
+            if (a == "IFormFile")
+            {
+                int aaa = 1;
+            }
             if (a != null)
             {
+                string b = Util.MapCSharpTypeToTypeScript(a);
                 additionalIImports.Add(a);
             }
 

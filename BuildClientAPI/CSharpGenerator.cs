@@ -50,18 +50,18 @@ public static class CSharpGenerator
                 }
                 else if (method.IsTask)
                 {
-                    hubContent.AppendLine($"        public async Task<{method.ReturnType}?> {method.Name}({method.Name}Request request)");
+                    hubContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.Name}Request request)");
                     hubContent.AppendLine($"        {{");
-                    hubContent.AppendLine($"            {method.ReturnType}? ret = await taskQueue{method.Name}(request).ConfigureAwait(false);");
-                    IhubContent.AppendLine($"        Task<{method.ReturnType}?> {method.Name}({method.Name}Request request);");
+                    hubContent.AppendLine($"            {method.ReturnType} ret = await taskQueue{method.Name}(request).ConfigureAwait(false);");
+                    IhubContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Name}Request request);");
                 }
                 else
                 {
-                    controllerContent.AppendLine($"        public async Task<ActionResult<{method.ReturnType}?>> {method.Name}({method.Name}Request request)");
+                    controllerContent.AppendLine($"        public async Task<ActionResult<{method.ReturnType}>> {method.Name}({method.Name}Request request)");
                     controllerContent.AppendLine($"        {{");
-                    controllerContent.AppendLine($"            {method.ReturnType}? ret = await Sender.Send(request).ConfigureAwait(false);");
-                    controllerContent.AppendLine($"            return ret == null ? NotFound() : Ok(ret);");
-                    IcontrollerContent.AppendLine($"    Task<ActionResult<{method.ReturnType}?>> {method.Name}({method.Name}Request request);");
+                    controllerContent.AppendLine($"            {method.ReturnType} ret = await Sender.Send(request).ConfigureAwait(false);");
+                    controllerContent.AppendLine($"            return ret == null ? NotFound(ret) : Ok(ret);");
+                    IcontrollerContent.AppendLine($"    Task<ActionResult<{method.ReturnType}>> {method.Name}({method.Name}Request request);");
                 }
 
                 controllerContent.AppendLine($"        }}");
@@ -81,18 +81,18 @@ public static class CSharpGenerator
                 }
                 else if (method.IsTask)
                 {
-                    hubContent.AppendLine($"        public async Task<{method.ReturnType}?> {method.Name}({method.Name}Request request)");
+                    hubContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.Name}Request request)");
                     hubContent.AppendLine($"        {{");
                     hubContent.AppendLine($"            await taskQueue.{method.Name}(request).ConfigureAwait(false);");
-                    IhubContent.AppendLine($"        Task<{method.ReturnType}?> {method.Name}({method.Name}Request request);");
+                    IhubContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Name}Request request);");
                     hubContent.AppendLine($"            return APIResponseFactory.Ok;");
                 }
                 else
                 {
-                    hubContent.AppendLine($"        public async Task<{method.ReturnType}?> {method.Name}({method.Name}Request request)");
+                    hubContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.Name}Request request)");
                     hubContent.AppendLine($"        {{");
-                    hubContent.AppendLine($"            {method.ReturnType}? ret = await Sender.Send(request).ConfigureAwait(false);");
-                    IhubContent.AppendLine($"        Task<{method.ReturnType}?> {method.Name}({method.Name}Request request);");
+                    hubContent.AppendLine($"            {method.ReturnType} ret = await Sender.Send(request).ConfigureAwait(false);");
+                    IhubContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Name}Request request);");
                     hubContent.AppendLine($"            return ret;");
                 }
 

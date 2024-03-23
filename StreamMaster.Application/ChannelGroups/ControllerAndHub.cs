@@ -8,10 +8,10 @@ namespace StreamMaster.Application.ChannelGroups
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse?>> CreateChannelGroup(CreateChannelGroupRequest request)
+        public async Task<ActionResult<DefaultAPIResponse>> CreateChannelGroup(CreateChannelGroupRequest request)
         {
-            DefaultAPIResponse? ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret == null ? NotFound() : Ok(ret);
+            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
         }
 
     }
@@ -21,9 +21,9 @@ namespace StreamMaster.Application.Hubs
 {
     public partial class StreamMasterHub : IChannelGroupsHub
     {
-        public async Task<DefaultAPIResponse?> CreateChannelGroup(CreateChannelGroupRequest request)
+        public async Task<DefaultAPIResponse> CreateChannelGroup(CreateChannelGroupRequest request)
         {
-            DefaultAPIResponse? ret = await Sender.Send(request).ConfigureAwait(false);
+            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 

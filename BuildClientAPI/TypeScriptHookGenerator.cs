@@ -19,7 +19,7 @@ public static class TypeScriptHookGenerator
         {
             if (mainEntityName == "" && method.Name.StartsWith("GetPaged"))
             {
-                mainEntityName = ParameterConverter.IsTSGeneric(ParameterConverter.ExtractInnermostType(method.ReturnType));
+                mainEntityName = Util.IsTSGeneric(Util.ExtractInnermostType(method.ReturnType));
                 continue;
             }
             if (method.JustHub)
@@ -72,12 +72,12 @@ public static class TypeScriptHookGenerator
         foreach (MethodDetails method in methods)
         {
             string methodName = method.Name;
-            string? toImport = ParameterConverter.IsTSGeneric(method.TsParameters);
+            string? toImport = Util.IsTSGeneric(method.TsParameters);
             if (toImport != null)
             {
                 additionalImports.Add(toImport);
             }
-            toImport = ParameterConverter.IsTSGeneric(method.ReturnType);
+            toImport = Util.IsTSGeneric(method.ReturnType);
             if (toImport != null)
             {
                 additionalImports.Add(toImport);
@@ -183,7 +183,7 @@ public static class TypeScriptHookGenerator
 
     public static (string parameterName, string tsParameterString) GetReal(MethodDetails method)
     {
-        string tsParams = ParameterConverter.ConvertCSharpParametersToTypeScript(method.Parameters);
+        string tsParams = Util.ConvertCSharpParametersToTypeScript(method.Parameters);
         string[] parts = tsParams.Split(':');
         string parameterName = parts[0].Trim();
 

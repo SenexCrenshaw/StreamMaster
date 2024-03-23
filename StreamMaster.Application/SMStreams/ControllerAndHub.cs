@@ -16,10 +16,10 @@ namespace StreamMaster.Application.SMStreams
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse?>> ToggleSMStreamVisibleById(ToggleSMStreamVisibleByIdRequest request)
+        public async Task<ActionResult<DefaultAPIResponse>> ToggleSMStreamVisibleById(ToggleSMStreamVisibleByIdRequest request)
         {
-            DefaultAPIResponse? ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret == null ? NotFound() : Ok(ret);
+            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
         }
 
     }
@@ -35,9 +35,9 @@ namespace StreamMaster.Application.Hubs
             return ret;
         }
 
-        public async Task<DefaultAPIResponse?> ToggleSMStreamVisibleById(ToggleSMStreamVisibleByIdRequest request)
+        public async Task<DefaultAPIResponse> ToggleSMStreamVisibleById(ToggleSMStreamVisibleByIdRequest request)
         {
-            DefaultAPIResponse? ret = await Sender.Send(request).ConfigureAwait(false);
+            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 

@@ -2,21 +2,21 @@
 
 using System.Web;
 
-namespace StreamMaster.Application.M3UFiles.CommandsOrig;
+namespace StreamMaster.Application.M3UFiles.Commands;
 
-public record CreateM3UFileRequest(string? Description, int MaxStreamCount, bool? OverWriteChannels, int? StartingChannelNumber, IFormFile? FormFile, string Name, string? UrlSource, List<string>? VODTags) : IRequest<bool> { }
+[SMAPI(JustHub = true)]
+public record CreateM3UFileRequest(string Name, int MaxStreamCount, string? UrlSource, bool? OverWriteChannels, int? StartingChannelNumber, IFormFile? FormFile, List<string>? VODTags) : IRequest<DefaultAPIResponse> { }
 
 [LogExecutionTimeAspect]
-public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateM3UFileRequest, bool>
+public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateM3UFileRequest, DefaultAPIResponse>
 {
-    public async Task<bool> Handle(CreateM3UFileRequest command, CancellationToken cancellationToken)
+    public async Task<DefaultAPIResponse> Handle(CreateM3UFileRequest command, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(command.UrlSource) && command.FormFile != null && command.FormFile.Length <= 0)
         {
-            return false;
+            return APIResponseFactory.NotFound;
         }
 
-        //Setting setting = await _settingsService.GetSettingsAsync();
         try
         {
             FileDefinition fd = FileDefinitions.M3U;
@@ -24,13 +24,11 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
 
             M3UFile m3UFile = new()
             {
-                Description = command.Description ?? "",
                 Name = command.Name,
                 Source = command.Name + fd.FileExtension,
                 StartingChannelNumber = command.StartingChannelNumber == null ? 1 : (int)command.StartingChannelNumber,
                 OverwriteChannelNumbers = command.OverWriteChannels != null && (bool)command.OverWriteChannels,
                 VODTags = command.VODTags ?? [],
-                //StreamURLPrefix = command.StreamURLPrefixInt == null ? M3UFileStreamURLPrefix.SystemDefault : (M3UFileStreamURLPrefix)command.StreamURLPrefixInt
             };
 
             if (command.FormFile != null)
@@ -45,7 +43,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
                 else
                 {
                     Logger.LogCritical("Exception M3U From Form {ex}", ex);
-                    return false;
+                    return APIResponseFactory.NotFound;
                 }
             }
             else if (!string.IsNullOrEmpty(command.UrlSource))
@@ -84,7 +82,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
                 {
                     File.Delete(urlPath);
                 }
-                return false;
+                return APIResponseFactory.NotFound;
             }
 
 
@@ -98,12 +96,12 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3UFile);
             await Publisher.Publish(new M3UFileAddedEvent(ret.Id, false), cancellationToken).ConfigureAwait(false);
 
-            return true;
+            return APIResponseFactory.Ok;
         }
         catch (Exception exception)
         {
             Logger.LogCritical("Exception M3U From Form {exception}", exception);
         }
-        return false;
+        return APIResponseFactory.NotFound;
     }
 }

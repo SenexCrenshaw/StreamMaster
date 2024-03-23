@@ -31,12 +31,6 @@ public class UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, I
             bool needsUpdate = false;
             bool needsRefresh = false;
 
-            if (!string.IsNullOrEmpty(request.Description) && m3uFile.Description != request.Description)
-            {
-                isChanged = true;
-                m3uFile.Description = request.Description;
-            }
-
             if (request.VODTags != null)
             {
                 isChanged = true;

@@ -13,6 +13,7 @@ namespace StreamMaster.Application.Hubs
 {
     public interface IM3UFilesHub
     {
-        Task<DefaultAPIResponse?> ProcessM3UFile(ProcessM3UFileRequest request);
+        Task<DefaultAPIResponse> CreateM3UFile(CreateM3UFileRequest request);
+        Task<DefaultAPIResponse> ProcessM3UFile(ProcessM3UFileRequest request);
     }
 }

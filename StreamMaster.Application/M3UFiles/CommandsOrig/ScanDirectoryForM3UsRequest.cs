@@ -59,7 +59,6 @@ public class ScanDirectoryForM3UFilesRequestHandler(ILogger<ScanDirectoryForM3UF
         {
             Name = Path.GetFileNameWithoutExtension(m3uFileInfo.Name),
             Source = m3uFileInfo.Name,
-            Description = $"Imported from {m3uFileInfo.Name}",
             LastDownloaded = m3uFileInfo.LastWriteTime,
             LastDownloadAttempt = SMDT.UtcNow,
             FileExists = true,
