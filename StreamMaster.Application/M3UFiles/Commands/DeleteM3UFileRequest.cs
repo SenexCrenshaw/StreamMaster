@@ -4,7 +4,7 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 [SMAPI]
 public record DeleteM3UFileRequest(bool DeleteFile, int Id) : IRequest<DefaultAPIResponse> { }
 
-public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, IMessageSevice messageSevice, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IIconService iconService, IRepositoryWrapper Repository, IPublisher Publisher)
+public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, IMessageService messageService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IIconService iconService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<DeleteM3UFileRequest, DefaultAPIResponse>
 {
     public async Task<DefaultAPIResponse> Handle(DeleteM3UFileRequest request, CancellationToken cancellationToken = default)
@@ -12,7 +12,7 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
         M3UFile? m3UFile = await Repository.M3UFile.GetM3UFile(request.Id).ConfigureAwait(false);
         if (m3UFile == null)
         {
-            await messageSevice.SendError("M3U file not found");
+            await messageService.SendError("M3U file not found");
             return APIResponseFactory.NotFound;
         }
 
@@ -88,8 +88,6 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
                 {
                     refreshCGs = true;
                     _ = await Repository.ChannelGroup.DeleteChannelGroupById(group.Id);
-                    _ = await Repository.SaveAsync().ConfigureAwait(false);
-
                 }
             }
 
@@ -108,14 +106,14 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
                 await hubContext.Clients.All.DataRefresh("ChannelGroupDto").ConfigureAwait(false);
             }
 
-            await messageSevice.SendSuccess("Deleted M3U '" + m3UFile.Name);
+            await messageService.SendSuccess("Deleted M3U '" + m3UFile.Name);
 
             return APIResponseFactory.Ok;
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "DeleteM3UFileRequest {request}", request);
-            await messageSevice.SendError("Exception adding M3U", ex.Message);
+            await messageService.SendError("Exception deleting M3U", ex.Message);
             return APIResponseFactory.NotFound;
         }
     }

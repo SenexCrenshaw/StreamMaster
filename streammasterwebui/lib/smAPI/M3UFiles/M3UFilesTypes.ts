@@ -23,3 +23,8 @@ export interface ProcessM3UFileRequest {
   forceRun: boolean;
  }
 
+export interface RefreshM3UFileRequest {
+  id: number;
+  forceRun: boolean;
+ }
+

@@ -28,7 +28,7 @@ public static class ConfigureServices
         _ = services.AddSingleton<IIconHelper, IconHelper>();
         _ = services.AddSingleton<IFileLoggingServiceFactory, FileLoggingServiceFactory>();
         _ = services.AddSingleton<IStreamTracker, StreamTracker>();
-        _ = services.AddSingleton<IMessageSevice, MessageSevice>();
+        _ = services.AddSingleton<IMessageService, MessageService>();
 
 
         // If needed, you can also pre-register specific instances

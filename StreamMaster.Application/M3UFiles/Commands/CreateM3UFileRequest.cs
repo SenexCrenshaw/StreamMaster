@@ -4,11 +4,11 @@ using System.Web;
 
 namespace StreamMaster.Application.M3UFiles.Commands;
 
-[SMAPI(JustHub = true)]
+[SMAPI]
 public record CreateM3UFileRequest(string Name, int MaxStreamCount, string? UrlSource, bool? OverWriteChannels, int? StartingChannelNumber, IFormFile? FormFile, List<string>? VODTags) : IRequest<DefaultAPIResponse> { }
 
 [LogExecutionTimeAspect]
-public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, IMessageSevice messageSevice, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateM3UFileRequest, DefaultAPIResponse>
+public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, IMessageService messageService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateM3UFileRequest, DefaultAPIResponse>
 {
     public async Task<DefaultAPIResponse> Handle(CreateM3UFileRequest command, CancellationToken cancellationToken)
     {
@@ -43,7 +43,11 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
                 }
                 else
                 {
+
                     Logger.LogCritical("Exception M3U From Form {ex}", ex);
+                    await messageService.SendError($"Exception M3U From Form", ex?.Message);
+
+
                     return APIResponseFactory.NotFound;
                 }
             }
@@ -63,7 +67,10 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
                 else
                 {
                     ++m3UFile.DownloadErrors;
+
                     Logger.LogCritical("Exception M3U From URL {ex}", ex);
+                    await messageService.SendError($"Exception M3U From Form", ex?.Message);
+
                 }
             }
 
@@ -73,6 +80,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
             if (streams == null || streams.Count == 0)
             {
                 Logger.LogCritical("Exception M3U {fullName} format is not supported", fullName);
+                await messageService.SendError($"Exception M3U {fullName} format is not supported");
                 //Bad M3U
                 if (File.Exists(fullName))
                 {
@@ -86,27 +94,21 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
                 return APIResponseFactory.NotFound;
             }
 
-
-            //m3UFile.StationCount = streams.Count;
-
             Repository.M3UFile.CreateM3UFile(m3UFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
 
             m3UFile.WriteJSON();
 
-            M3UFileDto ret = Mapper.Map<M3UFileDto>(m3UFile);
-            await Publisher.Publish(new M3UFileAddedEvent(ret.Id, false), cancellationToken).ConfigureAwait(false);
-
             await hubContext.Clients.All.DataRefresh("M3UFileDto").ConfigureAwait(false);
-            await hubContext.Clients.All.DataRefresh("SMStreamDto").ConfigureAwait(false);
+            await Publisher.Publish(new M3UFileProcessEvent(m3UFile.Id, false), cancellationToken).ConfigureAwait(false);
 
-            await messageSevice.SendSuccess("M3U '" + m3UFile.Name + "' added successfully");
+            await messageService.SendSuccess("M3U '" + m3UFile.Name + "' added successfully");
 
             return APIResponseFactory.Ok;
         }
         catch (Exception exception)
         {
-            await messageSevice.SendError("Exception adding M3U", exception.Message);
+            await messageService.SendError("Exception adding M3U", exception.Message);
             Logger.LogCritical("Exception M3U From Form {exception}", exception);
         }
         return APIResponseFactory.NotFound;

@@ -697,7 +697,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
   );
 
   return (
-    <div className="dataselector flex w-full min-w-full  justify-content-start align-items-center">
+    <div className="dataselector flex w-full min-w-full justify-content-start align-items-center">
       <div className={`${props.className === undefined ? '' : props.className} min-h-full w-full surface-overlay`}>
         <DataTable
           cellSelection={false}

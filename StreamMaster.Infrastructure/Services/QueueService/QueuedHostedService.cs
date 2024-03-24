@@ -14,12 +14,14 @@ using StreamMaster.Application.M3UFiles.CommandsOrig;
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.Services;
 using StreamMaster.Domain.Enums;
+using StreamMaster.Domain.Services;
 
 namespace StreamMaster.Infrastructure.Services.QueueService;
 
 public sealed class QueuedHostedService(
     IBackgroundTaskQueue taskQueue,
     IServiceProvider serviceProvider,
+    IMessageService messageSevice,
     ILogger<QueuedHostedService> logger
 ) : BackgroundService
 {
@@ -45,6 +47,8 @@ public sealed class QueuedHostedService(
             try
             {
                 logger.LogInformation("Starting {command}", command.Command);
+                await messageSevice.SendSMInfo($"Starting task: {command.Command}");
+
                 using IServiceScope scope = serviceProvider.CreateScope();
 
                 ISender _sender = scope.ServiceProvider.GetRequiredService<ISender>();
@@ -124,6 +128,7 @@ public sealed class QueuedHostedService(
                         break;
                 }
                 await taskQueue.SetStop(command.Id).ConfigureAwait(false);
+                await messageSevice.SendSMInfo($"Finished task: {command.Command}");
                 logger.LogInformation("Finished {command}", command.Command);
             }
             catch (OperationCanceledException)
@@ -133,6 +138,7 @@ public sealed class QueuedHostedService(
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error occurred executing task work item. {command}", command.Command);
+                await messageSevice.SendError($"Error executing task: {command.Command}, {ex.Message}");
                 await taskQueue.SetStop(command.Id).ConfigureAwait(false);
             }
         }

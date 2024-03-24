@@ -37,14 +37,6 @@ public class M3UFilesController() : ApiControllerBase
         return data != null ? (ActionResult<M3UFileDto>)data : (ActionResult<M3UFileDto>)NotFound();
     }
 
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<ActionResult> RefreshM3UFile(RefreshM3UFileRequest request)
-    {
-        RefreshM3UFileRequest re = new(request.Id, true);
-        M3UFile? data = await Mediator.Send(re).ConfigureAwait(false);
-        return data == null ? NotFound() : NoContent();
-    }
 
     [HttpPatch]
     [Route("[action]")]

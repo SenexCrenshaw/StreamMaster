@@ -6,7 +6,7 @@ namespace StreamMaster.Application.ChannelGroups.Commands;
 [RequireAll]
 public record CreateChannelGroupRequest(string GroupName, bool IsReadOnly) : IRequest<DefaultAPIResponse> { }
 
-public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest> logger, IMessageSevice messageSevice, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ISender sender, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateChannelGroupRequest, DefaultAPIResponse>
+public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest> logger, IMessageService messageSevice, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ISender sender, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateChannelGroupRequest, DefaultAPIResponse>
 {
     public async Task<DefaultAPIResponse> Handle(CreateChannelGroupRequest request, CancellationToken cancellationToken)
     {

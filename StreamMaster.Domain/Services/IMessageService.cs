@@ -1,6 +1,6 @@
 ﻿namespace StreamMaster.Domain.Services
 {
-    public interface IMessageSevice
+    public interface IMessageService
     {
         Task SendError(string message, string? details = null);
         Task SendSMInfo(string message);

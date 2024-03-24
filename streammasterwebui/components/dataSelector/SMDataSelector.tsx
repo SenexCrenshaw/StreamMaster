@@ -224,16 +224,15 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
 
   const sourceRenderHeader = useMemo(() => {
     return (
-      <div />
-      // <TableHeader
-      //   dataSelectorProps={props}
-      //   enableExport={props.enableExport ?? true}
-      //   exportCSV={exportCSV}
-      //   headerName={props.headerName}
-      //   onMultiSelectClick={props.onMultiSelectClick}
-      //   rowClick={state.rowClick}
-      //   setRowClick={setters.setRowClick}
-      // />
+      <TableHeader
+        dataSelectorProps={props}
+        enableExport={props.enableExport ?? true}
+        exportCSV={exportCSV}
+        headerName={props.headerName}
+        onMultiSelectClick={props.onMultiSelectClick}
+        rowClick={state.rowClick}
+        setRowClick={setters.setRowClick}
+      />
     );
   }, [props, state.rowClick, setters.setRowClick]);
 
@@ -698,7 +697,7 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
   );
 
   return (
-    <div className="dataselector flex w-full min-w-full  justify-content-start align-items-center">
+    <div className="dataselector flex w-full min-w-full justify-content-start align-items-center">
       <div className={`${props.className === undefined ? '' : props.className} min-h-full w-full surface-overlay`}>
         <DataTable
           cellSelection={false}
@@ -758,7 +757,7 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
           selection={state.selectSelectedItems}
           selectionMode={getSelectionMultipleMode}
           showGridlines
-          showHeaders={props.showHeaders}
+          // showHeaders={props.showHeaders}
           sortField={props.reorderable ? 'rank' : state.sortField}
           sortMode="single"
           sortOrder={props.reorderable ? 0 : state.sortOrder}

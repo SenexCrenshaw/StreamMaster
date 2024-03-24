@@ -7,7 +7,7 @@ using StreamMaster.Domain.Services;
 
 namespace StreamMaster.Infrastructure.Services
 {
-    public class MessageSevice(ILogger<MessageSevice> Logger, ISender sender) : IMessageSevice
+    public class MessageService(ILogger<MessageService> Logger, ISender sender) : IMessageService
     {
         public async Task SendError(string message, string? details = null)
         {

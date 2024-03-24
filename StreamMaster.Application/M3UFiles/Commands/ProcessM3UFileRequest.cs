@@ -3,7 +3,7 @@
 [SMAPI(JustHub: true, IsTask: true)]
 public record ProcessM3UFileRequest(int M3UFileId, bool ForceRun = false) : IRequest<DefaultAPIResponse>;
 
-internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IMessageSevice messageSevice, IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<ProcessM3UFileRequest, DefaultAPIResponse>
+internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IMessageService messageSevice, IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<ProcessM3UFileRequest, DefaultAPIResponse>
 {
     public async Task<DefaultAPIResponse> Handle(ProcessM3UFileRequest request, CancellationToken cancellationToken)
     {

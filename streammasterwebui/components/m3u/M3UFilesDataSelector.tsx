@@ -2,7 +2,6 @@ import { formatJSONDateString, getTopToolOptions } from '@lib/common/common';
 import { type M3UFileDto, type UpdateM3UFileRequest } from '@lib/iptvApi';
 
 import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox';
-import { Toast } from 'primereact/toast';
 import { memo, useCallback, useMemo, useRef } from 'react';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 import NumberEditorBodyTemplate from '../inputs/NumberEditorBodyTemplate';
@@ -25,82 +24,77 @@ interface M3UUpdateProperties {
 }
 
 const M3UFilesDataSelector = () => {
-  const toast = useRef<Toast>(null);
+  const onM3UUpdateClick = useCallback(async (props: M3UUpdateProperties) => {
+    if (props.id < 1) {
+      return;
+    }
 
-  const onM3UUpdateClick = useCallback(
-    async (props: M3UUpdateProperties) => {
-      if (props.id < 1) {
-        return;
-      }
+    const { id, ...restProperties } = props;
 
-      const { id, ...restProperties } = props;
+    // Check if all values of the rest of the properties are null or undefined
+    if (Object.values(restProperties).every((value) => value === null || value === undefined)) {
+      return;
+    }
 
-      // Check if all values of the rest of the properties are null or undefined
-      if (Object.values(restProperties).every((value) => value === null || value === undefined)) {
-        return;
-      }
+    const { auto, hours, maxStreams, name, url, startingChannelNumber, overwriteChannelNumbers } = restProperties;
 
-      const { auto, hours, maxStreams, name, url, startingChannelNumber, overwriteChannelNumbers } = restProperties;
+    const tosend = {} as UpdateM3UFileRequest;
+    tosend.id = id;
 
-      const tosend = {} as UpdateM3UFileRequest;
-      tosend.id = id;
+    if (auto !== undefined) {
+      tosend.autoUpdate = auto;
+    }
 
-      if (auto !== undefined) {
-        tosend.autoUpdate = auto;
-      }
+    if (hours) {
+      tosend.hoursToUpdate = hours;
+    }
 
-      if (hours) {
-        tosend.hoursToUpdate = hours;
-      }
+    if (hours) {
+      tosend.hoursToUpdate = hours;
+    }
 
-      if (hours) {
-        tosend.hoursToUpdate = hours;
-      }
+    if (name) {
+      tosend.name = name;
+    }
 
-      if (name) {
-        tosend.name = name;
-      }
+    if (overwriteChannelNumbers !== undefined) {
+      tosend.overWriteChannels = overwriteChannelNumbers;
+    }
 
-      if (overwriteChannelNumbers !== undefined) {
-        tosend.overWriteChannels = overwriteChannelNumbers;
-      }
+    if (maxStreams) {
+      tosend.maxStreamCount = maxStreams;
+    }
 
-      if (maxStreams) {
-        tosend.maxStreamCount = maxStreams;
-      }
+    if (url) {
+      tosend.url = url;
+    }
 
-      if (url) {
-        tosend.url = url;
-      }
+    if (startingChannelNumber) {
+      tosend.startingChannelNumber = startingChannelNumber;
+    }
 
-      if (startingChannelNumber) {
-        tosend.startingChannelNumber = startingChannelNumber;
-      }
-
-      // await UpdateM3UFile(tosend)
-      //   .then(() => {
-      //     if (toast.current) {
-      //       toast.current.show({
-      //         detail: 'M3U File Update Successful',
-      //         life: 3000,
-      //         severity: 'success',
-      //         summary: 'Successful'
-      //       });
-      //     }
-      //   })
-      //   .catch((error) => {
-      //     if (toast.current) {
-      //       toast.current.show({
-      //         detail: 'M3U File Update Failed',
-      //         life: 3000,
-      //         severity: 'error',
-      //         summary: `Error ${error.message}`
-      //       });
-      //     }
-      //   });
-    },
-    [toast]
-  );
+    // await UpdateM3UFile(tosend)
+    //   .then(() => {
+    //     if (toast.current) {
+    //       toast.current.show({
+    //         detail: 'M3U File Update Successful',
+    //         life: 3000,
+    //         severity: 'success',
+    //         summary: 'Successful'
+    //       });
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     if (toast.current) {
+    //       toast.current.show({
+    //         detail: 'M3U File Update Failed',
+    //         life: 3000,
+    //         severity: 'error',
+    //         summary: `Error ${error.message}`
+    //       });
+    //     }
+    //   });
+  }, []);
 
   // const StreamURLPrefixEditorBodyTemplate = useCallback(
   //   (rowData: M3UFileDto) => {
@@ -350,8 +344,6 @@ const M3UFilesDataSelector = () => {
 
   return (
     <>
-      <Toast position="bottom-right" ref={toast} />
-
       <SMDataSelector
         columns={columns}
         defaultSortField="name"
