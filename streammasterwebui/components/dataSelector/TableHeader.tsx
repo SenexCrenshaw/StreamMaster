@@ -2,9 +2,10 @@ import { ExportComponent, HeaderLeft, MultiSelectCheckbox } from '@lib/common/co
 import { SMTextColor } from '../SMTextColor';
 import { type DataSelectorProps as DataSelectorProperties } from './DataSelector';
 import { DataSelector2Props } from './DataSelector2';
+import { SMDataSelectorProps } from './SMDataSelector';
 
 interface TableHeaderProperties {
-  dataSelectorProps: DataSelectorProperties | DataSelector2Props;
+  dataSelectorProps: SMDataSelectorProps | DataSelectorProperties | DataSelector2Props;
   enableExport: boolean;
   exportCSV: () => void;
   headerName?: string;
@@ -23,19 +24,25 @@ const TableHeader: React.FC<TableHeaderProperties> = ({
   dataSelectorProps
 }) => (
   <div className="flex grid flex-row align-items-center justify-content-between debug">
-    <div className="col-4 text-sm debug ">
-      <SMTextColor text={headerName} />
-      <div hidden={dataSelectorProps.selectionMode !== 'selectable'}>
-        <MultiSelectCheckbox onMultiSelectClick={onMultiSelectClick} rowClick={rowClick} setRowClick={setRowClick} />
+    {(headerName || onMultiSelectClick) && (
+      <div className="col-4 text-sm debug">
+        <SMTextColor text={headerName} />
+        {onMultiSelectClick && (
+          <div hidden={dataSelectorProps.selectionMode !== 'selectable'}>
+            <MultiSelectCheckbox onMultiSelectClick={onMultiSelectClick} rowClick={rowClick} setRowClick={setRowClick} />
+          </div>
+        )}
       </div>
-    </div>
-    <div className="col-8 debug p-0">
-      <div className="flex flex-nowrap flex-row justify-content-between">
-        <HeaderLeft props={dataSelectorProps} />
-        {dataSelectorProps.headerRightTemplate}
-        {enableExport && <ExportComponent exportCSV={exportCSV} />}
+    )}
+    {(dataSelectorProps.headerRightTemplate || enableExport || dataSelectorProps.headerLeftTemplate) && (
+      <div className="col-8 debug p-0">
+        <div className="flex flex-nowrap flex-row justify-content-between">
+          {dataSelectorProps.headerLeftTemplate && <HeaderLeft props={dataSelectorProps} />}
+          {dataSelectorProps.headerRightTemplate && dataSelectorProps.headerRightTemplate}
+          {enableExport && <ExportComponent exportCSV={exportCSV} />}
+        </div>
       </div>
-    </div>
+    )}
   </div>
 );
 

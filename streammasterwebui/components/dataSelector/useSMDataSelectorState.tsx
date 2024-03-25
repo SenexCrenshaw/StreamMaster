@@ -4,8 +4,6 @@ import { useState } from 'react';
 
 import { AdditionalFilterProperties } from '@lib/common/common';
 import { VideoStreamIsReadOnly } from '@lib/iptvApi';
-import { useSelectedSMChannel } from '@lib/redux/slices/selectedSMChannel';
-import { useSelectedSMStream } from '@lib/redux/slices/selectedSMStream';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { useShowHidden } from '@lib/redux/slices/useShowHidden';
@@ -13,11 +11,9 @@ import { useShowSelections } from '@lib/redux/slices/useShowSelections';
 import { useSortInfo } from '@lib/redux/slices/useSortInfo';
 import { ColumnMeta, PagedTableInformation } from './DataSelectorTypes';
 
-const useDataSelectorState2 = <T extends DataTableValue>(id: string, selectedItemsKey: string, channelDataSelectorKey: string, selectedSMStreamKey: string) => {
+const useSMDataSelectorState = <T extends DataTableValue>(id: string, selectedItemsKey: string) => {
   const { sortInfo, setSortInfo } = useSortInfo(id);
   const { selectAll, setSelectAll } = useSelectAll(id);
-  const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMChannel(channelDataSelectorKey);
-  const { selectedSMStream, setSelectedSMStream } = useSelectedSMStream(selectedSMStreamKey);
   const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<T>(selectedItemsKey);
   const { showHidden } = useShowHidden(id);
   const { showSelections, setShowSelections } = useShowSelections(id);
@@ -66,9 +62,7 @@ const useDataSelectorState2 = <T extends DataTableValue>(id: string, selectedIte
       setSortField,
       setSortOrder,
       setVideoStreamIsReadOnlys,
-      setVisibleColumns,
-      setSelectedSMChannel,
-      setSelectedSMStream
+      setVisibleColumns
     },
     state: {
       additionalFilterProps: additionalFilterProperties,
@@ -83,16 +77,14 @@ const useDataSelectorState2 = <T extends DataTableValue>(id: string, selectedIte
       rows,
       selectAll,
       selectSelectedItems,
-      selectedSMChannel,
       showHidden,
       showSelections,
       sortField,
       sortOrder,
       videoStreamIsReadOnlys,
-      visibleColumns,
-      selectedSMStream
+      visibleColumns
     }
   };
 };
 
-export default useDataSelectorState2;
+export default useSMDataSelectorState;

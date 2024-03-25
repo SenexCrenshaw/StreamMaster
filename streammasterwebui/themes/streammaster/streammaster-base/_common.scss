@@ -32,6 +32,27 @@
     .p-inputtext {
         height: $datatable-row-height;
     }
+
+    height: 30vh;
+}
+
+.sourceOrFileDialog {
+    padding-left: $datatable-padding;
+    padding-right: $datatable-padding;
+
+    .p-progressbar {
+        height: $datatable-row-height;
+        border-radius: 0;
+    }
+
+    .p-progressbar-value {
+        border-left: none;
+        border-right: none;
+    }
+
+    .p-inputtext {
+        height: $datatable-row-height;
+    }
 }
 
 // .p-inputnumber {
@@ -91,4 +112,14 @@
         padding: 0;
         margin: 0;
     }
+}
+
+.p-inputgroup {
+    height: $datatable-row-height;
+    padding: 0;
+    margin: 0;
+
+    // .p-button {
+    //     background-color: $streamMasterColor;
+    // }
 }

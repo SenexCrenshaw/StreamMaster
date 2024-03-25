@@ -10,14 +10,15 @@ interface TextInputProperties {
   readonly isUrl?: boolean;
   readonly isValid?: boolean;
   readonly label?: string;
-  readonly onChange: (value: string) => void;
-  readonly onEnter?: () => void;
-  readonly onResetClick?: () => void;
   readonly openCopyWindow?: boolean;
   readonly placeHolder?: string;
   readonly showClear?: boolean;
   readonly showCopy?: boolean;
   readonly value: string | undefined;
+
+  readonly onChange: (value: string) => void;
+  readonly onEnter?: () => void;
+  readonly onResetClick?: () => void;
 }
 
 const TextInput = ({

@@ -5,21 +5,22 @@ namespace StreamMaster.Application.SMChannels.Commands;
 [SMAPI]
 public record DeleteSMChannelRequest(int smChannelId) : IRequest<DefaultAPIResponse>;
 
-internal class DeleteSMChannelRequestHandler(IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor) 
+internal class DeleteSMChannelRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor)
     : IRequestHandler<DeleteSMChannelRequest, DefaultAPIResponse>
 {
     public async Task<DefaultAPIResponse> Handle(DeleteSMChannelRequest request, CancellationToken cancellationToken)
     {
-        SMChannel? channel = Repository.SMChannel.GetSMChannel(request.smChannelId);
-        if (channel == null)
+        DefaultAPIResponse ret = await Repository.SMChannel.DeleteSMChannel(request.smChannelId);
+        if (ret.IsError.HasValue && ret.IsError.Value)
         {
-            return APIResponseFactory.NotFound;
+
+            await messageService.SendError($"Could not delete channel", ret.ErrorMessage);
         }
-
-        await Repository.SMChannel.DeleteSMChannel(request.smChannelId);
-
-        await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
-
-        return APIResponseFactory.Ok;
+        else
+        {
+            await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
+            await messageService.SendSMInfo($"Deleted channel {ret.Message}");
+        }
+        return ret;
     }
 }

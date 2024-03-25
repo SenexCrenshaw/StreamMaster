@@ -35,7 +35,7 @@ public static class TypeScriptHookGenerator
         }
 
         // Importing slice for actions
-        content.AppendLine($"import {{ clear{namespaceName}, update{namespaceName} }} from '@lib/smAPI/{namespaceName}/{namespaceName}Slice';");
+        content.AppendLine($"import {{ clear{namespaceName}, intSet{namespaceName}IsLoading, update{namespaceName} }} from '@lib/smAPI/{namespaceName}/{namespaceName}Slice';");
         content.AppendLine();
 
 
@@ -100,6 +100,7 @@ public static class TypeScriptHookGenerator
 
         sb.AppendLine("  set" + namespaceName + "Field: (fieldData: FieldData) => void;");
         sb.AppendLine("  refresh" + namespaceName + ": () => void;");
+        sb.AppendLine("  set" + namespaceName + "IsLoading: (isLoading: boolean) => void;");
         sb.AppendLine("}");
         sb.AppendLine();
 
@@ -132,6 +133,12 @@ public static class TypeScriptHookGenerator
         // Refresh field action
         sb.AppendLine($"  const refresh{namespaceName} = (): void => {{");
         sb.AppendLine($"    dispatch(clear{namespaceName}());");
+        sb.AppendLine($"  }};");
+        sb.AppendLine();
+
+        // IsLoading action
+        sb.AppendLine($"  const set{namespaceName}IsLoading = (isLoading: boolean): void => {{");
+        sb.AppendLine($"    dispatch(intSet{namespaceName}IsLoading( {{isLoading: isLoading}} ));");
         sb.AppendLine($"  }};");
         sb.AppendLine();
 
@@ -173,7 +180,7 @@ public static class TypeScriptHookGenerator
         //    sb.Append($", {methodName.ToCamelCase()}");
         //}
 
-        sb.AppendLine($", refresh{namespaceName}, set{namespaceName}Field }};");
+        sb.AppendLine($", refresh{namespaceName}, set{namespaceName}Field, set{namespaceName}IsLoading }};");
         sb.AppendLine("};");
         sb.AppendLine();
         sb.AppendLine($"export default use{namespaceName};");

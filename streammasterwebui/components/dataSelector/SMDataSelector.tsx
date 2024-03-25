@@ -29,7 +29,7 @@ import getEmptyFilter from './getEmptyFilter';
 import getHeader from './getHeader';
 import getRecord from './getRecord';
 import isPagedTableDto from './isPagedTableDto';
-import useDataSelectorState2 from './useDataSelectorState2';
+import useSMDataSelectorState from './useSMDataSelectorState';
 
 import AddButton from '@components/buttons/AddButton';
 import StringTracker from '@components/inputs/StringTracker';
@@ -48,7 +48,7 @@ import { AddSMStreamToSMChannelRequest } from '@lib/smAPI/SMChannels/SMChannelsT
 
 const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>) => {
   const debug = false;
-  const { state, setters } = useDataSelectorState2<T>(props.id, props.selectedItemsKey, props.selectedSMChannelKey, props.selectedSMStreamKey);
+  const { state, setters } = useSMDataSelectorState<T>(props.id, props.selectedItemsKey);
 
   useEffect(() => {
     if (props.columns === undefined) {
@@ -175,20 +175,6 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
         return 'bg-red-900';
       }
 
-      if (props.selectRow === true && state.selectedSMChannel !== undefined) {
-        const id = getRecord(data, 'id') as number;
-        if (id === state.selectedSMChannel.id) {
-          return 'bg-orange-900';
-        }
-      }
-
-      if (props.selectRow === true && state.selectedSMStream !== undefined) {
-        const id = getRecordString(data, 'id');
-        if (id === state.selectedSMStream.id) {
-          return 'bg-yellow-900';
-        }
-      }
-
       if (props.videoStreamIdsIsReadOnly !== undefined && props.videoStreamIdsIsReadOnly.length > 0) {
         const isReadOnly = props.videoStreamIdsIsReadOnly.find((vs) => vs === getRecord(data as T, 'id'));
 
@@ -199,7 +185,7 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
 
       return {};
     },
-    [props.selectRow, props.videoStreamIdsIsReadOnly, state.selectedSMChannel, state.selectedSMStream]
+    [props.selectRow, props.videoStreamIdsIsReadOnly]
   );
 
   const exportCSV = () => {
@@ -605,31 +591,13 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
     (data: T) => {
       const found = state.selectSelectedItems.some((item) => item.id === data.id);
       const isSelected = found ?? false;
-      let toolTip = 'Add Channel';
-      if (state.selectedSMChannel !== undefined) {
-        toolTip = 'Add Stream To ' + state.selectedSMChannel.name;
-        return (
-          <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-            {props.onStreamAdd !== undefined && (
-              <AddButton
-                iconFilled={false}
-                onClick={() => props.onStreamAdd?.({ sMStreamId: data.id, sMChannelId: state.selectedSMChannel?.id ?? 0 })}
-                tooltip={toolTip}
-              />
-            )}
-            {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />}
-          </div>
-        );
-      }
-
       return (
         <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-          {props.onChannelAdd !== undefined && <AddButton iconFilled={false} onClick={() => props.onChannelAdd?.(data)} tooltip={toolTip} />}
           {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />}
         </div>
       );
     },
-    [addSelection, props, showSelection, state.selectSelectedItems, state.selectedSMChannel]
+    [state.selectSelectedItems, showSelection]
   );
 
   function addOrRemoveHeaderTemplate() {
@@ -652,50 +620,6 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
     );
   }
 
-  const rowExpansionTemplate = useCallback(
-    (data: DataTableRowData<T[]>, options: DataTableRowExpansionTemplate) => {
-      const channel = data as unknown as SMChannelDto;
-      console.log('rowExpansionTemplate', channel, props.selectedSMChannelKey, props.selectedSMStreamKey);
-      return (
-        <div className="border-2 border-round-lg border-200 ml-3 m-1">
-          <Suspense fallback={<ProgressSpinner>Loading...</ProgressSpinner>}>
-            <SMStreamDataSelectorValue
-              selectedSMStreamKey={props.selectedSMStreamKey}
-              selectedSMChannelKey={props.selectedSMChannelKey}
-              data={channel.smStreams}
-              smChannel={channel}
-              id={data.id + '-streams'}
-            />
-          </Suspense>
-        </div>
-      );
-    },
-    [props.selectedSMChannelKey, props.selectedSMStreamKey]
-  );
-
-  const setSelectedSMEntity = useCallback(
-    (data: DataTableValue, toggle?: boolean) => {
-      if (props.selectRow === true) {
-        const isChannel = 'smStreams' in data;
-
-        if (isChannel) {
-          if (toggle === true && state.selectedSMChannel !== undefined && data !== undefined && data.id === state.selectedSMChannel.id) {
-            setters.setSelectedSMChannel(undefined);
-          } else {
-            setters.setSelectedSMChannel(data as SMChannelDto);
-          }
-        } else {
-          if (toggle === true && state.selectedSMStream !== undefined && data !== undefined && data.id === state.selectedSMStream.id) {
-            setters.setSelectedSMStream(undefined);
-          } else {
-            setters.setSelectedSMStream(data as SMStreamDto);
-          }
-        }
-      }
-    },
-    [props.selectRow, setters, state.selectedSMChannel, state.selectedSMStream]
-  );
-
   return (
     <div className="dataselector flex w-full min-w-full justify-content-start align-items-center">
       <div className={`${props.className === undefined ? '' : props.className} min-h-full w-full surface-overlay`}>
@@ -717,11 +641,11 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
           onFilter={onFilter}
           onPage={onPage}
           onRowExpand={(e: DataTableRowEvent) => {
-            setSelectedSMEntity(e.data);
+            // setSelectedSMEntity(e.data);
           }}
           onRowCollapse={(e: DataTableRowEvent) => {}}
           onRowClick={(e: DataTableRowClickEvent) => {
-            setSelectedSMEntity(e.data as T, true);
+            // setSelectedSMEntity(e.data as T, true);
             props.onRowClick?.(e);
           }}
           onRowReorder={(e: DataTableRowReorderEvent<T[]>) => {
@@ -739,7 +663,7 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
             //   props.onSelectionChange(e.value, selectAll);
             // }
           }}
-          rowExpansionTemplate={rowExpansionTemplate}
+          rowExpansionTemplate={props.rowExpansionTemplate ?? undefined}
           onSort={onSort}
           paginator={props.enablePaginator ?? true}
           paginatorClassName="text-xs"
@@ -778,7 +702,7 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
             field="addOrRemove"
             filter
             filterElement={addOrRemoveHeaderTemplate}
-            hidden={!props.onStreamAdd || !props.onChannelAdd}
+            // hidden={!props.onStreamAdd || !props.onChannelAdd}
             showFilterMenu={false}
             showFilterOperator={false}
             resizeable={false}
@@ -872,10 +796,6 @@ interface BaseSMDataSelectorProperties<T = any> {
   id: string;
   isLoading?: boolean;
   dataKey?: string | undefined;
-  selectedSMChannelKey: string;
-  selectedSMStreamKey: string;
-  onChannelAdd?: (value: T) => void;
-  onStreamAdd?: (value: AddSMStreamToSMChannelRequest) => void;
   onDelete?: (value: T) => void;
   onMultiSelectClick?: (value: boolean) => void;
   OnReset?: () => void;
@@ -897,6 +817,7 @@ interface BaseSMDataSelectorProperties<T = any> {
   style?: CSSProperties;
   reset?: boolean | undefined;
   videoStreamIdsIsReadOnly?: string[] | undefined;
+  rowExpansionTemplate?: (data: DataTableRowData<T | any>, options: DataTableRowExpansionTemplate) => React.ReactNode;
   // virtualScrollHeight?: string | undefined;
 }
 

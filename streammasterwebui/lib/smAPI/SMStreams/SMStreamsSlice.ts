@@ -47,6 +47,10 @@ const SMStreamsSlice = createSlice({
       }
       console.log('clearSMStreams executed');
     },
+    intSetSMStreamsIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
+       for (const key in state.data) { state.isLoading[key] = action.payload.isLoading; }
+      console.log('setSMStreamsIsLoading executed');
+    },
 
   },
   extraReducers: (builder) => {
@@ -74,5 +78,5 @@ const SMStreamsSlice = createSlice({
   }
 });
 
-export const { clearSMStreams, updateSMStreams } = SMStreamsSlice.actions;
+export const { intSetSMStreamsIsLoading, clearSMStreams, updateSMStreams } = SMStreamsSlice.actions;
 export default SMStreamsSlice.reducer;

@@ -11,6 +11,7 @@ import { CreateM3UFileRequest } from '@lib/smAPI/M3UFiles/M3UFilesTypes';
 import { CreateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 
 import SMFileUpload from '@components/file/SMFileUpload';
+import { OverlayPanel } from 'primereact/overlaypanel';
 
 export interface M3UFileDialogProperties {
   readonly infoMessage?: string;
@@ -22,6 +23,7 @@ export interface M3UFileDialogProperties {
 
 export const M3UFileCreateDialog = ({ onHide, onUploadComplete, show, showButton }: M3UFileDialogProperties) => {
   const fileUploadReference = useRef<FileUpload>(null);
+  const op = useRef<OverlayPanel>(null);
 
   const [overwriteChannelNumbers, setOverwriteChannelNumbers] = React.useState<boolean>(true);
   const [vodTags, setVodTags] = useState<string[]>([]);
@@ -110,18 +112,8 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, show, showButton
 
   return (
     <>
-      <InfoMessageOverLayDialog
-        blocked={block}
-        closable
-        header={`Add M3U File`}
-        infoMessage={infoMessage}
-        onClose={() => {
-          ReturnToParent();
-        }}
-        overlayColSize={6}
-        show={showOverlay || show === true}
-      >
-        <div className="col-12 p-0 m-0">
+      <OverlayPanel className="col-5 p-0" ref={op} showCloseIcon={false}>
+        <div className="col-12 p-0 m-0 h-50rem">
           <SMFileUpload
             fileType="m3u"
             maxStreams={maxStreams}
@@ -135,14 +127,14 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, show, showButton
             settingTemplate={settingTemplate()}
           />
         </div>
-      </InfoMessageOverLayDialog>
+      </OverlayPanel>
 
       <div hidden={showButton === false} className="justify-content-center">
-        <AddButton onClick={() => setShowOverlay(true)} tooltip="Add M3U File" />
+        <AddButton onClick={(e) => op.current?.toggle(e)} tooltip="Add M3U File" />
       </div>
     </>
   );
 };
-M3UFileCreateDialog.displayName = 'M3UFileDialog2';
+M3UFileCreateDialog.displayName = 'M3UFileCreateDialog';
 
 export default React.memo(M3UFileCreateDialog);

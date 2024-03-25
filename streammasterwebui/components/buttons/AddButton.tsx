@@ -5,6 +5,7 @@ import { ChildButtonProperties } from './ChildButtonProperties';
 
 const AddButton = React.forwardRef<Button, ChildButtonProperties>(({ disabled = false, iconFilled, label, onClick, tooltip = 'Add' }, ref) => (
   <BaseButton
+    className={`p-1 px-2 text-xs` + iconFilled ? '' : 'w-2rem'}
     disabled={disabled}
     icon="pi-plus"
     iconFilled={iconFilled}

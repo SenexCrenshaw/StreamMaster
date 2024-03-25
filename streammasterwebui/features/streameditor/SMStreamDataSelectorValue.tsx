@@ -1,11 +1,13 @@
 import MinusButton from '@components/buttons/MinusButton';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 
-import { SMChannelDto, SMChannelRankRequest, SMStreamDto, SMStreamSMChannelRequest } from '@lib/apiDefs';
+import { SMChannelDto, SMChannelRankRequest, SMStreamDto } from '@lib/apiDefs';
 
 import { GetMessage } from '@lib/common/common';
 import { useSelectedSMChannel } from '@lib/redux/slices/selectedSMChannel';
 import { RemoveSMStreamFromSMChannel, SetSMStreamRanks } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { RemoveSMStreamFromSMChannelRequest, SetSMStreamRanksRequest } from '@lib/smAPI/SMChannels/SMChannelsTypes';
+import useSMChannels from '@lib/smAPI/SMChannels/useSMChannels';
 
 import { lazy, memo, useCallback, useMemo } from 'react';
 const DataSelectorValues = lazy(() => import('@components/dataSelector/DataSelectorValues'));
@@ -21,6 +23,7 @@ interface SMStreamDataSelectorValueProperties {
 const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey, selectedSMStreamKey, smChannel }: SMStreamDataSelectorValueProperties) => {
   const dataKey = `${id}-SMStreamDataSelectorValue`;
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMChannel(selectedSMChannelKey);
+  const { setSMChannelsIsLoading } = useSMChannels();
 
   const actionBodyTemplate = useCallback(
     (data: SMStreamDto) => (
@@ -31,8 +34,8 @@ const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey, selectedSMS
             if (!data.id || selectedSMChannel === undefined) {
               return;
             }
-
-            const request: SMStreamSMChannelRequest = { smChannelId: selectedSMChannel.id, smStreamId: data.id };
+            setSMChannelsIsLoading(true);
+            const request: RemoveSMStreamFromSMChannelRequest = { sMChannelId: selectedSMChannel.id, sMStreamId: data.id };
             RemoveSMStreamFromSMChannel(request)
               .then((response) => {
                 console.log('Remove Stream', response);
@@ -88,10 +91,12 @@ const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey, selectedSMS
           if (selectedSMChannel === undefined) {
             return;
           }
-          let tosend: SMChannelRankRequest[] = event.map((item, index) => {
+          setSMChannelsIsLoading(true);
+          const tosend: SMChannelRankRequest[] = event.map((item, index) => {
             return { smChannelId: selectedSMChannel.id, smStreamId: item.id, rank: index } as SMChannelRankRequest;
           });
-          SetSMStreamRanks(tosend)
+
+          SetSMStreamRanks({ requests: tosend } as SetSMStreamRanksRequest)
             .then((response) => {
               console.log('SetSMStreamRanks', response);
             })

@@ -34,7 +34,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
 
             if (command.FormFile != null)
             {
-                Logger.LogInformation("Adding M3U From Form: {fullName}", fullName);
+                Logger.LogInformation("Adding M3U From Form: '{name}'", command.Name);
                 (bool success, Exception? ex) = await FormHelper.SaveFormFileAsync(command.FormFile!, fullName).ConfigureAwait(false);
                 if (success)
                 {
@@ -44,7 +44,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
                 else
                 {
 
-                    Logger.LogCritical("Exception M3U From Form {ex}", ex);
+                    Logger.LogCritical("Exception M3U From Form '{ex}'", ex);
                     await messageService.SendError($"Exception M3U From Form", ex?.Message);
 
 
@@ -57,7 +57,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
                 m3UFile.Url = source;
                 m3UFile.LastDownloadAttempt = SMDT.UtcNow;
 
-                Logger.LogInformation("Add M3U From URL {command.UrlSource}", command.UrlSource);
+                Logger.LogInformation("Add M3U From URL '{command.UrlSource}'", command.UrlSource);
                 (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(source, fullName, cancellationToken).ConfigureAwait(false);
                 if (success)
                 {
@@ -68,7 +68,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
                 {
                     ++m3UFile.DownloadErrors;
 
-                    Logger.LogCritical("Exception M3U From URL {ex}", ex);
+                    Logger.LogCritical("Exception M3U From URL '{ex}'", ex);
                     await messageService.SendError($"Exception M3U From Form", ex?.Message);
 
                 }
@@ -79,8 +79,8 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
             List<VideoStream>? streams = await m3UFile.GetVideoStreamsFromM3U(Logger).ConfigureAwait(false);
             if (streams == null || streams.Count == 0)
             {
-                Logger.LogCritical("Exception M3U {fullName} format is not supported", fullName);
-                await messageService.SendError($"Exception M3U {fullName} format is not supported");
+                Logger.LogCritical("Exception M3U '{name}' format is not supported", command.Name);
+                await messageService.SendError($"Exception M3U '{command.Name}' format is not supported");
                 //Bad M3U
                 if (File.Exists(fullName))
                 {
@@ -109,7 +109,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
         catch (Exception exception)
         {
             await messageService.SendError("Exception adding M3U", exception.Message);
-            Logger.LogCritical("Exception M3U From Form {exception}", exception);
+            Logger.LogCritical("Exception M3U From Form '{exception}'", exception);
         }
         return APIResponseFactory.NotFound;
     }

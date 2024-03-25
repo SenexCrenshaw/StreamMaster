@@ -47,6 +47,10 @@ const M3UFilesSlice = createSlice({
       }
       console.log('clearM3UFiles executed');
     },
+    intSetM3UFilesIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
+       for (const key in state.data) { state.isLoading[key] = action.payload.isLoading; }
+      console.log('setM3UFilesIsLoading executed');
+    },
 
   },
   extraReducers: (builder) => {
@@ -74,5 +78,5 @@ const M3UFilesSlice = createSlice({
   }
 });
 
-export const { clearM3UFiles, updateM3UFiles } = M3UFilesSlice.actions;
+export const { intSetM3UFilesIsLoading, clearM3UFiles, updateM3UFiles } = M3UFilesSlice.actions;
 export default M3UFilesSlice.reducer;

@@ -2,13 +2,14 @@ import { FieldData, GetApiArgument, PagedResponse, QueryHookResult,SMStreamDto }
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { fetchGetPagedSMStreams } from '@lib/smAPI/SMStreams/SMStreamsFetch';
-import { clearSMStreams, updateSMStreams } from '@lib/smAPI/SMStreams/SMStreamsSlice';
+import { clearSMStreams, intSetSMStreamsIsLoading, updateSMStreams } from '@lib/smAPI/SMStreams/SMStreamsSlice';
 
 interface ExtendedQueryHookResult extends QueryHookResult<PagedResponse<SMStreamDto> | undefined> {}
 
 interface SMStreamDtoResult extends ExtendedQueryHookResult {
   setSMStreamsField: (fieldData: FieldData) => void;
   refreshSMStreams: () => void;
+  setSMStreamsIsLoading: (isLoading: boolean) => void;
 }
 
 const useSMStreams = (params?: GetApiArgument | undefined): SMStreamDtoResult => {
@@ -33,7 +34,11 @@ const useSMStreams = (params?: GetApiArgument | undefined): SMStreamDtoResult =>
     dispatch(clearSMStreams());
   };
 
-  return { data, error, isError, isLoading, refreshSMStreams, setSMStreamsField };
+  const setSMStreamsIsLoading = (isLoading: boolean): void => {
+    dispatch(intSetSMStreamsIsLoading( {isLoading: isLoading} ));
+  };
+
+  return { data, error, isError, isLoading, refreshSMStreams, setSMStreamsField, setSMStreamsIsLoading };
 };
 
 export default useSMStreams;

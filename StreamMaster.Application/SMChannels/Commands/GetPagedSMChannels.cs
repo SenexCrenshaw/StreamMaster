@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
+using System.Diagnostics;
 using System.Text.Json;
 using System.Web;
 
@@ -13,10 +14,12 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
 {
     public async Task<APIResponse<SMChannelDto>> Handle(GetPagedSMChannels request, CancellationToken cancellationToken)
     {
+        Debug.WriteLine("GetPagedSMChannelsRequestHandler");
         APIResponse<SMChannelDto> ret = new();
         if (request.Parameters.PageSize == 0)
         {
             ret.PagedResponse = Repository.SMChannel.CreateEmptyPagedResponse();
+            Debug.WriteLine("GetPagedSMChannelsRequestHandler no params");
             return ret;
         }
 
@@ -58,6 +61,7 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
             channel.RealUrl = jsonString;
         }
 
+        Debug.WriteLine($"GetPagedSMChannelsRequestHandler returning {res.Data.Count} items");
         ret.PagedResponse = res;
         return ret;
     }

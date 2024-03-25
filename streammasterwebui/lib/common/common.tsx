@@ -577,11 +577,9 @@ export const getColumnClass = (size?: number, secondSize?: number) => {
 export const HeaderLeft: React.FC<{ readonly props: any }> = ({ props }) => (
   <div
     className={`flex debug flex-nowrap justify-content-end header p-0 m-0 align-items-center ${
-      props?.headerLeftTemplate ? getColumnClass(props.leftColSize, 4) : 'col-1'
+      props?.headerLeftTemplate ? getColumnClass(props.leftColSize, 4) : ''
     }`}
-  >
-    {props.headerLeftTemplate}
-  </div>
+  ></div>
 );
 
 export const GlobalSearchComponent: React.FC<{

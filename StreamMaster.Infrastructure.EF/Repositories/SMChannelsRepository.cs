@@ -36,26 +36,25 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         await SaveChangesAsync();
     }
 
-    public async Task DeleteSMChannel(int smchannelId)
+    public async Task<DefaultAPIResponse> DeleteSMChannel(int smchannelId)
     {
         try
         {
-
-            SMChannel? channel = FirstOrDefault(a => a.Id == smchannelId, tracking: true);
+            SMChannel? channel = await FirstOrDefaultAsync(a => a.Id == smchannelId);
             if (channel == null)
             {
-                return;
+                return APIResponseFactory.ErrorWithMessage("SMChannel not found");
             }
-            await repository.SMChannelStreamLink.DeleteSMChannelStreamLinksFromParentId(smchannelId);
-            await SaveChangesAsync();
+
             Delete(channel);
             await SaveChangesAsync();
-            return;
+            return APIResponseFactory.OkWithMessage(channel.Name);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error deleting SMChannel with id {smchannelId}", smchannelId);
         }
+        return APIResponseFactory.ErrorWithMessage($"Error deleting SMChannel with id {smchannelId}");
     }
 
     public async Task<List<int>> DeleteSMChannelsFromParameters(SMChannelParameters parameters)
@@ -66,7 +65,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
     public SMChannel? GetSMChannel(int smchannelId)
     {
-        return FirstOrDefault(a => a.Id == smchannelId, tracking: true);
+        return FirstOrDefault(a => a.Id == smchannelId, tracking: false);
     }
 
     public async Task<DefaultAPIResponse> CreateSMChannelFromStream(string streamId)
@@ -194,7 +193,9 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
     public override IQueryable<SMChannel> GetQuery(bool tracking = false)
     {
-        return base.GetQuery(tracking).Include(a => a.SMStreams).ThenInclude(a => a.SMStream);
+        return tracking
+            ? base.GetQuery(tracking).Include(a => a.SMStreams).ThenInclude(a => a.SMStream)
+            : base.GetQuery(tracking).Include(a => a.SMStreams).ThenInclude(a => a.SMStream).AsNoTracking();
     }
 
     public override IQueryable<SMChannel> GetQuery(Expression<Func<SMChannel, bool>> expression, bool tracking = false)

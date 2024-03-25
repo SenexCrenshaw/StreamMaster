@@ -1,14 +1,15 @@
-import { FieldData, GetApiArgument, PagedResponse, QueryHookResult,SMChannelDto } from '@lib/apiDefs';
+import { FieldData, GetApiArgument, PagedResponse, QueryHookResult, SMChannelDto } from '@lib/apiDefs';
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { fetchGetPagedSMChannels } from '@lib/smAPI/SMChannels/SMChannelsFetch';
-import { clearSMChannels, updateSMChannels } from '@lib/smAPI/SMChannels/SMChannelsSlice';
+import { clearSMChannels, intSetSMChannelsIsLoading, updateSMChannels } from '@lib/smAPI/SMChannels/SMChannelsSlice';
 
 interface ExtendedQueryHookResult extends QueryHookResult<PagedResponse<SMChannelDto> | undefined> {}
 
 interface SMChannelDtoResult extends ExtendedQueryHookResult {
   setSMChannelsField: (fieldData: FieldData) => void;
   refreshSMChannels: () => void;
+  setSMChannelsIsLoading: (isLoading: boolean) => void;
 }
 
 const useSMChannels = (params?: GetApiArgument | undefined): SMChannelDtoResult => {
@@ -33,7 +34,11 @@ const useSMChannels = (params?: GetApiArgument | undefined): SMChannelDtoResult 
     dispatch(clearSMChannels());
   };
 
-  return { data, error, isError, isLoading, refreshSMChannels, setSMChannelsField };
+  const setSMChannelsIsLoading = (isLoading: boolean): void => {
+    dispatch(intSetSMChannelsIsLoading({ isLoading: isLoading }));
+  };
+
+  return { data, error, isError, isLoading, refreshSMChannels, setSMChannelsField, setSMChannelsIsLoading };
 };
 
 export default useSMChannels;

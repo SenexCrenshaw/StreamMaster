@@ -346,13 +346,12 @@ const M3UFilesDataSelector = () => {
     <>
       <SMDataSelector
         columns={columns}
+        enableExport={false}
         defaultSortField="name"
         emptyMessage="No M3U Files"
         id="m3ufilesdataselector"
         queryFilter={useM3UFiles}
         selectedItemsKey="selectedM3UFileDtoItems"
-        selectedSMStreamKey="SMChannelDataSelector"
-        selectedSMChannelKey="SMChannelDataSelector"
         style={{ height: '30vh' }}
       />
     </>

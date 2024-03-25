@@ -4,7 +4,6 @@ import { upload as uploadService } from '@lib/FileUploadService';
 
 export interface BaseUploadParams {
   name: string;
-  fileName: string;
 }
 
 export type UploadParamsSettings = {
@@ -40,13 +39,12 @@ export function useFileUpload() {
       try {
         await uploadService({
           name: params.name,
-          fileName: params.fileName,
-          maxStreams: params.maxStreams,
+          maxStreamCount: params.maxStreams,
           epgNumber: params.epgNumber,
           timeShift: params.timeShift,
           color: params.color,
           startingChannelNumber: params.startingChannelNumber,
-          overwriteChannelNumbers: params.overwriteChannelNumbers,
+          overWriteChannels: params.overwriteChannelNumbers,
           vodTags: params.vodTags,
           file: params.file,
           fileType: params.fileType,

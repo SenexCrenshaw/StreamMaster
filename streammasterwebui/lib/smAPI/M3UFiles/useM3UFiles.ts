@@ -2,13 +2,14 @@ import { FieldData, GetApiArgument, PagedResponse, QueryHookResult,M3UFileDto } 
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { fetchGetPagedM3UFiles } from '@lib/smAPI/M3UFiles/M3UFilesFetch';
-import { clearM3UFiles, updateM3UFiles } from '@lib/smAPI/M3UFiles/M3UFilesSlice';
+import { clearM3UFiles, intSetM3UFilesIsLoading, updateM3UFiles } from '@lib/smAPI/M3UFiles/M3UFilesSlice';
 
 interface ExtendedQueryHookResult extends QueryHookResult<PagedResponse<M3UFileDto> | undefined> {}
 
 interface M3UFileDtoResult extends ExtendedQueryHookResult {
   setM3UFilesField: (fieldData: FieldData) => void;
   refreshM3UFiles: () => void;
+  setM3UFilesIsLoading: (isLoading: boolean) => void;
 }
 
 const useM3UFiles = (params?: GetApiArgument | undefined): M3UFileDtoResult => {
@@ -33,7 +34,11 @@ const useM3UFiles = (params?: GetApiArgument | undefined): M3UFileDtoResult => {
     dispatch(clearM3UFiles());
   };
 
-  return { data, error, isError, isLoading, refreshM3UFiles, setM3UFilesField };
+  const setM3UFilesIsLoading = (isLoading: boolean): void => {
+    dispatch(intSetM3UFilesIsLoading( {isLoading: isLoading} ));
+  };
+
+  return { data, error, isError, isLoading, refreshM3UFiles, setM3UFilesField, setM3UFilesIsLoading };
 };
 
 export default useM3UFiles;

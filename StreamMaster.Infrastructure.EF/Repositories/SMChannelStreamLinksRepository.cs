@@ -54,13 +54,15 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
 
     public async Task DeleteSMChannelStreamLinksFromParentId(int smchannelId)
     {
-        IQueryable<SMChannelStreamLink> linksToDelete = GetQuery(true).Where(a => a.SMChannelId == smchannelId);
+        IQueryable<SMChannelStreamLink> linksToDelete = GetQuery(false).Where(a => a.SMChannelId == smchannelId);
         if (linksToDelete.Any())
         {
             await linksToDelete.ExecuteDeleteAsync().ConfigureAwait(false);
         }
-        List<int> smchannelIds = linksToDelete.Select(a => a.SMChannelId).ToList();
-        await UpdateRanks([smchannelId]);
+        //Delete(sMChannelStreamLink);
+        // await SaveChangesAsync();
+        //List<int> smchannelIds = linksToDelete.Select(a => a.SMChannelId).ToList();
+        //await UpdateRanks([smchannelId]);
     }
 
     public async Task DeleteSMChannelStreamLinks(IQueryable<SMChannelStreamLink> linksToDelete)

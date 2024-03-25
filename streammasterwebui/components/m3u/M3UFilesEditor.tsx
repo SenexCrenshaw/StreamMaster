@@ -4,7 +4,7 @@ import M3UFilesDataSelector from './M3UFilesDataSelector';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import UploadButton from '@components/buttons/UploadButton';
 
-const M3UFilesEditor = () => {
+const M3UFilesEditor2 = () => {
   const op = useRef<OverlayPanel>(null);
   const closeOverlay = () => op.current?.hide();
   return (
@@ -23,8 +23,8 @@ const M3UFilesEditor = () => {
   );
 };
 
-M3UFilesEditor.displayName = 'M3UFilesEditor';
+M3UFilesEditor2.displayName = 'M3UFilesEditor2';
 
 export interface M3UFilesEditorProperties {}
 
-export default memo(M3UFilesEditor);
+export default memo(M3UFilesEditor2);

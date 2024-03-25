@@ -13,7 +13,7 @@ public interface ISMChannelsRepository
     Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(SMChannelParameters parameters);
     IQueryable<SMChannel> GetQuery(bool tracking = false);
     List<SMChannelDto> GetSMChannels();
-    Task DeleteSMChannel(int smchannelId);
+    Task<DefaultAPIResponse> DeleteSMChannel(int smchannelId);
     Task<List<int>> DeleteSMChannelsFromParameters(SMChannelParameters parameters);
     SMChannel? GetSMChannel(int smchannelId);
     Task<DefaultAPIResponse> CreateSMChannelFromStream(string streamId);

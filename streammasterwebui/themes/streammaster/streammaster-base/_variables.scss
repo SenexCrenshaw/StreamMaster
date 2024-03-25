@@ -6,6 +6,18 @@ $common-font-size: small;
 
 $streamMasterColor: #fe7600 !default;
 
+.streammaster-color {
+    color: $streamMasterColor;
+}
+
+.surface-streamMaster {
+    background-color: $streamMasterColor;
+}
+
+// .text-streamMaster {
+//     color: $streamMasterColor;
+// }
+
 @mixin datatable-text-style {
     padding-left: $datatable-padding !important;
     padding-top: $datatable-padding !important;

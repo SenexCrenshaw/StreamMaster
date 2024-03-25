@@ -8,7 +8,6 @@ import { isClient } from '../settings';
 import { hubConnection } from './signalr';
 import { dataRefreshListener, setFieldListener, smMessagesListener } from './singletonListeners';
 
-import { useAppSelector } from '@lib/redux/hooks';
 import { SMMessage } from './SMMessage';
 import { useSMMessages } from '@lib/redux/slices/messagesSlice';
 import useM3UFiles from '@lib/smAPI/M3UFiles/useM3UFiles';

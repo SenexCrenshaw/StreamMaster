@@ -8,7 +8,9 @@ import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreams';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { AddSMStreamToSMChannel, CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { AddSMStreamToSMChannelRequest, CreateSMChannelFromStreamRequest } from '@lib/smAPI/SMChannels/SMChannelsTypes';
+import useSMChannels from '@lib/smAPI/SMChannels/useSMChannels';
 import useSMStreams from '@lib/smAPI/SMStreams/useSMStreams';
+import { ConfirmPopup } from 'primereact/confirmpopup';
 
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
 const DataSelector2 = lazy(() => import('@components/dataSelector/DataSelector2'));
@@ -22,6 +24,7 @@ interface SMStreamDataSelectorProperties {
 
 const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataSelectorProperties) => {
   const dataKey = `${id}-SMStreamDataSelector`;
+  const { setSMChannelsIsLoading } = useSMChannels();
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { setSelectedSMStreams } = useSelectSMStreams(dataKey);
 
@@ -97,6 +100,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataS
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
+      <ConfirmPopup />
       <DataSelector2
         columns={columns}
         defaultSortField="name"
@@ -107,7 +111,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataS
         isLoading={isLoading}
         id={dataKey}
         onChannelAdd={(e) => {
-          console.log('Add', e);
+          setSMChannelsIsLoading(true);
           CreateSMChannelFromStream({ streamId: e.id } as CreateSMChannelFromStreamRequest)
             .then((response) => {})
             .catch((error) => {
@@ -115,6 +119,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataS
             });
         }}
         onStreamAdd={(e: AddSMStreamToSMChannelRequest) => {
+          setSMChannelsIsLoading(true);
           AddSMStreamToSMChannel(e)
             .then((response) => {})
             .catch((error) => {
@@ -134,7 +139,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataS
         selectedSMChannelKey="SMChannelDataSelector"
         selectedItemsKey="selectSelectedSMStreamDtoItems"
         // selectionMode="multiple"
-        style={{ height: 'calc(100vh - 40px)' }}
+        style={{ height: 'calc(100vh - 10px)' }}
       />
     </Suspense>
   );

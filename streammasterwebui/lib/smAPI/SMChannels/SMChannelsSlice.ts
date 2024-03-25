@@ -1,8 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import {FieldData,PagedResponse, removeKeyFromData, SMChannelDto } from '@lib/apiDefs';
+import { FieldData, PagedResponse, removeKeyFromData, SMChannelDto } from '@lib/apiDefs';
 import { fetchGetPagedSMChannels } from '@lib/smAPI/SMChannels/SMChannelsFetch';
 import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
-
 
 interface QueryState {
   data: Record<string, PagedResponse<SMChannelDto> | undefined>;
@@ -28,6 +27,7 @@ const SMChannelsSlice = createSlice({
         // Update a specific query's data if it exists
         if (state.data[query]) {
           state.data[query] = updatePagedResponseFieldInData(state.data[query], fieldData);
+          state.isLoading[query] = false;
         }
         return;
       }
@@ -36,6 +36,7 @@ const SMChannelsSlice = createSlice({
       for (const key in state.data) {
         if (state.data[key]) {
           state.data[key] = updatePagedResponseFieldInData(state.data[key], fieldData);
+          state.isLoading[key] = false;
         }
       }
       console.log('updateSMChannels executed');
@@ -47,7 +48,12 @@ const SMChannelsSlice = createSlice({
       }
       console.log('clearSMChannels executed');
     },
-
+    intSetSMChannelsIsLoading: (state, action: PayloadAction<{ isLoading: boolean }>) => {
+      for (const key in state.data) {
+        state.isLoading[key] = action.payload.isLoading;
+      }
+      console.log('setSMChannelsIsLoading executed');
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -70,9 +76,8 @@ const SMChannelsSlice = createSlice({
         state.isError[query] = true;
         state.isLoading[query] = false;
       });
-
   }
 });
 
-export const { clearSMChannels, updateSMChannels } = SMChannelsSlice.actions;
+export const { intSetSMChannelsIsLoading, clearSMChannels, updateSMChannels } = SMChannelsSlice.actions;
 export default SMChannelsSlice.reducer;

@@ -33,7 +33,7 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
         // If there are no filters or order specified, just return all entities.
         if (string.IsNullOrEmpty(parameters.JSONFiltersString) && string.IsNullOrEmpty(parameters.OrderBy))
         {
-            return GetQuery();
+            return GetQuery(tracking);
         }
 
         List<DataTableFilterMetaData> filters = Utils.GetFiltersFromJSON(parameters.JSONFiltersString);

@@ -9,6 +9,22 @@ public static class APIResponseFactory
         return new APIResponse<T> { Message = "OK", PagedResponse = pagedResponse };
     }
 
+    public static DefaultAPIResponse OkWithMessage(string message)
+    {
+        DefaultAPIResponse ok = Ok;
+        ok.Message = message;
+        return ok;
+    }
+    public static DefaultAPIResponse ErrorWithMessage(string message)
+    {
+        DefaultAPIResponse ok = new()
+        {
+            IsError = true,
+            ErrorMessage = message
+        };
+        return ok;
+    }
+
     public static DefaultAPIResponse Ok => new();
 
     public static DefaultAPIResponse NotFound =>

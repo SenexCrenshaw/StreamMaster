@@ -35,7 +35,7 @@ public static class TypeScriptSliceGenerator
             content.AppendLine();
 
             // Export actions and reducer
-            content.AppendLine($"export const {{ clear{namespaceName}, update{namespaceName} }} = {namespaceName}Slice.actions;");
+            content.AppendLine($"export const {{ intSet{namespaceName}IsLoading, clear{namespaceName}, update{namespaceName} }} = {namespaceName}Slice.actions;");
             content.AppendLine($"export default {namespaceName}Slice.reducer;");
             string directory = Directory.GetParent(filePath).ToString();
             if (!Directory.Exists(directory))
@@ -137,13 +137,17 @@ const initialState: QueryState = {{
         sb.AppendLine($"      console.log('update{namespaceName} executed');");
         sb.AppendLine($"    }},");
 
-        // Adding the new reducer for clearing SMChannels
         sb.AppendLine($"    clear{namespaceName}: (state) => {{");
         sb.AppendLine($"      for (const key in state.data) {{");
         sb.AppendLine($"        const updatedData = removeKeyFromData(state.data, key);");
         sb.AppendLine($"        state.data = updatedData;");
         sb.AppendLine($"      }}");
         sb.AppendLine($"      console.log('clear{namespaceName} executed');");
+        sb.AppendLine($"    }},");
+
+        sb.AppendLine($"    intSet{namespaceName}IsLoading: (state, action: PayloadAction<{{isLoading: boolean }}>) => {{");
+        sb.AppendLine("       for (const key in state.data) { state.isLoading[key] = action.payload.isLoading; }");
+        sb.AppendLine($"      console.log('set{namespaceName}IsLoading executed');");
         sb.AppendLine($"    }},");
 
         return sb.ToString();

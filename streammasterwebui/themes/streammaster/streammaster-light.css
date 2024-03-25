@@ -3,6 +3,14 @@
   color-scheme: light;
 }
 
+.streammaster-color {
+  color: #fe7600;
+}
+
+.surface-streamMaster {
+  background-color: #fe7600;
+}
+
 :root {
   font-family: Poppins, sans-serif;
   --font-family: Poppins,
@@ -6672,6 +6680,14 @@
   font-weight: 700;
   src: local(""), url("./fonts/poppins-v15-latin-ext_latin-700.woff2") format("woff2"), url("./fonts/poppins-v15-latin-ext_latin-700.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
 }
+.streammaster-color {
+  color: #fe7600;
+}
+
+.surface-streamMaster {
+  background-color: #fe7600;
+}
+
 :root {
   font-family: Poppins, sans-serif;
   --font-family: Poppins,
@@ -6744,7 +6760,26 @@
   padding: 0;
 }
 
+.smfileupload {
+  height: 30vh;
+}
 .smfileupload .p-inputtext {
+  height: 1.8rem;
+}
+
+.sourceOrFileDialog {
+  padding-left: 0.4rem;
+  padding-right: 0.4rem;
+}
+.sourceOrFileDialog .p-progressbar {
+  height: 1.8rem;
+  border-radius: 0;
+}
+.sourceOrFileDialog .p-progressbar-value {
+  border-left: none;
+  border-right: none;
+}
+.sourceOrFileDialog .p-inputtext {
   height: 1.8rem;
 }
 
@@ -6782,6 +6817,12 @@
   align-items: center;
   justify-content: center;
   width: 1.8rem;
+  height: 1.8rem;
+  padding: 0;
+  margin: 0;
+}
+
+.p-inputgroup {
   height: 1.8rem;
   padding: 0;
   margin: 0;
