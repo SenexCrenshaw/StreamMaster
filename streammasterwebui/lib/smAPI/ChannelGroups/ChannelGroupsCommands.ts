@@ -1,8 +1,9 @@
 import {DefaultAPIResponse} from '@lib/apiDefs';
-import { invokeHubCommand } from '@lib/signalr/signalr';
+import SignalRService from '@lib/signalr/SignalRService';
 
 import { CreateChannelGroupRequest } from './ChannelGroupsTypes';
 export const CreateChannelGroup = async (request: CreateChannelGroupRequest): Promise<DefaultAPIResponse | null> => {
-  return await invokeHubCommand<DefaultAPIResponse>('CreateChannelGroup', request);
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<DefaultAPIResponse>('CreateChannelGroup', request);
 };
 

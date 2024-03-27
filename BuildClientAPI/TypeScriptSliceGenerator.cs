@@ -7,7 +7,11 @@ public static class TypeScriptSliceGenerator
 
         foreach (MethodDetails method in methods)
         {
-            string mainEntityName = Util.IsTSGeneric(Util.ExtractInnermostType(method.ReturnType));
+            if (method.Name == "GetSettings")
+            {
+                int aa = 1;
+            }
+            string? mainEntityName = Util.IsTSGeneric(Util.ExtractInnermostType(method.ReturnType));
             StringBuilder content = new();
 
             // Add necessary imports

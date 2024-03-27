@@ -10,7 +10,7 @@ public class MethodDetails
     // TypeScript specific properties
     public string TsParameters { get; set; } // TypeScript parameters formatted as "name: type, name: type"
     public string TsParameterTypes { get; set; } // TypeScript parameter types formatted as "type, type"
-    public bool IsGet { get; internal set; }
+    public bool IsGetPaged { get; internal set; }
     public bool JustController { get; internal set; }
     public bool IsTask { get; internal set; }
     public string TsReturnInterface { get; internal set; }

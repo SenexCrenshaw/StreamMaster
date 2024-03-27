@@ -1,9 +1,10 @@
-import {QueryStringParameters,SMStreamDto,DefaultAPIResponse,APIResponse,PagedResponse} from '@lib/apiDefs';
-import { invokeHubCommand } from '@lib/signalr/signalr';
+import {QueryStringParameters,SMStreamDto,APIResponse,PagedResponse,DefaultAPIResponse} from '@lib/apiDefs';
+import SignalRService from '@lib/signalr/SignalRService';
 
 import { ToggleSMStreamVisibleByIdRequest } from './SMStreamsTypes';
 export const GetPagedSMStreams = async (parameters: QueryStringParameters): Promise<PagedResponse<SMStreamDto> | undefined> => {
-  return await invokeHubCommand<APIResponse<SMStreamDto>>('GetPagedSMStreams', parameters)
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse<SMStreamDto>>('GetPagedSMStreams', parameters)
     .then((response) => {
       if (response) {
         return response.pagedResponse;
@@ -17,6 +18,7 @@ export const GetPagedSMStreams = async (parameters: QueryStringParameters): Prom
 };
 
 export const ToggleSMStreamVisibleById = async (request: ToggleSMStreamVisibleByIdRequest): Promise<DefaultAPIResponse | null> => {
-  return await invokeHubCommand<DefaultAPIResponse>('ToggleSMStreamVisibleById', request);
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<DefaultAPIResponse>('ToggleSMStreamVisibleById', request);
 };
 

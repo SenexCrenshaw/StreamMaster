@@ -141,7 +141,17 @@ export const SignalRConnection = ({ children }: React.PropsWithChildren): JSX.El
         RemoveConnections();
       }
     };
-  }, [setHubConnected, setHubDisconnected, setSMStreamsField]);
+  }, [
+    AddMessage,
+    refreshM3UFiles,
+    refreshSMChannels,
+    refreshSMStreams,
+    setHubConnected,
+    setHubDisconnected,
+    setM3UFilesField,
+    setSMChannelsField,
+    setSMStreamsField
+  ]);
 
   return <>{children}</>;
 };

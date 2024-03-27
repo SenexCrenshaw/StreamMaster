@@ -1,15 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Application.Settings.Commands;
+using StreamMaster.Application.Settings.CommandsOld;
 
 namespace StreamMaster.Application.Settings;
 
 public interface ISettingController
 {
-    Task<ActionResult<SettingDto>> GetSetting();
-
-    Task<ActionResult<SDSystemStatus>> GetSystemStatus();
-
     ActionResult<bool> LogIn(LogInRequest logInRequest);
 
     Task<IActionResult> UpdateSetting(UpdateSettingRequest command);
@@ -18,9 +14,6 @@ public interface ISettingController
 
 public interface ISettingHub
 {
-    Task<SettingDto> GetSetting();
-
-    Task<SDSystemStatus> GetSystemStatus();
 
     Task<bool> LogIn(LogInRequest logInRequest);
 

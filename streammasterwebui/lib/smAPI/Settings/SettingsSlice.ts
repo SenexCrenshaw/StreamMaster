@@ -1,11 +1,11 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import {FieldData,PagedResponse, removeKeyFromData, SMChannelDto } from '@lib/apiDefs';
-import { fetchGetPagedSMChannels } from '@lib/smAPI/SMChannels/SMChannelsFetch';
+import {FieldData,PagedResponse, removeKeyFromData, SDSystemStatus } from '@lib/apiDefs';
+import { fetchGetSystemStatus } from '@lib/smAPI/Settings/SettingsFetch';
 import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
 
 
 interface QueryState {
-  data: Record<string, PagedResponse<SMChannelDto> | undefined>;
+  data: Record<string, PagedResponse<SDSystemStatus> | undefined>;
   isLoading: Record<string, boolean>;
   isError: Record<string, boolean>;
   error: Record<string, string>;
@@ -17,11 +17,11 @@ const initialState: QueryState = {
   isError: {},
   error: {}
 };
-const SMChannelsSlice = createSlice({
-  name: 'SMChannels',
+const SettingsSlice = createSlice({
+  name: 'Settings',
   initialState,
   reducers: {
-    updateSMChannels: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
+    updateSettings: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
       const { query, fieldData } = action.payload;
 
       if (query !== undefined) {
@@ -38,29 +38,29 @@ const SMChannelsSlice = createSlice({
           state.data[key] = updatePagedResponseFieldInData(state.data[key], fieldData);
         }
       }
-      console.log('updateSMChannels executed');
+      console.log('updateSettings executed');
     },
-    clearSMChannels: (state) => {
+    clearSettings: (state) => {
       for (const key in state.data) {
         const updatedData = removeKeyFromData(state.data, key);
         state.data = updatedData;
       }
-      console.log('clearSMChannels executed');
+      console.log('clearSettings executed');
     },
-    intSetSMChannelsIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
+    intSetSettingsIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
        for (const key in state.data) { state.isLoading[key] = action.payload.isLoading; }
-      console.log('setSMChannelsIsLoading executed');
+      console.log('setSettingsIsLoading executed');
     },
 
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchGetPagedSMChannels.pending, (state, action) => {
+      .addCase(fetchGetSystemStatus.pending, (state, action) => {
         const query = action.meta.arg;
         state.isLoading[query] = true;
         state.isError[query] = false; // Reset isError state on new fetch
       })
-      .addCase(fetchGetPagedSMChannels.fulfilled, (state, action) => {
+      .addCase(fetchGetSystemStatus.fulfilled, (state, action) => {
         if (action.payload) {
           const { query, value } = action.payload;
           state.data[query] = value;
@@ -68,7 +68,7 @@ const SMChannelsSlice = createSlice({
           state.isError[query] = false;
         }
       })
-      .addCase(fetchGetPagedSMChannels.rejected, (state, action) => {
+      .addCase(fetchGetSystemStatus.rejected, (state, action) => {
         const query = action.meta.arg;
         state.error[query] = action.error.message || 'Failed to fetch';
         state.isError[query] = true;
@@ -78,5 +78,5 @@ const SMChannelsSlice = createSlice({
   }
 });
 
-export const { intSetSMChannelsIsLoading, clearSMChannels, updateSMChannels } = SMChannelsSlice.actions;
-export default SMChannelsSlice.reducer;
+export const { intSetSettingsIsLoading, clearSettings, updateSettings } = SettingsSlice.actions;
+export default SettingsSlice.reducer;

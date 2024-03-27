@@ -8,6 +8,7 @@ export const MessageProcessor = ({ children }: React.PropsWithChildren): JSX.Ele
   const smMessages = useAppSelector((state) => state.messages);
 
   const { ClearMessages } = useSMMessages();
+
   useEffect(() => {
     if (smMessages.length === 0) return;
 
@@ -16,7 +17,7 @@ export const MessageProcessor = ({ children }: React.PropsWithChildren): JSX.Ele
     });
 
     ClearMessages();
-  }, [smMessages]);
+  }, [ClearMessages, smMessages]);
 
   return (
     <>

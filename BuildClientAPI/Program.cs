@@ -13,7 +13,6 @@ namespace BuildClientAPI
         private const string SMAPIFileNamePrefix = @"..\..\..\..\streammasterwebui\lib\smAPI";
         private const string SMAPISliceNamePrefix = @"..\..\..\..\streammasterwebui\lib\redux\slices";
 
-        internal static List<string> AlreadyCreatedInterfaces = ["SMChannelRankRequest", "DefaultAPIResponse", "PagedResponse", "APIResponse`1"];
         private static void Main(string[] args)
         {
             ScanForSMAPI();
@@ -47,13 +46,6 @@ namespace BuildClientAPI
                     //    string TsParameters = Util.CSharpParamToTS(recordType); ;
                     //}
 
-                    if (recordType.Name == "CreateM3UFileRequest")
-                    {
-                        string returntype = GetCleanReturnType(recordType);
-                        string Parameters = Util.ParamsToCSharp(recordType);
-                        string TsParameters = Util.CSharpParamToTS(recordType); ;
-                    }
-
                     string ps = Util.ParamsToCSharp(recordType);
                     string tsps = Util.CSharpParamToTS(recordType); ;
 
@@ -70,6 +62,16 @@ namespace BuildClientAPI
 
                     Type returnType = iRequestInterface.GenericTypeArguments[0];
 
+
+                    if (recordType.Name == "GetSettings")
+                    {
+                        string returntype = GetCleanReturnType(recordType);
+                        string Parameters = Util.ParamsToCSharp(recordType);
+                        string TsParameters = Util.CSharpParamToTS(recordType);
+                        string testI = Util.CSharpPropsToTSInterface(returnType);
+                    }
+
+
                     string name = recordType.Name;
                     if (recordType.Name.EndsWith("Request"))
                     {
@@ -83,6 +85,7 @@ namespace BuildClientAPI
                     }
 
 
+
                     MethodDetails methodDetails = new()
                     {
                         Name = name,
@@ -91,11 +94,11 @@ namespace BuildClientAPI
                         ParameterNames = string.Join(", ", parameters.Select(p => p.Name)),
                         TsParameters = tsps,
                         TsParameterTypes = string.Join(", ", parameters.Select(p => Util.MapCSharpTypeToTypeScript(Util.GetTypeFullNameForParameter(p.ParameterType)))),
-                        IsGet = name.StartsWith("Get"),
+                        IsGetPaged = name.StartsWith("GetPaged"),
                         IsTask = smapiAttribute.IsTask,
                         JustHub = smapiAttribute.JustHub,
                         JustController = smapiAttribute.JustController,
-                        TsReturnInterface = ""
+                        TsReturnInterface = ""//Util.CSharpPropsToTSInterface(returnType)
                     };
 
                     string? returnEntity = Util.IsTSGeneric(Util.ExtractInnermostType(methodDetails.ReturnType));
@@ -104,15 +107,6 @@ namespace BuildClientAPI
                         string aa = returnEntity;
 
                     }
-
-                    //if (!AlreadyCreatedInterfaces.Contains(returnEntity))
-                    //{
-                    //    if (returnEntity.Contains("SMChannel") || returnEntity.Contains("SMChannel"))
-                    //    {
-                    //        int aaa = 1;
-                    //    }
-                    //    methodDetails.TsReturnInterface = Util.CSharpPropsToTSInterface(returnType);
-                    //}
 
                     if (recordType.Name == "AddSMStreamToSMChannel")
                     {
@@ -130,7 +124,7 @@ namespace BuildClientAPI
                     {
                         string namespaceName = kvp.Key;
                         List<MethodDetails> methods = kvp.Value;
-                        List<MethodDetails> pagedMethods = methods.Where(a => a.Name.StartsWith("GetPaged")).ToList();
+                        List<MethodDetails> pagedMethods = methods.Where(a => a.Name.StartsWith("Get")).ToList();
                         //string entityName = ParameterConverter2.ExtractInnermostType(pagedMethods.First().ReturnType);
 
                         string fileName = Path.Combine(CSharpFileNamePrefix, namespaceName, "ControllerAndHub.cs");
@@ -144,16 +138,16 @@ namespace BuildClientAPI
                         string tsFetchFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Fetch.ts");
                         TypeScriptFetchGenerator.GenerateFile(namespaceName, methods, tsFetchFilePath);
 
-                        if (pagedMethods.Count > 0)
-                        {
-                            string tsSliceFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Slice.ts");
-                            TypeScriptSliceGenerator.GenerateFile(namespaceName, pagedMethods, tsSliceFilePath);
+                        //if (pagedMethods.Count > 0)
+                        //{
+                        string tsSliceFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Slice.ts");
+                        TypeScriptSliceGenerator.GenerateFile(namespaceName, pagedMethods, tsSliceFilePath);
 
 
-                            string tsHookFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"use{namespaceName}.ts");
-                            TypeScriptHookGenerator.GenerateFile(namespaceName, methods, tsHookFilePath);
+                        string tsHookFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"use{namespaceName}.ts");
+                        TypeScriptHookGenerator.GenerateFile(namespaceName, methods, tsHookFilePath);
 
-                        }
+                        //}
                     }
 
                 }

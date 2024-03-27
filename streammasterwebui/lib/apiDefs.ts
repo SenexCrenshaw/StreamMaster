@@ -4,6 +4,10 @@ export interface SMChannelRankRequest {
   rank: number;
 }
 
+export type SDSystemStatus = {
+  isSystemReady?: boolean;
+};
+
 export interface QueryHookResult<T> {
   data?: T;
   error?: Error | string | null;
@@ -178,4 +182,101 @@ export type EpgFileDto = BaseFileDto & {
   epgStartDate: string;
   epgStopDate: string;
   programmeCount: number;
+};
+
+export type SdSettings = {
+  alternateSEFormat?: boolean;
+  alternateLogoStyle?: string;
+  appendEpisodeDesc?: boolean;
+  artworkSize?: string;
+  excludeCastAndCrew?: boolean;
+  preferredLogoStyle?: string;
+  prefixEpisodeDescription?: boolean;
+  prefixEpisodeTitle?: boolean;
+  sdEnabled?: boolean;
+  sdepgDays?: number;
+  sdCountry?: string;
+  sdPassword?: string;
+  sdPostalCode?: string;
+  sdStationIds?: StationIdLineup[];
+  sdUserName?: string;
+  seasonEventImages?: boolean;
+  seriesPosterArt?: boolean;
+  seriesPosterAspect?: string;
+  seriesWsArt?: boolean;
+  xmltvAddFillerData?: boolean;
+  xmltvFillerProgramLength?: number;
+  xmltvExtendedInfoInTitleDescriptions?: boolean;
+  xmltvIncludeChannelNumbers?: boolean;
+  xmltvSingleImage?: boolean;
+};
+export type HlsSettings = {
+  hlsM3U8Enable?: boolean;
+  hlsffmpegOptions?: string;
+  hlsReconnectDurationInSeconds?: number;
+  hlsSegmentDurationInSeconds?: number;
+  hlsSegmentCount?: number;
+  hlsM3U8CreationTimeOutInSeconds?: number;
+  hlsM3U8ReadTimeOutInSeconds?: number;
+  hlstsReadTimeOutInSeconds?: number;
+};
+
+export type SettingDto = BaseSettings & {
+  sdSettings?: SdSettings;
+  hls?: HlsSettings;
+  release?: string;
+  version?: string;
+  ffmpegDefaultOptions?: string;
+  isDebug?: boolean;
+};
+
+export type AuthenticationType = 0 | 2;
+export type BaseSettings = {
+  m3UFieldGroupTitle?: boolean;
+  m3UIgnoreEmptyEPGID?: boolean;
+  m3UUseChnoForId?: boolean;
+  m3UUseCUIDForChannelID?: boolean;
+  m3UStationId?: boolean;
+  backupEnabled?: boolean;
+  backupVersionsToKeep?: number;
+  backupInterval?: number;
+  prettyEPG?: boolean;
+  maxLogFiles?: number;
+  maxLogFileSizeMB?: number;
+  enablePrometheus?: boolean;
+  maxStreamReStart?: number;
+  maxConcurrentDownloads?: number;
+  expectedServiceCount?: number;
+  adminPassword?: string;
+  adminUserName?: string;
+  defaultIcon?: string;
+  uiFolder?: string;
+  urlBase?: string;
+  logPerformance?: string[];
+  apiKey?: string;
+  authenticationMethod?: AuthenticationType;
+  cacheIcons?: boolean;
+  cleanURLs?: boolean;
+  clientUserAgent?: string;
+  deviceID?: string;
+  dummyRegex?: string;
+  ffMpegOptions?: string;
+  enableSSL?: boolean;
+  ffmPegExecutable?: string;
+  ffProbeExecutable?: string;
+  globalStreamLimit?: number;
+  maxConnectRetry?: number;
+  maxConnectRetryTimeMS?: number;
+  nameRegex?: string[];
+  sslCertPassword?: string;
+  sslCertPath?: string;
+  streamingClientUserAgent?: string;
+  streamingProxyType?: StreamingProxyTypes;
+  videoStreamAlwaysUseEPGLogo?: boolean;
+  showClientHostNames?: boolean;
+};
+export type StationIdLineup = {
+  lineup?: string;
+  stationId?: string;
+  id?: string;
 };

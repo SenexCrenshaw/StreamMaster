@@ -15,6 +15,7 @@ global using StreamMaster.Application.Common.Interfaces;
 global using StreamMaster.Application.Hubs;
 global using StreamMaster.Application.Profiles;
 global using StreamMaster.Application.Profiles.Queries;
+global using StreamMaster.Application.Settings.Commands;
 global using StreamMaster.Application.Settings.Queries;
 global using StreamMaster.Domain.API;
 global using StreamMaster.Domain.Attributes;

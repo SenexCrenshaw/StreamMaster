@@ -1,4 +1,4 @@
-import { FieldData, GetApiArgument, PagedResponse, QueryHookResult, SMChannelDto } from '@lib/apiDefs';
+import { FieldData, GetApiArgument, PagedResponse, QueryHookResult,SMChannelDto } from '@lib/apiDefs';
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { fetchGetPagedSMChannels } from '@lib/smAPI/SMChannels/SMChannelsFetch';
@@ -35,7 +35,7 @@ const useSMChannels = (params?: GetApiArgument | undefined): SMChannelDtoResult 
   };
 
   const setSMChannelsIsLoading = (isLoading: boolean): void => {
-    dispatch(intSetSMChannelsIsLoading({ isLoading: isLoading }));
+    dispatch(intSetSMChannelsIsLoading( {isLoading: isLoading} ));
   };
 
   return { data, error, isError, isLoading, refreshSMChannels, setSMChannelsField, setSMChannelsIsLoading };

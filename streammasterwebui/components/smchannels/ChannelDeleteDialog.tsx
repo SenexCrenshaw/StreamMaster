@@ -2,7 +2,7 @@ import { SMChannelDto } from '@lib/apiDefs';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
-import { DeleteAllSMChannelsFromParameters, DeleteSMChannels } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { DeleteSMChannelsFromParameters, DeleteSMChannels } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { memo, useMemo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import OKButton from '../buttons/OKButton';
@@ -45,7 +45,7 @@ const ChannelDeleteDialog = ({ iconFilled, id, onClose, skipOverLayer, value }: 
 
         return;
       }
-      DeleteAllSMChannelsFromParameters(queryFilter)
+      DeleteSMChannelsFromParameters(queryFilter)
         // await videoStreamsDeleteAllVideoStreamsFromParametersMutation(toSendAll)
         .then(() => {
           setInfoMessage('Set Stream Visibility Successfully');

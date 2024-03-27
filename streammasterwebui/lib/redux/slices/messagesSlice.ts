@@ -19,7 +19,7 @@ const messagesSlice = createSlice({
   }
 });
 
-const { addMessage, clearMessages } = messagesSlice.actions;
+export const { addMessage, clearMessages } = messagesSlice.actions;
 
 interface SMMessageResult extends SMMessage {
   messages: SMMessage[];

@@ -3,7 +3,7 @@ import { ChildButtonProperties } from './ChildButtonProperties';
 
 const UploadButton: React.FC<ChildButtonProperties> = ({ disabled = false, label, outlined, onClick, tooltip = 'Upload' }) => {
   const iconFilled = label ? true : false;
-  console.log(iconFilled);
+
   return (
     <div className="flex">
       <BaseButton

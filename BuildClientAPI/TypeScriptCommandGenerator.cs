@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 
 public static class TypeScriptCommandGenerator
 {
@@ -12,21 +13,18 @@ public static class TypeScriptCommandGenerator
         List<string> typesImports = [];
         additionalIImports = [];
 
-        imports.AppendLine("import { invokeHubCommand } from '@lib/signalr/signalr';");
+        imports.AppendLine("import SignalRService from '@lib/signalr/SignalRService';");
         imports.AppendLine();
         HashSet<string> additionalImports = [];
 
-        if (namespaceName == "SMStreams")
-        {
-            int aaa = 1;
-        }
 
-        bool isGet = false;
         foreach (MethodDetails method in methods)
         {
-            if (method.Name.StartsWith("GetPaged"))
+            //string parameterLine = string.IsNullOrEmpty(method.TsParameters) ? "" : $"{method.Name}Request request";
+            //string toSend = string.IsNullOrEmpty(method.Parameters) ? $"new {method.Name}()" : "request";
+
+            if (method.IsGetPaged)
             {
-                isGet = true;
                 if (!additionalImports.Contains("QueryStringParameters"))
                 {
                     additionalImports.Add("QueryStringParameters");
@@ -42,34 +40,41 @@ public static class TypeScriptCommandGenerator
             }
 
             string? toImport = null;
-            if (!method.TsParameters.Contains("[]"))
+            if (!string.IsNullOrEmpty(method.TsParameters) && !method.TsParameters.Contains("[]"))
             {
-                toImport = Util.IsTSGeneric(method.TsParameters);
-                if (toImport != null)
+                if (method.TsParameters.Contains(","))
                 {
-                    if (toImport == "SMChannelRankRequest")
+                    string[] parts = method.TsParameters.Split(",");
+                    string? test = Util.IsTSGeneric(parts[0]);
+                    if (test != null)
                     {
-                        int aaa = 1;
+                        additionalImports.Add(test);
                     }
-                    additionalImports.Add(toImport);
+                }
+                else
+                {
+                    toImport = Util.IsTSGeneric(method.TsParameters);
+                    if (toImport != null)
+                    {
+
+                        additionalImports.Add(toImport);
+                    }
                 }
             }
 
             toImport = Util.IsTSGeneric(Util.ExtractInnermostType(method.ReturnType));
             if (toImport != null)
             {
-                if (toImport == "SMChannelRankRequest")
-                {
-                    int aaa = 1;
-                }
+
                 additionalImports.Add(toImport);
             }
 
-            if (method.IsGet)
+            if (method.IsGetPaged)
             {
                 method.ReturnType = method.ReturnType.Replace("APIResponse", "PagedResponse");
                 tsCommands.AppendLine($"export const {method.Name} = async (parameters: QueryStringParameters): Promise<{method.ReturnType} | undefined> => {{");
-                tsCommands.AppendLine($"  return await invokeHubCommand<APIResponse<{toImport}>>('{method.Name}', parameters)");
+                tsCommands.AppendLine("  const signalRService = SignalRService.getInstance();");
+                tsCommands.AppendLine($"  return await signalRService.invokeHubCommand<APIResponse<{toImport}>>('{method.Name}', parameters)");
                 tsCommands.AppendLine($"    .then((response) => {{");
                 tsCommands.AppendLine("      if (response) {");
                 tsCommands.AppendLine("        return response.pagedResponse;");
@@ -83,28 +88,49 @@ public static class TypeScriptCommandGenerator
             }
             else
             {
-                typesImports.Add($"{method.Name}Request");
+                if (method.Name == "GetSettings")
+                {
+
+                }
+
+                if (!string.IsNullOrEmpty(method.Parameters))
+                {
+                    typesImports.Add($"{method.Name}Request");
+
+                }
+
                 string tsReturnType = method.ReturnType == "DefaultAPIResponse" ? "DefaultAPIResponse | null" : "any | null";
                 if (method.Name.EndsWith("Parameters"))
                 {
                     method.TsParameters = "Parameters: QueryStringParameters";
                 }
 
-                tsCommands.AppendLine($"export const {method.Name} = async (request: {method.Name}Request): Promise<{tsReturnType}> => {{");
-                tsCommands.AppendLine($"  return await invokeHubCommand<{method.ReturnType}>('{method.Name}', request);");
+                if (string.IsNullOrEmpty(method.TsParameters))
+                {
+                    tsCommands.AppendLine($"export const {method.Name} = async (): Promise<{tsReturnType}> => {{");
+                    tsCommands.AppendLine("  const signalRService = SignalRService.getInstance();");
+                    tsCommands.AppendLine($"  return await signalRService.invokeHubCommand<{method.ReturnType}>('{method.Name}');");
+                }
+                else
+                {
+                    tsCommands.AppendLine($"export const {method.Name} = async (request: {method.Name}Request): Promise<{tsReturnType}> => {{");
+                    tsCommands.AppendLine("  const signalRService = SignalRService.getInstance();");
+                    tsCommands.AppendLine($"  return await signalRService.invokeHubCommand<{method.ReturnType}>('{method.Name}', request);");
+                }
 
             }
 
             tsCommands.AppendLine("};");
             tsCommands.AppendLine();
 
+            if (method.IsGetPaged)
+            {
+                additionalImports.Add("APIResponse");
+                additionalImports.Add("PagedResponse");
+            }
         }
 
-        if (isGet)
-        {
-            additionalImports.Add("APIResponse");
-            additionalImports.Add("PagedResponse");
-        }
+
 
         if (additionalImports.Count > 0)
         {
@@ -112,8 +138,13 @@ public static class TypeScriptCommandGenerator
             imports.Insert(0, $"import {{{additionals}}} from '@lib/apiDefs';\n");
         }
 
-        string typesImportString = string.Join(",", typesImports);
-        imports.AppendLine($"import {{ {typesImportString} }} from './{namespaceName}Types';");
+
+        if (typesImports.Count > 0)
+        {
+            string typesImportString = string.Join(",", typesImports);
+            imports.AppendLine($"import {{ {typesImportString} }} from './{namespaceName}Types';");
+
+        }
 
 
         if (additionalIImports.Count > 0)
@@ -129,33 +160,49 @@ public static class TypeScriptCommandGenerator
         }
         File.WriteAllText(filePath, imports.ToString() + tsCommands.ToString());
 
-        directory = Directory.GetParent(typePath).ToString();
-        if (!Directory.Exists(directory))
+        if (tsTypesImports.Length > 0)
         {
-            Directory.CreateDirectory(directory);
+            directory = Directory.GetParent(typePath).ToString();
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+            File.WriteAllText(typePath, tsTypesImports.ToString() + tsTypes.ToString());
         }
-        File.WriteAllText(typePath, tsTypesImports.ToString() + tsTypes.ToString());
+
     }
 
     private static string BuildTSInterface(MethodDetails method)
     {
         StringBuilder imports = new();
         imports.AppendLine($"export interface {method.Name}Request {{");
+
         foreach (string pair in method.TsParameters.Split(","))
         {
-            string[] parts = pair.Split(":");
-            string type = parts[1].Trim();
-            string name = parts[0].Trim();
-            imports.AppendLine($"  {name.ToCamelCase()}: {type};");
-            string? a = Util.IsTSGeneric(type);
-            if (a == "IFormFile")
+            if (string.IsNullOrEmpty(pair))
             {
-                int aaa = 1;
+                return "";
             }
-            if (a != null)
+            try
             {
-                string b = Util.MapCSharpTypeToTypeScript(a);
-                additionalIImports.Add(a);
+                string[] parts = pair.Split(":");
+                string type = parts[1].Trim();
+                string name = parts[0].Trim();
+                imports.AppendLine($"  {name.ToCamelCase()}: {type};");
+                string? a = Util.IsTSGeneric(type);
+                if (a == "IFormFile")
+                {
+                    int aaa = 1;
+                }
+                if (a != null)
+                {
+                    string b = Util.MapCSharpTypeToTypeScript(a);
+                    additionalIImports.Add(a);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
             }
 
         }

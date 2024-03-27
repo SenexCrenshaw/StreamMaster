@@ -1,5 +1,5 @@
 ﻿using StreamMaster.Application.Settings;
-using StreamMaster.Application.Settings.Commands;
+using StreamMaster.Application.Settings.CommandsOld;
 
 namespace StreamMaster.Application.Hubs;
 
@@ -9,11 +9,6 @@ public partial class StreamMasterHub : ISettingHub
     public async Task<SettingDto> GetSetting()
     {
         return await Sender.Send(new GetSettings()).ConfigureAwait(false);
-    }
-
-    public async Task<SDSystemStatus> GetSystemStatus()
-    {
-        return await Sender.Send(new GetSystemStatus()).ConfigureAwait(false);
     }
 
     public async Task<bool> LogIn(LogInRequest logInRequest)

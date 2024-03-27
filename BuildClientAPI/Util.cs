@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 public static class Util
 {
     private static readonly char[] separator = new[] { ',', ' ' };
+    internal static List<string> AlreadyCreatedInterfaces = ["SMChannelRankRequest", "DefaultAPIResponse", "PagedResponse", "APIResponse"];
 
 
 
@@ -93,11 +94,20 @@ public static class Util
         return ret;
     }
 
-
-
     public static string CSharpPropsToTSInterface(Type recordType)
     {
+        //List<string> additionals = [];
 
+        //if (recordType.GenericTypeArguments != null && recordType.GenericTypeArguments.Length > 0)
+        //{
+        //    Type returnType = recordType.GenericTypeArguments[0];
+        //    recordType = returnType;
+        //}
+
+        //if (AlreadyCreatedInterfaces.Contains(recordType.Name))
+        //{
+        //    return "";
+        //}
         StringBuilder sb = new();
         PropertyInfo[] properties = recordType.GetProperties();
         sb.AppendLine($"export interface {recordType.Name} {{");
@@ -106,16 +116,25 @@ public static class Util
         {
             string? name = p.Name;
             Type pType = p.PropertyType;
+
             string tsTypeFullName = GetTypeFullNameForParameter(pType);
             string tt = MapCSharpTypeToTypeScript(tsTypeFullName);
             string tsType = GetLastPartOfTypeName(tt);
             tsType = FixUpTSType(tsType);
+            //if (IsTSGeneric(tsType) != null)
+            //{
+            //    Debug.WriteLine("Working on " + pType.Name);
+            //    string test2 = CSharpPropsToTSInterface(pType);
+            //    additionals.Add(test2);
+            //}
             sb.AppendLine($"  {name.ToCamelCase()}: {tsType};");
 
         }
         sb.AppendLine("}");
 
-        return sb.ToString();
+        //string? additionalString = additionals.ToString();
+
+        return sb.ToString();// + additionalString;
     }
 
     public static string FixUpTSType(string tsType)
