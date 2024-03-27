@@ -3,7 +3,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-	  <NoWarn>ASP0023</NoWarn>
+    <NoWarn>ASP0023</NoWarn>
     <UserSecretsId>5c3e6cc7-c8af-4b3f-9ce2-65a1356eaa25</UserSecretsId>
     <Platforms>AnyCPU;ARM64</Platforms>
     <AssemblyVersion>
@@ -17,10 +17,10 @@
     <Copyright>Copyright 2023-$([System.DateTime]::Now.ToString('yyyy')) streammaster (MIT license)</Copyright>
     <NeutralLanguage>en</NeutralLanguage>
     <Title>Stream Master</Title>
-   
-    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>	 
+
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
   </PropertyGroup>
-	
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>

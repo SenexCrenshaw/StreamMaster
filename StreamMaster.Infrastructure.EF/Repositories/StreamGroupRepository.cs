@@ -11,9 +11,9 @@ using System.Web;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intsettings, IHttpContextAccessor httpContextAccessor) : RepositoryBase<StreamGroup>(repositoryContext, logger), IStreamGroupRepository
+public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor)
+    : RepositoryBase<StreamGroup>(repositoryContext, logger, intSettings), IStreamGroupRepository
 {
-    private readonly Setting settings = intsettings.CurrentValue;
 
     public PagedResponse<StreamGroupDto> CreateEmptyPagedResponse()
     {
@@ -22,7 +22,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
     public async Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(StreamGroupParameters Parameters)
     {
-        IQueryable<StreamGroup> query = GetIQueryableForEntity(Parameters);
+        IQueryable<StreamGroup> query = GetQuery(Parameters);
         PagedResponse<StreamGroupDto> ret = await query.GetPagedResponseAsync<StreamGroup, StreamGroupDto>(Parameters.PageNumber, Parameters.PageSize, mapper)
                           .ConfigureAwait(false);
 
@@ -37,7 +37,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
         foreach (StreamGroupDto sg in streamGroupDtos)
         {
-            SetStreamGroupLinks(sg, Url, settings);
+            SetStreamGroupLinks(sg, Url);
         }
     }
 
@@ -46,15 +46,16 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         string Url = httpContextAccessor.GetUrl();
 
 
-        SetStreamGroupLinks(streamGroupDto, Url, settings);
+        SetStreamGroupLinks(streamGroupDto, Url);
     }
 
-    private void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url, Setting setting)
+    private void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url)
     {
+
         int count = streamGroupDto.Id == 1
             ? RepositoryContext.VideoStreams.Count()
             : RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == streamGroupDto.Id).Count();
-        string encodedStreamGroupNumber = streamGroupDto.Id.EncodeValue128(setting.ServerKey);
+        string encodedStreamGroupNumber = streamGroupDto.Id.EncodeValue128(Settings.ServerKey);
 
         string encodedName = HttpUtility.HtmlEncode(streamGroupDto.Name).Trim()
                     .Replace("/", "")
@@ -77,7 +78,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
             return dto;
         }
 
-        StreamGroup? streamGroup = await FindByCondition(c => c.Id == streamGroupId)
+        StreamGroup? streamGroup = await GetQuery(c => c.Id == streamGroupId)
                             .AsNoTracking()
                             .FirstOrDefaultAsync()
                             .ConfigureAwait(false);
@@ -94,18 +95,18 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
     public IQueryable<StreamGroup> GetAllStreamGroups()
     {
-        return FindAll();
+        return GetQuery();
     }
 
     public IQueryable<StreamGroup> GetAllStreamGroupsWithChannelGroups()
     {
-        return FindAll().Include(sg => sg.ChannelGroups)
+        return GetQuery().Include(sg => sg.ChannelGroups)
             .ThenInclude(sgcg => sgcg.ChannelGroup).OrderBy(p => p.Name);
     }
 
     public async Task<List<StreamGroupDto>> GetStreamGroups(CancellationToken cancellationToken)
     {
-        List<StreamGroupDto> ret = await FindAll()
+        List<StreamGroupDto> ret = await GetQuery()
                    .ProjectTo<StreamGroupDto>(mapper.ConfigurationProvider)
                    .ToListAsync(cancellationToken: cancellationToken)
                    .ConfigureAwait(false);
@@ -127,7 +128,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         RepositoryContext.StreamGroupChannelGroups.RemoveRange(channelGroups);
         await RepositoryContext.SaveChangesAsync();
 
-        StreamGroup? streamGroup = FindByCondition(c => c.Id == streamGroupId).FirstOrDefault();
+        StreamGroup? streamGroup = await FirstOrDefaultAsync(c => c.Id == streamGroupId);
         if (streamGroup == null)
         {
             return null;
@@ -141,7 +142,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
     {
         int StreamGroupId = request.StreamGroupId;
 
-        StreamGroup? streamGroup = FindByCondition(c => c.Id == StreamGroupId).FirstOrDefault();
+        StreamGroup? streamGroup = await FirstOrDefaultAsync(c => c.Id == StreamGroupId);
         if (streamGroup == null)
         {
             return null;
@@ -180,6 +181,6 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
     public IQueryable<StreamGroup> GetStreamGroupQuery()
     {
-        return FindAll();
+        return GetQuery();
     }
 }

@@ -15,6 +15,7 @@ export const addTagTypes = [
   'Queue',
   'SchedulesDirect',
   'Settings',
+  'SMStreams',
   'Statistics',
   'Stream',
   'StreamGroups',
@@ -479,6 +480,23 @@ const injectedRtkApi = api
       settingsUpdateSetting: build.mutation<SettingsUpdateSettingApiResponse, SettingsUpdateSettingApiArg>({
         query: (queryArg) => ({ url: `/api/settings/updatesetting`, method: 'PATCH', body: queryArg }),
         invalidatesTags: ['Settings']
+      }),
+      smStreamsGetPagedSmStreams: build.query<SmStreamsGetPagedSmStreamsApiResponse, SmStreamsGetPagedSmStreamsApiArg>({
+        query: (queryArg) => ({
+          url: `/api/smstreams/getpagedsmstreams`,
+          params: {
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
+        }),
+        providesTags: ['SMStreams']
+      }),
+      smStreamsToggleSmStreamVisible: build.query<SmStreamsToggleSmStreamVisibleApiResponse, SmStreamsToggleSmStreamVisibleApiArg>({
+        query: (queryArg) => ({ url: `/api/smstreams/togglesmstreamvisible`, body: queryArg }),
+        providesTags: ['SMStreams']
       }),
       statisticsGetClientStatistics: build.query<StatisticsGetClientStatisticsApiResponse, StatisticsGetClientStatisticsApiArg>({
         query: () => ({ url: `/api/statistics/getclientstatistics` }),
@@ -1080,6 +1098,16 @@ export type SettingsLogInApiResponse = /** status 200  */ boolean;
 export type SettingsLogInApiArg = LogInRequest;
 export type SettingsUpdateSettingApiResponse = unknown;
 export type SettingsUpdateSettingApiArg = UpdateSettingRequest;
+export type SmStreamsGetPagedSmStreamsApiResponse = /** status 200  */ PagedResponseOfSmStreamDto;
+export type SmStreamsGetPagedSmStreamsApiArg = {
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type SmStreamsToggleSmStreamVisibleApiResponse = /** status 200  */ boolean;
+export type SmStreamsToggleSmStreamVisibleApiArg = ToggleSmStreamVisibleRequest;
 export type StatisticsGetClientStatisticsApiResponse = /** status 200  */ ClientStreamingStatistics[];
 export type StatisticsGetClientStatisticsApiArg = void;
 export type StatisticsGetInputStatisticsApiResponse = /** status 200  */ InputStreamingStatistics[];
@@ -2049,6 +2077,36 @@ export type UpdateSettingRequest = {
   maxLogFileSizeMB?: number | null;
   nameRegex?: string[] | null;
 };
+export type SmStream = {
+  id?: string;
+  filePosition?: number;
+  isHidden?: boolean;
+  isUserCreated?: boolean;
+  m3UFileId?: number;
+  tvg_chno?: number;
+  m3UFileName?: string;
+  shortId?: string;
+  group?: string;
+  epgid?: string;
+  logo?: string;
+  name?: string;
+  url?: string;
+  stationId?: string;
+};
+export type SMStreamDto = SmStream & {
+  realUrl?: string;
+};
+export type PagedResponseOfSmStreamDto = {
+  data: SMStreamDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalPageCount: number;
+  totalItemCount: number;
+  first: number;
+};
+export type ToggleSmStreamVisibleRequest = {
+  id?: string;
+};
 export type ClientStreamingStatistics = {
   readBitsPerSecond?: number;
   bytesRead?: number;
@@ -2346,6 +2404,8 @@ export const {
   useSettingsGetSystemStatusQuery,
   useSettingsLogInQuery,
   useSettingsUpdateSettingMutation,
+  useSmStreamsGetPagedSmStreamsQuery,
+  useSmStreamsToggleSmStreamVisibleQuery,
   useStatisticsGetClientStatisticsQuery,
   useStatisticsGetInputStatisticsQuery,
   useStreamGetM3U8GetQuery,

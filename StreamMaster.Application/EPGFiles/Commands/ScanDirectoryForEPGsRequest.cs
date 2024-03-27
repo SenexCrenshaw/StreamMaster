@@ -57,7 +57,6 @@ public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGF
         {
             Name = Path.GetFileNameWithoutExtension(epgFileInfo.Name),
             Source = epgFileInfo.Name,
-            Description = $"Imported from {epgFileInfo.Name}",
             FileExists = true,
             LastDownloaded = epgFileInfo.LastWriteTime,
             LastDownloadAttempt = epgFileInfo.LastWriteTime,

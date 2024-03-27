@@ -3,6 +3,7 @@
 using MediatR;
 
 using Microsoft.AspNetCore.Http;
+
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.EF.Repositories;
@@ -17,25 +18,62 @@ namespace StreamMaster.Infrastructure.EF
         ILogger<VideoStreamLinkRepository> VideoStreamLinkRepositoryLogger,
         ILogger<EPGFileRepository> EPGFileRepositoryLogger,
         ILogger<VideoStreamRepository> VideoStreamRepositoryLogger,
+        ILogger<SMChannelsRepository> SMChannelLogger,
+        ILogger<SMStreamRepository> SMStreamLogger,
+        ILogger<SMChannelStreamLinksRepository> SMChannelStreamLinkLogger,
         ILogger<StreamGroupVideoStreamRepository> StreamGroupVideoStreamRepositoryLogger,
         ILogger<StreamGroupChannelGroupRepository> StreamGroupChannelGroupRepositoryLogger,
         ISchedulesDirectDataService schedulesDirectDataService,
-
         PGSQLRepositoryContext repositoryContext,
-        //ISortHelper<StreamGroup> streamGroupSortHelper,
         IMapper mapper,
         IIconService iconService,
-        IOptionsMonitor<Setting> intsettings,
+        IOptionsMonitor<Setting> intSettings,
+        IJobStatusService jobStatusService,
         ISender sender,
         IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
     {
+
+        private ISMChannelStreamLinksRepository _smChannelStreamLink;
+
+        public ISMChannelStreamLinksRepository SMChannelStreamLink
+        {
+            get
+            {
+                _smChannelStreamLink ??= new SMChannelStreamLinksRepository(SMChannelStreamLinkLogger, repositoryContext, intSettings, mapper);
+                return _smChannelStreamLink;
+            }
+        }
+
+
+        private ISMChannelsRepository _smChannel;
+
+        public ISMChannelsRepository SMChannel
+        {
+            get
+            {
+                _smChannel ??= new SMChannelsRepository(SMChannelLogger, this, repositoryContext, mapper, intSettings, iconService);
+                return _smChannel;
+            }
+        }
+
+        private ISMStreamRepository _smStream;
+
+        public ISMStreamRepository SMStream
+        {
+            get
+            {
+                _smStream ??= new SMStreamRepository(SMStreamLogger, this, repositoryContext, intSettings, mapper);
+                return _smStream;
+            }
+        }
+
         private IStreamGroupRepository _streamGroup;
 
         public IStreamGroupRepository StreamGroup
         {
             get
             {
-                _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, repositoryContext, mapper, intsettings, httpContextAccessor);
+                _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, repositoryContext, mapper, intSettings, httpContextAccessor);
                 return _streamGroup;
             }
         }
@@ -46,7 +84,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _channelGroup ??= new ChannelGroupRepository(ChannelGroupRepositoryLogger, repositoryContext, this, sender);
+                _channelGroup ??= new ChannelGroupRepository(ChannelGroupRepositoryLogger, repositoryContext, this, mapper, intSettings, sender);
                 return _channelGroup;
             }
         }
@@ -57,7 +95,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _m3uFile ??= new M3UFileRepository(M3UFileRepositoryLogger, repositoryContext, mapper);
+                _m3uFile ??= new M3UFileRepository(M3UFileRepositoryLogger, this, jobStatusService, repositoryContext, intSettings, mapper);
                 return _m3uFile;
             }
         }
@@ -68,7 +106,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _videoStreamLink ??= new VideoStreamLinkRepository(VideoStreamLinkRepositoryLogger, repositoryContext, mapper);
+                _videoStreamLink ??= new VideoStreamLinkRepository(VideoStreamLinkRepositoryLogger, repositoryContext, intSettings, mapper);
                 return _videoStreamLink;
             }
         }
@@ -79,7 +117,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, repositoryContext, this, schedulesDirectDataService, mapper);
+                _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, repositoryContext, this, schedulesDirectDataService, intSettings, mapper);
                 return _epgFile;
             }
         }
@@ -90,7 +128,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _videoStream ??= new VideoStreamRepository(VideoStreamRepositoryLogger, this, schedulesDirectDataService, iconService, repositoryContext, mapper, intsettings, sender);
+                _videoStream ??= new VideoStreamRepository(VideoStreamRepositoryLogger, this, schedulesDirectDataService, iconService, repositoryContext, mapper, intSettings, sender);
                 return _videoStream;
             }
         }
@@ -101,7 +139,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _streamGroupVideoStream ??= new StreamGroupVideoStreamRepository(StreamGroupVideoStreamRepositoryLogger, repositoryContext, this, mapper, sender);
+                _streamGroupVideoStream ??= new StreamGroupVideoStreamRepository(StreamGroupVideoStreamRepositoryLogger, repositoryContext, this, mapper, intSettings, sender);
                 return _streamGroupVideoStream;
             }
         }
@@ -111,7 +149,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _streamGroupChannelGroup ??= new StreamGroupChannelGroupRepository(StreamGroupChannelGroupRepositoryLogger, repositoryContext, this, mapper, sender);
+                _streamGroupChannelGroup ??= new StreamGroupChannelGroupRepository(StreamGroupChannelGroupRepositoryLogger, repositoryContext, this, mapper, intSettings, sender);
                 return _streamGroupChannelGroup;
             }
         }

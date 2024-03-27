@@ -1,0 +1,47 @@
+.icon-template {
+  height: $input-height;
+  justify-content: start;
+  align-items: center;
+}
+
+.icon-template-large {
+  padding: 0rem !important;
+  margin-right: 1rem;
+  width: 8rem;
+  max-height: 8rem;
+  object-fit: contain;
+  justify-content: center;
+  align-items: center;
+
+  img {
+    max-width: 6rem;
+    max-height: 5rem;
+    object-fit: contain;
+  }
+}
+
+.icon-template img,
+.default-icon {
+  max-width: 1.3rem;
+  max-height: 1.3rem;
+  object-fit: contain;
+}
+
+.icon-option-template {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  text-align: start;
+}
+
+.icon-option-template img {
+  max-width: 3rem;
+  max-height: 3.4rem;
+  object-fit: contain;
+}
+
+.icon-option-name {
+  padding: 0 0 0 1rem;
+  white-space: normal;
+  width: 100%;
+}

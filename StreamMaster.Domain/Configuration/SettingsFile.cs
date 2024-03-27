@@ -1,14 +1,9 @@
 ﻿namespace StreamMaster.Domain.Configuration;
 
-public class SettingsFile<T>
+public class SettingsFile<T>(string fileName, Type settingType)
 {
-    public string FileName { get; set; } = string.Empty;
-    public Type SettingType { get; set; }
-    public SettingsFile(string fileName, Type settingType)
-    {
-        FileName = fileName;
-        SettingType = settingType;
-    }
+    public string FileName { get; set; } = fileName;
+    public Type SettingType { get; set; } = settingType;
 }
 
 public static class SettingFiles

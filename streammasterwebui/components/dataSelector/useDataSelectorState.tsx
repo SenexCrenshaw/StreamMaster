@@ -10,6 +10,7 @@ import { useShowHidden } from '@lib/redux/slices/useShowHidden';
 import { useShowSelections } from '@lib/redux/slices/useShowSelections';
 import { useSortInfo } from '@lib/redux/slices/useSortInfo';
 import { type PagedTableInformation } from './DataSelector';
+import { ColumnMeta } from './DataSelectorTypes';
 
 const useDataSelectorState = <T extends DataTableValue>(id: string, selectedItemsKey: string) => {
   const { sortInfo, setSortInfo } = useSortInfo(id);
@@ -19,6 +20,8 @@ const useDataSelectorState = <T extends DataTableValue>(id: string, selectedItem
   const { showHidden } = useShowHidden(id);
   const { showSelections, setShowSelections } = useShowSelections(id);
   const [rowClick, setRowClick] = useLocalStorage<boolean>(false, `${id}-rowClick`);
+
+  const [visibleColumns, setVisibleColumns] = useLocalStorage<ColumnMeta[] | undefined | null>(null, `${id}-visibleColumns`);
 
   const [pagedInformation, setPagedInformation] = useState<PagedTableInformation>();
   const [previousDataSource, setPreviousDataSource] = useState<T[] | undefined>();
@@ -62,7 +65,8 @@ const useDataSelectorState = <T extends DataTableValue>(id: string, selectedItem
       setShowSelections,
       setSortField,
       setSortOrder,
-      setVideoStreamIsReadOnlys
+      setVideoStreamIsReadOnlys,
+      setVisibleColumns
     },
     state: {
       additionalFilterProps: additionalFilterProperties,
@@ -81,7 +85,8 @@ const useDataSelectorState = <T extends DataTableValue>(id: string, selectedItem
       showSelections,
       sortField,
       sortOrder,
-      videoStreamIsReadOnlys
+      videoStreamIsReadOnlys,
+      visibleColumns
     }
   };
 };

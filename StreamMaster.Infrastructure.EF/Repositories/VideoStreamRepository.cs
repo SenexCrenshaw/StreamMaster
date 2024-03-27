@@ -23,9 +23,9 @@ using System.Linq.Dynamic.Core;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IIconService iconService, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intsettings, ISender sender) : RepositoryBase<VideoStream>(repositoryContext, intLogger), IVideoStreamRepository
+public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IIconService iconService, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, ISender sender)
+    : RepositoryBase<VideoStream>(repositoryContext, intLogger, intSettings), IVideoStreamRepository
 {
-    private readonly Setting settings = intsettings.CurrentValue;
 
     public PagedResponse<VideoStreamDto> CreateEmptyPagedResponse()
     {
@@ -54,8 +54,8 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
         try
         {
-            // Updating the associated video streams in the database using FindByCondition
-            await FindByCondition(a => videoStreamIds.Contains(a.Id))
+            // Updating the associated video streams in the database using GetQuery
+            await GetQuery(a => videoStreamIds.Contains(a.Id))
                    .ExecuteUpdateAsync(s => s.SetProperty(b => b.User_Tvg_group, newName))
                    .ConfigureAwait(false);
             logger.LogInformation($"Successfully updated channel group name for {videoStreamIds.Count()} video streams to '{newName}'.");
@@ -69,7 +69,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
     public async Task<(VideoStreamHandlers videoStreamHandler, List<VideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(string videoStreamId, CancellationToken cancellationToken = default)
     {
-        VideoStream? videoStream = await FindByCondition(a => a.Id == videoStreamId)
+        VideoStream? videoStream = await GetQuery(a => a.Id == videoStreamId)
             .Include(a => a.ChildVideoStreams)
             .ThenInclude(a => a.ChildVideoStream)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -149,7 +149,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
         }
 
         VideoStream? videoStream = await
-            FindByConditionTracked(a => a.Id == VideoStreamId)
+            GetQuery(a => a.Id == VideoStreamId, true)
             .Include(a => a.ChildVideoStreams)
             .ThenInclude(a => a.ChildVideoStream)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -171,11 +171,11 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
     public async Task<List<VideoStreamDto>> SetVideoStreamChannelGroupName(string channelGroupName, string newGroupName, CancellationToken cancellationToken)
     {
-        await FindByCondition(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroupName)
+        await GetQuery(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroupName)
               .ExecuteUpdateAsync(s => s.SetProperty(b => b.User_Tvg_group, newGroupName), cancellationToken: cancellationToken)
               .ConfigureAwait(false);
 
-        List<VideoStreamDto> videoStreamsToUpdate = await FindByCondition(a => a.User_Tvg_group != null && a.User_Tvg_group == newGroupName)
+        List<VideoStreamDto> videoStreamsToUpdate = await GetQuery(a => a.User_Tvg_group != null && a.User_Tvg_group == newGroupName)
             .AsNoTracking()
             .ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider)
             .ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -186,7 +186,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
     [LogExecutionTimeAspect]
     public async Task<List<VideoStreamDto>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, CancellationToken cancellationToken)
     {
-        IQueryable<VideoStream> query = FindByCondition(a => a.M3UFileId == M3UFileId);
+        IQueryable<VideoStream> query = GetQuery(a => a.M3UFileId == M3UFileId);
         //// Get the VideoStreams
         List<string> videoStreamIds = [.. query.Select(vs => vs.Id)];
 
@@ -297,7 +297,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
     }
     public async Task<VideoStreamDto?> DeleteVideoStream(string videoStreamId, CancellationToken cancellationToken)
     {
-        List<string> result = await DeleteVideoStreamsAsync(FindByCondition(a => a.Id == videoStreamId), cancellationToken).ConfigureAwait(false);
+        List<string> result = await DeleteVideoStreamsAsync(GetQuery(a => a.Id == videoStreamId), cancellationToken).ConfigureAwait(false);
         if (result.Any())
         {
             VideoStreamDto res = mapper.Map<VideoStreamDto>(result.First());
@@ -308,7 +308,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
     public async Task<List<VideoStreamDto>> SetGroupVisibleByGroupName(string channelGroupName, bool isHidden, CancellationToken cancellationToken)
     {
-        await FindByCondition(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroupName)
+        await GetQuery(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroupName)
             .ExecuteUpdateAsync(s => s.SetProperty(b => b.IsHidden, isHidden), cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
@@ -371,7 +371,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
     public async Task<VideoStream?> CreateVideoStreamAsync(CreateVideoStreamRequest request, CancellationToken cancellationToken)
     {
-        HashSet<string> shortIds = [.. FindAll().Select(v => v.ShortId)];
+        HashSet<string> shortIds = [.. GetQuery().Select(v => v.ShortId)];
 
         string ShortId = UniqueHexGenerator.GenerateUniqueHex(shortIds);
 
@@ -434,9 +434,9 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
         if (request.Tvg_ID != null && (videoStream.User_Tvg_ID != request.Tvg_ID || videoStream.IsUserCreated))
         {
-            //string? test = _memoryCache.GetEPGChannelNameByDisplayName(request.Tvg_ID);
+            //string? test = _memoryCache.GetEPGChannelNameByDisplayName(request.EPGId);
             videoStream.User_Tvg_ID = request.Tvg_ID;
-            if (settings.VideoStreamAlwaysUseEPGLogo && videoStream.User_Tvg_ID != null)
+            if (Settings.VideoStreamAlwaysUseEPGLogo && videoStream.User_Tvg_ID != null)
             {
                 epglogo = await SetVideoStreamLogoFromEPG(videoStream, cancellationToken).ConfigureAwait(false);
             }
@@ -519,7 +519,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
         IconFileParameters iconFileParameters = new();
         PagedResponse<IconFileDto> icons = await sender.Send(new GetPagedIcons(iconFileParameters), cancellationToken).ConfigureAwait(false);
 
-        IQueryable<VideoStream> streams = FindByCondition(a => VideoStreamIds.Contains(a.Id));
+        IQueryable<VideoStream> streams = GetQuery(a => VideoStreamIds.Contains(a.Id));
 
         List<VideoStreamDto> videoStreamDtos = [];
 
@@ -577,25 +577,24 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
     public IQueryable<VideoStream> GetJustVideoStreams()
     {
-        return FindAll();
+        return GetQuery();
     }
 
     public async Task<List<VideoStreamDto>> GetVideoStreams()
     {
-        return await FindAll().ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
+        return await GetQuery().ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
     }
 
     public async Task<List<string>> GetVideoStreamNames()
     {
-        return await FindAll().Select(a => a.User_Tvg_name).Distinct().ToListAsync();
+        return await GetQuery().Select(a => a.User_Tvg_name).Distinct().ToListAsync();
     }
 
     public async Task<VideoStreamDto?> GetVideoStreamById(string VideoStreamId)
     {
-        VideoStream? ret = await FindByCondition(c => c.Id == VideoStreamId)
+        VideoStream? ret = await GetQuery(c => c.Id == VideoStreamId)
                             .Include(a => a.ChildVideoStreams)
                             .ThenInclude(a => a.ChildVideoStream)
-                             .AsNoTracking()
                              .FirstOrDefaultAsync()
                              .ConfigureAwait(false);
 
@@ -605,21 +604,20 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
     public async Task<PagedResponse<VideoStreamDto>> GetPagedVideoStreams(VideoStreamParameters Parameters, CancellationToken cancellationToken)
     {
-        IQueryable<VideoStream> query = GetIQueryableForEntity(Parameters);
+        IQueryable<VideoStream> query = GetQuery(Parameters);
         return await query.GetPagedResponseAsync<VideoStream, VideoStreamDto>(Parameters.PageNumber, Parameters.PageSize, mapper)
                           .ConfigureAwait(false);
     }
 
     public async Task<List<VideoStreamDto>> GetVideoStreamsByM3UFileId(int m3uFileId)
     {
-        IQueryable<VideoStream> query = FindByCondition(a => a.M3UFileId == m3uFileId);
+        IQueryable<VideoStream> query = GetQuery(a => a.M3UFileId == m3uFileId);
         return await query.ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
     }
 
     public async Task<VideoStreamDto?> GetVideoStreamsById(string Id)
     {
-        VideoStream? ret = await FindByCondition(c => c.Id == Id)
-                            .AsNoTracking()
+        VideoStream? ret = await GetQuery(c => c.Id == Id)
                             .FirstOrDefaultAsync()
                             .ConfigureAwait(false);
 
@@ -628,7 +626,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
     public async Task<List<VideoStreamDto>> GetVideoStreamsNotHidden()
     {
-        IQueryable<VideoStream> query = FindByCondition(a => !a.IsHidden);
+        IQueryable<VideoStream> query = GetQuery(a => !a.IsHidden);
 
         return await query.ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider).ToListAsync();
     }
@@ -640,7 +638,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
     public async Task<List<string>> DeleteAllVideoStreamsFromParameters(VideoStreamParameters Parameters, CancellationToken cancellationToken)
     {
-        IQueryable<VideoStream> toDelete = GetIQueryableForEntity(Parameters).Where(a => a.IsUserCreated);
+        IQueryable<VideoStream> toDelete = GetQuery(Parameters).Where(a => a.IsUserCreated);
         return await DeleteVideoStreamsAsync(toDelete, cancellationToken).ConfigureAwait(false);
     }
 
@@ -648,7 +646,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
     {
         const int batchSize = 1000;
 
-        List<VideoStream> result = await GetIQueryableForEntity(Parameters).AsNoTracking().ToListAsync(cancellationToken: cancellationToken);
+        List<VideoStream> result = await GetQuery(Parameters).AsNoTracking().ToListAsync(cancellationToken: cancellationToken);
 
         List<string> ids = result.Select(a => a.Id).OrderBy(a => a).ToList();
         for (int i = 0; i < ids.Count; i += batchSize)
@@ -715,13 +713,13 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
     public async Task<List<VideoStreamDto>> SetVideoStreamChannelNumbersFromIds(IEnumerable<string> Ids, bool OverWriteExisting, int StartNumber, string OrderBy, CancellationToken cancellationToken)
     {
-        IQueryable<VideoStream> videoStreams = FindByCondition(a => Ids.Contains(a.Id), OrderBy);
+        IQueryable<VideoStream> videoStreams = GetQuery(a => Ids.Contains(a.Id), OrderBy);
         return await SetVideoStreamChannelNumbers(videoStreams, OverWriteExisting, StartNumber, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<List<VideoStreamDto>> SetVideoStreamChannelNumbersFromParameters(VideoStreamParameters Parameters, bool OverWriteExisting, int StartNumber, CancellationToken cancellationToken)
     {
-        IQueryable<VideoStream> videoStreams = GetIQueryableForEntity(Parameters);
+        IQueryable<VideoStream> videoStreams = GetQuery(Parameters);
         return await SetVideoStreamChannelNumbers(videoStreams, OverWriteExisting, StartNumber, cancellationToken).ConfigureAwait(false);
     }
 
@@ -778,13 +776,13 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
     public async Task<List<VideoStreamDto>> SetVideoStreamsLogoFromEPGFromIds(IEnumerable<string> Ids, CancellationToken cancellationToken)
     {
-        IQueryable<VideoStream> videoStreams = FindByCondition(a => Ids.Contains(a.Id));
+        IQueryable<VideoStream> videoStreams = GetQuery(a => Ids.Contains(a.Id));
         return await SetVideoStreamsLogoFromEPG(videoStreams, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<List<VideoStreamDto>> SetVideoStreamsLogoFromEPGFromParameters(VideoStreamParameters Parameters, CancellationToken cancellationToken)
     {
-        IQueryable<VideoStream> videoStreams = GetIQueryableForEntity(Parameters);
+        IQueryable<VideoStream> videoStreams = GetQuery(Parameters);
         return await SetVideoStreamsLogoFromEPG(videoStreams, cancellationToken).ConfigureAwait(false);
     }
 
@@ -824,13 +822,13 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
     public async Task<List<VideoStreamDto>> ReSetVideoStreamsLogoFromIds(IEnumerable<string> Ids, CancellationToken cancellationToken)
     {
-        IQueryable<VideoStream> videoStreams = FindByCondition(a => Ids.Contains(a.Id));
+        IQueryable<VideoStream> videoStreams = GetQuery(a => Ids.Contains(a.Id));
         return await SetVideoStreamsLogo(videoStreams, cancellationToken);
     }
 
     public async Task<List<VideoStreamDto>> ReSetVideoStreamsLogoFromParameters(VideoStreamParameters Parameters, CancellationToken cancellationToken)
     {
-        IQueryable<VideoStream> videoStreams = GetIQueryableForEntity(Parameters);
+        IQueryable<VideoStream> videoStreams = GetQuery(Parameters);
         return await SetVideoStreamsLogo(videoStreams, cancellationToken);
     }
 
@@ -860,7 +858,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
             return [];
         }
 
-        List<VideoStreamDto> ret = await FindByCondition(a => a.User_Tvg_group == channelGroup.Name).AsNoTracking()
+        List<VideoStreamDto> ret = await GetQuery(a => a.User_Tvg_group == channelGroup.Name).AsNoTracking()
             .ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
         return ret;
@@ -869,7 +867,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
     public async Task<List<VideoStreamDto>> GetVideoStreamsForChannelGroups(IEnumerable<int> channelGroupIds, CancellationToken cancellationToken)
     {
         List<string> channelGroupNames = await RepositoryContext.ChannelGroups.Where(a => channelGroupIds.Contains(a.Id)).Select(a => a.Name).Distinct().ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-        List<VideoStreamDto> ret = await FindByCondition(a => channelGroupNames.Contains(a.User_Tvg_group)).AsNoTracking()
+        List<VideoStreamDto> ret = await GetQuery(a => channelGroupNames.Contains(a.User_Tvg_group)).AsNoTracking()
             .ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
         return ret;
@@ -879,7 +877,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
     {
         List<VideoStreamDto> results = [];
 
-        foreach (VideoStream? videoStream in FindByCondition(a => VideoStreamIds.Contains(a.Id)))
+        foreach (VideoStream? videoStream in GetQuery(a => VideoStreamIds.Contains(a.Id)))
         {
             string? test = await sender.Send(new GetEPGNameTvgName(videoStream.User_Tvg_name), cancellationToken).ConfigureAwait(false);
             if (test is not null && test != videoStream.User_Tvg_ID)
@@ -896,12 +894,11 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
     public async Task<(VideoStreamDto? videoStream, ChannelGroupDto? updatedChannelGroup)> UpdateVideoStreamAsync(UpdateVideoStreamRequest request, CancellationToken cancellationToken)
     {
-        VideoStream? videoStream = await FindByCondition(a => a.Id == request.Id).FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        VideoStream? videoStream = await FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
         if (videoStream == null)
         {
             return (null, null);
         }
-
 
         string UpdateSGCG = string.Empty;
         if (request.Tvg_group != null && videoStream.User_Tvg_group != request.Tvg_group)
@@ -964,7 +961,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
     public IQueryable<VideoStream> GetVideoStreamQuery()
     {
-        return FindAll();
+        return GetQuery();
     }
 
     private async Task<List<VideoStreamDto>> AutoSetEPGs(IQueryable<VideoStream> videoStreams, CancellationToken cancellationToken)
@@ -1045,7 +1042,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
                 videoStream.User_Tvg_ID = scoredMatches[0].Channel.Channel;
                 UpdateVideoStream(videoStream);
 
-                if (settings.VideoStreamAlwaysUseEPGLogo)
+                if (Settings.VideoStreamAlwaysUseEPGLogo)
                 {
                     await SetVideoStreamLogoFromEPG(videoStream, token).ConfigureAwait(false);
                 }
@@ -1066,13 +1063,13 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
     public async Task<List<VideoStreamDto>> AutoSetEPGFromIds(List<string> ids, CancellationToken cancellationToken)
     {
-        IQueryable<VideoStream> videoStreams = FindByCondition(a => ids.Contains(a.Id));
+        IQueryable<VideoStream> videoStreams = GetQuery(a => ids.Contains(a.Id));
         return await AutoSetEPGs(videoStreams, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<List<VideoStreamDto>> AutoSetEPGFromParameters(VideoStreamParameters Parameters, List<string> ids, CancellationToken cancellationToken)
     {
-        IQueryable<VideoStream> videoStreams = GetIQueryableForEntity(Parameters);
+        IQueryable<VideoStream> videoStreams = GetQuery(Parameters);
         return await AutoSetEPGs(videoStreams, cancellationToken).ConfigureAwait(false);
     }
 
@@ -1095,13 +1092,13 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
     public async Task<List<VideoStreamDto>> SetVideoStreamTimeShiftsFromIds(List<string> ids, int timeShift, CancellationToken cancellationToken)
     {
-        IQueryable<VideoStream> videoStreams = FindByCondition(a => ids.Contains(a.Id));
+        IQueryable<VideoStream> videoStreams = GetQuery(a => ids.Contains(a.Id));
         return await SetVideoStreamTimeShifts(videoStreams, timeShift, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<List<VideoStreamDto>> SetVideoStreamTimeShiftFromParameters(VideoStreamParameters parameters, int timeShift, CancellationToken cancellationToken)
     {
-        IQueryable<VideoStream> videoStreams = GetIQueryableForEntity(parameters);
+        IQueryable<VideoStream> videoStreams = GetQuery(parameters);
         return await SetVideoStreamTimeShifts(videoStreams, timeShift, cancellationToken).ConfigureAwait(false);
     }
 

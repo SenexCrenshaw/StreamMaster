@@ -8,7 +8,7 @@ internal class SyncStreamGroupChannelGroupsRequestHandler(ILogger<SyncStreamGrou
 {
     public async Task<StreamGroupDto?> Handle(SyncStreamGroupChannelGroupsRequest request, CancellationToken cancellationToken = default)
     {
-        StreamGroupDto? ret = await Repository.StreamGroupChannelGroup.SyncStreamGroupChannelGroups(request.StreamGroupId, request.ChannelGroupIds, cancellationToken).ConfigureAwait(false);
+        StreamGroupDto? ret = await Repository.StreamGroupChannelGroup.SyncStreamGroupChannelGroups(request.StreamGroupId, request.ChannelGroupIds).ConfigureAwait(false);
 
         if (ret != null)
         {

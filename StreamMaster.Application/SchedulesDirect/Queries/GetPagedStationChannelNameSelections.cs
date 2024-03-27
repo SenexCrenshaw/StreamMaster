@@ -1,5 +1,4 @@
 ﻿using StreamMaster.Domain.Filtering;
-using StreamMaster.Domain.Pagination;
 
 using System.Text.Json;
 
@@ -17,7 +16,7 @@ internal class GetPagedStationChannelNamesHandler(ILogger<GetPagedStationChannel
         {
             PagedResponse<StationChannelName> emptyResponse = new()
             {
-                TotalItemCount = stationChannelNames.Count()
+                TotalItemCount = stationChannelNames.Count
             };
             return emptyResponse;
         }

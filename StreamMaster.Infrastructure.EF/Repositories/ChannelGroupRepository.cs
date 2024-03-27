@@ -1,9 +1,11 @@
-﻿using MediatR;
+﻿using AutoMapper;
+
+using MediatR;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 using StreamMaster.Application.VideoStreams.Queries;
+using StreamMaster.Domain.Configuration;
 
 using System.Linq.Dynamic.Core;
 
@@ -11,11 +13,31 @@ namespace StreamMaster.Infrastructure.EF.Repositories;
 
 public class ChannelGroupRepository(
     ILogger<ChannelGroupRepository> intLogger,
-    IRepositoryContext repositoryContext,
-    IRepositoryWrapper repository,
+    IRepositoryContext intRepositoryContext,
+    IRepositoryWrapper Repository,
+    IMapper Mapper,
+    IOptionsMonitor<Setting> intSettings,
     ISender sender
-    ) : RepositoryBase<ChannelGroup>(repositoryContext, intLogger), IChannelGroupRepository
+    ) : RepositoryBase<ChannelGroup>(intRepositoryContext, intLogger, intSettings), IChannelGroupRepository
 {
+
+    public async Task<ChannelGroupDto?> CreateChannelGroup(string GroupName, bool IsReadOnly = false)
+    {
+        if (await Repository.ChannelGroup.GetChannelGroupByName(GroupName).ConfigureAwait(false) != null)
+        {
+            return null;
+        }
+
+        ChannelGroup channelGroup = new() { Name = GroupName, IsReadOnly = IsReadOnly };
+        Create(channelGroup); ;
+        await SaveChangesAsync();
+
+        List<StreamGroupDto>? ret = await Repository.StreamGroupChannelGroup.SyncStreamGroupChannelGroupByChannelId(channelGroup.Id);
+
+        ChannelGroupDto channelGroupDto = Mapper.Map<ChannelGroupDto>(channelGroup);
+        return channelGroupDto;
+    }
+
     /// <summary>
     /// Retrieves all channel groups from the database.
     /// </summary>
@@ -26,10 +48,10 @@ public class ChannelGroupRepository(
         {
             List<ChannelGroup> channelGroups = [];
 
-            IQueryable<ChannelGroup> query = FindAll();
+            IQueryable<ChannelGroup> query = GetQuery();
             channelGroups = ids == null
-                ? await FindAll().ToListAsync().ConfigureAwait(false)
-                : await FindByCondition(a => ids.Contains(a.Id)).ToListAsync().ConfigureAwait(false);
+                ? await GetQuery().ToListAsync().ConfigureAwait(false)
+                : await GetQuery(a => ids.Contains(a.Id)).ToListAsync().ConfigureAwait(false);
 
             logger.LogInformation($"Successfully retrieved {channelGroups.Count} channel groups.");
 
@@ -86,7 +108,7 @@ public class ChannelGroupRepository(
         try
         {
             // Get IQueryable based on provided parameters
-            IQueryable<ChannelGroup> query = GetIQueryableForEntity(Parameters);
+            IQueryable<ChannelGroup> query = GetQuery(Parameters);
 
             PagedResponse<ChannelGroup> ret = await query.GetPagedResponseAsync(Parameters.PageNumber, Parameters.PageSize);
 
@@ -185,9 +207,7 @@ public class ChannelGroupRepository(
 
         logger.LogInformation($"Attempting to fetch ChannelGroup with Id: {Id}.");
 
-        ChannelGroup? channelGroup = await FindByCondition(c => c.Id == Id)
-                                          .AsNoTracking()
-                                          .FirstOrDefaultAsync();
+        ChannelGroup? channelGroup = await FirstOrDefaultAsync(c => c.Id == Id);
 
         if (channelGroup == null)
         {
@@ -212,7 +232,7 @@ public class ChannelGroupRepository(
         try
         {
             // Fetching matching ChannelGroup entities based on provided names
-            IQueryable<ChannelGroup> query = FindByCondition(channelGroup => m3uChannelGroupNames.Contains(channelGroup.Name));
+            IQueryable<ChannelGroup> query = GetQuery(channelGroup => m3uChannelGroupNames.Contains(channelGroup.Name));
 
             // Asynchronously retrieving results and mapping to DTOs
             List<ChannelGroup> channelGroups = await query.ToListAsync().ConfigureAwait(false);
@@ -246,7 +266,7 @@ public class ChannelGroupRepository(
 
         try
         {
-            ChannelGroup? channelGroup = await FindByCondition(channelGroup => channelGroup.Name.Equals(name)).FirstOrDefaultAsync();
+            ChannelGroup? channelGroup = await FirstOrDefaultAsync(channelGroup => channelGroup.Name.Equals(name));
             return channelGroup ?? null;
         }
         catch (Exception ex)
@@ -258,38 +278,16 @@ public class ChannelGroupRepository(
 
     //public async Task<IEnumerable<ChannelGroup>> GetAllChannelGroupsAsync()
     //{
-    //    return await FindAll()
+    //    return await GetQuery()
     //                    .OrderBy(p => p.Id)
     //                    .ToListAsync();
     //}
 
-    /// <summary>
-    /// Creates a new channel group in the database.
-    /// </summary>
-    /// <param name="channelGroup">The channel group to be added.</param>
-    public void CreateChannelGroup(ChannelGroup channelGroup)
-    {
-        if (channelGroup == null)
-        {
-            logger.LogError("Attempted to create a null channel group.");
-            throw new ArgumentNullException(nameof(channelGroup), "ChannelGroup cannot be null.");
-        }
 
-        try
-        {
-            Create(channelGroup);
-            //logger.LogInformation($"Successfully created channel group with name: {channelGroup.Name}");
-        }
-        catch (Exception ex)
-        {
-            logger.LogError($"Error creating channel group: {ex.Message}", ex);
-            throw;  // or handle the exception accordingly
-        }
-    }
 
     public async Task<(int? ChannelGroupId, List<VideoStreamDto> VideoStreams)> DeleteChannelGroupById(int ChannelGroupId)
     {
-        ChannelGroup? channelGroup = await FindByCondition(a => a.Id == ChannelGroupId).FirstOrDefaultAsync().ConfigureAwait(false);
+        ChannelGroup? channelGroup = await FirstOrDefaultAsync(a => a.Id == ChannelGroupId).ConfigureAwait(false);
         return channelGroup == null ? ((int? ChannelGroupId, List<VideoStreamDto> VideoStreams))(null, []) : await DeleteChannelGroup(channelGroup).ConfigureAwait(false);
     }
 
@@ -311,7 +309,7 @@ public class ChannelGroupRepository(
         // Extracting the IDs of the fetched video streams
         IEnumerable<string> videoStreamIds = videoStreams.Select(a => a.Id);
 
-        await repository.VideoStream.UpdateVideoStreamsChannelGroupNames(videoStreamIds, "").ConfigureAwait(false);
+        await Repository.VideoStream.UpdateVideoStreamsChannelGroupNames(videoStreamIds, "").ConfigureAwait(false);
 
         logger.LogInformation($"Updated associated video streams for ChannelGroup with ID {channelGroup.Id}.");
 
@@ -360,7 +358,7 @@ public class ChannelGroupRepository(
 
         logger.LogInformation($"Fetching ChannelGroup based on provided parameters.");
 
-        IQueryable<ChannelGroup> queryable = GetIQueryableForEntity(Parameters);
+        IQueryable<ChannelGroup> queryable = GetQuery(Parameters);
 
         List<ChannelGroup> result = await queryable.ToListAsync(cancellationToken).ConfigureAwait(false);
 
@@ -379,11 +377,11 @@ public class ChannelGroupRepository(
     {
         logger.LogInformation($"Attempting to fetch and delete ChannelGroups based on provided parameters.");
 
-        IQueryable<ChannelGroup> toDeleteQuery = GetIQueryableForEntity(Parameters).Where(a => !a.IsReadOnly);
+        IQueryable<ChannelGroup> toDeleteQuery = GetQuery(Parameters).Where(a => !a.IsReadOnly);
 
         List<int> channelGroupIds = await toDeleteQuery.Select(a => a.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
 
-        List<VideoStreamDto> videoStreams = await repository.VideoStream.GetVideoStreamsForChannelGroups(channelGroupIds, cancellationToken).ConfigureAwait(false);
+        List<VideoStreamDto> videoStreams = await Repository.VideoStream.GetVideoStreamsForChannelGroups(channelGroupIds, cancellationToken).ConfigureAwait(false);
 
         logger.LogInformation($"Preparing to bulk delete {channelGroupIds.Count} ChannelGroups.");
 
@@ -404,18 +402,18 @@ public class ChannelGroupRepository(
         }
 
         IQueryable<string> channeNames = videoStreams.Select(a => a.User_Tvg_group).Distinct();
-        List<ChannelGroup> ret = await FindByCondition(a => channeNames.Contains(a.Name)).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        List<ChannelGroup> ret = await GetQuery(a => channeNames.Contains(a.Name)).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         return ret;
     }
 
     public IQueryable<ChannelGroup> GetChannelGroupQuery()
     {
-        return FindAll();
+        return GetQuery();
     }
 
     public async Task<List<ChannelGroup>> GetChannelGroupsForStreamGroup(int streamGroupId, CancellationToken cancellationToken)
     {
-        List<ChannelGroup> channelGroups = await FindAll().ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        List<ChannelGroup> channelGroups = await GetQuery().ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
         List<int> selectedIds = await RepositoryContext.StreamGroupChannelGroups.Where(a => a.StreamGroupId == streamGroupId).Select(a => a.ChannelGroupId).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         channelGroups = channelGroups

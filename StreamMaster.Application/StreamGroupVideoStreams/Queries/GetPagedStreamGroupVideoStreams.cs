@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Pagination;
-
-namespace StreamMaster.Application.StreamGroupVideoStreams.Queries;
+﻿namespace StreamMaster.Application.StreamGroupVideoStreams.Queries;
 
 public record GetPagedStreamGroupVideoStreams(StreamGroupVideoStreamParameters Parameters) : IRequest<PagedResponse<VideoStreamDto>>;
 
@@ -9,6 +7,6 @@ internal class GetPagedStreamGroupVideoStreamsHandler(ILogger<GetPagedStreamGrou
 {
     public async Task<PagedResponse<VideoStreamDto>> Handle(GetPagedStreamGroupVideoStreams request, CancellationToken cancellationToken)
     {
-        return await Repository.StreamGroupVideoStream.GetPagedStreamGroupVideoStreams(request.Parameters, cancellationToken).ConfigureAwait(false);
+        return await Repository.StreamGroupVideoStream.GetPagedStreamGroupVideoStreams(request.Parameters).ConfigureAwait(false);
     }
 }

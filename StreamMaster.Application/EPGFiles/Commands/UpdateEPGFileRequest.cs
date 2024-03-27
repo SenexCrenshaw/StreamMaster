@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Application.M3UFiles.Commands;
+using StreamMaster.Application.M3UFiles.CommandsOrig;
 using StreamMaster.Application.VideoStreams.Commands;
 
 namespace StreamMaster.Application.EPGFiles.Commands;
@@ -38,16 +38,10 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
             bool isNameChanged = false;
             int? oldEPGNumber = null;
 
-            if (!string.IsNullOrEmpty(request.Description) && epgFile.Description != request.Description)
-            {
-                isChanged = true;
-                epgFile.Description = request.Description;
-            }
-
             if (request.EPGNumber.HasValue)
             {
                 isChanged = true;
-                if (!Repository.EPGFile.FindByCondition(x => x.EPGNumber == request.EPGNumber.Value).Any())
+                if (!Repository.EPGFile.GetQuery(x => x.EPGNumber == request.EPGNumber.Value).Any())
                 {
                     oldEPGNumber = epgFile.EPGNumber;
                     epgFile.EPGNumber = request.EPGNumber.Value;

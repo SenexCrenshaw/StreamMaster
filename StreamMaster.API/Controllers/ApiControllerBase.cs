@@ -2,19 +2,13 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Domain.Configuration;
-using StreamMaster.Infrastructure;
-
-
+using StreamMaster.Application.Common;
 
 namespace StreamMaster.API.Controllers;
 
-//[ApiController]
 [V1ApiController("api/[controller]")]
 public abstract class ApiControllerBase : ControllerBase
 {
-
-    //private IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext = null!;
     private IMediator _mediator = null!;
     private IOptionsMonitor<Setting> _intsettings = null!;
     private IOptionsMonitor<HLSSettings> _inthlssettings = null!;
@@ -26,4 +20,6 @@ public abstract class ApiControllerBase : ControllerBase
     protected IOptionsMonitor<HLSSettings> inthlssettings => _inthlssettings ??= HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<HLSSettings>>();
 
     protected IMediator Mediator => _mediator ??= HttpContext.RequestServices.GetRequiredService<IMediator>();
+
+
 }

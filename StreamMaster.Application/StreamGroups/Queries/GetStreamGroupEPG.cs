@@ -2,7 +2,6 @@
 
 using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Domain.Requests;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 
@@ -43,7 +42,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         videoStreams = request.StreamGroupId == 0
             ? await Repository.VideoStream.GetVideoStreams()
-            : await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
+            : await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId);
 
         List<VideoStreamConfig> videoStreamConfigs = [];
 

@@ -8,7 +8,7 @@ internal class GetChannelGroupNamesQueryHandler(ILogger<GetChannelGroupNames> lo
     public async Task<IEnumerable<string>> Handle(GetChannelGroupNames request, CancellationToken cancellationToken)
     {
         List<ChannelGroupIdName> ret = await Repository.ChannelGroup.GetChannelGroupNames(cancellationToken).ConfigureAwait(false);
-        int test = ret.Count();
+        int test = ret.Count;
         return ret.Select(a => a.Name);
     }
 }

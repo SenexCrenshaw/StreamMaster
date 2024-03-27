@@ -2,9 +2,6 @@
 
 using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Application.Common.Extensions;
-using StreamMaster.Domain.Authentication;
-
 using System.Text.Json;
 using System.Web;
 
@@ -42,7 +39,7 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
         string url = httpContextAccessor.GetUrl();
         List<SGLineup> ret = [];
 
-        List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
+        List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId);
 
         if (!videoStreams.Any())
         {

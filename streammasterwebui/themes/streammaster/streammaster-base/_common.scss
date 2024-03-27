@@ -1,0 +1,125 @@
+.sm-text-color {
+    color: $streamMasterColor;
+}
+
+.multiselectcolumn {}
+
+// .p-multiselect-label-container {
+//     font-size: var(--common-font-size) !important;
+//     overflow: hidden !important;
+//     text-overflow: ellipsis !important;
+//     white-space: nowrap !important;
+//     display: flex !important;
+//     align-items: center !important;
+//     justify-content: start !important;
+// }
+
+.p-multiselect-trigger {
+    width: 1rem;
+    padding-right: 0.2rem;
+}
+
+.p-multiselect-label,
+.p-accordion .p-accordion-header .p-accordion-header-link {
+    @include datatable-text-style;
+}
+
+.p-multiselect-label.p-multiselect-items-label {
+    padding: 0;
+}
+
+.smfileupload {
+    .p-inputtext {
+        height: $datatable-row-height;
+    }
+
+    height: 30vh;
+}
+
+.sourceOrFileDialog {
+    padding-left: $datatable-padding;
+    padding-right: $datatable-padding;
+
+    .p-progressbar {
+        height: $datatable-row-height;
+        border-radius: 0;
+    }
+
+    .p-progressbar-value {
+        border-left: none;
+        border-right: none;
+    }
+
+    .p-inputtext {
+        height: $datatable-row-height;
+    }
+}
+
+// .p-inputnumber {
+//     background-color: transparent;
+//     border-color: transparent !important;
+//     height: var(--input-height);
+//     font-size: var(--common-font-size) !important;
+//     // overflow: hidden !important;
+//     // padding: 0 !important;
+//     // text-overflow: ellipsis !important;
+//     // white-space: nowrap !important;
+//     transition: border-color 0.3s;
+// }
+
+.filesEditor {
+    padding: 0rem;
+
+    .header {
+        background-color: #0c243c;
+        height: $datatable-row-height;
+    }
+
+    .p-button {
+        height: $input-height;
+        width: $input-height;
+    }
+
+}
+
+.iconselector {
+    &.p-dropdown {
+        background-color: transparent;
+
+        &.p-component.p-inputwrapper.p-inputwrapper-filled {
+            background-color: transparent;
+            border: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .p-inputtext {
+            padding: 0;
+            padding-top: 0.24rem;
+            margin: 0;
+            background-color: transparent;
+            border: none;
+            height: $datatable-row-height;
+            max-width: $datatable-row-height;
+        }
+    }
+
+    &.p-progress-spinner {
+        align-items: center;
+        justify-content: center;
+        width: $datatable-row-height;
+        height: $datatable-row-height;
+        padding: 0;
+        margin: 0;
+    }
+}
+
+.p-inputgroup {
+    height: $datatable-row-height;
+    padding: 0;
+    margin: 0;
+
+    // .p-button {
+    //     background-color: $streamMasterColor;
+    // }
+}

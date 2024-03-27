@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Pagination;
+﻿using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Domain.Repository;
 /// <summary>
@@ -79,7 +77,7 @@ public interface IChannelGroupRepository : IRepositoryBase<ChannelGroup>
     /// <summary>
     /// Creates a new channel group.
     /// </summary>
-    void CreateChannelGroup(ChannelGroup ChannelGroup);
+    Task<ChannelGroupDto?> CreateChannelGroup(string GroupName, bool IsReadOnly = false);
 
     /// <summary>
     /// Updates an existing channel group.

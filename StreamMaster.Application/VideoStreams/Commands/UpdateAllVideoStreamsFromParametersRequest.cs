@@ -6,7 +6,7 @@ using StreamMaster.Domain.Requests;
 
 namespace StreamMaster.Application.VideoStreams.Commands;
 
-public record UpdateAllVideoStreamsFromParametersRequest(VideoStreamParameters Parameters, UpdateVideoStreamRequest Request, List<int>? ChannelGroupIds) : IRequest<List<VideoStreamDto>> { }
+public record UpdateAllVideoStreamsFromParametersRequest(VideoStreamParameters Parameters, UpdateVideoStreamRequest UpdateRequest, List<int>? ChannelGroupIds) : IRequest<List<VideoStreamDto>> { }
 
 public class UpdateAllVideoStreamsFromParametersRequestValidator : AbstractValidator<UpdateAllVideoStreamsFromParametersRequest>
 {
@@ -23,7 +23,7 @@ public class UpdateAllVideoStreamsFromParametersRequestHandler(ILogger<UpdateAll
     public async Task<List<VideoStreamDto>> Handle(UpdateAllVideoStreamsFromParametersRequest request, CancellationToken cancellationToken)
     {
 
-        (List<VideoStreamDto> videoStreams, _) = await Repository.VideoStream.UpdateAllVideoStreamsFromParameters(request.Parameters, request.Request, cancellationToken);
+        (List<VideoStreamDto> videoStreams, _) = await Repository.VideoStream.UpdateAllVideoStreamsFromParameters(request.Parameters, request.UpdateRequest, cancellationToken);
         if (videoStreams.Any())
         {
             await Publisher.Publish(new UpdateVideoStreamsEvent(videoStreams), cancellationToken).ConfigureAwait(false);

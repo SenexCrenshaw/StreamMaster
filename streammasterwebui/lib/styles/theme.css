@@ -86,54 +86,6 @@
   border-left: 2px solid var(--common-border-color) !important;
 }
 
-.icon-template {
-  height: var(--input-height);
-  justify-content: start;
-  align-items: center;
-}
-
-.icon-template-large {
-  padding: 0rem !important;
-  margin-right: 1rem;
-  width: 8rem;
-  max-height: 8rem;
-  object-fit: contain;
-  justify-content: center;
-  align-items: center;
-}
-
-.icon-template-large img {
-  max-width: 6rem;
-  max-height: 5rem;
-  object-fit: contain;
-}
-
-.icon-template img,
-.default-icon {
-  max-width: 1.3rem;
-  max-height: 1.3rem;
-  object-fit: contain;
-}
-
-.icon-option-template {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  text-align: start;
-}
-
-.icon-option-template img {
-  max-width: 3rem;
-  max-height: 3.4rem;
-  object-fit: contain;
-}
-
-.icon-option-name {
-  padding: 0 0 0 1rem;
-  white-space: normal;
-  width: 100%;
-}
-
 .p-inputtext {
   background-color: var(--editor-bg);
   overflow: hidden !important;
@@ -260,29 +212,6 @@
 .p-accordion .p-accordion-header .p-accordion-header-link {
   padding: 0.2rem !important;
 }
-
-/* .p-button.p-button-danger {
-  background: var(--button-danger-bg);
-  border: 1px solid var(--button-danger-bg);
-  color: #0e1315;
-}
-.p-button.p-button-danger {
-  background: var(--button-danger-bg);
-  border: var(--common-border-width) solid var(--button-danger-bg);
-  color: #0e1315;
-} */
-/* 
-.p-button.p-button-info {
-  background: var(--button-info-bg);
-  border: var(--common-border-width) solid var(--button-info-bg);
-  color: #ffffff;
-}
-
-.p-button.p-button-success {
-  background: var(--button-success-bg);
-  border: var(--common-border-width) solid var(--button-success-bg);
-  color: #0e1315;
-} */
 
 .p-inputgroup-addon {
   padding: 0.5rem !important;

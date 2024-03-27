@@ -4,7 +4,7 @@ import { ExportComponent, formatJSONDateString } from '@lib/common/common';
 import { LogIcon } from '@lib/common/icons';
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { LogEntry, LogEntryDto, LogsGetLogApiArg } from '@lib/iptvApi';
-import { invokeHubConnection } from '@lib/signalr/signalr';
+import { invokeHubCommand } from '@lib/signalr/signalr';
 
 import { FilterMatchMode } from 'primereact/api';
 import { Column } from 'primereact/column';
@@ -14,7 +14,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const LogViewer = () => {
   const GetLog = async (arg: LogsGetLogApiArg): Promise<LogEntryDto[] | null> => {
-    return await invokeHubConnection<LogEntryDto[]>('GetLog', arg);
+    return await invokeHubCommand<LogEntryDto[]>('GetLog', arg);
   };
 
   const itemSize: number = 30;

@@ -10,14 +10,15 @@ interface TextInputProperties {
   readonly isUrl?: boolean;
   readonly isValid?: boolean;
   readonly label?: string;
-  readonly onChange: (value: string) => void;
-  readonly onEnter?: () => void;
-  readonly onResetClick?: () => void;
   readonly openCopyWindow?: boolean;
   readonly placeHolder?: string;
   readonly showClear?: boolean;
   readonly showCopy?: boolean;
   readonly value: string | undefined;
+
+  readonly onChange: (value: string) => void;
+  readonly onEnter?: () => void;
+  readonly onResetClick?: () => void;
 }
 
 const TextInput = ({
@@ -127,7 +128,7 @@ const TextInput = ({
 
         <InputText
           autoFocus={autoFocus}
-          className={`text-large w-full ${isValid ? '' : 'p-invalid'}`}
+          className={`w-full ${isValid ? '' : 'p-invalid'}`}
           id={uuid}
           onChange={(event) => {
             setInput(processValue(event.target.value));

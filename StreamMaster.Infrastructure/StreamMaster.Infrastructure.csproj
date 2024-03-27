@@ -8,7 +8,7 @@
     <FileVersion>0.1.0.0</FileVersion>
     <InformationalVersion>0.1.0-alpha.582+Branch.develop.Sha.95b3b4eac9a11372a0e6e5d32be2790dfac1813b</InformationalVersion>
     <Version>0.1.0-alpha0582</Version>
-   
+
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Services\SD\**" />
@@ -39,7 +39,6 @@
   <ItemGroup>
     <ProjectReference Include="..\StreamMaster.Application\StreamMaster.Application.csproj" />
     <ProjectReference Include="..\StreamMaster.Infrastructure.EF.PGSQL\StreamMaster.Infrastructure.EF.PGSQL.csproj" />
-    <ProjectReference Include="..\StreamMaster.Infrastructure.EF.SQLite\StreamMaster.Infrastructure.EF.SQLite.csproj" />
     <ProjectReference Include="..\StreamMaster.Infrastructure.EF\StreamMaster.Infrastructure.EF.csproj" />
     <ProjectReference Include="..\StreamMaster.Logging\StreamMaster.Logging.csproj" />
     <ProjectReference Include="..\StreamMaster.SchedulesDirect\StreamMaster.SchedulesDirect.csproj" />

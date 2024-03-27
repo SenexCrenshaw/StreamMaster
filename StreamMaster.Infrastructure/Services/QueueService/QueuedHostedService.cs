@@ -4,24 +4,26 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Application.ChannelGroups.Commands;
+using StreamMaster.Application.ChannelGroups.CommandsOld;
 using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.EPGFiles.Commands;
 using StreamMaster.Application.General.Commands;
 using StreamMaster.Application.Icons.Commands;
 using StreamMaster.Application.M3UFiles.Commands;
+using StreamMaster.Application.M3UFiles.CommandsOrig;
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.Services;
 using StreamMaster.Domain.Enums;
+using StreamMaster.Domain.Services;
 
 namespace StreamMaster.Infrastructure.Services.QueueService;
 
 public sealed class QueuedHostedService(
     IBackgroundTaskQueue taskQueue,
     IServiceProvider serviceProvider,
+    IMessageService messageSevice,
     ILogger<QueuedHostedService> logger
-
-        ) : BackgroundService
+) : BackgroundService
 {
     public override async Task StopAsync(CancellationToken stoppingToken)
     {
@@ -45,9 +47,12 @@ public sealed class QueuedHostedService(
             try
             {
                 logger.LogInformation("Starting {command}", command.Command);
+                await messageSevice.SendSMInfo($"Starting task: {command.Command}");
+
                 using IServiceScope scope = serviceProvider.CreateScope();
 
                 ISender _sender = scope.ServiceProvider.GetRequiredService<ISender>();
+
 
                 await taskQueue.SetStart(command.Id).ConfigureAwait(false);
 
@@ -88,7 +93,8 @@ public sealed class QueuedHostedService(
 
                         if (command.Entity is not null && command.Entity.GetType() == typeof(ProcessM3UFileRequest))
                         {
-                            _ = await _sender.Send(command.Entity as ProcessM3UFileRequest, cancellationToken).ConfigureAwait(false);
+                            ProcessM3UFileRequest? p = command.Entity as ProcessM3UFileRequest;
+                            _ = await _sender.Send(p, cancellationToken).ConfigureAwait(false);
                         }
                         break;
 
@@ -122,6 +128,7 @@ public sealed class QueuedHostedService(
                         break;
                 }
                 await taskQueue.SetStop(command.Id).ConfigureAwait(false);
+                await messageSevice.SendSMInfo($"Finished task: {command.Command}");
                 logger.LogInformation("Finished {command}", command.Command);
             }
             catch (OperationCanceledException)
@@ -131,6 +138,7 @@ public sealed class QueuedHostedService(
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error occurred executing task work item. {command}", command.Command);
+                await messageSevice.SendError($"Error executing task: {command.Command}, {ex.Message}");
                 await taskQueue.SetStop(command.Id).ConfigureAwait(false);
             }
         }

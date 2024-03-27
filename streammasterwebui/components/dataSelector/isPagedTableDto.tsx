@@ -1,4 +1,4 @@
-import { type PagedTableDto } from './DataSelector';
+import { PagedTableDto } from './DataSelectorTypes';
 
 function isPagedTableDto<T>(value: unknown): value is PagedTableDto<T> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {

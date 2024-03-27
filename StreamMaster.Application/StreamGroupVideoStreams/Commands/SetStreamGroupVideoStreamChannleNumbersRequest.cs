@@ -11,7 +11,7 @@ public class SetStreamGroupVideoStreamChannelNumbersHandler(ILogger<SetStreamGro
     public async Task Handle(SetStreamGroupVideoStreamChannelNumbersRequest request, CancellationToken cancellationToken)
     {
 
-        List<VideoStreamIsReadOnly> vidIds = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreamIds(request.StreamGroupId, cancellationToken).ConfigureAwait(false);
+        List<VideoStreamIsReadOnly> vidIds = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreamIds(request.StreamGroupId).ConfigureAwait(false);
 
         if (vidIds.Any())
         {

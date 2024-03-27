@@ -81,11 +81,11 @@ const NumberInput = ({
   const doShowCopy = (): boolean => showCopy === true && input !== undefined && input !== 0;
 
   return (
-    <div className={placeHolder && !label ? 'flex grid w-full align-items-center' : 'flex grid w-full mt-3 align-items-center'} ref={overlayReference}>
-      <span className={placeHolder && !label ? 'col-11 p-input-icon-right' : 'col-11 p-input-icon-right p-float-label'}>
-        {doShowClear() && originalInput && (
+    <div className={placeHolder && !label ? 'align-items-center' : 'align-items-center  m-0 p-0 py-2'} ref={overlayReference}>
+      <span className={placeHolder && !label ? 'p-input-icon-right' : 'grid grid-nogutter p-input-icon-right p-float-label'}>
+        {/* {doShowClear() && originalInput && (
           <i
-            className="pi pi-times-circle"
+            className="pi pi-times-circle border-1 border-blue-500"
             hidden={showClear !== true || input === originalInput}
             onClick={() => {
               setInput(originalInput);
@@ -95,32 +95,31 @@ const NumberInput = ({
               onChange(originalInput);
             }}
           />
-        )}
-
+        )} */}
         <InputNumber
-          autoFocus={autoFocus}
-          className={`text-large w-full ${isValid ? '' : 'p-invalid'}`}
-          id={uuid}
-          min={min}
-          max={max}
-          showButtons={showButtons}
-          onChange={(event) => {
-            if (event.value !== null && event.value !== undefined) {
-              setInput(event.value);
-              onChange(event.value);
-            }
-          }}
-          onFocus={() => setIsFocused(true)}
-          placeholder={placeHolder}
+          // autoFocus={autoFocus}
+          // className={`border-1 w-4rem ${isValid ? '' : 'p-invalid'}`}
+          // id={uuid}
+          // min={min}
+          // max={max}
+          // showButtons={showButtons}
+          // onChange={(event) => {
+          //   if (event.value !== null && event.value !== undefined) {
+          //     setInput(event.value);
+          //     onChange(event.value);
+          //   }
+          // }}
+          // onFocus={() => setIsFocused(true)}
+          // placeholder={placeHolder}
           value={input}
         />
         {label && <label htmlFor={uuid}>{label}</label>}
       </span>
-      {doShowCopy() && (
+      {/* {doShowCopy() && (
         <div className="col-1 p-0 m-0">
           <CopyButton openCopyWindow={false} value={input.toString()} />
         </div>
-      )}
+      )} */}
     </div>
   );
 };

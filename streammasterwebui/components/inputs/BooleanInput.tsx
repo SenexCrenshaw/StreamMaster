@@ -16,7 +16,7 @@ const BooleanInput = ({ isValid = true, checked, label, onChange }: BooleanInput
     <span className="flex col-11 p-input-icon-right">
       <div className="p-0 mr-1 col-2">
         <Checkbox
-          className={`text-large w-full ${isValid ? '' : 'p-invalid'}`}
+          className={`w-full ${isValid ? '' : 'p-invalid'}`}
           id={uuid}
           onChange={(event) => {
             if (event.checked !== null && event.checked !== undefined) {

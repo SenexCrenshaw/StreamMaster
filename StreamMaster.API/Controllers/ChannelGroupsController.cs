@@ -1,19 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Pagination;
-using StreamMaster.Infrastructure;
-
-using StreamMaster.Application.ChannelGroups;
 using StreamMaster.Application.ChannelGroups.Commands;
+using StreamMaster.Application.ChannelGroups.CommandsOld;
 using StreamMaster.Application.ChannelGroups.Queries;
-using StreamMaster.API.Controllers;
+using StreamMaster.Application.Common;
+using StreamMaster.Domain.Pagination;
 
 
-namespace StreamMasterAPI.Controllers;
+namespace StreamMaster.API.Controllers;
 
 [V1ApiController("api/[controller]")]
-public class ChannelGroupsController : ApiControllerBase, IChannelGroupController
+public class ChannelGroupsController : ApiControllerBase
 {
 
     [HttpPost]

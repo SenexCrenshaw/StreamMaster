@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Application.General.Queries;
 using StreamMaster.Application.Settings;
-using StreamMaster.Application.Settings.Commands;
-using StreamMaster.Application.Settings.Queries;
+using StreamMaster.Application.Settings.CommandsOld;
 
 namespace StreamMaster.API.Controllers;
 
@@ -19,20 +17,6 @@ public class SettingsController() : ApiControllerBase, ISettingController
         return await Mediator.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
     }
 
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<SettingDto>> GetSetting()
-    {
-        return await Mediator.Send(new GetSettings()).ConfigureAwait(false);
-    }
-
-    [HttpGet]
-    [AllowAnonymous]
-    [Route("[action]")]
-    public async Task<ActionResult<SDSystemStatus>> GetSystemStatus()
-    {
-        return await Mediator.Send(new GetSystemStatus()).ConfigureAwait(false);
-    }
 
     [HttpGet]
     [Route("[action]")]

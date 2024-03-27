@@ -8,7 +8,7 @@ public partial class StreamMasterHub : IQueueHub
 {
     public async Task<List<TaskQueueStatus>> GetQueueStatus()
     {
-        return await mediator.Send(new GetQueueStatus()).ConfigureAwait(false);
+        return await Sender.Send(new GetQueueStatus()).ConfigureAwait(false);
     }
 
 }

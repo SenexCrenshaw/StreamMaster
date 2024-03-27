@@ -1,16 +1,4 @@
-export interface PagedTableInformation {
-  first: number;
-  pageNumber: number;
-  pageSize: number;
-  totalItemCount: number;
-  totalPageCount: number;
-}
-
-export interface PagedDataDto<T> {
-  data?: T[];
-}
-
-export type PagedTableDto<T> = PagedDataDto<T> & PagedTableInformation & {};
+import { PagedTableDto } from '@components/dataSelector/DataSelectorTypes';
 
 function isPagedTableDto<T>(value: PagedTableDto<T> | T[]): value is PagedTableDto<T> {
   if (!value || Array.isArray(value)) {

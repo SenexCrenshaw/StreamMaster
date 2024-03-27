@@ -1,6 +1,5 @@
 ﻿using StreamMaster.Application.General.Queries;
 using StreamMaster.Application.Services;
-using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Application.Hubs;
 
@@ -22,11 +21,17 @@ public class SignalRMessage
     public ModelAction Action { get; set; }
 }
 
-public partial class StreamMasterHub(ISender mediator, IBackgroundTaskQueue taskQueue, IOptionsMonitor<Setting> intsettings) : Hub<IStreamMasterHub>, ISharedHub
+
+public partial class StreamMasterHub(
+    ISender Sender,
+    IBackgroundTaskQueue taskQueue,
+    IRepositoryWrapper Repository,
+    IOptionsMonitor<Setting> intsettings
+    )
+    : Hub<IStreamMasterHub>, ISharedHub
 {
     private static readonly ConcurrentHashSet<string> _connections = [];
     private readonly Setting settings = intsettings.CurrentValue;
-
     public static bool IsConnected
     {
         get
@@ -53,7 +58,7 @@ public partial class StreamMasterHub(ISender mediator, IBackgroundTaskQueue task
 
     public Task<bool> GetIsSystemReady(object waste)
     {
-        return mediator.Send(new GetIsSystemReadyRequest());
+        return Sender.Send(new GetIsSystemReadyRequest());
     }
 
     public override Task OnConnectedAsync()
@@ -63,7 +68,7 @@ public partial class StreamMasterHub(ISender mediator, IBackgroundTaskQueue task
             _connections.Add(Context.ConnectionId);
         }
 
-        Clients.Caller.SystemStatusUpdate(mediator.Send(new GetSystemStatus()).Result);
+        Clients.Caller.SystemStatusUpdate(Sender.Send(new GetSystemStatus()).Result);
 
         return base.OnConnectedAsync();
     }

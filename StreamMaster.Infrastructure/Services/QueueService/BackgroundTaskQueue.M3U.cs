@@ -1,5 +1,6 @@
 ﻿using StreamMaster.Application.M3UFiles;
 using StreamMaster.Application.M3UFiles.Commands;
+
 using StreamMaster.Domain.Enums;
 
 namespace StreamMaster.Infrastructure.Services.QueueService;
@@ -11,7 +12,7 @@ public partial class BackgroundTaskQueue : IM3UFileTasks
     {
         if (immediate)
         {
-            _ = await _sender.Send(new ProcessM3UFileRequest(pr.Id, forceRun: pr.forceRun), cancellationToken).ConfigureAwait(false);
+            _ = await _sender.Send(pr, cancellationToken).ConfigureAwait(false);
         }
         else
         {

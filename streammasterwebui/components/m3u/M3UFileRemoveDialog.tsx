@@ -1,8 +1,10 @@
 import { memo, useState } from 'react';
 
-import { type DeleteM3UFileRequest, type M3UFileDto } from '@lib/iptvApi';
-import { DeleteM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesMutateAPI';
 import FileRemoveDialog from '../sharedEPGM3U/FileRemoveDialog';
+import { DeleteM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
+
+import { DeleteM3UFileRequest } from '@lib/smAPI/M3UFiles/M3UFilesTypes';
+import { M3UFileDto } from '@lib/apiDefs';
 
 interface M3UFileRemoveDialogProperties {
   readonly selectedFile?: M3UFileDto;

@@ -1,40 +1,32 @@
-﻿using FluentValidation;
-
-using StreamMaster.Application.ChannelGroups.Events;
-using StreamMaster.Application.StreamGroupChannelGroups.Commands;
+﻿using StreamMaster.Application.StreamGroupChannelGroups.Commands;
 
 namespace StreamMaster.Application.ChannelGroups.Commands;
 
+[SMAPI]
 [RequireAll]
-public record CreateChannelGroupRequest(string GroupName, bool IsReadOnly) : IRequest<ChannelGroupDto?> { }
+public record CreateChannelGroupRequest(string GroupName, bool IsReadOnly) : IRequest<DefaultAPIResponse> { }
 
-public class CreateChannelGroupRequestValidator : AbstractValidator<CreateChannelGroupRequest>
+public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest> logger, IMessageService messageSevice, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ISender sender, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateChannelGroupRequest, DefaultAPIResponse>
 {
-    public CreateChannelGroupRequestValidator()
-    {
-        _ = RuleFor(v => v.GroupName).NotNull().NotEmpty();
-
-    }
-}
-
-
-public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest> logger, ISender sender, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateChannelGroupRequest, ChannelGroupDto?>
-{
-    public async Task<ChannelGroupDto?> Handle(CreateChannelGroupRequest request, CancellationToken cancellationToken)
+    public async Task<DefaultAPIResponse> Handle(CreateChannelGroupRequest request, CancellationToken cancellationToken)
     {
         if (await Repository.ChannelGroup.GetChannelGroupByName(request.GroupName).ConfigureAwait(false) != null)
         {
-            return null;
+            return APIResponseFactory.NotFound;
         }
 
-        ChannelGroup channelGroup = new() { Name = request.GroupName, IsReadOnly = request.IsReadOnly };
-        Repository.ChannelGroup.CreateChannelGroup(channelGroup);
+        ChannelGroupDto? channelGroupDto = await Repository.ChannelGroup.CreateChannelGroup(request.GroupName, request.IsReadOnly);
+        if (channelGroupDto == null)
+        {
+            return APIResponseFactory.NotFound;
+        }
+
         _ = await Repository.SaveAsync().ConfigureAwait(false);
 
-        await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(channelGroup.Id), cancellationToken).ConfigureAwait(false);
+        await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(channelGroupDto.Id), cancellationToken).ConfigureAwait(false);
 
-        ChannelGroupDto channelGroupDto = Mapper.Map<ChannelGroupDto>(channelGroup);
-        await Publisher.Publish(new CreateChannelGroupEvent(channelGroupDto), cancellationToken).ConfigureAwait(false);
-        return channelGroupDto;
+        await hubContext.Clients.All.DataRefresh("ChannelGroupDto").ConfigureAwait(false);
+        await messageSevice.SendSuccess("Created CG '" + channelGroupDto.Name);
+        return APIResponseFactory.Ok;
     }
 }

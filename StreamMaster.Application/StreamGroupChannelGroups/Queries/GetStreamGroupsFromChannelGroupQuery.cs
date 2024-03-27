@@ -8,7 +8,7 @@ internal class GetStreamGroupsFromChannelGroupQueryHandler(ILogger<GetStreamGrou
 {
     public async Task<IEnumerable<StreamGroupDto>> Handle(GetStreamGroupsFromChannelGroupQuery request, CancellationToken cancellationToken = default)
     {
-        List<StreamGroupDto> ret = await Repository.StreamGroupChannelGroup.GetStreamGroupsFromChannelGroup(request.channelGroupId, cancellationToken).ConfigureAwait(false);
+        List<StreamGroupDto> ret = await Repository.StreamGroupChannelGroup.GetStreamGroupsFromChannelGroup(request.channelGroupId).ConfigureAwait(false);
 
         return ret;
 

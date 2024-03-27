@@ -192,8 +192,9 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
   };
 
   const doUpload = async () => {
-    if (block) {
+    if (block || activeFile === undefined || activeFile === null) {
       ReturnToParent();
+      return;
     }
 
     setBlock(true);
@@ -203,7 +204,6 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
 
       await upload({
         name,
-        source,
         fileName,
         maxStreams,
         epgNumber,
@@ -276,7 +276,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
       >
         <div className="flex grid w-full justify-content-between align-items-center">
           <div className="flex col-12">
-            <div className={`flex col-${fileType === 'm3u' ? '4' : '4'}`}>
+            <div className="flex col-12">
               <TextInput
                 label="Name"
                 onChange={(value) => {

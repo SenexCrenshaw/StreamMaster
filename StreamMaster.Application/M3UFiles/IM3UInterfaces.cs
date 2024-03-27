@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Application.M3UFiles.Commands;
-using StreamMaster.Domain.Pagination;
+using StreamMaster.Application.M3UFiles.CommandsOrig;
 
 
 
@@ -10,9 +10,8 @@ namespace StreamMaster.Application.M3UFiles;
 public interface IM3UFileController
 {
     Task<ActionResult<List<string>>> GetM3UFileNames();
-    Task<ActionResult> CreateM3UFile(CreateM3UFileRequest request);
 
-    Task<ActionResult> CreateM3UFileFromForm([FromForm] CreateM3UFileRequest request);
+    Task<ActionResult<DefaultAPIResponse>> CreateM3UFileFromForm([FromForm] CreateM3UFileRequest request);
 
     Task<ActionResult> ChangeM3UFileName(ChangeM3UFileNameRequest request);
 
@@ -22,7 +21,7 @@ public interface IM3UFileController
 
     Task<ActionResult<PagedResponse<M3UFileDto>>> GetPagedM3UFiles(M3UFileParameters Parameters);
 
-    Task<ActionResult> ProcessM3UFile(ProcessM3UFileRequest request);
+    //Task<ActionResult> ProcessM3UFile(ProcessM3UFileRequest request);
 
     Task<ActionResult> RefreshM3UFile(RefreshM3UFileRequest request);
 
@@ -38,7 +37,6 @@ public interface IM3UFileDB
 public interface IM3UFileHub
 {
     Task<List<string>> GetM3UFileNames();
-    Task CreateM3UFile(CreateM3UFileRequest request);
 
     Task ChangeM3UFileName(ChangeM3UFileNameRequest request);
 
@@ -48,7 +46,7 @@ public interface IM3UFileHub
 
     Task<PagedResponse<M3UFileDto>> GetPagedM3UFiles(M3UFileParameters Parameters);
 
-    Task ProcessM3UFile(ProcessM3UFileRequest request);
+    //Task ProcessM3UFile(ProcessM3UFileRequest request);
 
     Task RefreshM3UFile(RefreshM3UFileRequest request);
 

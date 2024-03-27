@@ -1,4 +1,4 @@
-import DeleteButton from '@components/buttons/DeleteButton';
+import MinusButton from '@components/buttons/MinusButton';
 import { FfmpegProfileDto, ProfilesRemoveFfmpegProfileApiArg, useProfilesRemoveFfmpegProfileMutation } from '@lib/iptvApi';
 import { memo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
@@ -64,7 +64,7 @@ const ProfileDeleteDialog = ({ iconFilled, onClose, skipOverLayer, data }: Profi
         </div>
       </InfoMessageOverLayDialog>
 
-      <DeleteButton disabled={false} iconFilled={iconFilled} onClick={() => setShowOverlay(true)} tooltip="Delete Profile" />
+      <MinusButton disabled={false} iconFilled={iconFilled} onClick={() => setShowOverlay(true)} tooltip="Delete Profile" />
     </>
   );
 };

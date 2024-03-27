@@ -1,4 +1,5 @@
-﻿namespace StreamMaster.Application.Profiles.Commands;
+﻿
+namespace StreamMaster.Application.Profiles.Commands;
 
 public record AddFFMPEGProfileRequest(string Name, string Parameters, int TimeOut, bool IsM3U8) : IRequest<UpdateSettingResponse> { }
 

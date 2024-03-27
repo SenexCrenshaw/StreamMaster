@@ -3,7 +3,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-   
+
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Extensions\**" />
@@ -29,6 +29,7 @@
   <ItemGroup>
     <ProjectReference Include="..\StreamMaster.Application\StreamMaster.Application.csproj" />
     <ProjectReference Include="..\StreamMaster.Domain\StreamMaster.Domain.csproj" />
+    <ProjectReference Include="..\StreamMaster.Infrastructure.EF.Base\StreamMaster.Infrastructure.EF.Base.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Migrations\" />
