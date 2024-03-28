@@ -1,4 +1,4 @@
-import { QueryStringParameters } from '@lib/apiDefs';
+import { QueryStringParameters } from '@lib/smAPI/smapiTypes';
 export interface GetPagedSMStreamsRequest {
   parameters?: QueryStringParameters;
  }

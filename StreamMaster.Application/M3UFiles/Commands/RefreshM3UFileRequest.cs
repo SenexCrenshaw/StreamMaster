@@ -1,6 +1,7 @@
 ﻿namespace StreamMaster.Application.M3UFiles.Commands;
 
 [SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RefreshM3UFileRequest(int Id, bool forceRun = false) : IRequest<DefaultAPIResponse> { }
 
 [LogExecutionTimeAspect]

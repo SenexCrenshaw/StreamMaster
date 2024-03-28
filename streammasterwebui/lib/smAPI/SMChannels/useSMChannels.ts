@@ -1,4 +1,5 @@
-import { FieldData, GetApiArgument, PagedResponse, QueryHookResult,SMChannelDto } from '@lib/apiDefs';
+import { FieldData, PagedResponse, SMChannelDto } from '@lib/smAPI/smapiTypes';
+import { GetApiArgument, QueryHookResult } from '@lib/apiDefs';
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { fetchGetPagedSMChannels } from '@lib/smAPI/SMChannels/SMChannelsFetch';

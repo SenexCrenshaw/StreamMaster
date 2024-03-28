@@ -1,7 +1,6 @@
-import {DefaultAPIResponse,SMMessage} from '@lib/apiDefs';
+import {DefaultAPIResponse,SMMessage,SendSMErrorRequest,SendSMInfoRequest,SendSMMessageRequest,SendSMWarnRequest,SendSuccessRequest} from '@lib/smAPI/smapiTypes';
 import SignalRService from '@lib/signalr/SignalRService';
 
-import { SendSMErrorRequest,SendSMInfoRequest,SendSMMessageRequest,SendSMWarnRequest,SendSuccessRequest } from './SMMessagesTypes';
 export const SendSMError = async (request: SendSMErrorRequest): Promise<DefaultAPIResponse | null> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<DefaultAPIResponse>('SendSMError', request);

@@ -1,7 +1,6 @@
-import {DefaultAPIResponse,QueryStringParameters,M3UFileDto,APIResponse,PagedResponse} from '@lib/apiDefs';
+import {DefaultAPIResponse,QueryStringParameters,M3UFileDto,APIResponse,PagedResponse,CreateM3UFileRequest,DeleteM3UFileRequest,ProcessM3UFileRequest,RefreshM3UFileRequest} from '@lib/smAPI/smapiTypes';
 import SignalRService from '@lib/signalr/SignalRService';
 
-import { CreateM3UFileRequest,DeleteM3UFileRequest,ProcessM3UFileRequest,RefreshM3UFileRequest } from './M3UFilesTypes';
 export const CreateM3UFile = async (request: CreateM3UFileRequest): Promise<DefaultAPIResponse | null> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<DefaultAPIResponse>('CreateM3UFile', request);

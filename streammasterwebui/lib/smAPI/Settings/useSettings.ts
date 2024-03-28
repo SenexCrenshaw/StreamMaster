@@ -1,4 +1,5 @@
-import { FieldData, GetApiArgument, PagedResponse, QueryHookResult, } from '@lib/apiDefs';
+import { FieldData, PagedResponse,  } from '@lib/smAPI/smapiTypes';
+import { GetApiArgument, QueryHookResult } from '@lib/apiDefs';
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clearSettings, intSetSettingsIsLoading, updateSettings } from '@lib/smAPI/Settings/SettingsSlice';

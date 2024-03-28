@@ -47,7 +47,8 @@ public static class TypeScriptHookGenerator
         {
             additionals += string.Join(",", additionalImports);
         }
-        content.Insert(0, $"import {{ FieldData, GetApiArgument, PagedResponse, QueryHookResult,{additionals} }} from '@lib/apiDefs';\n");
+        content.Insert(0, $"import {{ GetApiArgument, QueryHookResult }} from '@lib/apiDefs';\n");
+        content.Insert(0, $"import {{ FieldData, PagedResponse, {additionals} }} from '@lib/smAPI/smapiTypes';\n");
 
         // Write to file
         string directory = Directory.GetParent(filePath).ToString();

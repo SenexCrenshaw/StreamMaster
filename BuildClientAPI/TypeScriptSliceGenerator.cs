@@ -58,7 +58,8 @@ public static class TypeScriptSliceGenerator
         //string import = ParameterConverter2.ExtractInnermostType(method.ReturnType);
 
         content.AppendLine("import { PayloadAction, createSlice } from '@reduxjs/toolkit';");
-        content.AppendLine($"import {{FieldData,PagedResponse, removeKeyFromData, {mainEntityName} }} from '@lib/apiDefs';");
+        content.AppendLine($"import {{FieldData,PagedResponse, {mainEntityName} }} from '@lib/smAPI/smapiTypes';");
+        content.AppendLine($"import {{removeKeyFromData}} from '@lib/apiDefs';");
         //foreach (MethodDetails? method in methods.Where(m => m.JustHub))
         //{
         //    string fetchActionName = $"fetch{method.Name}";

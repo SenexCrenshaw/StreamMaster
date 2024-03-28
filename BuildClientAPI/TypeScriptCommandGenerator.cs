@@ -130,27 +130,24 @@ public static class TypeScriptCommandGenerator
             }
         }
 
-
-
         if (additionalImports.Count > 0)
         {
-            string additionals = string.Join(",", additionalImports);
-            imports.Insert(0, $"import {{{additionals}}} from '@lib/apiDefs';\n");
+            string additionals = typesImports.Count > 0 ? string.Join(",", additionalImports.Concat(typesImports)) : string.Join(",", additionalImports);
+            imports.Insert(0, $"import {{{additionals}}} from '@lib/smAPI/smapiTypes';\n");
         }
 
 
-        if (typesImports.Count > 0)
-        {
-            string typesImportString = string.Join(",", typesImports);
-            imports.AppendLine($"import {{ {typesImportString} }} from './{namespaceName}Types';");
+        //if (typesImports.Count > 0)
+        //{
+        //    string typesImportString = string.Join(",", typesImports);
+        //    imports.AppendLine($"import {{ {typesImportString} }} from './{namespaceName}Types';");
 
-        }
-
+        //}
 
         if (additionalIImports.Count > 0)
         {
             string additionals = string.Join(",", additionalIImports);
-            tsTypesImports.AppendLine($"import {{ {additionals} }} from '@lib/apiDefs';");
+            tsTypesImports.AppendLine($"import {{ {additionals} }} from '@lib/smAPI/smapiTypes';");
         }
 
         string directory = Directory.GetParent(filePath).ToString();
@@ -160,15 +157,15 @@ public static class TypeScriptCommandGenerator
         }
         File.WriteAllText(filePath, imports.ToString() + tsCommands.ToString());
 
-        if (tsTypesImports.Length > 0)
-        {
-            directory = Directory.GetParent(typePath).ToString();
-            if (!Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-            File.WriteAllText(typePath, tsTypesImports.ToString() + tsTypes.ToString());
-        }
+        //if (tsTypesImports.Length > 0)
+        //{
+        //    directory = Directory.GetParent(typePath).ToString();
+        //    if (!Directory.Exists(directory))
+        //    {
+        //        Directory.CreateDirectory(directory);
+        //    }
+        //    File.WriteAllText(typePath, tsTypesImports.ToString() + tsTypes.ToString());
+        //}
 
     }
 

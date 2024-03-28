@@ -1,5 +1,8 @@
-﻿namespace StreamMaster.Domain.Pagination
+﻿using Reinforced.Typings.Attributes;
+
+namespace StreamMaster.Domain.Pagination
 {
+    [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
     public abstract class QueryStringParameters
     {
         public int PageNumber { get; set; } = 1;

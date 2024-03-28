@@ -2,6 +2,7 @@
 namespace StreamMaster.Application.M3UFiles.Commands;
 
 [SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record DeleteM3UFileRequest(bool DeleteFile, int Id) : IRequest<DefaultAPIResponse> { }
 
 public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, IMessageService messageService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IIconService iconService, IRepositoryWrapper Repository, IPublisher Publisher)

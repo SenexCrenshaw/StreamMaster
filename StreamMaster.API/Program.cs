@@ -3,6 +3,8 @@ using Microsoft.Data.Sqlite;
 
 using Prometheus;
 
+using Reinforced.Typings.Attributes;
+
 using StreamMaster.API;
 using StreamMaster.Application;
 using StreamMaster.Application.Hubs;
@@ -23,6 +25,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
 
+[assembly: TsGlobal(CamelCaseForProperties=true,UseModules = true, DiscardNamespacesWhenUsingModules = true, ExportPureTypings = true, AutoOptionalProperties =true, WriteWarningComment=false)]
 //ProcessHelper.KillProcessByName("ffmpeg");
 
 DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "hls"), BuildInfo.HLSOutputFolder);

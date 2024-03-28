@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import {FieldData,PagedResponse, removeKeyFromData, SDSystemStatus } from '@lib/apiDefs';
+import {FieldData,PagedResponse, SDSystemStatus } from '@lib/smAPI/smapiTypes';
+import {removeKeyFromData} from '@lib/apiDefs';
 import { fetchGetSystemStatus } from '@lib/smAPI/Settings/SettingsFetch';
 import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
 

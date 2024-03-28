@@ -1,4 +1,4 @@
-import {SettingDto,SDSystemStatus} from '@lib/apiDefs';
+import {SettingDto,SDSystemStatus} from '@lib/smAPI/smapiTypes';
 import SignalRService from '@lib/signalr/SignalRService';
 
 export const GetSettings = async (): Promise<any | null> => {

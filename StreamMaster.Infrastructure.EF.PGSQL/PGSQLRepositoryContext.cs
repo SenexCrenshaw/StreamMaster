@@ -5,11 +5,9 @@ using StreamMaster.Domain.Helpers;
 using StreamMaster.Infrastructure.EF.Base;
 using StreamMaster.SchedulesDirect.Domain.Models;
 
-using System.Text.RegularExpressions;
-
 namespace StreamMaster.Infrastructure.EF.PGSQL
 {
-    public partial class PGSQLRepositoryContext(DbContextOptions<PGSQLRepositoryContext> options) : DbContext(options), IDataProtectionKeyContext, IRepositoryContext
+    public partial class PGSQLRepositoryContext(DbContextOptions<PGSQLRepositoryContext> options) : BaseRepositoryContext(options)
     {
 
         public static string DbConnectionString => $"Host={BuildInfo.DBHost};Database={BuildInfo.DBName};Username={BuildInfo.DBUser};Password={BuildInfo.DBPassword}";
@@ -151,3 +149,4 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
         }
 
     }
+}

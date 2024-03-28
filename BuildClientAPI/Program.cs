@@ -39,12 +39,6 @@ namespace BuildClientAPI
 
                     }
 
-                    //if (recordType.Name == "DeleteSMChannels")
-                    //{
-                    //    string returntype = GetCleanReturnType(recordType);
-                    //    string Parameters = Util.ParamsToCSharp(recordType);
-                    //    string TsParameters = Util.CSharpParamToTS(recordType); ;
-                    //}
 
                     string ps = Util.ParamsToCSharp(recordType);
                     string tsps = Util.CSharpParamToTS(recordType); ;

@@ -1,5 +1,8 @@
-﻿namespace StreamMaster.Domain.Models;
+﻿using Reinforced.Typings.Attributes;
 
+namespace StreamMaster.Domain.Models;
+
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true)]
 public class StreamGroupSMChannel
 {
     public SMChannel SMChannel { get; set; }

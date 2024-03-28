@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import {FieldData,PagedResponse, removeKeyFromData, M3UFileDto } from '@lib/apiDefs';
+import {FieldData,PagedResponse, M3UFileDto } from '@lib/smAPI/smapiTypes';
+import {removeKeyFromData} from '@lib/apiDefs';
 import { fetchGetPagedM3UFiles } from '@lib/smAPI/M3UFiles/M3UFilesFetch';
 import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
 

@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 
+using Reinforced.Typings.Attributes;
+
 using StreamMaster.Domain.Attributes;
 
 using System.Xml.Serialization;
@@ -7,6 +9,7 @@ using System.Xml.Serialization;
 namespace StreamMaster.Domain.Pagination;
 
 [RequireAll]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class PagedResponse<T>
 {
     [XmlIgnore]

@@ -4,6 +4,7 @@ namespace StreamMaster.Application.ChannelGroups.Commands;
 
 [SMAPI]
 [RequireAll]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record CreateChannelGroupRequest(string GroupName, bool IsReadOnly) : IRequest<DefaultAPIResponse> { }
 
 public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest> logger, IMessageService messageSevice, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ISender sender, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateChannelGroupRequest, DefaultAPIResponse>

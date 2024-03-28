@@ -1,7 +1,6 @@
-import {QueryStringParameters,SMStreamDto,APIResponse,PagedResponse,DefaultAPIResponse} from '@lib/apiDefs';
+import {QueryStringParameters,SMStreamDto,APIResponse,PagedResponse,DefaultAPIResponse,ToggleSMStreamVisibleByIdRequest} from '@lib/smAPI/smapiTypes';
 import SignalRService from '@lib/signalr/SignalRService';
 
-import { ToggleSMStreamVisibleByIdRequest } from './SMStreamsTypes';
 export const GetPagedSMStreams = async (parameters: QueryStringParameters): Promise<PagedResponse<SMStreamDto> | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse<SMStreamDto>>('GetPagedSMStreams', parameters)

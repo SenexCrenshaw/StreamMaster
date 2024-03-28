@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import {FieldData,PagedResponse, removeKeyFromData, SMStreamDto } from '@lib/apiDefs';
+import {FieldData,PagedResponse, SMStreamDto } from '@lib/smAPI/smapiTypes';
+import {removeKeyFromData} from '@lib/apiDefs';
 import { fetchGetPagedSMStreams } from '@lib/smAPI/SMStreams/SMStreamsFetch';
 import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
 

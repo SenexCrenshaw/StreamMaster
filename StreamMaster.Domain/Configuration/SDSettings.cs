@@ -1,7 +1,10 @@
-﻿using StreamMaster.SchedulesDirect.Domain.Models;
+﻿using Reinforced.Typings.Attributes;
+
+using StreamMaster.SchedulesDirect.Domain.Models;
 
 namespace StreamMaster.Domain.Configuration
 {
+    [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
     public class SDSettings
     {
         public bool AlternateSEFormat { get; set; } = false;

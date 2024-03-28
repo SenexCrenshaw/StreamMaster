@@ -4,10 +4,6 @@ export interface SMChannelRankRequest {
   rank: number;
 }
 
-export type SDSystemStatus = {
-  isSystemReady?: boolean;
-};
-
 export interface QueryHookResult<T> {
   data?: T;
   error?: Error | string | null;
@@ -22,71 +18,8 @@ export interface QueryHook<T> {
   (): QueryHookResult<T>;
 }
 
-export interface PagedResponse<T> {
-  data: T[];
-  pageNumber: number;
-  pageSize: number;
-  totalPageCount: number;
-  totalItemCount: number;
-  first: number;
-}
-
-export interface APIResponse<T> {
-  message?: string;
-  errorMessage?: string;
-  isError?: boolean;
-  pagedResponse?: PagedResponse<T>;
-}
-
-export type QueryStringParameters = {
-  pageNumber?: number;
-  pageSize?: number;
-  orderBy?: string;
-  jsonArgumentString?: string | null;
-  jsonFiltersString?: string | null;
-};
-
-export type SMStream = {
-  id?: string;
-  filePosition?: number;
-  isHidden?: boolean;
-  isUserCreated?: boolean;
-  m3UFileId?: number;
-  tvg_chno?: number;
-  m3UFileName?: string;
-  shortId?: string;
-  group?: string;
-  epgid?: string;
-  logo?: string;
-  name?: string;
-  url?: string;
-  stationId?: string;
-};
-
-export type SMStreamDto = SMStream & {
-  realUrl?: string;
-  rank: number;
-  [key: string]: any;
-};
-
 export type StreamingProxyTypes = 0 | 1 | 2 | 3;
 export type VideoStreamHandlers = 0 | 1 | 2;
-
-export type SMChannelDto = {
-  id: number;
-  streamingProxyType: StreamingProxyTypes;
-  videoStreamHandler: VideoStreamHandlers;
-  realUrl?: string;
-  isHidden?: boolean;
-  channelNumber?: number;
-  shortId?: string;
-  group?: string;
-  epgid?: string;
-  logo?: string;
-  name?: string;
-  smStreams: SMStreamDto[];
-  [key: string]: any;
-};
 
 export interface CacheItem<T> {
   data: T;
@@ -105,8 +38,6 @@ export interface GetApiArgument {
   pageSize?: number;
   streamGroupId?: number | undefined;
 }
-
-export interface DefaultAPIResponse extends APIResponse<{}> {}
 
 const compareProperties = (propertyName: keyof GetApiArgument, object1: GetApiArgument, object2: GetApiArgument) => {
   const value1 = object1[propertyName];
@@ -219,15 +150,6 @@ export type HlsSettings = {
   hlsM3U8CreationTimeOutInSeconds?: number;
   hlsM3U8ReadTimeOutInSeconds?: number;
   hlstsReadTimeOutInSeconds?: number;
-};
-
-export type SettingDto = BaseSettings & {
-  sdSettings?: SdSettings;
-  hls?: HlsSettings;
-  release?: string;
-  version?: string;
-  ffmpegDefaultOptions?: string;
-  isDebug?: boolean;
 };
 
 export type AuthenticationType = 0 | 2;

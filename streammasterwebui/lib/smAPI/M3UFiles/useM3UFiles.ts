@@ -1,4 +1,5 @@
-import { FieldData, GetApiArgument, PagedResponse, QueryHookResult,M3UFileDto } from '@lib/apiDefs';
+import { FieldData, PagedResponse, M3UFileDto } from '@lib/smAPI/smapiTypes';
+import { GetApiArgument, QueryHookResult } from '@lib/apiDefs';
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { fetchGetPagedM3UFiles } from '@lib/smAPI/M3UFiles/M3UFilesFetch';
