@@ -28,7 +28,7 @@ fi
 
 # Backup PostgreSQL database
 backup_database() {
-    pg_dump -U $POSTGRES_USER $POSTGRES_DB | gzip > "$BACKUP_DIR/$db_backup_file"
+    pg_dump -h $POSTGRES_HOST -U $POSTGRES_USER $POSTGRES_DB | gzip > "$BACKUP_DIR/$db_backup_file"
     echo "Database backup completed: $db_backup_file"
 }
 

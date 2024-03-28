@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Models;
@@ -14,7 +15,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
     public partial class PGSQLRepositoryContext(DbContextOptions<PGSQLRepositoryContext> options) : DbContext(options), IDataProtectionKeyContext, IRepositoryContext
     {
 
-        public static string DbConnectionString => $"Host=127.0.0.1;Database={BuildInfo.DBName};Username={BuildInfo.DBUser};Password={BuildInfo.DBPassword}";
+        public static string DbConnectionString => $"Host={BuildInfo.DBHost};Database={BuildInfo.DBName};Username={BuildInfo.DBUser};Password={BuildInfo.DBPassword}";
 
         public bool IsEntityTracked<TEntity>(TEntity entity) where TEntity : class
         {

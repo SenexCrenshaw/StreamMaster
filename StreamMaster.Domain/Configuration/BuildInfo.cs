@@ -56,6 +56,9 @@ namespace StreamMaster.Domain.Configuration
         /// </summary>
         public static string DBName => GetEnvironmentVariableOrDefault("POSTGRES_DB", "StreamMaster");
 
+        public static string DBHost => GetEnvironmentVariableOrDefault("POSTGRES_HOST", "127.0.0.1");
+
+
         /// <summary>
         /// Database user, fetched from environment variable or default if not set.
         /// </summary>
