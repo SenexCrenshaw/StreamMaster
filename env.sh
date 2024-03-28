@@ -1,7 +1,7 @@
 # Define default values
 default_email="admin@sm.com"
 default_password="sm123"
-default_dbuser="sm"
+default_dbuser="postgres"
 default_dbpassword="sm123"
 default_db="StreamMaster"
 default_host="127.0.0.1"
