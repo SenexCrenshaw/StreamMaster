@@ -211,7 +211,7 @@ if [ "$POSTGRES_ISLOCAL" -eq 1 ]; then
 
 fi
 
- wait_for_postgres "127.0.0.1" "5432" 20 5
+ wait_for_postgres $POSTGRES_HOST "5432" 20 5
 if [ $? -eq 0 ]; then
     # PostgreSQL is ready, you can proceed with your tasks
     echo "Postgres is up"
