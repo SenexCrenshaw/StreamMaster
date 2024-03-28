@@ -43,7 +43,6 @@ moveFilesAndDeleteDir() {
     fi
 }
 
-
 # Function to check for any file ready to be restored in /config/DB/Restore
 check_files_ready_for_restore() {    
     local file_found=0
@@ -178,6 +177,8 @@ echo "POSTGRES:"
 echo "  User: $POSTGRES_USER"
 echo "  Password: ********" #$POSTGRES_PASSWORD"
 echo "  DB Name: $POSTGRES_DB"
+echo "  Host: $POSTGRES_HOST"
+echo "  Is DB Local: $POSTGRES_ISLOCAL"
 echo "  Data Directory: $PGDATA"
 echo "  Set Perms: $POSTGRES_SET_PERMS"
 echo "OS:"
@@ -185,8 +186,8 @@ echo "  User: ${PUID:-0} Group: ${PGID:-0}"
 echo "  User: postgres Group: postgres"
 echo "  UID: $(id -u postgres) GID: $(id -g postgres)"
 
-if [ $POSTGRES_SET_PERMS -eq 1 ]; then
-    chown -R postgres:postgres $PGDATA
+if [ "$POSTGRES_ISLOCAL" -eq 1 ] && [ "$POSTGRES_SET_PERMS" -eq 1 ]; then
+    chown -R postgres:postgres "$PGDATA"
 fi
 
 # Check if any file is ready for restore and run restore.sh if so
@@ -204,10 +205,13 @@ else
     echo "No files ready for restoration."
 fi
 
-# Start the database
-/usr/local/bin/docker-entrypoint.sh postgres &
+if [ "$POSTGRES_ISLOCAL" -eq 1 ]; then
+    # Start the database
+    /usr/local/bin/docker-entrypoint.sh postgres &
 
-wait_for_postgres "127.0.0.1" "5432" 20 5
+fi
+
+ wait_for_postgres $POSTGRES_HOST "5432" 20 5
 if [ $? -eq 0 ]; then
     # PostgreSQL is ready, you can proceed with your tasks
     echo "Postgres is up"

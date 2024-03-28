@@ -29,9 +29,9 @@ files_backup_file=$(ls $temp_RESTORE_DIR/files_*.tar.gz)
 
 # Restore PostgreSQL database
 restore_database() {
-    dropdb -U $POSTGRES_USER -h localhost -p 5432 $POSTGRES_DB --force
-    createdb -U $POSTGRES_USER -h localhost -p 5432 -e $POSTGRES_DB
-    gzip -d < "$db_backup_file" | psql -U $POSTGRES_USER $POSTGRES_DB
+    dropdb -U $POSTGRES_USER -h $POSTGRES_HOST -p 5432 $POSTGRES_DB --force
+    createdb -U $POSTGRES_USER -h $POSTGRES_HOST -p 5432 -e $POSTGRES_DB
+    gzip -d < "$db_backup_file" | psql -h $POSTGRES_HOST -U $POSTGRES_USER $POSTGRES_DB
     echo "Database restore completed."
 }
 

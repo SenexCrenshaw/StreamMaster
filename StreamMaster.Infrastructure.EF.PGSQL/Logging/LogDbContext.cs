@@ -8,7 +8,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Logging;
 public class LogDbContext : DbContext, ILogDB
 {
 
-    public static string DbConnectionString => $"Host=127.0.0.1;Database={BuildInfo.DBName + "_Log"};Username={BuildInfo.DBUser};Password={BuildInfo.DBPassword}";
+    public static string DbConnectionString => $"Host={BuildInfo.DBHost};Database={BuildInfo.DBName + "_Log"};Username={BuildInfo.DBUser};Password={BuildInfo.DBPassword}";
 
     public LogDbContext(DbContextOptions<LogDbContext> options)
       : base(options)
