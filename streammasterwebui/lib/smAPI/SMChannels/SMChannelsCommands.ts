@@ -1,15 +1,5 @@
-import {
-  AddSMStreamToSMChannelRequest,
-  DefaultAPIResponse,
-  CreateSMChannelFromStreamRequest,
-  DeleteSMChannelRequest,
-  DeleteSMChannelsFromParametersRequest,
-  DeleteSMChannelsRequest,
-  RemoveSMStreamFromSMChannelRequest,
-  SetSMChannelLogoRequest,
-  SetSMStreamRanksRequest
-} from '@lib/smAPI/smapiTypes';
-import { APIResponse, PagedResponse, QueryStringParameters, SMChannelDto } from '@lib/smAPI/smapiTypes';
+import {AddSMStreamToSMChannelRequest,DefaultAPIResponse,CreateSMChannelFromStreamRequest,DeleteSMChannelRequest,DeleteSMChannelsFromParametersRequest,DeleteSMChannelsRequest,RemoveSMStreamFromSMChannelRequest,SetSMChannelLogoRequest,SetSMStreamRanksRequest} from '@lib/smAPI/smapiTypes';
+import {APIResponse,PagedResponse,QueryStringParameters,SMChannelDto} from '@lib/smAPI/smapiTypes';
 import SignalRService from '@lib/signalr/SignalRService';
 
 export const AddSMStreamToSMChannel = async (request: AddSMStreamToSMChannelRequest): Promise<DefaultAPIResponse | null> => {
@@ -39,8 +29,7 @@ export const DeleteSMChannels = async (request: DeleteSMChannelsRequest): Promis
 
 export const GetPagedSMChannels = async (parameters: QueryStringParameters): Promise<PagedResponse<SMChannelDto> | undefined> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService
-    .invokeHubCommand<APIResponse<SMChannelDto>>('GetPagedSMChannels', parameters)
+  return await signalRService.invokeHubCommand<APIResponse<SMChannelDto>>('GetPagedSMChannels', parameters)
     .then((response) => {
       if (response) {
         return response.pagedResponse;
@@ -67,3 +56,4 @@ export const SetSMStreamRanks = async (request: SetSMStreamRanksRequest): Promis
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<DefaultAPIResponse>('SetSMStreamRanks', request);
 };
+

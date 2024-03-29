@@ -55,7 +55,9 @@ public static class TypeScriptFetchGenerator
 
         content.AppendLine($"export const fetch{method.Name} = createAsyncThunk('cache/get{method.Name}', async (_: void, thunkAPI) => {{");
         content.AppendLine("  try {");
+        content.AppendLine($"    console.log('Fetching {method.Name}');");
         content.AppendLine($"    const response = await {method.Name}();");
+        content.AppendLine($"    console.log('Fetched {method.Name} ',response?.length);");
         content.AppendLine("    return { value: response };");
         content.AppendLine("  } catch (error) {");
         content.AppendLine("    console.error('Failed to fetch', error);");
@@ -71,8 +73,10 @@ public static class TypeScriptFetchGenerator
 
         content.AppendLine($"export const fetch{method.Name} = createAsyncThunk('cache/get{method.Name}', async (query: string, thunkAPI) => {{");
         content.AppendLine("  try {");
+        content.AppendLine($"    console.log('Fetching {method.Name}');");
         content.AppendLine("    const params = JSON.parse(query);");
         content.AppendLine($"    const response = await {method.Name}(params);");
+        content.AppendLine($"    console.log('Fetched {method.Name} ',response?.data.length);");
         content.AppendLine("    return { query: query, value: response };");
         content.AppendLine("  } catch (error) {");
         content.AppendLine("    console.error('Failed to fetch', error);");

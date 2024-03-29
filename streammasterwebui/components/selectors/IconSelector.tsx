@@ -1,6 +1,8 @@
 import AddButton from '@components/buttons/AddButton';
 import StringEditorBodyTemplate from '@components/inputs/StringEditorBodyTemplate';
 import { getIconUrl } from '@lib/common/common';
+import useGetIcons from '@lib/smAPI/Icons/useGetIcons';
+import { IconFileDto } from '@lib/smAPI/smapiTypes';
 
 import useSettings from '@lib/useSettings';
 import { Dropdown } from 'primereact/dropdown';
@@ -23,7 +25,7 @@ const IconSelector = ({ enableEditMode = true, value, disabled, editable = true,
   const [filterValue, setFilterValue] = useState<string | undefined>(undefined);
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [icon, setIcon] = useState<IconFileDto | undefined>(undefined);
-  const query = useIconsGetIconsQuery();
+  const query = useGetIcons();
 
   useEffect(() => {
     if (value && !input) {
@@ -32,7 +34,7 @@ const IconSelector = ({ enableEditMode = true, value, disabled, editable = true,
   }, [value, input]);
 
   useEffect(() => {
-    if (checkValue === undefined && query.isSuccess && input) {
+    if (checkValue === undefined && !query.isError && input) {
       setCheckValue(input);
       const entry = query.data?.find((x) => x.source === input);
       if (entry && entry.source !== icon?.source) {
@@ -176,7 +178,7 @@ const IconSelector = ({ enableEditMode = true, value, disabled, editable = true,
     'p-disabled': disabled
   });
 
-  const loading = !query.isSuccess || query.isFetching || query.isLoading || !query.data;
+  const loading = query.isError || query.isLoading || !query.data;
 
   if (!enableEditMode) {
     return <div className="flex w-full h-full justify-content-center align-items-center p-0 m-0 iconselector">{input ?? 'Dummy'}</div>;
