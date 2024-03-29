@@ -2,7 +2,7 @@
 
 using System.Web;
 
-namespace StreamMaster.Application.Icons.Commands;
+namespace StreamMaster.Application.Icons.CommandsOld;
 
 public class BuildIconsCacheFromVideoStreamRequest : IRequest<bool> { }
 
@@ -13,9 +13,9 @@ public class BuildIconsCacheFromVideoStreamRequestHandler(ILogger<BuildIconsCach
     public Task<bool> Handle(BuildIconsCacheFromVideoStreamRequest command, CancellationToken cancellationToken)
     {
 
-        IQueryable<VideoStream> streams = Repository.VideoStream.GetVideoStreamQuery()
+        IQueryable<SMStreamDto> streams = Repository.SMStream.GetSMStreams()
          //        .Where(a => a.User_Tvg_logo != null && EF.Functions.ILike(a.User_Tvg_logo, "://"))
-         .Where(a => a.User_Tvg_logo != null && a.User_Tvg_logo.Contains("://"))
+         .Where(a => a.Logo != null && a.Logo.Contains("://"))
          .AsQueryable();
 
         if (!streams.Any()) { return Task.FromResult(false); }
@@ -32,12 +32,11 @@ public class BuildIconsCacheFromVideoStreamRequestHandler(ILogger<BuildIconsCach
         {
             if (cancellationToken.IsCancellationRequested) { return; }
 
-            string source = HttpUtility.UrlDecode(stream.Tvg_logo);
+            string source = HttpUtility.UrlDecode(stream.Logo);
 
-            IconFileDto icon = IconHelper.GetIcon(source, stream.User_Tvg_name, stream.M3UFileId, FileDefinitions.Icon);
+            IconFileDto icon = IconHelper.GetIcon(source, stream.Name, stream.M3UFileId, FileDefinitions.Icon);
             iconService.AddIcon(icon);
         });
-        //iconService.SetIndexes();
 
         return Task.FromResult(true);
     }
