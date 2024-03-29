@@ -1,4 +1,5 @@
 import { QueryHookResult,GetApiArgument } from '@lib/apiDefs';
+import store from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clearGetPagedM3UFiles, intSetGetPagedM3UFilesIsLoading, updateGetPagedM3UFiles } from './GetPagedM3UFilesSlice';
 import { useEffect } from 'react';
@@ -21,7 +22,9 @@ const useGetPagedM3UFiles = (params?: GetApiArgument | undefined): Result => {
   const error = useAppSelector((state) => state.GetPagedM3UFiles.error[query] ?? '');
 
   useEffect(() => {
-    if (params === undefined || data !== undefined) return;
+    if (params === undefined || query === undefined) return;
+    const state = store.getState().GetPagedM3UFiles;
+    if (state.data[query] !== undefined || state.isLoading[query]) return;
     dispatch(fetchGetPagedM3UFiles(query));
   }, [data, dispatch, params, query]);
 

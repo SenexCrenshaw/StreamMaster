@@ -1,0 +1,6 @@
+for (const key in state.data) {
+        state.data[key] = undefined;
+        state.error[key] = undefined;
+        state.isError[key] = false;
+        state.isLoading[key] = false;
+      }

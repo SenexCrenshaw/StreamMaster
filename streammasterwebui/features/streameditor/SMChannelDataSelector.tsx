@@ -22,7 +22,6 @@ interface SMChannelDataSelectorProperties {
 
 const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: SMChannelDataSelectorProperties) => {
   const dataKey = `${id}-SMChannelDataSelector`;
-  const { setGetPagedSMChannelsIsLoading } = useGetPagedSMChannels();
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { columnConfig: channelLogoColumnConfig } = useSMChannelLogoColumnConfig({ enableEdit });
 
@@ -34,7 +33,6 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
 
   const actionBodyTemplate = useCallback((data: SMChannelDto) => {
     const accept = () => {
-      setGetPagedSMChannelsIsLoading(true);
       DeleteSMChannel({ smChannelId: data.id } as DeleteSMChannelRequest)
         .then((response) => {})
         .catch((error) => {

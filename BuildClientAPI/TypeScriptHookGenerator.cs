@@ -58,6 +58,7 @@ public static class TypeScriptHookGenerator
             p += ",GetApiArgument";
         }
         content.AppendLine($"import {{ {p} }} from '@lib/apiDefs';");
+        content.AppendLine("import store from '@lib/redux/store';");
         content.AppendLine("import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';");
         content.AppendLine($"import {{ clear{method.Name}, intSet{method.Name}IsLoading, update{method.Name} }} from './{method.Name}Slice';");
         content.AppendLine("import { useEffect } from 'react';");
@@ -82,64 +83,67 @@ public static class TypeScriptHookGenerator
     private static string GenerateHookContent(MethodDetails method)
     {
         string fetchActionName = $"fetch{method.Name}";
-        StringBuilder sb = new();
+        StringBuilder content = new();
 
         if (method.IsGetPaged)
         {
-            sb.AppendLine($"const use{method.Name} = (params?: GetApiArgument | undefined): Result => {{");
-            sb.AppendLine("  const dispatch = useAppDispatch();");
-            sb.AppendLine("  const query = JSON.stringify(params);");
-            sb.AppendLine($"  const data = useAppSelector((state) => state.{method.Name}.data[query]);");
-            sb.AppendLine($"  const isLoading = useAppSelector((state) => state.{method.Name}.isLoading[query] ?? false);");
-            sb.AppendLine($"  const isError = useAppSelector((state) => state.{method.Name}.isError[query] ?? false);");
-            sb.AppendLine($"  const error = useAppSelector((state) => state.{method.Name}.error[query] ?? '');");
-            sb.AppendLine();
+            content.AppendLine($"const use{method.Name} = (params?: GetApiArgument | undefined): Result => {{");
+            content.AppendLine("  const dispatch = useAppDispatch();");
+            content.AppendLine("  const query = JSON.stringify(params);");
+            content.AppendLine($"  const data = useAppSelector((state) => state.{method.Name}.data[query]);");
+            content.AppendLine($"  const isLoading = useAppSelector((state) => state.{method.Name}.isLoading[query] ?? false);");
+            content.AppendLine($"  const isError = useAppSelector((state) => state.{method.Name}.isError[query] ?? false);");
+            content.AppendLine($"  const error = useAppSelector((state) => state.{method.Name}.error[query] ?? '');");
+            content.AppendLine();
 
-            sb.AppendLine($"  useEffect(() => {{");
-            sb.AppendLine($"    if (params === undefined || data !== undefined) return;");
-            sb.AppendLine($"    dispatch({fetchActionName}(query));");
-            sb.AppendLine($"  }}, [data, dispatch, params, query]);");
-            sb.AppendLine();
+            content.AppendLine($"  useEffect(() => {{");
+            content.AppendLine("    if (params === undefined || query === undefined) return;");
+            content.AppendLine($"    const state = store.getState().{method.Name};");
+            content.AppendLine($"    if (state.data[query] !== undefined || state.isLoading[query]) return;");
+            content.AppendLine($"    dispatch({fetchActionName}(query));");
+            content.AppendLine($"  }}, [data, dispatch, params, query]);");
+            content.AppendLine();
         }
         else
         {
-            sb.AppendLine($"const use{method.Name} = (): Result => {{");
-            sb.AppendLine("  const dispatch = useAppDispatch();");
-            sb.AppendLine($"  const data = useAppSelector((state) => state.{method.Name}.data);");
-            sb.AppendLine($"  const isLoading = useAppSelector((state) => state.{method.Name}.isLoading ?? false);");
-            sb.AppendLine($"  const isError = useAppSelector((state) => state.{method.Name}.isError ?? false);");
-            sb.AppendLine($"  const error = useAppSelector((state) => state.{method.Name}.error ?? '');");
-            sb.AppendLine();
+            content.AppendLine($"const use{method.Name} = (): Result => {{");
+            content.AppendLine("  const dispatch = useAppDispatch();");
+            content.AppendLine($"  const data = useAppSelector((state) => state.{method.Name}.data);");
+            content.AppendLine($"  const isLoading = useAppSelector((state) => state.{method.Name}.isLoading ?? false);");
+            content.AppendLine($"  const isError = useAppSelector((state) => state.{method.Name}.isError ?? false);");
+            content.AppendLine($"  const error = useAppSelector((state) => state.{method.Name}.error ?? '');");
+            content.AppendLine();
 
-            sb.AppendLine($"  useEffect(() => {{");
-            sb.AppendLine($"    if ( data !== undefined) return;");
-            sb.AppendLine($"    dispatch({fetchActionName}());");
-            sb.AppendLine($"  }}, [data, dispatch]);");
-            sb.AppendLine();
+            content.AppendLine($"  useEffect(() => {{");
+            content.AppendLine($"    const test = store.getState().{method.Name};");
+            content.AppendLine($"    if (test.data !== undefined || test.isLoading) return;");
+            content.AppendLine($"    dispatch({fetchActionName}());");
+            content.AppendLine($"  }}, [data, dispatch]);");
+            content.AppendLine();
         }
-        sb.AppendLine($"  const set{method.Name}Field = (fieldData: FieldData): void => {{");
-        sb.AppendLine($"    dispatch(update{method.Name}({{ fieldData: fieldData }}));");
-        sb.AppendLine($"  }};");
-        sb.AppendLine();
+        content.AppendLine($"  const set{method.Name}Field = (fieldData: FieldData): void => {{");
+        content.AppendLine($"    dispatch(update{method.Name}({{ fieldData: fieldData }}));");
+        content.AppendLine($"  }};");
+        content.AppendLine();
 
-        sb.AppendLine($"  const refresh{method.Name} = (): void => {{");
-        sb.AppendLine($"    dispatch(clear{method.Name}());");
-        sb.AppendLine($"  }};");
-        sb.AppendLine();
+        content.AppendLine($"  const refresh{method.Name} = (): void => {{");
+        content.AppendLine($"    dispatch(clear{method.Name}());");
+        content.AppendLine($"  }};");
+        content.AppendLine();
 
-        sb.AppendLine($"  const set{method.Name}IsLoading = (isLoading: boolean): void => {{");
-        sb.AppendLine($"    dispatch(intSet{method.Name}IsLoading( {{isLoading: isLoading}} ));");
-        sb.AppendLine($"  }};");
-        sb.AppendLine();
+        content.AppendLine($"  const set{method.Name}IsLoading = (isLoading: boolean): void => {{");
+        content.AppendLine($"    dispatch(intSet{method.Name}IsLoading( {{isLoading: isLoading}} ));");
+        content.AppendLine($"  }};");
+        content.AppendLine();
 
-        sb.Append($"  return {{ data, error, isError, isLoading");
+        content.Append($"  return {{ data, error, isError, isLoading");
 
-        sb.AppendLine($", refresh{method.Name}, set{method.Name}Field, set{method.Name}IsLoading }};");
-        sb.AppendLine("};");
-        sb.AppendLine();
-        sb.AppendLine($"export default use{method.Name};");
+        content.AppendLine($", refresh{method.Name}, set{method.Name}Field, set{method.Name}IsLoading }};");
+        content.AppendLine("};");
+        content.AppendLine();
+        content.AppendLine($"export default use{method.Name};");
 
-        return sb.ToString();
+        return content.ToString();
 
     }
 

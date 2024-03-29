@@ -40,10 +40,10 @@ const getPagedChannelGroupsSlice = createSlice({
       console.log('updateGetPagedChannelGroups executed');
     },
     clearGetPagedChannelGroups: (state) => {
-      for (const key in state.data) {
-        const updatedData = removeKeyFromData(state.data, key);
-        state.data = updatedData;
-      }
+        state.data = {};
+        state.error = {};
+        state.isError = {};
+        state.isLoading = {};
       console.log('clearGetPagedChannelGroups executed');
     },
     intSetGetPagedChannelGroupsIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {

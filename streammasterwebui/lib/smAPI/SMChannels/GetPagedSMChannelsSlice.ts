@@ -1,9 +1,8 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import {FieldData, SMChannelDto,PagedResponse } from '@lib/smAPI/smapiTypes';
-import {removeKeyFromData} from '@lib/apiDefs';
+import { FieldData, SMChannelDto, PagedResponse } from '@lib/smAPI/smapiTypes';
+import { removeKeyFromData } from '@lib/apiDefs';
 import { fetchGetPagedSMChannels } from '@lib/smAPI/SMChannels/SMChannelsFetch';
 import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
-
 
 interface QueryState {
   data: Record<string, PagedResponse<SMChannelDto> | undefined>;
@@ -41,16 +40,19 @@ const getPagedSMChannelsSlice = createSlice({
     },
     clearGetPagedSMChannels: (state) => {
       for (const key in state.data) {
-        const updatedData = removeKeyFromData(state.data, key);
-        state.data = updatedData;
+        state.data[key] = undefined;
+        state.error[key] = undefined;
+        state.isError[key] = false;
+        state.isLoading[key] = false;
       }
       console.log('clearGetPagedSMChannels executed');
     },
-    intSetGetPagedSMChannelsIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
-       for (const key in state.data) { state.isLoading[key] = action.payload.isLoading; }
+    intSetGetPagedSMChannelsIsLoading: (state, action: PayloadAction<{ isLoading: boolean }>) => {
+      for (const key in state.data) {
+        state.isLoading[key] = action.payload.isLoading;
+      }
       console.log('setGetPagedSMChannelsIsLoading executed');
-    },
-
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -75,7 +77,6 @@ const getPagedSMChannelsSlice = createSlice({
         state.isError[query] = true;
         state.isLoading[query] = false;
       });
-
   }
 });
 

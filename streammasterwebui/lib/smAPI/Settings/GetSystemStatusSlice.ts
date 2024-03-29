@@ -28,6 +28,9 @@ const getSystemStatusSlice = createSlice({
     },
     clearGetSystemStatus: (state) => {
       state.data = undefined;
+      state.error = undefined;
+      state.isError = false;
+      state.isLoading = false;
       console.log('clearGetSystemStatus executed');
     },
     intSetGetSystemStatusIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {

@@ -1,6 +1,6 @@
-﻿using StreamMaster.Domain.Configuration;
+﻿using StreamMaster.Application.Icons.Commands;
 
-namespace StreamMaster.Application.Icons.Commands;
+namespace StreamMaster.Application.Icons.CommandsOld;
 
 public record BuildIconCachesRequest : IRequest { }
 
@@ -16,6 +16,5 @@ public class BuildIconCachesRequestHandler(ISender Sender, IOptionsMonitor<Setti
             return;
         }
         _ = await Sender.Send(new BuildIconsCacheFromVideoStreamRequest(), cancellationToken).ConfigureAwait(false);
-        //_ = await Sender.Send(new BuildProgIconsCacheFromEPGsRequest(), cancellationToken).ConfigureAwait(false);
     }
 }

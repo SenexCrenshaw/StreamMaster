@@ -40,10 +40,10 @@ const getPagedSMStreamsSlice = createSlice({
       console.log('updateGetPagedSMStreams executed');
     },
     clearGetPagedSMStreams: (state) => {
-      for (const key in state.data) {
-        const updatedData = removeKeyFromData(state.data, key);
-        state.data = updatedData;
-      }
+        state.data = {};
+        state.error = {};
+        state.isError = {};
+        state.isLoading = {};
       console.log('clearGetPagedSMStreams executed');
     },
     intSetGetPagedSMStreamsIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {

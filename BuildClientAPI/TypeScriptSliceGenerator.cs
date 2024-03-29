@@ -137,10 +137,10 @@ const initialState: QueryState = {{
             sb.AppendLine("    },");
 
             sb.AppendLine($"    clear{method.Name}: (state) => {{");
-            sb.AppendLine("      for (const key in state.data) {");
-            sb.AppendLine("        const updatedData = removeKeyFromData(state.data, key);");
-            sb.AppendLine("        state.data = updatedData;");
-            sb.AppendLine("      }");
+            sb.AppendLine("        state.data = {};");
+            sb.AppendLine("        state.error = {};");
+            sb.AppendLine("        state.isError = {};");
+            sb.AppendLine("        state.isLoading = {};");
             sb.AppendLine($"      console.log('clear{method.Name} executed');");
             sb.AppendLine("    },");
 
@@ -160,6 +160,9 @@ const initialState: QueryState = {{
 
         sb.AppendLine($"    clear{method.Name}: (state) => {{");
         sb.AppendLine("      state.data = undefined;");
+        sb.AppendLine("      state.error = undefined;");
+        sb.AppendLine("      state.isError = false;");
+        sb.AppendLine("      state.isLoading = false;");
         sb.AppendLine($"      console.log('clear{method.Name} executed');");
         sb.AppendLine("    },");
 

@@ -2,7 +2,7 @@
 
 using System.Web;
 
-namespace StreamMaster.Application.Icons.CommandsOld;
+namespace StreamMaster.Application.Icons.Commands;
 
 public class BuildIconsCacheFromVideoStreamRequest : IRequest<bool> { }
 

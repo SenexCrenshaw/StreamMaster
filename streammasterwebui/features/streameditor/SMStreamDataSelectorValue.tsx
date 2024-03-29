@@ -5,7 +5,6 @@ import { GetMessage } from '@lib/common/common';
 import { useSelectedSMChannel } from '@lib/redux/slices/selectedSMChannel';
 import { RemoveSMStreamFromSMChannel, SetSMStreamRanks } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 
-import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import { SMStreamDto, SMChannelDto, SMChannelRankRequest, RemoveSMStreamFromSMChannelRequest, SetSMStreamRanksRequest } from '@lib/smAPI/smapiTypes';
 
 import { lazy, memo, useCallback, useMemo } from 'react';
@@ -22,7 +21,6 @@ interface SMStreamDataSelectorValueProperties {
 const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey, selectedSMStreamKey, smChannel }: SMStreamDataSelectorValueProperties) => {
   const dataKey = `${id}-SMStreamDataSelectorValue`;
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMChannel(selectedSMChannelKey);
-  const { setGetPagedSMChannelsIsLoading } = useGetPagedSMChannels();
 
   const actionBodyTemplate = useCallback(
     (data: SMStreamDto) => (
@@ -33,7 +31,7 @@ const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey, selectedSMS
             if (!data.id || selectedSMChannel === undefined) {
               return;
             }
-            setGetPagedSMChannelsIsLoading(true);
+
             const request: RemoveSMStreamFromSMChannelRequest = { smChannelId: selectedSMChannel.id, smStreamId: data.id };
             RemoveSMStreamFromSMChannel(request)
               .then((response) => {
@@ -90,7 +88,7 @@ const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey, selectedSMS
           if (selectedSMChannel === undefined) {
             return;
           }
-          setGetPagedSMChannelsIsLoading(true);
+
           const tosend: SMChannelRankRequest[] = event.map((item, index) => {
             return { smChannelId: selectedSMChannel.id, smStreamId: item.id, rank: index } as SMChannelRankRequest;
           });

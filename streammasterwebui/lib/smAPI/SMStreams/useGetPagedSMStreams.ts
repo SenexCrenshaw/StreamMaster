@@ -1,4 +1,5 @@
 import { QueryHookResult,GetApiArgument } from '@lib/apiDefs';
+import store from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clearGetPagedSMStreams, intSetGetPagedSMStreamsIsLoading, updateGetPagedSMStreams } from './GetPagedSMStreamsSlice';
 import { useEffect } from 'react';
@@ -21,7 +22,9 @@ const useGetPagedSMStreams = (params?: GetApiArgument | undefined): Result => {
   const error = useAppSelector((state) => state.GetPagedSMStreams.error[query] ?? '');
 
   useEffect(() => {
-    if (params === undefined || data !== undefined) return;
+    if (params === undefined || query === undefined) return;
+    const state = store.getState().GetPagedSMStreams;
+    if (state.data[query] !== undefined || state.isLoading[query]) return;
     dispatch(fetchGetPagedSMStreams(query));
   }, [data, dispatch, params, query]);
 

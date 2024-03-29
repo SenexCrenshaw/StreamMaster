@@ -1,4 +1,5 @@
 import { QueryHookResult,GetApiArgument } from '@lib/apiDefs';
+import store from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clearGetPagedChannelGroups, intSetGetPagedChannelGroupsIsLoading, updateGetPagedChannelGroups } from './GetPagedChannelGroupsSlice';
 import { useEffect } from 'react';
@@ -21,7 +22,9 @@ const useGetPagedChannelGroups = (params?: GetApiArgument | undefined): Result =
   const error = useAppSelector((state) => state.GetPagedChannelGroups.error[query] ?? '');
 
   useEffect(() => {
-    if (params === undefined || data !== undefined) return;
+    if (params === undefined || query === undefined) return;
+    const state = store.getState().GetPagedChannelGroups;
+    if (state.data[query] !== undefined || state.isLoading[query]) return;
     dispatch(fetchGetPagedChannelGroups(query));
   }, [data, dispatch, params, query]);
 

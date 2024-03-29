@@ -1,4 +1,5 @@
 import { QueryHookResult } from '@lib/apiDefs';
+import store from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clearGetIsSystemReady, intSetGetIsSystemReadyIsLoading, updateGetIsSystemReady } from './GetIsSystemReadySlice';
 import { useEffect } from 'react';
@@ -20,7 +21,8 @@ const useGetIsSystemReady = (): Result => {
   const error = useAppSelector((state) => state.GetIsSystemReady.error ?? '');
 
   useEffect(() => {
-    if ( data !== undefined) return;
+    const test = store.getState().GetIsSystemReady;
+    if (test.data !== undefined || test.isLoading) return;
     dispatch(fetchGetIsSystemReady());
   }, [data, dispatch]);
 

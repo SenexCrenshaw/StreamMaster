@@ -1,9 +1,10 @@
 import { QueryHookResult } from '@lib/apiDefs';
+import store from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clearGetIcons, intSetGetIconsIsLoading, updateGetIcons } from './GetIconsSlice';
 import { useEffect } from 'react';
 import { fetchGetIcons } from './IconsFetch';
-import {FieldData, IconFileDto } from '@lib/smAPI/smapiTypes';
+import { FieldData, IconFileDto } from '@lib/smAPI/smapiTypes';
 
 interface ExtendedQueryHookResult extends QueryHookResult<IconFileDto[] | undefined> {}
 
@@ -20,9 +21,10 @@ const useGetIcons = (): Result => {
   const error = useAppSelector((state) => state.GetIcons.error ?? '');
 
   useEffect(() => {
-    if ( data !== undefined) return;
+    const test = store.getState().GetIcons;
+    if (test.data !== undefined || test.isLoading) return;
     dispatch(fetchGetIcons());
-  }, [data, dispatch]);
+  }, [data, dispatch, isLoading]);
 
   const setGetIconsField = (fieldData: FieldData): void => {
     dispatch(updateGetIcons({ fieldData: fieldData }));
@@ -33,7 +35,7 @@ const useGetIcons = (): Result => {
   };
 
   const setGetIconsIsLoading = (isLoading: boolean): void => {
-    dispatch(intSetGetIconsIsLoading( {isLoading: isLoading} ));
+    dispatch(intSetGetIconsIsLoading({ isLoading: isLoading }));
   };
 
   return { data, error, isError, isLoading, refreshGetIcons, setGetIconsField, setGetIconsIsLoading };

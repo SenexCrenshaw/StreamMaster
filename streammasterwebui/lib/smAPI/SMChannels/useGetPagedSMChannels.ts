@@ -1,9 +1,10 @@
-import { QueryHookResult,GetApiArgument } from '@lib/apiDefs';
+import { QueryHookResult, GetApiArgument } from '@lib/apiDefs';
+import store from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clearGetPagedSMChannels, intSetGetPagedSMChannelsIsLoading, updateGetPagedSMChannels } from './GetPagedSMChannelsSlice';
 import { useEffect } from 'react';
 import { fetchGetPagedSMChannels } from './SMChannelsFetch';
-import {FieldData, SMChannelDto,PagedResponse } from '@lib/smAPI/smapiTypes';
+import { FieldData, SMChannelDto, PagedResponse } from '@lib/smAPI/smapiTypes';
 
 interface ExtendedQueryHookResult extends QueryHookResult<PagedResponse<SMChannelDto> | undefined> {}
 
@@ -21,7 +22,11 @@ const useGetPagedSMChannels = (params?: GetApiArgument | undefined): Result => {
   const error = useAppSelector((state) => state.GetPagedSMChannels.error[query] ?? '');
 
   useEffect(() => {
-    if (params === undefined || data !== undefined) return;
+    if (params === undefined || query === undefined) return;
+    const state = store.getState().GetPagedSMChannels;
+
+    // if (state.data[query] !== undefined || state.isLoading[query]) return;
+    if (data !== undefined || state.isLoading[query]) return;
     dispatch(fetchGetPagedSMChannels(query));
   }, [data, dispatch, params, query]);
 
@@ -34,7 +39,7 @@ const useGetPagedSMChannels = (params?: GetApiArgument | undefined): Result => {
   };
 
   const setGetPagedSMChannelsIsLoading = (isLoading: boolean): void => {
-    dispatch(intSetGetPagedSMChannelsIsLoading( {isLoading: isLoading} ));
+    dispatch(intSetGetPagedSMChannelsIsLoading({ isLoading: isLoading }));
   };
 
   return { data, error, isError, isLoading, refreshGetPagedSMChannels, setGetPagedSMChannelsField, setGetPagedSMChannelsIsLoading };

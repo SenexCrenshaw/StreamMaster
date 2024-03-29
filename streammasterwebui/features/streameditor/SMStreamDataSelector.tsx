@@ -5,7 +5,6 @@ import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreams';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { AddSMStreamToSMChannel, CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 
-import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import { AddSMStreamToSMChannelRequest, CreateSMChannelFromStreamRequest, SMStreamDto } from '@lib/smAPI/smapiTypes';
 
@@ -23,7 +22,6 @@ interface SMStreamDataSelectorProperties {
 
 const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataSelectorProperties) => {
   const dataKey = `${id}-SMStreamDataSelector`;
-  const { setGetPagedSMChannelsIsLoading } = useGetPagedSMChannels();
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { setSelectedSMStreams } = useSelectSMStreams(dataKey);
 
@@ -110,7 +108,6 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataS
         isLoading={isLoading}
         id={dataKey}
         onChannelAdd={(e) => {
-          setGetPagedSMChannelsIsLoading(true);
           CreateSMChannelFromStream({ streamId: e.id } as CreateSMChannelFromStreamRequest)
             .then((response) => {})
             .catch((error) => {
@@ -118,7 +115,6 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataS
             });
         }}
         onStreamAdd={(e: AddSMStreamToSMChannelRequest) => {
-          setGetPagedSMChannelsIsLoading(true);
           AddSMStreamToSMChannel(e)
             .then((response) => {})
             .catch((error) => {

@@ -1,4 +1,5 @@
 import { QueryHookResult } from '@lib/apiDefs';
+import store from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clearGetSystemStatus, intSetGetSystemStatusIsLoading, updateGetSystemStatus } from './GetSystemStatusSlice';
 import { useEffect } from 'react';
@@ -20,7 +21,8 @@ const useGetSystemStatus = (): Result => {
   const error = useAppSelector((state) => state.GetSystemStatus.error ?? '');
 
   useEffect(() => {
-    if ( data !== undefined) return;
+    const test = store.getState().GetSystemStatus;
+    if (test.data !== undefined || test.isLoading) return;
     dispatch(fetchGetSystemStatus());
   }, [data, dispatch]);
 

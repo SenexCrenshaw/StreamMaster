@@ -1,4 +1,5 @@
 import { QueryHookResult } from '@lib/apiDefs';
+import store from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clearGetSettings, intSetGetSettingsIsLoading, updateGetSettings } from './GetSettingsSlice';
 import { useEffect } from 'react';
@@ -20,7 +21,8 @@ const useGetSettings = (): Result => {
   const error = useAppSelector((state) => state.GetSettings.error ?? '');
 
   useEffect(() => {
-    if ( data !== undefined) return;
+    const test = store.getState().GetSettings;
+    if (test.data !== undefined || test.isLoading) return;
     dispatch(fetchGetSettings());
   }, [data, dispatch]);
 

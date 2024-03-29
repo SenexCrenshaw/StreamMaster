@@ -40,10 +40,10 @@ const getPagedM3UFilesSlice = createSlice({
       console.log('updateGetPagedM3UFiles executed');
     },
     clearGetPagedM3UFiles: (state) => {
-      for (const key in state.data) {
-        const updatedData = removeKeyFromData(state.data, key);
-        state.data = updatedData;
-      }
+        state.data = {};
+        state.error = {};
+        state.isError = {};
+        state.isLoading = {};
       console.log('clearGetPagedM3UFiles executed');
     },
     intSetGetPagedM3UFilesIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {

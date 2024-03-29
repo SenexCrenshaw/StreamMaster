@@ -28,6 +28,9 @@ const getSettingsSlice = createSlice({
     },
     clearGetSettings: (state) => {
       state.data = undefined;
+      state.error = undefined;
+      state.isError = false;
+      state.isLoading = false;
       console.log('clearGetSettings executed');
     },
     intSetGetSettingsIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
