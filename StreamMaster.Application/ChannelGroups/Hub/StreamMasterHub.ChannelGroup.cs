@@ -1,5 +1,4 @@
-﻿using StreamMaster.Application.ChannelGroups.Commands;
-using StreamMaster.Application.ChannelGroups.Queries;
+﻿using StreamMaster.Application.ChannelGroups.Queries;
 
 namespace StreamMaster.Application.Hubs;
 
@@ -31,12 +30,6 @@ public partial class StreamMasterHub
     public async Task<IEnumerable<string>> GetChannelGroupNames()
     {
         IEnumerable<string> ret = await Sender.Send(new GetChannelGroupNames()).ConfigureAwait(false);
-        return ret;
-    }
-
-    public async Task<PagedResponse<ChannelGroupDto>> GetPagedChannelGroups(ChannelGroupParameters channelGroupParameters)
-    {
-        PagedResponse<ChannelGroupDto> ret = await Sender.Send(new GetPagedChannelGroupsRequest(channelGroupParameters)).ConfigureAwait(false);
         return ret;
     }
 

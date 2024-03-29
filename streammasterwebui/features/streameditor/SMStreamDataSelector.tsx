@@ -1,15 +1,14 @@
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import M3UFilesEditor2 from '@components/m3u/M3UFilesEditor';
-
-import { SMStreamDto } from '@lib/apiDefs';
-
 import { GetMessage } from '@lib/common/common';
 import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreams';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { AddSMStreamToSMChannel, CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import { AddSMStreamToSMChannelRequest, CreateSMChannelFromStreamRequest } from '@lib/smAPI/SMChannels/SMChannelsTypes';
-import useSMChannels from '@lib/smAPI/SMChannels/useSMChannels';
-import useSMStreams from '@lib/smAPI/SMStreams/useSMStreams';
+
+import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
+import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
+import { AddSMStreamToSMChannelRequest, CreateSMChannelFromStreamRequest, SMStreamDto } from '@lib/smAPI/smapiTypes';
+
 import { ConfirmPopup } from 'primereact/confirmpopup';
 
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
@@ -24,12 +23,12 @@ interface SMStreamDataSelectorProperties {
 
 const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataSelectorProperties) => {
   const dataKey = `${id}-SMStreamDataSelector`;
-  const { setSMChannelsIsLoading } = useSMChannels();
+  const { setGetPagedSMChannelsIsLoading } = useGetPagedSMChannels();
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { setSelectedSMStreams } = useSelectSMStreams(dataKey);
 
   const { queryFilter } = useQueryFilter(dataKey);
-  const { isLoading } = useSMStreams(queryFilter);
+  const { isLoading } = useGetPagedSMStreams(queryFilter);
 
   useEffect(() => {
     if (propsEnableEdit !== enableEdit) {
@@ -111,7 +110,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataS
         isLoading={isLoading}
         id={dataKey}
         onChannelAdd={(e) => {
-          setSMChannelsIsLoading(true);
+          setGetPagedSMChannelsIsLoading(true);
           CreateSMChannelFromStream({ streamId: e.id } as CreateSMChannelFromStreamRequest)
             .then((response) => {})
             .catch((error) => {
@@ -119,7 +118,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataS
             });
         }}
         onStreamAdd={(e: AddSMStreamToSMChannelRequest) => {
-          setSMChannelsIsLoading(true);
+          setGetPagedSMChannelsIsLoading(true);
           AddSMStreamToSMChannel(e)
             .then((response) => {})
             .catch((error) => {
@@ -134,7 +133,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataS
             setSelectedSMStreams(value as SMStreamDto[]);
           }
         }}
-        queryFilter={useSMStreams}
+        queryFilter={useGetPagedSMStreams}
         selectedSMStreamKey="SMChannelDataSelector"
         selectedSMChannelKey="SMChannelDataSelector"
         selectedItemsKey="selectSelectedSMStreamDtoItems"

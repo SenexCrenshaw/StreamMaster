@@ -4,7 +4,6 @@ using StreamMaster.Application.ChannelGroups.Commands;
 using StreamMaster.Application.ChannelGroups.CommandsOld;
 using StreamMaster.Application.ChannelGroups.Queries;
 using StreamMaster.Application.Common;
-using StreamMaster.Domain.Pagination;
 
 
 namespace StreamMaster.API.Controllers;
@@ -49,14 +48,6 @@ public class ChannelGroupsController : ApiControllerBase
     public async Task<ActionResult<IEnumerable<ChannelGroupIdName>>> GetChannelGroupIdNames()
     {
         IEnumerable<ChannelGroupIdName> res = await Mediator.Send(new GetChannelGroupIdNames()).ConfigureAwait(false);
-        return Ok(res);
-    }
-
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<PagedResponse<ChannelGroupDto>>> GetPagedChannelGroups([FromQuery] ChannelGroupParameters Parameters)
-    {
-        PagedResponse<ChannelGroupDto> res = await Mediator.Send(new GetPagedChannelGroupsRequest(Parameters)).ConfigureAwait(false);
         return Ok(res);
     }
 

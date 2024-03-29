@@ -1,9 +1,7 @@
 ﻿using System.Text;
-using System.Text.RegularExpressions;
 
 public static class TypeScriptHookGenerator
 {
-    private static readonly HashSet<string> additionalImports = [];
     public static void GenerateFile(List<MethodDetails> methods, string path)
     {
 
@@ -145,22 +143,4 @@ public static class TypeScriptHookGenerator
 
     }
 
-    public static (string parameterName, string tsParameterString) GetReal(MethodDetails method)
-    {
-        string tsParams = Util.ConvertCSharpParametersToTypeScript(method.Parameter);
-        string[] parts = tsParams.Split(':');
-        string parameterName = parts[0].Trim();
-
-        string pattern = @"\b\w*Parameters(?!\:)\b";
-        tsParams = Regex.Replace(tsParams, pattern, "QueryStringParameters");
-        return (parameterName, tsParams);
-    }
-}
-
-public static class StringExtensions
-{
-    public static string ToCamelCase(this string str)
-    {
-        return !string.IsNullOrEmpty(str) && str.Length > 1 ? char.ToLowerInvariant(str[0]) + str[1..] : str;
-    }
 }

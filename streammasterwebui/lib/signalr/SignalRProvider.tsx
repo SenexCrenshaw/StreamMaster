@@ -1,11 +1,12 @@
-import React, { ReactNode, createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { ReactNode, createContext, useCallback, useContext, useEffect } from 'react';
 import SignalRService from './SignalRService';
-import useSMStreams from '@lib/smAPI/SMStreams/useSMStreams';
-import useSMChannels from '@lib/smAPI/SMChannels/useSMChannels';
-import useM3UFiles from '@lib/smAPI/M3UFiles/useM3UFiles';
 import { SMMessage } from './SMMessage';
 import { FieldData } from '@lib/apiDefs';
 import { useSMMessages } from '@lib/redux/slices/messagesSlice';
+import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
+import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
+import useGetPagedM3UFiles from '@lib/smAPI/M3UFiles/useGetPagedM3UFiles';
+import useGetPagedChannelGroups from '@lib/smAPI/ChannelGroups/useGetPagedChannelGroups';
 
 const SignalRContext = createContext<SignalRService | undefined>(undefined);
 
@@ -20,14 +21,13 @@ export const useSignalRService = () => {
 interface SignalRProviderProps {
   children: ReactNode;
 }
-
 export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) => {
-  const [isConnected, setIsConnected] = useState(false);
-  const smStreams = useSMStreams();
-  const smChannels = useSMChannels();
-  const smM3UFiles = useM3UFiles();
   const smMessages = useSMMessages();
   const signalRService = SignalRService.getInstance();
+  const getPagedSMStreams = useGetPagedSMStreams();
+  const getPagedSMChannels = useGetPagedSMChannels();
+  const getPagedM3UFiles = useGetPagedM3UFiles();
+  const getPagedChannelGroups = useGetPagedChannelGroups();
 
   const addMessage = useCallback(
     (entity: SMMessage): void => {
@@ -39,39 +39,47 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
   const dataRefresh = useCallback(
     (entity: string): void => {
       if (entity === 'SMStreamDto') {
-        smStreams.refreshSMStreams();
+        getPagedSMStreams.refreshGetPagedSMStreams();
         return;
       }
       if (entity === 'SMChannelDto') {
-        smChannels.refreshSMChannels();
+        getPagedSMChannels.refreshGetPagedSMChannels();
         return;
       }
       if (entity === 'M3UFileDto') {
-        smM3UFiles.refreshM3UFiles();
+        getPagedM3UFiles.refreshGetPagedM3UFiles();
+        return;
+      }
+      if (entity === 'ChannelGroupDto') {
+        getPagedChannelGroups.refreshGetPagedChannelGroups();
         return;
       }
     },
-    [smChannels, smM3UFiles, smStreams]
+    [getPagedSMStreams, getPagedSMChannels, getPagedM3UFiles, getPagedChannelGroups]
   );
 
   const setField = useCallback(
     (fieldDatas: FieldData[]): void => {
       fieldDatas.forEach((fieldData) => {
         if (fieldData.entity === 'SMStreamDto') {
-          smStreams.setSMStreamsField(fieldData);
+          getPagedSMStreams.setGetPagedSMStreamsField(fieldData);
           return;
         }
         if (fieldData.entity === 'SMChannelDto') {
-          smChannels.setSMChannelsField(fieldData);
+          getPagedSMChannels.setGetPagedSMChannelsField(fieldData);
           return;
         }
         if (fieldData.entity === 'M3UFileDto') {
-          smM3UFiles.setM3UFilesField(fieldData);
+          getPagedM3UFiles.setGetPagedM3UFilesField(fieldData);
+          return;
+        }
+        if (fieldData.entity === 'ChannelGroupDto') {
+          getPagedChannelGroups.setGetPagedChannelGroupsField(fieldData);
           return;
         }
       });
     },
-    [smChannels, smM3UFiles, smStreams]
+    [getPagedSMStreams, getPagedSMChannels, getPagedM3UFiles, getPagedChannelGroups]
   );
 
   const RemoveConnections = useCallback(() => {
@@ -90,11 +98,11 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
 
   useEffect(() => {
     const handleConnect = () => {
-      setIsConnected(true);
+      // setIsConnected(true);
       CheckAndAddConnections();
     };
     const handleDisconnect = () => {
-      setIsConnected(false);
+      // setIsConnected(false);
       RemoveConnections();
     };
 
@@ -107,7 +115,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
       signalRService.removeEventListener('signalr_connected', handleConnect);
       signalRService.removeEventListener('signalr_disconnected', handleDisconnect);
     };
-  }, [CheckAndAddConnections, signalRService]);
+  }, [CheckAndAddConnections, RemoveConnections, signalRService]);
 
   return <SignalRContext.Provider value={signalRService}>{children}</SignalRContext.Provider>;
 };

@@ -2,25 +2,19 @@ import { useLocalStorage } from 'primereact/hooks';
 import { Navigate, Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
 
 import MessagesEn from '@lib/locales/MessagesEn';
-// import { SignalRConnection } from '@lib/signalr/SignalRConnection';
 
 import { IntlProvider } from 'react-intl';
 import { useStore } from 'react-redux';
 import { persistStore } from 'redux-persist';
 import { RootLayout } from './RootLayout';
-// import TestPanel from './testing/TestPanel';
 
 import '@lib/styles/index.css';
-// import '@lib/styles/streammaster-dark.css'; //theme
-// import '@lib/styles/theme.css'; // theme
+
 import 'primeicons/primeicons.css'; //icons
 import 'primereact/resources/primereact.min.css'; //core css
 import { MessageProcessor } from '@lib/signalr/MessageProcessor';
-import { Suspense, lazy, useEffect } from 'react';
-import SignalRService from '@lib/signalr/SignalRService';
+import { Suspense, lazy } from 'react';
 import { SignalRProvider } from '@lib/signalr/SignalRProvider';
-// import 'primereact/resources/primereact.css'; // core css
-//import 'primereact/resources/themes/viva-dark/theme.css'; // theme
 
 const App = (): JSX.Element => {
   const [locale] = useLocalStorage('en', 'locale');
@@ -38,7 +32,6 @@ const App = (): JSX.Element => {
   const StreamGroupEditor = lazy(() => import('@features/streamGroupEditor/StreamGroupEditor'));
   const StreamingStatus = lazy(() => import('@features/streamingStatus/StreamingStatus'));
   const VideoPlayer = lazy(() => import('@features/videoPlayer/VideoPlayer'));
-  const signalRService = SignalRService.getInstance();
 
   const persistor = persistStore(store, {}, () => {
     persistor.persist();
@@ -169,14 +162,6 @@ const App = (): JSX.Element => {
   // useSchedulesDirectGetStationChannelNamesQuery();
   // useEpgFilesGetEpgColorsQuery();
   // useIconsGetIconsQuery();
-
-  useEffect(() => {
-    if (signalRService && signalRService.events) {
-      signalRService.events((message) => {
-        console.log(message);
-      });
-    }
-  }, [signalRService]);
 
   return (
     <div className="App p-fluid">

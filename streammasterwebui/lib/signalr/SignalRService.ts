@@ -120,6 +120,10 @@ class SignalRService extends EventTarget {
     }
 
     try {
+      if (!argument) {
+        const result = await this.hubConnection.invoke<T>(methodName);
+        return result;
+      }
       const result = await this.hubConnection.invoke<T>(methodName, argument);
       return result;
     } catch (error) {

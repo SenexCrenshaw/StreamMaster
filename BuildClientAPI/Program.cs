@@ -11,7 +11,7 @@ namespace BuildClientAPI
         private const string AssemblyName = "StreamMaster.Application";
         private const string CSharpFileNamePrefix = @"..\..\..\..\StreamMaster.Application\";
         private const string SMAPIFileNamePrefix = @"..\..\..\..\streammasterwebui\lib\smAPI";
-        private const string SMAPISliceNamePrefix = @"..\..\..\..\streammasterwebui\lib\redux\slices";
+        private const string SignalRFilePathPrefix = @"..\..\..\..\streammasterwebui\lib\signalr";
 
         private static void Main(string[] args)
         {
@@ -160,18 +160,20 @@ namespace BuildClientAPI
                         string tsFetchFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Fetch.ts");
                         TypeScriptFetchGenerator.GenerateFile(namespaceName, methods, tsFetchFilePath);
 
-                        //if (pagedMethods.Count > 0)
-                        //{
-                        string tsSliceFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName);//, $"{namespaceName}Slice.ts");
+
+                        string tsSliceFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName);
                         TypeScriptSliceGenerator.GenerateFile(pagedMethods, tsSliceFilePath);
 
-                        string tsHookFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName);//, $"use{namespaceName}.ts");
+                        string tsHookFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName);
                         TypeScriptHookGenerator.GenerateFile(methods, tsHookFilePath);
 
-                        //}
                     }
 
                 }
+
+
+                string tsSignalRFilePath = Path.Combine(SignalRFilePathPrefix, "SignalRProvider2.tsx");
+                SignalRGenerator.GenerateFile(methodsByNamespace.SelectMany(a => a.Value).ToList(), tsSignalRFilePath);
             }
             catch (Exception ex)
             {

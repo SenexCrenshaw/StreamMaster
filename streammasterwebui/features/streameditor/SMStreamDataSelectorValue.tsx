@@ -1,13 +1,12 @@
 import MinusButton from '@components/buttons/MinusButton';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 
-import { SMChannelDto, SMChannelRankRequest, SMStreamDto } from '@lib/apiDefs';
-
 import { GetMessage } from '@lib/common/common';
 import { useSelectedSMChannel } from '@lib/redux/slices/selectedSMChannel';
 import { RemoveSMStreamFromSMChannel, SetSMStreamRanks } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import { RemoveSMStreamFromSMChannelRequest, SetSMStreamRanksRequest } from '@lib/smAPI/SMChannels/SMChannelsTypes';
-import useSMChannels from '@lib/smAPI/SMChannels/useSMChannels';
+
+import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
+import { SMStreamDto, SMChannelDto, SMChannelRankRequest, RemoveSMStreamFromSMChannelRequest, SetSMStreamRanksRequest } from '@lib/smAPI/smapiTypes';
 
 import { lazy, memo, useCallback, useMemo } from 'react';
 const DataSelectorValues = lazy(() => import('@components/dataSelector/DataSelectorValues'));
@@ -23,7 +22,7 @@ interface SMStreamDataSelectorValueProperties {
 const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey, selectedSMStreamKey, smChannel }: SMStreamDataSelectorValueProperties) => {
   const dataKey = `${id}-SMStreamDataSelectorValue`;
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMChannel(selectedSMChannelKey);
-  const { setSMChannelsIsLoading } = useSMChannels();
+  const { setGetPagedSMChannelsIsLoading } = useGetPagedSMChannels();
 
   const actionBodyTemplate = useCallback(
     (data: SMStreamDto) => (
@@ -34,8 +33,8 @@ const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey, selectedSMS
             if (!data.id || selectedSMChannel === undefined) {
               return;
             }
-            setSMChannelsIsLoading(true);
-            const request: RemoveSMStreamFromSMChannelRequest = { sMChannelId: selectedSMChannel.id, sMStreamId: data.id };
+            setGetPagedSMChannelsIsLoading(true);
+            const request: RemoveSMStreamFromSMChannelRequest = { smChannelId: selectedSMChannel.id, smStreamId: data.id };
             RemoveSMStreamFromSMChannel(request)
               .then((response) => {
                 console.log('Remove Stream', response);
@@ -91,7 +90,7 @@ const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey, selectedSMS
           if (selectedSMChannel === undefined) {
             return;
           }
-          setSMChannelsIsLoading(true);
+          setGetPagedSMChannelsIsLoading(true);
           const tosend: SMChannelRankRequest[] = event.map((item, index) => {
             return { smChannelId: selectedSMChannel.id, smStreamId: item.id, rank: index } as SMChannelRankRequest;
           });

@@ -1,16 +1,17 @@
 import MinusButton from '@components/buttons/MinusButton';
 import { useSMChannelLogoColumnConfig } from '@components/columns/useSMChannelLogoColumnConfig';
-import useSMChannels from '@lib/smAPI/SMChannels/useSMChannels';
+
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
-import { SMChannelDto } from '@lib/apiDefs';
+
 import { GetMessage } from '@lib/common/common';
 import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import { DeleteSMChannelRequest } from '@lib/smAPI/SMChannels/SMChannelsTypes';
 
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { v4 as uuidv4 } from 'uuid';
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { SMChannelDto, DeleteSMChannelRequest } from '@lib/smAPI/smapiTypes';
+import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
+
 const DataSelector2 = lazy(() => import('@components/dataSelector/DataSelector2'));
 const StreamCopyLinkDialog = lazy(() => import('@components/smstreams/StreamCopyLinkDialog'));
 interface SMChannelDataSelectorProperties {
@@ -21,7 +22,7 @@ interface SMChannelDataSelectorProperties {
 
 const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: SMChannelDataSelectorProperties) => {
   const dataKey = `${id}-SMChannelDataSelector`;
-  const { setSMChannelsIsLoading } = useSMChannels();
+  const { setGetPagedSMChannelsIsLoading } = useGetPagedSMChannels();
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { columnConfig: channelLogoColumnConfig } = useSMChannelLogoColumnConfig({ enableEdit });
 
@@ -33,7 +34,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
 
   const actionBodyTemplate = useCallback((data: SMChannelDto) => {
     const accept = () => {
-      setSMChannelsIsLoading(true);
+      setGetPagedSMChannelsIsLoading(true);
       DeleteSMChannel({ smChannelId: data.id } as DeleteSMChannelRequest)
         .then((response) => {})
         .catch((error) => {
@@ -88,7 +89,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
         emptyMessage="No Channels"
         headerName={GetMessage('channels').toUpperCase()}
         id={dataKey}
-        queryFilter={useSMChannels}
+        queryFilter={useGetPagedSMChannels}
         selectedSMStreamKey="SMChannelDataSelector"
         selectedSMChannelKey="SMChannelDataSelector"
         selectedItemsKey="selectSelectedSMChannelDtoItems"

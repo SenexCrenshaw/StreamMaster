@@ -9,8 +9,10 @@ import M3UFileRefreshDialog from './M3UFileRefreshDialog';
 import M3UFileRemoveDialog from './M3UFileRemoveDialog';
 
 import M3UFileTagsDialog from './M3UFileTagsDialog';
-import useM3UFiles from '@lib/smAPI/M3UFiles/useM3UFiles';
+
 import SMDataSelector from '@components/dataSelector/SMDataSelector';
+import { M3UFileDto } from '@lib/smAPI/smapiTypes';
+import useGetPagedM3UFiles from '@lib/smAPI/M3UFiles/useGetPagedM3UFiles';
 interface M3UUpdateProperties {
   id: number;
   auto?: boolean | null;
@@ -37,7 +39,7 @@ const M3UFilesDataSelector = () => {
 
     const { auto, hours, maxStreams, name, url, startingChannelNumber, overwriteChannelNumbers } = restProperties;
 
-    const tosend = {} as UpdateM3UFileRequest;
+    const tosend = {} as any;
     tosend.id = id;
 
     if (auto !== undefined) {
@@ -349,7 +351,7 @@ const M3UFilesDataSelector = () => {
         defaultSortField="name"
         emptyMessage="No M3U Files"
         id="m3ufilesdataselector"
-        queryFilter={useM3UFiles}
+        queryFilter={useGetPagedM3UFiles}
         selectedItemsKey="selectedM3UFileDtoItems"
         style={{ height: '30vh' }}
       />
