@@ -1,13 +1,7 @@
-import {
-  type UpdateVideoStreamRequest,
-  type UpdateVideoStreamsRequest,
-  type VideoStreamDto,
-  type VideoStreamsUpdateAllVideoStreamsFromParametersApiArg
-} from '@lib/iptvApi';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
-import { UpdateAllVideoStreamsFromParameters, UpdateVideoStreams } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
+
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import VisibleButton from '../buttons/VisibleButton';
@@ -76,13 +70,13 @@ const VideoStreamVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, valu
         toggleVisibility: true
       } as UpdateVideoStreamRequest;
 
-      await UpdateAllVideoStreamsFromParameters(toSendAll)
-        .then(() => {
-          setInfoMessage('Toggle Stream Visibility Successfully');
-        })
-        .catch((error) => {
-          setInfoMessage(`Toggle Stream Visibility Error: ${error.message}`);
-        });
+      // await UpdateAllVideoStreamsFromParameters(toSendAll)
+      //   .then(() => {
+      //     setInfoMessage('Toggle Stream Visibility Successfully');
+      //   })
+      //   .catch((error) => {
+      //     setInfoMessage(`Toggle Stream Visibility Error: ${error.message}`);
+      //   });
 
       return;
     }
@@ -103,13 +97,13 @@ const VideoStreamVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, valu
         } as UpdateVideoStreamRequest)
     );
 
-    await UpdateVideoStreams(toSend)
-      .then(() => {
-        setInfoMessage('Set Stream Visibility Successfully');
-      })
-      .catch((error) => {
-        setInfoMessage(`Set Stream Visibility Error: ${error.message}`);
-      });
+    // await UpdateVideoStreams(toSend)
+    //   .then(() => {
+    //     setInfoMessage('Set Stream Visibility Successfully');
+    //   })
+    //   .catch((error) => {
+    //     setInfoMessage(`Set Stream Visibility Error: ${error.message}`);
+    //   });
   }, [selectVideoStreamsInternal, getTotalCount, selectAll, ReturnToParent, queryFilter]);
 
   if (skipOverLayer === true) {

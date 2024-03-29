@@ -24,9 +24,9 @@ namespace StreamMaster.Application.M3UFiles
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse<M3UFileDto>>> GetPagedM3UFiles([FromQuery] M3UFileParameters Parameters)
+        public async Task<ActionResult<APIResponse<M3UFileDto>>> GetPagedM3UFiles([FromQuery] QueryStringParameters Parameters)
         {
-            APIResponse<M3UFileDto> ret = await Sender.Send(new GetPagedM3UFiles(Parameters)).ConfigureAwait(false);
+            APIResponse<M3UFileDto> ret = await Sender.Send(new GetPagedM3UFilesRequest(Parameters)).ConfigureAwait(false);
             return ret;
         }
 
@@ -57,9 +57,9 @@ namespace StreamMaster.Application.Hubs
             return ret;
         }
 
-        public async Task<APIResponse<M3UFileDto>> GetPagedM3UFiles(M3UFileParameters Parameters)
+        public async Task<APIResponse<M3UFileDto>> GetPagedM3UFiles(QueryStringParameters Parameters)
         {
-            APIResponse<M3UFileDto> ret = await Sender.Send(new GetPagedM3UFiles(Parameters)).ConfigureAwait(false);
+            APIResponse<M3UFileDto> ret = await Sender.Send(new GetPagedM3UFilesRequest(Parameters)).ConfigureAwait(false);
             return ret;
         }
 

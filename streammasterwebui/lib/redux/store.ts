@@ -18,9 +18,15 @@ import selectedVideoStreamsSliceReducer from '@lib/redux/slices/selectedVideoStr
 import showHiddenSliceReducer from '@lib/redux/slices/showHiddenSlice';
 import showSelectionsSliceReducer from '@lib/redux/slices/showSelectionsSlice';
 import sortInfoSliceReducer from '@lib/redux/slices/sortInfoSlice';
-import SMChannelsSlice from '@lib/smAPI/SMChannels/SMChannelsSlice';
-import SMStreamsReducer from '@lib/smAPI/SMStreams/SMStreamsSlice';
-import M3UFilesReducer from '@lib/smAPI/M3UFiles/M3UFilesSlice';
+import GetPagedSMStreams from '@lib/smAPI/SMStreams/GetPagedSMStreamsSlice';
+import GetPagedSMChannels from '@lib/smAPI/SMChannels/GetPagedSMChannelsSlice';
+import GetSettings from '@lib/smAPI/Settings/GetSettingsSlice';
+import GetIsSystemReady from '@lib/smAPI/Settings/GetIsSystemReadySlice';
+import GetSystemStatus from '@lib/smAPI/Settings/GetSystemStatusSlice';
+import GetIcons from '@lib/smAPI/Icons/GetIconsSlice';
+import GetPagedM3UFiles from '@lib/smAPI/M3UFiles/GetPagedM3UFilesSlice';
+import GetPagedChannelGroups from '@lib/smAPI/ChannelGroups/GetPagedChannelGroupsSlice';
+
 import SMMessagesReducer from '@lib/redux/slices/messagesSlice';
 
 import { persistReducer, persistStore } from 'redux-persist';
@@ -98,11 +104,17 @@ const rootReducer = combineReducers({
   channelGroupToRemove: channelGroupToRemoveSliceReducer,
   queryAdditionalFilters: queryAdditionalFiltersReducer,
   queryFilter: queryFilterReducer,
-  SMStreams: SMStreamsReducer,
-  SMChannels: SMChannelsSlice,
+
+  GetPagedChannelGroups: GetPagedChannelGroups,
+  GetPagedM3UFiles: GetPagedM3UFiles,
+  GetPagedSMChannels: GetPagedSMChannels,
+  GetPagedSMStreams: GetPagedSMStreams,
+  GetSettings: GetSettings,
+  GetIsSystemReady: GetIsSystemReady,
+  GetSystemStatus: GetSystemStatus,
+  GetIcons: GetIcons,
   SMChannelReducer: SMChannelReducer,
   SMStreamReducer: SMStreamReducer,
-  M3UFiles: M3UFilesReducer,
   selectUpdateSettingRequest: persistReducer(selectUpdateSettingRequestSliceConfig, selectUpdateSettingRequestReducer),
   selectCurrentSettingDto: persistReducer(currentSettingDtoSliceConfig, selectCurrentSettingDtoReducer),
   selectedPostalCode: persistReducer(selectedPostalCodeConfig, selectedPostalCodeSlice),

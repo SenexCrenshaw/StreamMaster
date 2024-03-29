@@ -1,6 +1,6 @@
 import SettingsNameRegexDataSelector from '@components/settings/SettingsNameRegexDataSelector';
 import { GetMessage } from '@lib/common/common';
-import { useSettingsGetSettingQuery } from '@lib/iptvApi';
+
 import { Fieldset } from 'primereact/fieldset';
 import React from 'react';
 import { getCheckBoxLine } from './getCheckBoxLine';

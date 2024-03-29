@@ -3,6 +3,7 @@
 namespace StreamMaster.Application.SMChannels.Commands;
 
 [SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RemoveSMStreamFromSMChannelRequest(int SMChannelId, string SMStreamId) : IRequest<DefaultAPIResponse>;
 
 internal class RemoveSMStreamFromSMChannelRequestHandler(IRepositoryWrapper Repository, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor) : IRequestHandler<RemoveSMStreamFromSMChannelRequest, DefaultAPIResponse>

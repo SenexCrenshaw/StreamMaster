@@ -3,195 +3,151 @@ using System.Text.RegularExpressions;
 
 public static class TypeScriptHookGenerator
 {
-    private static HashSet<string> additionalImports = [];
-    public static void GenerateFile(string namespaceName, List<MethodDetails> methods, string filePath)
+    private static readonly HashSet<string> additionalImports = [];
+    public static void GenerateFile(List<MethodDetails> methods, string path)
     {
 
-        StringBuilder content = new();
-        additionalImports = [];
-
-        content.AppendLine("import { useEffect } from 'react';");
-        content.AppendLine("import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';");
-
-        string mainEntityName = "";
-        // Importing command and fetch methods
-        foreach (MethodDetails method in methods)
+        foreach (MethodDetails method in methods.Where(a => a.Name.StartsWith("Get")))
         {
-            if (mainEntityName == "" && method.Name.StartsWith("GetPaged"))
+            StringBuilder content = new();
+            AddImports(content, method);
+            content.Append(GenerateInterfaces(method));
+            content.Append(GenerateHookContent(method));
+
+            string fileName = $"use{method.Name}.ts";
+            string filePath = Path.Combine(path, fileName);
+            if (!Directory.Exists(path))
             {
-                mainEntityName = Util.IsTSGeneric(Util.ExtractInnermostType(method.ReturnType));
-                continue;
+                Directory.CreateDirectory(path);
             }
-            //if (method.JustHub)
-            //{
-            //    content.AppendLine($"import {{ {method.Name} }} from '@lib/smAPI/{namespaceName}/{namespaceName}Commands';");
-            //}
+            File.WriteAllText(filePath, content.ToString());
         }
-
-        MethodDetails? fetchMethod = methods.FirstOrDefault(m => m.Name.Contains("GetPaged"));
-        if (fetchMethod != null)
-        {
-            content.AppendLine($"import {{ fetch{fetchMethod.Name} }} from '@lib/smAPI/{namespaceName}/{namespaceName}Fetch';");
-        }
-
-        // Importing slice for actions
-        content.AppendLine($"import {{ clear{namespaceName}, intSet{namespaceName}IsLoading, update{namespaceName} }} from '@lib/smAPI/{namespaceName}/{namespaceName}Slice';");
-        content.AppendLine();
-
-
-        content.Append(GenerateHookContent(namespaceName, mainEntityName, fetchMethod?.Name, methods));
-
-        string additionals = "";
-        additionalImports.Add(mainEntityName);
-        if (additionalImports.Count > 0)
-        {
-            additionals += string.Join(",", additionalImports);
-        }
-        content.Insert(0, $"import {{ GetApiArgument, QueryHookResult }} from '@lib/apiDefs';\n");
-        content.Insert(0, $"import {{ FieldData, PagedResponse, {additionals} }} from '@lib/smAPI/smapiTypes';\n");
-
-        // Write to file
-        string directory = Directory.GetParent(filePath).ToString();
-        if (!Directory.Exists(directory))
-        {
-            Directory.CreateDirectory(directory);
-        }
-        File.WriteAllText(filePath, content.ToString());
     }
 
-    private static string GenerateHookContent(string namespaceName, string mainEntityName, string fetchMethodName, List<MethodDetails> methods)
+    private static string GenerateInterfaces(MethodDetails method)
     {
-        methods = methods.Where(m => m.JustHub).ToList();
-        List<string> commandMethodNames = methods.Select(m => m.Name).ToList();
+        StringBuilder content = new();
+        if (method.IsGetPaged)
+        {
+            content.AppendLine($"interface ExtendedQueryHookResult extends QueryHookResult<PagedResponse<{method.ReturnEntityType}> | undefined> {{}}");
+        }
+        else
+        {
+            string ret = method.ReturnEntityType;
+            if (method.IsList)
+            {
+                ret += "[]";
+            }
 
+            content.AppendLine($"interface ExtendedQueryHookResult extends QueryHookResult<{ret} | undefined> {{}}");
+        }
+
+        content.AppendLine();
+        content.AppendLine($"interface Result extends ExtendedQueryHookResult {{");
+        content.AppendLine($"  set{method.Name}Field: (fieldData: FieldData) => void;");
+        content.AppendLine($"  refresh{method.Name}: () => void;");
+        content.AppendLine($"  set{method.Name}IsLoading: (isLoading: boolean) => void;");
+        content.AppendLine("}");
+        return content.ToString();
+    }
+
+    private static void AddImports(StringBuilder content, MethodDetails method)
+    {
+        string fetchActionName = $"fetch{method.Name}";
+        string p = "QueryHookResult";
+        if (method.IsGetPaged)
+        {
+            p += ",GetApiArgument";
+        }
+        content.AppendLine($"import {{ {p} }} from '@lib/apiDefs';");
+        content.AppendLine("import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';");
+        content.AppendLine($"import {{ clear{method.Name}, intSet{method.Name}IsLoading, update{method.Name} }} from './{method.Name}Slice';");
+        content.AppendLine("import { useEffect } from 'react';");
+        content.AppendLine($"import {{ {fetchActionName} }} from './{method.NamespaceName}Fetch';");
+
+        string? a = Util.IsTSGeneric(method.ReturnEntityType);
+        List<string> pList = [];
+        if (!string.IsNullOrEmpty(a))
+        {
+            pList.Add(a);
+        }
+
+        if (method.IsGetPaged)
+        {
+            pList.Add("PagedResponse");
+        }
+
+        content.AppendLine($"import {{FieldData, {string.Join(",", pList)} }} from '@lib/smAPI/smapiTypes';");
+        content.AppendLine();
+    }
+
+    private static string GenerateHookContent(MethodDetails method)
+    {
+        string fetchActionName = $"fetch{method.Name}";
         StringBuilder sb = new();
 
-        sb.AppendLine($"interface ExtendedQueryHookResult extends QueryHookResult<PagedResponse<{mainEntityName}> | undefined> {{}}");
-        sb.AppendLine();
-        sb.AppendLine($"interface {mainEntityName}Result extends ExtendedQueryHookResult {{");
-
-        //foreach (MethodDetails method in methods)
-        //{
-        //    string methodName = method.Name;
-        //    string? toImport = Util.IsTSGeneric(method.TsParameters);
-        //    if (toImport != null)
-        //    {
-        //        additionalImports.Add(toImport);
-        //    }
-        //    toImport = Util.IsTSGeneric(method.ReturnType);
-        //    if (toImport != null)
-        //    {
-        //        additionalImports.Add(toImport);
-        //    }
-
-        //    if (methodName.StartsWith("GetPaged"))
-        //    {
-        //        continue;
-        //    }
-
-        //    if (methodName == "DeleteAllSMChannelsFromParameters")
-        //    {
-        //        int aa = 1;
-        //    }
-
-
-        //    //(string parameterName, string tsParameterString) = GetReal(method);
-        //    sb.AppendLine($"  {methodName.ToCamelCase()}: ({method.TsParameters}) => Promise<DefaultAPIResponse | null>;");
-        //}
-
-        sb.AppendLine("  set" + namespaceName + "Field: (fieldData: FieldData) => void;");
-        sb.AppendLine("  refresh" + namespaceName + ": () => void;");
-        sb.AppendLine("  set" + namespaceName + "IsLoading: (isLoading: boolean) => void;");
-        sb.AppendLine("}");
-        sb.AppendLine();
-
-        // Generating the hook function
-        sb.AppendLine($"const use{namespaceName} = (params?: GetApiArgument | undefined): {mainEntityName}Result => {{");
-        sb.AppendLine("  const query = JSON.stringify(params);");
-        sb.AppendLine("  const dispatch = useAppDispatch();");
-        sb.AppendLine();
-        sb.AppendLine($"  const data = useAppSelector((state) => state.{namespaceName}.data[query]);");
-        sb.AppendLine($"  const isLoading = useAppSelector((state) => state.{namespaceName}.isLoading[query] ?? false);");
-        sb.AppendLine($"  const isError = useAppSelector((state) => state.{namespaceName}.isError[query] ?? false);");
-        sb.AppendLine($"  const error = useAppSelector((state) => state.{namespaceName}.error[query] ?? '');");
-        sb.AppendLine();
-
-        if (!string.IsNullOrEmpty(fetchMethodName))
+        if (method.IsGetPaged)
         {
+            sb.AppendLine($"const use{method.Name} = (params?: GetApiArgument | undefined): Result => {{");
+            sb.AppendLine("  const dispatch = useAppDispatch();");
+            sb.AppendLine("  const query = JSON.stringify(params);");
+            sb.AppendLine($"  const data = useAppSelector((state) => state.{method.Name}.data[query]);");
+            sb.AppendLine($"  const isLoading = useAppSelector((state) => state.{method.Name}.isLoading[query] ?? false);");
+            sb.AppendLine($"  const isError = useAppSelector((state) => state.{method.Name}.isError[query] ?? false);");
+            sb.AppendLine($"  const error = useAppSelector((state) => state.{method.Name}.error[query] ?? '');");
+            sb.AppendLine();
+
             sb.AppendLine($"  useEffect(() => {{");
             sb.AppendLine($"    if (params === undefined || data !== undefined) return;");
-            sb.AppendLine($"    dispatch(fetch{fetchMethodName}(query));");
+            sb.AppendLine($"    dispatch({fetchActionName}(query));");
             sb.AppendLine($"  }}, [data, dispatch, params, query]);");
             sb.AppendLine();
         }
+        else
+        {
+            sb.AppendLine($"const use{method.Name} = (): Result => {{");
+            sb.AppendLine("  const dispatch = useAppDispatch();");
+            sb.AppendLine($"  const data = useAppSelector((state) => state.{method.Name}.data);");
+            sb.AppendLine($"  const isLoading = useAppSelector((state) => state.{method.Name}.isLoading ?? false);");
+            sb.AppendLine($"  const isError = useAppSelector((state) => state.{method.Name}.isError ?? false);");
+            sb.AppendLine($"  const error = useAppSelector((state) => state.{method.Name}.error ?? '');");
+            sb.AppendLine();
 
-        // Set field action
-        sb.AppendLine($"  const set{namespaceName}Field = (fieldData: FieldData): void => {{");
-        sb.AppendLine($"    dispatch(update{namespaceName}({{ fieldData: fieldData }}));");
+            sb.AppendLine($"  useEffect(() => {{");
+            sb.AppendLine($"    if ( data !== undefined) return;");
+            sb.AppendLine($"    dispatch({fetchActionName}());");
+            sb.AppendLine($"  }}, [data, dispatch]);");
+            sb.AppendLine();
+        }
+        sb.AppendLine($"  const set{method.Name}Field = (fieldData: FieldData): void => {{");
+        sb.AppendLine($"    dispatch(update{method.Name}({{ fieldData: fieldData }}));");
         sb.AppendLine($"  }};");
         sb.AppendLine();
 
-        // Refresh field action
-        sb.AppendLine($"  const refresh{namespaceName} = (): void => {{");
-        sb.AppendLine($"    dispatch(clear{namespaceName}());");
+        sb.AppendLine($"  const refresh{method.Name} = (): void => {{");
+        sb.AppendLine($"    dispatch(clear{method.Name}());");
         sb.AppendLine($"  }};");
         sb.AppendLine();
 
-        // IsLoading action
-        sb.AppendLine($"  const set{namespaceName}IsLoading = (isLoading: boolean): void => {{");
-        sb.AppendLine($"    dispatch(intSet{namespaceName}IsLoading( {{isLoading: isLoading}} ));");
+        sb.AppendLine($"  const set{method.Name}IsLoading = (isLoading: boolean): void => {{");
+        sb.AppendLine($"    dispatch(intSet{method.Name}IsLoading( {{isLoading: isLoading}} ));");
         sb.AppendLine($"  }};");
         sb.AppendLine();
 
-        // Command methods
-        //foreach (MethodDetails method in methods)
-        //{
-        //    string methodName = method.Name;
-        //    if (methodName.StartsWith("GetPaged"))
-        //    {
-        //        continue;
-        //    }
-        //    if (methodName == "DeleteAllSMChannelsFromParameters")
-        //    {
-        //        int aa = 1;
-        //    }
-        //    //string tsParams = ParameterConverter2.ConvertCSharpParametersToTypeScript(method.Parameters);
-        //    //string[] parts = tsParams.Split(':');
-        //    //string parameterName = parts[0].Trim();
-
-        //    //string pattern = @"\b\w*Parameters(?!\:)\b";
-        //    //tsParams = Regex.Replace(tsParams, pattern, "QueryStringParameters");
-        //    //(string parameterName, string tsParameterString) = GetReal(method);
-
-        //    sb.AppendLine($"  const {methodName.ToCamelCase()} = ({method.TsParameters}): Promise<DefaultAPIResponse | null> => {{");
-        //    sb.AppendLine($"    return {methodName}({method.ParameterNames});");
-        //    sb.AppendLine($"  }};");
-        //    sb.AppendLine();
-        //}
-
-        // Return statement
         sb.Append($"  return {{ data, error, isError, isLoading");
 
-        //foreach (string methodName in commandMethodNames)
-        //{
-        //    if (methodName.StartsWith("GetPaged"))
-        //    {
-        //        continue;
-        //    }
-        //    sb.Append($", {methodName.ToCamelCase()}");
-        //}
-
-        sb.AppendLine($", refresh{namespaceName}, set{namespaceName}Field, set{namespaceName}IsLoading }};");
+        sb.AppendLine($", refresh{method.Name}, set{method.Name}Field, set{method.Name}IsLoading }};");
         sb.AppendLine("};");
         sb.AppendLine();
-        sb.AppendLine($"export default use{namespaceName};");
+        sb.AppendLine($"export default use{method.Name};");
 
         return sb.ToString();
+
     }
 
     public static (string parameterName, string tsParameterString) GetReal(MethodDetails method)
     {
-        string tsParams = Util.ConvertCSharpParametersToTypeScript(method.Parameters);
+        string tsParams = Util.ConvertCSharpParametersToTypeScript(method.Parameter);
         string[] parts = tsParams.Split(':');
         string parameterName = parts[0].Trim();
 

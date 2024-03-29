@@ -1,4 +1,3 @@
-import { useStreamGroupsCreateStreamGroupMutation, type CreateStreamGroupRequest } from '@lib/iptvApi';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import AddButton from '../buttons/AddButton';

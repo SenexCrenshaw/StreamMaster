@@ -1,9 +1,5 @@
 import XButton from '@components/buttons/XButton';
-import {
-  StreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteApiArg,
-  VideoStreamDto,
-  useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteMutation
-} from '@lib/iptvApi';
+
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
 import { memo } from 'react';
 

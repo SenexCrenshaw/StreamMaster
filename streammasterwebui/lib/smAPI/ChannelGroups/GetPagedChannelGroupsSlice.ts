@@ -1,15 +1,15 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import {FieldData,PagedResponse, M3UFileDto } from '@lib/smAPI/smapiTypes';
+import {FieldData, ChannelGroupDto,PagedResponse } from '@lib/smAPI/smapiTypes';
 import {removeKeyFromData} from '@lib/apiDefs';
-import { fetchGetPagedM3UFiles } from '@lib/smAPI/M3UFiles/M3UFilesFetch';
+import { fetchGetPagedChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsFetch';
 import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
 
 
 interface QueryState {
-  data: Record<string, PagedResponse<M3UFileDto> | undefined>;
+  data: Record<string, PagedResponse<ChannelGroupDto> | undefined>;
   isLoading: Record<string, boolean>;
   isError: Record<string, boolean>;
-  error: Record<string, string>;
+  error: Record<string, string | undefined>;
 }
 
 const initialState: QueryState = {
@@ -18,58 +18,58 @@ const initialState: QueryState = {
   isError: {},
   error: {}
 };
-const M3UFilesSlice = createSlice({
-  name: 'M3UFiles',
+const getPagedChannelGroupsSlice = createSlice({
+  name: 'GetPagedChannelGroups',
   initialState,
   reducers: {
-    updateM3UFiles: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
+    updateGetPagedChannelGroups: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
       const { query, fieldData } = action.payload;
 
       if (query !== undefined) {
-        // Update a specific query's data if it exists
         if (state.data[query]) {
           state.data[query] = updatePagedResponseFieldInData(state.data[query], fieldData);
         }
         return;
       }
 
-      // Fallback: update all queries' data if query is undefined
       for (const key in state.data) {
         if (state.data[key]) {
           state.data[key] = updatePagedResponseFieldInData(state.data[key], fieldData);
         }
       }
-      console.log('updateM3UFiles executed');
+      console.log('updateGetPagedChannelGroups executed');
     },
-    clearM3UFiles: (state) => {
+    clearGetPagedChannelGroups: (state) => {
       for (const key in state.data) {
         const updatedData = removeKeyFromData(state.data, key);
         state.data = updatedData;
       }
-      console.log('clearM3UFiles executed');
+      console.log('clearGetPagedChannelGroups executed');
     },
-    intSetM3UFilesIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
+    intSetGetPagedChannelGroupsIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
        for (const key in state.data) { state.isLoading[key] = action.payload.isLoading; }
-      console.log('setM3UFilesIsLoading executed');
+      console.log('setGetPagedChannelGroupsIsLoading executed');
     },
 
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchGetPagedM3UFiles.pending, (state, action) => {
+      .addCase(fetchGetPagedChannelGroups.pending, (state, action) => {
         const query = action.meta.arg;
         state.isLoading[query] = true;
-        state.isError[query] = false; // Reset isError state on new fetch
+        state.isError[query] = false;
+        state.error[query] = undefined;
       })
-      .addCase(fetchGetPagedM3UFiles.fulfilled, (state, action) => {
+      .addCase(fetchGetPagedChannelGroups.fulfilled, (state, action) => {
         if (action.payload) {
           const { query, value } = action.payload;
           state.data[query] = value;
           state.isLoading[query] = false;
           state.isError[query] = false;
+          state.error[query] = undefined;
         }
       })
-      .addCase(fetchGetPagedM3UFiles.rejected, (state, action) => {
+      .addCase(fetchGetPagedChannelGroups.rejected, (state, action) => {
         const query = action.meta.arg;
         state.error[query] = action.error.message || 'Failed to fetch';
         state.isError[query] = true;
@@ -79,5 +79,5 @@ const M3UFilesSlice = createSlice({
   }
 });
 
-export const { intSetM3UFilesIsLoading, clearM3UFiles, updateM3UFiles } = M3UFilesSlice.actions;
-export default M3UFilesSlice.reducer;
+export const { clearGetPagedChannelGroups, intSetGetPagedChannelGroupsIsLoading, updateGetPagedChannelGroups } = getPagedChannelGroupsSlice.actions;
+export default getPagedChannelGroupsSlice.reducer;

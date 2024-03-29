@@ -1,9 +1,9 @@
 import { GetMessage, isFetchBaseQueryError } from '@lib/common/common';
-import { type ChannelGroupDto, type UpdateChannelGroupRequest } from '@lib/iptvApi';
+
 import { memo, useCallback, useEffect, useState } from 'react';
 
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
-import { UpdateChannelGroup } from '@lib/smAPI/ChannelGroups/ChannelGroupsMutateAPI';
+
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import EditButton from '../buttons/EditButton';
 import TextInput from '../inputs/TextInput';

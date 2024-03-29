@@ -1,14 +1,8 @@
-import {
-  type VideoStreamDto,
-  type VideoStreamsSetVideoStreamsLogoFromEpgApiArg,
-  type VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg
-} from '@lib/iptvApi';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
 import { memo, useCallback, useMemo, useState } from 'react';
 
-import { SetVideoStreamsLogoFromEpg, SetVideoStreamsLogoFromEpgFromParameters } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import ImageButton from '../buttons/ImageButton';
 import OKButton from '../buttons/OKButton';

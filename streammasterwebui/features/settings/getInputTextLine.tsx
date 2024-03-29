@@ -1,6 +1,6 @@
 import TextInput from '@components/inputs/TextInput';
 import { GetMessage } from '@lib/common/common';
-import { SettingDto, UpdateSettingRequest } from '@lib/iptvApi';
+
 import { getDefaultSetting } from '@lib/locales/default_setting';
 import { getHelp } from '@lib/locales/help_en';
 import React from 'react';

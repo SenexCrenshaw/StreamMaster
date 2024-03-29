@@ -1,4 +1,3 @@
-import { SMStreamDto } from '@lib/iptvApi';
 import type { RootState } from '@lib/redux/store';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { useCallback } from 'react';

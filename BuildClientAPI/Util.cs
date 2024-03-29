@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 
 /// <summary>
@@ -55,6 +54,21 @@ public static class Util
         return ret;
     }
 
+    public static List<Type> GetConstructorAndParameterTypes(Type recordType)
+    {
+        List<Type> types = [];
+        ConstructorInfo[] constructors = recordType.GetConstructors();
+        ParameterInfo[] parameters = constructors[0].GetParameters();
+
+        foreach (ParameterInfo p in parameters)
+        {
+            Type pType = p.ParameterType;
+            types.Add(pType);
+
+        }
+        return types;
+    }
+
     public static string CSharpParamToTS(Type recordType)
     {
         List<string> stringBuilder = [];
@@ -67,10 +81,6 @@ public static class Util
             string? name = p.Name;
 
             bool isNull = IsParameterNullable(p);
-            if (isNull)
-            {
-                int aaaa = 1;
-            }
 
             Type pType = p.ParameterType;
             string tsTypeFullName = GetTypeFullNameForParameter(pType);
@@ -92,49 +102,6 @@ public static class Util
         string ret = string.Join(", ", stringBuilder);
 
         return ret;
-    }
-
-    public static string CSharpPropsToTSInterface(Type recordType)
-    {
-        //List<string> additionals = [];
-
-        //if (recordType.GenericTypeArguments != null && recordType.GenericTypeArguments.Length > 0)
-        //{
-        //    Type returnType = recordType.GenericTypeArguments[0];
-        //    recordType = returnType;
-        //}
-
-        //if (AlreadyCreatedInterfaces.Contains(recordType.Name))
-        //{
-        //    return "";
-        //}
-        StringBuilder sb = new();
-        PropertyInfo[] properties = recordType.GetProperties();
-        sb.AppendLine($"export interface {recordType.Name} {{");
-
-        foreach (PropertyInfo p in properties)
-        {
-            string? name = p.Name;
-            Type pType = p.PropertyType;
-
-            string tsTypeFullName = GetTypeFullNameForParameter(pType);
-            string tt = MapCSharpTypeToTypeScript(tsTypeFullName);
-            string tsType = GetLastPartOfTypeName(tt);
-            tsType = FixUpTSType(tsType);
-            //if (IsTSGeneric(tsType) != null)
-            //{
-            //    Debug.WriteLine("Working on " + pType.Name);
-            //    string test2 = CSharpPropsToTSInterface(pType);
-            //    additionals.Add(test2);
-            //}
-            sb.AppendLine($"  {name.ToCamelCase()}: {tsType};");
-
-        }
-        sb.AppendLine("}");
-
-        //string? additionalString = additionals.ToString();
-
-        return sb.ToString();// + additionalString;
     }
 
     public static string FixUpTSType(string tsType)

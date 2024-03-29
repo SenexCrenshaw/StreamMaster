@@ -1,5 +1,3 @@
-import { UpdateVideoStreamRequest, VideoStreamDto } from '@lib/iptvApi';
-import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import React from 'react';
 import StringEditorBodyTemplate from './inputs/StringEditorBodyTemplate';
 
@@ -15,11 +13,11 @@ const ChannelNameEditor = (props: ChannelNameEditorProperties) => {
       data.id = props.data.id;
       data.tvg_name = name;
 
-      await UpdateVideoStream(data)
-        .then(() => {})
-        .catch((error) => {
-          console.error(error);
-        });
+      // await UpdateVideoStream(data)
+      //   .then(() => {})
+      //   .catch((error) => {
+      //     console.error(error);
+      //   });
     },
     [props.data.id, props.data.user_Tvg_name]
   );

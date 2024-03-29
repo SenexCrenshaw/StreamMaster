@@ -1,8 +1,7 @@
-import { VideoStreamsAutoSetEpgApiArg, VideoStreamsAutoSetEpgFromParametersApiArg, type VideoStreamDto } from '@lib/iptvApi';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
-import { AutoSetEpg, AutoSetEpgFromParameters } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
+
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import BookButton from '../buttons/BookButton';

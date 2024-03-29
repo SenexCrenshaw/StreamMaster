@@ -1,9 +1,8 @@
 import SearchButton from '@components/buttons/SearchButton';
 import TextInput from '@components/inputs/TextInput';
-import { CountryData, SchedulesDirectGetAvailableCountriesApiResponse, UpdateSettingRequest, useSchedulesDirectGetAvailableCountriesQuery } from '@lib/iptvApi';
 import { useSelectedCountry } from '@lib/redux/slices/selectedCountrySlice';
 import { useSelectedPostalCode } from '@lib/redux/slices/selectedPostalCodeSlice';
-import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
+
 import useSettings from '@lib/useSettings';
 import { Dropdown } from 'primereact/dropdown';
 import React from 'react';

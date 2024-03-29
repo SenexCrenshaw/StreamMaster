@@ -1,6 +1,7 @@
 ﻿namespace StreamMaster.Application.SMMessages.Commands;
 
 [SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record SendSMErrorRequest(string Detail, string Summary = "Error") : IRequest<DefaultAPIResponse>;
 
 internal class SendSMErrorHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)

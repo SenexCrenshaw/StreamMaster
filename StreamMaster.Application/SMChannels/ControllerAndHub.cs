@@ -48,9 +48,9 @@ namespace StreamMaster.Application.SMChannels
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse<SMChannelDto>>> GetPagedSMChannels([FromQuery] SMChannelParameters Parameters)
+        public async Task<ActionResult<APIResponse<SMChannelDto>>> GetPagedSMChannels([FromQuery] QueryStringParameters Parameters)
         {
-            APIResponse<SMChannelDto> ret = await Sender.Send(new GetPagedSMChannels(Parameters)).ConfigureAwait(false);
+            APIResponse<SMChannelDto> ret = await Sender.Send(new GetPagedSMChannelsRequest(Parameters)).ConfigureAwait(false);
             return ret;
         }
 
@@ -115,9 +115,9 @@ namespace StreamMaster.Application.Hubs
             return ret;
         }
 
-        public async Task<APIResponse<SMChannelDto>> GetPagedSMChannels(SMChannelParameters Parameters)
+        public async Task<APIResponse<SMChannelDto>> GetPagedSMChannels(QueryStringParameters Parameters)
         {
-            APIResponse<SMChannelDto> ret = await Sender.Send(new GetPagedSMChannels(Parameters)).ConfigureAwait(false);
+            APIResponse<SMChannelDto> ret = await Sender.Send(new GetPagedSMChannelsRequest(Parameters)).ConfigureAwait(false);
             return ret;
         }
 

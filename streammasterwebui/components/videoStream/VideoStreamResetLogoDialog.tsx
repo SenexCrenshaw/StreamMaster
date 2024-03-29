@@ -1,5 +1,3 @@
-import { type UpdateVideoStreamRequest, type VideoStreamDto } from '@lib/iptvApi';
-import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import { memo, useCallback } from 'react';
 import ResetButton from '../buttons/ResetButton';
 

@@ -1,5 +1,5 @@
 import AddButton from '@components/buttons/AddButton';
-import { HeadendDto, SchedulesDirectAddLineupApiArg, useSchedulesDirectAddLineupMutation } from '@lib/iptvApi';
+
 import { memo } from 'react';
 
 interface SchedulesDirectAddHeadendDialogProperties {

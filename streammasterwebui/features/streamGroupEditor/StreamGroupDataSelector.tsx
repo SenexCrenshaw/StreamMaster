@@ -3,7 +3,7 @@ import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import StreamGroupAddDialog from '@components/streamGroup/StreamGroupAddDialog';
 import StreamGroupDeleteDialog from '@components/streamGroup/StreamGroupDeleteDialog';
 import StreamGroupEditDialog from '@components/streamGroup/StreamGroupEditDialog';
-import { StreamGroupDto, useStreamGroupsGetPagedStreamGroupsQuery, useStreamGroupsGetStreamGroupQuery } from '@lib/iptvApi';
+
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
 import { skipToken } from '@reduxjs/toolkit/dist/query/react';

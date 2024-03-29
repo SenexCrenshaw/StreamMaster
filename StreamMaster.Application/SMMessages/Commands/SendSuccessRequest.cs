@@ -1,6 +1,7 @@
 ﻿namespace StreamMaster.Application.SMMessages.Commands;
 
 [SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record SendSuccessRequest(string Detail, string Summary = "Success") : IRequest<DefaultAPIResponse>;
 
 internal class SendSuccessHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)

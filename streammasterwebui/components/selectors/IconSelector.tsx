@@ -1,7 +1,7 @@
 import AddButton from '@components/buttons/AddButton';
 import StringEditorBodyTemplate from '@components/inputs/StringEditorBodyTemplate';
 import { getIconUrl } from '@lib/common/common';
-import { IconFileDto, useIconsGetIconsQuery } from '@lib/iptvApi';
+
 import useSettings from '@lib/useSettings';
 import { Dropdown } from 'primereact/dropdown';
 import { ProgressSpinner } from 'primereact/progressspinner';

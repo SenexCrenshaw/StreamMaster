@@ -1,4 +1,4 @@
-﻿using StreamMaster.Application.General.Queries;
+﻿
 using StreamMaster.Application.Services;
 
 namespace StreamMaster.Application.Hubs;
@@ -54,13 +54,6 @@ public partial class StreamMasterHub(
         await base.OnDisconnectedAsync(exception);
     }
 
-
-
-    public Task<bool> GetIsSystemReady(object waste)
-    {
-        return Sender.Send(new GetIsSystemReadyRequest());
-    }
-
     public override Task OnConnectedAsync()
     {
         lock (_connections)
@@ -68,7 +61,7 @@ public partial class StreamMasterHub(
             _connections.Add(Context.ConnectionId);
         }
 
-        Clients.Caller.SystemStatusUpdate(Sender.Send(new GetSystemStatus()).Result);
+        Clients.Caller.SystemStatusUpdate(Sender.Send(new GetSystemStatusRequest()).Result);
 
         return base.OnConnectedAsync();
     }

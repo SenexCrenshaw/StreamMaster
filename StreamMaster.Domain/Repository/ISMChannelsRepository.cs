@@ -10,11 +10,11 @@ public interface ISMChannelsRepository
     IQueryable<SMChannel> GetQuery(Expression<Func<SMChannel, bool>> expression, bool tracking = false);
     Task CreateSMChannel(SMChannel sMChannel);
     PagedResponse<SMChannelDto>? CreateEmptyPagedResponse();
-    Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(SMChannelParameters parameters);
+    Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(QueryStringParameters parameters);
     IQueryable<SMChannel> GetQuery(bool tracking = false);
     List<SMChannelDto> GetSMChannels();
     Task<DefaultAPIResponse> DeleteSMChannel(int smchannelId);
-    Task<List<int>> DeleteSMChannelsFromParameters(SMChannelParameters parameters);
+    Task<List<int>> DeleteSMChannelsFromParameters(QueryStringParameters parameters);
     SMChannel? GetSMChannel(int smchannelId);
     Task<DefaultAPIResponse> CreateSMChannelFromStream(string streamId);
     Task<DefaultAPIResponse> DeleteSMChannels(List<int> smchannelIds);

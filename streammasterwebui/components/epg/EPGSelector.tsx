@@ -1,6 +1,6 @@
 import AddButton from '@components/buttons/AddButton';
 import StringEditorBodyTemplate from '@components/inputs/StringEditorBodyTemplate';
-import { EpgColorDto, StationChannelName, useEpgFilesGetEpgColorsQuery, useSchedulesDirectGetStationChannelNamesQuery } from '@lib/iptvApi';
+
 import { Dropdown } from 'primereact/dropdown';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { classNames } from 'primereact/utils';

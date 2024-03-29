@@ -23,7 +23,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return PagedExtensions.CreateEmptyPagedResponse<SMChannelDto>(Count());
     }
 
-    public async Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(SMChannelParameters parameters)
+    public async Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(QueryStringParameters parameters)
     {
         IQueryable<SMChannel> query = GetQuery(parameters).Include(a => a.SMStreams).ThenInclude(a => a.SMStream);
         return await query.GetPagedResponseAsync<SMChannel, SMChannelDto>(parameters.PageNumber, parameters.PageSize, mapper)
@@ -57,7 +57,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return APIResponseFactory.ErrorWithMessage($"Error deleting SMChannel with id {smchannelId}");
     }
 
-    public async Task<List<int>> DeleteSMChannelsFromParameters(SMChannelParameters parameters)
+    public async Task<List<int>> DeleteSMChannelsFromParameters(QueryStringParameters parameters)
     {
         IQueryable<SMChannel> toDelete = GetQuery(parameters);
         return await DeleteSMChannelsAsync(toDelete).ConfigureAwait(false);
@@ -177,7 +177,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         //    return "";
         //}
 
-        //List<IconFileDto> icons = iconService.GetIcons();
+        //List<IconFileDto> icons = iconService.GetIconsRequest();
         //if (icons.Any(a => a.Source == request.logo))
         //{
         //    channel.Logo = request.logo;

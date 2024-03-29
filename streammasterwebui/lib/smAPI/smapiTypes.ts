@@ -42,6 +42,47 @@ export interface StreamGroupSMChannel
 	streamGroupId: number;
 	rank: number;
 }
+export interface ChannelGroupDto
+{
+	id: number;
+	isHidden: boolean;
+	isReadOnly: boolean;
+	name: string;
+	channelGroupId: number;
+	activeCount: number;
+	totalCount: number;
+	hiddenCount: number;
+}
+export interface EPGFileDto
+{
+	timeShift: number;
+	epgNumber: number;
+	color: string;
+	channelCount: number;
+	epgStartDate: any;
+	epgStopDate: any;
+	programmeCount: number;
+	source: string;
+	autoUpdate: boolean;
+	description: string;
+	downloadErrors: number;
+	hoursToUpdate: number;
+	id: number;
+	lastDownloadAttempt: any;
+	lastDownloaded: any;
+	name: string;
+	needsUpdate: boolean;
+	url: string;
+}
+export interface IconFileDto
+{
+	extension: string;
+	fileId: number;
+	id: string;
+	name: string;
+	smFileType: number;
+	source: string;
+}
 export interface M3UFileDto
 {
 	vodTags: string[];
@@ -205,9 +246,89 @@ export interface DefaultAPIResponse
 export interface NoClass
 {
 }
+export interface GetPagedSMStreamsRequest
+{
+	parameters: QueryStringParameters;
+}
+export interface ToggleSMStreamVisibleByIdRequest
+{
+	id: string;
+}
+export interface SendSMErrorRequest
+{
+	detail: string;
+	summary: string;
+}
+export interface SendSMInfoRequest
+{
+	detail: string;
+	summary: string;
+}
+export interface SendSMMessageRequest
+{
+	message: SMMessage;
+}
+export interface SendSMWarnRequest
+{
+	detail: string;
+	summary: string;
+}
+export interface SendSuccessRequest
+{
+	detail: string;
+	summary: string;
+}
+export interface AddSMStreamToSMChannelRequest
+{
+	smChannelId: number;
+	smStreamId: string;
+}
+export interface CreateSMChannelFromStreamRequest
+{
+	streamId: string;
+}
+export interface DeleteSMChannelRequest
+{
+	smChannelId: number;
+}
+export interface DeleteSMChannelsFromParametersRequest
+{
+	parameters: QueryStringParameters;
+}
+export interface DeleteSMChannelsRequest
+{
+	smChannelIds: number[];
+}
+export interface GetPagedSMChannelsRequest
+{
+	parameters: QueryStringParameters;
+}
+export interface RemoveSMStreamFromSMChannelRequest
+{
+	smChannelId: number;
+	smStreamId: string;
+}
+export interface SetSMChannelLogoRequest
+{
+	smChannelId: number;
+	logo: string;
+}
+export interface SetSMStreamRanksRequest
+{
+	requests: SMChannelRankRequest[];
+}
 export interface SDSystemStatus
 {
 	isSystemReady: boolean;
+}
+export interface GetIsSystemReadyRequest
+{
+}
+export interface GetSettingsRequest
+{
+}
+export interface GetSystemStatusRequest
+{
 }
 export interface CreateM3UFileRequest
 {
@@ -224,6 +345,10 @@ export interface DeleteM3UFileRequest
 	deleteFile: boolean;
 	id: number;
 }
+export interface GetPagedM3UFilesRequest
+{
+	parameters: QueryStringParameters;
+}
 export interface ProcessM3UFileRequest
 {
 	m3UFileId: number;
@@ -237,8 +362,15 @@ export interface RefreshM3UFileRequest
 	id: number;
 	forceRun: boolean;
 }
+export interface GetIconsRequest
+{
+}
 export interface CreateChannelGroupRequest
 {
 	groupName: string;
 	isReadOnly: boolean;
+}
+export interface GetPagedChannelGroupsRequest
+{
+	parameters: QueryStringParameters;
 }

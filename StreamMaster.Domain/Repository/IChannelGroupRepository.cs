@@ -40,7 +40,7 @@ public interface IChannelGroupRepository : IRepositoryBase<ChannelGroup>
     /// <summary>
     /// Retrieves channel groups based on specific parameters.
     /// </summary>
-    Task<List<ChannelGroup>> GetChannelGroupsFromParameters(ChannelGroupParameters Parameters, CancellationToken cancellationToken);
+    Task<List<ChannelGroup>> GetChannelGroupsFromParameters(QueryStringParameters Parameters, CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves channel groups associated with specific M3U channel group names.
@@ -70,7 +70,7 @@ public interface IChannelGroupRepository : IRepositoryBase<ChannelGroup>
     /// <summary>
     /// Retrieves paginated channel groups based on specific parameters.
     /// </summary>
-    Task<PagedResponse<ChannelGroup>> GetPagedChannelGroups(ChannelGroupParameters Parameters);
+    Task<PagedResponse<ChannelGroup>> GetPagedChannelGroups(QueryStringParameters Parameters);
 
     // Commands or actions
 

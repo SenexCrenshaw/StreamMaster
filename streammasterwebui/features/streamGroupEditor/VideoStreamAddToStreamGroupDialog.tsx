@@ -1,9 +1,5 @@
 import RightArrowButton from '@components/buttons/RightArrowButton';
-import {
-  StreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostApiArg,
-  VideoStreamDto,
-  useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostMutation
-} from '@lib/iptvApi';
+
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
 import { memo } from 'react';
 

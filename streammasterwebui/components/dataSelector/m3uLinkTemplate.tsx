@@ -1,4 +1,3 @@
-import { StreamGroupDto } from '@lib/iptvApi';
 import { LinkButton } from '../buttons/LinkButton';
 import getRecordString from './getRecordString';
 

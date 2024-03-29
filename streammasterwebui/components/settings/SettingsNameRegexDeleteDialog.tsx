@@ -1,6 +1,5 @@
 import { getTopToolOptions } from '@lib/common/common';
-import { type UpdateSettingRequest } from '@lib/iptvApi';
-import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
+
 import { Button } from 'primereact/button';
 import React from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';

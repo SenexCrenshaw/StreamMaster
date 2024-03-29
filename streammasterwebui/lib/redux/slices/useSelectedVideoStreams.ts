@@ -1,4 +1,3 @@
-import { VideoStreamDto } from '@lib/iptvApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
 import { makeSelectedVideoStreams, setSelectedVideoStreamsInternal } from './selectedVideoStreamsSlice';

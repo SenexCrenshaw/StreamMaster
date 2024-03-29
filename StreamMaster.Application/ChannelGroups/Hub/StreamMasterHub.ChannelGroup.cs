@@ -1,4 +1,5 @@
-﻿using StreamMaster.Application.ChannelGroups.Queries;
+﻿using StreamMaster.Application.ChannelGroups.Commands;
+using StreamMaster.Application.ChannelGroups.Queries;
 
 namespace StreamMaster.Application.Hubs;
 
@@ -35,7 +36,7 @@ public partial class StreamMasterHub
 
     public async Task<PagedResponse<ChannelGroupDto>> GetPagedChannelGroups(ChannelGroupParameters channelGroupParameters)
     {
-        PagedResponse<ChannelGroupDto> ret = await Sender.Send(new GetPagedChannelGroups(channelGroupParameters)).ConfigureAwait(false);
+        PagedResponse<ChannelGroupDto> ret = await Sender.Send(new GetPagedChannelGroupsRequest(channelGroupParameters)).ConfigureAwait(false);
         return ret;
     }
 

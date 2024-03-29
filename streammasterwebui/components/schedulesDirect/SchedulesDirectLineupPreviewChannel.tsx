@@ -1,7 +1,6 @@
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
-import { LineupPreviewChannel } from '@lib/iptvApi';
-import { GetLineupPreviewChannel } from '@lib/smAPI/SchedulesDirect/SchedulesDirectGetAPI';
+
 import { Dialog } from 'primereact/dialog';
 import { memo, useEffect, useMemo, useState } from 'react';
 

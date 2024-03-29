@@ -1,10 +1,3 @@
-import {
-  useChannelGroupsDeleteAllChannelGroupsFromParametersMutation,
-  useChannelGroupsDeleteChannelGroupMutation,
-  type ChannelGroupDto,
-  type ChannelGroupsDeleteAllChannelGroupsFromParametersApiArg,
-  type DeleteChannelGroupRequest
-} from '@lib/iptvApi';
 import { memo, useCallback, useMemo, useState } from 'react';
 
 import { isFetchBaseQueryError } from '@lib/common/common';

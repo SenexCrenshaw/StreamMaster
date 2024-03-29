@@ -1,5 +1,3 @@
-import { SettingDto, UpdateSettingRequest } from '@lib/iptvApi';
-
 export function getRecord<T, R>(fieldName: string, newData: T): R | undefined {
   const record = fieldName.split('.').reduce((obj, key) => {
     return obj?.[key];

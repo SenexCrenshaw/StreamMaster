@@ -6,11 +6,12 @@ using System.Web;
 namespace StreamMaster.Application.SMStreams.Commands;
 
 [SMAPI]
-public record GetPagedSMStreams(SMStreamParameters Parameters) : IRequest<APIResponse<SMStreamDto>>;
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record GetPagedSMStreamsRequest(QueryStringParameters Parameters) : IRequest<APIResponse<SMStreamDto>>;
 
-internal class GetPagedSMStreamsRequestHandler(IRepositoryWrapper Repository, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor) : IRequestHandler<GetPagedSMStreams, APIResponse<SMStreamDto>>
+internal class GetPagedSMStreamsRequestHandler(IRepositoryWrapper Repository, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor) : IRequestHandler<GetPagedSMStreamsRequest, APIResponse<SMStreamDto>>
 {
-    public async Task<APIResponse<SMStreamDto>> Handle(GetPagedSMStreams request, CancellationToken cancellationToken)
+    public async Task<APIResponse<SMStreamDto>> Handle(GetPagedSMStreamsRequest request, CancellationToken cancellationToken)
     {
         APIResponse<SMStreamDto> ret = new();
         if (request.Parameters.PageSize == 0)

@@ -1,7 +1,6 @@
 ﻿using StreamMaster.Application.Icons;
 using StreamMaster.Application.Icons.Commands;
 using StreamMaster.Application.Icons.Queries;
-using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Application.Hubs;
 
@@ -30,8 +29,4 @@ public partial class StreamMasterHub : IIconHub
         return data;
     }
 
-    public async Task<List<IconFileDto>> GetIcons()
-    {
-        return await Sender.Send(new GetIcons()).ConfigureAwait(false);
-    }
 }

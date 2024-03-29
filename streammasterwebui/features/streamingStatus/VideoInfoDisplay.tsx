@@ -1,5 +1,3 @@
-import { VideoInfo } from '@lib/iptvApi';
-
 type VideoInfoProps = {
   videoInfo: VideoInfo;
 };

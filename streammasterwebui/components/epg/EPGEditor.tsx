@@ -1,5 +1,3 @@
-import { type UpdateVideoStreamRequest, type VideoStreamDto } from '@lib/iptvApi';
-import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import { memo } from 'react';
 import EPGSelector from './EPGSelector';
 
@@ -22,11 +20,11 @@ const EPGEditor = ({ data, enableEditMode }: EPGEditorProperties) => {
       toSend.tvg_ID = epg;
     }
     // console.log('onUpdateVideoStream sending', toSend);
-    await UpdateVideoStream(toSend)
-      .then(() => {})
-      .catch((error: unknown) => {
-        console.error(error);
-      });
+    // await UpdateVideoStream(toSend)
+    //   .then(() => {})
+    //   .catch((error: unknown) => {
+    //     console.error(error);
+    //   });
   };
 
   return (

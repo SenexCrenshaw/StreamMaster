@@ -26,22 +26,26 @@ namespace BuildClientAPI
                 Assembly assembly = Assembly.Load(AssemblyName);
                 Dictionary<string, List<MethodDetails>> methodsByNamespace = [];
                 List<Type> smapiAttributedTypes = assembly.GetTypes()
-            .Where(t => t.GetCustomAttributes(typeof(SMAPIAttribute), false).Any())
-            .ToList();
+                    .Where(t => t.GetCustomAttributes(typeof(SMAPIAttribute), false).Any())
+                    .ToList();
 
                 foreach (Type recordType in smapiAttributedTypes)
                 {
+                    if (!recordType.Name.EndsWith("Request"))
+                    {
+                        continue;
+                    }
+
                     string classNamespace = GetNameSpaceParent(recordType);
-                    if (!methodsByNamespace.TryGetValue(classNamespace, out List<MethodDetails> methodDetailsList))
+                    if (!methodsByNamespace.TryGetValue(classNamespace, out List<MethodDetails>? methodDetailsList))
                     {
                         methodDetailsList = [];
                         methodsByNamespace[classNamespace] = methodDetailsList;
 
                     }
 
-
                     string ps = Util.ParamsToCSharp(recordType);
-                    string tsps = Util.CSharpParamToTS(recordType); ;
+                    string tsps = Util.CSharpParamToTS(recordType);
 
                     ConstructorInfo[] constructors = recordType.GetConstructors();
                     ParameterInfo[] parameters = constructors[0].GetParameters();
@@ -56,17 +60,26 @@ namespace BuildClientAPI
 
                     Type returnType = iRequestInterface.GenericTypeArguments[0];
 
+                    List<string> smapiImport = [];
 
-                    if (recordType.Name == "GetSettings")
+                    if (recordType.Name.StartsWith("GetIcons"))
                     {
-                        string returntype = GetCleanReturnType(recordType);
+                        string returntype = GetCleanReturnType(returnType);
+                        string returntypeTS = GetCleanTSReturnType(returnType);
                         string Parameters = Util.ParamsToCSharp(recordType);
                         string TsParameters = Util.CSharpParamToTS(recordType);
-                        string testI = Util.CSharpPropsToTSInterface(returnType);
+                        //string testI = Util.CSharpPropsToTSInterface(returnType);
+                        string TsReturnType = GetCleanTSReturnType(returnType);
+                        string genericArgs = string.Join(", ", recordType.GetGenericArguments().Select(FormatTypeName));
+                        string genericArgs2 = string.Join(", ", returnType.GetGenericArguments().Select(FormatTypeName));
+                        smapiImport.AddRange(recordType.GetGenericArguments().Select(FormatTypeName));
+                        smapiImport.AddRange(returnType.GetGenericArguments().Select(FormatTypeName));
+
                     }
 
 
                     string name = recordType.Name;
+                    string parameter = recordType.Name;
                     if (recordType.Name.EndsWith("Request"))
                     {
                         name = recordType.Name[..^7];
@@ -78,21 +91,29 @@ namespace BuildClientAPI
                         continue;
                     }
 
-
-
                     MethodDetails methodDetails = new()
                     {
                         Name = name,
+                        NamespaceName = classNamespace,
+                        SMAPIImport = smapiImport,
                         ReturnType = GetCleanReturnType(returnType),
-                        Parameters = ps,
+
+                        IsList = returnType.Name.StartsWith("List"),
+                        Parameter = ps,
                         ParameterNames = string.Join(", ", parameters.Select(p => p.Name)),
-                        TsParameters = tsps,
-                        TsParameterTypes = string.Join(", ", parameters.Select(p => Util.MapCSharpTypeToTypeScript(Util.GetTypeFullNameForParameter(p.ParameterType)))),
+
                         IsGetPaged = name.StartsWith("GetPaged"),
                         IsTask = smapiAttribute.IsTask,
                         JustHub = smapiAttribute.JustHub,
                         JustController = smapiAttribute.JustController,
-                        TsReturnInterface = ""//Util.CSharpPropsToTSInterface(returnType)
+
+                        SingalRFunction = parameter,
+
+                        TSName = name,
+                        TsParameter = ps == "" ? "" : parameter,
+                        TsReturnType = GetCleanTSReturnType(returnType),
+
+                        ReturnEntityType = GetTSTypeReturnName(returnType),
                     };
 
                     string? returnEntity = Util.IsTSGeneric(Util.ExtractInnermostType(methodDetails.ReturnType));
@@ -102,12 +123,19 @@ namespace BuildClientAPI
 
                     }
 
-                    if (recordType.Name == "AddSMStreamToSMChannel")
+                    if (recordType.Name.StartsWith("AddSMStreamToSMChannel"))
                     {
                         List<ParameterInfo> test = parameters.ToList();
                         List<string> aa = parameters.Select(p => $"{p.ParameterType.Name}").ToList();
+                        List<Type> aaa = Util.GetConstructorAndParameterTypes(recordType);
+                        List<Type> aaa2 = Util.GetConstructorAndParameterTypes(returnType);
                     }
 
+                    if (recordType.Name.StartsWith("GetIcons"))
+                    {
+
+                        int aaa = 1;
+                    }
                     methodDetailsList.Add(methodDetails);
 
                 }
@@ -134,12 +162,11 @@ namespace BuildClientAPI
 
                         //if (pagedMethods.Count > 0)
                         //{
-                        string tsSliceFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Slice.ts");
-                        TypeScriptSliceGenerator.GenerateFile(namespaceName, pagedMethods, tsSliceFilePath);
+                        string tsSliceFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName);//, $"{namespaceName}Slice.ts");
+                        TypeScriptSliceGenerator.GenerateFile(pagedMethods, tsSliceFilePath);
 
-
-                        string tsHookFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"use{namespaceName}.ts");
-                        TypeScriptHookGenerator.GenerateFile(namespaceName, methods, tsHookFilePath);
+                        string tsHookFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName);//, $"use{namespaceName}.ts");
+                        TypeScriptHookGenerator.GenerateFile(methods, tsHookFilePath);
 
                         //}
                     }
@@ -184,6 +211,69 @@ namespace BuildClientAPI
             else
             {
                 return FormatTypeName(returnType);
+            }
+        }
+
+        private static string GetCleanTSReturnType(Type returnType)
+        {
+            if (typeof(Task).IsAssignableFrom(returnType))
+            {
+                if (returnType.IsGenericType)
+                {
+                    Type resultType = returnType.GetGenericArguments()[0];
+                    return FormatTSTypeName(resultType);
+                }
+                else
+                {
+                    return "void";
+                }
+            }
+            else
+            {
+                return FormatTSTypeName(returnType);
+            }
+        }
+
+        public static string GetTSTypeReturnName(Type type)
+        {
+            if (type.IsGenericType)
+            {
+
+                string genericArgs = FormatTSTypeName(type.GetGenericArguments()[0]);
+                return genericArgs;
+            }
+            else
+            {
+                return type.Name switch
+                {
+                    "String" => "string",
+                    "Int32" => "int",
+                    "Boolean" => "boolean",
+
+                    _ => type.Name,
+                };
+            }
+        }
+
+        private static string FormatTSTypeName(Type type)
+        {
+            if (type.IsGenericType)
+
+            {
+                string typeName = type.GetGenericTypeDefinition().Name;
+                typeName = typeName[..typeName.IndexOf('`')];
+                string genericArgs = string.Join(", ", type.GetGenericArguments().Select(FormatTSTypeName));
+                return $"{genericArgs}[]";
+            }
+            else
+            {
+                return type.Name switch
+                {
+                    "String" => "string",
+                    "Int32" => "int",
+                    "Boolean" => "boolean",
+                    _ => type.Name,
+                };
             }
         }
 

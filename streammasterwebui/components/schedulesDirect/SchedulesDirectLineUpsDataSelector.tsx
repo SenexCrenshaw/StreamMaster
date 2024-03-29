@@ -1,4 +1,3 @@
-import { HeadendDto, useSchedulesDirectGetLineupsQuery } from '@lib/iptvApi';
 import { memo, useCallback, useMemo } from 'react';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 

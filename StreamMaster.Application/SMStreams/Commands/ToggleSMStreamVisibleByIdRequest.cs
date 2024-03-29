@@ -1,8 +1,8 @@
 ﻿namespace StreamMaster.Application.SMStreams.Commands;
 
 [SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record ToggleSMStreamVisibleByIdRequest(string Id) : IRequest<DefaultAPIResponse>;
-
 internal class ToggleSMStreamVisibleByIdHandler(IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<ToggleSMStreamVisibleByIdRequest, DefaultAPIResponse>
 {
     public async Task<DefaultAPIResponse> Handle(ToggleSMStreamVisibleByIdRequest request, CancellationToken cancellationToken)

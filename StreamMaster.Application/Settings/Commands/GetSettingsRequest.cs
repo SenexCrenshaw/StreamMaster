@@ -1,18 +1,19 @@
 ﻿namespace StreamMaster.Application.Settings.Commands;
 
 [SMAPI]
-public record GetSettings : IRequest<SettingDto>;
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record GetSettingsRequest : IRequest<SettingDto>;
 
-internal class GetSettingsHandler(
+internal class GetSettingsRequestHandler(
         IMapper mapper,
         IOptionsMonitor<Setting> intsettings,
         IOptionsMonitor<HLSSettings> inthlssettings,
         IOptionsMonitor<SDSettings> intsdsettings
-    ) : IRequestHandler<GetSettings, SettingDto>
+    ) : IRequestHandler<GetSettingsRequest, SettingDto>
 {
     private readonly Setting settings = intsettings.CurrentValue;
 
-    public async Task<SettingDto> Handle(GetSettings request, CancellationToken cancellationToken)
+    public async Task<SettingDto> Handle(GetSettingsRequest request, CancellationToken cancellationToken)
     {
         SettingDto ret = mapper.Map<SettingDto>(settings);
 

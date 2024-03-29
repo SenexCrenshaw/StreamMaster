@@ -1,13 +1,12 @@
-import { SMStreamDto } from '@lib/apiDefs';
-import { type UpdateVideoStreamRequest, type VideoStreamsUpdateAllVideoStreamsFromParametersApiArg } from '@lib/iptvApi';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
-import useSMStreams from '@lib/smAPI/SMStreams/useSMStreams';
-import { UpdateAllVideoStreamsFromParameters } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
+
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import VisibleButton from '../buttons/VisibleButton';
+import { SMStreamDto, ToggleSMStreamVisibleByIdRequest } from '@lib/smAPI/smapiTypes';
+import { ToggleSMStreamVisibleById } from '@lib/smAPI/SMStreams/SMStreamsCommands';
 
 interface StreamVisibleDialogProperties {
   readonly iconFilled?: boolean;
@@ -26,8 +25,6 @@ const StreamVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, values }:
   const { selectedVideoStreams } = useSelectedVideoStreams(id);
   const { selectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
-
-  const { toggleSMStreamVisibleById } = useSMStreams();
 
   const ReturnToParent = useCallback(() => {
     setShowOverlay(false);
@@ -75,13 +72,13 @@ const StreamVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, values }:
         toggleVisibility: true
       } as UpdateVideoStreamRequest;
 
-      await UpdateAllVideoStreamsFromParameters(toSendAll)
-        .then(() => {
-          setInfoMessage('Toggle Stream Visibility Successfully');
-        })
-        .catch((error) => {
-          setInfoMessage(`Toggle Stream Visibility Error: ${error.message}`);
-        });
+      // await UpdateAllVideoStreamsFromParameters(toSendAll)
+      //   .then(() => {
+      //     setInfoMessage('Toggle Stream Visibility Successfully');
+      //   })
+      //   .catch((error) => {
+      //     setInfoMessage(`Toggle Stream Visibility Error: ${error.message}`);
+      //   });
 
       return;
     }
@@ -92,14 +89,14 @@ const StreamVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, values }:
       return;
     }
 
-    await toggleSMStreamVisibleById(selectStreamsInternal[0].id as string)
+    await ToggleSMStreamVisibleById({ id: selectStreamsInternal[0].id as string } as ToggleSMStreamVisibleByIdRequest)
       .then(() => {
         setInfoMessage('Set Stream Visibility Successfully');
       })
       .catch((error) => {
         setInfoMessage(`Set Stream Visibility Error: ${error.message}`);
       });
-  }, [selectStreamsInternal, getTotalCount, selectAll, toggleSMStreamVisibleById, ReturnToParent, queryFilter]);
+  }, [selectStreamsInternal, getTotalCount, selectAll, ReturnToParent, queryFilter]);
 
   if (skipOverLayer === true) {
     return (

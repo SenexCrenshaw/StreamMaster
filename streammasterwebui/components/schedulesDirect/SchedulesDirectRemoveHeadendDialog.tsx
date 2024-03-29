@@ -1,5 +1,5 @@
 import MinusButton from '@components/buttons/MinusButton';
-import { HeadendDto, SchedulesDirectRemoveLineupApiArg, useSchedulesDirectRemoveLineupMutation } from '@lib/iptvApi';
+
 import { memo } from 'react';
 
 interface SchedulesDirectAddHeadendDialogProperties {

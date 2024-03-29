@@ -311,7 +311,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
     }
 
     /// <inheritdoc/>
-    public async Task<PagedResponse<M3UFileDto>> GetPagedM3UFiles(M3UFileParameters parameters)
+    public async Task<PagedResponse<M3UFileDto>> GetPagedM3UFiles(QueryStringParameters parameters)
     {
         IQueryable<M3UFile> query = GetQuery(parameters);
         return await query.GetPagedResponseAsync<M3UFile, M3UFileDto>(parameters.PageNumber, parameters.PageSize, mapper)

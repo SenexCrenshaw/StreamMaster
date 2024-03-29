@@ -1,4 +1,3 @@
-import { IdName, useVideoStreamsGetVideoStreamNamesQuery, type VideoStreamDto } from '@lib/iptvApi';
 import { Dropdown } from 'primereact/dropdown';
 import { type SelectItem } from 'primereact/selectitem';
 import { useEffect, useMemo, useRef, useState } from 'react';

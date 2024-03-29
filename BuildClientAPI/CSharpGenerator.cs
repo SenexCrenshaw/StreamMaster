@@ -34,30 +34,32 @@ public static class CSharpGenerator
 
             string route = $"[Route(\"[action]\")]";
             string httpMethodLine = $"[{httpAttribute}]";
-            string parameterLine = string.IsNullOrEmpty(method.Parameters) ? "" : $"{method.Name}Request request";
-            string toSend = string.IsNullOrEmpty(method.Parameters) ? $"new {method.Name}()" : "request";
+            string parameterLine = string.IsNullOrEmpty(method.Parameter) ? "" : $"{method.Name}Request request";
+            string toSend = string.IsNullOrEmpty(method.Parameter) ? $"new {method.SingalRFunction}()" : "request";
 
             if (!method.JustHub)
             {
                 controllerContent.AppendLine($"        {httpMethodLine}");
                 controllerContent.AppendLine($"        {route}");
 
+                if (method.Name.StartsWith("GetSettings"))
+                {
+                    int aaaa = 1;
+                }
+
                 if (method.IsGetPaged)
                 {
-                    string fromQ = "";
-                    if (method.Name.StartsWith("GetPaged"))
-                    {
-                        fromQ = "[FromQuery] ";
-                    }
-                    controllerContent.AppendLine($"        public async Task<ActionResult<{method.ReturnType}>> {method.Name}({fromQ}{method.Parameters})");
+                    string fromQ = "[FromQuery] ";
+
+                    controllerContent.AppendLine($"        public async Task<ActionResult<{method.ReturnType}>> {method.Name}({fromQ}{method.Parameter})");
                     controllerContent.AppendLine($"        {{");
-                    controllerContent.AppendLine($"            {method.ReturnType} ret = await Sender.Send(new {method.Name}({method.ParameterNames})).ConfigureAwait(false);");
+                    controllerContent.AppendLine($"            {method.ReturnType} ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
                     controllerContent.AppendLine($"            return ret;");
-                    IcontrollerContent.AppendLine($"    Task<ActionResult<{method.ReturnType}>> {method.Name}({method.Parameters});");
+                    IcontrollerContent.AppendLine($"    Task<ActionResult<{method.ReturnType}>> {method.Name}({method.Parameter});");
                 }
                 else if (method.IsTask)
                 {
-                    hubContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.Name}Request request)");
+                    hubContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.TsParameter} request)");
                     hubContent.AppendLine($"        {{");
                     hubContent.AppendLine($"            {method.ReturnType} ret = await taskQueue{method.Name}(request).ConfigureAwait(false);");
                     IhubContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Name}Request request);");
@@ -82,10 +84,10 @@ public static class CSharpGenerator
 
                 if (method.IsGetPaged)
                 {
-                    hubContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.Parameters})");
+                    hubContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.Parameter})");
                     hubContent.AppendLine($"        {{");
-                    hubContent.AppendLine($"            {method.ReturnType} ret = await Sender.Send(new {method.Name}({method.ParameterNames})).ConfigureAwait(false);");
-                    IhubContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Parameters});");
+                    hubContent.AppendLine($"            {method.ReturnType} ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+                    IhubContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Parameter});");
                     hubContent.AppendLine($"            return ret;");
                 }
                 else if (method.IsTask)

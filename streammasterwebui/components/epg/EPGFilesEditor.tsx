@@ -1,4 +1,3 @@
-import { EpgFileDto } from '@lib/iptvApi';
 import { memo } from 'react';
 import EPGFileDialog from './EPGFileDialog';
 import EPGFilesDataSelector from './EPGFilesDataSelector';

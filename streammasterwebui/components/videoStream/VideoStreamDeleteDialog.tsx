@@ -1,10 +1,3 @@
-import {
-  useVideoStreamsDeleteAllVideoStreamsFromParametersMutation,
-  useVideoStreamsDeleteVideoStreamMutation,
-  type VideoStreamDto,
-  type VideoStreamsDeleteAllVideoStreamsFromParametersApiArg,
-  type VideoStreamsDeleteVideoStreamApiArg
-} from '@lib/iptvApi';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';

@@ -1,15 +1,15 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import {FieldData,PagedResponse, SDSystemStatus } from '@lib/smAPI/smapiTypes';
+import {FieldData, SMStreamDto,PagedResponse } from '@lib/smAPI/smapiTypes';
 import {removeKeyFromData} from '@lib/apiDefs';
-import { fetchGetSystemStatus } from '@lib/smAPI/Settings/SettingsFetch';
+import { fetchGetPagedSMStreams } from '@lib/smAPI/SMStreams/SMStreamsFetch';
 import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
 
 
 interface QueryState {
-  data: Record<string, PagedResponse<SDSystemStatus> | undefined>;
+  data: Record<string, PagedResponse<SMStreamDto> | undefined>;
   isLoading: Record<string, boolean>;
   isError: Record<string, boolean>;
-  error: Record<string, string>;
+  error: Record<string, string | undefined>;
 }
 
 const initialState: QueryState = {
@@ -18,58 +18,58 @@ const initialState: QueryState = {
   isError: {},
   error: {}
 };
-const SettingsSlice = createSlice({
-  name: 'Settings',
+const getPagedSMStreamsSlice = createSlice({
+  name: 'GetPagedSMStreams',
   initialState,
   reducers: {
-    updateSettings: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
+    updateGetPagedSMStreams: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
       const { query, fieldData } = action.payload;
 
       if (query !== undefined) {
-        // Update a specific query's data if it exists
         if (state.data[query]) {
           state.data[query] = updatePagedResponseFieldInData(state.data[query], fieldData);
         }
         return;
       }
 
-      // Fallback: update all queries' data if query is undefined
       for (const key in state.data) {
         if (state.data[key]) {
           state.data[key] = updatePagedResponseFieldInData(state.data[key], fieldData);
         }
       }
-      console.log('updateSettings executed');
+      console.log('updateGetPagedSMStreams executed');
     },
-    clearSettings: (state) => {
+    clearGetPagedSMStreams: (state) => {
       for (const key in state.data) {
         const updatedData = removeKeyFromData(state.data, key);
         state.data = updatedData;
       }
-      console.log('clearSettings executed');
+      console.log('clearGetPagedSMStreams executed');
     },
-    intSetSettingsIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
+    intSetGetPagedSMStreamsIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
        for (const key in state.data) { state.isLoading[key] = action.payload.isLoading; }
-      console.log('setSettingsIsLoading executed');
+      console.log('setGetPagedSMStreamsIsLoading executed');
     },
 
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchGetSystemStatus.pending, (state, action) => {
+      .addCase(fetchGetPagedSMStreams.pending, (state, action) => {
         const query = action.meta.arg;
         state.isLoading[query] = true;
-        state.isError[query] = false; // Reset isError state on new fetch
+        state.isError[query] = false;
+        state.error[query] = undefined;
       })
-      .addCase(fetchGetSystemStatus.fulfilled, (state, action) => {
+      .addCase(fetchGetPagedSMStreams.fulfilled, (state, action) => {
         if (action.payload) {
           const { query, value } = action.payload;
           state.data[query] = value;
           state.isLoading[query] = false;
           state.isError[query] = false;
+          state.error[query] = undefined;
         }
       })
-      .addCase(fetchGetSystemStatus.rejected, (state, action) => {
+      .addCase(fetchGetPagedSMStreams.rejected, (state, action) => {
         const query = action.meta.arg;
         state.error[query] = action.error.message || 'Failed to fetch';
         state.isError[query] = true;
@@ -79,5 +79,5 @@ const SettingsSlice = createSlice({
   }
 });
 
-export const { intSetSettingsIsLoading, clearSettings, updateSettings } = SettingsSlice.actions;
-export default SettingsSlice.reducer;
+export const { clearGetPagedSMStreams, intSetGetPagedSMStreamsIsLoading, updateGetPagedSMStreams } = getPagedSMStreamsSlice.actions;
+export default getPagedSMStreamsSlice.reducer;

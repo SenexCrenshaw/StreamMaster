@@ -1,6 +1,5 @@
 import { memo, useCallback, useState } from 'react';
 
-import { M3UFileDto, RefreshM3UFileRequest, useM3UFilesRefreshM3UFileMutation } from '@lib/iptvApi';
 import FileRefreshDialog from '../sharedEPGM3U/FileRefreshDialog';
 
 interface M3UFileRefreshDialogProperties {

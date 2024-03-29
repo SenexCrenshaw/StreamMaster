@@ -1,7 +1,5 @@
 import { memo } from 'react';
 
-import { UpdateVideoStreamRequest, VideoStreamDto } from '@lib/iptvApi';
-import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import IconSelector from '../selectors/IconSelector';
 
 export interface StreamDataSelectorProperties {
@@ -23,11 +21,11 @@ const VideoStreamLogoEditor = ({ data, enableEditMode }: StreamDataSelectorPrope
       request.tvg_logo = Logo;
     }
 
-    await UpdateVideoStream(request)
-      .then(() => {})
-      .catch((error) => {
-        console.error(error);
-      });
+    // await UpdateVideoStream(request)
+    //   .then(() => {})
+    //   .catch((error) => {
+    //     console.error(error);
+    //   });
   };
 
   return (

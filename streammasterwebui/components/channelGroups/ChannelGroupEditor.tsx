@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { useVideoStreamsUpdateVideoStreamMutation, type UpdateVideoStreamRequest, type VideoStreamDto } from '@lib/iptvApi';
 import ChannelGroupSelector from './ChannelGroupSelector';
 
 const ChannelGroupEditor = (props: ChannelGroupEditorProperties) => {

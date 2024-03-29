@@ -3,7 +3,7 @@ import ChannelGroupSelector from '@components/channelGroups/ChannelGroupSelector
 import EPGSelector from '@components/epg/EPGSelector';
 import IconSelector from '@components/selectors/IconSelector';
 import { getIconUrl } from '@lib/common/common';
-import { CreateVideoStreamRequest, UpdateVideoStreamRequest, VideoStreamDto, useChannelGroupsGetChannelGroupNamesQuery } from '@lib/iptvApi';
+
 import useSettings from '@lib/useSettings';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { InputNumber } from 'primereact/inputnumber';

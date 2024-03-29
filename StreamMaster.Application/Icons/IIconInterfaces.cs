@@ -2,13 +2,12 @@
 
 using StreamMaster.Application.Icons.Commands;
 using StreamMaster.Application.Icons.Queries;
-using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Application.Icons;
 
 public interface IIconController
 {
-    Task<ActionResult<List<IconFileDto>>> GetIcons();
+
     Task<ActionResult> AutoMatchIconToStreams(AutoMatchIconToStreamsRequest request);
 
     Task<ActionResult<IconFileDto>> GetIconFromSource(GetIconFromSourceRequest request);
@@ -22,7 +21,6 @@ public interface IIconDB
 
 public interface IIconHub
 {
-    Task<List<IconFileDto>> GetIcons();
     Task AutoMatchIconToStreams(AutoMatchIconToStreamsRequest request);
     Task<IconFileDto?> GetIconFromSource(GetIconFromSourceRequest request);
 

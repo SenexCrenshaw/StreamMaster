@@ -1,17 +1,23 @@
 ﻿
 // Example structure for method details
+
 public class MethodDetails
 {
     public string Name { get; set; }
     public string ReturnType { get; set; }
-    public string Parameters { get; set; } // Formatted as "type name, type name"
-    public string ParameterNames { get; set; } // Formatted as "name, name"
+    public string Parameter { get; set; }
+    public string ParameterNames { get; set; }
     public bool JustHub { get; set; }
-    // TypeScript specific properties
-    public string TsParameters { get; set; } // TypeScript parameters formatted as "name: type, name: type"
-    public string TsParameterTypes { get; set; } // TypeScript parameter types formatted as "type, type"
+
+    public string TsParameter { get; set; }
     public bool IsGetPaged { get; internal set; }
     public bool JustController { get; internal set; }
     public bool IsTask { get; internal set; }
-    public string TsReturnInterface { get; internal set; }
+    public string TsReturnType { get; internal set; }
+    public bool IsList { get; internal set; }
+    public List<string> SMAPIImport { get; internal set; }
+    public string TSName { get; internal set; }
+    public string ReturnEntityType { get; internal set; }
+    public string SingalRFunction { get; internal set; }
+    public string NamespaceName { get; internal set; }
 }

@@ -1,5 +1,4 @@
 import { M3UFileStreamUrlPrefix } from '@lib/common/streammaster_enums';
-import { useM3UFilesCreateM3UFileMutation, type CreateM3UFileRequest } from '@lib/iptvApi';
 import React, { useState } from 'react';
 import FileDialog, { type FileDialogProperties } from '../sharedEPGM3U/FileDialog';
 

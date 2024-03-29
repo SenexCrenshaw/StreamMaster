@@ -1,6 +1,7 @@
 ﻿namespace StreamMaster.Application.SMMessages.Commands;
 
 [SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record SendSMMessageRequest(SMMessage Message) : IRequest<DefaultAPIResponse>;
 
 internal class SendSMMessageHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<SendSMMessageRequest, DefaultAPIResponse>

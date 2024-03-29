@@ -1,5 +1,3 @@
-import { type UpdateVideoStreamRequest, type VideoStreamDto } from '@lib/iptvApi';
-import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import { memo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import ClockButton from '../buttons/ClockButton';
@@ -39,9 +37,9 @@ const VideoStreamSetTimeShiftDialog = ({ iconFilled, onClose, value }: VideoStre
     toSend.id = value.id;
     toSend.timeShift = timshift;
 
-    await UpdateVideoStream(toSend)
-      .then(() => {})
-      .catch(() => {});
+    // await UpdateVideoStream(toSend)
+    //   .then(() => {})
+    //   .catch(() => {});
   };
 
   return (

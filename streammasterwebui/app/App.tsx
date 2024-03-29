@@ -1,18 +1,6 @@
 import { useLocalStorage } from 'primereact/hooks';
 import { Navigate, Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
 
-// import FilesEditor from '@features/filesEditor/FilesEditor';
-// import LogViewer from '@features/logViewer/LogViewer';
-// import PlayListEditor from '@features/playListEditor/PlayListEditor';
-// import QueueStatus from '@features/queueStatus/QueueStatus';
-// import SDEditorChannels from '@features/sdEditor/SDEditorChannels';
-// import SDEditorHeadEndsAndLineUps from '@features/sdEditor/SDEditorHeadEndsAndLineUps';
-// import SettingsEditor from '@features/settings/SettingsEditor';
-// import StreamGroupEditor from '@features/streamGroupEditor/StreamGroupEditor';
-// import StreamingStatus from '@features/streamingStatus/StreamingStatus';
-// import VideoPlayer from '@features/videoPlayer/VideoPlayer';
-
-import { useEpgFilesGetEpgColorsQuery, useIconsGetIconsQuery, useSchedulesDirectGetStationChannelNamesQuery } from '@lib/iptvApi';
 import MessagesEn from '@lib/locales/MessagesEn';
 // import { SignalRConnection } from '@lib/signalr/SignalRConnection';
 
@@ -62,7 +50,7 @@ const App = (): JSX.Element => {
         <Route
           element={
             <Suspense>
-              <Navigate to="/editor/playlist" />
+              <Navigate to="/editor/streams" />
             </Suspense>
           }
           index
@@ -178,9 +166,9 @@ const App = (): JSX.Element => {
     )
   );
 
-  useSchedulesDirectGetStationChannelNamesQuery();
-  useEpgFilesGetEpgColorsQuery();
-  useIconsGetIconsQuery();
+  // useSchedulesDirectGetStationChannelNamesQuery();
+  // useEpgFilesGetEpgColorsQuery();
+  // useIconsGetIconsQuery();
 
   useEffect(() => {
     if (signalRService && signalRService.events) {

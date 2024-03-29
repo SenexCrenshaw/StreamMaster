@@ -4,9 +4,9 @@
 //{
 //    [HttpGet]
 //    [Route("[action]")]
-//    public async Task<ActionResult<PagedResponse<SMStreamDto>>> GetPagedSMStreams([FromQuery] SMStreamParameters Parameters)
+//    public async Task<ActionResult<PagedResponse<SMStreamDto>>> GetPagedSMStreamsRequest([FromQuery] SMStreamParameters Parameters)
 //    {
-//        PagedResponse<SMStreamDto> ret = await Mediator.Send(new GetPagedSMStreams(Parameters)).ConfigureAwait(false);
+//        PagedResponse<SMStreamDto> ret = await Mediator.Send(new GetPagedSMStreamsRequest(Parameters)).ConfigureAwait(false);
 //        return ret;
 //    }
 

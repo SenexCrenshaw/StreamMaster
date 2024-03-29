@@ -103,7 +103,7 @@ public class ChannelGroupRepository(
     /// A PagedResponse containing the ChannelGroup objects enriched with count data from the memory cache.
     /// </returns>
     /// <exception cref="Exception">Throws any exception that occurs during the operation for higher layers to handle.</exception>
-    public async Task<PagedResponse<ChannelGroup>> GetPagedChannelGroups(ChannelGroupParameters Parameters)
+    public async Task<PagedResponse<ChannelGroup>> GetPagedChannelGroups(QueryStringParameters Parameters)
     {
         try
         {
@@ -348,7 +348,7 @@ public class ChannelGroupRepository(
     /// <param name="cancellationToken">Token to support task cancellation.</param>
     /// <returns>A list of ChannelGroup matching the provided parameters.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the provided Parameters are null.</exception>
-    public async Task<List<ChannelGroup>> GetChannelGroupsFromParameters(ChannelGroupParameters Parameters, CancellationToken cancellationToken)
+    public async Task<List<ChannelGroup>> GetChannelGroupsFromParameters(QueryStringParameters Parameters, CancellationToken cancellationToken)
     {
         if (Parameters == null)
         {

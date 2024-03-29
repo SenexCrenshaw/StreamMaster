@@ -1,4 +1,3 @@
-import { useSettingsGetSettingQuery, type StreamGroupDto, type UpdateStreamGroupRequest } from '@lib/iptvApi';
 import { InputText } from 'primereact/inputtext';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -6,7 +5,7 @@ import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup
 
 import ProfilesDropDown from '@components/Profiles/ProfilesDropDown';
 import StreamGroupChannelGroupsSelector from '@features/streamGroupEditor/StreamGroupChannelGroupsSelector';
-import { UpdateStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsMutateAPI';
+
 import { v4 as uuidv4 } from 'uuid';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import EditButton from '../buttons/EditButton';

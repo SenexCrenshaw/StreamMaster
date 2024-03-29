@@ -3,7 +3,7 @@ import { useLocalStorage } from 'primereact/hooks';
 import { useState } from 'react';
 
 import { AdditionalFilterProperties } from '@lib/common/common';
-import { VideoStreamIsReadOnly } from '@lib/iptvApi';
+
 import { useSelectedSMChannel } from '@lib/redux/slices/selectedSMChannel';
 import { useSelectedSMStream } from '@lib/redux/slices/selectedSMStream';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';

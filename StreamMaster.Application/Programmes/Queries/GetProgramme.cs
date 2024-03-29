@@ -14,7 +14,7 @@ internal class GetProgrammeHandler(ISender sender) : IRequestHandler<GetProgramm
         {
             return null;
         }
-        //SettingDto setting = await sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
+        //SettingDto setting = await sender.Send(new GetSettingsRequest(), cancellationToken).ConfigureAwait(false);
 
         //List<IconFileDto> icons = memoryCache.Icons();
 

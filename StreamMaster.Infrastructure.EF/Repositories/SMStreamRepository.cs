@@ -20,14 +20,14 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
         return PagedExtensions.CreateEmptyPagedResponse<SMStreamDto>(Count());
     }
 
-    public async Task<PagedResponse<SMStreamDto>> GetPagedSMStreams(SMStreamParameters parameters, CancellationToken cancellationToken)
+    public async Task<PagedResponse<SMStreamDto>> GetPagedSMStreams(QueryStringParameters parameters, CancellationToken cancellationToken)
     {
         IQueryable<SMStream> query = GetQuery(parameters);
         return await query.GetPagedResponseAsync<SMStream, SMStreamDto>(parameters.PageNumber, parameters.PageSize, mapper)
                           .ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<string>> DeleteAllSMStreamsFromParameters(SMStreamParameters parameters, CancellationToken cancellationToken)
+    public async Task<IEnumerable<string>> DeleteAllSMStreamsFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken)
     {
         IQueryable<SMStream> toDelete = GetQuery(parameters).Where(a => a.IsUserCreated);
         return await DeleteStreamsAsync(toDelete, cancellationToken).ConfigureAwait(false);

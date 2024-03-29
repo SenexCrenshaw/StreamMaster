@@ -2,7 +2,7 @@ import AddButton from '@components/buttons/AddButton';
 import SaveButton from '@components/buttons/SaveButton';
 import InputWrapper from '@components/videoStreamPanel/InputWrapper';
 import { getTopToolOptions } from '@lib/common/common';
-import { ProfilesAddFfmpegProfileApiArg, useProfilesAddFfmpegProfileMutation } from '@lib/iptvApi';
+
 import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
 import { InputText } from 'primereact/inputtext';
 import { memo, useMemo, useState } from 'react';

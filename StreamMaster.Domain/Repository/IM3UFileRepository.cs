@@ -20,7 +20,7 @@ public interface IM3UFileRepository : IRepositoryBase<M3UFile>
     /// Gets a paged list of M3U files based on parameters.
     /// </summary>
     /// <param name="m3uFileParameters">Parameters for paging and filtering.</param>
-    Task<PagedResponse<M3UFileDto>> GetPagedM3UFiles(M3UFileParameters m3uFileParameters);
+    Task<PagedResponse<M3UFileDto>> GetPagedM3UFiles(QueryStringParameters m3uFileParameters);
 
     /// <summary>
     /// Gets an M3U file by its source asynchronously.

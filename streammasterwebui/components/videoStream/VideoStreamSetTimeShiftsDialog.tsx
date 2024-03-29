@@ -1,8 +1,7 @@
-import { VideoStreamDto, VideoStreamsSetVideoStreamTimeShiftFromParametersApiArg, VideoStreamsSetVideoStreamTimeShiftsApiArg } from '@lib/iptvApi';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
-import { SetVideoStreamTimeShiftFromParameters, SetVideoStreamTimeShifts } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
+
 import { memo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import ClockButton from '../buttons/ClockButton';
@@ -44,13 +43,13 @@ const VideoStreamSetTimeShiftsDialog = ({ id }: VideoStreamSetTimeShiftsDialogPr
       toSendAll.parameters = queryFilter;
       toSendAll.timeShift = timshift;
 
-      SetVideoStreamTimeShiftFromParameters(toSendAll)
-        .then(() => {
-          setInfoMessage('Set Streams Successfully');
-        })
-        .catch((error) => {
-          setInfoMessage(`Set Streams Error: ${error.message}`);
-        });
+      // SetVideoStreamTimeShiftFromParameters(toSendAll)
+      //   .then(() => {
+      //     setInfoMessage('Set Streams Successfully');
+      //   })
+      //   .catch((error) => {
+      //     setInfoMessage(`Set Streams Error: ${error.message}`);
+      //   });
 
       return;
     }
@@ -71,11 +70,11 @@ const VideoStreamSetTimeShiftsDialog = ({ id }: VideoStreamSetTimeShiftsDialogPr
       toSend.ids = count + max < ids.length ? ids.slice(count, count + max) : ids.slice(count, ids.length);
 
       count += max;
-      promises.push(
-        SetVideoStreamTimeShifts(toSend)
-          .then(() => {})
-          .catch(() => {})
-      );
+      // promises.push(
+      //   SetVideoStreamTimeShifts(toSend)
+      //     .then(() => {})
+      //     .catch(() => {})
+      // );
     }
 
     const p = Promise.all(promises);

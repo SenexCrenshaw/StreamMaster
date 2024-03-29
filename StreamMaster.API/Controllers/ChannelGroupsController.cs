@@ -56,7 +56,7 @@ public class ChannelGroupsController : ApiControllerBase
     [Route("[action]")]
     public async Task<ActionResult<PagedResponse<ChannelGroupDto>>> GetPagedChannelGroups([FromQuery] ChannelGroupParameters Parameters)
     {
-        PagedResponse<ChannelGroupDto> res = await Mediator.Send(new GetPagedChannelGroups(Parameters)).ConfigureAwait(false);
+        PagedResponse<ChannelGroupDto> res = await Mediator.Send(new GetPagedChannelGroupsRequest(Parameters)).ConfigureAwait(false);
         return Ok(res);
     }
 

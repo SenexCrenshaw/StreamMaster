@@ -8,7 +8,7 @@ public partial class StreamMasterHub : ISettingHub
 
     public async Task<SettingDto> GetSetting()
     {
-        return await Sender.Send(new GetSettings()).ConfigureAwait(false);
+        return await Sender.Send(new GetSettingsRequest()).ConfigureAwait(false);
     }
 
     public async Task<bool> LogIn(LogInRequest logInRequest)

@@ -1,6 +1,5 @@
 import { memo, useCallback, useState } from 'react';
 
-import { useEpgFilesRefreshEpgFileMutation, type EpgFileDto, type EpgFilesRefreshEpgFileApiArg } from '@lib/iptvApi';
 import FileRefreshDialog from '../sharedEPGM3U/FileRefreshDialog';
 
 interface EPGFileRefreshDialogProperties {

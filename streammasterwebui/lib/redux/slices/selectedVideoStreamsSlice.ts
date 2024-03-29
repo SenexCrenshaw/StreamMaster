@@ -1,4 +1,3 @@
-import { VideoStreamDto } from '@lib/iptvApi';
 import { createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 

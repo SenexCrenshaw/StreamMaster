@@ -5,7 +5,7 @@ import ChannelGroupVisibleDialog from '@components/channelGroups/ChannelGroupVis
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
-import { ChannelGroupDto, useChannelGroupsGetPagedChannelGroupsQuery } from '@lib/iptvApi';
+
 import { useShowHidden } from '@lib/redux/slices/useShowHidden';
 import { memo, useCallback, useEffect, useMemo } from 'react';
 

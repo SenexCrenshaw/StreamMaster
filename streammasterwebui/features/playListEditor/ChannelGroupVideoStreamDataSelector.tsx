@@ -21,7 +21,7 @@ import VideoStreamSetTimeShiftDialog from '@components/videoStream/VideoStreamSe
 import VideoStreamSetTimeShiftsDialog from '@components/videoStream/VideoStreamSetTimeShiftsDialog';
 import VideoStreamVisibleDialog from '@components/videoStream/VideoStreamVisibleDialog';
 import { GetMessage, arraysContainSameStrings } from '@lib/common/common';
-import { ChannelGroupDto, VideoStreamDto, useVideoStreamsGetPagedVideoStreamsQuery } from '@lib/iptvApi';
+
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';

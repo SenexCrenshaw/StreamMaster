@@ -1,15 +1,8 @@
-import {
-  StreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersApiArg,
-  type VideoStreamDto,
-  type VideoStreamsSetVideoStreamChannelNumbersApiArg,
-  type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg
-} from '@lib/iptvApi';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
 import { useSortInfo } from '@lib/redux/slices/useSortInfo';
-import { SetStreamGroupVideoStreamChannelNumbers } from '@lib/smAPI/StreamGroupVideoStreams/StreamGroupVideoStreamsMutateAPI';
-import { SetVideoStreamChannelNumbers, SetVideoStreamChannelNumbersFromParameters } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
+
 import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox';
 import { InputNumber } from 'primereact/inputnumber';
 import React, { useMemo } from 'react';
@@ -60,13 +53,13 @@ const AutoSetChannelNumbers = ({ id, streamGroupId }: AutoSetChannelNumbersPrope
       toSendAll.startingNumber = startNumber;
       toSendAll.orderBy = sortInfo.orderBy;
 
-      SetStreamGroupVideoStreamChannelNumbers(toSendAll)
-        .then(() => {
-          setInfoMessage('Auto Set Channels Successfully');
-        })
-        .catch((error) => {
-          setInfoMessage(`Auto Set Channels Error: ${error.message}`);
-        });
+      // SetStreamGroupVideoStreamChannelNumbers(toSendAll)
+      //   .then(() => {
+      //     setInfoMessage('Auto Set Channels Successfully');
+      //   })
+      //   .catch((error) => {
+      //     setInfoMessage(`Auto Set Channels Error: ${error.message}`);
+      //   });
 
       return;
     }
@@ -84,13 +77,13 @@ const AutoSetChannelNumbers = ({ id, streamGroupId }: AutoSetChannelNumbersPrope
       toSendAll.overWriteExisting = overwriteNumbers;
       toSendAll.startNumber = startNumber;
 
-      SetVideoStreamChannelNumbersFromParameters(toSendAll)
-        .then(() => {
-          setInfoMessage('Auto Set Channels Successful');
-        })
-        .catch((error) => {
-          setInfoMessage(`Auto Set Channels Error: ${error.message}`);
-        });
+      // SetVideoStreamChannelNumbersFromParameters(toSendAll)
+      //   .then(() => {
+      //     setInfoMessage('Auto Set Channels Successful');
+      //   })
+      //   .catch((error) => {
+      //     setInfoMessage(`Auto Set Channels Error: ${error.message}`);
+      //   });
 
       return;
     }

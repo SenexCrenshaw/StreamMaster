@@ -14,7 +14,7 @@ import {
   StreamingStatusIcon,
   VideoPlayerIcon
 } from '@lib/common/icons';
-import { GetIsSystemReady } from '@lib/smAPI/Settings/SettingsGetAPI';
+import { GetIsSystemReady } from '@lib/smAPI/Settings/SettingsCommands';
 
 import useSettings from '@lib/useSettings';
 import PrimeReact, { PrimeReactContext } from 'primereact/api';

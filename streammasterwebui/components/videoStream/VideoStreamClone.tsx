@@ -1,5 +1,5 @@
 import VideoStreamPanel from '@components/videoStreamPanel/VideoStreamPanel';
-import { VideoStreamDto } from '@lib/iptvApi';
+
 import { Dialog } from 'primereact/dialog';
 import { classNames } from 'primereact/utils';
 

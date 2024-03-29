@@ -1,4 +1,4 @@
-import {DefaultAPIResponse,SMMessage,SendSMErrorRequest,SendSMInfoRequest,SendSMMessageRequest,SendSMWarnRequest,SendSuccessRequest} from '@lib/smAPI/smapiTypes';
+import {SendSMErrorRequest,DefaultAPIResponse,SendSMInfoRequest,SendSMMessageRequest,SendSMWarnRequest,SendSuccessRequest} from '@lib/smAPI/smapiTypes';
 import SignalRService from '@lib/signalr/SignalRService';
 
 export const SendSMError = async (request: SendSMErrorRequest): Promise<DefaultAPIResponse | null> => {

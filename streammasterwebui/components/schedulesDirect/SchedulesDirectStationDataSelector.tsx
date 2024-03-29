@@ -1,14 +1,6 @@
 import { useLineUpColumnConfig } from '@components/columns/useLineUpColumnConfig';
 import { compareStationPreviews, findDifferenceStationIdLineUps } from '@lib/common/common';
-import {
-  SchedulesDirectAddStationApiArg,
-  SchedulesDirectRemoveStationApiArg,
-  StationIdLineup,
-  StationRequest,
-  useSchedulesDirectGetSelectedStationIdsQuery,
-  useSchedulesDirectGetStationPreviewsQuery,
-  type StationPreview
-} from '@lib/iptvApi';
+
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 
 import { AddStation, RemoveStation } from '@lib/smAPI/SchedulesDirect/SchedulesDirectMutateAPI';

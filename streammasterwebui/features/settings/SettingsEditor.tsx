@@ -4,10 +4,10 @@ import SaveButton from '@components/buttons/SaveButton';
 import { GetMessage, isEmptyObject } from '@lib/common/common';
 import { SettingsEditorIcon } from '@lib/common/icons';
 import { AuthenticationType } from '@lib/common/streammaster_enums';
-import { SettingDto, UpdateSettingRequest, useSettingsGetSettingQuery } from '@lib/iptvApi';
+
 import { useSelectCurrentSettingDto } from '@lib/redux/slices/selectedCurrentSettingDto';
 import { useSelectUpdateSettingRequest } from '@lib/redux/slices/selectedUpdateSettingRequestSlice';
-import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
+
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { AuthenticationSettings } from './AuthenticationSettings';

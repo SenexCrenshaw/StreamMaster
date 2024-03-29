@@ -1,8 +1,8 @@
 import StandardHeader from '@components/StandardHeader';
 import { VideoPlayerIcon } from '@lib/common/icons';
-import { IdNameUrl, useVideoStreamsGetVideoStreamNamesAndUrlsQuery } from '@lib/iptvApi';
+
 import { MediaPlayer, MediaProvider } from '@vidstack/react';
-import { DefaultVideoLayout, defaultLayoutIcons } from '@vidstack/react/player/layouts/default';
+
 import '@vidstack/react/player/styles/default/layouts/video.css';
 import '@vidstack/react/player/styles/default/theme.css';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';

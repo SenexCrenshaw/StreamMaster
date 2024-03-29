@@ -1,4 +1,3 @@
-import { FfmpegProfileDto, useProfilesGetFfmpegProfilesQuery } from '@lib/iptvApi';
 import React from 'react';
 import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';

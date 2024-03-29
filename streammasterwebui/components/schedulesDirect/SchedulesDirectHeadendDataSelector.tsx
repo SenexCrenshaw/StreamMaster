@@ -1,10 +1,9 @@
-import { HeadendDto, SchedulesDirectGetHeadendsApiArg } from '@lib/iptvApi';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 
 import { useSelectedCountry } from '@lib/redux/slices/selectedCountrySlice';
 import { useSelectedPostalCode } from '@lib/redux/slices/selectedPostalCodeSlice';
-import { GetHeadends } from '@lib/smAPI/SchedulesDirect/SchedulesDirectGetAPI';
+
 import DataSelector from '../dataSelector/DataSelector';
 import SchedulesDirectAddHeadendDialog from './SchedulesDirectAddHeadendDialog';
 import SchedulesDirectCountrySelector from './SchedulesDirectCountrySelector';

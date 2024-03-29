@@ -3,6 +3,7 @@
 namespace StreamMaster.Application.SMChannels.Commands;
 
 [SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record SetSMStreamRanksRequest(List<SMChannelRankRequest> requests) : IRequest<DefaultAPIResponse>;
 
 internal class SetSMStreamRanksRequestHandler(IRepositoryWrapper Repository, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor) : IRequestHandler<SetSMStreamRanksRequest, DefaultAPIResponse>

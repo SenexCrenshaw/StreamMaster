@@ -1,7 +1,7 @@
 import BookButton from '@components/buttons/BookButton';
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
-import { EpgFileDto, EpgFilePreviewDto, useEpgFilesGetEpgFilePreviewByIdQuery } from '@lib/iptvApi';
+
 import { skipToken } from '@reduxjs/toolkit/query';
 import { Dialog } from 'primereact/dialog';
 import { memo, useMemo, useState } from 'react';

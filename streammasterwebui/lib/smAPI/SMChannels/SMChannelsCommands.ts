@@ -1,4 +1,5 @@
-import {DefaultAPIResponse,QueryStringParameters,SMChannelDto,APIResponse,PagedResponse,AddSMStreamToSMChannelRequest,CreateSMChannelFromStreamRequest,DeleteSMChannelRequest,DeleteSMChannelsFromParametersRequest,DeleteSMChannelsRequest,RemoveSMStreamFromSMChannelRequest,SetSMChannelLogoRequest,SetSMStreamRanksRequest} from '@lib/smAPI/smapiTypes';
+import {AddSMStreamToSMChannelRequest,DefaultAPIResponse,CreateSMChannelFromStreamRequest,DeleteSMChannelRequest,DeleteSMChannelsFromParametersRequest,DeleteSMChannelsRequest,RemoveSMStreamFromSMChannelRequest,SetSMChannelLogoRequest,SetSMStreamRanksRequest} from '@lib/smAPI/smapiTypes';
+import {APIResponse,PagedResponse,QueryStringParameters,SMChannelDto} from '@lib/smAPI/smapiTypes';
 import SignalRService from '@lib/signalr/SignalRService';
 
 export const AddSMStreamToSMChannel = async (request: AddSMStreamToSMChannelRequest): Promise<DefaultAPIResponse | null> => {

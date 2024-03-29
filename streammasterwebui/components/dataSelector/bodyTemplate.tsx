@@ -1,4 +1,3 @@
-import { StreamGroupDto } from '@lib/iptvApi';
 import { type ColumnFieldType } from './DataSelectorTypes';
 import { blankTemplate } from './blankTemplate';
 import { defaultTemplate } from './defaultTemplate';

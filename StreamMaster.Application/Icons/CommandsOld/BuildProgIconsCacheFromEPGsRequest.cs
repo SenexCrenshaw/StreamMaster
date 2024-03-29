@@ -10,7 +10,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
     {
         //Setting setting = await GetSettingsAsync();
 
-        //int startId = MemoryCache.GetIcons(Mapper).Count;
+        //int startId = MemoryCache.GetIconsRequest(Mapper).Count;
 
         //List<EPGFileDto> epgFiles = await Repository.EPGFile.GetEPGFiles();
         //foreach (EPGFileDto epg in epgFiles)

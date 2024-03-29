@@ -1,10 +1,9 @@
 import React from 'react';
 import { getIconUrl } from './common/common';
 import { AuthenticationType } from './common/streammaster_enums';
-import { SettingDto, useSettingsGetSettingQuery } from './iptvApi';
+import { SettingDto } from './smAPI/smapiTypes';
 
 const useSettings = (): StreamMasterSettingResponse => {
-  const settingsQuery = useSettingsGetSettingQuery();
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [isDebug, setIsDebug] = React.useState<boolean>(true);
   const [data, setData] = React.useState<SettingDto>({} as SettingDto);
@@ -16,30 +15,30 @@ const useSettings = (): StreamMasterSettingResponse => {
   // const [defaultIconName, setDefaultIconName] = React.useState<string>('');
   const [authenticationType, setAuthenticationType] = React.useState<AuthenticationType>(AuthenticationType.None);
 
-  React.useEffect(() => {
-    if (settingsQuery.isLoading || !settingsQuery?.data) {
-      return;
-    }
+  // React.useEffect(() => {
+  //   if (settingsQuery.isLoading || !settingsQuery?.data) {
+  //     return;
+  //   }
 
-    setIsLoading(true);
+  //   setIsLoading(true);
 
-    if (settingsQuery.data.authenticationMethod) setAuthenticationType(settingsQuery.data.authenticationMethod);
+  //   if (settingsQuery.data.authenticationMethod) setAuthenticationType(settingsQuery.data.authenticationMethod);
 
-    if (settingsQuery.data.defaultIcon) {
-      setStreamMasterIcon('images/StreamMaster.png');
-      setDefaultIcon(settingsQuery.data.defaultIcon);
-      // setDefaultIconName(settingsQuery.data.defaultIcon);
-      setCacheIcon(settingsQuery.data.cacheIcons === true);
-      setIsDebug(settingsQuery.data.isDebug === true);
+  //   if (settingsQuery.data.defaultIcon) {
+  //     setStreamMasterIcon('images/StreamMaster.png');
+  //     setDefaultIcon(settingsQuery.data.defaultIcon);
+  //     // setDefaultIconName(settingsQuery.data.defaultIcon);
+  //     setCacheIcon(settingsQuery.data.cacheIcons === true);
+  //     setIsDebug(settingsQuery.data.isDebug === true);
 
-      const url = getIconUrl(settingsQuery.data.defaultIcon, settingsQuery.data.defaultIcon, settingsQuery.data.cacheIcons === true);
+  //     const url = getIconUrl(settingsQuery.data.defaultIcon, settingsQuery.data.defaultIcon, settingsQuery.data.cacheIcons === true);
 
-      setDefaultIconUrl(url);
-    }
+  //     setDefaultIconUrl(url);
+  //   }
 
-    setData(settingsQuery.data);
-    setIsLoading(false);
-  }, [settingsQuery.data, settingsQuery.isLoading]);
+  //   setData(settingsQuery.data);
+  //   setIsLoading(false);
+  // }, [settingsQuery.data, settingsQuery.isLoading]);
 
   return {
     authenticationType,

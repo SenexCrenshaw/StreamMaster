@@ -1,6 +1,4 @@
 import NumberEditorBodyTemplate from '@components/inputs/NumberEditorBodyTemplate';
-import { FfmpegProfileDto, UpdateFfmpegProfileRequest } from '@lib/iptvApi';
-import { UpdateFFMPEGProfile } from '@lib/smAPI/Profiles/ProfilesMutateAPI';
 
 import React from 'react';
 

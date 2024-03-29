@@ -1,11 +1,5 @@
 import { getChannelGroupMenuItem } from '@lib/common/common';
-import {
-  ChannelGroupDto,
-  StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiArg,
-  useChannelGroupsGetChannelGroupIdNamesQuery,
-  useStreamGroupChannelGroupGetChannelGroupsFromStreamGroupQuery,
-  useStreamGroupChannelGroupSyncStreamGroupChannelGroupsMutation
-} from '@lib/iptvApi';
+
 import { skipToken } from '@reduxjs/toolkit/query/react';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 

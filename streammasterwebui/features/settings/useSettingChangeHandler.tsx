@@ -1,4 +1,3 @@
-import { SettingDto, UpdateSettingRequest } from '@lib/iptvApi';
 import { useSelectCurrentSettingDto } from '@lib/redux/slices/selectedCurrentSettingDto';
 import { useSelectUpdateSettingRequest } from '@lib/redux/slices/selectedUpdateSettingRequestSlice';
 

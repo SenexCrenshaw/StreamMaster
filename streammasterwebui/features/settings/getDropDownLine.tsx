@@ -1,5 +1,5 @@
 import { GetMessage } from '@lib/common/common';
-import { SettingDto, UpdateSettingRequest } from '@lib/iptvApi';
+
 import { getHelp } from '@lib/locales/help_en';
 import { Dropdown } from 'primereact/dropdown';
 import { SelectItem } from 'primereact/selectitem';

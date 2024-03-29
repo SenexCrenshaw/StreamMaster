@@ -1,4 +1,3 @@
-import { StreamGroupDto } from '@lib/iptvApi';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 

@@ -1,6 +1,5 @@
 import { getTopToolOptions } from '@lib/common/common';
-import { UpdateSettingRequest } from '@lib/iptvApi';
-import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
+
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import React from 'react';

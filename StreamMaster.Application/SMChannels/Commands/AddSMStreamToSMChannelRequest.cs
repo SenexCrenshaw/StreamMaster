@@ -3,6 +3,7 @@
 namespace StreamMaster.Application.SMChannels.Commands;
 
 [SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddSMStreamToSMChannelRequest(int SMChannelId, string SMStreamId) : IRequest<DefaultAPIResponse>;
 
 
