@@ -296,7 +296,6 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intset
             StationImage artwork = service.extras["logo"];
             iconService.AddIcon(artwork.Url, service.CallSign);
         }
-        //iconService.SetIndexes();
 
     }
 
