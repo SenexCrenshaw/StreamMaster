@@ -6,11 +6,10 @@ import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { GetMessage } from '@lib/common/common';
 import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 
-import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
-import { ProgressSpinner } from 'primereact/progressspinner';
-import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { SMChannelDto, DeleteSMChannelRequest } from '@lib/smAPI/smapiTypes';
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
+import { DeleteSMChannelRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
+import { confirmPopup } from 'primereact/confirmpopup';
+import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 const DataSelector2 = lazy(() => import('@components/dataSelector/DataSelector2'));
 const StreamCopyLinkDialog = lazy(() => import('@components/smstreams/StreamCopyLinkDialog'));
@@ -34,7 +33,9 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
   const actionBodyTemplate = useCallback((data: SMChannelDto) => {
     const accept = () => {
       DeleteSMChannel({ smChannelId: data.id } as DeleteSMChannelRequest)
-        .then((response) => {})
+        .then((response) => {
+          console.log('Removed Channel');
+        })
         .catch((error) => {
           console.error('Remove Channel', error.message);
         });
@@ -55,7 +56,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
 
     return (
       <div className="flex p-0 justify-content-end align-items-center">
-        <Suspense fallback={<ProgressSpinner>Loading...</ProgressSpinner>}>
+        <Suspense>
           <StreamCopyLinkDialog realUrl={data?.realUrl} />
           <MinusButton iconFilled={false} onClick={confirm} tooltip="Remove Channel" />
         </Suspense>
@@ -66,18 +67,17 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
   const columns = useMemo(
     (): ColumnMeta[] => [
       { field: 'channelNumber', width: '4rem' },
-      channelLogoColumnConfig,
+      // channelLogoColumnConfig,
       // { field: 'logo', fieldType: 'image', width: '4rem' },
       { field: 'name', filter: true, sortable: true },
       { field: 'group', filter: true, sortable: true, width: '5rem' },
       { align: 'right', bodyTemplate: actionBodyTemplate, field: 'actions', fieldType: 'actions', header: 'Actions', width: '5rem' }
     ],
-    [actionBodyTemplate, channelLogoColumnConfig]
+    [actionBodyTemplate]
   );
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <ConfirmPopup />
       <DataSelector2
         selectRow
         showExpand

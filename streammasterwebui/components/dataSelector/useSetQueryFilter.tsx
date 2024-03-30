@@ -1,21 +1,51 @@
+import { SMDataTableFilterMetaData, addOrUpdateValueForField, hasValidAdditionalProps, isEmptyObject } from '@lib/common/common';
+
 import { areGetApiArgsEqual } from '@lib/apiDefs';
-import {
-  addOrUpdateValueForField,
-  hasValidAdditionalProps,
-  isEmptyObject,
-  removeValueForField,
-  type MatchMode,
-  type SMDataTableFilterMetaData
-} from '@lib/common/common';
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useShowHidden } from '@lib/redux/slices/useShowHidden';
 import { useSortInfo } from '@lib/redux/slices/useSortInfo';
 import { FilterMatchMode } from 'primereact/api';
-import { type DataTableFilterMeta } from 'primereact/datatable';
+import { DataTableFilterMeta } from 'primereact/datatable';
 import { useEffect, useMemo } from 'react';
-import { type ColumnMeta, type LazyTableState } from './DataSelectorTypes';
-import generateFilterData from './generateFilterData';
+import { ColumnMeta } from './DataSelectorTypes';
+
+function getSortString(sortInfo: any): string {
+  return sortInfo && sortInfo.sortField ? `${sortInfo.sortField} ${sortInfo.sortOrder === -1 ? 'desc' : 'asc'}` : '';
+}
+
+function transformAndEnhanceFilters(
+  filters: DataTableFilterMeta,
+  columns: ColumnMeta[],
+  showHidden: boolean | null | undefined,
+  additionalFilter: any
+): SMDataTableFilterMetaData[] {
+  let transformedFilters: SMDataTableFilterMetaData[] = columns
+    .map((column) => {
+      const filter = filters[column.field] as SMDataTableFilterMetaData;
+      return {
+        fieldName: column.field,
+        value: filter ? filter.value : '',
+        matchMode: filter ? filter.matchMode : FilterMatchMode.CONTAINS
+      };
+    })
+    .filter((filter) => filter.value && filter.value !== '[]');
+
+  // Show/Hide logic
+  if (showHidden !== null && showHidden !== undefined) {
+    addOrUpdateValueForField(transformedFilters, 'isHidden', FilterMatchMode.EQUALS, String(!showHidden));
+  }
+
+  // Additional Filters
+  if (hasValidAdditionalProps(additionalFilter)) {
+    const { field, values, matchMode } = additionalFilter;
+    if (!isEmptyObject(values)) {
+      addOrUpdateValueForField(transformedFilters, field, matchMode, JSON.stringify(values));
+    }
+  }
+
+  return transformedFilters;
+}
 
 export const useSetQueryFilter = (
   id: string,
@@ -28,73 +58,33 @@ export const useSetQueryFilter = (
 ) => {
   const { sortInfo } = useSortInfo(id);
   const { queryAdditionalFilter } = useQueryAdditionalFilters(id);
-  const { queryFilter, setQueryFilter } = useQueryFilter(id);
   const { showHidden } = useShowHidden(id);
+  const { queryFilter, setQueryFilter } = useQueryFilter(id);
 
-  const { lazyState, generateGetApi } = useMemo(() => {
-    const newFilters = generateFilterData(columns, filters);
+  const { generateGetApi } = useMemo(() => {
+    const sortString = getSortString(sortInfo);
+    const transformedFilters = transformAndEnhanceFilters(filters, columns, showHidden, queryAdditionalFilter);
 
-    const sort = sortInfo ? (sortInfo.sortField ? (sortInfo.sortOrder === -1 ? `${sortInfo.sortField} desc` : `${sortInfo.sortField} asc`) : '') : '';
+    const jsonFiltersString = JSON.stringify(transformedFilters);
 
-    const defaultState: LazyTableState = {
-      filters: newFilters,
-      first,
-      jsonFiltersString: '',
-      page,
-      rows,
-      sortField: 'id',
-      sortOrder: 1,
-      sortString: sort
+    const apiState = {
+      jsonFiltersString,
+      orderBy: sortString,
+      pageNumber: page,
+      pageSize: rows,
+      streamGroupId
     };
 
-    const toSend: SMDataTableFilterMetaData[] = Object.keys(defaultState.filters)
-      .map((key) => {
-        const value = defaultState.filters[key] as SMDataTableFilterMetaData;
-        return value?.value && value.value !== '[]' ? value : null;
-      })
-      .filter(Boolean) as SMDataTableFilterMetaData[];
-
-    if (showHidden === null) {
-      removeValueForField(toSend, 'isHidden');
-    } else if (showHidden !== undefined) {
-      addOrUpdateValueForField(toSend, 'isHidden', FilterMatchMode.EQUALS, !showHidden);
-    }
-
-    if (hasValidAdditionalProps(queryAdditionalFilter)) {
-      const addProperties = queryAdditionalFilter;
-
-      if (addProperties) {
-        if (isEmptyObject(addProperties.values)) {
-          removeValueForField(toSend, addProperties.field);
-        } else {
-          const values = JSON.stringify(addProperties.values);
-
-          addOrUpdateValueForField(toSend, addProperties.field, addProperties.matchMode as MatchMode, values);
-        }
-      }
-    }
-
-    const toFilter = defaultState;
     return {
-      generateGetApi: {
-        jsonFiltersString: JSON.stringify(toSend),
-        orderBy: toFilter.sortString,
-        pageNumber: toFilter.page,
-        pageSize: toFilter.rows,
-        streamGroupId
-      },
-      lazyState: defaultState
+      generateGetApi: apiState
     };
-  }, [columns, filters, sortInfo, first, page, rows, streamGroupId, showHidden, queryAdditionalFilter]);
+  }, [sortInfo, filters, columns, showHidden, queryAdditionalFilter, page, rows, streamGroupId]);
 
   useEffect(() => {
-    const newApi = generateGetApi;
-    if (!areGetApiArgsEqual(newApi, queryFilter)) {
-      setQueryFilter(newApi);
+    if (!areGetApiArgsEqual(generateGetApi, queryFilter)) {
+      setQueryFilter(generateGetApi);
     }
+  }, [generateGetApi, queryFilter, setQueryFilter]);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryAdditionalFilter, setQueryFilter, generateGetApi, streamGroupId]);
-
-  return { lazyState };
+  return { queryFilter: generateGetApi };
 };

@@ -4,35 +4,22 @@ import { type DataTableFilterMeta } from 'primereact/datatable';
 import { type ColumnMeta } from './DataSelectorTypes';
 
 function generateFilterData(columns: ColumnMeta[], currentFilters: DataTableFilterMeta): DataTableFilterMeta {
-  if (!columns || !currentFilters) {
+  if (!columns || !currentFilters || Object.keys(currentFilters).length === 0) {
     return {};
   }
 
-  const returnValue = columns.reduce<DataTableFilterMeta>((object, item: ColumnMeta) => {
-    let value = '';
-    let matchMode = item.filterMatchMode ?? '';
+  const filterColumnData = (column: ColumnMeta): [string, SMDataTableFilterMetaData] => {
+    const filterData = currentFilters[column.field] as SMDataTableFilterMetaData;
+    const matchMode = filterData?.matchMode ?? column.filterMatchMode ?? FilterMatchMode.CONTAINS;
+    const value = filterData?.value ?? '';
+    return [column.field, { fieldName: column.field, matchMode, value }];
+  };
 
-    if (Object.keys(currentFilters).length > 0) {
-      const test = currentFilters[item.field] as SMDataTableFilterMetaData;
-
-      if (test !== undefined) {
-        value = test.value;
-        if (!matchMode && test.matchMode) {
-          matchMode = test.matchMode;
-        }
-      }
-    }
-
-    return {
-      ...object,
-      [item.field]: {
-        fieldName: item.field,
-        matchMode: matchMode ?? FilterMatchMode.CONTAINS,
-        value
-      }
-    } as DataTableFilterMeta;
+  return columns.reduce<DataTableFilterMeta>((accumulator, column) => {
+    const [field, filterData] = filterColumnData(column);
+    accumulator[field] = filterData;
+    return accumulator;
   }, {});
-  return returnValue;
 }
 
 export default generateFilterData;

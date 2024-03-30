@@ -1,12 +1,12 @@
-import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { FieldData, SMChannelDto, PagedResponse } from '@lib/smAPI/smapiTypes';
-import { removeKeyFromData } from '@lib/apiDefs';
-import { fetchGetPagedSMChannels } from '@lib/smAPI/SMChannels/SMChannelsFetch';
 import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
+import { fetchGetPagedSMChannels } from '@lib/smAPI/SMChannels/SMChannelsFetch';
+import { FieldData, PagedResponse, SMChannelDto } from '@lib/smAPI/smapiTypes';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 interface QueryState {
   data: Record<string, PagedResponse<SMChannelDto> | undefined>;
   isLoading: Record<string, boolean>;
+  isForced: boolean;
   isError: Record<string, boolean>;
   error: Record<string, string | undefined>;
 }
@@ -15,13 +15,15 @@ const initialState: QueryState = {
   data: {},
   isLoading: {},
   isError: {},
+  isForced: false,
   error: {}
 };
+
 const getPagedSMChannelsSlice = createSlice({
   name: 'GetPagedSMChannels',
   initialState,
   reducers: {
-    updateGetPagedSMChannels: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
+    setField: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
       const { query, fieldData } = action.payload;
 
       if (query !== undefined) {
@@ -36,22 +38,27 @@ const getPagedSMChannelsSlice = createSlice({
           state.data[key] = updatePagedResponseFieldInData(state.data[key], fieldData);
         }
       }
-      console.log('updateGetPagedSMChannels executed');
+      console.log('setField');
     },
-    clearGetPagedSMChannels: (state) => {
-      for (const key in state.data) {
-        state.data[key] = undefined;
-        state.error[key] = undefined;
-        state.isError[key] = false;
-        state.isLoading[key] = false;
-      }
-      console.log('clearGetPagedSMChannels executed');
+    clear: (state) => {
+      state = initialState;
+      console.log('clear');
     },
-    intSetGetPagedSMChannelsIsLoading: (state, action: PayloadAction<{ isLoading: boolean }>) => {
-      for (const key in state.data) {
-        state.isLoading[key] = action.payload.isLoading;
+    setIsLoading: (state, action: PayloadAction<{ query?: string; isLoading: boolean }>) => {
+      const { query, isLoading } = action.payload;
+      if (query !== undefined) {
+        state.isLoading[query] = isLoading;
+      } else {
+        for (const key in state.data) {
+          state.isLoading[key] = action.payload.isLoading;
+        }
       }
-      console.log('setGetPagedSMChannelsIsLoading executed');
+      console.log('setIsLoading ', action.payload.isLoading);
+    },
+    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
+      const { force } = action.payload;
+      state.isForced = force;
+      console.log('setIsForced ', force);
     }
   },
   extraReducers: (builder) => {
@@ -61,6 +68,7 @@ const getPagedSMChannelsSlice = createSlice({
         state.isLoading[query] = true;
         state.isError[query] = false;
         state.error[query] = undefined;
+        state.isForced = false;
       })
       .addCase(fetchGetPagedSMChannels.fulfilled, (state, action) => {
         if (action.payload) {
@@ -69,6 +77,7 @@ const getPagedSMChannelsSlice = createSlice({
           state.isLoading[query] = false;
           state.isError[query] = false;
           state.error[query] = undefined;
+          state.isForced = false;
         }
       })
       .addCase(fetchGetPagedSMChannels.rejected, (state, action) => {
@@ -76,9 +85,10 @@ const getPagedSMChannelsSlice = createSlice({
         state.error[query] = action.error.message || 'Failed to fetch';
         state.isError[query] = true;
         state.isLoading[query] = false;
+        state.isForced = false;
       });
   }
 });
 
-export const { clearGetPagedSMChannels, intSetGetPagedSMChannelsIsLoading, updateGetPagedSMChannels } = getPagedSMChannelsSlice.actions;
+export const { clear, setIsLoading, setIsForced, setField } = getPagedSMChannelsSlice.actions;
 export default getPagedSMChannelsSlice.reducer;

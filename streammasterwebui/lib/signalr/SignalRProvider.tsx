@@ -1,12 +1,12 @@
-import React, { ReactNode, createContext, useCallback, useContext, useEffect } from 'react';
-import SignalRService from './SignalRService';
-import { SMMessage } from './SMMessage';
 import { FieldData } from '@lib/apiDefs';
 import { useSMMessages } from '@lib/redux/slices/messagesSlice';
-import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
-import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
-import useGetPagedM3UFiles from '@lib/smAPI/M3UFiles/useGetPagedM3UFiles';
 import useGetPagedChannelGroups from '@lib/smAPI/ChannelGroups/useGetPagedChannelGroups';
+import useGetPagedM3UFiles from '@lib/smAPI/M3UFiles/useGetPagedM3UFiles';
+import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
+import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
+import React, { ReactNode, createContext, useCallback, useContext, useEffect } from 'react';
+import { SMMessage } from './SMMessage';
+import SignalRService from './SignalRService';
 
 const SignalRContext = createContext<SignalRService | undefined>(undefined);
 
@@ -43,7 +43,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         return;
       }
       if (entity === 'SMChannelDto') {
-        getPagedSMChannels.refreshGetPagedSMChannels();
+        getPagedSMChannels.SetIsForced(true);
         return;
       }
       if (entity === 'M3UFileDto') {
@@ -66,7 +66,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
           return;
         }
         if (fieldData.entity === 'SMChannelDto') {
-          getPagedSMChannels.setGetPagedSMChannelsField(fieldData);
+          getPagedSMChannels.SetField(fieldData);
           return;
         }
         if (fieldData.entity === 'M3UFileDto') {

@@ -1,5 +1,4 @@
 import { camel2title, isEmptyObject } from '@lib/common/common';
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import useSettings from '@lib/useSettings';
 import { areArraysEqual } from '@mui/base';
 import { Button } from 'primereact/button';
@@ -35,8 +34,9 @@ import AddButton from '@components/buttons/AddButton';
 import StringTracker from '@components/inputs/StringTracker';
 
 import SMStreamDataSelectorValue from '@features/streameditor/SMStreamDataSelectorValue';
-import { GetApiArgument, PagedResponse, QueryHook, SMChannelDto, SMStreamDto } from '@lib/apiDefs';
+import { GetApiArgument, QueryHook } from '@lib/apiDefs';
 import { PagedResponseDto } from '@lib/common/dataTypes';
+import { AddSMStreamToSMChannelRequest, PagedResponse, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import { ProgressSpinner } from 'primereact/progressspinner';
@@ -44,7 +44,6 @@ import ResetButton from '../buttons/ResetButton';
 import TableHeader from './TableHeader';
 import getRecordString from './getRecordString';
 import { useSetQueryFilter } from './useSetQueryFilter';
-import { AddSMStreamToSMChannelRequest } from '@lib/smAPI/SMChannels/SMChannelsTypes';
 
 const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) => {
   const debug = false;
@@ -85,20 +84,15 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
     }
   }, [props.defaultSortField, props.defaultSortOrder, setters, state.sortOrder]);
 
-  useSetQueryFilter(props.id, props.columns, state.first, state.filters, state.page, state.rows, props.selectedStreamGroupId);
-
-  const { queryFilter } = useQueryFilter(props.id);
-
   const tableReference = useRef<DataTable<T[]>>(null);
 
   const setting = useSettings();
 
-  if (debug && props.id === 'streamgroupeditor-StreamGroupSelectedVideoStreamDataSelector') {
-    console.log(props.id, props.selectedStreamGroupId, props.selectedItemsKey);
-    console.log(queryFilter);
-  }
-
-  const { data, isLoading } = props.queryFilter ? props.queryFilter(queryFilter) : { data: undefined, isLoading: false };
+  const { queryFilter } = useSetQueryFilter(props.id, props.columns, state.first, state.filters, state.page, state.rows, props.selectedStreamGroupId);
+  // if (props.id === 'streameditor-SMChannelDataSelector') {
+  //   console.log('DataSelector2');
+  // }
+  const { data, isLoading } = props.queryFilter(queryFilter);
 
   const onSetSelection = useCallback(
     (e: T | T[], overRideSelectAll?: boolean): T | T[] | undefined => {
@@ -613,7 +607,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
             {props.onStreamAdd !== undefined && (
               <AddButton
                 iconFilled={false}
-                onClick={() => props.onStreamAdd?.({ sMStreamId: data.id, sMChannelId: state.selectedSMChannel?.id ?? 0 })}
+                onClick={() => props.onStreamAdd?.({ smStreamId: data.id, smChannelId: state.selectedSMChannel?.id ?? 0 })}
                 tooltip={toolTip}
               />
             )}

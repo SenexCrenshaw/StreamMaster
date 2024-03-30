@@ -5,7 +5,7 @@ export function defaultTemplate(data: object, fieldName: string, camelize?: bool
   let recordJson = JSON.stringify(getRecord(data, fieldName));
 
   if (!recordJson) {
-    console.error('recordJson is null', data, fieldName);
+    // console.error('recordJson is null', data, fieldName);
     recordJson = '';
   }
   if (recordJson.startsWith('"') && recordJson.endsWith('"')) {
