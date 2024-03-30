@@ -12,7 +12,9 @@ const StreamEditor = () => {
         <div className="col-7 m-0 p-0">
           <SMChannelDataSelector id={id} />
         </div>
-        {/* <div className="col-5 m-0 p-0 border-left-1 border-50">{<SMStreamDataSelector id={id} />}</div> */}
+        <div className="col-5 m-0 p-0 border-left-1 border-50">
+          <SMStreamDataSelector id={id} />
+        </div>
       </div>
     </Suspense>
     // </StandardHeader>
