@@ -4,15 +4,6 @@
 
 .multiselectcolumn {}
 
-// .p-multiselect-label-container {
-//     font-size: var(--common-font-size) !important;
-//     overflow: hidden !important;
-//     text-overflow: ellipsis !important;
-//     white-space: nowrap !important;
-//     display: flex !important;
-//     align-items: center !important;
-//     justify-content: start !important;
-// }
 
 .p-multiselect-trigger {
     width: 1rem;
@@ -55,18 +46,6 @@
     }
 }
 
-// .p-inputnumber {
-//     background-color: transparent;
-//     border-color: transparent !important;
-//     height: var(--input-height);
-//     font-size: var(--common-font-size) !important;
-//     // overflow: hidden !important;
-//     // padding: 0 !important;
-//     // text-overflow: ellipsis !important;
-//     // white-space: nowrap !important;
-//     transition: border-color 0.3s;
-// }
-
 .filesEditor {
     padding: 0rem;
 
@@ -78,6 +57,27 @@
     .p-button {
         height: $input-height;
         width: $input-height;
+    }
+
+}
+
+.p-dropdown-panel {
+    .p-dropdown-filter {
+        height: $datatable-row-height;
+    }
+
+    .p-dropdown-header {
+        border-bottom: 2px solid var(--surface-100);
+    }
+
+    .p-dropdown-footer {
+        border-top: 2px solid var(--surface-100);
+    }
+
+    .p-inputtext {
+        height: $datatable-row-height;
+        max-height: $datatable-row-height;
+
     }
 
 }
@@ -119,7 +119,4 @@
     padding: 0;
     margin: 0;
 
-    // .p-button {
-    //     background-color: $streamMasterColor;
-    // }
 }

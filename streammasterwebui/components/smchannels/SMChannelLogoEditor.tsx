@@ -1,8 +1,8 @@
-import { Suspense, lazy, memo, useState } from 'react';
-
-import { SMChannelDto, SMChannelLogoRequest } from '@lib/apiDefs';
+import IconSelector from '@components/icons/IconSelector';
 import { SetSMChannelLogo } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { SMChannelDto, SetSMChannelLogoRequest } from '@lib/smAPI/smapiTypes';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { memo, useState } from 'react';
 
 export interface StreamDataSelectorProperties {
   readonly data: SMChannelDto;
@@ -10,7 +10,6 @@ export interface StreamDataSelectorProperties {
 }
 
 const SMChannelLogoEditor = ({ data, enableEditMode }: StreamDataSelectorProperties) => {
-  const IconSelector = lazy(() => import('../icons/IconSelector'));
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const onSetLogo = (Logo: string) => {
@@ -18,7 +17,7 @@ const SMChannelLogoEditor = ({ data, enableEditMode }: StreamDataSelectorPropert
       return;
     }
     setIsLoading(true);
-    const request = { smChannelId: data.id, logo: Logo } as SMChannelLogoRequest;
+    const request = { smChannelId: data.id, logo: Logo } as SetSMChannelLogoRequest;
 
     SetSMChannelLogo(request)
       .then(() => {})
@@ -35,15 +34,13 @@ const SMChannelLogoEditor = ({ data, enableEditMode }: StreamDataSelectorPropert
   }
 
   return (
-    <Suspense fallback={<div></div>}>
-      <IconSelector
-        enableEditMode={enableEditMode || enableEditMode === undefined}
-        onChange={async (e: string) => {
-          await onSetLogo(e);
-        }}
-        value={data.logo}
-      />
-    </Suspense>
+    <IconSelector
+      enableEditMode={enableEditMode || enableEditMode === undefined}
+      onChange={async (e: string) => {
+        await onSetLogo(e);
+      }}
+      value={data.logo}
+    />
   );
 };
 

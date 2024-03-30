@@ -196,11 +196,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
                   )}
                 />
 
-                <InputWrapper
-                  columnSize={4}
-                  label="Logo"
-                  renderInput={() => <IconSelector className="w-full bordered-text mr-2" onChange={setIconSource} value={iconSource} />}
-                />
+                <InputWrapper columnSize={4} label="Logo" renderInput={() => <IconSelector onChange={setIconSource} value={iconSource} />} />
 
                 <InputWrapper
                   columnSize={2}

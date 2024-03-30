@@ -1043,14 +1043,6 @@
   .p-dropdown-filter {
     width: 100%;
   }
-  .p-dropdown-filter-container {
-    position: relative;
-  }
-  .p-dropdown-filter-icon {
-    position: absolute;
-    top: 50%;
-    margin-top: -0.5rem;
-  }
   .p-fluid .p-dropdown {
     display: flex;
   }
@@ -1134,8 +1126,7 @@
     margin-right: -1.75rem;
   }
   .p-dropdown-panel .p-dropdown-header .p-dropdown-filter-icon {
-    right: 0.75rem;
-    color: #898989;
+    display: none;
   }
   .p-dropdown-panel .p-dropdown-items {
     padding: 0.5rem 0.5rem;
@@ -6793,6 +6784,20 @@
 .filesEditor .p-button {
   height: 1.4rem;
   width: 1.4rem;
+}
+
+.p-dropdown-panel .p-dropdown-filter {
+  height: 1.8rem;
+}
+.p-dropdown-panel .p-dropdown-header {
+  border-bottom: 2px solid var(--surface-100);
+}
+.p-dropdown-panel .p-dropdown-footer {
+  border-top: 2px solid var(--surface-100);
+}
+.p-dropdown-panel .p-inputtext {
+  height: 1.8rem;
+  max-height: 1.8rem;
 }
 
 .iconselector.p-dropdown {

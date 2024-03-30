@@ -8,7 +8,7 @@ import useSettings from '@lib/useSettings';
 import { Dropdown } from 'primereact/dropdown';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { classNames } from 'primereact/utils';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 type IconSelectorProperties = {
   readonly enableEditMode?: boolean;
@@ -22,19 +22,23 @@ type IconSelectorProperties = {
 const IconSelector = ({ enableEditMode = true, value, disabled, editable = true, onChange, useDefault }: IconSelectorProperties) => {
   const setting = useSettings();
   const [input, setInput] = useState<string | undefined>(undefined);
-  const [filterValue, setFilterValue] = useState<string | undefined>(undefined);
+  // const [oldInput, setOldInput] = useState<string | undefined>(undefined);
+  // const [filterValue, setFilterValue] = useState<string | undefined>(undefined);
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [icon, setIcon] = useState<IconFileDto | undefined>(undefined);
   const query = useGetIcons();
 
   useEffect(() => {
-    if (value && !input) {
+    if (value && input === undefined) {
+      console.log('setInput true');
       setInput(value);
+    } else {
+      console.log('setInput false');
     }
   }, [value, input]);
 
   useEffect(() => {
-    if (checkValue === undefined && !query.isError && input) {
+    if (checkValue === undefined && !query.isError && input !== undefined) {
       setCheckValue(input);
       const entry = query.data?.find((x) => x.source === input);
       if (entry && entry.source !== icon?.source) {
@@ -81,36 +85,6 @@ const IconSelector = ({ enableEditMode = true, value, disabled, editable = true,
     return (
       <div className="iconselector flex flex-row grid col-12 m-0 p-0 justify-content-between align-items-center">
         <div className="col-12 m-0 p-0 flex flex-row">
-          <div className="col-10 m-0 p-0 pl-2">
-            <StringEditorBodyTemplate
-              autofocus
-              placeholder="Filter"
-              showSave={false}
-              value={filterValue}
-              onChange={(value) => {
-                if (value) {
-                  setFilterValue(value);
-                }
-              }}
-            />
-          </div>
-          <div className="col-1 m-0 p-0">
-            <AddButton
-              tooltip="Add Custom URL"
-              iconFilled={false}
-              onClick={(e) => {
-                if (input) {
-                  handleOnChange(input);
-                }
-              }}
-              style={{
-                width: 'var(--input-height)',
-                height: 'var(--input-height)'
-              }}
-            />
-          </div>
-        </div>
-        <div className="col-12 m-0 p-0 flex flex-row">
           <div className="col-11 m-0 p-0 pl-2">
             <StringEditorBodyTemplate
               disableDebounce={true}
@@ -142,15 +116,6 @@ const IconSelector = ({ enableEditMode = true, value, disabled, editable = true,
       </div>
     );
   };
-
-  const filterData = useCallback(() => {
-    if (!query.data) return [];
-    if (filterValue === undefined) {
-      return query.data;
-    }
-    var d = query.data.filter((x) => x.name?.toLowerCase().includes(filterValue?.toLowerCase() ?? ''));
-    return d;
-  }, [filterValue, query.data]);
 
   const itemTemplate = (option: IconFileDto): JSX.Element => {
     if (!option) {
@@ -193,25 +158,23 @@ const IconSelector = ({ enableEditMode = true, value, disabled, editable = true,
   }
 
   return (
-    <div className="flex align-contents-center w-full min-w-full">
+    <div className="flex align-contents-center w-full min-w-full iconselector">
       <Dropdown
         className={className}
         disabled={loading}
+        filterClearIcon="pi pi-times"
         itemTemplate={itemTemplate}
-        onFilter={(e) => {
-          console.log(e);
-          e.originalEvent.preventDefault();
-        }}
+        filter
+        filterInputAutoFocus
         onChange={(e) => {
           handleOnChange(e?.value?.id);
         }}
-        onHide={() => {}}
         optionLabel="name"
-        options={filterValue === '' ? query.data : filterData()}
+        options={query.data}
         panelFooterTemplate={panelTemplate}
         placeholder="placeholder"
         // resetFilterOnHide
-        // showFilterClear
+        showFilterClear
         value={icon}
         valueTemplate={selectedTemplate}
         virtualScrollerOptions={{

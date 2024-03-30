@@ -76,15 +76,15 @@ input.p-dropdown-label {
     width: 100%;
 }
 
-.p-dropdown-filter-container {
-    position: relative;
-}
+// .p-dropdown-filter-container {
+//     position: relative;
+// }
 
-.p-dropdown-filter-icon {
-    position: absolute;
-    top: 50%;
-    margin-top: -0.5rem;
-}
+// .p-dropdown-filter-icon {
+//     position: absolute;
+//     top: 50%;
+//     margin-top: -0.5rem;
+// }
 
 .p-fluid .p-dropdown {
     display: flex;
@@ -187,9 +187,9 @@ input.p-dropdown-label {
         }
 
         .p-dropdown-filter-icon {
-            right: nth($inputPadding, 2);
-            color: $inputIconColor;
+            display: none;
         }
+
     }
 
     .p-dropdown-items {
