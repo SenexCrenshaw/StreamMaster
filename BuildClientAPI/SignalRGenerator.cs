@@ -108,7 +108,7 @@ public static class SignalRGenerator
         foreach (MethodDetails? method in methods.Where(a => a.IsGetPaged))
         {
             content.AppendLine($"        if (fieldData.entity === '{method.ReturnEntityType}') {{");
-            content.AppendLine($"          {method.Name.ToCamelCase()}.set{method.Name}Field(fieldData);");
+            content.AppendLine($"          {method.Name.ToCamelCase()}.SetField(fieldData)");
             content.AppendLine("          return;");
             content.AppendLine("        }");
             deps.Add(method.Name.ToCamelCase());
@@ -131,7 +131,7 @@ public static class SignalRGenerator
         foreach (MethodDetails? method in methods.Where(a => a.IsGetPaged))
         {
             content.AppendLine($"      if (entity === '{method.ReturnEntityType}') {{");
-            content.AppendLine($"        {method.Name.ToCamelCase()}.refresh{method.Name}();");
+            content.AppendLine($"        {method.Name.ToCamelCase()}.SetIsForced(true);");
             content.AppendLine("        return;");
             content.AppendLine("      }");
             deps.Add(method.Name.ToCamelCase());

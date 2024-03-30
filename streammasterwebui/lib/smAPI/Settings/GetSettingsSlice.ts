@@ -6,45 +6,53 @@ import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFi
 
 interface QueryState {
   data: SettingDto | undefined;
-  isLoading: boolean;
-  isError: boolean;
   error: string | undefined;
+  isError: boolean;
+  isForced: boolean;
+  isLoading: boolean;
 }
 
 const initialState: QueryState = {
   data: undefined,
-  isLoading: false,
+  error: undefined,
   isError: false,
-  error: undefined
+  isForced: false,
+  isLoading: false
 };
 const getSettingsSlice = createSlice({
   name: 'GetSettings',
   initialState,
   reducers: {
-    updateGetSettings: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
+    setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updatePagedResponseFieldInData(state.data, fieldData);
       console.log('updateGetSettings executed');
     },
-    clearGetSettings: (state) => {
+    clear: (state) => {
       state.data = undefined;
       state.error = undefined;
       state.isError = false;
       state.isLoading = false;
       console.log('clearGetSettings executed');
     },
-    intSetGetSettingsIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
+    setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
        state.isLoading = action.payload.isLoading;
       console.log('setGetSettingsIsLoading executed');
     },
+    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
+      const { force } = action.payload;
+      state.isForced = force;
+      console.log('setIsForced ', force);
+    }
+},
 
-  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchGetSettings.pending, (state, action) => {
         state.isLoading = true;
         state.isError = false;
         state.error = undefined;
+        state.isForced = false;
       })
       .addCase(fetchGetSettings.fulfilled, (state, action) => {
         if (action.payload) {
@@ -53,16 +61,18 @@ const getSettingsSlice = createSlice({
           state.isLoading = false;
           state.isError = false;
           state.error = undefined;
+          state.isForced = false;
         }
       })
       .addCase(fetchGetSettings.rejected, (state, action) => {
         state.error = action.error.message || 'Failed to fetch';
         state.isError = true;
         state.isLoading = false;
+        state.isForced = false;
       });
 
   }
 });
 
-export const { clearGetSettings, intSetGetSettingsIsLoading, updateGetSettings } = getSettingsSlice.actions;
+export const { clear, setIsLoading, setIsForced, setField } = getSettingsSlice.actions;
 export default getSettingsSlice.reducer;

@@ -6,45 +6,53 @@ import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFi
 
 interface QueryState {
   data: SDSystemStatus | undefined;
-  isLoading: boolean;
-  isError: boolean;
   error: string | undefined;
+  isError: boolean;
+  isForced: boolean;
+  isLoading: boolean;
 }
 
 const initialState: QueryState = {
   data: undefined,
-  isLoading: false,
+  error: undefined,
   isError: false,
-  error: undefined
+  isForced: false,
+  isLoading: false
 };
 const getSystemStatusSlice = createSlice({
   name: 'GetSystemStatus',
   initialState,
   reducers: {
-    updateGetSystemStatus: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
+    setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updatePagedResponseFieldInData(state.data, fieldData);
       console.log('updateGetSystemStatus executed');
     },
-    clearGetSystemStatus: (state) => {
+    clear: (state) => {
       state.data = undefined;
       state.error = undefined;
       state.isError = false;
       state.isLoading = false;
       console.log('clearGetSystemStatus executed');
     },
-    intSetGetSystemStatusIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
+    setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
        state.isLoading = action.payload.isLoading;
       console.log('setGetSystemStatusIsLoading executed');
     },
+    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
+      const { force } = action.payload;
+      state.isForced = force;
+      console.log('setIsForced ', force);
+    }
+},
 
-  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchGetSystemStatus.pending, (state, action) => {
         state.isLoading = true;
         state.isError = false;
         state.error = undefined;
+        state.isForced = false;
       })
       .addCase(fetchGetSystemStatus.fulfilled, (state, action) => {
         if (action.payload) {
@@ -53,16 +61,18 @@ const getSystemStatusSlice = createSlice({
           state.isLoading = false;
           state.isError = false;
           state.error = undefined;
+          state.isForced = false;
         }
       })
       .addCase(fetchGetSystemStatus.rejected, (state, action) => {
         state.error = action.error.message || 'Failed to fetch';
         state.isError = true;
         state.isLoading = false;
+        state.isForced = false;
       });
 
   }
 });
 
-export const { clearGetSystemStatus, intSetGetSystemStatusIsLoading, updateGetSystemStatus } = getSystemStatusSlice.actions;
+export const { clear, setIsLoading, setIsForced, setField } = getSystemStatusSlice.actions;
 export default getSystemStatusSlice.reducer;

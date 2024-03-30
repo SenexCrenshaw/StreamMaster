@@ -1,44 +1,74 @@
 import { QueryHookResult } from '@lib/apiDefs';
 import store from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
-import { clearGetSettings, intSetGetSettingsIsLoading, updateGetSettings } from './GetSettingsSlice';
-import { useEffect } from 'react';
+import { clear, setField, setIsForced, setIsLoading } from './GetSettingsSlice';
+import { useCallback,useEffect } from 'react';
 import { fetchGetSettings } from './SettingsFetch';
 import {FieldData, SettingDto } from '@lib/smAPI/smapiTypes';
 
 interface ExtendedQueryHookResult extends QueryHookResult<SettingDto | undefined> {}
-
 interface Result extends ExtendedQueryHookResult {
-  setGetSettingsField: (fieldData: FieldData) => void;
-  refreshGetSettings: () => void;
-  setGetSettingsIsLoading: (isLoading: boolean) => void;
+  Clear: () => void;
+  SetField: (fieldData: FieldData) => void;
+  SetIsForced: (force: boolean) => void;
+  SetIsLoading: (isLoading: boolean, query?: string) => void;
 }
-const useGetSettings = (): Result => {
   const dispatch = useAppDispatch();
-  const data = useAppSelector((state) => state.GetSettings.data);
-  const isLoading = useAppSelector((state) => state.GetSettings.isLoading ?? false);
-  const isError = useAppSelector((state) => state.GetSettings.isError ?? false);
-  const error = useAppSelector((state) => state.GetSettings.error ?? '');
+  const query = JSON.stringify(params);
+  const data = useAppSelector((state) => state.GetSettings.data[query]);
+  const error = useAppSelector((state) => state.GetSettings.error[query] ?? '');
+  const isError = useAppSelector((state) => state.GetSettings.isError[query] ?? false);
+  const isForced = useAppSelector((state) => state.GetSettings.isForced ?? false);
+  const isLoading = useAppSelector((state) => state.GetSettings.isLoading[query] ?? false);
 
+const SetIsForced = useCallback(
+  (forceRefresh: boolean, query?: string): void => {
+    dispatch(setIsForced({ force: forceRefresh }));
+  },
+  [dispatch]
+);
+
+
+const SetIsLoading = useCallback(
+  (isLoading: boolean, query?: string): void => {
+    dispatch(setIsLoading({ query: query, isLoading: isLoading }));
+  },
+  [dispatch]
+);
   useEffect(() => {
-    const test = store.getState().GetSettings;
-    if (test.data !== undefined || test.isLoading) return;
-    dispatch(fetchGetSettings());
-  }, [data, dispatch]);
+  const state = store.getState().GetSettings;
+  if (data === undefined && state.isLoading !== true && state.isForced !== true) {
+    SetIsForced(true);
+  }
+}, [SetIsForced, data, dispatch]);
 
-  const setGetSettingsField = (fieldData: FieldData): void => {
-    dispatch(updateGetSettings({ fieldData: fieldData }));
-  };
+useEffect(() => {
+  if (isLoading) return;
+  if (query === undefined && !isForced) return;
+  if (data !== undefined && !isForced) return;
 
-  const refreshGetSettings = (): void => {
-    dispatch(clearGetSettings());
-  };
+  SetIsLoading(true);
+  dispatch(fetchGetSettings(query));
+}, [data, dispatch, query, isForced, isLoading, SetIsLoading]);
 
-  const setGetSettingsIsLoading = (isLoading: boolean): void => {
-    dispatch(intSetGetSettingsIsLoading( {isLoading: isLoading} ));
-  };
+const SetField = (fieldData: FieldData): void => {
+  dispatch(setField({ fieldData: fieldData }));
+};
 
-  return { data, error, isError, isLoading, refreshGetSettings, setGetSettingsField, setGetSettingsIsLoading };
+const Clear = (): void => {
+  dispatch(clear());
+};
+
+return {
+  data,
+  error,
+  isError,
+  isLoading,
+  Clear,
+  SetField,
+  SetIsForced,
+  SetIsLoading
+};
 };
 
 export default useGetSettings;

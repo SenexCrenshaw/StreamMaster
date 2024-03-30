@@ -1,44 +1,74 @@
 import { QueryHookResult } from '@lib/apiDefs';
 import store from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
-import { clearGetIcons, intSetGetIconsIsLoading, updateGetIcons } from './GetIconsSlice';
-import { useEffect } from 'react';
+import { clear, setField, setIsForced, setIsLoading } from './GetIconsSlice';
+import { useCallback,useEffect } from 'react';
 import { fetchGetIcons } from './IconsFetch';
-import { FieldData, IconFileDto } from '@lib/smAPI/smapiTypes';
+import {FieldData, IconFileDto } from '@lib/smAPI/smapiTypes';
 
 interface ExtendedQueryHookResult extends QueryHookResult<IconFileDto[] | undefined> {}
-
 interface Result extends ExtendedQueryHookResult {
-  setGetIconsField: (fieldData: FieldData) => void;
-  refreshGetIcons: () => void;
-  setGetIconsIsLoading: (isLoading: boolean) => void;
+  Clear: () => void;
+  SetField: (fieldData: FieldData) => void;
+  SetIsForced: (force: boolean) => void;
+  SetIsLoading: (isLoading: boolean, query?: string) => void;
 }
-const useGetIcons = (): Result => {
   const dispatch = useAppDispatch();
-  const data = useAppSelector((state) => state.GetIcons.data);
-  const isLoading = useAppSelector((state) => state.GetIcons.isLoading ?? false);
-  const isError = useAppSelector((state) => state.GetIcons.isError ?? false);
-  const error = useAppSelector((state) => state.GetIcons.error ?? '');
+  const query = JSON.stringify(params);
+  const data = useAppSelector((state) => state.GetIcons.data[query]);
+  const error = useAppSelector((state) => state.GetIcons.error[query] ?? '');
+  const isError = useAppSelector((state) => state.GetIcons.isError[query] ?? false);
+  const isForced = useAppSelector((state) => state.GetIcons.isForced ?? false);
+  const isLoading = useAppSelector((state) => state.GetIcons.isLoading[query] ?? false);
 
+const SetIsForced = useCallback(
+  (forceRefresh: boolean, query?: string): void => {
+    dispatch(setIsForced({ force: forceRefresh }));
+  },
+  [dispatch]
+);
+
+
+const SetIsLoading = useCallback(
+  (isLoading: boolean, query?: string): void => {
+    dispatch(setIsLoading({ query: query, isLoading: isLoading }));
+  },
+  [dispatch]
+);
   useEffect(() => {
-    const test = store.getState().GetIcons;
-    if (test.data !== undefined || test.isLoading) return;
-    dispatch(fetchGetIcons());
-  }, [data, dispatch, isLoading]);
+  const state = store.getState().GetIcons;
+  if (data === undefined && state.isLoading !== true && state.isForced !== true) {
+    SetIsForced(true);
+  }
+}, [SetIsForced, data, dispatch]);
 
-  const setGetIconsField = (fieldData: FieldData): void => {
-    dispatch(updateGetIcons({ fieldData: fieldData }));
-  };
+useEffect(() => {
+  if (isLoading) return;
+  if (query === undefined && !isForced) return;
+  if (data !== undefined && !isForced) return;
 
-  const refreshGetIcons = (): void => {
-    dispatch(clearGetIcons());
-  };
+  SetIsLoading(true);
+  dispatch(fetchGetIcons(query));
+}, [data, dispatch, query, isForced, isLoading, SetIsLoading]);
 
-  const setGetIconsIsLoading = (isLoading: boolean): void => {
-    dispatch(intSetGetIconsIsLoading({ isLoading: isLoading }));
-  };
+const SetField = (fieldData: FieldData): void => {
+  dispatch(setField({ fieldData: fieldData }));
+};
 
-  return { data, error, isError, isLoading, refreshGetIcons, setGetIconsField, setGetIconsIsLoading };
+const Clear = (): void => {
+  dispatch(clear());
+};
+
+return {
+  data,
+  error,
+  isError,
+  isLoading,
+  Clear,
+  SetField,
+  SetIsForced,
+  SetIsLoading
+};
 };
 
 export default useGetIcons;

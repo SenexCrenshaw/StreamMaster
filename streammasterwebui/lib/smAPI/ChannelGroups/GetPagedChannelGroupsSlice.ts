@@ -1,28 +1,29 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import {FieldData, ChannelGroupDto,PagedResponse } from '@lib/smAPI/smapiTypes';
-import {removeKeyFromData} from '@lib/apiDefs';
 import { fetchGetPagedChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsFetch';
 import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
 
 
 interface QueryState {
   data: Record<string, PagedResponse<ChannelGroupDto> | undefined>;
-  isLoading: Record<string, boolean>;
-  isError: Record<string, boolean>;
   error: Record<string, string | undefined>;
+  isError: Record<string, boolean>;
+  isForced: boolean;
+  isLoading: Record<string, boolean>;
 }
 
 const initialState: QueryState = {
   data: {},
-  isLoading: {},
+  error: {},
   isError: {},
-  error: {}
+  isForced: false,
+  isLoading: {}
 };
 const getPagedChannelGroupsSlice = createSlice({
   name: 'GetPagedChannelGroups',
   initialState,
   reducers: {
-    updateGetPagedChannelGroups: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
+    setField: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
       const { query, fieldData } = action.payload;
 
       if (query !== undefined) {
@@ -37,27 +38,37 @@ const getPagedChannelGroupsSlice = createSlice({
           state.data[key] = updatePagedResponseFieldInData(state.data[key], fieldData);
         }
       }
-      console.log('updateGetPagedChannelGroups executed');
+      console.log('setField');
     },
-    clearGetPagedChannelGroups: (state) => {
-        state.data = {};
-        state.error = {};
-        state.isError = {};
-        state.isLoading = {};
-      console.log('clearGetPagedChannelGroups executed');
+    clear: (state) => {
+       state = initialState;
+       console.log('clear');
     },
-    intSetGetPagedChannelGroupsIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
-       for (const key in state.data) { state.isLoading[key] = action.payload.isLoading; }
-      console.log('setGetPagedChannelGroupsIsLoading executed');
+    setIsLoading: (state, action: PayloadAction<{ query?: string; isLoading: boolean }>) => {
+      const { query, isLoading } = action.payload;
+      if (query !== undefined) {
+        state.isLoading[query] = isLoading;
+      } else {
+        for (const key in state.data) {
+          state.isLoading[key] = action.payload.isLoading;
+        }
+      }
+      console.log('setIsLoading ', action.payload.isLoading);
     },
-
+    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
+      const { force } = action.payload;
+      state.isForced = force;
+      console.log('setIsForced ', force);
+    }
   },
+
   extraReducers: (builder) => {
     builder
       .addCase(fetchGetPagedChannelGroups.pending, (state, action) => {
         const query = action.meta.arg;
         state.isLoading[query] = true;
         state.isError[query] = false;
+        state.isForced = false;
         state.error[query] = undefined;
       })
       .addCase(fetchGetPagedChannelGroups.fulfilled, (state, action) => {
@@ -67,6 +78,7 @@ const getPagedChannelGroupsSlice = createSlice({
           state.isLoading[query] = false;
           state.isError[query] = false;
           state.error[query] = undefined;
+          state.isForced = false;
         }
       })
       .addCase(fetchGetPagedChannelGroups.rejected, (state, action) => {
@@ -74,10 +86,11 @@ const getPagedChannelGroupsSlice = createSlice({
         state.error[query] = action.error.message || 'Failed to fetch';
         state.isError[query] = true;
         state.isLoading[query] = false;
+        state.isForced = false;
       });
 
   }
 });
 
-export const { clearGetPagedChannelGroups, intSetGetPagedChannelGroupsIsLoading, updateGetPagedChannelGroups } = getPagedChannelGroupsSlice.actions;
+export const { clear, setIsLoading, setIsForced, setField } = getPagedChannelGroupsSlice.actions;
 export default getPagedChannelGroupsSlice.reducer;

@@ -172,7 +172,7 @@ namespace BuildClientAPI
                 }
 
 
-                string tsSignalRFilePath = Path.Combine(SignalRFilePathPrefix, "SignalRProvider2.tsx");
+                string tsSignalRFilePath = Path.Combine(SignalRFilePathPrefix, "SignalRProvider.tsx");
                 SignalRGenerator.GenerateFile(methodsByNamespace.SelectMany(a => a.Value).ToList(), tsSignalRFilePath);
             }
             catch (Exception ex)

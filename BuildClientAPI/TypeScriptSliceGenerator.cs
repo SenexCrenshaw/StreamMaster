@@ -7,8 +7,7 @@ public static class TypeScriptSliceGenerator
         foreach (MethodDetails method in methods.Where(a => a.Name.StartsWith("Get")))
         {
             StringBuilder content = new();
-            AddImports(content, method);
-
+            content.Append(AddImports(method));
             content.Append(GenerateQueryStateAndInitialState(method));
 
             // Define the slice
@@ -16,8 +15,7 @@ public static class TypeScriptSliceGenerator
             content.AppendLine($"  name: '{method.Name}',");
             content.AppendLine("  initialState,");
             content.AppendLine("  reducers: {");
-            content.AppendLine(GenerateReducers(method));
-            content.AppendLine("  },");
+            content.AppendLine(GenerateActions(method));
             content.AppendLine("  extraReducers: (builder) => {");
 
             content.AppendLine(GenerateExtraReducerForFetch(method));
@@ -28,7 +26,7 @@ public static class TypeScriptSliceGenerator
             content.AppendLine();
 
             // Export actions and reducer
-            content.AppendLine($"export const {{ clear{method.Name}, intSet{method.Name}IsLoading, update{method.Name} }} = {method.Name.ToCamelCase()}Slice.actions;");
+            content.AppendLine($"export const {{ clear, setIsLoading, setIsForced, setField }} = {method.Name.ToCamelCase()}Slice.actions;");
             content.AppendLine($"export default {method.Name.ToCamelCase()}Slice.reducer;");
 
             string fileName = $"{method.Name}Slice.ts";
@@ -41,8 +39,9 @@ public static class TypeScriptSliceGenerator
         }
     }
 
-    private static void AddImports(StringBuilder content, MethodDetails method)
+    private static string AddImports(MethodDetails method)
     {
+        StringBuilder content = new();
         content.AppendLine("import { PayloadAction, createSlice } from '@reduxjs/toolkit';");
 
         string? a = Util.IsTSGeneric(method.ReturnEntityType);
@@ -57,16 +56,13 @@ public static class TypeScriptSliceGenerator
         }
 
         content.AppendLine($"import {{FieldData, {string.Join(",", pList)} }} from '@lib/smAPI/smapiTypes';");
-        if (method.IsGetPaged)
-        {
-            content.AppendLine($"import {{removeKeyFromData}} from '@lib/apiDefs';");
-        }
 
         string fetchActionName = $"fetch{method.Name}";
         content.AppendLine($"import {{ {fetchActionName} }} from '@lib/smAPI/{method.NamespaceName}/{method.NamespaceName}Fetch';");
 
         content.AppendLine("import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';");
         content.AppendLine();
+        return content.ToString();
     }
 
     private static string GenerateQueryStateAndInitialState(MethodDetails method)
@@ -76,16 +72,18 @@ public static class TypeScriptSliceGenerator
             return $@"
 interface QueryState {{
   data: Record<string, PagedResponse<{method.ReturnEntityType}> | undefined>;
-  isLoading: Record<string, boolean>;
-  isError: Record<string, boolean>;
   error: Record<string, string | undefined>;
+  isError: Record<string, boolean>;
+  isForced: boolean;
+  isLoading: Record<string, boolean>;
 }}
 
 const initialState: QueryState = {{
   data: {{}},
-  isLoading: {{}},
+  error: {{}},
   isError: {{}},
-  error: {{}}
+  isForced: false,
+  isLoading: {{}}
 }};
 ";
         }
@@ -99,132 +97,156 @@ const initialState: QueryState = {{
         return $@"
 interface QueryState {{
   data: {ret} | undefined;
-  isLoading: boolean;
-  isError: boolean;
   error: string | undefined;
+  isError: boolean;
+  isForced: boolean;
+  isLoading: boolean;
 }}
 
 const initialState: QueryState = {{
   data: undefined,
-  isLoading: false,
+  error: undefined,
   isError: false,
-  error: undefined
+  isForced: false,
+  isLoading: false
 }};
 ";
     }
 
-    private static string GenerateReducers(MethodDetails method)
+    private static string GenerateActions(MethodDetails method)
     {
-        StringBuilder sb = new();
+        StringBuilder content = new();
         if (method.IsGetPaged)
         {
-            sb.AppendLine($"    update{method.Name}: (state, action: PayloadAction<{{ query?: string | undefined; fieldData: FieldData }}>) => {{");
-            sb.AppendLine("      const { query, fieldData } = action.payload;");
-            sb.AppendLine();
-            sb.AppendLine("      if (query !== undefined) {");
-            sb.AppendLine("        if (state.data[query]) {");
-            sb.AppendLine("          state.data[query] = updatePagedResponseFieldInData(state.data[query], fieldData);");
-            sb.AppendLine("        }");
-            sb.AppendLine("        return;");
-            sb.AppendLine("      }");
-            sb.AppendLine();
-            sb.AppendLine("      for (const key in state.data) {");
-            sb.AppendLine("        if (state.data[key]) {");
-            sb.AppendLine("          state.data[key] = updatePagedResponseFieldInData(state.data[key], fieldData);");
-            sb.AppendLine("        }");
-            sb.AppendLine("      }");
-            sb.AppendLine($"      console.log('update{method.Name} executed');");
-            sb.AppendLine("    },");
+            content.AppendLine($"    setField: (state, action: PayloadAction<{{ query?: string | undefined; fieldData: FieldData }}>) => {{");
+            content.AppendLine("      const { query, fieldData } = action.payload;");
+            content.AppendLine();
+            content.AppendLine("      if (query !== undefined) {");
+            content.AppendLine("        if (state.data[query]) {");
+            content.AppendLine("          state.data[query] = updatePagedResponseFieldInData(state.data[query], fieldData);");
+            content.AppendLine("        }");
+            content.AppendLine("        return;");
+            content.AppendLine("      }");
+            content.AppendLine();
+            content.AppendLine("      for (const key in state.data) {");
+            content.AppendLine("        if (state.data[key]) {");
+            content.AppendLine("          state.data[key] = updatePagedResponseFieldInData(state.data[key], fieldData);");
+            content.AppendLine("        }");
+            content.AppendLine("      }");
+            content.AppendLine($"      console.log('setField');");
+            content.AppendLine("    },");
 
-            sb.AppendLine($"    clear{method.Name}: (state) => {{");
-            sb.AppendLine("        state.data = {};");
-            sb.AppendLine("        state.error = {};");
-            sb.AppendLine("        state.isError = {};");
-            sb.AppendLine("        state.isLoading = {};");
-            sb.AppendLine($"      console.log('clear{method.Name} executed');");
-            sb.AppendLine("    },");
+            content.AppendLine($"    clear: (state) => {{");
+            content.AppendLine("       state = initialState;");
+            content.AppendLine("       console.log('clear');");
+            content.AppendLine("    },");
 
-            sb.AppendLine($"    intSet{method.Name}IsLoading: (state, action: PayloadAction<{{isLoading: boolean }}>) => {{");
-            sb.AppendLine("       for (const key in state.data) { state.isLoading[key] = action.payload.isLoading; }");
-            sb.AppendLine($"      console.log('set{method.Name}IsLoading executed');");
-            sb.AppendLine("    },");
-            return sb.ToString();
+            content.AppendLine($"    setIsLoading: (state, action: PayloadAction<{{ query?: string; isLoading: boolean }}>) => {{");
+            content.AppendLine("      const { query, isLoading } = action.payload;");
+            content.AppendLine("      if (query !== undefined) {");
+            content.AppendLine("        state.isLoading[query] = isLoading;");
+            content.AppendLine("      } else {");
+            content.AppendLine("        for (const key in state.data) {");
+            content.AppendLine("          state.isLoading[key] = action.payload.isLoading;");
+            content.AppendLine("        }");
+            content.AppendLine("      }");
+            content.AppendLine("      console.log('setIsLoading ', action.payload.isLoading);");
+            content.AppendLine("    },");
+            content.AppendLine("    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {");
+            content.AppendLine("      const { force } = action.payload;");
+            content.AppendLine("      state.isForced = force;");
+            content.AppendLine("      console.log('setIsForced ', force);");
+            content.AppendLine("    }");
+            content.AppendLine("  },");
+            return content.ToString();
         }
 
 
-        sb.AppendLine($"    update{method.Name}: (state, action: PayloadAction<{{ fieldData: FieldData }}>) => {{");
-        sb.AppendLine("      const { fieldData } = action.payload;");
-        sb.AppendLine("      state.data = updatePagedResponseFieldInData(state.data, fieldData);");
-        sb.AppendLine($"      console.log('update{method.Name} executed');");
-        sb.AppendLine("    },");
+        content.AppendLine($"    setField: (state, action: PayloadAction<{{ fieldData: FieldData }}>) => {{");
+        content.AppendLine("      const { fieldData } = action.payload;");
+        content.AppendLine("      state.data = updatePagedResponseFieldInData(state.data, fieldData);");
+        content.AppendLine($"      console.log('update{method.Name} executed');");
+        content.AppendLine("    },");
 
-        sb.AppendLine($"    clear{method.Name}: (state) => {{");
-        sb.AppendLine("      state.data = undefined;");
-        sb.AppendLine("      state.error = undefined;");
-        sb.AppendLine("      state.isError = false;");
-        sb.AppendLine("      state.isLoading = false;");
-        sb.AppendLine($"      console.log('clear{method.Name} executed');");
-        sb.AppendLine("    },");
+        content.AppendLine($"    clear: (state) => {{");
+        content.AppendLine("      state.data = undefined;");
+        content.AppendLine("      state.error = undefined;");
+        content.AppendLine("      state.isError = false;");
+        content.AppendLine("      state.isLoading = false;");
+        content.AppendLine($"      console.log('clear{method.Name} executed');");
+        content.AppendLine("    },");
 
-        sb.AppendLine($"    intSet{method.Name}IsLoading: (state, action: PayloadAction<{{isLoading: boolean }}>) => {{");
-        sb.AppendLine("       state.isLoading = action.payload.isLoading;");
-        sb.AppendLine($"      console.log('set{method.Name}IsLoading executed');");
-        sb.AppendLine("    },");
-        return sb.ToString();
+        content.AppendLine($"    setIsLoading: (state, action: PayloadAction<{{isLoading: boolean }}>) => {{");
+        content.AppendLine("       state.isLoading = action.payload.isLoading;");
+        content.AppendLine($"      console.log('set{method.Name}IsLoading executed');");
+        content.AppendLine("    },");
+        content.AppendLine("    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {");
+        content.AppendLine("      const { force } = action.payload;");
+        content.AppendLine("      state.isForced = force;");
+        content.AppendLine("      console.log('setIsForced ', force);");
+        content.AppendLine("    }");
+        content.AppendLine("},");
+        return content.ToString();
     }
 
     private static string GenerateExtraReducerForFetch(MethodDetails method)
     {
         string fetchActionName = $"fetch{method.Name}";
-        StringBuilder sb = new();
+        StringBuilder content = new();
         if (method.IsGetPaged)
         {
-            sb.AppendLine("    builder");
-            sb.AppendLine($"      .addCase({fetchActionName}.pending, (state, action) => {{");
-            sb.AppendLine("        const query = action.meta.arg;");
-            sb.AppendLine("        state.isLoading[query] = true;");
-            sb.AppendLine("        state.isError[query] = false;");
-            sb.AppendLine("        state.error[query] = undefined;");
-            sb.AppendLine("      })");
-            sb.AppendLine($"      .addCase({fetchActionName}.fulfilled, (state, action) => {{");
-            sb.AppendLine("        if (action.payload) {");
-            sb.AppendLine("          const { query, value } = action.payload;");
-            sb.AppendLine("          state.data[query] = value;");
-            sb.AppendLine("          state.isLoading[query] = false;");
-            sb.AppendLine("          state.isError[query] = false;");
-            sb.AppendLine("          state.error[query] = undefined;");
-            sb.AppendLine("        }");
-            sb.AppendLine("      })");
-            sb.AppendLine($"      .addCase({fetchActionName}.rejected, (state, action) => {{");
-            sb.AppendLine("        const query = action.meta.arg;");
-            sb.AppendLine("        state.error[query] = action.error.message || 'Failed to fetch';");
-            sb.AppendLine("        state.isError[query] = true;");
-            sb.AppendLine("        state.isLoading[query] = false;");
-            sb.AppendLine("      });");
-            return sb.ToString();
+            content.AppendLine("    builder");
+            content.AppendLine($"      .addCase({fetchActionName}.pending, (state, action) => {{");
+            content.AppendLine("        const query = action.meta.arg;");
+            content.AppendLine("        state.isLoading[query] = true;");
+            content.AppendLine("        state.isError[query] = false;");
+            content.AppendLine("        state.isForced = false;");
+            content.AppendLine("        state.error[query] = undefined;");
+            content.AppendLine("      })");
+            content.AppendLine($"      .addCase({fetchActionName}.fulfilled, (state, action) => {{");
+            content.AppendLine("        if (action.payload) {");
+            content.AppendLine("          const { query, value } = action.payload;");
+            content.AppendLine("          state.data[query] = value;");
+            content.AppendLine("          state.isLoading[query] = false;");
+            content.AppendLine("          state.isError[query] = false;");
+            content.AppendLine("          state.error[query] = undefined;");
+            content.AppendLine("          state.isForced = false;");
+            content.AppendLine("        }");
+            content.AppendLine("      })");
+            content.AppendLine($"      .addCase({fetchActionName}.rejected, (state, action) => {{");
+            content.AppendLine("        const query = action.meta.arg;");
+            content.AppendLine("        state.error[query] = action.error.message || 'Failed to fetch';");
+            content.AppendLine("        state.isError[query] = true;");
+            content.AppendLine("        state.isLoading[query] = false;");
+            content.AppendLine("        state.isForced = false;");
+            content.AppendLine("      });");
+            return content.ToString();
         }
 
-        sb.AppendLine("    builder");
-        sb.AppendLine($"      .addCase({fetchActionName}.pending, (state, action) => {{");
-        sb.AppendLine("        state.isLoading = true;");
-        sb.AppendLine("        state.isError = false;");
-        sb.AppendLine("        state.error = undefined;");
-        sb.AppendLine("      })");
-        sb.AppendLine($"      .addCase({fetchActionName}.fulfilled, (state, action) => {{");
-        sb.AppendLine("        if (action.payload) {");
-        sb.AppendLine("          const { value } = action.payload;");
-        sb.AppendLine("          state.data = value ?? undefined;;");
-        sb.AppendLine("          state.isLoading = false;");
-        sb.AppendLine("          state.isError = false;");
-        sb.AppendLine("          state.error = undefined;");
-        sb.AppendLine("        }");
-        sb.AppendLine("      })");
-        sb.AppendLine($"      .addCase({fetchActionName}.rejected, (state, action) => {{");
-        sb.AppendLine("        state.error = action.error.message || 'Failed to fetch';");
-        sb.AppendLine("        state.isError = true;");
-        sb.AppendLine("        state.isLoading = false;");
-        sb.AppendLine("      });");
-        return sb.ToString();
+        content.AppendLine("    builder");
+        content.AppendLine($"      .addCase({fetchActionName}.pending, (state, action) => {{");
+        content.AppendLine("        state.isLoading = true;");
+        content.AppendLine("        state.isError = false;");
+        content.AppendLine("        state.error = undefined;");
+        content.AppendLine("        state.isForced = false;");
+        content.AppendLine("      })");
+        content.AppendLine($"      .addCase({fetchActionName}.fulfilled, (state, action) => {{");
+        content.AppendLine("        if (action.payload) {");
+        content.AppendLine("          const { value } = action.payload;");
+        content.AppendLine("          state.data = value ?? undefined;;");
+        content.AppendLine("          state.isLoading = false;");
+        content.AppendLine("          state.isError = false;");
+        content.AppendLine("          state.error = undefined;");
+        content.AppendLine("          state.isForced = false;");
+        content.AppendLine("        }");
+        content.AppendLine("      })");
+        content.AppendLine($"      .addCase({fetchActionName}.rejected, (state, action) => {{");
+        content.AppendLine("        state.error = action.error.message || 'Failed to fetch';");
+        content.AppendLine("        state.isError = true;");
+        content.AppendLine("        state.isLoading = false;");
+        content.AppendLine("        state.isForced = false;");
+        content.AppendLine("      });");
+        return content.ToString();
     }
 
 

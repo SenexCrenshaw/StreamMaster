@@ -32,7 +32,6 @@ public static class TypeScriptFetchGenerator
         }
 
         content.AppendLine("import { createAsyncThunk } from '@reduxjs/toolkit';");
-        content.AppendLine("import store from '@lib/redux/store';");
         content.AppendLine();
 
         foreach (MethodDetails method in methods)
@@ -56,9 +55,6 @@ public static class TypeScriptFetchGenerator
 
         content.AppendLine($"export const fetch{method.Name} = createAsyncThunk('cache/get{method.Name}', async (_: void, thunkAPI) => {{");
         content.AppendLine("  try {");
-        content.AppendLine("    const test = store.getState().GetIcons;");
-        //content.AppendLine("    if (test.isLoading) return;");
-        content.AppendLine("    if (test.data) return;");
         content.AppendLine($"    console.log('Fetching {method.Name}');");
         content.AppendLine($"    const response = await {method.Name}();");
         content.AppendLine($"    console.log('Fetched {method.Name} ',response?.length);");
@@ -78,9 +74,6 @@ public static class TypeScriptFetchGenerator
         content.AppendLine($"export const fetch{method.Name} = createAsyncThunk('cache/get{method.Name}', async (query: string, thunkAPI) => {{");
         content.AppendLine("  try {");
         content.AppendLine("    if (query === undefined) return;");
-        content.AppendLine($"    const state = store.getState().{method.Name};");
-        //content.AppendLine($"    if ( state.isLoading[query]) return;");
-        content.AppendLine($"    if ( state.data[query] !== undefined ) return;");
         content.AppendLine($"    console.log('Fetching {method.Name}');");
         content.AppendLine("    const params = JSON.parse(query);");
         content.AppendLine($"    const response = await {method.Name}(params);");
