@@ -46,7 +46,8 @@ useEffect(() => {
 }, [SetIsForced, data, dispatch, query]);
 
 useEffect(() => {
-  if (isLoading) return;
+  const state = store.getState().GetPagedChannelGroups;
+  if (state.isLoading[query]) return;
   if (query === undefined && !isForced) return;
   if (data !== undefined && !isForced) return;
 

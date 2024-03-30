@@ -43,7 +43,8 @@ const SetIsLoading = useCallback(
 }, [SetIsForced, data, dispatch]);
 
 useEffect(() => {
-  if (isLoading) return;
+  const state = store.getState().GetSettings;
+  if (state.isLoading) return;
   if (data !== undefined && !isForced) return;
 
   SetIsLoading(true);

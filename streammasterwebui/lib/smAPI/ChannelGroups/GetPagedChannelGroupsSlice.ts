@@ -38,11 +38,11 @@ const getPagedChannelGroupsSlice = createSlice({
           state.data[key] = updatePagedResponseFieldInData(state.data[key], fieldData);
         }
       }
-      console.log('setField');
+      console.log('GetPagedChannelGroups setField');
     },
     clear: (state) => {
        state = initialState;
-       console.log('clear');
+       console.log('GetPagedChannelGroups clear');
     },
     setIsLoading: (state, action: PayloadAction<{ query?: string; isLoading: boolean }>) => {
       const { query, isLoading } = action.payload;
@@ -53,12 +53,12 @@ const getPagedChannelGroupsSlice = createSlice({
           state.isLoading[key] = action.payload.isLoading;
         }
       }
-      console.log('setIsLoading ', action.payload.isLoading);
+      console.log('GetPagedChannelGroups setIsLoading ', action.payload.isLoading);
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
-      console.log('setIsForced ', force);
+      console.log('GetPagedChannelGroups  setIsForced ', force);
     }
   },
 

@@ -26,20 +26,20 @@ const getIsSystemReadySlice = createSlice({
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updatePagedResponseFieldInData(state.data, fieldData);
-      console.log('updateGetIsSystemReady executed');
+      console.log('GetIsSystemReady setField');
     },
     clear: (state) => {
        state = initialState;
-      console.log('clearGetIsSystemReady executed');
+      console.log('GetIsSystemReady clear');
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
        state.isLoading = action.payload.isLoading;
-      console.log('setGetIsSystemReadyIsLoading executed');
+      console.log('GetIsSystemReady setIsLoading ', action.payload.isLoading);
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
-      console.log('setIsForced ', force);
+      console.log('GetIsSystemReady  setIsForced ', force);
     }
 },
 

@@ -67,7 +67,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
   const columns = useMemo(
     (): ColumnMeta[] => [
       { field: 'channelNumber', width: '4rem' },
-      // channelLogoColumnConfig,
+      channelLogoColumnConfig,
       // // { field: 'logo', fieldType: 'image', width: '4rem' },
       { field: 'name', filter: true, sortable: true },
       { field: 'group', filter: true, sortable: true, width: '5rem' },

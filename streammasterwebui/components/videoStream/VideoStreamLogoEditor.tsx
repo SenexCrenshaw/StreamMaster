@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-import IconSelector from '../selectors/IconSelector';
+import IconSelector from '../icons/IconSelector';
 
 export interface StreamDataSelectorProperties {
   readonly data: VideoStreamDto;

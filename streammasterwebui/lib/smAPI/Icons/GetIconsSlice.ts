@@ -26,20 +26,20 @@ const getIconsSlice = createSlice({
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updatePagedResponseFieldInData(state.data, fieldData);
-      console.log('updateGetIcons executed');
+      console.log('GetIcons setField');
     },
     clear: (state) => {
        state = initialState;
-      console.log('clearGetIcons executed');
+      console.log('GetIcons clear');
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
        state.isLoading = action.payload.isLoading;
-      console.log('setGetIconsIsLoading executed');
+      console.log('GetIcons setIsLoading ', action.payload.isLoading);
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
-      console.log('setIsForced ', force);
+      console.log('GetIcons  setIsForced ', force);
     }
 },
 

@@ -183,12 +183,19 @@ public static class TypeScriptHookGenerator
     {
         StringBuilder content = new();
         content.AppendLine("useEffect(() => {");
-        content.AppendLine("  if (isLoading) return;");
+        content.AppendLine($"  const state = store.getState().{method.Name};");
+
 
         if (method.IsGetPaged)
         {
+            content.AppendLine("  if (state.isLoading[query]) return;");
             content.AppendLine("  if (query === undefined && !isForced) return;");
         }
+        else
+        {
+            content.AppendLine("  if (state.isLoading) return;");
+        }
+
         content.AppendLine("  if (data !== undefined && !isForced) return;");
         content.AppendLine("");
         content.AppendLine("  SetIsLoading(true);");

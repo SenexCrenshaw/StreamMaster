@@ -26,20 +26,20 @@ const getSystemStatusSlice = createSlice({
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updatePagedResponseFieldInData(state.data, fieldData);
-      console.log('updateGetSystemStatus executed');
+      console.log('GetSystemStatus setField');
     },
     clear: (state) => {
        state = initialState;
-      console.log('clearGetSystemStatus executed');
+      console.log('GetSystemStatus clear');
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
        state.isLoading = action.payload.isLoading;
-      console.log('setGetSystemStatusIsLoading executed');
+      console.log('GetSystemStatus setIsLoading ', action.payload.isLoading);
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
-      console.log('setIsForced ', force);
+      console.log('GetSystemStatus  setIsForced ', force);
     }
 },
 

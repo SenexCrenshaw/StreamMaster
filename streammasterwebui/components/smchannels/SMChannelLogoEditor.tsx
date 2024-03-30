@@ -10,7 +10,7 @@ export interface StreamDataSelectorProperties {
 }
 
 const SMChannelLogoEditor = ({ data, enableEditMode }: StreamDataSelectorProperties) => {
-  const IconSelector = lazy(() => import('../selectors/IconSelector'));
+  const IconSelector = lazy(() => import('../icons/IconSelector'));
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const onSetLogo = (Logo: string) => {

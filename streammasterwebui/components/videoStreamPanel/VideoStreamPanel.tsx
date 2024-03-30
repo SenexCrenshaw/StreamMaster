@@ -1,7 +1,7 @@
 import SaveButton from '@components/buttons/SaveButton';
 import ChannelGroupSelector from '@components/channelGroups/ChannelGroupSelector';
 import EPGSelector from '@components/epg/EPGSelector';
-import IconSelector from '@components/selectors/IconSelector';
+import IconSelector from '@components/icons/IconSelector';
 import { getIconUrl } from '@lib/common/common';
 
 import useSettings from '@lib/useSettings';
