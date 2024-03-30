@@ -13,13 +13,13 @@ interface Result extends ExtendedQueryHookResult {
   SetIsForced: (force: boolean) => void;
   SetIsLoading: (isLoading: boolean, query?: string) => void;
 }
+const useGetSystemStatus = (): Result => {
   const dispatch = useAppDispatch();
-  const query = JSON.stringify(params);
-  const data = useAppSelector((state) => state.GetSystemStatus.data[query]);
-  const error = useAppSelector((state) => state.GetSystemStatus.error[query] ?? '');
-  const isError = useAppSelector((state) => state.GetSystemStatus.isError[query] ?? false);
+  const data = useAppSelector((state) => state.GetSystemStatus.data);
+  const error = useAppSelector((state) => state.GetSystemStatus.error ?? '');
+  const isError = useAppSelector((state) => state.GetSystemStatus.isError?? false);
   const isForced = useAppSelector((state) => state.GetSystemStatus.isForced ?? false);
-  const isLoading = useAppSelector((state) => state.GetSystemStatus.isLoading[query] ?? false);
+  const isLoading = useAppSelector((state) => state.GetSystemStatus.isLoading ?? false);
 
 const SetIsForced = useCallback(
   (forceRefresh: boolean, query?: string): void => {
@@ -30,8 +30,8 @@ const SetIsForced = useCallback(
 
 
 const SetIsLoading = useCallback(
-  (isLoading: boolean, query?: string): void => {
-    dispatch(setIsLoading({ query: query, isLoading: isLoading }));
+  (isLoading: boolean): void => {
+    dispatch(setIsLoading({ isLoading: isLoading }));
   },
   [dispatch]
 );
@@ -44,12 +44,11 @@ const SetIsLoading = useCallback(
 
 useEffect(() => {
   if (isLoading) return;
-  if (query === undefined && !isForced) return;
   if (data !== undefined && !isForced) return;
 
   SetIsLoading(true);
-  dispatch(fetchGetSystemStatus(query));
-}, [data, dispatch, query, isForced, isLoading, SetIsLoading]);
+  dispatch(fetchGetSystemStatus());
+}, [data, dispatch, isForced, isLoading, SetIsLoading]);
 
 const SetField = (fieldData: FieldData): void => {
   dispatch(setField({ fieldData: fieldData }));

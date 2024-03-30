@@ -29,10 +29,7 @@ const getIsSystemReadySlice = createSlice({
       console.log('updateGetIsSystemReady executed');
     },
     clear: (state) => {
-      state.data = undefined;
-      state.error = undefined;
-      state.isError = false;
-      state.isLoading = false;
+       state = initialState;
       console.log('clearGetIsSystemReady executed');
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {

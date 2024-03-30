@@ -29,10 +29,7 @@ const getIconsSlice = createSlice({
       console.log('updateGetIcons executed');
     },
     clear: (state) => {
-      state.data = undefined;
-      state.error = undefined;
-      state.isError = false;
-      state.isLoading = false;
+       state = initialState;
       console.log('clearGetIcons executed');
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {

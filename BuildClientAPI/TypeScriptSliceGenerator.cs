@@ -169,10 +169,7 @@ const initialState: QueryState = {{
         content.AppendLine("    },");
 
         content.AppendLine($"    clear: (state) => {{");
-        content.AppendLine("      state.data = undefined;");
-        content.AppendLine("      state.error = undefined;");
-        content.AppendLine("      state.isError = false;");
-        content.AppendLine("      state.isLoading = false;");
+        content.AppendLine("       state = initialState;");
         content.AppendLine($"      console.log('clear{method.Name} executed');");
         content.AppendLine("    },");
 
