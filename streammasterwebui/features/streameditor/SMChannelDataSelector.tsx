@@ -46,7 +46,14 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
     const confirm = (event: any) => {
       confirmPopup({
         target: event.currentTarget,
-        message: 'Deletes "' + data.name + '" ?',
+        message: (
+          <>
+            Delete
+            <br />"{data.name}" ?
+            <br />
+            Are you sure?
+          </>
+        ),
         icon: 'pi pi-exclamation-triangle',
         defaultFocus: 'accept',
         accept,
@@ -73,7 +80,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
       { field: 'group', filter: true, sortable: true, width: '5rem' },
       { align: 'right', bodyTemplate: actionBodyTemplate, field: 'actions', fieldType: 'actions', header: 'Actions', width: '5rem' }
     ],
-    [actionBodyTemplate]
+    [actionBodyTemplate, channelLogoColumnConfig]
   );
 
   return (
