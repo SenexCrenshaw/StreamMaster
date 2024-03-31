@@ -72,6 +72,22 @@ namespace StreamMaster.Application.SMChannels
 
         [HttpPatch]
         [Route("[action]")]
+        public async Task<ActionResult<DefaultAPIResponse>> SetSMChannelName(SetSMChannelNameRequest request)
+        {
+            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
+        public async Task<ActionResult<DefaultAPIResponse>> SetSMChannelNumber(SetSMChannelNumberRequest request)
+        {
+            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
         public async Task<ActionResult<DefaultAPIResponse>> SetSMStreamRanks(SetSMStreamRanksRequest request)
         {
             DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
@@ -128,6 +144,18 @@ namespace StreamMaster.Application.Hubs
         }
 
         public async Task<DefaultAPIResponse> SetSMChannelLogo(SetSMChannelLogoRequest request)
+        {
+            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<DefaultAPIResponse> SetSMChannelName(SetSMChannelNameRequest request)
+        {
+            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<DefaultAPIResponse> SetSMChannelNumber(SetSMChannelNumberRequest request)
         {
             DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

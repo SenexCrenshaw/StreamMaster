@@ -14,6 +14,8 @@ namespace StreamMaster.Application.SMChannels
     Task<ActionResult<APIResponse<SMChannelDto>>> GetPagedSMChannels(QueryStringParameters Parameters);
     Task<ActionResult<DefaultAPIResponse>> RemoveSMStreamFromSMChannel(RemoveSMStreamFromSMChannelRequest request);
     Task<ActionResult<DefaultAPIResponse>> SetSMChannelLogo(SetSMChannelLogoRequest request);
+    Task<ActionResult<DefaultAPIResponse>> SetSMChannelName(SetSMChannelNameRequest request);
+    Task<ActionResult<DefaultAPIResponse>> SetSMChannelNumber(SetSMChannelNumberRequest request);
     Task<ActionResult<DefaultAPIResponse>> SetSMStreamRanks(SetSMStreamRanksRequest request);
     }
 }
@@ -30,6 +32,8 @@ namespace StreamMaster.Application.Hubs
         Task<APIResponse<SMChannelDto>> GetPagedSMChannels(QueryStringParameters Parameters);
         Task<DefaultAPIResponse> RemoveSMStreamFromSMChannel(RemoveSMStreamFromSMChannelRequest request);
         Task<DefaultAPIResponse> SetSMChannelLogo(SetSMChannelLogoRequest request);
+        Task<DefaultAPIResponse> SetSMChannelName(SetSMChannelNameRequest request);
+        Task<DefaultAPIResponse> SetSMChannelNumber(SetSMChannelNumberRequest request);
         Task<DefaultAPIResponse> SetSMStreamRanks(SetSMStreamRanksRequest request);
     }
 }

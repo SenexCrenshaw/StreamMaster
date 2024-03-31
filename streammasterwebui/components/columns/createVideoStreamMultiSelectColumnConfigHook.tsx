@@ -22,7 +22,7 @@ interface ColumnConfigInputs {
 
 const createVideoStreamMultiSelectColumnConfigHook =
   ({ dataField, fieldType, headerTitle, maxWidth, minWidth, width, EditorComponent, queryHook }: ColumnConfigInputs) =>
-  ({ enableEdit = false, useFilter = true, values }: { enableEdit?: boolean; useFilter?: boolean; values?: string[] | undefined }) => {
+  ({ enableEdit = false, useFilter, values }: { enableEdit?: boolean; useFilter?: boolean; values?: string[] | undefined }) => {
     const { data, isLoading, isFetching, isError } = queryHook ? queryHook() : { data: undefined, isError: false, isFetching: false, isLoading: false };
 
     const bodyTemplate = (bodyData: VideoStreamDto | string) => {

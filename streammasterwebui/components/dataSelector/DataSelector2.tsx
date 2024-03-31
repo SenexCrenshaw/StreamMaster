@@ -19,7 +19,7 @@ import {
   type DataTableStateEvent,
   type DataTableValue
 } from 'primereact/datatable';
-import { Suspense, memo, useCallback, useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
 
 import { type ColumnAlign, type ColumnFieldType, type ColumnMeta, type DataSelectorSelectionMode } from './DataSelectorTypes';
 import bodyTemplate from './bodyTemplate';
@@ -39,7 +39,6 @@ import { PagedResponseDto } from '@lib/common/dataTypes';
 import { AddSMStreamToSMChannelRequest, PagedResponse, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
-import { ProgressSpinner } from 'primereact/progressspinner';
 import ResetButton from '../buttons/ResetButton';
 import TableHeader from './TableHeader';
 import getRecordString from './getRecordString';
@@ -601,7 +600,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
       const isSelected = found ?? false;
       let toolTip = 'Add Channel';
       if (state.selectedSMChannel !== undefined) {
-        toolTip = 'Add Stream To ' + state.selectedSMChannel.name;
+        toolTip = 'Add Stream To "' + state.selectedSMChannel.name + '"';
         return (
           <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
             {props.onStreamAdd !== undefined && (
@@ -652,15 +651,13 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
       console.log('rowExpansionTemplate', channel, props.selectedSMChannelKey, props.selectedSMStreamKey);
       return (
         <div className="border-2 border-round-lg border-200 ml-3 m-1">
-          <Suspense fallback={<ProgressSpinner>Loading...</ProgressSpinner>}>
-            <SMStreamDataSelectorValue
-              selectedSMStreamKey={props.selectedSMStreamKey}
-              selectedSMChannelKey={props.selectedSMChannelKey}
-              data={channel.smStreams}
-              smChannel={channel}
-              id={data.id + '-streams'}
-            />
-          </Suspense>
+          <SMStreamDataSelectorValue
+            selectedSMStreamKey={props.selectedSMStreamKey}
+            selectedSMChannelKey={props.selectedSMChannelKey}
+            data={channel.smStreams}
+            smChannel={channel}
+            id={data.id + '-streams'}
+          />
         </div>
       );
     },
@@ -690,6 +687,17 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
     [props.selectRow, setters, state.selectedSMChannel, state.selectedSMStream]
   );
 
+  // console.group('DataSelector2', props.id);
+  // state.visibleColumns?.forEach((col) => {
+  //   console.log(col.field, col.filter);
+  // });
+
+  // console.log(
+  //   'filterDisplay',
+  //   props.columns.some((a) => a.filter !== undefined)
+  // );
+  // console.groupEnd();
+
   return (
     <div className="dataselector flex w-full min-w-full justify-content-start align-items-center">
       <div className={`${props.className === undefined ? '' : props.className} min-h-full w-full surface-overlay`}>
@@ -710,6 +718,11 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
           loading={props.isLoading === true || isLoading === true}
           onFilter={onFilter}
           onPage={onPage}
+          onClick={(e: any) => {
+            if (e.target.className && e.target.className === 'p-datatable-wrapper') {
+              setters.setSelectedSMChannel(undefined);
+            }
+          }}
           onRowExpand={(e: DataTableRowEvent) => {
             setSelectedSMEntity(e.data);
           }}
@@ -779,7 +792,6 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
             showFilterMenu={false}
             showFilterOperator={false}
             resizeable={false}
-            // style={{ width: '3rem', maxWidth: '3rem' }}
           />
           <Column
             // body={ExpandTemplate}
@@ -818,25 +830,22 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
                   body={(e) => (col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, setting.defaultIcon, col.camelize))}
                   editor={col.editor}
                   field={col.field}
-                  filter //={getFilter(col.filter, col.fieldType)}
-                  filterElement={col.filterElement ?? rowFilterTemplate}
-                  // filterMenuStyle={{ width: '14rem' }}
-                  filterPlaceholder={col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)}
-                  // header={getHeader(col.field, col.header, col.fieldType)}
+                  filter={col.filter === true}
+                  filterElement={col.filter === true ? col.filterElement : rowFilterTemplate}
+                  filterPlaceholder={col.filter === true ? (col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)) : undefined}
                   hidden={
                     col.isHidden === true || (props.hideControls === true && getHeader(col.field, col.header, col.fieldType) === 'Actions') ? true : undefined
                   }
                   key={col.fieldType ? col.field + col.fieldType : col.field}
                   onCellEditComplete={col.handleOnCellEditComplete}
                   resizeable={col.resizeable}
-                  showAddButton
-                  showApplyButton
-                  showClearButton
-                  showFilterMatchModes
+                  showAddButton={col.filter === true}
+                  showApplyButton={col.filter === true}
+                  showClearButton={col.filter === true}
+                  showFilterMatchModes={col.filter === true}
                   showFilterMenu={col.filterElement === undefined && col.filter === true}
-                  showFilterMenuOptions
-                  showFilterOperator
-                  // sortable={props.reorderable ? false : col.sortable}
+                  showFilterMenuOptions={col.filter === true}
+                  showFilterOperator={col.filter === true}
                   style={getStyle(col)}
                 />
               ))}

@@ -25,6 +25,7 @@ import { GetMessage, arraysContainSameStrings } from '@lib/common/common';
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
+import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import PlayListDataSelectorDropDown from './PlayListDataSelectorDropDown';
 

@@ -1,7 +1,5 @@
 ﻿using MediatR;
 
-using StreamMaster.Domain.Dto;
-
 using System.ComponentModel.DataAnnotations;
 
 namespace StreamMaster.Domain.Requests;

@@ -169,21 +169,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             return null;
         }
 
-        //if (string.IsNullOrEmpty(request.logo))
-        //{
-        //    channel.Logo = request.logo;
-        //    Update(channel);
-        //    await SaveChangesAsync();
-        //    return "";
-        //}
-
-        //List<IconFileDto> icons = iconService.GetIconsRequest();
-        //if (icons.Any(a => a.Source == request.logo))
-        //{
-        //    channel.Logo = request.logo;
-        //    Update(channel);
-        //    await SaveChangesAsync();
-        //}
         channel.Logo = logo;
         Update(channel);
         await SaveChangesAsync();
@@ -203,4 +188,33 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return base.GetQuery(expression, tracking).Include(a => a.SMStreams).ThenInclude(a => a.SMStream);
     }
 
+    public async Task<DefaultAPIResponse> SetSMChannelChannelNumber(int sMChannelId, int channelNumber)
+    {
+        SMChannel? channel = GetSMChannel(sMChannelId);
+        if (channel == null)
+        {
+            return APIResponseFactory.NotFound;
+        }
+
+        channel.ChannelNumber = channelNumber;
+        Update(channel);
+        await SaveChangesAsync();
+
+        return APIResponseFactory.Ok;
+    }
+
+    public async Task<DefaultAPIResponse> SetSMChannelName(int sMChannelId, string name)
+    {
+        SMChannel? channel = GetSMChannel(sMChannelId);
+        if (channel == null)
+        {
+            return APIResponseFactory.NotFound;
+        }
+
+        channel.Name = name;
+        Update(channel);
+        await SaveChangesAsync();
+
+        return APIResponseFactory.Ok;
+    }
 }

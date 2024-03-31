@@ -1,6 +1,7 @@
-import { QueryHook, SMChannelDto } from '@lib/apiDefs';
+import { QueryHook } from '@lib/apiDefs';
 import { isEmptyObject } from '@lib/common/common';
 
+import { SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { type ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { MultiSelect, type MultiSelectChangeEvent } from 'primereact/multiselect';
 import { type ColumnFieldType, type ColumnMeta } from '../dataSelector/DataSelectorTypes';
@@ -21,8 +22,8 @@ interface ColumnConfigInputs {
 }
 
 const createSMChannelMultiSelectColumnConfigHook =
-  ({ dataField, fieldType, headerTitle, maxWidth, minWidth, width, EditorComponent, queryHook }: ColumnConfigInputs) =>
-  ({ enableEdit = false, useFilter = true, values }: { enableEdit?: boolean; useFilter?: boolean; values?: string[] | undefined }) => {
+  ({ dataField, fieldType, headerTitle, maxWidth, minWidth, width, EditorComponent, queryHook, useFilter }: ColumnConfigInputs) =>
+  ({ enableEdit = false, values }: { enableEdit?: boolean; values?: string[] | undefined }) => {
     const { data, isLoading, isFetching, isError } = queryHook ? queryHook() : { data: undefined, isError: false, isFetching: false, isLoading: false };
 
     const bodyTemplate = (bodyData: SMChannelDto | string) => {
@@ -76,12 +77,13 @@ const createSMChannelMultiSelectColumnConfigHook =
       console.error('dataField is undefined');
     }
 
+    console.log('dataField', dataField, 'useFilter', useFilter);
     const columnConfig: ColumnMeta = {
       align: 'left',
       bodyTemplate,
       field: dataField as string,
       fieldType,
-      filter: useFilter,
+      filter: useFilter === undefined ? true : useFilter,
       filterField: dataField as string,
       header: headerTitle,
       sortable: true,

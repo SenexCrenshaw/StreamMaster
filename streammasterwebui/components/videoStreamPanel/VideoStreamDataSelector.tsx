@@ -20,9 +20,7 @@ const VideoStreamDataSelector = ({ id, onRowClick, videoStreamId }: VideoStreamD
   const [videoStreamIds, setVideoStreamIds] = useState<string[]>([] as string[]);
 
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: false });
-  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({
-    enableEdit: false
-  });
+  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit: false });
   const videoStreamLinksGetVideoStreamVideoStreamIdsQuery = useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery(videoStreamId ?? skipToken);
 
   useEffect(() => {

@@ -20,7 +20,7 @@ import {
   type DataTableStateEvent,
   type DataTableValue
 } from 'primereact/datatable';
-import { Suspense, memo, useCallback, useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
 
 import { type ColumnAlign, type ColumnFieldType, type ColumnMeta, type DataSelectorSelectionMode } from './DataSelectorTypes';
 import bodyTemplate from './bodyTemplate';
@@ -34,17 +34,14 @@ import useSMDataSelectorState from './useSMDataSelectorState';
 import AddButton from '@components/buttons/AddButton';
 import StringTracker from '@components/inputs/StringTracker';
 
-import SMStreamDataSelectorValue from '@features/streameditor/SMStreamDataSelectorValue';
-import { GetApiArgument, PagedResponse, QueryHook, SMChannelDto, SMStreamDto } from '@lib/apiDefs';
+import { GetApiArgument, QueryHook } from '@lib/apiDefs';
 import { PagedResponseDto } from '@lib/common/dataTypes';
+import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
-import { ProgressSpinner } from 'primereact/progressspinner';
 import ResetButton from '../buttons/ResetButton';
 import TableHeader from './TableHeader';
-import getRecordString from './getRecordString';
 import { useSetQueryFilter } from './useSetQueryFilter';
-import { AddSMStreamToSMChannelRequest } from '@lib/smAPI/SMChannels/SMChannelsTypes';
 
 const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>) => {
   const debug = false;

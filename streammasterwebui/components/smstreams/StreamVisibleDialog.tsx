@@ -2,11 +2,11 @@ import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
 
+import { ToggleSMStreamVisibleById } from '@lib/smAPI/SMStreams/SMStreamsCommands';
+import { SMStreamDto, ToggleSMStreamVisibleByIdRequest } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import VisibleButton from '../buttons/VisibleButton';
-import { SMStreamDto, ToggleSMStreamVisibleByIdRequest } from '@lib/smAPI/smapiTypes';
-import { ToggleSMStreamVisibleById } from '@lib/smAPI/SMStreams/SMStreamsCommands';
 
 interface StreamVisibleDialogProperties {
   readonly iconFilled?: boolean;
@@ -106,6 +106,7 @@ const StreamVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, values }:
         label="Toggle Visibility"
         onClick={async () => await onVisiblesClick()}
         tooltip="Toggle Visibility"
+        isLeft
       />
     );
   }

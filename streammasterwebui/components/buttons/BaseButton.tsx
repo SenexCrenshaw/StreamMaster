@@ -1,7 +1,7 @@
-import { getLeftToolOptions, getTopToolOptions } from '@lib/common/common';
+import { getLeftToolOptions, getRightToolOptions } from '@lib/common/common';
 import { Button } from 'primereact/button';
 import { Tooltip } from 'primereact/tooltip';
-import React, { CSSProperties, Suspense, forwardRef } from 'react';
+import React, { CSSProperties, forwardRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface BaseButtonProps {
@@ -54,6 +54,8 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
           severity={severity}
           size="small"
           text={!iconFilled}
+          tooltip={tooltip}
+          tooltipOptions={isLeft ? getLeftToolOptions : getRightToolOptions}
           ref={ref}
           style={style}
           {...props}

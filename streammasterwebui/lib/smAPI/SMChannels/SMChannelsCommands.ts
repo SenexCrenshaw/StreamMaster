@@ -1,4 +1,4 @@
-import {AddSMStreamToSMChannelRequest,DefaultAPIResponse,CreateSMChannelFromStreamRequest,DeleteSMChannelRequest,DeleteSMChannelsFromParametersRequest,DeleteSMChannelsRequest,RemoveSMStreamFromSMChannelRequest,SetSMChannelLogoRequest,SetSMStreamRanksRequest} from '@lib/smAPI/smapiTypes';
+import {AddSMStreamToSMChannelRequest,DefaultAPIResponse,CreateSMChannelFromStreamRequest,DeleteSMChannelRequest,DeleteSMChannelsFromParametersRequest,DeleteSMChannelsRequest,RemoveSMStreamFromSMChannelRequest,SetSMChannelLogoRequest,SetSMChannelNameRequest,SetSMChannelNumberRequest,SetSMStreamRanksRequest} from '@lib/smAPI/smapiTypes';
 import {APIResponse,PagedResponse,QueryStringParameters,SMChannelDto} from '@lib/smAPI/smapiTypes';
 import SignalRService from '@lib/signalr/SignalRService';
 
@@ -50,6 +50,16 @@ export const RemoveSMStreamFromSMChannel = async (request: RemoveSMStreamFromSMC
 export const SetSMChannelLogo = async (request: SetSMChannelLogoRequest): Promise<DefaultAPIResponse | null> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<DefaultAPIResponse>('SetSMChannelLogo', request);
+};
+
+export const SetSMChannelName = async (request: SetSMChannelNameRequest): Promise<DefaultAPIResponse | null> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<DefaultAPIResponse>('SetSMChannelName', request);
+};
+
+export const SetSMChannelNumber = async (request: SetSMChannelNumberRequest): Promise<DefaultAPIResponse | null> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<DefaultAPIResponse>('SetSMChannelNumber', request);
 };
 
 export const SetSMStreamRanks = async (request: SetSMStreamRanksRequest): Promise<DefaultAPIResponse | null> => {

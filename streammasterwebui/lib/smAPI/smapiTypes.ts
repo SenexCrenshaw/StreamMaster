@@ -313,6 +313,16 @@ export interface SetSMChannelLogoRequest
 	smChannelId: number;
 	logo: string;
 }
+export interface SetSMChannelNameRequest
+{
+	smChannelId: number;
+	name: string;
+}
+export interface SetSMChannelNumberRequest
+{
+	smChannelId: number;
+	channelNumber: number;
+}
 export interface SetSMStreamRanksRequest
 {
 	requests: SMChannelRankRequest[];

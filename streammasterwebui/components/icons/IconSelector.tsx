@@ -22,22 +22,21 @@ type IconSelectorProperties = {
 const IconSelector = ({ enableEditMode = true, value, disabled, editable = true, onChange, useDefault }: IconSelectorProperties) => {
   const setting = useSettings();
   const [input, setInput] = useState<string | undefined>(undefined);
-  // const [oldInput, setOldInput] = useState<string | undefined>(undefined);
-  // const [filterValue, setFilterValue] = useState<string | undefined>(undefined);
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [icon, setIcon] = useState<IconFileDto | undefined>(undefined);
   const query = useGetIcons();
 
   useEffect(() => {
     if (value && input === undefined) {
-      console.log('setInput true');
       setInput(value);
-    } else {
-      console.log('setInput false');
     }
   }, [value, input]);
 
   useEffect(() => {
+    if (!query.data) {
+      return;
+    }
+
     if (checkValue === undefined && !query.isError && input !== undefined) {
       setCheckValue(input);
       const entry = query.data?.find((x) => x.source === input);
@@ -151,7 +150,7 @@ const IconSelector = ({ enableEditMode = true, value, disabled, editable = true,
 
   if (loading) {
     return (
-      <div className="m-0 p-0">
+      <div className="iconselector m-0 p-0">
         <ProgressSpinner />
       </div>
     );

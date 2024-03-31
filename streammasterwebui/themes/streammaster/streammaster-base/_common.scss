@@ -93,15 +93,7 @@
             justify-content: center;
         }
 
-        .p-inputtext {
-            padding: 0;
-            padding-top: 0.24rem;
-            margin: 0;
-            background-color: transparent;
-            border: none;
-            height: $datatable-row-height;
-            max-width: $datatable-row-height;
-        }
+
     }
 
     &.p-progress-spinner {
@@ -112,11 +104,26 @@
         padding: 0;
         margin: 0;
     }
+
+    .p-progress-spinner {
+        width: $input-height;
+        height: $input-height;
+    }
 }
 
 .p-inputgroup {
     height: $datatable-row-height;
     padding: 0;
     margin: 0;
+
+}
+
+.p-inputtext {
+    padding-left: $inputPadding;
+    padding-top: 0.24rem;
+    margin: 0;
+    background-color: transparent;
+    border: none;
+    height: $datatable-row-height;
 
 }

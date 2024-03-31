@@ -1,5 +1,7 @@
 import MinusButton from '@components/buttons/MinusButton';
 import { useSMChannelLogoColumnConfig } from '@components/columns/useSMChannelLogoColumnConfig';
+import { useSMChannelNameColumnConfig } from '@components/columns/useSMChannelNameColumnConfig';
+import { useSMChannelNumberColumnConfig } from '@components/columns/useSMChannelNumberColumnConfig';
 
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 
@@ -8,8 +10,8 @@ import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import { DeleteSMChannelRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
-import { confirmPopup } from 'primereact/confirmpopup';
-import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
+import { lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 const DataSelector2 = lazy(() => import('@components/dataSelector/DataSelector2'));
 const StreamCopyLinkDialog = lazy(() => import('@components/smstreams/StreamCopyLinkDialog'));
@@ -22,7 +24,10 @@ interface SMChannelDataSelectorProperties {
 const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: SMChannelDataSelectorProperties) => {
   const dataKey = `${id}-SMChannelDataSelector`;
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
+
+  const { columnConfig: channelNumberColumnConfig } = useSMChannelNumberColumnConfig({ enableEdit, useFilter: false });
   const { columnConfig: channelLogoColumnConfig } = useSMChannelLogoColumnConfig({ enableEdit });
+  const { columnConfig: channelNameColumnConfig } = useSMChannelNameColumnConfig({ enableEdit });
 
   useEffect(() => {
     if (propsEnableEdit !== enableEdit) {
@@ -63,28 +68,26 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
 
     return (
       <div className="flex p-0 justify-content-end align-items-center">
-        <Suspense>
-          <StreamCopyLinkDialog realUrl={data?.realUrl} />
-          <MinusButton iconFilled={false} onClick={confirm} tooltip="Remove Channel" />
-        </Suspense>
+        <StreamCopyLinkDialog realUrl={data?.realUrl} />
+        <MinusButton iconFilled={false} onClick={confirm} tooltip="Remove Channel" />
       </div>
     );
   }, []);
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'channelNumber', width: '4rem' },
+      channelNumberColumnConfig,
       channelLogoColumnConfig,
-      // // { field: 'logo', fieldType: 'image', width: '4rem' },
-      { field: 'name', filter: true, sortable: true },
-      { field: 'group', filter: true, sortable: true, width: '5rem' },
-      { align: 'right', bodyTemplate: actionBodyTemplate, field: 'actions', fieldType: 'actions', header: 'Actions', width: '5rem' }
+      channelNameColumnConfig,
+      { field: 'group', filter: false, sortable: true, width: '5rem' },
+      { align: 'right', filter: false, bodyTemplate: actionBodyTemplate, field: 'actions', fieldType: 'actions', header: 'Actions', width: '5rem' }
     ],
-    [actionBodyTemplate, channelLogoColumnConfig]
+    [actionBodyTemplate, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig]
   );
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <>
+      <ConfirmPopup />
       <DataSelector2
         selectRow
         showExpand
@@ -100,7 +103,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
         selectedItemsKey="selectSelectedSMChannelDtoItems"
         style={{ height: 'calc(100vh - 10px)' }}
       />
-    </Suspense>
+    </>
   );
 };
 

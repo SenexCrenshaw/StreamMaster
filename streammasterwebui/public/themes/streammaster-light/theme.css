@@ -6809,15 +6809,6 @@
   align-items: center;
   justify-content: center;
 }
-.iconselector.p-dropdown .p-inputtext {
-  padding: 0;
-  padding-top: 0.24rem;
-  margin: 0;
-  background-color: transparent;
-  border: none;
-  height: 1.8rem;
-  max-width: 1.8rem;
-}
 .iconselector.p-progress-spinner {
   align-items: center;
   justify-content: center;
@@ -6826,11 +6817,24 @@
   padding: 0;
   margin: 0;
 }
+.iconselector .p-progress-spinner {
+  width: 1.4rem;
+  height: 1.4rem;
+}
 
 .p-inputgroup {
   height: 1.8rem;
   padding: 0;
   margin: 0;
+}
+
+.p-inputtext {
+  padding-left: 0.5rem 0.75rem;
+  padding-top: 0.24rem;
+  margin: 0;
+  background-color: transparent;
+  border: none;
+  height: 1.8rem;
 }
 
 .p-datatable {

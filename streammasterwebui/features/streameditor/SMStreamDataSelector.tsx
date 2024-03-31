@@ -8,9 +8,7 @@ import { AddSMStreamToSMChannel, CreateSMChannelFromStream } from '@lib/smAPI/SM
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import { AddSMStreamToSMChannelRequest, CreateSMChannelFromStreamRequest, SMStreamDto } from '@lib/smAPI/smapiTypes';
 
-import { ConfirmPopup } from 'primereact/confirmpopup';
-
-import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
 const DataSelector2 = lazy(() => import('@components/dataSelector/DataSelector2'));
 const StreamCopyLinkDialog = lazy(() => import('@components/smstreams/StreamCopyLinkDialog'));
 const StreamVisibleDialog = lazy(() => import('@components/smstreams/StreamVisibleDialog'));
@@ -36,13 +34,12 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataS
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propsEnableEdit]);
 
-  const targetActionBodyTemplate = useCallback(
+  const actionBodyTemplate = useCallback(
     (data: SMStreamDto) => (
       <div className="flex p-0 justify-content-end align-items-center">
-        <Suspense fallback={<div>Loading...</div>}>
-          <StreamCopyLinkDialog realUrl={data.realUrl} />
-          <StreamVisibleDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
-        </Suspense>
+        <StreamCopyLinkDialog realUrl={data.realUrl} />
+        <StreamVisibleDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
+
         {/* <VideoStreamSetAutoSetEPGDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} /> */}
         {/* <VideoStreamDeleteDialog iconFilled={false} id={dataKey} values={[data]} /> */}
         {/* <VideoStreamEditDialog value={data} /> */}
@@ -67,14 +64,14 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataS
       { field: 'm3UFileName', filter: true, header: 'M3U', sortable: true, width: '5rem' },
       {
         align: 'right',
-        bodyTemplate: targetActionBodyTemplate,
+        bodyTemplate: actionBodyTemplate,
         field: 'isHidden',
         fieldType: 'actions',
         header: 'Actions',
         width: '5rem'
       }
     ],
-    [targetActionBodyTemplate]
+    [actionBodyTemplate]
   );
 
   const rightHeaderTemplate = useMemo(
@@ -96,47 +93,45 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataS
   );
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <ConfirmPopup />
-      <DataSelector2
-        columns={columns}
-        defaultSortField="name"
-        defaultSortOrder={1}
-        emptyMessage="No Streams"
-        headerName={GetMessage('m3ustreams').toUpperCase()}
-        headerRightTemplate={rightHeaderTemplate}
-        isLoading={isLoading}
-        id={dataKey}
-        onChannelAdd={(e) => {
-          CreateSMChannelFromStream({ streamId: e.id } as CreateSMChannelFromStreamRequest)
-            .then((response) => {})
-            .catch((error) => {
-              console.error(error.message);
-            });
-        }}
-        onStreamAdd={(e: AddSMStreamToSMChannelRequest) => {
-          AddSMStreamToSMChannel(e)
-            .then((response) => {})
-            .catch((error) => {
-              console.error(error.message);
-            });
-        }}
-        onDelete={(e) => {
-          console.log('Delete', e);
-        }}
-        onSelectionChange={(value, selectAll) => {
-          if (selectAll !== true) {
-            setSelectedSMStreams(value as SMStreamDto[]);
-          }
-        }}
-        queryFilter={useGetPagedSMStreams}
-        selectedSMStreamKey="SMChannelDataSelector"
-        selectedSMChannelKey="SMChannelDataSelector"
-        selectedItemsKey="selectSelectedSMStreamDtoItems"
-        // selectionMode="multiple"
-        style={{ height: 'calc(100vh - 10px)' }}
-      />
-    </Suspense>
+    <DataSelector2
+      columns={columns}
+      defaultSortField="name"
+      defaultSortOrder={1}
+      emptyMessage="No Streams"
+      headerName={GetMessage('m3ustreams').toUpperCase()}
+      headerRightTemplate={rightHeaderTemplate}
+      isLoading={isLoading}
+      id={dataKey}
+      onChannelAdd={(e) => {
+        CreateSMChannelFromStream({ streamId: e.id } as CreateSMChannelFromStreamRequest)
+          .then((response) => {})
+          .catch((error) => {
+            console.error(error.message);
+            throw error;
+          });
+      }}
+      onStreamAdd={(e: AddSMStreamToSMChannelRequest) => {
+        AddSMStreamToSMChannel(e)
+          .then((response) => {})
+          .catch((error) => {
+            console.error(error.message);
+            throw error;
+          });
+      }}
+      onDelete={(e) => {
+        console.log('Delete', e);
+      }}
+      onSelectionChange={(value, selectAll) => {
+        if (selectAll !== true) {
+          setSelectedSMStreams(value as SMStreamDto[]);
+        }
+      }}
+      queryFilter={useGetPagedSMStreams}
+      selectedSMStreamKey="SMChannelDataSelector"
+      selectedSMChannelKey="SMChannelDataSelector"
+      selectedItemsKey="selectSelectedSMStreamDtoItems"
+      style={{ height: 'calc(100vh - 10px)' }}
+    />
   );
 };
 
