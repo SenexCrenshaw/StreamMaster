@@ -17,7 +17,7 @@ namespace StreamMaster.Infrastructure.Services
             await sender.Send(request);
         }
 
-        public async Task SendSMInfo(string message)
+        public async Task SendInfo(string message)
         {
             Logger.LogInformation(message);
             SendSMInfoRequest request = new(Detail: message);
@@ -25,13 +25,13 @@ namespace StreamMaster.Infrastructure.Services
             await sender.Send(request);
         }
 
-        public async Task SendSMMessage(SMMessage smMessage)
+        public async Task SendMessage(SMMessage smMessage)
         {
             SendSMMessageRequest request = new(smMessage);
             await sender.Send(request);
         }
 
-        public async Task SendSMWarn(string message)
+        public async Task SendWarn(string message)
         {
             Logger.LogWarning(message);
             SendSMWarnRequest request = new(Detail: message);

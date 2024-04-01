@@ -11,6 +11,6 @@ internal class SendSMWarnHandler(IHubContext<StreamMasterHub, IStreamMasterHub> 
     {
         SMMessage sMMessage = new("warn", request.Summary, request.Detail);
         await hubContext.Clients.All.SendMessage(sMMessage).ConfigureAwait(false);
-        return APIResponseFactory.Ok;
+        return DefaultAPIResponse.Ok;
     }
 }

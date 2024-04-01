@@ -3,9 +3,9 @@
     public interface IMessageService
     {
         Task SendError(string message, string? details = null);
-        Task SendSMInfo(string message);
-        Task SendSMMessage(SMMessage smMessage);
-        Task SendSMWarn(string message);
+        Task SendInfo(string message);
+        Task SendMessage(SMMessage smMessage);
+        Task SendWarn(string message);
         Task SendSuccess(string message);
     }
 }

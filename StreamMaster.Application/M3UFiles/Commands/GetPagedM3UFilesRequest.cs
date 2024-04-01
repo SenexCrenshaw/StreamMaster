@@ -12,10 +12,10 @@ internal class GetPagedM3UFilesRequestHandler(IRepositoryWrapper Repository, IOp
     {
         if (request?.Parameters?.PageSize == null || request.Parameters.PageSize == 0)
         {
-            return APIResponseFactory.OkWithData(Repository.M3UFile.CreateEmptyPagedResponse());
+            return DefaultAPIResponse.OkWithData(Repository.M3UFile.CreateEmptyPagedResponse());
         }
 
         PagedResponse<M3UFileDto> m3uFiles = await Repository.M3UFile.GetPagedM3UFiles(request.Parameters).ConfigureAwait(false);
-        return APIResponseFactory.OkWithData(m3uFiles);
+        return DefaultAPIResponse.OkWithData(m3uFiles);
     }
 }

@@ -14,7 +14,7 @@ internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logge
             if (m3uFile == null)
             {
                 await messageSevice.SendError("Process M3U Not Found");
-                return APIResponseFactory.NotFound;
+                return DefaultAPIResponse.NotFound;
             }
 
             await hubContext.Clients.All.DataRefresh("M3UFileDto").ConfigureAwait(false);
@@ -22,13 +22,13 @@ internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logge
             await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
 
             await messageSevice.SendSuccess("Processed M3U '" + m3uFile.Name + "' successfully");
-            return APIResponseFactory.Ok;
+            return DefaultAPIResponse.Ok;
         }
         catch (Exception ex)
         {
             logger.LogCritical(ex, "Process M3U Error");
             await messageSevice.SendError("Error Processing M3U", ex.Message);
-            return APIResponseFactory.NotFound; ;
+            return DefaultAPIResponse.NotFound; ;
         }
     }
 }

@@ -16,7 +16,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
         {
             if (jobManager.IsRunning)
             {
-                return APIResponseFactory.NotFound;
+                return DefaultAPIResponse.NotFound;
             }
             jobManager.Start();
 
@@ -25,7 +25,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
             if (m3uFile == null)
             {
                 jobManager.SetError();
-                return APIResponseFactory.NotFound;
+                return DefaultAPIResponse.NotFound;
             }
 
             if (request.forceRun || m3uFile.LastDownloadAttempt.AddMinutes(m3uFile.MinimumMinutesBetweenDownloads) < SMDT.UtcNow)
@@ -65,7 +65,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
                         File.Delete(fullName);
                     }
                     jobManager.SetError();
-                    return APIResponseFactory.NotFound;
+                    return DefaultAPIResponse.NotFound;
                 }
             }
 
@@ -80,12 +80,12 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
             //}
             jobManager.SetSuccessful();
 
-            return APIResponseFactory.Ok;
+            return DefaultAPIResponse.Ok;
         }
         catch
         {
             jobManager.SetError();
-            return APIResponseFactory.NotFound;
+            return DefaultAPIResponse.NotFound;
         }
 
     }

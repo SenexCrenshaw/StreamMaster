@@ -96,7 +96,7 @@ public static class CSharpGenerator
                     hubContent.AppendLine($"        {{");
                     hubContent.AppendLine($"            await taskQueue.{method.Name}(request).ConfigureAwait(false);");
                     IhubContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Name}Request request);");
-                    hubContent.AppendLine($"            return APIResponseFactory.Ok;");
+                    hubContent.AppendLine($"            return DefaultAPIResponse.Ok;");
                 }
                 else
                 {

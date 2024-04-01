@@ -238,6 +238,8 @@ export interface APIResponse<T>
 }
 export interface DefaultAPIResponse
 {
+	ok: DefaultAPIResponse;
+	notFound: DefaultAPIResponse;
 	message?: string;
 	errorMessage?: string;
 	isError?: boolean;

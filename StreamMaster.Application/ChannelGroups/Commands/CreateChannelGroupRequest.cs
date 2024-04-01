@@ -13,13 +13,13 @@ public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest>
     {
         if (await Repository.ChannelGroup.GetChannelGroupByName(request.GroupName).ConfigureAwait(false) != null)
         {
-            return APIResponseFactory.NotFound;
+            return DefaultAPIResponse.NotFound;
         }
 
         ChannelGroupDto? channelGroupDto = await Repository.ChannelGroup.CreateChannelGroup(request.GroupName, request.IsReadOnly);
         if (channelGroupDto == null)
         {
-            return APIResponseFactory.NotFound;
+            return DefaultAPIResponse.NotFound;
         }
 
         _ = await Repository.SaveAsync().ConfigureAwait(false);
@@ -28,6 +28,6 @@ public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest>
 
         await hubContext.Clients.All.DataRefresh("ChannelGroupDto").ConfigureAwait(false);
         await messageSevice.SendSuccess("Created CG '" + channelGroupDto.Name);
-        return APIResponseFactory.Ok;
+        return DefaultAPIResponse.Ok;
     }
 }

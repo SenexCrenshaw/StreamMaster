@@ -4,9 +4,19 @@ import { Button } from 'primereact/button';
 import { useClickOutside } from 'primereact/hooks';
 import { InputNumber } from 'primereact/inputnumber';
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
-
-import { memo, useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
+
+export interface NumberEditorBodyTemplateProperties {
+  readonly onChange: (value: number) => void;
+  readonly onClick?: () => void;
+  readonly prefix?: string | undefined;
+  readonly resetValue?: number | undefined;
+  readonly suffix?: string | undefined;
+  readonly tooltip?: string | undefined;
+  readonly tooltipOptions?: TooltipOptions | undefined;
+  readonly value: number | undefined;
+}
 
 const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProperties) => {
   const [inputValue, setInputValue] = useState<number>(0);
@@ -86,8 +96,12 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProperties) => 
     }
   }, [props.value, setInputValue]);
 
+  const needsSave = useMemo(() => {
+    return originalValue !== inputValue;
+  }, [inputValue, originalValue]);
+
   return (
-    <div className="relative h-full" ref={overlayReference} style={props.style}>
+    <div className="numbereditorbody relative h-full" ref={overlayReference}>
       {isFocused && props.resetValue !== undefined && props.resetValue !== 0 && props.resetValue !== inputValue && (
         <Button
           className="absolute mt-1 right-0"
@@ -103,9 +117,8 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProperties) => 
           tooltipOptions={getTopToolOptions}
         />
       )}
-      {originalValue !== inputValue && <i className="absolute right-0 pt-1 pi pi-save pr-2 text-500" />}
       <InputNumber
-        className="w-full h-full"
+        className={needsSave ? 'save' : undefined}
         locale="en-US"
         onChange={(e) => {
           debounced(e.value as number);
@@ -124,18 +137,5 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProperties) => 
     </div>
   );
 };
-
-export interface NumberEditorBodyTemplateProperties {
-  readonly onChange: (value: number) => void;
-  readonly onClick?: () => void;
-  // onReset?: ((value: string) => void);
-  readonly prefix?: string | undefined;
-  readonly resetValue?: number | undefined;
-  readonly style?: CSSProperties;
-  readonly suffix?: string | undefined;
-  readonly tooltip?: string | undefined;
-  readonly tooltipOptions?: TooltipOptions | undefined;
-  readonly value: number | undefined;
-}
 
 export default memo(NumberEditorBodyTemplate);

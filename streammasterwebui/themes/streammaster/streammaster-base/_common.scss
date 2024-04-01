@@ -28,8 +28,8 @@
 }
 
 .sourceOrFileDialog {
-    padding-left: $datatable-padding;
-    padding-right: $datatable-padding;
+    padding-left: $input-padding;
+    padding-right: $input-padding;
 
     .p-progressbar {
         height: $datatable-row-height;
@@ -42,7 +42,7 @@
     }
 
     .p-inputtext {
-        height: $datatable-row-height;
+        height: $input-height;
     }
 }
 
@@ -115,15 +115,33 @@
     height: $datatable-row-height;
     padding: 0;
     margin: 0;
-
 }
 
-.p-inputtext {
-    padding-left: $inputPadding;
-    padding-top: 0.24rem;
-    margin: 0;
-    background-color: transparent;
-    border: none;
-    height: $datatable-row-height;
+.stringeditorbody {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
 
+    .save {
+        border-color: green !important;
+
+        &:enabled:hover {
+            border-color: green;
+        }
+    }
+}
+
+.numbereditorbody {
+    padding-left: 0.1rem;
+    padding-right: 0.1rem;
+
+    .save {
+        .p-inputtext {
+            border-color: green !important;
+
+            &:enabled:hover {
+                border-color: green;
+            }
+        }
+
+    }
 }

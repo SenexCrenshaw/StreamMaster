@@ -36,8 +36,7 @@ const SMChannelNumberEditor = ({ data, style }: SMChannelNumberEditorProperties)
       onChange={async (e) => {
         await onUpdateVideoStream(e);
       }}
-      resetValue={data.channelNumber}
-      style={style}
+      showSave={false}
       tooltip={isDev ? `id: ${data.id}` : undefined}
       tooltipOptions={getTopToolOptions}
       value={data.channelNumber}

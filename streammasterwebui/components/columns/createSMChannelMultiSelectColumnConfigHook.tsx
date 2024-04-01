@@ -22,8 +22,8 @@ interface ColumnConfigInputs {
 }
 
 const createSMChannelMultiSelectColumnConfigHook =
-  ({ dataField, fieldType, headerTitle, maxWidth, minWidth, width, EditorComponent, queryHook, useFilter }: ColumnConfigInputs) =>
-  ({ enableEdit = false, values }: { enableEdit?: boolean; values?: string[] | undefined }) => {
+  ({ dataField, fieldType, headerTitle, maxWidth, minWidth, width, EditorComponent, queryHook, useFilter: configUseFilter }: ColumnConfigInputs) =>
+  ({ enableEdit = false, useFilter = configUseFilter, values }: { enableEdit?: boolean; useFilter?: boolean; values?: string[] | undefined }) => {
     const { data, isLoading, isFetching, isError } = queryHook ? queryHook() : { data: undefined, isError: false, isFetching: false, isLoading: false };
 
     const bodyTemplate = (bodyData: SMChannelDto | string) => {

@@ -11,6 +11,6 @@ internal class SendSuccessHandler(IHubContext<StreamMasterHub, IStreamMasterHub>
     {
         SMMessage sMMessage = new("success", request.Summary, request.Detail);
         await hubContext.Clients.All.SendMessage(sMMessage).ConfigureAwait(false);
-        return APIResponseFactory.Ok;
+        return DefaultAPIResponse.Ok;
     }
 }

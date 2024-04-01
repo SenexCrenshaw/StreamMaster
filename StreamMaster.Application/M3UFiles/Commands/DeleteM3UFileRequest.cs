@@ -14,7 +14,7 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
         if (m3UFile == null)
         {
             await messageService.SendError("M3U file not found");
-            return APIResponseFactory.NotFound;
+            return DefaultAPIResponse.NotFound;
         }
 
         try
@@ -109,13 +109,13 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
 
             await messageService.SendSuccess("Deleted M3U '" + m3UFile.Name);
 
-            return APIResponseFactory.Ok;
+            return DefaultAPIResponse.Ok;
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "DeleteM3UFileRequest {request}", request);
             await messageService.SendError("Exception deleting M3U", ex.Message);
-            return APIResponseFactory.NotFound;
+            return DefaultAPIResponse.NotFound;
         }
     }
 }

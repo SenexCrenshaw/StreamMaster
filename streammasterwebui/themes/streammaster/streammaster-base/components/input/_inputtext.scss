@@ -4,14 +4,14 @@
     font-size: $inputTextFontSize;
     color: $inputTextColor;
     background: $inputBg;
-    padding: $inputPadding;
-    // border: $inputBorder;
+    border: $inputBorder-size solid transparent;
     transition: $formElementTransition;
     appearance: none;
-    // border-radius: $borderRadius;
 
     &:enabled:hover {
-        border-color: $inputHoverBorderColor;
+        background: $shade900;
+        border: $inputBorder-size solid $inputHoverBorderColor;
+        border-radius: $borderRadius;
     }
 
     &:enabled:focus {
@@ -33,11 +33,6 @@
     }
 }
 
-.p-float-label>label {
-    left: nth($inputPadding, 2);
-    color: $inputPlaceholderTextColor;
-    transition-duration: $transitionDuration;
-}
 
 .p-float-label>label.p-error {
     color: $errorColor;
@@ -70,10 +65,9 @@
 }
 
 @include placeholder {
-    color: $inputPlaceholderTextColor
+    color: $inputPlaceholderTextColor;
+    padding: $input-padding;
 }
-
-;
 
 .p-input-filled {
     .p-inputtext {

@@ -16,7 +16,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
         if (string.IsNullOrEmpty(command.UrlSource) && command.FormFile != null && command.FormFile.Length <= 0)
         {
 
-            return APIResponseFactory.NotFound;
+            return DefaultAPIResponse.NotFound;
         }
 
         try
@@ -49,7 +49,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
                     await messageService.SendError($"Exception M3U From Form", ex?.Message);
 
 
-                    return APIResponseFactory.NotFound;
+                    return DefaultAPIResponse.NotFound;
                 }
             }
             else if (!string.IsNullOrEmpty(command.UrlSource))
@@ -92,7 +92,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
                 {
                     File.Delete(urlPath);
                 }
-                return APIResponseFactory.NotFound;
+                return DefaultAPIResponse.NotFound;
             }
 
             Repository.M3UFile.CreateM3UFile(m3UFile);
@@ -105,13 +105,13 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
 
             await messageService.SendSuccess("M3U '" + m3UFile.Name + "' added successfully");
 
-            return APIResponseFactory.Ok;
+            return DefaultAPIResponse.Ok;
         }
         catch (Exception exception)
         {
             await messageService.SendError("Exception adding M3U", exception.Message);
             Logger.LogCritical("Exception M3U From Form '{exception}'", exception);
         }
-        return APIResponseFactory.NotFound;
+        return DefaultAPIResponse.NotFound;
     }
 }

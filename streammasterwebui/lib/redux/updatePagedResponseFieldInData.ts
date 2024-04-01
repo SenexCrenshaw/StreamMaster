@@ -1,9 +1,8 @@
-import { FieldData, PagedResponse } from '@lib/apiDefs';
+import { FieldData } from '@lib/apiDefs';
+import { PagedResponse } from '@lib/smAPI/smapiTypes';
 
 export const updatePagedResponseFieldInData = (pagedResponse: PagedResponse<any> | undefined, fieldData: FieldData): PagedResponse<any> | undefined => {
   if (!pagedResponse) return undefined;
-
-  console.log(pagedResponse);
 
   const updatedPagedResponse = {
     ...pagedResponse,

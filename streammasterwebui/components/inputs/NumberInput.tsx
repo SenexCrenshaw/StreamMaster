@@ -2,7 +2,7 @@ import { useClickOutside } from 'primereact/hooks';
 import { InputNumber } from 'primereact/inputnumber';
 import { memo, useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import CopyButton from '../buttons/CopyButton';
+// import CopyButton from '../buttons/CopyButton';
 
 interface NumberInputProperties {
   readonly autoFocus?: boolean;
@@ -76,9 +76,9 @@ const NumberInput = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
-  const doShowClear = (): boolean => showClear === true && originalInput !== undefined && input !== originalInput;
+  // const doShowClear = (): boolean => showClear === true && originalInput !== undefined && input !== originalInput;
 
-  const doShowCopy = (): boolean => showCopy === true && input !== undefined && input !== 0;
+  // const doShowCopy = (): boolean => showCopy === true && input !== undefined && input !== 0;
 
   return (
     <div className={placeHolder && !label ? 'align-items-center' : 'align-items-center  m-0 p-0 py-2'} ref={overlayReference}>

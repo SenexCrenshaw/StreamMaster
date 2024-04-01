@@ -2,9 +2,10 @@ import { getTopToolOptions } from '@lib/common/common';
 import { ResetLogoIcon } from '@lib/common/icons';
 import { Button } from 'primereact/button';
 import { useClickOutside } from 'primereact/hooks';
+
 import { InputText } from 'primereact/inputtext';
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
 export interface StringEditorBodyTemplateProperties {
@@ -34,7 +35,7 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
       (value: string) => {
         if (value !== originalValue && !props.isLoading) {
           setInputValue(value);
-          setOriginalValue(value);
+          // setOriginalValue(value);
           props.onChange(value);
         }
       },
@@ -103,8 +104,12 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
     }
   }, [props.value, props.isLoading, setInputValue]);
 
+  const needsSave = useMemo(() => {
+    return originalValue !== inputValue;
+  }, [inputValue, originalValue]);
+
   return (
-    <div className="relative h-full" ref={overlayReference}>
+    <div className={'stringeditorbody relative h-full'} ref={overlayReference}>
       {isFocused && props.resetValue !== undefined && props.resetValue !== inputValue && (
         <Button
           className="absolute right-0"
@@ -122,10 +127,12 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
           tooltipOptions={getTopToolOptions}
         />
       )}
-      {props.showSave !== false && originalValue !== inputValue && <i className="absolute right-0 pt-1 pi pi-save pr-2 text-500" />}
+
+      {props.showSave && needsSave && <i className="absolute right-0 pt-1 pi pi-save pr-2 text-500" />}
+
       <InputText
+        className={needsSave ? 'save' : undefined}
         autoFocus={props.autofocus}
-        className="p-0 flex justify-content-start w-full h-full"
         onChange={(e) => {
           setInputValue(e.target.value as string);
           if (!props.disableDebounce) {

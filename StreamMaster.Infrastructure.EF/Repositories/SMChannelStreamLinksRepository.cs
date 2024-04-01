@@ -92,7 +92,7 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
             Update(streamRank);
         }
         await SaveChangesAsync();
-        return APIResponseFactory.Ok;
+        return DefaultAPIResponse.Ok;
 
     }
 

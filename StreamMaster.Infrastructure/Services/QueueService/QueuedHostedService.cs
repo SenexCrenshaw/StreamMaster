@@ -47,7 +47,7 @@ public sealed class QueuedHostedService(
             try
             {
                 logger.LogInformation("Starting {command}", command.Command);
-                await messageSevice.SendSMInfo($"Starting task: {command.Command}");
+                await messageSevice.SendInfo($"Starting task: {command.Command}");
 
                 using IServiceScope scope = serviceProvider.CreateScope();
 
@@ -128,7 +128,7 @@ public sealed class QueuedHostedService(
                         break;
                 }
                 await taskQueue.SetStop(command.Id).ConfigureAwait(false);
-                await messageSevice.SendSMInfo($"Finished task: {command.Command}");
+                await messageSevice.SendInfo($"Finished task: {command.Command}");
                 logger.LogInformation("Finished {command}", command.Command);
             }
             catch (OperationCanceledException)

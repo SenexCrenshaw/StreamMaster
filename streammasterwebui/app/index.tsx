@@ -12,7 +12,7 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <PersistGate persistor={persistor} />
-      <PrimeReactProvider value={{ ripple: true, inputStyle: 'outlined' }}>
+      <PrimeReactProvider value={{ ripple: false, inputStyle: 'outlined' }}>
         <App />
       </PrimeReactProvider>
     </Provider>

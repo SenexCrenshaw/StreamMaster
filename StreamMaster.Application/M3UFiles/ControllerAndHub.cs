@@ -66,7 +66,7 @@ namespace StreamMaster.Application.Hubs
         public async Task<DefaultAPIResponse> ProcessM3UFile(ProcessM3UFileRequest request)
         {
             await taskQueue.ProcessM3UFile(request).ConfigureAwait(false);
-            return APIResponseFactory.Ok;
+            return DefaultAPIResponse.Ok;
         }
 
         public async Task<DefaultAPIResponse> RefreshM3UFile(RefreshM3UFileRequest request)

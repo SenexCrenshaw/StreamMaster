@@ -20,7 +20,7 @@ internal class DeleteSMChannelRequestHandler(IRepositoryWrapper Repository, IMes
         else
         {
             await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
-            await messageService.SendSMInfo($"Deleted channel {ret.Message}");
+            await messageService.SendInfo($"Deleted channel {ret.Message}");
         }
         return ret;
     }
