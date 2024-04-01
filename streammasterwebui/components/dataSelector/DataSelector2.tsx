@@ -328,8 +328,8 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
 
     if (col.fieldType === 'image') {
       return {
-        maxWidth: '5rem',
-        width: '5rem'
+        maxWidth: '1rem',
+        width: '1rem'
       } as CSSProperties;
     }
 

@@ -20,4 +20,5 @@ public class MethodDetails
     public string ReturnEntityType { get; internal set; }
     public string SingalRFunction { get; internal set; }
     public string NamespaceName { get; internal set; }
+    public bool IsGet { get; internal set; }
 }

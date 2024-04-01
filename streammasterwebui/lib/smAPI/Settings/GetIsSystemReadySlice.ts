@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import {FieldData,  } from '@lib/smAPI/smapiTypes';
 import { fetchGetIsSystemReady } from '@lib/smAPI/Settings/SettingsFetch';
-import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
+import { updateFieldInData } from '@lib/redux/updateFieldInData';
 
 
 interface QueryState {
@@ -25,7 +25,7 @@ const getIsSystemReadySlice = createSlice({
   reducers: {
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
-      state.data = updatePagedResponseFieldInData(state.data, fieldData);
+      state.data = updateFieldInData(state.data, fieldData);
       console.log('GetIsSystemReady setField');
     },
     clear: (state) => {

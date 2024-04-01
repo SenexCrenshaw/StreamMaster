@@ -2,19 +2,17 @@ import MinusButton from '@components/buttons/MinusButton';
 import { useSMChannelLogoColumnConfig } from '@components/columns/useSMChannelLogoColumnConfig';
 import { useSMChannelNameColumnConfig } from '@components/columns/useSMChannelNameColumnConfig';
 import { useSMChannelNumberColumnConfig } from '@components/columns/useSMChannelNumberColumnConfig';
-
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
-
+import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import { GetMessage } from '@lib/common/common';
 import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import { DeleteSMChannelRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
 import { lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 const DataSelector2 = lazy(() => import('@components/dataSelector/DataSelector2'));
-const StreamCopyLinkDialog = lazy(() => import('@components/smstreams/StreamCopyLinkDialog'));
+
 interface SMChannelDataSelectorProperties {
   readonly enableEdit?: boolean;
   readonly id: string;

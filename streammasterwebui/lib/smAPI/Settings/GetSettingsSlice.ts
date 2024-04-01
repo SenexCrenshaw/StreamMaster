@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import {FieldData, SettingDto } from '@lib/smAPI/smapiTypes';
 import { fetchGetSettings } from '@lib/smAPI/Settings/SettingsFetch';
-import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
+import { updateFieldInData } from '@lib/redux/updateFieldInData';
 
 
 interface QueryState {
@@ -25,7 +25,7 @@ const getSettingsSlice = createSlice({
   reducers: {
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
-      state.data = updatePagedResponseFieldInData(state.data, fieldData);
+      state.data = updateFieldInData(state.data, fieldData);
       console.log('GetSettings setField');
     },
     clear: (state) => {

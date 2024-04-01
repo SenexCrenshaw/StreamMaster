@@ -27,7 +27,7 @@
         font-weight: $tableFooterFontWeight;
     }
 
-    .p-datatable-thead > tr > th {
+    .p-datatable-thead>tr>th {
         text-align: $tableCellContentAlignment;
         padding: $tableHeaderCellPadding;
         border: $tableHeaderCellBorder;
@@ -38,7 +38,7 @@
         transition: $listItemTransition;
     }
 
-    .p-datatable-tfoot > tr > td {
+    .p-datatable-tfoot>tr>td {
         text-align: $tableCellContentAlignment;
         padding: $tableFooterCellPadding;
         border: $tableFooterCellBorder;
@@ -84,7 +84,7 @@
             &:not(.p-sortable-disabled):hover {
                 background: $tableHeaderCellHighlightHoverBg;
                 color: $tableHeaderCellHighlightTextColor;
-    
+
                 .p-sortable-column-icon {
                     color: $tableHeaderCellHighlightTextColor;
                 }
@@ -98,12 +98,12 @@
     }
 
     .p-datatable-tbody {
-        > tr {
+        >tr {
             background: $tableBodyRowBg;
             color: $tableBodyRowTextColor;
             transition: $listItemTransition;
 
-            > td {
+            >td {
                 text-align: $tableCellContentAlignment;
                 border: $tableBodyCellBorder;
                 border-width: $tableBodyCellBorderWidth;
@@ -120,7 +120,7 @@
                     margin-right: $inlineSpacing;
                 }
 
-                > .p-column-title {
+                >.p-column-title {
                     font-weight: $tableHeaderCellFontWeight;
                 }
 
@@ -140,18 +140,18 @@
                 outline-offset: -0.15rem;
             }
 
-            &.p-datatable-dragpoint-top > td {
+            &.p-datatable-dragpoint-top>td {
                 box-shadow: inset 0 2px 0 0 $highlightBg;
             }
 
-            &.p-datatable-dragpoint-bottom > td {
+            &.p-datatable-dragpoint-bottom>td {
                 box-shadow: inset 0 -2px 0 0 $highlightBg;
             }
         }
     }
 
     &.p-datatable-selectable {
-        .p-datatable-tbody > tr.p-selectable-row {
+        .p-datatable-tbody>tr.p-selectable-row {
             &:not(.p-highlight):not(.p-datatable-emptymessage):hover {
                 background: $tableBodyRowHoverBg;
                 color: $tableBodyRowTextHoverColor;
@@ -165,8 +165,8 @@
     }
 
     &.p-datatable-selectable-cell {
-        .p-datatable-tbody > tr.p-selectable-row {
-            & > td.p-selectable-cell {
+        .p-datatable-tbody>tr.p-selectable-row {
+            &>td.p-selectable-cell {
                 &:not(.p-highlight):hover {
                     background: $tableBodyRowHoverBg;
                     color: $tableBodyRowTextHoverColor;
@@ -181,7 +181,7 @@
     }
 
     &.p-datatable-hoverable-rows {
-        .p-datatable-tbody > tr:not(.p-highlight):not(.p-datatable-emptymessage):hover {
+        .p-datatable-tbody>tr:not(.p-highlight):not(.p-datatable-emptymessage):hover {
             background: $tableBodyRowHoverBg;
             color: $tableBodyRowTextHoverColor;
         }
@@ -196,16 +196,22 @@
         background: $panelHeaderBg;
     }
 
-    &.p-datatable-scrollable > .p-datatable-wrapper > .p-datatable-table,
-    &.p-datatable-scrollable > .p-datatable-wrapper > .p-virtualscroller > .p-datatable-table {
-        > .p-datatable-thead,
-        > .p-datatable-tfoot {
+    &.p-datatable-scrollable>.p-datatable-wrapper {
+        background: $tableBodyRowBg;
+    }
+
+    &.p-datatable-scrollable>.p-datatable-wrapper>.p-datatable-table,
+    &.p-datatable-scrollable>.p-datatable-wrapper>.p-virtualscroller>.p-datatable-table {
+
+        >.p-datatable-thead,
+        >.p-datatable-tfoot {
             background-color: $tableHeaderCellBg;
         }
     }
 
     .p-datatable-loading-icon {
         font-size: $loadingIconFontSize;
+
         &.p-icon {
             width: $loadingIconFontSize;
             height: $loadingIconFontSize;
@@ -230,8 +236,8 @@
         }
 
         .p-datatable-thead {
-            > tr {
-                > th {
+            >tr {
+                >th {
                     border-width: 1px 0 1px 1px;
 
                     &:last-child {
@@ -242,8 +248,8 @@
         }
 
         .p-datatable-tbody {
-            > tr {
-                > td {
+            >tr {
+                >td {
                     border-width: 1px 0 0 1px;
 
                     &:last-child {
@@ -252,7 +258,7 @@
                 }
 
                 &:last-child {
-                    > td {
+                    >td {
                         border-width: 1px 0 1px 1px;
 
                         &:last-child {
@@ -264,8 +270,8 @@
         }
 
         .p-datatable-tfoot {
-            > tr {
-                > td {
+            >tr {
+                >td {
                     border-width: 1px 0 1px 1px;
 
                     &:last-child {
@@ -275,9 +281,9 @@
             }
         }
 
-        .p-datatable-thead + .p-datatable-tfoot {
-            > tr {
-                > td {
+        .p-datatable-thead+.p-datatable-tfoot {
+            >tr {
+                >td {
                     border-width: 0 0 1px 1px;
 
                     &:last-child {
@@ -288,8 +294,8 @@
         }
 
         &:has(.p-datatable-thead):has(.p-datatable-tbody) .p-datatable-tbody {
-            > tr {
-                > td {
+            >tr {
+                >td {
                     border-width: 0 0 1px 1px;
 
                     &:last-child {
@@ -300,9 +306,9 @@
         }
 
         &:has(.p-datatable-tbody):has(.p-datatable-tfoot) .p-datatable-tbody {
-            > tr {
+            >tr {
                 &:last-child {
-                    > td {
+                    >td {
                         border-width: 0 0 0 1px;
 
                         &:last-child {
@@ -316,23 +322,23 @@
 
     &.p-datatable-striped {
         .p-datatable-tbody {
-            > tr.p-row-odd {
+            >tr.p-row-odd {
                 background: $tableBodyRowEvenBg;
-    
+
                 &.p-highlight {
                     background: $highlightBg;
                     color: $highlightTextColor;
-    
+
                     .p-row-toggler {
                         color: $highlightTextColor;
-    
+
                         &:hover {
                             color: $highlightTextColor;
                         }
                     }
                 }
 
-                & + .p-row-expanded {
+                &+.p-row-expanded {
                     background: $tableBodyRowEvenBg;
                 }
             }
@@ -344,15 +350,15 @@
             @include scaledPadding($tableHeaderPadding, $tableScaleSM);
         }
 
-        .p-datatable-thead > tr > th {
+        .p-datatable-thead>tr>th {
             @include scaledPadding($tableHeaderCellPadding, $tableScaleSM);
         }
 
-        .p-datatable-tbody > tr > td {
+        .p-datatable-tbody>tr>td {
             @include scaledPadding($tableBodyCellPadding, $tableScaleSM);
         }
 
-        .p-datatable-tfoot > tr > td {
+        .p-datatable-tfoot>tr>td {
             @include scaledPadding($tableFooterPadding, $tableScaleSM);
         }
 
@@ -366,15 +372,15 @@
             @include scaledPadding($tableHeaderPadding, $tableScaleLG);
         }
 
-        .p-datatable-thead > tr > th {
+        .p-datatable-thead>tr>th {
             @include scaledPadding($tableHeaderCellPadding, $tableScaleLG);
         }
 
-        .p-datatable-tbody > tr > td {
+        .p-datatable-tbody>tr>td {
             @include scaledPadding($tableBodyCellPadding, $tableScaleLG);
         }
 
-        .p-datatable-tfoot > tr > td {
+        .p-datatable-tfoot>tr>td {
             @include scaledPadding($tableFooterPadding, $tableScaleLG);
         }
 

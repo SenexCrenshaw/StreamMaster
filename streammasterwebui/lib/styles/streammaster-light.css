@@ -7,6 +7,10 @@
   color: #fe7600;
 }
 
+.default-border {
+  border: 2px solid #898989 !important;
+}
+
 .surface-streamMaster {
   background-color: #fe7600;
 }
@@ -3270,6 +3274,9 @@
   }
   .p-datatable .p-datatable-scrollable-header,
   .p-datatable .p-datatable-scrollable-footer {
+    background: #ffffff;
+  }
+  .p-datatable.p-datatable-scrollable > .p-datatable-wrapper {
     background: #ffffff;
   }
   .p-datatable.p-datatable-scrollable > .p-datatable-wrapper > .p-datatable-table > .p-datatable-thead,
@@ -6675,6 +6682,10 @@
   color: #fe7600;
 }
 
+.default-border {
+  border: 2px solid #898989 !important;
+}
+
 .surface-streamMaster {
   background-color: #fe7600;
 }
@@ -6800,15 +6811,6 @@
   max-height: 1.8rem;
 }
 
-.iconselector.p-dropdown {
-  background-color: transparent;
-}
-.iconselector.p-dropdown.p-component.p-inputwrapper.p-inputwrapper-filled {
-  background-color: transparent;
-  border: none;
-  align-items: center;
-  justify-content: center;
-}
 .iconselector.p-progress-spinner {
   align-items: center;
   justify-content: center;
@@ -6820,6 +6822,10 @@
 .iconselector .p-progress-spinner {
   width: 1.6rem;
   height: 1.6rem;
+}
+
+.p-dialog-mask.p-dialog-top-right {
+  padding-bottom: 5%;
 }
 
 .p-inputgroup {
@@ -6838,6 +6844,14 @@
 .stringeditorbody .save:enabled:hover {
   border-color: green;
 }
+.stringeditorbody .filter {
+  border-width: 0.1rem;
+  border-color: #cecece;
+}
+
+.stringeditorbody-inputtext {
+  width: 100% !important;
+}
 
 .numbereditorbody {
   padding-left: 0.1rem;
@@ -6848,6 +6862,61 @@
 }
 .numbereditorbody .save .p-inputtext:enabled:hover {
   border-color: green;
+}
+
+.listTemplate-gridItem-container {
+  background-color: var(--surface-card);
+  border-width: 2px;
+  border-color: var(--surface-border);
+  border-radius: var(--border-radius);
+  border-style: solid;
+  height: 6rem;
+  width: 4rem;
+  max-height: 6rem;
+  max-width: 4rem;
+  margin: 0.15rem;
+}
+.listTemplate-gridItem-container.selected {
+  border: 2px solid #fe7600;
+}
+
+.listTemplate-gridItem-container button {
+  align-items: center;
+  justify-content: center;
+  background-color: var(--surface-card);
+  border-width: 0px;
+  border-color: transparent;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.listTemplate-gridItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.listTemplate-gridItem img {
+  max-height: 4.1rem;
+  max-width: 3.7rem;
+  object-fit: contain;
+}
+
+.listTemplate-gridItem-name {
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-height: 1.6rem;
+  max-width: 4rem;
+  padding-left: 0.1rem;
+  padding-right: 0.1rem;
+}
+
+.no-text {
+  color: transparent;
 }
 
 .p-datatable {
@@ -7086,7 +7155,7 @@
 
 .icon-template {
   height: 1.6rem;
-  justify-content: start;
+  justify-content: center;
   align-items: center;
 }
 

@@ -60,7 +60,16 @@ public static class TypeScriptSliceGenerator
         string fetchActionName = $"fetch{method.Name}";
         content.AppendLine($"import {{ {fetchActionName} }} from '@lib/smAPI/{method.NamespaceName}/{method.NamespaceName}Fetch';");
 
-        content.AppendLine("import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';");
+        if (method.IsGetPaged)
+        {
+            content.AppendLine("import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';");
+        }
+
+        if (method.IsGet)
+        {
+            content.AppendLine("import { updateFieldInData } from '@lib/redux/updateFieldInData';");
+        }
+
         content.AppendLine();
         return content.ToString();
     }
@@ -164,7 +173,7 @@ const initialState: QueryState = {{
 
         content.AppendLine($"    setField: (state, action: PayloadAction<{{ fieldData: FieldData }}>) => {{");
         content.AppendLine("      const { fieldData } = action.payload;");
-        content.AppendLine("      state.data = updatePagedResponseFieldInData(state.data, fieldData);");
+        content.AppendLine("      state.data = updateFieldInData(state.data, fieldData);");
         content.AppendLine($"      console.log('{method.Name} setField');");
         content.AppendLine("    },");
 

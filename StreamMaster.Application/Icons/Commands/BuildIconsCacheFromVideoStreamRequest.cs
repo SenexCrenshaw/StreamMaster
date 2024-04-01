@@ -7,10 +7,10 @@ namespace StreamMaster.Application.Icons.Commands;
 public class BuildIconsCacheFromVideoStreamRequest : IRequest<bool> { }
 
 [LogExecutionTimeAspect]
-public class BuildIconsCacheFromVideoStreamRequestHandler(ILogger<BuildIconsCacheFromVideoStreamRequest> logger, IIconService iconService, IRepositoryWrapper Repository)
+public class BuildIconsCacheFromVideoStreamRequestHandler(IIconService iconService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IRepositoryWrapper Repository)
     : IRequestHandler<BuildIconsCacheFromVideoStreamRequest, bool>
 {
-    public Task<bool> Handle(BuildIconsCacheFromVideoStreamRequest command, CancellationToken cancellationToken)
+    public async Task<bool> Handle(BuildIconsCacheFromVideoStreamRequest command, CancellationToken cancellationToken)
     {
 
         IQueryable<SMStreamDto> streams = Repository.SMStream.GetSMStreams()
@@ -18,7 +18,7 @@ public class BuildIconsCacheFromVideoStreamRequestHandler(ILogger<BuildIconsCach
          .Where(a => a.Logo != null && a.Logo.Contains("://"))
          .AsQueryable();
 
-        if (!streams.Any()) { return Task.FromResult(false); }
+        if (!streams.Any()) { return false; }
 
         int totalCount = streams.Count();
 
@@ -37,7 +37,7 @@ public class BuildIconsCacheFromVideoStreamRequestHandler(ILogger<BuildIconsCach
             IconFileDto icon = IconHelper.GetIcon(source, stream.Name, stream.M3UFileId, FileDefinitions.Icon);
             iconService.AddIcon(icon);
         });
-
-        return Task.FromResult(true);
+        await hubContext.Clients.All.DataRefresh("IconFileDto").ConfigureAwait(false);
+        return true;
     }
 }

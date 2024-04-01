@@ -73,11 +73,6 @@ const createSMChannelMultiSelectColumnConfigHook =
       />
     );
 
-    if (dataField === undefined) {
-      console.error('dataField is undefined');
-    }
-
-    console.log('dataField', dataField, 'useFilter', useFilter);
     const columnConfig: ColumnMeta = {
       align: 'left',
       bodyTemplate,

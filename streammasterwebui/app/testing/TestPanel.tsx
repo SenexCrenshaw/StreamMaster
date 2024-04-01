@@ -1,30 +1,14 @@
-import EPGSelector from '@components/epg/EPGSelector';
-
-import { memo, useState } from 'react';
-
-export interface StreamDataSelectorProperties {
-  readonly data: VideoStreamDto;
-  readonly enableEditMode?: boolean;
-}
+import IconGrid from '@components/icons/IconGrid';
 
 const TestPanel = () => {
-  const [epg, setEpg] = useState<string | undefined>('5USA.uk');
-  // const [iconSource, setIconSource] = useState<string | undefined>(undefined);
+  const onClick = (source: string) => {
+    console.log(source);
+  };
+
   return (
-    <div className="col-5">
-      <div className="">
-        <EPGSelector
-          enableEditMode
-          onChange={(e: string) => {
-            console.log(e);
-          }}
-          value={epg}
-        />
-      </div>
-      {/* <div className="col-3">
-        <IconSelector className="w-full bordered-text mr-2" onChange={setIconSource} value={iconSource} />
-      </div> */}
+    <div className="flex-row grid grid-nogutter">
+      <IconGrid onClick={onClick} iconSource="/countries%5Cunited-states%5Cus-local%5Cabc-3-katc-horizontal-us.png" />
     </div>
   );
 };
-export default memo(TestPanel);
+export default TestPanel;

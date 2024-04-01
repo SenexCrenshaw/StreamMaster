@@ -1,4 +1,3 @@
-$streammasterColor: #fe7600;
 $primaryDarkColor: scale-color($primaryColor, $lightness: -5%) !default;
 $primaryDarkerColor: scale-color($primaryColor, $lightness: -10%) !default;
 $colors: (
@@ -14,7 +13,7 @@ $colors: (
     "purple": #7654d4,
     "red": #ff5d44,
     "primary": $primaryColor,
-    "streammaster":$streammasterColor) !default;
+    "streammaster":$streamMasterColor) !default;
 //global
 $fontFamily: Poppins,
     sans-serif !default;

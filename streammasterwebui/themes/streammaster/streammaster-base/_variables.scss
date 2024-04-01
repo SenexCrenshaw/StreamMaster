@@ -4,21 +4,27 @@ $inputBorder-size: $input-padding;
 $datatable-row-height: 1.8rem;
 $input-height: $datatable-row-height - ($inputBorder-size*2);
 
-$common-font-size: small;
+$gridItem-height: 6rem;
+$gridItem-width: 4rem;
+$gridItem-margin: .15rem;
+$gridItem-image-height: $gridItem-height - ($gridItem-margin*2) - $input-height;
+$gridItem-image-width: $gridItem-width - ($gridItem-margin*2);
 
+$common-font-size: small;
+$input-save-color: green;
 $streamMasterColor: #fe7600 !default;
 
 .streammaster-color {
     color: $streamMasterColor;
 }
 
+.default-border {
+    border: 2px solid $shade600 !important;
+}
+
 .surface-streamMaster {
     background-color: $streamMasterColor;
 }
-
-// .text-streamMaster {
-//     color: $streamMasterColor;
-// }
 
 @mixin datatable-text-style {
     padding-left: $datatable-padding !important;

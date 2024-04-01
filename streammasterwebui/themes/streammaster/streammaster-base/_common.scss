@@ -83,18 +83,18 @@
 }
 
 .iconselector {
-    &.p-dropdown {
-        background-color: transparent;
+    // &.p-dropdown {
+    //     background-color: transparent;
 
-        &.p-component.p-inputwrapper.p-inputwrapper-filled {
-            background-color: transparent;
-            border: none;
-            align-items: center;
-            justify-content: center;
-        }
+    //     &.p-component.p-inputwrapper.p-inputwrapper-filled {
+    //         background-color: transparent;
+    //         border: none;
+    //         align-items: center;
+    //         justify-content: center;
+    //     }
 
 
-    }
+    // }
 
     &.p-progress-spinner {
         align-items: center;
@@ -109,6 +109,17 @@
         width: $input-height;
         height: $input-height;
     }
+
+}
+
+.iconselector-panel {
+    // max-width: 80%;
+}
+
+.p-dialog-mask {
+    &.p-dialog-top-right {
+        padding-bottom: 5%;
+    }
 }
 
 .p-inputgroup {
@@ -121,13 +132,24 @@
     padding-left: 0.5rem;
     padding-right: 0.5rem;
 
+
     .save {
-        border-color: green !important;
+        border-color: $input-save-color !important;
 
         &:enabled:hover {
-            border-color: green;
+            border-color: $input-save-color;
         }
     }
+
+    .filter {
+        border-width: 0.1rem;
+        border-color: $inputHoverBorderColor;
+
+    }
+}
+
+.stringeditorbody-inputtext {
+    width: 100% !important;
 }
 
 .numbereditorbody {
@@ -136,12 +158,69 @@
 
     .save {
         .p-inputtext {
-            border-color: green !important;
+            border-color: $input-save-color !important;
 
             &:enabled:hover {
-                border-color: green;
+                border-color: $input-save-color;
             }
         }
 
     }
+}
+
+.listTemplate-gridItem-container {
+    background-color: var(--surface-card);
+    border-width: 2px;
+    border-color: var(--surface-border);
+    border-radius: var(--border-radius);
+    border-style: solid;
+    height: $gridItem-height;
+    width: $gridItem-width;
+    max-height: $gridItem-height;
+    max-width: $gridItem-width;
+    margin: $gridItem-margin;
+
+    &.selected {
+        border: 2px solid $streamMasterColor;
+    }
+}
+
+.listTemplate-gridItem-container button {
+    align-items: center;
+    justify-content: center;
+    background-color: var(--surface-card);
+    border-width: 0px;
+    border-color: transparent;
+    padding: 0;
+    margin: 0;
+
+    height: 100%;
+    width: 100%;
+}
+
+.listTemplate-gridItem {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.listTemplate-gridItem img {
+    max-height: $gridItem-image-height;
+    max-width: $gridItem-image-width;
+    object-fit: contain;
+}
+
+.listTemplate-gridItem-name {
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-height: $input-height;
+    max-width: $gridItem-width;
+    padding-left: 0.10rem;
+    padding-right: 0.10rem;
+}
+
+.no-text {
+    color: transparent;
 }

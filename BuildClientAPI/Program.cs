@@ -101,7 +101,7 @@ namespace BuildClientAPI
                         IsList = returnType.Name.StartsWith("List"),
                         Parameter = ps,
                         ParameterNames = string.Join(", ", parameters.Select(p => p.Name)),
-
+                        IsGet = name.StartsWith("Get"),
                         IsGetPaged = name.StartsWith("GetPaged"),
                         IsTask = smapiAttribute.IsTask,
                         JustHub = smapiAttribute.JustHub,

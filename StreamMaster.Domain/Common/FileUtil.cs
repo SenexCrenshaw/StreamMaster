@@ -337,7 +337,7 @@ public sealed class FileUtil
             TvLogoFile tvLogo = new()
             {
                 Id = startingId++,
-                Name = Path.GetFileNameWithoutExtension(name),
+                Name = Path.GetFileNameWithoutExtension(file.Name),
                 FileExists = true,
                 ContentType = "image/png",
                 LastDownloaded = SMDT.UtcNow,

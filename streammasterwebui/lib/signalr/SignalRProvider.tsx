@@ -5,7 +5,9 @@ import { FieldData } from '@lib/apiDefs';
 import { useSMMessages } from '@lib/redux/slices/messagesSlice';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
+import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import useGetPagedM3UFiles from '@lib/smAPI/M3UFiles/useGetPagedM3UFiles';
+import useGetIcons from '@lib/smAPI/Icons/useGetIcons';
 import useGetPagedChannelGroups from '@lib/smAPI/ChannelGroups/useGetPagedChannelGroups';
 
 const SignalRContext = createContext<SignalRService | undefined>(undefined);
@@ -26,7 +28,9 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
   const signalRService = SignalRService.getInstance();
   const getPagedSMStreams = useGetPagedSMStreams();
   const getPagedSMChannels = useGetPagedSMChannels();
+  const getSettings = useGetSettings();
   const getPagedM3UFiles = useGetPagedM3UFiles();
+  const getIcons = useGetIcons();
   const getPagedChannelGroups = useGetPagedChannelGroups();
 
   const addMessage = useCallback(
@@ -46,8 +50,16 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         getPagedSMChannels.SetIsForced(true);
         return;
       }
+      if (entity === 'SettingDto') {
+        getSettings.SetIsForced(true);
+        return;
+      }
       if (entity === 'M3UFileDto') {
         getPagedM3UFiles.SetIsForced(true);
+        return;
+      }
+      if (entity === 'IconFileDto') {
+        getIcons.SetIsForced(true);
         return;
       }
       if (entity === 'ChannelGroupDto') {
@@ -55,7 +67,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         return;
       }
     },
-    [getPagedSMStreams,getPagedSMChannels,getPagedM3UFiles,getPagedChannelGroups]
+    [getPagedSMStreams,getPagedSMChannels,getSettings,getPagedM3UFiles,getIcons,getPagedChannelGroups]
   );
 
   const setField = useCallback(
@@ -69,8 +81,16 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
           getPagedSMChannels.SetField(fieldData)
           return;
         }
+        if (fieldData.entity === 'SettingDto') {
+          getSettings.SetField(fieldData)
+          return;
+        }
         if (fieldData.entity === 'M3UFileDto') {
           getPagedM3UFiles.SetField(fieldData)
+          return;
+        }
+        if (fieldData.entity === 'IconFileDto') {
+          getIcons.SetField(fieldData)
           return;
         }
         if (fieldData.entity === 'ChannelGroupDto') {
@@ -79,7 +99,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         }
       });
     },
-    [getPagedSMStreams,getPagedSMChannels,getPagedM3UFiles,getPagedChannelGroups]
+    [getPagedSMStreams,getPagedSMChannels,getSettings,getPagedM3UFiles,getIcons,getPagedChannelGroups]
   );
 
   const RemoveConnections = useCallback(() => {

@@ -72,10 +72,6 @@ const createVideoStreamMultiSelectColumnConfigHook =
       />
     );
 
-    if (dataField === undefined) {
-      console.error('dataField is undefined');
-    }
-
     const columnConfig: ColumnMeta = {
       align: 'left',
       bodyTemplate,

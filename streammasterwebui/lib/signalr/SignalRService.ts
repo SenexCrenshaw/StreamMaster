@@ -1,5 +1,5 @@
-import { HubConnection, HubConnectionBuilder, HubConnectionState, LogLevel } from '@microsoft/signalr';
 import { baseHostURL, isDev } from '@lib/settings';
+import { HubConnection, HubConnectionBuilder, HubConnectionState, LogLevel } from '@microsoft/signalr';
 
 class SignalRService extends EventTarget {
   private static instance: SignalRService;
@@ -30,28 +30,7 @@ class SignalRService extends EventTarget {
     }
   };
 
-  private constructor() {
-    super();
-
-    const url = `${baseHostURL}/streammasterhub`;
-    this.hubConnection = new HubConnectionBuilder()
-      .configureLogging(LogLevel.Error)
-      .withUrl(url)
-      .withAutomaticReconnect({
-        nextRetryDelayInMilliseconds: (retryContext) => {
-          if (retryContext.elapsedMilliseconds < 60_000) {
-            return 2000;
-          }
-          return 2000;
-        }
-      })
-      .build();
-
-    this.hubConnection.onclose(() => {
-      this.dispatchEvent(new CustomEvent('signalr_disconnected'));
-      console.log('SignalR connection closed');
-    });
-
+  private start = () => {
     this.hubConnection
       .start()
       .then(() => {
@@ -64,10 +43,32 @@ class SignalRService extends EventTarget {
         });
         console.error('SignalR connection failed to start', error);
       });
+  };
+
+  private constructor() {
+    super();
+
+    const url = `${baseHostURL}/streammasterhub`;
+    this.hubConnection = new HubConnectionBuilder()
+      .configureLogging(LogLevel.Error)
+      .withUrl(url)
+      .withAutomaticReconnect({
+        nextRetryDelayInMilliseconds: (retryContext) => {
+          if (retryContext.elapsedMilliseconds < 60000) {
+            return 2000;
+          }
+          return 2000;
+        }
+      })
+      .build();
 
     this.hubConnection.onclose((callback) => {
+      this.dispatchEvent(new CustomEvent('signalr_disconnected'));
       console.log('SignalR connection closed', callback);
+      this.start();
     });
+
+    this.start();
   }
 
   public async onConnect(): Promise<void> {
@@ -108,10 +109,21 @@ class SignalRService extends EventTarget {
   }
 
   public async invokeHubCommand<T>(methodName: string, argument?: any): Promise<T | null> {
-    if (!this.isConnected) {
-      console.warn('SignalR connection is not established');
-      return null;
-    }
+    const waitForConnection = async (timeout: number): Promise<boolean> => {
+      const startTime = Date.now();
+      while (Date.now() - startTime < timeout) {
+        if (this.hubConnection.state === 'Connected') {
+          return true;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 100)); // wait for 100ms before checking again
+      }
+      return false;
+    };
+
+    const isConnected = await waitForConnection(3000);
+    if (!isConnected) return null;
+
+    if (this.hubConnection.state !== 'Connected') return null;
 
     if (isDev && !this.blacklistedMethods.includes(methodName)) {
       if (this.whitelistedMethods.includes(methodName)) {
