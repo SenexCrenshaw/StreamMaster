@@ -16,6 +16,7 @@ export interface NumberEditorBodyTemplateProperties {
   readonly tooltip?: string | undefined;
   readonly tooltipOptions?: TooltipOptions | undefined;
   readonly value: number | undefined;
+  readonly showSave?: boolean;
 }
 
 const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProperties) => {

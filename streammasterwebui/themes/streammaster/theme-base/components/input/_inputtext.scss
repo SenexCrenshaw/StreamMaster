@@ -1,7 +1,7 @@
 .p-inputtext {
     font-family: var(--font-family);
     font-feature-settings: var(--font-feature-settings, normal);
-    font-size: $inputTextFontSize;
+    font-size: $common-font-size;
     color: $inputTextColor;
     background: $inputBg;
     padding: $inputPadding;
@@ -23,55 +23,57 @@
     }
 
     &.p-inputtext-sm {
-        @include scaledFontSize($inputTextFontSize, $scaleSM);
+        @include scaledFontSize($common-font-size, $scaleSM);
         @include scaledPadding($inputPadding, $scaleSM);
     }
 
     &.p-inputtext-lg {
-        @include scaledFontSize($inputTextFontSize, $scaleLG);
+        @include scaledFontSize($common-font-size, $scaleLG);
         @include scaledPadding($inputPadding, $scaleLG);
     }
 }
 
-.p-float-label > label {
+.p-float-label>label {
     left: nth($inputPadding, 2);
     color: $inputPlaceholderTextColor;
     transition-duration: $transitionDuration;
 }
 
-.p-float-label > label.p-error {
+.p-float-label>label.p-error {
     color: $errorColor;
 }
 
-.p-input-icon-left > i:first-of-type,
-.p-input-icon-left > svg:first-of-type,
-.p-input-icon-left > .p-input-prefix {
+.p-input-icon-left>i:first-of-type,
+.p-input-icon-left>svg:first-of-type,
+.p-input-icon-left>.p-input-prefix {
     left: nth($inputPadding, 2);
     color: $inputIconColor;
 }
 
-.p-input-icon-left > .p-inputtext {
+.p-input-icon-left>.p-inputtext {
     padding-left: nth($inputPadding, 2) * 2 + $primeIconFontSize;
 }
 
-.p-input-icon-left.p-float-label > label {
+.p-input-icon-left.p-float-label>label {
     left: nth($inputPadding, 2) * 2 + $primeIconFontSize;
 }
 
-.p-input-icon-right > i:last-of-type,
-.p-input-icon-right > svg:last-of-type,
-.p-input-icon-right > .p-input-suffix {
+.p-input-icon-right>i:last-of-type,
+.p-input-icon-right>svg:last-of-type,
+.p-input-icon-right>.p-input-suffix {
     right: nth($inputPadding, 2);
     color: $inputIconColor;
 }
 
-.p-input-icon-right > .p-inputtext {
+.p-input-icon-right>.p-inputtext {
     padding-right: nth($inputPadding, 2) * 2 + $primeIconFontSize;
 }
 
 @include placeholder {
     color: $inputPlaceholderTextColor
-};
+}
+
+;
 
 .p-input-filled {
     .p-inputtext {
@@ -80,7 +82,7 @@
         &:enabled:hover {
             background-color: $inputFilledHoverBg;
         }
-    
+
         &:enabled:focus {
             background-color: $inputFilledFocusBg;
         }
@@ -89,14 +91,14 @@
 
 .p-inputtext-sm {
     .p-inputtext {
-        @include scaledFontSize($inputTextFontSize, $scaleSM);
+        @include scaledFontSize($common-font-size, $scaleSM);
         @include scaledPadding($inputPadding, $scaleSM);
     }
 }
 
 .p-inputtext-lg {
     .p-inputtext {
-        @include scaledFontSize($inputTextFontSize, $scaleLG);
+        @include scaledFontSize($common-font-size, $scaleLG);
         @include scaledPadding($inputPadding, $scaleLG);
     }
 }

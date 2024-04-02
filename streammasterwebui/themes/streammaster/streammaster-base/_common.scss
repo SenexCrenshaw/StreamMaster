@@ -152,9 +152,17 @@
     width: 100% !important;
 }
 
+.autoUpdate {
+    .p-inputtext {
+        max-width: 6.4rem;
+    }
+}
+
 .numbereditorbody {
     padding-left: 0.1rem;
     padding-right: 0.1rem;
+
+
 
     .save {
         .p-inputtext {
@@ -164,7 +172,6 @@
                 border-color: $input-save-color;
             }
         }
-
     }
 }
 
@@ -232,4 +239,15 @@
     padding-left: $input-padding*4;
     padding-right: $input-padding*4;
     margin: 0;
+
+    font-size: $common-font-size;
+
+    .p-button-icon {
+        font-size: $common-font-size;
+    }
+
+    .p-checkbox {
+        font-size: $common-font-size;
+    }
+
 }

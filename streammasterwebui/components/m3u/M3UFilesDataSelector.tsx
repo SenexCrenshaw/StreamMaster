@@ -7,7 +7,6 @@ import NumberEditorBodyTemplate from '../inputs/NumberEditorBodyTemplate';
 import StringEditorBodyTemplate from '../inputs/StringEditorBodyTemplate';
 import M3UFileRefreshDialog from './M3UFileRefreshDialog';
 import M3UFileRemoveDialog from './M3UFileRemoveDialog';
-
 import M3UFileTagsDialog from './M3UFileTagsDialog';
 
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
@@ -124,7 +123,7 @@ const M3UFilesDataSelector = () => {
       return <div />;
     }
 
-    return <div className="flex justify-content-center ">{formatJSONDateString(rowData.lastDownloaded ?? '')}</div>;
+    return <div className="flex justify-content-center">{formatJSONDateString(rowData.lastDownloaded ?? '')}</div>;
   }, []);
 
   const nameEditorBodyTemplate = useCallback(
@@ -240,77 +239,115 @@ const M3UFilesDataSelector = () => {
     return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.stationCount}</div>;
   }, []);
 
-  const actionBodyTemplate = useCallback(
+  const autoUpdateTemplate = useCallback(
     (rowData: M3UFileDto) => {
       if (rowData.id === 0) {
         return <div />;
       }
 
       return (
-        <div className="flex grid p-0 justify-content-end align-items-center">
-          <div className="col-8 flex p-0 justify-content-between align-items-center">
-            <div className="col-8 flex p-0 justify-content-between align-items-center">
-              <Checkbox
-                checked={rowData.autoUpdate}
-                onChange={async (e: CheckboxChangeEvent) => {
-                  await onM3UUpdateClick({ auto: e.checked ?? false, id: rowData.id });
-                }}
-                tooltip="Enable Auto Update"
-                tooltipOptions={getTopToolOptions}
-              />
-
-              <NumberEditorBodyTemplate
-                onChange={async (e) => {
-                  await onM3UUpdateClick({ auto: rowData.autoUpdate, hours: e, id: rowData.id, maxStreams: rowData.maxStreamCount ?? 0 });
-                }}
-                suffix=" hours"
-                value={rowData.hoursToUpdate}
-              />
-            </div>
-          </div>
-          <div className="col-4 p-0 justify-content-end align-items-center">
-            <Checkbox
-              checked={rowData.overwriteChannelNumbers}
-              onChange={async (e: CheckboxChangeEvent) => {
-                await onM3UUpdateClick({ overwriteChannelNumbers: e.checked ?? false, id: rowData.id });
+        <div className="flex w-6 justify-content-start align-items-center">
+          <Checkbox
+            checked={rowData.autoUpdate}
+            onChange={async (e: CheckboxChangeEvent) => {
+              await onM3UUpdateClick({ auto: e.checked ?? false, id: rowData.id });
+            }}
+            tooltip="Enable Auto Update"
+            tooltipOptions={getTopToolOptions}
+          />
+          <div className="autoUpdate">
+            <NumberEditorBodyTemplate
+              onChange={async (e) => {
+                await onM3UUpdateClick({ auto: rowData.autoUpdate, hours: e, id: rowData.id, maxStreams: rowData.maxStreamCount ?? 0 });
               }}
-              tooltip="Autoset Channel #s"
-              tooltipOptions={getTopToolOptions}
+              suffix=" hours"
+              value={rowData.hoursToUpdate}
             />
-            <M3UFileRefreshDialog selectedFile={rowData} />
-            <M3UFileRemoveDialog selectedFile={rowData} />
           </div>
         </div>
       );
     },
     [onM3UUpdateClick]
   );
+
+  const actionBodyTemplate = useCallback((rowData: M3UFileDto) => {
+    if (rowData.id === 0) {
+      return <div />;
+    }
+    return (
+      <div className="flex justify-content-center align-items-center">
+        <M3UFileRefreshDialog selectedFile={rowData} />
+        <M3UFileRemoveDialog selectedFile={rowData} />
+      </div>
+    );
+  }, []);
+
+  const overwriteTemplate = useCallback(
+    (rowData: M3UFileDto) => {
+      if (rowData.id === 0) {
+        return <div />;
+      }
+      return (
+        <div className="flex justify-content-center align-items-center">
+          <Checkbox
+            checked={rowData.overwriteChannelNumbers}
+            onChange={async (e: CheckboxChangeEvent) => {
+              await onM3UUpdateClick({ overwriteChannelNumbers: e.checked ?? false, id: rowData.id });
+            }}
+            tooltip="Autoset Channel #s"
+            tooltipOptions={getTopToolOptions}
+          />
+        </div>
+      );
+    },
+    [onM3UUpdateClick]
+  );
+
   const expandedColumns = useMemo(
     (): ColumnMeta[] => [
-      { bodyTemplate: urlEditorBodyTemplate, field: 'url', sortable: true },
+      { bodyTemplate: urlEditorBodyTemplate, field: 'url', width: '12rem' },
       {
         bodyTemplate: startingChannelNumberTemplate,
         field: 'startingChannelNumber',
         header: 'Start Ch#',
-        sortable: true,
-        width: '6rem'
+        width: '4rem'
       },
       {
         bodyTemplate: maxStreamCountTemplate,
         field: 'maxStreamCount',
         header: 'Max Streams',
-        sortable: true,
-        width: '8rem'
+        width: '6rem'
       },
+      {
+        bodyTemplate: autoUpdateTemplate,
+        field: 'autoUpdate',
+        width: '8.2rem'
+      },
+
+      {
+        bodyTemplate: overwriteTemplate,
+        field: 'overwrite',
+        header: 'Set Ch #s',
+        width: '5.6rem'
+      },
+
       {
         align: 'center',
         bodyTemplate: actionBodyTemplate,
-        field: 'autoUpdate',
-        width: '16rem'
+        field: 'actions',
+        width: '5rem'
       },
       { align: 'center', bodyTemplate: tagEditorBodyTemplate, field: 'vodTags', header: 'URL (ignore)', width: '8rem' }
     ],
-    [startingChannelNumberTemplate, maxStreamCountTemplate, urlEditorBodyTemplate, tagEditorBodyTemplate, actionBodyTemplate]
+    [
+      urlEditorBodyTemplate,
+      startingChannelNumberTemplate,
+      maxStreamCountTemplate,
+      autoUpdateTemplate,
+      overwriteTemplate,
+      actionBodyTemplate,
+      tagEditorBodyTemplate
+    ]
   );
 
   const rowExpansionTemplate = useCallback(
@@ -363,7 +400,7 @@ const M3UFilesDataSelector = () => {
       queryFilter={useGetPagedM3UFiles}
       rowExpansionTemplate={rowExpansionTemplate}
       showExpand
-      style={{ height: '30vh' }}
+      style={{ height: '50vh' }}
     />
   );
 };

@@ -2,7 +2,7 @@
 
 .p-autocomplete {
     .p-autocomplete-loader {
-        right: nth($inputPadding, 2); 
+        right: nth($inputPadding, 2);
     }
 
     &.p-autocomplete-dd {
@@ -10,11 +10,11 @@
             right: nth($inputPadding, 2) + $buttonIconOnlyWidth;
         }
     }
-    
+
     .p-autocomplete-multiple-container {
         padding: math.div(nth($inputPadding, 1), 2) nth($inputPadding, 2);
         gap: $inlineSpacing;
-        
+
         &:not(.p-disabled):hover {
             border-color: $inputHoverBorderColor;
         }
@@ -25,11 +25,11 @@
 
         .p-autocomplete-input-token {
             padding: math.div(nth($inputPadding, 1), 2) 0;
-            
+
             input {
                 font-family: var(--font-family);
                 font-feature-settings: var(--font-feature-settings, normal);
-                font-size: $inputTextFontSize;
+                font-size: $common-font-size;
                 color: $textColor;
                 padding: 0;
                 margin: 0;
@@ -49,7 +49,7 @@
         }
     }
 
-    &.p-invalid.p-component > .p-inputtext {
+    &.p-invalid.p-component>.p-inputtext {
         @include invalid-input();
     }
 }

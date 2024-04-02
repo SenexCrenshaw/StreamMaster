@@ -385,7 +385,7 @@
   .p-autocomplete .p-autocomplete-multiple-container .p-autocomplete-input-token input {
     font-family: var(--font-family);
     font-feature-settings: var(--font-feature-settings, normal);
-    font-size: 1rem;
+    font-size: 0.75rem;
     color: #6c6c6c;
     padding: 0;
     margin: 0;
@@ -731,11 +731,11 @@
     background: #edf0fa;
   }
   .p-cascadeselect-panel .p-cascadeselect-items .p-cascadeselect-item .p-cascadeselect-group-icon {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
   }
   .p-cascadeselect-panel .p-cascadeselect-items .p-cascadeselect-item .p-cascadeselect-group-icon.p-icon {
-    width: 0.875rem;
-    height: 0.875rem;
+    width: 0.75rem;
+    height: 0.75rem;
   }
   .p-input-filled .p-cascadeselect {
     background: #f2f2f2;
@@ -960,7 +960,7 @@
   .p-chips .p-chips-multiple-container .p-chips-input-token input {
     font-family: var(--font-family);
     font-feature-settings: var(--font-feature-settings, normal);
-    font-size: 1rem;
+    font-size: 0.75rem;
     color: #6c6c6c;
     padding: 0;
     margin: 0;
@@ -1322,7 +1322,7 @@
   .p-inputtext {
     font-family: var(--font-family);
     font-feature-settings: var(--font-feature-settings, normal);
-    font-size: 1rem;
+    font-size: 0.75rem;
     color: #6c6c6c;
     background: #ffffff;
     padding: 0rem 0.24rem;
@@ -1344,11 +1344,11 @@
     border-color: #f88c79;
   }
   .p-inputtext.p-inputtext-sm {
-    font-size: 0.875rem;
+    font-size: 0.65625rem;
     padding: 0rem 0.21rem;
   }
   .p-inputtext.p-inputtext-lg {
-    font-size: 1.25rem;
+    font-size: 0.9375rem;
     padding: 0rem 0.3rem;
   }
   .p-float-label > label {
@@ -1402,11 +1402,11 @@
     background-color: #f2f2f2;
   }
   .p-inputtext-sm .p-inputtext {
-    font-size: 0.875rem;
+    font-size: 0.65625rem;
     padding: 0rem 0.21rem;
   }
   .p-inputtext-lg .p-inputtext {
-    font-size: 1.25rem;
+    font-size: 0.9375rem;
     padding: 0rem 0.3rem;
   }
   .p-listbox-list-wrapper {
@@ -4833,11 +4833,11 @@
     margin: 4px 0;
   }
   .p-contextmenu .p-submenu-icon {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
   }
   .p-contextmenu .p-submenu-icon.p-icon {
-    width: 0.875rem;
-    height: 0.875rem;
+    width: 0.75rem;
+    height: 0.75rem;
   }
   .p-dock .p-dock-list-container {
     background: rgba(255, 255, 255, 0.1);
@@ -5076,11 +5076,11 @@
     margin: 4px 0;
   }
   .p-megamenu.p-megamenu-mobile-active .p-megamenu-root-list .p-submenu-icon {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
   }
   .p-megamenu.p-megamenu-mobile-active .p-megamenu-root-list .p-submenu-icon.p-icon {
-    width: 0.875rem;
-    height: 0.875rem;
+    width: 0.75rem;
+    height: 0.75rem;
   }
   .p-megamenu.p-megamenu-mobile-active .p-megamenu-root-list > .p-menuitem {
     width: 100%;
@@ -5356,7 +5356,7 @@
     margin: 4px 0;
   }
   .p-menubar .p-submenu-list .p-submenu-icon {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
   }
   .p-menubar.p-menubar-mobile .p-menubar-button {
     width: 2rem;
@@ -5385,7 +5385,7 @@
     margin: 4px 0;
   }
   .p-menubar.p-menubar-mobile .p-menubar-root-list .p-submenu-icon {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
   }
   .p-menubar.p-menubar-mobile .p-menubar-root-list .p-menuitem .p-menuitem-content .p-menuitem-link .p-submenu-icon {
     margin-left: auto;
@@ -5451,11 +5451,11 @@
       margin: 4px 0;
     }
     .p-menubar .p-menubar-root-list .p-submenu-icon {
-      font-size: 0.875rem;
+      font-size: 0.75rem;
     }
     .p-menubar .p-menubar-root-list .p-submenu-icon.p-icon {
-      width: 0.875rem;
-      height: 0.875rem;
+      width: 0.75rem;
+      height: 0.75rem;
     }
     .p-menubar .p-menubar-root-list > .p-menuitem {
       width: 100%;
@@ -5804,11 +5804,11 @@
     margin: 4px 0;
   }
   .p-slidemenu .p-slidemenu-icon {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
   }
   .p-slidemenu .p-slidemenu-icon.p-icon {
-    width: 0.875rem;
-    height: 0.875rem;
+    width: 0.75rem;
+    height: 0.75rem;
   }
   .p-slidemenu .p-slidemenu-backward {
     padding: 0.75rem 1rem;
@@ -5981,11 +5981,11 @@
     margin: 4px 0;
   }
   .p-tieredmenu .p-submenu-icon {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
   }
   .p-tieredmenu .p-submenu-icon.p-icon {
-    width: 0.875rem;
-    height: 0.875rem;
+    width: 0.75rem;
+    height: 0.75rem;
   }
   .p-inline-message {
     padding: 0rem 0.24rem;
@@ -6582,7 +6582,7 @@
   .p-terminal .p-terminal-input {
     font-family: var(--font-family);
     font-feature-settings: var(--font-feature-settings, normal);
-    font-size: 1rem;
+    font-size: 0.75rem;
   }
   .p-badge {
     background: #5472d4;
@@ -6853,6 +6853,10 @@
   width: 100% !important;
 }
 
+.autoUpdate .p-inputtext {
+  max-width: 6.4rem;
+}
+
 .numbereditorbody {
   padding-left: 0.1rem;
   padding-right: 0.1rem;
@@ -6926,10 +6930,17 @@
   padding-left: 0.4rem;
   padding-right: 0.4rem;
   margin: 0;
+  font-size: 0.75rem;
+}
+.smbutton .p-button-icon {
+  font-size: 0.75rem;
+}
+.smbutton .p-checkbox {
+  font-size: 0.75rem;
 }
 
 .p-datatable {
-  font-size: small;
+  font-size: 0.75rem;
 }
 .p-datatable .p-datatable-tbody > tr {
   padding-top: 0rem;
@@ -6975,7 +6986,7 @@
 .p-inputtext {
   font-family: var(--font-family);
   font-feature-settings: var(--font-feature-settings, normal);
-  font-size: 1rem;
+  font-size: 0.75rem;
   color: #6c6c6c;
   background: #ffffff;
   border: 0.1rem solid transparent;
@@ -6997,11 +7008,11 @@
   border-color: #f88c79;
 }
 .p-inputtext.p-inputtext-sm {
-  font-size: 0.875rem;
+  font-size: 0.65625rem;
   padding: 0rem 0.21rem;
 }
 .p-inputtext.p-inputtext-lg {
-  font-size: 1.25rem;
+  font-size: 0.9375rem;
   padding: 0rem 0.3rem;
 }
 
@@ -7066,12 +7077,12 @@
 }
 
 .p-inputtext-sm .p-inputtext {
-  font-size: 0.875rem;
+  font-size: 0.65625rem;
   padding: 0rem 0.21rem;
 }
 
 .p-inputtext-lg .p-inputtext {
-  font-size: 1.25rem;
+  font-size: 0.9375rem;
   padding: 0rem 0.3rem;
 }
 

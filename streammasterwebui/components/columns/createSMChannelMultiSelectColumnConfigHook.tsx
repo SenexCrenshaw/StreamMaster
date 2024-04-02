@@ -1,10 +1,11 @@
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import { ColumnFieldType } from '@components/smDataTable/types/smDataTableTypes';
 import { QueryHook } from '@lib/apiDefs';
 import { isEmptyObject } from '@lib/common/common';
 
 import { SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { type ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { MultiSelect, type MultiSelectChangeEvent } from 'primereact/multiselect';
-import { type ColumnFieldType, type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 
 type DataField = keyof SMChannelDto;
 type EditorComponent = React.ComponentType<{ data: SMChannelDto }>;

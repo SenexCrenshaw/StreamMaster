@@ -47,7 +47,7 @@ $actionIconHoverBorderColor: transparent !default;
 $actionIconBorderRadius: 50% !default;
 //input field (e.g. inputtext, spinner, inputmask)
 $inputPadding: 0rem .24rem !default;
-$inputTextFontSize: 1rem !default;
+
 $inputHoverBorderColor: $shade500 !default;
 $inputErrorBorderColor: $errorColor !default;
 $inputFilledHoverBg: $inputFilledBg !default;
@@ -387,7 +387,7 @@ $progressBarValueTextColor: $primaryTextColor !default;
 $menuWidth: 12.5rem !default;
 $menuitemPadding: 0.75rem 1rem !default;
 $menuitemBorderRadius: 6px !default;
-$menuitemSubmenuIconFontSize: 0.875rem !default;
+$menuitemSubmenuIconFontSize: 0.75rem !default;
 $submenuHeaderMargin: 0 !default;
 $submenuHeaderPadding: 0.75rem 1rem !default;
 $submenuHeaderBorderRadius: 0 !default;

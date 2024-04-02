@@ -1,7 +1,7 @@
 .p-inputtext {
     font-family: var(--font-family);
     font-feature-settings: var(--font-feature-settings, normal);
-    font-size: $inputTextFontSize;
+    font-size: $common-font-size;
     color: $inputTextColor;
     background: $inputBg;
     border: $inputBorder-size solid transparent;
@@ -23,12 +23,12 @@
     }
 
     &.p-inputtext-sm {
-        @include scaledFontSize($inputTextFontSize, $scaleSM);
+        @include scaledFontSize($common-font-size, $scaleSM);
         @include scaledPadding($inputPadding, $scaleSM);
     }
 
     &.p-inputtext-lg {
-        @include scaledFontSize($inputTextFontSize, $scaleLG);
+        @include scaledFontSize($common-font-size, $scaleLG);
         @include scaledPadding($inputPadding, $scaleLG);
     }
 }
@@ -85,14 +85,14 @@
 
 .p-inputtext-sm {
     .p-inputtext {
-        @include scaledFontSize($inputTextFontSize, $scaleSM);
+        @include scaledFontSize($common-font-size, $scaleSM);
         @include scaledPadding($inputPadding, $scaleSM);
     }
 }
 
 .p-inputtext-lg {
     .p-inputtext {
-        @include scaledFontSize($inputTextFontSize, $scaleLG);
+        @include scaledFontSize($common-font-size, $scaleLG);
         @include scaledPadding($inputPadding, $scaleLG);
     }
 }
