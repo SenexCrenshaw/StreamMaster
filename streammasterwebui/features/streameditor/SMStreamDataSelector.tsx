@@ -1,6 +1,6 @@
 import AddButton from '@components/buttons/AddButton';
 
-import M3UFilesEditor2 from '@components/m3u/M3UFilesEditor';
+import M3UFilesButton from '@components/m3u/M3UFilesButton';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamVisibleDialog from '@components/smstreams/StreamVisibleDialog';
 import { GetMessage } from '@lib/common/common';
@@ -152,8 +152,9 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
   const rightHeaderTemplate = useMemo(
     () => (
       <div className="flex justify-content-end align-items-center w-full gap-1">
-        <M3UFilesEditor2 />
-        {/* <TriSelectShowHidden dataKey={dataKey} />
+        <div className="">
+          <M3UFilesButton />
+          {/* <TriSelectShowHidden dataKey={dataKey} />
         <VideoStreamSetTimeShiftsDialog id={dataKey} />
         <VideoStreamResetLogosDialog id={dataKey} />
         <VideoStreamSetLogosFromEPGDialog id={dataKey} />
@@ -162,6 +163,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
         <VideoStreamSetAutoSetEPGDialog iconFilled id={dataKey} />
         <VideoStreamDeleteDialog iconFilled id={dataKey} />
         <VideoStreamAddDialog group={channelGroupNames?.[0]} /> */}
+        </div>
       </div>
     ),
     []

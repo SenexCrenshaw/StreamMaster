@@ -4,7 +4,7 @@ import { memo, useRef } from 'react';
 import M3UFileCreateDialog from './M3UFileCreateDialog';
 import M3UFilesDataSelector from './M3UFilesDataSelector';
 
-const M3UFilesEditor2 = () => {
+const M3UFilesButton = () => {
   const op = useRef<OverlayPanel>(null);
   const closeOverlay = () => op.current?.hide();
   return (
@@ -23,8 +23,8 @@ const M3UFilesEditor2 = () => {
   );
 };
 
-M3UFilesEditor2.displayName = 'M3UFilesEditor2';
+M3UFilesButton.displayName = 'M3UFilesEditor2';
 
 export interface M3UFilesEditorProperties {}
 
-export default memo(M3UFilesEditor2);
+export default memo(M3UFilesButton);

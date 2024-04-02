@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import InfoMessageOverLayDialog from '@components/InfoMessageOverLayDialog';
+
 import AddButton from '@components/buttons/AddButton';
 import BooleanInput from '@components/inputs/BooleanInput';
 import NumberInput from '@components/inputs/NumberInput';
@@ -7,10 +7,10 @@ import { FileUpload } from 'primereact/fileupload';
 import M3UFileTags from './M3UFileTags';
 
 import { useFileUpload } from '@components/sharedEPGM3U/useFileUpload';
-import { CreateM3UFileRequest } from '@lib/smAPI/M3UFiles/M3UFilesTypes';
-import { CreateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 
 import SMFileUpload from '@components/file/SMFileUpload';
+import { CreateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
+import { CreateM3UFileRequest } from '@lib/smAPI/smapiTypes';
 import { OverlayPanel } from 'primereact/overlaypanel';
 
 export interface M3UFileDialogProperties {

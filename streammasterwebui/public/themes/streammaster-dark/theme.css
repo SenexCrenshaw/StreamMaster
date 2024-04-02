@@ -6919,6 +6919,15 @@
   color: transparent;
 }
 
+.smbutton {
+  height: 1.6rem;
+  padding-bottom: 0.1rem;
+  padding-top: 0.1rem;
+  padding-left: 0.4rem;
+  padding-right: 0.4rem;
+  margin: 0;
+}
+
 .p-datatable {
   font-size: small;
 }

@@ -22,7 +22,7 @@ export interface BaseButtonProps {
 const BaseButton = forwardRef<Button, BaseButtonProps>(
   (
     {
-      className,
+      className: configuredClassName,
       disabled = false,
       icon,
       iconFilled = true,
@@ -44,7 +44,7 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
       <>
         <Tooltip target={tooltipClassName} />
         <Button
-          className={className + ' ' + tooltipClassName}
+          className={'smbutton ' + tooltipClassName}
           disabled={disabled}
           icon={`pi ${icon}`}
           label={label}

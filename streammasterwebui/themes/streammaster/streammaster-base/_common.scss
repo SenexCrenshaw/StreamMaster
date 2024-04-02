@@ -224,3 +224,12 @@
 .no-text {
     color: transparent;
 }
+
+.smbutton {
+    height: $input-height;
+    padding-bottom: $input-padding;
+    padding-top: $input-padding;
+    padding-left: $input-padding*4;
+    padding-right: $input-padding*4;
+    margin: 0;
+}
