@@ -46,14 +46,6 @@ public class M3UFilesController() : ApiControllerBase
         return NoContent();
     }
 
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<ActionResult> UpdateM3UFile(UpdateM3UFileRequest request)
-    {
-        M3UFile? data = await Mediator.Send(request).ConfigureAwait(false);
-        return data == null ? NotFound() : NoContent();
-    }
-
     [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult<List<string>>> GetM3UFileNames()

@@ -374,6 +374,18 @@ export interface RefreshM3UFileRequest
 	id: number;
 	forceRun: boolean;
 }
+export interface UpdateM3UFileRequest
+{
+	maxStreamCount?: number;
+	startingChannelNumber?: number;
+	overWriteChannels?: boolean;
+	vodTags?: string[];
+	autoUpdate?: boolean;
+	hoursToUpdate?: number;
+	id: number;
+	name?: string;
+	url?: string;
+}
 export interface GetIconsRequest
 {
 }

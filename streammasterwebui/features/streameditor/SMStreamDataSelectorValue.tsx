@@ -1,14 +1,14 @@
 import MinusButton from '@components/buttons/MinusButton';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
+import DataSelectorValues from '@components/dataSelector/DataSelectorValues';
 
 import { GetMessage } from '@lib/common/common';
 import { useSelectedSMChannel } from '@lib/redux/slices/selectedSMChannel';
 import { RemoveSMStreamFromSMChannel, SetSMStreamRanks } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 
-import { SMStreamDto, SMChannelDto, SMChannelRankRequest, RemoveSMStreamFromSMChannelRequest, SetSMStreamRanksRequest } from '@lib/smAPI/smapiTypes';
+import { RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMChannelRankRequest, SMStreamDto, SetSMStreamRanksRequest } from '@lib/smAPI/smapiTypes';
 
-import { lazy, memo, useCallback, useMemo } from 'react';
-const DataSelectorValues = lazy(() => import('@components/dataSelector/DataSelectorValues'));
+import { memo, useCallback, useMemo } from 'react';
 
 interface SMStreamDataSelectorValueProperties {
   readonly id: string;

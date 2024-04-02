@@ -36,6 +36,14 @@ public static class Util
 
     public static string ParamsToCSharp(Type recordType)
     {
+        if (recordType.Name == "ProcessM3UFileRequest")
+        {
+            int aa = 1;
+        }
+        if (recordType.Name == "UpdateM3UFileRequest")
+        {
+            int aa = 1;
+        }
         List<string> stringBuilder = [];
         ConstructorInfo[] constructors = recordType.GetConstructors();
 

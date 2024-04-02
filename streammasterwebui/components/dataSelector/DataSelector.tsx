@@ -680,14 +680,13 @@ interface BaseDataSelectorProperties<T = any> {
   isLoading?: boolean;
   dataKey?: string | undefined;
 
-  // onLazyLoad?: (e: any) => void;
   onMultiSelectClick?: (value: boolean) => void;
   OnReset?: () => void;
   onRowClick?: (event: DataTableRowClickEvent) => void;
   onRowReorder?: (value: T[]) => void;
   onRowVisibleClick?: (value: T) => void;
   onSelectionChange?: (value: T[], selectAll: boolean) => void;
-  // onValueChanged?: (value: T[]) => void;
+
   reorderable?: boolean;
   scrollTo?: number;
   selectedItemsKey: string;

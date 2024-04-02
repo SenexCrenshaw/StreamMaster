@@ -1,16 +1,10 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Application.M3UFiles.CommandsOrig;
 using StreamMaster.Application.VideoStreams.Commands;
 
 namespace StreamMaster.Application.EPGFiles.Commands;
 
-public class UpdateEPGFileRequest : BaseFileRequest, IRequest<EPGFileDto?>
-{
-    public int? EPGNumber { get; set; }
-    public string? Color { get; set; }
-    public int? TimeShift { get; set; }
-}
+public record UpdateEPGFileRequest(int? EPGNumber, string? Color, int? TimeShift, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url) : IRequest<EPGFileDto?>;
 
 public class UpdateEPGFileRequestValidator : AbstractValidator<UpdateEPGFileRequest>
 {

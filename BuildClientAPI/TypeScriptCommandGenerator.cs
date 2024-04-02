@@ -2,148 +2,16 @@
 
 public static class TypeScriptCommandGenerator
 {
-    //private static HashSet<string> additionalIImports = [];
-    public static void GenerateFile(List<MethodDetails> methods, string namespaceName, string filePath, string typePath)
+
+    public static void GenerateFile(List<MethodDetails> methods, string filePath, string typePath)
     {
-        StringBuilder imports = new();
-        StringBuilder tsCommands = new();
-        StringBuilder tsTypes = new();
-        StringBuilder tsTypesImports = new();
-        HashSet<string> typesImports = [];
+        StringBuilder content = new();
 
-
-        //typesImports.Add("DefaultAPIResponse");
-
-        HashSet<string> includes = methods.SelectMany(x => x.SMAPIImport).Distinct().ToHashSet();
-        //additionalIImports = [];
-
-        imports.AppendLine("import SignalRService from '@lib/signalr/SignalRService';");
-        imports.AppendLine();
-        HashSet<string> additionalImports = [];
+        content.Append(AddImports(methods));
 
         foreach (MethodDetails method in methods)
         {
-            if (method.IsGetPaged)
-            {
-                additionalImports.Add("QueryStringParameters");
-            }
-
-            string? toImport = null;
-            if (!string.IsNullOrEmpty(method.TsParameter) && !method.TsParameter.Contains("[]"))
-            {
-                if (method.TsParameter.Contains(","))
-                {
-                    string[] parts = method.TsParameter.Split(",");
-                    string? test = Util.IsTSGeneric(parts[0]);
-                    if (test != null)
-                    {
-
-                        additionalImports.Add(test);
-                    }
-                }
-                else
-                {
-                    toImport = Util.IsTSGeneric(method.TsParameter);
-                    if (toImport != null)
-                    {
-                        if (method.Name.StartsWith("DeleteSMChannels"))
-                        {
-                            int aaa = 1;
-                        }
-                        additionalImports.Add(toImport);
-                    }
-                }
-            }
-
-            if (method.Name.StartsWith("CreateChannelGroup"))
-            {
-                int aaa = 1;
-            }
-
-            if (method.IsGetPaged)
-            {
-                includes.Add("APIResponse");
-                includes.Add("PagedResponse");
-                includes.Add("QueryStringParameters");
-                includes.Add(method.ReturnEntityType);
-                method.ReturnType = method.ReturnType.Replace("APIResponse", "PagedResponse");
-                tsCommands.AppendLine($"export const {method.Name} = async (parameters: QueryStringParameters): Promise<{method.ReturnType} | undefined> => {{");
-                tsCommands.AppendLine("  const signalRService = SignalRService.getInstance();");
-                tsCommands.AppendLine($"  return await signalRService.invokeHubCommand<APIResponse<{method.ReturnEntityType}>>('{method.Name}', parameters)");
-                tsCommands.AppendLine($"    .then((response) => {{");
-                tsCommands.AppendLine("      if (response) {");
-                tsCommands.AppendLine("        return response.pagedResponse;");
-                tsCommands.AppendLine("      }");
-                tsCommands.AppendLine("      return undefined;");
-                tsCommands.AppendLine("    })");
-                tsCommands.AppendLine("    .catch((error) => {");
-                tsCommands.AppendLine("      console.error(error);");
-                tsCommands.AppendLine("      return undefined;");
-                tsCommands.AppendLine("    });");
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(method.TsReturnType))
-                {
-
-                    string? ret = Util.IsTSGeneric(method.TsParameter);
-                    if (!string.IsNullOrEmpty(ret))
-                    {
-                        typesImports.Add(method.TsParameter);
-                    }
-
-                    ret = Util.IsTSGeneric(method.TsReturnType);
-                    if (!string.IsNullOrEmpty(ret) && !method.IsList)
-                    {
-                        typesImports.Add(method.TsReturnType);
-                    }
-
-                }
-
-                if (method.Name.StartsWith("Get") && method.Name.EndsWith("Parameters"))
-                {
-                    method.TsParameter = "Parameters: QueryStringParameters";
-                }
-
-                if (string.IsNullOrEmpty(method.TsParameter))
-                {
-                    tsCommands.AppendLine($"export const {method.Name} = async (): Promise<{method.TsReturnType} | null> => {{");
-                    tsCommands.AppendLine("  const signalRService = SignalRService.getInstance();");
-                    tsCommands.AppendLine($"  return await signalRService.invokeHubCommand<{method.TsReturnType}>('{method.Name}');");
-                }
-                else
-                {
-                    if (method.Parameter == "")
-                    {
-                        tsCommands.AppendLine($"export const {method.Name} = async (): Promise<{method.TsReturnType} | null> => {{");
-                        tsCommands.AppendLine("  const signalRService = SignalRService.getInstance();");
-                        tsCommands.AppendLine($"  return await signalRService.invokeHubCommand<{method.TsReturnType}>('{method.Name}');");
-                    }
-                    else
-                    {
-                        tsCommands.AppendLine($"export const {method.Name} = async (request: {method.TsParameter}): Promise<{method.TsReturnType} | null> => {{");
-                        tsCommands.AppendLine("  const signalRService = SignalRService.getInstance();");
-                        tsCommands.AppendLine($"  return await signalRService.invokeHubCommand<{method.TsReturnType}>('{method.Name}', request);");
-                    }
-
-                }
-
-            }
-
-            tsCommands.AppendLine("};");
-            tsCommands.AppendLine();
-        }
-
-        if (includes.Count > 0)
-        {
-            string additionals = string.Join(",", includes);
-            imports.Insert(0, $"import {{{additionals}}} from '@lib/smAPI/smapiTypes';\n");
-        }
-
-        if (additionalImports.Count > 0 || typesImports.Count > 0)
-        {
-            string additionals = string.Join(",", typesImports);
-            imports.Insert(0, $"import {{{additionals}}} from '@lib/smAPI/smapiTypes';\n");
+            content.Append(AddMethod(method));
         }
 
         string directory = Directory.GetParent(filePath).ToString();
@@ -151,7 +19,111 @@ public static class TypeScriptCommandGenerator
         {
             Directory.CreateDirectory(directory);
         }
-        File.WriteAllText(filePath, imports.ToString() + tsCommands.ToString());
+        File.WriteAllText(filePath, content.ToString());
 
+    }
+
+    private static string AddMethod(MethodDetails method)
+    {
+        if (method.Name.StartsWith("CreateChannelGroup"))
+        {
+            int aaa = 1;
+        }
+        StringBuilder content = new();
+
+        if (method.IsGetPaged)
+        {
+            method.ReturnType = method.ReturnType.Replace("APIResponse", "PagedResponse");
+            content.AppendLine($"export const {method.Name} = async (parameters: QueryStringParameters): Promise<{method.ReturnType} | undefined> => {{");
+            content.AppendLine("  const signalRService = SignalRService.getInstance();");
+            content.AppendLine($"  return await signalRService.invokeHubCommand<APIResponse<{method.ReturnEntityType}>>('{method.Name}', parameters)");
+            content.AppendLine($"    .then((response) => {{");
+            content.AppendLine("      if (response) {");
+            content.AppendLine("        return response.pagedResponse;");
+            content.AppendLine("      }");
+            content.AppendLine("      return undefined;");
+            content.AppendLine("    })");
+            content.AppendLine("    .catch((error) => {");
+            content.AppendLine("      console.error(error);");
+            content.AppendLine("      return undefined;");
+            content.AppendLine("    });");
+        }
+        else
+        {
+
+
+            if (method.Name.StartsWith("Get") && method.Name.EndsWith("Parameters"))
+            {
+                method.TsParameter = "Parameters: QueryStringParameters";
+            }
+
+            if (string.IsNullOrEmpty(method.TsParameter))
+            {
+                content.AppendLine($"export const {method.Name} = async (): Promise<{method.TsReturnType} | null> => {{");
+                content.AppendLine("  const signalRService = SignalRService.getInstance();");
+                content.AppendLine($"  return await signalRService.invokeHubCommand<{method.TsReturnType}>('{method.Name}');");
+            }
+            else
+            {
+                if (method.Parameter == "")
+                {
+                    content.AppendLine($"export const {method.Name} = async (): Promise<{method.TsReturnType} | null> => {{");
+                    content.AppendLine("  const signalRService = SignalRService.getInstance();");
+                    content.AppendLine($"  return await signalRService.invokeHubCommand<{method.TsReturnType}>('{method.Name}');");
+                }
+                else
+                {
+                    content.AppendLine($"export const {method.Name} = async (request: {method.TsParameter}): Promise<{method.TsReturnType} | null> => {{");
+                    content.AppendLine("  const signalRService = SignalRService.getInstance();");
+                    content.AppendLine($"  return await signalRService.invokeHubCommand<{method.TsReturnType}>('{method.Name}', request);");
+                }
+
+            }
+
+        }
+
+        content.AppendLine("};");
+        content.AppendLine();
+        return content.ToString();
+    }
+
+    private static string AddImports(List<MethodDetails> methods)
+    {
+        StringBuilder content = new();
+
+        //HashSet<string> includes = methods.Where(a => !a.IsGetPaged).SelectMany(x => new[] { x.ReturnEntityType, x.SingalRFunction }).ToHashSet();
+        //HashSet<string> returns = methods.Where(a => a.IsGetPaged).Select(x => x.ReturnEntityType).ToHashSet();
+
+        HashSet<string> includes = methods
+        .Where(a => !a.IsGet)
+        .SelectMany(x => new[] { x.ReturnEntityType, x.SingalRFunction })
+        .Union(methods.Where(a => a.IsGet).Select(x => x.ReturnEntityType))
+        .ToHashSet();
+
+        List<string> imports = [];
+        foreach (string inc in includes)
+        {
+
+            string? test = Util.IsTSGeneric(inc);
+            if (!string.IsNullOrEmpty(test)) { imports.Add(inc); }
+        }
+
+        if (methods.Any(a => a.Name.Contains("GetPagedM3UFiles")))
+        {
+            int aa = 1;
+            MethodDetails b = methods.First(a => a.Name == "GetPagedM3UFiles");
+        }
+
+        if (methods.Any(a => a.IsGetPaged))
+        {
+            imports.Add("APIResponse");
+            imports.Add("PagedResponse");
+            imports.Add("QueryStringParameters");
+        }
+
+        content.AppendLine("import SignalRService from '@lib/signalr/SignalRService';");
+        content.AppendLine($"import {{ {string.Join(",", imports)} }} from '@lib/smAPI/smapiTypes';");
+        content.AppendLine();
+        return content.ToString();
     }
 }

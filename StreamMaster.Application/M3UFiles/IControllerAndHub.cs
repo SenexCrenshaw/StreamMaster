@@ -10,6 +10,7 @@ namespace StreamMaster.Application.M3UFiles
     Task<ActionResult<DefaultAPIResponse>> DeleteM3UFile(DeleteM3UFileRequest request);
     Task<ActionResult<APIResponse<M3UFileDto>>> GetPagedM3UFiles(QueryStringParameters Parameters);
     Task<ActionResult<DefaultAPIResponse>> RefreshM3UFile(RefreshM3UFileRequest request);
+    Task<ActionResult<DefaultAPIResponse>> UpdateM3UFile(UpdateM3UFileRequest request);
     }
 }
 
@@ -22,5 +23,6 @@ namespace StreamMaster.Application.Hubs
         Task<APIResponse<M3UFileDto>> GetPagedM3UFiles(QueryStringParameters Parameters);
         Task<DefaultAPIResponse> ProcessM3UFile(ProcessM3UFileRequest request);
         Task<DefaultAPIResponse> RefreshM3UFile(RefreshM3UFileRequest request);
+        Task<DefaultAPIResponse> UpdateM3UFile(UpdateM3UFileRequest request);
     }
 }

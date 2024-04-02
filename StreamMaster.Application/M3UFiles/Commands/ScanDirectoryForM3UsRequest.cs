@@ -5,7 +5,8 @@ public record ScanDirectoryForM3UFilesRequest : IRequest<bool> { }
 
 
 [LogExecutionTimeAspect]
-public class ScanDirectoryForM3UFilesRequestHandler(IPublisher Publisher, IRepositoryWrapper Repository, IMapper Mapper) : IRequestHandler<ScanDirectoryForM3UFilesRequest, bool>
+public class ScanDirectoryForM3UFilesRequestHandler(IPublisher Publisher, IRepositoryWrapper Repository, IMapper Mapper)
+    : IRequestHandler<ScanDirectoryForM3UFilesRequest, bool>
 {
     public async Task<bool> Handle(ScanDirectoryForM3UFilesRequest command, CancellationToken cancellationToken)
     {

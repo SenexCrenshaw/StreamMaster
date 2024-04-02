@@ -1,5 +1,5 @@
-import {IconFileDto} from '@lib/smAPI/smapiTypes';
 import SignalRService from '@lib/signalr/SignalRService';
+import { IconFileDto } from '@lib/smAPI/smapiTypes';
 
 export const GetIcons = async (): Promise<IconFileDto[] | null> => {
   const signalRService = SignalRService.getInstance();

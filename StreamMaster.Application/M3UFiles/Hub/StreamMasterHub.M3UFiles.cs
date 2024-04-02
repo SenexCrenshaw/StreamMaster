@@ -17,11 +17,6 @@ public partial class StreamMasterHub
         await Sender.Send(new ScanDirectoryForM3UFilesRequest()).ConfigureAwait(false);
     }
 
-    public async Task UpdateM3UFile(UpdateM3UFileRequest request)
-    {
-        await Sender.Send(request).ConfigureAwait(false);
-    }
-
     public async Task<M3UFileDto?> GetM3UFile(int id)
     {
         return await Sender.Send(new GetM3UFileQuery(id)).ConfigureAwait(false);

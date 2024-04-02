@@ -64,10 +64,12 @@ public static class TypeScriptSliceGenerator
         {
             content.AppendLine("import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';");
         }
-
-        if (method.IsGet)
+        else
         {
-            content.AppendLine("import { updateFieldInData } from '@lib/redux/updateFieldInData';");
+            if (method.IsGet)
+            {
+                content.AppendLine("import { updateFieldInData } from '@lib/redux/updateFieldInData';");
+            }
         }
 
         content.AppendLine();

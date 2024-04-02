@@ -1,30 +1,22 @@
-﻿using StreamMaster.Application.M3UFiles.Commands;
+﻿namespace StreamMaster.Application.M3UFiles.Commands;
 
-namespace StreamMaster.Application.M3UFiles.CommandsOrig;
-
-public class UpdateM3UFileRequest : BaseFileRequest, IRequest<M3UFile?>
-{
-    //public int? StreamURLPrefixInt { get; set; }
-    public int? MaxStreamCount { get; set; }
-    public int? StartingChannelNumber { get; set; }
-    public bool? OverWriteChannels { get; set; }
-    public List<string>? VODTags { get; set; }
-}
-
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record UpdateM3UFileRequest(int? MaxStreamCount, int? StartingChannelNumber, bool? OverWriteChannels, List<string>? VODTags, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url)
+    : IRequest<DefaultAPIResponse>;
 
 [LogExecutionTimeAspect]
-public class UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, IRepositoryWrapper Repository, IMapper Mapper, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
-    : IRequestHandler<UpdateM3UFileRequest, M3UFile?>
+public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IMapper Mapper, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+    : IRequestHandler<UpdateM3UFileRequest, DefaultAPIResponse>
 {
-    public async Task<M3UFile?> Handle(UpdateM3UFileRequest request, CancellationToken cancellationToken)
+    public async Task<DefaultAPIResponse> Handle(UpdateM3UFileRequest request, CancellationToken cancellationToken)
     {
         try
         {
-
             M3UFile? m3uFile = await Repository.M3UFile.GetM3UFile(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
             {
-                return null;
+                return DefaultAPIResponse.NotFound;
             }
 
             bool isChanged = false;
@@ -104,11 +96,12 @@ public class UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, I
                 await HubContext.Clients.All.M3UFilesRefresh().ConfigureAwait(false);
             }
 
-            return m3uFile;
+            return DefaultAPIResponse.Ok;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            return DefaultAPIResponse.ErrorWithMessage($"Failed M3U update : {ex}");
         }
-        return null;
+
     }
 }

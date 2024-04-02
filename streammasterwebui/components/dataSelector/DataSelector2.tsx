@@ -648,7 +648,6 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
   const rowExpansionTemplate = useCallback(
     (data: DataTableRowData<T[]>, options: DataTableRowExpansionTemplate) => {
       const channel = data as unknown as SMChannelDto;
-      console.log('rowExpansionTemplate', channel, props.selectedSMChannelKey, props.selectedSMStreamKey);
       return (
         <div className="border-2 border-round-lg border-200 ml-3 m-1">
           <SMStreamDataSelectorValue

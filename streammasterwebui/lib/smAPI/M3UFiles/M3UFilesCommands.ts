@@ -1,6 +1,5 @@
-import {CreateM3UFileRequest,DefaultAPIResponse,DeleteM3UFileRequest,ProcessM3UFileRequest,RefreshM3UFileRequest} from '@lib/smAPI/smapiTypes';
-import {APIResponse,PagedResponse,QueryStringParameters,M3UFileDto} from '@lib/smAPI/smapiTypes';
 import SignalRService from '@lib/signalr/SignalRService';
+import { DefaultAPIResponse,CreateM3UFileRequest,DeleteM3UFileRequest,ProcessM3UFileRequest,RefreshM3UFileRequest,UpdateM3UFileRequest,M3UFileDto,APIResponse,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const CreateM3UFile = async (request: CreateM3UFileRequest): Promise<DefaultAPIResponse | null> => {
   const signalRService = SignalRService.getInstance();
@@ -35,5 +34,10 @@ export const ProcessM3UFile = async (request: ProcessM3UFileRequest): Promise<De
 export const RefreshM3UFile = async (request: RefreshM3UFileRequest): Promise<DefaultAPIResponse | null> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<DefaultAPIResponse>('RefreshM3UFile', request);
+};
+
+export const UpdateM3UFile = async (request: UpdateM3UFileRequest): Promise<DefaultAPIResponse | null> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<DefaultAPIResponse>('UpdateM3UFile', request);
 };
 

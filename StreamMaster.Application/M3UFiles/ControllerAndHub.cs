@@ -38,6 +38,14 @@ namespace StreamMaster.Application.M3UFiles
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
+        [HttpPatch]
+        [Route("[action]")]
+        public async Task<ActionResult<DefaultAPIResponse>> UpdateM3UFile(UpdateM3UFileRequest request)
+        {
+            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
     }
 }
 
@@ -70,6 +78,12 @@ namespace StreamMaster.Application.Hubs
         }
 
         public async Task<DefaultAPIResponse> RefreshM3UFile(RefreshM3UFileRequest request)
+        {
+            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<DefaultAPIResponse> UpdateM3UFile(UpdateM3UFileRequest request)
         {
             DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

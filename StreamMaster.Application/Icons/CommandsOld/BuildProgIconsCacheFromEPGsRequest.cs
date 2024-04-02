@@ -1,4 +1,4 @@
-﻿namespace StreamMaster.Application.Icons.Commands;
+﻿namespace StreamMaster.Application.Icons.CommandsOld;
 
 public class BuildProgIconsCacheFromEPGsRequest : IRequest<bool> { }
 

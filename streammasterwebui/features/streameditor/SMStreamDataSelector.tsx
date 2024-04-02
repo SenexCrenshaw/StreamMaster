@@ -1,5 +1,7 @@
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import M3UFilesEditor2 from '@components/m3u/M3UFilesEditor';
+import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
+import StreamVisibleDialog from '@components/smstreams/StreamVisibleDialog';
 import { GetMessage } from '@lib/common/common';
 import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreams';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
@@ -10,8 +12,6 @@ import { AddSMStreamToSMChannelRequest, CreateSMChannelFromStreamRequest, SMStre
 
 import { lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
 const DataSelector2 = lazy(() => import('@components/dataSelector/DataSelector2'));
-const StreamCopyLinkDialog = lazy(() => import('@components/smstreams/StreamCopyLinkDialog'));
-const StreamVisibleDialog = lazy(() => import('@components/smstreams/StreamVisibleDialog'));
 
 interface SMStreamDataSelectorProperties {
   readonly enableEdit?: boolean;

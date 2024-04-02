@@ -182,7 +182,7 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
 
       return {};
     },
-    [props.selectRow, props.videoStreamIdsIsReadOnly]
+    [props.videoStreamIdsIsReadOnly]
   );
 
   const exportCSV = () => {
@@ -228,53 +228,53 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
     return 'single';
   }, [props.selectionMode]);
 
-  const onSelectionChange = useCallback(
-    (e: DataTableSelectionMultipleChangeEvent<T[]> | DataTableSelectionSingleChangeEvent<T[]>) => {
-      if (e.value === null || e.value === undefined || !Array.isArray(e.value)) {
-        return;
-      }
+  // const onSelectionChange = useCallback(
+  //   (e: DataTableSelectionMultipleChangeEvent<T[]> | DataTableSelectionSingleChangeEvent<T[]>) => {
+  //     if (e.value === null || e.value === undefined || !Array.isArray(e.value)) {
+  //       return;
+  //     }
 
-      if (props.selectionMode === 'single') {
-        if (e.value !== undefined && Array.isArray(e.value)) {
-          if (e.value.length > 1) {
-            onSetSelection(e.value[1]);
-          } else {
-            onSetSelection(e.value[0]);
-          }
-        } else {
-          onSetSelection(e.value);
-        }
-        return;
-      }
+  //     if (props.selectionMode === 'single') {
+  //       if (e.value !== undefined && Array.isArray(e.value)) {
+  //         if (e.value.length > 1) {
+  //           onSetSelection(e.value[1]);
+  //         } else {
+  //           onSetSelection(e.value[0]);
+  //         }
+  //       } else {
+  //         onSetSelection(e.value);
+  //       }
+  //       return;
+  //     }
 
-      if (props.selectionMode === 'multiple') {
-        if (Array.isArray(e.value)) {
-          onSetSelection(e.value);
-        } else {
-          onSetSelection([e.value]);
-        }
+  //     if (props.selectionMode === 'multiple') {
+  //       if (Array.isArray(e.value)) {
+  //         onSetSelection(e.value);
+  //       } else {
+  //         onSetSelection([e.value]);
+  //       }
 
-        return;
-      }
+  //       return;
+  //     }
 
-      let sel = [] as T[];
+  //     let sel = [] as T[];
 
-      if (Array.isArray(e.value)) {
-        const single1 = e.value.slice(-1, e.value.length);
+  //     if (Array.isArray(e.value)) {
+  //       const single1 = e.value.slice(-1, e.value.length);
 
-        sel = single1;
-      } else {
-        sel = [e.value];
-      }
+  //       sel = single1;
+  //     } else {
+  //       sel = [e.value];
+  //     }
 
-      if (props.reorderable === true && props.onSelectionChange) {
-        props.onSelectionChange(sel, state.selectAll);
-      }
+  //     if (props.reorderable === true && props.onSelectionChange) {
+  //       props.onSelectionChange(sel, state.selectAll);
+  //     }
 
-      onSetSelection(sel);
-    },
-    [onSetSelection, props, state.selectAll]
-  );
+  //     onSetSelection(sel);
+  //   },
+  //   [onSetSelection, props, state.selectAll]
+  // );
 
   const getAlign = useCallback((align: ColumnAlign | null | undefined, fieldType: ColumnFieldType): ColumnAlign => {
     if (fieldType === 'image') {

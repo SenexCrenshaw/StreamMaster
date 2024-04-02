@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace StreamMaster.Application.Icons.Commands;
+namespace StreamMaster.Application.Icons.CommandsOld;
 
 public class ScanDirectoryForIconFilesRequest : IRequest<bool>
 {

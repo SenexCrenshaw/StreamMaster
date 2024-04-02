@@ -62,7 +62,7 @@ namespace BuildClientAPI
 
                     List<string> smapiImport = [];
 
-                    if (recordType.Name.StartsWith("GetIcons"))
+                    if (recordType.Name.StartsWith("UpdateM3UFile"))
                     {
                         string returntype = GetCleanReturnType(returnType);
                         string returntypeTS = GetCleanTSReturnType(returnType);
@@ -123,7 +123,7 @@ namespace BuildClientAPI
 
                     }
 
-                    if (recordType.Name.StartsWith("AddSMStreamToSMChannel"))
+                    if (recordType.Name.StartsWith("UpdateM3UFile"))
                     {
                         List<ParameterInfo> test = parameters.ToList();
                         List<string> aa = parameters.Select(p => $"{p.ParameterType.Name}").ToList();
@@ -131,7 +131,7 @@ namespace BuildClientAPI
                         List<Type> aaa2 = Util.GetConstructorAndParameterTypes(returnType);
                     }
 
-                    if (recordType.Name.StartsWith("GetIcons"))
+                    if (recordType.Name.StartsWith("UpdateM3UFile"))
                     {
 
                         int aaa = 1;
@@ -155,7 +155,7 @@ namespace BuildClientAPI
 
                         string tsCommandFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Commands.ts");
                         string tsTypeFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Types.ts");
-                        TypeScriptCommandGenerator.GenerateFile(methods, namespaceName, tsCommandFilePath, tsTypeFilePath);
+                        TypeScriptCommandGenerator.GenerateFile(methods, tsCommandFilePath, tsTypeFilePath);
 
                         string tsFetchFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Fetch.ts");
                         TypeScriptFetchGenerator.GenerateFile(namespaceName, methods, tsFetchFilePath);

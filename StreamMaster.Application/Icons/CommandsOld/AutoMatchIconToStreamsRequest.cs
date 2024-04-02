@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace StreamMaster.Application.Icons.Commands;
+namespace StreamMaster.Application.Icons.CommandsOld;
 
 public record AutoMatchIconToStreamsRequest(List<string> Ids) : IRequest<IconFileDto?> { }
 

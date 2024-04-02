@@ -8,7 +8,7 @@ public static class TypeScriptHookGenerator
         foreach (MethodDetails method in methods.Where(a => a.Name.StartsWith("Get")))
         {
             StringBuilder content = new();
-            AddImports(content, method);
+            content.Append(AddImports(method));
             content.Append(GenerateInterfaces(method));
 
             content.Append(GenerateHookContent(method));
@@ -53,8 +53,9 @@ public static class TypeScriptHookGenerator
         return content.ToString();
     }
 
-    private static void AddImports(StringBuilder content, MethodDetails method)
+    private static string AddImports(MethodDetails method)
     {
+        StringBuilder content = new();
         string fetchActionName = $"fetch{method.Name}";
         string p = "QueryHookResult";
         if (method.IsGetPaged)
@@ -82,6 +83,7 @@ public static class TypeScriptHookGenerator
 
         content.AppendLine($"import {{FieldData, {string.Join(",", pList)} }} from '@lib/smAPI/smapiTypes';");
         content.AppendLine();
+        return content.ToString();
     }
 
     private static string GenerateHeader(MethodDetails method)

@@ -1,5 +1,5 @@
 ﻿using StreamMaster.Application.Icons;
-using StreamMaster.Application.Icons.Commands;
+using StreamMaster.Application.Icons.CommandsOld;
 using StreamMaster.Application.Icons.Queries;
 
 namespace StreamMaster.Application.Hubs;
