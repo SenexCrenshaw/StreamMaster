@@ -4,7 +4,7 @@ export function imageBodyTemplate(data: object, fieldName: string, defaultIcon: 
   const record = getRecordString(data, fieldName);
 
   return (
-    <div className="iconselector flex align-contents-center w-full min-w-full">
+    <div className="iconselector flex align-contents-center justify-content-center w-full min-w-full">
       <img
         alt={record ?? 'Logo'}
         className="max-h-1rem max-w-full p-0"

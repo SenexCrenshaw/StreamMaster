@@ -324,8 +324,8 @@
     font-size: 1rem;
   }
   .p-icon {
-    /* width: 1rem; */
-    /* height: 1rem; */
+    width: 1rem;
+    height: 1rem;
   }
   .p-link {
     font-family: var(--font-family);
@@ -792,11 +792,11 @@
   .p-checkbox .p-checkbox-box .p-checkbox-icon {
     transition-duration: 0.3s;
     color: rgba(255, 255, 255, 0.6);
-    /* font-size: 14px; */
+    font-size: 14px;
   }
   .p-checkbox .p-checkbox-box .p-checkbox-icon.p-icon {
-    /* width: 14px; */
-    /* height: 14px; */
+    width: 14px;
+    height: 14px;
   }
   .p-checkbox .p-checkbox-box {
     border: 2px solid #263238;
@@ -811,11 +811,11 @@
   .p-checkbox .p-checkbox-box .p-checkbox-icon {
     transition-duration: 0.3s;
     color: rgba(255, 255, 255, 0.6);
-    /* font-size: 14px; */
+    font-size: 14px;
   }
   .p-checkbox .p-checkbox-box .p-checkbox-icon.p-icon {
-    /* width: 14px; */
-    /* height: 14px; */
+    width: 14px;
+    height: 14px;
   }
   .p-checkbox.p-highlight .p-checkbox-box {
     border-color: #9eade6;
@@ -6858,6 +6858,7 @@
 }
 
 .numbereditorbody {
+  padding-top: 0.2rem;
   padding-left: 0.1rem;
   padding-right: 0.1rem;
 }
@@ -6937,6 +6938,10 @@
 }
 .smbutton .p-checkbox {
   font-size: 0.75rem;
+}
+
+.sm-expander .p-row-toggler {
+  max-height: 1.6rem;
 }
 
 .p-datatable {
@@ -7196,7 +7201,7 @@
 
 .icon-template img,
 .default-icon {
-  max-width: 1.3rem;
+  max-width: 1rem;
   max-height: 1.3rem;
   object-fit: contain;
 }

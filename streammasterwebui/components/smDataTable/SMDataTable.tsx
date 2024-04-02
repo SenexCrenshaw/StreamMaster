@@ -459,8 +459,8 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           <Column
             className={
               showSelection
-                ? 'w-3rem max-w-3rem p-0 justify-content-center align-items-center'
-                : 'w-2rem max-w-2rem p-0 justify-content-center align-items-center'
+                ? 'w-3rem max-w-3rem p-0 justify-content-center align-items-center sm-expander'
+                : 'w-2rem max-w-2rem p-0 justify-content-center align-items-center sm-expander'
             }
             hidden={!props.showExpand}
             showFilterMenu={false}

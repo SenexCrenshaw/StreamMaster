@@ -159,10 +159,9 @@
 }
 
 .numbereditorbody {
+    padding-top: $input-padding*2;
     padding-left: 0.1rem;
     padding-right: 0.1rem;
-
-
 
     .save {
         .p-inputtext {
@@ -250,4 +249,10 @@
         font-size: $common-font-size;
     }
 
+}
+
+.sm-expander {
+    .p-row-toggler {
+        max-height: $input-height;
+    }
 }

@@ -6858,6 +6858,7 @@
 }
 
 .numbereditorbody {
+  padding-top: 0.2rem;
   padding-left: 0.1rem;
   padding-right: 0.1rem;
 }
@@ -6937,6 +6938,10 @@
 }
 .smbutton .p-checkbox {
   font-size: 0.75rem;
+}
+
+.sm-expander .p-row-toggler {
+  max-height: 1.6rem;
 }
 
 .p-datatable {
@@ -7196,7 +7201,7 @@
 
 .icon-template img,
 .default-icon {
-  max-width: 1.3rem;
+  max-width: 1rem;
   max-height: 1.3rem;
   object-fit: contain;
 }
