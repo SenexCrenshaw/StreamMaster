@@ -18,14 +18,18 @@ import selectedVideoStreamsSliceReducer from '@lib/redux/slices/selectedVideoStr
 import showHiddenSliceReducer from '@lib/redux/slices/showHiddenSlice';
 import showSelectionsSliceReducer from '@lib/redux/slices/showSelectionsSlice';
 import sortInfoSliceReducer from '@lib/redux/slices/sortInfoSlice';
-import GetPagedSMStreams from '@lib/smAPI/SMStreams/GetPagedSMStreamsSlice';
-import GetPagedSMChannels from '@lib/smAPI/SMChannels/GetPagedSMChannelsSlice';
-import GetSettings from '@lib/smAPI/Settings/GetSettingsSlice';
-import GetIsSystemReady from '@lib/smAPI/Settings/GetIsSystemReadySlice';
-import GetSystemStatus from '@lib/smAPI/Settings/GetSystemStatusSlice';
+import GetPagedChannelGroups from '@lib/smAPI/ChannelGroups/GetPagedChannelGroupsSlice';
 import GetIcons from '@lib/smAPI/Icons/GetIconsSlice';
 import GetPagedM3UFiles from '@lib/smAPI/M3UFiles/GetPagedM3UFilesSlice';
-import GetPagedChannelGroups from '@lib/smAPI/ChannelGroups/GetPagedChannelGroupsSlice';
+import GetPagedSMChannels from '@lib/smAPI/SMChannels/GetPagedSMChannelsSlice';
+import GetPagedSMStreams from '@lib/smAPI/SMStreams/GetPagedSMStreamsSlice';
+import GetIsSystemReady from '@lib/smAPI/Settings/GetIsSystemReadySlice';
+import GetSettings from '@lib/smAPI/Settings/GetSettingsSlice';
+import GetSystemStatus from '@lib/smAPI/Settings/GetSystemStatusSlice';
+
+import GetPagedStreamGroups from '@lib/smAPI/StreamGroups/GetPagedStreamGroupsSlice';
+
+import anySlice from '@lib/redux/slices/anySlice';
 
 import SMMessagesReducer from '@lib/redux/slices/messagesSlice';
 
@@ -100,11 +104,11 @@ const selectedItemsConfig = {
 
 const rootReducer = combineReducers({
   appInfo: appInfoSliceReducer,
-
+  any: anySlice,
   channelGroupToRemove: channelGroupToRemoveSliceReducer,
   queryAdditionalFilters: queryAdditionalFiltersReducer,
   queryFilter: queryFilterReducer,
-
+  GetPagedStreamGroups: GetPagedStreamGroups,
   GetPagedChannelGroups: GetPagedChannelGroups,
   GetPagedM3UFiles: GetPagedM3UFiles,
   GetPagedSMChannels: GetPagedSMChannels,

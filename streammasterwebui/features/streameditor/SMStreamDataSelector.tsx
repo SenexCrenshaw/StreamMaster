@@ -1,4 +1,5 @@
-import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
+import AddButton from '@components/buttons/AddButton';
+
 import M3UFilesEditor2 from '@components/m3u/M3UFilesEditor';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamVisibleDialog from '@components/smstreams/StreamVisibleDialog';
@@ -8,18 +9,24 @@ import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { AddSMStreamToSMChannel, CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
-import { AddSMStreamToSMChannelRequest, CreateSMChannelFromStreamRequest, SMStreamDto } from '@lib/smAPI/smapiTypes';
+import { CreateSMChannelFromStreamRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 
-import { lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
-const DataSelector2 = lazy(() => import('@components/dataSelector/DataSelector2'));
+import { ColumnMeta } from '@components/smDataTable/ColumnMeta';
+import SMDataTable from '@components/smDataTable/SMDataTable';
+import { DataTableRowClickEvent, DataTableRowEvent, DataTableValue } from 'primereact/datatable';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import useSelectedSMItems from './useSelectedSMItems';
 
 interface SMStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
   readonly id: string;
+  readonly showSelections?: boolean;
 }
 
-const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataSelectorProperties) => {
+const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections }: SMStreamDataSelectorProperties) => {
   const dataKey = `${id}-SMStreamDataSelector`;
+  const { selectedSMChannel, setSelectedSMChannel, selectSelectedItems } = useSelectedSMItems();
+
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { setSelectedSMStreams } = useSelectSMStreams(dataKey);
 
@@ -58,7 +65,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataS
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'logo', fieldType: 'image', width: '4rem' },
+      { field: 'logo', fieldType: 'image', width: '4rem', header: '' },
       { field: 'name', filter: true, sortable: true },
       { field: 'group', filter: true, sortable: true, width: '5rem' },
       { field: 'm3UFileName', filter: true, header: 'M3U', sortable: true, width: '5rem' },
@@ -73,6 +80,74 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataS
     ],
     [actionBodyTemplate]
   );
+
+  const addOrRemoveTemplate = useCallback(
+    (data: any) => {
+      const found = selectSelectedItems.some((item) => item.id === data.id);
+      const isSelected = found ?? false;
+      let toolTip = 'Add Channel';
+      if (selectedSMChannel !== undefined) {
+        toolTip = 'Add Stream To "' + selectedSMChannel.name + '"';
+        return (
+          <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+            <AddButton
+              iconFilled={false}
+              onClick={() => {
+                AddSMStreamToSMChannel({ smStreamId: data.id, smChannelId: selectedSMChannel?.id ?? 0 })
+                  .then((response) => {})
+                  .catch((error) => {
+                    console.error(error.message);
+                    throw error;
+                  });
+              }}
+              tooltip={toolTip}
+            />
+
+            {/* {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />} */}
+          </div>
+        );
+      }
+
+      return (
+        <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+          <AddButton
+            iconFilled={false}
+            onClick={() => {
+              CreateSMChannelFromStream({ streamId: data.id } as CreateSMChannelFromStreamRequest)
+                .then((response) => {})
+                .catch((error) => {
+                  console.error(error.message);
+                  throw error;
+                });
+            }}
+            tooltip={toolTip}
+          />
+          {/* {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />} */}
+        </div>
+      );
+    },
+    [selectSelectedItems, selectedSMChannel]
+  );
+
+  function addOrRemoveHeaderTemplate() {
+    const isSelected = false;
+
+    if (!isSelected) {
+      return (
+        <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+          {/* <AddButton iconFilled={false} onClick={() => console.log('AddButton')} tooltip="Add All Channels" /> */}
+          {/* {showSelection && <Checkbox checked={state.selectAll} className="pl-1" onChange={() => toggleAllSelection()} />} */}
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+        <AddButton iconFilled={false} onClick={() => console.log('AddButton')} />
+        {/* {showSelection && <Checkbox checked={state.selectAll} className="pl-1" onChange={() => toggleAllSelection()} />} */}
+      </div>
+    );
+  }
 
   const rightHeaderTemplate = useMemo(
     () => (
@@ -92,43 +167,47 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id }: SMStreamDataS
     []
   );
 
+  const setSelectedSMEntity = useCallback(
+    (data: DataTableValue, toggle?: boolean) => {
+      if (toggle === true && selectedSMChannel !== undefined && data !== undefined && data.id === selectedSMChannel.id) {
+        setSelectedSMChannel(undefined);
+      } else {
+        setSelectedSMChannel(data as SMChannelDto);
+      }
+    },
+    [selectedSMChannel, setSelectedSMChannel]
+  );
+
   return (
-    <DataSelector2
+    <SMDataTable
       columns={columns}
       defaultSortField="name"
       defaultSortOrder={1}
+      addOrRemoveTemplate={addOrRemoveTemplate}
+      addOrRemoveHeaderTemplate={addOrRemoveHeaderTemplate}
       emptyMessage="No Streams"
       headerName={GetMessage('m3ustreams').toUpperCase()}
       headerRightTemplate={rightHeaderTemplate}
       isLoading={isLoading}
       id={dataKey}
-      onChannelAdd={(e) => {
-        CreateSMChannelFromStream({ streamId: e.id } as CreateSMChannelFromStreamRequest)
-          .then((response) => {})
-          .catch((error) => {
-            console.error(error.message);
-            throw error;
-          });
-      }}
-      onStreamAdd={(e: AddSMStreamToSMChannelRequest) => {
-        AddSMStreamToSMChannel(e)
-          .then((response) => {})
-          .catch((error) => {
-            console.error(error.message);
-            throw error;
-          });
-      }}
-      onDelete={(e) => {
-        console.log('Delete', e);
-      }}
       onSelectionChange={(value, selectAll) => {
         if (selectAll !== true) {
           setSelectedSMStreams(value as SMStreamDto[]);
         }
       }}
+      onClick={(e: any) => {
+        if (e.target.className && e.target.className === 'p-datatable-wrapper') {
+          setSelectedSMChannel(undefined);
+        }
+      }}
+      onRowExpand={(e: DataTableRowEvent) => {
+        setSelectedSMEntity(e.data);
+      }}
+      onRowClick={(e: DataTableRowClickEvent) => {
+        setSelectedSMEntity(e.data, true);
+        // props.onRowClick?.(e);
+      }}
       queryFilter={useGetPagedSMStreams}
-      selectedSMStreamKey="SMChannelDataSelector"
-      selectedSMChannelKey="SMChannelDataSelector"
       selectedItemsKey="selectSelectedSMStreamDtoItems"
       style={{ height: 'calc(100vh - 10px)' }}
     />

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Application.StreamGroups.Commands;
-using StreamMaster.Domain.Pagination;
 using StreamMaster.Domain.Requests;
 
 namespace StreamMaster.Application.StreamGroups;
@@ -19,7 +18,6 @@ public interface IStreamGroupController
 
     Task<IActionResult> GetStreamGroupM3U(string encodedId);
 
-    Task<ActionResult<PagedResponse<StreamGroupDto>>> GetPagedStreamGroups(StreamGroupParameters parameters);
 
 
     Task<ActionResult> UpdateStreamGroup(UpdateStreamGroupRequest request);
@@ -40,7 +38,6 @@ public interface IStreamGroupHub
 
     Task<StreamGroupDto?> GetStreamGroup(int StreamGroupNumber);
 
-    Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(StreamGroupParameters streamGroupParameters);
 
     Task UpdateStreamGroup(UpdateStreamGroupRequest request);
 

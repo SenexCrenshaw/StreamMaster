@@ -2,7 +2,7 @@ import { formatJSONDateString, getTopToolOptions } from '@lib/common/common';
 
 import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox';
 import { memo, useCallback, useMemo } from 'react';
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
+
 import NumberEditorBodyTemplate from '../inputs/NumberEditorBodyTemplate';
 import StringEditorBodyTemplate from '../inputs/StringEditorBodyTemplate';
 import M3UFileRefreshDialog from './M3UFileRefreshDialog';
@@ -10,9 +10,11 @@ import M3UFileRemoveDialog from './M3UFileRemoveDialog';
 
 import M3UFileTagsDialog from './M3UFileTagsDialog';
 
-import SMDataSelector from '@components/dataSelector/SMDataSelector';
-import { M3UFileDto } from '@lib/smAPI/smapiTypes';
+import { ColumnMeta } from '@components/smDataTable/ColumnMeta';
 import useGetPagedM3UFiles from '@lib/smAPI/M3UFiles/useGetPagedM3UFiles';
+import { M3UFileDto } from '@lib/smAPI/smapiTypes';
+import { DataTableRowExpansionTemplate } from 'primereact/datatable';
+import SMDataTable from '../smDataTable/SMDataTable';
 interface M3UUpdateProperties {
   id: number;
   auto?: boolean | null;
@@ -283,6 +285,45 @@ const M3UFilesDataSelector = () => {
     },
     [onM3UUpdateClick]
   );
+  const expandedColumns = useMemo(
+    (): ColumnMeta[] => [
+      { bodyTemplate: urlEditorBodyTemplate, field: 'url', sortable: true },
+      {
+        bodyTemplate: startingChannelNumberTemplate,
+        field: 'startingChannelNumber',
+        header: 'Start Ch#',
+        sortable: true,
+        width: '6rem'
+      },
+      {
+        bodyTemplate: maxStreamCountTemplate,
+        field: 'maxStreamCount',
+        header: 'Max Streams',
+        sortable: true,
+        width: '8rem'
+      },
+      {
+        align: 'center',
+        bodyTemplate: actionBodyTemplate,
+        field: 'autoUpdate',
+        width: '16rem'
+      },
+      { align: 'center', bodyTemplate: tagEditorBodyTemplate, field: 'vodTags', header: 'URL (ignore)', width: '8rem' }
+    ],
+    [startingChannelNumberTemplate, maxStreamCountTemplate, urlEditorBodyTemplate, tagEditorBodyTemplate, actionBodyTemplate]
+  );
+
+  const rowExpansionTemplate = useCallback(
+    (data: any, options: DataTableRowExpansionTemplate) => {
+      console.log('expanded data', data);
+      return (
+        <div className="border-2 border-round-lg border-200 ml-3 m-1">
+          <SMDataTable noSourceHeader id={'M3UFileDataSelectorValues'} columns={expandedColumns} dataSource={[data]} />
+        </div>
+      );
+    },
+    [expandedColumns]
+  );
 
   const columns = useMemo(
     (): ColumnMeta[] => [
@@ -300,62 +341,30 @@ const M3UFilesDataSelector = () => {
         sortable: true,
         width: '12rem'
       },
-      {
-        bodyTemplate: startingChannelNumberTemplate,
-        field: 'startingChannelNumber',
-        header: 'Start Ch#',
-        sortable: true,
-        width: '6rem'
-      },
-      {
-        bodyTemplate: maxStreamCountTemplate,
-        field: 'maxStreamCount',
-        header: 'Max Streams',
-        sortable: true,
-        width: '8rem'
-      },
+
       {
         bodyTemplate: stationCountTemplate,
         field: 'stationCount',
         header: 'Streams',
         sortable: true,
         width: '6rem'
-      },
-      { bodyTemplate: urlEditorBodyTemplate, field: 'url', sortable: true },
-      { align: 'center', bodyTemplate: tagEditorBodyTemplate, field: 'vodTags', header: 'URL Regex (ignore)', width: '8rem' },
-
-      {
-        align: 'center',
-        bodyTemplate: actionBodyTemplate,
-        field: 'autoUpdate',
-        width: '16rem'
       }
     ],
-    [
-      nameEditorBodyTemplate,
-      lastDownloadedTemplate,
-      startingChannelNumberTemplate,
-      maxStreamCountTemplate,
-      stationCountTemplate,
-      urlEditorBodyTemplate,
-      tagEditorBodyTemplate,
-      actionBodyTemplate
-    ]
+    [nameEditorBodyTemplate, lastDownloadedTemplate, stationCountTemplate]
   );
 
   return (
-    <>
-      <SMDataSelector
-        columns={columns}
-        enableExport={false}
-        defaultSortField="name"
-        emptyMessage="No M3U Files"
-        id="m3ufilesdataselector"
-        queryFilter={useGetPagedM3UFiles}
-        selectedItemsKey="selectedM3UFileDtoItems"
-        style={{ height: '30vh' }}
-      />
-    </>
+    <SMDataTable
+      columns={columns}
+      defaultSortField="name"
+      emptyMessage="No M3U Files"
+      enableExport={false}
+      id="m3ufilesdataselector"
+      queryFilter={useGetPagedM3UFiles}
+      rowExpansionTemplate={rowExpansionTemplate}
+      showExpand
+      style={{ height: '30vh' }}
+    />
   );
 };
 

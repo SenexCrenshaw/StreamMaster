@@ -1,0 +1,547 @@
+import StringTracker from '@components/inputs/StringTracker';
+import { GetApiArgument, QueryHook } from '@lib/apiDefs';
+import { camel2title, isEmptyObject } from '@lib/common/common';
+import { PagedResponseDto } from '@lib/common/dataTypes';
+import useSettings from '@lib/useSettings';
+import { areArraysEqual } from '@mui/base';
+import { Button } from 'primereact/button';
+import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
+import {
+  DataTable,
+  DataTableExpandedRows,
+  DataTableRowClickEvent,
+  DataTableRowEvent,
+  DataTableRowExpansionTemplate,
+  DataTableRowToggleEvent,
+  DataTableSelectionMultipleChangeEvent,
+  DataTableSelectionSingleChangeEvent,
+  type DataTableRowData,
+  type DataTableValue
+} from 'primereact/datatable';
+import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
+import { MouseEventHandler, ReactNode, memo, useCallback, useEffect, useMemo, useRef, type CSSProperties } from 'react';
+
+import { ColumnMeta } from './ColumnMeta';
+import useSMDataSelectorValuesState from './SMDataTableState';
+import TableHeader from './helpers/TableHeader';
+import bodyTemplate from './helpers/bodyTemplate';
+import { getAlign, getAlignHeader, getHeaderFromField, getStyle, setColumnToggle } from './helpers/dataSelectorFunctions';
+import getEmptyFilter from './helpers/getEmptyFilter';
+import getHeader from './helpers/getHeader';
+import getRecord from './helpers/getRecord';
+import isPagedTableDto from './helpers/isPagedTableDto';
+import { useSetQueryFilter } from './helpers/useSetQueryFilter';
+import { DataSelectorSelectionMode } from './smDataTableTypes';
+
+const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
+  const { state, setters } = useSMDataSelectorValuesState<T>(props.id, props.selectedItemsKey);
+  const tableReference = useRef<DataTable<T[]>>(null);
+
+  const { queryFilter } = useSetQueryFilter(props.id, props.columns, state.first, state.filters, state.page, state.rows);
+  const { data, isLoading } = props.queryFilter ? props.queryFilter(queryFilter) : { data: undefined, isLoading: false };
+
+  useEffect(() => {
+    if (!data) {
+      return;
+    }
+
+    if (Array.isArray(data)) {
+      if (!state.dataSource || (state.dataSource && !areArraysEqual(data, state.dataSource))) {
+        setters.setDataSource(data);
+        setters.setPagedInformation(undefined);
+
+        if (state.selectAll) {
+          setters.setSelectSelectedItems(data);
+        }
+      }
+
+      return;
+    }
+
+    if (data && isPagedTableDto<T>(data)) {
+      if (!state.dataSource || (state.dataSource && !areArraysEqual(data.data, state.dataSource))) {
+        setters.setDataSource((data as PagedResponseDto<T>).data);
+
+        if (state.selectAll && data !== undefined) {
+          setters.setSelectSelectedItems((data as PagedResponseDto<T>).data as T[]);
+        }
+      }
+
+      if (data.pageNumber > 1 && data.totalPageCount === 0) {
+        const newData = { ...data };
+
+        newData.pageNumber += -1;
+        newData.first = (newData.pageNumber - 1) * newData.pageSize;
+        setters.setPage(newData.pageNumber);
+        setters.setFirst(newData.first);
+        setters.setPagedInformation(newData);
+      } else {
+        setters.setPagedInformation(data);
+      }
+    }
+  }, [data, setters, state.dataSource, state.selectAll]);
+
+  useEffect(() => {
+    if (!props.defaultSortOrder) {
+      return;
+    }
+
+    function isEqual(value1: -1 | 0 | 1, value2: -1 | 0 | 1): boolean {
+      return value1 === value2;
+    }
+
+    if (!state.sortOrder && !isEqual(state.sortOrder, props.defaultSortOrder)) {
+      setters.setSortOrder(props.defaultSortOrder);
+    }
+  }, [props.defaultSortField, props.defaultSortOrder, setters, state.sortOrder]);
+
+  const onSetSelection = useCallback(
+    (e: T | T[], overRideSelectAll?: boolean): T | T[] | undefined => {
+      let selected: T[] = Array.isArray(e) ? e : [e];
+
+      if (state.selectSelectedItems === selected) {
+        return;
+      }
+
+      if (props.selectionMode === 'single') {
+        selected = selected.slice(0, 1);
+      }
+
+      setters.setSelectSelectedItems(selected);
+      const all = overRideSelectAll || state.selectAll;
+
+      if (props.onSelectionChange) {
+        props.onSelectionChange(selected, all);
+      }
+
+      return e;
+    },
+    [state.selectSelectedItems, state.selectAll, props, setters]
+  );
+
+  const onSelectionChange = useCallback(
+    (e: DataTableSelectionMultipleChangeEvent<T[]> | DataTableSelectionSingleChangeEvent<T[]>) => {
+      if (e.value === null || e.value === undefined || !Array.isArray(e.value)) {
+        return;
+      }
+
+      if (props.selectionMode === 'single') {
+        if (e.value !== undefined && Array.isArray(e.value)) {
+          if (e.value.length > 1) {
+            onSetSelection(e.value[1]);
+          } else {
+            onSetSelection(e.value[0]);
+          }
+        } else {
+          onSetSelection(e.value);
+        }
+        return;
+      }
+
+      if (props.selectionMode === 'multiple') {
+        if (Array.isArray(e.value)) {
+          onSetSelection(e.value);
+        } else {
+          onSetSelection([e.value]);
+        }
+
+        return;
+      }
+
+      let sel = [] as T[];
+
+      if (Array.isArray(e.value)) {
+        const single1 = e.value.slice(-1, e.value.length);
+
+        sel = single1;
+      } else {
+        sel = [e.value];
+      }
+
+      if (props.reorderable === true && props.onSelectionChange) {
+        props.onSelectionChange(sel, state.selectAll);
+      }
+
+      onSetSelection(sel);
+    },
+    [onSetSelection, props, state.selectAll]
+  );
+
+  const selectedData = useCallback(
+    (inputData: T[]): T[] => {
+      if (props.showSelections !== true) {
+        return inputData;
+      }
+
+      if (state.showSelections === null) {
+        return inputData;
+      }
+
+      if (state.showSelections === true) {
+        return state.selectSelectedItems;
+      }
+
+      if (!state.selectSelectedItems) {
+        return [] as T[];
+      }
+
+      const returnValue = inputData.filter((d) => !state.selectSelectedItems?.some((s) => s.id === d.id));
+
+      return returnValue;
+    },
+    [props.showSelections, state.selectSelectedItems, state.showSelections]
+  );
+
+  useEffect(() => {
+    if (!props.dataSource) {
+      return;
+    }
+
+    const newData = selectedData(props.dataSource);
+
+    if (!state.dataSource || (state.dataSource && !areArraysEqual(newData, state.dataSource))) {
+      if (props.reorderable) {
+        setters.setDataSource([...newData].sort((a, b) => a.rank - b.rank));
+      } else {
+        setters.setDataSource(newData);
+      }
+
+      setters.setPagedInformation(undefined);
+
+      if (state.selectAll) {
+        onSetSelection(newData);
+      }
+    }
+  }, [onSetSelection, props.dataSource, props.reorderable, selectedData, setters, state.dataSource, state.selectAll]);
+
+  const onRowReorder = (changed: T[]) => {
+    setters.setDataSource(changed);
+    props.onRowReorder?.(changed);
+  };
+
+  const setting = useSettings();
+
+  const rowClass = useCallback(
+    (data: DataTableRowData<T[]>): string => {
+      const isHidden = getRecord(data as T, 'isHidden');
+
+      if (isHidden === true) {
+        return 'bg-red-900';
+      }
+
+      if (props.selectRow === true && state.selectSelectedItems !== undefined) {
+        const id = getRecord(data, 'id') as number;
+        if (state.selectSelectedItems.some((item) => item.id === id)) {
+          return 'bg-orange-900';
+        }
+      }
+
+      return '';
+    },
+    [props.selectRow, state.selectSelectedItems]
+  );
+
+  const onColumnToggle = useCallback(
+    (selectedColumns: ColumnMeta[]) => {
+      const newData = setColumnToggle(props.columns, selectedColumns);
+      setters.setVisibleColumns(newData);
+    },
+    [props.columns, setters]
+  );
+
+  const visibleColumnsTemplate = useCallback(
+    (option: ColumnMeta) => {
+      if (option === undefined || option === undefined) {
+        return <div />;
+      }
+      const header = getHeaderFromField(option.field, props.columns);
+      return <div>{header}</div>;
+    },
+    [props.columns]
+  );
+
+  const getSortIcon = useCallback(
+    (field: string) => {
+      if (state.sortField !== field || state.sortOrder === 0) {
+        return 'pi pi-sort-alt';
+      }
+      return state.sortOrder === 1 ? 'pi pi-sort-amount-up' : 'pi pi-sort-amount-down';
+    },
+    [state.sortField, state.sortOrder]
+  );
+
+  const rowFilterTemplate = useCallback(
+    (options: ColumnFilterElementTemplateOptions) => {
+      let col = props.columns.find((column) => column.field === options.field);
+      let header = '';
+
+      if (col) {
+        header = getHeader(col.field, col.header, col.fieldType) as string;
+      } else {
+        return <div />;
+      }
+
+      if (col.fieldType === 'actions') {
+        let selectedCols = [] as ColumnMeta[];
+
+        let cols = props.columns.filter((col) => col.removable === true); //.map((col) => col.field);
+        if (cols.length > 0 && state.visibleColumns !== null && state.visibleColumns !== undefined) {
+          selectedCols = state.visibleColumns.filter((col) => col.removable === true && col.removed !== true);
+        } else {
+          return <div />;
+        }
+
+        return (
+          <MultiSelect
+            className="multiselectcolumn"
+            value={selectedCols}
+            options={cols}
+            optionLabel="field"
+            itemTemplate={visibleColumnsTemplate}
+            selectedItemTemplate={visibleColumnsTemplate}
+            maxSelectedLabels={0}
+            onChange={(e: MultiSelectChangeEvent) => {
+              onColumnToggle(e.value);
+            }}
+            showSelectAll={false}
+            pt={{
+              header: { style: { display: 'none' } },
+              checkbox: { style: { display: 'none' } }
+            }}
+            useOptionAsValue
+          />
+        );
+      }
+
+      if (col.filter !== true) {
+        return <div>{header}</div>;
+      }
+
+      const stringTrackerkey = props.id + '-' + options.field;
+
+      return (
+        <div className="flex justify-content-end">
+          <StringTracker
+            id={stringTrackerkey}
+            onChange={async (e) => {
+              options.filterApplyCallback(e);
+            }}
+            placeholder={header ?? ''}
+            value={options.value}
+          />
+
+          <Button
+            className="p-button-text p-0 m-0"
+            onClick={() => {
+              setters.setSortField(options.field);
+              setters.setSortOrder(state.sortOrder === 1 ? -1 : 1);
+            }}
+            icon={getSortIcon(options.field)}
+          />
+        </div>
+      );
+    },
+    [getSortIcon, onColumnToggle, props.columns, props.id, setters, state.sortOrder, state.visibleColumns, visibleColumnsTemplate]
+  );
+
+  const showSelection = useMemo(() => {
+    return props.showSelections || props.selectionMode === 'multiple' || props.selectionMode === 'checkbox' || props.selectionMode === 'multipleNoRowCheckBox';
+  }, [props.selectionMode, props.showSelections]);
+
+  const exportCSV = () => {
+    tableReference.current?.exportCSV({ selectionOnly: false });
+  };
+
+  const sourceRenderHeader = useMemo(() => {
+    if (props.noSourceHeader === true) {
+      return null;
+    }
+
+    return (
+      <TableHeader
+        dataSelectorProps={props}
+        enableExport={props.enableExport ?? true}
+        exportCSV={exportCSV}
+        headerName={props.headerName}
+        onMultiSelectClick={props.onMultiSelectClick}
+        rowClick={state.rowClick}
+        setRowClick={setters.setRowClick}
+      />
+    );
+  }, [props, state.rowClick, setters.setRowClick]);
+
+  // const rowReorderHeader = () => (
+  //   <div className=" text-xs text-white text-500">
+  //     <ResetButton
+  //       disabled={state.prevDataSource === undefined}
+  //       onClick={() => {
+  //         if (state.prevDataSource !== undefined) {
+  //           setters.setDataSource(state.prevDataSource);
+  //           setters.setPrevDataSource(undefined);
+  //         }
+  //       }}
+  //       tooltip="Reset Order"
+  //     />
+  //   </div>
+  // );
+
+  return (
+    <div className="dataselector flex w-full min-w-full justify-content-start align-items-center">
+      <div className={`${props.className === undefined ? '' : props.className} h-full min-h-full w-full surface-overlay`}>
+        <DataTable
+          cellSelection={false}
+          editMode="cell"
+          filterDisplay="row"
+          expandedRows={state.expandedRows}
+          filters={isEmptyObject(state.filters) ? getEmptyFilter(props.columns, state.showHidden) : state.filters}
+          loading={props.isLoading === true || isLoading === true}
+          onRowReorder={(e) => {
+            onRowReorder(e.value);
+          }}
+          header={sourceRenderHeader}
+          lazy
+          onRowToggle={(e: DataTableRowToggleEvent) => {
+            setters.setExpandedRows(e.data as DataTableExpandedRows);
+          }}
+          onSelectionChange={(e: DataTableSelectionMultipleChangeEvent<T[]> | DataTableSelectionSingleChangeEvent<T[]>) => {
+            if (props.reorderable === true) {
+              return;
+            }
+            onSelectionChange(e);
+          }}
+          onRowClick={props.selectRow === true ? props.onRowClick : undefined}
+          ref={tableReference}
+          rowClassName={props.rowClass ? props.rowClass : rowClass}
+          rowExpansionTemplate={props.rowExpansionTemplate}
+          scrollHeight="flex"
+          scrollable
+          showGridlines
+          stripedRows
+          style={props.style}
+          value={state.dataSource}
+          reorderableRows={props.reorderable}
+          onClick={(e: any) => {
+            props.onClick?.(e);
+          }}
+          onRowExpand={props.onRowExpand}
+        >
+          <Column
+            body={props.addOrRemoveTemplate}
+            className={
+              showSelection
+                ? 'w-3rem max-w-3rem p-0 justify-content-center align-items-center'
+                : 'w-2rem max-w-2rem p-0 justify-content-center align-items-center'
+            }
+            field="addOrRemove"
+            filter
+            filterElement={props.addOrRemoveHeaderTemplate}
+            hidden={!props.addOrRemoveTemplate}
+            showFilterMenu={false}
+            showFilterOperator={false}
+            resizeable={false}
+          />
+          <Column
+            className={
+              showSelection
+                ? 'w-3rem max-w-3rem p-0 justify-content-center align-items-center'
+                : 'w-2rem max-w-2rem p-0 justify-content-center align-items-center'
+            }
+            hidden={!props.showExpand}
+            showFilterMenu={false}
+            showFilterOperator={false}
+            resizeable={false}
+            expander
+          />
+          <Column
+            className="max-w-2rem p-0 justify-content-center align-items-center"
+            field="rank"
+            // header={rowReorderHeader}
+            hidden={!props.reorderable}
+            rowReorder
+            style={{ width: '2rem', maxWidth: '2rem' }}
+          />
+          {props.columns &&
+            props.columns
+              .filter((col) => col.removed !== true)
+              .map((col) => (
+                <Column
+                  align={getAlign(col.align, col.fieldType)}
+                  alignHeader={getAlignHeader(col.align, col.fieldType)}
+                  className={col.className}
+                  filter
+                  filterElement={col.filter === true ? col.filterElement : rowFilterTemplate}
+                  filterPlaceholder={col.filter === true ? (col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)) : undefined}
+                  header={getHeader(col.field, col.header, col.fieldType)}
+                  body={(e) => (col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, setting.defaultIcon, col.camelize))}
+                  editor={col.editor}
+                  field={col.field}
+                  hidden={col.isHidden === true || getHeader(col.field, col.header, col.fieldType) === 'Actions' ? true : undefined}
+                  key={col.fieldType ? col.field + col.fieldType : col.field}
+                  style={getStyle(col)}
+                  showAddButton
+                  showApplyButton
+                  showClearButton
+                  showFilterMatchModes
+                  showFilterMenu={col.filterElement === undefined && col.filter === true}
+                  showFilterMenuOptions
+                  showFilterOperator
+                />
+              ))}
+        </DataTable>
+      </div>
+    </div>
+  );
+};
+
+SMDataTable.displayName = 'dataselectorvalues';
+
+export interface DataTableHeaderProperties {
+  headerRightTemplate?: ReactNode;
+  headerLeftTemplate?: ReactNode;
+  selectionMode?: DataSelectorSelectionMode;
+}
+
+interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
+  extraColumns?: Column[];
+  noSourceHeader?: boolean;
+  className?: string;
+  id: string;
+  columns: ColumnMeta[];
+  isLoading?: boolean;
+  defaultSortField?: string;
+  defaultSortOrder?: -1 | 0 | 1;
+  emptyMessage?: ReactNode;
+  enableExport?: boolean;
+  rowExpansionTemplate?: (data: DataTableRowData<T | any>, options: DataTableRowExpansionTemplate) => React.ReactNode;
+  addOrRemoveHeaderTemplate?: () => ReactNode;
+  addOrRemoveTemplate?: (data: T) => ReactNode;
+  showExpand?: boolean;
+  style?: CSSProperties;
+  selectedItemsKey?: string;
+  onRowReorder?: (value: T[]) => void;
+  reorderable?: boolean;
+  showSelections?: boolean;
+  onSelectionChange?: (value: T[], selectAll: boolean) => void;
+  selectRow?: boolean;
+  headerName?: string;
+  onMultiSelectClick?: (value: boolean) => void;
+  onClick?: MouseEventHandler<T> | undefined;
+  onRowExpand?(event: DataTableRowEvent): void;
+  onRowClick?(event: DataTableRowClickEvent): void;
+  rowClass?: (data: DataTableRowData<any>) => string;
+}
+
+type QueryFilterProperties<T> = BaseDataSelectorProperties<T> & {
+  dataSource?: T[] | undefined;
+  queryFilter: (filters: GetApiArgument) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
+};
+
+type DataSourceProperties<T> = BaseDataSelectorProperties<T> & {
+  dataSource: T[] | undefined;
+  queryFilter?: (filters: GetApiArgument) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
+};
+
+export type DataSelectorValuesProps = DataSourceProperties<string> | QueryFilterProperties<string>;
+type SMDataTableProps<T> = DataSourceProperties<T> | QueryFilterProperties<T>;
+
+export default memo(SMDataTable);

@@ -1,26 +1,26 @@
 import MinusButton from '@components/buttons/MinusButton';
-import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
-import DataSelectorValues from '@components/dataSelector/DataSelectorValues';
 
 import { GetMessage } from '@lib/common/common';
-import { useSelectedSMChannel } from '@lib/redux/slices/selectedSMChannel';
 import { RemoveSMStreamFromSMChannel, SetSMStreamRanks } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 
 import { RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMChannelRankRequest, SMStreamDto, SetSMStreamRanksRequest } from '@lib/smAPI/smapiTypes';
 
+import { ColumnMeta } from '@components/smDataTable/ColumnMeta';
+import SMDataTable from '@components/smDataTable/SMDataTable';
+import { DataTableRowEvent, DataTableValue } from 'primereact/datatable';
 import { memo, useCallback, useMemo } from 'react';
+import useSelectedSMItems from './useSelectedSMItems';
 
 interface SMStreamDataSelectorValueProperties {
   readonly id: string;
-  readonly selectedSMChannelKey: string;
-  readonly selectedSMStreamKey: string;
+
   readonly data: SMStreamDto[];
   readonly smChannel: SMChannelDto;
 }
 
-const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey, selectedSMStreamKey, smChannel }: SMStreamDataSelectorValueProperties) => {
+const SMStreamDataSelectorValue = ({ data, id, smChannel }: SMStreamDataSelectorValueProperties) => {
   const dataKey = `${id}-SMStreamDataSelectorValue`;
-  const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMChannel(selectedSMChannelKey);
+  const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
 
   const actionBodyTemplate = useCallback(
     (data: SMStreamDto) => (
@@ -73,7 +73,7 @@ const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey, selectedSMS
         setSelectedSMChannel(smChannel);
       }}
     >
-      <DataSelectorValues
+      <SMDataTable
         noSourceHeader
         reorderable
         columns={columns}
@@ -82,14 +82,13 @@ const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey, selectedSMS
         dataSource={data && [...data].sort((a, b) => a.rank - b.rank)}
         emptyMessage="No Streams"
         headerName={GetMessage('streams').toUpperCase()}
-        selectedSMStreamKey={selectedSMStreamKey}
-        selectedSMChannelKey={selectedSMChannelKey}
-        onRowReorder={(event) => {
-          if (selectedSMChannel === undefined) {
+        onRowReorder={(event: DataTableValue[]) => {
+          const channels = event as unknown as SMStreamDto[];
+          if (selectedSMChannel === undefined || channels === undefined) {
             return;
           }
 
-          const tosend: SMChannelRankRequest[] = event.map((item, index) => {
+          const tosend: SMChannelRankRequest[] = channels.map((item, index) => {
             return { smChannelId: selectedSMChannel.id, smStreamId: item.id, rank: index } as SMChannelRankRequest;
           });
 
@@ -102,6 +101,9 @@ const SMStreamDataSelectorValue = ({ data, id, selectedSMChannelKey, selectedSMS
             });
 
           console.log('tosend', tosend);
+        }}
+        onRowExpand={(e: DataTableRowEvent) => {
+          setSelectedSMChannel(e.data);
         }}
         id={dataKey}
         selectedItemsKey={'SMStreamDataSelectorValue-selectSelectedSMStreamDtoItems'}

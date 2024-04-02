@@ -19,15 +19,15 @@ import {
 } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
 
+import TableHeader from '../smDataTable/helpers/TableHeader';
+import bodyTemplate from '../smDataTable/helpers/bodyTemplate';
+import getEmptyFilter from '../smDataTable/helpers/getEmptyFilter';
+import getHeader from '../smDataTable/helpers/getHeader';
+import getRecord from '../smDataTable/helpers/getRecord';
+import isPagedTableDto from '../smDataTable/helpers/isPagedTableDto';
 import { type ColumnAlign, type ColumnFieldType, type ColumnMeta, type DataSelectorSelectionMode } from './DataSelectorTypes';
-import TableHeader from './TableHeader';
-import bodyTemplate from './bodyTemplate';
 import generateFilterData from './generateFilterData';
-import getEmptyFilter from './getEmptyFilter';
-import getHeader from './getHeader';
-import getRecord from './getRecord';
 import getRecordString from './getRecordString';
-import isPagedTableDto from './isPagedTableDto';
 import useDataSelectorState from './useDataSelectorState';
 
 import { GetApiArgument, QueryHook } from '@lib/apiDefs';
@@ -36,7 +36,7 @@ import { PagedResponseDto } from '@lib/common/dataTypes';
 import BanButton from '../buttons/BanButton';
 import ResetButton from '../buttons/ResetButton';
 import { TriSelectShowSelection } from '../selectors/TriSelectShowSelection';
-import { useSetQueryFilter } from './useSetQueryFilter';
+import { useSetQueryFilter } from '../smDataTable/helpers/useSetQueryFilter';
 
 const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => {
   const { state, setters } = useDataSelectorState<T>(props.id, props.selectedItemsKey);
@@ -638,7 +638,6 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
                 col.isHidden === true || (props.hideControls === true && getHeader(col.field, col.header, col.fieldType) === 'Actions') ? true : undefined
               }
               key={col.fieldType ? col.field + col.fieldType : col.field}
-              onCellEditComplete={col.handleOnCellEditComplete}
               resizeable={col.resizeable}
               showAddButton
               showApplyButton

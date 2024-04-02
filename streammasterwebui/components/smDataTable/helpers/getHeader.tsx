@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 
 import { camel2title } from '@lib/common/common';
-import { type ColumnFieldType } from './DataSelectorTypes';
+import { ColumnFieldType } from '../smDataTableTypes';
 
 function getHeader(field: string, header: string | undefined, fieldType: ColumnFieldType | undefined): ReactNode {
   if (!fieldType === undefined) {

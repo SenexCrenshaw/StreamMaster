@@ -3,15 +3,18 @@ import { useSMChannelLogoColumnConfig } from '@components/columns/useSMChannelLo
 import { useSMChannelNameColumnConfig } from '@components/columns/useSMChannelNameColumnConfig';
 import { useSMChannelNumberColumnConfig } from '@components/columns/useSMChannelNumberColumnConfig';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
+import SMDataTable from '@components/smDataTable/SMDataTable';
+import getRecord from '@components/smDataTable/helpers/getRecord';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import { GetMessage } from '@lib/common/common';
 import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import { DeleteSMChannelRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
-import { lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
-
-const DataSelector2 = lazy(() => import('@components/dataSelector/DataSelector2'));
+import { DataTableRowClickEvent, DataTableRowData, DataTableRowEvent, DataTableRowExpansionTemplate, DataTableValue } from 'primereact/datatable';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import SMStreamDataSelectorValue from './SMStreamDataSelectorValue';
+import useSelectedSMItems from './useSelectedSMItems';
 
 interface SMChannelDataSelectorProperties {
   readonly enableEdit?: boolean;
@@ -21,6 +24,8 @@ interface SMChannelDataSelectorProperties {
 
 const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: SMChannelDataSelectorProperties) => {
   const dataKey = `${id}-SMChannelDataSelector`;
+  const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
+
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
 
   const { columnConfig: channelNumberColumnConfig } = useSMChannelNumberColumnConfig({ enableEdit, useFilter: false });
@@ -32,6 +37,26 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
       setEnableEdit(propsEnableEdit ?? true);
     }
   }, [enableEdit, propsEnableEdit]);
+
+  const rowExpansionTemplate = useCallback((data: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
+    const channel = data as unknown as SMChannelDto;
+    return (
+      <div className="border-2 border-round-lg border-200 ml-3 m-1">
+        <SMStreamDataSelectorValue data={channel.smStreams} smChannel={channel} id={channel.id + '-streams'} />
+      </div>
+    );
+  }, []);
+
+  const setSelectedSMEntity = useCallback(
+    (data: DataTableValue, toggle?: boolean) => {
+      if (toggle === true && selectedSMChannel !== undefined && data !== undefined && data.id === selectedSMChannel.id) {
+        setSelectedSMChannel(undefined);
+      } else {
+        setSelectedSMChannel(data as SMChannelDto);
+      }
+    },
+    [selectedSMChannel, setSelectedSMChannel]
+  );
 
   const actionBodyTemplate = useCallback((data: SMChannelDto) => {
     const accept = () => {
@@ -83,10 +108,30 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
     [actionBodyTemplate, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig]
   );
 
+  const rowClass = useCallback(
+    (data: unknown): string => {
+      const isHidden = getRecord(data, 'isHidden');
+
+      if (isHidden === true) {
+        return 'bg-red-900';
+      }
+
+      if (selectedSMChannel !== undefined) {
+        const id = getRecord(data, 'id') as number;
+        if (id === selectedSMChannel.id) {
+          return 'bg-orange-900';
+        }
+      }
+
+      return '';
+    },
+    [selectedSMChannel]
+  );
+
   return (
     <>
       <ConfirmPopup />
-      <DataSelector2
+      <SMDataTable
         selectRow
         showExpand
         columns={columns}
@@ -95,9 +140,21 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
         emptyMessage="No Channels"
         headerName={GetMessage('channels').toUpperCase()}
         id={dataKey}
+        onRowClick={(e: DataTableRowClickEvent) => {
+          setSelectedSMEntity(e.data as SMChannelDto, true);
+          console.log(e);
+        }}
+        onClick={(e: any) => {
+          if (e.target.className && e.target.className === 'p-datatable-wrapper') {
+            setSelectedSMChannel(undefined);
+          }
+        }}
+        onRowExpand={(e: DataTableRowEvent) => {
+          setSelectedSMEntity(e.data);
+        }}
+        rowClass={rowClass}
         queryFilter={useGetPagedSMChannels}
-        selectedSMStreamKey="SMChannelDataSelector"
-        selectedSMChannelKey="SMChannelDataSelector"
+        rowExpansionTemplate={rowExpansionTemplate}
         selectedItemsKey="selectSelectedSMChannelDtoItems"
         style={{ height: 'calc(100vh - 10px)' }}
       />

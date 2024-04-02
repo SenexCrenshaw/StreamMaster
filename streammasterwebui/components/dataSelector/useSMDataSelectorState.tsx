@@ -4,6 +4,8 @@ import { useState } from 'react';
 
 import { AdditionalFilterProperties } from '@lib/common/common';
 
+import useEntityStorage from '@lib/redux/hooks/useEntityStorage';
+import createEntitySlice from '@lib/redux/slices/entitySlice';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { useShowHidden } from '@lib/redux/slices/useShowHidden';
@@ -31,7 +33,9 @@ const useSMDataSelectorState = <T extends DataTableValue>(id: string, selectedIt
   const [rows, setRows] = useState<number>(25);
   const [filters, setFilters] = useState<DataTableFilterMeta>({});
   const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows>();
-  const [videoStreamIsReadOnlys, setVideoStreamIsReadOnlys] = useState<VideoStreamIsReadOnly[]>([]);
+
+  const entitySlice = createEntitySlice<T>();
+  const { setEntityValue, removeEntityValue } = useEntityStorage(id, entitySlice);
 
   const setSortField = (value: string) => {
     setSortInfo({ sortField: value });
@@ -61,7 +65,8 @@ const useSMDataSelectorState = <T extends DataTableValue>(id: string, selectedIt
       setShowSelections,
       setSortField,
       setSortOrder,
-      setVideoStreamIsReadOnlys,
+      setEntityValue,
+      removeEntityValue,
       setVisibleColumns
     },
     state: {
@@ -81,7 +86,6 @@ const useSMDataSelectorState = <T extends DataTableValue>(id: string, selectedIt
       showSelections,
       sortField,
       sortOrder,
-      videoStreamIsReadOnlys,
       visibleColumns
     }
   };

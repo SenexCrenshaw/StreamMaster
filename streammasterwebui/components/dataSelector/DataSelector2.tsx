@@ -21,13 +21,13 @@ import {
 } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
 
+import bodyTemplate from '../smDataTable/helpers/bodyTemplate';
+import getEmptyFilter from '../smDataTable/helpers/getEmptyFilter';
+import getHeader from '../smDataTable/helpers/getHeader';
+import getRecord from '../smDataTable/helpers/getRecord';
+import isPagedTableDto from '../smDataTable/helpers/isPagedTableDto';
 import { type ColumnAlign, type ColumnFieldType, type ColumnMeta, type DataSelectorSelectionMode } from './DataSelectorTypes';
-import bodyTemplate from './bodyTemplate';
 import generateFilterData from './generateFilterData';
-import getEmptyFilter from './getEmptyFilter';
-import getHeader from './getHeader';
-import getRecord from './getRecord';
-import isPagedTableDto from './isPagedTableDto';
 import useDataSelectorState2 from './useDataSelectorState2';
 
 import AddButton from '@components/buttons/AddButton';
@@ -40,9 +40,9 @@ import { AddSMStreamToSMChannelRequest, PagedResponse, SMChannelDto, SMStreamDto
 import { Checkbox } from 'primereact/checkbox';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import ResetButton from '../buttons/ResetButton';
-import TableHeader from './TableHeader';
+import TableHeader from '../smDataTable/helpers/TableHeader';
+import { useSetQueryFilter } from '../smDataTable/helpers/useSetQueryFilter';
 import getRecordString from './getRecordString';
-import { useSetQueryFilter } from './useSetQueryFilter';
 
 const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) => {
   const debug = false;
@@ -829,14 +829,13 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
                   body={(e) => (col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, setting.defaultIcon, col.camelize))}
                   editor={col.editor}
                   field={col.field}
-                  filter={col.filter === true}
+                  filter
                   filterElement={col.filter === true ? col.filterElement : rowFilterTemplate}
                   filterPlaceholder={col.filter === true ? (col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)) : undefined}
                   hidden={
                     col.isHidden === true || (props.hideControls === true && getHeader(col.field, col.header, col.fieldType) === 'Actions') ? true : undefined
                   }
                   key={col.fieldType ? col.field + col.fieldType : col.field}
-                  onCellEditComplete={col.handleOnCellEditComplete}
                   resizeable={col.resizeable}
                   showAddButton={col.filter === true}
                   showApplyButton={col.filter === true}

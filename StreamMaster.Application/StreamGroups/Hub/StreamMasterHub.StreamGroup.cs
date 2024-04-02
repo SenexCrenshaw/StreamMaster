@@ -2,7 +2,6 @@
 using StreamMaster.Application.StreamGroups;
 using StreamMaster.Application.StreamGroups.Commands;
 using StreamMaster.Application.StreamGroups.Queries;
-using StreamMaster.Domain.Pagination;
 using StreamMaster.Domain.Requests;
 
 namespace StreamMaster.Application.Hubs;
@@ -41,10 +40,6 @@ public partial class StreamMasterHub : IStreamGroupHub
         return await Sender.Send(new GetStreamGroup(StreamGroupNumber)).ConfigureAwait(false);
     }
 
-    public async Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(StreamGroupParameters streamGroupParameters)
-    {
-        return await Sender.Send(new GetPagedStreamGroups(streamGroupParameters)).ConfigureAwait(false);
-    }
 
     public async Task SimulateStreamFailure(SimulateStreamFailureRequest request)
     {

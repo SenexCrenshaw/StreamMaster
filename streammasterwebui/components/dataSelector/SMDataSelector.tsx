@@ -22,16 +22,15 @@ import {
 } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
 
+import bodyTemplate from '../smDataTable/helpers/bodyTemplate';
+import getEmptyFilter from '../smDataTable/helpers/getEmptyFilter';
+import getHeader from '../smDataTable/helpers/getHeader';
+import getRecord from '../smDataTable/helpers/getRecord';
+import isPagedTableDto from '../smDataTable/helpers/isPagedTableDto';
 import { type ColumnAlign, type ColumnFieldType, type ColumnMeta, type DataSelectorSelectionMode } from './DataSelectorTypes';
-import bodyTemplate from './bodyTemplate';
 import generateFilterData from './generateFilterData';
-import getEmptyFilter from './getEmptyFilter';
-import getHeader from './getHeader';
-import getRecord from './getRecord';
-import isPagedTableDto from './isPagedTableDto';
 import useSMDataSelectorState from './useSMDataSelectorState';
 
-import AddButton from '@components/buttons/AddButton';
 import StringTracker from '@components/inputs/StringTracker';
 
 import { GetApiArgument, QueryHook } from '@lib/apiDefs';
@@ -40,8 +39,9 @@ import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import ResetButton from '../buttons/ResetButton';
-import TableHeader from './TableHeader';
-import { useSetQueryFilter } from './useSetQueryFilter';
+import TableHeader from '../smDataTable/helpers/TableHeader';
+
+import { useSetQueryFilter } from '../smDataTable/helpers/useSetQueryFilter';
 
 const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>) => {
   const debug = false;
@@ -594,28 +594,8 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
         </div>
       );
     },
-    [state.selectSelectedItems, showSelection]
+    [state.selectSelectedItems, showSelection, addSelection]
   );
-
-  function addOrRemoveHeaderTemplate() {
-    const isSelected = false;
-
-    if (!isSelected) {
-      return (
-        <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-          {/* <AddButton iconFilled={false} onClick={() => console.log('AddButton')} tooltip="Add All Channels" /> */}
-          {showSelection && <Checkbox checked={state.selectAll} className="pl-1" onChange={() => toggleAllSelection()} />}
-        </div>
-      );
-    }
-
-    return (
-      <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-        <AddButton iconFilled={false} onClick={() => console.log('AddButton')} />
-        {showSelection && <Checkbox checked={state.selectAll} className="pl-1" onChange={() => toggleAllSelection()} />}
-      </div>
-    );
-  }
 
   return (
     <div className="dataselector flex w-full min-w-full justify-content-start align-items-center">
@@ -628,8 +608,8 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
           expandableRowGroups={props.groupRowsBy !== undefined && props.groupRowsBy !== ''}
           expandedRows={state.expandedRows}
           exportFilename={props.exportFilename ?? 'streammaster'}
-          filterDelay={500}
-          filterDisplay={props.columns.some((a) => a.filter !== undefined) ? 'row' : undefined}
+          // filterDelay={500}
+          filterDisplay="row"
           filters={isEmptyObject(state.filters) ? getEmptyFilter(props.columns, state.showHidden) : state.filters}
           first={state.pagedInformation ? state.pagedInformation.first : state.first}
           header={sourceRenderHeader}
@@ -638,7 +618,7 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
           onFilter={onFilter}
           onPage={onPage}
           onRowExpand={(e: DataTableRowEvent) => {
-            // setSelectedSMEntity(e.data);
+            setters.setEntityValue(e.data as T);
           }}
           onRowCollapse={(e: DataTableRowEvent) => {}}
           onRowClick={(e: DataTableRowClickEvent) => {
@@ -678,7 +658,6 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
           selection={state.selectSelectedItems}
           selectionMode={getSelectionMultipleMode}
           showGridlines
-          // showHeaders={props.showHeaders}
           sortField={props.reorderable ? 'rank' : state.sortField}
           sortMode="single"
           sortOrder={props.reorderable ? 0 : state.sortOrder}
@@ -690,38 +669,16 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
           value={state.dataSource}
         >
           <Column
-            body={addOrRemoveTemplate}
             className={
               showSelection
                 ? 'w-3rem max-w-3rem p-0 justify-content-center align-items-center'
                 : 'w-2rem max-w-2rem p-0 justify-content-center align-items-center'
             }
-            field="addOrRemove"
-            filter
-            filterElement={addOrRemoveHeaderTemplate}
-            // hidden={!props.onStreamAdd || !props.onChannelAdd}
-            showFilterMenu={false}
-            showFilterOperator={false}
-            resizeable={false}
-            // style={{ width: '3rem', maxWidth: '3rem' }}
-          />
-          <Column
-            // body={ExpandTemplate}
-            className={
-              showSelection
-                ? 'w-3rem max-w-3rem p-0 justify-content-center align-items-center'
-                : 'w-2rem max-w-2rem p-0 justify-content-center align-items-center'
-            }
-            // field="expand"
-            // filter
-            // filterElement={<div />}
-
             hidden={!props.showExpand}
             showFilterMenu={false}
             showFilterOperator={false}
             resizeable={false}
             expander
-            // style={{ width: '3rem', maxWidth: '3rem' }}
           />
           <Column
             className="max-w-2rem p-0 justify-content-center align-items-center"
@@ -742,16 +699,14 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
                   body={(e) => (col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, setting.defaultIcon, col.camelize))}
                   editor={col.editor}
                   field={col.field}
-                  filter //={getFilter(col.filter, col.fieldType)}
+                  filter
                   filterElement={col.filterElement ?? rowFilterTemplate}
-                  // filterMenuStyle={{ width: '14rem' }}
                   filterPlaceholder={col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)}
                   // header={getHeader(col.field, col.header, col.fieldType)}
                   hidden={
                     col.isHidden === true || (props.hideControls === true && getHeader(col.field, col.header, col.fieldType) === 'Actions') ? true : undefined
                   }
                   key={col.fieldType ? col.field + col.fieldType : col.field}
-                  onCellEditComplete={col.handleOnCellEditComplete}
                   resizeable={col.resizeable}
                   showAddButton
                   showApplyButton
@@ -760,7 +715,6 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
                   showFilterMenu={col.filterElement === undefined && col.filter === true}
                   showFilterMenuOptions
                   showFilterOperator
-                  // sortable={props.reorderable ? false : col.sortable}
                   style={getStyle(col)}
                 />
               ))}
@@ -773,7 +727,7 @@ const SMDataSelector = <T extends DataTableValue>(props: SMDataSelectorProps<T>)
 SMDataSelector.displayName = 'SMDataSelector';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-interface BaseSMDataSelectorProperties<T = any> {
+interface QueryFilterProperties<T = any> {
   className?: string;
   columns: ColumnMeta[];
   defaultSortField: string;
@@ -815,12 +769,8 @@ interface BaseSMDataSelectorProperties<T = any> {
   reset?: boolean | undefined;
   videoStreamIdsIsReadOnly?: string[] | undefined;
   rowExpansionTemplate?: (data: DataTableRowData<T | any>, options: DataTableRowExpansionTemplate) => React.ReactNode;
-  // virtualScrollHeight?: string | undefined;
-}
-
-type QueryFilterProperties<T> = BaseSMDataSelectorProperties<T> & {
   queryFilter: (params: GetApiArgument | undefined) => ReturnType<QueryHook<PagedResponse<T> | undefined>>;
-};
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SMDataSelectorProps<T = any> = QueryFilterProperties<T>;

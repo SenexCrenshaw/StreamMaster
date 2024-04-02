@@ -1,11 +1,9 @@
-import { PagedTableDto } from './DataSelectorTypes';
+import { PagedTableDto } from '../smDataTableTypes';
 
 function isPagedTableDto<T>(value: unknown): value is PagedTableDto<T> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return false;
   }
-
-  // You'll need to assert value as any here, since TS doesn't know if the value is an object or not.
 
   const value_ = value as any;
 

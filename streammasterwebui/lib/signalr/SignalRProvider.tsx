@@ -3,6 +3,7 @@ import SignalRService from './SignalRService';
 import { SMMessage } from './SMMessage';
 import { FieldData } from '@lib/apiDefs';
 import { useSMMessages } from '@lib/redux/slices/messagesSlice';
+import useGetPagedStreamGroups from '@lib/smAPI/StreamGroups/useGetPagedStreamGroups';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
@@ -26,6 +27,7 @@ interface SignalRProviderProps {
 export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) => {
   const smMessages = useSMMessages();
   const signalRService = SignalRService.getInstance();
+  const getPagedStreamGroups = useGetPagedStreamGroups();
   const getPagedSMStreams = useGetPagedSMStreams();
   const getPagedSMChannels = useGetPagedSMChannels();
   const getSettings = useGetSettings();
@@ -42,6 +44,10 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
 
   const dataRefresh = useCallback(
     (entity: string): void => {
+      if (entity === 'StreamGroupDto') {
+        getPagedStreamGroups.SetIsForced(true);
+        return;
+      }
       if (entity === 'SMStreamDto') {
         getPagedSMStreams.SetIsForced(true);
         return;
@@ -67,12 +73,16 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         return;
       }
     },
-    [getPagedSMStreams,getPagedSMChannels,getSettings,getPagedM3UFiles,getIcons,getPagedChannelGroups]
+    [getPagedStreamGroups,getPagedSMStreams,getPagedSMChannels,getSettings,getPagedM3UFiles,getIcons,getPagedChannelGroups]
   );
 
   const setField = useCallback(
     (fieldDatas: FieldData[]): void => {
       fieldDatas.forEach((fieldData) => {
+        if (fieldData.entity === 'StreamGroupDto') {
+          getPagedStreamGroups.SetField(fieldData)
+          return;
+        }
         if (fieldData.entity === 'SMStreamDto') {
           getPagedSMStreams.SetField(fieldData)
           return;
@@ -99,7 +109,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         }
       });
     },
-    [getPagedSMStreams,getPagedSMChannels,getSettings,getPagedM3UFiles,getIcons,getPagedChannelGroups]
+    [getPagedStreamGroups,getPagedSMStreams,getPagedSMChannels,getSettings,getPagedM3UFiles,getIcons,getPagedChannelGroups]
   );
 
   const RemoveConnections = useCallback(() => {

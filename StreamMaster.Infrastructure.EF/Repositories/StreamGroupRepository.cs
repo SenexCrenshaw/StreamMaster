@@ -20,7 +20,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         return PagedExtensions.CreateEmptyPagedResponse<StreamGroupDto>(Count());
     }
 
-    public async Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(StreamGroupParameters Parameters)
+    public async Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(QueryStringParameters Parameters)
     {
         IQueryable<StreamGroup> query = GetQuery(Parameters);
         PagedResponse<StreamGroupDto> ret = await query.GetPagedResponseAsync<StreamGroup, StreamGroupDto>(Parameters.PageNumber, Parameters.PageSize, mapper)

@@ -4,33 +4,24 @@ import { useState } from 'react';
 
 import { AdditionalFilterProperties } from '@lib/common/common';
 
-import { useSelectedSMChannel } from '@lib/redux/slices/selectedSMChannel';
-import { useSelectedSMStream } from '@lib/redux/slices/selectedSMStream';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { useShowHidden } from '@lib/redux/slices/useShowHidden';
 import { useShowSelections } from '@lib/redux/slices/useShowSelections';
 import { useSortInfo } from '@lib/redux/slices/useSortInfo';
+import { ColumnMeta } from './ColumnMeta';
+import { PagedTableInformation } from './smDataTableTypes';
 
-import { ColumnMeta, PagedTableInformation } from './DataSelectorTypes';
-
-const useDataSelectorValuesState = <T extends DataTableValue>(
-  id: string,
-  selectedItemsKey: string,
-  channelDataSelectorKey: string,
-  selectedSMStreamKey: string
-) => {
+const SMDataTableState = <T extends DataTableValue>(id: string, selectedItemsKey?: string) => {
   const { sortInfo, setSortInfo } = useSortInfo(id);
   const { selectAll, setSelectAll } = useSelectAll(id);
-  const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMChannel(channelDataSelectorKey);
-  const { selectedSMStream, setSelectedSMStream } = useSelectedSMStream(selectedSMStreamKey);
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<T>(selectedItemsKey);
+
   const { showHidden } = useShowHidden(id);
   const { showSelections, setShowSelections } = useShowSelections(id);
 
   const [rowClick, setRowClick] = useLocalStorage<boolean>(false, `${id}-rowClick`);
   const [visibleColumns, setVisibleColumns] = useLocalStorage<ColumnMeta[] | undefined | null>(null, `${id}-visibleColumns`);
-
+  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<T>(selectedItemsKey ?? id);
   const [pagedInformation, setPagedInformation] = useState<PagedTableInformation>();
   const [previousDataSource, setPreviousDataSource] = useState<T[] | undefined>();
   const [dataSource, setDataSource] = useState<T[]>();
@@ -55,47 +46,49 @@ const useDataSelectorValuesState = <T extends DataTableValue>(
 
   return {
     setters: {
-      setAdditionalFilterProps: setAdditionalFilterProperties,
+      // setAdditionalFilterProps: setAdditionalFilterProperties,
       setDataSource,
       setExpandedRows,
-      setFilters,
+
+      setPagedInformation,
+      // setPrevDataSource: setPreviousDataSource,
+      setRowClick,
+      setSelectSelectedItems,
+      setSelectAll,
+      setShowSelections,
+
       setFirst,
       setPage,
-      setPagedInformation,
-      setPrevDataSource: setPreviousDataSource,
-      setRowClick,
       setRows,
-      setSelectAll,
-      setSelectSelectedItems,
-      setShowSelections,
+
+      setFilters,
       setSortField,
       setSortOrder,
-      setVisibleColumns,
-      setSelectedSMChannel,
-      setSelectedSMStream
+      setVisibleColumns
     },
     state: {
-      additionalFilterProps: additionalFilterProperties,
+      // additionalFilterProps: additionalFilterProperties,
       dataSource,
       expandedRows,
-      filters,
+
+      pagedInformation,
+      // prevDataSource: previousDataSource,
+      rowClick,
+
+      selectAll,
+
+      showSelections,
       first,
       page,
-      pagedInformation,
-      prevDataSource: previousDataSource,
-      rowClick,
       rows,
-      selectAll,
-      selectSelectedItems,
-      selectedSMChannel,
       showHidden,
-      showSelections,
+      filters,
       sortField,
       sortOrder,
       visibleColumns,
-      selectedSMStream
+      selectSelectedItems
     }
   };
 };
 
-export default useDataSelectorValuesState;
+export default SMDataTableState;

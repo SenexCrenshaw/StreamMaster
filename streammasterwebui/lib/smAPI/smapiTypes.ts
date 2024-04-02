@@ -191,6 +191,21 @@ export interface SMStreamDto
 	url: string;
 	stationId: string;
 }
+export interface StreamGroupDto
+{
+	ffmpegProfileId: string;
+	isLoading: boolean;
+	hdhrLink: string;
+	isReadOnly: boolean;
+	autoSetChannelNumbers: boolean;
+	streamCount: number;
+	id: number;
+	m3ULink: string;
+	name: string;
+	xmlLink: string;
+	shortM3ULink: string;
+	shortEPGLink: string;
+}
 export interface HLSSettings
 {
 	hlsM3U8Enable: boolean;
@@ -247,6 +262,10 @@ export interface DefaultAPIResponse
 }
 export interface NoClass
 {
+}
+export interface GetPagedStreamGroupsRequest
+{
+	parameters: QueryStringParameters;
 }
 export interface GetPagedSMStreamsRequest
 {

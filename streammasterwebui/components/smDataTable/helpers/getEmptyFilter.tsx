@@ -1,6 +1,6 @@
 import { FilterMatchMode } from 'primereact/api';
 import { type DataTableFilterMeta } from 'primereact/datatable';
-import { type ColumnMeta } from './DataSelectorTypes';
+import { ColumnMeta } from '../ColumnMeta';
 
 function getEmptyFilter(columns: ColumnMeta[], showHidden: boolean | null | undefined): DataTableFilterMeta {
   const filter = columns.reduce<DataTableFilterMeta>((object, item: ColumnMeta) => {

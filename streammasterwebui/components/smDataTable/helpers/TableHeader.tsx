@@ -1,11 +1,9 @@
+import { SMTextColor } from '@components/SMTextColor';
+import { DataTableHeaderProperties } from '@components/smDataTable/SMDataTable';
 import { ExportComponent, HeaderLeft, MultiSelectCheckbox } from '@lib/common/common';
-import { SMTextColor } from '../SMTextColor';
-import { type DataSelectorProps as DataSelectorProperties } from './DataSelector';
-import { DataSelector2Props } from './DataSelector2';
-import { SMDataSelectorProps } from './SMDataSelector';
 
 interface TableHeaderProperties {
-  dataSelectorProps: SMDataSelectorProps | DataSelectorProperties | DataSelector2Props;
+  dataSelectorProps: DataTableHeaderProperties;
   enableExport: boolean;
   exportCSV: () => void;
   headerName?: string;

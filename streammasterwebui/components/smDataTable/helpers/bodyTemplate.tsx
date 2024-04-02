@@ -1,15 +1,16 @@
-import { type ColumnFieldType } from './DataSelectorTypes';
-import { blankTemplate } from './blankTemplate';
-import { defaultTemplate } from './defaultTemplate';
-import { epgLinkTemplate } from './epgLinkTemplate';
-import { epgSourceTemplate } from './epgSourceTemplate';
+import { StreamGroupDto } from '@lib/smAPI/smapiTypes';
+import { blankTemplate } from '../../dataSelector/blankTemplate';
+import { defaultTemplate } from '../../dataSelector/defaultTemplate';
+import { epgLinkTemplate } from '../../dataSelector/epgLinkTemplate';
+import { epgSourceTemplate } from '../../dataSelector/epgSourceTemplate';
+import getRecordString from '../../dataSelector/getRecordString';
+import { imageBodyTemplate } from '../../dataSelector/imageBodyTemplate';
+import { isHiddenTemplate } from '../../dataSelector/isHiddenTemplate';
+import { m3uLinkTemplate } from '../../dataSelector/m3uLinkTemplate';
+import { streamsBodyTemplate } from '../../dataSelector/streamsBodyTemplate';
+import { urlTemplate } from '../../dataSelector/urlTemplate';
+import { ColumnFieldType } from '../smDataTableTypes';
 import getRecord from './getRecord';
-import getRecordString from './getRecordString';
-import { imageBodyTemplate } from './imageBodyTemplate';
-import { isHiddenTemplate } from './isHiddenTemplate';
-import { m3uLinkTemplate } from './m3uLinkTemplate';
-import { streamsBodyTemplate } from './streamsBodyTemplate';
-import { urlTemplate } from './urlTemplate';
 
 function bodyTemplate(data: object, fieldName: string, fieldType: ColumnFieldType, defaultIcon: string, camelize?: boolean) {
   switch (fieldType) {

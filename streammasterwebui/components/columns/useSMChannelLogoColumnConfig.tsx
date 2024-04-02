@@ -5,6 +5,6 @@ export const useSMChannelLogoColumnConfig = createSMChannelMultiSelectColumnConf
   EditorComponent: SMChannelLogoEditor,
   dataField: 'logo',
   fieldType: 'image',
-  headerTitle: 'Logo',
+  headerTitle: '',
   useFilter: false
 });

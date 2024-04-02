@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Pagination;
+﻿using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Domain.Repository
 {
@@ -12,7 +10,7 @@ namespace StreamMaster.Domain.Repository
 
         Task<StreamGroupDto?> GetStreamGroupById(int id);
 
-        Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(StreamGroupParameters Parameters);
+        Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(QueryStringParameters Parameters);
 
         void CreateStreamGroup(StreamGroup StreamGroup);
 

@@ -5,6 +5,6 @@ export const useVideoStreamLogoColumnConfig = createVideoStreamMultiSelectColumn
   EditorComponent: VideoStreamLogoEditor,
   dataField: 'user_Tvg_logo',
   fieldType: 'image',
-  headerTitle: 'Logo',
+  headerTitle: '',
   useFilter: false
 });

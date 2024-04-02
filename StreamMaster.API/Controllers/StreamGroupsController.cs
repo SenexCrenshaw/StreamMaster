@@ -7,7 +7,6 @@ using StreamMaster.Application.StreamGroups.Commands;
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Helpers;
-using StreamMaster.Domain.Pagination;
 using StreamMaster.Domain.Repository;
 using StreamMaster.Domain.Requests;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
@@ -258,12 +257,6 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
         };
     }
 
-    [HttpGet]
-    public async Task<ActionResult<PagedResponse<StreamGroupDto>>> GetPagedStreamGroups([FromQuery] StreamGroupParameters parameters)
-    {
-        PagedResponse<StreamGroupDto> res = await Mediator.Send(new GetPagedStreamGroups(parameters)).ConfigureAwait(false);
-        return Ok(res);
-    }
 
     [HttpPatch]
     [Route("[action]")]
