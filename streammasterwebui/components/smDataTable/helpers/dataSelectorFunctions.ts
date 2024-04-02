@@ -1,7 +1,7 @@
 import getHeader from '@components/smDataTable/helpers/getHeader';
 import { CSSProperties } from 'react';
-import { ColumnMeta } from '../ColumnMeta';
-import { ColumnAlign, ColumnFieldType } from '../smDataTableTypes';
+import { ColumnMeta } from '../types/ColumnMeta';
+import { ColumnAlign, ColumnFieldType } from '../types/smDataTableTypes';
 
 export const getHeaderFromField = (field: string, columns: ColumnMeta[]): string => {
   let col = columns.find((column) => column.field === field);

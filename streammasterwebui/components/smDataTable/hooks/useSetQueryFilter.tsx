@@ -8,7 +8,7 @@ import { useSortInfo } from '@lib/redux/slices/useSortInfo';
 import { FilterMatchMode } from 'primereact/api';
 import { DataTableFilterMeta } from 'primereact/datatable';
 import { useEffect, useMemo } from 'react';
-import { ColumnMeta } from '../ColumnMeta';
+import { ColumnMeta } from '../types/ColumnMeta';
 
 function getSortString(sortInfo: any): string {
   return sortInfo && sortInfo.sortField ? `${sortInfo.sortField} ${sortInfo.sortOrder === -1 ? 'desc' : 'asc'}` : '';

@@ -36,7 +36,7 @@ import { PagedResponseDto } from '@lib/common/dataTypes';
 import BanButton from '../buttons/BanButton';
 import ResetButton from '../buttons/ResetButton';
 import { TriSelectShowSelection } from '../selectors/TriSelectShowSelection';
-import { useSetQueryFilter } from '../smDataTable/helpers/useSetQueryFilter';
+import { useSetQueryFilter } from '../smDataTable/hooks/useSetQueryFilter';
 
 const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => {
   const { state, setters } = useDataSelectorState<T>(props.id, props.selectedItemsKey);

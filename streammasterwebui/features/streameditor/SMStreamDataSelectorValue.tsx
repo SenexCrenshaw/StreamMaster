@@ -1,14 +1,11 @@
 import MinusButton from '@components/buttons/MinusButton';
-
+import SMDataTable from '@components/smDataTable/SMDataTable';
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { GetMessage } from '@lib/common/common';
 import { RemoveSMStreamFromSMChannel, SetSMStreamRanks } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-
 import { RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMChannelRankRequest, SMStreamDto, SetSMStreamRanksRequest } from '@lib/smAPI/smapiTypes';
-
-import { ColumnMeta } from '@components/smDataTable/ColumnMeta';
-import SMDataTable from '@components/smDataTable/SMDataTable';
 import { DataTableRowEvent, DataTableValue } from 'primereact/datatable';
-import { memo, useCallback, useMemo } from 'react';
+import { Suspense, memo, useCallback, useMemo } from 'react';
 import useSelectedSMItems from './useSelectedSMItems';
 
 interface SMStreamDataSelectorValueProperties {
@@ -20,7 +17,7 @@ interface SMStreamDataSelectorValueProperties {
 
 const SMStreamDataSelectorValue = ({ data, id, smChannel }: SMStreamDataSelectorValueProperties) => {
   const dataKey = `${id}-SMStreamDataSelectorValue`;
-  const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
+  const { setSelectedSMChannel } = useSelectedSMItems();
 
   const actionBodyTemplate = useCallback(
     (data: SMStreamDto) => (
@@ -28,11 +25,11 @@ const SMStreamDataSelectorValue = ({ data, id, smChannel }: SMStreamDataSelector
         <MinusButton
           iconFilled={false}
           onClick={() => {
-            if (!data.id || selectedSMChannel === undefined) {
+            if (!data.id || smChannel === undefined) {
               return;
             }
 
-            const request: RemoveSMStreamFromSMChannelRequest = { smChannelId: selectedSMChannel.id, smStreamId: data.id };
+            const request: RemoveSMStreamFromSMChannelRequest = { smChannelId: smChannel.id, smStreamId: data.id };
             RemoveSMStreamFromSMChannel(request)
               .then((response) => {
                 console.log('Remove Stream', response);
@@ -45,7 +42,7 @@ const SMStreamDataSelectorValue = ({ data, id, smChannel }: SMStreamDataSelector
         />
       </div>
     ),
-    [selectedSMChannel]
+    [smChannel]
   );
 
   const columns = useMemo(
@@ -73,42 +70,44 @@ const SMStreamDataSelectorValue = ({ data, id, smChannel }: SMStreamDataSelector
         setSelectedSMChannel(smChannel);
       }}
     >
-      <SMDataTable
-        noSourceHeader
-        reorderable
-        columns={columns}
-        defaultSortField="rank"
-        defaultSortOrder={1}
-        dataSource={data && [...data].sort((a, b) => a.rank - b.rank)}
-        emptyMessage="No Streams"
-        headerName={GetMessage('streams').toUpperCase()}
-        onRowReorder={(event: DataTableValue[]) => {
-          const channels = event as unknown as SMStreamDto[];
-          if (selectedSMChannel === undefined || channels === undefined) {
-            return;
-          }
+      <Suspense>
+        <SMDataTable
+          noSourceHeader
+          reorderable
+          columns={columns}
+          defaultSortField="rank"
+          defaultSortOrder={1}
+          dataSource={data && [...data].sort((a, b) => a.rank - b.rank)}
+          emptyMessage="No Streams"
+          headerName={GetMessage('streams').toUpperCase()}
+          onRowReorder={(event: DataTableValue[]) => {
+            const channels = event as unknown as SMStreamDto[];
+            if (smChannel === undefined || channels === undefined) {
+              return;
+            }
 
-          const tosend: SMChannelRankRequest[] = channels.map((item, index) => {
-            return { smChannelId: selectedSMChannel.id, smStreamId: item.id, rank: index } as SMChannelRankRequest;
-          });
-
-          SetSMStreamRanks({ requests: tosend } as SetSMStreamRanksRequest)
-            .then((response) => {
-              console.log('SetSMStreamRanks', response);
-            })
-            .catch((error) => {
-              console.error('SetSMStreamRanks', error.message);
+            const tosend: SMChannelRankRequest[] = channels.map((item, index) => {
+              return { smChannelId: smChannel.id, smStreamId: item.id, rank: index } as SMChannelRankRequest;
             });
 
-          console.log('tosend', tosend);
-        }}
-        onRowExpand={(e: DataTableRowEvent) => {
-          setSelectedSMChannel(e.data);
-        }}
-        id={dataKey}
-        selectedItemsKey={'SMStreamDataSelectorValue-selectSelectedSMStreamDtoItems'}
-        style={{ height: '20vh' }}
-      />
+            SetSMStreamRanks({ requests: tosend } as SetSMStreamRanksRequest)
+              .then((response) => {
+                console.log('SetSMStreamRanks', response);
+              })
+              .catch((error) => {
+                console.error('SetSMStreamRanks', error.message);
+              });
+
+            console.log('tosend', tosend);
+          }}
+          onRowExpand={(e: DataTableRowEvent) => {
+            setSelectedSMChannel(e.data);
+          }}
+          id={dataKey}
+          selectedItemsKey={'SMStreamDataSelectorValue-selectSelectedSMStreamDtoItems'}
+          style={{ height: '20vh' }}
+        />
+      </Suspense>
     </div>
   );
 };

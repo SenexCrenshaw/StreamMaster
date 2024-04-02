@@ -2,9 +2,10 @@ import MinusButton from '@components/buttons/MinusButton';
 import { useSMChannelLogoColumnConfig } from '@components/columns/useSMChannelLogoColumnConfig';
 import { useSMChannelNameColumnConfig } from '@components/columns/useSMChannelNameColumnConfig';
 import { useSMChannelNumberColumnConfig } from '@components/columns/useSMChannelNumberColumnConfig';
-import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
+
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import getRecord from '@components/smDataTable/helpers/getRecord';
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import { GetMessage } from '@lib/common/common';
 import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
@@ -132,6 +133,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
     <>
       <ConfirmPopup />
       <SMDataTable
+        enableClick
         selectRow
         showExpand
         columns={columns}
@@ -150,6 +152,9 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
           }
         }}
         onRowExpand={(e: DataTableRowEvent) => {
+          setSelectedSMEntity(e.data);
+        }}
+        onRowCollapse={(e: DataTableRowEvent) => {
           setSelectedSMEntity(e.data);
         }}
         rowClass={rowClass}

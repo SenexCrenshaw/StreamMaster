@@ -10,7 +10,7 @@ import M3UFileRemoveDialog from './M3UFileRemoveDialog';
 
 import M3UFileTagsDialog from './M3UFileTagsDialog';
 
-import { ColumnMeta } from '@components/smDataTable/ColumnMeta';
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import useGetPagedM3UFiles from '@lib/smAPI/M3UFiles/useGetPagedM3UFiles';
 import { M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowExpansionTemplate } from 'primereact/datatable';

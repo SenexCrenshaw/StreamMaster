@@ -41,7 +41,7 @@ import { Checkbox } from 'primereact/checkbox';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import ResetButton from '../buttons/ResetButton';
 import TableHeader from '../smDataTable/helpers/TableHeader';
-import { useSetQueryFilter } from '../smDataTable/helpers/useSetQueryFilter';
+import { useSetQueryFilter } from '../smDataTable/hooks/useSetQueryFilter';
 import getRecordString from './getRecordString';
 
 const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) => {

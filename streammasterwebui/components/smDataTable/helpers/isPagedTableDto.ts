@@ -1,4 +1,4 @@
-import { PagedTableDto } from '../smDataTableTypes';
+import { PagedTableDto } from '../types/smDataTableTypes';
 
 function isPagedTableDto<T>(value: unknown): value is PagedTableDto<T> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {

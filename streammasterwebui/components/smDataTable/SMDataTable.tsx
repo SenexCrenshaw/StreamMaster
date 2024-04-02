@@ -1,5 +1,4 @@
 import StringTracker from '@components/inputs/StringTracker';
-import { GetApiArgument, QueryHook } from '@lib/apiDefs';
 import { camel2title, isEmptyObject } from '@lib/common/common';
 import { PagedResponseDto } from '@lib/common/dataTypes';
 import useSettings from '@lib/useSettings';
@@ -9,9 +8,6 @@ import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import {
   DataTable,
   DataTableExpandedRows,
-  DataTableRowClickEvent,
-  DataTableRowEvent,
-  DataTableRowExpansionTemplate,
   DataTableRowToggleEvent,
   DataTableSelectionMultipleChangeEvent,
   DataTableSelectionSingleChangeEvent,
@@ -19,10 +15,8 @@ import {
   type DataTableValue
 } from 'primereact/datatable';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
-import { MouseEventHandler, ReactNode, memo, useCallback, useEffect, useMemo, useRef, type CSSProperties } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { ColumnMeta } from './ColumnMeta';
-import useSMDataSelectorValuesState from './SMDataTableState';
 import TableHeader from './helpers/TableHeader';
 import bodyTemplate from './helpers/bodyTemplate';
 import { getAlign, getAlignHeader, getHeaderFromField, getStyle, setColumnToggle } from './helpers/dataSelectorFunctions';
@@ -30,12 +24,16 @@ import getEmptyFilter from './helpers/getEmptyFilter';
 import getHeader from './helpers/getHeader';
 import getRecord from './helpers/getRecord';
 import isPagedTableDto from './helpers/isPagedTableDto';
-import { useSetQueryFilter } from './helpers/useSetQueryFilter';
-import { DataSelectorSelectionMode } from './smDataTableTypes';
+import useSMDataSelectorValuesState from './hooks/useSMDataTableState';
+import { useSetQueryFilter } from './hooks/useSetQueryFilter';
+import { ColumnMeta } from './types/ColumnMeta';
+import { SMDataTableProps } from './types/smDataTableInterfaces';
 
 const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   const { state, setters } = useSMDataSelectorValuesState<T>(props.id, props.selectedItemsKey);
   const tableReference = useRef<DataTable<T[]>>(null);
+
+  const [, setIsExpanded] = useState<boolean>(false);
 
   const { queryFilter } = useSetQueryFilter(props.id, props.columns, state.first, state.filters, state.page, state.rows);
   const { data, isLoading } = props.queryFilter ? props.queryFilter(queryFilter) : { data: undefined, isLoading: false };
@@ -215,7 +213,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   }, [onSetSelection, props.dataSource, props.reorderable, selectedData, setters, state.dataSource, state.selectAll]);
 
   const onRowReorder = (changed: T[]) => {
-    setters.setDataSource(changed);
+    // setters.setDataSource(changed);
     props.onRowReorder?.(changed);
   };
 
@@ -386,9 +384,23 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   // );
 
   return (
-    <div className="dataselector flex w-full min-w-full justify-content-start align-items-center">
+    <div
+      id={props.id}
+      onClick={(event: any) => {
+        if (props.enableClick !== true) {
+          return;
+        }
+        //const target = event.currentTarget as HTMLDivElement;
+        if (props.showExpand === true) {
+          setters.setExpandedRows(undefined);
+        }
+        props.onClick?.(event);
+      }}
+      className="dataselector flex w-full min-w-full justify-content-start align-items-center"
+    >
       <div className={`${props.className === undefined ? '' : props.className} h-full min-h-full w-full surface-overlay`}>
         <DataTable
+          id={props.id}
           cellSelection={false}
           editMode="cell"
           filterDisplay="row"
@@ -420,10 +432,14 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           style={props.style}
           value={state.dataSource}
           reorderableRows={props.reorderable}
-          onClick={(e: any) => {
-            props.onClick?.(e);
+          onRowCollapse={(e) => {
+            setIsExpanded(false);
+            props.onRowCollapse?.(e);
           }}
-          onRowExpand={props.onRowExpand}
+          onRowExpand={(e) => {
+            setIsExpanded(true);
+            props.onRowExpand?.(e);
+          }}
         >
           <Column
             body={props.addOrRemoveTemplate}
@@ -475,7 +491,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
                   body={(e) => (col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, setting.defaultIcon, col.camelize))}
                   editor={col.editor}
                   field={col.field}
-                  hidden={col.isHidden === true || getHeader(col.field, col.header, col.fieldType) === 'Actions' ? true : undefined}
+                  hidden={col.isHidden === true} //|| getHeader(col.field, col.header, col.fieldType) === 'Actions' ? true : undefined}
                   key={col.fieldType ? col.field + col.fieldType : col.field}
                   style={getStyle(col)}
                   showAddButton
@@ -494,54 +510,5 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 };
 
 SMDataTable.displayName = 'dataselectorvalues';
-
-export interface DataTableHeaderProperties {
-  headerRightTemplate?: ReactNode;
-  headerLeftTemplate?: ReactNode;
-  selectionMode?: DataSelectorSelectionMode;
-}
-
-interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
-  extraColumns?: Column[];
-  noSourceHeader?: boolean;
-  className?: string;
-  id: string;
-  columns: ColumnMeta[];
-  isLoading?: boolean;
-  defaultSortField?: string;
-  defaultSortOrder?: -1 | 0 | 1;
-  emptyMessage?: ReactNode;
-  enableExport?: boolean;
-  rowExpansionTemplate?: (data: DataTableRowData<T | any>, options: DataTableRowExpansionTemplate) => React.ReactNode;
-  addOrRemoveHeaderTemplate?: () => ReactNode;
-  addOrRemoveTemplate?: (data: T) => ReactNode;
-  showExpand?: boolean;
-  style?: CSSProperties;
-  selectedItemsKey?: string;
-  onRowReorder?: (value: T[]) => void;
-  reorderable?: boolean;
-  showSelections?: boolean;
-  onSelectionChange?: (value: T[], selectAll: boolean) => void;
-  selectRow?: boolean;
-  headerName?: string;
-  onMultiSelectClick?: (value: boolean) => void;
-  onClick?: MouseEventHandler<T> | undefined;
-  onRowExpand?(event: DataTableRowEvent): void;
-  onRowClick?(event: DataTableRowClickEvent): void;
-  rowClass?: (data: DataTableRowData<any>) => string;
-}
-
-type QueryFilterProperties<T> = BaseDataSelectorProperties<T> & {
-  dataSource?: T[] | undefined;
-  queryFilter: (filters: GetApiArgument) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
-};
-
-type DataSourceProperties<T> = BaseDataSelectorProperties<T> & {
-  dataSource: T[] | undefined;
-  queryFilter?: (filters: GetApiArgument) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
-};
-
-export type DataSelectorValuesProps = DataSourceProperties<string> | QueryFilterProperties<string>;
-type SMDataTableProps<T> = DataSourceProperties<T> | QueryFilterProperties<T>;
 
 export default memo(SMDataTable);

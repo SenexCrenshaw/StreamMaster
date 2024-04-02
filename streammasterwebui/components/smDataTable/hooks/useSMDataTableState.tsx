@@ -9,8 +9,8 @@ import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { useShowHidden } from '@lib/redux/slices/useShowHidden';
 import { useShowSelections } from '@lib/redux/slices/useShowSelections';
 import { useSortInfo } from '@lib/redux/slices/useSortInfo';
-import { ColumnMeta } from './ColumnMeta';
-import { PagedTableInformation } from './smDataTableTypes';
+import { ColumnMeta } from '../types/ColumnMeta';
+import { PagedTableInformation } from '../types/smDataTableTypes';
 
 const SMDataTableState = <T extends DataTableValue>(id: string, selectedItemsKey?: string) => {
   const { sortInfo, setSortInfo } = useSortInfo(id);

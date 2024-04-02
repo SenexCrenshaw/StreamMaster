@@ -9,7 +9,7 @@ import { isHiddenTemplate } from '../../dataSelector/isHiddenTemplate';
 import { m3uLinkTemplate } from '../../dataSelector/m3uLinkTemplate';
 import { streamsBodyTemplate } from '../../dataSelector/streamsBodyTemplate';
 import { urlTemplate } from '../../dataSelector/urlTemplate';
-import { ColumnFieldType } from '../smDataTableTypes';
+import { ColumnFieldType } from '../types/smDataTableTypes';
 import getRecord from './getRecord';
 
 function bodyTemplate(data: object, fieldName: string, fieldType: ColumnFieldType, defaultIcon: string, camelize?: boolean) {

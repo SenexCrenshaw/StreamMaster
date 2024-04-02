@@ -1,6 +1,6 @@
 import { SMTextColor } from '@components/SMTextColor';
-import { DataTableHeaderProperties } from '@components/smDataTable/SMDataTable';
 import { ExportComponent, HeaderLeft, MultiSelectCheckbox } from '@lib/common/common';
+import { DataTableHeaderProperties } from '../types/smDataTableInterfaces';
 
 interface TableHeaderProperties {
   dataSelectorProps: DataTableHeaderProperties;
