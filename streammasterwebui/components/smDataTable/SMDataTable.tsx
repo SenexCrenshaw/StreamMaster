@@ -459,6 +459,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           scrollHeight="flex"
           scrollable
           showGridlines
+          size="small"
           stripedRows
           style={props.style}
           value={state.dataSource}

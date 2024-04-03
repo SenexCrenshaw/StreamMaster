@@ -10,12 +10,12 @@ import { RootLayout } from './RootLayout';
 
 import '@lib/styles/index.css';
 
+import { MessageProcessor } from '@lib/signalr/MessageProcessor';
+import { SignalRProvider } from '@lib/signalr/SignalRProvider';
 import 'primeicons/primeicons.css'; //icons
 import 'primereact/resources/primereact.min.css'; //core css
-import { MessageProcessor } from '@lib/signalr/MessageProcessor';
+// import 'primereact/resources/themes/lara-dark-blue/theme.css';
 import { Suspense, lazy } from 'react';
-import { SignalRProvider } from '@lib/signalr/SignalRProvider';
-
 const App = (): JSX.Element => {
   const [locale] = useLocalStorage('en', 'locale');
   const messages = locale === 'en' ? MessagesEn : MessagesEn;

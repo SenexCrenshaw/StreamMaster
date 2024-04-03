@@ -27,18 +27,14 @@ export const getStyle = (col: ColumnMeta, noMatch?: boolean): CSSProperties | un
     return;
   }
 
-  if (col.width !== undefined && col.width !== '') {
-    return {
-      ...col.style,
-      flexGrow: 0,
-      flexShrink: 1,
-      maxWidth: col.width,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      width: col.width
-    } as CSSProperties;
-  }
+  const widthStyle = col.width !== undefined && col.width !== '' ? { width: col.width } : {};
+
+  const maxWidthStyle =
+    col.maxWidth !== undefined && col.maxWidth !== ''
+      ? { maxWidth: col.maxWidth }
+      : col.width !== undefined && col.width !== ''
+      ? { maxWidth: col.width }
+      : { maxWidth: '3rem' };
 
   return {
     ...col.style,
@@ -46,6 +42,8 @@ export const getStyle = (col: ColumnMeta, noMatch?: boolean): CSSProperties | un
     flexShrink: 1,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    ...widthStyle,
+    ...maxWidthStyle
   } as CSSProperties;
 };

@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Infrastructure.EF.PGSQL;
@@ -49,7 +48,7 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
         List<VideoStream> videos = [.. context.VideoStreams.Where(a => a.ShortId == UniqueHexGenerator.ShortIdEmpty)];
         if (videos.Count == 0)
         {
-            Console.WriteLine("No shortids need fixing", videos.Count);
+            //Console.WriteLine("No shortids need fixing", videos.Count);
             return;
         }
 

@@ -1,19 +1,16 @@
 import AddButton from '@components/buttons/AddButton';
-
 import M3UFilesButton from '@components/m3u/M3UFilesButton';
-import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
-import StreamVisibleDialog from '@components/smstreams/StreamVisibleDialog';
-import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreams';
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
-import { AddSMStreamToSMChannel, CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-
-import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
-import { CreateSMChannelFromStreamRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
-
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
+import StreamVisibleDialog from '@components/smstreams/StreamVisibleDialog';
 import { GetMessage } from '@lib/common/common';
+import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreams';
+import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
+import { AddSMStreamToSMChannel, CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
+import { CreateSMChannelFromStreamRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent, DataTableRowEvent, DataTableValue } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import useSelectedSMItems from './useSelectedSMItems';
@@ -26,7 +23,7 @@ interface SMStreamDataSelectorProperties {
 
 const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections }: SMStreamDataSelectorProperties) => {
   const dataKey = `${id}-SMStreamDataSelector`;
-  const { selectedSMChannel, setSelectedSMChannel, selectSelectedItems } = useSelectedSMItems();
+  const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
 
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { setSelectedSMStreams } = useSelectSMStreams(dataKey);
@@ -38,9 +35,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
     if (propsEnableEdit !== enableEdit) {
       setEnableEdit(propsEnableEdit ?? true);
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [propsEnableEdit]);
+  }, [enableEdit, propsEnableEdit]);
 
   const actionBodyTemplate = useCallback(
     (data: SMStreamDto) => (
@@ -66,26 +61,19 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'logo', fieldType: 'image', width: '4rem', header: '' },
-      { field: 'name', filter: true, sortable: true },
+      { field: 'logo', fieldType: 'image' },
+      { field: 'name', filter: true, sortable: true, maxWidth: '2rem' },
       { field: 'group', filter: true, sortable: true, width: '5rem' },
       { field: 'm3UFileName', filter: true, header: 'M3U', sortable: true, width: '5rem' },
-      {
-        align: 'right',
-        bodyTemplate: actionBodyTemplate,
-        field: 'isHidden',
-        fieldType: 'actions',
-        header: 'Actions',
-        width: '5rem'
-      }
+      { align: 'right', bodyTemplate: actionBodyTemplate, field: 'isHidden', fieldType: 'actions', header: 'Actions', width: '5rem' }
     ],
     [actionBodyTemplate]
   );
 
   const addOrRemoveTemplate = useCallback(
     (data: any) => {
-      const found = selectSelectedItems.some((item) => item.id === data.id);
-      const isSelected = found ?? false;
+      // const found = selectSelectedItems.some((item) => item.id === data.id);
+      // const isSelected = found ?? false;
       let toolTip = 'Add Channel';
       if (selectedSMChannel !== undefined) {
         toolTip = 'Add Stream To "' + selectedSMChannel.name + '"';
@@ -127,7 +115,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
         </div>
       );
     },
-    [selectSelectedItems, selectedSMChannel]
+    [selectedSMChannel]
   );
 
   function addOrRemoveHeaderTemplate() {
@@ -200,45 +188,6 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
     },
     [selectedSMChannel]
   );
-
-  // return (
-  //   <>
-  //     <ConfirmPopup />
-  //     <SMDataTable
-  //       columns={columns}
-  //       enableClick
-  //       selectRow
-  //       showExpand
-  //       defaultSortField="name"
-  //       defaultSortOrder={1}
-  //       emptyMessage="No Channels"
-  //       headerRightTemplate={rightHeaderTemplate}
-  //       headerName={GetMessage('channels').toUpperCase()}
-  //       id={dataKey}
-  //       isLoading={isLoading}
-  //       onRowClick={(e: DataTableRowClickEvent) => {
-  //         setSelectedSMEntity(e.data as SMChannelDto, true);
-  //         console.log(e);
-  //       }}
-  //       onClick={(e: any) => {
-  //         if (e.target.className && e.target.className === 'p-datatable-wrapper') {
-  //           setSelectedSMChannel(undefined);
-  //         }
-  //       }}
-  //       onRowExpand={(e: DataTableRowEvent) => {
-  //         setSelectedSMEntity(e.data);
-  //       }}
-  //       onRowCollapse={(e: DataTableRowEvent) => {
-  //         setSelectedSMEntity(e.data);
-  //       }}
-  //       rowClass={rowClass}
-  //       // queryFilter={useGetPagedSMChannels}
-  //       // rowExpansionTemplate={rowExpansionTemplate}
-  //       selectedItemsKey="selectSelectedSMChannelDtoItems"
-  //       style={{ height: 'calc(100vh - 10px)' }}
-  //     />
-  //   </>
-  // );
 
   return (
     <SMDataTable

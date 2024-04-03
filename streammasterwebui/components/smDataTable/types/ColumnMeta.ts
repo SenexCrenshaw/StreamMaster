@@ -73,4 +73,5 @@ export interface ColumnMeta {
   width?: string;
   removed?: boolean;
   removable?: boolean;
+  maxWidth?: string;
 }

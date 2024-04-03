@@ -25,6 +25,11 @@ function getHeader(field: string, header: string | undefined, fieldType: ColumnF
     case 'url': {
       return 'HDHR';
     }
+
+    case 'image': {
+      return '';
+    }
+
     case 'streams': {
       return <div>Streams</div>;
     }
