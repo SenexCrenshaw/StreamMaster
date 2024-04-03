@@ -39,6 +39,8 @@
 .p-filter-column {
     padding-top: $datatable-padding !important;
     padding-bottom: $datatable-padding !important;
+    padding-left: $datatable-x-padding !important;
+    padding-right: $datatable-x-padding !important;
 
     .p-inputtext {
         @include datatable-text-style;

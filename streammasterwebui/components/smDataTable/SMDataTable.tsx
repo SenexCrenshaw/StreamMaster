@@ -8,15 +8,18 @@ import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import {
   DataTable,
   DataTableExpandedRows,
+  DataTablePageEvent,
   DataTableRowToggleEvent,
   DataTableSelectionMultipleChangeEvent,
   DataTableSelectionSingleChangeEvent,
+  DataTableStateEvent,
   type DataTableRowData,
   type DataTableValue
 } from 'primereact/datatable';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import generateFilterData from '@components/dataSelector/generateFilterData';
 import TableHeader from './helpers/TableHeader';
 import bodyTemplate from './helpers/bodyTemplate';
 import { getAlign, getAlignHeader, getHeaderFromField, getStyle, setColumnToggle } from './helpers/dataSelectorFunctions';
@@ -350,6 +353,24 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     tableReference.current?.exportCSV({ selectionOnly: false });
   };
 
+  const onPage = (event: DataTablePageEvent) => {
+    const adjustedPage = (event.page ?? 0) + 1;
+
+    setters.setPage(adjustedPage);
+    setters.setFirst(event.first);
+    setters.setRows(event.rows);
+
+    // if (state.prevDataSource !== undefined) {
+    //   setters.setPrevDataSource(undefined);
+    // }
+  };
+
+  const onFilter = (event: DataTableStateEvent) => {
+    const newFilters = generateFilterData(props.columns, event.filters);
+
+    setters.setFilters(newFilters);
+  };
+
   const sourceRenderHeader = useMemo(() => {
     if (props.noSourceHeader === true) {
       return null;
@@ -406,6 +427,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           filterDisplay="row"
           expandedRows={state.expandedRows}
           filters={isEmptyObject(state.filters) ? getEmptyFilter(props.columns, state.showHidden) : state.filters}
+          first={state.pagedInformation ? state.pagedInformation.first : state.first}
           loading={props.isLoading === true || isLoading === true}
           onRowReorder={(e) => {
             onRowReorder(e.value);
@@ -421,10 +443,17 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             }
             onSelectionChange(e);
           }}
+          onFilter={onFilter}
+          onPage={onPage}
           onRowClick={props.selectRow === true ? props.onRowClick : undefined}
+          paginator={props.enablePaginator ?? true}
+          paginatorClassName="text-xs p-0 m-0 withpadding"
+          paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
           ref={tableReference}
           rowClassName={props.rowClass ? props.rowClass : rowClass}
           rowExpansionTemplate={props.rowExpansionTemplate}
+          rows={state.rows}
+          rowsPerPageOptions={[10, 25, 50, 100, 250]}
           scrollHeight="flex"
           scrollable
           showGridlines
@@ -432,6 +461,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           style={props.style}
           value={state.dataSource}
           reorderableRows={props.reorderable}
+          totalRecords={state.pagedInformation ? state.pagedInformation.totalItemCount : undefined}
           onRowCollapse={(e) => {
             setIsExpanded(false);
             props.onRowCollapse?.(e);

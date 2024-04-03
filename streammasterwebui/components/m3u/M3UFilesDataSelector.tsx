@@ -305,7 +305,11 @@ const M3UFilesDataSelector = () => {
 
   const expandedColumns = useMemo(
     (): ColumnMeta[] => [
-      { bodyTemplate: urlEditorBodyTemplate, field: 'url', width: '12rem' },
+      {
+        bodyTemplate: urlEditorBodyTemplate,
+        field: 'url',
+        width: '12rem'
+      },
       {
         bodyTemplate: startingChannelNumberTemplate,
         field: 'startingChannelNumber',
@@ -316,7 +320,7 @@ const M3UFilesDataSelector = () => {
         bodyTemplate: maxStreamCountTemplate,
         field: 'maxStreamCount',
         header: 'Max Streams',
-        width: '6rem'
+        width: '4rem'
       },
       {
         bodyTemplate: autoUpdateTemplate,
@@ -392,6 +396,7 @@ const M3UFilesDataSelector = () => {
 
   return (
     <SMDataTable
+      noSourceHeader
       columns={columns}
       defaultSortField="name"
       emptyMessage="No M3U Files"
@@ -400,7 +405,6 @@ const M3UFilesDataSelector = () => {
       queryFilter={useGetPagedM3UFiles}
       rowExpansionTemplate={rowExpansionTemplate}
       showExpand
-      style={{ height: '50vh' }}
     />
   );
 };

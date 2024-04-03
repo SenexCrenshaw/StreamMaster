@@ -24,6 +24,8 @@ interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
   emptyMessage?: ReactNode;
   enableExport?: boolean;
   enableClick?: boolean;
+  enablePaginator?: boolean;
+  rows?: number;
   onRowCollapse?(event: DataTableRowEvent): void;
   rowExpansionTemplate?: (data: DataTableRowData<T | any>, options: DataTableRowExpansionTemplate) => React.ReactNode;
   addOrRemoveHeaderTemplate?: () => ReactNode;

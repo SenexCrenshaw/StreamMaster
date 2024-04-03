@@ -29,7 +29,7 @@ const SMDataTableState = <T extends DataTableValue>(id: string, selectedItemsKey
   const [page, setPage] = useState<number>(1);
   const [additionalFilterProperties, setAdditionalFilterProperties] = useState<AdditionalFilterProperties | undefined>();
 
-  const [rows, setRows] = useState<number>(5);
+  const [rows, setRows] = useState<number>(25);
   const [filters, setFilters] = useState<DataTableFilterMeta>({});
   const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows>();
 

@@ -1,5 +1,6 @@
 $input-padding: 0.1rem;
 $datatable-padding: $input-padding;
+$datatable-x-padding: $input-padding*2;
 $inputBorder-size: $input-padding;
 $datatable-row-height: 1.8rem;
 $input-height: $datatable-row-height - ($inputBorder-size*2);

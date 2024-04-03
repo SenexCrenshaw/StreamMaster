@@ -6944,6 +6944,10 @@
   max-height: 1.6rem;
 }
 
+.p-datatable-thead {
+  padding: 0;
+}
+
 .p-datatable {
   font-size: 0.75rem;
 }
@@ -6974,6 +6978,8 @@
 .p-filter-column {
   padding-top: 0.1rem !important;
   padding-bottom: 0.1rem !important;
+  padding-left: 0.2rem !important;
+  padding-right: 0.2rem !important;
 }
 .p-filter-column .p-inputtext {
   padding-left: 0.1rem !important;

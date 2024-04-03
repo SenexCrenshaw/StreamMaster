@@ -1,3 +1,4 @@
+import { M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { Dropdown } from 'primereact/dropdown';
 import { useLocalStorage } from 'primereact/hooks';
 import { type SelectItem } from 'primereact/selectitem';
