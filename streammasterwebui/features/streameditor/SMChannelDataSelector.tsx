@@ -3,11 +3,13 @@ import { useSMChannelLogoColumnConfig } from '@components/columns/useSMChannelLo
 import { useSMChannelNameColumnConfig } from '@components/columns/useSMChannelNameColumnConfig';
 import { useSMChannelNumberColumnConfig } from '@components/columns/useSMChannelNumberColumnConfig';
 
+import M3UFilesButton from '@components/m3u/M3UFilesButton';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import { GetMessage } from '@lib/common/common';
+import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import { DeleteSMChannelRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
@@ -26,7 +28,8 @@ interface SMChannelDataSelectorProperties {
 const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: SMChannelDataSelectorProperties) => {
   const dataKey = `${id}-SMChannelDataSelector`;
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
-
+  const { queryFilter } = useQueryFilter(dataKey);
+  const { isLoading } = useGetPagedSMChannels(queryFilter);
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
 
   const { columnConfig: channelNumberColumnConfig } = useSMChannelNumberColumnConfig({ enableEdit, useFilter: false });
@@ -129,19 +132,40 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
     [selectedSMChannel]
   );
 
+  const rightHeaderTemplate = useMemo(
+    () => (
+      <div className="flex justify-content-end align-items-center w-full gap-1">
+        <div className="">
+          <M3UFilesButton />
+          {/* <TriSelectShowHidden dataKey={dataKey} />
+        <VideoStreamSetTimeShiftsDialog id={dataKey} />
+        <VideoStreamResetLogosDialog id={dataKey} />
+        <VideoStreamSetLogosFromEPGDialog id={dataKey} />
+        <AutoSetChannelNumbers id={dataKey} />
+        <VideoStreamVisibleDialog id={dataKey} />
+        <VideoStreamSetAutoSetEPGDialog iconFilled id={dataKey} />
+        <VideoStreamDeleteDialog iconFilled id={dataKey} />
+        <VideoStreamAddDialog group={channelGroupNames?.[0]} /> */}
+        </div>
+      </div>
+    ),
+    []
+  );
   return (
     <>
       <ConfirmPopup />
       <SMDataTable
+        columns={columns}
         enableClick
         selectRow
         showExpand
-        columns={columns}
         defaultSortField="name"
         defaultSortOrder={1}
         emptyMessage="No Channels"
+        headerRightTemplate={rightHeaderTemplate}
         headerName={GetMessage('channels').toUpperCase()}
         id={dataKey}
+        isLoading={isLoading}
         onRowClick={(e: DataTableRowClickEvent) => {
           setSelectedSMEntity(e.data as SMChannelDto, true);
           console.log(e);

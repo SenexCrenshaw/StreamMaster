@@ -22,10 +22,11 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import generateFilterData from '@components/dataSelector/generateFilterData';
 import TableHeader from './helpers/TableHeader';
 import bodyTemplate from './helpers/bodyTemplate';
-import { getAlign, getAlignHeader, getHeaderFromField, getStyle, setColumnToggle } from './helpers/dataSelectorFunctions';
+import { getAlign, getAlignHeader, getHeaderFromField, setColumnToggle } from './helpers/dataSelectorFunctions';
 import getEmptyFilter from './helpers/getEmptyFilter';
 import getHeader from './helpers/getHeader';
 import getRecord from './helpers/getRecord';
+import { getStyle } from './helpers/getStyle';
 import isPagedTableDto from './helpers/isPagedTableDto';
 import useSMDataSelectorValuesState from './hooks/useSMDataTableState';
 import { useSetQueryFilter } from './hooks/useSetQueryFilter';
@@ -417,9 +418,10 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         }
         props.onClick?.(event);
       }}
-      className="dataselector flex w-full min-w-full justify-content-start align-items-center"
+      className=""
     >
-      <div className={`${props.className === undefined ? '' : props.className} h-full min-h-full w-full surface-overlay`}>
+      {/* <div className={`${props.className === undefined ? '' : props.className} h-full min-h-full w-full surface-overlay`}> */}
+      <div className="h-full min-h-full w-full surface-overlay">
         <DataTable
           id={props.id}
           cellSelection={false}
@@ -513,7 +515,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
                 <Column
                   align={getAlign(col.align, col.fieldType)}
                   alignHeader={getAlignHeader(col.align, col.fieldType)}
-                  className={col.className}
+                  className={'sm-column ' + col.className}
                   filter
                   filterElement={col.filter === true ? col.filterElement : rowFilterTemplate}
                   filterPlaceholder={col.filter === true ? (col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)) : undefined}
@@ -523,7 +525,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
                   field={col.field}
                   hidden={col.isHidden === true} //|| getHeader(col.field, col.header, col.fieldType) === 'Actions' ? true : undefined}
                   key={col.fieldType ? col.field + col.fieldType : col.field}
-                  style={getStyle(col)}
+                  style={getStyle(col, col.noAutoStyle !== true || col.bodyTemplate !== undefined)}
                   showAddButton
                   showApplyButton
                   showClearButton

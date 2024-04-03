@@ -227,6 +227,11 @@
     padding-right: 0.10rem;
 }
 
+.sm-column {
+    padding-left: 0.20rem !important;
+    padding-right: 0.20rem !important;
+}
+
 .no-text {
     color: transparent;
 }
@@ -257,6 +262,6 @@
     }
 }
 
-  .p-datatable-thead {
-     padding:0;
-  }
+.p-datatable-thead {
+    padding: 0;
+}

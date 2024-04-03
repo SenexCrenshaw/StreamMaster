@@ -3,7 +3,6 @@ import AddButton from '@components/buttons/AddButton';
 import M3UFilesButton from '@components/m3u/M3UFilesButton';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamVisibleDialog from '@components/smstreams/StreamVisibleDialog';
-import { GetMessage } from '@lib/common/common';
 import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreams';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { AddSMStreamToSMChannel, CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
@@ -12,7 +11,9 @@ import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import { CreateSMChannelFromStreamRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 
 import SMDataTable from '@components/smDataTable/SMDataTable';
+import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import { GetMessage } from '@lib/common/common';
 import { DataTableRowClickEvent, DataTableRowEvent, DataTableValue } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import useSelectedSMItems from './useSelectedSMItems';
@@ -180,6 +181,65 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
     [selectedSMChannel, setSelectedSMChannel]
   );
 
+  const rowClass = useCallback(
+    (data: unknown): string => {
+      const isHidden = getRecord(data, 'isHidden');
+
+      if (isHidden === true) {
+        return 'bg-red-900';
+      }
+
+      if (selectedSMChannel !== undefined) {
+        const id = getRecord(data, 'id') as number;
+        if (id === selectedSMChannel.id) {
+          return 'bg-orange-900';
+        }
+      }
+
+      return '';
+    },
+    [selectedSMChannel]
+  );
+
+  // return (
+  //   <>
+  //     <ConfirmPopup />
+  //     <SMDataTable
+  //       columns={columns}
+  //       enableClick
+  //       selectRow
+  //       showExpand
+  //       defaultSortField="name"
+  //       defaultSortOrder={1}
+  //       emptyMessage="No Channels"
+  //       headerRightTemplate={rightHeaderTemplate}
+  //       headerName={GetMessage('channels').toUpperCase()}
+  //       id={dataKey}
+  //       isLoading={isLoading}
+  //       onRowClick={(e: DataTableRowClickEvent) => {
+  //         setSelectedSMEntity(e.data as SMChannelDto, true);
+  //         console.log(e);
+  //       }}
+  //       onClick={(e: any) => {
+  //         if (e.target.className && e.target.className === 'p-datatable-wrapper') {
+  //           setSelectedSMChannel(undefined);
+  //         }
+  //       }}
+  //       onRowExpand={(e: DataTableRowEvent) => {
+  //         setSelectedSMEntity(e.data);
+  //       }}
+  //       onRowCollapse={(e: DataTableRowEvent) => {
+  //         setSelectedSMEntity(e.data);
+  //       }}
+  //       rowClass={rowClass}
+  //       // queryFilter={useGetPagedSMChannels}
+  //       // rowExpansionTemplate={rowExpansionTemplate}
+  //       selectedItemsKey="selectSelectedSMChannelDtoItems"
+  //       style={{ height: 'calc(100vh - 10px)' }}
+  //     />
+  //   </>
+  // );
+
   return (
     <SMDataTable
       columns={columns}
@@ -209,6 +269,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
         setSelectedSMEntity(e.data, true);
         // props.onRowClick?.(e);
       }}
+      rowClass={rowClass}
       queryFilter={useGetPagedSMStreams}
       selectedItemsKey="selectSelectedSMStreamDtoItems"
       style={{ height: 'calc(100vh - 10px)' }}

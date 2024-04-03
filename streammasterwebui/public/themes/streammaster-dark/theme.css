@@ -6920,6 +6920,11 @@
   padding-right: 0.1rem;
 }
 
+.sm-column {
+  padding-left: 0.2rem !important;
+  padding-right: 0.2rem !important;
+}
+
 .no-text {
   color: transparent;
 }
@@ -6957,8 +6962,8 @@
 }
 .p-datatable .p-datatable-tbody > tr > td {
   padding: 0.1rem 0;
-  /* height: 1.8rem; */
-  /* max-height: 1.8rem; */
+  height: 1.8rem;
+  max-height: 1.8rem;
 }
 .p-datatable .p-datatable-thead > tr:nth-child(1) {
   display: none;

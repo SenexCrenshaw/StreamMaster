@@ -6920,6 +6920,11 @@
   padding-right: 0.1rem;
 }
 
+.sm-column {
+  padding-left: 0.2rem !important;
+  padding-right: 0.2rem !important;
+}
+
 .no-text {
   color: transparent;
 }

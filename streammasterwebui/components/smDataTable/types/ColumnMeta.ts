@@ -7,6 +7,7 @@ import { ColumnAlign, ColumnFieldType } from './smDataTableTypes';
  * The metadata for a column in the table.
  */
 export interface ColumnMeta {
+  noAutoStyle?: boolean;
   /**
    * The type of alignment for the content of the column.
    */
