@@ -1,4 +1,4 @@
-import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit';
+import { Draft, PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 interface AnyState {
   value: Record<string, any | undefined>;

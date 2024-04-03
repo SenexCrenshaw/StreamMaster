@@ -1,4 +1,4 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { type PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { type AdditionalFilterProperties } from '../../common/common';
 import { type RootState } from '../store';
 

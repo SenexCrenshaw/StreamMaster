@@ -1,10 +1,10 @@
 import ColorEditor from '@components/ColorEditor';
 import { formatJSONDateString, getTopToolOptions } from '@lib/common/common';
+import { M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox';
 import { Toast } from 'primereact/toast';
 import { memo, useCallback, useMemo, useRef } from 'react';
 import DataSelector from '../dataSelector/DataSelector';
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 import NumberEditorBodyTemplate from '../inputs/NumberEditorBodyTemplate';
 import StringEditorBodyTemplate from '../inputs/StringEditorBodyTemplate';
 import EPGFileRefreshDialog from './EPGFileRefreshDialog';
@@ -13,14 +13,14 @@ import EPGPreviewDialog from './EPGPreviewDialog';
 
 const EPGFilesDataSelector = () => {
   interface EPGUpdateProperties {
-    id: number;
     auto?: boolean | null;
-    hours?: number | null;
-    name?: string | null;
-    url?: string | null;
     color?: string | null;
     epgNumber?: number | null;
+    hours?: number | null;
+    id: number;
+    name?: string | null;
     timeShift?: number | null;
+    url?: string | null;
   }
 
   const toast = useRef<Toast>(null);

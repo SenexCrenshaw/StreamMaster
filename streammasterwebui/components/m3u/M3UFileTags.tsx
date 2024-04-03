@@ -1,3 +1,4 @@
+import { M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { Button } from 'primereact/button';
 import { Chips } from 'primereact/chips';
 import { OverlayPanel } from 'primereact/overlaypanel';
@@ -5,8 +6,8 @@ import React, { useMemo, useRef, useState } from 'react';
 
 export interface M3UFileTagsProperties {
   m3uFileDto?: M3UFileDto;
-  vodTags?: string[];
   onChange: (vodTags: string[]) => void;
+  vodTags?: string[];
 }
 
 const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) => {
@@ -28,31 +29,41 @@ const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) =
   }, [intTags]);
 
   return (
-    <div className="w-full bordered-text tag-editor p-0 m-0" ref={anchorReference}>
-      <Button
-        className="text-sm tag-editor"
-        icon="pi pi-chevron-down"
-        label={buttonTags}
-        text={true}
-        onClick={(e) => {
-          if (isOpen) {
-            op.current?.hide();
-          } else {
-            op.current?.show(null, anchorReference.current);
-          }
-          setIsOpen(!isOpen);
-        }}
-      />
-      <OverlayPanel ref={op} onHide={() => setIsOpen(false)} style={{ width: '20rem' }}>
-        <Chips
-          autoFocus
-          id="chips"
-          value={intTags}
-          onChange={(e) => {
-            onChange(e.value ?? []);
-          }}
-        />
-      </OverlayPanel>
+    <div className="pb-3">
+      <div id="name" className="text-xs text-500">
+        URL REGEX
+      </div>
+      <div className="w-full tag-editor p-0 m-0 default-border" ref={anchorReference}>
+        <OverlayPanel ref={op} onHide={() => setIsOpen(false)}>
+          <Chips
+            autoFocus
+            id="chips"
+            value={intTags}
+            onChange={(e) => {
+              onChange(e.value ?? []);
+            }}
+          />
+        </OverlayPanel>
+
+        <div>
+          <Button
+            className="text-sm tag-editor"
+            icon="pi pi-chevron-down"
+            iconPos="right"
+            id="tag-Button"
+            label={buttonTags}
+            text={true}
+            onClick={(e) => {
+              if (isOpen) {
+                op.current?.hide();
+              } else {
+                op.current?.show(null, anchorReference.current);
+              }
+              setIsOpen(!isOpen);
+            }}
+          />
+        </div>
+      </div>
     </div>
   );
 };

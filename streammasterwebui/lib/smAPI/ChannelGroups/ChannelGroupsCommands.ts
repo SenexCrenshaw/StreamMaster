@@ -1,5 +1,5 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { DefaultAPIResponse,CreateChannelGroupRequest,ChannelGroupDto,APIResponse,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
+import { APIResponse,ChannelGroupDto,CreateChannelGroupRequest,DefaultAPIResponse,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const CreateChannelGroup = async (request: CreateChannelGroupRequest): Promise<DefaultAPIResponse | null> => {
   const signalRService = SignalRService.getInstance();

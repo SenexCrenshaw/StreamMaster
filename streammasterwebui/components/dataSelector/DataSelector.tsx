@@ -17,7 +17,7 @@ import {
   type DataTableStateEvent,
   type DataTableValue
 } from 'primereact/datatable';
-import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
+import { type CSSProperties, type ReactNode, memo, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import TableHeader from '../smDataTable/helpers/TableHeader';
 import bodyTemplate from '../smDataTable/helpers/bodyTemplate';

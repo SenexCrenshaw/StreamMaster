@@ -6,20 +6,20 @@ import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import {
   DataTable,
   DataTableExpandedRows,
+  type DataTablePageEvent,
+  type DataTableRowClickEvent,
+  type DataTableRowData,
   DataTableRowEvent,
   DataTableRowExpansionTemplate,
   DataTableRowReorderEvent,
   DataTableRowToggleEvent,
-  type DataTablePageEvent,
-  type DataTableRowClickEvent,
-  type DataTableRowData,
   type DataTableSelectAllChangeEvent,
   type DataTableSelectionMultipleChangeEvent,
   type DataTableSelectionSingleChangeEvent,
   type DataTableStateEvent,
   type DataTableValue
 } from 'primereact/datatable';
-import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
+import { type CSSProperties, type ReactNode, memo, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import bodyTemplate from '../smDataTable/helpers/bodyTemplate';
 import getEmptyFilter from '../smDataTable/helpers/getEmptyFilter';

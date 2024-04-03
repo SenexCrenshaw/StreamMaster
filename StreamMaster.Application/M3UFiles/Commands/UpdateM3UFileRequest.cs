@@ -13,66 +13,66 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IMapper 
     {
         try
         {
+            List<FieldData> ret = [];
             M3UFile? m3uFile = await Repository.M3UFile.GetM3UFile(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
             {
                 return DefaultAPIResponse.NotFound;
             }
 
-            bool isChanged = false;
             bool needsUpdate = false;
             bool needsRefresh = false;
 
             if (request.VODTags != null)
             {
-                isChanged = true;
                 needsUpdate = true;
                 m3uFile.VODTags = request.VODTags;
+                ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "vodTags", m3uFile.VODTags));
             }
 
 
             if (!string.IsNullOrEmpty(request.Url) && m3uFile.Url != request.Url)
             {
-                isChanged = true;
                 needsUpdate = true;
                 m3uFile.Url = request.Url;
+                ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "url", m3uFile.Url));
             }
 
             if (request.OverWriteChannels != null)
             {
-                isChanged = true;
                 needsUpdate = true;
                 m3uFile.OverwriteChannelNumbers = (bool)request.OverWriteChannels;
+                ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "overwriteChannelNumbers", m3uFile.OverwriteChannelNumbers));
             }
 
             if (!string.IsNullOrEmpty(request.Name) && m3uFile.Name != request.Name)
             {
-                isChanged = true;
                 m3uFile.Name = request.Name;
+                ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "name", m3uFile.Name));
             }
 
             if (request.MaxStreamCount != null && m3uFile.MaxStreamCount != request.MaxStreamCount)
             {
-                isChanged = true;
                 m3uFile.MaxStreamCount = (int)request.MaxStreamCount;
+                ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "maxStreamCount", m3uFile.MaxStreamCount));
             }
 
             if (request.AutoUpdate != null && m3uFile.AutoUpdate != request.AutoUpdate)
             {
-                isChanged = true;
                 m3uFile.AutoUpdate = (bool)request.AutoUpdate;
+                ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "autoUpdate", m3uFile.AutoUpdate));
             }
 
             if (request.StartingChannelNumber != null && m3uFile.StartingChannelNumber != request.StartingChannelNumber)
             {
-                isChanged = true;
                 m3uFile.StartingChannelNumber = (int)request.StartingChannelNumber;
+                ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "startingChannelNumber", m3uFile.StartingChannelNumber));
             }
 
             if (request.HoursToUpdate != null && m3uFile.HoursToUpdate != request.HoursToUpdate)
             {
-                isChanged = true;
                 m3uFile.HoursToUpdate = (int)request.HoursToUpdate;
+                ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "hoursToUpdate", m3uFile.HoursToUpdate));
             }
 
             Repository.M3UFile.UpdateM3UFile(m3uFile);
@@ -80,7 +80,6 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IMapper 
 
             if (needsRefresh)
             {
-
                 await Sender.Send(new RefreshM3UFileRequest(m3uFile.Id, true), cancellationToken).ConfigureAwait(false);
             }
 
@@ -90,10 +89,10 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IMapper 
                 await Sender.Send(new ProcessM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
             }
 
-            M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
-            if (isChanged)
+
+            if (ret.Count > 0)
             {
-                await HubContext.Clients.All.M3UFilesRefresh().ConfigureAwait(false);
+                await HubContext.Clients.All.SetField(ret).ConfigureAwait(false);
             }
 
             return DefaultAPIResponse.Ok;

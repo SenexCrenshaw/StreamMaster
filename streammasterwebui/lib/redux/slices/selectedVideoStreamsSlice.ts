@@ -1,4 +1,4 @@
-import { createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { type PayloadAction, createSelector, createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 
 interface selectedVideoStreamsSlicePayload {

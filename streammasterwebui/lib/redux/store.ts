@@ -1,4 +1,4 @@
-import { configureStore, type Action, type ThunkAction } from '@reduxjs/toolkit';
+import { type Action, type ThunkAction, configureStore } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
 
 import channelGroupToRemoveSliceReducer from '@lib/redux/slices/channelGroupToRemoveSlice';

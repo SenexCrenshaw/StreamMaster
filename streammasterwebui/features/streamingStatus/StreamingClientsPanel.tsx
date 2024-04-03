@@ -4,7 +4,7 @@ import { formatJSONDateString, getTopToolOptions } from '@lib/common/common';
 
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import { memo, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { type CSSProperties, memo, useEffect, useRef, useState } from 'react';
 
 interface StreamingClientsPanelProperties {
   readonly className?: string;

@@ -1,10 +1,10 @@
-import { QueryHookResult,GetApiArgument } from '@lib/apiDefs';
-import store from '@lib/redux/store';
+import { GetApiArgument, QueryHookResult } from '@lib/apiDefs';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
+import store from '@lib/redux/store';
+import { FieldData, PagedResponse, StreamGroupDto } from '@lib/smAPI/smapiTypes';
+import { useCallback, useEffect } from 'react';
 import { clear, setField, setIsForced, setIsLoading } from './GetPagedStreamGroupsSlice';
-import { useCallback,useEffect } from 'react';
 import { fetchGetPagedStreamGroups } from './StreamGroupsFetch';
-import {FieldData, StreamGroupDto,PagedResponse } from '@lib/smAPI/smapiTypes';
 
 interface ExtendedQueryHookResult extends QueryHookResult<PagedResponse<StreamGroupDto> | undefined> {}
 interface Result extends ExtendedQueryHookResult {
@@ -22,57 +22,56 @@ const useGetPagedStreamGroups = (params?: GetApiArgument | undefined): Result =>
   const isForced = useAppSelector((state) => state.GetPagedStreamGroups.isForced ?? false);
   const isLoading = useAppSelector((state) => state.GetPagedStreamGroups.isLoading[query] ?? false);
 
-const SetIsForced = useCallback(
-  (forceRefresh: boolean, query?: string): void => {
-    dispatch(setIsForced({ force: forceRefresh }));
-  },
-  [dispatch]
-);
+  const SetIsForced = useCallback(
+    (forceRefresh: boolean, query?: string): void => {
+      dispatch(setIsForced({ force: forceRefresh }));
+    },
+    [dispatch]
+  );
 
+  const SetIsLoading = useCallback(
+    (isLoading: boolean, query: string): void => {
+      dispatch(setIsLoading({ query: query, isLoading: isLoading }));
+    },
+    [dispatch]
+  );
+  useEffect(() => {
+    if (query === undefined) return;
+    const state = store.getState().GetPagedStreamGroups;
 
-const SetIsLoading = useCallback(
-  (isLoading: boolean, query: string): void => {
-    dispatch(setIsLoading({ query: query, isLoading: isLoading }));
-  },
-  [dispatch]
-);
-useEffect(() => {
-  if (query === undefined) return;
-  const state = store.getState().GetPagedStreamGroups;
+    if (data === undefined && state.isLoading[query] !== true && state.isForced !== true) {
+      SetIsForced(true);
+    }
+  }, [SetIsForced, data, dispatch, query]);
 
-  if (data === undefined && state.isLoading[query] !== true && state.isForced !== true) {
-    SetIsForced(true);
-  }
-}, [SetIsForced, data, dispatch, query]);
+  useEffect(() => {
+    const state = store.getState().GetPagedStreamGroups;
+    if (state.isLoading[query]) return;
+    if (query === undefined && !isForced) return;
+    if (data !== undefined && !isForced) return;
 
-useEffect(() => {
-  const state = store.getState().GetPagedStreamGroups;
-  if (state.isLoading[query]) return;
-  if (query === undefined && !isForced) return;
-  if (data !== undefined && !isForced) return;
+    SetIsLoading(true, query);
+    dispatch(fetchGetPagedStreamGroups(query));
+  }, [data, dispatch, query, isForced, isLoading, SetIsLoading]);
 
-  SetIsLoading(true, query);
-  dispatch(fetchGetPagedStreamGroups(query));
-}, [data, dispatch, query, isForced, isLoading, SetIsLoading]);
+  const SetField = (fieldData: FieldData): void => {
+    dispatch(setField({ fieldData: fieldData }));
+  };
 
-const SetField = (fieldData: FieldData): void => {
-  dispatch(setField({ fieldData: fieldData }));
-};
+  const Clear = (): void => {
+    dispatch(clear());
+  };
 
-const Clear = (): void => {
-  dispatch(clear());
-};
-
-return {
-  data,
-  error,
-  isError,
-  isLoading,
-  Clear,
-  SetField,
-  SetIsForced,
-  SetIsLoading
-};
+  return {
+    data,
+    error,
+    isError,
+    isLoading,
+    Clear,
+    SetField,
+    SetIsForced,
+    SetIsLoading
+  };
 };
 
 export default useGetPagedStreamGroups;

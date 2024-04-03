@@ -8,7 +8,7 @@ import useSettings from '@lib/useSettings';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
-import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { type CSSProperties, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { VideoInfoDisplay } from './VideoInfoDisplay';
 
 interface StreamingServerStatusPanelProperties {

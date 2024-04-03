@@ -1,5 +1,5 @@
 import { SMMessage } from '@lib/signalr/SMMessage';
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { useAppDispatch, useAppSelector } from '../hooks';
 
 const initialState: SMMessage[] = [];

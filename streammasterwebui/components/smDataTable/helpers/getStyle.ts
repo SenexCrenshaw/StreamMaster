@@ -40,9 +40,6 @@ export const getStyle = (col: ColumnMeta, noMatch?: boolean): CSSProperties | un
     ...col.style,
     flexGrow: 0,
     flexShrink: 1,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
     ...widthStyle,
     ...maxWidthStyle
   } as CSSProperties;

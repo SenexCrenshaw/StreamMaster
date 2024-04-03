@@ -9,6 +9,12 @@
 
 .default-border {
   border: 2px solid #263238 !important;
+  border-radius: 6px;
+}
+
+.streammaster-border {
+  border: 1px solid #fe7600 !important;
+  border-radius: 6px;
 }
 
 .surface-streamMaster {
@@ -6684,6 +6690,12 @@
 
 .default-border {
   border: 2px solid #263238 !important;
+  border-radius: 6px;
+}
+
+.streammaster-border {
+  border: 1px solid #fe7600 !important;
+  border-radius: 6px;
 }
 
 .surface-streamMaster {
@@ -6754,24 +6766,84 @@
   padding-left: 0.1rem !important;
   padding-top: 0.1rem !important;
   padding-bottom: 0.1rem !important;
-  font-size: 0.875rem;
-  max-height: 1.8rem;
+  font-size: 0.75rem;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  height: 1.6rem;
 }
 
 .p-multiselect-label.p-multiselect-items-label {
   padding: 0;
 }
 
+.tag-editor {
+  background: var(--surface-ground);
+  height: 1.6rem;
+}
+
+.p-chips-input-token {
+  background: var(--surface-ground);
+  border-radius: 6px;
+  width: 100%;
+}
+
 .smfileupload {
+  border: 2px solid var(--surface-100);
+  border-radius: 6px;
+  background: var(--surface-overlay);
+  padding: 0.5rem;
   height: 30vh;
 }
 .smfileupload .p-inputtext {
-  height: 1.8rem;
+  border: 0.1rem solid #2d3e44;
+  border-radius: 6px;
+  height: 1.6rem;
+  background: var(--surface-ground);
 }
 
-.sourceOrFileDialog {
-  padding-left: 0.1rem;
-  padding-right: 0.1rem;
+.text-right .p-inputtext {
+  width: unset;
+  max-width: unset;
+  text-align: right;
+}
+
+.smfileupload-header {
+  background: var(--surface-overlay);
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--surface-100);
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+}
+
+.smfileupload-panel {
+  background: #0e1315;
+  border: 0.1rem solid #2d3e44;
+  border-radius: 6px;
+}
+
+.sourceOrFileDialog-toggle .p-button.p-component {
+  padding: 0 !important;
+  padding-right: 0.6rem !important;
+  padding-left: 0.6rem !important;
+  width: 4rem !important;
+}
+
+.sourceOrFileDialog .p-inputgroup {
+  margin-top: 1rem;
+}
+.sourceOrFileDialog .sourceOrFileDialog-url {
+  padding: unset;
+  margin: unset;
+  border: unset;
+  border-radius: unset;
+  height: unset;
+  max-height: unset;
+  padding: 0.78rem;
+  border: 2px solid var(--surface-100);
 }
 .sourceOrFileDialog .p-progressbar {
   height: 1.8rem;
@@ -6909,20 +6981,53 @@
   object-fit: contain;
 }
 
-.listTemplate-gridItem-name {
+.listTemplate-gridItem-name,
+.sm-column,
+.sm-col-header,
+.sm-col-header-wrap,
+.sm-col-header-left,
+.sm-col-header-left-wrap,
+.sm-col-header-right,
+.sm-col-header-right-wrap {
+  padding-left: 0.1rem !important;
+  padding-top: 0.1rem !important;
+  padding-bottom: 0.1rem !important;
+  font-size: 0.75rem;
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-height: 1.6rem;
-  max-width: 4rem;
-  padding-left: 0.1rem;
-  padding-right: 0.1rem;
+  height: 1.6rem;
 }
 
-.sm-column {
-  padding-left: 0.2rem !important;
-  padding-right: 0.2rem !important;
+.listTemplate-gridItem-name {
+  max-width: 4rem;
+}
+
+.sm-col-header-left, .sm-col-header-left-wrap {
+  text-align: left;
+}
+
+.sm-col-header-right, .sm-col-header-right-wrap {
+  text-align: right;
+}
+
+.sm-col-header-wrap {
+  height: unset;
+  white-space: normal;
+  white-space: normal;
+}
+
+.sm-col-header-left-wrap {
+  height: unset;
+  white-space: normal;
+  white-space: normal;
+}
+
+.sm-col-header-right-wrap {
+  height: unset;
+  white-space: normal;
+  white-space: normal;
 }
 
 .no-text {
@@ -6990,8 +7095,12 @@
   padding-left: 0.1rem !important;
   padding-top: 0.1rem !important;
   padding-bottom: 0.1rem !important;
-  font-size: 0.875rem;
-  max-height: 1.8rem;
+  font-size: 0.75rem;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  height: 1.6rem;
 }
 
 .p-column-filter-row .p-inputtext {

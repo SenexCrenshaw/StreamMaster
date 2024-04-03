@@ -3,12 +3,12 @@ import { ColumnFieldType } from '@components/smDataTable/types/smDataTableTypes'
 import { QueryHook } from '@lib/apiDefs';
 import { isEmptyObject } from '@lib/common/common';
 
-import { SMChannelDto } from '@lib/smAPI/smapiTypes';
+import { M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { type ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { MultiSelect, type MultiSelectChangeEvent } from 'primereact/multiselect';
 
-type DataField = keyof SMChannelDto;
-type EditorComponent = React.ComponentType<{ data: SMChannelDto }>;
+type DataField = keyof M3UFileDto;
+type EditorComponent = React.ComponentType<{ data: M3UFileDto }>;
 
 interface ColumnConfigInputs {
   EditorComponent?: EditorComponent;
@@ -22,12 +22,12 @@ interface ColumnConfigInputs {
   width?: number;
 }
 
-const createSMChannelMultiSelectColumnConfigHook =
+const createM3UFileMultiSelectColumnConfigHook =
   ({ dataField, fieldType, headerTitle, maxWidth, minWidth, width, EditorComponent, queryHook, useFilter: configUseFilter }: ColumnConfigInputs) =>
   ({ enableEdit = false, useFilter = configUseFilter, values }: { enableEdit?: boolean; useFilter?: boolean; values?: string[] | undefined }) => {
     const { data, isLoading, isFetching, isError } = queryHook ? queryHook() : { data: undefined, isError: false, isFetching: false, isLoading: false };
 
-    const bodyTemplate = (bodyData: SMChannelDto | string) => {
+    const bodyTemplate = (bodyData: M3UFileDto | string) => {
       if (typeof bodyData === 'string') {
         return <span>{bodyData}</span>;
       }
@@ -99,4 +99,4 @@ const createSMChannelMultiSelectColumnConfigHook =
     };
   };
 
-export default createSMChannelMultiSelectColumnConfigHook;
+export default createM3UFileMultiSelectColumnConfigHook;

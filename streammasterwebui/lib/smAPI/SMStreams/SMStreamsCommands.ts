@@ -1,5 +1,5 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { DefaultAPIResponse,ToggleSMStreamVisibleByIdRequest,SMStreamDto,APIResponse,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
+import { APIResponse,DefaultAPIResponse,PagedResponse,QueryStringParameters,SMStreamDto,ToggleSMStreamVisibleByIdRequest } from '@lib/smAPI/smapiTypes';
 
 export const GetPagedSMStreams = async (parameters: QueryStringParameters): Promise<PagedResponse<SMStreamDto> | undefined> => {
   const signalRService = SignalRService.getInstance();

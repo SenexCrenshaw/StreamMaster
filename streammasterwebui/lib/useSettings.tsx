@@ -1,5 +1,4 @@
 import React from 'react';
-import { getIconUrl } from './common/common';
 import { AuthenticationType } from './common/streammaster_enums';
 import { SettingDto } from './smAPI/smapiTypes';
 

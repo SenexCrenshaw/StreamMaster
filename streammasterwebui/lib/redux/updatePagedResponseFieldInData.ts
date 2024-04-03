@@ -8,7 +8,7 @@ export const updatePagedResponseFieldInData = (pagedResponse: PagedResponse<any>
     ...pagedResponse,
     data: pagedResponse.data.map((dto) => {
       const id = dto.id.toString();
-      if (id === fieldData.id) {
+      if (id === fieldData.id && dto[fieldData.field] !== fieldData.value) {
         var test = {
           ...dto,
           [fieldData.field]: fieldData.value

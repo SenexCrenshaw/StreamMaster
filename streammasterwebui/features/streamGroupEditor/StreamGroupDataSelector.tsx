@@ -7,7 +7,7 @@ import StreamGroupEditDialog from '@components/streamGroup/StreamGroupEditDialog
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
 import { skipToken } from '@reduxjs/toolkit/dist/query/react';
-import { memo, useEffect, useMemo, type CSSProperties } from 'react';
+import { type CSSProperties, memo, useEffect, useMemo } from 'react';
 export interface StreamGroupDataSelectorProperties {
   readonly id: string;
 }

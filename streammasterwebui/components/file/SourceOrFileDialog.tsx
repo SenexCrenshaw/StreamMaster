@@ -2,7 +2,7 @@ import { isValidUrl } from '@lib/common/common';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { ProgressBar } from 'primereact/progressbar';
-import { ChangeEvent, SyntheticEvent, useCallback, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, useCallback, useMemo, useRef, useState } from 'react';
 
 interface SourceOrFileDialogProps {
   onAdd: (source: string | null, file: File | null) => void;
@@ -22,7 +22,7 @@ const SourceOrFileDialog = ({ onAdd, onName, progress }: SourceOrFileDialogProps
       inputFile.current.files = null;
       onName('');
     }
-  }, []);
+  }, [onName]);
 
   const sourceValue = useMemo(() => {
     var value = file ? file.name : source ?? '';
@@ -48,6 +48,7 @@ const SourceOrFileDialog = ({ onAdd, onName, progress }: SourceOrFileDialogProps
     }
     return (
       <InputText
+        className="sourceOrFileDialog-url"
         disabled={file !== null}
         placeholder="Source URL or File"
         value={sourceValue}
@@ -57,20 +58,20 @@ const SourceOrFileDialog = ({ onAdd, onName, progress }: SourceOrFileDialogProps
         }}
       />
     );
-  }, [source, file, progress, sourceValue, clearInputFile]);
+  }, [file, progress, sourceValue, clearInputFile]);
 
-  const handleChange = useCallback((event: ChangeEvent<HTMLInputElement>): void => {
-    var selectedFile = event.target.files?.[0];
-    if (selectedFile) {
-      setSource(null);
-      setFile(selectedFile);
-      onName(selectedFile.name);
-    }
-  }, []);
+  const handleChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>): void => {
+      var selectedFile = event.target.files?.[0];
+      if (selectedFile) {
+        setSource(null);
+        setFile(selectedFile);
+        onName(selectedFile.name);
+      }
+    },
+    [onName]
+  );
 
-  const addName = useMemo((): string => {
-    return file ? 'Upload' : 'Add';
-  }, [file]);
   const addIcon = useMemo((): string => {
     return file ? 'pi pi-upload' : 'pi pi-plus';
   }, [file]);
@@ -78,7 +79,7 @@ const SourceOrFileDialog = ({ onAdd, onName, progress }: SourceOrFileDialogProps
   return (
     <div className="sourceOrFileDialog flex flex-row grid-nogutter justify-content-between align-items-center">
       <div className="p-inputgroup flex-1">
-        <Button className="surface-streamMaster" label="Upload" icon="pi pi-upload" onClick={() => inputFile?.current?.click()} />
+        <Button className="surface-streamMaster" icon="pi pi-upload" onClick={() => inputFile?.current?.click()} />
         {getProgressOrInput}
         <Button
           className="border-right-1 border-500"
@@ -93,7 +94,7 @@ const SourceOrFileDialog = ({ onAdd, onName, progress }: SourceOrFileDialogProps
         />
         <Button
           disabled={!isSaveEnabled}
-          label={addName}
+          // label={addName}
           icon={addIcon}
           onClick={() => {
             onAdd(source, file);

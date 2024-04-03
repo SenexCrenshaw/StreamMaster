@@ -47,6 +47,7 @@
     "eslint-plugin-react-hooks": "latest",
     "eslint-plugin-sort-keys-fix": "latest",
     "eslint-plugin-tailwindcss": "latest",
+    "eslint-plugin-typescript-sort-keys": "^3.2.0",
     "eslint-plugin-unicorn": "latest",
     "eslint-plugin-unused-imports": "latest",
     "primeflex": "^3.3.1",

@@ -21,16 +21,41 @@ $streamMasterColor: #fe7600 !default;
 
 .default-border {
     border: 2px solid $shade600 !important;
+    border-radius: $borderRadius;
+}
+
+.streammaster-border {
+    border: 1px solid $streamMasterColor !important;
+    border-radius: $borderRadius;
 }
 
 .surface-streamMaster {
     background-color: $streamMasterColor;
 }
 
-@mixin datatable-text-style {
+@mixin datatable-text-style($nowrap: true) {
     padding-left: $datatable-padding !important;
     padding-top: $datatable-padding !important;
     padding-bottom: $datatable-padding !important;
-    font-size: .875rem;
-    max-height: $datatable-row-height;
+    font-size: $common-font-size;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: if($nowrap, nowrap, normal);
+    height: $input-height;
+}
+
+@mixin text-wrap() {
+    height: unset;
+    white-space: normal;
+}
+
+@mixin input-border() {
+    border: $inputBorder-size solid $inputHoverBorderColor;
+    border-radius: $borderRadius;
+}
+
+@mixin standard-border() {
+    border: 2px solid var(--surface-100);
+    border-radius: $borderRadius;
 }

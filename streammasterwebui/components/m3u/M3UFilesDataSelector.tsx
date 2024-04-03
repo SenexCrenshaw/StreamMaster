@@ -10,19 +10,21 @@ import M3UFileRemoveDialog from './M3UFileRemoveDialog';
 import M3UFileTagsDialog from './M3UFileTagsDialog';
 
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import useGetPagedM3UFiles from '@lib/smAPI/M3UFiles/useGetPagedM3UFiles';
 import { M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowExpansionTemplate } from 'primereact/datatable';
 import SMDataTable from '../smDataTable/SMDataTable';
+import M3UFilesMaxStreamsEditor from './M3UFilesMaxStreamsEditor';
 interface M3UUpdateProperties {
-  id: number;
   auto?: boolean | null;
   hours?: number | null;
+  id: number;
   maxStreams?: number | null;
-  overwriteChannelNumbers?: boolean | null;
   name?: string | null;
-  url?: string | null;
+  overwriteChannelNumbers?: boolean | null;
   startingChannelNumber?: number | null;
+  url?: string | null;
 }
 
 const M3UFilesDataSelector = () => {
@@ -33,7 +35,6 @@ const M3UFilesDataSelector = () => {
 
     const { id, ...restProperties } = props;
 
-    // Check if all values of the rest of the properties are null or undefined
     if (Object.values(restProperties).every((value) => value === null || value === undefined)) {
       return;
     }
@@ -75,27 +76,12 @@ const M3UFilesDataSelector = () => {
       tosend.startingChannelNumber = startingChannelNumber;
     }
 
-    // await UpdateM3UFile(tosend)
-    //   .then(() => {
-    //     if (toast.current) {
-    //       toast.current.show({
-    //         detail: 'M3U File Update Successful',
-    //         life: 3000,
-    //         severity: 'success',
-    //         summary: 'Successful'
-    //       });
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     if (toast.current) {
-    //       toast.current.show({
-    //         detail: 'M3U File Update Failed',
-    //         life: 3000,
-    //         severity: 'error',
-    //         summary: `Error ${error.message}`
-    //       });
-    //     }
-    //   });
+    await UpdateM3UFile(tosend)
+      .then(() => {})
+      .catch((error) => {
+        console.error('Error updating M3U File', error);
+        throw error;
+      });
   }, []);
 
   // const StreamURLPrefixEditorBodyTemplate = useCallback(
@@ -195,23 +181,13 @@ const M3UFilesDataSelector = () => {
     return <M3UFileTagsDialog m3uFileDto={rowData} />;
   }, []);
 
-  const maxStreamCountTemplate = useCallback(
-    (rowData: M3UFileDto) => {
-      if (rowData.id === 0) {
-        return <div />;
-      }
+  const maxStreamCountTemplate = useCallback((rowData: M3UFileDto) => {
+    if (rowData.id === 0) {
+      return <div />;
+    }
 
-      return (
-        <NumberEditorBodyTemplate
-          onChange={async (e) => {
-            await onM3UUpdateClick({ id: rowData.id, maxStreams: e });
-          }}
-          value={rowData.maxStreamCount}
-        />
-      );
-    },
-    [onM3UUpdateClick]
-  );
+    return <M3UFilesMaxStreamsEditor data={rowData} />;
+  }, []);
 
   const startingChannelNumberTemplate = useCallback(
     (rowData: M3UFileDto) => {
@@ -306,9 +282,9 @@ const M3UFilesDataSelector = () => {
   const expandedColumns = useMemo(
     (): ColumnMeta[] => [
       {
+        align: 'left',
         bodyTemplate: urlEditorBodyTemplate,
-        field: 'url',
-        width: '12rem'
+        field: 'url'
       },
       {
         bodyTemplate: startingChannelNumberTemplate,
@@ -320,28 +296,28 @@ const M3UFilesDataSelector = () => {
         bodyTemplate: maxStreamCountTemplate,
         field: 'maxStreamCount',
         header: 'Max Streams',
-        width: '4rem'
+        width: '4.4rem'
       },
       {
         bodyTemplate: autoUpdateTemplate,
         field: 'autoUpdate',
-        width: '8.2rem'
+        width: '5rem'
       },
 
       {
         bodyTemplate: overwriteTemplate,
         field: 'overwrite',
         header: 'Set Ch #s',
-        width: '5.6rem'
+        width: '4rem'
       },
 
       {
         align: 'center',
         bodyTemplate: actionBodyTemplate,
         field: 'actions',
-        width: '5rem'
+        width: '3.4rem'
       },
-      { align: 'center', bodyTemplate: tagEditorBodyTemplate, field: 'vodTags', header: 'URL (ignore)', width: '8rem' }
+      { align: 'center', bodyTemplate: tagEditorBodyTemplate, field: 'vodTags', header: 'URL (ignore)', width: '6rem' }
     ],
     [
       urlEditorBodyTemplate,
@@ -356,10 +332,9 @@ const M3UFilesDataSelector = () => {
 
   const rowExpansionTemplate = useCallback(
     (data: any, options: DataTableRowExpansionTemplate) => {
-      console.log('expanded data', data);
       return (
         <div className="border-2 border-round-lg border-200 ml-3 m-1">
-          <SMDataTable noSourceHeader id={'M3UFileDataSelectorValues'} columns={expandedColumns} dataSource={[data]} />
+          <SMDataTable enableHeaderWrap noSourceHeader id={'m3uFileDataSelectorValues'} columns={expandedColumns} dataSource={[data]} />
         </div>
       );
     },

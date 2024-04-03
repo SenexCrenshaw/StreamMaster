@@ -3,7 +3,7 @@
     "browser": true,
     "es2022": true
   },
-  "extends": ["react-app", "prettier"],
+  "extends": ["react-app", "prettier","plugin:typescript-sort-keys/recommended"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaFeatures": {
@@ -13,13 +13,24 @@
     "sourceType": "module",
     "project": "./tsconfig.json"
   },
-  "plugins": ["unused-imports", "html"],
+  "plugins": ["unused-imports", "html","sort-keys-fix","typescript-sort-keys"],
   "ignorePatterns": [ "*.css", "node_modules/", "dist/"],
   "rules": {
     "no-lone-blocks": "off",
     "unused-imports/no-unused-imports-ts": "error",
     "@next/next/no-img-element": "off",
-    "@typescript-eslint/no-unused-vars": "error"
+    "@typescript-eslint/no-unused-vars": "error",
+     "sort-vars":"warn",
+     "sort-keys": ["warn", "asc",{
+        "caseSensitive": false
+    }],
+     "sort-imports": ["warn", {
+        "ignoreCase": true,
+        "ignoreDeclarationSort": true,
+        "ignoreMemberSort": true,
+        "memberSyntaxSortOrder": ["none", "all", "multiple", "single"],
+        "allowSeparatedGroups": false
+    }]
   },
 
   "settings": {

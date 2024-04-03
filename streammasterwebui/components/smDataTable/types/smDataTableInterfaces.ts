@@ -7,43 +7,44 @@ import { ColumnMeta } from './ColumnMeta';
 import { DataSelectorSelectionMode } from './smDataTableTypes';
 
 export interface DataTableHeaderProperties {
-  headerRightTemplate?: ReactNode;
   headerLeftTemplate?: ReactNode;
+  headerRightTemplate?: ReactNode;
   selectionMode?: DataSelectorSelectionMode;
 }
 
 interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
-  extraColumns?: Column[];
-  noSourceHeader?: boolean;
+  addOrRemoveHeaderTemplate?: () => ReactNode;
+  addOrRemoveTemplate?: (data: T) => ReactNode;
   className?: string;
-  id: string;
   columns: ColumnMeta[];
-  isLoading?: boolean;
   defaultSortField?: string;
   defaultSortOrder?: -1 | 0 | 1;
   emptyMessage?: ReactNode;
-  enableExport?: boolean;
   enableClick?: boolean;
+  enableExport?: boolean;
+  enableHeaderWrap?: boolean;
   enablePaginator?: boolean;
-  rows?: number;
-  onRowCollapse?(event: DataTableRowEvent): void;
-  rowExpansionTemplate?: (data: DataTableRowData<T | any>, options: DataTableRowExpansionTemplate) => React.ReactNode;
-  addOrRemoveHeaderTemplate?: () => ReactNode;
-  addOrRemoveTemplate?: (data: T) => ReactNode;
-  showExpand?: boolean;
-  style?: CSSProperties;
-  selectedItemsKey?: string;
-  onRowReorder?: (value: T[]) => void;
-  reorderable?: boolean;
-  showSelections?: boolean;
-  onSelectionChange?: (value: T[], selectAll: boolean) => void;
-  selectRow?: boolean;
+  extraColumns?: Column[];
   headerName?: string;
-  onMultiSelectClick?: (value: boolean) => void;
+  id: string;
+  isLoading?: boolean;
+  noSourceHeader?: boolean;
   onClick?: MouseEventHandler<T> | undefined;
-  onRowExpand?(event: DataTableRowEvent): void;
+  onMultiSelectClick?: (value: boolean) => void;
   onRowClick?(event: DataTableRowClickEvent): void;
+  onRowCollapse?(event: DataTableRowEvent): void;
+  onRowExpand?(event: DataTableRowEvent): void;
+  onRowReorder?: (value: T[]) => void;
+  onSelectionChange?: (value: T[], selectAll: boolean) => void;
+  reorderable?: boolean;
   rowClass?: (data: DataTableRowData<any>) => string;
+  rowExpansionTemplate?: (data: DataTableRowData<T | any>, options: DataTableRowExpansionTemplate) => React.ReactNode;
+  rows?: number;
+  selectRow?: boolean;
+  selectedItemsKey?: string;
+  showExpand?: boolean;
+  showSelections?: boolean;
+  style?: CSSProperties;
 }
 
 type QueryFilterProperties<T> = BaseDataSelectorProperties<T> & {

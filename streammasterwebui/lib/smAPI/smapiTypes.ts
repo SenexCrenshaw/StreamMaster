@@ -1,77 +1,77 @@
 export interface PagedResponse<T>
 {
 	data: T[];
+	first: number;
 	pageNumber: number;
 	pageSize: number;
-	totalPageCount: number;
 	totalItemCount: number;
-	first: number;
+	totalPageCount: number;
 }
 export interface QueryStringParameters
 {
-	pageNumber: number;
-	pageSize: number;
-	orderBy: string;
 	jsonArgumentString?: string;
 	jsonFiltersString?: string;
+	orderBy: string;
+	pageNumber: number;
+	pageSize: number;
 }
 export interface SMChannelRankRequest
 {
+	rank: number;
 	smChannelId: number;
 	smStreamId: string;
-	rank: number;
 }
 export interface FieldData
 {
 	entity: string;
-	id: string;
 	field: string;
+	id: string;
 	value: any;
 }
 export interface SMMessage
 {
+	detail?: string;
 	severity: string;
 	summary: string;
-	detail?: string;
 }
 export interface StreamGroupSMChannel
 {
+	isReadOnly: boolean;
+	rank: number;
 	smChannel: any;
 	smChannelId: number;
-	isReadOnly: boolean;
 	streamGroupId: number;
-	rank: number;
 }
 export interface ChannelGroupDto
 {
+	activeCount: number;
+	channelGroupId: number;
+	hiddenCount: number;
 	id: number;
 	isHidden: boolean;
 	isReadOnly: boolean;
 	name: string;
-	channelGroupId: number;
-	activeCount: number;
 	totalCount: number;
-	hiddenCount: number;
 }
 export interface EPGFileDto
 {
-	timeShift: number;
-	epgNumber: number;
-	color: string;
-	channelCount: number;
-	epgStartDate: any;
-	epgStopDate: any;
-	programmeCount: number;
-	source: string;
 	autoUpdate: boolean;
+	channelCount: number;
+	color: string;
 	description: string;
 	downloadErrors: number;
+	epgNumber: number;
+	epgStartDate: any;
+	epgStopDate: any;
 	hoursToUpdate: number;
 	id: number;
 	lastDownloadAttempt: any;
 	lastDownloaded: any;
 	name: string;
 	needsUpdate: boolean;
+	programmeCount: number;
+	source: string;
+	timeShift: number;
 	url: string;
 }
 export interface IconFileDto
@@ -85,12 +85,6 @@ export interface IconFileDto
 }
 export interface M3UFileDto
 {
-	vodTags: string[];
-	overwriteChannelNumbers: boolean;
-	startingChannelNumber: number;
-	maxStreamCount: number;
-	stationCount: number;
-	source: string;
 	autoUpdate: boolean;
 	description: string;
 	downloadErrors: number;
@@ -98,138 +92,144 @@ export interface M3UFileDto
 	id: number;
 	lastDownloadAttempt: any;
 	lastDownloaded: any;
+	maxStreamCount: number;
 	name: string;
 	needsUpdate: boolean;
+	overwriteChannelNumbers: boolean;
+	source: string;
+	startingChannelNumber: number;
+	stationCount: number;
 	url: string;
+	vodTags: string[];
 }
 export interface SettingDto
 {
-	sdSettings: SDSettings;
-	hls: HLSSettings;
-	release: string;
-	version: string;
-	ffmpegDefaultOptions: string;
-	isDebug: boolean;
-	m3UFieldGroupTitle: boolean;
-	m3UIgnoreEmptyEPGID: boolean;
-	m3UUseChnoForId: boolean;
-	m3UUseCUIDForChannelID: boolean;
-	m3UStationId: boolean;
-	backupEnabled: boolean;
-	backupVersionsToKeep: number;
-	backupInterval: number;
-	prettyEPG: boolean;
-	maxLogFiles: number;
-	maxLogFileSizeMB: number;
-	enablePrometheus: boolean;
-	maxStreamReStart: number;
-	maxConcurrentDownloads: number;
-	expectedServiceCount: number;
 	adminPassword: string;
 	adminUserName: string;
-	defaultIcon: string;
-	uiFolder: string;
-	urlBase: string;
-	logPerformance: string[];
 	apiKey: string;
 	authenticationMethod: number;
+	backupEnabled: boolean;
+	backupInterval: number;
+	backupVersionsToKeep: number;
 	cacheIcons: boolean;
 	cleanURLs: boolean;
 	clientUserAgent: string;
+	defaultIcon: string;
 	deviceID: string;
 	dummyRegex: string;
-	ffMpegOptions: string;
+	enablePrometheus: boolean;
 	enableSSL: boolean;
+	expectedServiceCount: number;
+	ffmpegDefaultOptions: string;
 	ffmPegExecutable: string;
+	ffMpegOptions: string;
 	ffProbeExecutable: string;
 	globalStreamLimit: number;
+	hls: HLSSettings;
+	isDebug: boolean;
+	logPerformance: string[];
+	m3UFieldGroupTitle: boolean;
+	m3UIgnoreEmptyEPGID: boolean;
+	m3UStationId: boolean;
+	m3UUseChnoForId: boolean;
+	m3UUseCUIDForChannelID: boolean;
+	maxConcurrentDownloads: number;
 	maxConnectRetry: number;
 	maxConnectRetryTimeMS: number;
+	maxLogFiles: number;
+	maxLogFileSizeMB: number;
+	maxStreamReStart: number;
 	nameRegex: string[];
+	prettyEPG: boolean;
+	release: string;
+	sdSettings: SDSettings;
+	showClientHostNames: boolean;
 	sslCertPassword: string;
 	sslCertPath: string;
 	streamingClientUserAgent: string;
 	streamingProxyType: number;
+	uiFolder: string;
+	urlBase: string;
+	version: string;
 	videoStreamAlwaysUseEPGLogo: boolean;
-	showClientHostNames: boolean;
 }
 export interface SMChannelDto
 {
-	smStreams: SMStreamDto[];
-	realUrl: string;
-	streamingProxyType: number;
-	streamGroups: StreamGroupSMChannel[];
+	channelNumber: number;
+	epgId: string;
+	group: string;
+	groupTitle: string;
 	id: number;
 	isHidden: boolean;
-	channelNumber: number;
-	timeShift: number;
-	group: string;
-	epgId: string;
 	logo: string;
 	name: string;
+	realUrl: string;
+	smStreams: SMStreamDto[];
 	stationId: string;
-	groupTitle: string;
+	streamGroups: StreamGroupSMChannel[];
+	streamingProxyType: number;
+	timeShift: number;
 	videoStreamHandler: number;
 	videoStreamId: string;
 }
 export interface SMStreamDto
 {
-	rank: number;
-	realUrl: string;
-	id: string;
+	channelNumber: number;
+	epgid: string;
 	filePosition: number;
+	group: string;
+	id: string;
 	isHidden: boolean;
 	isUserCreated: boolean;
-	m3UFileId: number;
-	channelNumber: number;
-	m3UFileName: string;
-	shortId: string;
-	group: string;
-	epgid: string;
 	logo: string;
+	m3UFileId: number;
+	m3UFileName: string;
 	name: string;
-	url: string;
+	rank: number;
+	realUrl: string;
+	shortId: string;
 	stationId: string;
+	url: string;
 }
 export interface StreamGroupDto
 {
-	ffmpegProfileId: string;
-	isLoading: boolean;
-	hdhrLink: string;
-	isReadOnly: boolean;
 	autoSetChannelNumbers: boolean;
-	streamCount: number;
+	ffmpegProfileId: string;
+	hdhrLink: string;
 	id: number;
+	isLoading: boolean;
+	isReadOnly: boolean;
 	m3ULink: string;
 	name: string;
-	xmlLink: string;
-	shortM3ULink: string;
 	shortEPGLink: string;
+	shortM3ULink: string;
+	streamCount: number;
+	xmlLink: string;
 }
 export interface HLSSettings
 {
-	hlsM3U8Enable: boolean;
 	hlsffmpegOptions: string;
-	hlsReconnectDurationInSeconds: number;
-	hlsSegmentDurationInSeconds: number;
-	hlsSegmentCount: number;
 	hlsM3U8CreationTimeOutInSeconds: number;
+	hlsM3U8Enable: boolean;
 	hlsM3U8ReadTimeOutInSeconds: number;
+	hlsReconnectDurationInSeconds: number;
+	hlsSegmentCount: number;
+	hlsSegmentDurationInSeconds: number;
 	hlstsReadTimeOutInSeconds: number;
 }
 export interface SDSettings
 {
-	alternateSEFormat: boolean;
 	alternateLogoStyle: string;
+	alternateSEFormat: boolean;
 	appendEpisodeDesc: boolean;
 	artworkSize: string;
 	excludeCastAndCrew: boolean;
 	preferredLogoStyle: string;
 	prefixEpisodeDescription: boolean;
 	prefixEpisodeTitle: boolean;
+	sdCountry: string;
 	sdEnabled: boolean;
 	sdepgDays: number;
-	sdCountry: string;
 	sdPassword: string;
 	sdPostalCode: string;
 	sdStationIds: any[];
@@ -239,25 +239,25 @@ export interface SDSettings
 	seriesPosterAspect: string;
 	seriesWsArt: boolean;
 	xmltvAddFillerData: boolean;
-	xmltvFillerProgramLength: number;
 	xmltvExtendedInfoInTitleDescriptions: boolean;
+	xmltvFillerProgramLength: number;
 	xmltvIncludeChannelNumbers: boolean;
 	xmltvSingleImage: boolean;
 }
 export interface APIResponse<T>
 {
-	message?: string;
 	errorMessage?: string;
 	isError?: boolean;
+	message?: string;
 	pagedResponse?: PagedResponse<T>;
 }
 export interface DefaultAPIResponse
 {
-	ok: DefaultAPIResponse;
-	notFound: DefaultAPIResponse;
-	message?: string;
 	errorMessage?: string;
 	isError?: boolean;
+	message?: string;
+	notFound: DefaultAPIResponse;
+	ok: DefaultAPIResponse;
 	pagedResponse?: PagedResponse<NoClass>;
 }
 export interface NoClass
@@ -331,18 +331,18 @@ export interface RemoveSMStreamFromSMChannelRequest
 }
 export interface SetSMChannelLogoRequest
 {
-	smChannelId: number;
 	logo: string;
+	smChannelId: number;
 }
 export interface SetSMChannelNameRequest
 {
-	smChannelId: number;
 	name: string;
+	smChannelId: number;
 }
 export interface SetSMChannelNumberRequest
 {
-	smChannelId: number;
 	channelNumber: number;
+	smChannelId: number;
 }
 export interface SetSMStreamRanksRequest
 {
@@ -363,12 +363,12 @@ export interface GetSystemStatusRequest
 }
 export interface CreateM3UFileRequest
 {
-	name: string;
+	formFile?: any;
 	maxStreamCount: number;
-	urlSource?: string;
+	name: string;
 	overWriteChannels?: boolean;
 	startingChannelNumber?: number;
-	formFile?: any;
+	urlSource?: string;
 	vodTags?: string[];
 }
 export interface DeleteM3UFileRequest
@@ -382,28 +382,28 @@ export interface GetPagedM3UFilesRequest
 }
 export interface ProcessM3UFileRequest
 {
-	m3UFileId: number;
 	forceRun: boolean;
+	m3UFileId: number;
 }
 export interface ProcessM3UFilesRequest
 {
 }
 export interface RefreshM3UFileRequest
 {
-	id: number;
 	forceRun: boolean;
+	id: number;
 }
 export interface UpdateM3UFileRequest
 {
-	maxStreamCount?: number;
-	startingChannelNumber?: number;
-	overWriteChannels?: boolean;
-	vodTags?: string[];
 	autoUpdate?: boolean;
 	hoursToUpdate?: number;
 	id: number;
+	maxStreamCount?: number;
 	name?: string;
+	overWriteChannels?: boolean;
+	startingChannelNumber?: number;
 	url?: string;
+	vodTags?: string[];
 }
 export interface GetIconsRequest
 {

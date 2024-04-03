@@ -315,8 +315,15 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         );
       }
 
+      let cl = 'sm-col-header';
       if (col.filter !== true) {
-        return <div>{header}</div>;
+        if (col.align !== undefined) {
+          cl += '-' + col.align;
+        }
+        if (props.enableHeaderWrap === true) {
+          cl += '-wrap';
+        }
+        return <div className={cl}>{header}</div>;
       }
 
       const stringTrackerkey = props.id + '-' + options.field;
@@ -343,7 +350,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         </div>
       );
     },
-    [getSortIcon, onColumnToggle, props.columns, props.id, setters, state.sortOrder, state.visibleColumns, visibleColumnsTemplate]
+    [getSortIcon, onColumnToggle, props.enableHeaderWrap, props.columns, props.id, setters, state.sortOrder, state.visibleColumns, visibleColumnsTemplate]
   );
 
   const showSelection = useMemo(() => {
@@ -448,7 +455,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           onFilter={onFilter}
           onPage={onPage}
           onRowClick={props.selectRow === true ? props.onRowClick : undefined}
-          paginator={props.enablePaginator ?? true}
+          paginator={props.enablePaginator === true}
           paginatorClassName="text-xs"
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
           ref={tableReference}

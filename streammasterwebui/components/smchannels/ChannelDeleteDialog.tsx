@@ -2,7 +2,7 @@ import { SMChannelDto } from '@lib/apiDefs';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
-import { DeleteSMChannelsFromParameters, DeleteSMChannels } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { DeleteSMChannels, DeleteSMChannelsFromParameters } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { memo, useMemo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import OKButton from '../buttons/OKButton';

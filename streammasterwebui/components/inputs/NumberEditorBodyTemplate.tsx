@@ -12,11 +12,11 @@ export interface NumberEditorBodyTemplateProperties {
   readonly onClick?: () => void;
   readonly prefix?: string | undefined;
   readonly resetValue?: number | undefined;
+  readonly showSave?: boolean;
   readonly suffix?: string | undefined;
   readonly tooltip?: string | undefined;
   readonly tooltipOptions?: TooltipOptions | undefined;
   readonly value: number | undefined;
-  readonly showSave?: boolean;
 }
 
 const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProperties) => {

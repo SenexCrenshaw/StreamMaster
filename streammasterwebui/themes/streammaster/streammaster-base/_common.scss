@@ -19,17 +19,83 @@
     padding: 0;
 }
 
+.tag-editor {
+    background: var(--surface-ground);
+    height: $input-height;
+}
+
+.p-chips-input-token {
+    background: var(--surface-ground);
+    border-radius: $borderRadius;
+    width: 100%;
+}
+
+
 .smfileupload {
+    @include standard-border;
+    background: var(--surface-overlay);
+    padding: 0.5rem;
+
     .p-inputtext {
-        height: $datatable-row-height;
+        @include input-border;
+        height: $input-height;
+        background: var(--surface-ground);
     }
 
     height: 30vh;
 }
 
+.text-right {
+    .p-inputtext {
+        width: unset;
+        max-width: unset;
+        text-align: right;
+    }
+}
+
+.smfileupload-header {
+    background: var(--surface-overlay);
+    border-width: 2px;
+    border-style: solid;
+    border-color: var(--surface-100);
+    border-radius: $borderRadius;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+}
+
+.smfileupload-panel {
+    background: $shade900;
+    border: $inputBorder-size solid $inputHoverBorderColor;
+    border-radius: $borderRadius;
+}
+
+
+.sourceOrFileDialog-toggle {
+    .p-button.p-component {
+        padding: 0 !important;
+        padding-right: 0.6rem !important;
+        padding-left: 0.6rem !important;
+        width: $gridItem-width !important;
+    }
+}
+
 .sourceOrFileDialog {
-    padding-left: $input-padding;
-    padding-right: $input-padding;
+
+
+    .p-inputgroup {
+        margin-top: 1rem;
+    }
+
+    .sourceOrFileDialog-url {
+        padding: unset;
+        margin: unset;
+        border: unset;
+        border-radius: unset;
+        height: unset;
+        max-height: unset;
+        padding: .78rem;
+        border: 2px solid var(--surface-100);
+    }
 
     .p-progressbar {
         height: $datatable-row-height;
@@ -216,20 +282,42 @@
     object-fit: contain;
 }
 
-.listTemplate-gridItem-name {
-    text-align: center;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-height: $input-height;
-    max-width: $gridItem-width;
-    padding-left: 0.10rem;
-    padding-right: 0.10rem;
+.listTemplate-gridItem-name,
+.sm-column,
+.sm-col-header,
+.sm-col-header-left,
+.sm-col-header-right {
+    @include datatable-text-style(true); // Use true for nowrap, false to allow wrapping
 }
 
-.sm-column {
-    padding-left: 0.20rem !important;
-    padding-right: 0.20rem !important;
+.listTemplate-gridItem-name {
+    max-width: $gridItem-width;
+}
+
+.sm-col-header-left {
+    text-align: left;
+}
+
+.sm-col-header-right {
+    text-align: right;
+}
+
+.sm-col-header-wrap {
+    @extend .sm-col-header;
+    @include text-wrap();
+    white-space: normal;
+}
+
+.sm-col-header-left-wrap {
+    @include text-wrap();
+    @extend .sm-col-header-left;
+    white-space: normal;
+}
+
+.sm-col-header-right-wrap {
+    @include text-wrap();
+    @extend .sm-col-header-right;
+    white-space: normal;
 }
 
 .no-text {
