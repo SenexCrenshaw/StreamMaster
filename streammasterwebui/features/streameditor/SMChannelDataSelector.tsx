@@ -3,7 +3,6 @@ import { useSMChannelLogoColumnConfig } from '@components/columns/useSMChannelLo
 import { useSMChannelNameColumnConfig } from '@components/columns/useSMChannelNameColumnConfig';
 import { useSMChannelNumberColumnConfig } from '@components/columns/useSMChannelNumberColumnConfig';
 
-import M3UFilesButton from '@components/m3u/M3UFilesButton';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
@@ -136,7 +135,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
     () => (
       <div className="flex justify-content-end align-items-center w-full gap-1">
         <div className="">
-          <M3UFilesButton />
+          {/* <M3UFilesButton /> */}
           {/* <TriSelectShowHidden dataKey={dataKey} />
         <VideoStreamSetTimeShiftsDialog id={dataKey} />
         <VideoStreamResetLogosDialog id={dataKey} />

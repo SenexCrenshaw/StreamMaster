@@ -20,18 +20,19 @@ const App = (): JSX.Element => {
   const [locale] = useLocalStorage('en', 'locale');
   const messages = locale === 'en' ? MessagesEn : MessagesEn;
   const store = useStore();
-  const TestPanel = lazy(() => import('./testing/TestPanel'));
+
   const StreamEditor = lazy(() => import('@features/streameditor/StreamEditor'));
-  const FilesEditor = lazy(() => import('@features/filesEditor/FilesEditor'));
-  const LogViewer = lazy(() => import('@features/logViewer/LogViewer'));
-  const PlayListEditor = lazy(() => import('@features/playListEditor/PlayListEditor'));
-  const QueueStatus = lazy(() => import('@features/queueStatus/QueueStatus'));
-  const SDEditorChannels = lazy(() => import('@features/sdEditor/SDEditorChannels'));
-  const SDEditorHeadEndsAndLineUps = lazy(() => import('@features/sdEditor/SDEditorHeadEndsAndLineUps'));
-  const SettingsEditor = lazy(() => import('@features/settings/SettingsEditor'));
-  const StreamGroupEditor = lazy(() => import('@features/streamGroupEditor/StreamGroupEditor'));
-  const StreamingStatus = lazy(() => import('@features/streamingStatus/StreamingStatus'));
-  const VideoPlayer = lazy(() => import('@features/videoPlayer/VideoPlayer'));
+  // const TestPanel = lazy(() => import('./testing/TestPanel'));
+  // const FilesEditor = lazy(() => import('@features/filesEditor/FilesEditor'));
+  // const LogViewer = lazy(() => import('@features/logViewer/LogViewer'));
+  // const PlayListEditor = lazy(() => import('@features/playListEditor/PlayListEditor'));
+  // const QueueStatus = lazy(() => import('@features/queueStatus/QueueStatus'));
+  // const SDEditorChannels = lazy(() => import('@features/sdEditor/SDEditorChannels'));
+  // const SDEditorHeadEndsAndLineUps = lazy(() => import('@features/sdEditor/SDEditorHeadEndsAndLineUps'));
+  // const SettingsEditor = lazy(() => import('@features/settings/SettingsEditor'));
+  // const StreamGroupEditor = lazy(() => import('@features/streamGroupEditor/StreamGroupEditor'));
+  // const StreamingStatus = lazy(() => import('@features/streamingStatus/StreamingStatus'));
+  // const VideoPlayer = lazy(() => import('@features/videoPlayer/VideoPlayer'));
 
   const persistor = persistStore(store, {}, () => {
     persistor.persist();
@@ -50,6 +51,14 @@ const App = (): JSX.Element => {
         />
 
         <Route
+          element={
+            <Suspense>
+              <StreamEditor />
+            </Suspense>
+          }
+          path="/editor/streams"
+        />
+        {/* <Route
           element={
             <Suspense>
               <TestPanel />
@@ -106,15 +115,6 @@ const App = (): JSX.Element => {
         <Route
           element={
             <Suspense>
-              <StreamEditor />
-            </Suspense>
-          }
-          path="/editor/streams"
-        />
-
-        <Route
-          element={
-            <Suspense>
               <StreamingStatus />
             </Suspense>
           }
@@ -154,7 +154,7 @@ const App = (): JSX.Element => {
             </Suspense>
           }
           path="/viewer/player"
-        />
+        /> */}
       </Route>
     )
   );
