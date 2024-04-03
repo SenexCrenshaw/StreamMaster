@@ -1,7 +1,8 @@
-import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
-import { fetchGetPagedSMStreams } from '@lib/smAPI/SMStreams/SMStreamsFetch';
-import { FieldData, PagedResponse, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import {FieldData, SMStreamDto,PagedResponse } from '@lib/smAPI/smapiTypes';
+import { fetchGetPagedSMStreams } from '@lib/smAPI/SMStreams/SMStreamsFetch';
+import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
+
 
 interface QueryState {
   data: Record<string, PagedResponse<SMStreamDto> | undefined>;
@@ -40,12 +41,11 @@ const getPagedSMStreamsSlice = createSlice({
       console.log('GetPagedSMStreams setField');
     },
     clear: (state) => {
-      state = initialState;
-      console.log('GetPagedSMStreams clear');
+       state = initialState;
+       console.log('GetPagedSMStreams clear');
     },
-    setIsLoading: (state, action: PayloadAction<{ query?: string; isLoading: boolean }>) => {
+    setIsLoading: (state, action: PayloadAction<{ query: string; isLoading: boolean }>) => {
       const { query, isLoading } = action.payload;
-      console.log('GetPagedSMStreams setIsLoading ', query, isLoading);
       if (query !== undefined) {
         state.isLoading[query] = isLoading;
       } else {
@@ -88,6 +88,7 @@ const getPagedSMStreamsSlice = createSlice({
         state.isLoading[query] = false;
         state.isForced = false;
       });
+
   }
 });
 

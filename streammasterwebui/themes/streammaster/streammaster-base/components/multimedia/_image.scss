@@ -22,7 +22,7 @@
 
 .icon-template img,
 .default-icon {
-  max-width: 1rem; //$gridItem-width;
+  max-width: $gridItem-width;
   max-height: 1.3rem;
   object-fit: contain;
 }

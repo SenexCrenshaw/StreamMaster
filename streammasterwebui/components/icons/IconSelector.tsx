@@ -62,7 +62,7 @@ const IconSelector = ({ enableEditMode = true, value, disabled, editable = true,
   if (!enableEditMode) {
     const iconUrl = getIconUrl(iconSource ?? '', setting.defaultIconUrl, false);
 
-    return <img alt="logo" className="default-icon" src={iconUrl} loading="lazy" />;
+    return <img alt="logo" className="iconselector" src={iconUrl} loading="lazy" />;
   }
 
   const loading = query.isError || query.isLoading || !query.data;

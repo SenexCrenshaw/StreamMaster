@@ -44,7 +44,7 @@ const getPagedChannelGroupsSlice = createSlice({
        state = initialState;
        console.log('GetPagedChannelGroups clear');
     },
-    setIsLoading: (state, action: PayloadAction<{ query?: string; isLoading: boolean }>) => {
+    setIsLoading: (state, action: PayloadAction<{ query: string; isLoading: boolean }>) => {
       const { query, isLoading } = action.payload;
       if (query !== undefined) {
         state.isLoading[query] = isLoading;

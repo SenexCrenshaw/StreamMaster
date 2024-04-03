@@ -7207,7 +7207,7 @@
 
 .icon-template img,
 .default-icon {
-  max-width: 1rem;
+  max-width: 4rem;
   max-height: 1.3rem;
   object-fit: contain;
 }

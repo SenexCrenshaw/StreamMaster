@@ -11,7 +11,7 @@ interface Result extends ExtendedQueryHookResult {
   Clear: () => void;
   SetField: (fieldData: FieldData) => void;
   SetIsForced: (force: boolean) => void;
-  SetIsLoading: (isLoading: boolean, query?: string) => void;
+  SetIsLoading: (isLoading: boolean, query: string) => void;
 }
 const useGetSettings = (): Result => {
   const dispatch = useAppDispatch();

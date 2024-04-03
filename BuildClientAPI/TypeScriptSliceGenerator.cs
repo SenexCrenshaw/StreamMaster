@@ -152,7 +152,7 @@ const initialState: QueryState = {{
             content.AppendLine($"       console.log('{method.Name} clear');");
             content.AppendLine("    },");
 
-            content.AppendLine($"    setIsLoading: (state, action: PayloadAction<{{ query?: string; isLoading: boolean }}>) => {{");
+            content.AppendLine($"    setIsLoading: (state, action: PayloadAction<{{ query: string; isLoading: boolean }}>) => {{");
             content.AppendLine("      const { query, isLoading } = action.payload;");
             content.AppendLine("      if (query !== undefined) {");
             content.AppendLine("        state.isLoading[query] = isLoading;");

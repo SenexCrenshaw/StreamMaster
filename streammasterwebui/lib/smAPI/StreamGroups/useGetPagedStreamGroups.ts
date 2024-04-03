@@ -11,7 +11,7 @@ interface Result extends ExtendedQueryHookResult {
   Clear: () => void;
   SetField: (fieldData: FieldData) => void;
   SetIsForced: (force: boolean) => void;
-  SetIsLoading: (isLoading: boolean, query?: string) => void;
+  SetIsLoading: (isLoading: boolean, query: string) => void;
 }
 const useGetPagedStreamGroups = (params?: GetApiArgument | undefined): Result => {
   const dispatch = useAppDispatch();
@@ -31,7 +31,7 @@ const SetIsForced = useCallback(
 
 
 const SetIsLoading = useCallback(
-  (isLoading: boolean, query?: string): void => {
+  (isLoading: boolean, query: string): void => {
     dispatch(setIsLoading({ query: query, isLoading: isLoading }));
   },
   [dispatch]
@@ -51,7 +51,7 @@ useEffect(() => {
   if (query === undefined && !isForced) return;
   if (data !== undefined && !isForced) return;
 
-  SetIsLoading(true);
+  SetIsLoading(true, query);
   dispatch(fetchGetPagedStreamGroups(query));
 }, [data, dispatch, query, isForced, isLoading, SetIsLoading]);
 

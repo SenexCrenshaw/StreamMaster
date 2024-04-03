@@ -47,7 +47,7 @@ public static class TypeScriptHookGenerator
         content.AppendLine("  Clear: () => void;");
         content.AppendLine("  SetField: (fieldData: FieldData) => void;");
         content.AppendLine("  SetIsForced: (force: boolean) => void;");
-        content.AppendLine("  SetIsLoading: (isLoading: boolean, query?: string) => void;");
+        content.AppendLine("  SetIsLoading: (isLoading: boolean, query: string) => void;");
         content.AppendLine("}");
 
         return content.ToString();
@@ -136,7 +136,7 @@ public static class TypeScriptHookGenerator
             content.AppendLine(GenerateHeader(method));
 
             content.AppendLine("const SetIsLoading = useCallback(");
-            content.AppendLine("  (isLoading: boolean, query?: string): void => {");
+            content.AppendLine("  (isLoading: boolean, query: string): void => {");
             content.AppendLine("    dispatch(setIsLoading({ query: query, isLoading: isLoading }));");
             content.AppendLine("  },");
             content.AppendLine("  [dispatch]");
@@ -200,14 +200,16 @@ public static class TypeScriptHookGenerator
 
         content.AppendLine("  if (data !== undefined && !isForced) return;");
         content.AppendLine("");
-        content.AppendLine("  SetIsLoading(true);");
+
         if (method.IsGetPaged)
         {
+            content.AppendLine("  SetIsLoading(true, query);");
             content.AppendLine($"  dispatch(fetch{method.Name}(query));");
             content.AppendLine("}, [data, dispatch, query, isForced, isLoading, SetIsLoading]);");
         }
         else
         {
+            content.AppendLine("  SetIsLoading(true);");
             content.AppendLine($"  dispatch(fetch{method.Name}());");
             content.AppendLine("}, [data, dispatch, isForced, isLoading, SetIsLoading]);");
         }

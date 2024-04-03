@@ -1,17 +1,17 @@
-import { GetApiArgument, QueryHookResult } from '@lib/apiDefs';
-import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
+import { QueryHookResult,GetApiArgument } from '@lib/apiDefs';
 import store from '@lib/redux/store';
-import { FieldData, PagedResponse, SMStreamDto } from '@lib/smAPI/smapiTypes';
-import { useCallback, useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, setField, setIsForced, setIsLoading } from './GetPagedSMStreamsSlice';
+import { useCallback,useEffect } from 'react';
 import { fetchGetPagedSMStreams } from './SMStreamsFetch';
+import {FieldData, SMStreamDto,PagedResponse } from '@lib/smAPI/smapiTypes';
 
 interface ExtendedQueryHookResult extends QueryHookResult<PagedResponse<SMStreamDto> | undefined> {}
 interface Result extends ExtendedQueryHookResult {
   Clear: () => void;
   SetField: (fieldData: FieldData) => void;
   SetIsForced: (force: boolean) => void;
-  SetIsLoading: (isLoading: boolean, query?: string) => void;
+  SetIsLoading: (isLoading: boolean, query: string) => void;
 }
 const useGetPagedSMStreams = (params?: GetApiArgument | undefined): Result => {
   const dispatch = useAppDispatch();
@@ -22,57 +22,57 @@ const useGetPagedSMStreams = (params?: GetApiArgument | undefined): Result => {
   const isForced = useAppSelector((state) => state.GetPagedSMStreams.isForced ?? false);
   const isLoading = useAppSelector((state) => state.GetPagedSMStreams.isLoading[query] ?? false);
 
-  const SetIsForced = useCallback(
-    (forceRefresh: boolean, query?: string): void => {
-      dispatch(setIsForced({ force: forceRefresh }));
-    },
-    [dispatch]
-  );
+const SetIsForced = useCallback(
+  (forceRefresh: boolean, query?: string): void => {
+    dispatch(setIsForced({ force: forceRefresh }));
+  },
+  [dispatch]
+);
 
-  const SetIsLoading = useCallback(
-    (isLoading: boolean, query?: string): void => {
-      console.log('SetIsLoading', query, isLoading);
-      dispatch(setIsLoading({ query: query, isLoading: isLoading }));
-    },
-    [dispatch]
-  );
-  useEffect(() => {
-    if (query === undefined) return;
-    const state = store.getState().GetPagedSMStreams;
 
-    if (data === undefined && state.isLoading[query] !== true && state.isForced !== true) {
-      SetIsForced(true);
-    }
-  }, [SetIsForced, data, dispatch, query]);
+const SetIsLoading = useCallback(
+  (isLoading: boolean, query: string): void => {
+    dispatch(setIsLoading({ query: query, isLoading: isLoading }));
+  },
+  [dispatch]
+);
+useEffect(() => {
+  if (query === undefined) return;
+  const state = store.getState().GetPagedSMStreams;
 
-  useEffect(() => {
-    const state = store.getState().GetPagedSMStreams;
-    if (state.isLoading[query]) return;
-    if (query === undefined && !isForced) return;
-    if (data !== undefined && !isForced) return;
+  if (data === undefined && state.isLoading[query] !== true && state.isForced !== true) {
+    SetIsForced(true);
+  }
+}, [SetIsForced, data, dispatch, query]);
 
-    SetIsLoading(true, query);
-    dispatch(fetchGetPagedSMStreams(query));
-  }, [data, dispatch, query, isForced, isLoading, SetIsLoading]);
+useEffect(() => {
+  const state = store.getState().GetPagedSMStreams;
+  if (state.isLoading[query]) return;
+  if (query === undefined && !isForced) return;
+  if (data !== undefined && !isForced) return;
 
-  const SetField = (fieldData: FieldData): void => {
-    dispatch(setField({ fieldData: fieldData }));
-  };
+  SetIsLoading(true, query);
+  dispatch(fetchGetPagedSMStreams(query));
+}, [data, dispatch, query, isForced, isLoading, SetIsLoading]);
 
-  const Clear = (): void => {
-    dispatch(clear());
-  };
+const SetField = (fieldData: FieldData): void => {
+  dispatch(setField({ fieldData: fieldData }));
+};
 
-  return {
-    data,
-    error,
-    isError,
-    isLoading,
-    Clear,
-    SetField,
-    SetIsForced,
-    SetIsLoading
-  };
+const Clear = (): void => {
+  dispatch(clear());
+};
+
+return {
+  data,
+  error,
+  isError,
+  isLoading,
+  Clear,
+  SetField,
+  SetIsForced,
+  SetIsLoading
+};
 };
 
 export default useGetPagedSMStreams;

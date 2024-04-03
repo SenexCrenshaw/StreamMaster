@@ -4,10 +4,9 @@ export function imageBodyTemplate(data: object, fieldName: string, defaultIcon: 
   const record = getRecordString(data, fieldName);
 
   return (
-    <div className="iconselector flex align-contents-center justify-content-center w-full min-w-full">
+    <div className="flex icon-template align-content-center justify-content-center align-items-center">
       <img
         alt={record ?? 'Logo'}
-        className="max-h-1rem max-w-full p-0"
         src={`${encodeURI(record ?? '')}`}
         style={{
           objectFit: 'contain'
