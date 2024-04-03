@@ -447,7 +447,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           onPage={onPage}
           onRowClick={props.selectRow === true ? props.onRowClick : undefined}
           paginator={props.enablePaginator ?? true}
-          paginatorClassName="text-xs p-0 m-0 withpadding"
+          paginatorClassName="text-xs"
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
           ref={tableReference}
           rowClassName={props.rowClass ? props.rowClass : rowClass}
