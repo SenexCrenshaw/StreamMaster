@@ -37,6 +37,7 @@ public static class TypeScriptFetchGenerator
 
         StringBuilder content = new();
         content.AppendLine($"import {{ {method.Name} }} from '@lib/smAPI/{namespaceName}/{namespaceName}Commands';");
+        content.AppendLine($"import {{ {method.Name}Request }} from '../smapiTypes';");
         content.AppendLine("import { createAsyncThunk } from '@reduxjs/toolkit';");
         content.AppendLine();
 
@@ -58,12 +59,30 @@ public static class TypeScriptFetchGenerator
     private static string CreateGet(MethodDetails method)
     {
         StringBuilder content = new();
+        if (method.Name.Contains("GetEPGFilePreview"))
+        {
+            int aa = 1;
 
-        content.AppendLine($"export const fetch{method.Name} = createAsyncThunk('cache/get{method.Name}', async (_: void, thunkAPI) => {{");
+        }
+
+        string param = string.IsNullOrEmpty(method.TsParameter) ? "void" : method.TsParameter;
+        string paramName = string.IsNullOrEmpty(method.TsParameter) ? "_" : "param";
+        string paramName2 = string.IsNullOrEmpty(method.TsParameter) ? "" : "param";
+
+        content.AppendLine($"export const fetch{method.Name} = createAsyncThunk('cache/get{method.Name}', async ({paramName}: {param}, thunkAPI) => {{");
         content.AppendLine("  try {");
         content.AppendLine($"    console.log('Fetching {method.Name}');");
-        content.AppendLine($"    const response = await {method.Name}();");
-        content.AppendLine($"    console.log('Fetched {method.Name} ',response?.length);");
+        content.AppendLine($"    const response = await {method.Name}({paramName2});");
+        if (method.IsList)
+        {
+            content.AppendLine($"    console.log('Fetched {method.Name} ',response?.length);");
+        }
+        else
+        {
+            content.AppendLine($"    console.log('Fetched {method.Name}',response);");
+        }
+
+
         content.AppendLine("    return { value: response };");
         content.AppendLine("  } catch (error) {");
         content.AppendLine("    console.error('Failed to fetch', error);");

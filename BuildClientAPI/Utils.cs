@@ -110,7 +110,7 @@ public static class Utils
         {
             return null;
         }
-        else if (toTest == "system.int32" || toTest.StartsWith("number") || toTest == "int32")
+        else if (toTest == "system.int32" || toTest.StartsWith("number") || toTest == "int32" || toTest == "int")
         {
             return null;
         }

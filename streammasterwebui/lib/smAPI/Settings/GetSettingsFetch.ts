@@ -1,4 +1,5 @@
 import { GetSettings } from '@lib/smAPI/Settings/SettingsCommands';
+import { GetSettingsRequest } from '../smapiTypes';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 
@@ -6,7 +7,7 @@ export const fetchGetSettings = createAsyncThunk('cache/getGetSettings', async (
   try {
     console.log('Fetching GetSettings');
     const response = await GetSettings();
-    console.log('Fetched GetSettings ',response?.length);
+    console.log('Fetched GetSettings',response);
     return { value: response };
   } catch (error) {
     console.error('Failed to fetch', error);

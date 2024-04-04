@@ -53,6 +53,13 @@ export interface ChannelGroupDto
 	name: string;
 	totalCount: number;
 }
+export interface EPGColorDto
+{
+	color: string;
+	epgNumber: number;
+	id: number;
+	stationId: string;
+}
 export interface EPGFileDto
 {
 	autoUpdate: boolean;
@@ -73,6 +80,13 @@ export interface EPGFileDto
 	source: string;
 	timeShift: number;
 	url: string;
+}
+export interface EPGFilePreviewDto
+{
+	channelLogo: string;
+	channelName: string;
+	channelNumber: string;
+	id: number;
 }
 export interface IconFileDto
 {

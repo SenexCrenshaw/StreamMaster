@@ -184,34 +184,41 @@ public static class TypeScriptHookGenerator
     private static string GenerateFooterContent(MethodDetails method)
     {
         StringBuilder content = new();
-        content.AppendLine("useEffect(() => {");
-        content.AppendLine($"  const state = store.getState().{method.Name};");
+
+        if (string.IsNullOrEmpty(method.TsParameter))
+        {
 
 
-        if (method.IsGetPaged)
-        {
-            content.AppendLine("  if (state.isLoading[query]) return;");
-            content.AppendLine("  if (query === undefined && !isForced) return;");
-        }
-        else
-        {
-            content.AppendLine("  if (state.isLoading) return;");
-        }
 
-        content.AppendLine("  if (data !== undefined && !isForced) return;");
-        content.AppendLine("");
+            content.AppendLine("useEffect(() => {");
+            content.AppendLine($"  const state = store.getState().{method.Name};");
 
-        if (method.IsGetPaged)
-        {
-            content.AppendLine("  SetIsLoading(true, query);");
-            content.AppendLine($"  dispatch(fetch{method.Name}(query));");
-            content.AppendLine("}, [data, dispatch, query, isForced, isLoading, SetIsLoading]);");
-        }
-        else
-        {
-            content.AppendLine("  SetIsLoading(true);");
-            content.AppendLine($"  dispatch(fetch{method.Name}());");
-            content.AppendLine("}, [data, dispatch, isForced, isLoading, SetIsLoading]);");
+
+            if (method.IsGetPaged)
+            {
+                content.AppendLine("  if (state.isLoading[query]) return;");
+                content.AppendLine("  if (query === undefined && !isForced) return;");
+            }
+            else
+            {
+                content.AppendLine("  if (state.isLoading) return;");
+            }
+
+            content.AppendLine("  if (data !== undefined && !isForced) return;");
+            content.AppendLine("");
+
+            if (method.IsGetPaged)
+            {
+                content.AppendLine("  SetIsLoading(true, query);");
+                content.AppendLine($"  dispatch(fetch{method.Name}(query));");
+                content.AppendLine("}, [data, dispatch, query, isForced, isLoading, SetIsLoading]);");
+            }
+            else
+            {
+                content.AppendLine("  SetIsLoading(true);");
+                content.AppendLine($"  dispatch(fetch{method.Name}());");
+                content.AppendLine("}, [data, dispatch, isForced, isLoading, SetIsLoading]);");
+            }
         }
 
         content.AppendLine("");

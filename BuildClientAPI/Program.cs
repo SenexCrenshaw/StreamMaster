@@ -158,7 +158,7 @@ namespace BuildClientAPI
 
                         string tsCommandFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Commands.ts");
                         string tsTypeFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Types.ts");
-                        TypeScriptCommandGenerator.GenerateFile(methods, tsCommandFilePath, tsTypeFilePath);
+                        TypeScriptCommandGenerator.GenerateFile(methods, tsCommandFilePath);
 
                         string tsFetchFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName);
                         TypeScriptFetchGenerator.GenerateFile(namespaceName, methods, tsFetchFilePath);
@@ -278,7 +278,7 @@ namespace BuildClientAPI
                 return type.Name switch
                 {
                     "String" => "string",
-                    "Int32" => "int",
+                    "Int32" => "number",
                     "Boolean" => "boolean",
                     _ => type.Name,
                 };

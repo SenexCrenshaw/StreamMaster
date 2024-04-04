@@ -1,5 +1,7 @@
-﻿namespace StreamMaster.Domain.Dto;
+﻿using Reinforced.Typings.Attributes;
 
+namespace StreamMaster.Domain.Dto;
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class EPGFilePreviewDto
 {
     public int Id { get; set; }

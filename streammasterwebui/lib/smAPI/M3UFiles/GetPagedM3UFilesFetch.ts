@@ -1,4 +1,5 @@
 import { GetPagedM3UFiles } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
+import { GetPagedM3UFilesRequest } from '../smapiTypes';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 

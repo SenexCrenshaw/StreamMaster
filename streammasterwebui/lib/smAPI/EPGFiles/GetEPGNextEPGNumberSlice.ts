@@ -1,11 +1,11 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import {FieldData, int } from '@lib/smAPI/smapiTypes';
+import {FieldData,  } from '@lib/smAPI/smapiTypes';
 import { fetchGetEPGNextEPGNumber } from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
 
 
 interface QueryState {
-  data: int | undefined;
+  data: number | undefined;
   error: string | undefined;
   isError: boolean;
   isForced: boolean;

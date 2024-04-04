@@ -1,4 +1,4 @@
-import { type Action, type ThunkAction, configureStore } from '@reduxjs/toolkit';
+import { configureStore, type Action, type ThunkAction } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
 
 import channelGroupToRemoveSliceReducer from '@lib/redux/slices/channelGroupToRemoveSlice';
@@ -26,6 +26,10 @@ import GetPagedSMStreams from '@lib/smAPI/SMStreams/GetPagedSMStreamsSlice';
 import GetIsSystemReady from '@lib/smAPI/Settings/GetIsSystemReadySlice';
 import GetSettings from '@lib/smAPI/Settings/GetSettingsSlice';
 import GetSystemStatus from '@lib/smAPI/Settings/GetSystemStatusSlice';
+
+import GetEPGColorsSlice from '@lib/smAPI/EPGFiles/GetEPGColorsSlice';
+import GetEPGFilePreviewById from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
+import GetEPGNextEPGNumber from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
 
 import GetPagedStreamGroups from '@lib/smAPI/StreamGroups/GetPagedStreamGroupsSlice';
 
@@ -119,6 +123,9 @@ const rootReducer = combineReducers({
   GetIcons: GetIcons,
   SMChannelReducer: SMChannelReducer,
   SMStreamReducer: SMStreamReducer,
+  GetEPGColors: GetEPGColorsSlice,
+  GetEPGFilePreviewById: GetEPGFilePreviewById,
+  GetEPGNextEPGNumber: GetEPGNextEPGNumber,
   selectUpdateSettingRequest: persistReducer(selectUpdateSettingRequestSliceConfig, selectUpdateSettingRequestReducer),
   selectCurrentSettingDto: persistReducer(currentSettingDtoSliceConfig, selectCurrentSettingDtoReducer),
   selectedPostalCode: persistReducer(selectedPostalCodeConfig, selectedPostalCodeSlice),

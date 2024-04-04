@@ -1,4 +1,5 @@
 import { GetPagedStreamGroups } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
+import { GetPagedStreamGroupsRequest } from '../smapiTypes';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 

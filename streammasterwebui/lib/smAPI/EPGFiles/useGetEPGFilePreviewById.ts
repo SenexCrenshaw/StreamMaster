@@ -42,14 +42,6 @@ const SetIsLoading = useCallback(
   }
 }, [SetIsForced, data, dispatch]);
 
-useEffect(() => {
-  const state = store.getState().GetEPGFilePreviewById;
-  if (state.isLoading) return;
-  if (data !== undefined && !isForced) return;
-
-  SetIsLoading(true);
-  dispatch(fetchGetEPGFilePreviewById());
-}, [data, dispatch, isForced, isLoading, SetIsLoading]);
 
 const SetField = (fieldData: FieldData): void => {
   dispatch(setField({ fieldData: fieldData }));

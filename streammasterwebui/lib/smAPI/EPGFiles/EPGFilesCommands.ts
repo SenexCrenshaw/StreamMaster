@@ -1,5 +1,5 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { EPGFileDto,CreateEPGFileRequest,int,DeleteEPGFileRequest,ProcessEPGFileRequest,RefreshEPGFileRequest,UpdateEPGFileRequest,EPGColorDto,EPGFilePreviewDto } from '@lib/smAPI/smapiTypes';
+import { EPGFileDto,CreateEPGFileRequest,DeleteEPGFileRequest,ProcessEPGFileRequest,RefreshEPGFileRequest,UpdateEPGFileRequest,EPGColorDto,EPGFilePreviewDto,GetEPGFilePreviewByIdRequest } from '@lib/smAPI/smapiTypes';
 
 export const GetEPGColors = async (): Promise<EPGColorDto[] | null> => {
   const signalRService = SignalRService.getInstance();
@@ -11,9 +11,9 @@ export const GetEPGFilePreviewById = async (request: GetEPGFilePreviewByIdReques
   return await signalRService.invokeHubCommand<EPGFilePreviewDto[]>('GetEPGFilePreviewById', request);
 };
 
-export const GetEPGNextEPGNumber = async (): Promise<int | null> => {
+export const GetEPGNextEPGNumber = async (): Promise<number | null> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<int>('GetEPGNextEPGNumber');
+  return await signalRService.invokeHubCommand<number>('GetEPGNextEPGNumber');
 };
 
 export const CreateEPGFile = async (request: CreateEPGFileRequest): Promise<EPGFileDto | null> => {
@@ -21,9 +21,9 @@ export const CreateEPGFile = async (request: CreateEPGFileRequest): Promise<EPGF
   return await signalRService.invokeHubCommand<EPGFileDto>('CreateEPGFile', request);
 };
 
-export const DeleteEPGFile = async (request: DeleteEPGFileRequest): Promise<int[] | null> => {
+export const DeleteEPGFile = async (request: DeleteEPGFileRequest): Promise<number[] | null> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<int[]>('DeleteEPGFile', request);
+  return await signalRService.invokeHubCommand<number[]>('DeleteEPGFile', request);
 };
 
 export const ProcessEPGFile = async (request: ProcessEPGFileRequest): Promise<EPGFileDto | null> => {

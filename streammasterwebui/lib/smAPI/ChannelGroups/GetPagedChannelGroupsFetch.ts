@@ -1,4 +1,5 @@
 import { GetPagedChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
+import { GetPagedChannelGroupsRequest } from '../smapiTypes';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 

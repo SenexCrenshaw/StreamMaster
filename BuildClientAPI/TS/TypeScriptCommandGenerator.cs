@@ -3,7 +3,7 @@
 public static class TypeScriptCommandGenerator
 {
 
-    public static void GenerateFile(List<MethodDetails> methods, string filePath, string typePath)
+    public static void GenerateFile(List<MethodDetails> methods, string filePath)
     {
         StringBuilder content = new();
 
@@ -107,15 +107,14 @@ public static class TypeScriptCommandGenerator
         List<string> imports = [];
         foreach (string inc in includes)
         {
-
             string? test = Utils.IsTSGeneric(inc);
             if (!string.IsNullOrEmpty(test)) { imports.Add(inc); }
         }
 
-        if (methods.Any(a => a.Name.Contains("GetPagedM3UFiles")))
+        if (methods.Any(a => a.Name.Contains("GetEPGFilePreview")))
         {
             int aa = 1;
-            MethodDetails b = methods.First(a => a.Name == "GetPagedM3UFiles");
+            MethodDetails b = methods.First(a => a.Name == "GetEPGFilePreviewById");
         }
 
         if (methods.Any(a => a.IsGetPaged))
@@ -123,6 +122,11 @@ public static class TypeScriptCommandGenerator
             imports.Add("APIResponse");
             imports.Add("PagedResponse");
             imports.Add("QueryStringParameters");
+        }
+        else if (methods.Any(a => a.IsGet))
+        {
+            IEnumerable<string> l = methods.Where(a => a.IsGet && !string.IsNullOrEmpty(a.TsParameter)).Select(a => a.TsParameter);
+            imports.AddRange(l);
         }
 
         content.AppendLine("import SignalRService from '@lib/signalr/SignalRService';");

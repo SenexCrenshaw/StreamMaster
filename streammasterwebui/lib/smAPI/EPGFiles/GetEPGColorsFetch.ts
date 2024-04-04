@@ -1,4 +1,5 @@
 import { GetEPGColors } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
+import { GetEPGColorsRequest } from '../smapiTypes';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 

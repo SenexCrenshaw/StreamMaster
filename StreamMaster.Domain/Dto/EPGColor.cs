@@ -1,7 +1,8 @@
-﻿using StreamMaster.Domain.Models;
+﻿using Reinforced.Typings.Attributes;
 
 namespace StreamMaster.Domain.Dto;
 
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class EPGColorDto : IMapFrom<EPGFile>
 {
     public int Id { get; set; }

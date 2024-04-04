@@ -45,15 +45,6 @@ useEffect(() => {
   }
 }, [SetIsForced, data, dispatch, query]);
 
-useEffect(() => {
-  const state = store.getState().GetPagedChannelGroups;
-  if (state.isLoading[query]) return;
-  if (query === undefined && !isForced) return;
-  if (data !== undefined && !isForced) return;
-
-  SetIsLoading(true, query);
-  dispatch(fetchGetPagedChannelGroups(query));
-}, [data, dispatch, query, isForced, isLoading, SetIsLoading]);
 
 const SetField = (fieldData: FieldData): void => {
   dispatch(setField({ fieldData: fieldData }));

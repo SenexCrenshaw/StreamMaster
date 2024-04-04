@@ -1,4 +1,5 @@
 import { GetEPGNextEPGNumber } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
+import { GetEPGNextEPGNumberRequest } from '../smapiTypes';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 
@@ -6,7 +7,7 @@ export const fetchGetEPGNextEPGNumber = createAsyncThunk('cache/getGetEPGNextEPG
   try {
     console.log('Fetching GetEPGNextEPGNumber');
     const response = await GetEPGNextEPGNumber();
-    console.log('Fetched GetEPGNextEPGNumber ',response?.length);
+    console.log('Fetched GetEPGNextEPGNumber',response);
     return { value: response };
   } catch (error) {
     console.error('Failed to fetch', error);

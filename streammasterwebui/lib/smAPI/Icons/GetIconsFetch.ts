@@ -1,4 +1,5 @@
 import { GetIcons } from '@lib/smAPI/Icons/IconsCommands';
+import { GetIconsRequest } from '../smapiTypes';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 

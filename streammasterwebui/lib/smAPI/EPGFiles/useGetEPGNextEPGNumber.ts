@@ -4,9 +4,9 @@ import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, setField, setIsForced, setIsLoading } from './GetEPGNextEPGNumberSlice';
 import { useCallback,useEffect } from 'react';
 import { fetchGetEPGNextEPGNumber } from './GetEPGNextEPGNumberFetch';
-import {FieldData, int } from '@lib/smAPI/smapiTypes';
+import {FieldData,  } from '@lib/smAPI/smapiTypes';
 
-interface ExtendedQueryHookResult extends QueryHookResult<int | undefined> {}
+interface ExtendedQueryHookResult extends QueryHookResult<number | undefined> {}
 interface Result extends ExtendedQueryHookResult {
   Clear: () => void;
   SetField: (fieldData: FieldData) => void;
