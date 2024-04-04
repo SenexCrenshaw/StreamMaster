@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Application.SchedulesDirect;
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.SchedulesDirect.Queries;
-using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.API.Controllers;
 
-public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectController
+public class SchedulesDirectController : ApiControllerBase
 {
     [HttpPatch]
     [Route("[action]")]
@@ -59,12 +57,6 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
         return Ok(await Mediator.Send(new GetLineups()).ConfigureAwait(false));
     }
 
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<PagedResponse<StationChannelName>>> GetPagedStationChannelNameSelections([FromQuery] StationChannelNameParameters Parameters)
-    {
-        return Ok(await Mediator.Send(new GetPagedStationChannelNameSelections(Parameters)).ConfigureAwait(false));
-    }
 
     [HttpGet]
     [Route("[action]")]
@@ -93,12 +85,6 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
         return Ok(await Mediator.Send(new GetStationChannelNames()).ConfigureAwait(false));
     }
 
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<List<StationChannelName>>> GetStationChannelNamesSimpleQuery([FromQuery] StationChannelNameParameters Parameters)
-    {
-        return Ok(await Mediator.Send(new GetStationChannelNamesSimpleQuery(Parameters)).ConfigureAwait(false));
-    }
 
     [HttpGet]
     [Route("[action]")]

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using StreamMaster.Application.ChannelGroups.Queries;
 using StreamMaster.Application.EPG.Queries;
 using StreamMaster.Application.Icons.Queries;
-using StreamMaster.Application.M3UFiles.Queries;
+using StreamMaster.Application.M3UFiles.QueriesOld;
 using StreamMaster.Application.SchedulesDirect.Queries;
 using StreamMaster.Application.StreamGroupChannelGroups.Commands;
 using StreamMaster.Domain.Configuration;
@@ -393,7 +393,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
             _ = await SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
         }
 
-        ChannelGroupDto? cg = await sender.Send(new GetChannelGroupByName(videoStream.User_Tvg_group)).ConfigureAwait(false);
+        ChannelGroupDto? cg = await sender.Send(new GetChannelGroupByNameRequest(videoStream.User_Tvg_group)).ConfigureAwait(false);
         await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(cg.Id), cancellationToken).ConfigureAwait(false);
 
         return videoStream;
@@ -516,8 +516,8 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
     internal async Task<List<VideoStreamDto>> AutoMatchIconToStreams(IEnumerable<string> VideoStreamIds, CancellationToken cancellationToken)
     {
-        IconFileParameters iconFileParameters = new();
-        PagedResponse<IconFileDto> icons = await sender.Send(new GetPagedIcons(iconFileParameters), cancellationToken).ConfigureAwait(false);
+
+        List<IconFileDto> icons = await sender.Send(new GetIconsRequest());
 
         IQueryable<VideoStream> streams = GetQuery(a => VideoStreamIds.Contains(a.Id));
 
@@ -525,7 +525,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
         foreach (VideoStream stream in streams)
         {
-            IconFileDto? icon = icons.Data.FirstOrDefault(a => a.Name.Equals(stream.User_Tvg_name, StringComparison.CurrentCultureIgnoreCase));
+            IconFileDto? icon = icons.FirstOrDefault(a => a.Name.Equals(stream.User_Tvg_name, StringComparison.CurrentCultureIgnoreCase));
             if (icon != null)
             {
                 stream.User_Tvg_logo = icon.Source;
@@ -534,7 +534,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
                 continue;
             }
 
-            var topCheckIcon = icons.Data.Where(a => a.Name.ToLower().Contains(stream.User_Tvg_name.ToLower()))
+            var topCheckIcon = icons.Where(a => a.Name.ToLower().Contains(stream.User_Tvg_name.ToLower()))
                          .OrderByDescending(a => GetWeightedMatch(stream.User_Tvg_name, a.Name))
                          .Select(a => new { Icon = a, Weight = GetWeightedMatch(stream.User_Tvg_name, a.Name) })
                          .FirstOrDefault();
@@ -920,10 +920,10 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
         }
 
         VideoStreamDto? dto = mapper.Map<VideoStreamDto?>(videoStream);
-        ChannelGroupDto? cg = await sender.Send(new GetChannelGroupByName(dto.User_Tvg_group), cancellationToken).ConfigureAwait(false);
+        ChannelGroupDto? cg = await sender.Send(new GetChannelGroupByNameRequest(dto.User_Tvg_group), cancellationToken).ConfigureAwait(false);
         if (!string.IsNullOrEmpty(UpdateSGCG))
         {
-            ChannelGroupDto? origCg = await sender.Send(new GetChannelGroupByName(UpdateSGCG), cancellationToken).ConfigureAwait(false);
+            ChannelGroupDto? origCg = await sender.Send(new GetChannelGroupByNameRequest(UpdateSGCG), cancellationToken).ConfigureAwait(false);
             List<StreamGroupVideoStream> sgvids = RepositoryContext.StreamGroupVideoStreams.Where(a => a.ChildVideoStreamId == videoStream.Id).ToList();
             if (sgvids.Count > 0)
             {

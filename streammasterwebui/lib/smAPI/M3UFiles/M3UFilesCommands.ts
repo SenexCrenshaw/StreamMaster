@@ -1,15 +1,5 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,CreateM3UFileRequest,DefaultAPIResponse,DeleteM3UFileRequest,M3UFileDto,PagedResponse,ProcessM3UFileRequest,QueryStringParameters,RefreshM3UFileRequest,UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
-
-export const CreateM3UFile = async (request: CreateM3UFileRequest): Promise<DefaultAPIResponse | null> => {
-  const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<DefaultAPIResponse>('CreateM3UFile', request);
-};
-
-export const DeleteM3UFile = async (request: DeleteM3UFileRequest): Promise<DefaultAPIResponse | null> => {
-  const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<DefaultAPIResponse>('DeleteM3UFile', request);
-};
+import { DefaultAPIResponse,CreateM3UFileRequest,DeleteM3UFileRequest,ProcessM3UFileRequest,RefreshM3UFileRequest,UpdateM3UFileRequest,M3UFileDto,APIResponse,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const GetPagedM3UFiles = async (parameters: QueryStringParameters): Promise<PagedResponse<M3UFileDto> | undefined> => {
   const signalRService = SignalRService.getInstance();
@@ -24,6 +14,16 @@ export const GetPagedM3UFiles = async (parameters: QueryStringParameters): Promi
       console.error(error);
       return undefined;
     });
+};
+
+export const CreateM3UFile = async (request: CreateM3UFileRequest): Promise<DefaultAPIResponse | null> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<DefaultAPIResponse>('CreateM3UFile', request);
+};
+
+export const DeleteM3UFile = async (request: DeleteM3UFileRequest): Promise<DefaultAPIResponse | null> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<DefaultAPIResponse>('DeleteM3UFile', request);
 };
 
 export const ProcessM3UFile = async (request: ProcessM3UFileRequest): Promise<DefaultAPIResponse | null> => {

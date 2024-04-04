@@ -1,5 +1,4 @@
-﻿using StreamMaster.Application.ChannelGroups;
-using StreamMaster.Application.EPGFiles;
+﻿using StreamMaster.Application.EPGFiles;
 using StreamMaster.Application.Icons;
 using StreamMaster.Application.LogApp;
 using StreamMaster.Application.M3UFiles;
@@ -26,7 +25,7 @@ public interface ISharedHub :
 }
 
 public interface ISharedTasks :
-    IChannelGroupTasks,
+
     IEPGFileTasks,
     IM3UFileTasks,
     ILogTasks,

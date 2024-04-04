@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Application.ChannelGroups.Commands;
-using StreamMaster.Application.ChannelGroups.CommandsOld;
 using StreamMaster.Application.ChannelGroups.Queries;
+using StreamMaster.Application.ChannelGroups.QueriesOld;
 using StreamMaster.Application.Common;
 
 
@@ -38,7 +38,7 @@ public class ChannelGroupsController : ApiControllerBase
     [Route("{id}")]
     public async Task<ActionResult<ChannelGroupDto>> GetChannelGroup(int id)
     {
-        ChannelGroupDto? data = await Mediator.Send(new GetChannelGroup(id)).ConfigureAwait(false);
+        ChannelGroupDto? data = await Mediator.Send(new GetChannelGroupRequest(id)).ConfigureAwait(false);
 
         return data != null ? (ActionResult<ChannelGroupDto>)data : (ActionResult<ChannelGroupDto>)NotFound();
     }
@@ -60,13 +60,7 @@ public class ChannelGroupsController : ApiControllerBase
         return NoContent();
     }
 
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<ActionResult> UpdateChannelGroups(UpdateChannelGroupsRequest request)
-    {
-        await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
-    }
+
 
     [HttpGet]
     [Route("[action]")]

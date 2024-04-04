@@ -3,7 +3,7 @@ import store from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, setField, setIsForced, setIsLoading } from './GetIconsSlice';
 import { useCallback,useEffect } from 'react';
-import { fetchGetIcons } from './IconsFetch';
+import { fetchGetIcons } from './GetIconsFetch';
 import {FieldData, IconFileDto } from '@lib/smAPI/smapiTypes';
 
 interface ExtendedQueryHookResult extends QueryHookResult<IconFileDto[] | undefined> {}

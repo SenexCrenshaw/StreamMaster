@@ -1,7 +1,7 @@
-﻿using StreamMaster.Domain.Configuration;
+﻿namespace StreamMaster.Application.SchedulesDirect.Commands;
 
-namespace StreamMaster.Application.SchedulesDirect.Commands;
-
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddLineup(string lineup) : IRequest<bool>;
 
 public class AddLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusService jobStatusService, ILogger<AddLineup> logger, IOptionsMonitor<SDSettings> intsettings)

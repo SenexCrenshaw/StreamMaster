@@ -1,10 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
 using StreamMaster.Application.SMChannels.Commands;
+using StreamMaster.Application.SMChannels.Queries;
 
 namespace StreamMaster.Application.SMChannels
 {
     public partial class SMChannelsController(ISender Sender) : ApiControllerBase, ISMChannelsController
     {        
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<ActionResult<PagedResponse<SMChannelDto>>> GetPagedSMChannels([FromQuery] QueryStringParameters Parameters)
+        {
+            PagedResponse<SMChannelDto> ret = await Sender.Send(new GetPagedSMChannelsRequest(Parameters)).ConfigureAwait(false);
+            return ret;
+        }
 
         [HttpPatch]
         [Route("[action]")]
@@ -44,14 +53,6 @@ namespace StreamMaster.Application.SMChannels
         {
             DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
-        }
-
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<ActionResult<APIResponse<SMChannelDto>>> GetPagedSMChannels([FromQuery] QueryStringParameters Parameters)
-        {
-            APIResponse<SMChannelDto> ret = await Sender.Send(new GetPagedSMChannelsRequest(Parameters)).ConfigureAwait(false);
-            return ret;
         }
 
         [HttpDelete]
@@ -101,6 +102,12 @@ namespace StreamMaster.Application.Hubs
 {
     public partial class StreamMasterHub : ISMChannelsHub
     {
+        public async Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(QueryStringParameters Parameters)
+        {
+            PagedResponse<SMChannelDto> ret = await Sender.Send(new GetPagedSMChannelsRequest(Parameters)).ConfigureAwait(false);
+            return ret;
+        }
+
         public async Task<DefaultAPIResponse> AddSMStreamToSMChannel(AddSMStreamToSMChannelRequest request)
         {
             DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
@@ -128,12 +135,6 @@ namespace StreamMaster.Application.Hubs
         public async Task<DefaultAPIResponse> DeleteSMChannels(DeleteSMChannelsRequest request)
         {
             DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret;
-        }
-
-        public async Task<APIResponse<SMChannelDto>> GetPagedSMChannels(QueryStringParameters Parameters)
-        {
-            APIResponse<SMChannelDto> ret = await Sender.Send(new GetPagedSMChannelsRequest(Parameters)).ConfigureAwait(false);
             return ret;
         }
 

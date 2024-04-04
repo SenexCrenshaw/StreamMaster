@@ -1,13 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-using StreamMaster.Application.SchedulesDirect;
-using StreamMaster.Application.SchedulesDirect.Commands;
+﻿using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.SchedulesDirect.Queries;
-using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Application.Hubs;
 
-public partial class StreamMasterHub : ISchedulesDirectHub
+public partial class StreamMasterHub
 {
     public async Task<bool> AddLineup(AddLineup request)
     {
@@ -44,10 +40,7 @@ public partial class StreamMasterHub : ISchedulesDirectHub
         return await Sender.Send(new GetLineups()).ConfigureAwait(false);
     }
 
-    public async Task<PagedResponse<StationChannelName>> GetPagedStationChannelNameSelections([FromQuery] StationChannelNameParameters Parameters)
-    {
-        return await Sender.Send(new GetPagedStationChannelNameSelections(Parameters)).ConfigureAwait(false);
-    }
+
 
     public async Task<List<StationIdLineup>> GetSelectedStationIds()
     {
@@ -64,10 +57,6 @@ public partial class StreamMasterHub : ISchedulesDirectHub
         return await Sender.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<List<StationChannelName>> GetStationChannelNamesSimpleQuery([FromQuery] StationChannelNameParameters Parameters)
-    {
-        return await Sender.Send(new GetStationChannelNamesSimpleQuery(Parameters)).ConfigureAwait(false);
-    }
 
     public async Task<List<StationChannelName>> GetStationChannelNames()
     {

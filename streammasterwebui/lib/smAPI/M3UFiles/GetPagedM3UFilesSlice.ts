@@ -1,7 +1,8 @@
-import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
-import { fetchGetPagedM3UFiles } from '@lib/smAPI/M3UFiles/M3UFilesFetch';
-import { FieldData, M3UFileDto, PagedResponse } from '@lib/smAPI/smapiTypes';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import {FieldData, M3UFileDto,PagedResponse } from '@lib/smAPI/smapiTypes';
+import { fetchGetPagedM3UFiles } from '@lib/smAPI/M3UFiles/GetPagedM3UFilesFetch';
+import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
+
 
 interface QueryState {
   data: Record<string, PagedResponse<M3UFileDto> | undefined>;
@@ -22,7 +23,7 @@ const getPagedM3UFilesSlice = createSlice({
   name: 'GetPagedM3UFiles',
   initialState,
   reducers: {
-    setField: (state, action: PayloadAction<{ fieldData: FieldData; query?: string | undefined }>) => {
+    setField: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
       const { query, fieldData } = action.payload;
 
       if (query !== undefined) {
@@ -40,10 +41,10 @@ const getPagedM3UFilesSlice = createSlice({
       console.log('GetPagedM3UFiles setField');
     },
     clear: (state) => {
-      state = initialState;
-      console.log('GetPagedM3UFiles clear');
+       state = initialState;
+       console.log('GetPagedM3UFiles clear');
     },
-    setIsLoading: (state, action: PayloadAction<{ isLoading: boolean; query: string }>) => {
+    setIsLoading: (state, action: PayloadAction<{ query: string; isLoading: boolean }>) => {
       const { query, isLoading } = action.payload;
       if (query !== undefined) {
         state.isLoading[query] = isLoading;
@@ -87,6 +88,7 @@ const getPagedM3UFilesSlice = createSlice({
         state.isLoading[query] = false;
         state.isForced = false;
       });
+
   }
 });
 

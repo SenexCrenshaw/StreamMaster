@@ -1,6 +1,7 @@
-﻿using StreamMaster.Domain.Pagination;
+﻿namespace StreamMaster.Application.SchedulesDirect.Queries;
 
-namespace StreamMaster.Application.SchedulesDirect.Queries;
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetStationChannelNamesSimpleQuery(StationChannelNameParameters Parameters) : IRequest<List<StationChannelName>>;
 
 public class GetStationChannelNamesSimpleQueryHandler(ISchedulesDirectDataService schedulesDirectDataService)

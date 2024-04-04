@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Application.StreamGroups;
-using StreamMaster.Application.StreamGroups.Commands;
+using StreamMaster.Application.StreamGroups.CommandsOld;
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Helpers;

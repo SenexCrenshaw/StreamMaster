@@ -28,7 +28,7 @@ public partial class StreamMasterHub(
     IRepositoryWrapper Repository,
     IOptionsMonitor<Setting> intsettings
     )
-    : Hub<IStreamMasterHub>, ISharedHub
+    : Hub<IStreamMasterHub>
 {
     private static readonly ConcurrentHashSet<string> _connections = [];
     private readonly Setting settings = intsettings.CurrentValue;

@@ -1,9 +1,9 @@
 ﻿using StreamMaster.Application.Settings.CommandsOld;
-using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Application.SchedulesDirect.Commands;
 
-
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RemoveStation(List<StationRequest> Requests) : IRequest<bool>;
 
 public class RemoveStationHandler(ILogger<RemoveStation> logger, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intsettings)

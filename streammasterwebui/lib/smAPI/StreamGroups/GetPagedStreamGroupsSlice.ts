@@ -1,7 +1,8 @@
-import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
-import { fetchGetPagedStreamGroups } from '@lib/smAPI/StreamGroups/StreamGroupsFetch';
-import { FieldData, PagedResponse, StreamGroupDto } from '@lib/smAPI/smapiTypes';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import {FieldData, StreamGroupDto,PagedResponse } from '@lib/smAPI/smapiTypes';
+import { fetchGetPagedStreamGroups } from '@lib/smAPI/StreamGroups/GetPagedStreamGroupsFetch';
+import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
+
 
 interface QueryState {
   data: Record<string, PagedResponse<StreamGroupDto> | undefined>;
@@ -40,8 +41,8 @@ const getPagedStreamGroupsSlice = createSlice({
       console.log('GetPagedStreamGroups setField');
     },
     clear: (state) => {
-      state = initialState;
-      console.log('GetPagedStreamGroups clear');
+       state = initialState;
+       console.log('GetPagedStreamGroups clear');
     },
     setIsLoading: (state, action: PayloadAction<{ query: string; isLoading: boolean }>) => {
       const { query, isLoading } = action.payload;
@@ -87,6 +88,7 @@ const getPagedStreamGroupsSlice = createSlice({
         state.isLoading[query] = false;
         state.isForced = false;
       });
+
   }
 });
 

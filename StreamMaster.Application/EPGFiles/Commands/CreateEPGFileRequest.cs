@@ -7,6 +7,8 @@ using StreamMaster.Domain.Color;
 using System.Web;
 namespace StreamMaster.Application.EPGFiles.Commands;
 
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record CreateEPGFileRequest(IFormFile? FormFile, string Name, string FileName, int EPGNumber, int? TimeShift, string? UrlSource, string? Color) : IRequest<EPGFileDto?> { }
 public class CreateEPGFileRequestValidator : AbstractValidator<CreateEPGFileRequest>
 {

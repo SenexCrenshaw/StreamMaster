@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import {FieldData,  } from '@lib/smAPI/smapiTypes';
-import { fetchGetIsSystemReady } from '@lib/smAPI/Settings/SettingsFetch';
+import { fetchGetIsSystemReady } from '@lib/smAPI/Settings/GetIsSystemReadyFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
 
 

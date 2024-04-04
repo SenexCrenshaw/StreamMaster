@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
-using StreamMaster.Domain.Pagination;
+﻿using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Domain.Repository;
 
@@ -10,7 +8,7 @@ public interface IEPGFileRepository : IRepositoryBase<EPGFile>
     Task<List<EPGFileDto>> GetEPGFilesNeedUpdating();
     Task<List<EPGFileDto>> GetEPGFiles();
 
-    Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(EPGFileParameters Parameters);
+    Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(QueryStringParameters Parameters);
 
     Task<EPGFile?> GetEPGFileById(int EPGNumber);
 

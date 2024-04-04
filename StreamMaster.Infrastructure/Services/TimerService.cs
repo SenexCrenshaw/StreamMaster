@@ -133,7 +133,7 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
             try
             {
                 jobManager.Start();
-                IEnumerable<EPGFileDto> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
+                IEnumerable<EPGFileDto> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdatingRequest(), cancellationToken).ConfigureAwait(false);
                 if (epgFilesToUpdated.Any())
                 {
                     logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFilesToUpdated.Count());

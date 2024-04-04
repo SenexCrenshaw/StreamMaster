@@ -6,7 +6,7 @@ namespace StreamMaster.Application.SchedulesDirect.Queries;
 
 public record GetPagedStationChannelNameSelections(StationChannelNameParameters Parameters) : IRequest<PagedResponse<StationChannelName>>;
 
-internal class GetPagedStationChannelNamesHandler(ILogger<GetPagedStationChannelNameSelections> logger, ISchedulesDirectDataService schedulesDirectDataService)
+internal class GetPagedStationChannelNamesHandler(ISchedulesDirectDataService schedulesDirectDataService)
     : IRequestHandler<GetPagedStationChannelNameSelections, PagedResponse<StationChannelName>>
 {
     public async Task<PagedResponse<StationChannelName>> Handle(GetPagedStationChannelNameSelections request, CancellationToken cancellationToken)

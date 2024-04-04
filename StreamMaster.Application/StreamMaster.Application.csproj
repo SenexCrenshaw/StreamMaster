@@ -41,6 +41,13 @@
     <None Remove="SchedulesDirect\NewFolder\**" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="ChannelGroups\ControllerAndHub.cs" />
+    <Compile Remove="EPGFiles\ControllerAndHub.cs" />
+    <Compile Remove="M3UFiles\ControllerAndHub.cs" />
+    <Compile Remove="SMStreams\ControllerAndHub.cs" />
+    <Compile Remove="StreamGroups\ControllerAndHub.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
@@ -64,11 +71,21 @@
     <ProjectReference Include="..\StreamMaster.Streams.Domain\StreamMaster.Streams.Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="ChannelGroups\Hub\" />
     <Folder Include="Common\Logging\" />
     <Folder Include="General\Queries\" />
+    <Folder Include="Settings\Commands\" />
+    <Folder Include="StreamGroups\Commands\" />
     <Folder Include="StreamGroupVideoStreams\EventHandlers\" />
     <Folder Include="StreamGroupVideoStreams\Events\" />
     <Folder Include="VideoStreamLinks\EventHandlers\" />
     <Folder Include="VideoStreamLinks\Events\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ChannelGroups\ControllerAndHub.cs" />
+    <None Include="EPGFiles\ControllerAndHub.cs" />
+    <None Include="M3UFiles\ControllerAndHub.cs" />
+    <None Include="SMStreams\ControllerAndHub.cs" />
+    <None Include="StreamGroups\ControllerAndHub.cs" />
   </ItemGroup>
 </Project>

@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
-
 using StreamMaster.Application.SMStreams.Commands;
+using StreamMaster.Application.SMStreams.Queries;
 
 namespace StreamMaster.Application.SMStreams
 {
     public interface ISMStreamsController
     {        
-    Task<ActionResult<APIResponse<SMStreamDto>>> GetPagedSMStreams(QueryStringParameters Parameters);
+    Task<ActionResult<PagedResponse<SMStreamDto>>> GetPagedSMStreams(QueryStringParameters Parameters);
     Task<ActionResult<DefaultAPIResponse>> ToggleSMStreamVisibleById(ToggleSMStreamVisibleByIdRequest request);
     }
 }
@@ -15,7 +15,7 @@ namespace StreamMaster.Application.Hubs
 {
     public interface ISMStreamsHub
     {
-        Task<APIResponse<SMStreamDto>> GetPagedSMStreams(QueryStringParameters Parameters);
+        Task<PagedResponse<SMStreamDto>> GetPagedSMStreams(QueryStringParameters Parameters);
         Task<DefaultAPIResponse> ToggleSMStreamVisibleById(ToggleSMStreamVisibleByIdRequest request);
     }
 }

@@ -3,7 +3,7 @@ import store from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, setField, setIsForced, setIsLoading } from './GetIsSystemReadySlice';
 import { useCallback,useEffect } from 'react';
-import { fetchGetIsSystemReady } from './SettingsFetch';
+import { fetchGetIsSystemReady } from './GetIsSystemReadyFetch';
 import {FieldData,  } from '@lib/smAPI/smapiTypes';
 
 interface ExtendedQueryHookResult extends QueryHookResult<boolean | undefined> {}

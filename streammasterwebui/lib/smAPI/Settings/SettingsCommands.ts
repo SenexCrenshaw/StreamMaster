@@ -1,5 +1,5 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { SDSystemStatus,SettingDto } from '@lib/smAPI/smapiTypes';
+import { SettingDto,SDSystemStatus } from '@lib/smAPI/smapiTypes';
 
 export const GetIsSystemReady = async (): Promise<boolean | null> => {
   const signalRService = SignalRService.getInstance();

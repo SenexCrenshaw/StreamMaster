@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace StreamMaster.Application.StreamGroups.Commands;
+namespace StreamMaster.Application.StreamGroups.CommandsOld;
 
 [RequireAll]
 public record FailClientRequest(Guid clientId) : IRequest

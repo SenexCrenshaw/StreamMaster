@@ -1,5 +1,20 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,AddSMStreamToSMChannelRequest,CreateSMChannelFromStreamRequest,DefaultAPIResponse,DeleteSMChannelRequest,DeleteSMChannelsFromParametersRequest,DeleteSMChannelsRequest,PagedResponse,QueryStringParameters,RemoveSMStreamFromSMChannelRequest,SMChannelDto,SetSMChannelLogoRequest,SetSMChannelNameRequest,SetSMChannelNumberRequest,SetSMStreamRanksRequest } from '@lib/smAPI/smapiTypes';
+import { DefaultAPIResponse,AddSMStreamToSMChannelRequest,CreateSMChannelFromStreamRequest,DeleteSMChannelRequest,DeleteSMChannelsFromParametersRequest,DeleteSMChannelsRequest,RemoveSMStreamFromSMChannelRequest,SetSMChannelLogoRequest,SetSMChannelNameRequest,SetSMChannelNumberRequest,SetSMStreamRanksRequest,SMChannelDto,APIResponse,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
+
+export const GetPagedSMChannels = async (parameters: QueryStringParameters): Promise<PagedResponse<SMChannelDto> | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse<SMChannelDto>>('GetPagedSMChannels', parameters)
+    .then((response) => {
+      if (response) {
+        return response.pagedResponse;
+      }
+      return undefined;
+    })
+    .catch((error) => {
+      console.error(error);
+      return undefined;
+    });
+};
 
 export const AddSMStreamToSMChannel = async (request: AddSMStreamToSMChannelRequest): Promise<DefaultAPIResponse | null> => {
   const signalRService = SignalRService.getInstance();
@@ -24,21 +39,6 @@ export const DeleteSMChannelsFromParameters = async (request: DeleteSMChannelsFr
 export const DeleteSMChannels = async (request: DeleteSMChannelsRequest): Promise<DefaultAPIResponse | null> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<DefaultAPIResponse>('DeleteSMChannels', request);
-};
-
-export const GetPagedSMChannels = async (parameters: QueryStringParameters): Promise<PagedResponse<SMChannelDto> | undefined> => {
-  const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<APIResponse<SMChannelDto>>('GetPagedSMChannels', parameters)
-    .then((response) => {
-      if (response) {
-        return response.pagedResponse;
-      }
-      return undefined;
-    })
-    .catch((error) => {
-      console.error(error);
-      return undefined;
-    });
 };
 
 export const RemoveSMStreamFromSMChannel = async (request: RemoveSMStreamFromSMChannelRequest): Promise<DefaultAPIResponse | null> => {

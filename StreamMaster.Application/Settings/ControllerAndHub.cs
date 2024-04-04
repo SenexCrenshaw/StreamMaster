@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using StreamMaster.Application.Settings.Commands;
+using StreamMaster.Application.Settings.Queries;
 
 namespace StreamMaster.Application.Settings
 {
@@ -8,26 +8,26 @@ namespace StreamMaster.Application.Settings
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<Boolean>> GetIsSystemReady()
+        public async Task<bool> GetIsSystemReady()
         {
-            Boolean ret = await Sender.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
-            return ret == null ? NotFound(ret) : Ok(ret);
+            bool ret = await Sender.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
+            return ret;
         }
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<SettingDto>> GetSettings()
+        public async Task<SettingDto> GetSettings()
         {
             SettingDto ret = await Sender.Send(new GetSettingsRequest()).ConfigureAwait(false);
-            return ret == null ? NotFound(ret) : Ok(ret);
+            return ret;
         }
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<SDSystemStatus>> GetSystemStatus()
+        public async Task<SDSystemStatus> GetSystemStatus()
         {
             SDSystemStatus ret = await Sender.Send(new GetSystemStatusRequest()).ConfigureAwait(false);
-            return ret == null ? NotFound(ret) : Ok(ret);
+            return ret;
         }
 
     }
@@ -37,9 +37,9 @@ namespace StreamMaster.Application.Hubs
 {
     public partial class StreamMasterHub : ISettingsHub
     {
-        public async Task<Boolean> GetIsSystemReady()
+        public async Task<bool> GetIsSystemReady()
         {
-            Boolean ret = await Sender.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
+            bool ret = await Sender.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
             return ret;
         }
 

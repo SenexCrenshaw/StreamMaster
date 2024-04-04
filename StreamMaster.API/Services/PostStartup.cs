@@ -1,5 +1,4 @@
 ﻿using StreamMaster.Application.Services;
-using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Infrastructure.EF.PGSQL;
 
@@ -33,7 +32,7 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
 
         await taskQueue.ScanDirectoryForM3UFiles(cancellationToken).ConfigureAwait(false);
 
-        await taskQueue.UpdateChannelGroupCounts(cancellationToken).ConfigureAwait(false);
+        //await taskQueue.UpdateChannelGroupCounts(cancellationToken).ConfigureAwait(false);
 
         await taskQueue.BuildIconCaches(cancellationToken).ConfigureAwait(false);
 

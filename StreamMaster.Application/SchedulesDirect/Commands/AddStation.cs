@@ -1,10 +1,12 @@
 ﻿using StreamMaster.Application.Settings.CommandsOld;
-using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Application.SchedulesDirect.Commands;
 
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record StationRequest(string StationId, string LineUp);
 
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddStation(List<StationRequest> Requests) : IRequest<bool>;
 
 public class AddStationHandler(ILogger<AddStation> logger, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intsettings)
@@ -52,7 +54,6 @@ public class AddStationHandler(ILogger<AddStation> logger, IJobStatusService job
         schedulesDirect.ResetCache("SubscribedLineups");
         jobManager.SetForceNextRun();
 
-        //await HubContext.Clients.All.SchedulesDirectsRefresh();
         return true;
     }
 }

@@ -1,7 +1,7 @@
-﻿using StreamMaster.Domain.Configuration;
+﻿namespace StreamMaster.Application.SchedulesDirect.Commands;
 
-namespace StreamMaster.Application.SchedulesDirect.Commands;
-
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record EPGSync() : IRequest<bool>;
 
 public class SDSyncHandler(ISchedulesDirect schedulesDirect, ILogger<EPGSync> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<SDSettings> intsettings)

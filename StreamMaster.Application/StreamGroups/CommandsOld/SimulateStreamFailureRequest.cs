@@ -4,7 +4,7 @@ using MediatR;
 
 using StreamMaster.Domain.Attributes;
 
-namespace StreamMaster.Application.StreamGroups.Commands;
+namespace StreamMaster.Application.StreamGroups.CommandsOld;
 
 [RequireAll]
 public record SimulateStreamFailureRequest(string StreamUrl) : IRequest

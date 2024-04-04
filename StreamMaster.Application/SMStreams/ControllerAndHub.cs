@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using StreamMaster.Application.SMStreams.Commands;
+using StreamMaster.Application.SMStreams.Queries;
 
 namespace StreamMaster.Application.SMStreams
 {
@@ -8,9 +9,9 @@ namespace StreamMaster.Application.SMStreams
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse<SMStreamDto>>> GetPagedSMStreams([FromQuery] QueryStringParameters Parameters)
+        public async Task<ActionResult<PagedResponse<SMStreamDto>>> GetPagedSMStreams([FromQuery] QueryStringParameters Parameters)
         {
-            APIResponse<SMStreamDto> ret = await Sender.Send(new GetPagedSMStreamsRequest(Parameters)).ConfigureAwait(false);
+            PagedResponse<SMStreamDto> ret = await Sender.Send(new GetPagedSMStreamsRequest(Parameters)).ConfigureAwait(false);
             return ret;
         }
 
@@ -29,9 +30,9 @@ namespace StreamMaster.Application.Hubs
 {
     public partial class StreamMasterHub : ISMStreamsHub
     {
-        public async Task<APIResponse<SMStreamDto>> GetPagedSMStreams(QueryStringParameters Parameters)
+        public async Task<PagedResponse<SMStreamDto>> GetPagedSMStreams(QueryStringParameters Parameters)
         {
-            APIResponse<SMStreamDto> ret = await Sender.Send(new GetPagedSMStreamsRequest(Parameters)).ConfigureAwait(false);
+            PagedResponse<SMStreamDto> ret = await Sender.Send(new GetPagedSMStreamsRequest(Parameters)).ConfigureAwait(false);
             return ret;
         }
 

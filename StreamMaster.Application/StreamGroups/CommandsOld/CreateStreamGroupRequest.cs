@@ -3,7 +3,7 @@
 using StreamMaster.Application.StreamGroups.Events;
 using StreamMaster.Domain.Requests;
 
-namespace StreamMaster.Application.StreamGroups.Commands;
+namespace StreamMaster.Application.StreamGroups.CommandsOld;
 
 public class CreateStreamGroupRequestValidator : AbstractValidator<CreateStreamGroupRequest>
 {

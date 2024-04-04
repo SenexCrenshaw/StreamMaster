@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import {ChannelGroupDto, FieldData,PagedResponse } from '@lib/smAPI/smapiTypes';
-import { fetchGetPagedChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsFetch';
+import {FieldData, ChannelGroupDto,PagedResponse } from '@lib/smAPI/smapiTypes';
+import { fetchGetPagedChannelGroups } from '@lib/smAPI/ChannelGroups/GetPagedChannelGroupsFetch';
 import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
 
 

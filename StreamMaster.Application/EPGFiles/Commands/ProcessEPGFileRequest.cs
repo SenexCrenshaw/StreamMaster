@@ -1,18 +1,8 @@
-﻿using FluentValidation;
+﻿namespace StreamMaster.Application.EPGFiles.Commands;
 
-namespace StreamMaster.Application.EPGFiles.Commands;
-
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record ProcessEPGFileRequest(int Id) : IRequest<EPGFileDto?> { }
-
-public class ProcessEPGFileRequestValidator : AbstractValidator<ProcessEPGFileRequest>
-{
-    public ProcessEPGFileRequestValidator()
-    {
-        _ = RuleFor(v => v.Id)
-            .NotNull()
-            .GreaterThanOrEqualTo(0);
-    }
-}
 
 public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger, IRepositoryWrapper repository, IJobStatusService jobStatusService, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
     : IRequestHandler<ProcessEPGFileRequest, EPGFileDto?>

@@ -3,7 +3,7 @@
     "browser": true,
     "es2022": true
   },
-  "extends": ["react-app", "prettier","plugin:typescript-sort-keys/recommended"],
+  "extends": ["react-app", "prettier","plugin:typescript-sort-keys"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaFeatures": {
@@ -16,6 +16,7 @@
   "plugins": ["unused-imports", "html","sort-keys-fix","typescript-sort-keys"],
   "ignorePatterns": [ "*.css", "node_modules/", "dist/"],
   "rules": {
+     "typescript-sort-keys/interface": "off",
     "no-lone-blocks": "off",
     "unused-imports/no-unused-imports-ts": "error",
     "@next/next/no-img-element": "off",

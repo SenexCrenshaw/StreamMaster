@@ -2,7 +2,7 @@
 
 using StreamMaster.Application.StreamGroups.Events;
 
-namespace StreamMaster.Application.StreamGroups.Commands;
+namespace StreamMaster.Application.StreamGroups.CommandsOld;
 
 public class UpdateStreamGroupRequestValidator : AbstractValidator<UpdateStreamGroupRequest>
 {

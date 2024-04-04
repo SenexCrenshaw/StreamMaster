@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Application.ChannelGroups.CommandsOld;
 using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.EPGFiles.Commands;
 using StreamMaster.Application.General.Commands;
@@ -83,10 +82,6 @@ public sealed class QueuedHostedService(
                         break;
                     case SMQueCommand.EPGSync:
                         _ = await _sender.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
-                        break;
-
-                    case SMQueCommand.UpdateChannelGroupCounts:
-                        _ = await _sender.Send(new UpdateChannelGroupCountsByIdsRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.ProcessM3UFile:

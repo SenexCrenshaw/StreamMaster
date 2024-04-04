@@ -4,6 +4,8 @@ using StreamMaster.Application.VideoStreams.Commands;
 
 namespace StreamMaster.Application.EPGFiles.Commands;
 
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record UpdateEPGFileRequest(int? EPGNumber, string? Color, int? TimeShift, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url) : IRequest<EPGFileDto?>;
 
 public class UpdateEPGFileRequestValidator : AbstractValidator<UpdateEPGFileRequest>

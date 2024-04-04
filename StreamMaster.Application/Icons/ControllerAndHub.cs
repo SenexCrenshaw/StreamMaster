@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using StreamMaster.Application.Icons.Commands;
+using StreamMaster.Application.Icons.Queries;
 
 namespace StreamMaster.Application.Icons
 {
@@ -8,10 +8,10 @@ namespace StreamMaster.Application.Icons
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<List<IconFileDto>>> GetIcons()
+        public async Task<List<IconFileDto>> GetIcons()
         {
             List<IconFileDto> ret = await Sender.Send(new GetIconsRequest()).ConfigureAwait(false);
-            return ret == null ? NotFound(ret) : Ok(ret);
+            return ret;
         }
 
     }

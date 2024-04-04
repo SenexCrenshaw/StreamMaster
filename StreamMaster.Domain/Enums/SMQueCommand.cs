@@ -18,6 +18,5 @@ public enum SMQueCommand
     EPGSync,
     SetIsSystemReady,
 
-    UpdateChannelGroupCounts,
     UpdateEntitiesFromIPTVChannels,
 }

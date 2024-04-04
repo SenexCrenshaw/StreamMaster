@@ -1,9 +1,9 @@
-import { GetApiArgument,QueryHookResult } from '@lib/apiDefs';
+import { QueryHookResult,GetApiArgument } from '@lib/apiDefs';
 import store from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, setField, setIsForced, setIsLoading } from './GetPagedM3UFilesSlice';
 import { useCallback,useEffect } from 'react';
-import { fetchGetPagedM3UFiles } from './M3UFilesFetch';
+import { fetchGetPagedM3UFiles } from './GetPagedM3UFilesFetch';
 import {FieldData, M3UFileDto,PagedResponse } from '@lib/smAPI/smapiTypes';
 
 interface ExtendedQueryHookResult extends QueryHookResult<PagedResponse<M3UFileDto> | undefined> {}

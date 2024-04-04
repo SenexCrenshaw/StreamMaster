@@ -9,7 +9,6 @@ global using Microsoft.Extensions.Options;
 
 global using Reinforced.Typings.Attributes;
 
-global using StreamMaster.Application.ChannelGroups.CommandsOld;
 global using StreamMaster.Application.Common;
 global using StreamMaster.Application.Common.Events;
 global using StreamMaster.Application.Common.Extensions;
@@ -17,7 +16,7 @@ global using StreamMaster.Application.Common.Interfaces;
 global using StreamMaster.Application.Hubs;
 global using StreamMaster.Application.Profiles;
 global using StreamMaster.Application.Profiles.Queries;
-global using StreamMaster.Application.Settings.Commands;
+
 global using StreamMaster.Application.Settings.Queries;
 global using StreamMaster.Domain.API;
 global using StreamMaster.Domain.Attributes;

@@ -1,14 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
-
-using StreamMaster.Application.Settings.Commands;
+using StreamMaster.Application.Settings.Queries;
 
 namespace StreamMaster.Application.Settings
 {
     public interface ISettingsController
     {        
-    Task<ActionResult<Boolean>> GetIsSystemReady();
-    Task<ActionResult<SettingDto>> GetSettings();
-    Task<ActionResult<SDSystemStatus>> GetSystemStatus();
+        Task<bool> GetIsSystemReady();
+        Task<SettingDto> GetSettings();
+        Task<SDSystemStatus> GetSystemStatus();
     }
 }
 
@@ -16,7 +15,7 @@ namespace StreamMaster.Application.Hubs
 {
     public interface ISettingsHub
     {
-        Task<Boolean> GetIsSystemReady();
+        Task<bool> GetIsSystemReady();
         Task<SettingDto> GetSettings();
         Task<SDSystemStatus> GetSystemStatus();
     }

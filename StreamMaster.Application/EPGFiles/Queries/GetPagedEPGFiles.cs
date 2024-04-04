@@ -1,32 +1,16 @@
-﻿using StreamMaster.Domain.Pagination;
+﻿namespace StreamMaster.Application.EPGFiles.Queries;
 
-namespace StreamMaster.Application.EPGFiles.Queries;
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record GetPagedEPGFiles(QueryStringParameters Parameters) : IRequest<PagedResponse<EPGFileDto>>;
 
-public record GetPagedEPGFiles(EPGFileParameters Parameters) : IRequest<PagedResponse<EPGFileDto>>;
-
-public class GetPagedEPGFilesHandler(ILogger<GetPagedEPGFiles> logger, IRepositoryWrapper Repository)
+public class GetPagedEPGFilesHandler(IRepositoryWrapper Repository)
     : IRequestHandler<GetPagedEPGFiles, PagedResponse<EPGFileDto>>
 {
     public async Task<PagedResponse<EPGFileDto>> Handle(GetPagedEPGFiles request, CancellationToken cancellationToken = default)
     {
         PagedResponse<EPGFileDto> epgFiles = await Repository.EPGFile.GetPagedEPGFiles(request.Parameters);
 
-        if (request.Parameters.PageSize == 0)
-        {
-            return Repository.EPGFile.CreateEmptyPagedResponse();
-        }
-
-
-        //foreach (EPGFileDto epgFileDto in epgFiles.Data)
-        //{
-        //    var c = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
-        //   var proprammes = c.Where(a => a.EPGFileId == epgFileDto.Id).ToList();
-        //    if (proprammes.Any())
-        //    {
-        //        epgFileDto.EPGStartDate = proprammes.Min(a => a.StartDateTime);
-        //        epgFileDto.EPGStopDate = proprammes.Max(a => a.StopDateTime);
-        //    }
-        //}
-        return epgFiles;
+        return request.Parameters.PageSize == 0 ? Repository.EPGFile.CreateEmptyPagedResponse() : epgFiles;
     }
 }

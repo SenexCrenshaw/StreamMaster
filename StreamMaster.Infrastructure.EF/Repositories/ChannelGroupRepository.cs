@@ -373,7 +373,7 @@ public class ChannelGroupRepository(
     /// <param name="Parameters">The filter parameters for determining which ChannelGroups to delete.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A tuple containing a list of deleted ChannelGroup IDs and associated video streams.</returns>
-    public async Task<(List<int> ChannelGroupIds, List<VideoStreamDto> VideoStreams)> DeleteAllChannelGroupsFromParameters(ChannelGroupParameters Parameters, CancellationToken cancellationToken)
+    public async Task<(List<int> ChannelGroupIds, List<VideoStreamDto> VideoStreams)> DeleteAllChannelGroupsFromParameters(QueryStringParameters Parameters, CancellationToken cancellationToken)
     {
         logger.LogInformation($"Attempting to fetch and delete ChannelGroups based on provided parameters.");
 

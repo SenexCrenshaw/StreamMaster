@@ -156,7 +156,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
     /// <summary>
     /// Retrieves paged EPGFiles based on specific parameters.
     /// </summary>
-    public async Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(EPGFileParameters Parameters)
+    public async Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(QueryStringParameters Parameters)
     {
         if (Parameters == null)
         {

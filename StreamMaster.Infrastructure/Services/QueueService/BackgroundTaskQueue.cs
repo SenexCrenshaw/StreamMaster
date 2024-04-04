@@ -15,7 +15,6 @@ using System.Threading.Channels;
 
 namespace StreamMaster.Infrastructure.Services.QueueService;
 
-
 public partial class BackgroundTaskQueue : IBackgroundTaskQueue
 {
     //private static readonly object lockObject = new();

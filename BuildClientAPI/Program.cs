@@ -1,4 +1,8 @@
-﻿using MediatR;
+﻿using AutoMapper.Internal;
+
+using BuildClientAPI.CSharp;
+
+using MediatR;
 
 using StreamMaster.Domain.Attributes;
 
@@ -44,8 +48,8 @@ namespace BuildClientAPI
 
                     }
 
-                    string ps = Util.ParamsToCSharp(recordType);
-                    string tsps = Util.CSharpParamToTS(recordType);
+                    string ps = CSharpUtils.ParamsToCSharp(recordType);
+                    string tsps = Utils.CSharpParamToTS(recordType);
 
                     ConstructorInfo[] constructors = recordType.GetConstructors();
                     ParameterInfo[] parameters = constructors[0].GetParameters();
@@ -66,9 +70,9 @@ namespace BuildClientAPI
                     {
                         string returntype = GetCleanReturnType(returnType);
                         string returntypeTS = GetCleanTSReturnType(returnType);
-                        string Parameters = Util.ParamsToCSharp(recordType);
-                        string TsParameters = Util.CSharpParamToTS(recordType);
-                        //string testI = Util.CSharpPropsToTSInterface(returnType);
+                        string Parameters = CSharpUtils.ParamsToCSharp(recordType);
+                        string TsParameters = Utils.CSharpParamToTS(recordType);
+                        //string testI = Utils.CSharpPropsToTSInterface(returnType);
                         string TsReturnType = GetCleanTSReturnType(returnType);
                         string genericArgs = string.Join(", ", recordType.GetGenericArguments().Select(FormatTypeName));
                         string genericArgs2 = string.Join(", ", returnType.GetGenericArguments().Select(FormatTypeName));
@@ -97,8 +101,8 @@ namespace BuildClientAPI
                         NamespaceName = classNamespace,
                         SMAPIImport = smapiImport,
                         ReturnType = GetCleanReturnType(returnType),
-
-                        IsList = returnType.Name.StartsWith("List"),
+                        IsReturnNull = Utils.IsTypeNullable(returnType),
+                        IsList = returnType.IsArray || returnType.IsListType(),//Name.StartsWith("List"),
                         Parameter = ps,
                         ParameterNames = string.Join(", ", parameters.Select(p => p.Name)),
                         IsGet = name.StartsWith("Get"),
@@ -116,7 +120,7 @@ namespace BuildClientAPI
                         ReturnEntityType = GetTSTypeReturnName(returnType),
                     };
 
-                    string? returnEntity = Util.IsTSGeneric(Util.ExtractInnermostType(methodDetails.ReturnType));
+                    string? returnEntity = Utils.IsTSGeneric(Utils.ExtractInnermostType(methodDetails.ReturnType));
                     if (returnEntity != null)
                     {
                         string aa = returnEntity;
@@ -127,8 +131,8 @@ namespace BuildClientAPI
                     {
                         List<ParameterInfo> test = parameters.ToList();
                         List<string> aa = parameters.Select(p => $"{p.ParameterType.Name}").ToList();
-                        List<Type> aaa = Util.GetConstructorAndParameterTypes(recordType);
-                        List<Type> aaa2 = Util.GetConstructorAndParameterTypes(returnType);
+                        List<Type> aaa = Utils.GetConstructorAndParameterTypes(recordType);
+                        List<Type> aaa2 = Utils.GetConstructorAndParameterTypes(returnType);
                     }
 
                     if (recordType.Name.StartsWith("UpdateM3UFile"))
@@ -147,7 +151,6 @@ namespace BuildClientAPI
                         string namespaceName = kvp.Key;
                         List<MethodDetails> methods = kvp.Value;
                         List<MethodDetails> pagedMethods = methods.Where(a => a.Name.StartsWith("Get")).ToList();
-                        //string entityName = ParameterConverter2.ExtractInnermostType(pagedMethods.First().ReturnType);
 
                         string fileName = Path.Combine(CSharpFileNamePrefix, namespaceName, "ControllerAndHub.cs");
                         string IFileName = Path.Combine(CSharpFileNamePrefix, namespaceName, "IControllerAndHub.cs");
@@ -157,7 +160,7 @@ namespace BuildClientAPI
                         string tsTypeFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Types.ts");
                         TypeScriptCommandGenerator.GenerateFile(methods, tsCommandFilePath, tsTypeFilePath);
 
-                        string tsFetchFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName, $"{namespaceName}Fetch.ts");
+                        string tsFetchFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName);
                         TypeScriptFetchGenerator.GenerateFile(namespaceName, methods, tsFetchFilePath);
 
 
@@ -198,22 +201,32 @@ namespace BuildClientAPI
 
         private static string GetCleanReturnType(Type returnType)
         {
+
+            if (returnType.Name.Contains("Nullable"))
+            {
+                int aa = 1;
+            }
+
             if (typeof(Task).IsAssignableFrom(returnType))
             {
                 if (returnType.IsGenericType)
                 {
                     Type resultType = returnType.GetGenericArguments()[0];
-                    return FormatTypeName(resultType);
+                    return Utils.IsTypeNullable(resultType) ? FormatNullableTypeName(resultType) : FormatTypeName(resultType);
                 }
                 else
                 {
                     return "void";
                 }
             }
-            else
+
+            if (returnType.IsGenericType)
             {
-                return FormatTypeName(returnType);
+                Type resultType = returnType.GetGenericArguments()[0];
+                return Utils.IsTypeNullable(resultType) ? FormatNullableTypeName(resultType) : FormatTypeName(resultType);
             }
+
+            return Utils.IsTypeNullable(returnType) ? FormatNullableTypeName(returnType) : FormatTypeName(returnType);
         }
 
         private static string GetCleanTSReturnType(Type returnType)
@@ -246,14 +259,7 @@ namespace BuildClientAPI
             }
             else
             {
-                return type.Name switch
-                {
-                    "String" => "string",
-                    "Int32" => "int",
-                    "Boolean" => "boolean",
-
-                    _ => type.Name,
-                };
+                return FormatTSTypeName(type);
             }
         }
 
@@ -278,7 +284,6 @@ namespace BuildClientAPI
                 };
             }
         }
-
         private static string FormatTypeName(Type type)
         {
             if (type.IsGenericType)
@@ -295,10 +300,15 @@ namespace BuildClientAPI
                 {
                     "String" => "string",
                     "Int32" => "int",
-                    // Add more type mappings as necessary
+                    "Boolean" => "bool",
                     _ => type.Name,
                 };
             }
+        }
+        private static string FormatNullableTypeName(Type type)
+        {
+            string name = FormatTypeName(type);
+            return name += "?";
         }
     }
 

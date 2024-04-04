@@ -3,7 +3,7 @@ import store from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, setField, setIsForced, setIsLoading } from './GetSystemStatusSlice';
 import { useCallback,useEffect } from 'react';
-import { fetchGetSystemStatus } from './SettingsFetch';
+import { fetchGetSystemStatus } from './GetSystemStatusFetch';
 import {FieldData, SDSystemStatus } from '@lib/smAPI/smapiTypes';
 
 interface ExtendedQueryHookResult extends QueryHookResult<SDSystemStatus | undefined> {}

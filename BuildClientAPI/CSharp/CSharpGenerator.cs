@@ -1,0 +1,240 @@
+﻿using System.Text;
+
+public static class CSharpGenerator
+{
+    public static void GenerateFile(string namespaceName, List<MethodDetails> methods, string filePath, string IFilePath)
+    {
+        StringBuilder IcontrollerContent = new();
+        StringBuilder controllerContent = new();
+
+        StringBuilder IhubContent = new();
+        StringBuilder hubContent = new();
+
+        bool needsQueryInclude = methods.Any(a => a.IsGet);
+        bool needsCommandInclude = methods.Any(a => !a.IsGet);
+
+        foreach (MethodDetails method in methods)
+        {
+            // Determine HTTP method attribute (simplified example)
+            string httpAttribute = "HttpPatch";
+            if (method.Name.StartsWith("Get"))
+            {
+                httpAttribute = "HttpGet";
+            }
+            else if (method.Name.StartsWith("Delete"))
+            {
+                httpAttribute = "HttpDelete";
+            }
+            else if (method.Name.StartsWith("Remove"))
+            {
+                httpAttribute = "HttpDelete";
+            }
+            else if (method.Name.StartsWith("Create"))
+            {
+                httpAttribute = "HttpPost";
+            }
+
+            string route = $"[Route(\"[action]\")]";
+            string httpMethodLine = $"[{httpAttribute}]";
+            string parameterLine = string.IsNullOrEmpty(method.Parameter) ? "" : $"{method.Name}Request request";
+            string toSend = string.IsNullOrEmpty(method.Parameter) ? $"new {method.SingalRFunction}()" : "request";
+
+            if (!method.JustHub)
+            {
+                controllerContent.AppendLine($"        {httpMethodLine}");
+                controllerContent.AppendLine($"        {route}");
+
+                if (method.Name == "GetIcons")
+                {
+                    int aa = 1;
+                }
+
+                if (method.ReturnType.Equals("DefaultAPIResponse?") || (method.IsGet && method.ReturnType.EndsWith("?")))
+                {
+                    method.ReturnType = method.ReturnType[..^1];
+                }
+
+                if (method.IsGetPaged)
+                {
+                    string fromQ = "[FromQuery] ";
+                    controllerContent.AppendLine($"        public async Task<ActionResult<PagedResponse<{method.ReturnType}>>> {method.Name}({fromQ}{method.Parameter})");
+                    controllerContent.AppendLine($"        {{");
+                    controllerContent.AppendLine($"            PagedResponse<{method.ReturnType}> ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+                    controllerContent.AppendLine($"            return ret;");
+                    IcontrollerContent.AppendLine($"    Task<ActionResult<PagedResponse<{method.ReturnType}>>> {method.Name}({method.Parameter});");
+                }
+                else if (method.IsGet)
+                {
+                    if (method.Name == "GetIcons")
+                    {
+                        int aa = 1;
+                    }
+                    if (method.IsList)
+                    {
+                        method.ReturnType = $"List<{method.ReturnType}>";
+                    }
+                    controllerContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.Parameter})");
+                    controllerContent.AppendLine($"        {{");
+                    controllerContent.AppendLine($"            {method.ReturnType} ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+                    controllerContent.AppendLine($"            return ret;");
+                    IcontrollerContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Parameter});");
+                }
+                else if (method.IsTask)
+                {
+                    controllerContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.TsParameter} request)");
+                    controllerContent.AppendLine($"        {{");
+                    controllerContent.AppendLine($"            {method.ReturnType} ret = await taskQueue{method.Name}(request).ConfigureAwait(false);");
+                    IcontrollerContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Name}Request request);");
+                }
+                else
+                {
+
+                    controllerContent.AppendLine($"        public async Task<ActionResult<{method.ReturnType}>> {method.Name}({parameterLine})");
+                    controllerContent.AppendLine($"        {{");
+                    controllerContent.AppendLine($"            {method.ReturnType} ret = await Sender.Send({toSend}).ConfigureAwait(false);");
+                    if (method.IsReturnNull)
+                    {
+                        controllerContent.AppendLine($"            return ret == null ? NotFound(ret) : Ok(ret);");
+                    }
+                    else
+                    {
+                        controllerContent.AppendLine($"            return Ok(ret);");
+                    }
+                    IcontrollerContent.AppendLine($"    Task<ActionResult<{method.ReturnType}>> {method.Name}({parameterLine});");
+                }
+
+                controllerContent.AppendLine($"        }}");
+                controllerContent.AppendLine();
+            }
+
+            // Hub method signature (if applicable)
+            if (!method.JustController)
+            {
+                if (method.ReturnType.Equals("DefaultAPIResponse?") || (method.IsGet && method.ReturnType.EndsWith("?")))
+                {
+                    method.ReturnType = method.ReturnType[..^1];
+                }
+
+
+                if (method.IsGetPaged)
+                {
+
+                    hubContent.AppendLine($"        public async Task<PagedResponse<{method.ReturnType}>> {method.Name}({method.Parameter})");
+                    hubContent.AppendLine($"        {{");
+                    hubContent.AppendLine($"            PagedResponse<{method.ReturnType}> ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+                    hubContent.AppendLine($"            return ret;");
+                    IhubContent.AppendLine($"        Task<PagedResponse<{method.ReturnType}>> {method.Name}({method.Parameter});");
+                }
+                else if (method.IsGet)
+                {
+                    if (method.Name == "GetIcons")
+                    {
+                        int aa = 1;
+                    }
+
+
+                    hubContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.Parameter})");
+                    hubContent.AppendLine($"        {{");
+                    hubContent.AppendLine($"            {method.ReturnType} ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+                    hubContent.AppendLine($"            return ret;");
+                    IhubContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Parameter});");
+                }
+                else if (method.IsTask)
+                {
+                    hubContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.Name}Request request)");
+                    hubContent.AppendLine($"        {{");
+                    hubContent.AppendLine($"            await taskQueue.{method.Name}(request).ConfigureAwait(false);");
+                    IhubContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Name}Request request);");
+                    hubContent.AppendLine($"            return DefaultAPIResponse.Ok;");
+                }
+                else
+                {
+                    hubContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({parameterLine})");
+                    hubContent.AppendLine($"        {{");
+                    hubContent.AppendLine($"            {method.ReturnType} ret = await Sender.Send({toSend}).ConfigureAwait(false);");
+                    IhubContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({parameterLine});");
+                    hubContent.AppendLine($"            return ret;");
+                }
+
+                hubContent.AppendLine($"        }}");
+                hubContent.AppendLine();
+            }
+        }
+
+        WriteControllerAndHub(filePath, namespaceName, controllerContent, hubContent, needsQueryInclude, needsCommandInclude);
+        WriteIControllerAndHub(IFilePath, namespaceName, IcontrollerContent, IhubContent, needsQueryInclude, needsCommandInclude);
+    }
+
+    private static void WriteIControllerAndHub(string IFilePath, string namespaceName, StringBuilder IControllerContent, StringBuilder IHubContent, bool NeedsQueryInclude, bool NeedsCommandInclude)
+    {
+        string fileContent = "using Microsoft.AspNetCore.Mvc;\n";
+        if (NeedsCommandInclude)
+        {
+            fileContent += $"using StreamMaster.Application.{namespaceName}.Commands;\n";
+        }
+
+        if (NeedsQueryInclude)
+        {
+            fileContent += $"using StreamMaster.Application.{namespaceName}.Queries;\n";
+        }
+
+        fileContent += $@"
+namespace StreamMaster.Application.{namespaceName}
+{{
+    public interface I{namespaceName}Controller
+    {{        
+{IControllerContent}    }}
+}}
+
+namespace StreamMaster.Application.Hubs
+{{
+    public interface I{namespaceName}Hub
+    {{
+{IHubContent}    }}
+}}
+";
+        string directory = Directory.GetParent(IFilePath).ToString();
+        if (!Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+        File.WriteAllText(IFilePath, fileContent);
+    }
+
+    private static void WriteControllerAndHub(string filePath, string namespaceName, StringBuilder controllerContent, StringBuilder hubContent, bool NeedsQueryInclude, bool NeedsCommandInclude)
+    {
+        string fileContent = "using Microsoft.AspNetCore.Mvc;\n";
+        if (NeedsCommandInclude)
+        {
+            fileContent += $"using StreamMaster.Application.{namespaceName}.Commands;\n";
+        }
+
+        if (NeedsQueryInclude)
+        {
+            fileContent += $"using StreamMaster.Application.{namespaceName}.Queries;\n";
+        }
+
+        fileContent += $@"
+namespace StreamMaster.Application.{namespaceName}
+{{
+    public partial class {namespaceName}Controller(ISender Sender) : ApiControllerBase, I{namespaceName}Controller
+    {{        
+
+{controllerContent}    }}
+}}
+
+namespace StreamMaster.Application.Hubs
+{{
+    public partial class StreamMasterHub : I{namespaceName}Hub
+    {{
+{hubContent}    }}
+}}
+";
+        string directory = Directory.GetParent(filePath).ToString();
+        if (!Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+        File.WriteAllText(filePath, fileContent);
+    }
+}

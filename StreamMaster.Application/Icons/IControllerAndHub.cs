@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
-
-using StreamMaster.Application.Icons.Commands;
+using StreamMaster.Application.Icons.Queries;
 
 namespace StreamMaster.Application.Icons
 {
     public interface IIconsController
     {        
-    Task<ActionResult<List<IconFileDto>>> GetIcons();
+        Task<List<IconFileDto>> GetIcons();
     }
 }
 

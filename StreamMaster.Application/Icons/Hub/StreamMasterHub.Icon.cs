@@ -1,32 +1,12 @@
-﻿using StreamMaster.Application.Icons;
-using StreamMaster.Application.Icons.CommandsOld;
-using StreamMaster.Application.Icons.Queries;
-
+﻿using StreamMaster.Application.Icons.CommandsOld;
 namespace StreamMaster.Application.Hubs;
 
-public partial class StreamMasterHub : IIconHub
+public partial class StreamMasterHub
 {
 
     public async Task AutoMatchIconToStreams(AutoMatchIconToStreamsRequest request)
     {
         await Sender.Send(request).ConfigureAwait(false);
-    }
-    public async Task<IconFileDto?> GetIconFromSource(GetIconFromSourceRequest request)
-    {
-        return await Sender.Send(request).ConfigureAwait(false);
-    }
-
-
-    public async Task<PagedResponse<IconFileDto>> GetPagedIcons(IconFileParameters iconFileParameters)
-    {
-        PagedResponse<IconFileDto> data = await Sender.Send(new GetPagedIcons(iconFileParameters)).ConfigureAwait(false);
-        return data;
-    }
-
-    public async Task<IEnumerable<IconFileDto>> GetIconsSimpleQuery(IconFileParameters iconFileParameters)
-    {
-        IEnumerable<IconFileDto> data = await Sender.Send(new GetIconsSimpleQuery(iconFileParameters)).ConfigureAwait(false);
-        return data;
     }
 
 }

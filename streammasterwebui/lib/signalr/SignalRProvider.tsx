@@ -9,6 +9,8 @@ import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import useGetPagedM3UFiles from '@lib/smAPI/M3UFiles/useGetPagedM3UFiles';
 import useGetIcons from '@lib/smAPI/Icons/useGetIcons';
+import useGetEPGColors from '@lib/smAPI/EPGFiles/useGetEPGColors';
+import useGetEPGFilePreviewById from '@lib/smAPI/EPGFiles/useGetEPGFilePreviewById';
 import useGetPagedChannelGroups from '@lib/smAPI/ChannelGroups/useGetPagedChannelGroups';
 
 const SignalRContext = createContext<SignalRService | undefined>(undefined);
@@ -33,6 +35,8 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
   const getSettings = useGetSettings();
   const getPagedM3UFiles = useGetPagedM3UFiles();
   const getIcons = useGetIcons();
+  const getEPGColors = useGetEPGColors();
+  const getEPGFilePreviewById = useGetEPGFilePreviewById();
   const getPagedChannelGroups = useGetPagedChannelGroups();
 
   const addMessage = useCallback(
@@ -68,12 +72,20 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         getIcons.SetIsForced(true);
         return;
       }
+      if (entity === 'EPGColorDto') {
+        getEPGColors.SetIsForced(true);
+        return;
+      }
+      if (entity === 'EPGFilePreviewDto') {
+        getEPGFilePreviewById.SetIsForced(true);
+        return;
+      }
       if (entity === 'ChannelGroupDto') {
         getPagedChannelGroups.SetIsForced(true);
         return;
       }
     },
-    [getPagedStreamGroups,getPagedSMStreams,getPagedSMChannels,getSettings,getPagedM3UFiles,getIcons,getPagedChannelGroups]
+    [getPagedStreamGroups,getPagedSMStreams,getPagedSMChannels,getSettings,getPagedM3UFiles,getIcons,getEPGColors,getEPGFilePreviewById,getPagedChannelGroups]
   );
 
   const setField = useCallback(
@@ -103,13 +115,21 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
           getIcons.SetField(fieldData)
           return;
         }
+        if (fieldData.entity === 'EPGColorDto') {
+          getEPGColors.SetField(fieldData)
+          return;
+        }
+        if (fieldData.entity === 'EPGFilePreviewDto') {
+          getEPGFilePreviewById.SetField(fieldData)
+          return;
+        }
         if (fieldData.entity === 'ChannelGroupDto') {
           getPagedChannelGroups.SetField(fieldData)
           return;
         }
       });
     },
-    [getPagedStreamGroups,getPagedSMStreams,getPagedSMChannels,getSettings,getPagedM3UFiles,getIcons,getPagedChannelGroups]
+    [getPagedStreamGroups,getPagedSMStreams,getPagedSMChannels,getSettings,getPagedM3UFiles,getIcons,getEPGColors,getEPGFilePreviewById,getPagedChannelGroups]
   );
 
   const RemoveConnections = useCallback(() => {

@@ -299,6 +299,10 @@ export interface SendSuccessRequest
 	detail: string;
 	summary: string;
 }
+export interface GetPagedSMChannelsRequest
+{
+	parameters: QueryStringParameters;
+}
 export interface AddSMStreamToSMChannelRequest
 {
 	smChannelId: number;
@@ -319,10 +323,6 @@ export interface DeleteSMChannelsFromParametersRequest
 export interface DeleteSMChannelsRequest
 {
 	smChannelIds: number[];
-}
-export interface GetPagedSMChannelsRequest
-{
-	parameters: QueryStringParameters;
 }
 export interface RemoveSMStreamFromSMChannelRequest
 {
@@ -348,10 +348,6 @@ export interface SetSMStreamRanksRequest
 {
 	requests: SMChannelRankRequest[];
 }
-export interface SDSystemStatus
-{
-	isSystemReady: boolean;
-}
 export interface GetIsSystemReadyRequest
 {
 }
@@ -360,6 +356,42 @@ export interface GetSettingsRequest
 }
 export interface GetSystemStatusRequest
 {
+}
+export interface SDSystemStatus
+{
+	isSystemReady: boolean;
+}
+export interface GetStationChannelNamesSimpleQuery
+{
+	parameters: any;
+}
+export interface AddLineup
+{
+	lineup: string;
+}
+export interface StationRequest
+{
+	lineUp: string;
+	stationId: string;
+}
+export interface AddStation
+{
+	requests: StationRequest[];
+}
+export interface EPGSync
+{
+}
+export interface RemoveLineup
+{
+	lineup: string;
+}
+export interface RemoveStation
+{
+	requests: StationRequest[];
+}
+export interface GetPagedM3UFilesRequest
+{
+	parameters: QueryStringParameters;
 }
 export interface CreateM3UFileRequest
 {
@@ -375,10 +407,6 @@ export interface DeleteM3UFileRequest
 {
 	deleteFile: boolean;
 	id: number;
-}
-export interface GetPagedM3UFilesRequest
-{
-	parameters: QueryStringParameters;
 }
 export interface ProcessM3UFileRequest
 {
@@ -408,12 +436,75 @@ export interface UpdateM3UFileRequest
 export interface GetIconsRequest
 {
 }
+export interface GetEPGColorsRequest
+{
+}
+export interface GetEPGFilePreviewByIdRequest
+{
+	id: number;
+}
+export interface GetEPGNextEPGNumberRequest
+{
+}
+export interface GetPagedEPGFiles
+{
+	parameters: QueryStringParameters;
+}
+export interface CreateEPGFileRequest
+{
+	color?: string;
+	epgNumber: number;
+	fileName: string;
+	formFile?: any;
+	name: string;
+	timeShift?: number;
+	urlSource?: string;
+}
+export interface DeleteEPGFileRequest
+{
+	deleteFile: boolean;
+	id: number;
+}
+export interface ProcessEPGFileRequest
+{
+	id: number;
+}
+export interface RefreshEPGFileRequest
+{
+	id: number;
+}
+export interface UpdateEPGFileRequest
+{
+	autoUpdate?: boolean;
+	color?: string;
+	epgNumber?: number;
+	hoursToUpdate?: number;
+	id: number;
+	name?: string;
+	timeShift?: number;
+	url?: string;
+}
+export interface GetPagedChannelGroupsRequest
+{
+	parameters: QueryStringParameters;
+}
 export interface CreateChannelGroupRequest
 {
 	groupName: string;
 	isReadOnly: boolean;
 }
-export interface GetPagedChannelGroupsRequest
+export interface DeleteAllChannelGroupsFromParametersRequest
 {
 	parameters: QueryStringParameters;
+}
+export interface DeleteChannelGroupRequest
+{
+	channelGroupId: number;
+}
+export interface UpdateChannelGroupRequest
+{
+	channelGroupId: number;
+	isHidden?: boolean;
+	newGroupName?: string;
+	toggleVisibility?: boolean;
 }

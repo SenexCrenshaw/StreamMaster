@@ -1,6 +1,6 @@
 ﻿using StreamMaster.Application.Statistics.Queries;
 using StreamMaster.Application.StreamGroups;
-using StreamMaster.Application.StreamGroups.Commands;
+using StreamMaster.Application.StreamGroups.CommandsOld;
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.Requests;
 

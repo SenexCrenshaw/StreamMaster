@@ -1,10 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
 using StreamMaster.Application.M3UFiles.Commands;
+using StreamMaster.Application.M3UFiles.Queries;
 
 namespace StreamMaster.Application.M3UFiles
 {
     public partial class M3UFilesController(ISender Sender) : ApiControllerBase, IM3UFilesController
     {        
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<ActionResult<PagedResponse<M3UFileDto>>> GetPagedM3UFiles([FromQuery] QueryStringParameters Parameters)
+        {
+            PagedResponse<M3UFileDto> ret = await Sender.Send(new GetPagedM3UFilesRequest(Parameters)).ConfigureAwait(false);
+            return ret;
+        }
 
         [HttpPost]
         [Route("[action]")]
@@ -20,14 +29,6 @@ namespace StreamMaster.Application.M3UFiles
         {
             DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
-        }
-
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<ActionResult<APIResponse<M3UFileDto>>> GetPagedM3UFiles([FromQuery] QueryStringParameters Parameters)
-        {
-            APIResponse<M3UFileDto> ret = await Sender.Send(new GetPagedM3UFilesRequest(Parameters)).ConfigureAwait(false);
-            return ret;
         }
 
         [HttpPatch]
@@ -53,6 +54,12 @@ namespace StreamMaster.Application.Hubs
 {
     public partial class StreamMasterHub : IM3UFilesHub
     {
+        public async Task<PagedResponse<M3UFileDto>> GetPagedM3UFiles(QueryStringParameters Parameters)
+        {
+            PagedResponse<M3UFileDto> ret = await Sender.Send(new GetPagedM3UFilesRequest(Parameters)).ConfigureAwait(false);
+            return ret;
+        }
+
         public async Task<DefaultAPIResponse> CreateM3UFile(CreateM3UFileRequest request)
         {
             DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
@@ -62,12 +69,6 @@ namespace StreamMaster.Application.Hubs
         public async Task<DefaultAPIResponse> DeleteM3UFile(DeleteM3UFileRequest request)
         {
             DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret;
-        }
-
-        public async Task<APIResponse<M3UFileDto>> GetPagedM3UFiles(QueryStringParameters Parameters)
-        {
-            APIResponse<M3UFileDto> ret = await Sender.Send(new GetPagedM3UFilesRequest(Parameters)).ConfigureAwait(false);
             return ret;
         }
 

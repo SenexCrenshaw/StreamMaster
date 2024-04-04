@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import {FieldData, SDSystemStatus } from '@lib/smAPI/smapiTypes';
-import { fetchGetSystemStatus } from '@lib/smAPI/Settings/SettingsFetch';
+import { fetchGetSystemStatus } from '@lib/smAPI/Settings/GetSystemStatusFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
 
 

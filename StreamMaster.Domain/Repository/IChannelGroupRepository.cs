@@ -89,7 +89,7 @@ public interface IChannelGroupRepository : IRepositoryBase<ChannelGroup>
     /// <summary>
     /// Deletes multiple channel groups based on specific parameters and returns associated video streams.
     /// </summary>
-    Task<(List<int> ChannelGroupIds, List<VideoStreamDto> VideoStreams)> DeleteAllChannelGroupsFromParameters(ChannelGroupParameters Parameters, CancellationToken cancellationToken);
+    Task<(List<int> ChannelGroupIds, List<VideoStreamDto> VideoStreams)> DeleteAllChannelGroupsFromParameters(QueryStringParameters Parameters, CancellationToken cancellationToken);
 
     /// <summary>
     /// Deletes a specific channel group and returns associated video streams.

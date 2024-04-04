@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-
 using StreamMaster.Application.SMMessages.Commands;
 
 namespace StreamMaster.Application.SMMessages

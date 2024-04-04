@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import {FieldData, IconFileDto } from '@lib/smAPI/smapiTypes';
-import { fetchGetIcons } from '@lib/smAPI/Icons/IconsFetch';
+import { fetchGetIcons } from '@lib/smAPI/Icons/GetIconsFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
 
 

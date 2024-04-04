@@ -1,17 +1,8 @@
-﻿using FluentValidation;
+﻿namespace StreamMaster.Application.EPGFiles.Commands;
 
-namespace StreamMaster.Application.EPGFiles.Commands;
-
-[RequireAll]
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RefreshEPGFileRequest(int Id) : IRequest<EPGFileDto?> { }
-
-public class RefreshEPGFileRequestValidator : AbstractValidator<RefreshEPGFileRequest>
-{
-    public RefreshEPGFileRequestValidator()
-    {
-        _ = RuleFor(v => v.Id).NotNull().GreaterThanOrEqualTo(0);
-    }
-}
 
 public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger, IMapper Mapper, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IPublisher Publisher) : IRequestHandler<RefreshEPGFileRequest, EPGFileDto?>
 {
