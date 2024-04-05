@@ -5,6 +5,7 @@ using StreamMaster.Application.StreamGroups.CommandsOld;
 using StreamMaster.Application.VideoStreams;
 using StreamMaster.Application.VideoStreams.Commands;
 using StreamMaster.Application.VideoStreams.Queries;
+using StreamMaster.Domain.API;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Pagination;

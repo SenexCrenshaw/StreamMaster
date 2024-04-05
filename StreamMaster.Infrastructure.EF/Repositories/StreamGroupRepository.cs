@@ -3,7 +3,7 @@ using AutoMapper.QueryableExtensions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-
+using StreamMaster.Domain.API;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Configuration;
 

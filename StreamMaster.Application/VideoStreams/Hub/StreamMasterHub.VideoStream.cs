@@ -1,7 +1,6 @@
 ﻿using StreamMaster.Application.VideoStreams;
 using StreamMaster.Application.VideoStreams.Commands;
 using StreamMaster.Application.VideoStreams.Queries;
-using StreamMaster.Domain.Pagination;
 using StreamMaster.Domain.Requests;
 
 namespace StreamMaster.Application.Hubs;

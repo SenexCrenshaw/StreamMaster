@@ -7,7 +7,7 @@ namespace StreamMaster.Application.ChannelGroups.Queries;
 public record GetPagedChannelGroupsRequest(QueryStringParameters Parameters) : IRequest<PagedResponse<ChannelGroupDto>>;
 
 [LogExecutionTimeAspect]
-internal class GetPagedChannelGroupsQueryHandler(ILogger<GetPagedChannelGroupsRequest> logger, IRepositoryWrapper Repository, ISender Sender, IMapper Mapper)
+internal class GetPagedChannelGroupsQueryHandler(IRepositoryWrapper Repository, ISender Sender, IMapper Mapper)
     : IRequestHandler<GetPagedChannelGroupsRequest, PagedResponse<ChannelGroupDto>>
 {
     public async Task<PagedResponse<ChannelGroupDto>> Handle(GetPagedChannelGroupsRequest request, CancellationToken cancellationToken)

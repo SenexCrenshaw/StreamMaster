@@ -19,11 +19,11 @@ public class UpdateVideoStreamEventHandler(ILogger<UpdateVideoStreamEvent> logge
         //    }
         //}
 
-        ChannelGroupDto? channelGroup = await Sender.Send(new GetChannelGroupByNameRequest(notification.VideoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
-        if (channelGroup != null)
+        APIResponse<ChannelGroupDto?> channelGroup = await Sender.Send(new GetChannelGroupByNameRequest(notification.VideoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
+        if (channelGroup?.Data != null)
         {
-            await Sender.Send(new UpdateChannelGroupCountRequest(channelGroup, false), cancellationToken).ConfigureAwait(false);
-            await Publisher.Publish(new UpdateChannelGroupEvent(channelGroup, false, false), cancellationToken).ConfigureAwait(false);
+            await Sender.Send(new UpdateChannelGroupCountRequest(channelGroup.Data, false), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new UpdateChannelGroupEvent(channelGroup.Data, false, false), cancellationToken).ConfigureAwait(false);
         }
 
         await HubContext.Clients.All.VideoStreamLinksRefresh([notification.VideoStream.Id]);

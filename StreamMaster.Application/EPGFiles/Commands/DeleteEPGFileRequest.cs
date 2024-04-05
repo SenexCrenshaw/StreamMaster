@@ -2,37 +2,44 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record DeleteEPGFileRequest(bool DeleteFile, int Id) : IRequest<int?> { }
+public record DeleteEPGFileRequest(bool DeleteFile, int Id) : IRequest<DefaultAPIResponse> { }
 
-public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper Repository, IPublisher Publisher)
-    : IRequestHandler<DeleteEPGFileRequest, int?>
+public class DeleteEPGFileRequestHandler(ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper Repository, IPublisher Publisher)
+    : IRequestHandler<DeleteEPGFileRequest, DefaultAPIResponse>
 {
-    public async Task<int?> Handle(DeleteEPGFileRequest request, CancellationToken cancellationToken = default)
+    public async Task<DefaultAPIResponse> Handle(DeleteEPGFileRequest request, CancellationToken cancellationToken = default)
     {
         EPGFileDto? epgFile = await Repository.EPGFile.DeleteEPGFile(request.Id);
 
-        if (request.DeleteFile && epgFile != null)
+        if (epgFile != null)
         {
-            string fullName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source);
-            if (File.Exists(fullName))
+            if (request.DeleteFile)
             {
-                File.Delete(fullName);
-                string txtName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(epgFile.Source) + ".json");
-                if (File.Exists(txtName))
+                string fullName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source);
+                if (File.Exists(fullName))
                 {
-                    File.Delete(txtName);
+                    File.Delete(fullName);
+                    string txtName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(epgFile.Source) + ".json");
+                    if (File.Exists(txtName))
+                    {
+                        File.Delete(txtName);
+                    }
+                    txtName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(epgFile.Source) + ".url");
+                    if (File.Exists(txtName))
+                    {
+                        File.Delete(txtName);
+                    }
                 }
-                txtName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(epgFile.Source) + ".url");
-                if (File.Exists(txtName))
+                else
                 {
-                    File.Delete(txtName);
+                    //_logger.LogError("DeleteEPGFile File {fulleName} does not exist", fulleName);
                 }
-            }
-            else
-            {
-                //_logger.LogError("DeleteEPGFile File {fulleName} does not exist", fulleName);
             }
             schedulesDirectDataService.Reset(epgFile.Id);
+            if (epgFile != null)
+            {
+                await Publisher.Publish(new EPGFileDeletedEvent(epgFile.Id), cancellationToken).ConfigureAwait(false);
+            }
         }
         _ = await Repository.SaveAsync().ConfigureAwait(false);
 
@@ -40,7 +47,7 @@ public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, I
 
         //MemoryCache.SetSyncForceNextRun(Extra: true);
 
-        await Publisher.Publish(new EPGFileDeletedEvent(epgFile.Id), cancellationToken).ConfigureAwait(false);
-        return epgFile.Id;
+
+        return DefaultAPIResponse.Success;
     }
 }

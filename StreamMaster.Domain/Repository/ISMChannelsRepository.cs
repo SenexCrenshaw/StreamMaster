@@ -9,7 +9,7 @@ public interface ISMChannelsRepository
 {
     IQueryable<SMChannel> GetQuery(Expression<Func<SMChannel, bool>> expression, bool tracking = false);
     Task CreateSMChannel(SMChannel sMChannel);
-    PagedResponse<SMChannelDto>? CreateEmptyPagedResponse();
+    PagedResponse<SMChannelDto> CreateEmptyPagedResponse();
     Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(QueryStringParameters parameters);
     IQueryable<SMChannel> GetQuery(bool tracking = false);
     List<SMChannelDto> GetSMChannels();

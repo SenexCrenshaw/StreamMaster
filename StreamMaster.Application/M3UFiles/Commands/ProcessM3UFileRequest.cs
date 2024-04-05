@@ -4,7 +4,8 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record ProcessM3UFileRequest(int M3UFileId, bool ForceRun = false) : IRequest<DefaultAPIResponse>;
 
-internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IMessageService messageSevice, IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<ProcessM3UFileRequest, DefaultAPIResponse>
+internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IMessageService messageSevice, IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+    : IRequestHandler<ProcessM3UFileRequest, DefaultAPIResponse>
 {
     public async Task<DefaultAPIResponse> Handle(ProcessM3UFileRequest request, CancellationToken cancellationToken)
     {
@@ -22,7 +23,7 @@ internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logge
             await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
 
             await messageSevice.SendSuccess("Processed M3U '" + m3uFile.Name + "' successfully");
-            return DefaultAPIResponse.Ok;
+            return DefaultAPIResponse.Success;
         }
         catch (Exception ex)
         {

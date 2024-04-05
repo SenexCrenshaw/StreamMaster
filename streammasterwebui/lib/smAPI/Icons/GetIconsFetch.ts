@@ -7,7 +7,7 @@ export const fetchGetIcons = createAsyncThunk('cache/getGetIcons', async (_: voi
   try {
     console.log('Fetching GetIcons');
     const response = await GetIcons();
-    console.log('Fetched GetIcons ',response?.length);
+    console.log('Fetched GetIcons',response);
     return { value: response };
   } catch (error) {
     console.error('Failed to fetch', error);

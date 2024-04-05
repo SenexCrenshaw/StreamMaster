@@ -10,6 +10,6 @@ internal class SendSMMessageHandler(IHubContext<StreamMasterHub, IStreamMasterHu
     {
         await hubContext.Clients.All.SendMessage(request.Message).ConfigureAwait(false);
 
-        return DefaultAPIResponse.Ok;
+        return DefaultAPIResponse.Success;
     }
 }

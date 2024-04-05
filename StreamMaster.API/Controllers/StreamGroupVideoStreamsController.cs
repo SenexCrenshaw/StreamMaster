@@ -7,6 +7,7 @@ using StreamMaster.Application.StreamGroupVideoStreams;
 using StreamMaster.Application.StreamGroupVideoStreams.Commands;
 using StreamMaster.Application.StreamGroupVideoStreams.Queries;
 using StreamMaster.API.Controllers;
+using StreamMaster.Domain.API;
 
 namespace StreamMasterAPI.Controllers;
 

@@ -5,9 +5,9 @@ namespace StreamMaster.Application.Settings
 {
     public interface ISettingsController
     {        
-        Task<bool> GetIsSystemReady();
-        Task<SettingDto> GetSettings();
-        Task<SDSystemStatus> GetSystemStatus();
+        Task<ActionResult<bool>> GetIsSystemReady();
+        Task<ActionResult<SettingDto>> GetSettings();
+        Task<ActionResult<SDSystemStatus>> GetSystemStatus();
     }
 }
 

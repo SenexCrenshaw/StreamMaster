@@ -1,12 +1,12 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { DefaultAPIResponse,CreateM3UFileRequest,DeleteM3UFileRequest,ProcessM3UFileRequest,RefreshM3UFileRequest,UpdateM3UFileRequest,M3UFileDto,APIResponse,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
+import { DefaultAPIResponse,CreateM3UFileRequest,DeleteM3UFileRequest,ProcessM3UFileRequest,ProcessM3UFilesRequest,RefreshM3UFileRequest,UpdateM3UFileRequest,M3UFileDto,GetPagedM3UFilesRequest,APIResponse,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const GetPagedM3UFiles = async (parameters: QueryStringParameters): Promise<PagedResponse<M3UFileDto> | undefined> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<APIResponse<M3UFileDto>>('GetPagedM3UFiles', parameters)
+  return await signalRService.invokeHubCommand<PagedResponse<M3UFileDto>>('GetPagedM3UFiles', parameters)
     .then((response) => {
       if (response) {
-        return response.pagedResponse;
+        return response;
       }
       return undefined;
     })
@@ -29,6 +29,11 @@ export const DeleteM3UFile = async (request: DeleteM3UFileRequest): Promise<Defa
 export const ProcessM3UFile = async (request: ProcessM3UFileRequest): Promise<DefaultAPIResponse | null> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<DefaultAPIResponse>('ProcessM3UFile', request);
+};
+
+export const ProcessM3UFiles = async (): Promise<DefaultAPIResponse | null> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<DefaultAPIResponse>('ProcessM3UFiles');
 };
 
 export const RefreshM3UFile = async (request: RefreshM3UFileRequest): Promise<DefaultAPIResponse | null> => {

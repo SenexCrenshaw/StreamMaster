@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Pagination;
 
 using StreamMaster.Application.StreamGroupVideoStreams.Commands;
 using StreamMaster.Application.StreamGroupVideoStreams.Queries;

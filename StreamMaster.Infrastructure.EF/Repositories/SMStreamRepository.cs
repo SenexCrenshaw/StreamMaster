@@ -2,7 +2,7 @@
 using AutoMapper.QueryableExtensions;
 
 using Microsoft.EntityFrameworkCore;
-
+using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 namespace StreamMaster.Infrastructure.EF.Repositories;
 

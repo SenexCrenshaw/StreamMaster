@@ -11,7 +11,7 @@ internal class DeleteSMChannelsRequestHandler(IRepositoryWrapper Repository, IHu
     public async Task<DefaultAPIResponse> Handle(DeleteSMChannelsRequest request, CancellationToken cancellationToken)
     {
         DefaultAPIResponse ret = await Repository.SMChannel.DeleteSMChannels(request.smChannelIds);
-        if (!ret.IsError.HasValue)
+        if (!ret.IsError)
         {
             await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
         }

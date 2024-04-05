@@ -6,19 +6,16 @@ using StreamMaster.Domain.Attributes;
 
 using System.Xml.Serialization;
 
-namespace StreamMaster.Domain.Pagination;
+namespace StreamMaster.Domain.API;
 
 [RequireAll]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public class PagedResponse<T>
+public class PagedResponse<T> : APIResponse<List<T>>
 {
     [XmlIgnore]
-    public List<T> Data { get; set; } = [];
     public int PageNumber { get; set; }
     public int PageSize { get; set; }
-    //public int TotalItemCount { get; set; }
     public int TotalPageCount { get; set; }
-    public int TotalItemCount { get; set; }
     public int First { get; set; }
 }
 
@@ -55,7 +52,7 @@ public static class PagedListExtensions
         int first = (pagedList.PageNumber - 1) * pagedList.PageSize;
         return new PagedResponse<T>
         {
-            Data = pagedList.ToList(),
+            Data = [.. pagedList],
             First = first,
             PageNumber = pagedList.PageNumber,
             PageSize = pagedList.PageSize,

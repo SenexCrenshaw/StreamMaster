@@ -48,7 +48,7 @@ public class StreamGroupChannelGroupRepository(ILogger<StreamGroupChannelGroupRe
         await HandleAdditions(StreamGroupId, cgsToAdd);
         await HandleRemovals(StreamGroupId, cgsToRemove);
 
-        return await sender.Send(new GetStreamGroup(StreamGroupId));
+        return (await sender.Send(new GetStreamGroup(StreamGroupId))).Data;
     }
 
     public async Task AddVideoStreamtsToStreamGroup(int StreamGroupId, List<int> cgsToAdd)

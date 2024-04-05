@@ -61,7 +61,7 @@ public static class CSharpGenerator
                     controllerContent.AppendLine($"        {{");
                     controllerContent.AppendLine($"            PagedResponse<{method.ReturnType}> ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
                     controllerContent.AppendLine($"            return ret;");
-                    IcontrollerContent.AppendLine($"    Task<ActionResult<PagedResponse<{method.ReturnType}>>> {method.Name}({method.Parameter});");
+                    IcontrollerContent.AppendLine($"        Task<ActionResult<PagedResponse<{method.ReturnType}>>> {method.Name}({method.Parameter});");
                 }
                 else if (method.IsGet)
                 {
@@ -71,13 +71,22 @@ public static class CSharpGenerator
                     }
                     if (method.IsList)
                     {
-                        method.ReturnType = $"List<{method.ReturnType}>";
+                        method.ReturnType = $"ActionResult<List<{method.ReturnType}>>";
                     }
-                    controllerContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.Parameter})");
+                    controllerContent.AppendLine($"        public async Task<ActionResult<{method.ReturnType}>> {method.Name}({method.Parameter})");
                     controllerContent.AppendLine($"        {{");
-                    controllerContent.AppendLine($"            {method.ReturnType} ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
-                    controllerContent.AppendLine($"            return ret;");
-                    IcontrollerContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Parameter});");
+                    controllerContent.AppendLine($"            try");
+                    controllerContent.AppendLine($"            {{");
+                    controllerContent.AppendLine($"            APIResponse<{method.ReturnType}> ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+                    controllerContent.AppendLine($"             return ret.IsError ? Problem(detail: \"An unexpected error occurred retrieving {method.Name}.\", statusCode: 500) : Ok(ret.Data);");
+                    controllerContent.AppendLine($"            }}");
+                    controllerContent.AppendLine($"            catch (Exception ex)");
+                    controllerContent.AppendLine($"            {{");
+                    controllerContent.AppendLine($"                _logger.LogError(ex, \"An unexpected error occurred while processing the request to get {method.Name}.\");");
+                    controllerContent.AppendLine($"                return Problem(detail: \"An unexpected error occurred. Please try again later.\", statusCode: 500);");
+                    controllerContent.AppendLine($"            }}");
+
+                    IcontrollerContent.AppendLine($"        Task<ActionResult<{method.ReturnType}>> {method.Name}({method.Parameter});");
                 }
                 else if (method.IsTask)
                 {
@@ -100,7 +109,7 @@ public static class CSharpGenerator
                     {
                         controllerContent.AppendLine($"            return Ok(ret);");
                     }
-                    IcontrollerContent.AppendLine($"    Task<ActionResult<{method.ReturnType}>> {method.Name}({parameterLine});");
+                    IcontrollerContent.AppendLine($"        Task<ActionResult<{method.ReturnType}>> {method.Name}({parameterLine});");
                 }
 
                 controllerContent.AppendLine($"        }}");
@@ -135,8 +144,8 @@ public static class CSharpGenerator
 
                     hubContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.Parameter})");
                     hubContent.AppendLine($"        {{");
-                    hubContent.AppendLine($"            {method.ReturnType} ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
-                    hubContent.AppendLine($"            return ret;");
+                    hubContent.AppendLine($"             APIResponse<{method.ReturnType}> ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+                    hubContent.AppendLine($"            return ret.Data;");
                     IhubContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Parameter});");
                 }
                 else if (method.IsTask)
@@ -217,7 +226,7 @@ namespace StreamMaster.Application.Hubs
         fileContent += $@"
 namespace StreamMaster.Application.{namespaceName}
 {{
-    public partial class {namespaceName}Controller(ISender Sender) : ApiControllerBase, I{namespaceName}Controller
+    public partial class {namespaceName}Controller(ISender Sender, ILogger<{namespaceName}Controller> _logger) : ApiControllerBase, I{namespaceName}Controller
     {{        
 
 {controllerContent}    }}

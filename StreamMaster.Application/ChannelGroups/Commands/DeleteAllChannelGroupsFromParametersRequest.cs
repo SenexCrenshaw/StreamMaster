@@ -4,12 +4,12 @@ namespace StreamMaster.Application.ChannelGroups.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record DeleteAllChannelGroupsFromParametersRequest(QueryStringParameters Parameters) : IRequest<bool> { }
+public record DeleteAllChannelGroupsFromParametersRequest(QueryStringParameters Parameters) : IRequest<DefaultAPIResponse> { }
 
 public class DeleteAllChannelGroupsFromParametersRequestHandler(IRepositoryWrapper Repository, IPublisher Publisher, IMemoryCache memoryCache)
-    : IRequestHandler<DeleteAllChannelGroupsFromParametersRequest, bool>
+    : IRequestHandler<DeleteAllChannelGroupsFromParametersRequest, DefaultAPIResponse>
 {
-    public async Task<bool> Handle(DeleteAllChannelGroupsFromParametersRequest request, CancellationToken cancellationToken)
+    public async Task<DefaultAPIResponse> Handle(DeleteAllChannelGroupsFromParametersRequest request, CancellationToken cancellationToken)
     {
         (IEnumerable<int> ChannelGroupIds, IEnumerable<VideoStreamDto> VideoStreams) = await Repository.ChannelGroup.DeleteAllChannelGroupsFromParameters(request.Parameters, cancellationToken).ConfigureAwait(false);
         await Repository.VideoStream.UpdateVideoStreamsChannelGroupNames(VideoStreams.Select(a => a.Id), "").ConfigureAwait(false);
@@ -30,9 +30,9 @@ public class DeleteAllChannelGroupsFromParametersRequestHandler(IRepositoryWrapp
             }
             await Publisher.Publish(new DeleteChannelGroupsEvent(ChannelGroupIds, VideoStreams), cancellationToken);
 
-            return true;
+            return DefaultAPIResponse.Success;
         }
 
-        return false;
+        return DefaultAPIResponse.NotFound;
     }
 }

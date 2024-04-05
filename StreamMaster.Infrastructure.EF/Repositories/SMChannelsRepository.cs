@@ -89,7 +89,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         await CreateSMChannel(smChannel);
 
         await repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel.Id, smStream.Id);
-        return DefaultAPIResponse.Ok;
+        return DefaultAPIResponse.Success;
     }
 
     public async Task<DefaultAPIResponse> DeleteSMChannels(List<int> smchannelIds)
@@ -102,7 +102,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
         await DeleteSMChannelsAsync(toDelete);
 
-        return DefaultAPIResponse.Ok;
+        return DefaultAPIResponse.Success;
     }
 
 
@@ -140,7 +140,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         await repository.SMChannelStreamLink.CreateSMChannelStreamLink(SMChannelId, SMStreamId);
         await SaveChangesAsync();
 
-        return DefaultAPIResponse.Ok;
+        return DefaultAPIResponse.Success;
     }
 
     public async Task<DefaultAPIResponse> RemoveSMStreamFromSMChannel(int SMChannelId, string SMStreamId)
@@ -152,7 +152,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         }
         await repository.SMChannelStreamLink.DeleteSMChannelStreamLinks(toDelete);
 
-        return DefaultAPIResponse.Ok;
+        return DefaultAPIResponse.Success;
     }
 
     public async Task<DefaultAPIResponse> SetSMStreamRanks(List<SMChannelRankRequest> request)
@@ -166,14 +166,14 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         SMChannel? channel = GetSMChannel(SMChannelId);
         if (channel == null)
         {
-            return DefaultAPIResponse.Ok;
+            return DefaultAPIResponse.Success;
         }
 
         channel.Logo = logo;
         Update(channel);
         await SaveChangesAsync();
 
-        return DefaultAPIResponse.Ok;
+        return DefaultAPIResponse.Success;
     }
 
     public override IQueryable<SMChannel> GetQuery(bool tracking = false)
@@ -200,7 +200,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         Update(channel);
         await SaveChangesAsync();
 
-        return DefaultAPIResponse.Ok;
+        return DefaultAPIResponse.Success;
     }
 
     public async Task<DefaultAPIResponse> SetSMChannelName(int sMChannelId, string name)
@@ -215,6 +215,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         Update(channel);
         await SaveChangesAsync();
 
-        return DefaultAPIResponse.Ok;
+        return DefaultAPIResponse.Success;
     }
 }

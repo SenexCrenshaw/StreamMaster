@@ -2,12 +2,12 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record RefreshEPGFileRequest(int Id) : IRequest<EPGFileDto?> { }
+public record RefreshEPGFileRequest(int Id) : IRequest<DefaultAPIResponse> { }
 
-public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger, IMapper Mapper, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IPublisher Publisher) : IRequestHandler<RefreshEPGFileRequest, EPGFileDto?>
+public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger, IMapper Mapper, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IPublisher Publisher) : IRequestHandler<RefreshEPGFileRequest, DefaultAPIResponse>
 {
 
-    public async Task<EPGFileDto?> Handle(RefreshEPGFileRequest request, CancellationToken cancellationToken)
+    public async Task<DefaultAPIResponse> Handle(RefreshEPGFileRequest request, CancellationToken cancellationToken)
     {
         JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.RefreshEPG, request.Id);
         try
@@ -15,7 +15,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
 
             if (jobManager.IsRunning)
             {
-                return null;
+                return DefaultAPIResponse.NotFound;
             }
             jobManager.Start();
 
@@ -24,7 +24,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
             if (epgFile == null)
             {
                 jobManager.SetError();
-                return null;
+                return DefaultAPIResponse.NotFound;
             }
 
 
@@ -66,13 +66,13 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
             await Publisher.Publish(new EPGFileAddedEvent(toPublish), cancellationToken).ConfigureAwait(false);
 
             jobManager.SetSuccessful();
-            return toPublish;
+            return DefaultAPIResponse.Success;
 
         }
-        catch
+        catch (Exception ex)
         {
             jobManager.SetError();
-            return null;
+            return DefaultAPIResponse.ErrorWithMessage(ex, "Refresh EPG failed");
         }
 
     }

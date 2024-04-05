@@ -1,4 +1,5 @@
-﻿using StreamMaster.Domain.Dto;
+﻿using StreamMaster.Domain.API;
+using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Pagination;
 using StreamMaster.Domain.Requests;
 

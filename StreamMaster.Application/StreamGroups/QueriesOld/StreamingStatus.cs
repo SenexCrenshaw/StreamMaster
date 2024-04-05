@@ -1,14 +1,11 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Enums;
-
-namespace StreamMaster.Application.StreamGroups.Queries;
+﻿namespace StreamMaster.Application.StreamGroups.QueriesOld;
 
 public class StreamingStatusDto : StreamingClientInformation
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public StreamingServiceStatusDto StreamingServiceStatus { get; set; } = new();
 
-    public List<StreamingWorkerStatusDto> StreamingWorkerStatuses { get; set; } = new();
+    public List<StreamingWorkerStatusDto> StreamingWorkerStatuses { get; set; } = [];
 }
 
 public class StreamingWorkerStatusDto : StreamingClientInformation

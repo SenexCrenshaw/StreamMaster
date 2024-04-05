@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Pagination;
-
-namespace StreamMaster.Application.VideoStreams.Queries;
+﻿namespace StreamMaster.Application.VideoStreams.Queries;
 
 public record GetPagedVideoStreams(VideoStreamParameters Parameters) : IRequest<PagedResponse<VideoStreamDto>>;
 

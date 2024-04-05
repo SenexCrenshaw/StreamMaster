@@ -10,6 +10,6 @@ internal class SendSMInfoHandler(IHubContext<StreamMasterHub, IStreamMasterHub> 
     {
         SMMessage sMMessage = new("info", request.Summary, request.Detail);
         await hubContext.Clients.All.SendMessage(sMMessage).ConfigureAwait(false);
-        return DefaultAPIResponse.Ok;
+        return DefaultAPIResponse.Success;
     }
 }

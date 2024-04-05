@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-
 using System.Diagnostics;
 using System.Text.Json;
 using System.Web;
@@ -20,7 +19,6 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
 
         if (request.Parameters.PageSize == 0)
         {
-            Debug.WriteLine("GetPagedSMChannelsRequestHandler no params");
             return Repository.SMChannel.CreateEmptyPagedResponse();
         }
 

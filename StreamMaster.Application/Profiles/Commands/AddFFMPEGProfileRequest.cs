@@ -33,8 +33,8 @@ public class AddFFMPEGProfileRequestHandler(ILogger<AddFFMPEGProfileRequest> Log
 
         SettingsHelper.UpdateSetting(profilesettings);
 
-        SettingDto ret = await Sender.Send(new GetSettingsRequest(), cancellationToken);
-        return new UpdateSettingResponse { Settings = ret, NeedsLogOut = false };
+        APIResponse<SettingDto> ret = await Sender.Send(new GetSettingsRequest(), cancellationToken);
+        return new UpdateSettingResponse { Settings = ret.Data, NeedsLogOut = false };
     }
 
 }

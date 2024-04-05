@@ -3,15 +3,23 @@ using StreamMaster.Application.Icons.Queries;
 
 namespace StreamMaster.Application.Icons
 {
-    public partial class IconsController(ISender Sender) : ApiControllerBase, IIconsController
+    public partial class IconsController(ISender Sender, ILogger<IconsController> _logger) : ApiControllerBase, IIconsController
     {        
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<List<IconFileDto>> GetIcons()
+        public async Task<ActionResult<List<IconFileDto>>> GetIcons()
         {
-            List<IconFileDto> ret = await Sender.Send(new GetIconsRequest()).ConfigureAwait(false);
-            return ret;
+            try
+            {
+            APIResponse<List<IconFileDto>> ret = await Sender.Send(new GetIconsRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetIcons.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetIcons.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
         }
 
     }
@@ -23,8 +31,8 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<IconFileDto>> GetIcons()
         {
-            List<IconFileDto> ret = await Sender.Send(new GetIconsRequest()).ConfigureAwait(false);
-            return ret;
+             APIResponse<List<IconFileDto>> ret = await Sender.Send(new GetIconsRequest()).ConfigureAwait(false);
+            return ret.Data;
         }
 
     }

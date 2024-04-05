@@ -5,7 +5,7 @@ namespace StreamMaster.Application.Icons
 {
     public interface IIconsController
     {        
-        Task<List<IconFileDto>> GetIcons();
+        Task<ActionResult<List<IconFileDto>>> GetIcons();
     }
 }
 

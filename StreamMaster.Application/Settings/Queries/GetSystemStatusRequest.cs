@@ -2,13 +2,13 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record GetSystemStatusRequest : IRequest<SDSystemStatus>;
+public record GetSystemStatusRequest : IRequest<APIResponse<SDSystemStatus>>;
 
-internal class GetSystemStatusHandler : IRequestHandler<GetSystemStatusRequest, SDSystemStatus>
+internal class GetSystemStatusHandler : IRequestHandler<GetSystemStatusRequest, APIResponse<SDSystemStatus>>
 {
 
-    public Task<SDSystemStatus> Handle(GetSystemStatusRequest request, CancellationToken cancellationToken)
+    public Task<APIResponse<SDSystemStatus>> Handle(GetSystemStatusRequest request, CancellationToken cancellationToken)
     {
-        return Task.FromResult(new SDSystemStatus { IsSystemReady = BuildInfo.SetIsSystemReady });
+        return Task.FromResult(APIResponse<SDSystemStatus>.Success(new SDSystemStatus { IsSystemReady = BuildInfo.SetIsSystemReady }));
     }
 }

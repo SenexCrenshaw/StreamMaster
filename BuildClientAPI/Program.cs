@@ -66,7 +66,8 @@ namespace BuildClientAPI
 
                     List<string> smapiImport = [];
 
-                    if (recordType.Name.StartsWith("UpdateM3UFile"))
+
+                    if (recordType.Name.StartsWith("GetEPGNextEPGNumber"))
                     {
                         string returntype = GetCleanReturnType(returnType);
                         string returntypeTS = GetCleanTSReturnType(returnType);
@@ -127,15 +128,8 @@ namespace BuildClientAPI
 
                     }
 
-                    if (recordType.Name.StartsWith("UpdateM3UFile"))
-                    {
-                        List<ParameterInfo> test = parameters.ToList();
-                        List<string> aa = parameters.Select(p => $"{p.ParameterType.Name}").ToList();
-                        List<Type> aaa = Utils.GetConstructorAndParameterTypes(recordType);
-                        List<Type> aaa2 = Utils.GetConstructorAndParameterTypes(returnType);
-                    }
 
-                    if (recordType.Name.StartsWith("UpdateM3UFile"))
+                    if (recordType.Name.StartsWith("GetEPGFilePreviewById"))
                     {
 
                         int aaa = 1;
@@ -231,11 +225,20 @@ namespace BuildClientAPI
 
         private static string GetCleanTSReturnType(Type returnType)
         {
+            if (returnType.Name.StartsWith("EPGFilePreviewDto"))
+            {
+                int aa = 1;
+            }
+
             if (typeof(Task).IsAssignableFrom(returnType))
             {
                 if (returnType.IsGenericType)
                 {
                     Type resultType = returnType.GetGenericArguments()[0];
+                    if (returnType.Name.StartsWith("EPGFilePreviewDto"))
+                    {
+                        int aa = 1;
+                    }
                     return FormatTSTypeName(resultType);
                 }
                 else
@@ -265,13 +268,21 @@ namespace BuildClientAPI
 
         private static string FormatTSTypeName(Type type)
         {
-            if (type.IsGenericType)
 
+            if (type.IsGenericType)
             {
                 string typeName = type.GetGenericTypeDefinition().Name;
                 typeName = typeName[..typeName.IndexOf('`')];
                 string genericArgs = string.Join(", ", type.GetGenericArguments().Select(FormatTSTypeName));
-                return $"{genericArgs}[]";
+
+                if (genericArgs.StartsWith("EPGFilePreviewDto"))
+                {
+                    int aa = 1;
+                }
+                return type.IsListType() || type.IsArray
+                    ? genericArgs.EndsWith("[]") ? genericArgs :
+                    $"{genericArgs}[]"
+                    : genericArgs;
             }
             else
             {

@@ -109,7 +109,7 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
 
             await messageService.SendSuccess("Deleted M3U '" + m3UFile.Name);
 
-            return DefaultAPIResponse.Ok;
+            return DefaultAPIResponse.Success;
         }
         catch (Exception ex)
         {

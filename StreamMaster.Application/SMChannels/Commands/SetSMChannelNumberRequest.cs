@@ -10,7 +10,7 @@ internal class SetSMChannelChannelNumberRequestHandler(IRepositoryWrapper Reposi
     public async Task<DefaultAPIResponse> Handle(SetSMChannelNumberRequest request, CancellationToken cancellationToken)
     {
         DefaultAPIResponse ret = await Repository.SMChannel.SetSMChannelChannelNumber(request.SMChannelId, request.channelNumber).ConfigureAwait(false);
-        if (ret.IsError.HasValue && ret.IsError.Value)
+        if (ret.IsError)
         {
             await messageService.SendError($"Set number failed {ret.Message}");
             return ret;

@@ -12,7 +12,7 @@ internal class AddSMStreamToSMChannelRequestHandler(IRepositoryWrapper Repositor
     public async Task<DefaultAPIResponse> Handle(AddSMStreamToSMChannelRequest request, CancellationToken cancellationToken)
     {
         DefaultAPIResponse ret = await Repository.SMChannel.AddSMStreamToSMChannel(request.SMChannelId, request.SMStreamId).ConfigureAwait(false);
-        if (!ret.IsError.HasValue)
+        if (!ret.IsError)
         {
             SMChannel? channel = Repository.SMChannel.GetSMChannel(request.SMChannelId);
             if (channel != null)

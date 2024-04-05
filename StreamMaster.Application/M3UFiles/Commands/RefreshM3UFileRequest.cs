@@ -80,7 +80,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
             //}
             jobManager.SetSuccessful();
 
-            return DefaultAPIResponse.Ok;
+            return DefaultAPIResponse.Success;
         }
         catch
         {

@@ -6,11 +6,12 @@ namespace StreamMaster.Application.M3UFiles
 {
     public interface IM3UFilesController
     {        
-    Task<ActionResult<PagedResponse<M3UFileDto>>> GetPagedM3UFiles(QueryStringParameters Parameters);
-    Task<ActionResult<DefaultAPIResponse>> CreateM3UFile(CreateM3UFileRequest request);
-    Task<ActionResult<DefaultAPIResponse>> DeleteM3UFile(DeleteM3UFileRequest request);
-    Task<ActionResult<DefaultAPIResponse>> RefreshM3UFile(RefreshM3UFileRequest request);
-    Task<ActionResult<DefaultAPIResponse>> UpdateM3UFile(UpdateM3UFileRequest request);
+        Task<ActionResult<PagedResponse<M3UFileDto>>> GetPagedM3UFiles(QueryStringParameters Parameters);
+        Task<ActionResult<DefaultAPIResponse>> CreateM3UFile(CreateM3UFileRequest request);
+        Task<ActionResult<DefaultAPIResponse>> DeleteM3UFile(DeleteM3UFileRequest request);
+        Task<ActionResult<DefaultAPIResponse>> ProcessM3UFiles();
+        Task<ActionResult<DefaultAPIResponse>> RefreshM3UFile(RefreshM3UFileRequest request);
+        Task<ActionResult<DefaultAPIResponse>> UpdateM3UFile(UpdateM3UFileRequest request);
     }
 }
 
@@ -22,6 +23,7 @@ namespace StreamMaster.Application.Hubs
         Task<DefaultAPIResponse> CreateM3UFile(CreateM3UFileRequest request);
         Task<DefaultAPIResponse> DeleteM3UFile(DeleteM3UFileRequest request);
         Task<DefaultAPIResponse> ProcessM3UFile(ProcessM3UFileRequest request);
+        Task<DefaultAPIResponse> ProcessM3UFiles();
         Task<DefaultAPIResponse> RefreshM3UFile(RefreshM3UFileRequest request);
         Task<DefaultAPIResponse> UpdateM3UFile(UpdateM3UFileRequest request);
     }

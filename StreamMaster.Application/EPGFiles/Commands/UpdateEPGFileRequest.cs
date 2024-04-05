@@ -1,33 +1,33 @@
-﻿using FluentValidation;
-
-using StreamMaster.Application.VideoStreams.Commands;
+﻿using StreamMaster.Application.VideoStreams.Commands;
 
 namespace StreamMaster.Application.EPGFiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record UpdateEPGFileRequest(int? EPGNumber, string? Color, int? TimeShift, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url) : IRequest<EPGFileDto?>;
+public record UpdateEPGFileRequest(int? EPGNumber, string? Color, int? TimeShift, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url)
+    : IRequest<DefaultAPIResponse>;
 
-public class UpdateEPGFileRequestValidator : AbstractValidator<UpdateEPGFileRequest>
-{
-    public UpdateEPGFileRequestValidator()
-    {
-        _ = RuleFor(v => v.Id).NotNull().GreaterThanOrEqualTo(0);
-    }
-}
 
-public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
-    : IRequestHandler<UpdateEPGFileRequest, EPGFileDto?>
+public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+    : IRequestHandler<UpdateEPGFileRequest, DefaultAPIResponse>
 {
-    public async Task<EPGFileDto?> Handle(UpdateEPGFileRequest request, CancellationToken cancellationToken)
+    public async Task<DefaultAPIResponse> Handle(UpdateEPGFileRequest request, CancellationToken cancellationToken)
     {
+        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.UpdateEPG, request.Id);
         try
         {
+
+            if (jobManager.IsRunning)
+            {
+                return DefaultAPIResponse.NotFound;
+            }
+            jobManager.Start();
+
             EPGFile? epgFile = await Repository.EPGFile.GetEPGFileById(request.Id).ConfigureAwait(false);
 
             if (epgFile == null)
             {
-                return null;
+                return DefaultAPIResponse.NotFound;
             }
 
             bool isChanged = false;
@@ -101,11 +101,14 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
                 await HubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
             }
 
-            return ret;
+            jobManager.SetSuccessful();
+            return DefaultAPIResponse.Success;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            jobManager.SetError();
+            return DefaultAPIResponse.ErrorWithMessage(ex, "Refresh EPG failed");
         }
-        return null;
+
     }
 }

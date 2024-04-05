@@ -11,7 +11,7 @@ internal class SetSMStreamRanksRequestHandler(IRepositoryWrapper Repository, ISe
     public async Task<DefaultAPIResponse> Handle(SetSMStreamRanksRequest request, CancellationToken cancellationToken)
     {
         DefaultAPIResponse ret = await Repository.SMChannel.SetSMStreamRanks(request.requests).ConfigureAwait(false);
-        if (!ret.IsError.HasValue)
+        if (!ret.IsError)
         {
             List<FieldData> fieldDatas = [];
             foreach (int smChannelId in request.requests.Select(a => a.SMChannelId).Distinct())

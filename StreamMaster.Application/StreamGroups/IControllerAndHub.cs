@@ -5,7 +5,7 @@ namespace StreamMaster.Application.StreamGroups
 {
     public interface IStreamGroupsController
     {        
-    Task<ActionResult<PagedResponse<StreamGroupDto>>> GetPagedStreamGroups(QueryStringParameters Parameters);
+        Task<ActionResult<PagedResponse<StreamGroupDto>>> GetPagedStreamGroups(QueryStringParameters Parameters);
     }
 }
 

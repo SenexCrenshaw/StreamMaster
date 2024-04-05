@@ -14,6 +14,6 @@ internal class CreateSMChannelFromStreamRequestHandler(IRepositoryWrapper Reposi
 
         await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
 
-        return DefaultAPIResponse.Ok;
+        return DefaultAPIResponse.Success;
     }
 }

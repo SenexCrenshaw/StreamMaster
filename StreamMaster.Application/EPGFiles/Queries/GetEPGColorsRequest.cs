@@ -2,12 +2,12 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record GetEPGColorsRequest() : IRequest<List<EPGColorDto>>;
+public record GetEPGColorsRequest() : IRequest<APIResponse<List<EPGColorDto>>>;
 
 internal class GetEPGColorsHandler(IRepositoryWrapper Repository, ISchedulesDirectDataService schedulesDirectDataService)
-    : IRequestHandler<GetEPGColorsRequest, List<EPGColorDto>>
+    : IRequestHandler<GetEPGColorsRequest, APIResponse<List<EPGColorDto>>>
 {
-    public async Task<List<EPGColorDto>> Handle(GetEPGColorsRequest request, CancellationToken cancellationToken = default)
+    public async Task<APIResponse<List<EPGColorDto>>> Handle(GetEPGColorsRequest request, CancellationToken cancellationToken = default)
     {
         List<EPGColorDto> ret = [];
         List<MxfService> svcs = schedulesDirectDataService.AllServices;
@@ -34,6 +34,6 @@ internal class GetEPGColorsHandler(IRepositoryWrapper Repository, ISchedulesDire
 
         }
 
-        return ret;
+        return APIResponse<List<EPGColorDto>>.Success(ret);
     }
 }

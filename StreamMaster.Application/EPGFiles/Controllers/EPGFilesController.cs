@@ -7,6 +7,6 @@
 //    public async Task<ActionResult> CreateEPGFileFromForm([FromForm] CreateEPGFileRequest request)
 //    {
 //        EPGFileDto? entity = await Sender.Send(request).ConfigureAwait(false);
-//        return entity == null ? BadRequest() : Ok();
+//        return entity == null ? BadRequest() : Success();
 //    }
 //}

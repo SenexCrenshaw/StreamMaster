@@ -35,15 +35,14 @@ public static class TypeScriptCommandGenerator
         {
             if (method.IsList)
             {
-                method.ReturnType = $"APIResponse<{method.ReturnType}>";
+                method.ReturnType = $"PagedResponse<{method.ReturnType}>";
             }
-            //method.ReturnType = method.ReturnType.Replace("APIResponse", "PagedResponse");
             content.AppendLine($"export const {method.Name} = async (parameters: QueryStringParameters): Promise<PagedResponse<{method.ReturnEntityType}> | undefined> => {{");
             content.AppendLine("  const signalRService = SignalRService.getInstance();");
-            content.AppendLine($"  return await signalRService.invokeHubCommand<APIResponse<{method.ReturnEntityType}>>('{method.Name}', parameters)");
+            content.AppendLine($"  return await signalRService.invokeHubCommand<PagedResponse<{method.ReturnEntityType}>>('{method.Name}', parameters)");
             content.AppendLine($"    .then((response) => {{");
             content.AppendLine("      if (response) {");
-            content.AppendLine("        return response.pagedResponse;");
+            content.AppendLine("        return response;");
             content.AppendLine("      }");
             content.AppendLine("      return undefined;");
             content.AppendLine("    })");
@@ -54,8 +53,6 @@ public static class TypeScriptCommandGenerator
         }
         else
         {
-
-
             if (method.Name.StartsWith("Get") && method.Name.EndsWith("Parameters"))
             {
                 method.TsParameter = "Parameters: QueryStringParameters";
@@ -69,18 +66,18 @@ public static class TypeScriptCommandGenerator
             }
             else
             {
-                if (method.Parameter == "")
-                {
-                    content.AppendLine($"export const {method.Name} = async (): Promise<{method.TsReturnType} | null> => {{");
-                    content.AppendLine("  const signalRService = SignalRService.getInstance();");
-                    content.AppendLine($"  return await signalRService.invokeHubCommand<{method.TsReturnType}>('{method.Name}');");
-                }
-                else
-                {
-                    content.AppendLine($"export const {method.Name} = async (request: {method.TsParameter}): Promise<{method.TsReturnType} | null> => {{");
-                    content.AppendLine("  const signalRService = SignalRService.getInstance();");
-                    content.AppendLine($"  return await signalRService.invokeHubCommand<{method.TsReturnType}>('{method.Name}', request);");
-                }
+                //if (method.Parameter == "")
+                //{
+                //    content.AppendLine($"export const {method.Name} = async (): Promise<{method.TsReturnType} | null> => {{");
+                //    content.AppendLine("  const signalRService = SignalRService.getInstance();");
+                //    content.AppendLine($"  return await signalRService.invokeHubCommand<{method.TsReturnType}>('{method.Name}');");
+                //}
+                //else
+                //{
+                content.AppendLine($"export const {method.Name} = async (request: {method.TsParameter}): Promise<{method.TsReturnType} | null> => {{");
+                content.AppendLine("  const signalRService = SignalRService.getInstance();");
+                content.AppendLine($"  return await signalRService.invokeHubCommand<{method.TsReturnType}>('{method.Name}', request);");
+                //}
 
             }
 
@@ -102,13 +99,14 @@ public static class TypeScriptCommandGenerator
         .Where(a => !a.IsGet)
         .SelectMany(x => new[] { x.ReturnEntityType, x.SingalRFunction })
         .Union(methods.Where(a => a.IsGet).Select(x => x.ReturnEntityType))
+        .Union(methods.Where(a => a.IsGet).Select(x => x.TsParameter))
         .ToHashSet();
 
         List<string> imports = [];
         foreach (string inc in includes)
         {
             string? test = Utils.IsTSGeneric(inc);
-            if (!string.IsNullOrEmpty(test)) { imports.Add(inc); }
+            if (!string.IsNullOrEmpty(test)) { imports.Add(test); }
         }
 
         if (methods.Any(a => a.Name.Contains("GetEPGFilePreview")))
@@ -125,8 +123,8 @@ public static class TypeScriptCommandGenerator
         }
         else if (methods.Any(a => a.IsGet))
         {
-            IEnumerable<string> l = methods.Where(a => a.IsGet && !string.IsNullOrEmpty(a.TsParameter)).Select(a => a.TsParameter);
-            imports.AddRange(l);
+            //IEnumerable<string> l = methods.Where(a => a.IsGet && !string.IsNullOrEmpty(a.TsParameter)).Select(a => a.TsParameter);
+            //imports.AddRange(l);
         }
 
         content.AppendLine("import SignalRService from '@lib/signalr/SignalRService';");

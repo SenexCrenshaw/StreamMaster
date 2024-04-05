@@ -4,7 +4,7 @@ using StreamMaster.Application.M3UFiles.Queries;
 
 namespace StreamMaster.Application.M3UFiles
 {
-    public partial class M3UFilesController(ISender Sender) : ApiControllerBase, IM3UFilesController
+    public partial class M3UFilesController(ISender Sender, ILogger<M3UFilesController> _logger) : ApiControllerBase, IM3UFilesController
     {        
 
         [HttpGet]
@@ -28,6 +28,14 @@ namespace StreamMaster.Application.M3UFiles
         public async Task<ActionResult<DefaultAPIResponse>> DeleteM3UFile(DeleteM3UFileRequest request)
         {
             DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
+        public async Task<ActionResult<DefaultAPIResponse>> ProcessM3UFiles()
+        {
+            DefaultAPIResponse ret = await Sender.Send(new ProcessM3UFilesRequest()).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
@@ -76,6 +84,12 @@ namespace StreamMaster.Application.Hubs
         {
             await taskQueue.ProcessM3UFile(request).ConfigureAwait(false);
             return DefaultAPIResponse.Ok;
+        }
+
+        public async Task<DefaultAPIResponse> ProcessM3UFiles()
+        {
+            DefaultAPIResponse ret = await Sender.Send(new ProcessM3UFilesRequest()).ConfigureAwait(false);
+            return ret;
         }
 
         public async Task<DefaultAPIResponse> RefreshM3UFile(RefreshM3UFileRequest request)

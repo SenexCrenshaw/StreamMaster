@@ -1,12 +1,3 @@
-export interface PagedResponse<T>
-{
-	data: T[];
-	first: number;
-	pageNumber: number;
-	pageSize: number;
-	totalItemCount: number;
-	totalPageCount: number;
-}
 export interface QueryStringParameters
 {
 	jsonArgumentString?: string;
@@ -115,6 +106,10 @@ export interface M3UFileDto
 	stationCount: number;
 	url: string;
 	vodTags: string[];
+}
+export interface SDSystemStatus
+{
+	isSystemReady: boolean;
 }
 export interface SettingDto
 {
@@ -260,22 +255,45 @@ export interface SDSettings
 }
 export interface APIResponse<T>
 {
+	_totalItemCount?: number;
+	count: number;
+	data: T;
 	errorMessage?: string;
-	isError?: boolean;
+	isError: boolean;
 	message?: string;
-	pagedResponse?: PagedResponse<T>;
+	notFound: APIResponse<T>;
+	ok: APIResponse<T>;
+	success: DefaultAPIResponse;
+	totalItemCount: number;
 }
 export interface DefaultAPIResponse
 {
 	errorMessage?: string;
-	isError?: boolean;
+	isError: boolean;
 	message?: string;
 	notFound: DefaultAPIResponse;
 	ok: DefaultAPIResponse;
-	pagedResponse?: PagedResponse<NoClass>;
+	success: DefaultAPIResponse;
 }
 export interface NoClass
 {
+}
+export interface PagedResponse<T>
+{
+	_totalItemCount?: number;
+	count: number;
+	data: T[];
+	errorMessage?: string;
+	first: number;
+	isError: boolean;
+	message?: string;
+	notFound: APIResponse<T[]>;
+	ok: APIResponse<T[]>;
+	pageNumber: number;
+	pageSize: number;
+	success: DefaultAPIResponse;
+	totalItemCount: number;
+	totalPageCount: number;
 }
 export interface GetPagedStreamGroupsRequest
 {
@@ -370,10 +388,6 @@ export interface GetSettingsRequest
 }
 export interface GetSystemStatusRequest
 {
-}
-export interface SDSystemStatus
-{
-	isSystemReady: boolean;
 }
 export interface GetStationChannelNamesSimpleQuery
 {

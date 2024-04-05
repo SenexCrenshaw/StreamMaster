@@ -4,13 +4,13 @@ using System.Web;
 
 namespace StreamMaster.Application.Icons.Commands;
 
-public class BuildIconsCacheFromVideoStreamRequest : IRequest<bool> { }
+public class BuildIconsCacheFromVideoStreamRequest : IRequest<APIResponse<bool>> { }
 
 [LogExecutionTimeAspect]
 public class BuildIconsCacheFromVideoStreamRequestHandler(IIconService iconService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IRepositoryWrapper Repository)
-    : IRequestHandler<BuildIconsCacheFromVideoStreamRequest, bool>
+    : IRequestHandler<BuildIconsCacheFromVideoStreamRequest, APIResponse<bool>>
 {
-    public async Task<bool> Handle(BuildIconsCacheFromVideoStreamRequest command, CancellationToken cancellationToken)
+    public async Task<APIResponse<bool>> Handle(BuildIconsCacheFromVideoStreamRequest command, CancellationToken cancellationToken)
     {
 
         IQueryable<SMStreamDto> streams = Repository.SMStream.GetSMStreams()
@@ -18,7 +18,7 @@ public class BuildIconsCacheFromVideoStreamRequestHandler(IIconService iconServi
          .Where(a => a.Logo != null && a.Logo.Contains("://"))
          .AsQueryable();
 
-        if (!streams.Any()) { return false; }
+        if (!streams.Any()) { return APIResponse.False; }
 
         int totalCount = streams.Count();
 
@@ -38,6 +38,6 @@ public class BuildIconsCacheFromVideoStreamRequestHandler(IIconService iconServi
             iconService.AddIcon(icon);
         });
         await hubContext.Clients.All.DataRefresh("IconFileDto").ConfigureAwait(false);
-        return true;
+        return APIResponse.True;
     }
 }

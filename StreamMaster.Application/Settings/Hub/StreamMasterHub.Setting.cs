@@ -6,11 +6,6 @@ namespace StreamMaster.Application.Hubs;
 public partial class StreamMasterHub : ISettingHub
 {
 
-    public async Task<SettingDto> GetSetting()
-    {
-        return await Sender.Send(new GetSettingsRequest()).ConfigureAwait(false);
-    }
-
     public async Task<bool> LogIn(LogInRequest logInRequest)
     {
 

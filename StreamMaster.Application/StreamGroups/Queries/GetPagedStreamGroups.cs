@@ -5,7 +5,7 @@
 public record GetPagedStreamGroupsRequest(QueryStringParameters Parameters) : IRequest<PagedResponse<StreamGroupDto>>;
 
 [LogExecutionTimeAspect]
-internal class GetPagedStreamGroupsRequestHandler(ILogger<GetPagedStreamGroupsRequest> logger, IRepositoryWrapper Repository)
+internal class GetPagedStreamGroupsRequestHandler(IRepositoryWrapper Repository)
     : IRequestHandler<GetPagedStreamGroupsRequest, PagedResponse<StreamGroupDto>>
 {
     public async Task<PagedResponse<StreamGroupDto>> Handle(GetPagedStreamGroupsRequest request, CancellationToken cancellationToken = default)

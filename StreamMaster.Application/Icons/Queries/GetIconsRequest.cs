@@ -2,15 +2,15 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record GetIconsRequest() : IRequest<List<IconFileDto>>;
+public record GetIconsRequest() : IRequest<APIResponse<List<IconFileDto>>>;
 
 internal class GetIconsRequestHandler(IIconService iconService)
-    : IRequestHandler<GetIconsRequest, List<IconFileDto>>
+    : IRequestHandler<GetIconsRequest, APIResponse<List<IconFileDto>>>
 {
-    public Task<List<IconFileDto>> Handle(GetIconsRequest request, CancellationToken cancellationToken)
+    public Task<APIResponse<List<IconFileDto>>> Handle(GetIconsRequest request, CancellationToken cancellationToken)
     {
         List<IconFileDto> icons = iconService.GetIcons();
 
-        return Task.FromResult(icons);
+        return Task.FromResult(APIResponse<List<IconFileDto>>.Success(icons));
     }
 }

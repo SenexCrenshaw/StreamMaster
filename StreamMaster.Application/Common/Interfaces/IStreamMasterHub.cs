@@ -1,5 +1,5 @@
 ﻿using StreamMaster.Application.Common.Models;
-using StreamMaster.Application.StreamGroups.Queries;
+using StreamMaster.Application.StreamGroups.QueriesOld;
 
 namespace StreamMaster.Application.Common.Interfaces;
 

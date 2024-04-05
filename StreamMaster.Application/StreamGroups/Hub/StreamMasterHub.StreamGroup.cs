@@ -32,12 +32,12 @@ public partial class StreamMasterHub : IStreamGroupHub
 
     public async Task<StreamGroupDto?> GetStreamGroup(int id)
     {
-        return await Sender.Send(new GetStreamGroup(id)).ConfigureAwait(false);
+        return (await Sender.Send(new GetStreamGroup(id)).ConfigureAwait(false)).Data;
     }
 
     public async Task<StreamGroupDto?> GetStreamGroupByStreamNumber(int StreamGroupNumber)
     {
-        return await Sender.Send(new GetStreamGroup(StreamGroupNumber)).ConfigureAwait(false);
+        return (await Sender.Send(new GetStreamGroup(StreamGroupNumber)).ConfigureAwait(false)).Data;
     }
 
 

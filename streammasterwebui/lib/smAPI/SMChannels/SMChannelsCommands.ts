@@ -1,12 +1,12 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { DefaultAPIResponse,AddSMStreamToSMChannelRequest,CreateSMChannelFromStreamRequest,DeleteSMChannelRequest,DeleteSMChannelsFromParametersRequest,DeleteSMChannelsRequest,RemoveSMStreamFromSMChannelRequest,SetSMChannelLogoRequest,SetSMChannelNameRequest,SetSMChannelNumberRequest,SetSMStreamRanksRequest,SMChannelDto,APIResponse,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
+import { DefaultAPIResponse,AddSMStreamToSMChannelRequest,CreateSMChannelFromStreamRequest,DeleteSMChannelRequest,DeleteSMChannelsFromParametersRequest,DeleteSMChannelsRequest,RemoveSMStreamFromSMChannelRequest,SetSMChannelLogoRequest,SetSMChannelNameRequest,SetSMChannelNumberRequest,SetSMStreamRanksRequest,SMChannelDto,GetPagedSMChannelsRequest,APIResponse,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const GetPagedSMChannels = async (parameters: QueryStringParameters): Promise<PagedResponse<SMChannelDto> | undefined> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<APIResponse<SMChannelDto>>('GetPagedSMChannels', parameters)
+  return await signalRService.invokeHubCommand<PagedResponse<SMChannelDto>>('GetPagedSMChannels', parameters)
     .then((response) => {
       if (response) {
-        return response.pagedResponse;
+        return response;
       }
       return undefined;
     })

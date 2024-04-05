@@ -3,7 +3,7 @@ using StreamMaster.Application.StreamGroups.Queries;
 
 namespace StreamMaster.Application.StreamGroups
 {
-    public partial class StreamGroupsController(ISender Sender) : ApiControllerBase, IStreamGroupsController
+    public partial class StreamGroupsController(ISender Sender, ILogger<StreamGroupsController> _logger) : ApiControllerBase, IStreamGroupsController
     {        
 
         [HttpGet]

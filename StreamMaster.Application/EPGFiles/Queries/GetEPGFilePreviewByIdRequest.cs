@@ -2,15 +2,15 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record GetEPGFilePreviewByIdRequest(int Id) : IRequest<List<EPGFilePreviewDto>>;
+public record GetEPGFilePreviewByIdRequest(int Id) : IRequest<APIResponse<List<EPGFilePreviewDto>>>;
 
 internal class GetEPGFilePreviewByIdHandler(IRepositoryWrapper Repository)
-    : IRequestHandler<GetEPGFilePreviewByIdRequest, List<EPGFilePreviewDto>>
+    : IRequestHandler<GetEPGFilePreviewByIdRequest, APIResponse<List<EPGFilePreviewDto>>>
 {
-    public async Task<List<EPGFilePreviewDto>> Handle(GetEPGFilePreviewByIdRequest request, CancellationToken cancellationToken = default)
+    public async Task<APIResponse<List<EPGFilePreviewDto>>> Handle(GetEPGFilePreviewByIdRequest request, CancellationToken cancellationToken = default)
     {
         List<EPGFilePreviewDto> res = await Repository.EPGFile.GetEPGFilePreviewById(request.Id, cancellationToken).ConfigureAwait(false);
 
-        return res;
+        return APIResponse<List<EPGFilePreviewDto>>.Success(res);
     }
 }

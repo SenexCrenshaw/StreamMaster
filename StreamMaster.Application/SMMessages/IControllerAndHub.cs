@@ -5,11 +5,11 @@ namespace StreamMaster.Application.SMMessages
 {
     public interface ISMMessagesController
     {        
-    Task<ActionResult<DefaultAPIResponse>> SendSMError(SendSMErrorRequest request);
-    Task<ActionResult<DefaultAPIResponse>> SendSMInfo(SendSMInfoRequest request);
-    Task<ActionResult<DefaultAPIResponse>> SendSMMessage(SendSMMessageRequest request);
-    Task<ActionResult<DefaultAPIResponse>> SendSMWarn(SendSMWarnRequest request);
-    Task<ActionResult<DefaultAPIResponse>> SendSuccess(SendSuccessRequest request);
+        Task<ActionResult<DefaultAPIResponse>> SendSMError(SendSMErrorRequest request);
+        Task<ActionResult<DefaultAPIResponse>> SendSMInfo(SendSMInfoRequest request);
+        Task<ActionResult<DefaultAPIResponse>> SendSMMessage(SendSMMessageRequest request);
+        Task<ActionResult<DefaultAPIResponse>> SendSMWarn(SendSMWarnRequest request);
+        Task<ActionResult<DefaultAPIResponse>> SendSuccess(SendSuccessRequest request);
     }
 }
 

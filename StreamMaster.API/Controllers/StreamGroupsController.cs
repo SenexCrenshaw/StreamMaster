@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Application.Common.Extensions;
-using StreamMaster.Application.StreamGroups;
 using StreamMaster.Application.StreamGroups.CommandsOld;
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.Authentication;
@@ -16,7 +15,7 @@ using System.Web;
 
 namespace StreamMaster.API.Controllers;
 
-public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextAccessor httpContextAccessor, ISchedulesDirectDataService schedulesDirectDataService) : ApiControllerBase, IStreamGroupController
+public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextAccessor httpContextAccessor, ISchedulesDirectDataService schedulesDirectDataService) : ApiControllerBase
 {
 
     //private static int GenerateMediaSequence()
@@ -32,6 +31,7 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
     [Route("[action]")]
     public async Task<ActionResult> CreateStreamGroup(CreateStreamGroupRequest request)
     {
+
         await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
     }
@@ -43,16 +43,6 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
         int? data = await Mediator.Send(request).ConfigureAwait(false);
         return data == null ? NotFound() : NoContent();
     }
-
-    [HttpGet]
-    [Route("[action]/{id}")]
-    public async Task<ActionResult<StreamGroupDto>> GetStreamGroup(int id)
-    {
-        StreamGroupDto? data = await Mediator.Send(new GetStreamGroup(id)).ConfigureAwait(false);
-
-        return data != null ? (ActionResult<StreamGroupDto>)data : (ActionResult<StreamGroupDto>)NotFound();
-    }
-
 
     [Authorize(Policy = "SGLinks")]
     [HttpGet]

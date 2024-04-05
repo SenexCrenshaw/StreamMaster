@@ -4,7 +4,7 @@ using StreamMaster.Application.SMStreams.Queries;
 
 namespace StreamMaster.Application.SMStreams
 {
-    public partial class SMStreamsController(ISender Sender) : ApiControllerBase, ISMStreamsController
+    public partial class SMStreamsController(ISender Sender, ILogger<SMStreamsController> _logger) : ApiControllerBase, ISMStreamsController
     {        
 
         [HttpGet]

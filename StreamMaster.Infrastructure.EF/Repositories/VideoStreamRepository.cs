@@ -11,12 +11,14 @@ using StreamMaster.Application.Icons.Queries;
 using StreamMaster.Application.M3UFiles.QueriesOld;
 using StreamMaster.Application.SchedulesDirect.Queries;
 using StreamMaster.Application.StreamGroupChannelGroups.Commands;
+using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Infrastructure.EF.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
 using StreamMaster.SchedulesDirect.Domain.Models;
 
+using System.Data;
 using System.Diagnostics;
 using System.Linq.Dynamic.Core;
 
@@ -393,8 +395,11 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
             _ = await SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
         }
 
-        ChannelGroupDto? cg = await sender.Send(new GetChannelGroupByNameRequest(videoStream.User_Tvg_group)).ConfigureAwait(false);
-        await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(cg.Id), cancellationToken).ConfigureAwait(false);
+        APIResponse<ChannelGroupDto?> cg = await sender.Send(new GetChannelGroupByNameRequest(videoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
+        if (cg.Data is not null)
+        {
+            await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(cg.Data.Id), cancellationToken).ConfigureAwait(false);
+        }
 
         return videoStream;
     }
@@ -517,7 +522,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
     internal async Task<List<VideoStreamDto>> AutoMatchIconToStreams(IEnumerable<string> VideoStreamIds, CancellationToken cancellationToken)
     {
 
-        List<IconFileDto> icons = await sender.Send(new GetIconsRequest());
+        List<IconFileDto> icons = (await sender.Send(new GetIconsRequest())).Data;
 
         IQueryable<VideoStream> streams = GetQuery(a => VideoStreamIds.Contains(a.Id));
 
@@ -920,10 +925,10 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
         }
 
         VideoStreamDto? dto = mapper.Map<VideoStreamDto?>(videoStream);
-        ChannelGroupDto? cg = await sender.Send(new GetChannelGroupByNameRequest(dto.User_Tvg_group), cancellationToken).ConfigureAwait(false);
+        APIResponse<ChannelGroupDto?>? cg = await sender.Send(new GetChannelGroupByNameRequest(dto.User_Tvg_group), cancellationToken).ConfigureAwait(false);
         if (!string.IsNullOrEmpty(UpdateSGCG))
         {
-            ChannelGroupDto? origCg = await sender.Send(new GetChannelGroupByNameRequest(UpdateSGCG), cancellationToken).ConfigureAwait(false);
+            APIResponse<ChannelGroupDto?> origCg = await sender.Send(new GetChannelGroupByNameRequest(UpdateSGCG), cancellationToken).ConfigureAwait(false);
             List<StreamGroupVideoStream> sgvids = RepositoryContext.StreamGroupVideoStreams.Where(a => a.ChildVideoStreamId == videoStream.Id).ToList();
             if (sgvids.Count > 0)
             {
@@ -931,10 +936,13 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
                 await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
 
-            await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(cg.Id), cancellationToken).ConfigureAwait(false);
+            if (cg?.Data is not null)
+            {
+                await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(cg.Data.Id), cancellationToken).ConfigureAwait(false);
+            }
         }
 
-        return (dto, cg);
+        return (dto, cg.Data);
     }
 
     public async Task<(List<VideoStreamDto> videoStreams, List<ChannelGroupDto> updatedChannelGroups)> UpdateVideoStreamsAsync(IEnumerable<UpdateVideoStreamRequest> VideoStreamUpdates, CancellationToken cancellationToken)

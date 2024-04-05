@@ -6,11 +6,11 @@ namespace StreamMaster.Application.ChannelGroups
 {
     public interface IChannelGroupsController
     {        
-    Task<ActionResult<PagedResponse<ChannelGroupDto>>> GetPagedChannelGroups(QueryStringParameters Parameters);
-    Task<ActionResult<DefaultAPIResponse>> CreateChannelGroup(CreateChannelGroupRequest request);
-    Task<ActionResult<bool>> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request);
-    Task<ActionResult<bool>> DeleteChannelGroup(DeleteChannelGroupRequest request);
-    Task<ActionResult<ChannelGroupDto?>> UpdateChannelGroup(UpdateChannelGroupRequest request);
+        Task<ActionResult<PagedResponse<ChannelGroupDto>>> GetPagedChannelGroups(QueryStringParameters Parameters);
+        Task<ActionResult<DefaultAPIResponse>> CreateChannelGroup(CreateChannelGroupRequest request);
+        Task<ActionResult<DefaultAPIResponse>> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request);
+        Task<ActionResult<DefaultAPIResponse>> DeleteChannelGroup(DeleteChannelGroupRequest request);
+        Task<ActionResult<DefaultAPIResponse>> UpdateChannelGroup(UpdateChannelGroupRequest request);
     }
 }
 
@@ -20,8 +20,8 @@ namespace StreamMaster.Application.Hubs
     {
         Task<PagedResponse<ChannelGroupDto>> GetPagedChannelGroups(QueryStringParameters Parameters);
         Task<DefaultAPIResponse> CreateChannelGroup(CreateChannelGroupRequest request);
-        Task<bool> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request);
-        Task<bool> DeleteChannelGroup(DeleteChannelGroupRequest request);
-        Task<ChannelGroupDto?> UpdateChannelGroup(UpdateChannelGroupRequest request);
+        Task<DefaultAPIResponse> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request);
+        Task<DefaultAPIResponse> DeleteChannelGroup(DeleteChannelGroupRequest request);
+        Task<DefaultAPIResponse> UpdateChannelGroup(UpdateChannelGroupRequest request);
     }
 }

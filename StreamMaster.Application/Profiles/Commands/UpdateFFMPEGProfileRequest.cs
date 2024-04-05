@@ -18,8 +18,8 @@ public class UpdateFFMPEGProfileRequestHandler(
     {
         if (!profilesettings.Profiles.ContainsKey(request.Name))
         {
-            SettingDto ret1 = await Sender.Send(new GetSettingsRequest(), cancellationToken);
-            return new UpdateSettingResponse { Settings = ret1, NeedsLogOut = false };
+            APIResponse<SettingDto> ret1 = await Sender.Send(new GetSettingsRequest(), cancellationToken);
+            return new UpdateSettingResponse { Settings = ret1.Data, NeedsLogOut = false };
         }
 
         if (profilesettings.Profiles.TryGetValue(request.Name, out FFMPEGProfile? existingProfile))
@@ -49,8 +49,8 @@ public class UpdateFFMPEGProfileRequestHandler(
             SettingsHelper.UpdateSetting(profilesettings);
 
         }
-        SettingDto ret = await Sender.Send(new GetSettingsRequest(), cancellationToken);
-        return new UpdateSettingResponse { Settings = ret, NeedsLogOut = false };
+        APIResponse<SettingDto> ret = await Sender.Send(new GetSettingsRequest(), cancellationToken);
+        return new UpdateSettingResponse { Settings = ret.Data, NeedsLogOut = false };
     }
 
 }

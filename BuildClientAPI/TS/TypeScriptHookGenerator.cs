@@ -35,7 +35,7 @@ public static class TypeScriptHookGenerator
         else
         {
             string ret = method.ReturnEntityType;
-            if (method.IsList)
+            if (method.IsList && !ret.EndsWith("[]"))
             {
                 ret += "[]";
             }

@@ -1,4 +1,5 @@
-﻿using StreamMaster.Domain.Pagination;
+﻿using StreamMaster.Domain.API;
+using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Domain.Repository
 {

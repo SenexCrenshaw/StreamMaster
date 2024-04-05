@@ -6,7 +6,7 @@ public record UpdateM3UFileRequest(int? MaxStreamCount, int? StartingChannelNumb
     : IRequest<DefaultAPIResponse>;
 
 [LogExecutionTimeAspect]
-public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IMapper Mapper, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
     : IRequestHandler<UpdateM3UFileRequest, DefaultAPIResponse>
 {
     public async Task<DefaultAPIResponse> Handle(UpdateM3UFileRequest request, CancellationToken cancellationToken)
@@ -95,7 +95,7 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IMapper 
                 await HubContext.Clients.All.SetField(ret).ConfigureAwait(false);
             }
 
-            return DefaultAPIResponse.Ok;
+            return DefaultAPIResponse.Success;
         }
         catch (Exception ex)
         {

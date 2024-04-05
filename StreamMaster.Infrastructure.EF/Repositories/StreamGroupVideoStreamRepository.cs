@@ -6,11 +6,11 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Application.StreamGroups.Queries;
+using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 
 using System.Linq.Dynamic.Core;
 using System.Text.RegularExpressions;
-
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
 public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepository> logger, IRepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, IOptionsMonitor<Setting> intSettings, ISender sender)
@@ -110,7 +110,7 @@ public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepo
 
             Create(new StreamGroupVideoStream { StreamGroupId = StreamGroupId, ChildVideoStreamId = VideoStreamId, Rank = Count() });
             await UpdateRanks(StreamGroupId);
-            return await sender.Send(new GetStreamGroup(StreamGroupId));
+            return (await sender.Send(new GetStreamGroup(StreamGroupId))).Data;
         }
         catch (Exception)
         {
@@ -220,7 +220,7 @@ public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepo
         }
 
         // Fetch and return the updated stream group
-        return await sender.Send(new GetStreamGroup(StreamGroupId));
+        return (await sender.Send(new GetStreamGroup(StreamGroupId))).Data;
     }
 
     public async Task<List<VideoStreamDto>> GetStreamGroupVideoStreams(int StreamGroupId)

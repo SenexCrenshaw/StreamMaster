@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Application.VideoStreams.Queries;
+using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 
 using System.Linq.Dynamic.Core;

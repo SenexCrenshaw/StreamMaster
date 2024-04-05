@@ -3,31 +3,55 @@ using StreamMaster.Application.Settings.Queries;
 
 namespace StreamMaster.Application.Settings
 {
-    public partial class SettingsController(ISender Sender) : ApiControllerBase, ISettingsController
+    public partial class SettingsController(ISender Sender, ILogger<SettingsController> _logger) : ApiControllerBase, ISettingsController
     {        
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<bool> GetIsSystemReady()
+        public async Task<ActionResult<bool>> GetIsSystemReady()
         {
-            bool ret = await Sender.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
-            return ret;
+            try
+            {
+            APIResponse<bool> ret = await Sender.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetIsSystemReady.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetIsSystemReady.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
         }
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<SettingDto> GetSettings()
+        public async Task<ActionResult<SettingDto>> GetSettings()
         {
-            SettingDto ret = await Sender.Send(new GetSettingsRequest()).ConfigureAwait(false);
-            return ret;
+            try
+            {
+            APIResponse<SettingDto> ret = await Sender.Send(new GetSettingsRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSettings.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetSettings.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
         }
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<SDSystemStatus> GetSystemStatus()
+        public async Task<ActionResult<SDSystemStatus>> GetSystemStatus()
         {
-            SDSystemStatus ret = await Sender.Send(new GetSystemStatusRequest()).ConfigureAwait(false);
-            return ret;
+            try
+            {
+            APIResponse<SDSystemStatus> ret = await Sender.Send(new GetSystemStatusRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSystemStatus.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetSystemStatus.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
         }
 
     }
@@ -39,20 +63,20 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<bool> GetIsSystemReady()
         {
-            bool ret = await Sender.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
-            return ret;
+             APIResponse<bool> ret = await Sender.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
+            return ret.Data;
         }
 
         public async Task<SettingDto> GetSettings()
         {
-            SettingDto ret = await Sender.Send(new GetSettingsRequest()).ConfigureAwait(false);
-            return ret;
+             APIResponse<SettingDto> ret = await Sender.Send(new GetSettingsRequest()).ConfigureAwait(false);
+            return ret.Data;
         }
 
         public async Task<SDSystemStatus> GetSystemStatus()
         {
-            SDSystemStatus ret = await Sender.Send(new GetSystemStatusRequest()).ConfigureAwait(false);
-            return ret;
+             APIResponse<SDSystemStatus> ret = await Sender.Send(new GetSystemStatusRequest()).ConfigureAwait(false);
+            return ret.Data;
         }
 
     }

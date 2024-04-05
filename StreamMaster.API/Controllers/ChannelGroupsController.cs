@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Application.ChannelGroups.Commands;
-using StreamMaster.Application.ChannelGroups.Queries;
 using StreamMaster.Application.ChannelGroups.QueriesOld;
 using StreamMaster.Application.Common;
 
@@ -26,22 +25,7 @@ public class ChannelGroupsController : ApiControllerBase
         return Ok();
     }
 
-    [HttpDelete("[action]")]
-    public async Task<ActionResult> DeleteChannelGroup(DeleteChannelGroupRequest request)
-    {
-        bool ret = await Mediator.Send(request).ConfigureAwait(false);
-        return ret ? NoContent() : NotFound();
-    }
 
-
-    [HttpGet]
-    [Route("{id}")]
-    public async Task<ActionResult<ChannelGroupDto>> GetChannelGroup(int id)
-    {
-        ChannelGroupDto? data = await Mediator.Send(new GetChannelGroupRequest(id)).ConfigureAwait(false);
-
-        return data != null ? (ActionResult<ChannelGroupDto>)data : (ActionResult<ChannelGroupDto>)NotFound();
-    }
 
     [HttpGet]
     [Route("[action]")]

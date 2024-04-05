@@ -9,7 +9,7 @@ internal class SetSMChannelLogoRequestHandler(IRepositoryWrapper Repository, IMe
     public async Task<DefaultAPIResponse> Handle(SetSMChannelLogoRequest request, CancellationToken cancellationToken)
     {
         DefaultAPIResponse ret = await Repository.SMChannel.SetSMChannelLogo(request.SMChannelId, request.logo).ConfigureAwait(false);
-        if (ret.IsError.HasValue && ret.IsError.Value)
+        if (ret.IsError)
         {
             await messageService.SendError($"Set logo failed {ret.Message}");
             return ret;

@@ -12,9 +12,8 @@ internal class DeleteSMChannelRequestHandler(IRepositoryWrapper Repository, IMes
     public async Task<DefaultAPIResponse> Handle(DeleteSMChannelRequest request, CancellationToken cancellationToken)
     {
         DefaultAPIResponse ret = await Repository.SMChannel.DeleteSMChannel(request.smChannelId);
-        if (ret.IsError.HasValue && ret.IsError.Value)
+        if (ret.IsError)
         {
-
             await messageService.SendError($"Could not delete channel", ret.ErrorMessage);
         }
         else

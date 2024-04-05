@@ -2,7 +2,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
-
+using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
