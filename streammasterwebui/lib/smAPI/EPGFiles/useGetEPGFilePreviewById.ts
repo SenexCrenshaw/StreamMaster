@@ -13,7 +13,7 @@ interface Result extends ExtendedQueryHookResult {
   SetIsForced: (force: boolean) => void;
   SetIsLoading: (isLoading: boolean, query: string) => void;
 }
-const useGetEPGFilePreviewById = (): Result => {
+const useGetEPGFilePreviewById = (params?: GetApiArgument | undefined): Result => {
   const dispatch = useAppDispatch();
   const data = useAppSelector((state) => state.GetEPGFilePreviewById.data);
   const error = useAppSelector((state) => state.GetEPGFilePreviewById.error ?? '');
@@ -21,22 +21,23 @@ const useGetEPGFilePreviewById = (): Result => {
   const isForced = useAppSelector((state) => state.GetEPGFilePreviewById.isForced ?? false);
   const isLoading = useAppSelector((state) => state.GetEPGFilePreviewById.isLoading ?? false);
 
-const SetIsForced = useCallback(
-  (forceRefresh: boolean, query?: string): void => {
-    dispatch(setIsForced({ force: forceRefresh }));
-  },
-  [dispatch]
-);
+  const SetIsForced = useCallback(
+    (forceRefresh: boolean, query?: string): void => {
+      dispatch(setIsForced({ force: forceRefresh }));
+    },
+    [dispatch]
+  );
 
+  const SetIsLoading = useCallback(
+    (isLoading: boolean): void => {
+      dispatch(setIsLoading({ isLoading: isLoading }));
+    },
+    [dispatch]
+  );
 
-const SetIsLoading = useCallback(
-  (isLoading: boolean): void => {
-    dispatch(setIsLoading({ isLoading: isLoading }));
-  },
-  [dispatch]
-);
-  useEffect(() => {
+useEffect(() => {
   const state = store.getState().GetEPGFilePreviewById;
+
   if (data === undefined && state.isLoading !== true && state.isForced !== true) {
     SetIsForced(true);
   }

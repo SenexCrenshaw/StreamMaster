@@ -258,6 +258,7 @@ export interface APIResponse<T>
 	_totalItemCount?: number;
 	count: number;
 	data: T;
+	error: DefaultAPIResponse;
 	errorMessage?: string;
 	isError: boolean;
 	message?: string;
@@ -268,6 +269,7 @@ export interface APIResponse<T>
 }
 export interface DefaultAPIResponse
 {
+	error: DefaultAPIResponse;
 	errorMessage?: string;
 	isError: boolean;
 	message?: string;
@@ -283,6 +285,7 @@ export interface PagedResponse<T>
 	_totalItemCount?: number;
 	count: number;
 	data: T[];
+	error: DefaultAPIResponse;
 	errorMessage?: string;
 	first: number;
 	isError: boolean;

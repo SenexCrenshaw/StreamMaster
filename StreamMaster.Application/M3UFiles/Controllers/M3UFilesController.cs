@@ -1,14 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Application.EPGFiles.Commands;
+using StreamMaster.Application.M3UFiles.Commands;
 
-namespace StreamMaster.Application.EPGFiles;
+namespace StreamMaster.Application.M3UFiles;
 
-public partial class EPGFilesController
+public partial class M3UFilesController
 {
+
     [HttpPost]
     [Route("[action]")]
-    public async Task<ActionResult<DefaultAPIResponse>> CreateEPGFileFromForm([FromForm] CreateEPGFileRequest request)
+    public async Task<ActionResult<DefaultAPIResponse>> CreateM3UFileFromForm([FromForm] CreateM3UFileRequest request)
     {
         DefaultAPIResponse entity = await Sender.Send(request).ConfigureAwait(false);
         return entity == null ? DefaultAPIResponse.Error : DefaultAPIResponse.Success;

@@ -53,8 +53,9 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         catch (Exception ex)
         {
             logger.LogError(ex, "Error deleting SMChannel with id {smchannelId}", smchannelId);
+            return DefaultAPIResponse.ErrorWithMessage(ex, $"Error deleting SMChannel with id {smchannelId}");
         }
-        return DefaultAPIResponse.ErrorWithMessage($"Error deleting SMChannel with id {smchannelId}");
+
     }
 
     public async Task<List<int>> DeleteSMChannelsFromParameters(QueryStringParameters parameters)

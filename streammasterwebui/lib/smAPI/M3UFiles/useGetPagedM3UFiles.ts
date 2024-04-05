@@ -22,20 +22,20 @@ const useGetPagedM3UFiles = (params?: GetApiArgument | undefined): Result => {
   const isForced = useAppSelector((state) => state.GetPagedM3UFiles.isForced ?? false);
   const isLoading = useAppSelector((state) => state.GetPagedM3UFiles.isLoading[query] ?? false);
 
-const SetIsForced = useCallback(
-  (forceRefresh: boolean, query?: string): void => {
-    dispatch(setIsForced({ force: forceRefresh }));
-  },
-  [dispatch]
-);
+  const SetIsForced = useCallback(
+    (forceRefresh: boolean, query?: string): void => {
+      dispatch(setIsForced({ force: forceRefresh }));
+    },
+    [dispatch]
+  );
 
+  const SetIsLoading = useCallback(
+    (isLoading: boolean, query: string): void => {
+      dispatch(setIsLoading({ query: query, isLoading: isLoading }));
+    },
+    [dispatch]
+  );
 
-const SetIsLoading = useCallback(
-  (isLoading: boolean, query: string): void => {
-    dispatch(setIsLoading({ query: query, isLoading: isLoading }));
-  },
-  [dispatch]
-);
 useEffect(() => {
   if (query === undefined) return;
   const state = store.getState().GetPagedM3UFiles;
@@ -45,6 +45,15 @@ useEffect(() => {
   }
 }, [SetIsForced, data, dispatch, query]);
 
+useEffect(() => {
+  const state = store.getState().GetPagedM3UFiles;
+  if (state.isLoading[query]) return;
+  if (query === undefined && !isForced) return;
+  if (data !== undefined && !isForced) return;
+
+  SetIsLoading(true, query);
+  dispatch(fetchGetPagedM3UFiles(query));
+}, [data, dispatch, query, isForced, isLoading, SetIsLoading]);
 
 const SetField = (fieldData: FieldData): void => {
   dispatch(setField({ fieldData: fieldData }));

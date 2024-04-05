@@ -99,7 +99,7 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, ISender 
         }
         catch (Exception ex)
         {
-            return DefaultAPIResponse.ErrorWithMessage($"Failed M3U update : {ex}");
+            return DefaultAPIResponse.ErrorWithMessage(ex, $"Failed M3U update");
         }
 
     }

@@ -10,10 +10,13 @@ namespace StreamMaster.Domain.API
         public bool IsError { get; set; }
 
 
-        public static DefaultAPIResponse Error<T>(string errorMessage)
+        public static DefaultAPIResponse ErrorWithMessage(string errorMessage)
         {
             return new DefaultAPIResponse { ErrorMessage = errorMessage, IsError = true };
         }
+
+        public static DefaultAPIResponse Error => new() { IsError = true };
+
 
         public static DefaultAPIResponse Success => new();
 
@@ -27,16 +30,6 @@ namespace StreamMaster.Domain.API
             return ok;
         }
 
-
-        public static DefaultAPIResponse ErrorWithMessage(string message)
-        {
-            DefaultAPIResponse ok = new()
-            {
-                IsError = true,
-                ErrorMessage = message
-            };
-            return ok;
-        }
 
         public static DefaultAPIResponse OkWithMessage(string message)
         {
