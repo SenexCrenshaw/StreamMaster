@@ -8,6 +8,7 @@ import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import useGetPagedM3UFiles from '@lib/smAPI/M3UFiles/useGetPagedM3UFiles';
+import useGetPagedEPGFiles from '@lib/smAPI/EPGFiles/useGetPagedEPGFiles';
 import useGetPagedChannelGroups from '@lib/smAPI/ChannelGroups/useGetPagedChannelGroups';
 
 const SignalRContext = createContext<SignalRService | undefined>(undefined);
@@ -31,6 +32,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
   const getPagedSMChannels = useGetPagedSMChannels();
   const getSettings = useGetSettings();
   const getPagedM3UFiles = useGetPagedM3UFiles();
+  const getPagedEPGFiles = useGetPagedEPGFiles();
   const getPagedChannelGroups = useGetPagedChannelGroups();
 
   const addMessage = useCallback(
@@ -62,12 +64,16 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         getPagedM3UFiles.SetIsForced(true);
         return;
       }
+      if (entity === 'EPGFileDto') {
+        getPagedEPGFiles.SetIsForced(true);
+        return;
+      }
       if (entity === 'ChannelGroupDto') {
         getPagedChannelGroups.SetIsForced(true);
         return;
       }
     },
-    [getPagedStreamGroups,getPagedSMStreams,getPagedSMChannels,getSettings,getPagedM3UFiles,getPagedChannelGroups]
+    [getPagedStreamGroups,getPagedSMStreams,getPagedSMChannels,getSettings,getPagedM3UFiles,getPagedEPGFiles,getPagedChannelGroups]
   );
 
   const setField = useCallback(
@@ -93,13 +99,17 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
           getPagedM3UFiles.SetField(fieldData)
           return;
         }
+        if (fieldData.entity === 'EPGFileDto') {
+          getPagedEPGFiles.SetField(fieldData)
+          return;
+        }
         if (fieldData.entity === 'ChannelGroupDto') {
           getPagedChannelGroups.SetField(fieldData)
           return;
         }
       });
     },
-    [getPagedStreamGroups,getPagedSMStreams,getPagedSMChannels,getSettings,getPagedM3UFiles,getPagedChannelGroups]
+    [getPagedStreamGroups,getPagedSMStreams,getPagedSMChannels,getSettings,getPagedM3UFiles,getPagedEPGFiles,getPagedChannelGroups]
   );
 
   const RemoveConnections = useCallback(() => {

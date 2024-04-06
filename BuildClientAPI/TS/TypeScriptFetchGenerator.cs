@@ -37,7 +37,11 @@ public static class TypeScriptFetchGenerator
 
         StringBuilder content = new();
         content.AppendLine($"import {{ {method.Name} }} from '@lib/smAPI/{namespaceName}/{namespaceName}Commands';");
-        content.AppendLine($"import {{ {method.Name}Request }} from '../smapiTypes';");
+        if (!string.IsNullOrEmpty(method.TsParameter))
+        {
+            content.AppendLine($"import {{ {method.Name}Request }} from '../smapiTypes';");
+        }
+
         content.AppendLine("import { createAsyncThunk } from '@reduxjs/toolkit';");
         content.AppendLine();
 
@@ -59,7 +63,7 @@ public static class TypeScriptFetchGenerator
     private static string CreateGet(MethodDetails method)
     {
         StringBuilder content = new();
-        if (method.Name.Contains("GetEPGFilePreview"))
+        if (method.Name.Contains("GetIcons"))
         {
             int aa = 1;
 

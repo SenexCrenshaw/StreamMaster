@@ -11,7 +11,20 @@ public static class TypeScriptHookGenerator
             content.Append(AddImports(method));
             content.Append(GenerateInterfaces(method));
 
-            content.Append(GenerateHookContent(method));
+            if (method.IsGetPaged)
+            {
+
+                content.Append(GeneratePagedHookContent(method));
+            }
+            else if (method.IsGet)
+            {
+                content.Append(GenerateGetHookContent(method));
+            }
+            else
+            {
+                content.Append(GenerateHookContent(method));
+            }
+
 
             content.Append(GenerateFooterContent(method));
 
@@ -89,25 +102,32 @@ public static class TypeScriptHookGenerator
     private static string GenerateHeader(MethodDetails method)
     {
         StringBuilder content = new();
-        content.AppendLine("  const dispatch = useAppDispatch();");
+        content.AppendLine($"  const data = useAppSelector((state) => state.{method.Name}.data);");
+        content.AppendLine($"  const error = useAppSelector((state) => state.{method.Name}.error ?? '');");
+        content.AppendLine($"  const isError = useAppSelector((state) => state.{method.Name}.isError?? false);");
+        content.AppendLine($"  const isForced = useAppSelector((state) => state.{method.Name}.isForced ?? false);");
+        content.AppendLine($"  const isLoading = useAppSelector((state) => state.{method.Name}.isLoading ?? false);");
 
-        if (method.IsGetPaged)
-        {
-            content.AppendLine("  const query = JSON.stringify(params);");
-            content.AppendLine($"  const data = useAppSelector((state) => state.{method.Name}.data[query]);");
-            content.AppendLine($"  const error = useAppSelector((state) => state.{method.Name}.error[query] ?? '');");
-            content.AppendLine($"  const isError = useAppSelector((state) => state.{method.Name}.isError[query] ?? false);");
-            content.AppendLine($"  const isForced = useAppSelector((state) => state.{method.Name}.isForced ?? false);");
-            content.AppendLine($"  const isLoading = useAppSelector((state) => state.{method.Name}.isLoading[query] ?? false);");
-        }
-        else
-        {
-            content.AppendLine($"  const data = useAppSelector((state) => state.{method.Name}.data);");
-            content.AppendLine($"  const error = useAppSelector((state) => state.{method.Name}.error ?? '');");
-            content.AppendLine($"  const isError = useAppSelector((state) => state.{method.Name}.isError?? false);");
-            content.AppendLine($"  const isForced = useAppSelector((state) => state.{method.Name}.isForced ?? false);");
-            content.AppendLine($"  const isLoading = useAppSelector((state) => state.{method.Name}.isLoading ?? false);");
-        }
+        content.AppendLine();
+        content.AppendLine("  const SetIsForced = useCallback(");
+        content.AppendLine("    (forceRefresh: boolean, query?: string): void => {");
+        content.AppendLine("      dispatch(setIsForced({ force: forceRefresh }));");
+        content.AppendLine("    },");
+        content.AppendLine("    [dispatch]");
+        content.AppendLine("  );");
+        return content.ToString();
+    }
+
+    private static string GeneratePagedHeader(MethodDetails method)
+    {
+        StringBuilder content = new();
+
+        content.AppendLine("  const query = JSON.stringify(params);");
+        content.AppendLine($"  const data = useAppSelector((state) => state.{method.Name}.data[query]);");
+        content.AppendLine($"  const error = useAppSelector((state) => state.{method.Name}.error[query] ?? '');");
+        content.AppendLine($"  const isError = useAppSelector((state) => state.{method.Name}.isError[query] ?? false);");
+        content.AppendLine($"  const isForced = useAppSelector((state) => state.{method.Name}.isForced ?? false);");
+        content.AppendLine($"  const isLoading = useAppSelector((state) => state.{method.Name}.isLoading[query] ?? false);");
 
         content.AppendLine();
         content.AppendLine("  const SetIsForced = useCallback(");
@@ -120,91 +140,95 @@ public static class TypeScriptHookGenerator
         return content.ToString();
 
     }
-
     private static string GenerateHookContent(MethodDetails method)
     {
         StringBuilder content = new();
+        content.AppendLine($"const use{method.Name} = (): Result => {{");
 
-        if (method.IsGetPaged)
+        content.AppendLine("  const dispatch = useAppDispatch();");
+
+        content.AppendLine(GenerateHeader(method));
+
+        content.AppendLine("const SetIsLoading = useCallback(");
+        content.AppendLine("  (isLoading: boolean): void => {");
+        content.AppendLine("    dispatch(setIsLoading({ isLoading: isLoading }));");
+        content.AppendLine("  },");
+        content.AppendLine("  [dispatch]");
+        content.AppendLine(");");
+
+        content.AppendLine($"  useEffect(() => {{");
+        content.AppendLine($"    const state = store.getState().{method.Name};");
+        content.AppendLine("    if (data === undefined && state.isLoading !== true && state.isForced !== true) {");
+        content.AppendLine("      SetIsForced(true);");
+        content.AppendLine("    }");
+        content.AppendLine("  }, [SetIsForced, data, dispatch]);");
+        return content.ToString();
+    }
+
+    private static string GenerateGetHookContent(MethodDetails method)
+    {
+        StringBuilder content = new();
+        if (!string.IsNullOrEmpty(method.TsParameter))
         {
-            content.AppendLine($"const use{method.Name} = (params?: GetApiArgument | undefined): Result => {{");
-
-            content.AppendLine(GenerateHeader(method));
-
-            content.AppendLine("  const SetIsLoading = useCallback(");
-            content.AppendLine("    (isLoading: boolean, query: string): void => {");
-            content.AppendLine("      dispatch(setIsLoading({ query: query, isLoading: isLoading }));");
-            content.AppendLine("    },");
-            content.AppendLine("    [dispatch]");
-            content.AppendLine("  );");
-
-            content.AppendLine();
-
-            content.AppendLine("useEffect(() => {");
-            content.AppendLine("  if (query === undefined) return;");
-            content.AppendLine($"  const state = store.getState().{method.Name};");
-            content.AppendLine("");
-            content.AppendLine("  if (data === undefined && state.isLoading[query] !== true && state.isForced !== true) {");
-            content.AppendLine("    SetIsForced(true);");
-            content.AppendLine("  }");
-            content.AppendLine("}, [SetIsForced, data, dispatch, query]);");
-
-        }
-        else if (method.IsGet)
-        {
-            if (!string.IsNullOrEmpty(method.TsParameter))
-            {
-                content.AppendLine($"const use{method.Name} = (params?: GetApiArgument | undefined): Result => {{");
-            }
-            else
-            {
-                content.AppendLine($"const use{method.Name} = (): Result => {{");
-            }
-
-            content.AppendLine(GenerateHeader(method));
-
-            content.AppendLine("  const SetIsLoading = useCallback(");
-            content.AppendLine("    (isLoading: boolean): void => {");
-            content.AppendLine("      dispatch(setIsLoading({ isLoading: isLoading }));");
-            content.AppendLine("    },");
-            content.AppendLine("    [dispatch]");
-            content.AppendLine("  );");
-
-            content.AppendLine();
-
-            content.AppendLine("useEffect(() => {");
-
-            content.AppendLine($"  const state = store.getState().{method.Name};");
-            content.AppendLine("");
-            content.AppendLine("  if (data === undefined && state.isLoading !== true && state.isForced !== true) {");
-
-            content.AppendLine("    SetIsForced(true);");
-            content.AppendLine("  }");
-            content.AppendLine("}, [SetIsForced, data, dispatch]);");
-
+            content.AppendLine($"const use{method.Name} = (): Result => {{");
         }
         else
         {
             content.AppendLine($"const use{method.Name} = (): Result => {{");
-
-            content.AppendLine(GenerateHeader(method));
-
-            content.AppendLine("const SetIsLoading = useCallback(");
-            content.AppendLine("  (isLoading: boolean): void => {");
-            content.AppendLine("    dispatch(setIsLoading({ isLoading: isLoading }));");
-            content.AppendLine("  },");
-            content.AppendLine("  [dispatch]");
-            content.AppendLine(");");
-
-            content.AppendLine($"  useEffect(() => {{");
-            content.AppendLine($"    const state = store.getState().{method.Name};");
-            content.AppendLine("    if (data === undefined && state.isLoading !== true && state.isForced !== true) {");
-            content.AppendLine("      SetIsForced(true);");
-            content.AppendLine("    }");
-            content.AppendLine("  }, [SetIsForced, data, dispatch]);");
-
         }
+
+        content.AppendLine("  const dispatch = useAppDispatch();");
+
+        content.AppendLine(GenerateHeader(method));
+
+        content.AppendLine("  const SetIsLoading = useCallback(");
+        content.AppendLine("    (isLoading: boolean): void => {");
+        content.AppendLine("      dispatch(setIsLoading({ isLoading: isLoading }));");
+        content.AppendLine("    },");
+        content.AppendLine("    [dispatch]");
+        content.AppendLine("  );");
+
         content.AppendLine();
+
+        content.AppendLine("useEffect(() => {");
+
+        content.AppendLine($"  const state = store.getState().{method.Name};");
+        content.AppendLine("");
+        content.AppendLine("  if (data === undefined && state.isLoading !== true && state.isForced !== true) {");
+
+        content.AppendLine("    SetIsForced(true);");
+        content.AppendLine("  }");
+        content.AppendLine("}, [SetIsForced, data, dispatch]);");
+        return content.ToString();
+    }
+
+    private static string GeneratePagedHookContent(MethodDetails method)
+    {
+        StringBuilder content = new();
+
+        content.AppendLine($"const use{method.Name} = (params?: GetApiArgument | undefined): Result => {{");
+
+        content.AppendLine("  const dispatch = useAppDispatch();");
+
+        content.AppendLine(GeneratePagedHeader(method));
+
+        content.AppendLine("  const SetIsLoading = useCallback(");
+        content.AppendLine("    (isLoading: boolean, query: string): void => {");
+        content.AppendLine("      dispatch(setIsLoading({ query: query, isLoading: isLoading }));");
+        content.AppendLine("    },");
+        content.AppendLine("    [dispatch]");
+        content.AppendLine("  );");
+
+        content.AppendLine();
+
+        content.AppendLine("useEffect(() => {");
+        content.AppendLine("  if (query === undefined) return;");
+        content.AppendLine($"  const state = store.getState().{method.Name};");
+        content.AppendLine("");
+        content.AppendLine("  if (data === undefined && state.isLoading[query] !== true && state.isForced !== true) {");
+        content.AppendLine("    SetIsForced(true);");
+        content.AppendLine("  }");
+        content.AppendLine("}, [SetIsForced, data, dispatch, query]);");
         return content.ToString();
     }
 

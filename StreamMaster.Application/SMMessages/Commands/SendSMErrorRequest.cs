@@ -2,15 +2,15 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record SendSMErrorRequest(string Detail, string Summary = "Error") : IRequest<DefaultAPIResponse>;
+public record SendSMErrorRequest(string Detail, string Summary = "Error") : IRequest<APIResponse>;
 
 internal class SendSMErrorHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-    : IRequestHandler<SendSMErrorRequest, DefaultAPIResponse>
+    : IRequestHandler<SendSMErrorRequest, APIResponse>
 {
-    public async Task<DefaultAPIResponse> Handle(SendSMErrorRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(SendSMErrorRequest request, CancellationToken cancellationToken)
     {
         SMMessage sMMessage = new("error", request.Summary, request.Detail);
         await hubContext.Clients.All.SendMessage(sMMessage).ConfigureAwait(false);
-        return DefaultAPIResponse.Success;
+        return APIResponse.Success;
     }
 }

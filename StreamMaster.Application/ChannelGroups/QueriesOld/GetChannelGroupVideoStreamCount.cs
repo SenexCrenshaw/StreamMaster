@@ -9,7 +9,7 @@ internal class GetChannelGroupVideoStreamCountHandler(ILogger<GetChannelGroupVid
     public async Task<ChannelGroupStreamCount?> Handle(GetChannelGroupVideoStreamCount request, CancellationToken cancellationToken)
     {
         ChannelGroupStreamCount res = new() { ActiveCount = 0, HiddenCount = 0 };
-        APIResponse<ChannelGroupDto?> cg = await Sender.Send(new GetChannelGroupByNameRequest(request.channelGropupName), cancellationToken).ConfigureAwait(false);
+        DataResponse<ChannelGroupDto?> cg = await Sender.Send(new GetChannelGroupByNameRequest(request.channelGropupName), cancellationToken).ConfigureAwait(false);
         return cg?.Data == null ? res : MemoryCache.GetChannelGroupVideoStreamCount(cg.Data.Id);
     }
 }

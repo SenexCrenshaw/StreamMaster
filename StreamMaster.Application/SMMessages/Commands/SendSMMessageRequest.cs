@@ -2,14 +2,14 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record SendSMMessageRequest(SMMessage Message) : IRequest<DefaultAPIResponse>;
+public record SendSMMessageRequest(SMMessage Message) : IRequest<APIResponse>;
 
-internal class SendSMMessageHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<SendSMMessageRequest, DefaultAPIResponse>
+internal class SendSMMessageHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<SendSMMessageRequest, APIResponse>
 {
-    public async Task<DefaultAPIResponse> Handle(SendSMMessageRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(SendSMMessageRequest request, CancellationToken cancellationToken)
     {
         await hubContext.Clients.All.SendMessage(request.Message).ConfigureAwait(false);
 
-        return DefaultAPIResponse.Success;
+        return APIResponse.Success;
     }
 }

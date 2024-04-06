@@ -1,5 +1,4 @@
 import { GetIsSystemReady } from '@lib/smAPI/Settings/SettingsCommands';
-import { GetIsSystemReadyRequest } from '../smapiTypes';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 

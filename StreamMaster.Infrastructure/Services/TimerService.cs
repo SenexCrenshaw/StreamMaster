@@ -133,7 +133,7 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
             try
             {
                 jobManager.Start();
-                APIResponse<List<EPGFileDto>> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdatingRequest(), cancellationToken).ConfigureAwait(false);
+                DataResponse<List<EPGFileDto>> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdatingRequest(), cancellationToken).ConfigureAwait(false);
                 if (epgFilesToUpdated.Data.Any())
                 {
                     logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFilesToUpdated.Count);
@@ -157,7 +157,7 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
             try
             {
                 jobManager.Start();
-                APIResponse<List<M3UFileDto>> m3uFilesToUpdated = await mediator.Send(new GetM3UFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
+                DataResponse<List<M3UFileDto>> m3uFilesToUpdated = await mediator.Send(new GetM3UFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
                 if (m3uFilesToUpdated.Data.Any())
                 {
                     logger.LogInformation("M3U Files to update count: {m3uFiles.Count()}", m3uFilesToUpdated.Count);

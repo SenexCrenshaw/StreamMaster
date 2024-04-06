@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using StreamMaster.Application.Settings.Queries;
 
-namespace StreamMaster.Application.Settings
+namespace StreamMaster.Application.Settings.Controllers
 {
     public partial class SettingsController(ISender Sender, ILogger<SettingsController> _logger) : ApiControllerBase, ISettingsController
     {        
@@ -12,7 +12,7 @@ namespace StreamMaster.Application.Settings
         {
             try
             {
-            APIResponse<bool> ret = await Sender.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
+            DataResponse<bool> ret = await Sender.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetIsSystemReady.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
@@ -28,7 +28,7 @@ namespace StreamMaster.Application.Settings
         {
             try
             {
-            APIResponse<SettingDto> ret = await Sender.Send(new GetSettingsRequest()).ConfigureAwait(false);
+            DataResponse<SettingDto> ret = await Sender.Send(new GetSettingsRequest()).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSettings.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
@@ -44,7 +44,7 @@ namespace StreamMaster.Application.Settings
         {
             try
             {
-            APIResponse<SDSystemStatus> ret = await Sender.Send(new GetSystemStatusRequest()).ConfigureAwait(false);
+            DataResponse<SDSystemStatus> ret = await Sender.Send(new GetSystemStatusRequest()).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSystemStatus.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
@@ -63,19 +63,19 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<bool> GetIsSystemReady()
         {
-             APIResponse<bool> ret = await Sender.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
+             DataResponse<bool> ret = await Sender.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<SettingDto> GetSettings()
         {
-             APIResponse<SettingDto> ret = await Sender.Send(new GetSettingsRequest()).ConfigureAwait(false);
+             DataResponse<SettingDto> ret = await Sender.Send(new GetSettingsRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<SDSystemStatus> GetSystemStatus()
         {
-             APIResponse<SDSystemStatus> ret = await Sender.Send(new GetSystemStatusRequest()).ConfigureAwait(false);
+             DataResponse<SDSystemStatus> ret = await Sender.Send(new GetSystemStatusRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 

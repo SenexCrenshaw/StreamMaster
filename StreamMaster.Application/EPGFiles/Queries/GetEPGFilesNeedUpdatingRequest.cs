@@ -1,13 +1,13 @@
 ﻿namespace StreamMaster.Application.EPGFiles.Queries;
 
-public record GetEPGFilesNeedUpdatingRequest() : IRequest<APIResponse<List<EPGFileDto>>>;
+public record GetEPGFilesNeedUpdatingRequest() : IRequest<DataResponse<List<EPGFileDto>>>;
 
 internal class GetEPGFilesNeedUpdatingHandler(IRepositoryWrapper Repository)
-    : IRequestHandler<GetEPGFilesNeedUpdatingRequest, APIResponse<List<EPGFileDto>>>
+    : IRequestHandler<GetEPGFilesNeedUpdatingRequest, DataResponse<List<EPGFileDto>>>
 {
-    public async Task<APIResponse<List<EPGFileDto>>> Handle(GetEPGFilesNeedUpdatingRequest request, CancellationToken cancellationToken = default)
+    public async Task<DataResponse<List<EPGFileDto>>> Handle(GetEPGFilesNeedUpdatingRequest request, CancellationToken cancellationToken = default)
     {
         List<EPGFileDto> epgFiles = await Repository.EPGFile.GetEPGFilesNeedUpdating();
-        return APIResponse<List<EPGFileDto>>.Success(epgFiles);
+        return DataResponse<List<EPGFileDto>>.Success(epgFiles);
     }
 }

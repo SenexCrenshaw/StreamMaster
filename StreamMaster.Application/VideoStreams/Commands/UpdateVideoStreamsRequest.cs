@@ -26,7 +26,7 @@ public class UpdateVideoStreamsRequestHandler(ILogger<UpdateVideoStreamsRequest>
             bool toggleVisibilty = requests.VideoStreamUpdates.Any(x => x.ToggleVisibility.HasValue);
             if (toggleVisibilty)
             {
-                await Publisher.Publish(new UpdateVideoStreamsEvent(new List<VideoStreamDto>()), cancellationToken).ConfigureAwait(false);
+                await Publisher.Publish(new UpdateVideoStreamsEvent([]), cancellationToken).ConfigureAwait(false);
             }
             else
             {
@@ -35,7 +35,7 @@ public class UpdateVideoStreamsRequestHandler(ILogger<UpdateVideoStreamsRequest>
 
             if (updatedChannelGroups.Any())
             {
-                updatedChannelGroups = await Sender.Send(new UpdateChannelGroupCountsRequest(updatedChannelGroups), cancellationToken).ConfigureAwait(false);
+                updatedChannelGroups = (await Sender.Send(new UpdateChannelGroupCountsRequest(updatedChannelGroups), cancellationToken).ConfigureAwait(false)).Data;
                 await HubContext.Clients.All.ChannelGroupsRefresh(updatedChannelGroups.ToArray()).ConfigureAwait(false);
             }
         }

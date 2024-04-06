@@ -6,7 +6,6 @@ using StreamMaster.Application.StreamGroups.CommandsOld;
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Helpers;
-using StreamMaster.Domain.Repository;
 using StreamMaster.Domain.Requests;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
@@ -15,7 +14,7 @@ using System.Web;
 
 namespace StreamMaster.API.Controllers;
 
-public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextAccessor httpContextAccessor, ISchedulesDirectDataService schedulesDirectDataService) : ApiControllerBase
+public class StreamGroupsController(IHttpContextAccessor httpContextAccessor, ISchedulesDirectDataService schedulesDirectDataService) : ApiControllerBase
 {
 
     //private static int GenerateMediaSequence()

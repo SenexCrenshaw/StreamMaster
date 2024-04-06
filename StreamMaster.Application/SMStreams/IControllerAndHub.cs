@@ -7,7 +7,7 @@ namespace StreamMaster.Application.SMStreams
     public interface ISMStreamsController
     {        
         Task<ActionResult<PagedResponse<SMStreamDto>>> GetPagedSMStreams(QueryStringParameters Parameters);
-        Task<ActionResult<DefaultAPIResponse>> ToggleSMStreamVisibleById(ToggleSMStreamVisibleByIdRequest request);
+        Task<ActionResult<APIResponse>> ToggleSMStreamVisibleById(ToggleSMStreamVisibleByIdRequest request);
     }
 }
 
@@ -16,6 +16,6 @@ namespace StreamMaster.Application.Hubs
     public interface ISMStreamsHub
     {
         Task<PagedResponse<SMStreamDto>> GetPagedSMStreams(QueryStringParameters Parameters);
-        Task<DefaultAPIResponse> ToggleSMStreamVisibleById(ToggleSMStreamVisibleByIdRequest request);
+        Task<APIResponse> ToggleSMStreamVisibleById(ToggleSMStreamVisibleByIdRequest request);
     }
 }

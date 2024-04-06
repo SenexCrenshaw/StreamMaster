@@ -395,7 +395,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
             _ = await SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
         }
 
-        APIResponse<ChannelGroupDto?> cg = await sender.Send(new GetChannelGroupByNameRequest(videoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
+        DataResponse<ChannelGroupDto?> cg = await sender.Send(new GetChannelGroupByNameRequest(videoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
         if (cg.Data is not null)
         {
             await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(cg.Data.Id), cancellationToken).ConfigureAwait(false);
@@ -925,10 +925,10 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
         }
 
         VideoStreamDto? dto = mapper.Map<VideoStreamDto?>(videoStream);
-        APIResponse<ChannelGroupDto?>? cg = await sender.Send(new GetChannelGroupByNameRequest(dto.User_Tvg_group), cancellationToken).ConfigureAwait(false);
+        DataResponse<ChannelGroupDto?>? cg = await sender.Send(new GetChannelGroupByNameRequest(dto.User_Tvg_group), cancellationToken).ConfigureAwait(false);
         if (!string.IsNullOrEmpty(UpdateSGCG))
         {
-            APIResponse<ChannelGroupDto?> origCg = await sender.Send(new GetChannelGroupByNameRequest(UpdateSGCG), cancellationToken).ConfigureAwait(false);
+            DataResponse<ChannelGroupDto?> origCg = await sender.Send(new GetChannelGroupByNameRequest(UpdateSGCG), cancellationToken).ConfigureAwait(false);
             List<StreamGroupVideoStream> sgvids = RepositoryContext.StreamGroupVideoStreams.Where(a => a.ChildVideoStreamId == videoStream.Id).ToList();
             if (sgvids.Count > 0)
             {

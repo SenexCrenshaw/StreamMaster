@@ -1,5 +1,4 @@
 import { GetSettings } from '@lib/smAPI/Settings/SettingsCommands';
-import { GetSettingsRequest } from '../smapiTypes';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 

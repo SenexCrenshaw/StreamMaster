@@ -1,27 +1,27 @@
 ﻿namespace StreamMaster.Application.M3UFiles.Commands;
 
 
-public record ScanDirectoryForM3UFilesRequest : IRequest<APIResponse<bool>> { }
+public record ScanDirectoryForM3UFilesRequest : IRequest<DataResponse<bool>> { }
 
 
 [LogExecutionTimeAspect]
 public class ScanDirectoryForM3UFilesRequestHandler(IPublisher Publisher, IRepositoryWrapper Repository, IMapper Mapper)
-    : IRequestHandler<ScanDirectoryForM3UFilesRequest, APIResponse<bool>>
+    : IRequestHandler<ScanDirectoryForM3UFilesRequest, DataResponse<bool>>
 {
-    public async Task<APIResponse<bool>> Handle(ScanDirectoryForM3UFilesRequest command, CancellationToken cancellationToken)
+    public async Task<DataResponse<bool>> Handle(ScanDirectoryForM3UFilesRequest command, CancellationToken cancellationToken)
     {
         IEnumerable<FileInfo> m3uFiles = GetM3UFilesFromDirectory();
         foreach (FileInfo m3uFileInfo in m3uFiles)
         {
             if (cancellationToken.IsCancellationRequested)
             {
-                return APIResponse.False;
+                return DataResponse.False;
             }
 
             await ProcessM3UFile(m3uFileInfo, cancellationToken);
         }
 
-        return APIResponse.True;
+        return DataResponse.True;
     }
 
     private static IEnumerable<FileInfo> GetM3UFilesFromDirectory()

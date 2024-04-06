@@ -2,21 +2,21 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record RefreshM3UFileRequest(int Id, bool forceRun = false) : IRequest<DefaultAPIResponse> { }
+public record RefreshM3UFileRequest(int Id, bool forceRun = false) : IRequest<APIResponse> { }
 
 [LogExecutionTimeAspect]
 public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger, IMessageService messageService, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
-    : IRequestHandler<RefreshM3UFileRequest, DefaultAPIResponse>
+    : IRequestHandler<RefreshM3UFileRequest, APIResponse>
 {
 
-    public async Task<DefaultAPIResponse> Handle(RefreshM3UFileRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(RefreshM3UFileRequest request, CancellationToken cancellationToken)
     {
         JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.RefreshM3U, request.Id);
         try
         {
             if (jobManager.IsRunning)
             {
-                return DefaultAPIResponse.NotFound;
+                return APIResponse.NotFound;
             }
             jobManager.Start();
 
@@ -25,7 +25,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
             if (m3uFile == null)
             {
                 jobManager.SetError();
-                return DefaultAPIResponse.NotFound;
+                return APIResponse.NotFound;
             }
 
             if (request.forceRun || m3uFile.LastDownloadAttempt.AddMinutes(m3uFile.MinimumMinutesBetweenDownloads) < SMDT.UtcNow)
@@ -65,7 +65,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
                         File.Delete(fullName);
                     }
                     jobManager.SetError();
-                    return DefaultAPIResponse.NotFound;
+                    return APIResponse.NotFound;
                 }
             }
 
@@ -80,12 +80,12 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
             //}
             jobManager.SetSuccessful();
 
-            return DefaultAPIResponse.Success;
+            return APIResponse.Success;
         }
         catch
         {
             jobManager.SetError();
-            return DefaultAPIResponse.NotFound;
+            return APIResponse.NotFound;
         }
 
     }

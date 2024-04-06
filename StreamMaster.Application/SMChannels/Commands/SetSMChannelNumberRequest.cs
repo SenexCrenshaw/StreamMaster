@@ -2,14 +2,14 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record SetSMChannelNumberRequest(int SMChannelId, int channelNumber) : IRequest<DefaultAPIResponse>;
+public record SetSMChannelNumberRequest(int SMChannelId, int channelNumber) : IRequest<APIResponse>;
 
 internal class SetSMChannelChannelNumberRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-    : IRequestHandler<SetSMChannelNumberRequest, DefaultAPIResponse>
+    : IRequestHandler<SetSMChannelNumberRequest, APIResponse>
 {
-    public async Task<DefaultAPIResponse> Handle(SetSMChannelNumberRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(SetSMChannelNumberRequest request, CancellationToken cancellationToken)
     {
-        DefaultAPIResponse ret = await Repository.SMChannel.SetSMChannelChannelNumber(request.SMChannelId, request.channelNumber).ConfigureAwait(false);
+        APIResponse ret = await Repository.SMChannel.SetSMChannelChannelNumber(request.SMChannelId, request.channelNumber).ConfigureAwait(false);
         if (ret.IsError)
         {
             await messageService.SendError($"Set number failed {ret.Message}");

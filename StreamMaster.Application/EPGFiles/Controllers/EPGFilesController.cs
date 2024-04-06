@@ -2,15 +2,15 @@
 
 using StreamMaster.Application.EPGFiles.Commands;
 
-namespace StreamMaster.Application.EPGFiles;
+namespace StreamMaster.Application.EPGFiles.Controllers;
 
-public partial class EPGFilesController
+public partial class EPGFilesController : ApiControllerBase
 {
     [HttpPost]
     [Route("[action]")]
-    public async Task<ActionResult<DefaultAPIResponse>> CreateEPGFileFromForm([FromForm] CreateEPGFileRequest request)
+    public async Task<ActionResult<APIResponse>> CreateEPGFileFromForm([FromForm] CreateEPGFileRequest request)
     {
-        DefaultAPIResponse entity = await Sender.Send(request).ConfigureAwait(false);
-        return entity == null ? DefaultAPIResponse.Error : DefaultAPIResponse.Success;
+        APIResponse entity = await Sender.Send(request).ConfigureAwait(false);
+        return entity == null ? APIResponse.Error : APIResponse.Success;
     }
 }

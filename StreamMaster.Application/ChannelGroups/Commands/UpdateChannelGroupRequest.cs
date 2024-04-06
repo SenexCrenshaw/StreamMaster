@@ -6,20 +6,20 @@ namespace StreamMaster.Application.ChannelGroups.Commands;
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record UpdateChannelGroupRequest(int ChannelGroupId, string? NewGroupName, bool? IsHidden, bool? ToggleVisibility)
-    : IRequest<DefaultAPIResponse>
+    : IRequest<APIResponse>
 { }
 
 public class UpdateChannelGroupRequestHandler(IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher, ISender Sender)
-    : IRequestHandler<UpdateChannelGroupRequest, DefaultAPIResponse>
+    : IRequestHandler<UpdateChannelGroupRequest, APIResponse>
 {
-    public async Task<DefaultAPIResponse> Handle(UpdateChannelGroupRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(UpdateChannelGroupRequest request, CancellationToken cancellationToken)
     {
 
         ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupById(request.ChannelGroupId).ConfigureAwait(false);
 
         if (channelGroup == null)
         {
-            return DefaultAPIResponse.NotFound;
+            return APIResponse.NotFound;
         }
 
         bool checkCounts = false;
@@ -63,6 +63,6 @@ public class UpdateChannelGroupRequestHandler(IRepositoryWrapper Repository, IMa
             await Publisher.Publish(new UpdateChannelGroupEvent(dto, request.ToggleVisibility ?? false, nameChanged != null), cancellationToken).ConfigureAwait(false);
         }
 
-        return DefaultAPIResponse.Success;
+        return APIResponse.Success;
     }
 }

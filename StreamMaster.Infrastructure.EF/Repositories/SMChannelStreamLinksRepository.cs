@@ -79,7 +79,7 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
         }
     }
 
-    public async Task<DefaultAPIResponse> SetSMStreamRank(List<SMChannelRankRequest> request)
+    public async Task<APIResponse> SetSMStreamRank(List<SMChannelRankRequest> request)
     {
         foreach (SMChannelRankRequest r in request)
         {
@@ -92,7 +92,7 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
             Update(streamRank);
         }
         await SaveChangesAsync();
-        return DefaultAPIResponse.Success;
+        return APIResponse.Success;
 
     }
 

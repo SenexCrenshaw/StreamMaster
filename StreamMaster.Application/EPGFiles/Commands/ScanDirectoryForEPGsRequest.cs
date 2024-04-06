@@ -2,12 +2,12 @@
 
 namespace StreamMaster.Application.EPGFiles.Commands;
 
-public record ScanDirectoryForEPGFilesRequest : IRequest<DefaultAPIResponse> { }
+public record ScanDirectoryForEPGFilesRequest : IRequest<APIResponse> { }
 
 public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGFilesRequest> Logger, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
-    : IRequestHandler<ScanDirectoryForEPGFilesRequest, DefaultAPIResponse>
+    : IRequestHandler<ScanDirectoryForEPGFilesRequest, APIResponse>
 {
-    public async Task<DefaultAPIResponse> Handle(ScanDirectoryForEPGFilesRequest command, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(ScanDirectoryForEPGFilesRequest command, CancellationToken cancellationToken)
     {
         IEnumerable<FileInfo> epgFiles = GetEPGFilesFromDirectory();
         foreach (FileInfo epgFileInfo in epgFiles)
@@ -16,7 +16,7 @@ public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGF
             await ProcessEPGFile(epgFileInfo, cancellationToken);
         }
 
-        return DefaultAPIResponse.Success;
+        return APIResponse.Success;
     }
 
     private IEnumerable<FileInfo> GetEPGFilesFromDirectory()

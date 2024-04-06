@@ -2,12 +2,12 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record ProcessM3UFilesRequest : IRequest<DefaultAPIResponse> { }
+public record ProcessM3UFilesRequest : IRequest<APIResponse> { }
 
 public class ProcessM3UFilesRequestHandler(ILogger<ProcessM3UFilesRequest> Logger, IRepositoryWrapper Repository, ISender Sender)
-    : IRequestHandler<ProcessM3UFilesRequest, DefaultAPIResponse>
+    : IRequestHandler<ProcessM3UFilesRequest, APIResponse>
 {
-    public async Task<DefaultAPIResponse> Handle(ProcessM3UFilesRequest command, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(ProcessM3UFilesRequest command, CancellationToken cancellationToken)
     {
         try
         {
@@ -15,12 +15,12 @@ public class ProcessM3UFilesRequestHandler(ILogger<ProcessM3UFilesRequest> Logge
             {
                 _ = await Sender.Send(new ProcessM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
             }
-            return DefaultAPIResponse.Success;
+            return APIResponse.Success;
         }
         catch (Exception ex)
         {
             Logger.LogCritical(ex, "Error while processing M3U file");
-            return DefaultAPIResponse.ErrorWithMessage(ex, "Error while processing M3U file");
+            return APIResponse.ErrorWithMessage(ex, "Error while processing M3U file");
         }
     }
 }

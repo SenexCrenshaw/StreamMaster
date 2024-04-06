@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.M3UFiles.Queries;
 
-namespace StreamMaster.Application.M3UFiles
+namespace StreamMaster.Application.M3UFiles.Controllers
 {
     public partial class M3UFilesController(ISender Sender, ILogger<M3UFilesController> _logger) : ApiControllerBase, IM3UFilesController
     {        
@@ -17,41 +17,41 @@ namespace StreamMaster.Application.M3UFiles
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> CreateM3UFile(CreateM3UFileRequest request)
+        public async Task<ActionResult<APIResponse>> CreateM3UFile(CreateM3UFileRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpDelete]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> DeleteM3UFile(DeleteM3UFileRequest request)
+        public async Task<ActionResult<APIResponse>> DeleteM3UFile(DeleteM3UFileRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> ProcessM3UFiles()
+        public async Task<ActionResult<APIResponse>> ProcessM3UFiles()
         {
-            DefaultAPIResponse ret = await Sender.Send(new ProcessM3UFilesRequest()).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(new ProcessM3UFilesRequest()).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> RefreshM3UFile(RefreshM3UFileRequest request)
+        public async Task<ActionResult<APIResponse>> RefreshM3UFile(RefreshM3UFileRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> UpdateM3UFile(UpdateM3UFileRequest request)
+        public async Task<ActionResult<APIResponse>> UpdateM3UFile(UpdateM3UFileRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
@@ -68,39 +68,39 @@ namespace StreamMaster.Application.Hubs
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> CreateM3UFile(CreateM3UFileRequest request)
+        public async Task<APIResponse> CreateM3UFile(CreateM3UFileRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> DeleteM3UFile(DeleteM3UFileRequest request)
+        public async Task<APIResponse> DeleteM3UFile(DeleteM3UFileRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> ProcessM3UFile(ProcessM3UFileRequest request)
+        public async Task<APIResponse> ProcessM3UFile(ProcessM3UFileRequest request)
         {
             await taskQueue.ProcessM3UFile(request).ConfigureAwait(false);
-            return DefaultAPIResponse.Ok;
+            return APIResponse.Ok;
         }
 
-        public async Task<DefaultAPIResponse> ProcessM3UFiles()
+        public async Task<APIResponse> ProcessM3UFiles()
         {
-            DefaultAPIResponse ret = await Sender.Send(new ProcessM3UFilesRequest()).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(new ProcessM3UFilesRequest()).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> RefreshM3UFile(RefreshM3UFileRequest request)
+        public async Task<APIResponse> RefreshM3UFile(RefreshM3UFileRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> UpdateM3UFile(UpdateM3UFileRequest request)
+        public async Task<APIResponse> UpdateM3UFile(UpdateM3UFileRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 

@@ -3,18 +3,18 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record DeleteM3UFileRequest(bool DeleteFile, int Id) : IRequest<DefaultAPIResponse> { }
+public record DeleteM3UFileRequest(bool DeleteFile, int Id) : IRequest<APIResponse> { }
 
 public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, IMessageService messageService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IIconService iconService, IRepositoryWrapper Repository, IPublisher Publisher)
-    : IRequestHandler<DeleteM3UFileRequest, DefaultAPIResponse>
+    : IRequestHandler<DeleteM3UFileRequest, APIResponse>
 {
-    public async Task<DefaultAPIResponse> Handle(DeleteM3UFileRequest request, CancellationToken cancellationToken = default)
+    public async Task<APIResponse> Handle(DeleteM3UFileRequest request, CancellationToken cancellationToken = default)
     {
         M3UFile? m3UFile = await Repository.M3UFile.GetM3UFile(request.Id).ConfigureAwait(false);
         if (m3UFile == null)
         {
             await messageService.SendError("M3U file not found");
-            return DefaultAPIResponse.NotFound;
+            return APIResponse.NotFound;
         }
 
         try
@@ -109,13 +109,13 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
 
             await messageService.SendSuccess("Deleted M3U '" + m3UFile.Name);
 
-            return DefaultAPIResponse.Success;
+            return APIResponse.Success;
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "DeleteM3UFileRequest {request}", request);
             await messageService.SendError("Exception deleting M3U", ex.Message);
-            return DefaultAPIResponse.NotFound;
+            return APIResponse.NotFound;
         }
     }
 }

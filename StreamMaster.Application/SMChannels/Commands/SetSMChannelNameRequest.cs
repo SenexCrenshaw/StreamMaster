@@ -2,13 +2,13 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record SetSMChannelNameRequest(int SMChannelId, string name) : IRequest<DefaultAPIResponse>;
+public record SetSMChannelNameRequest(int SMChannelId, string name) : IRequest<APIResponse>;
 
-internal class SetSMChannelNameRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<SetSMChannelNameRequest, DefaultAPIResponse>
+internal class SetSMChannelNameRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<SetSMChannelNameRequest, APIResponse>
 {
-    public async Task<DefaultAPIResponse> Handle(SetSMChannelNameRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(SetSMChannelNameRequest request, CancellationToken cancellationToken)
     {
-        DefaultAPIResponse ret = await Repository.SMChannel.SetSMChannelName(request.SMChannelId, request.name).ConfigureAwait(false);
+        APIResponse ret = await Repository.SMChannel.SetSMChannelName(request.SMChannelId, request.name).ConfigureAwait(false);
         if (ret.IsError)
         {
             await messageService.SendError($"Set name failed {ret.Message}");

@@ -9,6 +9,8 @@ namespace StreamMaster.Application.Common;
 [V1ApiController("api/[controller]")]
 public abstract class ApiControllerBase : ControllerBase
 {
+    private IMediator _mediator = null!;
+    private ISender _sender = null!;
 
     private IOptionsMonitor<Setting> _intsettings = null!;
     private IOptionsMonitor<HLSSettings> _inthlssettings = null!;
@@ -27,4 +29,7 @@ public abstract class ApiControllerBase : ControllerBase
 
     protected IHubContext<StreamMasterHub, IStreamMasterHub> intHubContext => _intHubContext ??= HttpContext.RequestServices.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>();
     protected IRepositoryWrapper intRepository => _intRepository ??= HttpContext.RequestServices.GetRequiredService<IRepositoryWrapper>();
+
+    protected ISender Sender => _sender ??= HttpContext.RequestServices.GetRequiredService<ISender>();
+    protected IMediator Mediator => _mediator ??= HttpContext.RequestServices.GetRequiredService<IMediator>();
 }

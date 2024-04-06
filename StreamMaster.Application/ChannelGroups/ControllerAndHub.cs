@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using StreamMaster.Application.ChannelGroups.Commands;
 using StreamMaster.Application.ChannelGroups.Queries;
 
-namespace StreamMaster.Application.ChannelGroups
+namespace StreamMaster.Application.ChannelGroups.Controllers
 {
     public partial class ChannelGroupsController(ISender Sender, ILogger<ChannelGroupsController> _logger) : ApiControllerBase, IChannelGroupsController
     {        
@@ -17,33 +17,33 @@ namespace StreamMaster.Application.ChannelGroups
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> CreateChannelGroup(CreateChannelGroupRequest request)
+        public async Task<ActionResult<APIResponse>> CreateChannelGroup(CreateChannelGroupRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpDelete]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request)
+        public async Task<ActionResult<APIResponse>> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpDelete]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> DeleteChannelGroup(DeleteChannelGroupRequest request)
+        public async Task<ActionResult<APIResponse>> DeleteChannelGroup(DeleteChannelGroupRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> UpdateChannelGroup(UpdateChannelGroupRequest request)
+        public async Task<ActionResult<APIResponse>> UpdateChannelGroup(UpdateChannelGroupRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
@@ -60,27 +60,27 @@ namespace StreamMaster.Application.Hubs
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> CreateChannelGroup(CreateChannelGroupRequest request)
+        public async Task<APIResponse> CreateChannelGroup(CreateChannelGroupRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request)
+        public async Task<APIResponse> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> DeleteChannelGroup(DeleteChannelGroupRequest request)
+        public async Task<APIResponse> DeleteChannelGroup(DeleteChannelGroupRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> UpdateChannelGroup(UpdateChannelGroupRequest request)
+        public async Task<APIResponse> UpdateChannelGroup(UpdateChannelGroupRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 

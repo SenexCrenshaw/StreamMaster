@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using StreamMaster.Application.EPGFiles.Commands;
 using StreamMaster.Application.EPGFiles.Queries;
 
-namespace StreamMaster.Application.EPGFiles
+namespace StreamMaster.Application.EPGFiles.Controllers
 {
     public partial class EPGFilesController(ISender Sender, ILogger<EPGFilesController> _logger) : ApiControllerBase, IEPGFilesController
     {        
@@ -13,7 +13,7 @@ namespace StreamMaster.Application.EPGFiles
         {
             try
             {
-            APIResponse<List<EPGColorDto>> ret = await Sender.Send(new GetEPGColorsRequest()).ConfigureAwait(false);
+            DataResponse<List<EPGColorDto>> ret = await Sender.Send(new GetEPGColorsRequest()).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetEPGColors.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
@@ -29,7 +29,7 @@ namespace StreamMaster.Application.EPGFiles
         {
             try
             {
-            APIResponse<List<EPGFilePreviewDto>> ret = await Sender.Send(new GetEPGFilePreviewByIdRequest(Id)).ConfigureAwait(false);
+            DataResponse<List<EPGFilePreviewDto>> ret = await Sender.Send(new GetEPGFilePreviewByIdRequest(Id)).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetEPGFilePreviewById.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
@@ -45,7 +45,7 @@ namespace StreamMaster.Application.EPGFiles
         {
             try
             {
-            APIResponse<int> ret = await Sender.Send(new GetEPGNextEPGNumberRequest()).ConfigureAwait(false);
+            DataResponse<int> ret = await Sender.Send(new GetEPGNextEPGNumberRequest()).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetEPGNextEPGNumber.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
@@ -55,43 +55,51 @@ namespace StreamMaster.Application.EPGFiles
             }
         }
 
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<ActionResult<PagedResponse<EPGFileDto>>> GetPagedEPGFiles([FromQuery] QueryStringParameters Parameters)
+        {
+            PagedResponse<EPGFileDto> ret = await Sender.Send(new GetPagedEPGFilesRequest(Parameters)).ConfigureAwait(false);
+            return ret;
+        }
+
         [HttpPost]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> CreateEPGFile(CreateEPGFileRequest request)
+        public async Task<ActionResult<APIResponse>> CreateEPGFile(CreateEPGFileRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpDelete]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> DeleteEPGFile(DeleteEPGFileRequest request)
+        public async Task<ActionResult<APIResponse>> DeleteEPGFile(DeleteEPGFileRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> ProcessEPGFile(ProcessEPGFileRequest request)
+        public async Task<ActionResult<APIResponse>> ProcessEPGFile(ProcessEPGFileRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> RefreshEPGFile(RefreshEPGFileRequest request)
+        public async Task<ActionResult<APIResponse>> RefreshEPGFile(RefreshEPGFileRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> UpdateEPGFile(UpdateEPGFileRequest request)
+        public async Task<ActionResult<APIResponse>> UpdateEPGFile(UpdateEPGFileRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
@@ -104,49 +112,55 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<EPGColorDto>> GetEPGColors()
         {
-             APIResponse<List<EPGColorDto>> ret = await Sender.Send(new GetEPGColorsRequest()).ConfigureAwait(false);
+             DataResponse<List<EPGColorDto>> ret = await Sender.Send(new GetEPGColorsRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int Id)
         {
-             APIResponse<List<EPGFilePreviewDto>> ret = await Sender.Send(new GetEPGFilePreviewByIdRequest(Id)).ConfigureAwait(false);
+             DataResponse<List<EPGFilePreviewDto>> ret = await Sender.Send(new GetEPGFilePreviewByIdRequest(Id)).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<int> GetEPGNextEPGNumber()
         {
-             APIResponse<int> ret = await Sender.Send(new GetEPGNextEPGNumberRequest()).ConfigureAwait(false);
+             DataResponse<int> ret = await Sender.Send(new GetEPGNextEPGNumberRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
-        public async Task<DefaultAPIResponse> CreateEPGFile(CreateEPGFileRequest request)
+        public async Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(QueryStringParameters Parameters)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            PagedResponse<EPGFileDto> ret = await Sender.Send(new GetPagedEPGFilesRequest(Parameters)).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> DeleteEPGFile(DeleteEPGFileRequest request)
+        public async Task<APIResponse> CreateEPGFile(CreateEPGFileRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> ProcessEPGFile(ProcessEPGFileRequest request)
+        public async Task<APIResponse> DeleteEPGFile(DeleteEPGFileRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> RefreshEPGFile(RefreshEPGFileRequest request)
+        public async Task<APIResponse> ProcessEPGFile(ProcessEPGFileRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> UpdateEPGFile(UpdateEPGFileRequest request)
+        public async Task<APIResponse> RefreshEPGFile(RefreshEPGFileRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> UpdateEPGFile(UpdateEPGFileRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 

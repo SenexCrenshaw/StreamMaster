@@ -1,5 +1,5 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { DefaultAPIResponse,CreateChannelGroupRequest,DeleteAllChannelGroupsFromParametersRequest,DeleteChannelGroupRequest,UpdateChannelGroupRequest,ChannelGroupDto,GetPagedChannelGroupsRequest,APIResponse,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
+import { APIResponse,CreateChannelGroupRequest,DeleteAllChannelGroupsFromParametersRequest,DeleteChannelGroupRequest,UpdateChannelGroupRequest,ChannelGroupDto,GetPagedChannelGroupsRequest,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const GetPagedChannelGroups = async (parameters: QueryStringParameters): Promise<PagedResponse<ChannelGroupDto> | undefined> => {
   const signalRService = SignalRService.getInstance();
@@ -16,23 +16,23 @@ export const GetPagedChannelGroups = async (parameters: QueryStringParameters): 
     });
 };
 
-export const CreateChannelGroup = async (request: CreateChannelGroupRequest): Promise<DefaultAPIResponse | null> => {
+export const CreateChannelGroup = async (request: CreateChannelGroupRequest): Promise<APIResponse | null> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<DefaultAPIResponse>('CreateChannelGroup', request);
+  return await signalRService.invokeHubCommand<APIResponse>('CreateChannelGroup', request);
 };
 
-export const DeleteAllChannelGroupsFromParameters = async (request: DeleteAllChannelGroupsFromParametersRequest): Promise<DefaultAPIResponse | null> => {
+export const DeleteAllChannelGroupsFromParameters = async (request: DeleteAllChannelGroupsFromParametersRequest): Promise<APIResponse | null> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<DefaultAPIResponse>('DeleteAllChannelGroupsFromParameters', request);
+  return await signalRService.invokeHubCommand<APIResponse>('DeleteAllChannelGroupsFromParameters', request);
 };
 
-export const DeleteChannelGroup = async (request: DeleteChannelGroupRequest): Promise<DefaultAPIResponse | null> => {
+export const DeleteChannelGroup = async (request: DeleteChannelGroupRequest): Promise<APIResponse | null> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<DefaultAPIResponse>('DeleteChannelGroup', request);
+  return await signalRService.invokeHubCommand<APIResponse>('DeleteChannelGroup', request);
 };
 
-export const UpdateChannelGroup = async (request: UpdateChannelGroupRequest): Promise<DefaultAPIResponse | null> => {
+export const UpdateChannelGroup = async (request: UpdateChannelGroupRequest): Promise<APIResponse | null> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<DefaultAPIResponse>('UpdateChannelGroup', request);
+  return await signalRService.invokeHubCommand<APIResponse>('UpdateChannelGroup', request);
 };
 

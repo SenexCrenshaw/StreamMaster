@@ -2,13 +2,13 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record SetSMChannelLogoRequest(int SMChannelId, string logo) : IRequest<DefaultAPIResponse>;
+public record SetSMChannelLogoRequest(int SMChannelId, string logo) : IRequest<APIResponse>;
 
-internal class SetSMChannelLogoRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<SetSMChannelLogoRequest, DefaultAPIResponse>
+internal class SetSMChannelLogoRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<SetSMChannelLogoRequest, APIResponse>
 {
-    public async Task<DefaultAPIResponse> Handle(SetSMChannelLogoRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(SetSMChannelLogoRequest request, CancellationToken cancellationToken)
     {
-        DefaultAPIResponse ret = await Repository.SMChannel.SetSMChannelLogo(request.SMChannelId, request.logo).ConfigureAwait(false);
+        APIResponse ret = await Repository.SMChannel.SetSMChannelLogo(request.SMChannelId, request.logo).ConfigureAwait(false);
         if (ret.IsError)
         {
             await messageService.SendError($"Set logo failed {ret.Message}");

@@ -3,21 +3,15 @@
 using Microsoft.EntityFrameworkCore;
 
 namespace StreamMaster.Application.ChannelGroups.Commands;
-public record UpdateChannelGroupCountRequest(ChannelGroupDto ChannelGroupDto, bool Publish) : IRequest<ChannelGroupDto> { }
+public record UpdateChannelGroupCountRequest(ChannelGroupDto ChannelGroupDto, bool Publish)
+    : IRequest<DataResponse<ChannelGroupDto>>
+{ }
 
 [LogExecutionTimeAspect]
-public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCountRequest> logger, IRepositoryWrapper repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache MemoryCache) : IRequestHandler<UpdateChannelGroupCountRequest, ChannelGroupDto>
+public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCountRequest> logger, IRepositoryWrapper repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache MemoryCache)
+    : IRequestHandler<UpdateChannelGroupCountRequest, DataResponse<ChannelGroupDto>>
 {
-    /// <summary>
-    /// Updates the video stream counts (total, active, and hidden) for a given channel group based on the provided request.
-    /// If changes are detected, it updates the in-memory cache and optionally sends an update to connected clients.
-    /// </summary>
-    /// <param name="request">The request containing details of the channel group to be updated.</param>
-    /// <param name="cancellationToken">A token to observe while waiting for the task to complete, used for cancelling the operation if needed.</param>
-    /// <returns>Returns true if at least one count was changed and updated; otherwise returns false.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when the provided request or its ChannelGroupDto property is null.</exception>
-    /// <exception cref="Exception">Thrown when there's an error processing the request, typically related to database operations.</exception>
-    public async Task<ChannelGroupDto> Handle(UpdateChannelGroupCountRequest request, CancellationToken cancellationToken)
+    public async Task<DataResponse<ChannelGroupDto>> Handle(UpdateChannelGroupCountRequest request, CancellationToken cancellationToken)
     {
         try
         {
@@ -69,7 +63,7 @@ public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCou
                 }
             }
 
-            return request.ChannelGroupDto;
+            return DataResponse<ChannelGroupDto>.Success(request.ChannelGroupDto);
         }
         catch (Exception ex)
         {

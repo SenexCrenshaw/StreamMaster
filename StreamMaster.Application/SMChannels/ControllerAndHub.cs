@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using StreamMaster.Application.SMChannels.Commands;
 using StreamMaster.Application.SMChannels.Queries;
 
-namespace StreamMaster.Application.SMChannels
+namespace StreamMaster.Application.SMChannels.Controllers
 {
     public partial class SMChannelsController(ISender Sender, ILogger<SMChannelsController> _logger) : ApiControllerBase, ISMChannelsController
     {        
@@ -17,81 +17,81 @@ namespace StreamMaster.Application.SMChannels
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> AddSMStreamToSMChannel(AddSMStreamToSMChannelRequest request)
+        public async Task<ActionResult<APIResponse>> AddSMStreamToSMChannel(AddSMStreamToSMChannelRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> CreateSMChannelFromStream(CreateSMChannelFromStreamRequest request)
+        public async Task<ActionResult<APIResponse>> CreateSMChannelFromStream(CreateSMChannelFromStreamRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpDelete]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> DeleteSMChannel(DeleteSMChannelRequest request)
+        public async Task<ActionResult<APIResponse>> DeleteSMChannel(DeleteSMChannelRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpDelete]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> DeleteSMChannelsFromParameters(DeleteSMChannelsFromParametersRequest request)
+        public async Task<ActionResult<APIResponse>> DeleteSMChannelsFromParameters(DeleteSMChannelsFromParametersRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpDelete]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> DeleteSMChannels(DeleteSMChannelsRequest request)
+        public async Task<ActionResult<APIResponse>> DeleteSMChannels(DeleteSMChannelsRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpDelete]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> RemoveSMStreamFromSMChannel(RemoveSMStreamFromSMChannelRequest request)
+        public async Task<ActionResult<APIResponse>> RemoveSMStreamFromSMChannel(RemoveSMStreamFromSMChannelRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> SetSMChannelLogo(SetSMChannelLogoRequest request)
+        public async Task<ActionResult<APIResponse>> SetSMChannelLogo(SetSMChannelLogoRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> SetSMChannelName(SetSMChannelNameRequest request)
+        public async Task<ActionResult<APIResponse>> SetSMChannelName(SetSMChannelNameRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> SetSMChannelNumber(SetSMChannelNumberRequest request)
+        public async Task<ActionResult<APIResponse>> SetSMChannelNumber(SetSMChannelNumberRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> SetSMStreamRanks(SetSMStreamRanksRequest request)
+        public async Task<ActionResult<APIResponse>> SetSMStreamRanks(SetSMStreamRanksRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
@@ -108,63 +108,63 @@ namespace StreamMaster.Application.Hubs
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> AddSMStreamToSMChannel(AddSMStreamToSMChannelRequest request)
+        public async Task<APIResponse> AddSMStreamToSMChannel(AddSMStreamToSMChannelRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> CreateSMChannelFromStream(CreateSMChannelFromStreamRequest request)
+        public async Task<APIResponse> CreateSMChannelFromStream(CreateSMChannelFromStreamRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> DeleteSMChannel(DeleteSMChannelRequest request)
+        public async Task<APIResponse> DeleteSMChannel(DeleteSMChannelRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> DeleteSMChannelsFromParameters(DeleteSMChannelsFromParametersRequest request)
+        public async Task<APIResponse> DeleteSMChannelsFromParameters(DeleteSMChannelsFromParametersRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> DeleteSMChannels(DeleteSMChannelsRequest request)
+        public async Task<APIResponse> DeleteSMChannels(DeleteSMChannelsRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> RemoveSMStreamFromSMChannel(RemoveSMStreamFromSMChannelRequest request)
+        public async Task<APIResponse> RemoveSMStreamFromSMChannel(RemoveSMStreamFromSMChannelRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> SetSMChannelLogo(SetSMChannelLogoRequest request)
+        public async Task<APIResponse> SetSMChannelLogo(SetSMChannelLogoRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> SetSMChannelName(SetSMChannelNameRequest request)
+        public async Task<APIResponse> SetSMChannelName(SetSMChannelNameRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> SetSMChannelNumber(SetSMChannelNumberRequest request)
+        public async Task<APIResponse> SetSMChannelNumber(SetSMChannelNumberRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> SetSMStreamRanks(SetSMStreamRanksRequest request)
+        public async Task<APIResponse> SetSMStreamRanks(SetSMStreamRanksRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 

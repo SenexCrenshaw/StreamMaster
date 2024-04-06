@@ -2,15 +2,15 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record GetEPGNextEPGNumberRequest() : IRequest<APIResponse<int>>;
+public record GetEPGNextEPGNumberRequest() : IRequest<DataResponse<int>>;
 
 internal class GetEPGNextEPGNumberHandler(IRepositoryWrapper Repository)
-    : IRequestHandler<GetEPGNextEPGNumberRequest, APIResponse<int>>
+    : IRequestHandler<GetEPGNextEPGNumberRequest, DataResponse<int>>
 {
-    public async Task<APIResponse<int>> Handle(GetEPGNextEPGNumberRequest request, CancellationToken cancellationToken = default)
+    public async Task<DataResponse<int>> Handle(GetEPGNextEPGNumberRequest request, CancellationToken cancellationToken = default)
     {
         int nextAvailableNumber = await Repository.EPGFile.GetNextAvailableEPGNumberAsync(cancellationToken).ConfigureAwait(false);
 
-        return APIResponse<int>.Success(nextAvailableNumber);
+        return DataResponse<int>.Success(nextAvailableNumber);
     }
 }

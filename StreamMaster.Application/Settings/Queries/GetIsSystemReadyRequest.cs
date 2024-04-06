@@ -2,12 +2,12 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record GetIsSystemReadyRequest : IRequest<APIResponse<bool>>;
+public record GetIsSystemReadyRequest : IRequest<DataResponse<bool>>;
 
-internal class GetIsSystemReadyRequestHandler : IRequestHandler<GetIsSystemReadyRequest, APIResponse<bool>>
+internal class GetIsSystemReadyRequestHandler : IRequestHandler<GetIsSystemReadyRequest, DataResponse<bool>>
 {
-    public Task<APIResponse<bool>> Handle(GetIsSystemReadyRequest request, CancellationToken cancellationToken)
+    public Task<DataResponse<bool>> Handle(GetIsSystemReadyRequest request, CancellationToken cancellationToken)
     {
-        return Task.FromResult(BuildInfo.SetIsSystemReady ? APIResponse.True : APIResponse.False);
+        return Task.FromResult(BuildInfo.SetIsSystemReady ? DataResponse.True : DataResponse.False);
     }
 }

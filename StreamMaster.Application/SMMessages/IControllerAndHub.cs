@@ -5,11 +5,11 @@ namespace StreamMaster.Application.SMMessages
 {
     public interface ISMMessagesController
     {        
-        Task<ActionResult<DefaultAPIResponse>> SendSMError(SendSMErrorRequest request);
-        Task<ActionResult<DefaultAPIResponse>> SendSMInfo(SendSMInfoRequest request);
-        Task<ActionResult<DefaultAPIResponse>> SendSMMessage(SendSMMessageRequest request);
-        Task<ActionResult<DefaultAPIResponse>> SendSMWarn(SendSMWarnRequest request);
-        Task<ActionResult<DefaultAPIResponse>> SendSuccess(SendSuccessRequest request);
+        Task<ActionResult<APIResponse>> SendSMError(SendSMErrorRequest request);
+        Task<ActionResult<APIResponse>> SendSMInfo(SendSMInfoRequest request);
+        Task<ActionResult<APIResponse>> SendSMMessage(SendSMMessageRequest request);
+        Task<ActionResult<APIResponse>> SendSMWarn(SendSMWarnRequest request);
+        Task<ActionResult<APIResponse>> SendSuccess(SendSuccessRequest request);
     }
 }
 
@@ -17,10 +17,10 @@ namespace StreamMaster.Application.Hubs
 {
     public interface ISMMessagesHub
     {
-        Task<DefaultAPIResponse> SendSMError(SendSMErrorRequest request);
-        Task<DefaultAPIResponse> SendSMInfo(SendSMInfoRequest request);
-        Task<DefaultAPIResponse> SendSMMessage(SendSMMessageRequest request);
-        Task<DefaultAPIResponse> SendSMWarn(SendSMWarnRequest request);
-        Task<DefaultAPIResponse> SendSuccess(SendSuccessRequest request);
+        Task<APIResponse> SendSMError(SendSMErrorRequest request);
+        Task<APIResponse> SendSMInfo(SendSMInfoRequest request);
+        Task<APIResponse> SendSMMessage(SendSMMessageRequest request);
+        Task<APIResponse> SendSMWarn(SendSMWarnRequest request);
+        Task<APIResponse> SendSuccess(SendSuccessRequest request);
     }
 }

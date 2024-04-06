@@ -3,13 +3,13 @@
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record UpdateM3UFileRequest(int? MaxStreamCount, int? StartingChannelNumber, bool? OverWriteChannels, List<string>? VODTags, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url)
-    : IRequest<DefaultAPIResponse>;
+    : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
-    : IRequestHandler<UpdateM3UFileRequest, DefaultAPIResponse>
+    : IRequestHandler<UpdateM3UFileRequest, APIResponse>
 {
-    public async Task<DefaultAPIResponse> Handle(UpdateM3UFileRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(UpdateM3UFileRequest request, CancellationToken cancellationToken)
     {
         try
         {
@@ -17,7 +17,7 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, ISender 
             M3UFile? m3uFile = await Repository.M3UFile.GetM3UFile(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
             {
-                return DefaultAPIResponse.NotFound;
+                return APIResponse.NotFound;
             }
 
             bool needsUpdate = false;
@@ -95,11 +95,11 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, ISender 
                 await HubContext.Clients.All.SetField(ret).ConfigureAwait(false);
             }
 
-            return DefaultAPIResponse.Success;
+            return APIResponse.Success;
         }
         catch (Exception ex)
         {
-            return DefaultAPIResponse.ErrorWithMessage(ex, $"Failed M3U update");
+            return APIResponse.ErrorWithMessage(ex, $"Failed M3U update");
         }
 
     }

@@ -2,12 +2,12 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record DeleteEPGFileRequest(bool DeleteFile, int Id) : IRequest<DefaultAPIResponse> { }
+public record DeleteEPGFileRequest(bool DeleteFile, int Id) : IRequest<APIResponse> { }
 
 public class DeleteEPGFileRequestHandler(ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper Repository, IPublisher Publisher)
-    : IRequestHandler<DeleteEPGFileRequest, DefaultAPIResponse>
+    : IRequestHandler<DeleteEPGFileRequest, APIResponse>
 {
-    public async Task<DefaultAPIResponse> Handle(DeleteEPGFileRequest request, CancellationToken cancellationToken = default)
+    public async Task<APIResponse> Handle(DeleteEPGFileRequest request, CancellationToken cancellationToken = default)
     {
         EPGFileDto? epgFile = await Repository.EPGFile.DeleteEPGFile(request.Id);
 
@@ -48,6 +48,6 @@ public class DeleteEPGFileRequestHandler(ISchedulesDirectDataService schedulesDi
         //MemoryCache.SetSyncForceNextRun(Extra: true);
 
 
-        return DefaultAPIResponse.Success;
+        return APIResponse.Success;
     }
 }

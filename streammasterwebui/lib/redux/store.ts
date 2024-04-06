@@ -30,6 +30,7 @@ import GetSystemStatus from '@lib/smAPI/Settings/GetSystemStatusSlice';
 import GetEPGColorsSlice from '@lib/smAPI/EPGFiles/GetEPGColorsSlice';
 import GetEPGFilePreviewById from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
 import GetEPGNextEPGNumber from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
+import GetPagedEPGFiles from '@lib/smAPI/EPGFiles/GetPagedEPGFilesSlice';
 
 import GetPagedStreamGroups from '@lib/smAPI/StreamGroups/GetPagedStreamGroupsSlice';
 
@@ -124,6 +125,7 @@ const rootReducer = combineReducers({
   SMChannelReducer: SMChannelReducer,
   SMStreamReducer: SMStreamReducer,
   GetEPGColors: GetEPGColorsSlice,
+  GetPagedEPGFiles: GetPagedEPGFiles,
   GetEPGFilePreviewById: GetEPGFilePreviewById,
   GetEPGNextEPGNumber: GetEPGNextEPGNumber,
   selectUpdateSettingRequest: persistReducer(selectUpdateSettingRequestSliceConfig, selectUpdateSettingRequestReducer),

@@ -9,11 +9,12 @@ namespace StreamMaster.Application.EPGFiles
         Task<ActionResult<List<EPGColorDto>>> GetEPGColors();
         Task<ActionResult<List<EPGFilePreviewDto>>> GetEPGFilePreviewById(int Id);
         Task<ActionResult<int>> GetEPGNextEPGNumber();
-        Task<ActionResult<DefaultAPIResponse>> CreateEPGFile(CreateEPGFileRequest request);
-        Task<ActionResult<DefaultAPIResponse>> DeleteEPGFile(DeleteEPGFileRequest request);
-        Task<ActionResult<DefaultAPIResponse>> ProcessEPGFile(ProcessEPGFileRequest request);
-        Task<ActionResult<DefaultAPIResponse>> RefreshEPGFile(RefreshEPGFileRequest request);
-        Task<ActionResult<DefaultAPIResponse>> UpdateEPGFile(UpdateEPGFileRequest request);
+        Task<ActionResult<PagedResponse<EPGFileDto>>> GetPagedEPGFiles(QueryStringParameters Parameters);
+        Task<ActionResult<APIResponse>> CreateEPGFile(CreateEPGFileRequest request);
+        Task<ActionResult<APIResponse>> DeleteEPGFile(DeleteEPGFileRequest request);
+        Task<ActionResult<APIResponse>> ProcessEPGFile(ProcessEPGFileRequest request);
+        Task<ActionResult<APIResponse>> RefreshEPGFile(RefreshEPGFileRequest request);
+        Task<ActionResult<APIResponse>> UpdateEPGFile(UpdateEPGFileRequest request);
     }
 }
 
@@ -24,10 +25,11 @@ namespace StreamMaster.Application.Hubs
         Task<List<EPGColorDto>> GetEPGColors();
         Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int Id);
         Task<int> GetEPGNextEPGNumber();
-        Task<DefaultAPIResponse> CreateEPGFile(CreateEPGFileRequest request);
-        Task<DefaultAPIResponse> DeleteEPGFile(DeleteEPGFileRequest request);
-        Task<DefaultAPIResponse> ProcessEPGFile(ProcessEPGFileRequest request);
-        Task<DefaultAPIResponse> RefreshEPGFile(RefreshEPGFileRequest request);
-        Task<DefaultAPIResponse> UpdateEPGFile(UpdateEPGFileRequest request);
+        Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(QueryStringParameters Parameters);
+        Task<APIResponse> CreateEPGFile(CreateEPGFileRequest request);
+        Task<APIResponse> DeleteEPGFile(DeleteEPGFileRequest request);
+        Task<APIResponse> ProcessEPGFile(ProcessEPGFileRequest request);
+        Task<APIResponse> RefreshEPGFile(RefreshEPGFileRequest request);
+        Task<APIResponse> UpdateEPGFile(UpdateEPGFileRequest request);
     }
 }

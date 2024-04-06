@@ -4,14 +4,14 @@ namespace StreamMaster.Application.SMChannels.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record DeleteSMChannelRequest(int smChannelId) : IRequest<DefaultAPIResponse>;
+public record DeleteSMChannelRequest(int smChannelId) : IRequest<APIResponse>;
 
 internal class DeleteSMChannelRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor)
-    : IRequestHandler<DeleteSMChannelRequest, DefaultAPIResponse>
+    : IRequestHandler<DeleteSMChannelRequest, APIResponse>
 {
-    public async Task<DefaultAPIResponse> Handle(DeleteSMChannelRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(DeleteSMChannelRequest request, CancellationToken cancellationToken)
     {
-        DefaultAPIResponse ret = await Repository.SMChannel.DeleteSMChannel(request.smChannelId);
+        APIResponse ret = await Repository.SMChannel.DeleteSMChannel(request.smChannelId);
         if (ret.IsError)
         {
             await messageService.SendError($"Could not delete channel", ret.ErrorMessage);

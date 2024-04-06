@@ -42,7 +42,6 @@ useEffect(() => {
     SetIsForced(true);
   }
 }, [SetIsForced, data, dispatch]);
-
 useEffect(() => {
   const state = store.getState().GetIcons;
   if (state.isLoading) return;

@@ -4,13 +4,13 @@ namespace StreamMaster.Application.SMChannels.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record SetSMStreamRanksRequest(List<SMChannelRankRequest> requests) : IRequest<DefaultAPIResponse>;
+public record SetSMStreamRanksRequest(List<SMChannelRankRequest> requests) : IRequest<APIResponse>;
 
-internal class SetSMStreamRanksRequestHandler(IRepositoryWrapper Repository, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor) : IRequestHandler<SetSMStreamRanksRequest, DefaultAPIResponse>
+internal class SetSMStreamRanksRequestHandler(IRepositoryWrapper Repository, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor) : IRequestHandler<SetSMStreamRanksRequest, APIResponse>
 {
-    public async Task<DefaultAPIResponse> Handle(SetSMStreamRanksRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(SetSMStreamRanksRequest request, CancellationToken cancellationToken)
     {
-        DefaultAPIResponse ret = await Repository.SMChannel.SetSMStreamRanks(request.requests).ConfigureAwait(false);
+        APIResponse ret = await Repository.SMChannel.SetSMStreamRanks(request.requests).ConfigureAwait(false);
         if (!ret.IsError)
         {
             List<FieldData> fieldDatas = [];
@@ -19,8 +19,8 @@ internal class SetSMStreamRanksRequestHandler(IRepositoryWrapper Repository, ISe
                 SMChannel? channel = Repository.SMChannel.GetSMChannel(smChannelId);
                 if (channel != null)
                 {
-                    List<SMStreamDto> streams = await Sender.Send(new UpdateStreamRanksRequest(channel.Id, channel.SMStreams.Select(a => a.SMStream).ToList()));
-                    FieldData fd = new(nameof(SMChannelDto), channel.Id.ToString(), "smStreams", streams);
+                    DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(channel.Id, channel.SMStreams.Select(a => a.SMStream).ToList()));
+                    FieldData fd = new(nameof(SMChannelDto), channel.Id.ToString(), "smStreams", streams.Data);
                     fieldDatas.Add(fd);
                 }
 

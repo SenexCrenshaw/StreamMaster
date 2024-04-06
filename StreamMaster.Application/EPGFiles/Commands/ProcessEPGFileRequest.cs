@@ -2,18 +2,18 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record ProcessEPGFileRequest(int Id) : IRequest<DefaultAPIResponse> { }
+public record ProcessEPGFileRequest(int Id) : IRequest<APIResponse> { }
 
 public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger, IRepositoryWrapper repository, IJobStatusService jobStatusService, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
-    : IRequestHandler<ProcessEPGFileRequest, DefaultAPIResponse>
+    : IRequestHandler<ProcessEPGFileRequest, APIResponse>
 {
     [LogExecutionTimeAspect]
-    public async Task<DefaultAPIResponse> Handle(ProcessEPGFileRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(ProcessEPGFileRequest request, CancellationToken cancellationToken)
     {
         JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.ProcessEPG, request.Id);
         if (jobManager.IsRunning)
         {
-            return DefaultAPIResponse.NotFound;
+            return APIResponse.NotFound;
         }
 
         EPGFile? epgFile = null;
@@ -24,7 +24,7 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
             if (epgFile == null)
             {
                 jobManager.SetError();
-                return DefaultAPIResponse.NotFound;
+                return APIResponse.NotFound;
             }
 
             XMLTV? tv = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.EPGNumber);
@@ -46,14 +46,14 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
 
             await Publisher.Publish(new EPGFileProcessedEvent(ret), cancellationToken).ConfigureAwait(false);
             jobManager.SetSuccessful();
-            return DefaultAPIResponse.Success;
+            return APIResponse.Success;
         }
 
         catch (Exception ex)
         {
             jobManager.SetError();
             logger.LogCritical(ex, "Error while processing EPG file");
-            return DefaultAPIResponse.ErrorWithMessage(ex, "Error while processing EPG file");
+            return APIResponse.ErrorWithMessage(ex, "Error while processing EPG file");
 
         }
         finally

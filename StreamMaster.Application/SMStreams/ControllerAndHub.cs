@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using StreamMaster.Application.SMStreams.Commands;
 using StreamMaster.Application.SMStreams.Queries;
 
-namespace StreamMaster.Application.SMStreams
+namespace StreamMaster.Application.SMStreams.Controllers
 {
     public partial class SMStreamsController(ISender Sender, ILogger<SMStreamsController> _logger) : ApiControllerBase, ISMStreamsController
     {        
@@ -17,9 +17,9 @@ namespace StreamMaster.Application.SMStreams
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<DefaultAPIResponse>> ToggleSMStreamVisibleById(ToggleSMStreamVisibleByIdRequest request)
+        public async Task<ActionResult<APIResponse>> ToggleSMStreamVisibleById(ToggleSMStreamVisibleByIdRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
@@ -36,9 +36,9 @@ namespace StreamMaster.Application.Hubs
             return ret;
         }
 
-        public async Task<DefaultAPIResponse> ToggleSMStreamVisibleById(ToggleSMStreamVisibleByIdRequest request)
+        public async Task<APIResponse> ToggleSMStreamVisibleById(ToggleSMStreamVisibleByIdRequest request)
         {
-            DefaultAPIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 

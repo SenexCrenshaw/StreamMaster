@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using StreamMaster.Application.StreamGroups.Queries;
 
-namespace StreamMaster.Application.StreamGroups
+namespace StreamMaster.Application.StreamGroups.Controllers
 {
     public partial class StreamGroupsController(ISender Sender, ILogger<StreamGroupsController> _logger) : ApiControllerBase, IStreamGroupsController
     {        

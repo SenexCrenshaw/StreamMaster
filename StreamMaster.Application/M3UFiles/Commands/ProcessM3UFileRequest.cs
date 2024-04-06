@@ -2,12 +2,12 @@
 
 [SMAPI(JustHub: true, IsTask: true)]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record ProcessM3UFileRequest(int M3UFileId, bool ForceRun = false) : IRequest<DefaultAPIResponse>;
+public record ProcessM3UFileRequest(int M3UFileId, bool ForceRun = false) : IRequest<APIResponse>;
 
 internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IMessageService messageSevice, IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-    : IRequestHandler<ProcessM3UFileRequest, DefaultAPIResponse>
+    : IRequestHandler<ProcessM3UFileRequest, APIResponse>
 {
-    public async Task<DefaultAPIResponse> Handle(ProcessM3UFileRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(ProcessM3UFileRequest request, CancellationToken cancellationToken)
     {
         try
         {
@@ -15,7 +15,7 @@ internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logge
             if (m3uFile == null)
             {
                 await messageSevice.SendError("Process M3U Not Found");
-                return DefaultAPIResponse.NotFound;
+                return APIResponse.NotFound;
             }
 
             await hubContext.Clients.All.DataRefresh("M3UFileDto").ConfigureAwait(false);
@@ -23,13 +23,13 @@ internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logge
             await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
 
             await messageSevice.SendSuccess("Processed M3U '" + m3uFile.Name + "' successfully");
-            return DefaultAPIResponse.Success;
+            return APIResponse.Success;
         }
         catch (Exception ex)
         {
             logger.LogCritical(ex, "Process M3U Error");
             await messageSevice.SendError("Error Processing M3U", ex.Message);
-            return DefaultAPIResponse.NotFound; ;
+            return APIResponse.NotFound; ;
         }
     }
 }

@@ -13,7 +13,7 @@ interface Result extends ExtendedQueryHookResult {
   SetIsForced: (force: boolean) => void;
   SetIsLoading: (isLoading: boolean, query: string) => void;
 }
-const useGetEPGFilePreviewById = (params?: GetApiArgument | undefined): Result => {
+const useGetEPGFilePreviewById = (): Result => {
   const dispatch = useAppDispatch();
   const data = useAppSelector((state) => state.GetEPGFilePreviewById.data);
   const error = useAppSelector((state) => state.GetEPGFilePreviewById.error ?? '');
@@ -42,7 +42,6 @@ useEffect(() => {
     SetIsForced(true);
   }
 }, [SetIsForced, data, dispatch]);
-
 
 const SetField = (fieldData: FieldData): void => {
   dispatch(setField({ fieldData: fieldData }));

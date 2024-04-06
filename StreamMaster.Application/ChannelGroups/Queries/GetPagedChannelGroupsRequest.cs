@@ -18,7 +18,7 @@ internal class GetPagedChannelGroupsQueryHandler(IRepositoryWrapper Repository, 
         }
         PagedResponse<ChannelGroup> paged = await Repository.ChannelGroup.GetPagedChannelGroups(request.Parameters).ConfigureAwait(false);
         PagedResponse<ChannelGroupDto> dto = paged.ToPagedResponseDto<ChannelGroup, ChannelGroupDto>(Mapper);
-        dto.Data = await Sender.Send(new UpdateChannelGroupCountsRequest(dto.Data), cancellationToken).ConfigureAwait(false);
+        dto.Data = (await Sender.Send(new UpdateChannelGroupCountsRequest(dto.Data), cancellationToken).ConfigureAwait(false)).Data;
         return dto;
     }
 }

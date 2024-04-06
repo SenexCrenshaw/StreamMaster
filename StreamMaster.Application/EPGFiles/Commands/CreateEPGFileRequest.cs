@@ -8,17 +8,17 @@ namespace StreamMaster.Application.EPGFiles.Commands;
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record CreateEPGFileRequest(IFormFile? FormFile, string Name, string FileName, int EPGNumber, int? TimeShift, string? UrlSource, string? Color)
-    : IRequest<DefaultAPIResponse>
+    : IRequest<APIResponse>
 { }
 
 public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
-    : IRequestHandler<CreateEPGFileRequest, DefaultAPIResponse>
+    : IRequestHandler<CreateEPGFileRequest, APIResponse>
 {
-    public async Task<DefaultAPIResponse> Handle(CreateEPGFileRequest command, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(CreateEPGFileRequest command, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(command.UrlSource) && command.FormFile != null && command.FormFile.Length <= 0)
         {
-            return DefaultAPIResponse.NotFound;
+            return APIResponse.NotFound;
         }
 
         try
@@ -90,7 +90,7 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, I
                 {
                     File.Delete(fullName);
                 }
-                return DefaultAPIResponse.ErrorWithMessage($"Exception EPG {fullName} format is not supported");
+                return APIResponse.ErrorWithMessage($"Exception EPG {fullName} format is not supported");
             }
 
             epgFile.ChannelCount = tv.Channels != null ? tv.Channels.Count : 0;
@@ -107,12 +107,12 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, I
             EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);
             await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
 
-            return DefaultAPIResponse.Success;
+            return APIResponse.Success;
         }
         catch (Exception exception)
         {
             Logger.LogCritical("Exception EPG From Form {exception}", exception);
-            return DefaultAPIResponse.ErrorWithMessage(exception, "Exception EPG From Form");
+            return APIResponse.ErrorWithMessage(exception, "Exception EPG From Form");
         }
 
     }

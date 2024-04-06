@@ -7,11 +7,11 @@ namespace StreamMaster.Application.M3UFiles
     public interface IM3UFilesController
     {        
         Task<ActionResult<PagedResponse<M3UFileDto>>> GetPagedM3UFiles(QueryStringParameters Parameters);
-        Task<ActionResult<DefaultAPIResponse>> CreateM3UFile(CreateM3UFileRequest request);
-        Task<ActionResult<DefaultAPIResponse>> DeleteM3UFile(DeleteM3UFileRequest request);
-        Task<ActionResult<DefaultAPIResponse>> ProcessM3UFiles();
-        Task<ActionResult<DefaultAPIResponse>> RefreshM3UFile(RefreshM3UFileRequest request);
-        Task<ActionResult<DefaultAPIResponse>> UpdateM3UFile(UpdateM3UFileRequest request);
+        Task<ActionResult<APIResponse>> CreateM3UFile(CreateM3UFileRequest request);
+        Task<ActionResult<APIResponse>> DeleteM3UFile(DeleteM3UFileRequest request);
+        Task<ActionResult<APIResponse>> ProcessM3UFiles();
+        Task<ActionResult<APIResponse>> RefreshM3UFile(RefreshM3UFileRequest request);
+        Task<ActionResult<APIResponse>> UpdateM3UFile(UpdateM3UFileRequest request);
     }
 }
 
@@ -20,11 +20,11 @@ namespace StreamMaster.Application.Hubs
     public interface IM3UFilesHub
     {
         Task<PagedResponse<M3UFileDto>> GetPagedM3UFiles(QueryStringParameters Parameters);
-        Task<DefaultAPIResponse> CreateM3UFile(CreateM3UFileRequest request);
-        Task<DefaultAPIResponse> DeleteM3UFile(DeleteM3UFileRequest request);
-        Task<DefaultAPIResponse> ProcessM3UFile(ProcessM3UFileRequest request);
-        Task<DefaultAPIResponse> ProcessM3UFiles();
-        Task<DefaultAPIResponse> RefreshM3UFile(RefreshM3UFileRequest request);
-        Task<DefaultAPIResponse> UpdateM3UFile(UpdateM3UFileRequest request);
+        Task<APIResponse> CreateM3UFile(CreateM3UFileRequest request);
+        Task<APIResponse> DeleteM3UFile(DeleteM3UFileRequest request);
+        Task<APIResponse> ProcessM3UFile(ProcessM3UFileRequest request);
+        Task<APIResponse> ProcessM3UFiles();
+        Task<APIResponse> RefreshM3UFile(RefreshM3UFileRequest request);
+        Task<APIResponse> UpdateM3UFile(UpdateM3UFileRequest request);
     }
 }

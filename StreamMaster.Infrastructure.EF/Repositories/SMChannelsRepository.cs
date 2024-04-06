@@ -36,24 +36,24 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         await SaveChangesAsync();
     }
 
-    public async Task<DefaultAPIResponse> DeleteSMChannel(int smchannelId)
+    public async Task<APIResponse> DeleteSMChannel(int smchannelId)
     {
         try
         {
             SMChannel? channel = await FirstOrDefaultAsync(a => a.Id == smchannelId);
             if (channel == null)
             {
-                return DefaultAPIResponse.ErrorWithMessage("SMChannel not found");
+                return APIResponse.ErrorWithMessage("SMChannel not found");
             }
 
             Delete(channel);
             await SaveChangesAsync();
-            return DefaultAPIResponse.OkWithMessage(channel.Name);
+            return APIResponse.OkWithMessage(channel.Name);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error deleting SMChannel with id {smchannelId}", smchannelId);
-            return DefaultAPIResponse.ErrorWithMessage(ex, $"Error deleting SMChannel with id {smchannelId}");
+            return APIResponse.ErrorWithMessage(ex, $"Error deleting SMChannel with id {smchannelId}");
         }
 
     }
@@ -69,12 +69,12 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return FirstOrDefault(a => a.Id == smchannelId, tracking: false);
     }
 
-    public async Task<DefaultAPIResponse> CreateSMChannelFromStream(string streamId)
+    public async Task<APIResponse> CreateSMChannelFromStream(string streamId)
     {
         SMStreamDto? smStream = repository.SMStream.GetSMStream(streamId);
         if (smStream == null)
         {
-            return DefaultAPIResponse.NotFound;
+            return APIResponse.NotFound;
         }
 
         SMChannel smChannel = new()
@@ -90,20 +90,20 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         await CreateSMChannel(smChannel);
 
         await repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel.Id, smStream.Id);
-        return DefaultAPIResponse.Success;
+        return APIResponse.Success;
     }
 
-    public async Task<DefaultAPIResponse> DeleteSMChannels(List<int> smchannelIds)
+    public async Task<APIResponse> DeleteSMChannels(List<int> smchannelIds)
     {
         IQueryable<SMChannel> toDelete = GetQuery(true).Where(a => smchannelIds.Contains(a.Id));
         if (!toDelete.Any())
         {
-            return DefaultAPIResponse.NotFound;
+            return APIResponse.NotFound;
         }
 
         await DeleteSMChannelsAsync(toDelete);
 
-        return DefaultAPIResponse.Success;
+        return APIResponse.Success;
     }
 
 
@@ -131,50 +131,50 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return [];
     }
 
-    public async Task<DefaultAPIResponse> AddSMStreamToSMChannel(int SMChannelId, string SMStreamId)
+    public async Task<APIResponse> AddSMStreamToSMChannel(int SMChannelId, string SMStreamId)
     {
         if (GetSMChannel(SMChannelId) == null || repository.SMStream.GetSMStream(SMStreamId) == null)
         {
-            return DefaultAPIResponse.NotFound;
+            return APIResponse.NotFound;
         }
 
         await repository.SMChannelStreamLink.CreateSMChannelStreamLink(SMChannelId, SMStreamId);
         await SaveChangesAsync();
 
-        return DefaultAPIResponse.Success;
+        return APIResponse.Success;
     }
 
-    public async Task<DefaultAPIResponse> RemoveSMStreamFromSMChannel(int SMChannelId, string SMStreamId)
+    public async Task<APIResponse> RemoveSMStreamFromSMChannel(int SMChannelId, string SMStreamId)
     {
         IQueryable<SMChannelStreamLink> toDelete = repository.SMChannelStreamLink.GetQuery(true).Where(a => a.SMChannelId == SMChannelId && a.SMStreamId == SMStreamId);
         if (!toDelete.Any())
         {
-            return DefaultAPIResponse.NotFound;
+            return APIResponse.NotFound;
         }
         await repository.SMChannelStreamLink.DeleteSMChannelStreamLinks(toDelete);
 
-        return DefaultAPIResponse.Success;
+        return APIResponse.Success;
     }
 
-    public async Task<DefaultAPIResponse> SetSMStreamRanks(List<SMChannelRankRequest> request)
+    public async Task<APIResponse> SetSMStreamRanks(List<SMChannelRankRequest> request)
     {
         return await repository.SMChannelStreamLink.SetSMStreamRank(request);
 
     }
 
-    public async Task<DefaultAPIResponse> SetSMChannelLogo(int SMChannelId, string logo)
+    public async Task<APIResponse> SetSMChannelLogo(int SMChannelId, string logo)
     {
         SMChannel? channel = GetSMChannel(SMChannelId);
         if (channel == null)
         {
-            return DefaultAPIResponse.Success;
+            return APIResponse.ErrorWithMessage($"Channel {SMChannelId} doesnt exist");
         }
 
         channel.Logo = logo;
         Update(channel);
         await SaveChangesAsync();
 
-        return DefaultAPIResponse.Success;
+        return APIResponse.Success;
     }
 
     public override IQueryable<SMChannel> GetQuery(bool tracking = false)
@@ -189,33 +189,33 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return base.GetQuery(expression, tracking).Include(a => a.SMStreams).ThenInclude(a => a.SMStream);
     }
 
-    public async Task<DefaultAPIResponse> SetSMChannelChannelNumber(int sMChannelId, int channelNumber)
+    public async Task<APIResponse> SetSMChannelChannelNumber(int sMChannelId, int channelNumber)
     {
         SMChannel? channel = GetSMChannel(sMChannelId);
         if (channel == null)
         {
-            return DefaultAPIResponse.NotFound;
+            return APIResponse.NotFound;
         }
 
         channel.ChannelNumber = channelNumber;
         Update(channel);
         await SaveChangesAsync();
 
-        return DefaultAPIResponse.Success;
+        return APIResponse.Success;
     }
 
-    public async Task<DefaultAPIResponse> SetSMChannelName(int sMChannelId, string name)
+    public async Task<APIResponse> SetSMChannelName(int sMChannelId, string name)
     {
         SMChannel? channel = GetSMChannel(sMChannelId);
         if (channel == null)
         {
-            return DefaultAPIResponse.NotFound;
+            return APIResponse.NotFound;
         }
 
         channel.Name = name;
         Update(channel);
         await SaveChangesAsync();
 
-        return DefaultAPIResponse.Success;
+        return APIResponse.Success;
     }
 }

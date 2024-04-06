@@ -1,25 +1,19 @@
-﻿using MediatR;
+﻿namespace StreamMaster.API.Controllers;
 
-using Microsoft.AspNetCore.Mvc;
+//[V1ApiController("api/[controller]")]
+//public abstract class ApiControllerBase : ControllerBase
+//{
+//    private IMediator _mediator = null!;
+//    private IOptionsMonitor<Setting> _intsettings = null!;
+//    private IOptionsMonitor<HLSSettings> _inthlssettings = null!;
 
-using StreamMaster.Application.Common;
+//    protected Setting Settings => intsettings.CurrentValue;
+//    protected HLSSettings HLSSettings => inthlssettings.CurrentValue;
 
-namespace StreamMaster.API.Controllers;
+//    protected IOptionsMonitor<Setting> intsettings => _intsettings ??= HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<Setting>>();
+//    protected IOptionsMonitor<HLSSettings> inthlssettings => _inthlssettings ??= HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<HLSSettings>>();
 
-[V1ApiController("api/[controller]")]
-public abstract class ApiControllerBase : ControllerBase
-{
-    private IMediator _mediator = null!;
-    private IOptionsMonitor<Setting> _intsettings = null!;
-    private IOptionsMonitor<HLSSettings> _inthlssettings = null!;
-
-    protected Setting Settings => intsettings.CurrentValue;
-    protected HLSSettings HLSSettings => inthlssettings.CurrentValue;
-
-    protected IOptionsMonitor<Setting> intsettings => _intsettings ??= HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<Setting>>();
-    protected IOptionsMonitor<HLSSettings> inthlssettings => _inthlssettings ??= HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<HLSSettings>>();
-
-    protected IMediator Mediator => _mediator ??= HttpContext.RequestServices.GetRequiredService<IMediator>();
+//    protected IMediator Mediator => _mediator ??= HttpContext.RequestServices.GetRequiredService<IMediator>();
 
 
-}
+//}

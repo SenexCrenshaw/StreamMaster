@@ -92,9 +92,6 @@ public static class TypeScriptCommandGenerator
     {
         StringBuilder content = new();
 
-        //HashSet<string> includes = methods.Where(a => !a.IsGetPaged).SelectMany(x => new[] { x.ReturnEntityType, x.SingalRFunction }).ToHashSet();
-        //HashSet<string> returns = methods.Where(a => a.IsGetPaged).Select(x => x.ReturnEntityType).ToHashSet();
-
         HashSet<string> includes = methods
         .Where(a => !a.IsGet)
         .SelectMany(x => new[] { x.ReturnEntityType, x.SingalRFunction })
@@ -102,7 +99,7 @@ public static class TypeScriptCommandGenerator
         .Union(methods.Where(a => a.IsGet).Select(x => x.TsParameter))
         .ToHashSet();
 
-        List<string> imports = [];
+        HashSet<string> imports = [];
         foreach (string inc in includes)
         {
             string? test = Utils.IsTSGeneric(inc);
@@ -120,11 +117,6 @@ public static class TypeScriptCommandGenerator
             imports.Add("APIResponse");
             imports.Add("PagedResponse");
             imports.Add("QueryStringParameters");
-        }
-        else if (methods.Any(a => a.IsGet))
-        {
-            //IEnumerable<string> l = methods.Where(a => a.IsGet && !string.IsNullOrEmpty(a.TsParameter)).Select(a => a.TsParameter);
-            //imports.AddRange(l);
         }
 
         content.AppendLine("import SignalRService from '@lib/signalr/SignalRService';");

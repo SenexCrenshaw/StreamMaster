@@ -253,29 +253,29 @@ export interface SDSettings
 	xmltvIncludeChannelNumbers: boolean;
 	xmltvSingleImage: boolean;
 }
-export interface APIResponse<T>
+export interface APIResponse
+{
+	error: APIResponse;
+	errorMessage?: string;
+	isError: boolean;
+	message?: string;
+	notFound: APIResponse;
+	ok: APIResponse;
+	success: APIResponse;
+}
+export interface DataResponse<T>
 {
 	_totalItemCount?: number;
 	count: number;
 	data: T;
-	error: DefaultAPIResponse;
+	error: APIResponse;
 	errorMessage?: string;
 	isError: boolean;
 	message?: string;
-	notFound: APIResponse<T>;
-	ok: APIResponse<T>;
-	success: DefaultAPIResponse;
+	notFound: DataResponse<T>;
+	ok: DataResponse<T>;
+	success: APIResponse;
 	totalItemCount: number;
-}
-export interface DefaultAPIResponse
-{
-	error: DefaultAPIResponse;
-	errorMessage?: string;
-	isError: boolean;
-	message?: string;
-	notFound: DefaultAPIResponse;
-	ok: DefaultAPIResponse;
-	success: DefaultAPIResponse;
 }
 export interface NoClass
 {
@@ -285,16 +285,16 @@ export interface PagedResponse<T>
 	_totalItemCount?: number;
 	count: number;
 	data: T[];
-	error: DefaultAPIResponse;
+	error: APIResponse;
 	errorMessage?: string;
 	first: number;
 	isError: boolean;
 	message?: string;
-	notFound: APIResponse<T[]>;
-	ok: APIResponse<T[]>;
+	notFound: DataResponse<T[]>;
+	ok: DataResponse<T[]>;
 	pageNumber: number;
 	pageSize: number;
-	success: DefaultAPIResponse;
+	success: APIResponse;
 	totalItemCount: number;
 	totalPageCount: number;
 }
@@ -477,7 +477,7 @@ export interface GetEPGFilePreviewByIdRequest
 export interface GetEPGNextEPGNumberRequest
 {
 }
-export interface GetPagedEPGFiles
+export interface GetPagedEPGFilesRequest
 {
 	parameters: QueryStringParameters;
 }

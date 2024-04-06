@@ -10,7 +10,7 @@ namespace StreamMaster.Domain.API;
 
 [RequireAll]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public class PagedResponse<T> : APIResponse<List<T>>
+public class PagedResponse<T> : DataResponse<List<T>>
 {
     [XmlIgnore]
     public int PageNumber { get; set; }

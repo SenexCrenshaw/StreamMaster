@@ -67,8 +67,9 @@ namespace BuildClientAPI
                     List<string> smapiImport = [];
 
 
-                    if (recordType.Name.StartsWith("GetEPGNextEPGNumber"))
+                    if (recordType.Name.StartsWith("GetIcons"))
                     {
+                        bool IsList = returnType.IsArray || returnType.IsListType() || returnType.IsDataResponse();
                         string returntype = GetCleanReturnType(returnType);
                         string returntypeTS = GetCleanTSReturnType(returnType);
                         string Parameters = CSharpUtils.ParamsToCSharp(recordType);
@@ -103,7 +104,7 @@ namespace BuildClientAPI
                         SMAPIImport = smapiImport,
                         ReturnType = GetCleanReturnType(returnType),
                         IsReturnNull = Utils.IsTypeNullable(returnType),
-                        IsList = returnType.IsArray || returnType.IsListType(),//Name.StartsWith("List"),
+                        IsList = returnType.IsArray || returnType.IsListType() || returnType.IsDataResponse(),
                         Parameter = ps,
                         ParameterNames = string.Join(", ", parameters.Select(p => p.Name)),
                         IsGet = name.StartsWith("Get"),

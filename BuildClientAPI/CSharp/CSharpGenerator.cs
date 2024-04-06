@@ -49,7 +49,7 @@ public static class CSharpGenerator
                     int aa = 1;
                 }
 
-                if (method.ReturnType.Equals("DefaultAPIResponse?") || (method.IsGet && method.ReturnType.EndsWith("?")))
+                if (method.ReturnType.Equals("APIResponse?") || (method.IsGet && method.ReturnType.EndsWith("?")))
                 {
                     method.ReturnType = method.ReturnType[..^1];
                 }
@@ -69,15 +69,12 @@ public static class CSharpGenerator
                     {
                         int aa = 1;
                     }
-                    if (method.IsList)
-                    {
-                        method.ReturnType = $"ActionResult<List<{method.ReturnType}>>";
-                    }
+
                     controllerContent.AppendLine($"        public async Task<ActionResult<{method.ReturnType}>> {method.Name}({method.Parameter})");
                     controllerContent.AppendLine($"        {{");
                     controllerContent.AppendLine($"            try");
                     controllerContent.AppendLine($"            {{");
-                    controllerContent.AppendLine($"            APIResponse<{method.ReturnType}> ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+                    controllerContent.AppendLine($"            DataResponse<{method.ReturnType}> ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
                     controllerContent.AppendLine($"             return ret.IsError ? Problem(detail: \"An unexpected error occurred retrieving {method.Name}.\", statusCode: 500) : Ok(ret.Data);");
                     controllerContent.AppendLine($"            }}");
                     controllerContent.AppendLine($"            catch (Exception ex)");
@@ -119,7 +116,7 @@ public static class CSharpGenerator
             // Hub method signature (if applicable)
             if (!method.JustController)
             {
-                if (method.ReturnType.Equals("DefaultAPIResponse?") || (method.IsGet && method.ReturnType.EndsWith("?")))
+                if (method.ReturnType.Equals("APIResponse?") || (method.IsGet && method.ReturnType.EndsWith("?")))
                 {
                     method.ReturnType = method.ReturnType[..^1];
                 }
@@ -144,7 +141,7 @@ public static class CSharpGenerator
 
                     hubContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.Parameter})");
                     hubContent.AppendLine($"        {{");
-                    hubContent.AppendLine($"             APIResponse<{method.ReturnType}> ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+                    hubContent.AppendLine($"             DataResponse<{method.ReturnType}> ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
                     hubContent.AppendLine($"            return ret.Data;");
                     IhubContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Parameter});");
                 }
@@ -154,7 +151,7 @@ public static class CSharpGenerator
                     hubContent.AppendLine($"        {{");
                     hubContent.AppendLine($"            await taskQueue.{method.Name}(request).ConfigureAwait(false);");
                     IhubContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Name}Request request);");
-                    hubContent.AppendLine($"            return DefaultAPIResponse.Ok;");
+                    hubContent.AppendLine($"            return APIResponse.Ok;");
                 }
                 else
                 {
@@ -223,8 +220,10 @@ namespace StreamMaster.Application.Hubs
             fileContent += $"using StreamMaster.Application.{namespaceName}.Queries;\n";
         }
 
+        string ns = namespaceName + ".Controllers";
+
         fileContent += $@"
-namespace StreamMaster.Application.{namespaceName}
+namespace StreamMaster.Application.{ns}
 {{
     public partial class {namespaceName}Controller(ISender Sender, ILogger<{namespaceName}Controller> _logger) : ApiControllerBase, I{namespaceName}Controller
     {{        

@@ -1,13 +1,13 @@
 ﻿namespace StreamMaster.Application.StreamGroups.Queries;
 
-public record GetStreamGroup(int Id) : IRequest<APIResponse<StreamGroupDto?>>;
+public record GetStreamGroup(int Id) : IRequest<DataResponse<StreamGroupDto?>>;
 
 internal class GetStreamGroupHandler(IRepositoryWrapper Repository)
-    : IRequestHandler<GetStreamGroup, APIResponse<StreamGroupDto?>>
+    : IRequestHandler<GetStreamGroup, DataResponse<StreamGroupDto?>>
 {
-    public async Task<APIResponse<StreamGroupDto?>> Handle(GetStreamGroup request, CancellationToken cancellationToken = default)
+    public async Task<DataResponse<StreamGroupDto?>> Handle(GetStreamGroup request, CancellationToken cancellationToken = default)
     {
         StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupById(request.Id).ConfigureAwait(false);
-        return APIResponse<StreamGroupDto?>.Success(streamGroup);
+        return DataResponse<StreamGroupDto?>.Success(streamGroup);
     }
 }

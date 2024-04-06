@@ -42,7 +42,6 @@ useEffect(() => {
     SetIsForced(true);
   }
 }, [SetIsForced, data, dispatch]);
-
 useEffect(() => {
   const state = store.getState().GetEPGColors;
   if (state.isLoading) return;

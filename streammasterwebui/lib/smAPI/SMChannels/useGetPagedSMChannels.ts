@@ -44,7 +44,6 @@ useEffect(() => {
     SetIsForced(true);
   }
 }, [SetIsForced, data, dispatch, query]);
-
 useEffect(() => {
   const state = store.getState().GetPagedSMChannels;
   if (state.isLoading[query]) return;

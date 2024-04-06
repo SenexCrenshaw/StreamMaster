@@ -4,22 +4,22 @@ namespace StreamMaster.Application.ChannelGroups.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record CreateChannelGroupRequest(string GroupName, bool IsReadOnly) : IRequest<DefaultAPIResponse> { }
+public record CreateChannelGroupRequest(string GroupName, bool IsReadOnly) : IRequest<APIResponse> { }
 
 public class CreateChannelGroupRequestHandler(IMessageService messageSevice, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ISender sender, IRepositoryWrapper Repository)
-    : IRequestHandler<CreateChannelGroupRequest, DefaultAPIResponse>
+    : IRequestHandler<CreateChannelGroupRequest, APIResponse>
 {
-    public async Task<DefaultAPIResponse> Handle(CreateChannelGroupRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(CreateChannelGroupRequest request, CancellationToken cancellationToken)
     {
         if (await Repository.ChannelGroup.GetChannelGroupByName(request.GroupName).ConfigureAwait(false) != null)
         {
-            return DefaultAPIResponse.NotFound;
+            return APIResponse.NotFound;
         }
 
         ChannelGroupDto? channelGroupDto = await Repository.ChannelGroup.CreateChannelGroup(request.GroupName, request.IsReadOnly);
         if (channelGroupDto == null)
         {
-            return DefaultAPIResponse.NotFound;
+            return APIResponse.NotFound;
         }
 
         _ = await Repository.SaveAsync().ConfigureAwait(false);
@@ -28,6 +28,6 @@ public class CreateChannelGroupRequestHandler(IMessageService messageSevice, IHu
 
         await hubContext.Clients.All.DataRefresh("ChannelGroupDto").ConfigureAwait(false);
         await messageSevice.SendSuccess("Created CG '" + channelGroupDto.Name);
-        return DefaultAPIResponse.Success;
+        return APIResponse.Success;
     }
 }

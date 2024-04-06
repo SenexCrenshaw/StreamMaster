@@ -1,5 +1,5 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { DefaultAPIResponse,ToggleSMStreamVisibleByIdRequest,SMStreamDto,GetPagedSMStreamsRequest,APIResponse,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
+import { APIResponse,ToggleSMStreamVisibleByIdRequest,SMStreamDto,GetPagedSMStreamsRequest,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const GetPagedSMStreams = async (parameters: QueryStringParameters): Promise<PagedResponse<SMStreamDto> | undefined> => {
   const signalRService = SignalRService.getInstance();
@@ -16,8 +16,8 @@ export const GetPagedSMStreams = async (parameters: QueryStringParameters): Prom
     });
 };
 
-export const ToggleSMStreamVisibleById = async (request: ToggleSMStreamVisibleByIdRequest): Promise<DefaultAPIResponse | null> => {
+export const ToggleSMStreamVisibleById = async (request: ToggleSMStreamVisibleByIdRequest): Promise<APIResponse | null> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<DefaultAPIResponse>('ToggleSMStreamVisibleById', request);
+  return await signalRService.invokeHubCommand<APIResponse>('ToggleSMStreamVisibleById', request);
 };
 

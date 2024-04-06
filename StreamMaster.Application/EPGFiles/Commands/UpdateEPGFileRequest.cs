@@ -5,13 +5,13 @@ namespace StreamMaster.Application.EPGFiles.Commands;
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record UpdateEPGFileRequest(int? EPGNumber, string? Color, int? TimeShift, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url)
-    : IRequest<DefaultAPIResponse>;
+    : IRequest<APIResponse>;
 
 
 public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
-    : IRequestHandler<UpdateEPGFileRequest, DefaultAPIResponse>
+    : IRequestHandler<UpdateEPGFileRequest, APIResponse>
 {
-    public async Task<DefaultAPIResponse> Handle(UpdateEPGFileRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(UpdateEPGFileRequest request, CancellationToken cancellationToken)
     {
         JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.UpdateEPG, request.Id);
         try
@@ -19,7 +19,7 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
 
             if (jobManager.IsRunning)
             {
-                return DefaultAPIResponse.NotFound;
+                return APIResponse.NotFound;
             }
             jobManager.Start();
 
@@ -27,7 +27,7 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
 
             if (epgFile == null)
             {
-                return DefaultAPIResponse.NotFound;
+                return APIResponse.NotFound;
             }
 
             bool isChanged = false;
@@ -102,12 +102,12 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
             }
 
             jobManager.SetSuccessful();
-            return DefaultAPIResponse.Success;
+            return APIResponse.Success;
         }
         catch (Exception ex)
         {
             jobManager.SetError();
-            return DefaultAPIResponse.ErrorWithMessage(ex, "Refresh EPG failed");
+            return APIResponse.ErrorWithMessage(ex, "Refresh EPG failed");
         }
 
     }

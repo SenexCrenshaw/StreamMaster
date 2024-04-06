@@ -42,7 +42,6 @@ useEffect(() => {
     SetIsForced(true);
   }
 }, [SetIsForced, data, dispatch]);
-
 useEffect(() => {
   const state = store.getState().GetSystemStatus;
   if (state.isLoading) return;
