@@ -1,3 +1,7 @@
+import { isCSharpException } from '@lib/apiDefs';
+import { addError } from '@lib/redux/slices/messagesSlice';
+
+import store from '@lib/redux/store';
 import { baseHostURL, isDev } from '@lib/settings';
 import { HubConnection, HubConnectionBuilder, HubConnectionState, LogLevel } from '@microsoft/signalr';
 import { MessagePackHubProtocol } from '@microsoft/signalr-protocol-msgpack';
@@ -110,7 +114,7 @@ class SignalRService extends EventTarget {
     return this.hubConnection.state === HubConnectionState.Disconnected;
   }
 
-  public async invokeHubCommand<T>(methodName: string, argument?: any): Promise<T | null> {
+  public async invokeHubCommand<T>(methodName: string, argument?: any): Promise<T | undefined> {
     const waitForConnection = async (timeout: number): Promise<boolean> => {
       const startTime = Date.now();
       while (Date.now() - startTime < timeout) {
@@ -123,9 +127,9 @@ class SignalRService extends EventTarget {
     };
 
     const isConnected = await waitForConnection(3000);
-    if (!isConnected) return null;
+    if (!isConnected) return undefined;
 
-    if (this.hubConnection.state !== 'Connected') return null;
+    if (this.hubConnection.state !== 'Connected') return undefined;
 
     if (isDev && !this.blacklistedMethods.includes(methodName)) {
       if (this.whitelistedMethods.includes(methodName)) {
@@ -140,9 +144,18 @@ class SignalRService extends EventTarget {
       }
       const result = await this.hubConnection.invoke<T>(methodName, argument);
       return result;
-    } catch (error) {
+    } catch (error: unknown) {
+      if (isCSharpException(error)) {
+        // store.dispatch(addErrorWithDetail({ Summary: `${methodName} failed`, Detail: error.stack }));
+        store.dispatch(addError(`${methodName} failed`));
+      } else {
+        console.log('Unknown error', error);
+        store.dispatch(addError(error as string));
+      }
+
       console.error(`Invocation of method ${methodName} failed`, error);
-      return null;
+
+      throw error;
     }
   }
 }

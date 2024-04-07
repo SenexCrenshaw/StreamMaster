@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
+using StreamMaster.Domain.Exceptions;
 
 using System.Linq.Expressions;
 
@@ -74,7 +75,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         SMStreamDto? smStream = repository.SMStream.GetSMStream(streamId);
         if (smStream == null)
         {
-            return APIResponse.NotFound;
+            throw new APIException($"Stream with Id {streamId} is not found");
         }
 
         SMChannel smChannel = new()
@@ -135,7 +136,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
     {
         if (GetSMChannel(SMChannelId) == null || repository.SMStream.GetSMStream(SMStreamId) == null)
         {
-            return APIResponse.NotFound;
+            throw new APIException($"Channel with Id {SMChannelId} or stream with Id {SMStreamId} not found");
         }
 
         await repository.SMChannelStreamLink.CreateSMChannelStreamLink(SMChannelId, SMStreamId);
@@ -149,7 +150,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         IQueryable<SMChannelStreamLink> toDelete = repository.SMChannelStreamLink.GetQuery(true).Where(a => a.SMChannelId == SMChannelId && a.SMStreamId == SMStreamId);
         if (!toDelete.Any())
         {
-            return APIResponse.NotFound;
+            throw new APIException($"Channel with id {SMChannelId} does not contain stream with Id {SMStreamId}");
         }
         await repository.SMChannelStreamLink.DeleteSMChannelStreamLinks(toDelete);
 

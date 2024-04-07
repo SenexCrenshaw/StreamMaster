@@ -10,7 +10,11 @@ internal class CreateSMChannelFromStreamRequestHandler(IRepositoryWrapper Reposi
 {
     public async Task<APIResponse> Handle(CreateSMChannelFromStreamRequest request, CancellationToken cancellationToken)
     {
-        await Repository.SMChannel.CreateSMChannelFromStream(request.StreamId);
+        APIResponse res = await Repository.SMChannel.CreateSMChannelFromStream(request.StreamId);
+        if (res.IsError)
+        {
+            return APIResponse.ErrorWithMessage(res.ErrorMessage);
+        }
 
         await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
 

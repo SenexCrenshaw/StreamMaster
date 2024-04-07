@@ -6,6 +6,7 @@ import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamVisibleDialog from '@components/smstreams/StreamVisibleDialog';
 import { GetMessage } from '@lib/common/common';
+import { useSMMessages } from '@lib/redux/hooks/useSMMessages';
 import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreams';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { AddSMStreamToSMChannel, CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
@@ -23,6 +24,7 @@ interface SMStreamDataSelectorProperties {
 
 const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections }: SMStreamDataSelectorProperties) => {
   const dataKey = `${id}-SMStreamDataSelector`;
+  const smMessages = useSMMessages();
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
 
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
@@ -82,7 +84,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
             <AddButton
               iconFilled={false}
               onClick={() => {
-                AddSMStreamToSMChannel({ SMStreamId: data.id, SMChannelId: selectedSMChannel?.Id ?? 0 })
+                AddSMStreamToSMChannel({ SMStreamId: data.Id, SMChannelId: selectedSMChannel?.Id ?? 0 })
                   .then((response) => {})
                   .catch((error) => {
                     console.error(error.message);
@@ -102,11 +104,16 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
           <AddButton
             iconFilled={false}
             onClick={() => {
-              CreateSMChannelFromStream({ streamId: data.id } as CreateSMChannelFromStreamRequest)
-                .then((response) => {})
+              CreateSMChannelFromStream({ StreamId: data.Id } as CreateSMChannelFromStreamRequest)
+                .then((response) => {
+                  // if (response?.IsError) {
+                  //   smMessages.AddMessage({ Summary: response.ErrorMessage, Severity: 'error' } as SMMessage);
+                  //   return;
+                  // }
+                })
                 .catch((error) => {
-                  console.error(error.message);
-                  throw error;
+                  // console.error(error.message);
+                  // throw error;
                 });
             }}
             tooltip={toolTip}
@@ -196,6 +203,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
       defaultSortOrder={1}
       addOrRemoveTemplate={addOrRemoveTemplate}
       addOrRemoveHeaderTemplate={addOrRemoveHeaderTemplate}
+      enablePaginator
       emptyMessage="No Streams"
       headerName={GetMessage('m3ustreams').toUpperCase()}
       headerRightTemplate={rightHeaderTemplate}

@@ -1,8 +1,5 @@
 import React, { ReactNode, createContext, useCallback, useContext, useEffect } from 'react';
 import SignalRService from './SignalRService';
-import { SMMessage } from './SMMessage';
-import { FieldData } from '@lib/apiDefs';
-import { useSMMessages } from '@lib/redux/slices/messagesSlice';
 import useGetPagedStreamGroups from '@lib/smAPI/StreamGroups/useGetPagedStreamGroups';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
@@ -10,6 +7,8 @@ import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import useGetPagedM3UFiles from '@lib/smAPI/M3UFiles/useGetPagedM3UFiles';
 import useGetPagedEPGFiles from '@lib/smAPI/EPGFiles/useGetPagedEPGFiles';
 import useGetPagedChannelGroups from '@lib/smAPI/ChannelGroups/useGetPagedChannelGroups';
+import { useSMMessages } from '@lib/redux/hooks/useSMMessages';
+import { FieldData, SMMessage } from '@lib/smAPI/smapiTypes';
 
 const SignalRContext = createContext<SignalRService | undefined>(undefined);
 
@@ -79,31 +78,31 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
   const setField = useCallback(
     (fieldDatas: FieldData[]): void => {
       fieldDatas.forEach((fieldData) => {
-        if (fieldData.entity === 'StreamGroupDto') {
+        if (fieldData.Entity === 'StreamGroupDto') {
           getPagedStreamGroups.SetField(fieldData)
           return;
         }
-        if (fieldData.entity === 'SMStreamDto') {
+        if (fieldData.Entity === 'SMStreamDto') {
           getPagedSMStreams.SetField(fieldData)
           return;
         }
-        if (fieldData.entity === 'SMChannelDto') {
+        if (fieldData.Entity === 'SMChannelDto') {
           getPagedSMChannels.SetField(fieldData)
           return;
         }
-        if (fieldData.entity === 'SettingDto') {
+        if (fieldData.Entity === 'SettingDto') {
           getSettings.SetField(fieldData)
           return;
         }
-        if (fieldData.entity === 'M3UFileDto') {
+        if (fieldData.Entity === 'M3UFileDto') {
           getPagedM3UFiles.SetField(fieldData)
           return;
         }
-        if (fieldData.entity === 'EPGFileDto') {
+        if (fieldData.Entity === 'EPGFileDto') {
           getPagedEPGFiles.SetField(fieldData)
           return;
         }
-        if (fieldData.entity === 'ChannelGroupDto') {
+        if (fieldData.Entity === 'ChannelGroupDto') {
           getPagedChannelGroups.SetField(fieldData)
           return;
         }

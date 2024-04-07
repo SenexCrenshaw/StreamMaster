@@ -26,9 +26,9 @@ interface SMChannelDataSelectorProperties {
 
 const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: SMChannelDataSelectorProperties) => {
   const dataKey = `${id}-SMChannelDataSelector`;
-  const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
+  const { selectedSMChannel, setSelectedSMChannel, setExpandedRows } = useSelectedSMItems();
   const { queryFilter } = useQueryFilter(dataKey);
-  const { isLoading } = useGetPagedSMChannels(queryFilter);
+  const { isLoading, data } = useGetPagedSMChannels(queryFilter);
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
 
   const { columnConfig: channelNumberColumnConfig } = useSMChannelNumberColumnConfig({ enableEdit, useFilter: false });
@@ -45,7 +45,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
     const channel = data as unknown as SMChannelDto;
     return (
       <div className="border-2 border-round-lg border-200 ml-3 m-1">
-        <SMStreamDataSelectorValue data={channel.SMStreams} smChannel={channel} id={channel.Id + '-streams'} />
+        <SMStreamDataSelectorValue smChannel={channel} id={channel.Id + '-streams'} />
       </div>
     );
   }, []);
@@ -163,6 +163,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
         defaultSortField="Name"
         defaultSortOrder={1}
         emptyMessage="No Channels"
+        enablePaginator
         headerRightTemplate={rightHeaderTemplate}
         headerName={GetMessage('channels').toUpperCase()}
         id={dataKey}

@@ -37,22 +37,22 @@ const IconGrid = ({ iconSource, onClick }: IconSelectorProperties) => {
 
   const listItem = (icon: IconFileDto, index: number) => {
     return (
-      <div className="col-12" key={icon.id}>
+      <div className="col-12" key={icon.Id}>
         <div className={classNames('flex flex-column xl:flex-row xl:align-items-start p-4 gap-4', { 'border-top-1 surface-border': index !== 0 })}>
-          <img className="w-9 sm:w-16rem xl:w-10rem shadow-2 block xl:block mx-auto border-round" src={icon.source} alt={icon.name} />
+          <img className="w-9 sm:w-16rem xl:w-10rem shadow-2 block xl:block mx-auto border-round" src={icon.Source} alt={icon.Name} />
           <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
             <div className="flex flex-column align-items-center sm:align-items-start gap-3">
-              <div className="text-2xl font-bold text-900">{icon.name}</div>
+              <div className="text-2xl font-bold text-900">{icon.Name}</div>
 
               <div className="flex align-items-center gap-3">
                 <span className="flex align-items-center gap-2">
                   <i className="pi pi-tag"></i>
-                  <span className="font-semibold">{icon.name}</span>
+                  <span className="font-semibold">{icon.Name}</span>
                 </span>
               </div>
             </div>
             <div className="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2">
-              <span className="text-2xl font-semibold">${icon.name}</span>
+              <span className="text-2xl font-semibold">${icon.Name}</span>
             </div>
           </div>
         </div>
@@ -62,7 +62,7 @@ const IconGrid = ({ iconSource, onClick }: IconSelectorProperties) => {
 
   const isSelected = useCallback(
     (icon: IconFileDto) => {
-      return icon.source === iconSource;
+      return icon.Source === iconSource;
     },
     [iconSource]
   );
@@ -77,7 +77,7 @@ const IconGrid = ({ iconSource, onClick }: IconSelectorProperties) => {
 
   const goToIcon = useCallback(
     (iconSource: string) => {
-      const index = icons.data?.findIndex((icon) => icon.source === iconSource);
+      const index = icons.data?.findIndex((icon) => icon.Source === iconSource);
       if (index && index > -1) {
         const page = Math.floor(index / rows) + 1;
         goToPage(page);
@@ -94,15 +94,15 @@ const IconGrid = ({ iconSource, onClick }: IconSelectorProperties) => {
   }, [goToIcon, iconSource, origIconSource]);
 
   const gridItem = (icon: IconFileDto) => {
-    const iconUrl = icon.source ? getIconUrl(icon.source, '', false) : '';
+    const iconUrl = icon.Source ? getIconUrl(icon.Source, '', false) : '';
 
     return (
       <div className={`listTemplate-gridItem-container ${isSelected(icon) ? 'selected' : ''}`}>
         <Button
           className="button"
-          key={icon.id}
+          key={icon.Id}
           onClick={() => {
-            onClick(icon.source);
+            onClick(icon.Source);
           }}
         >
           <div>
@@ -110,14 +110,14 @@ const IconGrid = ({ iconSource, onClick }: IconSelectorProperties) => {
               <img
                 className="img"
                 src={iconUrl}
-                alt={icon.name}
+                alt={icon.Name}
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).src = '/images/default.png';
                 }}
                 loading="lazy"
               />
             </div>
-            <div className="listTemplate-gridItem-name text-xs">{icon.name}</div>
+            <div className="listTemplate-gridItem-name text-xs">{icon.Name}</div>
           </div>
         </Button>
       </div>
@@ -145,7 +145,7 @@ const IconGrid = ({ iconSource, onClick }: IconSelectorProperties) => {
       return;
     }
     const data = icons.data.filter(
-      (icon) => icon.name.toLowerCase().includes(filter.toLowerCase()) || icon.source.toLowerCase().includes(filter.toLowerCase())
+      (icon) => icon.Name.toLowerCase().includes(filter.toLowerCase()) || icon.Source.toLowerCase().includes(filter.toLowerCase())
     );
     setDataSource(data);
   }, [filter, icons.data]);

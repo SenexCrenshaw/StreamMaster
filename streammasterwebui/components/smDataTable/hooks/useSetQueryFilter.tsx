@@ -1,6 +1,6 @@
 import { SMDataTableFilterMetaData, addOrUpdateValueForField, hasValidAdditionalProps, isEmptyObject } from '@lib/common/common';
 
-import { areGetApiArgsEqual } from '@lib/apiDefs';
+import { GetApiArgument, areGetApiArgsEqual } from '@lib/apiDefs';
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useShowHidden } from '@lib/redux/slices/useShowHidden';
@@ -54,7 +54,7 @@ export const useSetQueryFilter = (
   filters: DataTableFilterMeta,
   page: number,
   rows: number,
-  streamGroupId?: number
+  StreamGroupId?: number
 ) => {
   const { sortInfo } = useSortInfo(id);
   const { queryAdditionalFilter } = useQueryAdditionalFilters(id);
@@ -65,26 +65,26 @@ export const useSetQueryFilter = (
     const sortString = getSortString(sortInfo);
     const transformedFilters = transformAndEnhanceFilters(filters, columns, showHidden, queryAdditionalFilter);
 
-    const jsonFiltersString = JSON.stringify(transformedFilters);
+    const JSONFiltersString = JSON.stringify(transformedFilters);
 
-    const apiState = {
-      jsonFiltersString,
-      orderBy: sortString,
-      pageNumber: page,
-      pageSize: rows,
-      streamGroupId
+    const apiState: GetApiArgument = {
+      JSONFiltersString,
+      OrderBy: sortString,
+      PageNumber: page,
+      PageSize: rows,
+      StreamGroupId
     };
 
     return {
       generateGetApi: apiState
     };
-  }, [sortInfo, filters, columns, showHidden, queryAdditionalFilter, page, rows, streamGroupId]);
+  }, [sortInfo, filters, columns, showHidden, queryAdditionalFilter, page, rows, StreamGroupId]);
 
   useEffect(() => {
     if (!areGetApiArgsEqual(generateGetApi, queryFilter)) {
       setQueryFilter(generateGetApi);
     }
-  }, [generateGetApi, queryFilter, setQueryFilter]);
+  }, [generateGetApi, page, queryFilter, setQueryFilter]);
 
   return { queryFilter: generateGetApi };
 };

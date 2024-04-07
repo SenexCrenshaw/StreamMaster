@@ -6,6 +6,15 @@ export interface QueryHookResult<T> {
   isFetching?: boolean | undefined;
 }
 
+export interface CSharpException {
+  message: string;
+  stack: string;
+}
+
+export function isCSharpException(error: any): error is CSharpException {
+  return error !== null && typeof error === 'object' && 'message' in error && 'stack' in error;
+}
+
 export type IFormFile = Blob;
 
 export interface QueryHook<T> {
@@ -23,14 +32,14 @@ export interface CacheItem<T> {
 export interface GetApiArgument {
   count?: number;
   first?: number;
-  jsonArgumentString?: string | null;
-  jsonFiltersString?: string | null;
+  JSONArgumentString?: string | null;
+  JSONFiltersString?: string | null;
   last?: number;
   name?: string;
-  orderBy?: string;
-  pageNumber?: number;
-  pageSize?: number;
-  streamGroupId?: number | undefined;
+  OrderBy?: string;
+  PageNumber?: number;
+  PageSize?: number;
+  StreamGroupId?: number | undefined;
 }
 
 const compareProperties = (propertyName: keyof GetApiArgument, object1: GetApiArgument, object2: GetApiArgument) => {
@@ -50,14 +59,14 @@ export function areGetApiArgsEqual(object1?: GetApiArgument, object2?: GetApiArg
   return (
     compareProperties('count', object1, object2) &&
     compareProperties('first', object1, object2) &&
-    compareProperties('jsonArgumentString', object1, object2) &&
-    compareProperties('jsonFiltersString', object1, object2) &&
+    compareProperties('JSONArgumentString', object1, object2) &&
+    compareProperties('JSONFiltersString', object1, object2) &&
     compareProperties('last', object1, object2) &&
     compareProperties('name', object1, object2) &&
-    compareProperties('orderBy', object1, object2) &&
-    compareProperties('pageNumber', object1, object2) &&
-    compareProperties('pageSize', object1, object2) &&
-    compareProperties('streamGroupId', object1, object2)
+    compareProperties('OrderBy', object1, object2) &&
+    compareProperties('PageNumber', object1, object2) &&
+    compareProperties('PageSize', object1, object2) &&
+    compareProperties('StreamGroupId', object1, object2)
   );
 }
 

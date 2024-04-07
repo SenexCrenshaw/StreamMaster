@@ -368,10 +368,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     setters.setPage(adjustedPage);
     setters.setFirst(event.first);
     setters.setRows(event.rows);
-
-    // if (state.prevDataSource !== undefined) {
-    //   setters.setPrevDataSource(undefined);
-    // }
   };
 
   const onFilter = (event: DataTableStateEvent) => {
@@ -445,7 +441,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           filterDisplay="row"
           expandedRows={state.expandedRows}
           filters={isEmptyObject(state.filters) ? getEmptyFilter(props.columns, state.showHidden) : state.filters}
-          first={state.pagedInformation ? state.pagedInformation.first : state.first}
+          first={state.pagedInformation ? state.pagedInformation.First : state.first}
           loading={props.isLoading === true || isLoading === true}
           onRowReorder={(e) => {
             onRowReorder(e.value);
@@ -480,7 +476,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           style={props.style}
           value={state.dataSource}
           reorderableRows={props.reorderable}
-          totalRecords={state.pagedInformation ? state.pagedInformation.totalItemCount : undefined}
+          totalRecords={state.pagedInformation ? state.pagedInformation.TotalItemCount : undefined}
           onRowCollapse={(e) => {
             setIsExpanded(false);
             props.onRowCollapse?.(e);

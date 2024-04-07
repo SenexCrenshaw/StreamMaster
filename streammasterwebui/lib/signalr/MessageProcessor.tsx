@@ -1,7 +1,7 @@
-import { useEffect, useRef } from 'react';
-import { Toast } from 'primereact/toast';
 import { useAppSelector } from '@lib/redux/hooks';
-import { useSMMessages } from '@lib/redux/slices/messagesSlice';
+import { useSMMessages } from '@lib/redux/hooks/useSMMessages';
+import { Toast } from 'primereact/toast';
+import { useEffect, useRef } from 'react';
 
 export const MessageProcessor = ({ children }: React.PropsWithChildren): JSX.Element => {
   const toast = useRef<Toast>(null);
@@ -13,7 +13,7 @@ export const MessageProcessor = ({ children }: React.PropsWithChildren): JSX.Ele
     if (smMessages.length === 0) return;
 
     smMessages.forEach((message) => {
-      toast?.current?.show({ severity: message.severity, summary: message.summary, detail: message.detail, life: message.life });
+      toast?.current?.show({ severity: message.Severity, summary: message.Summary, detail: message.Detail, life: message.Life });
     });
 
     ClearMessages();

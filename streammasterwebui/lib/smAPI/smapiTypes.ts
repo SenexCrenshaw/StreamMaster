@@ -255,26 +255,21 @@ export interface SDSettings
 }
 export interface APIResponse
 {
-	Error: APIResponse;
 	ErrorMessage?: string;
 	IsError: boolean;
 	Message?: string;
 	NotFound: APIResponse;
-	Ok: APIResponse;
-	Success: APIResponse;
 }
 export interface DataResponse<T>
 {
 	_totalItemCount?: number;
 	Count: number;
 	Data: T;
-	Error: APIResponse;
 	ErrorMessage?: string;
 	IsError: boolean;
 	Message?: string;
 	NotFound: DataResponse<T>;
 	Ok: DataResponse<T>;
-	Success: APIResponse;
 	TotalItemCount: number;
 }
 export interface NoClass
@@ -285,7 +280,6 @@ export interface PagedResponse<T>
 	_totalItemCount?: number;
 	Count: number;
 	Data: T[];
-	Error: APIResponse;
 	ErrorMessage?: string;
 	First: number;
 	IsError: boolean;
@@ -294,7 +288,6 @@ export interface PagedResponse<T>
 	Ok: DataResponse<T[]>;
 	PageNumber: number;
 	PageSize: number;
-	Success: APIResponse;
 	TotalItemCount: number;
 	TotalPageCount: number;
 }
@@ -382,6 +375,10 @@ export interface SetSMChannelNumberRequest
 export interface SetSMStreamRanksRequest
 {
 	Requests: SMChannelRankRequest[];
+}
+export interface GetSMChannelStreamsRequest
+{
+	SMChannelId: number;
 }
 export interface GetIsSystemReadyRequest
 {

@@ -9,8 +9,9 @@ import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { useShowHidden } from '@lib/redux/slices/useShowHidden';
 import { useShowSelections } from '@lib/redux/slices/useShowSelections';
 import { useSortInfo } from '@lib/redux/slices/useSortInfo';
+import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { ColumnMeta } from '../types/ColumnMeta';
-import { PagedTableInformation } from '../types/smDataTableTypes';
+// import { PagedTableInformation } from '../types/smDataTableTypes';
 
 const SMDataTableState = <T extends DataTableValue>(id: string, selectedItemsKey?: string) => {
   const { sortInfo, setSortInfo } = useSortInfo(id);
@@ -22,7 +23,7 @@ const SMDataTableState = <T extends DataTableValue>(id: string, selectedItemsKey
   const [rowClick, setRowClick] = useLocalStorage<boolean>(false, `${id}-rowClick`);
   const [visibleColumns, setVisibleColumns] = useLocalStorage<ColumnMeta[] | undefined | null>(null, `${id}-visibleColumns`);
   const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<T>(selectedItemsKey ?? id);
-  const [pagedInformation, setPagedInformation] = useState<PagedTableInformation>();
+  const [pagedInformation, setPagedInformation] = useState<PagedResponse<T>>();
   const [previousDataSource, setPreviousDataSource] = useState<T[] | undefined>();
   const [dataSource, setDataSource] = useState<T[]>();
   const [first, setFirst] = useState<number>(0);

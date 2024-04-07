@@ -1,4 +1,6 @@
-﻿using Reinforced.Typings.Attributes;
+﻿using MessagePack;
+
+using Reinforced.Typings.Attributes;
 
 namespace StreamMaster.Domain.API
 {
@@ -10,14 +12,17 @@ namespace StreamMaster.Domain.API
         public bool IsError { get; set; }
 
 
-        public static APIResponse ErrorWithMessage(string errorMessage)
+        public static APIResponse ErrorWithMessage(string? errorMessage)
         {
             return new APIResponse { ErrorMessage = errorMessage, IsError = true };
         }
 
+        [IgnoreMember]
+        [TsIgnore]
         public static APIResponse Error => new() { IsError = true };
 
-
+        [IgnoreMember]
+        [TsIgnore]
         public static APIResponse Success => new();
 
         public static APIResponse ErrorWithMessage(Exception exception, string message)
@@ -38,6 +43,8 @@ namespace StreamMaster.Domain.API
             return ok;
         }
 
+        [IgnoreMember]
+        [TsIgnore]
         public static APIResponse Ok => new();
 
         public static APIResponse NotFound =>

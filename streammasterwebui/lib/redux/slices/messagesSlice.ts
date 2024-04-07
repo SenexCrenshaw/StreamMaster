@@ -1,6 +1,5 @@
-import { SMMessage } from '@lib/signalr/SMMessage';
+import { SMMessage } from '@lib/smAPI/smapiTypes';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { useAppDispatch, useAppSelector } from '../hooks';
 
 const initialState: SMMessage[] = [];
 
@@ -13,34 +12,22 @@ const messagesSlice = createSlice({
         state.push(action.payload);
       }
     },
+    addError: (state, action: PayloadAction<string>) => {
+      if (action.payload) {
+        state.push({ Summary: action.payload, Severity: 'error' } as SMMessage);
+      }
+    },
+    addErrorWithDetail: (state, action: PayloadAction<SMMessage>) => {
+      if (action.payload) {
+        state.push({ Summary: action.payload.Summary, Detail: action.payload.Detail, Severity: 'error' } as SMMessage);
+      }
+    },
     clearMessages: (state) => {
       return initialState;
     }
   }
 });
 
-export const { addMessage, clearMessages } = messagesSlice.actions;
-
-interface SMMessageResult extends SMMessage {
-  messages: SMMessage[];
-  AddMessage: (message: SMMessage) => void;
-  ClearMessages: () => void;
-}
-
-export const useSMMessages = (): SMMessageResult => {
-  const dispatch = useAppDispatch();
-
-  const messages = useAppSelector((state) => state.messages);
-
-  const AddMessage = (message: SMMessage): void => {
-    dispatch(addMessage(message));
-  };
-
-  const ClearMessages = (): void => {
-    dispatch(clearMessages());
-  };
-
-  return { messages, AddMessage, ClearMessages };
-};
+export const { addMessage, addError, addErrorWithDetail, clearMessages } = messagesSlice.actions;
 
 export default messagesSlice.reducer;

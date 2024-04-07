@@ -102,7 +102,7 @@ public static class SignalRGenerator
         content.AppendLine("      fieldDatas.forEach((fieldData) => {");
         foreach (MethodDetails? method in methods.Where(a => a.IsGet))
         {
-            content.AppendLine($"        if (fieldData.entity === '{method.ReturnEntityType}') {{");
+            content.AppendLine($"        if (fieldData.Entity === '{method.ReturnEntityType}') {{");
             content.AppendLine($"          {method.Name.ToCamelCase()}.SetField(fieldData)");
             content.AppendLine("          return;");
             content.AppendLine("        }");
@@ -175,14 +175,14 @@ public static class SignalRGenerator
     {
         content.AppendLine("import React, { ReactNode, createContext, useCallback, useContext, useEffect } from 'react';");
         content.AppendLine("import SignalRService from './SignalRService';");
-        content.AppendLine("import { SMMessage } from './SMMessage';");
-        content.AppendLine("import { FieldData } from '@lib/apiDefs';");
-        content.AppendLine("import { useSMMessages } from '@lib/redux/slices/messagesSlice';");
 
         foreach (MethodDetails method in methods.Where(a => a.IsGet))
         {
             content.AppendLine($"import use{method.Name} from '@lib/smAPI/{method.NamespaceName}/use{method.Name}';");
         }
+
+        content.AppendLine("import { useSMMessages } from '@lib/redux/hooks/useSMMessages';");
+        content.AppendLine("import { FieldData, SMMessage } from '@lib/smAPI/smapiTypes';");
 
         content.AppendLine();
     }

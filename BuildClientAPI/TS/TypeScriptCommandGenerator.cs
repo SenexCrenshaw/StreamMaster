@@ -25,7 +25,7 @@ public static class TypeScriptCommandGenerator
 
     private static string AddMethod(MethodDetails method)
     {
-        if (method.Name.StartsWith("GetEPGFilePreviewById"))
+        if (method.Name.StartsWith("GetPagedSMChannels"))
         {
             int aaa = 1;
         }
@@ -39,17 +39,7 @@ public static class TypeScriptCommandGenerator
             }
             content.AppendLine($"export const {method.Name} = async (parameters: QueryStringParameters): Promise<PagedResponse<{method.ReturnEntityType}> | undefined> => {{");
             content.AppendLine("  const signalRService = SignalRService.getInstance();");
-            content.AppendLine($"  return await signalRService.invokeHubCommand<PagedResponse<{method.ReturnEntityType}>>('{method.Name}', parameters)");
-            content.AppendLine($"    .then((response) => {{");
-            content.AppendLine("      if (response) {");
-            content.AppendLine("        return response;");
-            content.AppendLine("      }");
-            content.AppendLine("      return undefined;");
-            content.AppendLine("    })");
-            content.AppendLine("    .catch((error) => {");
-            content.AppendLine("      console.error(error);");
-            content.AppendLine("      return undefined;");
-            content.AppendLine("    });");
+            content.AppendLine($"  return await signalRService.invokeHubCommand<PagedResponse<{method.ReturnEntityType}>>('{method.Name}', parameters);");
         }
         else
         {
@@ -60,25 +50,15 @@ public static class TypeScriptCommandGenerator
 
             if (string.IsNullOrEmpty(method.TsParameter))
             {
-                content.AppendLine($"export const {method.Name} = async (): Promise<{method.TsReturnType} | null> => {{");
+                content.AppendLine($"export const {method.Name} = async (): Promise<{method.TsReturnType} | undefined> => {{");
                 content.AppendLine("  const signalRService = SignalRService.getInstance();");
                 content.AppendLine($"  return await signalRService.invokeHubCommand<{method.TsReturnType}>('{method.Name}');");
             }
             else
             {
-                //if (method.Parameter == "")
-                //{
-                //    content.AppendLine($"export const {method.Name} = async (): Promise<{method.TsReturnType} | null> => {{");
-                //    content.AppendLine("  const signalRService = SignalRService.getInstance();");
-                //    content.AppendLine($"  return await signalRService.invokeHubCommand<{method.TsReturnType}>('{method.Name}');");
-                //}
-                //else
-                //{
-                content.AppendLine($"export const {method.Name} = async (request: {method.TsParameter}): Promise<{method.TsReturnType} | null> => {{");
+                content.AppendLine($"export const {method.Name} = async (request: {method.TsParameter}): Promise<{method.TsReturnType} | undefined> => {{");
                 content.AppendLine("  const signalRService = SignalRService.getInstance();");
                 content.AppendLine($"  return await signalRService.invokeHubCommand<{method.TsReturnType}>('{method.Name}', request);");
-                //}
-
             }
 
         }

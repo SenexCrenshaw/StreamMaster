@@ -3,65 +3,55 @@ import { APIResponse,AddSMStreamToSMChannelRequest,CreateSMChannelFromStreamRequ
 
 export const GetPagedSMChannels = async (parameters: QueryStringParameters): Promise<PagedResponse<SMChannelDto> | undefined> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<PagedResponse<SMChannelDto>>('GetPagedSMChannels', parameters)
-    .then((response) => {
-      if (response) {
-        return response;
-      }
-      return undefined;
-    })
-    .catch((error) => {
-      console.error(error);
-      return undefined;
-    });
+  return await signalRService.invokeHubCommand<PagedResponse<SMChannelDto>>('GetPagedSMChannels', parameters);
 };
 
-export const AddSMStreamToSMChannel = async (request: AddSMStreamToSMChannelRequest): Promise<APIResponse | null> => {
+export const AddSMStreamToSMChannel = async (request: AddSMStreamToSMChannelRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('AddSMStreamToSMChannel', request);
 };
 
-export const CreateSMChannelFromStream = async (request: CreateSMChannelFromStreamRequest): Promise<APIResponse | null> => {
+export const CreateSMChannelFromStream = async (request: CreateSMChannelFromStreamRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('CreateSMChannelFromStream', request);
 };
 
-export const DeleteSMChannel = async (request: DeleteSMChannelRequest): Promise<APIResponse | null> => {
+export const DeleteSMChannel = async (request: DeleteSMChannelRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('DeleteSMChannel', request);
 };
 
-export const DeleteSMChannelsFromParameters = async (request: DeleteSMChannelsFromParametersRequest): Promise<APIResponse | null> => {
+export const DeleteSMChannelsFromParameters = async (request: DeleteSMChannelsFromParametersRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('DeleteSMChannelsFromParameters', request);
 };
 
-export const DeleteSMChannels = async (request: DeleteSMChannelsRequest): Promise<APIResponse | null> => {
+export const DeleteSMChannels = async (request: DeleteSMChannelsRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('DeleteSMChannels', request);
 };
 
-export const RemoveSMStreamFromSMChannel = async (request: RemoveSMStreamFromSMChannelRequest): Promise<APIResponse | null> => {
+export const RemoveSMStreamFromSMChannel = async (request: RemoveSMStreamFromSMChannelRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('RemoveSMStreamFromSMChannel', request);
 };
 
-export const SetSMChannelLogo = async (request: SetSMChannelLogoRequest): Promise<APIResponse | null> => {
+export const SetSMChannelLogo = async (request: SetSMChannelLogoRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('SetSMChannelLogo', request);
 };
 
-export const SetSMChannelName = async (request: SetSMChannelNameRequest): Promise<APIResponse | null> => {
+export const SetSMChannelName = async (request: SetSMChannelNameRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('SetSMChannelName', request);
 };
 
-export const SetSMChannelNumber = async (request: SetSMChannelNumberRequest): Promise<APIResponse | null> => {
+export const SetSMChannelNumber = async (request: SetSMChannelNumberRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('SetSMChannelNumber', request);
 };
 
-export const SetSMStreamRanks = async (request: SetSMStreamRanksRequest): Promise<APIResponse | null> => {
+export const SetSMStreamRanks = async (request: SetSMStreamRanksRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('SetSMStreamRanks', request);
 };

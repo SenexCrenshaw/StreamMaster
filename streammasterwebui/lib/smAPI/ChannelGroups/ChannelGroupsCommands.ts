@@ -3,35 +3,25 @@ import { APIResponse,CreateChannelGroupRequest,DeleteAllChannelGroupsFromParamet
 
 export const GetPagedChannelGroups = async (parameters: QueryStringParameters): Promise<PagedResponse<ChannelGroupDto> | undefined> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<PagedResponse<ChannelGroupDto>>('GetPagedChannelGroups', parameters)
-    .then((response) => {
-      if (response) {
-        return response;
-      }
-      return undefined;
-    })
-    .catch((error) => {
-      console.error(error);
-      return undefined;
-    });
+  return await signalRService.invokeHubCommand<PagedResponse<ChannelGroupDto>>('GetPagedChannelGroups', parameters);
 };
 
-export const CreateChannelGroup = async (request: CreateChannelGroupRequest): Promise<APIResponse | null> => {
+export const CreateChannelGroup = async (request: CreateChannelGroupRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('CreateChannelGroup', request);
 };
 
-export const DeleteAllChannelGroupsFromParameters = async (request: DeleteAllChannelGroupsFromParametersRequest): Promise<APIResponse | null> => {
+export const DeleteAllChannelGroupsFromParameters = async (request: DeleteAllChannelGroupsFromParametersRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('DeleteAllChannelGroupsFromParameters', request);
 };
 
-export const DeleteChannelGroup = async (request: DeleteChannelGroupRequest): Promise<APIResponse | null> => {
+export const DeleteChannelGroup = async (request: DeleteChannelGroupRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('DeleteChannelGroup', request);
 };
 
-export const UpdateChannelGroup = async (request: UpdateChannelGroupRequest): Promise<APIResponse | null> => {
+export const UpdateChannelGroup = async (request: UpdateChannelGroupRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('UpdateChannelGroup', request);
 };
