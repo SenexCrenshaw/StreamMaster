@@ -1,8 +1,8 @@
-import { SMChannelDto } from '@lib/apiDefs';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { DeleteSMChannels, DeleteSMChannelsFromParameters } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { DeleteSMChannelsRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { memo, useMemo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import OKButton from '../buttons/OKButton';
@@ -58,7 +58,9 @@ const ChannelDeleteDialog = ({ iconFilled, id, onClose, skipOverLayer, value }: 
     }
 
     if (value !== undefined) {
-      DeleteSMChannels([value.id])
+      const toSend = {} as DeleteSMChannelsRequest;
+      toSend.SMChannelIds = [value.Id];
+      DeleteSMChannels(toSend)
         .then(() => {
           setInfoMessage('Delete Stream Successful');
         })
@@ -74,15 +76,15 @@ const ChannelDeleteDialog = ({ iconFilled, id, onClose, skipOverLayer, value }: 
     let count = 0;
 
     const promises = [];
-    let toSend: number[] = [];
 
-    const ids = selectSelectedItems?.map((a: SMChannelDto) => a.id) ?? [];
+    const ids = selectSelectedItems?.map((a: SMChannelDto) => a.Id) ?? [];
     if (ids.length === 0) {
       ReturnToParent();
     }
 
     while (count < ids.length) {
-      toSend = count + max < ids.length ? ids.slice(count, count + max) : ids.slice(count, ids.length);
+      const toSend = {} as DeleteSMChannelsRequest;
+      toSend.SMChannelIds = count + max < ids.length ? ids.slice(count, count + max) : ids.slice(count, ids.length);
 
       count += max;
       promises.push(
@@ -111,8 +113,8 @@ const ChannelDeleteDialog = ({ iconFilled, id, onClose, skipOverLayer, value }: 
     if (!selectSelectedItems || selectSelectedItems?.length === 0) {
       return true;
     }
-
-    return !selectSelectedItems[0].isUserCreated;
+    return false;
+    // return !selectSelectedItems[0];
   }, [selectSelectedItems, value]);
 
   const getTotalCount = useMemo(() => {

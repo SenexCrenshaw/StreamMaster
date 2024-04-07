@@ -45,14 +45,14 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
     const channel = data as unknown as SMChannelDto;
     return (
       <div className="border-2 border-round-lg border-200 ml-3 m-1">
-        <SMStreamDataSelectorValue data={channel.smStreams} smChannel={channel} id={channel.id + '-streams'} />
+        <SMStreamDataSelectorValue data={channel.SMStreams} smChannel={channel} id={channel.Id + '-streams'} />
       </div>
     );
   }, []);
 
   const setSelectedSMEntity = useCallback(
     (data: DataTableValue, toggle?: boolean) => {
-      if (toggle === true && selectedSMChannel !== undefined && data !== undefined && data.id === selectedSMChannel.id) {
+      if (toggle === true && selectedSMChannel !== undefined && data !== undefined && data.id === selectedSMChannel.Id) {
         setSelectedSMChannel(undefined);
       } else {
         setSelectedSMChannel(data as SMChannelDto);
@@ -63,7 +63,9 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
 
   const actionBodyTemplate = useCallback((data: SMChannelDto) => {
     const accept = () => {
-      DeleteSMChannel({ smChannelId: data.id } as DeleteSMChannelRequest)
+      const toSend = {} as DeleteSMChannelRequest;
+      toSend.SMChannelId = data.Id;
+      DeleteSMChannel(toSend)
         .then((response) => {
           console.log('Removed Channel');
         })
@@ -80,7 +82,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
         message: (
           <>
             Delete
-            <br />"{data.name}" ?
+            <br />"{data.Name}" ?
             <br />
             Are you sure?
           </>
@@ -94,7 +96,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
 
     return (
       <div className="flex p-0 justify-content-end align-items-center">
-        <StreamCopyLinkDialog realUrl={data?.realUrl} />
+        <StreamCopyLinkDialog realUrl={data?.RealUrl} />
         <MinusButton iconFilled={false} onClick={confirm} tooltip="Remove Channel" />
       </div>
     );
@@ -105,7 +107,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
       channelNumberColumnConfig,
       channelLogoColumnConfig,
       channelNameColumnConfig,
-      { field: 'group', filter: false, sortable: true, width: '5rem' },
+      { field: 'Group', filter: false, sortable: true, width: '5rem' },
       { align: 'right', filter: false, bodyTemplate: actionBodyTemplate, field: 'actions', fieldType: 'actions', header: 'Actions', width: '5rem' }
     ],
     [actionBodyTemplate, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig]
@@ -121,7 +123,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
 
       if (selectedSMChannel !== undefined) {
         const id = getRecord(data, 'id') as number;
-        if (id === selectedSMChannel.id) {
+        if (id === selectedSMChannel.Id) {
           return 'bg-orange-900';
         }
       }
@@ -158,7 +160,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
         enableClick
         selectRow
         showExpand
-        defaultSortField="name"
+        defaultSortField="Name"
         defaultSortOrder={1}
         emptyMessage="No Channels"
         headerRightTemplate={rightHeaderTemplate}

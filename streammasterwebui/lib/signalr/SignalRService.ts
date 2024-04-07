@@ -1,5 +1,6 @@
 import { baseHostURL, isDev } from '@lib/settings';
 import { HubConnection, HubConnectionBuilder, HubConnectionState, LogLevel } from '@microsoft/signalr';
+import { MessagePackHubProtocol } from '@microsoft/signalr-protocol-msgpack';
 
 class SignalRService extends EventTarget {
   private static instance: SignalRService;
@@ -52,6 +53,7 @@ class SignalRService extends EventTarget {
     this.hubConnection = new HubConnectionBuilder()
       .configureLogging(LogLevel.Error)
       .withUrl(url)
+      .withHubProtocol(new MessagePackHubProtocol())
       .withAutomaticReconnect({
         nextRetryDelayInMilliseconds: (retryContext) => {
           if (retryContext.elapsedMilliseconds < 60000) {

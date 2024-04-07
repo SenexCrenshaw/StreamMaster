@@ -2,6 +2,7 @@
   "type": "module",
   "dependencies": {
     "@microsoft/signalr": "latest",
+    "@microsoft/signalr-protocol-msgpack": "^8.0.0",
     "@reduxjs/toolkit": "latest",
     "@vidstack/react": "latest",
     "axios": "latest",

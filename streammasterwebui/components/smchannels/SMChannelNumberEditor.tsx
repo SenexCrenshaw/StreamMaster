@@ -13,14 +13,14 @@ interface SMChannelNumberEditorProperties {
 const SMChannelNumberEditor = ({ data, style }: SMChannelNumberEditorProperties) => {
   const onUpdateVideoStream = useCallback(
     async (channelNumber: number) => {
-      if (data.id === 0 || data.channelNumber === channelNumber) {
+      if (data.Id === 0 || data.ChannelNumber === channelNumber) {
         return;
       }
 
       const toSend = {} as SetSMChannelNumberRequest;
 
-      toSend.smChannelId = data.id;
-      toSend.channelNumber = channelNumber;
+      toSend.SMChannelId = data.Id;
+      toSend.ChannelNumber = channelNumber;
 
       await SetSMChannelNumber(toSend)
         .then(() => {})
@@ -28,7 +28,7 @@ const SMChannelNumberEditor = ({ data, style }: SMChannelNumberEditorProperties)
           console.log(error);
         });
     },
-    [data.channelNumber, data.id]
+    [data.ChannelNumber, data.Id]
   );
 
   return (
@@ -37,9 +37,9 @@ const SMChannelNumberEditor = ({ data, style }: SMChannelNumberEditorProperties)
         await onUpdateVideoStream(e);
       }}
       showSave={false}
-      tooltip={isDev ? `id: ${data.id}` : undefined}
+      tooltip={isDev ? `id: ${data.Id}` : undefined}
       tooltipOptions={getTopToolOptions}
-      value={data.channelNumber}
+      value={data.ChannelNumber}
     />
   );
 };

@@ -9,7 +9,7 @@ export const fetchGetPagedStreamGroups = createAsyncThunk('cache/getGetPagedStre
     console.log('Fetching GetPagedStreamGroups');
     const params = JSON.parse(query);
     const response = await GetPagedStreamGroups(params);
-    console.log('Fetched GetPagedStreamGroups ',response?.data.length);
+    console.log('Fetched GetPagedStreamGroups ',response?.Data.length);
     return { query: query, value: response };
   } catch (error) {
     console.error('Failed to fetch', error);

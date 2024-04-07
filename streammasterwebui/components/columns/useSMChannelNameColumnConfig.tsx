@@ -3,6 +3,6 @@ import createSMChannelMultiSelectColumnConfigHook from './createSMChannelMultiSe
 
 export const useSMChannelNameColumnConfig = createSMChannelMultiSelectColumnConfigHook({
   EditorComponent: SMChannelNameEditor,
-  dataField: 'name',
+  dataField: 'Name',
   headerTitle: 'Name'
 });

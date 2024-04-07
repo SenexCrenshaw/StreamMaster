@@ -17,7 +17,7 @@ interface ColumnConfigInputs {
   headerTitle: string;
   maxWidth?: number;
   minWidth?: number;
-  queryHook?: QueryHook<ChannelGroupIdName[] | string[]>;
+  queryHook?: QueryHook<string[]>;
   useFilter?: boolean;
   width?: number;
 }

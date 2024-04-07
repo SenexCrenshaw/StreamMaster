@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record RefreshM3UFileRequest(int Id, bool forceRun = false) : IRequest<APIResponse> { }
+public record RefreshM3UFileRequest(int Id, bool ForceRun = false) : IRequest<APIResponse> { }
 
 [LogExecutionTimeAspect]
 public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger, IMessageService messageService, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
@@ -28,7 +28,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
                 return APIResponse.NotFound;
             }
 
-            if (request.forceRun || m3uFile.LastDownloadAttempt.AddMinutes(m3uFile.MinimumMinutesBetweenDownloads) < SMDT.UtcNow)
+            if (request.ForceRun || m3uFile.LastDownloadAttempt.AddMinutes(m3uFile.MinimumMinutesBetweenDownloads) < SMDT.UtcNow)
             {
                 FileDefinition fd = FileDefinitions.M3U;
                 string fullName = Path.Combine(fd.DirectoryLocation, m3uFile.Source);
@@ -76,7 +76,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
             //if (publish)
             //{
-            await Publisher.Publish(new M3UFileProcessEvent(ret.Id, request.forceRun), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new M3UFileProcessEvent(ret.Id, request.ForceRun), cancellationToken).ConfigureAwait(false);
             //}
             jobManager.SetSuccessful();
 

@@ -3,7 +3,7 @@ import createSMChannelMultiSelectColumnConfigHook from './createSMChannelMultiSe
 
 export const useSMChannelLogoColumnConfig = createSMChannelMultiSelectColumnConfigHook({
   EditorComponent: SMChannelLogoEditor,
-  dataField: 'logo',
+  dataField: 'Logo',
   fieldType: 'image',
   headerTitle: '',
   useFilter: false

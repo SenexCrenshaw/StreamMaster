@@ -1,6 +1,6 @@
 import StringTracker from '@components/inputs/StringTracker';
 import { camel2title, isEmptyObject } from '@lib/common/common';
-import { PagedResponseDto } from '@lib/common/dataTypes';
+
 import useSettings from '@lib/useSettings';
 import { areArraysEqual } from '@mui/base';
 import { Button } from 'primereact/button';
@@ -20,6 +20,7 @@ import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import generateFilterData from '@components/dataSelector/generateFilterData';
+import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import TableHeader from './helpers/TableHeader';
 import bodyTemplate from './helpers/bodyTemplate';
 import { getAlign, getAlignHeader, getHeaderFromField, setColumnToggle } from './helpers/dataSelectorFunctions';
@@ -27,7 +28,7 @@ import getEmptyFilter from './helpers/getEmptyFilter';
 import getHeader from './helpers/getHeader';
 import getRecord from './helpers/getRecord';
 import { getStyle } from './helpers/getStyle';
-import isPagedTableDto from './helpers/isPagedTableDto';
+import isPagedResponse from './helpers/isPagedResponse';
 import useSMDataSelectorValuesState from './hooks/useSMDataTableState';
 import { useSetQueryFilter } from './hooks/useSetQueryFilter';
 import { ColumnMeta } from './types/ColumnMeta';
@@ -60,22 +61,22 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       return;
     }
 
-    if (data && isPagedTableDto<T>(data)) {
-      if (!state.dataSource || (state.dataSource && !areArraysEqual(data.data, state.dataSource))) {
-        setters.setDataSource((data as PagedResponseDto<T>).data);
+    if (data && isPagedResponse<T>(data)) {
+      if (!state.dataSource || (state.dataSource && !areArraysEqual(data.Data, state.dataSource))) {
+        setters.setDataSource((data as PagedResponse<T>).Data);
 
         if (state.selectAll && data !== undefined) {
-          setters.setSelectSelectedItems((data as PagedResponseDto<T>).data as T[]);
+          setters.setSelectSelectedItems((data as PagedResponse<T>).Data as T[]);
         }
       }
 
-      if (data.pageNumber > 1 && data.totalPageCount === 0) {
+      if (data.PageNumber > 1 && data.TotalPageCount === 0) {
         const newData = { ...data };
 
-        newData.pageNumber += -1;
-        newData.first = (newData.pageNumber - 1) * newData.pageSize;
-        setters.setPage(newData.pageNumber);
-        setters.setFirst(newData.first);
+        newData.PageNumber += -1;
+        newData.First = (newData.PageNumber - 1) * newData.PageSize;
+        setters.setPage(newData.PageNumber);
+        setters.setFirst(newData.First);
         setters.setPagedInformation(newData);
       } else {
         setters.setPagedInformation(data);
@@ -411,7 +412,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   //     />
   //   </div>
   // );
-
+  if (props.id === 'streameditor-SMChannelDataSelector') console.log(props.id, state.expandedRows);
   return (
     <div
       id={props.id}
@@ -419,18 +420,26 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         if (props.enableClick !== true) {
           return;
         }
-        //const target = event.currentTarget as HTMLDivElement;
+        const target = event.target as HTMLDivElement;
         if (props.showExpand === true) {
-          setters.setExpandedRows(undefined);
+          console.log(target.className);
+          if (target.className && target.className !== 'p-button-icon p-c pi pi-minus') {
+            setters.setExpandedRows(undefined);
+          } else {
+            return;
+          }
+          // setters.setExpandedRows(undefined);
         }
         props.onClick?.(event);
       }}
       className=""
     >
       {/* <div className={`${props.className === undefined ? '' : props.className} h-full min-h-full w-full surface-overlay`}> */}
+
       <div className="h-full min-h-full w-full surface-overlay">
         <DataTable
           id={props.id}
+          dataKey="Id"
           cellSelection={false}
           editMode="cell"
           filterDisplay="row"

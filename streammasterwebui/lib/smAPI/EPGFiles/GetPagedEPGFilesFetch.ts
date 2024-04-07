@@ -9,7 +9,7 @@ export const fetchGetPagedEPGFiles = createAsyncThunk('cache/getGetPagedEPGFiles
     console.log('Fetching GetPagedEPGFiles');
     const params = JSON.parse(query);
     const response = await GetPagedEPGFiles(params);
-    console.log('Fetched GetPagedEPGFiles ',response?.data.length);
+    console.log('Fetched GetPagedEPGFiles ',response?.Data.length);
     return { query: query, value: response };
   } catch (error) {
     console.error('Failed to fetch', error);

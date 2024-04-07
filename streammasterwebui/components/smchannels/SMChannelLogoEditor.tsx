@@ -10,10 +10,10 @@ export interface StreamDataSelectorProperties {
 
 const SMChannelLogoEditor = ({ data, enableEditMode }: StreamDataSelectorProperties) => {
   const onSetLogo = (Logo: string) => {
-    if (data.id === 0) {
+    if (data.Id === 0) {
       return;
     }
-    const request = { smChannelId: data.id, logo: Logo } as SetSMChannelLogoRequest;
+    const request = { SMChannelId: data.Id, Logo: Logo } as SetSMChannelLogoRequest;
 
     SetSMChannelLogo(request)
       .then(() => {})
@@ -30,7 +30,7 @@ const SMChannelLogoEditor = ({ data, enableEditMode }: StreamDataSelectorPropert
       onChange={async (e: string) => {
         onSetLogo(e);
       }}
-      value={data.logo}
+      value={data.Logo}
     />
   );
 };

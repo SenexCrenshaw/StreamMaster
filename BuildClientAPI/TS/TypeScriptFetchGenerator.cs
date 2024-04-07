@@ -106,7 +106,7 @@ public static class TypeScriptFetchGenerator
         content.AppendLine($"    console.log('Fetching {method.Name}');");
         content.AppendLine("    const params = JSON.parse(query);");
         content.AppendLine($"    const response = await {method.Name}(params);");
-        content.AppendLine($"    console.log('Fetched {method.Name} ',response?.data.length);");
+        content.AppendLine($"    console.log('Fetched {method.Name} ',response?.Data.length);");
         content.AppendLine("    return { query: query, value: response };");
         content.AppendLine("  } catch (error) {");
         content.AppendLine("    console.error('Failed to fetch', error);");

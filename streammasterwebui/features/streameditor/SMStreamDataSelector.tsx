@@ -40,7 +40,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
   const actionBodyTemplate = useCallback(
     (data: SMStreamDto) => (
       <div className="flex p-0 justify-content-end align-items-center">
-        <StreamCopyLinkDialog realUrl={data.realUrl} />
+        <StreamCopyLinkDialog realUrl={data.RealUrl} />
         <StreamVisibleDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
 
         {/* <VideoStreamSetAutoSetEPGDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} /> */}
@@ -61,9 +61,9 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'logo', fieldType: 'image' },
-      { field: 'name', filter: true, sortable: true, maxWidth: '2rem' },
-      { field: 'group', filter: true, sortable: true, width: '5rem' },
+      { field: 'Logo', fieldType: 'image' },
+      { field: 'Name', filter: true, sortable: true, maxWidth: '2rem' },
+      { field: 'Group', filter: true, sortable: true, width: '5rem' },
       { field: 'm3UFileName', filter: true, header: 'M3U', sortable: true, width: '5rem' },
       { align: 'right', bodyTemplate: actionBodyTemplate, field: 'isHidden', fieldType: 'actions', header: 'Actions', width: '5rem' }
     ],
@@ -76,13 +76,13 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
       // const isSelected = found ?? false;
       let toolTip = 'Add Channel';
       if (selectedSMChannel !== undefined) {
-        toolTip = 'Add Stream To "' + selectedSMChannel.name + '"';
+        toolTip = 'Add Stream To "' + selectedSMChannel.Name + '"';
         return (
           <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
             <AddButton
               iconFilled={false}
               onClick={() => {
-                AddSMStreamToSMChannel({ smStreamId: data.id, smChannelId: selectedSMChannel?.id ?? 0 })
+                AddSMStreamToSMChannel({ SMStreamId: data.id, SMChannelId: selectedSMChannel?.Id ?? 0 })
                   .then((response) => {})
                   .catch((error) => {
                     console.error(error.message);
@@ -160,7 +160,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
 
   const setSelectedSMEntity = useCallback(
     (data: DataTableValue, toggle?: boolean) => {
-      if (toggle === true && selectedSMChannel !== undefined && data !== undefined && data.id === selectedSMChannel.id) {
+      if (toggle === true && selectedSMChannel !== undefined && data !== undefined && data.id === selectedSMChannel.Id) {
         setSelectedSMChannel(undefined);
       } else {
         setSelectedSMChannel(data as SMChannelDto);
@@ -179,7 +179,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
 
       if (selectedSMChannel !== undefined) {
         const id = getRecord(data, 'id') as number;
-        if (id === selectedSMChannel.id) {
+        if (id === selectedSMChannel.Id) {
           return 'bg-orange-900';
         }
       }

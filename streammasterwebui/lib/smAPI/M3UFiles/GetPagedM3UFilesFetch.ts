@@ -9,7 +9,7 @@ export const fetchGetPagedM3UFiles = createAsyncThunk('cache/getGetPagedM3UFiles
     console.log('Fetching GetPagedM3UFiles');
     const params = JSON.parse(query);
     const response = await GetPagedM3UFiles(params);
-    console.log('Fetched GetPagedM3UFiles ',response?.data.length);
+    console.log('Fetched GetPagedM3UFiles ',response?.Data.length);
     return { query: query, value: response };
   } catch (error) {
     console.error('Failed to fetch', error);

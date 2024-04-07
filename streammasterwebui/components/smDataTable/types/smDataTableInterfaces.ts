@@ -1,5 +1,5 @@
 import { GetApiArgument, QueryHook } from '@lib/apiDefs';
-import { PagedResponseDto } from '@lib/common/dataTypes';
+import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { Column } from 'primereact/column';
 import { DataTableRowClickEvent, DataTableRowData, DataTableRowEvent, DataTableRowExpansionTemplate } from 'primereact/datatable';
 import { CSSProperties, MouseEventHandler, ReactNode } from 'react';
@@ -49,12 +49,12 @@ interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
 
 type QueryFilterProperties<T> = BaseDataSelectorProperties<T> & {
   dataSource?: T[] | undefined;
-  queryFilter: (filters: GetApiArgument) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
+  queryFilter: (filters: GetApiArgument) => ReturnType<QueryHook<PagedResponse<T> | T[]>>;
 };
 
 type DataSourceProperties<T> = BaseDataSelectorProperties<T> & {
   dataSource: T[] | undefined;
-  queryFilter?: (filters: GetApiArgument) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
+  queryFilter?: (filters: GetApiArgument) => ReturnType<QueryHook<PagedResponse<T> | T[]>>;
 };
 
 export type SMDataTableProps<T> = DataSourceProperties<T> | QueryFilterProperties<T>;

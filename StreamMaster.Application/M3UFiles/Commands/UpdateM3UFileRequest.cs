@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.M3UFiles.Commands;
+﻿using System.Linq.Expressions;
+
+namespace StreamMaster.Application.M3UFiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -25,54 +27,63 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, ISender 
 
             if (request.VODTags != null)
             {
+                m3uFile.UpdatePropertyIfDifferent(x => x.VODTags, request, ret);
+
                 needsUpdate = true;
-                m3uFile.VODTags = request.VODTags;
-                ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "vodTags", m3uFile.VODTags));
+                //m3uFile.VODTags = request.VODTags;
+                //ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "VODTags", m3uFile.VODTags));
             }
 
 
-            if (!string.IsNullOrEmpty(request.Url) && m3uFile.Url != request.Url)
+            if (m3uFile.Url != request.Url)
             {
+                m3uFile.UpdatePropertyIfDifferent(x => x.Url, request, ret);
                 needsUpdate = true;
-                m3uFile.Url = request.Url;
-                ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "url", m3uFile.Url));
+                //m3uFile.Url = request.Url;
+                //ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "Url", m3uFile.Url));
             }
 
             if (request.OverWriteChannels != null)
             {
                 needsUpdate = true;
-                m3uFile.OverwriteChannelNumbers = (bool)request.OverWriteChannels;
-                ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "overwriteChannelNumbers", m3uFile.OverwriteChannelNumbers));
+                m3uFile.UpdatePropertyIfDifferent(x => x.OverwriteChannelNumbers, request, ret);
+                //m3uFile.OverwriteChannelNumbers = (bool)request.OverWriteChannels;
+                //ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "OverwriteChannelNumbers", m3uFile.OverwriteChannelNumbers));
             }
 
-            if (!string.IsNullOrEmpty(request.Name) && m3uFile.Name != request.Name)
+            if (!string.IsNullOrEmpty(request.Name))
             {
-                m3uFile.Name = request.Name;
-                ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "name", m3uFile.Name));
+                m3uFile.UpdatePropertyIfDifferent(x => x.Name, request, ret);
+                //m3uFile.Name = request.Name;
+                //ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "Name", m3uFile.Name));
             }
 
-            if (request.MaxStreamCount != null && m3uFile.MaxStreamCount != request.MaxStreamCount)
+            if (request.MaxStreamCount.HasValue)
             {
-                m3uFile.MaxStreamCount = (int)request.MaxStreamCount;
-                ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "maxStreamCount", m3uFile.MaxStreamCount));
+                m3uFile.UpdatePropertyIfDifferent(x => x.MaxStreamCount, request, ret);
+                //m3uFile.MaxStreamCount = (int)request.MaxStreamCount;
+                //ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "MaxStreamCount", m3uFile.MaxStreamCount));
             }
 
-            if (request.AutoUpdate != null && m3uFile.AutoUpdate != request.AutoUpdate)
+            if (request.AutoUpdate != null)
             {
-                m3uFile.AutoUpdate = (bool)request.AutoUpdate;
-                ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "autoUpdate", m3uFile.AutoUpdate));
+                m3uFile.UpdatePropertyIfDifferent(x => x.AutoUpdate, request, ret);
+
+                //m3uFile.AutoUpdate = (bool)request.AutoUpdate;
+                //ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "AutoUpdate", m3uFile.AutoUpdate));
             }
 
-            if (request.StartingChannelNumber != null && m3uFile.StartingChannelNumber != request.StartingChannelNumber)
+            if (request.StartingChannelNumber.HasValue)
             {
-                m3uFile.StartingChannelNumber = (int)request.StartingChannelNumber;
-                ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "startingChannelNumber", m3uFile.StartingChannelNumber));
+                m3uFile.UpdatePropertyIfDifferent(x => x.StartingChannelNumber, request, ret);
+                //m3uFile.StartingChannelNumber = (int)request.StartingChannelNumber;
+                //ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "StartingChannelNumber", m3uFile.StartingChannelNumber));
             }
 
-            if (request.HoursToUpdate != null && m3uFile.HoursToUpdate != request.HoursToUpdate)
+
+            if (request.HoursToUpdate.HasValue)
             {
-                m3uFile.HoursToUpdate = (int)request.HoursToUpdate;
-                ret.Add(new FieldData("M3UFileDto", m3uFile.Id.ToString(), "hoursToUpdate", m3uFile.HoursToUpdate));
+                m3uFile.UpdatePropertyIfDifferent(x => x.HoursToUpdate, request, ret);
             }
 
             Repository.M3UFile.UpdateM3UFile(m3uFile);
@@ -102,5 +113,56 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, ISender 
             return APIResponse.ErrorWithMessage(ex, $"Failed M3U update");
         }
 
+    }
+
+
+
+}
+
+public static class ReflectionExtensions
+{
+    public static void UpdatePropertyIfDifferent<TSource, TTarget>(
+        this TTarget target,
+        Expression<Func<TTarget, object>> propertyLambda,
+        TSource source,
+        ICollection<FieldData> ret)
+        where TTarget : class
+        where TSource : class
+    {
+        // Extracting property name from the lambda expression
+        MemberExpression? member = propertyLambda.Body as MemberExpression ??
+                     (propertyLambda.Body as UnaryExpression)?.Operand as MemberExpression;
+        if (member == null)
+        {
+            throw new ArgumentException("Property name could not be extracted.", nameof(propertyLambda));
+        }
+        string propertyName = member.Member.Name;
+
+        // Using reflection to get the property from both source and target
+        System.Reflection.PropertyInfo? targetPropertyInfo = typeof(TTarget).GetProperty(propertyName);
+        System.Reflection.PropertyInfo? sourcePropertyInfo = typeof(TSource).GetProperty(propertyName);
+        if (targetPropertyInfo == null || sourcePropertyInfo == null)
+        {
+            throw new ArgumentException($"Property {propertyName} not found on one of the objects.", propertyName);
+        }
+
+        // Getting the current values from both target and source
+        object? targetValue = targetPropertyInfo.GetValue(target);
+        object? sourceValue = sourcePropertyInfo.GetValue(source);
+
+        if (!EqualityComparer<object>.Default.Equals(targetValue, sourceValue))
+        {
+            targetPropertyInfo.SetValue(target, sourceValue);
+
+            // Dynamically accessing the Id property of the target
+            System.Reflection.PropertyInfo? idProperty = typeof(TTarget).GetProperty("Id");
+            if (idProperty == null)
+            {
+                throw new InvalidOperationException("The target object does not have an Id property.");
+            }
+            string idValue = idProperty.GetValue(target)?.ToString() ?? "Unknown";
+
+            ret.Add(new FieldData(typeof(TTarget).Name, idValue, propertyName, sourceValue));
+        }
     }
 }

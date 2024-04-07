@@ -65,10 +65,3 @@ export function removeKeyFromData<T extends Record<string, any>>(data: T, keyToR
   const { [keyToRemove]: _, ...rest } = data;
   return rest;
 }
-
-export type FieldData = {
-  entity: string;
-  id: string;
-  field: string;
-  value: any;
-};

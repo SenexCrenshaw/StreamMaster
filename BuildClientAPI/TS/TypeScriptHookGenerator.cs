@@ -199,6 +199,7 @@ public static class TypeScriptHookGenerator
         content.AppendLine("    SetIsForced(true);");
         content.AppendLine("  }");
         content.AppendLine("}, [SetIsForced, data, dispatch]);");
+        content.AppendLine();
         return content.ToString();
     }
 

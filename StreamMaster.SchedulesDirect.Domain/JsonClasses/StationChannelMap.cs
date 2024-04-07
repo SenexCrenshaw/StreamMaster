@@ -1,4 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿using MessagePack;
+
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
@@ -6,17 +8,18 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
     public class StationChannelMap
     {
         [JsonIgnore]
+        [IgnoreMember]
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        [JsonPropertyName("map")]
+        //[JsonPropertyName("map")]
         //[JsonConverter(typeof(SingleOrListConverter<LineupChannel>))]
         public List<LineupChannel> Map { get; set; } = [];
 
-        [JsonPropertyName("stations")]
+        //[JsonPropertyName("stations")]
         //[JsonConverter(typeof(SingleOrListConverter<LineupStation>))]
         public List<LineupStation> Stations { get; set; } = [];
 
-        [JsonPropertyName("metadata")]
+        //[JsonPropertyName("metadata")]
         public LineupMetadata? Metadata { get; set; }
     }
 
@@ -27,10 +30,25 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         {
             get
             {
-                if (string.IsNullOrEmpty(Channel)) return ChannelMajor ?? AtscMajor ?? UhfVhf ?? -1;
-                if (Regex.Match(Channel, @"[A-Za-z]{1}[\d]{4}").Length > 0) return int.Parse(Channel[2..]);
-                if (Regex.Match(Channel, @"[A-Za-z0-9.]\.[A-Za-z]{2}").Length > 0) return -1;
-                if (int.TryParse(Regex.Replace(Channel, "[^0-9.]", ""), out int number)) return number;
+                if (string.IsNullOrEmpty(Channel))
+                {
+                    return ChannelMajor ?? AtscMajor ?? UhfVhf ?? -1;
+                }
+
+                if (Regex.Match(Channel, @"[A-Za-z]{1}[\d]{4}").Length > 0)
+                {
+                    return int.Parse(Channel[2..]);
+                }
+
+                if (Regex.Match(Channel, @"[A-Za-z0-9.]\.[A-Za-z]{2}").Length > 0)
+                {
+                    return -1;
+                }
+
+                if (int.TryParse(Regex.Replace(Channel, "[^0-9.]", ""), out int number))
+                {
+                    return number;
+                }
                 else
                 {
                     // if channel number is not a whole number, must be a decimal number
@@ -48,7 +66,11 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         {
             get
             {
-                if (string.IsNullOrEmpty(Channel)) return ChannelMinor ?? AtscMinor ?? 0;
+                if (string.IsNullOrEmpty(Channel))
+                {
+                    return ChannelMinor ?? AtscMinor ?? 0;
+                }
+
                 if (!int.TryParse(Regex.Replace(Channel, "[^0-9.]", ""), out _))
                 {
                     // if channel number is not a whole number, must be a decimal number
@@ -63,6 +85,7 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         }
 
         [JsonIgnore]
+        [IgnoreMember]
         public string MatchName { get; set; }
 
         [JsonPropertyName("stationID")]

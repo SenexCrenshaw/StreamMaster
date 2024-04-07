@@ -42,6 +42,7 @@ useEffect(() => {
     SetIsForced(true);
   }
 }, [SetIsForced, data, dispatch]);
+
 useEffect(() => {
   const state = store.getState().GetEPGNextEPGNumber;
   if (state.isLoading) return;

@@ -5,7 +5,7 @@ namespace StreamMaster.Application.ChannelGroups.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record DeleteChannelGroupRequest(int channelGroupId) : IRequest<APIResponse> { }
+public record DeleteChannelGroupRequest(int ChannelGroupId) : IRequest<APIResponse> { }
 
 public class DeleteChannelGroupRequestHandler(IRepositoryWrapper Repository, IPublisher Publisher, IMemoryCache MemoryCache)
     : IRequestHandler<DeleteChannelGroupRequest, APIResponse>
@@ -13,7 +13,7 @@ public class DeleteChannelGroupRequestHandler(IRepositoryWrapper Repository, IPu
     public async Task<APIResponse> Handle(DeleteChannelGroupRequest request, CancellationToken cancellationToken)
     {
 
-        (int? ChannelGroupId, IEnumerable<VideoStreamDto> VideoStreams) = await Repository.ChannelGroup.DeleteChannelGroupById(request.channelGroupId).ConfigureAwait(false); ;
+        (int? ChannelGroupId, IEnumerable<VideoStreamDto> VideoStreams) = await Repository.ChannelGroup.DeleteChannelGroupById(request.ChannelGroupId).ConfigureAwait(false); ;
         _ = await Repository.SaveAsync().ConfigureAwait(false);
         if (ChannelGroupId != null)
         {

@@ -43,6 +43,7 @@ useEffect(() => {
   }
 }, [SetIsForced, data, dispatch]);
 
+
 const SetField = (fieldData: FieldData): void => {
   dispatch(setField({ fieldData: fieldData }));
 };

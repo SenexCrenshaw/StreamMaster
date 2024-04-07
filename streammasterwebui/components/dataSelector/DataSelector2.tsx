@@ -6,26 +6,26 @@ import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import {
   DataTable,
   DataTableExpandedRows,
-  type DataTablePageEvent,
-  type DataTableRowClickEvent,
-  type DataTableRowData,
   DataTableRowEvent,
   DataTableRowExpansionTemplate,
   DataTableRowReorderEvent,
   DataTableRowToggleEvent,
+  type DataTablePageEvent,
+  type DataTableRowClickEvent,
+  type DataTableRowData,
   type DataTableSelectAllChangeEvent,
   type DataTableSelectionMultipleChangeEvent,
   type DataTableSelectionSingleChangeEvent,
   type DataTableStateEvent,
   type DataTableValue
 } from 'primereact/datatable';
-import { type CSSProperties, type ReactNode, memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
 
 import bodyTemplate from '../smDataTable/helpers/bodyTemplate';
 import getEmptyFilter from '../smDataTable/helpers/getEmptyFilter';
 import getHeader from '../smDataTable/helpers/getHeader';
 import getRecord from '../smDataTable/helpers/getRecord';
-import isPagedTableDto from '../smDataTable/helpers/isPagedTableDto';
+import isPagedResponse from '../smDataTable/helpers/isPagedResponse';
 import { type ColumnAlign, type ColumnFieldType, type ColumnMeta, type DataSelectorSelectionMode } from './DataSelectorTypes';
 import generateFilterData from './generateFilterData';
 import useDataSelectorState2 from './useDataSelectorState2';
@@ -123,7 +123,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
       return;
     }
 
-    if (data && data.data && isPagedTableDto<T>(data)) {
+    if (data && data.data && isPagedResponse<T>(data)) {
       if (!state.dataSource || (state.dataSource && !areArraysEqual(data.data, state.dataSource))) {
         setters.setDataSource((data as PagedResponseDto<T>).data);
         if (debug && props.id === 'streamgroupeditor-StreamGroupSelectedVideoStreamDataSelector') {

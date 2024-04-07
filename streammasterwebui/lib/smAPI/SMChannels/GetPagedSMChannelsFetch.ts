@@ -9,7 +9,7 @@ export const fetchGetPagedSMChannels = createAsyncThunk('cache/getGetPagedSMChan
     console.log('Fetching GetPagedSMChannels');
     const params = JSON.parse(query);
     const response = await GetPagedSMChannels(params);
-    console.log('Fetched GetPagedSMChannels ',response?.data.length);
+    console.log('Fetched GetPagedSMChannels ',response?.Data.length);
     return { query: query, value: response };
   } catch (error) {
     console.error('Failed to fetch', error);

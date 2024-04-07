@@ -1,4 +1,6 @@
-﻿using Reinforced.Typings.Attributes;
+﻿using MessagePack;
+
+using Reinforced.Typings.Attributes;
 
 using StreamMaster.Domain.Attributes;
 using StreamMaster.SchedulesDirect.Domain.Enums;
@@ -12,9 +14,11 @@ namespace StreamMaster.Domain.Dto;
 public class IconFileDto : IMapFrom<IconFile>
 {
     [JsonIgnore]
+    [IgnoreMember]
     public string Extension { get; set; } = string.Empty;
 
     [JsonIgnore]
+    [IgnoreMember]
     public int FileId { get; set; }
 
     public string Id => Source;

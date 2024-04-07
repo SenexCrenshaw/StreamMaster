@@ -15,7 +15,6 @@ using NSwag.Generation.Processors.Security;
 using Prometheus;
 
 using StreamMaster.API.Services;
-using StreamMaster.Application.Common;
 using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Application.Hubs;
 using StreamMaster.Application.Services;
@@ -175,7 +174,7 @@ public static class ConfigureServices
         });
 
 
-        services.AddSignalR();//.AddMessagePackProtocol();
+        services.AddSignalR().AddMessagePackProtocol();
 
         services.AddDataProtection().PersistKeysToDbContext<PGSQLRepositoryContext>();
 

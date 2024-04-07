@@ -17,19 +17,19 @@ interface SMStreamDataSelectorValueProperties {
 
 const SMStreamDataSelectorValue = ({ data, id, smChannel }: SMStreamDataSelectorValueProperties) => {
   const dataKey = `${id}-SMStreamDataSelectorValue`;
-  const { setSelectedSMChannel } = useSelectedSMItems();
-
+  const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
+  console.log('SMStreamDataSelectorValue', data, smChannel);
   const actionBodyTemplate = useCallback(
     (data: SMStreamDto) => (
       <div className="flex p-0 justify-content-end align-items-center">
         <MinusButton
           iconFilled={false}
           onClick={() => {
-            if (!data.id || smChannel === undefined) {
+            if (!data.Id || smChannel === undefined) {
               return;
             }
 
-            const request: RemoveSMStreamFromSMChannelRequest = { smChannelId: smChannel.id, smStreamId: data.id };
+            const request: RemoveSMStreamFromSMChannelRequest = { SMChannelId: smChannel.Id, SMStreamId: data.Id };
             RemoveSMStreamFromSMChannel(request)
               .then((response) => {
                 console.log('Remove Stream', response);
@@ -47,11 +47,11 @@ const SMStreamDataSelectorValue = ({ data, id, smChannel }: SMStreamDataSelector
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'logo', fieldType: 'image', sortable: false, width: '4rem' },
+      { field: 'Logo', fieldType: 'image', sortable: false, width: '4rem' },
       // { field: 'rank', sortable: false },
-      { field: 'name', sortable: false },
-      { field: 'group', sortable: false, width: '5rem' },
-      { field: 'm3UFileName', header: 'M3U', sortable: false, width: '5rem' },
+      { field: 'Name', sortable: false },
+      { field: 'Group', sortable: false, width: '5rem' },
+      { field: 'M3UFileName', header: 'M3U', sortable: false, width: '5rem' },
       {
         align: 'right',
         bodyTemplate: actionBodyTemplate,
@@ -67,7 +67,11 @@ const SMStreamDataSelectorValue = ({ data, id, smChannel }: SMStreamDataSelector
   return (
     <div
       onClick={() => {
-        setSelectedSMChannel(smChannel);
+        if (smChannel) {
+          if (!selectedSMChannel || selectedSMChannel.Id !== smChannel.Id) {
+            setSelectedSMChannel(smChannel);
+          }
+        }
       }}
     >
       <Suspense>
@@ -77,7 +81,7 @@ const SMStreamDataSelectorValue = ({ data, id, smChannel }: SMStreamDataSelector
           columns={columns}
           defaultSortField="rank"
           defaultSortOrder={1}
-          dataSource={data && [...data].sort((a, b) => a.rank - b.rank)}
+          dataSource={data && [...data].sort((a, b) => a.Rank - b.Rank)}
           emptyMessage="No Streams"
           headerName={GetMessage('streams').toUpperCase()}
           onRowReorder={(event: DataTableValue[]) => {
@@ -87,10 +91,10 @@ const SMStreamDataSelectorValue = ({ data, id, smChannel }: SMStreamDataSelector
             }
 
             const tosend: SMChannelRankRequest[] = channels.map((item, index) => {
-              return { smChannelId: smChannel.id, smStreamId: item.id, rank: index } as SMChannelRankRequest;
+              return { SMChannelId: smChannel.Id, SMStreamId: item.Id, Rank: index } as SMChannelRankRequest;
             });
 
-            SetSMStreamRanks({ requests: tosend } as SetSMStreamRanksRequest)
+            SetSMStreamRanks({ Requests: tosend } as SetSMStreamRanksRequest)
               .then((response) => {
                 console.log('SetSMStreamRanks', response);
               })
@@ -101,7 +105,7 @@ const SMStreamDataSelectorValue = ({ data, id, smChannel }: SMStreamDataSelector
             console.log('tosend', tosend);
           }}
           onRowExpand={(e: DataTableRowEvent) => {
-            setSelectedSMChannel(e.data);
+            setSelectedSMChannel(e.data as SMChannelDto);
           }}
           id={dataKey}
           selectedItemsKey={'SMStreamDataSelectorValue-selectSelectedSMStreamDtoItems'}

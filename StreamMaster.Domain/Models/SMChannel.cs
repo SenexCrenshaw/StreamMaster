@@ -1,6 +1,7 @@
 ﻿using AutoMapper.Configuration.Annotations;
 
-using System.ComponentModel.DataAnnotations;
+using MessagePack;
+
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -8,16 +9,19 @@ namespace StreamMaster.Domain.Models;
 
 public class SMChannel
 {
+
     public StreamingProxyTypes StreamingProxyType { get; set; } = StreamingProxyTypes.SystemDefault;
 
     [Ignore]
     [JsonIgnore]
+    [IgnoreMember]
     public ICollection<SMChannelStreamLink> SMStreams { get; set; } = [];
     [Ignore]
     [JsonIgnore]
+    [IgnoreMember]
     public ICollection<StreamGroupSMChannel> StreamGroups { get; set; } = [];
 
-    [Key]
+    [System.ComponentModel.DataAnnotations.Key]
     public int Id { get; set; }
 
     public bool IsHidden { get; set; } = false;

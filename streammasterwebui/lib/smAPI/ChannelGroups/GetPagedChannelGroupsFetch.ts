@@ -9,7 +9,7 @@ export const fetchGetPagedChannelGroups = createAsyncThunk('cache/getGetPagedCha
     console.log('Fetching GetPagedChannelGroups');
     const params = JSON.parse(query);
     const response = await GetPagedChannelGroups(params);
-    console.log('Fetched GetPagedChannelGroups ',response?.data.length);
+    console.log('Fetched GetPagedChannelGroups ',response?.Data.length);
     return { query: query, value: response };
   } catch (error) {
     console.error('Failed to fetch', error);

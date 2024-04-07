@@ -17,14 +17,14 @@ import {
   type DataTableStateEvent,
   type DataTableValue
 } from 'primereact/datatable';
-import { type CSSProperties, type ReactNode, memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
 
 import TableHeader from '../smDataTable/helpers/TableHeader';
 import bodyTemplate from '../smDataTable/helpers/bodyTemplate';
 import getEmptyFilter from '../smDataTable/helpers/getEmptyFilter';
 import getHeader from '../smDataTable/helpers/getHeader';
 import getRecord from '../smDataTable/helpers/getRecord';
-import isPagedTableDto from '../smDataTable/helpers/isPagedTableDto';
+import isPagedResponse from '../smDataTable/helpers/isPagedResponse';
 import { type ColumnAlign, type ColumnFieldType, type ColumnMeta, type DataSelectorSelectionMode } from './DataSelectorTypes';
 import generateFilterData from './generateFilterData';
 import getRecordString from './getRecordString';
@@ -145,7 +145,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
       return;
     }
 
-    if (data && isPagedTableDto<T>(data)) {
+    if (data && isPagedResponse<T>(data)) {
       if (!state.dataSource || (state.dataSource && !areArraysEqual(data.data, state.dataSource))) {
         setters.setDataSource((data as PagedResponseDto<T>).data);
 

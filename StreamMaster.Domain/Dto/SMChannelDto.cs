@@ -3,6 +3,7 @@
 namespace StreamMaster.Domain.Dto;
 
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+//[MessagePackObject(keyAsPropertyName: true)]
 public class SMChannelDto : SMChannel, IMapFrom<SMChannel>
 {
     public new List<SMStreamDto> SMStreams { get; set; } = [];

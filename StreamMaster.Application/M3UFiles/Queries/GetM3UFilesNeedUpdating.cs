@@ -2,7 +2,7 @@
 
 public record GetM3UFilesNeedUpdating() : IRequest<DataResponse<List<M3UFileDto>>>;
 
-internal class GetM3UFilesNeedUpdatingHandler(ILogger<GetM3UFilesNeedUpdating> logger, IRepositoryWrapper Repository)
+internal class GetM3UFilesNeedUpdatingHandler(IRepositoryWrapper Repository)
     : IRequestHandler<GetM3UFilesNeedUpdating, DataResponse<List<M3UFileDto>>>
 {
     public async Task<DataResponse<List<M3UFileDto>>> Handle(GetM3UFilesNeedUpdating request, CancellationToken cancellationToken = default)

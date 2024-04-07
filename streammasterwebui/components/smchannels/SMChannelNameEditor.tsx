@@ -11,11 +11,11 @@ export interface SMChannelNameEditorProperties {
 const SMChannelNameEditor = ({ data, onClick }: SMChannelNameEditorProperties) => {
   const onUpdateM3UStream = React.useCallback(
     async (name: string) => {
-      if (data.id === 0 || !name || name === '' || data.name === name) {
+      if (data.Id === 0 || !name || name === '' || data.Name === name) {
         return;
       }
 
-      const toSend = { smChannelId: data.id, name: name } as SetSMChannelNameRequest;
+      const toSend = { SMChannelId: data.Id, Name: name } as SetSMChannelNameRequest;
 
       await SetSMChannelName(toSend)
         .then(() => {})
@@ -23,10 +23,10 @@ const SMChannelNameEditor = ({ data, onClick }: SMChannelNameEditorProperties) =
           console.error(error);
         });
     },
-    [data.id, data.name]
+    [data.Id, data.Name]
   );
 
-  if (data.name === undefined) {
+  if (data.Name === undefined) {
     return <span className="sm-inputtext" />;
   }
 
@@ -38,7 +38,7 @@ const SMChannelNameEditor = ({ data, onClick }: SMChannelNameEditorProperties) =
           await onUpdateM3UStream(e);
         }
       }}
-      value={data.name}
+      value={data.Name}
     />
   );
 };
