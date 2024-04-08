@@ -63,6 +63,28 @@ public static class CSharpGenerator
                     controllerContent.AppendLine($"            return ret;");
                     IcontrollerContent.AppendLine($"        Task<ActionResult<PagedResponse<{method.ReturnType}>>> {method.Name}({method.Parameter});");
                 }
+                else if (method.IsGetCached)
+                {
+                    if (method.Name == "GetIcons")
+                    {
+                        int aa = 1;
+                    }
+
+                    controllerContent.AppendLine($"        public async Task<ActionResult<{method.ReturnType}>> {method.Name}({method.Name}Request request)");
+                    controllerContent.AppendLine($"        {{");
+                    controllerContent.AppendLine($"            try");
+                    controllerContent.AppendLine($"            {{");
+                    controllerContent.AppendLine($"            DataResponse<{method.ReturnType}> ret = await Sender.Send(request).ConfigureAwait(false);");
+                    controllerContent.AppendLine($"             return ret.IsError ? Problem(detail: \"An unexpected error occurred retrieving {method.Name}.\", statusCode: 500) : Ok(ret.Data);");
+                    controllerContent.AppendLine($"            }}");
+                    controllerContent.AppendLine($"            catch (Exception ex)");
+                    controllerContent.AppendLine($"            {{");
+                    controllerContent.AppendLine($"                _logger.LogError(ex, \"An unexpected error occurred while processing the request to get {method.Name}.\");");
+                    controllerContent.AppendLine($"                return Problem(detail: \"An unexpected error occurred. Please try again later.\", statusCode: 500);");
+                    controllerContent.AppendLine($"            }}");
+
+                    IcontrollerContent.AppendLine($"        Task<ActionResult<{method.ReturnType}>> {method.Name}({method.Name}Request request);");
+                }
                 else if (method.IsGet)
                 {
                     if (method.Name == "GetIcons")
@@ -124,21 +146,22 @@ public static class CSharpGenerator
 
                 if (method.IsGetPaged)
                 {
-
                     hubContent.AppendLine($"        public async Task<PagedResponse<{method.ReturnType}>> {method.Name}({method.Parameter})");
                     hubContent.AppendLine($"        {{");
                     hubContent.AppendLine($"            PagedResponse<{method.ReturnType}> ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
                     hubContent.AppendLine($"            return ret;");
                     IhubContent.AppendLine($"        Task<PagedResponse<{method.ReturnType}>> {method.Name}({method.Parameter});");
                 }
+                else if (method.IsGetCached)
+                {
+                    hubContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.Name}Request request)");
+                    hubContent.AppendLine($"        {{");
+                    hubContent.AppendLine($"             DataResponse<{method.ReturnType}> ret = await Sender.Send(request).ConfigureAwait(false);");
+                    hubContent.AppendLine($"            return ret.Data;");
+                    IhubContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Name}Request request);");
+                }
                 else if (method.IsGet)
                 {
-                    if (method.Name == "GetIcons")
-                    {
-                        int aa = 1;
-                    }
-
-
                     hubContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.Parameter})");
                     hubContent.AppendLine($"        {{");
                     hubContent.AppendLine($"             DataResponse<{method.ReturnType}> ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
@@ -225,7 +248,7 @@ namespace StreamMaster.Application.Hubs
         fileContent += $@"
 namespace StreamMaster.Application.{ns}
 {{
-    public partial class {namespaceName}Controller(ISender Sender, ILogger<{namespaceName}Controller> _logger) : ApiControllerBase, I{namespaceName}Controller
+    public partial class {namespaceName}Controller(ILogger<{namespaceName}Controller> _logger) : ApiControllerBase, I{namespaceName}Controller
     {{        
 
 {controllerContent}    }}

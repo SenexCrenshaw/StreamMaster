@@ -7,7 +7,7 @@ namespace StreamMaster.Application.EPGFiles
     public interface IEPGFilesController
     {        
         Task<ActionResult<List<EPGColorDto>>> GetEPGColors();
-        Task<ActionResult<List<EPGFilePreviewDto>>> GetEPGFilePreviewById(int Id);
+        Task<ActionResult<List<EPGFilePreviewDto>>> GetEPGFilePreviewById(GetEPGFilePreviewByIdRequest request);
         Task<ActionResult<int>> GetEPGNextEPGNumber();
         Task<ActionResult<PagedResponse<EPGFileDto>>> GetPagedEPGFiles(QueryStringParameters Parameters);
         Task<ActionResult<APIResponse>> CreateEPGFile(CreateEPGFileRequest request);
@@ -23,7 +23,7 @@ namespace StreamMaster.Application.Hubs
     public interface IEPGFilesHub
     {
         Task<List<EPGColorDto>> GetEPGColors();
-        Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int Id);
+        Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(GetEPGFilePreviewByIdRequest request);
         Task<int> GetEPGNextEPGNumber();
         Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(QueryStringParameters Parameters);
         Task<APIResponse> CreateEPGFile(CreateEPGFileRequest request);

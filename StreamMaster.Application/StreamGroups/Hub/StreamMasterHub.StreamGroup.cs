@@ -1,7 +1,7 @@
 ﻿using StreamMaster.Application.Statistics.Queries;
 using StreamMaster.Application.StreamGroups;
 using StreamMaster.Application.StreamGroups.CommandsOld;
-using StreamMaster.Application.StreamGroups.Queries;
+using StreamMaster.Application.StreamGroups.QueriesOld;
 using StreamMaster.Domain.Requests;
 
 namespace StreamMaster.Application.Hubs;

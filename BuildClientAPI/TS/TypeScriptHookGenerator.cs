@@ -81,10 +81,10 @@ public static class TypeScriptHookGenerator
         content.AppendLine($"import {{ clear, setField, setIsForced, setIsLoading }} from './{method.Name}Slice';");
         content.AppendLine("import { useCallback,useEffect } from 'react';");
 
-        if (!method.IsGetCached)
-        {
-            content.AppendLine($"import {{ {fetchActionName} }} from './{method.Name}Fetch';");
-        }
+        //if (!method.IsGetCached)
+        //{
+        content.AppendLine($"import {{ {fetchActionName} }} from './{method.Name}Fetch';");
+        //}
 
         string? a = Utils.IsTSGeneric(method.ReturnEntityType);
         List<string> pList = [];
@@ -273,15 +273,29 @@ public static class TypeScriptHookGenerator
             content.AppendLine("  if (query === undefined && !isForced) return;");
 
             content.AppendLine("  if (data !== undefined && !isForced) return;");
-            content.AppendLine("");
-
-
+            content.AppendLine();
             content.AppendLine("  SetIsLoading(true, query);");
             content.AppendLine($"  dispatch(fetch{method.Name}(query));");
             content.AppendLine("}, [data, dispatch, query, isForced, isLoading, SetIsLoading]);");
 
         }
-        else if (method.IsGet && string.IsNullOrEmpty(method.TsParameter))
+        else if (method.IsGetCached)
+        {
+
+            content.AppendLine("useEffect(() => {");
+            content.AppendLine($"  const state = store.getState().{method.Name};");
+
+            content.AppendLine("  if (params === undefined || param === undefined && !isForced) return;");
+            content.AppendLine("  if (state.isLoading[param]) return;");
+
+            content.AppendLine("  if (data !== undefined && !isForced) return;");
+            content.AppendLine();
+            content.AppendLine("  SetIsLoading(true, param);");
+            content.AppendLine($"  dispatch(fetch{method.Name}(params));");
+            content.AppendLine("}, [data, dispatch, param, isForced, isLoading, SetIsLoading]);");
+
+        }
+        else
         {
 
             content.AppendLine("useEffect(() => {");

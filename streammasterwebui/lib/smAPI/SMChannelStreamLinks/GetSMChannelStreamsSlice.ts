@@ -24,21 +24,12 @@ const getSMChannelStreamsSlice = createSlice({
   name: 'GetSMChannelStreams',
   initialState,
   reducers: {
-    setField: (state, action: PayloadAction<{ param?: string | undefined; fieldData: FieldData }>) => {
-      const { param , fieldData } = action.payload;
+    setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
+      const { fieldData } = action.payload;
 
-      if (param !== undefined) {
-        const paramString = JSON.stringify(param);
-        if (state.data[paramString]) {
-          state.data[paramString] = updateFieldInData(state.data[paramString], fieldData);
-        }
+      if (fieldData.Entity !== undefined && state.data[fieldData.Id]) {
+        state.data[fieldData.Id] = fieldData.Value;
         return;
-      }
-
-      for (const key in state.data) {
-        if (state.data[key]) {
-          state.data[key] = updateFieldInData(state.data[key], fieldData);
-        }
       }
       console.log('GetSMChannelStreams setField');
     },

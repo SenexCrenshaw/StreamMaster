@@ -2,11 +2,19 @@ import MinusButton from '@components/buttons/MinusButton';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { GetMessage } from '@lib/common/common';
-import { RemoveSMStreamFromSMChannel, SetSMStreamRanks } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
-import { RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMChannelRankRequest, SMStreamDto, SetSMStreamRanksRequest } from '@lib/smAPI/smapiTypes';
+import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
+
+import { RemoveSMStreamFromSMChannel, SetSMStreamRanks } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
+import {
+  GetSMChannelStreamsRequest,
+  RemoveSMStreamFromSMChannelRequest,
+  SMChannelDto,
+  SMChannelRankRequest,
+  SMStreamDto,
+  SetSMStreamRanksRequest
+} from '@lib/smAPI/smapiTypes';
 import { DataTableRowEvent, DataTableValue } from 'primereact/datatable';
-import { memo, useCallback, useEffect, useMemo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import useSelectedSMItems from './useSelectedSMItems';
 
 interface SMStreamDataSelectorValueProperties {
@@ -16,30 +24,24 @@ interface SMStreamDataSelectorValueProperties {
 
 const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueProperties) => {
   const dataKey = `${id}-SMStreamDataSelectorValue`;
+  const { data, isLoading } = useGetSMChannelStreams({ SMChannelId: smChannel?.Id } as GetSMChannelStreamsRequest);
   const { setSelectedSMChannel } = useSelectedSMItems();
-  const { data } = useGetPagedSMChannels();
-  console.log('SMStreamDataSelectorValue', smChannel);
 
-  useEffect(() => {
-    if (smChannel) {
-      const channel = data?.Data?.find((c) => c.Id === smChannel.Id);
-      if (channel) {
-        console.log('channel', channel.SMStreams);
-      }
-    }
-  }, [data, smChannel, smChannel.SMStreams, setSelectedSMChannel]);
+  if (data) {
+    console.log('SMStreamDataSelectorValue', data);
+  }
 
   const actionBodyTemplate = useCallback(
-    (data: SMStreamDto) => (
+    (smStream: SMStreamDto) => (
       <div className="flex p-0 justify-content-end align-items-center">
         <MinusButton
           iconFilled={false}
           onClick={() => {
-            if (!data.Id || smChannel === undefined) {
+            if (!smStream.Id || smChannel === undefined) {
               return;
             }
 
-            const request: RemoveSMStreamFromSMChannelRequest = { SMChannelId: smChannel.Id, SMStreamId: data.Id };
+            const request: RemoveSMStreamFromSMChannelRequest = { SMChannelId: smChannel.Id, SMStreamId: smStream.Id };
             RemoveSMStreamFromSMChannel(request)
               .then((response) => {
                 console.log('Remove Stream', response);
@@ -94,9 +96,10 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
         columns={columns}
         defaultSortField="rank"
         defaultSortOrder={1}
-        dataSource={smChannel.SMStreams && [...smChannel.SMStreams].sort((a, b) => a.Rank - b.Rank)}
+        dataSource={data}
         emptyMessage="No Streams"
         headerName={GetMessage('streams').toUpperCase()}
+        isLoading={isLoading}
         onRowReorder={(event: DataTableValue[]) => {
           const channels = event as unknown as SMStreamDto[];
           if (smChannel === undefined || channels === undefined) {

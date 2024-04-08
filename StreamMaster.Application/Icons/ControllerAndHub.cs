@@ -3,7 +3,7 @@ using StreamMaster.Application.Icons.Queries;
 
 namespace StreamMaster.Application.Icons.Controllers
 {
-    public partial class IconsController(ISender Sender, ILogger<IconsController> _logger) : ApiControllerBase, IIconsController
+    public partial class IconsController(ILogger<IconsController> _logger) : ApiControllerBase, IIconsController
     {        
 
         [HttpGet]

@@ -15,9 +15,9 @@ export interface SMChannelRankRequest
 export interface FieldData
 {
 	Entity: string;
-	Field: string;
+	Field?: string;
 	Id: string;
-	Value: any;
+	Value?: any;
 }
 export interface SMMessage
 {
@@ -331,11 +331,6 @@ export interface GetPagedSMChannelsRequest
 {
 	Parameters: QueryStringParameters;
 }
-export interface AddSMStreamToSMChannelRequest
-{
-	SMChannelId: number;
-	SMStreamId: string;
-}
 export interface CreateSMChannelFromStreamRequest
 {
 	StreamId: string;
@@ -352,11 +347,6 @@ export interface DeleteSMChannelsRequest
 {
 	SMChannelIds: number[];
 }
-export interface RemoveSMStreamFromSMChannelRequest
-{
-	SMChannelId: number;
-	SMStreamId: string;
-}
 export interface SetSMChannelLogoRequest
 {
 	Logo: string;
@@ -372,13 +362,23 @@ export interface SetSMChannelNumberRequest
 	ChannelNumber: number;
 	SMChannelId: number;
 }
-export interface SetSMStreamRanksRequest
-{
-	Requests: SMChannelRankRequest[];
-}
 export interface GetSMChannelStreamsRequest
 {
 	SMChannelId: number;
+}
+export interface AddSMStreamToSMChannelRequest
+{
+	SMChannelId: number;
+	SMStreamId: string;
+}
+export interface RemoveSMStreamFromSMChannelRequest
+{
+	SMChannelId: number;
+	SMStreamId: string;
+}
+export interface SetSMStreamRanksRequest
+{
+	Requests: SMChannelRankRequest[];
 }
 export interface GetIsSystemReadyRequest
 {

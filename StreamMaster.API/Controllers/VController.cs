@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Application.Common.Extensions;
-using StreamMaster.Application.StreamGroups.Queries;
+using StreamMaster.Application.StreamGroups.QueriesOld;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Repository;
 using StreamMaster.Domain.Requests;

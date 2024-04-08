@@ -32,7 +32,7 @@ internal class GetSMChannelStreamssRequestHandler(IRepositoryWrapper Repository,
             }
         }
 
-        return DataResponse<List<SMStreamDto>>.Success(ret);
+        return DataResponse<List<SMStreamDto>>.Success(ret.OrderBy(a => a.Rank).ToList());
     }
 
 

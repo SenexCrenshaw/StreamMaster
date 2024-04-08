@@ -1,4 +1,4 @@
-﻿namespace StreamMaster.Application.StreamGroups.Queries;
+﻿namespace StreamMaster.Application.StreamGroups.QueriesOld;
 
 public record GetStreamGroup(int Id) : IRequest<DataResponse<StreamGroupDto?>>;
 

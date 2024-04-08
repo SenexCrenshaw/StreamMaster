@@ -2,11 +2,12 @@
 
 using StreamMaster.Application.Common.Models;
 using StreamMaster.Domain.Configuration;
+
 using System.Xml.Serialization;
 
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 
-namespace StreamMaster.Application.StreamGroups.Queries;
+namespace StreamMaster.Application.StreamGroups.QueriesOld;
 
 [RequireAll]
 public record GetStreamGroupCapability(int StreamGroupId) : IRequest<string>;

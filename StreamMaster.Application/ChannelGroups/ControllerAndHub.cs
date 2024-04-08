@@ -4,7 +4,7 @@ using StreamMaster.Application.ChannelGroups.Queries;
 
 namespace StreamMaster.Application.ChannelGroups.Controllers
 {
-    public partial class ChannelGroupsController(ISender Sender, ILogger<ChannelGroupsController> _logger) : ApiControllerBase, IChannelGroupsController
+    public partial class ChannelGroupsController(ILogger<ChannelGroupsController> _logger) : ApiControllerBase, IChannelGroupsController
     {        
 
         [HttpGet]

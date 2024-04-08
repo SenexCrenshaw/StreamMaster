@@ -4,7 +4,7 @@ using StreamMaster.Application.M3UFiles.Queries;
 
 namespace StreamMaster.Application.M3UFiles.Controllers
 {
-    public partial class M3UFilesController(ISender Sender, ILogger<M3UFilesController> _logger) : ApiControllerBase, IM3UFilesController
+    public partial class M3UFilesController(ILogger<M3UFilesController> _logger) : ApiControllerBase, IM3UFilesController
     {        
 
         [HttpGet]

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace StreamMaster.Application.SMChannels.Commands;
+using StreamMaster.Application.SMChannelStreamLinks.Queries;
+
+namespace StreamMaster.Application.SMChannelStreamLinks.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -20,8 +22,15 @@ internal class SetSMStreamRanksRequestHandler(IRepositoryWrapper Repository, ISe
                 if (channel != null)
                 {
                     DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(channel.Id, channel.SMStreams.Select(a => a.SMStream).ToList()), cancellationToken);
-                    FieldData fd = new(nameof(SMChannelDto), channel.Id.ToString(), "SMStreams", streams.Data);
-                    fieldDatas.Add(fd);
+                    //FieldData fd = new(nameof(SMChannelDto), channel.Id.ToString(), "SMStreams", streams.Data);
+                    if (!fieldDatas.Any(a => a.Entity == "GetSMChannelStreams"))
+                    {
+                        GetSMChannelStreamsRequest re = new(channel.Id);
+                        FieldData fd = new("GetSMChannelStreams", re, streams.Data);
+
+                        fieldDatas.Add(fd);
+                    }
+
                 }
 
             }

@@ -5,7 +5,7 @@ using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
-using StreamMaster.Application.StreamGroups.Queries;
+using StreamMaster.Application.StreamGroups.QueriesOld;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 

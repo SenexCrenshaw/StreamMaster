@@ -26,7 +26,7 @@ import getEmptyFilter from '../smDataTable/helpers/getEmptyFilter';
 import getHeader from '../smDataTable/helpers/getHeader';
 import getRecord from '../smDataTable/helpers/getRecord';
 import isPagedResponse from '../smDataTable/helpers/isPagedResponse';
-import { type ColumnAlign, type ColumnFieldType, type ColumnMeta, type DataSelectorSelectionMode } from './DataSelectorTypes';
+
 import generateFilterData from './generateFilterData';
 import useDataSelectorState2 from './useDataSelectorState2';
 
@@ -35,8 +35,7 @@ import StringTracker from '@components/inputs/StringTracker';
 
 import SMStreamDataSelectorValue from '@features/streameditor/SMStreamDataSelectorValue';
 import { GetApiArgument, QueryHook } from '@lib/apiDefs';
-import { PagedResponseDto } from '@lib/common/dataTypes';
-import { AddSMStreamToSMChannelRequest, PagedResponse, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
+
 import { Checkbox } from 'primereact/checkbox';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import ResetButton from '../buttons/ResetButton';

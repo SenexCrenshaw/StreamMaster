@@ -3,7 +3,7 @@ using StreamMaster.Application.Settings.Queries;
 
 namespace StreamMaster.Application.Settings.Controllers
 {
-    public partial class SettingsController(ISender Sender, ILogger<SettingsController> _logger) : ApiControllerBase, ISettingsController
+    public partial class SettingsController(ILogger<SettingsController> _logger) : ApiControllerBase, ISettingsController
     {        
 
         [HttpGet]

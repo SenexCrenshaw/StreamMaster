@@ -7,7 +7,7 @@ using StreamMaster.Application.Common.Models;
 
 using System.Text.Json;
 
-namespace StreamMaster.Application.StreamGroups.Queries;
+namespace StreamMaster.Application.StreamGroups.QueriesOld;
 
 [RequireAll]
 public record GetStreamGroupDiscover(int StreamGroupId) : IRequest<string>;

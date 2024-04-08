@@ -4,7 +4,7 @@ using StreamMaster.Application.SMChannels.Queries;
 
 namespace StreamMaster.Application.SMChannels.Controllers
 {
-    public partial class SMChannelsController(ISender Sender, ILogger<SMChannelsController> _logger) : ApiControllerBase, ISMChannelsController
+    public partial class SMChannelsController(ILogger<SMChannelsController> _logger) : ApiControllerBase, ISMChannelsController
     {        
 
         [HttpGet]
@@ -13,14 +13,6 @@ namespace StreamMaster.Application.SMChannels.Controllers
         {
             PagedResponse<SMChannelDto> ret = await Sender.Send(new GetPagedSMChannelsRequest(Parameters)).ConfigureAwait(false);
             return ret;
-        }
-
-        [HttpPatch]
-        [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> AddSMStreamToSMChannel(AddSMStreamToSMChannelRequest request)
-        {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPost]
@@ -55,14 +47,6 @@ namespace StreamMaster.Application.SMChannels.Controllers
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
-        [HttpDelete]
-        [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> RemoveSMStreamFromSMChannel(RemoveSMStreamFromSMChannelRequest request)
-        {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret == null ? NotFound(ret) : Ok(ret);
-        }
-
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse>> SetSMChannelLogo(SetSMChannelLogoRequest request)
@@ -87,14 +71,6 @@ namespace StreamMaster.Application.SMChannels.Controllers
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
-        [HttpPatch]
-        [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> SetSMStreamRanks(SetSMStreamRanksRequest request)
-        {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret == null ? NotFound(ret) : Ok(ret);
-        }
-
     }
 }
 
@@ -105,12 +81,6 @@ namespace StreamMaster.Application.Hubs
         public async Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(QueryStringParameters Parameters)
         {
             PagedResponse<SMChannelDto> ret = await Sender.Send(new GetPagedSMChannelsRequest(Parameters)).ConfigureAwait(false);
-            return ret;
-        }
-
-        public async Task<APIResponse> AddSMStreamToSMChannel(AddSMStreamToSMChannelRequest request)
-        {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
@@ -138,12 +108,6 @@ namespace StreamMaster.Application.Hubs
             return ret;
         }
 
-        public async Task<APIResponse> RemoveSMStreamFromSMChannel(RemoveSMStreamFromSMChannelRequest request)
-        {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret;
-        }
-
         public async Task<APIResponse> SetSMChannelLogo(SetSMChannelLogoRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
@@ -157,12 +121,6 @@ namespace StreamMaster.Application.Hubs
         }
 
         public async Task<APIResponse> SetSMChannelNumber(SetSMChannelNumberRequest request)
-        {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret;
-        }
-
-        public async Task<APIResponse> SetSMStreamRanks(SetSMStreamRanksRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

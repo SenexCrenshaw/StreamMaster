@@ -169,9 +169,15 @@ namespace BuildClientAPI
 
                 }
 
-
                 string tsSignalRFilePath = Path.Combine(SignalRFilePathPrefix, "SignalRProvider.tsx");
-                SignalRGenerator.GenerateFile(methodsByNamespace.SelectMany(a => a.Value).ToList(), tsSignalRFilePath);
+                SignalRGenerator.GenerateFile(methodsByNamespace.SelectMany(a => a.Value).OrderBy(a => a.Name).ToList(), tsSignalRFilePath);
+
+                //string refreshFilePath = Path.Combine(SignalRFilePathPrefix, "useDataRefresh.tsx");
+                //SignalRGeneratorDataRefresh.GenerateFile(methodsByNamespace.SelectMany(a => a.Value).OrderBy(a => a.Name).ToList(), refreshFilePath);
+
+                //string setFieldFilePath = Path.Combine(SignalRFilePathPrefix, "useSetField.tsx");
+                //SignalRGeneratorSetField.GenerateFile(methodsByNamespace.SelectMany(a => a.Value).ToList(), setFieldFilePath);
+
             }
             catch (Exception ex)
             {

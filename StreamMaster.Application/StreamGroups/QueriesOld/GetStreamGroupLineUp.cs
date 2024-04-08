@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using System.Text.Json;
 using System.Web;
 
-namespace StreamMaster.Application.StreamGroups.Queries;
+namespace StreamMaster.Application.StreamGroups.QueriesOld;
 
 [RequireAll]
 public record GetStreamGroupLineup(int StreamGroupId) : IRequest<string>;

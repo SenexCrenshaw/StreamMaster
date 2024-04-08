@@ -196,23 +196,15 @@ const initialState: QueryState = {{
         }
         else if (method.IsGetCached)
         {
-            content.AppendLine($"    setField: (state, action: PayloadAction<{{ param?: string | undefined; fieldData: FieldData }}>) => {{");
-            content.AppendLine("      const { param , fieldData } = action.payload;");
+            content.AppendLine($"    setField: (state, action: PayloadAction<{{ fieldData: FieldData }}>) => {{");
+            content.AppendLine("      const { fieldData } = action.payload;");
             content.AppendLine();
 
-            content.AppendLine("      if (param !== undefined) {");
-            content.AppendLine("        const paramString = JSON.stringify(param);");
-            content.AppendLine("        if (state.data[paramString]) {");
-            content.AppendLine("          state.data[paramString] = updateFieldInData(state.data[paramString], fieldData);");
-            content.AppendLine("        }");
+            content.AppendLine("      if (fieldData.Entity !== undefined && state.data[fieldData.Id]) {");
+            content.AppendLine("        state.data[fieldData.Id] = fieldData.Value;");
             content.AppendLine("        return;");
             content.AppendLine("      }");
-            content.AppendLine();
-            content.AppendLine("      for (const key in state.data) {");
-            content.AppendLine("        if (state.data[key]) {");
-            content.AppendLine("          state.data[key] = updateFieldInData(state.data[key], fieldData);");
-            content.AppendLine("        }");
-            content.AppendLine("      }");
+
             content.AppendLine($"      console.log('{method.Name} setField');");
             content.AppendLine("    },");
 

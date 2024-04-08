@@ -5,9 +5,9 @@ public static class SignalRGenerator
     public static void GenerateFile(List<MethodDetails> methods, string filePath)
     {
         StringBuilder content = new();
-        methods = methods.Where(a => a.ReturnEntityType.EndsWith("Dto")).ToList();
+        methods = methods.Where(a => a.IsGet).ToList();//.ReturnEntityType.EndsWith("Dto")).ToList();
 
-        AddImports(content, methods);
+        content.Append(AddImports(methods));
         content.Append(GenerateContextAndInterfaces());
         content.Append(GenerateProvider(methods));
 
@@ -93,6 +93,14 @@ public static class SignalRGenerator
         return content.ToString();
     }
 
+    //private static string SetField(List<MethodDetails> methods)
+    //{
+    //    StringBuilder content = new();
+    //    content.AppendLine("  const setField = useSetField();");
+
+    //    return content.ToString();
+    //}
+
     private static string SetField(List<MethodDetails> methods)
     {
         StringBuilder content = new();
@@ -102,7 +110,7 @@ public static class SignalRGenerator
         content.AppendLine("      fieldDatas.forEach((fieldData) => {");
         foreach (MethodDetails? method in methods.Where(a => a.IsGet))
         {
-            content.AppendLine($"        if (fieldData.Entity === '{method.ReturnEntityType}') {{");
+            content.AppendLine($"        if (fieldData.Entity === '{method.Name}') {{");
             content.AppendLine($"          {method.Name.ToCamelCase()}.SetField(fieldData)");
             content.AppendLine("          return;");
             content.AppendLine("        }");
@@ -117,6 +125,14 @@ public static class SignalRGenerator
         return content.ToString();
     }
 
+    //private static string DataRefresh(List<MethodDetails> methods)
+    //{
+    //    StringBuilder content = new();
+    //    content.AppendLine("  const dataRefresh = useDataRefresh();");
+
+    //    return content.ToString();
+    //}
+
     private static string DataRefresh(List<MethodDetails> methods)
     {
         StringBuilder content = new();
@@ -125,7 +141,7 @@ public static class SignalRGenerator
         content.AppendLine("    (entity: string): void => {");
         foreach (MethodDetails? method in methods.Where(a => a.IsGet))
         {
-            content.AppendLine($"      if (entity === '{method.ReturnEntityType}') {{");
+            content.AppendLine($"      if (entity === '{method.Name}') {{");
             content.AppendLine($"        {method.Name.ToCamelCase()}.SetIsForced(true);");
             content.AppendLine("        return;");
             content.AppendLine("      }");
@@ -171,8 +187,9 @@ public static class SignalRGenerator
         return content.ToString();
     }
 
-    private static void AddImports(StringBuilder content, List<MethodDetails> methods)
+    private static string AddImports(List<MethodDetails> methods)
     {
+        StringBuilder content = new();
         content.AppendLine("import React, { ReactNode, createContext, useCallback, useContext, useEffect } from 'react';");
         content.AppendLine("import SignalRService from './SignalRService';");
 
@@ -185,6 +202,7 @@ public static class SignalRGenerator
         content.AppendLine("import { FieldData, SMMessage } from '@lib/smAPI/smapiTypes';");
 
         content.AppendLine();
+        return content.ToString();
     }
 
 }

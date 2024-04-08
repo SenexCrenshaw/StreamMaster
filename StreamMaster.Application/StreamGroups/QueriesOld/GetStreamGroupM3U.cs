@@ -9,7 +9,7 @@ using System.Net;
 using System.Text;
 using System.Web;
 
-namespace StreamMaster.Application.StreamGroups.Queries;
+namespace StreamMaster.Application.StreamGroups.QueriesOld;
 
 [RequireAll]
 public record GetStreamGroupM3U(int StreamGroupId, bool UseShortId) : IRequest<string>;

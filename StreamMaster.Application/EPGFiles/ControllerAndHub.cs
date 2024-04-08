@@ -4,7 +4,7 @@ using StreamMaster.Application.EPGFiles.Queries;
 
 namespace StreamMaster.Application.EPGFiles.Controllers
 {
-    public partial class EPGFilesController(ISender Sender, ILogger<EPGFilesController> _logger) : ApiControllerBase, IEPGFilesController
+    public partial class EPGFilesController(ILogger<EPGFilesController> _logger) : ApiControllerBase, IEPGFilesController
     {        
 
         [HttpGet]
@@ -25,11 +25,11 @@ namespace StreamMaster.Application.EPGFiles.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<List<EPGFilePreviewDto>>> GetEPGFilePreviewById(int Id)
+        public async Task<ActionResult<List<EPGFilePreviewDto>>> GetEPGFilePreviewById(GetEPGFilePreviewByIdRequest request)
         {
             try
             {
-            DataResponse<List<EPGFilePreviewDto>> ret = await Sender.Send(new GetEPGFilePreviewByIdRequest(Id)).ConfigureAwait(false);
+            DataResponse<List<EPGFilePreviewDto>> ret = await Sender.Send(request).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetEPGFilePreviewById.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
@@ -116,9 +116,9 @@ namespace StreamMaster.Application.Hubs
             return ret.Data;
         }
 
-        public async Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int Id)
+        public async Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(GetEPGFilePreviewByIdRequest request)
         {
-             DataResponse<List<EPGFilePreviewDto>> ret = await Sender.Send(new GetEPGFilePreviewByIdRequest(Id)).ConfigureAwait(false);
+             DataResponse<List<EPGFilePreviewDto>> ret = await Sender.Send(request).ConfigureAwait(false);
             return ret.Data;
         }
 

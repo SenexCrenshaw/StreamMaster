@@ -13,7 +13,7 @@ export const MessageProcessor = ({ children }: React.PropsWithChildren): JSX.Ele
     if (smMessages.length === 0) return;
 
     smMessages.forEach((message) => {
-      toast?.current?.show({ severity: message.Severity, summary: message.Summary, detail: message.Detail, life: message.Life });
+      toast?.current?.show({ severity: message.Severity, summary: message.Summary, detail: message.Detail });
     });
 
     ClearMessages();

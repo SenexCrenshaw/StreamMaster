@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 
-namespace StreamMaster.Application.StreamGroups.Queries;
+namespace StreamMaster.Application.StreamGroups.QueriesOld;
 
 public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
 {

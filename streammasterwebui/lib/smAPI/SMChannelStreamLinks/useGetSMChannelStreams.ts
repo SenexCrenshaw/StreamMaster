@@ -3,6 +3,7 @@ import store from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, setField, setIsForced, setIsLoading } from './GetSMChannelStreamsSlice';
 import { useCallback,useEffect } from 'react';
+import { fetchGetSMChannelStreams } from './GetSMChannelStreamsFetch';
 import {FieldData, SMStreamDto,GetSMChannelStreamsRequest } from '@lib/smAPI/smapiTypes';
 
 interface ExtendedQueryHookResult extends QueryHookResult<SMStreamDto[] | undefined> {}
@@ -44,6 +45,15 @@ useEffect(() => {
   }
 }, [SetIsForced, data, dispatch, param]);
 
+useEffect(() => {
+  const state = store.getState().GetSMChannelStreams;
+  if (params === undefined || param === undefined && !isForced) return;
+  if (state.isLoading[param]) return;
+  if (data !== undefined && !isForced) return;
+
+  SetIsLoading(true, param);
+  dispatch(fetchGetSMChannelStreams(params));
+}, [data, dispatch, param, isForced, isLoading, SetIsLoading]);
 
 const SetField = (fieldData: FieldData): void => {
   dispatch(setField({ fieldData: fieldData }));

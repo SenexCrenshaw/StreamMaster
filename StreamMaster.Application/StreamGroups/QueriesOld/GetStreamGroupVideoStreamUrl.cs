@@ -7,7 +7,7 @@ using StreamMaster.Domain.Configuration;
 using System.Text.Json;
 using System.Web;
 
-namespace StreamMaster.Application.StreamGroups.Queries;
+namespace StreamMaster.Application.StreamGroups.QueriesOld;
 
 public record GetStreamGroupVideoStreamUrl(string VideoStreamId) : IRequest<string?>;
 
