@@ -66,8 +66,9 @@ namespace BuildClientAPI
 
                     List<string> smapiImport = [];
 
+                    string toCheck = "GetEPGColors";
 
-                    if (recordType.Name.StartsWith("GetIcons"))
+                    if (recordType.Name.StartsWith(toCheck))
                     {
                         bool IsList = returnType.IsArray || returnType.IsListType() || returnType.IsDataResponse();
                         string returntype = GetCleanReturnType(returnType);
@@ -96,15 +97,16 @@ namespace BuildClientAPI
                     {
                         continue;
                     }
+                    string returnTypeString = GetCleanReturnType(returnType);
 
                     MethodDetails methodDetails = new()
                     {
                         Name = name,
                         NamespaceName = classNamespace,
                         SMAPIImport = smapiImport,
-                        ReturnType = GetCleanReturnType(returnType),
+                        ReturnType = returnTypeString,
                         IsReturnNull = Utils.IsTypeNullable(returnType),
-                        IsList = returnType.IsArray || returnType.IsListType() || returnType.IsDataResponse(),
+                        IsList = returnTypeString.StartsWith("List") || returnTypeString.EndsWith("[]") || returnType.IsArray || returnType.IsListType() || returnType.IsDataResponse(),
                         Parameter = ps,
                         ParameterNames = string.Join(", ", parameters.Select(p => p.Name)),
                         IsGet = name.StartsWith("Get"),
@@ -130,7 +132,7 @@ namespace BuildClientAPI
                     }
 
 
-                    if (recordType.Name.StartsWith("GetEPGFilePreviewById"))
+                    if (recordType.Name.StartsWith(toCheck))
                     {
 
                         int aaa = 1;

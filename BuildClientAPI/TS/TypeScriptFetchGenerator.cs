@@ -63,7 +63,7 @@ public static class TypeScriptFetchGenerator
     private static string CreateGet(MethodDetails method)
     {
         StringBuilder content = new();
-        if (method.Name.Contains("GetIcons"))
+        if (method.Name.Contains("GetEPGColors"))
         {
             int aa = 1;
 

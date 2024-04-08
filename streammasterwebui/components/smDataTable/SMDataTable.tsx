@@ -408,7 +408,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   //     />
   //   </div>
   // );
-  if (props.id === 'streameditor-SMChannelDataSelector') console.log(props.id, state.expandedRows);
+
   return (
     <div
       id={props.id}
@@ -418,13 +418,10 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         }
         const target = event.target as HTMLDivElement;
         if (props.showExpand === true) {
-          console.log(target.className);
-          if (target.className && target.className !== 'p-button-icon p-c pi pi-minus') {
+          // console.log(target.className);
+          if (target.className && target.className === 'p-datatable-wrapper') {
             setters.setExpandedRows(undefined);
-          } else {
-            return;
           }
-          // setters.setExpandedRows(undefined);
         }
         props.onClick?.(event);
       }}

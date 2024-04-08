@@ -125,7 +125,7 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
         }}
         id={dataKey}
         selectedItemsKey={'SMStreamDataSelectorValue-selectSelectedSMStreamDtoItems'}
-        style={{ height: '20vh' }}
+        // style={{ height: '20vh' }}
       />
     </div>
   );
