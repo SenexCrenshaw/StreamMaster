@@ -1,19 +1,6 @@
 import MenuItemSM from '@components/MenuItemSM';
 import SunButton from '@components/buttons/SunButton';
-import {
-  FilesEditorIcon,
-  HelpIcon,
-  LogIcon,
-  PlayListEditorIcon,
-  QueueStatisIcon,
-  SDChannelIcon,
-  SDIcon,
-  SettingsEditorIcon,
-  SideBarMenuIcon,
-  StreamGroupEditorIcon,
-  StreamingStatusIcon,
-  VideoPlayerIcon
-} from '@lib/common/icons';
+import { HelpIcon, PlayListEditorIcon, SideBarMenuIcon } from '@lib/common/icons';
 import { GetIsSystemReady } from '@lib/smAPI/Settings/SettingsCommands';
 
 import useSettings from '@lib/useSettings';
@@ -114,7 +101,7 @@ export const RootSideBar = () => {
         </div>
         {/* <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/testpanel" name='Test Panel' /> */}
         <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/editor/streams" name="Streams" />
-        <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/editor/playlist" name="Playlist" />
+        {/* <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/editor/playlist" name="Playlist" />
         <MenuItemSM collapsed={collapsed} icon={<StreamGroupEditorIcon />} link="/editor/streamgroup" name="Stream Group" />
         <MenuItemSM collapsed={collapsed} icon={<FilesEditorIcon />} link="/editor/files" name="Files" />
         {settings.data.hls?.hlsM3U8Enable === true ? <MenuItemSM collapsed={collapsed} icon={<VideoPlayerIcon />} link="/viewer/player" name="Player" /> : null}
@@ -127,7 +114,7 @@ export const RootSideBar = () => {
         <MenuItemSM collapsed={collapsed} icon={<StreamingStatusIcon />} link="/streamingstatus" name="Status" />
         <MenuItemSM collapsed={collapsed} icon={<QueueStatisIcon />} link="/queuestatus" name="Queue" />
         <MenuItemSM collapsed={collapsed} icon={<SettingsEditorIcon />} link="/settings" name="Settings" />
-        <MenuItemSM collapsed={collapsed} icon={<LogIcon />} link="/viewer/logviewer" name="Log" />
+        <MenuItemSM collapsed={collapsed} icon={<LogIcon />} link="/viewer/logviewer" name="Log" /> */}
         <MenuItemSM collapsed={collapsed} icon={<HelpIcon />} link="https://github.com/SenexCrenshaw/StreamMaster/wiki" name="Wiki" newWindow />
 
         <MenuItem
@@ -151,9 +138,9 @@ export const RootSideBar = () => {
         <div
           className="custom-target-icon col-6 m-0 p-0 justify-content-center align-content-start text-xs text-center"
           data-pr-position="right"
-          data-pr-tooltip={settings.data.release ?? ''}
+          data-pr-tooltip={settings.data.Release ?? ''}
         >
-          {settings.data.version ?? ''}
+          {settings.data.Version ?? ''}
         </div>
       </div>
     </Sidebar>
