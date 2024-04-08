@@ -96,6 +96,28 @@ const initialState: QueryState = {{
   isForced: false,
   isLoading: {{}}
 }};
+
+";
+        }
+        else if (method.IsGetCached)
+        {
+            return $@"
+interface QueryState {{
+  data: Record<string, {method.ReturnEntityType} | undefined>;
+  error: Record<string, string | undefined>;
+  isError: Record<string, boolean>;
+  isForced: boolean;
+  isLoading: Record<string, boolean>;
+}}
+
+const initialState: QueryState = {{
+  data: {{}},
+  error: {{}},
+  isError: {{}},
+  isForced: false,
+  isLoading: {{}}
+}};
+
 ";
         }
 
@@ -121,6 +143,7 @@ const initialState: QueryState = {{
   isForced: false,
   isLoading: false
 }};
+
 ";
     }
 
@@ -171,7 +194,53 @@ const initialState: QueryState = {{
             content.AppendLine("  },");
             return content.ToString();
         }
+        else if (method.IsGetCached)
+        {
+            content.AppendLine($"    setField: (state, action: PayloadAction<{{ param?: string | undefined; fieldData: FieldData }}>) => {{");
+            content.AppendLine("      const { param , fieldData } = action.payload;");
+            content.AppendLine();
 
+            content.AppendLine("      if (param !== undefined) {");
+            content.AppendLine("        const paramString = JSON.stringify(param);");
+            content.AppendLine("        if (state.data[paramString]) {");
+            content.AppendLine("          state.data[paramString] = updateFieldInData(state.data[paramString], fieldData);");
+            content.AppendLine("        }");
+            content.AppendLine("        return;");
+            content.AppendLine("      }");
+            content.AppendLine();
+            content.AppendLine("      for (const key in state.data) {");
+            content.AppendLine("        if (state.data[key]) {");
+            content.AppendLine("          state.data[key] = updateFieldInData(state.data[key], fieldData);");
+            content.AppendLine("        }");
+            content.AppendLine("      }");
+            content.AppendLine($"      console.log('{method.Name} setField');");
+            content.AppendLine("    },");
+
+            content.AppendLine($"    clear: (state) => {{");
+            content.AppendLine("       state = initialState;");
+            content.AppendLine($"       console.log('{method.Name} clear');");
+            content.AppendLine("    },");
+
+            content.AppendLine($"    setIsLoading: (state, action: PayloadAction<{{ param: string; isLoading: boolean }}>) => {{");
+            content.AppendLine("      const { param, isLoading } = action.payload;");
+            content.AppendLine("      if (param !== undefined) {");
+            content.AppendLine("        const paramString = JSON.stringify(param);");
+            content.AppendLine("        state.isLoading[paramString] = isLoading;");
+            content.AppendLine("      } else {");
+            content.AppendLine("        for (const key in state.data) {");
+            content.AppendLine("          state.isLoading[key] = action.payload.isLoading;");
+            content.AppendLine("        }");
+            content.AppendLine("      }");
+            content.AppendLine($"      console.log('{method.Name} setIsLoading ', action.payload.isLoading);");
+            content.AppendLine("    },");
+            content.AppendLine("    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {");
+            content.AppendLine("      const { force } = action.payload;");
+            content.AppendLine("      state.isForced = force;");
+            content.AppendLine($"      console.log('{method.Name}  setIsForced ', force);");
+            content.AppendLine("    }");
+            content.AppendLine("  },");
+            return content.ToString();
+        }
 
         content.AppendLine($"    setField: (state, action: PayloadAction<{{ fieldData: FieldData }}>) => {{");
         content.AppendLine("      const { fieldData } = action.payload;");
@@ -226,6 +295,36 @@ const initialState: QueryState = {{
             content.AppendLine("        state.error[query] = action.error.message || 'Failed to fetch';");
             content.AppendLine("        state.isError[query] = true;");
             content.AppendLine("        state.isLoading[query] = false;");
+            content.AppendLine("        state.isForced = false;");
+            content.AppendLine("      });");
+            return content.ToString();
+        }
+        else if (method.IsGetCached)
+        {
+            content.AppendLine("    builder");
+            content.AppendLine($"      .addCase({fetchActionName}.pending, (state, action) => {{");
+            content.AppendLine("        const paramString = JSON.stringify(action.meta.arg);");
+            content.AppendLine("        state.isLoading[paramString] = true;");
+            content.AppendLine("        state.isError[paramString] = false;");
+            content.AppendLine("        state.isForced = false;");
+            content.AppendLine("        state.error[paramString] = undefined;");
+            content.AppendLine("      })");
+            content.AppendLine($"      .addCase({fetchActionName}.fulfilled, (state, action) => {{");
+            content.AppendLine("        if (action.payload) {");
+            content.AppendLine("          const { param, value } = action.payload;");
+            content.AppendLine("          const paramString = JSON.stringify(param);");
+            content.AppendLine("          state.data[paramString] = value;");
+            content.AppendLine("          state.isLoading[paramString] = false;");
+            content.AppendLine("          state.isError[paramString] = false;");
+            content.AppendLine("          state.error[paramString] = undefined;");
+            content.AppendLine("          state.isForced = false;");
+            content.AppendLine("        }");
+            content.AppendLine("      })");
+            content.AppendLine($"      .addCase({fetchActionName}.rejected, (state, action) => {{");
+            content.AppendLine("        const paramString = JSON.stringify(action.meta.arg);");
+            content.AppendLine("        state.error[paramString] = action.error.message || 'Failed to fetch';");
+            content.AppendLine("        state.isError[paramString] = true;");
+            content.AppendLine("        state.isLoading[paramString] = false;");
             content.AppendLine("        state.isForced = false;");
             content.AppendLine("      });");
             return content.ToString();

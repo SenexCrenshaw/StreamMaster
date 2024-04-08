@@ -19,6 +19,7 @@ const initialState: QueryState = {
   isForced: false,
   isLoading: false
 };
+
 const getSettingsSlice = createSlice({
   name: 'GetSettings',
   initialState,

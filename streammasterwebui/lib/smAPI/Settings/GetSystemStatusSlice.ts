@@ -19,6 +19,7 @@ const initialState: QueryState = {
   isForced: false,
   isLoading: false
 };
+
 const getSystemStatusSlice = createSlice({
   name: 'GetSystemStatus',
   initialState,

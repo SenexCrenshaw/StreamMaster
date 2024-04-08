@@ -16,9 +16,9 @@ public static class TypeScriptHookGenerator
 
                 content.Append(GeneratePagedHookContent(method));
             }
-            else if (method.IsGet)
+            else if (method.IsGetCached)
             {
-                content.Append(GenerateGetHookContent(method));
+                content.Append(GenerateGetCachedHookContent(method));
             }
             else
             {
@@ -80,7 +80,11 @@ public static class TypeScriptHookGenerator
         content.AppendLine("import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';");
         content.AppendLine($"import {{ clear, setField, setIsForced, setIsLoading }} from './{method.Name}Slice';");
         content.AppendLine("import { useCallback,useEffect } from 'react';");
-        content.AppendLine($"import {{ {fetchActionName} }} from './{method.Name}Fetch';");
+
+        if (!method.IsGetCached)
+        {
+            content.AppendLine($"import {{ {fetchActionName} }} from './{method.Name}Fetch';");
+        }
 
         string? a = Utils.IsTSGeneric(method.ReturnEntityType);
         List<string> pList = [];
@@ -92,6 +96,10 @@ public static class TypeScriptHookGenerator
         if (method.IsGetPaged)
         {
             pList.Add("PagedResponse");
+        }
+        else if (method.IsGet && !string.IsNullOrEmpty(method.TsParameter))
+        {
+            pList.Add(method.TsParameter);
         }
 
         content.AppendLine($"import {{FieldData, {string.Join(",", pList)} }} from '@lib/smAPI/smapiTypes';");
@@ -110,7 +118,7 @@ public static class TypeScriptHookGenerator
 
         content.AppendLine();
         content.AppendLine("  const SetIsForced = useCallback(");
-        content.AppendLine("    (forceRefresh: boolean, query?: string): void => {");
+        content.AppendLine("    (forceRefresh: boolean): void => {");
         content.AppendLine("      dispatch(setIsForced({ force: forceRefresh }));");
         content.AppendLine("    },");
         content.AppendLine("    [dispatch]");
@@ -131,7 +139,30 @@ public static class TypeScriptHookGenerator
 
         content.AppendLine();
         content.AppendLine("  const SetIsForced = useCallback(");
-        content.AppendLine("    (forceRefresh: boolean, query?: string): void => {");
+        content.AppendLine("    (forceRefresh: boolean): void => {");
+        content.AppendLine("      dispatch(setIsForced({ force: forceRefresh }));");
+        content.AppendLine("    },");
+        content.AppendLine("    [dispatch]");
+        content.AppendLine("  );");
+
+        return content.ToString();
+
+    }
+
+    private static string GenerateGetHeader(MethodDetails method)
+    {
+        StringBuilder content = new();
+
+        content.AppendLine("  const param = JSON.stringify(params);");
+        content.AppendLine($"  const data = useAppSelector((state) => state.{method.Name}.data[param]);");
+        content.AppendLine($"  const error = useAppSelector((state) => state.{method.Name}.error[param] ?? '');");
+        content.AppendLine($"  const isError = useAppSelector((state) => state.{method.Name}.isError[param] ?? false);");
+        content.AppendLine($"  const isForced = useAppSelector((state) => state.{method.Name}.isForced ?? false);");
+        content.AppendLine($"  const isLoading = useAppSelector((state) => state.{method.Name}.isLoading[param] ?? false);");
+
+        content.AppendLine();
+        content.AppendLine("  const SetIsForced = useCallback(");
+        content.AppendLine("    (forceRefresh: boolean): void => {");
         content.AppendLine("      dispatch(setIsForced({ force: forceRefresh }));");
         content.AppendLine("    },");
         content.AppendLine("    [dispatch]");
@@ -165,41 +196,36 @@ public static class TypeScriptHookGenerator
         return content.ToString();
     }
 
-    private static string GenerateGetHookContent(MethodDetails method)
+    private static string GenerateGetCachedHookContent(MethodDetails method)
     {
         StringBuilder content = new();
-        if (!string.IsNullOrEmpty(method.TsParameter))
-        {
-            content.AppendLine($"const use{method.Name} = (): Result => {{");
-        }
-        else
-        {
-            content.AppendLine($"const use{method.Name} = (): Result => {{");
-        }
+
+        content.AppendLine($"const use{method.Name} = (params?: {method.TsParameter}): Result => {{");
 
         content.AppendLine("  const dispatch = useAppDispatch();");
 
-        content.AppendLine(GenerateHeader(method));
+        content.AppendLine(GenerateGetHeader(method));
+
 
         content.AppendLine("  const SetIsLoading = useCallback(");
-        content.AppendLine("    (isLoading: boolean): void => {");
-        content.AppendLine("      dispatch(setIsLoading({ isLoading: isLoading }));");
+        content.AppendLine("    (isLoading: boolean, param: string): void => {");
+        content.AppendLine("      dispatch(setIsLoading({ isLoading: isLoading, param: param }));");
         content.AppendLine("    },");
         content.AppendLine("    [dispatch]");
         content.AppendLine("  );");
-
         content.AppendLine();
 
         content.AppendLine("useEffect(() => {");
-
+        content.AppendLine("  if (param === undefined) return;");
         content.AppendLine($"  const state = store.getState().{method.Name};");
         content.AppendLine("");
-        content.AppendLine("  if (data === undefined && state.isLoading !== true && state.isForced !== true) {");
-
+        content.AppendLine("  if (data === undefined && state.isLoading[param] !== true && state.isForced !== true) {");
         content.AppendLine("    SetIsForced(true);");
         content.AppendLine("  }");
-        content.AppendLine("}, [SetIsForced, data, dispatch]);");
+        content.AppendLine("}, [SetIsForced, data, dispatch, param]);");
         content.AppendLine();
+
+
         return content.ToString();
     }
 

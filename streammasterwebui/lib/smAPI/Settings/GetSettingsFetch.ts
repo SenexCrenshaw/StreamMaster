@@ -7,7 +7,7 @@ export const fetchGetSettings = createAsyncThunk('cache/getGetSettings', async (
     console.log('Fetching GetSettings');
     const response = await GetSettings();
     console.log('Fetched GetSettings',response);
-    return { value: response };
+    return {param: _, value: response };
   } catch (error) {
     console.error('Failed to fetch', error);
     return thunkAPI.rejectWithValue({ value: undefined, error: error || 'Unknown error' });

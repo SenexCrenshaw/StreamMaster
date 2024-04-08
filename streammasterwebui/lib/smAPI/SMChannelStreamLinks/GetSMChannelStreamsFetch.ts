@@ -8,7 +8,7 @@ export const fetchGetSMChannelStreams = createAsyncThunk('cache/getGetSMChannelS
     console.log('Fetching GetSMChannelStreams');
     const response = await GetSMChannelStreams(param);
     console.log('Fetched GetSMChannelStreams',response);
-    return { value: response };
+    return {param: param, value: response };
   } catch (error) {
     console.error('Failed to fetch', error);
     return thunkAPI.rejectWithValue({ value: undefined, error: error || 'Unknown error' });

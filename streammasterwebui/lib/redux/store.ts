@@ -32,6 +32,7 @@ import GetEPGFilePreviewById from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlic
 import GetEPGNextEPGNumber from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
 import GetPagedEPGFiles from '@lib/smAPI/EPGFiles/GetPagedEPGFilesSlice';
 
+import GetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/GetSMChannelStreamsSlice';
 import GetPagedStreamGroups from '@lib/smAPI/StreamGroups/GetPagedStreamGroupsSlice';
 
 import anySlice from '@lib/redux/slices/anySlice';
@@ -122,6 +123,7 @@ const rootReducer = combineReducers({
   GetIsSystemReady: GetIsSystemReady,
   GetSystemStatus: GetSystemStatus,
   GetIcons: GetIcons,
+  GetSMChannelStreams: GetSMChannelStreams,
   SMChannelReducer: SMChannelReducer,
   SMStreamReducer: SMStreamReducer,
   GetEPGColors: GetEPGColorsSlice,

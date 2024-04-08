@@ -22,27 +22,24 @@ const useGetEPGColors = (): Result => {
   const isLoading = useAppSelector((state) => state.GetEPGColors.isLoading ?? false);
 
   const SetIsForced = useCallback(
-    (forceRefresh: boolean, query?: string): void => {
+    (forceRefresh: boolean): void => {
       dispatch(setIsForced({ force: forceRefresh }));
     },
     [dispatch]
   );
 
-  const SetIsLoading = useCallback(
-    (isLoading: boolean): void => {
-      dispatch(setIsLoading({ isLoading: isLoading }));
-    },
-    [dispatch]
-  );
-
-useEffect(() => {
-  const state = store.getState().GetEPGColors;
-
-  if (data === undefined && state.isLoading !== true && state.isForced !== true) {
-    SetIsForced(true);
-  }
-}, [SetIsForced, data, dispatch]);
-
+const SetIsLoading = useCallback(
+  (isLoading: boolean): void => {
+    dispatch(setIsLoading({ isLoading: isLoading }));
+  },
+  [dispatch]
+);
+  useEffect(() => {
+    const state = store.getState().GetEPGColors;
+    if (data === undefined && state.isLoading !== true && state.isForced !== true) {
+      SetIsForced(true);
+    }
+  }, [SetIsForced, data, dispatch]);
 useEffect(() => {
   const state = store.getState().GetEPGColors;
   if (state.isLoading) return;

@@ -19,6 +19,7 @@ const initialState: QueryState = {
   isForced: false,
   isLoading: {}
 };
+
 const getPagedM3UFilesSlice = createSlice({
   name: 'GetPagedM3UFiles',
   initialState,

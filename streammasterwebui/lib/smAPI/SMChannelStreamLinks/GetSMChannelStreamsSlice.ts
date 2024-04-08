@@ -5,35 +5,57 @@ import { updateFieldInData } from '@lib/redux/updateFieldInData';
 
 
 interface QueryState {
-  data: SMStreamDto[] | undefined;
-  error: string | undefined;
-  isError: boolean;
+  data: Record<string, SMStreamDto[] | undefined>;
+  error: Record<string, string | undefined>;
+  isError: Record<string, boolean>;
   isForced: boolean;
-  isLoading: boolean;
+  isLoading: Record<string, boolean>;
 }
 
 const initialState: QueryState = {
-  data: undefined,
-  error: undefined,
-  isError: false,
+  data: {},
+  error: {},
+  isError: {},
   isForced: false,
-  isLoading: false
+  isLoading: {}
 };
+
 const getSMChannelStreamsSlice = createSlice({
   name: 'GetSMChannelStreams',
   initialState,
   reducers: {
-    setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
-      const { fieldData } = action.payload;
-      state.data = updateFieldInData(state.data, fieldData);
+    setField: (state, action: PayloadAction<{ param?: string | undefined; fieldData: FieldData }>) => {
+      const { param , fieldData } = action.payload;
+
+      if (param !== undefined) {
+        const paramString = JSON.stringify(param);
+        if (state.data[paramString]) {
+          state.data[paramString] = updateFieldInData(state.data[paramString], fieldData);
+        }
+        return;
+      }
+
+      for (const key in state.data) {
+        if (state.data[key]) {
+          state.data[key] = updateFieldInData(state.data[key], fieldData);
+        }
+      }
       console.log('GetSMChannelStreams setField');
     },
     clear: (state) => {
        state = initialState;
-      console.log('GetSMChannelStreams clear');
+       console.log('GetSMChannelStreams clear');
     },
-    setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
-       state.isLoading = action.payload.isLoading;
+    setIsLoading: (state, action: PayloadAction<{ param: string; isLoading: boolean }>) => {
+      const { param, isLoading } = action.payload;
+      if (param !== undefined) {
+        const paramString = JSON.stringify(param);
+        state.isLoading[paramString] = isLoading;
+      } else {
+        for (const key in state.data) {
+          state.isLoading[key] = action.payload.isLoading;
+        }
+      }
       console.log('GetSMChannelStreams setIsLoading ', action.payload.isLoading);
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
@@ -41,30 +63,33 @@ const getSMChannelStreamsSlice = createSlice({
       state.isForced = force;
       console.log('GetSMChannelStreams  setIsForced ', force);
     }
-},
+  },
 
   extraReducers: (builder) => {
     builder
       .addCase(fetchGetSMChannelStreams.pending, (state, action) => {
-        state.isLoading = true;
-        state.isError = false;
-        state.error = undefined;
+        const paramString = JSON.stringify(action.meta.arg);
+        state.isLoading[paramString] = true;
+        state.isError[paramString] = false;
         state.isForced = false;
+        state.error[paramString] = undefined;
       })
       .addCase(fetchGetSMChannelStreams.fulfilled, (state, action) => {
         if (action.payload) {
-          const { value } = action.payload;
-          state.data = value ?? undefined;;
-          state.isLoading = false;
-          state.isError = false;
-          state.error = undefined;
+          const { param, value } = action.payload;
+          const paramString = JSON.stringify(param);
+          state.data[paramString] = value;
+          state.isLoading[paramString] = false;
+          state.isError[paramString] = false;
+          state.error[paramString] = undefined;
           state.isForced = false;
         }
       })
       .addCase(fetchGetSMChannelStreams.rejected, (state, action) => {
-        state.error = action.error.message || 'Failed to fetch';
-        state.isError = true;
-        state.isLoading = false;
+        const paramString = JSON.stringify(action.meta.arg);
+        state.error[paramString] = action.error.message || 'Failed to fetch';
+        state.isError[paramString] = true;
+        state.isLoading[paramString] = false;
         state.isForced = false;
       });
 

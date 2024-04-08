@@ -23,7 +23,7 @@ const useGetPagedSMStreams = (params?: GetApiArgument | undefined): Result => {
   const isLoading = useAppSelector((state) => state.GetPagedSMStreams.isLoading[query] ?? false);
 
   const SetIsForced = useCallback(
-    (forceRefresh: boolean, query?: string): void => {
+    (forceRefresh: boolean): void => {
       dispatch(setIsForced({ force: forceRefresh }));
     },
     [dispatch]

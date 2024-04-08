@@ -7,7 +7,7 @@ export const fetchGetSystemStatus = createAsyncThunk('cache/getGetSystemStatus',
     console.log('Fetching GetSystemStatus');
     const response = await GetSystemStatus();
     console.log('Fetched GetSystemStatus',response);
-    return { value: response };
+    return {param: _, value: response };
   } catch (error) {
     console.error('Failed to fetch', error);
     return thunkAPI.rejectWithValue({ value: undefined, error: error || 'Unknown error' });

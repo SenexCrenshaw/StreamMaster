@@ -19,6 +19,7 @@ const initialState: QueryState = {
   isForced: false,
   isLoading: false
 };
+
 const getEPGColorsSlice = createSlice({
   name: 'GetEPGColors',
   initialState,

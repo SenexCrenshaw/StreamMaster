@@ -7,7 +7,7 @@ export const fetchGetIsSystemReady = createAsyncThunk('cache/getGetIsSystemReady
     console.log('Fetching GetIsSystemReady');
     const response = await GetIsSystemReady();
     console.log('Fetched GetIsSystemReady',response);
-    return { value: response };
+    return {param: _, value: response };
   } catch (error) {
     console.error('Failed to fetch', error);
     return thunkAPI.rejectWithValue({ value: undefined, error: error || 'Unknown error' });

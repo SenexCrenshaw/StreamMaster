@@ -23,7 +23,7 @@ const useGetPagedM3UFiles = (params?: GetApiArgument | undefined): Result => {
   const isLoading = useAppSelector((state) => state.GetPagedM3UFiles.isLoading[query] ?? false);
 
   const SetIsForced = useCallback(
-    (forceRefresh: boolean, query?: string): void => {
+    (forceRefresh: boolean): void => {
       dispatch(setIsForced({ force: forceRefresh }));
     },
     [dispatch]

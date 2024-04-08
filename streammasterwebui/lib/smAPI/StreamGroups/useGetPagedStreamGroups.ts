@@ -23,7 +23,7 @@ const useGetPagedStreamGroups = (params?: GetApiArgument | undefined): Result =>
   const isLoading = useAppSelector((state) => state.GetPagedStreamGroups.isLoading[query] ?? false);
 
   const SetIsForced = useCallback(
-    (forceRefresh: boolean, query?: string): void => {
+    (forceRefresh: boolean): void => {
       dispatch(setIsForced({ force: forceRefresh }));
     },
     [dispatch]

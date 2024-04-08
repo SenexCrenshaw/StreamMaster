@@ -19,6 +19,7 @@ const initialState: QueryState = {
   isForced: false,
   isLoading: false
 };
+
 const getIconsSlice = createSlice({
   name: 'GetIcons',
   initialState,

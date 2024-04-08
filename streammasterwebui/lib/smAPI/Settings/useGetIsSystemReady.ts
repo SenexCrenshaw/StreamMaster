@@ -22,27 +22,24 @@ const useGetIsSystemReady = (): Result => {
   const isLoading = useAppSelector((state) => state.GetIsSystemReady.isLoading ?? false);
 
   const SetIsForced = useCallback(
-    (forceRefresh: boolean, query?: string): void => {
+    (forceRefresh: boolean): void => {
       dispatch(setIsForced({ force: forceRefresh }));
     },
     [dispatch]
   );
 
-  const SetIsLoading = useCallback(
-    (isLoading: boolean): void => {
-      dispatch(setIsLoading({ isLoading: isLoading }));
-    },
-    [dispatch]
-  );
-
-useEffect(() => {
-  const state = store.getState().GetIsSystemReady;
-
-  if (data === undefined && state.isLoading !== true && state.isForced !== true) {
-    SetIsForced(true);
-  }
-}, [SetIsForced, data, dispatch]);
-
+const SetIsLoading = useCallback(
+  (isLoading: boolean): void => {
+    dispatch(setIsLoading({ isLoading: isLoading }));
+  },
+  [dispatch]
+);
+  useEffect(() => {
+    const state = store.getState().GetIsSystemReady;
+    if (data === undefined && state.isLoading !== true && state.isForced !== true) {
+      SetIsForced(true);
+    }
+  }, [SetIsForced, data, dispatch]);
 useEffect(() => {
   const state = store.getState().GetIsSystemReady;
   if (state.isLoading) return;

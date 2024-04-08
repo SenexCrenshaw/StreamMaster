@@ -19,6 +19,7 @@ const initialState: QueryState = {
   isForced: false,
   isLoading: {}
 };
+
 const getPagedStreamGroupsSlice = createSlice({
   name: 'GetPagedStreamGroups',
   initialState,

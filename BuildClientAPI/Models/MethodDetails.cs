@@ -21,5 +21,6 @@ public class MethodDetails
     public string SingalRFunction { get; internal set; }
     public string NamespaceName { get; internal set; }
     public bool IsGet { get; internal set; }
+    public bool IsGetCached => !IsGetPaged && IsGet && !string.IsNullOrEmpty(TsParameter);
     public bool IsReturnNull { get; internal set; }
 }

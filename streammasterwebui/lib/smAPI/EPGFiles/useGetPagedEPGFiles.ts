@@ -23,7 +23,7 @@ const useGetPagedEPGFiles = (params?: GetApiArgument | undefined): Result => {
   const isLoading = useAppSelector((state) => state.GetPagedEPGFiles.isLoading[query] ?? false);
 
   const SetIsForced = useCallback(
-    (forceRefresh: boolean, query?: string): void => {
+    (forceRefresh: boolean): void => {
       dispatch(setIsForced({ force: forceRefresh }));
     },
     [dispatch]

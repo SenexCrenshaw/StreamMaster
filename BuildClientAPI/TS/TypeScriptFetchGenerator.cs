@@ -87,7 +87,7 @@ public static class TypeScriptFetchGenerator
         }
 
 
-        content.AppendLine("    return { value: response };");
+        content.AppendLine($"    return {{param: {paramName}, value: response }};");
         content.AppendLine("  } catch (error) {");
         content.AppendLine("    console.error('Failed to fetch', error);");
         content.AppendLine("    return thunkAPI.rejectWithValue({ value: undefined, error: error || 'Unknown error' });");

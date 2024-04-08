@@ -8,7 +8,7 @@ export const fetchGetEPGFilePreviewById = createAsyncThunk('cache/getGetEPGFileP
     console.log('Fetching GetEPGFilePreviewById');
     const response = await GetEPGFilePreviewById(param);
     console.log('Fetched GetEPGFilePreviewById',response);
-    return { value: response };
+    return {param: param, value: response };
   } catch (error) {
     console.error('Failed to fetch', error);
     return thunkAPI.rejectWithValue({ value: undefined, error: error || 'Unknown error' });

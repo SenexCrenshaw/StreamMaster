@@ -19,6 +19,7 @@ const initialState: QueryState = {
   isForced: false,
   isLoading: {}
 };
+
 const getPagedEPGFilesSlice = createSlice({
   name: 'GetPagedEPGFiles',
   initialState,

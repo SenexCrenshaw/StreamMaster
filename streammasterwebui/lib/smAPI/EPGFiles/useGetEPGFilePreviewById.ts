@@ -3,8 +3,7 @@ import store from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, setField, setIsForced, setIsLoading } from './GetEPGFilePreviewByIdSlice';
 import { useCallback,useEffect } from 'react';
-import { fetchGetEPGFilePreviewById } from './GetEPGFilePreviewByIdFetch';
-import {FieldData, EPGFilePreviewDto } from '@lib/smAPI/smapiTypes';
+import {FieldData, EPGFilePreviewDto,GetEPGFilePreviewByIdRequest } from '@lib/smAPI/smapiTypes';
 
 interface ExtendedQueryHookResult extends QueryHookResult<EPGFilePreviewDto[] | undefined> {}
 interface Result extends ExtendedQueryHookResult {
@@ -13,35 +12,37 @@ interface Result extends ExtendedQueryHookResult {
   SetIsForced: (force: boolean) => void;
   SetIsLoading: (isLoading: boolean, query: string) => void;
 }
-const useGetEPGFilePreviewById = (): Result => {
+const useGetEPGFilePreviewById = (params?: GetEPGFilePreviewByIdRequest): Result => {
   const dispatch = useAppDispatch();
-  const data = useAppSelector((state) => state.GetEPGFilePreviewById.data);
-  const error = useAppSelector((state) => state.GetEPGFilePreviewById.error ?? '');
-  const isError = useAppSelector((state) => state.GetEPGFilePreviewById.isError?? false);
+  const param = JSON.stringify(params);
+  const data = useAppSelector((state) => state.GetEPGFilePreviewById.data[param]);
+  const error = useAppSelector((state) => state.GetEPGFilePreviewById.error[param] ?? '');
+  const isError = useAppSelector((state) => state.GetEPGFilePreviewById.isError[param] ?? false);
   const isForced = useAppSelector((state) => state.GetEPGFilePreviewById.isForced ?? false);
-  const isLoading = useAppSelector((state) => state.GetEPGFilePreviewById.isLoading ?? false);
+  const isLoading = useAppSelector((state) => state.GetEPGFilePreviewById.isLoading[param] ?? false);
 
   const SetIsForced = useCallback(
-    (forceRefresh: boolean, query?: string): void => {
+    (forceRefresh: boolean): void => {
       dispatch(setIsForced({ force: forceRefresh }));
     },
     [dispatch]
   );
 
   const SetIsLoading = useCallback(
-    (isLoading: boolean): void => {
-      dispatch(setIsLoading({ isLoading: isLoading }));
+    (isLoading: boolean, param: string): void => {
+      dispatch(setIsLoading({ isLoading: isLoading, param: param }));
     },
     [dispatch]
   );
 
 useEffect(() => {
+  if (param === undefined) return;
   const state = store.getState().GetEPGFilePreviewById;
 
-  if (data === undefined && state.isLoading !== true && state.isForced !== true) {
+  if (data === undefined && state.isLoading[param] !== true && state.isForced !== true) {
     SetIsForced(true);
   }
-}, [SetIsForced, data, dispatch]);
+}, [SetIsForced, data, dispatch, param]);
 
 
 const SetField = (fieldData: FieldData): void => {

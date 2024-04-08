@@ -7,7 +7,7 @@ export const fetchGetEPGColors = createAsyncThunk('cache/getGetEPGColors', async
     console.log('Fetching GetEPGColors');
     const response = await GetEPGColors();
     console.log('Fetched GetEPGColors',response);
-    return { value: response };
+    return {param: _, value: response };
   } catch (error) {
     console.error('Failed to fetch', error);
     return thunkAPI.rejectWithValue({ value: undefined, error: error || 'Unknown error' });
