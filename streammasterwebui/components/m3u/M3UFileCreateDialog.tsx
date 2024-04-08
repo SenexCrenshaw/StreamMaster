@@ -1,15 +1,14 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef } from 'react';
 
 import AddButton from '@components/buttons/AddButton';
-import NumberInput from '@components/inputs/NumberInput';
 import { FileUpload } from 'primereact/fileupload';
-import M3UFileTags from './M3UFileTags';
 
+import XButton from '@components/buttons/XButton';
 import SMFileUpload from '@components/file/SMFileUpload';
 import { CreateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
-import { CreateM3UFileRequest } from '@lib/smAPI/smapiTypes';
+import { CreateM3UFileRequest, M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { OverlayPanel } from 'primereact/overlaypanel';
-import { ToggleButton } from 'primereact/togglebutton';
+import M3UFileEditDialog from './M3UFileEditDialog';
 
 export interface M3UFileDialogProperties {
   readonly infoMessage?: string;
@@ -19,23 +18,25 @@ export interface M3UFileDialogProperties {
   readonly showButton?: boolean | null;
 }
 
-export const M3UFileCreateDialog = ({ onHide, onUploadComplete, show, showButton }: M3UFileDialogProperties) => {
+export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3UFileDialogProperties) => {
   const fileUploadReference = useRef<FileUpload>(null);
   const op = useRef<OverlayPanel>(null);
 
-  const [overwriteChannelNumbers, setOverwriteChannelNumbers] = React.useState<boolean>(true);
-  const [vodTags, setVodTags] = useState<string[]>([]);
-  const [maxStreams, setMaxStreams] = useState<number>(1);
-  const [startingChannelNumber, setStartingChannelNumber] = useState<number>(1);
-  const [autoUpdate, setAutoUpdate] = useState<number>(1);
+  const defaultValues = {
+    Name: '',
+    MaxStreamCount: 1,
+    HoursToUpdate: 72,
+    OverwriteChannelNumbers: true,
+    StartingChannelNumber: 1
+  } as M3UFileDto;
+
+  const [m3uFileDto, setM3UFileDto] = React.useState<M3UFileDto>(defaultValues);
 
   const ReturnToParent = useCallback(
     (didUpload?: boolean) => {
       if (fileUploadReference.current) {
         fileUploadReference.current.clear();
       }
-
-      setVodTags([]);
 
       onHide?.(didUpload ?? false);
       onUploadComplete();
@@ -50,9 +51,9 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, show, showButton
       createM3UFileRequest.Name = name;
       createM3UFileRequest.FormFile = undefined;
       createM3UFileRequest.UrlSource = source;
-      createM3UFileRequest.MaxStreamCount = maxStreams;
-      createM3UFileRequest.StartingChannelNumber = startingChannelNumber;
-      createM3UFileRequest.VODTags = vodTags;
+      createM3UFileRequest.MaxStreamCount = m3uFileDto.MaxStreamCount;
+      createM3UFileRequest.StartingChannelNumber = m3uFileDto.StartingChannelNumber;
+      createM3UFileRequest.VODTags = m3uFileDto.VODTags;
 
       await CreateM3UFile(createM3UFileRequest)
         .then(() => {
@@ -65,83 +66,50 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, show, showButton
           ReturnToParent(true);
         });
     },
-    [ReturnToParent, maxStreams, startingChannelNumber, vodTags]
+    [ReturnToParent, m3uFileDto]
   );
 
-  const rightSettingTemplate = (): JSX.Element => {
-    return (
-      <div className="flex flex-wrap p-fluid align-items-center justify-content-between">
-        <div className="col-6">
-          <NumberInput
-            label="MAX STREAMS"
-            onChange={(e) => {
-              setMaxStreams(e);
-            }}
-            showClear
-            value={maxStreams}
-          />
-        </div>
-        <div className="col-6">
-          <NumberInput
-            label="AUTO UPDATE"
-            onChange={(e) => {
-              setAutoUpdate(e);
-            }}
-            showClear
-            suffix=" Hours"
-            value={autoUpdate}
-          />
-        </div>
-      </div>
-    );
+  const setName = (value: string) => {
+    if (m3uFileDto && m3uFileDto.Name !== value) {
+      const m3uFileDtoCopy = { ...m3uFileDto };
+      m3uFileDtoCopy.Name = value;
+      console.log('M3UFileCreateDialog setName', value);
+      setM3UFileDto(m3uFileDtoCopy);
+    }
   };
 
-  const settingTemplate = (): JSX.Element => {
-    return (
-      <div className="flex flex-wrap p-fluid align-items-center justify-content-between">
-        <div className="sourceOrFileDialog-toggle pb-4">
-          <div className="flex flex-column">
-            <div id="name" className="text-xs text-500 pb-1">
-              AUTO SET CHANNEL #S:
-            </div>
-            <ToggleButton checked={overwriteChannelNumbers} onChange={(e) => setOverwriteChannelNumbers(e.value)} />
-          </div>
-        </div>
-
-        <div className="col-3">
-          <NumberInput
-            label="STARTING CHANNEL #"
-            onChange={(e) => {
-              setStartingChannelNumber(e);
-            }}
-            showClear
-            value={startingChannelNumber}
-          />
-        </div>
-
-        <div className="col-6">
-          <M3UFileTags vodTags={vodTags} onChange={(e) => setVodTags(e)} />
-        </div>
-      </div>
-    );
-  };
+  console.log('M3UFileCreateDialog', m3uFileDto);
 
   return (
     <>
-      <OverlayPanel className="col-5 p-0 smfileupload-panel streammaster-border" ref={op} showCloseIcon={false}>
-        <div className="col-12 p-0 m-0">
-          <SMFileUpload
-            fileType="m3u"
-            maxStreams={maxStreams}
-            startingChannelNumber={startingChannelNumber}
-            overwriteChannelNumbers={overwriteChannelNumbers}
-            vodTags={vodTags}
-            onCreateFromSource={onCreateFromSource}
-            onUploadComplete={() => {
-              ReturnToParent(true);
+      <OverlayPanel className="col-5 p-0 smfileupload-panel streammaster-border" ref={op} showCloseIcon={false} closeOnEscape>
+        <div className="smfileupload col-12 p-0 m-0 ">
+          <div className="smfileupload-header">
+            <div className="flex justify-content-between align-items-center px-1 header">
+              <span className="sm-text-color">ADD M3U FILE</span>
+              <XButton iconFilled={false} onClick={(e) => op.current?.toggle(e)} />
+            </div>
+          </div>
+          <div className="px-2">
+            <SMFileUpload
+              m3uFileDto={m3uFileDto}
+              onCreateFromSource={onCreateFromSource}
+              onUploadComplete={() => {
+                ReturnToParent(true);
+              }}
+              onName={(name) => {
+                console.log('M3UFileCreateDialog SMFileUpload', name);
+                setName(name);
+              }}
+            />
+          </div>
+          <M3UFileEditDialog
+            selectedFile={m3uFileDto}
+            onM3UChanged={(e) => {
+              console.log('M3UFileCreateDialog', e.Name);
+              setM3UFileDto(e);
             }}
-            settingTemplate={settingTemplate()}
-            rightSettingTemplate={rightSettingTemplate()}
+            noButtons
           />
         </div>
       </OverlayPanel>

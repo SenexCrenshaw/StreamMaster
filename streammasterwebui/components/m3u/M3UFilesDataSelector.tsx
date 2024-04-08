@@ -1,4 +1,4 @@
-import { formatJSONDateString, getTopToolOptions } from '@lib/common/common';
+import { getTopToolOptions } from '@lib/common/common';
 
 import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox';
 import { memo, useCallback, useMemo } from 'react';
@@ -10,11 +10,13 @@ import M3UFileRemoveDialog from './M3UFileRemoveDialog';
 import M3UFileTagsDialog from './M3UFileTagsDialog';
 
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import { formatJSONDateString } from '@lib/common/dateTime';
 import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import useGetPagedM3UFiles from '@lib/smAPI/M3UFiles/useGetPagedM3UFiles';
 import { M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowExpansionTemplate } from 'primereact/datatable';
 import SMDataTable from '../smDataTable/SMDataTable';
+import M3UFileDialog from './M3UFileDialog';
 import M3UFilesMaxStreamsEditor from './M3UFilesMaxStreamsEditor';
 interface M3UUpdateProperties {
   auto?: boolean | null;
@@ -254,6 +256,7 @@ const M3UFilesDataSelector = () => {
       <div className="flex justify-content-center align-items-center">
         <M3UFileRefreshDialog selectedFile={rowData} />
         <M3UFileRemoveDialog selectedFile={rowData} />
+        <M3UFileDialog selectedFile={rowData} />
       </div>
     );
   }, []);
@@ -347,22 +350,26 @@ const M3UFilesDataSelector = () => {
         bodyTemplate: nameEditorBodyTemplate,
         field: 'name',
         header: 'Name',
-        sortable: true,
+
         width: '22rem'
       },
       {
         bodyTemplate: lastDownloadedTemplate,
         field: 'lastDownloaded',
         header: 'Downloaded',
-        sortable: true,
+
         width: '12rem'
       },
-
       {
         bodyTemplate: stationCountTemplate,
         field: 'stationCount',
         header: 'Streams',
-        sortable: true,
+        width: '6rem'
+      },
+      {
+        bodyTemplate: actionBodyTemplate,
+        field: 'editBodyTemplate',
+        header: 'Actions',
         width: '6rem'
       }
     ],
@@ -378,8 +385,7 @@ const M3UFilesDataSelector = () => {
       enableExport={false}
       id="m3ufilesdataselector"
       queryFilter={useGetPagedM3UFiles}
-      rowExpansionTemplate={rowExpansionTemplate}
-      showExpand
+      // rowExpansionTemplate={rowExpansionTemplate}
     />
   );
 };

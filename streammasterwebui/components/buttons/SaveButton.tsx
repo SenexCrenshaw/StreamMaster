@@ -7,7 +7,7 @@ const SaveButton: React.FC<ChildButtonProperties> = ({ className = '', disabled 
     disabled={disabled}
     icon="pi-save"
     iconFilled={iconFilled}
-    label={label}
+    label={iconFilled === true ? undefined : label ?? undefined}
     onClick={onClick}
     severity="success"
     tooltip={tooltip}

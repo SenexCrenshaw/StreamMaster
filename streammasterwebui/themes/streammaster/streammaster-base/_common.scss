@@ -55,11 +55,14 @@
 
 .smfileupload-header {
     background: var(--surface-overlay);
-    border-width: 2px;
     border-style: solid;
     border-color: var(--surface-100);
+    border-top-width: 0px;
+    border-left-width: 0px;
+    border-right-width: 0px;
+    border-bottom-width: 2px;
     border-radius: $borderRadius;
-    margin-bottom: 0.5rem;
+    // margin-bottom: 0.5rem;
     padding: 0.5rem;
 }
 
@@ -324,7 +327,7 @@
     color: transparent;
 }
 
-.smbutton {
+.smbutton-label {
     height: $input-height;
     padding-bottom: $input-padding;
     padding-top: $input-padding;
@@ -341,7 +344,11 @@
     .p-checkbox {
         font-size: $common-font-size;
     }
+}
 
+.smbutton {
+    @extend .smbutton-label;
+    width: $input-height;
 }
 
 .sm-expander {

@@ -417,7 +417,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           return;
         }
         const target = event.target as HTMLDivElement;
-        if (props.showExpand === true) {
+        if (props.showExpand === true || props.rowExpansionTemplate !== undefined) {
           // console.log(target.className);
           if (target.className && target.className === 'p-datatable-wrapper') {
             setters.setExpandedRows(undefined);
@@ -504,7 +504,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
                 ? 'w-3rem max-w-3rem p-0 justify-content-center align-items-center sm-expander'
                 : 'w-2rem max-w-2rem p-0 justify-content-center align-items-center sm-expander'
             }
-            hidden={!props.showExpand}
+            hidden={!props.showExpand || props.rowExpansionTemplate === undefined}
             showFilterMenu={false}
             showFilterOperator={false}
             resizeable={false}

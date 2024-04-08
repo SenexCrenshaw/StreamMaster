@@ -1,20 +1,23 @@
-import { useCallback, useState } from 'react';
-import * as axios from 'axios';
 import { upload as uploadService } from '@lib/FileUploadService';
+import { EPGFileDto, M3UFileDto } from '@lib/smAPI/smapiTypes';
+import * as axios from 'axios';
+import { useCallback, useState } from 'react';
 
 export interface BaseUploadParams {
   name: string;
 }
 
 export type UploadParamsSettings = {
-  fileType: 'epg' | 'm3u';
-  maxStreams?: number;
-  epgNumber?: number;
-  timeShift?: number;
-  color?: string;
-  startingChannelNumber?: number;
-  overwriteChannelNumbers?: boolean;
-  vodTags?: string[];
+  // fileType: 'epg' | 'm3u';
+  m3uFileDto?: M3UFileDto;
+  epgFileDto?: EPGFileDto;
+  // maxStreams?: number;
+  // epgNumber?: number;
+  // timeShift?: number;
+  // color?: string;
+  // startingChannelNumber?: number;
+  // overwriteChannelNumbers?: boolean;
+  // vodTags?: string[];
   file?: File;
 };
 
@@ -34,20 +37,22 @@ export function useFileUpload() {
   }, []);
 
   const doUpload = useCallback(async (params: UploadParams) => {
+    console.log(params.m3uFileDto);
+    return;
     if (params.file) {
       setIsUploading(true);
       try {
         await uploadService({
           name: params.name,
-          maxStreamCount: params.maxStreams,
-          epgNumber: params.epgNumber,
-          timeShift: params.timeShift,
-          color: params.color,
-          startingChannelNumber: params.startingChannelNumber,
-          overWriteChannels: params.overwriteChannelNumbers,
-          vodTags: params.vodTags,
+          maxStreamCount: params.m3uFileDto?.MaxStreamCount,
+          epgNumber: params.epgFileDto?.EPGNumber,
+          timeShift: params.epgFileDto?.TimeShift,
+          color: params.epgFileDto?.Color,
+          startingChannelNumber: params.m3uFileDto?.StartingChannelNumber,
+          overWriteChannels: params.m3uFileDto?.OverwriteChannelNumbers,
+          vodTags: params.m3uFileDto?.VODTags,
           file: params.file,
-          fileType: params.fileType,
+          fileType: params.m3uFileDto === undefined ? 'epg' : 'm3u',
           onUploadProgress: (event: axios.AxiosProgressEvent) => {
             setUploadedBytes(event.loaded);
             const total = event.total === undefined ? 1 : event.total;

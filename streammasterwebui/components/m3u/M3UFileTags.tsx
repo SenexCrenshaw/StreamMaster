@@ -1,5 +1,5 @@
+import DownArrowButton from '@components/buttons/DownArrowButton';
 import { M3UFileDto } from '@lib/smAPI/smapiTypes';
-import { Button } from 'primereact/button';
 import { Chips } from 'primereact/chips';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import React, { useMemo, useRef, useState } from 'react';
@@ -40,14 +40,26 @@ const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) =
             id="chips"
             value={intTags}
             onChange={(e) => {
+              console.log('change', e.value);
               onChange(e.value ?? []);
             }}
           />
         </OverlayPanel>
 
         <div>
-          <Button
-            className="text-sm tag-editor"
+          <DownArrowButton
+            label={buttonTags}
+            onClick={(e) => {
+              if (isOpen) {
+                op.current?.hide();
+              } else {
+                op.current?.show(null, anchorReference.current);
+              }
+              setIsOpen(!isOpen);
+            }}
+          />
+          {/* <Button
+            className="text-sm w-full"
             icon="pi pi-chevron-down"
             iconPos="right"
             id="tag-Button"
@@ -61,7 +73,7 @@ const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) =
               }
               setIsOpen(!isOpen);
             }}
-          />
+          /> */}
         </div>
       </div>
     </div>

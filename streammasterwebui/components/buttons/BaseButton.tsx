@@ -38,13 +38,18 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
     },
     ref
   ) => {
-    const tooltipClassName = React.useMemo(() => `basebutton-${uuidv4()}`, []);
+    const tooltipClassName = React.useMemo(() => {
+      if (iconFilled) {
+        return `smbutton-label basebutton-${uuidv4()}`;
+      }
+      return `smbutton basebutton-${uuidv4()}`;
+    }, []);
 
     return (
       <>
         <Tooltip target={tooltipClassName} />
         <Button
-          className={'smbutton ' + tooltipClassName}
+          className={tooltipClassName}
           disabled={disabled}
           icon={`pi ${icon}`}
           label={label}

@@ -266,7 +266,7 @@
 }
 .p-editor-container .p-editor-content .ql-editor {
   background: transparent;
-  color: hsl(234, 50%, 56%);
+  color: hsl(234, 65%, 79%);
   border-bottom-right-radius: 6px;
   border-bottom-left-radius: 6px;
 }
@@ -1329,7 +1329,7 @@
     font-family: var(--font-family);
     font-feature-settings: var(--font-feature-settings, normal);
     font-size: 0.75rem;
-    color: hsl(234, 50%, 56%);
+    color: hsl(234, 65%, 79%);
     background: transparent;
     padding: 0rem 0.24rem;
     border: 0;
@@ -6811,11 +6811,13 @@
 
 .smfileupload-header {
   background: var(--surface-overlay);
-  border-width: 2px;
   border-style: solid;
   border-color: var(--surface-100);
+  border-top-width: 0px;
+  border-left-width: 0px;
+  border-right-width: 0px;
+  border-bottom-width: 2px;
   border-radius: 6px;
-  margin-bottom: 0.5rem;
   padding: 0.5rem;
 }
 
@@ -7034,7 +7036,7 @@
   color: transparent;
 }
 
-.smbutton {
+.smbutton-label, .smbutton {
   height: 1.6rem;
   padding-bottom: 0.1rem;
   padding-top: 0.1rem;
@@ -7043,11 +7045,15 @@
   margin: 0;
   font-size: 0.75rem;
 }
-.smbutton .p-button-icon {
+.smbutton-label .p-button-icon, .smbutton .p-button-icon {
   font-size: 0.75rem;
 }
-.smbutton .p-checkbox {
+.smbutton-label .p-checkbox, .smbutton .p-checkbox {
   font-size: 0.75rem;
+}
+
+.smbutton {
+  width: 1.6rem;
 }
 
 .sm-expander .p-row-toggler {
@@ -7112,7 +7118,7 @@
   font-family: var(--font-family);
   font-feature-settings: var(--font-feature-settings, normal);
   font-size: 0.75rem;
-  color: hsl(234, 50%, 56%);
+  color: hsl(234, 65%, 79%);
   background: transparent;
   border: 0.1rem solid transparent;
   transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;

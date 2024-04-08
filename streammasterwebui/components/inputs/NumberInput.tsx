@@ -18,11 +18,11 @@ interface NumberInputProperties {
   readonly showClear?: boolean;
   readonly showCopy?: boolean;
   readonly suffix?: string | undefined;
-  readonly value: number;
+  readonly value: number | undefined;
 }
 
 const NumberInput = ({
-  autoFocus = true,
+  autoFocus = false,
   onEnter,
   isValid = true,
   label,
@@ -67,7 +67,7 @@ const NumberInput = ({
   });
 
   useEffect(() => {
-    setInput(value);
+    setInput(value ?? 0);
     if (value !== originalInput) {
       setOriginalInput(value);
     }
@@ -77,8 +77,17 @@ const NumberInput = ({
 
   return (
     <span className="p-float-label">
-      <InputNumber id="number-input" value={input} autoFocus={autoFocus} min={min} max={max} showButtons={showButtons} suffix={suffix} />
-      <label htmlFor="number-input">Number</label>
+      <InputNumber
+        id="number-input"
+        value={input}
+        onChange={(e) => onChange(e.value ?? 0)}
+        autoFocus={autoFocus === true}
+        min={min}
+        max={max}
+        showButtons={showButtons}
+        suffix={suffix}
+      />
+      <label htmlFor="number-input">{label}</label>
     </span>
   );
   // return (

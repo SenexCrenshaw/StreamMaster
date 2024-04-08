@@ -1,42 +1,40 @@
-import { M3UFileStreamUrlPrefix } from '@lib/common/streammaster_enums';
-import React, { useState } from 'react';
-import FileDialog, { type FileDialogProperties } from '../sharedEPGM3U/FileDialog';
+import { memo, useCallback, useRef } from 'react';
 
-const M3UFileDialog: React.FC<Partial<FileDialogProperties>> = () => {
-  const [infoMessage, setInfoMessage] = useState('');
+import EditButton from '@components/buttons/EditButton';
+import XButton from '@components/buttons/XButton';
+import { M3UFileDto } from '@lib/smAPI/smapiTypes';
+import { OverlayPanel } from 'primereact/overlaypanel';
+import M3UFileEditDialog from './M3UFileEditDialog';
 
-  const [M3UFilesCreateM3UFileMutation] = useM3UFilesCreateM3UFileMutation();
+interface M3UFileDialogProperties {
+  readonly selectedFile: M3UFileDto;
+}
 
-  const createM3U = async (
-    name: string,
-    source: string,
-    maxStreams: number,
-    startingChannelNumber: number,
-    streamURLPrefix: M3UFileStreamUrlPrefix,
-    vodTags: string[]
-  ) => {
-    const addM3UFileRequest = {} as CreateM3UFileRequest;
+const M3UFileDialog = ({ selectedFile }: M3UFileDialogProperties) => {
+  const op = useRef<OverlayPanel>(null);
 
-    addM3UFileRequest.name = name;
-    addM3UFileRequest.formFile = null;
-    addM3UFileRequest.urlSource = source;
-    addM3UFileRequest.maxStreamCount = maxStreams;
-    addM3UFileRequest.startingChannelNumber = startingChannelNumber;
-    addM3UFileRequest.vodTags = vodTags;
-    // addM3UFileRequest.streamURLPrefixInt = parseInt(streamURLPrefix?.toString() ?? '0');
+  const ReturnToParent = useCallback(() => {}, []);
 
-    await M3UFilesCreateM3UFileMutation(addM3UFileRequest)
-      .then(() => {
-        setInfoMessage('Uploaded M3U');
-      })
-      .catch((error) => {
-        setInfoMessage(`Error Uploading M3U: ${error.message}`);
-      });
-  };
-
-  return <FileDialog fileType="m3u" infoMessage={infoMessage} onCreateFromSource={createM3U} />;
+  return (
+    <>
+      <EditButton iconFilled={false} onClick={(e) => op.current?.toggle(e)} tooltip="Edit" />
+      <OverlayPanel className="col-5 p-0 smfileupload-panel streammaster-border" ref={op} closeOnEscape>
+        <div className="smfileupload col-12 p-0 m-0 ">
+          <div className="smfileupload-header">
+            <div className="flex justify-content-between align-items-center px-1 header">
+              <span className="sm-text-color">EDIT M3U FILE</span>
+              <span className="col-1">
+                <XButton iconFilled={false} onClick={(e) => op.current?.toggle(e)} />
+              </span>
+            </div>
+          </div>
+          <M3UFileEditDialog selectedFile={selectedFile} />
+        </div>
+      </OverlayPanel>
+    </>
+  );
 };
 
 M3UFileDialog.displayName = 'M3UFileDialog';
 
-export default React.memo(M3UFileDialog);
+export default memo(M3UFileDialog);
