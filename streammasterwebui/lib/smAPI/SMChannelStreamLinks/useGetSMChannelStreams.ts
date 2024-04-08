@@ -1,10 +1,10 @@
 import { QueryHookResult } from '@lib/apiDefs';
-import store from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
-import { clear, setField, setIsForced, setIsLoading } from './GetSMChannelStreamsSlice';
-import { useCallback,useEffect } from 'react';
+import store from '@lib/redux/store';
+import { FieldData, GetSMChannelStreamsRequest, SMStreamDto } from '@lib/smAPI/smapiTypes';
+import { useCallback, useEffect } from 'react';
 import { fetchGetSMChannelStreams } from './GetSMChannelStreamsFetch';
-import {FieldData, SMStreamDto,GetSMChannelStreamsRequest } from '@lib/smAPI/smapiTypes';
+import { clear, setField, setIsForced, setIsLoading } from './GetSMChannelStreamsSlice';
 
 interface ExtendedQueryHookResult extends QueryHookResult<SMStreamDto[] | undefined> {}
 interface Result extends ExtendedQueryHookResult {
@@ -36,43 +36,46 @@ const useGetSMChannelStreams = (params?: GetSMChannelStreamsRequest): Result => 
     [dispatch]
   );
 
-useEffect(() => {
-  if (param === undefined) return;
-  const state = store.getState().GetSMChannelStreams;
+  useEffect(() => {
+    if (param === undefined) return;
+    const state = store.getState().GetSMChannelStreams;
 
-  if (data === undefined && state.isLoading[param] !== true && state.isForced !== true) {
-    SetIsForced(true);
-  }
-}, [SetIsForced, data, dispatch, param]);
+    if (data === undefined && state.isLoading[param] !== true && state.isForced !== true) {
+      SetIsForced(true);
+    }
+  }, [SetIsForced, data, dispatch, param]);
 
-useEffect(() => {
-  const state = store.getState().GetSMChannelStreams;
-  if (params === undefined || param === undefined && !isForced) return;
-  if (state.isLoading[param]) return;
-  if (data !== undefined && !isForced) return;
+  useEffect(() => {
+    const state = store.getState().GetSMChannelStreams;
+    if (params === undefined || param === undefined || param === '{}') {
+      return;
+    }
 
-  SetIsLoading(true, param);
-  dispatch(fetchGetSMChannelStreams(params));
-}, [data, dispatch, param, isForced, isLoading, SetIsLoading]);
+    if (data !== undefined && !isForced) return;
+    if (state.isLoading[param]) return;
 
-const SetField = (fieldData: FieldData): void => {
-  dispatch(setField({ fieldData: fieldData }));
-};
+    SetIsLoading(true, param);
+    dispatch(fetchGetSMChannelStreams(params));
+  }, [data, dispatch, param, isForced, isLoading, SetIsLoading]);
 
-const Clear = (): void => {
-  dispatch(clear());
-};
+  const SetField = (fieldData: FieldData): void => {
+    dispatch(setField({ fieldData: fieldData }));
+  };
 
-return {
-  data,
-  error,
-  isError,
-  isLoading,
-  Clear,
-  SetField,
-  SetIsForced,
-  SetIsLoading
-};
+  const Clear = (): void => {
+    dispatch(clear());
+  };
+
+  return {
+    data,
+    error,
+    isError,
+    isLoading,
+    Clear,
+    SetField,
+    SetIsForced,
+    SetIsLoading
+  };
 };
 
 export default useGetSMChannelStreams;

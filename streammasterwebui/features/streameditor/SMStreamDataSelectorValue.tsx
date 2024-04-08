@@ -27,10 +27,6 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
   const { data, isLoading } = useGetSMChannelStreams({ SMChannelId: smChannel?.Id } as GetSMChannelStreamsRequest);
   const { setSelectedSMChannel } = useSelectedSMItems();
 
-  if (data) {
-    console.log('SMStreamDataSelectorValue', data);
-  }
-
   const actionBodyTemplate = useCallback(
     (smStream: SMStreamDto) => (
       <div className="flex p-0 justify-content-end align-items-center">

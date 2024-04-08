@@ -47,12 +47,12 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, show, showButton
     async (name: string, source: string) => {
       const createM3UFileRequest = {} as CreateM3UFileRequest;
 
-      createM3UFileRequest.name = name;
-      createM3UFileRequest.formFile = undefined;
-      createM3UFileRequest.urlSource = source;
-      createM3UFileRequest.maxStreamCount = maxStreams;
-      createM3UFileRequest.startingChannelNumber = startingChannelNumber;
-      createM3UFileRequest.vodTags = vodTags;
+      createM3UFileRequest.Name = name;
+      createM3UFileRequest.FormFile = undefined;
+      createM3UFileRequest.UrlSource = source;
+      createM3UFileRequest.MaxStreamCount = maxStreams;
+      createM3UFileRequest.StartingChannelNumber = startingChannelNumber;
+      createM3UFileRequest.VODTags = vodTags;
 
       await CreateM3UFile(createM3UFileRequest)
         .then(() => {

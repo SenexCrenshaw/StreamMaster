@@ -13,14 +13,14 @@ interface M3UFilesMaxStreamsEditorProperties {
 const M3UFilesMaxStreamsEditor = ({ data, style }: M3UFilesMaxStreamsEditorProperties) => {
   const onUpdateM3UFile = useCallback(
     async (maxStreamCount: number) => {
-      if (data.id === 0 || data.maxStreamCount === maxStreamCount) {
+      if (data.Id === 0 || data.MaxStreamCount === maxStreamCount) {
         return;
       }
 
       const toSend = {} as UpdateM3UFileRequest;
 
-      toSend.id = data.id;
-      toSend.maxStreamCount = maxStreamCount;
+      toSend.Id = data.Id;
+      toSend.MaxStreamCount = maxStreamCount;
 
       await UpdateM3UFile(toSend)
         .then(() => {})
@@ -28,7 +28,7 @@ const M3UFilesMaxStreamsEditor = ({ data, style }: M3UFilesMaxStreamsEditorPrope
           console.log(error);
         });
     },
-    [data.id, data.maxStreamCount]
+    [data.Id, data.MaxStreamCount]
   );
 
   return (
@@ -37,9 +37,9 @@ const M3UFilesMaxStreamsEditor = ({ data, style }: M3UFilesMaxStreamsEditorPrope
         await onUpdateM3UFile(e);
       }}
       showSave={false}
-      tooltip={isDev ? `id: ${data.id}` : undefined}
+      tooltip={isDev ? `id: ${data.Id}` : undefined}
       tooltipOptions={getTopToolOptions}
-      value={data.maxStreamCount}
+      value={data.MaxStreamCount}
     />
   );
 };

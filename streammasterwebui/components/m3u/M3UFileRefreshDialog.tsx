@@ -16,12 +16,12 @@ const M3UFileRefreshDialog = ({ selectedFile }: M3UFileRefreshDialogProperties) 
   }, []);
 
   const refreshFile = async () => {
-    if (!selectedFile?.id) {
+    if (!selectedFile?.Id) {
       return;
     }
 
     const toSend = {} as RefreshM3UFileRequest;
-    toSend.id = selectedFile.id;
+    toSend.Id = selectedFile.Id;
 
     RefreshM3UFile(toSend)
       .then(() => {

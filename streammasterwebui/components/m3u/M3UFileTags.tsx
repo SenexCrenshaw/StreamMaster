@@ -17,7 +17,7 @@ const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) =
   const [isOpen, setIsOpen] = useState(false);
 
   const intTags = useMemo((): string[] => {
-    const tags = m3uFileDto ? m3uFileDto.vodTags : vodTags ?? [];
+    const tags = m3uFileDto ? m3uFileDto.VODTags : vodTags ?? [];
 
     return tags;
   }, [m3uFileDto, vodTags]);

@@ -1,10 +1,8 @@
 import { memo, useState } from 'react';
 
-import FileRemoveDialog from '../sharedEPGM3U/FileRemoveDialog';
 import { DeleteM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
-
-import { DeleteM3UFileRequest } from '@lib/smAPI/M3UFiles/M3UFilesTypes';
-import { M3UFileDto } from '@lib/apiDefs';
+import { DeleteM3UFileRequest, M3UFileDto } from '@lib/smAPI/smapiTypes';
+import FileRemoveDialog from '../sharedEPGM3U/FileRemoveDialog';
 
 interface M3UFileRemoveDialogProperties {
   readonly selectedFile?: M3UFileDto;
@@ -20,8 +18,8 @@ const M3UFileRemoveDialog = (props: M3UFileRemoveDialogProperties) => {
 
     const toSend = {} as DeleteM3UFileRequest;
 
-    toSend.id = props.selectedFile.id;
-    toSend.deleteFile = true;
+    toSend.Id = props.selectedFile.Id;
+    toSend.DeleteFile = true;
 
     DeleteM3UFile(toSend)
       .then(() => {

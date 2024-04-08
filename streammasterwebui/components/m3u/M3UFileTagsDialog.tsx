@@ -11,8 +11,8 @@ const M3UFileTagsDialog = ({ m3uFileDto }: M3UFileTagsDialogProperties) => {
   const updateM3U = async (vodTags: string[]) => {
     const updateM3UFileRequest = {} as UpdateM3UFileRequest;
 
-    updateM3UFileRequest.id = m3uFileDto.id;
-    updateM3UFileRequest.vodTags = vodTags;
+    updateM3UFileRequest.Id = m3uFileDto.Id;
+    updateM3UFileRequest.VODTags = vodTags;
 
     await UpdateM3UFile(updateM3UFileRequest)
       .then(() => {})

@@ -86,7 +86,7 @@ const M3UFilesDataSelector = () => {
 
   // const StreamURLPrefixEditorBodyTemplate = useCallback(
   //   (rowData: M3UFileDto) => {
-  //     if (rowData.id === 0) {
+  //     if (rowData.Id === 0) {
   //       return <div />;
   //     }
 
@@ -94,7 +94,7 @@ const M3UFilesDataSelector = () => {
   //       <div className="flex justify-content-center ">
   //         <StreamURLPrefixSelector
   //           onChange={async (e) => {
-  //             await onM3UUpdateClick({ id: rowData.id, streamURLPrefix: e });
+  //             await onM3UUpdateClick({ id: rowData.Id, streamURLPrefix: e });
   //           }}
   //           value={rowData.streamURLPrefix}
   //         />
@@ -105,16 +105,16 @@ const M3UFilesDataSelector = () => {
   // );
 
   const lastDownloadedTemplate = useCallback((rowData: M3UFileDto) => {
-    if (rowData.id === 0) {
+    if (rowData.Id === 0) {
       return <div />;
     }
 
-    return <div className="flex justify-content-center">{formatJSONDateString(rowData.lastDownloaded ?? '')}</div>;
+    return <div className="flex justify-content-center">{formatJSONDateString(rowData.LastDownloaded ?? '')}</div>;
   }, []);
 
   const nameEditorBodyTemplate = useCallback(
     (rowData: M3UFileDto) => {
-      if (rowData.id === 0) {
+      if (rowData.Id === 0) {
         return (
           <div
             className="p-0 relative"
@@ -125,7 +125,7 @@ const M3UFilesDataSelector = () => {
               whiteSpace: 'nowrap'
             }}
           >
-            {rowData.name}
+            {rowData.Name}
           </div>
         );
       }
@@ -133,9 +133,9 @@ const M3UFilesDataSelector = () => {
       return (
         <StringEditorBodyTemplate
           onChange={async (e) => {
-            await onM3UUpdateClick({ id: rowData.id, name: e });
+            await onM3UUpdateClick({ id: rowData.Id, name: e });
           }}
-          value={rowData.name}
+          value={rowData.Name}
         />
       );
     },
@@ -144,7 +144,7 @@ const M3UFilesDataSelector = () => {
 
   const urlEditorBodyTemplate = useCallback(
     (rowData: M3UFileDto) => {
-      if (rowData.id === 0) {
+      if (rowData.Id === 0) {
         return (
           <div
             className="p-0 relative"
@@ -155,7 +155,7 @@ const M3UFilesDataSelector = () => {
               whiteSpace: 'nowrap'
             }}
           >
-            {rowData.url}
+            {rowData.Url}
           </div>
         );
       }
@@ -163,10 +163,10 @@ const M3UFilesDataSelector = () => {
       return (
         <StringEditorBodyTemplate
           onChange={async (e) => {
-            await onM3UUpdateClick({ id: rowData.id, url: e });
+            await onM3UUpdateClick({ id: rowData.Id, url: e });
           }}
-          tooltip={rowData.url}
-          value={rowData.url}
+          tooltip={rowData.Url}
+          value={rowData.Url}
         />
       );
     },
@@ -174,7 +174,7 @@ const M3UFilesDataSelector = () => {
   );
 
   const tagEditorBodyTemplate = useCallback((rowData: M3UFileDto) => {
-    if (rowData.id === 0) {
+    if (rowData.Id === 0) {
       return <div></div>;
     }
 
@@ -182,7 +182,7 @@ const M3UFilesDataSelector = () => {
   }, []);
 
   const maxStreamCountTemplate = useCallback((rowData: M3UFileDto) => {
-    if (rowData.id === 0) {
+    if (rowData.Id === 0) {
       return <div />;
     }
 
@@ -191,16 +191,16 @@ const M3UFilesDataSelector = () => {
 
   const startingChannelNumberTemplate = useCallback(
     (rowData: M3UFileDto) => {
-      if (rowData.id === 0) {
+      if (rowData.Id === 0) {
         return <div />;
       }
 
       return (
         <NumberEditorBodyTemplate
           onChange={async (e) => {
-            await onM3UUpdateClick({ id: rowData.id, startingChannelNumber: e });
+            await onM3UUpdateClick({ id: rowData.Id, startingChannelNumber: e });
           }}
-          value={rowData.startingChannelNumber}
+          value={rowData.StartingChannelNumber}
         />
       );
     },
@@ -208,25 +208,25 @@ const M3UFilesDataSelector = () => {
   );
 
   const stationCountTemplate = useCallback((rowData: M3UFileDto) => {
-    if (rowData.id === 0) {
+    if (rowData.Id === 0) {
       return <div />;
     }
 
-    return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.stationCount}</div>;
+    return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.StationCount}</div>;
   }, []);
 
   const autoUpdateTemplate = useCallback(
     (rowData: M3UFileDto) => {
-      if (rowData.id === 0) {
+      if (rowData.Id === 0) {
         return <div />;
       }
 
       return (
         <div className="flex w-6 justify-content-start align-items-center">
           <Checkbox
-            checked={rowData.autoUpdate}
+            checked={rowData.AutoUpdate}
             onChange={async (e: CheckboxChangeEvent) => {
-              await onM3UUpdateClick({ auto: e.checked ?? false, id: rowData.id });
+              await onM3UUpdateClick({ auto: e.checked ?? false, id: rowData.Id });
             }}
             tooltip="Enable Auto Update"
             tooltipOptions={getTopToolOptions}
@@ -234,10 +234,10 @@ const M3UFilesDataSelector = () => {
           <div className="autoUpdate">
             <NumberEditorBodyTemplate
               onChange={async (e) => {
-                await onM3UUpdateClick({ auto: rowData.autoUpdate, hours: e, id: rowData.id, maxStreams: rowData.maxStreamCount ?? 0 });
+                await onM3UUpdateClick({ auto: rowData.AutoUpdate, hours: e, id: rowData.Id, maxStreams: rowData.MaxStreamCount ?? 0 });
               }}
               suffix=" hours"
-              value={rowData.hoursToUpdate}
+              value={rowData.HoursToUpdate}
             />
           </div>
         </div>
@@ -247,7 +247,7 @@ const M3UFilesDataSelector = () => {
   );
 
   const actionBodyTemplate = useCallback((rowData: M3UFileDto) => {
-    if (rowData.id === 0) {
+    if (rowData.Id === 0) {
       return <div />;
     }
     return (
@@ -260,15 +260,15 @@ const M3UFilesDataSelector = () => {
 
   const overwriteTemplate = useCallback(
     (rowData: M3UFileDto) => {
-      if (rowData.id === 0) {
+      if (rowData.Id === 0) {
         return <div />;
       }
       return (
         <div className="flex justify-content-center align-items-center">
           <Checkbox
-            checked={rowData.overwriteChannelNumbers}
+            checked={rowData.OverwriteChannelNumbers}
             onChange={async (e: CheckboxChangeEvent) => {
-              await onM3UUpdateClick({ overwriteChannelNumbers: e.checked ?? false, id: rowData.id });
+              await onM3UUpdateClick({ overwriteChannelNumbers: e.checked ?? false, id: rowData.Id });
             }}
             tooltip="Autoset Channel #s"
             tooltipOptions={getTopToolOptions}

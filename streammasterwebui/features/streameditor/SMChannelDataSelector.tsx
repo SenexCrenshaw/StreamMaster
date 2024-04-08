@@ -9,7 +9,6 @@ import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import { GetMessage } from '@lib/common/common';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import { DeleteSMChannelRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
@@ -27,10 +26,10 @@ interface SMChannelDataSelectorProperties {
 
 const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: SMChannelDataSelectorProperties) => {
   const dataKey = `${id}-SMChannelDataSelector`;
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems('selectSelectedSMChannelDtoItems');
+
   const { selectedSMChannel, setSelectedSMChannel, setExpandedRows } = useSelectedSMItems();
   const { queryFilter } = useQueryFilter(dataKey);
-  const { isLoading, data } = useGetPagedSMChannels(queryFilter);
+  const { data, isLoading } = useGetPagedSMChannels(queryFilter);
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
 
   const { columnConfig: channelNumberColumnConfig } = useSMChannelNumberColumnConfig({ enableEdit, useFilter: false });
@@ -172,21 +171,29 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
         id={dataKey}
         isLoading={isLoading}
         onRowClick={(e: DataTableRowClickEvent) => {
-          setSelectedSMEntity(e.data as SMChannelDto, true);
-          setSelectedSMChannel(e.data as SMChannelDto);
+          // setSelectedSMEntity(e.data as SMChannelDto, true);
+          if (e.data !== selectedSMChannel) {
+            setSelectedSMChannel(e.data as SMChannelDto);
+          }
 
           console.log(e);
         }}
         onClick={(e: any) => {
           if (e.target.className && e.target.className === 'p-datatable-wrapper') {
-            // setSelectedSMChannel(undefined);
+            setSelectedSMChannel(undefined);
           }
         }}
         onRowExpand={(e: DataTableRowEvent) => {
-          setSelectedSMEntity(e.data);
+          if (e.data !== selectedSMChannel) {
+            setSelectedSMChannel(e.data as SMChannelDto);
+          }
+          // setSelectedSMEntity(e.data);
         }}
         onRowCollapse={(e: DataTableRowEvent) => {
-          setSelectedSMEntity(e.data);
+          if (e.data !== selectedSMChannel) {
+            setSelectedSMChannel(e.data as SMChannelDto);
+          }
+          // setSelectedSMEntity(e.data);
         }}
         rowClass={rowClass}
         queryFilter={useGetPagedSMChannels}
