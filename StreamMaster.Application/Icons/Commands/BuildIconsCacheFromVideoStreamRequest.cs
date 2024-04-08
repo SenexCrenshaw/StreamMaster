@@ -37,7 +37,7 @@ public class BuildIconsCacheFromVideoStreamRequestHandler(IIconService iconServi
             IconFileDto icon = IconHelper.GetIcon(source, stream.Name, stream.M3UFileId, FileDefinitions.Icon);
             iconService.AddIcon(icon);
         });
-        await hubContext.Clients.All.DataRefresh("IconFileDto").ConfigureAwait(false);
+        await hubContext.Clients.All.DataRefresh("GetIcons").ConfigureAwait(false);
         return DataResponse.True;
     }
 }

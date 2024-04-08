@@ -98,13 +98,13 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
 
             iconService.RemoveIconsByM3UFileId(m3UFile.Id);
 
-            await hubContext.Clients.All.DataRefresh("M3UFileDto").ConfigureAwait(false);
-            await hubContext.Clients.All.DataRefresh("SMStreamDto").ConfigureAwait(false);
-            await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
+            await hubContext.Clients.All.DataRefresh("GetPagedM3UFiles").ConfigureAwait(false);
+            await hubContext.Clients.All.DataRefresh("GetPagedSMStreams").ConfigureAwait(false);
+            await hubContext.Clients.All.DataRefresh("GetSMChannelStreams").ConfigureAwait(false);
 
             if (refreshCGs)
             {
-                await hubContext.Clients.All.DataRefresh("ChannelGroupDto").ConfigureAwait(false);
+                await hubContext.Clients.All.DataRefresh("GetPagedChannelGroups").ConfigureAwait(false);
             }
 
             await messageService.SendSuccess("Deleted M3U '" + m3UFile.Name);

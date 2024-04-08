@@ -18,9 +18,11 @@ internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logge
                 return APIResponse.NotFound;
             }
 
-            await hubContext.Clients.All.DataRefresh("M3UFileDto").ConfigureAwait(false);
-            await hubContext.Clients.All.DataRefresh("SMStreamDto").ConfigureAwait(false);
-            await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
+            await hubContext.Clients.All.DataRefresh("GetPagedM3UFiles").ConfigureAwait(false);
+            await hubContext.Clients.All.DataRefresh("GetPagedSMStreams").ConfigureAwait(false);
+            await hubContext.Clients.All.DataRefresh("GetSMChannelStreams").ConfigureAwait(false);
+
+            await hubContext.Clients.All.DataRefresh("GetPagedChannelGroups").ConfigureAwait(false);
 
             await messageSevice.SendSuccess("Processed M3U '" + m3uFile.Name + "' successfully");
             return APIResponse.Success;

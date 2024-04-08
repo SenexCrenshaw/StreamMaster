@@ -13,7 +13,7 @@ internal class DeleteSMChannelsRequestHandler(IRepositoryWrapper Repository, IHu
         APIResponse ret = await Repository.SMChannel.DeleteSMChannels(request.SMChannelIds);
         if (!ret.IsError)
         {
-            await hubContext.Clients.All.DataRefresh("SMChannelDto").ConfigureAwait(false);
+            await hubContext.Clients.All.DataRefresh("GetPagedSMChannels").ConfigureAwait(false);
         }
 
         return ret;

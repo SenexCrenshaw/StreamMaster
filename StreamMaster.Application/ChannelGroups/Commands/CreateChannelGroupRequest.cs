@@ -26,7 +26,7 @@ public class CreateChannelGroupRequestHandler(IMessageService messageSevice, IHu
 
         await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(channelGroupDto.Id), cancellationToken).ConfigureAwait(false);
 
-        await hubContext.Clients.All.DataRefresh("ChannelGroupDto").ConfigureAwait(false);
+        await hubContext.Clients.All.DataRefresh("GetPagedChannelGroups").ConfigureAwait(false);
         await messageSevice.SendSuccess("Created CG '" + channelGroupDto.Name);
         return APIResponse.Success;
     }
