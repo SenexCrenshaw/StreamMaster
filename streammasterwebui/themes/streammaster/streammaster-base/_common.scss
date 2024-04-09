@@ -290,11 +290,15 @@
 .sm-col-header,
 .sm-col-header-left,
 .sm-col-header-right {
-    @include datatable-text-style(true); // Use true for nowrap, false to allow wrapping
+    @include datatable-text-style(); // Use true for nowrap, false to allow wrapping
 }
 
 .listTemplate-gridItem-name {
     max-width: $gridItem-width;
+}
+
+.sm-col-header-center {
+    text-align: center;
 }
 
 .sm-col-header-left {

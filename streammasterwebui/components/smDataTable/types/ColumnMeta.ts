@@ -12,6 +12,7 @@ export interface ColumnMeta {
    * The type of alignment for the content of the column.
    */
   align?: ColumnAlign | undefined;
+  alignHeader?: ColumnAlign | undefined;
   /**
    * A function that returns a JSX element for the column's body content.
    */

@@ -85,7 +85,7 @@ const M3UFilesDataSelector = () => {
       return <div />;
     }
 
-    return <div className="flex justify-content-center">{formatJSONDateString(rowData.LastDownloaded ?? '')}</div>;
+    return <div>{formatJSONDateString(rowData.LastDownloaded ?? '')}</div>;
   }, []);
 
   const nameEditorBodyTemplate = useCallback(
@@ -310,16 +310,17 @@ const M3UFilesDataSelector = () => {
     (): ColumnMeta[] => [
       {
         bodyTemplate: nameEditorBodyTemplate,
-        field: 'name',
+        field: 'Name',
         header: 'Name',
         sortable: true,
         width: '22rem'
       },
       {
+        align: 'left',
+        alignHeader: 'center',
         bodyTemplate: lastDownloadedTemplate,
         field: 'lastDownloaded',
         header: 'Downloaded',
-
         width: '12rem'
       },
       {

@@ -38,15 +38,14 @@ $streamMasterColor: #fe7600 !default;
     background-color: $streamMasterColor;
 }
 
-@mixin datatable-text-style($nowrap: true) {
+@mixin datatable-text-style() {
     padding-left: $datatable-padding !important;
     padding-top: $datatable-padding !important;
     padding-bottom: $datatable-padding !important;
     font-size: $common-font-size;
-    text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: if($nowrap, nowrap, normal);
+    white-space: nowrap;
     height: $input-height;
 }
 

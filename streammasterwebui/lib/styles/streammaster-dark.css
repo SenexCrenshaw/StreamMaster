@@ -6777,7 +6777,6 @@
   padding-top: 0.1rem !important;
   padding-bottom: 0.1rem !important;
   font-size: 0.75rem;
-  text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -7005,7 +7004,6 @@
   padding-top: 0.1rem !important;
   padding-bottom: 0.1rem !important;
   font-size: 0.75rem;
-  text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -7014,6 +7012,10 @@
 
 .listTemplate-gridItem-name {
   max-width: 4rem;
+}
+
+.sm-col-header-center {
+  text-align: center;
 }
 
 .sm-col-header-left, .sm-col-header-left-wrap {
@@ -7124,7 +7126,6 @@
   padding-top: 0.1rem !important;
   padding-bottom: 0.1rem !important;
   font-size: 0.75rem;
-  text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

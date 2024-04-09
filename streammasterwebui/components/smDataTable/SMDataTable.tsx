@@ -23,7 +23,7 @@ import generateFilterData from '@components/dataSelector/generateFilterData';
 import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import TableHeader from './helpers/TableHeader';
 import bodyTemplate from './helpers/bodyTemplate';
-import { getAlign, getAlignHeader, getHeaderFromField, setColumnToggle } from './helpers/dataSelectorFunctions';
+import { getAlign, getHeaderFromField, setColumnToggle } from './helpers/dataSelectorFunctions';
 import getEmptyFilter from './helpers/getEmptyFilter';
 import getHeader from './helpers/getHeader';
 import getRecord from './helpers/getRecord';
@@ -273,6 +273,40 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     [state.sortField, state.sortOrder]
   );
 
+  const getFilterElement = useCallback(
+    (header: string, options: ColumnFilterElementTemplateOptions) => {
+      const stringTrackerkey = props.id + '-' + options.field;
+
+      return (
+        <StringTracker
+          id={stringTrackerkey}
+          onChange={async (e) => {
+            options.filterApplyCallback(e);
+          }}
+          placeholder={header ?? ''}
+          value={options.value}
+        />
+      );
+    },
+    [props.id]
+  );
+
+  const sortButton = useCallback(
+    (options: ColumnFilterElementTemplateOptions) => {
+      return (
+        <Button
+          className="p-button-text p-0 m-0"
+          onClick={() => {
+            setters.setSortField(options.field);
+            setters.setSortOrder(state.sortOrder === 1 ? -1 : 1);
+          }}
+          icon={getSortIcon(options.field)}
+        />
+      );
+    },
+    [getSortIcon, setters, state.sortOrder]
+  );
+
   const rowFilterTemplate = useCallback(
     (options: ColumnFilterElementTemplateOptions) => {
       let col = props.columns.find((column) => column.field === options.field);
@@ -308,50 +342,42 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             }}
             showSelectAll={false}
             pt={{
-              header: { style: { display: 'none' } },
-              checkbox: { style: { display: 'none' } }
+              checkbox: { style: { display: 'none' } },
+              header: { style: { display: 'none' } }
             }}
             useOptionAsValue
           />
         );
       }
 
-      let cl = 'sm-col-header';
-      if (col.filter !== true) {
-        if (col.align !== undefined) {
-          cl += '-' + col.align;
-        }
-        if (props.enableHeaderWrap === true) {
-          cl += '-wrap';
-        }
-        return <div className={cl}>{header}</div>;
+      let cl = 'sm-col-header-center';
+      let justify = 'justify-content-center';
+
+      if (col.align !== undefined) {
+        cl = 'sm-col-header-' + col.align;
       }
 
-      const stringTrackerkey = props.id + '-' + options.field;
+      if (col.alignHeader !== undefined) {
+        justify = 'justify-content-' + col.alignHeader;
+      }
+
+      if (props.enableHeaderWrap === true) {
+        cl += '-wrap';
+      }
+
+      if (options.field === 'Name') {
+        console.log('cl', cl);
+      }
 
       return (
-        <div className="flex justify-content-end">
-          <StringTracker
-            id={stringTrackerkey}
-            onChange={async (e) => {
-              options.filterApplyCallback(e);
-            }}
-            placeholder={header ?? ''}
-            value={options.value}
-          />
-
-          <Button
-            className="p-button-text p-0 m-0"
-            onClick={() => {
-              setters.setSortField(options.field);
-              setters.setSortOrder(state.sortOrder === 1 ? -1 : 1);
-            }}
-            icon={getSortIcon(options.field)}
-          />
+        <div className={`flex ${justify} align-item-ceter gap-1`}>
+          <div className={cl}>{header}</div>
+          {col.filter === true && getFilterElement(header, options)}
+          {col.sortable === true && sortButton(options)}
         </div>
       );
     },
-    [getSortIcon, onColumnToggle, props.enableHeaderWrap, props.columns, props.id, setters, state.sortOrder, state.visibleColumns, visibleColumnsTemplate]
+    [props.columns, props.enableHeaderWrap, getFilterElement, sortButton, state.visibleColumns, visibleColumnsTemplate, onColumnToggle]
   );
 
   const showSelection = useMemo(() => {
@@ -469,6 +495,9 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           scrollable
           showGridlines
           size="small"
+          sortField={props.reorderable ? 'rank' : state.sortField}
+          sortMode="single"
+          sortOrder={props.reorderable ? 0 : state.sortOrder}
           stripedRows
           style={props.style}
           value={state.dataSource}
@@ -516,7 +545,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             // header={rowReorderHeader}
             hidden={!props.reorderable}
             rowReorder
-            style={{ width: '2rem', maxWidth: '2rem' }}
+            style={{ maxWidth: '2rem', width: '2rem' }}
           />
           {props.columns &&
             props.columns
@@ -524,8 +553,8 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
               .map((col) => (
                 <Column
                   align={getAlign(col.align, col.fieldType)}
-                  alignHeader={getAlignHeader(col.align, col.fieldType)}
-                  className={'sm-column ' + col.className}
+                  // alignHeader={col.alignHeader}
+                  // className={'sm-column ' + col.className}
                   filter
                   filterElement={col.filter === true ? col.filterElement : rowFilterTemplate}
                   filterPlaceholder={col.filter === true ? (col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)) : undefined}
@@ -543,6 +572,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
                   showFilterMenu={col.filterElement === undefined && col.filter === true}
                   showFilterMenuOptions
                   showFilterOperator
+                  sortable={props.reorderable ? false : col.sortable}
                 />
               ))}
         </DataTable>
