@@ -5,6 +5,9 @@ $inputBorder-size: $input-padding;
 $datatable-row-height: 1.8rem;
 $input-height: $datatable-row-height - ($inputBorder-size*2);
 
+$actionIconWidth: $input-height !default;
+$actionIconHeight: $input-height !default;
+
 $gridItem-height: 6rem;
 $gridItem-width: 4rem;
 $gridItem-margin: .15rem;

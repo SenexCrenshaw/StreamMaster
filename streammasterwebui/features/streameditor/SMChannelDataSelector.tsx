@@ -13,7 +13,7 @@ import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import { DeleteSMChannelRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
-import { DataTableRowClickEvent, DataTableRowData, DataTableRowEvent, DataTableRowExpansionTemplate, DataTableValue } from 'primereact/datatable';
+import { DataTableRowClickEvent, DataTableRowData, DataTableRowEvent, DataTableRowExpansionTemplate } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import SMStreamDataSelectorValue from './SMStreamDataSelectorValue';
 import useSelectedSMItems from './useSelectedSMItems';
@@ -27,9 +27,9 @@ interface SMChannelDataSelectorProperties {
 const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: SMChannelDataSelectorProperties) => {
   const dataKey = `${id}-SMChannelDataSelector`;
 
-  const { selectedSMChannel, setSelectedSMChannel, setExpandedRows } = useSelectedSMItems();
+  const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
   const { queryFilter } = useQueryFilter(dataKey);
-  const { data, isLoading } = useGetPagedSMChannels(queryFilter);
+  const { isLoading } = useGetPagedSMChannels(queryFilter);
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
 
   const { columnConfig: channelNumberColumnConfig } = useSMChannelNumberColumnConfig({ enableEdit, useFilter: false });
@@ -51,16 +51,16 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
     );
   }, []);
 
-  const setSelectedSMEntity = useCallback(
-    (data: DataTableValue, toggle?: boolean) => {
-      if (toggle === true && selectedSMChannel !== undefined && data !== undefined && data.id === selectedSMChannel.Id) {
-        setSelectedSMChannel(undefined);
-      } else {
-        setSelectedSMChannel(data as SMChannelDto);
-      }
-    },
-    [selectedSMChannel, setSelectedSMChannel]
-  );
+  // const setSelectedSMEntity = useCallback(
+  //   (data: DataTableValue, toggle?: boolean) => {
+  //     if (toggle === true && selectedSMChannel !== undefined && data !== undefined && data.id === selectedSMChannel.Id) {
+  //       setSelectedSMChannel(undefined);
+  //     } else {
+  //       setSelectedSMChannel(data as SMChannelDto);
+  //     }
+  //   },
+  //   [selectedSMChannel, setSelectedSMChannel]
+  // );
 
   const actionBodyTemplate = useCallback((data: SMChannelDto) => {
     const accept = () => {
@@ -79,7 +79,9 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
 
     const confirm = (event: any) => {
       confirmPopup({
-        target: event.currentTarget,
+        accept,
+        defaultFocus: 'accept',
+        icon: 'pi pi-exclamation-triangle',
         message: (
           <>
             Delete
@@ -88,10 +90,8 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
             Are you sure?
           </>
         ),
-        icon: 'pi pi-exclamation-triangle',
-        defaultFocus: 'accept',
-        accept,
-        reject
+        reject,
+        target: event.currentTarget
       });
     };
 
@@ -109,7 +109,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
       channelLogoColumnConfig,
       channelNameColumnConfig,
       { field: 'Group', filter: false, sortable: true, width: '5rem' },
-      { align: 'right', filter: false, bodyTemplate: actionBodyTemplate, field: 'actions', fieldType: 'actions', header: 'Actions', width: '5rem' }
+      { align: 'right', bodyTemplate: actionBodyTemplate, field: 'actions', fieldType: 'actions', filter: false, header: 'Actions', width: '5rem' }
     ],
     [actionBodyTemplate, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig]
   );

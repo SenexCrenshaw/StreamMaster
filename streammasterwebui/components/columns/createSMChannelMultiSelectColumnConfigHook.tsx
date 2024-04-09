@@ -18,12 +18,24 @@ interface ColumnConfigInputs {
   maxWidth?: number;
   minWidth?: number;
   queryHook?: QueryHook<string[]>;
+  sortable?: boolean;
   useFilter?: boolean;
   width?: number;
 }
 
 const createSMChannelMultiSelectColumnConfigHook =
-  ({ dataField, fieldType, headerTitle, maxWidth, minWidth, width, EditorComponent, queryHook, useFilter: configUseFilter }: ColumnConfigInputs) =>
+  ({
+    dataField,
+    fieldType,
+    headerTitle,
+    maxWidth,
+    minWidth,
+    width,
+    EditorComponent,
+    queryHook,
+    sortable = false,
+    useFilter: configUseFilter
+  }: ColumnConfigInputs) =>
   ({ enableEdit = false, useFilter = configUseFilter, values }: { enableEdit?: boolean; useFilter?: boolean; values?: string[] | undefined }) => {
     const { data, isLoading, isFetching, isError } = queryHook ? queryHook() : { data: undefined, isError: false, isFetching: false, isLoading: false };
 
@@ -83,7 +95,7 @@ const createSMChannelMultiSelectColumnConfigHook =
       filterField: dataField as string,
       header: headerTitle,
       maxWidth: maxWidth === undefined ? undefined : `${maxWidth}rem`,
-      sortable: true,
+      sortable: sortable,
       width: width === undefined ? undefined : `${width}rem`
     };
 

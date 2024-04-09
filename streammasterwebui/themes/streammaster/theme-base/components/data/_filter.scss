@@ -1,7 +1,8 @@
 .p-column-filter-row {
+
     .p-column-filter-menu-button,
     .p-column-filter-clear-button {
-        margin-left: $inlineSpacing;
+        // margin-left: $inlineSpacing;
     }
 }
 
@@ -13,6 +14,8 @@
     background: $actionIconBg;
     border-radius: $actionIconBorderRadius;
     transition: $actionIconTransition;
+    // padding: 0rem;
+    // margin: 0rem !important;
 
     &:hover {
         color: $actionIconHoverColor;
@@ -134,5 +137,5 @@
 
     .p-column-filter-buttonbar {
         padding: $panelContentPadding;
-    } 
+    }
 }

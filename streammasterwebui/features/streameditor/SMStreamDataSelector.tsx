@@ -73,10 +73,10 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
   const columns = useMemo(
     (): ColumnMeta[] => [
       // { field: 'Logo', fieldType: 'image' },
-      { field: 'Name', filter: true, maxWidth: '2rem', sortable: true },
-      { field: 'Group', filter: true, sortable: true, width: '5rem' },
-      { field: 'm3UFileName', filter: true, header: 'M3U', sortable: true, width: '5rem' },
-      { align: 'right', bodyTemplate: actionBodyTemplate, field: 'isHidden', fieldType: 'actions', header: 'Actions', width: '5rem' }
+      { field: 'Name', filter: true, maxWidth: '16rem', sortable: true },
+      { field: 'Group', filter: true, sortable: true },
+      { field: 'M3UFileName', filter: true, header: 'M3U', sortable: true },
+      { align: 'right', bodyTemplate: actionBodyTemplate, field: 'isHidden', fieldType: 'actions', header: 'Actions', width: '4rem' }
     ],
     [actionBodyTemplate]
   );

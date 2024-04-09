@@ -1,5 +1,5 @@
 import { FilterMatchMode } from 'primereact/api';
-import { ColumnEditorOptions, ColumnEvent, ColumnFilterElementTemplateOptions } from 'primereact/column';
+import { ColumnEditorOptions, ColumnEvent } from 'primereact/column';
 import { CSSProperties } from 'react';
 import { ColumnAlign, ColumnFieldType } from './smDataTableTypes';
 
@@ -43,7 +43,7 @@ export interface ColumnMeta {
    * A boolean value that specifies whether to enable filtering for the column.
    */
   filter?: boolean;
-  filterElement?: (options: ColumnFilterElementTemplateOptions) => React.ReactNode;
+  // filterElement?: (options: ColumnFilterElementTemplateOptions) => React.ReactNode;
   filterField?: string;
   /**
    * The type of matching to use for filtering.
@@ -75,4 +75,5 @@ export interface ColumnMeta {
   removed?: boolean;
   removable?: boolean;
   maxWidth?: string;
+  minWidth?: string;
 }

@@ -278,14 +278,16 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       const stringTrackerkey = props.id + '-' + options.field;
 
       return (
-        <StringTracker
-          id={stringTrackerkey}
-          onChange={async (e) => {
-            options.filterApplyCallback(e);
-          }}
-          placeholder={header ?? ''}
-          value={options.value}
-        />
+        <div className="w-full">
+          <StringTracker
+            id={stringTrackerkey}
+            onChange={async (e) => {
+              options.filterApplyCallback(e);
+            }}
+            placeholder={header ?? ''}
+            value={options.value}
+          />
+        </div>
       );
     },
     [props.id]
@@ -365,13 +367,9 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         cl += '-wrap';
       }
 
-      if (options.field === 'Name') {
-        console.log('cl', cl);
-      }
-
       return (
-        <div className={`flex ${justify} align-item-ceter gap-1`}>
-          <div className={cl}>{header}</div>
+        <div className={`flex ${justify} align-items-center gap-1`}>
+          {col.filter !== true && <div className={cl}>{header}</div>}
           {col.filter === true && getFilterElement(header, options)}
           {col.sortable === true && sortButton(options)}
         </div>
@@ -556,7 +554,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
                   // alignHeader={col.alignHeader}
                   // className={'sm-column ' + col.className}
                   filter
-                  filterElement={col.filter === true ? col.filterElement : rowFilterTemplate}
+                  filterElement={rowFilterTemplate}
                   filterPlaceholder={col.filter === true ? (col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)) : undefined}
                   header={getHeader(col.field, col.header, col.fieldType)}
                   body={(e) => (col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, setting.defaultIcon, col.camelize))}
@@ -569,7 +567,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
                   showApplyButton
                   showClearButton
                   showFilterMatchModes
-                  showFilterMenu={col.filterElement === undefined && col.filter === true}
+                  showFilterMenu={col.filter === true}
                   showFilterMenuOptions
                   showFilterOperator
                   sortable={props.reorderable ? false : col.sortable}

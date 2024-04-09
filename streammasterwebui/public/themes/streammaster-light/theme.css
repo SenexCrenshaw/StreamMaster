@@ -484,8 +484,8 @@
   }
   .p-datepicker .p-datepicker-header .p-datepicker-prev,
   .p-datepicker .p-datepicker-header .p-datepicker-next {
-    width: 2rem;
-    height: 2rem;
+    width: 1.6rem;
+    height: 1.6rem;
     color: #898989;
     border: 0 none;
     background: transparent;
@@ -505,7 +505,7 @@
     box-shadow: 0 0 0 0.1rem #bbc7ee;
   }
   .p-datepicker .p-datepicker-header .p-datepicker-title {
-    line-height: 2rem;
+    line-height: 1.6rem;
   }
   .p-datepicker .p-datepicker-header .p-datepicker-title .p-datepicker-year,
   .p-datepicker .p-datepicker-header .p-datepicker-title .p-datepicker-month {
@@ -572,8 +572,8 @@
     padding: 0.5rem;
   }
   .p-datepicker .p-timepicker button {
-    width: 2rem;
-    height: 2rem;
+    width: 1.6rem;
+    height: 1.6rem;
     color: #898989;
     border: 0 none;
     background: transparent;
@@ -1727,8 +1727,8 @@
   }
   .p-multiselect-panel .p-multiselect-header .p-multiselect-close {
     margin-left: 0.5rem;
-    width: 2rem;
-    height: 2rem;
+    width: 1.6rem;
+    height: 1.6rem;
     color: #898989;
     border: 0 none;
     background: transparent;
@@ -2127,8 +2127,8 @@
     right: 1.48rem;
   }
   .p-treeselect-panel .p-treeselect-header .p-treeselect-close {
-    width: 2rem;
-    height: 2rem;
+    width: 1.6rem;
+    height: 1.6rem;
     color: #898989;
     border: 0 none;
     background: transparent;
@@ -3074,8 +3074,8 @@
   }
   .p-carousel .p-carousel-content .p-carousel-prev,
   .p-carousel .p-carousel-content .p-carousel-next {
-    width: 2rem;
-    height: 2rem;
+    width: 1.6rem;
+    height: 1.6rem;
     color: #898989;
     border: 0 none;
     background: transparent;
@@ -3212,8 +3212,8 @@
   .p-datatable .p-datatable-tbody > tr > td .p-row-editor-init,
   .p-datatable .p-datatable-tbody > tr > td .p-row-editor-save,
   .p-datatable .p-datatable-tbody > tr > td .p-row-editor-cancel {
-    width: 2rem;
-    height: 2rem;
+    width: 1.6rem;
+    height: 1.6rem;
     color: #898989;
     border: 0 none;
     background: transparent;
@@ -3480,13 +3480,9 @@
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
   }
-  .p-column-filter-row .p-column-filter-menu-button,
-  .p-column-filter-row .p-column-filter-clear-button {
-    margin-left: 0.5rem;
-  }
   .p-column-filter-menu-button {
-    width: 2rem;
-    height: 2rem;
+    width: 1.6rem;
+    height: 1.6rem;
     color: #898989;
     border: 0 none;
     background: transparent;
@@ -3512,8 +3508,8 @@
     box-shadow: 0 0 0 0.1rem #bbc7ee;
   }
   .p-column-filter-clear-button {
-    width: 2rem;
-    height: 2rem;
+    width: 1.6rem;
+    height: 1.6rem;
     color: #898989;
     border: 0 none;
     background: transparent;
@@ -3864,8 +3860,8 @@
   }
   .p-tree .p-tree-container .p-treenode .p-treenode-content .p-tree-toggler {
     margin-right: 0.5rem;
-    width: 2rem;
-    height: 2rem;
+    width: 1.6rem;
+    height: 1.6rem;
     color: #898989;
     border: 0 none;
     background: transparent;
@@ -4024,8 +4020,8 @@
     padding: 1rem 1rem;
   }
   .p-treetable .p-treetable-tbody > tr > td .p-treetable-toggler {
-    width: 2rem;
-    height: 2rem;
+    width: 1.6rem;
+    height: 1.6rem;
     color: #898989;
     border: 0 none;
     background: transparent;
@@ -4348,8 +4344,8 @@
     font-weight: 600;
   }
   .p-panel .p-panel-header .p-panel-header-icon {
-    width: 2rem;
-    height: 2rem;
+    width: 1.6rem;
+    height: 1.6rem;
     color: #898989;
     border: 0 none;
     background: transparent;
@@ -4549,8 +4545,8 @@
     font-size: 1.25rem;
   }
   .p-dialog .p-dialog-header .p-dialog-header-icon {
-    width: 2rem;
-    height: 2rem;
+    width: 1.6rem;
+    height: 1.6rem;
     color: #898989;
     border: 0 none;
     background: transparent;
@@ -4619,13 +4615,13 @@
   .p-overlaypanel .p-overlaypanel-close {
     background: #5472d4;
     color: #898989;
-    width: 2rem;
-    height: 2rem;
+    width: 1.6rem;
+    height: 1.6rem;
     transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
     border-radius: 50%;
     position: absolute;
-    top: -1rem;
-    right: -1rem;
+    top: -0.8rem;
+    right: -0.8rem;
   }
   .p-overlaypanel .p-overlaypanel-close:enabled:hover {
     background: #4868d1;
@@ -4658,8 +4654,8 @@
   }
   .p-sidebar .p-sidebar-header .p-sidebar-close,
   .p-sidebar .p-sidebar-header .p-sidebar-icon {
-    width: 2rem;
-    height: 2rem;
+    width: 1.6rem;
+    height: 1.6rem;
     color: #898989;
     border: 0 none;
     background: transparent;
@@ -5030,8 +5026,8 @@
     padding: 0.5rem 0.5rem;
   }
   .p-megamenu .p-megamenu-button {
-    width: 2rem;
-    height: 2rem;
+    width: 1.6rem;
+    height: 1.6rem;
     color: #898989;
     border-radius: 50%;
     transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
@@ -5370,8 +5366,8 @@
     font-size: 0.75rem;
   }
   .p-menubar.p-menubar-mobile .p-menubar-button {
-    width: 2rem;
-    height: 2rem;
+    width: 1.6rem;
+    height: 1.6rem;
     color: #898989;
     border-radius: 50%;
     transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
@@ -5433,8 +5429,8 @@
     }
     .p-menubar .p-menubar-button {
       display: flex;
-      width: 2rem;
-      height: 2rem;
+      width: 1.6rem;
+      height: 1.6rem;
       color: #898989;
       border-radius: 50%;
       transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
@@ -6061,8 +6057,8 @@
     padding: 1rem 1.5rem;
   }
   .p-message .p-message-close {
-    width: 2rem;
-    height: 2rem;
+    width: 1.6rem;
+    height: 1.6rem;
     border-radius: 50%;
     background: transparent;
     transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
@@ -6917,10 +6913,6 @@
   margin: 0;
 }
 
-.stringeditorbody {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-}
 .stringeditorbody .save {
   border-color: green !important;
 }
