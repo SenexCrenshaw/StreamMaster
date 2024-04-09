@@ -4,7 +4,6 @@ public static class TypeScriptHookGenerator
 {
     public static void GenerateFile(List<MethodDetails> methods, string path)
     {
-
         foreach (MethodDetails method in methods.Where(a => a.IsGet))
         {
             StringBuilder content = new();
@@ -58,6 +57,7 @@ public static class TypeScriptHookGenerator
 
         content.AppendLine("interface Result extends ExtendedQueryHookResult {");
         content.AppendLine("  Clear: () => void;");
+        content.AppendLine("  ClearByTag: (tag: string) => void;");
         content.AppendLine("  SetField: (fieldData: FieldData) => void;");
         content.AppendLine("  SetIsForced: (force: boolean) => void;");
         content.AppendLine("  SetIsLoading: (isLoading: boolean, query: string) => void;");
@@ -121,6 +121,7 @@ public static class TypeScriptHookGenerator
         return content.ToString();
     }
 
+    #region Selectors
     private static string GeneratePagedSelectors(MethodDetails method)
     {
         StringBuilder content = new();
@@ -215,16 +216,14 @@ public static class TypeScriptHookGenerator
 
         return content.ToString();
     }
-    private static string GeneratePagedHeader(MethodDetails method)
+    #endregion
+
+    #region Headers
+    private static string GenerateForced(MethodDetails method)
     {
         StringBuilder content = new();
 
-        content.AppendLine("  const query = JSON.stringify(params);");
-        //content.AppendLine($"  const data = useAppSelector((state) => state.{method.Name}.data[query]);");
-        //content.AppendLine($"  const error = useAppSelector((state) => state.{method.Name}.error[query] ?? '');");
-        //content.AppendLine($"  const isError = useAppSelector((state) => state.{method.Name}.isError[query] ?? false);");
         content.AppendLine($"  const isForced = useAppSelector((state) => state.{method.Name}.isForced ?? false);");
-        //content.AppendLine($"  const isLoading = useAppSelector((state) => state.{method.Name}.isLoading[query] ?? false);");
 
         content.AppendLine();
         content.AppendLine("  const SetIsForced = useCallback(");
@@ -233,6 +232,34 @@ public static class TypeScriptHookGenerator
         content.AppendLine("    },");
         content.AppendLine("    [dispatch]");
         content.AppendLine("  );");
+
+        content.AppendLine($"  const ClearByTag = useCallback(");
+        content.AppendLine($"    (tag: string): void => {{");
+        content.AppendLine($"      dispatch(clearByTag({{tag: tag }}));");
+        content.AppendLine($"    }},");
+        content.AppendLine($"    [dispatch]");
+        content.AppendLine($"");
+
+        return content.ToString();
+
+    }
+
+    private static string GeneratePagedHeader(MethodDetails method)
+    {
+        StringBuilder content = new();
+        content.AppendLine(GenerateGetHeader(method));
+
+        content.AppendLine("  const query = JSON.stringify(params);");
+        content.AppendLine(GenerateForced(method));
+        //content.AppendLine($"  const isForced = useAppSelector((state) => state.{method.Name}.isForced ?? false);");
+
+        //content.AppendLine();
+        //content.AppendLine("  const SetIsForced = useCallback(");
+        //content.AppendLine("    (forceRefresh: boolean): void => {");
+        //content.AppendLine("      dispatch(setIsForced({ force: forceRefresh }));");
+        //content.AppendLine("    },");
+        //content.AppendLine("    [dispatch]");
+        //content.AppendLine("  );");
 
         return content.ToString();
 
@@ -243,23 +270,22 @@ public static class TypeScriptHookGenerator
         StringBuilder content = new();
 
         content.AppendLine("  const param = params ? JSON.stringify(params) : undefined;");
-        //content.AppendLine($"  const data = useAppSelector((state) => state.{method.Name}.data[param]);");
-        //content.AppendLine($"  const error = useAppSelector((state) => state.{method.Name}.error[param] ?? '');");
-        //content.AppendLine($"  const isError = useAppSelector((state) => state.{method.Name}.isError[param] ?? false);");
-        content.AppendLine($"  const isForced = useAppSelector((state) => state.{method.Name}.isForced ?? false);");
-        //content.AppendLine($"  const isLoading = useAppSelector((state) => state.{method.Name}.isLoading[param] ?? false);");
+        content.AppendLine(GenerateForced(method));
+        //content.AppendLine($"  const isForced = useAppSelector((state) => state.{method.Name}.isForced ?? false);");
 
-        content.AppendLine();
-        content.AppendLine("  const SetIsForced = useCallback(");
-        content.AppendLine("    (forceRefresh: boolean): void => {");
-        content.AppendLine("      dispatch(setIsForced({ force: forceRefresh }));");
-        content.AppendLine("    },");
-        content.AppendLine("    [dispatch]");
-        content.AppendLine("  );");
+        //content.AppendLine();
+        //content.AppendLine("  const SetIsForced = useCallback(");
+        //content.AppendLine("    (forceRefresh: boolean): void => {");
+        //content.AppendLine("      dispatch(setIsForced({ force: forceRefresh }));");
+        //content.AppendLine("    },");
+        //content.AppendLine("    [dispatch]");
+        //content.AppendLine("  );");
 
         return content.ToString();
-
     }
+    #endregion
+
+    #region Hook Content
     private static string GenerateHookContent(MethodDetails method)
     {
         StringBuilder content = new();
@@ -361,7 +387,9 @@ public static class TypeScriptHookGenerator
         content.AppendLine();
         return content.ToString();
     }
+    #endregion
 
+    #region Footers
     private static string GenerateFooterContent(MethodDetails method)
     {
         StringBuilder content = new();
@@ -431,6 +459,7 @@ public static class TypeScriptHookGenerator
         content.AppendLine("");
         content.AppendLine("return {");
         content.AppendLine("  Clear,");
+        content.AppendLine("  ClearByTag,");
         content.AppendLine("  data,");
         content.AppendLine("  error,");
         content.AppendLine("  isError,");
@@ -446,5 +475,6 @@ public static class TypeScriptHookGenerator
         return content.ToString();
 
     }
+    #endregion
 
 }

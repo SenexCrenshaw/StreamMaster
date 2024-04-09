@@ -150,13 +150,26 @@ const initialState: QueryState = {{
     private static string GenerateActions(MethodDetails method)
     {
         StringBuilder content = new();
+
+        content.AppendLine($"    clear: (state) => {{");
+        content.AppendLine("      state = initialState;");
+        content.AppendLine($"      console.log('{method.Name} clear');");
+        content.AppendLine("    },");
+
+        content.AppendLine("    clearByTag: (state, action: PayloadAction<{ tag: string }>) => {");
+        content.AppendLine("      const tag = action.payload.tag;");
+        content.AppendLine("      for (const key in state.data) {");
+        content.AppendLine("        if (key.includes(tag)) {");
+        content.AppendLine("          state.data[key] = undefined;");
+        content.AppendLine("        }");
+        content.AppendLine("      }");
+        content.AppendLine("      console.log('GetPagedSMStreams clearByTag');");
+        content.AppendLine("    },");
+        content.AppendLine();
+
+
         if (method.IsGetPaged)
         {
-            content.AppendLine($"    clear: (state) => {{");
-            content.AppendLine("      state = initialState;");
-            content.AppendLine($"      console.log('{method.Name} clear');");
-            content.AppendLine("    },");
-
             content.AppendLine($"    setField: (state, action: PayloadAction<{{ query?: string | undefined; fieldData: FieldData }}>) => {{");
             content.AppendLine("      const { query, fieldData } = action.payload;");
             content.AppendLine();
@@ -198,11 +211,6 @@ const initialState: QueryState = {{
         }
         else if (method.IsGetCached)
         {
-            content.AppendLine($"    clear: (state) => {{");
-            content.AppendLine("      state = initialState;");
-            content.AppendLine($"      console.log('{method.Name} clear');");
-            content.AppendLine("    },");
-
             content.AppendLine($"    setField: (state, action: PayloadAction<{{ fieldData: FieldData }}>) => {{");
             content.AppendLine("      const { fieldData } = action.payload;");
             content.AppendLine();
@@ -237,11 +245,6 @@ const initialState: QueryState = {{
             content.AppendLine("  },");
             return content.ToString();
         }
-
-        content.AppendLine($"    clear: (state) => {{");
-        content.AppendLine("      state = initialState;");
-        content.AppendLine($"      console.log('{method.Name} clear');");
-        content.AppendLine("    },");
 
         content.AppendLine($"    setField: (state, action: PayloadAction<{{ fieldData: FieldData }}>) => {{");
         content.AppendLine("      const { fieldData } = action.payload;");
