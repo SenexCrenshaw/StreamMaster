@@ -28,6 +28,16 @@ const getSystemStatusSlice = createSlice({
       state = initialState;
       console.log('GetSystemStatus clear');
     },
+    clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
+      const tag = action.payload.tag;
+      for (const key in state.data) {
+        if (key.includes(tag)) {
+          state.data[key] = undefined;
+        }
+      }
+      console.log('GetPagedSMStreams clearByTag');
+    },
+
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
@@ -72,5 +82,5 @@ const getSystemStatusSlice = createSlice({
   }
 });
 
-export const { clear, setIsLoading, setIsForced, setField } = getSystemStatusSlice.actions;
+export const { clear, clearByTag, setIsLoading, setIsForced, setField } = getSystemStatusSlice.actions;
 export default getSystemStatusSlice.reducer;

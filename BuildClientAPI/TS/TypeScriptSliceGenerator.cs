@@ -26,7 +26,7 @@ public static class TypeScriptSliceGenerator
             content.AppendLine();
 
             // Export actions and reducer
-            content.AppendLine($"export const {{ clear, setIsLoading, setIsForced, setField }} = {method.Name.ToCamelCase()}Slice.actions;");
+            content.AppendLine($"export const {{ clear, clearByTag, setIsLoading, setIsForced, setField }} = {method.Name.ToCamelCase()}Slice.actions;");
             content.AppendLine($"export default {method.Name.ToCamelCase()}Slice.reducer;");
 
             string fileName = $"{method.Name}Slice.ts";

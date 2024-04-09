@@ -1,7 +1,7 @@
 import { QueryHookResult } from '@lib/apiDefs';
 import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
-import { clear, setField, setIsForced, setIsLoading } from './GetEPGFilePreviewByIdSlice';
+import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetEPGFilePreviewByIdSlice';
 import { useCallback,useEffect } from 'react';
 import { fetchGetEPGFilePreviewById } from './GetEPGFilePreviewByIdFetch';
 import {FieldData, EPGFilePreviewDto,GetEPGFilePreviewByIdRequest } from '@lib/smAPI/smapiTypes';
@@ -9,6 +9,7 @@ import {FieldData, EPGFilePreviewDto,GetEPGFilePreviewByIdRequest } from '@lib/s
 interface ExtendedQueryHookResult extends QueryHookResult<EPGFilePreviewDto[] | undefined> {}
 interface Result extends ExtendedQueryHookResult {
   Clear: () => void;
+  ClearByTag: (tag: string) => void;
   SetField: (fieldData: FieldData) => void;
   SetIsForced: (force: boolean) => void;
   SetIsLoading: (isLoading: boolean, query: string) => void;
@@ -24,6 +25,14 @@ const useGetEPGFilePreviewById = (params?: GetEPGFilePreviewByIdRequest): Result
     },
     [dispatch]
   );
+  const ClearByTag = useCallback(
+    (tag: string): void => {
+      dispatch(clearByTag({tag: tag }));
+    },
+    [dispatch]
+  );
+
+
 
   const SetIsLoading = useCallback(
     (isLoading: boolean, param: string): void => {
@@ -85,6 +94,7 @@ const Clear = (): void => {
 
 return {
   Clear,
+  ClearByTag,
   data,
   error,
   isError,

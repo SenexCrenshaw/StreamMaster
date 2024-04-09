@@ -83,7 +83,7 @@ public static class SignalRGenerator
         content.AppendLine("    signalRService.removeListener('SendMessage', addMessage);");
         content.AppendLine("    signalRService.removeListener('DataRefresh', dataRefresh);");
         content.AppendLine("    signalRService.removeListener('SetField', setField);");
-        content.AppendLine("  }, [addMessage, dataRefresh, setField, signalRService]);");
+        content.AppendLine("  }, [addMessage, clearByTag, dataRefresh, setField, signalRService]);");
         content.AppendLine();
         content.AppendLine("  const CheckAndAddConnections = useCallback(() => {");
         content.AppendLine("    console.log('SignalR AddConnections');");
@@ -91,7 +91,7 @@ public static class SignalRGenerator
         content.AppendLine("    signalRService.addListener('SendMessage', addMessage);");
         content.AppendLine("    signalRService.addListener('DataRefresh', dataRefresh);");
         content.AppendLine("    signalRService.addListener('SetField', setField);");
-        content.AppendLine("  }, [addMessage, dataRefresh, setField, signalRService]);");
+        content.AppendLine("  }, [addMessage, clearByTag, dataRefresh, setField, signalRService]);");
 
         return content.ToString();
     }
@@ -119,9 +119,13 @@ public static class SignalRGenerator
             deps.Add(method.Name.ToCamelCase());
         }
         content.AppendLine("    console.log('ClearByTag', Entity, Tag);");
+        content.AppendLine("  }");
+        content.AppendLine(",");
         string depString = string.Join(",", deps);
         content.AppendLine($"    [{depString}]");
         content.AppendLine("  );");
+
+
 
         return content.ToString();
     }

@@ -1,7 +1,7 @@
 import { QueryHookResult } from '@lib/apiDefs';
 import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
-import { clear, setField, setIsForced, setIsLoading } from './GetSMChannelStreamsSlice';
+import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetSMChannelStreamsSlice';
 import { useCallback,useEffect } from 'react';
 import { fetchGetSMChannelStreams } from './GetSMChannelStreamsFetch';
 import {FieldData, SMStreamDto,GetSMChannelStreamsRequest } from '@lib/smAPI/smapiTypes';
@@ -9,6 +9,7 @@ import {FieldData, SMStreamDto,GetSMChannelStreamsRequest } from '@lib/smAPI/sma
 interface ExtendedQueryHookResult extends QueryHookResult<SMStreamDto[] | undefined> {}
 interface Result extends ExtendedQueryHookResult {
   Clear: () => void;
+  ClearByTag: (tag: string) => void;
   SetField: (fieldData: FieldData) => void;
   SetIsForced: (force: boolean) => void;
   SetIsLoading: (isLoading: boolean, query: string) => void;
@@ -24,6 +25,14 @@ const useGetSMChannelStreams = (params?: GetSMChannelStreamsRequest): Result => 
     },
     [dispatch]
   );
+  const ClearByTag = useCallback(
+    (tag: string): void => {
+      dispatch(clearByTag({tag: tag }));
+    },
+    [dispatch]
+  );
+
+
 
   const SetIsLoading = useCallback(
     (isLoading: boolean, param: string): void => {
@@ -85,6 +94,7 @@ const Clear = (): void => {
 
 return {
   Clear,
+  ClearByTag,
   data,
   error,
   isError,

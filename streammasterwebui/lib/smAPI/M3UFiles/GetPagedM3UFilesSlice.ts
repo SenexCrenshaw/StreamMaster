@@ -28,6 +28,16 @@ const getPagedM3UFilesSlice = createSlice({
       state = initialState;
       console.log('GetPagedM3UFiles clear');
     },
+    clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
+      const tag = action.payload.tag;
+      for (const key in state.data) {
+        if (key.includes(tag)) {
+          state.data[key] = undefined;
+        }
+      }
+      console.log('GetPagedSMStreams clearByTag');
+    },
+
     setField: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
       const { query, fieldData } = action.payload;
 
@@ -93,5 +103,5 @@ const getPagedM3UFilesSlice = createSlice({
   }
 });
 
-export const { clear, setIsLoading, setIsForced, setField } = getPagedM3UFilesSlice.actions;
+export const { clear, clearByTag, setIsLoading, setIsForced, setField } = getPagedM3UFilesSlice.actions;
 export default getPagedM3UFilesSlice.reducer;

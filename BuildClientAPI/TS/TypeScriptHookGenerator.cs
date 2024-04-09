@@ -78,7 +78,7 @@ public static class TypeScriptHookGenerator
         content.AppendLine($"import {{ {p} }} from '@lib/apiDefs';");
         content.AppendLine("import store, { RootState } from '@lib/redux/store';");
         content.AppendLine("import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';");
-        content.AppendLine($"import {{ clear, setField, setIsForced, setIsLoading }} from './{method.Name}Slice';");
+        content.AppendLine($"import {{ clear, clearByTag, setField, setIsForced, setIsLoading }} from './{method.Name}Slice';");
         content.AppendLine("import { useCallback,useEffect } from 'react';");
 
         //if (!method.IsGetCached)
@@ -110,14 +110,14 @@ public static class TypeScriptHookGenerator
     private static string GenerateHeader(MethodDetails method)
     {
         StringBuilder content = new();
-        content.AppendLine($"  const isForced = useAppSelector((state) => state.{method.Name}.isForced ?? false);");
-        content.AppendLine();
-        content.AppendLine("  const SetIsForced = useCallback(");
-        content.AppendLine("    (forceRefresh: boolean): void => {");
-        content.AppendLine("      dispatch(setIsForced({ force: forceRefresh }));");
-        content.AppendLine("    },");
-        content.AppendLine("    [dispatch]");
-        content.AppendLine("  );");
+        //content.AppendLine($"  const isForced = useAppSelector((state) => state.{method.Name}.isForced ?? false);");
+        //content.AppendLine();
+        //content.AppendLine("  const SetIsForced = useCallback(");
+        //content.AppendLine("    (forceRefresh: boolean): void => {");
+        //content.AppendLine("      dispatch(setIsForced({ force: forceRefresh }));");
+        //content.AppendLine("    },");
+        //content.AppendLine("    [dispatch]");
+        //content.AppendLine("  );");
         return content.ToString();
     }
 
@@ -238,6 +238,7 @@ public static class TypeScriptHookGenerator
         content.AppendLine($"      dispatch(clearByTag({{tag: tag }}));");
         content.AppendLine($"    }},");
         content.AppendLine($"    [dispatch]");
+        content.AppendLine("  );");
         content.AppendLine($"");
 
         return content.ToString();
@@ -247,7 +248,7 @@ public static class TypeScriptHookGenerator
     private static string GeneratePagedHeader(MethodDetails method)
     {
         StringBuilder content = new();
-        content.AppendLine(GenerateGetHeader(method));
+        //content.AppendLine(GenerateGetHeader(method));
 
         content.AppendLine("  const query = JSON.stringify(params);");
         content.AppendLine(GenerateForced(method));

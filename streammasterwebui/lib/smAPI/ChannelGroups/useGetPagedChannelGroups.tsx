@@ -1,7 +1,7 @@
 import { QueryHookResult,GetApiArgument } from '@lib/apiDefs';
 import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
-import { clear, setField, setIsForced, setIsLoading } from './GetPagedChannelGroupsSlice';
+import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetPagedChannelGroupsSlice';
 import { useCallback,useEffect } from 'react';
 import { fetchGetPagedChannelGroups } from './GetPagedChannelGroupsFetch';
 import {FieldData, ChannelGroupDto,PagedResponse } from '@lib/smAPI/smapiTypes';
@@ -9,6 +9,7 @@ import {FieldData, ChannelGroupDto,PagedResponse } from '@lib/smAPI/smapiTypes';
 interface ExtendedQueryHookResult extends QueryHookResult<PagedResponse<ChannelGroupDto> | undefined> {}
 interface Result extends ExtendedQueryHookResult {
   Clear: () => void;
+  ClearByTag: (tag: string) => void;
   SetField: (fieldData: FieldData) => void;
   SetIsForced: (force: boolean) => void;
   SetIsLoading: (isLoading: boolean, query: string) => void;
@@ -24,6 +25,14 @@ const useGetPagedChannelGroups = (params?: GetApiArgument | undefined): Result =
     },
     [dispatch]
   );
+  const ClearByTag = useCallback(
+    (tag: string): void => {
+      dispatch(clearByTag({tag: tag }));
+    },
+    [dispatch]
+  );
+
+
 
   const SetIsLoading = useCallback(
     (isLoading: boolean, query: string): void => {
@@ -86,6 +95,7 @@ const Clear = (): void => {
 
 return {
   Clear,
+  ClearByTag,
   data,
   error,
   isError,

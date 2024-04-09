@@ -1,7 +1,7 @@
 import { QueryHookResult } from '@lib/apiDefs';
 import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
-import { clear, setField, setIsForced, setIsLoading } from './GetEPGColorsSlice';
+import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetEPGColorsSlice';
 import { useCallback,useEffect } from 'react';
 import { fetchGetEPGColors } from './GetEPGColorsFetch';
 import {FieldData, EPGColorDto } from '@lib/smAPI/smapiTypes';
@@ -9,20 +9,13 @@ import {FieldData, EPGColorDto } from '@lib/smAPI/smapiTypes';
 interface ExtendedQueryHookResult extends QueryHookResult<EPGColorDto[] | undefined> {}
 interface Result extends ExtendedQueryHookResult {
   Clear: () => void;
+  ClearByTag: (tag: string) => void;
   SetField: (fieldData: FieldData) => void;
   SetIsForced: (force: boolean) => void;
   SetIsLoading: (isLoading: boolean, query: string) => void;
 }
 const useGetEPGColors = (): Result => {
   const dispatch = useAppDispatch();
-  const isForced = useAppSelector((state) => state.GetEPGColors.isForced ?? false);
-
-  const SetIsForced = useCallback(
-    (forceRefresh: boolean): void => {
-      dispatch(setIsForced({ force: forceRefresh }));
-    },
-    [dispatch]
-  );
 
 const SetIsLoading = useCallback(
   (isLoading: boolean): void => {
@@ -77,6 +70,7 @@ const Clear = (): void => {
 
 return {
   Clear,
+  ClearByTag,
   data,
   error,
   isError,
