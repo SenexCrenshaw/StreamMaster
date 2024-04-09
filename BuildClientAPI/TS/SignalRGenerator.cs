@@ -39,6 +39,7 @@ public static class SignalRGenerator
         content.AppendLine(AddMessage());
         content.AppendLine(DataRefresh(methods));
         content.AppendLine(SetField(methods));
+        content.AppendLine(ClearByTag(methods));
         content.AppendLine(Connections());
         content.AppendLine(UseEffect());
 
@@ -78,6 +79,7 @@ public static class SignalRGenerator
         StringBuilder content = new();
         content.AppendLine("  const RemoveConnections = useCallback(() => {");
         content.AppendLine("    console.log('SignalR RemoveConnections');");
+        content.AppendLine("    signalRService.removeListener('ClearByTag', clearByTag);");
         content.AppendLine("    signalRService.removeListener('SendMessage', addMessage);");
         content.AppendLine("    signalRService.removeListener('DataRefresh', dataRefresh);");
         content.AppendLine("    signalRService.removeListener('SetField', setField);");
@@ -85,6 +87,7 @@ public static class SignalRGenerator
         content.AppendLine();
         content.AppendLine("  const CheckAndAddConnections = useCallback(() => {");
         content.AppendLine("    console.log('SignalR AddConnections');");
+        content.AppendLine("    signalRService.addListener('ClearByTag', clearByTag);");
         content.AppendLine("    signalRService.addListener('SendMessage', addMessage);");
         content.AppendLine("    signalRService.addListener('DataRefresh', dataRefresh);");
         content.AppendLine("    signalRService.addListener('SetField', setField);");
@@ -100,6 +103,28 @@ public static class SignalRGenerator
 
     //    return content.ToString();
     //}
+
+    private static string ClearByTag(List<MethodDetails> methods)
+    {
+        StringBuilder content = new();
+        List<string> deps = [];
+        content.AppendLine("  const clearByTag = useCallback((data: ClearByTag): void => {");
+        content.AppendLine("    const { Entity, Tag } = data;");
+        foreach (MethodDetails? method in methods.Where(a => a.IsGet))
+        {
+            content.AppendLine($"    if (Entity === '{method.Name}') {{");
+            content.AppendLine($"      {method.Name.ToCamelCase()}.ClearByTag(Tag)");
+            content.AppendLine("      return;");
+            content.AppendLine("    }");
+            deps.Add(method.Name.ToCamelCase());
+        }
+        content.AppendLine("    console.log('ClearByTag', Entity, Tag);");
+        string depString = string.Join(",", deps);
+        content.AppendLine($"    [{depString}]");
+        content.AppendLine("  );");
+
+        return content.ToString();
+    }
 
     private static string SetField(List<MethodDetails> methods)
     {
@@ -124,14 +149,6 @@ public static class SignalRGenerator
         content.AppendLine("  );");
         return content.ToString();
     }
-
-    //private static string DataRefresh(List<MethodDetails> methods)
-    //{
-    //    StringBuilder content = new();
-    //    content.AppendLine("  const dataRefresh = useDataRefresh();");
-
-    //    return content.ToString();
-    //}
 
     private static string DataRefresh(List<MethodDetails> methods)
     {
@@ -199,7 +216,7 @@ public static class SignalRGenerator
         }
 
         content.AppendLine("import { useSMMessages } from '@lib/redux/hooks/useSMMessages';");
-        content.AppendLine("import { FieldData, SMMessage } from '@lib/smAPI/smapiTypes';");
+        content.AppendLine("import { ClearByTag, FieldData, SMMessage } from '@lib/smAPI/smapiTypes';");
 
         content.AppendLine();
         return content.ToString();

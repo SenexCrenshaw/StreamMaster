@@ -1,4 +1,5 @@
 ﻿using StreamMaster.Application.Common.Models;
+using StreamMaster.Application.SMStreams.Commands;
 using StreamMaster.Application.StreamGroups.QueriesOld;
 
 namespace StreamMaster.Application.Common.Interfaces;
@@ -35,6 +36,7 @@ public interface IStreamMasterHub : ISharedHub
     Task VideoStreamsVisibilityRefresh(IEnumerable<IDIsHidden> results);
     Task UpdateChannelGroupVideoStreamCounts(List<ChannelGroupStreamCount> channelGroupStreamCounts);
     Task SetField(List<FieldData> fieldData);
+    Task ClearByTag(ClearByTag result);
     Task DataRefresh(string entityName);
     Task SendMessage(SMMessage smMessage);
 }

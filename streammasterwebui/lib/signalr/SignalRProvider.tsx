@@ -1,21 +1,21 @@
-import React, { ReactNode, createContext, useCallback, useContext, useEffect } from 'react';
-import SignalRService from './SignalRService';
+import { useSMMessages } from '@lib/redux/hooks/useSMMessages';
+import useGetPagedChannelGroups from '@lib/smAPI/ChannelGroups/useGetPagedChannelGroups';
 import useGetEPGColors from '@lib/smAPI/EPGFiles/useGetEPGColors';
 import useGetEPGFilePreviewById from '@lib/smAPI/EPGFiles/useGetEPGFilePreviewById';
 import useGetEPGNextEPGNumber from '@lib/smAPI/EPGFiles/useGetEPGNextEPGNumber';
-import useGetIcons from '@lib/smAPI/Icons/useGetIcons';
-import useGetIsSystemReady from '@lib/smAPI/Settings/useGetIsSystemReady';
-import useGetPagedChannelGroups from '@lib/smAPI/ChannelGroups/useGetPagedChannelGroups';
 import useGetPagedEPGFiles from '@lib/smAPI/EPGFiles/useGetPagedEPGFiles';
+import useGetIcons from '@lib/smAPI/Icons/useGetIcons';
 import useGetPagedM3UFiles from '@lib/smAPI/M3UFiles/useGetPagedM3UFiles';
+import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
-import useGetPagedStreamGroups from '@lib/smAPI/StreamGroups/useGetPagedStreamGroups';
+import useGetIsSystemReady from '@lib/smAPI/Settings/useGetIsSystemReady';
 import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
-import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
 import useGetSystemStatus from '@lib/smAPI/Settings/useGetSystemStatus';
-import { useSMMessages } from '@lib/redux/hooks/useSMMessages';
-import { FieldData, SMMessage } from '@lib/smAPI/smapiTypes';
+import useGetPagedStreamGroups from '@lib/smAPI/StreamGroups/useGetPagedStreamGroups';
+import { ClearByTag, FieldData, SMMessage } from '@lib/smAPI/smapiTypes';
+import React, { ReactNode, createContext, useCallback, useContext, useEffect } from 'react';
+import SignalRService from './SignalRService';
 
 const SignalRContext = createContext<SignalRService | undefined>(undefined);
 
@@ -114,88 +114,131 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         return;
       }
     },
-    [getEPGColors,getEPGFilePreviewById,getEPGNextEPGNumber,getIcons,getIsSystemReady,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSettings,getSMChannelStreams,getSystemStatus]
+    [
+      getEPGColors,
+      getEPGFilePreviewById,
+      getEPGNextEPGNumber,
+      getIcons,
+      getIsSystemReady,
+      getPagedChannelGroups,
+      getPagedEPGFiles,
+      getPagedM3UFiles,
+      getPagedSMChannels,
+      getPagedSMStreams,
+      getPagedStreamGroups,
+      getSettings,
+      getSMChannelStreams,
+      getSystemStatus
+    ]
   );
 
   const setField = useCallback(
     (fieldDatas: FieldData[]): void => {
       fieldDatas.forEach((fieldData) => {
         if (fieldData.Entity === 'GetEPGColors') {
-          getEPGColors.SetField(fieldData)
+          getEPGColors.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetEPGFilePreviewById') {
-          getEPGFilePreviewById.SetField(fieldData)
+          getEPGFilePreviewById.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetEPGNextEPGNumber') {
-          getEPGNextEPGNumber.SetField(fieldData)
+          getEPGNextEPGNumber.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetIcons') {
-          getIcons.SetField(fieldData)
+          getIcons.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetIsSystemReady') {
-          getIsSystemReady.SetField(fieldData)
+          getIsSystemReady.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetPagedChannelGroups') {
-          getPagedChannelGroups.SetField(fieldData)
+          getPagedChannelGroups.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetPagedEPGFiles') {
-          getPagedEPGFiles.SetField(fieldData)
+          getPagedEPGFiles.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetPagedM3UFiles') {
-          getPagedM3UFiles.SetField(fieldData)
+          getPagedM3UFiles.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetPagedSMChannels') {
-          getPagedSMChannels.SetField(fieldData)
+          getPagedSMChannels.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetPagedSMStreams') {
-          getPagedSMStreams.SetField(fieldData)
+          getPagedSMStreams.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetPagedStreamGroups') {
-          getPagedStreamGroups.SetField(fieldData)
+          getPagedStreamGroups.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetSettings') {
-          getSettings.SetField(fieldData)
+          getSettings.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetSMChannelStreams') {
-          getSMChannelStreams.SetField(fieldData)
+          getSMChannelStreams.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetSystemStatus') {
-          getSystemStatus.SetField(fieldData)
+          getSystemStatus.SetField(fieldData);
           return;
         }
       });
     },
-    [getEPGColors,getEPGFilePreviewById,getEPGNextEPGNumber,getIcons,getIsSystemReady,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSettings,getSMChannelStreams,getSystemStatus]
+    [
+      getEPGColors,
+      getEPGFilePreviewById,
+      getEPGNextEPGNumber,
+      getIcons,
+      getIsSystemReady,
+      getPagedChannelGroups,
+      getPagedEPGFiles,
+      getPagedM3UFiles,
+      getPagedSMChannels,
+      getPagedSMStreams,
+      getPagedStreamGroups,
+      getSettings,
+      getSMChannelStreams,
+      getSystemStatus
+    ]
   );
+
+  const clearByTag = useCallback((data: ClearByTag): void => {
+    const { Entity, Tag } = data;
+
+    console.log('ClearByTag', Entity, Tag);
+
+    if (Entity === 'GetPagedSMStreams') {
+      getPagedSMStreams.ClearByTag(Tag);
+      return;
+    }
+  }, []);
 
   const RemoveConnections = useCallback(() => {
     console.log('SignalR RemoveConnections');
+    signalRService.removeListener('ClearByTag', clearByTag);
     signalRService.removeListener('SendMessage', addMessage);
     signalRService.removeListener('DataRefresh', dataRefresh);
     signalRService.removeListener('SetField', setField);
-  }, [addMessage, dataRefresh, setField, signalRService]);
+  }, [clearByTag, addMessage, dataRefresh, setField, signalRService]);
 
   const CheckAndAddConnections = useCallback(() => {
     console.log('SignalR AddConnections');
+    signalRService.addListener('ClearByTag', clearByTag);
     signalRService.addListener('SendMessage', addMessage);
     signalRService.addListener('DataRefresh', dataRefresh);
     signalRService.addListener('SetField', setField);
-  }, [addMessage, dataRefresh, setField, signalRService]);
+  }, [clearByTag, addMessage, dataRefresh, setField, signalRService]);
 
-useEffect(() => {
+  useEffect(() => {
     const handleConnect = () => {
       // setIsConnected(true);
       CheckAndAddConnections();
@@ -217,4 +260,4 @@ useEffect(() => {
   }, [CheckAndAddConnections, RemoveConnections, signalRService]);
 
   return <SignalRContext.Provider value={signalRService}>{children}</SignalRContext.Provider>;
-}
+};

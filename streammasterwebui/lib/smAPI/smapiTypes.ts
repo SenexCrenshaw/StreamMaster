@@ -300,6 +300,11 @@ export interface GetPagedSMStreamsRequest
 {
 	Parameters: QueryStringParameters;
 }
+export interface ClearByTag
+{
+	Entity: string;
+	Tag: string;
+}
 export interface ToggleSMStreamsVisibleByIdRequest
 {
 	Ids: string[];

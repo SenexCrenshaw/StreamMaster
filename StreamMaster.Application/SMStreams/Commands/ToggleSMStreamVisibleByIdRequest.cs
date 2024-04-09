@@ -16,6 +16,7 @@ internal class ToggleSMStreamVisibleByIdHandler(IRepositoryWrapper Repository, I
         FieldData fd = new(() => stream.IsHidden);
 
         await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
+        await hubContext.Clients.All.ClearByTag(new ClearByTag("GetPagedSMStreams", "IsHidden")).ConfigureAwait(false);
         return APIResponse.Success;
     }
 }

@@ -14,6 +14,7 @@ internal class ToggleSMStreamVisibleByParametersRequestHandler(IRepositoryWrappe
         }
 
         await hubContext.Clients.All.SetField(ret).ConfigureAwait(false);
+        await hubContext.Clients.All.ClearByTag(new ClearByTag("GetPagedSMStreams", "IsHidden")).ConfigureAwait(false);
         return APIResponse.Success;
     }
 }
