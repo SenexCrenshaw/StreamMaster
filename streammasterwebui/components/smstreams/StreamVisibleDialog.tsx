@@ -63,14 +63,14 @@ const StreamVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, values }:
         return;
       }
 
-      const toSendAll = {} as VideoStreamsUpdateAllVideoStreamsFromParametersApiArg;
+      // const toSendAll = {} as ToggleSMStreamVisibleByIdRequest;
 
-      toSendAll.parameters = queryFilter;
-      // toSendAll.parameters.pageSize = getTotalCount;
+      // toSendAll.parameters = queryFilter;
+      // // toSendAll.parameters.pageSize = getTotalCount;
 
-      toSendAll.request = {
-        toggleVisibility: true
-      } as UpdateVideoStreamRequest;
+      // toSendAll.request = {
+      //   toggleVisibility: true
+      // } as UpdateVideoStreamRequest;
 
       // await UpdateAllVideoStreamsFromParameters(toSendAll)
       //   .then(() => {
@@ -89,7 +89,7 @@ const StreamVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, values }:
       return;
     }
 
-    await ToggleSMStreamVisibleById({ id: selectStreamsInternal[0].id as string } as ToggleSMStreamVisibleByIdRequest)
+    await ToggleSMStreamVisibleById({ Id: selectStreamsInternal[0].Id as string } as ToggleSMStreamVisibleByIdRequest)
       .then(() => {
         setInfoMessage('Set Stream Visibility Successfully');
       })

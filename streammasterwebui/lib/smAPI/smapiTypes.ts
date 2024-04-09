@@ -193,6 +193,7 @@ export interface SMStreamDto
 	Logo: string;
 	M3UFileId: number;
 	M3UFileName: string;
+	MainGet: string;
 	Name: string;
 	Rank: number;
 	RealUrl: string;

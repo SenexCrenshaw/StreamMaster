@@ -13,7 +13,7 @@ internal class ToggleSMStreamVisibleByIdHandler(IRepositoryWrapper Repository, I
             return APIResponse.NotFound;
         }
 
-        FieldData fd = new(nameof(SMStreamDto), stream.Id, "isHidden", stream.IsHidden);
+        FieldData fd = new(() => stream.IsHidden);
 
         await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
         return APIResponse.Success;

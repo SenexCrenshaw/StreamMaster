@@ -6,7 +6,7 @@ namespace StreamMaster.Domain.Models;
 
 public class M3UFile : AutoUpdateEntity
 {
-    public static readonly string MainGet = "GetPagedM3UFiles";
+    public string MainGet => "GetPagedM3UFiles";
 
     private readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true };
     public void WriteJSON()

@@ -7,6 +7,7 @@ namespace StreamMaster.Domain.Models;
 
 public class SMStream
 {
+    public string MainGet => "GetPagedSMStreams";
     [Key]
     [Column(TypeName = "citext")]
     public string Id { get; set; } = string.Empty;

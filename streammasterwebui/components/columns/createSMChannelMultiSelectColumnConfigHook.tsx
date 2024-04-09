@@ -95,6 +95,7 @@ const createSMChannelMultiSelectColumnConfigHook =
       filterField: dataField as string,
       header: headerTitle,
       maxWidth: maxWidth === undefined ? undefined : `${maxWidth}rem`,
+      minWidth: minWidth === undefined ? undefined : `${minWidth}rem`,
       sortable: sortable,
       width: width === undefined ? undefined : `${width}rem`
     };

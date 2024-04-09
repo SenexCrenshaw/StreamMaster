@@ -28,7 +28,8 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IBackgro
             if (request.VODTags != null)
             {
                 m3uFile.VODTags = request.VODTags;
-                ret.Add(new FieldData(M3UFile.MainGet, m3uFile.Id.ToString(), "VODTags", m3uFile.VODTags));
+
+                ret.Add(new FieldData(() => m3uFile.VODTags));
             }
 
 
@@ -36,47 +37,50 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IBackgro
             {
                 needsRefresh = true;
                 m3uFile.Url = request.Url;
-                ret.Add(new FieldData(M3UFile.MainGet, m3uFile.Id.ToString(), "Url", m3uFile.Url));
+                ret.Add(new FieldData(() => m3uFile.Url));
             }
 
             if (request.OverWriteChannels != null)
             {
                 needsUpdate = true;
                 m3uFile.OverwriteChannelNumbers = (bool)request.OverWriteChannels;
-                ret.Add(new FieldData(M3UFile.MainGet, m3uFile.Id.ToString(), "OverwriteChannelNumbers", m3uFile.OverwriteChannelNumbers));
+                ret.Add(new FieldData(() => m3uFile.OverwriteChannelNumbers));
             }
 
             if (!string.IsNullOrEmpty(request.Name))
             {
 
                 m3uFile.Name = request.Name;
-                ret.Add(new FieldData(M3UFile.MainGet, m3uFile.Id.ToString(), "Name", m3uFile.Name));
+                ret.Add(new FieldData(() => m3uFile.Name));
             }
 
             if (request.MaxStreamCount.HasValue)
             {
                 m3uFile.MaxStreamCount = (int)request.MaxStreamCount;
-                ret.Add(new FieldData(M3UFile.MainGet, m3uFile.Id.ToString(), "MaxStreamCount", m3uFile.MaxStreamCount));
+                ret.Add(new FieldData(() => m3uFile.MaxStreamCount));
             }
 
             if (request.AutoUpdate != null)
             {
                 m3uFile.AutoUpdate = (bool)request.AutoUpdate;
-                ret.Add(new FieldData(M3UFile.MainGet, m3uFile.Id.ToString(), "AutoUpdate", m3uFile.AutoUpdate));
+                ret.Add(new FieldData(() => m3uFile.AutoUpdate));
             }
 
             if (request.StartingChannelNumber.HasValue)
             {
                 needsUpdate = true;
                 m3uFile.StartingChannelNumber = request.StartingChannelNumber.Value;
-                ret.Add(new FieldData(M3UFile.MainGet, m3uFile.Id.ToString(), "StartingChannelNumber", m3uFile.StartingChannelNumber));
+
+                ret.Add(new FieldData(() => m3uFile.StartingChannelNumber));
+                //ret.Add(new FieldData(M3UFile.MainGet, m3uFile.Id.ToString(), "StartingChannelNumber", m3uFile.StartingChannelNumber));
             }
 
 
             if (request.HoursToUpdate.HasValue)
             {
                 m3uFile.HoursToUpdate = request.HoursToUpdate.Value;
-                ret.Add(new FieldData(M3UFile.MainGet, m3uFile.Id.ToString(), "HoursToUpdate", m3uFile.HoursToUpdate));
+                ret.Add(new FieldData(() => m3uFile.HoursToUpdate));
+                //ret.Add(new FieldData(M3UFile.MainGet, m3uFile.Id.ToString(), "HoursToUpdate", m3uFile.HoursToUpdate));
             }
 
             Repository.M3UFile.UpdateM3UFile(m3uFile);

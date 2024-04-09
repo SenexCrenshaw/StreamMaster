@@ -43,7 +43,7 @@ export interface ColumnMeta {
    * A boolean value that specifies whether to enable filtering for the column.
    */
   filter?: boolean;
-  // filterElement?: (options: ColumnFilterElementTemplateOptions) => React.ReactNode;
+  filterElement?: (options: ColumnFilterElementTemplateOptions) => React.ReactNode;
   filterField?: string;
   /**
    * The type of matching to use for filtering.
