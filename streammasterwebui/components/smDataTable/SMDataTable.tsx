@@ -87,6 +87,16 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   }, [data, setters, state.dataSource, state.selectAll]);
 
   useEffect(() => {
+    if (!props.defaultSortField) {
+      return;
+    }
+
+    if ((!state.sortField || state.sortField === '') && state.sortField !== props.defaultSortField) {
+      setters.setSortField(props.defaultSortField);
+    }
+  }, [props.defaultSortField, setters, state.sortField]);
+
+  useEffect(() => {
     if (!props.defaultSortOrder) {
       return;
     }
@@ -457,9 +467,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 
     setters.setSelectAll(false);
     setters.setSelectSelectedItems([]);
-
-    // setters.setSelectAll(true);
-    //   setters.setSelectSelectedItems(state.dataSource ?? []);
   }
 
   const selectAllStatus = useMemo(() => {
@@ -516,21 +523,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     [addSelection, removeSelection, showSelection, state.selectSelectedItems]
   );
 
-  // const rowReorderHeader = () => (
-  //   <div className=" text-xs text-white text-500">
-  //     <ResetButton
-  //       disabled={state.prevDataSource === undefined}
-  //       onClick={() => {
-  //         if (state.prevDataSource !== undefined) {
-  //           setters.setDataSource(state.prevDataSource);
-  //           setters.setPrevDataSource(undefined);
-  //         }
-  //       }}
-  //       tooltip="Reset Order"
-  //     />
-  //   </div>
-  // );
-  console.log('selectAll', props.id, state.selectAll);
   return (
     <div
       id={props.id}
@@ -659,8 +651,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
               .map((col) => (
                 <Column
                   align={getAlign(col.align, col.fieldType)}
-                  // alignHeader={col.alignHeader}
-                  // className={'sm-column ' + col.className}
                   filter
                   filterElement={rowFilterTemplate}
                   filterPlaceholder={col.filter === true ? (col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)) : undefined}

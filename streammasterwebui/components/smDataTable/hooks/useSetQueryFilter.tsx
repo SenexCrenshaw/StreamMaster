@@ -33,7 +33,7 @@ function transformAndEnhanceFilters(
 
   // Show/Hide logic
   if (showHidden !== null && showHidden !== undefined) {
-    addOrUpdateValueForField(transformedFilters, 'isHidden', FilterMatchMode.EQUALS, String(!showHidden));
+    addOrUpdateValueForField(transformedFilters, 'IsHidden', FilterMatchMode.EQUALS, String(!showHidden));
   }
 
   // Additional Filters
@@ -84,7 +84,7 @@ export const useSetQueryFilter = (
     if (!areGetApiArgsEqual(generateGetApi, queryFilter)) {
       setQueryFilter(generateGetApi);
     }
-  }, [generateGetApi, page, queryFilter, setQueryFilter]);
+  }, [generateGetApi, queryFilter, setQueryFilter]);
 
   return { queryFilter: generateGetApi };
 };

@@ -11,6 +11,7 @@ import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreams';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 
+import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
 import StreamMultiVisibleDialog from '@components/smstreams/StreamMultiVisibleDialog';
 import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
 import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
@@ -68,7 +69,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
         <VideoStreamEditDialog value={data} /> */}
       </div>
     ),
-    [dataKey]
+    []
   );
 
   const columns = useMemo(
@@ -77,7 +78,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
       { field: 'Name', filter: true, sortable: true, width: '18rem' },
       { field: 'Group', filter: true, sortable: true },
       { field: 'M3UFileName', filter: true, header: 'M3U', sortable: true },
-      { align: 'right', bodyTemplate: actionBodyTemplate, field: 'isHidden', fieldType: 'actions', header: 'Actions', width: '4rem' }
+      { align: 'right', bodyTemplate: actionBodyTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '4rem' }
     ],
     [actionBodyTemplate]
   );
@@ -186,6 +187,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
         <div>
           <M3UFilesButton />
         </div>
+        <TriSelectShowHidden dataKey={dataKey} />
         {/* <TriSelectShowHidden dataKey={dataKey} />
         <VideoStreamSetTimeShiftsDialog id={dataKey} />
         <VideoStreamResetLogosDialog id={dataKey} />
@@ -197,7 +199,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
         <VideoStreamAddDialog group={channelGroupNames?.[0]} /> */}
       </div>
     ),
-    [id]
+    [dataKey]
   );
 
   const setSelectedSMEntity = useCallback(
@@ -234,7 +236,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
   return (
     <SMDataTable
       columns={columns}
-      defaultSortField="name"
+      defaultSortField="Name"
       defaultSortOrder={1}
       addOrRemoveTemplate={addOrRemoveTemplate}
       addOrRemoveHeaderTemplate={addOrRemoveHeaderTemplate}

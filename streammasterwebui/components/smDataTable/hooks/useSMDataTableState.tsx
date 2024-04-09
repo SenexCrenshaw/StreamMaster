@@ -47,15 +47,15 @@ const SMDataTableState = <T extends DataTableValue>(id: string, selectedItemsKey
     setters: {
       setDataSource,
       setExpandedRows,
-      setPagedInformation,
-      setRowClick,
-      setSelectSelectedItems,
-      setSelectAll,
-      setShowSelections,
+      setFilters,
       setFirst,
       setPage,
+      setPagedInformation,
+      setRowClick,
       setRows,
-      setFilters,
+      setSelectAll,
+      setSelectSelectedItems,
+      setShowSelections,
       setSortField,
       setSortOrder,
       setVisibleColumns
@@ -63,19 +63,19 @@ const SMDataTableState = <T extends DataTableValue>(id: string, selectedItemsKey
     state: {
       dataSource,
       expandedRows,
-      pagedInformation,
-      rowClick,
-      selectAll,
-      showSelections,
+      filters,
       first,
       page,
+      pagedInformation,
+      rowClick,
       rows,
+      selectAll,
+      selectSelectedItems,
       showHidden,
-      filters,
+      showSelections,
       sortField,
       sortOrder,
-      visibleColumns,
-      selectSelectedItems
+      visibleColumns
     }
   };
 };

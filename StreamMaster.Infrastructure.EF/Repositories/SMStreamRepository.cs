@@ -24,6 +24,8 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
     public async Task<PagedResponse<SMStreamDto>> GetPagedSMStreams(QueryStringParameters parameters, CancellationToken cancellationToken)
     {
         IQueryable<SMStream> query = GetQuery(parameters);
+
+
         return await query.GetPagedResponseAsync<SMStream, SMStreamDto>(parameters.PageNumber, parameters.PageSize, mapper)
                           .ConfigureAwait(false);
     }
