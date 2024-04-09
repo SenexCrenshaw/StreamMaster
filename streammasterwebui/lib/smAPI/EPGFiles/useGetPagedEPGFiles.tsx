@@ -33,9 +33,8 @@ const useGetPagedEPGFiles = (params?: GetApiArgument | undefined): Result => {
   );
 
 const selectData = (state: RootState) => {
-    const defaultData = {} as PagedResponse<EPGFileDto>;
-    if (query === undefined) return defaultData;
-    return state.GetPagedEPGFiles.data[query] || defaultData;
+    if (query === undefined) return undefined;
+    return state.GetPagedEPGFiles.data[query] || undefined;
   };
 const data = useAppSelector(selectData);
 

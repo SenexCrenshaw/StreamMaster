@@ -33,9 +33,8 @@ const useGetPagedSMStreams = (params?: GetApiArgument | undefined): Result => {
   );
 
 const selectData = (state: RootState) => {
-    const defaultData = {} as PagedResponse<SMStreamDto>;
-    if (query === undefined) return defaultData;
-    return state.GetPagedSMStreams.data[query] || defaultData;
+    if (query === undefined) return undefined;
+    return state.GetPagedSMStreams.data[query] || undefined;
   };
 const data = useAppSelector(selectData);
 

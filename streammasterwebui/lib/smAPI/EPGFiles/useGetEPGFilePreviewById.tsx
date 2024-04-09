@@ -33,22 +33,26 @@ const useGetEPGFilePreviewById = (params?: GetEPGFilePreviewByIdRequest): Result
   );
 
 const selectData = (state: RootState) => {
-    return state.GetEPGFilePreviewById.data;
+    if (param === undefined) return undefined;
+    return state.GetEPGFilePreviewById.data[param] || undefined;
   };
 const data = useAppSelector(selectData);
 
 const selectError = (state: RootState) => {
-    return state.GetEPGFilePreviewById.error;
+    if (param === undefined) return undefined;
+    return state.GetEPGFilePreviewById.error[param] || undefined;
   };
 const error = useAppSelector(selectError);
 
 const selectIsError = (state: RootState) => {
-    return state.GetEPGFilePreviewById.isError;
+    if (param === undefined) return false;
+    return state.GetEPGFilePreviewById.isError[param] || false;
   };
 const isError = useAppSelector(selectIsError);
 
 const selectIsLoading = (state: RootState) => {
-    return state.GetEPGFilePreviewById.isLoading;
+    if (param === undefined) return false;
+    return state.GetEPGFilePreviewById.isLoading[param] || false;
   };
 const isLoading = useAppSelector(selectIsLoading);
 
@@ -63,7 +67,7 @@ useEffect(() => {
 
 useEffect(() => {
   const state = store.getState().GetEPGFilePreviewById;
-  if (params === undefined || param === undefined ) return;
+  if (params === undefined || param === undefined || param === '{}' ) return;
   if (state.isLoading[param]) return;
   if (data !== undefined && !isForced) return;
 

@@ -33,9 +33,8 @@ const useGetPagedStreamGroups = (params?: GetApiArgument | undefined): Result =>
   );
 
 const selectData = (state: RootState) => {
-    const defaultData = {} as PagedResponse<StreamGroupDto>;
-    if (query === undefined) return defaultData;
-    return state.GetPagedStreamGroups.data[query] || defaultData;
+    if (query === undefined) return undefined;
+    return state.GetPagedStreamGroups.data[query] || undefined;
   };
 const data = useAppSelector(selectData);
 

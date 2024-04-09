@@ -33,9 +33,8 @@ const useGetPagedM3UFiles = (params?: GetApiArgument | undefined): Result => {
   );
 
 const selectData = (state: RootState) => {
-    const defaultData = {} as PagedResponse<M3UFileDto>;
-    if (query === undefined) return defaultData;
-    return state.GetPagedM3UFiles.data[query] || defaultData;
+    if (query === undefined) return undefined;
+    return state.GetPagedM3UFiles.data[query] || undefined;
   };
 const data = useAppSelector(selectData);
 

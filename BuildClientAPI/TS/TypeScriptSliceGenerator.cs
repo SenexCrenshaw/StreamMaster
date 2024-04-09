@@ -200,7 +200,7 @@ const initialState: QueryState = {{
         {
             content.AppendLine($"    clear: (state) => {{");
             content.AppendLine("      state = initialState;");
-            content.AppendLine($"       console.log('{method.Name} clear');");
+            content.AppendLine($"      console.log('{method.Name} clear');");
             content.AppendLine("    },");
 
             content.AppendLine($"    setField: (state, action: PayloadAction<{{ fieldData: FieldData }}>) => {{");

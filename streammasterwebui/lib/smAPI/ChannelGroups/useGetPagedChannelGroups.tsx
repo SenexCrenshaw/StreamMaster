@@ -33,9 +33,8 @@ const useGetPagedChannelGroups = (params?: GetApiArgument | undefined): Result =
   );
 
 const selectData = (state: RootState) => {
-    const defaultData = {} as PagedResponse<ChannelGroupDto>;
-    if (query === undefined) return defaultData;
-    return state.GetPagedChannelGroups.data[query] || defaultData;
+    if (query === undefined) return undefined;
+    return state.GetPagedChannelGroups.data[query] || undefined;
   };
 const data = useAppSelector(selectData);
 

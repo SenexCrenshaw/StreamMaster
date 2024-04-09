@@ -125,9 +125,8 @@ public static class TypeScriptHookGenerator
     {
         StringBuilder content = new();
         content.AppendLine($"const selectData = (state: RootState) => {{");
-        content.AppendLine($"    const defaultData = {{}} as PagedResponse<{method.ReturnEntityType}>;");
-        content.AppendLine($"    if (query === undefined) return defaultData;");
-        content.AppendLine($"    return state.{method.Name}.data[query] || defaultData;");
+        content.AppendLine($"    if (query === undefined) return undefined;");
+        content.AppendLine($"    return state.{method.Name}.data[query] || undefined;");
         content.AppendLine($"  }};");
         content.AppendLine($"const data = useAppSelector(selectData);");
         content.AppendLine();
@@ -159,9 +158,8 @@ public static class TypeScriptHookGenerator
     {
         StringBuilder content = new();
         content.AppendLine($"const selectData = (state: RootState) => {{");
-        content.AppendLine($"    const defaultData = [] as {method.TsReturnType};");
-        content.AppendLine($"    if (param === undefined) return defaultData;");
-        content.AppendLine($"    return state.{method.Name}.data;");
+        content.AppendLine($"    if (param === undefined) return undefined;");
+        content.AppendLine($"    return state.{method.Name}.data[param] || undefined;");
         content.AppendLine($"  }};");
         content.AppendLine($"const data = useAppSelector(selectData);");
         content.AppendLine();
@@ -279,16 +277,7 @@ public static class TypeScriptHookGenerator
         content.AppendLine(");");
 
 
-        if (method.IsGetCached)
-        {
-            content.AppendLine(GenerateCachedSelectors(method));
-        }
-        else
-        {
-            content.AppendLine(GenerateSelectors(method));
-        }
-
-
+        content.AppendLine(GenerateSelectors(method));
 
         content.AppendLine();
 
@@ -321,7 +310,7 @@ public static class TypeScriptHookGenerator
         content.AppendLine("  );");
         content.AppendLine();
 
-        content.AppendLine(GenerateSelectors(method));
+        content.AppendLine(GenerateCachedSelectors(method));
 
         content.AppendLine();
 
@@ -403,7 +392,7 @@ public static class TypeScriptHookGenerator
             content.AppendLine("useEffect(() => {");
             content.AppendLine($"  const state = store.getState().{method.Name};");
 
-            content.AppendLine("  if (params === undefined || param === undefined ) return;");
+            content.AppendLine("  if (params === undefined || param === undefined || param === '{}' ) return;");
             content.AppendLine("  if (state.isLoading[param]) return;");
 
             content.AppendLine("  if (data !== undefined && !isForced) return;");

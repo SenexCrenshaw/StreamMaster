@@ -77,8 +77,6 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
     }
   };
 
-  console.log('M3UFileCreateDialog', m3uFileDto);
-
   return (
     <>
       <OverlayPanel className="col-5 p-0 smfileupload-panel streammaster-border" ref={op} showCloseIcon={false} closeOnEscape>

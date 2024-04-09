@@ -25,7 +25,7 @@ const getSMChannelStreamsSlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-       console.log('GetSMChannelStreams clear');
+      console.log('GetSMChannelStreams clear');
     },
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;

@@ -33,9 +33,8 @@ const useGetPagedSMChannels = (params?: GetApiArgument | undefined): Result => {
   );
 
 const selectData = (state: RootState) => {
-    const defaultData = {} as PagedResponse<SMChannelDto>;
-    if (query === undefined) return defaultData;
-    return state.GetPagedSMChannels.data[query] || defaultData;
+    if (query === undefined) return undefined;
+    return state.GetPagedSMChannels.data[query] || undefined;
   };
 const data = useAppSelector(selectData);
 

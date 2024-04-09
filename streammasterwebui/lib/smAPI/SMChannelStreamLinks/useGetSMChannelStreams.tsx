@@ -33,22 +33,26 @@ const useGetSMChannelStreams = (params?: GetSMChannelStreamsRequest): Result => 
   );
 
 const selectData = (state: RootState) => {
-    return state.GetSMChannelStreams.data;
+    if (param === undefined) return undefined;
+    return state.GetSMChannelStreams.data[param] || undefined;
   };
 const data = useAppSelector(selectData);
 
 const selectError = (state: RootState) => {
-    return state.GetSMChannelStreams.error;
+    if (param === undefined) return undefined;
+    return state.GetSMChannelStreams.error[param] || undefined;
   };
 const error = useAppSelector(selectError);
 
 const selectIsError = (state: RootState) => {
-    return state.GetSMChannelStreams.isError;
+    if (param === undefined) return false;
+    return state.GetSMChannelStreams.isError[param] || false;
   };
 const isError = useAppSelector(selectIsError);
 
 const selectIsLoading = (state: RootState) => {
-    return state.GetSMChannelStreams.isLoading;
+    if (param === undefined) return false;
+    return state.GetSMChannelStreams.isLoading[param] || false;
   };
 const isLoading = useAppSelector(selectIsLoading);
 
@@ -63,7 +67,7 @@ useEffect(() => {
 
 useEffect(() => {
   const state = store.getState().GetSMChannelStreams;
-  if (params === undefined || param === undefined ) return;
+  if (params === undefined || param === undefined || param === '{}' ) return;
   if (state.isLoading[param]) return;
   if (data !== undefined && !isForced) return;
 

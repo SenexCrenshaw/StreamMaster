@@ -25,7 +25,7 @@ const getEPGFilePreviewByIdSlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-       console.log('GetEPGFilePreviewById clear');
+      console.log('GetEPGFilePreviewById clear');
     },
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;

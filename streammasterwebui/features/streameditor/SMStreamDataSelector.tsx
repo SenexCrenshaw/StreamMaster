@@ -73,7 +73,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
   const columns = useMemo(
     (): ColumnMeta[] => [
       // { field: 'Logo', fieldType: 'image' },
-      { field: 'Name', filter: true, sortable: true, maxWidth: '2rem' },
+      { field: 'Name', filter: true, maxWidth: '2rem', sortable: true },
       { field: 'Group', filter: true, sortable: true, width: '5rem' },
       { field: 'm3UFileName', filter: true, header: 'M3U', sortable: true, width: '5rem' },
       { align: 'right', bodyTemplate: actionBodyTemplate, field: 'isHidden', fieldType: 'actions', header: 'Actions', width: '5rem' }
@@ -117,7 +117,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
             <AddButton
               iconFilled={false}
               onClick={() => {
-                AddSMStreamToSMChannel({ SMStreamId: data.Id, SMChannelId: selectedSMChannel?.Id ?? 0 })
+                AddSMStreamToSMChannel({ SMChannelId: selectedSMChannel?.Id ?? 0, SMStreamId: data.Id })
                   .then((response) => {})
                   .catch((error) => {
                     console.error(error.message);
@@ -217,7 +217,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
         return 'bg-red-900';
       }
 
-      if (smChannelStreamsData && smChannelStreamsData !== undefined) {
+      if (data && smChannelStreamsData && smChannelStreamsData !== undefined && Array.isArray(smChannelStreamsData)) {
         const id = getRecord(data, 'Id');
         if (smChannelStreamsData.some((stream) => stream.Id === id)) {
           return 'bg-blue-900';
@@ -226,7 +226,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
 
       return '';
     },
-    [selectedSMChannel, smChannelStreamsData]
+    [smChannelStreamsData]
   );
 
   return (
