@@ -8,9 +8,10 @@ import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { formatJSONDateString } from '@lib/common/dateTime';
 import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import useGetPagedM3UFiles from '@lib/smAPI/M3UFiles/useGetPagedM3UFiles';
-import { M3UFileDto } from '@lib/smAPI/smapiTypes';
+import { M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
 import SMDataTable from '../smDataTable/SMDataTable';
 import M3UFileEditDialog from './M3UFileEditDialog';
+
 interface M3UUpdateProperties {
   auto?: boolean | null;
   hours?: number | null;
@@ -36,68 +37,48 @@ const M3UFilesDataSelector = () => {
 
     const { auto, hours, maxStreams, name, url, startingChannelNumber, overwriteChannelNumbers } = restProperties;
 
-    const tosend = {} as any;
-    tosend.id = id;
+    const request = {} as UpdateM3UFileRequest;
+    request.Id = id;
 
     if (auto !== undefined) {
-      tosend.autoUpdate = auto;
+      request.AutoUpdate = auto === true;
     }
 
     if (hours) {
-      tosend.hoursToUpdate = hours;
+      request.HoursToUpdate = hours;
     }
 
     if (hours) {
-      tosend.hoursToUpdate = hours;
+      request.HoursToUpdate = hours;
     }
 
     if (name) {
-      tosend.name = name;
+      request.Name = name;
     }
 
     if (overwriteChannelNumbers !== undefined) {
-      tosend.overWriteChannels = overwriteChannelNumbers;
+      request.OverWriteChannels = overwriteChannelNumbers === true;
     }
 
     if (maxStreams) {
-      tosend.maxStreamCount = maxStreams;
+      request.MaxStreamCount = maxStreams;
     }
 
     if (url) {
-      tosend.url = url;
+      request.Url = url;
     }
 
     if (startingChannelNumber) {
-      tosend.startingChannelNumber = startingChannelNumber;
+      request.StartingChannelNumber = startingChannelNumber;
     }
 
-    await UpdateM3UFile(tosend)
+    await UpdateM3UFile(request)
       .then(() => {})
       .catch((error) => {
         console.error('Error updating M3U File', error);
         throw error;
       });
   }, []);
-
-  // const StreamURLPrefixEditorBodyTemplate = useCallback(
-  //   (rowData: M3UFileDto) => {
-  //     if (rowData.Id === 0) {
-  //       return <div />;
-  //     }
-
-  //     return (
-  //       <div className="flex justify-content-center ">
-  //         <StreamURLPrefixSelector
-  //           onChange={async (e) => {
-  //             await onM3UUpdateClick({ id: rowData.Id, streamURLPrefix: e });
-  //           }}
-  //           value={rowData.streamURLPrefix}
-  //         />
-  //       </div>
-  //     );
-  //   },
-  //   [onM3UUpdateClick],
-  // );
 
   const lastDownloadedTemplate = useCallback((rowData: M3UFileDto) => {
     if (rowData.Id === 0) {
@@ -110,19 +91,7 @@ const M3UFilesDataSelector = () => {
   const nameEditorBodyTemplate = useCallback(
     (rowData: M3UFileDto) => {
       if (rowData.Id === 0) {
-        return (
-          <div
-            className="p-0 relative"
-            style={{
-              backgroundColor: 'var(--mask-bg)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {rowData.Name}
-          </div>
-        );
+        return <div>{rowData.Name}</div>;
       }
 
       return (
@@ -343,7 +312,7 @@ const M3UFilesDataSelector = () => {
         bodyTemplate: nameEditorBodyTemplate,
         field: 'name',
         header: 'Name',
-
+        sortable: true,
         width: '22rem'
       },
       {

@@ -1,10 +1,11 @@
 import ResetButton from '@components/buttons/ResetButton';
 import SaveButton from '@components/buttons/SaveButton';
 import NumberInput from '@components/inputs/NumberInput';
-import { M3UFileDto } from '@lib/smAPI/smapiTypes';
+import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
+import { M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
 import { InputText } from 'primereact/inputtext';
 import { ToggleButton } from 'primereact/togglebutton';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import M3UFileTags from './M3UFileTags';
 
 export interface M3UFileDialogProperties {
@@ -12,36 +13,51 @@ export interface M3UFileDialogProperties {
   readonly selectedFile: M3UFileDto;
   readonly noButtons?: boolean;
   readonly onM3UChanged?: (m3uFileDto: M3UFileDto) => void;
+  readonly onUpdated?: (request: UpdateM3UFileRequest) => void;
 }
 
-const M3UFileDialog = ({ onM3UChanged, selectedFile, noButtons }: M3UFileDialogProperties) => {
+const M3UFileDialog = ({ onM3UChanged, onUpdated, selectedFile, noButtons }: M3UFileDialogProperties) => {
   const defaultValues = {
-    Name: '',
-    MaxStreamCount: 1,
     HoursToUpdate: 72,
+    MaxStreamCount: 1,
+    Name: '',
     OverwriteChannelNumbers: true,
     StartingChannelNumber: 1
   } as M3UFileDto;
 
+  const { code } = useScrollAndKeyEvents();
+
   const [m3uFileDto, setM3UFileDto] = React.useState<M3UFileDto>(defaultValues);
   const [originalM3UFileDto, setOriginalM3UFileDto] = React.useState<M3UFileDto | undefined>(undefined);
-
+  const [request, setRequest] = React.useState<UpdateM3UFileRequest>({} as UpdateM3UFileRequest);
   const setName = useCallback(
     (value: string) => {
       if (m3uFileDto && m3uFileDto.Name !== value) {
         const m3uFileDtoCopy = { ...m3uFileDto };
         m3uFileDtoCopy.Name = value;
         setM3UFileDto(m3uFileDtoCopy);
+
+        const requestCopy = { ...request };
+        requestCopy.Id = m3uFileDtoCopy.Id;
+        requestCopy.Name = value;
+        setRequest(requestCopy);
+
         onM3UChanged && onM3UChanged(m3uFileDtoCopy);
       }
     },
-    [m3uFileDto.Name]
+    [m3uFileDto, onM3UChanged, request]
   );
 
   const setMaxStreams = (value: number) => {
     if (m3uFileDto && m3uFileDto.MaxStreamCount !== value) {
       const m3uFileDtoCopy = { ...m3uFileDto };
       m3uFileDtoCopy.MaxStreamCount = value;
+
+      const requestCopy = { ...request };
+      requestCopy.Id = m3uFileDtoCopy.Id;
+      requestCopy.MaxStreamCount = value;
+      setRequest(requestCopy);
+
       setM3UFileDto(m3uFileDtoCopy);
       onM3UChanged && onM3UChanged(m3uFileDtoCopy);
     }
@@ -52,6 +68,12 @@ const M3UFileDialog = ({ onM3UChanged, selectedFile, noButtons }: M3UFileDialogP
       const m3uFileDtoCopy = { ...m3uFileDto };
       m3uFileDtoCopy.HoursToUpdate = value;
       setM3UFileDto(m3uFileDtoCopy);
+
+      const requestCopy = { ...request };
+      requestCopy.Id = m3uFileDtoCopy.Id;
+      requestCopy.HoursToUpdate = value;
+      setRequest(requestCopy);
+
       onM3UChanged && onM3UChanged(m3uFileDtoCopy);
     }
   };
@@ -61,6 +83,12 @@ const M3UFileDialog = ({ onM3UChanged, selectedFile, noButtons }: M3UFileDialogP
       const m3uFileDtoCopy = { ...m3uFileDto };
       m3uFileDtoCopy.OverwriteChannelNumbers = value;
       setM3UFileDto(m3uFileDtoCopy);
+
+      const requestCopy = { ...request };
+      requestCopy.Id = m3uFileDtoCopy.Id;
+      requestCopy.OverWriteChannels = value;
+      setRequest(requestCopy);
+
       onM3UChanged && onM3UChanged(m3uFileDtoCopy);
     }
   };
@@ -70,6 +98,12 @@ const M3UFileDialog = ({ onM3UChanged, selectedFile, noButtons }: M3UFileDialogP
       const m3uFileDtoCopy = { ...m3uFileDto };
       m3uFileDtoCopy.StartingChannelNumber = value;
       setM3UFileDto(m3uFileDtoCopy);
+
+      const requestCopy = { ...request };
+      requestCopy.Id = m3uFileDtoCopy.Id;
+      requestCopy.StartingChannelNumber = value;
+      setRequest(requestCopy);
+
       onM3UChanged && onM3UChanged(m3uFileDtoCopy);
     }
   };
@@ -79,13 +113,29 @@ const M3UFileDialog = ({ onM3UChanged, selectedFile, noButtons }: M3UFileDialogP
       const m3uFileDtoCopy = { ...m3uFileDto };
       m3uFileDtoCopy.VODTags = value;
       setM3UFileDto(m3uFileDtoCopy);
+
+      const requestCopy = { ...request };
+      requestCopy.Id = m3uFileDtoCopy.Id;
+      requestCopy.VODTags = value;
+      setRequest(requestCopy);
+
       onM3UChanged && onM3UChanged(m3uFileDtoCopy);
     }
   };
 
-  const ReturnToParent = useCallback(() => {}, []);
+  const isSaveEnabled = useMemo(() => {
+    return m3uFileDto !== originalM3UFileDto;
+  }, [m3uFileDto, originalM3UFileDto]);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    if (code === 'Enter' || code === 'NumpadEnter') {
+      if (isSaveEnabled) {
+        onUpdated && onUpdated(request);
+      }
+    }
+  }, [code, isSaveEnabled, onUpdated, request]);
+
+  useEffect(() => {
     if (selectedFile === undefined) {
       return;
     }
@@ -96,23 +146,24 @@ const M3UFileDialog = ({ onM3UChanged, selectedFile, noButtons }: M3UFileDialogP
       return;
     }
 
-    if (selectedFile !== m3uFileDto) {
-      setM3UFileDto(selectedFile);
+    if (
+      selectedFile.Id === m3uFileDto.Id &&
+      selectedFile.Name !== m3uFileDto.Name &&
+      (originalM3UFileDto.Name === '' || m3uFileDto.Name === originalM3UFileDto.Name)
+    ) {
+      setName(selectedFile.Name);
+      return;
     }
-  }, [selectedFile]);
 
-  const isSaveEnabled = useMemo(() => {
-    return m3uFileDto !== originalM3UFileDto;
-  }, [m3uFileDto, originalM3UFileDto]);
+    return;
+  }, [m3uFileDto.Id, m3uFileDto.Name, originalM3UFileDto, selectedFile, setName]);
 
   return (
     <>
-      <div className="col-12">
+      <div className="col-12 ">
         <div className="flex">
           <div className="col-6 p-0">
-            <div id="name" className="text-xs text-500">
-              NAME:
-            </div>
+            <div className="text-xs text-500">NAME:</div>
             <InputText autoFocus className="p-float-label w-full" id="name" value={m3uFileDto.Name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div className="col-6 p-0 pt-2">
@@ -178,7 +229,7 @@ const M3UFileDialog = ({ onM3UChanged, selectedFile, noButtons }: M3UFileDialogP
             label="Reset"
             onClick={() => originalM3UFileDto !== undefined && setM3UFileDto(originalM3UFileDto)}
           />
-          <SaveButton disabled={!isSaveEnabled} label="Update M3U" onClick={ReturnToParent} />
+          <SaveButton disabled={!isSaveEnabled} label="Update M3U" onClick={() => onUpdated && onUpdated(request)} />
         </div>
       )}
     </>

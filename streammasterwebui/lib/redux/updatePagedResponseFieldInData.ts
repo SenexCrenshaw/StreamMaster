@@ -8,7 +8,7 @@ export const updatePagedResponseFieldInData = (pagedResponse: PagedResponse<any>
       ...pagedResponse,
       data: pagedResponse.Data.map((dto) => {
         const id = dto.Id.toString();
-        if (id === fieldData.Id && dto[fieldData.Field] !== fieldData.Value) {
+        if (id === fieldData.Id && fieldData.Field && dto[fieldData.Field] !== fieldData.Value) {
           const updatedSMSTreams = Array.isArray(fieldData.Value) ? [...fieldData.Value] : fieldData.Value;
           return {
             ...dto,
@@ -23,9 +23,9 @@ export const updatePagedResponseFieldInData = (pagedResponse: PagedResponse<any>
 
   const updatedPagedResponse = {
     ...pagedResponse,
-    data: pagedResponse.Data.map((dto) => {
+    Data: pagedResponse.Data.map((dto) => {
       const id = dto.Id.toString();
-      if (id === fieldData.Id && dto[fieldData.Field] !== fieldData.Value) {
+      if (id === fieldData.Id && fieldData.Field && dto[fieldData.Field] !== fieldData.Value) {
         var test = {
           ...dto,
           [fieldData.Field]: fieldData.Value

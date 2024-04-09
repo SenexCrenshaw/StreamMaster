@@ -20,11 +20,16 @@ $streamMasterColor: #fe7600 !default;
 }
 
 .default-border {
-    border: 2px solid $shade600 !important;
+    border: 2px solid var(--cyan-600) !important;
     border-radius: $borderRadius;
 }
 
 .streammaster-border {
+    border: 1px solid $streamMasterColor !important;
+    border-radius: $borderRadius;
+}
+
+.dialog-border {
     border: 1px solid $streamMasterColor !important;
     border-radius: $borderRadius;
 }

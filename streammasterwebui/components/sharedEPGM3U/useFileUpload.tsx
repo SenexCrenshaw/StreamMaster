@@ -37,8 +37,6 @@ export function useFileUpload() {
   }, []);
 
   const doUpload = useCallback(async (params: UploadParams) => {
-    console.log(params.m3uFileDto);
-    return;
     if (params.file) {
       setIsUploading(true);
       try {

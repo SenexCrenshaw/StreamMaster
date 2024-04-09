@@ -8,6 +8,7 @@ interface UseScrollAndKeyEventsResult {
   type: EventType | null;
   direction: Direction | null;
   state?: ScrollState;
+  code?: string;
 }
 
 function useScrollAndKeyEvents(): UseScrollAndKeyEventsResult {
@@ -28,16 +29,13 @@ function useScrollAndKeyEvents(): UseScrollAndKeyEventsResult {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.keyCode === 38) {
-        // Up arrow key code
-        const state = determineScrollState('up');
-        setEventData({ direction: 'up', state, type: 'keyUp' });
-      } else if (e.keyCode === 40) {
-        // Down arrow key code
-        console.log('down');
-        const state = determineScrollState('down');
-        setEventData({ direction: 'down', state, type: 'keyDown' });
-      }
+      // if (e.code === 'Enter') {
+      //   const state = determineScrollState('down');
+      //   setEventData({ code: e.code, direction: 'down', state, type: 'keyDown' });
+      // }
+
+      const state = determineScrollState('down');
+      setEventData({ code: e.code, direction: 'down', state, type: 'keyDown' });
     };
 
     const handleMouseWheelEvent = (e: any) => {

@@ -79,7 +79,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
 
   return (
     <>
-      <OverlayPanel className="col-5 p-0 smfileupload-panel streammaster-border" ref={op} showCloseIcon={false} closeOnEscape>
+      <OverlayPanel className="col-5 p-0 smfileupload-panel default-border" ref={op} showCloseIcon={false} closeOnEscape>
         <div className="smfileupload col-12 p-0 m-0 ">
           <div className="smfileupload-header">
             <div className="flex justify-content-between align-items-center px-1 header">

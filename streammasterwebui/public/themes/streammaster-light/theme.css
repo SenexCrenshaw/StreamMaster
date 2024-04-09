@@ -8,11 +8,16 @@
 }
 
 .default-border {
-  border: 2px solid #898989 !important;
+  border: 2px solid var(--cyan-600) !important;
   border-radius: 6px;
 }
 
 .streammaster-border {
+  border: 1px solid #fe7600 !important;
+  border-radius: 6px;
+}
+
+.dialog-border {
   border: 1px solid #fe7600 !important;
   border-radius: 6px;
 }
@@ -6689,11 +6694,16 @@
 }
 
 .default-border {
-  border: 2px solid #898989 !important;
+  border: 2px solid var(--cyan-600) !important;
   border-radius: 6px;
 }
 
 .streammaster-border {
+  border: 1px solid #fe7600 !important;
+  border-radius: 6px;
+}
+
+.dialog-border {
   border: 1px solid #fe7600 !important;
   border-radius: 6px;
 }
