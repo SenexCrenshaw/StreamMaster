@@ -300,9 +300,17 @@ export interface GetPagedSMStreamsRequest
 {
 	Parameters: QueryStringParameters;
 }
+export interface ToggleSMStreamsVisibleByIdRequest
+{
+	Ids: string[];
+}
 export interface ToggleSMStreamVisibleByIdRequest
 {
 	Id: string;
+}
+export interface ToggleSMStreamVisibleByParametersRequest
+{
+	Parameters: QueryStringParameters;
 }
 export interface SendSMErrorRequest
 {

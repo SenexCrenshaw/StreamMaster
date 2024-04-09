@@ -13,7 +13,7 @@ const UploadButton: React.FC<ChildButtonProperties> = ({ disabled = false, label
       onClick={onClick}
       label={label ?? undefined}
       outlined={outlined}
-      severity="danger"
+      severity="info"
       tooltip={tooltip}
     />
   );

@@ -1,7 +1,8 @@
-import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
-import { fetchGetPagedM3UFiles } from '@lib/smAPI/M3UFiles/GetPagedM3UFilesFetch';
-import { FieldData, M3UFileDto, PagedResponse } from '@lib/smAPI/smapiTypes';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import {FieldData, M3UFileDto,PagedResponse } from '@lib/smAPI/smapiTypes';
+import { fetchGetPagedM3UFiles } from '@lib/smAPI/M3UFiles/GetPagedM3UFilesFetch';
+import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
+
 
 interface QueryState {
   data: Record<string, PagedResponse<M3UFileDto> | undefined>;
@@ -88,6 +89,7 @@ const getPagedM3UFilesSlice = createSlice({
         state.isLoading[query] = false;
         state.isForced = false;
       });
+
   }
 });
 

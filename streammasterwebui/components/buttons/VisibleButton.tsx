@@ -9,6 +9,7 @@ const VisibleButton: React.FC<ChildButtonProperties> = ({ disabled = false, isLe
     isLeft={isLeft}
     label={iconFilled === true ? label || undefined : undefined}
     onClick={onClick}
+    severity="danger"
     tooltip={tooltip}
   />
 );

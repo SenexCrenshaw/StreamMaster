@@ -11,6 +11,7 @@ import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreams';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 
+import StreamMultiVisibleDialog from '@components/smstreams/StreamMultiVisibleDialog';
 import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
 import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
@@ -52,7 +53,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
     (data: SMStreamDto) => (
       <div className="flex p-0 justify-content-end align-items-center">
         <StreamCopyLinkDialog realUrl={data.RealUrl} />
-        <StreamVisibleDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
+        <StreamVisibleDialog iconFilled={false} value={data} />
 
         {/* <VideoStreamSetAutoSetEPGDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} /> */}
         {/* <VideoStreamDeleteDialog iconFilled={false} id={dataKey} values={[data]} /> */}
@@ -180,10 +181,12 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
 
   const rightHeaderTemplate = useMemo(
     () => (
-      <div className="flex justify-content-end align-items-center w-full gap-1">
-        <div className="">
+      <div className="flex flex-row justify-content-end align-items-center w-full gap-1">
+        <StreamMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} skipOverLayer />
+        <div>
           <M3UFilesButton />
-          {/* <TriSelectShowHidden dataKey={dataKey} />
+        </div>
+        {/* <TriSelectShowHidden dataKey={dataKey} />
         <VideoStreamSetTimeShiftsDialog id={dataKey} />
         <VideoStreamResetLogosDialog id={dataKey} />
         <VideoStreamSetLogosFromEPGDialog id={dataKey} />
@@ -192,10 +195,9 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
         <VideoStreamSetAutoSetEPGDialog iconFilled id={dataKey} />
         <VideoStreamDeleteDialog iconFilled id={dataKey} />
         <VideoStreamAddDialog group={channelGroupNames?.[0]} /> */}
-        </div>
       </div>
     ),
-    []
+    [id]
   );
 
   const setSelectedSMEntity = useCallback(

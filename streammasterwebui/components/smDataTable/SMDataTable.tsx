@@ -22,6 +22,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import generateFilterData from '@components/dataSelector/generateFilterData';
 import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
+import { TriStateCheckbox } from 'primereact/tristatecheckbox';
 import TableHeader from './helpers/TableHeader';
 import bodyTemplate from './helpers/bodyTemplate';
 import { getAlign, getHeaderFromField, setColumnToggle } from './helpers/dataSelectorFunctions';
@@ -439,26 +440,52 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     if (state.selectAll) {
       setters.setSelectAll(false);
       setters.setSelectSelectedItems([]);
-    } else {
+      return;
+    }
+
+    if (selectAllStatus === null) {
       setters.setSelectAll(true);
       setters.setSelectSelectedItems(state.dataSource ?? []);
+      return;
     }
+
+    if (selectAllStatus === true) {
+      setters.setSelectAll(false);
+      setters.setSelectSelectedItems([]);
+      return;
+    }
+
+    setters.setSelectAll(false);
+    setters.setSelectSelectedItems([]);
+
+    // setters.setSelectAll(true);
+    //   setters.setSelectSelectedItems(state.dataSource ?? []);
   }
 
-  function selectionHeaderTemplate() {
-    const isSelected = false;
+  const selectAllStatus = useMemo(() => {
+    let checked = state.selectAll ? true : state.selectSelectedItems.length > 0 ? false : null;
 
-    if (!isSelected) {
-      return (
-        <div className="flex justify-content-center align-items-center p-0 m-0">
-          {showSelection && <Checkbox checked={state.selectAll} onChange={() => toggleAllSelection()} />}
-        </div>
-      );
+    return checked;
+  }, [state.selectAll, state.selectSelectedItems.length]);
+
+  function selectionHeaderTemplate() {
+    // const isSelected = false;
+    let tooltip = 'All Selected';
+    if (!state.selectAll) {
+      tooltip = state.selectSelectedItems.length + ' Items';
     }
+
+    // if (!isSelected) {
+    //   return (
+    //     <div className="flex justify-content-center align-items-center p-0 m-0">
+    //       {showSelection && <Checkbox checked={state.selectAll} onChange={() => toggleAllSelection()} />}
+    //     </div>
+    //   );
+    // }
 
     return (
       <div className="flex justify-content-center align-items-center p-0 m-0">
-        {showSelection && <Checkbox checked={state.selectAll} onChange={() => toggleAllSelection()} />}
+        {showSelection && <TriStateCheckbox value={selectAllStatus} onChange={() => toggleAllSelection()} tooltip={tooltip} />}
       </div>
     );
   }
@@ -474,15 +501,15 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 
       if (isSelected) {
         return (
-          <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-            {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => removeSelection(data)} />}
+          <div className="flex justify-content-center align-items-center p-0 m-0">
+            {showSelection && <Checkbox checked={isSelected} onChange={() => removeSelection(data)} />}
           </div>
         );
       }
 
       return (
-        <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-          {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />}
+        <div className="flex justify-content-center align-items-center p-0 m-0">
+          {showSelection && <Checkbox checked={isSelected} onChange={() => addSelection(data)} />}
         </div>
       );
     },
@@ -503,7 +530,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   //     />
   //   </div>
   // );
-
+  console.log('selectAll', props.id, state.selectAll);
   return (
     <div
       id={props.id}

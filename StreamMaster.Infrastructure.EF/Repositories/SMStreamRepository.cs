@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 
 using Microsoft.EntityFrameworkCore;
+
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 namespace StreamMaster.Infrastructure.EF.Repositories;
@@ -141,4 +142,23 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
 
         return;
     }
+    public async Task<List<FieldData>> ToggleSMStreamVisibleByParameters(QueryStringParameters parameters, CancellationToken cancellationToken)
+    {
+        IQueryable<SMStream> query = GetQuery(parameters);
+        return await ToggleSMStreamsVisibleById([.. query.Select(a => a.Id)], cancellationToken);
+    }
+    public async Task<List<FieldData>> ToggleSMStreamsVisibleById(List<string> ids, CancellationToken cancellationToken)
+    {
+        List<FieldData> ret = [];
+        List<SMStream> streams = [.. GetQuery(true).Where(a => ids.Contains(a.Id))];
+        foreach (SMStream? stream in streams)
+        {
+            stream.IsHidden = !stream.IsHidden;
+            ret.Add(new FieldData(() => stream.IsHidden));
+        }
+        await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        return ret;
+    }
+
+
 }

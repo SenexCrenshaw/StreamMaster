@@ -1,136 +1,34 @@
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
-import { useSelectAll } from '@lib/redux/slices/useSelectAll';
-import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
-
 import { ToggleSMStreamVisibleById } from '@lib/smAPI/SMStreams/SMStreamsCommands';
 import { SMStreamDto, ToggleSMStreamVisibleByIdRequest } from '@lib/smAPI/smapiTypes';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
+import { memo, useCallback } from 'react';
 import VisibleButton from '../buttons/VisibleButton';
 
 interface StreamVisibleDialogProperties {
   readonly iconFilled?: boolean;
-  readonly id: string;
   readonly onClose?: () => void;
-  readonly skipOverLayer?: boolean;
-  readonly values?: SMStreamDto[];
+  readonly value: SMStreamDto;
 }
 
-const StreamVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, values }: StreamVisibleDialogProperties) => {
-  const [showOverlay, setShowOverlay] = useState<boolean>(false);
-  const [block, setBlock] = useState<boolean>(false);
-  const [infoMessage, setInfoMessage] = useState('');
-  const [selectStreamsInternal, setSelectStreamsInternal] = useState<SMStreamDto[] | undefined>();
-
-  const { selectedVideoStreams } = useSelectedVideoStreams(id);
-  const { selectAll } = useSelectAll(id);
-  const { queryFilter } = useQueryFilter(id);
-
+const StreamVisibleDialog = ({ iconFilled, onClose, value }: StreamVisibleDialogProperties) => {
   const ReturnToParent = useCallback(() => {
-    setShowOverlay(false);
-    setInfoMessage('');
-    setBlock(false);
     onClose?.();
   }, [onClose]);
 
-  useEffect(() => {
-    if (values) {
-      setSelectStreamsInternal(values);
-    }
-  }, [values]);
-
-  useEffect(() => {
-    if (!values) {
-      setSelectStreamsInternal(selectedVideoStreams);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedVideoStreams]);
-
-  const getTotalCount = useMemo(() => selectStreamsInternal?.length ?? 0, [selectStreamsInternal]);
-
   const onVisiblesClick = useCallback(async () => {
-    if (selectStreamsInternal === undefined) {
+    if (value === undefined) {
       ReturnToParent();
       return;
     }
 
-    setBlock(true);
-
-    if (getTotalCount !== 1 && selectAll === true) {
-      if (!queryFilter) {
-        ReturnToParent();
-
-        return;
-      }
-
-      // const toSendAll = {} as ToggleSMStreamVisibleByIdRequest;
-
-      // toSendAll.parameters = queryFilter;
-      // // toSendAll.parameters.pageSize = getTotalCount;
-
-      // toSendAll.request = {
-      //   toggleVisibility: true
-      // } as UpdateVideoStreamRequest;
-
-      // await UpdateAllVideoStreamsFromParameters(toSendAll)
-      //   .then(() => {
-      //     setInfoMessage('Toggle Stream Visibility Successfully');
-      //   })
-      //   .catch((error) => {
-      //     setInfoMessage(`Toggle Stream Visibility Error: ${error.message}`);
-      //   });
-
-      return;
-    }
-
-    if (selectStreamsInternal.length === 0) {
-      ReturnToParent();
-
-      return;
-    }
-
-    await ToggleSMStreamVisibleById({ Id: selectStreamsInternal[0].Id as string } as ToggleSMStreamVisibleByIdRequest)
-      .then(() => {
-        setInfoMessage('Set Stream Visibility Successfully');
-      })
+    await ToggleSMStreamVisibleById({ Id: value.Id as string } as ToggleSMStreamVisibleByIdRequest)
+      .then(() => {})
       .catch((error) => {
-        setInfoMessage(`Set Stream Visibility Error: ${error.message}`);
+        console.error('Error toggling visibility', error);
+        throw error;
       });
-  }, [selectStreamsInternal, getTotalCount, selectAll, ReturnToParent, queryFilter]);
+  }, [ReturnToParent, value]);
 
-  if (skipOverLayer === true) {
-    return (
-      <VisibleButton
-        disabled={!getTotalCount}
-        iconFilled={false}
-        label="Toggle Visibility"
-        onClick={async () => await onVisiblesClick()}
-        tooltip="Toggle Visibility"
-        isLeft
-      />
-    );
-  }
-
-  return (
-    <>
-      <InfoMessageOverLayDialog
-        blocked={block}
-        closable
-        header="Toggle Visibility?"
-        infoMessage={infoMessage}
-        onClose={() => {
-          ReturnToParent();
-        }}
-        overlayColSize={2}
-        show={showOverlay}
-      >
-        <div className="flex justify-content-center w-full align-items-center h-full">
-          <VisibleButton disabled={getTotalCount === 0 && !selectAll} label="Toggle Visibility" onClick={async () => await onVisiblesClick()} />
-        </div>
-      </InfoMessageOverLayDialog>
-      <VisibleButton disabled={getTotalCount === 0 && !selectAll} iconFilled={iconFilled} onClick={() => setShowOverlay(true)} tooltip="Toggle Visibility" />
-    </>
-  );
+  return <VisibleButton iconFilled={iconFilled} label="Toggle Visibility" onClick={async () => await onVisiblesClick()} tooltip="Toggle Visibility" isLeft />;
 };
 
 StreamVisibleDialog.displayName = 'StreamVisibleDialog';

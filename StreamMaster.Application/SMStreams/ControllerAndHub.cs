@@ -17,7 +17,23 @@ namespace StreamMaster.Application.SMStreams.Controllers
 
         [HttpPatch]
         [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> ToggleSMStreamsVisibleById(ToggleSMStreamsVisibleByIdRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
         public async Task<ActionResult<APIResponse>> ToggleSMStreamVisibleById(ToggleSMStreamVisibleByIdRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> ToggleSMStreamVisibleByParameters(ToggleSMStreamVisibleByParametersRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
@@ -36,7 +52,19 @@ namespace StreamMaster.Application.Hubs
             return ret;
         }
 
+        public async Task<APIResponse> ToggleSMStreamsVisibleById(ToggleSMStreamsVisibleByIdRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
         public async Task<APIResponse> ToggleSMStreamVisibleById(ToggleSMStreamVisibleByIdRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> ToggleSMStreamVisibleByParameters(ToggleSMStreamVisibleByParametersRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
