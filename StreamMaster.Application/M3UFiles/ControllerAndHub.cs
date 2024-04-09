@@ -33,14 +33,6 @@ namespace StreamMaster.Application.M3UFiles.Controllers
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> ProcessM3UFiles()
-        {
-            APIResponse ret = await Sender.Send(new ProcessM3UFilesRequest()).ConfigureAwait(false);
-            return ret == null ? NotFound(ret) : Ok(ret);
-        }
-
-        [HttpPatch]
-        [Route("[action]")]
         public async Task<ActionResult<APIResponse>> RefreshM3UFile(RefreshM3UFileRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
@@ -84,12 +76,6 @@ namespace StreamMaster.Application.Hubs
         {
             await taskQueue.ProcessM3UFile(request).ConfigureAwait(false);
             return APIResponse.Ok;
-        }
-
-        public async Task<APIResponse> ProcessM3UFiles()
-        {
-            APIResponse ret = await Sender.Send(new ProcessM3UFilesRequest()).ConfigureAwait(false);
-            return ret;
         }
 
         public async Task<APIResponse> RefreshM3UFile(RefreshM3UFileRequest request)

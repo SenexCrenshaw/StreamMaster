@@ -37,7 +37,7 @@ public static class TypeScriptFetchGenerator
 
         StringBuilder content = new();
         content.AppendLine($"import {{ {method.Name} }} from '@lib/smAPI/{namespaceName}/{namespaceName}Commands';");
-        if (!string.IsNullOrEmpty(method.TsParameter))
+        if (!string.IsNullOrEmpty(method.TsParameter) && !method.IsGetPaged)
         {
             content.AppendLine($"import {{ {method.Name}Request }} from '../smapiTypes';");
         }
@@ -90,7 +90,7 @@ public static class TypeScriptFetchGenerator
         content.AppendLine($"    return {{param: {paramName}, value: response }};");
         content.AppendLine("  } catch (error) {");
         content.AppendLine("    console.error('Failed to fetch', error);");
-        content.AppendLine("    return thunkAPI.rejectWithValue({ value: undefined, error: error || 'Unknown error' });");
+        content.AppendLine("    return thunkAPI.rejectWithValue({ error: error || 'Unknown error', value: undefined });");
         content.AppendLine("  }");
         content.AppendLine("});");
         return content.ToString();

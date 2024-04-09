@@ -1,5 +1,4 @@
 import { GetPagedEPGFiles } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
-import { GetPagedEPGFilesRequest } from '../smapiTypes';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 

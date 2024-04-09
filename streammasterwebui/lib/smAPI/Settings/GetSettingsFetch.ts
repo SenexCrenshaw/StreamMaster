@@ -10,7 +10,7 @@ export const fetchGetSettings = createAsyncThunk('cache/getGetSettings', async (
     return {param: _, value: response };
   } catch (error) {
     console.error('Failed to fetch', error);
-    return thunkAPI.rejectWithValue({ value: undefined, error: error || 'Unknown error' });
+    return thunkAPI.rejectWithValue({ error: error || 'Unknown error', value: undefined });
   }
 });
 

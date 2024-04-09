@@ -1,5 +1,5 @@
 import { QueryHookResult } from '@lib/apiDefs';
-import store from '@lib/redux/store';
+import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, setField, setIsForced, setIsLoading } from './GetEPGColorsSlice';
 import { useCallback,useEffect } from 'react';
@@ -15,11 +15,7 @@ interface Result extends ExtendedQueryHookResult {
 }
 const useGetEPGColors = (): Result => {
   const dispatch = useAppDispatch();
-  const data = useAppSelector((state) => state.GetEPGColors.data);
-  const error = useAppSelector((state) => state.GetEPGColors.error ?? '');
-  const isError = useAppSelector((state) => state.GetEPGColors.isError?? false);
   const isForced = useAppSelector((state) => state.GetEPGColors.isForced ?? false);
-  const isLoading = useAppSelector((state) => state.GetEPGColors.isLoading ?? false);
 
   const SetIsForced = useCallback(
     (forceRefresh: boolean): void => {
@@ -34,12 +30,34 @@ const SetIsLoading = useCallback(
   },
   [dispatch]
 );
+const selectData = (state: RootState) => {
+    return state.GetEPGColors.data;
+  };
+const data = useAppSelector(selectData);
+
+const selectError = (state: RootState) => {
+    return state.GetEPGColors.error;
+  };
+const error = useAppSelector(selectError);
+
+const selectIsError = (state: RootState) => {
+    return state.GetEPGColors.isError;
+  };
+const isError = useAppSelector(selectIsError);
+
+const selectIsLoading = (state: RootState) => {
+    return state.GetEPGColors.isLoading;
+  };
+const isLoading = useAppSelector(selectIsLoading);
+
+
   useEffect(() => {
     const state = store.getState().GetEPGColors;
     if (data === undefined && state.isLoading !== true && state.isForced !== true) {
       SetIsForced(true);
     }
-  }, [SetIsForced, data, dispatch]);
+  }, [SetIsForced, data]);
+
 useEffect(() => {
   const state = store.getState().GetEPGColors;
   if (state.isLoading) return;
@@ -47,7 +65,7 @@ useEffect(() => {
 
   SetIsLoading(true);
   dispatch(fetchGetEPGColors());
-}, [data, dispatch, isForced, isLoading, SetIsLoading]);
+}, [SetIsLoading, data, dispatch, isForced]);
 
 const SetField = (fieldData: FieldData): void => {
   dispatch(setField({ fieldData: fieldData }));
@@ -58,11 +76,11 @@ const Clear = (): void => {
 };
 
 return {
+  Clear,
   data,
   error,
   isError,
   isLoading,
-  Clear,
   SetField,
   SetIsForced,
   SetIsLoading

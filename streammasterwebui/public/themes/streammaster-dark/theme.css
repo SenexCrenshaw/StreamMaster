@@ -7064,6 +7064,18 @@
   padding: 0;
 }
 
+.p-inputnumber-button-group {
+  height: 1.6rem;
+}
+
+.modal.display-block {
+  display: block;
+}
+
+.modal.display-none {
+  display: none;
+}
+
 .p-datatable {
   font-size: 0.75rem;
 }

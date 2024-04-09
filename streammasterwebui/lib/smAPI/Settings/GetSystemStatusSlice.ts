@@ -21,26 +21,26 @@ const initialState: QueryState = {
 };
 
 const getSystemStatusSlice = createSlice({
-  name: 'GetSystemStatus',
   initialState,
+  name: 'GetSystemStatus',
   reducers: {
+    clear: (state) => {
+      state = initialState;
+      console.log('GetSystemStatus clear');
+    },
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
       console.log('GetSystemStatus setField');
     },
-    clear: (state) => {
-       state = initialState;
-      console.log('GetSystemStatus clear');
-    },
-    setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
-       state.isLoading = action.payload.isLoading;
-      console.log('GetSystemStatus setIsLoading ', action.payload.isLoading);
-    },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
       console.log('GetSystemStatus  setIsForced ', force);
+    },
+    setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
+      state.isLoading = action.payload.isLoading;
+      console.log('GetSystemStatus setIsLoading ', action.payload.isLoading);
     }
 },
 

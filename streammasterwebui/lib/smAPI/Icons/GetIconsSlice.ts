@@ -21,26 +21,26 @@ const initialState: QueryState = {
 };
 
 const getIconsSlice = createSlice({
-  name: 'GetIcons',
   initialState,
+  name: 'GetIcons',
   reducers: {
+    clear: (state) => {
+      state = initialState;
+      console.log('GetIcons clear');
+    },
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
       console.log('GetIcons setField');
     },
-    clear: (state) => {
-       state = initialState;
-      console.log('GetIcons clear');
-    },
-    setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
-       state.isLoading = action.payload.isLoading;
-      console.log('GetIcons setIsLoading ', action.payload.isLoading);
-    },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
       console.log('GetIcons  setIsForced ', force);
+    },
+    setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
+      state.isLoading = action.payload.isLoading;
+      console.log('GetIcons setIsLoading ', action.payload.isLoading);
     }
 },
 

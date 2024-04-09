@@ -21,26 +21,26 @@ const initialState: QueryState = {
 };
 
 const getIsSystemReadySlice = createSlice({
-  name: 'GetIsSystemReady',
   initialState,
+  name: 'GetIsSystemReady',
   reducers: {
+    clear: (state) => {
+      state = initialState;
+      console.log('GetIsSystemReady clear');
+    },
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
       console.log('GetIsSystemReady setField');
     },
-    clear: (state) => {
-       state = initialState;
-      console.log('GetIsSystemReady clear');
-    },
-    setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
-       state.isLoading = action.payload.isLoading;
-      console.log('GetIsSystemReady setIsLoading ', action.payload.isLoading);
-    },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
       console.log('GetIsSystemReady  setIsForced ', force);
+    },
+    setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
+      state.isLoading = action.payload.isLoading;
+      console.log('GetIsSystemReady setIsLoading ', action.payload.isLoading);
     }
 },
 

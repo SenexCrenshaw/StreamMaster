@@ -21,26 +21,26 @@ const initialState: QueryState = {
 };
 
 const getEPGColorsSlice = createSlice({
-  name: 'GetEPGColors',
   initialState,
+  name: 'GetEPGColors',
   reducers: {
+    clear: (state) => {
+      state = initialState;
+      console.log('GetEPGColors clear');
+    },
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
       console.log('GetEPGColors setField');
     },
-    clear: (state) => {
-       state = initialState;
-      console.log('GetEPGColors clear');
-    },
-    setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
-       state.isLoading = action.payload.isLoading;
-      console.log('GetEPGColors setIsLoading ', action.payload.isLoading);
-    },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
       console.log('GetEPGColors  setIsForced ', force);
+    },
+    setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
+      state.isLoading = action.payload.isLoading;
+      console.log('GetEPGColors setIsLoading ', action.payload.isLoading);
     }
 },
 

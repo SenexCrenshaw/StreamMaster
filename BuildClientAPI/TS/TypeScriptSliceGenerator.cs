@@ -12,8 +12,8 @@ public static class TypeScriptSliceGenerator
 
             // Define the slice
             content.AppendLine($"const {method.Name.ToCamelCase()}Slice = createSlice({{");
-            content.AppendLine($"  name: '{method.Name}',");
             content.AppendLine("  initialState,");
+            content.AppendLine($"  name: '{method.Name}',");
             content.AppendLine("  reducers: {");
             content.AppendLine(GenerateActions(method));
             content.AppendLine("  extraReducers: (builder) => {");
@@ -66,7 +66,7 @@ public static class TypeScriptSliceGenerator
         }
         else
         {
-            if (method.IsGet)
+            if (method.IsGet && !method.IsGetCached)
             {
                 content.AppendLine("import { updateFieldInData } from '@lib/redux/updateFieldInData';");
             }
@@ -152,6 +152,11 @@ const initialState: QueryState = {{
         StringBuilder content = new();
         if (method.IsGetPaged)
         {
+            content.AppendLine($"    clear: (state) => {{");
+            content.AppendLine("      state = initialState;");
+            content.AppendLine($"      console.log('{method.Name} clear');");
+            content.AppendLine("    },");
+
             content.AppendLine($"    setField: (state, action: PayloadAction<{{ query?: string | undefined; fieldData: FieldData }}>) => {{");
             content.AppendLine("      const { query, fieldData } = action.payload;");
             content.AppendLine();
@@ -170,9 +175,10 @@ const initialState: QueryState = {{
             content.AppendLine($"      console.log('{method.Name} setField');");
             content.AppendLine("    },");
 
-            content.AppendLine($"    clear: (state) => {{");
-            content.AppendLine("       state = initialState;");
-            content.AppendLine($"       console.log('{method.Name} clear');");
+            content.AppendLine("    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {");
+            content.AppendLine("      const { force } = action.payload;");
+            content.AppendLine("      state.isForced = force;");
+            content.AppendLine($"      console.log('{method.Name}  setIsForced ', force);");
             content.AppendLine("    },");
 
             content.AppendLine($"    setIsLoading: (state, action: PayloadAction<{{ query: string; isLoading: boolean }}>) => {{");
@@ -185,17 +191,18 @@ const initialState: QueryState = {{
             content.AppendLine("        }");
             content.AppendLine("      }");
             content.AppendLine($"      console.log('{method.Name} setIsLoading ', action.payload.isLoading);");
-            content.AppendLine("    },");
-            content.AppendLine("    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {");
-            content.AppendLine("      const { force } = action.payload;");
-            content.AppendLine("      state.isForced = force;");
-            content.AppendLine($"      console.log('{method.Name}  setIsForced ', force);");
             content.AppendLine("    }");
+
             content.AppendLine("  },");
             return content.ToString();
         }
         else if (method.IsGetCached)
         {
+            content.AppendLine($"    clear: (state) => {{");
+            content.AppendLine("      state = initialState;");
+            content.AppendLine($"       console.log('{method.Name} clear');");
+            content.AppendLine("    },");
+
             content.AppendLine($"    setField: (state, action: PayloadAction<{{ fieldData: FieldData }}>) => {{");
             content.AppendLine("      const { fieldData } = action.payload;");
             content.AppendLine();
@@ -208,9 +215,10 @@ const initialState: QueryState = {{
             content.AppendLine($"      console.log('{method.Name} setField');");
             content.AppendLine("    },");
 
-            content.AppendLine($"    clear: (state) => {{");
-            content.AppendLine("       state = initialState;");
-            content.AppendLine($"       console.log('{method.Name} clear');");
+            content.AppendLine("    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {");
+            content.AppendLine("      const { force } = action.payload;");
+            content.AppendLine("      state.isForced = force;");
+            content.AppendLine($"      console.log('{method.Name}  setIsForced ', force);");
             content.AppendLine("    },");
 
             content.AppendLine($"    setIsLoading: (state, action: PayloadAction<{{ param: string; isLoading: boolean }}>) => {{");
@@ -224,15 +232,16 @@ const initialState: QueryState = {{
             content.AppendLine("        }");
             content.AppendLine("      }");
             content.AppendLine($"      console.log('{method.Name} setIsLoading ', action.payload.isLoading);");
-            content.AppendLine("    },");
-            content.AppendLine("    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {");
-            content.AppendLine("      const { force } = action.payload;");
-            content.AppendLine("      state.isForced = force;");
-            content.AppendLine($"      console.log('{method.Name}  setIsForced ', force);");
             content.AppendLine("    }");
+
             content.AppendLine("  },");
             return content.ToString();
         }
+
+        content.AppendLine($"    clear: (state) => {{");
+        content.AppendLine("      state = initialState;");
+        content.AppendLine($"      console.log('{method.Name} clear');");
+        content.AppendLine("    },");
 
         content.AppendLine($"    setField: (state, action: PayloadAction<{{ fieldData: FieldData }}>) => {{");
         content.AppendLine("      const { fieldData } = action.payload;");
@@ -240,20 +249,17 @@ const initialState: QueryState = {{
         content.AppendLine($"      console.log('{method.Name} setField');");
         content.AppendLine("    },");
 
-        content.AppendLine($"    clear: (state) => {{");
-        content.AppendLine("       state = initialState;");
-        content.AppendLine($"      console.log('{method.Name} clear');");
-        content.AppendLine("    },");
-
-        content.AppendLine($"    setIsLoading: (state, action: PayloadAction<{{isLoading: boolean }}>) => {{");
-        content.AppendLine("       state.isLoading = action.payload.isLoading;");
-        content.AppendLine($"      console.log('{method.Name} setIsLoading ', action.payload.isLoading);");
-        content.AppendLine("    },");
         content.AppendLine("    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {");
         content.AppendLine("      const { force } = action.payload;");
         content.AppendLine("      state.isForced = force;");
         content.AppendLine($"      console.log('{method.Name}  setIsForced ', force);");
+        content.AppendLine("    },");
+
+        content.AppendLine($"    setIsLoading: (state, action: PayloadAction<{{isLoading: boolean }}>) => {{");
+        content.AppendLine("      state.isLoading = action.payload.isLoading;");
+        content.AppendLine($"      console.log('{method.Name} setIsLoading ', action.payload.isLoading);");
         content.AppendLine("    }");
+
         content.AppendLine("},");
         return content.ToString();
     }

@@ -36,6 +36,7 @@ import StringTracker from '@components/inputs/StringTracker';
 import SMStreamDataSelectorValue from '@features/streameditor/SMStreamDataSelectorValue';
 import { GetApiArgument, QueryHook } from '@lib/apiDefs';
 
+import { SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import ResetButton from '../buttons/ResetButton';

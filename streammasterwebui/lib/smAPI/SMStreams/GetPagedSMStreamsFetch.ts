@@ -1,5 +1,4 @@
 import { GetPagedSMStreams } from '@lib/smAPI/SMStreams/SMStreamsCommands';
-import { GetPagedSMStreamsRequest } from '../smapiTypes';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 

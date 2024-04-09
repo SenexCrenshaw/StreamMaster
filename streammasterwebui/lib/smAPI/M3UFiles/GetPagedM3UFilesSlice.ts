@@ -21,9 +21,13 @@ const initialState: QueryState = {
 };
 
 const getPagedM3UFilesSlice = createSlice({
-  name: 'GetPagedM3UFiles',
   initialState,
+  name: 'GetPagedM3UFiles',
   reducers: {
+    clear: (state) => {
+      state = initialState;
+      console.log('GetPagedM3UFiles clear');
+    },
     setField: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
       const { query, fieldData } = action.payload;
 
@@ -41,9 +45,10 @@ const getPagedM3UFilesSlice = createSlice({
       }
       console.log('GetPagedM3UFiles setField');
     },
-    clear: (state) => {
-       state = initialState;
-       console.log('GetPagedM3UFiles clear');
+    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
+      const { force } = action.payload;
+      state.isForced = force;
+      console.log('GetPagedM3UFiles  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ query: string; isLoading: boolean }>) => {
       const { query, isLoading } = action.payload;
@@ -55,11 +60,6 @@ const getPagedM3UFilesSlice = createSlice({
         }
       }
       console.log('GetPagedM3UFiles setIsLoading ', action.payload.isLoading);
-    },
-    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
-      const { force } = action.payload;
-      state.isForced = force;
-      console.log('GetPagedM3UFiles  setIsForced ', force);
     }
   },
 

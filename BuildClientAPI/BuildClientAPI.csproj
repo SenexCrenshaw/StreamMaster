@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\StreamMaster.API\StreamMaster.API.csproj" />
     <ProjectReference Include="..\StreamMaster.Application\StreamMaster.Application.csproj" />
     <ProjectReference Include="..\StreamMaster.Domain\StreamMaster.Domain.csproj" />
   </ItemGroup>

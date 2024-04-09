@@ -21,9 +21,13 @@ const initialState: QueryState = {
 };
 
 const getPagedSMChannelsSlice = createSlice({
-  name: 'GetPagedSMChannels',
   initialState,
+  name: 'GetPagedSMChannels',
   reducers: {
+    clear: (state) => {
+      state = initialState;
+      console.log('GetPagedSMChannels clear');
+    },
     setField: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
       const { query, fieldData } = action.payload;
 
@@ -41,9 +45,10 @@ const getPagedSMChannelsSlice = createSlice({
       }
       console.log('GetPagedSMChannels setField');
     },
-    clear: (state) => {
-       state = initialState;
-       console.log('GetPagedSMChannels clear');
+    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
+      const { force } = action.payload;
+      state.isForced = force;
+      console.log('GetPagedSMChannels  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ query: string; isLoading: boolean }>) => {
       const { query, isLoading } = action.payload;
@@ -55,11 +60,6 @@ const getPagedSMChannelsSlice = createSlice({
         }
       }
       console.log('GetPagedSMChannels setIsLoading ', action.payload.isLoading);
-    },
-    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
-      const { force } = action.payload;
-      state.isForced = force;
-      console.log('GetPagedSMChannels  setIsForced ', force);
     }
   },
 

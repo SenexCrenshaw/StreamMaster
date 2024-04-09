@@ -21,9 +21,13 @@ const initialState: QueryState = {
 };
 
 const getPagedEPGFilesSlice = createSlice({
-  name: 'GetPagedEPGFiles',
   initialState,
+  name: 'GetPagedEPGFiles',
   reducers: {
+    clear: (state) => {
+      state = initialState;
+      console.log('GetPagedEPGFiles clear');
+    },
     setField: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
       const { query, fieldData } = action.payload;
 
@@ -41,9 +45,10 @@ const getPagedEPGFilesSlice = createSlice({
       }
       console.log('GetPagedEPGFiles setField');
     },
-    clear: (state) => {
-       state = initialState;
-       console.log('GetPagedEPGFiles clear');
+    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
+      const { force } = action.payload;
+      state.isForced = force;
+      console.log('GetPagedEPGFiles  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ query: string; isLoading: boolean }>) => {
       const { query, isLoading } = action.payload;
@@ -55,11 +60,6 @@ const getPagedEPGFilesSlice = createSlice({
         }
       }
       console.log('GetPagedEPGFiles setIsLoading ', action.payload.isLoading);
-    },
-    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
-      const { force } = action.payload;
-      state.isForced = force;
-      console.log('GetPagedEPGFiles  setIsForced ', force);
     }
   },
 

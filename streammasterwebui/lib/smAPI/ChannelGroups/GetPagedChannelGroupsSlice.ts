@@ -21,9 +21,13 @@ const initialState: QueryState = {
 };
 
 const getPagedChannelGroupsSlice = createSlice({
-  name: 'GetPagedChannelGroups',
   initialState,
+  name: 'GetPagedChannelGroups',
   reducers: {
+    clear: (state) => {
+      state = initialState;
+      console.log('GetPagedChannelGroups clear');
+    },
     setField: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
       const { query, fieldData } = action.payload;
 
@@ -41,9 +45,10 @@ const getPagedChannelGroupsSlice = createSlice({
       }
       console.log('GetPagedChannelGroups setField');
     },
-    clear: (state) => {
-       state = initialState;
-       console.log('GetPagedChannelGroups clear');
+    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
+      const { force } = action.payload;
+      state.isForced = force;
+      console.log('GetPagedChannelGroups  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ query: string; isLoading: boolean }>) => {
       const { query, isLoading } = action.payload;
@@ -55,11 +60,6 @@ const getPagedChannelGroupsSlice = createSlice({
         }
       }
       console.log('GetPagedChannelGroups setIsLoading ', action.payload.isLoading);
-    },
-    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
-      const { force } = action.payload;
-      state.isForced = force;
-      console.log('GetPagedChannelGroups  setIsForced ', force);
     }
   },
 

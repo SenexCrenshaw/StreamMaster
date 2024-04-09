@@ -8,7 +8,7 @@ import SMFileUpload from '@components/file/SMFileUpload';
 import { CreateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { CreateM3UFileRequest, M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { OverlayPanel } from 'primereact/overlaypanel';
-import M3UFileEditDialog from './M3UFileEditDialog';
+import M3UFileDialog from './M3UFileDialog';
 
 export interface M3UFileDialogProperties {
   readonly infoMessage?: string;
@@ -45,11 +45,10 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
   );
 
   const onCreateFromSource = useCallback(
-    async (name: string, source: string) => {
+    async (source: string) => {
       const createM3UFileRequest = {} as CreateM3UFileRequest;
 
-      createM3UFileRequest.Name = name;
-      createM3UFileRequest.FormFile = undefined;
+      createM3UFileRequest.Name = m3uFileDto.Name;
       createM3UFileRequest.UrlSource = source;
       createM3UFileRequest.MaxStreamCount = m3uFileDto.MaxStreamCount;
       createM3UFileRequest.StartingChannelNumber = m3uFileDto.StartingChannelNumber;
@@ -60,7 +59,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
           //setInfoMessage('Uploaded M3U';
         })
         .catch((error) => {
-          // setInfoMessage(`Error Uploading M3U: ${error.message}`);
+          console.error('Error uploading M3U', error);
         })
         .finally(() => {
           ReturnToParent(true);
@@ -98,15 +97,13 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
                 ReturnToParent(true);
               }}
               onName={(name) => {
-                console.log('M3UFileCreateDialog SMFileUpload', name);
                 setName(name);
               }}
             />
           </div>
-          <M3UFileEditDialog
+          <M3UFileDialog
             selectedFile={m3uFileDto}
             onM3UChanged={(e) => {
-              console.log('M3UFileCreateDialog', e.Name);
               setM3UFileDto(e);
             }}
             noButtons

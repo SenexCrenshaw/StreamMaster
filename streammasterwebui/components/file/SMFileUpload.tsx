@@ -1,10 +1,10 @@
 import { UploadParamsSettings, useFileUpload } from '@components/sharedEPGM3U/useFileUpload';
 import { FileUpload } from 'primereact/fileupload';
-import { memo, useMemo, useRef, useState } from 'react';
+import { memo, useRef, useState } from 'react';
 import SourceOrFileDialog from './SourceOrFileDialog';
 
 type SMFileUploadProperties = UploadParamsSettings & {
-  readonly onCreateFromSource: (name: string, source: string) => void;
+  readonly onCreateFromSource: (source: string) => void;
   readonly onUploadComplete: () => void;
   onName(name: string): void;
 };
@@ -13,10 +13,9 @@ const SMFileUpload = (props: SMFileUploadProperties) => {
   const fileUploadReference = useRef<FileUpload>(null);
 
   const [name, setName] = useState<string>('');
-  const { doUpload, progress, uploadedBytes, resetUploadState } = useFileUpload();
+  const { doUpload, progress, resetUploadState } = useFileUpload();
   const [block, setBlock] = useState<boolean>(false);
 
-  console.log(props.m3uFileDto);
   const ReturnToParent = (didUpload?: boolean) => {
     if (fileUploadReference.current) {
       fileUploadReference.current.clear();
@@ -48,10 +47,6 @@ const SMFileUpload = (props: SMFileUploadProperties) => {
     });
   };
 
-  const fileType = useMemo(() => {
-    return props.m3uFileDto === undefined ? 'epg' : 'm3u';
-  }, []);
-
   return (
     <div>
       <SourceOrFileDialog
@@ -59,6 +54,7 @@ const SMFileUpload = (props: SMFileUploadProperties) => {
         onAdd={(source, file) => {
           if (source) {
             console.log('Add from source ', source);
+            props.onCreateFromSource(source);
           } else if (file) {
             console.log('Add from file ', file.name);
             startUpload(name, source, file);

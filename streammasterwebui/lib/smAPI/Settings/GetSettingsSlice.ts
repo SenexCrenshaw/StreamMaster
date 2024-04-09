@@ -21,26 +21,26 @@ const initialState: QueryState = {
 };
 
 const getSettingsSlice = createSlice({
-  name: 'GetSettings',
   initialState,
+  name: 'GetSettings',
   reducers: {
+    clear: (state) => {
+      state = initialState;
+      console.log('GetSettings clear');
+    },
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
       console.log('GetSettings setField');
     },
-    clear: (state) => {
-       state = initialState;
-      console.log('GetSettings clear');
-    },
-    setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
-       state.isLoading = action.payload.isLoading;
-      console.log('GetSettings setIsLoading ', action.payload.isLoading);
-    },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
       console.log('GetSettings  setIsForced ', force);
+    },
+    setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
+      state.isLoading = action.payload.isLoading;
+      console.log('GetSettings setIsLoading ', action.payload.isLoading);
     }
 },
 

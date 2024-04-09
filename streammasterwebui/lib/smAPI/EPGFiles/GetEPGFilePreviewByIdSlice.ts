@@ -1,7 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import {FieldData, EPGFilePreviewDto } from '@lib/smAPI/smapiTypes';
 import { fetchGetEPGFilePreviewById } from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdFetch';
-import { updateFieldInData } from '@lib/redux/updateFieldInData';
 
 
 interface QueryState {
@@ -21,9 +20,13 @@ const initialState: QueryState = {
 };
 
 const getEPGFilePreviewByIdSlice = createSlice({
-  name: 'GetEPGFilePreviewById',
   initialState,
+  name: 'GetEPGFilePreviewById',
   reducers: {
+    clear: (state) => {
+      state = initialState;
+       console.log('GetEPGFilePreviewById clear');
+    },
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
 
@@ -33,9 +36,10 @@ const getEPGFilePreviewByIdSlice = createSlice({
       }
       console.log('GetEPGFilePreviewById setField');
     },
-    clear: (state) => {
-       state = initialState;
-       console.log('GetEPGFilePreviewById clear');
+    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
+      const { force } = action.payload;
+      state.isForced = force;
+      console.log('GetEPGFilePreviewById  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ param: string; isLoading: boolean }>) => {
       const { param, isLoading } = action.payload;
@@ -48,11 +52,6 @@ const getEPGFilePreviewByIdSlice = createSlice({
         }
       }
       console.log('GetEPGFilePreviewById setIsLoading ', action.payload.isLoading);
-    },
-    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
-      const { force } = action.payload;
-      state.isForced = force;
-      console.log('GetEPGFilePreviewById  setIsForced ', force);
     }
   },
 

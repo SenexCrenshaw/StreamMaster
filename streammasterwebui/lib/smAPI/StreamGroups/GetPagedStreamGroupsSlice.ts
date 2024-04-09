@@ -21,9 +21,13 @@ const initialState: QueryState = {
 };
 
 const getPagedStreamGroupsSlice = createSlice({
-  name: 'GetPagedStreamGroups',
   initialState,
+  name: 'GetPagedStreamGroups',
   reducers: {
+    clear: (state) => {
+      state = initialState;
+      console.log('GetPagedStreamGroups clear');
+    },
     setField: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
       const { query, fieldData } = action.payload;
 
@@ -41,9 +45,10 @@ const getPagedStreamGroupsSlice = createSlice({
       }
       console.log('GetPagedStreamGroups setField');
     },
-    clear: (state) => {
-       state = initialState;
-       console.log('GetPagedStreamGroups clear');
+    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
+      const { force } = action.payload;
+      state.isForced = force;
+      console.log('GetPagedStreamGroups  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ query: string; isLoading: boolean }>) => {
       const { query, isLoading } = action.payload;
@@ -55,11 +60,6 @@ const getPagedStreamGroupsSlice = createSlice({
         }
       }
       console.log('GetPagedStreamGroups setIsLoading ', action.payload.isLoading);
-    },
-    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
-      const { force } = action.payload;
-      state.isForced = force;
-      console.log('GetPagedStreamGroups  setIsForced ', force);
     }
   },
 

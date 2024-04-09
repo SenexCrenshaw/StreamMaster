@@ -3,7 +3,7 @@
     "browser": true,
     "es2022": true
   },
-  "extends": ["react-app", "prettier","plugin:typescript-sort-keys"],
+  "extends": ["react-app", "prettier"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaFeatures": {

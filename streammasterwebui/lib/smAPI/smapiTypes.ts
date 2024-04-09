@@ -421,9 +421,17 @@ export interface GetPagedM3UFilesRequest
 {
 	Parameters: QueryStringParameters;
 }
-export interface CreateM3UFileRequest
+export interface CreateM3UFileFromFormRequest
 {
 	FormFile?: any;
+	MaxStreamCount: number;
+	Name: string;
+	OverWriteChannels?: boolean;
+	StartingChannelNumber?: number;
+	VODTags?: string[];
+}
+export interface CreateM3UFileRequest
+{
 	MaxStreamCount: number;
 	Name: string;
 	OverWriteChannels?: boolean;
@@ -440,9 +448,6 @@ export interface ProcessM3UFileRequest
 {
 	ForceRun: boolean;
 	M3UFileId: number;
-}
-export interface ProcessM3UFilesRequest
-{
 }
 export interface RefreshM3UFileRequest
 {

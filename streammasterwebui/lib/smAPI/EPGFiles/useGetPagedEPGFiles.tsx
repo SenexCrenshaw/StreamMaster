@@ -1,5 +1,5 @@
 import { QueryHookResult,GetApiArgument } from '@lib/apiDefs';
-import store from '@lib/redux/store';
+import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, setField, setIsForced, setIsLoading } from './GetPagedEPGFilesSlice';
 import { useCallback,useEffect } from 'react';
@@ -16,11 +16,7 @@ interface Result extends ExtendedQueryHookResult {
 const useGetPagedEPGFiles = (params?: GetApiArgument | undefined): Result => {
   const dispatch = useAppDispatch();
   const query = JSON.stringify(params);
-  const data = useAppSelector((state) => state.GetPagedEPGFiles.data[query]);
-  const error = useAppSelector((state) => state.GetPagedEPGFiles.error[query] ?? '');
-  const isError = useAppSelector((state) => state.GetPagedEPGFiles.isError[query] ?? false);
   const isForced = useAppSelector((state) => state.GetPagedEPGFiles.isForced ?? false);
-  const isLoading = useAppSelector((state) => state.GetPagedEPGFiles.isLoading[query] ?? false);
 
   const SetIsForced = useCallback(
     (forceRefresh: boolean): void => {
@@ -31,10 +27,36 @@ const useGetPagedEPGFiles = (params?: GetApiArgument | undefined): Result => {
 
   const SetIsLoading = useCallback(
     (isLoading: boolean, query: string): void => {
-      dispatch(setIsLoading({ query: query, isLoading: isLoading }));
+      dispatch(setIsLoading({ isLoading: isLoading, query: query }));
     },
     [dispatch]
   );
+
+const selectData = (state: RootState) => {
+    const defaultData = {} as PagedResponse<EPGFileDto>;
+    if (query === undefined) return defaultData;
+    return state.GetPagedEPGFiles.data[query] || defaultData;
+  };
+const data = useAppSelector(selectData);
+
+const selectError = (state: RootState) => {
+    if (query === undefined) return undefined;
+    return state.GetPagedEPGFiles.error[query] || undefined;
+  };
+const error = useAppSelector(selectError);
+
+const selectIsError = (state: RootState) => {
+    if (query === undefined) return false;
+    return state.GetPagedEPGFiles.isError[query] || false;
+  };
+const isError = useAppSelector(selectIsError);
+
+const selectIsLoading = (state: RootState) => {
+    if (query === undefined) return false;
+    return state.GetPagedEPGFiles.isLoading[query] || false;
+  };
+const isLoading = useAppSelector(selectIsLoading);
+
 
 useEffect(() => {
   if (query === undefined) return;
@@ -43,16 +65,17 @@ useEffect(() => {
   if (data === undefined && state.isLoading[query] !== true && state.isForced !== true) {
     SetIsForced(true);
   }
-}, [SetIsForced, data, dispatch, query]);
+}, [data, query, SetIsForced]);
+
 useEffect(() => {
   const state = store.getState().GetPagedEPGFiles;
   if (state.isLoading[query]) return;
-  if (query === undefined && !isForced) return;
+  if (query === undefined) return;
   if (data !== undefined && !isForced) return;
 
   SetIsLoading(true, query);
   dispatch(fetchGetPagedEPGFiles(query));
-}, [data, dispatch, query, isForced, isLoading, SetIsLoading]);
+}, [data, dispatch, isForced, query, SetIsLoading]);
 
 const SetField = (fieldData: FieldData): void => {
   dispatch(setField({ fieldData: fieldData }));
@@ -63,11 +86,11 @@ const Clear = (): void => {
 };
 
 return {
+  Clear,
   data,
   error,
   isError,
   isLoading,
-  Clear,
   SetField,
   SetIsForced,
   SetIsLoading

@@ -1,7 +1,5 @@
 ﻿namespace StreamMaster.Application.M3UFiles.Commands;
 
-[SMAPI]
-[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record ProcessM3UFilesRequest : IRequest<APIResponse> { }
 
 public class ProcessM3UFilesRequestHandler(ILogger<ProcessM3UFilesRequest> Logger, IRepositoryWrapper Repository, ISender Sender)

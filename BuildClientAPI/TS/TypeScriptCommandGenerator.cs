@@ -76,7 +76,7 @@ public static class TypeScriptCommandGenerator
         .Where(a => !a.IsGet)
         .SelectMany(x => new[] { x.ReturnEntityType, x.SingalRFunction })
         .Union(methods.Where(a => a.IsGet).Select(x => x.ReturnEntityType))
-        .Union(methods.Where(a => a.IsGet).Select(x => x.TsParameter))
+        .Union(methods.Where(a => a.IsGet && !a.IsGetPaged).Select(x => x.TsParameter))
         .ToHashSet();
 
         HashSet<string> imports = [];
@@ -84,12 +84,6 @@ public static class TypeScriptCommandGenerator
         {
             string? test = Utils.IsTSGeneric(inc);
             if (!string.IsNullOrEmpty(test)) { imports.Add(test); }
-        }
-
-        if (methods.Any(a => a.Name.Contains("GetEPGFilePreview")))
-        {
-            int aa = 1;
-            MethodDetails b = methods.First(a => a.Name == "GetEPGFilePreviewById");
         }
 
         if (methods.Any(a => a.IsGetPaged))
