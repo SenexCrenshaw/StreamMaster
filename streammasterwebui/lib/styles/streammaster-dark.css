@@ -797,30 +797,9 @@
     height: 20px;
     color: rgba(255, 255, 255, 0.87);
     border-radius: 6px;
-    transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
     outline-color: transparent;
   }
   .p-checkbox .p-checkbox-box .p-checkbox-icon {
-    transition-duration: 0.3s;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 14px;
-  }
-  .p-checkbox .p-checkbox-box .p-checkbox-icon.p-icon {
-    width: 14px;
-    height: 14px;
-  }
-  .p-checkbox .p-checkbox-box {
-    border: 2px solid #263238;
-    background: transparent;
-    width: 20px;
-    height: 20px;
-    color: rgba(255, 255, 255, 0.87);
-    border-radius: 6px;
-    transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
-    outline-color: transparent;
-  }
-  .p-checkbox .p-checkbox-box .p-checkbox-icon {
-    transition-duration: 0.3s;
     color: rgba(255, 255, 255, 0.6);
     font-size: 14px;
   }

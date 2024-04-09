@@ -44,11 +44,11 @@
         height: $checkboxHeight;
         color: $textColor;
         border-radius: $borderRadius;
-        transition: $formElementTransition;
+        // transition: $formElementTransition;
         outline-color: transparent;
 
         .p-checkbox-icon {
-            transition-duration: $transitionDuration;
+            // transition-duration: $transitionDuration;
             color: $checkboxIconActiveColor;
             font-size: $checkboxIconFontSize;
 
@@ -58,35 +58,12 @@
             }
         }
     }
-
-    .p-checkbox-box {
-        border: $checkboxBorder;
-        background: $inputBg;
-        width: $checkboxWidth;
-        height: $checkboxHeight;
-        color: $textColor;
-        border-radius: $borderRadius;
-        transition: $formElementTransition;
-        outline-color: transparent;
-
-        .p-checkbox-icon {
-            transition-duration: $transitionDuration;
-            color: $checkboxIconActiveColor;
-            font-size: $checkboxIconFontSize;
-
-            &.p-icon {
-                width: $checkboxIconFontSize;
-                height: $checkboxIconFontSize;
-            }
-        }
-    }
-    
 
     &.p-highlight {
         .p-checkbox-box {
             border-color: $checkboxActiveBorderColor;
             background: $checkboxActiveBg;
-        }  
+        }
     }
 
     &:not(.p-disabled) {
@@ -111,7 +88,7 @@
         }
     }
 
-    &.p-invalid > .p-checkbox-box {
+    &.p-invalid>.p-checkbox-box {
         @include invalid-input();
     }
 
@@ -131,7 +108,7 @@
                 .p-checkbox-box {
                     background-color: $inputFilledHoverBg;
                 }
-    
+
                 &.p-highlight {
                     .p-checkbox-box {
                         background: $checkboxActiveHoverBg;
@@ -170,7 +147,7 @@
     }
 }
 
-@if ($highlightBg == $checkboxActiveBg) {
+@if ($highlightBg ==$checkboxActiveBg) {
     .p-highlight {
         .p-checkbox {
             .p-checkbox-box {

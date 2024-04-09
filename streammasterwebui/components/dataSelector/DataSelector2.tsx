@@ -533,8 +533,8 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
             }}
             showSelectAll={false}
             pt={{
-              header: { style: { display: 'none' } },
-              checkbox: { style: { display: 'none' } }
+              checkbox: { style: { display: 'none' } },
+              header: { style: { display: 'none' } }
             }}
             useOptionAsValue
           />

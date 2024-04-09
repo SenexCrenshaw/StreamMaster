@@ -21,6 +21,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import generateFilterData from '@components/dataSelector/generateFilterData';
 import { PagedResponse } from '@lib/smAPI/smapiTypes';
+import { Checkbox } from 'primereact/checkbox';
 import TableHeader from './helpers/TableHeader';
 import bodyTemplate from './helpers/bodyTemplate';
 import { getAlign, getHeaderFromField, setColumnToggle } from './helpers/dataSelectorFunctions';
@@ -418,6 +419,76 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     );
   }, [props, state.rowClick, setters.setRowClick]);
 
+  const addSelection = useCallback(
+    (data: T) => {
+      const newSelectedItems = [...state.selectSelectedItems, data];
+      setters.setSelectSelectedItems(newSelectedItems);
+    },
+    [setters, state.selectSelectedItems]
+  );
+
+  const removeSelection = useCallback(
+    (data: T) => {
+      const newSelectedItems = state.selectSelectedItems.filter((predicate) => predicate.Id !== data.Id);
+      setters.setSelectSelectedItems(newSelectedItems);
+    },
+    [setters, state.selectSelectedItems]
+  );
+
+  function toggleAllSelection() {
+    if (state.selectAll) {
+      setters.setSelectAll(false);
+      setters.setSelectSelectedItems([]);
+    } else {
+      setters.setSelectAll(true);
+      setters.setSelectSelectedItems(state.dataSource ?? []);
+    }
+  }
+
+  function selectionHeaderTemplate() {
+    const isSelected = false;
+
+    if (!isSelected) {
+      return (
+        <div className="flex justify-content-center align-items-center p-0 m-0">
+          {showSelection && <Checkbox checked={state.selectAll} onChange={() => toggleAllSelection()} />}
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex justify-content-center align-items-center p-0 m-0">
+        {showSelection && <Checkbox checked={state.selectAll} onChange={() => toggleAllSelection()} />}
+      </div>
+    );
+  }
+
+  const selectionTemplate = useCallback(
+    (data: T) => {
+      if (!showSelection) {
+        return <div />;
+      }
+
+      const found = state.selectSelectedItems.some((item) => item.Id === data.Id);
+      const isSelected = found ?? false;
+
+      if (isSelected) {
+        return (
+          <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+            {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => removeSelection(data)} />}
+          </div>
+        );
+      }
+
+      return (
+        <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+          {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />}
+        </div>
+      );
+    },
+    [addSelection, removeSelection, showSelection, state.selectSelectedItems]
+  );
+
   // const rowReorderHeader = () => (
   //   <div className=" text-xs text-white text-500">
   //     <ResetButton
@@ -512,11 +583,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         >
           <Column
             body={props.addOrRemoveTemplate}
-            className={
-              showSelection
-                ? 'w-3rem max-w-3rem p-0 justify-content-center align-items-center'
-                : 'w-2rem max-w-2rem p-0 justify-content-center align-items-center'
-            }
+            className="w-2rem max-w-2rem p-0 justify-content-center align-items-center"
             field="addOrRemove"
             filter
             filterElement={props.addOrRemoveHeaderTemplate}
@@ -525,6 +592,20 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             showFilterOperator={false}
             resizeable={false}
           />
+          <Column
+            body={showSelection ? selectionTemplate : undefined}
+            className="w-2rem max-w-2rem p-0 justify-content-center align-items-center"
+            field="multiSelect"
+            filter
+            filterElement={selectionHeaderTemplate}
+            showClearButton={false}
+            showFilterMatchModes={false}
+            showFilterMenu={false}
+            showFilterOperator={false}
+            hidden={!showSelection}
+            style={{ maxWidth: '2rem', width: '2rem' }}
+          />
+
           <Column
             className={
               showSelection
