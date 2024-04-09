@@ -1,5 +1,18 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,CreateEPGFileRequest,DeleteEPGFileRequest,ProcessEPGFileRequest,RefreshEPGFileRequest,UpdateEPGFileRequest,EPGColorDto,EPGFilePreviewDto,EPGFileDto,GetEPGFilePreviewByIdRequest,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
+import {
+  APIResponse,
+  CreateEPGFileRequest,
+  DeleteEPGFileRequest,
+  EPGColorDto,
+  EPGFileDto,
+  EPGFilePreviewDto,
+  GetEPGFilePreviewByIdRequest,
+  PagedResponse,
+  ProcessEPGFileRequest,
+  QueryStringParameters,
+  RefreshEPGFileRequest,
+  UpdateEPGFileRequest
+} from '@lib/smAPI/smapiTypes';
 
 export const GetEPGColors = async (): Promise<EPGColorDto[] | undefined> => {
   const signalRService = SignalRService.getInstance();
@@ -45,4 +58,3 @@ export const UpdateEPGFile = async (request: UpdateEPGFileRequest): Promise<APIR
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('UpdateEPGFile', request);
 };
-

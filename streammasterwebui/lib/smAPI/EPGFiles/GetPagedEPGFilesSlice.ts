@@ -28,6 +28,7 @@ const getPagedEPGFilesSlice = createSlice({
       state = initialState;
       console.log('GetPagedEPGFiles clear');
     },
+
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
       const tag = action.payload.tag;
       for (const key in state.data) {
@@ -35,7 +36,7 @@ const getPagedEPGFilesSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      console.log('GetPagedSMStreams clearByTag');
+      console.log('GetPagedEPGFiles clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {

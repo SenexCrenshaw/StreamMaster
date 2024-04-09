@@ -1,10 +1,10 @@
 import { QueryHookResult } from '@lib/apiDefs';
-import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
-import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetIsSystemReadySlice';
-import { useCallback,useEffect } from 'react';
+import store, { RootState } from '@lib/redux/store';
+import { FieldData } from '@lib/smAPI/smapiTypes';
+import { useCallback, useEffect } from 'react';
 import { fetchGetIsSystemReady } from './GetIsSystemReadyFetch';
-import {FieldData,  } from '@lib/smAPI/smapiTypes';
+import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetIsSystemReadySlice';
 
 interface ExtendedQueryHookResult extends QueryHookResult<boolean | undefined> {}
 interface Result extends ExtendedQueryHookResult {
@@ -16,33 +16,46 @@ interface Result extends ExtendedQueryHookResult {
 }
 const useGetIsSystemReady = (): Result => {
   const dispatch = useAppDispatch();
+  const isForced = useAppSelector((state) => state.GetIsSystemReady.isForced ?? false);
 
-const SetIsLoading = useCallback(
-  (isLoading: boolean): void => {
-    dispatch(setIsLoading({ isLoading: isLoading }));
-  },
-  [dispatch]
-);
-const selectData = (state: RootState) => {
+  const SetIsForced = useCallback(
+    (forceRefresh: boolean): void => {
+      dispatch(setIsForced({ force: forceRefresh }));
+    },
+    [dispatch]
+  );
+  const ClearByTag = useCallback(
+    (tag: string): void => {
+      dispatch(clearByTag({ tag: tag }));
+    },
+    [dispatch]
+  );
+
+  const SetIsLoading = useCallback(
+    (isLoading: boolean): void => {
+      dispatch(setIsLoading({ isLoading: isLoading }));
+    },
+    [dispatch]
+  );
+  const selectData = (state: RootState) => {
     return state.GetIsSystemReady.data;
   };
-const data = useAppSelector(selectData);
+  const data = useAppSelector(selectData);
 
-const selectError = (state: RootState) => {
+  const selectError = (state: RootState) => {
     return state.GetIsSystemReady.error;
   };
-const error = useAppSelector(selectError);
+  const error = useAppSelector(selectError);
 
-const selectIsError = (state: RootState) => {
+  const selectIsError = (state: RootState) => {
     return state.GetIsSystemReady.isError;
   };
-const isError = useAppSelector(selectIsError);
+  const isError = useAppSelector(selectIsError);
 
-const selectIsLoading = (state: RootState) => {
+  const selectIsLoading = (state: RootState) => {
     return state.GetIsSystemReady.isLoading;
   };
-const isLoading = useAppSelector(selectIsLoading);
-
+  const isLoading = useAppSelector(selectIsLoading);
 
   useEffect(() => {
     const state = store.getState().GetIsSystemReady;
@@ -51,34 +64,34 @@ const isLoading = useAppSelector(selectIsLoading);
     }
   }, [SetIsForced, data]);
 
-useEffect(() => {
-  const state = store.getState().GetIsSystemReady;
-  if (state.isLoading) return;
-  if (data !== undefined && !isForced) return;
+  useEffect(() => {
+    const state = store.getState().GetIsSystemReady;
+    if (state.isLoading) return;
+    if (data !== undefined && !isForced) return;
 
-  SetIsLoading(true);
-  dispatch(fetchGetIsSystemReady());
-}, [SetIsLoading, data, dispatch, isForced]);
+    SetIsLoading(true);
+    dispatch(fetchGetIsSystemReady());
+  }, [SetIsLoading, data, dispatch, isForced]);
 
-const SetField = (fieldData: FieldData): void => {
-  dispatch(setField({ fieldData: fieldData }));
-};
+  const SetField = (fieldData: FieldData): void => {
+    dispatch(setField({ fieldData: fieldData }));
+  };
 
-const Clear = (): void => {
-  dispatch(clear());
-};
+  const Clear = (): void => {
+    dispatch(clear());
+  };
 
-return {
-  Clear,
-  ClearByTag,
-  data,
-  error,
-  isError,
-  isLoading,
-  SetField,
-  SetIsForced,
-  SetIsLoading
-};
+  return {
+    Clear,
+    ClearByTag,
+    data,
+    error,
+    isError,
+    isLoading,
+    SetField,
+    SetIsForced,
+    SetIsLoading
+  };
 };
 
 export default useGetIsSystemReady;

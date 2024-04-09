@@ -28,6 +28,7 @@ const getPagedSMStreamsSlice = createSlice({
       state = initialState;
       console.log('GetPagedSMStreams clear');
     },
+
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
       const tag = action.payload.tag;
       for (const key in state.data) {

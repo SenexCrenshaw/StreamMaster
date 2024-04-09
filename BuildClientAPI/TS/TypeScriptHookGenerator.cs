@@ -110,14 +110,8 @@ public static class TypeScriptHookGenerator
     private static string GenerateHeader(MethodDetails method)
     {
         StringBuilder content = new();
-        //content.AppendLine($"  const isForced = useAppSelector((state) => state.{method.Name}.isForced ?? false);");
-        //content.AppendLine();
-        //content.AppendLine("  const SetIsForced = useCallback(");
-        //content.AppendLine("    (forceRefresh: boolean): void => {");
-        //content.AppendLine("      dispatch(setIsForced({ force: forceRefresh }));");
-        //content.AppendLine("    },");
-        //content.AppendLine("    [dispatch]");
-        //content.AppendLine("  );");
+        content.AppendLine(GenerateForced(method));
+
         return content.ToString();
     }
 

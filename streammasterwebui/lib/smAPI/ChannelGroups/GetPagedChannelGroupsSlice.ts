@@ -28,6 +28,7 @@ const getPagedChannelGroupsSlice = createSlice({
       state = initialState;
       console.log('GetPagedChannelGroups clear');
     },
+
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
       const tag = action.payload.tag;
       for (const key in state.data) {
@@ -35,7 +36,7 @@ const getPagedChannelGroupsSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      console.log('GetPagedSMStreams clearByTag');
+      console.log('GetPagedChannelGroups clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {

@@ -28,14 +28,10 @@ const getIsSystemReadySlice = createSlice({
       state = initialState;
       console.log('GetIsSystemReady clear');
     },
+
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
-      const tag = action.payload.tag;
-      for (const key in state.data) {
-        if (key.includes(tag)) {
-          state.data[key] = undefined;
-        }
-      }
-      console.log('GetPagedSMStreams clearByTag');
+      state.data = undefined;
+      console.log('GetIsSystemReady clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {

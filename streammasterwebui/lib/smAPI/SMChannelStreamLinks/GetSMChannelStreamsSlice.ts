@@ -27,6 +27,7 @@ const getSMChannelStreamsSlice = createSlice({
       state = initialState;
       console.log('GetSMChannelStreams clear');
     },
+
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
       const tag = action.payload.tag;
       for (const key in state.data) {
@@ -34,7 +35,7 @@ const getSMChannelStreamsSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      console.log('GetPagedSMStreams clearByTag');
+      console.log('GetSMChannelStreams clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {

@@ -16,6 +16,22 @@ interface Result extends ExtendedQueryHookResult {
 }
 const useGetSettings = (): Result => {
   const dispatch = useAppDispatch();
+  const isForced = useAppSelector((state) => state.GetSettings.isForced ?? false);
+
+  const SetIsForced = useCallback(
+    (forceRefresh: boolean): void => {
+      dispatch(setIsForced({ force: forceRefresh }));
+    },
+    [dispatch]
+  );
+  const ClearByTag = useCallback(
+    (tag: string): void => {
+      dispatch(clearByTag({tag: tag }));
+    },
+    [dispatch]
+  );
+
+
 
 const SetIsLoading = useCallback(
   (isLoading: boolean): void => {

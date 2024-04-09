@@ -28,14 +28,10 @@ const getEPGColorsSlice = createSlice({
       state = initialState;
       console.log('GetEPGColors clear');
     },
+
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
-      const tag = action.payload.tag;
-      for (const key in state.data) {
-        if (key.includes(tag)) {
-          state.data[key] = undefined;
-        }
-      }
-      console.log('GetPagedSMStreams clearByTag');
+      state.data = undefined;
+      console.log('GetEPGColors clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {

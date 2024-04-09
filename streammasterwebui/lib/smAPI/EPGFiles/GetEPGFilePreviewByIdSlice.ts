@@ -27,6 +27,7 @@ const getEPGFilePreviewByIdSlice = createSlice({
       state = initialState;
       console.log('GetEPGFilePreviewById clear');
     },
+
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
       const tag = action.payload.tag;
       for (const key in state.data) {
@@ -34,7 +35,7 @@ const getEPGFilePreviewByIdSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      console.log('GetPagedSMStreams clearByTag');
+      console.log('GetEPGFilePreviewById clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
