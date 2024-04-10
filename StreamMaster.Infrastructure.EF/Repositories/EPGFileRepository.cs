@@ -2,19 +2,21 @@
 using AutoMapper.QueryableExtensions;
 
 using Microsoft.EntityFrameworkCore;
+
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.Models;
+using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
 /// <summary>
 /// Repository to manage EPGFile entities in the database.
 /// </summary>
-public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryContext repositoryContext, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IOptionsMonitor<Setting> intSettings, IMapper mapper)
-    : RepositoryBase<EPGFile>(repositoryContext, logger, intSettings), IEPGFileRepository
+public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IXmltv2Mxf xmltv2Mxf, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, ISchedulesDirectDataService schedulesDirectDataService, IOptionsMonitor<Setting> intSettings, IMapper mapper)
+    : RepositoryBase<EPGFile>(repositoryContext, intLogger, intSettings), IEPGFileRepository
 {
     public async Task<int> GetNextAvailableEPGNumberAsync(CancellationToken cancellationToken)
     {
@@ -36,6 +38,12 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
 
         return nextAvailableNumber;
     }
+
+    public async Task<EPGFile?> GetEPGFile(int Id)
+    {
+        return await FirstOrDefaultAsync(c => c.Id == Id, false).ConfigureAwait(false);
+    }
+
     public async Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int Id, CancellationToken cancellationToken)
     {
         if (Id < 0)
@@ -199,5 +207,59 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
     public async Task<EPGFile?> GetEPGFileByNumber(int EPGNumber)
     {
         return await FirstOrDefaultAsync(a => a.EPGNumber == EPGNumber);
+    }
+
+    public async Task<EPGFile?> ProcessEPGFile(int EPGFileId)
+    {
+        JobStatusManager jobManager = jobStatusService.GetJobManagerProcessEPG(EPGFileId);
+        if (jobManager.IsRunning)
+        {
+            return null;
+        }
+
+        jobManager.Start();
+        EPGFile? epgFile = null;
+        try
+        {
+            epgFile = await GetEPGFile(EPGFileId);
+            if (epgFile == null)
+            {
+                logger.LogCritical("Could not find EPG file");
+                jobManager.SetError();
+                return null;
+            }
+
+            XMLTV? tv = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.EPGNumber);
+
+            if (tv != null)
+            {
+                epgFile.ChannelCount = tv.Channels != null ? tv.Channels.Count : 0;
+                epgFile.ProgrammeCount = tv.Programs != null ? tv.Programs.Count : 0;
+            }
+            else
+            {
+            }
+
+            epgFile.LastUpdated = SMDT.UtcNow;
+            UpdateEPGFile(epgFile);
+            await SaveChangesAsync();
+            jobManager.SetSuccessful();
+            return epgFile;
+        }
+        catch (Exception ex)
+        {
+            jobManager.SetError();
+            logger.LogCritical(ex, "Error while processing M3U file");
+            return null;
+        }
+        finally
+        {
+            if (epgFile != null)
+            {
+                epgFile.LastUpdated = SMDT.UtcNow;
+                UpdateEPGFile(epgFile);
+                await SaveChangesAsync();
+            }
+        }
     }
 }

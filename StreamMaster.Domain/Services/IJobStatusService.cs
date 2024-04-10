@@ -2,6 +2,7 @@
 {
     public interface IJobStatusService
     {
+        JobStatusManager GetJobManagerProcessEPG(int id);
         JobStatusManager GetJobManagerProcessM3U(int id);
         DateTime LastRun(string key);
         DateTime LastSuccessful(string key);

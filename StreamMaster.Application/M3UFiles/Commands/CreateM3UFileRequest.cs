@@ -48,7 +48,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
                 ++m3UFile.DownloadErrors;
 
                 Logger.LogCritical("Exception M3U From URL '{ex}'", ex);
-                await messageService.SendError($"Exception M3U From Form", ex?.Message);
+                await messageService.SendError($"Exception M3U", ex?.Message);
 
             }
 

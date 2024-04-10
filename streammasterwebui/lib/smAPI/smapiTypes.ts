@@ -497,12 +497,20 @@ export interface GetPagedEPGFilesRequest
 {
 	Parameters: QueryStringParameters;
 }
-export interface CreateEPGFileRequest
+export interface CreateEPGFileFromFormRequest
 {
 	Color?: string;
 	EPGNumber: number;
 	FileName: string;
 	FormFile?: any;
+	Name: string;
+	TimeShift?: number;
+}
+export interface CreateEPGFileRequest
+{
+	Color?: string;
+	EPGNumber: number;
+	FileName: string;
 	Name: string;
 	TimeShift?: number;
 	UrlSource?: string;

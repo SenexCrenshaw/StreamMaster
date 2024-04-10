@@ -5,6 +5,7 @@ namespace StreamMaster.Domain.Repository;
 
 public interface IEPGFileRepository : IRepositoryBase<EPGFile>
 {
+    Task<EPGFile?> GetEPGFile(int Id);
     Task<int> GetNextAvailableEPGNumberAsync(CancellationToken cancellationToken);
     Task<List<EPGFileDto>> GetEPGFilesNeedUpdating();
     Task<List<EPGFileDto>> GetEPGFiles();
@@ -24,4 +25,6 @@ public interface IEPGFileRepository : IRepositoryBase<EPGFile>
     Task<EPGFileDto?> DeleteEPGFile(int EPGFileId);
     Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int id, CancellationToken cancellationToken);
     List<EPGColorDto> GetEPGColors();
+
+    Task<EPGFile?> ProcessEPGFile(int EPGFileId);
 }

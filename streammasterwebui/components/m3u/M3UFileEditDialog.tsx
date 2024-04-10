@@ -8,11 +8,11 @@ import { M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import M3UFileDialog from './M3UFileDialog';
 
-interface MM3UFileEditDialogProperties {
+interface M3UFileEditDialogProperties {
   readonly selectedFile: M3UFileDto;
 }
 
-const M3UFileEditDialog = ({ selectedFile }: MM3UFileEditDialogProperties) => {
+const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
   const op = useRef<OverlayPanel>(null);
 
   function onUpdated(request: UpdateM3UFileRequest): void {

@@ -26,6 +26,7 @@ namespace StreamMaster.Infrastructure.EF
         ISchedulesDirectDataService schedulesDirectDataService,
         PGSQLRepositoryContext repositoryContext,
         IMapper mapper,
+        IXmltv2Mxf xmltv2Mxf,
         IIconService iconService,
         IOptionsMonitor<Setting> intSettings,
         IJobStatusService jobStatusService,
@@ -117,7 +118,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, repositoryContext, this, schedulesDirectDataService, intSettings, mapper);
+                _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, xmltv2Mxf, jobStatusService, repositoryContext, schedulesDirectDataService, intSettings, mapper);
                 return _epgFile;
             }
         }

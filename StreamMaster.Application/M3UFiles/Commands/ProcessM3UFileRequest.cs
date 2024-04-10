@@ -21,7 +21,6 @@ internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logge
             await hubContext.Clients.All.DataRefresh("GetPagedM3UFiles").ConfigureAwait(false);
             await hubContext.Clients.All.DataRefresh("GetPagedSMStreams").ConfigureAwait(false);
             await hubContext.Clients.All.DataRefresh("GetSMChannelStreams").ConfigureAwait(false);
-
             await hubContext.Clients.All.DataRefresh("GetPagedChannelGroups").ConfigureAwait(false);
 
             await messageSevice.SendSuccess("Processed M3U '" + m3uFile.Name + "' successfully");

@@ -14,10 +14,10 @@ namespace StreamMaster.Infrastructure.EF.Repositories;
 /// Provides base functionalities for repositories.
 /// </summary>
 /// <typeparam name="T">Type of the entity managed by this repository.</typeparam>
-public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, ILogger logger, IOptionsMonitor<Setting> intsettings) : IRepositoryBase<T> where T : class
+public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, ILogger intLogger, IOptionsMonitor<Setting> intsettings) : IRepositoryBase<T> where T : class
 {
     internal readonly IRepositoryContext RepositoryContext = RepositoryContext;
-    internal readonly ILogger logger = logger;
+    internal readonly ILogger logger = intLogger;
     internal readonly IOptionsMonitor<Setting> intSettings = intsettings;
 
     public Setting Settings => intSettings.CurrentValue;

@@ -3,6 +3,7 @@ import { useSMChannelLogoColumnConfig } from '@components/columns/useSMChannelLo
 import { useSMChannelNameColumnConfig } from '@components/columns/useSMChannelNameColumnConfig';
 import { useSMChannelNumberColumnConfig } from '@components/columns/useSMChannelNumberColumnConfig';
 
+import EPGFilesButton from '@components/epg/EPGFilesButton';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
@@ -136,10 +137,13 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
 
   const rightHeaderTemplate = useMemo(
     () => (
-      <div className="flex justify-content-end align-items-center w-full gap-1">
-        <div className="">
-          {/* <M3UFilesButton /> */}
-          {/* <TriSelectShowHidden dataKey={dataKey} />
+      <div className="flex flex-row justify-content-end align-items-center w-full gap-1">
+        {/* <StreamMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} skipOverLayer /> */}
+        <div>
+          <EPGFilesButton />
+        </div>
+        {/* <TriSelectShowHidden dataKey={dataKey} /> */}
+        {/* <TriSelectShowHidden dataKey={dataKey} />
         <VideoStreamSetTimeShiftsDialog id={dataKey} />
         <VideoStreamResetLogosDialog id={dataKey} />
         <VideoStreamSetLogosFromEPGDialog id={dataKey} />
@@ -148,7 +152,6 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
         <VideoStreamSetAutoSetEPGDialog iconFilled id={dataKey} />
         <VideoStreamDeleteDialog iconFilled id={dataKey} />
         <VideoStreamAddDialog group={channelGroupNames?.[0]} /> */}
-        </div>
       </div>
     ),
     []

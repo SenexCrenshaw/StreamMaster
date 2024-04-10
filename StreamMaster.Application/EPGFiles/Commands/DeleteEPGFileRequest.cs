@@ -4,15 +4,21 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record DeleteEPGFileRequest(bool DeleteFile, int Id) : IRequest<APIResponse> { }
 
-public class DeleteEPGFileRequestHandler(ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper Repository, IPublisher Publisher)
+public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, ISchedulesDirectDataService schedulesDirectDataService, IMessageService messageService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<DeleteEPGFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(DeleteEPGFileRequest request, CancellationToken cancellationToken = default)
     {
-        EPGFileDto? epgFile = await Repository.EPGFile.DeleteEPGFile(request.Id);
-
-        if (epgFile != null)
+        EPGFileDto? epgFile = await Repository.EPGFile.DeleteEPGFile(request.Id).ConfigureAwait(false);
+        if (epgFile == null)
         {
+            await messageService.SendError("EPG file not found");
+            return APIResponse.NotFound;
+        }
+        try
+        {
+            await Repository.EPGFile.DeleteEPGFile(epgFile.Id);
+
             if (request.DeleteFile)
             {
                 string fullName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source);
@@ -40,14 +46,21 @@ public class DeleteEPGFileRequestHandler(ISchedulesDirectDataService schedulesDi
             {
                 await Publisher.Publish(new EPGFileDeletedEvent(epgFile.Id), cancellationToken).ConfigureAwait(false);
             }
+            await Repository.SaveAsync().ConfigureAwait(false);
+
+            //schedulesDirect.ResetEPGCache();
+
+            //MemoryCache.SetSyncForceNextRun(Extra: true);
+
+
+            return APIResponse.Success;
+
         }
-        _ = await Repository.SaveAsync().ConfigureAwait(false);
-
-        //schedulesDirect.ResetEPGCache();
-
-        //MemoryCache.SetSyncForceNextRun(Extra: true);
-
-
-        return APIResponse.Success;
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "DeleteM3UFileRequest {request}", request);
+            await messageService.SendError("Exception deleting M3U", ex.Message);
+            return APIResponse.NotFound;
+        }
     }
 }

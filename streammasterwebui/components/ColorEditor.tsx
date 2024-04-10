@@ -1,6 +1,7 @@
-import { ColorPicker } from 'primereact/colorpicker';
-import { useCallback } from 'react';
-import { useDebouncedCallback } from 'use-debounce';
+import Sketch from '@uiw/react-color-sketch';
+import { Button } from 'primereact/button';
+import { OverlayPanel } from 'primereact/overlaypanel';
+import { useRef } from 'react';
 
 interface ColorEditorProperties {
   readonly id?: string;
@@ -8,21 +9,29 @@ interface ColorEditorProperties {
   onChange(event: string): void;
 }
 const ColorEditor = ({ color, id, onChange }: ColorEditorProperties) => {
-  const debounced = useDebouncedCallback(
-    useCallback(
-      (value) => {
-        if (!value.startsWith('#')) {
-          value = '#' + value;
-        }
-        onChange(value);
-      },
-      [onChange]
-    ),
-    1500,
-    {}
-  );
+  const op = useRef<OverlayPanel>(null);
 
-  return <ColorPicker id={id} format="hex" value={color} onChange={(e) => debounced(e.value as string)} />;
+  console.log(color);
+  return (
+    <>
+      <Button
+        className="border-0"
+        onClick={(e) => op.current?.toggle(e)}
+        style={{
+          backgroundColor: color
+        }}
+      />
+      <OverlayPanel showCloseIcon={false} dismissable={true} ref={op} onClick={(e) => op.current?.toggle(e)}>
+        <Sketch
+          style={{ marginLeft: 20 }}
+          color={color}
+          onChange={(color) => {
+            onChange(color.hex);
+          }}
+        />
+      </OverlayPanel>
+    </>
+  );
 };
 
 export default ColorEditor;

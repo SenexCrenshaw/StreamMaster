@@ -5,6 +5,8 @@ namespace StreamMaster.Domain.Models;
 
 public class EPGFile : AutoUpdateEntity
 {
+    private readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true };
+    public string MainGet => "GetPagedEPGFiles";
     public int EPGNumber { get; set; }
 
     [Column(TypeName = "citext")]
@@ -26,19 +28,18 @@ public class EPGFile : AutoUpdateEntity
     {
         try
         {
-            string txtName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(Source) + ".json");
-            string jsonString = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(txtName, jsonString);
+            string jsonPath = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(Source) + ".json");
+            string jsonString = JsonSerializer.Serialize(this, jsonSerializerOptions);
+            File.WriteAllText(jsonPath, jsonString);
         }
         catch
-(Exception ex)
         {
-            logger.LogError(ex.Message);
+            throw;
         }
     }
+
     public EPGFile()
     {
-        //DirectoryLocation = FileDefinitions.EPG.DirectoryLocation;
         FileExtension = FileDefinitions.EPG.FileExtension;
         SMFileType = FileDefinitions.EPG.SMFileType;
     }

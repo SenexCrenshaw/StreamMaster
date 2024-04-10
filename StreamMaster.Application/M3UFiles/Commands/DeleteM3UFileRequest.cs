@@ -26,7 +26,7 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
 
             if (request.DeleteFile)
             {
-                string fullName = Path.Combine(FileDefinitions.M3U.DirectoryLocation, m3UFile.Name + FileDefinitions.M3U.FileExtension);
+                string fullName = Path.Combine(FileDefinitions.M3U.DirectoryLocation, m3UFile.Source);
                 if (File.Exists(fullName))
                 {
                     FileAttributes attributes = File.GetAttributes(fullName);

@@ -28,7 +28,6 @@ const M3UFilesDataSelector = () => {
     if (props.id < 1) {
       return;
     }
-
     const { id, ...restProperties } = props;
 
     if (Object.values(restProperties).every((value) => value === null || value === undefined)) {

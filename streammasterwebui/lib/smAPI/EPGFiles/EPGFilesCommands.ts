@@ -1,18 +1,5 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import {
-  APIResponse,
-  CreateEPGFileRequest,
-  DeleteEPGFileRequest,
-  EPGColorDto,
-  EPGFileDto,
-  EPGFilePreviewDto,
-  GetEPGFilePreviewByIdRequest,
-  PagedResponse,
-  ProcessEPGFileRequest,
-  QueryStringParameters,
-  RefreshEPGFileRequest,
-  UpdateEPGFileRequest
-} from '@lib/smAPI/smapiTypes';
+import { APIResponse,CreateEPGFileFromFormRequest,CreateEPGFileRequest,DeleteEPGFileRequest,ProcessEPGFileRequest,RefreshEPGFileRequest,UpdateEPGFileRequest,EPGColorDto,EPGFilePreviewDto,EPGFileDto,GetEPGFilePreviewByIdRequest,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const GetEPGColors = async (): Promise<EPGColorDto[] | undefined> => {
   const signalRService = SignalRService.getInstance();
@@ -32,6 +19,11 @@ export const GetEPGNextEPGNumber = async (): Promise<number | undefined> => {
 export const GetPagedEPGFiles = async (parameters: QueryStringParameters): Promise<PagedResponse<EPGFileDto> | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<PagedResponse<EPGFileDto>>('GetPagedEPGFiles', parameters);
+};
+
+export const CreateEPGFileFromForm = async (request: CreateEPGFileFromFormRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('CreateEPGFileFromForm', request);
 };
 
 export const CreateEPGFile = async (request: CreateEPGFileRequest): Promise<APIResponse | undefined> => {
@@ -58,3 +50,4 @@ export const UpdateEPGFile = async (request: UpdateEPGFileRequest): Promise<APIR
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('UpdateEPGFile', request);
 };
+

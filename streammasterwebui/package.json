@@ -4,6 +4,7 @@
     "@microsoft/signalr": "^8.0.0",
     "@microsoft/signalr-protocol-msgpack": "^8.0.0",
     "@reduxjs/toolkit": "^2.2.3",
+    "@uiw/react-color-sketch": "^2.1.1",
     "@vidstack/react": "^1.11.17",
     "axios": "^1.6.8",
     "hls.js": "^1.5.7",

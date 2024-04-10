@@ -45,8 +45,6 @@ public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRe
 
                 Logger.LogCritical("Exception M3U From Form '{ex}'", ex);
                 await messageService.SendError($"Exception M3U From Form", ex?.Message);
-
-
                 return APIResponse.NotFound;
             }
 

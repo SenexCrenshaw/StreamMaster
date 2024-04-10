@@ -1,15 +1,17 @@
 import ColorEditor from '@components/ColorEditor';
-import { formatJSONDateString, getTopToolOptions } from '@lib/common/common';
-import { M3UFileDto } from '@lib/smAPI/smapiTypes';
-import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox';
-import { Toast } from 'primereact/toast';
-import { memo, useCallback, useMemo, useRef } from 'react';
-import DataSelector from '../dataSelector/DataSelector';
-import NumberEditorBodyTemplate from '../inputs/NumberEditorBodyTemplate';
+import SMDataTable from '@components/smDataTable/SMDataTable';
+
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import { formatJSONDateString } from '@lib/common/dateTime';
+import { UpdateEPGFile } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
+import useGetPagedEPGFiles from '@lib/smAPI/EPGFiles/useGetPagedEPGFiles';
+import { EPGFileDto, UpdateEPGFileRequest } from '@lib/smAPI/smapiTypes';
+import { memo, useCallback, useMemo } from 'react';
 import StringEditorBodyTemplate from '../inputs/StringEditorBodyTemplate';
-import EPGFileRefreshDialog from './EPGFileRefreshDialog';
-import EPGFileRemoveDialog from './EPGFileRemoveDialog';
-import EPGPreviewDialog from './EPGPreviewDialog';
+import EPGFileEditDialog from './EPGFileEditDialog';
+// import EPGFileRefreshDialog from './EPGFileRefreshDialog';
+// import EPGFileRemoveDialog from './EPGFileRemoveDialog';
+// import EPGPreviewDialog from './EPGPreviewDialog';
 
 const EPGFilesDataSelector = () => {
   interface EPGUpdateProperties {
@@ -23,93 +25,73 @@ const EPGFilesDataSelector = () => {
     url?: string | null;
   }
 
-  const toast = useRef<Toast>(null);
+  const onEPGUpdateClick = useCallback(async (props: EPGUpdateProperties) => {
+    if (props.id < 1) {
+      return;
+    }
+    const { id, ...restProperties } = props;
 
-  const [epgFilesUpdateEpgFileMutation] = useEpgFilesUpdateEpgFileMutation();
+    if (Object.values(restProperties).every((value) => value === null || value === undefined)) {
+      return;
+    }
 
-  const onEPGUpdateClick = useCallback(
-    async (props: EPGUpdateProperties) => {
-      const { id, ...restProperties } = props;
+    const { auto, hours, color, name, url, epgNumber, timeShift } = restProperties;
 
-      // Check if all values of the rest of the properties are null or undefined
-      if (Object.values(restProperties).every((value) => value === null || value === undefined)) {
-        return;
-      }
+    if (id < 1) {
+      return;
+    }
 
-      const { auto, hours, color, name, url, epgNumber, timeShift } = restProperties;
+    const request = {} as UpdateEPGFileRequest;
 
-      if (id < 1) {
-        return;
-      }
+    request.Id = id;
 
-      const tosend = {} as UpdateEpgFileRequest;
+    if (auto !== undefined) {
+      request.AutoUpdate = auto === true;
+    }
 
-      tosend.id = id;
+    if (color) {
+      request.Color = color;
+    }
 
-      if (auto !== undefined) {
-        tosend.autoUpdate = auto;
-      }
+    if (hours) {
+      request.HoursToUpdate = hours;
+    }
 
-      if (color) {
-        tosend.color = color;
-      }
+    if (epgNumber !== null && epgNumber !== undefined) {
+      request.EPGNumber = epgNumber;
+    }
 
-      if (hours) {
-        tosend.hoursToUpdate = hours;
-      }
+    if (timeShift !== null && timeShift !== undefined) {
+      request.TimeShift = timeShift;
+    }
 
-      if (epgNumber !== null && epgNumber !== undefined) {
-        tosend.epgNumber = epgNumber;
-      }
+    if (name) {
+      request.Name = name;
+    }
 
-      if (timeShift !== null && timeShift !== undefined) {
-        tosend.timeShift = timeShift;
-      }
+    if (url) {
+      request.Url = url;
+    }
 
-      if (name) {
-        tosend.name = name;
-      }
+    await UpdateEPGFile(request)
+      .then(() => {})
+      .catch((error) => {
+        console.error('Error updating M3U File', error);
+        throw error;
+      });
+  }, []);
 
-      if (url !== undefined) {
-        tosend.url = url;
-      }
-
-      await epgFilesUpdateEpgFileMutation(tosend)
-        .then(() => {
-          if (toast.current) {
-            toast.current.show({
-              detail: 'EPG File Update Successful',
-              life: 3000,
-              severity: 'success',
-              summary: 'Successful'
-            });
-          }
-        })
-        .catch((error) => {
-          if (toast.current) {
-            toast.current.show({
-              detail: 'EPG File Update Failed',
-              life: 3000,
-              severity: 'error',
-              summary: `Error ${error.message}`
-            });
-          }
-        });
-    },
-    [epgFilesUpdateEpgFileMutation]
-  );
-
-  const lastDownloadedTemplate = useCallback((rowData: EpgFileDto) => {
-    if (rowData.id === 0) {
+  const lastDownloadedTemplate = useCallback((rowData: EPGFileDto) => {
+    if (rowData.Id === 0) {
       return <div />;
     }
 
-    return <div className="flex justify-content-center ">{formatJSONDateString(rowData.lastDownloaded ?? '')}</div>;
+    return <div className="flex justify-content-center ">{formatJSONDateString(rowData.LastDownloaded ?? '')}</div>;
   }, []);
 
   const nameEditorBodyTemplate = useCallback(
-    (rowData: EpgFileDto) => {
-      if (rowData.id === 0) {
+    (rowData: EPGFileDto) => {
+      if (rowData.Id === 0) {
         return (
           <div
             className="p-0 relative"
@@ -120,7 +102,7 @@ const EPGFilesDataSelector = () => {
               whiteSpace: 'nowrap'
             }}
           >
-            {rowData.name}
+            {rowData.Name}
           </div>
         );
       }
@@ -128,9 +110,9 @@ const EPGFilesDataSelector = () => {
       return (
         <StringEditorBodyTemplate
           onChange={async (e) => {
-            await onEPGUpdateClick({ id: rowData.id, name: e });
+            await onEPGUpdateClick({ id: rowData.Id, name: e });
           }}
-          value={rowData.name}
+          value={rowData.Name}
         />
       );
     },
@@ -138,8 +120,8 @@ const EPGFilesDataSelector = () => {
   );
 
   const colorTemplate = useCallback(
-    (rowData: EpgFileDto) => {
-      if (rowData.id === 0) {
+    (rowData: EPGFileDto) => {
+      if (rowData.Id === 0) {
         return (
           <div
             className="p-0 relative"
@@ -150,7 +132,7 @@ const EPGFilesDataSelector = () => {
               whiteSpace: 'nowrap'
             }}
           >
-            {rowData.color}
+            {rowData.Color}
           </div>
         );
       }
@@ -158,133 +140,43 @@ const EPGFilesDataSelector = () => {
       return (
         <ColorEditor
           onChange={async (e) => {
-            await onEPGUpdateClick({ id: rowData.id, color: e });
+            await onEPGUpdateClick({ id: rowData.Id, color: e });
           }}
-          color={rowData.color}
+          color={rowData.Color}
         />
       );
     },
     [onEPGUpdateClick]
   );
 
-  const channelCountTemplate = useCallback((rowData: EpgFileDto) => {
-    if (rowData.id === 0) {
+  const channelCountTemplate = useCallback((rowData: EPGFileDto) => {
+    if (rowData.Id === 0) {
       return <div />;
     }
 
-    return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.channelCount}</div>;
+    return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.ChannelCount}</div>;
   }, []);
 
-  const programmeCountTemplate = useCallback((rowData: EpgFileDto) => {
-    if (rowData.id === 0) {
+  const programmeCountTemplate = useCallback((rowData: EPGFileDto) => {
+    if (rowData.Id === 0) {
       return <div />;
     }
 
-    return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.programmeCount}</div>;
+    return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.ProgrammeCount}</div>;
   }, []);
 
-  const epgNumberBodyTemplate = useCallback(
-    (rowData: EpgFileDto) => {
-      if (rowData.id === 0) {
-        return <div />;
-      }
-
-      return (
-        <NumberEditorBodyTemplate
-          onChange={async (e) => {
-            await onEPGUpdateClick({ id: rowData.id, epgNumber: e });
-          }}
-          value={rowData.epgNumber}
-        />
-      );
-    },
-    [onEPGUpdateClick]
-  );
-  const timeShiftNumberBodyTemplate = useCallback((rowData: EpgFileDto) => {
-    if (rowData.id === 0) {
+  const actionBodyTemplate = useCallback((rowData: EPGFileDto) => {
+    if (rowData.Id === 0) {
       return <div />;
     }
-
     return (
-      <NumberEditorBodyTemplate
-        onChange={async (e) => {
-          await onEPGUpdateClick({ id: rowData.id, timeShift: e });
-        }}
-        value={rowData.timeShift}
-      />
+      <div className="flex justify-content-center align-items-center">
+        {/* <M3UFileRefreshDialog selectedFile={rowData} />
+         <M3UFileRemoveDialog selectedFile={rowData} /> */}
+        <EPGFileEditDialog selectedFile={rowData} />
+      </div>
     );
   }, []);
-
-  const actionBodyTemplate = useCallback(
-    (rowData: EpgFileDto) => {
-      if (rowData.id === 0) {
-        return <div />;
-      }
-
-      return (
-        <div className="flex grid p-0 justify-content-end align-items-center">
-          <div className="col-8 flex p-0 justify-content-between align-items-center">
-            <div className="col-8 flex p-0 justify-content-between align-items-center">
-              <Checkbox
-                checked={rowData.autoUpdate}
-                onChange={async (e: CheckboxChangeEvent) => {
-                  await onEPGUpdateClick({ id: rowData.id, auto: e.checked ?? false });
-                }}
-                tooltip="Enable Auto Update"
-                tooltipOptions={getTopToolOptions}
-              />
-
-              <NumberEditorBodyTemplate
-                onChange={async (e) => {
-                  await onEPGUpdateClick({ id: rowData.id, hours: e });
-                }}
-                suffix=" hours"
-                value={rowData.hoursToUpdate}
-              />
-            </div>
-          </div>
-
-          <div className="col-4 p-0 justify-content-end align-items-center">
-            <EPGPreviewDialog selectedFile={rowData} />
-            <EPGFileRefreshDialog selectedFile={rowData} />
-            <EPGFileRemoveDialog selectedFile={rowData} />
-          </div>
-        </div>
-      );
-    },
-    [onEPGUpdateClick]
-  );
-
-  const urlEditorBodyTemplate = useCallback(
-    (rowData: M3UFileDto) => {
-      if (rowData.id === 0) {
-        return (
-          <div
-            className="p-0 relative"
-            style={{
-              backgroundColor: 'var(--mask-bg)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {rowData.url}
-          </div>
-        );
-      }
-
-      return (
-        <StringEditorBodyTemplate
-          onChange={async (e) => {
-            await onEPGUpdateClick({ id: rowData.id, url: e });
-          }}
-          tooltip={rowData.url}
-          value={rowData.url}
-        />
-      );
-    },
-    [onEPGUpdateClick]
-  );
 
   const columns = useMemo(
     (): ColumnMeta[] => [
@@ -303,72 +195,58 @@ const EPGFilesDataSelector = () => {
         width: '22rem'
       },
       {
-        bodyTemplate: epgNumberBodyTemplate,
-        field: 'epgNumber',
-        header: 'Number',
-        width: '2rem'
-      },
-      {
-        bodyTemplate: timeShiftNumberBodyTemplate,
-        field: 'timeShift',
-        header: 'TS Shift (hrs)',
-        width: '2rem'
-      },
-      {
         bodyTemplate: lastDownloadedTemplate,
         field: 'lastDownloaded',
         header: 'Downloaded',
-        sortable: true,
         width: '12rem'
       },
       {
         bodyTemplate: channelCountTemplate,
         field: 'channelCount',
         header: 'Channels',
-        sortable: true,
         width: '6rem'
       },
       {
         bodyTemplate: programmeCountTemplate,
         field: 'programmeCount',
         header: 'Progs',
-        sortable: true,
         width: '6rem'
       },
-      { bodyTemplate: urlEditorBodyTemplate, field: 'url', sortable: true },
       {
         align: 'center',
         bodyTemplate: actionBodyTemplate,
         field: 'autoUpdate',
+        header: 'Actions',
         width: '16rem'
       }
     ],
-    [
-      colorTemplate,
-      nameEditorBodyTemplate,
-      epgNumberBodyTemplate,
-      timeShiftNumberBodyTemplate,
-      lastDownloadedTemplate,
-      channelCountTemplate,
-      programmeCountTemplate,
-      urlEditorBodyTemplate,
-      actionBodyTemplate
-    ]
+    [colorTemplate, nameEditorBodyTemplate, lastDownloadedTemplate, channelCountTemplate, programmeCountTemplate, actionBodyTemplate]
   );
 
   return (
-    <>
-      <Toast position="bottom-right" ref={toast} />
-      <DataSelector
-        columns={columns}
-        defaultSortField="name"
-        emptyMessage="No EPG Files"
-        id="epgfilesdataselector"
-        queryFilter={useEpgFilesGetPagedEpgFilesQuery}
-        selectedItemsKey="selectSelectedEPGFileDtoItems"
-        style={{ height: 'calc(50vh - 120px)' }}
-      />
-    </>
+    <SMDataTable
+      noSourceHeader
+      columns={columns}
+      defaultSortField="Name"
+      defaultSortOrder={1}
+      emptyMessage="No EPG Files"
+      enableExport={false}
+      id="epgfilesdataselector"
+      queryFilter={useGetPagedEPGFiles}
+    />
+
+    // <>
+    //   <Toast position="bottom-right" ref={toast} />
+    //   <DataSelector
+    //     columns={columns}
+    //     defaultSortField="name"
+    //     emptyMessage="No EPG Files"
+    //     id="epgfilesdataselector"
+    //     queryFilter={useEpgFilesGetPagedEpgFilesQuery}
+    //     selectedItemsKey="selectSelectedEPGFileDtoItems"
+    //     style={{ height: 'calc(50vh - 120px)' }}
+    //   />
+    // </>
   );
 };
 

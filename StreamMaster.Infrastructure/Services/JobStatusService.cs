@@ -16,6 +16,11 @@ public partial class JobStatusService(ILogger<JobStatusService> logger) : IJobSt
         return new JobStatusManager(this, JobType.ProcessM3U, id);
     }
 
+    public JobStatusManager GetJobManagerProcessEPG(int id)
+    {
+        return new JobStatusManager(this, JobType.ProcessEPG, id);
+    }
+
     public JobStatusManager GetJobManager(JobType jobType, int id)
     {
         return new JobStatusManager(this, jobType, id);
