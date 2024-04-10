@@ -54,7 +54,7 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'Logo', fieldType: 'image', sortable: false, width: '4rem' },
+      // { field: 'Logo', fieldType: 'image', sortable: false, width: '4rem' },
       // { field: 'rank', sortable: false },
       { field: 'Name', sortable: false },
       { field: 'Group', sortable: false, width: '5rem' },
