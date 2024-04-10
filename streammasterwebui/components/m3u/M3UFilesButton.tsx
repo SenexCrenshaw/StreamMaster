@@ -1,4 +1,6 @@
+import { SMCard } from '@components/SMCard';
 import UploadButton from '@components/buttons/UploadButton';
+import XButton from '@components/buttons/XButton';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { memo, useRef } from 'react';
 import M3UFileCreateDialog from './M3UFileCreateDialog';
@@ -10,14 +12,18 @@ const M3UFilesButton = () => {
   return (
     <>
       <UploadButton outlined={true} label="M3U" onClick={(e) => op.current?.toggle(e)} />
-      <OverlayPanel className="col-6 p-0 default-border" ref={op} showCloseIcon={false}>
-        <div className="filesEditor border-1 border-100 border-round-md">
-          <div className="flex justify-content-between align-items-center px-1 header border-round-md">
-            <span className="sm-text-color">M3U Files</span>
-            <M3UFileCreateDialog onUploadComplete={closeOverlay} />
-          </div>
+      <OverlayPanel className="sm-overlay col-6 p-0 default-border" ref={op} showCloseIcon={false}>
+        <SMCard
+          title="M3U Files"
+          header={
+            <div className="justify-content-end flex-row flex">
+              <M3UFileCreateDialog onUploadComplete={closeOverlay} />
+              <XButton iconFilled={false} onClick={(e) => op.current?.toggle(e)} />
+            </div>
+          }
+        >
           <M3UFilesDataSelector />
-        </div>
+        </SMCard>
       </OverlayPanel>
     </>
   );

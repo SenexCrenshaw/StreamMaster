@@ -1,0 +1,63 @@
+.sm-text-color {
+    color: $streamMasterColor;
+}
+
+.sm-overlay {
+    background-color: var(--surface-ground-alpha);
+
+    // .p-overlaypanel-content {
+    //     padding: 0.5rem !important;
+    // }
+}
+
+.listTemplate-gridItem-name,
+.sm-column,
+.sm-col-header,
+.sm-col-header-left,
+.sm-col-header-right {
+    @include datatable-text-style(); // Use true for nowrap, false to allow wrapping
+}
+
+.listTemplate-gridItem-name {
+    max-width: $gridItem-width;
+}
+
+.sm-col-header-center {
+    text-align: center;
+}
+
+.sm-col-header-left {
+    text-align: left;
+}
+
+.sm-col-header-right {
+    text-align: right;
+}
+
+.sm-col-header-wrap {
+    @extend .sm-col-header;
+    @include text-wrap();
+    white-space: normal;
+}
+
+.sm-col-header-left-wrap {
+    @include text-wrap();
+    @extend .sm-col-header-left;
+    white-space: normal;
+}
+
+.sm-col-header-right-wrap {
+    @include text-wrap();
+    @extend .sm-col-header-right;
+    white-space: normal;
+}
+
+.no-text {
+    color: transparent;
+}
+
+.sm-expander {
+    .p-row-toggler {
+        max-height: $input-height;
+    }
+}

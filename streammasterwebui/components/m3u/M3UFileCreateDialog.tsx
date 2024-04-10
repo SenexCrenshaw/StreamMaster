@@ -3,6 +3,7 @@ import React, { useCallback, useRef } from 'react';
 import AddButton from '@components/buttons/AddButton';
 import { FileUpload } from 'primereact/fileupload';
 
+import { SMCard } from '@components/SMCard';
 import XButton from '@components/buttons/XButton';
 import SMFileUpload from '@components/file/SMFileUpload';
 import { CreateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
@@ -79,38 +80,34 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
 
   return (
     <>
-      <OverlayPanel className="col-5 p-0 smfileupload-panel default-border" ref={op} showCloseIcon={false} closeOnEscape>
-        <div className="smfileupload col-12 p-0 m-0 ">
-          <div className="smfileupload-header">
-            <div className="flex justify-content-between align-items-center px-1 header">
-              <span className="sm-text-color">ADD M3U FILE</span>
-              <XButton iconFilled={false} onClick={(e) => op.current?.toggle(e)} />
+      <OverlayPanel className="col-5 p-0 sm-fileupload-panel default-border" ref={op} showCloseIcon={false} closeOnEscape>
+        <SMCard title="ADD M3U" header={<XButton iconFilled={false} onClick={(e) => op.current?.toggle(e)} tooltip="Close" />}>
+          <div className="sm-fileupload col-12 p-0 m-0 ">
+            <div className="px-2">
+              <SMFileUpload
+                m3uFileDto={m3uFileDto}
+                onCreateFromSource={onCreateFromSource}
+                onUploadComplete={() => {
+                  ReturnToParent(true);
+                }}
+                onName={(name) => {
+                  setName(name);
+                }}
+              />
             </div>
-          </div>
-          <div className="px-2">
-            <SMFileUpload
-              m3uFileDto={m3uFileDto}
-              onCreateFromSource={onCreateFromSource}
-              onUploadComplete={() => {
-                ReturnToParent(true);
+            <M3UFileDialog
+              selectedFile={m3uFileDto}
+              onM3UChanged={(e) => {
+                setM3UFileDto(e);
               }}
-              onName={(name) => {
-                setName(name);
-              }}
+              noButtons
             />
           </div>
-          <M3UFileDialog
-            selectedFile={m3uFileDto}
-            onM3UChanged={(e) => {
-              setM3UFileDto(e);
-            }}
-            noButtons
-          />
-        </div>
+        </SMCard>
       </OverlayPanel>
 
       <div hidden={showButton === false} className="justify-content-center">
-        <AddButton onClick={(e) => op.current?.toggle(e)} tooltip="Add M3U File" />
+        <AddButton onClick={(e) => op.current?.toggle(e)} tooltip="Add M3U File" iconFilled={false} />
       </div>
     </>
   );

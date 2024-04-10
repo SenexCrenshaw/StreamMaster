@@ -223,10 +223,9 @@ const M3UFileDialog = ({ onM3UChanged, onUpdated, selectedFile, noButtons }: M3U
       </div>
 
       {noButtons !== true && (
-        <div className="flex w-12 gap-2 justify-content-end align-content-center">
+        <div className="flex w-12 gap-2 justify-content-end align-content-center pr-3">
           <ResetButton
             disabled={!isSaveEnabled && originalM3UFileDto !== undefined}
-            label="Reset"
             onClick={() => originalM3UFileDto !== undefined && setM3UFileDto(originalM3UFileDto)}
           />
           <SaveButton disabled={!isSaveEnabled} label="Update M3U" onClick={() => onUpdated && onUpdated(request)} />

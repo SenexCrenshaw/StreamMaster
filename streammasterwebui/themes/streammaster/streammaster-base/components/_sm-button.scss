@@ -1,0 +1,23 @@
+.smbutton-label {
+    height: $input-height;
+    padding-bottom: $input-padding;
+    padding-top: $input-padding;
+    padding-left: $input-padding*4;
+    padding-right: $input-padding*4;
+    margin: 0;
+
+    font-size: $common-font-size;
+
+    .p-button-icon {
+        font-size: $common-font-size;
+    }
+
+    .p-checkbox {
+        font-size: $common-font-size;
+    }
+}
+
+.smbutton {
+    @extend .smbutton-label;
+    width: $input-height;
+}

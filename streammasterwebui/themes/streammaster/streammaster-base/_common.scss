@@ -1,7 +1,3 @@
-.sm-text-color {
-    color: $streamMasterColor;
-}
-
 .multiselectcolumn {}
 
 
@@ -31,20 +27,6 @@
 }
 
 
-.smfileupload {
-    @include standard-border;
-    background: var(--surface-overlay);
-    padding: 0.5rem;
-
-    .p-inputtext {
-        @include input-border;
-        height: $input-height;
-        background: var(--surface-ground);
-    }
-
-    height: 30vh;
-}
-
 .text-right {
     .p-inputtext {
         width: unset;
@@ -52,26 +34,6 @@
         text-align: right;
     }
 }
-
-.smfileupload-header {
-    background: var(--surface-overlay);
-    border-style: solid;
-    border-color: var(--surface-100);
-    border-top-width: 0px;
-    border-left-width: 0px;
-    border-right-width: 0px;
-    border-bottom-width: 2px;
-    border-radius: $borderRadius;
-    // margin-bottom: 0.5rem;
-    padding: 0.5rem;
-}
-
-.smfileupload-panel {
-    background: $shade900;
-    border: $inputBorder-size solid $inputHoverBorderColor;
-    border-radius: $borderRadius;
-}
-
 
 .sourceOrFileDialog-toggle {
     .p-button.p-component {
@@ -83,7 +45,6 @@
 }
 
 .sourceOrFileDialog {
-
 
     .p-inputgroup {
         margin-top: 1rem;
@@ -113,21 +74,6 @@
     .p-inputtext {
         height: $input-height;
     }
-}
-
-.filesEditor {
-    padding: 0rem;
-
-    .header {
-        background-color: #0c243c;
-        height: $datatable-row-height;
-    }
-
-    .p-button {
-        height: $input-height;
-        width: $input-height;
-    }
-
 }
 
 .p-dropdown-panel {
@@ -284,81 +230,6 @@
     object-fit: contain;
 }
 
-.listTemplate-gridItem-name,
-.sm-column,
-.sm-col-header,
-.sm-col-header-left,
-.sm-col-header-right {
-    @include datatable-text-style(); // Use true for nowrap, false to allow wrapping
-}
-
-.listTemplate-gridItem-name {
-    max-width: $gridItem-width;
-}
-
-.sm-col-header-center {
-    text-align: center;
-}
-
-.sm-col-header-left {
-    text-align: left;
-}
-
-.sm-col-header-right {
-    text-align: right;
-}
-
-.sm-col-header-wrap {
-    @extend .sm-col-header;
-    @include text-wrap();
-    white-space: normal;
-}
-
-.sm-col-header-left-wrap {
-    @include text-wrap();
-    @extend .sm-col-header-left;
-    white-space: normal;
-}
-
-.sm-col-header-right-wrap {
-    @include text-wrap();
-    @extend .sm-col-header-right;
-    white-space: normal;
-}
-
-.no-text {
-    color: transparent;
-}
-
-.smbutton-label {
-    height: $input-height;
-    padding-bottom: $input-padding;
-    padding-top: $input-padding;
-    padding-left: $input-padding*4;
-    padding-right: $input-padding*4;
-    margin: 0;
-
-    font-size: $common-font-size;
-
-    .p-button-icon {
-        font-size: $common-font-size;
-    }
-
-    .p-checkbox {
-        font-size: $common-font-size;
-    }
-}
-
-.smbutton {
-    @extend .smbutton-label;
-    width: $input-height;
-}
-
-.sm-expander {
-    .p-row-toggler {
-        max-height: $input-height;
-    }
-}
 
 .p-datatable-thead {
     padding: 0;
@@ -369,33 +240,7 @@
 
 }
 
-// .modal {
-//     // position: fixed;
-//     // top: 0;
-//     // left: 0;
-//     // width: 100%;
-//     // height: 100%;
-//     background: #00000099;
-// }
-
-// .modal-main {
-//     position: absolute;
-//     background: transparent;
-//     width: 35rem;
-//     height: auto;
-//     top: 10%;
-//     right: 10%;
-//     // transform: translate(-50%, -50%);
-//     display: flex;
-//     flex-direction: column;
-//     align-items: center;
-//     border-radius: 20px;
-// }
-
-.modal.display-block {
-    display: block;
-}
-
-.modal.display-none {
-    display: none;
+.p-button.p-button-icon-only {
+    padding: 0.5rem 0;
+    width: $input-height;
 }

@@ -1,5 +1,6 @@
 import { memo, useRef } from 'react';
 
+import { SMCard } from '@components/SMCard';
 import EditButton from '@components/buttons/EditButton';
 import XButton from '@components/buttons/XButton';
 import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
@@ -32,18 +33,12 @@ const M3UFileEditDialog = ({ selectedFile }: MM3UFileEditDialogProperties) => {
   return (
     <>
       <EditButton iconFilled={false} onClick={(e) => op.current?.toggle(e)} tooltip="Edit" />
-      <OverlayPanel className="col-5 p-0 smfileupload-panel default-border" ref={op} closeOnEscape>
-        <div className="smfileupload col-12 p-0 m-0 ">
-          <div className="smfileupload-header">
-            <div className="flex justify-content-between align-items-center px-1 header">
-              <span className="sm-text-color">EDIT M3U FILE</span>
-              <span className="col-1">
-                <XButton iconFilled={false} onClick={(e) => op.current?.toggle(e)} tooltip="Close" />
-              </span>
-            </div>
+      <OverlayPanel className="col-5 p-0 sm-fileupload-panel default-border" ref={op} closeOnEscape>
+        <SMCard title="EDIT M3U" header={<XButton iconFilled={false} onClick={(e) => op.current?.toggle(e)} tooltip="Close" />}>
+          <div className="sm-fileupload col-12 p-0 m-0 ">
+            <M3UFileDialog selectedFile={selectedFile} onUpdated={onUpdated} />
           </div>
-          <M3UFileDialog selectedFile={selectedFile} onUpdated={onUpdated} />
-        </div>
+        </SMCard>
       </OverlayPanel>
     </>
   );

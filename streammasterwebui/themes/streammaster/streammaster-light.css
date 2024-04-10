@@ -64,12 +64,13 @@
   --inline-spacing: 0.5rem;
   --border-radius: 6px;
   --surface-ground: #0e1315;
+  --surface-ground-alpha: rgba(14, 19, 21, 0.85
+  );
   --surface-section: #0e1315;
   --surface-card: #161d21;
   --surface-overlay: #161d21;
   --surface-border: #263238;
-  --surface-hover: rgba($primaryColor, 0.08
-  );
+  --surface-hover: rgba($primaryColor, 0.08);
   --focus-ring: 0 0 0 0.1rem #bbc7ee;
   --maskbg: rgba(0, 0, 0, 0.4);
   --highlight-bg: #ced6f1;
@@ -6725,20 +6726,17 @@
   --inline-spacing: 0.5rem;
   --border-radius: 6px;
   --surface-ground: #0e1315;
+  --surface-ground-alpha: rgba(14, 19, 21, 0.85
+  );
   --surface-section: #0e1315;
   --surface-card: #161d21;
   --surface-overlay: #161d21;
   --surface-border: #263238;
-  --surface-hover: rgba($primaryColor, 0.08
-  );
+  --surface-hover: rgba($primaryColor, 0.08);
   --focus-ring: 0 0 0 0.1rem #bbc7ee;
   --maskbg: rgba(0, 0, 0, 0.4);
   --highlight-bg: #ced6f1;
   --highlight-text-color: #585858;
-}
-
-.sm-text-color {
-  color: #fe7600;
 }
 
 .p-multiselect-trigger {
@@ -6773,42 +6771,10 @@
   width: 100%;
 }
 
-.smfileupload {
-  border: 2px solid var(--surface-100);
-  border-radius: 6px;
-  background: var(--surface-overlay);
-  padding: 0.5rem;
-  height: 30vh;
-}
-.smfileupload .p-inputtext {
-  border: 0.1rem solid #cecece;
-  border-radius: 6px;
-  height: 1.6rem;
-  background: var(--surface-ground);
-}
-
 .text-right .p-inputtext {
   width: unset;
   max-width: unset;
   text-align: right;
-}
-
-.smfileupload-header {
-  background: var(--surface-overlay);
-  border-style: solid;
-  border-color: var(--surface-100);
-  border-top-width: 0px;
-  border-left-width: 0px;
-  border-right-width: 0px;
-  border-bottom-width: 2px;
-  border-radius: 6px;
-  padding: 0.5rem;
-}
-
-.smfileupload-panel {
-  background: #3b3b3b;
-  border: 0.1rem solid #cecece;
-  border-radius: 6px;
 }
 
 .sourceOrFileDialog-toggle .p-button.p-component {
@@ -6841,18 +6807,6 @@
 }
 .sourceOrFileDialog .p-inputtext {
   height: 1.6rem;
-}
-
-.filesEditor {
-  padding: 0rem;
-}
-.filesEditor .header {
-  background-color: #0c243c;
-  height: 1.8rem;
-}
-.filesEditor .p-button {
-  height: 1.6rem;
-  width: 1.6rem;
 }
 
 .p-dropdown-panel .p-dropdown-filter {
@@ -6963,6 +6917,27 @@
   object-fit: contain;
 }
 
+.p-datatable-thead {
+  padding: 0;
+}
+
+.p-inputnumber-button-group {
+  height: 1.6rem;
+}
+
+.p-button.p-button-icon-only {
+  padding: 0.5rem 0;
+  width: 1.6rem;
+}
+
+.sm-text-color {
+  color: #fe7600;
+}
+
+.sm-overlay {
+  background-color: var(--surface-ground-alpha);
+}
+
 .listTemplate-gridItem-name,
 .sm-column,
 .sm-col-header,
@@ -7019,6 +6994,25 @@
   color: transparent;
 }
 
+.sm-expander .p-row-toggler {
+  max-height: 1.6rem;
+}
+
+.sm-card {
+  padding: 0rem;
+  border-width: 1px !important;
+  border-color: var(--surface-100);
+  border-top-left-radius: 0.375rem;
+  border-top-right-radius: 0.375rem;
+  border-style: solid;
+}
+.sm-card .header {
+  padding: 0.1rem;
+  background-color: #0c243c;
+  border-top-left-radius: 0.375rem;
+  border-top-right-radius: 0.375rem;
+  height: 1.9rem;
+}
 .smbutton-label, .smbutton {
   height: 1.6rem;
   padding-bottom: 0.1rem;
@@ -7039,24 +7033,32 @@
   width: 1.6rem;
 }
 
-.sm-expander .p-row-toggler {
-  max-height: 1.6rem;
+.sm-fileupload {
+  background: var(--surface-overlay);
+  padding: 0.5rem;
+  padding-bottom: 2rem !important;
 }
-
-.p-datatable-thead {
-  padding: 0;
-}
-
-.p-inputnumber-button-group {
+.sm-fileupload .p-inputtext {
+  border: 0.1rem solid #cecece;
+  border-radius: 6px;
   height: 1.6rem;
+  background: var(--surface-ground);
 }
 
-.modal.display-block {
-  display: block;
+.sm-fileupload-header {
+  background: var(--surface-overlay);
+  border-style: solid;
+  border-color: var(--surface-100);
+  border-top-width: 0px;
+  border-left-width: 0px;
+  border-right-width: 0px;
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  padding: 0.5rem;
 }
 
-.modal.display-none {
-  display: none;
+.sm-fileupload-panel {
+  background-color: var(--surface-ground-alpha);
 }
 
 .p-datatable {

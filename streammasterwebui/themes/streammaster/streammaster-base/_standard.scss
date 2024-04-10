@@ -553,12 +553,13 @@ $imagePreviewActionIconBorderRadius: 50% !default;
     --inline-spacing: #{$inlineSpacing};
     --border-radius: #{$borderRadius};
     --surface-ground: #0e1315;
-    --surface-section: #0e1315;
-    --surface-card: #161d21;
-    --surface-overlay: #161d21;
-    --surface-border: #263238;
-    --surface-hover: rgba($primaryColor, 0.08
+    --surface-ground-alpha: rgba(14, 19, 21, 0.85
     );
+--surface-section: #0e1315;
+--surface-card: #161d21;
+--surface-overlay: #161d21;
+--surface-border: #263238;
+--surface-hover: rgba($primaryColor, 0.08);
 --focus-ring: #{$focusShadow};
 --maskbg: #{$maskBg};
 --highlight-bg: #{$highlightBg};
