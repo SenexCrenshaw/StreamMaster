@@ -10,7 +10,15 @@
         background: var(--surface-ground);
     }
 
-    // height: 30vh;
+    .sm-inputnumber-input-no-right-border {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+
+        .p-inputnumber-input {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+    }
 }
 
 .sm-fileupload-header {

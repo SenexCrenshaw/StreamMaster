@@ -1,9 +1,9 @@
 import ResetButton from '@components/buttons/ResetButton';
 import SaveButton from '@components/buttons/SaveButton';
 import NumberInput from '@components/inputs/NumberInput';
+import TextInput from '@components/inputs/TextInput';
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
-import { InputText } from 'primereact/inputtext';
 import { ToggleButton } from 'primereact/togglebutton';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import M3UFileTags from './M3UFileTags';
@@ -124,7 +124,31 @@ const M3UFileDialog = ({ onM3UChanged, onUpdated, selectedFile, noButtons }: M3U
   };
 
   const isSaveEnabled = useMemo(() => {
-    return m3uFileDto !== originalM3UFileDto;
+    if (m3uFileDto.Name !== originalM3UFileDto?.Name) {
+      return true;
+    }
+
+    if (m3uFileDto.MaxStreamCount !== originalM3UFileDto?.MaxStreamCount) {
+      return true;
+    }
+
+    if (m3uFileDto.HoursToUpdate !== originalM3UFileDto?.HoursToUpdate) {
+      return true;
+    }
+
+    if (m3uFileDto.OverwriteChannelNumbers !== originalM3UFileDto?.OverwriteChannelNumbers) {
+      return true;
+    }
+
+    if (m3uFileDto.StartingChannelNumber !== originalM3UFileDto?.StartingChannelNumber) {
+      return true;
+    }
+
+    if (m3uFileDto.VODTags !== originalM3UFileDto?.VODTags) {
+      return true;
+    }
+
+    return false;
   }, [m3uFileDto, originalM3UFileDto]);
 
   useEffect(() => {
@@ -162,13 +186,14 @@ const M3UFileDialog = ({ onM3UChanged, onUpdated, selectedFile, noButtons }: M3U
     <>
       <div className="col-12 ">
         <div className="flex">
-          <div className="col-6 p-0">
-            <div className="text-xs text-500">NAME:</div>
-            <InputText autoFocus className="p-float-label w-full" id="name" value={m3uFileDto.Name} onChange={(e) => setName(e.target.value)} />
+          <div className="col-6 pt-2">
+            <div className="sm-inputnumber-input-no-right-border col-12">
+              <TextInput autoFocus value={m3uFileDto?.Name} label="Name" onChange={(e) => setName(e)} />
+            </div>
           </div>
           <div className="col-6 p-0 pt-2">
-            <div className="flex flex-wrap p-fluid align-items-center justify-content-between">
-              <div className="col-6">
+            <div className="flex p-fluid align-items-center justify-content-between">
+              <div className="sm-inputnumber-input-no-right-border col-6">
                 <NumberInput
                   showButtons
                   label="MAX STREAMS"

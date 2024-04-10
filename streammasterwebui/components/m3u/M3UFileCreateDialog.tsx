@@ -24,9 +24,9 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
   const op = useRef<OverlayPanel>(null);
 
   const defaultValues = {
-    Name: '',
-    MaxStreamCount: 1,
     HoursToUpdate: 72,
+    MaxStreamCount: 1,
+    Name: '',
     OverwriteChannelNumbers: true,
     StartingChannelNumber: 1
   } as M3UFileDto;
@@ -56,9 +56,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
       createM3UFileRequest.VODTags = m3uFileDto.VODTags;
 
       await CreateM3UFile(createM3UFileRequest)
-        .then(() => {
-          //setInfoMessage('Uploaded M3U';
-        })
+        .then(() => {})
         .catch((error) => {
           console.error('Error uploading M3U', error);
         })
@@ -105,7 +103,6 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
           </div>
         </SMCard>
       </OverlayPanel>
-
       <div hidden={showButton === false} className="justify-content-center">
         <AddButton onClick={(e) => op.current?.toggle(e)} tooltip="Add M3U File" iconFilled={false} />
       </div>

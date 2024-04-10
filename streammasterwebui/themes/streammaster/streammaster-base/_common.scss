@@ -72,7 +72,8 @@
     }
 
     .p-inputtext {
-        height: $input-height;
+        border-radius: unset !important;
+        height: $datatable-row-height !important;
     }
 }
 
@@ -238,9 +239,26 @@
 .p-inputnumber-button-group {
     height: $input-height;
 
+    .p-button.p-button-icon-only {
+        padding: 0 !important;
+        width: $input-height;
+    }
 }
 
 .p-button.p-button-icon-only {
     padding: 0.5rem 0;
     width: $input-height;
+}
+
+.input-border {
+    border: $inputBorder-size solid $inputHoverBorderColor;
+    border-radius: $borderRadius;
+}
+
+.p-button-label {
+    font-size: $common-font-size;
+}
+
+.p-togglebutton-input {
+    height: 4rem !important;
 }

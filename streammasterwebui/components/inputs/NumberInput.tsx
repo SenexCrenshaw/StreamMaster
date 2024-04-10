@@ -1,3 +1,4 @@
+import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { useClickOutside } from 'primereact/hooks';
 import { InputNumber } from 'primereact/inputnumber';
 import { memo, useEffect, useRef, useState } from 'react';
@@ -34,29 +35,17 @@ const NumberInput = ({
   suffix,
   value
 }: NumberInputProperties) => {
+  const { code } = useScrollAndKeyEvents();
+
   const [input, setInput] = useState<number>(1);
   const [originalInput, setOriginalInput] = useState<number | undefined>();
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const overlayReference = useRef(null);
   const uuid = uuidv4();
 
-  useEffect(() => {
-    const callback = (event: KeyboardEvent) => {
-      if (!isFocused) {
-        return;
-      }
-
-      if ((event.code === 'Enter' || event.code === 'NumpadEnter') && originalInput !== input) {
-        onEnter?.();
-      }
-    };
-
-    document.addEventListener('keydown', callback);
-
-    return () => {
-      document.removeEventListener('keydown', callback);
-    };
-  }, [input, isFocused, onChange, onEnter, originalInput]);
+  if (code === 'Enter' || code === 'NumpadEnter') {
+    onEnter?.();
+  }
 
   useClickOutside(overlayReference, () => {
     if (!isFocused) {
@@ -78,7 +67,7 @@ const NumberInput = ({
   return (
     <span className="p-float-label">
       <InputNumber
-        id="number-input"
+        id={uuid}
         value={input}
         onChange={(e) => onChange(e.value ?? 0)}
         autoFocus={autoFocus === true}
@@ -87,7 +76,7 @@ const NumberInput = ({
         showButtons={showButtons}
         suffix={suffix}
       />
-      <label htmlFor="number-input">{label}</label>
+      <label htmlFor={uuid}>{label}</label>
     </span>
   );
   // return (

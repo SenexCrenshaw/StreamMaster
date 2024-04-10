@@ -20,14 +20,13 @@ const StreamMultiVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, sele
 
   const { selectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
-  console.log('selectAll', id, selectAll);
 
   const ReturnToParent = useCallback(() => {
     onClose?.();
   }, [onClose]);
 
   const getTotalCount = useMemo(() => selectSelectedItems?.length ?? 0, [selectSelectedItems]);
-  console.log('getTotalCount', getTotalCount, selectAll, selectSelectedItems);
+
   const onVisiblesClick = useCallback(async () => {
     if (selectSelectedItems === undefined) {
       ReturnToParent();

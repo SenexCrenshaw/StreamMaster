@@ -2168,6 +2168,7 @@
     outline: 0 none;
     border: 2px solid #e1e1e1;
     border-radius: 6px;
+    font-size: 0.75rem;
   }
   .p-togglebutton .p-button {
     background: #ffffff;
@@ -6806,7 +6807,8 @@
   border-right: none;
 }
 .sourceOrFileDialog .p-inputtext {
-  height: 1.6rem;
+  border-radius: unset !important;
+  height: 1.8rem !important;
 }
 
 .p-dropdown-panel .p-dropdown-filter {
@@ -6924,10 +6926,27 @@
 .p-inputnumber-button-group {
   height: 1.6rem;
 }
+.p-inputnumber-button-group .p-button.p-button-icon-only {
+  padding: 0 !important;
+  width: 1.6rem;
+}
 
 .p-button.p-button-icon-only {
   padding: 0.5rem 0;
   width: 1.6rem;
+}
+
+.input-border {
+  border: 0.1rem solid #cecece;
+  border-radius: 6px;
+}
+
+.p-button-label {
+  font-size: 0.75rem;
+}
+
+.p-togglebutton-input {
+  height: 4rem !important;
 }
 
 .sm-text-color {
@@ -7043,6 +7062,14 @@
   border-radius: 6px;
   height: 1.6rem;
   background: var(--surface-ground);
+}
+.sm-fileupload .sm-inputnumber-input-no-right-border {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.sm-fileupload .sm-inputnumber-input-no-right-border .p-inputnumber-input {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .sm-fileupload-header {
