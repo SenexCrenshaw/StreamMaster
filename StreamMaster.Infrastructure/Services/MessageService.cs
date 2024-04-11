@@ -16,6 +16,13 @@ namespace StreamMaster.Infrastructure.Services
 
             await sender.Send(request);
         }
+        public async Task SendError(string message, Exception? ex)
+        {
+            Logger.LogError(message);
+            SendSMErrorRequest request = new(Detail: message, Summary: ex?.Message ?? "");
+
+            await sender.Send(request);
+        }
 
         public async Task SendInfo(string message)
         {
@@ -46,5 +53,6 @@ namespace StreamMaster.Infrastructure.Services
 
             await sender.Send(request);
         }
+
     }
 }

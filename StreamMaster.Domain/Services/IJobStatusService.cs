@@ -3,7 +3,11 @@
     public interface IJobStatusService
     {
         JobStatusManager GetJobManagerProcessEPG(int id);
+        JobStatusManager GetJobManagerRefreshEPG(int id);
+        JobStatusManager GetJobManagerUpdateEPG(int id);
+        JobStatusManager GetJobManagerUpdateM3U(int id);
         JobStatusManager GetJobManagerProcessM3U(int id);
+        JobStatusManager GetJobManagerRefreshM3U(int id);
         DateTime LastRun(string key);
         DateTime LastSuccessful(string key);
         JobStatusManager GetJobManager(JobType jobType, int id);

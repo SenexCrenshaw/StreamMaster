@@ -122,4 +122,24 @@ public partial class JobStatusService(ILogger<JobStatusService> logger) : IJobSt
     {
         return GetStatus(key).LastSuccessful;
     }
+
+    public JobStatusManager GetJobManagerRefreshEPG(int id)
+    {
+        return new JobStatusManager(this, JobType.RefreshEPG, id);
+    }
+
+    public JobStatusManager GetJobManagerUpdateEPG(int id)
+    {
+        return new JobStatusManager(this, JobType.UpdateEPG, id);
+    }
+
+    public JobStatusManager GetJobManagerUpdateM3U(int id)
+    {
+        return new JobStatusManager(this, JobType.UpdateM3U, id);
+    }
+
+    public JobStatusManager GetJobManagerRefreshM3U(int id)
+    {
+        return new JobStatusManager(this, JobType.RefreshM3U, id);
+    }
 }

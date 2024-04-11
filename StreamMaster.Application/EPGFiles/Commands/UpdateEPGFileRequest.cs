@@ -13,7 +13,7 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
 {
     public async Task<APIResponse> Handle(UpdateEPGFileRequest request, CancellationToken cancellationToken)
     {
-        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.UpdateEPG, request.Id);
+        JobStatusManager jobManager = jobStatusService.GetJobManagerUpdateEPG(request.Id);
         try
         {
 
@@ -21,7 +21,9 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
             {
                 return APIResponse.NotFound;
             }
-            jobManager.Start();
+
+
+            List<FieldData> ret = [];
 
             EPGFile? epgFile = await Repository.EPGFile.GetEPGFileById(request.Id).ConfigureAwait(false);
 
@@ -29,6 +31,7 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
             {
                 return APIResponse.NotFound;
             }
+            jobManager.Start();
 
             bool isChanged = false;
             bool isNameChanged = false;
@@ -41,6 +44,7 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
                 {
                     oldEPGNumber = epgFile.EPGNumber;
                     epgFile.EPGNumber = request.EPGNumber.Value;
+                    ret.Add(new FieldData(() => epgFile.EPGNumber));
                 }
             }
 
@@ -48,18 +52,21 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
             {
                 isChanged = true;
                 epgFile.Url = request.Url == "" ? null : request.Url;
+                ret.Add(new FieldData(() => epgFile.Url));
             }
 
             if (request.Color != null && epgFile.Color != request.Color)
             {
                 isChanged = true;
                 epgFile.Color = request.Color;
+                ret.Add(new FieldData(() => epgFile.Color));
             }
 
             if (request.TimeShift.HasValue)
             {
                 isChanged = true;
                 epgFile.TimeShift = request.TimeShift.Value;
+                ret.Add(new FieldData(() => epgFile.TimeShift));
             }
 
             if (!string.IsNullOrEmpty(request.Name) && epgFile.Name != request.Name)
@@ -67,24 +74,26 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
                 isChanged = true;
                 isNameChanged = true;
                 epgFile.Name = request.Name;
+                ret.Add(new FieldData(() => epgFile.Name));
             }
 
             if (request.AutoUpdate != null && epgFile.AutoUpdate != request.AutoUpdate)
             {
                 isChanged = true;
                 epgFile.AutoUpdate = (bool)request.AutoUpdate;
+                ret.Add(new FieldData(() => epgFile.AutoUpdate));
             }
 
             if (request.HoursToUpdate != null && epgFile.HoursToUpdate != request.HoursToUpdate)
             {
                 isChanged = true;
                 epgFile.HoursToUpdate = (int)request.HoursToUpdate;
+                ret.Add(new FieldData(() => epgFile.HoursToUpdate));
             }
 
             Repository.EPGFile.UpdateEPGFile(epgFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
             epgFile.WriteJSON(logger);
-            EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);
 
             if (oldEPGNumber != null && request.EPGNumber != null)
             {
@@ -93,12 +102,17 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
 
             if (isNameChanged)
             {
-                await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
+                await Publisher.Publish(new EPGFileAddedEvent(Mapper.Map<EPGFileDto>(epgFile)), cancellationToken).ConfigureAwait(false);
             }
 
             if (isChanged)
             {
                 await HubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
+            }
+
+            if (ret.Count > 0)
+            {
+                await HubContext.Clients.All.SetField(ret).ConfigureAwait(false);
             }
 
             jobManager.SetSuccessful();

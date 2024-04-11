@@ -8,19 +8,27 @@ public record UpdateM3UFileRequest(int? MaxStreamCount, int? StartingChannelNumb
     : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IBackgroundTaskQueue taskQueue, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IBackgroundTaskQueue taskQueue, IJobStatusService jobStatusService, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
     : IRequestHandler<UpdateM3UFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(UpdateM3UFileRequest request, CancellationToken cancellationToken)
     {
+        JobStatusManager jobManager = jobStatusService.GetJobManagerUpdateM3U(request.Id);
+
         try
         {
+            if (jobManager.IsRunning)
+            {
+                return APIResponse.NotFound;
+            }
+
             List<FieldData> ret = [];
             M3UFile? m3uFile = await Repository.M3UFile.GetM3UFile(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
             {
                 return APIResponse.NotFound;
             }
+            jobManager.Start();
 
             bool needsUpdate = false;
             bool needsRefresh = false;
@@ -101,11 +109,12 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IBackgro
             {
                 await HubContext.Clients.All.SetField(ret).ConfigureAwait(false);
             }
-
+            jobManager.SetSuccessful();
             return APIResponse.Success;
         }
         catch (Exception ex)
         {
+            jobManager.SetError();
             return APIResponse.ErrorWithMessage(ex, $"Failed M3U update");
         }
 

@@ -47,7 +47,7 @@ const EPGFileEditDialog = ({ selectedFile }: EPGFileEditDialogProperties) => {
       <Dialog
         className="p-0 sm-fileupload-panel default-border"
         visible={visible}
-        style={{ top: '-10%', width: '30vw' }}
+        style={{ top: '-10%', width: '40vw' }}
         onHide={() => setVisible(false)}
         content={
           <SMCard

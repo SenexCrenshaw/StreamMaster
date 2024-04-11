@@ -9,7 +9,7 @@ interface SMCardProperties {
 export const SMCard = ({ children, header, italicized, text, title }: SMCardProperties) => {
   return (
     <div className="sm-card">
-      <div className="flex justify-content-between align-items-center px-1 header">
+      <div className="sm-card-header flex justify-content-between align-items-center px-1">
         <span className="sm-text-color">{title}</span>
         {header}
       </div>

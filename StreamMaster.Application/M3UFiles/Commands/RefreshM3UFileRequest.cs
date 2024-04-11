@@ -11,7 +11,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
 
     public async Task<APIResponse> Handle(RefreshM3UFileRequest request, CancellationToken cancellationToken)
     {
-        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.RefreshM3U, request.Id);
+        JobStatusManager jobManager = jobStatusService.GetJobManagerRefreshM3U(request.Id);
         try
         {
             if (jobManager.IsRunning)

@@ -7025,8 +7025,11 @@
   border-top-right-radius: 0.375rem;
   border-style: solid;
 }
-.sm-card .header {
+.sm-card .sm-card-header {
   padding: 0.1rem;
+  border-style: solid;
+  border-bottom-width: 1px !important;
+  border-color: var(--surface-100);
   background-color: #0c243c;
   border-top-left-radius: 0.375rem;
   border-top-right-radius: 0.375rem;

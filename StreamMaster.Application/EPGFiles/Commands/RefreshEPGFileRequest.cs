@@ -4,13 +4,13 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RefreshEPGFileRequest(int Id) : IRequest<APIResponse> { }
 
-public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger, IMapper Mapper, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IPublisher Publisher)
+public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger, IMessageService messageService, IMapper Mapper, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<RefreshEPGFileRequest, APIResponse>
 {
 
     public async Task<APIResponse> Handle(RefreshEPGFileRequest request, CancellationToken cancellationToken)
     {
-        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.RefreshEPG, request.Id);
+        JobStatusManager jobManager = jobStatusService.GetJobManagerRefreshEPG(request.Id);
         try
         {
 
@@ -25,6 +25,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
             if (epgFile == null)
             {
                 jobManager.SetError();
+                await messageService.SendError($"EPG with ID {request.Id} not found");
                 return APIResponse.NotFound;
             }
 
@@ -53,6 +54,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
                     {
                         ++epgFile.DownloadErrors;
                         Logger.LogCritical("Exception EPG From URL {ex}", ex);
+                        await messageService.SendError("Exception EPG From URL {ex}", ex);
                     }
                 }
             }
@@ -67,6 +69,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
             await Publisher.Publish(new EPGFileAddedEvent(toPublish), cancellationToken).ConfigureAwait(false);
 
             jobManager.SetSuccessful();
+            await messageService.SendSuccess($"Processed EPG {epgFile.Name}");
             return APIResponse.Success;
 
         }

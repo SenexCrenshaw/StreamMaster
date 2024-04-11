@@ -48,11 +48,6 @@ public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, I
             }
             await Repository.SaveAsync().ConfigureAwait(false);
 
-            //schedulesDirect.ResetEPGCache();
-
-            //MemoryCache.SetSyncForceNextRun(Extra: true);
-
-
             return APIResponse.Success;
 
         }
