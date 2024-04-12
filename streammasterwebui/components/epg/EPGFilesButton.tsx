@@ -1,4 +1,4 @@
-import { SMCard } from '@components/SMCard';
+import { SMCard } from '@components/sm/SMCard';
 import UploadButton from '@components/buttons/UploadButton';
 import XButton from '@components/buttons/XButton';
 import { OverlayPanel } from 'primereact/overlaypanel';

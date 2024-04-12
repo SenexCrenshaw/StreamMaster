@@ -6949,6 +6949,16 @@
   height: 4rem !important;
 }
 
+.p-confirm-popup .p-confirm-popup-footer .p-button {
+  height: 1.6rem;
+}
+.p-confirm-popup .p-confirm-popup-accept {
+  background-color: green;
+}
+.p-confirm-popup .p-confirm-popup-reject {
+  background-color: red;
+}
+
 .sm-text-color {
   color: #fe7600;
 }

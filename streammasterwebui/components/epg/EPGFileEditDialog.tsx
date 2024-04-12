@@ -1,6 +1,6 @@
 import { memo, useRef, useState } from 'react';
 
-import { SMCard } from '@components/SMCard';
+import { SMCard } from '@components/sm/SMCard';
 import EditButton from '@components/buttons/EditButton';
 import XButton from '@components/buttons/XButton';
 

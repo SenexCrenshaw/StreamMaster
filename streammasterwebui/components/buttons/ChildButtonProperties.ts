@@ -1,3 +1,4 @@
+import { Button } from 'primereact/button';
 import { SyntheticEvent } from 'react';
 
 export interface ChildButtonProperties {

@@ -49,6 +49,7 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
       <>
         <Tooltip target={tooltipClassName} />
         <Button
+          ref={ref}
           className={tooltipClassName}
           disabled={disabled}
           icon={`pi ${icon}`}
@@ -61,7 +62,6 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
           text={!iconFilled}
           tooltip={tooltip}
           tooltipOptions={isLeft ? getLeftToolOptions : getRightToolOptions}
-          ref={ref}
           style={style}
           {...props}
           pt={{

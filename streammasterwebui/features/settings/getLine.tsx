@@ -1,4 +1,4 @@
-import { SMTextColor } from '@components/SMTextColor';
+import { SMTextColor } from '@components/sm/SMTextColor';
 
 type GetLineProps = {
   label: string;

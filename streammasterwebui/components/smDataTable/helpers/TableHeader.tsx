@@ -1,4 +1,4 @@
-import { SMTextColor } from '@components/SMTextColor';
+import { SMTextColor } from '@components/sm/SMTextColor';
 import { ExportComponent, HeaderLeft, MultiSelectCheckbox } from '@lib/common/common';
 import { DataTableHeaderProperties } from '../types/smDataTableInterfaces';
 

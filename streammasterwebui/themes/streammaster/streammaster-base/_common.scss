@@ -262,3 +262,19 @@
 .p-togglebutton-input {
     height: 4rem !important;
 }
+
+.p-confirm-popup {
+    .p-confirm-popup-footer {
+        .p-button {
+            height: $input-height;
+        }
+    }
+
+    .p-confirm-popup-accept {
+        background-color: $input-save-color;
+    }
+
+    .p-confirm-popup-reject {
+        background-color: $input-cancel-color;
+    }
+}

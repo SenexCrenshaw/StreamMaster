@@ -3,7 +3,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import AddButton from '@components/buttons/AddButton';
 import { FileUpload } from 'primereact/fileupload';
 
-import { SMCard } from '@components/SMCard';
+import { SMCard } from '@components/sm/SMCard';
 import XButton from '@components/buttons/XButton';
 import SMFileUpload from '@components/file/SMFileUpload';
 

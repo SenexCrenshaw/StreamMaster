@@ -63,13 +63,16 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
   //   [selectedSMChannel, setSelectedSMChannel]
   // );
 
-  const actionBodyTemplate = useCallback((data: SMChannelDto) => {
+  const actionTemplate = useCallback((data: SMChannelDto) => {
     const accept = () => {
       const toSend = {} as DeleteSMChannelRequest;
       toSend.SMChannelId = data.Id;
       DeleteSMChannel(toSend)
         .then((response) => {
           console.log('Removed Channel');
+          if (selectedSMChannel?.Id === data.Id) {
+            setSelectedSMChannel(undefined);
+          }
         })
         .catch((error) => {
           console.error('Remove Channel', error.message);
@@ -110,9 +113,9 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
       channelLogoColumnConfig,
       channelNameColumnConfig,
       { field: 'Group', filter: false, sortable: true, width: '5rem' },
-      { align: 'right', bodyTemplate: actionBodyTemplate, field: 'actions', fieldType: 'actions', filter: false, header: 'Actions', width: '5rem' }
+      { align: 'right', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', filter: false, header: 'Actions', width: '5rem' }
     ],
-    [actionBodyTemplate, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig]
+    [actionTemplate, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig]
   );
 
   const rowClass = useCallback(

@@ -1,6 +1,6 @@
 import { memo, useRef } from 'react';
 
-import { SMCard } from '@components/SMCard';
+import { SMCard } from '@components/sm/SMCard';
 import EditButton from '@components/buttons/EditButton';
 import XButton from '@components/buttons/XButton';
 import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';

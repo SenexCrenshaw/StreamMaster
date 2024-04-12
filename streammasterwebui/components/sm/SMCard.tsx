@@ -1,6 +1,6 @@
 interface SMCardProperties {
   readonly children: React.ReactNode;
-  readonly header: React.ReactNode;
+  readonly header?: React.ReactNode;
   readonly title: string | undefined;
   readonly text?: string | undefined;
   readonly italicized?: boolean;
