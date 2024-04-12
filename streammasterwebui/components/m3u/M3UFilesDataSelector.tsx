@@ -2,7 +2,7 @@ import { memo, useCallback, useMemo } from 'react';
 
 import StringEditorBodyTemplate from '../inputs/StringEditorBodyTemplate';
 import M3UFileRefreshDialog from './M3UFileRefreshDialog';
-import M3UFileRemoveDialog from './M3UFileRemoveDialog';
+import M3UFileDeleteDialog from './M3UFileDeleteDialog';
 
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { formatJSONDateString } from '@lib/common/dateTime';
@@ -120,7 +120,7 @@ const M3UFilesDataSelector = () => {
     return (
       <div className="flex justify-content-center align-items-center">
         <M3UFileRefreshDialog selectedFile={rowData} />
-        <M3UFileRemoveDialog selectedFile={rowData} />
+        <M3UFileDeleteDialog selectedFile={rowData} />
         <M3UFileEditDialog selectedFile={rowData} />
       </div>
     );
