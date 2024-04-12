@@ -4,6 +4,8 @@ import { Tooltip } from 'primereact/tooltip';
 import React, { CSSProperties, forwardRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
+export type SeverityType = 'danger' | 'help' | 'info' | 'secondary' | 'success' | 'warning';
+
 export interface BaseButtonProps {
   className?: string;
   disabled?: boolean;
@@ -13,7 +15,7 @@ export interface BaseButtonProps {
   label?: string;
   onClick: (e: React.SyntheticEvent) => void;
   rounded?: boolean;
-  severity?: 'danger' | 'help' | 'info' | 'secondary' | 'success' | 'warning';
+  severity?: SeverityType;
   tooltip?: string;
   style?: CSSProperties | undefined;
   outlined?: boolean | undefined;

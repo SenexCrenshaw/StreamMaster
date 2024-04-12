@@ -1,9 +1,9 @@
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { SMCard } from './SMCard';
 import { useEffect, useRef } from 'react';
-import RefreshButton from '@components/buttons/RefreshButton';
 import OKButton from '@components/buttons/OKButton';
 import XButton from '@components/buttons/XButton';
+import BaseButton, { SeverityType } from '@components/buttons/BaseButton';
 
 interface SMPopUpProperties {
   readonly children: React.ReactNode;
@@ -11,13 +11,15 @@ interface SMPopUpProperties {
   readonly message?: string;
   readonly hidden?: boolean;
   readonly tooltip?: string;
+  readonly icon?: string;
+  readonly severity?: SeverityType;
   onHide?(): void;
   onShow?(): void;
   OK(): void;
   Cancel?(): void;
 }
 
-export const SMPopUp = ({ children, hidden, tooltip, onHide: clientHide, OK, Cancel, onShow, title }: SMPopUpProperties) => {
+export const SMPopUp = ({ children, hidden, icon, severity, tooltip, onHide: clientHide, OK, Cancel, onShow, title }: SMPopUpProperties) => {
   const op = useRef<OverlayPanel>(null);
   const anchorRef = useRef<HTMLDivElement>(null);
 
@@ -55,7 +57,15 @@ export const SMPopUp = ({ children, hidden, tooltip, onHide: clientHide, OK, Can
           </div>
         </SMCard>
       </OverlayPanel>
-      {hidden === undefined && <RefreshButton onClick={(event) => op.current?.toggle(event)} tooltip={tooltip} />}
+      {hidden === undefined && (
+        <BaseButton
+          onClick={(event) => op.current?.toggle(event)}
+          tooltip={tooltip}
+          iconFilled={false}
+          icon={icon ?? 'pi-plus'}
+          severity={severity ?? 'info'}
+        />
+      )}
     </div>
   );
 };
