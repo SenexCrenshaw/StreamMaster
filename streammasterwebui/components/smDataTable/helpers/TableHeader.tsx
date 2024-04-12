@@ -1,6 +1,6 @@
 import { SMTextColor } from '@components/sm/SMTextColor';
-import { ExportComponent, HeaderLeft, MultiSelectCheckbox } from '@lib/common/common';
 import { DataTableHeaderProperties } from '../types/smDataTableInterfaces';
+import { HeaderLeft, MultiSelectCheckbox } from '@lib/common/common';
 
 interface TableHeaderProperties {
   dataSelectorProps: DataTableHeaderProperties;
@@ -37,7 +37,7 @@ const TableHeader: React.FC<TableHeaderProperties> = ({
         <div className="flex flex-nowrap flex-row justify-content-between">
           {dataSelectorProps.headerLeftTemplate && <HeaderLeft props={dataSelectorProps} />}
           {dataSelectorProps.headerRightTemplate && dataSelectorProps.headerRightTemplate}
-          {enableExport && <ExportComponent exportCSV={exportCSV} />}
+          {/* {enableExport && <ExportComponent exportCSV={exportCSV} />} */}
         </div>
       </div>
     )}

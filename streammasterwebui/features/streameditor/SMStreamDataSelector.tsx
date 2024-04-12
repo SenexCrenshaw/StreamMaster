@@ -161,23 +161,24 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
   );
 
   function addOrRemoveHeaderTemplate() {
-    const isSelected = false;
+    return <TriSelectShowHidden dataKey={dataKey} />;
+    // const isSelected = false;
 
-    if (!isSelected) {
-      return (
-        <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-          {/* <AddButton iconFilled={false} onClick={() => console.log('AddButton')} tooltip="Add All Channels" /> */}
-          {/* {showSelection && <Checkbox checked={state.selectAll} className="pl-1" onChange={() => toggleAllSelection()} />} */}
-        </div>
-      );
-    }
+    // if (!isSelected) {
+    //   return (
+    //     <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+    //       {/* <AddButton iconFilled={false} onClick={() => console.log('AddButton')} tooltip="Add All Channels" /> */}
+    //       {/* {showSelection && <Checkbox checked={state.selectAll} className="pl-1" onChange={() => toggleAllSelection()} />} */}
+    //     </div>
+    //   );
+    // }
 
-    return (
-      <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-        <AddButton iconFilled={false} onClick={() => console.log('AddButton')} />
-        {/* {showSelection && <Checkbox checked={state.selectAll} className="pl-1" onChange={() => toggleAllSelection()} />} */}
-      </div>
-    );
+    // return (
+    //   <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+    //     <AddButton iconFilled={false} onClick={() => console.log('AddButton')} />
+    //     {/* {showSelection && <Checkbox checked={state.selectAll} className="pl-1" onChange={() => toggleAllSelection()} />} */}
+    //   </div>
+    // );
   }
 
   const rightHeaderTemplate = useMemo(
@@ -187,7 +188,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
         <div>
           <M3UFilesButton />
         </div>
-        <TriSelectShowHidden dataKey={dataKey} />
+        {/* <TriSelectShowHidden dataKey={dataKey} /> */}
         {/* <TriSelectShowHidden dataKey={dataKey} />
         <VideoStreamSetTimeShiftsDialog id={dataKey} />
         <VideoStreamResetLogosDialog id={dataKey} />

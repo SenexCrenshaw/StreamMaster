@@ -665,7 +665,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
                   showApplyButton
                   showClearButton
                   showFilterMatchModes
-                  showFilterMenu={col.filter === true}
+                  showFilterMenu={false}
                   showFilterMenuOptions
                   showFilterOperator
                   sortable={props.reorderable ? false : col.sortable}

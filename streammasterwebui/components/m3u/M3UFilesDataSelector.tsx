@@ -113,7 +113,7 @@ const M3UFilesDataSelector = () => {
     return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.StationCount}</div>;
   }, []);
 
-  const actionBodyTemplate = useCallback((rowData: M3UFileDto) => {
+  const actionTemplate = useCallback((rowData: M3UFileDto) => {
     if (rowData.Id === 0) {
       return <div />;
     }
@@ -150,13 +150,13 @@ const M3UFilesDataSelector = () => {
         width: '6rem'
       },
       {
-        bodyTemplate: actionBodyTemplate,
+        bodyTemplate: actionTemplate,
         field: 'editBodyTemplate',
         header: 'Actions',
         width: '6rem'
       }
     ],
-    [nameEditorBodyTemplate, lastDownloadedTemplate, stationCountTemplate, actionBodyTemplate]
+    [nameEditorBodyTemplate, lastDownloadedTemplate, stationCountTemplate, actionTemplate]
   );
 
   return (

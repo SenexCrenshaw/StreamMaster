@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { type ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
-import ExportButton from '@components/export/ExportButton';
+// import ExportButton from '@components/export/ExportButton';
 import GlobalSearch from '@components/search/GlobalSearch';
 import { SMFileTypes } from '@lib/common/streammaster_enums';
 
@@ -13,6 +12,7 @@ import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { baseHostURL, isDev as isDevelopment } from '../settings';
 import { getColor } from './colors';
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 
 export function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
   return (error as FetchBaseQueryError).data !== undefined;
@@ -288,21 +288,21 @@ export interface HasId {
 
 export function compareIconFileDto(a: IconFileDto, b: IconFileDto): number {
   // Compare by id
-  if (a.id !== undefined && b.id !== undefined) {
-    if (a.id < b.id) return -1;
-    if (a.id > b.id) return 1;
+  if (a.Id !== undefined && b.Id !== undefined) {
+    if (a.Id < b.Id) return -1;
+    if (a.Id > b.Id) return 1;
   }
 
   // Compare by source
-  if (a.source !== undefined && b.source !== undefined) {
-    const sourceComparison = a.source.localeCompare(b.source);
+  if (a.Source !== undefined && b.Source !== undefined) {
+    const sourceComparison = a.Source.localeCompare(b.Source);
 
     if (sourceComparison !== 0) return sourceComparison;
   }
 
   // Compare by name
-  if (a.name !== undefined && b.name !== undefined) {
-    return a.name.localeCompare(b.name);
+  if (a.Name !== undefined && b.Name !== undefined) {
+    return a.Name.localeCompare(b.Name);
   }
 
   return 0;
@@ -587,8 +587,7 @@ export const GlobalSearchComponent: React.FC<{
     />
   );
 
-export const ExportComponent: React.FC<{ readonly exportCSV: any }> = ({ exportCSV }) => <ExportButton exportCSV={exportCSV} />;
-
+// export const ExportComponent: React.FC<{ readonly exportCSV: any }> = ({ exportCSV }) => <ExportButton exportCSV={exportCSV} />;
 export interface UserInformation {
   IsAuthenticated: boolean;
   TokenAge: Date;
