@@ -1,6 +1,6 @@
-.sm-text-color {
-    color: $streamMasterColor;
-}
+// .sm-text-color {
+//     color: $streamMasterColor;
+// }
 
 .sm-overlay {
     background-color: var(--surface-ground-alpha);
@@ -10,12 +10,19 @@
     // }
 }
 
+.sm-datatable {
+    // .sm-datatable-header {
+
+    //     background-color: $tableHeaderBg !important;
+    // }
+}
+
 .listTemplate-gridItem-name,
 .sm-column,
 .sm-col-header,
 .sm-col-header-left,
 .sm-col-header-right {
-    @include datatable-text-style(); // Use true for nowrap, false to allow wrapping
+    @include datatable-text-style();
 }
 
 .listTemplate-gridItem-name {
@@ -60,4 +67,25 @@
     .p-row-toggler {
         max-height: $input-height;
     }
+}
+
+.sm-standard-header {
+    border-radius: $borderRadius;
+    background-color: $tableHeaderBg !important;
+}
+
+.sm-datatable {
+    border-radius: $borderRadius;
+}
+
+.sm-table-header {
+    border-radius: $borderRadius;
+}
+
+.p-datatable-wrapper {
+    background-color: var(--surface-ground) !important;
+}
+
+.surface-overlay {
+    background-color: var(--surface-ground) !important;
 }

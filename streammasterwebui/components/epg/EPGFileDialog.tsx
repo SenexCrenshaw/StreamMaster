@@ -3,11 +3,12 @@ import ResetButton from '@components/buttons/ResetButton';
 import SaveButton from '@components/buttons/SaveButton';
 import NumberInput from '@components/inputs/NumberInput';
 import TextInput from '@components/inputs/TextInput';
+
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { EPGFileDto, UpdateEPGFileRequest, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
 import React, { useCallback, useEffect, useMemo } from 'react';
 
-export interface M3UFileDialogProperties {
+export interface EPGFileDialogProperties {
   readonly onHide?: (didUpload: boolean) => void;
   readonly selectedFile: EPGFileDto;
   readonly noButtons?: boolean;
@@ -15,7 +16,7 @@ export interface M3UFileDialogProperties {
   readonly onUpdated?: (request: UpdateM3UFileRequest) => void;
 }
 
-const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: M3UFileDialogProperties) => {
+const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPGFileDialogProperties) => {
   const defaultValues = {
     Color: '',
     EPGNumber: 1,
@@ -29,6 +30,11 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: M3U
   const [epgFileDto, setEPGFileDto] = React.useState<EPGFileDto>(defaultValues);
   const [originalEPGFileDto, setOriginalEPGFileDto] = React.useState<EPGFileDto | undefined>(undefined);
   const [request, setRequest] = React.useState<UpdateEPGFileRequest>({} as UpdateEPGFileRequest);
+
+  // useEffect(() => {
+  //   if (epgFileDto?.Id !== selectedFile.Id) {
+  //   }
+  // }, []);
 
   const setColor = useCallback(
     (value: string) => {
@@ -116,7 +122,7 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: M3U
       return true;
     }
 
-    if (epgFileDto.EPGNumber !== originalEPGFileDto?.EPGNumber) {
+    if (epgFileDto.EPGNumber !== originalEPGFileDto.EPGNumber) {
       return true;
     }
 
@@ -170,22 +176,11 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: M3U
         <div className="flex">
           <div className="col-6 pt-2">
             <div className="sm-inputnumber-input-no-right-border col-12">
-              <TextInput autoFocus value={epgFileDto?.Name} label="Name" onChange={(e) => setName(e)} />
+              <TextInput autoFocus value={epgFileDto.Name} label="Name" onChange={(e) => setName(e)} />
             </div>
           </div>
           <div className="col-6 p-0 pt-2">
             <div className="flex p-fluid align-items-center justify-content-between">
-              <div className="sm-inputnumber-input-no-right-border col-6">
-                <NumberInput
-                  showButtons
-                  label="EPGNumber"
-                  onChange={(e) => {
-                    setEPGNumber(e);
-                  }}
-                  showClear
-                  value={epgFileDto?.EPGNumber}
-                />
-              </div>
               <div className="col-6">
                 <NumberInput
                   label="AUTO UPDATE"
@@ -194,7 +189,7 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: M3U
                   }}
                   showClear
                   suffix=" Hours"
-                  value={epgFileDto?.HoursToUpdate}
+                  value={epgFileDto.HoursToUpdate}
                 />
               </div>
             </div>
@@ -209,17 +204,18 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: M3U
                 console.log(e);
                 setColor(e);
               }}
-              color={epgFileDto?.Color}
+              color={epgFileDto.Color}
             />
           </div>
-          <div className="col-3">
+          <div className="sm-inputnumber-input-no-right-border col-4">
             <NumberInput
-              label="STARTING CHANNEL #"
+              showButtons
+              label="EPGNumber"
               onChange={(e) => {
                 setEPGNumber(e);
               }}
               showClear
-              value={epgFileDto?.EPGNumber}
+              value={epgFileDto.EPGNumber}
             />
           </div>
           <div className="col-3">
@@ -229,7 +225,7 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: M3U
                 setTimeShift(e);
               }}
               showClear
-              value={epgFileDto?.TimeShift}
+              value={epgFileDto.TimeShift}
             />
           </div>
         </div>
@@ -239,7 +235,12 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: M3U
         <div className="flex w-12 gap-2 justify-content-end align-content-center pr-3">
           <ResetButton
             disabled={!isSaveEnabled && originalEPGFileDto !== undefined}
-            onClick={() => originalEPGFileDto !== undefined && setEPGFileDto(originalEPGFileDto)}
+            onClick={() => {
+              if (originalEPGFileDto !== undefined) {
+                setEPGFileDto(originalEPGFileDto);
+                setColor(originalEPGFileDto.Color);
+              }
+            }}
           />
           <SaveButton disabled={!isSaveEnabled} label="Update EPG" onClick={() => onUpdated && onUpdated(request)} />
         </div>
@@ -248,6 +249,6 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: M3U
   );
 };
 
-EPGFileDialog.displayName = 'M3UFileEditDialog';
+EPGFileDialog.displayName = 'EPGFileDialog';
 
 export default React.memo(EPGFileDialog);

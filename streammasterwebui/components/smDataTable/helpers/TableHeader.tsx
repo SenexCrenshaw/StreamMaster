@@ -21,10 +21,11 @@ const TableHeader: React.FC<TableHeaderProperties> = ({
   exportCSV,
   dataSelectorProps
 }) => (
-  <div className="flex grid flex-row align-items-center justify-content-between debug">
+  <div className="flex flex-row align-items-center justify-content-between border-white">
     {(headerName || onMultiSelectClick) && (
-      <div className="col-4 text-sm debug">
+      <div className="col-4 text-sm">
         <SMTextColor text={headerName} />
+
         {onMultiSelectClick && (
           <div hidden={dataSelectorProps.selectionMode !== 'selectable'}>
             <MultiSelectCheckbox onMultiSelectClick={onMultiSelectClick} rowClick={rowClick} setRowClick={setRowClick} />
@@ -33,7 +34,7 @@ const TableHeader: React.FC<TableHeaderProperties> = ({
       </div>
     )}
     {(dataSelectorProps.headerRightTemplate || enableExport || dataSelectorProps.headerLeftTemplate) && (
-      <div className="col-8 debug p-0">
+      <div className="col-8 p-0">
         <div className="flex flex-nowrap flex-row justify-content-between">
           {dataSelectorProps.headerLeftTemplate && <HeaderLeft props={dataSelectorProps} />}
           {dataSelectorProps.headerRightTemplate && dataSelectorProps.headerRightTemplate}

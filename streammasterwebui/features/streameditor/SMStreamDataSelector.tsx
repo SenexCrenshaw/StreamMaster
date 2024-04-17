@@ -268,7 +268,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
       queryFilter={useGetPagedSMStreams}
       selectedItemsKey="selectSelectedSMStreamDtoItems"
       selectionMode="multiple"
-      style={{ height: 'calc(100vh - 10px)' }}
+      style={{ height: 'calc(100vh - 84px)' }}
     />
   );
 };

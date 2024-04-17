@@ -7,6 +7,15 @@ $highlightBg: #ced6f1 !default;
 $highlightTextColor: #585858 !default;
 $highlightFocusBg: darken($highlightBg, 8%) !default;
 
+$blue-header-color: #0c243c;
+
+$textColor: #bcbfbf;
+$surface-ground: #161d21;
+$surface-section: $surface-ground;
+$tableHeaderBg: #21282c !default;
+$headerTextColor: #ff7e00;
+$editableTextColor: #94abec;
+
 //reused color variables
 $shade000: #ffffff !default; //surface
 $shade100: #f5f5f5 !default; //header background

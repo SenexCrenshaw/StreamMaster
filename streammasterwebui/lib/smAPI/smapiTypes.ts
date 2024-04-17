@@ -438,6 +438,7 @@ export interface GetPagedM3UFilesRequest
 export interface CreateM3UFileFromFormRequest
 {
 	FormFile?: any;
+	HoursToUpdate?: number;
 	MaxStreamCount: number;
 	Name: string;
 	OverWriteChannels?: boolean;
@@ -446,6 +447,7 @@ export interface CreateM3UFileFromFormRequest
 }
 export interface CreateM3UFileRequest
 {
+	HoursToUpdate?: number;
 	MaxStreamCount: number;
 	Name: string;
 	OverWriteChannels?: boolean;
@@ -503,6 +505,7 @@ export interface CreateEPGFileFromFormRequest
 	EPGNumber: number;
 	FileName: string;
 	FormFile?: any;
+	HoursToUpdate?: number;
 	Name: string;
 	TimeShift?: number;
 }
@@ -511,6 +514,7 @@ export interface CreateEPGFileRequest
 	Color?: string;
 	EPGNumber: number;
 	FileName: string;
+	HoursToUpdate?: number;
 	Name: string;
 	TimeShift?: number;
 	UrlSource?: string;

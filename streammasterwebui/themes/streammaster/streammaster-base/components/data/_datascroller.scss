@@ -4,9 +4,14 @@
         border-radius: 0;
     }
 
+    // .p-paginator-bottom {
+    //     border-width: $tableBottomPaginatorBorderWidth;
+    //     border-radius: 0;
+    // }
+
     .p-paginator-bottom {
-        border-width: $tableBottomPaginatorBorderWidth;
-        border-radius: 0;
+        border-top-left-radius: 0 !important;
+        border-top-right-radius: 0 !important;
     }
 
     .p-datascroller-header {
@@ -27,7 +32,7 @@
 
     &.p-datascroller-inline {
         .p-datascroller-list {
-            > li {
+            >li {
                 border: $dataViewListItemBorder;
                 border-width: $dataViewListItemBorderWidth;
             }

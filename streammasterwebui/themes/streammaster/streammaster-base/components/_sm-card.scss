@@ -7,11 +7,12 @@
     border-style: solid;
 
     .sm-card-header {
+
         padding: $datatable-padding;
-        border-style: solid;
-        border-bottom-width: 1px !important;
-        border-color: var(--surface-100);
-        background-color: #0c243c;
+        // border-style: solid;
+        // border-bottom-width: 1px !important;
+        // border-color: var(--surface-100);
+        background-color: $blue-header-color;
         border-top-left-radius: 0.375rem;
         border-top-right-radius: 0.375rem;
         height: $datatable-row-height + $datatable-padding;

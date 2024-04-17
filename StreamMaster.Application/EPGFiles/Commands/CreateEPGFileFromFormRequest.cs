@@ -5,7 +5,7 @@ namespace StreamMaster.Application.EPGFiles.Commands;
 
 [SMAPI(JustController = true, JustHub = true)]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record CreateEPGFileFromFormRequest(IFormFile? FormFile, string Name, string FileName, int EPGNumber, int? TimeShift, string? Color)
+public record CreateEPGFileFromFormRequest(IFormFile? FormFile, string Name, string FileName, int EPGNumber, int? HoursToUpdate, int? TimeShift, string? Color)
     : IRequest<APIResponse>
 { }
 
@@ -39,6 +39,8 @@ public class CreateEPGFileFromFormRequestHandler(ILogger<CreateEPGFileFromFormRe
                 Source = command.Name + ".xmltv",
                 Color = command.Color ?? ColorHelper.GetColor(command.Name),
                 EPGNumber = num,
+                HoursToUpdate = command.HoursToUpdate ?? 72,
+                TimeShift = command.TimeShift ?? 0
             };
 
 
@@ -75,10 +77,6 @@ public class CreateEPGFileFromFormRequestHandler(ILogger<CreateEPGFileFromFormRe
 
             epgFile.ChannelCount = tv.Channels != null ? tv.Channels.Count : 0;
             epgFile.ProgrammeCount = tv.Programs != null ? tv.Programs.Count : 0;
-            if (command.TimeShift.HasValue)
-            {
-                epgFile.TimeShift = command.TimeShift.Value;
-            }
 
             Repository.EPGFile.CreateEPGFile(epgFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);

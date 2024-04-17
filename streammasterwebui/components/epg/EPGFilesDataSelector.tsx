@@ -119,35 +119,25 @@ const EPGFilesDataSelector = () => {
     [onEPGUpdateClick]
   );
 
-  const colorTemplate = useCallback(
-    (rowData: EPGFileDto) => {
-      if (rowData.Id === 0) {
-        return (
-          <div
-            className="p-0 relative"
-            style={{
-              backgroundColor: 'var(--mask-bg)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {rowData.Color}
-          </div>
-        );
-      }
-
+  const colorTemplate = useCallback((rowData: EPGFileDto) => {
+    if (rowData.Id === 0) {
       return (
-        <ColorEditor
-          onChange={async (e) => {
-            await onEPGUpdateClick({ id: rowData.Id, color: e });
+        <div
+          className="p-0 relative"
+          style={{
+            backgroundColor: 'var(--mask-bg)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
           }}
-          color={rowData.Color}
-        />
+        >
+          {rowData.Color}
+        </div>
       );
-    },
-    [onEPGUpdateClick]
-  );
+    }
+
+    return <ColorEditor editable={false} color={rowData.Color} />;
+  }, []);
 
   const channelCountTemplate = useCallback((rowData: EPGFileDto) => {
     if (rowData.Id === 0) {
@@ -217,7 +207,7 @@ const EPGFilesDataSelector = () => {
         bodyTemplate: actionBodyTemplate,
         field: 'autoUpdate',
         header: 'Actions',
-        width: '16rem'
+        width: '6rem'
       }
     ],
     [colorTemplate, nameEditorBodyTemplate, lastDownloadedTemplate, channelCountTemplate, programmeCountTemplate, actionBodyTemplate]

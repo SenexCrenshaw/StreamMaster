@@ -4,7 +4,17 @@ $highlightBg: rgba($primaryColor, 0.16) !default;
 $highlightTextColor: $primaryColor !default;
 $highlightFocusBg: rgba($primaryColor, 0.24) !default;
 
+$textColor: #bcbfbf;
+$surface-ground: #161d21;
+$surface-section: $surface-ground;
+$tableHeaderBg: #21282c !default;
+$headerTextColor: #ff7e00;
+$editableTextColor: #94abec;
+
 $infoButtonBg: #35a4cc !default;
+
+$blue-header-color: #0c243c;
+
 
 //shades
 $shade000: rgba(255, 255, 255, 0.87) !default; //text color
@@ -20,7 +30,7 @@ $primaryTextColor: $shade100 !default;
 $hoverBg: rgba($primaryColor, 0.08) !default;
 
 //global
-$textColor: $shade000 !default;
+// $textColor: $shade000 !default;
 $textSecondaryColor: $shade100 !default;
 $divider: 1px solid $shade600 !default;
 $disabledOpacity: 0.4 !default; //opacity of a disabled item
@@ -37,13 +47,9 @@ $actionIconColor: $shade100 !default;
 $actionIconHoverBg: $hoverBg !default;
 $actionIconHoverColor: $shade000 !default;
 
-//input field (e.g. inputtext, spinner, inputmask)
-// $inputBg: $shade900 !default;
-// $inputBorder: 2px solid $shade600 !default;
-// $inputTextColor: $shade000 !default;
 
+//Input
 $inputBorder: 0 !default;
-
 $inputBg: transparent !default;
 $inputTextColor: hsl(234, 65%, 79%) !default;
 
@@ -222,7 +228,7 @@ $paginatorElementIconHoverColor: $shade000 !default;
 
 //table
 $tableHeaderBorder: 2px solid $shade600 !default;
-$tableHeaderBg: $shade800 !default;
+// $tableHeaderBg: $shade800 !default;
 $tableHeaderTextColor: $shade100 !default;
 
 $tableHeaderCellBg: $shade800 !default;

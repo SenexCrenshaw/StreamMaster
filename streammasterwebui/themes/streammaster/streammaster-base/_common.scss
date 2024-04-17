@@ -11,6 +11,21 @@
     @include datatable-text-style;
 }
 
+.color-editor-box {
+    @extend .default-border;
+    height: $input-height;
+
+    .smbutton {
+        @extend .blue-header-color;
+        border-width: 0px !important;
+        border-style: hidden !important;
+        background-color: transparent !important;
+        height: $input-height;
+        padding: 0;
+        transition: none !important;
+    }
+}
+
 .p-multiselect-label.p-multiselect-items-label {
     padding: 0;
 }
@@ -234,6 +249,11 @@
 
 .p-datatable-thead {
     padding: 0;
+}
+
+.p-paginator-bottom {
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
 }
 
 .p-inputnumber-button-group {

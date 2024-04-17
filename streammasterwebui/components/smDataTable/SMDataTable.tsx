@@ -22,7 +22,6 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import generateFilterData from '@components/dataSelector/generateFilterData';
 import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
-import { TriStateCheckbox } from 'primereact/tristatecheckbox';
 import TableHeader from './helpers/TableHeader';
 import bodyTemplate from './helpers/bodyTemplate';
 import { getAlign, getHeaderFromField, setColumnToggle } from './helpers/dataSelectorFunctions';
@@ -492,7 +491,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 
     return (
       <div className="flex justify-content-center align-items-center p-0 m-0">
-        {showSelection && <TriStateCheckbox value={selectAllStatus} onChange={() => toggleAllSelection()} tooltip={tooltip} />}
+        {showSelection && <Checkbox checked={selectAllStatus ?? false} onChange={() => toggleAllSelection()} tooltip={tooltip} />}
       </div>
     );
   }
@@ -541,9 +540,15 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       }}
       className=""
     >
-      {/* <div className={`${props.className === undefined ? '' : props.className} h-full min-h-full w-full surface-overlay`}> */}
+      <div className="sm-datatable surface-overlay">
+        {sourceRenderHeader && (
+          <div>
+            {/* <div className="layout-padding-top border-1"></div> */}
+            <div className="sm-standard-header">{sourceRenderHeader}</div>
+            <div className="layout-padding-bottom"></div>
+          </div>
+        )}
 
-      <div className="h-full min-h-full w-full surface-overlay">
         <DataTable
           id={props.id}
           dataKey="Id"
@@ -557,7 +562,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           onRowReorder={(e) => {
             onRowReorder(e.value);
           }}
-          header={sourceRenderHeader}
+          // header={sourceRenderHeader}
           lazy
           onRowToggle={(e: DataTableRowToggleEvent) => {
             setters.setExpandedRows(e.data as DataTableExpandedRows);

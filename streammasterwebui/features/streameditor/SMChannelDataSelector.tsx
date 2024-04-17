@@ -191,7 +191,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
       queryFilter={useGetPagedSMChannels}
       rowExpansionTemplate={rowExpansionTemplate}
       selectedItemsKey="selectSelectedSMChannelDtoItems"
-      style={{ height: 'calc(100vh - 10px)' }}
+      style={{ height: 'calc(100vh - 84px)' }}
     />
   );
 };

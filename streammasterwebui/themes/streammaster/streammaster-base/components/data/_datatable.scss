@@ -11,12 +11,43 @@
                 max-height: $datatable-row-height;
             }
         }
+
+        // >tr:first-child {
+        //     >td:first-child {
+        //         border-top-left-radius: $borderRadius;
+        //     }
+
+        //     >td:last-child {
+        //         border-top-right-radius: $borderRadius;
+        //     }
+        // }
+
+        // >tr:last-child {
+        //     >td:first-child {
+        //         border-bottom-left-radius: $borderRadius;
+        //     }
+
+        //     >td:last-child {
+        //         border-bottom-right-radius: $borderRadius;
+        //     }
+        // }
     }
 
     .p-datatable-thead {
+        >tr {
+            >th:first-child {
+                border-top-left-radius: $borderRadius;
+            }
+
+            // >th:last-child {
+            //     border-top-right-radius: $borderRadius;
+            // }
+        }
+
         >tr:nth-child(1) {
             display: none;
         }
+
     }
 
     .p-button.p-button-icon-only {

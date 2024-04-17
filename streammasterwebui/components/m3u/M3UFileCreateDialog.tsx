@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 
 import AddButton from '@components/buttons/AddButton';
 import { FileUpload } from 'primereact/fileupload';
@@ -10,6 +10,7 @@ import { CreateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { CreateM3UFileRequest, M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import M3UFileDialog from './M3UFileDialog';
+import { Dialog } from 'primereact/dialog';
 
 export interface M3UFileDialogProperties {
   readonly infoMessage?: string;
@@ -22,6 +23,7 @@ export interface M3UFileDialogProperties {
 export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3UFileDialogProperties) => {
   const fileUploadReference = useRef<FileUpload>(null);
   const op = useRef<OverlayPanel>(null);
+  const [visible, setVisible] = useState<boolean>(false);
 
   const defaultValues = {
     HoursToUpdate: 72,
@@ -53,7 +55,9 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
       createM3UFileRequest.UrlSource = source;
       createM3UFileRequest.MaxStreamCount = m3uFileDto.MaxStreamCount;
       createM3UFileRequest.StartingChannelNumber = m3uFileDto.StartingChannelNumber;
+      createM3UFileRequest.OverWriteChannels = m3uFileDto.OverwriteChannelNumbers;
       createM3UFileRequest.VODTags = m3uFileDto.VODTags;
+      createM3UFileRequest.HoursToUpdate = m3uFileDto.HoursToUpdate;
 
       await CreateM3UFile(createM3UFileRequest)
         .then(() => {})
@@ -78,33 +82,45 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
 
   return (
     <>
-      <OverlayPanel className="col-5 p-0 sm-fileupload-panel default-border" ref={op} showCloseIcon={false} closeOnEscape>
-        <SMCard title="ADD M3U" header={<XButton iconFilled={false} onClick={(e) => op.current?.toggle(e)} tooltip="Close" />}>
-          <div className="sm-fileupload col-12 p-0 m-0 ">
-            <div className="px-2">
-              <SMFileUpload
-                m3uFileDto={m3uFileDto}
-                onCreateFromSource={onCreateFromSource}
-                onUploadComplete={() => {
-                  ReturnToParent(true);
+      <Dialog
+        visible={visible}
+        style={{ width: '40vw' }}
+        onHide={() => setVisible(false)}
+        content={({ hide }) => (
+          <SMCard title="ADD M3U" header={<XButton iconFilled={false} onClick={(e) => setVisible(false)} tooltip="Close" />}>
+            <div className="sm-fileupload col-12 p-0 m-0 ">
+              <div className="px-2">
+                <SMFileUpload
+                  m3uFileDto={m3uFileDto}
+                  onCreateFromSource={onCreateFromSource}
+                  onUploadComplete={() => {
+                    ReturnToParent(true);
+                  }}
+                  onName={(name) => {
+                    setName(name);
+                  }}
+                />
+              </div>
+              <M3UFileDialog
+                selectedFile={m3uFileDto}
+                onM3UChanged={(e) => {
+                  setM3UFileDto(e);
                 }}
-                onName={(name) => {
-                  setName(name);
-                }}
+                noButtons
               />
             </div>
-            <M3UFileDialog
-              selectedFile={m3uFileDto}
-              onM3UChanged={(e) => {
-                setM3UFileDto(e);
-              }}
-              noButtons
-            />
-          </div>
-        </SMCard>
-      </OverlayPanel>
+          </SMCard>
+        )}
+      />
       <div hidden={showButton === false} className="justify-content-center">
-        <AddButton onClick={(e) => op.current?.toggle(e)} tooltip="Add M3U File" iconFilled={false} />
+        <AddButton
+          onClick={(e) => {
+            op.current?.toggle(e);
+            setVisible(true);
+          }}
+          tooltip="Add M3U File"
+          iconFilled={false}
+        />
       </div>
     </>
   );

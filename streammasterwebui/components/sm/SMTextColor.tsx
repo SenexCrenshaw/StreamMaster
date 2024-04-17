@@ -3,5 +3,5 @@ interface SMTextColorProperties {
   readonly text: string | undefined; // Use a boolean to determine if text should be italicized
 }
 export const SMTextColor = ({ italicized, text }: SMTextColorProperties) => (
-  <span className={`sm-text-color text-sm ${italicized ? 'font-italic' : ''}`}>{text}</span>
+  <span className={`header-text-color text-sm ${italicized ? 'font-italic' : ''}`}>{text}</span>
 );

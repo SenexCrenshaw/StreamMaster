@@ -71,5 +71,5 @@ export function useFileUpload() {
     }
   }, []);
 
-  return { doUpload, progress, uploadedBytes, infoMessage, isUploading, resetUploadState };
+  return { doUpload, infoMessage, isUploading, progress, resetUploadState, uploadedBytes };
 }
