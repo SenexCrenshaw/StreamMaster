@@ -1,5 +1,5 @@
 ﻿using StreamMaster.Application.ChannelGroups.Events;
-using StreamMaster.Application.StreamGroupChannelGroups.Commands;
+using StreamMaster.Application.StreamGroupChannelGroupLinks.Commands;
 
 namespace StreamMaster.Application.ChannelGroups.Commands;
 

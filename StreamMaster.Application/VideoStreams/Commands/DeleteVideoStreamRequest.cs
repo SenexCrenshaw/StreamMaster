@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Application.StreamGroupChannelGroups.Commands;
+using StreamMaster.Application.StreamGroupChannelGroupLinks.Commands;
 using StreamMaster.Application.VideoStreams.Events;
 
 namespace StreamMaster.Application.VideoStreams.Commands;

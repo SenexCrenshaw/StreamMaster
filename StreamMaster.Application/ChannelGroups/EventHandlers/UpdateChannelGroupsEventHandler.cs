@@ -1,6 +1,6 @@
 ﻿using StreamMaster.Application.ChannelGroups.Commands;
 using StreamMaster.Application.ChannelGroups.Events;
-using StreamMaster.Application.StreamGroupChannelGroups.Queries;
+using StreamMaster.Application.StreamGroupChannelGroupLinks.Queries;
 
 namespace StreamMaster.Application.ChannelGroups.EventHandlers;
 

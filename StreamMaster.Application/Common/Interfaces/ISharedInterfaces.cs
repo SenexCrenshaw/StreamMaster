@@ -5,7 +5,7 @@ using StreamMaster.Application.M3UFiles;
 using StreamMaster.Application.Programmes;
 using StreamMaster.Application.SchedulesDirect;
 using StreamMaster.Application.Settings;
-using StreamMaster.Application.StreamGroupChannelGroups;
+using StreamMaster.Application.StreamGroupChannelGroupLinks;
 using StreamMaster.Application.StreamGroups;
 using StreamMaster.Application.VideoStreams;
 

@@ -1,4 +1,4 @@
-﻿namespace StreamMaster.Application.StreamGroupChannelGroups.Queries;
+﻿namespace StreamMaster.Application.StreamGroupChannelGroupLinks.Queries;
 
 public record GetChannelGroupsFromStreamGroupRequest(int StreamGroupId) : IRequest<IEnumerable<ChannelGroupDto>>;
 

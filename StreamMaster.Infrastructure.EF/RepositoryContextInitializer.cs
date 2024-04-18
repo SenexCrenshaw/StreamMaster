@@ -28,7 +28,7 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred while initialising the database.");
+            logger.LogError(ex, "An error occurred while initializing the database.");
             throw;
         }
     }
@@ -52,7 +52,7 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
             return;
         }
 
-        Console.WriteLine($"Fixing {videos.Count} empty shortids");
+        //Console.WriteLine($"Fixing {videos.Count} empty shortids");
 
         HashSet<string> ids = [.. context.VideoStreams.Select(a => a.ShortId)];
 
@@ -62,7 +62,7 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
         }
 
         context.SaveChanges();
-        Console.WriteLine($"Done fixing empty shortids");
+        //Console.WriteLine($"Done fixing empty shortids");
     }
 }
 

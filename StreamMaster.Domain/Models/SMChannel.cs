@@ -19,7 +19,7 @@ public class SMChannel
     [Ignore]
     [JsonIgnore]
     [IgnoreMember]
-    public ICollection<StreamGroupSMChannel> StreamGroups { get; set; } = [];
+    public ICollection<StreamGroupSMChannelLink> StreamGroups { get; set; } = [];
 
     [System.ComponentModel.DataAnnotations.Key]
     public int Id { get; set; }

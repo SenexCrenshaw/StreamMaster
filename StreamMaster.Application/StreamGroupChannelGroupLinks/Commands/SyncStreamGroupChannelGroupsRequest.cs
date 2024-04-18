@@ -1,4 +1,4 @@
-﻿namespace StreamMaster.Application.StreamGroupChannelGroups.Commands;
+﻿namespace StreamMaster.Application.StreamGroupChannelGroupLinks.Commands;
 
 public record SyncStreamGroupChannelGroupsRequest(int StreamGroupId, List<int> ChannelGroupIds) : IRequest<StreamGroupDto?>;
 

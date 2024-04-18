@@ -27,6 +27,8 @@ import GetIsSystemReady from '@lib/smAPI/Settings/GetIsSystemReadySlice';
 import GetSettings from '@lib/smAPI/Settings/GetSettingsSlice';
 import GetSystemStatus from '@lib/smAPI/Settings/GetSystemStatusSlice';
 
+import StreamGroupSMChannelLinks from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
+
 import GetEPGColorsSlice from '@lib/smAPI/EPGFiles/GetEPGColorsSlice';
 import GetEPGFilePreviewById from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
 import GetEPGNextEPGNumber from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
@@ -116,6 +118,7 @@ const rootReducer = combineReducers({
   queryFilter: queryFilterReducer,
   GetPagedStreamGroups: GetPagedStreamGroups,
   GetPagedChannelGroups: GetPagedChannelGroups,
+  GetStreamGroupSMChannels: StreamGroupSMChannelLinks,
   GetPagedM3UFiles: GetPagedM3UFiles,
   GetPagedSMChannels: GetPagedSMChannels,
   GetPagedSMStreams: GetPagedSMStreams,

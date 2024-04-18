@@ -17,7 +17,7 @@ public class BaseRepositoryContext(DbContextOptions options) : DbContext(options
     public DbSet<SMStream> SMStreams { get; set; }
     public DbSet<SMChannel> SMChannels { get; set; }
     public DbSet<SMChannelStreamLink> SMChannelStreamLinks { get; set; }
-    public DbSet<StreamGroupSMChannel> StreamGroupSMChannels { get; set; }
+    public DbSet<StreamGroupSMChannelLink> StreamGroupSMChannels { get; set; }
     public DbSet<StreamGroupChannelGroup> StreamGroupChannelGroups { get; set; }
     public DbSet<StreamGroup> StreamGroups { get; set; }
     public DbSet<StreamGroupVideoStream> StreamGroupVideoStreams { get; set; }

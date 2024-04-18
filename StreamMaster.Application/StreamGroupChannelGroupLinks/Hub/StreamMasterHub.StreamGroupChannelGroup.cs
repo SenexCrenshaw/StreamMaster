@@ -1,5 +1,5 @@
-﻿using StreamMaster.Application.StreamGroupChannelGroups;
-using StreamMaster.Application.StreamGroupChannelGroups.Commands;
+﻿using StreamMaster.Application.StreamGroupChannelGroupLinks;
+using StreamMaster.Application.StreamGroupChannelGroupLinks.Commands;
 
 namespace StreamMaster.Application.Hubs;
 

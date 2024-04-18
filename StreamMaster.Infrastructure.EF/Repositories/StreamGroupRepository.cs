@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Configuration;
@@ -68,6 +69,8 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         streamGroupDto.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
         streamGroupDto.StreamCount = count;
     }
+
+
 
     public async Task<StreamGroupDto?> GetStreamGroupById(int streamGroupId)
     {
@@ -182,5 +185,10 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
     public IQueryable<StreamGroup> GetStreamGroupQuery()
     {
         return GetQuery();
+    }
+
+    public StreamGroup? GetStreamGroup(int streamGrouId)
+    {
+        return FirstOrDefault(a => a.Id == streamGrouId, tracking: false);
     }
 }

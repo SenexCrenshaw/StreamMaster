@@ -104,7 +104,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             foreach (StreamGroupVideoStream streamGroupVideoStream in streamGroupVideoStreams)
             {
                 int channelId = SMChannels.First(a => a.VideoStreamId == streamGroupVideoStream.ChildVideoStreamId).Id;
-                StreamGroupSMChannel streamGroupSMChannel = new()
+                StreamGroupSMChannelLink streamGroupSMChannel = new()
                 {
                     SMChannelId = channelId,
                     StreamGroupId = streamGroupVideoStream.StreamGroupId,

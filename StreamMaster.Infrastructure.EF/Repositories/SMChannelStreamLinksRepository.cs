@@ -28,7 +28,7 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
         {
             SMChannelId = SMChannelId,
             SMStreamId = SMStreamId,
-            Rank = nextRank
+            Rank = nextRank,
         };
 
         Create(link);

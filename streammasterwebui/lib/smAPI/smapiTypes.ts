@@ -25,12 +25,13 @@ export interface SMMessage
 	Severity: string;
 	Summary: string;
 }
-export interface StreamGroupSMChannel
+export interface StreamGroupSMChannelLink
 {
 	IsReadOnly: boolean;
 	Rank: number;
 	SMChannel: any;
 	SMChannelId: number;
+	StreamGroup: any;
 	StreamGroupId: number;
 }
 export interface ChannelGroupDto
@@ -172,10 +173,11 @@ export interface SMChannelDto
 	IsHidden: boolean;
 	Logo: string;
 	Name: string;
+	Rank: number;
 	RealUrl: string;
 	SMStreams: SMStreamDto[];
 	StationId: string;
-	StreamGroups: StreamGroupSMChannel[];
+	StreamGroups: StreamGroupSMChannelLink[];
 	StreamingProxyType: number;
 	TimeShift: number;
 	VideoStreamHandler: number;
@@ -295,6 +297,20 @@ export interface PagedResponse<T>
 export interface GetPagedStreamGroupsRequest
 {
 	Parameters: QueryStringParameters;
+}
+export interface GetStreamGroupSMChannelsRequest
+{
+	StreamGroupId: number;
+}
+export interface AddSMChannelToStreamGroupRequest
+{
+	SMChannelId: number;
+	StreamGroupId: number;
+}
+export interface RemoveSMChannelFromStreamGroupRequest
+{
+	SMChannelId: number;
+	StreamGroupId: number;
 }
 export interface GetPagedSMStreamsRequest
 {

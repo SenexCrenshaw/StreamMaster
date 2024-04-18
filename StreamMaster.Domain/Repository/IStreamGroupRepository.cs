@@ -9,6 +9,7 @@ namespace StreamMaster.Domain.Repository
         //Task<StreamGroup?> GetStreamGroupWithRelatedEntitiesById(int StreamGroupId, CancellationToken cancellationToken);
         Task<List<StreamGroupDto>> GetStreamGroups(CancellationToken cancellationToken);
 
+        StreamGroup? GetStreamGroup(int id);
         Task<StreamGroupDto?> GetStreamGroupById(int id);
 
         Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(QueryStringParameters Parameters);

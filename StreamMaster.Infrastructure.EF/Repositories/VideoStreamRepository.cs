@@ -10,7 +10,7 @@ using StreamMaster.Application.EPG.Queries;
 using StreamMaster.Application.Icons.Queries;
 using StreamMaster.Application.M3UFiles.QueriesOld;
 using StreamMaster.Application.SchedulesDirect.Queries;
-using StreamMaster.Application.StreamGroupChannelGroups.Commands;
+using StreamMaster.Application.StreamGroupChannelGroupLinks.Commands;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Infrastructure.EF.Helpers;

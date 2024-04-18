@@ -7,5 +7,4 @@ public class StreamGroupChannelGroup
     public StreamGroup StreamGroup { get; set; }
     public int StreamGroupId { get; set; }
 
-
 }
