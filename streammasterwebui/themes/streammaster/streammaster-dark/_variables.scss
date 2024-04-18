@@ -4,13 +4,25 @@ $highlightBg: rgba($primaryColor, 0.16) !default;
 $highlightTextColor: $primaryColor !default;
 $highlightFocusBg: rgba($primaryColor, 0.24) !default;
 
+//Input
+$inputBorderColor: #263238;
+$inputBorder: 0 !default;
+$inputBg: #12181b !default;
+$inputTextColor: hsl(234, 65%, 79%) !default;
+
+$iconGreen: #22c55e;
+$iconOrange: #ff935a;
+$iconRed: #e693a9;
+$iconYellow: #cede9c;
+
 $textColor: #bcbfbf;
-$surface-ground: #161d21;
+$surface-ground: $inputBg;
 $surface-section: $surface-ground;
 $standardHeaderBg: #21282c !default;
 $tableHeaderBg: #1d2327 !default;
 $headerTextColor: #ff7e00;
 $editableTextColor: #94abec;
+$uploadButtonBg: $iconGreen;
 
 $infoButtonBg: #35a4cc !default;
 
@@ -20,7 +32,7 @@ $blue-header-color: #0c243c;
 //shades
 $shade000: rgba(255, 255, 255, 0.87) !default; //text color
 $shade100: rgba(255, 255, 255, 0.6) !default; //text secondary color
-$shade500: #2d3e44 !default;
+$shade500: $inputBorderColor !default;
 $shade600: #263238 !default; //input bg, border, divider
 $shade700: #1e282c !default; //unused
 $shade800: #161d21 !default; //elevated surface
@@ -49,10 +61,7 @@ $actionIconHoverBg: $hoverBg !default;
 $actionIconHoverColor: $shade000 !default;
 
 
-//Input
-$inputBorder: 0 !default;
-$inputBg: transparent !default;
-$inputTextColor: hsl(234, 65%, 79%) !default;
+
 
 
 $inputIconColor: $shade100 !default;

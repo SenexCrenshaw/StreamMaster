@@ -22,6 +22,7 @@ public class BaseRepositoryContext(DbContextOptions options) : DbContext(options
     public DbSet<StreamGroup> StreamGroups { get; set; }
     public DbSet<StreamGroupVideoStream> StreamGroupVideoStreams { get; set; }
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
+    public DbSet<StreamGroupSMChannelLink> StreamGroupSMChannelLinks { get; set; }
 
     public int ExecuteSqlRaw(string sql, params object[] parameters)
     {

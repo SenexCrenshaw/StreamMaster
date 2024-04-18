@@ -1,74 +1,49 @@
-import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
-import { memo, useCallback, useState } from 'react';
-import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
-import XButton from '../buttons/XButton';
+import { memo, useCallback } from 'react';
+import { DeleteStreamGroupRequest, StreamGroupDto } from '@lib/smAPI/smapiTypes';
+import { DeleteStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
+import { SMPopUp } from '@components/sm/SMPopUp';
 
 interface StreamGroupDeleteDialogProperties {
-  readonly id: string;
+  readonly streamGroup: StreamGroupDto;
   readonly onHide?: () => void;
 }
 
-const StreamGroupDeleteDialog = ({ id, onHide }: StreamGroupDeleteDialogProperties) => {
-  const [showOverlay, setShowOverlay] = useState<boolean>(false);
-  const [block, setBlock] = useState<boolean>(false);
-  const [infoMessage, setInfoMessage] = useState('');
-
-  const { selectedStreamGroup, setSelectedStreamGroup } = useSelectedStreamGroup(id);
-  const [streamGroupsDeleteStreamGroupMutations] = useStreamGroupsDeleteStreamGroupMutation();
-
+const StreamGroupDeleteDialog = ({ streamGroup, onHide }: StreamGroupDeleteDialogProperties) => {
   const ReturnToParent = useCallback(() => {
-    setShowOverlay(false);
-    setInfoMessage('');
-    setBlock(false);
     onHide?.();
   }, [onHide]);
 
   const deleteStreamGroup = useCallback(async () => {
-    setBlock(true);
-
-    if (selectedStreamGroup === undefined) {
+    if (streamGroup === undefined) {
       ReturnToParent();
 
       return;
     }
 
-    const data = {} as DeleteStreamGroupRequest;
+    const request = {} as DeleteStreamGroupRequest;
 
-    data.id = selectedStreamGroup.id;
+    request.Id = streamGroup.Id;
 
-    await streamGroupsDeleteStreamGroupMutations(data)
-      .then(() => {
-        setSelectedStreamGroup(undefined);
-        setInfoMessage('Stream Group Deleted Successfully');
-      })
+    await DeleteStreamGroup(request)
+      .then(() => {})
       .catch((error) => {
-        setSelectedStreamGroup(undefined);
-        setInfoMessage(`Stream Group Delete Error: ${error.message}`);
+        console.error('Error Deleting SG', error);
+      })
+      .finally(() => {
+        ReturnToParent();
       });
-  }, [ReturnToParent, selectedStreamGroup, setSelectedStreamGroup, streamGroupsDeleteStreamGroupMutations]);
+  }, [ReturnToParent, streamGroup]);
 
   return (
-    <>
-      <InfoMessageOverLayDialog
-        blocked={block}
-        closable
-        header={'Delete Stream Group '} // + selectedStreamGroup?.name ? '"' + selectedStreamGroup.name + '"' : '?'}
-        infoMessage={infoMessage}
-        onClose={() => {
-          ReturnToParent();
-        }}
-        show={showOverlay}
-      >
-        <div className="flex justify-content-center w-full">
-          <XButton label="Delete Stream Group" onClick={async () => await deleteStreamGroup()} tooltip="Delete Stream Group" />
+    <div className="flex justify-content-center w-full">
+      <SMPopUp title="Delete Stream Group" OK={() => deleteStreamGroup()} icon="pi-times" severity="danger">
+        <div>
+          "{streamGroup.Name}"
+          <br />
+          Are you sure?
         </div>
-      </InfoMessageOverLayDialog>
-      <XButton
-        disabled={selectedStreamGroup === undefined || selectedStreamGroup.id === undefined || selectedStreamGroup.id < 2}
-        onClick={() => setShowOverlay(true)}
-        tooltip="Delete Stream Group"
-      />
-    </>
+      </SMPopUp>
+    </div>
   );
 };
 

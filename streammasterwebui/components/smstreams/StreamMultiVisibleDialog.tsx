@@ -74,6 +74,7 @@ const StreamMultiVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, sele
   return (
     <div>
       <VisibleButton
+        className="sm-visible-button"
         disabled={getTotalCount === 0}
         iconFilled={iconFilled}
         // label="Toggle Visibility"

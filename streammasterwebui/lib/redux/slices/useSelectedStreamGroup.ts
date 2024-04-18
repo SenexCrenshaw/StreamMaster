@@ -2,6 +2,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { type AppDispatch, type RootState } from '../store';
 
 import { setSelectedStreamGroupInternal } from './selectedStreamGroupSlice';
+import { StreamGroupDto } from '@lib/smAPI/smapiTypes';
 
 export const useSelectedStreamGroup = (typename: string) => {
   const dispatch: AppDispatch = useDispatch();

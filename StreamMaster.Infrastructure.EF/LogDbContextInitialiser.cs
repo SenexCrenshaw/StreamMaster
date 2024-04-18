@@ -19,7 +19,7 @@ public class LogDbContextInitialiser(ILogger<LogDbContextInitialiser> logger, Lo
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred while initialising the database.");
+            logger.LogError(ex, "An error occurred while initializing the database.");
             throw;
         }
     }

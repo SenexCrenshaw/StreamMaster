@@ -15,7 +15,7 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
 
             if (!context.StreamGroups.Any(a => a.Name == "ALL"))
             {
-                context.Add(new StreamGroup { Name = "ALL", IsReadOnly = true });
+                context.Add(new StreamGroup { Id = 0, Name = "ALL", IsReadOnly = true });
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
 

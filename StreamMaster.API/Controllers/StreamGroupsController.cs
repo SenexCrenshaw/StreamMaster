@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Application.Common.Extensions;
-using StreamMaster.Application.StreamGroups.CommandsOld;
 using StreamMaster.Application.StreamGroups.QueriesOld;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Helpers;
@@ -14,7 +13,8 @@ using System.Web;
 
 namespace StreamMaster.API.Controllers;
 
-public class StreamGroupsController(IHttpContextAccessor httpContextAccessor, ISchedulesDirectDataService schedulesDirectDataService) : ApiControllerBase
+public class StreamGroupsController(IHttpContextAccessor httpContextAccessor, ISchedulesDirectDataService schedulesDirectDataService)
+    : ApiControllerBase
 {
 
     //private static int GenerateMediaSequence()
@@ -26,22 +26,15 @@ public class StreamGroupsController(IHttpContextAccessor httpContextAccessor, IS
     //    return mediaSequence;
     //}
 
-    [HttpPost]
-    [Route("[action]")]
-    public async Task<ActionResult> CreateStreamGroup(CreateStreamGroupRequest request)
-    {
+    //[HttpPost]
+    //[Route("[action]")]
+    //public async Task<ActionResult> CreateStreamGroup(CreateStreamGroupRequest request)
+    //{
 
-        await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
-    }
+    //    await Mediator.Send(request).ConfigureAwait(false);
+    //    return Ok();
+    //}
 
-    [HttpDelete]
-    [Route("[action]")]
-    public async Task<ActionResult> DeleteStreamGroup(DeleteStreamGroupRequest request)
-    {
-        int? data = await Mediator.Send(request).ConfigureAwait(false);
-        return data == null ? NotFound() : NoContent();
-    }
 
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
@@ -246,14 +239,6 @@ public class StreamGroupsController(IHttpContextAccessor httpContextAccessor, IS
         };
     }
 
-
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<ActionResult> UpdateStreamGroup(UpdateStreamGroupRequest request)
-    {
-        StreamGroupDto? entity = await Mediator.Send(request).ConfigureAwait(false);
-        return entity == null ? NotFound() : NoContent();
-    }
 
     //private ObjectResult Status(ProxyStreamErrorCode proxyStreamErrorCode)
     //{

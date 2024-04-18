@@ -11,7 +11,7 @@ const EPGFilesButton = () => {
   const closeOverlay = () => op.current?.hide();
   return (
     <>
-      <UploadButton outlined={true} label="EPG" onClick={(e) => op.current?.toggle(e)} />
+      <UploadButton tooltip="" className="sm-upload-button" outlined={true} label="EPG" onClick={(e) => op.current?.toggle(e)} />
       <OverlayPanel className="sm-overlay col-6 p-0 default-border" ref={op} showCloseIcon={false}>
         <SMCard
           title="EPG Files"

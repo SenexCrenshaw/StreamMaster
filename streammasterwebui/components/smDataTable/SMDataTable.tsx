@@ -37,12 +37,49 @@ import { SMDataTableProps } from './types/smDataTableInterfaces';
 
 const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   const { state, setters } = useSMDataSelectorValuesState<T>(props.id, props.selectedItemsKey);
+
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [hasScrollbar, setHasScrollbar] = useState(false);
+
   const tableReference = useRef<DataTable<T[]>>(null);
 
   const [, setIsExpanded] = useState<boolean>(false);
 
   const { queryFilter } = useSetQueryFilter(props.id, props.columns, state.first, state.filters, state.page, state.rows);
   const { data, isLoading } = props.queryFilter ? props.queryFilter(queryFilter) : { data: undefined, isLoading: false };
+
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList' || mutation.type === 'attributes') {
+          checkScrollbar();
+        }
+      });
+    });
+
+    const checkScrollbar = () => {
+      const element = wrapperRef.current?.querySelector('.p-datatable-wrapper');
+      if (element) {
+        setHasScrollbar(element.scrollHeight > element.clientHeight);
+      }
+    };
+
+    if (wrapperRef.current) {
+      observer.observe(wrapperRef.current, {
+        attributes: true,
+        childList: true,
+        subtree: true, // Observe the subtree to catch changes within descendants
+        attributeFilter: ['style', 'class'] // Optionally filter to only observe style or class changes
+      });
+    }
+
+    // Run initial check
+    checkScrollbar();
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     if (!data) {
@@ -237,15 +274,15 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 
   const rowClass = useCallback(
     (data: DataTableRowData<T[]>): string => {
-      const isHidden = getRecord(data as T, 'isHidden');
+      const isHidden = getRecord(data as T, 'IsHidden');
 
       if (isHidden === true) {
         return 'bg-red-900';
       }
 
       if (props.selectRow === true && state.selectSelectedItems !== undefined) {
-        const id = getRecord(data, 'id') as number;
-        if (state.selectSelectedItems.some((item) => item.id === id)) {
+        const id = getRecord(data, 'Id') as number;
+        if (state.selectSelectedItems.some((item) => item.Id === id)) {
           return 'bg-orange-900';
         }
       }
@@ -525,6 +562,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   return (
     <div
       id={props.id}
+      ref={wrapperRef}
       onClick={(event: any) => {
         if (props.enableClick !== true) {
           return;
@@ -540,7 +578,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       }}
       className=""
     >
-      <div className="sm-datatable surface-overlay">
+      <div className={hasScrollbar ? 'sm-datatable surface-overlay no-top-border' : 'sm-datatable surface-overlay last_radius'}>
         {sourceRenderHeader && (
           <div>
             {/* <div className="layout-padding-top border-1"></div> */}

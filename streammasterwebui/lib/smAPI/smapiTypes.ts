@@ -172,6 +172,7 @@ export interface SMChannelDto
 	Id: number;
 	IsHidden: boolean;
 	Logo: string;
+	MainGet: string;
 	Name: string;
 	Rank: number;
 	RealUrl: string;
@@ -297,6 +298,14 @@ export interface PagedResponse<T>
 export interface GetPagedStreamGroupsRequest
 {
 	Parameters: QueryStringParameters;
+}
+export interface CreateStreamGroupRequest
+{
+	Name: string;
+}
+export interface DeleteStreamGroupRequest
+{
+	Id: number;
 }
 export interface GetStreamGroupSMChannelsRequest
 {

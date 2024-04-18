@@ -98,7 +98,7 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
 
     columnConfigs.push({
       bodyTemplate: targetActionBodyTemplate,
-      field: 'isHidden',
+      field: 'IsHidden',
       header: 'Actions',
       isHidden: !enableEdit,
       resizeable: false,

@@ -9,6 +9,7 @@ namespace StreamMaster.Domain.Models;
 
 public class SMChannel
 {
+    public static string MainGet => "GetPagedSMChannels";
 
     public StreamingProxyTypes StreamingProxyType { get; set; } = StreamingProxyTypes.SystemDefault;
 

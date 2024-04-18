@@ -53,9 +53,9 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
     private void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url)
     {
 
-        int count = streamGroupDto.Id == 1
-            ? RepositoryContext.VideoStreams.Count()
-            : RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == streamGroupDto.Id).Count();
+        int count = streamGroupDto.IsReadOnly
+            ? RepositoryContext.SMStreams.Count()
+            : RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.StreamGroupId == streamGroupDto.Id).Count();
         string encodedStreamGroupNumber = streamGroupDto.Id.EncodeValue128(Settings.ServerKey);
 
         string encodedName = HttpUtility.HtmlEncode(streamGroupDto.Name).Trim()
@@ -76,7 +76,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
     {
         if (streamGroupId == 0)
         {
-            StreamGroupDto dto = new() { Id = 0, Name = "All" };
+            StreamGroupDto dto = new() { Id = 0, Name = "All", IsReadOnly = true };
             await SetStreamGroupsLink(dto);
             return dto;
         }
@@ -123,15 +123,20 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         Create(StreamGroup);
     }
 
-    public async Task<int?> DeleteStreamGroup(int streamGroupId)
+    public async Task<int?> DeleteStreamGroup(int StreamGroupId)
     {
-        IQueryable<StreamGroupVideoStream> videoStreams = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == streamGroupId);
-        IQueryable<StreamGroupChannelGroup> channelGroups = RepositoryContext.StreamGroupChannelGroups.Where(a => a.StreamGroupId == streamGroupId);
+        IQueryable<StreamGroupVideoStream> videoStreams = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == StreamGroupId);
+        IQueryable<StreamGroupChannelGroup> channelGroups = RepositoryContext.StreamGroupChannelGroups.Where(a => a.StreamGroupId == StreamGroupId);
+
+        IQueryable<StreamGroupSMChannelLink> smChannels = RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.StreamGroupId == StreamGroupId);
+
+
         RepositoryContext.StreamGroupVideoStreams.RemoveRange(videoStreams);
         RepositoryContext.StreamGroupChannelGroups.RemoveRange(channelGroups);
+        RepositoryContext.StreamGroupSMChannelLinks.RemoveRange(smChannels);
         await RepositoryContext.SaveChangesAsync();
 
-        StreamGroup? streamGroup = await FirstOrDefaultAsync(c => c.Id == streamGroupId);
+        StreamGroup? streamGroup = await FirstOrDefaultAsync(c => c.Id == StreamGroupId);
         if (streamGroup == null)
         {
             return null;

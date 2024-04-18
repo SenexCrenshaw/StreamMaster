@@ -31,11 +31,6 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
   const [originalEPGFileDto, setOriginalEPGFileDto] = React.useState<EPGFileDto | undefined>(undefined);
   const [request, setRequest] = React.useState<UpdateEPGFileRequest>({} as UpdateEPGFileRequest);
 
-  // useEffect(() => {
-  //   if (epgFileDto?.Id !== selectedFile.Id) {
-  //   }
-  // }, []);
-
   const setColor = useCallback(
     (value: string) => {
       if (epgFileDto && epgFileDto.Color !== value) {

@@ -35,27 +35,26 @@
 
     .p-datatable-thead {
         >tr {
-            >th:first-child {
-                border-top-left-radius: $borderRadius;
+
+            // >th:first-child {
+            //     border-top-left-radius: $borderRadius;
+            // }
+            >th {
+                background-color: $standardHeaderBg !important;
             }
 
             >th:last-child {
-                border-top-right-radius: 12px !important;
+                border-top-right-radius: $borderRadius !important;
             }
 
             height: 3rem;
             background-color: $standardHeaderBg !important;
 
-            >th {
-                background-color: $standardHeaderBg !important;
-            }
         }
 
         >tr:nth-child(1) {
             display: none;
         }
-
-
 
     }
 

@@ -7,8 +7,13 @@ $highlightBg: #ced6f1 !default;
 $highlightTextColor: #585858 !default;
 $highlightFocusBg: darken($highlightBg, 8%) !default;
 
-$blue-header-color: #0c243c;
+$iconGreen: #22c55e;
+$iconOrange: #ff935a;
+$iconRed: #e693a9;
+$iconYellow: #cede9c;
 
+$blue-header-color: #0c243c;
+$inputBorderColor: #263238;
 $textColor: #bcbfbf;
 $surface-ground: #161d21;
 $surface-section: $surface-ground;
@@ -16,6 +21,9 @@ $standardHeaderBg: #21282c !default;
 $tableHeaderBg: #1d2327 !default;
 $headerTextColor: #ff7e00;
 $editableTextColor: #94abec;
+$uploadButtonBg: $iconGreen;
+
+
 
 //reused color variables
 $shade000: #ffffff !default; //surface

@@ -3,7 +3,7 @@ import { StreamGroupEditorIcon } from '@lib/common/icons';
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
 import { BlockUI } from 'primereact/blockui';
 import { memo } from 'react';
-import StreamGroupDataSelector from './StreamGroupDataSelector';
+import StreamGroupDataSelector from '../../components/streamGroup/StreamGroupDataSelector';
 import StreamGroupSelectedVideoStreamDataSelector from './StreamGroupSelectedVideoStreamDataSelector';
 import StreamGroupVideoStreamDataSelector from './StreamGroupVideoStreamDataSelector';
 

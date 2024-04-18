@@ -62,7 +62,7 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
       {
         align: 'right',
         bodyTemplate: actionBodyTemplate,
-        field: 'isHidden',
+        field: 'IsHidden',
         fieldType: 'actions',
         header: 'Actions',
         width: '5rem'

@@ -18,7 +18,7 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
                 return APIResponse.NotFound;
             }
 
-            await hubContext.Clients.All.DataRefresh("GetPagedEPGFiles").ConfigureAwait(false);
+            await hubContext.Clients.All.DataRefresh(EPGFile.MainGet).ConfigureAwait(false);
 
             await messageSevice.SendSuccess("Processed EPG '" + epgFile.Name + "' successfully");
             return APIResponse.Success;

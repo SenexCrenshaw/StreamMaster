@@ -9,7 +9,7 @@ public record CreateEPGFileRequest(string Name, string FileName, int EPGNumber, 
     : IRequest<APIResponse>
 { }
 
-public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, IMessageService messageService, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
+public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMessageService messageService, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
     : IRequestHandler<CreateEPGFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateEPGFileRequest command, CancellationToken cancellationToken)
@@ -86,6 +86,7 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, I
 
             EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);
             await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
+            await hubContext.Clients.All.DataRefresh(EPGFile.MainGet).ConfigureAwait(false);
             await messageService.SendSuccess("EPG '" + epgFile.Name + "' added successfully");
             return APIResponse.Success;
         }

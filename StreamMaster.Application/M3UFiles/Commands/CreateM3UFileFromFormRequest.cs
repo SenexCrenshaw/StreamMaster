@@ -76,7 +76,7 @@ public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRe
 
             m3UFile.WriteJSON();
 
-            await hubContext.Clients.All.DataRefresh("GetPagedM3UFiles").ConfigureAwait(false);
+            await hubContext.Clients.All.DataRefresh(M3UFile.MainGet).ConfigureAwait(false);
             await Publisher.Publish(new M3UFileProcessEvent(m3UFile.Id, false), cancellationToken).ConfigureAwait(false);
 
             await messageService.SendSuccess("M3U '" + m3UFile.Name + "' added successfully");

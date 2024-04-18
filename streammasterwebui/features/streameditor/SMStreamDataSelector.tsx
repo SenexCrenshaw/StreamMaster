@@ -26,6 +26,7 @@ import {
 import { DataTableRowClickEvent, DataTableRowEvent, DataTableValue } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import useSelectedSMItems from './useSelectedSMItems';
+import BaseButton from '@components/buttons/BaseButton';
 
 interface SMStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
@@ -184,10 +185,14 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
   const rightHeaderTemplate = useMemo(
     () => (
       <div className="flex flex-row justify-content-end align-items-center w-full gap-2 pr-2">
-        <StreamMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} skipOverLayer />
         <div>
           <M3UFilesButton />
         </div>
+        <BaseButton className="button-red" icon="pi pi-times" rounded onClick={() => {}} />
+        <BaseButton className="button-yellow" icon="pi-plus" rounded onClick={() => {}} />
+        <BaseButton className="button-orange" icon="pi pi-bars" rounded onClick={() => {}} />
+
+        <StreamMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} skipOverLayer />
         {/* <TriSelectShowHidden dataKey={dataKey} /> */}
         {/* <TriSelectShowHidden dataKey={dataKey} />
         <VideoStreamSetTimeShiftsDialog id={dataKey} />

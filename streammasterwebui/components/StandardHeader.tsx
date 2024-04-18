@@ -6,7 +6,7 @@ interface StandardHeaderProperties {
 }
 const StandardHeader = ({ children, className, displayName, icon }: StandardHeaderProperties) => (
   <div className={`${className}`}>
-    <div className="sm-standard-header  flex flex-row font-bold justify-content-start align-items-center">
+    <div className="sm-standard-header flex flex-row font-bold justify-content-start align-items-center">
       <span className="flex ml-1">{icon}</span>
       <span className="flex ml-2">{typeof displayName === 'string' ? displayName.toUpperCase() : displayName}</span>
     </div>

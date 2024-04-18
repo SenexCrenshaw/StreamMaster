@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import EventManager from './eventManager';
 
 type EventType = 'scroll' | 'keyUp' | 'keyDown' | 'mouseWheel' | 'wheel';
 type Direction = 'up' | 'down';
@@ -13,6 +14,7 @@ interface UseScrollAndKeyEventsResult {
 
 function useScrollAndKeyEvents(): UseScrollAndKeyEventsResult {
   const [eventData, setEventData] = useState<UseScrollAndKeyEventsResult>({ direction: null, type: null });
+  const eventManager = EventManager.getInstance();
 
   const determineScrollState = (direction: Direction) => {
     const atTop = window.scrollY <= 0;
@@ -28,14 +30,14 @@ function useScrollAndKeyEvents(): UseScrollAndKeyEventsResult {
   };
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // if (e.code === 'Enter') {
-      //   const state = determineScrollState('down');
-      //   setEventData({ code: e.code, direction: 'down', state, type: 'keyDown' });
-      // }
+    const handleKeyDown = (e: any) => {
+      if (e.code === 'Enter' || e.code === 'NumpadEnter') {
+        const state = determineScrollState('down');
+        setEventData({ code: e.code, direction: 'down', state, type: 'keyDown' });
+      }
 
-      const state = determineScrollState('down');
-      setEventData({ code: e.code, direction: 'down', state, type: 'keyDown' });
+      // const state = determineScrollState('down');
+      // setEventData({ code: e.code, direction: 'down', state, type: 'keyUp' });
     };
 
     const handleMouseWheelEvent = (e: any) => {
@@ -45,7 +47,7 @@ function useScrollAndKeyEvents(): UseScrollAndKeyEventsResult {
       setEventData({ direction, state, type: 'mouseWheel' });
     };
 
-    const handleWheelEvent = (e: WheelEvent) => {
+    const handleWheelEvent = (e: any) => {
       const direction = e.deltaY > 0 ? 'down' : 'up';
       const state = determineScrollState(direction);
       setEventData({ direction, state, type: 'wheel' }); // Updated the type to 'wheel'
@@ -57,14 +59,14 @@ function useScrollAndKeyEvents(): UseScrollAndKeyEventsResult {
     //   setEventData({ type: 'mousewheel', direction, state }); // Updated the type to 'mousewheel'
     // };
 
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('wheel', handleWheelEvent);
-    window.addEventListener('mousewheel', handleMouseWheelEvent); // Listening for the mousewheel event
+    eventManager.addEventListener('keyup', handleKeyDown);
+    eventManager.addEventListener('wheel', handleWheelEvent);
+    eventManager.addEventListener('mousewheel', handleMouseWheelEvent); // Listening for the mousewheel event
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('wheel', handleWheelEvent);
-      window.removeEventListener('mousewheel', handleMouseWheelEvent);
+      eventManager.removeEventListener('keyup', handleKeyDown);
+      eventManager.removeEventListener('wheel', handleWheelEvent);
+      eventManager.removeEventListener('mousewheel', handleMouseWheelEvent);
     };
   }, []);
 

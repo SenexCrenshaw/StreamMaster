@@ -204,7 +204,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
     (changed: DataTableRowData<T[]>) => {
       // const isLoading2 = getRecord(changed as T, 'isLoading');
 
-      const isHidden = getRecord(changed as T, 'isHidden');
+      const isHidden = getRecord(changed as T, 'IsHidden');
 
       if (isHidden === true) {
         return 'bg-red-900';

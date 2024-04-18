@@ -3,10 +3,10 @@ import { RootSideBar } from './RootSideBar';
 
 export const RootLayout = (): JSX.Element => {
   return (
-    <div className="flex max-h-screen">
+    <div className="flex max-h-screen p-fluid">
       <RootSideBar />
 
-      <div className="flex flex-column w-full">
+      <div className="main-outlet flex flex-column w-full">
         <Outlet />
       </div>
     </div>

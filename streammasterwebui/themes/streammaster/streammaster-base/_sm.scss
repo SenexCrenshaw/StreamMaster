@@ -15,6 +15,7 @@
 
     //     background-color: $tableHeaderBg !important;
     // }
+
 }
 
 .listTemplate-gridItem-name,
@@ -69,10 +70,44 @@
     }
 }
 
+.sm-upload-button {
+    background-color: $uploadButtonBg !important;
+    border-color: $uploadButtonBg !important;
+    color: $inputBg !important;
+}
+
+.sm-visible-button {
+    background-color: $iconRed !important;
+    border-color: $iconRed !important;
+    color: $inputBg !important;
+}
+
+.main-outlet {
+    padding-left: $layoutPadding;
+}
+
+.button-red {
+    background-color: $iconRed !important;
+    border-color: $iconRed !important;
+    color: $inputBg !important;
+}
+
+.button-yellow {
+    background-color: $iconYellow !important;
+    border-color: $iconYellow !important;
+    color: $inputBg !important;
+}
+
+.button-orange {
+    background-color: $iconOrange !important;
+    border-color: $iconOrange !important;
+    color: $inputBg !important;
+}
+
 .sm-standard-header {
     border-radius: $borderRadius;
     background-color: $standardHeaderBg !important;
-    border-color: $shade500;
+    border-color: $inputBorderColor;
     border-width: 1px;
     border-style: solid;
 }
@@ -83,7 +118,7 @@
 
 .sm-datatable-header {
     border-radius: $borderRadius;
-    border-color: $shade500;
+    border-color: $inputBorderColor;
     border-width: 1px;
     border-style: solid;
     background-color: $tableHeaderBg !important;
@@ -91,8 +126,52 @@
     padding-bottom: 0.25rem;
 }
 
+.last_radius {
+    border-top-width: 0;
+
+    div.p-datatable-wrapper {
+        border-top-right-radius: $borderRadius !important;
+    }
+}
+
+.no-top-border {
+    div.p-datatable-wrapper {
+        border-top-width: 0 !important;
+    }
+}
+
+
 .p-datatable-wrapper {
+    @extend .sm-datatable-header;
+    // border-top-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    padding: 0 !important;
     background-color: var(--surface-ground) !important;
+
+    &::-webkit-scrollbar {
+        width: 12px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background-color: $inputBg;
+        // border-top-left-radius: $borderRadius;
+        // border-top-right-radius: $borderRadius;
+        border-radius: $borderRadius;
+        border-bottom-width: 0;
+        border: 1px solid $inputBorderColor;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: $inputBorderColor;
+        border-radius: $borderRadius;
+        // border-bottom-width: 0;
+        // border: 2px solid $inputBg;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: $inputBorderColor;
+    }
 }
 
 .surface-overlay {

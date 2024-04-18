@@ -9,6 +9,8 @@ import StreamGroupChannelGroupsSelector from '@features/streamGroupEditor/Stream
 import { v4 as uuidv4 } from 'uuid';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import EditButton from '../buttons/EditButton';
+import { StreamGroupDto } from '@lib/smAPI/smapiTypes';
+import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 
 interface StreamGroupEditDialogProperties {
   readonly id: string;
@@ -16,13 +18,10 @@ interface StreamGroupEditDialogProperties {
 }
 
 const StreamGroupEditDialog = (props: StreamGroupEditDialogProperties) => {
-  const [showOverlay, setShowOverlay] = useState<boolean>(false);
-  const [block, setBlock] = useState<boolean>(false);
-  const [infoMessage, setInfoMessage] = useState('');
   const [name, setName] = useState<string>('');
   const [ffmpegProfileId, setFfmpegProfileId] = useState<string>('');
 
-  const settingsQuery = useSettingsGetSettingQuery();
+  const { data: settings } = useGetSettings();
   const uuid = uuidv4();
   const { selectedStreamGroup } = useSelectedStreamGroup(props.id);
 
@@ -42,9 +41,6 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProperties) => {
 
   const ReturnToParent = useCallback(
     (returnValueData?: StreamGroupDto) => {
-      setShowOverlay(false);
-      setInfoMessage('');
-      setBlock(false);
       props.onHide?.(returnValueData);
     },
     [props]
@@ -71,8 +67,6 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProperties) => {
   }, [name, ffmpegProfileId, selectedStreamGroup]);
 
   const onUpdate = useCallback(() => {
-    setBlock(true);
-
     if (!isSaveEnabled) {
       ReturnToParent();
 

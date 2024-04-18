@@ -4,7 +4,7 @@ import { ColumnMeta } from '../types/ColumnMeta';
 
 function getEmptyFilter(columns: ColumnMeta[], showHidden: boolean | null | undefined): DataTableFilterMeta {
   const filter = columns.reduce<DataTableFilterMeta>((object, item: ColumnMeta) => {
-    if (item.field === 'isHidden') {
+    if (item.field === 'iIHidden') {
       return {
         ...object,
         [item.field]: {

@@ -42,10 +42,10 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
   ) => {
     const tooltipClassName = React.useMemo(() => {
       if (iconFilled) {
-        return `smbutton-label basebutton-${uuidv4()}`;
+        return `smbutton-label basebutton-${uuidv4()} ${configuredClassName}`;
       }
-      return `smbutton basebutton-${uuidv4()}`;
-    }, []);
+      return `smbutton basebutton-${uuidv4()} ${configuredClassName}`;
+    }, [configuredClassName, iconFilled]);
 
     return (
       <>
@@ -55,6 +55,7 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
           className={tooltipClassName}
           disabled={disabled}
           icon={`pi ${icon}`}
+          iconPos="right"
           label={label}
           onClick={onClick}
           outlined={outlined}

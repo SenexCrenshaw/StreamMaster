@@ -63,7 +63,7 @@ public interface IVideoStreamHub
 
     Task AutoSetEPGFromParameters(AutoSetEPGFromParametersRequest request);
     Task AutoSetEPG(AutoSetEPGRequest request);
-    Task SimulateStreamFailure(SimulateStreamFailureRequest request);
+    //Task SimulateStreamFailure(SimulateStreamFailureRequest request);
     Task DeleteAllVideoStreamsFromParameters(DeleteAllVideoStreamsFromParametersRequest request);
     Task UpdateAllVideoStreamsFromParameters(UpdateAllVideoStreamsFromParametersRequest request);
     Task<List<IdName>> GetVideoStreamNames();

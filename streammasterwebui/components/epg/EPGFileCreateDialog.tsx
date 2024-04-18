@@ -14,10 +14,8 @@ import EPGFileDialog from './EPGFileDialog';
 import { getRandomColorHex } from '@lib/common/colors';
 
 export interface EPGFileCreateDialogProperties {
-  readonly infoMessage?: string;
   readonly onHide?: (didUpload: boolean) => void;
   readonly onUploadComplete: () => void;
-  readonly show?: boolean | null;
   readonly showButton?: boolean | null;
 }
 

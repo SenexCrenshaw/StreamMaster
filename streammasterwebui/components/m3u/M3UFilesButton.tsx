@@ -11,7 +11,7 @@ const M3UFilesButton = () => {
   const closeOverlay = () => op.current?.hide();
   return (
     <>
-      <UploadButton outlined={true} label="M3U" onClick={(e) => op.current?.toggle(e)} />
+      <UploadButton tooltip="" className="sm-upload-button" label="M3U" onClick={(e) => op.current?.toggle(e)} />
       <OverlayPanel className="sm-overlay col-6 p-0 default-border" ref={op} showCloseIcon={false}>
         <SMCard
           title="M3U Files"

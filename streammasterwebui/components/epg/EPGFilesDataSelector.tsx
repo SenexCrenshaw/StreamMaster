@@ -155,7 +155,7 @@ const EPGFilesDataSelector = () => {
     return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.ProgrammeCount}</div>;
   }, []);
 
-  const actionBodyTemplate = useCallback((rowData: EPGFileDto) => {
+  const actionTemplate = useCallback((rowData: EPGFileDto) => {
     if (rowData.Id === 0) {
       return <div />;
     }
@@ -204,13 +204,13 @@ const EPGFilesDataSelector = () => {
       },
       {
         align: 'center',
-        bodyTemplate: actionBodyTemplate,
+        bodyTemplate: actionTemplate,
         field: 'autoUpdate',
         header: 'Actions',
         width: '6rem'
       }
     ],
-    [colorTemplate, nameEditorBodyTemplate, lastDownloadedTemplate, channelCountTemplate, programmeCountTemplate, actionBodyTemplate]
+    [colorTemplate, nameEditorBodyTemplate, lastDownloadedTemplate, channelCountTemplate, programmeCountTemplate, actionTemplate]
   );
 
   return (
@@ -224,19 +224,6 @@ const EPGFilesDataSelector = () => {
       id="epgfilesdataselector"
       queryFilter={useGetPagedEPGFiles}
     />
-
-    // <>
-    //   <Toast position="bottom-right" ref={toast} />
-    //   <DataSelector
-    //     columns={columns}
-    //     defaultSortField="name"
-    //     emptyMessage="No EPG Files"
-    //     id="epgfilesdataselector"
-    //     queryFilter={useEpgFilesGetPagedEpgFilesQuery}
-    //     selectedItemsKey="selectSelectedEPGFileDtoItems"
-    //     style={{ height: 'calc(50vh - 120px)' }}
-    //   />
-    // </>
   );
 };
 
