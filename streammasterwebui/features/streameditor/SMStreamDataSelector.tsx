@@ -183,7 +183,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
 
   const rightHeaderTemplate = useMemo(
     () => (
-      <div className="flex flex-row justify-content-end align-items-center w-full gap-1">
+      <div className="flex flex-row justify-content-end align-items-center w-full gap-2 pr-2">
         <StreamMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} skipOverLayer />
         <div>
           <M3UFilesButton />
@@ -268,7 +268,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
       queryFilter={useGetPagedSMStreams}
       selectedItemsKey="selectSelectedSMStreamDtoItems"
       selectionMode="multiple"
-      style={{ height: 'calc(100vh - 84px)' }}
+      style={{ height: 'calc(100vh - 100px)' }}
     />
   );
 };

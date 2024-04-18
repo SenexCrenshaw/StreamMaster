@@ -128,7 +128,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
 
   const rightHeaderTemplate = useMemo(
     () => (
-      <div className="flex flex-row justify-content-end align-items-center w-full gap-1">
+      <div className="flex flex-row justify-content-end align-items-center w-full gap-2 pr-2">
         {/* <StreamMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} skipOverLayer /> */}
         <div>
           <EPGFilesButton />
@@ -191,7 +191,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
       queryFilter={useGetPagedSMChannels}
       rowExpansionTemplate={rowExpansionTemplate}
       selectedItemsKey="selectSelectedSMChannelDtoItems"
-      style={{ height: 'calc(100vh - 84px)' }}
+      style={{ height: 'calc(100vh - 100px)' }}
     />
   );
 };
