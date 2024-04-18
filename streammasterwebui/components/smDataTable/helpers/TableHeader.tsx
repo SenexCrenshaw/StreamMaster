@@ -1,4 +1,3 @@
-import { SMTextColor } from '@components/sm/SMTextColor';
 import { DataTableHeaderProperties } from '../types/smDataTableInterfaces';
 import { HeaderLeft, MultiSelectCheckbox } from '@lib/common/common';
 
@@ -24,7 +23,7 @@ const TableHeader: React.FC<TableHeaderProperties> = ({
   <div className="flex flex-row align-items-center justify-content-between border-white">
     {(headerName || onMultiSelectClick) && (
       <div className="col-4 text-sm">
-        <SMTextColor text={headerName} />
+        <span className={`header-text-color text-lg font-bold`}>{headerName}</span>
 
         {onMultiSelectClick && (
           <div hidden={dataSelectorProps.selectionMode !== 'selectable'}>

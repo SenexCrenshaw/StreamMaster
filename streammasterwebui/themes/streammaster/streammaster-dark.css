@@ -3139,7 +3139,7 @@
     border-radius: 0;
   }
   .p-datatable .p-datatable-header {
-    background: #21282c;
+    background: #1d2327;
     color: rgba(255, 255, 255, 0.6);
     border: 2px solid #263238;
     border-width: 0 0 2px 0;
@@ -3428,7 +3428,7 @@
     border-radius: 0;
   }
   .p-dataview .p-dataview-header {
-    background: #21282c;
+    background: #1d2327;
     color: rgba(255, 255, 255, 0.6);
     border: 2px solid #263238;
     border-width: 0 0 2px 0;
@@ -3467,7 +3467,7 @@
     border-radius: 0;
   }
   .p-datascroller .p-datascroller-header {
-    background: #21282c;
+    background: #1d2327;
     color: rgba(255, 255, 255, 0.6);
     border: 2px solid #263238;
     border-width: 0 0 2px 0;
@@ -3958,7 +3958,7 @@
     border-radius: 0;
   }
   .p-treetable .p-treetable-header {
-    background: #21282c;
+    background: #1d2327;
     color: rgba(255, 255, 255, 0.6);
     border: 2px solid #263238;
     border-width: 0 0 2px 0;
@@ -7109,14 +7109,23 @@
 .sm-standard-header {
   border-radius: 6px;
   background-color: #21282c !important;
+  border-color: #2d3e44;
+  border-width: 1px;
+  border-style: solid;
 }
 
 .sm-datatable {
   border-radius: 6px;
 }
 
-.sm-table-header {
+.sm-datatable-header {
   border-radius: 6px;
+  border-color: #2d3e44;
+  border-width: 1px;
+  border-style: solid;
+  background-color: #1d2327 !important;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
 }
 
 .p-datatable-wrapper {
@@ -7210,8 +7219,18 @@
   height: 1.8rem;
   max-height: 1.8rem;
 }
+.p-datatable .p-datatable-thead > tr {
+  height: 3rem;
+  background-color: #21282c !important;
+}
 .p-datatable .p-datatable-thead > tr > th:first-child {
   border-top-left-radius: 6px;
+}
+.p-datatable .p-datatable-thead > tr > th:last-child {
+  border-top-right-radius: 12px !important;
+}
+.p-datatable .p-datatable-thead > tr > th {
+  background-color: #21282c !important;
 }
 .p-datatable .p-datatable-thead > tr:nth-child(1) {
   display: none;

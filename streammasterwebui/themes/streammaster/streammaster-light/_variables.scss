@@ -12,7 +12,8 @@ $blue-header-color: #0c243c;
 $textColor: #bcbfbf;
 $surface-ground: #161d21;
 $surface-section: $surface-ground;
-$tableHeaderBg: #21282c !default;
+$standardHeaderBg: #21282c !default;
+$tableHeaderBg: #1d2327 !default;
 $headerTextColor: #ff7e00;
 $editableTextColor: #94abec;
 
@@ -231,7 +232,7 @@ $paginatorElementIconHoverColor: $shade700 !default;
 
 //table
 $tableHeaderBorder: 2px solid $shade100 !default;
-$tableHeaderBg: $shade000 !default;
+//$tableHeaderBg: $shade000 !default;
 $tableHeaderTextColor: $shade700 !default;
 
 $tableHeaderCellBg: $shade000 !default;

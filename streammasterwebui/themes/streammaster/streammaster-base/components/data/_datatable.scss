@@ -39,14 +39,25 @@
                 border-top-left-radius: $borderRadius;
             }
 
-            // >th:last-child {
-            //     border-top-right-radius: $borderRadius;
-            // }
+            >th:last-child {
+                border-top-right-radius: 12px !important;
+            }
+
+            height: 3rem;
+            background-color: $standardHeaderBg !important;
+
+
+
+            >th {
+                background-color: $standardHeaderBg !important;
+            }
         }
 
         >tr:nth-child(1) {
             display: none;
         }
+
+
 
     }
 

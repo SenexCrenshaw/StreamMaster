@@ -71,15 +71,24 @@
 
 .sm-standard-header {
     border-radius: $borderRadius;
-    background-color: $tableHeaderBg !important;
+    background-color: $standardHeaderBg !important;
+    border-color: $shade500;
+    border-width: 1px;
+    border-style: solid;
 }
 
 .sm-datatable {
     border-radius: $borderRadius;
 }
 
-.sm-table-header {
+.sm-datatable-header {
     border-radius: $borderRadius;
+    border-color: $shade500;
+    border-width: 1px;
+    border-style: solid;
+    background-color: $tableHeaderBg !important;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
 }
 
 .p-datatable-wrapper {

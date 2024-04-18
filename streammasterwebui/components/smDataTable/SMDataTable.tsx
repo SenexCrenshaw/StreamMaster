@@ -544,7 +544,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         {sourceRenderHeader && (
           <div>
             {/* <div className="layout-padding-top border-1"></div> */}
-            <div className="sm-standard-header">{sourceRenderHeader}</div>
+            <div className="sm-datatable-header">{sourceRenderHeader}</div>
             <div className="layout-padding-bottom"></div>
           </div>
         )}
