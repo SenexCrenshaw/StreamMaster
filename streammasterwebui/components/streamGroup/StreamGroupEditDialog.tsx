@@ -6,11 +6,12 @@ import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup
 import ProfilesDropDown from '@components/Profiles/ProfilesDropDown';
 import StreamGroupChannelGroupsSelector from '@features/streamGroupEditor/StreamGroupChannelGroupsSelector';
 
+import { StreamGroupDto } from '@lib/smAPI/smapiTypes';
 import { v4 as uuidv4 } from 'uuid';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import EditButton from '../buttons/EditButton';
-import { StreamGroupDto } from '@lib/smAPI/smapiTypes';
-import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
+
+import useGetIsSystemReady from '@lib/smAPI/Settings/useGetIsSystemReady';
 
 interface StreamGroupEditDialogProperties {
   readonly id: string;
@@ -21,7 +22,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProperties) => {
   const [name, setName] = useState<string>('');
   const [ffmpegProfileId, setFfmpegProfileId] = useState<string>('');
 
-  const { data: settings } = useGetSettings();
+  const getIsSystemReady = useGetIsSystemReady();
   const uuid = uuidv4();
   const { selectedStreamGroup } = useSelectedStreamGroup(props.id);
 

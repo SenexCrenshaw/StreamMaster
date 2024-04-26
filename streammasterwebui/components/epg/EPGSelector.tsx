@@ -7,6 +7,7 @@ import { StationChannelName } from '@lib/smAPI/smapiTypes';
 import { v4 as uuidv4 } from 'uuid';
 
 import useGetEPGFiles from '@lib/smAPI/EPGFiles/useGetEPGFiles';
+import useGetIsSystemReady from '@lib/smAPI/Settings/useGetIsSystemReady';
 import { Dropdown } from 'primereact/dropdown';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Tooltip } from 'primereact/tooltip';
@@ -29,7 +30,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
   const [input, setInput] = useState<string | undefined>(undefined);
   const [newInput, setNewInput] = useState<string | undefined>(undefined);
-
+  const getIsSystemReady = useGetIsSystemReady();
   const query = useGetStationChannelNames();
   const epgQuery = useGetEPGFiles();
   const colorsQuery = useGetEPGColors();
@@ -279,10 +280,16 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
     return <div className="flex w-full h-full justify-content-center align-items-center p-0 m-0">{input ?? 'Dummy'}</div>;
   }
 
-  const loading = query.isError || query.isFetching || query.isLoading || !query.data;
+  const loading = query.isError || query.isFetching || query.isLoading || !query.data || getIsSystemReady.data !== true;
+
+  console.log('getIsSystemReady', getIsSystemReady.data);
 
   if (loading) {
-    return <ProgressSpinner />;
+    return (
+      <div className="flex align-content-center justify-content-center">
+        <ProgressSpinner />
+      </div>
+    );
   }
 
   return (

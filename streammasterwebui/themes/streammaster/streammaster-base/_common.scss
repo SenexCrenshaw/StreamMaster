@@ -127,19 +127,8 @@
 
     // }
 
-    &.p-progress-spinner {
-        align-items: center;
-        justify-content: center;
-        width: $datatable-row-height;
-        height: $datatable-row-height;
-        padding: 0;
-        margin: 0;
-    }
 
-    .p-progress-spinner {
-        width: $input-height;
-        height: $input-height;
-    }
+
 
 }
 
@@ -306,4 +295,11 @@
     .p-confirm-popup-reject {
         background-color: $input-cancel-color;
     }
+}
+
+.p-progress-spinner {
+    width: $datatable-row-height;
+    height: $datatable-row-height;
+    padding: 0;
+    margin: 0;
 }
