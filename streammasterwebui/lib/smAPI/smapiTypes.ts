@@ -299,6 +299,9 @@ export interface GetPagedStreamGroupsRequest
 {
 	Parameters: QueryStringParameters;
 }
+export interface GetStreamGroupsRequest
+{
+}
 export interface CreateStreamGroupRequest
 {
 	Name: string;

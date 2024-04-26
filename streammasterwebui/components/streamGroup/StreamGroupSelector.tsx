@@ -1,31 +1,33 @@
+import useGetStreamGroups from '@lib/smAPI/StreamGroups/useGetStreamGroups';
+import { StreamGroupDto } from '@lib/smAPI/smapiTypes';
 import { Dropdown } from 'primereact/dropdown';
 import { type SelectItem } from 'primereact/selectitem';
-import { useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
+
+interface StreamGroupSelectorProperties {
+  readonly selectedStreamGroup: StreamGroupDto;
+  readonly onChange: (value: StreamGroupDto) => void;
+}
 
 export const StreamGroupSelector = (props: StreamGroupSelectorProperties) => {
-  const elementReference = useRef(null);
-
-  const [selectedStreamGroup, setSelectedStreamGroup] = useState<StreamGroupDto>({} as StreamGroupDto);
-
-  const streamGroups = useStreamGroupsGetPagedStreamGroupsQuery({} as StreamGroupsGetPagedStreamGroupsApiArg);
+  const { data, isLoading } = useGetStreamGroups();
 
   const isDisabled = useMemo((): boolean => {
-    if (streamGroups.isLoading) {
+    if (isLoading) {
       return true;
     }
 
     return false;
-  }, [streamGroups.isLoading]);
+  }, [isLoading]);
 
   const onDropdownChange = (sg: StreamGroupDto) => {
     if (!sg) return;
-
-    setSelectedStreamGroup(sg);
+    if (sg.Id === props.selectedStreamGroup.Id) return;
     props?.onChange?.(sg);
   };
 
   const getOptions = useMemo((): SelectItem[] => {
-    if (!streamGroups.data) {
+    if (!data) {
       return [
         {
           label: 'Loading...',
@@ -34,33 +36,23 @@ export const StreamGroupSelector = (props: StreamGroupSelectorProperties) => {
       ];
     }
 
-    const returnValue = streamGroups.data?.data?.map((a) => ({ label: a.name, value: a } as SelectItem));
-
-    returnValue.unshift({
-      label: 'All',
-      value: {} as StreamGroupDto
-    } as SelectItem);
-
+    const returnValue = data?.map((a) => ({ label: a.Name, value: a } as SelectItem));
     return returnValue;
-  }, [streamGroups.data]);
+  }, [data]);
 
   return (
     <div>
       <Dropdown
-        className="streamgroupselector"
+        className="sm-streamgroupselector"
+        dataKey="Id"
         disabled={isDisabled}
         onChange={(e) => onDropdownChange(e.value)}
         options={getOptions}
         placeholder="Stream Group"
-        ref={elementReference}
-        value={selectedStreamGroup}
+        value={props.selectedStreamGroup}
       />
     </div>
   );
 };
 
 StreamGroupSelector.displayName = 'StreamGroupSelector';
-
-interface StreamGroupSelectorProperties {
-  readonly onChange: (value: StreamGroupDto) => void;
-}

@@ -6,6 +6,11 @@ export const GetPagedStreamGroups = async (parameters: QueryStringParameters): P
   return await signalRService.invokeHubCommand<PagedResponse<StreamGroupDto>>('GetPagedStreamGroups', parameters);
 };
 
+export const GetStreamGroups = async (): Promise<StreamGroupDto[] | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<StreamGroupDto[]>('GetStreamGroups');
+};
+
 export const CreateStreamGroup = async (request: CreateStreamGroupRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('CreateStreamGroup', request);

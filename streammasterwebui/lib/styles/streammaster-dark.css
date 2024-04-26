@@ -7140,23 +7140,22 @@
   color: #12181b !important;
 }
 
-.sm-standard-header {
-  border-radius: 6px;
-  background-color: #21282c !important;
-  border-color: #263238;
-  border-width: 1px;
-  border-style: solid;
-}
-
 .sm-datatable {
   border-radius: 6px;
 }
 
-.sm-datatable-header, .p-datatable-wrapper {
+.sm-input, .sm-streamgroupselector, .sm-datatable-header, .p-datatable-wrapper, .sm-standard-header {
   border-radius: 6px;
   border-color: #263238;
   border-width: 1px;
   border-style: solid;
+}
+
+.sm-standard-header {
+  background-color: #21282c !important;
+}
+
+.sm-datatable-header, .p-datatable-wrapper {
   background-color: #1d2327 !important;
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
@@ -7164,10 +7163,10 @@
 
 .last_radius {
   border-top-width: 0;
+  border-right-width: 0;
 }
-.last_radius #streameditor-SMChannelDataSelector > div.p-datatable-wrapper {
+.last_radius div.p-datatable-wrapper {
   border-top-right-radius: 6px !important;
-  border-top-width: 0;
 }
 
 .no-top-border div.p-datatable-wrapper {
@@ -7186,6 +7185,7 @@
 .p-datatable-wrapper::-webkit-scrollbar-track {
   background-color: #12181b;
   border-radius: 6px;
+  border-right-width: 0;
   border-bottom-width: 0;
   border: 1px solid #263238;
 }
@@ -7199,6 +7199,18 @@
 
 .surface-overlay {
   background-color: var(--surface-ground) !important;
+}
+
+.sm-streamgroupselector {
+  padding-left: 0.1rem !important;
+  padding-top: 0.1rem !important;
+  padding-bottom: 0.1rem !important;
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  height: 1.6rem;
+  min-width: 12rem;
 }
 
 .sm-card {

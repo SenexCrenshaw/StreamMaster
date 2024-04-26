@@ -23,6 +23,8 @@ public class DeleteStreamGroupRequestHandler(IRepositoryWrapper Repository, IHub
             await Repository.SaveAsync();
             await Publisher.Publish(new StreamGroupDeleteEvent(), cancellationToken);
             await hubContext.Clients.All.DataRefresh(StreamGroup.MainGet).ConfigureAwait(false);
+            await hubContext.Clients.All.DataRefresh("GetStreamGroups").ConfigureAwait(false);
+            await messageService.SendSuccess("Stream Group deleted successfully");
             return APIResponse.Ok;
         }
 

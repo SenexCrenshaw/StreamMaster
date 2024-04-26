@@ -6,7 +6,7 @@ import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup
 import useGetPagedStreamGroups from '@lib/smAPI/StreamGroups/useGetPagedStreamGroups';
 import { StreamGroupDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent } from 'primereact/datatable';
-import { memo, useMemo, useCallback } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 
 export interface StreamGroupDataSelectorProperties {
   readonly id: string;
@@ -15,7 +15,7 @@ export interface StreamGroupDataSelectorProperties {
 const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
   const { selectedStreamGroup, setSelectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
   const { isLoading } = useGetPagedStreamGroups();
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems('selectedStreamGroup');
+  const { setSelectSelectedItems } = useSelectedItems('selectedStreamGroup');
 
   const actionTemplate = useCallback((rowData: StreamGroupDto) => {
     if (rowData.IsReadOnly === true) {
@@ -83,7 +83,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
       selectedItemsKey="selectedStreamGroup"
       onRowClick={(e: DataTableRowClickEvent) => {
         if (e.data.Id !== selectedStreamGroup.Id) {
-          console.log(e.data);
+          console.log('StreamGroupDataSelector', e.data);
           setSelectedStreamGroup(e.data as StreamGroupDto);
           setSelectSelectedItems([e.data as StreamGroupDto]);
         } else {
