@@ -14,6 +14,7 @@ export interface StringEditorBodyTemplateProperties {
   readonly debounceMs?: number;
   readonly isLoading?: boolean;
   readonly onChange: (value: string | undefined) => void;
+  readonly onSave: (value: string | undefined) => void;
   readonly onClick?: () => void;
   readonly placeholder?: string;
   readonly resetValue?: string | undefined;
@@ -30,7 +31,7 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const overlayReference = useRef<HTMLDivElement | null>(null);
 
-  const [originalValue, setOriginalValue] = useState<string | undefined>('');
+  const [originalValue, setOriginalValue] = useState<string | undefined>(undefined);
   const [inputValue, setInputValue] = useState<string | undefined>('');
 
   const debounced = useDebouncedCallback(
@@ -53,14 +54,14 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
       if (props.isLoading || (forceValueSave === undefined && (inputValue === undefined || inputValue === originalValue))) {
         return;
       }
-
+      //setOriginalValue(undefined);
       debounced.cancel();
       if (forceValueSave === undefined) {
-        setOriginalValue(inputValue);
-        props.onChange(inputValue);
+        // setOriginalValue(inputValue);
+        props.onSave(inputValue);
       } else {
-        setOriginalValue(forceValueSave);
-        props.onChange(forceValueSave);
+        // setOriginalValue(forceValueSave);
+        props.onSave(forceValueSave);
       }
     },
     [debounced, inputValue, originalValue, props]
@@ -98,14 +99,15 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
   });
 
   useEffect(() => {
-    if (!props.isLoading && props.value !== null && props.value !== undefined) {
+    if (!props.isLoading && props?.value !== undefined && originalValue === undefined) {
       setInputValue(props.value);
       setOriginalValue(props.value);
-    } else {
-      setInputValue('');
-      setOriginalValue('');
     }
-  }, [props.value, props.isLoading, setInputValue]);
+    // else {
+    //   setInputValue('');
+    //   setOriginalValue('');
+    // }
+  }, [originalValue, props.isLoading, props.value]);
 
   const needsSave = useMemo(() => {
     return originalValue !== inputValue;
@@ -157,6 +159,8 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
           setInputValue(e.target.value as string);
           if (!props.disableDebounce) {
             debounced(e.target.value as string);
+          } else {
+            props.onChange(e.target.value as string);
           }
         }}
         onClick={() => {

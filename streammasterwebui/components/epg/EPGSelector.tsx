@@ -11,7 +11,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Tooltip } from 'primereact/tooltip';
 import { classNames } from 'primereact/utils';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 type EPGResult = { epgNumber: number; stationId: string };
 
@@ -24,9 +24,11 @@ type EPGSelectorProperties = {
 };
 
 const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChange }: EPGSelectorProperties) => {
+  const ref = useRef<Dropdown>(null);
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
   const [input, setInput] = useState<string | undefined>(undefined);
+  const [newInput, setNewInput] = useState<string | undefined>(undefined);
 
   const query = useGetStationChannelNames();
   const epgQuery = useGetEPGFiles();
@@ -154,7 +156,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
 
       let inputString = option?.DisplayName ?? '';
       const splitIndex = inputString.indexOf(']') + 1;
-      const beforeCallSign = inputString.substring(0, splitIndex);
+      // const beforeCallSign = inputString.substring(0, splitIndex);
       const afterCallSign = inputString.substring(splitIndex).trim();
       let color = '#FFFFFF';
 
@@ -209,8 +211,14 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
     }
 
     setInput(channel);
+    ref.current?.hide();
     onChange && onChange(channel);
   };
+
+  const addDisabled = useMemo(() => {
+    console.log(checkValue, newInput);
+    return checkValue === newInput;
+  }, [checkValue, newInput]);
 
   const panelTemplate = (option: any) => {
     return (
@@ -218,18 +226,24 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
         <div className="col-11 m-0 p-0 pl-2">
           <StringEditorBodyTemplate
             disableDebounce={true}
-            placeholder="Custom URL"
+            placeholder="Custom Id"
             value={input}
             onChange={(value) => {
               if (value) {
-                setInput(value);
+                setNewInput(value);
+              }
+            }}
+            onSave={(value) => {
+              if (value) {
+                handleOnChange(value);
               }
             }}
           />
         </div>
         <div className="col-1 m-0 p-0">
           <AddButton
-            tooltip="Custom"
+            disabled={addDisabled}
+            tooltip="Add Custom Id"
             iconFilled
             onClick={(e) => {
               if (input) {
@@ -278,6 +292,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
         options={query.data}
         panelFooterTemplate={panelTemplate}
         placeholder="placeholder"
+        ref={ref}
         resetFilterOnHide
         showFilterClear
         value={stationChannelName}

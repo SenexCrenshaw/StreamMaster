@@ -10,7 +10,6 @@ interface EPGEditorProperties {
 
 const EPGEditor = ({ data, enableEditMode }: EPGEditorProperties) => {
   const onUpdateVideoStream = async (epg: string) => {
-    console.log('onUpdateVideoStream', data);
     if (!data.Id) {
       return;
     }
