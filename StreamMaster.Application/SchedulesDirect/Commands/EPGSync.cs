@@ -1,4 +1,4 @@
-﻿namespace StreamMaster.Application.SchedulesDirect.CommandsOld;
+﻿namespace StreamMaster.Application.SchedulesDirect.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -19,9 +19,14 @@ public class SDSyncHandler(ISchedulesDirect schedulesDirect, ILogger<EPGSync> lo
             {
                 logger.LogInformation("Updated Schedules Direct");
                 await HubContext.Clients.All.DataRefresh("SchedulesDirect");
-
             }
         }
+        else
+        {
+            await HubContext.Clients.All.DataRefresh("GetStationChannelNames");
+        }
+        await HubContext.Clients.All.DataRefresh("GetEPGFiles");
+
 
         return true;
     }

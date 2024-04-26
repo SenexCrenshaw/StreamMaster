@@ -34,11 +34,19 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   const epgQuery = useGetEPGFiles();
   const colorsQuery = useGetEPGColors();
 
+  if (value === '1-ESPN+155.v3') {
+    console.group('EPGSelector');
+    console.log('value', value, 'checkValue', checkValue, 'input', input, 'newInput', newInput);
+    console.log(query.data);
+    const entry = query.data?.find((x) => x.Channel === input);
+    console.log(entry);
+    console.groupEnd();
+  }
   useEffect(() => {
-    if (value && !input) {
+    if (value && !checkValue) {
       setInput(value);
     }
-  }, [value, input]);
+  }, [value, checkValue]);
 
   useEffect(() => {
     if (checkValue === undefined && !query.isError && input) {
@@ -149,26 +157,29 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   );
 
   const valueTemplate = useCallback(
-    (option: StationChannelName): JSX.Element => {
-      if (!option) {
+    (option2: StationChannelName): JSX.Element => {
+      const stationChannelName = query.data?.find((x) => x.Channel === input);
+      if (!stationChannelName) {
         return <div>{input}</div>;
       }
 
-      let inputString = option?.DisplayName ?? '';
+      console.log(stationChannelName);
+
+      let inputString = stationChannelName.DisplayName ?? '';
       const splitIndex = inputString.indexOf(']') + 1;
       // const beforeCallSign = inputString.substring(0, splitIndex);
       const afterCallSign = inputString.substring(splitIndex).trim();
       let color = '#FFFFFF';
 
       if (colorsQuery?.data !== undefined) {
-        const entry = colorsQuery.data.find((x) => x.StationId === option.Channel);
+        const entry = colorsQuery.data.find((x) => x.StationId === stationChannelName.Channel);
         if (entry?.Color) {
           color = entry.Color;
         }
       }
 
       let epgName = 'SD';
-      const test = extractEPGNumberAndStationId(option.Channel);
+      const test = extractEPGNumberAndStationId(stationChannelName.Channel);
 
       if (test.epgNumber > 0 && epgQuery.data !== undefined) {
         const entry = epgQuery.data.find((x) => x.EPGNumber === test.epgNumber);
@@ -216,7 +227,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   };
 
   const addDisabled = useMemo(() => {
-    console.log(checkValue, newInput);
+    // console.log(checkValue, newInput);
     return checkValue === newInput;
   }, [checkValue, newInput]);
 

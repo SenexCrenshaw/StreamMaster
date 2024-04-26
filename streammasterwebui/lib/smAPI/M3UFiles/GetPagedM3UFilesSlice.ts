@@ -87,6 +87,7 @@ const getPagedM3UFilesSlice = createSlice({
         if (action.payload) {
           const { query, value } = action.payload;
           state.data[query] = value;
+          setIsLoading({ isLoading: false, query: query });
           state.isLoading[query] = false;
           state.isError[query] = false;
           state.error[query] = undefined;
@@ -98,6 +99,7 @@ const getPagedM3UFilesSlice = createSlice({
         state.error[query] = action.error.message || 'Failed to fetch';
         state.isError[query] = true;
         state.isLoading[query] = false;
+         setIsLoading({ isLoading: false, query: query });;
         state.isForced = false;
       });
 

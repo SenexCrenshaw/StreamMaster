@@ -61,7 +61,8 @@ const getStationChannelNamesSlice = createSlice({
       .addCase(fetchGetStationChannelNames.fulfilled, (state, action) => {
         if (action.payload) {
           const { value } = action.payload;
-          state.data = value ?? undefined;;
+          state.data = value ?? undefined;
+          setIsLoading({ isLoading: false });
           state.isLoading = false;
           state.isError = false;
           state.error = undefined;
@@ -71,6 +72,7 @@ const getStationChannelNamesSlice = createSlice({
       .addCase(fetchGetStationChannelNames.rejected, (state, action) => {
         state.error = action.error.message || 'Failed to fetch';
         state.isError = true;
+        setIsLoading({ isLoading: false });
         state.isLoading = false;
         state.isForced = false;
       });

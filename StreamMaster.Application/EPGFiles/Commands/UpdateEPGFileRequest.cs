@@ -103,6 +103,8 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
 
             if (isNameChanged)
             {
+                await HubContext.Clients.All.DataRefresh("GetEPGFiles");
+
                 await Publisher.Publish(new EPGFileAddedEvent(Mapper.Map<EPGFileDto>(epgFile)), cancellationToken).ConfigureAwait(false);
             }
 

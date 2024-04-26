@@ -306,6 +306,7 @@ const initialState: QueryState = {{
             content.AppendLine("        if (action.payload) {");
             content.AppendLine("          const { query, value } = action.payload;");
             content.AppendLine("          state.data[query] = value;");
+            content.AppendLine("          setIsLoading({ isLoading: false, query: query });");
             content.AppendLine("          state.isLoading[query] = false;");
             content.AppendLine("          state.isError[query] = false;");
             content.AppendLine("          state.error[query] = undefined;");
@@ -317,6 +318,7 @@ const initialState: QueryState = {{
             content.AppendLine("        state.error[query] = action.error.message || 'Failed to fetch';");
             content.AppendLine("        state.isError[query] = true;");
             content.AppendLine("        state.isLoading[query] = false;");
+            content.AppendLine("         setIsLoading({ isLoading: false, query: query });;");
             content.AppendLine("        state.isForced = false;");
             content.AppendLine("      });");
             return content.ToString();
@@ -336,6 +338,7 @@ const initialState: QueryState = {{
             content.AppendLine("          const { param, value } = action.payload;");
             content.AppendLine("          const paramString = JSON.stringify(param);");
             content.AppendLine("          state.data[paramString] = value;");
+            content.AppendLine("          setIsLoading({ isLoading: false, paramString: paramString });");
             content.AppendLine("          state.isLoading[paramString] = false;");
             content.AppendLine("          state.isError[paramString] = false;");
             content.AppendLine("          state.error[paramString] = undefined;");
@@ -346,6 +349,7 @@ const initialState: QueryState = {{
             content.AppendLine("        const paramString = JSON.stringify(action.meta.arg);");
             content.AppendLine("        state.error[paramString] = action.error.message || 'Failed to fetch';");
             content.AppendLine("        state.isError[paramString] = true;");
+            content.AppendLine("        setIsLoading({ isLoading: false, paramString: paramString });");
             content.AppendLine("        state.isLoading[paramString] = false;");
             content.AppendLine("        state.isForced = false;");
             content.AppendLine("      });");
@@ -362,7 +366,8 @@ const initialState: QueryState = {{
         content.AppendLine($"      .addCase({fetchActionName}.fulfilled, (state, action) => {{");
         content.AppendLine("        if (action.payload) {");
         content.AppendLine("          const { value } = action.payload;");
-        content.AppendLine("          state.data = value ?? undefined;;");
+        content.AppendLine("          state.data = value ?? undefined;");
+        content.AppendLine("          setIsLoading({ isLoading: false });");
         content.AppendLine("          state.isLoading = false;");
         content.AppendLine("          state.isError = false;");
         content.AppendLine("          state.error = undefined;");
@@ -372,6 +377,7 @@ const initialState: QueryState = {{
         content.AppendLine($"      .addCase({fetchActionName}.rejected, (state, action) => {{");
         content.AppendLine("        state.error = action.error.message || 'Failed to fetch';");
         content.AppendLine("        state.isError = true;");
+        content.AppendLine("        setIsLoading({ isLoading: false });");
         content.AppendLine("        state.isLoading = false;");
         content.AppendLine("        state.isForced = false;");
         content.AppendLine("      });");

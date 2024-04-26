@@ -33,7 +33,7 @@ const SMChannelNameEditor = ({ data, onClick }: SMChannelNameEditorProperties) =
   return (
     <StringEditorBodyTemplate
       onClick={onClick}
-      onChange={async (e) => {
+      onSave={async (e) => {
         if (e !== undefined) {
           await onUpdateM3UStream(e);
         }

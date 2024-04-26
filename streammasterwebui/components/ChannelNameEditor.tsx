@@ -28,7 +28,7 @@ const ChannelNameEditor = (props: ChannelNameEditorProperties) => {
 
   return (
     <StringEditorBodyTemplate
-      onChange={async (e) => {
+      onSave={async (e) => {
         await onUpdateM3UStream(e);
       }}
       resetValue={props.data.isUserCreated ? undefined : props.data.tvg_name}

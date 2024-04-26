@@ -1,8 +1,8 @@
 import { memo, useCallback, useMemo } from 'react';
 
 import StringEditorBodyTemplate from '../inputs/StringEditorBodyTemplate';
-import M3UFileRefreshDialog from './M3UFileRefreshDialog';
 import M3UFileDeleteDialog from './M3UFileDeleteDialog';
+import M3UFileRefreshDialog from './M3UFileRefreshDialog';
 
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { formatJSONDateString } from '@lib/common/dateTime';
@@ -95,7 +95,7 @@ const M3UFilesDataSelector = () => {
 
       return (
         <StringEditorBodyTemplate
-          onChange={async (e) => {
+          onSave={async (e) => {
             await onM3UUpdateClick({ id: rowData.Id, name: e });
           }}
           value={rowData.Name}

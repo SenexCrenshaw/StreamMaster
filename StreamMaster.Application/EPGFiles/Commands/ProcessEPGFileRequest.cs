@@ -19,6 +19,10 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
             }
 
             await hubContext.Clients.All.DataRefresh(EPGFile.MainGet).ConfigureAwait(false);
+            await hubContext.Clients.All.DataRefresh("GetStationChannelNames").ConfigureAwait(false);
+            await hubContext.Clients.All.DataRefresh("EPG").ConfigureAwait(false);
+
+
 
             await messageSevice.SendSuccess("Processed EPG '" + epgFile.Name + "' successfully");
             return APIResponse.Success;

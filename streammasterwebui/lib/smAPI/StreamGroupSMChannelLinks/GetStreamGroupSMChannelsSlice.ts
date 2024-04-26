@@ -80,6 +80,7 @@ const getStreamGroupSMChannelsSlice = createSlice({
           const { param, value } = action.payload;
           const paramString = JSON.stringify(param);
           state.data[paramString] = value;
+          setIsLoading({ isLoading: false, paramString: paramString });
           state.isLoading[paramString] = false;
           state.isError[paramString] = false;
           state.error[paramString] = undefined;
@@ -90,6 +91,7 @@ const getStreamGroupSMChannelsSlice = createSlice({
         const paramString = JSON.stringify(action.meta.arg);
         state.error[paramString] = action.error.message || 'Failed to fetch';
         state.isError[paramString] = true;
+        setIsLoading({ isLoading: false, paramString: paramString });
         state.isLoading[paramString] = false;
         state.isForced = false;
       });

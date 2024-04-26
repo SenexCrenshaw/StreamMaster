@@ -156,7 +156,7 @@ const IconGrid = ({ iconSource, onClick }: IconSelectorProperties) => {
         <div className="w-6">
           <StringEditorBodyTemplate
             value={iconSource}
-            onChange={(value) => {
+            onSave={(value) => {
               if (value) {
                 onClick(value);
                 console.log(value);
@@ -170,7 +170,7 @@ const IconGrid = ({ iconSource, onClick }: IconSelectorProperties) => {
             placeholder="Search"
             darkBackGround={true}
             value={filter}
-            onChange={(value) => {
+            onSave={(value) => {
               setFilter(value);
               goToPage(1);
             }}

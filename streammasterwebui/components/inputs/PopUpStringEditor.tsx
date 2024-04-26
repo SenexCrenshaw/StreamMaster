@@ -50,7 +50,7 @@ const PopUpStringEditor = ({ onClose, value, visible }: PopUpStringEditorPropert
                 autofocus={true}
                 disableDebounce={true}
                 value={input}
-                onChange={(value) => {
+                onSave={(value) => {
                   setInput(value);
                   ReturnToParent(value);
                 }}

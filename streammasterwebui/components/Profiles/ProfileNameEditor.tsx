@@ -43,7 +43,7 @@ const ProfileNameEditor = (props: ProfileNameEditorProperties) => {
 
   return (
     <StringEditorBodyTemplate
-      onChange={async (e) => {
+      onSave={async (e) => {
         await onUpdateFfmpegProfileDto(e);
       }}
       value={props.data.name}

@@ -450,6 +450,9 @@ export interface GetStationChannelNamesSimpleQuery
 {
 	Parameters: any;
 }
+export interface EPGSync
+{
+}
 export interface AddLineup
 {
 	lineup: string;
@@ -462,9 +465,6 @@ export interface StationRequest
 export interface AddStation
 {
 	Requests: StationRequest[];
-}
-export interface EPGSync
-{
 }
 export interface RemoveLineup
 {

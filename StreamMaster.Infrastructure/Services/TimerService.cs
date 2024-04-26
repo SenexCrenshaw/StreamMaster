@@ -11,7 +11,7 @@ using StreamMaster.Application.EPGFiles.Queries;
 using StreamMaster.Application.Hubs;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.M3UFiles.Queries;
-using StreamMaster.Application.SchedulesDirect.CommandsOld;
+using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.Services;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Common;

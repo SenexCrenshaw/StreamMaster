@@ -13,7 +13,7 @@ export interface StringEditorBodyTemplateProperties {
   readonly disableDebounce?: boolean;
   readonly debounceMs?: number;
   readonly isLoading?: boolean;
-  readonly onChange: (value: string | undefined) => void;
+  readonly onChange?: (value: string | undefined) => void;
   readonly onSave: (value: string | undefined) => void;
   readonly onClick?: () => void;
   readonly placeholder?: string;
@@ -40,7 +40,7 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
         if (value !== originalValue && !props.isLoading) {
           setInputValue(value);
           // setOriginalValue(value);
-          props.onChange(value);
+          props.onChange && props.onChange(value);
         }
       },
       [originalValue, props]
@@ -160,7 +160,7 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
           if (!props.disableDebounce) {
             debounced(e.target.value as string);
           } else {
-            props.onChange(e.target.value as string);
+            props.onChange && props.onChange(e.target.value as string);
           }
         }}
         onClick={() => {

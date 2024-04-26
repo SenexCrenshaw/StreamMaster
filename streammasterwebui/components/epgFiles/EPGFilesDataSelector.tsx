@@ -3,6 +3,7 @@ import SMDataTable from '@components/smDataTable/SMDataTable';
 
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { formatJSONDateString } from '@lib/common/dateTime';
+
 import { UpdateEPGFile } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
 import useGetPagedEPGFiles from '@lib/smAPI/EPGFiles/useGetPagedEPGFiles';
 import { EPGFileDto, UpdateEPGFileRequest } from '@lib/smAPI/smapiTypes';
@@ -109,7 +110,7 @@ const EPGFilesDataSelector = () => {
 
       return (
         <StringEditorBodyTemplate
-          onChange={async (e) => {
+          onSave={async (e) => {
             await onEPGUpdateClick({ id: rowData.Id, name: e });
           }}
           value={rowData.Name}

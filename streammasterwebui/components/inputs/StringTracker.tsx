@@ -26,7 +26,7 @@ const StringTracker = ({ id, onChange, placeholder, value }: StringTrackerProper
         onChange={async (e) => {
           console.log(e);
           setIntValue(e);
-          onChange(e);
+          onSave(e);
         }}
         darkBackGround
         placeholder={placeholder}
