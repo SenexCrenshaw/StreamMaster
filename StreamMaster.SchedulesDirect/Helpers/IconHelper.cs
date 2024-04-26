@@ -2,7 +2,6 @@
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Models;
-using StreamMaster.SchedulesDirect.Domain.Enums;
 
 using System.Net;
 using System.Web;

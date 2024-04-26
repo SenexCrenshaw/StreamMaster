@@ -54,9 +54,9 @@ public class BaseRepositoryContext(DbContextOptions options) : DbContext(options
         return ChangeTracker.Entries<TEntity>().Any(e => e.Entity == entity);
     }
 
-    public Task MigrateData(List<MxfService>? allServices = null)
+    public Task MigrateData()
     {
-        throw new NotImplementedException();
+        return Task.CompletedTask;
     }
 
     private bool _disposed = false;

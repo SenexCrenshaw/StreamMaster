@@ -9,22 +9,6 @@ namespace StreamMaster.Application.EPGFiles.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<List<EPGColorDto>>> GetEPGColors()
-        {
-            try
-            {
-            DataResponse<List<EPGColorDto>> ret = await Sender.Send(new GetEPGColorsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetEPGColors.", statusCode: 500) : Ok(ret.Data);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetEPGColors.");
-                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
-            }
-        }
-
-        [HttpGet]
-        [Route("[action]")]
         public async Task<ActionResult<List<EPGFilePreviewDto>>> GetEPGFilePreviewById(GetEPGFilePreviewByIdRequest request)
         {
             try
@@ -35,6 +19,22 @@ namespace StreamMaster.Application.EPGFiles.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetEPGFilePreviewById.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<ActionResult<List<EPGFileDto>>> GetEPGFiles()
+        {
+            try
+            {
+            DataResponse<List<EPGFileDto>> ret = await Sender.Send(new GetEPGFilesRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetEPGFiles.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetEPGFiles.");
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
@@ -110,15 +110,15 @@ namespace StreamMaster.Application.Hubs
 {
     public partial class StreamMasterHub : IEPGFilesHub
     {
-        public async Task<List<EPGColorDto>> GetEPGColors()
-        {
-             DataResponse<List<EPGColorDto>> ret = await Sender.Send(new GetEPGColorsRequest()).ConfigureAwait(false);
-            return ret.Data;
-        }
-
         public async Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(GetEPGFilePreviewByIdRequest request)
         {
              DataResponse<List<EPGFilePreviewDto>> ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret.Data;
+        }
+
+        public async Task<List<EPGFileDto>> GetEPGFiles()
+        {
+             DataResponse<List<EPGFileDto>> ret = await Sender.Send(new GetEPGFilesRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 

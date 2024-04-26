@@ -24,4 +24,5 @@ public interface ISMChannelsRepository
     Task<APIResponse> SetSMChannelLogo(int SMChannelId, string logo);
     Task<APIResponse> SetSMChannelChannelNumber(int sMChannelId, int channelNumber);
     Task<APIResponse> SetSMChannelName(int sMChannelId, string name);
+    Task<APIResponse> SetSMChannelEPGID(int sMChannelId, string EPGId);
 }

@@ -11,6 +11,7 @@ namespace StreamMaster.Application.SMChannels
         Task<ActionResult<APIResponse>> DeleteSMChannel(DeleteSMChannelRequest request);
         Task<ActionResult<APIResponse>> DeleteSMChannelsFromParameters(DeleteSMChannelsFromParametersRequest request);
         Task<ActionResult<APIResponse>> DeleteSMChannels(DeleteSMChannelsRequest request);
+        Task<ActionResult<APIResponse>> SetSMChannelEPGId(SetSMChannelEPGIdRequest request);
         Task<ActionResult<APIResponse>> SetSMChannelLogo(SetSMChannelLogoRequest request);
         Task<ActionResult<APIResponse>> SetSMChannelName(SetSMChannelNameRequest request);
         Task<ActionResult<APIResponse>> SetSMChannelNumber(SetSMChannelNumberRequest request);
@@ -26,6 +27,7 @@ namespace StreamMaster.Application.Hubs
         Task<APIResponse> DeleteSMChannel(DeleteSMChannelRequest request);
         Task<APIResponse> DeleteSMChannelsFromParameters(DeleteSMChannelsFromParametersRequest request);
         Task<APIResponse> DeleteSMChannels(DeleteSMChannelsRequest request);
+        Task<APIResponse> SetSMChannelEPGId(SetSMChannelEPGIdRequest request);
         Task<APIResponse> SetSMChannelLogo(SetSMChannelLogoRequest request);
         Task<APIResponse> SetSMChannelName(SetSMChannelNameRequest request);
         Task<APIResponse> SetSMChannelNumber(SetSMChannelNumberRequest request);

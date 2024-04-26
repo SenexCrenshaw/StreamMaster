@@ -179,7 +179,16 @@
 }
 
 .stringeditorbody-inputtext {
-    width: 100% !important;
+    @extend .sm-input;
+    // background-color: transparent !important;
+    // width: 100% !important;
+    // border-radius: 0px;
+    // height: $input-height;
+    // max-height: $input-height;
+}
+
+.p-inputnumber-input {
+    @extend .stringeditorbody-inputtext;
 }
 
 .autoUpdate {

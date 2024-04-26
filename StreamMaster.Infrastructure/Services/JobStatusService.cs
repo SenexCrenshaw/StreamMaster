@@ -142,4 +142,9 @@ public partial class JobStatusService(ILogger<JobStatusService> logger) : IJobSt
     {
         return new JobStatusManager(this, JobType.RefreshM3U, id);
     }
+
+    public JobStatusManager GetJobManageSDSync(int id)
+    {
+        return new JobStatusManager(this, JobType.SDSync, id);
+    }
 }

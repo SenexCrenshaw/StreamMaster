@@ -23,18 +23,18 @@ import GetIcons from '@lib/smAPI/Icons/GetIconsSlice';
 import GetPagedM3UFiles from '@lib/smAPI/M3UFiles/GetPagedM3UFilesSlice';
 import GetPagedSMChannels from '@lib/smAPI/SMChannels/GetPagedSMChannelsSlice';
 import GetPagedSMStreams from '@lib/smAPI/SMStreams/GetPagedSMStreamsSlice';
+import GetStationChannelNames from '@lib/smAPI/SchedulesDirect/GetStationChannelNamesSlice';
 import GetIsSystemReady from '@lib/smAPI/Settings/GetIsSystemReadySlice';
 import GetSettings from '@lib/smAPI/Settings/GetSettingsSlice';
 import GetSystemStatus from '@lib/smAPI/Settings/GetSystemStatusSlice';
-
 import GetStreamGroups from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice';
 
-import StreamGroupSMChannelLinks from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
-
-import GetEPGColorsSlice from '@lib/smAPI/EPGFiles/GetEPGColorsSlice';
+import GetEPGColorsSlice from '@lib/smAPI/EPG/GetEPGColorsSlice';
 import GetEPGFilePreviewById from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
+import GetEPGFiles from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
 import GetEPGNextEPGNumber from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
 import GetPagedEPGFiles from '@lib/smAPI/EPGFiles/GetPagedEPGFilesSlice';
+import StreamGroupSMChannelLinks from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
 
 import GetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/GetSMChannelStreamsSlice';
 import GetPagedStreamGroups from '@lib/smAPI/StreamGroups/GetPagedStreamGroupsSlice';
@@ -132,10 +132,12 @@ const rootReducer = combineReducers({
   SMChannelReducer: SMChannelReducer,
   SMStreamReducer: SMStreamReducer,
   GetEPGColors: GetEPGColorsSlice,
+  GetEPGFiles: GetEPGFiles,
   GetStreamGroups: GetStreamGroups,
   GetPagedEPGFiles: GetPagedEPGFiles,
   GetEPGFilePreviewById: GetEPGFilePreviewById,
   GetEPGNextEPGNumber: GetEPGNextEPGNumber,
+  GetStationChannelNames: GetStationChannelNames,
   selectUpdateSettingRequest: persistReducer(selectUpdateSettingRequestSliceConfig, selectUpdateSettingRequestReducer),
   selectCurrentSettingDto: persistReducer(currentSettingDtoSliceConfig, selectCurrentSettingDtoReducer),
   selectedPostalCode: persistReducer(selectedPostalCodeConfig, selectedPostalCodeSlice),

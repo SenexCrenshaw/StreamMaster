@@ -1,5 +1,6 @@
-﻿using StreamMaster.Application.SchedulesDirect.Commands;
-using StreamMaster.Application.SchedulesDirect.Queries;
+﻿using StreamMaster.Application.SchedulesDirect.CommandsOld;
+using StreamMaster.Application.SchedulesDirect.QueriesOld;
+using StreamMaster.SchedulesDirect.Domain.Dto;
 
 namespace StreamMaster.Application.Hubs;
 
@@ -55,12 +56,6 @@ public partial class StreamMasterHub
     public async Task<StationChannelName?> GetStationChannelNameFromDisplayName(GetStationChannelNameFromDisplayName request)
     {
         return await Sender.Send(request).ConfigureAwait(false);
-    }
-
-
-    public async Task<List<StationChannelName>> GetStationChannelNames()
-    {
-        return await Sender.Send(new GetStationChannelNames()).ConfigureAwait(false);
     }
 
     public async Task<List<StationPreview>> GetStationPreviews()

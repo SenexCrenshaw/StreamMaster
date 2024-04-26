@@ -2,8 +2,9 @@ import EPGEditor from '../epg/EPGEditor';
 import createMultiSelectColumnConfigHook from './createVideoStreamMultiSelectColumnConfigHook';
 
 export const useEPGColumnConfig = createMultiSelectColumnConfigHook({
+  dataField: 'EPGId',
   EditorComponent: EPGEditor,
-  dataField: 'user_Tvg_ID',
   headerTitle: 'EPG',
-  width: 12
+  maxWidth: 4,
+  width: 4
 });

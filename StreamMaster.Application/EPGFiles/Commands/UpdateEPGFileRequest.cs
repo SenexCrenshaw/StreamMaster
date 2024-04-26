@@ -34,6 +34,7 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
             jobManager.Start();
 
             bool isChanged = false;
+            bool isColorChanged = false;
             bool isNameChanged = false;
             int? oldEPGNumber = null;
 
@@ -57,7 +58,7 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
 
             if (request.Color != null && epgFile.Color != request.Color)
             {
-                isChanged = true;
+                isColorChanged = true;
                 epgFile.Color = request.Color;
                 ret.Add(new FieldData(() => epgFile.Color));
             }
@@ -105,9 +106,11 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
                 await Publisher.Publish(new EPGFileAddedEvent(Mapper.Map<EPGFileDto>(epgFile)), cancellationToken).ConfigureAwait(false);
             }
 
-            if (isChanged)
+            if (isColorChanged)
             {
-                await HubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
+                //await HubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
+                //if ( )
+                await HubContext.Clients.All.DataRefresh("GetEPGColors");
             }
 
             if (ret.Count > 0)

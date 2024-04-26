@@ -1,9 +1,10 @@
-﻿using StreamMaster.Domain.Configuration;
-using StreamMaster.Domain.Logging;
+﻿using StreamMaster.Domain.Logging;
 using StreamMaster.SchedulesDirect.Data;
 
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Converters;
 
@@ -27,8 +28,38 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intse
     [LogExecutionTimeAspect]
     public XMLTV? ConvertToMxf(string filePath, int EPGNumber)
     {
-        XMLTV? xmlTv = FileUtil.ReadXmlFile(filePath);
+        XMLTV? xmlTv = ReadXmlFile(filePath);
         return xmlTv == null ? null : ConvertToMxf(xmlTv, EPGNumber);
+    }
+
+    private static XMLTV? ReadXmlFile(string filepath)
+    {
+        if (!File.Exists(filepath))
+        {
+            //Logger.WriteInformation($"File \"{filepath}\" does not exist.");
+            return null;
+        }
+
+        try
+        {
+            XmlReaderSettings settings = new()
+            {
+                DtdProcessing = DtdProcessing.Ignore,
+                ValidationType = ValidationType.DTD,
+                MaxCharactersFromEntities = 1024
+            };
+
+            XmlSerializer serializer = new(typeof(XMLTV));
+            using Stream fileStream = FileUtil.GetFileDataStream(filepath);
+            using XmlReader reader = XmlReader.Create(fileStream, settings);
+            object? result = serializer.Deserialize(reader);
+            return (XMLTV?)result;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to read file \"{filepath}\". Exception:{FileUtil.ReportExceptionMessages(ex)}");
+        }
+        return null;
     }
 
     private XMLTV? ConvertToMxf(XMLTV xmlTv, int EPGNumber)

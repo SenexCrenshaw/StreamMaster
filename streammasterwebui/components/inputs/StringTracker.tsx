@@ -17,7 +17,7 @@ const StringTracker = ({ id, onChange, placeholder, value }: StringTrackerProper
     }
 
     setIntValue(value ?? undefined);
-  }, [id, intValue, setIntValue, value]);
+  }, [intValue, value]);
 
   return (
     <div>
@@ -28,6 +28,7 @@ const StringTracker = ({ id, onChange, placeholder, value }: StringTrackerProper
           setIntValue(e);
           onChange(e);
         }}
+        darkBackGround
         placeholder={placeholder}
         showSave={false}
         value={intValue}

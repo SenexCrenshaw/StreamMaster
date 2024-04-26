@@ -3,7 +3,6 @@
 using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Domain.Requests;
-using StreamMaster.SchedulesDirect.Domain.Enums;
 
 using System.Net;
 using System.Xml;

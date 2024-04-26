@@ -110,19 +110,39 @@
 }
 
 .sm-input {
+    background-color: transparent !important;
+    width: 100% !important;
+    border-radius: 0px;
+    border-style: none;
+    border-width: 0px;
+    height: $input-height;
+    max-height: $input-height;
+    width: 100% !important;
+
+    .p-dropdown {
+        background-color: transparent !important;
+    }
+
+    .p-dropdown-label {
+        background-color: transparent !important;
+    }
+}
+
+.sm-input-border {
     border-radius: $borderRadius;
     border-color: $inputBorderColor;
     border-width: 1px;
     border-style: solid;
+
 }
 
 .sm-standard-header {
-    @extend .sm-input;
+    @extend .sm-input-border;
     background-color: $standardHeaderBg !important;
 }
 
 .sm-datatable-header {
-    @extend .sm-input;
+    @extend .sm-input-border;
     background-color: $tableHeaderBg !important;
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
@@ -181,6 +201,10 @@
 
 .sm-streamgroupselector {
     @include datatable-text-style();
-    @extend .sm-input;
+    @extend .sm-input-border;
     min-width: 12rem;
+}
+
+.epgSelector {
+    border-radius: 0;
 }

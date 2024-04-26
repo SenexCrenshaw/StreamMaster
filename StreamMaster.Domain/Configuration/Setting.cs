@@ -54,66 +54,66 @@ public class Setting : BaseSettings
     public string ServerKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
 }
 
-public class OldSetting : BaseSettings
-{
-    public Setting ConvertToSetting()
-    {
-        Setting setting = new()
-        {
-            ServerKey = ServerKey,
-            M3UFieldGroupTitle = M3UFieldGroupTitle,
-            M3UIgnoreEmptyEPGID = M3UIgnoreEmptyEPGID,
-            M3UUseChnoForId = M3UUseChnoForId,
-            M3UUseCUIDForChannelID = M3UUseCUIDForChannelID,
-            M3UStationId = M3UStationId,
-            BackupEnabled = BackupEnabled,
-            BackupVersionsToKeep = BackupVersionsToKeep,
-            BackupInterval = BackupInterval,
-            PrettyEPG = PrettyEPG,
-            MaxLogFiles = MaxLogFiles,
-            MaxLogFileSizeMB = MaxLogFileSizeMB,
-            EnablePrometheus = EnablePrometheus,
-            MaxStreamReStart = MaxStreamReStart,
-            MaxConcurrentDownloads = MaxConcurrentDownloads,
-            ExpectedServiceCount = ExpectedServiceCount,
-            AdminPassword = AdminPassword,
-            AdminUserName = AdminUserName,
-            DefaultIcon = DefaultIcon,
-            UiFolder = UiFolder,
-            UrlBase = UrlBase,
-            LogPerformance = new List<string>(LogPerformance),
-            ApiKey = ApiKey,
-            AuthenticationMethod = AuthenticationMethod,
-            CacheIcons = CacheIcons,
-            CleanURLs = CleanURLs,
-            ClientUserAgent = ClientUserAgent,
-            DeviceID = DeviceID,
-            DummyRegex = DummyRegex,
-            FFMpegOptions = FFMpegOptions,
-            EnableSSL = EnableSSL,
-            FFMPegExecutable = FFMPegExecutable,
-            FFProbeExecutable = FFProbeExecutable,
-            GlobalStreamLimit = GlobalStreamLimit,
-            MaxConnectRetry = MaxConnectRetry,
-            MaxConnectRetryTimeMS = MaxConnectRetryTimeMS,
-            NameRegex = new List<string>(NameRegex),
-            SSLCertPassword = SSLCertPassword,
-            SSLCertPath = SSLCertPath,
-            StreamingClientUserAgent = StreamingClientUserAgent,
-            StreamingProxyType = StreamingProxyType,
-            VideoStreamAlwaysUseEPGLogo = VideoStreamAlwaysUseEPGLogo,
-            ShowClientHostNames = ShowClientHostNames
-        };
+//public class OldSetting : BaseSettings
+//{
+//    public Setting ConvertToSetting()
+//    {
+//        Setting setting = new()
+//        {
+//            ServerKey = ServerKey,
+//            M3UFieldGroupTitle = M3UFieldGroupTitle,
+//            M3UIgnoreEmptyEPGID = M3UIgnoreEmptyEPGID,
+//            M3UUseChnoForId = M3UUseChnoForId,
+//            M3UUseCUIDForChannelID = M3UUseCUIDForChannelID,
+//            M3UStationId = M3UStationId,
+//            BackupEnabled = BackupEnabled,
+//            BackupVersionsToKeep = BackupVersionsToKeep,
+//            BackupInterval = BackupInterval,
+//            PrettyEPG = PrettyEPG,
+//            MaxLogFiles = MaxLogFiles,
+//            MaxLogFileSizeMB = MaxLogFileSizeMB,
+//            EnablePrometheus = EnablePrometheus,
+//            MaxStreamReStart = MaxStreamReStart,
+//            MaxConcurrentDownloads = MaxConcurrentDownloads,
+//            ExpectedServiceCount = ExpectedServiceCount,
+//            AdminPassword = AdminPassword,
+//            AdminUserName = AdminUserName,
+//            DefaultIcon = DefaultIcon,
+//            UiFolder = UiFolder,
+//            UrlBase = UrlBase,
+//            LogPerformance = new List<string>(LogPerformance),
+//            ApiKey = ApiKey,
+//            AuthenticationMethod = AuthenticationMethod,
+//            CacheIcons = CacheIcons,
+//            CleanURLs = CleanURLs,
+//            ClientUserAgent = ClientUserAgent,
+//            DeviceID = DeviceID,
+//            DummyRegex = DummyRegex,
+//            FFMpegOptions = FFMpegOptions,
+//            EnableSSL = EnableSSL,
+//            FFMPegExecutable = FFMPegExecutable,
+//            FFProbeExecutable = FFProbeExecutable,
+//            GlobalStreamLimit = GlobalStreamLimit,
+//            MaxConnectRetry = MaxConnectRetry,
+//            MaxConnectRetryTimeMS = MaxConnectRetryTimeMS,
+//            NameRegex = new List<string>(NameRegex),
+//            SSLCertPassword = SSLCertPassword,
+//            SSLCertPath = SSLCertPath,
+//            StreamingClientUserAgent = StreamingClientUserAgent,
+//            StreamingProxyType = StreamingProxyType,
+//            VideoStreamAlwaysUseEPGLogo = VideoStreamAlwaysUseEPGLogo,
+//            ShowClientHostNames = ShowClientHostNames
+//        };
 
-        return setting;
-    }
+//        return setting;
+//    }
 
-    [NoMap]
-    public string ServerKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
+//    [NoMap]
+//    public string ServerKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
 
-    public SDSettings? SDSettings { get; set; }
+//    public SDSettings? SDSettings { get; set; }
 
-}
+//}
 
 public class FFMPEGProfiles
 {

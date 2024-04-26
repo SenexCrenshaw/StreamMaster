@@ -1,6 +1,5 @@
 ﻿using Reinforced.Typings.Attributes;
 
-using StreamMaster.SchedulesDirect.Domain.Models;
 
 namespace StreamMaster.Domain.Configuration
 {

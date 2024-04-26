@@ -1,6 +1,4 @@
-﻿using StreamMaster.SchedulesDirect.Domain.Enums;
-
-namespace StreamMaster.Domain.Models
+﻿namespace StreamMaster.Domain.Models
 {
     public class ImagePath
     {

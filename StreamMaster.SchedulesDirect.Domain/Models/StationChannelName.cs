@@ -1,15 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Reinforced.Typings.Attributes;
 
 namespace StreamMaster.SchedulesDirect.Domain.Models;
 
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class StationChannelName
 {
-    [Required]
+
     public string Id => Channel;
-    [Required]
-    public required string Channel { get; set; }
-    [Required]
-    public required string ChannelName { get; set; }
-    [Required]
-    public required string DisplayName { get; set; }
+
+    public string Channel { get; set; }
+
+    public string ChannelName { get; set; }
+
+    public string DisplayName { get; set; }
 }

@@ -16,7 +16,6 @@ global using StreamMaster.Application.Common.Interfaces;
 global using StreamMaster.Application.Hubs;
 global using StreamMaster.Application.Profiles;
 global using StreamMaster.Application.Profiles.Queries;
-
 global using StreamMaster.Application.Settings.Queries;
 global using StreamMaster.Domain.API;
 global using StreamMaster.Domain.Attributes;
@@ -33,6 +32,7 @@ global using StreamMaster.Domain.Models;
 global using StreamMaster.Domain.Pagination;
 global using StreamMaster.Domain.Repository;
 global using StreamMaster.Domain.Services;
+global using StreamMaster.SchedulesDirect.Domain.Dto;
 global using StreamMaster.SchedulesDirect.Domain.Interfaces;
 global using StreamMaster.SchedulesDirect.Domain.JsonClasses;
 global using StreamMaster.SchedulesDirect.Domain.Models;

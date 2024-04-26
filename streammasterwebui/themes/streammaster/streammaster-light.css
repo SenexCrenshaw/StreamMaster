@@ -6937,10 +6937,6 @@
   border-color: #cecece;
 }
 
-.stringeditorbody-inputtext {
-  width: 100% !important;
-}
-
 .autoUpdate .p-inputtext {
   max-width: 6.4rem;
 }
@@ -7144,7 +7140,24 @@
   border-radius: 6px;
 }
 
-.sm-input, .sm-streamgroupselector, .sm-datatable-header, .p-datatable-wrapper, .sm-standard-header {
+.sm-input, .stringeditorbody-inputtext, .p-inputnumber-input {
+  background-color: transparent !important;
+  width: 100% !important;
+  border-radius: 0px;
+  border-style: none;
+  border-width: 0px;
+  height: 1.6rem;
+  max-height: 1.6rem;
+  width: 100% !important;
+}
+.sm-input .p-dropdown, .stringeditorbody-inputtext .p-dropdown, .p-inputnumber-input .p-dropdown {
+  background-color: transparent !important;
+}
+.sm-input .p-dropdown-label, .stringeditorbody-inputtext .p-dropdown-label, .p-inputnumber-input .p-dropdown-label {
+  background-color: transparent !important;
+}
+
+.sm-input-border, .sm-streamgroupselector, .sm-datatable-header, .p-datatable-wrapper, .sm-standard-header {
   border-radius: 6px;
   border-color: #263238;
   border-width: 1px;
@@ -7211,6 +7224,10 @@
   white-space: nowrap;
   height: 1.6rem;
   min-width: 12rem;
+}
+
+.epgSelector {
+  border-radius: 0;
 }
 
 .sm-card {

@@ -2,8 +2,6 @@
 
 using Microsoft.AspNetCore.Http;
 
-using StreamMaster.SchedulesDirect.Domain.Enums;
-
 using System.Collections.Concurrent;
 using System.Net;
 using System.Text;

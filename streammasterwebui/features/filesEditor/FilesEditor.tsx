@@ -1,5 +1,5 @@
 import StandardHeader from '@components/StandardHeader';
-import EPGFilesEditor from '@components/epg/EPGFilesEditor';
+import EPGFilesEditor from '@components/epgFiles/EPGFilesEditor';
 import { FilesEditorIcon } from '@lib/common/icons';
 import React from 'react';
 

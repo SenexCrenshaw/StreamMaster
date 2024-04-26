@@ -8,6 +8,7 @@
         JobStatusManager GetJobManagerUpdateM3U(int id);
         JobStatusManager GetJobManagerProcessM3U(int id);
         JobStatusManager GetJobManagerRefreshM3U(int id);
+        JobStatusManager GetJobManageSDSync(int id);
         DateTime LastRun(string key);
         DateTime LastSuccessful(string key);
         JobStatusManager GetJobManager(JobType jobType, int id);

@@ -1,6 +1,4 @@
-﻿using StreamMaster.SchedulesDirect.Domain.Enums;
-
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StreamMaster.Domain.Models;
 

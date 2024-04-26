@@ -9,7 +9,7 @@ namespace StreamMaster.Domain.Models;
 
 public class StreamGroup : BaseEntity
 {
-    public static string MainGet => "GetPagedStreamGroups";
+    public static string MainGet => "StreamGroups";
     public StreamGroup()
     {
         ChildVideoStreams = [];

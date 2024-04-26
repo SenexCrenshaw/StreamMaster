@@ -1,7 +1,4 @@
-﻿using StreamMaster.SchedulesDirect.Domain.Models;
-
-namespace StreamMaster.Domain.Configuration;
-
+﻿namespace StreamMaster.Domain.Configuration;
 public class SDSettingsRequest
 {
     public string? PreferredLogoStyle { get; set; }

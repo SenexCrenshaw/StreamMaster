@@ -46,6 +46,7 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
         return FilterHelper<T>.ApplyFiltersAndSort(entities, filters, orderBy);
     }
 
+
     public virtual IQueryable<T> GetQuery(Expression<Func<T, bool>> expression, bool tracking = false)
     {
         return GetQuery(tracking).Where(expression);

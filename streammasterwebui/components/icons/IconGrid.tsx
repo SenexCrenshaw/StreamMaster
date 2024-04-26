@@ -168,7 +168,7 @@ const IconGrid = ({ iconSource, onClick }: IconSelectorProperties) => {
           <StringEditorBodyTemplate
             autofocus
             placeholder="Search"
-            isSearch={true}
+            darkBackGround={true}
             value={filter}
             onChange={(value) => {
               setFilter(value);

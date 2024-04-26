@@ -1,13 +1,11 @@
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.Helpers;
-using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Net;
 using System.Text;
-using System.Xml;
 using System.Xml.Serialization;
 
 namespace StreamMaster.Domain.Common;
@@ -67,35 +65,7 @@ public sealed class FileUtil
         return fullName;
     }
 
-    public static XMLTV? ReadXmlFile(string filepath)
-    {
-        if (!File.Exists(filepath))
-        {
-            //Logger.WriteInformation($"File \"{filepath}\" does not exist.");
-            return null;
-        }
 
-        try
-        {
-            XmlReaderSettings settings = new()
-            {
-                DtdProcessing = DtdProcessing.Ignore,
-                ValidationType = ValidationType.DTD,
-                MaxCharactersFromEntities = 1024
-            };
-
-            XmlSerializer serializer = new(typeof(XMLTV));
-            using Stream fileStream = GetFileDataStream(filepath);
-            using XmlReader reader = XmlReader.Create(fileStream, settings);
-            object? result = serializer.Deserialize(reader);
-            return (XMLTV?)result;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Failed to read file \"{filepath}\". Exception:{ReportExceptionMessages(ex)}");
-        }
-        return null;
-    }
     public static string BytesToString(long bytes)
     {
         string[] unit = { "", "K", "M", "G", "T" };

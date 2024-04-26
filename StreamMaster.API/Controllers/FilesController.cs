@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
 
-using StreamMaster.SchedulesDirect.Domain.Enums;
+using StreamMaster.Domain.Enums;
 
 using StreamMasterAPI.Interfaces;
 

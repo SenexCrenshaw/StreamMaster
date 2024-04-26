@@ -1,4 +1,4 @@
-﻿using StreamMaster.Domain.Services;
+﻿using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
 
 using System.Collections.Concurrent;

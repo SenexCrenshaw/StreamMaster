@@ -1,6 +1,7 @@
 ﻿using SixLabors.ImageSharp;
 
 using StreamMaster.Domain.Dto;
+using StreamMaster.Domain.Enums;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 
 namespace StreamMaster.SchedulesDirect;

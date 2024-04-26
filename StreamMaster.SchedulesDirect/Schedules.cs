@@ -1,7 +1,4 @@
-﻿using StreamMaster.Domain.Configuration;
-using StreamMaster.Domain.Helpers;
-using StreamMaster.SchedulesDirect.Domain.Enums;
-using StreamMaster.SchedulesDirect.Helpers;
+﻿using StreamMaster.Domain.Helpers;
 
 using System.Text.Json;
 using System.Text.Json.Serialization;

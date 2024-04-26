@@ -18,7 +18,6 @@ const StreamGroupButton = () => {
     <div className="flex flex-row">
       <StreamGroupSelector
         onChange={(sg) => {
-          console.log('OnChange', sg);
           setSelectedStreamGroup(sg);
           setSelectSelectedItems([sg]);
         }}

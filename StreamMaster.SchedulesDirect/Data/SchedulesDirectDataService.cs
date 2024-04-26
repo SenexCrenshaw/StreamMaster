@@ -126,25 +126,27 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
         return ret;
     }
 
-    public List<StationChannelName> GetStationChannelNames()
+    public async Task<List<StationChannelName>> GetStationChannelNames()
     {
 
         List<StationChannelName> ret = [];
-
-        foreach (MxfService station in AllServices.Where(a => !a.StationId.StartsWith("DUMMY-")))
+        await Task.Run(() =>
         {
-            string channelNameSuffix = station.CallSign;
-
-            StationChannelName stationChannelName = new()
+            foreach (MxfService station in AllServices.Where(a => !a.StationId.StartsWith("DUMMY-")))
             {
-                Channel = station.StationId,
-                DisplayName = $"[{station.CallSign}] {station.Name}",
-                ChannelName = station.CallSign
-            };
-            ret.Add(stationChannelName);
-        }
+                string channelNameSuffix = station.CallSign;
 
-        return [.. ret.OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase)];
+                StationChannelName stationChannelName = new()
+                {
+                    Channel = station.StationId,
+                    DisplayName = $"[{station.CallSign}] {station.Name}",
+                    ChannelName = station.CallSign
+                };
+                ret.Add(stationChannelName);
+            }
+        });
+
+        return ret.OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase).ToList();
     }
 
     public void ChangeServiceEPGNumber(int oldEPGNumber, int newEPGNumber)

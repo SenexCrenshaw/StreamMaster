@@ -16,7 +16,6 @@ using StreamMaster.Infrastructure.EF;
 using StreamMaster.Infrastructure.EF.PGSQL;
 
 using StreamMaster.Infrastructure.Middleware;
-
 using StreamMaster.SchedulesDirect.Services;
 using StreamMaster.Streams;
 
@@ -25,7 +24,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
 
-[assembly: TsGlobal(CamelCaseForProperties=false,CamelCaseForMethods =false, UseModules = true, DiscardNamespacesWhenUsingModules = true, ExportPureTypings = true, AutoOptionalProperties =true, WriteWarningComment=false, ReorderMembers=true)]
+[assembly: TsGlobal(CamelCaseForProperties = false, CamelCaseForMethods = false, UseModules = true, DiscardNamespacesWhenUsingModules = true, ExportPureTypings = true, AutoOptionalProperties = true, WriteWarningComment = false, ReorderMembers = true)]
 //ProcessHelper.KillProcessByName("ffmpeg");
 
 DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "hls"), BuildInfo.HLSOutputFolder);
@@ -55,7 +54,7 @@ static void Log(string format, params object[] args)
 builder.WebHost.ConfigureKestrel((context, serverOptions) =>
 {
     serverOptions.AllowSynchronousIO = true;
-    serverOptions.Limits.MaxRequestBodySize = null;    
+    serverOptions.Limits.MaxRequestBodySize = null;
 });
 
 
@@ -64,14 +63,14 @@ var settingsFiles = BuildInfo.GetSettingFiles();
 builder.Configuration.SetBasePath(BuildInfo.StartUpPath).AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
 
-if ( Directory.Exists(BuildInfo.SettingsFolder))
+if (Directory.Exists(BuildInfo.SettingsFolder))
 {
     builder.Configuration.SetBasePath(BuildInfo.AppDataFolder);
 }
 
 var profileSetting = SettingsHelper.GetSetting<FFMPEGProfiles>(BuildInfo.ProfileSettingsFile);
 if (profileSetting == default(FFMPEGProfiles))
-{    
+{
     SettingsHelper.UpdateSetting(SettingFiles.DefaultProfileSetting);
 }
 
@@ -81,16 +80,16 @@ if (hlsSetting == default(HLSSettings))
     SettingsHelper.UpdateSetting(new HLSSettings());
 }
 
-var mainSetting = SettingsHelper.GetSetting<OldSetting>(BuildInfo.SettingsFile);
-if (mainSetting != default(OldSetting))
-{
-    if (mainSetting.SDSettings != default(SDSettings) )
-    {
-        SettingsHelper.UpdateSetting(mainSetting.SDSettings);
-        var toWrite = mainSetting.ConvertToSetting();
-        SettingsHelper.UpdateSetting(toWrite);
-    }
-}
+//var mainSetting = SettingsHelper.GetSetting<OldSetting>(BuildInfo.SettingsFile);
+//if (mainSetting != default(OldSetting))
+//{
+//    if (mainSetting.SDSettings != default(SDSettings))
+//    {
+//        SettingsHelper.UpdateSetting(mainSetting.SDSettings);
+//        var toWrite = mainSetting.ConvertToSetting();
+//        SettingsHelper.UpdateSetting(toWrite);
+//    }
+//}
 
 var sdSettings = SettingsHelper.GetSetting<SDSettings>(BuildInfo.SDSettingsFile);
 if (sdSettings == default(SDSettings))
@@ -168,17 +167,17 @@ builder.Services.AddControllers(options =>
 .AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-    options.JsonSerializerOptions.DefaultIgnoreCondition= JsonIgnoreCondition.WhenWritingNull;
+    options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 });
 ;
 
 WebApplication app = builder.Build();
- app.UseForwardedHeaders();
+app.UseForwardedHeaders();
 
 var lifetime = app.Services.GetService<IHostApplicationLifetime>();
 if (lifetime != null)
-{    
-   lifetime.ApplicationStopping.Register(OnShutdown);
+{
+    lifetime.ApplicationStopping.Register(OnShutdown);
 }
 
 void OnShutdown()
@@ -186,7 +185,7 @@ void OnShutdown()
     ProcessHelper.KillProcessByName("ffmpeg");
     SqliteConnection.ClearAllPools();
     PGSQLRepositoryContext repositoryContext = app.Services.GetRequiredService<PGSQLRepositoryContext>();
-    repositoryContext.Dispose();  
+    repositoryContext.Dispose();
     IImageDownloadService imageDownloadService = app.Services.GetRequiredService<IImageDownloadService>();
     imageDownloadService.StopAsync(CancellationToken.None).Wait();
 
@@ -233,7 +232,7 @@ using (IServiceScope scope = app.Services.CreateScope())
     {
         initialiser.TrySeed();
     }
-    
+
     initialiser.MigrateData();
 
     IImageDownloadService imageDownloadService = scope.ServiceProvider.GetRequiredService<IImageDownloadService>();

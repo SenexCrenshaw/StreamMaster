@@ -1,8 +1,4 @@
-﻿using StreamMaster.Domain.Configuration;
-using StreamMaster.SchedulesDirect.Domain.Enums;
-using StreamMaster.SchedulesDirect.Helpers;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect.Images;

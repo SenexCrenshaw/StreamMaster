@@ -1,4 +1,5 @@
-﻿using StreamMaster.SchedulesDirect.Domain.Models;
+﻿using StreamMaster.Domain.API;
+using StreamMaster.SchedulesDirect.Domain.Models;
 
 namespace StreamMaster.SchedulesDirect.Domain.Interfaces;
 
@@ -15,6 +16,6 @@ public interface ISchedulesDirect
     Task<bool> RemoveLineup(string lineup, CancellationToken cancellationToken);
     void ResetCache(string command);
     void ResetEPGCache();
-    Task<bool> SDSync(CancellationToken cancellationToken);
+    Task<APIResponse> SDSync(CancellationToken cancellationToken);
 
 }

@@ -1,10 +1,19 @@
 import AddButton from '@components/buttons/AddButton';
 import StringEditorBodyTemplate from '@components/inputs/StringEditorBodyTemplate';
+import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';
 
+import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationChannelNames';
+import { StationChannelName } from '@lib/smAPI/smapiTypes';
+import { v4 as uuidv4 } from 'uuid';
+
+import useGetEPGFiles from '@lib/smAPI/EPGFiles/useGetEPGFiles';
 import { Dropdown } from 'primereact/dropdown';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { Tooltip } from 'primereact/tooltip';
 import { classNames } from 'primereact/utils';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+
+type EPGResult = { epgNumber: number; stationId: string };
 
 type EPGSelectorProperties = {
   readonly enableEditMode?: boolean;
@@ -15,13 +24,13 @@ type EPGSelectorProperties = {
 };
 
 const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChange }: EPGSelectorProperties) => {
-  const [colors, setColors] = useState<EpgColorDto[]>([]);
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
   const [input, setInput] = useState<string | undefined>(undefined);
 
-  const query = useSchedulesDirectGetStationChannelNamesQuery();
-  const colorsQuery = useEpgFilesGetEpgColorsQuery();
+  const query = useGetStationChannelNames();
+  const epgQuery = useGetEPGFiles();
+  const colorsQuery = useGetEPGColors();
 
   useEffect(() => {
     if (value && !input) {
@@ -30,68 +39,120 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   }, [value, input]);
 
   useEffect(() => {
-    if (checkValue === undefined && query.isSuccess && input) {
+    if (checkValue === undefined && !query.isError && input) {
       setCheckValue(input);
-      const entry = query.data?.find((x) => x.channel === input);
-      if (entry && entry.id !== stationChannelName?.id) {
+      const entry = query.data?.find((x) => x.Channel === input);
+      if (entry && entry.Channel !== stationChannelName?.Channel) {
         setStationChannelName(entry);
       } else {
         setStationChannelName(undefined);
       }
     }
-  }, [checkValue, input, query, stationChannelName?.id]);
+  }, [checkValue, query.data, query.isError, input, stationChannelName]);
 
-  useEffect(() => {
-    if (colors.length === 0 && colorsQuery.isSuccess && colorsQuery.data) {
-      setColors(colorsQuery.data);
-    }
-  }, [colors.length, colorsQuery.data, colorsQuery.isSuccess]);
-
-  const itemTemplate = (option: StationChannelName): JSX.Element => {
-    if (!option) {
-      return <div>{input}</div>;
+  function extractEPGNumberAndStationId(userTvgId: string): EPGResult {
+    if (!userTvgId.trim()) {
+      throw new Error('Input string cannot be null or whitespace.');
     }
 
-    let inputString = option?.displayName ?? '';
-    const splitIndex = inputString.indexOf(']') + 1;
-    const beforeCallSign = inputString.substring(0, splitIndex);
-    const afterCallSign = inputString.substring(splitIndex).trim();
+    const regex = /^(\-?\d+)-(.*)/;
+    const matches = userTvgId.match(regex);
 
-    const entry = colors.find((x) => x.stationId === option.channel);
-    let color = '#FFFFFF';
-    if (entry?.color) {
-      color = entry.color;
+    if (!matches || matches.length !== 3) {
+      throw new Error('Input string is not in the expected format.');
     }
 
-    if (beforeCallSign === '[' + afterCallSign + ']') {
+    const epgNumber = parseInt(matches[1], 10);
+    if (isNaN(epgNumber)) {
+      throw new Error('EPG number is not a valid number.');
+    }
+
+    const stationId = matches[2];
+
+    return { epgNumber, stationId };
+  }
+
+  const itemTemplate = useCallback(
+    (option: StationChannelName): JSX.Element => {
+      if (!option) {
+        return <div>{input}</div>;
+      }
+
+      let inputString = option?.DisplayName ?? '';
+      const splitIndex = inputString.indexOf(']') + 1;
+      const beforeCallSign = inputString.substring(0, splitIndex);
+      const afterCallSign = inputString.substring(splitIndex).trim();
+      let color = '#FFFFFF';
+
+      if (colorsQuery?.data !== undefined) {
+        const entry = colorsQuery.data.find((x) => x.StationId === option.Channel);
+        if (entry?.Color) {
+          color = entry.Color;
+        }
+      }
+
+      let epgName = 'SD';
+      const test = extractEPGNumberAndStationId(option.Channel);
+      console.log(test);
+      if (test.epgNumber !== 0 && epgQuery.data !== undefined) {
+        const entry = epgQuery.data.find((x) => x.EPGNumber === test.epgNumber);
+        if (entry?.Name) {
+          epgName = entry.Name;
+        }
+      }
+      const tooltipClassName = `epgitem-${uuidv4()}`;
+
+      console.log(inputString);
+      console.log(beforeCallSign);
+      console.log(afterCallSign);
+      if (beforeCallSign === '[' + afterCallSign + ']') {
+        return (
+          <div className="flex grid w-full align-items-center p-0 m-0">
+            <Tooltip target={`.${tooltipClassName}`} />
+            <div
+              className={`${tooltipClassName} border-white`}
+              data-pr-hidedelay={100}
+              data-pr-position="left"
+              data-pr-showdelay={500}
+              data-pr-tooltip={epgName}
+            >
+              <div className="align-items-center pl-1 m-0 border-round ">
+                <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
+                <span className="text-xs">{afterCallSign}</span>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
       return (
         <div className="flex grid w-full align-items-center p-0 m-0">
-          <div className="align-items-center pl-1 m-0 border-round ">
+          <Tooltip target={`.${tooltipClassName}`} />
+          <div
+            className={`${tooltipClassName} border-white`}
+            data-pr-hidedelay={100}
+            data-pr-position="right"
+            data-pr-showdelay={500}
+            data-pr-tooltip={epgName}
+          ></div>
+          <div className="align-items-center pl-1 m-0 border-round">
             <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
-            <span className="text-md">{beforeCallSign}</span>
+            <span className="text-xs">{beforeCallSign}</span>
+            <div className="text-xs ml-5">{afterCallSign}</div>
           </div>
         </div>
       );
-    }
-
-    return (
-      <div className="flex grid w-full align-items-center p-0 m-0">
-        <div className="align-items-center pl-1 m-0 border-round ">
-          <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
-          <span className="text-md">{beforeCallSign}</span>
-          <div className="text-xs ml-5">{afterCallSign}</div>
-        </div>
-      </div>
-    );
-  };
+    },
+    [colorsQuery.data, input]
+  );
 
   const handleOnChange = (channel: string) => {
     if (!channel) {
       return;
     }
 
-    const entry = query.data?.find((x) => x.channel === channel);
-    if (entry && entry.channel !== stationChannelName?.channel) {
+    const entry = query.data?.find((x) => x.Channel === channel);
+    if (entry && entry.Channel !== stationChannelName?.Channel) {
       setStationChannelName(entry);
     } else {
       setStationChannelName(undefined);
@@ -118,16 +179,16 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
         </div>
         <div className="col-1 m-0 p-0">
           <AddButton
-            tooltip="Add Custom URL"
-            iconFilled={false}
+            tooltip="Custom"
+            iconFilled
             onClick={(e) => {
               if (input) {
                 handleOnChange(input);
               }
             }}
             style={{
-              width: 'var(--input-height)',
-              height: 'var(--input-height)'
+              height: 'var(--input-height)',
+              width: 'var(--input-height)'
             }}
           />
         </div>
@@ -135,7 +196,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
     );
   };
 
-  const className = classNames('BaseSelector align-contents-center p-0 m-0 max-w-full w-full epgSelector', {
+  const className = classNames('align-contents-center p-0 m-0 max-w-full w-full epgSelector', {
     'p-disabled': disabled
   });
 
@@ -143,26 +204,27 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
     return <div className="flex w-full h-full justify-content-center align-items-center p-0 m-0">{input ?? 'Dummy'}</div>;
   }
 
-  const loading = !query.isSuccess || query.isFetching || query.isLoading || !query.data;
+  const loading = query.isError || query.isFetching || query.isLoading || !query.data;
 
   if (loading) {
     return <ProgressSpinner />;
   }
 
   return (
-    <div className="BaseSelector flex align-contents-center w-full min-w-full">
+    <div className="sm-input flex align-contents-center w-full min-w-full h-full">
       <Dropdown
         className={className}
         disabled={loading}
+        filterInputAutoFocus
         filter
-        filterBy="displayName"
+        filterBy="DisplayName"
         itemTemplate={itemTemplate}
         loading={loading}
         onChange={(e) => {
-          handleOnChange(e?.value?.id);
+          handleOnChange(e?.value?.Channel);
         }}
         onHide={() => {}}
-        optionLabel="displayName"
+        optionLabel="DisplayName"
         options={query.data}
         panelFooterTemplate={panelTemplate}
         placeholder="placeholder"
@@ -171,11 +233,11 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
         value={stationChannelName}
         valueTemplate={itemTemplate}
         virtualScrollerOptions={{
-          itemSize: 32,
+          itemSize: 24,
           style: {
+            maxWidth: '50vw',
             minWidth: '400px',
-            width: '400px',
-            maxWidth: '50vw'
+            width: '400px'
           }
         }}
       />

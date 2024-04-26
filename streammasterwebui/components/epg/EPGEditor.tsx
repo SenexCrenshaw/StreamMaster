@@ -1,42 +1,39 @@
+import { SetSMChannelEPGId } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { SMChannelDto, SetSMChannelEPGIdRequest } from '@lib/smAPI/smapiTypes';
 import { memo } from 'react';
 import EPGSelector from './EPGSelector';
 
 interface EPGEditorProperties {
-  readonly data: VideoStreamDto;
+  readonly data: SMChannelDto;
   readonly enableEditMode?: boolean;
 }
 
 const EPGEditor = ({ data, enableEditMode }: EPGEditorProperties) => {
   const onUpdateVideoStream = async (epg: string) => {
-    // console.log('onUpdateVideoStream', data);
-    if (data.id === '') {
+    console.log('onUpdateVideoStream', data);
+    if (!data.Id) {
       return;
     }
 
-    const toSend = {} as UpdateVideoStreamRequest;
-    toSend.id = data.id;
+    const request = {} as SetSMChannelEPGIdRequest;
+    request.SMChannelId = data.Id;
+    request.EPGId = epg;
 
-    if (epg && epg !== '' && data.user_Tvg_ID !== epg) {
-      toSend.tvg_ID = epg;
-    }
-    // console.log('onUpdateVideoStream sending', toSend);
-    // await UpdateVideoStream(toSend)
-    //   .then(() => {})
-    //   .catch((error: unknown) => {
-    //     console.error(error);
-    //   });
+    await SetSMChannelEPGId(request)
+      .then(() => {})
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   return (
-    <div className="flex w-full">
-      <EPGSelector
-        enableEditMode={enableEditMode}
-        onChange={async (e: string) => {
-          await onUpdateVideoStream(e);
-        }}
-        value={data.user_Tvg_ID}
-      />
-    </div>
+    <EPGSelector
+      enableEditMode={enableEditMode}
+      onChange={async (e: string) => {
+        await onUpdateVideoStream(e);
+      }}
+      value={data.EPGId}
+    />
   );
 };
 

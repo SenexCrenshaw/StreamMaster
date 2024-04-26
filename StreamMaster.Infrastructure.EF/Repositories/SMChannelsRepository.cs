@@ -205,6 +205,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return APIResponse.Success;
     }
 
+
     public async Task<APIResponse> SetSMChannelName(int sMChannelId, string name)
     {
         SMChannel? channel = GetSMChannel(sMChannelId);
@@ -214,6 +215,21 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         }
 
         channel.Name = name;
+        Update(channel);
+        await SaveChangesAsync();
+
+        return APIResponse.Success;
+    }
+
+    public async Task<APIResponse> SetSMChannelEPGID(int sMChannelId, string EPGId)
+    {
+        SMChannel? channel = GetSMChannel(sMChannelId);
+        if (channel == null)
+        {
+            return APIResponse.NotFound;
+        }
+
+        channel.EPGId = EPGId;
         Update(channel);
         await SaveChangesAsync();
 

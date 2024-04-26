@@ -6,12 +6,15 @@ using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Repository;
 
+using StreamMaster.SchedulesDirect.Domain.Extensions;
+
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 
 namespace StreamMaster.SchedulesDirect.Converters;
-public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServiceProvider serviceProvider, IOptionsMonitor<Setting> intsettings, IIconHelper iconHelper, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger) : IXMLTVBuilder
+public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServiceProvider serviceProvider, IOptionsMonitor<Setting> intsettings, IIconHelper iconHelper, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger)
+    : IXMLTVBuilder
 {
     private readonly SDSettings sdsettings = intsdsettings.CurrentValue;
     private readonly Setting settings = intsettings.CurrentValue;

@@ -169,6 +169,23 @@ public static class SignalRGenerator
             deps.Add(method.Name.ToCamelCase());
         }
 
+        Dictionary<string, List<MethodDetails>> keyValuePairs = methods.Where(a => a.IsGet).GroupBy(a => a.NamespaceName).ToDictionary(a => a.Key, a => a.ToList());
+
+
+        foreach (KeyValuePair<string, List<MethodDetails>> namespaceName in keyValuePairs)
+        {
+            content.AppendLine($"      if (entity === '{namespaceName.Key}') {{");
+            foreach (MethodDetails method in namespaceName.Value)
+            {
+
+                content.AppendLine($"        {method.Name.ToCamelCase()}.SetIsForced(true);");
+
+
+            }
+            content.AppendLine("        return;");
+            content.AppendLine("      }");
+        }
+
         string depString = string.Join(",", deps);
         content.AppendLine("    },");
         content.AppendLine($"    [{depString}]");

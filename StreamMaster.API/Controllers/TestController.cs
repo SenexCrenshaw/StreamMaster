@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.API.Controllers;
-using StreamMaster.Application.SchedulesDirect.Commands;
+using StreamMaster.Application.SchedulesDirect.CommandsOld;
 
-namespace StreamMasterAPI.Controllers;
+namespace StreamMaster.API.Controllers;
 
 public class TestController : ApiControllerBase
 {

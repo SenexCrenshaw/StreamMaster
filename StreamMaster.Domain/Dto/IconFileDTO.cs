@@ -3,7 +3,6 @@
 using Reinforced.Typings.Attributes;
 
 using StreamMaster.Domain.Attributes;
-using StreamMaster.SchedulesDirect.Domain.Enums;
 
 using System.Text.Json.Serialization;
 

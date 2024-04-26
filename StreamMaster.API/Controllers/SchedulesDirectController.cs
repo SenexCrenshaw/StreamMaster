@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Application.SchedulesDirect.Commands;
-using StreamMaster.Application.SchedulesDirect.Queries;
+using StreamMaster.Application.SchedulesDirect.CommandsOld;
+using StreamMaster.Application.SchedulesDirect.QueriesOld;
+using StreamMaster.SchedulesDirect.Domain.Dto;
 
 namespace StreamMaster.API.Controllers;
 
@@ -76,13 +77,6 @@ public class SchedulesDirectController : ApiControllerBase
     public async Task<ActionResult<StationChannelName>> GetStationChannelNameFromDisplayName(GetStationChannelNameFromDisplayName request)
     {
         return Ok(await Mediator.Send(request).ConfigureAwait(false));
-    }
-
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<List<StationChannelName>>> GetStationChannelNames()
-    {
-        return Ok(await Mediator.Send(new GetStationChannelNames()).ConfigureAwait(false));
     }
 
 

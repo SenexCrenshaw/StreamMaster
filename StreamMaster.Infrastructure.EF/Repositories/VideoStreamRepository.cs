@@ -10,6 +10,7 @@ using StreamMaster.Application.EPG.Queries;
 using StreamMaster.Application.Icons.Queries;
 using StreamMaster.Application.M3UFiles.QueriesOld;
 using StreamMaster.Application.SchedulesDirect.Queries;
+using StreamMaster.Application.SchedulesDirect.QueriesOld;
 using StreamMaster.Application.StreamGroupChannelGroupLinks.Commands;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
@@ -975,7 +976,8 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
     private async Task<List<VideoStreamDto>> AutoSetEPGs(IQueryable<VideoStream> videoStreams, CancellationToken cancellationToken)
     {
 
-        List<StationChannelName> stationChannelNames = await sender.Send(new GetStationChannelNames(), cancellationToken).ConfigureAwait(false);
+        DataResponse<List<StationChannelName>> stationChannelNamesD = await sender.Send(new GetStationChannelNamesRequest(), cancellationToken).ConfigureAwait(false);
+        List<StationChannelName> stationChannelNames = stationChannelNamesD.Data;
         stationChannelNames = stationChannelNames.OrderBy(a => a.Channel).ToList();
 
         List<string> tomatch = stationChannelNames.Select(a => a.DisplayName).Distinct().ToList();

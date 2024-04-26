@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-using StreamMaster.SchedulesDirect.Domain.Models;
 
 namespace StreamMaster.Domain.Repository;
 
@@ -33,5 +32,5 @@ public interface IRepositoryContext
 
     void Dispose();
     bool IsEntityTracked<TEntity>(TEntity entity) where TEntity : class;
-    abstract Task MigrateData(List<MxfService>? allServices = null);
+    abstract Task MigrateData();
 }

@@ -3,7 +3,9 @@ import { useSMChannelNameColumnConfig } from '@components/columns/useSMChannelNa
 import { useSMChannelNumberColumnConfig } from '@components/columns/useSMChannelNumberColumnConfig';
 
 import BaseButton from '@components/buttons/BaseButton';
-import EPGFilesButton from '@components/epg/EPGFilesButton';
+
+import { useSMChannelEPGColumnConfig } from '@components/columns/useSMChannelEPGColumnConfig';
+import EPGFilesButton from '@components/epgFiles/EPGFilesButton';
 import { SMPopUp } from '@components/sm/SMPopUp';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import getRecord from '@components/smDataTable/helpers/getRecord';
@@ -36,6 +38,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
   const { columnConfig: channelNumberColumnConfig } = useSMChannelNumberColumnConfig({ enableEdit, useFilter: false });
   const { columnConfig: channelLogoColumnConfig } = useSMChannelLogoColumnConfig({ enableEdit });
   const { columnConfig: channelNameColumnConfig } = useSMChannelNameColumnConfig({ enableEdit });
+  const { columnConfig: epgColumnConfig } = useSMChannelEPGColumnConfig({ enableEdit });
   // const { data: smChannelStreamsData } = useGetStreamGroupSMChannels({ StreamGroupId: selectedSMChannel?.Id } as GetStreamGroupSMChannelsRequest);
 
   const { queryFilter } = useQueryFilter(dataKey);
@@ -105,10 +108,11 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
       channelNumberColumnConfig,
       channelLogoColumnConfig,
       channelNameColumnConfig,
+      epgColumnConfig,
       { field: 'Group', filter: false, sortable: true, width: '5rem' },
       { align: 'right', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', filter: false, header: 'Actions', width: '5rem' }
     ],
-    [actionTemplate, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig]
+    [actionTemplate, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig, epgColumnConfig]
   );
 
   const rowClass = useCallback(
@@ -251,8 +255,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
         // if (e.data !== selectedSMChannel) {
         //   setSelectedSMChannel(e.data as SMChannelDto);
         // }
-
-        console.log(e);
+        //console.log(e);
       }}
       onClick={(e: any) => {
         if (e.target.className && e.target.className === 'p-datatable-wrapper') {

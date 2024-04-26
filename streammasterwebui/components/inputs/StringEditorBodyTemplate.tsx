@@ -21,7 +21,7 @@ export interface StringEditorBodyTemplateProperties {
   readonly tooltip?: string | undefined;
   readonly tooltipOptions?: TooltipOptions | undefined;
   readonly value: string | undefined;
-  readonly isSearch?: boolean;
+  readonly darkBackGround?: boolean;
   readonly border?: boolean;
   readonly onFilterClear?: () => void;
 }
@@ -113,7 +113,7 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
 
   const getDiv = useMemo(() => {
     let ret = 'stringeditorbody-inputtext';
-    if (props.isSearch === true) {
+    if (props.darkBackGround === true) {
       ret = 'filter';
     }
     if (needsSave) {
@@ -123,7 +123,7 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
       ret += ' default-border';
     }
     return ret;
-  }, [needsSave, props.border, props.isSearch]);
+  }, [needsSave, props.border, props.darkBackGround]);
 
   return (
     <div className={'stringeditorbody relative'} ref={overlayReference}>
@@ -146,9 +146,9 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
       )}
 
       {props.showSave && needsSave && <i className="absolute right-0 pt-1 pi pi-save pr-2 text-500" />}
-      {props.isSearch && (
+      {/* {props.darkBackGround && (
         <Button rounded text className="absolute right-0 pt-1 pi pi-filter-slash pr-2 text-500 w-3rem" onClick={() => props.onFilterClear?.()} />
-      )}
+      )} */}
 
       <InputText
         className={getDiv}

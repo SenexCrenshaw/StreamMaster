@@ -16,7 +16,7 @@ public interface IRepositoryBase<T> where T : class
     T? FirstOrDefault(Expression<Func<T, bool>> expression, bool tracking = false);
 
     bool Any(Expression<Func<T, bool>> expression);
-
+    IQueryable<T> GetQuery(bool tracking = false);
     IQueryable<T> GetQuery(Expression<Func<T, bool>> expression, bool tracking = false);
     /// <summary>
     /// Retrieves entities based on the provided query parameters.

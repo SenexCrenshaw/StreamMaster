@@ -295,6 +295,13 @@ export interface PagedResponse<T>
 	TotalItemCount: number;
 	TotalPageCount: number;
 }
+export interface StationChannelName
+{
+	Channel: string;
+	ChannelName: string;
+	DisplayName: string;
+	Id: string;
+}
 export interface GetPagedStreamGroupsRequest
 {
 	Parameters: QueryStringParameters;
@@ -389,6 +396,11 @@ export interface DeleteSMChannelsRequest
 {
 	SMChannelIds: number[];
 }
+export interface SetSMChannelEPGIdRequest
+{
+	EPGId: string;
+	SMChannelId: number;
+}
 export interface SetSMChannelLogoRequest
 {
 	Logo: string;
@@ -429,6 +441,9 @@ export interface GetSettingsRequest
 {
 }
 export interface GetSystemStatusRequest
+{
+}
+export interface GetStationChannelNamesRequest
 {
 }
 export interface GetStationChannelNamesSimpleQuery
@@ -519,6 +534,9 @@ export interface GetEPGColorsRequest
 export interface GetEPGFilePreviewByIdRequest
 {
 	Id: number;
+}
+export interface GetEPGFilesRequest
+{
 }
 export interface GetEPGNextEPGNumberRequest
 {
