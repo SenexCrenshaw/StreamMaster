@@ -54,7 +54,8 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intset
             if (lineupMap == null || ((lineupMap?.Stations?.Count ?? 0) == 0))
             {
                 logger.LogError($"Subscribed lineup {clientLineup.Lineup} does not contain any stations.");
-                return false;
+                //return false;
+                continue;
             }
 
             // use hashset to make sure we don't duplicate channel entries for this station
@@ -166,58 +167,58 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intset
                 }
 
                 // match station with mapping for lineup number and subnumbers
-                foreach (LineupChannel map in lineupMap.Map)
+                foreach (LineupChannelStation map in lineupMap.Map.Where(a => a.StationId == station.StationId))
                 {
-                    if (!map.StationId.Equals(station.StationId))
-                    {
-                        continue;
-                    }
+                    //if (!map.StationId.Equals(station.StationId))
+                    //{
+                    //    continue;
+                    //}
 
-                    int number = map.myChannelNumber;
-                    int subnumber = map.myChannelSubnumber;
+                    //int number = map.myChannelNumber;
+                    //int subnumber = map.myChannelSubnumber;
 
-                    string matchName = map.ProviderCallsign;
-                    switch (clientLineup.Transport)
-                    {
-                        case "Satellite":
-                        case "DVB-S":
-                            Match m = Regex.Match(lineupMap.Metadata.Lineup, @"\d+\.\d+");
-                            if (m.Success && map.FrequencyHz > 0 && map.NetworkId > 0 && map.TransportId > 0 && map.ServiceId > 0)
-                            {
-                                while (map.FrequencyHz > 13000)
-                                {
-                                    map.FrequencyHz /= 1000;
-                                }
-                                matchName = $"DVBS:{m.Value.Replace(".", "")}:{map.FrequencyHz}:{map.NetworkId}:{map.TransportId}:{map.ServiceId}";
-                                number = -1;
-                                subnumber = 0;
-                            }
-                            break;
-                        case "Antenna":
-                        case "DVB-T":
-                            if (map.NetworkId > 0 && map.TransportId > 0 && map.ServiceId > 0)
-                            {
-                                matchName = $"DVBT:{map.NetworkId}:{map.TransportId}:{map.ServiceId}";
-                                break;
-                            }
-                            if (map.AtscMajor > 0 && map.AtscMinor > 0)
-                            {
-                                matchName = $"OC:{map.AtscMajor}:{map.AtscMinor}";
-                            }
-                            break;
-                    }
+                    //string matchName = map.ProviderCallsign;
+                    //switch (clientLineup.Transport)
+                    //{
+                    //    case "Satellite":
+                    //    case "DVB-S":
+                    //        Match m = Regex.Match(lineupMap.Metadata.Lineup, @"\d+\.\d+");
+                    //        if (m.Success && map.FrequencyHz > 0 && map.NetworkId > 0 && map.TransportId > 0 && map.ServiceId > 0)
+                    //        {
+                    //            while (map.FrequencyHz > 13000)
+                    //            {
+                    //                map.FrequencyHz /= 1000;
+                    //            }
+                    //            matchName = $"DVBS:{m.Value.Replace(".", "")}:{map.FrequencyHz}:{map.NetworkId}:{map.TransportId}:{map.ServiceId}";
+                    //            number = -1;
+                    //            subnumber = 0;
+                    //        }
+                    //        break;
+                    //    case "Antenna":
+                    //    case "DVB-T":
+                    //        if (map.NetworkId > 0 && map.TransportId > 0 && map.ServiceId > 0)
+                    //        {
+                    //            matchName = $"DVBT:{map.NetworkId}:{map.TransportId}:{map.ServiceId}";
+                    //            break;
+                    //        }
+                    //        if (map.AtscMajor > 0 && map.AtscMinor > 0)
+                    //        {
+                    //            matchName = $"OC:{map.AtscMajor}:{map.AtscMinor}";
+                    //        }
+                    //        break;
+                    //}
 
                     //if (config.DiscardChanNumbers.Contains(clientLineup.Lineup))
                     //{
                     //    number = -1; subnumber = 0;
                     //}
 
-                    string channelNumber = $"{number}{(subnumber > 0 ? $".{subnumber}" : "")}";
+                    string channelNumber = "1";// $"{number}{(subnumber > 0 ? $".{subnumber}" : "")}";
                     if (channelNumbers.Add($"{channelNumber}:{station.StationId}"))
                     {
-                        mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService, number, subnumber)
+                        mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService)
                         {
-                            MatchName = matchName
+                            MatchName = ""
                         });
                     }
                 }

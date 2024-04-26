@@ -11,16 +11,24 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         [IgnoreMember]
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        //[JsonPropertyName("map")]
+        [JsonPropertyName("map")]
         //[JsonConverter(typeof(SingleOrListConverter<LineupChannel>))]
-        public List<LineupChannel> Map { get; set; } = [];
+        public List<LineupChannelStation> Map { get; set; } = [];
 
-        //[JsonPropertyName("stations")]
+        [JsonPropertyName("stations")]
         //[JsonConverter(typeof(SingleOrListConverter<LineupStation>))]
         public List<LineupStation> Stations { get; set; } = [];
 
-        //[JsonPropertyName("metadata")]
+        [JsonPropertyName("metadata")]
         public LineupMetadata? Metadata { get; set; }
+    }
+    public class LineupChannelStation
+    {
+        [JsonPropertyName("channel")]
+        public string Channel { get; set; }
+
+        [JsonPropertyName("stationID")]
+        public string StationId { get; set; }
     }
 
     public class LineupChannel

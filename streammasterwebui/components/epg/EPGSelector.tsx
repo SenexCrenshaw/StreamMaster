@@ -93,57 +93,107 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
 
       let epgName = 'SD';
       const test = extractEPGNumberAndStationId(option.Channel);
-      console.log(test);
-      if (test.epgNumber !== 0 && epgQuery.data !== undefined) {
+
+      if (test.epgNumber > 0 && epgQuery.data !== undefined) {
         const entry = epgQuery.data.find((x) => x.EPGNumber === test.epgNumber);
         if (entry?.Name) {
           epgName = entry.Name;
         }
       }
+
       const tooltipClassName = `epgitem-${uuidv4()}`;
 
-      console.log(inputString);
-      console.log(beforeCallSign);
-      console.log(afterCallSign);
+      // console.log(inputString);
+      // console.log(beforeCallSign);
+      // console.log(afterCallSign);
       if (beforeCallSign === '[' + afterCallSign + ']') {
         return (
-          <div className="flex grid w-full align-items-center p-0 m-0">
+          <>
             <Tooltip target={`.${tooltipClassName}`} />
             <div
-              className={`${tooltipClassName} border-white`}
+              className={`${tooltipClassName} flex align-items-center border-white`}
               data-pr-hidedelay={100}
               data-pr-position="left"
               data-pr-showdelay={500}
               data-pr-tooltip={epgName}
             >
-              <div className="align-items-center pl-1 m-0 border-round ">
-                <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
-                <span className="text-xs">{afterCallSign}</span>
-              </div>
+              <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
+              <span className="text-xs">{afterCallSign}</span>
             </div>
-          </div>
+          </>
         );
       }
 
       return (
-        <div className="flex grid w-full align-items-center p-0 m-0">
+        <>
           <Tooltip target={`.${tooltipClassName}`} />
           <div
-            className={`${tooltipClassName} border-white`}
+            className={`${tooltipClassName} flex flex-column`}
             data-pr-hidedelay={100}
-            data-pr-position="right"
+            data-pr-position="left"
             data-pr-showdelay={500}
             data-pr-tooltip={epgName}
-          ></div>
-          <div className="align-items-center pl-1 m-0 border-round">
-            <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
-            <span className="text-xs">{beforeCallSign}</span>
+          >
+            <div className="flex flex-row">
+              <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
+              <span className="text-xs">{beforeCallSign}</span>
+            </div>
             <div className="text-xs ml-5">{afterCallSign}</div>
           </div>
-        </div>
+        </>
       );
     },
-    [colorsQuery.data, input]
+    [colorsQuery.data, epgQuery.data, input]
+  );
+
+  const valueTemplate = useCallback(
+    (option: StationChannelName): JSX.Element => {
+      if (!option) {
+        return <div>{input}</div>;
+      }
+
+      let inputString = option?.DisplayName ?? '';
+      const splitIndex = inputString.indexOf(']') + 1;
+      const beforeCallSign = inputString.substring(0, splitIndex);
+      const afterCallSign = inputString.substring(splitIndex).trim();
+      let color = '#FFFFFF';
+
+      if (colorsQuery?.data !== undefined) {
+        const entry = colorsQuery.data.find((x) => x.StationId === option.Channel);
+        if (entry?.Color) {
+          color = entry.Color;
+        }
+      }
+
+      let epgName = 'SD';
+      const test = extractEPGNumberAndStationId(option.Channel);
+
+      if (test.epgNumber > 0 && epgQuery.data !== undefined) {
+        const entry = epgQuery.data.find((x) => x.EPGNumber === test.epgNumber);
+        if (entry?.Name) {
+          epgName = entry.Name;
+        }
+      }
+
+      const tooltipClassName = `epgitem-${uuidv4()}`;
+
+      return (
+        <>
+          <Tooltip target={`.${tooltipClassName}`} />
+          <div
+            className={`${tooltipClassName} flex align-items-center border-white`}
+            data-pr-hidedelay={100}
+            data-pr-position="left"
+            data-pr-showdelay={500}
+            data-pr-tooltip={epgName}
+          >
+            <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
+            <span className="text-xs">{afterCallSign}</span>
+          </div>
+        </>
+      );
+    },
+    [colorsQuery.data, epgQuery.data, input]
   );
 
   const handleOnChange = (channel: string) => {
@@ -196,7 +246,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
     );
   };
 
-  const className = classNames('align-contents-center p-0 m-0 max-w-full w-full epgSelector', {
+  const className = classNames('max-w-full w-full epgSelector', {
     'p-disabled': disabled
   });
 
@@ -231,7 +281,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
         resetFilterOnHide
         showFilterClear
         value={stationChannelName}
-        valueTemplate={itemTemplate}
+        valueTemplate={valueTemplate}
         virtualScrollerOptions={{
           itemSize: 24,
           style: {

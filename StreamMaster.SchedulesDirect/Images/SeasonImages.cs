@@ -152,7 +152,17 @@ public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> 
             // get season images
             List<ProgramArtwork> artwork;
 
-            season.extras.Add("artwork", artwork = SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize));
+            if (season.extras.ContainsKey("artwork"))
+            {
+                season.extras["artwork"] += SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize);
+                artwork = season.extras["artwork"];
+            }
+            else
+            {
+                season.extras.Add("artwork", SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize));
+                artwork = season.extras["artwork"];
+            }
+
 
             // create a season entry in cache
             string uid = $"{season.SeriesId}_{season.SeasonNumber}";
