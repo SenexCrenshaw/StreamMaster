@@ -6,6 +6,7 @@ import BaseButton from '@components/buttons/BaseButton';
 
 import { useSMChannelEPGColumnConfig } from '@components/columns/useSMChannelEPGColumnConfig';
 import { useSMChannelGroupColumnConfig } from '@components/columns/useSMChannelGroupColumnConfig';
+import { useSMChannelSGColumnConfig } from '@components/columns/useSMChannelSGColumnConfig';
 import EPGFilesButton from '@components/epgFiles/EPGFilesButton';
 import { SMPopUp } from '@components/sm/SMPopUp';
 import SMDataTable from '@components/smDataTable/SMDataTable';
@@ -39,6 +40,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
   const { columnConfig: channelNameColumnConfig } = useSMChannelNameColumnConfig({ enableEdit });
   const epgColumnConfig = useSMChannelEPGColumnConfig();
   const groupColumnConfig = useSMChannelGroupColumnConfig();
+  const sgColumnConfig = useSMChannelSGColumnConfig();
   const { queryFilter } = useQueryFilter(dataKey);
   const { isLoading } = useGetPagedSMChannels(queryFilter);
 
@@ -97,9 +99,10 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
       channelNameColumnConfig,
       epgColumnConfig,
       groupColumnConfig,
+      sgColumnConfig,
       { align: 'right', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', filter: false, header: 'Actions', width: '5rem' }
     ],
-    [actionTemplate, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig, epgColumnConfig, groupColumnConfig]
+    [actionTemplate, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig, epgColumnConfig, groupColumnConfig, sgColumnConfig]
   );
 
   const rowClass = useCallback(
@@ -158,61 +161,56 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
     return name;
   }, []);
 
-  // const addOrRemoveTemplate = useCallback(
-  //   (data: any) => {
-  //     if (selectedSMChannel?.Name === undefined) {
-  //       return;
-  //     }
-  //     // const found = smChannelStreamsData?.some((item) => item.Id === data.Id) ?? false;
+  // const addOrRemoveTemplate = useCallback((data: any) => {
+  //   // if (selectedSMChannel?.Name === undefined) {
+  //   //   return;
+  //   // }
+  //   // const found = smChannelStreamsData?.some((item) => item.Id === data.Id) ?? false;
 
-  //     // let toolTip = 'Add Channel';
+  //   // let toolTip = 'Add Channel';
 
-  //     // toolTip = 'Remove Stream From "' + selectedSMChannel.Name + '"';
-  //     // if (found)
-  //     //   return (
-  //     //     <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-  //     //       <MinusButton
-  //     //         iconFilled={false}
-  //     //         onClick={() => {
-  //     //           if (!data.Id || selectedSMChannel === undefined) {
-  //     //             return;
-  //     //           }
-  //     //           const request: RemoveSMStreamFromSMChannelRequest = { SMChannelId: selectedSMChannel.Id, SMStreamId: data.Id };
-  //     //           // RemoveSMStreamFromSMChannel(request)
-  //     //           //   .then((response) => {
-  //     //           //     console.log('Remove Stream', response);
-  //     //           //   })
-  //     //           //   .catch((error) => {
-  //     //           //     console.error('Remove Stream', error.message);
-  //     //           //   });
-  //     //         }}
-  //     //         tooltip={toolTip}
-  //     //       />
-  //     //     </div>
-  //     //   );
+  //   // toolTip = 'Remove Stream From "' + selectedSMChannel.Name + '"';
+  //   // if (found)
+  //   //   return (
+  //   //     <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+  //   //       <MinusButton
+  //   //         iconFilled={false}
+  //   //         onClick={() => {
+  //   //           if (!data.Id || selectedSMChannel === undefined) {
+  //   //             return;
+  //   //           }
+  //   //           const request: RemoveSMStreamFromSMChannelRequest = { SMChannelId: selectedSMChannel.Id, SMStreamId: data.Id };
+  //   //           // RemoveSMStreamFromSMChannel(request)
+  //   //           //   .then((response) => {
+  //   //           //     console.log('Remove Stream', response);
+  //   //           //   })
+  //   //           //   .catch((error) => {
+  //   //           //     console.error('Remove Stream', error.message);
+  //   //           //   });
+  //   //         }}
+  //   //         tooltip={toolTip}
+  //   //       />
+  //   //     </div>
+  //   //   );
 
-  //     let toolTip = 'Add Stream To "' + selectedSMChannel.Name + '"';
-  //     return (
-  //       <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-  //         <AddButton
-  //           iconFilled={false}
-  //           onClick={() => {
-  //             // AddSMStreamToSMChannel({ SMChannelId: selectedSMChannel?.Id ?? 0, SMStreamId: data.Id })
-  //             //   .then((response) => {})
-  //             //   .catch((error) => {
-  //             //     console.error(error.message);
-  //             //     throw error;
-  //             //   });
-  //           }}
-  //           tooltip={toolTip}
-  //         />
+  //   return (
+  //     <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+  //       <AddButton
+  //         iconFilled={false}
+  //         onClick={() => {
+  //           // AddSMStreamToSMChannel({ SMChannelId: selectedSMChannel?.Id ?? 0, SMStreamId: data.Id })
+  //           //   .then((response) => {})
+  //           //   .catch((error) => {
+  //           //     console.error(error.message);
+  //           //     throw error;
+  //           //   });
+  //         }}
+  //       />
 
-  //         {/* {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />} */}
-  //       </div>
-  //     );
-  //   },
-  //   [selectedSMChannel]
-  // );
+  //       {/* {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />} */}
+  //     </div>
+  //   );
+  // }, []);
 
   // function addOrRemoveHeaderTemplate() {
   //   return <TriSelectShowHidden dataKey={dataKey} />;
