@@ -29,11 +29,9 @@ function transformAndEnhanceFilters(
     // Check if the filter has a value and is not an empty array
     if (filter?.value && filter.value !== '[]') {
       if (column.field === 'EPGId') {
-        // Extract EPGIds that are not -99
         const epgIds = (filter.value as EPGFileDto[]).filter((x) => x.EPGNumber !== -99).map((x) => x.EPGNumber.toString() + '-');
 
         if (epgIds.length > 0) {
-          // Create a filter entry for valid EPG numbers
           transformedFilters.push({
             fieldName: column.field,
             matchMode: FilterMatchMode.STARTS_WITH,
@@ -41,10 +39,8 @@ function transformAndEnhanceFilters(
           });
         }
 
-        // Check for the specific case of EPGNumber being -99
         const found = (filter.value as EPGFileDto[]).some((x) => x.EPGNumber === -99);
         if (found) {
-          // Create a separate filter entry for EPGNumber -99
           transformedFilters.push({
             fieldName: column.field,
             matchMode: FilterMatchMode.NOT_CONTAINS,
@@ -52,7 +48,6 @@ function transformAndEnhanceFilters(
           });
         }
       } else {
-        // Handle other fields normally
         transformedFilters.push({
           fieldName: column.field,
           matchMode: filter.matchMode,
@@ -94,6 +89,9 @@ export const useSetQueryFilter = (
 
   const { generateGetApi } = useMemo(() => {
     const sortString = getSortString(sortInfo);
+    if (columns.some((searchElement) => searchElement.field === 'EPGId')) {
+      console.log(id);
+    }
     const transformedFilters = transformAndEnhanceFilters(filters, columns, showHidden, queryAdditionalFilter);
 
     const JSONFiltersString = JSON.stringify(transformedFilters);
@@ -109,7 +107,7 @@ export const useSetQueryFilter = (
     return {
       generateGetApi: apiState
     };
-  }, [sortInfo, filters, columns, showHidden, queryAdditionalFilter, page, rows, StreamGroupId]);
+  }, [sortInfo, columns, filters, showHidden, queryAdditionalFilter, page, rows, StreamGroupId, id]);
 
   useEffect(() => {
     if (!areGetApiArgsEqual(generateGetApi, queryFilter)) {
