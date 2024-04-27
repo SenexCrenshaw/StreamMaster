@@ -401,6 +401,11 @@ export interface SetSMChannelEPGIdRequest
 	EPGId: string;
 	SMChannelId: number;
 }
+export interface SetSMChannelGroupRequest
+{
+	Group: string;
+	SMChannelId: number;
+}
 export interface SetSMChannelLogoRequest
 {
 	Logo: string;

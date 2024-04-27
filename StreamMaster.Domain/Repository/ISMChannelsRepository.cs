@@ -25,4 +25,5 @@ public interface ISMChannelsRepository
     Task<APIResponse> SetSMChannelChannelNumber(int sMChannelId, int channelNumber);
     Task<APIResponse> SetSMChannelName(int sMChannelId, string name);
     Task<APIResponse> SetSMChannelEPGID(int sMChannelId, string EPGId);
+    Task<APIResponse> SetSMChannelGroup(int sMChannelId, string group);
 }

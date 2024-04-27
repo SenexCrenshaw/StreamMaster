@@ -84,4 +84,8 @@
     .p-inputtext {
         @include datatable-text-style;
     }
+
+    .p-multiselect-clear-icon {
+        right: 1rem;
+    }
 }

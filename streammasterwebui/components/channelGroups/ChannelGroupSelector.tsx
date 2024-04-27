@@ -1,93 +1,131 @@
-import { getChannelGroupMenuItem, getTopToolOptions } from '@lib/common/common';
-import { ResetLogoIcon } from '@lib/common/icons';
-
-import { Button } from 'primereact/button';
+import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
+import useGetIsSystemReady from '@lib/smAPI/Settings/useGetIsSystemReady';
+import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
 import { Dropdown } from 'primereact/dropdown';
-import React, { useCallback, useEffect, useState } from 'react';
-import ChannelGroupAddDialog from './ChannelGroupAddDialog';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import { classNames } from 'primereact/utils';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-interface ChannelGroupSelectorProperties {
-  readonly className?: string;
-  readonly onChange: (value: string) => void;
-  readonly resetValue?: string;
+type ChannelGroupSelectorProperties = {
+  readonly enableEditMode?: boolean;
+  readonly disabled?: boolean;
+  readonly editable?: boolean | undefined;
   readonly value?: string;
-}
+  readonly onChange?: (value: string) => void;
+};
 
-const ChannelGroupSelector: React.FC<ChannelGroupSelectorProperties> = ({ className, onChange, resetValue, value }) => {
-  const channelGroupNamesQuery = useChannelGroupsGetChannelGroupIdNamesQuery();
-  const [channelGroup, setChannelGroup] = useState<ChannelGroupIdName | undefined>();
+const ChannelGroupSelector = ({ enableEditMode = true, value, disabled, editable, onChange }: ChannelGroupSelectorProperties) => {
+  const dropDownRef = useRef<Dropdown>(null);
 
-  const setChannelGroupByName = useCallback(
-    (channelGroupName: string) => {
-      if (channelGroupName && channelGroupNamesQuery.data) {
-        const foundChannelGroup = channelGroupNamesQuery.data.find((cg) => cg.name === channelGroupName);
-        if (foundChannelGroup) {
-          setChannelGroup(foundChannelGroup);
+  const [selectedChannelGroup, setSelectedChannelGroup] = useState<ChannelGroupDto>();
+  const [input, setInput] = useState<string | undefined>(undefined);
+  const [originalInput, setOriginalInput] = useState<string | undefined>(undefined);
+  const getIsSystemReady = useGetIsSystemReady();
+
+  const channelGroupQuery = useGetChannelGroups();
+
+  useEffect(() => {
+    if (!originalInput || originalInput !== value) {
+      setOriginalInput(value);
+      if (value) {
+        setInput(value);
+        const found = channelGroupQuery.data?.find((x) => x.Name === value);
+        if (found) {
+          setSelectedChannelGroup(found);
         }
       }
+    }
+  }, [value, originalInput, channelGroupQuery.data]);
+
+  const itemTemplate = useCallback(
+    (option: ChannelGroupDto): JSX.Element => {
+      if (!option) {
+        return <div>{input}</div>;
+      }
+      return <div>{option.Name}</div>;
     },
-    [channelGroupNamesQuery.data]
+    [input]
   );
 
-  // Update channel group when prop value changes
-  useEffect(() => {
-    if (value) {
-      setChannelGroupByName(value);
-    }
-  }, [setChannelGroupByName, value]);
+  const valueTemplate = useCallback(
+    (option: ChannelGroupDto): JSX.Element => {
+      if (!option) {
+        return <div>{input}</div>;
+      }
+      return <div>{option.Name}</div>;
+    },
+    [input]
+  );
 
-  const handleResetClick = () => {
-    if (resetValue && channelGroup?.name !== resetValue) {
-      setChannelGroupByName(resetValue);
-      onChange(resetValue);
+  const handleOnChange = (group: string) => {
+    if (!group) {
+      return;
     }
+
+    setInput(group);
+
+    dropDownRef.current?.hide();
+    // setOriginalInput(undefined);
+    onChange && onChange(group);
   };
 
-  const footerTemplate = () => (
-    <div className="p-1 align-items-center justify-content-center">
-      <hr />
-      <div className="flex gap-2 align-items-center justify-content-end">
-        {value !== resetValue && resetValue && (
-          <Button
-            icon={<ResetLogoIcon sx={{ fontSize: 18 }} />}
-            onClick={handleResetClick}
-            rounded
-            severity="warning"
-            size="small"
-            tooltip="Reset Group"
-            tooltipOptions={getTopToolOptions}
-          />
-        )}
-        <ChannelGroupAddDialog />
+  const options = useMemo(() => {
+    if (!channelGroupQuery.data) {
+      return undefined;
+    }
+
+    return channelGroupQuery.data;
+  }, [channelGroupQuery.data]);
+
+  const className = classNames('max-w-full w-full channelGroupSelector', {
+    'p-disabled': disabled
+  });
+
+  if (!enableEditMode) {
+    return <div className="flex w-full h-full justify-content-center align-items-center p-0 m-0">{input ?? 'Dummy'}</div>;
+  }
+
+  const loading =
+    channelGroupQuery.isError || channelGroupQuery.isFetching || channelGroupQuery.isLoading || !channelGroupQuery.data || getIsSystemReady.data !== true;
+
+  if (loading) {
+    return (
+      <div className="flex align-content-center justify-content-center">
+        <ProgressSpinner />
       </div>
-    </div>
-  );
-
-  const selectedTemplate = useCallback((option: any) => {
-    if (!option) return;
-
-    return <div className="">{option.name}</div>;
-  }, []);
+    );
+  }
 
   return (
-    <div className="flex w-full">
+    <div className="sm-input flex align-contents-center w-full min-w-full h-full ">
       <Dropdown
-        className={`w-full ${className}`}
-        filter
+        className={className}
+        disabled={loading}
         filterInputAutoFocus
-        itemTemplate={(option) => getChannelGroupMenuItem(option.name, `${option.name}  |  ${option.totalCount}`)} // getChannelGroupMenuItem(option.id, option.name)}
-        onChange={(e) => onChange(e.value.name)}
-        optionLabel="name"
-        options={channelGroupNamesQuery.data}
-        panelFooterTemplate={footerTemplate}
-        placeholder="No Group"
-        value={channelGroup}
-        valueTemplate={selectedTemplate}
+        filter
+        filterBy="Name"
+        itemTemplate={itemTemplate}
+        loading={loading}
+        onChange={(e) => {
+          handleOnChange(e?.value?.Name);
+        }}
+        onHide={() => {}}
+        optionLabel="Name"
+        options={options}
+        panelClassName="sm-channelgroup-editor-panel"
+        placeholder="placeholder"
+        ref={dropDownRef}
+        resetFilterOnHide
+        showFilterClear={false}
+        value={selectedChannelGroup}
+        valueTemplate={valueTemplate}
+        virtualScrollerOptions={{
+          itemSize: 26
+        }}
       />
     </div>
   );
 };
 
-ChannelGroupSelector.displayName = 'Channel Group Dropdown';
-
+ChannelGroupSelector.displayName = 'ChannelGroupSelector';
 export default React.memo(ChannelGroupSelector);

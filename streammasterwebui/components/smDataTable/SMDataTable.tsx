@@ -715,7 +715,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
                   style={getStyle(col, col.noAutoStyle !== true || col.bodyTemplate !== undefined)}
                   showAddButton
                   showApplyButton
-                  showClearButton
+                  showClearButton={false}
                   showFilterMatchModes
                   showFilterMenu={false}
                   showFilterMenuOptions

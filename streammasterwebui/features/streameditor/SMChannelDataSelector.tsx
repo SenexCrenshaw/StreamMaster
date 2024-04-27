@@ -32,8 +32,6 @@ interface SMChannelDataSelectorProperties {
 const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: SMChannelDataSelectorProperties) => {
   const dataKey = `${id}-SMChannelDataSelector`;
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
-  // const { selectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
-
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
 
   const { columnConfig: channelNumberColumnConfig } = useSMChannelNumberColumnConfig({ enableEdit, useFilter: false });
@@ -41,9 +39,6 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
   const { columnConfig: channelNameColumnConfig } = useSMChannelNameColumnConfig({ enableEdit });
   const epgColumnConfig = useSMChannelEPGColumnConfig();
   const groupColumnConfig = useSMChannelGroupColumnConfig();
-
-  // const { data: smChannelStreamsData } = useGetStreamGroupSMChannels({ StreamGroupId: selectedSMChannel?.Id } as GetStreamGroupSMChannelsRequest);
-
   const { queryFilter } = useQueryFilter(dataKey);
   const { isLoading } = useGetPagedSMChannels(queryFilter);
 
@@ -61,17 +56,6 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
       </div>
     );
   }, []);
-
-  // const setSelectedSMEntity = useCallback(
-  //   (data: DataTableValue, toggle?: boolean) => {
-  //     if (toggle === true && selectedSMChannel !== undefined && data !== undefined && data.id === selectedSMChannel.Id) {
-  //       setSelectedSMChannel(undefined);
-  //     } else {
-  //       setSelectedSMChannel(data as SMChannelDto);
-  //     }
-  //   },
-  //   [selectedSMChannel, setSelectedSMChannel]
-  // );
 
   const actionTemplate = useCallback(
     (data: SMChannelDto) => {
@@ -113,7 +97,6 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
       channelNameColumnConfig,
       epgColumnConfig,
       groupColumnConfig,
-      // { field: 'Group', filter: false, sortable: true, width: '5rem' },
       { align: 'right', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', filter: false, header: 'Actions', width: '5rem' }
     ],
     [actionTemplate, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig, epgColumnConfig, groupColumnConfig]
@@ -142,7 +125,6 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
   const rightHeaderTemplate = useMemo(
     () => (
       <div className="flex flex-row justify-content-start align-items-center w-full gap-2 pr-2">
-        {/* <StreamMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} skipOverLayer /> */}
         <div>
           <StreamGroupButton />
         </div>
@@ -172,9 +154,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
 
   const headerTitle = useCallback(() => {
     const name = GetMessage('channels').toUpperCase();
-    // if (selectedStreamGroup?.Name) {
-    //   return name + ' - ' + selectedStreamGroup.Name;
-    // }
+
     return name;
   }, []);
 

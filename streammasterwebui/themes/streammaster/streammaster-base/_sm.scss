@@ -209,3 +209,7 @@
     display: flex;
     align-items: center;
 }
+
+.channelGroupSelector {
+    @extend .epgSelector;
+}

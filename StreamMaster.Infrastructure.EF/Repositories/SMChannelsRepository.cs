@@ -235,4 +235,19 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
         return APIResponse.Success;
     }
+
+    public async Task<APIResponse> SetSMChannelGroup(int sMChannelId, string group)
+    {
+        SMChannel? channel = GetSMChannel(sMChannelId);
+        if (channel == null)
+        {
+            return APIResponse.NotFound;
+        }
+
+        channel.Group = group;
+        Update(channel);
+        await SaveChangesAsync();
+
+        return APIResponse.Success;
+    }
 }

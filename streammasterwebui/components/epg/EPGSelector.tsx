@@ -408,7 +408,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
         placeholder="placeholder"
         ref={dropDownRef}
         resetFilterOnHide
-        showFilterClear
+        showFilterClear={false}
         value={stationChannelName}
         valueTemplate={valueTemplate}
         virtualScrollerOptions={{

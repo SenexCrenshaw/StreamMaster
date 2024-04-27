@@ -14,7 +14,7 @@ export const useSMChannelEPGColumnConfig = () => {
 
   const multiSelectRef = useRef<MultiSelect>(null);
   const epgFiles = useMemo(() => {
-    const additionalOptions = [{ EPGNumber: -1, Name: 'SD' } as EPGFileDto, { EPGNumber: -99, Name: 'None' } as EPGFileDto];
+    const additionalOptions = [{ EPGNumber: -1, Id: -1, Name: 'SD' } as EPGFileDto, { EPGNumber: -99, Id: -99, Name: 'None' } as EPGFileDto];
     if (data) return [...additionalOptions, ...data];
 
     return additionalOptions;

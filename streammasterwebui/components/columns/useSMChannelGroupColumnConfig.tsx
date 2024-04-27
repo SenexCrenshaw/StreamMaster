@@ -1,4 +1,4 @@
-import EPGEditor from '@components/epg/EPGEditor';
+import ChannelGroupEditor from '@components/channelGroups/ChannelGroupEditor';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { isEmptyObject } from '@lib/common/common';
 import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
@@ -11,44 +11,25 @@ export const useSMChannelGroupColumnConfig = () => {
   const { data } = useGetChannelGroups();
 
   const multiSelectRef = useRef<MultiSelect>(null);
-  // const epgFiles = useMemo(() => {
-  //   const additionalOptions = [{ EPGNumber: -1, Name: 'SD' } as EPGFileDto, { EPGNumber: -99, Name: 'None' } as EPGFileDto];
-  //   if (data) return [...additionalOptions, ...data];
-
-  //   return additionalOptions;
-  // }, [data]);
 
   const itemTemplate = useCallback((option: EPGFileDto) => {
-    return (
-      <div className="flex align-items-center gap-2">
-        <i className="pi pi-circle-fill pr-2" />
-        <span>{option.Name}</span>
-      </div>
-    );
-  }, []);
-
-  const selectedItemTemplate = useCallback((option: EPGFileDto) => {
     if (option === undefined) {
       return null;
     }
 
-    return (
-      <div className="flex align-items-center gap-2">
-        <i className="pi pi-circle-fill pr-2" />
-        <span>{option.Name}</span>
-      </div>
-    );
+    return <span>{option.Name}</span>;
   }, []);
 
   function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
     return (
       <MultiSelect
-        className="w-11"
+        className="w-full"
         filter
         ref={multiSelectRef}
         itemTemplate={itemTemplate}
         maxSelectedLabels={1}
         showClear
+        clearIcon="pi pi-filter-slash"
         filterBy="Name"
         onChange={(e: MultiSelectChangeEvent) => {
           if (isEmptyObject(e.value)) {
@@ -57,25 +38,24 @@ export const useSMChannelGroupColumnConfig = () => {
             options.filterApplyCallback(e.value);
           }
         }}
-        onShow={() => {}}
         options={data}
         placeholder="All"
         value={options.value}
-        selectedItemTemplate={selectedItemTemplate}
+        selectedItemTemplate={itemTemplate}
       />
     );
   }
   const bodyTemplate = (bodyData: SMChannelDto) => {
-    return <EPGEditor data={bodyData} />;
+    return <ChannelGroupEditor data={bodyData} />;
   };
 
   const columnConfig: ColumnMeta = {
     align: 'left',
     bodyTemplate: bodyTemplate,
-    field: 'EPGId',
+    field: 'Group',
     filter: true,
     filterElement: filterTemplate,
-    header: 'EPG',
+    header: 'Group',
     maxWidth: '14rem',
     minWidth: '14rem',
     sortable: true,

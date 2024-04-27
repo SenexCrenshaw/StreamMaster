@@ -1,47 +1,37 @@
-import React from 'react';
-
+import { SetSMChannelGroup } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { SMChannelDto, SetSMChannelGroupRequest } from '@lib/smAPI/smapiTypes';
+import { memo } from 'react';
 import ChannelGroupSelector from './ChannelGroupSelector';
 
-const ChannelGroupEditor = (props: ChannelGroupEditorProperties) => {
-  const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
-  const onUpdateStream = React.useCallback(
-    async (groupName: string) => {
-      if (
-        props.data === undefined ||
-        props.data.id === undefined ||
-        props.data.id === '' ||
-        !groupName ||
-        groupName === '' ||
-        props.data.user_Tvg_group === groupName
-      ) {
-        return;
-      }
+interface ChannelGroupEditorProperties {
+  readonly data: SMChannelDto;
+}
 
-      const data = {} as UpdateVideoStreamRequest;
+const ChannelGroupEditor = ({ data }: ChannelGroupEditorProperties) => {
+  const onUpdateVideoStream = async (group: string) => {
+    if (!data.Id) {
+      return;
+    }
 
-      data.id = props.data.id;
-      data.tvg_group = groupName;
+    const request = {} as SetSMChannelGroupRequest;
+    request.SMChannelId = data.Id;
+    request.Group = group;
 
-      await videoStreamsUpdateVideoStreamMutation(data)
-        .then(() => {})
-        .catch((error) => {
-          console.error(error);
-        });
-    },
-    [props.data, videoStreamsUpdateVideoStreamMutation]
-  );
+    await SetSMChannelGroup(request)
+      .then(() => {})
+      .catch((error) => {
+        console.error(error);
+      });
+  };
 
   return (
-    <div className="flex w-full">
-      <ChannelGroupSelector onChange={onUpdateStream} resetValue={props.data.tvg_group} value={props.data.user_Tvg_group} />
-    </div>
+    <ChannelGroupSelector
+      onChange={async (e: string) => {
+        await onUpdateVideoStream(e);
+      }}
+      value={data.Group}
+    />
   );
 };
 
-ChannelGroupEditor.displayName = 'Channel Group Dropdown';
-
-export interface ChannelGroupEditorProperties {
-  readonly data: VideoStreamDto;
-}
-
-export default React.memo(ChannelGroupEditor);
+export default memo(ChannelGroupEditor);

@@ -7,6 +7,7 @@ using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace StreamMaster.Domain.Common;
 
@@ -132,7 +133,7 @@ public static class FilterHelper<T> where T : class
         stringValue.StartsWith("[") && stringValue.EndsWith("")
             )
         {
-            string[] values = JsonSerializer.Deserialize<string[]>(stringValue) ?? Array.Empty<string>();
+            string[] values = ConvertToArray(stringValue);
             foreach (string value in values)
             {
                 if (propertyAccess.Type == typeof(int))
@@ -222,6 +223,31 @@ public static class FilterHelper<T> where T : class
         }
 
         return filterExpression;
+    }
+
+    private static string[] ConvertToArray(string stringValue)
+    {
+        // Check if the string contains unquoted numbers
+        if (Regex.IsMatch(stringValue, @"\[\s*(\d+)\s*(,\s*\d+\s*)*\]"))
+        {
+            // Add quotes around numbers
+            stringValue = Regex.Replace(stringValue, @"(\d+)", "\"$1\"");
+        }
+
+        // Ensure all single quotes are replaced by double quotes
+        string normalizedInput = stringValue.Replace("'", "\"");
+
+
+        try
+        {
+            // Deserialize the string
+            string[] values = JsonSerializer.Deserialize<string[]>(normalizedInput) ?? Array.Empty<string>();
+            return values;
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException("Invalid JSON format.", ex);
+        }
     }
 
     private static object? ConvertValue(object value, Type? targetType)

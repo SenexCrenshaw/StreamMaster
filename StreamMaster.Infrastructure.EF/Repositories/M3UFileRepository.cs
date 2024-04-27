@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 
 using Microsoft.EntityFrameworkCore;
+
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 
@@ -97,7 +98,8 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
         {
             if (!existingGroups.Any(a => a.Name == group))
             {
-                // await channelGroupService.CreateChannelGroup(group, false).ConfigureAwait(false);
+                ChannelGroupDto? channelGroupDto = await repositoryWrapper.ChannelGroup.CreateChannelGroup(group, true);
+
             }
         }
     }

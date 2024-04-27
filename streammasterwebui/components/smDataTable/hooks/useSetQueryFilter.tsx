@@ -5,7 +5,7 @@ import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalF
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useShowHidden } from '@lib/redux/slices/useShowHidden';
 import { useSortInfo } from '@lib/redux/slices/useSortInfo';
-import { EPGFileDto } from '@lib/smAPI/smapiTypes';
+import { ChannelGroupDto, EPGFileDto } from '@lib/smAPI/smapiTypes';
 import { FilterMatchMode } from 'primereact/api';
 import { DataTableFilterMeta } from 'primereact/datatable';
 import { useEffect, useMemo } from 'react';
@@ -45,6 +45,16 @@ function transformAndEnhanceFilters(
             fieldName: column.field,
             matchMode: FilterMatchMode.NOT_CONTAINS,
             value: '-'
+          });
+        }
+      } else if (column.field === 'Group') {
+        const ids = (filter.value as ChannelGroupDto[]).map((x) => x.Name);
+
+        if (ids.length > 0) {
+          transformedFilters.push({
+            fieldName: column.field,
+            matchMode: FilterMatchMode.CONTAINS,
+            value: ids
           });
         }
       } else {
@@ -89,9 +99,7 @@ export const useSetQueryFilter = (
 
   const { generateGetApi } = useMemo(() => {
     const sortString = getSortString(sortInfo);
-    // if (columns.some((searchElement) => searchElement.field === 'EPGId')) {
-    //   // console.log(id);
-    // }
+
     const transformedFilters = transformAndEnhanceFilters(filters, columns, showHidden, queryAdditionalFilter);
 
     const JSONFiltersString = JSON.stringify(transformedFilters);
@@ -107,7 +115,7 @@ export const useSetQueryFilter = (
     return {
       generateGetApi: apiState
     };
-  }, [sortInfo, columns, filters, showHidden, queryAdditionalFilter, page, rows, StreamGroupId, id]);
+  }, [sortInfo, columns, filters, showHidden, queryAdditionalFilter, page, rows, StreamGroupId]);
 
   useEffect(() => {
     if (!areGetApiArgsEqual(generateGetApi, queryFilter)) {
