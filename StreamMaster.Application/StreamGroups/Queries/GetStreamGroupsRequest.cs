@@ -1,8 +1,4 @@
-﻿using AutoMapper.QueryableExtensions;
-
-using Microsoft.EntityFrameworkCore;
-
-namespace StreamMaster.Application.StreamGroups.Queries;
+﻿namespace StreamMaster.Application.StreamGroups.Queries;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]

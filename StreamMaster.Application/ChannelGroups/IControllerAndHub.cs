@@ -6,6 +6,7 @@ namespace StreamMaster.Application.ChannelGroups
 {
     public interface IChannelGroupsController
     {        
+        Task<ActionResult<List<ChannelGroupDto>>> GetChannelGroups();
         Task<ActionResult<PagedResponse<ChannelGroupDto>>> GetPagedChannelGroups(QueryStringParameters Parameters);
         Task<ActionResult<APIResponse>> CreateChannelGroup(CreateChannelGroupRequest request);
         Task<ActionResult<APIResponse>> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request);
@@ -18,6 +19,7 @@ namespace StreamMaster.Application.Hubs
 {
     public interface IChannelGroupsHub
     {
+        Task<List<ChannelGroupDto>> GetChannelGroups();
         Task<PagedResponse<ChannelGroupDto>> GetPagedChannelGroups(QueryStringParameters Parameters);
         Task<APIResponse> CreateChannelGroup(CreateChannelGroupRequest request);
         Task<APIResponse> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request);

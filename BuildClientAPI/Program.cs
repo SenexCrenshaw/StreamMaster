@@ -16,6 +16,7 @@ namespace BuildClientAPI
         private const string CSharpFileNamePrefix = @"..\..\..\..\StreamMaster.Application\";
         private const string SMAPIFileNamePrefix = @"..\..\..\..\streammasterwebui\lib\smAPI";
         private const string SignalRFilePathPrefix = @"..\..\..\..\streammasterwebui\lib\signalr";
+        private const string StoreFilePathPrefix = @"..\..\..\..\streammasterwebui\lib\redux";
 
         private static void Main(string[] args)
         {
@@ -115,6 +116,8 @@ namespace BuildClientAPI
                         JustHub = smapiAttribute.JustHub,
                         JustController = smapiAttribute.JustController,
 
+                        Pertsist = smapiAttribute.Persist,
+
                         SingalRFunction = parameter,
 
                         TSName = name,
@@ -167,12 +170,16 @@ namespace BuildClientAPI
                         string tsHookFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName);
                         TypeScriptHookGenerator.GenerateFile(methods, tsHookFilePath);
 
+
                     }
 
                 }
 
                 string tsSignalRFilePath = Path.Combine(SignalRFilePathPrefix, "SignalRProvider.tsx");
-                SignalRGenerator.GenerateFile(methodsByNamespace.SelectMany(a => a.Value).OrderBy(a => a.Name).ToList(), tsSignalRFilePath);
+                SignalRGenerator.GenerateFile([.. methodsByNamespace.SelectMany(a => a.Value).OrderBy(a => a.Name)], tsSignalRFilePath);
+
+                string tsStoreFilePath = Path.Combine(StoreFilePathPrefix, "reducers.ts");
+                StoreGenerator.GenerateFile([.. methodsByNamespace.SelectMany(a => a.Value).Where(a => a.IsGet).OrderBy(a => a.Name)], tsStoreFilePath);
 
                 //string refreshFilePath = Path.Combine(SignalRFilePathPrefix, "useDataRefresh.tsx");
                 //SignalRGeneratorDataRefresh.GenerateFile(methodsByNamespace.SelectMany(a => a.Value).OrderBy(a => a.Name).ToList(), refreshFilePath);

@@ -589,6 +589,9 @@ export interface UpdateEPGFileRequest
 	TimeShift?: number;
 	Url?: string;
 }
+export interface GetChannelGroupsRequest
+{
+}
 export interface GetPagedChannelGroupsRequest
 {
 	Parameters: QueryStringParameters;

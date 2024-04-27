@@ -1,4 +1,5 @@
-import { type PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { StreamGroupDto } from '@lib/smAPI/smapiTypes';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 
 interface SetSelectedStreamGroupSlicePayload {

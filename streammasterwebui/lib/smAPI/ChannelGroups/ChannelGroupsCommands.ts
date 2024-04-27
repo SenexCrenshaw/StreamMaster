@@ -1,6 +1,11 @@
 import SignalRService from '@lib/signalr/SignalRService';
 import { APIResponse,CreateChannelGroupRequest,DeleteAllChannelGroupsFromParametersRequest,DeleteChannelGroupRequest,UpdateChannelGroupRequest,ChannelGroupDto,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
+export const GetChannelGroups = async (): Promise<ChannelGroupDto[] | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<ChannelGroupDto[]>('GetChannelGroups');
+};
+
 export const GetPagedChannelGroups = async (parameters: QueryStringParameters): Promise<PagedResponse<ChannelGroupDto> | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<PagedResponse<ChannelGroupDto>>('GetPagedChannelGroups', parameters);

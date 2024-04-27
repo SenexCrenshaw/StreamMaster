@@ -1,4 +1,5 @@
 import type { RootState } from '@lib/redux/store';
+import { SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { useCallback } from 'react';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
@@ -27,7 +28,7 @@ const selectedSMStreamsSlice = createSlice({
 });
 
 // Selectors
-const selectedSMStreams = (typename: string) => (state: RootState) => state.selectSMStreams[typename];
+const selectedSMStreams = (typename: string) => (state: RootState) => state.selectedSMStreams[typename];
 
 // Typed useSelector hook
 const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;

@@ -23,4 +23,5 @@ public class MethodDetails
     public bool IsGet { get; internal set; }
     public bool IsGetCached => !IsGetPaged && IsGet && !string.IsNullOrEmpty(TsParameter);
     public bool IsReturnNull { get; internal set; }
+    public bool Pertsist { get; internal set; }
 }

@@ -1,8 +1,10 @@
 ﻿global using AutoMapper;
+global using AutoMapper.QueryableExtensions;
 
 global using MediatR;
 
 global using Microsoft.AspNetCore.SignalR;
+global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Caching.Memory;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Options;

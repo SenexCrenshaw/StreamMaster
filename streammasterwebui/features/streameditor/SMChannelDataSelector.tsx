@@ -5,6 +5,7 @@ import { useSMChannelNumberColumnConfig } from '@components/columns/useSMChannel
 import BaseButton from '@components/buttons/BaseButton';
 
 import { useSMChannelEPGColumnConfig } from '@components/columns/useSMChannelEPGColumnConfig';
+import { useSMChannelGroupColumnConfig } from '@components/columns/useSMChannelGroupColumnConfig';
 import EPGFilesButton from '@components/epgFiles/EPGFilesButton';
 import { SMPopUp } from '@components/sm/SMPopUp';
 import SMDataTable from '@components/smDataTable/SMDataTable';
@@ -39,6 +40,8 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
   const { columnConfig: channelLogoColumnConfig } = useSMChannelLogoColumnConfig({ enableEdit });
   const { columnConfig: channelNameColumnConfig } = useSMChannelNameColumnConfig({ enableEdit });
   const epgColumnConfig = useSMChannelEPGColumnConfig();
+  const groupColumnConfig = useSMChannelGroupColumnConfig();
+
   // const { data: smChannelStreamsData } = useGetStreamGroupSMChannels({ StreamGroupId: selectedSMChannel?.Id } as GetStreamGroupSMChannelsRequest);
 
   const { queryFilter } = useQueryFilter(dataKey);
@@ -109,10 +112,11 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
       channelLogoColumnConfig,
       channelNameColumnConfig,
       epgColumnConfig,
-      { field: 'Group', filter: false, sortable: true, width: '5rem' },
+      groupColumnConfig,
+      // { field: 'Group', filter: false, sortable: true, width: '5rem' },
       { align: 'right', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', filter: false, header: 'Actions', width: '5rem' }
     ],
-    [actionTemplate, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig, epgColumnConfig]
+    [actionTemplate, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig, epgColumnConfig, groupColumnConfig]
   );
 
   const rowClass = useCallback(

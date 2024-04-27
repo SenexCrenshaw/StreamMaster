@@ -33,7 +33,7 @@ type EPGSelectorProperties = {
 };
 
 const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChange }: EPGSelectorProperties) => {
-  const ref = useRef<Dropdown>(null);
+  const dropDownRef = useRef<Dropdown>(null);
 
   const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<EPGFileDto>('EPGSelector-EPGFiles');
 
@@ -50,7 +50,6 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   const epgFiles = useMemo(() => {
     const additionalOptions = [{ EPGNumber: -1, Name: 'SD' } as EPGFileDto];
 
-    // console.log('additionalOptions', additionalOptions);
     if (epgQuery.data) return [...additionalOptions, ...epgQuery.data];
 
     return additionalOptions;
@@ -146,12 +145,12 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
           />
           <div className="ml-2 sm-standard-text flex align-items-center justify-content-center">
             <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
-            {option.Name}
+            <span className="text-xs"> {option.Name}</span>
           </div>
         </div>
       );
     },
-    [getColor, selectSelectedItems, setSelectSelectedItems]
+    [getColor, isSelected, selectSelectedItems, setSelectSelectedItems]
   );
 
   const itemTemplate = useCallback(
@@ -291,7 +290,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
     }
 
     setInput(channel);
-    ref.current?.hide();
+    dropDownRef.current?.hide();
     onChange && onChange(channel);
   };
 
@@ -303,7 +302,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
     return (
       <div className="flex grid col-12 m-0 p-0 justify-content-between align-items-center">
         <div className="col-1 m-0 p-0 pl-2">
-          <SideCar anchorRef={ref}>
+          <SideCar anchorRef={dropDownRef}>
             <VirtualScroller items={epgFiles} itemTemplate={scrollerItemTemplate} itemSize={26} style={{ height: '30vh' }} />
           </SideCar>
         </div>
@@ -407,7 +406,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
         panelClassName="sm-epg-editor-panel"
         panelFooterTemplate={panelTemplate}
         placeholder="placeholder"
-        ref={ref}
+        ref={dropDownRef}
         resetFilterOnHide
         showFilterClear
         value={stationChannelName}

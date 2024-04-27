@@ -7,10 +7,11 @@ import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamVisibleDialog from '@components/smstreams/StreamVisibleDialog';
 import { GetMessage } from '@lib/common/common';
-import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreams';
+import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreamsSlice';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 
+import BaseButton from '@components/buttons/BaseButton';
 import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
 import StreamMultiVisibleDialog from '@components/smstreams/StreamMultiVisibleDialog';
 import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
@@ -26,7 +27,6 @@ import {
 import { DataTableRowClickEvent, DataTableRowEvent, DataTableValue } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import useSelectedSMItems from './useSelectedSMItems';
-import BaseButton from '@components/buttons/BaseButton';
 
 interface SMStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
