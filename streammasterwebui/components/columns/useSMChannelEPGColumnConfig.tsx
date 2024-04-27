@@ -6,12 +6,13 @@ import useGetEPGFiles from '@lib/smAPI/EPGFiles/useGetEPGFiles';
 import { EPGFileDto, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
-import { ReactNode, useCallback, useMemo } from 'react';
+import { ReactNode, useCallback, useMemo, useRef } from 'react';
 
 export const useSMChannelEPGColumnConfig = () => {
   const { data } = useGetEPGFiles();
   const colorsQuery = useGetEPGColors();
 
+  const multiSelectRef = useRef<MultiSelect>(null);
   const epgFiles = useMemo(() => {
     const additionalOptions = [{ EPGNumber: -1, Name: 'SD' } as EPGFileDto, { EPGNumber: -99, Name: 'None' } as EPGFileDto];
     if (data) return [...additionalOptions, ...data];
@@ -67,7 +68,7 @@ export const useSMChannelEPGColumnConfig = () => {
         </div>
       );
     },
-    [colorsQuery]
+    [getColor]
   );
 
   function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
@@ -75,8 +76,11 @@ export const useSMChannelEPGColumnConfig = () => {
       <MultiSelect
         className="w-11"
         filter
+        ref={multiSelectRef}
         itemTemplate={itemTemplate}
         maxSelectedLabels={1}
+        showClear
+        filterBy="Name"
         onChange={(e: MultiSelectChangeEvent) => {
           if (isEmptyObject(e.value)) {
             options.filterApplyCallback();
@@ -84,8 +88,9 @@ export const useSMChannelEPGColumnConfig = () => {
             options.filterApplyCallback(e.value);
           }
         }}
+        onShow={() => {}}
         options={epgFiles}
-        placeholder="Any"
+        placeholder="All"
         value={options.value}
         selectedItemTemplate={selectedItemTemplate}
       />

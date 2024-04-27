@@ -2,13 +2,20 @@ import AddButton from '@components/buttons/AddButton';
 import StringEditorBodyTemplate from '@components/inputs/StringEditorBodyTemplate';
 import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';
 
+import { VirtualScroller } from 'primereact/virtualscroller';
+
 import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationChannelNames';
-import { StationChannelName } from '@lib/smAPI/smapiTypes';
+import { EPGFileDto, StationChannelName } from '@lib/smAPI/smapiTypes';
 import { v4 as uuidv4 } from 'uuid';
+
+import SideCar from '@components/SideCar';
 
 import useGetEPGFiles from '@lib/smAPI/EPGFiles/useGetEPGFiles';
 import useGetIsSystemReady from '@lib/smAPI/Settings/useGetIsSystemReady';
+
+import { Checkbox } from 'primereact/checkbox';
 import { Dropdown } from 'primereact/dropdown';
+
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Tooltip } from 'primereact/tooltip';
 import { classNames } from 'primereact/utils';
@@ -26,24 +33,27 @@ type EPGSelectorProperties = {
 
 const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChange }: EPGSelectorProperties) => {
   const ref = useRef<Dropdown>(null);
+
+  const [selectedEPGFiles, setSelectedEPGFiles] = useState<EPGFileDto[]>([]);
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
   const [input, setInput] = useState<string | undefined>(undefined);
   const [newInput, setNewInput] = useState<string | undefined>(undefined);
   const getIsSystemReady = useGetIsSystemReady();
-  // const { queryFilter } = useQueryFilter('streameditor-SMChannelDataSelector');
+
   const query = useGetStationChannelNames();
   const epgQuery = useGetEPGFiles();
   const colorsQuery = useGetEPGColors();
 
-  // if (value === '1-ESPN+155.v3') {
-  //   console.group('EPGSelector');
-  //   console.log('value', value, 'checkValue', checkValue, 'input', input, 'newInput', newInput);
-  //   console.log(query.data);
-  //   const entry = query.data?.find((x) => x.Channel === input);
-  //   console.log(entry);
-  //   console.groupEnd();
-  // }
+  const epgFiles = useMemo(() => {
+    const additionalOptions = [{ EPGNumber: -1, Name: 'SD' } as EPGFileDto];
+
+    // console.log('additionalOptions', additionalOptions);
+    if (epgQuery.data) return [...additionalOptions, ...epgQuery.data];
+
+    return additionalOptions;
+  }, [epgQuery]);
+
   useEffect(() => {
     if (value && !checkValue) {
       setInput(value);
@@ -62,7 +72,27 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
     }
   }, [checkValue, query.data, query.isError, input, stationChannelName]);
 
-  function extractEPGNumberAndStationId(userTvgId: string): EPGResult {
+  const getColor = useCallback(
+    (epgNumber: number) => {
+      let color = '#FFFFFF';
+      if (epgNumber < 0) {
+        if (epgNumber === -99) {
+          color = '#000000';
+        }
+      }
+
+      if (epgNumber > 0 && colorsQuery?.data !== undefined) {
+        const entry = colorsQuery.data.find((x) => x.EPGNumber === epgNumber);
+        if (entry?.Color) {
+          color = entry.Color;
+        }
+      }
+      return color;
+    },
+    [colorsQuery]
+  );
+
+  const extractEPGNumberAndStationId = useCallback((userTvgId: string): EPGResult => {
     if (!userTvgId.trim()) {
       throw new Error('Input string cannot be null or whitespace.');
     }
@@ -82,7 +112,38 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
     const stationId = matches[2];
 
     return { epgNumber, stationId };
-  }
+  }, []);
+
+  const scrollerItemTemplate = useCallback(
+    (option: EPGFileDto) => {
+      const color = getColor(option.EPGNumber);
+
+      return (
+        <div className="flex sm-input sm-scroller-item  align-items-center justify-content-start">
+          <Checkbox
+            className="sm-standard-text"
+            inputId="ingredient1"
+            name={option.Name}
+            value={option}
+            onChange={(e) => {
+              console.log('checkbox', e);
+              if (e.checked) {
+                setSelectedEPGFiles([...selectedEPGFiles, option]);
+              } else {
+                setSelectedEPGFiles(selectedEPGFiles.filter((x) => x.EPGNumber !== option.EPGNumber));
+              }
+            }}
+            checked={selectedEPGFiles.some((x) => x.EPGNumber === option.EPGNumber)}
+          />
+          <div className="ml-2 sm-standard-text flex align-items-center justify-content-center">
+            <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
+            {option.Name}
+          </div>
+        </div>
+      );
+    },
+    [getColor, selectedEPGFiles]
+  );
 
   const itemTemplate = useCallback(
     (option: StationChannelName): JSX.Element => {
@@ -155,9 +216,8 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
         </>
       );
     },
-    [colorsQuery.data, epgQuery.data, input]
+    [colorsQuery.data, epgQuery.data, extractEPGNumberAndStationId, input]
   );
-
   const valueTemplate = useCallback(
     (option2: StationChannelName): JSX.Element => {
       const stationChannelName = query.data?.find((x) => x.Channel === input);
@@ -206,7 +266,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
         </>
       );
     },
-    [colorsQuery.data, epgQuery.data, input, query.data]
+    [colorsQuery.data, epgQuery.data, extractEPGNumberAndStationId, input, query.data]
   );
 
   const handleOnChange = (channel: string) => {
@@ -233,7 +293,12 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   const panelTemplate = (option: any) => {
     return (
       <div className="flex grid col-12 m-0 p-0 justify-content-between align-items-center">
-        <div className="col-11 m-0 p-0 pl-2">
+        <div className="col-1 m-0 p-0 pl-2">
+          <SideCar anchorRef={ref}>
+            <VirtualScroller items={epgFiles} itemTemplate={scrollerItemTemplate} itemSize={26} style={{ height: '30vh' }} />
+          </SideCar>
+        </div>
+        <div className="col-10 m-0 p-0 pl-2">
           <StringEditorBodyTemplate
             disableDebounce={true}
             placeholder="Custom Id"
@@ -304,7 +369,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   }
 
   return (
-    <div className="sm-input flex align-contents-center w-full min-w-full h-full">
+    <div className="sm-input flex align-contents-center w-full min-w-full h-full ">
       <Dropdown
         className={className}
         disabled={loading}
@@ -319,6 +384,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
         onHide={() => {}}
         optionLabel="DisplayName"
         options={options}
+        panelClassName="sm-epg-editor-panel"
         panelFooterTemplate={panelTemplate}
         placeholder="placeholder"
         ref={ref}
@@ -327,12 +393,8 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
         value={stationChannelName}
         valueTemplate={valueTemplate}
         virtualScrollerOptions={{
-          itemSize: 24,
-          style: {
-            maxWidth: '50vw',
-            minWidth: '400px',
-            width: '400px'
-          }
+          itemSize: 26,
+          style: { maxWidth: '50vw', minWidth: '400px', width: '400px' }
         }}
       />
     </div>

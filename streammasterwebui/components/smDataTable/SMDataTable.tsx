@@ -368,9 +368,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         return <div />;
       }
 
-      // if (col.field === 'EPGId') {
-      //   console.log('EPGId', col);
-      // }
       let cl = 'sm-col-header-center';
       let justify = 'justify-content-center';
 

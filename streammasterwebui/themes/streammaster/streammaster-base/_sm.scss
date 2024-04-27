@@ -5,9 +5,6 @@
 .sm-overlay {
     background-color: var(--surface-ground-alpha);
 
-    // .p-overlaypanel-content {
-    //     padding: 0.5rem !important;
-    // }
 }
 
 .listTemplate-gridItem-name,
@@ -128,6 +125,12 @@
 
 }
 
+.sm-scroller-item {
+    border-style: solid;
+    border-color: $inputBorderColor;
+    border-width: 1px;
+}
+
 .sm-standard-header {
     @extend .sm-input-border;
     background-color: $standardHeaderBg !important;
@@ -195,6 +198,10 @@
     @include datatable-text-style();
     @extend .sm-input-border;
     min-width: 12rem;
+}
+
+.sm-standard-text {
+    @include datatable-text-style();
 }
 
 .epgSelector {
