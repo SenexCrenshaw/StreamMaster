@@ -89,9 +89,9 @@ export const useSetQueryFilter = (
 
   const { generateGetApi } = useMemo(() => {
     const sortString = getSortString(sortInfo);
-    if (columns.some((searchElement) => searchElement.field === 'EPGId')) {
-      console.log(id);
-    }
+    // if (columns.some((searchElement) => searchElement.field === 'EPGId')) {
+    //   // console.log(id);
+    // }
     const transformedFilters = transformAndEnhanceFilters(filters, columns, showHidden, queryAdditionalFilter);
 
     const JSONFiltersString = JSON.stringify(transformedFilters);

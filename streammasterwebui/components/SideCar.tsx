@@ -16,14 +16,14 @@ const SideCar: React.FC<SideCarProps> = ({ anchorRef, children, direction }) => 
         const anchorRect = anchorRef.current.getElement().getBoundingClientRect();
 
         const popupRect = popupRef2.current.getBoundingClientRect();
-        console.log('anchorRect', anchorRect);
-        console.log('popupRect', popupRect);
+        // console.log('anchorRect', anchorRect);
+        // console.log('popupRect', popupRect);
         let height = anchorRect.height;
         const panel = document.querySelector('.sm-epg-editor-panel');
         if (panel) {
           var p = panel.getBoundingClientRect();
           height = p.height;
-          console.log('panel', p);
+          // console.log('panel', p);
         }
 
         if (direction === 'right') {

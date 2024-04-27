@@ -16,6 +16,7 @@ import useGetIsSystemReady from '@lib/smAPI/Settings/useGetIsSystemReady';
 import { Checkbox } from 'primereact/checkbox';
 import { Dropdown } from 'primereact/dropdown';
 
+import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Tooltip } from 'primereact/tooltip';
 import { classNames } from 'primereact/utils';
@@ -34,7 +35,8 @@ type EPGSelectorProperties = {
 const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChange }: EPGSelectorProperties) => {
   const ref = useRef<Dropdown>(null);
 
-  const [selectedEPGFiles, setSelectedEPGFiles] = useState<EPGFileDto[]>([]);
+  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<EPGFileDto>('EPGSelector-EPGFiles');
+
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
   const [input, setInput] = useState<string | undefined>(undefined);
@@ -114,6 +116,14 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
     return { epgNumber, stationId };
   }, []);
 
+  const isSelected = useCallback(
+    (epgNumber: number) => {
+      console.log('epgNumber', selectSelectedItems);
+      return selectSelectedItems.some((x) => x.EPGNumber === epgNumber);
+    },
+    [selectSelectedItems]
+  );
+
   const scrollerItemTemplate = useCallback(
     (option: EPGFileDto) => {
       const color = getColor(option.EPGNumber);
@@ -126,14 +136,13 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
             name={option.Name}
             value={option}
             onChange={(e) => {
-              console.log('checkbox', e);
               if (e.checked) {
-                setSelectedEPGFiles([...selectedEPGFiles, option]);
+                setSelectSelectedItems([...selectSelectedItems, option]);
               } else {
-                setSelectedEPGFiles(selectedEPGFiles.filter((x) => x.EPGNumber !== option.EPGNumber));
+                setSelectSelectedItems(selectSelectedItems.filter((x) => x.EPGNumber !== option.EPGNumber));
               }
             }}
-            checked={selectedEPGFiles.some((x) => x.EPGNumber === option.EPGNumber)}
+            checked={isSelected(option.EPGNumber)}
           />
           <div className="ml-2 sm-standard-text flex align-items-center justify-content-center">
             <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
@@ -142,7 +151,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
         </div>
       );
     },
-    [getColor, selectedEPGFiles]
+    [getColor, selectSelectedItems, setSelectSelectedItems]
   );
 
   const itemTemplate = useCallback(
@@ -346,9 +355,20 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
     //     }
     //   }
     // }
+    if (!query.data) {
+      return undefined;
+    }
 
+    if (selectSelectedItems && selectSelectedItems.length > 0) {
+      const epgNumbers = selectSelectedItems.map((x) => x.EPGNumber);
+
+      return query.data.filter((x) => {
+        var test = extractEPGNumberAndStationId(x.Channel);
+        return epgNumbers.includes(test.epgNumber);
+      });
+    }
     return query.data;
-  }, [query.data]);
+  }, [extractEPGNumberAndStationId, query.data, selectSelectedItems]);
 
   const className = classNames('max-w-full w-full epgSelector', {
     'p-disabled': disabled
