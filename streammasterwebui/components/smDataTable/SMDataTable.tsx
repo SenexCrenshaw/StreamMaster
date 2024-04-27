@@ -66,10 +66,10 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 
     if (wrapperRef.current) {
       observer.observe(wrapperRef.current, {
+        attributeFilter: ['style', 'class'],
         attributes: true,
         childList: true,
-        subtree: true, // Observe the subtree to catch changes within descendants
-        attributeFilter: ['style', 'class'] // Optionally filter to only observe style or class changes
+        subtree: true
       });
     }
 
@@ -368,6 +368,33 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         return <div />;
       }
 
+      // if (col.field === 'EPGId') {
+      //   console.log('EPGId', col);
+      // }
+      let cl = 'sm-col-header-center';
+      let justify = 'justify-content-center';
+
+      if (col.align !== undefined) {
+        cl = 'sm-col-header-' + col.align;
+      }
+
+      if (col.alignHeader !== undefined) {
+        justify = 'justify-content-' + col.alignHeader;
+      }
+
+      if (props.enableHeaderWrap === true) {
+        cl += '-wrap';
+      }
+
+      if (col.filterElement) {
+        return (
+          <div className={`flex flex-row ${justify}`}>
+            {col.filterElement(options)}
+            {col.sortable === true && sortButton(options)}
+          </div>
+        );
+      }
+
       if (col.fieldType === 'actions') {
         let selectedCols = [] as ColumnMeta[];
 
@@ -398,21 +425,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             useOptionAsValue
           />
         );
-      }
-
-      let cl = 'sm-col-header-center';
-      let justify = 'justify-content-center';
-
-      if (col.align !== undefined) {
-        cl = 'sm-col-header-' + col.align;
-      }
-
-      if (col.alignHeader !== undefined) {
-        justify = 'justify-content-' + col.alignHeader;
-      }
-
-      if (props.enableHeaderWrap === true) {
-        cl += '-wrap';
       }
 
       return (

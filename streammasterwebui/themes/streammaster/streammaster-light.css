@@ -6811,7 +6811,6 @@
   padding-right: 0.2rem;
 }
 
-.p-multiselect-label,
 .p-accordion .p-accordion-header .p-accordion-header-link {
   padding-left: 0.1rem !important;
   padding-top: 0.1rem !important;
@@ -6821,6 +6820,35 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   height: 1.6rem;
+}
+
+.p-multiselect .p-multiselect-label {
+  padding-left: 0.1rem !important;
+  padding-top: 0.1rem !important;
+  padding-bottom: 0.1rem !important;
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  height: 1.6rem;
+  display: flex;
+  align-items: center;
+  max-height: 1.6rem;
+}
+
+.p-multiselect-items .p-multiselect-item {
+  padding-left: 0.1rem !important;
+  padding-top: 0.1rem !important;
+  padding-bottom: 0.1rem !important;
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  height: 1.6rem;
+  display: flex;
+  align-items: center;
+  max-height: 1.6rem;
+  margin: 0;
 }
 
 .color-editor-box {
@@ -7002,7 +7030,7 @@
   width: 1.6rem;
 }
 
-.input-border {
+.input-border, .p-multiselect {
   border: 0.1rem solid #cecece;
   border-radius: 6px;
 }

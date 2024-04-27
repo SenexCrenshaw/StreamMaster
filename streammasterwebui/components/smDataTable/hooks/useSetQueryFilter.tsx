@@ -5,6 +5,7 @@ import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalF
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useShowHidden } from '@lib/redux/slices/useShowHidden';
 import { useSortInfo } from '@lib/redux/slices/useSortInfo';
+import { EPGFileDto } from '@lib/smAPI/smapiTypes';
 import { FilterMatchMode } from 'primereact/api';
 import { DataTableFilterMeta } from 'primereact/datatable';
 import { useEffect, useMemo } from 'react';
@@ -20,16 +21,46 @@ function transformAndEnhanceFilters(
   showHidden: boolean | null | undefined,
   additionalFilter: any
 ): SMDataTableFilterMetaData[] {
-  let transformedFilters: SMDataTableFilterMetaData[] = columns
-    .map((column) => {
-      const filter = filters[column.field] as SMDataTableFilterMetaData;
-      return {
-        fieldName: column.field,
-        value: filter ? filter.value : '',
-        matchMode: filter ? filter.matchMode : FilterMatchMode.CONTAINS
-      };
-    })
-    .filter((filter) => filter.value && filter.value !== '[]');
+  let transformedFilters: SMDataTableFilterMetaData[] = [];
+
+  columns.forEach((column) => {
+    const filter = filters[column.field] as SMDataTableFilterMetaData;
+
+    // Check if the filter has a value and is not an empty array
+    if (filter?.value && filter.value !== '[]') {
+      if (column.field === 'EPGId') {
+        // Extract EPGIds that are not -99
+        const epgIds = (filter.value as EPGFileDto[]).filter((x) => x.EPGNumber !== -99).map((x) => x.EPGNumber.toString() + '-');
+
+        if (epgIds.length > 0) {
+          // Create a filter entry for valid EPG numbers
+          transformedFilters.push({
+            fieldName: column.field,
+            matchMode: FilterMatchMode.STARTS_WITH,
+            value: epgIds
+          });
+        }
+
+        // Check for the specific case of EPGNumber being -99
+        const found = (filter.value as EPGFileDto[]).some((x) => x.EPGNumber === -99);
+        if (found) {
+          // Create a separate filter entry for EPGNumber -99
+          transformedFilters.push({
+            fieldName: column.field,
+            matchMode: FilterMatchMode.NOT_CONTAINS,
+            value: '-'
+          });
+        }
+      } else {
+        // Handle other fields normally
+        transformedFilters.push({
+          fieldName: column.field,
+          matchMode: filter.matchMode,
+          value: filter.value
+        });
+      }
+    }
+  });
 
   // Show/Hide logic
   if (showHidden !== null && showHidden !== undefined) {

@@ -1,5 +1,5 @@
 import { FilterMatchMode } from 'primereact/api';
-import { ColumnEditorOptions, ColumnEvent } from 'primereact/column';
+import { ColumnEditorOptions, ColumnEvent, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { CSSProperties } from 'react';
 import { ColumnAlign, ColumnFieldType } from './smDataTableTypes';
 

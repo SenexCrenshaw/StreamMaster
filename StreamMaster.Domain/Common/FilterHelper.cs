@@ -21,10 +21,11 @@ public static class FilterHelper<T> where T : class
         if (filters != null)
         {
             // Apply filters
-            foreach (DataTableFilterMetaData filter in filters)
-            {
-                query = FilterHelper<T>.ApplyFilter(query, filter, forceToLower);
-            }
+            //foreach (DataTableFilterMetaData filter in filters)
+            //{
+            //    query = FilterHelper<T>.ApplyFilter(query, filter, forceToLower);
+            //}
+            query = FilterHelper<T>.ApplyFilter(query, filters, forceToLower);
         }
 
         // Apply sorting
@@ -36,31 +37,55 @@ public static class FilterHelper<T> where T : class
         return query;
     }
 
-    public static IQueryable<T> ApplyFilter(IQueryable<T> query, DataTableFilterMetaData filter, bool forceToLower)
+    public static IQueryable<T> ApplyFilter(IQueryable<T> query, List<DataTableFilterMetaData> filters, bool forceToLower)
     {
+        if (filters == null || filters.Count == 0)
+        {
+            return query;
+        }
+
+        List<Expression> filterExpressions = new();
         if (!ParameterCache.TryGetValue(typeof(T), out ParameterExpression? parameter))
         {
             parameter = Expression.Parameter(typeof(T), "entity");
             ParameterCache[typeof(T)] = parameter;
         }
 
-        (Type, string FieldName) propertyKey = (typeof(T), filter.FieldName);
-        if (!PropertyCache.TryGetValue(propertyKey, out PropertyInfo? property))
+        foreach (DataTableFilterMetaData filter in filters)
         {
-            property = typeof(T).GetProperties().FirstOrDefault(p => string.Equals(p.Name, filter.FieldName, StringComparison.OrdinalIgnoreCase));
-            PropertyCache[propertyKey] = property ?? throw new ArgumentException($"Property {filter.FieldName} not found on type {typeof(T).FullName}");
+            (Type, string FieldName) propertyKey = (typeof(T), filter.FieldName);
+            if (!PropertyCache.TryGetValue(propertyKey, out PropertyInfo? property))
+            {
+                property = typeof(T).GetProperties().FirstOrDefault(p => string.Equals(p.Name, filter.FieldName, StringComparison.OrdinalIgnoreCase));
+                PropertyCache[propertyKey] = property ?? throw new ArgumentException($"Property {filter.FieldName} not found on type {typeof(T).FullName}");
+            }
+
+            Expression propertyAccess = Expression.Property(parameter, property);
+
+            Expression filterExpression = CreateArrayExpression(filter, propertyAccess, forceToLower);
+
+            //Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(filterExpression, parameter);
+            filterExpressions.Add(filterExpression);
         }
 
-        Expression propertyAccess = Expression.Property(parameter, property);
+        Expression combinedExpression = filterExpressions[0];
+        for (int i = 1; i < filterExpressions.Count; i++)
+        {
+            combinedExpression = Expression.OrElse(combinedExpression, filterExpressions[i]);
+        }
 
-        Expression filterExpression = CreateArrayExpression(filter, propertyAccess, forceToLower);
+        Expression<Func<T, bool>> combinedLambda = Expression.Lambda<Func<T, bool>>(combinedExpression, parameter);
 
-        Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(filterExpression, parameter);
-        return query.Where(lambda);
+        return query.Where(combinedLambda);
     }
 
     private static MethodInfo? GetMethodCaseInsensitive(Type type, string methodName, Type[] parameterTypes)
     {
+        if (methodName == "notContains")
+        {
+            methodName = "contains";
+
+        }
         return type.GetMethods()
                    .FirstOrDefault(m => string.Equals(m.Name, methodName, StringComparison.OrdinalIgnoreCase)
                                         && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes));
@@ -68,7 +93,9 @@ public static class FilterHelper<T> where T : class
 
     public static MethodCallExpression StringExpression(string MatchMode, Expression stringExpression, Expression searchStringExpression)
     {
+
         MethodInfo? methodInfoString = GetMethodCaseInsensitive(typeof(string), MatchMode, [typeof(string)]);
+
 
         return methodInfoString == null
             ? throw new InvalidOperationException("No suitable Contains method found.")
@@ -88,9 +115,13 @@ public static class FilterHelper<T> where T : class
             filter.MatchMode = "equals";
         }
 
+
         List<Expression> containsExpressions = [];
 
-        if (stringValue.StartsWith("[\"") && stringValue.EndsWith("\"]"))
+        if (stringValue.StartsWith("[\"") && stringValue.EndsWith("\"]")
+           ||
+        stringValue.StartsWith("[") && stringValue.EndsWith("")
+            )
         {
             string[] values = JsonSerializer.Deserialize<string[]>(stringValue) ?? Array.Empty<string>();
             foreach (string value in values)
@@ -112,8 +143,19 @@ public static class FilterHelper<T> where T : class
                     }
                     else
                     {
+
                         MethodCallExpression containsCall = StringExpression(filter.MatchMode, propertyAccess, Expression.Constant(value));
-                        containsExpressions.Add(containsCall);
+                        if (filter.MatchMode.Equals("notContains"))
+                        {
+                            UnaryExpression notContainsCall = Expression.Not(containsCall);
+                            containsExpressions.Add(containsCall);
+
+                        }
+                        else
+                        {
+                            containsExpressions.Add(containsCall);
+                        }
+
                     }
                 }
             }
@@ -147,7 +189,19 @@ public static class FilterHelper<T> where T : class
                 else
                 {
                     MethodCallExpression containsCall = StringExpression(filter.MatchMode, propertyAccess, Expression.Constant(stringValue));
-                    containsExpressions.Add(containsCall);
+                    if (filter.MatchMode.Equals("notContains"))
+                    {
+                        UnaryExpression notContainsCall = Expression.Not(containsCall);
+                        containsExpressions.Add(notContainsCall);
+
+                    }
+                    else
+                    {
+                        containsExpressions.Add(containsCall);
+                    }
+
+                    //MethodCallExpression containsCall = StringExpression(filter.MatchMode, propertyAccess, Expression.Constant(stringValue));
+                    //containsExpressions.Add(containsCall);
                 }
             }
         }

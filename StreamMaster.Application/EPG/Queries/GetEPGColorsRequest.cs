@@ -29,6 +29,7 @@ internal class GetEPGColorsHandler(IRepositoryWrapper Repository, ISchedulesDire
             {
                 Id = index++,
                 StationId = svc.StationId,
+                EPGNumber = svc.EPGNumber,
                 Color = color,
             });
 

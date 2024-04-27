@@ -6,9 +6,30 @@
     padding-right: 0.2rem;
 }
 
-.p-multiselect-label,
 .p-accordion .p-accordion-header .p-accordion-header-link {
     @include datatable-text-style;
+}
+
+.p-multiselect {
+    @extend .input-border;
+
+    .p-multiselect-label {
+        @include datatable-text-style;
+        display: flex;
+        align-items: center;
+        max-height: $input-height;
+    }
+
+}
+
+.p-multiselect-items {
+    .p-multiselect-item {
+        @include datatable-text-style;
+        display: flex;
+        align-items: center;
+        max-height: $input-height;
+        margin: 0;
+    }
 }
 
 .color-editor-box {

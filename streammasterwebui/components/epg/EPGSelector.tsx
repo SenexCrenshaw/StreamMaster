@@ -35,14 +35,14 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   const epgQuery = useGetEPGFiles();
   const colorsQuery = useGetEPGColors();
 
-  if (value === '1-ESPN+155.v3') {
-    console.group('EPGSelector');
-    console.log('value', value, 'checkValue', checkValue, 'input', input, 'newInput', newInput);
-    console.log(query.data);
-    const entry = query.data?.find((x) => x.Channel === input);
-    console.log(entry);
-    console.groupEnd();
-  }
+  // if (value === '1-ESPN+155.v3') {
+  //   console.group('EPGSelector');
+  //   console.log('value', value, 'checkValue', checkValue, 'input', input, 'newInput', newInput);
+  //   console.log(query.data);
+  //   const entry = query.data?.find((x) => x.Channel === input);
+  //   console.log(entry);
+  //   console.groupEnd();
+  // }
   useEffect(() => {
     if (value && !checkValue) {
       setInput(value);
@@ -164,8 +164,6 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
         return <div>{input}</div>;
       }
 
-      console.log(stationChannelName);
-
       let inputString = stationChannelName.DisplayName ?? '';
       const splitIndex = inputString.indexOf(']') + 1;
       // const beforeCallSign = inputString.substring(0, splitIndex);
@@ -207,7 +205,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
         </>
       );
     },
-    [colorsQuery.data, epgQuery.data, input]
+    [colorsQuery.data, epgQuery.data, input, query.data]
   );
 
   const handleOnChange = (channel: string) => {
@@ -281,8 +279,6 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   }
 
   const loading = query.isError || query.isFetching || query.isLoading || !query.data || getIsSystemReady.data !== true;
-
-  console.log('getIsSystemReady', getIsSystemReady.data);
 
   if (loading) {
     return (

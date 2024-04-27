@@ -38,7 +38,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
   const { columnConfig: channelNumberColumnConfig } = useSMChannelNumberColumnConfig({ enableEdit, useFilter: false });
   const { columnConfig: channelLogoColumnConfig } = useSMChannelLogoColumnConfig({ enableEdit });
   const { columnConfig: channelNameColumnConfig } = useSMChannelNameColumnConfig({ enableEdit });
-  const { columnConfig: epgColumnConfig } = useSMChannelEPGColumnConfig({ enableEdit });
+  const epgColumnConfig = useSMChannelEPGColumnConfig();
   // const { data: smChannelStreamsData } = useGetStreamGroupSMChannels({ StreamGroupId: selectedSMChannel?.Id } as GetStreamGroupSMChannelsRequest);
 
   const { queryFilter } = useQueryFilter(dataKey);
