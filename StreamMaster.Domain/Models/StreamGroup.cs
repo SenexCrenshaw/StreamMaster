@@ -12,18 +12,20 @@ public class StreamGroup : BaseEntity
     public static string MainGet => "StreamGroups";
     public StreamGroup()
     {
-        ChildVideoStreams = [];
+        //ChildVideoStreams = [];
         ChannelGroups = [];
         SMChannels = [];
     }
 
     public string FFMPEGProfileId { get; set; } = string.Empty;
     public ICollection<StreamGroupChannelGroup> ChannelGroups { get; set; }
-    public ICollection<StreamGroupVideoStream> ChildVideoStreams { get; set; }
+    //public ICollection<StreamGroupVideoStream> ChildVideoStreams { get; set; }
+
     [Ignore]
     [JsonIgnore]
     [IgnoreMember]
     public ICollection<StreamGroupSMChannelLink> SMChannels { get; set; }
+
     public bool IsReadOnly { get; set; } = false;
     public bool AutoSetChannelNumbers { get; set; } = false;
     [Column(TypeName = "citext")]

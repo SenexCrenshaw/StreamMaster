@@ -1,8 +1,8 @@
+import StandardHeader from '@components/StandardHeader';
+import { PlayListEditorIcon } from '@lib/common/icons';
 import { memo } from 'react';
 import SMChannelDataSelector from './SMChannelDataSelector';
 import SMStreamDataSelector from './SMStreamDataSelector';
-import StandardHeader from '@components/StandardHeader';
-import { PlayListEditorIcon } from '@lib/common/icons';
 
 const StreamEditor = () => {
   const id = 'streameditor';

@@ -7304,13 +7304,6 @@
   padding-left: 0.4rem;
   padding-right: 0.4rem;
   margin: 0;
-  font-size: 0.75rem;
-}
-.smbutton-label .p-button-icon, .smbutton .p-button-icon {
-  font-size: 0.75rem;
-}
-.smbutton-label .p-checkbox, .smbutton .p-checkbox {
-  font-size: 0.75rem;
 }
 
 .smbutton {

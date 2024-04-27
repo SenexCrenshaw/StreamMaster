@@ -451,10 +451,6 @@ export interface GetSystemStatusRequest
 export interface GetStationChannelNamesRequest
 {
 }
-export interface GetStationChannelNamesSimpleQuery
-{
-	Parameters: any;
-}
 export interface EPGSync
 {
 }

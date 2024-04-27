@@ -2,6 +2,8 @@
 
 using MediatR;
 
+using Microsoft.EntityFrameworkCore;
+
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Exceptions;
@@ -72,5 +74,13 @@ public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLink
         await SaveChangesAsync();
 
         return APIResponse.Success;
+    }
+
+
+    public override IQueryable<StreamGroupSMChannelLink> GetQuery(bool tracking = false)
+    {
+        return tracking
+            ? base.GetQuery(tracking).Include(a => a.SMChannel)
+            : base.GetQuery(tracking).Include(a => a.SMChannel).AsNoTracking();
     }
 }

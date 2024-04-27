@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace StreamMaster.Application.SchedulesDirect.QueriesOld;
 
-public record GetPagedStationChannelNameSelections(StationChannelNameParameters Parameters) : IRequest<PagedResponse<StationChannelName>>;
+public record GetPagedStationChannelNameSelections(QueryStringParameters Parameters) : IRequest<PagedResponse<StationChannelName>>;
 
 internal class GetPagedStationChannelNamesHandler(ISchedulesDirectDataService schedulesDirectDataService)
     : IRequestHandler<GetPagedStationChannelNameSelections, PagedResponse<StationChannelName>>

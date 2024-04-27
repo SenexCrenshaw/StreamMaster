@@ -22,10 +22,9 @@ internal class GetStreamGroupSMChannelsRequestHandler(IRepositoryWrapper Reposit
         List<StreamGroupSMChannelLink> links = Repository.StreamGroupSMChannelLink.GetQuery(true).Where(a => a.StreamGroupId == request.StreamGroupId).ToList();
         List<SMChannelDto> ret = [];
 
-        foreach (SMChannel? channel in streamGroup.SMChannels.Select(a => a.SMChannel))
+        foreach (StreamGroupSMChannelLink link in links)
         {
-            StreamGroupSMChannelLink? link = links.FirstOrDefault(a => a.SMChannelId == channel.Id);
-
+            var channel = link.SMChannel;
             if (link != null)
             {
                 SMChannelDto dto = mapper.Map<SMChannelDto>(channel);

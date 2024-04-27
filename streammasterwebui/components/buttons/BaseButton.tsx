@@ -61,7 +61,6 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
           outlined={outlined}
           rounded={rounded}
           severity={severity}
-          size="small"
           text={!iconFilled}
           tooltip={tooltip}
           tooltipOptions={isLeft ? getLeftToolOptions : getRightToolOptions}

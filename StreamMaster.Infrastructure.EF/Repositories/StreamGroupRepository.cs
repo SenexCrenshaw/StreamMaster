@@ -196,4 +196,5 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
     {
         return FirstOrDefault(a => a.Id == streamGrouId, tracking: false);
     }
+
 }

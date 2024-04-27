@@ -16,17 +16,18 @@ internal class AddSMChannelToStreamGroupRequestHandler(IRepositoryWrapper Reposi
         {
             return APIResponse.ErrorWithMessage(res.ErrorMessage);
         }
+        await hubContext.Clients.All.DataRefresh("StreamGroupSMChannelLinks").ConfigureAwait(false);
+        //StreamGroup? streamGroup = Repository.StreamGroup.GetStreamGroup(request.StreamGroupId);
+        ////await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
+        //if (streamGroup != null)
+        //{
+        //    //DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(channel.Id, channel.SMStreams.Select(a => a.SMStream).ToList()), cancellationToken);
 
-        StreamGroup? streamGroup = Repository.StreamGroup.GetStreamGroup(request.StreamGroupId);
-        if (streamGroup != null)
-        {
-            //DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(channel.Id, channel.SMStreams.Select(a => a.SMStream).ToList()), cancellationToken);
+        //    //GetSMChannelStreamsRequest re = new(request.SMChannelId);
+        //    //FieldData fd = new("GetSMChannelStreams", re, streams.Data);
 
-            //GetSMChannelStreamsRequest re = new(request.SMChannelId);
-            //FieldData fd = new("GetSMChannelStreams", re, streams.Data);
-
-            //await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
-        }
+        //    await hubContext.Clients.All.DataRefresh("StreamGroupSMChannelLinks").ConfigureAwait(false);
+        //}
 
         return res;
     }

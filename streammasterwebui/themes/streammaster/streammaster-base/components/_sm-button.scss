@@ -6,18 +6,23 @@
     padding-right: $input-padding*4;
     margin: 0;
 
-    font-size: $common-font-size;
+    // font-size: $common-font-size;
 
-    .p-button-icon {
-        font-size: $common-font-size;
-    }
+    // .p-button-icon {
+    //     font-size: $common-font-size;
+    // }
 
-    .p-checkbox {
-        font-size: $common-font-size;
-    }
+    // .p-checkbox {
+    //     font-size: $common-font-size;
+    // }
 }
 
 .smbutton {
     @extend .smbutton-label;
     width: $input-height;
+
+    // .p-button-icon {
+    //     height: 2rem;
+    //     width: 2rem;
+    // }
 }
