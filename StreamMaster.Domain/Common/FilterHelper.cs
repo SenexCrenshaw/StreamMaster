@@ -20,11 +20,6 @@ public static class FilterHelper<T> where T : class
 
         if (filters != null)
         {
-            // Apply filters
-            //foreach (DataTableFilterMetaData filter in filters)
-            //{
-            //    query = FilterHelper<T>.ApplyFilter(query, filter, forceToLower);
-            //}
             query = FilterHelper<T>.ApplyFilter(query, filters, forceToLower);
         }
 
@@ -61,10 +56,7 @@ public static class FilterHelper<T> where T : class
             }
 
             Expression propertyAccess = Expression.Property(parameter, property);
-
             Expression filterExpression = CreateArrayExpression(filter, propertyAccess, forceToLower);
-
-            //Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(filterExpression, parameter);
             filterExpressions.Add(filterExpression);
         }
 

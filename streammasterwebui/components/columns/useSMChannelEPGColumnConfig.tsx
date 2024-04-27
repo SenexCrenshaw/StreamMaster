@@ -19,16 +19,29 @@ export const useSMChannelEPGColumnConfig = () => {
     return additionalOptions;
   }, [data]);
 
-  const itemTemplate = useCallback(
-    (option: EPGFileDto) => {
+  const getColor = useCallback(
+    (epgNumber: number) => {
       let color = '#FFFFFF';
+      if (epgNumber < 0) {
+        if (epgNumber === -99) {
+          color = '#000000';
+        }
+      }
 
-      if (colorsQuery?.data !== undefined) {
-        const entry = colorsQuery.data.find((x) => x.EPGNumber === option.EPGNumber);
+      if (epgNumber > 0 && colorsQuery?.data !== undefined) {
+        const entry = colorsQuery.data.find((x) => x.EPGNumber === epgNumber);
         if (entry?.Color) {
           color = entry.Color;
         }
       }
+      return color;
+    },
+    [colorsQuery]
+  );
+
+  const itemTemplate = useCallback(
+    (option: EPGFileDto) => {
+      const color = getColor(option.EPGNumber);
 
       return (
         <div className="flex align-items-center gap-2">
@@ -37,7 +50,7 @@ export const useSMChannelEPGColumnConfig = () => {
         </div>
       );
     },
-    [colorsQuery]
+    [getColor]
   );
 
   const selectedItemTemplate = useCallback(
@@ -45,15 +58,7 @@ export const useSMChannelEPGColumnConfig = () => {
       if (option === undefined) {
         return null;
       }
-
-      let color = '#FFFFFF';
-
-      if (colorsQuery?.data !== undefined) {
-        const entry = colorsQuery.data.find((x) => x.EPGNumber === option.EPGNumber);
-        if (entry?.Color) {
-          color = entry.Color;
-        }
-      }
+      const color = getColor(option.EPGNumber);
 
       return (
         <div className="flex align-items-center gap-2">
