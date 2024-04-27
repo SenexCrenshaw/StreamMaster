@@ -40,7 +40,7 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
         if (value !== originalValue && !props.isLoading) {
           setInputValue(value);
           // setOriginalValue(value);
-          props.onChange && props.onChange(value);
+          props.onSave && props.onSave(value);
         }
       },
       [originalValue, props]

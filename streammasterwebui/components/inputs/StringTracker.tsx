@@ -23,10 +23,10 @@ const StringTracker = ({ id, onChange, placeholder, value }: StringTrackerProper
     <div>
       <StringEditorBodyTemplate
         debounceMs={500}
-        onChange={async (e) => {
+        onSave={async (e) => {
           console.log(e);
           setIntValue(e);
-          onSave(e);
+          onChange(e);
         }}
         darkBackGround
         placeholder={placeholder}

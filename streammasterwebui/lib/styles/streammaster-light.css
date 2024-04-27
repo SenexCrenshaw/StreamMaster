@@ -6941,12 +6941,6 @@
   margin: 0;
 }
 
-.stringeditorbody .save {
-  border-color: green !important;
-}
-.stringeditorbody .save:enabled:hover {
-  border-color: green;
-}
 .stringeditorbody .filter {
   border-width: 0.1rem;
   border-color: #cecece;
@@ -6961,13 +6955,6 @@
   padding-left: 0.1rem;
   padding-right: 0.1rem;
 }
-.numbereditorbody .save .p-inputtext {
-  border-color: green !important;
-}
-.numbereditorbody .save .p-inputtext:enabled:hover {
-  border-color: green;
-}
-
 .listTemplate-gridItem-container {
   background-color: var(--surface-card);
   border-width: 2px;

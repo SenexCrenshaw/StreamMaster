@@ -6,8 +6,6 @@ import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationC
 import { StationChannelName } from '@lib/smAPI/smapiTypes';
 import { v4 as uuidv4 } from 'uuid';
 
-import { SMDataTableFilterMetaData } from '@lib/common/common';
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import useGetEPGFiles from '@lib/smAPI/EPGFiles/useGetEPGFiles';
 import useGetIsSystemReady from '@lib/smAPI/Settings/useGetIsSystemReady';
 import { Dropdown } from 'primereact/dropdown';
@@ -33,7 +31,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   const [input, setInput] = useState<string | undefined>(undefined);
   const [newInput, setNewInput] = useState<string | undefined>(undefined);
   const getIsSystemReady = useGetIsSystemReady();
-  const { queryFilter } = useQueryFilter('streameditor-SMChannelDataSelector');
+  // const { queryFilter } = useQueryFilter('streameditor-SMChannelDataSelector');
   const query = useGetStationChannelNames();
   const epgQuery = useGetEPGFiles();
   const colorsQuery = useGetEPGColors();
@@ -273,19 +271,19 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   };
 
   const options = useMemo(() => {
-    if (queryFilter.JSONFiltersString !== '[]') {
-      const metaDataArray: SMDataTableFilterMetaData[] = JSON.parse(queryFilter.JSONFiltersString);
-      if (metaDataArray) {
-        const metaData = metaDataArray.filter((x) => x.fieldName === 'EPGId' && x.matchMode !== 'notContains');
-        if (metaData.length > 0) {
-          const toIgnore = metaData.flatMap((x) => x.value);
-          return query.data?.filter((x) => toIgnore.some((prefix) => x.Channel.startsWith(prefix)));
-        }
-      }
-    }
+    // if (queryFilter.JSONFiltersString !== '[]') {
+    //   const metaDataArray: SMDataTableFilterMetaData[] = JSON.parse(queryFilter.JSONFiltersString);
+    //   if (metaDataArray) {
+    //     const metaData = metaDataArray.filter((x) => x.fieldName === 'EPGId' && x.matchMode !== 'notContains');
+    //     if (metaData.length > 0) {
+    //       const toIgnore = metaData.flatMap((x) => x.value);
+    //       return query.data?.filter((x) => toIgnore.some((prefix) => x.Channel.startsWith(prefix)));
+    //     }
+    //   }
+    // }
 
     return query.data;
-  }, [query.data, queryFilter]);
+  }, [query.data]);
 
   const className = classNames('max-w-full w-full epgSelector', {
     'p-disabled': disabled

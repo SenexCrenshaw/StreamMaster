@@ -39,7 +39,7 @@ public static class FilterHelper<T> where T : class
             return query;
         }
 
-        List<Expression> filterExpressions = new();
+        Dictionary<string, List<Expression>> filterExpressions = new();
         if (!ParameterCache.TryGetValue(typeof(T), out ParameterExpression? parameter))
         {
             parameter = Expression.Parameter(typeof(T), "entity");
@@ -57,18 +57,35 @@ public static class FilterHelper<T> where T : class
 
             Expression propertyAccess = Expression.Property(parameter, property);
             Expression filterExpression = CreateArrayExpression(filter, propertyAccess, forceToLower);
-            filterExpressions.Add(filterExpression);
+            if (!filterExpressions.TryGetValue(property.Name, out List<Expression>? expressions))
+            {
+                expressions = new List<Expression>();
+                filterExpressions.Add(property.Name, expressions);
+            }
+            expressions.Add(filterExpression);
         }
 
-        Expression combinedExpression = filterExpressions[0];
-        for (int i = 1; i < filterExpressions.Count; i++)
+        List<Expression> combinedPropertyExpressions = new List<Expression>();
+        foreach (var propExpressions in filterExpressions.Values)
         {
-            combinedExpression = Expression.OrElse(combinedExpression, filterExpressions[i]);
+            Expression combinedExpression = propExpressions[0];
+            for (int i = 1; i < propExpressions.Count; i++)
+            {
+                combinedExpression = Expression.OrElse(combinedExpression, propExpressions[i]);
+            }
+            combinedPropertyExpressions.Add(combinedExpression);
         }
 
-        Expression<Func<T, bool>> combinedLambda = Expression.Lambda<Func<T, bool>>(combinedExpression, parameter);
+        Expression finalExpression = combinedPropertyExpressions[0];
+        for (int i = 1; i < combinedPropertyExpressions.Count; i++)
+        {
+            finalExpression = Expression.AndAlso(finalExpression, combinedPropertyExpressions[i]);
+        }
 
-        return query.Where(combinedLambda);
+        Expression<Func<T, bool>> finalLambda = Expression.Lambda<Func<T, bool>>(finalExpression, parameter);
+
+
+        return query.Where(finalLambda);
     }
 
     private static MethodInfo? GetMethodCaseInsensitive(Type type, string methodName, Type[] parameterTypes)

@@ -174,11 +174,11 @@
     // padding-right: 0.5rem;
 
     .save {
-        border-color: $input-save-color !important;
+        // border-color: $input-save-color !important;
 
-        &:enabled:hover {
-            border-color: $input-save-color;
-        }
+        // &:enabled:hover {
+        //     border-color: $input-save-color;
+        // }
     }
 
     .filter {
@@ -214,11 +214,11 @@
 
     .save {
         .p-inputtext {
-            border-color: $input-save-color !important;
+            // border-color: $input-save-color !important;
 
-            &:enabled:hover {
-                border-color: $input-save-color;
-            }
+            // &:enabled:hover {
+            //     border-color: $input-save-color;
+            // }
         }
     }
 }
