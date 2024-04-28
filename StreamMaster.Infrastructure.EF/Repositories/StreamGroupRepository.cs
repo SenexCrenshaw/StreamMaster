@@ -220,11 +220,28 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         var channels = FilterHelper<SMChannel>.ApplyFiltersAndSort(streamGroup.SMChannels.Select(a => a.SMChannel).AsQueryable(), filters, Parameters.OrderBy, true);
 
         ConcurrentHashSet<int> existingNumbers = [];
-        existingNumbers.UnionWith(streamGroup.SMChannels.Select(a => a.SMChannel.ChannelNumber).Distinct());
+        if (!overWriteExisting)
+        {
+            existingNumbers.UnionWith(streamGroup.SMChannels.Select(a => a.SMChannel.ChannelNumber).Distinct());
+        }
+        int number = startingNumber;
 
         foreach (var channel in channels)
         {
-            channel.ChannelNumber = ++startingNumber;
+            if (!overWriteExisting && channel.ChannelNumber != 0)
+            {
+                continue;
+            }
+            if (overWriteExisting)
+            {
+                channel.ChannelNumber = number++;
+            }
+            else
+            {
+                number = GetNextNumber(number, existingNumbers);
+                channel.ChannelNumber = number;
+                _ = existingNumbers.Add(number);
+            }
             RepositoryContext.SMChannels.Update(channel);
             ret.Add(new IdIntResult { Id = channel.Id, Result = channel });
         }
@@ -234,6 +251,14 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         return ret;
     }
 
+    private int GetNextNumber(int startNumber, ConcurrentHashSet<int> existingNumbers)
+    {
+        while (existingNumbers.Contains(startNumber))
+        {
+            startNumber++;
+        }
+        return startNumber;
+    }
     public override IQueryable<StreamGroup> GetQuery(bool tracking = false)
     {
         return tracking
