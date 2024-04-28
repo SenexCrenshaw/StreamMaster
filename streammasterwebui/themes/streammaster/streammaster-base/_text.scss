@@ -1,0 +1,129 @@
+.padding-xs {
+    @include scaledPadding($inputPadding, $scaleXS);
+}
+
+.text-xs {
+    @extend .padding-sm;
+    @include scaledFontSize($common-font-size, $scaleXS);
+}
+
+.padding-sm {
+    @include scaledPadding($inputPadding, $scaleSM);
+}
+
+.text-sm {
+    @extend .padding-sm;
+    @include scaledFontSize($common-font-size, $scaleSM);
+}
+
+.padding-lg {
+    @include scaledPadding($inputPadding, $scaleLG);
+}
+
+.text-lg {
+    @extend .padding-lg;
+    @include scaledFontSize($common-font-size, $scaleLG);
+}
+
+.padding-xlg {
+    @include scaledPadding($inputPadding, $scaleXLG);
+}
+
+.text-xlg {
+    @extend .padding-xlg;
+    @include scaledFontSize($common-font-size, $scaleXLG);
+}
+
+.header-text-color {
+    color: $headerTextColor;
+}
+
+.text-color {
+    color: $textColor;
+}
+
+.header-text {
+    @extend .text-xlg;
+    @extend .header-text-color;
+    font-weight: bold;
+}
+
+.info-header-text {
+    @extend .text-xlg;
+    @extend .text-color;
+    font-weight: bold;
+}
+
+.info-header-text-bottom-border {
+    @extend .info-header-text;
+    border-bottom: 1px solid $inputBorderColor;
+
+}
+
+.sm-input {
+    background-color: transparent;
+    width: 100% !important;
+    border-radius: $borderRadius;
+    border-style: none;
+    border-width: 0px;
+    height: $input-height;
+    max-height: $input-height;
+    color: $inputTextColor;
+
+    .p-dropdown {
+        background-color: transparent !important;
+    }
+
+    .p-dropdown-label {
+        background-color: transparent !important;
+    }
+}
+
+.stringeditorbody-inputtext {
+    @extend .sm-input;
+}
+
+.stringeditorbody-inputtext-dark {
+    @extend .stringeditorbody-inputtext;
+
+    background-color: $inputBg !important;
+    // border-style: solid !important;
+    // border-color: $inputBorderColor !important;
+    // border-width: 1px !important;
+    // width: 100%;
+
+}
+
+.stringeditorbody-inputtext-save {
+    @extend .stringeditorbody-inputtext;
+
+    background-color: $inputBg !important;
+    // border-style: solid !important;
+    // border-color: red !important;
+    // border-width: 1px !important;
+    // width: 100%;
+
+}
+
+.text-default-color {
+    color: $inputTextColor;
+}
+
+.sm-input-xs {
+    @extend .text-xs;
+}
+
+.sm-input-sm {
+    @extend .text-sm;
+}
+
+.sm-input-xs {
+    @extend .text-xs;
+}
+
+.sm-input-border {
+    border-radius: $borderRadius;
+    border-color: $inputBorderColor;
+    border-width: 1px;
+    border-style: solid;
+}

@@ -1,4 +1,4 @@
-import StringEditorBodyTemplate from '@components/inputs/StringEditorBodyTemplate';
+import StringEditor from '@components/inputs/StringEditor';
 import { SetSMChannelName } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { SMChannelDto, SetSMChannelNameRequest } from '@lib/smAPI/smapiTypes';
 import React from 'react';
@@ -31,7 +31,9 @@ const SMChannelNameEditor = ({ data, onClick }: SMChannelNameEditorProperties) =
   }
 
   return (
-    <StringEditorBodyTemplate
+    <StringEditor
+      showClear
+      darkBackGround={false}
       onClick={onClick}
       onSave={async (e) => {
         if (e !== undefined) {

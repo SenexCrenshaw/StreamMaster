@@ -1,5 +1,5 @@
 import React from 'react';
-import StringEditorBodyTemplate from './inputs/StringEditorBodyTemplate';
+import StringEditor from './inputs/StringEditor';
 
 const ChannelNameEditor = (props: ChannelNameEditorProperties) => {
   const onUpdateM3UStream = React.useCallback(
@@ -27,7 +27,7 @@ const ChannelNameEditor = (props: ChannelNameEditorProperties) => {
   }
 
   return (
-    <StringEditorBodyTemplate
+    <StringEditor
       onSave={async (e) => {
         await onUpdateM3UStream(e);
       }}

@@ -1,4 +1,4 @@
-import StringEditorBodyTemplate from '@components/inputs/StringEditorBodyTemplate';
+import StringEditor from '@components/inputs/StringEditor';
 
 import React, { useEffect, useState } from 'react';
 
@@ -42,7 +42,7 @@ const ProfileNameEditor = (props: ProfileNameEditorProperties) => {
   }
 
   return (
-    <StringEditorBodyTemplate
+    <StringEditor
       onSave={async (e) => {
         await onUpdateFfmpegProfileDto(e);
       }}

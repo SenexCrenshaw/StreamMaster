@@ -1,5 +1,5 @@
-import { DataTableHeaderProperties } from '../types/smDataTableInterfaces';
 import { HeaderLeft, MultiSelectCheckbox } from '@lib/common/common';
+import { DataTableHeaderProperties } from '../types/smDataTableInterfaces';
 
 interface TableHeaderProperties {
   dataSelectorProps: DataTableHeaderProperties;
@@ -23,7 +23,7 @@ const TableHeader: React.FC<TableHeaderProperties> = ({
   <div className="flex flex-row align-items-center justify-content-between border-white">
     {(headerName || onMultiSelectClick) && (
       <div className="col-4 text-sm">
-        <span className={`header-text-color text-lg font-bold`}>{headerName}</span>
+        <span className={`header-text`}>{headerName}</span>
 
         {onMultiSelectClick && (
           <div hidden={dataSelectorProps.selectionMode !== 'selectable'}>

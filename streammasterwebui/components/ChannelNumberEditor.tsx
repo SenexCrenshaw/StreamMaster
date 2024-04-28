@@ -3,7 +3,7 @@ import { CSSProperties, memo, useCallback } from 'react';
 import { getTopToolOptions } from '@lib/common/common';
 
 import { isDev } from '@lib/settings';
-import NumberEditorBodyTemplate from './inputs/NumberEditorBodyTemplate';
+import NumberEditor from './inputs/NumberEditor';
 
 interface ChannelNumberEditorProperties {
   readonly data: VideoStreamDto;
@@ -32,7 +32,7 @@ const ChannelNumberEditor = ({ data, style }: ChannelNumberEditorProperties) => 
   );
 
   return (
-    <NumberEditorBodyTemplate
+    <NumberEditor
       onChange={async (e) => {
         await onUpdateVideoStream(e);
       }}

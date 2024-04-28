@@ -1,7 +1,7 @@
 import { getLeftToolOptions, getRightToolOptions } from '@lib/common/common';
 import { Button } from 'primereact/button';
 import { Tooltip } from 'primereact/tooltip';
-import React, { CSSProperties, forwardRef } from 'react';
+import React, { CSSProperties, forwardRef, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 export type SeverityType = 'danger' | 'help' | 'info' | 'secondary' | 'success' | 'warning';
@@ -9,6 +9,7 @@ export type SeverityType = 'danger' | 'help' | 'info' | 'secondary' | 'success' 
 export interface BaseButtonProps {
   className?: string;
   disabled?: boolean;
+  color?: string;
   icon: string;
   iconFilled?: boolean;
   isLeft?: boolean;
@@ -25,6 +26,7 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
   (
     {
       className: configuredClassName,
+      color = 'val(--primary-color-text)',
       disabled = false,
       icon,
       iconFilled = true,
@@ -47,6 +49,13 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
       return `smbutton basebutton-${uuidv4()} ${configuredClassName}`;
     }, [configuredClassName, iconFilled]);
 
+    const getStyle = useMemo(() => {
+      return {
+        ...style,
+        color: color
+      };
+    }, [color, style]);
+
     return (
       <>
         <Tooltip target={tooltipClassName} />
@@ -64,11 +73,11 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
           text={!iconFilled}
           tooltip={tooltip}
           tooltipOptions={isLeft ? getLeftToolOptions : getRightToolOptions}
-          style={style}
+          style={getStyle}
           {...props}
-          pt={{
-            label: { className: 'text-xs p-0 m-0' }
-          }}
+          // pt={{
+          //   label: { className: 'text-xs p-0 m-0' }
+          // }}
         />
       </>
     );

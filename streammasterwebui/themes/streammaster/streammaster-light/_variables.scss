@@ -17,13 +17,14 @@ $inputBorderColor: #263238;
 $textColor: #bcbfbf;
 $surface-ground: #161d21;
 $surface-section: $surface-ground;
-$standardHeaderBg: #21282c !default;
+$headerBg: #21282c !default;
 $tableHeaderBg: #1d2327 !default;
 $headerTextColor: #ff7e00;
 $editableTextColor: #94abec;
 $uploadButtonBg: $iconGreen;
 
-
+$inputTextColor: $editableTextColor !default;
+$inputPlaceholderTextColor: $inputTextColor !default;
 
 //reused color variables
 $shade000: #ffffff !default; //surface
@@ -64,7 +65,7 @@ $inputTextColor: $shade700 !default;
 $inputIconColor: $shade600 !default;
 $inputBorder: 2px solid $shade400 !default;
 $inputFocusBorderColor: $primaryLightColor !default;
-$inputPlaceholderTextColor: $shade600 !default;
+
 $inputFilledBg: #f2f2f2 !default;
 
 //input groups

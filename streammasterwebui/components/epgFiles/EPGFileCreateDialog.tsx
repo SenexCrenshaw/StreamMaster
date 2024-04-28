@@ -1,17 +1,14 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef } from 'react';
 
-import AddButton from '@components/buttons/AddButton';
 import { FileUpload } from 'primereact/fileupload';
 
-import { SMCard } from '@components/sm/SMCard';
-import XButton from '@components/buttons/XButton';
 import SMFileUpload from '@components/file/SMFileUpload';
 
+import { SMDialog } from '@components/sm/SMDialog';
+import { getRandomColorHex } from '@lib/common/colors';
 import { CreateEPGFile } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
 import { CreateEPGFileRequest, EPGFileDto } from '@lib/smAPI/smapiTypes';
-import { Dialog } from 'primereact/dialog';
 import EPGFileDialog from './EPGFileDialog';
-import { getRandomColorHex } from '@lib/common/colors';
 
 export interface EPGFileCreateDialogProperties {
   readonly onHide?: (didUpload: boolean) => void;
@@ -21,7 +18,6 @@ export interface EPGFileCreateDialogProperties {
 
 export const EPGFileCreateDialog = ({ onHide, onUploadComplete, showButton }: EPGFileCreateDialogProperties) => {
   const fileUploadReference = useRef<FileUpload>(null);
-  const [visible, setVisible] = useState<boolean>(false);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const defaultValues = {
@@ -46,12 +42,12 @@ export const EPGFileCreateDialog = ({ onHide, onUploadComplete, showButton }: EP
     [defaultValues, onHide, onUploadComplete]
   );
 
-  const hide = useCallback(() => {
-    setVisible(false);
-    setEPGFileDto(defaultValues);
-    onHide?.(false);
-    defaultValues.Color = getRandomColorHex();
-  }, [defaultValues, onHide]);
+  // const hide = useCallback(() => {
+  //   setVisible(false);
+  //   setEPGFileDto(defaultValues);
+  //   onHide?.(false);
+  //   defaultValues.Color = getRandomColorHex();
+  // }, [defaultValues, onHide]);
 
   const onCreateFromSource = useCallback(
     async (source: string) => {
@@ -85,48 +81,72 @@ export const EPGFileCreateDialog = ({ onHide, onUploadComplete, showButton }: EP
   };
 
   return (
-    <>
-      <Dialog
-        header="Header"
-        visible={visible}
-        style={{ width: '40vw' }}
-        onHide={() => hide()}
-        content={({ hide }) => (
-          <SMCard title="ADD EPG" header={<XButton iconFilled={false} onClick={(e) => hide(e)} tooltip="Close" />}>
-            <div className="sm-fileupload w-12 p-0 m-0 ">
-              <div className="px-2">
-                <SMFileUpload
-                  epgFileDto={epgFileDto}
-                  onCreateFromSource={onCreateFromSource}
-                  onUploadComplete={() => {
-                    ReturnToParent(true);
-                  }}
-                  onName={(name) => {
-                    setName(name);
-                  }}
-                />
-              </div>
-              <EPGFileDialog
-                selectedFile={epgFileDto}
-                onEPGChanged={(e) => {
-                  setEPGFileDto(e);
-                }}
-                noButtons
-              />
-            </div>
-          </SMCard>
-        )}
-      />
-      <div hidden={showButton === false} className="justify-content-center">
-        <AddButton
-          onClick={(e) => {
-            setVisible(true);
+    <SMDialog title="ADD EPG" onHide={() => ReturnToParent()} buttonClassName="icon-green-filled" tooltip="Add EPG" info="General">
+      <div className="w-12">
+        <SMFileUpload
+          epgFileDto={epgFileDto}
+          onCreateFromSource={onCreateFromSource}
+          onUploadComplete={() => {
+            ReturnToParent(true);
           }}
-          tooltip="Add EPG File"
-          iconFilled={false}
+          onName={(name) => {
+            setName(name);
+          }}
         />
+        <div className="layout-padding-bottom-lg" />
+        <EPGFileDialog
+          selectedFile={epgFileDto}
+          onEPGChanged={(e) => {
+            setEPGFileDto(e);
+          }}
+          noButtons
+        />
+        <div className="layout-padding-bottom-lg" />
       </div>
-    </>
+    </SMDialog>
+
+    // <>
+    //   <Dialog
+    //     header="Header"
+    //     visible={visible}
+    //     style={{ width: '40vw' }}
+    //     onHide={() => hide()}
+    //     content={({ hide }) => (
+    //       <SMCard title="ADD EPG" header={<XButton iconFilled={false} onClick={(e) => hide(e)} tooltip="Close" />}>
+    //         <div className="sm-fileupload w-12 p-0 m-0 ">
+    //           <div className="px-2">
+    //             <SMFileUpload
+    //               epgFileDto={epgFileDto}
+    //               onCreateFromSource={onCreateFromSource}
+    //               onUploadComplete={() => {
+    //                 ReturnToParent(true);
+    //               }}
+    //               onName={(name) => {
+    //                 setName(name);
+    //               }}
+    //             />
+    //           </div>
+    //           <EPGFileDialog
+    //             selectedFile={epgFileDto}
+    //             onEPGChanged={(e) => {
+    //               setEPGFileDto(e);
+    //             }}
+    //             noButtons
+    //           />
+    //         </div>
+    //       </SMCard>
+    //     )}
+    //   />
+    //   <div hidden={showButton === false} className="justify-content-center">
+    //     <AddButton
+    //       onClick={(e) => {
+    //         setVisible(true);
+    //       }}
+    //       tooltip="Add EPG File"
+    //       iconFilled={false}
+    //     />
+    //   </div>
+    // </>
   );
 };
 EPGFileCreateDialog.displayName = 'EPGFileCreateDialog';

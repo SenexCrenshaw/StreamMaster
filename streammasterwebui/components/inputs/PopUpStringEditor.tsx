@@ -1,7 +1,7 @@
 import OKButton from '@components/buttons/OKButton';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { memo, useEffect, useRef, useState } from 'react';
-import StringEditorBodyTemplate from '../inputs/StringEditorBodyTemplate';
+import StringEditor from './StringEditor';
 export interface PopUpStringEditorProperties {
   value: string | undefined;
   visible: boolean;
@@ -46,7 +46,7 @@ const PopUpStringEditor = ({ onClose, value, visible }: PopUpStringEditorPropert
           <h4>Custom EPG Id</h4>
           <div className="flex col-12 p-0 m-0">
             <div className="col-10 p-0 m-0">
-              <StringEditorBodyTemplate
+              <StringEditor
                 autofocus={true}
                 disableDebounce={true}
                 value={input}

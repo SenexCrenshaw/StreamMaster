@@ -1,0 +1,39 @@
+.icon-green {
+    color: $iconGreen;
+}
+
+.icon-green-filled {
+    background-color: $iconGreen;
+    color: $inputBg;
+    border: 2px solid $iconGreen;
+}
+
+.icon-red {
+    color: $iconRed;
+}
+
+.icon-red-filled {
+    background-color: $iconRed;
+    color: $inputBg;
+    border: 2px solid $iconRed !important;
+}
+
+.icon-orange {
+    color: $iconOrange;
+}
+
+.icon-orange-filled {
+    background-color: $iconOrange;
+    color: $inputBg;
+    border: 2px solid $iconOrange;
+}
+
+.icon-yellow {
+    color: $iconYellow;
+}
+
+.icon-yellow-filled {
+    background-color: $iconYellow;
+    color: $inputBg;
+    border: 2px solid $iconYellow;
+}

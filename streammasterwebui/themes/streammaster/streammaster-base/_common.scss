@@ -34,14 +34,15 @@
 
 .color-editor-box {
     @extend .default-border;
-    height: $input-height;
+
+    height: $input-height - ($input-padding * 2);
 
     .smbutton {
         @extend .blue-header-color;
         border-width: 0px !important;
         border-style: hidden !important;
         background-color: transparent !important;
-        height: $input-height;
+
         padding: 0;
         transition: none !important;
     }
@@ -68,6 +69,15 @@
         width: unset;
         max-width: unset;
         text-align: right;
+    }
+}
+
+.sourceOrFileDialog-toggle {
+    .p-button.p-component {
+        padding: 0 !important;
+        padding-right: 0.6rem !important;
+        padding-left: 0.6rem !important;
+        width: $gridItem-width !important;
     }
 }
 
@@ -202,24 +212,6 @@
     margin: 0;
 }
 
-.stringeditorbody {
-    // padding-left: 0.5rem;
-    // padding-right: 0.5rem;
-
-    .save {
-        // border-color: $input-save-color !important;
-
-        // &:enabled:hover {
-        //     border-color: $input-save-color;
-        // }
-    }
-
-    .filter {
-        border-width: 0.1rem;
-        border-color: $inputHoverBorderColor;
-
-    }
-}
 
 #startNumber>input {
     @extend .input-border;
@@ -227,14 +219,7 @@
     border-bottom-right-radius: 0 !important;
 }
 
-.stringeditorbody-inputtext {
-    @extend .sm-input;
-    // background-color: transparent !important;
-    // width: 100% !important;
-    // border-radius: 0px;
-    // height: $input-height;
-    // max-height: $input-height;
-}
+
 
 .p-inputnumber-input {
     @extend .stringeditorbody-inputtext;
@@ -337,6 +322,12 @@
     font-size: $common-font-size;
 }
 
+.border-right {
+    border-right-width: $inputBorder-size !important;
+    border-right-color: $inputBorder !important;
+    border-right-style: solid !important;
+}
+
 .p-togglebutton-input {
     height: 4rem !important;
 }
@@ -348,13 +339,13 @@
         }
     }
 
-    .p-confirm-popup-accept {
-        background-color: $input-save-color;
-    }
+    // .p-confirm-popup-accept {
+    //     background-color: $input-save-color;
+    // }
 
-    .p-confirm-popup-reject {
-        background-color: $input-cancel-color;
-    }
+    // .p-confirm-popup-reject {
+    //     background-color: $input-cancel-color;
+    // }
 }
 
 .p-progress-spinner {

@@ -56,28 +56,28 @@ const NumberInput = ({
   });
 
   useEffect(() => {
-    setInput(value ?? 0);
     if (value !== originalInput) {
-      setOriginalInput(value);
+      setOriginalInput(value ?? 0);
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+    setInput(value ?? 0);
+  }, [originalInput, value]);
 
   return (
-    <span className="p-float-label">
-      <InputNumber
-        id={uuid}
-        value={input}
-        onChange={(e) => onChange(e.value ?? 0)}
-        autoFocus={autoFocus === true}
-        min={min}
-        max={max}
-        showButtons={showButtons}
-        suffix={suffix}
-      />
-      <label htmlFor={uuid}>{label}</label>
-    </span>
+    <div className="pt-4">
+      <span className="stringeditorbody-inputtext-dark p-float-label">
+        <InputNumber
+          id={uuid}
+          value={input}
+          onChange={(e) => onChange(e.value ?? 0)}
+          autoFocus={autoFocus === true}
+          min={min}
+          max={max}
+          showButtons={showButtons}
+          suffix={suffix}
+        />
+        <label htmlFor={uuid}>{label}</label>
+      </span>
+    </div>
   );
   // return (
   //   <div className={placeHolder && !label ? 'align-items-center' : 'align-items-center  m-0 p-0 py-2'} ref={overlayReference}>

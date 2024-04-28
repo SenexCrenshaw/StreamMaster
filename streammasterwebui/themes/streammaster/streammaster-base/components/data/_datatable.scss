@@ -40,7 +40,7 @@
             //     border-top-left-radius: $borderRadius;
             // }
             >th {
-                background-color: $standardHeaderBg !important;
+                background-color: $headerBg !important;
             }
 
             >th:last-child {
@@ -48,7 +48,7 @@
             }
 
             height: 3rem;
-            background-color: $standardHeaderBg !important;
+            background-color: $headerBg !important;
 
         }
 

@@ -1,4 +1,4 @@
-import NumberEditorBodyTemplate from '@components/inputs/NumberEditorBodyTemplate';
+import NumberEditor from '@components/inputs/NumberEditor';
 import { getTopToolOptions } from '@lib/common/common';
 import { isDev } from '@lib/settings';
 import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
@@ -32,7 +32,7 @@ const M3UFilesMaxStreamsEditor = ({ data, style }: M3UFilesMaxStreamsEditorPrope
   );
 
   return (
-    <NumberEditorBodyTemplate
+    <NumberEditor
       onChange={async (e) => {
         await onUpdateM3UFile(e);
       }}

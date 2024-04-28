@@ -7,6 +7,5 @@ export const useSMChannelNumberColumnConfig = createSMChannelMultiSelectColumnCo
   headerTitle: '#',
   maxWidth: 3,
   sortable: true,
-  // useFilter: false,
   width: 3
 });

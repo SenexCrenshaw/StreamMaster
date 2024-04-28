@@ -1,98 +1,97 @@
 .p-inputtext {
-    font-family: var(--font-family);
-    font-feature-settings: var(--font-feature-settings, normal);
-    font-size: $common-font-size;
-    color: $inputTextColor;
-    background: $inputBg;
-    border: $inputBorder-size solid transparent;
-    transition: $formElementTransition;
-    appearance: none;
+  font-family: var(--font-family);
+  font-feature-settings: var(--font-feature-settings, normal);
+  font-size: $common-font-size;
+  color: $inputTextColor;
+  // background: $inputBg;
+  border: $inputBorder-size solid transparent;
+  transition: $formElementTransition;
+  appearance: none;
 
-    &:enabled:hover {
-        background: $shade900;
-        border: $inputBorder-size solid $inputHoverBorderColor;
-        border-radius: $borderRadius;
-    }
+  &:enabled:hover {
+    background: $shade900;
+    border: $inputBorder-size solid $inputHoverBorderColor;
+    border-radius: $borderRadius;
+  }
 
-    &:enabled:focus {
-        @include focused-input();
-    }
+  &:enabled:focus {
+    @include focused-input();
+  }
 
-    &.p-invalid.p-component {
-        @include invalid-input();
-    }
+  &.p-invalid.p-component {
+    @include invalid-input();
+  }
 
-    &.p-inputtext-sm {
-        @include scaledFontSize($common-font-size, $scaleSM);
-        @include scaledPadding($inputPadding, $scaleSM);
-    }
+  &.p-inputtext-sm {
+    @include scaledFontSize($common-font-size, $scaleSM);
+    @include scaledPadding($inputPadding, $scaleSM);
+  }
 
-    &.p-inputtext-lg {
-        @include scaledFontSize($common-font-size, $scaleLG);
-        @include scaledPadding($inputPadding, $scaleLG);
-    }
+  &.p-inputtext-lg {
+    @include scaledFontSize($common-font-size, $scaleLG);
+    @include scaledPadding($inputPadding, $scaleLG);
+  }
 }
 
-
 .p-float-label>label.p-error {
-    color: $errorColor;
+  color: $errorColor;
 }
 
 .p-input-icon-left>i:first-of-type,
 .p-input-icon-left>svg:first-of-type,
 .p-input-icon-left>.p-input-prefix {
-    left: nth($inputPadding, 2);
-    color: $inputIconColor;
+  left: nth($inputPadding, 2);
+  color: $inputIconColor;
 }
 
 .p-input-icon-left>.p-inputtext {
-    padding-left: nth($inputPadding, 2) * 2 + $primeIconFontSize;
+  padding-left: nth($inputPadding, 2) * 2 + $primeIconFontSize;
 }
 
 .p-input-icon-left.p-float-label>label {
-    left: nth($inputPadding, 2) * 2 + $primeIconFontSize;
+  left: nth($inputPadding, 2) * 2 + $primeIconFontSize;
 }
 
 .p-input-icon-right>i:last-of-type,
 .p-input-icon-right>svg:last-of-type,
 .p-input-icon-right>.p-input-suffix {
-    right: nth($inputPadding, 2);
-    color: $inputIconColor;
+  right: nth($inputPadding, 2);
+  color: $inputIconColor;
 }
 
 .p-input-icon-right>.p-inputtext {
-    padding-right: nth($inputPadding, 2) * 2 + $primeIconFontSize;
+  padding-right: nth($inputPadding, 2) * 2 + $primeIconFontSize;
 }
 
 @include placeholder {
-    color: $inputPlaceholderTextColor;
-    padding: $input-padding;
+  color: $inputPlaceholderTextColor;
+  padding: $input-padding;
 }
 
 .p-input-filled {
-    .p-inputtext {
-        background-color: $inputFilledBg;
+  .p-inputtext {
+    background-color: $inputFilledBg;
 
-        &:enabled:hover {
-            background-color: $inputFilledHoverBg;
-        }
-
-        &:enabled:focus {
-            background-color: $inputFilledFocusBg;
-        }
+    &:enabled:hover {
+      background-color: $inputFilledHoverBg;
     }
+
+    &:enabled:focus {
+      background-color: $inputFilledFocusBg;
+    }
+  }
 }
 
 .p-inputtext-sm {
-    .p-inputtext {
-        @include scaledFontSize($common-font-size, $scaleSM);
-        @include scaledPadding($inputPadding, $scaleSM);
-    }
+  .p-inputtext {
+    @include scaledFontSize($common-font-size, $scaleSM);
+    @include scaledPadding($inputPadding, $scaleSM);
+  }
 }
 
 .p-inputtext-lg {
-    .p-inputtext {
-        @include scaledFontSize($common-font-size, $scaleLG);
-        @include scaledPadding($inputPadding, $scaleLG);
-    }
+  .p-inputtext {
+    @include scaledFontSize($common-font-size, $scaleLG);
+    @include scaledPadding($inputPadding, $scaleLG);
+  }
 }

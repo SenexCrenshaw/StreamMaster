@@ -1,63 +1,48 @@
-import { memo, useState } from 'react';
-
-import { SMCard } from '@components/sm/SMCard';
-import EditButton from '@components/buttons/EditButton';
-import XButton from '@components/buttons/XButton';
+import { SMDialog } from '@components/sm/SMDialog';
 import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
+import { memo, useState } from 'react';
 import M3UFileDialog from './M3UFileDialog';
-import { Dialog } from 'primereact/dialog';
 
 interface M3UFileEditDialogProperties {
   readonly selectedFile: M3UFileDto;
 }
 
 const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
-  const [visible, setVisible] = useState<boolean>(false);
+  const [close, setClose] = useState<boolean>(false);
 
   function onUpdated(request: UpdateM3UFileRequest): void {
     if (request.Id === undefined) {
       return;
     }
 
-    UpdateM3UFile(request)
-      .then(() => {})
-      .catch((error) => {
-        console.error(error);
-      })
-      .finally(() => {
-        setVisible(false);
-      });
+    try {
+      UpdateM3UFile(request);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setClose(true);
+      console.log('finally');
+    }
   }
 
   return (
-    <>
-      <EditButton iconFilled={false} onClick={(e) => setVisible(true)} tooltip="Edit" />
-      <Dialog
-        className="p-0 sm-fileupload-panel default-border"
-        visible={visible}
-        style={{ top: '-10%', width: '40vw' }}
-        onHide={() => setVisible(false)}
-        content={({ hide }) => (
-          <SMCard
-            title="EDIT M3U"
-            header={
-              <XButton
-                iconFilled={false}
-                onClick={(e) => {
-                  hide(e);
-                }}
-                tooltip="Close"
-              />
-            }
-          >
-            <div className="sm-fileupload col-12 p-0 m-0 ">
-              <M3UFileDialog selectedFile={selectedFile} onUpdated={onUpdated} />
-            </div>
-          </SMCard>
-        )}
-      ></Dialog>
-    </>
+    <SMDialog
+      close={close}
+      widthSize={6}
+      position="top-right"
+      title="EDIT M3U"
+      onHide={() => {
+        setClose(false);
+      }}
+      icon="pi-pencil"
+      iconFilled={false}
+      buttonClassName="icon-yellow"
+      tooltip="Add M3U"
+      info="General"
+    >
+      <M3UFileDialog selectedFile={selectedFile} onUpdated={onUpdated} />
+    </SMDialog>
   );
 };
 

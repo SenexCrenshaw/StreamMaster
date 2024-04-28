@@ -8,7 +8,7 @@ import { UpdateEPGFile } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
 import useGetPagedEPGFiles from '@lib/smAPI/EPGFiles/useGetPagedEPGFiles';
 import { EPGFileDto, UpdateEPGFileRequest } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useMemo } from 'react';
-import StringEditorBodyTemplate from '../inputs/StringEditorBodyTemplate';
+import StringEditor from '../inputs/StringEditor';
 import EPGFileEditDialog from './EPGFileEditDialog';
 // import EPGFileRefreshDialog from './EPGFileRefreshDialog';
 // import EPGFileRemoveDialog from './EPGFileRemoveDialog';
@@ -109,7 +109,7 @@ const EPGFilesDataSelector = () => {
       }
 
       return (
-        <StringEditorBodyTemplate
+        <StringEditor
           onSave={async (e) => {
             await onEPGUpdateClick({ id: rowData.Id, name: e });
           }}

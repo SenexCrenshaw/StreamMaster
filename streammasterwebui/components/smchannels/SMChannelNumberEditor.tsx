@@ -1,4 +1,4 @@
-import NumberEditorBodyTemplate from '@components/inputs/NumberEditorBodyTemplate';
+import NumberEditor from '@components/inputs/NumberEditor';
 import { getTopToolOptions } from '@lib/common/common';
 import { isDev } from '@lib/settings';
 import { SetSMChannelNumber } from '@lib/smAPI/SMChannels/SMChannelsCommands';
@@ -32,7 +32,7 @@ const SMChannelNumberEditor = ({ data, style }: SMChannelNumberEditorProperties)
   );
 
   return (
-    <NumberEditorBodyTemplate
+    <NumberEditor
       onChange={async (e) => {
         await onUpdateVideoStream(e);
       }}

@@ -1,7 +1,7 @@
 import ResetButton from '@components/buttons/ResetButton';
 import SaveButton from '@components/buttons/SaveButton';
 import NumberInput from '@components/inputs/NumberInput';
-import TextInput from '@components/inputs/TextInput';
+import StringEditor from '@components/inputs/StringEditor';
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
 import { ToggleButton } from 'primereact/togglebutton';
@@ -17,6 +17,7 @@ export interface M3UFileDialogProperties {
 }
 
 const M3UFileDialog = ({ onM3UChanged, onUpdated, selectedFile, noButtons }: M3UFileDialogProperties) => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const defaultValues = {
     HoursToUpdate: 72,
     MaxStreamCount: 1,
@@ -30,6 +31,7 @@ const M3UFileDialog = ({ onM3UChanged, onUpdated, selectedFile, noButtons }: M3U
   const [m3uFileDto, setM3UFileDto] = React.useState<M3UFileDto>(defaultValues);
   const [originalM3UFileDto, setOriginalM3UFileDto] = React.useState<M3UFileDto | undefined>(undefined);
   const [request, setRequest] = React.useState<UpdateM3UFileRequest>({} as UpdateM3UFileRequest);
+
   const setName = useCallback(
     (value: string) => {
       if (m3uFileDto && m3uFileDto.Name !== value) {
@@ -184,16 +186,23 @@ const M3UFileDialog = ({ onM3UChanged, onUpdated, selectedFile, noButtons }: M3U
 
   return (
     <>
-      <div className="col-12 ">
-        <div className="flex">
-          <div className="col-6 pt-2">
-            <div className="sm-inputnumber-input-no-right-border col-12">
-              <TextInput autoFocus value={m3uFileDto?.Name} label="Name" onChange={(e) => setName(e)} />
-            </div>
+      <div className="w-12">
+        <div className="flex gap-2">
+          <div className="w-6">
+            <StringEditor
+              showClear
+              disableDebounce
+              darkBackGround
+              autoFocus
+              label="NAME"
+              value={m3uFileDto?.Name}
+              onChange={(e) => e && setName(e)}
+              onSave={(e) => {}}
+            />
           </div>
-          <div className="col-6 p-0 pt-2">
-            <div className="flex p-fluid align-items-center justify-content-between">
-              <div className="sm-inputnumber-input-no-right-border col-6">
+          <div className="w-6">
+            <div className="flex gap-2">
+              <div className="w-6">
                 <NumberInput
                   showButtons
                   label="MAX STREAMS"
@@ -204,62 +213,74 @@ const M3UFileDialog = ({ onM3UChanged, onUpdated, selectedFile, noButtons }: M3U
                   value={m3uFileDto?.MaxStreamCount}
                 />
               </div>
-              <div className="col-6">
+              <div className="w-6">
                 <NumberInput
-                  label="AUTO UPDATE"
+                  label="START CHANNEL #"
                   onChange={(e) => {
-                    setAutoUpdate(e);
+                    setStartingChannelNumber(e);
                   }}
                   showClear
-                  suffix=" Hours"
-                  value={m3uFileDto?.HoursToUpdate}
+                  value={m3uFileDto?.StartingChannelNumber}
                 />
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="col-12">
-        <div className="flex flex-wrap p-fluid align-items-center justify-content-between">
-          <div className="sourceOrFileDialog-toggle pb-4">
-            <div className="flex flex-column">
-              <div id="name" className="text-xs text-500 pb-1">
-                AUTO SET CHANNEL #S:
+      <div className="layout-padding-bottom-lg" />
+      <div className="w-12">
+        <div className="flex gap-2">
+          <div className="flex w-6 gap-2">
+            <div className="w-6">
+              <div className="sourceOrFileDialog-toggle">
+                <div className="flex flex-column">
+                  <div id="name" className="text-xs sm-input pb-2">
+                    AUTO CH.#:
+                  </div>
+                  <ToggleButton checked={m3uFileDto?.OverwriteChannelNumbers} onChange={(e) => setOverwriteChannelNumbers(e.value)} />
+                </div>
               </div>
-              <ToggleButton checked={m3uFileDto?.OverwriteChannelNumbers} onChange={(e) => setOverwriteChannelNumbers(e.value)} />
+            </div>
+            <div className="w-6">
+              <NumberInput
+                label="AUTO UPDATE"
+                onChange={(e) => {
+                  setAutoUpdate(e);
+                }}
+                showClear
+                suffix=" Hours"
+                value={m3uFileDto?.HoursToUpdate}
+              />
             </div>
           </div>
-
-          <div className="col-3">
-            <NumberInput
-              label="STARTING CHANNEL #"
-              onChange={(e) => {
-                setStartingChannelNumber(e);
-              }}
-              showClear
-              value={m3uFileDto?.StartingChannelNumber}
-            />
-          </div>
-
-          <div className="col-6">
+          <div className="w-6">
             <M3UFileTags vodTags={m3uFileDto?.VODTags} onChange={(e) => setVodTags(e)} />
           </div>
         </div>
       </div>
 
       {noButtons !== true && (
-        <div className="flex w-12 gap-2 justify-content-end align-content-center pr-3">
-          <ResetButton
-            disabled={!isSaveEnabled && originalM3UFileDto !== undefined}
-            onClick={() => originalM3UFileDto !== undefined && setM3UFileDto(originalM3UFileDto)}
-          />
-          <SaveButton disabled={!isSaveEnabled} label="Update M3U" onClick={() => onUpdated && onUpdated(request)} />
-        </div>
+        <>
+          <div className="layout-padding-bottom-lg" />
+          <div className="flex w-12 gap-2 justify-content-end align-content-center">
+            <div className="layout-padding-bottom-lg" />
+            <ResetButton
+              disabled={!isSaveEnabled && originalM3UFileDto !== undefined}
+              onClick={() => {
+                if (originalM3UFileDto !== undefined) {
+                  setM3UFileDto(originalM3UFileDto);
+                }
+              }}
+            />
+            <SaveButton disabled={!isSaveEnabled} label="Update M3U" onClick={() => onUpdated && onUpdated(request)} />
+          </div>
+          <div className="layout-padding-bottom-lg" />
+        </>
       )}
     </>
   );
 };
 
-M3UFileDialog.displayName = 'M3UFileEditDialog';
+M3UFileDialog.displayName = 'M3UFileDialog';
 
 export default React.memo(M3UFileDialog);

@@ -1,4 +1,4 @@
-import NumberEditorBodyTemplate from '@components/inputs/NumberEditorBodyTemplate';
+import NumberEditor from '@components/inputs/NumberEditor';
 
 import React from 'react';
 
@@ -32,7 +32,7 @@ const ProfileTimeOutEditor = (props: ProfileTimeOutEditorProperties) => {
   }
 
   return (
-    <NumberEditorBodyTemplate
+    <NumberEditor
       onChange={async (e) => {
         await onUpdateFfmpegProfileDto(e);
       }}

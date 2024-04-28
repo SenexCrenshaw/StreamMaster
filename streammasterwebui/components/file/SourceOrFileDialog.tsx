@@ -3,7 +3,6 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { ProgressBar } from 'primereact/progressbar';
 import { ChangeEvent, useCallback, useMemo, useRef, useState } from 'react';
-
 interface SourceOrFileDialogProps {
   onAdd: (source: string | null, file: File | null) => void;
   onName: (name: string) => void;
@@ -78,30 +77,29 @@ const SourceOrFileDialog = ({ onAdd, onName, progress }: SourceOrFileDialogProps
 
   return (
     <div className="sourceOrFileDialog flex flex-row grid-nogutter justify-content-between align-items-center">
-      <div className="p-inputgroup flex-1">
-        <Button className="surface-streamMaster" icon="pi pi-upload" onClick={() => inputFile?.current?.click()} />
+      <div className="p-inputgroup flex">
+        <Button className="icon-orange-filled w-1" icon="pi pi-upload" onClick={() => inputFile?.current?.click()} />
         {getProgressOrInput}
         <Button
-          className="border-right-1 border-500"
+          className="icon-red-filled w-1"
           disabled={file === null}
           icon="pi pi-times"
           onClick={() => {
             clearInputFile();
             setSource(null);
           }}
-          severity="success"
           tooltip="Clear File"
         />
         <Button
+          className="icon-green-filled w-1"
           disabled={!isSaveEnabled}
-          // label={addName}
           icon={addIcon}
           onClick={() => {
             onAdd(source, file);
           }}
-          severity="success"
         />
       </div>
+
       <input title="upload" ref={inputFile} type="file" onChange={handleChange} hidden />
     </div>
   );

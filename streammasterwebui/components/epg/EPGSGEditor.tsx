@@ -15,7 +15,7 @@ const EPGSGEditor = ({ data, enableEditMode }: EPGSGEditorProperties) => {
   const { selectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
   const channelsQuery = useGetStreamGroupSMChannels({ StreamGroupId: selectedStreamGroup?.Id });
 
-  console.log('EPGSGEditor', channelsQuery.data);
+  // console.log('EPGSGEditor', channelsQuery.data);
 
   const addSMChannelToStreamGroup = useCallback(async () => {
     console.log('addSMChannelToStreamGroup', selectedStreamGroup);

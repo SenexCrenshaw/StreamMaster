@@ -2,10 +2,7 @@
 //     color: $streamMasterColor;
 // }
 
-.sm-overlay {
-    background-color: var(--surface-ground-alpha);
 
-}
 
 .listTemplate-gridItem-name,
 .sm-column,
@@ -98,32 +95,6 @@
     border-radius: $borderRadius;
 }
 
-.sm-input {
-    background-color: transparent !important;
-    width: 100% !important;
-    border-radius: 0px;
-    border-style: none;
-    border-width: 0px;
-    height: $input-height;
-    max-height: $input-height;
-    width: 100% !important;
-
-    .p-dropdown {
-        background-color: transparent !important;
-    }
-
-    .p-dropdown-label {
-        background-color: transparent !important;
-    }
-}
-
-.sm-input-border {
-    border-radius: $borderRadius;
-    border-color: $inputBorderColor;
-    border-width: 1px;
-    border-style: solid;
-
-}
 
 .sm-scroller-item {
     border-style: solid;
@@ -133,7 +104,14 @@
 
 .sm-standard-header {
     @extend .sm-input-border;
-    background-color: $standardHeaderBg !important;
+    background-color: $headerBg !important;
+}
+
+.sm-M3UFileTags {
+    .smbutton {
+        border-radius: $borderRadius !important;
+        height: $input-height - ($input-padding * 2) !important;
+    }
 }
 
 .sm-datatable-header {

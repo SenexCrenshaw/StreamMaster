@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import StringEditorBodyTemplate from './StringEditorBodyTemplate';
+import StringEditor from './StringEditor';
 
 export interface StringTrackerProperties {
   readonly id: string;
@@ -21,7 +21,7 @@ const StringTracker = ({ id, onChange, placeholder, value }: StringTrackerProper
 
   return (
     <div>
-      <StringEditorBodyTemplate
+      <StringEditor
         debounceMs={500}
         onSave={async (e) => {
           console.log(e);

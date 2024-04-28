@@ -30,47 +30,32 @@ const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) =
   }, [intTags]);
 
   return (
-    <div className="col-12 p-0 pb-4">
-      <div className="text-xs">
-        <label className="flex p-0 text-500 w-full justify-content-center align-items-center" htmlFor={uuid}>
-          URL REGEX
-        </label>
-        <div id={uuid} className="w-full tag-editor p-0 m-0 input-border" ref={anchorReference}>
-          <OverlayPanel ref={op} onHide={() => setIsOpen(false)} className="w-2">
-            <div className="flex w-full">
-              <Chips
-                className="w-full border-1"
-                autoFocus
-                id="chips"
-                value={intTags}
-                onChange={(e) => {
-                  console.log('change', e.value);
-                  onChange(e.value ?? []);
-                }}
-              />
-            </div>
-          </OverlayPanel>
-
-          <div>
-            <DownArrowButton
-              label={buttonTags}
-              tooltip=""
-              onClick={(e) => {
-                if (isOpen) {
-                  op.current?.hide();
-                } else {
-                  op.current?.show(null, anchorReference.current);
-                }
-                setIsOpen(!isOpen);
+    <div className="w-12 sm-M3UFileTags">
+      <label className="flex text-xs text-default-color w-full justify-content-center align-items-center" htmlFor={uuid}>
+        URL REGEX
+      </label>
+      <div className="layout-padding-bottom"></div>
+      <div id={uuid} className="w-full tag-editor p-0 m-0 input-border" ref={anchorReference}>
+        <OverlayPanel ref={op} onHide={() => setIsOpen(false)} className="w-2">
+          <div className="flex w-full align-items-center">
+            <Chips
+              className="w-full"
+              autoFocus
+              id="chips"
+              value={intTags}
+              onChange={(e) => {
+                console.log('change', e.value);
+                onChange(e.value ?? []);
               }}
             />
-            {/* <Button
-            className="text-sm w-full"
-            icon="pi pi-chevron-down"
-            iconPos="right"
-            id="tag-Button"
+          </div>
+        </OverlayPanel>
+
+        <div className="flex w-full">
+          <DownArrowButton
+            className="w-full"
             label={buttonTags}
-            text={true}
+            tooltip=""
             onClick={(e) => {
               if (isOpen) {
                 op.current?.hide();
@@ -79,14 +64,13 @@ const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) =
               }
               setIsOpen(!isOpen);
             }}
-          /> */}
-          </div>
+          />
         </div>
       </div>
     </div>
   );
 };
 
-M3UFileTags.displayName = 'M3UFileDialog';
+M3UFileTags.displayName = 'M3UFileTags';
 
 export default React.memo(M3UFileTags);

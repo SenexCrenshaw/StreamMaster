@@ -2,7 +2,7 @@ import ColorEditor from '@components/ColorEditor';
 import ResetButton from '@components/buttons/ResetButton';
 import SaveButton from '@components/buttons/SaveButton';
 import NumberInput from '@components/inputs/NumberInput';
-import TextInput from '@components/inputs/TextInput';
+import StringEditor from '@components/inputs/StringEditor';
 
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { EPGFileDto, UpdateEPGFileRequest, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
@@ -167,45 +167,24 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
 
   return (
     <>
-      <div className="col-12 ">
-        <div className="flex">
-          <div className="col-6 pt-2">
-            <div className="sm-inputnumber-input-no-right-border col-12">
-              <TextInput autoFocus value={epgFileDto.Name} label="Name" onChange={(e) => setName(e)} />
-            </div>
-          </div>
-          <div className="col-6 p-0 pt-2">
-            <div className="flex p-fluid align-items-center justify-content-between">
-              <div className="col-6">
-                <NumberInput
-                  label="AUTO UPDATE"
-                  onChange={(e) => {
-                    setHoursToUpdate(e);
-                  }}
-                  showClear
-                  suffix=" Hours"
-                  value={epgFileDto.HoursToUpdate}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="col-12">
-        <div className="flex flex-wrap p-fluid align-items-center justify-content-between">
-          <div className="col-3">
-            <ColorEditor
-              onChange={async (e) => {
-                console.log(e);
-                setColor(e);
-              }}
-              color={epgFileDto.Color}
+      <div className="w-12">
+        <div className="flex gap-2">
+          <div className="w-10">
+            <StringEditor
+              showClear
+              disableDebounce
+              darkBackGround
+              autoFocus
+              label="NAME"
+              value={epgFileDto?.Name}
+              onChange={(e) => e && setName(e)}
+              onSave={(e) => {}}
             />
           </div>
-          <div className="sm-inputnumber-input-no-right-border col-4">
+          <div className="w-2">
             <NumberInput
               showButtons
-              label="EPGNumber"
+              label="EPG #"
               onChange={(e) => {
                 setEPGNumber(e);
               }}
@@ -213,9 +192,29 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
               value={epgFileDto.EPGNumber}
             />
           </div>
-          <div className="col-3">
+        </div>
+      </div>
+      <div className="layout-padding-bottom-lg" />
+      <div className="w-12">
+        <div className="flex gap-2">
+          <div className="w-4">
+            <div className="sourceOrFileDialog-toggle">
+              <div className="flex flex-column">
+                <div id="name" className="text-xs sm-input pb-2">
+                  COLOR
+                </div>
+                <ColorEditor
+                  onChange={async (e) => {
+                    setColor(e);
+                  }}
+                  color={epgFileDto.Color}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="w-4">
             <NumberInput
-              label="Time Shift"
+              label="TIME SHIFT"
               onChange={(e) => {
                 setTimeShift(e);
               }}
@@ -223,22 +222,38 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
               value={epgFileDto.TimeShift}
             />
           </div>
+          <div className="w-4">
+            <NumberInput
+              label="AUTO UPDATE"
+              onChange={(e) => {
+                setHoursToUpdate(e);
+              }}
+              showClear
+              suffix=" Hours"
+              value={epgFileDto.HoursToUpdate}
+            />
+          </div>
         </div>
       </div>
 
       {noButtons !== true && (
-        <div className="flex w-12 gap-2 justify-content-end align-content-center pr-3">
-          <ResetButton
-            disabled={!isSaveEnabled && originalEPGFileDto !== undefined}
-            onClick={() => {
-              if (originalEPGFileDto !== undefined) {
-                setEPGFileDto(originalEPGFileDto);
-                setColor(originalEPGFileDto.Color);
-              }
-            }}
-          />
-          <SaveButton disabled={!isSaveEnabled} label="Update EPG" onClick={() => onUpdated && onUpdated(request)} />
-        </div>
+        <>
+          <div className="layout-padding-bottom-lg" />
+          <div className="flex w-12 gap-2 justify-content-end align-content-center">
+            <div className="layout-padding-bottom-lg" />
+            <ResetButton
+              disabled={!isSaveEnabled && originalEPGFileDto !== undefined}
+              onClick={() => {
+                if (originalEPGFileDto !== undefined) {
+                  setEPGFileDto(originalEPGFileDto);
+                  setColor(originalEPGFileDto.Color);
+                }
+              }}
+            />
+            <SaveButton disabled={!isSaveEnabled} label="Update EPG" onClick={() => onUpdated && onUpdated(request)} />
+          </div>
+          <div className="layout-padding-bottom-lg" />
+        </>
       )}
     </>
   );

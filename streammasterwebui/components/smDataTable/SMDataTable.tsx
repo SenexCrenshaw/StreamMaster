@@ -590,7 +590,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       <div className={hasScrollbar ? 'sm-datatable surface-overlay no-top-border' : 'sm-datatable surface-overlay no-top-border'}>
         {sourceRenderHeader && (
           <div>
-            {/* <div className="layout-padding-top border-1"></div> */}
             <div className="sm-datatable-header">{sourceRenderHeader}</div>
             <div className="layout-padding-bottom"></div>
           </div>

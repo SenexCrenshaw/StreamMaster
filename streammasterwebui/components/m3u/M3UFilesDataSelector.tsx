@@ -1,6 +1,6 @@
 import { memo, useCallback, useMemo } from 'react';
 
-import StringEditorBodyTemplate from '../inputs/StringEditorBodyTemplate';
+import StringEditor from '../inputs/StringEditor';
 import M3UFileDeleteDialog from './M3UFileDeleteDialog';
 import M3UFileRefreshDialog from './M3UFileRefreshDialog';
 
@@ -94,7 +94,8 @@ const M3UFilesDataSelector = () => {
       }
 
       return (
-        <StringEditorBodyTemplate
+        <StringEditor
+          // showClear
           onSave={async (e) => {
             await onM3UUpdateClick({ id: rowData.Id, name: e });
           }}

@@ -131,7 +131,7 @@ export const RootSideBar = () => {
 
       <div className="absolute bottom-0 left-0 pb-2 flex flex-column m-0 p-0">
         <div className="col-6 p-0 m-0 justify-content-center align-content-center">
-          <img className="p-0 m-0" alt="Stream Master Logo" src={isReady ? '/images/StreamMasterx32Ready.png' : '/images/StreamMasterx32NotReady.png'} />
+          <img className="p-0 m-0" alt="Stream Master Logo" src={isReady ? '/images/SMNewX32.png' : '/images/StreamMasterx32NotReady.png'} />
         </div>
 
         <Tooltip target=".custom-target-icon" />

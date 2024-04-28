@@ -1,21 +1,44 @@
+.sm-overlay {
+    background-color: var(--surface-ground);
+
+    .p-float-label {
+        font-size: $common-font-size;
+    }
+}
+
+.sm-dialog {
+    @extend .sm-overlay;
+    padding: $layoutPadding*2;
+}
+
 .sm-card {
+    background-color: var(--surface-ground);
     padding: 0rem;
-    border-width: 1px !important;
-    border-color: var(--surface-100);
-    border-top-left-radius: 0.375rem;
-    border-top-right-radius: 0.375rem;
-    border-style: solid;
 
     .sm-card-header {
+        @extend .sm-input-border;
+        background-color: $tableHeaderBg !important;
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
 
-        padding: $datatable-padding;
-        // border-style: solid;
-        // border-bottom-width: 1px !important;
-        // border-color: var(--surface-100);
-        background-color: $blue-header-color;
-        border-top-left-radius: 0.375rem;
-        border-top-right-radius: 0.375rem;
-        height: $datatable-row-height + $datatable-padding;
+    .sm-card-info {
+        @extend .sm-input-border;
+        background-color: $headerBg !important;
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .sm-card-children {
+        @extend .sm-card-header;
+        background-color: $headerBg !important;
+    }
+
+    .sm-card-content-children {
+        @extend .padding-xlg;
+        background-color: $headerBg !important;
     }
 
     .p-button {

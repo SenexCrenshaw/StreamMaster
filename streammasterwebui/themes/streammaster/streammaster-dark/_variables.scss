@@ -1,28 +1,30 @@
-$primaryColor: #9eade6 !default;
+$iconGreen: #22c55e;
+$iconOrange: #ff935a;
+$iconRed: #e693a9;
+$iconYellow: #cede9c;
+$bgcolor: #161d21;
+$inputBg: #12181b !default;
+$textColor: #bcbfbf;
+$surface-ground: $bgcolor;
+
+$headerBg: #21282c !default;
+$tableHeaderBg: #1d2327 !default;
+$headerTextColor: #ff7e00;
+$editableTextColor: #94abec;
+$inputBorderColor: #263238;
+$uploadButtonBg: $iconGreen;
+
+$primaryColor: $editableTextColor !default;
 $borderRadius: 6px !default;
 $highlightBg: rgba($primaryColor, 0.16) !default;
 $highlightTextColor: $primaryColor !default;
 $highlightFocusBg: rgba($primaryColor, 0.24) !default;
 
-//Input
-$inputBorderColor: #263238;
-$inputBorder: 0 !default;
-$inputBg: #12181b !default;
-$inputTextColor: hsl(234, 65%, 79%) !default;
-
-$iconGreen: #22c55e;
-$iconOrange: #ff935a;
-$iconRed: #e693a9;
-$iconYellow: #cede9c;
-
-$textColor: #bcbfbf;
-$surface-ground: $inputBg;
 $surface-section: $surface-ground;
-$standardHeaderBg: #21282c !default;
-$tableHeaderBg: #1d2327 !default;
-$headerTextColor: #ff7e00;
-$editableTextColor: #94abec;
-$uploadButtonBg: $iconGreen;
+//Input
+$inputBorder: 0 !default;
+$inputTextColor: $editableTextColor !default;
+$inputPlaceholderTextColor: $inputTextColor !default;
 
 $infoButtonBg: #35a4cc !default;
 
@@ -33,9 +35,10 @@ $blue-header-color: #0c243c;
 $shade000: rgba(255, 255, 255, 0.87) !default; //text color
 $shade100: rgba(255, 255, 255, 0.6) !default; //text secondary color
 $shade500: $inputBorderColor !default;
+
 $shade600: #263238 !default; //input bg, border, divider
 $shade700: #1e282c !default; //unused
-$shade800: #161d21 !default; //elevated surface
+$shade800: $bgcolor !default; //elevated surface
 $shade900: #0e1315 !default; //ground surface
 
 $primaryTextColor: $shade100 !default;
@@ -66,7 +69,7 @@ $actionIconHoverColor: $shade000 !default;
 
 $inputIconColor: $shade100 !default;
 $inputFocusBorderColor: $primaryColor !default;
-$inputPlaceholderTextColor: $shade100 !default;
+// $inputPlaceholderTextColor: $shade100 !default;
 $inputFilledBg: $shade600 !default;
 
 //input groups

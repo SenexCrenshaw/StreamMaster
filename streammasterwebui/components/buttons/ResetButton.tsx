@@ -1,7 +1,14 @@
 import BaseButton from './BaseButton';
 import { ChildButtonProperties } from './ChildButtonProperties';
 
-const ResetButton: React.FC<ChildButtonProperties> = ({ className = '', disabled = false, iconFilled, label = 'Reset', onClick, tooltip = 'Reset' }) => (
+const ResetButton: React.FC<ChildButtonProperties> = ({
+  className = 'icon-yellow-filled',
+  disabled = false,
+  iconFilled,
+  label = 'Reset',
+  onClick,
+  tooltip = 'Reset'
+}) => (
   <BaseButton
     className={className}
     disabled={disabled}
@@ -9,7 +16,6 @@ const ResetButton: React.FC<ChildButtonProperties> = ({ className = '', disabled
     iconFilled={iconFilled}
     label={iconFilled === true ? undefined : label ?? undefined}
     onClick={onClick}
-    severity="warning"
     tooltip={tooltip}
   />
 );

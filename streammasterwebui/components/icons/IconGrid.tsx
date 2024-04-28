@@ -1,4 +1,4 @@
-import StringEditorBodyTemplate from '@components/inputs/StringEditorBodyTemplate';
+import StringEditor from '@components/inputs/StringEditor';
 import { getIconUrl } from '@lib/common/common';
 import useElementSize from '@lib/hooks/useElementSize';
 import useGetIcons from '@lib/smAPI/Icons/useGetIcons';
@@ -154,7 +154,7 @@ const IconGrid = ({ iconSource, onClick }: IconSelectorProperties) => {
     return (
       <div className="flex justify-content-between align-items-center w-full p-0 m-0">
         <div className="w-6">
-          <StringEditorBodyTemplate
+          <StringEditor
             value={iconSource}
             onSave={(value) => {
               if (value) {
@@ -165,7 +165,7 @@ const IconGrid = ({ iconSource, onClick }: IconSelectorProperties) => {
           />
         </div>
         <div className="flex justify-content-end align-items-center  col-6 p-0 m-0">
-          <StringEditorBodyTemplate
+          <StringEditor
             autofocus
             placeholder="Search"
             darkBackGround={true}

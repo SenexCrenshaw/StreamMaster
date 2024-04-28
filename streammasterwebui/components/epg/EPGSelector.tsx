@@ -1,5 +1,5 @@
 import AddButton from '@components/buttons/AddButton';
-import StringEditorBodyTemplate from '@components/inputs/StringEditorBodyTemplate';
+import StringEditor from '@components/inputs/StringEditor';
 import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';
 
 import { VirtualScroller } from 'primereact/virtualscroller';
@@ -307,7 +307,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
           </SideCar>
         </div>
         <div className="col-10 m-0 p-0 pl-2">
-          <StringEditorBodyTemplate
+          <StringEditor
             disableDebounce={true}
             placeholder="Custom Id"
             value={input}

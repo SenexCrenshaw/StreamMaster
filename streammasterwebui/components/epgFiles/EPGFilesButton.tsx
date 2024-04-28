@@ -1,6 +1,4 @@
-import { SMCard } from '@components/sm/SMCard';
-import UploadButton from '@components/buttons/UploadButton';
-import XButton from '@components/buttons/XButton';
+import { SMOverlay } from '@components/sm/SMOverlay';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { memo, useRef } from 'react';
 import EPGFileCreateDialog from './EPGFileCreateDialog';
@@ -11,7 +9,18 @@ const EPGFilesButton = () => {
   const closeOverlay = () => op.current?.hide();
   return (
     <>
-      <UploadButton tooltip="" className="sm-upload-button" outlined={true} label="EPG" onClick={(e) => op.current?.toggle(e)} />
+      <SMOverlay
+        title="EPG FILES"
+        widthSize="5"
+        icon="pi-upload"
+        buttonClassName="icon-green-filled"
+        buttonLabel="EPG"
+        header={<EPGFileCreateDialog onUploadComplete={closeOverlay} />}
+      >
+        <EPGFilesDataSelector />
+      </SMOverlay>
+
+      {/* <UploadButton tooltip="" className="sm-upload-button" outlined={true} label="EPG" onClick={(e) => op.current?.toggle(e)} />
       <OverlayPanel className="sm-overlay col-6 p-0 default-border" ref={op} showCloseIcon={false}>
         <SMCard
           title="EPG Files"
@@ -24,7 +33,7 @@ const EPGFilesButton = () => {
         >
           <EPGFilesDataSelector />
         </SMCard>
-      </OverlayPanel>
+      </OverlayPanel> */}
     </>
   );
 };

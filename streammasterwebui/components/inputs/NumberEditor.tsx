@@ -7,7 +7,7 @@ import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
-export interface NumberEditorBodyTemplateProperties {
+export interface NumberEditorTemplateProperties {
   readonly onChange: (value: number) => void;
   readonly onClick?: () => void;
   readonly prefix?: string | undefined;
@@ -19,7 +19,7 @@ export interface NumberEditorBodyTemplateProperties {
   readonly value: number | undefined;
 }
 
-const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProperties) => {
+const NumberEditor = (props: NumberEditorTemplateProperties) => {
   const [inputValue, setInputValue] = useState<number>(0);
   const [originalValue, setOriginalValue] = useState<number>(0);
   const [isFocused, setIsFocused] = useState<boolean>(false);
@@ -119,7 +119,7 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProperties) => 
         />
       )}
       <InputNumber
-        className={needsSave ? 'save' : undefined}
+        className={needsSave ? 'stringeditorbody-inputtext-save' : 'stringeditorbody-inputtext'}
         locale="en-US"
         onChange={(e) => {
           debounced(e.value as number);
@@ -139,4 +139,4 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProperties) => 
   );
 };
 
-export default memo(NumberEditorBodyTemplate);
+export default memo(NumberEditor);

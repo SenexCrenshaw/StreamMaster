@@ -1,14 +1,13 @@
-import { Button } from 'primereact/button';
 import { SyntheticEvent } from 'react';
 
 export interface ChildButtonProperties {
   className?: string;
-  disabled?: boolean | undefined;
+  disabled?: boolean;
   iconFilled?: boolean;
   isLeft?: boolean;
-  label?: string | undefined | null;
+  label?: string | null;
   onClick: (e: SyntheticEvent) => void;
-  style?: React.CSSProperties | undefined;
+  style?: React.CSSProperties;
   tooltip?: string;
-  outlined?: boolean | undefined;
+  outlined?: boolean;
 }

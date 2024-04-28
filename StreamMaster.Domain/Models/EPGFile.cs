@@ -6,7 +6,7 @@ namespace StreamMaster.Domain.Models;
 public class EPGFile : AutoUpdateEntity
 {
     private readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true };
-    public static string MainGet => "EPGFiles";
+    public static string MainGet => "GetPagedEPGFiles";
     public int EPGNumber { get; set; }
 
     [Column(TypeName = "citext")]

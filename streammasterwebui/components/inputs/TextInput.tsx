@@ -1,8 +1,6 @@
-import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
-import { useClickOutside } from 'primereact/hooks';
-import { InputText } from 'primereact/inputtext';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { memo, useCallback, useEffect, useState } from 'react';
+
+import StringEditor from './StringEditor';
 
 interface TextInputProperties {
   readonly autoFocus?: boolean;
@@ -38,25 +36,12 @@ const TextInput = ({
 }: TextInputProperties) => {
   const [input, setInput] = useState<string>('');
   const [originalInput, setOriginalInput] = useState<string | undefined>(undefined);
-  const uuid = uuidv4();
-  const [isFocused, setIsFocused] = useState<boolean>(false);
-  const overlayReference = useRef(null);
-  const { code } = useScrollAndKeyEvents();
-
-  if (code === 'Enter' || code === 'NumpadEnter') {
-    onEnter?.();
-  }
-
-  useClickOutside(overlayReference, () => {
-    if (!isFocused) {
-      return;
-    }
-
-    setIsFocused(false);
-  });
 
   const processValue = useCallback(
-    (value_: string) => {
+    (value_: string | undefined): string => {
+      if (value_ === undefined || value_ === '') {
+        return '';
+      }
       if (dontValidate && !isUrl) return value_;
       // If val is null, empty, or undefined, return it as is
       if (!value_) return value_;
@@ -87,42 +72,23 @@ const TextInput = ({
   // const doShowCopy = (): boolean => showCopy === true && input !== undefined && input !== '';
 
   return (
-    // <div className={placeHolder && !label ? 'flex grid w-full align-items-center' : 'flex grid w-full mt-3 align-items-center'} ref={overlayReference}>
-    //   <span className={placeHolder && !label ? 'col-11 p-input-icon-right' : 'col-11 p-input-icon-right p-float-label'}>
-    //     {doShowClear() && originalInput && (
-    //       <i
-    //         className="pi pi-times-circle"
-    //         hidden={showClear !== true || input === originalInput}
-    //         onClick={() => {
-    //           setInput(originalInput);
-    //           if (onResetClick) {
-    //             onResetClick();
-    //           }
-    //           onChange(originalInput);
-    //         }}
-    //       />
-    //     )}
-    <span className="p-float-label text-xs">
-      <InputText
+    <div className="pt-4">
+      <StringEditor
+        disableDebounce={true}
+        darkBackGround
         autoFocus={autoFocus}
-        className={`w-full ${isValid ? '' : 'p-invalid'}`}
-        id={uuid}
-        onChange={(event) => {
-          setInput(processValue(event.target.value));
-          onChange(processValue(event.target.value));
+        label={label}
+        // className={`w-full ${isValid ? '' : 'p-invalid'}`}
+        // id={uuid}
+        onSave={(value) => {
+          setInput(processValue(value));
+          onChange(processValue(value));
         }}
-        onFocus={() => setIsFocused(true)}
+        showClear
         placeholder={placeHolder}
         value={input}
       />
-      {label && <label htmlFor={uuid}>{label}</label>}
-    </span>
-    //   {/* {doShowCopy() && (
-    //     <div className="col-1 p-0 m-0">
-    //       <CopyButton openCopyWindow={openCopyWindow} value={input} />
-    //     </div>
-    //   )} */}
-    // </div>
+    </div>
   );
 };
 

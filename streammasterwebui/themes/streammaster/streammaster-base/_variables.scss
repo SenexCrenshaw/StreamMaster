@@ -16,16 +16,11 @@ $gridItem-image-height: $gridItem-height - ($gridItem-margin*2) - $input-height;
 $gridItem-image-width: $gridItem-width - ($gridItem-margin*2);
 
 $common-font-size: 0.75rem;
-$input-save-color: green;
-$input-cancel-color: red;
+
 $streamMasterColor: #fe7600 !default;
 
 .blue-header-color {
     color: $blue-header-color;
-}
-
-.header-text-color {
-    color: $headerTextColor;
 }
 
 .layout-padding {
@@ -45,6 +40,11 @@ $streamMasterColor: #fe7600 !default;
 .layout-padding-bottom {
     padding: 0;
     padding-bottom: $layoutPadding;
+}
+
+.layout-padding-bottom-lg {
+    padding: 0;
+    padding-bottom: $layoutPadding*2;
 }
 
 .layout-padding-y {

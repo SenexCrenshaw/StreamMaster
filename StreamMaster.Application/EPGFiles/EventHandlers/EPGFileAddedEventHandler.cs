@@ -18,8 +18,8 @@ public class EPGFileAddedEventHandler : INotificationHandler<EPGFileAddedEvent>
 
     public async Task Handle(EPGFileAddedEvent notification, CancellationToken cancellationToken)
     {
-        await _taskQueue.ProcessEPGFile(notification.Item.Id, cancellationToken).ConfigureAwait(false);
-        await _hubContext.Clients.All.CacheHandler("epgSelector").ConfigureAwait(false);
+        _taskQueue.ProcessEPGFile(notification.Item.Id, cancellationToken).ConfigureAwait(false);
+        //await _hubContext.Clients.All.CacheHandler("epgSelector").ConfigureAwait(false);
         //await _hubContext.Clients.All.ChannelGroupsRefresh().ConfigureAwait(false);
         //await _hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
     }

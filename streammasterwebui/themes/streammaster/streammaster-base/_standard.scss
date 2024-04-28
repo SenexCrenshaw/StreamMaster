@@ -34,8 +34,10 @@ $inlineSpacing: 0.5rem !default;
 $maskBg: rgba(0, 0, 0, 0.4) !default;
 $loadingIconFontSize: 2rem !default;
 //scale
+$scaleXS: 0.75 !default;
 $scaleSM: 0.875 !default;
 $scaleLG: 1.25 !default;
+$scaleXLG: 1.50 !default;
 $focusOutline: 0 none !default;
 $focusOutlineOffset: 0 !default;
 //action icons
@@ -556,9 +558,9 @@ $imagePreviewActionIconBorderRadius: 50% !default;
     --surface-ground-alpha: rgba(14, 19, 21, 0.85
     );
 --surface-section: $surface-section;
---surface-card: #161d21;
---surface-overlay: #161d21;
---surface-border: #263238;
+--surface-card: $bgcolor;
+--surface-overlay: $bgcolor;
+--surface-border: $inputBorderColor;
 --surface-hover: rgba($primaryColor, 0.08);
 --focus-ring: #{$focusShadow};
 --maskbg: #{$maskBg};
