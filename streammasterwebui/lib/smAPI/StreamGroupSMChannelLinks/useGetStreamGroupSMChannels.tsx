@@ -1,10 +1,10 @@
 import { QueryHookResult } from '@lib/apiDefs';
-import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import store, { RootState } from '@lib/redux/store';
-import { FieldData, GetStreamGroupSMChannelsRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
-import { useCallback, useEffect } from 'react';
-import { fetchGetStreamGroupSMChannels } from './GetStreamGroupSMChannelsFetch';
+import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetStreamGroupSMChannelsSlice';
+import { useCallback,useEffect } from 'react';
+import { fetchGetStreamGroupSMChannels } from './GetStreamGroupSMChannelsFetch';
+import {FieldData, SMChannelDto,GetStreamGroupSMChannelsRequest } from '@lib/smAPI/smapiTypes';
 
 interface ExtendedQueryHookResult extends QueryHookResult<SMChannelDto[] | undefined> {}
 interface Result extends ExtendedQueryHookResult {
@@ -27,10 +27,12 @@ const useGetStreamGroupSMChannels = (params?: GetStreamGroupSMChannelsRequest): 
   );
   const ClearByTag = useCallback(
     (tag: string): void => {
-      dispatch(clearByTag({ tag: tag }));
+      dispatch(clearByTag({tag: tag }));
     },
     [dispatch]
   );
+
+
 
   const SetIsLoading = useCallback(
     (isLoading: boolean, param: string): void => {
@@ -39,67 +41,68 @@ const useGetStreamGroupSMChannels = (params?: GetStreamGroupSMChannelsRequest): 
     [dispatch]
   );
 
-  const selectData = (state: RootState) => {
+const selectData = (state: RootState) => {
     if (param === undefined) return undefined;
     return state.GetStreamGroupSMChannels.data[param] || undefined;
   };
-  const data = useAppSelector(selectData);
+const data = useAppSelector(selectData);
 
-  const selectError = (state: RootState) => {
+const selectError = (state: RootState) => {
     if (param === undefined) return undefined;
     return state.GetStreamGroupSMChannels.error[param] || undefined;
   };
-  const error = useAppSelector(selectError);
+const error = useAppSelector(selectError);
 
-  const selectIsError = (state: RootState) => {
+const selectIsError = (state: RootState) => {
     if (param === undefined) return false;
     return state.GetStreamGroupSMChannels.isError[param] || false;
   };
-  const isError = useAppSelector(selectIsError);
+const isError = useAppSelector(selectIsError);
 
-  const selectIsLoading = (state: RootState) => {
+const selectIsLoading = (state: RootState) => {
     if (param === undefined) return false;
     return state.GetStreamGroupSMChannels.isLoading[param] || false;
   };
-  const isLoading = useAppSelector(selectIsLoading);
+const isLoading = useAppSelector(selectIsLoading);
 
-  useEffect(() => {
-    if (param === undefined) return;
-    const state = store.getState().GetStreamGroupSMChannels;
-    if (data === undefined && state.isLoading[param] !== true && state.isForced !== true) {
-      SetIsForced(true);
-    }
-  }, [data, param, SetIsForced]);
 
-  useEffect(() => {
-    const state = store.getState().GetStreamGroupSMChannels;
-    if (params === undefined || param === undefined || param === '{}') return;
-    if (state.isLoading[param]) return;
-    if (data !== undefined && !isForced) return;
+useEffect(() => {
+  if (param === undefined) return;
+  const state = store.getState().GetStreamGroupSMChannels;
+  if (data === undefined && state.isLoading[param] !== true && state.isForced !== true) {
+    SetIsForced(true);
+  }
+}, [data, param, SetIsForced]);
 
-    SetIsLoading(true, param);
-    dispatch(fetchGetStreamGroupSMChannels(params));
-  }, [SetIsLoading, data, dispatch, isForced, param, params]);
+useEffect(() => {
+  const state = store.getState().GetStreamGroupSMChannels;
+  if (params === undefined || param === undefined || param === '{}' ) return;
+  if (state.isLoading[param]) return;
+  if (data !== undefined && !isForced) return;
 
-  const SetField = (fieldData: FieldData): void => {
-    dispatch(setField({ fieldData: fieldData }));
-  };
+  SetIsLoading(true, param);
+  dispatch(fetchGetStreamGroupSMChannels(params));
+}, [SetIsLoading, data, dispatch, isForced, param, params]);
 
-  const Clear = (): void => {
-    dispatch(clear());
-  };
+const SetField = (fieldData: FieldData): void => {
+  dispatch(setField({ fieldData: fieldData }));
+};
 
-  return {
-    Clear,
-    ClearByTag,
-    data,
-    error,
-    isError,
-    isLoading,
-    SetField,
-    SetIsForced,
-    SetIsLoading
-  };
+const Clear = (): void => {
+  dispatch(clear());
+};
+
+return {
+  Clear,
+  ClearByTag,
+  data,
+  error,
+  isError,
+  isLoading,
+  SetField,
+  SetIsForced,
+  SetIsLoading
+};
 };
 
 export default useGetStreamGroupSMChannels;

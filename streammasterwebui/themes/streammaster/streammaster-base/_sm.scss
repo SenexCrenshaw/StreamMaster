@@ -213,3 +213,27 @@
 .channelGroupSelector {
     @extend .epgSelector;
 }
+
+.sm-channel-menu {
+    @include datatable-text-style();
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-bottom: 1rem !important;
+    padding-top: 1rem !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+}
+
+.sm-menu-item {
+    padding: 0.25rem;
+
+    &:hover {
+        // border-color: $inputHoverBorderColor;
+        // background: $inputOverlayBg;
+
+        background: $carouselIndicatorHoverBg !important;
+        // border: $inputBorder-size solid $inputHoverBorderColor;
+        border-radius: $borderRadius;
+    }
+}

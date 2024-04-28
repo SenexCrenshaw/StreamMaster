@@ -6970,6 +6970,11 @@
   border-color: #263238;
 }
 
+#startNumber > input {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
 .autoUpdate .p-inputtext {
   max-width: 6.4rem;
 }
@@ -7041,7 +7046,7 @@
   width: 1.6rem;
 }
 
-.input-border, .p-multiselect, .sm-epg-editor-panel .p-dropdown-filter-container, .sm-channelgroup-editor-panel .p-dropdown-filter-container {
+.input-border, .p-multiselect, .sm-epg-editor-panel .p-dropdown-filter-container, .sm-channelgroup-editor-panel .p-dropdown-filter-container, #startNumber > input {
   border: 0.1rem solid #263238;
   border-radius: 6px;
 }
@@ -7280,6 +7285,32 @@
   border-radius: 0;
   display: flex;
   align-items: center;
+}
+
+.sm-channel-menu {
+  padding-left: 0.1rem !important;
+  padding-top: 0.1rem !important;
+  padding-bottom: 0.1rem !important;
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  height: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-bottom: 1rem !important;
+  padding-top: 1rem !important;
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+}
+
+.sm-menu-item {
+  padding: 0.25rem;
+}
+.sm-menu-item:hover {
+  background: #374851 !important;
+  border-radius: 6px;
 }
 
 .sm-card {

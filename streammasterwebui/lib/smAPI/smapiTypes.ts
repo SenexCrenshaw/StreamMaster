@@ -309,6 +309,13 @@ export interface GetPagedStreamGroupsRequest
 export interface GetStreamGroupsRequest
 {
 }
+export interface AutoSetSMChannelNumbersRequest
+{
+	overWriteExisting: boolean;
+	Parameters: QueryStringParameters;
+	startingNumber: number;
+	streamGroupId: number;
+}
 export interface CreateStreamGroupRequest
 {
 	Name: string;

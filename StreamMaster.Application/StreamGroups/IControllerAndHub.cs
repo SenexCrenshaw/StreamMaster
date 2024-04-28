@@ -8,6 +8,7 @@ namespace StreamMaster.Application.StreamGroups
     {        
         Task<ActionResult<PagedResponse<StreamGroupDto>>> GetPagedStreamGroups(QueryStringParameters Parameters);
         Task<ActionResult<List<StreamGroupDto>>> GetStreamGroups();
+        Task<ActionResult<APIResponse>> AutoSetSMChannelNumbers(AutoSetSMChannelNumbersRequest request);
         Task<ActionResult<APIResponse>> CreateStreamGroup(CreateStreamGroupRequest request);
         Task<ActionResult<APIResponse>> DeleteStreamGroup(DeleteStreamGroupRequest request);
     }
@@ -19,6 +20,7 @@ namespace StreamMaster.Application.Hubs
     {
         Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(QueryStringParameters Parameters);
         Task<List<StreamGroupDto>> GetStreamGroups();
+        Task<APIResponse> AutoSetSMChannelNumbers(AutoSetSMChannelNumbersRequest request);
         Task<APIResponse> CreateStreamGroup(CreateStreamGroupRequest request);
         Task<APIResponse> DeleteStreamGroup(DeleteStreamGroupRequest request);
     }

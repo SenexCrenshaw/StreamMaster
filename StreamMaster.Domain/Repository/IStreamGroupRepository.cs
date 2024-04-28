@@ -21,5 +21,7 @@ namespace StreamMaster.Domain.Repository
         Task<int?> DeleteStreamGroup(int streamGroupId);
 
         IQueryable<StreamGroup> GetStreamGroupQuery();
+        Task<IdIntResultWithResponse> AutoSetSMChannelNumbers(int streamGroupId, int startingNumber, bool overWriteExisting, QueryStringParameters Parameters);
+
     }
 }

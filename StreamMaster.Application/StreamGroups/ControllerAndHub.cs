@@ -31,6 +31,14 @@ namespace StreamMaster.Application.StreamGroups.Controllers
             }
         }
 
+        [HttpPatch]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> AutoSetSMChannelNumbers(AutoSetSMChannelNumbersRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
         [HttpPost]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse>> CreateStreamGroup(CreateStreamGroupRequest request)
@@ -64,6 +72,12 @@ namespace StreamMaster.Application.Hubs
         {
              DataResponse<List<StreamGroupDto>> ret = await Sender.Send(new GetStreamGroupsRequest()).ConfigureAwait(false);
             return ret.Data;
+        }
+
+        public async Task<APIResponse> AutoSetSMChannelNumbers(AutoSetSMChannelNumbersRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
         }
 
         public async Task<APIResponse> CreateStreamGroup(CreateStreamGroupRequest request)

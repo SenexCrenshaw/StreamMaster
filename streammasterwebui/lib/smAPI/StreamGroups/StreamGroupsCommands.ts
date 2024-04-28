@@ -1,5 +1,5 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,CreateStreamGroupRequest,DeleteStreamGroupRequest,StreamGroupDto,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
+import { APIResponse,AutoSetSMChannelNumbersRequest,CreateStreamGroupRequest,DeleteStreamGroupRequest,StreamGroupDto,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const GetPagedStreamGroups = async (parameters: QueryStringParameters): Promise<PagedResponse<StreamGroupDto> | undefined> => {
   const signalRService = SignalRService.getInstance();
@@ -9,6 +9,11 @@ export const GetPagedStreamGroups = async (parameters: QueryStringParameters): P
 export const GetStreamGroups = async (): Promise<StreamGroupDto[] | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<StreamGroupDto[]>('GetStreamGroups');
+};
+
+export const AutoSetSMChannelNumbers = async (request: AutoSetSMChannelNumbersRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('AutoSetSMChannelNumbers', request);
 };
 
 export const CreateStreamGroup = async (request: CreateStreamGroupRequest): Promise<APIResponse | undefined> => {

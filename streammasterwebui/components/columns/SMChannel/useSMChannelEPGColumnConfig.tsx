@@ -107,10 +107,10 @@ export const useSMChannelEPGColumnConfig = () => {
     filter: true,
     filterElement: filterTemplate,
     header: 'EPG',
-    maxWidth: '14rem',
-    minWidth: '14rem',
+    maxWidth: '8rem',
+    minWidth: '8rem',
     sortable: true,
-    width: '14rem'
+    width: '8rem'
   };
 
   return columnConfig;

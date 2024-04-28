@@ -7,7 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Configuration;
+using StreamMaster.Domain.Filtering;
 
+using System.Text.Json;
 using System.Web;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
@@ -197,4 +199,45 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         return FirstOrDefault(a => a.Id == streamGrouId, tracking: false);
     }
 
+    public async Task<IdIntResultWithResponse> AutoSetSMChannelNumbers(int streamGroupId, int startingNumber, bool overWriteExisting, QueryStringParameters Parameters)
+    {
+        var ret = new IdIntResultWithResponse();
+
+        if (string.IsNullOrEmpty(Parameters.JSONFiltersString))
+        {
+            ret.APIResponse = APIResponse.ErrorWithMessage("JSONFiltersString null");
+            return ret;
+        }
+        var streamGroup = await GetQuery(true).FirstOrDefaultAsync(a => a.Id == streamGroupId);
+        if (streamGroup == null)
+        {
+            ret.APIResponse = APIResponse.ErrorWithMessage("Stream Group not found");
+            return ret;
+        }
+
+
+        List<DataTableFilterMetaData>? filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(Parameters.JSONFiltersString);
+        var channels = FilterHelper<SMChannel>.ApplyFiltersAndSort(streamGroup.SMChannels.Select(a => a.SMChannel).AsQueryable(), filters, Parameters.OrderBy, true);
+
+        ConcurrentHashSet<int> existingNumbers = [];
+        existingNumbers.UnionWith(streamGroup.SMChannels.Select(a => a.SMChannel.ChannelNumber).Distinct());
+
+        foreach (var channel in channels)
+        {
+            channel.ChannelNumber = ++startingNumber;
+            RepositoryContext.SMChannels.Update(channel);
+            ret.Add(new IdIntResult { Id = channel.Id, Result = channel });
+        }
+
+        await RepositoryContext.SaveChangesAsync();
+
+        return ret;
+    }
+
+    public override IQueryable<StreamGroup> GetQuery(bool tracking = false)
+    {
+        return tracking
+            ? base.GetQuery(tracking).Include(a => a.SMChannels).ThenInclude(a => a.SMChannel)
+            : base.GetQuery(tracking).Include(a => a.SMChannels).ThenInclude(a => a.SMChannel).AsNoTracking();
+    }
 }

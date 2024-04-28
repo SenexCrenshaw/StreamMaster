@@ -1,12 +1,12 @@
 import SMChannelNumberEditor from '@components/smchannels/SMChannelNumberEditor';
-import createSMChannelMultiSelectColumnConfigHook from './createSMChannelMultiSelectColumnConfigHook';
+import createSMChannelMultiSelectColumnConfigHook from '../createSMChannelMultiSelectColumnConfigHook';
 
 export const useSMChannelNumberColumnConfig = createSMChannelMultiSelectColumnConfigHook({
   dataField: 'ChannelNumber',
   EditorComponent: SMChannelNumberEditor,
-  headerTitle: 'Ch.',
-  maxWidth: 18,
+  headerTitle: '#',
+  maxWidth: 3,
   sortable: true,
-  useFilter: false,
-  width: 4
+  // useFilter: false,
+  width: 3
 });

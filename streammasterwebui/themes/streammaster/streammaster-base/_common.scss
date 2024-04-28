@@ -221,6 +221,12 @@
     }
 }
 
+#startNumber>input {
+    @extend .input-border;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
 .stringeditorbody-inputtext {
     @extend .sm-input;
     // background-color: transparent !important;

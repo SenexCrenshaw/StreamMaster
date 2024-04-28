@@ -56,10 +56,8 @@ export const useSMChannelGroupColumnConfig = () => {
     filter: true,
     filterElement: filterTemplate,
     header: 'Group',
-    maxWidth: '14rem',
-    minWidth: '14rem',
-    sortable: true,
-    width: '14rem'
+    maxWidth: '10rem',
+    sortable: true
   };
 
   return columnConfig;

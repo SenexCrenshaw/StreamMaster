@@ -23,7 +23,7 @@ public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMes
         Repository.StreamGroup.CreateStreamGroup(streamGroup);
         await Repository.SaveAsync();
 
-        await hubContext.Clients.All.DataRefresh(StreamGroup.MainGet).ConfigureAwait(false);
+        await hubContext.Clients.All.DataRefresh("StreamGroups").ConfigureAwait(false);
 
         await messageService.SendSuccess("Stream Group '" + request.Name + "' added successfully");
         return APIResponse.Ok;

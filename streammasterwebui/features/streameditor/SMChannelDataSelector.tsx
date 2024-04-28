@@ -1,17 +1,18 @@
-import { useSMChannelLogoColumnConfig } from '@components/columns/useSMChannelLogoColumnConfig';
-import { useSMChannelNameColumnConfig } from '@components/columns/useSMChannelNameColumnConfig';
-import { useSMChannelNumberColumnConfig } from '@components/columns/useSMChannelNumberColumnConfig';
+import { useSMChannelEPGColumnConfig } from '@components/columns/SMChannel/useSMChannelEPGColumnConfig';
+import { useSMChannelGroupColumnConfig } from '@components/columns/SMChannel/useSMChannelGroupColumnConfig';
+import { useSMChannelLogoColumnConfig } from '@components/columns/SMChannel/useSMChannelLogoColumnConfig';
+import { useSMChannelNameColumnConfig } from '@components/columns/SMChannel/useSMChannelNameColumnConfig';
+import { useSMChannelNumberColumnConfig } from '@components/columns/SMChannel/useSMChannelNumberColumnConfig';
+import { useSMChannelSGColumnConfig } from '@components/columns/SMChannel/useSMChannelSGColumnConfig';
 
 import BaseButton from '@components/buttons/BaseButton';
 
-import { useSMChannelEPGColumnConfig } from '@components/columns/useSMChannelEPGColumnConfig';
-import { useSMChannelGroupColumnConfig } from '@components/columns/useSMChannelGroupColumnConfig';
-import { useSMChannelSGColumnConfig } from '@components/columns/useSMChannelSGColumnConfig';
 import EPGFilesButton from '@components/epgFiles/EPGFilesButton';
 import { SMPopUp } from '@components/sm/SMPopUp';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import SMChannelMenu from '@components/smchannels/SMChannelMenu';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamGroupButton from '@components/streamGroup/StreamGroupButton';
 import { GetMessage } from '@lib/common/common';
@@ -32,6 +33,7 @@ interface SMChannelDataSelectorProperties {
 
 const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: SMChannelDataSelectorProperties) => {
   const dataKey = `${id}-SMChannelDataSelector`;
+
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
 
@@ -138,7 +140,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
 
           <BaseButton className="button-red" icon="pi pi-times" rounded onClick={() => {}} />
           <BaseButton className="button-yellow" icon="pi-plus" rounded onClick={() => {}} />
-          <BaseButton className="button-orange" icon="pi pi-bars" rounded onClick={() => {}} />
+          <SMChannelMenu />
           {/* <TriSelectShowHidden dataKey={dataKey} /> */}
           {/* <TriSelectShowHidden dataKey={dataKey} />
         <VideoStreamSetTimeShiftsDialog id={dataKey} />
@@ -161,65 +163,8 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
     return name;
   }, []);
 
-  // const addOrRemoveTemplate = useCallback((data: any) => {
-  //   // if (selectedSMChannel?.Name === undefined) {
-  //   //   return;
-  //   // }
-  //   // const found = smChannelStreamsData?.some((item) => item.Id === data.Id) ?? false;
-
-  //   // let toolTip = 'Add Channel';
-
-  //   // toolTip = 'Remove Stream From "' + selectedSMChannel.Name + '"';
-  //   // if (found)
-  //   //   return (
-  //   //     <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-  //   //       <MinusButton
-  //   //         iconFilled={false}
-  //   //         onClick={() => {
-  //   //           if (!data.Id || selectedSMChannel === undefined) {
-  //   //             return;
-  //   //           }
-  //   //           const request: RemoveSMStreamFromSMChannelRequest = { SMChannelId: selectedSMChannel.Id, SMStreamId: data.Id };
-  //   //           // RemoveSMStreamFromSMChannel(request)
-  //   //           //   .then((response) => {
-  //   //           //     console.log('Remove Stream', response);
-  //   //           //   })
-  //   //           //   .catch((error) => {
-  //   //           //     console.error('Remove Stream', error.message);
-  //   //           //   });
-  //   //         }}
-  //   //         tooltip={toolTip}
-  //   //       />
-  //   //     </div>
-  //   //   );
-
-  //   return (
-  //     <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-  //       <AddButton
-  //         iconFilled={false}
-  //         onClick={() => {
-  //           // AddSMStreamToSMChannel({ SMChannelId: selectedSMChannel?.Id ?? 0, SMStreamId: data.Id })
-  //           //   .then((response) => {})
-  //           //   .catch((error) => {
-  //           //     console.error(error.message);
-  //           //     throw error;
-  //           //   });
-  //         }}
-  //       />
-
-  //       {/* {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />} */}
-  //     </div>
-  //   );
-  // }, []);
-
-  // function addOrRemoveHeaderTemplate() {
-  //   return <TriSelectShowHidden dataKey={dataKey} />;
-  // }
-
   return (
     <SMDataTable
-      // addOrRemoveTemplate={addOrRemoveTemplate}
-      // addOrRemoveHeaderTemplate={addOrRemoveHeaderTemplate}
       columns={columns}
       enableClick
       selectRow

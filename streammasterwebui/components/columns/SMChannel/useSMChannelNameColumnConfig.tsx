@@ -1,5 +1,5 @@
 import SMChannelNameEditor from '@components/smchannels/SMChannelNameEditor';
-import createSMChannelMultiSelectColumnConfigHook from './createSMChannelMultiSelectColumnConfigHook';
+import createSMChannelMultiSelectColumnConfigHook from '../createSMChannelMultiSelectColumnConfigHook';
 
 export const useSMChannelNameColumnConfig = createSMChannelMultiSelectColumnConfigHook({
   dataField: 'Name',
