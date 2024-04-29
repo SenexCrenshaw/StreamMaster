@@ -87,7 +87,7 @@ const M3UFilesDataSelector = () => {
     return <div>{formatJSONDateString(rowData.LastDownloaded ?? '')}</div>;
   }, []);
 
-  const nameEditorBodyTemplate = useCallback(
+  const nameEditorTemplate = useCallback(
     (rowData: M3UFileDto) => {
       if (rowData.Id === 0) {
         return <div>{rowData.Name}</div>;
@@ -95,7 +95,6 @@ const M3UFilesDataSelector = () => {
 
       return (
         <StringEditor
-          // showClear
           onSave={async (e) => {
             await onM3UUpdateClick({ id: rowData.Id, name: e });
           }}
@@ -130,7 +129,7 @@ const M3UFilesDataSelector = () => {
   const columns = useMemo(
     (): ColumnMeta[] => [
       {
-        bodyTemplate: nameEditorBodyTemplate,
+        bodyTemplate: nameEditorTemplate,
         field: 'Name',
         header: 'Name',
         sortable: true,
@@ -157,7 +156,7 @@ const M3UFilesDataSelector = () => {
         width: '6rem'
       }
     ],
-    [nameEditorBodyTemplate, lastDownloadedTemplate, stationCountTemplate, actionTemplate]
+    [nameEditorTemplate, lastDownloadedTemplate, stationCountTemplate, actionTemplate]
   );
 
   return (

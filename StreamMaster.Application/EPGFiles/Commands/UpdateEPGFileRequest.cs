@@ -1,6 +1,4 @@
-﻿using StreamMaster.Application.VideoStreams.Commands;
-
-namespace StreamMaster.Application.EPGFiles.Commands;
+﻿namespace StreamMaster.Application.EPGFiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -96,16 +94,27 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
             _ = await Repository.SaveAsync().ConfigureAwait(false);
             epgFile.WriteJSON(logger);
 
-            if (oldEPGNumber != null && request.EPGNumber != null)
+            //if (oldEPGNumber != null && request.EPGNumber != null)
+            //{
+            //    await Sender.Send(new VideoStreamChangeEPGNumberRequest((int)oldEPGNumber, (int)request.EPGNumber), cancellationToken).ConfigureAwait(false);
+            //}
+
+            if (ret.Count > 0)
             {
-                await Sender.Send(new VideoStreamChangeEPGNumberRequest((int)oldEPGNumber, (int)request.EPGNumber), cancellationToken).ConfigureAwait(false);
+                await HubContext.Clients.All.SetField(ret).ConfigureAwait(false);
             }
 
             if (isNameChanged)
             {
-                await HubContext.Clients.All.DataRefresh("GetEPGFiles");
+                //var a = await Repository.EPGFile.ProcessEPGFile(request.Id).ConfigureAwait(false);
 
-                await Publisher.Publish(new EPGFileAddedEvent(Mapper.Map<EPGFileDto>(epgFile)), cancellationToken).ConfigureAwait(false);
+
+                await HubContext.Clients.All.DataRefresh("GetEPGFiles");
+                await HubContext.Clients.All.DataRefresh(EPGFile.MainGet).ConfigureAwait(false);
+                await HubContext.Clients.All.DataRefresh("GetStationChannelNames").ConfigureAwait(false);
+                await HubContext.Clients.All.DataRefresh("EPG").ConfigureAwait(false);
+
+                //await Publisher.Publish(new EPGFileAddedEvent(Mapper.Map<EPGFileDto>(epgFile)), cancellationToken).ConfigureAwait(false);
             }
 
             if (isColorChanged)
@@ -115,10 +124,7 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
                 await HubContext.Clients.All.DataRefresh("GetEPGColors");
             }
 
-            if (ret.Count > 0)
-            {
-                await HubContext.Clients.All.SetField(ret).ConfigureAwait(false);
-            }
+
 
             jobManager.SetSuccessful();
             return APIResponse.Success;

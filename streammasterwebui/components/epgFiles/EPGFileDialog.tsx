@@ -3,8 +3,8 @@ import ResetButton from '@components/buttons/ResetButton';
 import SaveButton from '@components/buttons/SaveButton';
 import NumberInput from '@components/inputs/NumberInput';
 import StringEditor from '@components/inputs/StringEditor';
-
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
+
 import { EPGFileDto, UpdateEPGFileRequest, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
 import React, { useCallback, useEffect, useMemo } from 'react';
 
@@ -26,7 +26,6 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
   } as EPGFileDto;
 
   const { code } = useScrollAndKeyEvents();
-
   const [epgFileDto, setEPGFileDto] = React.useState<EPGFileDto>(defaultValues);
   const [originalEPGFileDto, setOriginalEPGFileDto] = React.useState<EPGFileDto | undefined>(undefined);
   const [request, setRequest] = React.useState<UpdateEPGFileRequest>({} as UpdateEPGFileRequest);
@@ -49,35 +48,41 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
     [epgFileDto, onEPGChanged, request]
   );
 
-  const setEPGNumber = (value: number) => {
-    if (epgFileDto && epgFileDto.EPGNumber !== value) {
-      const epgFileDtoCopy = { ...epgFileDto };
-      epgFileDtoCopy.EPGNumber = value;
-      setEPGFileDto(epgFileDtoCopy);
+  const setEPGNumber = useCallback(
+    (value: number) => {
+      if (epgFileDto && epgFileDto.EPGNumber !== value) {
+        const epgFileDtoCopy = { ...epgFileDto };
+        epgFileDtoCopy.EPGNumber = value;
+        setEPGFileDto(epgFileDtoCopy);
 
-      const requestCopy = { ...request };
-      requestCopy.Id = epgFileDtoCopy.Id;
-      requestCopy.EPGNumber = value;
-      setRequest(requestCopy);
+        const requestCopy = { ...request };
+        requestCopy.Id = epgFileDtoCopy.Id;
+        requestCopy.EPGNumber = value;
+        setRequest(requestCopy);
 
-      onEPGChanged && onEPGChanged(epgFileDtoCopy);
-    }
-  };
+        onEPGChanged && onEPGChanged(epgFileDtoCopy);
+      }
+    },
+    [epgFileDto, onEPGChanged, request]
+  );
 
-  const setHoursToUpdate = (value: number) => {
-    if (epgFileDto && epgFileDto.HoursToUpdate !== value) {
-      const epgFileDtoCopy = { ...epgFileDto };
-      epgFileDtoCopy.HoursToUpdate = value;
-      setEPGFileDto(epgFileDtoCopy);
+  const setHoursToUpdate = useCallback(
+    (value: number) => {
+      if (epgFileDto && epgFileDto.HoursToUpdate !== value) {
+        const epgFileDtoCopy = { ...epgFileDto };
+        epgFileDtoCopy.HoursToUpdate = value;
+        setEPGFileDto(epgFileDtoCopy);
 
-      const requestCopy = { ...request };
-      requestCopy.Id = epgFileDtoCopy.Id;
-      requestCopy.HoursToUpdate = value;
-      setRequest(requestCopy);
+        const requestCopy = { ...request };
+        requestCopy.Id = epgFileDtoCopy.Id;
+        requestCopy.HoursToUpdate = value;
+        setRequest(requestCopy);
 
-      onEPGChanged && onEPGChanged(epgFileDtoCopy);
-    }
-  };
+        onEPGChanged && onEPGChanged(epgFileDtoCopy);
+      }
+    },
+    [epgFileDto, onEPGChanged, request]
+  );
 
   const setName = useCallback(
     (value: string) => {
@@ -97,20 +102,23 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
     [epgFileDto, onEPGChanged, request]
   );
 
-  const setTimeShift = (value: number) => {
-    if (epgFileDto && epgFileDto.TimeShift !== value) {
-      const epgFileDtoCopy = { ...epgFileDto };
-      epgFileDtoCopy.TimeShift = value;
-      setEPGFileDto(epgFileDtoCopy);
+  const setTimeShift = useCallback(
+    (value: number) => {
+      if (epgFileDto && epgFileDto.TimeShift !== value) {
+        const epgFileDtoCopy = { ...epgFileDto };
+        epgFileDtoCopy.TimeShift = value;
+        setEPGFileDto(epgFileDtoCopy);
 
-      const requestCopy = { ...request };
-      requestCopy.Id = epgFileDtoCopy.Id;
-      requestCopy.TimeShift = value;
-      setRequest(requestCopy);
+        const requestCopy = { ...request };
+        requestCopy.Id = epgFileDtoCopy.Id;
+        requestCopy.TimeShift = value;
+        setRequest(requestCopy);
 
-      onEPGChanged && onEPGChanged(epgFileDtoCopy);
-    }
-  };
+        onEPGChanged && onEPGChanged(epgFileDtoCopy);
+      }
+    },
+    [epgFileDto, onEPGChanged, request]
+  );
 
   const isSaveEnabled = useMemo(() => {
     if (epgFileDto.Color !== originalEPGFileDto?.Color) {
@@ -177,8 +185,12 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
               autoFocus
               label="NAME"
               value={epgFileDto?.Name}
-              onChange={(e) => e && setName(e)}
-              onSave={(e) => {}}
+              onChange={(e) => {
+                e && setName(e);
+              }}
+              onSave={(e) => {
+                // e && setName(e);
+              }}
             />
           </div>
           <div className="w-2">

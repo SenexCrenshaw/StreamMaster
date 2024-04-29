@@ -2,6 +2,7 @@ import { useClickOutside } from 'primereact/hooks';
 
 import { FloatLabel } from 'primereact/floatlabel';
 
+import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { InputText } from 'primereact/inputtext';
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -31,7 +32,7 @@ export interface StringEditorBodyTemplateProperties {
 
 const StringEditor = ({
   autoFocus,
-  disableDebounce,
+  disableDebounce = false,
   debounceMs,
   isLoading,
   label,
@@ -55,98 +56,77 @@ const StringEditor = ({
 
   const [originalValue, setOriginalValue] = useState<string | undefined>(undefined);
   const [inputValue, setInputValue] = useState<string | undefined>('');
+  const { code } = useScrollAndKeyEvents();
 
-  const debounced = useDebouncedCallback(
-    useCallback(
-      (value: string) => {
-        if (value !== originalValue && isLoading !== true) {
-          setInputValue(value);
-          // setOriginalValue(value);
-          onSave && onSave(value);
-          setOriginalValue(undefined);
-        }
-      },
-      [isLoading, onSave, originalValue]
-    ),
-    debounceMs ? debounceMs : 1500,
-    {}
-  );
+  const [ignoreSave, setIgnoreSave] = useState<boolean>(false);
 
   const save = useCallback(
     (forceValueSave?: string | undefined) => {
       if (isLoading === true || (forceValueSave === undefined && (inputValue === undefined || inputValue === originalValue))) {
         return;
       }
-      //setOriginalValue(undefined);
-      debounced.cancel();
       if (forceValueSave === undefined) {
-        // setOriginalValue(inputValue);
         onSave(inputValue);
       } else {
-        // setOriginalValue(forceValueSave);
         onSave(forceValueSave);
       }
     },
-    [debounced, inputValue, isLoading, onSave, originalValue]
+    [inputValue, isLoading, onSave, originalValue]
   );
 
-  // Keyboard Enter
-  useEffect(() => {
-    const callback = (event: KeyboardEvent) => {
-      if (!isFocused) {
-        return;
-      }
+  const debounced = useDebouncedCallback(
+    useCallback(
+      (newValue: string) => {
+        if (newValue !== originalValue && isLoading !== true) {
+          save(newValue);
+        }
+      },
+      [isLoading, originalValue, save]
+    ),
+    debounceMs ? debounceMs : 1500,
+    {}
+  );
 
-      if (event.code === 'Enter' || event.code === 'NumpadEnter') {
+  const needsSave = useMemo(() => {
+    return inputValue !== '' && originalValue !== inputValue;
+  }, [inputValue, originalValue]);
+
+  useEffect(() => {
+    if (code === 'Enter' || code === 'NumpadEnter') {
+      if (needsSave && !ignoreSave) {
+        debounced.cancel();
+        setIgnoreSave(true);
         save();
       }
-    };
-
-    document.addEventListener('keydown', callback);
-
-    return () => {
-      document.removeEventListener('keydown', callback);
-    };
-  }, [isFocused, save]);
+    }
+  }, [code, debounced, ignoreSave, needsSave, save]);
 
   useClickOutside(overlayReference, () => {
     if (!isFocused) {
       return;
     }
-
     setIsFocused(false);
-
-    if (originalValue !== inputValue) {
+    if (disableDebounce !== undefined && disableDebounce !== true && originalValue !== inputValue && !ignoreSave) {
+      setIgnoreSave(true);
       save();
     }
   });
 
-  if (value === 'PIA') {
-    console.log('y');
-  }
   useEffect(() => {
-    if (isLoading !== true && value !== undefined && value !== '' && (originalValue === undefined || value !== inputValue)) {
-      if (inputValue !== '') {
-        setInputValue(inputValue);
-        if (originalValue === undefined) {
-          setOriginalValue(inputValue);
-        }
-      } else {
+    if (isLoading !== true && value !== undefined && value !== '' && originalValue !== value) {
+      if (value !== inputValue) {
         setInputValue(value);
-        if (originalValue === undefined) {
-          setOriginalValue(value);
+        setOriginalValue(value);
+      }
+      setIgnoreSave(false);
+    } else if (value !== undefined && value !== '' && originalValue !== undefined && originalValue !== '') {
+      if (value === originalValue && value !== inputValue) {
+        if (disableDebounce !== undefined && disableDebounce === true) {
+          setInputValue(value);
         }
       }
     }
-    // else {
-    //   setInputValue('');
-    //   setOriginalValue('');
-    // }
-  }, [isLoading, value, originalValue, inputValue]);
-
-  const needsSave = useMemo(() => {
-    return originalValue !== inputValue;
-  }, [inputValue, originalValue]);
+  }, [disableDebounce, inputValue, isLoading, originalValue, value]);
 
   const getDiv = useMemo(() => {
     let ret = 'stringeditorbody-inputtext';
@@ -163,8 +143,6 @@ const StringEditor = ({
   }, [needsSave, border, darkBackGround]);
 
   const doShowClear = (): boolean => showClear === true && disableDebounce === true && originalValue !== undefined && inputValue !== originalValue;
-  // if (showClear)
-  //   console.log('StringEditorBodyTemplate', 'showClear', showClear, 'originalValue', originalValue, 'inputValue', inputValue, 'value', value, doShowClear());
   return (
     <div className={label ? 'pt-4' : ''} ref={overlayReference}>
       {/* {isFocused && resetValue !== undefined && resetValue !== inputValue && (
@@ -188,46 +166,44 @@ const StringEditor = ({
       {/* {showSave && needsSave && <i className="absolute right-0 pt-1 pi pi-save pr-2 text-500" />} */}
 
       <FloatLabel>
-        <>
-          <span className="flex align-items-center">
-            {doShowClear() && (
-              <i
-                className="pi pi-times-circle icon-yellow absolute right-0 pr-1"
-                hidden={showClear !== true || value === originalValue}
-                onClick={() => {
-                  setInputValue(originalValue);
-                  // if (onResetClick) {
-                  //   onResetClick();
-                  // }
-                  // onChange(originalValue);
-                  onChange && onChange(originalValue);
-                }}
-              />
-            )}
-            <InputText
-              className={getDiv}
-              id={uuid}
-              autoFocus={autoFocus}
-              onChange={(e) => {
-                setInputValue(e.target.value as string);
-                if (disableDebounce !== true) {
-                  debounced(e.target.value as string);
-                } else {
-                  onChange && onChange(e.target.value as string);
-                }
-              }}
+        <span className="flex align-items-center">
+          {doShowClear() && (
+            <i
+              className="pi pi-times-circle icon-yellow absolute right-0 pr-1"
+              hidden={showClear !== true || value === originalValue}
               onClick={() => {
-                onClick?.();
+                setInputValue(originalValue);
+                // if (onResetClick) {
+                //   onResetClick();
+                // }
+                onChange && onChange(originalValue);
               }}
-              onFocus={() => setIsFocused(true)}
-              placeholder={placeholder}
-              tooltip={tooltip}
-              tooltipOptions={tooltipOptions}
-              value={inputValue}
             />
-          </span>
-        </>
-        {label && <label htmlFor={uuid}>{label}</label>}
+          )}
+          <InputText
+            className={getDiv}
+            id={uuid}
+            autoFocus={autoFocus}
+            onChange={(e) => {
+              setInputValue(e.target.value as string);
+              if (disableDebounce !== true) {
+                debounced(e.target.value as string);
+              } else {
+                onChange && onChange(e.target.value as string);
+              }
+            }}
+            onClick={() => {
+              onClick?.();
+            }}
+            onFocus={() => setIsFocused(true)}
+            placeholder={placeholder}
+            tooltip={tooltip}
+            tooltipOptions={tooltipOptions}
+            value={inputValue}
+          />
+        </span>
+
+        <label htmlFor={uuid}>{label}</label>
       </FloatLabel>
     </div>
   );

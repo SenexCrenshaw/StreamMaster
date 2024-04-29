@@ -90,7 +90,7 @@ const EPGFilesDataSelector = () => {
     return <div className="flex justify-content-center ">{formatJSONDateString(rowData.LastDownloaded ?? '')}</div>;
   }, []);
 
-  const nameEditorBodyTemplate = useCallback(
+  const nameEditorTemplate = useCallback(
     (rowData: EPGFileDto) => {
       if (rowData.Id === 0) {
         return (
@@ -178,7 +178,7 @@ const EPGFilesDataSelector = () => {
         width: '4rem'
       },
       {
-        bodyTemplate: nameEditorBodyTemplate,
+        bodyTemplate: nameEditorTemplate,
         field: 'name',
         filter: true,
         header: 'Name',
@@ -211,7 +211,7 @@ const EPGFilesDataSelector = () => {
         width: '6rem'
       }
     ],
-    [colorTemplate, nameEditorBodyTemplate, lastDownloadedTemplate, channelCountTemplate, programmeCountTemplate, actionTemplate]
+    [colorTemplate, nameEditorTemplate, lastDownloadedTemplate, channelCountTemplate, programmeCountTemplate, actionTemplate]
   );
 
   return (
