@@ -62,16 +62,17 @@ const StringEditor = ({
 
   const save = useCallback(
     (forceValueSave?: string | undefined) => {
-      if (isLoading === true || (forceValueSave === undefined && (inputValue === undefined || inputValue === originalValue))) {
-        return;
-      }
+      setIgnoreSave(true);
+      // if (isLoading === true || (forceValueSave === undefined && (inputValue === undefined || inputValue === originalValue))) {
+      //   return;
+      // }
       if (forceValueSave === undefined) {
         onSave(inputValue);
       } else {
         onSave(forceValueSave);
       }
     },
-    [inputValue, isLoading, onSave, originalValue]
+    [inputValue, onSave]
   );
 
   const debounced = useDebouncedCallback(
@@ -95,7 +96,6 @@ const StringEditor = ({
     if (code === 'Enter' || code === 'NumpadEnter') {
       if (needsSave && !ignoreSave) {
         debounced.cancel();
-        setIgnoreSave(true);
         save();
       }
     }
@@ -107,7 +107,6 @@ const StringEditor = ({
     }
     setIsFocused(false);
     if (disableDebounce !== undefined && disableDebounce !== true && originalValue !== inputValue && !ignoreSave) {
-      setIgnoreSave(true);
       save();
     }
   });
@@ -118,7 +117,6 @@ const StringEditor = ({
         setInputValue(value);
         setOriginalValue(value);
       }
-      setIgnoreSave(false);
     } else if (value !== undefined && value !== '' && originalValue !== undefined && originalValue !== '') {
       if (value === originalValue && value !== inputValue) {
         if (disableDebounce !== undefined && disableDebounce === true) {
@@ -126,6 +124,7 @@ const StringEditor = ({
         }
       }
     }
+    setIgnoreSave(false);
   }, [disableDebounce, inputValue, isLoading, originalValue, value]);
 
   const getDiv = useMemo(() => {
