@@ -16,12 +16,7 @@ import useGetIsSystemReady from '@lib/smAPI/Settings/useGetIsSystemReady';
 import { Checkbox } from 'primereact/checkbox';
 import { Dropdown } from 'primereact/dropdown';
 
-import { SMCard } from '@components/sm/SMCard';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
-import { Button } from 'primereact/button';
-import { Card } from 'primereact/card';
-import { confirmPopup } from 'primereact/confirmpopup';
-import { ListBox } from 'primereact/listbox';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Tooltip } from 'primereact/tooltip';
 import { classNames } from 'primereact/utils';
@@ -29,7 +24,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 type EPGResult = { epgNumber: number; stationId: string };
 
-type EPGSelectorProperties = {
+type EPGSelectorNewProperties = {
   readonly enableEditMode?: boolean;
   readonly disabled?: boolean;
   readonly editable?: boolean | undefined;
@@ -37,10 +32,10 @@ type EPGSelectorProperties = {
   readonly onChange?: (value: string) => void;
 };
 
-const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChange }: EPGSelectorProperties) => {
+const EPGSelectorNew = ({ enableEditMode = true, value, disabled, editable, onChange }: EPGSelectorNewProperties) => {
   const dropDownRef = useRef<Dropdown>(null);
 
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<EPGFileDto>('EPGSelector-EPGFiles');
+  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<EPGFileDto>('EPGSelectorNew-EPGFiles');
 
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
@@ -133,7 +128,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
       const color = getColor(option.EPGNumber);
 
       return (
-        <div className="flex sm-scroller-item align-items-center justify-content-start border-1">
+        <div className="flex sm-input sm-scroller-item  align-items-center justify-content-start">
           <Checkbox
             className="sm-standard-text"
             inputId="ingredient1"
@@ -156,15 +151,6 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
       );
     },
     [getColor, isSelected, selectSelectedItems, setSelectSelectedItems]
-  );
-  const epgFilesTemplate = useCallback(
-    (option: EPGFileDto): JSX.Element => {
-      if (!option) {
-        return <div>{input}</div>;
-      }
-      return <div>{option.Name}</div>;
-    },
-    [input]
   );
 
   const itemTemplate = useCallback(
@@ -383,7 +369,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
     return query.data;
   }, [extractEPGNumberAndStationId, query.data, selectSelectedItems]);
 
-  const className = classNames('max-w-full w-full epgSelector', {
+  const className = classNames('max-w-full w-full EPGSelectorNew', {
     'p-disabled': disabled
   });
 
@@ -400,103 +386,10 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
       </div>
     );
   }
-  const accept = () => {};
-  const reject = () => {};
-
-  const confirmApples = (event: any) => {
-    confirmPopup({
-      accept,
-      message: (
-        <Card>
-          <SMCard title={'EPGs'} header={<></>}>
-            <div className="sm-card-children">
-              <div className="sm-card-content-children">
-                <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right sm-tableHeaderBg">
-                  <div className="flex w-6 mr-1">
-                    <ListBox
-                      value={undefined}
-                      onChange={(e) => console.log('change', e.value)}
-                      options={epgFiles}
-                      virtualScrollerOptions={{
-                        appendOnly: true,
-                        itemSize: 26
-                      }}
-                      className="w-full md:w-14rem "
-                      itemTemplate={scrollerItemTemplate}
-                      listStyle={{ height: '250px' }}
-                    />
-                  </div>
-                  <div className="bg-blue-600 w-1"></div>
-                  <div className="flex w-6 ml-1">
-                    <ListBox
-                      value={undefined}
-                      onChange={(e) => console.log('change', e.value)}
-                      options={options}
-                      virtualScrollerOptions={{
-                        appendOnly: true,
-                        itemSize: 26
-                      }}
-                      className="w-full md:w-14rem "
-                      itemTemplate={itemTemplate}
-                      listStyle={{ height: '250px' }}
-                    />
-                  </div>
-                </div>
-                <div className="layout-padding-bottom-lg" />
-                <div className="flex grid col-12 m-0 p-0 justify-content-between align-items-center">
-                  <div className="col-10 m-0 p-0 pl-2">
-                    <StringEditor
-                      darkBackGround
-                      disableDebounce={true}
-                      placeholder="Custom Id"
-                      value={input}
-                      onChange={(value) => {
-                        if (value) {
-                          setNewInput(value);
-                        }
-                      }}
-                      onSave={(value) => {
-                        if (value) {
-                          handleOnChange(value);
-                        }
-                      }}
-                    />
-                  </div>
-                  <div className="col-1 m-0 p-0">
-                    <AddButton
-                      disabled={addDisabled}
-                      tooltip="Add Custom Id"
-                      iconFilled
-                      onClick={(e) => {
-                        if (input) {
-                          handleOnChange(input);
-                        }
-                      }}
-                      style={{
-                        height: 'var(--input-height)',
-                        width: 'var(--input-height)'
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className="layout-padding-bottom" />
-              </div>
-            </div>
-          </SMCard>
-        </Card>
-      ),
-
-      reject,
-      target: event.currentTarget
-    });
-  };
 
   return (
-    <>
-      <div className="sm-input flex align-contents-center w-full min-w-full h-full ">
-        <Button className="sm-input p-0 m-0" onClick={confirmApples} icon="pi pi-chevron-down" text label={value}></Button>
-
-        {/* <Dropdown
+    <div className="sm-input flex align-contents-center w-full min-w-full h-full ">
+      <Dropdown
         className={className}
         disabled={loading}
         filterInputAutoFocus
@@ -522,11 +415,10 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
           itemSize: 26,
           style: { maxWidth: '50vw', minWidth: '400px', width: '400px' }
         }}
-      /> */}
-      </div>
-    </>
+      />
+    </div>
   );
 };
 
-EPGSelector.displayName = 'EPGSelector';
-export default React.memo(EPGSelector);
+EPGSelectorNew.displayName = 'EPGSelectorNew';
+export default React.memo(EPGSelectorNew);

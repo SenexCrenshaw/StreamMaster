@@ -24,6 +24,7 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, I
             FileDefinition fd = FileDefinitions.EPG;
 
             string fullName = Path.Combine(fd.DirectoryLocation, command.Name + ".xmltv");
+            string name = command.Name + ".xmltv";
 
             int num = command.EPGNumber;
 
@@ -37,6 +38,7 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, I
 
                 Name = command.Name,
                 Url = command.UrlSource,
+                Source = name,
                 Color = command.Color ?? ColorHelper.GetColor(command.Name),
                 EPGNumber = num,
                 HoursToUpdate = command.HoursToUpdate ?? 72,

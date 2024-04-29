@@ -44,6 +44,12 @@ export const SMDialog = ({
     }
   }, [close, onHide]);
 
+  useEffect(() => {
+    if (showButton === false) {
+      setVisible(true);
+    }
+  }, [showButton]);
+
   return (
     <>
       <Dialog

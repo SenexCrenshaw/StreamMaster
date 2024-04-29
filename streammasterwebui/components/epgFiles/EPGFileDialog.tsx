@@ -102,6 +102,24 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
     [epgFileDto, onEPGChanged, request]
   );
 
+  const setUrl = useCallback(
+    (value: string) => {
+      if (epgFileDto && epgFileDto.Url !== value) {
+        const epgFileDtoCopy = { ...epgFileDto };
+        epgFileDtoCopy.Url = value;
+        setEPGFileDto(epgFileDtoCopy);
+
+        const requestCopy = { ...request };
+        requestCopy.Id = epgFileDtoCopy.Id;
+        requestCopy.Url = value;
+        setRequest(requestCopy);
+
+        onEPGChanged && onEPGChanged(epgFileDtoCopy);
+      }
+    },
+    [epgFileDto, onEPGChanged, request]
+  );
+
   const setTimeShift = useCallback(
     (value: number) => {
       if (epgFileDto && epgFileDto.TimeShift !== value) {
@@ -134,6 +152,10 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
     }
 
     if (epgFileDto.Name !== originalEPGFileDto?.Name) {
+      return true;
+    }
+
+    if (epgFileDto.Url !== originalEPGFileDto?.Url) {
       return true;
     }
 
@@ -188,9 +210,7 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
               onChange={(e) => {
                 e && setName(e);
               }}
-              onSave={(e) => {
-                // e && setName(e);
-              }}
+              onSave={(e) => {}}
             />
           </div>
           <div className="w-2">
@@ -207,6 +227,25 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
         </div>
       </div>
       <div className="layout-padding-bottom-lg" />
+      {noButtons !== true && (
+        <>
+          <div className="w-12">
+            <StringEditor
+              showClear
+              disableDebounce
+              darkBackGround
+              autoFocus
+              label="URL"
+              value={epgFileDto?.Url}
+              onChange={(e) => {
+                e && setUrl(e);
+              }}
+              onSave={(e) => {}}
+            />
+          </div>
+          <div className="layout-padding-bottom-lg" />
+        </>
+      )}
       <div className="w-12">
         <div className="flex gap-2">
           <div className="w-4">

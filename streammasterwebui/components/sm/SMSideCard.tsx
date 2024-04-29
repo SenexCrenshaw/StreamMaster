@@ -1,13 +1,13 @@
 import { Dropdown } from 'primereact/dropdown';
 import React, { useCallback, useRef } from 'react';
 
-interface SideCarProps {
+interface SMSideCardProps {
   anchorRef: React.RefObject<Dropdown>;
   readonly children: React.ReactNode;
   readonly direction?: 'left' | 'right';
 }
 
-const SideCar: React.FC<SideCarProps> = ({ anchorRef, children, direction }) => {
+const SMSideCard: React.FC<SMSideCardProps> = ({ anchorRef, children, direction }) => {
   const popupRef = useRef<HTMLDivElement>(null);
 
   const calculatePopupPosition = useCallback(
@@ -16,14 +16,12 @@ const SideCar: React.FC<SideCarProps> = ({ anchorRef, children, direction }) => 
         const anchorRect = anchorRef.current.getElement().getBoundingClientRect();
 
         const popupRect = popupRef2.current.getBoundingClientRect();
-        // console.log('anchorRect', anchorRect);
-        // console.log('popupRect', popupRect);
+
         let height = anchorRect.height;
         const panel = document.querySelector('.sm-epg-editor-panel');
         if (panel) {
           var p = panel.getBoundingClientRect();
           height = p.height;
-          // console.log('panel', p);
         }
 
         if (direction === 'right') {
@@ -39,7 +37,7 @@ const SideCar: React.FC<SideCarProps> = ({ anchorRef, children, direction }) => 
 
   return (
     <div
-      className="w-6 surface-card sm-input-border sm-sidecar"
+      className="w-6 surface-card sm-input-border sm-SideCard"
       ref={popupRef}
       style={{
         height: calculatePopupPosition(popupRef).height,
@@ -53,4 +51,4 @@ const SideCar: React.FC<SideCarProps> = ({ anchorRef, children, direction }) => 
   );
 };
 
-export default SideCar;
+export default SMSideCard;

@@ -55,6 +55,7 @@ const SMFileUpload = (props: SMFileUploadProperties) => {
           if (source) {
             console.log('Add from source ', source);
             props.onCreateFromSource(source);
+            ReturnToParent();
           } else if (file) {
             console.log('Add from file ', file.name);
             startUpload(name, source, file);

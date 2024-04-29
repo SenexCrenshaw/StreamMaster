@@ -15,6 +15,11 @@ const SMChannelMenu = () => {
   const confirm1 = (event: any) => {
     confirmPopup({
       accept,
+      message: (
+        <div className="sm-channel-menu">
+          <AutoSetSMChannelNumbersDialog label="Auto Number" />
+        </div>
+      ),
       reject,
       target: event.currentTarget
     });
@@ -22,13 +27,7 @@ const SMChannelMenu = () => {
 
   return (
     <>
-      <ConfirmPopup
-        content={({ message, acceptBtnRef, rejectBtnRef, hide }) => (
-          <div className="sm-channel-menu">
-            <AutoSetSMChannelNumbersDialog label="Auto Number" />
-          </div>
-        )}
-      />
+      <ConfirmPopup content={({ message, hide }) => <div className="flex flex-row align-items-center p-0"> {message}</div>} />
       <BaseButton
         className="button-orange"
         icon="pi pi-bars"

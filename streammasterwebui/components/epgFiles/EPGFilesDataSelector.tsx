@@ -9,6 +9,7 @@ import useGetPagedEPGFiles from '@lib/smAPI/EPGFiles/useGetPagedEPGFiles';
 import { EPGFileDto, UpdateEPGFileRequest } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useMemo } from 'react';
 import StringEditor from '../inputs/StringEditor';
+import EPGFileDeleteDialog from './EPGFileDeleteDialog';
 import EPGFileEditDialog from './EPGFileEditDialog';
 // import EPGFileRefreshDialog from './EPGFileRefreshDialog';
 // import EPGFileRemoveDialog from './EPGFileRemoveDialog';
@@ -164,6 +165,7 @@ const EPGFilesDataSelector = () => {
       <div className="flex justify-content-center align-items-center">
         {/* <M3UFileRefreshDialog selectedFile={rowData} />
          <M3UFileRemoveDialog selectedFile={rowData} /> */}
+        <EPGFileDeleteDialog selectedFile={rowData} />
         <EPGFileEditDialog selectedFile={rowData} />
       </div>
     );

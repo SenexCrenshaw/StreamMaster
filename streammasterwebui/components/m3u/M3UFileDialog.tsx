@@ -125,6 +125,24 @@ const M3UFileDialog = ({ onM3UChanged, onUpdated, selectedFile, noButtons }: M3U
     }
   };
 
+  const setUrl = useCallback(
+    (value: string) => {
+      if (m3uFileDto && m3uFileDto.Url !== value) {
+        const m3uFileDtoCopy = { ...m3uFileDto };
+        m3uFileDtoCopy.Url = value;
+        setM3UFileDto(m3uFileDtoCopy);
+
+        const requestCopy = { ...request };
+        requestCopy.Id = m3uFileDtoCopy.Id;
+        requestCopy.Url = value;
+        setRequest(requestCopy);
+
+        onM3UChanged && onM3UChanged(m3uFileDtoCopy);
+      }
+    },
+    [m3uFileDto, onM3UChanged, request]
+  );
+
   const isSaveEnabled = useMemo(() => {
     if (m3uFileDto.Name !== originalM3UFileDto?.Name) {
       return true;
@@ -228,6 +246,25 @@ const M3UFileDialog = ({ onM3UChanged, onUpdated, selectedFile, noButtons }: M3U
         </div>
       </div>
       <div className="layout-padding-bottom-lg" />
+      {noButtons !== true && (
+        <>
+          <div className="w-12">
+            <StringEditor
+              showClear
+              disableDebounce
+              darkBackGround
+              autoFocus
+              label="URL"
+              value={m3uFileDto?.Url}
+              onChange={(e) => {
+                e && setUrl(e);
+              }}
+              onSave={(e) => {}}
+            />
+          </div>
+          <div className="layout-padding-bottom-lg" />
+        </>
+      )}
       <div className="w-12">
         <div className="flex gap-2">
           <div className="flex w-6 gap-2">
