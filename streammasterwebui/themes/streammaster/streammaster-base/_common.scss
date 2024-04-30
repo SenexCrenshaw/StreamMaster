@@ -37,7 +37,7 @@
 
     height: $input-height - ($input-padding * 2);
 
-    .smbutton {
+    .sm-button {
         @extend .blue-header-color;
         border-width: 0px !important;
         border-style: hidden !important;

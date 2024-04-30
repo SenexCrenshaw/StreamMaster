@@ -3,7 +3,7 @@
   color-scheme: light;
 }
 
-.blue-header-color, .color-editor-box .smbutton {
+.blue-header-color, .color-editor-box .sm-button {
   color: #0c243c;
 }
 
@@ -6704,7 +6704,7 @@
   src: local(""), url("./fonts/poppins-v15-latin-ext_latin-700.woff2") format("woff2"), url("./fonts/poppins-v15-latin-ext_latin-700.woff") format("woff");
   /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
 }
-.blue-header-color, .color-editor-box .smbutton {
+.blue-header-color, .color-editor-box .sm-button {
   color: #0c243c;
 }
 
@@ -6998,7 +6998,7 @@
 .color-editor-box {
   height: 1.4rem;
 }
-.color-editor-box .smbutton {
+.color-editor-box .sm-button {
   border-width: 0px !important;
   border-style: hidden !important;
   background-color: transparent !important;
@@ -7353,7 +7353,7 @@
   background-color: #21282c !important;
 }
 
-.sm-M3UFileTags .smbutton {
+.sm-M3UFileTags .sm-button {
   border-radius: 6px !important;
   height: 1.4rem !important;
 }
@@ -7504,7 +7504,7 @@
   height: 0;
   max-width: 0;
 }
-.smbutton-label, .smbutton {
+.sm-button-label, .sm-button {
   height: 1.6rem;
   padding-bottom: 0.1rem;
   padding-top: 0.1rem;
@@ -7512,8 +7512,12 @@
   padding-right: 0.4rem;
   margin: 0;
 }
+.sm-button-label:not(.p-disabled):hover, .sm-button:not(.p-disabled):hover {
+  color: white;
+  background-color: transparent;
+}
 
-.smbutton {
+.sm-button {
   width: 1.6rem;
 }
 

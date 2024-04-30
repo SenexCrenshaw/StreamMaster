@@ -1,15 +1,27 @@
-.smbutton-label {
+.sm-button-label {
     height: $input-height;
     padding-bottom: $input-padding;
     padding-top: $input-padding;
     padding-left: $input-padding*4;
     padding-right: $input-padding*4;
     margin: 0;
+
+
+
+    &:not(.p-disabled):hover {
+        // background-color: $inputFilledHoverBg; // Fallback color
+        color: white;
+        background-color: transparent;
+        // Apply CSS filter to change background color on hover based on the parent color
+        // filter: brightness(50%);
+    }
 }
 
-.smbutton {
-    @extend .smbutton-label;
+.sm-button {
+    @extend .sm-button-label;
     width: $input-height;
+
+
 
     // .p-button-icon {
     //     height: 2rem;

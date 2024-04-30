@@ -387,6 +387,11 @@ export interface GetPagedSMChannelsRequest
 {
 	Parameters: QueryStringParameters;
 }
+export interface CopySMChannelRequest
+{
+	NewName: string;
+	SMChannelId: number;
+}
 export interface CreateSMChannelFromStreamRequest
 {
 	StreamId: string;

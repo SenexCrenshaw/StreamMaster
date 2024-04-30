@@ -14,6 +14,7 @@ namespace StreamMaster.Infrastructure.EF.Repositories;
 public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IIconService iconService)
     : RepositoryBase<SMChannel>(repositoryContext, intLogger, intSettings), ISMChannelsRepository
 {
+
     public List<SMChannelDto> GetSMChannels()
     {
         return [.. GetQuery().Include(a => a.SMStreams).ThenInclude(a => a.SMStream).ProjectTo<SMChannelDto>(mapper.ConfigurationProvider)];
@@ -249,5 +250,28 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         await SaveChangesAsync();
 
         return APIResponse.Success;
+    }
+
+    public async Task<APIResponse> CopySMChannel(int sMChannelId, string newName)
+    {
+        SMChannel? channel = GetSMChannel(sMChannelId);
+        if (channel == null)
+        {
+            return APIResponse.NotFound;
+        }
+
+        channel.Name = newName;
+        await CreateSMChannel(channel);
+        var links = RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.SMChannelId == sMChannelId).ToList();
+
+        foreach (var link in links)
+        {
+            link.SMChannelId = channel.Id;
+            RepositoryContext.StreamGroupSMChannelLinks.Add(link);
+        }
+        await SaveChangesAsync();
+
+        return APIResponse.Success;
+
     }
 }

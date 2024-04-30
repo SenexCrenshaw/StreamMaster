@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace StreamMaster.Domain.Repository;
 
-public interface ISMChannelsRepository
+public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
 {
     IQueryable<SMChannel> GetQuery(Expression<Func<SMChannel, bool>> expression, bool tracking = false);
     Task CreateSMChannel(SMChannel sMChannel);
@@ -26,4 +26,5 @@ public interface ISMChannelsRepository
     Task<APIResponse> SetSMChannelName(int sMChannelId, string name);
     Task<APIResponse> SetSMChannelEPGID(int sMChannelId, string EPGId);
     Task<APIResponse> SetSMChannelGroup(int sMChannelId, string group);
+    Task<APIResponse> CopySMChannel(int sMChannelId, string newName);
 }

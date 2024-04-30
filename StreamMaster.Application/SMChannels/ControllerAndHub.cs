@@ -15,6 +15,14 @@ namespace StreamMaster.Application.SMChannels.Controllers
             return ret;
         }
 
+        [HttpPatch]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> CopySMChannel(CopySMChannelRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
         [HttpPost]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse>> CreateSMChannelFromStream(CreateSMChannelFromStreamRequest request)
@@ -97,6 +105,12 @@ namespace StreamMaster.Application.Hubs
         public async Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(QueryStringParameters Parameters)
         {
             PagedResponse<SMChannelDto> ret = await Sender.Send(new GetPagedSMChannelsRequest(Parameters)).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> CopySMChannel(CopySMChannelRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 

@@ -10,6 +10,7 @@ interface SMDialogProperties {
   readonly info?: string;
   readonly icon?: string;
   readonly iconFilled?: boolean;
+  readonly label?: string;
   readonly showButton?: boolean | null;
   readonly title: string;
   readonly tooltip?: string;
@@ -26,6 +27,7 @@ export const SMDialog = ({
   info = '',
   iconFilled = true,
   icon = 'pi pi-plus',
+  label,
   onHide,
   position,
   showButton,
@@ -86,11 +88,14 @@ export const SMDialog = ({
           className={buttonClassName}
           iconFilled={iconFilled}
           icon={icon}
+          iconPos="left"
+          label={label}
+          isLeft
           tooltip={tooltip}
           onClick={(e) => {
             setVisible(true);
           }}
-        />
+        ></BaseButton>
       </div>
     </>
   );

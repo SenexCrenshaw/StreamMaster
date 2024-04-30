@@ -41,9 +41,9 @@ const ColorEditor = ({ color: clientColor, editable, onChange }: ColorEditorProp
           backgroundColor: color
         }}
       >
-        <i className="flex justify-content-center align-items-center smbutton pi pi-chevron-circle-down" onClick={(e) => op.current?.toggle(e)} />
+        <i className="flex justify-content-center align-items-center sm-button pi pi-chevron-circle-down" onClick={(e) => op.current?.toggle(e)} />
         <i
-          className="flex justify-content-center align-items-center smbutton pi pi-refresh"
+          className="flex justify-content-center align-items-center sm-button pi pi-refresh"
           onClick={(e) => {
             const c = getRandomColorHex();
             setColor(c);

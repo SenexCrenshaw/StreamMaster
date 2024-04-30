@@ -12,6 +12,7 @@ export interface BaseButtonProps {
   color?: string;
   icon: string;
   iconFilled?: boolean;
+  iconPos?: 'top' | 'bottom' | 'left' | 'right' | undefined;
   isLeft?: boolean;
   label?: string;
   onClick: (e: React.SyntheticEvent) => void;
@@ -29,6 +30,7 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
       color = 'val(--primary-color-text)',
       disabled = false,
       icon,
+      iconPos = 'right',
       iconFilled = true,
       isLeft = false,
       label,
@@ -44,9 +46,9 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
   ) => {
     const tooltipClassName = React.useMemo(() => {
       if (iconFilled) {
-        return `smbutton-label basebutton-${uuidv4()} ${configuredClassName}`;
+        return `sm-button-label basebutton-${uuidv4()} ${configuredClassName}`;
       }
-      return `smbutton basebutton-${uuidv4()} ${configuredClassName}`;
+      return `sm-button basebutton-${uuidv4()} ${configuredClassName}`;
     }, [configuredClassName, iconFilled]);
 
     const getStyle = useMemo(() => {
@@ -64,7 +66,7 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
           className={tooltipClassName}
           disabled={disabled}
           icon={`pi ${icon}`}
-          iconPos="right"
+          iconPos={iconPos}
           label={label}
           onClick={onClick}
           outlined={outlined}
@@ -75,9 +77,6 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
           tooltipOptions={isLeft ? getLeftToolOptions : getRightToolOptions}
           style={getStyle}
           {...props}
-          // pt={{
-          //   label: { className: 'text-xs p-0 m-0' }
-          // }}
         />
       </>
     );
