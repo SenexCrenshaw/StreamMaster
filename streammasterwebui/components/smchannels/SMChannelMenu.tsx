@@ -4,7 +4,6 @@ import BaseButton from '@components/buttons/BaseButton';
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
 
 import AutoSetSMChannelNumbersDialog from './AutoSetSMChannelNumbersDialog';
-import CopySMChannelDialog from './CopySMChannelDialog';
 
 export interface SChannelMenuProperties {}
 
@@ -19,7 +18,6 @@ const SMChannelMenu = () => {
       message: (
         <div className="sm-channel-menu">
           <AutoSetSMChannelNumbersDialog label="Auto Number" />
-          <CopySMChannelDialog label="Copy Channel" />
         </div>
       ),
       reject,

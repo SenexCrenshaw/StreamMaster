@@ -14,8 +14,7 @@ internal class CopySMChannelRequestHandler(IRepositoryWrapper Repository, IMessa
         APIResponse ret = await Repository.SMChannel.CopySMChannel(request.SMChannelId, request.NewName);
         if (ret.IsError)
         {
-            await messageService.SendError($"Could not delete channel", ret.ErrorMessage);
-            await messageService.SendSuccess($"Error copying channel {ret.ErrorMessage}");
+            await messageService.SendError($"Could not copy channel", ret.ErrorMessage);
         }
         else
         {

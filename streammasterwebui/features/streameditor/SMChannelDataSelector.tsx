@@ -12,6 +12,7 @@ import { SMPopUp } from '@components/sm/SMPopUp';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import CopySMChannelDialog from '@components/smchannels/CopySMChannelDialog';
 import SMChannelMenu from '@components/smchannels/SMChannelMenu';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamGroupButton from '@components/streamGroup/StreamGroupButton';
@@ -81,6 +82,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
       return (
         <div className="flex p-0 justify-content-end align-items-center">
           <StreamCopyLinkDialog realUrl={data?.RealUrl} />
+          <CopySMChannelDialog label="Copy Channel" smChannel={data} />
           <SMPopUp title="Remove Channel" OK={() => accept()} icon="pi-minus" severity="danger">
             <div>
               "{data.Name}"

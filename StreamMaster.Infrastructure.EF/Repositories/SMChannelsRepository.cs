@@ -260,14 +260,24 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             return APIResponse.NotFound;
         }
 
-        channel.Name = newName;
-        await CreateSMChannel(channel);
-        var links = RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.SMChannelId == sMChannelId).ToList();
+        var newChannel = channel.DeepCopy();
+        newChannel.Id = 0;
+
+        newChannel.Name = newName;
+        await CreateSMChannel(newChannel);
+        await SaveChangesAsync();
+        var links = repository.SMChannelStreamLink.GetQuery().Where(a => a.SMChannelId == sMChannelId).ToList();
 
         foreach (var link in links)
         {
-            link.SMChannelId = channel.Id;
-            RepositoryContext.StreamGroupSMChannelLinks.Add(link);
+            var newLink = new SMChannelStreamLink
+            {
+                SMChannelId = channel.Id,
+                SMStreamId = link.SMStreamId,
+                Rank = link.Rank,
+            };
+
+            repository.SMChannelStreamLink.Create(newLink);
         }
         await SaveChangesAsync();
 

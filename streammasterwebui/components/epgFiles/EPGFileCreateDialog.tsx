@@ -42,13 +42,6 @@ export const EPGFileCreateDialog = ({ onHide, onUploadComplete, showButton }: EP
     [defaultValues, onHide, onUploadComplete]
   );
 
-  // const hide = useCallback(() => {
-  //   setVisible(false);
-  //   setEPGFileDto(defaultValues);
-  //   onHide?.(false);
-  //   defaultValues.Color = getRandomColorHex();
-  // }, [defaultValues, onHide]);
-
   const onCreateFromSource = useCallback(
     async (source: string) => {
       const request = {} as CreateEPGFileRequest;

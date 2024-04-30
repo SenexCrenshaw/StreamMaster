@@ -1,10 +1,8 @@
 import OKButton from '@components/buttons/OKButton';
 import { SMDialog } from '@components/sm/SMDialog';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
-import { useSelectAll } from '@lib/redux/slices/useSelectAll';
-import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
 import { CopySMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import { CopySMChannelRequest } from '@lib/smAPI/smapiTypes';
+import { CopySMChannelRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
 import { InputNumber } from 'primereact/inputnumber';
 import React, { useState } from 'react';
@@ -12,33 +10,30 @@ import React, { useState } from 'react';
 interface CopySMChannelProperties {
   label: string;
   readonly onHide?: () => void;
+  smChannel: SMChannelDto;
 }
 
-const CopySMChannelDialog = ({ label, onHide }: CopySMChannelProperties) => {
-  const [visible, setVisible] = useState<boolean>(false);
-
-  const { selectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
+const CopySMChannelDialog = ({ label, onHide, smChannel }: CopySMChannelProperties) => {
+  const [close, setClose] = useState<boolean>(false);
 
   const [overwriteNumbers, setOverwriteNumbers] = React.useState<boolean>(true);
   const [startNumber, setStartNumber] = React.useState<number>(1);
 
-  const { selectAll } = useSelectAll('streameditor-SMChannelDataSelector');
   const { queryFilter } = useQueryFilter('streameditor-SMChannelDataSelector');
 
   const ReturnToParent = React.useCallback(() => {
+    setClose(false);
     onHide?.();
   }, [onHide]);
 
-  const onAutoChannelsSave = React.useCallback(async () => {
-    if (!selectedStreamGroup || !queryFilter) {
+  const onSave = React.useCallback(async () => {
+    if (!smChannel || !queryFilter) {
       return;
     }
 
     const request = {} as CopySMChannelRequest;
-    // request.Parameters = queryFilter;
-    // request.streamGroupId = selectedStreamGroup.Id;
-    // request.startingNumber = startNumber;
-    // request.overWriteExisting = overwriteNumbers;
+    request.SMChannelId = smChannel.Id;
+    request.NewName = smChannel.Name + '-Copy';
 
     CopySMChannel(request)
       .then(() => {})
@@ -46,12 +41,20 @@ const CopySMChannelDialog = ({ label, onHide }: CopySMChannelProperties) => {
         console.error(error);
       })
       .finally(() => {
-        setVisible(false);
+        setClose(true);
       });
-  }, [overwriteNumbers, queryFilter, selectedStreamGroup, startNumber]);
+  }, [queryFilter, smChannel]);
 
   return (
-    <SMDialog label={label} title="COPY CHANNEL" onHide={() => ReturnToParent()} buttonClassName="icon-orange-filled" icon="pi-clone" info="General">
+    <SMDialog
+      close={close}
+      iconFilled={false}
+      title="COPY CHANNEL"
+      onHide={() => ReturnToParent()}
+      buttonClassName="icon-orange"
+      icon="pi-clone"
+      info="General"
+    >
       <div className="w-12">
         <div className="border-1 surface-border flex grid flex-wrap justify-content-center p-0 m-0">
           <div className="flex flex-column mt-2 col-6">
@@ -88,7 +91,7 @@ const CopySMChannelDialog = ({ label, onHide }: CopySMChannelProperties) => {
             </span>
           </div>
           <div className="flex col-12 gap-2 mt-4 justify-content-center ">
-            <OKButton onClick={async () => await onAutoChannelsSave()} />
+            <OKButton onClick={async () => await onSave()} />
           </div>
         </div>
         <div className="layout-padding-bottom-lg" />
@@ -97,5 +100,5 @@ const CopySMChannelDialog = ({ label, onHide }: CopySMChannelProperties) => {
   );
 };
 
-CopySMChannelDialog.displayName = 'Auto Set Channel Numbers';
+CopySMChannelDialog.displayName = 'COPYSMCHANNELDIALOG';
 export default React.memo(CopySMChannelDialog);
