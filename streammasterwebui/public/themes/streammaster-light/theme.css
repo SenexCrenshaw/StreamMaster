@@ -295,7 +295,7 @@
   background: #edf0fa;
 }
 .p-editor-container .p-editor-toolbar.ql-snow .ql-picker.ql-expanded:not(.ql-icon-picker) .ql-picker-item {
-  padding: 0.5rem 1rem;
+  padding: 0.1rem 0.2rem;
 }
 .p-editor-container .p-editor-content {
   border-bottom-right-radius: 6px;
@@ -461,7 +461,7 @@
   }
   .p-autocomplete-panel .p-autocomplete-items .p-autocomplete-item {
     margin: 0 0 4px 0;
-    padding: 0.5rem 1rem;
+    padding: 0.1rem 0.2rem;
     border: 0 none;
     color: #6c6c6c;
     background: transparent;
@@ -761,7 +761,7 @@
     border-radius: 6px;
   }
   .p-cascadeselect-panel .p-cascadeselect-items .p-cascadeselect-item .p-cascadeselect-item-content {
-    padding: 0.5rem 1rem;
+    padding: 0.1rem 0.2rem;
   }
   .p-cascadeselect-panel .p-cascadeselect-items .p-cascadeselect-item .p-cascadeselect-item-content:focus {
     outline: 0 none;
@@ -1162,7 +1162,7 @@
   }
   .p-dropdown-panel .p-dropdown-items .p-dropdown-item {
     margin: 0 0 4px 0;
-    padding: 0.5rem 1rem;
+    padding: 0.1rem 0.2rem;
     border: 0 none;
     color: #6c6c6c;
     background: transparent;
@@ -1199,7 +1199,7 @@
     font-weight: 600;
   }
   .p-dropdown-panel .p-dropdown-items .p-dropdown-empty-message {
-    padding: 0.5rem 1rem;
+    padding: 0.1rem 0.2rem;
     color: #6c6c6c;
     background: transparent;
   }
@@ -1491,7 +1491,7 @@
   }
   .p-listbox .p-listbox-list .p-listbox-item {
     margin: 0 0 4px 0;
-    padding: 0.5rem 1rem;
+    padding: 0.1rem 0.2rem;
     border: 0 none;
     color: #6c6c6c;
     transition: box-shadow 0.3s;
@@ -1515,7 +1515,7 @@
     font-weight: 600;
   }
   .p-listbox .p-listbox-list .p-listbox-empty-message {
-    padding: 0.5rem 1rem;
+    padding: 0.1rem 0.2rem;
     color: #6c6c6c;
     background: transparent;
   }
@@ -1555,7 +1555,7 @@
   }
   .p-mention-panel .p-mention-items .p-mention-item {
     margin: 0 0 4px 0;
-    padding: 0.5rem 1rem;
+    padding: 0.1rem 0.2rem;
     border: 0 none;
     color: #6c6c6c;
     background: transparent;
@@ -1764,7 +1764,7 @@
   }
   .p-multiselect-panel .p-multiselect-items .p-multiselect-item {
     margin: 0 0 4px 0;
-    padding: 0.5rem 1rem;
+    padding: 0.1rem 0.2rem;
     border: 0 none;
     color: #6c6c6c;
     background: transparent;
@@ -1799,7 +1799,7 @@
     font-weight: 600;
   }
   .p-multiselect-panel .p-multiselect-items .p-multiselect-empty-message {
-    padding: 0.5rem 1rem;
+    padding: 0.1rem 0.2rem;
     color: #6c6c6c;
     background: transparent;
   }
@@ -2163,7 +2163,7 @@
     border: 0 none;
   }
   .p-treeselect-panel .p-treeselect-items-wrapper .p-treeselect-empty-message {
-    padding: 0.5rem 1rem;
+    padding: 0.1rem 0.2rem;
     color: #6c6c6c;
     background: transparent;
   }
@@ -3554,7 +3554,7 @@
   }
   .p-column-filter-overlay .p-column-filter-row-items .p-column-filter-row-item {
     margin: 0 0 4px 0;
-    padding: 0.5rem 1rem;
+    padding: 0.1rem 0.2rem;
     border: 0 none;
     color: #6c6c6c;
     background: transparent;
@@ -3645,7 +3645,7 @@
     outline: 0 none;
   }
   .p-orderlist .p-orderlist-list .p-orderlist-item {
-    padding: 0.5rem 1rem;
+    padding: 0.1rem 0.2rem;
     margin: 0 0 4px 0;
     border: 0 none;
     color: #6c6c6c;
@@ -3830,7 +3830,7 @@
     outline: 0 none;
   }
   .p-picklist .p-picklist-list .p-picklist-item {
-    padding: 0.5rem 1rem;
+    padding: 0.1rem 0.2rem;
     margin: 0 0 4px 0;
     border: 0 none;
     color: #6c6c6c;
@@ -6801,7 +6801,7 @@
   border: 2px solid #cede9c;
 }
 
-.padding-xs {
+.padding-xs, .text-xs, .sm-input-xs {
   padding: 0rem 0.18rem;
 }
 
@@ -6809,7 +6809,7 @@
   font-size: 0.5625rem;
 }
 
-.padding-sm, .text-sm, .sm-input-sm, .text-xs, .sm-input-xs {
+.padding-sm, .text-sm, .sm-input-sm {
   padding: 0rem 0.21rem;
 }
 
@@ -6882,11 +6882,21 @@
   color: #94abec;
 }
 
-.sm-input-border, .sm-card .sm-card-info, .sm-card .sm-card-header, .sm-card .sm-card-children, .sm-streamgroupselector, .sm-tableHeaderBg, .sm-datatable-header, .p-datatable-wrapper, .sm-standard-header {
+.sm-input-border, .sm-card .sm-card-info, .sm-card .sm-card-header, .sm-card .sm-card-children, .sm-streamgroupselector, .sm-datatable-header, .p-datatable-wrapper, .sm-standard-header {
   border-radius: 6px;
   border-color: #263238;
   border-width: 1px;
   border-style: solid;
+}
+
+.width-200 {
+  width: 200px;
+}
+
+.text-container {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 :root {
@@ -6946,24 +6956,24 @@
 }
 
 .p-accordion .p-accordion-header .p-accordion-header-link {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   padding-left: 0.1rem !important;
   padding-top: 0.1rem !important;
   padding-bottom: 0.1rem !important;
   font-size: 0.75rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   height: 1.6rem;
 }
 
 .p-multiselect .p-multiselect-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   padding-left: 0.1rem !important;
   padding-top: 0.1rem !important;
   padding-bottom: 0.1rem !important;
   font-size: 0.75rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   height: 1.6rem;
   display: flex;
   align-items: center;
@@ -6971,13 +6981,13 @@
 }
 
 .p-multiselect-items .p-multiselect-item {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   padding-left: 0.1rem !important;
   padding-top: 0.1rem !important;
   padding-bottom: 0.1rem !important;
   font-size: 0.75rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   height: 1.6rem;
   display: flex;
   align-items: center;
@@ -7238,13 +7248,13 @@
 .sm-col-header-left-wrap,
 .sm-col-header-right,
 .sm-col-header-right-wrap {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   padding-left: 0.1rem !important;
   padding-top: 0.1rem !important;
   padding-bottom: 0.1rem !important;
   font-size: 0.75rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   height: 1.6rem;
 }
 
@@ -7328,11 +7338,15 @@
   border-radius: 6px;
 }
 
-.sm-scroller-item {
+.p-listbox-item {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-left: 0.1rem !important;
+  padding-top: 0.1rem !important;
+  padding-bottom: 0.1rem !important;
+  font-size: 0.75rem;
   height: 1.6rem;
-  border-style: solid;
-  border-color: #263238;
-  border-width: 1px;
 }
 
 .sm-standard-header {
@@ -7352,6 +7366,10 @@
 
 .sm-tableHeaderBg {
   background-color: #1d2327 !important;
+}
+
+.sm-headerBg {
+  background-color: #21282c !important;
 }
 
 .last_radius {
@@ -7395,25 +7413,25 @@
 }
 
 .sm-streamgroupselector {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   padding-left: 0.1rem !important;
   padding-top: 0.1rem !important;
   padding-bottom: 0.1rem !important;
   font-size: 0.75rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   height: 1.6rem;
   min-width: 12rem;
 }
 
 .sm-standard-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   padding-left: 0.1rem !important;
   padding-top: 0.1rem !important;
   padding-bottom: 0.1rem !important;
   font-size: 0.75rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   height: 1.6rem;
 }
 
@@ -7424,13 +7442,13 @@
 }
 
 .sm-channel-menu {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   padding-left: 0.1rem !important;
   padding-top: 0.1rem !important;
   padding-bottom: 0.1rem !important;
   font-size: 0.75rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   height: 1.6rem;
   display: flex;
   flex-direction: column;
@@ -7482,6 +7500,10 @@
 .sm-card .sm-card-content-children {
   background-color: #21282c !important;
 }
+.sm-card .sm-card-content-children .p-dropdown {
+  height: 0;
+  max-width: 0;
+}
 .smbutton-label, .smbutton {
   height: 1.6rem;
   padding-bottom: 0.1rem;
@@ -7531,6 +7553,53 @@
   background-color: var(--surface-ground-alpha);
 }
 
+.sm-scroller {
+  min-width: 200px;
+}
+
+.sm-scroller-item {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0 0 4px 0;
+  padding: 0.1rem 0.2rem;
+  border: 0 none;
+  color: #6c6c6c;
+  background: transparent;
+  transition: box-shadow 0.3s;
+  border-radius: 6px;
+}
+.sm-scroller-item:first-child {
+  margin-top: 0;
+}
+.sm-scroller-item:last-child {
+  margin-bottom: 0;
+}
+.sm-scroller-item:not(.p-highlight):not(.p-disabled).p-focus {
+  color: #6c6c6c;
+  background: #edf0fa;
+}
+.sm-scroller-item .p-dropdown-check-icon {
+  position: relative;
+  margin-left: -0.5rem;
+  margin-right: 0.5rem;
+}
+.sm-scroller-item:not(.p-disabled):hover {
+  background: #ced6f1;
+  border-color: #ced6f1;
+  border-radius: 6px;
+  border-style: solid;
+  border-width: 1px;
+  color: #585858;
+}
+.sm-scroller-item.p-highlight {
+  color: #585858;
+  background: #ced6f1;
+}
+.sm-scroller-item.p-highlight.p-focus {
+  background: #aebbe8;
+}
+
 .p-datatable {
   font-size: 0.75rem;
 }
@@ -7575,13 +7644,13 @@
   padding-right: 0.2rem !important;
 }
 .p-filter-column .p-inputtext {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   padding-left: 0.1rem !important;
   padding-top: 0.1rem !important;
   padding-bottom: 0.1rem !important;
   font-size: 0.75rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   height: 1.6rem;
 }
 .p-filter-column .p-multiselect-clear-icon {
@@ -7884,13 +7953,13 @@ input.p-dropdown-label {
 
 .p-dropdown-item {
   cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   padding-left: 0.1rem !important;
   padding-top: 0.1rem !important;
   padding-bottom: 0.1rem !important;
   font-size: 0.75rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   height: 1.6rem;
   height: unset !important;
 }
@@ -8002,7 +8071,7 @@ input.p-dropdown-label {
 }
 .p-dropdown-panel .p-dropdown-items .p-dropdown-item {
   margin: 0 0 4px 0;
-  padding: 0.5rem 1rem;
+  padding: 0.1rem 0.2rem;
   border: 0 none;
   color: #6c6c6c;
   background: transparent;
@@ -8039,7 +8108,7 @@ input.p-dropdown-label {
   font-weight: 600;
 }
 .p-dropdown-panel .p-dropdown-items .p-dropdown-empty-message {
-  padding: 0.5rem 1rem;
+  padding: 0.1rem 0.2rem;
   color: #6c6c6c;
   background: transparent;
 }

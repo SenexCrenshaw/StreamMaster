@@ -96,17 +96,18 @@
 }
 
 
-.sm-scroller-item {
-    height: $input-height;
-    border-style: solid;
-    border-color: $inputBorderColor;
-    border-width: 1px;
+
+.p-listbox-item {
+    @include datatable-text-style();
 }
+
 
 .sm-standard-header {
     @extend .sm-input-border;
     background-color: $headerBg !important;
 }
+
+
 
 .sm-M3UFileTags {
     .smbutton {
@@ -123,9 +124,13 @@
 }
 
 .sm-tableHeaderBg {
-    @extend .sm-input-border;
+    // @extend .sm-input-border;
     background-color: $tableHeaderBg !important;
+}
 
+.sm-headerBg {
+    // @extend .sm-input-border;
+    background-color: $headerBg !important;
 }
 
 .last_radius {

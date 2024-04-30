@@ -1,0 +1,55 @@
+.sm-scroller {
+    min-width: 200px;
+}
+
+.sm-scroller-items {}
+
+.sm-scroller-item {
+    @include text-overflow();
+    margin: $inputListItemMargin;
+    padding: $inputListItemPadding;
+    border: $inputListItemBorder;
+    color: $inputListItemTextColor;
+    background: $inputListItemBg;
+    transition: $listItemTransition;
+    border-radius: $inputListItemBorderRadius;
+
+    &:first-child {
+        margin-top: 0;
+    }
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    &:not(.p-highlight):not(.p-disabled) {
+        &.p-focus {
+            color: $inputListItemTextHoverColor;
+            background: $inputListItemHoverBg;
+        }
+    }
+
+    .p-dropdown-check-icon {
+        position: relative;
+        margin-left: -1 * $inlineSpacing;
+        margin-right: $inlineSpacing;
+    }
+
+    &:not(.p-disabled):hover {
+        background: $highlightBg;
+        border-color: $highlightBg;
+        border-radius: $borderRadius;
+        border-style: solid;
+        border-width: 1px;
+        color: $highlightTextColor;
+    }
+
+    &.p-highlight {
+        color: $highlightTextColor;
+        background: $highlightBg;
+
+        &.p-focus {
+            background: $highlightFocusBg;
+        }
+    }
+}

@@ -27,7 +27,7 @@ const SMChannelMenu = () => {
 
   return (
     <>
-      <ConfirmPopup content={({ message, hide }) => <div className="flex flex-row align-items-center p-0"> {message}</div>} />
+      <ConfirmPopup content={({ message, hide }) => <div className="align-items-center p-0"> {message}</div>} />
       <BaseButton
         className="button-orange"
         icon="pi pi-bars"

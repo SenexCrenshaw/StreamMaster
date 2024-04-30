@@ -128,7 +128,7 @@ const EPGSelectorNew = ({ enableEditMode = true, value, disabled, editable, onCh
       const color = getColor(option.EPGNumber);
 
       return (
-        <div className="flex sm-input sm-scroller-item  align-items-center justify-content-start">
+        <div className="flex sm-input align-items-center justify-content-start">
           <Checkbox
             className="sm-standard-text"
             inputId="ingredient1"

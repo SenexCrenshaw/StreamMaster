@@ -3,7 +3,7 @@
 }
 
 .text-xs {
-    @extend .padding-sm;
+    @extend .padding-xs;
     @include scaledFontSize($common-font-size, $scaleXS);
 }
 
@@ -126,4 +126,14 @@
     border-color: $inputBorderColor;
     border-width: 1px;
     border-style: solid;
+}
+
+.width-200 {
+    width: 200px;
+}
+
+.text-container {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

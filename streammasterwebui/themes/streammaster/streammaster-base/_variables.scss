@@ -76,14 +76,18 @@ $streamMasterColor: #fe7600 !default;
     background-color: $streamMasterColor;
 }
 
+@mixin text-overflow() {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 @mixin datatable-text-style() {
+    @include text-overflow();
     padding-left: $datatable-padding !important;
     padding-top: $datatable-padding !important;
     padding-bottom: $datatable-padding !important;
     font-size: $common-font-size;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     height: $input-height;
 }
 

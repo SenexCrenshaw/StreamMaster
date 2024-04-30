@@ -1,31 +1,19 @@
 import AddButton from '@components/buttons/AddButton';
 import StringEditor from '@components/inputs/StringEditor';
-import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';
-
-import { VirtualScroller } from 'primereact/virtualscroller';
-
-import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationChannelNames';
-import { EPGFileDto, StationChannelName } from '@lib/smAPI/smapiTypes';
-import { v4 as uuidv4 } from 'uuid';
-
-import SMSideCar from '@components/sm/SMSideCard';
-
-import useGetEPGFiles from '@lib/smAPI/EPGFiles/useGetEPGFiles';
-import useGetIsSystemReady from '@lib/smAPI/Settings/useGetIsSystemReady';
-
-import { Checkbox } from 'primereact/checkbox';
-import { Dropdown } from 'primereact/dropdown';
-
 import { SMCard } from '@components/sm/SMCard';
+import SMScroller from '@components/sm/SMScroller';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';
+import useGetEPGFiles from '@lib/smAPI/EPGFiles/useGetEPGFiles';
+import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationChannelNames';
+import useGetIsSystemReady from '@lib/smAPI/Settings/useGetIsSystemReady';
+import { EPGFileDto, StationChannelName } from '@lib/smAPI/smapiTypes';
 import { Button } from 'primereact/button';
-import { Card } from 'primereact/card';
-import { confirmPopup } from 'primereact/confirmpopup';
-import { ListBox } from 'primereact/listbox';
+import { OverlayPanel } from 'primereact/overlaypanel';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Tooltip } from 'primereact/tooltip';
-import { classNames } from 'primereact/utils';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 type EPGResult = { epgNumber: number; stationId: string };
 
@@ -38,16 +26,14 @@ type EPGSelectorProperties = {
 };
 
 const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChange }: EPGSelectorProperties) => {
-  const dropDownRef = useRef<Dropdown>(null);
-
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<EPGFileDto>('EPGSelector-EPGFiles');
-
+  const { selectSelectedItems } = useSelectedItems<EPGFileDto>('EPGSelector-EPGFiles');
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
   const [input, setInput] = useState<string | undefined>(undefined);
   const [newInput, setNewInput] = useState<string | undefined>(undefined);
-  const getIsSystemReady = useGetIsSystemReady();
 
+  const op = useRef<OverlayPanel>(null);
+  const getIsSystemReady = useGetIsSystemReady();
   const query = useGetStationChannelNames();
   const epgQuery = useGetEPGFiles();
   const colorsQuery = useGetEPGColors();
@@ -57,7 +43,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
 
     if (epgQuery.data) return [...additionalOptions, ...epgQuery.data];
 
-    return additionalOptions;
+    return epgQuery.data;
   }, [epgQuery]);
 
   useEffect(() => {
@@ -65,38 +51,6 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
       setInput(value);
     }
   }, [value, checkValue]);
-
-  useEffect(() => {
-    if (checkValue === undefined && !query.isError && input) {
-      setCheckValue(input);
-      const entry = query.data?.find((x) => x.Channel === input);
-      if (entry && entry.Channel !== stationChannelName?.Channel) {
-        setStationChannelName(entry);
-      } else {
-        setStationChannelName(undefined);
-      }
-    }
-  }, [checkValue, query.data, query.isError, input, stationChannelName]);
-
-  const getColor = useCallback(
-    (epgNumber: number) => {
-      let color = '#FFFFFF';
-      if (epgNumber < 0) {
-        if (epgNumber === -99) {
-          color = '#000000';
-        }
-      }
-
-      if (epgNumber > 0 && colorsQuery?.data !== undefined) {
-        const entry = colorsQuery.data.find((x) => x.EPGNumber === epgNumber);
-        if (entry?.Color) {
-          color = entry.Color;
-        }
-      }
-      return color;
-    },
-    [colorsQuery]
-  );
 
   const extractEPGNumberAndStationId = useCallback((userTvgId: string): EPGResult => {
     if (!userTvgId.trim()) {
@@ -120,57 +74,84 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
     return { epgNumber, stationId };
   }, []);
 
-  const isSelected = useCallback(
+  const options = useMemo(() => {
+    // if (queryFilter.JSONFiltersString !== '[]') {
+    //   const metaDataArray: SMDataTableFilterMetaData[] = JSON.parse(queryFilter.JSONFiltersString);
+    //   if (metaDataArray) {
+    //     const metaData = metaDataArray.filter((x) => x.fieldName === 'EPGId' && x.matchMode !== 'notContains');
+    //     if (metaData.length > 0) {
+    //       const toIgnore = metaData.flatMap((x) => x.value);
+    //       return query.data?.filter((x) => toIgnore.some((prefix) => x.Channel.startsWith(prefix)));
+    //     }
+    //   }
+    // }
+
+    if (!query.data) {
+      return undefined;
+    }
+
+    if (selectSelectedItems && selectSelectedItems.length > 0) {
+      const epgNumbers = selectSelectedItems.map((x) => x.EPGNumber);
+
+      const r = query.data.filter((x) => {
+        var test = extractEPGNumberAndStationId(x.Channel);
+        return epgNumbers.includes(test.epgNumber);
+      });
+
+      return r;
+    }
+    return query.data;
+  }, [extractEPGNumberAndStationId, query.data, selectSelectedItems]);
+
+  useEffect(() => {
+    if (checkValue === undefined && !query.isError && input) {
+      setCheckValue(input);
+      const entry = query.data?.find((x) => x.Channel === input);
+      if (entry && entry.Channel !== stationChannelName?.Channel) {
+        setStationChannelName(entry);
+      } else {
+        setStationChannelName(undefined);
+      }
+    }
+  }, [checkValue, input, query.data, query.isError, stationChannelName]);
+
+  const getColor = useCallback(
     (epgNumber: number) => {
-      console.log('epgNumber', selectSelectedItems);
-      return selectSelectedItems.some((x) => x.EPGNumber === epgNumber);
+      let color = '#FFFFFF';
+      if (epgNumber < 0) {
+        if (epgNumber === -99) {
+          color = '#000000';
+        }
+      }
+
+      if (epgNumber > 0 && colorsQuery?.data !== undefined) {
+        const entry = colorsQuery.data.find((x) => x.EPGNumber === epgNumber);
+        if (entry?.Color) {
+          color = entry.Color;
+        }
+      }
+      return color;
     },
-    [selectSelectedItems]
+    [colorsQuery]
   );
 
   const scrollerItemTemplate = useCallback(
     (option: EPGFileDto) => {
       const color = getColor(option.EPGNumber);
-
       return (
-        <div className="flex sm-scroller-item align-items-center justify-content-start border-1">
-          <Checkbox
-            className="sm-standard-text"
-            inputId="ingredient1"
-            name={option.Name}
-            value={option}
-            onChange={(e) => {
-              if (e.checked) {
-                setSelectSelectedItems([...selectSelectedItems, option]);
-              } else {
-                setSelectSelectedItems(selectSelectedItems.filter((x) => x.EPGNumber !== option.EPGNumber));
-              }
-            }}
-            checked={isSelected(option.EPGNumber)}
-          />
-          <div className="ml-2 sm-standard-text flex align-items-center justify-content-center">
-            <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
-            <span className="text-xs"> {option.Name}</span>
-          </div>
-        </div>
+        <span className="sm-standard-text flex align-items-center justify-content-center">
+          <span className="pi pi-circle-fill pr-2" style={{ color: color }} />
+          <span className="text-xs"> {option.Name}</span>
+        </span>
       );
     },
-    [getColor, isSelected, selectSelectedItems, setSelectSelectedItems]
-  );
-  const epgFilesTemplate = useCallback(
-    (option: EPGFileDto): JSX.Element => {
-      if (!option) {
-        return <div>{input}</div>;
-      }
-      return <div>{option.Name}</div>;
-    },
-    [input]
+    [getColor]
   );
 
   const itemTemplate = useCallback(
     (option: StationChannelName): JSX.Element => {
       if (!option) {
-        return <div>{input}</div>;
+        return <div className="text-xs text-container">{input}</div>;
       }
 
       let inputString = option?.DisplayName ?? '';
@@ -196,23 +177,14 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
         }
       }
 
-      const tooltipClassName = `epgitem-${uuidv4()}`;
+      let tooltipClassName = `epgitem-${uuidv4()}  flex align-items-center`;
 
-      // console.log(inputString);
-      // console.log(beforeCallSign);
-      // console.log(afterCallSign);
       if (beforeCallSign === '[' + afterCallSign + ']') {
         return (
           <>
-            <Tooltip target={`.${tooltipClassName}`} />
-            <div
-              className={`${tooltipClassName} flex align-items-center border-white`}
-              data-pr-hidedelay={100}
-              data-pr-position="left"
-              data-pr-showdelay={500}
-              data-pr-tooltip={epgName}
-            >
-              <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
+            <Tooltip target={`${tooltipClassName}`} />
+            <div className={`${tooltipClassName}`} data-pr-hidedelay={100} data-pr-position="left" data-pr-showdelay={500} data-pr-tooltip={epgName}>
+              <span className="pi pi-circle-fill pr-2" style={{ color: color }} />
               <span className="text-xs">{afterCallSign}</span>
             </div>
           </>
@@ -221,36 +193,46 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
 
       return (
         <>
-          <Tooltip target={`.${tooltipClassName}`} />
-          <div
-            className={`${tooltipClassName} flex flex-column`}
-            data-pr-hidedelay={100}
-            data-pr-position="left"
-            data-pr-showdelay={500}
-            data-pr-tooltip={epgName}
-          >
-            <div className="flex flex-row">
-              <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
+          <Tooltip target={`${tooltipClassName}`} />
+          <div className={`${tooltipClassName} `} data-pr-hidedelay={100} data-pr-position="left" data-pr-showdelay={500} data-pr-tooltip={epgName}>
+            <span className="pi pi-circle-fill pr-2" style={{ color: color }} />
+            <span className="text-xs text-container width-200">
               <span className="text-xs">{beforeCallSign}</span>
-            </div>
-            <div className="text-xs ml-5">{afterCallSign}</div>
+              <span className="sm-input-xs ">{afterCallSign}</span>
+            </span>
           </div>
         </>
       );
     },
     [colorsQuery.data, epgQuery.data, extractEPGNumberAndStationId, input]
   );
+
   const valueTemplate = useCallback(
-    (option2: StationChannelName): JSX.Element => {
+    (option2: StationChannelName | undefined): JSX.Element => {
       const stationChannelName = query.data?.find((x) => x.Channel === input);
       if (!stationChannelName) {
-        return <div>{input}</div>;
+        const tooltipClassName = `epgitem-${uuidv4()}`;
+        return (
+          <>
+            <Tooltip target={`.${tooltipClassName}`} />
+            <div
+              className={`${tooltipClassName} flex align-items-center border-white`}
+              data-pr-hidedelay={100}
+              data-pr-position="left"
+              data-pr-showdelay={500}
+              data-pr-tooltip={'No EPG'}
+            >
+              <i className="pl-1 pi pi-ban icon-red" />
+              <span className="text-xs">{input}</span>
+            </div>
+          </>
+        );
       }
 
       let inputString = stationChannelName.DisplayName ?? '';
       const splitIndex = inputString.indexOf(']') + 1;
-      // const beforeCallSign = inputString.substring(0, splitIndex);
-      const afterCallSign = inputString.substring(splitIndex).trim();
+      const beforeCallSign = inputString.substring(0, splitIndex);
+      // const afterCallSign = inputString.substring(splitIndex).trim();
       let color = '#FFFFFF';
 
       if (colorsQuery?.data !== undefined) {
@@ -282,8 +264,8 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
             data-pr-showdelay={500}
             data-pr-tooltip={epgName}
           >
-            <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
-            <span className="text-xs">{afterCallSign}</span>
+            <i className="pl-1 pi pi-circle-fill" style={{ color: color }} />
+            <span className="text-xs">{beforeCallSign}</span>
           </div>
         </>
       );
@@ -291,101 +273,108 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
     [colorsQuery.data, epgQuery.data, extractEPGNumberAndStationId, input, query.data]
   );
 
-  const handleOnChange = (channel: string) => {
-    if (!channel) {
-      return;
-    }
+  const handleOnChange = useCallback(
+    (channel: string) => {
+      if (!channel) {
+        return;
+      }
 
-    const entry = query.data?.find((x) => x.Channel === channel);
-    if (entry && entry.Channel !== stationChannelName?.Channel) {
-      setStationChannelName(entry);
-    } else {
-      setStationChannelName(undefined);
-    }
+      const entry = query.data?.find((x) => x.Channel === channel);
+      if (entry && entry.Channel !== stationChannelName?.Channel) {
+        setStationChannelName(entry);
+      } else {
+        setStationChannelName(undefined);
+      }
 
-    setInput(channel);
-    dropDownRef.current?.hide();
-    onChange && onChange(channel);
-  };
+      setInput(channel);
+      onChange && onChange(channel);
+    },
+    [onChange, query.data, stationChannelName?.Channel]
+  );
 
   const addDisabled = useMemo(() => {
     return checkValue === newInput;
   }, [checkValue, newInput]);
 
-  const panelTemplate = (option: any) => {
+  const messageContent = useMemo(() => {
     return (
-      <div className="flex grid col-12 m-0 p-0 justify-content-between align-items-center">
-        <div className="col-1 m-0 p-0 pl-2">
-          <SMSideCar anchorRef={dropDownRef}>
-            <VirtualScroller items={epgFiles} itemTemplate={scrollerItemTemplate} itemSize={26} style={{ height: '30vh' }} />
-          </SMSideCar>
-        </div>
-        <div className="col-10 m-0 p-0 pl-2">
-          <StringEditor
-            disableDebounce={true}
-            placeholder="Custom Id"
-            value={input}
-            onChange={(value) => {
-              if (value) {
-                setNewInput(value);
-              }
-            }}
-            onSave={(value) => {
-              if (value) {
-                handleOnChange(value);
-              }
-            }}
-          />
-        </div>
-        <div className="col-1 m-0 p-0">
-          <AddButton
-            disabled={addDisabled}
-            tooltip="Add Custom Id"
-            iconFilled
-            onClick={(e) => {
-              if (input) {
-                handleOnChange(input);
-              }
-            }}
-            style={{
-              height: 'var(--input-height)',
-              width: 'var(--input-height)'
-            }}
-          />
-        </div>
+      <div className="sm-dialog">
+        <SMCard title={'EPGs'} header={<></>}>
+          <div className="sm-card-children">
+            <div className="sm-card-content-children">
+              <div className="layout-padding-bottom" />
+              <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right sm-tableHeaderBg">
+                <div className="flex w-4 mr-1 sm-headerBg">
+                  <SMScroller
+                    data={epgFiles}
+                    dataKey="EPGNumber"
+                    itemSize={26}
+                    itemTemplate={scrollerItemTemplate}
+                    scrollHeight={250}
+                    select
+                    selectedItemsKey="EPGSelector-EPGFiles"
+                  />
+                </div>
+                <div className="flex w-8 ml-1 sm-headerBg">
+                  <SMScroller
+                    data={options}
+                    dataKey="Channel"
+                    filter
+                    filterBy="DisplayName"
+                    itemSize={26}
+                    itemTemplate={itemTemplate}
+                    onChange={(e) => {
+                      handleOnChange(e.Channel);
+                    }}
+                    scrollHeight={250}
+                    value={stationChannelName}
+                  />
+                </div>
+              </div>
+              <div className="layout-padding-bottom-lg" />
+              <div className="flex grid col-12 m-0 p-0 justify-content-between align-items-center">
+                <div className="col-10 m-0 p-0 pl-2">
+                  <StringEditor
+                    darkBackGround
+                    disableDebounce={true}
+                    placeholder="Custom Id"
+                    value={input}
+                    onChange={(value) => {
+                      if (value) {
+                        setNewInput(value);
+                      }
+                    }}
+                    onSave={(value) => {
+                      if (value) {
+                        handleOnChange(value);
+                      }
+                    }}
+                  />
+                </div>
+                <div className="col-1 m-0 p-0">
+                  <AddButton
+                    disabled={addDisabled}
+                    tooltip="Add Custom Id"
+                    iconFilled
+                    onClick={(e) => {
+                      if (input) {
+                        handleOnChange(input);
+                      }
+                    }}
+                    style={{
+                      height: 'var(--input-height)',
+                      width: 'var(--input-height)'
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="layout-padding-bottom" />
+            </div>
+          </div>
+        </SMCard>
       </div>
     );
-  };
-
-  const options = useMemo(() => {
-    // if (queryFilter.JSONFiltersString !== '[]') {
-    //   const metaDataArray: SMDataTableFilterMetaData[] = JSON.parse(queryFilter.JSONFiltersString);
-    //   if (metaDataArray) {
-    //     const metaData = metaDataArray.filter((x) => x.fieldName === 'EPGId' && x.matchMode !== 'notContains');
-    //     if (metaData.length > 0) {
-    //       const toIgnore = metaData.flatMap((x) => x.value);
-    //       return query.data?.filter((x) => toIgnore.some((prefix) => x.Channel.startsWith(prefix)));
-    //     }
-    //   }
-    // }
-    if (!query.data) {
-      return undefined;
-    }
-
-    if (selectSelectedItems && selectSelectedItems.length > 0) {
-      const epgNumbers = selectSelectedItems.map((x) => x.EPGNumber);
-
-      return query.data.filter((x) => {
-        var test = extractEPGNumberAndStationId(x.Channel);
-        return epgNumbers.includes(test.epgNumber);
-      });
-    }
-    return query.data;
-  }, [extractEPGNumberAndStationId, query.data, selectSelectedItems]);
-
-  const className = classNames('max-w-full w-full epgSelector', {
-    'p-disabled': disabled
-  });
+  }, [addDisabled, epgFiles, handleOnChange, input, itemTemplate, options, scrollerItemTemplate, stationChannelName]);
 
   if (!enableEditMode) {
     return <div className="flex w-full h-full justify-content-center align-items-center p-0 m-0">{input ?? 'Dummy'}</div>;
@@ -400,129 +389,23 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
       </div>
     );
   }
-  const accept = () => {};
-  const reject = () => {};
-
-  const confirmApples = (event: any) => {
-    confirmPopup({
-      accept,
-      message: (
-        <Card>
-          <SMCard title={'EPGs'} header={<></>}>
-            <div className="sm-card-children">
-              <div className="sm-card-content-children">
-                <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right sm-tableHeaderBg">
-                  <div className="flex w-6 mr-1">
-                    <ListBox
-                      value={undefined}
-                      onChange={(e) => console.log('change', e.value)}
-                      options={epgFiles}
-                      virtualScrollerOptions={{
-                        appendOnly: true,
-                        itemSize: 26
-                      }}
-                      className="w-full md:w-14rem "
-                      itemTemplate={scrollerItemTemplate}
-                      listStyle={{ height: '250px' }}
-                    />
-                  </div>
-                  <div className="bg-blue-600 w-1"></div>
-                  <div className="flex w-6 ml-1">
-                    <ListBox
-                      value={undefined}
-                      onChange={(e) => console.log('change', e.value)}
-                      options={options}
-                      virtualScrollerOptions={{
-                        appendOnly: true,
-                        itemSize: 26
-                      }}
-                      className="w-full md:w-14rem "
-                      itemTemplate={itemTemplate}
-                      listStyle={{ height: '250px' }}
-                    />
-                  </div>
-                </div>
-                <div className="layout-padding-bottom-lg" />
-                <div className="flex grid col-12 m-0 p-0 justify-content-between align-items-center">
-                  <div className="col-10 m-0 p-0 pl-2">
-                    <StringEditor
-                      darkBackGround
-                      disableDebounce={true}
-                      placeholder="Custom Id"
-                      value={input}
-                      onChange={(value) => {
-                        if (value) {
-                          setNewInput(value);
-                        }
-                      }}
-                      onSave={(value) => {
-                        if (value) {
-                          handleOnChange(value);
-                        }
-                      }}
-                    />
-                  </div>
-                  <div className="col-1 m-0 p-0">
-                    <AddButton
-                      disabled={addDisabled}
-                      tooltip="Add Custom Id"
-                      iconFilled
-                      onClick={(e) => {
-                        if (input) {
-                          handleOnChange(input);
-                        }
-                      }}
-                      style={{
-                        height: 'var(--input-height)',
-                        width: 'var(--input-height)'
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className="layout-padding-bottom" />
-              </div>
-            </div>
-          </SMCard>
-        </Card>
-      ),
-
-      reject,
-      target: event.currentTarget
-    });
-  };
 
   return (
     <>
       <div className="sm-input flex align-contents-center w-full min-w-full h-full ">
-        <Button className="sm-input p-0 m-0" onClick={confirmApples} icon="pi pi-chevron-down" text label={value}></Button>
-
-        {/* <Dropdown
-        className={className}
-        disabled={loading}
-        filterInputAutoFocus
-        filter
-        filterBy="DisplayName"
-        itemTemplate={itemTemplate}
-        loading={loading}
-        onChange={(e) => {
-          handleOnChange(e?.value?.Channel);
-        }}
-        onHide={() => {}}
-        optionLabel="DisplayName"
-        options={options}
-        panelClassName="sm-epg-editor-panel"
-        panelFooterTemplate={panelTemplate}
-        placeholder="placeholder"
-        ref={dropDownRef}
-        resetFilterOnHide
-        showFilterClear={false}
-        value={stationChannelName}
-        valueTemplate={valueTemplate}
-        virtualScrollerOptions={{
-          itemSize: 26,
-          style: { maxWidth: '50vw', minWidth: '400px', width: '400px' }
-        }}
-      /> */}
+        <Button
+          className="sm-input p-0 m-0"
+          onClick={(e) => {
+            op.current?.toggle(e);
+          }}
+          icon="pi pi-chevron-down"
+          text
+        >
+          {valueTemplate(stationChannelName)}
+        </Button>
+        <OverlayPanel className="sm-overlay" ref={op} showCloseIcon={false}>
+          <div>{messageContent}</div>
+        </OverlayPanel>
       </div>
     </>
   );

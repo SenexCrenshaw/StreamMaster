@@ -39,6 +39,11 @@
     .sm-card-content-children {
         @extend .padding-xlg;
         background-color: $headerBg !important;
+
+        .p-dropdown {
+            height: 0;
+            max-width: 0;
+        }
     }
 
     .p-button {
