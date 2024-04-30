@@ -1,7 +1,6 @@
 import AddButton from '@components/buttons/AddButton';
 import StringEditor from '@components/inputs/StringEditor';
 import { SMCard } from '@components/sm/SMCard';
-import SMScroller from '@components/sm/SMScroller';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';
 import useGetEPGFiles from '@lib/smAPI/EPGFiles/useGetEPGFiles';
@@ -12,8 +11,10 @@ import { Button } from 'primereact/button';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Tooltip } from 'primereact/tooltip';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+
+const SMScroller = lazy(() => import('@components/sm/SMScroller'));
 
 type EPGResult = { epgNumber: number; stationId: string };
 
@@ -304,32 +305,34 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
             <div className="sm-card-content-children">
               <div className="layout-padding-bottom" />
               <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right sm-tableHeaderBg">
-                <div className="flex w-4 mr-1 sm-headerBg">
-                  <SMScroller
-                    data={epgFiles}
-                    dataKey="EPGNumber"
-                    itemSize={26}
-                    itemTemplate={scrollerItemTemplate}
-                    scrollHeight={250}
-                    select
-                    selectedItemsKey="EPGSelector-EPGFiles"
-                  />
-                </div>
-                <div className="flex w-8 ml-1 sm-headerBg">
-                  <SMScroller
-                    data={options}
-                    dataKey="Channel"
-                    filter
-                    filterBy="DisplayName"
-                    itemSize={26}
-                    itemTemplate={itemTemplate}
-                    onChange={(e) => {
-                      handleOnChange(e.Channel);
-                    }}
-                    scrollHeight={250}
-                    value={stationChannelName}
-                  />
-                </div>
+                <Suspense>
+                  <div className="flex w-4 mr-1 sm-headerBg">
+                    <SMScroller
+                      data={epgFiles}
+                      dataKey="EPGNumber"
+                      itemSize={26}
+                      itemTemplate={scrollerItemTemplate}
+                      scrollHeight={250}
+                      select
+                      selectedItemsKey="EPGSelector-EPGFiles"
+                    />
+                  </div>
+                  <div className="flex w-8 ml-1 sm-headerBg">
+                    <SMScroller
+                      data={options}
+                      dataKey="Channel"
+                      filter
+                      filterBy="DisplayName"
+                      itemSize={26}
+                      itemTemplate={itemTemplate}
+                      onChange={(e) => {
+                        handleOnChange(e.Channel);
+                      }}
+                      scrollHeight={250}
+                      value={stationChannelName}
+                    />
+                  </div>
+                </Suspense>
               </div>
               <div className="layout-padding-bottom-lg" />
               <div className="flex grid col-12 m-0 p-0 justify-content-between align-items-center">

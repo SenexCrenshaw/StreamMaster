@@ -19,21 +19,6 @@ const EPGFilesButton = () => {
       >
         <EPGFilesDataSelector />
       </SMOverlay>
-
-      {/* <UploadButton tooltip="" className="sm-upload-button" outlined={true} label="EPG" onClick={(e) => op.current?.toggle(e)} />
-      <OverlayPanel className="sm-overlay col-6 p-0 default-border" ref={op} showCloseIcon={false}>
-        <SMCard
-          title="EPG Files"
-          header={
-            <div className="justify-content-end flex-row flex">
-              <EPGFileCreateDialog onUploadComplete={closeOverlay} />
-              <XButton iconFilled={false} onClick={(e) => op.current?.toggle(e)} />
-            </div>
-          }
-        >
-          <EPGFilesDataSelector />
-        </SMCard>
-      </OverlayPanel> */}
     </>
   );
 };

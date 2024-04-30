@@ -82,7 +82,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
       selectionMode="single"
       selectedItemsKey="selectedStreamGroup"
       onRowClick={(e: DataTableRowClickEvent) => {
-        if (e.data.Id !== selectedStreamGroup.Id) {
+        if (e.data.Id !== selectedStreamGroup?.Id) {
           console.log('StreamGroupDataSelector', e.data);
           setSelectedStreamGroup(e.data as StreamGroupDto);
           setSelectSelectedItems([e.data as StreamGroupDto]);
