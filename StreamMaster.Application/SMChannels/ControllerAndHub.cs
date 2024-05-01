@@ -15,6 +15,22 @@ namespace StreamMaster.Application.SMChannels.Controllers
             return ret;
         }
 
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<ActionResult<List<string>>> GetSMChannelNames()
+        {
+            try
+            {
+            DataResponse<List<string>> ret = await Sender.Send(new GetSMChannelNamesRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannelNames.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetSMChannelNames.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
+        }
+
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse>> CopySMChannel(CopySMChannelRequest request)
@@ -106,6 +122,12 @@ namespace StreamMaster.Application.Hubs
         {
             PagedResponse<SMChannelDto> ret = await Sender.Send(new GetPagedSMChannelsRequest(Parameters)).ConfigureAwait(false);
             return ret;
+        }
+
+        public async Task<List<string>> GetSMChannelNames()
+        {
+             DataResponse<List<string>> ret = await Sender.Send(new GetSMChannelNamesRequest()).ConfigureAwait(false);
+            return ret.Data;
         }
 
         public async Task<APIResponse> CopySMChannel(CopySMChannelRequest request)

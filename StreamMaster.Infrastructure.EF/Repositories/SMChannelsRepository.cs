@@ -272,7 +272,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         {
             var newLink = new SMChannelStreamLink
             {
-                SMChannelId = channel.Id,
+                SMChannelId = newChannel.Id,
                 SMStreamId = link.SMStreamId,
                 Rank = link.Rank,
             };

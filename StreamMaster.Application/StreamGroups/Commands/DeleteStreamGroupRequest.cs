@@ -6,7 +6,7 @@ namespace StreamMaster.Application.StreamGroups.Commands;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record DeleteStreamGroupRequest(int Id) : IRequest<APIResponse> { }
 
-public class DeleteStreamGroupRequestHandler(IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMessageService messageService, IPublisher Publisher)
+public class DeleteStreamGroupRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService, IMessageService messageService, IPublisher Publisher)
     : IRequestHandler<DeleteStreamGroupRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(DeleteStreamGroupRequest request, CancellationToken cancellationToken = default)
@@ -22,7 +22,7 @@ public class DeleteStreamGroupRequestHandler(IRepositoryWrapper Repository, IHub
         {
             await Repository.SaveAsync();
             await Publisher.Publish(new StreamGroupDeleteEvent(), cancellationToken);
-            await hubContext.Clients.All.DataRefresh("StreamGroups").ConfigureAwait(false);
+            await dataRefreshService.RefreshStreamGroups();
             await messageService.SendSuccess("Stream Group deleted successfully");
             return APIResponse.Ok;
         }

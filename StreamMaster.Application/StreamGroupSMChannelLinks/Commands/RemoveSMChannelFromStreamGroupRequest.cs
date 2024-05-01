@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace StreamMaster.Application.StreamGroupSMChannelLinks.Commands;
+﻿namespace StreamMaster.Application.StreamGroupSMChannelLinks.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RemoveSMChannelFromStreamGroupRequest(int StreamGroupId, int SMChannelId) : IRequest<APIResponse>;
 
-internal class RemoveSMChannelFromStreamGroupRequestHandler(IRepositoryWrapper Repository, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor) : IRequestHandler<RemoveSMChannelFromStreamGroupRequest, APIResponse>
+internal class RemoveSMChannelFromStreamGroupRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService) : IRequestHandler<RemoveSMChannelFromStreamGroupRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(RemoveSMChannelFromStreamGroupRequest request, CancellationToken cancellationToken)
     {
@@ -15,8 +13,8 @@ internal class RemoveSMChannelFromStreamGroupRequestHandler(IRepositoryWrapper R
         {
             return APIResponse.ErrorWithMessage(res.ErrorMessage);
         }
-
-        await hubContext.Clients.All.DataRefresh("StreamGroupSMChannelLinks").ConfigureAwait(false);
+        await dataRefreshService.RefreshStreamGroupSMChannelLinks().ConfigureAwait(false);
+        //await hubContext.Clients.All.DataRefresh("StreamGroupSMChannelLinks").ConfigureAwait(false);
         return res;
     }
 }

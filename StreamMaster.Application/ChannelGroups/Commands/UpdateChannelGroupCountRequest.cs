@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
 
-using Microsoft.EntityFrameworkCore;
-
 namespace StreamMaster.Application.ChannelGroups.Commands;
 public record UpdateChannelGroupCountRequest(ChannelGroupDto ChannelGroupDto, bool Publish)
     : IRequest<DataResponse<ChannelGroupDto>>

@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record DeleteEPGFileRequest(bool DeleteFile, int Id) : IRequest<APIResponse> { }
 
-public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ISchedulesDirectDataService schedulesDirectDataService, IMessageService messageService, IRepositoryWrapper Repository, IPublisher Publisher)
+public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, IDataRefreshService dataRefreshService, ISchedulesDirectDataService schedulesDirectDataService, IMessageService messageService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<DeleteEPGFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(DeleteEPGFileRequest request, CancellationToken cancellationToken = default)
@@ -42,12 +42,14 @@ public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, I
                 }
             }
             schedulesDirectDataService.Reset(epgFile.Id);
-            if (epgFile != null)
-            {
-                await Publisher.Publish(new EPGFileDeletedEvent(epgFile.Id), cancellationToken).ConfigureAwait(false);
-            }
+
+
+            await Publisher.Publish(new EPGFileDeletedEvent(epgFile.Id), cancellationToken).ConfigureAwait(false);
+
             await Repository.SaveAsync().ConfigureAwait(false);
-            await hubContext.Clients.All.DataRefresh(EPGFile.MainGet).ConfigureAwait(false);
+            //await hubContext.Clients.All.DataRefresh(EPGFile.MainGet).ConfigureAwait(false);
+            await messageService.SendSuccess($"Deleted EPG {epgFile.Name}");
+            await dataRefreshService.RefreshAllEPG();
             return APIResponse.Success;
 
         }

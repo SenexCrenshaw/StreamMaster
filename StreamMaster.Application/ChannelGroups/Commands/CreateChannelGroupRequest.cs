@@ -6,7 +6,7 @@ namespace StreamMaster.Application.ChannelGroups.Commands;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record CreateChannelGroupRequest(string GroupName, bool IsReadOnly) : IRequest<APIResponse> { }
 
-public class CreateChannelGroupRequestHandler(IMessageService messageSevice, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ISender sender, IRepositoryWrapper Repository)
+public class CreateChannelGroupRequestHandler(IMessageService messageSevice, IDataRefreshService dataRefreshService, ISender sender, IRepositoryWrapper Repository)
     : IRequestHandler<CreateChannelGroupRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateChannelGroupRequest request, CancellationToken cancellationToken)
@@ -26,8 +26,9 @@ public class CreateChannelGroupRequestHandler(IMessageService messageSevice, IHu
 
         await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(channelGroupDto.Id), cancellationToken).ConfigureAwait(false);
 
-        await hubContext.Clients.All.DataRefresh("GetPagedChannelGroups").ConfigureAwait(false);
-        await messageSevice.SendSuccess("Created CG '" + channelGroupDto.Name);
+        await dataRefreshService.RefreshChannelGroups().ConfigureAwait(false);
+
+        await messageSevice.SendSuccess($"Created Channel Group '{channelGroupDto.Name}'");
         return APIResponse.Success;
     }
 }

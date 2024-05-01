@@ -1,12 +1,9 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import AddButton from '@components/buttons/AddButton';
-import { SMCard } from '@components/sm/SMCard';
-import XButton from '@components/buttons/XButton';
-import { CreateStreamGroupRequest } from '@lib/smAPI/smapiTypes';
-import { Dialog } from 'primereact/dialog';
-import TextInput from '@components/inputs/TextInput';
 import SaveButton from '@components/buttons/SaveButton';
+import StringEditor from '@components/inputs/StringEditor';
+import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 import { CreateStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
+import { CreateStreamGroupRequest } from '@lib/smAPI/smapiTypes';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 // import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 
 export interface StreamGroupCreateDialogProperties {
@@ -15,15 +12,13 @@ export interface StreamGroupCreateDialogProperties {
 }
 
 export const StreamGroupCreateDialog = ({ onHide, showButton }: StreamGroupCreateDialogProperties) => {
-  const [visible, setVisible] = useState<boolean>(false);
   const [name, setName] = useState<string>('');
   const [saving, setSaving] = useState<boolean>(false);
-
-  let localSave = false;
+  const smDialogRef = useRef<SMDialogRef>(null);
 
   const ReturnToParent = useCallback(
     (didUpload?: boolean) => {
-      setVisible(false);
+      smDialogRef.current?.close();
       setName('');
       setSaving(false);
       onHide?.(didUpload ?? false);
@@ -32,10 +27,10 @@ export const StreamGroupCreateDialog = ({ onHide, showButton }: StreamGroupCreat
   );
 
   const create = useCallback(() => {
-    if (saving || localSave) {
+    if (saving) {
       return;
     }
-    localSave = true;
+
     setSaving(true);
 
     const request = {} as CreateStreamGroupRequest;
@@ -56,45 +51,38 @@ export const StreamGroupCreateDialog = ({ onHide, showButton }: StreamGroupCreat
   }, [name]);
 
   return (
-    <>
-      <Dialog
-        visible={visible}
-        style={{ width: '40vw' }}
-        onHide={() => ReturnToParent()}
-        content={({ hide }) => (
-          <SMCard title="ADD STREAM GROUP" header={<XButton iconFilled={false} onClick={(e) => hide(e)} tooltip="Close" />}>
-            <div className="sm-fileupload w-12 p-0 m-0 ">
-              <div className="flex">
-                <div className="w-6 pt-4">
-                  <div className="w-12 p-2">
-                    <TextInput autoFocus value={name} label="Stream Group Name" onEnter={() => create()} onChange={(e) => setName(e)} />
-                  </div>
-                </div>
-              </div>
-              <div className="flex w-12 gap-2 justify-content-end align-content-center pr-3">
-                {/* <ResetButton disabled={!isSaveEnabled} onClick={() => {}} /> */}
-                <SaveButton
-                  disabled={!isSaveEnabled}
-                  label="Add Stream Group"
-                  onClick={() => {
-                    create();
-                  }}
-                />
-              </div>
-            </div>
-          </SMCard>
-        )}
-      />
-      <div hidden={showButton === false} className="justify-content-center">
-        <AddButton
-          onClick={(e) => {
-            setVisible(true);
-          }}
-          tooltip="Add EPG File"
-          iconFilled={false}
+    <SMDialog
+      widthSize={2}
+      ref={smDialogRef}
+      title="ADD SG"
+      onHide={() => ReturnToParent()}
+      buttonClassName="icon-green-filled"
+      tooltip="Add SG"
+      info="General"
+    >
+      <div className="w-12">
+        <StringEditor
+          disableDebounce
+          darkBackGround
+          autoFocus
+          value={name}
+          label="Stream Group Name"
+          onSave={() => create()}
+          onChange={(e) => e && setName(e)}
         />
+        <div className="layout-padding-bottom-lg" />
+        <div className="flex w-12 justify-content-end align-content-center">
+          <SaveButton
+            disabled={!isSaveEnabled}
+            label="Add Stream Group"
+            onClick={() => {
+              create();
+            }}
+          />
+        </div>
+        <div className="layout-padding-bottom-lg" />
       </div>
-    </>
+    </SMDialog>
   );
 };
 StreamGroupCreateDialog.displayName = 'StreamGroupCreateDialog';

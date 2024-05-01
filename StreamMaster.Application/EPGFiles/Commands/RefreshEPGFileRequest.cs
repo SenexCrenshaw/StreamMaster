@@ -69,7 +69,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
             await Publisher.Publish(new EPGFileAddedEvent(toPublish), cancellationToken).ConfigureAwait(false);
 
             jobManager.SetSuccessful();
-            await messageService.SendSuccess($"Processed EPG {epgFile.Name}");
+            await messageService.SendSuccess($"Refreshed EPG {epgFile.Name}");
             return APIResponse.Success;
 
         }

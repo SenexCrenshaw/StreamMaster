@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace StreamMaster.Application.StreamGroupSMChannelLinks.Commands;
+﻿namespace StreamMaster.Application.StreamGroupSMChannelLinks.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddSMChannelToStreamGroupRequest(int StreamGroupId, int SMChannelId) : IRequest<APIResponse>;
 
 
-internal class AddSMChannelToStreamGroupRequestHandler(IRepositoryWrapper Repository, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor) : IRequestHandler<AddSMChannelToStreamGroupRequest, APIResponse>
+internal class AddSMChannelToStreamGroupRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService) : IRequestHandler<AddSMChannelToStreamGroupRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(AddSMChannelToStreamGroupRequest request, CancellationToken cancellationToken)
     {
@@ -16,7 +14,7 @@ internal class AddSMChannelToStreamGroupRequestHandler(IRepositoryWrapper Reposi
         {
             return APIResponse.ErrorWithMessage(res.ErrorMessage);
         }
-        await hubContext.Clients.All.DataRefresh("StreamGroupSMChannelLinks").ConfigureAwait(false);
+        await dataRefreshService.RefreshStreamGroupSMChannelLinks().ConfigureAwait(false);
         //StreamGroup? streamGroup = Repository.StreamGroup.GetStreamGroup(request.StreamGroupId);
         ////await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
         //if (streamGroup != null)

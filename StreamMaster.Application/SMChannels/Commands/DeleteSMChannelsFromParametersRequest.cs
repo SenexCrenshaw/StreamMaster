@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace StreamMaster.Application.SMChannels.Commands;
+﻿namespace StreamMaster.Application.SMChannels.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record DeleteSMChannelsFromParametersRequest(QueryStringParameters Parameters) : IRequest<APIResponse>;
 
-internal class DeleteSMChannelsFromParametersRequestHandler(IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor) : IRequestHandler<DeleteSMChannelsFromParametersRequest, APIResponse>
+internal class DeleteSMChannelsFromParametersRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService) : IRequestHandler<DeleteSMChannelsFromParametersRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(DeleteSMChannelsFromParametersRequest request, CancellationToken cancellationToken)
     {
@@ -14,7 +12,7 @@ internal class DeleteSMChannelsFromParametersRequestHandler(IRepositoryWrapper R
 
         if (ids.Count != 0)
         {
-            await hubContext.Clients.All.DataRefresh("GetPagedSMChannels").ConfigureAwait(false);
+            await dataRefreshService.RefreshAllSMChannels();
         }
 
         return APIResponse.Success;

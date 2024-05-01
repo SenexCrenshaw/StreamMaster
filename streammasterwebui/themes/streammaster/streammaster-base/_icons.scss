@@ -1,3 +1,13 @@
+.icon-primary {
+    color: $primaryColor;
+}
+
+.icon-primary-filled {
+    background-color: $primaryColor;
+    color: $inputBg;
+    border: 2px solid $primaryColor;
+}
+
 .icon-green {
     color: $iconGreen;
 }

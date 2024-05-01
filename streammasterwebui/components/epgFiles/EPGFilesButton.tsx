@@ -8,18 +8,16 @@ const EPGFilesButton = () => {
   const op = useRef<OverlayPanel>(null);
   const closeOverlay = () => op.current?.hide();
   return (
-    <>
-      <SMOverlay
-        title="EPG FILES"
-        widthSize="5"
-        icon="pi-upload"
-        buttonClassName="icon-green-filled"
-        buttonLabel="EPG"
-        header={<EPGFileCreateDialog onUploadComplete={closeOverlay} />}
-      >
-        <EPGFilesDataSelector />
-      </SMOverlay>
-    </>
+    <SMOverlay
+      title="EPG FILES"
+      widthSize="5"
+      icon="pi-upload"
+      buttonClassName="icon-green-filled"
+      buttonLabel="EPG"
+      header={<EPGFileCreateDialog onUploadComplete={closeOverlay} />}
+    >
+      <EPGFilesDataSelector />
+    </SMOverlay>
   );
 };
 

@@ -23,4 +23,5 @@ public interface ISettingHub
 public interface ISettingTasks
 {
     ValueTask SetIsSystemReady(bool isSystemReady, CancellationToken cancellationToken = default);
+
 }

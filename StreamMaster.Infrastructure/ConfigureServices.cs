@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
+using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure.Logger;
@@ -29,6 +30,7 @@ public static class ConfigureServices
         _ = services.AddSingleton<IFileLoggingServiceFactory, FileLoggingServiceFactory>();
         _ = services.AddSingleton<IStreamTracker, StreamTracker>();
         _ = services.AddSingleton<IMessageService, MessageService>();
+        _ = services.AddSingleton<IDataRefreshService, DataRefreshService>();
 
 
         // If needed, you can also pre-register specific instances

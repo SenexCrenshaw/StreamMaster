@@ -4,7 +4,7 @@ using StreamMaster.Domain.Requests;
 namespace StreamMaster.Application.StreamGroups.Commands;
 
 [LogExecutionTimeAspect]
-public class UpdateStreamGroupRequestHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IRepositoryWrapper Repository, IPublisher Publisher)
+public class UpdateStreamGroupRequestHandler(IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<UpdateStreamGroupRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(UpdateStreamGroupRequest request, CancellationToken cancellationToken)
@@ -17,7 +17,8 @@ public class UpdateStreamGroupRequestHandler(IHubContext<StreamMasterHub, IStrea
         StreamGroupDto? streamGroup = await Repository.StreamGroup.UpdateStreamGroup(request);
         if (streamGroup is not null)
         {
-            await hubContext.Clients.All.DataRefresh("StreamGroups").ConfigureAwait(false);
+            //await hubContext.Clients.All.DataRefresh("StreamGroups").ConfigureAwait(false);
+            await dataRefreshService.RefreshStreamGroups();
             await Publisher.Publish(new StreamGroupUpdateEvent(streamGroup), cancellationToken).ConfigureAwait(false);
         }
 

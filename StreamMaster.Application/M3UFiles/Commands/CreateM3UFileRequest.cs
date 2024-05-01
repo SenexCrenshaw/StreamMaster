@@ -7,7 +7,7 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 public record CreateM3UFileRequest(string Name, int MaxStreamCount, string? UrlSource, int? HoursToUpdate, bool? OverWriteChannels, int? StartingChannelNumber, List<string>? VODTags) : IRequest<APIResponse> { }
 
 [LogExecutionTimeAspect]
-public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, IMessageService messageService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IRepositoryWrapper Repository, IPublisher Publisher)
+public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<CreateM3UFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateM3UFileRequest command, CancellationToken cancellationToken)
@@ -77,10 +77,10 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
 
             Repository.M3UFile.CreateM3UFile(m3UFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
-
             m3UFile.WriteJSON();
 
-            await hubContext.Clients.All.DataRefresh(M3UFile.MainGet).ConfigureAwait(false);
+            await dataRefreshService.RefreshM3UFiles();
+
             await Publisher.Publish(new M3UFileProcessEvent(m3UFile.Id, false), cancellationToken).ConfigureAwait(false);
 
             await messageService.SendSuccess("M3U '" + m3UFile.Name + "' added successfully");

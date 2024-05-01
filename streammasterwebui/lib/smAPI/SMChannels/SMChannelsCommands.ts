@@ -6,6 +6,11 @@ export const GetPagedSMChannels = async (parameters: QueryStringParameters): Pro
   return await signalRService.invokeHubCommand<PagedResponse<SMChannelDto>>('GetPagedSMChannels', parameters);
 };
 
+export const GetSMChannelNames = async (): Promise<string[] | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<string[]>('GetSMChannelNames');
+};
+
 export const CopySMChannel = async (request: CopySMChannelRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('CopySMChannel', request);

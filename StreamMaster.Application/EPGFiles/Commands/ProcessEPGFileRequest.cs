@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record ProcessEPGFileRequest(int Id) : IRequest<APIResponse> { }
 
-public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger, IMessageService messageSevice, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IRepositoryWrapper Repository)
+public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger, IMessageService messageSevice, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
     : IRequestHandler<ProcessEPGFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(ProcessEPGFileRequest request, CancellationToken cancellationToken)
@@ -18,11 +18,7 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
                 return APIResponse.NotFound;
             }
 
-            await hubContext.Clients.All.DataRefresh(EPGFile.MainGet).ConfigureAwait(false);
-            await hubContext.Clients.All.DataRefresh("GetStationChannelNames").ConfigureAwait(false);
-            await hubContext.Clients.All.DataRefresh("EPG").ConfigureAwait(false);
-
-
+            await dataRefreshService.RefreshAllEPG();
 
             await messageSevice.SendSuccess("Processed EPG '" + epgFile.Name + "' successfully");
             return APIResponse.Success;

@@ -1,12 +1,11 @@
 import OKButton from '@components/buttons/OKButton';
+import StringEditor from '@components/inputs/StringEditor';
 import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { CopySMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import useGetSMChannelNames from '@lib/smAPI/SMChannels/useGetSMChannelNames';
 import { CopySMChannelRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
-import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
-import { InputNumber } from 'primereact/inputnumber';
-import React, { useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 
 interface CopySMChannelProperties {
   label: string;
@@ -16,23 +15,50 @@ interface CopySMChannelProperties {
 
 const CopySMChannelDialog = ({ label, onHide, smChannel }: CopySMChannelProperties) => {
   const smDialogRef = useRef<SMDialogRef>(null);
-  const [overwriteNumbers, setOverwriteNumbers] = React.useState<boolean>(true);
-  const [startNumber, setStartNumber] = React.useState<number>(1);
+  const smQuery = useGetSMChannelNames();
 
-  const { queryFilter } = useQueryFilter('streameditor-SMChannelDataSelector');
+  const [newName, setNewName] = React.useState<string>('');
+
+  const getUniqueName = useCallback(
+    (name: string): string => {
+      if (!smQuery.data) {
+        return name;
+      }
+
+      let uniqueName = name;
+      let counter = 1;
+
+      while (smQuery.data.some((x) => x === uniqueName)) {
+        uniqueName = `${name}.${counter}`;
+        counter++;
+      }
+
+      return uniqueName;
+    },
+    [smQuery.data]
+  );
+
+  useEffect(() => {
+    if (smChannel) {
+      const t = getUniqueName(smChannel.Name);
+      setNewName(t);
+    }
+  }, [getUniqueName, smChannel]);
 
   const ReturnToParent = React.useCallback(() => {
     onHide?.();
   }, [onHide]);
 
   const onSave = React.useCallback(async () => {
-    if (!smChannel || !queryFilter) {
+    if (!smChannel) {
       return;
     }
 
     const request = {} as CopySMChannelRequest;
     request.SMChannelId = smChannel.Id;
-    request.NewName = smChannel.Name + '-Copy';
+
+    const t = getUniqueName(newName);
+    request.NewName = t;
 
     CopySMChannel(request)
       .then(() => {})
@@ -42,7 +68,7 @@ const CopySMChannelDialog = ({ label, onHide, smChannel }: CopySMChannelProperti
       .finally(() => {
         smDialogRef.current?.close();
       });
-  }, [queryFilter, smChannel]);
+  }, [getUniqueName, newName, smChannel]);
 
   return (
     <SMDialog
@@ -52,42 +78,13 @@ const CopySMChannelDialog = ({ label, onHide, smChannel }: CopySMChannelProperti
       onHide={() => ReturnToParent()}
       buttonClassName="icon-orange"
       icon="pi-clone"
+      widthSize={2}
       info="General"
     >
       <div className="w-12">
-        <div className="border-1 surface-border flex grid flex-wrap justify-content-center p-0 m-0">
-          <div className="flex flex-column mt-2 col-6">
-            {`Auto set channel numbers ${overwriteNumbers ? 'and overwrite existing numbers ?' : '?'}`}
-            <span className="scalein animation-duration-500 animation-iteration-2 text-bold text-red-500 font-italic mt-2">This will auto save</span>
-          </div>
-
-          <div className=" flex mt-2 col-6 align-items-center justify-content-start p-0 m-0">
-            <span>
-              <div className="flex col-12 justify-content-center align-items-center p-0 m-0  w-full ">
-                <div className="flex col-2 justify-content-center align-items-center p-0 m-0">
-                  <Checkbox checked={overwriteNumbers} id="overwriteNumbers" onChange={(e: CheckboxChangeEvent) => setOverwriteNumbers(e.checked ?? false)} />
-                </div>
-                <span className="flex col-10 text-xs">Overwrite Existing</span>
-              </div>
-
-              <div className="flex col-12 justify-content-center align-items-center p-0 m-0">
-                <div className="flex col-6 justify-content-end align-items-center p-0 m-0">
-                  <span className="text-xs pl-4">Ch. #</span>
-                </div>
-                <div className="flex col-6 pl-1 justify-content-start align-items-center p-0 m-0 w-full">
-                  <InputNumber
-                    className="numbereditorbody"
-                    id="startNumber"
-                    max={999_999}
-                    min={0}
-                    onChange={(e) => e.value && setStartNumber(e.value)}
-                    showButtons
-                    size={3}
-                    value={startNumber}
-                  />
-                </div>
-              </div>
-            </span>
+        <div className="surface-border flex grid flex-wrap justify-content-center p-0 m-0">
+          <div className="flex col-12 pl-1 justify-content-start align-items-center p-0 m-0 w-full">
+            <StringEditor label="New Name" darkBackGround disableDebounce onChange={(e) => e && setNewName(e)} onSave={(e) => {}} value={newName} />
           </div>
           <div className="flex col-12 gap-2 mt-4 justify-content-center ">
             <OKButton onClick={async () => await onSave()} />

@@ -3,7 +3,7 @@
     "LogLevel": {
       "Default": "Information",
       "Microsoft": "Warning",
-      "Microsoft.AspNetCore.SignalR": "Information",
+      "Microsoft.AspNetCore.SignalR": "Debug",
       "Microsoft.AspNetCore.Http.Connections": "Information",
       //"Microsoft.AspNetCore.Mvc.Formatters": "Debug",
       //"System.Xml.Serialization": "Debug",      

@@ -28,6 +28,8 @@ public class DeleteAllChannelGroupsFromParametersRequestHandler(IRepositoryWrapp
             {
                 item.User_Tvg_group = "";
             }
+
+
             await Publisher.Publish(new DeleteChannelGroupsEvent(ChannelGroupIds, VideoStreams), cancellationToken);
 
             return APIResponse.Success;

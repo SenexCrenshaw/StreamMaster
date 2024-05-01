@@ -6761,6 +6761,16 @@
   background-color: #fe7600;
 }
 
+.icon-primary {
+  color: #94abec;
+}
+
+.icon-primary-filled {
+  background-color: #94abec;
+  color: #12181b;
+  border: 2px solid #94abec;
+}
+
 .icon-green {
   color: #22c55e;
 }

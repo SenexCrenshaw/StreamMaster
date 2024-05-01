@@ -17,6 +17,8 @@ namespace BuildClientAPI
         private const string SMAPIFileNamePrefix = @"..\..\..\..\streammasterwebui\lib\smAPI";
         private const string SignalRFilePathPrefix = @"..\..\..\..\streammasterwebui\lib\signalr";
         private const string StoreFilePathPrefix = @"..\..\..\..\streammasterwebui\lib\redux";
+        private const string DataRefreshFilePath = @"..\..\..\..\StreamMaster.Infrastructure\Services\DataRefreshService.cs";
+        private const string IDataRefreshFilePath = @"..\..\..\..\StreamMaster.Domain\Services\IDataRefreshService.cs";
 
         private static void Main(string[] args)
         {
@@ -169,8 +171,6 @@ namespace BuildClientAPI
 
                         string tsHookFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName);
                         TypeScriptHookGenerator.GenerateFile(methods, tsHookFilePath);
-
-
                     }
 
                 }
@@ -180,6 +180,9 @@ namespace BuildClientAPI
 
                 string tsStoreFilePath = Path.Combine(StoreFilePathPrefix, "reducers.ts");
                 StoreGenerator.GenerateFile([.. methodsByNamespace.SelectMany(a => a.Value).Where(a => a.IsGet).OrderBy(a => a.Name)], tsStoreFilePath);
+
+
+                DataRefreshService.GenerateFile(methodsByNamespace, DataRefreshFilePath, IDataRefreshFilePath);
 
                 //string refreshFilePath = Path.Combine(SignalRFilePathPrefix, "useDataRefresh.tsx");
                 //SignalRGeneratorDataRefresh.GenerateFile(methodsByNamespace.SelectMany(a => a.Value).OrderBy(a => a.Name).ToList(), refreshFilePath);

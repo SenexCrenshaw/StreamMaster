@@ -1,39 +1,28 @@
-import { memo } from 'react';
+import { memo, useRef } from 'react';
 
 import BaseButton from '@components/buttons/BaseButton';
-import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
 
+import { OverlayPanel } from 'primereact/overlaypanel';
 import AutoSetSMChannelNumbersDialog from './AutoSetSMChannelNumbersDialog';
 
 export interface SChannelMenuProperties {}
 
 const SMChannelMenu = () => {
-  const accept = () => {};
-
-  const reject = () => {};
-
-  const confirm1 = (event: any) => {
-    confirmPopup({
-      accept,
-      message: (
-        <div className="sm-channel-menu">
-          <AutoSetSMChannelNumbersDialog label="Auto Number" />
-        </div>
-      ),
-      reject,
-      target: event.currentTarget
-    });
-  };
+  const op = useRef<OverlayPanel>(null);
 
   return (
     <>
-      <ConfirmPopup content={({ message, hide }) => <div className="align-items-center p-0"> {message}</div>} />
+      <OverlayPanel ref={op}>
+        <div className="sm-channel-menu">
+          <AutoSetSMChannelNumbersDialog />
+        </div>
+      </OverlayPanel>
       <BaseButton
         className="button-orange"
         icon="pi pi-bars"
         rounded
         onClick={(event) => {
-          confirm1(event);
+          op.current?.toggle(event);
         }}
         aria-controls="popup_menu_right"
         aria-haspopup

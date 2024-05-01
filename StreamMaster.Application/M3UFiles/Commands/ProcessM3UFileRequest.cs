@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record ProcessM3UFileRequest(int M3UFileId, bool ForceRun = false) : IRequest<APIResponse>;
 
-internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IMessageService messageSevice, IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IMessageService messageSevice, IRepositoryWrapper Repository, IDataRefreshService dataRefreshService)
     : IRequestHandler<ProcessM3UFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(ProcessM3UFileRequest request, CancellationToken cancellationToken)
@@ -18,10 +18,11 @@ internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logge
                 return APIResponse.NotFound;
             }
 
-            await hubContext.Clients.All.DataRefresh("GetPagedM3UFiles").ConfigureAwait(false);
-            await hubContext.Clients.All.DataRefresh("GetPagedSMStreams").ConfigureAwait(false);
-            await hubContext.Clients.All.DataRefresh("GetSMChannelStreams").ConfigureAwait(false);
-            await hubContext.Clients.All.DataRefresh("ChannelGroups").ConfigureAwait(false);
+            await dataRefreshService.RefreshAllM3U();
+            //await hubContext.Clients.All.DataRefresh("GetPagedM3UFiles").ConfigureAwait(false);
+            //await hubContext.Clients.All.DataRefresh("GetPagedSMStreams").ConfigureAwait(false);
+            //await hubContext.Clients.All.DataRefresh("GetSMChannelStreams").ConfigureAwait(false);
+            //await hubContext.Clients.All.DataRefresh("ChannelGroups").ConfigureAwait(false);
 
             await messageSevice.SendSuccess("Processed M3U '" + m3uFile.Name + "' successfully");
             return APIResponse.Success;

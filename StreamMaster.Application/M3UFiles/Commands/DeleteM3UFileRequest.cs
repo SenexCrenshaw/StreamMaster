@@ -5,7 +5,7 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record DeleteM3UFileRequest(bool DeleteFile, int Id) : IRequest<APIResponse> { }
 
-public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, IMessageService messageService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IIconService iconService, IRepositoryWrapper Repository, IPublisher Publisher)
+public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, IMessageService messageService, IDataRefreshService dataRefreshService, IIconService iconService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<DeleteM3UFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(DeleteM3UFileRequest request, CancellationToken cancellationToken = default)
@@ -98,16 +98,17 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
 
             iconService.RemoveIconsByM3UFileId(m3UFile.Id);
 
-            await hubContext.Clients.All.DataRefresh(M3UFile.MainGet).ConfigureAwait(false);
-            await hubContext.Clients.All.DataRefresh(SMStream.MainGet).ConfigureAwait(false);
-            await hubContext.Clients.All.DataRefresh("GetSMChannelStreams").ConfigureAwait(false);
+            await dataRefreshService.RefreshAllM3U();
 
-            if (refreshCGs)
-            {
-                await hubContext.Clients.All.DataRefresh("GetPagedChannelGroups").ConfigureAwait(false);
-            }
+            //await hubContext.Clients.All.DataRefresh(M3UFile.MainGet).ConfigureAwait(false);
+            //await hubContext.Clients.All.DataRefresh(SMStream.MainGet).ConfigureAwait(false);
+            //await hubContext.Clients.All.DataRefresh("GetSMChannelStreams").ConfigureAwait(false);
 
-            await hubContext.Clients.All.DataRefresh(M3UFile.MainGet).ConfigureAwait(false);
+            //if (refreshCGs)
+            //{
+            //    await dataRefreshService.RefreshChannelGroups();
+            //}
+
             await messageService.SendSuccess("Deleted M3U '" + m3UFile.Name);
 
             return APIResponse.Success;

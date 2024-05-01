@@ -1,4 +1,5 @@
-﻿using StreamMaster.Application.Services;
+﻿using StreamMaster.Application.Common.Interfaces;
+using StreamMaster.Application.Services;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Infrastructure.EF.PGSQL;
 
@@ -20,6 +21,7 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
 
         using IServiceScope scope = serviceProvider.CreateScope();
         PGSQLRepositoryContext repositoryContext = scope.ServiceProvider.GetRequiredService<PGSQLRepositoryContext>();
+        IDataRefreshService dataRefreshService = scope.ServiceProvider.GetRequiredService<IDataRefreshService>();
 
         //ISchedulesDirectDataService schedulesDirectService = scope.ServiceProvider.GetRequiredService<ISchedulesDirectDataService>();
         await repositoryContext.MigrateData();
@@ -42,6 +44,8 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
             await Task.Delay(250, cancellationToken).ConfigureAwait(false);
         }
 
+
+        await dataRefreshService.RefreshAllSMChannels();
 
         await taskQueue.SetIsSystemReady(true, cancellationToken).ConfigureAwait(false);
 

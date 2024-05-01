@@ -98,49 +98,6 @@ export const EPGFileCreateDialog = ({ onHide, onUploadComplete, showButton }: EP
         <div className="layout-padding-bottom-lg" />
       </div>
     </SMDialog>
-
-    // <>
-    //   <Dialog
-    //     header="Header"
-    //     visible={visible}
-    //     style={{ width: '40vw' }}
-    //     onHide={() => hide()}
-    //     content={({ hide }) => (
-    //       <SMCard title="ADD EPG" header={<XButton iconFilled={false} onClick={(e) => hide(e)} tooltip="Close" />}>
-    //         <div className="sm-fileupload w-12 p-0 m-0 ">
-    //           <div className="px-2">
-    //             <SMFileUpload
-    //               epgFileDto={epgFileDto}
-    //               onCreateFromSource={onCreateFromSource}
-    //               onUploadComplete={() => {
-    //                 ReturnToParent(true);
-    //               }}
-    //               onName={(name) => {
-    //                 setName(name);
-    //               }}
-    //             />
-    //           </div>
-    //           <EPGFileDialog
-    //             selectedFile={epgFileDto}
-    //             onEPGChanged={(e) => {
-    //               setEPGFileDto(e);
-    //             }}
-    //             noButtons
-    //           />
-    //         </div>
-    //       </SMCard>
-    //     )}
-    //   />
-    //   <div hidden={showButton === false} className="justify-content-center">
-    //     <AddButton
-    //       onClick={(e) => {
-    //         setVisible(true);
-    //       }}
-    //       tooltip="Add EPG File"
-    //       iconFilled={false}
-    //     />
-    //   </div>
-    // </>
   );
 };
 EPGFileCreateDialog.displayName = 'EPGFileCreateDialog';

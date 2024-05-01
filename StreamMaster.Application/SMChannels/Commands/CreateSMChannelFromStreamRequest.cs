@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record CreateSMChannelFromStreamRequest(string StreamId) : IRequest<APIResponse>;
 
-internal class CreateSMChannelFromStreamRequestHandler(IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<CreateSMChannelFromStreamRequest, APIResponse>
+internal class CreateSMChannelFromStreamRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService) : IRequestHandler<CreateSMChannelFromStreamRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateSMChannelFromStreamRequest request, CancellationToken cancellationToken)
     {
@@ -14,7 +14,8 @@ internal class CreateSMChannelFromStreamRequestHandler(IRepositoryWrapper Reposi
             return APIResponse.ErrorWithMessage(res.ErrorMessage);
         }
 
-        await hubContext.Clients.All.DataRefresh(SMChannel.MainGet).ConfigureAwait(false);
+        await dataRefreshService.RefreshAllSMChannels();
+
 
         return APIResponse.Success;
     }
