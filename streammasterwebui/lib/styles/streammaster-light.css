@@ -6866,7 +6866,7 @@
   border-bottom: 1px solid #263238;
 }
 
-.sm-input, .stringeditorbody-inputtext, .p-inputnumber-input, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark {
+.sm-input, .stringeditorbody-inputtext, .p-inputnumber-input, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark, .sm-input-dark {
   background-color: transparent;
   width: 100% !important;
   border-radius: 6px;
@@ -6876,10 +6876,26 @@
   max-height: 1.6rem;
   color: #94abec;
 }
-.sm-input .p-dropdown, .stringeditorbody-inputtext .p-dropdown, .p-inputnumber-input .p-dropdown, .stringeditorbody-inputtext-save .p-dropdown, .stringeditorbody-inputtext-dark .p-dropdown {
+.sm-input .p-dropdown, .stringeditorbody-inputtext .p-dropdown, .p-inputnumber-input .p-dropdown, .stringeditorbody-inputtext-save .p-dropdown, .stringeditorbody-inputtext-dark .p-dropdown, .sm-input-dark .p-dropdown {
   background-color: transparent !important;
 }
-.sm-input .p-dropdown-label, .stringeditorbody-inputtext .p-dropdown-label, .p-inputnumber-input .p-dropdown-label, .stringeditorbody-inputtext-save .p-dropdown-label, .stringeditorbody-inputtext-dark .p-dropdown-label {
+.sm-input .p-dropdown-label, .stringeditorbody-inputtext .p-dropdown-label, .p-inputnumber-input .p-dropdown-label, .stringeditorbody-inputtext-save .p-dropdown-label, .stringeditorbody-inputtext-dark .p-dropdown-label, .sm-input-dark .p-dropdown-label {
+  background-color: transparent !important;
+}
+
+.input-border, #startNumber > input, .p-multiselect, .input-border-dark, .sm-input-dark {
+  border: 0.1rem solid #cecece;
+  border-radius: 6px;
+}
+
+.input-border-dark, .sm-input-dark {
+  background-color: #ffffff !important;
+}
+
+.sm-input-dark .p-dropdown {
+  background-color: transparent !important;
+}
+.sm-input-dark .p-dropdown-label {
   background-color: transparent !important;
 }
 
@@ -7138,11 +7154,6 @@
 .p-button.p-button-icon-only {
   padding: 0.5rem 0;
   width: 1.6rem;
-}
-
-.input-border, .p-multiselect, #startNumber > input {
-  border: 0.1rem solid #cecece;
-  border-radius: 6px;
 }
 
 .p-button-label {
@@ -7519,7 +7530,6 @@
   background: transparent;
   transition: box-shadow 0.3s;
   border-radius: 6px;
-  height: 1.6rem;
 }
 .sm-scroller-item:first-child {
   margin-top: 0;
@@ -7865,17 +7875,16 @@
   object-fit: contain;
 }
 
-.icon-template-large {
+.icon-template-lg {
   padding: 0rem !important;
-  margin-right: 1rem;
-  width: 8rem;
+  width: 7rem;
   max-height: 8rem;
   object-fit: contain;
   justify-content: center;
   align-items: center;
 }
-.icon-template-large img {
-  max-width: 6rem;
+.icon-template-lg img {
+  max-width: 5rem;
   max-height: 5rem;
   object-fit: contain;
 }

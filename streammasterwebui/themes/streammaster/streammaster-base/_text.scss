@@ -79,19 +79,37 @@
     }
 }
 
+
+.input-border {
+    border: $inputBorder-size solid $inputHoverBorderColor;
+    border-radius: $borderRadius;
+}
+
+.input-border-dark {
+    @extend .input-border;
+    background-color: $inputBg !important;
+}
+
+.sm-input-dark {
+    @extend .sm-input;
+    @extend .input-border-dark;
+
+    .p-dropdown {
+        background-color: transparent !important;
+    }
+
+    .p-dropdown-label {
+        background-color: transparent !important;
+    }
+}
+
 .stringeditorbody-inputtext {
     @extend .sm-input;
 }
 
 .stringeditorbody-inputtext-dark {
     @extend .stringeditorbody-inputtext;
-
     background-color: $inputBg !important;
-    // border-style: solid !important;
-    // border-color: $inputBorderColor !important;
-    // border-width: 1px !important;
-    // width: 100%;
-
 }
 
 .stringeditorbody-inputtext-save {

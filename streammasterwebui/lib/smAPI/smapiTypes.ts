@@ -544,6 +544,30 @@ export interface UpdateM3UFileRequest
 	Url?: string;
 	VODTags?: string[];
 }
+export interface CreateSMChannelRequest
+{
+	ChannelNumber?: number;
+	EPGId?: string;
+	Group?: string;
+	Logo?: string;
+	Name: string;
+	SMStreamsIds?: string[];
+	StreamingProxyType?: number;
+	TimeShift?: number;
+	VideoStreamHandler?: number;
+}
+export interface UpdateSMChannelRequest
+{
+	AutoUpdate?: boolean;
+	HoursToUpdate?: number;
+	Id: number;
+	MaxStreamCount?: number;
+	Name?: string;
+	OverWriteChannels?: boolean;
+	StartingChannelNumber?: number;
+	Url?: string;
+	VODTags?: string[];
+}
 export interface GetIconsRequest
 {
 }

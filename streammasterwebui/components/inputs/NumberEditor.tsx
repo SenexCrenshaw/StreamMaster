@@ -1,6 +1,4 @@
-import { getTopToolOptions } from '@lib/common/common';
-import { ResetLogoIcon } from '@lib/common/icons';
-import { Button } from 'primereact/button';
+import { FloatLabel } from 'primereact/floatlabel';
 import { useClickOutside } from 'primereact/hooks';
 import { InputNumber } from 'primereact/inputnumber';
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
@@ -9,7 +7,9 @@ import { useDebouncedCallback } from 'use-debounce';
 
 export interface NumberEditorTemplateProperties {
   readonly onChange: (value: number) => void;
+  readonly disableDebounce?: boolean;
   readonly onClick?: () => void;
+  readonly label?: string;
   readonly prefix?: string | undefined;
   readonly resetValue?: number | undefined;
   readonly showSave?: boolean;
@@ -17,6 +17,7 @@ export interface NumberEditorTemplateProperties {
   readonly tooltip?: string | undefined;
   readonly tooltipOptions?: TooltipOptions | undefined;
   readonly value: number | undefined;
+  readonly darkBackGround?: boolean;
 }
 
 const NumberEditor = (props: NumberEditorTemplateProperties) => {
@@ -39,6 +40,22 @@ const NumberEditor = (props: NumberEditorTemplateProperties) => {
     1500,
     {}
   );
+
+  const needsSave = useMemo(() => {
+    return originalValue !== inputValue;
+  }, [inputValue, originalValue]);
+
+  const getDiv = useMemo(() => {
+    let ret = 'stringeditorbody-inputtext';
+    if (props.darkBackGround === true) {
+      ret = 'stringeditorbody-inputtext-dark';
+    }
+    if (needsSave) {
+      ret = 'stringeditorbody-inputtext-save';
+    }
+
+    return ret;
+  }, [needsSave, props.darkBackGround]);
 
   const save = useCallback(
     (forceValueSave?: number | undefined) => {
@@ -97,44 +114,56 @@ const NumberEditor = (props: NumberEditorTemplateProperties) => {
     }
   }, [props.value, setInputValue]);
 
-  const needsSave = useMemo(() => {
-    return originalValue !== inputValue;
-  }, [inputValue, originalValue]);
+  if (!props.label) {
+    return (
+      <div className={getDiv} ref={overlayReference}>
+        <InputNumber
+          id="numbereditorbody-inputtext"
+          locale="en-US"
+          onChange={(e) => {
+            if (props.disableDebounce !== undefined && props.disableDebounce !== true) {
+              debounced(e.value as number);
+            }
+
+            setInputValue(e.value as number);
+          }}
+          onClick={() => {
+            props.onClick?.();
+          }}
+          onFocus={() => setIsFocused(true)}
+          prefix={props.prefix}
+          suffix={props.suffix}
+          tooltip={props.tooltip}
+          tooltipOptions={props.tooltipOptions}
+          value={inputValue}
+        />
+      </div>
+    );
+  }
 
   return (
-    <div className="numbereditorbody relative h-full" ref={overlayReference}>
-      {isFocused && props.resetValue !== undefined && props.resetValue !== 0 && props.resetValue !== inputValue && (
-        <Button
-          className="absolute mt-1 right-0"
-          icon={<ResetLogoIcon sx={{ fontSize: 18 }} />}
-          onClick={() => {
-            setInputValue(props.resetValue === undefined ? 0 : props.resetValue);
-            save(props.resetValue);
+    <div className={props.label ? 'pt-4' : ''}>
+      <FloatLabel>
+        <InputNumber
+          className={getDiv}
+          id="numbereditorbody-inputtext"
+          locale="en-US"
+          onChange={(e) => {
+            debounced(e.value as number);
+            setInputValue(e.value as number);
           }}
-          rounded
-          severity="warning"
-          size="small"
-          tooltip="Reset ChNo"
-          tooltipOptions={getTopToolOptions}
+          onClick={() => {
+            props.onClick?.();
+          }}
+          onFocus={() => setIsFocused(true)}
+          prefix={props.prefix}
+          suffix={props.suffix}
+          tooltip={props.tooltip}
+          tooltipOptions={props.tooltipOptions}
+          value={inputValue}
         />
-      )}
-      <InputNumber
-        className={needsSave ? 'stringeditorbody-inputtext-save' : 'stringeditorbody-inputtext'}
-        locale="en-US"
-        onChange={(e) => {
-          debounced(e.value as number);
-          setInputValue(e.value as number);
-        }}
-        onClick={() => {
-          props.onClick?.();
-        }}
-        onFocus={() => setIsFocused(true)}
-        prefix={props.prefix}
-        suffix={props.suffix}
-        tooltip={props.tooltip}
-        tooltipOptions={props.tooltipOptions}
-        value={inputValue}
-      />
+        <label htmlFor="numbereditorbody-inputtext">{props.label}</label>
+      </FloatLabel>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,CreateM3UFileFromFormRequest,CreateM3UFileRequest,DeleteM3UFileRequest,ProcessM3UFileRequest,RefreshM3UFileRequest,UpdateM3UFileRequest,M3UFileDto,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
+import { APIResponse,CreateM3UFileFromFormRequest,CreateM3UFileRequest,DeleteM3UFileRequest,ProcessM3UFileRequest,RefreshM3UFileRequest,UpdateM3UFileRequest,CreateSMChannelRequest,UpdateSMChannelRequest,M3UFileDto,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const GetM3UFileNames = async (): Promise<string[] | undefined> => {
   const signalRService = SignalRService.getInstance();
@@ -39,5 +39,15 @@ export const RefreshM3UFile = async (request: RefreshM3UFileRequest): Promise<AP
 export const UpdateM3UFile = async (request: UpdateM3UFileRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('UpdateM3UFile', request);
+};
+
+export const CreateSMChannel = async (request: CreateSMChannelRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('CreateSMChannel', request);
+};
+
+export const UpdateSMChannel = async (request: UpdateSMChannelRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('UpdateSMChannel', request);
 };
 

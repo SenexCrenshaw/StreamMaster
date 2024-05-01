@@ -63,6 +63,22 @@ namespace StreamMaster.Application.M3UFiles.Controllers
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> CreateSMChannel(CreateSMChannelRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> UpdateSMChannel(UpdateSMChannelRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
     }
 }
 
@@ -107,6 +123,18 @@ namespace StreamMaster.Application.Hubs
         }
 
         public async Task<APIResponse> UpdateM3UFile(UpdateM3UFileRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> CreateSMChannel(CreateSMChannelRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> UpdateSMChannel(UpdateSMChannelRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

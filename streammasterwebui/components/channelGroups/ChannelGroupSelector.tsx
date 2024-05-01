@@ -12,9 +12,10 @@ type ChannelGroupSelectorProperties = {
   readonly editable?: boolean | undefined;
   readonly value?: string;
   readonly onChange?: (value: string) => void;
+  readonly className?: string | undefined;
 };
 
-const ChannelGroupSelector = ({ enableEditMode = true, value, disabled, editable, onChange }: ChannelGroupSelectorProperties) => {
+const ChannelGroupSelector = ({ enableEditMode = true, className, value, disabled, editable, onChange }: ChannelGroupSelectorProperties) => {
   const [selectedChannelGroup, setSelectedChannelGroup] = useState<ChannelGroupDto>();
   const [input, setInput] = useState<string | undefined>(undefined);
   const [originalInput, setOriginalInput] = useState<string | undefined>(undefined);
@@ -22,6 +23,7 @@ const ChannelGroupSelector = ({ enableEditMode = true, value, disabled, editable
 
   const channelGroupQuery = useGetChannelGroups();
 
+  console.log('ChannelGroupSelector', value);
   useEffect(() => {
     if (!originalInput || originalInput !== value) {
       setOriginalInput(value);
@@ -66,9 +68,9 @@ const ChannelGroupSelector = ({ enableEditMode = true, value, disabled, editable
 
   return (
     <SMOverlay
-      buttonTemplate={<div>{selectedChannelGroup?.Name ?? ''}</div>}
+      buttonTemplate={<div className="sm-input-dark">{input ?? 'No Group'}</div>}
       title="CHANNEL GROUPS"
-      widthSize="5"
+      widthSize="3"
       icon="pi-upload"
       buttonClassName="icon-green-filled"
       buttonLabel="EPG"

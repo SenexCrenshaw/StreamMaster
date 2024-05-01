@@ -54,8 +54,6 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      // { field: 'Logo', fieldType: 'image', sortable: false, width: '4rem' },
-      // { field: 'rank', sortable: false },
       { field: 'Name', sortable: false },
       { field: 'Group', sortable: false, width: '5rem' },
       { field: 'M3UFileName', header: 'M3U', sortable: false, width: '5rem' },
@@ -79,9 +77,6 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
     <div
       onClick={() => {
         if (smChannel) {
-          // if (!selectedSMChannel || selectedSMChannel.Id !== smChannel.Id) {
-          //   setSelectedSMChannel(smChannel);
-          // }
         }
       }}
     >
@@ -120,7 +115,6 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
         }}
         id={dataKey}
         selectedItemsKey={'SMStreamDataSelectorValue-selectSelectedSMStreamDtoItems'}
-        // style={{ height: '20vh' }}
       />
     </div>
   );

@@ -25,8 +25,6 @@ export const StreamGroupSelector = ({ onChange, selectedStreamGroup }: StreamGro
     onChange?.(sg);
   };
 
-  console.log('StreamGroupSelector', selectedStreamGroup, isDisabled);
-
   return (
     <div>
       <Dropdown

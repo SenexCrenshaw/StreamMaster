@@ -312,7 +312,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
                       dataKey="EPGNumber"
                       itemSize={26}
                       itemTemplate={scrollerItemTemplate}
-                      scrollHeight={250}
+                      scrollHeight={150}
                       select
                       selectedItemsKey="EPGSelector-EPGFiles"
                     />
@@ -328,7 +328,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
                       onChange={(e) => {
                         handleOnChange(e.Channel);
                       }}
-                      scrollHeight={250}
+                      scrollHeight={150}
                       value={stationChannelName}
                     />
                   </div>

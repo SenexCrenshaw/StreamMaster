@@ -191,26 +191,6 @@ const StringEditor = ({
 
   return (
     <div className={label ? 'pt-4' : ''} ref={divReference}>
-      {/* {isFocused && resetValue !== undefined && resetValue !== inputValue && (
-        <Button
-          className="absolute right-0"
-          disabled={isLoading}
-          icon={<ResetLogoIcon sx={{ fontSize: 18 }} />}
-          onClick={() => {
-            setInputValue(resetValue === undefined ? '' : resetValue);
-            save(resetValue);
-          }}
-          rounded
-          severity="warning"
-          size="small"
-          text
-          tooltip="Reset Name"
-          tooltipOptions={getTopToolOptions}
-        />
-      )} */}
-
-      {/* {showSave && needsSave && <i className="absolute right-0 pt-1 pi pi-save pr-2 text-500" />} */}
-
       <FloatLabel>
         <span className="flex align-items-center">
           {doShowClear() && (

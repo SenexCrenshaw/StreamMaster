@@ -13,6 +13,8 @@ import SMDataTable from '@components/smDataTable/SMDataTable';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import CopySMChannelDialog from '@components/smchannels/CopySMChannelDialog';
+import CreateSMChannelDialog from '@components/smchannels/CreateSMChannelDialog';
+import EditSMChannelDialog from '@components/smchannels/EditSMChannelDialog';
 import SMChannelMenu from '@components/smchannels/SMChannelMenu';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamGroupButton from '@components/streamGroup/StreamGroupButton';
@@ -83,13 +85,14 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
         <div className="flex p-0 justify-content-end align-items-center">
           <StreamCopyLinkDialog realUrl={data?.RealUrl} />
           <CopySMChannelDialog label="Copy Channel" smChannel={data} />
-          <SMPopUp title="Remove Channel" OK={() => accept()} icon="pi-minus" severity="danger">
+          <SMPopUp title="Remove Channel" OK={() => accept()} icon="pi-times" severity="danger">
             <div>
               "{data.Name}"
               <br />
               Are you sure?
             </div>
           </SMPopUp>
+          <EditSMChannelDialog smChannel={data} />
         </div>
       );
     },
@@ -132,16 +135,15 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
   const rightHeaderTemplate = useMemo(
     () => (
       <div className="flex flex-row justify-content-start align-items-center w-full gap-2 pr-2">
-        <div>
-          <StreamGroupButton />
-        </div>
+        <StreamGroupButton />
+
         <div className="flex flex-row justify-content-end align-items-center w-full gap-2 pr-2">
           <div>
             <EPGFilesButton />
           </div>
 
-          <BaseButton className="button-red" icon="pi pi-times" rounded onClick={() => {}} />
-          <BaseButton className="button-yellow" icon="pi-plus" rounded onClick={() => {}} />
+          <BaseButton className="icon-red-filled" icon="pi pi-times" rounded onClick={() => {}} />
+          <CreateSMChannelDialog />
           <SMChannelMenu />
           {/* <TriSelectShowHidden dataKey={dataKey} /> */}
           {/* <TriSelectShowHidden dataKey={dataKey} />
