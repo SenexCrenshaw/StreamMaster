@@ -214,49 +214,6 @@
     }
 }
 
-.listTemplate-gridItem-container {
-    background-color: var(--surface-card);
-    border-width: 2px;
-    border-color: var(--surface-border);
-    border-radius: var(--border-radius);
-    border-style: solid;
-    height: $gridItem-height;
-    width: $gridItem-width;
-    max-height: $gridItem-height;
-    max-width: $gridItem-width;
-    margin: $gridItem-margin;
-
-    &.selected {
-        border: 2px solid $streamMasterColor;
-    }
-}
-
-.listTemplate-gridItem-container button {
-    align-items: center;
-    justify-content: center;
-    background-color: var(--surface-card);
-    border-width: 0px;
-    border-color: transparent;
-    padding: 0;
-    margin: 0;
-
-    height: 100%;
-    width: 100%;
-}
-
-.listTemplate-gridItem {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.listTemplate-gridItem img {
-    max-height: $gridItem-image-height;
-    max-width: $gridItem-image-width;
-    object-fit: contain;
-}
-
-
 .p-datatable-thead {
     padding: 0;
 }

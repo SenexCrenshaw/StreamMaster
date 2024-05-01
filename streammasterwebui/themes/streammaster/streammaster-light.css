@@ -4624,6 +4624,9 @@
     border-radius: 6px;
     box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
   }
+  .p-overlaypanel .sm-dialog {
+    padding: 0 !important;
+  }
   .p-overlaypanel .p-overlaypanel-content {
     padding: 1rem;
   }
@@ -6892,7 +6895,7 @@
   color: #94abec;
 }
 
-.sm-input-border, .sm-card .sm-card-info, .sm-card .sm-card-header, .sm-card .sm-card-children, .sm-streamgroupselector, .sm-datatable-header, .p-datatable-wrapper, .sm-standard-header {
+.sm-input-border, .icon-template img, .sm-list-container, .sm-card .sm-card-info, .sm-card .sm-card-header, .sm-card .sm-card-children, .sm-streamgroupselector, .sm-datatable-header, .p-datatable-wrapper, .sm-standard-header {
   border-radius: 6px;
   border-color: #263238;
   border-width: 1px;
@@ -7115,46 +7118,6 @@
   padding-left: 0.1rem;
   padding-right: 0.1rem;
 }
-.listTemplate-gridItem-container {
-  background-color: var(--surface-card);
-  border-width: 2px;
-  border-color: var(--surface-border);
-  border-radius: var(--border-radius);
-  border-style: solid;
-  height: 6rem;
-  width: 4rem;
-  max-height: 6rem;
-  max-width: 4rem;
-  margin: 0.15rem;
-}
-.listTemplate-gridItem-container.selected {
-  border: 2px solid #fe7600;
-}
-
-.listTemplate-gridItem-container button {
-  align-items: center;
-  justify-content: center;
-  background-color: var(--surface-card);
-  border-width: 0px;
-  border-color: transparent;
-  padding: 0;
-  margin: 0;
-  height: 100%;
-  width: 100%;
-}
-
-.listTemplate-gridItem {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.listTemplate-gridItem img {
-  max-height: 4.1rem;
-  max-width: 3.7rem;
-  object-fit: contain;
-}
-
 .p-datatable-thead {
   padding: 0;
 }
@@ -7439,10 +7402,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding-bottom: 1rem !important;
-  padding-top: 1rem !important;
-  padding-left: 0.5rem !important;
-  padding-right: 0.5rem !important;
+  padding: 0 !important;
 }
 
 .sm-menu-item {
@@ -7455,9 +7415,6 @@
 
 .sm-overlay, .sm-dialog {
   background-color: var(--surface-ground);
-}
-.sm-overlay .p-overlaypanel-content, .sm-dialog .p-overlaypanel-content {
-  padding: 0;
 }
 .sm-overlay .p-float-label, .sm-dialog .p-float-label {
   font-size: 0.75rem;
@@ -7493,6 +7450,7 @@
   height: 0;
   max-width: 0;
 }
+
 .sm-button-label, .sm-button {
   height: 1.6rem;
   padding-bottom: 0.1rem;
@@ -7561,6 +7519,7 @@
   background: transparent;
   transition: box-shadow 0.3s;
   border-radius: 6px;
+  height: 1.6rem;
 }
 .sm-scroller-item:first-child {
   margin-top: 0;
@@ -7591,6 +7550,46 @@
 }
 .sm-scroller-item.p-highlight.p-focus {
   background: #aebbe8;
+}
+
+.sm-list-container {
+  height: 6rem;
+  width: 4rem;
+  max-height: 6rem;
+  max-width: 4rem;
+  margin: 0.15rem;
+}
+.sm-list-container .listTemplate-button {
+  align-items: center;
+  justify-content: center;
+  background-color: var(--surface-card);
+  border-width: 0px;
+  border-color: transparent;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+}
+.sm-list-container .listTemplate-button:not(.p-disabled):hover {
+  background: #ced6f1;
+  border-color: #cecece;
+  border-radius: 6px;
+  border-style: solid;
+  border-width: 1px;
+  color: #585858;
+}
+.sm-list-container .sm-image-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sm-list-container .sm-image-item .img {
+  max-height: 4.1rem;
+  max-width: 3.7rem;
+  object-fit: contain;
+}
+.sm-list-container.selected {
+  border: 2px solid #fe7600;
 }
 
 .p-datatable {
@@ -7844,10 +7843,26 @@
   color: #6c6c6c;
 }
 
+.default-icon {
+  max-width: 4rem;
+  max-height: 1.3rem;
+  object-fit: contain;
+}
+
 .icon-template {
   height: 1.6rem;
+  max-height: 1.6rem;
   justify-content: center;
   align-items: center;
+}
+.icon-template .no-border {
+  border: none;
+}
+.icon-template img {
+  padding: 0.2rem;
+  height: 1.6rem;
+  width: 4rem;
+  object-fit: contain;
 }
 
 .icon-template-large {
@@ -7862,13 +7877,6 @@
 .icon-template-large img {
   max-width: 6rem;
   max-height: 5rem;
-  object-fit: contain;
-}
-
-.icon-template img,
-.default-icon {
-  max-width: 4rem;
-  max-height: 1.3rem;
   object-fit: contain;
 }
 

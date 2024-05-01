@@ -1,7 +1,27 @@
+.default-icon {
+  max-width: $gridItem-width;
+  max-height: 1.3rem;
+  object-fit: contain;
+}
+
 .icon-template {
+
   height: $input-height;
+  max-height: $input-height;
   justify-content: center;
   align-items: center;
+
+  .no-border {
+    border: none;
+  }
+
+  img {
+    @extend .sm-input-border;
+    padding: 0.2rem;
+    height: $input-height;
+    width: $gridItem-width;
+    object-fit: contain;
+  }
 }
 
 .icon-template-large {
@@ -20,12 +40,7 @@
   }
 }
 
-.icon-template img,
-.default-icon {
-  max-width: $gridItem-width;
-  max-height: 1.3rem;
-  object-fit: contain;
-}
+
 
 .icon-option-template {
   display: flex;

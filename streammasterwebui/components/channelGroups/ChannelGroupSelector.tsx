@@ -1,10 +1,10 @@
+import { SMOverlay } from '@components/sm/SMOverlay';
+import SMScroller from '@components/sm/SMScroller';
 import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
 import useGetIsSystemReady from '@lib/smAPI/Settings/useGetIsSystemReady';
 import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
-import { Dropdown } from 'primereact/dropdown';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { classNames } from 'primereact/utils';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 type ChannelGroupSelectorProperties = {
   readonly enableEditMode?: boolean;
@@ -15,8 +15,6 @@ type ChannelGroupSelectorProperties = {
 };
 
 const ChannelGroupSelector = ({ enableEditMode = true, value, disabled, editable, onChange }: ChannelGroupSelectorProperties) => {
-  const dropDownRef = useRef<Dropdown>(null);
-
   const [selectedChannelGroup, setSelectedChannelGroup] = useState<ChannelGroupDto>();
   const [input, setInput] = useState<string | undefined>(undefined);
   const [originalInput, setOriginalInput] = useState<string | undefined>(undefined);
@@ -37,49 +35,20 @@ const ChannelGroupSelector = ({ enableEditMode = true, value, disabled, editable
     }
   }, [value, originalInput, channelGroupQuery.data]);
 
-  const itemTemplate = useCallback(
-    (option: ChannelGroupDto): JSX.Element => {
-      if (!option) {
-        return <div>{input}</div>;
-      }
-      return <div>{option.Name}</div>;
-    },
-    [input]
-  );
+  const itemTemplate = useCallback((option: ChannelGroupDto): JSX.Element => {
+    return <div className="text-xs pl-2">{option.Name}</div>;
+  }, []);
 
-  const valueTemplate = useCallback(
-    (option: ChannelGroupDto): JSX.Element => {
-      if (!option) {
-        return <div>{input}</div>;
-      }
-      return <div>{option.Name}</div>;
-    },
-    [input]
-  );
-
-  const handleOnChange = (group: string) => {
+  const handleOnChange = (group: ChannelGroupDto) => {
     if (!group) {
       return;
     }
 
-    setInput(group);
+    setInput(group.Name);
 
-    dropDownRef.current?.hide();
     // setOriginalInput(undefined);
-    onChange && onChange(group);
+    onChange && onChange(group.Name);
   };
-
-  const options = useMemo(() => {
-    if (!channelGroupQuery.data) {
-      return undefined;
-    }
-
-    return channelGroupQuery.data;
-  }, [channelGroupQuery.data]);
-
-  const className = classNames('max-w-full w-full channelGroupSelector', {
-    'p-disabled': disabled
-  });
 
   if (!enableEditMode) {
     return <div className="flex w-full h-full justify-content-center align-items-center p-0 m-0">{input ?? 'Dummy'}</div>;
@@ -97,32 +66,26 @@ const ChannelGroupSelector = ({ enableEditMode = true, value, disabled, editable
   }
 
   return (
-    <div className="sm-input flex align-contents-center w-full min-w-full h-full ">
-      <Dropdown
-        className={className}
-        disabled={loading}
-        filterInputAutoFocus
+    <SMOverlay
+      buttonTemplate={<div>{selectedChannelGroup?.Name ?? ''}</div>}
+      title="CHANNEL GROUPS"
+      widthSize="5"
+      icon="pi-upload"
+      buttonClassName="icon-green-filled"
+      buttonLabel="EPG"
+    >
+      <SMScroller
+        data={channelGroupQuery.data}
+        onChange={(e) => handleOnChange(e)}
+        dataKey="Name"
         filter
         filterBy="Name"
+        itemSize={26}
         itemTemplate={itemTemplate}
-        loading={loading}
-        onChange={(e) => {
-          handleOnChange(e?.value?.Name);
-        }}
-        onHide={() => {}}
-        optionLabel="Name"
-        options={options}
-        placeholder="placeholder"
-        ref={dropDownRef}
-        resetFilterOnHide
-        showFilterClear={false}
+        scrollHeight={250}
         value={selectedChannelGroup}
-        valueTemplate={valueTemplate}
-        virtualScrollerOptions={{
-          itemSize: 26
-        }}
       />
-    </div>
+    </SMOverlay>
   );
 };
 

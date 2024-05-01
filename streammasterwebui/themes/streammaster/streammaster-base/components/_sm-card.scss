@@ -1,10 +1,6 @@
 .sm-overlay {
     background-color: var(--surface-ground);
 
-    .p-overlaypanel-content {
-        padding: 0;
-    }
-
     .p-float-label {
         font-size: $common-font-size;
     }
@@ -50,8 +46,4 @@
         }
     }
 
-    .p-button {
-        //height: $input-height;
-        // width: $input-height;
-    }
 }

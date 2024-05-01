@@ -1,12 +1,13 @@
 import BaseButton from '@components/buttons/BaseButton';
 import XButton from '@components/buttons/XButton';
 import { OverlayPanel } from 'primereact/overlaypanel';
-import { useRef } from 'react';
+import React, { ReactNode, useRef } from 'react';
 import { SMCard } from './SMCard';
 
 interface SMOverlayProperties {
+  readonly buttonTemplate?: ReactNode;
   readonly children: React.ReactNode;
-  readonly header: React.ReactNode;
+  readonly header?: React.ReactNode;
   readonly buttonClassName?: string | undefined;
   readonly buttonLabel?: string | undefined;
   readonly icon?: string | undefined;
@@ -17,6 +18,7 @@ interface SMOverlayProperties {
 }
 
 export const SMOverlay = ({
+  buttonTemplate,
   buttonClassName = '',
   buttonLabel = '',
   children,
@@ -28,6 +30,21 @@ export const SMOverlay = ({
   widthSize = '4'
 }: SMOverlayProperties) => {
   const op = useRef<OverlayPanel>(null);
+
+  const renderButton = () => {
+    if (buttonTemplate) {
+      return (
+        <div
+          onClick={(e) => {
+            op.current?.toggle(e);
+          }}
+        >
+          {buttonTemplate}
+        </div>
+      );
+    }
+    return <BaseButton className={buttonClassName} iconFilled icon={icon} tooltip={tooltip} label={buttonLabel} onClick={(e) => op.current?.toggle(e)} />;
+  };
 
   return (
     <>
@@ -44,7 +61,7 @@ export const SMOverlay = ({
           {children}
         </SMCard>
       </OverlayPanel>
-      <BaseButton className={buttonClassName} iconFilled icon={icon} tooltip={tooltip} label={buttonLabel} onClick={(e) => op.current?.toggle(e)} />
+      {renderButton()}
     </>
   );
 };
