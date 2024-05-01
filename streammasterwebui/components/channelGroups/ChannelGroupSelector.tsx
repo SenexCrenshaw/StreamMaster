@@ -112,7 +112,6 @@ const ChannelGroupSelector = ({ enableEditMode = true, value, disabled, editable
         onHide={() => {}}
         optionLabel="Name"
         options={options}
-        panelClassName="sm-channelgroup-editor-panel"
         placeholder="placeholder"
         ref={dropDownRef}
         resetFilterOnHide

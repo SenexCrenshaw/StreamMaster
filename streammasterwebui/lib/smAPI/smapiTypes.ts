@@ -490,6 +490,9 @@ export interface RemoveStation
 {
 	Requests: StationRequest[];
 }
+export interface GetM3UFileNamesRequest
+{
+}
 export interface GetPagedM3UFilesRequest
 {
 	Parameters: QueryStringParameters;

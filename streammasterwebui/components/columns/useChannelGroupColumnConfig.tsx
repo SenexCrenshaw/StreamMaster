@@ -1,8 +1,8 @@
-import ChannelGroupEditor from '../channelGroups/ChannelGroupEditor';
+import SMChannelGroupEditor from './SMChannel/SMChannelGroupEditor';
 import createMultiSelectColumnConfigHook from './createVideoStreamMultiSelectColumnConfigHook';
 
 export const useChannelGroupColumnConfig = createMultiSelectColumnConfigHook({
-  EditorComponent: ChannelGroupEditor,
+  EditorComponent: SMChannelGroupEditor,
   dataField: 'user_Tvg_group',
   headerTitle: 'Group',
   // queryHook: useChannelGroupsGetChannelGroupNamesQuery,

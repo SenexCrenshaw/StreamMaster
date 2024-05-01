@@ -11,6 +11,10 @@ namespace StreamMaster.Domain.API
         public string? ErrorMessage { get; set; }
         public bool IsError { get; set; }
 
+        public static APIResponse ErrorWithMessage(Exception exception, string message, string? errorMessage)
+        {
+            return new APIResponse { ErrorMessage = errorMessage, IsError = true };
+        }
 
         public static APIResponse ErrorWithMessage(string? errorMessage)
         {

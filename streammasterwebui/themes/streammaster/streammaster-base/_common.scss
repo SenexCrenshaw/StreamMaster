@@ -123,39 +123,39 @@
     }
 }
 
-.sm-epg-editor-panel {
-    border-width: 2px !important;
-    border-style: solid !important;
-    border-color: var(--surface-100) !important;
-    border-top-left-radius: 0 !important;
-    border-bottom-left-radius: 0 !important;
-    border-left-style: none !important;
+// .sm-epg-editor-panel {
+//     border-width: 2px !important;
+//     border-style: solid !important;
+//     border-color: var(--surface-100) !important;
+//     border-top-left-radius: 0 !important;
+//     border-bottom-left-radius: 0 !important;
+//     border-left-style: none !important;
 
-    .p-dropdown-filter-container {
-        @extend .input-border;
-    }
+//     .p-dropdown-filter-container {
+//         @extend .input-border;
+//     }
 
-    .p-virtualscroller-content {
-        padding-top: 0.5rem;
-        padding-left: 1rem;
-        border-width: 1px !important;
-        border-right-style: solid !important;
-        border-color: var(--surface-100) !important;
-    }
+//     .p-virtualscroller-content {
+//         padding-top: 0.5rem;
+//         padding-left: 1rem;
+//         border-width: 1px !important;
+//         border-right-style: solid !important;
+//         border-color: var(--surface-100) !important;
+//     }
 
-    .sm-sidecar {
-        border-width: 2px !important;
-        border-style: solid !important;
-        border-color: var(--surface-100) !important;
-        border-top-right-radius: 0 !important;
-        border-bottom-right-radius: 0 !important;
-        border-right-style: none !important;
-    }
-}
+//     .sm-sidecar {
+//         border-width: 2px !important;
+//         border-style: solid !important;
+//         border-color: var(--surface-100) !important;
+//         border-top-right-radius: 0 !important;
+//         border-bottom-right-radius: 0 !important;
+//         border-right-style: none !important;
+//     }
+// }
 
-.sm-channelgroup-editor-panel {
-    @extend .sm-epg-editor-panel;
-}
+// .sm-channelgroup-editor-panel {
+//     @extend .sm-epg-editor-panel;
+// }
 
 .p-dropdown-panel {
     .p-dropdown-filter {

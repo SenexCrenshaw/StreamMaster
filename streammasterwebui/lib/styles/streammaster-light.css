@@ -7077,30 +7077,6 @@
   height: 1.8rem !important;
 }
 
-.sm-epg-editor-panel, .sm-channelgroup-editor-panel {
-  border-width: 2px !important;
-  border-style: solid !important;
-  border-color: var(--surface-100) !important;
-  border-top-left-radius: 0 !important;
-  border-bottom-left-radius: 0 !important;
-  border-left-style: none !important;
-}
-.sm-epg-editor-panel .p-virtualscroller-content, .sm-channelgroup-editor-panel .p-virtualscroller-content {
-  padding-top: 0.5rem;
-  padding-left: 1rem;
-  border-width: 1px !important;
-  border-right-style: solid !important;
-  border-color: var(--surface-100) !important;
-}
-.sm-epg-editor-panel .sm-sidecar, .sm-channelgroup-editor-panel .sm-sidecar {
-  border-width: 2px !important;
-  border-style: solid !important;
-  border-color: var(--surface-100) !important;
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
-  border-right-style: none !important;
-}
-
 .p-dropdown-panel .p-dropdown-filter {
   height: 1.8rem;
 }
@@ -7201,7 +7177,7 @@
   width: 1.6rem;
 }
 
-.input-border, .p-multiselect, .sm-epg-editor-panel .p-dropdown-filter-container, .sm-channelgroup-editor-panel .p-dropdown-filter-container, #startNumber > input {
+.input-border, .p-multiselect, #startNumber > input {
   border: 0.1rem solid #cecece;
   border-radius: 6px;
 }
@@ -7479,6 +7455,9 @@
 
 .sm-overlay, .sm-dialog {
   background-color: var(--surface-ground);
+}
+.sm-overlay .p-overlaypanel-content, .sm-dialog .p-overlaypanel-content {
+  padding: 0;
 }
 .sm-overlay .p-float-label, .sm-dialog .p-float-label {
   font-size: 0.75rem;

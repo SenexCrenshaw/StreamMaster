@@ -1,23 +1,22 @@
-import SMChannelGroupEditor from '@components/columns/SMChannel/SMChannelGroupEditor';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { isEmptyObject } from '@lib/common/common';
-import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
-import { ChannelGroupDto, SMChannelDto } from '@lib/smAPI/smapiTypes';
+import useGetM3UFileNames from '@lib/smAPI/M3UFiles/useGetM3UFileNames';
+import { SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import { ReactNode, useCallback, useRef } from 'react';
 
-export const useSMChannelGroupColumnConfig = () => {
-  const { data } = useGetChannelGroups();
+export const useSMStreamM3UColumnConfig = () => {
+  const { data } = useGetM3UFileNames();
 
   const multiSelectRef = useRef<MultiSelect>(null);
 
-  const itemTemplate = useCallback((option: ChannelGroupDto) => {
+  const itemTemplate = useCallback((option: string) => {
     if (option === undefined) {
       return null;
     }
 
-    return <span>{option.Name}</span>;
+    return <span>{option}</span>;
   }, []);
 
   function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
@@ -45,17 +44,17 @@ export const useSMChannelGroupColumnConfig = () => {
       />
     );
   }
-  const bodyTemplate = (bodyData: SMChannelDto) => {
-    return <SMChannelGroupEditor data={bodyData} />;
+  const bodyTemplate = (bodyData: SMStreamDto) => {
+    return <div>{bodyData.M3UFileName}</div>;
   };
 
   const columnConfig: ColumnMeta = {
     align: 'left',
     bodyTemplate: bodyTemplate,
-    field: 'Group',
+    field: 'M3UFileName',
     filter: true,
     filterElement: filterTemplate,
-    header: 'Group',
+    header: 'M3UFileName',
     maxWidth: '10rem',
     sortable: true
   };

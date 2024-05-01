@@ -1,6 +1,11 @@
 import SignalRService from '@lib/signalr/SignalRService';
 import { APIResponse,CreateM3UFileFromFormRequest,CreateM3UFileRequest,DeleteM3UFileRequest,ProcessM3UFileRequest,RefreshM3UFileRequest,UpdateM3UFileRequest,M3UFileDto,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
+export const GetM3UFileNames = async (): Promise<string[] | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<string[]>('GetM3UFileNames');
+};
+
 export const GetPagedM3UFiles = async (parameters: QueryStringParameters): Promise<PagedResponse<M3UFileDto> | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<PagedResponse<M3UFileDto>>('GetPagedM3UFiles', parameters);

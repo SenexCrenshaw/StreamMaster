@@ -50,6 +50,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
     public async Task RefreshM3UFiles()
     {
+        await hub.Clients.All.DataRefresh("GetM3UFileNames");
         await hub.Clients.All.DataRefresh("GetPagedM3UFiles");
     }
 

@@ -9,6 +9,22 @@ namespace StreamMaster.Application.M3UFiles.Controllers
 
         [HttpGet]
         [Route("[action]")]
+        public async Task<ActionResult<List<string>>> GetM3UFileNames()
+        {
+            try
+            {
+            DataResponse<List<string>> ret = await Sender.Send(new GetM3UFileNamesRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetM3UFileNames.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetM3UFileNames.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
         public async Task<ActionResult<PagedResponse<M3UFileDto>>> GetPagedM3UFiles([FromQuery] QueryStringParameters Parameters)
         {
             PagedResponse<M3UFileDto> ret = await Sender.Send(new GetPagedM3UFilesRequest(Parameters)).ConfigureAwait(false);
@@ -54,6 +70,12 @@ namespace StreamMaster.Application.Hubs
 {
     public partial class StreamMasterHub : IM3UFilesHub
     {
+        public async Task<List<string>> GetM3UFileNames()
+        {
+             DataResponse<List<string>> ret = await Sender.Send(new GetM3UFileNamesRequest()).ConfigureAwait(false);
+            return ret.Data;
+        }
+
         public async Task<PagedResponse<M3UFileDto>> GetPagedM3UFiles(QueryStringParameters Parameters)
         {
             PagedResponse<M3UFileDto> ret = await Sender.Send(new GetPagedM3UFilesRequest(Parameters)).ConfigureAwait(false);

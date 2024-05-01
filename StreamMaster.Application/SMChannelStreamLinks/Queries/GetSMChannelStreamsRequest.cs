@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Exceptions;
-
-namespace StreamMaster.Application.SMChannelStreamLinks.Queries;
+﻿namespace StreamMaster.Application.SMChannelStreamLinks.Queries;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -15,7 +13,8 @@ internal class GetSMChannelStreamssRequestHandler(IRepositoryWrapper Repository,
         SMChannel? channel = Repository.SMChannel.GetSMChannel(request.SMChannelId);
         if (channel == null)
         {
-            throw new APIException($"Channel with Id {request.SMChannelId} is not found");
+            return DataResponse<List<SMStreamDto>>.ErrorWithMessage("Failed to retreieve");
+
         }
 
         List<SMChannelStreamLink> links = Repository.SMChannelStreamLink.GetQuery(true).Where(a => a.SMChannelId == request.SMChannelId).ToList();

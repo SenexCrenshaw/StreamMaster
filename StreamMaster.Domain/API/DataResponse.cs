@@ -11,6 +11,7 @@ public static class DataResponse
     public static DataResponse<bool> True => new() { Message = "OK", Data = true };
     public static DataResponse<bool> False => new() { Message = "OK", Data = false };
 
+
 }
 
 [RequireAll]
@@ -58,10 +59,17 @@ public class DataResponse<T> : APIResponse
 
     public static new DataResponse<T> ErrorWithMessage(Exception exception, string message)
     {
+        var ErrorMessage = $"{message} : {exception}";
+
+        return ErrorWithMessage(ErrorMessage);
+    }
+
+    public static new DataResponse<T> ErrorWithMessage(string message)
+    {
         DataResponse<T> error = new()
         {
             IsError = true,
-            ErrorMessage = $"{message} : {exception}"
+            ErrorMessage = message
         };
         return error;
     }

@@ -1,13 +1,13 @@
 import { SetSMChannelGroup } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { SMChannelDto, SetSMChannelGroupRequest } from '@lib/smAPI/smapiTypes';
 import { memo } from 'react';
-import ChannelGroupSelector from './ChannelGroupSelector';
+import ChannelGroupSelector from '../../channelGroups/ChannelGroupSelector';
 
-interface ChannelGroupEditorProperties {
+interface SMChannelGroupEditorProperties {
   readonly data: SMChannelDto;
 }
 
-const ChannelGroupEditor = ({ data }: ChannelGroupEditorProperties) => {
+const SMChannelGroupEditor = ({ data }: SMChannelGroupEditorProperties) => {
   const onUpdateVideoStream = async (group: string) => {
     if (!data.Id) {
       return;
@@ -34,4 +34,4 @@ const ChannelGroupEditor = ({ data }: ChannelGroupEditorProperties) => {
   );
 };
 
-export default memo(ChannelGroupEditor);
+export default memo(SMChannelGroupEditor);

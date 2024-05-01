@@ -1,13 +1,12 @@
-import SMChannelGroupEditor from '@components/columns/SMChannel/SMChannelGroupEditor';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { isEmptyObject } from '@lib/common/common';
 import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
-import { ChannelGroupDto, SMChannelDto } from '@lib/smAPI/smapiTypes';
+import { ChannelGroupDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import { ReactNode, useCallback, useRef } from 'react';
 
-export const useSMChannelGroupColumnConfig = () => {
+export const useSMStreamGroupColumnConfig = () => {
   const { data } = useGetChannelGroups();
 
   const multiSelectRef = useRef<MultiSelect>(null);
@@ -45,8 +44,8 @@ export const useSMChannelGroupColumnConfig = () => {
       />
     );
   }
-  const bodyTemplate = (bodyData: SMChannelDto) => {
-    return <SMChannelGroupEditor data={bodyData} />;
+  const bodyTemplate = (bodyData: SMStreamDto) => {
+    return <div>{bodyData.Group}</div>;
   };
 
   const columnConfig: ColumnMeta = {

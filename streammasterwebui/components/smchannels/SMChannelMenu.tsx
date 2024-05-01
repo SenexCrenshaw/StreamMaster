@@ -12,7 +12,7 @@ const SMChannelMenu = () => {
 
   return (
     <>
-      <OverlayPanel ref={op}>
+      <OverlayPanel className="sm-overlay" ref={op}>
         <div className="sm-channel-menu">
           <AutoSetSMChannelNumbersDialog />
         </div>

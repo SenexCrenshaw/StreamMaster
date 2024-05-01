@@ -12,6 +12,8 @@ import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 
 import BaseButton from '@components/buttons/BaseButton';
+import { useSMStreamGroupColumnConfig } from '@components/columns/SMStreams/useSMChannelGroupColumnConfig';
+import { useSMStreamM3UColumnConfig } from '@components/columns/SMStreams/useSMStreamM3UColumnConfig';
 import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
 import StreamMultiVisibleDialog from '@components/smstreams/StreamMultiVisibleDialog';
 import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
@@ -41,7 +43,8 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
 
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { setSelectedSMStreams } = useSelectSMStreams(dataKey);
-
+  const groupColumnConfig = useSMStreamGroupColumnConfig();
+  const smStreamM3UColumnConfig = useSMStreamM3UColumnConfig();
   const { queryFilter } = useQueryFilter(dataKey);
   const { isLoading } = useGetPagedSMStreams(queryFilter);
 
@@ -77,11 +80,13 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
     (): ColumnMeta[] => [
       // { field: 'Logo', fieldType: 'image' },
       { field: 'Name', filter: true, sortable: true, width: '18rem' },
-      { field: 'Group', filter: true, sortable: true },
-      { field: 'M3UFileName', filter: true, header: 'M3U', sortable: true },
+      groupColumnConfig,
+      smStreamM3UColumnConfig,
+      // { field: 'Group', filter: true, sortable: true },
+      // { field: 'M3UFileName', filter: true, header: 'M3U', sortable: true },
       { align: 'right', bodyTemplate: actionBodyTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '4rem' }
     ],
-    [actionBodyTemplate]
+    [actionBodyTemplate, groupColumnConfig, smStreamM3UColumnConfig]
   );
 
   const addOrRemoveTemplate = useCallback(
