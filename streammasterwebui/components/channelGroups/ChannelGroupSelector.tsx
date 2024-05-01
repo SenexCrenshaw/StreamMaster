@@ -46,7 +46,6 @@ const ChannelGroupSelector = ({ enableEditMode = true, value, disabled, editable
 
     setInput(group.Name);
 
-    // setOriginalInput(undefined);
     onChange && onChange(group.Name);
   };
 

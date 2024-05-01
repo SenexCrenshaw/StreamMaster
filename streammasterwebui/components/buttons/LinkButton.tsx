@@ -15,29 +15,26 @@ export const LinkButton = ({
   const [, copyToClipboard] = useCopyToClipboard(true);
   const [copied, setCopied] = useState(false);
 
-  const icon = bolt ? 'pi pi-bolt' : filled === true ? 'pi pi-bookmark-fill' : 'pi pi-bookmark';
+  const icon = bolt ? 'pi pi-bolt icon-primary' : filled === true ? 'pi pi-bookmark-fill icon-primary' : 'pi pi-bookmark icon-primary';
 
   return (
-    <div style={{ position: 'relative' }}>
-      <div className="flex justify-content-center align-items-center">
-        <a
-          href={link}
-          onClick={(e) => {
-            e.preventDefault(); // Prevent default behavior (navigation)
+    <div className="flex justify-content-center align-items-center">
+      <a
+        href={link}
+        onClick={(e) => {
+          e.preventDefault();
 
-            void copyToClipboard(link).then((ifCopied) => {
-              setCopied(ifCopied);
-              setTimeout(() => setCopied(false), 750);
-            });
-          }}
-          rel="noopener noreferrer"
-          target="_blank"
-          title={title}
-        >
-          {/* Conditionally render the icon based on the copied state */}
-          <i className={copied ? 'pi pi-copy' : icon} />
-        </a>
-      </div>
+          void copyToClipboard(link).then((ifCopied) => {
+            setCopied(ifCopied);
+            setTimeout(() => setCopied(false), 750);
+          });
+        }}
+        rel="noopener noreferrer"
+        target="_blank"
+        title={title}
+      >
+        <i className={copied ? 'pi pi-copy icon-primary' : icon} />
+      </a>
     </div>
   );
 };

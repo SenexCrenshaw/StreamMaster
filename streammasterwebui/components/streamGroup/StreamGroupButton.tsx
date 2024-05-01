@@ -21,7 +21,7 @@ const StreamGroupButton = () => {
       />
       <div className="pr-1" />
       <SMOverlay
-        title="Stream Groups"
+        title="STREAM GROUPS"
         widthSize="5"
         icon="pi-upload"
         buttonClassName="icon-orange-filled"
