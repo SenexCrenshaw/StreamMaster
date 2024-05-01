@@ -21,6 +21,7 @@
     "no-lone-blocks": "off",
     "unused-imports/no-unused-imports-ts": "error",
     "@next/next/no-img-element": "off",
+     "@typescript-eslint/member-ordering": "error",
     "@typescript-eslint/no-unused-vars": "error",
      "sort-vars":"warn",
      "sort-keys": ["warn", "asc",{

@@ -3,7 +3,7 @@ import React, { useCallback, useRef } from 'react';
 import { FileUpload } from 'primereact/fileupload';
 
 import SMFileUpload from '@components/file/SMFileUpload';
-import { SMDialog } from '@components/sm/SMDialog';
+import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 import { CreateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { CreateM3UFileRequest, M3UFileDto } from '@lib/smAPI/smapiTypes';
 import M3UFileDialog from './M3UFileDialog';
@@ -18,7 +18,7 @@ export interface M3UFileDialogProperties {
 
 export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3UFileDialogProperties) => {
   const fileUploadReference = useRef<FileUpload>(null);
-
+  const smDialogRef = useRef<SMDialogRef>(null);
   const defaultValues = {
     HoursToUpdate: 72,
     MaxStreamCount: 1,
@@ -76,6 +76,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
 
   return (
     <SMDialog
+      ref={smDialogRef}
       widthSize={6}
       position="top-right"
       title="ADD M3U"

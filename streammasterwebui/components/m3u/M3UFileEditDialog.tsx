@@ -1,7 +1,7 @@
-import { SMDialog } from '@components/sm/SMDialog';
+import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
-import { memo, useState } from 'react';
+import { memo, useRef } from 'react';
 import M3UFileDialog from './M3UFileDialog';
 
 interface M3UFileEditDialogProperties {
@@ -9,8 +9,7 @@ interface M3UFileEditDialogProperties {
 }
 
 const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
-  const [close, setClose] = useState<boolean>(false);
-
+  const smDialogRef = useRef<SMDialogRef>(null);
   function onUpdated(request: UpdateM3UFileRequest): void {
     if (request.Id === undefined) {
       return;
@@ -21,20 +20,17 @@ const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
     } catch (error) {
       console.error(error);
     } finally {
-      setClose(true);
+      smDialogRef.current?.close();
       console.log('finally');
     }
   }
 
   return (
     <SMDialog
-      close={close}
+      ref={smDialogRef}
       widthSize={6}
       position="top-right"
       title="EDIT M3U"
-      onHide={() => {
-        setClose(false);
-      }}
       icon="pi-pencil"
       iconFilled={false}
       buttonClassName="icon-yellow"

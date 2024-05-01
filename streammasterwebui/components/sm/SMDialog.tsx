@@ -1,7 +1,7 @@
 import BaseButton from '@components/buttons/BaseButton';
 import XButton from '@components/buttons/XButton';
 import { Dialog } from 'primereact/dialog';
-import { useEffect, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { SMCard } from './SMCard';
 
 interface SMDialogProperties {
@@ -14,37 +14,38 @@ interface SMDialogProperties {
   readonly showButton?: boolean | null;
   readonly title: string;
   readonly tooltip?: string;
-  readonly close?: boolean;
   readonly widthSize?: number;
   readonly position?: 'center' | 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | undefined;
   onHide?(): void;
 }
+export interface SMDialogRef {
+  close: () => void;
+}
 
-export const SMDialog = ({
-  buttonClassName,
-  children,
-  close,
-  info = '',
-  iconFilled = true,
-  icon = 'pi pi-plus',
-  label,
-  onHide,
-  position,
-  showButton,
-  tooltip,
-  title,
-  widthSize = 4
-}: SMDialogProperties) => {
+const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogProperties, ref) => {
+  const {
+    buttonClassName,
+    children,
+    info = '',
+    icon = 'pi pi-plus',
+    iconFilled = true,
+    label,
+    onHide,
+    position,
+    showButton,
+    tooltip,
+    title,
+    widthSize = 4
+  } = props;
+
+  useImperativeHandle(ref, () => ({
+    props,
+    close: () => setVisible(false)
+  }));
+
   const [visible, setVisible] = useState<boolean>(false);
 
   const borderClass = info !== '' ? 'info-header-text-bottom-border' : 'info-header-text';
-
-  useEffect(() => {
-    if (close === true) {
-      setVisible(false);
-      onHide && onHide();
-    }
-  }, [close, onHide]);
 
   useEffect(() => {
     if (showButton === false) {
@@ -87,7 +88,7 @@ export const SMDialog = ({
         <BaseButton
           className={buttonClassName}
           iconFilled={iconFilled}
-          icon={icon}
+          icon={icon ?? ''}
           iconPos="left"
           label={label}
           isLeft
@@ -99,4 +100,6 @@ export const SMDialog = ({
       </div>
     </>
   );
-};
+});
+
+export default SMDialog;

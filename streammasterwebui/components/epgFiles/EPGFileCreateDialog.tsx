@@ -4,7 +4,7 @@ import { FileUpload } from 'primereact/fileupload';
 
 import SMFileUpload from '@components/file/SMFileUpload';
 
-import { SMDialog } from '@components/sm/SMDialog';
+import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 import { getRandomColorHex } from '@lib/common/colors';
 import { CreateEPGFile } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
 import { CreateEPGFileRequest, EPGFileDto } from '@lib/smAPI/smapiTypes';
@@ -18,6 +18,7 @@ export interface EPGFileCreateDialogProperties {
 
 export const EPGFileCreateDialog = ({ onHide, onUploadComplete, showButton }: EPGFileCreateDialogProperties) => {
   const fileUploadReference = useRef<FileUpload>(null);
+  const smDialogRef = useRef<SMDialogRef>(null);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const defaultValues = {
@@ -74,7 +75,7 @@ export const EPGFileCreateDialog = ({ onHide, onUploadComplete, showButton }: EP
   };
 
   return (
-    <SMDialog title="ADD EPG" onHide={() => ReturnToParent()} buttonClassName="icon-green-filled" tooltip="Add EPG" info="General">
+    <SMDialog ref={smDialogRef} title="ADD EPG" onHide={() => ReturnToParent()} buttonClassName="icon-green-filled" tooltip="Add EPG" info="General">
       <div className="w-12">
         <SMFileUpload
           epgFileDto={epgFileDto}

@@ -1,11 +1,12 @@
 import OKButton from '@components/buttons/OKButton';
-import { SMDialog } from '@components/sm/SMDialog';
+import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
+
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { CopySMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { CopySMChannelRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
 import { InputNumber } from 'primereact/inputnumber';
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
 
 interface CopySMChannelProperties {
   label: string;
@@ -14,15 +15,13 @@ interface CopySMChannelProperties {
 }
 
 const CopySMChannelDialog = ({ label, onHide, smChannel }: CopySMChannelProperties) => {
-  const [close, setClose] = useState<boolean>(false);
-
+  const smDialogRef = useRef<SMDialogRef>(null);
   const [overwriteNumbers, setOverwriteNumbers] = React.useState<boolean>(true);
   const [startNumber, setStartNumber] = React.useState<number>(1);
 
   const { queryFilter } = useQueryFilter('streameditor-SMChannelDataSelector');
 
   const ReturnToParent = React.useCallback(() => {
-    setClose(false);
     onHide?.();
   }, [onHide]);
 
@@ -41,13 +40,13 @@ const CopySMChannelDialog = ({ label, onHide, smChannel }: CopySMChannelProperti
         console.error(error);
       })
       .finally(() => {
-        setClose(true);
+        smDialogRef.current?.close();
       });
   }, [queryFilter, smChannel]);
 
   return (
     <SMDialog
-      close={close}
+      ref={smDialogRef}
       iconFilled={false}
       title="COPY CHANNEL"
       onHide={() => ReturnToParent()}
@@ -101,4 +100,5 @@ const CopySMChannelDialog = ({ label, onHide, smChannel }: CopySMChannelProperti
 };
 
 CopySMChannelDialog.displayName = 'COPYSMCHANNELDIALOG';
+
 export default React.memo(CopySMChannelDialog);

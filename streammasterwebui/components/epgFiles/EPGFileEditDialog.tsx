@@ -1,6 +1,6 @@
-import { memo, useState } from 'react';
+import { memo, useRef } from 'react';
 
-import { SMDialog } from '@components/sm/SMDialog';
+import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 import { UpdateEPGFile } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
 import { EPGFileDto, UpdateEPGFileRequest } from '@lib/smAPI/smapiTypes';
 import EPGFileDialog from './EPGFileDialog';
@@ -10,7 +10,7 @@ interface EPGFileEditDialogProperties {
 }
 
 const EPGFileEditDialog = ({ selectedFile }: EPGFileEditDialogProperties) => {
-  const [close, setClose] = useState<boolean>(false);
+  const smDialogRef = useRef<SMDialogRef>(null);
 
   function onUpdated(request: UpdateEPGFileRequest): void {
     if (request.Id === undefined) {
@@ -23,23 +23,12 @@ const EPGFileEditDialog = ({ selectedFile }: EPGFileEditDialogProperties) => {
         console.error(error);
       })
       .finally(() => {
-        setClose(true);
+        smDialogRef.current?.close();
       });
   }
 
   return (
-    <SMDialog
-      close={close}
-      title="EDIT EPG"
-      onHide={() => {
-        setClose(false);
-      }}
-      icon="pi-pencil"
-      iconFilled={false}
-      buttonClassName="icon-yellow"
-      tooltip="Add EPG"
-      info="General"
-    >
+    <SMDialog ref={smDialogRef} title="EDIT EPG" icon="pi-pencil" iconFilled={false} buttonClassName="icon-yellow" tooltip="Add EPG" info="General">
       <EPGFileDialog selectedFile={selectedFile} onUpdated={onUpdated} />
     </SMDialog>
   );
