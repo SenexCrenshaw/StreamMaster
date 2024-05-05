@@ -164,7 +164,7 @@ const App = (): JSX.Element => {
   // useIconsGetIconsQuery();
 
   return (
-    <div className="App p-fluid">
+    <div className="App h-full flex align-items-center">
       <IntlProvider locale={locale} messages={messages}>
         <MessageProcessor>
           <SignalRProvider>

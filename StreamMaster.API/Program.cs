@@ -1,4 +1,7 @@
+using MediatR;
+
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Data.Sqlite;
 
 using Prometheus;
@@ -7,6 +10,7 @@ using Reinforced.Typings.Attributes;
 
 using StreamMaster.API;
 using StreamMaster.Application;
+using StreamMaster.Application.General.Commands;
 using StreamMaster.Application.Hubs;
 
 using StreamMaster.Domain.Helpers;
@@ -182,6 +186,8 @@ if (lifetime != null)
 
 void OnShutdown()
 {
+    var sender = app.Services.GetRequiredService<ISender> ();
+     sender.Send(new SetIsSystemReadyRequest(false)).Wait();
     ProcessHelper.KillProcessByName("ffmpeg");
     SqliteConnection.ClearAllPools();
     PGSQLRepositoryContext repositoryContext = app.Services.GetRequiredService<PGSQLRepositoryContext>();

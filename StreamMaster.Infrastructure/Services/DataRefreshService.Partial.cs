@@ -1,9 +1,13 @@
 using StreamMaster.Application.Common.Interfaces;
-
 namespace StreamMaster.Infrastructure.Services;
-
 public partial class DataRefreshService : IDataRefreshServicePartial
 {
+
+    public async Task SetIsReady(bool IsReady)
+    {
+        //await sender.Send(new SetIsSystemReadyRequest(false)).ConfigureAwait(false);
+        //FieldData fieldData = new("GetIsSystemReady", "");
+    }
     public async Task RefreshAllEPG()
     {
         await RefreshEPGFiles();
