@@ -193,7 +193,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
 
   const rightHeaderTemplate = useMemo(
     () => (
-      <div className="flex flex-row justify-content-end align-items-center w-full gap-2 pr-2">
+      <div className="flex flex-row justify-content-end align-items-center w-full gap-1 pr-2">
         <div>
           <M3UFilesButton />
         </div>

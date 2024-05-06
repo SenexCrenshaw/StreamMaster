@@ -235,9 +235,24 @@
 .p-inputnumber-button-group {
     height: $input-height;
 
+    >button:first-child {
+        border-width: .025rem;
+        border-top-color: $iconOrange;
+        border-right-color: $iconOrange;
+        border-left-color: $iconOrange;
+    }
+
+    >button:last-child {
+        border-width: .025rem;
+        border-bottom-color: $iconOrange;
+        border-right-color: $iconOrange;
+        border-left-color: $iconOrange;
+    }
+
     .p-button.p-button-icon-only {
         padding: 0 !important;
         width: $input-height;
+        background-color: $iconOrange;
     }
 }
 

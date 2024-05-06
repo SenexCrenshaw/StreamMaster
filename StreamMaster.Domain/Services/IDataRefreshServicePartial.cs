@@ -1,4 +1,4 @@
-namespace StreamMaster.Application.Common.Interfaces
+namespace StreamMaster.Domain.Services
 {
     public interface IDataRefreshServicePartial
     {

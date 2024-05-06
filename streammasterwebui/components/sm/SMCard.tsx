@@ -9,9 +9,9 @@ interface SMCardProperties {
 export const SMCard = ({ children, header, italicized, text, title }: SMCardProperties) => {
   return (
     <div className="sm-card">
-      <div className="sm-card-header flex justify-content-between align-items-center px-1">
-        <span className="header-text">{title}</span>
-        {header}
+      <div className="sm-card-header flex justify-content-between align-items-center">
+        <div className="header-text">{title}</div>
+        <div className="pr-1">{header}</div>
       </div>
       <div className="layout-padding-bottom"></div>
       {children}

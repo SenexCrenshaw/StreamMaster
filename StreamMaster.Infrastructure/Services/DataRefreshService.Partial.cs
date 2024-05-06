@@ -1,4 +1,4 @@
-using StreamMaster.Application.Common.Interfaces;
+using StreamMaster.Domain.Services;
 namespace StreamMaster.Infrastructure.Services;
 public partial class DataRefreshService : IDataRefreshServicePartial
 {

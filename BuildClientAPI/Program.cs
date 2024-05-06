@@ -69,7 +69,7 @@ namespace BuildClientAPI
 
                     List<string> smapiImport = [];
 
-                    string toCheck = "GetEPGColors";
+                    string toCheck = "UpdateSMChannel";
 
                     if (recordType.Name.StartsWith(toCheck))
                     {

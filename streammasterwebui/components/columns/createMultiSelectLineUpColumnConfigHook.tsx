@@ -22,7 +22,7 @@ const createMultiSelectLineUpColumnConfigHook =
     };
 
     const itemTemplate = (option: Lineup) => (
-      <div className="align-items-center gap-2">
+      <div className="align-items-center gap-1">
         <span>
           {option.lineup} - {option.name}
         </span>

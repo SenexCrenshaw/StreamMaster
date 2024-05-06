@@ -16,7 +16,7 @@ const SMLoader = () => {
       return;
     }
 
-    console.log(messages[messages.length - 1].Detail);
+    // console.log(messages[messages.length - 1].Detail);
     setMessage(messages[messages.length - 1].Detail ?? '');
 
     ClearMessages();
@@ -35,7 +35,7 @@ const SMLoader = () => {
         <div />
         <div />
       </div>
-      <h2 className="border-1 p-0 m-0">{message}</h2>
+      <h2 className=" p-0 m-0">{message}</h2>
     </div>
   );
 };

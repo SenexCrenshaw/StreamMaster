@@ -1,5 +1,3 @@
-using MediatR;
-
 using Microsoft.AspNetCore.SignalR;
 
 using StreamMaster.Application.Common.Interfaces;
@@ -7,7 +5,7 @@ using StreamMaster.Application.Hubs;
 
 namespace StreamMaster.Infrastructure.Services;
 
-public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMasterHub> hub, ISender sender) : IDataRefreshService, IDataRefreshServicePartial
+public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMasterHub> hub) : IDataRefreshService, IDataRefreshServicePartial
 {
 
     public async Task RefreshAll()

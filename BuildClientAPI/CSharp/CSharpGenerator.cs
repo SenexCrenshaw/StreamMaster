@@ -39,6 +39,11 @@ public static class CSharpGenerator
             string parameterLine = string.IsNullOrEmpty(method.Parameter) ? "" : $"{method.Name}Request request";
             string toSend = string.IsNullOrEmpty(method.Parameter) ? $"new {method.SingalRFunction}()" : "request";
 
+            if (method.Name == "UpdateSMChannel")
+            {
+                var a = 1;
+            }
+
             if (!method.JustHub)
             {
                 controllerContent.AppendLine($"        {httpMethodLine}");
@@ -189,6 +194,8 @@ public static class CSharpGenerator
                 hubContent.AppendLine();
             }
         }
+
+        var assssa = controllerContent.ToString();
 
         WriteControllerAndHub(filePath, namespaceName, controllerContent, hubContent, needsQueryInclude, needsCommandInclude);
         WriteIControllerAndHub(IFilePath, namespaceName, IcontrollerContent, IhubContent, needsQueryInclude, needsCommandInclude);

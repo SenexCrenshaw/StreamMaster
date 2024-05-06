@@ -47,6 +47,14 @@ namespace StreamMaster.Application.SMChannels.Controllers
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> CreateSMChannel(CreateSMChannelRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
         [HttpDelete]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse>> DeleteSMChannel(DeleteSMChannelRequest request)
@@ -111,6 +119,14 @@ namespace StreamMaster.Application.SMChannels.Controllers
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
+        [HttpPatch]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> UpdateSMChannel(UpdateSMChannelRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
     }
 }
 
@@ -137,6 +153,12 @@ namespace StreamMaster.Application.Hubs
         }
 
         public async Task<APIResponse> CreateSMChannelFromStream(CreateSMChannelFromStreamRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> CreateSMChannel(CreateSMChannelRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
@@ -185,6 +207,12 @@ namespace StreamMaster.Application.Hubs
         }
 
         public async Task<APIResponse> SetSMChannelNumber(SetSMChannelNumberRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> UpdateSMChannel(UpdateSMChannelRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

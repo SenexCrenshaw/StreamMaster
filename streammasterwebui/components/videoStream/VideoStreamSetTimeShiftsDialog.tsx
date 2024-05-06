@@ -2,10 +2,10 @@ import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
 
+import NumberEditor from '@components/inputs/NumberEditor';
 import { memo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import ClockButton from '../buttons/ClockButton';
-import NumberInput from '../inputs/NumberInput';
 
 interface VideoStreamSetTimeShiftsDialogProperties {
   readonly id: string;
@@ -103,12 +103,11 @@ const VideoStreamSetTimeShiftsDialog = ({ id }: VideoStreamSetTimeShiftsDialogPr
         show={showOverlay}
       >
         <div className="flex justify-content-center w-full align-items-center h-full">
-          <NumberInput
+          <NumberEditor
             label="Time Shift"
             onChange={(e) => {
               setTimshift(e);
             }}
-            showClear
             value={timshift}
           />
           <ClockButton label="Set Time Shift" onClick={async () => await onSetTS()} />

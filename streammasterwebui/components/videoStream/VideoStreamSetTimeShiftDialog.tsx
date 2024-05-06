@@ -1,7 +1,7 @@
+import NumberEditor from '@components/inputs/NumberEditor';
 import { memo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import ClockButton from '../buttons/ClockButton';
-import NumberInput from '../inputs/NumberInput';
 
 interface VideoStreamSetTimeShiftDialogProperties {
   readonly iconFilled?: boolean | undefined;
@@ -55,12 +55,11 @@ const VideoStreamSetTimeShiftDialog = ({ iconFilled, onClose, value }: VideoStre
         show={showOverlay}
       >
         <div className="flex justify-content-center w-full align-items-center h-full">
-          <NumberInput
+          <NumberEditor
             label="Time Shift"
             onChange={(e) => {
               setTimshift(e);
             }}
-            showClear
             value={timshift}
           />
           <ClockButton label="Set Time Shift" onClick={async () => await onSetTS()} />

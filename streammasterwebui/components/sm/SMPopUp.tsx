@@ -1,11 +1,11 @@
-import { OverlayPanel } from 'primereact/overlaypanel';
-import { SMCard } from './SMCard';
-import { useEffect, useRef } from 'react';
+import BaseButton, { SeverityType } from '@components/buttons/BaseButton';
 import OKButton from '@components/buttons/OKButton';
 import XButton from '@components/buttons/XButton';
-import BaseButton, { SeverityType } from '@components/buttons/BaseButton';
 import { Checkbox } from 'primereact/checkbox';
 import { useLocalStorage } from 'primereact/hooks';
+import { OverlayPanel } from 'primereact/overlaypanel';
+import { useEffect, useRef } from 'react';
+import { SMCard } from './SMCard';
 
 interface SMPopUpProperties {
   readonly children: React.ReactNode;
@@ -41,7 +41,7 @@ export const SMPopUp = ({ children, hidden, icon, severity, tooltip, onHide: cli
       <OverlayPanel ref={op} onHide={clientHide} onShow={onShow}>
         <SMCard title={title}>
           <div className="p-4">{children}</div>
-          <div className="flex flex-row justify-content-end align-items-center gap-2 pb-1 pr-1">
+          <div className="flex flex-row justify-content-end align-items-center gap-1 pb-1 pr-1">
             <div className="flex flex-column align-items-center">
               <Checkbox checked={remember ?? false} onChange={(e) => setRemeber(e.checked)} />
               <div className="ml-2 text-xs font-italic">Don't Ask</div>

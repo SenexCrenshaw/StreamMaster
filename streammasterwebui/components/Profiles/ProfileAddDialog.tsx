@@ -81,7 +81,7 @@ const ProfileAddDialog = ({ onClose }: ProfileAddDialogProperties) => {
         show={showOverlay}
       >
         <div className="m-0 p-0 w-full">
-          <div className="card flex mt-3 flex-wrap gap-2 justify-content-center ">
+          <div className="card flex mt-3 flex-wrap gap-1 justify-content-center ">
             <div className="flex col-12 justify-content-between">
               <InputWrapper
                 columnSize={3}
@@ -128,7 +128,7 @@ const ProfileAddDialog = ({ onClose }: ProfileAddDialogProperties) => {
               />
             </div>
           </div>
-          <div className="card flex mr-3 flex-wrap gap-2 justify-content-end ">
+          <div className="card flex mr-3 flex-wrap gap-1 justify-content-end ">
             <SaveButton iconFilled={false} disabled={!isSaveEnabled} onClick={async () => await addVideoStream()} />
           </div>
         </div>

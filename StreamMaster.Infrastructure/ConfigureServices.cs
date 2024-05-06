@@ -1,8 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Domain.Helpers;
-using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure.Logger;
 using StreamMaster.Infrastructure.Middleware;
 using StreamMaster.Infrastructure.Services;

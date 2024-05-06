@@ -41,7 +41,7 @@ const IconSelector = ({ enableEditMode = true, large = false, value, disabled, e
   };
 
   useEffect(() => {
-    if (value && origValue === undefined) {
+    if (value && (origValue === undefined || value !== origValue)) {
       setOrigValue(value);
       setIconSource(value);
       const icon = query.data?.find((i) => i.Source === value);
@@ -51,25 +51,10 @@ const IconSelector = ({ enableEditMode = true, large = false, value, disabled, e
 
   const selectedTemplate = useMemo(() => {
     const size = large ? 'icon-template-lg' : 'icon-template';
-    if (iconSource === null)
-      return (
-        <div className={`flex ${size} justify-content-center align-items-center`}>
-          <img className="no-border" alt="Icon logo" src="/images/default.png" />
-        </div>
-      );
-
-    const iconUrl = iconSource ? getIconUrl(iconSource, '/images/default.png', false) : '';
-
-    if (!iconUrl) {
-      return (
-        <div className={`flex ${size} justify-content-center align-items-center`}>
-          <img className="no-border" alt="Icon logo" src="/images/default.png" />
-        </div>
-      );
-    }
+    const iconUrl = iconSource ? getIconUrl(iconSource, '/images/default.png', false) : '/images/default.png';
 
     return (
-      <div className={`flex ${size} justify-content-center align-items-center`}>
+      <div className={`sm-icon-selector flex ${size} justify-content-center align-items-center`}>
         <img className="no-border" alt="Icon logo" src={iconUrl} />
       </div>
     );

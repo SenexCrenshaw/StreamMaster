@@ -1,6 +1,6 @@
 import ResetButton from '@components/buttons/ResetButton';
 import SaveButton from '@components/buttons/SaveButton';
-import NumberInput from '@components/inputs/NumberInput';
+import NumberEditor from '@components/inputs/NumberEditor';
 import StringEditor from '@components/inputs/StringEditor';
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
@@ -205,7 +205,7 @@ const M3UFileDialog = ({ onM3UChanged, onUpdated, selectedFile, noButtons }: M3U
   return (
     <>
       <div className="w-12">
-        <div className="flex gap-2">
+        <div className="flex gap-1">
           <div className="w-6">
             <StringEditor
               showClear
@@ -219,25 +219,25 @@ const M3UFileDialog = ({ onM3UChanged, onUpdated, selectedFile, noButtons }: M3U
             />
           </div>
           <div className="w-6">
-            <div className="flex gap-2">
+            <div className="flex gap-1">
               <div className="w-6">
-                <NumberInput
+                <NumberEditor
+                  darkBackGround
                   showButtons
                   label="MAX STREAMS"
                   onChange={(e) => {
                     setMaxStreams(e);
                   }}
-                  showClear
                   value={m3uFileDto?.MaxStreamCount}
                 />
               </div>
               <div className="w-6">
-                <NumberInput
+                <NumberEditor
+                  darkBackGround
                   label="START CHANNEL #"
                   onChange={(e) => {
                     setStartingChannelNumber(e);
                   }}
-                  showClear
                   value={m3uFileDto?.StartingChannelNumber}
                 />
               </div>
@@ -266,8 +266,8 @@ const M3UFileDialog = ({ onM3UChanged, onUpdated, selectedFile, noButtons }: M3U
         </>
       )}
       <div className="w-12">
-        <div className="flex gap-2">
-          <div className="flex w-6 gap-2">
+        <div className="flex gap-1">
+          <div className="flex w-6 gap-1">
             <div className="w-6">
               <div className="sourceOrFileDialog-toggle">
                 <div className="flex flex-column">
@@ -279,12 +279,12 @@ const M3UFileDialog = ({ onM3UChanged, onUpdated, selectedFile, noButtons }: M3U
               </div>
             </div>
             <div className="w-6">
-              <NumberInput
+              <NumberEditor
+                darkBackGround
                 label="AUTO UPDATE"
                 onChange={(e) => {
                   setAutoUpdate(e);
                 }}
-                showClear
                 suffix=" Hours"
                 value={m3uFileDto?.HoursToUpdate}
               />
@@ -299,7 +299,7 @@ const M3UFileDialog = ({ onM3UChanged, onUpdated, selectedFile, noButtons }: M3U
       {noButtons !== true && (
         <>
           <div className="layout-padding-bottom-lg" />
-          <div className="flex w-12 gap-2 justify-content-end align-content-center">
+          <div className="flex w-12 gap-1 justify-content-end align-content-center">
             <div className="layout-padding-bottom-lg" />
             <ResetButton
               disabled={!isSaveEnabled && originalM3UFileDto !== undefined}

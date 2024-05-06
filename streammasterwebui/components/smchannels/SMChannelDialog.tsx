@@ -4,26 +4,41 @@ import EPGSelector from '@components/epg/EPGSelector';
 import IconSelector from '@components/icons/IconSelector';
 import NumberEditor from '@components/inputs/NumberEditor';
 import StringEditor from '@components/inputs/StringEditor';
-import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationChannelNames';
-import { CreateSMChannelRequest, StationChannelName } from '@lib/smAPI/smapiTypes';
+import { CreateSMChannelRequest, SMChannelDto, SMStreamDto, StationChannelName } from '@lib/smAPI/smapiTypes';
 
-import React, { useCallback, useRef, useState } from 'react';
+import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import SMChannelSMStreamDialog from './SMChannelSMStreamDialog';
 import StreamingProxyTypeSelector from './StreamingProxyTypeSelector';
 
-interface SMChannelDialogProperties {}
+interface SMChannelDialogProperties {
+  onSave: (request: CreateSMChannelRequest) => void;
+  readonly smChannel?: SMChannelDto;
+}
 
-const SMChannelDialog = () => {
-  const smDialogRef = useRef<SMDialogRef>(null);
+const SMChannelDialog = ({ smChannel, onSave }: SMChannelDialogProperties) => {
+  const dataKey = 'SMChannelSMStreamDialog-SMStreamDataForSMChannelSelector';
+  const { selectSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
+
   const query = useGetStationChannelNames();
   const [request, setRequest] = React.useState<CreateSMChannelRequest>({ Logo: '/images/StreamMaster.png' } as CreateSMChannelRequest);
   const [, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
-  const ReturnToParent = React.useCallback(() => {}, []);
 
-  const onSave = React.useCallback(async () => {}, []);
+  useEffect(() => {
+    if (smChannel && smChannel.Name !== request.Name) {
+      setRequest({ ...smChannel });
+    }
+  }, [request.Name, smChannel]);
 
-  const intSetName = useCallback(
+  const doSave = React.useCallback(() => {
+    if (selectSelectedItems.length > 0) {
+      request.SMStreamsIds = selectSelectedItems.map((e) => e.Id);
+    }
+    onSave(request);
+  }, [onSave, request, selectSelectedItems]);
+
+  const setName = useCallback(
     (value: string) => {
       if (request.Name !== value) {
         request.Name = value;
@@ -79,28 +94,48 @@ const SMChannelDialog = () => {
     [query.data, request]
   );
 
+  const isSaveEnabled = useMemo(() => {
+    if (!smChannel) {
+      if (request.Name && request.Name !== '') {
+        return true;
+      }
+    }
+
+    if (request.Name && request.Name !== smChannel?.Name) {
+      return true;
+    }
+
+    if (request.Logo && request.Logo !== smChannel?.Logo) {
+      return true;
+    }
+
+    if (request.Group && request.Group !== smChannel?.Group) {
+      return true;
+    }
+
+    if (request.ChannelNumber && request.ChannelNumber !== smChannel?.ChannelNumber) {
+      return true;
+    }
+
+    if (request.EPGId && request.EPGId !== smChannel?.EPGId) {
+      return true;
+    }
+
+    return false;
+  }, [request.ChannelNumber, request.EPGId, request.Group, request.Logo, request.Name, smChannel]);
+
   return (
-    <SMDialog
-      ref={smDialogRef}
-      position="top"
-      title="CREATE CHANNEL"
-      onHide={() => ReturnToParent()}
-      buttonClassName="icon-green-filled"
-      icon="pi-plus"
-      widthSize={8}
-      info="General"
-      tooltip="Create Channel"
-    >
-      <div className="flex w-12 gap-2">
-        <div className="flex flex-column w-10 gap-2">
-          <div className="flex w-12 gap-2">
+    <>
+      <div className="flex w-12 gap-1">
+        <div className="flex flex-column w-10 gap-1">
+          <div className="flex w-12 gap-1">
             <div className="w-6 justify-content-start align-items-center">
               <StringEditor
                 label="Name"
                 darkBackGround
                 disableDebounce
                 onChange={(e) => {
-                  e && intSetName(e);
+                  e && setName(e);
                 }}
                 onSave={(e) => {}}
                 value={request.Name}
@@ -114,14 +149,14 @@ const SMChannelDialog = () => {
               </span>
             </div>
           </div>
-          <div className="flex w-12 gap-2">
+          <div className="flex w-12 gap-1">
             <div className="w-6 justify-content-start align-items-center">
               <label>GROUP</label>
               <div className="pt-small" />
               <ChannelGroupSelector onChange={(e) => e && setGroup(e)} value={request.Group} />
             </div>
             <div className="w-6 justify-content-start align-items-center ">
-              <NumberEditor darkBackGround label="Channel #" onChange={(e) => e && setChannelNumber(e)} value={request.ChannelNumber} />
+              <NumberEditor showButtons darkBackGround label="Channel #" onChange={(e) => e && setChannelNumber(e)} value={request.ChannelNumber} />
             </div>
           </div>
         </div>
@@ -141,24 +176,26 @@ const SMChannelDialog = () => {
         </div>
       </div>
       <div className="layout-padding-bottom" />
-      <div className="flex w-12 gap-2">
-        <div className="w-6 gap-2 w-full h-full">
+      <div className="flex w-12 gap-1">
+        <div className="w-6 gap-1 w-full h-full">
           <label>Proxy</label>
           <div className="pt-small" />
           <StreamingProxyTypeSelector onChange={(e) => console.log(e)} />
         </div>
       </div>
       <div className="layout-padding-bottom-lg" />
-
-      <div className="layout-padding-bottom-lg surface-ground" />
+      <div className="layout-padding-bottom-lg surface-ground border-round-md" />
+      <div className="layout-padding-bottom-lg" />
       <div className="w-12">
-        <SMChannelSMStreamDialog name={request.Name} />
+        <SMChannelSMStreamDialog name={request.Name} smChannel={smChannel} />
       </div>
-      <div className="layout-padding-bottom-lg surface-ground" />
-      <div className="flex col-12 gap-2 mt-4 justify-content-center ">
-        <OKButton onClick={async () => await onSave()} />
+      <div className="layout-padding-bottom-lg" />
+      <div className="layout-padding-bottom-lg surface-ground border-round-md" />
+      <div className="layout-padding-bottom-lg" />
+      <div className="flex col-12 gap-1 mt-4 justify-content-center ">
+        <OKButton disabled={!isSaveEnabled} onClick={async () => doSave()} />
       </div>
-    </SMDialog>
+    </>
   );
 };
 

@@ -81,7 +81,7 @@ export const hasValidAdditionalProps = (additionalFilterProperties: AdditionalFi
 
 export function getChannelGroupMenuItem(colorIndex: string | undefined, toDisplay: string): React.ReactNode {
   return (
-    <div className="gap-2">
+    <div className="gap-1">
       <div>
         <i className="pi pi-circle-fill pr-2" style={{ color: getColor(colorIndex ?? '') }} />
         {toDisplay}

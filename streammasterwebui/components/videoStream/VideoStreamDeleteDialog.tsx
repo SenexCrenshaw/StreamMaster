@@ -2,9 +2,9 @@ import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
 import { memo, useEffect, useMemo, useState } from 'react';
+import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import OKButton from '../buttons/OKButton';
 import XButton from '../buttons/XButton';
-import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 
 interface VideoStreamDeleteDialogProperties {
   readonly iconFilled?: boolean;
@@ -137,7 +137,7 @@ const VideoStreamDeleteDialog = ({ iconFilled, id, onClose, skipOverLayer, value
       >
         <div className="m-0 p-0 w-full">
           {/* <div className="m-3 border-1 border-red-500 w-full"> */}
-          <div className="card flex mt-3 flex-wrap gap-2 justify-content-center ">
+          <div className="card flex mt-3 flex-wrap gap-1 justify-content-center ">
             <OKButton onClick={async () => await deleteVideoStream()} />
           </div>
           {/* </div> */}

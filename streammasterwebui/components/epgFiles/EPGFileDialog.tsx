@@ -1,7 +1,7 @@
 import ColorEditor from '@components/ColorEditor';
 import ResetButton from '@components/buttons/ResetButton';
 import SaveButton from '@components/buttons/SaveButton';
-import NumberInput from '@components/inputs/NumberInput';
+import NumberEditor from '@components/inputs/NumberEditor';
 import StringEditor from '@components/inputs/StringEditor';
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 
@@ -199,7 +199,7 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
     <>
       <div className="w-12">
         <div className="flex gap-2">
-          <div className="w-10">
+          <div className="w-8">
             <StringEditor
               showClear
               disableDebounce
@@ -214,13 +214,28 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
             />
           </div>
           <div className="w-2">
-            <NumberInput
+            <div className="sourceOrFileDialog-toggle">
+              <div className="flex flex-column">
+                <div id="name" className="text-xs sm-input pb-2">
+                  COLOR
+                </div>
+                <ColorEditor
+                  onChange={async (e) => {
+                    setColor(e);
+                  }}
+                  color={epgFileDto.Color}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="w-2">
+            <NumberEditor
+              darkBackGround
               showButtons
               label="EPG #"
               onChange={(e) => {
                 setEPGNumber(e);
               }}
-              showClear
               value={epgFileDto.EPGNumber}
             />
           </div>
@@ -246,40 +261,26 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
           <div className="layout-padding-bottom-lg" />
         </>
       )}
+
       <div className="w-12">
         <div className="flex gap-2">
           <div className="w-4">
-            <div className="sourceOrFileDialog-toggle">
-              <div className="flex flex-column">
-                <div id="name" className="text-xs sm-input pb-2">
-                  COLOR
-                </div>
-                <ColorEditor
-                  onChange={async (e) => {
-                    setColor(e);
-                  }}
-                  color={epgFileDto.Color}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="w-4">
-            <NumberInput
+            <NumberEditor
+              darkBackGround
               label="TIME SHIFT"
               onChange={(e) => {
                 setTimeShift(e);
               }}
-              showClear
               value={epgFileDto.TimeShift}
             />
           </div>
           <div className="w-4">
-            <NumberInput
+            <NumberEditor
+              darkBackGround
               label="AUTO UPDATE"
               onChange={(e) => {
                 setHoursToUpdate(e);
               }}
-              showClear
               suffix=" Hours"
               value={epgFileDto.HoursToUpdate}
             />

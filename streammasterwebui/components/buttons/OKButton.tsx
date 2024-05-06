@@ -1,8 +1,9 @@
 import BaseButton from './BaseButton';
 import { ChildButtonProperties } from './ChildButtonProperties';
 
-const OKButton: React.FC<ChildButtonProperties> = ({ iconFilled = true, label, style, onClick, tooltip = '' }) => (
+const OKButton: React.FC<ChildButtonProperties> = ({ disabled, iconFilled = true, label, style, onClick, tooltip = '' }) => (
   <BaseButton
+    disabled={disabled}
     icon="pi-check"
     iconFilled={iconFilled}
     label={iconFilled === true ? (label === null ? undefined : 'Ok') : undefined}

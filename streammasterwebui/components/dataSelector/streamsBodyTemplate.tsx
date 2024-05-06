@@ -4,7 +4,7 @@ export function streamsBodyTemplate(activeCount: string, totalCount: string) {
   }
 
   return (
-    <div className="flex align-items-center gap-2">
+    <div className="flex align-items-center gap-1">
       {activeCount}/{totalCount}
     </div>
   );

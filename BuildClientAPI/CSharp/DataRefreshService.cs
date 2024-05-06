@@ -21,9 +21,7 @@ public static class DataRefreshService
     {
         StringBuilder content = new();
 
-        content.AppendLine("using System.Threading.Tasks;");
-        content.AppendLine("");
-        content.AppendLine("namespace StreamMaster.Application.Common.Interfaces");
+        content.AppendLine("namespace StreamMaster.Domain.Services");
         content.AppendLine("{");
         content.AppendLine("    public interface IDataRefreshService: IDataRefreshServicePartial");
         content.AppendLine("    {");

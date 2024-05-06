@@ -1,12 +1,49 @@
-import React from 'react';
+import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
+import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+
+import { CreateSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { CreateSMChannelRequest, SMStreamDto } from '@lib/smAPI/smapiTypes';
+import React, { useRef } from 'react';
 import SMChannelDialog from './SMChannelDialog';
 
 interface CopySMChannelProperties {}
 
 const CreateSMChannelDialog = () => {
-  const onSave = React.useCallback(async () => {}, []);
+  const dataKey = 'SMChannelSMStreamDialog-SMStreamDataForSMChannelSelector';
+  const { setSelectSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
 
-  return <SMChannelDialog />;
+  const smDialogRef = useRef<SMDialogRef>(null);
+
+  const ReturnToParent = React.useCallback(() => {
+    setSelectSelectedItems([]);
+  }, [setSelectSelectedItems]);
+
+  const onSave = React.useCallback((request: CreateSMChannelRequest) => {
+    CreateSMChannel(request)
+      .then(() => {})
+      .catch((e: any) => {
+        console.error(e);
+      })
+      .finally(() => {
+        smDialogRef.current?.close();
+      });
+  }, []);
+
+  return (
+    <SMDialog
+      ref={smDialogRef}
+      position="top"
+      title="CREATE CHANNEL"
+      onHide={() => ReturnToParent()}
+      buttonClassName="icon-green-filled"
+      icon="pi-plus"
+      widthSize={8}
+      info="General"
+      tooltip="Create Channel"
+    >
+      <SMChannelDialog onSave={onSave} />;
+    </SMDialog>
+  );
 };
 
 CreateSMChannelDialog.displayName = 'CreateSMChannelDialog';

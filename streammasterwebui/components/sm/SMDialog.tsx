@@ -78,7 +78,7 @@ const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogPro
             }
           >
             <div className="sm-card-children">
-              <span className={`${borderClass} flex`}>{info}</span>
+              <span className={`${borderClass} flex1`}>{info}</span>
               <div className="sm-card-content-children">{children}</div>
             </div>
           </SMCard>

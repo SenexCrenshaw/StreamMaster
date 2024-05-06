@@ -149,7 +149,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProperties) => {
               </div>
             </>
           )}
-          <div className="flex col-12 mt-3 gap-2 justify-content-end">
+          <div className="flex col-12 mt-3 gap-1 justify-content-end">
             <EditButton disabled={!isSaveEnabled} label="Edit Stream Group" onClick={() => onUpdate()} tooltip="Edit Stream Group" />
           </div>
         </div>

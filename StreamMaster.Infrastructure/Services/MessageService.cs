@@ -46,10 +46,10 @@ namespace StreamMaster.Infrastructure.Services
             await sender.Send(request);
         }
 
-        public async Task SendSuccess(string message)
+        public async Task SendSuccess(string message, string? details = null)
         {
             Logger.LogInformation(message);
-            SendSuccessRequest request = new(Detail: message);
+            SendSuccessRequest request = new(Detail: message, Summary: details);
 
             await sender.Send(request);
         }

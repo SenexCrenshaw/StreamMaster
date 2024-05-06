@@ -58,7 +58,7 @@ const ProfileDeleteDialog = ({ iconFilled, onClose, skipOverLayer, data }: Profi
         show={showOverlay}
       >
         <div className="m-0 p-0 w-full">
-          <div className="card flex mt-3 flex-wrap gap-2 justify-content-center ">
+          <div className="card flex mt-3 flex-wrap gap-1 justify-content-center ">
             <OKButton onClick={async () => await deleteProfile()} />
           </div>
         </div>

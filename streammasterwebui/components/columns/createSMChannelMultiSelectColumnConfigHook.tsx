@@ -62,7 +62,7 @@ const createSMChannelMultiSelectColumnConfigHook =
     };
 
     const itemTemplate = (option: string) => (
-      <div className="align-items-center gap-2">
+      <div className="align-items-center gap-1">
         <span>{option}</span>
       </div>
     );

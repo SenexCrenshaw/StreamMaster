@@ -3,7 +3,6 @@ using StreamMaster.Application.Icons;
 using StreamMaster.Application.LogApp;
 using StreamMaster.Application.M3UFiles;
 using StreamMaster.Application.Programmes;
-using StreamMaster.Application.SchedulesDirect;
 using StreamMaster.Application.Settings;
 using StreamMaster.Application.StreamGroupChannelGroupLinks;
 using StreamMaster.Application.StreamGroups;
@@ -13,7 +12,6 @@ namespace StreamMaster.Application.Common.Interfaces;
 
 public interface ISharedHub :
 
-    ISchedulesDirectHub,
     IVideoStreamHub,
     ILogHub,
     IIconHub,

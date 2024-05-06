@@ -11,7 +11,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 export interface StringEditorBodyTemplateProperties {
   readonly autoFocus?: boolean;
-  readonly className?: string;
   readonly disableDebounce?: boolean;
   readonly debounceMs?: number;
   readonly isLoading?: boolean;
@@ -22,18 +21,14 @@ export interface StringEditorBodyTemplateProperties {
   readonly placeholder?: string;
   readonly resetValue?: string | undefined;
   readonly showClear?: boolean;
-  readonly showSave?: boolean;
   readonly tooltip?: string | undefined;
   readonly tooltipOptions?: TooltipOptions | undefined;
   readonly value: string | undefined;
   readonly darkBackGround?: boolean;
-  readonly border?: boolean;
-  readonly onFilterClear?: () => void;
 }
 
 const StringEditor = ({
   autoFocus,
-  className,
   disableDebounce = false,
   debounceMs,
   isLoading,
@@ -42,15 +37,11 @@ const StringEditor = ({
   onSave,
   onClick,
   placeholder,
-  resetValue,
   showClear = false,
-  showSave,
   tooltip,
   tooltipOptions,
   value,
-  darkBackGround,
-  border,
-  onFilterClear
+  darkBackGround
 }: StringEditorBodyTemplateProperties) => {
   const uuid = uuidv4();
   const [isFocused, setIsFocused] = useState<boolean>(false);
@@ -122,7 +113,7 @@ const StringEditor = ({
     } else if (value !== undefined && originalValue !== undefined && originalValue !== '') {
       if (value === originalValue && value !== inputValue) {
         if (disableDebounce !== undefined && disableDebounce === true) {
-          setInputValue(value);
+          setInputValue(inputValue);
         }
       }
     }
@@ -137,11 +128,9 @@ const StringEditor = ({
     if (needsSave) {
       ret = 'stringeditorbody-inputtext-save';
     }
-    if (border) {
-      ret += ' default-border';
-    }
+
     return ret;
-  }, [needsSave, border, darkBackGround]);
+  }, [needsSave, darkBackGround]);
 
   const doShowClear = (): boolean => showClear === true && disableDebounce === true && originalValue !== undefined && inputValue !== originalValue;
 

@@ -399,6 +399,18 @@ export interface CreateSMChannelFromStreamRequest
 {
 	StreamId: string;
 }
+export interface CreateSMChannelRequest
+{
+	ChannelNumber?: number;
+	EPGId?: string;
+	Group?: string;
+	Logo?: string;
+	Name: string;
+	SMStreamsIds?: string[];
+	StreamingProxyType?: StreamingProxyTypes;
+	TimeShift?: number;
+	VideoStreamHandler?: VideoStreamHandlers;
+}
 export interface DeleteSMChannelRequest
 {
 	SMChannelId: number;
@@ -435,6 +447,19 @@ export interface SetSMChannelNumberRequest
 {
 	ChannelNumber: number;
 	SMChannelId: number;
+}
+export interface UpdateSMChannelRequest
+{
+	ChannelNumber?: number;
+	EPGId?: string;
+	Group?: string;
+	Id: number;
+	Logo?: string;
+	Name?: string;
+	SMStreamsIds?: string[];
+	StreamingProxyType?: StreamingProxyTypes;
+	TimeShift?: number;
+	VideoStreamHandler?: VideoStreamHandlers;
 }
 export interface GetSMChannelStreamsRequest
 {
@@ -533,30 +558,6 @@ export interface RefreshM3UFileRequest
 	Id: number;
 }
 export interface UpdateM3UFileRequest
-{
-	AutoUpdate?: boolean;
-	HoursToUpdate?: number;
-	Id: number;
-	MaxStreamCount?: number;
-	Name?: string;
-	OverWriteChannels?: boolean;
-	StartingChannelNumber?: number;
-	Url?: string;
-	VODTags?: string[];
-}
-export interface CreateSMChannelRequest
-{
-	ChannelNumber?: number;
-	EPGId?: string;
-	Group?: string;
-	Logo?: string;
-	Name: string;
-	SMStreamsIds?: string[];
-	StreamingProxyType?: StreamingProxyTypes;
-	TimeShift?: number;
-	VideoStreamHandler?: VideoStreamHandlers;
-}
-export interface UpdateSMChannelRequest
 {
 	AutoUpdate?: boolean;
 	HoursToUpdate?: number;

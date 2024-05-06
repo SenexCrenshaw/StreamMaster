@@ -1,15 +1,16 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { type GetApiArgument } from '../../common/common';
+
+import { GetApiArgument } from '@lib/apiDefs';
 import { type AppDispatch, type RootState } from '../store';
 import { setQueryFilterInternal } from './queryFilterSlice';
 
 export const useQueryFilter = (typename: string) => {
   const dispatch: AppDispatch = useDispatch();
 
-  const setQueryFilter = (newFilter: GetApiArgument) => {
+  const setQueryFilter = (filter: GetApiArgument) => {
     dispatch(
       setQueryFilterInternal({
-        filter: newFilter,
+        filter,
         typename
       })
     );

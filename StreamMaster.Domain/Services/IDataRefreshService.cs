@@ -1,6 +1,4 @@
-using System.Threading.Tasks;
-
-namespace StreamMaster.Application.Common.Interfaces
+namespace StreamMaster.Domain.Services
 {
     public interface IDataRefreshService: IDataRefreshServicePartial
     {

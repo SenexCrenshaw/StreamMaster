@@ -33,6 +33,7 @@ const M3UFilesMaxStreamsEditor = ({ data, style }: M3UFilesMaxStreamsEditorPrope
 
   return (
     <NumberEditor
+      darkBackGround
       onChange={async (e) => {
         await onUpdateM3UFile(e);
       }}

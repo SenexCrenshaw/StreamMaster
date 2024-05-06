@@ -45,7 +45,7 @@ export const useSMChannelEPGColumnConfig = () => {
       const color = getColor(option.EPGNumber);
 
       return (
-        <div className="flex align-items-center gap-2">
+        <div className="flex align-items-center gap-1">
           <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
           <span>{option.Name}</span>
         </div>
@@ -62,7 +62,7 @@ export const useSMChannelEPGColumnConfig = () => {
       const color = getColor(option.EPGNumber);
 
       return (
-        <div className="flex align-items-center gap-2">
+        <div className="flex align-items-center gap-1">
           <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
           <span>{option.Name}</span>
         </div>

@@ -7,6 +7,6 @@
         Task SendInfo(string message);
         Task SendMessage(SMMessage smMessage);
         Task SendWarn(string message);
-        Task SendSuccess(string message);
+        Task SendSuccess(string message, string? details = null);
     }
 }

@@ -5,7 +5,8 @@ import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
-export interface NumberEditorTemplateProperties {
+interface NumberEditorTemplateProperties {
+  readonly autoFocus?: boolean;
   readonly onChange: (value: number) => void;
   readonly disableDebounce?: boolean;
   readonly onClick?: () => void;
@@ -18,9 +19,23 @@ export interface NumberEditorTemplateProperties {
   readonly tooltipOptions?: TooltipOptions | undefined;
   readonly value: number | undefined;
   readonly darkBackGround?: boolean;
+  readonly showButtons?: boolean;
 }
 
-const NumberEditor = (props: NumberEditorTemplateProperties) => {
+const NumberEditor = ({
+  autoFocus,
+  disableDebounce = false,
+  label,
+  onChange,
+  onClick,
+  prefix,
+  suffix,
+  tooltip,
+  tooltipOptions,
+  showButtons,
+  value,
+  darkBackGround
+}: NumberEditorTemplateProperties) => {
   const [inputValue, setInputValue] = useState<number>(0);
   const [originalValue, setOriginalValue] = useState<number>(0);
   const [isFocused, setIsFocused] = useState<boolean>(false);
@@ -32,10 +47,10 @@ const NumberEditor = (props: NumberEditorTemplateProperties) => {
         if (value !== originalValue) {
           setInputValue(value);
           setOriginalValue(value);
-          props.onChange(value);
+          onChange(value);
         }
       },
-      [originalValue, props]
+      [onChange, originalValue]
     ),
     1500,
     {}
@@ -47,7 +62,7 @@ const NumberEditor = (props: NumberEditorTemplateProperties) => {
 
   const getDiv = useMemo(() => {
     let ret = 'stringeditorbody-inputtext';
-    if (props.darkBackGround === true) {
+    if (darkBackGround === true) {
       ret = 'stringeditorbody-inputtext-dark';
     }
     if (needsSave) {
@@ -55,7 +70,7 @@ const NumberEditor = (props: NumberEditorTemplateProperties) => {
     }
 
     return ret;
-  }, [needsSave, props.darkBackGround]);
+  }, [needsSave, darkBackGround]);
 
   const save = useCallback(
     (forceValueSave?: number | undefined) => {
@@ -67,13 +82,13 @@ const NumberEditor = (props: NumberEditorTemplateProperties) => {
 
       if (forceValueSave === undefined) {
         setOriginalValue(inputValue);
-        props.onChange(inputValue);
+        onChange(inputValue);
       } else {
         setOriginalValue(forceValueSave);
-        props.onChange(forceValueSave);
+        onChange(forceValueSave);
       }
     },
-    [debounced, inputValue, originalValue, props]
+    [debounced, inputValue, onChange, originalValue]
   );
 
   // Keyboard Enter
@@ -108,33 +123,35 @@ const NumberEditor = (props: NumberEditorTemplateProperties) => {
   });
 
   useEffect(() => {
-    if (props.value !== undefined) {
-      setInputValue(props.value);
-      setOriginalValue(props.value);
+    if (value !== undefined) {
+      setInputValue(value);
+      setOriginalValue(value);
     }
-  }, [props.value, setInputValue]);
+  }, [value, setInputValue]);
 
-  if (!props.label) {
+  if (!label) {
     return (
       <div className={getDiv} ref={overlayReference}>
         <InputNumber
+          autoFocus={autoFocus}
           id="numbereditorbody-inputtext"
           locale="en-US"
           onChange={(e) => {
-            if (props.disableDebounce !== undefined && props.disableDebounce !== true) {
+            if (disableDebounce !== undefined && disableDebounce !== true) {
               debounced(e.value as number);
             }
 
             setInputValue(e.value as number);
           }}
           onClick={() => {
-            props.onClick?.();
+            onClick?.();
           }}
           onFocus={() => setIsFocused(true)}
-          prefix={props.prefix}
-          suffix={props.suffix}
-          tooltip={props.tooltip}
-          tooltipOptions={props.tooltipOptions}
+          prefix={prefix}
+          showButtons={showButtons}
+          suffix={suffix}
+          tooltip={tooltip}
+          tooltipOptions={tooltipOptions}
           value={inputValue}
         />
       </div>
@@ -142,7 +159,7 @@ const NumberEditor = (props: NumberEditorTemplateProperties) => {
   }
 
   return (
-    <div className={props.label ? 'pt-4' : ''}>
+    <div className={label ? 'pt-4' : ''}>
       <FloatLabel>
         <InputNumber
           className={getDiv}
@@ -153,16 +170,17 @@ const NumberEditor = (props: NumberEditorTemplateProperties) => {
             setInputValue(e.value as number);
           }}
           onClick={() => {
-            props.onClick?.();
+            onClick?.();
           }}
           onFocus={() => setIsFocused(true)}
-          prefix={props.prefix}
-          suffix={props.suffix}
-          tooltip={props.tooltip}
-          tooltipOptions={props.tooltipOptions}
+          prefix={prefix}
+          showButtons={showButtons}
+          suffix={suffix}
+          tooltip={tooltip}
+          tooltipOptions={tooltipOptions}
           value={inputValue}
         />
-        <label htmlFor="numbereditorbody-inputtext">{props.label}</label>
+        <label htmlFor="numbereditorbody-inputtext">{label}</label>
       </FloatLabel>
     </div>
   );

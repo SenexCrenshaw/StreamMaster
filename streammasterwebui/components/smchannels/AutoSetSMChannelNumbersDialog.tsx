@@ -88,7 +88,7 @@ const AutoSetSMChannelNumbersDialog = ({ onHide }: AutoSetSMChannelNumbersProper
             </div>
           </span>
         </div>
-        <div className="flex col-12 gap-2 mt-4 justify-content-center ">
+        <div className="flex col-12 gap-1 mt-4 justify-content-center ">
           <OKButton onClick={async () => await onAutoChannelsSave()} />
         </div>
       </div>

@@ -56,7 +56,7 @@ const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProperties)
           <div className="m-3">
             <InputText autoFocus className="withpadding p-inputtext-sm w-full" onChange={(e) => setRegex(e.target.value)} placeholder="Regex" value={regex} />
 
-            <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
+            <div className="card flex mt-3 flex-wrap gap-1 justify-content-center">
               <Button icon="pi pi-times" label="Cancel" onClick={() => ReturnToParent()} rounded severity="warning" />
               <Button disabled={!regex || regex === ''} icon="pi pi-check" label="Ok" onClick={onSave} rounded severity="success" />
             </div>
