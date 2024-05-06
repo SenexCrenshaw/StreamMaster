@@ -9,6 +9,7 @@ import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationC
 import { CreateSMChannelRequest, StationChannelName } from '@lib/smAPI/smapiTypes';
 
 import React, { useCallback, useRef, useState } from 'react';
+import SMChannelSMStreamDialog from './SMChannelSMStreamDialog';
 import StreamingProxyTypeSelector from './StreamingProxyTypeSelector';
 
 interface SMChannelDialogProperties {}
@@ -22,11 +23,11 @@ const SMChannelDialog = () => {
 
   const onSave = React.useCallback(async () => {}, []);
 
-  const setName = useCallback(
+  const intSetName = useCallback(
     (value: string) => {
       if (request.Name !== value) {
         request.Name = value;
-        setRequest(request);
+        setRequest({ ...request });
       }
     },
     [request]
@@ -36,7 +37,7 @@ const SMChannelDialog = () => {
     (value: string) => {
       if (request.Logo !== value) {
         request.Logo = value;
-        setRequest(request);
+        setRequest({ ...request });
       }
     },
     [request]
@@ -46,7 +47,7 @@ const SMChannelDialog = () => {
     (value: string) => {
       if (request.Group !== value) {
         request.Group = value;
-        setRequest(request);
+        setRequest({ ...request });
       }
     },
     [request]
@@ -56,11 +57,12 @@ const SMChannelDialog = () => {
     (value: number) => {
       if (request.ChannelNumber !== value) {
         request.ChannelNumber = value;
-        setRequest(request);
+        setRequest({ ...request });
       }
     },
     [request]
   );
+
   const setEPGId = useCallback(
     (value: string) => {
       if (request.EPGId !== value) {
@@ -85,7 +87,7 @@ const SMChannelDialog = () => {
       onHide={() => ReturnToParent()}
       buttonClassName="icon-green-filled"
       icon="pi-plus"
-      widthSize={4}
+      widthSize={8}
       info="General"
       tooltip="Create Channel"
     >
@@ -93,7 +95,16 @@ const SMChannelDialog = () => {
         <div className="flex flex-column w-10 gap-2">
           <div className="flex w-12 gap-2">
             <div className="w-6 justify-content-start align-items-center">
-              <StringEditor label="Name" darkBackGround disableDebounce onChange={(e) => e && setName(e)} onSave={(e) => {}} value={request.Name} />
+              <StringEditor
+                label="Name"
+                darkBackGround
+                disableDebounce
+                onChange={(e) => {
+                  e && intSetName(e);
+                }}
+                onSave={(e) => {}}
+                value={request.Name}
+              />
             </div>
             <div className="w-6 justify-content-start align-items-center">
               <label>EPG</label>
@@ -140,10 +151,8 @@ const SMChannelDialog = () => {
       <div className="layout-padding-bottom-lg" />
 
       <div className="layout-padding-bottom-lg surface-ground" />
-      <div className="flex w-12 gap-2 input-border">
-        <div className="w-6 gap-2 w-full h-full">
-          <label>Proxy</label>
-        </div>
+      <div className="w-12">
+        <SMChannelSMStreamDialog name={request.Name} />
       </div>
       <div className="layout-padding-bottom-lg surface-ground" />
       <div className="flex col-12 gap-2 mt-4 justify-content-center ">

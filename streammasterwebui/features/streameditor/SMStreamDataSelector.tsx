@@ -35,10 +35,12 @@ const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
 interface SMStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
   readonly id: string;
+  readonly height?: string;
   readonly showSelections?: boolean;
+  readonly simple?: boolean;
 }
 
-const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections }: SMStreamDataSelectorProperties) => {
+const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple = false, showSelections }: SMStreamDataSelectorProperties) => {
   const dataKey = `${id}-SMStreamDataSelector`;
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
   const { data: smChannelStreamsData } = useGetSMChannelStreams({ SMChannelId: selectedSMChannel?.Id } as GetSMChannelStreamsRequest);
@@ -257,7 +259,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
         enablePaginator
         emptyMessage="No Streams"
         headerName={GetMessage('m3ustreams').toUpperCase()}
-        headerRightTemplate={rightHeaderTemplate}
+        headerRightTemplate={simple === true ? undefined : rightHeaderTemplate}
         isLoading={isLoading}
         id={dataKey}
         onSelectionChange={(value, selectAll) => {
@@ -281,7 +283,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
         queryFilter={useGetPagedSMStreams}
         selectedItemsKey="selectSelectedSMStreamDtoItems"
         selectionMode="multiple"
-        style={{ height: 'calc(100vh - 100px)' }}
+        style={{ height: height ?? 'calc(100vh - 100px)' }}
       />
     </Suspense>
   );

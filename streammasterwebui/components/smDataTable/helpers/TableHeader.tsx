@@ -1,4 +1,5 @@
 import { HeaderLeft, MultiSelectCheckbox } from '@lib/common/common';
+import { useMemo } from 'react';
 import { DataTableHeaderProperties } from '../types/smDataTableInterfaces';
 
 interface TableHeaderProperties {
@@ -19,29 +20,38 @@ const TableHeader: React.FC<TableHeaderProperties> = ({
   enableExport,
   exportCSV,
   dataSelectorProps
-}) => (
-  <div className="flex flex-row align-items-center justify-content-between border-white">
-    {(headerName || onMultiSelectClick) && (
-      <div className="col-4 text-sm">
-        <span className={`header-text`}>{headerName}</span>
+}) => {
+  const col = useMemo(() => {
+    if (dataSelectorProps.headerRightTemplate) {
+      return 'col-4';
+    }
+    return 'col-12';
+  }, []);
 
-        {onMultiSelectClick && (
-          <div hidden={dataSelectorProps.selectionMode !== 'selectable'}>
-            <MultiSelectCheckbox onMultiSelectClick={onMultiSelectClick} rowClick={rowClick} setRowClick={setRowClick} />
-          </div>
-        )}
-      </div>
-    )}
-    {(dataSelectorProps.headerRightTemplate || enableExport || dataSelectorProps.headerLeftTemplate) && (
-      <div className="col-8 p-0">
-        <div className="flex flex-nowrap flex-row justify-content-between">
-          {dataSelectorProps.headerLeftTemplate && <HeaderLeft props={dataSelectorProps} />}
-          {dataSelectorProps.headerRightTemplate && dataSelectorProps.headerRightTemplate}
-          {/* {enableExport && <ExportComponent exportCSV={exportCSV} />} */}
+  return (
+    <div className="flex flex-row align-items-center justify-content-between border-white">
+      {(headerName || onMultiSelectClick) && (
+        <div className={`${col} text-sm`}>
+          <span className={`header-text`}>{headerName}</span>
+
+          {onMultiSelectClick && (
+            <div hidden={dataSelectorProps.selectionMode !== 'selectable'}>
+              <MultiSelectCheckbox onMultiSelectClick={onMultiSelectClick} rowClick={rowClick} setRowClick={setRowClick} />
+            </div>
+          )}
         </div>
-      </div>
-    )}
-  </div>
-);
+      )}
+      {(dataSelectorProps.headerRightTemplate || enableExport || dataSelectorProps.headerLeftTemplate) && (
+        <div className="col-8 p-0">
+          <div className="flex flex-nowrap flex-row justify-content-between">
+            {dataSelectorProps.headerLeftTemplate && <HeaderLeft props={dataSelectorProps} />}
+            {dataSelectorProps.headerRightTemplate && dataSelectorProps.headerRightTemplate}
+            {/* {enableExport && <ExportComponent exportCSV={exportCSV} />} */}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default TableHeader;

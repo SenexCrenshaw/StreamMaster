@@ -44,7 +44,7 @@ const EditSMChannelDialog = ({ onHide, smChannel }: CopySMChannelProperties) => 
       onHide={() => ReturnToParent()}
       buttonClassName="icon-yellow"
       icon="pi-pencil"
-      widthSize={2}
+      widthSize={4}
       info="General"
       tooltip="Edit Channel"
     >
