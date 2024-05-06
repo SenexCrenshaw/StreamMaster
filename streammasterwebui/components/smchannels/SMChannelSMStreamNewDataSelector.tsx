@@ -42,24 +42,23 @@ const SMChannelSMStreamNewDataSelector = ({ enableEdit: propsEnableEdit, height,
         <MinusButton
           iconFilled={false}
           onClick={() => {
-            if (!smStream.Id || smChannel === undefined) {
-              return;
+            if (smChannel) {
+              const request: RemoveSMStreamFromSMChannelRequest = { SMChannelId: smChannel.Id, SMStreamId: smStream.Id };
+              RemoveSMStreamFromSMChannel(request)
+                .then((response) => {})
+                .catch((error) => {
+                  console.error('Remove Stream', error.message);
+                });
+            } else {
+              const newSelectedItems = selectSelectedItems.filter((item) => item.Id !== smStream.Id);
+              setSelectSelectedItems(newSelectedItems);
             }
-
-            const request: RemoveSMStreamFromSMChannelRequest = { SMChannelId: smChannel.Id, SMStreamId: smStream.Id };
-            RemoveSMStreamFromSMChannel(request)
-              .then((response) => {
-                console.log('Remove Stream', response);
-              })
-              .catch((error) => {
-                console.error('Remove Stream', error.message);
-              });
           }}
           tooltip="Remove Stream"
         />
       </div>
     ),
-    [smChannel]
+    [selectSelectedItems, setSelectSelectedItems, smChannel]
   );
 
   const columns = useMemo(
@@ -96,26 +95,16 @@ const SMChannelSMStreamNewDataSelector = ({ enableEdit: propsEnableEdit, height,
         onRowReorder={(event: DataTableValue[]) => {
           const channels = [...(event as unknown as SMStreamDto[])];
 
-          if (smChannel) {
-            const tosend: SMChannelRankRequest[] = channels.map((item, index) => {
-              return { SMChannelId: smChannel.Id, SMStreamId: item.Id, Rank: index } as SMChannelRankRequest;
+          const tosend: SMChannelRankRequest[] = channels.map((item, index) => {
+            return { SMChannelId: smChannel.Id, SMStreamId: item.Id, Rank: index } as SMChannelRankRequest;
+          });
+          SetSMStreamRanks({ Requests: tosend } as SetSMStreamRanksRequest)
+            .then((response) => {
+              console.log('SetSMStreamRanks', response);
+            })
+            .catch((error) => {
+              console.error('SetSMStreamRanks', error.message);
             });
-            SetSMStreamRanks({ Requests: tosend } as SetSMStreamRanksRequest)
-              .then((response) => {
-                console.log('SetSMStreamRanks', response);
-              })
-              .catch((error) => {
-                console.error('SetSMStreamRanks', error.message);
-              });
-          } else {
-            const updatedChannels = channels.map((item, index) => {
-              return {
-                ...item,
-                Rank: index
-              };
-            });
-            setSelectSelectedItems(updatedChannels);
-          }
         }}
         dataSource={smChannelData}
         enablePaginator

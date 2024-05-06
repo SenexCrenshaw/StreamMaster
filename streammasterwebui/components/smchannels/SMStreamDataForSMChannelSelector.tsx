@@ -9,8 +9,9 @@ import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
+import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
-import { RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
+import { GetSMChannelStreamsRequest, RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
@@ -27,10 +28,10 @@ interface SMStreamDataForSMChannelSelectorProperties {
 const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height, id, name, smChannel }: SMStreamDataForSMChannelSelectorProperties) => {
   const dataKey = `${id}-SMStreamDataForSMChannelSelector`;
   const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<SMStreamDto>(`${id}-SMStreamDataForSMChannelSelector`);
+  const { data: smChannelData, isLoading: smChannelIsLoading } = useGetSMChannelStreams({ SMChannelId: smChannel?.Id } as GetSMChannelStreamsRequest);
 
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { queryFilter } = useQueryFilter(dataKey);
-  console.log('queryFilter', queryFilter);
 
   const { isLoading } = useGetPagedSMStreams(queryFilter);
 
@@ -51,7 +52,12 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
 
   const addOrRemoveTemplate = useCallback(
     (data: any) => {
-      const found = selectSelectedItems?.some((item) => item.Id === data.Id) ?? false;
+      let found = false;
+      if (smChannel) {
+        found = smChannelData?.some((item) => item.Id === data.Id) ?? false;
+      } else {
+        found = selectSelectedItems?.some((item) => item.Id === data.Id) ?? false;
+      }
 
       let toolTip = '';
 
@@ -91,12 +97,15 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
           </div>
         );
       }
+
       if (name !== undefined) {
         toolTip = 'Add Stream To "' + name + '"';
       } else {
         toolTip = 'Add Stream';
       }
+
       toolTip = 'Add Stream To "' + name + '"';
+
       return (
         <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
           <AddButton
@@ -118,7 +127,7 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
         </div>
       );
     },
-    [name, selectSelectedItems, setSelectSelectedItems, smChannel]
+    [name, selectSelectedItems, setSelectSelectedItems, smChannel, smChannelData]
   );
 
   function addOrRemoveHeaderTemplate() {
@@ -133,16 +142,21 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
         return 'bg-red-900';
       }
 
-      if (data && selectSelectedItems && selectSelectedItems !== undefined && Array.isArray(selectSelectedItems)) {
-        const id = getRecord(data, 'Id');
-        if (selectSelectedItems.some((stream) => stream.Id === id)) {
-          return 'bg-blue-900';
-        }
+      const id = getRecord(data, 'Id');
+      let found = false;
+      if (smChannel) {
+        found = smChannelData?.some((item) => item.Id === id) ?? false;
+      } else {
+        found = selectSelectedItems?.some((item) => item.Id === id) ?? false;
+      }
+
+      if (found) {
+        return 'bg-blue-900';
       }
 
       return '';
     },
-    [selectSelectedItems]
+    [selectSelectedItems, smChannel, smChannelData]
   );
 
   return (
