@@ -5,7 +5,7 @@ import useGetIcons from '@lib/smAPI/Icons/useGetIcons';
 import { IconFileDto } from '@lib/smAPI/smapiTypes';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 type IconSelectorProperties = {
   readonly enableEditMode?: boolean;
@@ -49,7 +49,7 @@ const IconSelector = ({ enableEditMode = true, large = false, value, disabled, e
     }
   }, [origValue, query.data, value]);
 
-  const selectedTemplate = () => {
+  const selectedTemplate = useMemo(() => {
     const size = large ? 'icon-template-lg' : 'icon-template';
     if (iconSource === null)
       return (
@@ -73,7 +73,7 @@ const IconSelector = ({ enableEditMode = true, large = false, value, disabled, e
         <img className="no-border" alt="Icon logo" src={iconUrl} />
       </div>
     );
-  };
+  }, [iconSource, large]);
 
   const itemTemplate = (icon: IconFileDto) => {
     if (icon === null) return <div />;
@@ -118,7 +118,7 @@ const IconSelector = ({ enableEditMode = true, large = false, value, disabled, e
 
   return (
     <SMOverlay
-      buttonTemplate={selectedTemplate()}
+      buttonTemplate={selectedTemplate}
       title="ICONS"
       widthSize="3"
       icon="pi-upload"

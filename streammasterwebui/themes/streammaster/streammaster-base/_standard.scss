@@ -14,10 +14,19 @@ $colors: (
     "red": #ff5d44,
     "primary": $primaryColor,
     "streammaster":$streamMasterColor) !default;
+
+//scale
+$scaleXS: 0.75 !default;
+$scaleSM: 0.875 !default;
+$scaleLG: 1.25 !default;
+$scaleXLG: 1.50 !default;
+
 //global
+$common-font-size: 0.75rem;
 $fontFamily: Poppins,
     sans-serif !default;
-$fontSize: 1rem !default;
+$fontSize: $common-font-size !default;
+$primeIconFontSize: $common-font-size !default;
 $fontWeight: normal !default;
 
 $transitionDuration: 0.3s !default;
@@ -29,15 +38,11 @@ $actionIconTransition: background-color $transitionDuration,
     color $transitionDuration,
     box-shadow $transitionDuration !default;
 $listItemTransition: box-shadow $transitionDuration !default;
-$primeIconFontSize: 1rem !default;
+
 $inlineSpacing: 0.5rem !default;
 $maskBg: rgba(0, 0, 0, 0.4) !default;
 $loadingIconFontSize: 2rem !default;
-//scale
-$scaleXS: 0.75 !default;
-$scaleSM: 0.875 !default;
-$scaleLG: 1.25 !default;
-$scaleXLG: 1.50 !default;
+
 $focusOutline: 0 none !default;
 $focusOutlineOffset: 0 !default;
 //action icons

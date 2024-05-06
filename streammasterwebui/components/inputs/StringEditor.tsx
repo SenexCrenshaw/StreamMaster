@@ -148,7 +148,7 @@ const StringEditor = ({
   if (!label) {
     return (
       // <div ref={divReference}>
-      <span ref={divReference} className="flex align-items-center">
+      <span ref={divReference} className="stringeditor flex align-items-center">
         {doShowClear() && (
           <i
             className="pi pi-times-circle icon-yellow absolute right-0 pr-1"
@@ -190,7 +190,7 @@ const StringEditor = ({
   }
 
   return (
-    <div className={label ? 'pt-4' : ''} ref={divReference}>
+    <div className={label ? 'stringeditor pt-4' : 'stringeditor'} ref={divReference}>
       <FloatLabel>
         <span className="flex align-items-center">
           {doShowClear() && (
@@ -230,7 +230,9 @@ const StringEditor = ({
           />
         </span>
 
-        <label htmlFor={uuid}>{label}</label>
+        <label className="" htmlFor={uuid}>
+          {label}
+        </label>
       </FloatLabel>
     </div>
   );

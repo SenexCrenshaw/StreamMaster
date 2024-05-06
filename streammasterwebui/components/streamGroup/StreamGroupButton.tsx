@@ -23,7 +23,7 @@ const StreamGroupButton = () => {
       <SMOverlay
         title="STREAM GROUPS"
         widthSize="5"
-        icon="pi-upload"
+        icon="pi-file-edit"
         buttonClassName="icon-orange-filled"
         buttonLabel="SG"
         header={<StreamGroupCreateDialog />}

@@ -14,7 +14,7 @@ $editableTextColor: #94abec;
 $inputBorderColor: #263238;
 $uploadButtonBg: $iconGreen;
 
-$primaryColor: $editableTextColor !default;
+$primaryColor: $textColor !default;
 $borderRadius: 6px !default;
 $highlightBg: rgba($primaryColor, 0.16) !default;
 $highlightTextColor: $primaryColor !default;

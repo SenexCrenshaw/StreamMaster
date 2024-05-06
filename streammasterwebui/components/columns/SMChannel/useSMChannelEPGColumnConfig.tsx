@@ -90,7 +90,7 @@ export const useSMChannelEPGColumnConfig = () => {
         }}
         onShow={() => {}}
         options={epgFiles}
-        placeholder="All"
+        placeholder="EPG"
         value={options.value}
         selectedItemTemplate={selectedItemTemplate}
       />

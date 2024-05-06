@@ -9,7 +9,6 @@ import BaseButton from '@components/buttons/BaseButton';
 
 import EPGFilesButton from '@components/epgFiles/EPGFilesButton';
 import { SMPopUp } from '@components/sm/SMPopUp';
-import SMDataTable from '@components/smDataTable/SMDataTable';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import CopySMChannelDialog from '@components/smchannels/CopySMChannelDialog';
@@ -24,10 +23,10 @@ import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import { DeleteSMChannelRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent, DataTableRowData, DataTableRowEvent, DataTableRowExpansionTemplate } from 'primereact/datatable';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import SMStreamDataSelectorValue from './SMStreamDataSelectorValue';
 import useSelectedSMItems from './useSelectedSMItems';
-
+const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
 interface SMChannelDataSelectorProperties {
   readonly enableEdit?: boolean;
   readonly id: string;
@@ -168,49 +167,51 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
   }, []);
 
   return (
-    <SMDataTable
-      columns={columns}
-      enableClick
-      selectRow
-      showExpand
-      defaultSortField="Name"
-      defaultSortOrder={1}
-      emptyMessage="No Channels"
-      enablePaginator
-      headerRightTemplate={rightHeaderTemplate}
-      headerName={headerTitle()}
-      id={dataKey}
-      isLoading={isLoading}
-      onRowClick={(e: DataTableRowClickEvent) => {
-        // setSelectedSMEntity(e.data as SMChannelDto, true);
-        // if (e.data !== selectedSMChannel) {
-        //   setSelectedSMChannel(e.data as SMChannelDto);
-        // }
-        //console.log(e);
-      }}
-      onClick={(e: any) => {
-        if (e.target.className && e.target.className === 'p-datatable-wrapper') {
-          setSelectedSMChannel(undefined);
-        }
-      }}
-      onRowExpand={(e: DataTableRowEvent) => {
-        if (e.data !== selectedSMChannel) {
-          setSelectedSMChannel(e.data as SMChannelDto);
-        }
-        // setSelectedSMEntity(e.data);
-      }}
-      onRowCollapse={(e: DataTableRowEvent) => {
-        if (e.data !== selectedSMChannel) {
-          setSelectedSMChannel(e.data as SMChannelDto);
-        }
-        // setSelectedSMEntity(e.data);
-      }}
-      rowClass={rowClass}
-      queryFilter={useGetPagedSMChannels}
-      rowExpansionTemplate={rowExpansionTemplate}
-      selectedItemsKey="selectSelectedSMChannelDtoItems"
-      style={{ height: 'calc(100vh - 100px)' }}
-    />
+    <Suspense>
+      <SMDataTable
+        columns={columns}
+        enableClick
+        selectRow
+        showExpand
+        defaultSortField="Name"
+        defaultSortOrder={1}
+        emptyMessage="No Channels"
+        enablePaginator
+        headerRightTemplate={rightHeaderTemplate}
+        headerName={headerTitle()}
+        id={dataKey}
+        isLoading={isLoading}
+        onRowClick={(e: DataTableRowClickEvent) => {
+          // setSelectedSMEntity(e.data as SMChannelDto, true);
+          // if (e.data !== selectedSMChannel) {
+          //   setSelectedSMChannel(e.data as SMChannelDto);
+          // }
+          //console.log(e);
+        }}
+        onClick={(e: any) => {
+          if (e.target.className && e.target.className === 'p-datatable-wrapper') {
+            setSelectedSMChannel(undefined);
+          }
+        }}
+        onRowExpand={(e: DataTableRowEvent) => {
+          if (e.data !== selectedSMChannel) {
+            setSelectedSMChannel(e.data as SMChannelDto);
+          }
+          // setSelectedSMEntity(e.data);
+        }}
+        onRowCollapse={(e: DataTableRowEvent) => {
+          if (e.data !== selectedSMChannel) {
+            setSelectedSMChannel(e.data as SMChannelDto);
+          }
+          // setSelectedSMEntity(e.data);
+        }}
+        rowClass={rowClass}
+        queryFilter={useGetPagedSMChannels}
+        rowExpansionTemplate={rowExpansionTemplate}
+        selectedItemsKey="selectSelectedSMChannelDtoItems"
+        style={{ height: 'calc(100vh - 100px)' }}
+      />
+    </Suspense>
   );
 };
 

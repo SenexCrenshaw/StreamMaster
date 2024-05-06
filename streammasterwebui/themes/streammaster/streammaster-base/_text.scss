@@ -93,6 +93,8 @@
 .sm-input-dark {
     @extend .sm-input;
     @extend .input-border-dark;
+    display: flex;
+    align-items: center;
 
     .p-dropdown {
         background-color: transparent !important;
@@ -105,11 +107,30 @@
 
 .stringeditorbody-inputtext {
     @extend .sm-input;
+    display: flex;
+    align-items: center;
 }
 
 .stringeditorbody-inputtext-dark {
     @extend .stringeditorbody-inputtext;
     background-color: $inputBg !important;
+    display: flex;
+    align-items: center;
+
+    .label {
+        color: $inputTextColor;
+    }
+}
+
+.stringeditor {
+    .p-float-label {
+
+        >label {
+            height: $input-height;
+            left: nth($inputPadding, 2);
+            padding-top: ($inputBorder-size+.05) !important;
+        }
+    }
 }
 
 .stringeditorbody-inputtext-save {

@@ -117,8 +117,9 @@
 .sm-datatable-header {
     @extend .sm-input-border;
     background-color: $tableHeaderBg !important;
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+
 }
 
 .sm-tableHeaderBg {
@@ -186,6 +187,31 @@
     @include datatable-text-style();
     @extend .sm-input-border;
     min-width: 12rem;
+    min-height: $input-height;
+    display: flex;
+    align-items: center;
+}
+
+.sm-hoover {
+    &:not(.p-disabled):hover {
+        background: $highlightBg;
+        border-color: $inputHoverBorderColor;
+        border-radius: $borderRadius;
+        border-style: solid;
+        border-width: 1px;
+        color: $highlightTextColor;
+    }
+
+}
+
+.sm-streamingproxytypeselector {
+    @include datatable-text-style();
+    @extend .sm-input-border;
+    min-width: 100%;
+    min-height: $input-height;
+    display: flex;
+    align-items: center;
+
 }
 
 .sm-standard-text {

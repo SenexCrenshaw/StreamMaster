@@ -86,7 +86,7 @@ export interface IconFileDto
 	FileId: number;
 	Id: string;
 	Name: string;
-	SMFileType: number;
+	SMFileType: SMFileTypes;
 	Source: string;
 }
 export interface M3UFileDto
@@ -117,7 +117,7 @@ export interface SettingDto
 	AdminPassword: string;
 	AdminUserName: string;
 	ApiKey: string;
-	AuthenticationMethod: number;
+	AuthenticationMethod: AuthenticationType;
 	BackupEnabled: boolean;
 	BackupInterval: number;
 	BackupVersionsToKeep: number;
@@ -157,7 +157,7 @@ export interface SettingDto
 	SSLCertPassword: string;
 	SSLCertPath: string;
 	StreamingClientUserAgent: string;
-	StreamingProxyType: number;
+	StreamingProxyType: StreamingProxyTypes;
 	UiFolder: string;
 	UrlBase: string;
 	Version: string;
@@ -179,9 +179,9 @@ export interface SMChannelDto
 	SMStreams: SMStreamDto[];
 	StationId: string;
 	StreamGroups: StreamGroupSMChannelLink[];
-	StreamingProxyType: number;
+	StreamingProxyType: StreamingProxyTypes;
 	TimeShift: number;
-	VideoStreamHandler: number;
+	VideoStreamHandler: VideoStreamHandlers;
 	VideoStreamId: string;
 }
 export interface SMStreamDto
@@ -552,9 +552,9 @@ export interface CreateSMChannelRequest
 	Logo?: string;
 	Name: string;
 	SMStreamsIds?: string[];
-	StreamingProxyType?: number;
+	StreamingProxyType?: StreamingProxyTypes;
 	TimeShift?: number;
-	VideoStreamHandler?: number;
+	VideoStreamHandler?: VideoStreamHandlers;
 }
 export interface UpdateSMChannelRequest
 {
@@ -658,4 +658,38 @@ export interface UpdateChannelGroupRequest
 	IsHidden?: boolean;
 	NewGroupName?: string;
 	ToggleVisibility?: boolean;
+}
+export enum AuthenticationType {
+	None = 0,
+	Forms = 2
+}
+export enum M3UFileStreamURLPrefix {
+	SystemDefault = 0,
+	TS = 1,
+	M3U8 = 2
+}
+export enum SMFileTypes {
+	M3U = 0,
+	EPG = 1,
+	HDHR = 2,
+	Channel = 3,
+	M3UStream = 4,
+	Icon = 5,
+	Image = 6,
+	TvLogo = 7,
+	ProgrammeIcon = 8,
+	ChannelIcon = 9,
+	SDImage = 10,
+	SDStationLogo = 11
+}
+export enum StreamingProxyTypes {
+	SystemDefault = 0,
+	None = 1,
+	StreamMaster = 2,
+	FFMpeg = 3
+}
+export enum VideoStreamHandlers {
+	SystemDefault = 0,
+	None = 1,
+	Loop = 2
 }

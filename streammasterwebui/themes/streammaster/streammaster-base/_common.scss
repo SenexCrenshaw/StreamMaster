@@ -22,6 +22,15 @@
 
 }
 
+.background-transparent {
+    background-color: transparent !important;
+
+}
+
+.pt-small {
+    padding-top: ($inputBorder-size+.2) !important;
+}
+
 .p-multiselect-items {
     .p-multiselect-item {
         @include datatable-text-style;

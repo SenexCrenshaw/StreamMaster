@@ -1,4 +1,4 @@
-import { M3UFileStreamUrlPrefix } from '@lib/common/streammaster_enums';
+import { M3UFileStreamURLPrefix } from '@lib/smAPI/smapiTypes';
 import { Dropdown } from 'primereact/dropdown';
 import { type SelectItem } from 'primereact/selectitem';
 import { Toast } from 'primereact/toast';
@@ -7,13 +7,13 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 interface StreamURLPrefixSelectorProperties {
   readonly className?: string | null;
-  readonly onChange?: ((value: M3UFileStreamUrlPrefix) => void) | null;
-  readonly value: M3UFileStreamUrlPrefix | null;
+  readonly onChange?: ((value: M3UFileStreamURLPrefix) => void) | null;
+  readonly value: M3UFileStreamURLPrefix | null;
 }
 
 const StreamURLPrefixSelector = ({ className: propertyClassName, onChange, value }: StreamURLPrefixSelectorProperties) => {
   const toast = useRef<Toast>(null);
-  const [streamURLPrefix, setStreamURLPrefix] = useState<M3UFileStreamUrlPrefix>(0);
+  const [streamURLPrefix, setStreamURLPrefix] = useState<M3UFileStreamURLPrefix>(0);
 
   useEffect(() => {
     if (value && value !== undefined) {
@@ -57,8 +57,8 @@ const StreamURLPrefixSelector = ({ className: propertyClassName, onChange, value
   };
 
   const getHandlersOptions = (): SelectItem[] => {
-    const test = Object.entries(M3UFileStreamUrlPrefix)
-      .splice(0, Object.keys(M3UFileStreamUrlPrefix).length / 2)
+    const test = Object.entries(M3UFileStreamURLPrefix)
+      .splice(0, Object.keys(M3UFileStreamURLPrefix).length / 2)
       .map(
         ([number, word]) =>
           ({

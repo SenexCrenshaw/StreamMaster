@@ -5,7 +5,7 @@ import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
 
 import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 type ChannelGroupSelectorProperties = {
   readonly enableEditMode?: boolean;
@@ -51,11 +51,13 @@ const ChannelGroupSelector = ({ enableEditMode = true, className, value, disable
     onChange && onChange(group.Name);
   };
 
-  if (!enableEditMode) {
-    return <div className="flex w-full h-full justify-content-center align-items-center p-0 m-0">{input ?? 'Dummy'}</div>;
-  }
-
   const loading = channelGroupQuery.isError || channelGroupQuery.isFetching || channelGroupQuery.isLoading || !channelGroupQuery.data || isSystemReady !== true;
+
+  const buttonTemplate = useMemo(() => {
+    if (input) return <div className="stringeditorbody-inputtext-dark text-xs text-container sm-hoover">{input}</div>;
+
+    return <div className="stringeditorbody-inputtext-dark text-xs text-container text-white-alpha-40 sm-hoover">None</div>;
+  }, [input]);
 
   if (loading) {
     return (
@@ -65,15 +67,12 @@ const ChannelGroupSelector = ({ enableEditMode = true, className, value, disable
     );
   }
 
+  if (!enableEditMode) {
+    return <div className="flex w-full h-full justify-content-center align-items-center p-0 m-0">{input ?? 'Dummy'}</div>;
+  }
+
   return (
-    <SMOverlay
-      buttonTemplate={<div className="sm-input-dark">{input ?? 'No Group'}</div>}
-      title="CHANNEL GROUPS"
-      widthSize="3"
-      icon="pi-upload"
-      buttonClassName="icon-green-filled"
-      buttonLabel="EPG"
-    >
+    <SMOverlay buttonTemplate={buttonTemplate} title="CHANNEL GROUPS" widthSize="3" icon="pi-upload" buttonClassName="icon-green-filled" buttonLabel="EPG">
       <SMScroller
         data={channelGroupQuery.data}
         onChange={(e) => handleOnChange(e)}

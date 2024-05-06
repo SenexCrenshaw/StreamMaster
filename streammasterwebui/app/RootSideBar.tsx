@@ -11,7 +11,7 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { Menu, MenuItem, Sidebar, sidebarClasses } from 'react-pro-sidebar';
 export const RootSideBar = () => {
   const [dark, setDark] = useLocalStorage(true, 'dark');
-  // const [currentDark, setCurrentDark] = useSessionStorage<boolean | null>(null, 'currentDark');
+
   const context = useContext(PrimeReactContext);
 
   const [collapsed, setCollapsed] = useLocalStorage<boolean>(true, 'app-menu-collapsed');

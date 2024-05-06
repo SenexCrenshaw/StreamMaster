@@ -1,7 +1,6 @@
 using MediatR;
 
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Data.Sqlite;
 
 using Prometheus;
@@ -28,7 +27,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
 
-[assembly: TsGlobal(CamelCaseForProperties = false, CamelCaseForMethods = false, UseModules = true, DiscardNamespacesWhenUsingModules = true, ExportPureTypings = true, AutoOptionalProperties = true, WriteWarningComment = false, ReorderMembers = true)]
+[assembly: TsGlobal(CamelCaseForProperties = false, CamelCaseForMethods = false, UseModules = true, DiscardNamespacesWhenUsingModules = true, AutoOptionalProperties = true, WriteWarningComment = false, ReorderMembers = true)]
 //ProcessHelper.KillProcessByName("ffmpeg");
 
 DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "hls"), BuildInfo.HLSOutputFolder);
@@ -186,8 +185,8 @@ if (lifetime != null)
 
 void OnShutdown()
 {
-    var sender = app.Services.GetRequiredService<ISender> ();
-     sender.Send(new SetIsSystemReadyRequest(false)).Wait();
+    var sender = app.Services.GetRequiredService<ISender>();
+    sender.Send(new SetIsSystemReadyRequest(false)).Wait();
     ProcessHelper.KillProcessByName("ffmpeg");
     SqliteConnection.ClearAllPools();
     PGSQLRepositoryContext repositoryContext = app.Services.GetRequiredService<PGSQLRepositoryContext>();

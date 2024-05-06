@@ -213,6 +213,9 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
       const stationChannelName = query.data?.find((x) => x.Channel === input);
       if (!stationChannelName) {
         const tooltipClassName = `epgitem-${uuidv4()}`;
+        if (!input || input === '') {
+          return <div className="text-xs text-container text-white-alpha-40">None</div>;
+        }
         return (
           <>
             <Tooltip target={`.${tooltipClassName}`} />
@@ -223,7 +226,6 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
               data-pr-showdelay={500}
               data-pr-tooltip={'No EPG'}
             >
-              <i className="pl-1 pi pi-ban icon-red" />
               <span className="text-xs">{input}</span>
             </div>
           </>

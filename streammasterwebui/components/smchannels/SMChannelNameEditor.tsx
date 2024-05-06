@@ -15,7 +15,7 @@ const SMChannelNameEditor = ({ data, onClick }: SMChannelNameEditorProperties) =
         return;
       }
 
-      const toSend = { SMChannelId: data.Id, Name: name } as SetSMChannelNameRequest;
+      const toSend = { Name: name, SMChannelId: data.Id } as SetSMChannelNameRequest;
 
       await SetSMChannelName(toSend)
         .then(() => {})

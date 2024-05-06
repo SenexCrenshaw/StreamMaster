@@ -35,6 +35,7 @@ export const StreamGroupSelector = ({ onChange, selectedStreamGroup }: StreamGro
         options={data}
         optionLabel="Name"
         placeholder="Stream Group"
+        valueTemplate={(option: StreamGroupDto) => option?.Name}
         value={selectedStreamGroup}
       />
     </div>

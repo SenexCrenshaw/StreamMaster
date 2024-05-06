@@ -1,5 +1,5 @@
 import MinusButton from '@components/buttons/MinusButton';
-import SMDataTable from '@components/smDataTable/SMDataTable';
+
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { GetMessage } from '@lib/common/common';
 import { RemoveSMStreamFromSMChannel, SetSMStreamRanks } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
@@ -13,9 +13,10 @@ import {
   SetSMStreamRanksRequest
 } from '@lib/smAPI/smapiTypes';
 import { DataTableRowEvent, DataTableValue } from 'primereact/datatable';
-import { memo, useCallback, useMemo } from 'react';
+import { Suspense, lazy, memo, useCallback, useMemo } from 'react';
 import useSelectedSMItems from './useSelectedSMItems';
 
+const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
 interface SMStreamDataSelectorValueProperties {
   readonly id: string;
   readonly smChannel: SMChannelDto;
@@ -80,42 +81,45 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
         }
       }}
     >
-      <SMDataTable
-        noSourceHeader
-        reorderable
-        columns={columns}
-        defaultSortField="rank"
-        defaultSortOrder={1}
-        dataSource={data}
-        emptyMessage="No Streams"
-        headerName={GetMessage('streams').toUpperCase()}
-        isLoading={isLoading}
-        onRowReorder={(event: DataTableValue[]) => {
-          const channels = event as unknown as SMStreamDto[];
-          if (smChannel === undefined || channels === undefined) {
-            return;
-          }
+      {' '}
+      <Suspense>
+        <SMDataTable
+          noSourceHeader
+          reorderable
+          columns={columns}
+          defaultSortField="rank"
+          defaultSortOrder={1}
+          dataSource={data}
+          emptyMessage="No Streams"
+          headerName={GetMessage('streams').toUpperCase()}
+          isLoading={isLoading}
+          onRowReorder={(event: DataTableValue[]) => {
+            const channels = event as unknown as SMStreamDto[];
+            if (smChannel === undefined || channels === undefined) {
+              return;
+            }
 
-          const tosend: SMChannelRankRequest[] = channels.map((item, index) => {
-            return { SMChannelId: smChannel.Id, SMStreamId: item.Id, Rank: index } as SMChannelRankRequest;
-          });
-
-          SetSMStreamRanks({ Requests: tosend } as SetSMStreamRanksRequest)
-            .then((response) => {
-              console.log('SetSMStreamRanks', response);
-            })
-            .catch((error) => {
-              console.error('SetSMStreamRanks', error.message);
+            const tosend: SMChannelRankRequest[] = channels.map((item, index) => {
+              return { SMChannelId: smChannel.Id, SMStreamId: item.Id, Rank: index } as SMChannelRankRequest;
             });
 
-          console.log('tosend', tosend);
-        }}
-        onRowExpand={(e: DataTableRowEvent) => {
-          setSelectedSMChannel(e.data as SMChannelDto);
-        }}
-        id={dataKey}
-        selectedItemsKey={'SMStreamDataSelectorValue-selectSelectedSMStreamDtoItems'}
-      />
+            SetSMStreamRanks({ Requests: tosend } as SetSMStreamRanksRequest)
+              .then((response) => {
+                console.log('SetSMStreamRanks', response);
+              })
+              .catch((error) => {
+                console.error('SetSMStreamRanks', error.message);
+              });
+
+            console.log('tosend', tosend);
+          }}
+          onRowExpand={(e: DataTableRowEvent) => {
+            setSelectedSMChannel(e.data as SMChannelDto);
+          }}
+          id={dataKey}
+          selectedItemsKey={'SMStreamDataSelectorValue-selectSelectedSMStreamDtoItems'}
+        />
+      </Suspense>
     </div>
   );
 };

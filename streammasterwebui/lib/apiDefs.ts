@@ -21,9 +21,6 @@ export interface QueryHook<T> {
   (): QueryHookResult<T>;
 }
 
-export type StreamingProxyTypes = 0 | 1 | 2 | 3;
-export type VideoStreamHandlers = 0 | 1 | 2;
-
 export interface CacheItem<T> {
   data: T;
   timestamp: number;

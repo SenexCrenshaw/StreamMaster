@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // import ExportButton from '@components/export/ExportButton';
 import GlobalSearch from '@components/search/GlobalSearch';
-import { SMFileTypes } from '@lib/common/streammaster_enums';
 
-import { IconFileDto } from '@lib/smAPI/smapiTypes';
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import { IconFileDto, SMFileTypes } from '@lib/smAPI/smapiTypes';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { Checkbox } from 'primereact/checkbox';
 import { type DataTableFilterMeta, type DataTableFilterMetaData } from 'primereact/datatable';
@@ -12,7 +12,6 @@ import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { baseHostURL, isDev as isDevelopment } from '../settings';
 import { getColor } from './colors';
-import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 
 export function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
   return (error as FetchBaseQueryError).data !== undefined;

@@ -1,6 +1,6 @@
 import React from 'react';
-import { AuthenticationType } from './common/streammaster_enums';
-import { SettingDto } from './smAPI/smapiTypes';
+
+import { AuthenticationType, SettingDto } from './smAPI/smapiTypes';
 
 const useSettings = (): StreamMasterSettingResponse => {
   const [isLoading, setIsLoading] = React.useState<boolean>(true);

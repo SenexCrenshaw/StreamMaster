@@ -38,7 +38,7 @@ export const useSMStreamM3UColumnConfig = () => {
           }
         }}
         options={data}
-        placeholder="All"
+        placeholder="M3U"
         value={options.value}
         selectedItemTemplate={itemTemplate}
       />

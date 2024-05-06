@@ -1,7 +1,7 @@
 import AddButton from '@components/buttons/AddButton';
 import MinusButton from '@components/buttons/MinusButton';
 import M3UFilesButton from '@components/m3u/M3UFilesButton';
-import SMDataTable from '@components/smDataTable/SMDataTable';
+
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
@@ -27,8 +27,10 @@ import {
   SMStreamDto
 } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent, DataTableRowEvent, DataTableValue } from 'primereact/datatable';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import useSelectedSMItems from './useSelectedSMItems';
+
+const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
 
 interface SMStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
@@ -245,41 +247,43 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, showSelections 
   );
 
   return (
-    <SMDataTable
-      columns={columns}
-      defaultSortField="Name"
-      defaultSortOrder={1}
-      addOrRemoveTemplate={addOrRemoveTemplate}
-      addOrRemoveHeaderTemplate={addOrRemoveHeaderTemplate}
-      enablePaginator
-      emptyMessage="No Streams"
-      headerName={GetMessage('m3ustreams').toUpperCase()}
-      headerRightTemplate={rightHeaderTemplate}
-      isLoading={isLoading}
-      id={dataKey}
-      onSelectionChange={(value, selectAll) => {
-        if (selectAll !== true) {
-          setSelectedSMStreams(value as SMStreamDto[]);
-        }
-      }}
-      onClick={(e: any) => {
-        if (e.target.className && e.target.className === 'p-datatable-wrapper') {
-          setSelectedSMChannel(undefined);
-        }
-      }}
-      onRowExpand={(e: DataTableRowEvent) => {
-        setSelectedSMEntity(e.data);
-      }}
-      onRowClick={(e: DataTableRowClickEvent) => {
-        setSelectedSMEntity(e.data, true);
-        // props.onRowClick?.(e);
-      }}
-      rowClass={rowClass}
-      queryFilter={useGetPagedSMStreams}
-      selectedItemsKey="selectSelectedSMStreamDtoItems"
-      selectionMode="multiple"
-      style={{ height: 'calc(100vh - 100px)' }}
-    />
+    <Suspense>
+      <SMDataTable
+        columns={columns}
+        defaultSortField="Name"
+        defaultSortOrder={1}
+        addOrRemoveTemplate={addOrRemoveTemplate}
+        addOrRemoveHeaderTemplate={addOrRemoveHeaderTemplate}
+        enablePaginator
+        emptyMessage="No Streams"
+        headerName={GetMessage('m3ustreams').toUpperCase()}
+        headerRightTemplate={rightHeaderTemplate}
+        isLoading={isLoading}
+        id={dataKey}
+        onSelectionChange={(value, selectAll) => {
+          if (selectAll !== true) {
+            setSelectedSMStreams(value as SMStreamDto[]);
+          }
+        }}
+        onClick={(e: any) => {
+          if (e.target.className && e.target.className === 'p-datatable-wrapper') {
+            setSelectedSMChannel(undefined);
+          }
+        }}
+        onRowExpand={(e: DataTableRowEvent) => {
+          setSelectedSMEntity(e.data);
+        }}
+        onRowClick={(e: DataTableRowClickEvent) => {
+          setSelectedSMEntity(e.data, true);
+          // props.onRowClick?.(e);
+        }}
+        rowClass={rowClass}
+        queryFilter={useGetPagedSMStreams}
+        selectedItemsKey="selectSelectedSMStreamDtoItems"
+        selectionMode="multiple"
+        style={{ height: 'calc(100vh - 100px)' }}
+      />
+    </Suspense>
   );
 };
 

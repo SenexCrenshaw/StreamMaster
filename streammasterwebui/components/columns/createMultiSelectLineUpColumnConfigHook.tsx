@@ -46,7 +46,7 @@ const createMultiSelectLineUpColumnConfigHook =
           options={data}
           optionLabel="lineup"
           optionValue="lineup"
-          placeholder="All"
+          placeholder="LineUp"
           value={options.value}
         />
       </>

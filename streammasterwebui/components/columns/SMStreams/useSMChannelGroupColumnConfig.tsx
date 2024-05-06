@@ -38,7 +38,7 @@ export const useSMStreamGroupColumnConfig = () => {
           }
         }}
         options={data}
-        placeholder="All"
+        placeholder="Channel Group"
         value={options.value}
         selectedItemTemplate={itemTemplate}
       />

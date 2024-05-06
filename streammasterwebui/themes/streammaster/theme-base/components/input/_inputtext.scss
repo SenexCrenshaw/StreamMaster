@@ -35,7 +35,7 @@
 
 .p-float-label>label {
     left: nth($inputPadding, 2);
-    color: $inputPlaceholderTextColor;
+    // color: $inputPlaceholderTextColor;
     transition-duration: $transitionDuration;
 }
 

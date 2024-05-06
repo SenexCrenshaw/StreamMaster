@@ -608,7 +608,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           onRowReorder={(e) => {
             onRowReorder(e.value);
           }}
-          // header={sourceRenderHeader}
           lazy
           onRowToggle={(e: DataTableRowToggleEvent) => {
             setters.setExpandedRows(e.data as DataTableExpandedRows);
@@ -689,12 +688,18 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             expander
           />
           <Column
-            className="max-w-2rem p-0 justify-content-center align-items-center"
-            field="rank"
-            // header={rowReorderHeader}
+            body={
+              props.reorderable
+                ? undefined
+                : (e) => {
+                    return <div>Hey</div>;
+                  }
+            }
+            className="w-2rem"
             hidden={!props.reorderable}
+            rowReorderIcon="pi pi-equals"
             rowReorder
-            style={{ maxWidth: '2rem', width: '2rem' }}
+            bodyClassName={'flex justify-content-center align-items-center'}
           />
           {props.columns &&
             props.columns
