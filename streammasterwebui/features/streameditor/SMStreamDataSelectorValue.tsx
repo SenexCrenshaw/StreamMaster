@@ -84,6 +84,8 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
       {' '}
       <Suspense>
         <SMDataTable
+          enablePaginator
+          rows={5}
           noSourceHeader
           reorderable
           columns={columns}

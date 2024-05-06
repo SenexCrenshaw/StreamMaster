@@ -8,7 +8,6 @@ import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamVisibleDialog from '@components/smstreams/StreamVisibleDialog';
 import { GetMessage } from '@lib/common/common';
 import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreamsSlice';
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 
 import BaseButton from '@components/buttons/BaseButton';
@@ -16,6 +15,7 @@ import { useSMStreamGroupColumnConfig } from '@components/columns/SMStreams/useS
 import { useSMStreamM3UColumnConfig } from '@components/columns/SMStreams/useSMStreamM3UColumnConfig';
 import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
 import StreamMultiVisibleDialog from '@components/smstreams/StreamMultiVisibleDialog';
+import selectedSMChannel from '@lib/redux/slices/selectedSMChannel';
 import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
 import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
@@ -37,16 +37,14 @@ interface SSMChannelSMStreamDataSelectorProperties {
 }
 
 const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, smChannelId, showSelections }: SSMChannelSMStreamDataSelectorProperties) => {
-  const dataKey = `${id}-SSMChannelSMStreamDataSelector`;
-
-  const { data: smChannelStreamsData } = useGetSMChannelStreams({ SMChannelId: selectedSMChannel?.Id } as GetSMChannelStreamsRequest);
+  const dataKey = `${id}-SMChannelSMStreamDataSelector`;
 
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { setSelectedSMStreams } = useSelectSMStreams(dataKey);
   const groupColumnConfig = useSMStreamGroupColumnConfig();
   const smStreamM3UColumnConfig = useSMStreamM3UColumnConfig();
-  const { queryFilter } = useQueryFilter(dataKey);
-  const { isLoading } = useGetPagedSMStreams(queryFilter);
+
+  const { data, isLoading } = useGetSMChannelStreams({ SMChannelId: smChannelId } as GetSMChannelStreamsRequest);
 
   useEffect(() => {
     if (propsEnableEdit !== enableEdit) {
@@ -59,18 +57,6 @@ const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, smChan
       <div className="flex p-0 justify-content-end align-items-center">
         <StreamCopyLinkDialog realUrl={data.RealUrl} />
         <StreamVisibleDialog iconFilled={false} value={data} />
-
-        {/* <VideoStreamSetAutoSetEPGDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} /> */}
-        {/* <VideoStreamDeleteDialog iconFilled={false} id={dataKey} values={[data]} /> */}
-        {/* <VideoStreamEditDialog value={data} /> */}
-        {/* <VideoStreamCopyLinkDialog value={data} />
-        <VideoStreamSetTimeShiftDialog iconFilled={false} value={data} />
-        <VideoStreamResetLogoDialog value={data} />
-        <VideoStreamSetLogoFromEPGDialog value={data} />
-        <VideoStreamVisibleDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
-        <VideoStreamSetAutoSetEPGDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
-        <VideoStreamDeleteDialog iconFilled={false} id={dataKey} values={[data]} />
-        <VideoStreamEditDialog value={data} /> */}
       </div>
     ),
     []
@@ -198,16 +184,6 @@ const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, smChan
         <BaseButton className="button-orange" icon="pi pi-bars" rounded onClick={() => {}} />
 
         <StreamMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} skipOverLayer />
-        {/* <TriSelectShowHidden dataKey={dataKey} /> */}
-        {/* <TriSelectShowHidden dataKey={dataKey} />
-        <VideoStreamSetTimeShiftsDialog id={dataKey} />
-        <VideoStreamResetLogosDialog id={dataKey} />
-        <VideoStreamSetLogosFromEPGDialog id={dataKey} />
-        <AutoSetChannelNumbers id={dataKey} />
-        <VideoStreamVisibleDialog id={dataKey} />
-        <VideoStreamSetAutoSetEPGDialog iconFilled id={dataKey} />
-        <VideoStreamDeleteDialog iconFilled id={dataKey} />
-        <VideoStreamAddDialog group={channelGroupNames?.[0]} /> */}
       </div>
     ),
     [dataKey]
@@ -249,8 +225,8 @@ const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, smChan
       columns={columns}
       defaultSortField="Name"
       defaultSortOrder={1}
-      addOrRemoveTemplate={addOrRemoveTemplate}
-      addOrRemoveHeaderTemplate={addOrRemoveHeaderTemplate}
+      // addOrRemoveTemplate={addOrRemoveTemplate}
+      // addOrRemoveHeaderTemplate={addOrRemoveHeaderTemplate}
       enablePaginator
       emptyMessage="No Streams"
       headerName={GetMessage('m3ustreams').toUpperCase()}
@@ -264,7 +240,7 @@ const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, smChan
       }}
       onClick={(e: any) => {
         if (e.target.className && e.target.className === 'p-datatable-wrapper') {
-          setSelectedSMChannel(undefined);
+          // setSelectedSMChannel(undefined);
         }
       }}
       onRowExpand={(e: DataTableRowEvent) => {

@@ -120,7 +120,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         setters.setPagedInformation(data);
       }
     }
-  }, [data, setters, state.dataSource, state.selectAll]);
+  }, [data, props.id, setters, state.dataSource, state.selectAll]);
 
   useEffect(() => {
     if (!props.defaultSortField) {
@@ -244,7 +244,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   );
 
   useEffect(() => {
-    if (!props.dataSource) {
+    if (props.queryFilter || !props.dataSource) {
       return;
     }
 
@@ -263,7 +263,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         onSetSelection(newData);
       }
     }
-  }, [onSetSelection, props.dataSource, props.reorderable, selectedData, setters, state.dataSource, state.selectAll]);
+  }, [onSetSelection, props.dataSource, props.id, props.queryFilter, props.reorderable, selectedData, setters, state.dataSource, state.selectAll]);
 
   const onRowReorder = (changed: T[]) => {
     // setters.setDataSource(changed);
@@ -568,6 +568,10 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     [addSelection, removeSelection, showSelection, state.selectSelectedItems]
   );
 
+  const isLazy = useMemo(() => {
+    return props.queryFilter !== undefined;
+  }, [props.queryFilter]);
+
   return (
     <div
       id={props.id}
@@ -596,7 +600,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         )}
 
         <DataTable
-          id={props.id}
+          // id={props.id}
           dataKey="Id"
           cellSelection={false}
           editMode="cell"
@@ -608,7 +612,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           onRowReorder={(e) => {
             onRowReorder(e.value);
           }}
-          lazy
+          lazy={isLazy}
           onRowToggle={(e: DataTableRowToggleEvent) => {
             setters.setExpandedRows(e.data as DataTableExpandedRows);
           }}
@@ -627,8 +631,8 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           ref={tableReference}
           rowClassName={props.rowClass ? props.rowClass : rowClass}
           rowExpansionTemplate={props.rowExpansionTemplate}
-          rows={state.rows}
-          rowsPerPageOptions={[10, 25, 50, 100, 250]}
+          rows={props.rows || state.rows}
+          rowsPerPageOptions={[5, 10, 25, 50, 100, 250]}
           scrollHeight="flex"
           scrollable
           showGridlines
