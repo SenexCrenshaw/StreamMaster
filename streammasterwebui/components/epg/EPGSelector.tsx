@@ -2,10 +2,10 @@ import AddButton from '@components/buttons/AddButton';
 import StringEditor from '@components/inputs/StringEditor';
 import { SMCard } from '@components/sm/SMCard';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import { useSMContext } from '@lib/signalr/SMProvider';
 import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';
 import useGetEPGFiles from '@lib/smAPI/EPGFiles/useGetEPGFiles';
 import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationChannelNames';
-import useGetIsSystemReady from '@lib/smAPI/Settings/useGetIsSystemReady';
 import { EPGFileDto, StationChannelName } from '@lib/smAPI/smapiTypes';
 import { Button } from 'primereact/button';
 import { OverlayPanel } from 'primereact/overlaypanel';
@@ -34,7 +34,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   const [newInput, setNewInput] = useState<string | undefined>(undefined);
 
   const op = useRef<OverlayPanel>(null);
-  const getIsSystemReady = useGetIsSystemReady();
+  const { isSystemReady } = useSMContext();
   const query = useGetStationChannelNames();
   const epgQuery = useGetEPGFiles();
   const colorsQuery = useGetEPGColors();
@@ -383,7 +383,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
     return <div className="flex w-full h-full justify-content-center align-items-center p-0 m-0">{input ?? 'Dummy'}</div>;
   }
 
-  const loading = query.isError || query.isFetching || query.isLoading || !query.data || getIsSystemReady.data !== true;
+  const loading = query.isError || query.isFetching || query.isLoading || !query.data || isSystemReady !== true;
 
   if (loading) {
     return (

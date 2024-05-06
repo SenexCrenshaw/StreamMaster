@@ -1,4 +1,5 @@
 import store, { persistor } from '@lib/redux/store';
+import { SMProvider } from '@lib/signalr/SMProvider';
 import { PrimeReactProvider } from 'primereact/api';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -12,8 +13,10 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <PersistGate persistor={persistor} />
-      <PrimeReactProvider value={{ ripple: false, inputStyle: 'outlined' }}>
-        <App />
+      <PrimeReactProvider value={{ inputStyle: 'outlined', ripple: false }}>
+        <SMProvider>
+          <App />
+        </SMProvider>
       </PrimeReactProvider>
     </Provider>
   </React.StrictMode>

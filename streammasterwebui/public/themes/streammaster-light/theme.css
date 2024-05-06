@@ -7602,6 +7602,16 @@
   border: 2px solid #fe7600;
 }
 
+.sm-loader {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  height: 100%;
+  width: 100%;
+}
+
 .p-datatable {
   font-size: 0.75rem;
 }

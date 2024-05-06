@@ -1,7 +1,8 @@
 import { SMOverlay } from '@components/sm/SMOverlay';
 import SMScroller from '@components/sm/SMScroller';
+import { useSMContext } from '@lib/signalr/SMProvider';
 import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
-import useGetIsSystemReady from '@lib/smAPI/Settings/useGetIsSystemReady';
+
 import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -19,11 +20,10 @@ const ChannelGroupSelector = ({ enableEditMode = true, className, value, disable
   const [selectedChannelGroup, setSelectedChannelGroup] = useState<ChannelGroupDto>();
   const [input, setInput] = useState<string | undefined>(undefined);
   const [originalInput, setOriginalInput] = useState<string | undefined>(undefined);
-  const getIsSystemReady = useGetIsSystemReady();
+  const { isSystemReady } = useSMContext();
 
   const channelGroupQuery = useGetChannelGroups();
 
-  console.log('ChannelGroupSelector', value);
   useEffect(() => {
     if (!originalInput || originalInput !== value) {
       setOriginalInput(value);
@@ -55,8 +55,7 @@ const ChannelGroupSelector = ({ enableEditMode = true, className, value, disable
     return <div className="flex w-full h-full justify-content-center align-items-center p-0 m-0">{input ?? 'Dummy'}</div>;
   }
 
-  const loading =
-    channelGroupQuery.isError || channelGroupQuery.isFetching || channelGroupQuery.isLoading || !channelGroupQuery.data || getIsSystemReady.data !== true;
+  const loading = channelGroupQuery.isError || channelGroupQuery.isFetching || channelGroupQuery.isLoading || !channelGroupQuery.data || isSystemReady !== true;
 
   if (loading) {
     return (

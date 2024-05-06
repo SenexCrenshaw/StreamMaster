@@ -1,0 +1,23 @@
+.sm-loader {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    height: 100%;
+    width: 100%;
+}
+
+// $ballSize: 5rem;
+
+// .la-ball-grid-beat {
+//     color: $streamMasterColor;
+//     width: ($ballSize * 4) !important;
+//     height: ($ballSize * 4) !important;
+
+//     >div {
+//         color: $streamMasterColor;
+//         height: $ballSize !important;
+//         width: $ballSize !important;
+//     }
+// }

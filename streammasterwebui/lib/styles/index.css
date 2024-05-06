@@ -1,8 +1,3 @@
-/* :root {
-  --font-family: 'Albert Sans', sans-serif !important;
-  font-family: 'Albert Sans', sans-serif !important;
-} */
-
 body {
   background: var(--surface-ground);
   color: var(--text-color);
@@ -10,10 +5,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 
   height: 98vh;
-}
-
-h2 {
-  color: #165a72;
 }
 
 .card {

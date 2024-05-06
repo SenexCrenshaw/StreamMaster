@@ -1,28 +1,28 @@
-import React, { ReactNode, createContext, useCallback, useContext, useEffect } from 'react';
-import SignalRService from './SignalRService';
+import { useSMMessages } from '@lib/redux/hooks/useSMMessages';
 import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
+import useGetPagedChannelGroups from '@lib/smAPI/ChannelGroups/useGetPagedChannelGroups';
 import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';
 import useGetEPGFilePreviewById from '@lib/smAPI/EPGFiles/useGetEPGFilePreviewById';
 import useGetEPGFiles from '@lib/smAPI/EPGFiles/useGetEPGFiles';
 import useGetEPGNextEPGNumber from '@lib/smAPI/EPGFiles/useGetEPGNextEPGNumber';
-import useGetIcons from '@lib/smAPI/Icons/useGetIcons';
-import useGetIsSystemReady from '@lib/smAPI/Settings/useGetIsSystemReady';
-import useGetM3UFileNames from '@lib/smAPI/M3UFiles/useGetM3UFileNames';
-import useGetPagedChannelGroups from '@lib/smAPI/ChannelGroups/useGetPagedChannelGroups';
 import useGetPagedEPGFiles from '@lib/smAPI/EPGFiles/useGetPagedEPGFiles';
+import useGetIcons from '@lib/smAPI/Icons/useGetIcons';
+import useGetM3UFileNames from '@lib/smAPI/M3UFiles/useGetM3UFileNames';
 import useGetPagedM3UFiles from '@lib/smAPI/M3UFiles/useGetPagedM3UFiles';
-import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
-import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
-import useGetPagedStreamGroups from '@lib/smAPI/StreamGroups/useGetPagedStreamGroups';
-import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
-import useGetSMChannelNames from '@lib/smAPI/SMChannels/useGetSMChannelNames';
 import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
+import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
+import useGetSMChannelNames from '@lib/smAPI/SMChannels/useGetSMChannelNames';
+import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationChannelNames';
-import useGetStreamGroups from '@lib/smAPI/StreamGroups/useGetStreamGroups';
-import useGetStreamGroupSMChannels from '@lib/smAPI/StreamGroupSMChannelLinks/useGetStreamGroupSMChannels';
+import useGetIsSystemReady from '@lib/smAPI/Settings/useGetIsSystemReady';
+import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import useGetSystemStatus from '@lib/smAPI/Settings/useGetSystemStatus';
-import { useSMMessages } from '@lib/redux/hooks/useSMMessages';
+import useGetStreamGroupSMChannels from '@lib/smAPI/StreamGroupSMChannelLinks/useGetStreamGroupSMChannels';
+import useGetPagedStreamGroups from '@lib/smAPI/StreamGroups/useGetPagedStreamGroups';
+import useGetStreamGroups from '@lib/smAPI/StreamGroups/useGetStreamGroups';
 import { ClearByTag, FieldData, SMMessage } from '@lib/smAPI/smapiTypes';
+import React, { ReactNode, createContext, useCallback, useContext, useEffect } from 'react';
+import SignalRService from './SignalRService';
 
 const SignalRContext = createContext<SignalRService | undefined>(undefined);
 
@@ -213,191 +213,257 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         return;
       }
     },
-    [getChannelGroups,getEPGColors,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getIcons,getIsSystemReady,getM3UFileNames,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSettings,getSMChannelNames,getSMChannelStreams,getStationChannelNames,getStreamGroups,getStreamGroupSMChannels,getSystemStatus]
+    [
+      getChannelGroups,
+      getEPGColors,
+      getEPGFilePreviewById,
+      getEPGFiles,
+      getEPGNextEPGNumber,
+      getIcons,
+      getIsSystemReady,
+      getM3UFileNames,
+      getPagedChannelGroups,
+      getPagedEPGFiles,
+      getPagedM3UFiles,
+      getPagedSMChannels,
+      getPagedSMStreams,
+      getPagedStreamGroups,
+      getSettings,
+      getSMChannelNames,
+      getSMChannelStreams,
+      getStationChannelNames,
+      getStreamGroups,
+      getStreamGroupSMChannels,
+      getSystemStatus
+    ]
   );
 
   const setField = useCallback(
     (fieldDatas: FieldData[]): void => {
       fieldDatas.forEach((fieldData) => {
         if (fieldData.Entity === 'GetChannelGroups') {
-          getChannelGroups.SetField(fieldData)
+          getChannelGroups.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetEPGColors') {
-          getEPGColors.SetField(fieldData)
+          getEPGColors.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetEPGFilePreviewById') {
-          getEPGFilePreviewById.SetField(fieldData)
+          getEPGFilePreviewById.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetEPGFiles') {
-          getEPGFiles.SetField(fieldData)
+          getEPGFiles.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetEPGNextEPGNumber') {
-          getEPGNextEPGNumber.SetField(fieldData)
+          getEPGNextEPGNumber.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetIcons') {
-          getIcons.SetField(fieldData)
+          getIcons.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetIsSystemReady') {
-          getIsSystemReady.SetField(fieldData)
+          getIsSystemReady.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetM3UFileNames') {
-          getM3UFileNames.SetField(fieldData)
+          getM3UFileNames.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetPagedChannelGroups') {
-          getPagedChannelGroups.SetField(fieldData)
+          getPagedChannelGroups.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetPagedEPGFiles') {
-          getPagedEPGFiles.SetField(fieldData)
+          getPagedEPGFiles.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetPagedM3UFiles') {
-          getPagedM3UFiles.SetField(fieldData)
+          getPagedM3UFiles.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetPagedSMChannels') {
-          getPagedSMChannels.SetField(fieldData)
+          getPagedSMChannels.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetPagedSMStreams') {
-          getPagedSMStreams.SetField(fieldData)
+          getPagedSMStreams.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetPagedStreamGroups') {
-          getPagedStreamGroups.SetField(fieldData)
+          getPagedStreamGroups.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetSettings') {
-          getSettings.SetField(fieldData)
+          getSettings.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetSMChannelNames') {
-          getSMChannelNames.SetField(fieldData)
+          getSMChannelNames.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetSMChannelStreams') {
-          getSMChannelStreams.SetField(fieldData)
+          getSMChannelStreams.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetStationChannelNames') {
-          getStationChannelNames.SetField(fieldData)
+          getStationChannelNames.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetStreamGroups') {
-          getStreamGroups.SetField(fieldData)
+          getStreamGroups.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetStreamGroupSMChannels') {
-          getStreamGroupSMChannels.SetField(fieldData)
+          getStreamGroupSMChannels.SetField(fieldData);
           return;
         }
         if (fieldData.Entity === 'GetSystemStatus') {
-          getSystemStatus.SetField(fieldData)
+          getSystemStatus.SetField(fieldData);
           return;
         }
       });
     },
-    [getChannelGroups,getEPGColors,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getIcons,getIsSystemReady,getM3UFileNames,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSettings,getSMChannelNames,getSMChannelStreams,getStationChannelNames,getStreamGroups,getStreamGroupSMChannels,getSystemStatus]
+    [
+      getChannelGroups,
+      getEPGColors,
+      getEPGFilePreviewById,
+      getEPGFiles,
+      getEPGNextEPGNumber,
+      getIcons,
+      getIsSystemReady,
+      getM3UFileNames,
+      getPagedChannelGroups,
+      getPagedEPGFiles,
+      getPagedM3UFiles,
+      getPagedSMChannels,
+      getPagedSMStreams,
+      getPagedStreamGroups,
+      getSettings,
+      getSMChannelNames,
+      getSMChannelStreams,
+      getStationChannelNames,
+      getStreamGroups,
+      getStreamGroupSMChannels,
+      getSystemStatus
+    ]
   );
 
-  const clearByTag = useCallback((data: ClearByTag): void => {
-    const { Entity, Tag } = data;
-    if (Entity === 'GetChannelGroups') {
-      getChannelGroups.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetEPGColors') {
-      getEPGColors.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetEPGFilePreviewById') {
-      getEPGFilePreviewById.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetEPGFiles') {
-      getEPGFiles.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetEPGNextEPGNumber') {
-      getEPGNextEPGNumber.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetIcons') {
-      getIcons.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetIsSystemReady') {
-      getIsSystemReady.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetM3UFileNames') {
-      getM3UFileNames.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetPagedChannelGroups') {
-      getPagedChannelGroups.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetPagedEPGFiles') {
-      getPagedEPGFiles.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetPagedM3UFiles') {
-      getPagedM3UFiles.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetPagedSMChannels') {
-      getPagedSMChannels.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetPagedSMStreams') {
-      getPagedSMStreams.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetPagedStreamGroups') {
-      getPagedStreamGroups.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetSettings') {
-      getSettings.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetSMChannelNames') {
-      getSMChannelNames.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetSMChannelStreams') {
-      getSMChannelStreams.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetStationChannelNames') {
-      getStationChannelNames.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetStreamGroups') {
-      getStreamGroups.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetStreamGroupSMChannels') {
-      getStreamGroupSMChannels.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetSystemStatus') {
-      getSystemStatus.ClearByTag(Tag)
-      return;
-    }
-    console.log('ClearByTag', Entity, Tag);
-  }
-,
-    [getChannelGroups,getEPGColors,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getIcons,getIsSystemReady,getM3UFileNames,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSettings,getSMChannelNames,getSMChannelStreams,getStationChannelNames,getStreamGroups,getStreamGroupSMChannels,getSystemStatus]
+  const clearByTag = useCallback(
+    (data: ClearByTag): void => {
+      const { Entity, Tag } = data;
+      if (Entity === 'GetChannelGroups') {
+        getChannelGroups.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetEPGColors') {
+        getEPGColors.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetEPGFilePreviewById') {
+        getEPGFilePreviewById.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetEPGFiles') {
+        getEPGFiles.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetEPGNextEPGNumber') {
+        getEPGNextEPGNumber.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetIcons') {
+        getIcons.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetIsSystemReady') {
+        getIsSystemReady.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetM3UFileNames') {
+        getM3UFileNames.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetPagedChannelGroups') {
+        getPagedChannelGroups.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetPagedEPGFiles') {
+        getPagedEPGFiles.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetPagedM3UFiles') {
+        getPagedM3UFiles.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetPagedSMChannels') {
+        getPagedSMChannels.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetPagedSMStreams') {
+        getPagedSMStreams.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetPagedStreamGroups') {
+        getPagedStreamGroups.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetSettings') {
+        getSettings.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetSMChannelNames') {
+        getSMChannelNames.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetSMChannelStreams') {
+        getSMChannelStreams.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetStationChannelNames') {
+        getStationChannelNames.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetStreamGroups') {
+        getStreamGroups.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetStreamGroupSMChannels') {
+        getStreamGroupSMChannels.ClearByTag(Tag);
+        return;
+      }
+      if (Entity === 'GetSystemStatus') {
+        getSystemStatus.ClearByTag(Tag);
+        return;
+      }
+      console.log('ClearByTag', Entity, Tag);
+    },
+    [
+      getChannelGroups,
+      getEPGColors,
+      getEPGFilePreviewById,
+      getEPGFiles,
+      getEPGNextEPGNumber,
+      getIcons,
+      getIsSystemReady,
+      getM3UFileNames,
+      getPagedChannelGroups,
+      getPagedEPGFiles,
+      getPagedM3UFiles,
+      getPagedSMChannels,
+      getPagedSMStreams,
+      getPagedStreamGroups,
+      getSettings,
+      getSMChannelNames,
+      getSMChannelStreams,
+      getStationChannelNames,
+      getStreamGroups,
+      getStreamGroupSMChannels,
+      getSystemStatus
+    ]
   );
 
   const RemoveConnections = useCallback(() => {
@@ -416,7 +482,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
     signalRService.addListener('SetField', setField);
   }, [addMessage, clearByTag, dataRefresh, setField, signalRService]);
 
-useEffect(() => {
+  useEffect(() => {
     const handleConnect = () => {
       // setIsConnected(true);
       CheckAndAddConnections();
@@ -438,4 +504,4 @@ useEffect(() => {
   }, [CheckAndAddConnections, RemoveConnections, signalRService]);
 
   return <SignalRContext.Provider value={signalRService}>{children}</SignalRContext.Provider>;
-}
+};

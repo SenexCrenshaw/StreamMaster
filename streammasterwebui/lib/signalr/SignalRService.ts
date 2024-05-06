@@ -35,48 +35,6 @@ class SignalRService extends EventTarget {
     }
   };
 
-  private start = () => {
-    this.hubConnection
-      .start()
-      .then(() => {
-        this.dispatchEvent(new CustomEvent('signalr_connected'));
-        console.log('SignalR connection successfully started');
-      })
-      .catch((error) => {
-        this.hubConnection.off('SendMessage', (message) => {
-          console.log(message);
-        });
-        console.error('SignalR connection failed to start', error);
-      });
-  };
-
-  private constructor() {
-    super();
-
-    const url = `${baseHostURL}/streammasterhub`;
-    this.hubConnection = new HubConnectionBuilder()
-      .configureLogging(LogLevel.Error)
-      .withUrl(url)
-      .withHubProtocol(new MessagePackHubProtocol())
-      .withAutomaticReconnect({
-        nextRetryDelayInMilliseconds: (retryContext) => {
-          if (retryContext.elapsedMilliseconds < 60000) {
-            return 2000;
-          }
-          return 2000;
-        }
-      })
-      .build();
-
-    this.hubConnection.onclose((callback) => {
-      this.dispatchEvent(new CustomEvent('signalr_disconnected'));
-      console.log('SignalR connection closed', callback);
-      this.start();
-    });
-
-    this.start();
-  }
-
   public async onConnect(): Promise<void> {
     if (this.hubConnection.state !== HubConnectionState.Connected) {
       try {
@@ -157,6 +115,48 @@ class SignalRService extends EventTarget {
 
       throw error;
     }
+  }
+
+  private start = () => {
+    this.hubConnection
+      .start()
+      .then(() => {
+        this.dispatchEvent(new CustomEvent('signalr_connected'));
+        console.log('SignalR connection successfully started');
+      })
+      .catch((error) => {
+        this.hubConnection.off('SendMessage', (message) => {
+          console.log(message);
+        });
+        console.error('SignalR connection failed to start', error);
+      });
+  };
+
+  private constructor() {
+    super();
+
+    const url = `${baseHostURL}/streammasterhub`;
+    this.hubConnection = new HubConnectionBuilder()
+      .configureLogging(LogLevel.Error)
+      .withUrl(url)
+      .withHubProtocol(new MessagePackHubProtocol())
+      .withAutomaticReconnect({
+        nextRetryDelayInMilliseconds: (retryContext) => {
+          if (retryContext.elapsedMilliseconds < 60000) {
+            return 2000;
+          }
+          return 2000;
+        }
+      })
+      .build();
+
+    this.hubConnection.onclose((callback) => {
+      this.dispatchEvent(new CustomEvent('signalr_disconnected'));
+      console.log('SignalR connection closed', callback);
+      this.start();
+    });
+
+    this.start();
   }
 }
 
