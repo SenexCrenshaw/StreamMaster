@@ -7399,6 +7399,7 @@
 }
 .p-inputnumber-button-group .p-button.p-button-icon-only {
   padding: 0 !important;
+  min-width: 1.4rem;
   max-width: 1.4rem;
   background-color: #ff935a;
 }
@@ -7406,6 +7407,7 @@
 .p-button.p-button-icon-only {
   padding: 0;
   max-width: 1.4rem;
+  min-width: 1.4rem;
 }
 
 .p-button-label {

@@ -1,7 +1,7 @@
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 
-import BaseButton from '@components/buttons/BaseButton';
+import SMButton from '@components/sm/SMButton';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { ToggleSMStreamVisibleByParameters, ToggleSMStreamsVisibleById } from '@lib/smAPI/SMStreams/SMStreamsCommands';
 import { SMStreamDto, ToggleSMStreamVisibleByParametersRequest, ToggleSMStreamsVisibleByIdRequest } from '@lib/smAPI/smapiTypes';
@@ -72,7 +72,7 @@ const StreamMultiVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, sele
   }, [selectSelectedItems, selectAll, ReturnToParent, queryFilter]);
 
   return (
-    <BaseButton
+    <SMButton
       className="icon-red-filled"
       disabled={getTotalCount === 0}
       icon="pi-eye-slash"

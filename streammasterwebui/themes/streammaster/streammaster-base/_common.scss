@@ -251,6 +251,7 @@
 
     .p-button.p-button-icon-only {
         padding: 0 !important;
+        min-width: $input-height-with-no-borders;
         max-width: $input-height-with-no-borders;
         background-color: $iconOrange;
     }
@@ -259,6 +260,13 @@
 .p-button.p-button-icon-only {
     padding: 0;
     max-width: $input-height-with-no-borders;
+    min-width: $input-height-with-no-borders;
+}
+
+.p-button-icon-only {
+    padding: 0;
+    max-width: $input-height-with-no-borders;
+    min-width: $input-height-with-no-borders;
 }
 
 

@@ -1,5 +1,5 @@
-import BaseButton from '@components/buttons/BaseButton';
 import XButton from '@components/buttons/XButton';
+import SMButton from '@components/sm/SMButton';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import React, { ReactNode, useRef } from 'react';
 import { SMCard } from './SMCard';
@@ -10,6 +10,7 @@ interface SMOverlayProperties {
   readonly header?: React.ReactNode;
   readonly buttonClassName?: string | undefined;
   readonly buttonLabel?: string | undefined;
+  readonly iconFilled?: boolean;
   readonly icon?: string | undefined;
   readonly title: string | undefined;
   readonly tooltip?: string | undefined;
@@ -21,6 +22,7 @@ export const SMOverlay = ({
   buttonTemplate,
   buttonClassName = '',
   buttonLabel = '',
+  iconFilled = false,
   children,
   header,
   icon,
@@ -35,13 +37,15 @@ export const SMOverlay = ({
     if (buttonTemplate) {
       return (
         <div className="">
-          <BaseButton iconFilled={false} icon={icon} tooltip={tooltip} label={buttonLabel} onClick={(e) => op.current?.toggle(e)}>
+          <SMButton iconFilled={iconFilled} icon={icon} tooltip={tooltip} label={buttonLabel} onClick={(e) => op.current?.toggle(e)}>
             {buttonTemplate}
-          </BaseButton>
+          </SMButton>
         </div>
       );
     }
-    return <BaseButton className={buttonClassName} iconFilled icon={icon} tooltip={tooltip} label={buttonLabel} onClick={(e) => op.current?.toggle(e)} />;
+    return (
+      <SMButton className={buttonClassName} iconFilled={iconFilled} icon={icon} tooltip={tooltip} label={buttonLabel} onClick={(e) => op.current?.toggle(e)} />
+    );
   };
 
   return (

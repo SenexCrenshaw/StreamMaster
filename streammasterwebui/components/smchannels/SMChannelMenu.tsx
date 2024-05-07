@@ -1,6 +1,6 @@
 import { memo, useRef } from 'react';
 
-import BaseButton from '@components/buttons/BaseButton';
+import SMButton from '@components/sm/SMButton';
 
 import { OverlayPanel } from 'primereact/overlaypanel';
 import AutoSetSMChannelNumbersDialog from './AutoSetSMChannelNumbersDialog';
@@ -17,7 +17,7 @@ const SMChannelMenu = () => {
           <AutoSetSMChannelNumbersDialog />
         </div>
       </OverlayPanel>
-      <BaseButton
+      <SMButton
         className="icon-orange-filled"
         icon="pi pi-bars"
         rounded

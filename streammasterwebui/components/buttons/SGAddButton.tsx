@@ -1,8 +1,8 @@
-import BaseButton from './BaseButton';
+import SMButton from '@components/sm/SMButton';
 import { ChildButtonProperties } from './ChildButtonProperties';
 
 const SGAddButton: React.FC<ChildButtonProperties> = ({ onClick, tooltip }) => {
-  return <BaseButton iconFilled={false} icon="pi-circle" onClick={onClick} severity="secondary" tooltip={tooltip} />;
+  return <SMButton iconFilled={false} icon="pi-circle" onClick={onClick} severity="secondary" tooltip={tooltip} />;
 };
 
 export default SGAddButton;

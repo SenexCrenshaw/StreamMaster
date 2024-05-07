@@ -1,4 +1,4 @@
-import BaseButton from './BaseButton';
+import SMButton from '@components/sm/SMButton';
 import { ChildButtonProperties } from './ChildButtonProperties';
 
 const ResetButton: React.FC<ChildButtonProperties> = ({
@@ -9,7 +9,7 @@ const ResetButton: React.FC<ChildButtonProperties> = ({
   onClick,
   tooltip = 'Reset'
 }) => (
-  <BaseButton
+  <SMButton
     className={className}
     disabled={disabled}
     icon="pi-history"

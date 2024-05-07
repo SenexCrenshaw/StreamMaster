@@ -1,5 +1,5 @@
-import BaseButton from '@components/buttons/BaseButton';
 import StringEditor from '@components/inputs/StringEditor';
+import SMButton from '@components/sm/SMButton';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { Checkbox } from 'primereact/checkbox';
 import { useMountEffect } from 'primereact/hooks';
@@ -227,7 +227,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
               onSave={(value) => {}}
             />
           </div>
-          <BaseButton iconFilled={false} icon="pi-filter-slash" onClick={() => setFilterString('')} />
+          <SMButton iconFilled={false} icon="pi-filter-slash" onClick={() => setFilterString('')} />
         </div>
       )}
 

@@ -1,9 +1,9 @@
-import BaseButton from './BaseButton';
+import SMButton from '@components/sm/SMButton';
 import { ChildButtonProperties } from './ChildButtonProperties';
 
 const SGRemoveButton: React.FC<ChildButtonProperties> = ({ onClick, tooltip }) => {
   return (
-    <BaseButton
+    <SMButton
       iconFilled={false}
       icon="pi-check-circle"
       onClick={onClick}

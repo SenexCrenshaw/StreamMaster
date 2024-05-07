@@ -11,10 +11,10 @@ import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreamsSlice';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 
-import BaseButton from '@components/buttons/BaseButton';
 import { useSMStreamGroupColumnConfig } from '@components/columns/SMStreams/useSMChannelGroupColumnConfig';
 import { useSMStreamM3UColumnConfig } from '@components/columns/SMStreams/useSMStreamM3UColumnConfig';
 import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
+import SMButton from '@components/sm/SMButton';
 import StreamMultiVisibleDialog from '@components/smstreams/StreamMultiVisibleDialog';
 import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
 import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
@@ -197,9 +197,9 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         <div>
           <M3UFilesButton />
         </div>
-        <BaseButton className="icon-red-filled" icon="pi pi-times" rounded onClick={() => {}} />
-        <BaseButton className="icon-yellow-filled" icon="pi-plus" rounded onClick={() => {}} />
-        <BaseButton className="icon-orange-filled" icon="pi pi-bars" rounded onClick={() => {}} />
+        <SMButton className="icon-red-filled" icon="pi pi-times" rounded onClick={() => {}} />
+        <SMButton className="icon-yellow-filled" icon="pi-plus" rounded onClick={() => {}} />
+        <SMButton className="icon-orange-filled" icon="pi pi-bars" rounded onClick={() => {}} />
 
         <StreamMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} skipOverLayer />
         {/* <TriSelectShowHidden dataKey={dataKey} /> */}

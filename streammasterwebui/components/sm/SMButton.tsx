@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export type SeverityType = 'danger' | 'help' | 'info' | 'secondary' | 'success' | 'warning';
 
-export interface BaseButtonProps {
+export interface SMButtonProps {
   readonly children?: React.ReactNode;
   readonly className?: string;
   readonly disabled?: boolean;
@@ -24,7 +24,7 @@ export interface BaseButtonProps {
   readonly outlined?: boolean | undefined;
 }
 
-const BaseButton = forwardRef<Button, BaseButtonProps>(
+const SMButton = forwardRef<Button, SMButtonProps>(
   (
     {
       className: configuredClassName,
@@ -46,14 +46,14 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
     ref
   ) => {
     const tooltipClassName = React.useMemo(() => {
-      if (iconFilled) {
-        if (label) {
-          return `sm-button-with-label basebutton-${uuidv4()} ${configuredClassName ?? ''}`;
-        }
-        return `sm-button basebutton-${uuidv4()} ${configuredClassName ?? ''}`;
+      // if (iconFilled) {
+      if (label && label !== '' && !props.children) {
+        return `sm-button-with-label basebutton-${uuidv4()} ${configuredClassName ?? ''}`;
       }
       return `sm-button basebutton-${uuidv4()} ${configuredClassName ?? ''}`;
-    }, [configuredClassName, iconFilled, label]);
+      // }
+      // return `sm-button basebutton-${uuidv4()} ${configuredClassName ?? ''}`;
+    }, [configuredClassName, label, props.children]);
 
     const getStyle = useMemo(() => {
       return {
@@ -102,4 +102,4 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
   }
 );
 
-export default BaseButton;
+export default SMButton;

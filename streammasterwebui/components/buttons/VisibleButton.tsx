@@ -1,4 +1,4 @@
-import BaseButton from './BaseButton';
+import SMButton from '@components/sm/SMButton';
 import { ChildButtonProperties } from './ChildButtonProperties';
 
 const VisibleButton: React.FC<ChildButtonProperties> = ({
@@ -10,7 +10,7 @@ const VisibleButton: React.FC<ChildButtonProperties> = ({
   onClick,
   tooltip = 'Toggle Visibility'
 }) => (
-  <BaseButton
+  <SMButton
     className={className}
     disabled={disabled}
     icon="pi-eye-slash"

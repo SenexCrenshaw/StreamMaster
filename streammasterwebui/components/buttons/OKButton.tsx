@@ -1,8 +1,8 @@
-import BaseButton from './BaseButton';
+import SMButton from '@components/sm/SMButton';
 import { ChildButtonProperties } from './ChildButtonProperties';
 
 const OKButton: React.FC<ChildButtonProperties> = ({ disabled, iconFilled = true, label, style, onClick, tooltip = '' }) => (
-  <BaseButton
+  <SMButton
     disabled={disabled}
     icon="pi-check"
     iconFilled={iconFilled}

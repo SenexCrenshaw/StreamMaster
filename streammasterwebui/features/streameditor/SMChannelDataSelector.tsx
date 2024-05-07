@@ -5,8 +5,8 @@ import { useSMChannelNameColumnConfig } from '@components/columns/SMChannel/useS
 import { useSMChannelNumberColumnConfig } from '@components/columns/SMChannel/useSMChannelNumberColumnConfig';
 import { useSMChannelSGColumnConfig } from '@components/columns/SMChannel/useSMChannelSGColumnConfig';
 
-import BaseButton from '@components/buttons/BaseButton';
 import EPGFilesButton from '@components/epgFiles/EPGFilesButton';
+import SMButton from '@components/sm/SMButton';
 import { SMPopUp } from '@components/sm/SMPopUp';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
@@ -140,7 +140,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
           <div className="flex">
             <EPGFilesButton />
           </div>
-          <BaseButton className="icon-red-filled" icon="pi pi-times" rounded onClick={() => {}} />
+          <SMButton className="icon-red-filled" icon="pi pi-times" rounded onClick={() => {}} />
           <CreateSMChannelDialog />
           <SMChannelMenu />
         </div>

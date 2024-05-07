@@ -1,8 +1,8 @@
-import BaseButton from './BaseButton';
+import SMButton from '@components/sm/SMButton';
 import { ChildButtonProperties } from './ChildButtonProperties';
 
 const DownArrowButton: React.FC<ChildButtonProperties> = ({ className, disabled = false, label, onClick, tooltip = 'Add Additional Channels' }) => (
-  <BaseButton
+  <SMButton
     className={className}
     disabled={disabled}
     icon="pi-chevron-down"

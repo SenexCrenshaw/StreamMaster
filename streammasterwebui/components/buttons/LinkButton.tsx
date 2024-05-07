@@ -1,3 +1,4 @@
+import SMButton from '@components/sm/SMButton';
 import useCopyToClipboard from '@lib/hooks/useCopyToClipboard';
 import { useState } from 'react';
 
@@ -18,23 +19,25 @@ export const LinkButton = ({
   const icon = bolt ? 'pi pi-bolt icon-primary' : filled === true ? 'pi pi-bookmark-fill icon-primary' : 'pi pi-bookmark icon-primary';
 
   return (
-    <div className="flex justify-content-center align-items-center sm-button">
-      <a
-        href={link}
-        onClick={(e) => {
-          e.preventDefault();
+    <SMButton onClick={() => {}}>
+      <span className="p-button-icon-only flex align-items-center">
+        <a
+          href={link}
+          onClick={(e) => {
+            e.preventDefault();
 
-          void copyToClipboard(link).then((ifCopied) => {
-            setCopied(ifCopied);
-            setTimeout(() => setCopied(false), 750);
-          });
-        }}
-        rel="noopener noreferrer"
-        target="_blank"
-        title={title}
-      >
-        <i className={copied ? 'pi pi-copy icon-primary' : icon} />
-      </a>
-    </div>
+            void copyToClipboard(link).then((ifCopied) => {
+              setCopied(ifCopied);
+              setTimeout(() => setCopied(false), 750);
+            });
+          }}
+          rel="noopener noreferrer"
+          target="_blank"
+          title={title}
+        >
+          <i className={copied ? 'pi pi-copy icon-primary' : icon} />
+        </a>
+      </span>
+    </SMButton>
   );
 };

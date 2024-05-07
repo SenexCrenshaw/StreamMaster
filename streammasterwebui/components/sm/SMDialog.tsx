@@ -1,5 +1,5 @@
-import BaseButton from '@components/buttons/BaseButton';
 import XButton from '@components/buttons/XButton';
+import SMButton from '@components/sm/SMButton';
 import { Dialog } from 'primereact/dialog';
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { SMCard } from './SMCard';
@@ -85,7 +85,7 @@ const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogPro
         )}
       />
       {/* <div hidden={showButton === false}> */}
-      <BaseButton
+      <SMButton
         className={buttonClassName}
         iconFilled={iconFilled}
         icon={icon ?? ''}

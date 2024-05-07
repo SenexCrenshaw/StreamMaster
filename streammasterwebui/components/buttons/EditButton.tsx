@@ -1,8 +1,8 @@
-import BaseButton from './BaseButton';
+import SMButton from '@components/sm/SMButton';
 import { ChildButtonProperties } from './ChildButtonProperties';
 
 const EditButton: React.FC<ChildButtonProperties> = ({ disabled = false, iconFilled, label, onClick, tooltip = 'Edit' }) => (
-  <BaseButton
+  <SMButton
     disabled={disabled}
     icon="pi-pencil"
     iconFilled={iconFilled}

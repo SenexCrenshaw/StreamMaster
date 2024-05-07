@@ -1,6 +1,6 @@
+import SMButton from '@components/sm/SMButton';
 import useCopyToClipboard from '@lib/hooks/useCopyToClipboard';
 import React, { useState } from 'react';
-import BaseButton from './BaseButton';
 
 export interface CopyButtonProperties {
   readonly disabled?: boolean | undefined;
@@ -24,7 +24,7 @@ const CopyButton: React.FC<CopyButtonProperties> = ({ disabled = false, value, o
 
   return (
     <div style={{ position: 'relative' }}>
-      <BaseButton disabled={disabled} icon="pi-copy" iconFilled={false} onClick={handleCopy} />
+      <SMButton disabled={disabled} icon="pi-copy" iconFilled={false} onClick={handleCopy} />
       {copied && <span className="copyButtonMessage">Copied!</span>}
     </div>
   );

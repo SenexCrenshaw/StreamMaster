@@ -1,10 +1,10 @@
+import SMButton from '@components/sm/SMButton';
 import { Button } from 'primereact/button';
 import React from 'react';
-import BaseButton from './BaseButton';
 import { ChildButtonProperties } from './ChildButtonProperties';
 
 const AddButton = React.forwardRef<Button, ChildButtonProperties>(({ disabled = false, iconFilled, label, onClick, tooltip = 'Add' }, ref) => (
-  <BaseButton
+  <SMButton
     className={`p-1 px-2 text-xs` + iconFilled ? '' : 'w-2rem'}
     disabled={disabled}
     icon="pi-plus"

@@ -1,9 +1,9 @@
-import BaseButton from './BaseButton';
+import SMButton from '@components/sm/SMButton';
 import { ChildButtonProperties } from './ChildButtonProperties';
 
 const XButton: React.FC<ChildButtonProperties> = ({ disabled, iconFilled, label, onClick, tooltip }) => {
   return (
-    <BaseButton
+    <SMButton
       className="icon-red-filled"
       disabled={disabled}
       icon="pi-times"
