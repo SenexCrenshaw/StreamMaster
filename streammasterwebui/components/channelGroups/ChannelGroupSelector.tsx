@@ -54,9 +54,12 @@ const ChannelGroupSelector = ({ enableEditMode = true, className, value, disable
   const loading = channelGroupQuery.isError || channelGroupQuery.isFetching || channelGroupQuery.isLoading || !channelGroupQuery.data || isSystemReady !== true;
 
   const buttonTemplate = useMemo(() => {
-    if (input) return <div className="text-xs text-container sm-hoover">{input}</div>;
+    // if (input) return <div className="text-xs text-container sm-hover">{input}</div>;
+    if (input) return <div>{input}</div>;
 
-    return <div className="text-xs text-container text-white-alpha-40 sm-hoover">None</div>;
+    return <div>None</div>;
+
+    // return <div className="text-xs text-container text-white-alpha-40 sm-hover">None</div>;
   }, [input]);
 
   if (loading) {
@@ -72,7 +75,14 @@ const ChannelGroupSelector = ({ enableEditMode = true, className, value, disable
   }
 
   return (
-    <SMOverlay buttonTemplate={buttonTemplate} title="CHANNEL GROUPS" widthSize="3" icon="pi-upload" buttonClassName="icon-green-filled" buttonLabel="EPG">
+    <SMOverlay
+      buttonTemplate={buttonTemplate}
+      title="CHANNEL GROUPS"
+      widthSize="3"
+      icon="pi-chevron-down"
+      // buttonClassName="icon-green-filled"
+      buttonLabel="EPG"
+    >
       <SMScroller
         data={channelGroupQuery.data}
         onChange={(e) => handleOnChange(e)}

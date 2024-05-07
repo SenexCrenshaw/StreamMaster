@@ -7,20 +7,21 @@ import { v4 as uuidv4 } from 'uuid';
 export type SeverityType = 'danger' | 'help' | 'info' | 'secondary' | 'success' | 'warning';
 
 export interface BaseButtonProps {
-  className?: string;
-  disabled?: boolean;
-  color?: string;
-  icon: string;
-  iconFilled?: boolean;
-  iconPos?: 'top' | 'bottom' | 'left' | 'right' | undefined;
-  isLeft?: boolean;
-  label?: string;
+  readonly children?: React.ReactNode;
+  readonly className?: string;
+  readonly disabled?: boolean;
+  readonly color?: string;
+  readonly icon?: string;
+  readonly iconFilled?: boolean;
+  readonly iconPos?: 'top' | 'bottom' | 'left' | 'right' | undefined;
+  readonly isLeft?: boolean;
+  readonly label?: string;
   onClick: (e: React.SyntheticEvent) => void;
-  rounded?: boolean;
-  severity?: SeverityType;
+  readonly rounded?: boolean;
+  readonly severity?: SeverityType;
   tooltip?: string;
-  style?: CSSProperties | undefined;
-  outlined?: boolean | undefined;
+  readonly style?: CSSProperties | undefined;
+  readonly outlined?: boolean | undefined;
 }
 
 const BaseButton = forwardRef<Button, BaseButtonProps>(
@@ -47,11 +48,11 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
     const tooltipClassName = React.useMemo(() => {
       if (iconFilled) {
         if (label) {
-          return `sm-button-with-label basebutton-${uuidv4()} ${configuredClassName}`;
+          return `sm-button-with-label basebutton-${uuidv4()} ${configuredClassName ?? ''}`;
         }
-        return `sm-button basebutton-${uuidv4()} ${configuredClassName}`;
+        return `sm-button basebutton-${uuidv4()} ${configuredClassName ?? ''}`;
       }
-      return `sm-button basebutton-${uuidv4()} ${configuredClassName}`;
+      return `sm-button basebutton-${uuidv4()} ${configuredClassName ?? ''}`;
     }, [configuredClassName, iconFilled, label]);
 
     const getStyle = useMemo(() => {
@@ -60,6 +61,21 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
         color: color
       };
     }, [color, style]);
+
+    if (props.children) {
+      return (
+        <>
+          <Tooltip target={tooltipClassName} />
+          <div
+            className={`${tooltipClassName} flex flex-wrap justify-items-center justify-content-between align-content-center align-items-center sm-hover`}
+            onClick={onClick}
+          >
+            {props.children}
+            <div className={`pi ${icon} pr-1`} />
+          </div>
+        </>
+      );
+    }
 
     return (
       <>

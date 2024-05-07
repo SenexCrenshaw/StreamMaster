@@ -7,7 +7,7 @@ import './ball-grid-beat.css';
 const SMLoader = () => {
   const { isSystemReady } = useSMContext();
 
-  const [message, setMessage] = useState<string>(''); // [ messages, setMessages
+  const [message, setMessage] = useState<string>('Loading...'); // [ messages, setMessages
   const { messages, ClearMessages } = useSMMessages();
 
   useEffect(() => {
@@ -16,33 +16,26 @@ const SMLoader = () => {
     if (isSystemReady === true) {
       return;
     }
-
-    // console.log(messages[messages.length - 1].Detail);
     setMessage(messages[messages.length - 1].Detail ?? '');
 
     ClearMessages();
   }, [ClearMessages, isSystemReady, messages]);
 
   return (
-    <div className="absolute sm-loader flex-column">
-      {/* <div className="absolute la-ball-grid-beat top-50 left-50">
-        <div />
-        <div />
-        <div />
-        <div />
-        <div />
-        <div />
-        <div />
-        <div />
-        <div />
-      </div> */}
-      <div className="absolute la-ball-fussion la-lg top-50 left-50">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
+    <div className="sm-loader flex flex-column h-full justify-content-center ">
+      <div className="">
+        <div className="la-ball-fussion la-lg">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
       </div>
-      <h2 className=" p-0 m-0">{message}</h2>
+      <div className="pt-8 m-0 ">
+        <div className="flex align-items-center bg-black-alpha-70 h-3rem px-4 border-round-md">
+          <h3>{message}</h3>
+        </div>
+      </div>
     </div>
   );
 };

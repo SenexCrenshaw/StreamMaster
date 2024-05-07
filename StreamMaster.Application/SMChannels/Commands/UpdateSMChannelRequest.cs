@@ -7,19 +7,14 @@ public record UpdateSMChannelRequest(int Id, string? Name, List<string>? SMStrea
     : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IJobStatusService jobStatusService, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
     : IRequestHandler<UpdateSMChannelRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(UpdateSMChannelRequest request, CancellationToken cancellationToken)
     {
-        JobStatusManager jobManager = jobStatusService.GetJobManagerUpdateM3U(request.Id);
 
         try
         {
-            if (jobManager.IsRunning)
-            {
-                return APIResponse.NotFound;
-            }
 
             List<FieldData> ret = [];
 
@@ -28,8 +23,6 @@ public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IJobSt
             {
                 return APIResponse.NotFound;
             }
-            jobManager.Start();
-
 
             if (!string.IsNullOrEmpty(request.Name) && request.Name != smChannel.Name)
             {
@@ -76,14 +69,18 @@ public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IJobSt
 
             if (ret.Count > 0)
             {
-                await HubContext.Clients.All.SetField(ret).ConfigureAwait(false);
+                Repository.SMChannel.Update(smChannel);
+                await Repository.SaveAsync().ConfigureAwait(false);
+                await hubContext.Clients.All.SetField(ret).ConfigureAwait(false);
+                await hubContext.Clients.All.DataRefresh("GetSMChannel");
+
             }
-            jobManager.SetSuccessful();
+
             return APIResponse.Success;
         }
         catch (Exception ex)
         {
-            jobManager.SetError();
+
             return APIResponse.ErrorWithMessage(ex, $"Failed M3U update");
         }
 

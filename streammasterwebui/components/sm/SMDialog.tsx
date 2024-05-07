@@ -96,7 +96,7 @@ const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogPro
         onClick={(e) => {
           setVisible(true);
         }}
-      ></BaseButton>
+      />
       {/* </div> */}
     </>
   );

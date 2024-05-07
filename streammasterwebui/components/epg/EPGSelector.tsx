@@ -1,17 +1,15 @@
 import AddButton from '@components/buttons/AddButton';
 import StringEditor from '@components/inputs/StringEditor';
-import { SMCard } from '@components/sm/SMCard';
+import { SMOverlay } from '@components/sm/SMOverlay';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';
 import useGetEPGFiles from '@lib/smAPI/EPGFiles/useGetEPGFiles';
 import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationChannelNames';
 import { EPGFileDto, StationChannelName } from '@lib/smAPI/smapiTypes';
-import { Button } from 'primereact/button';
-import { OverlayPanel } from 'primereact/overlaypanel';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Tooltip } from 'primereact/tooltip';
-import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 const SMScroller = lazy(() => import('@components/sm/SMScroller'));
@@ -33,7 +31,6 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   const [input, setInput] = useState<string | undefined>(undefined);
   const [newInput, setNewInput] = useState<string | undefined>(undefined);
 
-  const op = useRef<OverlayPanel>(null);
   const { isSystemReady } = useSMContext();
   const query = useGetStationChannelNames();
   const epgQuery = useGetEPGFiles();
@@ -301,82 +298,76 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
 
   const messageContent = useMemo(() => {
     return (
-      <div className="sm-dialog">
-        <SMCard title={'EPGs'} header={<></>}>
-          <div className="sm-card-children">
-            <div className="sm-card-content-children">
-              <div className="layout-padding-bottom" />
-              <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right sm-tableHeaderBg">
-                <Suspense>
-                  <div className="flex w-4 mr-1 sm-headerBg">
-                    <SMScroller
-                      data={epgFiles}
-                      dataKey="EPGNumber"
-                      itemSize={26}
-                      itemTemplate={scrollerItemTemplate}
-                      scrollHeight={150}
-                      select
-                      selectedItemsKey="EPGSelector-EPGFiles"
-                    />
-                  </div>
-                  <div className="flex w-8 ml-1 sm-headerBg">
-                    <SMScroller
-                      data={options}
-                      dataKey="Channel"
-                      filter
-                      filterBy="DisplayName"
-                      itemSize={26}
-                      itemTemplate={itemTemplate}
-                      onChange={(e) => {
-                        handleOnChange(e.Channel);
-                      }}
-                      scrollHeight={150}
-                      value={stationChannelName}
-                    />
-                  </div>
-                </Suspense>
-              </div>
-              <div className="layout-padding-bottom-lg" />
-              <div className="flex grid col-12 m-0 p-0 justify-content-between align-items-center">
-                <div className="col-10 m-0 p-0 pl-2">
-                  <StringEditor
-                    darkBackGround
-                    disableDebounce={true}
-                    placeholder="Custom Id"
-                    value={input}
-                    onChange={(value) => {
-                      if (value) {
-                        setNewInput(value);
-                      }
-                    }}
-                    onSave={(value) => {
-                      if (value) {
-                        handleOnChange(value);
-                      }
-                    }}
-                  />
-                </div>
-                <div className="col-1 m-0 p-0">
-                  <AddButton
-                    disabled={addDisabled}
-                    tooltip="Add Custom Id"
-                    iconFilled
-                    onClick={(e) => {
-                      if (input) {
-                        handleOnChange(input);
-                      }
-                    }}
-                    style={{
-                      height: 'var(--input-height)',
-                      width: 'var(--input-height)'
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="layout-padding-bottom" />
+      <div className="sm-card-content-children">
+        <div className="layout-padding-bottom" />
+        <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right sm-tableHeaderBg">
+          <Suspense>
+            <div className="flex w-4 mr-1 sm-headerBg">
+              <SMScroller
+                data={epgFiles}
+                dataKey="EPGNumber"
+                itemSize={26}
+                itemTemplate={scrollerItemTemplate}
+                scrollHeight={150}
+                select
+                selectedItemsKey="EPGSelector-EPGFiles"
+              />
             </div>
+            <div className="flex w-8 ml-1 sm-headerBg">
+              <SMScroller
+                data={options}
+                dataKey="Channel"
+                filter
+                filterBy="DisplayName"
+                itemSize={26}
+                itemTemplate={itemTemplate}
+                onChange={(e) => {
+                  handleOnChange(e.Channel);
+                }}
+                scrollHeight={150}
+                value={stationChannelName}
+              />
+            </div>
+          </Suspense>
+        </div>
+        <div className="layout-padding-bottom-lg" />
+        <div className="flex grid col-12 m-0 p-0 justify-content-between align-items-center">
+          <div className="col-10 m-0 p-0 pl-2">
+            <StringEditor
+              darkBackGround
+              disableDebounce={true}
+              placeholder="Custom Id"
+              value={input}
+              onChange={(value) => {
+                if (value) {
+                  setNewInput(value);
+                }
+              }}
+              onSave={(value) => {
+                if (value) {
+                  handleOnChange(value);
+                }
+              }}
+            />
           </div>
-        </SMCard>
+          <div className="col-1 m-0 p-0">
+            <AddButton
+              disabled={addDisabled}
+              tooltip="Add Custom Id"
+              iconFilled
+              onClick={(e) => {
+                if (input) {
+                  handleOnChange(input);
+                }
+              }}
+              style={{
+                height: 'var(--input-height)',
+                width: 'var(--input-height)'
+              }}
+            />
+          </div>
+        </div>
+        <div className="layout-padding-bottom" />
       </div>
     );
   }, [addDisabled, epgFiles, handleOnChange, input, itemTemplate, options, scrollerItemTemplate, stationChannelName]);
@@ -396,23 +387,9 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   }
 
   return (
-    <>
-      <div className="flex align-contents-center w-full min-w-full h-full ">
-        <Button
-          className="p-0 m-0"
-          onClick={(e) => {
-            op.current?.toggle(e);
-          }}
-          icon="pi pi-chevron-down"
-          text
-        >
-          {valueTemplate(stationChannelName)}
-        </Button>
-        <OverlayPanel className="sm-overlay" ref={op} showCloseIcon={false}>
-          <div>{messageContent}</div>
-        </OverlayPanel>
-      </div>
-    </>
+    <SMOverlay title="CHANNEL GROUPS" widthSize="3" icon="pi-chevron-down" buttonTemplate={valueTemplate(stationChannelName)} buttonLabel="EPG">
+      <div>{messageContent}</div>
+    </SMOverlay>
   );
 };
 

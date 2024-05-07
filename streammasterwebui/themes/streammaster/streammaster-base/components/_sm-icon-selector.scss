@@ -1,3 +1,4 @@
 .sm-icon-selector {
-    @extend .sm-hoover;
+    @extend .sm-hover;
+    flex-wrap: nowrap;
 }

@@ -11,7 +11,9 @@ $actionIconWidth: $input-height !default;
 $actionIconHeight: $input-height !default;
 
 $gridItem-height: 6rem;
-$gridItem-width: 4rem;
+
+$gridItem-width: 2rem;
+
 $gridItem-margin: .15rem;
 $gridItem-image-height: $gridItem-height - ($gridItem-margin*2) - $input-height;
 $gridItem-image-width: $gridItem-width - ($gridItem-margin*2);

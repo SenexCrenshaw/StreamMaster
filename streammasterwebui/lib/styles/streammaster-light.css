@@ -7299,14 +7299,14 @@
   padding: 0 !important;
   padding-right: 0.6rem !important;
   padding-left: 0.6rem !important;
-  width: 4rem !important;
+  width: 2rem !important;
 }
 
 .sourceOrFileDialog-toggle .p-button.p-component {
   padding: 0 !important;
   padding-right: 0.6rem !important;
   padding-left: 0.6rem !important;
-  width: 4rem !important;
+  width: 2rem !important;
 }
 
 .sourceOrFileDialog .p-inputgroup {
@@ -7475,7 +7475,7 @@
 }
 
 .listTemplate-gridItem-name {
-  max-width: 4rem;
+  max-width: 2rem;
 }
 
 .sm-col-header-center {
@@ -7630,7 +7630,7 @@
   color: #bcbfbf;
 }
 
-.sm-hoover:not(.p-disabled):hover, .sm-icon-selector:not(.p-disabled):hover {
+.sm-hover:not(.p-disabled):hover, .sm-icon-selector:not(.p-disabled):hover {
   background: #ced6f1;
   border-color: #cecece;
   border-radius: 6px;
@@ -7834,9 +7834,9 @@
 
 .sm-list-container {
   height: 6rem;
-  width: 4rem;
+  width: 2rem;
   max-height: 6rem;
-  max-width: 4rem;
+  max-width: 2rem;
   margin: 0.15rem;
 }
 .sm-list-container .listTemplate-button {
@@ -7865,7 +7865,7 @@
 }
 .sm-list-container .sm-image-item .img {
   max-height: 4.1rem;
-  max-width: 3.7rem;
+  max-width: 1.7rem;
   object-fit: contain;
 }
 .sm-list-container.selected {
@@ -7880,6 +7880,10 @@
   z-index: 9999;
   height: 100%;
   width: 100%;
+}
+
+.sm-icon-selector {
+  flex-wrap: nowrap;
 }
 
 .p-datatable {
@@ -8133,7 +8137,7 @@
 }
 
 .default-icon {
-  max-width: 4rem;
+  max-width: 2rem;
   max-height: 1.3rem;
   object-fit: contain;
 }
@@ -8145,13 +8149,25 @@
   align-items: center;
 }
 .icon-template .no-border {
-  border: none;
+  border: none !important;
 }
 .icon-template img {
   padding: 0.2rem;
   height: 1.6rem;
-  width: 4rem;
+  width: 2rem;
   object-fit: contain;
+}
+
+.w-26 {
+  width: 26px;
+}
+
+.w-32 {
+  width: 32px;
+}
+
+.w-42 {
+  width: 42px;
 }
 
 .icon-template-lg {

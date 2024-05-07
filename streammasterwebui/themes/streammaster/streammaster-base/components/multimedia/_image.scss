@@ -12,7 +12,7 @@
   align-items: center;
 
   .no-border {
-    border: none;
+    border: none !important;
   }
 
   img {
@@ -22,6 +22,18 @@
     width: $gridItem-width;
     object-fit: contain;
   }
+}
+
+.w-26 {
+  width: 26px;
+}
+
+.w-32 {
+  width: 32px;
+}
+
+.w-42 {
+  width: 42px;
 }
 
 .icon-template-lg {

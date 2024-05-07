@@ -23,7 +23,7 @@ export const SMOverlay = ({
   buttonLabel = '',
   children,
   header,
-  icon = 'pi-plus',
+  icon,
   onHide,
   tooltip = '',
   title = '',
@@ -34,12 +34,10 @@ export const SMOverlay = ({
   const renderButton = () => {
     if (buttonTemplate) {
       return (
-        <div
-          onClick={(e) => {
-            op.current?.toggle(e);
-          }}
-        >
-          {buttonTemplate}
+        <div className="">
+          <BaseButton iconFilled={false} icon={icon} tooltip={tooltip} label={buttonLabel} onClick={(e) => op.current?.toggle(e)}>
+            {buttonTemplate}
+          </BaseButton>
         </div>
       );
     }

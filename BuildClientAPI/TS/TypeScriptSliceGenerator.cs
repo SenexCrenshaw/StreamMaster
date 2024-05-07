@@ -338,7 +338,7 @@ const initialState: QueryState = {{
             content.AppendLine("          const { param, value } = action.payload;");
             content.AppendLine("          const paramString = JSON.stringify(param);");
             content.AppendLine("          state.data[paramString] = value;");
-            content.AppendLine("          setIsLoading({ isLoading: false, paramString: paramString });");
+            content.AppendLine("          setIsLoading({ isLoading: false, param: paramString });");
             content.AppendLine("          state.isLoading[paramString] = false;");
             content.AppendLine("          state.isError[paramString] = false;");
             content.AppendLine("          state.error[paramString] = undefined;");
@@ -349,7 +349,7 @@ const initialState: QueryState = {{
             content.AppendLine("        const paramString = JSON.stringify(action.meta.arg);");
             content.AppendLine("        state.error[paramString] = action.error.message || 'Failed to fetch';");
             content.AppendLine("        state.isError[paramString] = true;");
-            content.AppendLine("        setIsLoading({ isLoading: false, paramString: paramString });");
+            content.AppendLine("        setIsLoading({ isLoading: false, param: paramString });");
             content.AppendLine("        state.isLoading[paramString] = false;");
             content.AppendLine("        state.isForced = false;");
             content.AppendLine("      });");

@@ -22,14 +22,18 @@ const SMChannelDialog = ({ smChannel, onSave }: SMChannelDialogProperties) => {
   const { selectSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
 
   const query = useGetStationChannelNames();
-  const [request, setRequest] = React.useState<CreateSMChannelRequest>({ Logo: '/images/StreamMaster.png' } as CreateSMChannelRequest);
+  const [request, setRequest] = React.useState<CreateSMChannelRequest>({} as CreateSMChannelRequest);
   const [, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
 
   useEffect(() => {
     if (smChannel && smChannel.Name !== request.Name) {
       setRequest({ ...smChannel });
+    } else {
+      // if (request.Logo === undefined || request.Logo === '') {
+      //   setRequest({ Logo: '/images/StreamMaster.png' } as CreateSMChannelRequest);
+      // }
     }
-  }, [request.Name, smChannel]);
+  }, [request.Logo, request.Name, smChannel]);
 
   const doSave = React.useCallback(() => {
     if (selectSelectedItems.length > 0) {

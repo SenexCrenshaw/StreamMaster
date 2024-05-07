@@ -1,7 +1,8 @@
 import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 
 import { UpdateSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import { CreateSMChannelRequest, SMChannelDto, UpdateSMChannelRequest } from '@lib/smAPI/smapiTypes';
+import useGetSMChannel from '@lib/smAPI/SMChannels/useGetSMChannel';
+import { CreateSMChannelRequest, GetSMChannelRequest, SMChannelDto, UpdateSMChannelRequest } from '@lib/smAPI/smapiTypes';
 import React, { useRef } from 'react';
 import SMChannelDialog from './SMChannelDialog';
 
@@ -10,8 +11,9 @@ interface CopySMChannelProperties {
   smChannel: SMChannelDto;
 }
 
-const EditSMChannelDialog = ({ onHide, smChannel }: CopySMChannelProperties) => {
+const EditSMChannelDialog = ({ onHide, smChannel: toGet }: CopySMChannelProperties) => {
   const smDialogRef = useRef<SMDialogRef>(null);
+  const query = useGetSMChannel({ SMChannelId: toGet.Id } as GetSMChannelRequest);
 
   const ReturnToParent = React.useCallback(() => {
     onHide?.();
@@ -20,7 +22,7 @@ const EditSMChannelDialog = ({ onHide, smChannel }: CopySMChannelProperties) => 
   const onSave = React.useCallback(
     (request: CreateSMChannelRequest) => {
       const requestToSend = { ...request } as UpdateSMChannelRequest;
-      requestToSend.Id = smChannel.Id;
+      requestToSend.Id = toGet.Id;
 
       UpdateSMChannel(requestToSend)
         .then(() => {})
@@ -31,14 +33,16 @@ const EditSMChannelDialog = ({ onHide, smChannel }: CopySMChannelProperties) => 
           smDialogRef.current?.close();
         });
     },
-    [smChannel.Id]
+    [toGet.Id]
   );
+
+  if (!query.data) return null;
 
   return (
     <SMDialog
       ref={smDialogRef}
       iconFilled={false}
-      title={`EDIT CHANNEL : ${smChannel.Name}`}
+      title={`EDIT CHANNEL : ${toGet.Name}`}
       onHide={() => ReturnToParent()}
       buttonClassName="icon-yellow"
       icon="pi-pencil"
@@ -46,7 +50,7 @@ const EditSMChannelDialog = ({ onHide, smChannel }: CopySMChannelProperties) => 
       info="General"
       tooltip="Edit Channel"
     >
-      <SMChannelDialog smChannel={smChannel} onSave={onSave} />;
+      <SMChannelDialog smChannel={query.data} onSave={onSave} />;
     </SMDialog>
   );
 };

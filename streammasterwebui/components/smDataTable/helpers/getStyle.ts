@@ -11,8 +11,8 @@ export const getStyle = (col: ColumnMeta, noMatch?: boolean): CSSProperties | un
 
   if (col.fieldType === 'image') {
     return {
-      maxWidth: '5rem',
-      width: '5rem'
+      maxWidth: '3rem',
+      width: '3rem'
     } as CSSProperties;
   }
 

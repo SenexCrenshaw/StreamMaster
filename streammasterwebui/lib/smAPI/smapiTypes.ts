@@ -387,6 +387,10 @@ export interface GetPagedSMChannelsRequest
 {
 	Parameters: QueryStringParameters;
 }
+export interface GetSMChannelRequest
+{
+	SMChannelId: number;
+}
 export interface GetSMChannelNamesRequest
 {
 }

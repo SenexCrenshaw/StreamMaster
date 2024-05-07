@@ -32,29 +32,44 @@ const IconSelector = ({ enableEditMode = true, large = false, value, disabled, e
       return;
     }
 
-    setIconSource(source.Source);
-    setOrigValue(source.Source);
-    setIconDto(source);
-
+    // setIconSource(source.Source);
     closeOverlay();
     onChange && onChange(source.Source);
   };
 
   useEffect(() => {
-    if (value && (origValue === undefined || value !== origValue)) {
-      setOrigValue(value);
+    if (value === undefined) return;
+
+    console.log(iconSource, origValue, value);
+    if (iconSource && iconSource === origValue) {
       setIconSource(value);
+      setOrigValue(value);
       const icon = query.data?.find((i) => i.Source === value);
       setIconDto(icon);
+      return;
     }
-  }, [origValue, query.data, value]);
+    if (iconSource && iconSource !== value) {
+      setIconSource(iconSource);
+      setOrigValue(iconSource);
+      const icon = query.data?.find((i) => i.Source === iconSource);
+      setIconDto(icon);
+      return;
+    } else {
+      setIconSource(value);
+      setOrigValue(value);
+      const icon = query.data?.find((i) => i.Source === value);
+      console.log(icon);
+      setIconDto(icon);
+      return;
+    }
+  }, [iconSource, origValue, query.data, value]);
 
   const selectedTemplate = useMemo(() => {
     const size = large ? 'icon-template-lg' : 'icon-template';
     const iconUrl = iconSource ? getIconUrl(iconSource, '/images/default.png', false) : '/images/default.png';
 
     return (
-      <div className={`sm-icon-selector flex ${size} justify-content-center align-items-center`}>
+      <div className={`sm-icon-selector flex ${size} justify-content-center align-items-center w-full`}>
         <img className="no-border" alt="Icon logo" src={iconUrl} />
       </div>
     );
@@ -70,8 +85,9 @@ const IconSelector = ({ enableEditMode = true, large = false, value, disabled, e
     }
 
     return (
-      <div className="flex icon-template justify-content-start align-items-center">
+      <div className="w-full flex flex-row align-items-center">
         <img
+          className="w-42"
           src={iconUrl}
           alt={icon.Name}
           onError={(e) => {
@@ -80,7 +96,7 @@ const IconSelector = ({ enableEditMode = true, large = false, value, disabled, e
           loading="lazy"
         />
 
-        <div className="text-xs pl-2">{icon.Name}</div>
+        <div className="text-xs pl-3">{icon.Name}</div>
       </div>
     );
   };
@@ -102,22 +118,14 @@ const IconSelector = ({ enableEditMode = true, large = false, value, disabled, e
   }
 
   return (
-    <SMOverlay
-      buttonTemplate={selectedTemplate}
-      title="ICONS"
-      widthSize="3"
-      icon="pi-upload"
-      buttonClassName="icon-green-filled"
-      buttonLabel="Icons"
-      header={<></>}
-    >
+    <SMOverlay buttonTemplate={selectedTemplate} title="ICONS" widthSize="3" buttonLabel="Icons" header={<></>}>
       <SMScroller
         autoFocus
         filter
         filterBy="Name"
         data={query.data}
         dataKey="Source"
-        itemSize={26}
+        itemSize={42}
         onChange={(e) => handleOnChange(e)}
         itemTemplate={itemTemplate}
         scrollHeight={250}

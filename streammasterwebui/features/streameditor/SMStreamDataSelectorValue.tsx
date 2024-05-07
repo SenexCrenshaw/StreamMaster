@@ -102,7 +102,7 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
             }
 
             const tosend: SMChannelRankRequest[] = channels.map((item, index) => {
-              return { SMChannelId: smChannel.Id, SMStreamId: item.Id, Rank: index } as SMChannelRankRequest;
+              return { Rank: index, SMChannelId: smChannel.Id, SMStreamId: item.Id } as SMChannelRankRequest;
             });
 
             SetSMStreamRanks({ Requests: tosend } as SetSMStreamRanksRequest)
