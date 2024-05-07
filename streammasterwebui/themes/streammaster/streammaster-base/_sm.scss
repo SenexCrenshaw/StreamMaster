@@ -10,6 +10,11 @@
 .sm-col-header-left,
 .sm-col-header-right {
     @include datatable-text-style();
+    height: $input-height;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+
 }
 
 .listTemplate-gridItem-name {
@@ -72,29 +77,9 @@
     padding-left: $layoutPadding;
 }
 
-.button-red {
-    background-color: $iconRed !important;
-    border-color: $iconRed !important;
-    color: $inputBg !important;
-}
-
-.button-yellow {
-    background-color: $iconYellow !important;
-    border-color: $iconYellow !important;
-    color: $inputBg !important;
-}
-
-.button-orange {
-    background-color: $iconOrange !important;
-    border-color: $iconOrange !important;
-    color: $inputBg !important;
-}
-
-
 .sm-datatable {
     border-radius: $borderRadius;
 }
-
 
 
 .p-listbox-item {
@@ -117,9 +102,8 @@
 .sm-datatable-header {
     @extend .sm-input-border;
     background-color: $tableHeaderBg !important;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-
+    padding-top: $datatable-header-padding;
+    padding-bottom: $datatable-header-padding;
 }
 
 .sm-tableHeaderBg {
@@ -186,10 +170,16 @@
 .sm-streamgroupselector {
     @include datatable-text-style();
     @extend .sm-input-border;
+    color: $textColor;
     min-width: 12rem;
-    min-height: $input-height;
+    max-height: $input-height-with-no-borders;
     display: flex;
     align-items: center;
+    border-color: $inputBorderColor;
+
+    .p-dropdown-label {
+        color: $textColor;
+    }
 }
 
 .sm-hoover {

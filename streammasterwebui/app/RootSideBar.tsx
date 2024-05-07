@@ -1,36 +1,22 @@
 import MenuItemSM from '@components/MenuItemSM';
 import SunButton from '@components/buttons/SunButton';
 import { HelpIcon, PlayListEditorIcon, SideBarMenuIcon } from '@lib/common/icons';
-import { GetIsSystemReady } from '@lib/smAPI/Settings/SettingsCommands';
+import { useSMContext } from '@lib/signalr/SMProvider';
 
 import useSettings from '@lib/useSettings';
 import PrimeReact, { PrimeReactContext } from 'primereact/api';
 import { useLocalStorage } from 'primereact/hooks';
 import { Tooltip } from 'primereact/tooltip';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext } from 'react';
 import { Menu, MenuItem, Sidebar, sidebarClasses } from 'react-pro-sidebar';
 export const RootSideBar = () => {
   const [dark, setDark] = useLocalStorage(true, 'dark');
-
+  const { isSystemReady } = useSMContext();
   const context = useContext(PrimeReactContext);
 
   const [collapsed, setCollapsed] = useLocalStorage<boolean>(true, 'app-menu-collapsed');
-  const [isReady, setIsReady] = useState(false);
+
   const settings = useSettings();
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      GetIsSystemReady()
-        .then((result) => {
-          setIsReady(result ?? false);
-        })
-        .catch(() => {
-          setIsReady(false);
-        });
-    }, 5000);
-
-    return () => clearInterval(intervalId);
-  }, []);
 
   const onsetCollapsed = useCallback(
     (isCollapsed: boolean) => {
@@ -131,7 +117,7 @@ export const RootSideBar = () => {
 
       <div className="absolute bottom-0 left-0 pb-2 flex flex-column m-0 p-0">
         <div className="col-6 p-0 m-0 justify-content-center align-content-center">
-          <img className="p-0 m-0" alt="Stream Master Logo" src={isReady ? '/images/SMNewX32.png' : '/images/StreamMasterx32NotReady.png'} />
+          <img className="p-0 m-0" alt="Stream Master Logo" src={isSystemReady ? '/images/SMNewX32.png' : '/images/StreamMasterx32NotReady.png'} />
         </div>
 
         <Tooltip target=".custom-target-icon" />

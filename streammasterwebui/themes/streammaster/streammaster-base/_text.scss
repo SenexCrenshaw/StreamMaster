@@ -30,8 +30,9 @@
 }
 
 .text-xlg {
-    @extend .padding-xlg;
-    @include scaledFontSize($common-font-size, $scaleXLG);
+    // @extend .padding-xlg;
+    font-size: $input-height-with-no-borders;
+    // @include scaledFontSize($common-font-size, $scaleXLG);
 }
 
 .header-text-color {
@@ -45,7 +46,11 @@
 .header-text {
     @extend .text-xlg;
     @extend .header-text-color;
+    display: flex;
+    align-items: center;
+    padding: 0 !important;
     font-weight: bold;
+    height: $input-height-with-no-borders !important;
 }
 
 .info-header-text {
@@ -109,6 +114,11 @@
     @extend .sm-input;
     display: flex;
     align-items: center;
+    color: $inputTextColor;
+
+    .p-inputnumber-input {
+        color: $inputTextColor;
+    }
 }
 
 .stringeditorbody-inputtext-dark {
@@ -116,9 +126,15 @@
     background-color: $inputBg !important;
     display: flex;
     align-items: center;
+    color: $inputTextColor;
+
+    .p-inputnumber-input {
+        color: $inputTextColor;
+    }
 
     .label {
         color: $inputTextColor;
+        //color: $textColor;
     }
 }
 
@@ -145,7 +161,8 @@
 }
 
 .text-default-color {
-    color: $inputTextColor;
+    color: $textColor;
+    //color: $inputTextColor;
 }
 
 .sm-input-xs {
@@ -161,10 +178,10 @@
 }
 
 .sm-input-border {
-    border-radius: $borderRadius;
-    border-color: $inputBorderColor;
-    border-width: 1px;
-    border-style: solid;
+    border-radius: $borderRadius !important;
+    border-color: $inputBorderColor !important;
+    border-width: 1px !important;
+    border-style: solid !important;
 }
 
 .width-200 {

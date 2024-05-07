@@ -193,13 +193,13 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
 
   const rightHeaderTemplate = useMemo(
     () => (
-      <div className="flex flex-row justify-content-end align-items-center w-full gap-1 pr-2">
+      <div className="flex flex-row justify-content-end align-items-center w-full gap-1  pr-1">
         <div>
           <M3UFilesButton />
         </div>
-        <BaseButton className="button-red" icon="pi pi-times" rounded onClick={() => {}} />
-        <BaseButton className="button-yellow" icon="pi-plus" rounded onClick={() => {}} />
-        <BaseButton className="button-orange" icon="pi pi-bars" rounded onClick={() => {}} />
+        <BaseButton className="icon-red-filled" icon="pi pi-times" rounded onClick={() => {}} />
+        <BaseButton className="icon-yellow-filled" icon="pi-plus" rounded onClick={() => {}} />
+        <BaseButton className="icon-orange-filled" icon="pi pi-bars" rounded onClick={() => {}} />
 
         <StreamMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} skipOverLayer />
         {/* <TriSelectShowHidden dataKey={dataKey} /> */}

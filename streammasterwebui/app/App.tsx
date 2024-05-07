@@ -15,28 +15,11 @@ import { SignalRProvider } from '@lib/signalr/SignalRProvider';
 import 'primeicons/primeicons.css'; //icons
 import 'primereact/resources/primereact.min.css'; //core css
 
-import { useSMContext } from '@lib/signalr/SMProvider';
-import { GetIsSystemReady } from '@lib/smAPI/Settings/SettingsCommands';
-import { Suspense, lazy, useEffect } from 'react';
+import { Suspense, lazy } from 'react';
 const App = (): JSX.Element => {
   const [locale] = useLocalStorage('en', 'locale');
   const messages = locale === 'en' ? MessagesEn : MessagesEn;
   const store = useStore();
-  const { setSystemReady } = useSMContext();
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      GetIsSystemReady()
-        .then((result) => {
-          setSystemReady(result ?? false);
-        })
-        .catch(() => {
-          setSystemReady(false);
-        });
-    }, 1000);
-
-    return () => clearInterval(intervalId);
-  }, [setSystemReady]);
 
   const StreamEditor = lazy(() => import('@features/streameditor/StreamEditor'));
   // const TestPanel = lazy(() => import('./testing/TestPanel'));

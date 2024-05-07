@@ -19,7 +19,7 @@ $colors: (
 $scaleXS: 0.75 !default;
 $scaleSM: 0.875 !default;
 $scaleLG: 1.25 !default;
-$scaleXLG: 1.50 !default;
+$scaleXLG: 2 !default;
 
 //global
 $common-font-size: 0.75rem;
@@ -88,8 +88,8 @@ $secondaryButtonFocusShadow: 1px scale-color($secondaryButtonBg, $lightness: 60%
 $warningButtonFocusShadow: 0 0 0 0.1rem scale-color($warningButtonBg, $lightness: 60%) !default;
 $infoButtonFocusShadow: 0 0 0 1px scale-color($infoButtonBg, $lightness: 60%) !default;
 $buttonPadding: 0.5rem 1rem !default;
-$buttonIconOnlyWidth: 2.857rem !default;
-$buttonIconOnlyPadding: 0.5rem 0 !default;
+$buttonIconOnlyWidth: $input-height-with-no-borders !default;
+$buttonIconOnlyPadding: $input-padding 0 !default;
 $buttonBg: $primaryColor !default;
 $buttonTextColor: $primaryTextColor !default;
 $buttonBorder: 2px solid $primaryColor !default;

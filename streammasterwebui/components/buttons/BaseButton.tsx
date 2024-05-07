@@ -46,10 +46,13 @@ const BaseButton = forwardRef<Button, BaseButtonProps>(
   ) => {
     const tooltipClassName = React.useMemo(() => {
       if (iconFilled) {
-        return `sm-button-label basebutton-${uuidv4()} ${configuredClassName}`;
+        if (label) {
+          return `sm-button-with-label basebutton-${uuidv4()} ${configuredClassName}`;
+        }
+        return `sm-button basebutton-${uuidv4()} ${configuredClassName}`;
       }
       return `sm-button basebutton-${uuidv4()} ${configuredClassName}`;
-    }, [configuredClassName, iconFilled]);
+    }, [configuredClassName, iconFilled, label]);
 
     const getStyle = useMemo(() => {
       return {

@@ -1,7 +1,7 @@
-.sm-button-label {
-    height: $input-height;
-    padding-bottom: $input-padding;
-    padding-top: $input-padding;
+.sm-button-with-label {
+    height: $input-height-with-no-borders;
+    // padding-bottom: $input-padding;
+    //padding-top: $input-padding;
     padding-left: $input-padding*4;
     padding-right: $input-padding*4;
     margin: 0;
@@ -18,11 +18,10 @@
 }
 
 .sm-button {
-    @extend .sm-button-label;
-    width: $input-height;
-
-
-
+    height: $input-height-with-no-borders;
+    padding-left: $input-padding;
+    padding-right: $input-padding;
+    // width: $input-height-with-no-borders;
     // .p-button-icon {
     //     height: 2rem;
     //     width: 2rem;

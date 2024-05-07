@@ -397,9 +397,9 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
 
   return (
     <>
-      <div className="sm-input flex align-contents-center w-full min-w-full h-full ">
+      <div className="flex align-contents-center w-full min-w-full h-full ">
         <Button
-          className="sm-input p-0 m-0"
+          className="p-0 m-0"
           onClick={(e) => {
             op.current?.toggle(e);
           }}

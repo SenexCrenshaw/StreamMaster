@@ -34,7 +34,6 @@ const StringTracker = ({ id, onChange, placeholder, value }: StringTrackerProper
         }}
         darkBackGround
         placeholder={placeholder}
-        showSave={false}
         value={intValue}
       />
     </div>

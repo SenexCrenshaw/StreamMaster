@@ -11,6 +11,7 @@ export const useSMChannelSGColumnConfig = () => {
     align: 'left',
     bodyTemplate: bodyTemplate,
     field: 'sg',
+    fieldType: 'sg',
     filter: false,
     header: '',
     maxWidth: '2rem',

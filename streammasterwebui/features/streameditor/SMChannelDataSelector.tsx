@@ -6,7 +6,6 @@ import { useSMChannelNumberColumnConfig } from '@components/columns/SMChannel/us
 import { useSMChannelSGColumnConfig } from '@components/columns/SMChannel/useSMChannelSGColumnConfig';
 
 import BaseButton from '@components/buttons/BaseButton';
-
 import EPGFilesButton from '@components/epgFiles/EPGFilesButton';
 import { SMPopUp } from '@components/sm/SMPopUp';
 import getRecord from '@components/smDataTable/helpers/getRecord';
@@ -81,7 +80,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
       };
 
       return (
-        <div className="flex p-0 justify-content-end align-items-center">
+        <div className="flex p-0 m-0 justify-content-end align-items-center">
           <StreamCopyLinkDialog realUrl={data?.RealUrl} />
           <CopySMChannelDialog label="Copy Channel" smChannel={data} />
           <SMPopUp title="Remove Channel" OK={() => accept()} icon="pi-times" severity="danger">
@@ -133,29 +132,19 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
 
   const rightHeaderTemplate = useMemo(
     () => (
-      <div className="flex flex-row justify-content-start align-items-center w-full gap-1 pr-2">
-        <StreamGroupButton />
-
-        <div className="flex flex-row justify-content-end align-items-center w-full gap-1 pr-2">
-          <div>
+      <>
+        <div className="flex flex-row justify-content-start align-items-center w-full gap-1">
+          <StreamGroupButton />
+        </div>
+        <div className="flex flex-row justify-content-end align-items-center w-full gap-1  pr-1">
+          <div className="flex">
             <EPGFilesButton />
           </div>
-
           <BaseButton className="icon-red-filled" icon="pi pi-times" rounded onClick={() => {}} />
           <CreateSMChannelDialog />
           <SMChannelMenu />
-          {/* <TriSelectShowHidden dataKey={dataKey} /> */}
-          {/* <TriSelectShowHidden dataKey={dataKey} />
-        <VideoStreamSetTimeShiftsDialog id={dataKey} />
-        <VideoStreamResetLogosDialog id={dataKey} />
-        <VideoStreamSetLogosFromEPGDialog id={dataKey} />
-        <AutoSetChannelNumbers id={dataKey} />
-        <VideoStreamVisibleDialog id={dataKey} />
-        <VideoStreamSetAutoSetEPGDialog iconFilled id={dataKey} />
-        <VideoStreamDeleteDialog iconFilled id={dataKey} />
-        <VideoStreamAddDialog group={channelGroupNames?.[0]} /> */}
         </div>
-      </div>
+      </>
     ),
     []
   );

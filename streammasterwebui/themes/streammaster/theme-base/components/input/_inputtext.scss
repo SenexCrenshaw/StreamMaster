@@ -2,7 +2,7 @@
     font-family: var(--font-family);
     font-feature-settings: var(--font-feature-settings, normal);
     font-size: $common-font-size;
-    color: $inputTextColor;
+    color: $textColor; // $inputTextColor;
     background: $inputBg;
     padding: $inputPadding;
     border: $inputBorder;

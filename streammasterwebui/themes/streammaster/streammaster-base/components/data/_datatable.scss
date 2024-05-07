@@ -60,7 +60,8 @@
 
     .p-button.p-button-icon-only {
         padding: 0.5rem 0;
-        width: $input-height;
+        // width: $input-height;
+        border: none;
     }
 
     .p-button.p-button-icon-only.p-button-rounded {

@@ -44,7 +44,7 @@
                 background: $plainButtonHoverBgColor;
                 color: $plainButtonTextColor;
             }
-    
+
             &:not(:disabled):active {
                 background: $plainButtonActiveBgColor;
                 color: $plainButtonTextColor;
@@ -76,7 +76,7 @@
                 background: $plainButtonHoverBgColor;
                 color: $plainButtonTextColor;
             }
-    
+
             &:not(:disabled):active {
                 background: $plainButtonActiveBgColor;
                 color: $plainButtonTextColor;
@@ -93,7 +93,7 @@
     }
 
     .p-button-icon-left {
-         margin-right: $inlineSpacing;
+        margin-right: $inlineSpacing;
     }
 
     .p-button-icon-right {
@@ -105,7 +105,7 @@
     }
 
     .p-button-icon-top {
-       margin-bottom: $inlineSpacing;
+        margin-bottom: $inlineSpacing;
     }
 
     .p-badge {
@@ -164,7 +164,7 @@
                 margin-left: $inlineSpacing;
             }
         }
-        
+
         &.p-button-loading-right {
             .p-button-label {
                 margin-right: $inlineSpacing;
@@ -193,21 +193,24 @@
     .p-button {
         width: 100%;
     }
-    
+
     .p-button-icon-only {
-        width: $buttonIconOnlyWidth;
+        width: 100%; //$buttonIconOnlyWidth;
     }
 
     .p-buttonset {
         display: flex;
-        
+
         .p-button {
             flex: 1;
         }
     }
 }
 
-.p-button.p-button-secondary, .p-buttonset.p-button-secondary > .p-button, .p-splitbutton.p-button-secondary > .p-button, .p-fileupload-choose.p-button-secondary {
+.p-button.p-button-secondary,
+.p-buttonset.p-button-secondary>.p-button,
+.p-splitbutton.p-button-secondary>.p-button,
+.p-fileupload-choose.p-button-secondary {
     color: $secondaryButtonTextColor;
     background: $secondaryButtonBg;
     border: $secondaryButtonBorder;
@@ -227,7 +230,7 @@
         color: $secondaryButtonTextActiveColor;
         border-color: $secondaryButtonActiveBorderColor;
     }
-    
+
     &.p-button-outlined {
         background-color: transparent;
         color: $secondaryButtonBg;
@@ -265,7 +268,10 @@
     }
 }
 
-.p-button.p-button-info, .p-buttonset.p-button-info > .p-button, .p-splitbutton.p-button-info > .p-button, .p-fileupload-choose.p-button-info {
+.p-button.p-button-info,
+.p-buttonset.p-button-info>.p-button,
+.p-splitbutton.p-button-info>.p-button,
+.p-fileupload-choose.p-button-info {
     color: $infoButtonTextColor;
     background: $infoButtonBg;
     border: $infoButtonBorder;
@@ -323,7 +329,10 @@
     }
 }
 
-.p-button.p-button-success, .p-buttonset.p-button-success > .p-button, .p-splitbutton.p-button-success > .p-button, .p-fileupload-choose.p-button-success {
+.p-button.p-button-success,
+.p-buttonset.p-button-success>.p-button,
+.p-splitbutton.p-button-success>.p-button,
+.p-fileupload-choose.p-button-success {
     color: $successButtonTextColor;
     background: $successButtonBg;
     border: $successButtonBorder;
@@ -381,11 +390,14 @@
     }
 }
 
-.p-button.p-button-warning, .p-buttonset.p-button-warning > .p-button, .p-splitbutton.p-button-warning > .p-button, .p-fileupload-choose.p-button-warning {
+.p-button.p-button-warning,
+.p-buttonset.p-button-warning>.p-button,
+.p-splitbutton.p-button-warning>.p-button,
+.p-fileupload-choose.p-button-warning {
     color: $warningButtonTextColor;
     background: $warningButtonBg;
     border: $warningButtonBorder;
-    
+
     &:not(:disabled):hover {
         background: $warningButtonHoverBg;
         color: $warningButtonTextHoverColor;
@@ -439,7 +451,10 @@
     }
 }
 
-.p-button.p-button-help, .p-buttonset.p-button-help > .p-button, .p-splitbutton.p-button-help > .p-button, .p-fileupload-choose.p-button-help {
+.p-button.p-button-help,
+.p-buttonset.p-button-help>.p-button,
+.p-splitbutton.p-button-help>.p-button,
+.p-fileupload-choose.p-button-help {
     color: $helpButtonTextColor;
     background: $helpButtonBg;
     border: $helpButtonBorder;
@@ -497,7 +512,10 @@
     }
 }
 
-.p-button.p-button-danger, .p-buttonset.p-button-danger > .p-button, .p-splitbutton.p-button-danger > .p-button, .p-fileupload-choose.p-button-danger {
+.p-button.p-button-danger,
+.p-buttonset.p-button-danger>.p-button,
+.p-splitbutton.p-button-danger>.p-button,
+.p-fileupload-choose.p-button-danger {
     color: $dangerButtonTextColor;
     background: $dangerButtonBg;
     border: $dangerButtonBorder;
@@ -556,56 +574,59 @@
 }
 
 @if variable-exists(contrastButtonTextColor) {
-    .p-button.p-button-contrast, .p-buttonset.p-button-contrast > .p-button, .p-splitbutton.p-button-contrast > .p-button {
+
+    .p-button.p-button-contrast,
+    .p-buttonset.p-button-contrast>.p-button,
+    .p-splitbutton.p-button-contrast>.p-button {
         color: $contrastButtonTextColor;
         background: $contrastButtonBg;
         border: $contrastButtonBorder;
-    
+
         &:not(:disabled):hover {
             background: $contrastButtonHoverBg;
             color: $contrastButtonTextHoverColor;
             border-color: $contrastButtonHoverBorderColor;
         }
-    
+
         &:not(:disabled):focus {
             box-shadow: $contrastButtonFocusShadow;
         }
-    
+
         &:not(:disabled):active {
             background: $contrastButtonActiveBg;
             color: $contrastButtonTextActiveColor;
             border-color: $contrastButtonActiveBorderColor;
         }
-    
+
         &.p-button-outlined {
             background-color: transparent;
             color: $contrastButtonBg;
             border: $outlinedButtonBorder;
-    
+
             &:not(:disabled):hover {
                 background: rgba($contrastButtonBg, $textButtonHoverBgOpacity);
                 color: $contrastButtonBg;
                 border: $outlinedButtonBorder;
             }
-    
+
             &:not(:disabled):active {
                 background: rgba($contrastButtonBg, $textButtonActiveBgOpacity);
                 color: $contrastButtonBg;
                 border: $outlinedButtonBorder;
             }
         }
-    
+
         &.p-button-text {
             background-color: transparent;
             color: $contrastButtonBg;
             border-color: transparent;
-    
+
             &:not(:disabled):hover {
                 background: rgba($contrastButtonBg, $textButtonHoverBgOpacity);
                 border-color: transparent;
                 color: $contrastButtonBg;
             }
-    
+
             &:not(:disabled):active {
                 background: rgba($contrastButtonBg, $textButtonActiveBgOpacity);
                 border-color: transparent;
@@ -621,9 +642,9 @@
     border: transparent;
 
     &:not(:disabled):hover {
-        background:  transparent;
+        background: transparent;
         color: $linkButtonHoverColor;
-        border-color:  transparent;
+        border-color: transparent;
 
         .p-button-label {
             text-decoration: $linkButtonTextHoverDecoration;
@@ -633,12 +654,12 @@
     &:not(:disabled):focus {
         background: transparent;
         box-shadow: $linkButtonFocusShadow;
-        border-color:  transparent;
+        border-color: transparent;
     }
 
     &:not(:disabled):active {
-        background:  transparent;
+        background: transparent;
         color: $linkButtonColor;
-        border-color:  transparent;
+        border-color: transparent;
     }
 }

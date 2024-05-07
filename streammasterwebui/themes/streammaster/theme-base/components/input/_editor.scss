@@ -10,11 +10,11 @@
             .ql-stroke {
                 stroke: $editorToolbarIconColor;
             }
-    
+
             .ql-fill {
                 fill: $editorToolbarIconColor;
             }
-    
+
             .ql-picker {
                 .ql-picker-label {
                     border: 0 none;
@@ -26,7 +26,7 @@
                         .ql-stroke {
                             stroke: $editorToolbarIconHoverColor;
                         }
-                
+
                         .ql-fill {
                             fill: $editorToolbarIconHoverColor;
                         }
@@ -40,7 +40,7 @@
                         .ql-stroke {
                             stroke: $editorToolbarIconHoverColor;
                         }
-                
+
                         .ql-fill {
                             fill: $editorToolbarIconHoverColor;
                         }
@@ -48,14 +48,14 @@
 
                     .ql-picker-options {
                         background: $inputOverlayBg;
-                        border:$inputOverlayBorder;
-                        box-shadow:$inputOverlayShadow;
+                        border: $inputOverlayBorder;
+                        box-shadow: $inputOverlayShadow;
                         border-radius: $borderRadius;
                         padding: $inputListPadding;
 
                         .ql-picker-item {
                             color: $inputListItemTextColor;
-                            
+
                             &:hover {
                                 color: $inputListItemTextHoverColor;
                                 background: $inputListItemHoverBg;
@@ -83,7 +83,7 @@
 
         .ql-editor {
             background: $inputBg;
-            color: $inputTextColor;
+            color: $textColor; // $inputTextColor;
             border-bottom-right-radius: $borderRadius;
             border-bottom-left-radius: $borderRadius;
         }

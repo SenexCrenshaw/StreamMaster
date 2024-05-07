@@ -54,9 +54,9 @@ const ChannelGroupSelector = ({ enableEditMode = true, className, value, disable
   const loading = channelGroupQuery.isError || channelGroupQuery.isFetching || channelGroupQuery.isLoading || !channelGroupQuery.data || isSystemReady !== true;
 
   const buttonTemplate = useMemo(() => {
-    if (input) return <div className="stringeditorbody-inputtext-dark text-xs text-container sm-hoover">{input}</div>;
+    if (input) return <div className="text-xs text-container sm-hoover">{input}</div>;
 
-    return <div className="stringeditorbody-inputtext-dark text-xs text-container text-white-alpha-40 sm-hoover">None</div>;
+    return <div className="text-xs text-container text-white-alpha-40 sm-hoover">None</div>;
   }, [input]);
 
   if (loading) {

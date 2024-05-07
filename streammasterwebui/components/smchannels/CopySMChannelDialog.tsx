@@ -83,10 +83,10 @@ const CopySMChannelDialog = ({ label, onHide, smChannel }: CopySMChannelProperti
     >
       <div className="w-12">
         <div className="surface-border flex grid flex-wrap justify-content-center p-0 m-0">
-          <div className="flex col-12 pl-1 justify-content-start align-items-center p-0 m-0 w-full">
+          <div className="flex col-12 justify-content-start align-items-center p-0 m-0 w-full">
             <StringEditor label="New Name" darkBackGround disableDebounce onChange={(e) => e && setNewName(e)} onSave={(e) => {}} value={newName} />
           </div>
-          <div className="flex col-12 gap-1 mt-4 justify-content-center ">
+          <div className="flex col-12 mt-4 justify-content-center ">
             <OKButton onClick={async () => await onSave()} />
           </div>
         </div>

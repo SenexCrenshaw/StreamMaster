@@ -84,20 +84,20 @@ const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogPro
           </SMCard>
         )}
       />
-      <div hidden={showButton === false}>
-        <BaseButton
-          className={buttonClassName}
-          iconFilled={iconFilled}
-          icon={icon ?? ''}
-          iconPos="left"
-          label={label}
-          isLeft
-          tooltip={tooltip}
-          onClick={(e) => {
-            setVisible(true);
-          }}
-        ></BaseButton>
-      </div>
+      {/* <div hidden={showButton === false}> */}
+      <BaseButton
+        className={buttonClassName}
+        iconFilled={iconFilled}
+        icon={icon ?? ''}
+        iconPos="left"
+        label={label}
+        isLeft
+        tooltip={tooltip}
+        onClick={(e) => {
+          setVisible(true);
+        }}
+      ></BaseButton>
+      {/* </div> */}
     </>
   );
 });

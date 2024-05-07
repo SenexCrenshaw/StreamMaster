@@ -24,7 +24,7 @@ $surface-section: $surface-ground;
 //Input
 $inputBorder: 0 !default;
 $inputTextColor: $editableTextColor !default;
-$inputPlaceholderTextColor: $inputTextColor !default;
+$inputPlaceholderTextColor: $textColor !default; // $inputTextColor !default;
 
 $infoButtonBg: #35a4cc !default;
 

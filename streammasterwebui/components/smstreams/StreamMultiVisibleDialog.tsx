@@ -1,11 +1,11 @@
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 
+import BaseButton from '@components/buttons/BaseButton';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { ToggleSMStreamVisibleByParameters, ToggleSMStreamsVisibleById } from '@lib/smAPI/SMStreams/SMStreamsCommands';
 import { SMStreamDto, ToggleSMStreamVisibleByParametersRequest, ToggleSMStreamsVisibleByIdRequest } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useMemo } from 'react';
-import VisibleButton from '../buttons/VisibleButton';
 
 interface StreamMultiVisibleDialogProperties {
   readonly iconFilled?: boolean;
@@ -72,17 +72,18 @@ const StreamMultiVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, sele
   }, [selectSelectedItems, selectAll, ReturnToParent, queryFilter]);
 
   return (
-    <div>
-      <VisibleButton
-        className="sm-visible-button"
-        disabled={getTotalCount === 0}
-        iconFilled={iconFilled}
-        // label="Toggle Visibility"
-        onClick={async () => await onVisiblesClick()}
-        tooltip="Toggle Visibility"
-        isLeft
-      />
-    </div>
+    <BaseButton
+      className="icon-red-filled"
+      disabled={getTotalCount === 0}
+      icon="pi-eye-slash"
+      rounded
+      onClick={async (event) => {
+        await onVisiblesClick();
+      }}
+      aria-controls="popup_menu_right"
+      aria-haspopup
+      tooltip="Toggle Visibility"
+    />
   );
 };
 

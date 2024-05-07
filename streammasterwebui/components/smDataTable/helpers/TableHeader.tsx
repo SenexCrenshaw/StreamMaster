@@ -26,13 +26,13 @@ const TableHeader: React.FC<TableHeaderProperties> = ({
       return 'col-4';
     }
     return 'col-12';
-  }, []);
+  }, [dataSelectorProps.headerRightTemplate]);
 
   return (
     <div className="flex flex-row align-items-center justify-content-between border-white">
       {(headerName || onMultiSelectClick) && (
         <div className={`${col} text-sm`}>
-          <span className={`header-text`}>{headerName}</span>
+          <span className="header-text">{headerName}</span>
 
           {onMultiSelectClick && (
             <div hidden={dataSelectorProps.selectionMode !== 'selectable'}>

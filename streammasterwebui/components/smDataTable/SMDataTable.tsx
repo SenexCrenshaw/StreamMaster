@@ -368,6 +368,10 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         return <div />;
       }
 
+      if (col.fieldType === 'sg') {
+        return <i className="flex justify-content-center align-content-center pi pi-list-check" style={{ fontSize: '1rem' }}></i>;
+      }
+
       let cl = 'sm-col-header-center';
       let justify = 'justify-content-center';
 
@@ -398,34 +402,32 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         let cols = props.columns.filter((col) => col.removable === true); //.map((col) => col.field);
         if (cols.length > 0 && state.visibleColumns !== null && state.visibleColumns !== undefined) {
           selectedCols = state.visibleColumns.filter((col) => col.removable === true && col.removed !== true);
-        } else {
-          return <div />;
-        }
 
-        return (
-          <MultiSelect
-            className="multiselectcolumn"
-            value={selectedCols}
-            options={cols}
-            optionLabel="field"
-            itemTemplate={visibleColumnsTemplate}
-            selectedItemTemplate={visibleColumnsTemplate}
-            maxSelectedLabels={0}
-            onChange={(e: MultiSelectChangeEvent) => {
-              onColumnToggle(e.value);
-            }}
-            showSelectAll={false}
-            pt={{
-              checkbox: { style: { display: 'none' } },
-              header: { style: { display: 'none' } }
-            }}
-            useOptionAsValue
-          />
-        );
+          return (
+            <MultiSelect
+              className="multiselectcolumn"
+              value={selectedCols}
+              options={cols}
+              optionLabel="field"
+              itemTemplate={visibleColumnsTemplate}
+              selectedItemTemplate={visibleColumnsTemplate}
+              maxSelectedLabels={0}
+              onChange={(e: MultiSelectChangeEvent) => {
+                onColumnToggle(e.value);
+              }}
+              showSelectAll={false}
+              pt={{
+                checkbox: { style: { display: 'none' } },
+                header: { style: { display: 'none' } }
+              }}
+              useOptionAsValue
+            />
+          );
+        }
       }
 
       return (
-        <div className={`flex ${justify} align-items-center gap-1`}>
+        <div className={`flex ${justify} align-items-center align-content-center gap-1`}>
           {col.filter !== true && <div className={cl}>{header}</div>}
           {col.filter === true && getFilterElement(header, options)}
           {col.sortable === true && sortButton(options)}

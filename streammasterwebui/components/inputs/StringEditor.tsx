@@ -56,9 +56,7 @@ const StringEditor = ({
   const save = useCallback(
     (forceValueSave?: string | undefined) => {
       setIgnoreSave(true);
-      // if (isLoading === true || (forceValueSave === undefined && (inputValue === undefined || inputValue === originalValue))) {
-      //   return;
-      // }
+
       if (forceValueSave === undefined) {
         onSave(inputValue);
       } else {
@@ -107,8 +105,13 @@ const StringEditor = ({
   useEffect(() => {
     if (isLoading !== true && value !== undefined && originalValue !== value) {
       if (value !== inputValue) {
-        setInputValue(value);
-        setOriginalValue(value);
+        if (value === '') {
+          setInputValue(inputValue);
+          setOriginalValue(inputValue);
+        } else {
+          setInputValue(value);
+          setOriginalValue(value);
+        }
       }
     } else if (value !== undefined && originalValue !== undefined && originalValue !== '') {
       if (value === originalValue && value !== inputValue) {

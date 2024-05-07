@@ -21,7 +21,7 @@ export const StreamGroupSelector = ({ onChange, selectedStreamGroup }: StreamGro
 
   const onDropdownChange = (sg: StreamGroupDto) => {
     if (!sg) return;
-    if (sg.Id === selectedStreamGroup.Id) return;
+    if (selectedStreamGroup && sg.Id === selectedStreamGroup.Id) return;
     onChange?.(sg);
   };
 

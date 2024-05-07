@@ -18,7 +18,7 @@ export const LinkButton = ({
   const icon = bolt ? 'pi pi-bolt icon-primary' : filled === true ? 'pi pi-bookmark-fill icon-primary' : 'pi pi-bookmark icon-primary';
 
   return (
-    <div className="flex justify-content-center align-items-center">
+    <div className="flex justify-content-center align-items-center sm-button">
       <a
         href={link}
         onClick={(e) => {

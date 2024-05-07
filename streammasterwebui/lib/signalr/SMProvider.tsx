@@ -1,6 +1,7 @@
 import SMLoader from '@components/loader/SMLoader';
+import { GetIsSystemReady } from '@lib/smAPI/Settings/SettingsCommands';
 import { BlockUI } from 'primereact/blockui';
-import React, { ReactNode, createContext, useContext, useState } from 'react';
+import React, { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 
 interface SMContextState {
   isSystemReady: boolean;
@@ -14,6 +15,20 @@ interface SMProviderProps {
 }
 
 export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      GetIsSystemReady()
+        .then((result) => {
+          setSystemReady(result ?? false);
+        })
+        .catch(() => {
+          setSystemReady(false);
+        });
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
   const [isSystemReady, setSystemReady] = useState<boolean>(false);
 
   const value = { isSystemReady, setSystemReady };
