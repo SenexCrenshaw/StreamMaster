@@ -2,8 +2,8 @@ import React, { useCallback, useRef } from 'react';
 
 import { FileUpload } from 'primereact/fileupload';
 
-import SMFileUpload from '@components/file/SMFileUpload';
 import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
+import SMFileUpload from '@components/sm/SMFileUpload';
 import { CreateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { CreateM3UFileRequest, M3UFileDto } from '@lib/smAPI/smapiTypes';
 import M3UFileDialog from './M3UFileDialog';

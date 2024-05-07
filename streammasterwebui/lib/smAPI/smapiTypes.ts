@@ -597,7 +597,6 @@ export interface CreateEPGFileFromFormRequest
 {
 	Color?: string;
 	EPGNumber: number;
-	FileName: string;
 	FormFile?: any;
 	HoursToUpdate?: number;
 	Name: string;

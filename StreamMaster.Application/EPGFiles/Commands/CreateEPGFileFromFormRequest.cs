@@ -5,7 +5,7 @@ namespace StreamMaster.Application.EPGFiles.Commands;
 
 [SMAPI(JustController = true, JustHub = true)]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record CreateEPGFileFromFormRequest(IFormFile? FormFile, string Name, string FileName, int EPGNumber, int? HoursToUpdate, int? TimeShift, string? Color)
+public record CreateEPGFileFromFormRequest(IFormFile? FormFile, string Name, int EPGNumber, int? HoursToUpdate, int? TimeShift, string? Color)
     : IRequest<APIResponse>
 { }
 
@@ -44,8 +44,8 @@ public class CreateEPGFileFromFormRequestHandler(ILogger<CreateEPGFileFromFormRe
             };
 
 
-            fullName = Path.Combine(fd.DirectoryLocation, command.FileName);
-            epgFile.Source = command.FileName;
+            fullName = Path.Combine(fd.DirectoryLocation, command.Name + ".xmltv");
+
 
             Logger.LogInformation("Adding EPG From Form: {fullName}", fullName);
             (bool success, Exception? ex) = await FormHelper.SaveFormFileAsync(command.FormFile!, fullName).ConfigureAwait(false);

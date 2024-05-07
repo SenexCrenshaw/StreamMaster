@@ -53,11 +53,11 @@ const SMFileUpload = (props: SMFileUploadProperties) => {
         progress={progress}
         onAdd={(source, file) => {
           if (source) {
-            console.log('Add from source ', source);
+            console.log('Add from source', source);
             props.onCreateFromSource(source);
             ReturnToParent();
           } else if (file) {
-            console.log('Add from file ', file.name);
+            console.log('Add from file', file.name);
             startUpload(name, source, file);
           }
         }}

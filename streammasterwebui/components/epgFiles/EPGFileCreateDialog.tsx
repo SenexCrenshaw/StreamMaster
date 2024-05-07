@@ -2,7 +2,7 @@ import React, { useCallback, useRef } from 'react';
 
 import { FileUpload } from 'primereact/fileupload';
 
-import SMFileUpload from '@components/file/SMFileUpload';
+import SMFileUpload from '@components/sm/SMFileUpload';
 
 import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 import { getRandomColorHex } from '@lib/common/colors';
@@ -38,6 +38,7 @@ export const EPGFileCreateDialog = ({ onHide, onUploadComplete, showButton }: EP
       }
       setEPGFileDto(defaultValues);
       onHide?.(didUpload ?? false);
+      smDialogRef.current?.close();
       onUploadComplete();
     },
     [defaultValues, onHide, onUploadComplete]
