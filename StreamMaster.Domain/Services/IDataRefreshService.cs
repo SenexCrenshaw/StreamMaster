@@ -3,17 +3,17 @@ namespace StreamMaster.Domain.Services
     public interface IDataRefreshService: IDataRefreshServicePartial
     {
         Task RefreshAll();
-        Task RefreshStreamGroups();
-        Task RefreshStreamGroupSMChannelLinks();
-        Task RefreshSMStreams();
-        Task RefreshSMChannels();
-        Task RefreshSMChannelStreamLinks();
-        Task RefreshSettings();
-        Task RefreshSchedulesDirect();
-        Task RefreshM3UFiles();
-        Task RefreshIcons();
-        Task RefreshEPG();
-        Task RefreshEPGFiles();
-        Task RefreshChannelGroups();
+        Task RefreshStreamGroups(bool alwaysRun=false);
+        Task RefreshStreamGroupSMChannelLinks(bool alwaysRun=false);
+        Task RefreshSMStreams(bool alwaysRun=false);
+        Task RefreshSMChannels(bool alwaysRun=false);
+        Task RefreshSMChannelStreamLinks(bool alwaysRun=false);
+        Task RefreshSettings(bool alwaysRun=false);
+        Task RefreshSchedulesDirect(bool alwaysRun=false);
+        Task RefreshM3UFiles(bool alwaysRun=false);
+        Task RefreshIcons(bool alwaysRun=false);
+        Task RefreshEPG(bool alwaysRun=false);
+        Task RefreshEPGFiles(bool alwaysRun=false);
+        Task RefreshChannelGroups(bool alwaysRun=false);
     }
 }

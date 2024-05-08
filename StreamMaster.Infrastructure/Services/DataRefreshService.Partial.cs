@@ -1,20 +1,26 @@
+using StreamMaster.Domain.Configuration;
+
 namespace StreamMaster.Infrastructure.Services;
 public partial class DataRefreshService : IDataRefreshServicePartial
 {
 
-    public async Task SetIsReady(bool IsReady)
-    {
-        //await sender.Send(new SetIsSystemReadyRequest(false)).ConfigureAwait(false);
-        //FieldData fieldData = new("GetIsSystemReady", "");
-    }
     public async Task RefreshAllEPG()
     {
+        if (!BuildInfo.SetIsSystemReady)
+        {
+            return;
+        }
         await RefreshEPGFiles();
         await RefreshEPG();
+        await RefreshSchedulesDirect();
     }
 
     public async Task RefreshAllM3U()
     {
+        if (!BuildInfo.SetIsSystemReady)
+        {
+            return;
+        }
         await RefreshM3UFiles();
         await RefreshSMStreams();
         await RefreshSMChannels();
@@ -24,6 +30,10 @@ public partial class DataRefreshService : IDataRefreshServicePartial
 
     public async Task RefreshAllSMChannels()
     {
+        if (!BuildInfo.SetIsSystemReady)
+        {
+            return;
+        }
         await RefreshSMChannels();
         await RefreshSMChannelStreamLinks();
     }

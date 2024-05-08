@@ -1,37 +1,34 @@
-import { memo, useCallback, useState } from 'react';
+import { memo } from 'react';
 
-import FileRefreshDialog from '../sharedEPGM3U/FileRefreshDialog';
+import { SMPopUp } from '@components/sm/SMPopUp';
+import { RefreshEPGFile } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
+import { EPGFileDto, RefreshEPGFileRequest } from '@lib/smAPI/smapiTypes';
 
 interface EPGFileRefreshDialogProperties {
-  readonly selectedFile: EpgFileDto;
+  readonly selectedFile: EPGFileDto;
 }
 
 const EPGFileRefreshDialog = ({ selectedFile }: EPGFileRefreshDialogProperties) => {
-  const [infoMessage, setInfoMessage] = useState('');
-  const [epgFilesRefreshEpgFileMutation] = useEpgFilesRefreshEpgFileMutation();
+  const accept = () => {
+    const toSend = {} as RefreshEPGFileRequest;
+    toSend.Id = selectedFile.Id;
 
-  const OnClose = useCallback(() => {
-    setInfoMessage('');
-  }, []);
-
-  const refreshFile = async () => {
-    if (!selectedFile?.id) {
-      return;
-    }
-
-    const toSend = {} as EpgFilesRefreshEpgFileApiArg;
-    toSend.id = selectedFile.id;
-
-    epgFilesRefreshEpgFileMutation(toSend)
-      .then(() => {
-        setInfoMessage('EPG Refresh Successfully');
-      })
+    RefreshEPGFile(toSend)
+      .then(() => {})
       .catch((error) => {
-        setInfoMessage(`EPG Refresh Error: ${error.message}`);
+        console.error('Error refreshing EPG file', error);
       });
   };
 
-  return <FileRefreshDialog fileType="epg" inputInfoMessage={infoMessage} onRefreshFile={refreshFile} OnClose={OnClose} />;
+  return (
+    <SMPopUp title="Refresh EPG" OK={() => accept()} icon="pi-sync" buttonClassName="icon-yellow">
+      <div>
+        "{selectedFile.Name}"
+        <br />
+        Are you sure?
+      </div>
+    </SMPopUp>
+  );
 };
 
 EPGFileRefreshDialog.displayName = 'EPGFileRefreshDialog';

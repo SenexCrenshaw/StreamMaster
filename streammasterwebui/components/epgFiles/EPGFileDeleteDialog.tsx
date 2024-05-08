@@ -2,10 +2,10 @@ import { memo } from 'react';
 
 import { SMPopUp } from '@components/sm/SMPopUp';
 import { DeleteEPGFile } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
-import { DeleteEPGFileRequest, M3UFileDto } from '@lib/smAPI/smapiTypes';
+import { DeleteEPGFileRequest, EPGFileDto } from '@lib/smAPI/smapiTypes';
 
 interface EPGFileDeleteDialogProperties {
-  readonly selectedFile: M3UFileDto;
+  readonly selectedFile: EPGFileDto;
 }
 
 const EPGFileDeleteDialog = ({ selectedFile }: EPGFileDeleteDialogProperties) => {

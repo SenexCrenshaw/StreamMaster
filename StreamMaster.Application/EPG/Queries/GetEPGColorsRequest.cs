@@ -9,7 +9,7 @@ internal class GetEPGColorsHandler(IRepositoryWrapper Repository, ISchedulesDire
 {
     public async Task<DataResponse<List<EPGColorDto>>> Handle(GetEPGColorsRequest request, CancellationToken cancellationToken = default)
     {
-        List<EPGColorDto> ret = [];
+
         List<MxfService> svcs = schedulesDirectDataService.AllServices;
 
         List<EPGColorDto> epgColors = Repository.EPGFile.GetEPGColors();
@@ -25,7 +25,7 @@ internal class GetEPGColorsHandler(IRepositoryWrapper Repository, ISchedulesDire
                 color = epgColor?.Color ?? color;
             }
 
-            ret.Add(new EPGColorDto
+            epgColors.Add(new EPGColorDto
             {
                 Id = index++,
                 StationId = svc.StationId,
@@ -35,6 +35,6 @@ internal class GetEPGColorsHandler(IRepositoryWrapper Repository, ISchedulesDire
 
         }
 
-        return DataResponse<List<EPGColorDto>>.Success(ret);
+        return DataResponse<List<EPGColorDto>>.Success(epgColors);
     }
 }

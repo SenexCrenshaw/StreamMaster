@@ -36,7 +36,7 @@ public static class DataRefreshService
                 continue;
             }
 
-            content.AppendLine($"        Task Refresh{namespaceName}();");
+            content.AppendLine($"        Task Refresh{namespaceName}(bool alwaysRun = false);");
 
         }
 
@@ -50,9 +50,10 @@ public static class DataRefreshService
     private static string GenerateMethods(Dictionary<string, List<MethodDetails>> methodsByNamespace)
     {
         StringBuilder content = new();
-        content.AppendLine("");
+        content.AppendLine();
         content.AppendLine($"    public async Task RefreshAll()");
         content.AppendLine("    {");
+        content.AppendLine();
 
         foreach (var namespaceName in methodsByNamespace.Keys.Order())
         {
@@ -62,7 +63,7 @@ public static class DataRefreshService
                 continue;
             }
 
-            content.AppendLine($"        await Refresh{namespaceName}();");
+            content.AppendLine($"        await Refresh{namespaceName}(true);");
         }
         content.AppendLine("    }");
 
@@ -75,9 +76,14 @@ public static class DataRefreshService
             }
 
             content.AppendLine("");
-            content.AppendLine($"    public async Task Refresh{namespaceName}()");
+            content.AppendLine($"    public async Task Refresh{namespaceName}(bool alwaysRun = false)");
             content.AppendLine("    {");
-
+            content.AppendLine();
+            content.AppendLine("        if (!alwaysRun && !BuildInfo.SetIsSystemReady)");
+            content.AppendLine("        {");
+            content.AppendLine("            return;");
+            content.AppendLine("        }");
+            content.AppendLine();
             foreach (var get in gets)
             {
                 content.AppendLine($"        await hub.Clients.All.DataRefresh(\"{get.Name}\");");
@@ -97,6 +103,7 @@ public static class DataRefreshService
         content.AppendLine("");
         content.AppendLine("using StreamMaster.Application.Common.Interfaces;");
         content.AppendLine("using StreamMaster.Application.Hubs;");
+        content.AppendLine("using StreamMaster.Domain.Configuration;");
         content.AppendLine("");
         content.AppendLine("namespace StreamMaster.Infrastructure.Services;");
         content.AppendLine("");

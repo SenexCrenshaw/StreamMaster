@@ -11,6 +11,7 @@ import { memo, useCallback, useMemo } from 'react';
 import StringEditor from '../inputs/StringEditor';
 import EPGFileDeleteDialog from './EPGFileDeleteDialog';
 import EPGFileEditDialog from './EPGFileEditDialog';
+import EPGFileRefreshDialog from './EPGFileRefreshDialog';
 // import EPGFileRefreshDialog from './EPGFileRefreshDialog';
 // import EPGFileRemoveDialog from './EPGFileRemoveDialog';
 // import EPGPreviewDialog from './EPGPreviewDialog';
@@ -94,19 +95,7 @@ const EPGFilesDataSelector = () => {
   const nameEditorTemplate = useCallback(
     (rowData: EPGFileDto) => {
       if (rowData.Id === 0) {
-        return (
-          <div
-            className="p-0 relative"
-            style={{
-              backgroundColor: 'var(--mask-bg)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {rowData.Name}
-          </div>
-        );
+        return <div className="text-container">{rowData.Name}</div>;
       }
 
       return (
@@ -123,19 +112,7 @@ const EPGFilesDataSelector = () => {
 
   const colorTemplate = useCallback((rowData: EPGFileDto) => {
     if (rowData.Id === 0) {
-      return (
-        <div
-          className="p-0 relative"
-          style={{
-            backgroundColor: 'var(--mask-bg)',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          {rowData.Color}
-        </div>
-      );
+      return <div> </div>;
     }
 
     return <ColorEditor editable={false} color={rowData.Color} />;
@@ -165,6 +142,7 @@ const EPGFilesDataSelector = () => {
       <div className="flex justify-content-center align-items-center">
         {/* <M3UFileRefreshDialog selectedFile={rowData} />
          <M3UFileRemoveDialog selectedFile={rowData} /> */}
+        <EPGFileRefreshDialog selectedFile={rowData} />
         <EPGFileDeleteDialog selectedFile={rowData} />
         <EPGFileEditDialog selectedFile={rowData} />
       </div>
