@@ -433,7 +433,11 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             />
           );
         } else {
-          return <div className={cl}>{header}</div>;
+          return (
+            <div className={`flex ${justify} align-items-center align-content-center gap-1`}>
+              <div className={cl}>{header}</div>
+            </div>
+          );
         }
       }
 
@@ -499,9 +503,12 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   const removeSelection = useCallback(
     (data: T) => {
       const newSelectedItems = state.selectSelectedItems.filter((predicate) => predicate.Id !== data.Id);
+      if (state.selectAll) {
+        setters.setSelectAll(false);
+      }
       setters.setSelectSelectedItems(newSelectedItems);
     },
-    [setters, state.selectSelectedItems]
+    [setters, state.selectAll, state.selectSelectedItems]
   );
 
   function toggleAllSelection() {
@@ -585,6 +592,10 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     return props.queryFilter !== undefined;
   }, [props.queryFilter]);
 
+  const showPageination = useMemo(() => {
+    return props.enablePaginator === true && state.dataSource && state.dataSource.length >= state.rows;
+  }, [props.enablePaginator, state.dataSource, state.rows]);
+
   return (
     <div
       id={props.id}
@@ -638,7 +649,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           onFilter={onFilter}
           onPage={onPage}
           onRowClick={props.selectRow === true ? props.onRowClick : undefined}
-          paginator={props.enablePaginator === true}
+          paginator={showPageination}
           paginatorClassName="text-xs"
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
           ref={tableReference}
@@ -655,7 +666,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           sortOrder={props.reorderable ? 0 : state.sortOrder}
           stripedRows
           style={props.style}
-          value={state.dataSource}
           reorderableRows={props.reorderable}
           totalRecords={state.pagedInformation ? state.pagedInformation.TotalItemCount : undefined}
           onRowCollapse={(e) => {
@@ -666,6 +676,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             setIsExpanded(true);
             props.onRowExpand?.(e);
           }}
+          value={state.dataSource}
         >
           <Column
             body={props.addOrRemoveTemplate}
