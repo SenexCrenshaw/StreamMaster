@@ -1,12 +1,11 @@
 import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
-
 import { CreateSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { CreateSMChannelRequest, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import React, { useRef } from 'react';
 import SMChannelDialog from './SMChannelDialog';
 
-interface CreateSMChannelDialogProperties {}
+// interface CreateSMChannelDialogProperties {}
 
 const CreateSMChannelDialog = () => {
   const dataKey = 'SMChannelSMStreamDialog-SMStreamDataForSMChannelSelector';

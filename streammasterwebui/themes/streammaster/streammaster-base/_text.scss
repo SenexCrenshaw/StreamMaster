@@ -110,10 +110,16 @@
     }
 }
 
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .stringeditor {
     position: relative;
     display: inline-flex;
-    align-items: center;
     align-items: center;
 
     .p-float-label {
@@ -205,7 +211,5 @@
 }
 
 .text-container {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    @include text-overflow();
 }

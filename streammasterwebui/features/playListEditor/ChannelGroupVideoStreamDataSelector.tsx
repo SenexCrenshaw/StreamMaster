@@ -6,7 +6,7 @@ import { useM3UFileNameColumnConfig } from '@components/columns/useM3UFileNameCo
 import { useVideoStreamLogoColumnConfig } from '@components/columns/useVideoStreamLogoColumnConfig';
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
-import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
+import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import AutoSetChannelNumbers from '@components/videoStream/AutoSetChannelNumbers';
 import VideoStreamAddDialog from '@components/videoStream/VideoStreamAddDialog';
 import VideoStreamCopyLinkDialog from '@components/videoStream/VideoStreamCopyLinkDialog';
@@ -121,7 +121,7 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
   const rightHeaderTemplate = useMemo(
     () => (
       <div className="flex justify-content-end align-items-center w-full gap-1">
-        <TriSelectShowHidden dataKey={dataKey} />
+        <SMTriSelectShowHidden dataKey={dataKey} />
         <VideoStreamSetTimeShiftsDialog id={dataKey} />
         <VideoStreamResetLogosDialog id={dataKey} />
         <VideoStreamSetLogosFromEPGDialog id={dataKey} />

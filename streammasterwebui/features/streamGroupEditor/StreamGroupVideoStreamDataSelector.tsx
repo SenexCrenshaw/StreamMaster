@@ -4,7 +4,7 @@ import { useChannelNumberColumnConfig } from '@components/columns/useChannelNumb
 import { useM3UFileNameColumnConfig } from '@components/columns/useM3UFileNameColumnConfig';
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
-import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
+import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import { GetMessage } from '@lib/common/common';
 
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
@@ -58,7 +58,7 @@ const StreamGroupVideoStreamDataSelector = ({ id }: StreamGroupVideoStreamDataSe
   const rightHeaderTemplate = useMemo(
     () => (
       <div className="flex justify-content-end align-items-center w-full gap-1">
-        <TriSelectShowHidden dataKey={dataKey} />
+        <SMTriSelectShowHidden dataKey={dataKey} />
       </div>
     ),
     [dataKey]

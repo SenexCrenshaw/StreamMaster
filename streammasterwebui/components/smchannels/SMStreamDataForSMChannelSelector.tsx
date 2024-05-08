@@ -6,7 +6,7 @@ import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { GetMessage } from '@lib/common/common';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 
-import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
+import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
@@ -131,7 +131,7 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
   );
 
   function addOrRemoveHeaderTemplate() {
-    return <TriSelectShowHidden dataKey={dataKey} />;
+    return <SMTriSelectShowHidden dataKey={dataKey} />;
   }
 
   const rowClass = useCallback(

@@ -83,12 +83,9 @@ const SMButton = forwardRef<Button, SMButtonProps>(
       return (
         <>
           <Tooltip target={tooltipClassName} />
-          <div
-            className={`${getClassName} flex flex-wrap justify-items-center justify-content-between align-content-center align-items-center `}
-            onClick={onClick}
-          >
+          <div className={`${getClassName} input-wrapper`} onClick={onClick}>
             {props.children}
-            <div className={`pi ${icon} pr-1`} />
+            <i className={`input-icon pi ${icon} pr-1`} />
           </div>
         </>
       );

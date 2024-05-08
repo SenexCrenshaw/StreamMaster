@@ -1,13 +1,12 @@
-import { getTopToolOptions } from '@lib/common/common';
+import SMButton from '@components/sm/SMButton';
 import { useShowHidden } from '@lib/redux/slices/useShowHidden';
-import { Button } from 'primereact/button';
 import { useCallback, useMemo } from 'react';
 
-interface TriSelectProperties {
+interface SMTriSelectShowHiddenProperties {
   readonly dataKey: string;
 }
 
-export const TriSelectShowHidden = ({ dataKey }: TriSelectProperties) => {
+export const SMTriSelectShowHidden = ({ dataKey }: SMTriSelectShowHiddenProperties) => {
   const { showHidden, setShowHidden } = useShowHidden(dataKey);
 
   const getToolTip = useMemo((): string => {
@@ -38,7 +37,7 @@ export const TriSelectShowHidden = ({ dataKey }: TriSelectProperties) => {
 
   const getIcon = useMemo(() => {
     if (showHidden === null) {
-      return 'pi pi-bullseye';
+      return 'pi pi-eye';
     }
 
     if (showHidden === true) {
@@ -48,5 +47,17 @@ export const TriSelectShowHidden = ({ dataKey }: TriSelectProperties) => {
     return 'pi pi-eye-slash';
   }, [showHidden]);
 
-  return <Button icon={getIcon} onClick={() => moveNext()} rounded text tooltip={getToolTip} tooltipOptions={getTopToolOptions} />;
+  const getColor = useMemo(() => {
+    if (showHidden === null) {
+      return 'icon-yellow';
+    }
+
+    if (showHidden === true) {
+      return 'icon-green';
+    }
+
+    return 'icon-red';
+  }, [showHidden]);
+
+  return <SMButton icon={getIcon} iconFilled={false} className={getColor} onClick={() => moveNext()} rounded tooltip={getToolTip} />;
 };

@@ -9,8 +9,8 @@ import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreamsSlice';
 
 import { useSMStreamGroupColumnConfig } from '@components/columns/SMStreams/useSMChannelGroupColumnConfig';
 import { useSMStreamM3UColumnConfig } from '@components/columns/SMStreams/useSMStreamM3UColumnConfig';
-import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
 import SMButton from '@components/sm/SMButton';
+import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import StreamMultiVisibleDialog from '@components/smstreams/StreamMultiVisibleDialog';
 import selectedSMChannel from '@lib/redux/slices/selectedSMChannel';
 import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
@@ -143,7 +143,7 @@ const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, id, smChan
   );
 
   function addOrRemoveHeaderTemplate() {
-    return <TriSelectShowHidden dataKey={dataKey} />;
+    return <SMTriSelectShowHidden dataKey={dataKey} />;
     // const isSelected = false;
 
     // if (!isSelected) {

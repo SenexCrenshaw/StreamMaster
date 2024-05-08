@@ -7106,10 +7106,16 @@
   background-color: transparent !important;
 }
 
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .stringeditor {
   position: relative;
   display: inline-flex;
-  align-items: center;
   align-items: center;
 }
 .stringeditor .p-float-label > label {
@@ -7170,9 +7176,9 @@
 }
 
 .text-container {
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 :root {

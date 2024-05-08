@@ -20,6 +20,7 @@ import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import generateFilterData from '@components/dataSelector/generateFilterData';
+import { SMTriSelectShowSelect } from '@components/sm/SMTriSelectShowSelect';
 import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
 import TableHeader from './helpers/TableHeader';
@@ -357,7 +358,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     [getSortIcon, setters, state.sortOrder]
   );
 
-  const rowFilterTemplate = useCallback(
+  const colFilterTemplate = useCallback(
     (options: ColumnFilterElementTemplateOptions) => {
       let col = props.columns.find((column) => column.field === options.field);
       let header = '';
@@ -511,6 +512,12 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     [setters, state.selectAll, state.selectSelectedItems]
   );
 
+  const selectAllStatus = useMemo(() => {
+    let checked = state.selectAll ? true : state.selectSelectedItems.length > 0 ? false : null;
+
+    return checked;
+  }, [state.selectAll, state.selectSelectedItems.length]);
+
   function toggleAllSelection() {
     if (state.selectAll) {
       setters.setSelectAll(false);
@@ -534,18 +541,12 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     setters.setSelectSelectedItems([]);
   }
 
-  const selectAllStatus = useMemo(() => {
-    let checked = state.selectAll ? true : state.selectSelectedItems.length > 0 ? false : null;
-
-    return checked;
-  }, [state.selectAll, state.selectSelectedItems.length]);
-
   function selectionHeaderTemplate() {
     // const isSelected = false;
-    let tooltip = 'All Selected';
-    if (!state.selectAll) {
-      tooltip = state.selectSelectedItems.length + ' Items';
-    }
+    // let tooltip = 'All Selected';
+    // if (!state.selectAll) {
+    //   tooltip = state.selectSelectedItems.length + ' Items';
+    // }
 
     // if (!isSelected) {
     //   return (
@@ -557,7 +558,8 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 
     return (
       <div className="flex justify-content-center align-items-center p-0 m-0">
-        {showSelection && <Checkbox checked={selectAllStatus ?? false} onChange={() => toggleAllSelection()} tooltip={tooltip} />}
+        {showSelection && <SMTriSelectShowSelect selectedItemsKey={props.selectedItemsKey} id={props.id} onToggle={() => toggleAllSelection()} />}
+        {/* {showSelection && <Checkbox checked={selectAllStatus ?? false} onChange={() => toggleAllSelection()} tooltip={tooltip} />} */}
       </div>
     );
   }
@@ -736,7 +738,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
                 <Column
                   align={getAlign(col.align, col.fieldType)}
                   filter
-                  filterElement={rowFilterTemplate}
+                  filterElement={colFilterTemplate}
                   filterPlaceholder={col.filter === true ? (col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)) : undefined}
                   header={getHeader(col.field, col.header, col.fieldType)}
                   body={(e) => (col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, setting.defaultIcon, col.camelize))}

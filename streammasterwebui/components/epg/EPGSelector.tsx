@@ -223,7 +223,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
               data-pr-showdelay={500}
               data-pr-tooltip={'No EPG'}
             >
-              <span className="text-xs">{input}</span>
+              <span className="text-xs text-container">{input}</span>
             </div>
           </>
         );
@@ -265,7 +265,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
             data-pr-tooltip={epgName}
           >
             <i className="pl-1 pi pi-circle-fill" style={{ color: color }} />
-            <span className="text-xs">{beforeCallSign}</span>
+            <span className="text-xs text-container">{beforeCallSign}</span>
           </div>
         </>
       );

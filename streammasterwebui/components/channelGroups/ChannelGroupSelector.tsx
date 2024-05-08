@@ -55,7 +55,7 @@ const ChannelGroupSelector = ({ enableEditMode = true, className, value, disable
 
   const buttonTemplate = useMemo(() => {
     // if (input) return <div className="text-xs text-container sm-hover">{input}</div>;
-    if (input) return <div>{input}</div>;
+    if (input) return <div className="text-container">{input}</div>;
 
     return <div>None</div>;
 
@@ -71,7 +71,7 @@ const ChannelGroupSelector = ({ enableEditMode = true, className, value, disable
   }
 
   if (!enableEditMode) {
-    return <div className="flex w-full h-full justify-content-center align-items-center p-0 m-0">{input ?? 'Dummy'}</div>;
+    return <div className="flex w-full h-full justify-content-center align-items-center p-0 m-0 text-container">{input ?? 'Dummy'}</div>;
   }
 
   return (

@@ -4,7 +4,7 @@ import ChannelGroupEditDialog from '@components/channelGroups/ChannelGroupEditDi
 import ChannelGroupVisibleDialog from '@components/channelGroups/ChannelGroupVisibleDialog';
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
-import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
+import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 
 import { useShowHidden } from '@lib/redux/slices/useShowHidden';
 import { memo, useCallback, useEffect, useMemo } from 'react';
@@ -73,7 +73,7 @@ const ChannelGroupDataSelector = ({
       <div className="flex justify-content-end align-items-center w-full gap-1">
         {hideControls !== true && (
           <>
-            <TriSelectShowHidden dataKey={dataKey} />
+            <SMTriSelectShowHidden dataKey={dataKey} />
             <ChannelGroupVisibleDialog id={dataKey} skipOverLayer={false} />
             <ChannelGroupDeleteDialog iconFilled id={dataKey} />
           </>
