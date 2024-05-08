@@ -3,20 +3,6 @@
 // }
 
 
-
-.listTemplate-gridItem-name,
-.sm-column,
-.sm-col-header,
-.sm-col-header-left,
-.sm-col-header-right {
-    @include datatable-text-style();
-    height: $input-height;
-    padding: 0 !important;
-    display: flex;
-    align-items: center;
-
-}
-
 .listTemplate-gridItem-name {
     max-width: $gridItem-width;
 }

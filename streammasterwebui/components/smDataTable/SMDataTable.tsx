@@ -372,11 +372,20 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         return <i className="flex justify-content-center align-content-center pi pi-list-check" style={{ fontSize: '1rem' }}></i>;
       }
 
-      let cl = 'sm-col-header-center';
+      let prefix = 'sm-col-header-';
+      if (props.headerSize === 'small') {
+        prefix = 'sm-col-small-header-';
+      }
+
+      if (props.headerSize === 'large') {
+        prefix = 'sm-col-large-header-';
+      }
+
+      let cl = prefix + 'center';
       let justify = 'justify-content-center';
 
       if (col.align !== undefined) {
-        cl = 'sm-col-header-' + col.align;
+        cl = prefix + col.align;
       }
 
       if (col.alignHeader !== undefined) {
@@ -434,7 +443,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         </div>
       );
     },
-    [props.columns, props.enableHeaderWrap, getFilterElement, sortButton, state.visibleColumns, visibleColumnsTemplate, onColumnToggle]
+    [props.columns, props.headerSize, props.enableHeaderWrap, getFilterElement, sortButton, state.visibleColumns, visibleColumnsTemplate, onColumnToggle]
   );
 
   const showSelection = useMemo(() => {

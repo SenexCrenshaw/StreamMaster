@@ -5,7 +5,6 @@ import { ColumnFieldType } from '../types/smDataTableTypes';
 
 function getHeader(field: string, header: string | undefined, fieldType: ColumnFieldType | undefined): ReactNode {
   if (fieldType === 'actions') {
-    console.log('actions');
   }
   if (!fieldType === undefined) {
     return header || camel2title(field);

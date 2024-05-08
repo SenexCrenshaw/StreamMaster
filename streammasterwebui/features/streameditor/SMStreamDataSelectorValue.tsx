@@ -61,9 +61,9 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
       {
         align: 'right',
         bodyTemplate: actionBodyTemplate,
-        field: 'IsHidden',
+        field: '',
         fieldType: 'actions',
-        header: 'Actions',
+        // header: 'Actions',
         width: '5rem'
       }
     ],
@@ -84,6 +84,7 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
       {' '}
       <Suspense>
         <SMDataTable
+          headerSize="small"
           enablePaginator
           rows={5}
           noSourceHeader

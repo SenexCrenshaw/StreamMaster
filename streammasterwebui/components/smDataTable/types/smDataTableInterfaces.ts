@@ -29,13 +29,6 @@ interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
   id: string;
   isLoading?: boolean;
   noSourceHeader?: boolean;
-  onClick?: MouseEventHandler<T> | undefined;
-  onMultiSelectClick?: (value: boolean) => void;
-  onRowClick?(event: DataTableRowClickEvent): void;
-  onRowCollapse?(event: DataTableRowEvent): void;
-  onRowExpand?(event: DataTableRowEvent): void;
-  onRowReorder?: (value: T[]) => void;
-  onSelectionChange?: (value: T[], selectAll: boolean) => void;
   reorderable?: boolean;
   rowClass?: (data: DataTableRowData<any>) => string;
   rowExpansionTemplate?: (data: DataTableRowData<T | any>, options: DataTableRowExpansionTemplate) => React.ReactNode;
@@ -45,6 +38,14 @@ interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
   showExpand?: boolean;
   showSelections?: boolean;
   style?: CSSProperties;
+  headerSize?: 'small' | 'medium' | 'large';
+  onRowReorder?: (value: T[]) => void;
+  onSelectionChange?: (value: T[], selectAll: boolean) => void;
+  onClick?: MouseEventHandler<T> | undefined;
+  onMultiSelectClick?: (value: boolean) => void;
+  onRowClick?(event: DataTableRowClickEvent): void;
+  onRowCollapse?(event: DataTableRowEvent): void;
+  onRowExpand?(event: DataTableRowEvent): void;
 }
 
 type QueryFilterProperties<T> = BaseDataSelectorProperties<T> & {
