@@ -26,15 +26,13 @@ const EPGEditor = ({ data, enableEditMode }: EPGEditorProperties) => {
   };
 
   return (
-    <>
-      <EPGSelector
-        enableEditMode={enableEditMode}
-        onChange={async (e: string) => {
-          await onUpdateVideoStream(e);
-        }}
-        value={data.EPGId}
-      />
-    </>
+    <EPGSelector
+      enableEditMode={enableEditMode}
+      onChange={async (e: string) => {
+        await onUpdateVideoStream(e);
+      }}
+      value={data.EPGId}
+    />
   );
 };
 

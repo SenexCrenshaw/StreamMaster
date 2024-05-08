@@ -1,7 +1,7 @@
-import { memo } from 'react';
+import { SMPopUp } from '@components/sm/SMPopUp';
 import { RefreshM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { M3UFileDto, RefreshM3UFileRequest } from '@lib/smAPI/smapiTypes';
-import { SMPopUp } from '@components/sm/SMPopUp';
+import { memo } from 'react';
 
 interface M3UFileRefreshDialogProperties {
   readonly selectedFile: M3UFileDto;
@@ -20,7 +20,7 @@ const M3UFileRefreshDialog = ({ selectedFile }: M3UFileRefreshDialogProperties) 
   };
 
   return (
-    <SMPopUp title="Refresh M3U" OK={() => accept()} icon="pi-sync">
+    <SMPopUp title="Refresh M3U" OK={() => accept()} icon="pi-sync" buttonClassName="icon-yellow">
       <div>
         "{selectedFile.Name}"
         <br />

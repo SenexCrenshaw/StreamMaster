@@ -6,6 +6,7 @@ import SMButton, { SeverityType } from './SMButton';
 import { SMOverlay } from './SMOverlay';
 
 interface SMPopUpProperties {
+  readonly buttonClassName?: string;
   readonly children: React.ReactNode;
   readonly title: string;
   readonly message?: string;
@@ -20,7 +21,20 @@ interface SMPopUpProperties {
   Cancel?(): void;
 }
 
-export const SMPopUp = ({ children, hidden, icon, iconFilled, severity, tooltip, onHide: clientHide, OK, Cancel, onShow, title }: SMPopUpProperties) => {
+export const SMPopUp = ({
+  children,
+  hidden,
+  icon,
+  iconFilled,
+  buttonClassName = 'icon-red',
+  severity,
+  tooltip,
+  onHide: clientHide,
+  OK,
+  Cancel,
+  onShow,
+  title
+}: SMPopUpProperties) => {
   const op = useRef<OverlayPanel>(null);
   const anchorRef = useRef<HTMLDivElement>(null);
   const [remember, setRemeber] = useLocalStorage<boolean | undefined>(undefined, 'remember-' + title);
@@ -36,7 +50,7 @@ export const SMPopUp = ({ children, hidden, icon, iconFilled, severity, tooltip,
   }, [hidden]);
 
   return (
-    <SMOverlay iconFilled={iconFilled} title={title} widthSize="2" icon="pi-times" buttonClassName="icon-red">
+    <SMOverlay iconFilled={iconFilled} title={title} widthSize="2" icon={icon} buttonClassName={buttonClassName}>
       <div className="p-4">{children}</div>
       <div className="flex flex-row justify-content-end align-items-center gap-1 pb-1 pr-1">
         <div className="flex flex-column align-items-center">

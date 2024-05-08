@@ -28,7 +28,16 @@ const EPGFileEditDialog = ({ selectedFile }: EPGFileEditDialogProperties) => {
   }
 
   return (
-    <SMDialog ref={smDialogRef} title="EDIT EPG" icon="pi-pencil" iconFilled={false} buttonClassName="icon-yellow" tooltip="Add EPG" info="General">
+    <SMDialog
+      widthSize={4}
+      ref={smDialogRef}
+      title="EDIT EPG"
+      icon="pi-pencil"
+      iconFilled={false}
+      buttonClassName="icon-yellow"
+      tooltip="Add EPG"
+      info="General"
+    >
       <EPGFileDialog selectedFile={selectedFile} onUpdated={onUpdated} />
     </SMDialog>
   );
