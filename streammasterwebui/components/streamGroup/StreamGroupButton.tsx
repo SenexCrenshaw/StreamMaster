@@ -19,17 +19,18 @@ const StreamGroupButton = () => {
         }}
         selectedStreamGroup={selectedStreamGroup}
       />
-      {/* <div className="pr-1" /> */}
-      <SMOverlay
-        title="STREAM GROUPS"
-        widthSize="5"
-        icon="pi-file-edit"
-        buttonClassName="icon-orange-filled"
-        buttonLabel="SG"
-        header={<StreamGroupCreateDialog />}
-      >
-        <StreamGroupDataSelector id={'StreamGroup'} />
-      </SMOverlay>
+      <div className="w-2">
+        <SMOverlay
+          title="STREAM GROUPS"
+          widthSize="5"
+          icon="pi-file-edit"
+          buttonClassName="icon-orange-filled"
+          buttonLabel="SG"
+          header={<StreamGroupCreateDialog />}
+        >
+          <StreamGroupDataSelector id={'StreamGroup'} />
+        </SMOverlay>
+      </div>
     </>
   );
 };

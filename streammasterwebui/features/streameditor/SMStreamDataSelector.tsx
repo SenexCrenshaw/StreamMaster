@@ -197,8 +197,8 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         <div>
           <M3UFilesButton />
         </div>
-        <SMButton className="icon-red-filled" icon="pi pi-times" rounded onClick={() => {}} />
-        <SMButton className="icon-yellow-filled" icon="pi-plus" rounded onClick={() => {}} />
+        <SMButton className="icon-red-filled" icon="pi-times" rounded onClick={() => {}} />
+        <SMButton className="icon-green-filled" icon="pi-plus" rounded onClick={() => {}} />
         <SMButton className="icon-orange-filled" icon="pi pi-bars" rounded onClick={() => {}} />
 
         <StreamMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} skipOverLayer />

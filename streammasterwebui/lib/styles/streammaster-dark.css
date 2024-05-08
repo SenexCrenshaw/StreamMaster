@@ -6990,7 +6990,7 @@
 .icon-red-filled {
   background-color: #e693a9;
   color: #12181b;
-  border: 2px solid #e693a9 !important;
+  border: 2px solid #e693a9;
 }
 
 .icon-orange {
@@ -7718,21 +7718,37 @@
   max-width: 0;
 }
 
-.sm-button-with-label {
-  height: 1.4rem;
-  padding-left: 0.4rem;
-  padding-right: 0.4rem;
-  margin: 0;
-}
-.sm-button-with-label:not(.p-disabled):hover {
-  color: white;
-  background-color: transparent;
-}
-
 .sm-button {
   height: 1.4rem;
+  padding: 0;
+  transition: filter 0.3s ease;
+}
+
+.sm-button-icon-only {
   padding-left: 0.1rem;
   padding-right: 0.1rem;
+}
+.sm-button-icon-only:not(.p-disabled):hover {
+  filter: brightness(120%);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sm-button-icon-filled {
+  padding-left: 0.1rem;
+  padding-right: 0.1rem;
+}
+.sm-button-icon-filled:not(.p-disabled):hover {
+  filter: brightness(120%);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.sm-button-with-label {
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+}
+.sm-button-with-label:not(.p-disabled):hover {
+  filter: brightness(120%);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .sm-fileupload {
@@ -7937,14 +7953,6 @@
 }
 .p-datatable .p-datatable-thead > tr:nth-child(1) {
   display: none;
-}
-.p-datatable .p-button.p-button-icon-only {
-  padding: 0.5rem 0;
-  border: none;
-}
-.p-datatable .p-button.p-button-icon-only.p-button-rounded {
-  height: 1.6rem;
-  padding: 0rem 0;
 }
 .p-datatable .p-column-filter-clear-button.p-link.p-hidden-space {
   display: none;

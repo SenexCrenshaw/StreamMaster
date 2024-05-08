@@ -16,28 +16,18 @@ export const LinkButton = ({
   const [, copyToClipboard] = useCopyToClipboard(true);
   const [copied, setCopied] = useState(false);
 
-  const icon = bolt ? 'pi pi-bolt icon-primary' : filled === true ? 'pi pi-bookmark-fill icon-primary' : 'pi pi-bookmark icon-primary';
+  const icon = bolt ? 'pi-bolt' : filled === true ? 'pi-bookmark-fill' : 'pi-bookmark';
 
   return (
-    <SMButton onClick={() => {}}>
-      <span className="p-button-icon-only flex align-items-center">
-        <a
-          href={link}
-          onClick={(e) => {
-            e.preventDefault();
-
-            void copyToClipboard(link).then((ifCopied) => {
-              setCopied(ifCopied);
-              setTimeout(() => setCopied(false), 750);
-            });
-          }}
-          rel="noopener noreferrer"
-          target="_blank"
-          title={title}
-        >
-          <i className={copied ? 'pi pi-copy icon-primary' : icon} />
-        </a>
-      </span>
-    </SMButton>
+    <SMButton
+      icon={copied ? 'pi-copy' : icon}
+      iconFilled={false}
+      onClick={() => {
+        copyToClipboard(link).then((ifCopied) => {
+          setCopied(ifCopied);
+          setTimeout(() => setCopied(false), 750);
+        });
+      }}
+    />
   );
 };

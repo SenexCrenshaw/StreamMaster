@@ -1,29 +1,35 @@
-.sm-button-with-label {
+.sm-button {
     height: $input-height-with-no-borders;
-    // padding-bottom: $input-padding;
-    //padding-top: $input-padding;
-    padding-left: $input-padding*4;
-    padding-right: $input-padding*4;
-    margin: 0;
+    padding: 0;
+    transition: filter 0.3s ease;
+}
 
-
+.sm-button-icon-only {
+    padding-left: $input-padding;
+    padding-right: $input-padding;
 
     &:not(.p-disabled):hover {
-        // background-color: $inputFilledHoverBg; // Fallback color
-        color: white;
-        background-color: transparent;
-        // Apply CSS filter to change background color on hover based on the parent color
-        // filter: brightness(50%);
+        filter: brightness(120%);
+        background-color: rgba(255, 255, 255, 0.1);
     }
 }
 
-.sm-button {
-    height: $input-height-with-no-borders;
+.sm-button-icon-filled {
     padding-left: $input-padding;
     padding-right: $input-padding;
-    // width: $input-height-with-no-borders;
-    // .p-button-icon {
-    //     height: 2rem;
-    //     width: 2rem;
-    // }
+
+    &:not(.p-disabled):hover {
+        filter: brightness(120%);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+}
+
+.sm-button-with-label {
+    padding-left: $input-padding*2;
+    padding-right: $input-padding*2;
+
+    &:not(.p-disabled):hover {
+        filter: brightness(120%);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
 }

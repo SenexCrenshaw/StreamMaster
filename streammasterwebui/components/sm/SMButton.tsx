@@ -46,14 +46,26 @@ const SMButton = forwardRef<Button, SMButtonProps>(
     ref
   ) => {
     const tooltipClassName = React.useMemo(() => {
-      // if (iconFilled) {
+      const ret = `basebutton-${uuidv4()}`;
+
+      return ret;
+    }, []);
+
+    const getClassName = React.useMemo(() => {
+      let toRet = 'sm-button';
+
       if (label && label !== '' && !props.children) {
-        return `sm-button-with-label basebutton-${uuidv4()} ${configuredClassName ?? ''}`;
+        toRet += ' sm-button-with-label';
+      } else {
+        if (iconFilled === true) {
+          toRet += ' sm-button-icon-filled';
+        } else {
+          toRet += ' sm-button-icon-only';
+        }
       }
-      return `sm-button basebutton-${uuidv4()} ${configuredClassName ?? ''}`;
-      // }
-      // return `sm-button basebutton-${uuidv4()} ${configuredClassName ?? ''}`;
-    }, [configuredClassName, label, props.children]);
+
+      return toRet + ' ' + configuredClassName + ' ' + tooltipClassName;
+    }, [configuredClassName, iconFilled, label, props.children, tooltipClassName]);
 
     const getStyle = useMemo(() => {
       return {
@@ -67,7 +79,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
         <>
           <Tooltip target={tooltipClassName} />
           <div
-            className={`${tooltipClassName} flex flex-wrap justify-items-center justify-content-between align-content-center align-items-center sm-hover`}
+            className={`${getClassName} flex flex-wrap justify-items-center justify-content-between align-content-center align-items-center `}
             onClick={onClick}
           >
             {props.children}
@@ -82,7 +94,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
         <Tooltip target={tooltipClassName} />
         <Button
           ref={ref}
-          className={tooltipClassName}
+          className={getClassName}
           disabled={disabled}
           icon={`pi ${icon}`}
           iconPos={iconPos}

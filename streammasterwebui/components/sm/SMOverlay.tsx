@@ -56,6 +56,7 @@ export const SMOverlay = ({
           header={
             <div className="justify-content-end flex-row flex gap-1">
               {header}
+
               <XButton iconFilled onClick={(e) => op.current?.toggle(e)} tooltip="Close" />
             </div>
           }

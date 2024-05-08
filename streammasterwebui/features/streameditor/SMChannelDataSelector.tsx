@@ -84,7 +84,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
           <StreamCopyLinkDialog realUrl={data?.RealUrl} />
           <CopySMChannelDialog label="Copy Channel" smChannel={data} />
           <SMPopUp title="Remove Channel" OK={() => accept()} icon="pi-times" severity="danger">
-            <div>
+            <div className="text-base">
               "{data.Name}"
               <br />
               Are you sure?

@@ -4,13 +4,12 @@ import { ChildButtonProperties } from './ChildButtonProperties';
 const XButton: React.FC<ChildButtonProperties> = ({ disabled, iconFilled, label, onClick, tooltip }) => {
   return (
     <SMButton
-      className="icon-red-filled"
+      className={iconFilled ? 'icon-red-filled' : 'icon-red'}
       disabled={disabled}
       icon="pi-times"
       iconFilled={iconFilled}
       label={iconFilled === true ? undefined : label ?? undefined}
       onClick={onClick}
-      // severity="danger"
       tooltip={tooltip}
     />
   );

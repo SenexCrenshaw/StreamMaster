@@ -50,7 +50,7 @@ const AutoSetSMChannelNumbersDialog = ({ onHide }: AutoSetSMChannelNumbersProper
       label="Auto Set"
       title="AUTOSET CHANNEL NUMBERS"
       onHide={() => ReturnToParent()}
-      buttonClassName="icon-primary-filled"
+      buttonClassName="icon-yellow-filled"
       icon="pi-sort-numeric-up-alt"
       info="General"
     >
