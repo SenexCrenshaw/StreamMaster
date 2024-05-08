@@ -118,11 +118,12 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         }
         try
         {
-            List<int> ret = [.. channels.Select(a => a.Id)];
+            var a = channels.ToList();
+            List<int> ret = [.. a.Select(a => a.Id)];
             IQueryable<SMChannelStreamLink> linksToDelete = repository.SMChannelStreamLink.GetQuery(true).Where(a => ret.Contains(a.SMChannelId));
             await repository.SMChannelStreamLink.DeleteSMChannelStreamLinks(linksToDelete);
             await SaveChangesAsync();
-            await BulkDeleteAsync(channels).ConfigureAwait(false);
+            BulkDelete(a);
             await SaveChangesAsync();
             return ret;
         }
@@ -283,5 +284,33 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
         return APIResponse.Success;
 
+    }
+
+    public async Task<APIResponse> CreateSMChannelFromStreams(List<string> streamIds)
+    {
+        try
+        {
+            foreach (var streamId in streamIds)
+            {
+                var resp = await CreateSMChannelFromStream(streamId);
+                if (resp.IsError)
+                {
+                    return resp;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error creating SMChannel from streams");
+            return APIResponse.ErrorWithMessage(ex, "Error creating SMChannel from streams");
+        }
+
+        return APIResponse.Success;
+    }
+
+    public Task<APIResponse> CreateSMChannelFromStreamParameters(QueryStringParameters parameters)
+    {
+        IQueryable<SMStream> toCreate = repository.SMStream.GetQuery(parameters);
+        return CreateSMChannelFromStreams(toCreate.Select(a => a.Id).ToList());
     }
 }

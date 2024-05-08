@@ -110,9 +110,36 @@
     }
 }
 
+.stringeditor {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    align-items: center;
+
+    .p-float-label {
+
+        >label {
+            height: $input-height;
+            left: nth($inputPadding, 2);
+            padding-top: ($inputBorder-size+.05) !important;
+        }
+    }
+
+    .input-icon {
+        position: absolute;
+        right: 0.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+}
+
 .stringeditorbody-inputtext {
     @extend .sm-input;
-    display: flex;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
     align-items: center;
     color: $inputTextColor;
 
@@ -135,17 +162,6 @@
     .label {
         color: $inputTextColor;
         //color: $textColor;
-    }
-}
-
-.stringeditor {
-    .p-float-label {
-
-        >label {
-            height: $input-height;
-            left: nth($inputPadding, 2);
-            padding-top: ($inputBorder-size+.05) !important;
-        }
     }
 }
 

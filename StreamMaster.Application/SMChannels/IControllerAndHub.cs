@@ -7,10 +7,12 @@ namespace StreamMaster.Application.SMChannels
     public interface ISMChannelsController
     {        
         Task<ActionResult<PagedResponse<SMChannelDto>>> GetPagedSMChannels(QueryStringParameters Parameters);
-        Task<ActionResult<SMChannelDto>> GetSMChannel(GetSMChannelRequest request);
         Task<ActionResult<List<string>>> GetSMChannelNames();
+        Task<ActionResult<SMChannelDto>> GetSMChannel(GetSMChannelRequest request);
         Task<ActionResult<APIResponse>> CopySMChannel(CopySMChannelRequest request);
+        Task<ActionResult<APIResponse>> CreateSMChannelFromStreamParameters(CreateSMChannelFromStreamParametersRequest request);
         Task<ActionResult<APIResponse>> CreateSMChannelFromStream(CreateSMChannelFromStreamRequest request);
+        Task<ActionResult<APIResponse>> CreateSMChannelFromStreams(CreateSMChannelFromStreamsRequest request);
         Task<ActionResult<APIResponse>> CreateSMChannel(CreateSMChannelRequest request);
         Task<ActionResult<APIResponse>> DeleteSMChannel(DeleteSMChannelRequest request);
         Task<ActionResult<APIResponse>> DeleteSMChannelsFromParameters(DeleteSMChannelsFromParametersRequest request);
@@ -29,10 +31,12 @@ namespace StreamMaster.Application.Hubs
     public interface ISMChannelsHub
     {
         Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(QueryStringParameters Parameters);
-        Task<SMChannelDto> GetSMChannel(GetSMChannelRequest request);
         Task<List<string>> GetSMChannelNames();
+        Task<SMChannelDto> GetSMChannel(GetSMChannelRequest request);
         Task<APIResponse> CopySMChannel(CopySMChannelRequest request);
+        Task<APIResponse> CreateSMChannelFromStreamParameters(CreateSMChannelFromStreamParametersRequest request);
         Task<APIResponse> CreateSMChannelFromStream(CreateSMChannelFromStreamRequest request);
+        Task<APIResponse> CreateSMChannelFromStreams(CreateSMChannelFromStreamsRequest request);
         Task<APIResponse> CreateSMChannel(CreateSMChannelRequest request);
         Task<APIResponse> DeleteSMChannel(DeleteSMChannelRequest request);
         Task<APIResponse> DeleteSMChannelsFromParameters(DeleteSMChannelsFromParametersRequest request);

@@ -27,4 +27,6 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     Task<APIResponse> SetSMChannelEPGID(int sMChannelId, string EPGId);
     Task<APIResponse> SetSMChannelGroup(int sMChannelId, string group);
     Task<APIResponse> CopySMChannel(int sMChannelId, string newName);
+    Task<APIResponse> CreateSMChannelFromStreams(List<string> streamIds);
+    Task<APIResponse> CreateSMChannelFromStreamParameters(QueryStringParameters parameters);
 }

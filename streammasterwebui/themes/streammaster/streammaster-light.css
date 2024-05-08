@@ -7106,8 +7106,30 @@
   background-color: transparent !important;
 }
 
-.stringeditorbody-inputtext, .p-inputnumber-input, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark {
+.stringeditor {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  align-items: center;
+}
+.stringeditor .p-float-label > label {
+  height: 1.6rem;
+  left: 0.24rem;
+  padding-top: 0.15rem !important;
+}
+.stringeditor .input-icon {
+  position: absolute;
+  right: 0.25rem;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.stringeditorbody-inputtext, .p-inputnumber-input, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
   align-items: center;
   color: #94abec;
 }
@@ -7126,12 +7148,6 @@
 }
 .stringeditorbody-inputtext-dark .label {
   color: #94abec;
-}
-
-.stringeditor .p-float-label > label {
-  height: 1.6rem;
-  left: 0.24rem;
-  padding-top: 0.15rem !important;
 }
 
 .stringeditorbody-inputtext-save {

@@ -17,22 +17,6 @@ namespace StreamMaster.Application.SMChannels.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<SMChannelDto>> GetSMChannel(GetSMChannelRequest request)
-        {
-            try
-            {
-            DataResponse<SMChannelDto> ret = await Sender.Send(request).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannel.", statusCode: 500) : Ok(ret.Data);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetSMChannel.");
-                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
-            }
-        }
-
-        [HttpGet]
-        [Route("[action]")]
         public async Task<ActionResult<List<string>>> GetSMChannelNames()
         {
             try
@@ -47,6 +31,22 @@ namespace StreamMaster.Application.SMChannels.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<ActionResult<SMChannelDto>> GetSMChannel(GetSMChannelRequest request)
+        {
+            try
+            {
+            DataResponse<SMChannelDto> ret = await Sender.Send(request).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannel.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetSMChannel.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
+        }
+
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse>> CopySMChannel(CopySMChannelRequest request)
@@ -57,7 +57,23 @@ namespace StreamMaster.Application.SMChannels.Controllers
 
         [HttpPost]
         [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> CreateSMChannelFromStreamParameters(CreateSMChannelFromStreamParametersRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
         public async Task<ActionResult<APIResponse>> CreateSMChannelFromStream(CreateSMChannelFromStreamRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> CreateSMChannelFromStreams(CreateSMChannelFromStreamsRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
@@ -156,15 +172,15 @@ namespace StreamMaster.Application.Hubs
             return ret;
         }
 
-        public async Task<SMChannelDto> GetSMChannel(GetSMChannelRequest request)
-        {
-             DataResponse<SMChannelDto> ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret.Data;
-        }
-
         public async Task<List<string>> GetSMChannelNames()
         {
              DataResponse<List<string>> ret = await Sender.Send(new GetSMChannelNamesRequest()).ConfigureAwait(false);
+            return ret.Data;
+        }
+
+        public async Task<SMChannelDto> GetSMChannel(GetSMChannelRequest request)
+        {
+             DataResponse<SMChannelDto> ret = await Sender.Send(request).ConfigureAwait(false);
             return ret.Data;
         }
 
@@ -174,7 +190,19 @@ namespace StreamMaster.Application.Hubs
             return ret;
         }
 
+        public async Task<APIResponse> CreateSMChannelFromStreamParameters(CreateSMChannelFromStreamParametersRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
         public async Task<APIResponse> CreateSMChannelFromStream(CreateSMChannelFromStreamRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> CreateSMChannelFromStreams(CreateSMChannelFromStreamsRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

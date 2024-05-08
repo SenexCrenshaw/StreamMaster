@@ -15,6 +15,7 @@ import { useSMStreamGroupColumnConfig } from '@components/columns/SMStreams/useS
 import { useSMStreamM3UColumnConfig } from '@components/columns/SMStreams/useSMStreamM3UColumnConfig';
 import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
 import SMButton from '@components/sm/SMButton';
+import CreateSMChannelsDialog from '@components/smchannels/CreateSMChannelsDialog';
 import StreamMultiVisibleDialog from '@components/smstreams/StreamMultiVisibleDialog';
 import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
 import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
@@ -198,9 +199,9 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
           <M3UFilesButton />
         </div>
         <SMButton className="icon-red-filled" icon="pi-times" rounded onClick={() => {}} />
-        <SMButton className="icon-green-filled" icon="pi-plus" rounded onClick={() => {}} />
+        {/* <SMButton className="icon-green-filled" icon="pi-plus" rounded onClick={() => {}} /> */}
+        <CreateSMChannelsDialog selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} />
         <SMButton className="icon-orange-filled" icon="pi pi-bars" rounded onClick={() => {}} />
-
         <StreamMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} skipOverLayer />
         {/* <TriSelectShowHidden dataKey={dataKey} /> */}
         {/* <TriSelectShowHidden dataKey={dataKey} />

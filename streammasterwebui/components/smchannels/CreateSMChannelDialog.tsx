@@ -6,7 +6,7 @@ import { CreateSMChannelRequest, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import React, { useRef } from 'react';
 import SMChannelDialog from './SMChannelDialog';
 
-interface CopySMChannelProperties {}
+interface CreateSMChannelDialogProperties {}
 
 const CreateSMChannelDialog = () => {
   const dataKey = 'SMChannelSMStreamDialog-SMStreamDataForSMChannelSelector';
@@ -34,8 +34,9 @@ const CreateSMChannelDialog = () => {
       ref={smDialogRef}
       position="top"
       title="CREATE CHANNEL"
+      iconFilled
       onHide={() => ReturnToParent()}
-      buttonClassName="icon-green-filled"
+      buttonClassName="icon-green"
       icon="pi-plus"
       widthSize={8}
       info="General"

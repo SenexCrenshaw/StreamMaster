@@ -104,6 +104,11 @@ const StringEditor = ({
 
   useEffect(() => {
     if (isLoading !== true && value !== undefined && originalValue !== value) {
+      if (originalValue === undefined) {
+        setOriginalValue(value);
+        setInputValue(value);
+        return;
+      }
       if (value !== inputValue) {
         if (value === '') {
           setInputValue(inputValue);
@@ -135,26 +140,15 @@ const StringEditor = ({
     return ret;
   }, [needsSave, darkBackGround]);
 
-  const doShowClear = (): boolean => showClear === true && disableDebounce === true && originalValue !== undefined && inputValue !== originalValue;
+  // const doReset = (): boolean => showClear === true && disableDebounce === true && originalValue !== undefined && inputValue !== originalValue;
 
-  if (!label) {
+  const doShowClear = useMemo((): boolean => {
+    return showClear === true && isFocused && inputValue !== originalValue;
+  }, [inputValue, isFocused, originalValue, showClear]);
+
+  const getButton = useMemo(() => {
     return (
-      // <div ref={divReference}>
-      <span ref={divReference} className="stringeditor flex align-items-center">
-        {doShowClear() && (
-          <i
-            className="pi pi-times-circle icon-yellow absolute right-0 pr-1"
-            hidden={showClear !== true || value === originalValue}
-            onClick={() => {
-              setInputValue(originalValue);
-              // if (onResetClick) {
-              //   onResetClick();
-              // }
-              onChange && onChange(originalValue);
-            }}
-          />
-        )}
-
+      <div ref={divReference} className="stringeditor">
         <InputText
           className={getDiv}
           id={uuid}
@@ -176,52 +170,30 @@ const StringEditor = ({
           tooltipOptions={tooltipOptions}
           value={inputValue}
         />
-      </span>
-      // </div>
+        {doShowClear && (
+          <i className="input-icon">
+            <i
+              className="pi pi-times-circle icon-yellow"
+              onClick={() => {
+                setInputValue('');
+                setOriginalValue('');
+                onChange && onChange('');
+              }}
+            />
+          </i>
+        )}
+      </div>
     );
+  }, [autoFocus, debounced, disableDebounce, doShowClear, getDiv, inputValue, onChange, onClick, placeholder, tooltip, tooltipOptions, uuid]);
+
+  if (!label) {
+    return getButton;
   }
 
   return (
     <div className={label ? 'stringeditor pt-4' : 'stringeditor'} ref={divReference}>
       <FloatLabel>
-        <span className="flex align-items-center">
-          {doShowClear() && (
-            <i
-              className="pi pi-times-circle icon-yellow absolute right-0 pr-1"
-              hidden={showClear !== true || value === originalValue}
-              onClick={() => {
-                setInputValue(originalValue);
-                // if (onResetClick) {
-                //   onResetClick();
-                // }
-                onChange && onChange(originalValue);
-              }}
-            />
-          )}
-
-          <InputText
-            className={getDiv}
-            id={uuid}
-            autoFocus={autoFocus}
-            onChange={(e) => {
-              setInputValue(e.target.value as string);
-              if (disableDebounce !== true) {
-                debounced(e.target.value as string);
-              } else {
-                onChange && onChange(e.target.value as string);
-              }
-            }}
-            onClick={() => {
-              onClick?.();
-            }}
-            onFocus={() => setIsFocused(true)}
-            placeholder={placeholder}
-            tooltip={tooltip}
-            tooltipOptions={tooltipOptions}
-            value={inputValue}
-          />
-        </span>
-
+        {getButton}
         <label className="" htmlFor={uuid}>
           {label}
         </label>

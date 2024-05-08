@@ -6,21 +6,20 @@ import { useSMChannelNumberColumnConfig } from '@components/columns/SMChannel/us
 import { useSMChannelSGColumnConfig } from '@components/columns/SMChannel/useSMChannelSGColumnConfig';
 
 import EPGFilesButton from '@components/epgFiles/EPGFilesButton';
-import SMButton from '@components/sm/SMButton';
-import { SMPopUp } from '@components/sm/SMPopUp';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import CopySMChannelDialog from '@components/smchannels/CopySMChannelDialog';
 import CreateSMChannelDialog from '@components/smchannels/CreateSMChannelDialog';
+import DeleteSMChannelDialog from '@components/smchannels/DeleteSMChannelDialog';
+import DeleteSMChannelsDialog from '@components/smchannels/DeleteSMChannelsDialog';
 import EditSMChannelDialog from '@components/smchannels/EditSMChannelDialog';
 import SMChannelMenu from '@components/smchannels/SMChannelMenu';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamGroupButton from '@components/streamGroup/StreamGroupButton';
 import { GetMessage } from '@lib/common/common';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
-import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
-import { DeleteSMChannelRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
+import { SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent, DataTableRowData, DataTableRowEvent, DataTableRowExpansionTemplate } from 'primereact/datatable';
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import SMStreamDataSelectorValue from './SMStreamDataSelectorValue';
@@ -62,40 +61,16 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
     );
   }, []);
 
-  const actionTemplate = useCallback(
-    (data: SMChannelDto) => {
-      const accept = () => {
-        const toSend = {} as DeleteSMChannelRequest;
-        toSend.SMChannelId = data.Id;
-        DeleteSMChannel(toSend)
-          .then((response) => {
-            console.log('Removed Channel');
-            if (selectedSMChannel?.Id === data.Id) {
-              setSelectedSMChannel(undefined);
-            }
-          })
-          .catch((error) => {
-            console.error('Remove Channel', error.message);
-          });
-      };
-
-      return (
-        <div className="flex p-0 m-0 justify-content-end align-items-center">
-          <StreamCopyLinkDialog realUrl={data?.RealUrl} />
-          <CopySMChannelDialog label="Copy Channel" smChannel={data} />
-          <SMPopUp title="Remove Channel" OK={() => accept()} icon="pi-times" severity="danger">
-            <div className="text-base">
-              "{data.Name}"
-              <br />
-              Are you sure?
-            </div>
-          </SMPopUp>
-          <EditSMChannelDialog smChannel={data} />
-        </div>
-      );
-    },
-    [selectedSMChannel, setSelectedSMChannel]
-  );
+  const actionTemplate = useCallback((data: SMChannelDto) => {
+    return (
+      <div className="flex p-0 m-0 justify-content-end align-items-center">
+        <StreamCopyLinkDialog realUrl={data?.RealUrl} />
+        <CopySMChannelDialog label="Copy Channel" smChannel={data} />
+        <DeleteSMChannelDialog smChannel={data} />
+        <EditSMChannelDialog smChannel={data} />
+      </div>
+    );
+  }, []);
 
   const columns = useMemo(
     (): ColumnMeta[] => [
@@ -140,13 +115,15 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
           <div className="flex">
             <EPGFilesButton />
           </div>
-          <SMButton className="icon-red-filled" icon="pi pi-times" rounded onClick={() => {}} />
+          {/* <DeleteSMChannelDialog /> */}
+          {/* <SMButton className="icon-red-filled" icon="pi pi-times" rounded onClick={() => {}} /> */}
+          <DeleteSMChannelsDialog selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} />
           <CreateSMChannelDialog />
           <SMChannelMenu />
         </div>
       </>
     ),
-    []
+    [dataKey]
   );
 
   const headerTitle = useCallback(() => {
@@ -197,6 +174,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
         rowClass={rowClass}
         queryFilter={useGetPagedSMChannels}
         rowExpansionTemplate={rowExpansionTemplate}
+        selectionMode="multiple"
         selectedItemsKey="selectSelectedSMChannelDtoItems"
         style={{ height: 'calc(100vh - 100px)' }}
       />

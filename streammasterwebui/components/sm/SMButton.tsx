@@ -53,6 +53,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
 
     const getClassName = React.useMemo(() => {
       let toRet = 'sm-button';
+      let cClass = configuredClassName;
 
       if (label && label !== '' && !props.children) {
         toRet += ' sm-button-with-label';
@@ -64,7 +65,11 @@ const SMButton = forwardRef<Button, SMButtonProps>(
         }
       }
 
-      return toRet + ' ' + configuredClassName + ' ' + tooltipClassName;
+      if (iconFilled && !cClass?.endsWith('filled')) {
+        cClass += '-filled';
+      }
+
+      return toRet + ' ' + cClass + ' ' + tooltipClassName;
     }, [configuredClassName, iconFilled, label, props.children, tooltipClassName]);
 
     const getStyle = useMemo(() => {

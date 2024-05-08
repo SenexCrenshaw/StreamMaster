@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import StringEditor from './StringEditor';
 
 export interface StringTrackerProperties {
@@ -11,32 +11,30 @@ export interface StringTrackerProperties {
 const StringTracker = ({ id, onChange, placeholder, value }: StringTrackerProperties) => {
   const [intValue, setIntValue] = useState<string | undefined>('');
 
-  useEffect(() => {
-    if (value === intValue) {
-      return;
-    }
+  // useEffect(() => {
+  //   if (value === intValue) {
+  //     return;
+  //   }
 
-    setIntValue(value ?? undefined);
-  }, [intValue, value]);
+  //   setIntValue(value ?? undefined);
+  // }, [intValue, value]);
 
   return (
-    <div>
-      <StringEditor
-        debounceMs={1000}
-        onChange={async (e) => {
-          setIntValue(e);
-          onChange(e);
-        }}
-        onSave={async (e) => {
-          // console.log(e);
-          setIntValue(e);
-          onChange(e);
-        }}
-        darkBackGround
-        placeholder={placeholder}
-        value={intValue}
-      />
-    </div>
+    <StringEditor
+      debounceMs={1000}
+      onChange={async (e) => {
+        setIntValue(e);
+        onChange(e);
+      }}
+      onSave={async (e) => {
+        setIntValue(e);
+        onChange(e);
+      }}
+      showClear
+      darkBackGround
+      placeholder={placeholder}
+      value={intValue}
+    />
   );
 };
 

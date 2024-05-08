@@ -250,6 +250,18 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
         context.BulkDelete(query);
     }
 
+    public void BulkDelete(List<T> items)
+    {
+        if (items == null || !items.Any())
+        {
+            logger.LogWarning("Attempted to perform a bulk delete with a null or empty query.");
+            throw new ArgumentNullException(nameof(items));
+        }
+        DbContext context = RepositoryContext as DbContext;
+
+        context.BulkDelete(items);
+    }
+
     /// <summary>
     /// Deletes a group of entities based on a query.
     /// </summary>
@@ -264,6 +276,7 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
 
         await RepositoryContext.BulkDeleteAsyncEntities(query);
     }
+
 
     /// <summary>
     /// Performs a bulk update on a set of entities.

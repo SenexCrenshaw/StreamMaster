@@ -6,6 +6,7 @@ import { SMCard } from './SMCard';
 
 interface SMDialogProperties {
   readonly children: React.ReactNode;
+  readonly buttonDisabled?: boolean;
   readonly buttonClassName?: string;
   readonly info?: string;
   readonly icon?: string;
@@ -25,6 +26,7 @@ export interface SMDialogRef {
 const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogProperties, ref) => {
   const {
     buttonClassName,
+    buttonDisabled,
     children,
     info = '',
     icon = 'pi pi-plus',
@@ -69,7 +71,7 @@ const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogPro
             title={title}
             header={
               <XButton
-                iconFilled={false}
+                iconFilled={true}
                 onClick={(e) => {
                   setVisible(false);
                 }}
@@ -86,6 +88,7 @@ const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogPro
       />
       {/* <div hidden={showButton === false}> */}
       <SMButton
+        disabled={buttonDisabled}
         className={buttonClassName}
         iconFilled={iconFilled}
         icon={icon ?? ''}

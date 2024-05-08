@@ -432,6 +432,8 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
               useOptionAsValue
             />
           );
+        } else {
+          return <div className={cl}>{header}</div>;
         }
       }
 
