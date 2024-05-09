@@ -313,4 +313,42 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         IQueryable<SMStream> toCreate = repository.SMStream.GetQuery(parameters);
         return CreateSMChannelFromStreams(toCreate.Select(a => a.Id).ToList());
     }
+
+    public async Task<List<FieldData>> ToggleSMChannelsVisibleById(List<int> ids, CancellationToken cancellationToken)
+    {
+        List<FieldData> ret = [];
+        var channels = GetQuery(true).Where(a => ids.Contains(a.Id)).ToList();
+
+        foreach (var channel in channels)
+        {
+            channel.IsHidden = !channel.IsHidden;
+            ret.Add(new FieldData(() => channel.IsHidden));
+        }
+        await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        return ret;
+    }
+
+    public async Task<SMChannelDto?> ToggleSMChannelVisibleById(int id, CancellationToken cancellationToken)
+    {
+        if (id == 0)
+        {
+            throw new ArgumentNullException(nameof(id));
+        }
+
+        var channel = await FirstOrDefaultAsync(a => a.Id == id, cancellationToken: cancellationToken).ConfigureAwait(false);
+        if (channel == null)
+        {
+            return null;
+        }
+        channel.IsHidden = !channel.IsHidden;
+        Update(channel);
+        await SaveChangesAsync();
+        return mapper.Map<SMChannelDto>(channel);
+    }
+
+    public async Task<List<FieldData>> ToggleSMChannelVisibleByParameters(QueryStringParameters parameters, CancellationToken cancellationToken)
+    {
+        IQueryable<SMChannel> query = GetQuery(parameters);
+        return await ToggleSMChannelsVisibleById([.. query.Select(a => a.Id)], cancellationToken);
+    }
 }

@@ -3,11 +3,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
 
 interface SetSelectAllPayload {
-  value: boolean | null;
+  value: boolean;
   key: string;
 }
 
-type SelectAllState = Record<string, boolean | null>;
+type SelectAllState = Record<string, boolean>;
 
 const initialState: SelectAllState = {};
 
@@ -30,7 +30,7 @@ const selectSelectAll = createSelector(
 export const useSelectAll = (key: string) => {
   const dispatch: AppDispatch = useDispatch();
 
-  const setSelectAll = (value: boolean | null) => {
+  const setSelectAll = (value: boolean) => {
     dispatch(
       selectAllSlice.actions.SetSelectAll({
         key,

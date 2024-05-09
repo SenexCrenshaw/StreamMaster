@@ -24,6 +24,7 @@ interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
   enableExport?: boolean;
   enableHeaderWrap?: boolean;
   enablePaginator?: boolean;
+  expanderHeader?: () => ReactNode;
   extraColumns?: Column[];
   headerName?: string;
   id: string;

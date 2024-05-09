@@ -6,6 +6,7 @@ import { useSMChannelNumberColumnConfig } from '@components/columns/SMChannel/us
 import { useSMChannelSGColumnConfig } from '@components/columns/SMChannel/useSMChannelSGColumnConfig';
 
 import EPGFilesButton from '@components/epgFiles/EPGFilesButton';
+import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import CopySMChannelDialog from '@components/smchannels/CopySMChannelDialog';
@@ -143,6 +144,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
         defaultSortOrder={1}
         emptyMessage="No Channels"
         enablePaginator
+        expanderHeader={() => <SMTriSelectShowHidden dataKey={dataKey} />}
         headerRightTemplate={rightHeaderTemplate}
         headerName={headerTitle()}
         id={dataKey}

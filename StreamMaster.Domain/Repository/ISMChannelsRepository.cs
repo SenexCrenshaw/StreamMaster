@@ -29,4 +29,7 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     Task<APIResponse> CopySMChannel(int sMChannelId, string newName);
     Task<APIResponse> CreateSMChannelFromStreams(List<string> streamIds);
     Task<APIResponse> CreateSMChannelFromStreamParameters(QueryStringParameters parameters);
+    Task<List<FieldData>> ToggleSMChannelsVisibleById(List<int> ids, CancellationToken cancellationToken);
+    Task<SMChannelDto?> ToggleSMChannelVisibleById(int id, CancellationToken cancellationToken);
+    Task<List<FieldData>> ToggleSMChannelVisibleByParameters(QueryStringParameters parameters, CancellationToken cancellationToken);
 }

@@ -720,6 +720,8 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
                 ? 'w-3rem max-w-3rem p-0 justify-content-center align-items-center sm-expander'
                 : 'w-2rem max-w-2rem p-0 justify-content-center align-items-center sm-expander'
             }
+            filterElement={props.expanderHeader !== undefined ? props.expanderHeader : undefined}
+            filter={props.expanderHeader !== undefined}
             hidden={!props.showExpand || props.rowExpansionTemplate === undefined}
             showFilterMenu={false}
             showFilterOperator={false}
