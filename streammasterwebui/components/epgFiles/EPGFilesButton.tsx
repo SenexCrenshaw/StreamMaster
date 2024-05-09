@@ -7,6 +7,7 @@ import EPGFilesDataSelector from './EPGFilesDataSelector';
 const EPGFilesButton = () => {
   const op = useRef<OverlayPanel>(null);
   const closeOverlay = () => op.current?.hide();
+
   return (
     <SMOverlay
       title="EPG FILES"

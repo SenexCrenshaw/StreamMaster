@@ -6,7 +6,7 @@ $inputBorder-size: $input-padding;
 $datatable-row-height: 1.8rem;
 
 $input-height: $datatable-row-height - ($inputBorder-size*2);
-$input-height-with-no-borders: $input-height - ($inputBorder-size*2);
+$input-height-with-no-borders: $input-height - ($inputBorder-size*4);
 
 $input-small-height: $input-height * .75;
 $input-small-height-with-no-borders: $input-small-height - ($inputBorder-size*2);

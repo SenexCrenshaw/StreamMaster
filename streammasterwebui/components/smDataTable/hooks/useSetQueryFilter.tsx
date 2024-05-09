@@ -3,9 +3,10 @@ import { SMDataTableFilterMetaData, addOrUpdateValueForField, hasValidAdditional
 import { GetApiArgument, areGetApiArgsEqual } from '@lib/apiDefs';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useShowHidden } from '@lib/redux/hooks/showHidden';
-import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 
 import { useSortInfo } from '@lib/redux/hooks/sortInfo';
+
+import { useQueryAdditionalFilters } from '@lib/redux/hooks/queryAdditionalFilters';
 import { ChannelGroupDto, EPGFileDto } from '@lib/smAPI/smapiTypes';
 import { FilterMatchMode } from 'primereact/api';
 import { DataTableFilterMeta } from 'primereact/datatable';
@@ -94,14 +95,14 @@ export const useSetQueryFilter = (
   StreamGroupId?: number
 ) => {
   const { sortInfo } = useSortInfo(id);
-  const { queryAdditionalFilter } = useQueryAdditionalFilters(id);
+  const { queryAdditionalFilters } = useQueryAdditionalFilters(id);
   const { showHidden } = useShowHidden(id);
   const { queryFilter, setQueryFilter } = useQueryFilter(id);
 
   const { generateGetApi } = useMemo(() => {
     const sortString = getSortString(sortInfo);
 
-    const transformedFilters = transformAndEnhanceFilters(filters, columns, showHidden, queryAdditionalFilter);
+    const transformedFilters = transformAndEnhanceFilters(filters, columns, showHidden, queryAdditionalFilters);
 
     const JSONFiltersString = JSON.stringify(transformedFilters);
 
@@ -116,7 +117,7 @@ export const useSetQueryFilter = (
     return {
       generateGetApi: apiState
     };
-  }, [sortInfo, columns, filters, showHidden, queryAdditionalFilter, page, rows, StreamGroupId]);
+  }, [sortInfo, columns, filters, showHidden, queryAdditionalFilters, page, rows, StreamGroupId]);
 
   useEffect(() => {
     if (!areGetApiArgsEqual(generateGetApi, queryFilter)) {

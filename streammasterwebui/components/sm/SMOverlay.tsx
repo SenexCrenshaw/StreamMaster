@@ -36,11 +36,9 @@ export const SMOverlay = ({
   const renderButton = () => {
     if (buttonTemplate) {
       return (
-        <div className="">
-          <SMButton iconFilled={iconFilled} icon={icon} tooltip={tooltip} label={buttonLabel} onClick={(e) => op.current?.toggle(e)}>
-            {buttonTemplate}
-          </SMButton>
-        </div>
+        <SMButton iconFilled={iconFilled} icon={icon} tooltip={tooltip} label={buttonLabel} onClick={(e) => op.current?.toggle(e)}>
+          {buttonTemplate}
+        </SMButton>
       );
     }
     return (
