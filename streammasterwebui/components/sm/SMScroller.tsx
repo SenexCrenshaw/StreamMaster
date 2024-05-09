@@ -22,6 +22,7 @@ interface SMScrollerProps {
   readonly filter?: boolean;
   readonly select?: boolean;
   readonly selectedItemsKey?: string;
+  readonly simple?: boolean;
   readonly onChange?: (value: any) => void;
 }
 
@@ -38,6 +39,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
   optionValue,
   select,
   selectedItemsKey,
+  simple,
   style,
   value,
   scrollHeight = 100
@@ -207,8 +209,15 @@ const SMScroller: React.FC<SMScrollerProps> = ({
     [isSelected, isSelectedItem, itemTemplate, onChange, removeSelectedItem, select, selectedItems, selectedItemsKey, setSelectedItems]
   );
 
+  const getDiv = useMemo(() => {
+    if (simple === true) {
+      return `dark-background w-full ${className} `;
+    }
+    return `sm-scroller sm-input-border w-full ${className} `;
+  }, [className, simple]);
+
   return (
-    <div className={`sm-scroller sm-input-border w-full ${className} `}>
+    <div className={getDiv}>
       {filter && (
         <div className="flex align-items-center justify-content-between px-2 pt-1 ">
           <div className="w-11">

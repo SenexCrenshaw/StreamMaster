@@ -410,7 +410,7 @@
     right: 0.24rem;
   }
   .p-autocomplete.p-autocomplete-dd .p-autocomplete-loader {
-    right: 1.44rem;
+    right: 1.64rem;
   }
   .p-autocomplete .p-autocomplete-multiple-container {
     padding: 0rem 0.24rem;
@@ -1264,7 +1264,7 @@
     width: auto;
   }
   .p-fluid .p-inputgroup .p-button.p-button-icon-only {
-    width: 1.2rem;
+    width: 1.4rem;
   }
   .p-inputnumber.p-invalid.p-component > .p-inputtext {
     border-color: #f78c79;
@@ -2357,7 +2357,7 @@
     border-radius: 2rem;
   }
   .p-button.p-button-icon-only {
-    width: 1.2rem;
+    width: 1.4rem;
     padding: 0.1rem 0;
   }
   .p-button.p-button-icon-only .p-button-icon-left,
@@ -2366,7 +2366,7 @@
   }
   .p-button.p-button-icon-only.p-button-rounded {
     border-radius: 50%;
-    height: 1.2rem;
+    height: 1.4rem;
   }
   .p-button.p-button-sm {
     font-size: 0.65625rem;
@@ -4667,7 +4667,7 @@
   .p-tabview .p-tabview-nav-btn.p-link {
     background: #161d21;
     color: #bcbfbf;
-    width: 1.2rem;
+    width: 1.4rem;
     box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
     border-radius: 0;
   }
@@ -7042,7 +7042,7 @@
 }
 
 .text-xlg, .info-header-text, .info-header-text-bottom-border, .header-text {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
 }
 
 .header-text-color, .header-text {
@@ -7054,7 +7054,7 @@
 }
 
 .input-height-with-no-borders {
-  height: 1.2rem !important;
+  height: 1.4rem !important;
 }
 
 .header-text {
@@ -7062,7 +7062,7 @@
   align-items: center;
   padding: 0 !important;
   font-weight: bold;
-  height: 1.2rem !important;
+  height: 1.4rem !important;
 }
 
 .info-header-text, .info-header-text-bottom-border {
@@ -7079,8 +7079,8 @@
   border-radius: 6px;
   border-style: none;
   border-width: 0px;
-  height: 1.6rem;
-  max-height: 1.6rem;
+  height: 1.4rem;
+  max-height: 1.4rem;
   color: #94abec;
 }
 .sm-input .p-dropdown, .stringeditorbody-inputtext .p-dropdown, .p-inputnumber-input .p-dropdown, .stringeditorbody-inputtext-save .p-dropdown, .stringeditorbody-inputtext-dark .p-dropdown, .sm-input-dark .p-dropdown {
@@ -7096,6 +7096,10 @@
 }
 
 .input-border-dark, .sm-input-dark {
+  background-color: #12181b !important;
+}
+
+.dark-background {
   background-color: #12181b !important;
 }
 
@@ -7425,21 +7429,21 @@
 }
 .p-inputnumber-button-group .p-button.p-button-icon-only {
   padding: 0 !important;
-  min-width: 1.2rem;
-  max-width: 1.2rem;
+  min-width: 1.4rem;
+  max-width: 1.4rem;
   background-color: #ff935a;
 }
 
 .p-button.p-button-icon-only {
   padding: 0;
-  max-width: 1.2rem;
-  min-width: 1.2rem;
+  max-width: 1.4rem;
+  min-width: 1.4rem;
 }
 
 .p-button-icon-only {
   padding: 0;
-  max-width: 1.2rem;
-  min-width: 1.2rem;
+  max-width: 1.4rem;
+  min-width: 1.4rem;
 }
 
 .p-button-label {
@@ -7594,6 +7598,10 @@
   border-top-width: 0 !important;
 }
 
+.p-overlaypanel-content {
+  padding: 0.4rem;
+}
+
 .p-datatable-wrapper {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
@@ -7633,7 +7641,7 @@
   height: 1.6rem;
   color: #bcbfbf;
   min-width: 12rem;
-  max-height: 1.2rem;
+  max-height: 1.4rem;
   display: flex;
   align-items: center;
   border-color: #263238;
@@ -7745,7 +7753,7 @@
 }
 
 .sm-button {
-  height: 1.2rem;
+  height: 1.4rem;
   padding: 0;
   transition: filter 0.3s ease;
 }

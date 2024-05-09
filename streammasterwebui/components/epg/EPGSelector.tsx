@@ -9,7 +9,7 @@ import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationC
 import { EPGFileDto, StationChannelName } from '@lib/smAPI/smapiTypes';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Tooltip } from 'primereact/tooltip';
-import React, { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 const SMScroller = lazy(() => import('@components/sm/SMScroller'));
@@ -22,9 +22,10 @@ type EPGSelectorProperties = {
   readonly editable?: boolean | undefined;
   readonly value?: string;
   readonly onChange?: (value: string) => void;
+  readonly simple?: boolean;
 };
 
-const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChange }: EPGSelectorProperties) => {
+const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChange, simple }: EPGSelectorProperties) => {
   const { selectedItems } = useSelectedItems<EPGFileDto>('EPGSelector-EPGFiles');
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
@@ -298,22 +299,10 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
 
   const messageContent = useMemo(() => {
     return (
-      <div className="sm-card-content-children">
-        <div className="layout-padding-bottom" />
-        <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right sm-tableHeaderBg">
+      <>
+        <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right">
           <Suspense>
-            <div className="flex w-4 mr-1 sm-headerBg">
-              <SMScroller
-                data={epgFiles}
-                dataKey="EPGNumber"
-                itemSize={26}
-                itemTemplate={scrollerItemTemplate}
-                scrollHeight={150}
-                select
-                selectedItemsKey="EPGSelector-EPGFiles"
-              />
-            </div>
-            <div className="flex w-8 ml-1 sm-headerBg">
+            <div className="flex w-12 ml-1">
               <SMScroller
                 data={options}
                 dataKey="Channel"
@@ -368,9 +357,42 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
           </div>
         </div>
         <div className="layout-padding-bottom" />
+      </>
+    );
+  }, [addDisabled, handleOnChange, input, itemTemplate, options, stationChannelName]);
+
+  const headerValueTemplate = useMemo((): ReactNode => {
+    if (selectedItems && selectedItems.length > 0) {
+      const epgNames = selectedItems.slice(0, 2).map((x) => x.Name);
+      const suffix = selectedItems.length > 2 ? ',...' : '';
+      return (
+        <div className="px-4 w-10rem flex align-content-center justify-content-center" style={{ minWidth: '10rem' }}>
+          {epgNames.join(', ') + suffix}
+        </div>
+      );
+    }
+    return <div className="px-4 w-10rem" style={{ minWidth: '10rem' }} />;
+  }, [selectedItems]);
+
+  const headerTemplate = useMemo(() => {
+    return (
+      <div className="sm-input-dark">
+        <SMOverlay widthSize="1" icon="pi-chevron-down" buttonTemplate={headerValueTemplate} buttonLabel="EPG" simple>
+          <SMScroller
+            data={epgFiles}
+            dataKey="EPGNumber"
+            filter={false}
+            itemSize={26}
+            itemTemplate={scrollerItemTemplate}
+            scrollHeight={150}
+            select
+            selectedItemsKey="EPGSelector-EPGFiles"
+            simple
+          />
+        </SMOverlay>
       </div>
     );
-  }, [addDisabled, epgFiles, handleOnChange, input, itemTemplate, options, scrollerItemTemplate, stationChannelName]);
+  }, [epgFiles, headerValueTemplate, scrollerItemTemplate]);
 
   if (!enableEditMode) {
     return <div className="flex w-full h-full justify-content-center align-items-center p-0 m-0">{input ?? 'Dummy'}</div>;
@@ -387,7 +409,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   }
 
   return (
-    <SMOverlay title="CHANNEL GROUPS" widthSize="3" icon="pi-chevron-down" buttonTemplate={valueTemplate(stationChannelName)} buttonLabel="EPG">
+    <SMOverlay header={headerTemplate} title="EPG" widthSize="2" icon="pi-chevron-down" buttonTemplate={valueTemplate(stationChannelName)} buttonLabel="EPG">
       <div>{messageContent}</div>
     </SMOverlay>
   );

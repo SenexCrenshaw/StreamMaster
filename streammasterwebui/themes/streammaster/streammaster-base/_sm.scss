@@ -117,6 +117,9 @@
     }
 }
 
+.p-overlaypanel-content {
+    padding: $layoutPadding;
+}
 
 .p-datatable-wrapper {
     @extend .sm-datatable-header;

@@ -75,8 +75,8 @@
     border-radius: $borderRadius;
     border-style: none;
     border-width: 0px;
-    height: $input-height;
-    max-height: $input-height;
+    height: $input-height-with-no-borders;
+    max-height: $input-height-with-no-borders;
     color: $inputTextColor;
 
     .p-dropdown {
@@ -96,6 +96,10 @@
 
 .input-border-dark {
     @extend .input-border;
+    background-color: $inputBg !important;
+}
+
+.dark-background {
     background-color: $inputBg !important;
 }
 

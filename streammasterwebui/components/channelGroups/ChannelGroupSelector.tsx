@@ -75,14 +75,7 @@ const ChannelGroupSelector = ({ enableEditMode = true, className, value, disable
   }
 
   return (
-    <SMOverlay
-      buttonTemplate={buttonTemplate}
-      title="CHANNEL GROUPS"
-      widthSize="3"
-      icon="pi-chevron-down"
-      // buttonClassName="icon-green-filled"
-      buttonLabel="EPG"
-    >
+    <SMOverlay buttonTemplate={buttonTemplate} title="CHANNEL GROUPS" widthSize="3" icon="pi-chevron-down" buttonLabel="EPG">
       <SMScroller
         data={channelGroupQuery.data}
         onChange={(e) => handleOnChange(e)}

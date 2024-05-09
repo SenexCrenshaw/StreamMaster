@@ -12,7 +12,8 @@ interface SMOverlayProperties {
   readonly buttonLabel?: string | undefined;
   readonly iconFilled?: boolean;
   readonly icon?: string | undefined;
-  readonly title: string | undefined;
+  readonly title?: string | undefined;
+  readonly simple?: boolean;
   readonly tooltip?: string | undefined;
   readonly widthSize?: string;
   onHide?(): void;
@@ -27,8 +28,9 @@ export const SMOverlay = ({
   header,
   icon,
   onHide,
+  simple = false,
   tooltip = '',
-  title = '',
+  title,
   widthSize = '4'
 }: SMOverlayProperties) => {
   const op = useRef<OverlayPanel>(null);
@@ -36,7 +38,7 @@ export const SMOverlay = ({
   const renderButton = () => {
     if (buttonTemplate) {
       return (
-        <SMButton iconFilled={iconFilled} icon={icon} tooltip={tooltip} label={buttonLabel} onClick={(e) => op.current?.toggle(e)}>
+        <SMButton className={buttonClassName} iconFilled={iconFilled} icon={icon} tooltip={tooltip} label={buttonLabel} onClick={(e) => op.current?.toggle(e)}>
           {buttonTemplate}
         </SMButton>
       );
@@ -50,11 +52,11 @@ export const SMOverlay = ({
     <>
       <OverlayPanel className={`sm-overlay w-${widthSize}`} ref={op} showCloseIcon={false} onHide={() => onHide && onHide()}>
         <SMCard
+          simple={simple}
           title={title}
           header={
-            <div className="justify-content-end flex-row flex gap-1">
+            <div className="justify-content-end align-items-center flex-row flex gap-1">
               {header}
-
               <XButton iconFilled onClick={(e) => op.current?.toggle(e)} tooltip="Close" />
             </div>
           }

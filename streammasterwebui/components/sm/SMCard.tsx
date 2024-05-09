@@ -4,9 +4,14 @@ interface SMCardProperties {
   readonly title: string | undefined;
   readonly text?: string | undefined;
   readonly italicized?: boolean;
+  readonly simple?: boolean;
 }
 
-export const SMCard = ({ children, header, italicized, text, title }: SMCardProperties) => {
+export const SMCard = ({ children, header, italicized, simple, text, title }: SMCardProperties) => {
+  if (simple === true) {
+    return <div>{children}</div>;
+  }
+
   return (
     <div className="sm-card">
       <div className="sm-card-header flex justify-content-between align-items-center">
