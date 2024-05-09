@@ -71,6 +71,7 @@ if (Directory.Exists(BuildInfo.SettingsFolder))
     builder.Configuration.SetBasePath(BuildInfo.AppDataFolder);
 }
 
+
 var profileSetting = SettingsHelper.GetSetting<FFMPEGProfiles>(BuildInfo.ProfileSettingsFile);
 if (profileSetting == default(FFMPEGProfiles))
 {
@@ -93,6 +94,13 @@ if (hlsSetting == default(HLSSettings))
 //        SettingsHelper.UpdateSetting(toWrite);
 //    }
 //}
+
+
+var mainSetting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingsFile);
+if (mainSetting == default(Setting))
+{
+    SettingsHelper.UpdateSetting(new Setting());
+}
 
 var sdSettings = SettingsHelper.GetSetting<SDSettings>(BuildInfo.SDSettingsFile);
 if (sdSettings == default(SDSettings))
