@@ -8,7 +8,7 @@ import VideoStreamSetAutoSetEPGDialog from '@components/videoStream/VideoStreamS
 import { getColor } from '@lib/common/colors';
 import { GetMessage, getChannelGroupMenuItem } from '@lib/common/common';
 import { GroupIcon } from '@lib/common/icons';
-import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
+import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { Tooltip } from 'primereact/tooltip';
 import { memo, useCallback, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';

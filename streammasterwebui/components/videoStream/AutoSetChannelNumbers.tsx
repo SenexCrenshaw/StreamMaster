@@ -1,7 +1,7 @@
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
-import { useSelectAll } from '@lib/redux/slices/useSelectAll';
+import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
+import { useSelectAll } from '@lib/redux/hooks/selectAll';
+import { useSortInfo } from '@lib/redux/hooks/sortInfo';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
-import { useSortInfo } from '@lib/redux/slices/useSortInfo';
 
 import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox';
 import { InputNumber } from 'primereact/inputnumber';

@@ -1,7 +1,7 @@
 import OKButton from '@components/buttons/OKButton';
 import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
-import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
+import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
+import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { AutoSetSMChannelNumbers } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
 import { AutoSetSMChannelNumbersRequest } from '@lib/smAPI/smapiTypes';
 import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';

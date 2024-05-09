@@ -87,7 +87,7 @@ const ProfilesDataSelector = () => {
         defaultSortField="rank"
         emptyMessage="No Data"
         id="ProfilesDataSelector"
-        selectedItemsKey="selectSelectedItems"
+        selectedItemsKey="selectedItems"
       />
     </div>
   );

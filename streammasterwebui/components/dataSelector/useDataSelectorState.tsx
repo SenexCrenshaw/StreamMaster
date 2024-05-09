@@ -4,11 +4,11 @@ import { useState } from 'react';
 
 import { AdditionalFilterProperties } from '@lib/common/common';
 
-import { useSelectAll } from '@lib/redux/slices/useSelectAll';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
-import { useShowHidden } from '@lib/redux/slices/useShowHidden';
-import { useShowSelections } from '@lib/redux/slices/useShowSelections';
-import { useSortInfo } from '@lib/redux/slices/useSortInfo';
+import { useSelectAll } from '@lib/redux/hooks/selectAll';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
+import { useShowHidden } from '@lib/redux/hooks/showHidden';
+import { useShowSelections } from '@lib/redux/hooks/showSelections';
+import { useSortInfo } from '@lib/redux/hooks/sortInfo';
 
 import { ColumnMeta, PagedTableInformation } from './DataSelectorTypes';
 
@@ -16,7 +16,7 @@ const useDataSelectorState = <T extends DataTableValue>(id: string, selectedItem
   const { sortInfo, setSortInfo } = useSortInfo(id);
   const { selectAll, setSelectAll } = useSelectAll(id);
 
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<T>(selectedItemsKey);
+  const { selectedItems, setSelectedItems } = useSelectedItems<T>(selectedItemsKey);
   const { showHidden } = useShowHidden(id);
   const { showSelections, setShowSelections } = useShowSelections(id);
   const [rowClick, setRowClick] = useLocalStorage<boolean>(false, `${id}-rowClick`);
@@ -61,7 +61,7 @@ const useDataSelectorState = <T extends DataTableValue>(id: string, selectedItem
       setRowClick,
       setRows,
       setSelectAll,
-      setSelectSelectedItems,
+      setSelectedItems,
       setShowSelections,
       setSortField,
       setSortOrder,
@@ -80,7 +80,7 @@ const useDataSelectorState = <T extends DataTableValue>(id: string, selectedItem
       rowClick,
       rows,
       selectAll,
-      selectSelectedItems,
+      selectedItems,
       showHidden,
       showSelections,
       sortField,

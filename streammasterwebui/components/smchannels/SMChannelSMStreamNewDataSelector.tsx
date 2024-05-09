@@ -2,7 +2,7 @@ import MinusButton from '@components/buttons/MinusButton';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { RemoveSMStreamFromSMChannel, SetSMStreamRanks } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
 import {
@@ -26,7 +26,7 @@ interface SSMChannelSMStreamNewDataSelectorProperties {
 
 const SMChannelSMStreamNewDataSelector = ({ enableEdit: propsEnableEdit, height, id, name, smChannel }: SSMChannelSMStreamNewDataSelectorProperties) => {
   const dataKey = `${id}-SMChannelSMStreamNewDataSelector`;
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<SMStreamDto>(`${id}-SMStreamDataForSMChannelSelector`);
+  const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(`${id}-SMStreamDataForSMChannelSelector`);
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { data: smChannelData, isLoading: smChannelIsLoading } = useGetSMChannelStreams({ SMChannelId: smChannel?.Id } as GetSMChannelStreamsRequest);
 
@@ -50,15 +50,15 @@ const SMChannelSMStreamNewDataSelector = ({ enableEdit: propsEnableEdit, height,
                   console.error('Remove Stream', error.message);
                 });
             } else {
-              const newSelectedItems = selectSelectedItems.filter((item) => item.Id !== smStream.Id);
-              setSelectSelectedItems(newSelectedItems);
+              const newSelectedItems = selectedItems.filter((item) => item.Id !== smStream.Id);
+              setSelectedItems(newSelectedItems);
             }
           }}
           tooltip="Remove Stream"
         />
       </div>
     ),
-    [selectSelectedItems, setSelectSelectedItems, smChannel]
+    [selectedItems, setSelectedItems, smChannel]
   );
 
   const columns = useMemo(
@@ -132,9 +132,9 @@ const SMChannelSMStreamNewDataSelector = ({ enableEdit: propsEnableEdit, height,
           };
         });
 
-        setSelectSelectedItems(updatedChannels);
+        setSelectedItems(updatedChannels);
       }}
-      dataSource={selectSelectedItems}
+      dataSource={selectedItems}
       enablePaginator
       emptyMessage="No Streams"
       headerName={headerName}

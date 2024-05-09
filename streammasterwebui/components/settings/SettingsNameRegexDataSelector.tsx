@@ -74,7 +74,7 @@ const SettingsNameRegexDataSelector = (props: SettingsNameRegexDataSelectorPrope
         emptyMessage="No Data"
         id="SettingsNameRegexDataSelector"
         reorderable
-        selectedItemsKey="selectSelectedItems"
+        selectedItemsKey="selectedItems"
       />
     </div>
   );

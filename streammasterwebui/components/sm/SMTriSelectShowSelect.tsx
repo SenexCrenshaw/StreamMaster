@@ -1,6 +1,6 @@
 import SMButton from '@components/sm/SMButton';
-import { useSelectAll } from '@lib/redux/slices/useSelectAll';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import { useSelectAll } from '@lib/redux/hooks/selectAll';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useMemo } from 'react';
 
 interface SMTriSelectShowSelectProperties {
@@ -11,14 +11,14 @@ interface SMTriSelectShowSelectProperties {
 }
 
 export const SMTriSelectShowSelect = ({ onToggle, id, selectedItemsKey }: SMTriSelectShowSelectProperties) => {
-  const { selectAll, setSelectAll } = useSelectAll(id);
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<any>(selectedItemsKey ?? '');
+  const { selectAll } = useSelectAll(id);
+  const { selectedItems } = useSelectedItems<any>(selectedItemsKey ?? '');
 
   const selectAllStatus = useMemo(() => {
-    let checked = selectAll ? true : selectSelectedItems.length > 0 ? false : null;
+    let checked = selectAll ? true : selectedItems.length > 0 ? false : null;
 
     return checked;
-  }, [selectAll, selectSelectedItems.length]);
+  }, [selectAll, selectedItems.length]);
 
   const getToolTip = useMemo((): string => {
     if (selectAllStatus === true) {
@@ -29,8 +29,8 @@ export const SMTriSelectShowSelect = ({ onToggle, id, selectedItemsKey }: SMTriS
       return 'No Selection';
     }
 
-    return `${selectSelectedItems.length} items`;
-  }, [selectAllStatus, selectSelectedItems.length]);
+    return `${selectedItems.length} items`;
+  }, [selectAllStatus, selectedItems.length]);
 
   function toggleAllSelection() {
     onToggle();

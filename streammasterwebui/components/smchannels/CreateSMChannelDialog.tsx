@@ -1,5 +1,5 @@
 import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { CreateSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { CreateSMChannelRequest, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import React, { useRef } from 'react';
@@ -9,13 +9,13 @@ import SMChannelDialog from './SMChannelDialog';
 
 const CreateSMChannelDialog = () => {
   const dataKey = 'SMChannelSMStreamDialog-SMStreamDataForSMChannelSelector';
-  const { setSelectSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
+  const { setSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
 
   const smDialogRef = useRef<SMDialogRef>(null);
 
   const ReturnToParent = React.useCallback(() => {
-    setSelectSelectedItems([]);
-  }, [setSelectSelectedItems]);
+    setSelectedItems([]);
+  }, [setSelectedItems]);
 
   const onSave = React.useCallback((request: CreateSMChannelRequest) => {
     CreateSMChannel(request)

@@ -1,6 +1,6 @@
 import StringEditor from '@components/inputs/StringEditor';
 import SMButton from '@components/sm/SMButton';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { Checkbox } from 'primereact/checkbox';
 import { useMountEffect } from 'primereact/hooks';
 import { ObjectUtils } from 'primereact/utils';
@@ -42,7 +42,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
   value,
   scrollHeight = 100
 }) => {
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems(selectedItemsKey ?? 'NONE');
+  const { selectedItems, setSelectedItems } = useSelectedItems(selectedItemsKey ?? 'NONE');
   const [filterString, setFilterString] = React.useState<string>('');
   const [scrolled, setScrolled] = React.useState<boolean>(true);
   const virtualScrollerRef = React.useRef<VirtualScroller>(null);
@@ -74,7 +74,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
       const key = equalityKey();
 
       if (key) {
-        const a = selectSelectedItems.filter((x: any) => {
+        const a = selectedItems.filter((x: any) => {
           if (x[key] !== undefined) {
             if (x[key] !== item[key]) {
               setScrolled(false);
@@ -83,25 +83,25 @@ const SMScroller: React.FC<SMScrollerProps> = ({
           }
           return false;
         });
-        setSelectSelectedItems(a);
+        setSelectedItems(a);
 
         return true;
       }
       return false;
     },
-    [equalityKey, selectSelectedItems, setSelectSelectedItems]
+    [equalityKey, selectedItems, setSelectedItems]
   );
 
   const isSelectedItem = useCallback(
     (toTest: any) => {
       const key = equalityKey();
       if (key) {
-        const test = selectSelectedItems.findIndex((item: any) => ObjectUtils.equals(toTest, getOptionValue(item), key));
+        const test = selectedItems.findIndex((item: any) => ObjectUtils.equals(toTest, getOptionValue(item), key));
         return test !== -1;
       }
       return false;
     },
-    [equalityKey, getOptionValue, selectSelectedItems]
+    [equalityKey, getOptionValue, selectedItems]
   );
 
   const findOptionIndexInList = useCallback(
@@ -181,7 +181,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
               onChange={(e) => {
                 if (selectedItemsKey !== undefined && selectedItemsKey !== 'NONE') {
                   if (e.checked) {
-                    setSelectSelectedItems([...selectSelectedItems, item]);
+                    setSelectedItems([...selectedItems, item]);
                   } else {
                     removeSelectedItem(item);
                   }
@@ -204,7 +204,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
         </div>
       );
     },
-    [isSelected, isSelectedItem, itemTemplate, onChange, removeSelectedItem, select, selectSelectedItems, selectedItemsKey, setSelectSelectedItems]
+    [isSelected, isSelectedItem, itemTemplate, onChange, removeSelectedItem, select, selectedItems, selectedItemsKey, setSelectedItems]
   );
 
   return (

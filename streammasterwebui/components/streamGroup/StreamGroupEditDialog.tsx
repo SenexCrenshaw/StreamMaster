@@ -1,7 +1,7 @@
 import { InputText } from 'primereact/inputtext';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
+import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 
 import ProfilesDropDown from '@components/Profiles/ProfilesDropDown';
 import StreamGroupChannelGroupsSelector from '@features/streamGroupEditor/StreamGroupChannelGroupsSelector';

@@ -1,5 +1,5 @@
 import { isCSharpException } from '@lib/apiDefs';
-import { addError } from '@lib/redux/slices/messagesSlice';
+import { addError } from '@lib/redux/hooks/messages';
 
 import store from '@lib/redux/store';
 import { baseHostURL, isDev } from '@lib/settings';

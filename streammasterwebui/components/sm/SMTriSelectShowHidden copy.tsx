@@ -1,13 +1,12 @@
 import SMButton from '@components/sm/SMButton';
 import { useShowHidden } from '@lib/redux/hooks/showHidden';
-
 import { useCallback, useMemo } from 'react';
 
-interface SMTriSelectShowHiddenProperties {
+interface SMTriSelectShowSGProperties {
   readonly dataKey: string;
 }
 
-export const SMTriSelectShowHidden = ({ dataKey }: SMTriSelectShowHiddenProperties) => {
+export const SMTriSelectShowSG = ({ dataKey }: SMTriSelectShowSGProperties) => {
   const { showHidden, setShowHidden } = useShowHidden(dataKey);
 
   const getToolTip = useMemo((): string => {

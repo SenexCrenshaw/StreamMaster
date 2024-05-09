@@ -4,7 +4,7 @@ import { formatJSONDateString, getTopToolOptions } from '@lib/common/common';
 
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import { type CSSProperties, memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState, type CSSProperties } from 'react';
 
 interface StreamingClientsPanelProperties {
   readonly className?: string;
@@ -175,7 +175,7 @@ const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProper
           id="StreamingServerStatusPanel"
           isLoading={getStreamingStatus.isLoading}
           dataKey="clientId"
-          selectedItemsKey="selectSelectedItems"
+          selectedItemsKey="selectedItems"
           style={style}
         />
       </div>

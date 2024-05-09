@@ -1,19 +1,19 @@
-import { useSelectedSMChannel } from '@lib/redux/slices/selectedSMChannel';
-import { useSelectedSMStream } from '@lib/redux/slices/selectedSMStream';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
+import { useSelectedSMChannel } from '@lib/redux/hooks/selectedSMChannel';
+import { useSelectedSMStream } from '@lib/redux/hooks/selectedSMStream';
 
 const useSelectedSMItems = (key?: string) => {
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMChannel(key ?? 'SMChannelDataSelector');
   const { selectedSMStream, setSelectedSMStream } = useSelectedSMStream(key ?? 'SMChannelDataSelector');
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems(key ?? 'SMChannelDataSelector');
+  const { selectedItems, setSelectedItems } = useSelectedItems(key ?? 'SMChannelDataSelector');
 
   return {
     selectedSMChannel,
     selectedSMStream,
-    selectSelectedItems,
+    selectedItems,
     setSelectedSMChannel,
     setSelectedSMStream,
-    setSelectSelectedItems
+    setSelectedItems
   };
 };
 

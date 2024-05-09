@@ -1,8 +1,7 @@
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
-import { useSelectAll } from '@lib/redux/slices/useSelectAll';
-
 import SMButton from '@components/sm/SMButton';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
+import { useSelectAll } from '@lib/redux/hooks/selectAll';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { ToggleSMStreamVisibleByParameters, ToggleSMStreamsVisibleById } from '@lib/smAPI/SMStreams/SMStreamsCommands';
 import { SMStreamDto, ToggleSMStreamVisibleByParametersRequest, ToggleSMStreamsVisibleByIdRequest } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useMemo } from 'react';
@@ -16,7 +15,7 @@ interface StreamMultiVisibleDialogProperties {
 }
 
 const StreamMultiVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, selectedItemsKey }: StreamMultiVisibleDialogProperties) => {
-  const { selectSelectedItems } = useSelectedItems<SMStreamDto>(selectedItemsKey);
+  const { selectedItems } = useSelectedItems<SMStreamDto>(selectedItemsKey);
 
   const { selectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
@@ -25,10 +24,10 @@ const StreamMultiVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, sele
     onClose?.();
   }, [onClose]);
 
-  const getTotalCount = useMemo(() => selectSelectedItems?.length ?? 0, [selectSelectedItems]);
+  const getTotalCount = useMemo(() => selectedItems?.length ?? 0, [selectedItems]);
 
   const onVisiblesClick = useCallback(async () => {
-    if (selectSelectedItems === undefined) {
+    if (selectedItems === undefined) {
       ReturnToParent();
       return;
     }
@@ -52,7 +51,7 @@ const StreamMultiVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, sele
       return;
     }
 
-    if (selectSelectedItems.length === 0) {
+    if (selectedItems.length === 0) {
       ReturnToParent();
 
       return;
@@ -60,7 +59,7 @@ const StreamMultiVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, sele
 
     const request = {} as ToggleSMStreamsVisibleByIdRequest;
 
-    const ids = selectSelectedItems.map((item) => item.Id);
+    const ids = selectedItems.map((item) => item.Id);
     request.Ids = ids;
 
     await ToggleSMStreamsVisibleById(request)
@@ -69,7 +68,7 @@ const StreamMultiVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, sele
         console.error('Set Stream Visibility Error: ', error.message);
         throw error;
       });
-  }, [selectSelectedItems, selectAll, ReturnToParent, queryFilter]);
+  }, [selectedItems, selectAll, ReturnToParent, queryFilter]);
 
   return (
     <SMButton

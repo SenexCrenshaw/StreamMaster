@@ -4,10 +4,10 @@ import MinusButton from '@components/buttons/MinusButton';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { GetMessage } from '@lib/common/common';
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
+import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 
 import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
@@ -27,7 +27,7 @@ interface SMStreamDataForSMChannelSelectorProperties {
 
 const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height, id, name, smChannel }: SMStreamDataForSMChannelSelectorProperties) => {
   const dataKey = `${id}-SMStreamDataForSMChannelSelector`;
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<SMStreamDto>(`${id}-SMStreamDataForSMChannelSelector`);
+  const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(`${id}-SMStreamDataForSMChannelSelector`);
   const { data: smChannelData, isLoading: smChannelIsLoading } = useGetSMChannelStreams({ SMChannelId: smChannel?.Id } as GetSMChannelStreamsRequest);
 
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
@@ -56,7 +56,7 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
       if (smChannel) {
         found = smChannelData?.some((item) => item.Id === data.Id) ?? false;
       } else {
-        found = selectSelectedItems?.some((item) => item.Id === data.Id) ?? false;
+        found = selectedItems?.some((item) => item.Id === data.Id) ?? false;
       }
 
       let toolTip = '';
@@ -88,8 +88,8 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
                       console.error('Remove Stream', error.message);
                     });
                 } else {
-                  const newData = selectSelectedItems?.filter((item) => item.Id !== data.Id);
-                  setSelectSelectedItems(newData);
+                  const newData = selectedItems?.filter((item) => item.Id !== data.Id);
+                  setSelectedItems(newData);
                 }
               }}
               tooltip={toolTip}
@@ -119,7 +119,7 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
                     throw error;
                   });
               } else {
-                setSelectSelectedItems([...(selectSelectedItems ?? []), data]);
+                setSelectedItems([...(selectedItems ?? []), data]);
               }
             }}
             tooltip={toolTip}
@@ -127,7 +127,7 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
         </div>
       );
     },
-    [name, selectSelectedItems, setSelectSelectedItems, smChannel, smChannelData]
+    [name, selectedItems, setSelectedItems, smChannel, smChannelData]
   );
 
   function addOrRemoveHeaderTemplate() {
@@ -147,7 +147,7 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
       if (smChannel) {
         found = smChannelData?.some((item) => item.Id === id) ?? false;
       } else {
-        found = selectSelectedItems?.some((item) => item.Id === id) ?? false;
+        found = selectedItems?.some((item) => item.Id === id) ?? false;
       }
 
       if (found) {
@@ -156,7 +156,7 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
 
       return '';
     },
-    [selectSelectedItems, smChannel, smChannelData]
+    [selectedItems, smChannel, smChannelData]
   );
 
   return (

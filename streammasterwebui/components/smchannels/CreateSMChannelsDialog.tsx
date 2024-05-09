@@ -1,9 +1,9 @@
 import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 
 import OKButton from '@components/buttons/OKButton';
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
-import { useSelectAll } from '@lib/redux/slices/useSelectAll';
+import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
+import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { CreateSMChannelFromStreamParameters, CreateSMChannelFromStreams } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { CreateSMChannelFromStreamParametersRequest, CreateSMChannelFromStreamsRequest, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import React, { useCallback, useMemo } from 'react';
@@ -16,18 +16,18 @@ interface CreateSMChannelsDialogProperties {
 
 const CreateSMChannelsDialog = ({ id, onClose, selectedItemsKey }: CreateSMChannelsDialogProperties) => {
   const dialogRef = React.useRef<SMDialogRef>(null);
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<SMStreamDto>(selectedItemsKey);
+  const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(selectedItemsKey);
 
   const { selectAll, setSelectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
 
-  const getTotalCount = useMemo(() => selectSelectedItems?.length ?? 0, [selectSelectedItems]);
+  const getTotalCount = useMemo(() => selectedItems?.length ?? 0, [selectedItems]);
   const ReturnToParent = useCallback(() => {
     onClose?.();
   }, [onClose]);
 
   const onOkClick = useCallback(async () => {
-    if (selectSelectedItems === undefined) {
+    if (selectedItems === undefined) {
       ReturnToParent();
       return;
     }
@@ -43,7 +43,7 @@ const CreateSMChannelsDialog = ({ id, onClose, selectedItemsKey }: CreateSMChann
 
       await CreateSMChannelFromStreamParameters(request)
         .then(() => {
-          setSelectSelectedItems([]);
+          setSelectedItems([]);
           setSelectAll(false);
         })
         .catch((error) => {
@@ -57,7 +57,7 @@ const CreateSMChannelsDialog = ({ id, onClose, selectedItemsKey }: CreateSMChann
       return;
     }
 
-    if (selectSelectedItems.length === 0) {
+    if (selectedItems.length === 0) {
       ReturnToParent();
 
       return;
@@ -65,12 +65,12 @@ const CreateSMChannelsDialog = ({ id, onClose, selectedItemsKey }: CreateSMChann
 
     const request = {} as CreateSMChannelFromStreamsRequest;
 
-    const ids = selectSelectedItems.map((item) => item.Id);
+    const ids = selectedItems.map((item) => item.Id);
     request.StreamIds = ids;
 
     await CreateSMChannelFromStreams(request)
       .then(() => {
-        setSelectSelectedItems([]);
+        setSelectedItems([]);
       })
       .catch((error) => {
         console.error('Create channels Error: ', error.message);
@@ -79,7 +79,7 @@ const CreateSMChannelsDialog = ({ id, onClose, selectedItemsKey }: CreateSMChann
       .finally(() => {
         dialogRef.current?.close();
       });
-  }, [selectSelectedItems, selectAll, ReturnToParent, queryFilter, setSelectSelectedItems, setSelectAll]);
+  }, [selectedItems, selectAll, ReturnToParent, queryFilter, setSelectedItems, setSelectAll]);
 
   return (
     <SMDialog

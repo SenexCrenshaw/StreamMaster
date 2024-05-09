@@ -7,8 +7,8 @@ import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamVisibleDialog from '@components/smstreams/StreamVisibleDialog';
 import { GetMessage } from '@lib/common/common';
-import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreamsSlice';
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
+import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
+
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 
 import { useSMStreamGroupColumnConfig } from '@components/columns/SMStreams/useSMChannelGroupColumnConfig';
@@ -17,6 +17,7 @@ import SMButton from '@components/sm/SMButton';
 import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import CreateSMChannelsDialog from '@components/smchannels/CreateSMChannelsDialog';
 import StreamMultiVisibleDialog from '@components/smstreams/StreamMultiVisibleDialog';
+import { useSelectedSMStreams } from '@lib/redux/hooks/selectedSMStreams';
 import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
 import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
@@ -47,7 +48,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
   const { data: smChannelStreamsData } = useGetSMChannelStreams({ SMChannelId: selectedSMChannel?.Id } as GetSMChannelStreamsRequest);
 
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
-  const { setSelectedSMStreams } = useSelectSMStreams(dataKey);
+  const { setSelectedSMStreams } = useSelectedSMStreams(dataKey);
   const groupColumnConfig = useSMStreamGroupColumnConfig();
   const smStreamM3UColumnConfig = useSMStreamM3UColumnConfig();
   const { queryFilter } = useQueryFilter(dataKey);

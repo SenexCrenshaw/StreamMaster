@@ -11,7 +11,7 @@ const SMLoader = () => {
   const { messages, ClearMessages } = useSMMessages();
 
   useEffect(() => {
-    if (messages.length === 0) return;
+    if (messages === undefined || !Array.isArray(messages) || messages.length === 0) return;
 
     if (isSystemReady === true) {
       return;

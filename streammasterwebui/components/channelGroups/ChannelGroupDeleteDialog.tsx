@@ -1,9 +1,10 @@
 import { memo, useCallback, useMemo, useState } from 'react';
 
 import { isFetchBaseQueryError } from '@lib/common/common';
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
-import { useSelectAll } from '@lib/redux/slices/useSelectAll';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
+import { useSelectAll } from '@lib/redux/hooks/selectAll';
+
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import XButton from '../buttons/XButton';
 
@@ -24,7 +25,7 @@ const ChannelGroupDeleteDialog = ({ iconFilled, id, onDelete, onHide, value }: C
   const { selectAll, setSelectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
 
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
+  const { selectedItems, setSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
 
   const [channelGroupsDeleteChannelGroupMutation] = useChannelGroupsDeleteChannelGroupMutation();
   const [channelGroupsDeleteAllChannelGroupsFromParametersMutation] = useChannelGroupsDeleteAllChannelGroupsFromParametersMutation();
@@ -71,19 +72,19 @@ const ChannelGroupDeleteDialog = ({ iconFilled, id, onDelete, onHide, value }: C
       await channelGroupsDeleteAllChannelGroupsFromParametersMutation(toSendAll)
         .then(() => {
           setInfoMessage('Deleted Successfully');
-          setSelectSelectedItems([]);
+          setSelectedItems([]);
           setSelectAll(false);
         })
         .catch((error) => {
           setInfoMessage(`Delete Error: ${error.message}`);
-          setSelectSelectedItems([]);
+          setSelectedItems([]);
           setSelectAll(false);
         });
 
       return;
     }
 
-    if ((selectSelectedItems || []).length === 0) {
+    if ((selectedItems || []).length === 0) {
       ReturnToParent();
 
       return;
@@ -92,7 +93,7 @@ const ChannelGroupDeleteDialog = ({ iconFilled, id, onDelete, onHide, value }: C
     const promises = [];
     const groupIds = [] as number[];
 
-    for (const group of selectSelectedItems.filter((a) => a.id !== undefined && !a.isReadOnly)) {
+    for (const group of selectedItems.filter((a) => a.id !== undefined && !a.isReadOnly)) {
       if (group.id === undefined || group.id === undefined) {
         continue;
       }
@@ -120,18 +121,18 @@ const ChannelGroupDeleteDialog = ({ iconFilled, id, onDelete, onHide, value }: C
         onDelete?.(undefined);
       });
 
-    setSelectSelectedItems(selectSelectedItems.filter((a) => !groupIds.includes(a.id ?? 0)));
+    setSelectedItems(selectedItems.filter((a) => !groupIds.includes(a.id ?? 0)));
     setSelectAll(false);
   }, [
     value,
     selectAll,
-    selectSelectedItems,
+    selectedItems,
     setSelectAll,
     channelGroupsDeleteChannelGroupMutation,
     queryFilter,
     channelGroupsDeleteAllChannelGroupsFromParametersMutation,
     ReturnToParent,
-    setSelectSelectedItems,
+    setSelectedItems,
     onDelete
   ]);
 
@@ -140,19 +141,19 @@ const ChannelGroupDeleteDialog = ({ iconFilled, id, onDelete, onHide, value }: C
       return value.isReadOnly;
     }
 
-    if (!selectSelectedItems || selectSelectedItems?.length === 0) {
+    if (!selectedItems || selectedItems?.length === 0) {
       return true;
     }
 
-    return selectSelectedItems[0].isReadOnly;
-  }, [value, selectSelectedItems]);
+    return selectedItems[0].isReadOnly;
+  }, [value, selectedItems]);
 
   const getTotalCount = () => {
     if (selectAll || !value?.isReadOnly) {
       return 1;
     }
 
-    const count = selectSelectedItems?.length ?? 0;
+    const count = selectedItems?.length ?? 0;
     if (count === 1 && isFirstDisabled) {
       return 0;
     }

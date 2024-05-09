@@ -1,6 +1,6 @@
 import SGAddButton from '@components/buttons/SGAddButton';
 import SGRemoveButton from '@components/buttons/SGRemoveButton';
-import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
+import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { AddSMChannelToStreamGroup, RemoveSMChannelFromStreamGroup } from '@lib/smAPI/StreamGroupSMChannelLinks/StreamGroupSMChannelLinksCommands';
 import useGetStreamGroupSMChannels from '@lib/smAPI/StreamGroupSMChannelLinks/useGetStreamGroupSMChannels';
 import { AddSMChannelToStreamGroupRequest, RemoveSMChannelFromStreamGroupRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';

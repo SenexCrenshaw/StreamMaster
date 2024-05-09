@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 
-import { useSelectAll } from '@lib/redux/slices/useSelectAll';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import { useSelectAll } from '@lib/redux/hooks/selectAll';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import VisibleButton from '../buttons/VisibleButton';
 
@@ -16,7 +16,7 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
-  const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
+  const { selectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
   const { selectAll } = useSelectAll(id);
 
   const ReturnToParent = React.useCallback(() => {
@@ -29,7 +29,7 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
   const onVisibleClick = React.useCallback(async () => {
     setBlock(true);
 
-    if (!value && selectSelectedItems.length === 0) {
+    if (!value && selectedItems.length === 0) {
       ReturnToParent();
       return;
     }
@@ -45,9 +45,9 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
         .catch((error) => {
           setInfoMessage(`Channel Group Toggle Visibility Error: ${error.message}`);
         });
-    } else if (selectSelectedItems) {
+    } else if (selectedItems) {
       const toSend = {} as UpdateChannelGroupsRequest;
-      toSend.channelGroupRequests = selectSelectedItems.map(
+      toSend.channelGroupRequests = selectedItems.map(
         (item) =>
           ({
             channelGroupId: item.id,
@@ -62,32 +62,32 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
           setInfoMessage(`Channel Group Toggle Visibility Error: ${error.message}`);
         });
     }
-  }, [ReturnToParent, selectSelectedItems, value]);
+  }, [ReturnToParent, selectedItems, value]);
 
   const isFirstDisabled = useMemo(() => {
     if (value) {
       return value.isReadOnly;
     }
 
-    if (!selectSelectedItems || selectSelectedItems?.length === 0) {
+    if (!selectedItems || selectedItems?.length === 0) {
       return true;
     }
 
-    return selectSelectedItems[0].isReadOnly;
-  }, [value, selectSelectedItems]);
+    return selectedItems[0].isReadOnly;
+  }, [value, selectedItems]);
 
   const getTotalCount = useMemo(() => {
     if (selectAll) {
       return 100;
     }
 
-    const count = selectSelectedItems?.length ?? 0;
+    const count = selectedItems?.length ?? 0;
     if (count === 1 && isFirstDisabled) {
       return 0;
     }
 
     return count;
-  }, [isFirstDisabled, selectAll, selectSelectedItems]);
+  }, [isFirstDisabled, selectAll, selectedItems]);
 
   if (skipOverLayer === true) {
     return <VisibleButton iconFilled={false} onClick={async () => await onVisibleClick()} />;
@@ -112,7 +112,7 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
       <VisibleButton
         disabled={getTotalCount === 0}
         onClick={async () => {
-          if (selectSelectedItems.length > 1) {
+          if (selectedItems.length > 1) {
             setShowOverlay(true);
           } else {
             await onVisibleClick();

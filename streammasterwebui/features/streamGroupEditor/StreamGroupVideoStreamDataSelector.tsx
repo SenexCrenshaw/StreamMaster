@@ -7,7 +7,7 @@ import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import { GetMessage } from '@lib/common/common';
 
-import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
+import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { skipToken } from '@reduxjs/toolkit/dist/query';
 import { type DataTableRowClickEvent } from 'primereact/datatable';
 import { memo, useMemo } from 'react';

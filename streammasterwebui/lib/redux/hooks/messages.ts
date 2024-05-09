@@ -4,22 +4,22 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 const initialState: SMMessage[] = [];
 
 const messagesSlice = createSlice({
-  name: 'messages',
   initialState,
+  name: 'messages',
   reducers: {
-    addMessage: (state, action: PayloadAction<SMMessage>) => {
-      if (action.payload) {
-        state.push(action.payload);
-      }
-    },
     addError: (state, action: PayloadAction<string>) => {
       if (action.payload) {
-        state.push({ Summary: action.payload, Severity: 'error' } as SMMessage);
+        state.push({ Severity: 'error', Summary: action.payload } as SMMessage);
       }
     },
     addErrorWithDetail: (state, action: PayloadAction<SMMessage>) => {
       if (action.payload) {
-        state.push({ Summary: action.payload.Summary, Detail: action.payload.Detail, Severity: 'error' } as SMMessage);
+        state.push({ Detail: action.payload.Detail, Severity: 'error', Summary: action.payload.Summary } as SMMessage);
+      }
+    },
+    addMessage: (state, action: PayloadAction<SMMessage>) => {
+      if (action.payload) {
+        state.push(action.payload);
       }
     },
     clearMessages: (state) => {

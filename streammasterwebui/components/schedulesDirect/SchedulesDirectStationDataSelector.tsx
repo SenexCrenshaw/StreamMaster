@@ -1,7 +1,7 @@
 import { useLineUpColumnConfig } from '@components/columns/useLineUpColumnConfig';
 import { compareStationPreviews, findDifferenceStationIdLineUps } from '@lib/common/common';
 
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 
 import { AddStation, RemoveStation } from '@lib/smAPI/SchedulesDirect/SchedulesDirectMutateAPI';
 import { Toast } from 'primereact/toast';
@@ -12,7 +12,7 @@ import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 const SchedulesDirectStationDataSelector = () => {
   const toast = useRef<Toast>(null);
 
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<StationPreview>('SchedulesDirectSchedulesDataSelector');
+  const { selectedItems, setSelectedItems } = useSelectedItems<StationPreview>('SchedulesDirectSchedulesDataSelector');
 
   const schedulesDirectGetSelectedStationIdsQuery = useSchedulesDirectGetSelectedStationIdsQuery();
   const stationPreviews = useSchedulesDirectGetStationPreviewsQuery();
@@ -37,14 +37,14 @@ const SchedulesDirectStationDataSelector = () => {
       )
       .filter((station) => station !== undefined) as StationPreview[];
 
-    if (findDifferenceStationIdLineUps(sp, selectSelectedItems).length > 0) {
-      setSelectSelectedItems(sp as StationPreview[]);
+    if (findDifferenceStationIdLineUps(sp, selectedItems).length > 0) {
+      setSelectedItems(sp as StationPreview[]);
     }
   }, [
     schedulesDirectGetSelectedStationIdsQuery.data,
     schedulesDirectGetSelectedStationIdsQuery.isLoading,
-    selectSelectedItems,
-    setSelectSelectedItems,
+    selectedItems,
+    setSelectedItems,
     stationPreviews.data
   ]);
 
@@ -93,7 +93,7 @@ const SchedulesDirectStationDataSelector = () => {
             }
           })
           .finally(() => {
-            setSelectSelectedItems([] as StationPreview[]);
+            setSelectedItems([] as StationPreview[]);
             setIsLoading(false);
           });
       }
@@ -130,12 +130,12 @@ const SchedulesDirectStationDataSelector = () => {
             }
           })
           .finally(() => {
-            setSelectSelectedItems([] as StationPreview[]);
+            setSelectedItems([] as StationPreview[]);
             setIsLoading(false);
           });
       }
     },
-    [schedulesDirectGetSelectedStationIdsQuery.data, setSelectSelectedItems]
+    [schedulesDirectGetSelectedStationIdsQuery.data, setSelectedItems]
   );
 
   function imageBodyTemplate(data: StationPreview) {

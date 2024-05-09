@@ -17,9 +17,10 @@ import {
   type DataTableValue
 } from 'primereact/datatable';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { SyntheticEvent, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import generateFilterData from '@components/dataSelector/generateFilterData';
+import SMButton from '@components/sm/SMButton';
 import { SMTriSelectShowSelect } from '@components/sm/SMTriSelectShowSelect';
 import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
@@ -93,7 +94,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         setters.setPagedInformation(undefined);
 
         if (state.selectAll) {
-          setters.setSelectSelectedItems(data);
+          setters.setSelectedItems(data);
         }
       }
 
@@ -105,7 +106,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         setters.setDataSource((data as PagedResponse<T>).Data);
 
         if (state.selectAll && data !== undefined) {
-          setters.setSelectSelectedItems((data as PagedResponse<T>).Data as T[]);
+          setters.setSelectedItems((data as PagedResponse<T>).Data as T[]);
         }
       }
 
@@ -151,7 +152,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     (e: T | T[], overRideSelectAll?: boolean): T | T[] | undefined => {
       let selected: T[] = Array.isArray(e) ? e : [e];
 
-      if (state.selectSelectedItems === selected) {
+      if (state.selectedItems === selected) {
         return;
       }
 
@@ -159,7 +160,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         selected = selected.slice(0, 1);
       }
 
-      setters.setSelectSelectedItems(selected);
+      setters.setSelectedItems(selected);
       const all = overRideSelectAll || state.selectAll;
 
       if (props.onSelectionChange) {
@@ -168,7 +169,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 
       return e;
     },
-    [state.selectSelectedItems, state.selectAll, props, setters]
+    [state.selectedItems, state.selectAll, props, setters]
   );
 
   const onSelectionChange = useCallback(
@@ -230,18 +231,18 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       }
 
       if (state.showSelections === true) {
-        return state.selectSelectedItems;
+        return state.selectedItems;
       }
 
-      if (!state.selectSelectedItems) {
+      if (!state.selectedItems) {
         return [] as T[];
       }
 
-      const returnValue = inputData.filter((d) => !state.selectSelectedItems?.some((s) => s.id === d.id));
+      const returnValue = inputData.filter((d) => !state.selectedItems?.some((s) => s.id === d.id));
 
       return returnValue;
     },
-    [props.showSelections, state.selectSelectedItems, state.showSelections]
+    [props.showSelections, state.selectedItems, state.showSelections]
   );
 
   useEffect(() => {
@@ -281,16 +282,16 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         return 'bg-red-900';
       }
 
-      if (props.selectRow === true && state.selectSelectedItems !== undefined) {
+      if (props.selectRow === true && state.selectedItems !== undefined) {
         const id = getRecord(data, 'Id') as number;
-        if (state.selectSelectedItems.some((item) => item.Id === id)) {
+        if (state.selectedItems.some((item) => item.Id === id)) {
           return 'bg-orange-900';
         }
       }
 
       return '';
     },
-    [props.selectRow, state.selectSelectedItems]
+    [props.selectRow, state.selectedItems]
   );
 
   const onColumnToggle = useCallback(
@@ -370,7 +371,15 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       }
 
       if (col.fieldType === 'sg') {
-        return <i className="flex justify-content-center align-content-center pi pi-list-check" style={{ fontSize: '1rem' }}></i>;
+        return (
+          <SMButton
+            iconFilled={false}
+            icon="pi-list-check"
+            onClick={function (e: SyntheticEvent<Element, Event>): void {
+              console.log('clicked');
+            }}
+          />
+        );
       }
 
       let prefix = 'sm-col-header-';
@@ -495,57 +504,57 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 
   const addSelection = useCallback(
     (data: T) => {
-      const newSelectedItems = [...state.selectSelectedItems, data];
-      setters.setSelectSelectedItems(newSelectedItems);
+      const newSelectedItems = [...state.selectedItems, data];
+      setters.setSelectedItems(newSelectedItems);
     },
-    [setters, state.selectSelectedItems]
+    [setters, state.selectedItems]
   );
 
   const removeSelection = useCallback(
     (data: T) => {
-      const newSelectedItems = state.selectSelectedItems.filter((predicate) => predicate.Id !== data.Id);
+      const newSelectedItems = state.selectedItems.filter((predicate) => predicate.Id !== data.Id);
       if (state.selectAll) {
         setters.setSelectAll(false);
       }
-      setters.setSelectSelectedItems(newSelectedItems);
+      setters.setSelectedItems(newSelectedItems);
     },
-    [setters, state.selectAll, state.selectSelectedItems]
+    [setters, state.selectAll, state.selectedItems]
   );
 
   const selectAllStatus = useMemo(() => {
-    let checked = state.selectAll ? true : state.selectSelectedItems.length > 0 ? false : null;
+    let checked = state.selectAll ? true : state.selectedItems.length > 0 ? false : null;
 
     return checked;
-  }, [state.selectAll, state.selectSelectedItems.length]);
+  }, [state.selectAll, state.selectedItems.length]);
 
   function toggleAllSelection() {
     if (state.selectAll) {
       setters.setSelectAll(false);
-      setters.setSelectSelectedItems([]);
+      setters.setSelectedItems([]);
       return;
     }
 
     if (selectAllStatus === null) {
       setters.setSelectAll(true);
-      setters.setSelectSelectedItems(state.dataSource ?? []);
+      setters.setSelectedItems(state.dataSource ?? []);
       return;
     }
 
     if (selectAllStatus === true) {
       setters.setSelectAll(false);
-      setters.setSelectSelectedItems([]);
+      setters.setSelectedItems([]);
       return;
     }
 
     setters.setSelectAll(false);
-    setters.setSelectSelectedItems([]);
+    setters.setSelectedItems([]);
   }
 
   function selectionHeaderTemplate() {
     // const isSelected = false;
     // let tooltip = 'All Selected';
     // if (!state.selectAll) {
-    //   tooltip = state.selectSelectedItems.length + ' Items';
+    //   tooltip = state.selectedItems.length + ' Items';
     // }
 
     // if (!isSelected) {
@@ -570,7 +579,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         return <div />;
       }
 
-      const found = state.selectSelectedItems.some((item) => item.Id === data.Id);
+      const found = state.selectedItems.some((item) => item.Id === data.Id);
       const isSelected = found ?? false;
 
       if (isSelected) {
@@ -587,7 +596,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         </div>
       );
     },
-    [addSelection, removeSelection, showSelection, state.selectSelectedItems]
+    [addSelection, removeSelection, showSelection, state.selectedItems]
   );
 
   const isLazy = useMemo(() => {

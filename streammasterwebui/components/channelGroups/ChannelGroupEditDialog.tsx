@@ -2,7 +2,7 @@ import { GetMessage, isFetchBaseQueryError } from '@lib/common/common';
 
 import { memo, useCallback, useEffect, useState } from 'react';
 
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import EditButton from '../buttons/EditButton';
@@ -21,7 +21,7 @@ const ChannelGroupEditDialog = ({ id, onClose, value }: ChannelGroupEditDialogPr
   const [newGroupName, setNewGroupName] = useState('');
 
   const [channelGroupDto, setChannelGroupDto] = useState<ChannelGroupDto>();
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
+  const { selectedItems, setSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
 
   const ReturnToParent = useCallback(() => {
     setShowOverlay(false);
@@ -42,10 +42,10 @@ const ChannelGroupEditDialog = ({ id, onClose, value }: ChannelGroupEditDialogPr
       return;
     }
 
-    if (selectSelectedItems && selectSelectedItems.length > 0) {
-      setNewGroupName(selectSelectedItems[0].name);
+    if (selectedItems && selectedItems.length > 0) {
+      setNewGroupName(selectedItems[0].name);
     }
-  }, [channelGroupDto, selectSelectedItems]);
+  }, [channelGroupDto, selectedItems]);
 
   const changeGroupName = useCallback(() => {
     if (!newGroupName || !value) {
@@ -62,11 +62,11 @@ const ChannelGroupEditDialog = ({ id, onClose, value }: ChannelGroupEditDialogPr
 
     UpdateChannelGroup(toSend)
       .then(() => {
-        console.log(selectSelectedItems);
+        console.log(selectedItems);
 
-        const updatedSelectSelectedItems = selectSelectedItems.map((item) => (item.id === value.id ? { ...item, name: newGroupName } : item));
-        if (updatedSelectSelectedItems) {
-          setSelectSelectedItems(updatedSelectSelectedItems);
+        const updatedselectedItems = selectedItems.map((item) => (item.id === value.id ? { ...item, name: newGroupName } : item));
+        if (updatedselectedItems) {
+          setSelectedItems(updatedselectedItems);
         }
         setInfoMessage('Channel Group Edit Successfully');
       })
@@ -75,7 +75,7 @@ const ChannelGroupEditDialog = ({ id, onClose, value }: ChannelGroupEditDialogPr
           setInfoMessage(`Delete Error: ${error.status}`);
         }
       });
-  }, [ReturnToParent, newGroupName, selectSelectedItems, setSelectSelectedItems, value]);
+  }, [ReturnToParent, newGroupName, selectedItems, setSelectedItems, value]);
 
   return (
     <>

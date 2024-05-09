@@ -1,6 +1,6 @@
 import XButton from '@components/buttons/XButton';
 
-import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
+import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { memo } from 'react';
 
 interface VideoStreamRemoveFromStreamGroupDialogProperties {

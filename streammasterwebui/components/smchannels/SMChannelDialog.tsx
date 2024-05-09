@@ -7,7 +7,7 @@ import StringEditor from '@components/inputs/StringEditor';
 import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationChannelNames';
 import { CreateSMChannelRequest, SMChannelDto, SMStreamDto, StationChannelName } from '@lib/smAPI/smapiTypes';
 
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import SMChannelSMStreamDialog from './SMChannelSMStreamDialog';
 import StreamingProxyTypeSelector from './StreamingProxyTypeSelector';
@@ -19,7 +19,7 @@ interface SMChannelDialogProperties {
 
 const SMChannelDialog = ({ smChannel, onSave }: SMChannelDialogProperties) => {
   const dataKey = 'SMChannelSMStreamDialog-SMStreamDataForSMChannelSelector';
-  const { selectSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
+  const { selectedItems } = useSelectedItems<SMStreamDto>(dataKey);
 
   const query = useGetStationChannelNames();
   const [request, setRequest] = React.useState<CreateSMChannelRequest>({} as CreateSMChannelRequest);
@@ -36,11 +36,11 @@ const SMChannelDialog = ({ smChannel, onSave }: SMChannelDialogProperties) => {
   }, [request.Logo, request.Name, smChannel]);
 
   const doSave = React.useCallback(() => {
-    if (selectSelectedItems.length > 0) {
-      request.SMStreamsIds = selectSelectedItems.map((e) => e.Id);
+    if (selectedItems.length > 0) {
+      request.SMStreamsIds = selectedItems.map((e) => e.Id);
     }
     onSave(request);
-  }, [onSave, request, selectSelectedItems]);
+  }, [onSave, request, selectedItems]);
 
   const setName = useCallback(
     (value: string) => {

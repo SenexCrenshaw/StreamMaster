@@ -46,7 +46,7 @@ const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSe
         id={id}
         isLoading={getLineUpsQuery.isLoading}
         selectionMode="single"
-        selectedItemsKey="sdEditorSelectSelectedItems"
+        selectedItemsKey="sdEditorselectedItems"
         style={{ height: 'calc(100vh - 120px)' }}
       />
       {/* <SchedulesDirectLineUpPreviewDataSelector lineUps={getLineUpsQuery.data?.lineups} /> */}

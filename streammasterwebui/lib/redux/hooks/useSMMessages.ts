@@ -1,6 +1,6 @@
 import { SMMessage } from '@lib/smAPI/smapiTypes';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { addMessage, clearMessages } from '../slices/messagesSlice';
+import { addMessage, clearMessages } from './messages';
 
 interface SMMessageResult {
   messages: SMMessage[];
@@ -21,5 +21,5 @@ export const useSMMessages = (): SMMessageResult => {
     dispatch(clearMessages());
   };
 
-  return { messages, AddMessage, ClearMessages };
+  return { AddMessage, ClearMessages, messages };
 };

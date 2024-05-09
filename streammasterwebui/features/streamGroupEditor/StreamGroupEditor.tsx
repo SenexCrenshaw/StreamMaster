@@ -1,6 +1,6 @@
 import StandardHeader from '@components/StandardHeader';
 import { StreamGroupEditorIcon } from '@lib/common/icons';
-import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
+import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { BlockUI } from 'primereact/blockui';
 import { memo } from 'react';
 import StreamGroupDataSelector from '../../components/streamGroup/StreamGroupDataSelector';

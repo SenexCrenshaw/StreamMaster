@@ -1,10 +1,11 @@
 import { SMDataTableFilterMetaData, addOrUpdateValueForField, hasValidAdditionalProps, isEmptyObject } from '@lib/common/common';
 
 import { GetApiArgument, areGetApiArgsEqual } from '@lib/apiDefs';
+import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
+import { useShowHidden } from '@lib/redux/hooks/showHidden';
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
-import { useShowHidden } from '@lib/redux/slices/useShowHidden';
-import { useSortInfo } from '@lib/redux/slices/useSortInfo';
+
+import { useSortInfo } from '@lib/redux/hooks/sortInfo';
 import { ChannelGroupDto, EPGFileDto } from '@lib/smAPI/smapiTypes';
 import { FilterMatchMode } from 'primereact/api';
 import { DataTableFilterMeta } from 'primereact/datatable';

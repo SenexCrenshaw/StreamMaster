@@ -10,7 +10,7 @@ export const MessageProcessor = ({ children }: React.PropsWithChildren): JSX.Ele
   const { messages, ClearMessages } = useSMMessages();
 
   useEffect(() => {
-    if (messages.length === 0) return;
+    if (messages === undefined || !Array.isArray(messages) || messages.length === 0) return;
     if (isSystemReady === undefined || isSystemReady === false) {
       return;
       //ClearMessages();

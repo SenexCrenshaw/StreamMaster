@@ -97,7 +97,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
     (e: T | T[], overRideSelectAll?: boolean): T | T[] | undefined => {
       let selected: T[] = Array.isArray(e) ? e : [e];
 
-      if (state.selectSelectedItems === selected) {
+      if (state.selectedItems === selected) {
         return;
       }
 
@@ -105,7 +105,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
         selected = selected.slice(0, 1);
       }
 
-      setters.setSelectSelectedItems(selected);
+      setters.setSelectedItems(selected);
       const all = overRideSelectAll || state.selectAll;
 
       if (props.onSelectionChange) {
@@ -115,7 +115,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
 
       return e;
     },
-    [state.selectSelectedItems, state.selectAll, props, setters]
+    [state.selectedItems, state.selectAll, props, setters]
   );
 
   useEffect(() => {
@@ -130,7 +130,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
           console.log('data', (data as PagedResponseDto<T>).data);
         }
         if (state.selectAll && data !== undefined) {
-          setters.setSelectSelectedItems((data as PagedResponseDto<T>).data as T[]);
+          setters.setSelectedItems((data as PagedResponseDto<T>).data as T[]);
         }
       }
 
@@ -428,7 +428,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
 
     setters.setSelectAll(newSelectAll);
     if (newSelectAll === true) {
-      setters.setSelectSelectedItems([]);
+      setters.setSelectedItems([]);
     }
 
     if (newSelectAll && state.dataSource) {
@@ -574,19 +574,19 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
 
   const addSelection = useCallback(
     (data: T) => {
-      const newSelectedItems = [...state.selectSelectedItems, data];
-      setters.setSelectSelectedItems(newSelectedItems);
+      const newSelectedItems = [...state.selectedItems, data];
+      setters.setSelectedItems(newSelectedItems);
     },
-    [setters, state.selectSelectedItems]
+    [setters, state.selectedItems]
   );
 
   function toggleAllSelection() {
     if (state.selectAll) {
       setters.setSelectAll(false);
-      setters.setSelectSelectedItems([]);
+      setters.setSelectedItems([]);
     } else {
       setters.setSelectAll(true);
-      setters.setSelectSelectedItems(state.dataSource ?? []);
+      setters.setSelectedItems(state.dataSource ?? []);
     }
   }
 
@@ -596,7 +596,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
 
   const addOrRemoveTemplate = useCallback(
     (data: T) => {
-      const found = state.selectSelectedItems.some((item) => item.id === data.id);
+      const found = state.selectedItems.some((item) => item.id === data.id);
       const isSelected = found ?? false;
       let toolTip = 'Add Channel';
       if (state.selectedSMChannel !== undefined) {
@@ -622,7 +622,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
         </div>
       );
     },
-    [addSelection, props, showSelection, state.selectSelectedItems, state.selectedSMChannel]
+    [addSelection, props, showSelection, state.selectedItems, state.selectedSMChannel]
   );
 
   function addOrRemoveHeaderTemplate() {
@@ -758,7 +758,7 @@ const DataSelector2 = <T extends DataTableValue>(props: DataSelector2Props<T>) =
           scrollHeight="flex"
           scrollable
           selectAll={props.disableSelectAll === true ? undefined : state.selectAll}
-          selection={state.selectSelectedItems}
+          selection={state.selectedItems}
           selectionMode={getSelectionMultipleMode}
           showGridlines
           showHeaders={props.showHeaders}

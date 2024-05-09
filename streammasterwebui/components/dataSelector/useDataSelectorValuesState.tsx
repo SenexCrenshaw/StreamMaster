@@ -4,13 +4,13 @@ import { useState } from 'react';
 
 import { AdditionalFilterProperties } from '@lib/common/common';
 
+import { useSelectAll } from '@lib/redux/hooks/selectAll';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
+import { useShowHidden } from '@lib/redux/hooks/showHidden';
+import { useShowSelections } from '@lib/redux/hooks/showSelections';
+import { useSortInfo } from '@lib/redux/hooks/sortInfo';
 import { useSelectedSMChannel } from '@lib/redux/slices/selectedSMChannel';
 import { useSelectedSMStream } from '@lib/redux/slices/selectedSMStream';
-import { useSelectAll } from '@lib/redux/slices/useSelectAll';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
-import { useShowHidden } from '@lib/redux/slices/useShowHidden';
-import { useShowSelections } from '@lib/redux/slices/useShowSelections';
-import { useSortInfo } from '@lib/redux/slices/useSortInfo';
 
 import { ColumnMeta, PagedTableInformation } from './DataSelectorTypes';
 
@@ -24,7 +24,7 @@ const useDataSelectorValuesState = <T extends DataTableValue>(
   const { selectAll, setSelectAll } = useSelectAll(id);
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMChannel(channelDataSelectorKey);
   const { selectedSMStream, setSelectedSMStream } = useSelectedSMStream(selectedSMStreamKey);
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<T>(selectedItemsKey);
+  const { selectedItems, setSelectedItems } = useSelectedItems<T>(selectedItemsKey);
   const { showHidden } = useShowHidden(id);
   const { showSelections, setShowSelections } = useShowSelections(id);
 
@@ -66,7 +66,7 @@ const useDataSelectorValuesState = <T extends DataTableValue>(
       setRowClick,
       setRows,
       setSelectAll,
-      setSelectSelectedItems,
+      setSelectedItems,
       setShowSelections,
       setSortField,
       setSortOrder,
@@ -86,7 +86,7 @@ const useDataSelectorValuesState = <T extends DataTableValue>(
       rowClick,
       rows,
       selectAll,
-      selectSelectedItems,
+      selectedItems,
       selectedSMChannel,
       showHidden,
       showSelections,

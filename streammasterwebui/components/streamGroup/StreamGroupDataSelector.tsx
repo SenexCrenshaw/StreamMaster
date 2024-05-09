@@ -1,8 +1,8 @@
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import StreamGroupDeleteDialog from '@components/streamGroup/StreamGroupDeleteDialog';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
-import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
+import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import useGetPagedStreamGroups from '@lib/smAPI/StreamGroups/useGetPagedStreamGroups';
 import { StreamGroupDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent } from 'primereact/datatable';
@@ -15,7 +15,7 @@ export interface StreamGroupDataSelectorProperties {
 const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
   const { selectedStreamGroup, setSelectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
   const { isLoading } = useGetPagedStreamGroups();
-  const { setSelectSelectedItems } = useSelectedItems('selectedStreamGroup');
+  const { setSelectedItems } = useSelectedItems('selectedStreamGroup');
 
   const actionTemplate = useCallback((rowData: StreamGroupDto) => {
     if (rowData.IsReadOnly === true) {
@@ -85,10 +85,10 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
         if (e.data.Id !== selectedStreamGroup?.Id) {
           console.log('StreamGroupDataSelector', e.data);
           setSelectedStreamGroup(e.data as StreamGroupDto);
-          setSelectSelectedItems([e.data as StreamGroupDto]);
+          setSelectedItems([e.data as StreamGroupDto]);
         } else {
           setSelectedStreamGroup(undefined);
-          setSelectSelectedItems([]);
+          setSelectedItems([]);
         }
       }}
     />

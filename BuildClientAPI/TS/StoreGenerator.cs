@@ -29,7 +29,11 @@ public static class StoreGenerator
         "showHidden",
         "showSelections",
         "sortInfo",
-        "selectedSMStreams"
+        "selectedSMStreams",
+        "selectedSMChannel",
+        "queryFilter",
+        "selectedSMStream",
+        "messages"
     };
 
     private static string GenerateConfigs()
@@ -52,11 +56,7 @@ public static class StoreGenerator
         StringBuilder content = new();
         Dictionary<string, string> reducers = new()
         {
-            { "queryAdditionalFilters", "  queryAdditionalFilters: queryFilterReducer" },
-            { "queryFilter", "  queryFilter: queryFilterReducer" },
-            { "messages", "  messages: SMMessagesReducer" },
-            { "SMChannelReducer", "  SMChannelReducer: SMChannelReducer" },
-            { "SMStreamReducer", "  SMStreamReducer: SMStreamReducer" },
+            { "queryAdditionalFilters", "  queryAdditionalFilters: queryFilter" },
         };
 
 
@@ -86,12 +86,7 @@ public static class StoreGenerator
     private static string AddImports(List<MethodDetails> methods)
     {
         StringBuilder content = new();
-        Dictionary<string, string> imports = new()
-        {
-            {"SMMessagesReducer", "import SMMessagesReducer from '@lib/redux/slices/messagesSlice';" },
-            {"SMChannelReducer", "import SMChannelReducer from '@lib/redux/slices/selectedSMChannel';" },
-            {"SMStreamReducer","import SMStreamReducer from '@lib/redux/slices/selectedSMStream';" }
-        };
+        Dictionary<string, string> imports = [];
 
         content.AppendLine("import { combineReducers } from 'redux';");
 
@@ -102,7 +97,7 @@ public static class StoreGenerator
 
         foreach (var persist in Persists)
         {
-            imports[persist] = $"import {persist} from '@lib/redux/slices/{persist}Slice';";
+            imports[persist] = $"import {persist} from '@lib/redux/hooks/{persist}';";
         }
 
 
@@ -111,7 +106,6 @@ public static class StoreGenerator
             content.AppendLine(imports[key]);
         }
 
-        content.AppendLine("import queryFilterReducer from '@lib/redux/slices/queryFilterSlice';");
         content.AppendLine("import { persistReducer } from 'redux-persist';");
         content.AppendLine("import storage from 'redux-persist/lib/storage';");
 

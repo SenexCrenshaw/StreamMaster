@@ -1,4 +1,4 @@
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
+import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import useSettings from '@lib/useSettings';
 import { areArraysEqual } from '@mui/base';
 import { skipToken } from '@reduxjs/toolkit/dist/query/react';
@@ -81,7 +81,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
     (e: T | T[], overRideSelectAll?: boolean): T | T[] | undefined => {
       let selected: T[] = Array.isArray(e) ? e : [e];
 
-      if (state.selectSelectedItems === selected) {
+      if (state.selectedItems === selected) {
         return;
       }
 
@@ -89,7 +89,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
         selected = selected.slice(0, 1);
       }
 
-      setters.setSelectSelectedItems(selected);
+      setters.setSelectedItems(selected);
       const all = overRideSelectAll || state.selectAll;
 
       if (props.onSelectionChange) {
@@ -99,7 +99,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
 
       return e;
     },
-    [state.selectSelectedItems, state.selectAll, props, setters]
+    [state.selectedItems, state.selectAll, props, setters]
   );
 
   const selectedData = useCallback(
@@ -113,18 +113,18 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
       }
 
       if (state.showSelections === true) {
-        return state.selectSelectedItems;
+        return state.selectedItems;
       }
 
-      if (!state.selectSelectedItems) {
+      if (!state.selectedItems) {
         return [] as T[];
       }
 
-      const returnValue = inputData.filter((d) => !state.selectSelectedItems?.some((s) => s.id === d.id));
+      const returnValue = inputData.filter((d) => !state.selectedItems?.some((s) => s.id === d.id));
 
       return returnValue;
     },
-    [props.showSelections, state.selectSelectedItems, state.showSelections]
+    [props.showSelections, state.selectedItems, state.showSelections]
   );
 
   useEffect(() => {
@@ -138,7 +138,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
         setters.setPagedInformation(undefined);
 
         if (state.selectAll) {
-          setters.setSelectSelectedItems(data);
+          setters.setSelectedItems(data);
         }
       }
 
@@ -150,7 +150,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
         setters.setDataSource((data as PagedResponseDto<T>).data);
 
         if (state.selectAll && data !== undefined) {
-          setters.setSelectSelectedItems((data as PagedResponseDto<T>).data as T[]);
+          setters.setSelectedItems((data as PagedResponseDto<T>).data as T[]);
         }
       }
 
@@ -442,15 +442,15 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
       <div className="text-xs text-white text-500">
         <BanButton
           className="banbutton"
-          disabled={(state.selectSelectedItems || []).length === 0}
+          disabled={(state.selectedItems || []).length === 0}
           onClick={() => {
-            setters.setSelectSelectedItems([]);
+            setters.setSelectedItems([]);
             setters.setSelectAll(false);
             if (props.onSelectionChange) {
               props.onSelectionChange([], state.selectAll);
             }
           }}
-          tooltip={`Clear ${(state.selectSelectedItems || []).length} Selections`}
+          tooltip={`Clear ${(state.selectedItems || []).length} Selections`}
         />
       </div>
     );
@@ -512,7 +512,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
     if (props.selectedItemsKey === 'selectSelectedVideoStreamDtoItems') {
       // console.log(props.selectedItemsKey);
       // console.log(props.selectedItemsKey);
-      // setters.setSelectSelectedItems([]);
+      // setters.setSelectedItems([]);
     }
 
     setters.setFilters(newFilters);
@@ -523,7 +523,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
 
     setters.setSelectAll(newSelectAll);
     if (newSelectAll === true) {
-      setters.setSelectSelectedItems([]);
+      setters.setSelectedItems([]);
     }
     // props.onSelectAllChange?.(newSelectAll);
 
@@ -583,7 +583,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
           scrollHeight="flex"
           scrollable
           selectAll={props.disableSelectAll === true ? undefined : state.selectAll}
-          selection={state.selectSelectedItems}
+          selection={state.selectedItems}
           selectionMode={getSelectionMultipleMode}
           showGridlines
           showHeaders={props.showHeaders}

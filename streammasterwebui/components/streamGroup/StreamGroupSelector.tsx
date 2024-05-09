@@ -4,7 +4,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { useMemo } from 'react';
 
 interface StreamGroupSelectorProperties {
-  readonly selectedStreamGroup: StreamGroupDto;
+  readonly selectedStreamGroup: StreamGroupDto | undefined;
   readonly onChange: (value: StreamGroupDto) => void;
 }
 

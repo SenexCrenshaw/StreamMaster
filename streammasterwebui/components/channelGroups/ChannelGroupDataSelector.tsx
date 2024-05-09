@@ -6,7 +6,8 @@ import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 
-import { useShowHidden } from '@lib/redux/slices/useShowHidden';
+import { useShowHidden } from '@lib/redux/hooks/showHidden';
+import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useEffect, useMemo } from 'react';
 
 export interface ChannelGroupDataSelectorProperties {

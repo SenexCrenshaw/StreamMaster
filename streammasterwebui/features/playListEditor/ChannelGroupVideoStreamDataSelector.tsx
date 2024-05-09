@@ -22,8 +22,8 @@ import VideoStreamSetTimeShiftsDialog from '@components/videoStream/VideoStreamS
 import VideoStreamVisibleDialog from '@components/videoStream/VideoStreamVisibleDialog';
 import { GetMessage, arraysContainSameStrings } from '@lib/common/common';
 
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
 import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
@@ -38,7 +38,7 @@ interface ChannelGroupVideoStreamDataSelectorProperties {
 const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: ChannelGroupVideoStreamDataSelectorProperties) => {
   const dataKey = `${id}-ChannelGroupVideoStreamDataSelector`;
 
-  const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
+  const { selectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
 
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit });
@@ -47,7 +47,7 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit, useFilter: false });
   const { columnConfig: videoStreamLogoColumnConfig } = useVideoStreamLogoColumnConfig({ enableEdit });
 
-  const channelGroupNames = useMemo(() => selectSelectedItems.map((channelGroup) => channelGroup.name), [selectSelectedItems]);
+  const channelGroupNames = useMemo(() => selectedItems.map((channelGroup) => channelGroup.name), [selectedItems]);
   const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig({ enableEdit });
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
   const { setSelectedVideoStreams } = useSelectedVideoStreams(dataKey);

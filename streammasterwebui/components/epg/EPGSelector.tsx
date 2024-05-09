@@ -1,7 +1,7 @@
 import AddButton from '@components/buttons/AddButton';
 import StringEditor from '@components/inputs/StringEditor';
 import { SMOverlay } from '@components/sm/SMOverlay';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';
 import useGetEPGFiles from '@lib/smAPI/EPGFiles/useGetEPGFiles';
@@ -25,7 +25,7 @@ type EPGSelectorProperties = {
 };
 
 const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChange }: EPGSelectorProperties) => {
-  const { selectSelectedItems } = useSelectedItems<EPGFileDto>('EPGSelector-EPGFiles');
+  const { selectedItems } = useSelectedItems<EPGFileDto>('EPGSelector-EPGFiles');
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
   const [input, setInput] = useState<string | undefined>(undefined);
@@ -88,8 +88,8 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
       return undefined;
     }
 
-    if (selectSelectedItems && selectSelectedItems.length > 0) {
-      const epgNumbers = selectSelectedItems.map((x) => x.EPGNumber);
+    if (selectedItems && selectedItems.length > 0) {
+      const epgNumbers = selectedItems.map((x) => x.EPGNumber);
 
       const r = query.data.filter((x) => {
         var test = extractEPGNumberAndStationId(x.Channel);
@@ -99,7 +99,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
       return r;
     }
     return query.data;
-  }, [extractEPGNumberAndStationId, query.data, selectSelectedItems]);
+  }, [extractEPGNumberAndStationId, query.data, selectedItems]);
 
   useEffect(() => {
     if (checkValue === undefined && !query.isError && input) {

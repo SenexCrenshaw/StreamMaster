@@ -1,5 +1,5 @@
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
-import { useSelectAll } from '@lib/redux/slices/useSelectAll';
+import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
+import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
 
 import NumberEditor from '@components/inputs/NumberEditor';

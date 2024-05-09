@@ -1,13 +1,14 @@
 import { SMOverlay } from '@components/sm/SMOverlay';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
-import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
+
+import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { memo } from 'react';
 import StreamGroupCreateDialog from './StreamGroupCreateDialog';
 import StreamGroupDataSelector from './StreamGroupDataSelector';
 import { StreamGroupSelector } from './StreamGroupSelector';
 
 const StreamGroupButton = () => {
-  const { setSelectSelectedItems } = useSelectedItems('selectedStreamGroup');
+  const { setSelectedItems } = useSelectedItems('selectedStreamGroup');
   const { selectedStreamGroup, setSelectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
 
   return (
@@ -15,7 +16,7 @@ const StreamGroupButton = () => {
       <StreamGroupSelector
         onChange={(sg) => {
           setSelectedStreamGroup(sg);
-          setSelectSelectedItems([sg]);
+          setSelectedItems([sg]);
         }}
         selectedStreamGroup={selectedStreamGroup}
       />

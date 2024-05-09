@@ -5,7 +5,6 @@ import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamVisibleDialog from '@components/smstreams/StreamVisibleDialog';
 import { GetMessage } from '@lib/common/common';
-import { useSelectSMStreams } from '@lib/redux/slices/selectedSMStreamsSlice';
 
 import { useSMStreamGroupColumnConfig } from '@components/columns/SMStreams/useSMChannelGroupColumnConfig';
 import { useSMStreamM3UColumnConfig } from '@components/columns/SMStreams/useSMStreamM3UColumnConfig';

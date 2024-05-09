@@ -84,7 +84,7 @@ const SchedulesDirectHeadendDataSelector = () => {
           const data: HeadendDto = e.data;
           setLineupToPreview(data.lineup);
         }}
-        selectedItemsKey="selectSelectedItems"
+        selectedItemsKey="selectedItems"
         style={{ height: 'calc(100vh - 120px)' }}
       />
     </div>

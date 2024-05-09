@@ -21,22 +21,30 @@ import GetStationChannelNames from '@lib/smAPI/SchedulesDirect/GetStationChannel
 import GetStreamGroups from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice';
 import GetStreamGroupSMChannels from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
 import GetSystemStatus from '@lib/smAPI/Settings/GetSystemStatusSlice';
-import selectAll from '@lib/redux/slices/selectAllSlice';
-import selectedCountry from '@lib/redux/slices/selectedCountrySlice';
-import selectedItems from '@lib/redux/slices/selectedItemsSlice';
-import selectedPostalCode from '@lib/redux/slices/selectedPostalCodeSlice';
-import selectedSMStreams from '@lib/redux/slices/selectedSMStreamsSlice';
-import selectedStreamGroup from '@lib/redux/slices/selectedStreamGroupSlice';
-import showHidden from '@lib/redux/slices/showHiddenSlice';
-import showSelections from '@lib/redux/slices/showSelectionsSlice';
-import SMChannelReducer from '@lib/redux/slices/selectedSMChannel';
-import SMMessagesReducer from '@lib/redux/slices/messagesSlice';
-import SMStreamReducer from '@lib/redux/slices/selectedSMStream';
-import sortInfo from '@lib/redux/slices/sortInfoSlice';
-import queryFilterReducer from '@lib/redux/slices/queryFilterSlice';
+import messages from '@lib/redux/hooks/messages';
+import queryFilter from '@lib/redux/hooks/queryFilter';
+import selectAll from '@lib/redux/hooks/selectAll';
+import selectedCountry from '@lib/redux/hooks/selectedCountry';
+import selectedItems from '@lib/redux/hooks/selectedItems';
+import selectedPostalCode from '@lib/redux/hooks/selectedPostalCode';
+import selectedSMChannel from '@lib/redux/hooks/selectedSMChannel';
+import selectedSMStream from '@lib/redux/hooks/selectedSMStream';
+import selectedSMStreams from '@lib/redux/hooks/selectedSMStreams';
+import selectedStreamGroup from '@lib/redux/hooks/selectedStreamGroup';
+import showHidden from '@lib/redux/hooks/showHidden';
+import showSelections from '@lib/redux/hooks/showSelections';
+import sortInfo from '@lib/redux/hooks/sortInfo';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
+const messagesConfig = {
+  key: 'messages',
+  storage
+};
+const queryFilterConfig = {
+  key: 'queryFilter',
+  storage
+};
 const selectAllConfig = {
   key: 'selectAll',
   storage
@@ -51,6 +59,14 @@ const selectedItemsConfig = {
 };
 const selectedPostalCodeConfig = {
   key: 'selectedPostalCode',
+  storage
+};
+const selectedSMChannelConfig = {
+  key: 'selectedSMChannel',
+  storage
+};
+const selectedSMStreamConfig = {
+  key: 'selectedSMStream',
   storage
 };
 const selectedSMStreamsConfig = {
@@ -96,19 +112,19 @@ export const rootReducer = combineReducers({
   GetStreamGroups: GetStreamGroups,
   GetStreamGroupSMChannels: GetStreamGroupSMChannels,
   GetSystemStatus: GetSystemStatus,
-  messages: SMMessagesReducer,
-  queryAdditionalFilters: queryFilterReducer,
-  queryFilter: queryFilterReducer,
+  messages: persistReducer(messagesConfig, messages),
+  queryAdditionalFilters: queryFilter,
+  queryFilter: persistReducer(queryFilterConfig, queryFilter),
   selectAll: persistReducer(selectAllConfig, selectAll),
   selectedCountry: persistReducer(selectedCountryConfig, selectedCountry),
   selectedItems: persistReducer(selectedItemsConfig, selectedItems),
   selectedPostalCode: persistReducer(selectedPostalCodeConfig, selectedPostalCode),
+  selectedSMChannel: persistReducer(selectedSMChannelConfig, selectedSMChannel),
+  selectedSMStream: persistReducer(selectedSMStreamConfig, selectedSMStream),
   selectedSMStreams: persistReducer(selectedSMStreamsConfig, selectedSMStreams),
   selectedStreamGroup: persistReducer(selectedStreamGroupConfig, selectedStreamGroup),
   showHidden: persistReducer(showHiddenConfig, showHidden),
   showSelections: persistReducer(showSelectionsConfig, showSelections),
-  SMChannelReducer: SMChannelReducer,
-  SMStreamReducer: SMStreamReducer,
   sortInfo: persistReducer(sortInfoConfig, sortInfo),
 });
 

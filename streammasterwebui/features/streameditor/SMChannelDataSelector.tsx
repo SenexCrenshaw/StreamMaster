@@ -17,7 +17,7 @@ import SMChannelMenu from '@components/smchannels/SMChannelMenu';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamGroupButton from '@components/streamGroup/StreamGroupButton';
 import { GetMessage } from '@lib/common/common';
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
+import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import { SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent, DataTableRowData, DataTableRowEvent, DataTableRowExpansionTemplate } from 'primereact/datatable';
