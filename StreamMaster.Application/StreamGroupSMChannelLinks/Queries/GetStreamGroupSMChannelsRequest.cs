@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Exceptions;
-
-namespace StreamMaster.Application.StreamGroupSMChannelLinks.Queries;
+﻿namespace StreamMaster.Application.StreamGroupSMChannelLinks.Queries;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -16,7 +14,7 @@ internal class GetStreamGroupSMChannelsRequestHandler(IRepositoryWrapper Reposit
         StreamGroup? streamGroup = Repository.StreamGroup.GetStreamGroup(request.StreamGroupId);
         if (streamGroup == null)
         {
-            throw new APIException($"Stream Group with Id {request.StreamGroupId} is not found");
+            return DataResponse<List<SMChannelDto>>.ErrorWithMessage($"Streamgroup with Id {request.StreamGroupId} not found");
         }
 
         List<StreamGroupSMChannelLink> links = Repository.StreamGroupSMChannelLink.GetQuery(true).Where(a => a.StreamGroupId == request.StreamGroupId).ToList();

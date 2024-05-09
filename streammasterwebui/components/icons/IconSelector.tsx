@@ -40,7 +40,6 @@ const IconSelector = ({ enableEditMode = true, large = false, value, disabled, e
   useEffect(() => {
     if (value === undefined) return;
 
-    console.log(iconSource, origValue, value);
     if (iconSource && iconSource === origValue) {
       setIconSource(value);
       setOrigValue(value);

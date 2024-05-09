@@ -18,6 +18,7 @@ namespace BuildClientAPI
         private const string SignalRFilePathPrefix = @"..\..\..\..\streammasterwebui\lib\signalr";
         private const string StoreFilePathPrefix = @"..\..\..\..\streammasterwebui\lib\redux";
         private const string DataRefreshFilePath = @"..\..\..\..\StreamMaster.Infrastructure\Services\DataRefreshService.cs";
+        private const string DataRefreshAllFilePath = SMAPIFileNamePrefix + @"\DataRefreshAll.ts";
         private const string IDataRefreshFilePath = @"..\..\..\..\StreamMaster.Domain\Services\IDataRefreshService.cs";
 
         private static void Main(string[] args)
@@ -183,6 +184,8 @@ namespace BuildClientAPI
 
 
                 DataRefreshService.GenerateFile(methodsByNamespace, DataRefreshFilePath, IDataRefreshFilePath);
+
+                SignalRGeneratorDataRefreshAll.GenerateFile([.. methodsByNamespace.SelectMany(a => a.Value).Where(a => a.IsGet).OrderBy(a => a.Name)], DataRefreshAllFilePath);
 
                 //string refreshFilePath = Path.Combine(SignalRFilePathPrefix, "useDataRefresh.tsx");
                 //SignalRGeneratorDataRefresh.GenerateFile(methodsByNamespace.SelectMany(a => a.Value).OrderBy(a => a.Name).ToList(), refreshFilePath);

@@ -13,6 +13,48 @@ class SignalRService extends EventTarget {
   private whitelistedMethods: string[] = [];
   private listenerCounts: Map<string, number> = new Map<string, number>();
 
+  private constructor() {
+    super();
+
+    const url = `${baseHostURL}/streammasterhub`;
+    this.hubConnection = new HubConnectionBuilder()
+      .configureLogging(LogLevel.Error)
+      .withUrl(url)
+      .withHubProtocol(new MessagePackHubProtocol())
+      .withAutomaticReconnect({
+        nextRetryDelayInMilliseconds: (retryContext) => {
+          if (retryContext.elapsedMilliseconds < 60000) {
+            return 2000;
+          }
+          return 2000;
+        }
+      })
+      .build();
+
+    this.hubConnection.onclose((callback) => {
+      this.dispatchEvent(new CustomEvent('signalr_disconnected'));
+      console.log('SignalR connection closed', callback);
+      this.start();
+    });
+
+    this.start();
+  }
+
+  public get isConnected(): boolean {
+    return this.hubConnection.state === HubConnectionState.Connected;
+  }
+
+  public get isDisConnected(): boolean {
+    return this.hubConnection.state === HubConnectionState.Disconnected;
+  }
+
+  public static getInstance(): SignalRService {
+    if (!this.instance) {
+      this.instance = new SignalRService();
+    }
+    return this.instance;
+  }
+
   public addListener = (messageName: string, callback: (data: any) => void) => {
     const currentCount = this.listenerCounts.get(messageName) || 0;
     if (currentCount === 0) {
@@ -55,21 +97,6 @@ class SignalRService extends EventTarget {
         console.error('Failed to close SignalR connection', error);
       }
     }
-  }
-
-  public static getInstance(): SignalRService {
-    if (!this.instance) {
-      this.instance = new SignalRService();
-    }
-    return this.instance;
-  }
-
-  public get isConnected(): boolean {
-    return this.hubConnection.state === HubConnectionState.Connected;
-  }
-
-  public get isDisConnected(): boolean {
-    return this.hubConnection.state === HubConnectionState.Disconnected;
   }
 
   public async invokeHubCommand<T>(methodName: string, argument?: any): Promise<T | undefined> {
@@ -131,33 +158,6 @@ class SignalRService extends EventTarget {
         console.error('SignalR connection failed to start', error);
       });
   };
-
-  private constructor() {
-    super();
-
-    const url = `${baseHostURL}/streammasterhub`;
-    this.hubConnection = new HubConnectionBuilder()
-      .configureLogging(LogLevel.Error)
-      .withUrl(url)
-      .withHubProtocol(new MessagePackHubProtocol())
-      .withAutomaticReconnect({
-        nextRetryDelayInMilliseconds: (retryContext) => {
-          if (retryContext.elapsedMilliseconds < 60000) {
-            return 2000;
-          }
-          return 2000;
-        }
-      })
-      .build();
-
-    this.hubConnection.onclose((callback) => {
-      this.dispatchEvent(new CustomEvent('signalr_disconnected'));
-      console.log('SignalR connection closed', callback);
-      this.start();
-    });
-
-    this.start();
-  }
 }
 
 export default SignalRService;

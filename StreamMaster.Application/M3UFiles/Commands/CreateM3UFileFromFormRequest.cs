@@ -76,7 +76,7 @@ public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRe
 
             m3UFile.WriteJSON();
 
-            await dataRefreshService.RefreshM3UFiles();
+            await dataRefreshService.RefreshAllM3U();
 
             await Publisher.Publish(new M3UFileProcessEvent(m3UFile.Id, false), cancellationToken).ConfigureAwait(false);
 

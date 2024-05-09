@@ -34,7 +34,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
       if (fileUploadReference.current) {
         fileUploadReference.current.clear();
       }
-
+      smDialogRef.current?.close();
       onHide?.(didUpload ?? false);
       onUploadComplete();
     },
@@ -59,10 +59,10 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
           console.error('Error uploading M3U', error);
         })
         .finally(() => {
-          ReturnToParent(true);
+          smDialogRef.current?.close();
         });
     },
-    [ReturnToParent, m3uFileDto]
+    [m3uFileDto]
   );
 
   const setName = (value: string) => {

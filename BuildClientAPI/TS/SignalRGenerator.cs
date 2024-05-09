@@ -154,6 +154,7 @@ public static class SignalRGenerator
         return content.ToString();
     }
 
+
     private static string DataRefresh(List<MethodDetails> methods)
     {
         StringBuilder content = new();

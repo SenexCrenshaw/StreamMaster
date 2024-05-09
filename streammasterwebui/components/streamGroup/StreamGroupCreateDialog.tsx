@@ -42,9 +42,10 @@ export const StreamGroupCreateDialog = ({ onHide, showButton }: StreamGroupCreat
         console.error('Error Adding SG', error);
       })
       .finally(() => {
-        ReturnToParent(true);
+        smDialogRef.current?.close();
+        // ReturnToParent(true);
       });
-  }, [ReturnToParent, name, saving]);
+  }, [name, saving]);
 
   const isSaveEnabled = useMemo(() => {
     return name !== undefined && name !== '';
