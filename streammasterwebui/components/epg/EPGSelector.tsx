@@ -183,7 +183,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
             <Tooltip target={`${tooltipClassName}`} />
             <div className={`${tooltipClassName}`} data-pr-hidedelay={100} data-pr-position="left" data-pr-showdelay={500} data-pr-tooltip={epgName}>
               <span className="pi pi-circle-fill pr-2" style={{ color: color }} />
-              <span className="text-xs">{afterCallSign}</span>
+              <span className="text-xs text-container">{afterCallSign}</span>
             </div>
           </>
         );
@@ -195,8 +195,8 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
           <div className={`${tooltipClassName} `} data-pr-hidedelay={100} data-pr-position="left" data-pr-showdelay={500} data-pr-tooltip={epgName}>
             <span className="pi pi-circle-fill pr-2" style={{ color: color }} />
             <span className="text-xs text-container width-200">
-              <span className="text-xs">{beforeCallSign}</span>
-              <span className="sm-input-xs ">{afterCallSign}</span>
+              <span className="text-xs text-container">{beforeCallSign}</span>
+              <span className="sm-input-xs text-container">{afterCallSign}</span>
             </span>
           </div>
         </>
@@ -216,15 +216,15 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
         return (
           <>
             <Tooltip target={`.${tooltipClassName}`} />
-            <div
-              className={`${tooltipClassName} flex align-items-center border-white`}
+            <span
               data-pr-hidedelay={100}
               data-pr-position="left"
               data-pr-showdelay={500}
               data-pr-tooltip={'No EPG'}
+              className={`${tooltipClassName} text-xs text-container`}
             >
-              <span className="text-xs text-container">{input}</span>
-            </div>
+              {input}
+            </span>
           </>
         );
       }

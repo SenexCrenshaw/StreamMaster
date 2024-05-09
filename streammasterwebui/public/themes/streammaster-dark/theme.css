@@ -7115,7 +7115,7 @@
 
 .stringeditor {
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: center;
 }
 .stringeditor .p-float-label > label {
@@ -7134,7 +7134,7 @@
 
 .stringeditorbody-inputtext, .p-inputnumber-input, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark {
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   align-items: center;
   color: #94abec;
@@ -7175,7 +7175,7 @@
   width: 200px;
 }
 
-.text-container {
+.text-container, .stringeditorbody-inputtext, .p-inputnumber-input, .stringeditorbody-inputtext-dark, .stringeditorbody-inputtext-save {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
