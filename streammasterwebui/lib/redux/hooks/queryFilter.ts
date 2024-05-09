@@ -42,7 +42,7 @@ export const useQueryFilter = (key: string) => {
 
   const queryFilter = useSelector((state: RootState) => selectQueryFilter(state)(key));
 
-  return { setQueryFilter, queryFilter };
+  return { queryFilter, setQueryFilter };
 };
 
 export default queryFilterSlice.reducer;

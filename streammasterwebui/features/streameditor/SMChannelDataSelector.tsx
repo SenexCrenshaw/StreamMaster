@@ -15,6 +15,7 @@ import DeleteSMChannelDialog from '@components/smchannels/DeleteSMChannelDialog'
 import DeleteSMChannelsDialog from '@components/smchannels/DeleteSMChannelsDialog';
 import EditSMChannelDialog from '@components/smchannels/EditSMChannelDialog';
 import SMChannelMenu from '@components/smchannels/SMChannelMenu';
+import SMChannelMultiVisibleDialog from '@components/smchannels/SMChannelMultiVisibleDialog';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamGroupButton from '@components/streamGroup/StreamGroupButton';
 import { GetMessage } from '@lib/common/common';
@@ -90,15 +91,18 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
     (data: unknown): string => {
       const isHidden = getRecord(data, 'IsHidden');
 
-      if (isHidden === true) {
-        return 'bg-red-900';
-      }
-
       if (selectedSMChannel !== undefined) {
         const id = getRecord(data, 'Id') as number;
         if (id === selectedSMChannel.Id) {
+          if (isHidden === true) {
+            return 'bg-yellow-900';
+          }
           return 'bg-orange-900';
         }
+      }
+
+      if (isHidden === true) {
+        return 'bg-red-900';
       }
 
       return '';
@@ -121,6 +125,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
           <DeleteSMChannelsDialog selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} />
           <CreateSMChannelDialog />
           <SMChannelMenu />
+          <SMChannelMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} skipOverLayer />
         </div>
       </>
     ),
@@ -157,8 +162,10 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
           //console.log(e);
         }}
         onClick={(e: any) => {
-          if (e.target.className && e.target.className === 'p-datatable-wrapper') {
-            setSelectedSMChannel(undefined);
+          if (e.target.className && (e.target.className === 'p-datatable-wrapper' || e.target.className === 'header-text')) {
+            if (selectedSMChannel !== undefined) {
+              setSelectedSMChannel(undefined);
+            }
           }
         }}
         onRowExpand={(e: DataTableRowEvent) => {
