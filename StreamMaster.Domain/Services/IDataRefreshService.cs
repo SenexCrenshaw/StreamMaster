@@ -1,7 +1,8 @@
 namespace StreamMaster.Domain.Services
 {
-    public interface IDataRefreshService: IDataRefreshServicePartial
+    public interface IDataRefreshService : IDataRefreshServicePartial
     {
+        Task ClearByTag(string Entity, string Tag);
         Task RefreshAll();
         Task RefreshStreamGroups(bool alwaysRun = false);
         Task RefreshStreamGroupSMChannelLinks(bool alwaysRun = false);

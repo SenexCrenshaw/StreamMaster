@@ -82,8 +82,16 @@ const SMButton = forwardRef<Button, SMButtonProps>(
     if (props.children) {
       return (
         <>
-          <Tooltip target={tooltipClassName} />
-          <div className={`${getClassName} input-wrapper`} onClick={onClick}>
+          <Tooltip target={`.${tooltipClassName}`} />
+          <div
+            onClick={onClick}
+            className={`${tooltipClassName} input-wrapper`}
+            data-pr-tooltip={tooltip}
+            data-pr-position={isLeft ? 'left' : 'right'}
+            data-pr-showDelay="400"
+            data-pr-hideDelay="100"
+            data-pr-autoHide="true"
+          >
             {props.children}
             <i className={`input-icon pi ${icon} pr-1`} />
           </div>
@@ -93,7 +101,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
 
     return (
       <>
-        <Tooltip target={tooltipClassName} />
+        <Tooltip target={`.${tooltipClassName}`} />
         <Button
           ref={ref}
           className={getClassName}

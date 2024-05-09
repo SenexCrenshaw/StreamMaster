@@ -57,7 +57,7 @@ const IconSelector = ({ enableEditMode = true, large = false, value, disabled, e
       setIconSource(value);
       setOrigValue(value);
       const icon = query.data?.find((i) => i.Source === value);
-      console.log(icon);
+      // console.log(icon);
       setIconDto(icon);
       return;
     }

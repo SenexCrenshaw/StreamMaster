@@ -102,6 +102,12 @@ export const useSetQueryFilter = (
   const { generateGetApi } = useMemo(() => {
     const sortString = getSortString(sortInfo);
 
+    // console.group('useSetQueryFilter');
+    // console.log('id:', id);
+    // console.log('queryFilter:', queryFilter);
+    // console.log('queryAdditionalFilters:', queryAdditionalFilters);
+    // console.groupEnd();
+
     const transformedFilters = transformAndEnhanceFilters(filters, columns, showHidden, queryAdditionalFilters);
 
     const JSONFiltersString = JSON.stringify(transformedFilters);
@@ -117,7 +123,7 @@ export const useSetQueryFilter = (
     return {
       generateGetApi: apiState
     };
-  }, [sortInfo, columns, filters, showHidden, queryAdditionalFilters, page, rows, StreamGroupId]);
+  }, [sortInfo, filters, columns, showHidden, queryAdditionalFilters, page, rows, StreamGroupId]);
 
   useEffect(() => {
     if (!areGetApiArgsEqual(generateGetApi, queryFilter)) {

@@ -44,7 +44,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
   const { columnConfig: channelNameColumnConfig } = useSMChannelNameColumnConfig({ enableEdit });
   const epgColumnConfig = useSMChannelEPGColumnConfig();
   const groupColumnConfig = useSMChannelGroupColumnConfig();
-  const sgColumnConfig = useSMChannelSGColumnConfig();
+  const sgColumnConfig = useSMChannelSGColumnConfig(dataKey + '-sg', dataKey);
   const { queryFilter } = useQueryFilter(dataKey);
   const { isLoading } = useGetPagedSMChannels(queryFilter);
 
@@ -149,7 +149,12 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
         defaultSortOrder={1}
         emptyMessage="No Channels"
         enablePaginator
-        expanderHeader={() => <SMTriSelectShowHidden dataKey={dataKey} />}
+        expanderHeader={() => (
+          <div className="flex align-content-center justify-content-center">
+            {' '}
+            <SMTriSelectShowHidden dataKey={dataKey} />
+          </div>
+        )}
         headerRightTemplate={rightHeaderTemplate}
         headerName={headerTitle()}
         id={dataKey}

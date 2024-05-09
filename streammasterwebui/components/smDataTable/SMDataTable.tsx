@@ -17,10 +17,9 @@ import {
   type DataTableValue
 } from 'primereact/datatable';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
-import { SyntheticEvent, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import generateFilterData from '@components/dataSelector/generateFilterData';
-import SMButton from '@components/sm/SMButton';
 import { SMTriSelectShowSelect } from '@components/sm/SMTriSelectShowSelect';
 import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
@@ -368,18 +367,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         header = getHeader(col.field, col.header, col.fieldType) as string;
       } else {
         return <div />;
-      }
-
-      if (col.fieldType === 'sg') {
-        return (
-          <SMButton
-            iconFilled={false}
-            icon="pi-list-check"
-            onClick={function (e: SyntheticEvent<Element, Event>): void {
-              console.log('clicked');
-            }}
-          />
-        );
       }
 
       let prefix = 'sm-col-header-';

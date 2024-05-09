@@ -1,27 +1,5 @@
-import { combineReducers } from 'redux';
-import GetChannelGroups from '@lib/smAPI/ChannelGroups/GetChannelGroupsSlice';
-import GetEPGColors from '@lib/smAPI/EPG/GetEPGColorsSlice';
-import GetEPGFilePreviewById from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
-import GetEPGFiles from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
-import GetEPGNextEPGNumber from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
-import GetIcons from '@lib/smAPI/Icons/GetIconsSlice';
-import GetIsSystemReady from '@lib/smAPI/Settings/GetIsSystemReadySlice';
-import GetM3UFileNames from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
-import GetPagedChannelGroups from '@lib/smAPI/ChannelGroups/GetPagedChannelGroupsSlice';
-import GetPagedEPGFiles from '@lib/smAPI/EPGFiles/GetPagedEPGFilesSlice';
-import GetPagedM3UFiles from '@lib/smAPI/M3UFiles/GetPagedM3UFilesSlice';
-import GetPagedSMChannels from '@lib/smAPI/SMChannels/GetPagedSMChannelsSlice';
-import GetPagedSMStreams from '@lib/smAPI/SMStreams/GetPagedSMStreamsSlice';
-import GetPagedStreamGroups from '@lib/smAPI/StreamGroups/GetPagedStreamGroupsSlice';
-import GetSettings from '@lib/smAPI/Settings/GetSettingsSlice';
-import GetSMChannel from '@lib/smAPI/SMChannels/GetSMChannelSlice';
-import GetSMChannelNames from '@lib/smAPI/SMChannels/GetSMChannelNamesSlice';
-import GetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/GetSMChannelStreamsSlice';
-import GetStationChannelNames from '@lib/smAPI/SchedulesDirect/GetStationChannelNamesSlice';
-import GetStreamGroups from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice';
-import GetStreamGroupSMChannels from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
-import GetSystemStatus from '@lib/smAPI/Settings/GetSystemStatusSlice';
 import messages from '@lib/redux/hooks/messages';
+import queryAdditionalFilters from '@lib/redux/hooks/queryAdditionalFilters';
 import queryFilter from '@lib/redux/hooks/queryFilter';
 import selectAll from '@lib/redux/hooks/selectAll';
 import selectedCountry from '@lib/redux/hooks/selectedCountry';
@@ -34,11 +12,34 @@ import selectedStreamGroup from '@lib/redux/hooks/selectedStreamGroup';
 import showHidden from '@lib/redux/hooks/showHidden';
 import showSelections from '@lib/redux/hooks/showSelections';
 import sortInfo from '@lib/redux/hooks/sortInfo';
+import GetChannelGroups from '@lib/smAPI/ChannelGroups/GetChannelGroupsSlice';
+import GetPagedChannelGroups from '@lib/smAPI/ChannelGroups/GetPagedChannelGroupsSlice';
+import GetEPGColors from '@lib/smAPI/EPG/GetEPGColorsSlice';
+import GetEPGFilePreviewById from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
+import GetEPGFiles from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
+import GetEPGNextEPGNumber from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
+import GetPagedEPGFiles from '@lib/smAPI/EPGFiles/GetPagedEPGFilesSlice';
+import GetIcons from '@lib/smAPI/Icons/GetIconsSlice';
+import GetM3UFileNames from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
+import GetPagedM3UFiles from '@lib/smAPI/M3UFiles/GetPagedM3UFilesSlice';
+import GetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/GetSMChannelStreamsSlice';
+import GetPagedSMChannels from '@lib/smAPI/SMChannels/GetPagedSMChannelsSlice';
+import GetSMChannelNames from '@lib/smAPI/SMChannels/GetSMChannelNamesSlice';
+import GetSMChannel from '@lib/smAPI/SMChannels/GetSMChannelSlice';
+import GetPagedSMStreams from '@lib/smAPI/SMStreams/GetPagedSMStreamsSlice';
+import GetStationChannelNames from '@lib/smAPI/SchedulesDirect/GetStationChannelNamesSlice';
+import GetIsSystemReady from '@lib/smAPI/Settings/GetIsSystemReadySlice';
+import GetSettings from '@lib/smAPI/Settings/GetSettingsSlice';
+import GetSystemStatus from '@lib/smAPI/Settings/GetSystemStatusSlice';
+import GetStreamGroupSMChannels from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
+import GetPagedStreamGroups from '@lib/smAPI/StreamGroups/GetPagedStreamGroupsSlice';
+import GetStreamGroups from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice';
+import { combineReducers } from 'redux';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
-const messagesConfig = {
-  key: 'messages',
+const queryAdditionalFiltersConfig = {
+  key: 'queryAdditionalFilters',
   storage
 };
 const queryFilterConfig = {
@@ -112,8 +113,8 @@ export const rootReducer = combineReducers({
   GetStreamGroups: GetStreamGroups,
   GetStreamGroupSMChannels: GetStreamGroupSMChannels,
   GetSystemStatus: GetSystemStatus,
-  messages: persistReducer(messagesConfig, messages),
-  queryAdditionalFilters: queryFilter,
+  messages: messages,
+  queryAdditionalFilters: persistReducer(queryAdditionalFiltersConfig, queryAdditionalFilters),
   queryFilter: persistReducer(queryFilterConfig, queryFilter),
   selectAll: persistReducer(selectAllConfig, selectAll),
   selectedCountry: persistReducer(selectedCountryConfig, selectedCountry),
@@ -125,6 +126,5 @@ export const rootReducer = combineReducers({
   selectedStreamGroup: persistReducer(selectedStreamGroupConfig, selectedStreamGroup),
   showHidden: persistReducer(showHiddenConfig, showHidden),
   showSelections: persistReducer(showSelectionsConfig, showSelections),
-  sortInfo: persistReducer(sortInfoConfig, sortInfo),
+  sortInfo: persistReducer(sortInfoConfig, sortInfo)
 });
-

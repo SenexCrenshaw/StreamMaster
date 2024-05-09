@@ -181,7 +181,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
       if (beforeCallSign === '[' + afterCallSign + ']') {
         return (
           <>
-            <Tooltip target={`${tooltipClassName}`} />
+            <Tooltip target={`.${tooltipClassName}`} />
             <div className={`${tooltipClassName}`} data-pr-hidedelay={100} data-pr-position="left" data-pr-showdelay={500} data-pr-tooltip={epgName}>
               <span className="pi pi-circle-fill pr-2" style={{ color: color }} />
               <span className="text-xs text-container">{afterCallSign}</span>
@@ -192,7 +192,7 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
 
       return (
         <>
-          <Tooltip target={`${tooltipClassName}`} />
+          <Tooltip target={`.${tooltipClassName}`} />
           <div className={`${tooltipClassName} `} data-pr-hidedelay={100} data-pr-position="left" data-pr-showdelay={500} data-pr-tooltip={epgName}>
             <span className="pi pi-circle-fill pr-2" style={{ color: color }} />
             <span className="text-xs text-container width-200">

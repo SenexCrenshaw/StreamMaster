@@ -11,6 +11,11 @@ internal class GetStreamGroupSMChannelsRequestHandler(IRepositoryWrapper Reposit
 
     public async Task<DataResponse<List<SMChannelDto>>> Handle(GetStreamGroupSMChannelsRequest request, CancellationToken cancellationToken)
     {
+        if (request.StreamGroupId == null || request.StreamGroupId == 0)
+        {
+            return DataResponse<List<SMChannelDto>>.ErrorWithMessage($"Streamgroup with Id {request.StreamGroupId} not found");
+        }
+
         StreamGroup? streamGroup = Repository.StreamGroup.GetStreamGroup(request.StreamGroupId);
         if (streamGroup == null)
         {

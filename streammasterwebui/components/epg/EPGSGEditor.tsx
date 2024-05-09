@@ -4,7 +4,9 @@ import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { AddSMChannelToStreamGroup, RemoveSMChannelFromStreamGroup } from '@lib/smAPI/StreamGroupSMChannelLinks/StreamGroupSMChannelLinksCommands';
 import useGetStreamGroupSMChannels from '@lib/smAPI/StreamGroupSMChannelLinks/useGetStreamGroupSMChannels';
 import { AddSMChannelToStreamGroupRequest, RemoveSMChannelFromStreamGroupRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
+import { Tooltip } from 'primereact/tooltip';
 import { memo, useCallback, useMemo } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 interface EPGSGEditorProperties {
   readonly data: SMChannelDto;
@@ -13,9 +15,7 @@ interface EPGSGEditorProperties {
 
 const EPGSGEditor = ({ data, enableEditMode }: EPGSGEditorProperties) => {
   const { selectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
-  const channelsQuery = useGetStreamGroupSMChannels({ StreamGroupId: selectedStreamGroup?.Id });
-
-  // console.log('EPGSGEditor', channelsQuery.data);
+  const streamGroupSMChannelsQuery = useGetStreamGroupSMChannels({ StreamGroupId: selectedStreamGroup?.Id });
 
   const addSMChannelToStreamGroup = useCallback(async () => {
     console.log('addSMChannelToStreamGroup', selectedStreamGroup);
@@ -52,16 +52,22 @@ const EPGSGEditor = ({ data, enableEditMode }: EPGSGEditorProperties) => {
   }, [data, selectedStreamGroup]);
 
   const isSMChannelInStreamGroup = useCallback(() => {
-    if (!channelsQuery.data || !data) {
+    if (!streamGroupSMChannelsQuery.data || !data) {
       return false;
     }
 
-    return channelsQuery.data.some((channel) => channel.Id === data.Id);
-  }, [channelsQuery.data, data]);
+    return streamGroupSMChannelsQuery.data.some((channel) => channel.Id === data.Id);
+  }, [streamGroupSMChannelsQuery.data, data]);
 
   const name = useMemo(() => {
     return selectedStreamGroup?.Name ?? '';
   }, [selectedStreamGroup?.Name]);
+
+  const tooltipClassName = useMemo(() => {
+    const ret = `basebutton-${uuidv4()}`;
+
+    return ret;
+  }, []);
 
   if (isSMChannelInStreamGroup()) {
     return (
@@ -71,9 +77,36 @@ const EPGSGEditor = ({ data, enableEditMode }: EPGSGEditorProperties) => {
     );
   }
 
+  if (selectedStreamGroup === undefined) {
+    return (
+      <>
+        <Tooltip target={`.${tooltipClassName}`} />
+        <div className="flex justify-content-center align-items-center">
+          <span
+            className={tooltipClassName}
+            data-pr-tooltip="Select SG"
+            data-pr-position="left"
+            data-pr-showDelay="400"
+            data-pr-hideDelay="100"
+            data-pr-autoHide="true"
+          >
+            <i
+              className="pi pi-circle p-disabled"
+              data-pr-tooltip="Select SG"
+              data-pr-position="left"
+              data-pr-showDelay="400"
+              data-pr-hideDelay="100"
+              data-pr-autoHide="true"
+            />
+          </span>
+        </div>
+      </>
+    );
+  }
+
   return (
     <div className="flex justify-content-center align-items-center">
-      <SGAddButton onClick={(e) => addSMChannelToStreamGroup()} tooltip={`Add to ${name}`} />
+      <SGAddButton disabled={selectedStreamGroup === undefined} onClick={(e) => addSMChannelToStreamGroup()} tooltip={`Add to ${name}`} />
     </div>
   );
 };

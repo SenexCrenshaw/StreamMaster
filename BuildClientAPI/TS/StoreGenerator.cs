@@ -33,6 +33,11 @@ public static class StoreGenerator
         "selectedSMChannel",
         "queryFilter",
         "selectedSMStream",
+        "queryAdditionalFilters"
+    };
+
+    private static List<string> AdditionalReducers = new()
+    {
         "messages"
     };
 
@@ -54,15 +59,15 @@ public static class StoreGenerator
     private static string GenerateReducer(List<MethodDetails> methods)
     {
         StringBuilder content = new();
-        Dictionary<string, string> reducers = new()
-        {
-            { "queryAdditionalFilters", "  queryAdditionalFilters: queryFilter" },
-        };
-
-
+        Dictionary<string, string> reducers = [];// new()
         foreach (var method in methods)
         {
             reducers[method.Name] = $"  {method.Name}: {method.Name}";
+        }
+
+        foreach (var additional in AdditionalReducers)
+        {
+            reducers[additional] = $"  {additional}: {additional}";
         }
 
         foreach (var persist in Persists)
@@ -98,6 +103,12 @@ public static class StoreGenerator
         foreach (var persist in Persists)
         {
             imports[persist] = $"import {persist} from '@lib/redux/hooks/{persist}';";
+        }
+
+        foreach (var additional in AdditionalReducers)
+        {
+            imports[additional] = $"import {additional} from '@lib/redux/hooks/{additional}';";
+
         }
 
 

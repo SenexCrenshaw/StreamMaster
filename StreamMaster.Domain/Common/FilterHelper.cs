@@ -16,13 +16,18 @@ public static class FilterHelper<T> where T : class
     private static readonly ConcurrentDictionary<Type, ParameterExpression> ParameterCache = new();
     private static readonly ConcurrentDictionary<(Type, string), PropertyInfo> PropertyCache = new();
 
+    public static readonly List<string> FiltersToIgnore = ["inSG", "notInSG"];
+
     public static IQueryable<T> ApplyFiltersAndSort(IQueryable<T> query, List<DataTableFilterMetaData>? filters, string orderBy, bool forceToLower = false)
     {
-
         if (filters != null)
         {
-            query = FilterHelper<T>.ApplyFilter(query, filters, forceToLower);
+            if (filters.Any(a => !FiltersToIgnore.Contains(a.MatchMode)))
+            {
+                query = FilterHelper<T>.ApplyFilter(query, filters, forceToLower);
+            }
         }
+
 
         // Apply sorting
         if (!string.IsNullOrWhiteSpace(orderBy))
@@ -49,6 +54,10 @@ public static class FilterHelper<T> where T : class
 
         foreach (DataTableFilterMetaData filter in filters)
         {
+            if (filter.MatchMode.Equals("inSG"))
+            {
+                continue;
+            }
             (Type, string FieldName) propertyKey = (typeof(T), filter.FieldName);
             if (!PropertyCache.TryGetValue(propertyKey, out PropertyInfo? property))
             {

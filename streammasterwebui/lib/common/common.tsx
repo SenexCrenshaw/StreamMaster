@@ -107,6 +107,8 @@ export type MatchMode =
   | 'notContains'
   | 'notEquals'
   | 'startsWith'
+  | 'inSG'
+  | 'notInSG'
   | undefined;
 
 export function areFilterMetaEqual(a: DataTableFilterMeta, b: DataTableFilterMeta): boolean {
@@ -175,7 +177,7 @@ export function GetMessage(...arguments_: string[]): string {
 export interface AdditionalFilterProperties {
   field: string;
   matchMode: MatchMode;
-  values: string[] | undefined;
+  values: any | undefined;
 }
 
 export function areAdditionalFilterPropsEqual(a: AdditionalFilterProperties | undefined, b: AdditionalFilterProperties | undefined): boolean {

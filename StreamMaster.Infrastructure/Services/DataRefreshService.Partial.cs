@@ -1,3 +1,4 @@
+using StreamMaster.Application.SMStreams.Commands;
 using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.Services;
@@ -36,6 +37,17 @@ public partial class DataRefreshService : IDataRefreshServicePartial
         }
         await RefreshSMChannels();
         await RefreshSMChannelStreamLinks();
+        await RefreshStreamGroupSMChannelLinks();
+    }
+
+    public async Task ClearByTag(string Entity, string Tag)
+    {
+        if (!BuildInfo.SetIsSystemReady)
+        {
+            return;
+        }
+
+        await hub.Clients.All.ClearByTag(new ClearByTag(Entity, Tag));
     }
 
 }

@@ -1,50 +1,55 @@
 import SMButton from '@components/sm/SMButton';
+import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { useShowHidden } from '@lib/redux/hooks/showHidden';
 import { useCallback, useMemo } from 'react';
 
 interface SMTriSelectShowSGProperties {
   readonly dataKey: string;
+  onChange?: (value: boolean | null) => void;
 }
 
-export const SMTriSelectShowSG = ({ dataKey }: SMTriSelectShowSGProperties) => {
+export const SMTriSelectShowSG = ({ dataKey, onChange }: SMTriSelectShowSGProperties) => {
   const { showHidden, setShowHidden } = useShowHidden(dataKey);
-
+  const { selectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
   const getToolTip = useMemo((): string => {
     if (showHidden === null) {
       return 'All';
     }
 
     if (showHidden === true) {
-      return 'Visible';
+      return 'In ' + selectedStreamGroup?.Name ?? 'SG';
     }
 
-    return 'Hidden';
-  }, [showHidden]);
+    return 'Not in ' + selectedStreamGroup?.Name ?? 'SG';
+  }, [selectedStreamGroup?.Name, showHidden]);
 
   const moveNext = useCallback(() => {
     if (showHidden === null) {
       setShowHidden(true);
+      onChange && onChange(true);
       return;
     }
 
     if (showHidden === true) {
       setShowHidden(false);
+      onChange && onChange(false);
       return;
     }
 
     setShowHidden(null);
-  }, [setShowHidden, showHidden]);
+    onChange && onChange(null);
+  }, [onChange, setShowHidden, showHidden]);
 
   const getIcon = useMemo(() => {
     if (showHidden === null) {
-      return 'pi pi-eye';
+      return 'pi pi-list-check';
     }
 
     if (showHidden === true) {
-      return 'pi pi-eye';
+      return 'pi pi-list-check';
     }
 
-    return 'pi pi-eye-slash';
+    return 'pi pi-list-check';
   }, [showHidden]);
 
   const getColor = useMemo(() => {

@@ -6,8 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Exceptions;
+using StreamMaster.Domain.Filtering;
 
 using System.Linq.Expressions;
+using System.Text.Json;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
@@ -28,8 +30,60 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
     public async Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(QueryStringParameters parameters)
     {
         IQueryable<SMChannel> query = GetQuery(parameters).Include(a => a.SMStreams).ThenInclude(a => a.SMStream);
+
+        if (!string.IsNullOrEmpty(parameters.JSONFiltersString))
+        {
+            List<DataTableFilterMetaData>? filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(parameters.JSONFiltersString);
+            if (filters != null && filters.Any(a => a.MatchMode == "inSG"))
+            {
+                DataTableFilterMetaData? inSGFilter = filters.FirstOrDefault(a => a.MatchMode == "inSG");
+                if (inSGFilter != null && inSGFilter.Value != null)
+                {
+                    try
+                    {
+                        var streamGroupIdString = inSGFilter.Value.ToString();
+                        if (!string.IsNullOrWhiteSpace(streamGroupIdString))
+                        {
+                            var streamGroupId = Convert.ToInt32(streamGroupIdString);
+                            var linkIds = repository.StreamGroupSMChannelLink.GetQuery().Where(a => a.StreamGroupId == streamGroupId).Select(a => a.SMChannelId).ToList();
+                            query = query.Where(a => linkIds.Contains(a.Id));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Object value is outside the range of an Int32. Object: {Object}", inSGFilter.Value);
+                    }
+
+                }
+            }
+
+            if (filters != null && filters.Any(a => a.MatchMode == "notInSG"))
+            {
+                DataTableFilterMetaData? notInSGFilter = filters.FirstOrDefault(a => a.MatchMode == "notInSG");
+                if (notInSGFilter != null && notInSGFilter.Value != null)
+                {
+                    try
+                    {
+                        var streamGroupIdString = notInSGFilter.Value.ToString();
+                        if (!string.IsNullOrWhiteSpace(streamGroupIdString))
+                        {
+                            var streamGroupId = Convert.ToInt32(streamGroupIdString);
+                            var linkIds = repository.StreamGroupSMChannelLink.GetQuery().Where(a => a.StreamGroupId == streamGroupId).Select(a => a.SMChannelId).ToList();
+                            query = query.Where(a => !linkIds.Contains(a.Id));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Object value is outside the range of an Int32. Object: {Object}", notInSGFilter.Value);
+                    }
+
+                }
+
+            }
+        }
+
         return await query.GetPagedResponseAsync<SMChannel, SMChannelDto>(parameters.PageNumber, parameters.PageSize, mapper)
-                          .ConfigureAwait(false);
+                              .ConfigureAwait(false);
     }
 
     public async Task CreateSMChannel(SMChannel sMChannel)

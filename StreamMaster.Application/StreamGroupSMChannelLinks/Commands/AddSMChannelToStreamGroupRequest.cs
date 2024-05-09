@@ -14,7 +14,12 @@ internal class AddSMChannelToStreamGroupRequestHandler(IRepositoryWrapper Reposi
         {
             return APIResponse.ErrorWithMessage(res.ErrorMessage);
         }
+        //await dataRefreshService.RefreshAllSMChannels().ConfigureAwait(false);
+
+        await dataRefreshService.ClearByTag(SMChannel.MainGet, "notInSG").ConfigureAwait(false);
+        await dataRefreshService.ClearByTag(SMChannel.MainGet, "inSG").ConfigureAwait(false);
         await dataRefreshService.RefreshStreamGroupSMChannelLinks().ConfigureAwait(false);
+
         //StreamGroup? streamGroup = Repository.StreamGroup.GetStreamGroup(request.StreamGroupId);
         ////await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
         //if (streamGroup != null)
