@@ -50,4 +50,14 @@ public partial class DataRefreshService : IDataRefreshServicePartial
         await hub.Clients.All.ClearByTag(new ClearByTag(Entity, Tag));
     }
 
+    public async Task SetField(List<FieldData> fieldData)
+    {
+        if (!BuildInfo.SetIsSystemReady)
+        {
+            return;
+        }
+
+        await hub.Clients.All.SetField(fieldData);
+    }
+
 }

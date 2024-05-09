@@ -28,7 +28,6 @@ function transformAndEnhanceFilters(
   columns.forEach((column) => {
     const filter = filters[column.field] as SMDataTableFilterMetaData;
 
-    // Check if the filter has a value and is not an empty array
     if (filter?.value && filter.value !== '[]') {
       if (column.field === 'EPGId') {
         const epgIds = (filter.value as EPGFileDto[]).filter((x) => x.EPGNumber !== -99).map((x) => x.EPGNumber.toString() + '-');

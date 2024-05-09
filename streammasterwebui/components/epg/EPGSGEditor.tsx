@@ -2,62 +2,60 @@ import SGAddButton from '@components/buttons/SGAddButton';
 import SGRemoveButton from '@components/buttons/SGRemoveButton';
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { AddSMChannelToStreamGroup, RemoveSMChannelFromStreamGroup } from '@lib/smAPI/StreamGroupSMChannelLinks/StreamGroupSMChannelLinksCommands';
-import useGetStreamGroupSMChannels from '@lib/smAPI/StreamGroupSMChannelLinks/useGetStreamGroupSMChannels';
 import { AddSMChannelToStreamGroupRequest, RemoveSMChannelFromStreamGroupRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { Tooltip } from 'primereact/tooltip';
 import { memo, useCallback, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 interface EPGSGEditorProperties {
-  readonly data: SMChannelDto;
+  readonly smChannel: SMChannelDto;
   readonly enableEditMode?: boolean;
 }
 
-const EPGSGEditor = ({ data, enableEditMode }: EPGSGEditorProperties) => {
+const EPGSGEditor = ({ smChannel, enableEditMode }: EPGSGEditorProperties) => {
   const { selectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
-  const streamGroupSMChannelsQuery = useGetStreamGroupSMChannels({ StreamGroupId: selectedStreamGroup?.Id });
 
   const addSMChannelToStreamGroup = useCallback(async () => {
     console.log('addSMChannelToStreamGroup', selectedStreamGroup);
-    if (!selectedStreamGroup || !data) {
+    if (!selectedStreamGroup || !smChannel) {
       return;
     }
 
     const request = {} as AddSMChannelToStreamGroupRequest;
     request.StreamGroupId = selectedStreamGroup.Id;
-    request.SMChannelId = data.Id;
+    request.SMChannelId = smChannel.Id;
 
     await AddSMChannelToStreamGroup(request)
       .then(() => {})
       .catch((error) => {
         console.error(error);
       });
-  }, [data, selectedStreamGroup]);
+  }, [smChannel, selectedStreamGroup]);
 
   const removeSMChannelFromStreamGroup = useCallback(async () => {
     console.log('removeSMChannelFromStreamGroup', selectedStreamGroup);
-    if (!selectedStreamGroup || !data) {
+    if (!selectedStreamGroup || !smChannel) {
       return;
     }
 
     const request = {} as RemoveSMChannelFromStreamGroupRequest;
     request.StreamGroupId = selectedStreamGroup.Id;
-    request.SMChannelId = data.Id;
+    request.SMChannelId = smChannel.Id;
 
     await RemoveSMChannelFromStreamGroup(request)
       .then(() => {})
       .catch((error) => {
         console.error(error);
       });
-  }, [data, selectedStreamGroup]);
+  }, [smChannel, selectedStreamGroup]);
 
   const isSMChannelInStreamGroup = useCallback(() => {
-    if (!streamGroupSMChannelsQuery.data || !data) {
+    if (!smChannel || smChannel.StreamGroupIds === undefined || selectedStreamGroup === undefined || smChannel.StreamGroupIds.length === 0) {
       return false;
     }
 
-    return streamGroupSMChannelsQuery.data.some((channel) => channel.Id === data.Id);
-  }, [streamGroupSMChannelsQuery.data, data]);
+    return smChannel.StreamGroupIds.some((Id) => Id === selectedStreamGroup.Id);
+  }, [selectedStreamGroup, smChannel]);
 
   const name = useMemo(() => {
     return selectedStreamGroup?.Name ?? '';
@@ -77,7 +75,7 @@ const EPGSGEditor = ({ data, enableEditMode }: EPGSGEditorProperties) => {
     );
   }
 
-  if (selectedStreamGroup === undefined) {
+  if (selectedStreamGroup === undefined || selectedStreamGroup.Name === 'ALL') {
     return (
       <>
         <Tooltip target={`.${tooltipClassName}`} />

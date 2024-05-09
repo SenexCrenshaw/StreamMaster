@@ -2,6 +2,7 @@ namespace StreamMaster.Domain.Services
 {
     public interface IDataRefreshService : IDataRefreshServicePartial
     {
+        Task SetField(List<FieldData> fieldData);
         Task ClearByTag(string Entity, string Tag);
         Task RefreshAll();
         Task RefreshStreamGroups(bool alwaysRun = false);

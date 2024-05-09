@@ -18,6 +18,14 @@ public class FieldData
         Value = value;
     }
 
+    public FieldData(string entity, int id, string field, object? value)
+    {
+        Entity = entity;
+        Id = id.ToString();
+        Field = field;
+        Value = value;
+    }
+
     public FieldData(string entity, string id, string field, object? value)
     {
         Entity = entity;

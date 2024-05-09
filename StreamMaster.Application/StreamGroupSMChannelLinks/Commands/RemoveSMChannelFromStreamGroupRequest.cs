@@ -14,11 +14,15 @@ internal class RemoveSMChannelFromStreamGroupRequestHandler(IRepositoryWrapper R
             return APIResponse.ErrorWithMessage(res.ErrorMessage);
         }
 
+        var smChannel = Repository.SMChannel.GetSMChannel(request.SMChannelId);
+        var streamGroupIds = smChannel.StreamGroups.Select(a => a.StreamGroupId).ToList();
+
+        FieldData fd = new(SMChannel.MainGet, smChannel.Id, "StreamGroupIds", streamGroupIds);
+        await dataRefreshService.SetField([fd]).ConfigureAwait(false);
+
         await dataRefreshService.ClearByTag(SMChannel.MainGet, "notInSG").ConfigureAwait(false);
         await dataRefreshService.ClearByTag(SMChannel.MainGet, "inSG").ConfigureAwait(false);
-        await dataRefreshService.RefreshStreamGroupSMChannelLinks().ConfigureAwait(false);
-        //await hubContext.Clients.All.ClearByTag(new ClearByTag("GetPagedSMChannes", "IsHidden")).ConfigureAwait(false);
-        //await hubContext.Clients.All.DataRefresh("StreamGroupSMChannelLinks").ConfigureAwait(false);
+
         return res;
     }
 }

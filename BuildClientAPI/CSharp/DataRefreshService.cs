@@ -25,8 +25,9 @@ public static class DataRefreshService
         content.AppendLine("{");
         content.AppendLine("    public interface IDataRefreshService: IDataRefreshServicePartial");
         content.AppendLine("    {");
-
-        content.AppendLine($"        Task RefreshAll();");
+        content.AppendLine("        Task SetField(List<FieldData> fieldData);");
+        content.AppendLine("        Task ClearByTag(string Entity, string Tag);");
+        content.AppendLine("        Task RefreshAll();");
 
         foreach (var namespaceName in methodsByNamespace.Keys)
         {

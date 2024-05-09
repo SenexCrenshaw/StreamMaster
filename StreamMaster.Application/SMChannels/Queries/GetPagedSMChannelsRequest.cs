@@ -42,6 +42,9 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
                 }
             }
 
+            channel.StreamGroupIds = channel.StreamGroups.Select(a => a.StreamGroupId).ToList();
+
+
             if (hlsSettings.CurrentValue.HLSM3U8Enable)
             {
                 videoUrl = $"{url}/api/stream/{channel.Id}.m3u8";

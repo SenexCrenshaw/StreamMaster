@@ -1,7 +1,7 @@
 import SMButton from '@components/sm/SMButton';
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { useShowHidden } from '@lib/redux/hooks/showHidden';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 interface SMTriSelectShowSGProperties {
   readonly dataKey: string;
@@ -11,6 +11,18 @@ interface SMTriSelectShowSGProperties {
 export const SMTriSelectShowSG = ({ dataKey, onChange }: SMTriSelectShowSGProperties) => {
   const { showHidden, setShowHidden } = useShowHidden(dataKey);
   const { selectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
+
+  const isDisabled = useMemo(() => {
+    return selectedStreamGroup !== undefined && selectedStreamGroup.Id === 1;
+  }, [selectedStreamGroup]);
+
+  useEffect(() => {
+    if (isDisabled && showHidden !== null) {
+      setShowHidden(null);
+      onChange && onChange(null);
+    }
+  }, [isDisabled, onChange, setShowHidden, showHidden]);
+
   const getToolTip = useMemo((): string => {
     if (showHidden === null) {
       return 'All';
@@ -24,6 +36,9 @@ export const SMTriSelectShowSG = ({ dataKey, onChange }: SMTriSelectShowSGProper
   }, [selectedStreamGroup?.Name, showHidden]);
 
   const moveNext = useCallback(() => {
+    if (isDisabled) {
+      return;
+    }
     if (showHidden === null) {
       setShowHidden(true);
       onChange && onChange(true);
@@ -38,7 +53,7 @@ export const SMTriSelectShowSG = ({ dataKey, onChange }: SMTriSelectShowSGProper
 
     setShowHidden(null);
     onChange && onChange(null);
-  }, [onChange, setShowHidden, showHidden]);
+  }, [isDisabled, onChange, setShowHidden, showHidden]);
 
   const getIcon = useMemo(() => {
     if (showHidden === null) {
@@ -64,5 +79,5 @@ export const SMTriSelectShowSG = ({ dataKey, onChange }: SMTriSelectShowSGProper
     return 'icon-red';
   }, [showHidden]);
 
-  return <SMButton icon={getIcon} iconFilled={false} className={getColor} onClick={() => moveNext()} rounded tooltip={getToolTip} />;
+  return <SMButton disabled={isDisabled} icon={getIcon} iconFilled={false} className={getColor} onClick={() => moveNext()} rounded tooltip={getToolTip} />;
 };

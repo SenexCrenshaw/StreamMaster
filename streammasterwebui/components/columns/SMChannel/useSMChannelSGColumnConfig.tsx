@@ -18,7 +18,7 @@ export const useSMChannelSGColumnConfig = (dataKey: string, id: string) => {
   const { showHidden, setShowHidden } = useShowHidden(dataKey); //+ selectedStreamGroup?.Id ?? '0');
 
   const bodyTemplate = useCallback((bodyData: SMChannelDto) => {
-    return <EPGSGEditor data={bodyData} />;
+    return <EPGSGEditor smChannel={bodyData} />;
   }, []);
 
   const updateFilters = useCallback(
@@ -51,25 +51,28 @@ export const useSMChannelSGColumnConfig = (dataKey: string, id: string) => {
 
   useEffect(() => {
     if (!selectedStreamGroup) {
-      console.log('!selectedStreamGroup');
       setQueryAdditionalFilters(undefined);
       return;
     }
 
     if (previousSGID === 0) {
-      console.log('previousSGID 0');
       setPreviousSGID(selectedStreamGroup.Id);
       setQueryAdditionalFilters(undefined);
       return;
     }
 
     if (selectedStreamGroup.Id !== previousSGID) {
-      console.log('no match', selectedStreamGroup.Id, previousSGID);
       setPreviousSGID(selectedStreamGroup.Id);
-      updateFilters(showHidden);
+      if (selectedStreamGroup.Id > 1) {
+        updateFilters(showHidden);
+      } else {
+        setQueryAdditionalFilters(undefined);
+        setShowHidden(null);
+      }
+
       return;
     }
-  }, [previousSGID, selectedStreamGroup, setQueryAdditionalFilters, showHidden, updateFilters]);
+  }, [previousSGID, selectedStreamGroup, setQueryAdditionalFilters, setShowHidden, showHidden, updateFilters]);
 
   const filterTemplate = useCallback(
     (options: ColumnFilterElementTemplateOptions): ReactNode => {

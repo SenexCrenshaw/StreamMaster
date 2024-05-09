@@ -178,6 +178,7 @@ export interface SMChannelDto
 	RealUrl: string;
 	SMStreams: SMStreamDto[];
 	StationId: string;
+	StreamGroupIds: number[];
 	StreamGroups: StreamGroupSMChannelLink[];
 	StreamingProxyType: StreamingProxyTypes;
 	TimeShift: number;

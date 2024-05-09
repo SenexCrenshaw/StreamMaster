@@ -237,8 +237,8 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
     public override IQueryable<SMChannel> GetQuery(bool tracking = false)
     {
         return tracking
-            ? base.GetQuery(tracking).Include(a => a.SMStreams).ThenInclude(a => a.SMStream)
-            : base.GetQuery(tracking).Include(a => a.SMStreams).ThenInclude(a => a.SMStream).AsNoTracking();
+            ? base.GetQuery(tracking).Include(a => a.SMStreams).ThenInclude(a => a.SMStream).Include(a => a.StreamGroups)
+            : base.GetQuery(tracking).Include(a => a.SMStreams).ThenInclude(a => a.SMStream).Include(a => a.StreamGroups).AsNoTracking();
     }
 
     public override IQueryable<SMChannel> GetQuery(Expression<Func<SMChannel, bool>> expression, bool tracking = false)

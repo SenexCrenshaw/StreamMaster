@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record SetSMChannelNameRequest(int SMChannelId, string Name) : IRequest<APIResponse>;
 
-internal class SetSMChannelNameRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<SetSMChannelNameRequest, APIResponse>
+internal class SetSMChannelNameRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService) : IRequestHandler<SetSMChannelNameRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(SetSMChannelNameRequest request, CancellationToken cancellationToken)
     {
@@ -17,7 +17,7 @@ internal class SetSMChannelNameRequestHandler(IRepositoryWrapper Repository, IMe
 
         FieldData fd = new(nameof(SMChannelDto), request.SMChannelId.ToString(), "Name", request.Name);
 
-        await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
+        await dataRefreshService.SetField([fd]).ConfigureAwait(false);
         //await messageService.SendSuccess($"Set name to '{request.Name}'");
         return ret;
     }
