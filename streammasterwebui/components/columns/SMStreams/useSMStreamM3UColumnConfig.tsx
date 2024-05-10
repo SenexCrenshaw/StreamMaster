@@ -22,7 +22,7 @@ export const useSMStreamM3UColumnConfig = () => {
   function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
     return (
       <MultiSelect
-        className="w-full"
+        className="w-full input-height-with-no-borders"
         filter
         ref={multiSelectRef}
         itemTemplate={itemTemplate}

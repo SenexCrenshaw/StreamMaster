@@ -23,7 +23,7 @@ export const useSMChannelGroupColumnConfig = () => {
   function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
     return (
       <MultiSelect
-        className="w-full"
+        className="w-full input-height-with-no-borders"
         filter
         ref={multiSelectRef}
         itemTemplate={itemTemplate}
@@ -39,7 +39,7 @@ export const useSMChannelGroupColumnConfig = () => {
           }
         }}
         options={data}
-        placeholder="Channel Group"
+        placeholder="Group"
         value={options.value}
         selectedItemTemplate={itemTemplate}
       />

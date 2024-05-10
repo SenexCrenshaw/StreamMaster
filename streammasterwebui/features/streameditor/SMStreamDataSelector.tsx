@@ -42,8 +42,6 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
   const { queryFilter } = useQueryFilter(dataKey);
   const { isLoading } = useGetPagedSMStreams(queryFilter);
 
-  // console.log('SMStreamDataSelectorValue', selectedSMChannel?.SMStreams.length);
-
   useEffect(() => {
     if (propsEnableEdit !== enableEdit) {
       setEnableEdit(propsEnableEdit ?? true);
@@ -183,14 +181,13 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
   const rightHeaderTemplate = useMemo(
     () => (
       <div className="flex flex-row justify-content-end align-items-center w-full gap-1  pr-1">
-        <div className="flex">
-          <M3UFilesButton />
-        </div>
-        <SMButton className="icon-red-filled" icon="pi-times" rounded onClick={() => {}} />
+        <M3UFilesButton />
+        <StreamMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} skipOverLayer />
+        <SMButton className="icon-red" iconFilled icon="pi-times" rounded onClick={() => {}} />
         {/* <SMButton className="icon-green-filled" icon="pi-plus" rounded onClick={() => {}} /> */}
         <CreateSMChannelsDialog selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} />
-        <SMButton className="icon-orange-filled" icon="pi pi-bars" rounded onClick={() => {}} />
-        <StreamMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} skipOverLayer />
+        <SMButton className="icon-orange" iconFilled icon="pi pi-bars" rounded onClick={() => {}} />
+
         {/* <TriSelectShowHidden dataKey={dataKey} /> */}
         {/* <TriSelectShowHidden dataKey={dataKey} />
         <VideoStreamSetTimeShiftsDialog id={dataKey} />
@@ -266,7 +263,6 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         }}
         onRowClick={(e: DataTableRowClickEvent) => {
           setSelectedSMEntity(e.data, true);
-          // props.onRowClick?.(e);
         }}
         rowClass={rowClass}
         queryFilter={useGetPagedSMStreams}

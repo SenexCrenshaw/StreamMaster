@@ -72,9 +72,10 @@ const StreamMultiVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, sele
 
   return (
     <SMButton
-      className="icon-red-filled"
+      className="icon-red"
       disabled={getTotalCount === 0}
       icon="pi-eye-slash"
+      iconFilled
       rounded
       onClick={async (event) => {
         await onVisiblesClick();

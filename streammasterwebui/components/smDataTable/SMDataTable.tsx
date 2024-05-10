@@ -40,7 +40,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   const { state, setters } = useSMDataSelectorValuesState<T>(props.id, props.selectedItemsKey);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const [hasScrollbar, setHasScrollbar] = useState(false);
+  const [, setHasScrollbar] = useState(false);
 
   const tableReference = useRef<DataTable<T[]>>(null);
 
@@ -411,7 +411,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 
           return (
             <MultiSelect
-              className="multiselectcolumn"
+              className="multiselectcolumn w-full input-height-with-no-borders"
               value={selectedCols}
               options={cols}
               optionLabel="field"
@@ -579,6 +579,19 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     return props.enablePaginator === true && state.dataSource && state.dataSource.length >= state.rows;
   }, [props.enablePaginator, state.dataSource, state.rows]);
 
+  const getClass = useMemo(() => {
+    if (showPageination !== true) {
+      return 'sm-datatable surface-overlay';
+    }
+    return 'sm-datatable surface-overlay';
+  }, [showPageination]);
+
+  const getWrapperDiv = useMemo(() => {
+    if (showPageination !== true) {
+      return 'sm-standard-border-bottom';
+    }
+    return 'sm-standard-border-bottom-no-radius';
+  }, [showPageination]);
   return (
     <div
       id={props.id}
@@ -598,7 +611,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       }}
       className=""
     >
-      <div className={hasScrollbar ? 'sm-datatable surface-overlay no-top-border' : 'sm-datatable surface-overlay no-top-border'}>
+      <div className={getClass}>
         {sourceRenderHeader && (
           <div>
             <div className="sm-datatable-header">{sourceRenderHeader}</div>
@@ -635,6 +648,9 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           paginator={showPageination}
           paginatorClassName="text-xs"
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+          pt={{
+            wrapper: { className: getWrapperDiv }
+          }}
           ref={tableReference}
           rowClassName={props.rowClass ? props.rowClass : rowClass}
           rowExpansionTemplate={props.rowExpansionTemplate}
@@ -672,6 +688,17 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             showFilterOperator={false}
             resizeable={false}
           />
+
+          <Column
+            className={'w-2rem max-w-2rem p-0 justify-content-center align-items-center sm-expander'}
+            filterElement={props.expanderHeader !== undefined ? props.expanderHeader : undefined}
+            filter={props.expanderHeader !== undefined}
+            hidden={!props.showExpand || props.rowExpansionTemplate === undefined}
+            showFilterMenu={false}
+            showFilterOperator={false}
+            resizeable={false}
+            expander
+          />
           <Column
             body={showSelection ? selectionTemplate : undefined}
             className="w-2rem max-w-2rem p-0 justify-content-center align-items-center"
@@ -684,21 +711,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             showFilterOperator={false}
             hidden={!showSelection}
             style={{ maxWidth: '2rem', width: '2rem' }}
-          />
-
-          <Column
-            className={
-              showSelection
-                ? 'w-3rem max-w-3rem p-0 justify-content-center align-items-center sm-expander'
-                : 'w-2rem max-w-2rem p-0 justify-content-center align-items-center sm-expander'
-            }
-            filterElement={props.expanderHeader !== undefined ? props.expanderHeader : undefined}
-            filter={props.expanderHeader !== undefined}
-            hidden={!props.showExpand || props.rowExpansionTemplate === undefined}
-            showFilterMenu={false}
-            showFilterOperator={false}
-            resizeable={false}
-            expander
           />
           <Column
             body={

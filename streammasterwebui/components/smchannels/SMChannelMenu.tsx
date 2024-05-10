@@ -18,7 +18,8 @@ const SMChannelMenu = () => {
         </div>
       </OverlayPanel>
       <SMButton
-        className="icon-orange-filled"
+        className="icon-orange"
+        iconFilled
         icon="pi pi-bars"
         rounded
         onClick={(event) => {

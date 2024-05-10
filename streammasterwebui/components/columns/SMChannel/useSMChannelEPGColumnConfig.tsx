@@ -62,10 +62,10 @@ export const useSMChannelEPGColumnConfig = () => {
       const color = getColor(option.EPGNumber);
 
       return (
-        <div className="flex align-items-center gap-1">
-          <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
-          <span>{option.Name}</span>
-        </div>
+        <>
+          <i className="pi pi-circle-fill pr-2 " style={{ color: color }} />
+          <span className="text-container">{option.Name}</span>
+        </>
       );
     },
     [getColor]
@@ -74,7 +74,7 @@ export const useSMChannelEPGColumnConfig = () => {
   function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
     return (
       <MultiSelect
-        className="w-11"
+        className="w-11 input-height-with-no-borders"
         filter
         ref={multiSelectRef}
         itemTemplate={itemTemplate}

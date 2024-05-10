@@ -1,5 +1,4 @@
-.multiselectcolumn {
-}
+.multiselectcolumn {}
 
 .p-multiselect-trigger {
   width: 1rem;
@@ -177,7 +176,7 @@
   margin: 0;
 }
 
-#startNumber > input {
+#startNumber>input {
   @extend .input-border;
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
@@ -218,17 +217,22 @@
   border-top-right-radius: 0 !important;
 }
 
+.p-dropdown-label.p-inputtext {
+  display: flex;
+  align-items: center;
+}
+
 .p-inputnumber-button-group {
   height: $input-height;
 
-  > button:first-child {
+  >button:first-child {
     border-width: 0.025rem;
     border-top-color: $iconOrange;
     border-right-color: $iconOrange;
     border-left-color: $iconOrange;
   }
 
-  > button:last-child {
+  >button:last-child {
     border-width: 0.025rem;
     border-bottom-color: $iconOrange;
     border-right-color: $iconOrange;

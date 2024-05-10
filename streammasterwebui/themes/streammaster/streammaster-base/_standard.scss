@@ -12,14 +12,13 @@ $colors: (
     "bluegray": #8191a6,
     "purple": #7654d4,
     "red": #ff5d44,
-    "primary": $primaryColor,
-    "streammaster":$streamMasterColor) !default;
+    "primary": $primaryColor) !default;
 
 //scale
 $scaleXS: 0.75 !default;
 $scaleSM: 0.875 !default;
 $scaleLG: 1.25 !default;
-$scaleXLG: 2 !default;
+$scaleXLG: 1.75 !default;
 
 //global
 $common-font-size: 0.75rem;
@@ -288,7 +287,7 @@ $editorToolbarIconHoverColor: $textColor !default;
 $editorIconActiveColor: $primaryColor !default;
 $editorContentBorder: $panelContentBorder !default;
 $editorContentBg: $panelContentBg !default;
-$paginatorBorderWidth: 2px !default;
+$paginatorBorderWidth: $borderSize !default;
 $paginatorPadding: 0.0rem 1rem !default;
 $paginatorElement: $datatable-row-height !default;
 $paginatorElementWidth: $paginatorElement !default;
@@ -299,7 +298,7 @@ $paginatorElementHoverBorderColor: transparent !default;
 $paginatorElementBorderRadius: $borderRadius !default;
 $paginatorElementMargin: 0.143rem !default;
 $paginatorElementPadding: 0 !default;
-$tableHeaderBorderWidth: 0 0 2px 0 !default;
+$tableHeaderBorderWidth: 0 0 $borderSize 0 !default;
 $tableHeaderFontWeight: 600 !default;
 $tableHeaderPadding: 1rem 1rem !default;
 $tableHeaderCellPadding: 1rem 1rem !default;

@@ -13,7 +13,8 @@ const M3UFilesButton = () => {
       title="M3U FILES"
       widthSize="5"
       icon="pi-upload"
-      buttonClassName="icon-green-filled"
+      iconFilled
+      buttonClassName="w-4rem icon-green"
       buttonLabel="M3U"
       header={<M3UFileCreateDialog onUploadComplete={closeOverlay} />}
     >

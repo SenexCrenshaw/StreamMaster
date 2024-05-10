@@ -3,9 +3,12 @@ $primaryLightColor: #91a4e3 !default;
 $primaryLighterColor: scale-color($primaryColor, $lightness: 60%) !default;
 $primaryTextColor: #898989 !default;
 $borderRadius: 6px !default;
+
 $highlightBg: #ced6f1 !default;
 $highlightTextColor: #585858 !default;
 $highlightFocusBg: darken($highlightBg, 8%) !default;
+
+$orangeHightLight: #b4653c;
 
 $iconGreen: #22c55e;
 $iconOrange: #ff935a;

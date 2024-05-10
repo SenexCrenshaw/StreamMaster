@@ -25,7 +25,8 @@ const StreamGroupButton = () => {
         title="STREAM GROUPS"
         widthSize="5"
         icon="pi-file-edit"
-        buttonClassName="icon-orange-filled"
+        iconFilled
+        buttonClassName="w-3rem icon-orange"
         buttonLabel="SG"
         header={<StreamGroupCreateDialog />}
       >

@@ -1,9 +1,37 @@
+.orange-highlight-bg {
+    background-color: $orangeHightLight;
+}
+
+.red-bg {
+    background-color: $iconRed;
+}
+
+.orange-bg {
+    background-color: $iconOrange;
+}
+
+.yellow-bg {
+    background-color: $iconYellow;
+}
+
+.green-bg {
+    background-color: $iconGreen;
+}
+
+.blue-bg {
+    background-color: $iconBlue;
+}
+
+.primary-bg {
+    background-color: $primaryColor;
+}
+
 .icon-primary {
     color: $primaryColor;
 }
 
 .icon-primary-filled {
-    background-color: $primaryColor;
+    @extend .primary-bg;
     color: $inputBg;
     border: 2px solid $primaryColor;
 }
@@ -13,7 +41,7 @@
 }
 
 .icon-green-filled {
-    background-color: $iconGreen;
+    @extend .green-bg;
     color: $inputBg;
     border: 2px solid $iconGreen;
 }
@@ -23,7 +51,7 @@
 }
 
 .icon-red-filled {
-    background-color: $iconRed;
+    @extend .red-bg;
     color: $inputBg;
     border: 2px solid $iconRed;
 }
@@ -33,7 +61,7 @@
 }
 
 .icon-orange-filled {
-    background-color: $iconOrange;
+    @extend .orange-bg;
     color: $inputBg;
     border: 2px solid $iconOrange;
 }
@@ -43,7 +71,7 @@
 }
 
 .icon-yellow-filled {
-    background-color: $iconYellow;
+    @extend .yellow-bg;
     color: $inputBg;
     border: 2px solid $iconYellow;
 }
@@ -53,7 +81,7 @@
 }
 
 .icon-blue-filled {
-    background-color: $iconBlue;
+    @extend .blue-bg;
     color: $inputBg;
     border: 2px solid $iconBlue;
 }

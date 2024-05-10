@@ -2,7 +2,8 @@ $layoutPadding: 0.4rem;
 $input-padding: 0.1rem;
 $datatable-padding: $input-padding;
 $datatable-x-padding: $input-padding*2;
-$inputBorder-size: $input-padding;
+$borderSize: $input-padding;
+$inputBorder-size: $borderSize;
 $datatable-row-height: 1.8rem;
 
 $input-height: $datatable-row-height - ($inputBorder-size*2);
@@ -24,8 +25,6 @@ $gridItem-margin: .15rem;
 $gridItem-image-height: $gridItem-height - ($gridItem-margin*2) - $input-height;
 $gridItem-image-width: $gridItem-width - ($gridItem-margin*2);
 
-
-$streamMasterColor: #fe7600 !default;
 
 .blue-header-color {
     color: $blue-header-color;
@@ -61,28 +60,12 @@ $streamMasterColor: #fe7600 !default;
     padding-top: $layoutPadding;
 }
 
-.streammaster-color {
-    color: $streamMasterColor;
-}
 
 .default-border {
     border: 2px solid var(--cyan-600) !important;
     border-radius: $borderRadius;
 }
 
-.streammaster-border {
-    border: 1px solid $streamMasterColor !important;
-    border-radius: $borderRadius;
-}
-
-.dialog-border {
-    border: 1px solid $streamMasterColor !important;
-    border-radius: $borderRadius;
-}
-
-.surface-streamMaster {
-    background-color: $streamMasterColor;
-}
 
 @mixin text-overflow() {
     overflow: hidden;
@@ -110,6 +93,6 @@ $streamMasterColor: #fe7600 !default;
 }
 
 @mixin standard-border() {
-    border: 2px solid var(--surface-100);
+    border: 1px solid $inputHoverBorderColor;
     border-radius: $borderRadius;
 }

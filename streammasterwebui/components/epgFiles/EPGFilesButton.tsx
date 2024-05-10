@@ -13,7 +13,8 @@ const EPGFilesButton = () => {
       title="EPG FILES"
       widthSize="5"
       icon="pi-upload"
-      buttonClassName="icon-green-filled"
+      iconFilled
+      buttonClassName="w-4rem icon-green"
       buttonLabel="EPG"
       header={<EPGFileCreateDialog onUploadComplete={closeOverlay} />}
     >

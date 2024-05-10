@@ -63,10 +63,6 @@
     padding-left: $layoutPadding;
 }
 
-.sm-datatable {
-    border-radius: $borderRadius;
-}
-
 
 .p-listbox-item {
     @include datatable-text-style();
@@ -78,18 +74,31 @@
     background-color: $headerBg !important;
 }
 
+.sm-standard-border {
+    @include standard-border();
+}
+
+.sm-standard-border-bottom {
+    border-bottom-width: $inputBorder-size;
+    border-bottom-style: solid;
+    border-bottom-color: $inputHoverBorderColor;
+    border-bottom-left-radius: $borderRadius !important;
+    border-bottom-right-radius: $borderRadius !important;
+}
+
+.sm-standard-border-bottom-no-radius {
+    border-bottom-width: $inputBorder-size;
+    border-bottom-style: solid;
+    border-bottom-color: $inputHoverBorderColor;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
 .sm-M3UFileTags {
     .sm-button {
         border-radius: $borderRadius !important;
         height: $input-height - ($input-padding * 2) !important;
     }
-}
-
-.sm-datatable-header {
-    @extend .sm-input-border;
-    background-color: $tableHeaderBg !important;
-    padding-top: $datatable-header-padding;
-    padding-bottom: $datatable-header-padding;
 }
 
 .sm-tableHeaderBg {
@@ -106,13 +115,13 @@
     border-top-width: 0;
     border-right-width: 0;
 
-    div.p-datatable-wrapper {
+    .p-datatable-wrapper {
         border-top-right-radius: $borderRadius !important;
     }
 }
 
 .no-top-border {
-    div.p-datatable-wrapper {
+    .p-datatable-wrapper {
         border-top-width: 0 !important;
     }
 }
@@ -121,36 +130,14 @@
     padding: $layoutPadding;
 }
 
-.p-datatable-wrapper {
-    @extend .sm-datatable-header;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    padding: 0 !important;
-    background-color: var(--surface-ground) !important;
-
-    &::-webkit-scrollbar {
-        width: 12px;
-    }
-
-    &::-webkit-scrollbar-track {
-        background-color: $inputBg;
-        border-radius: $borderRadius;
-        border-right-width: 0;
-        border-bottom-width: 0;
-        border: 1px solid $inputBorderColor;
-    }
-
-    &::-webkit-scrollbar-thumb {
-        background-color: $inputBorderColor;
-        border-radius: $borderRadius;
-        // border-bottom-width: 0;
-        // border: 2px solid $inputBg;
-    }
-
-    &::-webkit-scrollbar-thumb:hover {
-        background-color: $inputBorderColor;
-    }
+.p-multiselect-label-container {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    flex: 1 1 auto;
+    cursor: pointer;
 }
+
 
 .surface-overlay {
     background-color: var(--surface-ground) !important;

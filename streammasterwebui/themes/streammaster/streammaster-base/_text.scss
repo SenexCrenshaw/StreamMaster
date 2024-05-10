@@ -31,8 +31,8 @@
 
 .text-xlg {
     // @extend .padding-xlg;
-    font-size: $input-height-with-no-borders;
-    // @include scaledFontSize($common-font-size, $scaleXLG);
+    //font-size: $input-height-with-no-borders;
+    @include scaledFontSize($common-font-size, $scaleXLG);
 }
 
 .header-text-color {
@@ -184,16 +184,10 @@
     @extend .stringeditorbody-inputtext;
 
     background-color: $inputBg !important;
-    // border-style: solid !important;
-    // border-color: red !important;
-    // border-width: 1px !important;
-    // width: 100%;
-
 }
 
 .text-default-color {
     color: $textColor;
-    //color: $inputTextColor;
 }
 
 .sm-input-xs {

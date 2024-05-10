@@ -12,10 +12,9 @@ import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/
 import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import { GetSMChannelStreamsRequest, RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
-import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
-const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
-
+import SMDataTable from '@components/smDataTable/SMDataTable';
 interface SMStreamDataForSMChannelSelectorProperties {
   readonly enableEdit?: boolean;
   readonly id: string;
@@ -160,23 +159,21 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
   );
 
   return (
-    <Suspense>
-      <SMDataTable
-        columns={columns}
-        defaultSortField="Name"
-        defaultSortOrder={1}
-        addOrRemoveTemplate={addOrRemoveTemplate}
-        addOrRemoveHeaderTemplate={addOrRemoveHeaderTemplate}
-        enablePaginator
-        emptyMessage="No Streams"
-        headerName={GetMessage('m3ustreams').toUpperCase()}
-        isLoading={isLoading}
-        id={dataKey}
-        rowClass={rowClass}
-        queryFilter={useGetPagedSMStreams}
-        style={{ height: height ?? 'calc(100vh - 100px)' }}
-      />
-    </Suspense>
+    <SMDataTable
+      columns={columns}
+      defaultSortField="Name"
+      defaultSortOrder={1}
+      addOrRemoveTemplate={addOrRemoveTemplate}
+      addOrRemoveHeaderTemplate={addOrRemoveHeaderTemplate}
+      enablePaginator
+      emptyMessage="No Streams"
+      headerName={GetMessage('m3ustreams').toUpperCase()}
+      isLoading={isLoading || smChannelIsLoading}
+      id={dataKey}
+      rowClass={rowClass}
+      queryFilter={useGetPagedSMStreams}
+      style={{ height: height ?? 'calc(100vh - 100px)' }}
+    />
   );
 };
 
