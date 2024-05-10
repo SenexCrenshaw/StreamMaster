@@ -88,9 +88,9 @@ const SMButton = forwardRef<Button, SMButtonProps>(
             className={`${tooltipClassName} input-wrapper`}
             data-pr-tooltip={tooltip}
             data-pr-position={isLeft ? 'left' : 'right'}
-            data-pr-showDelay="400"
-            data-pr-hideDelay="100"
-            data-pr-autoHide="true"
+            data-pr-showdelay={400}
+            data-pr-hidedelay={100}
+            data-pr-autohide={true}
           >
             {props.children}
             <i className={`input-icon pi ${icon} pr-1`} />

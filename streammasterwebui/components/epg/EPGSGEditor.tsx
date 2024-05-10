@@ -84,17 +84,17 @@ const EPGSGEditor = ({ smChannel, enableEditMode }: EPGSGEditorProperties) => {
             className={tooltipClassName}
             data-pr-tooltip="Select SG"
             data-pr-position="left"
-            data-pr-showDelay="400"
-            data-pr-hideDelay="100"
-            data-pr-autoHide="true"
+            data-pr-showdelay={400}
+            data-pr-hidedelay={100}
+            data-pr-autohide={true}
           >
             <i
               className="pi pi-circle p-disabled"
               data-pr-tooltip="Select SG"
               data-pr-position="left"
-              data-pr-showDelay="400"
-              data-pr-hideDelay="100"
-              data-pr-autoHide="true"
+              data-pr-showdelay={400}
+              data-pr-hidedelay={100}
+              data-pr-autohide={true}
             />
           </span>
         </div>

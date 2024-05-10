@@ -538,24 +538,9 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   }
 
   function selectionHeaderTemplate() {
-    // const isSelected = false;
-    // let tooltip = 'All Selected';
-    // if (!state.selectAll) {
-    //   tooltip = state.selectedItems.length + ' Items';
-    // }
-
-    // if (!isSelected) {
-    //   return (
-    //     <div className="flex justify-content-center align-items-center p-0 m-0">
-    //       {showSelection && <Checkbox checked={state.selectAll} onChange={() => toggleAllSelection()} />}
-    //     </div>
-    //   );
-    // }
-
     return (
       <div className="flex justify-content-center align-items-center p-0 m-0">
         {showSelection && <SMTriSelectShowSelect selectedItemsKey={props.selectedItemsKey} id={props.id} onToggle={() => toggleAllSelection()} />}
-        {/* {showSelection && <Checkbox checked={selectAllStatus ?? false} onChange={() => toggleAllSelection()} tooltip={tooltip} />} */}
       </div>
     );
   }
@@ -742,7 +727,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
                   body={(e) => (col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, setting.defaultIcon, col.camelize))}
                   editor={col.editor}
                   field={col.field}
-                  hidden={col.isHidden === true} //|| getHeader(col.field, col.header, col.fieldType) === 'Actions' ? true : undefined}
+                  hidden={col.isHidden === true}
                   key={col.fieldType ? col.field + col.fieldType : col.field}
                   style={getStyle(col, col.noAutoStyle !== true || col.bodyTemplate !== undefined)}
                   showAddButton

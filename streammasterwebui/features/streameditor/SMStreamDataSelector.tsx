@@ -42,13 +42,15 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
   const { queryFilter } = useQueryFilter(dataKey);
   const { isLoading } = useGetPagedSMStreams(queryFilter);
 
+  // console.log('SMStreamDataSelectorValue', selectedSMChannel?.SMStreams.length);
+
   useEffect(() => {
     if (propsEnableEdit !== enableEdit) {
       setEnableEdit(propsEnableEdit ?? true);
     }
   }, [enableEdit, propsEnableEdit]);
 
-  const actionBodyTemplate = useCallback(
+  const actionTemplate = useCallback(
     (data: SMStreamDto) => (
       <div className="flex p-0 justify-content-end align-items-center">
         <StreamCopyLinkDialog realUrl={data.RealUrl} />
@@ -72,15 +74,12 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      // { field: 'Logo', fieldType: 'image' },
       { field: 'Name', filter: true, sortable: true, width: '18rem' },
       groupColumnConfig,
       smStreamM3UColumnConfig,
-      // { field: 'Group', filter: true, sortable: true },
-      // { field: 'M3UFileName', filter: true, header: 'M3U', sortable: true },
-      { align: 'right', bodyTemplate: actionBodyTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '4rem' }
+      { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '4rem' }
     ],
-    [actionBodyTemplate, groupColumnConfig, smStreamM3UColumnConfig]
+    [actionTemplate, groupColumnConfig, smStreamM3UColumnConfig]
   );
 
   const addOrRemoveTemplate = useCallback(

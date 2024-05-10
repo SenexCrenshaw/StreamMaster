@@ -4,9 +4,9 @@ import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { GetMessage } from '@lib/common/common';
 import { RemoveSMStreamFromSMChannel, SetSMStreamRanks } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 import { RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMChannelRankRequest, SMStreamDto, SetSMStreamRanksRequest } from '@lib/smAPI/smapiTypes';
-import { DataTableRowEvent, DataTableValue } from 'primereact/datatable';
+import { DataTableValue } from 'primereact/datatable';
 import { Suspense, lazy, memo, useCallback, useMemo } from 'react';
-import useSelectedSMItems from './useSelectedSMItems';
+// import useSelectedSMItems from './useSelectedSMItems';
 
 const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
 interface SMStreamDataSelectorValueProperties {
@@ -16,10 +16,8 @@ interface SMStreamDataSelectorValueProperties {
 
 const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueProperties) => {
   const dataKey = `${id}-SMStreamDataSelectorValue`;
-  // const { data, isLoading } = useGetSMChannelStreams({ SMChannelId: smChannel?.Id } as GetSMChannelStreamsRequest);
-  const { setSelectedSMChannel } = useSelectedSMItems();
 
-  const actionBodyTemplate = useCallback(
+  const actionTemplate = useCallback(
     (smStream: SMStreamDto) => (
       <div className="flex p-0 justify-content-end align-items-center">
         <MinusButton
@@ -52,14 +50,14 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
       { field: 'M3UFileName', header: 'M3U', sortable: false, width: '5rem' },
       {
         align: 'right',
-        bodyTemplate: actionBodyTemplate,
+        bodyTemplate: actionTemplate,
         field: '',
         fieldType: 'actions',
-        // header: 'Actions',
+        header: 'Actions',
         width: '5rem'
       }
     ],
-    [actionBodyTemplate]
+    [actionTemplate]
   );
 
   if (!smChannel?.SMStreams) {
@@ -107,9 +105,6 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
               });
 
             console.log('tosend', tosend);
-          }}
-          onRowExpand={(e: DataTableRowEvent) => {
-            setSelectedSMChannel(e.data as SMChannelDto);
           }}
           id={dataKey}
           selectedItemsKey={'SMStreamDataSelectorValue-selectSelectedSMStreamDtoItems'}

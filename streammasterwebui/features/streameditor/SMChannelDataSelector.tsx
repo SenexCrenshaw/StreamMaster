@@ -58,6 +58,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
 
   const rowExpansionTemplate = useCallback((data: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
     const channel = data as unknown as SMChannelDto;
+    setSelectedSMChannel(channel);
     return (
       <div className="border-2 border-round-lg border-200 ml-3 m-1">
         <SMStreamDataSelectorValue smChannel={channel} id={channel.Id + '-streams'} />
