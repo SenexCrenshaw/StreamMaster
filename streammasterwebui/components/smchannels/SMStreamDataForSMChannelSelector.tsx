@@ -43,7 +43,6 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
   const columns = useMemo(
     (): ColumnMeta[] => [
       { field: 'Name', filter: true, sortable: true, width: '8rem' },
-      { field: 'Group', filter: true, maxWidth: '4rem', sortable: true },
       { field: 'M3UFileName', filter: true, header: 'M3U', maxWidth: '4rem', sortable: true }
     ],
     []
@@ -168,6 +167,7 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
       enablePaginator
       emptyMessage="No Streams"
       headerName={GetMessage('m3ustreams').toUpperCase()}
+      headerClassName="header-text-channels"
       isLoading={isLoading || smChannelIsLoading}
       id={dataKey}
       rowClass={rowClass}

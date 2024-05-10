@@ -7,6 +7,7 @@ interface TableHeaderProperties {
   enableExport: boolean;
   exportCSV: () => void;
   headerName?: string;
+  headerClassName?: string;
   onMultiSelectClick?: (value: boolean) => void;
   rowClick: boolean;
   setRowClick: (value: boolean) => void;
@@ -14,6 +15,7 @@ interface TableHeaderProperties {
 
 const TableHeader: React.FC<TableHeaderProperties> = ({
   headerName,
+  headerClassName = 'header-text',
   onMultiSelectClick,
   rowClick,
   setRowClick,
@@ -32,7 +34,7 @@ const TableHeader: React.FC<TableHeaderProperties> = ({
     <div className="flex flex-row align-items-center justify-content-between border-white">
       {(headerName || onMultiSelectClick) && (
         <div className={`${col} text-sm`}>
-          <span className="header-text">{headerName}</span>
+          <span className={headerClassName}>{headerName}</span>
 
           {onMultiSelectClick && (
             <div hidden={dataSelectorProps.selectionMode !== 'selectable'}>

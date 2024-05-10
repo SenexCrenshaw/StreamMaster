@@ -18,6 +18,7 @@ type EPGResult = { epgNumber: number; stationId: string };
 
 type EPGSelectorProperties = {
   readonly enableEditMode?: boolean;
+  readonly darkBackGround?: boolean;
   readonly disabled?: boolean;
   readonly editable?: boolean | undefined;
   readonly smChannel?: SMChannelDto;
@@ -25,7 +26,7 @@ type EPGSelectorProperties = {
   readonly simple?: boolean;
 };
 
-const EPGSelector = ({ enableEditMode = true, smChannel, disabled, editable, onChange, simple }: EPGSelectorProperties) => {
+const EPGSelector = ({ enableEditMode = true, smChannel, darkBackGround = false, disabled, editable, onChange, simple }: EPGSelectorProperties) => {
   const { selectedItems } = useSelectedItems<EPGFileDto>('EPGSelector-EPGFiles');
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
@@ -74,17 +75,6 @@ const EPGSelector = ({ enableEditMode = true, smChannel, disabled, editable, onC
   }, []);
 
   const options = useMemo(() => {
-    // if (queryFilter.JSONFiltersString !== '[]') {
-    //   const metaDataArray: SMDataTableFilterMetaData[] = JSON.parse(queryFilter.JSONFiltersString);
-    //   if (metaDataArray) {
-    //     const metaData = metaDataArray.filter((x) => x.fieldName === 'EPGId' && x.matchMode !== 'notContains');
-    //     if (metaData.length > 0) {
-    //       const toIgnore = metaData.flatMap((x) => x.value);
-    //       return query.data?.filter((x) => toIgnore.some((prefix) => x.Channel.startsWith(prefix)));
-    //     }
-    //   }
-    // }
-
     if (!query.data) {
       return undefined;
     }
@@ -209,7 +199,7 @@ const EPGSelector = ({ enableEditMode = true, smChannel, disabled, editable, onC
     [colorsQuery.data, epgQuery.data, extractEPGNumberAndStationId, input]
   );
 
-  const valueTemplate = useCallback(
+  const buttonTemplate = useCallback(
     (option2: StationChannelName | undefined): JSX.Element => {
       if (!input) {
         return <div className="text-xs text-container text-white-alpha-40">None</div>;
@@ -306,7 +296,7 @@ const EPGSelector = ({ enableEditMode = true, smChannel, disabled, editable, onC
   const messageContent = useMemo(() => {
     return (
       <>
-        <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right">
+        <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right ">
           <Suspense>
             <div className="flex w-12 ml-1">
               <SMScroller
@@ -415,8 +405,16 @@ const EPGSelector = ({ enableEditMode = true, smChannel, disabled, editable, onC
   }
 
   return (
-    <SMOverlay header={headerTemplate} title="EPG" widthSize="2" icon="pi-chevron-down" buttonTemplate={valueTemplate(stationChannelName)} buttonLabel="EPG">
-      <div>{messageContent}</div>
+    <SMOverlay
+      buttonDarkBackground={darkBackGround}
+      header={headerTemplate}
+      title="EPG"
+      widthSize="2"
+      icon="pi-chevron-down"
+      buttonTemplate={buttonTemplate(stationChannelName)}
+      buttonLabel="EPG"
+    >
+      {messageContent}
     </SMOverlay>
   );
 };

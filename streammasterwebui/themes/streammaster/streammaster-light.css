@@ -7015,11 +7015,11 @@
   font-size: 0.65625rem;
 }
 
-.padding-lg, .text-lg {
+.padding-lg, .text-lg, .header-text-sub {
   padding: 0rem 0.3rem;
 }
 
-.text-lg {
+.text-lg, .header-text-sub {
   font-size: 0.9375rem;
 }
 
@@ -7031,7 +7031,7 @@
   font-size: 1.3125rem;
 }
 
-.header-text-color, .header-text {
+.header-text-color, .header-text-sub, .header-text {
   color: #ff7e00;
 }
 
@@ -7047,6 +7047,24 @@
   display: flex;
   align-items: center;
   padding: 0 !important;
+  font-weight: bold;
+  height: 1.4rem !important;
+}
+
+.header-text-sub {
+  display: flex;
+  align-items: center;
+  padding: 0 !important;
+  padding-left: 0.8rem !important;
+  font-weight: bold;
+  height: 1.4rem !important;
+}
+
+.header-text-channels {
+  display: flex;
+  align-items: center;
+  padding: 0 !important;
+  padding-left: 0.8rem !important;
   font-weight: bold;
   height: 1.4rem !important;
 }
@@ -7135,6 +7153,8 @@
 }
 
 .stringeditorbody-inputtext, .p-inputnumber-input, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark {
+  height: 1.4rem;
+  max-height: 1.4rem;
   position: relative;
   display: flex;
   align-items: center;
@@ -7527,10 +7547,6 @@
   color: transparent;
 }
 
-.sm-expander .p-row-toggler {
-  max-height: 1.6rem;
-}
-
 .sm-upload-button {
   background-color: #22c55e !important;
   border-color: #22c55e !important;
@@ -7914,10 +7930,17 @@
   align-items: center;
   justify-content: flex-start;
   width: calc(100% - 1.4rem);
+  height: 1.4rem;
 }
 
 .sm-icon-selector {
   flex-wrap: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: calc(100% - 1.4rem);
+  height: 1.4rem;
+  max-height: 1.4rem;
 }
 
 .listTemplate-gridItem-name,
@@ -7965,6 +7988,14 @@
 .sm-datatable {
   border-radius: 6px;
 }
+.sm-datatable .p-row-toggler {
+  height: 1.4rem;
+}
+
+.sm-expander .p-row-toggler {
+  height: 1.4rem;
+  max-height: 1.4rem;
+}
 
 .sm-datatable-header, .p-datatable-wrapper {
   background-color: #1d2327 !important;
@@ -7994,6 +8025,14 @@
 }
 .p-datatable-wrapper::-webkit-scrollbar-thumb:hover {
   background-color: #263238;
+}
+
+.sm-channelgroup-selector {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: calc(100% - 1.4rem);
+  height: 1.4rem;
 }
 
 .p-datatable {
@@ -8246,8 +8285,8 @@
 }
 
 .icon-template {
-  height: 1.6rem;
-  max-height: 1.6rem;
+  height: 1.4rem;
+  max-height: 1.4rem;
   justify-content: center;
   align-items: center;
 }
@@ -8256,7 +8295,7 @@
 }
 .icon-template img {
   padding: 0.2rem;
-  height: 1.6rem;
+  height: 1.4rem;
   width: 2rem;
   object-fit: contain;
 }

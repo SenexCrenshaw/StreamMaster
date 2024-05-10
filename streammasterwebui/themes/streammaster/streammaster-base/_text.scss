@@ -57,6 +57,27 @@
     height: $input-height-with-no-borders !important;
 }
 
+.header-text-sub {
+    @extend .text-lg;
+    @extend .header-text-color;
+    display: flex;
+    align-items: center;
+    padding: 0 !important;
+    padding-left: $headerTextLeft !important;
+    font-weight: bold;
+    height: $input-height-with-no-borders !important;
+}
+
+.header-text-channels {
+
+    display: flex;
+    align-items: center;
+    padding: 0 !important;
+    padding-left: $headerTextLeft !important;
+    font-weight: bold;
+    height: $input-height-with-no-borders !important;
+}
+
 .info-header-text {
     @extend .text-xlg;
     @extend .text-color;
@@ -162,6 +183,8 @@
 .stringeditorbody-inputtext {
     @extend .sm-input;
     @extend .text-container;
+    height: $input-height-with-no-borders;
+    max-height: $input-height-with-no-borders;
     position: relative;
     display: flex;
     align-items: center;

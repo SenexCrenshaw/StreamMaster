@@ -110,6 +110,7 @@ const SMChannelSMStreamNewDataSelector = ({ enableEdit: propsEnableEdit, height,
         enablePaginator
         emptyMessage="No Streams"
         headerName={headerName}
+        headerClassName="header-text-channels"
         isLoading={smChannelIsLoading}
         id={dataKey}
         style={{ height: height ?? 'calc(100vh - 100px)' }}
@@ -138,6 +139,7 @@ const SMChannelSMStreamNewDataSelector = ({ enableEdit: propsEnableEdit, height,
       enablePaginator
       emptyMessage="No Streams"
       headerName={headerName}
+      headerClassName="header-text-channels"
       isLoading={false}
       id={dataKey}
       style={{ height: height ?? 'calc(100vh - 100px)' }}

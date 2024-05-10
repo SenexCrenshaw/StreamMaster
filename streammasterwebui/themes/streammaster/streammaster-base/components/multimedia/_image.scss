@@ -6,8 +6,8 @@
 
 .icon-template {
 
-  height: $input-height;
-  max-height: $input-height;
+  height: $input-height-with-no-borders;
+  max-height: $input-height-with-no-borders;
   justify-content: center;
   align-items: center;
 
@@ -18,7 +18,7 @@
   img {
     @extend .sm-input-border;
     padding: 0.2rem;
-    height: $input-height;
+    height: $input-height-with-no-borders;
     width: $gridItem-width;
     object-fit: contain;
   }

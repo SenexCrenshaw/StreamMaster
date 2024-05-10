@@ -9,6 +9,7 @@ export type SeverityType = 'danger' | 'help' | 'info' | 'secondary' | 'success' 
 export interface SMButtonProps {
   readonly children?: React.ReactNode;
   readonly className?: string;
+  readonly darkBackGround?: boolean;
   readonly disabled?: boolean;
   readonly color?: string;
   readonly icon?: string;
@@ -29,6 +30,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
     {
       className: configuredClassName,
       color = 'val(--primary-color-text)',
+      darkBackGround = false,
       disabled = false,
       icon,
       iconPos = 'right',
@@ -79,9 +81,11 @@ const SMButton = forwardRef<Button, SMButtonProps>(
       };
     }, [color, style]);
 
+    const className = darkBackGround ? 'input-border-dark' : '';
+
     if (props.children) {
       return (
-        <>
+        <div className={className}>
           <Tooltip target={`.${tooltipClassName}`} />
           <div
             onClick={onClick}
@@ -95,7 +99,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
             {props.children}
             <i className={`input-icon pi ${icon} pr-1`} />
           </div>
-        </>
+        </div>
       );
     }
 

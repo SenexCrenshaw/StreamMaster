@@ -20,6 +20,7 @@ interface SMChannelDialogProperties {
 const SMChannelDialog = ({ smChannel, onSave }: SMChannelDialogProperties) => {
   const dataKey = 'SMChannelSMStreamDialog-SMStreamDataForSMChannelSelector';
   const { selectedItems } = useSelectedItems<SMStreamDto>(dataKey);
+  const [tempSMChannel, setTempSMChannel] = useState<SMChannelDto | undefined>(undefined);
 
   const query = useGetStationChannelNames();
   const [request, setRequest] = React.useState<CreateSMChannelRequest>({} as CreateSMChannelRequest);
@@ -27,6 +28,7 @@ const SMChannelDialog = ({ smChannel, onSave }: SMChannelDialogProperties) => {
 
   useEffect(() => {
     if (smChannel && smChannel.Name !== request.Name) {
+      setTempSMChannel(smChannel);
       setRequest({ ...smChannel });
     } else {
       // if (request.Logo === undefined || request.Logo === '') {
@@ -86,6 +88,15 @@ const SMChannelDialog = ({ smChannel, onSave }: SMChannelDialogProperties) => {
     (value: string) => {
       if (request.EPGId !== value) {
         request.EPGId = value;
+
+        if (!tempSMChannel) {
+          const newTempSMChannel = { EPGId: value } as SMChannelDto;
+          setTempSMChannel(newTempSMChannel);
+        } else {
+          const newTempSMChannel = { ...tempSMChannel, EPGId: value };
+          setTempSMChannel(newTempSMChannel);
+        }
+
         if (query.data) {
           const station = query.data.find((e) => e.Id === value);
           if (station) {
@@ -95,7 +106,7 @@ const SMChannelDialog = ({ smChannel, onSave }: SMChannelDialogProperties) => {
         setRequest(request);
       }
     },
-    [query.data, request]
+    [query.data, request, tempSMChannel]
   );
 
   const isSaveEnabled = useMemo(() => {
@@ -148,9 +159,7 @@ const SMChannelDialog = ({ smChannel, onSave }: SMChannelDialogProperties) => {
             <div className="w-6 justify-content-start align-items-center">
               <label>EPG</label>
               <div className="pt-small" />
-              <span className="flex align-items-center input-border-dark">
-                <EPGSelector value={request.EPGId} onChange={(e) => e && setEPGId(e)} />
-              </span>
+              <EPGSelector darkBackGround smChannel={tempSMChannel} onChange={(e) => e && setEPGId(e)} />
             </div>
           </div>
           <div className="flex w-12 gap-1">

@@ -38,7 +38,7 @@ const ChannelGroupSelector = ({ enableEditMode = true, className, value, disable
   }, [value, originalInput, channelGroupQuery.data]);
 
   const itemTemplate = useCallback((option: ChannelGroupDto): JSX.Element => {
-    return <div className="text-xs pl-2">{option.Name}</div>;
+    return <div className=" text-xs pl-2 text-container">{option.Name}</div>;
   }, []);
 
   const handleOnChange = (group: ChannelGroupDto) => {
@@ -55,7 +55,7 @@ const ChannelGroupSelector = ({ enableEditMode = true, className, value, disable
 
   const buttonTemplate = useMemo(() => {
     // if (input) return <div className="text-xs text-container sm-hover">{input}</div>;
-    if (input) return <div className="text-container">{input}</div>;
+    if (input) return <div className="sm-channelgroup-selector text-container">{input}</div>;
 
     return <div>None</div>;
 
@@ -75,7 +75,7 @@ const ChannelGroupSelector = ({ enableEditMode = true, className, value, disable
   }
 
   return (
-    <SMOverlay buttonTemplate={buttonTemplate} title="GROUPS" widthSize="3" icon="pi-chevron-down" buttonLabel="EPG">
+    <SMOverlay buttonTemplate={buttonTemplate} title="GROUPS" widthSize="3" icon="pi-chevron-down">
       <SMScroller
         data={channelGroupQuery.data}
         onChange={(e) => handleOnChange(e)}

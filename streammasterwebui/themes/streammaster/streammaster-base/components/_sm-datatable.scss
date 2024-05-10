@@ -1,5 +1,16 @@
 .sm-datatable {
     border-radius: $borderRadius;
+
+    .p-row-toggler {
+        height: $input-height-with-no-borders;
+    }
+}
+
+.sm-expander {
+    .p-row-toggler {
+        height: $input-height-with-no-borders;
+        max-height: $input-height-with-no-borders;
+    }
 }
 
 .sm-datatable-header {

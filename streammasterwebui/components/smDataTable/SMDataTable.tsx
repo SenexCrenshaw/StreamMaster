@@ -481,6 +481,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         dataSelectorProps={props}
         enableExport={props.enableExport ?? true}
         exportCSV={exportCSV}
+        headerClassName={props.headerClassName}
         headerName={props.headerName}
         onMultiSelectClick={props.onMultiSelectClick}
         rowClick={state.rowClick}

@@ -1,5 +1,5 @@
-import { QueryHook, QueryStringParameters } from '@lib/apiDefs';
-import { PagedResponse } from '@lib/smAPI/smapiTypes';
+import { QueryHook } from '@lib/apiDefs';
+import { PagedResponse, QueryStringParameters } from '@lib/smAPI/smapiTypes';
 import { Column } from 'primereact/column';
 import { DataTableRowClickEvent, DataTableRowData, DataTableRowEvent, DataTableRowExpansionTemplate } from 'primereact/datatable';
 import { CSSProperties, MouseEventHandler, ReactNode } from 'react';
@@ -26,6 +26,7 @@ interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
   enablePaginator?: boolean;
   expanderHeader?: () => ReactNode;
   extraColumns?: Column[];
+  headerClassName?: string;
   headerName?: string;
   id: string;
   isLoading?: boolean;

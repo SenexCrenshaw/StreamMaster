@@ -15,7 +15,7 @@ export const SMCard = ({ children, header, italicized, simple, text, title }: SM
   return (
     <div className="sm-card">
       <div className="sm-card-header flex justify-content-between align-items-center">
-        <div className="header-text">{title}</div>
+        <div className="header-text-sub">{title}</div>
         <div className="pr-1">{header}</div>
       </div>
       <div className="layout-padding-bottom"></div>

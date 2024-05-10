@@ -1,4 +1,10 @@
 .sm-icon-selector {
     @extend .sm-hover;
     flex-wrap: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: calc(100% - $input-height-with-no-borders);
+    height: $input-height-with-no-borders;
+    max-height: $input-height-with-no-borders;
 }

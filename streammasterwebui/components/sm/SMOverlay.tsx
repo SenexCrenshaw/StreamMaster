@@ -6,6 +6,7 @@ import { SMCard } from './SMCard';
 
 interface SMOverlayProperties {
   readonly buttonTemplate?: ReactNode;
+  readonly buttonDarkBackground?: boolean;
   readonly children: React.ReactNode;
   readonly header?: React.ReactNode;
   readonly buttonClassName?: string | undefined;
@@ -23,6 +24,7 @@ export const SMOverlay = ({
   buttonTemplate,
   buttonClassName = '',
   buttonLabel = '',
+  buttonDarkBackground = false,
   iconFilled = false,
   children,
   header,
@@ -38,13 +40,29 @@ export const SMOverlay = ({
   const renderButton = () => {
     if (buttonTemplate) {
       return (
-        <SMButton className={buttonClassName} iconFilled={iconFilled} icon={icon} tooltip={tooltip} label={buttonLabel} onClick={(e) => op.current?.toggle(e)}>
+        <SMButton
+          darkBackGround={buttonDarkBackground}
+          className={buttonClassName}
+          iconFilled={iconFilled}
+          icon={icon}
+          tooltip={tooltip}
+          label={buttonLabel}
+          onClick={(e) => op.current?.toggle(e)}
+        >
           {buttonTemplate}
         </SMButton>
       );
     }
     return (
-      <SMButton className={buttonClassName} iconFilled={iconFilled} icon={icon} tooltip={tooltip} label={buttonLabel} onClick={(e) => op.current?.toggle(e)} />
+      <SMButton
+        darkBackGround={buttonDarkBackground}
+        className={buttonClassName}
+        iconFilled={iconFilled}
+        icon={icon}
+        tooltip={tooltip}
+        label={buttonLabel}
+        onClick={(e) => op.current?.toggle(e)}
+      />
     );
   };
 
