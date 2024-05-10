@@ -1,6 +1,5 @@
 import SMButton from '@components/sm/SMButton';
 import { AutoSetEPG } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-
 import { AutoSetEPGRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import React from 'react';
 
@@ -17,21 +16,6 @@ const AutoSetEPGSMChannelDialog = ({ smChannel }: AutoSetEPGSMChannelDialogPrope
     const request = {} as AutoSetEPGRequest;
     request.Ids = [smChannel.Id];
     await AutoSetEPG(request);
-    //   .then(() => {})
-    //   .catch((error) => {
-    //     console.error(error);
-    //   })
-    //   .finally(() => {
-    //     smDialogRef.current?.close();
-    //   });
-    // CopySMChannel(request)
-    //   .then(() => {})
-    //   .catch((error) => {
-    //     console.error(error);
-    //   })
-    //   .finally(() => {
-    //     smDialogRef.current?.close();
-    //   });
   }, [smChannel]);
 
   return (

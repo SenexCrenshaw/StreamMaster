@@ -1,6 +1,6 @@
 import { SMDataTableFilterMetaData, addOrUpdateValueForField, hasValidAdditionalProps, isEmptyObject } from '@lib/common/common';
 
-import { GetApiArgument, areGetApiArgsEqual } from '@lib/apiDefs';
+import { QueryStringParameters, areGetApiArgsEqual } from '@lib/apiDefs';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useShowHidden } from '@lib/redux/hooks/showHidden';
 
@@ -111,7 +111,7 @@ export const useSetQueryFilter = (
 
     const JSONFiltersString = JSON.stringify(transformedFilters);
 
-    const apiState: GetApiArgument = {
+    const apiState: QueryStringParameters = {
       JSONFiltersString,
       OrderBy: sortString,
       PageNumber: page,

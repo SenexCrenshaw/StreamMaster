@@ -26,7 +26,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return [.. GetQuery().Include(a => a.SMStreams).ThenInclude(a => a.SMStream).ProjectTo<SMChannelDto>(mapper.ConfigurationProvider)];
     }
 
-    public PagedResponse<SMChannelDto>? CreateEmptyPagedResponse()
+    public PagedResponse<SMChannelDto> CreateEmptyPagedResponse()
     {
         return PagedExtensions.CreateEmptyPagedResponse<SMChannelDto>(Count());
     }
@@ -410,19 +410,19 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return await ToggleSMChannelsVisibleById([.. query.Select(a => a.Id)], cancellationToken);
     }
 
-    public async Task<List<SMChannelDto>> AutoSetEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken)
+    public async Task<List<FieldData>> AutoSetEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken)
     {
         IQueryable<SMChannel> smChannels = GetQuery(parameters);
         return await AutoSetEPGs(smChannels, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<List<SMChannelDto>> AutoSetEPGFromIds(List<int> ids, CancellationToken cancellationToken)
+    public async Task<List<FieldData>> AutoSetEPGFromIds(List<int> ids, CancellationToken cancellationToken)
     {
         IQueryable<SMChannel> smChannels = GetQuery(a => ids.Contains(a.Id));
         return await AutoSetEPGs(smChannels, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task<List<SMChannelDto>> AutoSetEPGs(IQueryable<SMChannel> smChannels, CancellationToken cancellationToken)
+    private async Task<List<FieldData>> AutoSetEPGs(IQueryable<SMChannel> smChannels, CancellationToken cancellationToken)
     {
         List<StationChannelName> stationChannelNames = await schedulesDirectDataService.GetStationChannelNames();
         stationChannelNames = stationChannelNames.OrderBy(a => a.Channel).ToList();
@@ -430,21 +430,20 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         List<string> tomatch = stationChannelNames.Select(a => a.DisplayName).Distinct().ToList();
         string tomatchString = string.Join(',', tomatch);
 
-        List<SMChannelDto> results = [];
+        var fds = new List<FieldData>();
 
-        await Parallel.ForEachAsync(smChannels, async (smChannel, token) =>
+        await Parallel.ForEachAsync(smChannels, (smChannel, token) =>
         {
-            var scoredMatches = stationChannelNames
-                .Select(p => new
-                {
-                    Channel = p,
-                    Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.Channel)
-                })
-                .Where(x => x.Score > 0)
-                .OrderByDescending(x => x.Score)
-                .ToList();
+            var scoredMatches = stationChannelNames.Select(p => new
+            {
+                Channel = p,
+                Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.Channel)
+            })
+            .Where(x => x.Score > 0)
+            .OrderByDescending(x => x.Score)
+            .ToList();
 
-            if (!scoredMatches.Any())
+            if (scoredMatches.Count == 0)
             {
                 scoredMatches = stationChannelNames
                     .Select(p => new
@@ -457,31 +456,37 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
                     .ToList();
             }
 
-            if (scoredMatches.Any())
+            if (scoredMatches.Count != 0)
             {
                 smChannel.EPGId = scoredMatches[0].Channel.Channel;
+
+                fds.Add(new FieldData(SMChannel.MainGet, smChannel.Id, "EPGId", smChannel.EPGId));
                 Update(smChannel);
 
                 if (Settings.VideoStreamAlwaysUseEPGLogo)
                 {
-                    SetVideoStreamLogoFromEPG(smChannel);
+                    if (SetVideoStreamLogoFromEPG(smChannel))
+                    {
+                        fds.Add(new FieldData(SMChannel.MainGet, smChannel.Id, "Logo", smChannel.Logo));
+                    }
                 }
-                results.Add(mapper.Map<SMChannelDto>(smChannel));
             }
+
+            return new ValueTask();
         });
 
 
-        if (results.Any())
+        if (fds.Count != 0)
         {
             await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
-        return results;
+        return fds;
     }
 
     private bool SetVideoStreamLogoFromEPG(SMChannel smChannel)
     {
         MxfService? service = schedulesDirectDataService.GetService(smChannel.EPGId);
-        //MxfService? service = await sender.Send(new GetService(smChannel.EPGId), cancellationToken).ConfigureAwait(false);
+
         if (service is null || !service.extras.TryGetValue("logo", out dynamic? value))
         {
             return false;
@@ -493,5 +498,35 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             smChannel.Logo = logo.Url;
         }
         return true;
+    }
+
+    public async Task<List<FieldData>> SetSMChannelsLogoFromEPGFromIds(List<int> ids, CancellationToken cancellationToken)
+    {
+        IQueryable<SMChannel> smChannels = GetQuery(a => ids.Contains(a.Id));
+        return await SetSMChannelsLogoFromEPG(smChannels, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<List<FieldData>> SetSMChannelsLogoFromEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken)
+    {
+        IQueryable<SMChannel> query = GetQuery(parameters);
+        return await SetSMChannelsLogoFromEPG(query, cancellationToken);
+    }
+
+    private async Task<List<FieldData>> SetSMChannelsLogoFromEPG(IQueryable<SMChannel> smChannels, CancellationToken cancellationToken)
+    {
+        var fds = new List<FieldData>();
+        foreach (var smChannel in smChannels.Where(a => !string.IsNullOrEmpty(a.EPGId)))
+        {
+            if (SetVideoStreamLogoFromEPG(smChannel))
+            {
+                fds.Add(new FieldData(SMChannel.MainGet, smChannel.Id, "Logo", smChannel.Logo));
+            }
+        }
+
+        if (fds.Count != 0)
+        {
+            await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+        return fds;
     }
 }

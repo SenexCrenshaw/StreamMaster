@@ -7,11 +7,11 @@ namespace StreamMaster.Domain.Repository;
 
 public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
 {
-    IQueryable<SMChannel> GetQuery(Expression<Func<SMChannel, bool>> expression, bool tracking = false);
+    new IQueryable<SMChannel> GetQuery(Expression<Func<SMChannel, bool>> expression, bool tracking = false);
     Task CreateSMChannel(SMChannel sMChannel);
     PagedResponse<SMChannelDto> CreateEmptyPagedResponse();
     Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(QueryStringParameters parameters);
-    IQueryable<SMChannel> GetQuery(bool tracking = false);
+    new IQueryable<SMChannel> GetQuery(bool tracking = false);
     List<SMChannelDto> GetSMChannels();
     Task<APIResponse> DeleteSMChannel(int smchannelId);
     Task<List<int>> DeleteSMChannelsFromParameters(QueryStringParameters parameters);
@@ -32,6 +32,8 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     Task<List<FieldData>> ToggleSMChannelsVisibleById(List<int> ids, CancellationToken cancellationToken);
     Task<SMChannelDto?> ToggleSMChannelVisibleById(int id, CancellationToken cancellationToken);
     Task<List<FieldData>> ToggleSMChannelVisibleByParameters(QueryStringParameters parameters, CancellationToken cancellationToken);
-    Task<List<SMChannelDto>> AutoSetEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken);
-    Task<List<SMChannelDto>> AutoSetEPGFromIds(List<int> ids, CancellationToken cancellationToken);
+    Task<List<FieldData>> AutoSetEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken);
+    Task<List<FieldData>> AutoSetEPGFromIds(List<int> ids, CancellationToken cancellationToken);
+    Task<List<FieldData>> SetSMChannelsLogoFromEPGFromIds(List<int> ids, CancellationToken cancellationToken);
+    Task<List<FieldData>> SetSMChannelsLogoFromEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken);
 }

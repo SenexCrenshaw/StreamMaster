@@ -1,3 +1,5 @@
+import { QueryStringParameters } from './smAPI/smapiTypes';
+
 export interface QueryHookResult<T> {
   data?: T;
   error?: Error | string | null;
@@ -26,20 +28,20 @@ export interface CacheItem<T> {
   timestamp: number;
 }
 
-export interface GetApiArgument {
-  count?: number;
-  first?: number;
-  JSONArgumentString?: string | null;
-  JSONFiltersString?: string | null;
-  last?: number;
-  name?: string;
-  OrderBy?: string;
-  PageNumber?: number;
-  PageSize?: number;
-  StreamGroupId?: number | undefined;
-}
+// export interface QueryStringParameters extends QueryStringParameters {
+//   // // count?: number;
+//   // // first?: number;
+//   // JSONArgumentString: string;
+//   // JSONFiltersString: string;
+//   // // last?: number;
+//   // // name?: string;
+//   // OrderBy: string;
+//   // PageNumber: number;
+//   // PageSize: number;
+//   // // StreamGroupId?: number;
+// }
 
-const compareProperties = (propertyName: keyof GetApiArgument, object1: GetApiArgument, object2: GetApiArgument) => {
+const compareProperties = (propertyName: keyof QueryStringParameters, object1: QueryStringParameters, object2: QueryStringParameters) => {
   const value1 = object1[propertyName];
   const value2 = object2[propertyName];
 
@@ -48,22 +50,22 @@ const compareProperties = (propertyName: keyof GetApiArgument, object1: GetApiAr
   return result;
 };
 
-export function areGetApiArgsEqual(object1?: GetApiArgument, object2?: GetApiArgument): boolean {
+export function areGetApiArgsEqual(object1?: QueryStringParameters, object2?: QueryStringParameters): boolean {
   // Handle cases where one or both arguments are undefined
   if (!object1 && !object2) return true;
   if (!object1 || !object2) return false;
 
   return (
-    compareProperties('count', object1, object2) &&
-    compareProperties('first', object1, object2) &&
+    // compareProperties('count', object1, object2) &&
+    // compareProperties('first', object1, object2) &&
     compareProperties('JSONArgumentString', object1, object2) &&
     compareProperties('JSONFiltersString', object1, object2) &&
-    compareProperties('last', object1, object2) &&
-    compareProperties('name', object1, object2) &&
+    // compareProperties('last', object1, object2) &&
+    // compareProperties('name', object1, object2) &&
     compareProperties('OrderBy', object1, object2) &&
     compareProperties('PageNumber', object1, object2) &&
-    compareProperties('PageSize', object1, object2) &&
-    compareProperties('StreamGroupId', object1, object2)
+    compareProperties('PageSize', object1, object2)
+    // compareProperties('StreamGroupId', object1, object2)
   );
 }
 

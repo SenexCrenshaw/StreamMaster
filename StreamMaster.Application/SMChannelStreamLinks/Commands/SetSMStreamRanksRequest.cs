@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-
-using StreamMaster.Application.SMChannelStreamLinks.Queries;
+﻿using StreamMaster.Application.SMChannelStreamLinks.Queries;
 
 namespace StreamMaster.Application.SMChannelStreamLinks.Commands;
 
@@ -8,7 +6,8 @@ namespace StreamMaster.Application.SMChannelStreamLinks.Commands;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record SetSMStreamRanksRequest(List<SMChannelRankRequest> Requests) : IRequest<APIResponse>;
 
-internal class SetSMStreamRanksRequestHandler(IRepositoryWrapper Repository, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor) : IRequestHandler<SetSMStreamRanksRequest, APIResponse>
+internal class SetSMStreamRanksRequestHandler(IRepositoryWrapper Repository, ISender Sender, IDataRefreshService dataRefreshService)
+    : IRequestHandler<SetSMStreamRanksRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(SetSMStreamRanksRequest request, CancellationToken cancellationToken)
     {
@@ -18,23 +17,23 @@ internal class SetSMStreamRanksRequestHandler(IRepositoryWrapper Repository, ISe
             List<FieldData> fieldDatas = [];
             foreach (int smChannelId in request.Requests.Select(a => a.SMChannelId).Distinct())
             {
-                SMChannel? channel = Repository.SMChannel.GetSMChannel(smChannelId);
-                if (channel != null)
+                SMChannel? smChannel = Repository.SMChannel.GetSMChannel(smChannelId);
+                if (smChannel != null)
                 {
-                    DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(channel.Id, channel.SMStreams.Select(a => a.SMStream).ToList()), cancellationToken);
-                    //FieldData fd = new(nameof(SMChannelDto), channel.Id.ToString(), "SMStreams", streams.Data);
+                    DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(smChannel.Id, smChannel.SMStreams.Select(a => a.SMStream).ToList()), cancellationToken);
+
                     if (!fieldDatas.Any(a => a.Entity == "GetSMChannelStreams"))
                     {
-                        GetSMChannelStreamsRequest re = new(channel.Id);
-                        FieldData fd = new("GetSMChannelStreams", re, streams.Data);
+                        GetSMChannelStreamsRequest re = new(smChannel.Id);
 
-                        fieldDatas.Add(fd);
+                        fieldDatas.Add(new("GetSMChannelStreams", re, streams.Data));
+                        fieldDatas.Add(new(SMChannel.MainGet, smChannel.Id, "SMStreams", streams.Data));
                     }
 
                 }
 
             }
-            await hubContext.Clients.All.SetField([.. fieldDatas]).ConfigureAwait(false);
+            await dataRefreshService.SetField(fieldDatas).ConfigureAwait(false);
         }
         return ret;
     }

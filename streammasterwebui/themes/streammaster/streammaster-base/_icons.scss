@@ -47,3 +47,13 @@
     color: $inputBg;
     border: 2px solid $iconYellow;
 }
+
+.icon-blue {
+    color: $iconBlue;
+}
+
+.icon-blue-filled {
+    background-color: $iconBlue;
+    color: $inputBg;
+    border: 2px solid $iconBlue;
+}

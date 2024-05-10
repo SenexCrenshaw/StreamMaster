@@ -1,14 +1,14 @@
-import { GetApiArgument } from '@lib/apiDefs';
+import { QueryStringParameters } from '@lib/apiDefs';
 import { createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
 
 interface SetQueryFilterPayload {
-  value: GetApiArgument | undefined;
+  value: QueryStringParameters | undefined;
   key: string;
 }
 
-type QueryFilterState = Record<string, GetApiArgument | undefined>;
+type QueryFilterState = Record<string, QueryStringParameters | undefined>;
 
 const initialState: QueryFilterState = {};
 
@@ -31,7 +31,7 @@ const selectQueryFilter = createSelector(
 export const useQueryFilter = (key: string) => {
   const dispatch: AppDispatch = useDispatch();
 
-  const setQueryFilter = (value: GetApiArgument | undefined) => {
+  const setQueryFilter = (value: QueryStringParameters | undefined) => {
     dispatch(
       queryFilterSlice.actions.SetQueryFilter({
         key,

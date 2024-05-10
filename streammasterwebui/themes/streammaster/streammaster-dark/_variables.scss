@@ -2,6 +2,7 @@ $iconGreen: #22c55e;
 $iconOrange: #ff935a;
 $iconRed: #e693a9;
 $iconYellow: #cede9c;
+$iconBlue: #94abec;
 $bgcolor: #161d21;
 $inputBg: #12181b !default;
 $textColor: #bcbfbf;
@@ -10,7 +11,7 @@ $surface-ground: $bgcolor;
 $headerBg: #21282c !default;
 $tableHeaderBg: #1d2327 !default;
 $headerTextColor: #ff7e00;
-$editableTextColor: #94abec;
+$editableTextColor: $iconBlue;
 $inputBorderColor: #263238;
 $uploadButtonBg: $iconGreen;
 

@@ -384,6 +384,14 @@ export interface SendSuccessRequest
 	Detail: string;
 	Summary: string;
 }
+export interface SetSMChannelsLogoFromEPGFromParametersRequest
+{
+	Parameters: any;
+}
+export interface SetSMChannelsLogoFromEPGRequest
+{
+	Ids: number[];
+}
 export interface GetPagedSMChannelsRequest
 {
 	Parameters: QueryStringParameters;

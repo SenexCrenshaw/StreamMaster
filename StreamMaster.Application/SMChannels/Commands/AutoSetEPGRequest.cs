@@ -10,17 +10,9 @@ public class AutoSetEPGRequestHandler(IRepositoryWrapper Repository, IMessageSer
     public async Task<APIResponse> Handle(AutoSetEPGRequest request, CancellationToken cancellationToken)
     {
         var results = await Repository.SMChannel.AutoSetEPGFromIds(request.Ids, cancellationToken).ConfigureAwait(false);
-
-        if (results.Any())
+        if (results.Count != 0)
         {
-            var fds = new List<FieldData>();
-            foreach (var result in results)
-            {
-                fds.Add(new FieldData(SMChannel.MainGet, result.Id, "Logo", result.Logo));
-                fds.Add(new FieldData(SMChannel.MainGet, result.Id, "EPGId", result.EPGId));
-            }
-            //await dataRefreshService.RefreshAllSMChannels();
-            await dataRefreshService.SetField(fds);
+            await dataRefreshService.SetField(results);
             await messageService.SendSuccess($"Auto Set EPG For Channels");
         }
         return APIResponse.Ok;

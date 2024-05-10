@@ -7013,6 +7013,16 @@
   border: 2px solid #cede9c;
 }
 
+.icon-blue {
+  color: #94abec;
+}
+
+.icon-blue-filled {
+  background-color: #94abec;
+  color: #12181b;
+  border: 2px solid #94abec;
+}
+
 .padding-xs, .text-xs, .sm-input-xs {
   padding: 0rem 0.18rem;
 }

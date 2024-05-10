@@ -3,15 +3,7 @@ import MinusButton from '@components/buttons/MinusButton';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { GetMessage } from '@lib/common/common';
 import { RemoveSMStreamFromSMChannel, SetSMStreamRanks } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
-import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
-import {
-  GetSMChannelStreamsRequest,
-  RemoveSMStreamFromSMChannelRequest,
-  SMChannelDto,
-  SMChannelRankRequest,
-  SMStreamDto,
-  SetSMStreamRanksRequest
-} from '@lib/smAPI/smapiTypes';
+import { RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMChannelRankRequest, SMStreamDto, SetSMStreamRanksRequest } from '@lib/smAPI/smapiTypes';
 import { DataTableRowEvent, DataTableValue } from 'primereact/datatable';
 import { Suspense, lazy, memo, useCallback, useMemo } from 'react';
 import useSelectedSMItems from './useSelectedSMItems';
@@ -24,7 +16,7 @@ interface SMStreamDataSelectorValueProperties {
 
 const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueProperties) => {
   const dataKey = `${id}-SMStreamDataSelectorValue`;
-  const { data, isLoading } = useGetSMChannelStreams({ SMChannelId: smChannel?.Id } as GetSMChannelStreamsRequest);
+  // const { data, isLoading } = useGetSMChannelStreams({ SMChannelId: smChannel?.Id } as GetSMChannelStreamsRequest);
   const { setSelectedSMChannel } = useSelectedSMItems();
 
   const actionBodyTemplate = useCallback(
@@ -92,10 +84,10 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
           columns={columns}
           defaultSortField="rank"
           defaultSortOrder={1}
-          dataSource={data}
+          dataSource={smChannel.SMStreams}
           emptyMessage="No Streams"
           headerName={GetMessage('streams').toUpperCase()}
-          isLoading={isLoading}
+          // isLoading={isLoading}
           onRowReorder={(event: DataTableValue[]) => {
             const channels = event as unknown as SMStreamDto[];
             if (smChannel === undefined || channels === undefined) {

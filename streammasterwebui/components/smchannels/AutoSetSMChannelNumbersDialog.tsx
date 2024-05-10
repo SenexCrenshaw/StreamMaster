@@ -14,10 +14,8 @@ interface AutoSetSMChannelNumbersProperties {
 const AutoSetSMChannelNumbersDialog = ({ onHide }: AutoSetSMChannelNumbersProperties) => {
   const smDialogRef = useRef<SMDialogRef>(null);
   const { selectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
-
   const [overwriteNumbers, setOverwriteNumbers] = React.useState<boolean>(true);
   const [startNumber, setStartNumber] = React.useState<number>(1);
-
   const { queryFilter } = useQueryFilter('streameditor-SMChannelDataSelector');
 
   const onAutoChannelsSave = React.useCallback(async () => {

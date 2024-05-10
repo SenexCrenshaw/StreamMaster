@@ -1,39 +1,28 @@
 import AddButton from '@components/buttons/AddButton';
 import MinusButton from '@components/buttons/MinusButton';
+import { useSMStreamGroupColumnConfig } from '@components/columns/SMStreams/useSMChannelGroupColumnConfig';
+import { useSMStreamM3UColumnConfig } from '@components/columns/SMStreams/useSMStreamM3UColumnConfig';
 import M3UFilesButton from '@components/m3u/M3UFilesButton';
-
+import SMButton from '@components/sm/SMButton';
+import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import CreateSMChannelsDialog from '@components/smchannels/CreateSMChannelsDialog';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
+import StreamMultiVisibleDialog from '@components/smstreams/StreamMultiVisibleDialog';
 import StreamVisibleDialog from '@components/smstreams/StreamVisibleDialog';
 import { GetMessage } from '@lib/common/common';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
-
-import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
-
-import { useSMStreamGroupColumnConfig } from '@components/columns/SMStreams/useSMChannelGroupColumnConfig';
-import { useSMStreamM3UColumnConfig } from '@components/columns/SMStreams/useSMStreamM3UColumnConfig';
-import SMButton from '@components/sm/SMButton';
-import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
-import CreateSMChannelsDialog from '@components/smchannels/CreateSMChannelsDialog';
-import StreamMultiVisibleDialog from '@components/smstreams/StreamMultiVisibleDialog';
 import { useSelectedSMStreams } from '@lib/redux/hooks/selectedSMStreams';
-import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
+import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
-import {
-  CreateSMChannelFromStreamRequest,
-  GetSMChannelStreamsRequest,
-  RemoveSMStreamFromSMChannelRequest,
-  SMChannelDto,
-  SMStreamDto
-} from '@lib/smAPI/smapiTypes';
+import { CreateSMChannelFromStreamRequest, RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent, DataTableRowEvent, DataTableValue } from 'primereact/datatable';
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import useSelectedSMItems from './useSelectedSMItems';
 
 const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
-
 interface SMStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
   readonly id: string;
@@ -45,7 +34,6 @@ interface SMStreamDataSelectorProperties {
 const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple = false, showSelections }: SMStreamDataSelectorProperties) => {
   const dataKey = `${id}-SMStreamDataSelector`;
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
-  const { data: smChannelStreamsData } = useGetSMChannelStreams({ SMChannelId: selectedSMChannel?.Id } as GetSMChannelStreamsRequest);
 
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { setSelectedSMStreams } = useSelectedSMStreams(dataKey);
@@ -97,7 +85,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
 
   const addOrRemoveTemplate = useCallback(
     (data: any) => {
-      const found = smChannelStreamsData?.some((item) => item.Id === data.Id) ?? false;
+      const found = selectedSMChannel?.SMStreams?.some((item) => item.Id === data.Id) ?? false;
 
       let toolTip = 'Add Channel';
       if (selectedSMChannel !== undefined) {
@@ -169,7 +157,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         </div>
       );
     },
-    [selectedSMChannel, smChannelStreamsData]
+    [selectedSMChannel]
   );
 
   function addOrRemoveHeaderTemplate() {
@@ -238,16 +226,16 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         return 'bg-red-900';
       }
 
-      if (data && smChannelStreamsData && smChannelStreamsData !== undefined && Array.isArray(smChannelStreamsData)) {
+      if (data && selectedSMChannel?.SMStreams !== undefined && selectedSMChannel.SMStreams.length > 0) {
         const id = getRecord(data, 'Id');
-        if (smChannelStreamsData.some((stream) => stream.Id === id)) {
+        if (selectedSMChannel.SMStreams.some((stream) => stream.Id === id)) {
           return 'bg-blue-900';
         }
       }
 
       return '';
     },
-    [smChannelStreamsData]
+    [selectedSMChannel]
   );
 
   return (

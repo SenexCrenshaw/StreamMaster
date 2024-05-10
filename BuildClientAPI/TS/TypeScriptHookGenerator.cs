@@ -73,7 +73,7 @@ public static class TypeScriptHookGenerator
         string p = "QueryHookResult";
         if (method.IsGetPaged)
         {
-            p += ",GetApiArgument";
+            p += ",QueryStringParameters";
         }
         content.AppendLine($"import {{ {p} }} from '@lib/apiDefs';");
         content.AppendLine("import store, { RootState } from '@lib/redux/store';");
@@ -352,7 +352,7 @@ public static class TypeScriptHookGenerator
     {
         StringBuilder content = new();
 
-        content.AppendLine($"const use{method.Name} = (params?: GetApiArgument | undefined): Result => {{");
+        content.AppendLine($"const use{method.Name} = (params?: QueryStringParameters | undefined): Result => {{");
 
         content.AppendLine("  const dispatch = useAppDispatch();");
 

@@ -34,7 +34,7 @@ import AddButton from '@components/buttons/AddButton';
 import StringTracker from '@components/inputs/StringTracker';
 
 import SMStreamDataSelectorValue from '@features/streameditor/SMStreamDataSelectorValue';
-import { GetApiArgument, QueryHook } from '@lib/apiDefs';
+import { QueryHook, QueryStringParameters } from '@lib/apiDefs';
 
 import { SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
@@ -909,7 +909,7 @@ interface BaseDataSelector2Properties<T = any> {
 }
 
 type QueryFilterProperties<T> = BaseDataSelector2Properties<T> & {
-  queryFilter: (params: GetApiArgument | undefined) => ReturnType<QueryHook<PagedResponse<T> | undefined>>;
+  queryFilter: (params: QueryStringParameters | undefined) => ReturnType<QueryHook<PagedResponse<T> | undefined>>;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -17,6 +17,7 @@ import DeleteSMChannelsDialog from '@components/smchannels/DeleteSMChannelsDialo
 import EditSMChannelDialog from '@components/smchannels/EditSMChannelDialog';
 import SMChannelMenu from '@components/smchannels/SMChannelMenu';
 import SMChannelMultiVisibleDialog from '@components/smchannels/SMChannelMultiVisibleDialog';
+import SetSMChannelsLogoFromEPGDialog from '@components/smchannels/SetSMChannelsLogoFromEPGDialog';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamGroupButton from '@components/streamGroup/StreamGroupButton';
 import { GetMessage } from '@lib/common/common';
@@ -68,7 +69,8 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
     return (
       <div className="flex p-0 m-0 justify-content-end align-items-center">
         <StreamCopyLinkDialog realUrl={data?.RealUrl} />
-        <AutoSetEPGSMChannelDialog label="Auto Set EPG" smChannel={data} />
+        <SetSMChannelsLogoFromEPGDialog smChannel={data} />
+        <AutoSetEPGSMChannelDialog smChannel={data} />
         <CloneSMChannelDialog label="Copy Channel" smChannel={data} />
         <DeleteSMChannelDialog smChannel={data} />
         <EditSMChannelDialog smChannel={data} />

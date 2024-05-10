@@ -30,7 +30,7 @@ import generateFilterData from './generateFilterData';
 import getRecordString from './getRecordString';
 import useDataSelectorState from './useDataSelectorState';
 
-import { GetApiArgument, QueryHook } from '@lib/apiDefs';
+import { QueryHook, QueryStringParameters } from '@lib/apiDefs';
 import { camel2title, getTopToolOptions, isEmptyObject } from '@lib/common/common';
 import { PagedResponseDto } from '@lib/common/dataTypes';
 import BanButton from '../buttons/BanButton';
@@ -704,12 +704,12 @@ interface BaseDataSelectorProperties<T = any> {
 
 type QueryFilterProperties<T> = BaseDataSelectorProperties<T> & {
   dataSource?: T[] | undefined;
-  queryFilter: (filters: GetApiArgument | typeof skipToken) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
+  queryFilter: (filters: QueryStringParameters | typeof skipToken) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
 };
 
 type DataSourceProperties<T> = BaseDataSelectorProperties<T> & {
   dataSource: T[] | undefined;
-  queryFilter?: (filters: GetApiArgument | typeof skipToken) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
+  queryFilter?: (filters: QueryStringParameters | typeof skipToken) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
