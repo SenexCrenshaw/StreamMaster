@@ -6918,7 +6918,7 @@
 }
 
 .orange-highlight-bg {
-  background-color: #b4653c;
+  background-color: #478a5f;
 }
 
 .red-bg, .icon-red-filled {
@@ -7120,6 +7120,14 @@
 .stringeditor .input-icon {
   position: absolute;
   right: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+.stringeditor .input-icon-left {
+  position: absolute;
+  left: 0.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -7899,6 +7907,13 @@
   z-index: 9999;
   height: 100%;
   width: 100%;
+}
+
+.sm-epg-selector {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: calc(100% - 1.4rem);
 }
 
 .sm-icon-selector {

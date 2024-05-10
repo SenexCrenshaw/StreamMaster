@@ -147,7 +147,17 @@
         justify-content: center;
         height: 100%;
     }
+
+    .input-icon-left {
+        position: absolute;
+        left: 0.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
 }
+
 
 .stringeditorbody-inputtext {
     @extend .sm-input;

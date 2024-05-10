@@ -31,7 +31,7 @@ const EPGEditor = ({ data, enableEditMode }: EPGEditorProperties) => {
       onChange={async (e: string) => {
         await onUpdateVideoStream(e);
       }}
-      value={data.EPGId}
+      smChannel={data}
     />
   );
 };

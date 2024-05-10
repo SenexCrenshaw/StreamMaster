@@ -6,7 +6,7 @@ import { useSMContext } from '@lib/signalr/SMProvider';
 import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';
 import useGetEPGFiles from '@lib/smAPI/EPGFiles/useGetEPGFiles';
 import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationChannelNames';
-import { EPGFileDto, StationChannelName } from '@lib/smAPI/smapiTypes';
+import { EPGFileDto, SMChannelDto, StationChannelName } from '@lib/smAPI/smapiTypes';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Tooltip } from 'primereact/tooltip';
 import React, { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
@@ -20,12 +20,12 @@ type EPGSelectorProperties = {
   readonly enableEditMode?: boolean;
   readonly disabled?: boolean;
   readonly editable?: boolean | undefined;
-  readonly value?: string;
+  readonly smChannel?: SMChannelDto;
   readonly onChange?: (value: string) => void;
   readonly simple?: boolean;
 };
 
-const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChange, simple }: EPGSelectorProperties) => {
+const EPGSelector = ({ enableEditMode = true, smChannel, disabled, editable, onChange, simple }: EPGSelectorProperties) => {
   const { selectedItems } = useSelectedItems<EPGFileDto>('EPGSelector-EPGFiles');
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
@@ -46,10 +46,10 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
   }, [epgQuery]);
 
   useEffect(() => {
-    if (value && !checkValue) {
-      setInput(value);
+    if (smChannel && !checkValue) {
+      setInput(smChannel.EPGId);
     }
-  }, [value, checkValue]);
+  }, [smChannel, checkValue]);
 
   const extractEPGNumberAndStationId = useCallback((userTvgId: string): EPGResult => {
     if (!userTvgId.trim()) {
@@ -211,6 +211,10 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
 
   const valueTemplate = useCallback(
     (option2: StationChannelName | undefined): JSX.Element => {
+      if (!input) {
+        return <div className="text-xs text-container text-white-alpha-40">None</div>;
+      }
+
       const stationChannelName = query.data?.find((x) => x.Channel === input);
       if (!stationChannelName) {
         const tooltipClassName = `epgitem-${uuidv4()}`;
@@ -259,19 +263,18 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
       const tooltipClassName = `epgitem-${uuidv4()}`;
 
       return (
-        <>
+        <div className="sm-epg-selector">
           <Tooltip target={`.${tooltipClassName}`} />
-          <div
-            className={`${tooltipClassName} flex align-items-center border-white`}
+          <i
+            className={`${tooltipClassName} pl-1 pi pi-circle-fill`}
+            style={{ color: color }}
             data-pr-hidedelay={100}
             data-pr-position="left"
             data-pr-showdelay={500}
             data-pr-tooltip={epgName}
-          >
-            <i className="pl-1 pi pi-circle-fill" style={{ color: color }} />
-            <span className="text-xs text-container">{beforeCallSign}</span>
-          </div>
-        </>
+          />
+          <div className="text-container pl-1">{beforeCallSign}</div>
+        </div>
       );
     },
     [colorsQuery.data, epgQuery.data, extractEPGNumberAndStationId, input, query.data]

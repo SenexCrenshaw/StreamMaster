@@ -1,7 +1,7 @@
-import { QueryHookResult, QueryStringParameters } from '@lib/apiDefs';
+import { QueryHookResult } from '@lib/apiDefs';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import store, { RootState } from '@lib/redux/store';
-import { FieldData, PagedResponse, SMChannelDto } from '@lib/smAPI/smapiTypes';
+import { FieldData, PagedResponse, QueryStringParameters, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { useCallback, useEffect } from 'react';
 import { fetchGetPagedSMChannels } from './GetPagedSMChannelsFetch';
 import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetPagedSMChannelsSlice';
