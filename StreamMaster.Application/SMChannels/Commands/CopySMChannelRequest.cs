@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace StreamMaster.Application.SMChannels.Commands;
+﻿namespace StreamMaster.Application.SMChannels.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record CopySMChannelRequest(int SMChannelId, string NewName) : IRequest<APIResponse>;
 
-internal class CopySMChannelRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor)
+internal class CopySMChannelRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService)
     : IRequestHandler<CopySMChannelRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CopySMChannelRequest request, CancellationToken cancellationToken)
@@ -19,7 +17,6 @@ internal class CopySMChannelRequestHandler(IRepositoryWrapper Repository, IMessa
         else
         {
             await dataRefreshService.RefreshAllSMChannels();
-            //await hubContext.Clients.All.DataRefresh(SMChannel.MainGet).ConfigureAwait(false);
             await messageService.SendSuccess($"Copied channel");
         }
         return ret;

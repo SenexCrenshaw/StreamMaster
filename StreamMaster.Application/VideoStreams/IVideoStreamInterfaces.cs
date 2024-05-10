@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
+using StreamMaster.Application.SMChannels.Commands;
 using StreamMaster.Application.StreamGroups.CommandsOld;
 using StreamMaster.Application.VideoStreams.Commands;
 using StreamMaster.Application.VideoStreams.Queries;

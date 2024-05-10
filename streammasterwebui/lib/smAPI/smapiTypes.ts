@@ -339,6 +339,27 @@ export interface RemoveSMChannelFromStreamGroupRequest
 	SMChannelId: number;
 	StreamGroupId: number;
 }
+export interface GetPagedSMStreamsRequest
+{
+	Parameters: QueryStringParameters;
+}
+export interface ClearByTag
+{
+	Entity: string;
+	Tag: string;
+}
+export interface ToggleSMStreamsVisibleByIdRequest
+{
+	Ids: string[];
+}
+export interface ToggleSMStreamVisibleByIdRequest
+{
+	Id: string;
+}
+export interface ToggleSMStreamVisibleByParametersRequest
+{
+	Parameters: QueryStringParameters;
+}
 export interface SendSMErrorRequest
 {
 	Detail: string;
@@ -363,39 +384,6 @@ export interface SendSuccessRequest
 	Detail: string;
 	Summary: string;
 }
-export interface GetPagedSMStreamsRequest
-{
-	Parameters: QueryStringParameters;
-}
-export interface ToggleSMChannelsVisibleByIdRequest
-{
-	Ids: number[];
-}
-export interface ToggleSMChannelVisibleByIdRequest
-{
-	Id: number;
-}
-export interface ToggleSMChannelVisibleByParametersRequest
-{
-	Parameters: QueryStringParameters;
-}
-export interface ClearByTag
-{
-	Entity: string;
-	Tag: string;
-}
-export interface ToggleSMStreamsVisibleByIdRequest
-{
-	Ids: string[];
-}
-export interface ToggleSMStreamVisibleByIdRequest
-{
-	Id: string;
-}
-export interface ToggleSMStreamVisibleByParametersRequest
-{
-	Parameters: QueryStringParameters;
-}
 export interface GetPagedSMChannelsRequest
 {
 	Parameters: QueryStringParameters;
@@ -406,6 +394,14 @@ export interface GetSMChannelNamesRequest
 export interface GetSMChannelRequest
 {
 	SMChannelId: number;
+}
+export interface AutoSetEPGFromParametersRequest
+{
+	Parameters: QueryStringParameters;
+}
+export interface AutoSetEPGRequest
+{
+	Ids: number[];
 }
 export interface CopySMChannelRequest
 {
@@ -472,6 +468,18 @@ export interface SetSMChannelNumberRequest
 {
 	ChannelNumber: number;
 	SMChannelId: number;
+}
+export interface ToggleSMChannelsVisibleByIdRequest
+{
+	Ids: number[];
+}
+export interface ToggleSMChannelVisibleByIdRequest
+{
+	Id: number;
+}
+export interface ToggleSMChannelVisibleByParametersRequest
+{
+	Parameters: QueryStringParameters;
 }
 export interface UpdateSMChannelRequest
 {

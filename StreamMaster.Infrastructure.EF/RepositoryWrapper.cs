@@ -64,7 +64,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _smChannel ??= new SMChannelsRepository(SMChannelLogger, this, repositoryContext, mapper, intSettings, iconService);
+                _smChannel ??= new SMChannelsRepository(SMChannelLogger, this, repositoryContext, mapper, intSettings, iconService, schedulesDirectDataService);
                 return _smChannel;
             }
         }

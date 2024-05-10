@@ -32,4 +32,6 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     Task<List<FieldData>> ToggleSMChannelsVisibleById(List<int> ids, CancellationToken cancellationToken);
     Task<SMChannelDto?> ToggleSMChannelVisibleById(int id, CancellationToken cancellationToken);
     Task<List<FieldData>> ToggleSMChannelVisibleByParameters(QueryStringParameters parameters, CancellationToken cancellationToken);
+    Task<List<SMChannelDto>> AutoSetEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken);
+    Task<List<SMChannelDto>> AutoSetEPGFromIds(List<int> ids, CancellationToken cancellationToken);
 }

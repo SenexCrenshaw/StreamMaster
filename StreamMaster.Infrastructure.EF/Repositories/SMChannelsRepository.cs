@@ -7,13 +7,17 @@ using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Exceptions;
 using StreamMaster.Domain.Filtering;
+using StreamMaster.Infrastructure.EF.Helpers;
+using StreamMaster.SchedulesDirect.Domain.Interfaces;
+using StreamMaster.SchedulesDirect.Domain.JsonClasses;
+using StreamMaster.SchedulesDirect.Domain.Models;
 
 using System.Linq.Expressions;
 using System.Text.Json;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IIconService iconService)
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IIconService iconService, ISchedulesDirectDataService schedulesDirectDataService)
     : RepositoryBase<SMChannel>(repositoryContext, intLogger, intSettings), ISMChannelsRepository
 {
 
@@ -404,5 +408,90 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
     {
         IQueryable<SMChannel> query = GetQuery(parameters);
         return await ToggleSMChannelsVisibleById([.. query.Select(a => a.Id)], cancellationToken);
+    }
+
+    public async Task<List<SMChannelDto>> AutoSetEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken)
+    {
+        IQueryable<SMChannel> smChannels = GetQuery(parameters);
+        return await AutoSetEPGs(smChannels, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<List<SMChannelDto>> AutoSetEPGFromIds(List<int> ids, CancellationToken cancellationToken)
+    {
+        IQueryable<SMChannel> smChannels = GetQuery(a => ids.Contains(a.Id));
+        return await AutoSetEPGs(smChannels, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<List<SMChannelDto>> AutoSetEPGs(IQueryable<SMChannel> smChannels, CancellationToken cancellationToken)
+    {
+        List<StationChannelName> stationChannelNames = await schedulesDirectDataService.GetStationChannelNames();
+        stationChannelNames = stationChannelNames.OrderBy(a => a.Channel).ToList();
+
+        List<string> tomatch = stationChannelNames.Select(a => a.DisplayName).Distinct().ToList();
+        string tomatchString = string.Join(',', tomatch);
+
+        List<SMChannelDto> results = [];
+
+        await Parallel.ForEachAsync(smChannels, async (smChannel, token) =>
+        {
+            var scoredMatches = stationChannelNames
+                .Select(p => new
+                {
+                    Channel = p,
+                    Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.Channel)
+                })
+                .Where(x => x.Score > 0)
+                .OrderByDescending(x => x.Score)
+                .ToList();
+
+            if (!scoredMatches.Any())
+            {
+                scoredMatches = stationChannelNames
+                    .Select(p => new
+                    {
+                        Channel = p,
+                        Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.DisplayName)
+                    })
+                    .Where(x => x.Score > 0)
+                    .OrderByDescending(x => x.Score)
+                    .ToList();
+            }
+
+            if (scoredMatches.Any())
+            {
+                smChannel.EPGId = scoredMatches[0].Channel.Channel;
+                Update(smChannel);
+
+                if (Settings.VideoStreamAlwaysUseEPGLogo)
+                {
+                    SetVideoStreamLogoFromEPG(smChannel);
+                }
+                results.Add(mapper.Map<SMChannelDto>(smChannel));
+            }
+        });
+
+
+        if (results.Any())
+        {
+            await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+        return results;
+    }
+
+    private bool SetVideoStreamLogoFromEPG(SMChannel smChannel)
+    {
+        MxfService? service = schedulesDirectDataService.GetService(smChannel.EPGId);
+        //MxfService? service = await sender.Send(new GetService(smChannel.EPGId), cancellationToken).ConfigureAwait(false);
+        if (service is null || !service.extras.TryGetValue("logo", out dynamic? value))
+        {
+            return false;
+        }
+        StationImage logo = value;
+
+        if (logo.Url != null)
+        {
+            smChannel.Logo = logo.Url;
+        }
+        return true;
     }
 }

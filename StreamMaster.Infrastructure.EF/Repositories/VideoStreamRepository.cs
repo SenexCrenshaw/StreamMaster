@@ -1077,7 +1077,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
         return await AutoSetEPGs(videoStreams, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<List<VideoStreamDto>> AutoSetEPGFromParameters(VideoStreamParameters Parameters, List<string> ids, CancellationToken cancellationToken)
+    public async Task<List<VideoStreamDto>> AutoSetEPGFromParameters(VideoStreamParameters Parameters, CancellationToken cancellationToken)
     {
         IQueryable<VideoStream> videoStreams = GetQuery(Parameters);
         return await AutoSetEPGs(videoStreams, cancellationToken).ConfigureAwait(false);

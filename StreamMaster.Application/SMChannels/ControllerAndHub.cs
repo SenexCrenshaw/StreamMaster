@@ -49,6 +49,22 @@ namespace StreamMaster.Application.SMChannels.Controllers
 
         [HttpPatch]
         [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> AutoSetEPGFromParameters(AutoSetEPGFromParametersRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> AutoSetEPG(AutoSetEPGRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
         public async Task<ActionResult<APIResponse>> CopySMChannel(CopySMChannelRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
@@ -153,6 +169,30 @@ namespace StreamMaster.Application.SMChannels.Controllers
 
         [HttpPatch]
         [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> ToggleSMChannelsVisibleById(ToggleSMChannelsVisibleByIdRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> ToggleSMChannelVisibleById(ToggleSMChannelVisibleByIdRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> ToggleSMChannelVisibleByParameters(ToggleSMChannelVisibleByParametersRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
         public async Task<ActionResult<APIResponse>> UpdateSMChannel(UpdateSMChannelRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
@@ -182,6 +222,18 @@ namespace StreamMaster.Application.Hubs
         {
              DataResponse<SMChannelDto> ret = await Sender.Send(request).ConfigureAwait(false);
             return ret.Data;
+        }
+
+        public async Task<APIResponse> AutoSetEPGFromParameters(AutoSetEPGFromParametersRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> AutoSetEPG(AutoSetEPGRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
         }
 
         public async Task<APIResponse> CopySMChannel(CopySMChannelRequest request)
@@ -257,6 +309,24 @@ namespace StreamMaster.Application.Hubs
         }
 
         public async Task<APIResponse> SetSMChannelNumber(SetSMChannelNumberRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> ToggleSMChannelsVisibleById(ToggleSMChannelsVisibleByIdRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> ToggleSMChannelVisibleById(ToggleSMChannelVisibleByIdRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> ToggleSMChannelVisibleByParameters(ToggleSMChannelVisibleByParametersRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

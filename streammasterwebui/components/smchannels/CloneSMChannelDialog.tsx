@@ -7,13 +7,13 @@ import useGetSMChannelNames from '@lib/smAPI/SMChannels/useGetSMChannelNames';
 import { CopySMChannelRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import React, { useCallback, useEffect, useRef } from 'react';
 
-interface CopySMChannelProperties {
+interface CloneSMChannelDialogProperties {
   label: string;
   readonly onHide?: () => void;
   smChannel: SMChannelDto;
 }
 
-const CopySMChannelDialog = ({ label, onHide, smChannel }: CopySMChannelProperties) => {
+const CloneSMChannelDialog = ({ label, onHide, smChannel }: CloneSMChannelDialogProperties) => {
   const smDialogRef = useRef<SMDialogRef>(null);
   const smQuery = useGetSMChannelNames();
 
@@ -96,6 +96,6 @@ const CopySMChannelDialog = ({ label, onHide, smChannel }: CopySMChannelProperti
   );
 };
 
-CopySMChannelDialog.displayName = 'COPYSMCHANNELDIALOG';
+CloneSMChannelDialog.displayName = 'COPYSMCHANNELDIALOG';
 
-export default React.memo(CopySMChannelDialog);
+export default React.memo(CloneSMChannelDialog);

@@ -136,6 +136,9 @@ const EPGSelector = ({ enableEditMode = true, value, disabled, editable, onChang
 
   const scrollerItemTemplate = useCallback(
     (option: EPGFileDto) => {
+      if (option === undefined) {
+        return null;
+      }
       const color = getColor(option.EPGNumber);
       return (
         <span className="sm-standard-text flex align-items-center justify-content-center">

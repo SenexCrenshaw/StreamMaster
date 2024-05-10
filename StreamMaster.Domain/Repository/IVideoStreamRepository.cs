@@ -1,5 +1,4 @@
 ﻿using StreamMaster.Domain.API;
-using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Pagination;
 using StreamMaster.Domain.Requests;
 
@@ -65,8 +64,7 @@ namespace StreamMaster.Domain.Repository
 
         //Task<List<VideoStreamDto>> SetGroupVisibleByGroupId(int id, bool isHidden, CancellationToken cancellationToken);
         Task<List<VideoStreamDto>> SetGroupVisibleByGroupName(string channelGroupName, bool isHidden, CancellationToken cancellationToken);
-        Task<List<VideoStreamDto>> AutoSetEPGFromIds(List<string> ids, CancellationToken cancellationToken);
-        Task<List<VideoStreamDto>> AutoSetEPGFromParameters(VideoStreamParameters parameters, List<string> ids, CancellationToken cancellationToken);
+
         Task<List<VideoStreamDto>> SetVideoStreamTimeShiftsFromIds(List<string> ids, int timeShift, CancellationToken cancellationToken);
         Task<List<VideoStreamDto>> SetVideoStreamTimeShiftFromParameters(VideoStreamParameters parameters, int timeShift, CancellationToken cancellationToken);
         Task<List<VideoStreamDto>> VideoStreamChangeEPGNumber(int oldEPGNumber, int newEPGNumber, CancellationToken cancellationToken);

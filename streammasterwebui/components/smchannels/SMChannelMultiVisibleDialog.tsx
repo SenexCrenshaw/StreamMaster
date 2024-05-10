@@ -2,7 +2,8 @@ import SMButton from '@components/sm/SMButton';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
-import { ToggleSMChannelVisibleByParameters, ToggleSMChannelsVisibleById } from '@lib/smAPI/SMStreams/SMStreamsCommands';
+import { ToggleSMChannelVisibleByParameters, ToggleSMChannelsVisibleById } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+
 import { SMChannelDto, ToggleSMChannelVisibleByParametersRequest, ToggleSMChannelsVisibleByIdRequest } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useMemo } from 'react';
 

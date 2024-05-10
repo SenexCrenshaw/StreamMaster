@@ -9,7 +9,8 @@ import EPGFilesButton from '@components/epgFiles/EPGFilesButton';
 import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import CopySMChannelDialog from '@components/smchannels/CopySMChannelDialog';
+import AutoSetEPGSMChannelDialog from '@components/smchannels/AutoSetEPGSMChannelDialog';
+import CloneSMChannelDialog from '@components/smchannels/CloneSMChannelDialog';
 import CreateSMChannelDialog from '@components/smchannels/CreateSMChannelDialog';
 import DeleteSMChannelDialog from '@components/smchannels/DeleteSMChannelDialog';
 import DeleteSMChannelsDialog from '@components/smchannels/DeleteSMChannelsDialog';
@@ -67,7 +68,8 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
     return (
       <div className="flex p-0 m-0 justify-content-end align-items-center">
         <StreamCopyLinkDialog realUrl={data?.RealUrl} />
-        <CopySMChannelDialog label="Copy Channel" smChannel={data} />
+        <AutoSetEPGSMChannelDialog label="Auto Set EPG" smChannel={data} />
+        <CloneSMChannelDialog label="Copy Channel" smChannel={data} />
         <DeleteSMChannelDialog smChannel={data} />
         <EditSMChannelDialog smChannel={data} />
       </div>

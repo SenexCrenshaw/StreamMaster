@@ -32,7 +32,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
       disabled = false,
       icon,
       iconPos = 'right',
-      iconFilled = true,
+      iconFilled = false,
       isLeft = false,
       label,
       style,

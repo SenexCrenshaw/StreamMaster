@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.SMStreams.Commands;
+﻿using StreamMaster.Application.SMStreams.Commands;
+
+namespace StreamMaster.Application.SMChannels.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
