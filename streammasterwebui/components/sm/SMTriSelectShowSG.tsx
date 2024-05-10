@@ -29,10 +29,10 @@ export const SMTriSelectShowSG = ({ dataKey, onChange }: SMTriSelectShowSGProper
     }
 
     if (showHidden === true) {
-      return 'In ' + selectedStreamGroup?.Name ?? 'SG';
+      return `In ${selectedStreamGroup?.Name ?? 'SG'}`;
     }
 
-    return 'Not in ' + selectedStreamGroup?.Name ?? 'SG';
+    return `Not In ${selectedStreamGroup?.Name ?? 'SG'}`;
   }, [selectedStreamGroup?.Name, showHidden]);
 
   const moveNext = useCallback(() => {
