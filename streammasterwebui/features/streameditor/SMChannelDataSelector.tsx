@@ -57,16 +57,19 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
     }
   }, [enableEdit, propsEnableEdit]);
 
-  const rowExpansionTemplate = useCallback((data: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
-    const channel = data as unknown as SMChannelDto;
-    setSelectedSMChannel(channel);
-    // setSelectedSMChannel(channel);
-    return (
-      <div className="ml-3 m-1">
-        <SMStreamDataSelectorValue smChannel={channel} id={channel.Id + '-streams'} />
-      </div>
-    );
-  }, []);
+  const rowExpansionTemplate = useCallback(
+    (data: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
+      const channel = data as unknown as SMChannelDto;
+      setSelectedSMChannel(channel);
+      // setSelectedSMChannel(channel);
+      return (
+        <div className="ml-3 m-1">
+          <SMStreamDataSelectorValue smChannel={channel} id={channel.Id + '-streams'} />
+        </div>
+      );
+    },
+    [setSelectedSMChannel]
+  );
 
   const actionTemplate = useCallback((data: SMChannelDto) => {
     return (
@@ -89,7 +92,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
       epgColumnConfig,
       groupColumnConfig,
       sgColumnConfig,
-      { align: 'right', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', filter: false, header: 'Actions', width: '5rem' }
+      { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '4rem' }
     ],
     [actionTemplate, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig, epgColumnConfig, groupColumnConfig, sgColumnConfig]
   );

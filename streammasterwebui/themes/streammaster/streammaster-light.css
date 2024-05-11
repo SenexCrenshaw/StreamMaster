@@ -8148,6 +8148,9 @@
   right: 1.2rem;
 }
 
+.p-column-filter-row {
+  height: 1.4rem;
+}
 .p-column-filter-row .p-inputtext {
   border-width: 0.1rem;
   border-color: #cecece;

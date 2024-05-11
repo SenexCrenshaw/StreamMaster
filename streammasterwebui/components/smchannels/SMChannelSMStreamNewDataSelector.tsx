@@ -91,7 +91,6 @@ const SMChannelSMStreamNewDataSelector = ({ enableEdit: propsEnableEdit, height,
         bodyTemplate: actionTemplate,
         field: 'IsHidden',
         fieldType: 'actions',
-        header: 'Actions',
         width: '5rem'
       }
     ],
