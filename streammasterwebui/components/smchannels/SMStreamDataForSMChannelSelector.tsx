@@ -153,7 +153,7 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
       }
 
       if (found) {
-        return 'bg-blue-900';
+        return 'channel-row-selected';
       }
 
       return '';

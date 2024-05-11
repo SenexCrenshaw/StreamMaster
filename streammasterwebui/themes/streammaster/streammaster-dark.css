@@ -6921,6 +6921,10 @@
   background-color: #527f62;
 }
 
+.channel-row-selected-hidden {
+  background-color: #5C523F;
+}
+
 .red-bg, .icon-red-primary-filled, .icon-red-filled {
   background-color: #e693a9;
 }

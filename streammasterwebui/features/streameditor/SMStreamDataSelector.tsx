@@ -205,7 +205,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
       if (data && selectedSMChannel?.SMStreams !== undefined && selectedSMChannel.SMStreams.length > 0) {
         const id = getRecord(data, 'Id');
         if (selectedSMChannel.SMStreams.some((stream) => stream.Id === id)) {
-          return 'bg-blue-900';
+          return 'channel-row-selected';
         }
       }
 

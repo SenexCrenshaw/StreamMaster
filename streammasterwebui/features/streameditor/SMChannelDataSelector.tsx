@@ -102,7 +102,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
         const id = getRecord(data, 'Id') as number;
         if (id === selectedSMChannel.Id) {
           if (isHidden === true) {
-            return 'bg-yellow-900';
+            return 'channel-row-selected-hidden';
           }
           return 'channel-row-selected';
         }
