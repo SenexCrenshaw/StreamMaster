@@ -1,8 +1,7 @@
 import { useSMMessages } from '@lib/redux/hooks/useSMMessages';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import { useEffect, useState } from 'react';
-import './ball-fussion.css';
-import './ball-grid-beat.css';
+import './ball-spin-clockwise-fade.css';
 
 const SMLoader = () => {
   const { isSystemReady } = useSMContext();
@@ -24,7 +23,17 @@ const SMLoader = () => {
   return (
     <div className="sm-loader flex flex-column h-full justify-content-center ">
       <div className="">
-        <div className="la-ball-fussion la-lg">
+        {/* <div className="la-ball-fussion la-lg">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div> */}
+        <div className="la-ball-spin-clockwise-fade la-3x">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
           <div></div>
           <div></div>
           <div></div>

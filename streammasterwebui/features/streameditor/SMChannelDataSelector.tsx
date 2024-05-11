@@ -57,18 +57,15 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
     }
   }, [enableEdit, propsEnableEdit]);
 
-  const rowExpansionTemplate = useCallback(
-    (data: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
-      const channel = data as unknown as SMChannelDto;
-      setSelectedSMChannel(channel);
-      return (
-        <div className="ml-3 m-1">
-          <SMStreamDataSelectorValue smChannel={channel} id={channel.Id + '-streams'} />
-        </div>
-      );
-    },
-    [setSelectedSMChannel]
-  );
+  const rowExpansionTemplate = useCallback((data: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
+    const channel = data as unknown as SMChannelDto;
+    // setSelectedSMChannel(channel);
+    return (
+      <div className="ml-3 m-1">
+        <SMStreamDataSelectorValue smChannel={channel} id={channel.Id + '-streams'} />
+      </div>
+    );
+  }, []);
 
   const actionTemplate = useCallback((data: SMChannelDto) => {
     return (
@@ -106,7 +103,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
           if (isHidden === true) {
             return 'bg-yellow-900';
           }
-          return 'orange-highlight-bg';
+          return 'channel-row-selected';
         }
       }
 
@@ -166,21 +163,15 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
       headerName={headerTitle()}
       id={dataKey}
       isLoading={isLoading}
-      onClick={(e: any) => {
-        if (e.target.className && (e.target.className === 'p-datatable-wrapper' || e.target.className === 'header-text')) {
-          if (selectedSMChannel !== undefined) {
-            setSelectedSMChannel(undefined);
-          }
-        }
-      }}
       onRowExpand={(e: DataTableRowEvent) => {
-        if (e.data !== selectedSMChannel) {
+        if (e.data.Id !== selectedSMChannel?.Id) {
+          // if (selectedSMChannel === undefined) {
           setSelectedSMChannel(e.data as SMChannelDto);
         }
       }}
       onRowCollapse={(e: DataTableRowEvent) => {
-        if (e.data !== selectedSMChannel) {
-          setSelectedSMChannel(e.data as SMChannelDto);
+        if (e.data.Id === selectedSMChannel?.Id) {
+          setSelectedSMChannel(undefined);
         }
       }}
       rowClass={rowClass}
