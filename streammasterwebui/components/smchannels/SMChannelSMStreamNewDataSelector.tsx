@@ -41,7 +41,7 @@ const SMChannelSMStreamNewDataSelector = ({ enableEdit: propsEnableEdit, height,
       <div className="flex align-content-center justify-content-end">
         <SMButton
           icon="pi-minus"
-          className="w-2rem border-noround borderread icon-red-primary"
+          className="w-2rem border-noround icon-red-primary"
           iconFilled
           onClick={() => {
             if (smChannel) {

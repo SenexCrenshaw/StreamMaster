@@ -1,5 +1,3 @@
-import AddButton from '@components/buttons/AddButton';
-import MinusButton from '@components/buttons/MinusButton';
 import { useSMStreamGroupColumnConfig } from '@components/columns/SMStreams/useSMChannelGroupColumnConfig';
 import { useSMStreamM3UColumnConfig } from '@components/columns/SMStreams/useSMStreamM3UColumnConfig';
 import M3UFilesButton from '@components/m3u/M3UFilesButton';
@@ -72,7 +70,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'Name', filter: true, sortable: true, width: '18rem' },
+      { field: 'Name', filter: true, sortable: true },
       groupColumnConfig,
       smStreamM3UColumnConfig,
       { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '4rem' }
@@ -89,9 +87,11 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         toolTip = 'Remove Stream From "' + selectedSMChannel.Name + '"';
         if (found)
           return (
-            <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-              <MinusButton
-                iconFilled={false}
+            <div className="flex align-content-center justify-content-end">
+              <SMButton
+                icon="pi-minus"
+                className="w-2rem border-noround borderread icon-red-primary"
+                iconFilled
                 onClick={() => {
                   if (!data.Id || selectedSMChannel === undefined) {
                     return;
@@ -108,13 +108,34 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
                 tooltip={toolTip}
               />
             </div>
+            // <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+            //   <MinusButton
+            //     iconFilled={false}
+            //     onClick={() => {
+            //       if (!data.Id || selectedSMChannel === undefined) {
+            //         return;
+            //       }
+            //       const request: RemoveSMStreamFromSMChannelRequest = { SMChannelId: selectedSMChannel.Id, SMStreamId: data.Id };
+            //       RemoveSMStreamFromSMChannel(request)
+            //         .then((response) => {
+            //           console.log('Remove Stream', response);
+            //         })
+            //         .catch((error) => {
+            //           console.error('Remove Stream', error.message);
+            //         });
+            //     }}
+            //     tooltip={toolTip}
+            //   />
+            // </div>
           );
 
         toolTip = 'Add Stream To "' + selectedSMChannel.Name + '"';
         return (
-          <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-            <AddButton
-              iconFilled={false}
+          <div className="flex align-content-center justify-content-center">
+            <SMButton
+              icon="pi-plus"
+              className="border-noround borderread icon-blue-primary"
+              iconFilled
               onClick={() => {
                 AddSMStreamToSMChannel({ SMChannelId: selectedSMChannel?.Id ?? 0, SMStreamId: data.Id })
                   .then((response) => {})
@@ -125,57 +146,75 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
               }}
               tooltip={toolTip}
             />
-
-            {/* {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />} */}
           </div>
+
+          // <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+          //   <AddButton
+          //     iconFilled={false}
+          //     onClick={() => {
+          //       AddSMStreamToSMChannel({ SMChannelId: selectedSMChannel?.Id ?? 0, SMStreamId: data.Id })
+          //         .then((response) => {})
+          //         .catch((error) => {
+          //           console.error(error.message);
+          //           throw error;
+          //         });
+          //     }}
+          //     tooltip={toolTip}
+          //   />
+
+          //   {/* {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />} */}
+          // </div>
         );
       }
 
       return (
-        <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-          <AddButton
-            iconFilled={false}
+        <div className="flex align-content-center justify-content-center">
+          <SMButton
+            icon="pi-plus"
+            className="w-2rem border-noround borderread icon-blue-primary"
+            iconFilled
             onClick={() => {
               CreateSMChannelFromStream({ StreamId: data.Id } as CreateSMChannelFromStreamRequest)
-                .then((response) => {
-                  // if (response?.IsError) {
-                  //   smMessages.AddMessage({ Summary: response.ErrorMessage, Severity: 'error' } as SMMessage);
-                  //   return;
-                  // }
-                })
-                .catch((error) => {
-                  // console.error(error.message);
-                  // throw error;
-                });
+                .then((response) => {})
+                .catch((error) => {});
             }}
             tooltip={toolTip}
           />
-          {/* {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />} */}
         </div>
       );
+
+      // return (
+      //   <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
+      //     <AddButton
+      //       iconFilled={false}
+      //       onClick={() => {
+      //         CreateSMChannelFromStream({ StreamId: data.Id } as CreateSMChannelFromStreamRequest)
+      //           .then((response) => {
+      //             // if (response?.IsError) {
+      //             //   smMessages.AddMessage({ Summary: response.ErrorMessage, Severity: 'error' } as SMMessage);
+      //             //   return;
+      //             // }
+      //           })
+      //           .catch((error) => {
+      //             // console.error(error.message);
+      //             // throw error;
+      //           });
+      //       }}
+      //       tooltip={toolTip}
+      //     />
+      //     {/* {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />} */}
+      //   </div>
+      // );
     },
     [selectedSMChannel]
   );
 
   function addOrRemoveHeaderTemplate() {
-    return <SMTriSelectShowHidden dataKey={dataKey} />;
-    // const isSelected = false;
-
-    // if (!isSelected) {
-    //   return (
-    //     <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-    //       {/* <AddButton iconFilled={false} onClick={() => console.log('AddButton')} tooltip="Add All Channels" /> */}
-    //       {/* {showSelection && <Checkbox checked={state.selectAll} className="pl-1" onChange={() => toggleAllSelection()} />} */}
-    //     </div>
-    //   );
-    // }
-
-    // return (
-    //   <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-    //     <AddButton iconFilled={false} onClick={() => console.log('AddButton')} />
-    //     {/* {showSelection && <Checkbox checked={state.selectAll} className="pl-1" onChange={() => toggleAllSelection()} />} */}
-    //   </div>
-    // );
+    return (
+      <div className="flex align-content-center justify-content-center">
+        <SMTriSelectShowHidden dataKey={dataKey} />
+      </div>
+    );
   }
 
   const rightHeaderTemplate = useMemo(

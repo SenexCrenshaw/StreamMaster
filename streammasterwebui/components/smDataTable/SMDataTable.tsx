@@ -680,7 +680,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         >
           <Column
             body={props.addOrRemoveTemplate}
-            className="max-w-2rem flex justify-content-center align-items-center p-0"
+            className={'w-1rem'}
             field="addOrRemove"
             filter
             filterElement={props.addOrRemoveHeaderTemplate}

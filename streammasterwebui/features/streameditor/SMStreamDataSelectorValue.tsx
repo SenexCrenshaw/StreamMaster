@@ -1,4 +1,4 @@
-import MinusButton from '@components/buttons/MinusButton';
+import SMButton from '@components/sm/SMButton';
 
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
@@ -17,9 +17,11 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
 
   const actionTemplate = useCallback(
     (smStream: SMStreamDto) => (
-      <div className="flex p-0 justify-content-end align-items-center">
-        <MinusButton
-          iconFilled={false}
+      <div className="flex align-content-center justify-content-end">
+        <SMButton
+          icon="pi-minus"
+          className="w-2rem border-noround  icon-red-primary"
+          iconFilled
           onClick={() => {
             if (!smStream.Id || smChannel === undefined) {
               return;
@@ -37,6 +39,27 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
           tooltip="Remove Stream"
         />
       </div>
+
+      // <div className="flex p-0 justify-content-end align-items-center">
+      //   <MinusButton
+      //     iconFilled={false}
+      //     onClick={() => {
+      //       if (!smStream.Id || smChannel === undefined) {
+      //         return;
+      //       }
+
+      //       const request: RemoveSMStreamFromSMChannelRequest = { SMChannelId: smChannel.Id, SMStreamId: smStream.Id };
+      //       RemoveSMStreamFromSMChannel(request)
+      //         .then((response) => {
+      //           console.log('Remove Stream', response);
+      //         })
+      //         .catch((error) => {
+      //           console.error('Remove Stream', error.message);
+      //         });
+      //     }}
+      //     tooltip="Remove Stream"
+      //   />
+      // </div>
     ),
     [smChannel]
   );
