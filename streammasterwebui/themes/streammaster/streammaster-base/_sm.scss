@@ -97,12 +97,10 @@
 }
 
 .sm-tableHeaderBg {
-    // @extend .sm-input-border;
     background-color: $tableHeaderBg !important;
 }
 
 .sm-headerBg {
-    // @extend .sm-input-border;
     background-color: $headerBg !important;
 }
 
@@ -165,15 +163,7 @@
 
 }
 
-.sm-streamingproxytypeselector {
-    @include datatable-text-style();
-    @extend .sm-input-border;
-    min-width: 100%;
-    min-height: $input-height;
-    display: flex;
-    align-items: center;
 
-}
 
 .sm-standard-text {
     @include datatable-text-style();

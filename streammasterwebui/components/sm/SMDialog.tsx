@@ -8,6 +8,7 @@ interface SMDialogProperties {
   readonly children: React.ReactNode;
   readonly buttonDisabled?: boolean;
   readonly buttonClassName?: string;
+  readonly darkBackGround?: boolean;
   readonly info?: string;
   readonly icon?: string;
   readonly iconFilled?: boolean;
@@ -28,6 +29,7 @@ const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogPro
     buttonClassName,
     buttonDisabled,
     children,
+    darkBackGround = false,
     info = '',
     icon = 'pi pi-plus',
     iconFilled = true,
@@ -68,6 +70,7 @@ const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogPro
         }}
         content={({ hide }) => (
           <SMCard
+            darkBackGround={darkBackGround}
             title={title}
             header={
               <XButton
@@ -80,8 +83,8 @@ const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogPro
             }
           >
             <div className="sm-card-children">
-              <span className={`${borderClass} flex1`}>{info}</span>
-              <div className="sm-card-content-children">{children}</div>
+              <div className={`${borderClass} sm-card-children-info`}>{info}</div>
+              <div className="sm-card-children-content">{children}</div>
             </div>
           </SMCard>
         )}

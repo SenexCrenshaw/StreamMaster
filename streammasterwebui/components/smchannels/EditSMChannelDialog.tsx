@@ -40,17 +40,18 @@ const EditSMChannelDialog = ({ onHide, smChannel: toGet }: CopySMChannelProperti
 
   return (
     <SMDialog
+      darkBackGround
       ref={smDialogRef}
       iconFilled={false}
       title={`EDIT CHANNEL : ${toGet.Name}`}
       onHide={() => ReturnToParent()}
       buttonClassName="icon-yellow"
       icon="pi-pencil"
-      widthSize={6}
+      widthSize={5}
       info="General"
       tooltip="Edit Channel"
     >
-      <SMChannelDialog smChannel={query.data} onSave={onSave} />;
+      <SMChannelDialog smChannel={query.data} onSave={onSave} />
     </SMDialog>
   );
 };

@@ -8,6 +8,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 type IconSelectorProperties = {
+  readonly darkBackGround?: boolean;
   readonly enableEditMode?: boolean;
   readonly disabled?: boolean;
   readonly editable?: boolean | undefined;
@@ -17,7 +18,16 @@ type IconSelectorProperties = {
   readonly large?: boolean;
 };
 
-const IconSelector = ({ enableEditMode = true, large = false, value, disabled, editable = true, onChange, useDefault }: IconSelectorProperties) => {
+const IconSelector = ({
+  enableEditMode = true,
+  darkBackGround = false,
+  large = false,
+  value,
+  disabled,
+  editable = true,
+  onChange,
+  useDefault
+}: IconSelectorProperties) => {
   const [origValue, setOrigValue] = useState<string | undefined>(undefined);
   const [iconSource, setIconSource] = useState<string | undefined>(undefined);
   const [iconDto, setIconDto] = useState<IconFileDto | undefined>(undefined);
@@ -63,12 +73,19 @@ const IconSelector = ({ enableEditMode = true, large = false, value, disabled, e
     }
   }, [iconSource, origValue, query.data, value]);
 
-  const selectedTemplate = useMemo(() => {
-    const size = large ? 'icon-template-lg' : 'icon-template';
+  const buttonTemplate = useMemo(() => {
     const iconUrl = iconSource ? getIconUrl(iconSource, '/images/default.png', false) : '/images/default.png';
 
+    if (large) {
+      return (
+        <div className="flex justify-content-center align-items-center w-full">
+          <img className="icon-template-lg dark-background" alt="Icon logo" src={iconUrl} />
+        </div>
+      );
+    }
+
     return (
-      <div className={`sm-icon-selector flex ${size} justify-content-center align-items-center w-full`}>
+      <div className="sm-icon-selector flex icon-button-template justify-content-center align-items-center w-full">
         <img className="no-border" alt="Icon logo" src={iconUrl} />
       </div>
     );
@@ -84,18 +101,21 @@ const IconSelector = ({ enableEditMode = true, large = false, value, disabled, e
     }
 
     return (
-      <div className="w-full flex flex-row align-items-center">
-        <img
-          className="w-42"
-          src={iconUrl}
-          alt={icon.Name}
-          onError={(e) => {
-            (e.currentTarget as HTMLImageElement).src = '/images/default.png';
-          }}
-          loading="lazy"
-        />
-
-        <div className="text-xs pl-3">{icon.Name}</div>
+      <div className="w-full flex flex-row align-items-center justify-content-between p-row-odd">
+        <div className="flex flex-row align-items-center h-32 p-row-odd">
+          <img
+            className="icon-template"
+            src={iconUrl}
+            alt={icon.Name}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = '/images/default.png';
+            }}
+            loading="lazy"
+          />
+        </div>
+        <div className="w-6">
+          <div className="text-xs pl-3">{icon.Name}</div>
+        </div>
       </div>
     );
   };
@@ -117,14 +137,15 @@ const IconSelector = ({ enableEditMode = true, large = false, value, disabled, e
   }
 
   return (
-    <SMOverlay buttonTemplate={selectedTemplate} title="ICONS" widthSize="3" buttonLabel="Icons" header={<></>}>
+    <SMOverlay buttonDarkBackground={darkBackGround} buttonTemplate={buttonTemplate} title="ICONS" widthSize="3" buttonLabel="Icons" header={<></>}>
       <SMScroller
+        className="icon-selector"
         autoFocus
         filter
         filterBy="Name"
         data={query.data}
         dataKey="Source"
-        itemSize={42}
+        itemSize={32}
         onChange={(e) => handleOnChange(e)}
         itemTemplate={itemTemplate}
         scrollHeight={250}

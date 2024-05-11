@@ -431,7 +431,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           );
         } else {
           return (
-            <div className={`flex ${justify} align-items-center align-content-center gap-1`}>
+            <div className={`flex ${justify} align-items-center align-content-center input-height-with-no-borders`}>
               <div className={cl}>{header}</div>
             </div>
           );
@@ -439,7 +439,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       }
 
       return (
-        <div className={`flex ${justify} align-items-center align-content-center gap-1`}>
+        <div className={`flex ${justify} align-items-center align-content-center`}>
           {col.filter !== true && <div className={cl}>{header}</div>}
           {col.filter === true && getFilterElement(header, options)}
           {col.sortable === true && sortButton(options)}
@@ -680,7 +680,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         >
           <Column
             body={props.addOrRemoveTemplate}
-            className="w-2rem max-w-2rem p-0 justify-content-center align-items-center"
+            className="max-w-2rem flex justify-content-center align-items-center p-0"
             field="addOrRemove"
             filter
             filterElement={props.addOrRemoveHeaderTemplate}
@@ -691,7 +691,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           />
 
           <Column
-            className={'w-2rem max-w-2rem p-0 justify-content-center align-items-center sm-expander'}
+            className={'w-2rem max-w-2rem p-0 flex justify-content-center align-items-center sm-expander'}
             filterElement={props.expanderHeader !== undefined ? props.expanderHeader : undefined}
             filter={props.expanderHeader !== undefined}
             hidden={!props.showExpand || props.rowExpansionTemplate === undefined}

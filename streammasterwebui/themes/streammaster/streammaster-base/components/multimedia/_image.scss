@@ -5,7 +5,6 @@
 }
 
 .icon-template {
-
   height: $input-height-with-no-borders;
   max-height: $input-height-with-no-borders;
   justify-content: center;
@@ -24,34 +23,41 @@
   }
 }
 
-.w-26 {
-  width: 26px;
-}
+.icon-button-template {
+  height: $input-height-with-no-borders;
+  max-height: $input-height-with-no-borders;
+  justify-content: center;
+  align-items: center;
 
-.w-32 {
-  width: 32px;
-}
+  .no-border {
+    border: none !important;
+  }
 
-.w-42 {
-  width: 42px;
+  img {
+    @extend .sm-input-border;
+    padding: 0.2rem;
+    height: $input-height-with-no-borders;
+    width: $gridItem-width;
+    object-fit: contain;
+  }
 }
 
 .icon-template-lg {
   padding: 0rem !important;
-  width: 7rem;
-  max-height: 8rem;
+  padding-left: 0.25rem !important;
+  max-width: 6rem;
+  max-height: 4.6rem;
+  height: 5rem;
   object-fit: contain;
   justify-content: center;
   align-items: center;
 
   img {
-    max-width: 5rem;
-    max-height: 5rem;
+    max-width: 6rem;
+    max-height: 4.6rem;
     object-fit: contain;
   }
 }
-
-
 
 .icon-option-template {
   display: flex;
@@ -70,4 +76,24 @@
   padding: 0 0 0 1rem;
   white-space: normal;
   width: 100%;
+}
+
+.w-26 {
+  width: 26px;
+}
+
+.w-32 {
+  width: 32px;
+}
+
+.w-42 {
+  width: 42px;
+}
+
+.h-32 {
+  height: 32px;
+}
+
+.h-42 {
+  height: 42px;
 }

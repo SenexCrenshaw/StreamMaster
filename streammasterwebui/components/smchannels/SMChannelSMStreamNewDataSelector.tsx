@@ -1,4 +1,4 @@
-import MinusButton from '@components/buttons/MinusButton';
+import SMButton from '@components/sm/SMButton';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 
@@ -36,9 +36,30 @@ const SMChannelSMStreamNewDataSelector = ({ enableEdit: propsEnableEdit, height,
     }
   }, [enableEdit, propsEnableEdit]);
 
-  const actionBodyTemplate = useCallback(
+  const actionTemplate = useCallback(
     (smStream: SMStreamDto) => (
-      <div className="flex p-0 justify-content-end align-items-center">
+      <div className="flex align-content-center justify-content-end">
+        <SMButton
+          icon="pi-minus"
+          className="w-2rem border-noround borderread icon-red-primary"
+          iconFilled
+          onClick={() => {
+            if (smChannel) {
+              const request: RemoveSMStreamFromSMChannelRequest = { SMChannelId: smChannel.Id, SMStreamId: smStream.Id };
+              RemoveSMStreamFromSMChannel(request)
+                .then((response) => {})
+                .catch((error) => {
+                  console.error('Remove Stream', error.message);
+                });
+            } else {
+              const newSelectedItems = selectedItems.filter((item) => item.Id !== smStream.Id);
+              setSelectedItems(newSelectedItems);
+            }
+          }}
+          tooltip="Remove Stream"
+        />
+
+        {/* 
         <MinusButton
           iconFilled={false}
           onClick={() => {
@@ -55,7 +76,7 @@ const SMChannelSMStreamNewDataSelector = ({ enableEdit: propsEnableEdit, height,
             }
           }}
           tooltip="Remove Stream"
-        />
+        /> */}
       </div>
     ),
     [selectedItems, setSelectedItems, smChannel]
@@ -64,18 +85,17 @@ const SMChannelSMStreamNewDataSelector = ({ enableEdit: propsEnableEdit, height,
   const columns = useMemo(
     (): ColumnMeta[] => [
       { field: 'Name', filter: true, sortable: true, width: '8rem' },
-      { field: 'Group', filter: true, sortable: true },
       { field: 'M3UFileName', filter: true, header: 'M3U', sortable: true },
       {
         align: 'right',
-        bodyTemplate: actionBodyTemplate,
+        bodyTemplate: actionTemplate,
         field: 'IsHidden',
         fieldType: 'actions',
         header: 'Actions',
         width: '5rem'
       }
     ],
-    [actionBodyTemplate]
+    [actionTemplate]
   );
 
   const headerName = useMemo(() => {

@@ -141,71 +141,77 @@ const SMChannelDialog = ({ smChannel, onSave }: SMChannelDialogProperties) => {
 
   return (
     <>
-      <div className="flex w-12 gap-1">
-        <div className="flex flex-column w-10 gap-1">
-          <div className="flex w-12 gap-1">
-            <div className="w-6 justify-content-start align-items-center">
-              <StringEditor
-                label="Name"
+      <div className="sm-headerBg dialog-padding">
+        <div className="flex w-12 gap-1 pl-2 ">
+          <div className="flex flex-column w-10 gap-1 ">
+            <div className="flex w-12 gap-1">
+              <div className="w-6 justify-content-start align-items-center ">
+                <label>Name</label>
+                <div className="pt-small" />
+                <StringEditor
+                  placeholder="Name"
+                  darkBackGround
+                  disableDebounce
+                  onChange={(e) => {
+                    e && setName(e);
+                  }}
+                  onSave={(e) => {}}
+                  value={request.Name}
+                />
+              </div>
+              <div className="w-6 justify-content-start align-items-center">
+                <label>EPG</label>
+                <div className="pt-small" />
+                <EPGSelector darkBackGround smChannel={tempSMChannel} onChange={(e) => e && setEPGId(e)} />
+              </div>
+            </div>
+            <div className="flex w-12 gap-1">
+              <div className="w-6 justify-content-start align-items-center ">
+                <label>GROUP</label>
+                <div className="pt-small" />
+                <ChannelGroupSelector darkBackGround onChange={(e) => e && setGroup(e)} value={request.Group} />
+              </div>
+              <div className="w-6 justify-content-start align-items-center ">
+                <NumberEditor showButtons darkBackGround label="Channel #" onChange={(e) => e && setChannelNumber(e)} value={request.ChannelNumber} />
+              </div>
+            </div>
+          </div>
+
+          <div className="w-2 flex flex-column justify-content-start align-items-center">
+            <div>Logo</div>
+            <div className="pt-small" />
+            <div className="flex flex-column justify-content-center align-items-center w-full h-full">
+              <IconSelector
                 darkBackGround
-                disableDebounce
-                onChange={(e) => {
-                  e && setName(e);
+                large
+                enableEditMode
+                onChange={async (e: string) => {
+                  setLogo(e);
                 }}
-                onSave={(e) => {}}
-                value={request.Name}
+                value={request.Logo}
               />
             </div>
-            <div className="w-6 justify-content-start align-items-center">
-              <label>EPG</label>
-              <div className="pt-small" />
-              <EPGSelector darkBackGround smChannel={tempSMChannel} onChange={(e) => e && setEPGId(e)} />
-            </div>
-          </div>
-          <div className="flex w-12 gap-1">
-            <div className="w-6 justify-content-start align-items-center">
-              <label>GROUP</label>
-              <div className="pt-small" />
-              <ChannelGroupSelector onChange={(e) => e && setGroup(e)} value={request.Group} />
-            </div>
-            <div className="w-6 justify-content-start align-items-center ">
-              <NumberEditor showButtons darkBackGround label="Channel #" onChange={(e) => e && setChannelNumber(e)} value={request.ChannelNumber} />
-            </div>
           </div>
         </div>
-
-        <div className="w-2 flex flex-column justify-content-start align-items-center">
-          <div>Logo</div>
-          <div className=" flex flex-column justify-content-center align-items-center w-full h-full">
-            <IconSelector
-              large
-              enableEditMode
-              onChange={async (e: string) => {
-                setLogo(e);
-              }}
-              value={request.Logo}
-            />
+        <div className="layout-padding-bottom" />
+        <div className="flex w-10 gap-1 pl-2">
+          <div className="w-6 gap-1 w-full h-full">
+            <label>Proxy</label>
+            <div className="pt-small" />
+            <StreamingProxyTypeSelector onChange={(e) => console.log(e)} />
           </div>
         </div>
       </div>
-      <div className="layout-padding-bottom" />
-      <div className="flex w-12 gap-1">
-        <div className="w-6 gap-1 w-full h-full">
-          <label>Proxy</label>
-          <div className="pt-small" />
-          <StreamingProxyTypeSelector onChange={(e) => console.log(e)} />
-        </div>
-      </div>
-      <div className="layout-padding-bottom-lg" />
-      <div className="layout-padding-bottom-lg surface-ground border-round-md" />
+      <div className="layout-padding-bottom-lg sm-headerBg border-radius-bottom " />
+      {/* <div className="layout-padding-bottom-lg surface-ground border-round-md" /> */}
       <div className="layout-padding-bottom-lg" />
       <div className="w-12">
         <SMChannelSMStreamDialog name={request.Name} smChannel={smChannel} />
       </div>
-      <div className="layout-padding-bottom-lg" />
+      {/* <div className="layout-padding-bottom-lg" />
       <div className="layout-padding-bottom-lg surface-ground border-round-md" />
-      <div className="layout-padding-bottom-lg" />
-      <div className="flex col-12 gap-1 mt-4 justify-content-center ">
+      <div className="layout-padding-bottom-lg" /> */}
+      <div className="flex col-12 gap-1 mt-1 justify-content-center ">
         <OKButton disabled={!isSaveEnabled} onClick={async () => doSave()} />
       </div>
     </>

@@ -11,6 +11,7 @@
     padding: $layoutPadding*2;
 }
 
+
 .sm-card {
     background-color: var(--surface-ground);
     padding: 0rem;
@@ -18,15 +19,11 @@
     .sm-card-header {
         @extend .sm-input-border;
         background-color: $tableHeaderBg !important;
-        padding-top: 0.25rem;
-        padding-bottom: 0.25rem;
     }
 
     .sm-card-info {
         @extend .sm-input-border;
         background-color: $headerBg !important;
-        padding-top: 0.25rem;
-        padding-bottom: 0.25rem;
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
     }
@@ -36,7 +33,17 @@
         background-color: $headerBg !important;
     }
 
-    .sm-card-content-children {
+    .sm-card-children-info {
+        background-color: $headerBg !important;
+        display: flex;
+        align-items: center;
+        padding-bottom: 0.5rem;
+        padding-top: 0.5rem;
+        padding-left: $headerTextLeft !important;
+        height: $input-height-with-no-borders !important;
+    }
+
+    .sm-card-children-content {
         @extend .padding-xlg;
         background-color: $headerBg !important;
 
@@ -45,5 +52,45 @@
             max-width: 0;
         }
     }
+}
 
+.sm-card-dark {
+    @extend .sm-card;
+
+    .dialog-padding {
+        @extend .padding-xlg;
+    }
+
+    .sm-card-header {
+        // background-color: unset !important;
+    }
+
+    .sm-card-info {
+        // // background-color: unset !important;
+        // border-style: none !important;
+        // border-bottom-left-radius: $borderRadius !important;
+        // border-bottom-right-radius: $borderRadius !important;
+    }
+
+    .sm-card-children-info {
+        background-color: $headerBg !important;
+        border-top-left-radius: $borderRadius !important;
+        border-top-right-radius: $borderRadius !important;
+        display: flex;
+        align-items: center;
+        padding-bottom: 0.5rem;
+        padding-top: 0.5rem;
+        padding-left: $headerTextLeft !important;
+        height: $input-height-with-no-borders !important;
+    }
+
+    .sm-card-children {
+        border-style: none !important;
+        background-color: unset !important;
+    }
+
+    .sm-card-children-content {
+        background-color: unset !important;
+        padding: 0;
+    }
 }

@@ -1,0 +1,13 @@
+.sm-streamingproxy-selector {
+    @include datatable-text-style();
+    @extend .sm-input-border;
+    padding: 0 !important;
+    min-width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    min-height: $input-height-with-no-borders;
+    height: $input-height-with-no-borders;
+    max-height: $input-height-with-no-borders;
+}

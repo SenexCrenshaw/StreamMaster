@@ -1,7 +1,5 @@
 import { useClickOutside } from 'primereact/hooks';
 
-import { FloatLabel } from 'primereact/floatlabel';
-
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { InputText } from 'primereact/inputtext';
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
@@ -14,7 +12,6 @@ export interface StringEditorBodyTemplateProperties {
   readonly disableDebounce?: boolean;
   readonly debounceMs?: number;
   readonly isLoading?: boolean;
-  readonly label?: string;
   readonly onChange?: (value: string | undefined) => void;
   readonly onSave: (value: string | undefined) => void;
   readonly onClick?: () => void;
@@ -32,7 +29,6 @@ const StringEditor = ({
   disableDebounce = false,
   debounceMs,
   isLoading,
-  label,
   onChange,
   onSave,
   onClick,
@@ -186,20 +182,21 @@ const StringEditor = ({
     );
   }, [autoFocus, debounced, disableDebounce, doShowClear, getDiv, inputValue, onChange, onClick, placeholder, tooltip, tooltipOptions, uuid]);
 
-  if (!label) {
-    return getButton;
-  }
+  return getButton;
+  // if (!label) {
+  //   return getButton;
+  // }
 
-  return (
-    <div className={label ? 'stringeditor pt-4' : 'stringeditor'} ref={divReference}>
-      <FloatLabel>
-        {getButton}
-        <label className="" htmlFor={uuid}>
-          {label}
-        </label>
-      </FloatLabel>
-    </div>
-  );
+  // return (
+  //   <div className={label ? 'stringeditor pt-4' : 'stringeditor'} ref={divReference}>
+  //     <FloatLabel>
+  //       {getButton}
+  //       <label className="" htmlFor={uuid}>
+  //         {label}
+  //       </label>
+  //     </FloatLabel>
+  //   </div>
+  // );
 };
 
 StringEditor.displayName = 'String Editor Body Template';

@@ -8,15 +8,24 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 type ChannelGroupSelectorProperties = {
+  readonly darkBackGround?: boolean;
   readonly enableEditMode?: boolean;
   readonly disabled?: boolean;
   readonly editable?: boolean | undefined;
   readonly value?: string;
   readonly onChange?: (value: string) => void;
-  readonly className?: string | undefined;
+  // readonly className?: string | undefined;
 };
 
-const ChannelGroupSelector = ({ enableEditMode = true, className, value, disabled, editable, onChange }: ChannelGroupSelectorProperties) => {
+const ChannelGroupSelector = ({
+  enableEditMode = true,
+  // className,
+  darkBackGround = false,
+  value,
+  disabled,
+  editable,
+  onChange
+}: ChannelGroupSelectorProperties) => {
   const [selectedChannelGroup, setSelectedChannelGroup] = useState<ChannelGroupDto>();
   const [input, setInput] = useState<string | undefined>(undefined);
   const [originalInput, setOriginalInput] = useState<string | undefined>(undefined);
@@ -38,7 +47,7 @@ const ChannelGroupSelector = ({ enableEditMode = true, className, value, disable
   }, [value, originalInput, channelGroupQuery.data]);
 
   const itemTemplate = useCallback((option: ChannelGroupDto): JSX.Element => {
-    return <div className=" text-xs pl-2 text-container">{option.Name}</div>;
+    return <div className="text-xs pl-2 text-container">{option.Name}</div>;
   }, []);
 
   const handleOnChange = (group: ChannelGroupDto) => {
@@ -54,12 +63,18 @@ const ChannelGroupSelector = ({ enableEditMode = true, className, value, disable
   const loading = channelGroupQuery.isError || channelGroupQuery.isFetching || channelGroupQuery.isLoading || !channelGroupQuery.data || isSystemReady !== true;
 
   const buttonTemplate = useMemo(() => {
-    // if (input) return <div className="text-xs text-container sm-hover">{input}</div>;
-    if (input) return <div className="sm-channelgroup-selector text-container">{input}</div>;
+    if (input)
+      return (
+        <div className="sm-channelgroup-selector ">
+          <div className="text-container ">{input}</div>
+        </div>
+      );
 
-    return <div>None</div>;
-
-    // return <div className="text-xs text-container text-white-alpha-40 sm-hover">None</div>;
+    return (
+      <div className="sm-channelgroup-selector ">
+        <div className="text-container ">None</div>
+      </div>
+    );
   }, [input]);
 
   if (loading) {
@@ -75,19 +90,21 @@ const ChannelGroupSelector = ({ enableEditMode = true, className, value, disable
   }
 
   return (
-    <SMOverlay buttonTemplate={buttonTemplate} title="GROUPS" widthSize="3" icon="pi-chevron-down">
-      <SMScroller
-        data={channelGroupQuery.data}
-        onChange={(e) => handleOnChange(e)}
-        dataKey="Name"
-        filter
-        filterBy="Name"
-        itemSize={26}
-        itemTemplate={itemTemplate}
-        scrollHeight={250}
-        value={selectedChannelGroup}
-      />
-    </SMOverlay>
+    <div className={darkBackGround ? 'input-border-dark' : ''}>
+      <SMOverlay buttonTemplate={buttonTemplate} title="GROUPS" widthSize="3" icon="pi-chevron-down">
+        <SMScroller
+          data={channelGroupQuery.data}
+          onChange={(e) => handleOnChange(e)}
+          dataKey="Name"
+          filter
+          filterBy="Name"
+          itemSize={26}
+          itemTemplate={itemTemplate}
+          scrollHeight={250}
+          value={selectedChannelGroup}
+        />
+      </SMOverlay>
+    </div>
   );
 };
 

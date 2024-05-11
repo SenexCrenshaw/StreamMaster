@@ -43,7 +43,7 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
   return (
     <div>
       <Dropdown
-        className="sm-streamingproxytypeselector"
+        className="sm-streamingproxy-selector"
         onChange={(e) => internalOnChange(e.value)}
         options={getHandlersOptions}
         optionLabel="label"

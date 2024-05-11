@@ -85,3 +85,15 @@
     color: $inputBg;
     border: 2px solid $iconBlue;
 }
+
+.icon-blue-primary-filled {
+    @extend .blue-bg;
+    color: white;
+    border: 2px solid $iconBlue;
+}
+
+.icon-red-primary-filled {
+    @extend .red-bg;
+    color: white;
+    border: 2px solid $iconRed;
+}

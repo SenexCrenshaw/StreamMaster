@@ -1,4 +1,3 @@
-import AddButton from '@components/buttons/AddButton';
 import MinusButton from '@components/buttons/MinusButton';
 
 import getRecord from '@components/smDataTable/helpers/getRecord';
@@ -14,6 +13,7 @@ import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import { GetSMChannelStreamsRequest, RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
+import SMButton from '@components/sm/SMButton';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 interface SMStreamDataForSMChannelSelectorProperties {
   readonly enableEdit?: boolean;
@@ -105,9 +105,11 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
       toolTip = 'Add Stream To "' + name + '"';
 
       return (
-        <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-          <AddButton
-            iconFilled={false}
+        <div className="flex align-content-center justify-content-center">
+          <SMButton
+            icon="pi-plus"
+            className="w-2rem border-noround borderread icon-blue-primary"
+            iconFilled
             onClick={() => {
               if (smChannel) {
                 AddSMStreamToSMChannel({ SMChannelId: smChannel?.Id ?? 0, SMStreamId: data.Id })

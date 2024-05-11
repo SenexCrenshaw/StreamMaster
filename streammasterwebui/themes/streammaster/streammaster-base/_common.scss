@@ -146,24 +146,6 @@
   }
 }
 
-.iconselector {
-  // &.p-dropdown {
-  //     background-color: transparent;
-
-  //     &.p-component.p-inputwrapper.p-inputwrapper-filled {
-  //         background-color: transparent;
-  //         border: none;
-  //         align-items: center;
-  //         justify-content: center;
-  //     }
-
-  // }
-}
-
-.iconselector-panel {
-  // max-width: 80%;
-}
-
 .p-dialog-mask {
   &.p-dialog-top-right {
     padding-bottom: 5%;
@@ -286,6 +268,14 @@
   border-width: 1px;
   border-top-left-radius: $borderRadius;
   border-bottom-left-radius: $borderRadius;
+  border-style: solid;
+}
+
+.border-radius-bottom {
+  border-color: $headerBg;
+  border-width: 1px;
+  border-bottom-left-radius: $borderRadius;
+  border-bottom-right-radius: $borderRadius;
   border-style: solid;
 }
 

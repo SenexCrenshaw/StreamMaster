@@ -12,7 +12,7 @@ const SMChannelSMStreamDialog = ({ name, smChannel }: SMChannelSMStreamDialogPro
   const id = 'SMChannelSMStreamDialog';
 
   return (
-    <div className="flex w-12 gap-1 input-border">
+    <div className="flex w-12 gap-1">
       <div className="w-6">
         <SMChannelSMStreamNewDataSelector height="250px" id={id} name={name} smChannel={smChannel} />
       </div>
