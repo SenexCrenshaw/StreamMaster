@@ -38,6 +38,14 @@ const EPGSelector = ({ enableEditMode = true, smChannel, darkBackGround = false,
   const epgQuery = useGetEPGFiles();
   const colorsQuery = useGetEPGColors();
 
+  console.group('EPGSelector');
+  console.log('smChannel', smChannel?.EPGId);
+  console.log('checkValue', checkValue);
+  console.log('input', input);
+  console.log('newInput', newInput);
+  console.log('stationChannelName', stationChannelName);
+  console.groupEnd();
+
   const epgFiles = useMemo(() => {
     const additionalOptions = [{ EPGNumber: -1, Name: 'SD' } as EPGFileDto];
 
@@ -49,8 +57,19 @@ const EPGSelector = ({ enableEditMode = true, smChannel, darkBackGround = false,
   useEffect(() => {
     if (smChannel && !checkValue) {
       setInput(smChannel.EPGId);
+      return;
     }
   }, [smChannel, checkValue]);
+
+  useEffect(() => {
+    if (!smChannel || !input) {
+      return;
+    }
+
+    if (smChannel.EPGId !== input) {
+      setInput(smChannel.EPGId);
+    }
+  }, [smChannel, input]);
 
   const extractEPGNumberAndStationId = useCallback((userTvgId: string): EPGResult => {
     if (!userTvgId.trim()) {
@@ -282,8 +301,8 @@ const EPGSelector = ({ enableEditMode = true, smChannel, darkBackGround = false,
       } else {
         setStationChannelName(undefined);
       }
-
-      setInput(channel);
+      //setNewInput(channel);
+      // setInput(channel);
       onChange && onChange(channel);
     },
     [onChange, query.data, stationChannelName?.Channel]

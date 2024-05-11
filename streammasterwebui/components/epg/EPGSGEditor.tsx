@@ -75,7 +75,7 @@ const EPGSGEditor = ({ smChannel, enableEditMode }: EPGSGEditorProperties) => {
     );
   }
 
-  if (selectedStreamGroup === undefined || selectedStreamGroup.Name === 'ALL') {
+  if (selectedStreamGroup === undefined) {
     return (
       <>
         <Tooltip target={`.${tooltipClassName}`} />
@@ -102,9 +102,17 @@ const EPGSGEditor = ({ smChannel, enableEditMode }: EPGSGEditorProperties) => {
     );
   }
 
+  if (selectedStreamGroup.Name === 'ALL') {
+    return (
+      <div className="flex justify-content-center align-items-center">
+        <SGRemoveButton disabled onClick={(e) => {}} tooltip="ALL SG" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex justify-content-center align-items-center">
-      <SGAddButton disabled={selectedStreamGroup === undefined} onClick={(e) => addSMChannelToStreamGroup()} tooltip={`Add to ${name}`} />
+      <SGAddButton onClick={(e) => addSMChannelToStreamGroup()} tooltip={`Add to ${name}`} />
     </div>
   );
 };

@@ -96,9 +96,9 @@ export const useSMChannelEPGColumnConfig = () => {
       />
     );
   }
-  const bodyTemplate = (bodyData: SMChannelDto) => {
-    return <EPGEditor data={bodyData} />;
-  };
+  const bodyTemplate = useCallback((smChannel: SMChannelDto) => {
+    return <EPGEditor smChannel={{ ...smChannel }} />;
+  }, []);
 
   const columnConfig: ColumnMeta = {
     align: 'left',

@@ -15,7 +15,7 @@ internal class SetSMChannelNameRequestHandler(IRepositoryWrapper Repository, IMe
             return ret;
         }
 
-        FieldData fd = new(nameof(SMChannelDto), request.SMChannelId.ToString(), "Name", request.Name);
+        FieldData fd = new(SMChannel.MainGet, request.SMChannelId, "Name", request.Name);
 
         await dataRefreshService.SetField([fd]).ConfigureAwait(false);
         //await messageService.SendSuccess($"Set name to '{request.Name}'");

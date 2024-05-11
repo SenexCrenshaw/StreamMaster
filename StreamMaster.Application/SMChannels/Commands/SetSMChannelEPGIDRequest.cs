@@ -15,7 +15,7 @@ internal class SetSMChannelEPGIdRequestHandler(IRepositoryWrapper Repository, IM
             return ret;
         }
 
-        FieldData fd = new(nameof(SMChannelDto), request.SMChannelId.ToString(), "EPGId", request.EPGId);
+        FieldData fd = new(SMChannel.MainGet, request.SMChannelId, "EPGId", request.EPGId);
         await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
         //await messageService.SendSuccess($"Set EPG {ret.Message}");
         return ret;
