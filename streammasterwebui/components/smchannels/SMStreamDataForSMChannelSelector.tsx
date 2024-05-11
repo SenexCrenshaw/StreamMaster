@@ -1,5 +1,3 @@
-import MinusButton from '@components/buttons/MinusButton';
-
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { GetMessage } from '@lib/common/common';
@@ -67,31 +65,35 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
         }
         return (
           <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-            <MinusButton
-              iconFilled={false}
-              onClick={() => {
-                if (!data.Id) {
-                  return;
-                }
+            <div className="flex align-content-center justify-content-center">
+              <SMButton
+                icon="pi-minus"
+                className="border-noround borderread icon-red-primary"
+                iconFilled
+                onClick={() => {
+                  if (!data.Id) {
+                    return;
+                  }
 
-                if (smChannel) {
-                  const request = {} as RemoveSMStreamFromSMChannelRequest;
-                  request.SMChannelId = smChannel.Id;
-                  request.SMStreamId = data.Id;
-                  RemoveSMStreamFromSMChannel(request)
-                    .then((response) => {
-                      console.log('Remove Stream', response);
-                    })
-                    .catch((error) => {
-                      console.error('Remove Stream', error.message);
-                    });
-                } else {
-                  const newData = selectedItems?.filter((item) => item.Id !== data.Id);
-                  setSelectedItems(newData);
-                }
-              }}
-              tooltip={toolTip}
-            />
+                  if (smChannel) {
+                    const request = {} as RemoveSMStreamFromSMChannelRequest;
+                    request.SMChannelId = smChannel.Id;
+                    request.SMStreamId = data.Id;
+                    RemoveSMStreamFromSMChannel(request)
+                      .then((response) => {
+                        console.log('Remove Stream', response);
+                      })
+                      .catch((error) => {
+                        console.error('Remove Stream', error.message);
+                      });
+                  } else {
+                    const newData = selectedItems?.filter((item) => item.Id !== data.Id);
+                    setSelectedItems(newData);
+                  }
+                }}
+                tooltip={toolTip}
+              />
+            </div>
           </div>
         );
       }

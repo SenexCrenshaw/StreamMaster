@@ -87,10 +87,10 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         toolTip = 'Remove Stream From "' + selectedSMChannel.Name + '"';
         if (found)
           return (
-            <div className="flex align-content-center justify-content-end">
+            <div className="flex align-content-center justify-content-center">
               <SMButton
                 icon="pi-minus"
-                className="w-2rem border-noround borderread icon-red-primary"
+                className="border-noround borderread icon-red-primary"
                 iconFilled
                 onClick={() => {
                   if (!data.Id || selectedSMChannel === undefined) {
@@ -108,25 +108,6 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
                 tooltip={toolTip}
               />
             </div>
-            // <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-            //   <MinusButton
-            //     iconFilled={false}
-            //     onClick={() => {
-            //       if (!data.Id || selectedSMChannel === undefined) {
-            //         return;
-            //       }
-            //       const request: RemoveSMStreamFromSMChannelRequest = { SMChannelId: selectedSMChannel.Id, SMStreamId: data.Id };
-            //       RemoveSMStreamFromSMChannel(request)
-            //         .then((response) => {
-            //           console.log('Remove Stream', response);
-            //         })
-            //         .catch((error) => {
-            //           console.error('Remove Stream', error.message);
-            //         });
-            //     }}
-            //     tooltip={toolTip}
-            //   />
-            // </div>
           );
 
         toolTip = 'Add Stream To "' + selectedSMChannel.Name + '"';
@@ -147,23 +128,6 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
               tooltip={toolTip}
             />
           </div>
-
-          // <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-          //   <AddButton
-          //     iconFilled={false}
-          //     onClick={() => {
-          //       AddSMStreamToSMChannel({ SMChannelId: selectedSMChannel?.Id ?? 0, SMStreamId: data.Id })
-          //         .then((response) => {})
-          //         .catch((error) => {
-          //           console.error(error.message);
-          //           throw error;
-          //         });
-          //     }}
-          //     tooltip={toolTip}
-          //   />
-
-          //   {/* {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />} */}
-          // </div>
         );
       }
 
@@ -171,7 +135,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         <div className="flex align-content-center justify-content-center">
           <SMButton
             icon="pi-plus"
-            className="w-2rem border-noround borderread icon-blue-primary"
+            className="border-noround borderread icon-blue-primary"
             iconFilled
             onClick={() => {
               CreateSMChannelFromStream({ StreamId: data.Id } as CreateSMChannelFromStreamRequest)
@@ -182,29 +146,6 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
           />
         </div>
       );
-
-      // return (
-      //   <div className="flex justify-content-between align-items-center p-0 m-0 pl-1">
-      //     <AddButton
-      //       iconFilled={false}
-      //       onClick={() => {
-      //         CreateSMChannelFromStream({ StreamId: data.Id } as CreateSMChannelFromStreamRequest)
-      //           .then((response) => {
-      //             // if (response?.IsError) {
-      //             //   smMessages.AddMessage({ Summary: response.ErrorMessage, Severity: 'error' } as SMMessage);
-      //             //   return;
-      //             // }
-      //           })
-      //           .catch((error) => {
-      //             // console.error(error.message);
-      //             // throw error;
-      //           });
-      //       }}
-      //       tooltip={toolTip}
-      //     />
-      //     {/* {showSelection && <Checkbox checked={isSelected} className="pl-1" onChange={() => addSelection(data)} />} */}
-      //   </div>
-      // );
     },
     [selectedSMChannel]
   );
