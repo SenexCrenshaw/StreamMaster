@@ -8375,7 +8375,10 @@
   align-items: center;
 }
 .icon-button-template .no-border {
-  border: none !important;
+  border-style: none !important;
+}
+.icon-button-template .no-border :hover {
+  border-style: none !important;
 }
 .icon-button-template img {
   padding: 0.2rem;

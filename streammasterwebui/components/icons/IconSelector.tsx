@@ -137,7 +137,7 @@ const IconSelector = ({
   }
 
   return (
-    <SMOverlay buttonDarkBackground={darkBackGround} buttonTemplate={buttonTemplate} title="ICONS" widthSize="3" buttonLabel="Icons" header={<></>}>
+    <SMOverlay buttonFlex buttonDarkBackground={darkBackGround} buttonTemplate={buttonTemplate} title="ICONS" widthSize="3" buttonLabel="Icons" header={<></>}>
       <SMScroller
         className="icon-selector"
         autoFocus

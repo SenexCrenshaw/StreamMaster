@@ -10,6 +10,7 @@ interface SMOverlayProperties {
   readonly children: React.ReactNode;
   readonly header?: React.ReactNode;
   readonly buttonClassName?: string | undefined;
+  readonly buttonFlex?: boolean | undefined;
   readonly buttonLabel?: string | undefined;
   readonly iconFilled?: boolean;
   readonly icon?: string | undefined;
@@ -23,6 +24,7 @@ interface SMOverlayProperties {
 export const SMOverlay = ({
   buttonTemplate,
   buttonClassName = '',
+  buttonFlex = false,
   buttonLabel = '',
   buttonDarkBackground = false,
   iconFilled = false,
@@ -38,19 +40,33 @@ export const SMOverlay = ({
   const op = useRef<OverlayPanel>(null);
 
   const renderButton = () => {
+    const flex = buttonFlex ? 'flex align-items-center justify-content-center' : '';
     if (buttonTemplate) {
       return (
-        <SMButton
-          darkBackGround={buttonDarkBackground}
-          className={buttonClassName}
-          iconFilled={iconFilled}
-          icon={icon}
-          tooltip={tooltip}
-          label={buttonLabel}
-          onClick={(e) => op.current?.toggle(e)}
-        >
-          {buttonTemplate}
-        </SMButton>
+        <div className={flex}>
+          <SMButton
+            darkBackGround={buttonDarkBackground}
+            className={buttonClassName}
+            iconFilled={iconFilled}
+            icon={icon}
+            tooltip={tooltip}
+            label={buttonLabel}
+            onClick={(e) => op.current?.toggle(e)}
+          >
+            {buttonTemplate}
+          </SMButton>
+        </div>
+        // <SMButton
+        //   darkBackGround={buttonDarkBackground}
+        //   className={buttonClassName}
+        //   iconFilled={iconFilled}
+        //   icon={icon}
+        //   tooltip={tooltip}
+        //   label={buttonLabel}
+        //   onClick={(e) => op.current?.toggle(e)}
+        // >
+        //   {buttonTemplate}
+        // </SMButton>
       );
     }
     return (
