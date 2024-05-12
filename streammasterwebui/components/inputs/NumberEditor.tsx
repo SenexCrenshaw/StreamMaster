@@ -1,4 +1,3 @@
-import { FloatLabel } from 'primereact/floatlabel';
 import { useClickOutside } from 'primereact/hooks';
 import { InputNumber } from 'primereact/inputnumber';
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
@@ -69,8 +68,11 @@ const NumberEditor = ({
       ret = 'stringeditorbody-inputtext-save';
     }
 
+    if (showButtons === true) {
+      ret += ' stringeditorbody-inputtext-buttons';
+    }
     return ret;
-  }, [needsSave, darkBackGround]);
+  }, [darkBackGround, needsSave, showButtons]);
 
   const save = useCallback(
     (forceValueSave?: number | undefined) => {
@@ -129,59 +131,34 @@ const NumberEditor = ({
     }
   }, [value, setInputValue]);
 
-  if (!label) {
-    return (
-      <div className={getDiv} ref={overlayReference}>
-        <InputNumber
-          autoFocus={autoFocus}
-          id="numbereditorbody-inputtext"
-          locale="en-US"
-          onChange={(e) => {
-            if (disableDebounce !== undefined && disableDebounce !== true) {
-              debounced(e.value as number);
-            }
-
-            setInputValue(e.value as number);
-          }}
-          onClick={() => {
-            onClick?.();
-          }}
-          onFocus={() => setIsFocused(true)}
-          prefix={prefix}
-          showButtons={showButtons}
-          suffix={suffix}
-          tooltip={tooltip}
-          tooltipOptions={tooltipOptions}
-          value={inputValue}
-        />
-      </div>
-    );
-  }
-
   return (
-    <div className={label ? 'pt-4' : ''}>
-      <FloatLabel>
-        <InputNumber
-          className={getDiv}
-          id="numbereditorbody-inputtext"
-          locale="en-US"
-          onChange={(e) => {
-            debounced(e.value as number);
-            setInputValue(e.value as number);
-          }}
-          onClick={() => {
-            onClick?.();
-          }}
-          onFocus={() => setIsFocused(true)}
-          prefix={prefix}
-          showButtons={showButtons}
-          suffix={suffix}
-          tooltip={tooltip}
-          tooltipOptions={tooltipOptions}
-          value={inputValue}
-        />
-        <label htmlFor="numbereditorbody-inputtext">{label}</label>
-      </FloatLabel>
+    <div className="flex flex-column align-items-start">
+      {label && (
+        <>
+          <label htmlFor="numbereditorbody-inputtext">{label}</label>
+          <div className="pt-small" />
+        </>
+      )}
+      <InputNumber
+        className={getDiv}
+        min={0}
+        id="numbereditorbody-inputtext"
+        locale="en-US"
+        onChange={(e) => {
+          debounced(e.value as number);
+          setInputValue(e.value as number);
+        }}
+        onClick={() => {
+          onClick?.();
+        }}
+        onFocus={() => setIsFocused(true)}
+        prefix={prefix}
+        showButtons={showButtons}
+        suffix={suffix}
+        tooltip={tooltip}
+        tooltipOptions={tooltipOptions}
+        value={inputValue}
+      />
     </div>
   );
 };

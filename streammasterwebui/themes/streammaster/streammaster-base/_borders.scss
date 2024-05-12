@@ -1,0 +1,51 @@
+.input-border {
+    border: $inputBorder-size solid $inputHoverBorderColor;
+    border-radius: $borderRadius;
+}
+
+.input-border-dark {
+    @extend .input-border;
+    background-color: $inputBg !important;
+}
+
+.border-radius-right {
+    border-top-right-radius: $borderRadius;
+    border-bottom-right-radius: $borderRadius;
+    border-color: $headerBg;
+    border-width: 1px;
+    border-style: solid;
+}
+
+.border-radius-left {
+    border-color: $headerBg;
+    border-width: 1px;
+    border-top-left-radius: $borderRadius;
+    border-bottom-left-radius: $borderRadius;
+    border-style: solid;
+}
+
+.border-radius-bottom {
+    border-top-style: none !important;
+    border-color: $inputHoverBorderColor;
+    border-width: 1px;
+    border-bottom-left-radius: $borderRadius;
+    border-bottom-right-radius: $borderRadius;
+    border-style: solid;
+}
+
+.border-sides {
+    border-top-style: none;
+    border-bottom-style: none;
+    border-left: 1px solid $inputHoverBorderColor;
+    border-right: 1px solid $inputHoverBorderColor;
+}
+
+.info-header-text-bottom-border {
+    @extend .info-header-text;
+    border-width: 1px;
+    border-top-right-radius: $borderRadius;
+    border-top-left-radius: $borderRadius;
+    border-bottom: 1px solid $inputBorderColor;
+    border-style: solid;
+    border-color: $inputHoverBorderColor;
+}

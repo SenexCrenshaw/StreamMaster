@@ -81,7 +81,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
       };
     }, [color, style]);
 
-    const className = darkBackGround ? 'input-border-dark' : '';
+    const className = darkBackGround ? 'dark-background' : '';
 
     if (props.children) {
       return (

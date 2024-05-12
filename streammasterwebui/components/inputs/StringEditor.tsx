@@ -12,6 +12,7 @@ export interface StringEditorBodyTemplateProperties {
   readonly disableDebounce?: boolean;
   readonly debounceMs?: number;
   readonly isLoading?: boolean;
+  readonly label?: string;
   readonly onChange?: (value: string | undefined) => void;
   readonly onSave: (value: string | undefined) => void;
   readonly onClick?: () => void;
@@ -29,6 +30,7 @@ const StringEditor = ({
   disableDebounce = false,
   debounceMs,
   isLoading,
+  label,
   onChange,
   onSave,
   onClick,
@@ -142,61 +144,49 @@ const StringEditor = ({
     return showClear === true && isFocused && inputValue !== originalValue;
   }, [inputValue, isFocused, originalValue, showClear]);
 
-  const getButton = useMemo(() => {
-    return (
-      <div ref={divReference} className="stringeditor">
-        <InputText
-          className={getDiv}
-          id={uuid}
-          autoFocus={autoFocus}
-          onChange={(e) => {
-            setInputValue(e.target.value as string);
-            if (disableDebounce !== true) {
-              debounced(e.target.value as string);
-            } else {
-              onChange && onChange(e.target.value as string);
-            }
-          }}
-          onClick={() => {
-            onClick?.();
-          }}
-          onFocus={() => setIsFocused(true)}
-          placeholder={placeholder}
-          tooltip={tooltip}
-          tooltipOptions={tooltipOptions}
-          value={inputValue}
-        />
-        {doShowClear && (
-          <i className="input-icon">
-            <i
-              className="pi pi-times-circle icon-yellow"
-              onClick={() => {
-                setInputValue('');
-                setOriginalValue('');
-                onChange && onChange('');
-              }}
-            />
-          </i>
-        )}
-      </div>
-    );
-  }, [autoFocus, debounced, disableDebounce, doShowClear, getDiv, inputValue, onChange, onClick, placeholder, tooltip, tooltipOptions, uuid]);
-
-  return getButton;
-  // if (!label) {
-  //   return getButton;
-  // }
-
-  // return (
-  //   <div className={label ? 'stringeditor pt-4' : 'stringeditor'} ref={divReference}>
-  //     <FloatLabel>
-  //       {getButton}
-  //       <label className="" htmlFor={uuid}>
-  //         {label}
-  //       </label>
-  //     </FloatLabel>
-  //   </div>
-  // );
+  return (
+    <div ref={divReference} className="stringeditor flex flex-column align-items-start">
+      {label && (
+        <>
+          <label>{label}</label>
+          <div className="pt-small" />
+        </>
+      )}
+      <InputText
+        className={getDiv}
+        id={uuid}
+        autoFocus={autoFocus}
+        onChange={(e) => {
+          setInputValue(e.target.value as string);
+          if (disableDebounce !== true) {
+            debounced(e.target.value as string);
+          } else {
+            onChange && onChange(e.target.value as string);
+          }
+        }}
+        onClick={() => {
+          onClick?.();
+        }}
+        onFocus={() => setIsFocused(true)}
+        placeholder={placeholder}
+        tooltip={tooltip}
+        tooltipOptions={tooltipOptions}
+        value={inputValue}
+      />
+      {doShowClear && (
+        <i className="input-icon">
+          <i
+            className="pi pi-times-circle icon-yellow"
+            onClick={() => {
+              setInputValue('');
+              setOriginalValue('');
+              onChange && onChange('');
+            }}
+          />
+        </i>
+      )}
+    </div>
+  );
 };
 
 StringEditor.displayName = 'String Editor Body Template';

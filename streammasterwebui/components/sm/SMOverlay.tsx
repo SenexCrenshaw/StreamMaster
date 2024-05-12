@@ -1,7 +1,7 @@
 import XButton from '@components/buttons/XButton';
 import SMButton from '@components/sm/SMButton';
 import { OverlayPanel } from 'primereact/overlaypanel';
-import React, { ReactNode, useRef } from 'react';
+import React, { ReactNode, useMemo, useRef } from 'react';
 import { SMCard } from './SMCard';
 
 interface SMOverlayProperties {
@@ -39,7 +39,7 @@ export const SMOverlay = ({
 }: SMOverlayProperties) => {
   const op = useRef<OverlayPanel>(null);
 
-  const renderButton = () => {
+  const renderButton = useMemo(() => {
     const flex = buttonFlex ? 'flex align-items-center justify-content-center' : '';
     if (buttonTemplate) {
       return (
@@ -56,17 +56,6 @@ export const SMOverlay = ({
             {buttonTemplate}
           </SMButton>
         </div>
-        // <SMButton
-        //   darkBackGround={buttonDarkBackground}
-        //   className={buttonClassName}
-        //   iconFilled={iconFilled}
-        //   icon={icon}
-        //   tooltip={tooltip}
-        //   label={buttonLabel}
-        //   onClick={(e) => op.current?.toggle(e)}
-        // >
-        //   {buttonTemplate}
-        // </SMButton>
       );
     }
     return (
@@ -80,7 +69,7 @@ export const SMOverlay = ({
         onClick={(e) => op.current?.toggle(e)}
       />
     );
-  };
+  }, [buttonClassName, buttonDarkBackground, buttonFlex, buttonLabel, buttonTemplate, icon, iconFilled, tooltip]);
 
   return (
     <>
@@ -98,7 +87,7 @@ export const SMOverlay = ({
           {children}
         </SMCard>
       </OverlayPanel>
-      {renderButton()}
+      {renderButton}
     </>
   );
 };

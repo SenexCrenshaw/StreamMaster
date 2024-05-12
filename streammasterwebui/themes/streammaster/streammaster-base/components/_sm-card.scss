@@ -37,8 +37,8 @@
         background-color: $headerBg !important;
         display: flex;
         align-items: center;
-        padding-bottom: 0.5rem;
-        padding-top: 0.5rem;
+        padding-bottom: 0.75rem;
+        padding-top: 0.75rem;
         padding-left: $headerTextLeft !important;
         height: $input-height-with-no-borders !important;
     }
@@ -74,22 +74,21 @@
 
     .sm-card-children-info {
         background-color: $headerBg !important;
-        border-top-left-radius: $borderRadius !important;
-        border-top-right-radius: $borderRadius !important;
         display: flex;
         align-items: center;
-        padding-bottom: 0.5rem;
-        padding-top: 0.5rem;
+        padding-bottom: 0.75rem;
+        padding-top: 0.75rem;
         padding-left: $headerTextLeft !important;
         height: $input-height-with-no-borders !important;
     }
 
     .sm-card-children {
-        border-style: none !important;
+        border: unset !important;
         background-color: unset !important;
     }
 
     .sm-card-children-content {
+
         background-color: unset !important;
         padding: 0;
     }

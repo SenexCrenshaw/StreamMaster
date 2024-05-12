@@ -9,8 +9,8 @@ import { CreateSMChannelRequest, SMChannelDto, SMStreamDto, StationChannelName }
 
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import StreamingProxyTypeSelector from '../inputs/StreamingProxyTypeSelector';
 import SMChannelSMStreamDialog from './SMChannelSMStreamDialog';
-import StreamingProxyTypeSelector from './StreamingProxyTypeSelector';
 
 interface SMChannelDialogProperties {
   onSave: (request: CreateSMChannelRequest) => void;
@@ -141,14 +141,13 @@ const SMChannelDialog = ({ smChannel, onSave }: SMChannelDialogProperties) => {
 
   return (
     <>
-      <div className="sm-headerBg dialog-padding">
+      <div className="sm-headerBg dialog-padding border-sides">
         <div className="flex w-12 gap-1 pl-2 ">
           <div className="flex flex-column w-10 gap-1 ">
             <div className="flex w-12 gap-1">
               <div className="w-6 justify-content-start align-items-center ">
-                <label>Name</label>
-                <div className="pt-small" />
                 <StringEditor
+                  label="Name"
                   placeholder="Name"
                   darkBackGround
                   disableDebounce
@@ -160,45 +159,36 @@ const SMChannelDialog = ({ smChannel, onSave }: SMChannelDialogProperties) => {
                 />
               </div>
               <div className="w-6 justify-content-start align-items-center">
-                <label>EPG</label>
-                <div className="pt-small" />
-                <EPGSelector darkBackGround smChannel={tempSMChannel} onChange={(e) => e && setEPGId(e)} />
+                <EPGSelector label="EPG" darkBackGround smChannel={tempSMChannel} onChange={(e) => e && setEPGId(e)} />
               </div>
             </div>
             <div className="flex w-12 gap-1">
               <div className="w-6 justify-content-start align-items-center ">
-                <label>GROUP</label>
-                <div className="pt-small" />
-                <ChannelGroupSelector darkBackGround onChange={(e) => e && setGroup(e)} value={request.Group} />
+                <ChannelGroupSelector label="GROUP" darkBackGround onChange={(e) => e && setGroup(e)} value={request.Group} />
               </div>
               <div className="w-6 justify-content-start align-items-center ">
-                <NumberEditor showButtons darkBackGround label="Channel #" onChange={(e) => e && setChannelNumber(e)} value={request.ChannelNumber} />
+                <NumberEditor label="Channel #" showButtons darkBackGround onChange={(e) => e && setChannelNumber(e)} value={request.ChannelNumber} />
               </div>
             </div>
           </div>
 
           <div className="w-2 flex flex-column justify-content-start align-items-center">
-            <div>Logo</div>
-            <div className="pt-small" />
-            <div className="flex flex-column justify-content-center align-items-center w-full h-full">
-              <IconSelector
-                darkBackGround
-                large
-                enableEditMode
-                onChange={async (e: string) => {
-                  setLogo(e);
-                }}
-                value={request.Logo}
-              />
-            </div>
+            <IconSelector
+              darkBackGround
+              label="Logo"
+              large
+              enableEditMode
+              onChange={async (e: string) => {
+                setLogo(e);
+              }}
+              value={request.Logo}
+            />
           </div>
         </div>
         <div className="layout-padding-bottom" />
         <div className="flex w-10 gap-1 pl-2">
           <div className="w-6 gap-1 w-full h-full">
-            <label>Proxy</label>
-            <div className="pt-small" />
-            <StreamingProxyTypeSelector onChange={(e) => console.log(e)} />
+            <StreamingProxyTypeSelector label="Proxy" onChange={(e) => console.log(e)} />
           </div>
         </div>
       </div>

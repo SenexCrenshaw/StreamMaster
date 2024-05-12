@@ -68,8 +68,8 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
             <div className="flex align-content-center justify-content-center">
               <SMButton
                 icon="pi-minus"
-                className="border-noround borderread icon-red-primary"
-                iconFilled
+                className="border-noround borderread icon-red"
+                iconFilled={false}
                 onClick={() => {
                   if (!data.Id) {
                     return;
@@ -110,8 +110,8 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
         <div className="flex align-content-center justify-content-center">
           <SMButton
             icon="pi-plus"
-            className="w-2rem border-noround borderread icon-blue-primary"
-            iconFilled
+            className="w-2rem border-noround borderread icon-green"
+            iconFilled={false}
             onClick={() => {
               if (smChannel) {
                 AddSMStreamToSMChannel({ SMChannelId: smChannel?.Id ?? 0, SMStreamId: data.Id })

@@ -12,6 +12,7 @@ type IconSelectorProperties = {
   readonly enableEditMode?: boolean;
   readonly disabled?: boolean;
   readonly editable?: boolean | undefined;
+  readonly label?: string;
   readonly value?: string;
   readonly onChange?: (value: string) => void;
   readonly useDefault?: boolean;
@@ -22,6 +23,7 @@ const IconSelector = ({
   enableEditMode = true,
   darkBackGround = false,
   large = false,
+  label,
   value,
   disabled,
   editable = true,
@@ -137,21 +139,39 @@ const IconSelector = ({
   }
 
   return (
-    <SMOverlay buttonFlex buttonDarkBackground={darkBackGround} buttonTemplate={buttonTemplate} title="ICONS" widthSize="3" buttonLabel="Icons" header={<></>}>
-      <SMScroller
-        className="icon-selector"
-        autoFocus
-        filter
-        filterBy="Name"
-        data={query.data}
-        dataKey="Source"
-        itemSize={32}
-        onChange={(e) => handleOnChange(e)}
-        itemTemplate={itemTemplate}
-        scrollHeight={250}
-        value={iconDto}
-      />
-    </SMOverlay>
+    <>
+      <div className="flex flex-column align-items-start icon-label">
+        {label && (
+          <>
+            <label>{label}</label>
+            <div className="pt-small" />
+          </>
+        )}
+      </div>
+      <SMOverlay
+        buttonFlex
+        buttonDarkBackground={darkBackGround}
+        buttonTemplate={buttonTemplate}
+        title="ICONS"
+        widthSize="3"
+        buttonLabel="Icons"
+        header={<></>}
+      >
+        <SMScroller
+          className="icon-selector"
+          autoFocus
+          filter
+          filterBy="Name"
+          data={query.data}
+          dataKey="Source"
+          itemSize={32}
+          onChange={(e) => handleOnChange(e)}
+          itemTemplate={itemTemplate}
+          scrollHeight={250}
+          value={iconDto}
+        />
+      </SMOverlay>
+    </>
   );
 };
 IconSelector.displayName = 'IconSelector';

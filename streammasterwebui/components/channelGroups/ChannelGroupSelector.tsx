@@ -12,6 +12,7 @@ type ChannelGroupSelectorProperties = {
   readonly enableEditMode?: boolean;
   readonly disabled?: boolean;
   readonly editable?: boolean | undefined;
+  readonly label?: string;
   readonly value?: string;
   readonly onChange?: (value: string) => void;
   // readonly className?: string | undefined;
@@ -21,6 +22,7 @@ const ChannelGroupSelector = ({
   enableEditMode = true,
   // className,
   darkBackGround = false,
+  label,
   value,
   disabled,
   editable,
@@ -65,7 +67,7 @@ const ChannelGroupSelector = ({
   const buttonTemplate = useMemo(() => {
     if (input)
       return (
-        <div className="sm-channelgroup-selector ">
+        <div className="sm-channelgroup-selector">
           <div className="text-container ">{input}</div>
         </div>
       );
@@ -90,21 +92,31 @@ const ChannelGroupSelector = ({
   }
 
   return (
-    <div className={darkBackGround ? 'input-border-dark' : ''}>
-      <SMOverlay buttonTemplate={buttonTemplate} title="GROUPS" widthSize="3" icon="pi-chevron-down">
-        <SMScroller
-          data={channelGroupQuery.data}
-          onChange={(e) => handleOnChange(e)}
-          dataKey="Name"
-          filter
-          filterBy="Name"
-          itemSize={26}
-          itemTemplate={itemTemplate}
-          scrollHeight={250}
-          value={selectedChannelGroup}
-        />
-      </SMOverlay>
-    </div>
+    <>
+      <div className="stringeditor flex flex-column align-items-start">
+        {label && (
+          <>
+            <label>{label}</label>
+            <div className="pt-small" />
+          </>
+        )}
+      </div>
+      <div className={darkBackGround ? 'input-border-dark p-0 input-height' : 'p-0 input-height'}>
+        <SMOverlay buttonTemplate={buttonTemplate} title="GROUPS" widthSize="3" icon="pi-chevron-down">
+          <SMScroller
+            data={channelGroupQuery.data}
+            onChange={(e) => handleOnChange(e)}
+            dataKey="Name"
+            filter
+            filterBy="Name"
+            itemSize={26}
+            itemTemplate={itemTemplate}
+            scrollHeight={250}
+            value={selectedChannelGroup}
+          />
+        </SMOverlay>
+      </div>
+    </>
   );
 };
 

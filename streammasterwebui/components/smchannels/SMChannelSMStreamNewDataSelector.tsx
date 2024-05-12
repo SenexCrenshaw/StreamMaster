@@ -40,27 +40,8 @@ const SMChannelSMStreamNewDataSelector = ({ enableEdit: propsEnableEdit, height,
     (smStream: SMStreamDto) => (
       <div className="flex align-content-center justify-content-end">
         <SMButton
+          className="icon-red"
           icon="pi-minus"
-          className="w-2rem border-noround icon-red-primary"
-          iconFilled
-          onClick={() => {
-            if (smChannel) {
-              const request: RemoveSMStreamFromSMChannelRequest = { SMChannelId: smChannel.Id, SMStreamId: smStream.Id };
-              RemoveSMStreamFromSMChannel(request)
-                .then((response) => {})
-                .catch((error) => {
-                  console.error('Remove Stream', error.message);
-                });
-            } else {
-              const newSelectedItems = selectedItems.filter((item) => item.Id !== smStream.Id);
-              setSelectedItems(newSelectedItems);
-            }
-          }}
-          tooltip="Remove Stream"
-        />
-
-        {/* 
-        <MinusButton
           iconFilled={false}
           onClick={() => {
             if (smChannel) {
@@ -76,7 +57,7 @@ const SMChannelSMStreamNewDataSelector = ({ enableEdit: propsEnableEdit, height,
             }
           }}
           tooltip="Remove Stream"
-        /> */}
+        />
       </div>
     ),
     [selectedItems, setSelectedItems, smChannel]
@@ -97,12 +78,12 @@ const SMChannelSMStreamNewDataSelector = ({ enableEdit: propsEnableEdit, height,
     [actionTemplate]
   );
 
-  const headerName = useMemo(() => {
-    if (name) {
-      return name + ' Streams';
-    }
-    return 'Streams';
-  }, [name]);
+  // const headerName = useMemo(() => {
+  //   if (name) {
+  //     return name + ' Streams';
+  //   }
+  //   return 'Streams';
+  // }, [name]);
 
   if (smChannel) {
     return (
@@ -128,7 +109,7 @@ const SMChannelSMStreamNewDataSelector = ({ enableEdit: propsEnableEdit, height,
         dataSource={smChannelData}
         enablePaginator
         emptyMessage="No Streams"
-        headerName={headerName}
+        headerName="ACTIVE STREAMS"
         headerClassName="header-text-channels"
         isLoading={smChannelIsLoading}
         id={dataKey}
@@ -157,7 +138,7 @@ const SMChannelSMStreamNewDataSelector = ({ enableEdit: propsEnableEdit, height,
       dataSource={selectedItems}
       enablePaginator
       emptyMessage="No Streams"
-      headerName={headerName}
+      headerName="ACTIVE STREAMS"
       headerClassName="header-text-channels"
       isLoading={false}
       id={dataKey}

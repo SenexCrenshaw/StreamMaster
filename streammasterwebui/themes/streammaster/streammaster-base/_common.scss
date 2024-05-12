@@ -207,16 +207,22 @@
 .p-inputnumber-button-group {
   height: $input-height;
 
+  >button {
+    border: unset;
+    border-style: solid;
+    color: black !important;
+  }
+
   >button:first-child {
     border-width: 0.025rem;
-    border-top-color: $iconOrange;
+    border-top-color: black !important;
     border-right-color: $iconOrange;
     border-left-color: $iconOrange;
   }
 
   >button:last-child {
     border-width: 0.025rem;
-    border-bottom-color: $iconOrange;
+    border-bottom-color: black !important;
     border-right-color: $iconOrange;
     border-left-color: $iconOrange;
   }
@@ -272,11 +278,29 @@
 }
 
 .border-radius-bottom {
-  border-color: $headerBg;
+  border-top-style: none !important;
+  border-color: $inputHoverBorderColor;
   border-width: 1px;
   border-bottom-left-radius: $borderRadius;
   border-bottom-right-radius: $borderRadius;
   border-style: solid;
+}
+
+.border-sides {
+  border-top-style: none;
+  border-bottom-style: none;
+  border-left: 1px solid $inputHoverBorderColor;
+  border-right: 1px solid $inputHoverBorderColor;
+}
+
+.info-header-text-bottom-border {
+  @extend .info-header-text;
+  border-width: 1px;
+  border-top-right-radius: $borderRadius;
+  border-top-left-radius: $borderRadius;
+  border-bottom: 1px solid $inputBorderColor;
+  border-style: solid;
+  border-color: $inputHoverBorderColor;
 }
 
 .p-confirm-popup {

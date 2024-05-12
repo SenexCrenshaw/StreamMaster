@@ -20,8 +20,8 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
       <div className="flex align-content-center justify-content-end">
         <SMButton
           icon="pi-minus"
-          className="w-2rem border-noround  icon-red-primary"
-          iconFilled
+          className="w-2rem border-noround icon-red"
+          iconFilled={false}
           onClick={() => {
             if (!smStream.Id || smChannel === undefined) {
               return;
@@ -39,27 +39,6 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
           tooltip="Remove Stream"
         />
       </div>
-
-      // <div className="flex p-0 justify-content-end align-items-center">
-      //   <MinusButton
-      //     iconFilled={false}
-      //     onClick={() => {
-      //       if (!smStream.Id || smChannel === undefined) {
-      //         return;
-      //       }
-
-      //       const request: RemoveSMStreamFromSMChannelRequest = { SMChannelId: smChannel.Id, SMStreamId: smStream.Id };
-      //       RemoveSMStreamFromSMChannel(request)
-      //         .then((response) => {
-      //           console.log('Remove Stream', response);
-      //         })
-      //         .catch((error) => {
-      //           console.error('Remove Stream', error.message);
-      //         });
-      //     }}
-      //     tooltip="Remove Stream"
-      //   />
-      // </div>
     ),
     [smChannel]
   );

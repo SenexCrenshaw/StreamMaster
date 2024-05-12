@@ -21,12 +21,13 @@ type EPGSelectorProperties = {
   readonly darkBackGround?: boolean;
   readonly disabled?: boolean;
   readonly editable?: boolean | undefined;
+  readonly label?: string;
   readonly smChannel?: SMChannelDto;
   readonly onChange?: (value: string) => void;
   readonly simple?: boolean;
 };
 
-const EPGSelector = ({ enableEditMode = true, smChannel, darkBackGround = false, disabled, editable, onChange, simple }: EPGSelectorProperties) => {
+const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround = false, disabled, editable, onChange, simple }: EPGSelectorProperties) => {
   const { selectedItems } = useSelectedItems<EPGFileDto>('EPGSelector-EPGFiles');
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
@@ -424,17 +425,28 @@ const EPGSelector = ({ enableEditMode = true, smChannel, darkBackGround = false,
   }
 
   return (
-    <SMOverlay
-      buttonDarkBackground={darkBackGround}
-      header={headerTemplate}
-      title="EPG"
-      widthSize="2"
-      icon="pi-chevron-down"
-      buttonTemplate={buttonTemplate(stationChannelName)}
-      buttonLabel="EPG"
-    >
-      {messageContent}
-    </SMOverlay>
+    <>
+      <div className="stringeditor flex flex-column align-items-start">
+        {label && (
+          <>
+            <label>{label}</label>
+            <div className="pt-small" />
+          </>
+        )}
+      </div>
+      <div className={darkBackGround ? 'input-border-dark' : ''}>
+        <SMOverlay
+          header={headerTemplate}
+          title="EPG"
+          widthSize="2"
+          icon="pi-chevron-down"
+          buttonTemplate={buttonTemplate(stationChannelName)}
+          buttonLabel="EPG"
+        >
+          {messageContent}
+        </SMOverlay>
+      </div>
+    </>
   );
 };
 

@@ -1,16 +1,17 @@
 import { StreamingProxyTypes } from '@lib/smAPI/smapiTypes';
 import { Dropdown } from 'primereact/dropdown';
 import { SelectItem } from 'primereact/selectitem';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface StreamingProxyTypeSelectorProperties {
   readonly className?: string;
+  readonly label?: string;
   readonly onChange: (value: number) => void;
   readonly resetValue?: string;
   readonly value?: StreamingProxyTypes;
 }
 
-const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties> = ({ className, onChange, resetValue, value }) => {
+const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties> = ({ className, label, onChange, resetValue, value }) => {
   const [selectedStreamProxytype, setSelectedStreamProxytype] = useState<StreamingProxyTypes>(StreamingProxyTypes.SystemDefault);
 
   console.log(selectedStreamProxytype);
@@ -40,15 +41,25 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
     onChange(option);
   };
 
+  const valueTemplate = useCallback((option: SelectItem): JSX.Element => {
+    return <div className="text-xs text-container">{option.label}</div>;
+  }, []);
+
   return (
-    <div>
+    <div className="flex flex-column align-items-start">
+      {label && (
+        <>
+          <label htmlFor="numbereditorbody-inputtext">{label}</label>
+          <div className="pt-small" />
+        </>
+      )}
       <Dropdown
         className="sm-streamingproxy-selector"
         onChange={(e) => internalOnChange(e.value)}
         options={getHandlersOptions}
         optionLabel="label"
         optionValue="value"
-        valueTemplate={(option: SelectItem) => option?.label}
+        valueTemplate={(option: SelectItem) => valueTemplate(option)}
         value={selectedStreamProxytype}
       />
     </div>

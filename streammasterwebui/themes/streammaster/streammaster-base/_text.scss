@@ -64,13 +64,15 @@
     display: flex;
     align-items: center;
     padding: 0 !important;
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
     padding-left: $headerTextLeft !important;
     font-weight: bold;
     height: $input-height-with-no-borders !important;
 }
 
 .header-text-channels {
-
+    @extend .header-text-color;
     display: flex;
     align-items: center;
     padding: 0 !important;
@@ -85,9 +87,18 @@
     font-weight: bold;
 }
 
-.info-header-text-bottom-border {
-    @extend .info-header-text;
-    border-bottom: 1px solid $inputBorderColor;
+.input-border {
+    border: $inputBorder-size solid $inputHoverBorderColor;
+    border-radius: $borderRadius;
+}
+
+.input-border-dark {
+    @extend .input-border;
+    background-color: $inputBg !important;
+}
+
+.dark-background {
+    background-color: $inputBg !important;
 }
 
 .sm-input {
@@ -109,19 +120,6 @@
     }
 }
 
-.input-border {
-    border: $inputBorder-size solid $inputHoverBorderColor;
-    border-radius: $borderRadius;
-}
-
-.input-border-dark {
-    @extend .input-border;
-    background-color: $inputBg !important;
-}
-
-.dark-background {
-    background-color: $inputBg !important;
-}
 
 
 .sm-input-dark {
@@ -193,6 +191,10 @@
     }
 }
 
+.stringeditorbody-inputtext-buttons {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
 
 .stringeditorbody-inputtext {
     @extend .sm-input;
@@ -208,21 +210,24 @@
     .p-inputnumber-input {
         color: $inputTextColor;
     }
+
+
 }
 
 .stringeditorbody-inputtext-dark {
     @extend .stringeditorbody-inputtext;
+    color: $textColor !important;
     background-color: $inputBg !important;
     display: flex;
     align-items: center;
-    color: $inputTextColor;
+    // color: $inputTextColor;
 
     .p-inputnumber-input {
-        color: $inputTextColor;
+        color: $textColor !important;
     }
 
     .label {
-        color: $inputTextColor;
+        color: $textColor !important;
         //color: $textColor;
     }
 }

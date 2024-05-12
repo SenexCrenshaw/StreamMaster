@@ -6917,6 +6917,56 @@
   border-radius: 6px;
 }
 
+.input-border, #startNumber > input, .p-multiselect, .input-border-dark, .sm-input-dark {
+  border: 0.1rem solid #cecece;
+  border-radius: 6px;
+}
+
+.input-border-dark, .sm-input-dark {
+  background-color: #ffffff !important;
+}
+
+.border-radius-right {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+  border-color: #21282c;
+  border-width: 1px;
+  border-style: solid;
+}
+
+.border-radius-left {
+  border-color: #21282c;
+  border-width: 1px;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+  border-style: solid;
+}
+
+.border-radius-bottom {
+  border-top-style: none !important;
+  border-color: #cecece;
+  border-width: 1px;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  border-style: solid;
+}
+
+.border-sides {
+  border-top-style: none;
+  border-bottom-style: none;
+  border-left: 1px solid #cecece;
+  border-right: 1px solid #cecece;
+}
+
+.info-header-text-bottom-border {
+  border-width: 1px;
+  border-top-right-radius: 6px;
+  border-top-left-radius: 6px;
+  border-bottom: 1px solid #263238;
+  border-style: solid;
+  border-color: #cecece;
+}
+
 .channel-row-selected {
   background-color: #478a5f;
 }
@@ -7045,7 +7095,7 @@
   font-size: 1.3125rem;
 }
 
-.header-text-color, .header-text-sub, .header-text {
+.header-text-color, .header-text-channels, .header-text-sub, .header-text {
   color: #ff7e00;
 }
 
@@ -7070,6 +7120,8 @@
   display: flex;
   align-items: center;
   padding: 0 !important;
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
   padding-left: 0.8rem !important;
   font-weight: bold;
   height: 1.4rem !important;
@@ -7088,8 +7140,17 @@
   font-weight: bold;
 }
 
-.info-header-text-bottom-border {
-  border-bottom: 1px solid #263238;
+.input-border, #startNumber > input, .p-multiselect, .input-border-dark, .sm-input-dark {
+  border: 0.1rem solid #cecece;
+  border-radius: 6px;
+}
+
+.input-border-dark, .sm-input-dark {
+  background-color: #ffffff !important;
+}
+
+.dark-background {
+  background-color: #ffffff !important;
 }
 
 .sm-input, .stringeditorbody-inputtext, .p-inputnumber-input, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark, .sm-input-dark {
@@ -7107,19 +7168,6 @@
 }
 .sm-input .p-dropdown-label, .stringeditorbody-inputtext .p-dropdown-label, .p-inputnumber-input .p-dropdown-label, .stringeditorbody-inputtext-save .p-dropdown-label, .stringeditorbody-inputtext-dark .p-dropdown-label, .sm-input-dark .p-dropdown-label {
   background-color: transparent !important;
-}
-
-.input-border, #startNumber > input, .p-multiselect, .input-border-dark, .sm-input-dark {
-  border: 0.1rem solid #cecece;
-  border-radius: 6px;
-}
-
-.input-border-dark, .sm-input-dark {
-  background-color: #ffffff !important;
-}
-
-.dark-background {
-  background-color: #ffffff !important;
 }
 
 .sm-input-dark {
@@ -7179,6 +7227,11 @@
   height: 100%;
 }
 
+.stringeditorbody-inputtext-buttons {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
 .stringeditorbody-inputtext, .p-inputnumber-input, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark {
   height: 1.4rem;
   max-height: 1.4rem;
@@ -7193,16 +7246,16 @@
 }
 
 .stringeditorbody-inputtext-dark {
+  color: #bcbfbf !important;
   background-color: #ffffff !important;
   display: flex;
   align-items: center;
-  color: #94abec;
 }
 .stringeditorbody-inputtext-dark .p-inputnumber-input {
-  color: #94abec;
+  color: #bcbfbf !important;
 }
 .stringeditorbody-inputtext-dark .label {
-  color: #94abec;
+  color: #bcbfbf !important;
 }
 
 .stringeditorbody-inputtext-save {
@@ -7461,15 +7514,20 @@
 .p-inputnumber-button-group {
   height: 1.6rem;
 }
+.p-inputnumber-button-group > button {
+  border: unset;
+  border-style: solid;
+  color: black !important;
+}
 .p-inputnumber-button-group > button:first-child {
   border-width: 0.025rem;
-  border-top-color: #ff935a;
+  border-top-color: black !important;
   border-right-color: #ff935a;
   border-left-color: #ff935a;
 }
 .p-inputnumber-button-group > button:last-child {
   border-width: 0.025rem;
-  border-bottom-color: #ff935a;
+  border-bottom-color: black !important;
   border-right-color: #ff935a;
   border-left-color: #ff935a;
 }
@@ -7523,11 +7581,28 @@
 }
 
 .border-radius-bottom {
-  border-color: #21282c;
+  border-top-style: none !important;
+  border-color: #cecece;
   border-width: 1px;
   border-bottom-left-radius: 6px;
   border-bottom-right-radius: 6px;
   border-style: solid;
+}
+
+.border-sides {
+  border-top-style: none;
+  border-bottom-style: none;
+  border-left: 1px solid #cecece;
+  border-right: 1px solid #cecece;
+}
+
+.info-header-text-bottom-border {
+  border-width: 1px;
+  border-top-right-radius: 6px;
+  border-top-left-radius: 6px;
+  border-bottom: 1px solid #263238;
+  border-style: solid;
+  border-color: #cecece;
 }
 
 .p-confirm-popup {
@@ -7774,8 +7849,8 @@
   background-color: #21282c !important;
   display: flex;
   align-items: center;
-  padding-bottom: 0.5rem;
-  padding-top: 0.5rem;
+  padding-bottom: 0.75rem;
+  padding-top: 0.75rem;
   padding-left: 0.8rem !important;
   height: 1.4rem !important;
 }
@@ -7789,17 +7864,15 @@
 
 .sm-card-dark .sm-card-children-info {
   background-color: #21282c !important;
-  border-top-left-radius: 6px !important;
-  border-top-right-radius: 6px !important;
   display: flex;
   align-items: center;
-  padding-bottom: 0.5rem;
-  padding-top: 0.5rem;
+  padding-bottom: 0.75rem;
+  padding-top: 0.75rem;
   padding-left: 0.8rem !important;
   height: 1.4rem !important;
 }
 .sm-card-dark .sm-card-children {
-  border-style: none !important;
+  border: unset !important;
   background-color: unset !important;
 }
 .sm-card-dark .sm-card-children-content {
@@ -8091,6 +8164,7 @@
   padding-bottom: 0.1rem !important;
   font-size: 0.75rem;
   height: 1.6rem;
+  color: #bcbfbf;
   padding: 0 !important;
   min-width: 100%;
   display: flex;
@@ -8098,6 +8172,10 @@
   min-height: 1.4rem;
   height: 1.4rem;
   max-height: 1.4rem;
+}
+.sm-streamingproxy-selector .p-dropdown-label {
+  padding: 0;
+  color: #bcbfbf;
 }
 
 .p-datatable {
@@ -8368,6 +8446,11 @@
   object-fit: contain;
 }
 
+.icon-label {
+  width: 5.6rem !important;
+  max-width: 5.6rem !important;
+}
+
 .icon-button-template {
   height: 1.4rem;
   max-height: 1.4rem;
@@ -8375,9 +8458,6 @@
   align-items: center;
 }
 .icon-button-template .no-border {
-  border-style: none !important;
-}
-.icon-button-template .no-border :hover {
   border-style: none !important;
 }
 .icon-button-template img {
