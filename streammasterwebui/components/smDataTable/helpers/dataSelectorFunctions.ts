@@ -4,6 +4,7 @@ import { ColumnAlign, ColumnFieldType } from '../types/smDataTableTypes';
 
 export const getHeaderFromField = (field: string, columns: ColumnMeta[]): string => {
   let col = columns.find((column) => column.field === field);
+
   let header = '';
 
   if (col) {

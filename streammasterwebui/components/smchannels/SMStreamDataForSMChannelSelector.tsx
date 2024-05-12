@@ -1,6 +1,6 @@
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { GetMessage } from '@lib/common/common';
+import { AdditionalFilterProperties, GetMessage, isEmptyObject } from '@lib/common/common';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 
 import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
@@ -8,11 +8,15 @@ import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
-import { GetSMChannelStreamsRequest, RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { GetSMChannelStreamsRequest, M3UFileDto, RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
+import { ReactNode, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import SMButton from '@components/sm/SMButton';
 import SMDataTable from '@components/smDataTable/SMDataTable';
+import { useQueryAdditionalFilters } from '@lib/redux/hooks/queryAdditionalFilters';
+import useGetM3UFiles from '@lib/smAPI/EPGFiles/useGetM3UFiles';
+import { ColumnFilterElementTemplateOptions } from 'primereact/column';
+import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 interface SMStreamDataForSMChannelSelectorProperties {
   readonly enableEdit?: boolean;
   readonly id: string;
@@ -24,6 +28,9 @@ interface SMStreamDataForSMChannelSelectorProperties {
 
 const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height, id, name, smChannel }: SMStreamDataForSMChannelSelectorProperties) => {
   const dataKey = `${id}-SMStreamDataForSMChannelSelector`;
+  const { queryAdditionalFilters, setQueryAdditionalFilters } = useQueryAdditionalFilters(dataKey);
+
+  const { data: m3uFiles } = useGetM3UFiles();
   const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(`${id}-SMStreamDataForSMChannelSelector`);
   const { data: smChannelData, isLoading: smChannelIsLoading } = useGetSMChannelStreams({ SMChannelId: smChannel?.Id } as GetSMChannelStreamsRequest);
 
@@ -38,12 +45,63 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
     }
   }, [enableEdit, propsEnableEdit]);
 
+  const itemTemplate = useCallback(
+    (option: M3UFileDto) => {
+      if (!m3uFiles || !option) return null;
+      return (
+        <div className="flex align-items-center gap-1">
+          <span>{option.Name}</span>
+        </div>
+      );
+    },
+    [m3uFiles]
+  );
+
+  const m3uFilter = useCallback(
+    (options: ColumnFilterElementTemplateOptions): ReactNode => {
+      return (
+        <MultiSelect
+          className="w-11 input-height-with-no-borders"
+          filter
+          itemTemplate={itemTemplate}
+          maxSelectedLabels={1}
+          showClear
+          filterBy="Name"
+          onChange={(e: MultiSelectChangeEvent) => {
+            if (isEmptyObject(e.value)) {
+              options.filterApplyCallback();
+            } else {
+              const ids = e.value.map((v: M3UFileDto) => v.Id);
+              console.log(options.filterModel.fieldName);
+              // options.filterModel.fieldName = 'M3UFileId';
+              console.log(options.filterModel);
+
+              const newFilter = { field: 'M3UFileId', matchMode: 'in', values: ids } as AdditionalFilterProperties;
+              setQueryAdditionalFilters(newFilter);
+
+              // options.filterApplyCallback(newFilter);
+              //options.filterApplyCallback(ids);
+            }
+          }}
+          onShow={() => {}}
+          options={m3uFiles}
+          placeholder="M3U"
+          value={options.value}
+          selectedItemTemplate={itemTemplate}
+        />
+      );
+    },
+    [m3uFiles, itemTemplate]
+  );
+
+  const w = '10rem';
+  const z = '4rem';
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'Name', filter: true, sortable: true, width: '8rem' },
-      { field: 'M3UFileName', filter: true, header: 'M3U', maxWidth: '4rem', sortable: true }
+      { field: 'Name', filter: true, maxWidth: w, minWidth: w, sortable: true, width: w },
+      { field: 'M3UFileName', filter: true, filterElement: m3uFilter, header: 'M3U', maxWidth: z, minWidth: z, sortable: true, width: z }
     ],
-    []
+    [m3uFilter]
   );
 
   const addOrRemoveTemplate = useCallback(
@@ -138,12 +196,6 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
 
   const rowClass = useCallback(
     (data: unknown): string => {
-      const isHidden = getRecord(data, 'IsHidden');
-
-      if (isHidden === true) {
-        return 'bg-red-900';
-      }
-
       const id = getRecord(data, 'Id');
       let found = false;
       if (smChannel) {
@@ -153,7 +205,13 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
       }
 
       if (found) {
-        return 'channel-row-selected';
+        return 'p-hidden';
+      }
+
+      const isHidden = getRecord(data, 'IsHidden');
+
+      if (isHidden === true) {
+        return 'bg-red-900';
       }
 
       return '';
@@ -163,11 +221,11 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
 
   return (
     <SMDataTable
+      addOrRemoveTemplate={addOrRemoveTemplate}
+      addOrRemoveHeaderTemplate={addOrRemoveHeaderTemplate}
       columns={columns}
       defaultSortField="Name"
       defaultSortOrder={1}
-      addOrRemoveTemplate={addOrRemoveTemplate}
-      addOrRemoveHeaderTemplate={addOrRemoveHeaderTemplate}
       enablePaginator
       emptyMessage="No Streams"
       headerName={GetMessage('m3ustreams').toUpperCase()}

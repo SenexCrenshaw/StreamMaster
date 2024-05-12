@@ -4,7 +4,8 @@ import { camel2title } from '@lib/common/common';
 import { ColumnFieldType } from '../types/smDataTableTypes';
 
 function getHeader(field: string, header: string | undefined, fieldType: ColumnFieldType | undefined): ReactNode {
-  if (fieldType === 'actions') {
+  if (fieldType === 'custom') {
+    return header || '';
   }
   if (!fieldType === undefined) {
     return header || camel2title(field);

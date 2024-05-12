@@ -87,15 +87,6 @@
     font-weight: bold;
 }
 
-.input-border {
-    border: $inputBorder-size solid $inputHoverBorderColor;
-    border-radius: $borderRadius;
-}
-
-.input-border-dark {
-    @extend .input-border;
-    background-color: $inputBg !important;
-}
 
 .dark-background {
     background-color: $inputBg !important;

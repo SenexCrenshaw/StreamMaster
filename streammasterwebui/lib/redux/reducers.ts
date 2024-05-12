@@ -7,6 +7,7 @@ import GetEPGNextEPGNumber from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
 import GetIcons from '@lib/smAPI/Icons/GetIconsSlice';
 import GetIsSystemReady from '@lib/smAPI/Settings/GetIsSystemReadySlice';
 import GetM3UFileNames from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
+import GetM3UFiles from '@lib/smAPI/EPGFiles/GetM3UFilesSlice';
 import GetPagedChannelGroups from '@lib/smAPI/ChannelGroups/GetPagedChannelGroupsSlice';
 import GetPagedEPGFiles from '@lib/smAPI/EPGFiles/GetPagedEPGFilesSlice';
 import GetPagedM3UFiles from '@lib/smAPI/M3UFiles/GetPagedM3UFilesSlice';
@@ -99,6 +100,7 @@ export const rootReducer = combineReducers({
   GetIcons: GetIcons,
   GetIsSystemReady: GetIsSystemReady,
   GetM3UFileNames: GetM3UFileNames,
+  GetM3UFiles: GetM3UFiles,
   GetPagedChannelGroups: GetPagedChannelGroups,
   GetPagedEPGFiles: GetPagedEPGFiles,
   GetPagedM3UFiles: GetPagedM3UFiles,

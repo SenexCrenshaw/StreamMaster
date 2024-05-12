@@ -1,6 +1,6 @@
 import { SMChannelDto } from '@lib/smAPI/smapiTypes';
 import React from 'react';
-import SMChannelSMStreamNewDataSelector from './SMChannelSMStreamNewDataSelector';
+import SMChannelSMStreamNewDataSelector from './SMChannelSMStreamDataSelector';
 import SMStreamDataForSMChannelSelector from './SMStreamDataForSMChannelSelector';
 
 interface SMChannelSMStreamDialogProperties {

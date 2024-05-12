@@ -61,6 +61,7 @@ export interface ColumnMeta {
    * The text to display in the column header.
    */
   header?: string;
+  headerTemplate?: React.ReactNode;
   isHidden?: boolean;
   resizeable?: boolean | undefined;
   /**

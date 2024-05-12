@@ -630,6 +630,9 @@ export interface GetPagedEPGFilesRequest
 {
 	Parameters: QueryStringParameters;
 }
+export interface GetM3UFilesRequest
+{
+}
 export interface CreateEPGFileFromFormRequest
 {
 	Color?: string;

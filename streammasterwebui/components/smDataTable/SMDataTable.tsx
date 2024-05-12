@@ -593,6 +593,23 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     }
     return 'sm-standard-border-bottom-no-radius';
   }, [showPageination]);
+
+  const getExpanderHeader = useMemo(() => {
+    if (props.expanderHeader !== undefined) {
+      return props.expanderHeader;
+    }
+
+    return null;
+  }, [props.expanderHeader]);
+
+  const getRowExpanderHeader = useMemo(() => {
+    return (
+      <div className="flex align-items-center justify-content-center">
+        <span className="pi pi-equals" />
+      </div>
+    );
+  }, []);
+
   return (
     <div
       id={props.id}
@@ -692,7 +709,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 
           <Column
             className={'w-2rem max-w-2rem p-0 flex justify-content-center align-items-center sm-expander'}
-            filterElement={props.expanderHeader !== undefined ? props.expanderHeader : undefined}
+            filterElement={getExpanderHeader}
             filter={props.expanderHeader !== undefined}
             hidden={!props.showExpand || props.rowExpansionTemplate === undefined}
             showFilterMenu={false}
@@ -721,10 +738,16 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
                     return <div>Hey</div>;
                   }
             }
+            filter
+            filterElement={getRowExpanderHeader}
             className="w-2rem"
             hidden={!props.reorderable}
             rowReorderIcon="pi pi-equals"
             rowReorder
+            showClearButton={false}
+            showFilterMatchModes={false}
+            showFilterMenu={false}
+            showFilterOperator={false}
             bodyClassName={'flex justify-content-center align-items-center'}
           />
           {props.columns &&
@@ -733,10 +756,11 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
               .map((col) => (
                 <Column
                   align={getAlign(col.align, col.fieldType)}
+                  className={col.className}
                   filter
-                  filterElement={colFilterTemplate}
+                  filterElement={col.headerTemplate ? col.headerTemplate : colFilterTemplate}
                   filterPlaceholder={col.filter === true ? (col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)) : undefined}
-                  header={getHeader(col.field, col.header, col.fieldType)}
+                  // header={col.headerTemplate ? col.headerTemplate : getHeader(col.field, col.header, col.fieldType)}
                   body={(e) => (col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, setting.defaultIcon, col.camelize))}
                   editor={col.editor}
                   field={col.field}

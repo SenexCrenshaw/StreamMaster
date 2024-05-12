@@ -10,6 +10,7 @@ namespace StreamMaster.Application.EPGFiles
         Task<ActionResult<List<EPGFileDto>>> GetEPGFiles();
         Task<ActionResult<int>> GetEPGNextEPGNumber();
         Task<ActionResult<PagedResponse<EPGFileDto>>> GetPagedEPGFiles(QueryStringParameters Parameters);
+        Task<ActionResult<List<M3UFileDto>>> GetM3UFiles();
         Task<ActionResult<APIResponse>> CreateEPGFile(CreateEPGFileRequest request);
         Task<ActionResult<APIResponse>> DeleteEPGFile(DeleteEPGFileRequest request);
         Task<ActionResult<APIResponse>> ProcessEPGFile(ProcessEPGFileRequest request);
@@ -26,6 +27,7 @@ namespace StreamMaster.Application.Hubs
         Task<List<EPGFileDto>> GetEPGFiles();
         Task<int> GetEPGNextEPGNumber();
         Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(QueryStringParameters Parameters);
+        Task<List<M3UFileDto>> GetM3UFiles();
         Task<APIResponse> CreateEPGFile(CreateEPGFileRequest request);
         Task<APIResponse> DeleteEPGFile(DeleteEPGFileRequest request);
         Task<APIResponse> ProcessEPGFile(ProcessEPGFileRequest request);
