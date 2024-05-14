@@ -33,8 +33,8 @@ const SMChannelNumberEditor = ({ data, style }: SMChannelNumberEditorProperties)
 
   return (
     <NumberEditor
-      onChange={async (e) => {
-        await onUpdateVideoStream(e);
+      onSave={async (e) => {
+        e && (await onUpdateVideoStream(e));
       }}
       showSave={false}
       tooltip={isDev ? `id: ${data.Id}` : undefined}

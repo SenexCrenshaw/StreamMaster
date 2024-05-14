@@ -7,6 +7,7 @@ import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useShowHidden } from '@lib/redux/hooks/showHidden';
 import { useSortInfo } from '@lib/redux/hooks/sortInfo';
 
+import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useShowSelections } from '@lib/redux/hooks/showSelections';
 import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { ColumnMeta } from '../types/ColumnMeta';
@@ -15,10 +16,9 @@ const SMDataTableState = <T extends DataTableValue>(id: string, selectedItemsKey
   const { sortInfo, setSortInfo } = useSortInfo(id);
   const { showHidden } = useShowHidden(id);
   const { showSelections, setShowSelections } = useShowSelections(id);
-
+  const { isTrue: smTableIsSimple, setIsTrue: setSMTableIsSimple } = useIsTrue(id);
   const { selectAll, setSelectAll } = useSelectAll(id);
   const { selectedItems, setSelectedItems } = useSelectedItems<T>(selectedItemsKey ?? id);
-
   const [rowClick, setRowClick] = useLocalStorage<boolean>(false, `${id}-rowClick`);
   const [visibleColumns, setVisibleColumns] = useLocalStorage<ColumnMeta[] | undefined | null>(null, `${id}-visibleColumns`);
 
@@ -57,6 +57,7 @@ const SMDataTableState = <T extends DataTableValue>(id: string, selectedItemsKey
       setSelectAll,
       setSelectedItems,
       setShowSelections,
+      setSMTableIsSimple,
       setSortField,
       setSortOrder,
       setVisibleColumns
@@ -74,6 +75,7 @@ const SMDataTableState = <T extends DataTableValue>(id: string, selectedItemsKey
       selectedItems,
       showHidden,
       showSelections,
+      smTableIsSimple,
       sortField,
       sortOrder,
       visibleColumns

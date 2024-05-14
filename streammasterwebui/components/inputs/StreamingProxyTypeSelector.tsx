@@ -1,27 +1,31 @@
-import { StreamingProxyTypes } from '@lib/smAPI/smapiTypes';
+import { SMChannelDto, StreamingProxyTypes } from '@lib/smAPI/smapiTypes';
 import { Dropdown } from 'primereact/dropdown';
 import { SelectItem } from 'primereact/selectitem';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface StreamingProxyTypeSelectorProperties {
+  readonly data?: SMChannelDto;
   readonly className?: string;
   readonly label?: string;
-  readonly onChange: (value: number) => void;
+  readonly onChange?: (value: number) => void;
   readonly resetValue?: string;
-  readonly value?: StreamingProxyTypes;
 }
 
-const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties> = ({ className, label, onChange, resetValue, value }) => {
-  const [selectedStreamProxytype, setSelectedStreamProxytype] = useState<StreamingProxyTypes>(StreamingProxyTypes.SystemDefault);
+const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties> = ({ className, data, label, onChange, resetValue }) => {
+  const [selectedStreamProxyType, setSelectedStreamProxyType] = useState<StreamingProxyTypes | undefined>(undefined);
 
-  console.log(selectedStreamProxytype);
+  const getEnumValueByKey = (key: string): StreamingProxyTypes | undefined => {
+    return (StreamingProxyTypes as any)[key];
+  };
+
   useEffect(() => {
-    if (selectedStreamProxytype === StreamingProxyTypes.SystemDefault) {
-      if (value !== undefined && value !== selectedStreamProxytype) {
-        setSelectedStreamProxytype(value);
+    if (selectedStreamProxyType === undefined) {
+      if (data !== undefined && data.StreamingProxyType !== undefined) {
+        const enumValue = getEnumValueByKey(data.StreamingProxyType as unknown as string);
+        setSelectedStreamProxyType(enumValue);
       }
     }
-  }, [selectedStreamProxytype, value]);
+  }, [data, selectedStreamProxyType]);
 
   const getHandlersOptions = useMemo((): SelectItem[] => {
     const options = Object.keys(StreamingProxyTypes)
@@ -30,26 +34,38 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
         label: key,
         value: StreamingProxyTypes[key as keyof typeof StreamingProxyTypes]
       }));
-
+    console.log('options', options);
     return options;
   }, []);
 
   const internalOnChange = (option: number) => {
-    console.log('internalOnChange', option);
     if (option === null || option === undefined) return;
-    setSelectedStreamProxytype(option);
-    onChange(option);
+    setSelectedStreamProxyType(option);
+    onChange && onChange(option);
   };
 
-  const valueTemplate = useCallback((option: SelectItem): JSX.Element => {
-    return <div className="text-xs text-container">{option.label}</div>;
-  }, []);
+  const valueTemplate = useCallback(
+    (option: SelectItem): JSX.Element => {
+      console.log(data, option);
+      if (option === null || option === undefined) {
+        return <div className="text-xs text-container"></div>;
+      }
+      return <div className="text-xs text-container">{option.label}</div>;
+    },
+    [data]
+  );
+
+  if (selectedStreamProxyType === undefined && data === undefined) {
+    return null;
+  }
 
   return (
     <div className="flex flex-column align-items-start">
       {label && (
         <>
-          <label htmlFor="numbereditorbody-inputtext">{label}</label>
+          <label className="pl-15" htmlFor="numbereditorbody-inputtext">
+            {label.toUpperCase()}
+          </label>
           <div className="pt-small" />
         </>
       )}
@@ -60,7 +76,7 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
         optionLabel="label"
         optionValue="value"
         valueTemplate={(option: SelectItem) => valueTemplate(option)}
-        value={selectedStreamProxytype}
+        value={selectedStreamProxyType}
       />
     </div>
   );

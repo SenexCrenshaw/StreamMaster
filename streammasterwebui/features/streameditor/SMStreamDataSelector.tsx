@@ -10,6 +10,7 @@ import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamMultiVisibleDialog from '@components/smstreams/StreamMultiVisibleDialog';
 import StreamVisibleDialog from '@components/smstreams/StreamVisibleDialog';
 import { GetMessage } from '@lib/common/common';
+import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectedSMStreams } from '@lib/redux/hooks/selectedSMStreams';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
@@ -18,6 +19,7 @@ import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import { CreateSMChannelFromStreamRequest, RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent, DataTableRowEvent, DataTableValue } from 'primereact/datatable';
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import SMSimpleButton from './SMSimpleButton';
 import useSelectedSMItems from './useSelectedSMItems';
 
 const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
@@ -31,6 +33,8 @@ interface SMStreamDataSelectorProperties {
 
 const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple = false, showSelections }: SMStreamDataSelectorProperties) => {
   const dataKey = `${id}-SMStreamDataSelector`;
+  const { isTrue: smTableIsSimple } = useIsTrue(dataKey);
+
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
 
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
@@ -77,6 +81,8 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
     ],
     [actionTemplate, groupColumnConfig, smStreamM3UColumnConfig]
   );
+
+  const simpleColumns = useMemo((): ColumnMeta[] => [{ field: 'Name', filter: true, sortable: true }], []);
 
   const addOrRemoveTemplate = useCallback(
     (data: any) => {
@@ -135,8 +141,8 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         <div className="flex align-content-center justify-content-center">
           <SMButton
             icon="pi-plus"
-            className="border-noround borderread icon-blue-primary"
-            iconFilled
+            iconFilled={false}
+            className="border-noround borderread icon-green"
             onClick={() => {
               CreateSMChannelFromStream({ StreamId: data.Id } as CreateSMChannelFromStreamRequest)
                 .then((response) => {})
@@ -158,10 +164,20 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
     );
   }
 
-  const rightHeaderTemplate = useMemo(
-    () => (
+  const rightHeaderTemplate = useMemo(() => {
+    if (smTableIsSimple) {
+      return (
+        <div className="flex flex-row justify-content-end align-items-center w-full gap-1  pr-1">
+          <M3UFilesButton />
+          <SMSimpleButton dataKey={dataKey} />
+          <SMButton className="icon-orange" iconFilled icon="pi pi-bars" rounded onClick={() => {}} />
+        </div>
+      );
+    }
+    return (
       <div className="flex flex-row justify-content-end align-items-center w-full gap-1  pr-1">
         <M3UFilesButton />
+        <SMSimpleButton dataKey={dataKey} />
         <StreamMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} skipOverLayer />
         <SMButton className="icon-red" iconFilled icon="pi-times" rounded onClick={() => {}} />
         {/* <SMButton className="icon-green-filled" icon="pi-plus" rounded onClick={() => {}} /> */}
@@ -179,9 +195,8 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         <VideoStreamDeleteDialog iconFilled id={dataKey} />
         <VideoStreamAddDialog group={channelGroupNames?.[0]} /> */}
       </div>
-    ),
-    [dataKey]
-  );
+    );
+  }, [dataKey, smTableIsSimple]);
 
   const setSelectedSMEntity = useCallback(
     (data: DataTableValue, toggle?: boolean) => {
@@ -217,7 +232,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
   return (
     <Suspense>
       <SMDataTable
-        columns={columns}
+        columns={smTableIsSimple ? simpleColumns : columns}
         defaultSortField="Name"
         defaultSortOrder={1}
         addOrRemoveTemplate={addOrRemoveTemplate}

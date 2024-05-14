@@ -5,6 +5,7 @@ import { useSMChannelNameColumnConfig } from '@components/columns/SMChannel/useS
 import { useSMChannelNumberColumnConfig } from '@components/columns/SMChannel/useSMChannelNumberColumnConfig';
 import { useSMChannelSGColumnConfig } from '@components/columns/SMChannel/useSMChannelSGColumnConfig';
 
+import { useSMChannelProxyColumnConfig } from '@components/columns/SMChannel/useSMChannelProxyColumnConfig';
 import EPGFilesButton from '@components/epgFiles/EPGFilesButton';
 import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import SMDataTable from '@components/smDataTable/SMDataTable';
@@ -22,6 +23,7 @@ import SetSMChannelsLogoFromEPGDialog from '@components/smchannels/SetSMChannels
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamGroupButton from '@components/streamGroup/StreamGroupButton';
 import { GetMessage } from '@lib/common/common';
+import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import { SMChannelDto } from '@lib/smAPI/smapiTypes';
@@ -38,7 +40,7 @@ interface SMChannelDataSelectorProperties {
 
 const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: SMChannelDataSelectorProperties) => {
   const dataKey = `${id}-SMChannelDataSelector`;
-
+  const { isTrue: smTableIsSimple } = useIsTrue('streameditor-SMStreamDataSelector');
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
 
@@ -48,6 +50,9 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
   const epgColumnConfig = useSMChannelEPGColumnConfig();
   const groupColumnConfig = useSMChannelGroupColumnConfig();
   const sgColumnConfig = useSMChannelSGColumnConfig(dataKey + '-sg', dataKey);
+
+  const { columnConfig: proxyColumnConfig } = useSMChannelProxyColumnConfig({ enableEdit, useFilter: false });
+
   const { queryFilter } = useQueryFilter(dataKey);
   const { isLoading } = useGetPagedSMChannels(queryFilter);
 
@@ -83,6 +88,29 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
       </div>
     );
   }, []);
+
+  const simpleColumns = useMemo(
+    (): ColumnMeta[] => [
+      channelNumberColumnConfig,
+      channelLogoColumnConfig,
+      channelNameColumnConfig,
+      epgColumnConfig,
+      groupColumnConfig,
+      proxyColumnConfig,
+      sgColumnConfig,
+      { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '4rem' }
+    ],
+    [
+      actionTemplate,
+      channelLogoColumnConfig,
+      channelNameColumnConfig,
+      channelNumberColumnConfig,
+      epgColumnConfig,
+      groupColumnConfig,
+      proxyColumnConfig,
+      sgColumnConfig
+    ]
+  );
 
   const columns = useMemo(
     (): ColumnMeta[] => [
@@ -150,7 +178,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
   return (
     // <Suspense>
     <SMDataTable
-      columns={columns}
+      columns={smTableIsSimple ? simpleColumns : columns}
       enableClick
       selectRow
       showExpand

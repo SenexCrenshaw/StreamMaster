@@ -1,413 +1,407 @@
-$primaryColor: #5472d4 !default;
-$primaryLightColor: #91a4e3 !default;
-$primaryLighterColor: scale-color($primaryColor, $lightness: 60%) !default;
-$primaryTextColor: #898989 !default;
-$borderRadius: 6px !default;
-
-$highlightBg: #ced6f1 !default;
-$highlightTextColor: #585858 !default;
-$highlightFocusBg: darken($highlightBg, 8%) !default;
-
-$channelRowSelected: #478a5f;
-$channelRowSelectedHidden: #5C523F;
-
 $iconGreen: #22c55e;
 $iconOrange: #ff935a;
 $iconRed: #e693a9;
 $iconYellow: #cede9c;
 $iconBlue: #94abec;
-
-$blue-header-color: #0c243c;
-$inputBorderColor: #263238;
+$bgColor: #161d21;
+$inputBg: #12181b !default;
 $textColor: #bcbfbf;
-$surface-ground: #161d21;
-$surface-section: $surface-ground;
+$surface-ground: $bgColor;
+$inputHoverBorderColor: $textColor !default;
+
+$channelRowSelected: #527f62;
+$channelRowSelectedHidden: #5C523F;
+
 $headerBg: #21282c !default;
 $tableHeaderBg: #1d2327 !default;
 $headerTextColor: #ff7e00;
 $editableTextColor: $iconBlue;
+$inputBorderColor: #263238;
 $uploadButtonBg: $iconGreen;
 
+$primaryColor: $textColor !default;
+$borderRadius: 6px !default;
+$highlightBg: rgba($primaryColor, 0.16) !default;
+$highlightTextColor: $primaryColor !default;
+$highlightFocusBg: rgba($primaryColor, 0.24) !default;
+
+$surface-section: $surface-ground;
+//Input
+$inputBorder: 0 !default;
 $inputTextColor: $editableTextColor !default;
-$inputPlaceholderTextColor: $inputTextColor !default;
-
-//reused color variables
-$shade000: #ffffff !default; //surface
-$shade100: #f5f5f5 !default; //header background
-$shade200: #edf0fa !default; //hover background
-$shade300: #ebebeb !default; //border, divider
-$shade400: #e1e1e1 !default; //input border
-$shade500: #cecece !default; //input hover border
-$shade600: #898989 !default; //text secondary color
-$shade700: #6c6c6c !default; //text color
-$shade800: #585858 !default; //message text, highlight text
-$shade900: #3b3b3b !default; //unused
-
-//global
-$textColor: $shade700 !default;
-$textSecondaryColor: $shade600 !default;
-$divider: 1px solid $shade300 !default;
-$disabledOpacity: 0.6 !default;
-$errorColor: #f88c79 !default;
-
+$inputPlaceholderTextColor: $textColor !default; // $inputTextColor !default;
 
 $infoButtonBg: #35a4cc !default;
+
+$blue-header-color: #0c243c;
+
+
+//shades
+$shade000: rgba(255, 255, 255, 0.87) !default; //text color
+$shade100: rgba(255, 255, 255, 0.6) !default; //text secondary color
+$shade500: $inputBorderColor !default;
+
+$shade600: #263238 !default; //input bg, border, divider
+$shade700: #1e282c !default; //unused
+$shade800: $bgColor !default; //elevated surface
+$shade900: #0e1315 !default; //ground surface
+
+$primaryTextColor: $shade100 !default;
+
+$hoverBg: rgba($primaryColor, 0.08) !default;
+
+//global
+// $textColor: $shade000 !default;
+$textSecondaryColor: $shade100 !default;
+$divider: 1px solid $shade600 !default;
+$disabledOpacity: 0.4 !default; //opacity of a disabled item
+$errorColor: #f78c79 !default;
 
 //scale
 
 //focus
-$focusOutlineColor: $primaryLighterColor !default;
-$focusShadow: 0 0 0 0.1rem $focusOutlineColor !default;
+$focusOutlineColor: $primaryColor !default;
+$focusShadow: 0 0 0 1px $focusOutlineColor !default;
 
 //action icons
-$actionIconColor: $shade600 !default;
-$actionIconHoverBg: $shade200 !default;
-$actionIconHoverColor: $shade700 !default;
+$actionIconColor: $shade100 !default;
+$actionIconHoverBg: $hoverBg !default;
+$actionIconHoverColor: $shade000 !default;
 
-//input field (e.g. inputtext, spinner, inputmask)
-$inputBg: $shade000 !default;
-$inputTextColor: $shade700 !default;
-$inputIconColor: $shade600 !default;
-$inputBorder: 2px solid $shade400 !default;
-$inputFocusBorderColor: $primaryLightColor !default;
 
-$inputFilledBg: #f2f2f2 !default;
+
+
+
+$inputIconColor: $shade100 !default;
+$inputFocusBorderColor: $primaryColor !default;
+// $inputPlaceholderTextColor: $shade100 !default;
+$inputFilledBg: $shade600 !default;
 
 //input groups
-$inputGroupBg: $shade100 !default;
-$inputGroupTextColor: $shade600 !default;
+$inputGroupBg: $shade800 !default;
+$inputGroupTextColor: $shade100 !default;
 
 //input lists (e.g. dropdown, autocomplete, multiselect, orderlist)
-$inputListBg: $shade000 !default;
-$inputListTextColor: $shade700 !default;
-$inputListItemTextColor: $shade700 !default;
-$inputListItemHoverBg: $shade200 !default;
-$inputListItemTextHoverColor: $shade700 !default;
-$inputListItemFocusBg: #e6e9f3 !default;
-$inputListItemTextFocusColor: $shade700 !default;
-$inputListHeaderBg: $shade000 !default;
-$inputListHeaderTextColor: $shade700 !default;
+$inputListBg: $shade800 !default;
+$inputListTextColor: $shade000 !default;
+$inputListItemTextColor: $shade000 !default;
+$inputListItemHoverBg: $hoverBg !default;
+$inputListItemTextHoverColor: $shade000 !default;
+$inputListItemFocusBg: rgba($primaryColor, 0.1) !default;
+$inputListItemTextFocusColor: $shade000 !default;
+$inputListHeaderBg: $shade800 !default;
+$inputListHeaderTextColor: $shade000 !default;
 
 //inputs with overlays (e.g. autocomplete, dropdown, multiselect)
-$inputOverlayBorder: 0 none !default;
+$inputOverlayBorder: 1px solid $shade600 !default;
 
 //password
-$passwordMeterBg: $shade300 !default;
-$passwordWeakBg: #d45472 !default;
-$passwordMediumBg: #ff922a !default;
-$passwordStrongBg: #8bae2c !default;
+$passwordMeterBg: $shade600 !default;
+$passwordWeakBg: #e693a9 !default;
+$passwordMediumBg: #ffe08a !default;
+$passwordStrongBg: #cede9c !default;
 
 //button
-$plainButtonHoverBgColor: $shade200 !default;
-$plainButtonActiveBgColor: $shade300 !default;
+$plainButtonHoverBgColor: $hoverBg !default;
+$plainButtonActiveBgColor: rgba(255, 255, 255, 0.16) !default;
 
-$secondaryButtonBg: #8191a6 !default;
-$secondaryButtonTextColor: #ffffff !default;
+$secondaryButtonBg: #b4bfcd !default;
+$secondaryButtonTextColor: $shade900 !default;
 
-$successButtonBg: #8bae2c !default;
-$successButtonTextColor: #ffffff !default;
+$successButtonBg: #cede9c !default;
+$successButtonTextColor: $shade900 !default;
 
-$warningButtonBg: #ff922a !default;
-$warningButtonTextColor: #ffffff !default;
+$warningButtonBg: #ffe08a !default;
+$warningButtonTextColor: $shade900 !default;
+$helpButtonBg: #b09ce5 !default;
+$helpButtonTextColor: $shade900 !default;
 
-$helpButtonBg: #7654d4 !default;
-$helpButtonTextColor: #ffffff !default;
+$dangerButtonBg: #e693a9 !default;
+$dangerButtonTextColor: $shade900 !default;
 
-$dangerButtonBg: #d45472 !default;
-$dangerButtonTextColor: #ffffff !default;
-
-$contrastButtonBg: $shade900 !default;
-$contrastButtonTextColor: #ffffff !default;
-$contrastButtonHoverBg: $shade800 !default;
-$contrastButtonHoverBorderColor: $shade800 !default;
-$contrastButtonActiveBg: $shade700 !default;
-$contrastButtonActiveBorderColor: $shade700 !default;
+$contrastButtonBg: #ffffff !default;
+$contrastButtonTextColor: #0e1315 !default;
+$contrastButtonHoverBg: #cfd0d0 !default;
+$contrastButtonHoverBorderColor: #cfd0d0 !default;
+$contrastButtonActiveBg: #b7b8b9 !default;
+$contrastButtonActiveBorderColor: #b7b8b9 !default;
 
 //checkbox
-$checkboxBorder: 2px solid $shade400 !default;
+$checkboxBorder: 2px solid $shade600 !default;
 
 //radiobutton
-$radiobuttonBorder: 2px solid $shade400 !default;
+$radiobuttonBorder: 2px solid $shade600 !default;
 
 //colorpicker
-$colorPickerBorder: 1px solid $shade800 !default;
+$colorPickerBorder: 1px solid $shade600 !default;
 
 //togglebutton
-$toggleButtonBg: $inputBg !default;
-$toggleButtonBorder: 2px solid $shade400 !default;
-$toggleButtonTextColor: $shade700 !default;
-$toggleButtonIconColor: $shade600 !default;
-$toggleButtonHoverBg: $shade200 !default;
-$toggleButtonHoverBorderColor: $shade400 !default;
-$toggleButtonTextHoverColor: $shade700 !default;
-$toggleButtonIconHoverColor: $shade600 !default;
-$toggleButtonActiveHoverBg: scale-color($highlightBg, $lightness: -5%) !default;
-$toggleButtonActiveHoverBorderColor: scale-color($highlightBg,
-		$lightness: -5%) !default;
+$toggleButtonBg: $shade800 !default;
+$toggleButtonBorder: 2px solid $shade600 !default;
+$toggleButtonTextColor: $shade000 !default;
+$toggleButtonIconColor: $shade100 !default;
+$toggleButtonHoverBg: $hoverBg !default;
+$toggleButtonHoverBorderColor: $shade600 !default;
+$toggleButtonTextHoverColor: $shade000 !default;
+$toggleButtonIconHoverColor: $shade100 !default;
+$toggleButtonActiveHoverBg: rgba($primaryColor, 0.24) !default;
+$toggleButtonActiveHoverBorderColor: rgba($primaryColor, 0.24) !default;
 
 //inplace
-$inplaceHoverBg: $shade200 !default;
-$inplaceTextHoverColor: $shade700 !default;
+$inplaceHoverBg: $hoverBg !default;
+$inplaceTextHoverColor: $shade000 !default;
 
 //rating
-$ratingStarIconOffColor: $shade700 !default;
+$ratingStarIconOffColor: $shade000 !default;
 
 //slider
-$sliderBg: $shade300 !default;
-$sliderHandleBg: $shade000 !default;
+$sliderBg: $shade600 !default;
+$sliderHandleBg: $shade600 !default;
 
 //calendar
-$calendarBg: $shade000 !default;
-$calendarTextColor: $shade700 !default;
+$calendarBg: $shade800 !default;
+$calendarTextColor: $shade000 !default;
 
-$calendarHeaderBg: $shade000 !default;
-$calendarHeaderBorder: 1px solid $shade300 !default;
-$calendarHeaderTextColor: $shade700 !default;
+$calendarHeaderBg: $shade800 !default;
+$calendarHeaderBorder: 1px solid $shade600 !default;
+$calendarHeaderTextColor: $shade000 !default;
 
-$calendarCellDateHoverBg: $shade200 !default;
-$calendarCellDateTodayBg: $shade400 !default;
-$calendarCellDateTodayTextColor: $shade700 !default;
-
-
+$calendarCellDateHoverBg: $hoverBg !default;
+$calendarCellDateTodayBg: transparent !default;
+$calendarCellDateTodayTextColor: $primaryColor !default;
 
 //input switch
-$inputSwitchSliderOffBg: $shade500 !default;
-$inputSwitchHandleOffBg: $shade000 !default;
-$inputSwitchSliderOffHoverBg: scale-color($shade500, $lightness: -10%) !default;
+$inputSwitchSliderOffBg: $shade600 !default;
+$inputSwitchHandleOffBg: $shade100 !default;
+$inputSwitchSliderOffHoverBg: $hoverBg !default;
 
 //panel
-$panelHeaderBorderColor: $shade300 !default;
-$panelHeaderBorder: 2px solid $shade300 !default;
-$panelHeaderBg: $shade000 !default;
-$panelHeaderTextColor: $shade700 !default;
+$panelHeaderBorderColor: $shade600 !default;
+$panelHeaderBorder: 2px solid $shade600 !default;
+$panelHeaderBg: $shade800 !default;
+$panelHeaderTextColor: $shade000 !default;
 
-$panelHeaderHoverBg: $shade200 !default;
-$panelHeaderHoverBorderColor: $shade300 !default;
-$panelHeaderTextHoverColor: $shade700 !default;
+$panelHeaderHoverBg: $hoverBg !default;
+$panelHeaderHoverBorderColor: $shade600 !default;
+$panelHeaderTextHoverColor: $shade000 !default;
 
-$panelContentBorderColor: $shade300 !default;
-$panelContentBorder: 2px solid $shade300 !default;
-$panelContentBg: $shade000 !default;
-$panelContentEvenRowBg: scale-color($panelContentBg, $lightness: -1%) !default;
-$panelContentTextColor: $shade700 !default;
+$panelContentBorderColor: $shade600 !default;
+$panelContentBorder: 2px solid $shade600 !default;
+$panelContentBg: $shade800 !default;
+$panelContentEvenRowBg: rgba(255, 255, 255, 0.01) !default;
+$panelContentTextColor: $shade000 !default;
 
-$panelFooterBorder: 2px solid $shade300 !default;
-$panelFooterBg: $shade000 !default;
-$panelFooterTextColor: $shade700 !default;
+$panelFooterBorder: 2px solid $shade600 !default;
+$panelFooterBg: $shade800 !default;
+$panelFooterTextColor: $shade000 !default;
 
 //accordion
 
-$accordionHeaderHoverBg: $shade200 !default;
-$accordionHeaderHoverBorderColor: $shade300 !default;
-$accordionHeaderTextHoverColor: $shade700 !default;
+$accordionHeaderHoverBg: $hoverBg !default;
+$accordionHeaderHoverBorderColor: $shade600 !default;
+$accordionHeaderTextHoverColor: $shade000 !default;
 
-$accordionHeaderActiveBorderColor: $shade300 !default;
-$accordionHeaderTextActiveColor: $shade700 !default;
+$accordionHeaderActiveBorderColor: $shade600 !default;
+$accordionHeaderTextActiveColor: $shade000 !default;
 
-$accordionHeaderActiveHoverBg: $shade200 !default;
-$accordionHeaderActiveHoverBorderColor: $shade300 !default;
-$accordionHeaderTextActiveHoverColor: $shade700 !default;
-
+$accordionHeaderActiveHoverBg: $hoverBg !default;
+$accordionHeaderActiveHoverBorderColor: $shade600 !default;
+$accordionHeaderTextActiveHoverColor: $shade000 !default;
 
 //tabview
-$tabviewNavBorder: 1px solid $shade300 !default;
-$tabviewNavBg: $shade000 !default;
+$tabviewNavBorder: 1px solid $shade600 !default;
+$tabviewNavBg: transparent !default;
 
-$tabviewHeaderBorder: solid $shade300 !default;
-$tabviewHeaderBorderColor: transparent transparent $shade300 transparent !default;
-$tabviewHeaderBg: $shade000 !default;
-$tabviewHeaderTextColor: $shade600 !default;
+$tabviewHeaderBorder: solid $shade600 !default;
+$tabviewHeaderBorderColor: transparent transparent $shade600 transparent !default;
+$tabviewHeaderBg: $shade800 !default;
+$tabviewHeaderTextColor: $shade100 !default;
 
-$tabviewHeaderHoverBg: $shade000 !default;
-$tabviewHeaderHoverBorderColor: $highlightBg !default;
-$tabviewHeaderTextHoverColor: $shade600 !default;
+$tabviewHeaderHoverBg: $shade800 !default;
+$tabviewHeaderHoverBorderColor: $primaryColor !default;
+$tabviewHeaderTextHoverColor: $shade000 !default;
 
-$tabviewHeaderActiveBg: $shade000 !default;
+$tabviewHeaderActiveBg: $shade800 !default;
 
-$tabviewContentBg: $panelContentBg !default;
-$tabviewContentTextColor: $panelContentTextColor !default;
+$tabviewContentBg: $shade800 !default;
+$tabviewContentTextColor: $shade000 !default;
 
 //upload
 
 //scrollpanel
-$scrollPanelTrackBg: $shade100 !default;
+$scrollPanelTrackBg: $shade600 !default;
 
 //card
-$cardSubTitleColor: $shade600 !default;
+$cardSubTitleColor: $shade100 !default;
 
+//editor
 
 //paginator
-$paginatorBg: $shade000 !default;
-$paginatorTextColor: $shade600 !default;
-$paginatorBorder: solid $shade300 !default;
-$paginatorElementIconColor: $shade600 !default;
-$paginatorElementHoverBg: $shade200 !default;
-$paginatorElementIconHoverColor: $shade700 !default;
+$paginatorBg: $shade800 !default;
+$paginatorTextColor: $shade100 !default;
+$paginatorBorder: solid $shade600 !default;
+$paginatorElementIconColor: $shade100 !default;
+$paginatorElementHoverBg: $hoverBg !default;
+$paginatorElementIconHoverColor: $shade000 !default;
 
 //table
-$tableHeaderBorder: 2px solid $shade100 !default;
-//$tableHeaderBg: $shade000 !default;
-$tableHeaderTextColor: $shade700 !default;
+$tableHeaderBorder: 2px solid $shade600 !default;
+// $tableHeaderBg: $shade800 !default;
+$tableHeaderTextColor: $shade100 !default;
 
-$tableHeaderCellBg: $shade000 !default;
-$tableHeaderCellTextColor: $shade700 !default;
-$tableHeaderCellBorder: 2px solid $shade100 !default;
-$tableHeaderCellHoverBg: $shade200 !default;
-$tableHeaderCellTextHoverColor: $shade700 !default;
-$tableHeaderCellIconColor: $shade600 !default;
-$tableHeaderCellIconHoverColor: $shade600 !default;
-$tableHeaderCellHighlightBg: $shade000 !default;
-$tableHeaderCellHighlightHoverBg: $shade200 !default;
+$tableHeaderCellBg: $shade800 !default;
+$tableHeaderCellTextColor: $shade000 !default;
+$tableHeaderCellBorder: 2px solid $shade600 !default;
+$tableHeaderCellHoverBg: $hoverBg !default;
+$tableHeaderCellTextHoverColor: $shade000 !default;
+$tableHeaderCellIconColor: $shade100 !default;
+$tableHeaderCellIconHoverColor: $shade000 !default;
+$tableHeaderCellHighlightBg: $shade800 !default;
+$tableHeaderCellHighlightHoverBg: $hoverBg !default;
 
-$tableBodyRowBg: $shade000 !default;
-$tableBodyRowTextColor: $shade700 !default;
-$tableBodyRowEvenBg: scale-color($tableBodyRowBg, $lightness: -1%) !default;
-$tableBodyRowHoverBg: $shade200 !default;
-$tableBodyRowTextHoverColor: $shade700 !default;
-$tableBodyCellBorder: 2px solid $shade100 !default;
+$tableBodyRowBg: $shade800 !default;
+$tableBodyRowTextColor: $shade000 !default;
+$tableBodyRowEvenBg: #1b2327 !default;
+$tableBodyRowHoverBg: $hoverBg !default;
+$tableBodyRowTextHoverColor: $shade000 !default;
+$tableBodyCellBorder: 2px solid $shade600 !default;
 
-$tableFooterCellBg: $shade000 !default;
-$tableFooterCellTextColor: $shade700 !default;
-$tableFooterCellBorder: 2px solid $shade100 !default;
+$tableFooterCellBg: $shade800 !default;
+$tableFooterCellTextColor: $shade000 !default;
+$tableFooterCellBorder: 2px solid $shade600 !default;
 
-$tableFooterBorder: 2px solid $shade100 !default;
-$tableFooterBg: $shade000 !default;
-$tableFooterTextColor: $shade700 !default;
-
-
+$tableFooterBorder: 2px solid $shade600 !default;
+$tableFooterBg: $shade800 !default;
+$tableFooterTextColor: $shade000 !default;
 
 //dataview
-$dataViewListItemBorder: solid $shade100 !default;
+$dataViewListItemBorder: solid $shade600 !default;
 
 //tree
-$treeNodeIconColor: $shade600 !default;
+$treeNodeIconColor: $shade100 !default;
 
 //timeline
-$timelineEventMarkerBackground: $shade000 !default;
-$timelineEventColor: $shade300 !default;
+$timelineEventMarkerBackground: $shade800 !default;
+$timelineEventColor: $shade600 !default;
 
 //org chart
-$organizationChartConnectorColor: $shade300 !default;
+$organizationChartConnectorColor: $shade600 !default;
 
 //message
 
 //inline message
 
 //toast
-$toastShadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
-	0 4px 5px 0 rgba(0, 0, 0, 0.14),
-	0 1px 10px 0 rgba(0, 0, 0, 0.12) !default;
+$toastShadow: none !default;
 
 //severities
-$infoMessageBg: #e1f2f7 !default;
-$infoMessageBorder: 4px solid #83c7e0 !default;
-$infoMessageTextColor: $shade800 !default;
-$infoMessageIconColor: $shade800 !default;
-$successMessageBg: #f2f8e1 !default;
-$successMessageBorder: 4px solid #c7e084 !default;
-$successMessageTextColor: $shade800 !default;
-$successMessageIconColor: $shade800 !default;
-$warningMessageBg: #ffecdb !default;
-$warningMessageBorder: 4px solid #ffb065 !default;
-$warningMessageTextColor: $shade800 !default;
-$warningMessageIconColor: $shade800 !default;
-$errorMessageBg: #f7e1e6 !default;
-$errorMessageTextColor: $shade800 !default;
-$errorMessageIconColor: $shade800 !default;
+$infoMessageBg: #a3d7e6 !default;
+$infoMessageBorder: 4px solid #65bcd6 !default;
+$infoMessageTextColor: $shade900 !default;
+$infoMessageIconColor: $shade900 !default;
+$successMessageBg: #bfd47f !default;
+$successMessageBorder: 4px solid #a2c044 !default;
+$successMessageTextColor: $shade900 !default;
+$successMessageIconColor: $shade900 !default;
+$warningMessageBg: #ff9c3e !default;
+$warningMessageBorder: 4px solid #ff8817 !default;
+$warningMessageTextColor: $shade900 !default;
+$warningMessageIconColor: $shade900 !default;
+$errorMessageBg: #e6a3b2 !default;
+$errorMessageTextColor: $shade900 !default;
+$errorMessageIconColor: $shade900 !default;
 
 //overlays
-$overlayContentBorder: 0 none !default;
+$overlayContentBorder: 2px solid $shade600 !default;
 
 //dialog
-$dialogHeaderBg: $shade000 !default;
-$dialogHeaderTextColor: $shade700 !default;
+$dialogHeaderBg: $shade800 !default;
+$dialogHeaderTextColor: $shade000 !default;
 
 //confirmpopup
 
 //tooltip
-$tooltipBg: $shade800 !default;
+$tooltipBg: $shade600 !default;
 
 //steps
-$stepsItemBg: $shade000 !default;
-$stepsItemBorder: 2px solid $shade300 !default;
-$stepsItemTextColor: $shade600 !default;
-$stepsItemNumberColor: $shade700 !default;
+$stepsItemBg: transparent !default;
+$stepsItemBorder: 2px solid $shade600 !default;
+$stepsItemTextColor: $shade100 !default;
+$stepsItemNumberColor: $shade000 !default;
 
 //progressbar
-$progressBarBg: $shade300 !default;
+$progressBarBg: $shade600 !default;
 
 //menu (e.g. menu, menubar, tieredmenu)
-$menuBg: $shade000 !default;
-$menuBorder: 2px solid $shade300 !default;
-$menuTextColor: $shade700 !default;
-$menuitemTextColor: $shade700 !default;
-$menuitemIconColor: $shade600 !default;
-$menuitemTextHoverColor: $shade700 !default;
-$menuitemIconHoverColor: $shade600 !default;
-$menuitemHoverBg: $shade200 !default;
-$menuitemTextFocusColor: $shade700 !default;
-$menuitemIconFocusColor: $shade700 !default;
-$menuitemFocusBg: #e6e9f3 !default;
-$menuitemTextActiveColor: $shade700 !default;
-$menuitemIconActiveColor: $shade600 !default;
-$menuitemActiveBg: $shade200 !default;
-$menuitemActiveFocusBg: $shade200 !default;
-$submenuHeaderBg: $shade000 !default;
-$submenuHeaderTextColor: $shade700 !default;
-$overlayMenuBorder: 0 none !default;
+$menuBg: $shade800 !default;
+$menuBorder: 2px solid $shade600 !default;
+$menuTextColor: $shade000 !default;
+$menuitemTextColor: $shade000 !default;
+$menuitemIconColor: $shade100 !default;
+$menuitemTextHoverColor: $shade000 !default;
+$menuitemIconHoverColor: $shade000 !default;
+$menuitemHoverBg: $hoverBg !default;
+$menuitemTextFocusColor: $shade000 !default;
+$menuitemIconFocusColor: $shade000 !default;
+$menuitemFocusBg: rgba($primaryColor, 0.1) !default;
+$menuitemTextActiveColor: $shade000 !default;
+$menuitemIconActiveColor: $shade000 !default;
+$menuitemActiveBg: $hoverBg !default;
+$menuitemActiveFocusBg: $hoverBg !default;
+$submenuHeaderBg: $shade800 !default;
+$submenuHeaderTextColor: $shade000 !default;
+$overlayMenuBorder: 2px solid $shade600 !default;
 
-
-$horizontalMenuBg: $shade100 !default;
+$horizontalMenuBg: $menuBg !default;
 
 //badge and tag
 
-
 //carousel
-$carouselIndicatorBg: $shade200 !default;
-$carouselIndicatorHoverBg: $shade300 !default;
+$carouselIndicatorBg: $shade600 !default;
+$carouselIndicatorHoverBg: scale-color($shade600, $lightness: 10%) !default;
 
 //galleria
-$galleriaCloseIconColor: $shade100 !default;
-$galleriaCloseIconHoverColor: $shade100 !default;
+$galleriaCloseIconColor: #f8f9fa !default;
+$galleriaCloseIconHoverColor: #f8f9fa !default;
 
-$galleriaItemNavigatorColor: $shade100 !default;
-$galleriaItemNavigatorHoverColor: $shade100 !default;
+$galleriaItemNavigatorColor: #f8f9fa !default;
+$galleriaItemNavigatorHoverColor: #f8f9fa !default;
 
-$galleriaCaptionTextColor: $shade100 !default;
+$galleriaCaptionTextColor: #f8f9fa !default;
 
-$galleriaIndicatorBg: $shade200 !default;
-$galleriaIndicatorHoverBg: $shade300 !default;
+$galleriaIndicatorBg: $shade600 !default;
+$galleriaIndicatorHoverBg: scale-color($shade600, $lightness: 10%) !default;
 
-$galleriaThumbnailNavigatorColor: $shade100 !default;
-$galleriaThumbnailNavigatorHoverColor: $shade100 !default;
+$galleriaThumbnailNavigatorColor: #f8f9fa !default;
+$galleriaThumbnailNavigatorHoverColor: #f8f9fa !default;
 
 //divider
-$dividerColor: $shade300 !default;
+$dividerColor: $shade600 !default;
 
 //avatar
-$avatarBg: $shade300 !default;
+$avatarBg: $shade600 !default;
 
 //chip
-$chipBg: $shade300 !default;
-$chipFocusBg: $shade400 !default;
+$chipBg: $shade600 !default;
+$chipFocusBg: $shade500 !default;
 
 //scrollTop
-$scrollTopBg: rgba(0, 0, 0, 0.7) !default;
-$scrollTopHoverBg: rgba(0, 0, 0, 0.8) !default;
-$scrollTopTextColor: $shade100 !default;
+$scrollTopBg: $highlightBg !default;
+$scrollTopHoverBg: scale-color($highlightBg, $alpha: 24%) !default;
+$scrollTopTextColor: $highlightTextColor !default;
 
 //skeleton
-$skeletonBg: $shade300 !default;
-$skeletonAnimationBg: rgba(255, 255, 255, 0.4) !default;
+$skeletonBg: rgba(255, 255, 255, 0.06) !default;
+$skeletonAnimationBg: rgba(255, 255, 255, 0.04) !default;
 
 //splitter
-$splitterGutterBg: $shade100 !default;
-$splitterGutterHandleBg: $shade300 !default;
+$splitterGutterBg: rgba(255, 255, 255, 0.03) !default;
+$splitterGutterHandleBg: $shade600 !default;
 
 //speeddial
-$speedDialActionHoverBg: $shade800 !default;
+$speedDialActionHoverBg: $shade600 !default;
 
 :root {
-	--surface-c: #{$shade200};
-	color-scheme: light;
+  --surface-c: #{$hoverBg};
+  color-scheme: dark;
 }

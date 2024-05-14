@@ -96,12 +96,12 @@ const ChannelGroupSelector = ({
       <div className="stringeditor flex flex-column align-items-start">
         {label && (
           <>
-            <label>{label}</label>
+            <label className="pl-15">{label.toUpperCase()}</label>
             <div className="pt-small" />
           </>
         )}
       </div>
-      <div className={darkBackGround ? 'input-border-dark p-0 input-height' : 'p-0 input-height'}>
+      <div className={darkBackGround ? 'sm-input-border-dark p-0 input-height' : 'p-0 input-height'}>
         <SMOverlay buttonTemplate={buttonTemplate} title="GROUPS" widthSize="3" icon="pi-chevron-down">
           <SMScroller
             data={channelGroupQuery.data}

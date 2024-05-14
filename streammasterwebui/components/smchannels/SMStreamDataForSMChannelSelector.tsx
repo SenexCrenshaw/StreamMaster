@@ -28,7 +28,9 @@ interface SMStreamDataForSMChannelSelectorProperties {
 
 const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height, id, name, smChannel }: SMStreamDataForSMChannelSelectorProperties) => {
   const dataKey = `${id}-SMStreamDataForSMChannelSelector`;
-  const { queryAdditionalFilters, setQueryAdditionalFilters } = useQueryAdditionalFilters(dataKey);
+  const { setQueryAdditionalFilters } = useQueryAdditionalFilters(dataKey);
+
+  const [selectedM3UFiles, setSelectedM3UFiles] = useState<M3UFileDto[]>([]);
 
   const { data: m3uFiles } = useGetM3UFiles();
   const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(`${id}-SMStreamDataForSMChannelSelector`);
@@ -57,11 +59,28 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
     [m3uFiles]
   );
 
+  const selectedItemTemplate = useCallback(
+    (option: M3UFileDto) => {
+      if (selectedM3UFiles !== undefined && selectedM3UFiles.length > 0) {
+        return <div className="flex align-content-center justify-content-start w-2rem max-w-2rem pi pi-file icon-yellow"></div>;
+      }
+
+      return <></>;
+      // if (!m3uFiles || !option) return null;
+      // return (
+      //   <div className="flex align-items-center gap-1">
+      //     <span>{option.Name}</span>
+      //   </div>
+      // );
+    },
+    [selectedM3UFiles]
+  );
+
   const m3uFilter = useCallback(
     (options: ColumnFilterElementTemplateOptions): ReactNode => {
       return (
         <MultiSelect
-          className="w-11 input-height-with-no-borders"
+          className="w-12 input-height-with-no-borders flex justify-content-center align-items-center"
           filter
           itemTemplate={itemTemplate}
           maxSelectedLabels={1}
@@ -69,33 +88,28 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
           filterBy="Name"
           onChange={(e: MultiSelectChangeEvent) => {
             if (isEmptyObject(e.value)) {
-              options.filterApplyCallback();
+              setQueryAdditionalFilters(undefined);
+              setSelectedM3UFiles([]);
             } else {
               const ids = e.value.map((v: M3UFileDto) => v.Id);
-              console.log(options.filterModel.fieldName);
-              // options.filterModel.fieldName = 'M3UFileId';
-              console.log(options.filterModel);
-
               const newFilter = { field: 'M3UFileId', matchMode: 'in', values: ids } as AdditionalFilterProperties;
               setQueryAdditionalFilters(newFilter);
-
-              // options.filterApplyCallback(newFilter);
-              //options.filterApplyCallback(ids);
+              setSelectedM3UFiles(e.value);
             }
           }}
           onShow={() => {}}
           options={m3uFiles}
           placeholder="M3U"
-          value={options.value}
-          selectedItemTemplate={itemTemplate}
+          value={selectedM3UFiles}
+          selectedItemTemplate={selectedItemTemplate}
         />
       );
     },
-    [m3uFiles, itemTemplate]
+    [itemTemplate, m3uFiles, selectedItemTemplate, selectedM3UFiles, setQueryAdditionalFilters]
   );
 
-  const w = '10rem';
-  const z = '4rem';
+  const w = '9rem';
+  const z = '5rem';
   const columns = useMemo(
     (): ColumnMeta[] => [
       { field: 'Name', filter: true, maxWidth: w, minWidth: w, sortable: true, width: w },

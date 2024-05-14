@@ -15,7 +15,7 @@
   }
 
   img {
-    @extend .sm-input-border;
+    @extend .sm-sm-input-border;
     padding: 0.2rem;
     height: $input-height-with-no-borders;
     width: $gridItem-width;
@@ -39,7 +39,7 @@
   }
 
   img {
-    @extend .sm-input-border;
+    @extend .sm-sm-input-border;
     padding: 0.2rem;
     height: $input-height-with-no-borders;
     width: $gridItem-width;

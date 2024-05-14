@@ -109,6 +109,16 @@ const SMChannelDialog = ({ smChannel, onSave }: SMChannelDialogProperties) => {
     [query.data, request, tempSMChannel]
   );
 
+  const setProxy = useCallback(
+    (value: number) => {
+      if (request.StreamingProxyType !== value) {
+        request.StreamingProxyType = value;
+        setRequest({ ...request });
+      }
+    },
+    [request]
+  );
+
   const isSaveEnabled = useMemo(() => {
     if (!smChannel) {
       if (request.Name && request.Name !== '') {
@@ -167,7 +177,7 @@ const SMChannelDialog = ({ smChannel, onSave }: SMChannelDialogProperties) => {
                 <ChannelGroupSelector label="GROUP" darkBackGround onChange={(e) => e && setGroup(e)} value={request.Group} />
               </div>
               <div className="w-6 justify-content-start align-items-center ">
-                <NumberEditor label="Channel #" showButtons darkBackGround onChange={(e) => e && setChannelNumber(e)} value={request.ChannelNumber} />
+                <NumberEditor label="Channel #" showButtons darkBackGround onSave={(e) => e && setChannelNumber(e)} value={request.ChannelNumber} />
               </div>
             </div>
           </div>
@@ -188,7 +198,7 @@ const SMChannelDialog = ({ smChannel, onSave }: SMChannelDialogProperties) => {
         <div className="layout-padding-bottom" />
         <div className="flex w-10 gap-1 pl-2">
           <div className="w-6 gap-1 w-full h-full">
-            <StreamingProxyTypeSelector label="Proxy" onChange={(e) => console.log(e)} />
+            <StreamingProxyTypeSelector label="Proxy" data={smChannel} onChange={(e) => setProxy(e)} />
           </div>
         </div>
       </div>

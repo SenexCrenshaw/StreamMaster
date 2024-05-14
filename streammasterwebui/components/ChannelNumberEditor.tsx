@@ -33,8 +33,8 @@ const ChannelNumberEditor = ({ data, style }: ChannelNumberEditorProperties) => 
 
   return (
     <NumberEditor
-      onChange={async (e) => {
-        await onUpdateVideoStream(e);
+      onSave={async (e) => {
+        e && (await onUpdateVideoStream(e));
       }}
       resetValue={data.tvg_chno}
       style={style}

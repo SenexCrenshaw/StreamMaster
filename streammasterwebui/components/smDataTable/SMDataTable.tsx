@@ -478,6 +478,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 
     return (
       <TableHeader
+        smTableIsSimple={state.smTableIsSimple ?? false}
         dataSelectorProps={props}
         enableExport={props.enableExport ?? true}
         exportCSV={exportCSV}
@@ -488,7 +489,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         setRowClick={setters.setRowClick}
       />
     );
-  }, [props, state.rowClick, setters.setRowClick]);
+  }, [props, state.smTableIsSimple, state.rowClick, setters.setRowClick]);
 
   const addSelection = useCallback(
     (data: T) => {
@@ -620,7 +621,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         }
         const target = event.target as HTMLDivElement;
         if (props.showExpand === true || props.rowExpansionTemplate !== undefined) {
-          // console.log(target.className);
           if (target.className && target.className === 'p-datatable-wrapper') {
             setters.setExpandedRows(undefined);
           }

@@ -37,7 +37,7 @@ const SMSideCard: React.FC<SMSideCardProps> = ({ anchorRef, children, direction 
 
   return (
     <div
-      className="w-4 surface-card sm-input-border sm-SideCard"
+      className="w-4 surface-card sm-sm-input-border sm-SideCard"
       ref={popupRef}
       style={{
         height: calculatePopupPosition(popupRef).height,

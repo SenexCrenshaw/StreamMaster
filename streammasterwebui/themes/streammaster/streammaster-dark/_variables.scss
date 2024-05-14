@@ -3,10 +3,11 @@ $iconOrange: #ff935a;
 $iconRed: #e693a9;
 $iconYellow: #cede9c;
 $iconBlue: #94abec;
-$bgcolor: #161d21;
+$bgColor: #161d21;
 $inputBg: #12181b !default;
 $textColor: #bcbfbf;
-$surface-ground: $bgcolor;
+$surface-ground: $bgColor;
+$inputHoverBorderColor: $textColor !default;
 
 $channelRowSelected: #527f62;
 $channelRowSelectedHidden: #5C523F;
@@ -42,7 +43,7 @@ $shade500: $inputBorderColor !default;
 
 $shade600: #263238 !default; //input bg, border, divider
 $shade700: #1e282c !default; //unused
-$shade800: $bgcolor !default; //elevated surface
+$shade800: $bgColor !default; //elevated surface
 $shade900: #0e1315 !default; //ground surface
 
 $primaryTextColor: $shade100 !default;

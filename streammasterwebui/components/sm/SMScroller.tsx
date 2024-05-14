@@ -213,7 +213,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
     if (simple === true) {
       return `dark-background w-full ${className} `;
     }
-    return `sm-scroller sm-input-border w-full ${className} `;
+    return `sm-scroller sm-sm-input-border w-full ${className} `;
   }, [className, simple]);
 
   return (

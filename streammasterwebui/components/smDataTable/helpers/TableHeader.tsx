@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { DataTableHeaderProperties } from '../types/smDataTableInterfaces';
 
 interface TableHeaderProperties {
+  smTableIsSimple: boolean;
   dataSelectorProps: DataTableHeaderProperties;
   enableExport: boolean;
   exportCSV: () => void;
@@ -14,6 +15,7 @@ interface TableHeaderProperties {
 }
 
 const TableHeader: React.FC<TableHeaderProperties> = ({
+  smTableIsSimple,
   headerName,
   headerClassName = 'header-text',
   onMultiSelectClick,
@@ -24,11 +26,22 @@ const TableHeader: React.FC<TableHeaderProperties> = ({
   dataSelectorProps
 }) => {
   const col = useMemo(() => {
+    if (smTableIsSimple) {
+      return 'col-8';
+    }
     if (dataSelectorProps.headerRightTemplate) {
-      return 'col-4';
+      return 'col-3';
     }
     return 'col-12';
-  }, [dataSelectorProps.headerRightTemplate]);
+  }, [dataSelectorProps.headerRightTemplate, smTableIsSimple]);
+
+  const colRight = useMemo(() => {
+    if (smTableIsSimple) {
+      return 'col-4';
+    }
+
+    return 'col-8';
+  }, [smTableIsSimple]);
 
   return (
     <div className="flex flex-row align-items-center justify-content-between border-white">
@@ -44,7 +57,7 @@ const TableHeader: React.FC<TableHeaderProperties> = ({
         </div>
       )}
       {(dataSelectorProps.headerRightTemplate || enableExport || dataSelectorProps.headerLeftTemplate) && (
-        <div className="col-8 p-0">
+        <div className={`${colRight} p-0`}>
           <div className="flex flex-nowrap flex-row justify-content-between">
             {dataSelectorProps.headerLeftTemplate && <HeaderLeft props={dataSelectorProps} />}
             {dataSelectorProps.headerRightTemplate && dataSelectorProps.headerRightTemplate}

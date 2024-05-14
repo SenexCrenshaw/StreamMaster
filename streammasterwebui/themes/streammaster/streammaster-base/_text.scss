@@ -35,58 +35,9 @@
     @include scaledFontSize($common-font-size, $scaleXLG);
 }
 
-.header-text-color {
-    color: $headerTextColor;
-}
-
 .text-color {
     color: $textColor;
 }
-
-.input-height-with-no-borders {
-    height: $input-height-with-no-borders !important;
-    max-height: $input-height-with-no-borders !important;
-}
-
-.header-text {
-    @extend .text-xlg;
-    @extend .header-text-color;
-    display: flex;
-    align-items: center;
-    padding: 0 !important;
-    font-weight: bold;
-    height: $input-height-with-no-borders !important;
-}
-
-.header-text-sub {
-    @extend .text-lg;
-    @extend .header-text-color;
-    display: flex;
-    align-items: center;
-    padding: 0 !important;
-    padding-top: 1rem !important;
-    padding-bottom: 1rem !important;
-    padding-left: $headerTextLeft !important;
-    font-weight: bold;
-    height: $input-height-with-no-borders !important;
-}
-
-.header-text-channels {
-    @extend .header-text-color;
-    display: flex;
-    align-items: center;
-    padding: 0 !important;
-    padding-left: $headerTextLeft !important;
-    font-weight: bold;
-    height: $input-height-with-no-borders !important;
-}
-
-.info-header-text {
-    @extend .text-lg;
-    @extend .text-color;
-    font-weight: bold;
-}
-
 
 .dark-background {
     background-color: $inputBg !important;
@@ -111,11 +62,9 @@
     }
 }
 
-
-
 .sm-input-dark {
     @extend .sm-input;
-    @extend .input-border-dark;
+    @extend .sm-input-border-dark;
     display: flex;
     align-items: center;
 
@@ -188,7 +137,7 @@
 }
 
 .stringeditorbody-inputtext {
-    @extend .sm-input;
+    @extend .sm-input-border;
     @extend .text-container;
     height: $input-height-with-no-borders;
     max-height: $input-height-with-no-borders;
@@ -211,6 +160,7 @@
     background-color: $inputBg !important;
     display: flex;
     align-items: center;
+    border-color: $inputBorderColor !important;
     // color: $inputTextColor;
 
     .p-inputnumber-input {
@@ -245,17 +195,15 @@
     @extend .text-xs;
 }
 
-.sm-input-border {
-    border-radius: $borderRadius !important;
-    border-color: $inputBorderColor !important;
-    border-width: 1px !important;
-    border-style: solid !important;
-}
-
-.width-200 {
-    width: 200px;
-}
 
 .text-container {
     @include text-overflow();
+}
+
+.sm-standard-text {
+    @include datatable-text-style();
+}
+
+.no-text {
+    color: transparent;
 }

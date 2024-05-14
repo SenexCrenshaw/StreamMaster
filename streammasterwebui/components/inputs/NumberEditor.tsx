@@ -1,3 +1,4 @@
+import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { useClickOutside } from 'primereact/hooks';
 import { InputNumber } from 'primereact/inputnumber';
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
@@ -6,8 +7,11 @@ import { useDebouncedCallback } from 'use-debounce';
 
 interface NumberEditorTemplateProperties {
   readonly autoFocus?: boolean;
-  readonly onChange: (value: number) => void;
+  readonly onChange?: (value: number) => void;
+  readonly onSave: (value: number | undefined) => void;
+  readonly debounceMs?: number;
   readonly disableDebounce?: boolean;
+  readonly isLoading?: boolean;
   readonly onClick?: () => void;
   readonly label?: string;
   readonly prefix?: string | undefined;
@@ -25,7 +29,10 @@ const NumberEditor = ({
   autoFocus,
   disableDebounce = false,
   label,
+  debounceMs = 1500,
+  isLoading,
   onChange,
+  onSave,
   onClick,
   prefix,
   suffix,
@@ -35,29 +42,62 @@ const NumberEditor = ({
   value,
   darkBackGround
 }: NumberEditorTemplateProperties) => {
+  const divReference = useRef<HTMLDivElement | null>(null);
   const [inputValue, setInputValue] = useState<number>(0);
   const [originalValue, setOriginalValue] = useState<number>(0);
+  const [ignoreSave, setIgnoreSave] = useState<boolean>(false);
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const overlayReference = useRef(null);
+  const { code } = useScrollAndKeyEvents();
+
+  const save = useCallback(
+    (forceValueSave?: number | undefined) => {
+      setIgnoreSave(true);
+
+      if (forceValueSave === undefined) {
+        onSave(inputValue);
+      } else {
+        onSave(forceValueSave);
+      }
+    },
+    [inputValue, onSave]
+  );
 
   const debounced = useDebouncedCallback(
     useCallback(
-      (value) => {
-        if (value !== originalValue) {
-          setInputValue(value);
-          setOriginalValue(value);
-          onChange(value);
+      (newValue: number) => {
+        if (newValue !== originalValue && isLoading !== true) {
+          save(newValue);
         }
       },
-      [onChange, originalValue]
+      [isLoading, originalValue, save]
     ),
-    1500,
+    debounceMs,
     {}
   );
 
   const needsSave = useMemo(() => {
     return originalValue !== inputValue;
   }, [inputValue, originalValue]);
+
+  useEffect(() => {
+    if (code === 'Enter' || code === 'NumpadEnter') {
+      if (needsSave && !ignoreSave) {
+        debounced.cancel();
+        save();
+      }
+    }
+  }, [code, debounced, ignoreSave, needsSave, save]);
+
+  useClickOutside(divReference, () => {
+    if (!isFocused) {
+      return;
+    }
+    setIsFocused(false);
+    if (disableDebounce !== undefined && disableDebounce !== true && originalValue !== inputValue && !ignoreSave) {
+      save();
+    }
+  });
 
   const getDiv = useMemo(() => {
     let ret = 'stringeditorbody-inputtext';
@@ -74,43 +114,14 @@ const NumberEditor = ({
     return ret;
   }, [darkBackGround, needsSave, showButtons]);
 
-  const save = useCallback(
-    (forceValueSave?: number | undefined) => {
-      if (forceValueSave === undefined && (inputValue === undefined || inputValue === originalValue)) {
-        return;
-      }
-
-      debounced.cancel();
-
-      if (forceValueSave === undefined) {
-        setOriginalValue(inputValue);
-        onChange(inputValue);
-      } else {
-        setOriginalValue(forceValueSave);
-        onChange(forceValueSave);
-      }
-    },
-    [debounced, inputValue, onChange, originalValue]
-  );
-
-  // Keyboard Enter
   useEffect(() => {
-    const callback = (event: KeyboardEvent) => {
-      if (!isFocused) {
-        return;
-      }
-
-      if (event.code === 'Enter' || event.code === 'NumpadEnter') {
+    if (code === 'Enter' || code === 'NumpadEnter') {
+      if (needsSave && !ignoreSave) {
+        debounced.cancel();
         save();
       }
-    };
-
-    document.addEventListener('keydown', callback);
-
-    return () => {
-      document.removeEventListener('keydown', callback);
-    };
-  }, [isFocused, save]);
+    }
+  }, [code, debounced, ignoreSave, needsSave, save]);
 
   useClickOutside(overlayReference, () => {
     if (!isFocused) {
@@ -132,10 +143,12 @@ const NumberEditor = ({
   }, [value, setInputValue]);
 
   return (
-    <div className="flex flex-column align-items-start">
+    <div ref={divReference} className="flex flex-column align-items-start">
       {label && (
         <>
-          <label htmlFor="numbereditorbody-inputtext">{label}</label>
+          <label className="pl-15" htmlFor="numbereditorbody-inputtext">
+            {label.toUpperCase()}
+          </label>
           <div className="pt-small" />
         </>
       )}
@@ -145,8 +158,12 @@ const NumberEditor = ({
         id="numbereditorbody-inputtext"
         locale="en-US"
         onChange={(e) => {
-          debounced(e.value as number);
           setInputValue(e.value as number);
+          if (disableDebounce !== true) {
+            debounced(e.value as number);
+          } else {
+            onChange && onChange(e.value as number);
+          }
         }}
         onClick={() => {
           onClick?.();

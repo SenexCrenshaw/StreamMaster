@@ -33,3 +33,50 @@
         border-color: rgba(255, 255, 255, 0.5);
     }
 }
+
+.p-inputnumber-button-group {
+    height: $input-height;
+
+    >button {
+        border: unset;
+        border-style: solid;
+        color: $bgColor !important;
+    }
+
+    >button:first-child {
+        border-width: 0.025rem;
+        border-top-color: $bgColor !important;
+        border-right-color: $iconOrange;
+        border-left-color: $iconOrange;
+    }
+
+    >button:last-child {
+        border-width: 0.025rem;
+        border-bottom-color: $bgColor !important;
+        border-right-color: $iconOrange;
+        border-left-color: $iconOrange;
+    }
+
+    .p-button.p-button-icon-only {
+        padding: 0 !important;
+        min-width: $input-height-with-no-borders;
+        max-width: $input-height-with-no-borders;
+        background-color: $iconOrange;
+    }
+}
+
+.p-button.p-button-icon-only {
+    padding: 0;
+    max-width: $input-height-with-no-borders;
+    min-width: $input-height-with-no-borders;
+}
+
+.p-button-icon-only {
+    padding: 0;
+    max-width: $input-height-with-no-borders;
+    min-width: $input-height-with-no-borders;
+}
+
+.p-button-label {
+    font-size: $common-font-size;
+}

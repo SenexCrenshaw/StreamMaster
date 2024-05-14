@@ -429,12 +429,12 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround =
       <div className="stringeditor flex flex-column align-items-start">
         {label && (
           <>
-            <label>{label}</label>
+            <label className="pl-15">{label.toUpperCase()}</label>
             <div className="pt-small" />
           </>
         )}
       </div>
-      <div className={darkBackGround ? 'input-border-dark' : ''}>
+      <div className={darkBackGround ? 'sm-input-border-dark' : ''}>
         <SMOverlay
           header={headerTemplate}
           title="EPG"

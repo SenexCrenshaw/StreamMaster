@@ -28,7 +28,7 @@ export interface StringEditorBodyTemplateProperties {
 const StringEditor = ({
   autoFocus,
   disableDebounce = false,
-  debounceMs,
+  debounceMs = 1500,
   isLoading,
   label,
   onChange,
@@ -44,12 +44,10 @@ const StringEditor = ({
   const uuid = uuidv4();
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const divReference = useRef<HTMLDivElement | null>(null);
-
+  const [ignoreSave, setIgnoreSave] = useState<boolean>(false);
   const [originalValue, setOriginalValue] = useState<string | undefined>(undefined);
   const [inputValue, setInputValue] = useState<string | undefined>('');
   const { code } = useScrollAndKeyEvents();
-
-  const [ignoreSave, setIgnoreSave] = useState<boolean>(false);
 
   const save = useCallback(
     (forceValueSave?: string | undefined) => {
@@ -73,7 +71,7 @@ const StringEditor = ({
       },
       [isLoading, originalValue, save]
     ),
-    debounceMs ? debounceMs : 1500,
+    debounceMs,
     {}
   );
 
@@ -138,8 +136,6 @@ const StringEditor = ({
     return ret;
   }, [needsSave, darkBackGround]);
 
-  // const doReset = (): boolean => showClear === true && disableDebounce === true && originalValue !== undefined && inputValue !== originalValue;
-
   const doShowClear = useMemo((): boolean => {
     return showClear === true && isFocused && inputValue !== originalValue;
   }, [inputValue, isFocused, originalValue, showClear]);
@@ -148,7 +144,7 @@ const StringEditor = ({
     <div ref={divReference} className="stringeditor flex flex-column align-items-start">
       {label && (
         <>
-          <label>{label}</label>
+          <label className="pl-15">{label.toUpperCase()}</label>
           <div className="pt-small" />
         </>
       )}

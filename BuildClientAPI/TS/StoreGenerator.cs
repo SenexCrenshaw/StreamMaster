@@ -38,7 +38,8 @@ public static class StoreGenerator
 
     private static List<string> AdditionalReducers = new()
     {
-        "messages"
+        "messages",
+        "isTrue"
     };
 
     private static string GenerateConfigs()

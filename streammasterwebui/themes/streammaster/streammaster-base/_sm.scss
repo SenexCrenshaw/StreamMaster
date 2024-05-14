@@ -1,8 +1,3 @@
-// .sm-text-color {
-//     color: $streamMasterColor;
-// }
-
-
 .listTemplate-gridItem-name {
     max-width: $gridItem-width;
 }
@@ -37,11 +32,6 @@
     white-space: normal;
 }
 
-.no-text {
-    color: transparent;
-}
-
-
 .sm-upload-button {
     background-color: $uploadButtonBg !important;
     border-color: $uploadButtonBg !important;
@@ -65,29 +55,10 @@
 
 
 .sm-standard-header {
-    @extend .sm-input-border;
+    @extend .sm-sm-input-border;
     background-color: $headerBg !important;
 }
 
-.sm-standard-border {
-    @include standard-border();
-}
-
-.sm-standard-border-bottom {
-    border-bottom-width: $inputBorder-size;
-    border-bottom-style: solid;
-    border-bottom-color: $inputHoverBorderColor;
-    border-bottom-left-radius: $borderRadius !important;
-    border-bottom-right-radius: $borderRadius !important;
-}
-
-.sm-standard-border-bottom-no-radius {
-    border-bottom-width: $inputBorder-size;
-    border-bottom-style: solid;
-    border-bottom-color: $inputHoverBorderColor;
-    border-bottom-left-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
-}
 
 .sm-M3UFileTags {
     .sm-button {
@@ -96,28 +67,7 @@
     }
 }
 
-.sm-tableHeaderBg {
-    background-color: $tableHeaderBg !important;
-}
 
-.sm-headerBg {
-    background-color: $headerBg !important;
-}
-
-.last_radius {
-    border-top-width: 0;
-    border-right-width: 0;
-
-    .p-datatable-wrapper {
-        border-top-right-radius: $borderRadius !important;
-    }
-}
-
-.no-top-border {
-    .p-datatable-wrapper {
-        border-top-width: 0 !important;
-    }
-}
 
 .p-overlaypanel-content {
     padding: $layoutPadding;
@@ -138,7 +88,7 @@
 
 .sm-streamgroupselector {
     @include datatable-text-style();
-    @extend .sm-input-border;
+    @extend .sm-sm-input-border;
     color: $textColor;
     min-width: 12rem;
     max-height: $input-height-with-no-borders;
@@ -151,33 +101,6 @@
     }
 }
 
-.sm-hover {
-    &:not(.p-disabled):hover {
-        background: $highlightBg;
-        border-color: $inputHoverBorderColor;
-        border-radius: $borderRadius;
-        border-style: solid;
-        border-width: 1px;
-        color: $highlightTextColor;
-    }
-
-}
-
-
-
-.sm-standard-text {
-    @include datatable-text-style();
-}
-
-.epgSelector {
-    border-radius: 0;
-    display: flex;
-    align-items: center;
-}
-
-.channelGroupSelector {
-    @extend .epgSelector;
-}
 
 .sm-channel-menu {
     @include datatable-text-style();

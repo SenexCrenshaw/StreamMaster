@@ -8,7 +8,7 @@
   transition: $formElementTransition;
   appearance: none;
 
-  &:enabled:hover {
+  &:not(.p-disabled):hover {
     background: $shade900;
     border: $inputBorder-size solid $inputHoverBorderColor;
     border-radius: $borderRadius;

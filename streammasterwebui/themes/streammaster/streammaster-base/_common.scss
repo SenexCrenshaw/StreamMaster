@@ -10,7 +10,7 @@
 }
 
 .p-multiselect {
-  @extend .input-border;
+  @extend .sm-input-border;
 
   .p-multiselect-label {
     @include datatable-text-style;
@@ -159,7 +159,7 @@
 }
 
 #startNumber>input {
-  @extend .input-border;
+  @extend .sm-input-border;
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
 }
@@ -194,6 +194,10 @@
   padding: 0;
 }
 
+.pl-15 {
+  padding-left: 0.35rem;
+}
+
 .p-paginator-bottom {
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
@@ -202,53 +206,6 @@
 .p-dropdown-label.p-inputtext {
   display: flex;
   align-items: center;
-}
-
-.p-inputnumber-button-group {
-  height: $input-height;
-
-  >button {
-    border: unset;
-    border-style: solid;
-    color: black !important;
-  }
-
-  >button:first-child {
-    border-width: 0.025rem;
-    border-top-color: black !important;
-    border-right-color: $iconOrange;
-    border-left-color: $iconOrange;
-  }
-
-  >button:last-child {
-    border-width: 0.025rem;
-    border-bottom-color: black !important;
-    border-right-color: $iconOrange;
-    border-left-color: $iconOrange;
-  }
-
-  .p-button.p-button-icon-only {
-    padding: 0 !important;
-    min-width: $input-height-with-no-borders;
-    max-width: $input-height-with-no-borders;
-    background-color: $iconOrange;
-  }
-}
-
-.p-button.p-button-icon-only {
-  padding: 0;
-  max-width: $input-height-with-no-borders;
-  min-width: $input-height-with-no-borders;
-}
-
-.p-button-icon-only {
-  padding: 0;
-  max-width: $input-height-with-no-borders;
-  min-width: $input-height-with-no-borders;
-}
-
-.p-button-label {
-  font-size: $common-font-size;
 }
 
 .border-right {

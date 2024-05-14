@@ -88,13 +88,3 @@ $gridItem-image-width: $gridItem-width - ($gridItem-margin*2);
     height: unset;
     white-space: normal;
 }
-
-@mixin input-border() {
-    border: $inputBorder-size solid $inputHoverBorderColor;
-    border-radius: $borderRadius;
-}
-
-@mixin standard-border() {
-    border: 1px solid $inputHoverBorderColor;
-    border-radius: $borderRadius;
-}

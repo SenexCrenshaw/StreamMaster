@@ -121,6 +121,37 @@ public static class FilterHelper<T> where T : class
             : Expression.Call(stringExpression, methodInfoString, searchStringExpression);
     }
 
+
+    private static List<string> ConvertToJsonStringList(string jsonString)
+    {
+        try
+        {
+            var stringList = JsonSerializer.Deserialize<List<string>>(jsonString);
+            if (stringList == null) throw new JsonException("Deserialization returned null.");
+            return stringList;
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"Failed to convert to List<string>: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static List<int> ConvertToJsonIntList(string jsonString)
+    {
+        try
+        {
+            var intList = JsonSerializer.Deserialize<List<int>>(jsonString);
+            if (intList == null) throw new JsonException("Deserialization returned null.");
+            return intList;
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"Failed to convert to List<int>: {ex.Message}");
+            return null;
+        }
+    }
+
     private static Expression CreateArrayExpression(DataTableFilterMetaData filter, Expression propertyAccess, bool forceToLower)
     {
         string stringValue = filter.Value?.ToString() ?? string.Empty;
@@ -147,8 +178,7 @@ public static class FilterHelper<T> where T : class
             {
                 if (propertyAccess.Type == typeof(int))
                 {
-                    string newValue = filter.Value.ToString()[2..^2];
-                    BinaryExpression equalExpression = Expression.Equal(propertyAccess, Expression.Constant(int.Parse(newValue)));
+                    BinaryExpression equalExpression = Expression.Equal(propertyAccess, Expression.Constant(int.Parse(value)));
                     containsExpressions.Add(equalExpression);
                 }
                 else
@@ -218,9 +248,6 @@ public static class FilterHelper<T> where T : class
                     {
                         containsExpressions.Add(containsCall);
                     }
-
-                    //MethodCallExpression containsCall = StringExpression(filter.MatchMode, propertyAccess, Expression.Constant(stringValue));
-                    //containsExpressions.Add(containsCall);
                 }
             }
         }

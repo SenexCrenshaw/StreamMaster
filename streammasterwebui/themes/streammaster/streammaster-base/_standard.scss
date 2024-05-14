@@ -28,6 +28,7 @@ $fontSize: $common-font-size !default;
 $primeIconFontSize: $common-font-size !default;
 $fontWeight: normal !default;
 
+
 $transitionDuration: 0.3s !default;
 $formElementTransition: background-color $transitionDuration,
     color $transitionDuration,
@@ -53,7 +54,7 @@ $actionIconBorderRadius: 50% !default;
 //input field (e.g. inputtext, spinner, inputmask)
 $inputPadding: 0rem .24rem !default;
 
-$inputHoverBorderColor: $shade500 !default;
+
 $inputErrorBorderColor: $errorColor !default;
 $inputFilledHoverBg: $inputFilledBg !default;
 $inputFilledFocusBg: $inputFilledBg !default;
@@ -562,8 +563,8 @@ $imagePreviewActionIconBorderRadius: 50% !default;
     --surface-ground-alpha: rgba(14, 19, 21, 0.85
     );
 --surface-section: $surface-section;
---surface-card: $bgcolor;
---surface-overlay: $bgcolor;
+--surface-card: $bgColor;
+--surface-overlay: $bgColor;
 --surface-border: $inputBorderColor;
 --surface-hover: rgba($primaryColor, 0.08);
 --focus-ring: #{$focusShadow};

@@ -225,8 +225,8 @@ const M3UFileDialog = ({ onM3UChanged, onUpdated, selectedFile, noButtons }: M3U
                   darkBackGround
                   showButtons
                   label="MAX STREAMS"
-                  onChange={(e) => {
-                    setMaxStreams(e);
+                  onSave={(e) => {
+                    e && setMaxStreams(e);
                   }}
                   value={m3uFileDto?.MaxStreamCount}
                 />
@@ -235,8 +235,8 @@ const M3UFileDialog = ({ onM3UChanged, onUpdated, selectedFile, noButtons }: M3U
                 <NumberEditor
                   darkBackGround
                   label="START CHANNEL #"
-                  onChange={(e) => {
-                    setStartingChannelNumber(e);
+                  onSave={(e) => {
+                    e && setStartingChannelNumber(e);
                   }}
                   value={m3uFileDto?.StartingChannelNumber}
                 />
@@ -282,8 +282,8 @@ const M3UFileDialog = ({ onM3UChanged, onUpdated, selectedFile, noButtons }: M3U
               <NumberEditor
                 darkBackGround
                 label="AUTO UPDATE"
-                onChange={(e) => {
-                  setAutoUpdate(e);
+                onSave={(e) => {
+                  e && setAutoUpdate(e);
                 }}
                 suffix=" Hours"
                 value={m3uFileDto?.HoursToUpdate}

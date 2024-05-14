@@ -233,8 +233,8 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
               darkBackGround
               showButtons
               label="EPG #"
-              onChange={(e) => {
-                setEPGNumber(e);
+              onSave={(e) => {
+                e && setEPGNumber(e);
               }}
               value={epgFileDto.EPGNumber}
             />
@@ -268,8 +268,8 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
             <NumberEditor
               darkBackGround
               label="TIME SHIFT"
-              onChange={(e) => {
-                setTimeShift(e);
+              onSave={(e) => {
+                e && setTimeShift(e);
               }}
               value={epgFileDto.TimeShift}
             />
@@ -278,8 +278,8 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
             <NumberEditor
               darkBackGround
               label="AUTO UPDATE"
-              onChange={(e) => {
-                setHoursToUpdate(e);
+              onSave={(e) => {
+                e && setHoursToUpdate(e);
               }}
               suffix=" Hours"
               value={epgFileDto.HoursToUpdate}

@@ -1,11 +1,10 @@
 .sm-fileupload {
-    // @include standard-border;
     background: var(--surface-overlay);
     padding: 0.5rem;
     padding-bottom: 2rem !important;
 
     .p-inputtext {
-        @include input-border;
+        @include sm-input-border;
         height: $input-height;
         background: var(--surface-ground);
     }
@@ -30,14 +29,9 @@
     border-right-width: 0px;
     border-bottom-width: 2px;
     border-radius: $borderRadius;
-    // margin-bottom: 0.5rem;
     padding: 0.5rem;
 }
 
 .sm-fileupload-panel {
-    // background: $shade900;
     background-color: var(--surface-ground-alpha);
-    // border: $inputBorder-size solid $inputHoverBorderColor;
-    // border-top-left-radius: $borderRadius !important;
-    // border-top-right-radius: $borderRadius !important;
 }

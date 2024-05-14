@@ -1,10 +1,33 @@
-.input-border {
-    border: $inputBorder-size solid $inputHoverBorderColor;
-    border-radius: $borderRadius;
+@mixin sm-input-border() {
+    border-radius: $borderRadius !important;
+    border-color: $inputBorderColor !important;
+    border-width: $inputBorder-size !important;
+    border-style: solid !important;
 }
 
-.input-border-dark {
-    @extend .input-border;
+@mixin input-hover() {
+    &:not(.p-disabled):hover {
+        border-color: $inputHoverBorderColor !important;
+        border-radius: $borderRadius !important;
+        border-style: solid !important;
+        border-width: $inputBorder-size !important;
+        color: $highlightTextColor !important;
+    }
+}
+
+.sm-hover {
+    @include input-hover();
+}
+
+.sm-input-border {
+    @include sm-input-border();
+    @include input-hover();
+}
+
+
+.sm-input-border-dark {
+    @extend .sm-input-border;
+    width: 100% !important;
     background-color: $inputBg !important;
 }
 
@@ -26,7 +49,7 @@
 
 .border-radius-bottom {
     border-top-style: none !important;
-    border-color: $inputHoverBorderColor;
+    border-color: $inputBorderColor;
     border-width: 1px;
     border-bottom-left-radius: $borderRadius;
     border-bottom-right-radius: $borderRadius;
@@ -36,8 +59,8 @@
 .border-sides {
     border-top-style: none;
     border-bottom-style: none;
-    border-left: 1px solid $inputHoverBorderColor;
-    border-right: 1px solid $inputHoverBorderColor;
+    border-left: 1px solid $inputBorderColor;
+    border-right: 1px solid $inputBorderColor;
 }
 
 .info-header-text-bottom-border {
@@ -47,5 +70,27 @@
     border-top-left-radius: $borderRadius;
     border-bottom: 1px solid $inputBorderColor;
     border-style: solid;
-    border-color: $inputHoverBorderColor;
+    border-color: $inputBorderColor;
+}
+
+.last_radius {
+    border-top-width: 0;
+    border-right-width: 0;
+
+    .p-datatable-wrapper {
+        border-top-right-radius: $borderRadius !important;
+    }
+}
+
+.no-top-border {
+    .p-datatable-wrapper {
+        border-top-width: 0 !important;
+    }
+}
+
+.sm-sm-input-border {
+    border-radius: $borderRadius !important;
+    border-color: $inputBorderColor !important;
+    border-width: 1px !important;
+    border-style: solid !important;
 }

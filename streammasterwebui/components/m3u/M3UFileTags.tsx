@@ -35,7 +35,7 @@ const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) =
         URL REGEX
       </label>
       <div className="layout-padding-bottom"></div>
-      <div id={uuid} className="w-full tag-editor p-0 m-0 input-border" ref={anchorReference}>
+      <div id={uuid} className="w-full tag-editor p-0 m-0 sm-input-border" ref={anchorReference}>
         <OverlayPanel ref={op} onHide={() => setIsOpen(false)} className="w-2">
           <div className="flex w-full align-items-center">
             <Chips
