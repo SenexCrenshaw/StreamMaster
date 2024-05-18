@@ -39,6 +39,7 @@ interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
   selectedItemsKey?: string;
   showExpand?: boolean;
   showSelections?: boolean;
+  showHiddenInSelection?: boolean;
   style?: CSSProperties;
   headerSize?: 'small' | 'medium' | 'large';
   onRowReorder?: (value: T[]) => void;

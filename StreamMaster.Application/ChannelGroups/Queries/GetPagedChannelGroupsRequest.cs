@@ -1,13 +1,11 @@
-﻿using StreamMaster.Application.ChannelGroups.Commands;
-
-namespace StreamMaster.Application.ChannelGroups.Queries;
+﻿namespace StreamMaster.Application.ChannelGroups.Queries;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetPagedChannelGroupsRequest(QueryStringParameters Parameters) : IRequest<PagedResponse<ChannelGroupDto>>;
 
 [LogExecutionTimeAspect]
-internal class GetPagedChannelGroupsQueryHandler(IRepositoryWrapper Repository, ISender Sender, IMapper Mapper)
+internal class GetPagedChannelGroupsQueryHandler(IRepositoryWrapper Repository, ISender Sender, IMapper Mapper, IMemoryCache MemoryCache)
     : IRequestHandler<GetPagedChannelGroupsRequest, PagedResponse<ChannelGroupDto>>
 {
     public async Task<PagedResponse<ChannelGroupDto>> Handle(GetPagedChannelGroupsRequest request, CancellationToken cancellationToken)
@@ -16,9 +14,9 @@ internal class GetPagedChannelGroupsQueryHandler(IRepositoryWrapper Repository, 
         {
             return Repository.ChannelGroup.CreateEmptyPagedResponse();
         }
-        PagedResponse<ChannelGroup> paged = await Repository.ChannelGroup.GetPagedChannelGroups(request.Parameters).ConfigureAwait(false);
-        PagedResponse<ChannelGroupDto> dto = paged.ToPagedResponseDto<ChannelGroup, ChannelGroupDto>(Mapper);
-        dto.Data = (await Sender.Send(new UpdateChannelGroupCountsRequest(dto.Data), cancellationToken).ConfigureAwait(false)).Data;
+        PagedResponse<Domain.Models.ChannelGroup> paged = await Repository.ChannelGroup.GetPagedChannelGroups(request.Parameters).ConfigureAwait(false);
+        PagedResponse<ChannelGroupDto> dto = paged.ToPagedResponseDto<Domain.Models.ChannelGroup, ChannelGroupDto>(Mapper);
+
         return dto;
     }
 }

@@ -1,10 +1,12 @@
-﻿namespace StreamMaster.Application.M3UFiles.Commands;
+﻿using StreamMaster.Application.ChannelGroups.Commands;
+
+namespace StreamMaster.Application.M3UFiles.Commands;
 
 [SMAPI(JustHub: true, IsTask: true)]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record ProcessM3UFileRequest(int M3UFileId, bool ForceRun = false) : IRequest<APIResponse>;
 
-internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IMessageService messageSevice, IRepositoryWrapper Repository, IDataRefreshService dataRefreshService)
+internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, ISender sender, IMessageService messageSevice, IRepositoryWrapper Repository, IDataRefreshService dataRefreshService)
     : IRequestHandler<ProcessM3UFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(ProcessM3UFileRequest request, CancellationToken cancellationToken)
@@ -17,6 +19,8 @@ internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logge
                 await messageSevice.SendError("Process M3U Not Found");
                 return APIResponse.NotFound;
             }
+
+            await sender.Send(new UpdateChannelGroupCountsRequest());
 
             await dataRefreshService.RefreshAllM3U();
             //await hubContext.Clients.All.DataRefresh("GetPagedM3UFiles").ConfigureAwait(false);

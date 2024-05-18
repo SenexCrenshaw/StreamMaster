@@ -7,14 +7,14 @@ internal class GetChannelGroupHandler(IRepositoryWrapper Repository, IMapper Map
 {
     public async Task<DataResponse<ChannelGroupDto?>> Handle(GetChannelGroupRequest request, CancellationToken cancellationToken)
     {
-        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupById(request.Id);
+        Domain.Models.ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupById(request.Id);
         if (channelGroup == null)
         {
             return DataResponse<ChannelGroupDto?>.NotFound;
         }
 
         ChannelGroupDto dto = Mapper.Map<ChannelGroupDto>(channelGroup);
-        MemoryCache.UpdateChannelGroupWithActives(dto);
+
         return DataResponse<ChannelGroupDto?>.Success(dto);
     }
 }

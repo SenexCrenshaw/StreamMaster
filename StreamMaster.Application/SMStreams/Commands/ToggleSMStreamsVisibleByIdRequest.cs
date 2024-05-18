@@ -6,7 +6,7 @@ public record ClearByTag(string Entity, string Tag) { }
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record ToggleSMStreamsVisibleByIdRequest(List<string> Ids) : IRequest<APIResponse>;
-internal class ToggleSMStreamsVisibleByIdHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<ToggleSMStreamsVisibleByIdRequest, APIResponse>
+internal class ToggleSMStreamsVisibleByIdHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService) : IRequestHandler<ToggleSMStreamsVisibleByIdRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(ToggleSMStreamsVisibleByIdRequest request, CancellationToken cancellationToken)
     {
@@ -16,8 +16,8 @@ internal class ToggleSMStreamsVisibleByIdHandler(IRepositoryWrapper Repository, 
             return APIResponse.NotFound;
         }
 
-        await hubContext.Clients.All.SetField(ret).ConfigureAwait(false);
-        await hubContext.Clients.All.ClearByTag(new ClearByTag("GetPagedSMStreams", "IsHidden")).ConfigureAwait(false);
+        await dataRefreshService.SetField(ret).ConfigureAwait(false);
+        await dataRefreshService.ClearByTag("GetPagedSMStreams", "IsHidden").ConfigureAwait(false);
         return APIResponse.Success;
     }
 }

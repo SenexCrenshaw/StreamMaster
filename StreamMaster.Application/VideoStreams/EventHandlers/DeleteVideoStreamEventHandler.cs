@@ -10,7 +10,7 @@ public class DeleteVideoStreamEventHandler(ILogger<DeleteVideoStreamEvent> logge
     {
         if (notification.ChannelGroup != null)
         {
-            ChannelGroupDto channelGroupDTO = mapper.Map<ChannelGroupDto>(notification.ChannelGroup);
+            ChannelGroupDto channelGroupDTO = mapper.Map<ChannelGroupDto>((object)notification.ChannelGroup);
             await Publisher.Publish(new UpdateChannelGroupEvent(channelGroupDTO, false, false), cancellationToken).ConfigureAwait(false);
         }
         await HubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
+using StreamMaster.Application.ChannelGroups.Commands;
 using StreamMaster.Application.General.Commands;
 using StreamMaster.Application.SchedulesDirect.Commands;
 
@@ -21,4 +22,15 @@ public class TestController : ApiControllerBase
         await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
     }
+
+    [HttpPut]
+    [Route("[action]")]
+    public async Task<IActionResult> UpdateChannelGroupCountsRequest()
+    {
+        await Mediator.Send(new UpdateChannelGroupCountsRequest()).ConfigureAwait(false);
+        return Ok();
+    }
+
+
+
 }

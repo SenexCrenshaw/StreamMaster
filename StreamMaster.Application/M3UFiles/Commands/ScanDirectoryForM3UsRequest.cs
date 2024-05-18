@@ -51,7 +51,7 @@ public class ScanDirectoryForM3UFilesRequestHandler(IPublisher Publisher, IRepos
         {
 
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
-            await Publisher.Publish(new M3UFileProcessEvent(ret.Id, false), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new M3UFileProcessEvent(ret.Id, true), cancellationToken).ConfigureAwait(false);
         }
     }
 

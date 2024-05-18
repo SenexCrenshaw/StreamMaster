@@ -12,14 +12,14 @@ public class UpdateVideoStreamEventHandler(ILogger<UpdateVideoStreamEvent> logge
     {
         //if (notification.ToggelVisibility)
         //{
-        //    ChannelGroupDto? channelGroup = await Sender.Send(new GetChannelGroupByNameRequest(notification.VideoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
+        //    ChannelGroup? channelGroup = await Sender.Send(new GetChannelGroupByNameRequest(notification.VideoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
         //    if (channelGroup != null)
         //    {
         //        await Publisher.Publish(new UpdateChannelGroupEvent(channelGroup, false, false), cancellationToken).ConfigureAwait(false);
         //    }
         //}
 
-        DataResponse<ChannelGroupDto?> channelGroup = await Sender.Send(new GetChannelGroupByNameRequest(notification.VideoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
+        DataResponse<ChannelGroupDto?> channelGroup = await Sender.Send<DataResponse<ChannelGroupDto>>(new GetChannelGroupByNameRequest(notification.VideoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
         if (channelGroup?.Data != null)
         {
             await Sender.Send(new UpdateChannelGroupCountRequest(channelGroup.Data, false), cancellationToken).ConfigureAwait(false);

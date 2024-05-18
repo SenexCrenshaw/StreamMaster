@@ -37,12 +37,13 @@ export interface StreamGroupSMChannelLink
 export interface ChannelGroupDto
 {
 	ActiveCount: number;
-	ChannelGroupId: number;
 	HiddenCount: number;
 	Id: number;
 	IsHidden: boolean;
 	IsReadOnly: boolean;
+	MainGet: string;
 	Name: string;
+	RegexMatch: string;
 	TotalCount: number;
 }
 export interface EPGColorDto
@@ -342,6 +343,11 @@ export interface RemoveSMChannelFromStreamGroupRequest
 export interface GetPagedSMStreamsRequest
 {
 	Parameters: QueryStringParameters;
+}
+export interface SetSMStreamsVisibleByIdRequest
+{
+	Ids: string[];
+	IsHidden: boolean;
 }
 export interface ClearByTag
 {
@@ -702,6 +708,10 @@ export interface UpdateChannelGroupRequest
 	IsHidden?: boolean;
 	NewGroupName?: string;
 	ToggleVisibility?: boolean;
+}
+export interface UpdateChannelGroupsRequest
+{
+	requests: UpdateChannelGroupRequest[];
 }
 export enum AuthenticationType {
 	None = 0,

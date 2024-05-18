@@ -1,4 +1,5 @@
 ﻿using StreamMaster.Application.ChannelGroups.Events;
+using StreamMaster.Application.SMStreams.Commands;
 using StreamMaster.Application.StreamGroupChannelGroupLinks.Commands;
 
 namespace StreamMaster.Application.ChannelGroups.Commands;
@@ -15,7 +16,7 @@ public class UpdateChannelGroupRequestHandler(IRepositoryWrapper Repository, IMa
     public async Task<APIResponse> Handle(UpdateChannelGroupRequest request, CancellationToken cancellationToken)
     {
 
-        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupById(request.ChannelGroupId).ConfigureAwait(false);
+        Domain.Models.ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupById(request.ChannelGroupId).ConfigureAwait(false);
 
         if (channelGroup == null)
         {
@@ -28,9 +29,10 @@ public class UpdateChannelGroupRequestHandler(IRepositoryWrapper Repository, IMa
         if (request.ToggleVisibility == true)
         {
             channelGroup.IsHidden = !channelGroup.IsHidden;
-            List<VideoStreamDto> results = await Repository.VideoStream.SetGroupVisibleByGroupName(channelGroup.Name, channelGroup.IsHidden, cancellationToken).ConfigureAwait(false);
+            List<string> streamIds = await Repository.SMStream.GetQuery().Where(a => a.Group == channelGroup.Name).Select(a => a.Id).ToListAsync(cancellationToken: cancellationToken);
 
-            checkCounts = results.Any();
+            await Sender.Send(new SetSMStreamsVisibleByIdRequest(streamIds, channelGroup.IsHidden), cancellationToken);
+            checkCounts = true;
 
         }
 

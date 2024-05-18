@@ -265,7 +265,7 @@ public class StreamGroupChannelGroupRepository(ILogger<StreamGroupChannelGroupRe
     /// </summary>
     /// <param name="StreamGroupId">The ID of the stream group.</param>
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
-    /// <returns>A list of ChannelGroupDto objects. If no records are found, returns an empty list.</returns>
+    /// <returns>A list of ChannelGroup objects. If no records are found, returns an empty list.</returns>
     public async Task<List<ChannelGroupDto>> GetChannelGroupsFromStreamGroup(int StreamGroupId)
     {
         if (StreamGroupId <= 0)

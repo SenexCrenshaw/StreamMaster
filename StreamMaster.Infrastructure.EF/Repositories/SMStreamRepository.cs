@@ -152,7 +152,7 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
     public async Task<List<FieldData>> ToggleSMStreamsVisibleById(List<string> ids, CancellationToken cancellationToken)
     {
         List<FieldData> ret = [];
-        List<SMStream> streams = [.. GetQuery(true).Where(a => ids.Contains(a.Id))];
+        IQueryable<SMStream> streams = GetQuery(true).Where(a => ids.Contains(a.Id));
         foreach (SMStream? stream in streams)
         {
             stream.IsHidden = !stream.IsHidden;
@@ -162,5 +162,16 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
         return ret;
     }
 
-
+    public async Task<List<FieldData>> SetSMStreamsVisibleById(List<string> ids, bool isHidden, CancellationToken cancellationToken)
+    {
+        List<FieldData> ret = [];
+        IQueryable<SMStream> streams = GetQuery(true).Where(a => ids.Contains(a.Id));
+        foreach (SMStream stream in streams)
+        {
+            stream.IsHidden = isHidden;
+            ret.Add(new FieldData(() => stream.IsHidden));
+        }
+        await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        return ret;
+    }
 }

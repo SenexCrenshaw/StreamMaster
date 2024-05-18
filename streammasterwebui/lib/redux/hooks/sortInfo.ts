@@ -2,7 +2,7 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
 
-interface SetSortInfoPayload {
+export interface SortInfo {
   sortField?: string;
   sortOrder?: -1 | 0 | 1;
   typename: string;
@@ -21,7 +21,7 @@ const sortInfoSlice = createSlice({
   initialState,
   name: 'sortInfo',
   reducers: {
-    setSortInfo: (state, action: PayloadAction<SetSortInfoPayload>) => {
+    setSortInfo: (state, action: PayloadAction<SortInfo>) => {
       const { typename, sortField, sortOrder } = action.payload;
 
       if (!state[typename]) {

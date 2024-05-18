@@ -35,6 +35,7 @@ import useSMDataSelectorValuesState from './hooks/useSMDataTableState';
 import { useSetQueryFilter } from './hooks/useSetQueryFilter';
 import { ColumnMeta } from './types/ColumnMeta';
 import { SMDataTableProps } from './types/smDataTableInterfaces';
+import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 
 const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   const { state, setters } = useSMDataSelectorValuesState<T>(props.id, props.selectedItemsKey);
@@ -542,6 +543,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   function selectionHeaderTemplate() {
     return (
       <div className="flex justify-content-center align-items-center p-0 m-0">
+        {props.showHiddenInSelection && <SMTriSelectShowHidden dataKey={props.id} />}
         {showSelection && <SMTriSelectShowSelect selectedItemsKey={props.selectedItemsKey} id={props.id} onToggle={() => toggleAllSelection()} />}
       </div>
     );
@@ -719,7 +721,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           />
           <Column
             body={showSelection ? selectionTemplate : undefined}
-            className="w-2rem max-w-2rem p-0 justify-content-center align-items-center"
+            className="w-2rem max-w-3rem p-0 justify-content-center align-items-center"
             field="multiSelect"
             filter
             filterElement={selectionHeaderTemplate}

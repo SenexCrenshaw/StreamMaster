@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Domain.Dto;
-using StreamMaster.API.Controllers;
 using StreamMaster.Application.StreamGroupChannelGroupLinks;
 using StreamMaster.Application.StreamGroupChannelGroupLinks.Commands;
 using StreamMaster.Application.StreamGroupChannelGroupLinks.Queries;
 
-namespace StreamMasterAPI.Controllers;
+namespace StreamMaster.API.Controllers;
 
 public class StreamGroupChannelGroupController : ApiControllerBase, IStreamGroupChannelGroupController
 {

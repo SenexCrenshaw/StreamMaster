@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 
-using StreamMaster.Domain.Dto;
-
 namespace StreamMaster.Domain.Cache;
 
 public static partial class CacheManagerExtensions
@@ -14,7 +12,7 @@ public static partial class CacheManagerExtensions
         lock (_lock)
         {
             List<ChannelGroupStreamCount> cachedData = cache.ChannelGroupStreamCounts();
-            ChannelGroupStreamCount? data = cachedData.Find(x => x.ChannelGroupId == channelGroupId);
+            ChannelGroupStreamCount? data = cachedData.Find(x => x.Id == channelGroupId);
             if (data != null)
             {
                 _ = cachedData.Remove(data);
@@ -39,63 +37,65 @@ public static partial class CacheManagerExtensions
 
 
 
-    public static void AddOrUpdateChannelGroupVideoStreamCounts(this IMemoryCache cache, List<ChannelGroupDto> responses)
-    {
-        foreach (ChannelGroupDto response in responses)
-        {
-            cache.AddOrUpdateChannelGroupVideoStreamCount(response);
-        }
-    }
+    //public static void AddOrUpdateChannelGroupSMStreamCounts2(this IMemoryCache cache, List<ChannelGroup> responses)
+    //{
+    //    foreach (ChannelGroup response in responses)
+    //    {
+    //        cache.AddOrUpdateChannelGroupSMStreamCounts(response);
+    //    }
+    //}
 
-    public static void UpdateChannelGroupWithActives(this IMemoryCache cache, ChannelGroupDto channelGroup)
-    {
-        ChannelGroupStreamCount? active = cache.ChannelGroupStreamCounts().Find(a => a.ChannelGroupId == channelGroup.Id);
-        if (active == null)
-        {
-            return;
-        }
+    //public static void UpdateChannelGroupWithActives(this IMemoryCache cache, ChannelGroup channelGroup)
+    //{
+    //    List<ChannelGroupStreamCount> test = cache.ChannelGroupStreamCounts();
 
-        channelGroup.ActiveCount = active.ActiveCount;
-        channelGroup.HiddenCount = active.HiddenCount;
-        channelGroup.TotalCount = active.TotalCount;
-    }
+    //    ChannelGroupStreamCount? active = cache.ChannelGroupStreamCounts().FirstOrDefault(a => a.Id == channelGroup.Id);
+    //    if (active == null)
+    //    {
+    //        return;
+    //    }
 
-    public static List<ChannelGroupDto> UpdateChannelGroupsWithActives(this IMemoryCache cache, List<ChannelGroupDto> channelGroups)
-    {
-        for (int i = 0; i < channelGroups.Count; i++)
-        {
-            cache.UpdateChannelGroupWithActives(channelGroups[i]);
-        }
-        return channelGroups;
-    }
+    //    channelGroup.ActiveCount = active.ActiveCount;
+    //    channelGroup.HiddenCount = active.HiddenCount;
+    //    channelGroup.TotalCount = active.TotalCount;
+    //}
 
-    public static void AddChannelGroupStreamCount(this IMemoryCache cache, ChannelGroupStreamCount ChannelGroupDto)
-    {
-        List<ChannelGroupStreamCount> cachedData = cache.ChannelGroupStreamCounts();
-        cachedData.Add(ChannelGroupDto);
+    //public static List<ChannelGroup> UpdateChannelGroupsWithActives(this IMemoryCache cache, List<ChannelGroup> channelGroups)
+    //{
+    //    for (int i = 0; i < channelGroups.Count; i++)
+    //    {
+    //        cache.UpdateChannelGroupWithActives(channelGroups[i]);
+    //    }
+    //    return channelGroups;
+    //}
 
-        _ = cache.Set(ChannelGroupStreamCountsConfig.Key, cachedData, NeverRemoveCacheEntryOptions);
-    }
+    //public static void AddChannelGroupStreamCount2(this IMemoryCache cache, ChannelGroupStreamCount ChannelGroup)
+    //{
+    //    List<ChannelGroupStreamCount> cachedData = cache.ChannelGroupStreamCounts();
+    //    cachedData.Add(ChannelGroup);
 
-    public static void AddOrUpdateChannelGroupVideoStreamCount(this IMemoryCache cache, ChannelGroupDto ChannelGroupDto)
-    {
-        List<ChannelGroupStreamCount> cachedData = cache.ChannelGroupStreamCounts();
-        ChannelGroupStreamCount? data = cachedData.Find(a => a.ChannelGroupId == ChannelGroupDto.Id);
+    //    _ = cache.Set(ChannelGroupStreamCountsConfig.Key, cachedData, NeverRemoveCacheEntryOptions);
+    //}
 
-        if (data == null)
-        {
-            cache.AddChannelGroupStreamCount(ChannelGroupDto);
-        }
-        else
-        {
-            _ = cachedData.Remove(data);
-            data.ActiveCount = ChannelGroupDto.ActiveCount;
-            data.TotalCount = ChannelGroupDto.TotalCount;
-            data.HiddenCount = ChannelGroupDto.HiddenCount;
-            cachedData.Add(data);
-            _ = cache.Set(ChannelGroupStreamCountsConfig.Key, cachedData, NeverRemoveCacheEntryOptions);
-        }
-    }
+    //public static void AddOrUpdateChannelGroupSMStreamCounts2(this IMemoryCache cache, ChannelGroup ChannelGroup)
+    //{
+    //    List<ChannelGroupStreamCount> cachedData = cache.ChannelGroupStreamCounts();
+    //    ChannelGroupStreamCount? data = cachedData.Find(a => a.Id == ChannelGroup.Id);
+
+    //    if (data == null)
+    //    {
+    //        cache.AddChannelGroupStreamCount2(ChannelGroup);
+    //    }
+    //    else
+    //    {
+    //        _ = cachedData.Remove(data);
+    //        data.ActiveCount = ChannelGroup.ActiveCount;
+    //        data.TotalCount = ChannelGroup.TotalCount;
+    //        data.HiddenCount = ChannelGroup.HiddenCount;
+    //        cachedData.Add(data);
+    //        _ = cache.Set(ChannelGroupStreamCountsConfig.Key, cachedData, NeverRemoveCacheEntryOptions);
+    //    }
+    //}
 
     private static readonly object _lock = new();
 
@@ -117,7 +117,7 @@ public static partial class CacheManagerExtensions
 
     public static ChannelGroupStreamCount? GetChannelGroupVideoStreamCount(this IMemoryCache cache, int channelGroupId)
     {
-        ChannelGroupStreamCount? ret = cache.ChannelGroupStreamCounts().Find(a => a.ChannelGroupId == channelGroupId);
+        ChannelGroupStreamCount? ret = cache.ChannelGroupStreamCounts().Find(a => a.Id == channelGroupId);
         return ret;
     }
     //public static List<TvLogoFile> GetTvLogos(this IMemoryCache cache)

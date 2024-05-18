@@ -11,6 +11,7 @@ const M3UFileRefreshDialog = ({ selectedFile }: M3UFileRefreshDialogProperties) 
   const accept = () => {
     const toSend = {} as RefreshM3UFileRequest;
     toSend.Id = selectedFile.Id;
+    toSend.ForceRun = true;
 
     RefreshM3UFile(toSend)
       .then(() => {})

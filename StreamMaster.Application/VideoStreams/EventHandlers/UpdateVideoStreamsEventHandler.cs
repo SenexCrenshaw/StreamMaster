@@ -10,7 +10,7 @@ public class UpdateVideoStreamsEventHandler(ILogger<UpdateVideoStreamsEvent> log
         //if (notification.UpdateChannelGroup)
         //{
         //    List<string> ids = notification.VideoStreams.Select(x => x.Id).ToList();
-        //    List<ChannelGroupDto> channelGroups = await Sender.Send(new GetChannelGroupsFromVideoStreamIds(ids), cancellationToken).ConfigureAwait(false);
+        //    List<ChannelGroup> channelGroups = await Sender.Send(new GetChannelGroupsFromVideoStreamIds(ids), cancellationToken).ConfigureAwait(false);
         //    if (channelGroups.Any())
         //    {
         //        await Publisher.Publish(new UpdateChannelGroupsEvent(channelGroups), cancellationToken).ConfigureAwait(false);

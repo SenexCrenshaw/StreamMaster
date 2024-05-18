@@ -4,6 +4,8 @@ import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import VisibleButton from '../buttons/VisibleButton';
+import { ChannelGroupDto, UpdateChannelGroupRequest, UpdateChannelGroupsRequest } from '@lib/smAPI/smapiTypes';
+import { UpdateChannelGroup, UpdateChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
 
 interface ChannelGroupVisibleDialogProperties {
   readonly id: string;
@@ -16,7 +18,7 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
-  const { selectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
+  const { selectedItems } = useSelectedItems<ChannelGroupDto>(id);
   const { selectAll } = useSelectAll(id);
 
   const ReturnToParent = React.useCallback(() => {
@@ -36,8 +38,8 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
 
     if (value) {
       const toSend = {} as UpdateChannelGroupRequest;
-      toSend.channelGroupId = value.id;
-      toSend.toggleVisibility = true;
+      toSend.ChannelGroupId = value.Id;
+      toSend.ToggleVisibility = true;
       UpdateChannelGroup(toSend)
         .then(() => {
           setInfoMessage('Channel Group Toggle Visibility Successfully');
@@ -47,11 +49,11 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
         });
     } else if (selectedItems) {
       const toSend = {} as UpdateChannelGroupsRequest;
-      toSend.channelGroupRequests = selectedItems.map(
+      toSend.requests = selectedItems.map(
         (item) =>
           ({
-            channelGroupId: item.id,
-            toggleVisibility: true
+            ChannelGroupId: item.Id,
+            ToggleVisibility: true
           } as UpdateChannelGroupRequest)
       );
       UpdateChannelGroups(toSend)
@@ -66,14 +68,14 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
 
   const isFirstDisabled = useMemo(() => {
     if (value) {
-      return value.isReadOnly;
+      return value.IsReadOnly;
     }
 
     if (!selectedItems || selectedItems?.length === 0) {
       return true;
     }
 
-    return selectedItems[0].isReadOnly;
+    return selectedItems[0].IsReadOnly;
   }, [value, selectedItems]);
 
   const getTotalCount = useMemo(() => {
@@ -82,14 +84,14 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
     }
 
     const count = selectedItems?.length ?? 0;
-    if (count === 1 && isFirstDisabled) {
-      return 0;
-    }
+    // if (count === 1 && isFirstDisabled) {
+    //   return 0;
+    // }
 
     return count;
-  }, [isFirstDisabled, selectAll, selectedItems]);
+  }, [selectAll, selectedItems]);
 
-  if (skipOverLayer === true) {
+  if (value) {
     return <VisibleButton iconFilled={false} onClick={async () => await onVisibleClick()} />;
   }
 
@@ -110,7 +112,8 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
         </div>
       </InfoMessageOverLayDialog>
       <VisibleButton
-        disabled={getTotalCount === 0}
+        // disabled={getTotalCount === 0}
+        iconFilled={false}
         onClick={async () => {
           if (selectedItems.length > 1) {
             setShowOverlay(true);

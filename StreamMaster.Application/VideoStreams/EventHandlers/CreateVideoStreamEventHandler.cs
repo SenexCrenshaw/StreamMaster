@@ -10,7 +10,7 @@ public class CreateVideoStreamEventHandler(ILogger<CreateVideoStreamEvent> logge
 {
     public async Task Handle(CreateVideoStreamEvent notification, CancellationToken cancellationToken = default)
     {
-        DataResponse<ChannelGroupDto?> channelGroup = await Sender.Send(new GetChannelGroupByNameRequest(notification.VideoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
+        DataResponse<ChannelGroupDto?> channelGroup = await Sender.Send<DataResponse<ChannelGroupDto>>(new GetChannelGroupByNameRequest(notification.VideoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
         if (channelGroup?.Data != null)
         {
             await Sender.Send(new UpdateChannelGroupCountRequest(channelGroup.Data, true), cancellationToken).ConfigureAwait(false);

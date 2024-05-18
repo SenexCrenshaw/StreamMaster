@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 
 namespace StreamMaster.Application.ChannelGroups.Commands;
-public record UpdateChannelGroupCountRequest(ChannelGroupDto ChannelGroupDto, bool Publish)
+public record UpdateChannelGroupCountRequest(ChannelGroupDto ChannelGroup, bool Publish)
     : IRequest<DataResponse<ChannelGroupDto>>
 { }
 
@@ -13,55 +13,26 @@ public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCou
     {
         try
         {
-            IQueryable<VideoStream> videoStreamsForGroupQuery = repository.VideoStream.GetVideoStreamQuery().Where(vs => vs.User_Tvg_group == request.ChannelGroupDto.Name);
+            IQueryable<SMStream> smStreams = repository.SMStream.GetQuery(true).Where(vs => vs.Group == request.ChannelGroup.Name);
 
-            // Optimize to reduce the database hits by fetching counts together
-            var counts = await videoStreamsForGroupQuery.GroupBy(vs => vs.IsHidden).Select(g => new { IsHidden = g.Key, Count = g.Count() }).ToListAsync(cancellationToken);
 
+            var counts = await smStreams.GroupBy(vs => vs.IsHidden).Select(g => new { IsHidden = g.Key, Count = g.Count() }).ToListAsync(cancellationToken);
             int totalCount = counts.Sum(c => c.Count);
-            int hiddenCount = counts.FirstOrDefault(c => c.IsHidden)?.Count ?? 0;
+            int hiddenCount = counts.Find(c => c.IsHidden)?.Count ?? 0;
 
-            bool changed = false;
+            request.ChannelGroup.TotalCount = totalCount;
+            request.ChannelGroup.ActiveCount = totalCount - hiddenCount;
+            request.ChannelGroup.HiddenCount = hiddenCount;
 
-            if (request.ChannelGroupDto.TotalCount != totalCount)
+            await repository.SaveAsync();
+
+            if (request.Publish)
             {
-                request.ChannelGroupDto.TotalCount = totalCount;
-                changed = true;
+                await hubContext.Clients.All.ChannelGroupsRefresh([request.ChannelGroup]).ConfigureAwait(false);
             }
 
-            if (request.ChannelGroupDto.ActiveCount != totalCount - hiddenCount)
-            {
-                request.ChannelGroupDto.ActiveCount = totalCount - hiddenCount;
-                changed = true;
-            }
 
-            if (request.ChannelGroupDto.HiddenCount != hiddenCount)
-            {
-                request.ChannelGroupDto.HiddenCount = hiddenCount;
-                changed = true;
-            }
-
-            if (request.ChannelGroupDto.IsHidden != (request.ChannelGroupDto.HiddenCount == 0))
-            {
-                request.ChannelGroupDto.HiddenCount = hiddenCount;
-                changed = true;
-            }
-
-            if (changed)
-            {
-                //ChannelGroupStreamCount response = new()
-                //{
-                //    ChannelGroupId = request.ChannelGroupDto.Id
-                //};
-
-                MemoryCache.AddOrUpdateChannelGroupVideoStreamCount(request.ChannelGroupDto);
-                if (request.Publish)
-                {
-                    await hubContext.Clients.All.ChannelGroupsRefresh([request.ChannelGroupDto]).ConfigureAwait(false);
-                }
-            }
-
-            return DataResponse<ChannelGroupDto>.Success(request.ChannelGroupDto);
+            return DataResponse<ChannelGroupDto>.Success(request.ChannelGroup);
         }
         catch (Exception ex)
         {

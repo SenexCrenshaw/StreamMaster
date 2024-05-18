@@ -61,6 +61,10 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
             await ProcessAndUpdateStreams(m3uFile, streams, streamCount);
             await UpdateChannelGroups(streams);
 
+            m3uFile.LastUpdated = SMDT.UtcNow;
+            UpdateM3UFile(m3uFile);
+            await SaveChangesAsync();
+
             jobManager.SetSuccessful();
             return m3uFile;
         }
@@ -72,12 +76,12 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
         }
         finally
         {
-            if (m3uFile != null)
-            {
-                m3uFile.LastUpdated = SMDT.UtcNow;
-                UpdateM3UFile(m3uFile);
-                await SaveChangesAsync();
-            }
+            //if (m3uFile != null)
+            //{
+            //    m3uFile.LastUpdated = SMDT.UtcNow;
+            //    UpdateM3UFile(m3uFile);
+            //    await SaveChangesAsync();
+            //}
         }
     }
     private async Task UpdateChannelGroups(List<SMStream> streams)
@@ -85,14 +89,14 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
         Stopwatch sw = Stopwatch.StartNew();
 
         List<string> newGroups = streams.Where(a => a.Group is not null and not "").Select(a => a.Group).Distinct().ToList();
-        List<ChannelGroup> channelGroups = await repositoryWrapper.ChannelGroup.GetChannelGroups();
+        List<Domain.Models.ChannelGroup> channelGroups = await repositoryWrapper.ChannelGroup.GetChannelGroups();
 
         await CreateNewChannelGroups(newGroups, channelGroups);
 
         logger.LogInformation($"Updating channel groups took {sw.Elapsed.TotalSeconds} seconds");
     }
 
-    private async Task CreateNewChannelGroups(List<string> newGroups, List<ChannelGroup> existingGroups)
+    private async Task CreateNewChannelGroups(List<string> newGroups, List<Domain.Models.ChannelGroup> existingGroups)
     {
         foreach (string? group in newGroups)
         {
@@ -111,7 +115,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
 
         List<SMStream> existing = await repositoryWrapper.SMStream.GetQuery().Where(a => a.M3UFileId == m3uFile.Id).ToListAsync().ConfigureAwait(false);
 
-        List<ChannelGroup> groups = await repositoryWrapper.ChannelGroup.GetChannelGroups();
+        List<Domain.Models.ChannelGroup> groups = await repositoryWrapper.ChannelGroup.GetChannelGroups();
 
         ProcessStreamsConcurrently(streams, existing, groups, m3uFile);
 
@@ -378,11 +382,11 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
         return GetQuery();
     }
 
-    private void ProcessStreamsConcurrently(List<SMStream> streams, List<SMStream> existing, List<ChannelGroup> groups, M3UFile m3uFile)
+    private void ProcessStreamsConcurrently(List<SMStream> streams, List<SMStream> existing, List<Domain.Models.ChannelGroup> groups, M3UFile m3uFile)
     {
         int totalCount = streams.Count;
         Dictionary<string, SMStream> existingLookup = existing.ToDictionary(a => a.Id, a => a);
-        Dictionary<string, ChannelGroup> groupLookup = groups.ToDictionary(g => g.Name, g => g);
+        Dictionary<string, Domain.Models.ChannelGroup> groupLookup = groups.ToDictionary(g => g.Name, g => g);
         ConcurrentDictionary<string, bool> processed = new();
 
         ConcurrentBag<SMStream> toWrite = [];
@@ -404,7 +408,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
 
             if (processed.TryAdd(stream.Id, true))
             {
-                _ = groupLookup.TryGetValue(stream.Group, out ChannelGroup? group);
+                _ = groupLookup.TryGetValue(stream.Group, out Domain.Models.ChannelGroup? group);
 
                 if (!existingLookup.TryGetValue(stream.Id, out SMStream? existingStream))
                 {

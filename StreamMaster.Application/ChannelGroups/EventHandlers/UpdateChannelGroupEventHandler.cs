@@ -4,38 +4,46 @@ using StreamMaster.Application.StreamGroupChannelGroupLinks.Queries;
 
 namespace StreamMaster.Application.ChannelGroups.EventHandlers;
 
-public class UpdateChannelGroupEventHandler(ILogger<UpdateChannelGroupEvent> logger, IRepositoryWrapper Repository, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+public class UpdateChannelGroupEventHandler(ILogger<UpdateChannelGroupEvent> logger, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
     : INotificationHandler<UpdateChannelGroupEvent>
 {
     public async Task Handle(UpdateChannelGroupEvent notification, CancellationToken cancellationToken)
     {
-        //await HubContext.Clients.All.ChannelGroupsRefresh().ConfigureAwait(false);
+        List<FieldData> fds = [];
+        if (notification.ChannelGroupToggelVisibility)
+        {
+            await Sender.Send(new UpdateChannelGroupCountRequest(notification.ChannelGroup, true), cancellationToken).ConfigureAwait(false);
+            fds.AddRange([
+                new(ChannelGroup.MainGet, notification.ChannelGroup.Id, "IsHidden", notification.ChannelGroup.IsHidden),
+                new(ChannelGroup.MainGet, notification.ChannelGroup.Id, "ActiveCount", notification.ChannelGroup.ActiveCount),
+                new(ChannelGroup.MainGet, notification.ChannelGroup.Id, "TotalCount", notification.ChannelGroup.TotalCount),
+                new(ChannelGroup.MainGet, notification.ChannelGroup.Id, "HiddenCount", notification.ChannelGroup.HiddenCount),
+            ]);
+
+        }
 
         if (notification.ChannelGroupToggelVisibility || notification.ChannelGroupNameChanged)
         {
-            //await Sender.Send(new UpdateChannelGroupCountRequest(notification.ChannelGroup, true), cancellationToken).ConfigureAwait(false);
-            //await HubContext.Clients.All.ChannelGroupsRefresh().ConfigureAwait(false);
-
-            List<VideoStreamDto> streams = await Repository.VideoStream.GetVideoStreamsForChannelGroup(notification.ChannelGroup.Id, cancellationToken).ConfigureAwait(false);
-            if (streams.Any())
-            {
-                await HubContext.Clients.All.VideoStreamsRefresh([.. streams]).ConfigureAwait(false);
-            }
-
-
-            //IEnumerable<StreamGroupDto> sgs = await Sender.Send(new GetStreamGroupsFromChannelGroupQuery(notification.ChannelGroup.Id), cancellationToken).ConfigureAwait(false);
-
-            //if (sgs.Any())
-            //{
-            //    await HubContext.Clients.All.StreamGroupsRefresh(sgs.ToArray()).ConfigureAwait(false);
-            //}
+            fds.Add(new(ChannelGroup.MainGet, notification.ChannelGroup.Id, "Name", notification.ChannelGroup.Name));
         }
-        //else
-        //{
 
-        //}
-        await Sender.Send(new UpdateChannelGroupCountRequest(notification.ChannelGroup, true), cancellationToken).ConfigureAwait(false);
-        //await HubContext.Clients.All.ChannelGroupsRefresh([notification.ChannelGroup]).ConfigureAwait(false);
+        if (fds.Count > 0)
+        {
+            await dataRefreshService.SetField(fds).ConfigureAwait(false);
+
+        }
+
+        if (notification.ChannelGroupToggelVisibility)
+        {
+            await dataRefreshService.ClearByTag(ChannelGroup.MainGet, "IsHidden").ConfigureAwait(false);
+        }
+
+        if (notification.ChannelGroupNameChanged)
+        {
+            await dataRefreshService.ClearByTag(ChannelGroup.MainGet, "Name").ConfigureAwait(false);
+        }
+
+
         IEnumerable<StreamGroupDto> sgs = await Sender.Send(new GetStreamGroupsFromChannelGroupQuery(notification.ChannelGroup.Id), cancellationToken).ConfigureAwait(false);
 
         if (sgs.Any())

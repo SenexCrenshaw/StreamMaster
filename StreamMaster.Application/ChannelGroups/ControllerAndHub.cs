@@ -63,6 +63,14 @@ namespace StreamMaster.Application.ChannelGroups.Controllers
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
+        [HttpPatch]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> UpdateChannelGroups(UpdateChannelGroupsRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
     }
 }
 
@@ -101,6 +109,12 @@ namespace StreamMaster.Application.Hubs
         }
 
         public async Task<APIResponse> UpdateChannelGroup(UpdateChannelGroupRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> UpdateChannelGroups(UpdateChannelGroupsRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

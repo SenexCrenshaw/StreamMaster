@@ -19,4 +19,5 @@ public interface ISMStreamRepository : IRepositoryBase<SMStream>
     Task DeleteSMStreamsByM3UFiledId(int id, CancellationToken cancellationToken);
     Task<List<FieldData>> ToggleSMStreamsVisibleById(List<string> ids, CancellationToken cancellationToken);
     Task<List<FieldData>> ToggleSMStreamVisibleByParameters(QueryStringParameters parameters, CancellationToken cancellationToken);
+    Task<List<FieldData>> SetSMStreamsVisibleById(List<string> ids, bool isHidden, CancellationToken cancellationToken);
 }

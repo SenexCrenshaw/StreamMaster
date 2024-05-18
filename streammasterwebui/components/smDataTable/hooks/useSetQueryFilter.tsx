@@ -1,13 +1,13 @@
 import { SMDataTableFilterMetaData, addOrUpdateValueForField, hasValidAdditionalProps, isEmptyObject } from '@lib/common/common';
 
-import { QueryStringParameters, areGetApiArgsEqual } from '@lib/apiDefs';
+import { areGetApiArgsEqual } from '@lib/apiDefs';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useShowHidden } from '@lib/redux/hooks/showHidden';
 
 import { useSortInfo } from '@lib/redux/hooks/sortInfo';
 
 import { useQueryAdditionalFilters } from '@lib/redux/hooks/queryAdditionalFilters';
-import { ChannelGroupDto, EPGFileDto } from '@lib/smAPI/smapiTypes';
+import { ChannelGroupDto, EPGFileDto, QueryStringParameters } from '@lib/smAPI/smapiTypes';
 import { FilterMatchMode } from 'primereact/api';
 import { DataTableFilterMeta } from 'primereact/datatable';
 import { useEffect, useMemo } from 'react';
@@ -115,14 +115,13 @@ export const useSetQueryFilter = (
       JSONFiltersString,
       OrderBy: sortString,
       PageNumber: page,
-      PageSize: rows,
-      StreamGroupId
+      PageSize: rows
     };
 
     return {
       generateGetApi: apiState
     };
-  }, [sortInfo, filters, columns, showHidden, queryAdditionalFilters, page, rows, StreamGroupId]);
+  }, [sortInfo, filters, columns, showHidden, queryAdditionalFilters, page, rows]);
 
   useEffect(() => {
     if (!areGetApiArgsEqual(generateGetApi, queryFilter)) {

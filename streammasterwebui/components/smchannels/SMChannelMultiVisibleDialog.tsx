@@ -1,4 +1,4 @@
-import SMButton from '@components/sm/SMButton';
+import VisibleButton from '@components/buttons/VisibleButton';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
@@ -72,12 +72,9 @@ const SMChannelMultiVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, s
   }, [selectedItems, selectAll, ReturnToParent, queryFilter]);
 
   return (
-    <SMButton
-      className="icon-red"
+    <VisibleButton
       disabled={getTotalCount === 0}
-      icon="pi-eye-slash"
       iconFilled
-      rounded
       onClick={async (event) => {
         await onVisiblesClick();
       }}

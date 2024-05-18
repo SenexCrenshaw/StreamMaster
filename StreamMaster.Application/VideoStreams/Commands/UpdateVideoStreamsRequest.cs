@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 
-using StreamMaster.Application.ChannelGroups.Commands;
 using StreamMaster.Application.VideoStreams.Events;
 using StreamMaster.Domain.Requests;
 
@@ -35,7 +34,7 @@ public class UpdateVideoStreamsRequestHandler(ILogger<UpdateVideoStreamsRequest>
 
             if (updatedChannelGroups.Any())
             {
-                updatedChannelGroups = (await Sender.Send(new UpdateChannelGroupCountsRequest(updatedChannelGroups), cancellationToken).ConfigureAwait(false)).Data;
+                //(await Sender.Send(new UpdateChannelGroupCountsRequest(), cancellationToken).ConfigureAwait(false)).Data;
                 await HubContext.Clients.All.ChannelGroupsRefresh(updatedChannelGroups.ToArray()).ConfigureAwait(false);
             }
         }
