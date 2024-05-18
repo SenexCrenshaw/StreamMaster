@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 export interface StringEditorBodyTemplateProperties {
   readonly autoFocus?: boolean;
   readonly disableDebounce?: boolean;
+  readonly disabled?: boolean;
   readonly debounceMs?: number;
   readonly isLoading?: boolean;
   readonly label?: string;
@@ -28,6 +29,7 @@ export interface StringEditorBodyTemplateProperties {
 const StringEditor = ({
   autoFocus,
   disableDebounce = false,
+  disabled = false,
   debounceMs = 1500,
   isLoading,
   label,
@@ -150,6 +152,7 @@ const StringEditor = ({
       )}
       <InputText
         className={getDiv}
+        disabled={disabled}
         id={uuid}
         autoFocus={autoFocus}
         onChange={(e) => {

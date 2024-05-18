@@ -7,6 +7,8 @@ import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import EditButton from '../buttons/EditButton';
 import TextInput from '../inputs/TextInput';
+import { ChannelGroupDto, UpdateChannelGroupRequest } from '@lib/smAPI/smapiTypes';
+import { UpdateChannelGroup } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
 
 interface ChannelGroupEditDialogProperties {
   readonly id: string;
@@ -38,12 +40,12 @@ const ChannelGroupEditDialog = ({ id, onClose, value }: ChannelGroupEditDialogPr
 
   useEffect(() => {
     if (channelGroupDto) {
-      setNewGroupName(channelGroupDto.name);
+      setNewGroupName(channelGroupDto.Name);
       return;
     }
 
     if (selectedItems && selectedItems.length > 0) {
-      setNewGroupName(selectedItems[0].name);
+      setNewGroupName(selectedItems[0].Name);
     }
   }, [channelGroupDto, selectedItems]);
 
@@ -57,14 +59,14 @@ const ChannelGroupEditDialog = ({ id, onClose, value }: ChannelGroupEditDialogPr
 
     const toSend = {} as UpdateChannelGroupRequest;
 
-    toSend.channelGroupId = value.id;
-    toSend.newGroupName = newGroupName;
+    toSend.ChannelGroupId = value.Id;
+    toSend.NewGroupName = newGroupName;
 
     UpdateChannelGroup(toSend)
       .then(() => {
         console.log(selectedItems);
 
-        const updatedselectedItems = selectedItems.map((item) => (item.id === value.id ? { ...item, name: newGroupName } : item));
+        const updatedselectedItems = selectedItems.map((item) => (item.Id === value.Id ? { ...item, name: newGroupName } : item));
         if (updatedselectedItems) {
           setSelectedItems(updatedselectedItems);
         }
@@ -94,12 +96,12 @@ const ChannelGroupEditDialog = ({ id, onClose, value }: ChannelGroupEditDialogPr
             <TextInput onChange={setNewGroupName} onEnter={changeGroupName} placeHolder="Group Name" value={newGroupName} />
           </div>
           <div className="flex col-12 justify-content-end">
-            <EditButton disabled={value?.name === newGroupName} label="Edit Group" onClick={changeGroupName} tooltip="Edit Group" />
+            <EditButton disabled={value?.Name === newGroupName} label="Edit Group" onClick={changeGroupName} tooltip="Edit Group" />
           </div>
         </div>
       </InfoMessageOverLayDialog>
 
-      <EditButton disabled={!value || value.isReadOnly === true} iconFilled={false} onClick={() => setShowOverlay(true)} tooltip="Edit Group" />
+      <EditButton disabled={!value || value.IsReadOnly === true} iconFilled={false} onClick={() => setShowOverlay(true)} tooltip="Edit Group" />
     </>
   );
 };

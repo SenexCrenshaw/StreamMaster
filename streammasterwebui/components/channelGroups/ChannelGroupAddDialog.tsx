@@ -1,28 +1,18 @@
-import { isFetchBaseQueryError } from '@lib/common/common';
-
 import { type FC, memo, useCallback, useMemo, useState } from 'react';
-import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import AddButton from '../buttons/AddButton';
-import TextInput from '../inputs/TextInput';
+import { CreateChannelGroupRequest } from '@lib/smAPI/smapiTypes';
+import SMDialog from '@components/sm/SMDialog';
+import { CreateChannelGroup } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
+import StringEditor from '@components/inputs/StringEditor';
 
 const ChannelGroupAddDialog: FC = () => {
-  const [showOverlay, setShowOverlay] = useState<boolean>(false);
-  const [block, setBlock] = useState<boolean>(false);
-  const [infoMessage, setInfoMessage] = useState('');
   const [newGroupName, setNewGroupName] = useState<string>('');
 
-  const [channelGroupsCreateChannelGroupMutation] = useChannelGroupsCreateChannelGroupMutation();
-
   const ReturnToParent = useCallback(() => {
-    setShowOverlay(false);
-    setInfoMessage('');
-    setBlock(false);
     setNewGroupName('');
   }, []);
 
   const addGroup = useCallback(() => {
-    setBlock(true);
-
     if (!newGroupName) {
       ReturnToParent();
 
@@ -30,20 +20,16 @@ const ChannelGroupAddDialog: FC = () => {
     }
 
     const requestData: CreateChannelGroupRequest = {
-      groupName: newGroupName,
-      isReadOnly: false
+      GroupName: newGroupName,
+      IsReadOnly: false
     };
 
-    channelGroupsCreateChannelGroupMutation(requestData)
-      .then(() => {
-        setInfoMessage('Channel Group Added Successfully');
-      })
+    CreateChannelGroup(requestData)
+      .then(() => {})
       .catch((error: unknown) => {
-        if (isFetchBaseQueryError(error)) {
-          setInfoMessage(`Delete Error: ${error.status}`);
-        }
+        console.error(error);
       });
-  }, [ReturnToParent, channelGroupsCreateChannelGroupMutation, newGroupName]);
+  }, [ReturnToParent, newGroupName]);
 
   const isSaveEnabled = useMemo((): boolean => {
     if (newGroupName && newGroupName !== '') {
@@ -54,20 +40,25 @@ const ChannelGroupAddDialog: FC = () => {
   }, [newGroupName]);
 
   return (
-    <>
-      <InfoMessageOverLayDialog blocked={block} closable header="Add Group" infoMessage={infoMessage} onClose={ReturnToParent} show={showOverlay}>
-        <div className="flex grid justify-content-center align-items-center w-full">
-          <div className="flex col-10 mt-1">
-            <TextInput label="Group Name" onChange={setNewGroupName} onEnter={addGroup} value={newGroupName} />
-          </div>
-          <div className="flex col-12 justify-content-end">
-            <AddButton disabled={!isSaveEnabled} label="Add Group" onClick={addGroup} tooltip="Add Group" />
-          </div>
+    <SMDialog
+      title="CREATE GROUP"
+      iconFilled
+      onHide={() => ReturnToParent()}
+      buttonClassName="icon-green"
+      icon="pi-plus"
+      widthSize={2}
+      info="General"
+      tooltip="Create Group"
+    >
+      <div className="flex grid justify-content-center align-items-center w-full">
+        <div className="flex col-10 mt-1">
+          <StringEditor disableDebounce label="Name" onChange={(e) => e && setNewGroupName(e)} onSave={(e) => e && setNewGroupName(e)} value={newGroupName} />
         </div>
-      </InfoMessageOverLayDialog>
-
-      <AddButton onClick={() => setShowOverlay(true)} tooltip="Add Group" />
-    </>
+        <div className="flex col-12 justify-content-end">
+          <AddButton disabled={!isSaveEnabled} label="Add Group" onClick={addGroup} tooltip="Add Group" />
+        </div>
+      </div>
+    </SMDialog>
   );
 };
 

@@ -8,6 +8,9 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ChannelGroupVisibleDialog from './ChannelGroupVisibleDialog';
 import useGetPagedChannelGroups from '@lib/smAPI/ChannelGroups/useGetPagedChannelGroups';
+import { useChannelGroupNameColumnConfig } from '@components/columns/ChannelGroups/useChannelGroupNameColumnConfig';
+import ChannelGroupAddDialog from './ChannelGroupAddDialog';
+import ChannelGroupDeleteDialog from './ChannelGroupDeleteDialog';
 
 type ChannelGroupSelectorProperties = {
   readonly darkBackGround?: boolean;
@@ -34,16 +37,17 @@ const ChannelGroupSelector = ({
   const { isSystemReady } = useSMContext();
 
   const channelGroupQuery = useGetChannelGroups();
+  const { columnConfig: channelGroupNameColumnConfig } = useChannelGroupNameColumnConfig({ enableEdit: true });
 
   useEffect(() => {
     if (!originalInput || originalInput !== value) {
       setOriginalInput(value);
       if (value) {
         setInput(value);
-        const found = channelGroupQuery.data?.find((x) => x.Name === value);
-        if (found) {
-          // setSelectedChannelGroup(found);
-        }
+        // const found = channelGroupQuery.data?.find((x) => x.Name === value);
+        // if (found) {
+        //   // setSelectedChannelGroup(found);
+        // }
       }
     }
   }, [value, originalInput, channelGroupQuery.data]);
@@ -69,17 +73,7 @@ const ChannelGroupSelector = ({
     (data: ChannelGroupDto) => (
       <div className="flex p-0 justify-content-end align-items-center">
         <ChannelGroupVisibleDialog id={dataKey} value={data} />
-        {/* <VideoStreamSetAutoSetEPGDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} /> */}
-        {/* <VideoStreamDeleteDialog iconFilled={false} id={dataKey} values={[data]} /> */}
-        {/* <VideoStreamEditDialog value={data} /> */}
-        {/* <VideoStreamCopyLinkDialog value={data} />
-        <VideoStreamSetTimeShiftDialog iconFilled={false} value={data} />
-        <VideoStreamResetLogoDialog value={data} />
-        <VideoStreamSetLogoFromEPGDialog value={data} />
-        <VideoStreamVisibleDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
-        <VideoStreamSetAutoSetEPGDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
-        <VideoStreamDeleteDialog iconFilled={false} id={dataKey} values={[data]} />
-        <VideoStreamEditDialog value={data} /> */}
+        <ChannelGroupDeleteDialog id={dataKey} value={data} />
       </div>
     ),
     [dataKey]
@@ -95,34 +89,16 @@ const ChannelGroupSelector = ({
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'Name', filter: true, sortable: true },
+      channelGroupNameColumnConfig,
       { align: 'left', bodyTemplate: streamCountTemplate, field: 'ActiveCount' },
       { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '4rem' }
     ],
-    [actionTemplate, streamCountTemplate]
+    [actionTemplate, channelGroupNameColumnConfig, streamCountTemplate]
   );
 
-  // const dataSource = useMemo(() => {
-  //   if (!channelGroupQuery.data || channelGroupQuery.data.length === 0) {
-  //     return undefined;
-  //   }
-
-  //   if (sortInfo.sortField === 'ActiveCount') {
-  //     const test = [...channelGroupQuery.data].sort((a, b) => {
-  //       return sortInfo.sortOrder === 1 ? a.ActiveCount - b.ActiveCount : b.ActiveCount - a.ActiveCount;
-  //     });
-  //     console.log(test);
-
-  //     return test;
-  //   }
-  //   if (sortInfo.sortField === 'TotalCount') {
-  //     return [...channelGroupQuery.data].sort((a, b) => {
-  //       return sortInfo.sortOrder === -1 ? a.TotalCount - b.TotalCount : b.TotalCount - a.TotalCount;
-  //     });
-  //   }
-
-  //   return channelGroupQuery.data;
-  // }, [channelGroupQuery.data, sortInfo]);
+  const headerRightTemplate = useMemo(() => {
+    return <ChannelGroupAddDialog />;
+  }, []);
 
   if (loading) {
     return (
@@ -147,10 +123,11 @@ const ChannelGroupSelector = ({
         )}
       </div>
       <div className={darkBackGround ? 'sm-input-border-dark p-0 input-height' : 'p-0 input-height'}>
-        <SMOverlay buttonTemplate={buttonTemplate} title="GROUPS" widthSize="3" icon="pi-chevron-down">
+        <SMOverlay buttonTemplate={buttonTemplate} title="GROUPS" widthSize="3" icon="pi-chevron-down" header={headerRightTemplate}>
           <SMDataTable
             id={dataKey}
             columns={columns}
+            noSourceHeader
             queryFilter={useGetPagedChannelGroups}
             rows={10}
             enablePaginator

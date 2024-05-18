@@ -2,7 +2,7 @@ import SMButton from '@components/sm/SMButton';
 import { ChildButtonProperties } from './ChildButtonProperties';
 
 const VisibleButton: React.FC<ChildButtonProperties> = ({
-  className,
+  className = 'icon-blue',
   disabled = false,
   isLeft,
   iconFilled = true,
@@ -18,7 +18,6 @@ const VisibleButton: React.FC<ChildButtonProperties> = ({
     isLeft={isLeft}
     label={iconFilled === true ? label || undefined : undefined}
     onClick={onClick}
-    severity="danger"
     tooltip={tooltip}
   />
 );
