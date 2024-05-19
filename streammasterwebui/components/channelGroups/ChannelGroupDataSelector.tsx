@@ -76,7 +76,7 @@ const ChannelGroupDataSelector = ({
           <>
             <SMTriSelectShowHidden dataKey={dataKey} />
             <ChannelGroupVisibleDialog id={dataKey} skipOverLayer={false} />
-            <ChannelGroupDeleteDialog iconFilled id={dataKey} />
+            <ChannelGroupDeleteDialog id={dataKey} />
           </>
         )}
 

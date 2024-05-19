@@ -285,21 +285,26 @@ public class ChannelGroupRepository(
 
     public async Task<APIResponse> DeleteChannelGroupsRequest(List<int> channelGroupIds)
     {
-        foreach (int channelGroupId in channelGroupIds)
-        {
-            ChannelGroup? cg = await GetChannelGroupById(channelGroupId);
-            if (cg != null)
-            {
-                Delete(cg);
-            }
-        }
-        await SaveChangesAsync();
+        IQueryable<ChannelGroup> toDelete = GetQuery().Where(a => channelGroupIds.Contains(a.Id) && !a.IsReadOnly);
+
+        //foreach (int channelGroupId in channelGroupIds)
+        //{
+        //    ChannelGroup? cg = await GetChannelGroupById(channelGroupId);
+        //    if (cg != null && !cg.IsReadOnly)
+        //    {
+        //        Delete(cg);
+        //    }
+        //}
+        //await SaveChangesAsync();
+        await BulkDeleteAsync(toDelete);
         return APIResponse.Ok;
     }
 
-    public Task<APIResponse> DeleteChannelGroupsByNameRequest(List<string> channelGroupNames)
+    public async Task<APIResponse> DeleteChannelGroupsByNameRequest(List<string> channelGroupNames)
     {
-        throw new NotImplementedException();
+        IQueryable<ChannelGroup> toDelete = GetQuery().Where(a => channelGroupNames.Contains(a.Name) && !a.IsReadOnly);
+        await BulkDeleteAsync(toDelete);
+        return APIResponse.Ok;
     }
 
 }

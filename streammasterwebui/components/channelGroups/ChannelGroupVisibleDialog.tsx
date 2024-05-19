@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
-
 import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
-import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import VisibleButton from '../buttons/VisibleButton';
 import { ChannelGroupDto, UpdateChannelGroupRequest, UpdateChannelGroupsRequest } from '@lib/smAPI/smapiTypes';
 import { UpdateChannelGroup, UpdateChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
+import SMDialog from '@components/sm/SMDialog';
+import OKButton from '@components/buttons/OKButton';
 
 interface ChannelGroupVisibleDialogProperties {
   readonly id: string;
@@ -15,22 +15,14 @@ interface ChannelGroupVisibleDialogProperties {
 }
 
 const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }: ChannelGroupVisibleDialogProperties) => {
-  const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
-  const [block, setBlock] = React.useState<boolean>(false);
-  const [infoMessage, setInfoMessage] = React.useState('');
   const { selectedItems } = useSelectedItems<ChannelGroupDto>(id);
   const { selectAll } = useSelectAll(id);
 
   const ReturnToParent = React.useCallback(() => {
-    setShowOverlay(false);
-    setInfoMessage('');
-    setBlock(false);
     onClose?.();
   }, [onClose]);
 
   const onVisibleClick = React.useCallback(async () => {
-    setBlock(true);
-
     if (!value && selectedItems.length === 0) {
       ReturnToParent();
       return;
@@ -41,11 +33,9 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
       toSend.ChannelGroupId = value.Id;
       toSend.ToggleVisibility = true;
       UpdateChannelGroup(toSend)
-        .then(() => {
-          setInfoMessage('Channel Group Toggle Visibility Successfully');
-        })
+        .then(() => {})
         .catch((error) => {
-          setInfoMessage(`Channel Group Toggle Visibility Error: ${error.message}`);
+          console.error(error);
         });
     } else if (selectedItems) {
       const toSend = {} as UpdateChannelGroupsRequest;
@@ -57,72 +47,71 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
           } as UpdateChannelGroupRequest)
       );
       UpdateChannelGroups(toSend)
-        .then(() => {
-          setInfoMessage('Channel Group Toggle Visibility Successfully');
-        })
+        .then(() => {})
         .catch((error) => {
-          setInfoMessage(`Channel Group Toggle Visibility Error: ${error.message}`);
+          console.error(error);
         });
     }
   }, [ReturnToParent, selectedItems, value]);
 
-  const isFirstDisabled = useMemo(() => {
+  const message = useMemo(() => {
     if (value) {
-      return value.IsReadOnly;
+      return `Toggle Visibility for '${value.Name}'?`;
     }
 
-    if (!selectedItems || selectedItems?.length === 0) {
-      return true;
-    }
-
-    return selectedItems[0].IsReadOnly;
-  }, [value, selectedItems]);
-
-  const getTotalCount = useMemo(() => {
     if (selectAll) {
-      return 100;
+      return `Toggle Visibility for Groups?`;
     }
 
-    const count = selectedItems?.length ?? 0;
-    // if (count === 1 && isFirstDisabled) {
-    //   return 0;
-    // }
-
-    return count;
-  }, [selectAll, selectedItems]);
+    return `Toggle Visibility for Groups (${selectedItems.length})?`;
+  }, [selectAll, selectedItems.length, value]);
 
   if (value) {
     return <VisibleButton iconFilled={false} onClick={async () => await onVisibleClick()} />;
   }
 
   return (
-    <>
-      <InfoMessageOverLayDialog
-        blocked={block}
-        closable
-        header="Toggle Visibility?"
-        infoMessage={infoMessage}
-        onClose={() => {
-          ReturnToParent();
-        }}
-        show={showOverlay}
-      >
-        <div className="flex justify-content-center w-full mb-2">
-          <VisibleButton label="Toggle Visibility" onClick={async () => await onVisibleClick()} />
-        </div>
-      </InfoMessageOverLayDialog>
-      <VisibleButton
-        // disabled={getTotalCount === 0}
-        iconFilled={false}
-        onClick={async () => {
-          if (selectedItems.length > 1) {
-            setShowOverlay(true);
-          } else {
-            await onVisibleClick();
-          }
-        }}
-      />
-    </>
+    <SMDialog
+      title="TOGGLE VISIBILITY"
+      iconFilled={value === undefined}
+      onHide={() => ReturnToParent()}
+      buttonClassName="icon-blue"
+      icon="pi-eye-slash"
+      widthSize={2}
+      info="General"
+      tooltip="Toggle Visiblity"
+      header={<OKButton onClick={async () => await onVisibleClick()} tooltip="Delete Group" />}
+    >
+      <div className="flex justify-content-center w-full mb-2">{message}</div>
+    </SMDialog>
+
+    // <>
+    //   <InfoMessageOverLayDialog
+    //     blocked={block}
+    //     closable
+    //     header="Toggle Visibility?"
+    //     infoMessage={infoMessage}
+    //     onClose={() => {
+    //       ReturnToParent();
+    //     }}
+    //     show={showOverlay}
+    //   >
+    //     <div className="flex justify-content-center w-full mb-2">
+    //       <VisibleButton label="Toggle Visibility" onClick={async () => await onVisibleClick()} />
+    //     </div>
+    //   </InfoMessageOverLayDialog>
+    //   <VisibleButton
+    //     // disabled={getTotalCount === 0}
+    //     iconFilled={false}
+    //     onClick={async () => {
+    //       if (selectedItems.length > 1) {
+    //         setShowOverlay(true);
+    //       } else {
+    //         await onVisibleClick();
+    //       }
+    //     }}
+    //   />
+    // </>
   );
 };
 

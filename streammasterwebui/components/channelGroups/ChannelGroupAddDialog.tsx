@@ -1,9 +1,9 @@
 import { type FC, memo, useCallback, useMemo, useState } from 'react';
-import AddButton from '../buttons/AddButton';
 import { CreateChannelGroupRequest } from '@lib/smAPI/smapiTypes';
 import SMDialog from '@components/sm/SMDialog';
 import { CreateChannelGroup } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
 import StringEditor from '@components/inputs/StringEditor';
+import OKButton from '@components/buttons/OKButton';
 
 const ChannelGroupAddDialog: FC = () => {
   const [newGroupName, setNewGroupName] = useState<string>('');
@@ -49,13 +49,11 @@ const ChannelGroupAddDialog: FC = () => {
       widthSize={2}
       info="General"
       tooltip="Create Group"
+      header={<OKButton disabled={!isSaveEnabled} onClick={addGroup} tooltip="Add Group" />}
     >
       <div className="flex grid justify-content-center align-items-center w-full">
         <div className="flex col-10 mt-1">
-          <StringEditor disableDebounce label="Name" onChange={(e) => e && setNewGroupName(e)} onSave={(e) => e && setNewGroupName(e)} value={newGroupName} />
-        </div>
-        <div className="flex col-12 justify-content-end">
-          <AddButton disabled={!isSaveEnabled} label="Add Group" onClick={addGroup} tooltip="Add Group" />
+          <StringEditor autoFocus disableDebounce label="Name" onChange={(e) => e && setNewGroupName(e)} onSave={(e) => addGroup()} value={newGroupName} />
         </div>
       </div>
     </SMDialog>

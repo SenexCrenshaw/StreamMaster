@@ -50,6 +50,7 @@ const StringEditor = ({
   const [originalValue, setOriginalValue] = useState<string | undefined>(undefined);
   const [inputValue, setInputValue] = useState<string | undefined>('');
   const { code } = useScrollAndKeyEvents();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const save = useCallback(
     (forceValueSave?: string | undefined) => {
@@ -142,6 +143,12 @@ const StringEditor = ({
     return showClear === true && isFocused && inputValue !== originalValue;
   }, [inputValue, isFocused, originalValue, showClear]);
 
+  useEffect(() => {
+    if (autoFocus === true && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [autoFocus]);
+
   return (
     <div ref={divReference} className="stringeditor flex flex-column align-items-start">
       {label && (
@@ -151,10 +158,10 @@ const StringEditor = ({
         </>
       )}
       <InputText
+        ref={inputRef}
         className={getDiv}
         disabled={disabled}
         id={uuid}
-        autoFocus={autoFocus}
         onChange={(e) => {
           setInputValue(e.target.value as string);
           if (disableDebounce !== true) {

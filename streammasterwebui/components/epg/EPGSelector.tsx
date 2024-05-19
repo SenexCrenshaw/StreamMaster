@@ -39,13 +39,13 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround =
   const epgQuery = useGetEPGFiles();
   const colorsQuery = useGetEPGColors();
 
-  console.group('EPGSelector');
-  console.log('smChannel', smChannel?.EPGId);
-  console.log('checkValue', checkValue);
-  console.log('input', input);
-  console.log('newInput', newInput);
-  console.log('stationChannelName', stationChannelName);
-  console.groupEnd();
+  // console.group('EPGSelector');
+  // console.log('smChannel', smChannel?.EPGId);
+  // console.log('checkValue', checkValue);
+  // console.log('input', input);
+  // console.log('newInput', newInput);
+  // console.log('stationChannelName', stationChannelName);
+  // console.groupEnd();
 
   const epgFiles = useMemo(() => {
     const additionalOptions = [{ EPGNumber: -1, Name: 'SD' } as EPGFileDto];

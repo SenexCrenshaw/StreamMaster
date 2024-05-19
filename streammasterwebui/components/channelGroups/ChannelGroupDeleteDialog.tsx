@@ -1,21 +1,23 @@
 import React, { useMemo } from 'react';
 import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
-import { ChannelGroupDto, DeleteChannelGroupRequest, DeleteChannelGroupsRequest } from '@lib/smAPI/smapiTypes';
-import { DeleteChannelGroup, DeleteChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
-import SMDialog from '@components/sm/SMDialog';
+import { ChannelGroupDto, DeleteAllChannelGroupsFromParametersRequest, DeleteChannelGroupRequest, DeleteChannelGroupsRequest } from '@lib/smAPI/smapiTypes';
+import { DeleteAllChannelGroupsFromParameters, DeleteChannelGroup, DeleteChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
+import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 import OKButton from '@components/buttons/OKButton';
+import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 
 interface ChannelGroupDeleteDialogProperties {
   readonly id: string;
   readonly onClose?: () => void;
-  readonly skipOverLayer?: boolean | undefined;
   readonly value?: ChannelGroupDto | undefined;
 }
 
-const ChannelGroupDeleteDialog = ({ id, onClose, skipOverLayer = false, value }: ChannelGroupDeleteDialogProperties) => {
-  const { selectedItems } = useSelectedItems<ChannelGroupDto>(id);
-  const { selectAll } = useSelectAll(id);
+const ChannelGroupDeleteDialog = ({ id, onClose, value }: ChannelGroupDeleteDialogProperties) => {
+  const { selectedItems, setSelectedItems } = useSelectedItems<ChannelGroupDto>(id);
+  const { selectAll, setSelectAll } = useSelectAll(id);
+  const { queryFilter } = useQueryFilter(id);
+  const dialogRef = React.useRef<SMDialogRef>(null);
 
   const ReturnToParent = React.useCallback(() => {
     onClose?.();
@@ -36,16 +38,47 @@ const ChannelGroupDeleteDialog = ({ id, onClose, skipOverLayer = false, value }:
         .catch((error) => {
           console.error(error);
         });
-    } else if (selectedItems) {
+      return;
+    }
+
+    if (selectAll) {
+      if (!queryFilter) {
+        ReturnToParent();
+        return;
+      }
+
+      const request = {} as DeleteAllChannelGroupsFromParametersRequest;
+      request.Parameters = queryFilter;
+
+      await DeleteAllChannelGroupsFromParameters(request)
+        .then(() => {
+          setSelectedItems([]);
+          setSelectAll(false);
+        })
+        .catch((error) => {
+          console.error(error);
+          throw error;
+        })
+        .finally(() => {
+          // dialogRef.current?.close();
+        });
+
+      return;
+    }
+
+    if (selectedItems) {
       const toSend = {} as DeleteChannelGroupsRequest;
       toSend.ChannelGroupIds = selectedItems.map((item) => item.Id);
       DeleteChannelGroups(toSend)
-        .then(() => {})
+        .then(() => {
+          setSelectedItems([]);
+          setSelectAll(false);
+        })
         .catch((error) => {
           console.error(error);
         });
     }
-  }, [ReturnToParent, selectedItems, value]);
+  }, [ReturnToParent, queryFilter, selectAll, selectedItems, setSelectAll, setSelectedItems, value]);
 
   const message = useMemo(() => {
     if (value) {
@@ -63,11 +96,25 @@ const ChannelGroupDeleteDialog = ({ id, onClose, skipOverLayer = false, value }:
     if (value) {
       return value.IsReadOnly;
     }
+
+    if (selectAll === true) {
+      return false;
+    }
+
+    if (selectedItems.length === 0) {
+      return true;
+    }
+
+    if (selectedItems.every((predicate) => predicate.IsReadOnly)) {
+      return true;
+    }
+
     return false;
-  }, [value]);
+  }, [selectAll, selectedItems, value]);
 
   return (
     <SMDialog
+      ref={dialogRef}
       buttonDisabled={isDisabled}
       title="DELETE GROUP"
       iconFilled={value === undefined}

@@ -97,8 +97,14 @@ const ChannelGroupSelector = ({
   );
 
   const headerRightTemplate = useMemo(() => {
-    return <ChannelGroupAddDialog />;
-  }, []);
+    return (
+      <>
+        <ChannelGroupVisibleDialog id={dataKey} />
+        <ChannelGroupDeleteDialog id={dataKey} />
+        <ChannelGroupAddDialog />
+      </>
+    );
+  }, [dataKey]);
 
   if (loading) {
     return (
