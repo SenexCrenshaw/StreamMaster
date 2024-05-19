@@ -1,8 +1,8 @@
-import XButton from '@components/buttons/XButton';
 import SMButton from '@components/sm/SMButton';
 import { Dialog } from 'primereact/dialog';
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { SMCard } from './SMCard';
+import CloseButton from '@components/buttons/CloseButton';
 
 interface SMDialogProperties {
   readonly children: React.ReactNode;
@@ -77,7 +77,7 @@ const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogPro
             header={
               <div className="justify-content-end align-items-center flex-row flex gap-1">
                 {header}
-                <XButton iconFilled onClick={(e) => setVisible(false)} tooltip="Close" />
+                <CloseButton onClick={(e) => setVisible(false)} tooltip="Close" />
               </div>
             }
           >

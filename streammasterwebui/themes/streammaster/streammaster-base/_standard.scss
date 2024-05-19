@@ -102,7 +102,7 @@ $buttonActiveBorderColor: $primaryDarkerColor !default;
 $roundedButtonBorderRadius: 2rem !default;
 $textButtonHoverBgOpacity: 0.04 !default;
 $textButtonActiveBgOpacity: 0.16 !default;
-$outlinedButtonBorder: 2px solid !default;
+$outlinedButtonBorder: 1px solid !default;
 $plainButtonTextColor: $textSecondaryColor !default;
 $secondaryButtonBorder: 1px solid $secondaryButtonBg !default;
 $secondaryButtonHoverBg: scale-color($secondaryButtonBg, $lightness: -10%) !default;

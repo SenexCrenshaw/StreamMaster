@@ -2,6 +2,43 @@
     height: $input-height-with-no-borders;
     padding: 0;
     transition: filter 0.3s ease;
+
+    &.p-button-outlined {
+        background-color: transparent;
+        border-width: 1px;
+        border-color: $iconBlue;
+        border-style: solid;
+
+        &:not(:disabled):hover {
+            background: rgba($buttonBg, $textButtonHoverBgOpacity);
+            border-width: 1px;
+            border-color: $iconBlue;
+            border-style: solid;
+        }
+
+        &:not(:disabled):active {
+            background: rgba($buttonBg, $textButtonActiveBgOpacity);
+            // color: $buttonBg;
+            border-width: 1px;
+            border-color: $iconBlue;
+            border-style: solid;
+        }
+
+        &.p-button-plain {
+            color: $plainButtonTextColor;
+            border-color: $plainButtonTextColor;
+
+            &:not(:disabled):hover {
+                background: $plainButtonHoverBgColor;
+                color: $plainButtonTextColor;
+            }
+
+            &:not(:disabled):active {
+                background: $plainButtonActiveBgColor;
+                color: $plainButtonTextColor;
+            }
+        }
+    }
 }
 
 .sm-button-icon-only {

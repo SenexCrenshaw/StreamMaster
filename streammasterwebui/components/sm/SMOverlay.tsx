@@ -1,8 +1,8 @@
-import XButton from '@components/buttons/XButton';
 import SMButton from '@components/sm/SMButton';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import React, { ReactNode, useMemo, useRef } from 'react';
 import { SMCard } from './SMCard';
+import CloseButton from '@components/buttons/CloseButton';
 
 interface SMOverlayProperties {
   readonly buttonTemplate?: ReactNode;
@@ -80,7 +80,7 @@ export const SMOverlay = ({
           header={
             <div className="justify-content-end align-items-center flex-row flex gap-1">
               {header}
-              <XButton iconFilled onClick={(e) => op.current?.toggle(e)} tooltip="Close" />
+              <CloseButton onClick={(e) => op.current?.toggle(e)} tooltip="Close" />
             </div>
           }
         >
