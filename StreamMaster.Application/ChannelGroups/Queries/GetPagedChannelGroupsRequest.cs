@@ -14,8 +14,8 @@ internal class GetPagedChannelGroupsQueryHandler(IRepositoryWrapper Repository, 
         {
             return Repository.ChannelGroup.CreateEmptyPagedResponse();
         }
-        PagedResponse<Domain.Models.ChannelGroup> paged = await Repository.ChannelGroup.GetPagedChannelGroups(request.Parameters).ConfigureAwait(false);
-        PagedResponse<ChannelGroupDto> dto = paged.ToPagedResponseDto<Domain.Models.ChannelGroup, ChannelGroupDto>(Mapper);
+        PagedResponse<ChannelGroup> paged = await Repository.ChannelGroup.GetPagedChannelGroups(request.Parameters).ConfigureAwait(false);
+        PagedResponse<ChannelGroupDto> dto = paged.ToPagedResponseDto<ChannelGroup, ChannelGroupDto>(Mapper);
 
         return dto;
     }

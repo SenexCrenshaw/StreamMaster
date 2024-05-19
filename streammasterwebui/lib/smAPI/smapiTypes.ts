@@ -702,6 +702,10 @@ export interface DeleteChannelGroupRequest
 {
 	ChannelGroupId: number;
 }
+export interface DeleteChannelGroupsRequest
+{
+	ChannelGroupIds: number[];
+}
 export interface UpdateChannelGroupRequest
 {
 	ChannelGroupId: number;

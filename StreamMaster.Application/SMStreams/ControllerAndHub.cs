@@ -17,6 +17,14 @@ namespace StreamMaster.Application.SMStreams.Controllers
 
         [HttpPatch]
         [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> SetSMStreamsVisibleById(SetSMStreamsVisibleByIdRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
         public async Task<ActionResult<APIResponse>> ToggleSMStreamsVisibleById(ToggleSMStreamsVisibleByIdRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
@@ -49,6 +57,12 @@ namespace StreamMaster.Application.Hubs
         public async Task<PagedResponse<SMStreamDto>> GetPagedSMStreams(QueryStringParameters Parameters)
         {
             PagedResponse<SMStreamDto> ret = await Sender.Send(new GetPagedSMStreamsRequest(Parameters)).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> SetSMStreamsVisibleById(SetSMStreamsVisibleByIdRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 

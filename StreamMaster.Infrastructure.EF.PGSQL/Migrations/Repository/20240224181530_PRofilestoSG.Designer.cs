@@ -46,7 +46,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.ToTable("DataProtectionKeys");
                 });
 
-            modelBuilder.Entity("StreamMaster.Domain.Models.ChannelGroup", b =>
+            modelBuilder.Entity("StreamMaster.ChannelGroup", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -460,7 +460,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
             modelBuilder.Entity("StreamMaster.Domain.Models.StreamGroupChannelGroup", b =>
                 {
-                    b.HasOne("StreamMaster.Domain.Models.ChannelGroup", "ChannelGroup")
+                    b.HasOne("StreamMaster.ChannelGroup", "ChannelGroup")
                         .WithMany()
                         .HasForeignKey("ChannelGroupId")
                         .OnDelete(DeleteBehavior.Cascade)

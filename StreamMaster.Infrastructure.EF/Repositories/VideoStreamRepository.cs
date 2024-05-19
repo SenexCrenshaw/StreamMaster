@@ -291,7 +291,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
         foreach (string cgName in cgNames)
         {
-            Domain.Models.ChannelGroup? cg = await EntityFrameworkQueryableExtensions.FirstOrDefaultAsync<Domain.Models.ChannelGroup>(RepositoryContext.ChannelGroups, a => a.Name == cgName, cancellationToken: cancellationToken).ConfigureAwait(false);
+            ChannelGroup? cg = await EntityFrameworkQueryableExtensions.FirstOrDefaultAsync<ChannelGroup>(RepositoryContext.ChannelGroups, a => a.Name == cgName, cancellationToken: cancellationToken).ConfigureAwait(false);
             await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(cg.Id), cancellationToken).ConfigureAwait(false);
         }
 
@@ -858,7 +858,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intLogger, IRe
 
     public async Task<List<VideoStreamDto>> GetVideoStreamsForChannelGroup(int channelGroupId, CancellationToken cancellationToken)
     {
-        Domain.Models.ChannelGroup? channelGroup = await EntityFrameworkQueryableExtensions.FirstOrDefaultAsync<Domain.Models.ChannelGroup>(RepositoryContext.ChannelGroups, a => a.Id == channelGroupId, cancellationToken: cancellationToken).ConfigureAwait(false);
+        ChannelGroup? channelGroup = await EntityFrameworkQueryableExtensions.FirstOrDefaultAsync<ChannelGroup>(RepositoryContext.ChannelGroups, a => a.Id == channelGroupId, cancellationToken: cancellationToken).ConfigureAwait(false);
         if (channelGroup == null)
         {
             return [];

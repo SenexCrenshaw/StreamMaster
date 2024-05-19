@@ -8,7 +8,7 @@ internal class GetChannelGroupByNameHandler(IRepositoryWrapper Repository, IMapp
 {
     public async Task<DataResponse<ChannelGroupDto?>> Handle(GetChannelGroupByNameRequest request, CancellationToken cancellationToken)
     {
-        Domain.Models.ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupByName(request.Name).ConfigureAwait(false);
+        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupByName(request.Name).ConfigureAwait(false);
         if (channelGroup == null)
         {
             return DataResponse<ChannelGroupDto?>.NotFound;

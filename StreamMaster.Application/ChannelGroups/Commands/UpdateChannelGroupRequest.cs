@@ -16,7 +16,7 @@ public class UpdateChannelGroupRequestHandler(IRepositoryWrapper Repository, IMa
     public async Task<APIResponse> Handle(UpdateChannelGroupRequest request, CancellationToken cancellationToken)
     {
 
-        Domain.Models.ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupById(request.ChannelGroupId).ConfigureAwait(false);
+        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupById(request.ChannelGroupId).ConfigureAwait(false);
 
         if (channelGroup == null)
         {

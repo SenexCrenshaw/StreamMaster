@@ -82,15 +82,7 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
 
             List<string> groupsToDelete = targetM3UFileIdGroups.Except(otherM3UFileIdGroups).ToList();
 
-            foreach (string? gtd in groupsToDelete)
-            {
-                ChannelGroup? group = await Repository.ChannelGroup.GetChannelGroupByName(gtd).ConfigureAwait(false);
-                if (group != null)
-                {
-                    refreshCGs = true;
-                    _ = await Repository.ChannelGroup.DeleteChannelGroupById(group.Id);
-                }
-            }
+            await Repository.ChannelGroup.DeleteChannelGroupsByNameRequest(groupsToDelete);
 
             await Repository.SMStream.DeleteSMStreamsByM3UFiledId(m3UFile.Id, cancellationToken);
 
@@ -99,15 +91,6 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
             iconService.RemoveIconsByM3UFileId(m3UFile.Id);
 
             await dataRefreshService.RefreshAllM3U();
-
-            //await hubContext.Clients.All.DataRefresh(M3UFile.MainGet).ConfigureAwait(false);
-            //await hubContext.Clients.All.DataRefresh(SMStream.MainGet).ConfigureAwait(false);
-            //await hubContext.Clients.All.DataRefresh("GetSMChannelStreams").ConfigureAwait(false);
-
-            //if (refreshCGs)
-            //{
-            //    await dataRefreshService.RefreshChannelGroups();
-            //}
 
             await messageService.SendSuccess("Deleted M3U '" + m3UFile.Name);
 

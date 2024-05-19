@@ -1,14 +1,10 @@
 import React, { useMemo } from 'react';
-
 import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
-import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
-import VisibleButton from '../buttons/VisibleButton';
-import { ChannelGroupDto, UpdateChannelGroupRequest, UpdateChannelGroupsRequest } from '@lib/smAPI/smapiTypes';
-import { UpdateChannelGroup, UpdateChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
-import SMButton from '@components/sm/SMButton';
-import StringEditor from '@components/inputs/StringEditor';
+import { ChannelGroupDto, DeleteChannelGroupRequest, DeleteChannelGroupsRequest } from '@lib/smAPI/smapiTypes';
+import { DeleteChannelGroup, DeleteChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
 import SMDialog from '@components/sm/SMDialog';
+import OKButton from '@components/buttons/OKButton';
 
 interface ChannelGroupDeleteDialogProperties {
   readonly id: string;
@@ -32,24 +28,18 @@ const ChannelGroupDeleteDialog = ({ id, onClose, skipOverLayer = false, value }:
     }
 
     if (value) {
-      const toSend = {} as UpdateChannelGroupRequest;
+      const toSend = {} as DeleteChannelGroupRequest;
       toSend.ChannelGroupId = value.Id;
-      toSend.ToggleVisibility = true;
-      UpdateChannelGroup(toSend)
+
+      DeleteChannelGroup(toSend)
         .then(() => {})
         .catch((error) => {
           console.error(error);
         });
     } else if (selectedItems) {
-      const toSend = {} as UpdateChannelGroupsRequest;
-      toSend.requests = selectedItems.map(
-        (item) =>
-          ({
-            ChannelGroupId: item.Id,
-            ToggleVisibility: true
-          } as UpdateChannelGroupRequest)
-      );
-      UpdateChannelGroups(toSend)
+      const toSend = {} as DeleteChannelGroupsRequest;
+      toSend.ChannelGroupIds = selectedItems.map((item) => item.Id);
+      DeleteChannelGroups(toSend)
         .then(() => {})
         .catch((error) => {
           console.error(error);
@@ -69,8 +59,16 @@ const ChannelGroupDeleteDialog = ({ id, onClose, skipOverLayer = false, value }:
     return `Delete Selected Channel Groups (${selectedItems.length})?`;
   }, [selectAll, selectedItems.length, value]);
 
+  const isDisabled = useMemo(() => {
+    if (value) {
+      return value.IsReadOnly;
+    }
+    return false;
+  }, [value]);
+
   return (
     <SMDialog
+      buttonDisabled={isDisabled}
       title="DELETE GROUP"
       iconFilled={value === undefined}
       onHide={() => ReturnToParent()}
@@ -79,7 +77,7 @@ const ChannelGroupDeleteDialog = ({ id, onClose, skipOverLayer = false, value }:
       widthSize={2}
       info="General"
       tooltip="Delete Group"
-      header={<div>a</div>}
+      header={<OKButton onClick={onDeleteClick} tooltip="Delete Group" />}
     >
       <div className="flex justify-content-center w-full mb-2">{message}</div>
     </SMDialog>

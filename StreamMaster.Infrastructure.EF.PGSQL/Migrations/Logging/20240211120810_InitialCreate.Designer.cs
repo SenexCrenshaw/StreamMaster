@@ -26,7 +26,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Logging
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "citext");
             NpgsqlModelBuilderExtensions.UseIdentityAlwaysColumns(modelBuilder);
 
-            modelBuilder.Entity("StreamMaster.Domain.Models.ChannelGroup", b =>
+            modelBuilder.Entity("StreamMaster.ChannelGroup", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -261,7 +261,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Logging
 
             modelBuilder.Entity("StreamMaster.Domain.Models.StreamGroupChannelGroup", b =>
                 {
-                    b.HasOne("StreamMaster.Domain.Models.ChannelGroup", "ChannelGroup")
+                    b.HasOne("StreamMaster.ChannelGroup", "ChannelGroup")
                         .WithMany()
                         .HasForeignKey("ChannelGroupId")
                         .OnDelete(DeleteBehavior.Cascade)

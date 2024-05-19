@@ -14,29 +14,9 @@ public interface IChannelGroupRepository : IRepositoryBase<ChannelGroup>
     /// <summary>
     /// Retrieves a channel group by its name.
     /// </summary>
+    Task<ChannelGroup?> GetChannelGroupById(int channelGroupId);
+
     Task<ChannelGroup?> GetChannelGroupByName(string name);
-
-    /// <summary>
-    /// Retrieves a channel group by its ID.
-    /// </summary>
-    Task<ChannelGroup?> GetChannelGroupById(int Id);
-
-    /// <summary>
-    /// Retrieves a channel group associated with a specific video stream ID.
-    /// </summary>
-    Task<ChannelGroup?> GetChannelGroupFromVideoStreamId(string VideoStreamId);
-
-    /// <summary>
-    /// Retrieves a channel group name associated with a specific video stream.
-    /// </summary>
-    Task<string?> GetChannelGroupNameFromVideoStream(string videoStreamId);
-
-    /// <summary>
-    /// Retrieves a channel group ID associated with a channel group name.
-    /// </summary>
-    Task<int?> GetChannelGroupIdFromVideoStream(string channelGroupName);
-
-    // Queries returning lists or collections
 
     /// <summary>
     /// Retrieves channel groups based on specific parameters.
@@ -51,22 +31,9 @@ public interface IChannelGroupRepository : IRepositoryBase<ChannelGroup>
     /// <summary>
     /// Retrieves all channel group names.
     /// </summary>
-    Task<List<ChannelGroupIdName>> GetChannelGroupNames(CancellationToken cancellationToken);
+    Task<List<ChannelGroupIdName>> GetChannelGroupNames(CancellationToken cancellationToken = default);
 
     Task<List<ChannelGroup>> GetChannelGroupsForStreamGroup(int streamGroupId, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Retrieves all channel groups.
-    /// </summary>
-    Task<List<ChannelGroup>> GetChannelGroups(List<int>? ids = null);
-
-
-    //IQueryable<ChannelGroup> GetChannelGroupQuery();
-
-    /// <summary>
-    /// Retrieves channel groups associated with specific video stream IDs.
-    /// </summary>
-    Task<List<ChannelGroup>> GetChannelGroupsFromVideoStreamIds(IEnumerable<string> VideoStreamIds, CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves paginated channel groups based on specific parameters.
@@ -78,7 +45,8 @@ public interface IChannelGroupRepository : IRepositoryBase<ChannelGroup>
     /// <summary>
     /// Creates a new channel group.
     /// </summary>
-    Task<ChannelGroupDto?> CreateChannelGroup(string GroupName, bool IsReadOnly = false);
+    Task<APIResponse> CreateChannelGroup(string GroupName, bool IsReadOnly = false);
+    Task<APIResponse> CreateChannelGroups(List<string> GroupNames, bool IsReadOnly = false);
 
     /// <summary>
     /// Updates an existing channel group.
@@ -90,10 +58,9 @@ public interface IChannelGroupRepository : IRepositoryBase<ChannelGroup>
     /// <summary>
     /// Deletes multiple channel groups based on specific parameters and returns associated video streams.
     /// </summary>
-    Task<(List<int> ChannelGroupIds, List<VideoStreamDto> VideoStreams)> DeleteAllChannelGroupsFromParameters(QueryStringParameters Parameters, CancellationToken cancellationToken);
+    Task<APIResponse> DeleteAllChannelGroupsFromParameters(QueryStringParameters Parameters, CancellationToken cancellationToken);
 
-    /// <summary>
-    /// Deletes a specific channel group and returns associated video streams.
-    /// </summary>
-    Task<(int? ChannelGroupId, List<VideoStreamDto> VideoStreams)> DeleteChannelGroupById(int ChannelGroupId);
+    Task<APIResponse> DeleteChannelGroupsRequest(List<int> channelGroupIds);
+
+    Task<APIResponse> DeleteChannelGroupsByNameRequest(List<string> channelGroupNames);
 }

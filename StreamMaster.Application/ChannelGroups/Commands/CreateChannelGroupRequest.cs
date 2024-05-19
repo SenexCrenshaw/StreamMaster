@@ -1,6 +1,4 @@
-﻿using StreamMaster.Application.StreamGroupChannelGroupLinks.Commands;
-
-namespace StreamMaster.Application.ChannelGroups.Commands;
+﻿namespace StreamMaster.Application.ChannelGroups.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -16,19 +14,19 @@ public class CreateChannelGroupRequestHandler(IMessageService messageSevice, IDa
             return APIResponse.NotFound;
         }
 
-        ChannelGroupDto? channelGroupDto = await Repository.ChannelGroup.CreateChannelGroup(request.GroupName, request.IsReadOnly);
-        if (channelGroupDto == null)
+        APIResponse res = await Repository.ChannelGroup.CreateChannelGroup(request.GroupName, request.IsReadOnly);
+        if (res.IsError)
         {
-            return APIResponse.NotFound;
+            return res;
         }
 
         _ = await Repository.SaveAsync().ConfigureAwait(false);
 
-        await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(channelGroupDto.Id), cancellationToken).ConfigureAwait(false);
+        //await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(channelGroupDto.Id), cancellationToken).ConfigureAwait(false);
 
         await dataRefreshService.RefreshChannelGroups().ConfigureAwait(false);
 
-        await messageSevice.SendSuccess($"Created Channel Group '{channelGroupDto.Name}'");
+        await messageSevice.SendSuccess($"Created Channel Group '{request.GroupName}'");
         return APIResponse.Success;
     }
 }

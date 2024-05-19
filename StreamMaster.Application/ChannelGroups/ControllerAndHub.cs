@@ -55,6 +55,14 @@ namespace StreamMaster.Application.ChannelGroups.Controllers
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
+        [HttpDelete]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> DeleteChannelGroups(DeleteChannelGroupsRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse>> UpdateChannelGroup(UpdateChannelGroupRequest request)
@@ -103,6 +111,12 @@ namespace StreamMaster.Application.Hubs
         }
 
         public async Task<APIResponse> DeleteChannelGroup(DeleteChannelGroupRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> DeleteChannelGroups(DeleteChannelGroupsRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
