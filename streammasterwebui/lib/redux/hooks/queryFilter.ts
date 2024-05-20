@@ -1,7 +1,7 @@
-import { QueryStringParameters } from '@lib/apiDefs';
 import { createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
+import { QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 interface SetQueryFilterPayload {
   value: QueryStringParameters | undefined;

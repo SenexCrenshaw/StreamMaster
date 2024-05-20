@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux';
+import filters from '@lib/redux/hooks/filters';
 import GetChannelGroups from '@lib/smAPI/ChannelGroups/GetChannelGroupsSlice';
 import GetEPGColors from '@lib/smAPI/EPG/GetEPGColorsSlice';
 import GetEPGFilePreviewById from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
@@ -40,6 +41,10 @@ import sortInfo from '@lib/redux/hooks/sortInfo';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
+const filtersConfig = {
+  key: 'filters',
+  storage
+};
 const queryAdditionalFiltersConfig = {
   key: 'queryAdditionalFilters',
   storage
@@ -93,6 +98,7 @@ const sortInfoConfig = {
   storage
 };
 export const rootReducer = combineReducers({
+  filters: persistReducer(filtersConfig, filters),
   GetChannelGroups: GetChannelGroups,
   GetEPGColors: GetEPGColors,
   GetEPGFilePreviewById: GetEPGFilePreviewById,

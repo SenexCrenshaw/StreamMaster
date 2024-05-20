@@ -1,10 +1,10 @@
-import { QueryHookResult,QueryStringParameters } from '@lib/apiDefs';
+import { QueryHookResult } from '@lib/apiDefs';
 import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetPagedSMStreamsSlice';
 import { useCallback,useEffect } from 'react';
 import { fetchGetPagedSMStreams } from './GetPagedSMStreamsFetch';
-import {FieldData, SMStreamDto,PagedResponse } from '@lib/smAPI/smapiTypes';
+import {FieldData, SMStreamDto,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 interface ExtendedQueryHookResult extends QueryHookResult<PagedResponse<SMStreamDto> | undefined> {}
 interface Result extends ExtendedQueryHookResult {

@@ -381,11 +381,7 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround =
     if (selectedItems && selectedItems.length > 0) {
       const epgNames = selectedItems.slice(0, 2).map((x) => x.Name);
       const suffix = selectedItems.length > 2 ? ',...' : '';
-      return (
-        <div className="px-4 w-10rem flex align-content-center justify-content-center" style={{ minWidth: '10rem' }}>
-          {epgNames.join(', ') + suffix}
-        </div>
-      );
+      return <div className="px-4 w-10rem flex align-content-center justify-content-center min-w-10rem">{epgNames.join(', ') + suffix}</div>;
     }
     return <div className="px-4 w-10rem" style={{ minWidth: '10rem' }} />;
   }, [selectedItems]);

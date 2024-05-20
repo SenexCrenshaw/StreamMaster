@@ -81,11 +81,28 @@ const SMButton = forwardRef<Button, SMButtonProps>(
       };
     }, [color, style]);
 
-    const className = darkBackGround ? 'dark-background' : '';
-
     if (props.children) {
+      if (darkBackGround) {
+        return (
+          <div className="dark-background">
+            <Tooltip target={`.${tooltipClassName}`} />
+            <div
+              onClick={onClick}
+              className={`${tooltipClassName} input-wrapper`}
+              data-pr-tooltip={tooltip}
+              data-pr-position={isLeft ? 'left' : 'right'}
+              data-pr-showdelay={400}
+              data-pr-hidedelay={100}
+              data-pr-autohide={true}
+            >
+              {props.children}
+              <i className={`input-icon pi ${icon} pr-1`} />
+            </div>
+          </div>
+        );
+      }
       return (
-        <div className={className}>
+        <>
           <Tooltip target={`.${tooltipClassName}`} />
           <div
             onClick={onClick}
@@ -99,7 +116,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
             {props.children}
             <i className={`input-icon pi ${icon} pr-1`} />
           </div>
-        </div>
+        </>
       );
     }
 

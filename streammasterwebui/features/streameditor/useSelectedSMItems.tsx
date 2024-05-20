@@ -8,12 +8,12 @@ const useSelectedSMItems = (key?: string) => {
   const { selectedItems, setSelectedItems } = useSelectedItems(key ?? 'SMChannelDataSelector');
 
   return {
+    selectedItems,
     selectedSMChannel,
     selectedSMStream,
-    selectedItems,
+    setSelectedItems,
     setSelectedSMChannel,
-    setSelectedSMStream,
-    setSelectedItems
+    setSelectedSMStream
   };
 };
 

@@ -1,10 +1,10 @@
-import { QueryHookResult,QueryStringParameters } from '@lib/apiDefs';
+import { QueryHookResult } from '@lib/apiDefs';
 import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetPagedStreamGroupsSlice';
 import { useCallback,useEffect } from 'react';
 import { fetchGetPagedStreamGroups } from './GetPagedStreamGroupsFetch';
-import {FieldData, StreamGroupDto,PagedResponse } from '@lib/smAPI/smapiTypes';
+import {FieldData, StreamGroupDto,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 interface ExtendedQueryHookResult extends QueryHookResult<PagedResponse<StreamGroupDto> | undefined> {}
 interface Result extends ExtendedQueryHookResult {

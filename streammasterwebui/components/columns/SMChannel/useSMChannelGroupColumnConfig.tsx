@@ -1,52 +1,57 @@
+import ChannelGroupSelector from '@components/channelGroups/ChannelGroupSelector';
 import SMChannelGroupEditor from '@components/columns/SMChannel/SMChannelGroupEditor';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { isEmptyObject } from '@lib/common/common';
-import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
-import { ChannelGroupDto, SMChannelDto } from '@lib/smAPI/smapiTypes';
+import { arraysEqual } from '@lib/common/common';
+import useSelectedAndQ from '@lib/hooks/useSelectedAndQ';
+import { useFilters } from '@lib/redux/hooks/filters';
+import { SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
-import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
-import { ReactNode, useCallback, useRef } from 'react';
+import { DataTableFilterMetaData } from 'primereact/datatable';
+import { ReactNode, useEffect } from 'react';
 
-export const useSMChannelGroupColumnConfig = () => {
-  const { data } = useGetChannelGroups();
+export const useSMChannelGroupColumnConfig = (tableDataKey: string) => {
+  const { filters, setFilters } = useFilters(tableDataKey);
+  const { selectedItems } = useSelectedAndQ('useSMChannelGroupColumnConfig');
 
-  const multiSelectRef = useRef<MultiSelect>(null);
+  useEffect(() => {
+    const newFilter = { ...filters };
+    if (selectedItems.length === 0) {
+      const a = newFilter['Group'] as DataTableFilterMetaData;
+      if (a && a.value !== undefined) {
+        newFilter['Group'] = { matchMode: 'contains', value: undefined };
+        setFilters(newFilter);
+      }
 
-  const itemTemplate = useCallback((option: ChannelGroupDto) => {
-    if (option === undefined) {
-      return null;
+      return;
     }
 
-    return <span>{option.Name}</span>;
-  }, []);
+    const names = selectedItems.map((x) => x.Name);
+
+    if (newFilter['Group']) {
+      const a = newFilter['Group'] as DataTableFilterMetaData;
+      if (!arraysEqual(a.value, names)) {
+        newFilter['Group'] = { matchMode: 'contains', value: names };
+        setFilters(newFilter);
+      }
+    }
+  }, [filters, selectedItems, setFilters]);
 
   function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
     return (
-      <MultiSelect
-        className="w-full input-height-with-no-borders"
-        filter
-        ref={multiSelectRef}
-        itemTemplate={itemTemplate}
-        maxSelectedLabels={1}
-        showClear
-        clearIcon="pi pi-filter-slash"
-        filterBy="Name"
-        onChange={(e: MultiSelectChangeEvent) => {
-          if (isEmptyObject(e.value)) {
+      <ChannelGroupSelector
+        darkBackGround
+        dataKey="useSMChannelGroupColumnConfig"
+        value={options.value}
+        onChange={(e) => {
+          if (e) {
             options.filterApplyCallback();
-          } else {
-            options.filterApplyCallback(e.value);
           }
         }}
-        options={data}
-        placeholder="Group"
-        value={options.value}
-        selectedItemTemplate={itemTemplate}
       />
     );
   }
   const bodyTemplate = (bodyData: SMChannelDto) => {
-    return <SMChannelGroupEditor data={bodyData} />;
+    return <SMChannelGroupEditor tableDataKey={tableDataKey} data={bodyData} useSelectedItemsFilter />;
   };
 
   const columnConfig: ColumnMeta = {
@@ -57,7 +62,9 @@ export const useSMChannelGroupColumnConfig = () => {
     filterElement: filterTemplate,
     header: 'Group',
     maxWidth: '10rem',
-    sortable: true
+    minWidth: '10rem',
+    sortable: true,
+    width: '10rem'
   };
 
   return columnConfig;

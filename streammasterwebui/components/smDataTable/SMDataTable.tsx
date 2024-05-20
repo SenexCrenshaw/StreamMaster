@@ -161,6 +161,9 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       }
 
       setters.setSelectedItems(selected);
+      // if ( props.useSelectedItemsFilter){
+
+      // }
       const all = overRideSelectAll || state.selectAll;
 
       if (props.onSelectionChange) {
@@ -251,12 +254,11 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     }
 
     const newData = selectedData(props.dataSource);
-
     if (!state.dataSource || (state.dataSource && !areArraysEqual(newData, state.dataSource))) {
       if (props.reorderable) {
         setters.setDataSource([...newData].sort((a, b) => a.rank - b.rank));
       } else {
-        setters.setDataSource(newData);
+        setters.setDataSource([...newData]);
       }
 
       setters.setPagedInformation(undefined);
@@ -496,8 +498,9 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     (data: T) => {
       const newSelectedItems = [...state.selectedItems, data];
       setters.setSelectedItems(newSelectedItems);
+      props.onSelectionChange?.(newSelectedItems, false);
     },
-    [setters, state.selectedItems]
+    [props, setters, state.selectedItems]
   );
 
   const removeSelection = useCallback(
@@ -507,8 +510,9 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         setters.setSelectAll(false);
       }
       setters.setSelectedItems(newSelectedItems);
+      props.onSelectionChange?.(newSelectedItems, false);
     },
-    [setters, state.selectAll, state.selectedItems]
+    [props, setters, state.selectAll, state.selectedItems]
   );
 
   const selectAllStatus = useMemo(() => {
@@ -576,8 +580,8 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   );
 
   const isLazy = useMemo(() => {
-    return props.queryFilter !== undefined;
-  }, [props.queryFilter]);
+    return undefined; //props.queryFilter !== undefined || props.dataSource !== undefined;
+  }, []);
 
   const showPageination = useMemo(() => {
     return props.enablePaginator === true && state.dataSource && state.dataSource.length >= state.rows;
@@ -657,9 +661,9 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             setters.setExpandedRows(e.data as DataTableExpandedRows);
           }}
           onSelectionChange={(e: DataTableSelectionMultipleChangeEvent<T[]> | DataTableSelectionSingleChangeEvent<T[]>) => {
-            if (props.reorderable === true) {
-              return;
-            }
+            // if (props.reorderable === true) {
+            //   return;
+            // }
             onSelectionChange(e);
           }}
           onFilter={onFilter}

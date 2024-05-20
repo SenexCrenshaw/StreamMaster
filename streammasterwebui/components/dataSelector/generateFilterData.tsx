@@ -1,7 +1,7 @@
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { type SMDataTableFilterMetaData } from '@lib/common/common';
 import { FilterMatchMode } from 'primereact/api';
 import { type DataTableFilterMeta } from 'primereact/datatable';
-import { type ColumnMeta } from './DataSelectorTypes';
 
 function generateFilterData(columns: ColumnMeta[], currentFilters: DataTableFilterMeta): DataTableFilterMeta {
   if (!columns || !currentFilters || Object.keys(currentFilters).length === 0) {

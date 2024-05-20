@@ -42,6 +42,7 @@ const getSMChannelNamesSlice = createSlice({
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
+      state.data = undefined;
       console.log('GetSMChannelNames  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {

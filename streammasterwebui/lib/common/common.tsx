@@ -89,6 +89,18 @@ export function getChannelGroupMenuItem(colorIndex: string | undefined, toDispla
     </div>
   );
 }
+
+export function arraysEqual<T>(arr1: T[] | undefined, arr2: T[] | undefined): boolean {
+  if (arr1 === arr2) return true;
+  if (arr1 == null || arr2 == null) return false;
+  if (arr1.length !== arr2.length) return false;
+
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) return false;
+  }
+  return true;
+}
+
 export type MatchMode =
   | 'between'
   | 'contains'

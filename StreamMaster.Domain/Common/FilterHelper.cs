@@ -45,7 +45,7 @@ public static class FilterHelper<T> where T : class
             return query;
         }
 
-        Dictionary<string, List<Expression>> filterExpressions = new();
+        Dictionary<string, List<Expression>> filterExpressions = [];
         if (!ParameterCache.TryGetValue(typeof(T), out ParameterExpression? parameter))
         {
             parameter = Expression.Parameter(typeof(T), "entity");
@@ -54,7 +54,7 @@ public static class FilterHelper<T> where T : class
 
         foreach (DataTableFilterMetaData filter in filters)
         {
-            if (filter.MatchMode.Equals("inSG"))
+            if (FiltersToIgnore.Contains(filter.MatchMode))
             {
                 continue;
             }
@@ -69,14 +69,14 @@ public static class FilterHelper<T> where T : class
             Expression filterExpression = CreateArrayExpression(filter, propertyAccess, forceToLower);
             if (!filterExpressions.TryGetValue(property.Name, out List<Expression>? expressions))
             {
-                expressions = new List<Expression>();
+                expressions = [];
                 filterExpressions.Add(property.Name, expressions);
             }
             expressions.Add(filterExpression);
         }
 
-        List<Expression> combinedPropertyExpressions = new List<Expression>();
-        foreach (var propExpressions in filterExpressions.Values)
+        List<Expression> combinedPropertyExpressions = [];
+        foreach (List<Expression> propExpressions in filterExpressions.Values)
         {
             Expression combinedExpression = propExpressions[0];
             for (int i = 1; i < propExpressions.Count; i++)
@@ -126,9 +126,8 @@ public static class FilterHelper<T> where T : class
     {
         try
         {
-            var stringList = JsonSerializer.Deserialize<List<string>>(jsonString);
-            if (stringList == null) throw new JsonException("Deserialization returned null.");
-            return stringList;
+            List<string>? stringList = JsonSerializer.Deserialize<List<string>>(jsonString);
+            return stringList == null ? throw new JsonException("Deserialization returned null.") : stringList;
         }
         catch (JsonException ex)
         {
@@ -141,9 +140,8 @@ public static class FilterHelper<T> where T : class
     {
         try
         {
-            var intList = JsonSerializer.Deserialize<List<int>>(jsonString);
-            if (intList == null) throw new JsonException("Deserialization returned null.");
-            return intList;
+            List<int>? intList = JsonSerializer.Deserialize<List<int>>(jsonString);
+            return intList == null ? throw new JsonException("Deserialization returned null.") : intList;
         }
         catch (JsonException ex)
         {
@@ -168,9 +166,9 @@ public static class FilterHelper<T> where T : class
 
         List<Expression> containsExpressions = [];
 
-        if (stringValue.StartsWith("[\"") && stringValue.EndsWith("\"]")
+        if ((stringValue.StartsWith("[\"") && stringValue.EndsWith("\"]"))
            ||
-        stringValue.StartsWith("[") && stringValue.EndsWith("")
+        (stringValue.StartsWith("[") && stringValue.EndsWith(""))
             )
         {
             string[] values = ConvertToArray(stringValue);

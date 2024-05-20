@@ -42,6 +42,7 @@ const getM3UFilesSlice = createSlice({
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
+      state.data = undefined;
       console.log('GetM3UFiles  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {

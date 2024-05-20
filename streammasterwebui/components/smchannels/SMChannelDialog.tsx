@@ -174,7 +174,7 @@ const SMChannelDialog = ({ smChannel, onSave }: SMChannelDialogProperties) => {
             </div>
             <div className="flex w-12 gap-1">
               <div className="w-6 justify-content-start align-items-center ">
-                <ChannelGroupSelector label="GROUP" darkBackGround onChange={(e) => e && setGroup(e)} value={request.Group} />
+                <ChannelGroupSelector dataKey="SMChannelDialog" label="GROUP" darkBackGround onChange={(e) => e && setGroup(e)} value={request.Group} />
               </div>
               <div className="w-6 justify-content-start align-items-center ">
                 <NumberEditor label="Channel #" showButtons darkBackGround onSave={(e) => e && setChannelNumber(e)} value={request.ChannelNumber} />

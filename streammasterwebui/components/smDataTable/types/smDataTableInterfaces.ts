@@ -42,6 +42,7 @@ interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
   showHiddenInSelection?: boolean;
   style?: CSSProperties;
   headerSize?: 'small' | 'medium' | 'large';
+  useSelectedItemsFilter?: boolean;
   onRowReorder?: (value: T[]) => void;
   onSelectionChange?: (value: T[], selectAll: boolean) => void;
   onClick?: MouseEventHandler<T> | undefined;

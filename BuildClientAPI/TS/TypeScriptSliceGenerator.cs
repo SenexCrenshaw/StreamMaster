@@ -193,6 +193,14 @@ const initialState: QueryState = {{
             content.AppendLine("    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {");
             content.AppendLine("      const { force } = action.payload;");
             content.AppendLine("      state.isForced = force;");
+            content.AppendLine();
+            content.AppendLine("      const updatedData = { ...state.data };");
+            content.AppendLine("      for (const key in updatedData) {");
+            content.AppendLine("        if (updatedData[key]) {");
+            content.AppendLine("          updatedData[key] = undefined;");
+            content.AppendLine("        }");
+            content.AppendLine("      }");
+            content.AppendLine("      state.data = updatedData;");
             content.AppendLine($"      console.log('{method.Name}  setIsForced ', force);");
             content.AppendLine("    },");
 
@@ -240,6 +248,14 @@ const initialState: QueryState = {{
             content.AppendLine("    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {");
             content.AppendLine("      const { force } = action.payload;");
             content.AppendLine("      state.isForced = force;");
+            content.AppendLine();
+            content.AppendLine("      const updatedData = { ...state.data };");
+            content.AppendLine("      for (const key in updatedData) {");
+            content.AppendLine("        if (updatedData[key]) {");
+            content.AppendLine("          updatedData[key] = undefined;");
+            content.AppendLine("        }");
+            content.AppendLine("      }");
+            content.AppendLine("      state.data = updatedData;");
             content.AppendLine($"      console.log('{method.Name}  setIsForced ', force);");
             content.AppendLine("    },");
 
@@ -276,6 +292,7 @@ const initialState: QueryState = {{
         content.AppendLine("    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {");
         content.AppendLine("      const { force } = action.payload;");
         content.AppendLine("      state.isForced = force;");
+        content.AppendLine("      state.data = undefined;");
         content.AppendLine($"      console.log('{method.Name}  setIsForced ', force);");
         content.AppendLine("    },");
 

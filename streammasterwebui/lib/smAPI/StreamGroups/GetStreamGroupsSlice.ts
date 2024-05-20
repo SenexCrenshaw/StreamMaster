@@ -42,6 +42,7 @@ const getStreamGroupsSlice = createSlice({
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
+      state.data = undefined;
       console.log('GetStreamGroups  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {

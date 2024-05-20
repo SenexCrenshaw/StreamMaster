@@ -59,6 +59,14 @@ const getPagedEPGFilesSlice = createSlice({
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
+
+      const updatedData = { ...state.data };
+      for (const key in updatedData) {
+        if (updatedData[key]) {
+          updatedData[key] = undefined;
+        }
+      }
+      state.data = updatedData;
       console.log('GetPagedEPGFiles  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ query: string; isLoading: boolean }>) => {

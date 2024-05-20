@@ -40,22 +40,36 @@ export const SMOverlay = ({
   const op = useRef<OverlayPanel>(null);
 
   const renderButton = useMemo(() => {
-    const flex = buttonFlex ? 'flex align-items-center justify-content-center' : '';
     if (buttonTemplate) {
+      if (buttonFlex) {
+        return (
+          <div className="flex align-items-center justify-content-center">
+            <SMButton
+              darkBackGround={buttonDarkBackground}
+              className={buttonClassName}
+              iconFilled={iconFilled}
+              icon={icon}
+              tooltip={tooltip}
+              label={buttonLabel}
+              onClick={(e) => op.current?.toggle(e)}
+            >
+              {buttonTemplate}
+            </SMButton>
+          </div>
+        );
+      }
       return (
-        <div className={flex}>
-          <SMButton
-            darkBackGround={buttonDarkBackground}
-            className={buttonClassName}
-            iconFilled={iconFilled}
-            icon={icon}
-            tooltip={tooltip}
-            label={buttonLabel}
-            onClick={(e) => op.current?.toggle(e)}
-          >
-            {buttonTemplate}
-          </SMButton>
-        </div>
+        <SMButton
+          darkBackGround={buttonDarkBackground}
+          className={buttonClassName}
+          iconFilled={iconFilled}
+          icon={icon}
+          tooltip={tooltip}
+          label={buttonLabel}
+          onClick={(e) => op.current?.toggle(e)}
+        >
+          {buttonTemplate}
+        </SMButton>
       );
     }
     return (

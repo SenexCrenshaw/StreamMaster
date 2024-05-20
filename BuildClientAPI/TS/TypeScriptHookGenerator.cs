@@ -71,10 +71,10 @@ public static class TypeScriptHookGenerator
         StringBuilder content = new();
         string fetchActionName = $"fetch{method.Name}";
         string p = "QueryHookResult";
-        if (method.IsGetPaged)
-        {
-            p += ",QueryStringParameters";
-        }
+        //if (method.IsGetPaged)
+        //{
+        //    p += ",QueryStringParameters";
+        //}
         content.AppendLine($"import {{ {p} }} from '@lib/apiDefs';");
         content.AppendLine("import store, { RootState } from '@lib/redux/store';");
         content.AppendLine("import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';");
@@ -96,6 +96,7 @@ public static class TypeScriptHookGenerator
         if (method.IsGetPaged)
         {
             pList.Add("PagedResponse");
+            pList.Add("QueryStringParameters");
         }
         else if (method.IsGet && !string.IsNullOrEmpty(method.TsParameter))
         {

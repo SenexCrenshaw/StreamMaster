@@ -6993,7 +6993,6 @@
 }
 
 .sm-input-border-dark, .sm-input-dark {
-  width: 100% !important;
   background-color: #12181b !important;
 }
 
@@ -7201,7 +7200,7 @@
   border-width: 0px;
   height: 1.4rem;
   max-height: 1.4rem;
-  color: #94abec;
+  color: #bcbfbf;
 }
 .sm-input .p-dropdown, .sm-input-dark .p-dropdown {
   background-color: transparent !important;
@@ -7224,7 +7223,7 @@
 .sm-input-no-color {
   padding: 0;
   border-width: 0;
-  color: #94abec;
+  color: #bcbfbf;
 }
 .sm-input-no-color .p-dropdown {
   background-color: transparent !important;
@@ -7279,10 +7278,10 @@
   display: flex;
   align-items: center;
   align-items: center;
-  color: #94abec;
+  color: #bcbfbf;
 }
 .stringeditorbody-inputtext .p-inputnumber-input, .p-inputnumber-input .p-inputnumber-input, .stringeditorbody-inputtext-save .p-inputnumber-input, .stringeditorbody-inputtext-dark .p-inputnumber-input {
-  color: #94abec;
+  color: #bcbfbf;
 }
 
 .stringeditorbody-inputtext-dark {
@@ -7311,6 +7310,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: normal;
 }
 
 .sm-standard-text {
@@ -8207,7 +8207,7 @@
   font-family: var(--font-family);
   font-feature-settings: var(--font-feature-settings, normal);
   font-size: 0.75rem;
-  color: #94abec;
+  color: #bcbfbf;
   border: 0.1rem solid transparent;
   transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
   appearance: none;

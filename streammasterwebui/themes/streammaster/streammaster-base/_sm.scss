@@ -86,6 +86,11 @@
     background-color: var(--surface-ground) !important;
 }
 
+// .p-progress-spinner {
+//     height: 1.2rem;
+//     max-height: 1.2rem;
+// }
+
 .sm-streamgroupselector {
     @include datatable-text-style();
     @extend .sm-sm-input-border;

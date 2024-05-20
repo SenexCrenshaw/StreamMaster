@@ -27,7 +27,7 @@
 
 .sm-input-border-dark {
     @extend .sm-input-border;
-    width: 100% !important;
+    // width: 100% !important;
     background-color: $inputBg !important;
 }
 

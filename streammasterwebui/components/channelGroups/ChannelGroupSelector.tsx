@@ -7,37 +7,45 @@ import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ChannelGroupVisibleDialog from './ChannelGroupVisibleDialog';
-import useGetPagedChannelGroups from '@lib/smAPI/ChannelGroups/useGetPagedChannelGroups';
 import { useChannelGroupNameColumnConfig } from '@components/columns/ChannelGroups/useChannelGroupNameColumnConfig';
 import ChannelGroupAddDialog from './ChannelGroupAddDialog';
 import ChannelGroupDeleteDialog from './ChannelGroupDeleteDialog';
+import useSelectedAndQ from '@lib/hooks/useSelectedAndQ';
+import useSortedData from '@components/smDataTable/helpers/useSortedData';
 
 type ChannelGroupSelectorProperties = {
   readonly darkBackGround?: boolean;
+  readonly dataKey: string;
   readonly enableEditMode?: boolean;
   readonly disabled?: boolean;
+  readonly useSelectedItemsFilter?: boolean;
   readonly editable?: boolean | undefined;
   readonly label?: string;
   readonly value?: string;
-  readonly onChange?: (value: string) => void;
+  readonly onChange?: (value: ChannelGroupDto[]) => void;
 };
 
 const ChannelGroupSelector = ({
   enableEditMode = true,
+  dataKey,
   darkBackGround = false,
   label,
-  value,
-  disabled,
-  editable,
-  onChange
+  onChange,
+  useSelectedItemsFilter,
+  value
 }: ChannelGroupSelectorProperties) => {
-  const dataKey = `channelGroupSelector`;
+  const { selectedItems } = useSelectedAndQ(dataKey);
+
   const [input, setInput] = useState<string | undefined>(undefined);
   const [originalInput, setOriginalInput] = useState<string | undefined>(undefined);
   const { isSystemReady } = useSMContext();
 
   const channelGroupQuery = useGetChannelGroups();
+  const sortedData = useSortedData(dataKey, channelGroupQuery.data);
+
   const { columnConfig: channelGroupNameColumnConfig } = useChannelGroupNameColumnConfig({ enableEdit: true });
+
+  const loading = channelGroupQuery.isError || channelGroupQuery.isFetching || channelGroupQuery.isLoading || !channelGroupQuery.data || isSystemReady !== true;
 
   useEffect(() => {
     if (!originalInput || originalInput !== value) {
@@ -52,22 +60,36 @@ const ChannelGroupSelector = ({
     }
   }, [value, originalInput, channelGroupQuery.data]);
 
-  const loading = channelGroupQuery.isError || channelGroupQuery.isFetching || channelGroupQuery.isLoading || !channelGroupQuery.data || isSystemReady !== true;
+  const dataSource = useMemo(() => {
+    return sortedData;
+  }, [sortedData]);
 
   const buttonTemplate = useMemo(() => {
-    if (input)
+    if (input) {
+      console.log('input', input);
+      if (Array.isArray(input)) {
+        if (input && input.length > 0) {
+          const arr = input as ChannelGroupDto[];
+          const names = arr.slice(0, 2).map((x) => x.Name);
+          const suffix = arr.length > 2 ? ',...' : '';
+          return <div className="text-container">{names.join(', ') + suffix}</div>;
+        }
+      }
       return (
         <div className="sm-channelgroup-selector">
           <div className="text-container ">{input}</div>
         </div>
       );
+    }
 
-    return (
-      <div className="sm-channelgroup-selector ">
-        <div className="text-container ">None</div>
-      </div>
-    );
-  }, [input]);
+    if (selectedItems && selectedItems.length > 0) {
+      const names = selectedItems.slice(0, 2).map((x) => x.Name);
+      const suffix = selectedItems.length > 2 ? ',...' : '';
+      return <div className="text-container">{names.join(', ') + suffix}</div>;
+    }
+
+    return <div className="text-container">GROUP</div>;
+  }, [input, selectedItems]);
 
   const actionTemplate = useCallback(
     (data: ChannelGroupDto) => (
@@ -106,10 +128,19 @@ const ChannelGroupSelector = ({
     );
   }, [dataKey]);
 
+  const getDiv = useMemo(() => {
+    let ret = 'input-height-with-no-borders w-11';
+    if (darkBackGround === true) {
+      ret += ' dark-background sm-input-border-dark';
+    }
+
+    return ret;
+  }, [darkBackGround]);
+
   if (loading) {
     return (
-      <div className="flex align-content-center justify-content-center">
-        <ProgressSpinner />
+      <div className="flex align-content-center justify-content-center text-container">
+        <ProgressSpinner className="input-height-with-no-borders" />
       </div>
     );
   }
@@ -119,30 +150,32 @@ const ChannelGroupSelector = ({
   }
 
   return (
-    <>
-      <div className="stringeditor flex flex-column align-items-start">
-        {label && (
-          <>
-            <label className="pl-15">{label.toUpperCase()}</label>
-            <div className="pt-small" />
-          </>
-        )}
-      </div>
-      <div className={darkBackGround ? 'sm-input-border-dark p-0 input-height' : 'p-0 input-height'}>
-        <SMOverlay buttonTemplate={buttonTemplate} title="GROUPS" widthSize="3" icon="pi-chevron-down" header={headerRightTemplate}>
-          <SMDataTable
-            id={dataKey}
-            columns={columns}
-            noSourceHeader
-            queryFilter={useGetPagedChannelGroups}
-            rows={10}
-            enablePaginator
-            selectionMode="multiple"
-            showHiddenInSelection
-          />
-        </SMOverlay>
-      </div>
-    </>
+    <div className={getDiv}>
+      {label && (
+        <div className="stringeditor flex flex-column align-items-start">
+          <label className="pl-15">{label.toUpperCase()}</label>
+          <div className="pt-small" />
+        </div>
+      )}
+
+      <SMOverlay buttonTemplate={buttonTemplate} title="GROUPS" widthSize="3" icon="pi-chevron-down" buttonLabel="GROUP" header={headerRightTemplate}>
+        <SMDataTable
+          id={dataKey}
+          columns={columns}
+          noSourceHeader
+          dataSource={dataSource}
+          selectionMode="multiple"
+          showHiddenInSelection
+          style={{ height: '40vh' }}
+          useSelectedItemsFilter={useSelectedItemsFilter}
+          onSelectionChange={(value: any) => {
+            if (onChange) {
+              onChange(value);
+            }
+          }}
+        />
+      </SMOverlay>
+    </div>
   );
 };
 

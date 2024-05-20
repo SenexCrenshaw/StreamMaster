@@ -6993,7 +6993,6 @@
 }
 
 .sm-input-border-dark, .sm-input-dark {
-  width: 100% !important;
   background-color: #12181b !important;
 }
 
@@ -7311,6 +7310,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: normal;
 }
 
 .sm-standard-text {

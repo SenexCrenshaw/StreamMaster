@@ -48,7 +48,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
   const { columnConfig: channelLogoColumnConfig } = useSMChannelLogoColumnConfig({ enableEdit });
   const { columnConfig: channelNameColumnConfig } = useSMChannelNameColumnConfig({ enableEdit });
   const epgColumnConfig = useSMChannelEPGColumnConfig();
-  const groupColumnConfig = useSMChannelGroupColumnConfig();
+  const groupColumnConfig = useSMChannelGroupColumnConfig(dataKey);
   const sgColumnConfig = useSMChannelSGColumnConfig(dataKey + '-sg', dataKey);
 
   const { columnConfig: proxyColumnConfig } = useSMChannelProxyColumnConfig({ enableEdit, useFilter: false });

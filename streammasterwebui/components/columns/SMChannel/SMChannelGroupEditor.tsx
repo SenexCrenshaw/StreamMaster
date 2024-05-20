@@ -1,36 +1,19 @@
-import { SetSMChannelGroup } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import { SMChannelDto, SetSMChannelGroupRequest } from '@lib/smAPI/smapiTypes';
+import { ChannelGroupDto, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { memo } from 'react';
 import ChannelGroupSelector from '../../channelGroups/ChannelGroupSelector';
 
 interface SMChannelGroupEditorProperties {
   readonly data: SMChannelDto;
+  readonly tableDataKey: string;
+  readonly useSelectedItemsFilter?: boolean;
+  readonly onChange?: (value: ChannelGroupDto[]) => void;
 }
 
-const SMChannelGroupEditor = ({ data }: SMChannelGroupEditorProperties) => {
-  const onUpdateVideoStream = async (group: string) => {
-    if (!data.Id) {
-      return;
-    }
-
-    const request = {} as SetSMChannelGroupRequest;
-    request.SMChannelId = data.Id;
-    request.Group = group;
-
-    await SetSMChannelGroup(request)
-      .then(() => {})
-      .catch((error) => {
-        console.error(error);
-      });
-  };
+const SMChannelGroupEditor = ({ data, tableDataKey, onChange, useSelectedItemsFilter }: SMChannelGroupEditorProperties) => {
+  const dataKey = tableDataKey + '-SMChannelGroupEditor';
 
   return (
-    <ChannelGroupSelector
-      onChange={async (e: string) => {
-        await onUpdateVideoStream(e);
-      }}
-      value={data.Group}
-    />
+    <ChannelGroupSelector dataKey={dataKey} onChange={async (e: ChannelGroupDto[]) => {}} useSelectedItemsFilter={useSelectedItemsFilter} value={data.Group} />
   );
 };
 

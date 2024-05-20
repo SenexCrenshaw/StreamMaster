@@ -198,6 +198,7 @@
 
 .text-container {
     @include text-overflow();
+    font-weight: normal;
 }
 
 .sm-standard-text {

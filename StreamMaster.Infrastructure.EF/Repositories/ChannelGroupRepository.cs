@@ -54,11 +54,6 @@ public class ChannelGroupRepository(
         return APIResponse.Ok;
     }
 
-
-    /// <summary>
-    /// Asynchronously retrieves a list of all channel group names, ordered by name.
-    /// </summary>
-    /// <returns>A list of channel group names and their corresponding IDs.</returns>
     public async Task<List<ChannelGroupIdName>> GetChannelGroupNames(CancellationToken cancellationToken = default)
     {
         try
@@ -85,15 +80,6 @@ public class ChannelGroupRepository(
         }
     }
 
-    /// <summary>
-    /// Fetches paged ChannelGroup entities based on provided parameters, maps them to their DTO representations,
-    /// and then enriches each DTO with additional counts from a memory cache.
-    /// </summary>
-    /// <param name="channelGroupParameters">The parameters to filter and page the ChannelGroup entities.</param>
-    /// <returns>
-    /// A PagedResponse containing the ChannelGroup objects enriched with count data from the memory cache.
-    /// </returns>
-    /// <exception cref="Exception">Throws any exception that occurs during the operation for higher layers to handle.</exception>
     public async Task<PagedResponse<ChannelGroup>> GetPagedChannelGroups(QueryStringParameters Parameters)
     {
         try
@@ -112,11 +98,7 @@ public class ChannelGroupRepository(
         }
     }
 
-    /// <summary>
-    /// Retrieves a ChannelGroup DTO based on its identifier.
-    /// </summary>
-    /// <param name="Id">The identifier of the desired ChannelGroup.</param>
-    /// <returns>A ChannelGroup DTO if found; otherwise, null.</returns>
+
     public async Task<ChannelGroup?> GetChannelGroupById(int channelGroupId)
     {
         if (channelGroupId <= 0)
@@ -137,16 +119,7 @@ public class ChannelGroupRepository(
         return channelGroup;
     }
 
-    /// <summary>
-    /// Retrieves a list of ChannelGroup objects based on a list of channel group names.
-    /// </summary>
-    /// <param name="m3uChannelGroupNames">A list of channel group names to be used as a filter.</param>
-    /// <returns>
-    /// A task that represents the asynchronous operation.
-    /// The task result contains a list of ChannelGroup objects that match the provided channel group names.
-    /// Returns an empty list if no matches are found.
-    /// </returns>
-    /// <exception cref="Exception">Throws any exceptions that arise during data retrieval or mapping.</exception>
+
     public async Task<List<ChannelGroup>> GetChannelGroupsFromNames(List<string> m3uChannelGroupNames)
     {
         try
@@ -167,15 +140,6 @@ public class ChannelGroupRepository(
         }
     }
 
-    /// <summary>
-    /// Retrieves a ChannelGroup entity based on its name and maps it to a ChannelGroup.
-    /// </summary>
-    /// <param name="name">The name of the ChannelGroup to retrieve.</param>
-    /// <returns>
-    /// A ChannelGroup representation of the ChannelGroup if found; otherwise, null.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">Thrown when the provided name is null or whitespace.</exception>
-    /// <exception cref="Exception">Throws any exception that occurs during the operation for higher layers to handle.</exception>
     public async Task<ChannelGroup?> GetChannelGroupByName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -196,11 +160,7 @@ public class ChannelGroupRepository(
         }
     }
 
-    /// <summary>
-    /// Updates the provided ChannelGroup entity.
-    /// </summary>
-    /// <param name="ChannelGroup">The ChannelGroup entity to be updated.</param>
-    /// <exception cref="ArgumentNullException">Thrown when the provided ChannelGroup is null.</exception>
+
     public void UpdateChannelGroup(ChannelGroup channelGroup)
     {
         if (channelGroup == null)
@@ -213,13 +173,7 @@ public class ChannelGroupRepository(
         Update(channelGroup);
     }
 
-    /// <summary>
-    /// Fetches a list of ChannelGroup based on the provided ChannelGroupParameters.
-    /// </summary>
-    /// <param name="Parameters">The parameters based on which ChannelGroup are fetched.</param>
-    /// <param name="cancellationToken">Token to support task cancellation.</param>
-    /// <returns>A list of ChannelGroup matching the provided parameters.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when the provided Parameters are null.</exception>
+
     public async Task<List<ChannelGroup>> GetChannelGroupsFromParameters(QueryStringParameters Parameters, CancellationToken cancellationToken)
     {
         if (Parameters == null)
@@ -239,12 +193,7 @@ public class ChannelGroupRepository(
         return result;
     }
 
-    /// <summary>
-    /// Deletes all ChannelGroups based on the provided parameters and returns the associated video streams.
-    /// </summary>
-    /// <param name="Parameters">The filter parameters for determining which ChannelGroups to delete.</param>
-    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-    /// <returns>A tuple containing a list of deleted ChannelGroup IDs and associated video streams.</returns>
+
     public async Task<APIResponse> DeleteAllChannelGroupsFromParameters(QueryStringParameters Parameters, CancellationToken cancellationToken)
     {
         logger.LogInformation($"Attempting to fetch and delete ChannelGroups based on provided parameters.");
@@ -287,15 +236,7 @@ public class ChannelGroupRepository(
     {
         IQueryable<ChannelGroup> toDelete = GetQuery().Where(a => channelGroupIds.Contains(a.Id) && !a.IsReadOnly);
 
-        //foreach (int channelGroupId in channelGroupIds)
-        //{
-        //    ChannelGroup? cg = await GetChannelGroupById(channelGroupId);
-        //    if (cg != null && !cg.IsReadOnly)
-        //    {
-        //        Delete(cg);
-        //    }
-        //}
-        //await SaveChangesAsync();
+
         await BulkDeleteAsync(toDelete);
         return APIResponse.Ok;
     }

@@ -38,6 +38,8 @@ public partial class DataRefreshService : IDataRefreshServicePartial
         await RefreshSMChannels();
         await RefreshSMChannelStreamLinks();
         await RefreshStreamGroupSMChannelLinks();
+        await RefreshChannelGroups();
+
     }
 
     public async Task ClearByTag(string Entity, string Tag)

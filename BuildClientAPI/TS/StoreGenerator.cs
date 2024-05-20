@@ -19,8 +19,8 @@ public static class StoreGenerator
         File.WriteAllText(filePath, content.ToString());
     }
 
-    private static List<string> Persists = new()
-    {
+    private static readonly List<string> Persists =
+    [
         "selectedPostalCode",
         "selectAll",
         "selectedCountry",
@@ -33,19 +33,20 @@ public static class StoreGenerator
         "selectedSMChannel",
         "queryFilter",
         "selectedSMStream",
-        "queryAdditionalFilters"
-    };
+        "queryAdditionalFilters",
+          "filters"
+    ];
 
-    private static List<string> AdditionalReducers = new()
-    {
+    private static readonly List<string> AdditionalReducers =
+    [
         "messages",
         "isTrue"
-    };
+    ];
 
     private static string GenerateConfigs()
     {
         StringBuilder content = new();
-        foreach (var persist in Persists.Order())
+        foreach (string? persist in Persists.Order())
         {
             content.AppendLine($"const {persist}Config = {{");
             content.AppendLine($"  key: '{persist}',");
@@ -61,24 +62,24 @@ public static class StoreGenerator
     {
         StringBuilder content = new();
         Dictionary<string, string> reducers = [];// new()
-        foreach (var method in methods)
+        foreach (MethodDetails method in methods)
         {
             reducers[method.Name] = $"  {method.Name}: {method.Name}";
         }
 
-        foreach (var additional in AdditionalReducers)
+        foreach (string additional in AdditionalReducers)
         {
             reducers[additional] = $"  {additional}: {additional}";
         }
 
-        foreach (var persist in Persists)
+        foreach (string persist in Persists)
         {
             reducers[persist] = $"  {persist}: persistReducer({persist}Config, {persist})";
         }
 
         content.AppendLine("export const rootReducer = combineReducers({");
 
-        foreach (var key in reducers.Keys.Order())
+        foreach (string? key in reducers.Keys.Order())
         {
             content.AppendLine(reducers[key] + ",");
         }
@@ -101,19 +102,19 @@ public static class StoreGenerator
             imports[method.Name] = $"import {method.Name} from '@lib/smAPI/{method.NamespaceName}/{method.Name}Slice';";
         }
 
-        foreach (var persist in Persists)
+        foreach (string persist in Persists)
         {
             imports[persist] = $"import {persist} from '@lib/redux/hooks/{persist}';";
         }
 
-        foreach (var additional in AdditionalReducers)
+        foreach (string additional in AdditionalReducers)
         {
             imports[additional] = $"import {additional} from '@lib/redux/hooks/{additional}';";
 
         }
 
 
-        foreach (var key in imports.Keys.Order())
+        foreach (string? key in imports.Keys.Order())
         {
             content.AppendLine(imports[key]);
         }

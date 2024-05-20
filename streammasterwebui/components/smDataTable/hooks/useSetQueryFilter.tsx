@@ -49,7 +49,10 @@ function transformAndEnhanceFilters(
           });
         }
       } else if (column.field === 'Group') {
-        const ids = (filter.value as ChannelGroupDto[]).map((x) => x.Name);
+        let ids = filter.value;
+        if (filter.value.length > 0 && filter.value[0].hasOwnProperty('Name')) {
+          ids = (filter.value as ChannelGroupDto[]).map((x) => x.Name);
+        }
 
         if (ids.length > 0) {
           transformedFilters.push({
@@ -77,6 +80,9 @@ function transformAndEnhanceFilters(
   if (hasValidAdditionalProps(additionalFilter)) {
     const { field, values, matchMode } = additionalFilter;
     if (!isEmptyObject(values)) {
+      if (field === 'Group' && values.length > 0) {
+        addOrUpdateValueForField(transformedFilters, field, FilterMatchMode.CONTAINS, JSON.stringify(values));
+      }
       addOrUpdateValueForField(transformedFilters, field, matchMode, JSON.stringify(values));
     }
   }
@@ -107,6 +113,7 @@ export const useSetQueryFilter = (
     // console.log('queryAdditionalFilters:', queryAdditionalFilters);
     // console.groupEnd();
 
+    // console.log('id', id, queryAdditionalFilters);
     const transformedFilters = transformAndEnhanceFilters(filters, columns, showHidden, queryAdditionalFilters);
 
     const JSONFiltersString = JSON.stringify(transformedFilters);
@@ -121,12 +128,19 @@ export const useSetQueryFilter = (
     return {
       generateGetApi: apiState
     };
-  }, [sortInfo, filters, columns, showHidden, queryAdditionalFilters, page, rows]);
+  }, [sortInfo, id, queryAdditionalFilters, filters, columns, showHidden, page, rows]);
 
   useEffect(() => {
+    // if (id === 'streameditor-SMChannelDataSelector') {
+    //   console.group('useSetQueryFilter', id);
+    //   console.log('generateGetApi', generateGetApi);
+    //   console.log('queryFilter', queryFilter);
+    // }
     if (!areGetApiArgsEqual(generateGetApi, queryFilter)) {
       setQueryFilter(generateGetApi);
+      // console.log('SET');
     }
+    // console.groupEnd();
   }, [generateGetApi, queryFilter, setQueryFilter]);
 
   return { queryFilter: generateGetApi };
