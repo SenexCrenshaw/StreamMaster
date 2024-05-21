@@ -1,22 +1,25 @@
 import EPGEditor from '@components/epg/EPGEditor';
+import { SMOverlay } from '@components/sm/SMOverlay';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { isEmptyObject } from '@lib/common/common';
 import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';
 import useGetEPGFiles from '@lib/smAPI/EPGFiles/useGetEPGFiles';
 import { EPGFileDto, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
-import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
-import { ReactNode, useCallback, useMemo, useRef } from 'react';
+
+import { ReactNode, Suspense, lazy, useCallback, useMemo } from 'react';
+
+const SMScroller = lazy(() => import('@components/sm/SMScroller'));
 
 interface SMChannelEPGColumnConfigProperties {
   readonly width?: string;
 }
 
 export const useSMChannelEPGColumnConfig = ({ width = '8rem' }: SMChannelEPGColumnConfigProperties) => {
+  const dataKey = 'epgColumn-selections';
   const { data } = useGetEPGFiles();
   const colorsQuery = useGetEPGColors();
 
-  const multiSelectRef = useRef<MultiSelect>(null);
   const epgFiles = useMemo(() => {
     const additionalOptions = [{ EPGNumber: -1, Id: -1, Name: 'SD' } as EPGFileDto, { EPGNumber: -99, Id: -99, Name: 'None' } as EPGFileDto];
     if (data) return [...additionalOptions, ...data];
@@ -46,20 +49,6 @@ export const useSMChannelEPGColumnConfig = ({ width = '8rem' }: SMChannelEPGColu
 
   const itemTemplate = useCallback(
     (option: EPGFileDto) => {
-      const color = getColor(option.EPGNumber);
-
-      return (
-        <div className="flex align-items-center gap-1">
-          <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
-          <span>{option.Name}</span>
-        </div>
-      );
-    },
-    [getColor]
-  );
-
-  const selectedItemTemplate = useCallback(
-    (option: EPGFileDto) => {
       if (option === undefined) {
         return null;
       }
@@ -75,33 +64,82 @@ export const useSMChannelEPGColumnConfig = ({ width = '8rem' }: SMChannelEPGColu
     [getColor]
   );
 
-  function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
+  const buttonTemplate = useCallback((options: any): ReactNode => {
+    if (Array.isArray(options.value)) {
+      if (options.value.length > 0) {
+        const names = options.value.map((x: EPGFileDto) => x.Name);
+        const sortedInput = [...names].sort();
+        // const suffix = names.length > 2 ? ',...' : '';
+        return <div className="text-container">{sortedInput.join(', ')}</div>;
+      }
+    }
+
     return (
-      <MultiSelect
-        className="w-11 input-height-with-no-borders"
-        filter
-        ref={multiSelectRef}
-        itemTemplate={itemTemplate}
-        maxSelectedLabels={1}
-        showClear
-        filterBy="Name"
-        onChange={(e: MultiSelectChangeEvent) => {
-          if (isEmptyObject(e.value)) {
-            options.filterApplyCallback();
-          } else {
-            options.filterApplyCallback(e.value);
-          }
-        }}
-        onShow={() => {}}
-        options={epgFiles}
-        placeholder="EPG"
-        value={options.value}
-        selectedItemTemplate={selectedItemTemplate}
-      />
+      <div className="sm-epg-selector">
+        <div className="text-container pl-1">EPG</div>
+      </div>
+    );
+  }, []);
+
+  function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
+    console.log('options', options);
+    return (
+      <div className="sm-input-border-dark w-full">
+        <SMOverlay title="EPG" widthSize="2" icon="pi-chevron-down" buttonTemplate={buttonTemplate(options)} buttonLabel="EPG">
+          <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right">
+            <Suspense fallback={<div>Loading...</div>}>
+              <div className="flex w-12">
+                <SMScroller
+                  data={epgFiles}
+                  dataKey="Id"
+                  filter
+                  filterBy="Name"
+                  itemSize={26}
+                  itemTemplate={itemTemplate}
+                  onChange={async (e: any) => {
+                    console.log('e', e);
+                    if (isEmptyObject(e) || !Array.isArray(e)) {
+                      options.filterApplyCallback();
+                    } else {
+                      options.filterApplyCallback(e);
+                    }
+                  }}
+                  scrollHeight={150}
+                  select
+                  selectedItemsKey={dataKey}
+                  value={options.value}
+                />
+              </div>
+            </Suspense>
+          </div>
+        </SMOverlay>
+      </div>
+
+      // <MultiSelect
+      //   className="w-11 input-height-with-no-borders"
+      //   filter
+      //   ref={multiSelectRef}
+      //   itemTemplate={itemTemplate}
+      //   maxSelectedLabels={1}
+      //   showClear
+      //   filterBy="Name"
+      //   onChange={(e: MultiSelectChangeEvent) => {
+      //     if (isEmptyObject(e.value)) {
+      //       options.filterApplyCallback();
+      //     } else {
+      //       options.filterApplyCallback(e.value);
+      //     }
+      //   }}
+      //   onShow={() => {}}
+      //   options={epgFiles}
+      //   placeholder="EPG"
+      //   value={options.value}
+      //   selectedItemTemplate={selectedItemTemplate}
+      // />
     );
   }
   const bodyTemplate = useCallback((smChannel: SMChannelDto) => {
-    return <EPGEditor smChannel={{ ...smChannel }} />;
+    return <EPGEditor data={{ ...smChannel }} />;
   }, []);
 
   const columnConfig: ColumnMeta = {

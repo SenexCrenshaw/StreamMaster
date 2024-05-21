@@ -4,18 +4,18 @@ import { memo } from 'react';
 import EPGSelector from './EPGSelector';
 
 interface EPGEditorProperties {
-  readonly smChannel: SMChannelDto;
+  readonly data: SMChannelDto;
   readonly enableEditMode?: boolean;
 }
 
-const EPGEditor = ({ smChannel, enableEditMode }: EPGEditorProperties) => {
+const EPGEditor = ({ data, enableEditMode }: EPGEditorProperties) => {
   const onUpdateVideoStream = async (epg: string) => {
-    if (!smChannel.Id) {
+    if (!data.Id) {
       return;
     }
 
     const request = {} as SetSMChannelEPGIdRequest;
-    request.SMChannelId = smChannel.Id;
+    request.SMChannelId = data.Id;
     request.EPGId = epg;
 
     await SetSMChannelEPGId(request)
@@ -31,7 +31,7 @@ const EPGEditor = ({ smChannel, enableEditMode }: EPGEditorProperties) => {
       onChange={async (e: string) => {
         await onUpdateVideoStream(e);
       }}
-      smChannel={smChannel}
+      smChannel={data}
     />
   );
 };

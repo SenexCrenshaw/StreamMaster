@@ -57,7 +57,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
   }, [data, filter, filterBy, filterString]);
 
   const equalityKey = useCallback(() => {
-    return optionValue ? null : dataKey;
+    return optionValue ? 'Id' : dataKey;
   }, [dataKey, optionValue]);
 
   const getOptionValue = useCallback(
@@ -82,12 +82,12 @@ const SMScroller: React.FC<SMScrollerProps> = ({
           return false;
         });
         setSelectedItems(a);
-
+        onChange && onChange(a);
         return true;
       }
       return false;
     },
-    [equalityKey, selectedItems, setSelectedItems]
+    [equalityKey, onChange, selectedItems, setSelectedItems]
   );
 
   const isSelectedItem = useCallback(
@@ -171,15 +171,17 @@ const SMScroller: React.FC<SMScrollerProps> = ({
         return (
           <div
             className="flex align-items-center"
-            onClick={() => {
-              onChange && onChange(item);
-            }}
+            // onClick={() => {
+            //   // onChange && onChange(item);
+            // }}
           >
             <Checkbox
               onChange={(e) => {
                 if (selectedItemsKey !== undefined && selectedItemsKey !== 'NONE') {
                   if (e.checked) {
+                    console.log('selectedItems', selectedItems);
                     setSelectedItems([...selectedItems, item]);
+                    onChange && onChange([...selectedItems, item]);
                   } else {
                     removeSelectedItem(item);
                   }

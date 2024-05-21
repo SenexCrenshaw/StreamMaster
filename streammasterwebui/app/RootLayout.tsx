@@ -4,15 +4,18 @@ import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import useGetStreamGroup from '@lib/smAPI/StreamGroups/useGetStreamGroup';
 import { GetStreamGroupRequest } from '@lib/smAPI/smapiTypes';
 import { useIsTrue } from '@lib/redux/hooks/isTrue';
+import { useEffect } from 'react';
 
 export const RootLayout = (): JSX.Element => {
   const { setIsTrue } = useIsTrue('streameditor-SMStreamDataSelector');
   const { selectedStreamGroup, setSelectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
   const sgquery = useGetStreamGroup({ SGName: 'ALL' } as GetStreamGroupRequest);
 
-  if (selectedStreamGroup === undefined && sgquery.data !== undefined) {
-    setSelectedStreamGroup(sgquery.data);
-  }
+  useEffect(() => {
+    if (selectedStreamGroup === undefined && sgquery.data !== undefined) {
+      setSelectedStreamGroup(sgquery.data);
+    }
+  }, [selectedStreamGroup, setSelectedStreamGroup, sgquery.data]);
 
   const persistKey = 'persist:isTrue';
   const persistData = localStorage.getItem(persistKey);
