@@ -7670,6 +7670,10 @@
   background-color: var(--surface-ground) !important;
 }
 
+.p-dropdown-trigger {
+  width: 1.5rem;
+}
+
 .sm-streamgroupselector {
   overflow: hidden;
   text-overflow: ellipsis;

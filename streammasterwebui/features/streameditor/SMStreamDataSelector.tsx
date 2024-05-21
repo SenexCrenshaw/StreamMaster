@@ -82,7 +82,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
     [actionTemplate, groupColumnConfig, smStreamM3UColumnConfig]
   );
 
-  const simpleColumns = useMemo((): ColumnMeta[] => [{ field: 'Name', filter: true, sortable: true }], []);
+  const simpleColumns = useMemo((): ColumnMeta[] => [{ field: 'Name', filter: true, maxWidth: '11rem', sortable: true, width: '11rem' }], []);
 
   const addOrRemoveTemplate = useCallback(
     (data: any) => {

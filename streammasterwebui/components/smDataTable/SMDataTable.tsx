@@ -618,6 +618,13 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     );
   }, []);
 
+  const getPageTemplate = useMemo(() => {
+    if (state.smTableIsSimple === true) {
+      return 'FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink';
+    }
+    return 'RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink';
+  }, [state.smTableIsSimple]);
+
   return (
     <div
       id={props.id}
@@ -662,9 +669,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             setters.setExpandedRows(e.data as DataTableExpandedRows);
           }}
           onSelectionChange={(e: DataTableSelectionMultipleChangeEvent<T[]> | DataTableSelectionSingleChangeEvent<T[]>) => {
-            // if (props.reorderable === true) {
-            //   return;
-            // }
             onSelectionChange(e);
           }}
           onFilter={onFilter}
@@ -672,7 +676,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           onRowClick={props.selectRow === true ? props.onRowClick : undefined}
           paginator={showPageination}
           paginatorClassName="text-xs"
-          paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+          paginatorTemplate={getPageTemplate}
           pt={{
             wrapper: { className: getWrapperDiv }
           }}

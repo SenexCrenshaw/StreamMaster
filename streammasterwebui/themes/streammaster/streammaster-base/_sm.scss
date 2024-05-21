@@ -91,6 +91,10 @@
 //     max-height: 1.2rem;
 // }
 
+.p-dropdown-trigger {
+    width: 1.5rem;
+}
+
 .sm-streamgroupselector {
     @include datatable-text-style();
     @extend .sm-sm-input-border;

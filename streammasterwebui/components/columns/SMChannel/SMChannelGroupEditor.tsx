@@ -41,6 +41,7 @@ const SMChannelGroupEditor = ({ smChannelDto, onChange }: SMChannelGroupEditorPr
     <Dropdown
       className="w-full"
       filter
+      filterPlaceholder="Search by Name"
       itemTemplate={itemTemplate}
       showClear={false}
       clearIcon="pi pi-filter-slash"
