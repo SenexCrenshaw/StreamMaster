@@ -5,7 +5,7 @@ interface SMSimpleButtonProperties {
   dataKey: string;
 }
 
-const SMSimpleButton = ({ dataKey }: SMSimpleButtonProperties) => {
+const SimpleButton = ({ dataKey }: SMSimpleButtonProperties) => {
   const { isTrue, setIsTrue } = useIsTrue(dataKey);
 
   return (
@@ -21,4 +21,4 @@ const SMSimpleButton = ({ dataKey }: SMSimpleButtonProperties) => {
   );
 };
 
-export default SMSimpleButton;
+export default SimpleButton;

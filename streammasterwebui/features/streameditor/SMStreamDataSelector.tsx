@@ -19,7 +19,7 @@ import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import { CreateSMChannelFromStreamRequest, RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent, DataTableRowEvent, DataTableValue } from 'primereact/datatable';
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
-import SMSimpleButton from './SMSimpleButton';
+import SimpleButton from '../../components/buttons/SimpleButton';
 import useSelectedSMItems from './useSelectedSMItems';
 
 const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
@@ -168,8 +168,8 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
     if (smTableIsSimple) {
       return (
         <div className="flex flex-row justify-content-end align-items-center w-full gap-1  pr-1">
-          <M3UFilesButton />
-          <SMSimpleButton dataKey={dataKey} />
+          {!smTableIsSimple && <M3UFilesButton />}
+          <SimpleButton dataKey={dataKey} />
           <SMButton className="icon-orange" iconFilled icon="pi pi-bars" rounded onClick={() => {}} />
         </div>
       );
@@ -177,7 +177,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
     return (
       <div className="flex flex-row justify-content-end align-items-center w-full gap-1  pr-1">
         <M3UFilesButton />
-        <SMSimpleButton dataKey={dataKey} />
+        <SimpleButton dataKey={dataKey} />
         <StreamMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} skipOverLayer />
         <SMButton className="icon-red" iconFilled icon="pi-times" rounded onClick={() => {}} />
         {/* <SMButton className="icon-green-filled" icon="pi-plus" rounded onClick={() => {}} /> */}

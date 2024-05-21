@@ -715,7 +715,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           />
 
           <Column
-            className={'w-2rem max-w-2rem p-0 flex justify-content-center align-items-center sm-expander'}
+            className={'w-2rem max-w-3rem p-0 justify-content-center align-items-center'}
             filterElement={getExpanderHeader}
             filter={props.expanderHeader !== undefined}
             hidden={!props.showExpand || props.rowExpansionTemplate === undefined}

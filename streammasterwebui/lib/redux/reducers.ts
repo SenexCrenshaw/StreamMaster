@@ -45,6 +45,10 @@ const filtersConfig = {
   key: 'filters',
   storage
 };
+const isTrueConfig = {
+  key: 'isTrue',
+  storage
+};
 const queryAdditionalFiltersConfig = {
   key: 'queryAdditionalFilters',
   storage
@@ -122,7 +126,7 @@ export const rootReducer = combineReducers({
   GetStreamGroups: GetStreamGroups,
   GetStreamGroupSMChannels: GetStreamGroupSMChannels,
   GetSystemStatus: GetSystemStatus,
-  isTrue: isTrue,
+  isTrue: persistReducer(isTrueConfig, isTrue),
   messages: messages,
   queryAdditionalFilters: persistReducer(queryAdditionalFiltersConfig, queryAdditionalFilters),
   queryFilter: persistReducer(queryFilterConfig, queryFilter),
