@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 import {FieldData, M3UFileDto,PagedResponse } from '@lib/smAPI/smapiTypes';
 import { fetchGetPagedM3UFiles } from '@lib/smAPI/M3UFiles/GetPagedM3UFilesFetch';
 import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
@@ -26,7 +27,7 @@ const getPagedM3UFilesSlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-      console.log('GetPagedM3UFiles clear');
+      Logger.debug('GetPagedM3UFiles clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
@@ -36,7 +37,7 @@ const getPagedM3UFilesSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      console.log('GetPagedM3UFiles clearByTag');
+      Logger.debug('GetPagedM3UFiles clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
@@ -54,7 +55,7 @@ const getPagedM3UFilesSlice = createSlice({
           state.data[key] = updatePagedResponseFieldInData(state.data[key], fieldData);
         }
       }
-      console.log('GetPagedM3UFiles setField');
+      Logger.debug('GetPagedM3UFiles setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -67,7 +68,7 @@ const getPagedM3UFilesSlice = createSlice({
         }
       }
       state.data = updatedData;
-      console.log('GetPagedM3UFiles  setIsForced ', force);
+      Logger.debug('GetPagedM3UFiles  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ query: string; isLoading: boolean }>) => {
       const { query, isLoading } = action.payload;
@@ -78,7 +79,7 @@ const getPagedM3UFilesSlice = createSlice({
           state.isLoading[key] = action.payload.isLoading;
         }
       }
-      console.log('GetPagedM3UFiles setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetPagedM3UFiles setIsLoading ', action.payload.isLoading);
     }
   },
 

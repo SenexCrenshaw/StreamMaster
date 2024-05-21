@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 import {FieldData, ChannelGroupDto,PagedResponse } from '@lib/smAPI/smapiTypes';
 import { fetchGetPagedChannelGroups } from '@lib/smAPI/ChannelGroups/GetPagedChannelGroupsFetch';
 import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
@@ -26,7 +27,7 @@ const getPagedChannelGroupsSlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-      console.log('GetPagedChannelGroups clear');
+      Logger.debug('GetPagedChannelGroups clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
@@ -36,7 +37,7 @@ const getPagedChannelGroupsSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      console.log('GetPagedChannelGroups clearByTag');
+      Logger.debug('GetPagedChannelGroups clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
@@ -54,7 +55,7 @@ const getPagedChannelGroupsSlice = createSlice({
           state.data[key] = updatePagedResponseFieldInData(state.data[key], fieldData);
         }
       }
-      console.log('GetPagedChannelGroups setField');
+      Logger.debug('GetPagedChannelGroups setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -67,7 +68,7 @@ const getPagedChannelGroupsSlice = createSlice({
         }
       }
       state.data = updatedData;
-      console.log('GetPagedChannelGroups  setIsForced ', force);
+      Logger.debug('GetPagedChannelGroups  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ query: string; isLoading: boolean }>) => {
       const { query, isLoading } = action.payload;
@@ -78,7 +79,7 @@ const getPagedChannelGroupsSlice = createSlice({
           state.isLoading[key] = action.payload.isLoading;
         }
       }
-      console.log('GetPagedChannelGroups setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetPagedChannelGroups setIsLoading ', action.payload.isLoading);
     }
   },
 

@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 import {FieldData, StreamGroupDto } from '@lib/smAPI/smapiTypes';
 import { fetchGetStreamGroups } from '@lib/smAPI/StreamGroups/GetStreamGroupsFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
@@ -26,28 +27,28 @@ const getStreamGroupsSlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-      console.log('GetStreamGroups clear');
+      Logger.debug('GetStreamGroups clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
       state.data = undefined;
-      console.log('GetStreamGroups clearByTag');
+      Logger.debug('GetStreamGroups clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
-      console.log('GetStreamGroups setField');
+      Logger.debug('GetStreamGroups setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
       state.data = undefined;
-      console.log('GetStreamGroups  setIsForced ', force);
+      Logger.debug('GetStreamGroups  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
       state.isLoading = action.payload.isLoading;
-      console.log('GetStreamGroups setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetStreamGroups setIsLoading ', action.payload.isLoading);
     }
 },
 

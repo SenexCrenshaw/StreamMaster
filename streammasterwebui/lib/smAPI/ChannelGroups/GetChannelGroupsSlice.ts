@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 import {FieldData, ChannelGroupDto } from '@lib/smAPI/smapiTypes';
 import { fetchGetChannelGroups } from '@lib/smAPI/ChannelGroups/GetChannelGroupsFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
@@ -26,28 +27,28 @@ const getChannelGroupsSlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-      console.log('GetChannelGroups clear');
+      Logger.debug('GetChannelGroups clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
       state.data = undefined;
-      console.log('GetChannelGroups clearByTag');
+      Logger.debug('GetChannelGroups clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
-      console.log('GetChannelGroups setField');
+      Logger.debug('GetChannelGroups setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
       state.data = undefined;
-      console.log('GetChannelGroups  setIsForced ', force);
+      Logger.debug('GetChannelGroups  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
       state.isLoading = action.payload.isLoading;
-      console.log('GetChannelGroups setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetChannelGroups setIsLoading ', action.payload.isLoading);
     }
 },
 

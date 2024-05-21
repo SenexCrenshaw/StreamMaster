@@ -318,7 +318,7 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround =
       <>
         <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right ">
           <Suspense>
-            <div className="flex w-12 ml-1">
+            <div className="flex w-12">
               <SMScroller
                 data={options}
                 dataKey="Channel"

@@ -529,4 +529,19 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         }
         return fds;
     }
+
+    public async Task<APIResponse> SetSMChannelProxy(int sMChannelId, int streamingProxy)
+    {
+        SMChannel? channel = GetSMChannel(sMChannelId);
+        if (channel == null)
+        {
+            return APIResponse.NotFound;
+        }
+
+        channel.StreamingProxyType = (StreamingProxyTypes)Enum.ToObject(typeof(StreamingProxyTypes), streamingProxy);
+        Update(channel);
+        await SaveChangesAsync();
+
+        return APIResponse.Success;
+    }
 }

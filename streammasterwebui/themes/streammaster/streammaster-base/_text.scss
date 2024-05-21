@@ -146,6 +146,8 @@
     align-items: center;
     align-items: center;
     color: $inputTextColor;
+    border: unset !important;
+    background-color: transparent !important;
 
     .p-inputnumber-input {
         color: $inputTextColor;

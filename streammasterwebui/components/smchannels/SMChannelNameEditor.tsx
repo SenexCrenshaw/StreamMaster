@@ -45,6 +45,6 @@ const SMChannelNameEditor = ({ data, onClick }: SMChannelNameEditorProperties) =
   );
 };
 
-SMChannelNameEditor.displayName = 'Channel Number Editor';
+SMChannelNameEditor.displayName = 'Channel Name Editor';
 
 export default React.memo(SMChannelNameEditor);

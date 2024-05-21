@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 import {FieldData, SDSystemStatus } from '@lib/smAPI/smapiTypes';
 import { fetchGetSystemStatus } from '@lib/smAPI/Settings/GetSystemStatusFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
@@ -26,28 +27,28 @@ const getSystemStatusSlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-      console.log('GetSystemStatus clear');
+      Logger.debug('GetSystemStatus clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
       state.data = undefined;
-      console.log('GetSystemStatus clearByTag');
+      Logger.debug('GetSystemStatus clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
-      console.log('GetSystemStatus setField');
+      Logger.debug('GetSystemStatus setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
       state.data = undefined;
-      console.log('GetSystemStatus  setIsForced ', force);
+      Logger.debug('GetSystemStatus  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
       state.isLoading = action.payload.isLoading;
-      console.log('GetSystemStatus setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetSystemStatus setIsLoading ', action.payload.isLoading);
     }
 },
 

@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 import {FieldData, EPGColorDto } from '@lib/smAPI/smapiTypes';
 import { fetchGetEPGColors } from '@lib/smAPI/EPG/GetEPGColorsFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
@@ -26,28 +27,28 @@ const getEPGColorsSlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-      console.log('GetEPGColors clear');
+      Logger.debug('GetEPGColors clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
       state.data = undefined;
-      console.log('GetEPGColors clearByTag');
+      Logger.debug('GetEPGColors clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
-      console.log('GetEPGColors setField');
+      Logger.debug('GetEPGColors setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
       state.data = undefined;
-      console.log('GetEPGColors  setIsForced ', force);
+      Logger.debug('GetEPGColors  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
       state.isLoading = action.payload.isLoading;
-      console.log('GetEPGColors setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetEPGColors setIsLoading ', action.payload.isLoading);
     }
 },
 

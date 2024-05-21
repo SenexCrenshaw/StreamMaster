@@ -7279,6 +7279,8 @@
   align-items: center;
   align-items: center;
   color: #bcbfbf;
+  border: unset !important;
+  background-color: transparent !important;
 }
 .stringeditorbody-inputtext .p-inputnumber-input, .p-inputnumber-input .p-inputnumber-input, .stringeditorbody-inputtext-save .p-inputnumber-input, .stringeditorbody-inputtext-dark .p-inputnumber-input {
   color: #bcbfbf;

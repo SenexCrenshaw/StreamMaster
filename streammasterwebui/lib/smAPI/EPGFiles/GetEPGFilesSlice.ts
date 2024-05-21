@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 import {FieldData, EPGFileDto } from '@lib/smAPI/smapiTypes';
 import { fetchGetEPGFiles } from '@lib/smAPI/EPGFiles/GetEPGFilesFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
@@ -26,28 +27,28 @@ const getEPGFilesSlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-      console.log('GetEPGFiles clear');
+      Logger.debug('GetEPGFiles clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
       state.data = undefined;
-      console.log('GetEPGFiles clearByTag');
+      Logger.debug('GetEPGFiles clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
-      console.log('GetEPGFiles setField');
+      Logger.debug('GetEPGFiles setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
       state.data = undefined;
-      console.log('GetEPGFiles  setIsForced ', force);
+      Logger.debug('GetEPGFiles  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
       state.isLoading = action.payload.isLoading;
-      console.log('GetEPGFiles setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetEPGFiles setIsLoading ', action.payload.isLoading);
     }
 },
 

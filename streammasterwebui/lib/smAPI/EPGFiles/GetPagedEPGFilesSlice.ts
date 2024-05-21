@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 import {FieldData, EPGFileDto,PagedResponse } from '@lib/smAPI/smapiTypes';
 import { fetchGetPagedEPGFiles } from '@lib/smAPI/EPGFiles/GetPagedEPGFilesFetch';
 import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
@@ -26,7 +27,7 @@ const getPagedEPGFilesSlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-      console.log('GetPagedEPGFiles clear');
+      Logger.debug('GetPagedEPGFiles clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
@@ -36,7 +37,7 @@ const getPagedEPGFilesSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      console.log('GetPagedEPGFiles clearByTag');
+      Logger.debug('GetPagedEPGFiles clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
@@ -54,7 +55,7 @@ const getPagedEPGFilesSlice = createSlice({
           state.data[key] = updatePagedResponseFieldInData(state.data[key], fieldData);
         }
       }
-      console.log('GetPagedEPGFiles setField');
+      Logger.debug('GetPagedEPGFiles setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -67,7 +68,7 @@ const getPagedEPGFilesSlice = createSlice({
         }
       }
       state.data = updatedData;
-      console.log('GetPagedEPGFiles  setIsForced ', force);
+      Logger.debug('GetPagedEPGFiles  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ query: string; isLoading: boolean }>) => {
       const { query, isLoading } = action.payload;
@@ -78,7 +79,7 @@ const getPagedEPGFilesSlice = createSlice({
           state.isLoading[key] = action.payload.isLoading;
         }
       }
-      console.log('GetPagedEPGFiles setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetPagedEPGFiles setIsLoading ', action.payload.isLoading);
     }
   },
 

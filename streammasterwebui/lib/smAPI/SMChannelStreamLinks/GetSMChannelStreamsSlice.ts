@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 import {FieldData, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { fetchGetSMChannelStreams } from '@lib/smAPI/SMChannelStreamLinks/GetSMChannelStreamsFetch';
 
@@ -25,7 +26,7 @@ const getSMChannelStreamsSlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-      console.log('GetSMChannelStreams clear');
+      Logger.debug('GetSMChannelStreams clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
@@ -35,7 +36,7 @@ const getSMChannelStreamsSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      console.log('GetSMChannelStreams clearByTag');
+      Logger.debug('GetSMChannelStreams clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
@@ -45,7 +46,7 @@ const getSMChannelStreamsSlice = createSlice({
         state.data[fieldData.Id] = fieldData.Value;
         return;
       }
-      console.log('GetSMChannelStreams setField');
+      Logger.debug('GetSMChannelStreams setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -58,7 +59,7 @@ const getSMChannelStreamsSlice = createSlice({
         }
       }
       state.data = updatedData;
-      console.log('GetSMChannelStreams  setIsForced ', force);
+      Logger.debug('GetSMChannelStreams  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ param: string; isLoading: boolean }>) => {
       const { param, isLoading } = action.payload;
@@ -70,7 +71,7 @@ const getSMChannelStreamsSlice = createSlice({
           state.isLoading[key] = action.payload.isLoading;
         }
       }
-      console.log('GetSMChannelStreams setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetSMChannelStreams setIsLoading ', action.payload.isLoading);
     }
   },
 

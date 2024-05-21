@@ -1,11 +1,11 @@
 import { useClickOutside } from 'primereact/hooks';
-
-import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { InputText } from 'primereact/inputtext';
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { v4 as uuidv4 } from 'uuid';
+import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
+import { Logger } from '@lib/common/logger';
 
 export interface StringEditorBodyTemplateProperties {
   readonly autoFocus?: boolean;
@@ -26,7 +26,7 @@ export interface StringEditorBodyTemplateProperties {
   readonly darkBackGround?: boolean;
 }
 
-const StringEditor = ({
+const StringEditor: React.FC<StringEditorBodyTemplateProperties> = ({
   autoFocus,
   disableDebounce = false,
   disabled = false,
@@ -42,7 +42,7 @@ const StringEditor = ({
   tooltipOptions,
   value,
   darkBackGround
-}: StringEditorBodyTemplateProperties) => {
+}) => {
   const uuid = uuidv4();
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const divReference = useRef<HTMLDivElement | null>(null);
@@ -55,12 +55,8 @@ const StringEditor = ({
   const save = useCallback(
     (forceValueSave?: string | undefined) => {
       setIgnoreSave(true);
-
-      if (forceValueSave === undefined) {
-        onSave(inputValue);
-      } else {
-        onSave(forceValueSave);
-      }
+      Logger.debug('Saving value', { forceValueSave, inputValue });
+      onSave(forceValueSave ?? inputValue);
     },
     [inputValue, onSave]
   );
@@ -74,13 +70,10 @@ const StringEditor = ({
       },
       [isLoading, originalValue, save]
     ),
-    debounceMs,
-    {}
+    debounceMs
   );
 
-  const needsSave = useMemo(() => {
-    return inputValue !== '' && originalValue !== inputValue;
-  }, [inputValue, originalValue]);
+  const needsSave = useMemo(() => inputValue !== '' && originalValue !== inputValue, [inputValue, originalValue]);
 
   useEffect(() => {
     if (code === 'Enter' || code === 'NumpadEnter') {
@@ -92,11 +85,9 @@ const StringEditor = ({
   }, [code, debounced, ignoreSave, needsSave, save]);
 
   useClickOutside(divReference, () => {
-    if (!isFocused) {
-      return;
-    }
+    if (!isFocused) return;
     setIsFocused(false);
-    if (disableDebounce !== undefined && disableDebounce !== true && originalValue !== inputValue && !ignoreSave) {
+    if (!disableDebounce && originalValue !== inputValue && !ignoreSave) {
       save();
     }
   });
@@ -106,22 +97,13 @@ const StringEditor = ({
       if (originalValue === undefined) {
         setOriginalValue(value);
         setInputValue(value);
-        return;
+      } else if (value !== inputValue) {
+        setInputValue(value);
+        setOriginalValue(value);
       }
-      if (value !== inputValue) {
-        if (value === '') {
-          setInputValue(inputValue);
-          setOriginalValue(inputValue);
-        } else {
-          setInputValue(value);
-          setOriginalValue(value);
-        }
-      }
-    } else if (value !== undefined && originalValue !== undefined && originalValue !== '') {
-      if (value === originalValue && value !== inputValue) {
-        if (disableDebounce !== undefined && disableDebounce === true) {
-          setInputValue(inputValue);
-        }
+    } else if (value !== undefined && originalValue !== undefined && originalValue !== '' && value === originalValue && value !== inputValue) {
+      if (disableDebounce) {
+        setInputValue(inputValue);
       }
     }
     setIgnoreSave(false);
@@ -129,24 +111,22 @@ const StringEditor = ({
 
   const getDiv = useMemo(() => {
     let ret = 'stringeditorbody-inputtext';
-    if (darkBackGround === true) {
+    if (darkBackGround) {
       ret = 'stringeditorbody-inputtext-dark';
     }
     if (needsSave) {
       ret = 'stringeditorbody-inputtext-save';
     }
-
     return ret;
   }, [needsSave, darkBackGround]);
 
-  const doShowClear = useMemo((): boolean => {
-    return showClear === true && isFocused;
-    // return showClear === true && isFocused && inputValue !== originalValue;
-  }, [isFocused, showClear]);
+  const doShowClear = useMemo(() => darkBackGround && showClear && isFocused && inputValue !== '', [darkBackGround, inputValue, isFocused, showClear]);
 
-  if (autoFocus === true && inputRef.current) {
-    inputRef.current.focus();
-  }
+  useEffect(() => {
+    if (autoFocus && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [autoFocus]);
 
   return (
     <div ref={divReference} className="stringeditor flex flex-column align-items-start">
@@ -162,16 +142,15 @@ const StringEditor = ({
         disabled={disabled}
         id={uuid}
         onChange={(e) => {
-          setInputValue(e.target.value as string);
-          if (disableDebounce !== true) {
-            debounced(e.target.value as string);
+          const newValue = e.target.value as string;
+          setInputValue(newValue);
+          if (!disableDebounce) {
+            debounced(newValue);
           } else {
-            onChange && onChange(e.target.value as string);
+            onChange?.(newValue);
           }
         }}
-        onClick={() => {
-          onClick?.();
-        }}
+        onClick={onClick}
         onFocus={() => setIsFocused(true)}
         placeholder={placeholder}
         tooltip={tooltip}
@@ -185,7 +164,7 @@ const StringEditor = ({
             onClick={() => {
               setInputValue('');
               setOriginalValue('');
-              onChange && onChange('');
+              onChange?.('');
             }}
           />
         </i>

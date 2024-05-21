@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 import {FieldData, EPGFilePreviewDto } from '@lib/smAPI/smapiTypes';
 import { fetchGetEPGFilePreviewById } from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdFetch';
 
@@ -25,7 +26,7 @@ const getEPGFilePreviewByIdSlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-      console.log('GetEPGFilePreviewById clear');
+      Logger.debug('GetEPGFilePreviewById clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
@@ -35,7 +36,7 @@ const getEPGFilePreviewByIdSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      console.log('GetEPGFilePreviewById clearByTag');
+      Logger.debug('GetEPGFilePreviewById clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
@@ -45,7 +46,7 @@ const getEPGFilePreviewByIdSlice = createSlice({
         state.data[fieldData.Id] = fieldData.Value;
         return;
       }
-      console.log('GetEPGFilePreviewById setField');
+      Logger.debug('GetEPGFilePreviewById setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -58,7 +59,7 @@ const getEPGFilePreviewByIdSlice = createSlice({
         }
       }
       state.data = updatedData;
-      console.log('GetEPGFilePreviewById  setIsForced ', force);
+      Logger.debug('GetEPGFilePreviewById  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ param: string; isLoading: boolean }>) => {
       const { param, isLoading } = action.payload;
@@ -70,7 +71,7 @@ const getEPGFilePreviewByIdSlice = createSlice({
           state.isLoading[key] = action.payload.isLoading;
         }
       }
-      console.log('GetEPGFilePreviewById setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetEPGFilePreviewById setIsLoading ', action.payload.isLoading);
     }
   },
 

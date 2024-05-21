@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 import {FieldData, SMStreamDto,PagedResponse } from '@lib/smAPI/smapiTypes';
 import { fetchGetPagedSMStreams } from '@lib/smAPI/SMStreams/GetPagedSMStreamsFetch';
 import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
@@ -26,7 +27,7 @@ const getPagedSMStreamsSlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-      console.log('GetPagedSMStreams clear');
+      Logger.debug('GetPagedSMStreams clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
@@ -36,7 +37,7 @@ const getPagedSMStreamsSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      console.log('GetPagedSMStreams clearByTag');
+      Logger.debug('GetPagedSMStreams clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
@@ -54,7 +55,7 @@ const getPagedSMStreamsSlice = createSlice({
           state.data[key] = updatePagedResponseFieldInData(state.data[key], fieldData);
         }
       }
-      console.log('GetPagedSMStreams setField');
+      Logger.debug('GetPagedSMStreams setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -67,7 +68,7 @@ const getPagedSMStreamsSlice = createSlice({
         }
       }
       state.data = updatedData;
-      console.log('GetPagedSMStreams  setIsForced ', force);
+      Logger.debug('GetPagedSMStreams  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ query: string; isLoading: boolean }>) => {
       const { query, isLoading } = action.payload;
@@ -78,7 +79,7 @@ const getPagedSMStreamsSlice = createSlice({
           state.isLoading[key] = action.payload.isLoading;
         }
       }
-      console.log('GetPagedSMStreams setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetPagedSMStreams setIsLoading ', action.payload.isLoading);
     }
   },
 

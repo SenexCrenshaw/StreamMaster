@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 import {FieldData,  } from '@lib/smAPI/smapiTypes';
 import { fetchGetSMChannelNames } from '@lib/smAPI/SMChannels/GetSMChannelNamesFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
@@ -26,28 +27,28 @@ const getSMChannelNamesSlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-      console.log('GetSMChannelNames clear');
+      Logger.debug('GetSMChannelNames clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
       state.data = undefined;
-      console.log('GetSMChannelNames clearByTag');
+      Logger.debug('GetSMChannelNames clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
-      console.log('GetSMChannelNames setField');
+      Logger.debug('GetSMChannelNames setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
       state.data = undefined;
-      console.log('GetSMChannelNames  setIsForced ', force);
+      Logger.debug('GetSMChannelNames  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
       state.isLoading = action.payload.isLoading;
-      console.log('GetSMChannelNames setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetSMChannelNames setIsLoading ', action.payload.isLoading);
     }
 },
 

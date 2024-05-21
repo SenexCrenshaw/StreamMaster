@@ -71,7 +71,7 @@ const SMChannelGroupEditor = ({ darkBackGround, smChannelDto, onChange }: SMChan
       <SMOverlay header={headerTemplate} title="GROUP" widthSize="2" icon="pi-chevron-down" buttonTemplate={buttonTemplate} buttonLabel="EPG">
         <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right ">
           <Suspense>
-            <div className="flex w-12 ml-1">
+            <div className="flex w-12">
               <SMScroller
                 data={data}
                 dataKey="Group"

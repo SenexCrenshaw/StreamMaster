@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 import {FieldData, SettingDto } from '@lib/smAPI/smapiTypes';
 import { fetchGetSettings } from '@lib/smAPI/Settings/GetSettingsFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
@@ -26,28 +27,28 @@ const getSettingsSlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-      console.log('GetSettings clear');
+      Logger.debug('GetSettings clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
       state.data = undefined;
-      console.log('GetSettings clearByTag');
+      Logger.debug('GetSettings clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
-      console.log('GetSettings setField');
+      Logger.debug('GetSettings setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
       state.data = undefined;
-      console.log('GetSettings  setIsForced ', force);
+      Logger.debug('GetSettings  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
       state.isLoading = action.payload.isLoading;
-      console.log('GetSettings setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetSettings setIsLoading ', action.payload.isLoading);
     }
 },
 

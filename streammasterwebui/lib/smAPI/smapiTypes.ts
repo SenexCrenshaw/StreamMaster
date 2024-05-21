@@ -487,6 +487,11 @@ export interface SetSMChannelNumberRequest
 	ChannelNumber: number;
 	SMChannelId: number;
 }
+export interface SetSMChannelProxyRequest
+{
+	SMChannelId: number;
+	StreamingProxy: number;
+}
 export interface ToggleSMChannelsVisibleByIdRequest
 {
 	Ids: number[];

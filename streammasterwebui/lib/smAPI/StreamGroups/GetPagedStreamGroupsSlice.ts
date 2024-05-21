@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 import {FieldData, StreamGroupDto,PagedResponse } from '@lib/smAPI/smapiTypes';
 import { fetchGetPagedStreamGroups } from '@lib/smAPI/StreamGroups/GetPagedStreamGroupsFetch';
 import { updatePagedResponseFieldInData } from '@lib/redux/updatePagedResponseFieldInData';
@@ -26,7 +27,7 @@ const getPagedStreamGroupsSlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-      console.log('GetPagedStreamGroups clear');
+      Logger.debug('GetPagedStreamGroups clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
@@ -36,7 +37,7 @@ const getPagedStreamGroupsSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      console.log('GetPagedStreamGroups clearByTag');
+      Logger.debug('GetPagedStreamGroups clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {
@@ -54,7 +55,7 @@ const getPagedStreamGroupsSlice = createSlice({
           state.data[key] = updatePagedResponseFieldInData(state.data[key], fieldData);
         }
       }
-      console.log('GetPagedStreamGroups setField');
+      Logger.debug('GetPagedStreamGroups setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -67,7 +68,7 @@ const getPagedStreamGroupsSlice = createSlice({
         }
       }
       state.data = updatedData;
-      console.log('GetPagedStreamGroups  setIsForced ', force);
+      Logger.debug('GetPagedStreamGroups  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ query: string; isLoading: boolean }>) => {
       const { query, isLoading } = action.payload;
@@ -78,7 +79,7 @@ const getPagedStreamGroupsSlice = createSlice({
           state.isLoading[key] = action.payload.isLoading;
         }
       }
-      console.log('GetPagedStreamGroups setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetPagedStreamGroups setIsLoading ', action.payload.isLoading);
     }
   },
 

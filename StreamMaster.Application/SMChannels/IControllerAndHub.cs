@@ -24,6 +24,7 @@ namespace StreamMaster.Application.SMChannels
         Task<ActionResult<APIResponse>> SetSMChannelLogo(SetSMChannelLogoRequest request);
         Task<ActionResult<APIResponse>> SetSMChannelName(SetSMChannelNameRequest request);
         Task<ActionResult<APIResponse>> SetSMChannelNumber(SetSMChannelNumberRequest request);
+        Task<ActionResult<APIResponse>> SetSMChannelProxy(SetSMChannelProxyRequest request);
         Task<ActionResult<APIResponse>> ToggleSMChannelsVisibleById(ToggleSMChannelsVisibleByIdRequest request);
         Task<ActionResult<APIResponse>> ToggleSMChannelVisibleById(ToggleSMChannelVisibleByIdRequest request);
         Task<ActionResult<APIResponse>> ToggleSMChannelVisibleByParameters(ToggleSMChannelVisibleByParametersRequest request);
@@ -53,6 +54,7 @@ namespace StreamMaster.Application.Hubs
         Task<APIResponse> SetSMChannelLogo(SetSMChannelLogoRequest request);
         Task<APIResponse> SetSMChannelName(SetSMChannelNameRequest request);
         Task<APIResponse> SetSMChannelNumber(SetSMChannelNumberRequest request);
+        Task<APIResponse> SetSMChannelProxy(SetSMChannelProxyRequest request);
         Task<APIResponse> ToggleSMChannelsVisibleById(ToggleSMChannelsVisibleByIdRequest request);
         Task<APIResponse> ToggleSMChannelVisibleById(ToggleSMChannelVisibleByIdRequest request);
         Task<APIResponse> ToggleSMChannelVisibleByParameters(ToggleSMChannelVisibleByParametersRequest request);

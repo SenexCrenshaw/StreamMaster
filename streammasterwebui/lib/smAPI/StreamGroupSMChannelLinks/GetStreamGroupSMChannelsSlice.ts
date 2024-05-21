@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 import {FieldData, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { fetchGetStreamGroupSMChannels } from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsFetch';
 
@@ -25,7 +26,7 @@ const getStreamGroupSMChannelsSlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-      console.log('GetStreamGroupSMChannels clear');
+      Logger.debug('GetStreamGroupSMChannels clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
@@ -35,7 +36,7 @@ const getStreamGroupSMChannelsSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      console.log('GetStreamGroupSMChannels clearByTag');
+      Logger.debug('GetStreamGroupSMChannels clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
@@ -45,7 +46,7 @@ const getStreamGroupSMChannelsSlice = createSlice({
         state.data[fieldData.Id] = fieldData.Value;
         return;
       }
-      console.log('GetStreamGroupSMChannels setField');
+      Logger.debug('GetStreamGroupSMChannels setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -58,7 +59,7 @@ const getStreamGroupSMChannelsSlice = createSlice({
         }
       }
       state.data = updatedData;
-      console.log('GetStreamGroupSMChannels  setIsForced ', force);
+      Logger.debug('GetStreamGroupSMChannels  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ param: string; isLoading: boolean }>) => {
       const { param, isLoading } = action.payload;
@@ -70,7 +71,7 @@ const getStreamGroupSMChannelsSlice = createSlice({
           state.isLoading[key] = action.payload.isLoading;
         }
       }
-      console.log('GetStreamGroupSMChannels setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetStreamGroupSMChannels setIsLoading ', action.payload.isLoading);
     }
   },
 

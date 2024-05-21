@@ -507,6 +507,10 @@ export function getIconUrl(iconOriginalSource: string | null | undefined, defaul
   return iconOriginalSource;
 }
 
+export const isNumber = (value: any): value is number => {
+  return typeof value === 'number' && !isNaN(value);
+};
+
 export const removeQuotes = (string_: string) => (string_.startsWith('"') && string_.endsWith('"') ? string_.slice(1, -1) : string_);
 export const hasColumns = (columns?: ColumnMeta[]) => columns && columns.length > 0;
 

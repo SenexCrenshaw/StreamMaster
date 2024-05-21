@@ -1,5 +1,6 @@
 import SGAddButton from '@components/buttons/SGAddButton';
 import SGRemoveButton from '@components/buttons/SGRemoveButton';
+import { Logger } from '@lib/common/logger';
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { AddSMChannelToStreamGroup, RemoveSMChannelFromStreamGroup } from '@lib/smAPI/StreamGroupSMChannelLinks/StreamGroupSMChannelLinksCommands';
 import { AddSMChannelToStreamGroupRequest, RemoveSMChannelFromStreamGroupRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
@@ -16,86 +17,79 @@ const SMChannelSGEditor = ({ smChannel, enableEditMode }: SMChannelSGEditorPrope
   const { selectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
 
   const addSMChannelToStreamGroup = useCallback(async () => {
-    console.log('addSMChannelToStreamGroup', selectedStreamGroup);
+    Logger.debug('Attempting to add SMChannel to StreamGroup', { selectedStreamGroup, smChannel });
     if (!selectedStreamGroup || !smChannel) {
+      Logger.warn('Missing selectedStreamGroup or smChannel', { selectedStreamGroup, smChannel });
       return;
     }
 
-    const request = {} as AddSMChannelToStreamGroupRequest;
-    request.StreamGroupId = selectedStreamGroup.Id;
-    request.SMChannelId = smChannel.Id;
+    const request: AddSMChannelToStreamGroupRequest = {
+      StreamGroupId: selectedStreamGroup.Id,
+      SMChannelId: smChannel.Id
+    };
 
-    await AddSMChannelToStreamGroup(request)
-      .then(() => {})
-      .catch((error) => {
-        console.error(error);
-      });
+    try {
+      await AddSMChannelToStreamGroup(request);
+      Logger.info('SMChannel added to StreamGroup successfully', { request });
+    } catch (error) {
+      Logger.error('Error adding SMChannel to StreamGroup', error);
+    }
   }, [smChannel, selectedStreamGroup]);
 
   const removeSMChannelFromStreamGroup = useCallback(async () => {
-    console.log('removeSMChannelFromStreamGroup', selectedStreamGroup);
+    Logger.debug('Attempting to remove SMChannel from StreamGroup', { selectedStreamGroup, smChannel });
     if (!selectedStreamGroup || !smChannel) {
+      Logger.warn('Missing selectedStreamGroup or smChannel', { selectedStreamGroup, smChannel });
       return;
     }
 
-    const request = {} as RemoveSMChannelFromStreamGroupRequest;
-    request.StreamGroupId = selectedStreamGroup.Id;
-    request.SMChannelId = smChannel.Id;
+    const request: RemoveSMChannelFromStreamGroupRequest = {
+      StreamGroupId: selectedStreamGroup.Id,
+      SMChannelId: smChannel.Id
+    };
 
-    await RemoveSMChannelFromStreamGroup(request)
-      .then(() => {})
-      .catch((error) => {
-        console.error(error);
-      });
+    try {
+      await RemoveSMChannelFromStreamGroup(request);
+      Logger.info('SMChannel removed from StreamGroup successfully', { request });
+    } catch (error) {
+      Logger.error('Error removing SMChannel from StreamGroup', error);
+    }
   }, [smChannel, selectedStreamGroup]);
 
   const isSMChannelInStreamGroup = useCallback(() => {
-    if (!smChannel || smChannel.StreamGroupIds === undefined || selectedStreamGroup === undefined || smChannel.StreamGroupIds.length === 0) {
+    if (!smChannel || !selectedStreamGroup || !smChannel.StreamGroupIds) {
       return false;
     }
 
-    return smChannel.StreamGroupIds.some((Id) => Id === selectedStreamGroup.Id);
+    return smChannel.StreamGroupIds.includes(selectedStreamGroup.Id);
   }, [selectedStreamGroup, smChannel]);
 
-  const name = useMemo(() => {
-    return selectedStreamGroup?.Name ?? '';
-  }, [selectedStreamGroup?.Name]);
+  const name = useMemo(() => selectedStreamGroup?.Name ?? '', [selectedStreamGroup?.Name]);
 
-  const tooltipClassName = useMemo(() => {
-    const ret = `basebutton-${uuidv4()}`;
-
-    return ret;
-  }, []);
+  const tooltipClassName = useMemo(() => `basebutton-${uuidv4()}`, []);
 
   if (isSMChannelInStreamGroup()) {
     return (
       <div className="flex justify-content-center align-items-center">
-        <SGRemoveButton onClick={(e) => removeSMChannelFromStreamGroup()} tooltip={`Remove From ${name}`} />
+        <SGRemoveButton onClick={removeSMChannelFromStreamGroup} tooltip={`Remove From ${name}`} />
       </div>
     );
   }
 
-  if (selectedStreamGroup === undefined) {
+  if (!selectedStreamGroup) {
     return (
       <>
         <Tooltip target={`.${tooltipClassName}`} />
         <div className="flex justify-content-center align-items-center">
           <span
             className={tooltipClassName}
-            data-pr-tooltip="Please Select a SG"
+            data-pr-tooltip="Please Select a SsG"
             data-pr-position="left"
             data-pr-showdelay={400}
             data-pr-hidedelay={100}
             data-pr-autohide={true}
           >
-            <i
-              className="pi pi-circle p-disabled"
-              data-pr-tooltip="Please Select a SG"
-              data-pr-position="left"
-              data-pr-showdelay={400}
-              data-pr-hidedelay={100}
-              data-pr-autohide={true}
-            />
+            <i className="pi pi-circle p-disabled" />
           </span>
         </div>
       </>
@@ -105,14 +99,14 @@ const SMChannelSGEditor = ({ smChannel, enableEditMode }: SMChannelSGEditorPrope
   if (selectedStreamGroup.Name === 'ALL') {
     return (
       <div className="flex justify-content-center align-items-center">
-        <SGRemoveButton disabled onClick={(e) => {}} tooltip="ALL SG" />
+        <SGRemoveButton disabled tooltip="ALL SG" />
       </div>
     );
   }
 
   return (
     <div className="flex justify-content-center align-items-center">
-      <SGAddButton onClick={(e) => addSMChannelToStreamGroup()} tooltip={`Add to ${name}`} />
+      <SGAddButton onClick={addSMChannelToStreamGroup} tooltip={`Add to ${name}`} />
     </div>
   );
 };

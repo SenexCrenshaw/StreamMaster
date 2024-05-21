@@ -4,7 +4,7 @@ import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import VisibleButton from '../buttons/VisibleButton';
 import { ChannelGroupDto, UpdateChannelGroupRequest, UpdateChannelGroupsRequest } from '@lib/smAPI/smapiTypes';
 import { UpdateChannelGroup, UpdateChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
-import SMDialog from '@components/sm/SMDialog';
+import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 import OKButton from '@components/buttons/OKButton';
 
 interface ChannelGroupVisibleDialogProperties {
@@ -17,6 +17,7 @@ interface ChannelGroupVisibleDialogProperties {
 const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }: ChannelGroupVisibleDialogProperties) => {
   const { selectedItems } = useSelectedItems<ChannelGroupDto>(id);
   const { selectAll } = useSelectAll(id);
+  const dialogRef = React.useRef<SMDialogRef>(null);
 
   const ReturnToParent = React.useCallback(() => {
     onClose?.();
@@ -36,6 +37,9 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
         .then(() => {})
         .catch((error) => {
           console.error(error);
+        })
+        .finally(() => {
+          dialogRef.current?.close();
         });
     } else if (selectedItems) {
       const toSend = {} as UpdateChannelGroupsRequest;
@@ -50,6 +54,9 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
         .then(() => {})
         .catch((error) => {
           console.error(error);
+        })
+        .finally(() => {
+          dialogRef.current?.close();
         });
     }
   }, [ReturnToParent, selectedItems, value]);
@@ -72,6 +79,7 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
 
   return (
     <SMDialog
+      ref={dialogRef}
       title="TOGGLE VISIBILITY"
       iconFilled={value === undefined}
       onHide={() => ReturnToParent()}
@@ -80,7 +88,7 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
       widthSize={2}
       info="General"
       tooltip="Toggle Visiblity"
-      header={<OKButton onClick={async () => await onVisibleClick()} tooltip="Delete Group" />}
+      header={<OKButton onClick={async () => await onVisibleClick()} tooltip="Toggle Visiblity" />}
     >
       <div className="flex justify-content-center w-full mb-2">{message}</div>
     </SMDialog>

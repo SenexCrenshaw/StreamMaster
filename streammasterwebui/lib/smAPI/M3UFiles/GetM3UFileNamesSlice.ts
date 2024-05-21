@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 import {FieldData,  } from '@lib/smAPI/smapiTypes';
 import { fetchGetM3UFileNames } from '@lib/smAPI/M3UFiles/GetM3UFileNamesFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
@@ -26,28 +27,28 @@ const getM3UFileNamesSlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-      console.log('GetM3UFileNames clear');
+      Logger.debug('GetM3UFileNames clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
       state.data = undefined;
-      console.log('GetM3UFileNames clearByTag');
+      Logger.debug('GetM3UFileNames clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
-      console.log('GetM3UFileNames setField');
+      Logger.debug('GetM3UFileNames setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
       state.data = undefined;
-      console.log('GetM3UFileNames  setIsForced ', force);
+      Logger.debug('GetM3UFileNames  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
       state.isLoading = action.payload.isLoading;
-      console.log('GetM3UFileNames setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetM3UFileNames setIsLoading ', action.payload.isLoading);
     }
 },
 

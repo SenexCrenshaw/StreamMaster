@@ -17,7 +17,7 @@ export interface SMButtonProps {
   readonly iconPos?: 'top' | 'bottom' | 'left' | 'right' | undefined;
   readonly isLeft?: boolean;
   readonly label?: string;
-  onClick: (e: React.SyntheticEvent) => void;
+  onClick?: (e: React.SyntheticEvent) => void;
   readonly rounded?: boolean;
   readonly severity?: SeverityType;
   tooltip?: string;

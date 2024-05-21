@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 import {FieldData,  } from '@lib/smAPI/smapiTypes';
 import { fetchGetIsSystemReady } from '@lib/smAPI/Settings/GetIsSystemReadyFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
@@ -26,28 +27,28 @@ const getIsSystemReadySlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-      console.log('GetIsSystemReady clear');
+      Logger.debug('GetIsSystemReady clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
       state.data = undefined;
-      console.log('GetIsSystemReady clearByTag');
+      Logger.debug('GetIsSystemReady clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
-      console.log('GetIsSystemReady setField');
+      Logger.debug('GetIsSystemReady setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
       state.data = undefined;
-      console.log('GetIsSystemReady  setIsForced ', force);
+      Logger.debug('GetIsSystemReady  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
       state.isLoading = action.payload.isLoading;
-      console.log('GetIsSystemReady setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetIsSystemReady setIsLoading ', action.payload.isLoading);
     }
 },
 

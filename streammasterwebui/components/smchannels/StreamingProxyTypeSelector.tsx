@@ -1,7 +1,11 @@
-import { SMOverlay } from '@components/sm/SMOverlay';
-import { SMChannelDto, StreamingProxyTypes } from '@lib/smAPI/smapiTypes';
+import React, { ReactNode, Suspense, lazy, useCallback, useMemo } from 'react';
 import { SelectItem } from 'primereact/selectitem';
-import React, { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
+import { SMOverlay } from '@components/sm/SMOverlay';
+import { SetSMChannelProxy } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { SMChannelDto, SetSMChannelProxyRequest, StreamingProxyTypes } from '@lib/smAPI/smapiTypes';
+import { Logger } from '@lib/common/logger';
+import { isNumber } from '@lib/common/common';
+
 const SMScroller = lazy(() => import('@components/sm/SMScroller'));
 
 interface StreamingProxyTypeSelectorProperties {
@@ -12,21 +16,6 @@ interface StreamingProxyTypeSelectorProperties {
 }
 
 const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties> = ({ darkBackGround, data, label, onChange: clientOnChange }) => {
-  const [selectedStreamProxyType, setSelectedStreamProxyType] = useState<StreamingProxyTypes | undefined>(undefined);
-
-  const getEnumValueByKey = (key: string): StreamingProxyTypes | undefined => {
-    return (StreamingProxyTypes as any)[key];
-  };
-
-  useEffect(() => {
-    if (selectedStreamProxyType === undefined) {
-      if (data !== undefined && data.StreamingProxyType !== undefined) {
-        const enumValue = getEnumValueByKey(data.StreamingProxyType as unknown as string);
-        setSelectedStreamProxyType(enumValue);
-      }
-    }
-  }, [data, selectedStreamProxyType]);
-
   const getHandlersOptions = useMemo((): SelectItem[] => {
     const options = Object.keys(StreamingProxyTypes)
       .filter((key) => isNaN(Number(key)))
@@ -34,19 +23,64 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
         label: key,
         value: StreamingProxyTypes[key as keyof typeof StreamingProxyTypes]
       }));
-    console.log('options', options);
+
+    Logger.debug('Handler options generated', { options });
     return options;
   }, []);
 
-  const onChange = (option: number) => {
+  const getEnumKeyByValue = useCallback(<T,>(enumObj: T, value: number): string | null => {
+    const entries = Object.entries(enumObj as unknown as Record<string, number>);
+    for (const [key, val] of entries) {
+      if (val === value) {
+        return key;
+      }
+    }
+    return null;
+  }, []);
+
+  const onChange = async (option: number) => {
     if (option === null || option === undefined) return;
-    setSelectedStreamProxyType(option);
-    clientOnChange && clientOnChange(option);
+    // setSelectedStreamProxyType(option);
+    await onSave(option);
+    if (clientOnChange) {
+      clientOnChange(option);
+    }
   };
+
+  const onSave = useCallback(
+    async (option: number) => {
+      if (!data) {
+        Logger.warn('No data available for saving', { option });
+        return;
+      }
+
+      const request: SetSMChannelProxyRequest = {
+        SMChannelId: data.Id,
+        StreamingProxy: option
+      };
+
+      try {
+        await SetSMChannelProxy(request);
+        Logger.info('Streaming proxy type saved successfully', { request });
+      } catch (error) {
+        Logger.error('Error saving streaming proxy type', { error, request });
+      }
+    },
+    [data]
+  );
 
   const buttonTemplate = useMemo((): ReactNode => {
     if (!data) {
       return <div className="text-xs text-container text-white-alpha-40">None</div>;
+    }
+
+    if (isNumber(data.StreamingProxyType)) {
+      const enumKey = getEnumKeyByValue(StreamingProxyTypes, data.StreamingProxyType);
+      return (
+        <div className="sm-epg-selector">
+          <div className="text-container pl-1">{enumKey}</div>
+        </div>
+      );
     }
 
     return (
@@ -54,20 +88,13 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
         <div className="text-container pl-1">{data.StreamingProxyType}</div>
       </div>
     );
-  }, [data]);
+  }, [data, getEnumKeyByValue]);
 
-  const valueTemplate = useCallback(
-    (option: SelectItem): JSX.Element => {
-      console.log(data, option);
-      if (option === null || option === undefined) {
-        return <div className="text-xs text-container"></div>;
-      }
-      return <div className="text-xs text-container">{option.label}</div>;
-    },
-    [data]
-  );
+  const valueTemplate = useCallback((option: SelectItem): JSX.Element => {
+    return <div className="text-xs text-container">{option?.label ?? ''}</div>;
+  }, []);
 
-  if (selectedStreamProxyType === undefined && data === undefined) {
+  if (data?.StreamingProxyType === undefined && data === undefined) {
     return null;
   }
 
@@ -83,9 +110,9 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
       )}
       <div className={darkBackGround ? 'sm-input-border-dark w-full' : 'w-full'}>
         <SMOverlay title="PROXY" widthSize="2" icon="pi-chevron-down" buttonTemplate={buttonTemplate} buttonLabel="EPG">
-          <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right ">
-            <Suspense>
-              <div className="flex w-12 ml-1">
+          <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right">
+            <Suspense fallback={<div>Loading...</div>}>
+              <div className="flex w-12">
                 <SMScroller
                   data={getHandlersOptions}
                   dataKey="label"
@@ -93,11 +120,11 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
                   filterBy="label"
                   itemSize={26}
                   itemTemplate={valueTemplate}
-                  onChange={(e) => {
-                    onChange(e.value);
+                  onChange={async (e) => {
+                    await onChange(e.value);
                   }}
                   scrollHeight={150}
-                  value={selectedStreamProxyType}
+                  value={data?.StreamingProxyType}
                 />
               </div>
             </Suspense>

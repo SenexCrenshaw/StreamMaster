@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 import {FieldData,  } from '@lib/smAPI/smapiTypes';
 import { fetchGetEPGNextEPGNumber } from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
@@ -26,28 +27,28 @@ const getEPGNextEPGNumberSlice = createSlice({
   reducers: {
     clear: (state) => {
       state = initialState;
-      console.log('GetEPGNextEPGNumber clear');
+      Logger.debug('GetEPGNextEPGNumber clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
       state.data = undefined;
-      console.log('GetEPGNextEPGNumber clearByTag');
+      Logger.debug('GetEPGNextEPGNumber clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
-      console.log('GetEPGNextEPGNumber setField');
+      Logger.debug('GetEPGNextEPGNumber setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
       state.data = undefined;
-      console.log('GetEPGNextEPGNumber  setIsForced ', force);
+      Logger.debug('GetEPGNextEPGNumber  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
       state.isLoading = action.payload.isLoading;
-      console.log('GetEPGNextEPGNumber setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetEPGNextEPGNumber setIsLoading ', action.payload.isLoading);
     }
 },
 
