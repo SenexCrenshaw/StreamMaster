@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 
 namespace StreamMaster.Application.ChannelGroups.Commands;
-public record UpdateChannelGroupCountRequest(ChannelGroupDto ChannelGroup, bool Publish)
+public record UpdateChannelGroupCountRequest(ChannelGroupDto ChannelGroup)
     : IRequest<DataResponse<ChannelGroupDto>>
 { }
 
@@ -26,18 +26,12 @@ public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCou
 
             await repository.SaveAsync();
 
-            if (request.Publish)
-            {
-                await hubContext.Clients.All.ChannelGroupsRefresh([request.ChannelGroup]).ConfigureAwait(false);
-            }
-
-
             return DataResponse<ChannelGroupDto>.Success(request.ChannelGroup);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error while processing UpdateChannelGroupCountRequest.");
-            throw; // Re-throw the exception or handle as needed
+            throw;
         }
     }
 }

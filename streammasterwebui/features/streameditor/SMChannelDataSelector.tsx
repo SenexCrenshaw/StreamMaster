@@ -35,10 +35,9 @@ import useSelectedSMItems from './useSelectedSMItems';
 interface SMChannelDataSelectorProperties {
   readonly enableEdit?: boolean;
   readonly id: string;
-  readonly reorderable?: boolean;
 }
 
-const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: SMChannelDataSelectorProperties) => {
+const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDataSelectorProperties) => {
   const dataKey = `${id}-SMChannelDataSelector`;
   const { isTrue: smTableIsSimple } = useIsTrue('streameditor-SMStreamDataSelector');
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
@@ -157,9 +156,6 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }:
         <div className="flex flex-row justify-content-end align-items-center w-full gap-1  pr-1">
           <EPGFilesButton />
           <SMChannelMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} skipOverLayer />
-
-          {/* <DeleteSMChannelDialog /> */}
-          {/* <SMButton className="icon-red-filled" icon="pi pi-times" rounded onClick={() => {}} /> */}
           <DeleteSMChannelsDialog selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} />
           <CreateSMChannelDialog />
           <SMChannelMenu />

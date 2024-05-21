@@ -1,25 +1,23 @@
-import { SMOverlay } from '@components/sm/SMOverlay';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { ProgressSpinner } from 'primereact/progressspinner';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import { SMOverlay } from '@components/sm/SMOverlay';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
 import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
-import { ProgressSpinner } from 'primereact/progressspinner';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import ChannelGroupVisibleDialog from './ChannelGroupVisibleDialog';
-import { useChannelGroupNameColumnConfig } from '@components/columns/ChannelGroups/useChannelGroupNameColumnConfig';
-import ChannelGroupAddDialog from './ChannelGroupAddDialog';
-import ChannelGroupDeleteDialog from './ChannelGroupDeleteDialog';
 import useSelectedAndQ from '@lib/hooks/useSelectedAndQ';
 import useSortedData from '@components/smDataTable/helpers/useSortedData';
+import { useChannelGroupNameColumnConfig } from '@components/columns/ChannelGroups/useChannelGroupNameColumnConfig';
+import ChannelGroupVisibleDialog from './ChannelGroupVisibleDialog';
+import ChannelGroupAddDialog from './ChannelGroupAddDialog';
+import ChannelGroupDeleteDialog from './ChannelGroupDeleteDialog';
 
 type ChannelGroupSelectorProperties = {
   readonly darkBackGround?: boolean;
   readonly dataKey: string;
   readonly enableEditMode?: boolean;
-  readonly disabled?: boolean;
   readonly useSelectedItemsFilter?: boolean;
-  readonly editable?: boolean | undefined;
   readonly label?: string;
   readonly value?: string;
   readonly onChange?: (value: ChannelGroupDto[]) => void;
@@ -34,50 +32,39 @@ const ChannelGroupSelector = ({
   useSelectedItemsFilter,
   value
 }: ChannelGroupSelectorProperties) => {
-  const { selectedItems } = useSelectedAndQ(dataKey);
-
-  const [input, setInput] = useState<string | undefined>(undefined);
-  const [originalInput, setOriginalInput] = useState<string | undefined>(undefined);
+  const { selectedItems, showHidden } = useSelectedAndQ(dataKey);
+  const [input, setInput] = useState<string | undefined>(value);
   const { isSystemReady } = useSMContext();
-
   const channelGroupQuery = useGetChannelGroups();
   const sortedData = useSortedData(dataKey, channelGroupQuery.data);
-
   const { columnConfig: channelGroupNameColumnConfig } = useChannelGroupNameColumnConfig({ enableEdit: true });
-
-  const loading = channelGroupQuery.isError || channelGroupQuery.isFetching || channelGroupQuery.isLoading || !channelGroupQuery.data || isSystemReady !== true;
+  const loading = channelGroupQuery.isLoading || channelGroupQuery.isFetching || !channelGroupQuery.data || isSystemReady !== true;
 
   useEffect(() => {
-    if (!originalInput || originalInput !== value) {
-      setOriginalInput(value);
-      if (value) {
-        setInput(value);
-        // const found = channelGroupQuery.data?.find((x) => x.Name === value);
-        // if (found) {
-        //   // setSelectedChannelGroup(found);
-        // }
-      }
+    if (value !== undefined) {
+      setInput(value);
     }
-  }, [value, originalInput, channelGroupQuery.data]);
+  }, [value]);
 
   const dataSource = useMemo(() => {
-    return sortedData;
-  }, [sortedData]);
+    if (showHidden === null) {
+      return sortedData;
+    }
+    return sortedData.filter((x) => (showHidden ? !x.IsHidden : x.IsHidden));
+  }, [showHidden, sortedData]);
 
   const buttonTemplate = useMemo(() => {
     if (input) {
-      console.log('input', input);
       if (Array.isArray(input)) {
-        if (input && input.length > 0) {
-          const arr = input as ChannelGroupDto[];
-          const names = arr.slice(0, 2).map((x) => x.Name);
-          const suffix = arr.length > 2 ? ',...' : '';
-          return <div className="text-container">{names.join(', ') + suffix}</div>;
+        if (input.length > 0) {
+          const sortedInput = [...input].sort(); // Ensure the input array is sorted
+          const suffix = input.length > 2 ? ',...' : '';
+          return <div className="text-container">{sortedInput.join(', ') + suffix}</div>;
         }
       }
       return (
         <div className="sm-channelgroup-selector">
-          <div className="text-container ">{input}</div>
+          <div className="text-container">{input}</div>
         </div>
       );
     }
@@ -101,13 +88,14 @@ const ChannelGroupSelector = ({
     [dataKey]
   );
 
-  const streamCountTemplate = useCallback((data: ChannelGroupDto) => {
-    return (
+  const streamCountTemplate = useCallback(
+    (data: ChannelGroupDto) => (
       <div>
         {data.ActiveCount}/{data.TotalCount}
       </div>
-    );
-  }, []);
+    ),
+    []
+  );
 
   const columns = useMemo(
     (): ColumnMeta[] => [
@@ -118,22 +106,22 @@ const ChannelGroupSelector = ({
     [actionTemplate, channelGroupNameColumnConfig, streamCountTemplate]
   );
 
-  const headerRightTemplate = useMemo(() => {
-    return (
+  const headerRightTemplate = useMemo(
+    () => (
       <>
         <ChannelGroupVisibleDialog id={dataKey} />
         <ChannelGroupDeleteDialog id={dataKey} />
         <ChannelGroupAddDialog />
       </>
-    );
-  }, [dataKey]);
+    ),
+    [dataKey]
+  );
 
   const getDiv = useMemo(() => {
     let ret = 'input-height-with-no-borders w-11';
-    if (darkBackGround === true) {
+    if (darkBackGround) {
       ret += ' dark-background sm-input-border-dark';
     }
-
     return ret;
   }, [darkBackGround]);
 
@@ -157,7 +145,6 @@ const ChannelGroupSelector = ({
           <div className="pt-small" />
         </div>
       )}
-
       <SMOverlay buttonTemplate={buttonTemplate} title="GROUPS" widthSize="3" icon="pi-chevron-down" buttonLabel="GROUP" header={headerRightTemplate}>
         <SMDataTable
           id={dataKey}
@@ -180,4 +167,4 @@ const ChannelGroupSelector = ({
 };
 
 ChannelGroupSelector.displayName = 'ChannelGroupSelector';
-export default React.memo(ChannelGroupSelector);
+export default memo(ChannelGroupSelector);

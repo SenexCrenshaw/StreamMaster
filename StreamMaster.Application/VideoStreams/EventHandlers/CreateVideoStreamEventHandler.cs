@@ -13,7 +13,7 @@ public class CreateVideoStreamEventHandler(ILogger<CreateVideoStreamEvent> logge
         DataResponse<ChannelGroupDto?> channelGroup = await Sender.Send<DataResponse<ChannelGroupDto>>(new GetChannelGroupByNameRequest(notification.VideoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
         if (channelGroup?.Data != null)
         {
-            await Sender.Send(new UpdateChannelGroupCountRequest(channelGroup.Data, true), cancellationToken).ConfigureAwait(false);
+            await Sender.Send(new UpdateChannelGroupCountRequest(channelGroup.Data), cancellationToken).ConfigureAwait(false);
             await Publisher.Publish(new UpdateChannelGroupEvent(channelGroup.Data, false, false), cancellationToken).ConfigureAwait(false);
         }
         //await HubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);

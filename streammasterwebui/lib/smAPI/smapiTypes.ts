@@ -37,11 +37,11 @@ export interface StreamGroupSMChannelLink
 export interface ChannelGroupDto
 {
 	ActiveCount: number;
+	APIName: string;
 	HiddenCount: number;
 	Id: number;
 	IsHidden: boolean;
 	IsReadOnly: boolean;
-	MainGet: string;
 	Name: string;
 	RegexMatch: string;
 	TotalCount: number;

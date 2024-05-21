@@ -5,7 +5,7 @@ namespace StreamMaster.Domain.Models;
 
 public class ChannelGroup : BaseEntity
 {
-    public static string MainGet => "GetPagedChannelGroups";
+    public static string APIName => "ChannelGroups";
 
     [Key]
     public int Id { get; set; }

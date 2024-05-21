@@ -325,6 +325,65 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
           getSystemStatus.SetField(fieldData)
           return;
         }
+      if ( fieldData.Entity === 'ChannelGroups') {
+        getChannelGroups.SetField(fieldData);
+        getPagedChannelGroups.SetField(fieldData);
+        return;
+      }
+      if ( fieldData.Entity === 'EPG') {
+        getEPGColors.SetField(fieldData);
+        return;
+      }
+      if ( fieldData.Entity === 'EPGFiles') {
+        getEPGFilePreviewById.SetField(fieldData);
+        getEPGFiles.SetField(fieldData);
+        getEPGNextEPGNumber.SetField(fieldData);
+        getM3UFiles.SetField(fieldData);
+        getPagedEPGFiles.SetField(fieldData);
+        return;
+      }
+      if ( fieldData.Entity === 'Icons') {
+        getIcons.SetField(fieldData);
+        return;
+      }
+      if ( fieldData.Entity === 'Settings') {
+        getIsSystemReady.SetField(fieldData);
+        getSettings.SetField(fieldData);
+        getSystemStatus.SetField(fieldData);
+        return;
+      }
+      if ( fieldData.Entity === 'M3UFiles') {
+        getM3UFileNames.SetField(fieldData);
+        getPagedM3UFiles.SetField(fieldData);
+        return;
+      }
+      if ( fieldData.Entity === 'SMChannels') {
+        getPagedSMChannels.SetField(fieldData);
+        getSMChannel.SetField(fieldData);
+        getSMChannelNames.SetField(fieldData);
+        return;
+      }
+      if ( fieldData.Entity === 'SMStreams') {
+        getPagedSMStreams.SetField(fieldData);
+        return;
+      }
+      if ( fieldData.Entity === 'StreamGroups') {
+        getPagedStreamGroups.SetField(fieldData);
+        getStreamGroups.SetField(fieldData);
+        return;
+      }
+      if ( fieldData.Entity === 'SMChannelStreamLinks') {
+        getSMChannelStreams.SetField(fieldData);
+        return;
+      }
+      if ( fieldData.Entity === 'SchedulesDirect') {
+        getStationChannelNames.SetField(fieldData);
+        return;
+      }
+      if ( fieldData.Entity === 'StreamGroupSMChannelLinks') {
+        getStreamGroupSMChannels.SetField(fieldData);
+        return;
+      }
       });
     },
     [getChannelGroups,getEPGColors,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getIcons,getIsSystemReady,getM3UFileNames,getM3UFiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSettings,getSMChannel,getSMChannelNames,getSMChannelStreams,getStationChannelNames,getStreamGroups,getStreamGroupSMChannels,getSystemStatus]

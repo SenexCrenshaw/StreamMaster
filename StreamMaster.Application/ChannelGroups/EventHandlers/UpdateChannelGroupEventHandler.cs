@@ -12,19 +12,19 @@ public class UpdateChannelGroupEventHandler(ILogger<UpdateChannelGroupEvent> log
         List<FieldData> fds = [];
         if (notification.ChannelGroupToggelVisibility)
         {
-            await Sender.Send(new UpdateChannelGroupCountRequest(notification.ChannelGroup, true), cancellationToken).ConfigureAwait(false);
+            await Sender.Send(new UpdateChannelGroupCountRequest(notification.ChannelGroup), cancellationToken).ConfigureAwait(false);
             fds.AddRange([
-                new(ChannelGroup.MainGet, notification.ChannelGroup.Id, "IsHidden", notification.ChannelGroup.IsHidden),
-                new(ChannelGroup.MainGet, notification.ChannelGroup.Id, "ActiveCount", notification.ChannelGroup.ActiveCount),
-                new(ChannelGroup.MainGet, notification.ChannelGroup.Id, "TotalCount", notification.ChannelGroup.TotalCount),
-                new(ChannelGroup.MainGet, notification.ChannelGroup.Id, "HiddenCount", notification.ChannelGroup.HiddenCount),
+                new(ChannelGroup.APIName, notification.ChannelGroup.Id, "IsHidden", notification.ChannelGroup.IsHidden),
+                new(ChannelGroup.APIName, notification.ChannelGroup.Id, "ActiveCount", notification.ChannelGroup.ActiveCount),
+                new(ChannelGroup.APIName, notification.ChannelGroup.Id, "TotalCount", notification.ChannelGroup.TotalCount),
+                new(ChannelGroup.APIName, notification.ChannelGroup.Id, "HiddenCount", notification.ChannelGroup.HiddenCount),
             ]);
 
         }
 
-        if (notification.ChannelGroupToggelVisibility || notification.ChannelGroupNameChanged)
+        if (notification.ChannelGroupNameChanged)
         {
-            fds.Add(new(ChannelGroup.MainGet, notification.ChannelGroup.Id, "Name", notification.ChannelGroup.Name));
+            fds.Add(new(ChannelGroup.APIName, notification.ChannelGroup.Id, "Name", notification.ChannelGroup.Name));
         }
 
         if (fds.Count > 0)
@@ -35,13 +35,15 @@ public class UpdateChannelGroupEventHandler(ILogger<UpdateChannelGroupEvent> log
 
         if (notification.ChannelGroupToggelVisibility)
         {
-            await dataRefreshService.ClearByTag(ChannelGroup.MainGet, "IsHidden").ConfigureAwait(false);
+            await dataRefreshService.ClearByTag(ChannelGroup.APIName, "IsHidden").ConfigureAwait(false);
         }
 
         if (notification.ChannelGroupNameChanged)
         {
-            await dataRefreshService.ClearByTag(ChannelGroup.MainGet, "Name").ConfigureAwait(false);
+            await dataRefreshService.ClearByTag(ChannelGroup.APIName, "Name").ConfigureAwait(false);
         }
+
+        // await dataRefreshService.RefreshChannelGroups();
 
 
         IEnumerable<StreamGroupDto> sgs = await Sender.Send(new GetStreamGroupsFromChannelGroupQuery(notification.ChannelGroup.Id), cancellationToken).ConfigureAwait(false);

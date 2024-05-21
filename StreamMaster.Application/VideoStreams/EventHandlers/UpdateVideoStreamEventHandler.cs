@@ -22,7 +22,7 @@ public class UpdateVideoStreamEventHandler(ILogger<UpdateVideoStreamEvent> logge
         DataResponse<ChannelGroupDto?> channelGroup = await Sender.Send<DataResponse<ChannelGroupDto>>(new GetChannelGroupByNameRequest(notification.VideoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
         if (channelGroup?.Data != null)
         {
-            await Sender.Send(new UpdateChannelGroupCountRequest(channelGroup.Data, false), cancellationToken).ConfigureAwait(false);
+            await Sender.Send(new UpdateChannelGroupCountRequest(channelGroup.Data), cancellationToken).ConfigureAwait(false);
             await Publisher.Publish(new UpdateChannelGroupEvent(channelGroup.Data, false, false), cancellationToken).ConfigureAwait(false);
         }
 

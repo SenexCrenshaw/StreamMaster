@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import StringEditor from './StringEditor';
+import { useLocalStorage } from 'primereact/hooks';
 
 export interface StringTrackerProperties {
   readonly id: string;
@@ -9,15 +9,7 @@ export interface StringTrackerProperties {
 }
 
 const StringTracker = ({ id, onChange, placeholder, value }: StringTrackerProperties) => {
-  const [intValue, setIntValue] = useState<string | undefined>('');
-
-  // useEffect(() => {
-  //   if (value === intValue) {
-  //     return;
-  //   }
-
-  //   setIntValue(value ?? undefined);
-  // }, [intValue, value]);
+  const [intValue, setIntValue] = useLocalStorage<string | undefined>('', id);
 
   return (
     <StringEditor

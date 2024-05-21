@@ -84,34 +84,6 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
     >
       <div className="flex justify-content-center w-full mb-2">{message}</div>
     </SMDialog>
-
-    // <>
-    //   <InfoMessageOverLayDialog
-    //     blocked={block}
-    //     closable
-    //     header="Toggle Visibility?"
-    //     infoMessage={infoMessage}
-    //     onClose={() => {
-    //       ReturnToParent();
-    //     }}
-    //     show={showOverlay}
-    //   >
-    //     <div className="flex justify-content-center w-full mb-2">
-    //       <VisibleButton label="Toggle Visibility" onClick={async () => await onVisibleClick()} />
-    //     </div>
-    //   </InfoMessageOverLayDialog>
-    //   <VisibleButton
-    //     // disabled={getTotalCount === 0}
-    //     iconFilled={false}
-    //     onClick={async () => {
-    //       if (selectedItems.length > 1) {
-    //         setShowOverlay(true);
-    //       } else {
-    //         await onVisibleClick();
-    //       }
-    //     }}
-    //   />
-    // </>
   );
 };
 

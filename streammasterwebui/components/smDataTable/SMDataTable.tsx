@@ -580,8 +580,9 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   );
 
   const isLazy = useMemo(() => {
-    return undefined; //props.queryFilter !== undefined || props.dataSource !== undefined;
-  }, []);
+    console.log('isLazy', props.id, props.queryFilter === undefined);
+    return props.queryFilter === undefined ? undefined : true; //undefined; // props.queryFilter !== undefined ? true : undefined;
+  }, [props.id, props.queryFilter]);
 
   const showPageination = useMemo(() => {
     return props.enablePaginator === true && state.dataSource && state.dataSource.length >= state.rows;

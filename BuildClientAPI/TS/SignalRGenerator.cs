@@ -96,14 +96,6 @@ public static class SignalRGenerator
         return content.ToString();
     }
 
-    //private static string SetField(List<MethodDetails> methods)
-    //{
-    //    StringBuilder content = new();
-    //    content.AppendLine("  const setField = useSetField();");
-
-    //    return content.ToString();
-    //}
-
     private static string ClearByTag(List<MethodDetails> methods)
     {
         StringBuilder content = new();
@@ -145,8 +137,27 @@ public static class SignalRGenerator
             content.AppendLine("        }");
             deps.Add(method.Name.ToCamelCase());
         }
+        Dictionary<string, List<MethodDetails>> keyValuePairs = methods.Where(a => a.IsGet).GroupBy(a => a.NamespaceName).ToDictionary(a => a.Key, a => a.ToList());
+
+
+        foreach (KeyValuePair<string, List<MethodDetails>> namespaceName in keyValuePairs)
+        {
+            content.AppendLine($"      if ( fieldData.Entity === '{namespaceName.Key}') {{");
+            foreach (MethodDetails method in namespaceName.Value)
+            {
+
+                content.AppendLine($"        {method.Name.ToCamelCase()}.SetField(fieldData);");
+
+
+            }
+            content.AppendLine("        return;");
+            content.AppendLine("      }");
+        }
+
         content.AppendLine("      });");
         content.AppendLine("    },");
+
+
 
         string depString = string.Join(",", deps);
         content.AppendLine($"    [{depString}]");

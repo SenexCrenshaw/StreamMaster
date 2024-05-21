@@ -140,8 +140,9 @@ const StringEditor = ({
   }, [needsSave, darkBackGround]);
 
   const doShowClear = useMemo((): boolean => {
-    return showClear === true && isFocused && inputValue !== originalValue;
-  }, [inputValue, isFocused, originalValue, showClear]);
+    return showClear === true && isFocused;
+    // return showClear === true && isFocused && inputValue !== originalValue;
+  }, [isFocused, showClear]);
 
   useEffect(() => {
     if (autoFocus === true && inputRef.current) {

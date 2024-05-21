@@ -29,7 +29,7 @@ public class UpdateVideoStreamRequestHandler(ILogger<UpdateVideoStreamRequest> l
             if (updateChannelGroup != null)
             {
 
-                await Sender.Send(new UpdateChannelGroupCountRequest(updateChannelGroup, true), cancellationToken).ConfigureAwait(false);
+                await Sender.Send(new UpdateChannelGroupCountRequest(updateChannelGroup), cancellationToken).ConfigureAwait(false);
                 await HubContext.Clients.All.ChannelGroupsRefresh([updateChannelGroup]).ConfigureAwait(false);
             }
         }

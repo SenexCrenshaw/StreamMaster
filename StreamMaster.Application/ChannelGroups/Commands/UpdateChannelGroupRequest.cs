@@ -59,7 +59,7 @@ public class UpdateChannelGroupRequestHandler(IRepositoryWrapper Repository, IMa
             ChannelGroupDto dto = Mapper.Map<ChannelGroupDto>(channelGroup);
             if (checkCounts)
             {
-                await Sender.Send(new UpdateChannelGroupCountRequest(dto, false), cancellationToken).ConfigureAwait(false);
+                await Sender.Send(new UpdateChannelGroupCountRequest(dto), cancellationToken).ConfigureAwait(false);
             }
 
             await Publisher.Publish(new UpdateChannelGroupEvent(dto, request.ToggleVisibility ?? false, nameChanged != null), cancellationToken).ConfigureAwait(false);

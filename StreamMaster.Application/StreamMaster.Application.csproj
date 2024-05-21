@@ -24,16 +24,19 @@
     <Optimize>False</Optimize>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="ChannelGroups\Hub\**" />
     <Compile Remove="Common\Aspects\**" />
     <Compile Remove="Common\Attributes\**" />
     <Compile Remove="Common\Repository\**" />
     <Compile Remove="Programmes\Commands\**" />
     <Compile Remove="SchedulesDirect\NewFolder\**" />
+    <EmbeddedResource Remove="ChannelGroups\Hub\**" />
     <EmbeddedResource Remove="Common\Aspects\**" />
     <EmbeddedResource Remove="Common\Attributes\**" />
     <EmbeddedResource Remove="Common\Repository\**" />
     <EmbeddedResource Remove="Programmes\Commands\**" />
     <EmbeddedResource Remove="SchedulesDirect\NewFolder\**" />
+    <None Remove="ChannelGroups\Hub\**" />
     <None Remove="Common\Aspects\**" />
     <None Remove="Common\Attributes\**" />
     <None Remove="Common\Repository\**" />
@@ -64,7 +67,6 @@
     <ProjectReference Include="..\StreamMaster.Streams.Domain\StreamMaster.Streams.Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ChannelGroups\Hub\" />
     <Folder Include="Common\Logging\" />
     <Folder Include="General\Queries\" />
     <Folder Include="Settings\Commands\" />
