@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record SetSMChannelEPGIdRequest(int SMChannelId, string EPGId) : IRequest<APIResponse>;
 
-internal class SetSMChannelEPGIdRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<SetSMChannelEPGIdRequest, APIResponse>
+internal class SetSMChannelEPGIdRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService) : IRequestHandler<SetSMChannelEPGIdRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(SetSMChannelEPGIdRequest request, CancellationToken cancellationToken)
     {
@@ -15,9 +15,9 @@ internal class SetSMChannelEPGIdRequestHandler(IRepositoryWrapper Repository, IM
             return ret;
         }
 
-        FieldData fd = new(SMChannel.MainGet, request.SMChannelId, "EPGId", request.EPGId);
-        await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
-        //await messageService.SendSuccess($"Set EPG {ret.Message}");
+        FieldData fd = new(SMChannel.APIName, request.SMChannelId, "EPGId", request.EPGId);
+        await dataRefreshService.SetField([fd]).ConfigureAwait(false);
+
         return ret;
     }
 }

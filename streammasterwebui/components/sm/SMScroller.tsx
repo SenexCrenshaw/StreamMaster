@@ -8,9 +8,7 @@ import { VirtualScroller } from 'primereact/virtualscroller';
 import React, { useCallback, useEffect, useMemo } from 'react';
 
 interface SMScrollerProps {
-  readonly autoFocus?: boolean;
   readonly className?: string;
-  readonly style?: React.CSSProperties;
   readonly data: any;
   readonly itemTemplate: (item: any) => React.ReactNode;
   readonly value?: any;
@@ -27,7 +25,6 @@ interface SMScrollerProps {
 }
 
 const SMScroller: React.FC<SMScrollerProps> = ({
-  autoFocus,
   data,
   dataKey,
   className,
@@ -40,7 +37,6 @@ const SMScroller: React.FC<SMScrollerProps> = ({
   select,
   selectedItemsKey,
   simple,
-  style,
   value,
   scrollHeight = 100
 }) => {
@@ -222,7 +218,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
         <div className="flex align-items-center justify-content-between px-2 pt-1 ">
           <div className="w-11">
             <StringEditor
-              autoFocus={autoFocus}
+              autoFocus
               disableDebounce
               darkBackGround
               placeholder="Filter..."

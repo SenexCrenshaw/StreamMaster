@@ -1,4 +1,4 @@
-import EPGSGEditor from '@components/epg/EPGSGEditor';
+import SMChannelSGEditor from '@components/columns/SMChannel/SMChannelSGEditor';
 import { SMTriSelectShowSG } from '@components/sm/SMTriSelectShowSG';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { AdditionalFilterProperties } from '@lib/common/common';
@@ -9,7 +9,13 @@ import { SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { ReactNode, useCallback, useEffect, useState } from 'react';
 
-export const useSMChannelSGColumnConfig = (dataKey: string, id: string) => {
+interface SMChannelSGColumnConfigProperties {
+  readonly dataKey: string;
+  readonly id: string;
+  readonly width?: string;
+}
+
+export const useSMChannelSGColumnConfig = ({ dataKey, id, width = '2rem' }: SMChannelSGColumnConfigProperties) => {
   const [previousSGID, setPreviousSGID] = useState<number>(0);
   const { queryAdditionalFilters, setQueryAdditionalFilters } = useQueryAdditionalFilters(id);
 
@@ -18,7 +24,7 @@ export const useSMChannelSGColumnConfig = (dataKey: string, id: string) => {
   const { showHidden, setShowHidden } = useShowHidden(dataKey); //+ selectedStreamGroup?.Id ?? '0');
 
   const bodyTemplate = useCallback((bodyData: SMChannelDto) => {
-    return <EPGSGEditor smChannel={bodyData} />;
+    return <SMChannelSGEditor smChannel={bodyData} />;
   }, []);
 
   const updateFilters = useCallback(
@@ -96,10 +102,10 @@ export const useSMChannelSGColumnConfig = (dataKey: string, id: string) => {
     filter: false,
     filterElement: filterTemplate,
     header: '',
-    maxWidth: '2rem',
-    minWidth: '2rem',
+    maxWidth: width,
+    minWidth: width,
     sortable: false,
-    width: '2rem'
+    width: width
   };
 
   return columnConfig;

@@ -1,11 +1,9 @@
-﻿using StreamMaster.Application.SMStreams.Commands;
-
-namespace StreamMaster.Application.SMChannels.Commands;
+﻿namespace StreamMaster.Application.SMChannels.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record ToggleSMChannelVisibleByParametersRequest(QueryStringParameters Parameters) : IRequest<APIResponse>;
-internal class ToggleSMChannelVisibleByParametersRequestHandler(IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<ToggleSMChannelVisibleByParametersRequest, APIResponse>
+internal class ToggleSMChannelVisibleByParametersRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService) : IRequestHandler<ToggleSMChannelVisibleByParametersRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(ToggleSMChannelVisibleByParametersRequest request, CancellationToken cancellationToken)
     {
@@ -15,8 +13,8 @@ internal class ToggleSMChannelVisibleByParametersRequestHandler(IRepositoryWrapp
             return APIResponse.NotFound;
         }
 
-        await hubContext.Clients.All.SetField(ret).ConfigureAwait(false);
-        await hubContext.Clients.All.ClearByTag(new ClearByTag("GetPagedSMChannels", "IsHidden")).ConfigureAwait(false);
+        await dataRefreshService.SetField(ret).ConfigureAwait(false);
+        await dataRefreshService.ClearByTag(SMChannel.APIName, "IsHidden").ConfigureAwait(false);
 
         return APIResponse.Success;
     }

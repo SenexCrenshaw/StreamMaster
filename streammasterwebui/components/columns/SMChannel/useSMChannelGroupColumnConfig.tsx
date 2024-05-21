@@ -9,8 +9,13 @@ import { DataTableFilterMetaData } from 'primereact/datatable';
 import { ReactNode, useMemo } from 'react';
 import SMChannelGroupEditor from './SMChannelGroupEditor';
 
-export const useSMChannelGroupColumnConfig = (tableDataKey: string) => {
-  const { filters, setFilters } = useFilters(tableDataKey);
+interface SMChannelGroupColumnConfigProperties {
+  readonly dataKey: string;
+  readonly width?: string;
+}
+
+export const useSMChannelGroupColumnConfig = ({ dataKey, width = '10rem' }: SMChannelGroupColumnConfigProperties) => {
+  const { filters, setFilters } = useFilters(dataKey);
   const { selectedItems } = useSelectedAndQ('useSMChannelGroupColumnConfig');
 
   const columnConfig: ColumnMeta = useMemo(() => {
@@ -64,12 +69,12 @@ export const useSMChannelGroupColumnConfig = (tableDataKey: string) => {
       filter: true,
       filterElement: filterTemplate,
       header: 'Group',
-      maxWidth: '10rem',
-      minWidth: '10rem',
+      maxWidth: width,
+      minWidth: width,
       sortable: true,
-      width: '10rem'
+      width: width
     } as ColumnMeta;
-  }, [filters, selectedItems, setFilters]);
+  }, [filters, selectedItems, setFilters, width]);
 
   return columnConfig;
 };

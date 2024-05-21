@@ -7417,6 +7417,9 @@
   padding-top: 0.3rem !important;
 }
 
+.p-multiselect-items .p-multiselect-item:nth-child(odd) {
+  background: #1b2327;
+}
 .p-multiselect-items .p-multiselect-item {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -7924,6 +7927,10 @@
 
 .sm-scroller {
   min-width: 200px;
+}
+
+.sm-scroller-items .sm-scroller-item:nth-child(odd) {
+  background: #1b2327;
 }
 
 .sm-scroller-item {

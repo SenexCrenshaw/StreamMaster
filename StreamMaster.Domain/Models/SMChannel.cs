@@ -21,7 +21,7 @@ public class SMChannel
     [JsonIgnore]
     [IgnoreMember]
     public ICollection<StreamGroupSMChannelLink> StreamGroups { get; set; } = [];
-    public static string MainGet => "GetPagedSMChannels";
+    public static string APIName => "SMChannels";
     public StreamingProxyTypes StreamingProxyType { get; set; } = StreamingProxyTypes.SystemDefault;
     public bool IsHidden { get; set; } = false;
 

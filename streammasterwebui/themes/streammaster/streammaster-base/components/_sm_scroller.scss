@@ -2,7 +2,12 @@
     min-width: 200px;
 }
 
-.sm-scroller-items {}
+.sm-scroller-items {
+    .sm-scroller-item:nth-child(odd) {
+        background: $tableBodyRowEvenBg;
+    }
+}
+
 
 .sm-scroller-item {
     @include text-overflow();
@@ -13,7 +18,6 @@
     background: $inputListItemBg;
     transition: $listItemTransition;
     border-radius: $inputListItemBorderRadius;
-
 
     &:first-child {
         margin-top: 0;

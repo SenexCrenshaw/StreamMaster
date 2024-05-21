@@ -15,6 +15,11 @@ public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMes
             return APIResponse.NotFound;
         }
 
+        if (request.Name.Equals("all", StringComparison.CurrentCultureIgnoreCase))
+        {
+            return APIResponse.ErrorWithMessage($"The name '{request.Name}' is reserved");
+        }
+
         StreamGroup streamGroup = new()
         {
             Name = request.Name,

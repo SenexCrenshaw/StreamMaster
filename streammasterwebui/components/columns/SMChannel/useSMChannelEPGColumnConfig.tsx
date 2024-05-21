@@ -8,7 +8,11 @@ import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import { ReactNode, useCallback, useMemo, useRef } from 'react';
 
-export const useSMChannelEPGColumnConfig = () => {
+interface SMChannelEPGColumnConfigProperties {
+  readonly width?: string;
+}
+
+export const useSMChannelEPGColumnConfig = ({ width = '8rem' }: SMChannelEPGColumnConfigProperties) => {
   const { data } = useGetEPGFiles();
   const colorsQuery = useGetEPGColors();
 
@@ -107,10 +111,10 @@ export const useSMChannelEPGColumnConfig = () => {
     filter: true,
     filterElement: filterTemplate,
     header: 'EPG',
-    maxWidth: '8rem',
-    minWidth: '8rem',
+    maxWidth: width,
+    minWidth: width,
     sortable: true,
-    width: '8rem'
+    width: width
   };
 
   return columnConfig;

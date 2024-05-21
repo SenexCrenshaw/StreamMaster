@@ -1,4 +1,4 @@
-import StreamingProxyTypeSelector from '@components/inputs/StreamingProxyTypeSelector';
+import StreamingProxyTypeSelector from '@components/smchannels/StreamingProxyTypeSelector';
 import createSMChannelMultiSelectColumnConfigHook from '../createSMChannelMultiSelectColumnConfigHook';
 
 export const useSMChannelProxyColumnConfig = createSMChannelMultiSelectColumnConfigHook({

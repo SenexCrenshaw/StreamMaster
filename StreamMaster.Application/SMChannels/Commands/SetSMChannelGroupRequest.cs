@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record SetSMChannelGroupRequest(int SMChannelId, string Group) : IRequest<APIResponse>;
 
-internal class SetSMChannelGroupRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<SetSMChannelGroupRequest, APIResponse>
+internal class SetSMChannelGroupRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService) : IRequestHandler<SetSMChannelGroupRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(SetSMChannelGroupRequest request, CancellationToken cancellationToken)
     {
@@ -15,8 +15,8 @@ internal class SetSMChannelGroupRequestHandler(IRepositoryWrapper Repository, IM
             return ret;
         }
 
-        FieldData fd = new("GetPagedSMChannels", request.SMChannelId.ToString(), "Group", request.Group);
-        await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
+        FieldData fd = new(SMChannel.APIName, request.SMChannelId, "Group", request.Group);
+        await dataRefreshService.SetField([fd]).ConfigureAwait(false);
 
         return ret;
     }

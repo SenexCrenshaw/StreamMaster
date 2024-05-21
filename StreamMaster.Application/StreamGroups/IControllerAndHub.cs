@@ -7,6 +7,7 @@ namespace StreamMaster.Application.StreamGroups
     public interface IStreamGroupsController
     {        
         Task<ActionResult<PagedResponse<StreamGroupDto>>> GetPagedStreamGroups(QueryStringParameters Parameters);
+        Task<ActionResult<StreamGroupDto>> GetStreamGroup(GetStreamGroupRequest request);
         Task<ActionResult<List<StreamGroupDto>>> GetStreamGroups();
         Task<ActionResult<APIResponse>> AutoSetSMChannelNumbers(AutoSetSMChannelNumbersRequest request);
         Task<ActionResult<APIResponse>> CreateStreamGroup(CreateStreamGroupRequest request);
@@ -19,6 +20,7 @@ namespace StreamMaster.Application.Hubs
     public interface IStreamGroupsHub
     {
         Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(QueryStringParameters Parameters);
+        Task<StreamGroupDto> GetStreamGroup(GetStreamGroupRequest request);
         Task<List<StreamGroupDto>> GetStreamGroups();
         Task<APIResponse> AutoSetSMChannelNumbers(AutoSetSMChannelNumbersRequest request);
         Task<APIResponse> CreateStreamGroup(CreateStreamGroupRequest request);

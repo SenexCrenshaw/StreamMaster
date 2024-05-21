@@ -29,6 +29,11 @@
 }
 
 .p-multiselect-items {
+
+  .p-multiselect-item:nth-child(odd) {
+    background: $tableBodyRowEvenBg;
+  }
+
   .p-multiselect-item {
     @include datatable-text-style;
     display: flex;

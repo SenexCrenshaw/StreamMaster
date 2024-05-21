@@ -20,6 +20,7 @@ import GetSMChannel from '@lib/smAPI/SMChannels/GetSMChannelSlice';
 import GetSMChannelNames from '@lib/smAPI/SMChannels/GetSMChannelNamesSlice';
 import GetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/GetSMChannelStreamsSlice';
 import GetStationChannelNames from '@lib/smAPI/SchedulesDirect/GetStationChannelNamesSlice';
+import GetStreamGroup from '@lib/smAPI/StreamGroups/GetStreamGroupSlice';
 import GetStreamGroups from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice';
 import GetStreamGroupSMChannels from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
 import GetSystemStatus from '@lib/smAPI/Settings/GetSystemStatusSlice';
@@ -123,6 +124,7 @@ export const rootReducer = combineReducers({
   GetSMChannelNames: GetSMChannelNames,
   GetSMChannelStreams: GetSMChannelStreams,
   GetStationChannelNames: GetStationChannelNames,
+  GetStreamGroup: GetStreamGroup,
   GetStreamGroups: GetStreamGroups,
   GetStreamGroupSMChannels: GetStreamGroupSMChannels,
   GetSystemStatus: GetSystemStatus,

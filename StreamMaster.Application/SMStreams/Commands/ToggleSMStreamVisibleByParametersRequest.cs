@@ -14,7 +14,7 @@ internal class ToggleSMStreamVisibleByParametersRequestHandler(IRepositoryWrappe
         }
 
         await dataRefreshService.SetField(ret).ConfigureAwait(false);
-        await dataRefreshService.ClearByTag(SMStream.MainGet, "IsHidden").ConfigureAwait(false);
+        await dataRefreshService.ClearByTag(SMStream.APIName, "IsHidden").ConfigureAwait(false);
         return APIResponse.Success;
     }
 }

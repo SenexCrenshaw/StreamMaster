@@ -166,6 +166,7 @@ export interface SettingDto
 }
 export interface SMChannelDto
 {
+	APIName: string;
 	ChannelNumber: number;
 	EPGId: string;
 	Group: string;
@@ -173,7 +174,6 @@ export interface SMChannelDto
 	Id: number;
 	IsHidden: boolean;
 	Logo: string;
-	MainGet: string;
 	Name: string;
 	Rank: number;
 	RealUrl: string;
@@ -188,6 +188,7 @@ export interface SMChannelDto
 }
 export interface SMStreamDto
 {
+	APIName: string;
 	ChannelNumber: number;
 	EPGID: string;
 	FilePosition: number;
@@ -198,7 +199,6 @@ export interface SMStreamDto
 	Logo: string;
 	M3UFileId: number;
 	M3UFileName: string;
-	MainGet: string;
 	Name: string;
 	Rank: number;
 	RealUrl: string;
@@ -307,6 +307,10 @@ export interface StationChannelName
 export interface GetPagedStreamGroupsRequest
 {
 	Parameters: QueryStringParameters;
+}
+export interface GetStreamGroupRequest
+{
+	SGName: string;
 }
 export interface GetStreamGroupsRequest
 {

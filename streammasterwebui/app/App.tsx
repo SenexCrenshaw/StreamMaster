@@ -16,6 +16,7 @@ import 'primeicons/primeicons.css'; //icons
 import 'primereact/resources/primereact.min.css'; //core css
 
 import { Suspense, lazy } from 'react';
+
 const App = (): JSX.Element => {
   const [locale] = useLocalStorage('en', 'locale');
   const messages = locale === 'en' ? MessagesEn : MessagesEn;

@@ -45,11 +45,11 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
                 {
                     try
                     {
-                        var streamGroupIdString = inSGFilter.Value.ToString();
+                        string? streamGroupIdString = inSGFilter.Value.ToString();
                         if (!string.IsNullOrWhiteSpace(streamGroupIdString))
                         {
-                            var streamGroupId = Convert.ToInt32(streamGroupIdString);
-                            var linkIds = repository.StreamGroupSMChannelLink.GetQuery().Where(a => a.StreamGroupId == streamGroupId).Select(a => a.SMChannelId).ToList();
+                            int streamGroupId = Convert.ToInt32(streamGroupIdString);
+                            List<int> linkIds = repository.StreamGroupSMChannelLink.GetQuery().Where(a => a.StreamGroupId == streamGroupId).Select(a => a.SMChannelId).ToList();
                             query = query.Where(a => linkIds.Contains(a.Id));
                         }
                     }
@@ -68,11 +68,11 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
                 {
                     try
                     {
-                        var streamGroupIdString = notInSGFilter.Value.ToString();
+                        string? streamGroupIdString = notInSGFilter.Value.ToString();
                         if (!string.IsNullOrWhiteSpace(streamGroupIdString))
                         {
-                            var streamGroupId = Convert.ToInt32(streamGroupIdString);
-                            var linkIds = repository.StreamGroupSMChannelLink.GetQuery().Where(a => a.StreamGroupId == streamGroupId).Select(a => a.SMChannelId).ToList();
+                            int streamGroupId = Convert.ToInt32(streamGroupIdString);
+                            List<int> linkIds = repository.StreamGroupSMChannelLink.GetQuery().Where(a => a.StreamGroupId == streamGroupId).Select(a => a.SMChannelId).ToList();
                             query = query.Where(a => !linkIds.Contains(a.Id));
                         }
                     }
@@ -176,7 +176,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         }
         try
         {
-            var a = channels.ToList();
+            List<SMChannel> a = channels.ToList();
             List<int> ret = [.. a.Select(a => a.Id)];
             IQueryable<SMChannelStreamLink> linksToDelete = repository.SMChannelStreamLink.GetQuery(true).Where(a => ret.Contains(a.SMChannelId));
             await repository.SMChannelStreamLink.DeleteSMChannelStreamLinks(linksToDelete);
@@ -319,17 +319,17 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             return APIResponse.NotFound;
         }
 
-        var newChannel = channel.DeepCopy();
+        SMChannel newChannel = channel.DeepCopy();
         newChannel.Id = 0;
 
         newChannel.Name = newName;
         await CreateSMChannel(newChannel);
         await SaveChangesAsync();
-        var links = repository.SMChannelStreamLink.GetQuery().Where(a => a.SMChannelId == sMChannelId).ToList();
+        List<SMChannelStreamLink> links = repository.SMChannelStreamLink.GetQuery().Where(a => a.SMChannelId == sMChannelId).ToList();
 
-        foreach (var link in links)
+        foreach (SMChannelStreamLink? link in links)
         {
-            var newLink = new SMChannelStreamLink
+            SMChannelStreamLink newLink = new()
             {
                 SMChannelId = newChannel.Id,
                 SMStreamId = link.SMStreamId,
@@ -348,9 +348,9 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
     {
         try
         {
-            foreach (var streamId in streamIds)
+            foreach (string streamId in streamIds)
             {
-                var resp = await CreateSMChannelFromStream(streamId);
+                APIResponse resp = await CreateSMChannelFromStream(streamId);
                 if (resp.IsError)
                 {
                     return resp;
@@ -375,9 +375,9 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
     public async Task<List<FieldData>> ToggleSMChannelsVisibleById(List<int> ids, CancellationToken cancellationToken)
     {
         List<FieldData> ret = [];
-        var channels = GetQuery(true).Where(a => ids.Contains(a.Id)).ToList();
+        List<SMChannel> channels = GetQuery(true).Where(a => ids.Contains(a.Id)).ToList();
 
-        foreach (var channel in channels)
+        foreach (SMChannel? channel in channels)
         {
             channel.IsHidden = !channel.IsHidden;
             ret.Add(new FieldData(() => channel.IsHidden));
@@ -393,7 +393,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             throw new ArgumentNullException(nameof(id));
         }
 
-        var channel = await FirstOrDefaultAsync(a => a.Id == id, cancellationToken: cancellationToken).ConfigureAwait(false);
+        SMChannel? channel = await FirstOrDefaultAsync(a => a.Id == id, cancellationToken: cancellationToken).ConfigureAwait(false);
         if (channel == null)
         {
             return null;
@@ -430,7 +430,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         List<string> tomatch = stationChannelNames.Select(a => a.DisplayName).Distinct().ToList();
         string tomatchString = string.Join(',', tomatch);
 
-        var fds = new List<FieldData>();
+        List<FieldData> fds = [];
 
         await Parallel.ForEachAsync(smChannels, (smChannel, token) =>
         {
@@ -460,14 +460,14 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             {
                 smChannel.EPGId = scoredMatches[0].Channel.Channel;
 
-                fds.Add(new FieldData(SMChannel.MainGet, smChannel.Id, "EPGId", smChannel.EPGId));
+                fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
                 Update(smChannel);
 
                 if (Settings.VideoStreamAlwaysUseEPGLogo)
                 {
                     if (SetVideoStreamLogoFromEPG(smChannel))
                     {
-                        fds.Add(new FieldData(SMChannel.MainGet, smChannel.Id, "Logo", smChannel.Logo));
+                        fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
                     }
                 }
             }
@@ -514,12 +514,12 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
     private async Task<List<FieldData>> SetSMChannelsLogoFromEPG(IQueryable<SMChannel> smChannels, CancellationToken cancellationToken)
     {
-        var fds = new List<FieldData>();
-        foreach (var smChannel in smChannels.Where(a => !string.IsNullOrEmpty(a.EPGId)))
+        List<FieldData> fds = [];
+        foreach (SMChannel? smChannel in smChannels.Where(a => !string.IsNullOrEmpty(a.EPGId)))
         {
             if (SetVideoStreamLogoFromEPG(smChannel))
             {
-                fds.Add(new FieldData(SMChannel.MainGet, smChannel.Id, "Logo", smChannel.Logo));
+                fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
             }
         }
 

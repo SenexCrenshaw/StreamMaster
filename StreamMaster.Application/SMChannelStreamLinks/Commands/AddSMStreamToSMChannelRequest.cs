@@ -25,10 +25,10 @@ internal class AddSMStreamToSMChannelRequestHandler(IRepositoryWrapper Repositor
 
             GetSMChannelStreamsRequest re = new(request.SMChannelId);
 
-            var ret = new List<FieldData>
+            List<FieldData> ret = new()
             {
                 new("GetSMChannelStreams", re, streams.Data),
-                new(SMChannel.MainGet, smChannel.Id, "SMStreams", streams.Data)
+                new(SMChannel.APIName, smChannel.Id, "SMStreams", streams.Data)
             };
 
             await dataRefreshService.SetField(ret).ConfigureAwait(false);

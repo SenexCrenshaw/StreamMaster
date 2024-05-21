@@ -9,8 +9,9 @@ import { CreateSMChannelRequest, SMChannelDto, SMStreamDto, StationChannelName }
 
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import StreamingProxyTypeSelector from '../inputs/StreamingProxyTypeSelector';
+
 import SMChannelSMStreamDialog from './SMChannelSMStreamDialog';
+import StreamingProxyTypeSelector from './StreamingProxyTypeSelector';
 
 interface SMChannelDialogProperties {
   onSave: (request: CreateSMChannelRequest) => void;
@@ -174,7 +175,17 @@ const SMChannelDialog = ({ smChannel, onSave }: SMChannelDialogProperties) => {
             </div>
             <div className="flex w-12 gap-1">
               <div className="w-6 justify-content-start align-items-center ">
-                <ChannelGroupSelector dataKey="SMChannelDialog" label="GROUP" darkBackGround onChange={(e) => e && setGroup(e)} value={request.Group} />
+                <ChannelGroupSelector
+                  dataKey="SMChannelDialog"
+                  label="GROUP"
+                  darkBackGround
+                  onChange={(e) => {
+                    if (e) {
+                      setGroup(e);
+                    }
+                  }}
+                  value={request.Group}
+                />
               </div>
               <div className="w-6 justify-content-start align-items-center ">
                 <NumberEditor label="Channel #" showButtons darkBackGround onSave={(e) => e && setChannelNumber(e)} value={request.ChannelNumber} />
@@ -198,7 +209,7 @@ const SMChannelDialog = ({ smChannel, onSave }: SMChannelDialogProperties) => {
         <div className="layout-padding-bottom" />
         <div className="flex w-10 gap-1 pl-2">
           <div className="w-6 gap-1 w-full h-full">
-            <StreamingProxyTypeSelector label="Proxy" data={smChannel} onChange={(e) => setProxy(e)} />
+            <StreamingProxyTypeSelector label="Proxy" smChannelDto={smChannel} onChange={(e) => setProxy(e)} />
           </div>
         </div>
       </div>

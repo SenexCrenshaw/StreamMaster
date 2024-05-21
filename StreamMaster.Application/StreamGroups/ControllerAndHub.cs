@@ -17,6 +17,22 @@ namespace StreamMaster.Application.StreamGroups.Controllers
 
         [HttpGet]
         [Route("[action]")]
+        public async Task<ActionResult<StreamGroupDto>> GetStreamGroup(GetStreamGroupRequest request)
+        {
+            try
+            {
+            DataResponse<StreamGroupDto> ret = await Sender.Send(request).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamGroup.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetStreamGroup.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
         public async Task<ActionResult<List<StreamGroupDto>>> GetStreamGroups()
         {
             try
@@ -66,6 +82,12 @@ namespace StreamMaster.Application.Hubs
         {
             PagedResponse<StreamGroupDto> ret = await Sender.Send(new GetPagedStreamGroupsRequest(Parameters)).ConfigureAwait(false);
             return ret;
+        }
+
+        public async Task<StreamGroupDto> GetStreamGroup(GetStreamGroupRequest request)
+        {
+             DataResponse<StreamGroupDto> ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret.Data;
         }
 
         public async Task<List<StreamGroupDto>> GetStreamGroups()

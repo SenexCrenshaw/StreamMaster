@@ -7,7 +7,7 @@ public record UpdateSMChannelRequest(int Id, string? Name, List<string>? SMStrea
     : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService)
     : IRequestHandler<UpdateSMChannelRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(UpdateSMChannelRequest request, CancellationToken cancellationToken)
@@ -71,8 +71,11 @@ public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IHubCo
             {
                 Repository.SMChannel.Update(smChannel);
                 await Repository.SaveAsync().ConfigureAwait(false);
-                await hubContext.Clients.All.SetField(ret).ConfigureAwait(false);
-                await hubContext.Clients.All.DataRefresh("GetSMChannel");
+
+                await dataRefreshService.ClearByTag(SMChannel.APIName, "IsHidden").ConfigureAwait(false);
+
+                await dataRefreshService.SetField(ret).ConfigureAwait(false);
+                //await dataRefreshService.RefreshSMChannels();
 
             }
 

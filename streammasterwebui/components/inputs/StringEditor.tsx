@@ -144,11 +144,9 @@ const StringEditor = ({
     // return showClear === true && isFocused && inputValue !== originalValue;
   }, [isFocused, showClear]);
 
-  useEffect(() => {
-    if (autoFocus === true && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [autoFocus]);
+  if (autoFocus === true && inputRef.current) {
+    inputRef.current.focus();
+  }
 
   return (
     <div ref={divReference} className="stringeditor flex flex-column align-items-start">

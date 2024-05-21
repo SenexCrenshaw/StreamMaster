@@ -15,14 +15,14 @@ internal class AddSMChannelToStreamGroupRequestHandler(IRepositoryWrapper Reposi
             return APIResponse.ErrorWithMessage(res.ErrorMessage);
         }
 
-        var smChannel = Repository.SMChannel.GetSMChannel(request.SMChannelId);
-        var streamGroupIds = smChannel.StreamGroups.Select(a => a.StreamGroupId).ToList();
+        SMChannel? smChannel = Repository.SMChannel.GetSMChannel(request.SMChannelId);
+        List<int> streamGroupIds = smChannel.StreamGroups.Select(a => a.StreamGroupId).ToList();
 
-        FieldData fd = new(SMChannel.MainGet, smChannel.Id, "StreamGroupIds", streamGroupIds);
+        FieldData fd = new(SMChannel.APIName, smChannel.Id, "StreamGroupIds", streamGroupIds);
         await dataRefreshService.SetField([fd]).ConfigureAwait(false);
 
-        await dataRefreshService.ClearByTag(SMChannel.MainGet, "notInSG").ConfigureAwait(false);
-        await dataRefreshService.ClearByTag(SMChannel.MainGet, "inSG").ConfigureAwait(false);
+        await dataRefreshService.ClearByTag(SMChannel.APIName, "notInSG").ConfigureAwait(false);
+        await dataRefreshService.ClearByTag(SMChannel.APIName, "inSG").ConfigureAwait(false);
 
         return res;
     }

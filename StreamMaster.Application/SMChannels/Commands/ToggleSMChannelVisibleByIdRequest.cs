@@ -1,11 +1,9 @@
-﻿using StreamMaster.Application.SMStreams.Commands;
-
-namespace StreamMaster.Application.SMChannels.Commands;
+﻿namespace StreamMaster.Application.SMChannels.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record ToggleSMChannelVisibleByIdRequest(int Id) : IRequest<APIResponse>;
-internal class ToggleSMChannelVisibleByIdHandler(IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<ToggleSMChannelVisibleByIdRequest, APIResponse>
+internal class ToggleSMChannelVisibleByIdHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService) : IRequestHandler<ToggleSMChannelVisibleByIdRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(ToggleSMChannelVisibleByIdRequest request, CancellationToken cancellationToken)
     {
@@ -15,10 +13,11 @@ internal class ToggleSMChannelVisibleByIdHandler(IRepositoryWrapper Repository, 
             return APIResponse.NotFound;
         }
 
-        FieldData fd = new(SMStream.MainGet, channel.Id.ToString(), "IsHidden", channel.IsHidden);
+        FieldData fd = new(SMStream.APIName, channel.Id, "IsHidden", channel.IsHidden);
 
-        await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
-        await hubContext.Clients.All.ClearByTag(new ClearByTag("GetPagedSMChannels", "IsHidden")).ConfigureAwait(false);
+        await dataRefreshService.SetField([fd]).ConfigureAwait(false);
+        await dataRefreshService.ClearByTag(SMChannel.APIName, "IsHidden").ConfigureAwait(false);
+
         return APIResponse.Success;
     }
 }

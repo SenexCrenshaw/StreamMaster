@@ -1,17 +1,17 @@
+import { SMOverlay } from '@components/sm/SMOverlay';
 import { SMChannelDto, StreamingProxyTypes } from '@lib/smAPI/smapiTypes';
-import { Dropdown } from 'primereact/dropdown';
 import { SelectItem } from 'primereact/selectitem';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
+const SMScroller = lazy(() => import('@components/sm/SMScroller'));
 
 interface StreamingProxyTypeSelectorProperties {
   readonly data?: SMChannelDto;
-  readonly className?: string;
+  readonly darkBackGround?: boolean;
   readonly label?: string;
   readonly onChange?: (value: number) => void;
-  readonly resetValue?: string;
 }
 
-const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties> = ({ className, data, label, onChange, resetValue }) => {
+const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties> = ({ darkBackGround, data, label, onChange: clientOnChange }) => {
   const [selectedStreamProxyType, setSelectedStreamProxyType] = useState<StreamingProxyTypes | undefined>(undefined);
 
   const getEnumValueByKey = (key: string): StreamingProxyTypes | undefined => {
@@ -38,11 +38,23 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
     return options;
   }, []);
 
-  const internalOnChange = (option: number) => {
+  const onChange = (option: number) => {
     if (option === null || option === undefined) return;
     setSelectedStreamProxyType(option);
-    onChange && onChange(option);
+    clientOnChange && clientOnChange(option);
   };
+
+  const buttonTemplate = useMemo((): ReactNode => {
+    if (!data) {
+      return <div className="text-xs text-container text-white-alpha-40">None</div>;
+    }
+
+    return (
+      <div className="sm-epg-selector">
+        <div className="text-container pl-1">{data.StreamingProxyType}</div>
+      </div>
+    );
+  }, [data]);
 
   const valueTemplate = useCallback(
     (option: SelectItem): JSX.Element => {
@@ -69,15 +81,29 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
           <div className="pt-small" />
         </>
       )}
-      <Dropdown
-        className="sm-streamingproxy-selector"
-        onChange={(e) => internalOnChange(e.value)}
-        options={getHandlersOptions}
-        optionLabel="label"
-        optionValue="value"
-        valueTemplate={(option: SelectItem) => valueTemplate(option)}
-        value={selectedStreamProxyType}
-      />
+      <div className={darkBackGround ? 'sm-input-border-dark w-full' : 'w-full'}>
+        <SMOverlay title="PROXY" widthSize="2" icon="pi-chevron-down" buttonTemplate={buttonTemplate} buttonLabel="EPG">
+          <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right ">
+            <Suspense>
+              <div className="flex w-12 ml-1">
+                <SMScroller
+                  data={getHandlersOptions}
+                  dataKey="label"
+                  filter
+                  filterBy="label"
+                  itemSize={26}
+                  itemTemplate={valueTemplate}
+                  onChange={(e) => {
+                    onChange(e.value);
+                  }}
+                  scrollHeight={150}
+                  value={selectedStreamProxyType}
+                />
+              </div>
+            </Suspense>
+          </div>
+        </SMOverlay>
+      </div>
     </div>
   );
 };

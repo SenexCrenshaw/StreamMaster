@@ -19,6 +19,7 @@ import { setIsForced as GetSMChannelSetIsForced } from '@lib/smAPI/SMChannels/Ge
 import { setIsForced as GetSMChannelNamesSetIsForced } from '@lib/smAPI/SMChannels/GetSMChannelNamesSlice';
 import { setIsForced as GetSMChannelStreamsSetIsForced } from '@lib/smAPI/SMChannelStreamLinks/GetSMChannelStreamsSlice';
 import { setIsForced as GetStationChannelNamesSetIsForced } from '@lib/smAPI/SchedulesDirect/GetStationChannelNamesSlice';
+import { setIsForced as GetStreamGroupSetIsForced } from '@lib/smAPI/StreamGroups/GetStreamGroupSlice';
 import { setIsForced as GetStreamGroupsSetIsForced } from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice';
 import { setIsForced as GetStreamGroupSMChannelsSetIsForced } from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
 import { setIsForced as GetSystemStatusSetIsForced } from '@lib/smAPI/Settings/GetSystemStatusSlice';
@@ -44,6 +45,7 @@ export const DataRefreshAll = () => {
   store.dispatch(GetSMChannelNamesSetIsForced({ force: true }));
   store.dispatch(GetSMChannelStreamsSetIsForced({ force: true }));
   store.dispatch(GetStationChannelNamesSetIsForced({ force: true }));
+  store.dispatch(GetStreamGroupSetIsForced({ force: true }));
   store.dispatch(GetStreamGroupsSetIsForced({ force: true }));
   store.dispatch(GetStreamGroupSMChannelsSetIsForced({ force: true }));
   store.dispatch(GetSystemStatusSetIsForced({ force: true }));

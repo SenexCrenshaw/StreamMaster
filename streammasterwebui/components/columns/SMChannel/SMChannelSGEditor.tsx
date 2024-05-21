@@ -7,12 +7,12 @@ import { Tooltip } from 'primereact/tooltip';
 import { memo, useCallback, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-interface EPGSGEditorProperties {
+interface SMChannelSGEditorProperties {
   readonly smChannel: SMChannelDto;
   readonly enableEditMode?: boolean;
 }
 
-const EPGSGEditor = ({ smChannel, enableEditMode }: EPGSGEditorProperties) => {
+const SMChannelSGEditor = ({ smChannel, enableEditMode }: SMChannelSGEditorProperties) => {
   const { selectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
 
   const addSMChannelToStreamGroup = useCallback(async () => {
@@ -82,7 +82,7 @@ const EPGSGEditor = ({ smChannel, enableEditMode }: EPGSGEditorProperties) => {
         <div className="flex justify-content-center align-items-center">
           <span
             className={tooltipClassName}
-            data-pr-tooltip="Select SG"
+            data-pr-tooltip="Please Select a SG"
             data-pr-position="left"
             data-pr-showdelay={400}
             data-pr-hidedelay={100}
@@ -90,7 +90,7 @@ const EPGSGEditor = ({ smChannel, enableEditMode }: EPGSGEditorProperties) => {
           >
             <i
               className="pi pi-circle p-disabled"
-              data-pr-tooltip="Select SG"
+              data-pr-tooltip="Please Select a SG"
               data-pr-position="left"
               data-pr-showdelay={400}
               data-pr-hidedelay={100}
@@ -117,4 +117,4 @@ const EPGSGEditor = ({ smChannel, enableEditMode }: EPGSGEditorProperties) => {
   );
 };
 
-export default memo(EPGSGEditor);
+export default memo(SMChannelSGEditor);

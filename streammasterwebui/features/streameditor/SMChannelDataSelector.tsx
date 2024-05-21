@@ -42,16 +42,13 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
   const { isTrue: smTableIsSimple } = useIsTrue('streameditor-SMStreamDataSelector');
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
-
   const { columnConfig: channelNumberColumnConfig } = useSMChannelNumberColumnConfig({ enableEdit, useFilter: false });
   const { columnConfig: channelLogoColumnConfig } = useSMChannelLogoColumnConfig({ enableEdit });
   const { columnConfig: channelNameColumnConfig } = useSMChannelNameColumnConfig({ enableEdit });
-  const epgColumnConfig = useSMChannelEPGColumnConfig();
-  const groupColumnConfig = useSMChannelGroupColumnConfig(dataKey);
-  const sgColumnConfig = useSMChannelSGColumnConfig(dataKey + '-sg', dataKey);
-
+  const epgColumnConfig = useSMChannelEPGColumnConfig({ width: smTableIsSimple ? '12rem' : undefined });
+  const groupColumnConfig = useSMChannelGroupColumnConfig({ dataKey, width: smTableIsSimple ? '12rem' : undefined });
+  const sgColumnConfig = useSMChannelSGColumnConfig({ dataKey: dataKey + '-sg', id: dataKey });
   const { columnConfig: proxyColumnConfig } = useSMChannelProxyColumnConfig({ enableEdit, useFilter: false });
-
   const { queryFilter } = useQueryFilter(dataKey);
   const { isLoading } = useGetPagedSMChannels(queryFilter);
 

@@ -8,18 +8,17 @@ internal class AutoSetSMChannelNumbersRequestHandler(IRepositoryWrapper Reposito
 {
     public async Task<APIResponse> Handle(AutoSetSMChannelNumbersRequest request, CancellationToken cancellationToken)
     {
-        var res = await Repository.StreamGroup.AutoSetSMChannelNumbers(request.streamGroupId, request.startingNumber, request.overWriteExisting, request.Parameters);
+        IdIntResultWithResponse res = await Repository.StreamGroup.AutoSetSMChannelNumbers(request.streamGroupId, request.startingNumber, request.overWriteExisting, request.Parameters);
         if (res.APIResponse.IsError)
         {
             return APIResponse.ErrorWithMessage(res.APIResponse.ErrorMessage);
         }
         List<FieldData> ret = [];
-        foreach (var item in res)
+        foreach (IdIntResult item in res)
         {
-            var a = item.Result as SMChannel;
-            if (a != null)
+            if (item.Result is SMChannel a)
             {
-                ret.Add(new FieldData(SMChannel.MainGet, a.Id.ToString(), "ChannelNumber", a.ChannelNumber));
+                ret.Add(new FieldData(SMChannel.APIName, a.Id, "ChannelNumber", a.ChannelNumber));
             }
         }
 
