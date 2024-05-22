@@ -8,6 +8,13 @@
     }
 }
 
+.p-virtualscroller-content {
+    div:nth-child(odd) {
+        background: $tableBodyRowEvenBg;
+    }
+
+}
+
 
 .sm-scroller-item {
     @include text-overflow();

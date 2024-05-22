@@ -7935,6 +7935,10 @@
   background: #1b2327;
 }
 
+.p-virtualscroller-content div:nth-child(odd) {
+  background: #1b2327;
+}
+
 .sm-scroller-item {
   overflow: hidden;
   text-overflow: ellipsis;

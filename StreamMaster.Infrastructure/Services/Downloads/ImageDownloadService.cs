@@ -7,7 +7,6 @@ using StreamMaster.Application.Hubs;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Services;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
 using StreamMaster.SchedulesDirect.Domain.Models;
@@ -129,16 +128,23 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
             {
                 HttpResponseMessage response = await GetSdImage(uri).ConfigureAwait(false);
 
+                if (response == null)
+                {
+                    logger.LogDebug("Art download error, response was null");
+                    ++TotalErrors;
+                    return false;
+                }
+
                 if (response.StatusCode == HttpStatusCode.NotFound)
                 {
-                    logger.LogDebug("Art download got error, could not be found");
+                    logger.LogDebug("Art download error, could not be found");
                     ++TotalErrors;
                     return false;
                 }
 
                 if (response.StatusCode == HttpStatusCode.Forbidden)
                 {
-                    logger.LogDebug("Art download got error, forbidden");
+                    logger.LogDebug("Art download error, forbidden");
                     ++TotalErrors;
                     return false;
                 }

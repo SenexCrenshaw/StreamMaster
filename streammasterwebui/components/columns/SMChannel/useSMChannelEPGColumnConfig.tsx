@@ -2,6 +2,7 @@ import EPGEditor from '@components/epg/EPGEditor';
 import { SMOverlay } from '@components/sm/SMOverlay';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { isEmptyObject } from '@lib/common/common';
+import { useSMContext } from '@lib/signalr/SMProvider';
 import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';
 import useGetEPGFiles from '@lib/smAPI/EPGFiles/useGetEPGFiles';
 import { EPGFileDto, SMChannelDto } from '@lib/smAPI/smapiTypes';
@@ -19,13 +20,23 @@ export const useSMChannelEPGColumnConfig = ({ width = '8rem' }: SMChannelEPGColu
   const dataKey = 'epgColumn-selections';
   const { data } = useGetEPGFiles();
   const colorsQuery = useGetEPGColors();
+  const { isSystemReady, settings } = useSMContext();
 
   const epgFiles = useMemo(() => {
-    const additionalOptions = [{ EPGNumber: -1, Id: -1, Name: 'SD' } as EPGFileDto, { EPGNumber: -99, Id: -99, Name: 'None' } as EPGFileDto];
+    let additionalOptions = [] as EPGFileDto[];
+    if (settings.SDSettings?.SDEnabled === undefined) {
+      console.log('sa', isSystemReady);
+      return;
+    }
+    if (settings.SDSettings.SDEnabled === true) {
+      additionalOptions = [{ EPGNumber: -1, Id: -1, Name: 'SD' } as EPGFileDto];
+    }
+    additionalOptions.push({ EPGNumber: -99, Id: -99, Name: 'None' } as EPGFileDto);
+
     if (data) return [...additionalOptions, ...data];
 
     return additionalOptions;
-  }, [data]);
+  }, [data, isSystemReady, settings.SDSettings.SDEnabled]);
 
   const getColor = useCallback(
     (epgNumber: number) => {
@@ -85,10 +96,10 @@ export const useSMChannelEPGColumnConfig = ({ width = '8rem' }: SMChannelEPGColu
     console.log('options', options);
     return (
       <div className="sm-input-border-dark w-full">
-        <SMOverlay title="EPG" widthSize="2" icon="pi-chevron-down" buttonTemplate={buttonTemplate(options)} buttonLabel="EPG">
+        <SMOverlay title="EPG FILE" widthSize="2" icon="pi-chevron-down" buttonTemplate={buttonTemplate(options)} buttonLabel="EPG">
           <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right">
             <Suspense fallback={<div>Loading...</div>}>
-              <div className="flex w-12">
+              <div className="flex w-full">
                 <SMScroller
                   data={epgFiles}
                   dataKey="Id"
@@ -114,28 +125,6 @@ export const useSMChannelEPGColumnConfig = ({ width = '8rem' }: SMChannelEPGColu
           </div>
         </SMOverlay>
       </div>
-
-      // <MultiSelect
-      //   className="w-11 input-height-with-no-borders"
-      //   filter
-      //   ref={multiSelectRef}
-      //   itemTemplate={itemTemplate}
-      //   maxSelectedLabels={1}
-      //   showClear
-      //   filterBy="Name"
-      //   onChange={(e: MultiSelectChangeEvent) => {
-      //     if (isEmptyObject(e.value)) {
-      //       options.filterApplyCallback();
-      //     } else {
-      //       options.filterApplyCallback(e.value);
-      //     }
-      //   }}
-      //   onShow={() => {}}
-      //   options={epgFiles}
-      //   placeholder="EPG"
-      //   value={options.value}
-      //   selectedItemTemplate={selectedItemTemplate}
-      // />
     );
   }
   const bodyTemplate = useCallback((smChannel: SMChannelDto) => {

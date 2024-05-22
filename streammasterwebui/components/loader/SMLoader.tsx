@@ -15,6 +15,7 @@ const SMLoader = () => {
     if (isSystemReady === true) {
       return;
     }
+
     setMessage(messages[messages.length - 1].Detail ?? '');
 
     ClearMessages();

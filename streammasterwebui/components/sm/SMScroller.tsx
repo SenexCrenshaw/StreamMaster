@@ -170,7 +170,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
         const ss = isSelectedItem(item);
         return (
           <div
-            className="flex align-items-center"
+            className="flex align-items-center pl-2"
             // onClick={() => {
             //   // onChange && onChange(item);
             // }}

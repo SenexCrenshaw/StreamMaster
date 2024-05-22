@@ -302,8 +302,6 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround =
       } else {
         setStationChannelName(undefined);
       }
-      //setNewInput(channel);
-      // setInput(channel);
       onChange && onChange(channel);
     },
     [onChange, query.data, stationChannelName?.Channel]

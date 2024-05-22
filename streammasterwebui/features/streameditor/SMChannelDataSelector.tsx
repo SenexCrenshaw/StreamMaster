@@ -94,7 +94,16 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
       groupColumnConfig,
       proxyColumnConfig,
       sgColumnConfig,
-      { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '4rem' }
+      {
+        align: 'right',
+        bodyTemplate: actionTemplate,
+        field: 'IsHidden',
+        fieldType: 'actions',
+        header: 'Actions',
+        maxWidth: '9rem',
+        minWidth: '9rem',
+        width: '9rem'
+      }
     ],
     [
       actionTemplate,
