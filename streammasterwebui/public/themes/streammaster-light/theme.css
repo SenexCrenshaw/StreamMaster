@@ -7084,6 +7084,10 @@
   background-color: #94abec;
 }
 
+.sg-bg, .icon-sg-filled {
+  background-color: #ffc05a;
+}
+
 .primary-bg, .icon-primary-filled {
   background-color: #bcbfbf;
 }
@@ -7095,6 +7099,15 @@
 .icon-primary-filled {
   color: #12181b;
   border: 2px solid #bcbfbf;
+}
+
+.icon-sg {
+  color: #ffc05a;
+}
+
+.icon-sg-filled {
+  color: #12181b;
+  border: 2px solid #ffc05a;
 }
 
 .icon-green {
@@ -7281,6 +7294,7 @@
   color: #94abec;
   border: unset !important;
   background-color: transparent !important;
+  width: 100%;
 }
 .stringeditorbody-inputtext .p-inputnumber-input, .p-inputnumber-input .p-inputnumber-input, .stringeditorbody-inputtext-save .p-inputnumber-input, .stringeditorbody-inputtext-dark .p-inputnumber-input {
   color: #94abec;

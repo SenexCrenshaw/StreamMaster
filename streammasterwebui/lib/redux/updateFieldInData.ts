@@ -4,6 +4,9 @@ export const updateFieldInData = (response: any[] | undefined, fieldData: FieldD
   if (!response) return undefined;
 
   return response.map((dto: any) => {
+    if (dto.Id === undefined) {
+      return dto;
+    }
     const id = dto.Id.toString();
     if (id === fieldData.Id) {
       return {

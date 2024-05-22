@@ -17,5 +17,6 @@ namespace StreamMaster.Domain.Services
         Task RefreshEPG(bool alwaysRun = false);
         Task RefreshEPGFiles(bool alwaysRun = false);
         Task RefreshChannelGroups(bool alwaysRun = false);
+        Task Refresh(string v);
     }
 }

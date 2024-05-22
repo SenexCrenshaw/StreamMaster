@@ -15,7 +15,7 @@ export interface StringEditorBodyTemplateProperties {
   readonly isLoading?: boolean;
   readonly label?: string;
   readonly onChange?: (value: string | undefined) => void;
-  readonly onSave: (value: string | undefined) => void;
+  readonly onSave?: (value: string | undefined) => void;
   readonly onClick?: () => void;
   readonly placeholder?: string;
   readonly resetValue?: string | undefined;
@@ -47,7 +47,7 @@ const StringEditor: React.FC<StringEditorBodyTemplateProperties> = ({
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const divReference = useRef<HTMLDivElement | null>(null);
   const [ignoreSave, setIgnoreSave] = useState<boolean>(false);
-  const [originalValue, setOriginalValue] = useState<string | undefined>(undefined);
+  const [originalValue, setOriginalValue] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState<string | undefined>('');
   const { code } = useScrollAndKeyEvents();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -56,7 +56,7 @@ const StringEditor: React.FC<StringEditorBodyTemplateProperties> = ({
     (forceValueSave?: string | undefined) => {
       setIgnoreSave(true);
       Logger.debug('Saving value', { forceValueSave, inputValue });
-      onSave(forceValueSave ?? inputValue);
+      onSave && onSave(forceValueSave ?? inputValue);
     },
     [inputValue, onSave]
   );
@@ -94,7 +94,7 @@ const StringEditor: React.FC<StringEditorBodyTemplateProperties> = ({
 
   useEffect(() => {
     if (isLoading !== true && value !== undefined && originalValue !== value) {
-      if (originalValue === undefined) {
+      if (originalValue === null) {
         setOriginalValue(value);
         setInputValue(value);
       } else if (value !== inputValue) {
@@ -102,8 +102,11 @@ const StringEditor: React.FC<StringEditorBodyTemplateProperties> = ({
         setOriginalValue(value);
       }
     } else if (value !== undefined && originalValue !== undefined && originalValue !== '' && value === originalValue && value !== inputValue) {
+      // if (disableDebounce) {
+      //   setInputValue(inputValue);
+      // }
       if (disableDebounce) {
-        setInputValue(inputValue);
+        setInputValue(value);
       }
     }
     setIgnoreSave(false);
@@ -129,47 +132,49 @@ const StringEditor: React.FC<StringEditorBodyTemplateProperties> = ({
   }, [autoFocus]);
 
   return (
-    <div ref={divReference} className="stringeditor flex flex-column align-items-start">
+    <>
       {label && (
         <>
           <label className="pl-15">{label.toUpperCase()}</label>
           <div className="pt-small" />
         </>
       )}
-      <InputText
-        ref={inputRef}
-        className={getDiv}
-        disabled={disabled}
-        id={uuid}
-        onChange={(e) => {
-          const newValue = e.target.value as string;
-          setInputValue(newValue);
-          if (!disableDebounce) {
-            debounced(newValue);
-          } else {
-            onChange?.(newValue);
-          }
-        }}
-        onClick={onClick}
-        onFocus={() => setIsFocused(true)}
-        placeholder={placeholder}
-        tooltip={tooltip}
-        tooltipOptions={tooltipOptions}
-        value={inputValue}
-      />
-      {doShowClear && (
-        <i className="input-icon">
-          <i
-            className="pi pi-times-circle icon-yellow"
-            onClick={() => {
-              setInputValue('');
-              setOriginalValue('');
-              onChange?.('');
-            }}
-          />
-        </i>
-      )}
-    </div>
+      <div ref={divReference} className="stringeditor flex flex-column align-items-start">
+        <InputText
+          ref={inputRef}
+          className={getDiv}
+          disabled={disabled}
+          id={uuid}
+          onChange={(e) => {
+            const newValue = e.target.value as string;
+            setInputValue(newValue);
+            if (!disableDebounce) {
+              debounced(newValue);
+            } else {
+              onChange?.(newValue);
+            }
+          }}
+          onClick={onClick}
+          onFocus={() => setIsFocused(true)}
+          placeholder={placeholder}
+          tooltip={tooltip}
+          tooltipOptions={tooltipOptions}
+          value={inputValue}
+        />
+        {doShowClear && (
+          <i className="input-icon">
+            <i
+              className="pi pi-times-circle icon-yellow"
+              onClick={() => {
+                setInputValue('');
+                setOriginalValue('');
+                onChange?.('');
+              }}
+            />
+          </i>
+        )}
+      </div>
+    </>
   );
 };
 

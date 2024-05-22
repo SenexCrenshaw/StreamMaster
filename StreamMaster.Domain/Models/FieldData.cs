@@ -1,6 +1,7 @@
 ﻿using Reinforced.Typings.Attributes;
 
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text.Json;
 
 namespace StreamMaster.Domain.Models;
@@ -45,7 +46,7 @@ public class FieldData
 
     public FieldData(object entity, string propertyName)
     {
-        Entity = ExtractMainGet(entity);
+        Entity = ExtractAPIName(entity);
         Id = ExtractId(entity) ?? throw new InvalidOperationException("ID cannot be null.");
         Field = propertyName;
         Value = ExtractPropertyValue(entity, propertyName);
@@ -66,12 +67,12 @@ public class FieldData
         if (propertyExpression.Body is MemberExpression member)
         {
             object entity = ExtractEntityFromMemberExpression(member);
-            return (ExtractMainGet(entity), ExtractId(entity), member.Member.Name, GetValue(propertyExpression));
+            return (ExtractAPIName(entity), ExtractId(entity), member.Member.Name, GetValue(propertyExpression));
         }
         else if (propertyExpression.Body is UnaryExpression unaryExp && unaryExp.Operand is MemberExpression memberExp)
         {
             object entity = ExtractEntityFromMemberExpression(memberExp);
-            return (ExtractMainGet(entity), ExtractId(entity), memberExp.Member.Name, GetValue(propertyExpression));
+            return (ExtractAPIName(entity), ExtractId(entity), memberExp.Member.Name, GetValue(propertyExpression));
         }
 
         throw new ArgumentException("Invalid property expression", nameof(propertyExpression));
@@ -93,29 +94,21 @@ public class FieldData
         throw new ArgumentException("Could not determine the target entity from the expression.");
     }
 
-    private static string ExtractMainGet(object entity)
+    private static string ExtractAPIName(object entity)
     {
-        // Assuming the ID property is named "Id" or similar. Adjust according to your naming convention.
-        System.Reflection.PropertyInfo? idProperty = entity.GetType().GetProperty("MainGet");
-        if (idProperty != null)
-        {
-            return idProperty.GetValue(entity)?.ToString();
-        }
-
-        // Fallback or additional logic to find ID if necessary
-        return entity.GetType().Name;
+        PropertyInfo? idProperty = entity.GetType().GetProperty("APIName");
+        return idProperty != null ? (idProperty.GetValue(entity)?.ToString()) : entity.GetType().Name;
     }
 
     private static string ExtractId(object entity)
     {
-        // Assuming the ID property is named "Id" or similar. Adjust according to your naming convention.
-        System.Reflection.PropertyInfo? idProperty = entity.GetType().GetProperty("Id");
+        PropertyInfo? idProperty = entity.GetType().GetProperty("Id");
         return idProperty != null ? idProperty.GetValue(entity)?.ToString() ?? "NOTFOUND" : "NOTFOUND";
     }
 
     private static object? ExtractPropertyValue(object entity, string propertyName)
     {
-        System.Reflection.PropertyInfo? property = entity.GetType().GetProperty(propertyName);
+        PropertyInfo? property = entity.GetType().GetProperty(propertyName);
         return property == null
             ? throw new ArgumentException($"Property '{propertyName}' not found on entity type '{entity.GetType().Name}'.")
             : property.GetValue(entity);
@@ -159,7 +152,7 @@ public class FieldData
 
     public string Entity { get; set; }
     public string Id { get; set; }
-    public string? Field { get; set; }
-    public object? Value { get; set; }
+    public string Field { get; set; }
+    public object Value { get; set; }
 }
 

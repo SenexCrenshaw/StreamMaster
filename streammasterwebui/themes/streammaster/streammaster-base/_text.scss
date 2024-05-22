@@ -148,12 +148,11 @@
     color: $inputTextColor;
     border: unset !important;
     background-color: transparent !important;
+    width: 100%;
 
     .p-inputnumber-input {
         color: $inputTextColor;
     }
-
-
 }
 
 .stringeditorbody-inputtext-dark {

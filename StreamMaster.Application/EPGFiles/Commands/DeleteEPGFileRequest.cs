@@ -47,7 +47,7 @@ public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, I
             await Publisher.Publish(new EPGFileDeletedEvent(epgFile.Id), cancellationToken).ConfigureAwait(false);
 
             await Repository.SaveAsync().ConfigureAwait(false);
-            //await hubContext.Clients.All.DataRefresh(EPGFile.MainGet).ConfigureAwait(false);
+
             await messageService.SendSuccess($"Deleted EPG {epgFile.Name}");
             await dataRefreshService.RefreshAllEPG();
             return APIResponse.Success;

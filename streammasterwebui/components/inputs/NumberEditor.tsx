@@ -8,7 +8,7 @@ import { useDebouncedCallback } from 'use-debounce';
 interface NumberEditorTemplateProperties {
   readonly autoFocus?: boolean;
   readonly onChange?: (value: number) => void;
-  readonly onSave: (value: number | undefined) => void;
+  readonly onSave?: (value: number | undefined) => void;
   readonly debounceMs?: number;
   readonly disableDebounce?: boolean;
   readonly isLoading?: boolean;
@@ -27,7 +27,7 @@ interface NumberEditorTemplateProperties {
 
 const NumberEditor = ({
   autoFocus,
-  disableDebounce = false,
+  disableDebounce = true,
   label,
   debounceMs = 1500,
   isLoading,
@@ -55,9 +55,9 @@ const NumberEditor = ({
       setIgnoreSave(true);
 
       if (forceValueSave === undefined) {
-        onSave(inputValue);
+        onSave && onSave(inputValue);
       } else {
-        onSave(forceValueSave);
+        onSave && onSave(forceValueSave);
       }
     },
     [inputValue, onSave]
@@ -161,9 +161,8 @@ const NumberEditor = ({
           setInputValue(e.value as number);
           if (disableDebounce !== true) {
             debounced(e.value as number);
-          } else {
-            onChange && onChange(e.value as number);
           }
+          onChange && onChange(e.value as number);
         }}
         onClick={() => {
           onClick?.();

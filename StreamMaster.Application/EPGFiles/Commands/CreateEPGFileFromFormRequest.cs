@@ -86,7 +86,6 @@ public class CreateEPGFileFromFormRequestHandler(ILogger<CreateEPGFileFromFormRe
             await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
 
             await dataRefreshService.RefreshAllEPG();
-            //await hubContext.Clients.All.DataRefresh(EPGFile.MainGet).ConfigureAwait(false);
             await messageService.SendSuccess("EPG '" + epgFile.Name + "' added successfully");
 
             return APIResponse.Success;

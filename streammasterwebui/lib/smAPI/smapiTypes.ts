@@ -15,9 +15,9 @@ export interface SMChannelRankRequest
 export interface FieldData
 {
 	Entity: string;
-	Field?: string;
+	Field: string;
 	Id: string;
-	Value?: any;
+	Value: any;
 }
 export interface SMMessage
 {

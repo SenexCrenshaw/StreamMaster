@@ -26,6 +26,10 @@
     background-color: $iconBlue;
 }
 
+.sg-bg {
+    background-color: $iconSG;
+}
+
 .primary-bg {
     background-color: $primaryColor;
 }
@@ -38,6 +42,16 @@
     @extend .primary-bg;
     color: $inputBg;
     border: 2px solid $primaryColor;
+}
+
+.icon-sg {
+    color: $iconSG;
+}
+
+.icon-sg-filled {
+    @extend .sg-bg;
+    color: $inputBg;
+    border: 2px solid $iconSG;
 }
 
 .icon-green {

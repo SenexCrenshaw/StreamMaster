@@ -94,26 +94,11 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
             _ = await Repository.SaveAsync().ConfigureAwait(false);
             epgFile.WriteJSON(logger);
 
-            //if (oldEPGNumber != null && request.EPGNumber != null)
-            //{
-            //    await Sender.Send(new VideoStreamChangeEPGNumberRequest((int)oldEPGNumber, (int)request.EPGNumber), cancellationToken).ConfigureAwait(false);
-            //}
-
-
-
             if (isNameChanged)
             {
-                //var a = await Repository.EPGFile.ProcessEPGFile(request.Id).ConfigureAwait(false);
-
 
                 await dataRefreshService.RefreshAllEPG();
 
-                //await HubContext.Clients.All.DataRefresh("GetEPGFiles");
-                //await HubContext.Clients.All.DataRefresh(EPGFile.MainGet).ConfigureAwait(false);
-                //await HubContext.Clients.All.DataRefresh("GetStationChannelNames").ConfigureAwait(false);
-                //await HubContext.Clients.All.DataRefresh("EPG").ConfigureAwait(false);
-
-                //await Publisher.Publish(new EPGFileAddedEvent(Mapper.Map<EPGFileDto>(epgFile)), cancellationToken).ConfigureAwait(false);
             }
             else
             {

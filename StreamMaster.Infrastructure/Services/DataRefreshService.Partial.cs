@@ -4,6 +4,16 @@ using StreamMaster.Domain.Configuration;
 namespace StreamMaster.Infrastructure.Services;
 public partial class DataRefreshService : IDataRefreshServicePartial
 {
+    public async Task Refresh(string command)
+    {
+        if (!BuildInfo.SetIsSystemReady)
+        {
+            return;
+        }
+
+        await hub.Clients.All.DataRefresh(command);
+
+    }
 
     public async Task RefreshAllEPG()
     {

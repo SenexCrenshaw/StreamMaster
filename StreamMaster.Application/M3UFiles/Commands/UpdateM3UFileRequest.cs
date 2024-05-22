@@ -8,7 +8,7 @@ public record UpdateM3UFileRequest(int? MaxStreamCount, int? StartingChannelNumb
     : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IBackgroundTaskQueue taskQueue, IJobStatusService jobStatusService, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IRepositoryContext repositoryContext, IBackgroundTaskQueue taskQueue, IJobStatusService jobStatusService, ISender Sender, IDataRefreshService dataRefreshService)
     : IRequestHandler<UpdateM3UFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(UpdateM3UFileRequest request, CancellationToken cancellationToken)
@@ -32,6 +32,7 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IBackgro
 
             bool needsUpdate = false;
             bool needsRefresh = false;
+            bool nameChange = false;
 
             if (request.VODTags != null)
             {
@@ -57,7 +58,7 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IBackgro
 
             if (!string.IsNullOrEmpty(request.Name))
             {
-
+                nameChange = true;
                 m3uFile.Name = request.Name;
                 ret.Add(new FieldData(() => m3uFile.Name));
             }
@@ -80,7 +81,7 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IBackgro
                 m3uFile.StartingChannelNumber = request.StartingChannelNumber.Value;
 
                 ret.Add(new FieldData(() => m3uFile.StartingChannelNumber));
-                //ret.Add(new FieldData(M3UFile.MainGet, m3uFile.Id.ToString(), "StartingChannelNumber", m3uFile.StartingChannelNumber));
+
             }
 
 
@@ -88,11 +89,18 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IBackgro
             {
                 m3uFile.HoursToUpdate = request.HoursToUpdate.Value;
                 ret.Add(new FieldData(() => m3uFile.HoursToUpdate));
-                //ret.Add(new FieldData(M3UFile.MainGet, m3uFile.Id.ToString(), "HoursToUpdate", m3uFile.HoursToUpdate));
+
             }
 
             Repository.M3UFile.UpdateM3UFile(m3uFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
+
+            if (nameChange)
+            {
+                string sql = $"UPDATE public.\"SMStreams\" SET \"M3UFileName\"='{m3uFile.Name}' WHERE \"M3UFileId\"={m3uFile.Id};";
+                await repositoryContext.ExecuteSqlRawAsyncEntities(sql);
+                await dataRefreshService.RefreshSMStreams().ConfigureAwait(false);
+            }
 
             if (needsRefresh)
             {
@@ -107,7 +115,8 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IBackgro
 
             if (ret.Count > 0)
             {
-                await HubContext.Clients.All.SetField(ret).ConfigureAwait(false);
+                await dataRefreshService.SetField(ret).ConfigureAwait(false);
+                await dataRefreshService.Refresh("GetM3UFileNames").ConfigureAwait(false);
             }
             jobManager.SetSuccessful();
             return APIResponse.Success;

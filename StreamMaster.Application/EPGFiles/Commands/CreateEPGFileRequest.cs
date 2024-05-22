@@ -88,7 +88,6 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, I
 
             EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);
             await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
-            //await hubContext.Clients.All.DataRefresh(EPGFile.MainGet).ConfigureAwait(false);
 
             await dataRefreshService.RefreshAllEPG();
 
