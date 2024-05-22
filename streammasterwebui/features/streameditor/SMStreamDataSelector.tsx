@@ -1,4 +1,4 @@
-import { useSMStreamGroupColumnConfig } from '@components/columns/SMStreams/useSMChannelGroupColumnConfig';
+import { useSMStreamGroupColumnConfig } from '@components/columns/SMStreams/useSMStreamGroupColumnConfig';
 import { useSMStreamM3UColumnConfig } from '@components/columns/SMStreams/useSMStreamM3UColumnConfig';
 import M3UFilesButton from '@components/m3u/M3UFilesButton';
 import SMButton from '@components/sm/SMButton';
@@ -55,18 +55,6 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
       <div className="flex p-0 justify-content-end align-items-center">
         <StreamCopyLinkDialog realUrl={data.RealUrl} />
         <StreamVisibleDialog iconFilled={false} value={data} />
-
-        {/* <VideoStreamSetAutoSetEPGDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} /> */}
-        {/* <VideoStreamDeleteDialog iconFilled={false} id={dataKey} values={[data]} /> */}
-        {/* <VideoStreamEditDialog value={data} /> */}
-        {/* <VideoStreamCopyLinkDialog value={data} />
-        <VideoStreamSetTimeShiftDialog iconFilled={false} value={data} />
-        <VideoStreamResetLogoDialog value={data} />
-        <VideoStreamSetLogoFromEPGDialog value={data} />
-        <VideoStreamVisibleDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
-        <VideoStreamSetAutoSetEPGDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
-        <VideoStreamDeleteDialog iconFilled={false} id={dataKey} values={[data]} />
-        <VideoStreamEditDialog value={data} /> */}
       </div>
     ),
     []
@@ -182,18 +170,6 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         {/* <SMButton className="icon-red" iconFilled icon="pi-times" rounded onClick={() => {}} /> */}
         {/* <SMButton className="icon-green-filled" icon="pi-plus" rounded onClick={() => {}} /> */}
         <CreateSMChannelsDialog selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} />
-        {/* <SMButton className="icon-orange" iconFilled icon="pi pi-bars" rounded onClick={() => {}} /> */}
-
-        {/* <TriSelectShowHidden dataKey={dataKey} /> */}
-        {/* <TriSelectShowHidden dataKey={dataKey} />
-        <VideoStreamSetTimeShiftsDialog id={dataKey} />
-        <VideoStreamResetLogosDialog id={dataKey} />
-        <VideoStreamSetLogosFromEPGDialog id={dataKey} />
-        <AutoSetChannelNumbers id={dataKey} />
-        <VideoStreamVisibleDialog id={dataKey} />
-        <VideoStreamSetAutoSetEPGDialog iconFilled id={dataKey} />
-        <VideoStreamDeleteDialog iconFilled id={dataKey} />
-        <VideoStreamAddDialog group={channelGroupNames?.[0]} /> */}
       </div>
     );
   }, [dataKey, smTableIsSimple]);

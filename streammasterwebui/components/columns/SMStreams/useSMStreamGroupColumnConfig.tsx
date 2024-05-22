@@ -16,7 +16,7 @@ export const useSMStreamGroupColumnConfig = () => {
       return null;
     }
 
-    return <span>{option.Name}</span>;
+    return <div className="text-container">{option.Name}</div>;
   }, []);
 
   function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
@@ -45,7 +45,7 @@ export const useSMStreamGroupColumnConfig = () => {
     );
   }
   const bodyTemplate = (bodyData: SMStreamDto) => {
-    return <div>{bodyData.Group}</div>;
+    return <div className="text-container">{bodyData.Group}</div>;
   };
 
   const columnConfig: ColumnMeta = {
