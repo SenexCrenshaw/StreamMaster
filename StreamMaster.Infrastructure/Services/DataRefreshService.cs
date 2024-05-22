@@ -35,6 +35,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         }
 
         await hub.Clients.All.DataRefresh("GetChannelGroups");
+        await hub.Clients.All.DataRefresh("GetChannelGroupsFromSMChannels");
         await hub.Clients.All.DataRefresh("GetPagedChannelGroups");
     }
 

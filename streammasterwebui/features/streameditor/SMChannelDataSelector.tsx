@@ -25,12 +25,13 @@ import StreamGroupButton from '@components/streamGroup/StreamGroupButton';
 import { GetMessage } from '@lib/common/common';
 import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
-import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
+
 import { SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowData, DataTableRowEvent, DataTableRowExpansionTemplate } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import SMStreamDataSelectorValue from './SMStreamDataSelectorValue';
 import useSelectedSMItems from './useSelectedSMItems';
+import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 // const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
 interface SMChannelDataSelectorProperties {
   readonly enableEdit?: boolean;

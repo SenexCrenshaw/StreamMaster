@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 import filters from '@lib/redux/hooks/filters';
 import GetChannelGroups from '@lib/smAPI/ChannelGroups/GetChannelGroupsSlice';
+import GetChannelGroupsFromSMChannels from '@lib/smAPI/ChannelGroups/GetChannelGroupsFromSMChannelsSlice';
 import GetEPGColors from '@lib/smAPI/EPG/GetEPGColorsSlice';
 import GetEPGFilePreviewById from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
 import GetEPGFiles from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
@@ -105,6 +106,7 @@ const sortInfoConfig = {
 export const rootReducer = combineReducers({
   filters: persistReducer(filtersConfig, filters),
   GetChannelGroups: GetChannelGroups,
+  GetChannelGroupsFromSMChannels: GetChannelGroupsFromSMChannels,
   GetEPGColors: GetEPGColors,
   GetEPGFilePreviewById: GetEPGFilePreviewById,
   GetEPGFiles: GetEPGFiles,

@@ -9,6 +9,22 @@ namespace StreamMaster.Application.ChannelGroups.Controllers
 
         [HttpGet]
         [Route("[action]")]
+        public async Task<ActionResult<List<ChannelGroupDto>>> GetChannelGroupsFromSMChannels()
+        {
+            try
+            {
+            DataResponse<List<ChannelGroupDto>> ret = await Sender.Send(new GetChannelGroupsFromSMChannelsRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetChannelGroupsFromSMChannels.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetChannelGroupsFromSMChannels.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
         public async Task<ActionResult<List<ChannelGroupDto>>> GetChannelGroups()
         {
             try
@@ -86,6 +102,12 @@ namespace StreamMaster.Application.Hubs
 {
     public partial class StreamMasterHub : IChannelGroupsHub
     {
+        public async Task<List<ChannelGroupDto>> GetChannelGroupsFromSMChannels()
+        {
+             DataResponse<List<ChannelGroupDto>> ret = await Sender.Send(new GetChannelGroupsFromSMChannelsRequest()).ConfigureAwait(false);
+            return ret.Data;
+        }
+
         public async Task<List<ChannelGroupDto>> GetChannelGroups()
         {
              DataResponse<List<ChannelGroupDto>> ret = await Sender.Send(new GetChannelGroupsRequest()).ConfigureAwait(false);

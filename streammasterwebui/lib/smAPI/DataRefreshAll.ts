@@ -1,5 +1,6 @@
 import store from '@lib/redux/store';
 import { setIsForced as GetChannelGroupsSetIsForced } from '@lib/smAPI/ChannelGroups/GetChannelGroupsSlice';
+import { setIsForced as GetChannelGroupsFromSMChannelsSetIsForced } from '@lib/smAPI/ChannelGroups/GetChannelGroupsFromSMChannelsSlice';
 import { setIsForced as GetEPGColorsSetIsForced } from '@lib/smAPI/EPG/GetEPGColorsSlice';
 import { setIsForced as GetEPGFilePreviewByIdSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
 import { setIsForced as GetEPGFilesSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
@@ -26,6 +27,7 @@ import { setIsForced as GetSystemStatusSetIsForced } from '@lib/smAPI/Settings/G
 
 export const DataRefreshAll = () => {
   store.dispatch(GetChannelGroupsSetIsForced({ force: true }));
+  store.dispatch(GetChannelGroupsFromSMChannelsSetIsForced({ force: true }));
   store.dispatch(GetEPGColorsSetIsForced({ force: true }));
   store.dispatch(GetEPGFilePreviewByIdSetIsForced({ force: true }));
   store.dispatch(GetEPGFilesSetIsForced({ force: true }));

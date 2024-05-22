@@ -50,24 +50,13 @@ export const SMPopUp = ({
   }, [hidden]);
 
   return (
-    <SMOverlay iconFilled={iconFilled} title={title} widthSize="2" icon={icon} buttonClassName={buttonClassName}>
+    <SMOverlay iconFilled={iconFilled} title={title} widthSize="2" icon={icon} buttonClassName={buttonClassName} tooltip={tooltip}>
       <div className="p-4">{children}</div>
       <div className="flex flex-row justify-content-end align-items-center gap-1 pb-1 pr-1">
         <div className="flex flex-column align-items-center">
           <Checkbox checked={remember ?? false} onChange={(e) => setRemeber(e.checked)} />
           <div className="ml-2 text-xs font-italic">Don't Ask Again</div>
         </div>
-
-        {/* <SMButton
-          label="Cancel"
-          icon="pi-times"
-          className="icon-red-filled"
-          onClick={(event) => {
-            op.current?.hide();
-            Cancel && Cancel();
-          }}
-        /> */}
-
         <SMButton
           label="Ok"
           icon="pi-check"

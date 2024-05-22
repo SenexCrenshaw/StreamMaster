@@ -5,6 +5,7 @@ namespace StreamMaster.Domain.Services
         Task SetField(List<FieldData> fieldData);
         Task ClearByTag(string Entity, string Tag);
         Task RefreshAll();
+        Task Refresh(string command);
         Task RefreshStreamGroups(bool alwaysRun = false);
         Task RefreshStreamGroupSMChannelLinks(bool alwaysRun = false);
         Task RefreshSMStreams(bool alwaysRun = false);
@@ -17,6 +18,5 @@ namespace StreamMaster.Domain.Services
         Task RefreshEPG(bool alwaysRun = false);
         Task RefreshEPGFiles(bool alwaysRun = false);
         Task RefreshChannelGroups(bool alwaysRun = false);
-        Task Refresh(string v);
     }
 }

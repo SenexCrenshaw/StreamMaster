@@ -4,14 +4,13 @@ import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { SMOverlay } from '@components/sm/SMOverlay';
 import { useSMContext } from '@lib/signalr/SMProvider';
-import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
 import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
 import useSelectedAndQ from '@lib/hooks/useSelectedAndQ';
-import useSortedData from '@components/smDataTable/helpers/useSortedData';
 import { useChannelGroupNameColumnConfig } from '@components/columns/ChannelGroups/useChannelGroupNameColumnConfig';
 import ChannelGroupVisibleDialog from './ChannelGroupVisibleDialog';
 import ChannelGroupAddDialog from './ChannelGroupAddDialog';
 import ChannelGroupDeleteDialog from './ChannelGroupDeleteDialog';
+import useGetChannelGroupsFromSMChannels from '@lib/smAPI/ChannelGroups/useGetChannelGroupsFromSMChannels';
 
 type ChannelGroupSelectorProperties = {
   readonly darkBackGround?: boolean;
@@ -35,10 +34,14 @@ const ChannelGroupSelector = ({
   const { selectedItems, showHidden } = useSelectedAndQ(dataKey);
   const [input, setInput] = useState<string | undefined>(value);
   const { isSystemReady } = useSMContext();
-  const channelGroupQuery = useGetChannelGroups();
-  const sortedData = useSortedData(dataKey, channelGroupQuery.data);
+  // const namesQuery = useGetChannelGroups();
+  // const sortedData = useSortedData(dataKey, namesQuery.data);
+
+  const namesQuery = useGetChannelGroupsFromSMChannels();
+
   const { columnConfig: channelGroupNameColumnConfig } = useChannelGroupNameColumnConfig({ enableEdit: true });
-  const loading = channelGroupQuery.isLoading || channelGroupQuery.isFetching || !channelGroupQuery.data || isSystemReady !== true;
+
+  const loading = namesQuery.isLoading || namesQuery.isFetching || !namesQuery.data || isSystemReady !== true;
 
   useEffect(() => {
     if (value !== undefined) {
@@ -47,11 +50,14 @@ const ChannelGroupSelector = ({
   }, [value]);
 
   const dataSource = useMemo(() => {
-    if (showHidden === null) {
-      return sortedData;
+    if (!namesQuery.data) {
+      return [];
     }
-    return sortedData.filter((x) => (showHidden ? !x.IsHidden : x.IsHidden));
-  }, [showHidden, sortedData]);
+    if (showHidden === null) {
+      return namesQuery.data;
+    }
+    return namesQuery.data.filter((x) => (showHidden ? !x.IsHidden : x.IsHidden));
+  }, [showHidden, namesQuery]);
 
   const buttonTemplate = useMemo(() => {
     if (input) {

@@ -12,7 +12,7 @@ public static class DataRefreshService
 
         content.AppendLine("}");
 
-        var interfaceContent = GenerateInterface(methodsByNamespace);
+        string interfaceContent = GenerateInterface(methodsByNamespace);
         File.WriteAllText(filePath, content.ToString());
         File.WriteAllText(IfilePath, interfaceContent);
     }
@@ -28,10 +28,11 @@ public static class DataRefreshService
         content.AppendLine("        Task SetField(List<FieldData> fieldData);");
         content.AppendLine("        Task ClearByTag(string Entity, string Tag);");
         content.AppendLine("        Task RefreshAll();");
+        content.AppendLine("        Task Refresh(string command);");
 
-        foreach (var namespaceName in methodsByNamespace.Keys)
+        foreach (string namespaceName in methodsByNamespace.Keys)
         {
-            var gets = methodsByNamespace[namespaceName].Any(a => a.IsGet);
+            bool gets = methodsByNamespace[namespaceName].Any(a => a.IsGet);
             if (!gets)
             {
                 continue;
@@ -56,9 +57,9 @@ public static class DataRefreshService
         content.AppendLine("    {");
         content.AppendLine();
 
-        foreach (var namespaceName in methodsByNamespace.Keys.Order())
+        foreach (string? namespaceName in methodsByNamespace.Keys.Order())
         {
-            var gets = methodsByNamespace[namespaceName].Where(a => a.IsGet).OrderBy(a => a.Name).ToList();
+            List<MethodDetails> gets = methodsByNamespace[namespaceName].Where(a => a.IsGet).OrderBy(a => a.Name).ToList();
             if (gets.Count == 0)
             {
                 continue;
@@ -68,9 +69,9 @@ public static class DataRefreshService
         }
         content.AppendLine("    }");
 
-        foreach (var namespaceName in methodsByNamespace.Keys.Order())
+        foreach (string? namespaceName in methodsByNamespace.Keys.Order())
         {
-            var gets = methodsByNamespace[namespaceName].Where(a => a.IsGet).OrderBy(a => a.Name).ToList();
+            List<MethodDetails> gets = methodsByNamespace[namespaceName].Where(a => a.IsGet).OrderBy(a => a.Name).ToList();
             if (gets.Count == 0)
             {
                 continue;
@@ -85,7 +86,7 @@ public static class DataRefreshService
             content.AppendLine("            return;");
             content.AppendLine("        }");
             content.AppendLine();
-            foreach (var get in gets)
+            foreach (MethodDetails? get in gets)
             {
                 content.AppendLine($"        await hub.Clients.All.DataRefresh(\"{get.Name}\");");
             }

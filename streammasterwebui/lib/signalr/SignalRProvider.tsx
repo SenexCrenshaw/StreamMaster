@@ -1,6 +1,7 @@
 import React, { ReactNode, createContext, useCallback, useContext, useEffect } from 'react';
 import SignalRService from './SignalRService';
 import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
+import useGetChannelGroupsFromSMChannels from '@lib/smAPI/ChannelGroups/useGetChannelGroupsFromSMChannels';
 import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';
 import useGetEPGFilePreviewById from '@lib/smAPI/EPGFiles/useGetEPGFilePreviewById';
 import useGetEPGFiles from '@lib/smAPI/EPGFiles/useGetEPGFiles';
@@ -44,6 +45,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
   const smMessages = useSMMessages();
   const signalRService = SignalRService.getInstance();
   const getChannelGroups = useGetChannelGroups();
+  const getChannelGroupsFromSMChannels = useGetChannelGroupsFromSMChannels();
   const getEPGColors = useGetEPGColors();
   const getEPGFilePreviewById = useGetEPGFilePreviewById();
   const getEPGFiles = useGetEPGFiles();
@@ -79,6 +81,10 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
     (entity: string): void => {
       if (entity === 'GetChannelGroups') {
         getChannelGroups.SetIsForced(true);
+        return;
+      }
+      if (entity === 'GetChannelGroupsFromSMChannels') {
+        getChannelGroupsFromSMChannels.SetIsForced(true);
         return;
       }
       if (entity === 'GetEPGColors') {
@@ -175,6 +181,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
       }
       if (entity === 'ChannelGroups') {
         getChannelGroups.SetIsForced(true);
+        getChannelGroupsFromSMChannels.SetIsForced(true);
         getPagedChannelGroups.SetIsForced(true);
         return;
       }
@@ -234,7 +241,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         return;
       }
     },
-    [getChannelGroups,getEPGColors,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getIcons,getIsSystemReady,getM3UFileNames,getM3UFiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSettings,getSMChannel,getSMChannelNames,getSMChannelStreams,getStationChannelNames,getStreamGroup,getStreamGroups,getStreamGroupSMChannels,getSystemStatus]
+    [getChannelGroups,getChannelGroupsFromSMChannels,getEPGColors,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getIcons,getIsSystemReady,getM3UFileNames,getM3UFiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSettings,getSMChannel,getSMChannelNames,getSMChannelStreams,getStationChannelNames,getStreamGroup,getStreamGroups,getStreamGroupSMChannels,getSystemStatus]
   );
 
   const setField = useCallback(
@@ -242,6 +249,10 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
       fieldDatas.forEach((fieldData) => {
         if (fieldData.Entity === 'GetChannelGroups') {
           getChannelGroups.SetField(fieldData)
+          return;
+        }
+        if (fieldData.Entity === 'GetChannelGroupsFromSMChannels') {
+          getChannelGroupsFromSMChannels.SetField(fieldData)
           return;
         }
         if (fieldData.Entity === 'GetEPGColors') {
@@ -338,6 +349,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         }
       if ( fieldData.Entity === 'ChannelGroups') {
         getChannelGroups.SetField(fieldData);
+        getChannelGroupsFromSMChannels.SetField(fieldData);
         getPagedChannelGroups.SetField(fieldData);
         return;
       }
@@ -398,13 +410,17 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
       }
       });
     },
-    [getChannelGroups,getEPGColors,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getIcons,getIsSystemReady,getM3UFileNames,getM3UFiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSettings,getSMChannel,getSMChannelNames,getSMChannelStreams,getStationChannelNames,getStreamGroup,getStreamGroups,getStreamGroupSMChannels,getSystemStatus]
+    [getChannelGroups,getChannelGroupsFromSMChannels,getEPGColors,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getIcons,getIsSystemReady,getM3UFileNames,getM3UFiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSettings,getSMChannel,getSMChannelNames,getSMChannelStreams,getStationChannelNames,getStreamGroup,getStreamGroups,getStreamGroupSMChannels,getSystemStatus]
   );
 
   const clearByTag = useCallback((data: ClearByTag): void => {
     const { Entity, Tag } = data;
     if (Entity === 'GetChannelGroups') {
       getChannelGroups.ClearByTag(Tag)
+      return;
+    }
+    if (Entity === 'GetChannelGroupsFromSMChannels') {
+      getChannelGroupsFromSMChannels.ClearByTag(Tag)
       return;
     }
     if (Entity === 'GetEPGColors') {
@@ -502,7 +518,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
     console.log('ClearByTag', Entity, Tag);
   }
 ,
-    [getChannelGroups,getEPGColors,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getIcons,getIsSystemReady,getM3UFileNames,getM3UFiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSettings,getSMChannel,getSMChannelNames,getSMChannelStreams,getStationChannelNames,getStreamGroup,getStreamGroups,getStreamGroupSMChannels,getSystemStatus]
+    [getChannelGroups,getChannelGroupsFromSMChannels,getEPGColors,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getIcons,getIsSystemReady,getM3UFileNames,getM3UFiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSettings,getSMChannel,getSMChannelNames,getSMChannelStreams,getStationChannelNames,getStreamGroup,getStreamGroups,getStreamGroupSMChannels,getSystemStatus]
   );
 
   const RemoveConnections = useCallback(() => {

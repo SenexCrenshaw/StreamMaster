@@ -691,6 +691,9 @@ export interface UpdateEPGFileRequest
 	TimeShift?: number;
 	Url?: string;
 }
+export interface GetChannelGroupsFromSMChannelsRequest
+{
+}
 export interface GetChannelGroupsRequest
 {
 }
