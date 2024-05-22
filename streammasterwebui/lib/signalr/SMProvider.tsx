@@ -1,17 +1,17 @@
 import SMLoader from '@components/loader/SMLoader';
-import { Logger } from '@lib/common/logger';
 import { DataRefreshAll } from '@lib/smAPI/DataRefreshAll';
 import { GetIsSystemReady } from '@lib/smAPI/Settings/SettingsCommands';
 import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import { SettingDto } from '@lib/smAPI/smapiTypes';
 import { BlockUI } from 'primereact/blockui';
 import React, { ReactNode, createContext, useContext, useEffect, useState } from 'react';
+import { Logger } from '@lib/common/logger';
 
 interface SMContextState {
   isSystemReady: boolean;
   setSystemReady: React.Dispatch<React.SetStateAction<boolean>>;
-  settings: SettingDto | null;
-  setSettings: React.Dispatch<React.SetStateAction<SettingDto | null>>;
+  settings: SettingDto;
+  setSettings: React.Dispatch<React.SetStateAction<SettingDto>>;
 }
 
 const SMContext = createContext<SMContextState | undefined>(undefined);
@@ -22,7 +22,7 @@ interface SMProviderProps {
 
 export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
   const [isSystemReady, setSystemReady] = useState<boolean>(false);
-  const [settings, setSettings] = useState<SettingDto | null>(null);
+  const [settings, setSettings] = useState<SettingDto>({} as SettingDto);
   const settingsQuery = useGetSettings();
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
   }, [settingsQuery.data]);
 
   const value = {
-    isSystemReady: isSystemReady && settings !== null,
+    isSystemReady: isSystemReady && settingsQuery.data !== undefined,
     setSystemReady,
     settings,
     setSettings
@@ -44,7 +44,7 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
         const result = await GetIsSystemReady();
         if (result !== isSystemReady) {
           setSystemReady(result ?? false);
-          if (result === true && settings !== null) {
+          if (result === true && settingsQuery.data !== undefined) {
             await DataRefreshAll();
           }
         }
@@ -57,7 +57,7 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
     const intervalId = setInterval(checkSystemReady, 1000);
 
     return () => clearInterval(intervalId);
-  }, [isSystemReady, settings]);
+  }, [isSystemReady, settingsQuery.data]);
 
   return (
     <SMContext.Provider value={value}>
