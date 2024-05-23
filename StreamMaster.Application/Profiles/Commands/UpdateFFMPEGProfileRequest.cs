@@ -1,6 +1,9 @@
 ﻿namespace StreamMaster.Application.Profiles.Commands;
 
-public record UpdateFFMPEGProfileRequest(string Name, string? NewName, string? Parameters, int? TimeOut, bool? IsM3U8) : IRequest<UpdateSettingResponse> { }
+
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record UpdateFFMPEGProfileRequest(string Name, string? NewName, string? Parameters, int? TimeOut, bool? IsM3U8) : IRequest<APIResponse> { }
 
 public class UpdateFFMPEGProfileRequestHandler(
     ILogger<UpdateFFMPEGProfileRequest> Logger,
@@ -9,17 +12,18 @@ public class UpdateFFMPEGProfileRequestHandler(
     ISender Sender,
     IRepositoryWrapper repositoryWrapper
     )
-: IRequestHandler<UpdateFFMPEGProfileRequest, UpdateSettingResponse>
+: IRequestHandler<UpdateFFMPEGProfileRequest, APIResponse>
 {
 
     private readonly FFMPEGProfiles profilesettings = intprofilesettings.CurrentValue;
 
-    public async Task<UpdateSettingResponse> Handle(UpdateFFMPEGProfileRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(UpdateFFMPEGProfileRequest request, CancellationToken cancellationToken)
     {
         if (!profilesettings.Profiles.ContainsKey(request.Name))
         {
             DataResponse<SettingDto> ret1 = await Sender.Send(new GetSettingsRequest(), cancellationToken);
-            return new UpdateSettingResponse { Settings = ret1.Data, NeedsLogOut = false };
+            //return APIResponse.Success(new UpdateSettingResponse { Settings = ret1.Data, NeedsLogOut = false });
+            return APIResponse.Ok;
         }
 
         if (profilesettings.Profiles.TryGetValue(request.Name, out FFMPEGProfile? existingProfile))
@@ -50,7 +54,8 @@ public class UpdateFFMPEGProfileRequestHandler(
 
         }
         DataResponse<SettingDto> ret = await Sender.Send(new GetSettingsRequest(), cancellationToken);
-        return new UpdateSettingResponse { Settings = ret.Data, NeedsLogOut = false };
+        //return APIResponse.Success(new UpdateSettingResponse { Settings = ret.Data, NeedsLogOut = false });
+        return APIResponse.Ok;
     }
 
 }

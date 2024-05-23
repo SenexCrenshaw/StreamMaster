@@ -1,28 +1,30 @@
 ﻿namespace StreamMaster.Application.Profiles.Commands;
 
-public record RemoveFFMPEGProfileRequest(string Name) : IRequest<UpdateSettingResponse> { }
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record RemoveFFMPEGProfileRequest(string Name) : IRequest<APIResponse> { }
 
 public class RemoveFFMPEGProfileRequestHandler(IOptionsMonitor<FFMPEGProfiles> intprofilesettings, ILogger<RemoveFFMPEGProfileRequest> Logger, IMapper Mapper)
-: IRequestHandler<RemoveFFMPEGProfileRequest, UpdateSettingResponse>
+: IRequestHandler<RemoveFFMPEGProfileRequest, APIResponse>
 {
-    private readonly FFMPEGProfiles profilesettings = intprofilesettings.CurrentValue;
+    private readonly FFMPEGProfiles profileSettings = intprofilesettings.CurrentValue;
 
-    public async Task<UpdateSettingResponse> Handle(RemoveFFMPEGProfileRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(RemoveFFMPEGProfileRequest request, CancellationToken cancellationToken)
     {
 
-        if (profilesettings.Profiles.TryGetValue(request.Name, out FFMPEGProfile? profile))
+        if (profileSettings.Profiles.TryGetValue(request.Name, out FFMPEGProfile? profile))
         {
-            profilesettings.Profiles.Remove(request.Name);
+            profileSettings.Profiles.Remove(request.Name);
 
             Logger.LogInformation("RemoveFFMPEGProfileRequest");
 
-            SettingsHelper.UpdateSetting(profilesettings);
+            SettingsHelper.UpdateSetting(profileSettings);
 
         }
 
-        SettingDto retNull = Mapper.Map<SettingDto>(profilesettings);
-        return new UpdateSettingResponse { Settings = retNull, NeedsLogOut = false };
-
+        SettingDto settingsDto = Mapper.Map<SettingDto>(profileSettings);
+        //APIResponse.Success(new UpdateSettingResponse { Settings = settingsDto, NeedsLogOut = false });
+        return APIResponse.Ok;
 
     }
 

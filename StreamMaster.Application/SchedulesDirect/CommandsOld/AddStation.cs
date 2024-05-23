@@ -1,4 +1,4 @@
-﻿using StreamMaster.Application.Settings.CommandsOld;
+﻿using StreamMaster.Application.Settings.Commands;
 
 namespace StreamMaster.Application.SchedulesDirect.CommandsOld;
 

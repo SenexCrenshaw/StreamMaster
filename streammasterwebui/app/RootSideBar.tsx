@@ -1,6 +1,6 @@
 import MenuItemSM from '@components/MenuItemSM';
 import SunButton from '@components/buttons/SunButton';
-import { HelpIcon, PlayListEditorIcon, SideBarMenuIcon } from '@lib/common/icons';
+import { HelpIcon, PlayListEditorIcon, SettingsEditorIcon, SideBarMenuIcon } from '@lib/common/icons';
 import { useSMContext } from '@lib/signalr/SMProvider';
 
 import useSettings from '@lib/useSettings';
@@ -101,6 +101,7 @@ export const RootSideBar = () => {
         <MenuItemSM collapsed={collapsed} icon={<QueueStatisIcon />} link="/queuestatus" name="Queue" />
         <MenuItemSM collapsed={collapsed} icon={<SettingsEditorIcon />} link="/settings" name="Settings" />
         <MenuItemSM collapsed={collapsed} icon={<LogIcon />} link="/viewer/logviewer" name="Log" /> */}
+        <MenuItemSM collapsed={collapsed} icon={<SettingsEditorIcon />} link="/settings" name="Settings" />
         <MenuItemSM collapsed={collapsed} icon={<HelpIcon />} link="https://github.com/SenexCrenshaw/StreamMaster/wiki" name="Wiki" newWindow />
 
         <MenuItem

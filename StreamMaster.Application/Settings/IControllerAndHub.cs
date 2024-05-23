@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using StreamMaster.Application.Settings.Commands;
 using StreamMaster.Application.Settings.Queries;
 
 namespace StreamMaster.Application.Settings
@@ -8,6 +9,7 @@ namespace StreamMaster.Application.Settings
         Task<ActionResult<bool>> GetIsSystemReady();
         Task<ActionResult<SettingDto>> GetSettings();
         Task<ActionResult<SDSystemStatus>> GetSystemStatus();
+        Task<ActionResult<UpdateSettingResponse?>> UpdateSetting();
     }
 }
 
@@ -18,5 +20,6 @@ namespace StreamMaster.Application.Hubs
         Task<bool> GetIsSystemReady();
         Task<SettingDto> GetSettings();
         Task<SDSystemStatus> GetSystemStatus();
+        Task<UpdateSettingResponse?> UpdateSetting();
     }
 }

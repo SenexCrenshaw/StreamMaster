@@ -1,30 +1,31 @@
 import { combineReducers } from 'redux';
+import currentSettingRequest from '@lib/redux/hooks/currentSettingRequest';
 import filters from '@lib/redux/hooks/filters';
-import GetChannelGroups from '@lib/smAPI/ChannelGroups/GetChannelGroupsSlice';
-import GetChannelGroupsFromSMChannels from '@lib/smAPI/ChannelGroups/GetChannelGroupsFromSMChannelsSlice';
-import GetEPGColors from '@lib/smAPI/EPG/GetEPGColorsSlice';
-import GetEPGFilePreviewById from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
-import GetEPGFiles from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
-import GetEPGNextEPGNumber from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
-import GetIcons from '@lib/smAPI/Icons/GetIconsSlice';
-import GetIsSystemReady from '@lib/smAPI/Settings/GetIsSystemReadySlice';
-import GetM3UFileNames from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
-import GetM3UFiles from '@lib/smAPI/M3UFiles/GetM3UFilesSlice';
-import GetPagedChannelGroups from '@lib/smAPI/ChannelGroups/GetPagedChannelGroupsSlice';
-import GetPagedEPGFiles from '@lib/smAPI/EPGFiles/GetPagedEPGFilesSlice';
-import GetPagedM3UFiles from '@lib/smAPI/M3UFiles/GetPagedM3UFilesSlice';
-import GetPagedSMChannels from '@lib/smAPI/SMChannels/GetPagedSMChannelsSlice';
-import GetPagedSMStreams from '@lib/smAPI/SMStreams/GetPagedSMStreamsSlice';
-import GetPagedStreamGroups from '@lib/smAPI/StreamGroups/GetPagedStreamGroupsSlice';
-import GetSettings from '@lib/smAPI/Settings/GetSettingsSlice';
-import GetSMChannel from '@lib/smAPI/SMChannels/GetSMChannelSlice';
-import GetSMChannelNames from '@lib/smAPI/SMChannels/GetSMChannelNamesSlice';
-import GetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/GetSMChannelStreamsSlice';
-import GetStationChannelNames from '@lib/smAPI/SchedulesDirect/GetStationChannelNamesSlice';
-import GetStreamGroup from '@lib/smAPI/StreamGroups/GetStreamGroupSlice';
-import GetStreamGroups from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice';
-import GetStreamGroupSMChannels from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
-import GetSystemStatus from '@lib/smAPI/Settings/GetSystemStatusSlice';
+import GetChannelGroupsReducer from '@lib/smAPI/ChannelGroups/GetChannelGroupsSlice';
+import GetChannelGroupsFromSMChannelsReducer from '@lib/smAPI/ChannelGroups/GetChannelGroupsFromSMChannelsSlice';
+import GetEPGColorsReducer from '@lib/smAPI/EPG/GetEPGColorsSlice';
+import GetEPGFilePreviewByIdReducer from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
+import GetEPGFilesReducer from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
+import GetEPGNextEPGNumberReducer from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
+import GetIconsReducer from '@lib/smAPI/Icons/GetIconsSlice';
+import GetIsSystemReadyReducer from '@lib/smAPI/Settings/GetIsSystemReadySlice';
+import GetM3UFileNamesReducer from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
+import GetM3UFilesReducer from '@lib/smAPI/M3UFiles/GetM3UFilesSlice';
+import GetPagedChannelGroupsReducer from '@lib/smAPI/ChannelGroups/GetPagedChannelGroupsSlice';
+import GetPagedEPGFilesReducer from '@lib/smAPI/EPGFiles/GetPagedEPGFilesSlice';
+import GetPagedM3UFilesReducer from '@lib/smAPI/M3UFiles/GetPagedM3UFilesSlice';
+import GetPagedSMChannelsReducer from '@lib/smAPI/SMChannels/GetPagedSMChannelsSlice';
+import GetPagedSMStreamsReducer from '@lib/smAPI/SMStreams/GetPagedSMStreamsSlice';
+import GetPagedStreamGroupsReducer from '@lib/smAPI/StreamGroups/GetPagedStreamGroupsSlice';
+import GetSettingsReducer from '@lib/smAPI/Settings/GetSettingsSlice';
+import GetSMChannelReducer from '@lib/smAPI/SMChannels/GetSMChannelSlice';
+import GetSMChannelNamesReducer from '@lib/smAPI/SMChannels/GetSMChannelNamesSlice';
+import GetSMChannelStreamsReducer from '@lib/smAPI/SMChannelStreamLinks/GetSMChannelStreamsSlice';
+import GetStationChannelNamesReducer from '@lib/smAPI/SchedulesDirect/GetStationChannelNamesSlice';
+import GetStreamGroupReducer from '@lib/smAPI/StreamGroups/GetStreamGroupSlice';
+import GetStreamGroupsReducer from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice';
+import GetStreamGroupSMChannelsReducer from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
+import GetSystemStatusReducer from '@lib/smAPI/Settings/GetSystemStatusSlice';
 import isTrue from '@lib/redux/hooks/isTrue';
 import messages from '@lib/redux/hooks/messages';
 import queryAdditionalFilters from '@lib/redux/hooks/queryAdditionalFilters';
@@ -40,6 +41,7 @@ import selectedStreamGroup from '@lib/redux/hooks/selectedStreamGroup';
 import showHidden from '@lib/redux/hooks/showHidden';
 import showSelections from '@lib/redux/hooks/showSelections';
 import sortInfo from '@lib/redux/hooks/sortInfo';
+import updateSettingRequest from '@lib/redux/hooks/updateSettingRequest';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
@@ -104,32 +106,33 @@ const sortInfoConfig = {
   storage
 };
 export const rootReducer = combineReducers({
+  currentSettingRequest: currentSettingRequest,
   filters: persistReducer(filtersConfig, filters),
-  GetChannelGroups: GetChannelGroups,
-  GetChannelGroupsFromSMChannels: GetChannelGroupsFromSMChannels,
-  GetEPGColors: GetEPGColors,
-  GetEPGFilePreviewById: GetEPGFilePreviewById,
-  GetEPGFiles: GetEPGFiles,
-  GetEPGNextEPGNumber: GetEPGNextEPGNumber,
-  GetIcons: GetIcons,
-  GetIsSystemReady: GetIsSystemReady,
-  GetM3UFileNames: GetM3UFileNames,
-  GetM3UFiles: GetM3UFiles,
-  GetPagedChannelGroups: GetPagedChannelGroups,
-  GetPagedEPGFiles: GetPagedEPGFiles,
-  GetPagedM3UFiles: GetPagedM3UFiles,
-  GetPagedSMChannels: GetPagedSMChannels,
-  GetPagedSMStreams: GetPagedSMStreams,
-  GetPagedStreamGroups: GetPagedStreamGroups,
-  GetSettings: GetSettings,
-  GetSMChannel: GetSMChannel,
-  GetSMChannelNames: GetSMChannelNames,
-  GetSMChannelStreams: GetSMChannelStreams,
-  GetStationChannelNames: GetStationChannelNames,
-  GetStreamGroup: GetStreamGroup,
-  GetStreamGroups: GetStreamGroups,
-  GetStreamGroupSMChannels: GetStreamGroupSMChannels,
-  GetSystemStatus: GetSystemStatus,
+  GetChannelGroups: GetChannelGroupsReducer,
+  GetChannelGroupsFromSMChannels: GetChannelGroupsFromSMChannelsReducer,
+  GetEPGColors: GetEPGColorsReducer,
+  GetEPGFilePreviewById: GetEPGFilePreviewByIdReducer,
+  GetEPGFiles: GetEPGFilesReducer,
+  GetEPGNextEPGNumber: GetEPGNextEPGNumberReducer,
+  GetIcons: GetIconsReducer,
+  GetIsSystemReady: GetIsSystemReadyReducer,
+  GetM3UFileNames: GetM3UFileNamesReducer,
+  GetM3UFiles: GetM3UFilesReducer,
+  GetPagedChannelGroups: GetPagedChannelGroupsReducer,
+  GetPagedEPGFiles: GetPagedEPGFilesReducer,
+  GetPagedM3UFiles: GetPagedM3UFilesReducer,
+  GetPagedSMChannels: GetPagedSMChannelsReducer,
+  GetPagedSMStreams: GetPagedSMStreamsReducer,
+  GetPagedStreamGroups: GetPagedStreamGroupsReducer,
+  GetSettings: GetSettingsReducer,
+  GetSMChannel: GetSMChannelReducer,
+  GetSMChannelNames: GetSMChannelNamesReducer,
+  GetSMChannelStreams: GetSMChannelStreamsReducer,
+  GetStationChannelNames: GetStationChannelNamesReducer,
+  GetStreamGroup: GetStreamGroupReducer,
+  GetStreamGroups: GetStreamGroupsReducer,
+  GetStreamGroupSMChannels: GetStreamGroupSMChannelsReducer,
+  GetSystemStatus: GetSystemStatusReducer,
   isTrue: persistReducer(isTrueConfig, isTrue),
   messages: messages,
   queryAdditionalFilters: persistReducer(queryAdditionalFiltersConfig, queryAdditionalFilters),
@@ -145,5 +148,6 @@ export const rootReducer = combineReducers({
   showHidden: persistReducer(showHiddenConfig, showHidden),
   showSelections: persistReducer(showSelectionsConfig, showSelections),
   sortInfo: persistReducer(sortInfoConfig, sortInfo),
+  updateSettingRequest: updateSettingRequest,
 });
 

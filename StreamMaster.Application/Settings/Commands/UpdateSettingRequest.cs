@@ -1,8 +1,10 @@
 ﻿using StreamMaster.Application.Services;
 using StreamMaster.SchedulesDirect;
 
-namespace StreamMaster.Application.Settings.CommandsOld;
+namespace StreamMaster.Application.Settings.Commands;
 
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
 {
     public bool? BackupEnabled { get; set; }

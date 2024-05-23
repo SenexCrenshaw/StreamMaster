@@ -9,9 +9,9 @@ import { getPasswordLine } from './getPasswordLine';
 import { useSettingChangeHandler } from './useSettingChangeHandler';
 
 export function GeneralSettings(): React.ReactElement {
-  const { onChange, selectedCurrentSettingDto } = useSettingChangeHandler();
+  const { onChange, currentSettingRequest } = useSettingChangeHandler();
 
-  if (selectedCurrentSettingDto === null || selectedCurrentSettingDto === undefined) {
+  if (currentSettingRequest === null || currentSettingRequest === undefined) {
     return (
       <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')}>
         <div className="text-center">{GetMessage('loading')}</div>
@@ -21,19 +21,19 @@ export function GeneralSettings(): React.ReactElement {
 
   return (
     <Fieldset className="mt-4 pt-10" legend={GetMessage('general')} toggleable>
-      {getInputTextLine({ field: 'deviceID', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'cleanURLs', selectedCurrentSettingDto, onChange })}
-      {getInputTextLine({ field: 'ffmPegExecutable', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'enableSSL', selectedCurrentSettingDto, onChange })}
-      {selectedCurrentSettingDto?.enableSSL === true && (
+      {getInputTextLine({ field: 'deviceID', currentSettingRequest, onChange })}
+      {getCheckBoxLine({ field: 'cleanURLs', currentSettingRequest, onChange })}
+      {getInputTextLine({ field: 'ffmPegExecutable', currentSettingRequest, onChange })}
+      {getCheckBoxLine({ field: 'enableSSL', currentSettingRequest, onChange })}
+      {currentSettingRequest?.EnableSSL === true && (
         <>
-          {getInputTextLine({ field: 'sslCertPath', warning: GetMessage('changesServiceRestart'), selectedCurrentSettingDto, onChange })}
-          {getPasswordLine({ field: 'sslCertPassword', warning: GetMessage('changesServiceRestart'), selectedCurrentSettingDto, onChange })}
+          {getInputTextLine({ field: 'sslCertPath', warning: GetMessage('changesServiceRestart'), currentSettingRequest, onChange })}
+          {getPasswordLine({ field: 'sslCertPassword', warning: GetMessage('changesServiceRestart'), currentSettingRequest, onChange })}
         </>
       )}
-      {getCheckBoxLine({ field: 'enablePrometheus', selectedCurrentSettingDto, onChange })}
-      {getInputNumberLine({ field: 'maxLogFiles', selectedCurrentSettingDto, onChange })}
-      {getInputNumberLine({ field: 'maxLogFileSizeMB', selectedCurrentSettingDto, onChange })}
+      {getCheckBoxLine({ field: 'enablePrometheus', currentSettingRequest, onChange })}
+      {getInputNumberLine({ field: 'maxLogFiles', currentSettingRequest, onChange })}
+      {getInputNumberLine({ field: 'maxLogFileSizeMB', currentSettingRequest, onChange })}
     </Fieldset>
   );
 }

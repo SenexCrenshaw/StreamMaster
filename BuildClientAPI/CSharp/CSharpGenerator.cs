@@ -41,7 +41,7 @@ public static class CSharpGenerator
 
             if (method.Name == "UpdateSMChannel")
             {
-                var a = 1;
+                int a = 1;
             }
 
             if (!method.JustHub)
@@ -195,7 +195,7 @@ public static class CSharpGenerator
             }
         }
 
-        var assssa = controllerContent.ToString();
+        string assssa = controllerContent.ToString();
 
         WriteControllerAndHub(filePath, namespaceName, controllerContent, hubContent, needsQueryInclude, needsCommandInclude);
         WriteIControllerAndHub(IFilePath, namespaceName, IcontrollerContent, IhubContent, needsQueryInclude, needsCommandInclude);

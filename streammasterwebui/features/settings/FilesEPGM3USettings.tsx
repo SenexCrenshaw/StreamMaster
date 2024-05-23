@@ -6,12 +6,13 @@ import React from 'react';
 import { getCheckBoxLine } from './getCheckBoxLine';
 import { getInputTextLine } from './getInputTextLine';
 import { useSettingChangeHandler } from './useSettingChangeHandler';
+import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 
 export function FilesEPGM3USettings(): React.ReactElement {
-  const settingsQuery = useSettingsGetSettingQuery();
-  const { onChange, selectedCurrentSettingDto } = useSettingChangeHandler();
+  const settingsQuery = useGetSettings();
+  const { onChange, currentSettingRequest } = useSettingChangeHandler();
 
-  if (selectedCurrentSettingDto === null || selectedCurrentSettingDto === undefined) {
+  if (currentSettingRequest === null || currentSettingRequest === undefined) {
     return (
       <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')}>
         <div className="text-center">{GetMessage('loading')}</div>
@@ -21,17 +22,17 @@ export function FilesEPGM3USettings(): React.ReactElement {
 
   return (
     <Fieldset className="mt-4 pt-10" legend={GetMessage('filesEPGM3U')} toggleable>
-      {getCheckBoxLine({ field: 'prettyEPG', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'cacheIcons', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'videoStreamAlwaysUseEPGLogo', selectedCurrentSettingDto, onChange })}
-      {getInputTextLine({ field: 'dummyRegex', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'm3UIgnoreEmptyEPGID', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'm3UFieldGroupTitle', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'm3UUseChnoForId', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'm3UStationId', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'm3UUseCUIDForChannelID', selectedCurrentSettingDto, onChange })}
+      {getCheckBoxLine({ field: 'prettyEPG', currentSettingRequest, onChange })}
+      {getCheckBoxLine({ field: 'cacheIcons', currentSettingRequest, onChange })}
+      {getCheckBoxLine({ field: 'videoStreamAlwaysUseEPGLogo', currentSettingRequest, onChange })}
+      {getInputTextLine({ field: 'dummyRegex', currentSettingRequest, onChange })}
+      {getCheckBoxLine({ field: 'm3UIgnoreEmptyEPGID', currentSettingRequest, onChange })}
+      {getCheckBoxLine({ field: 'm3UFieldGroupTitle', currentSettingRequest, onChange })}
+      {getCheckBoxLine({ field: 'm3UUseChnoForId', currentSettingRequest, onChange })}
+      {getCheckBoxLine({ field: 'm3UStationId', currentSettingRequest, onChange })}
+      {getCheckBoxLine({ field: 'm3UUseCUIDForChannelID', currentSettingRequest, onChange })}
       <Fieldset className="mt-4 pt-10" collapsed legend={GetMessage('nameregexSettings')} toggleable>
-        <SettingsNameRegexDataSelector data={settingsQuery.data?.nameRegex} />
+        <SettingsNameRegexDataSelector data={settingsQuery.data?.NameRegex} />
       </Fieldset>
     </Fieldset>
   );

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Application.Settings.CommandsOld;
+using StreamMaster.Application.Settings.Commands;
 
 namespace StreamMaster.Application.Settings;
 

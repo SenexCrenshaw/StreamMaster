@@ -1,15 +1,17 @@
 ﻿
 namespace StreamMaster.Application.Profiles.Commands;
 
-public record AddFFMPEGProfileRequest(string Name, string Parameters, int TimeOut, bool IsM3U8) : IRequest<UpdateSettingResponse> { }
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record AddFFMPEGProfileRequest(string Name, string Parameters, int TimeOut, bool IsM3U8) : IRequest<APIResponse> { }
 
 public class AddFFMPEGProfileRequestHandler(ILogger<AddFFMPEGProfileRequest> Logger, ISender Sender, IOptionsMonitor<FFMPEGProfiles> intprofilesettings, IMapper Mapper)
-: IRequestHandler<AddFFMPEGProfileRequest, UpdateSettingResponse>
+: IRequestHandler<AddFFMPEGProfileRequest, APIResponse>
 {
 
-    private readonly FFMPEGProfiles profilesettings = intprofilesettings.CurrentValue;
+    private readonly FFMPEGProfiles profileSettings = intprofilesettings.CurrentValue;
 
-    public async Task<UpdateSettingResponse> Handle(AddFFMPEGProfileRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(AddFFMPEGProfileRequest request, CancellationToken cancellationToken)
     {
 
         FFMPEGProfile profile = new()
@@ -19,22 +21,23 @@ public class AddFFMPEGProfileRequestHandler(ILogger<AddFFMPEGProfileRequest> Log
             IsM3U8 = request.IsM3U8
         };
 
-        if (profilesettings.Profiles.TryGetValue(request.Name, out FFMPEGProfile? existingProfile))
+        if (profileSettings.Profiles.TryGetValue(request.Name, out FFMPEGProfile? existingProfile))
         {
-            profilesettings.Profiles[request.Name] = profile;
+            profileSettings.Profiles[request.Name] = profile;
         }
         else
         {
-            profilesettings.Profiles.Add(request.Name, profile);
+            profileSettings.Profiles.Add(request.Name, profile);
         }
 
 
         Logger.LogInformation("AddFFMPEGProfileRequest");
 
-        SettingsHelper.UpdateSetting(profilesettings);
+        SettingsHelper.UpdateSetting(profileSettings);
 
         DataResponse<SettingDto> ret = await Sender.Send(new GetSettingsRequest(), cancellationToken);
-        return new UpdateSettingResponse { Settings = ret.Data, NeedsLogOut = false };
+        //return APIResponse.Success(new UpdateSettingResponse { Settings = ret.Data, NeedsLogOut = false });
+        return APIResponse.Ok;
     }
 
 }

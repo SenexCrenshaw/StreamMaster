@@ -1,13 +1,15 @@
 ﻿namespace StreamMaster.Application.Profiles.Queries;
 
-public record GetFFMPEGProfiles : IRequest<FFMPEGProfileDtos>;
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record GetFFMPEGProfiles : IRequest<List<FFMPEGProfileDto>>;
 
-internal class GetFFMPEGProfilesHandler(IOptionsMonitor<FFMPEGProfiles> intprofilesettings) : IRequestHandler<GetFFMPEGProfiles, FFMPEGProfileDtos>
+internal class GetFFMPEGProfilesHandler(IOptionsMonitor<FFMPEGProfiles> intprofilesettings) : IRequestHandler<GetFFMPEGProfiles, List<FFMPEGProfileDto>>
 {
-    public async Task<FFMPEGProfileDtos> Handle(GetFFMPEGProfiles request, CancellationToken cancellationToken)
+    public async Task<List<FFMPEGProfileDto>> Handle(GetFFMPEGProfiles request, CancellationToken cancellationToken)
     {
 
-        FFMPEGProfileDtos ret = [];
+        List<FFMPEGProfileDto> ret = [];
 
         foreach (string key in intprofilesettings.CurrentValue.Profiles.Keys)
         {

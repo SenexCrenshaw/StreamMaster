@@ -25,6 +25,12 @@ export interface SMMessage
 	Severity: string;
 	Summary: string;
 }
+export interface StationIdLineup
+{
+	Id: string;
+	Lineup: string;
+	StationId: string;
+}
 export interface StreamGroupSMChannelLink
 {
 	IsReadOnly: boolean;
@@ -221,6 +227,19 @@ export interface StreamGroupDto
 	StreamCount: number;
 	XMLLink: string;
 }
+export interface FFMPEGProfile
+{
+	IsM3U8: boolean;
+	Parameters: string;
+	Timeout: number;
+}
+export interface FFMPEGProfileDto
+{
+	IsM3U8: boolean;
+	Name: string;
+	Parameters: string;
+	Timeout: number;
+}
 export interface HLSSettings
 {
 	HLSFFMPEGOptions: string;
@@ -247,7 +266,7 @@ export interface SDSettings
 	SDEPGDays: number;
 	SDPassword: string;
 	SDPostalCode: string;
-	SDStationIds: any[];
+	SDStationIds: StationIdLineup[];
 	SDUserName: string;
 	SeasonEventImages: boolean;
 	SeriesPosterArt: boolean;
@@ -258,6 +277,38 @@ export interface SDSettings
 	XmltvFillerProgramLength: number;
 	XmltvIncludeChannelNumbers: boolean;
 	XmltvSingleImage: boolean;
+}
+export interface SDSettingsRequest
+{
+	AlternateLogoStyle?: string;
+	AlternateSEFormat?: boolean;
+	AppendEpisodeDesc?: boolean;
+	ArtworkSize?: string;
+	ExcludeCastAndCrew?: boolean;
+	PreferredLogoStyle?: string;
+	PrefixEpisodeDescription?: boolean;
+	PrefixEpisodeTitle?: boolean;
+	SDCountry?: string;
+	SDEnabled?: boolean;
+	SDEPGDays?: number;
+	SDPassword?: string;
+	SDPostalCode?: string;
+	SDStationIds?: StationIdLineup[];
+	SDUserName?: string;
+	SeasonEventImages?: boolean;
+	SeriesPosterArt?: boolean;
+	SeriesPosterAspect?: string;
+	SeriesWsArt?: boolean;
+	XmltvAddFillerData?: boolean;
+	XmltvExtendedInfoInTitleDescriptions?: boolean;
+	XmltvFillerProgramLength?: number;
+	XmltvIncludeChannelNumbers?: boolean;
+	XmltvSingleImage?: boolean;
+}
+export interface UpdateSettingResponse
+{
+	NeedsLogOut: boolean;
+	Settings: SettingDto;
 }
 export interface APIResponse
 {
@@ -544,6 +595,44 @@ export interface GetSettingsRequest
 export interface GetSystemStatusRequest
 {
 }
+export interface UpdateSettingRequest
+{
+	AdminPassword?: string;
+	AdminUserName?: string;
+	ApiKey?: string;
+	AuthenticationMethod?: AuthenticationType;
+	BackupEnabled?: boolean;
+	BackupInterval?: number;
+	BackupVersionsToKeep?: number;
+	CacheIcons?: boolean;
+	CleanURLs?: boolean;
+	ClientUserAgent?: string;
+	DeviceID?: string;
+	DummyRegex?: string;
+	EnablePrometheus?: boolean;
+	EnableSSL?: boolean;
+	FFMPegExecutable?: string;
+	FFMpegOptions?: string;
+	GlobalStreamLimit?: number;
+	M3UFieldGroupTitle?: boolean;
+	M3UIgnoreEmptyEPGID?: boolean;
+	M3UStationId?: boolean;
+	M3UUseChnoForId?: boolean;
+	M3UUseCUIDForChannelID?: boolean;
+	MaxConnectRetry?: number;
+	MaxConnectRetryTimeMS?: number;
+	MaxLogFiles?: number;
+	MaxLogFileSizeMB?: number;
+	NameRegex?: string[];
+	PrettyEPG?: boolean;
+	SDSettings?: SDSettingsRequest;
+	ShowClientHostNames?: boolean;
+	SSLCertPassword?: string;
+	SSLCertPath?: string;
+	StreamingClientUserAgent?: string;
+	StreamingProxyType?: StreamingProxyTypes;
+	VideoStreamAlwaysUseEPGLogo?: boolean;
+}
 export interface GetStationChannelNamesRequest
 {
 }
@@ -570,6 +659,28 @@ export interface RemoveLineup
 export interface RemoveStation
 {
 	Requests: StationRequest[];
+}
+export interface GetFFMPEGProfiles
+{
+}
+export interface AddFFMPEGProfileRequest
+{
+	IsM3U8: boolean;
+	Name: string;
+	Parameters: string;
+	TimeOut: number;
+}
+export interface RemoveFFMPEGProfileRequest
+{
+	Name: string;
+}
+export interface UpdateFFMPEGProfileRequest
+{
+	IsM3U8?: boolean;
+	Name: string;
+	NewName?: string;
+	Parameters?: string;
+	TimeOut?: number;
 }
 export interface GetM3UFileNamesRequest
 {

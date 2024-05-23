@@ -1,31 +1,32 @@
-import { useSelectCurrentSettingDto } from '@lib/redux/slices/selectedCurrentSettingDto';
-import { useSelectUpdateSettingRequest } from '@lib/redux/slices/selectedUpdateSettingRequestSlice';
+import { useCurrentSettingRequest } from '@lib/redux/hooks/currentSettingRequest';
+import { useUpdateSettingRequest } from '@lib/redux/hooks/updateSettingRequest';
+import { SettingDto, UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
 
 export function useSettingChangeHandler() {
-  const { selectedCurrentSettingDto, setSelectedCurrentSettingDto } = useSelectCurrentSettingDto('CurrentSettingDto');
-  const { selectUpdateSettingRequest, setSelectedUpdateSettingRequest } = useSelectUpdateSettingRequest('UpdateSettingRequest');
+  const { currentSettingRequest, setCurrentSettingRequest } = useCurrentSettingRequest('CurrentSettingDto');
+  const { updateSettingRequest, setUpdateSettingRequest } = useUpdateSettingRequest('UpdateSettingRequest');
 
   const onChange = (existing: SettingDto | null, updatedValues: UpdateSettingRequest | null) => {
-    if (updatedValues !== null && selectUpdateSettingRequest != null) {
+    if (updatedValues !== null && updateSettingRequest != null) {
       const mergedMain = {
-        ...selectUpdateSettingRequest,
+        ...updateSettingRequest,
         ...updatedValues
       };
 
       const mergedSdSettings = {
-        ...selectUpdateSettingRequest.sdSettings,
-        ...updatedValues.sdSettings
+        ...updateSettingRequest.SDSettings,
+        ...updatedValues.SDSettings
       };
 
-      mergedMain.sdSettings = mergedSdSettings;
+      mergedMain.SDSettings = mergedSdSettings;
 
-      setSelectedUpdateSettingRequest(mergedMain);
+      setUpdateSettingRequest(mergedMain);
     }
 
-    if (existing !== null && selectedCurrentSettingDto !== null) {
-      setSelectedCurrentSettingDto(existing);
+    if (existing !== null && currentSettingRequest !== null) {
+      setCurrentSettingRequest(existing);
     }
   };
 
-  return { onChange, selectUpdateSettingRequest, selectedCurrentSettingDto };
+  return { currentSettingRequest, onChange, updateSettingRequest };
 }

@@ -23,6 +23,7 @@ const App = (): JSX.Element => {
   const store = useStore();
 
   const StreamEditor = lazy(() => import('@features/streameditor/StreamEditor'));
+  const SettingsEditor = lazy(() => import('@features/settings/SettingsEditor'));
   // const TestPanel = lazy(() => import('./testing/TestPanel'));
   // const FilesEditor = lazy(() => import('@features/filesEditor/FilesEditor'));
   // const LogViewer = lazy(() => import('@features/logViewer/LogViewer'));
@@ -58,6 +59,14 @@ const App = (): JSX.Element => {
             </Suspense>
           }
           path="/editor/streams"
+        />
+        <Route
+          element={
+            <Suspense>
+              <SettingsEditor />
+            </Suspense>
+          }
+          path="/settings"
         />
         {/* <Route
           element={

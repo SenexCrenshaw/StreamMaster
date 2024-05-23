@@ -1,20 +1,21 @@
 import React from 'react';
-import DataSelector from '../dataSelector/DataSelector';
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 import ProfileAddDialog from './ProfileAddDialog';
 import ProfileDeleteDialog from './ProfileDeleteDialog';
 import ProfileIsM3U8Editor from './ProfileIsM3U8Editor';
 import ProfileNameEditor from './ProfileNameEditor';
 import ProfileParameterEditor from './ProfileParameterEditor';
+import SMDataTable from '@components/smDataTable/SMDataTable';
+import { FFMPEGProfileDto } from '@lib/smAPI/smapiTypes';
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 
 const ProfilesDataSelector = () => {
   const settingsQuery = useProfilesGetFfmpegProfilesQuery();
 
-  const nameEditor = React.useCallback((data: FfmpegProfileDto) => {
+  const nameEditor = React.useCallback((data: FFMPEGProfileDto) => {
     return <ProfileNameEditor data={data} />;
   }, []);
 
-  const parameterEditor = React.useCallback((data: FfmpegProfileDto) => {
+  const parameterEditor = React.useCallback((data: FFMPEGProfileDto) => {
     return <ProfileParameterEditor data={data} />;
   }, []);
 
@@ -22,11 +23,11 @@ const ProfilesDataSelector = () => {
   //   return <ProfileTimeOutEditor data={data} />;
   // }, []);
 
-  const ism3u8Editor = React.useCallback((data: FfmpegProfileDto) => {
+  const ism3u8Editor = React.useCallback((data: FFMPEGProfileDto) => {
     return <ProfileIsM3U8Editor data={data} />;
   }, []);
 
-  const sourceActionBodyTemplate = React.useCallback((data: FfmpegProfileDto) => {
+  const sourceActionBodyTemplate = React.useCallback((data: FFMPEGProfileDto) => {
     return (
       <div className="flex p-0 justify-content-end align-items-center">
         <ProfileDeleteDialog data={data} iconFilled={false} />
@@ -80,9 +81,9 @@ const ProfilesDataSelector = () => {
         </div>
       </div>
 
-      <DataSelector
+      <SMDataTable
         columns={sourceColumns}
-        dataKey="name"
+        key="name"
         dataSource={settingsQuery.data}
         defaultSortField="rank"
         emptyMessage="No Data"

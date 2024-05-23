@@ -8,9 +8,9 @@ import { getInputNumberLine } from './getInputNumberLine';
 import { useSettingChangeHandler } from './useSettingChangeHandler';
 
 export function BackupSettings(): React.ReactElement {
-  const { onChange, selectedCurrentSettingDto } = useSettingChangeHandler();
+  const { onChange, currentSettingRequest } = useSettingChangeHandler();
 
-  if (selectedCurrentSettingDto === null || selectedCurrentSettingDto === undefined) {
+  if (currentSettingRequest === null || currentSettingRequest === undefined) {
     return (
       <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')}>
         <div className="text-center">{GetMessage('loading')}</div>
@@ -20,9 +20,9 @@ export function BackupSettings(): React.ReactElement {
 
   return (
     <Fieldset className="mt-4 pt-10" legend={GetMessage('backups')} toggleable>
-      {getCheckBoxLine({ field: 'backupEnabled', selectedCurrentSettingDto, onChange })}
-      {getInputNumberLine({ field: 'backupVersionsToKeep', selectedCurrentSettingDto, onChange })}
-      {getInputNumberLine({ field: 'backupInterval', selectedCurrentSettingDto, onChange })}
+      {getCheckBoxLine({ field: 'backupEnabled', currentSettingRequest, onChange })}
+      {getInputNumberLine({ field: 'backupVersionsToKeep', currentSettingRequest, onChange })}
+      {getInputNumberLine({ field: 'backupInterval', currentSettingRequest, onChange })}
     </Fieldset>
   );
 }

@@ -1,7 +1,6 @@
 import { GetMessage } from '@lib/common/common';
 import React from 'react';
-// Import the getLine function
-import { StreamingProxyTypes } from '@lib/common/streammaster_enums';
+
 import { Fieldset } from 'primereact/fieldset';
 import { SelectItem } from 'primereact/selectitem';
 import { getCheckBoxLine } from './getCheckBoxLine';
@@ -9,9 +8,10 @@ import { getDropDownLine } from './getDropDownLine';
 import { getInputNumberLine } from './getInputNumberLine';
 import { getInputTextLine } from './getInputTextLine';
 import { useSettingChangeHandler } from './useSettingChangeHandler';
+import { StreamingProxyTypes } from '@lib/smAPI/smapiTypes';
 
 export function StreamingSettings(): React.ReactElement {
-  const { onChange, selectedCurrentSettingDto } = useSettingChangeHandler();
+  const { onChange, currentSettingRequest } = useSettingChangeHandler();
 
   const getHandlersOptions = (): SelectItem[] => {
     const test = Object.entries(StreamingProxyTypes)
@@ -27,7 +27,7 @@ export function StreamingSettings(): React.ReactElement {
     return test;
   };
 
-  if (selectedCurrentSettingDto === null || selectedCurrentSettingDto === undefined) {
+  if (currentSettingRequest === null || currentSettingRequest === undefined) {
     return (
       <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')}>
         <div className="text-center">{GetMessage('loading')}</div>
@@ -37,12 +37,12 @@ export function StreamingSettings(): React.ReactElement {
 
   return (
     <Fieldset className="mt-4 pt-10" legend={GetMessage('streaming')} toggleable>
-      {getDropDownLine({ field: 'streamingProxyType', options: getHandlersOptions(), selectedCurrentSettingDto, onChange })}
-      {getInputNumberLine({ field: 'globalStreamLimit', selectedCurrentSettingDto, onChange })}
-      {getInputTextLine({ field: 'clientUserAgent', selectedCurrentSettingDto, onChange })}
-      {getInputTextLine({ field: 'streamingClientUserAgent', selectedCurrentSettingDto, onChange })}
-      {getInputTextLine({ field: 'ffMpegOptions', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'showClientHostNames', selectedCurrentSettingDto, onChange })}
+      {getDropDownLine({ field: 'streamingProxyType', options: getHandlersOptions(), currentSettingRequest, onChange })}
+      {getInputNumberLine({ field: 'globalStreamLimit', currentSettingRequest, onChange })}
+      {getInputTextLine({ field: 'clientUserAgent', currentSettingRequest, onChange })}
+      {getInputTextLine({ field: 'streamingClientUserAgent', currentSettingRequest, onChange })}
+      {getInputTextLine({ field: 'ffMpegOptions', currentSettingRequest, onChange })}
+      {getCheckBoxLine({ field: 'showClientHostNames', currentSettingRequest, onChange })}
     </Fieldset>
   );
 }

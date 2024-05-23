@@ -1,9 +1,8 @@
 ﻿using StreamMaster.Application.Settings;
-using StreamMaster.Application.Settings.CommandsOld;
 
 namespace StreamMaster.Application.Hubs;
 
-public partial class StreamMasterHub : ISettingHub
+public partial class StreamMasterHub
 {
 
     public async Task<bool> LogIn(LogInRequest logInRequest)
@@ -13,9 +12,4 @@ public partial class StreamMasterHub : ISettingHub
     }
 
 
-
-    public async Task UpdateSetting(UpdateSettingRequest command)
-    {
-        _ = await Sender.Send(command).ConfigureAwait(false);
-    }
 }

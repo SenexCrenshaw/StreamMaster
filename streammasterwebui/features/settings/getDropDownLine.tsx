@@ -6,15 +6,16 @@ import { SelectItem } from 'primereact/selectitem';
 import React from 'react';
 import { UpdateChanges, getRecordString } from './SettingsUtils';
 import { getLine } from './getLine'; // Import the getLine function
+import { SettingDto, UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
 
 type DropDownLineProps = {
   field: string;
   options: SelectItem[];
-  selectedCurrentSettingDto: SettingDto;
+  currentSettingRequest: SettingDto;
   onChange: (existing: SettingDto, updatedValues: UpdateSettingRequest) => void | undefined;
 };
 
-export function getDropDownLine({ field, options, selectedCurrentSettingDto, onChange }: DropDownLineProps): React.ReactElement {
+export function getDropDownLine({ field, options, currentSettingRequest, onChange }: DropDownLineProps): React.ReactElement {
   const label = GetMessage(field);
   const help = getHelp(field);
 
@@ -25,14 +26,14 @@ export function getDropDownLine({ field, options, selectedCurrentSettingDto, onC
         className="bordered-text w-full text-left"
         onChange={(e) => {
           if (isFinite(+e.target.value)) {
-            UpdateChanges({ field, selectedCurrentSettingDto, onChange, value: +e.target.value });
+            UpdateChanges({ field, currentSettingRequest, onChange, value: +e.target.value });
           } else {
-            UpdateChanges({ field, selectedCurrentSettingDto, onChange, value: e.target.value });
+            UpdateChanges({ field, currentSettingRequest, onChange, value: e.target.value });
           }
         }}
         options={options}
         placeholder={label}
-        value={selectedCurrentSettingDto ? getRecordString<SettingDto>(field, selectedCurrentSettingDto)?.toLocaleLowerCase() : undefined}
+        value={currentSettingRequest ? getRecordString<SettingDto>(field, currentSettingRequest)?.toLocaleLowerCase() : undefined}
       />
     ),
     help

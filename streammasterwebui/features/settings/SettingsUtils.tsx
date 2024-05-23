@@ -1,3 +1,5 @@
+import { SettingDto, UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
+
 export function getRecord<T, R>(fieldName: string, newData: T): R | undefined {
   const record = fieldName.split('.').reduce((obj, key) => {
     return obj?.[key];
@@ -44,17 +46,17 @@ export function updateNestedProperty(obj: Record<string, any>, path: string, val
 type UpdateChangesProps = {
   field: string;
   warning?: string | null;
-  selectedCurrentSettingDto: SettingDto;
+  currentSettingRequest: SettingDto;
   onChange: (existing: SettingDto, updatedValues: UpdateSettingRequest) => void | undefined;
   value: boolean | string | number | null;
 };
 
-export function UpdateChanges({ field, selectedCurrentSettingDto, onChange, value }: UpdateChangesProps) {
+export function UpdateChanges({ field, currentSettingRequest, onChange, value }: UpdateChangesProps) {
   let toReturn: UpdateSettingRequest = {};
-  let updatedSettingDto: SettingDto = {};
+  let updatedSettingDto = {} as SettingDto;
 
-  if (selectedCurrentSettingDto?.sdSettings !== undefined) {
-    updatedSettingDto = { ...selectedCurrentSettingDto, sdSettings: { ...selectedCurrentSettingDto.sdSettings } };
+  if (currentSettingRequest?.SDSettings !== undefined) {
+    updatedSettingDto = { ...currentSettingRequest, SDSettings: { ...currentSettingRequest.SDSettings } };
     updateNestedProperty(updatedSettingDto, field, value);
   }
 

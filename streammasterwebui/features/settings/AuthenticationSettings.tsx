@@ -1,5 +1,4 @@
 import { GetMessage } from '@lib/common/common';
-import { AuthenticationType } from '@lib/common/streammaster_enums';
 import useSettings from '@lib/useSettings';
 import { Button } from 'primereact/button';
 import { Fieldset } from 'primereact/fieldset';
@@ -9,24 +8,25 @@ import { getDropDownLine } from './getDropDownLine';
 import { getInputTextLine } from './getInputTextLine';
 import { getPasswordLine } from './getPasswordLine';
 import { useSettingChangeHandler } from './useSettingChangeHandler';
+import { AuthenticationType } from '@lib/smAPI/smapiTypes';
 
 export function AuthenticationSettings(): React.ReactElement {
   const setting = useSettings();
-  const { onChange, selectedCurrentSettingDto } = useSettingChangeHandler();
+  const { onChange, currentSettingRequest } = useSettingChangeHandler();
 
   const adminUserNameError = useMemo((): string | undefined => {
-    if (selectedCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectedCurrentSettingDto?.adminUserName === '')
+    if (currentSettingRequest?.AuthenticationMethod === AuthenticationType.Forms && currentSettingRequest?.AdminUserName === '')
       return GetMessage('formsAuthRequiresAdminUserName');
 
     return undefined;
-  }, [selectedCurrentSettingDto?.adminUserName, selectedCurrentSettingDto?.authenticationMethod]);
+  }, [currentSettingRequest]);
 
   const adminPasswordError = useMemo((): string | undefined => {
-    if (selectedCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectedCurrentSettingDto?.adminPassword === '')
+    if (currentSettingRequest?.AuthenticationMethod === AuthenticationType.Forms && currentSettingRequest?.AdminPassword === '')
       return GetMessage('formsAuthRequiresAdminPassword');
 
     return undefined;
-  }, [selectedCurrentSettingDto?.adminPassword, selectedCurrentSettingDto?.authenticationMethod]);
+  }, [currentSettingRequest]);
 
   const getAuthTypeOptions = (): SelectItem[] => {
     const test = Object.entries(AuthenticationType)
@@ -42,7 +42,7 @@ export function AuthenticationSettings(): React.ReactElement {
     return test;
   };
 
-  if (selectedCurrentSettingDto === null || selectedCurrentSettingDto === undefined) {
+  if (currentSettingRequest === null || currentSettingRequest === undefined) {
     return (
       <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')}>
         <div className="text-center">{GetMessage('loading')}</div>
@@ -52,10 +52,10 @@ export function AuthenticationSettings(): React.ReactElement {
 
   return (
     <Fieldset className="mt-4 pt-10" legend={GetMessage('authentication')} toggleable>
-      {getInputTextLine({ field: 'apiKey', selectedCurrentSettingDto, onChange })}
-      {getDropDownLine({ field: 'authenticationMethod', options: getAuthTypeOptions(), selectedCurrentSettingDto, onChange })}
-      {getInputTextLine({ field: 'adminUserName', warning: adminUserNameError, selectedCurrentSettingDto, onChange })}
-      {getPasswordLine({ field: 'adminPassword', warning: adminPasswordError, selectedCurrentSettingDto, onChange })}
+      {getInputTextLine({ field: 'apiKey', currentSettingRequest, onChange })}
+      {getDropDownLine({ field: 'authenticationMethod', options: getAuthTypeOptions(), currentSettingRequest, onChange })}
+      {getInputTextLine({ field: 'adminUserName', warning: adminUserNameError, currentSettingRequest, onChange })}
+      {getPasswordLine({ field: 'adminPassword', warning: adminPasswordError, currentSettingRequest, onChange })}
       <div className="flex col-12">
         <div className="flex col-2 col-offset-1">
           <span>{GetMessage('signout')}</span>

@@ -1,8 +1,8 @@
-import React, { type CSSProperties } from 'react';
-import DataSelector from '../dataSelector/DataSelector';
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
+import React from 'react';
 import ProfileNameRegexAddDialog from './SettingsNameRegexAddDialog';
 import SettingsNameRegexDeleteDialog from './SettingsNameRegexDeleteDialog';
+import SMDataTable from '@components/smDataTable/SMDataTable';
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 
 interface RankedString {
   rank: number;
@@ -35,10 +35,7 @@ const SettingsNameRegexDataSelector = (props: SettingsNameRegexDataSelectorPrope
       {
         field: 'rank',
         header: 'Rank',
-        style: {
-          maxWidth: '8rem',
-          width: '8rem'
-        } as React.CSSProperties
+        width: '8rem'
       },
       { field: 'value', header: 'Value' },
       {
@@ -47,10 +44,7 @@ const SettingsNameRegexDataSelector = (props: SettingsNameRegexDataSelectorPrope
         field: 'isHidden',
         fieldType: 'isHidden',
         header: 'Actions',
-        style: {
-          maxWidth: '8rem',
-          width: '8rem'
-        } as CSSProperties
+        width: '8rem'
       }
     ],
     [sourceActionBodyTemplate]
@@ -67,7 +61,7 @@ const SettingsNameRegexDataSelector = (props: SettingsNameRegexDataSelectorPrope
         </div>
       </div>
 
-      <DataSelector
+      <SMDataTable
         columns={sourceColumns}
         dataSource={dataSource}
         defaultSortField="rank"

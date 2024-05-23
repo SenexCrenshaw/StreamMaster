@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using StreamMaster.Application.Settings.Commands;
 using StreamMaster.Application.Settings.Queries;
 
 namespace StreamMaster.Application.Settings.Controllers
@@ -54,6 +55,14 @@ namespace StreamMaster.Application.Settings.Controllers
             }
         }
 
+        [HttpPatch]
+        [Route("[action]")]
+        public async Task<ActionResult<UpdateSettingResponse?>> UpdateSetting()
+        {
+            UpdateSettingResponse? ret = await Sender.Send(new UpdateSettingRequest()).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
     }
 }
 
@@ -77,6 +86,12 @@ namespace StreamMaster.Application.Hubs
         {
              DataResponse<SDSystemStatus> ret = await Sender.Send(new GetSystemStatusRequest()).ConfigureAwait(false);
             return ret.Data;
+        }
+
+        public async Task<UpdateSettingResponse?> UpdateSetting()
+        {
+            UpdateSettingResponse? ret = await Sender.Send(new UpdateSettingRequest()).ConfigureAwait(false);
+            return ret;
         }
 
     }

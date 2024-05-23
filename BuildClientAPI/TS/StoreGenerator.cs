@@ -41,6 +41,8 @@ public static class StoreGenerator
     private static readonly List<string> AdditionalReducers =
     [
         "messages",
+        "updateSettingRequest",
+        "currentSettingRequest"
 
     ];
 
@@ -65,7 +67,7 @@ public static class StoreGenerator
         Dictionary<string, string> reducers = [];// new()
         foreach (MethodDetails method in methods)
         {
-            reducers[method.Name] = $"  {method.Name}: {method.Name}";
+            reducers[method.Name] = $"  {method.Name}: {method.Name}Reducer";
         }
 
         foreach (string additional in AdditionalReducers)
@@ -100,7 +102,7 @@ public static class StoreGenerator
 
         foreach (MethodDetails method in methods.Where(a => a.IsGet))
         {
-            imports[method.Name] = $"import {method.Name} from '@lib/smAPI/{method.NamespaceName}/{method.Name}Slice';";
+            imports[method.Name] = $"import {method.Name}Reducer from '@lib/smAPI/{method.NamespaceName}/{method.Name}Slice';";
         }
 
         foreach (string persist in Persists)

@@ -5,16 +5,17 @@ import { InputNumber } from 'primereact/inputnumber';
 import React from 'react';
 import { UpdateChanges, getRecord } from './SettingsUtils';
 import { getLine } from './getLine'; // Import the getLine function
+import { SettingDto, UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
 
 type InputNumberLineProps = {
   field: string;
   min?: number | null;
   max?: number | null;
-  selectedCurrentSettingDto: SettingDto;
+  currentSettingRequest: SettingDto;
   onChange: (existing: SettingDto, updatedValues: UpdateSettingRequest) => void | undefined;
 };
 
-export function getInputNumberLine({ field, min, max, selectedCurrentSettingDto, onChange }: InputNumberLineProps): React.ReactElement {
+export function getInputNumberLine({ field, min, max, currentSettingRequest, onChange }: InputNumberLineProps): React.ReactElement {
   const label = GetMessage(field);
   const help = getHelp(field);
 
@@ -29,12 +30,12 @@ export function getInputNumberLine({ field, min, max, selectedCurrentSettingDto,
         max={validatedMax}
         min={validatedMin}
         onChange={(e) => {
-          UpdateChanges({ field, selectedCurrentSettingDto, onChange, value: e.value });
+          UpdateChanges({ field, currentSettingRequest, onChange, value: e.value });
         }}
         placeholder={label}
         showButtons
         size={3}
-        value={selectedCurrentSettingDto ? getRecord<SettingDto, number>(field, selectedCurrentSettingDto) : undefined}
+        value={currentSettingRequest ? getRecord<SettingDto, number>(field, currentSettingRequest) : undefined}
       />
     ),
     help
