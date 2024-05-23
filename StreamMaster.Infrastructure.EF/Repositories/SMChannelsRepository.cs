@@ -432,55 +432,10 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
         List<FieldData> fds = [];
 
-        List<SMChannel> t = smChannels.ToList();
-
-        //await Parallel.ForEachAsync(t, (smChannel, token) =>
-        //{
-        //    var scoredMatches = stationChannelNames.Select(p => new
-        //    {
-        //        Channel = p,
-        //        Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.Channel)
-        //    })
-        //    .Where(x => x.Score > 0)
-        //    .OrderByDescending(x => x.Score)
-        //    .ToList();
-
-        //    if (scoredMatches.Count == 0)
-        //    {
-        //        scoredMatches = stationChannelNames
-        //            .Select(p => new
-        //            {
-        //                Channel = p,
-        //                Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.DisplayName)
-        //            })
-        //            .Where(x => x.Score > 0)
-        //            .OrderByDescending(x => x.Score)
-        //            .ToList();
-        //    }
-
-        //    if (scoredMatches.Count != 0)
-        //    {
-        //        smChannel.EPGId = scoredMatches[0].Channel.Channel;
-
-        //        fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
+        List<SMChannel> smChannelList = smChannels.ToList();
 
 
-        //        if (Settings.VideoStreamAlwaysUseEPGLogo)
-        //        {
-        //            if (SetVideoStreamLogoFromEPG(smChannel))
-        //            {
-        //                fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
-        //            }
-        //        }
-
-        //        Update(smChannel);
-        //        //RepositoryContext.SaveChanges();
-        //    }
-
-        //    return new ValueTask();
-        //});
-
-        foreach (SMChannel smChannel in t)
+        foreach (SMChannel smChannel in smChannelList)
         {
             if (cancellationToken.IsCancellationRequested)
             {

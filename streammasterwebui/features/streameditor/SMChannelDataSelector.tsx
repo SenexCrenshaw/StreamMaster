@@ -79,7 +79,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
       <div className="flex p-0 m-0 justify-content-end align-items-center">
         <StreamCopyLinkDialog realUrl={data?.RealUrl} />
         <SetSMChannelsLogoFromEPGDialog smChannel={data} />
-        <AutoSetEPGSMChannelDialog iconFilled={false} />
+        <AutoSetEPGSMChannelDialog iconFilled={false} smChannel={data} />
         <CloneSMChannelDialog label="Copy Channel" smChannel={data} />
         <DeleteSMChannelDialog smChannel={data} />
         <EditSMChannelDialog smChannel={data} />

@@ -7,16 +7,13 @@ import { SMStreamDto, ToggleSMStreamVisibleByParametersRequest, ToggleSMStreamsV
 import { memo, useCallback, useMemo } from 'react';
 
 interface StreamMultiVisibleDialogProperties {
-  readonly iconFilled?: boolean;
   readonly id: string;
   readonly onClose?: () => void;
-  readonly skipOverLayer?: boolean;
   readonly selectedItemsKey: string;
 }
 
-const StreamMultiVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, selectedItemsKey }: StreamMultiVisibleDialogProperties) => {
+const StreamMultiVisibleDialog = ({ id, onClose, selectedItemsKey }: StreamMultiVisibleDialogProperties) => {
   const { selectedItems } = useSelectedItems<SMStreamDto>(selectedItemsKey);
-
   const { selectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
 

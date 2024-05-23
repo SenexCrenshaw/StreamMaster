@@ -9,11 +9,14 @@ import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
 import React, { useRef } from 'react';
 
 interface AutoSetSMChannelNumbersDialogProperties {
-  readonly isDisabled?: boolean;
+  readonly disabled?: boolean;
+  readonly id: string;
+  readonly selectedItemsKey: string;
 }
 
-const AutoSetSMChannelNumbersDialog = ({ isDisabled }: AutoSetSMChannelNumbersDialogProperties) => {
+const AutoSetSMChannelNumbersDialog = ({ disabled }: AutoSetSMChannelNumbersDialogProperties) => {
   const smDialogRef = useRef<SMDialogRef>(null);
+
   const { selectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
   const [overwriteNumbers, setOverwriteNumbers] = React.useState<boolean>(true);
   const [startNumber, setStartNumber] = React.useState<number>(1);
@@ -50,7 +53,7 @@ const AutoSetSMChannelNumbersDialog = ({ isDisabled }: AutoSetSMChannelNumbersDi
       label="Set Channel #"
       title="SET CHANNEL NUMBERS"
       onHide={() => ReturnToParent()}
-      buttonClassName={isDisabled ? 'p-disabled icon-yellow' : 'icon-yellow'}
+      buttonClassName={disabled ? 'p-disabled icon-yellow' : 'icon-yellow'}
       icon="pi-sort-numeric-up-alt"
       info="General"
       widthSize={3}

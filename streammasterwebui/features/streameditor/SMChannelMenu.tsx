@@ -21,7 +21,7 @@ const SMChannelMenu = () => {
     <>
       <OverlayPanel className="sm-overlay" ref={op}>
         <div className="sm-channel-menu">
-          <AutoSetSMChannelNumbersDialog isDisabled={!isStreamGroupSelected} />
+          <AutoSetSMChannelNumbersDialog disabled={!isStreamGroupSelected} />
           <div className="pt-1"></div>
           <AutoSetEPGSMChannelDialog />
         </div>
