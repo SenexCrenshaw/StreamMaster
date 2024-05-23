@@ -23,6 +23,8 @@ interface NumberEditorTemplateProperties {
   readonly value: number | undefined;
   readonly darkBackGround?: boolean;
   readonly showButtons?: boolean;
+  readonly min?: number;
+  readonly max?: number;
 }
 
 const NumberEditor = ({
@@ -40,6 +42,8 @@ const NumberEditor = ({
   tooltipOptions,
   showButtons,
   value,
+  min = 0,
+  max = 99999,
   darkBackGround
 }: NumberEditorTemplateProperties) => {
   const divReference = useRef<HTMLDivElement | null>(null);
@@ -154,7 +158,8 @@ const NumberEditor = ({
       )}
       <InputNumber
         className={getDiv}
-        min={0}
+        min={min}
+        max={max}
         id="numbereditorbody-inputtext"
         locale="en-US"
         onChange={(e) => {

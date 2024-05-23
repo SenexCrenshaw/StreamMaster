@@ -2,21 +2,19 @@ import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { AdditionalFilterProperties, GetMessage, isEmptyObject } from '@lib/common/common';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
-
 import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
-import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
-import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import { GetSMChannelStreamsRequest, M3UFileDto, RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { ReactNode, memo, useCallback, useEffect, useMemo, useState } from 'react';
-
 import SMButton from '@components/sm/SMButton';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { useQueryAdditionalFilters } from '@lib/redux/hooks/queryAdditionalFilters';
-import useGetM3UFiles from '@lib/smAPI/EPGFiles/useGetM3UFiles';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
+import useGetM3UFiles from '@lib/smAPI/M3UFiles/useGetM3UFiles';
+import { RemoveSMStreamFromSMChannel, AddSMStreamToSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
+import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
 interface SMStreamDataForSMChannelSelectorProperties {
   readonly enableEdit?: boolean;
   readonly id: string;

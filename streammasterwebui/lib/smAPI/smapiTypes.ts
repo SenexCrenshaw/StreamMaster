@@ -315,13 +315,6 @@ export interface GetStreamGroupRequest
 export interface GetStreamGroupsRequest
 {
 }
-export interface AutoSetSMChannelNumbersRequest
-{
-	overWriteExisting: boolean;
-	Parameters: QueryStringParameters;
-	startingNumber: number;
-	streamGroupId: number;
-}
 export interface CreateStreamGroupRequest
 {
 	Name: string;
@@ -394,14 +387,6 @@ export interface SendSuccessRequest
 	Detail: string;
 	Summary: string;
 }
-export interface SetSMChannelsLogoFromEPGFromParametersRequest
-{
-	Parameters: any;
-}
-export interface SetSMChannelsLogoFromEPGRequest
-{
-	Ids: number[];
-}
 export interface GetPagedSMChannelsRequest
 {
 	Parameters: QueryStringParameters;
@@ -420,6 +405,13 @@ export interface AutoSetEPGFromParametersRequest
 export interface AutoSetEPGRequest
 {
 	Ids: number[];
+}
+export interface AutoSetSMChannelNumbersRequest
+{
+	overWriteExisting: boolean;
+	Parameters: QueryStringParameters;
+	startingNumber: number;
+	streamGroupId: number;
 }
 export interface CopySMChannelRequest
 {
@@ -491,6 +483,14 @@ export interface SetSMChannelProxyRequest
 {
 	SMChannelId: number;
 	StreamingProxy: number;
+}
+export interface SetSMChannelsLogoFromEPGFromParametersRequest
+{
+	Parameters: any;
+}
+export interface SetSMChannelsLogoFromEPGRequest
+{
+	Ids: number[];
 }
 export interface ToggleSMChannelsVisibleByIdRequest
 {
@@ -574,6 +574,9 @@ export interface RemoveStation
 export interface GetM3UFileNamesRequest
 {
 }
+export interface GetM3UFilesRequest
+{
+}
 export interface GetPagedM3UFilesRequest
 {
 	Parameters: QueryStringParameters;
@@ -644,9 +647,6 @@ export interface GetEPGNextEPGNumberRequest
 export interface GetPagedEPGFilesRequest
 {
 	Parameters: QueryStringParameters;
-}
-export interface GetM3UFilesRequest
-{
 }
 export interface CreateEPGFileFromFormRequest
 {

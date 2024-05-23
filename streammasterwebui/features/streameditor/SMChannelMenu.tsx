@@ -3,7 +3,7 @@ import { memo, useRef } from 'react';
 import SMButton from '@components/sm/SMButton';
 
 import { OverlayPanel } from 'primereact/overlaypanel';
-import AutoSetSMChannelNumbersDialog from './AutoSetSMChannelNumbersDialog';
+import AutoSetSMChannelNumbersDialog from '../../components/smchannels/AutoSetSMChannelNumbersDialog';
 
 export interface SChannelMenuProperties {}
 

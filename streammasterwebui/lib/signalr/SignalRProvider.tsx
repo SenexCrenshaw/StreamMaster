@@ -9,7 +9,7 @@ import useGetEPGNextEPGNumber from '@lib/smAPI/EPGFiles/useGetEPGNextEPGNumber';
 import useGetIcons from '@lib/smAPI/Icons/useGetIcons';
 import useGetIsSystemReady from '@lib/smAPI/Settings/useGetIsSystemReady';
 import useGetM3UFileNames from '@lib/smAPI/M3UFiles/useGetM3UFileNames';
-import useGetM3UFiles from '@lib/smAPI/EPGFiles/useGetM3UFiles';
+import useGetM3UFiles from '@lib/smAPI/M3UFiles/useGetM3UFiles';
 import useGetPagedChannelGroups from '@lib/smAPI/ChannelGroups/useGetPagedChannelGroups';
 import useGetPagedEPGFiles from '@lib/smAPI/EPGFiles/useGetPagedEPGFiles';
 import useGetPagedM3UFiles from '@lib/smAPI/M3UFiles/useGetPagedM3UFiles';
@@ -193,7 +193,6 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         getEPGFilePreviewById.SetIsForced(true);
         getEPGFiles.SetIsForced(true);
         getEPGNextEPGNumber.SetIsForced(true);
-        getM3UFiles.SetIsForced(true);
         getPagedEPGFiles.SetIsForced(true);
         return;
       }
@@ -209,6 +208,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
       }
       if (entity === 'M3UFiles') {
         getM3UFileNames.SetIsForced(true);
+        getM3UFiles.SetIsForced(true);
         getPagedM3UFiles.SetIsForced(true);
         return;
       }
@@ -361,7 +361,6 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         getEPGFilePreviewById.SetField(fieldData);
         getEPGFiles.SetField(fieldData);
         getEPGNextEPGNumber.SetField(fieldData);
-        getM3UFiles.SetField(fieldData);
         getPagedEPGFiles.SetField(fieldData);
         return;
       }
@@ -377,6 +376,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
       }
       if ( fieldData.Entity === 'M3UFiles') {
         getM3UFileNames.SetField(fieldData);
+        getM3UFiles.SetField(fieldData);
         getPagedM3UFiles.SetField(fieldData);
         return;
       }

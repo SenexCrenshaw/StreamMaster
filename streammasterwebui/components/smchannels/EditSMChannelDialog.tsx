@@ -1,10 +1,9 @@
 import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
-
-import { UpdateSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import useGetSMChannel from '@lib/smAPI/SMChannels/useGetSMChannel';
 import { CreateSMChannelRequest, GetSMChannelRequest, SMChannelDto, UpdateSMChannelRequest } from '@lib/smAPI/smapiTypes';
 import React, { useRef } from 'react';
 import SMChannelDialog from './SMChannelDialog';
+import { UpdateSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import useGetSMChannel from '@lib/smAPI/SMChannels/useGetSMChannel';
 
 interface CopySMChannelProperties {
   readonly onHide?: () => void;

@@ -1,6 +1,7 @@
 import SMButton from '@components/sm/SMButton';
+import { SetSMChannelsLogoFromEPG } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { SetSMChannelsLogoFromEPGRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
-import { SetSMChannelsLogoFromEPG } from '@lib/smAPI/VideoStreams/VideoStreamsCommands';
+
 import React from 'react';
 
 interface SMChannelsLogoFromEPGsProperties {

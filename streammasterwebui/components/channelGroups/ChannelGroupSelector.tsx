@@ -123,14 +123,6 @@ const ChannelGroupSelector = ({
     [dataKey]
   );
 
-  const getDiv = useMemo(() => {
-    let ret = 'input-height-with-no-borders w-11';
-    if (darkBackGround) {
-      ret += ' dark-background sm-input-border-dark';
-    }
-    return ret;
-  }, [darkBackGround]);
-
   if (loading) {
     return (
       <div className="flex align-content-center justify-content-center text-container">
@@ -144,14 +136,22 @@ const ChannelGroupSelector = ({
   }
 
   return (
-    <div className={getDiv}>
+    <div>
       {label && (
         <div className="stringeditor flex flex-column align-items-start">
           <label className="pl-15">{label.toUpperCase()}</label>
           <div className="pt-small" />
         </div>
       )}
-      <SMOverlay buttonTemplate={buttonTemplate} title="GROUPS" widthSize="3" icon="pi-chevron-down" buttonLabel="GROUP" header={headerRightTemplate}>
+      <SMOverlay
+        buttonDarkBackground
+        buttonTemplate={buttonTemplate}
+        title="GROUPS"
+        widthSize="3"
+        icon="pi-chevron-down"
+        buttonLabel="GROUP"
+        header={headerRightTemplate}
+      >
         <SMDataTable
           id={dataKey}
           columns={columns}

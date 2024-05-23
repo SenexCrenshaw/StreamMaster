@@ -7,6 +7,7 @@ namespace StreamMaster.Application.M3UFiles
     public interface IM3UFilesController
     {        
         Task<ActionResult<List<string>>> GetM3UFileNames();
+        Task<ActionResult<List<M3UFileDto>>> GetM3UFiles();
         Task<ActionResult<PagedResponse<M3UFileDto>>> GetPagedM3UFiles(QueryStringParameters Parameters);
         Task<ActionResult<APIResponse>> CreateM3UFile(CreateM3UFileRequest request);
         Task<ActionResult<APIResponse>> DeleteM3UFile(DeleteM3UFileRequest request);
@@ -20,6 +21,7 @@ namespace StreamMaster.Application.Hubs
     public interface IM3UFilesHub
     {
         Task<List<string>> GetM3UFileNames();
+        Task<List<M3UFileDto>> GetM3UFiles();
         Task<PagedResponse<M3UFileDto>> GetPagedM3UFiles(QueryStringParameters Parameters);
         Task<APIResponse> CreateM3UFile(CreateM3UFileRequest request);
         Task<APIResponse> DeleteM3UFile(DeleteM3UFileRequest request);

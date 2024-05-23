@@ -6,6 +6,11 @@ export const GetM3UFileNames = async (): Promise<string[] | undefined> => {
   return await signalRService.invokeHubCommand<string[]>('GetM3UFileNames');
 };
 
+export const GetM3UFiles = async (): Promise<M3UFileDto[] | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<M3UFileDto[]>('GetM3UFiles');
+};
+
 export const GetPagedM3UFiles = async (parameters: QueryStringParameters): Promise<PagedResponse<M3UFileDto> | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<PagedResponse<M3UFileDto>>('GetPagedM3UFiles', parameters);

@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { Logger } from '@lib/common/logger';
 import {FieldData, M3UFileDto } from '@lib/smAPI/smapiTypes';
-import { fetchGetM3UFiles } from '@lib/smAPI/EPGFiles/GetM3UFilesFetch';
+import { fetchGetM3UFiles } from '@lib/smAPI/M3UFiles/GetM3UFilesFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
 
 

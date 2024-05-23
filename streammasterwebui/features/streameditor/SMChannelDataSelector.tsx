@@ -17,7 +17,7 @@ import CreateSMChannelDialog from '@components/smchannels/CreateSMChannelDialog'
 import DeleteSMChannelDialog from '@components/smchannels/DeleteSMChannelDialog';
 import DeleteSMChannelsDialog from '@components/smchannels/DeleteSMChannelsDialog';
 import EditSMChannelDialog from '@components/smchannels/EditSMChannelDialog';
-import SMChannelMenu from '@components/smchannels/SMChannelMenu';
+import SMChannelMenu from '@features/streameditor/SMChannelMenu';
 import SMChannelMultiVisibleDialog from '@components/smchannels/SMChannelMultiVisibleDialog';
 import SetSMChannelsLogoFromEPGDialog from '@components/smchannels/SetSMChannelsLogoFromEPGDialog';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
@@ -32,6 +32,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import SMStreamDataSelectorValue from './SMStreamDataSelectorValue';
 import useSelectedSMItems from './useSelectedSMItems';
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
+
 // const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
 interface SMChannelDataSelectorProperties {
   readonly enableEdit?: boolean;

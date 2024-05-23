@@ -11,6 +11,7 @@ namespace StreamMaster.Application.SMChannels
         Task<ActionResult<SMChannelDto>> GetSMChannel(GetSMChannelRequest request);
         Task<ActionResult<APIResponse>> AutoSetEPGFromParameters(AutoSetEPGFromParametersRequest request);
         Task<ActionResult<APIResponse>> AutoSetEPG(AutoSetEPGRequest request);
+        Task<ActionResult<APIResponse>> AutoSetSMChannelNumbers(AutoSetSMChannelNumbersRequest request);
         Task<ActionResult<APIResponse>> CopySMChannel(CopySMChannelRequest request);
         Task<ActionResult<APIResponse>> CreateSMChannelFromStreamParameters(CreateSMChannelFromStreamParametersRequest request);
         Task<ActionResult<APIResponse>> CreateSMChannelFromStream(CreateSMChannelFromStreamRequest request);
@@ -25,6 +26,8 @@ namespace StreamMaster.Application.SMChannels
         Task<ActionResult<APIResponse>> SetSMChannelName(SetSMChannelNameRequest request);
         Task<ActionResult<APIResponse>> SetSMChannelNumber(SetSMChannelNumberRequest request);
         Task<ActionResult<APIResponse>> SetSMChannelProxy(SetSMChannelProxyRequest request);
+        Task<ActionResult<APIResponse>> SetSMChannelsLogoFromEPGFromParameters(SetSMChannelsLogoFromEPGFromParametersRequest request);
+        Task<ActionResult<APIResponse>> SetSMChannelsLogoFromEPG(SetSMChannelsLogoFromEPGRequest request);
         Task<ActionResult<APIResponse>> ToggleSMChannelsVisibleById(ToggleSMChannelsVisibleByIdRequest request);
         Task<ActionResult<APIResponse>> ToggleSMChannelVisibleById(ToggleSMChannelVisibleByIdRequest request);
         Task<ActionResult<APIResponse>> ToggleSMChannelVisibleByParameters(ToggleSMChannelVisibleByParametersRequest request);
@@ -41,6 +44,7 @@ namespace StreamMaster.Application.Hubs
         Task<SMChannelDto> GetSMChannel(GetSMChannelRequest request);
         Task<APIResponse> AutoSetEPGFromParameters(AutoSetEPGFromParametersRequest request);
         Task<APIResponse> AutoSetEPG(AutoSetEPGRequest request);
+        Task<APIResponse> AutoSetSMChannelNumbers(AutoSetSMChannelNumbersRequest request);
         Task<APIResponse> CopySMChannel(CopySMChannelRequest request);
         Task<APIResponse> CreateSMChannelFromStreamParameters(CreateSMChannelFromStreamParametersRequest request);
         Task<APIResponse> CreateSMChannelFromStream(CreateSMChannelFromStreamRequest request);
@@ -55,6 +59,8 @@ namespace StreamMaster.Application.Hubs
         Task<APIResponse> SetSMChannelName(SetSMChannelNameRequest request);
         Task<APIResponse> SetSMChannelNumber(SetSMChannelNumberRequest request);
         Task<APIResponse> SetSMChannelProxy(SetSMChannelProxyRequest request);
+        Task<APIResponse> SetSMChannelsLogoFromEPGFromParameters(SetSMChannelsLogoFromEPGFromParametersRequest request);
+        Task<APIResponse> SetSMChannelsLogoFromEPG(SetSMChannelsLogoFromEPGRequest request);
         Task<APIResponse> ToggleSMChannelsVisibleById(ToggleSMChannelsVisibleByIdRequest request);
         Task<APIResponse> ToggleSMChannelVisibleById(ToggleSMChannelVisibleByIdRequest request);
         Task<APIResponse> ToggleSMChannelVisibleByParameters(ToggleSMChannelVisibleByParametersRequest request);

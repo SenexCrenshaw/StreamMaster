@@ -1,4 +1,4 @@
-﻿namespace StreamMaster.Application.EPGFiles.Queries;
+﻿namespace StreamMaster.Application.M3UFiles.Queries;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
