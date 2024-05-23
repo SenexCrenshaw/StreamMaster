@@ -4,16 +4,15 @@ import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { AutoSetSMChannelNumbers } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-
 import { AutoSetSMChannelNumbersRequest } from '@lib/smAPI/smapiTypes';
 import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
-
 import React, { useRef } from 'react';
-interface AutoSetSMChannelNumbersProperties {
-  readonly onHide?: (didUpload: boolean) => void;
+
+interface AutoSetSMChannelNumbersDialogProperties {
+  readonly isDisabled?: boolean;
 }
 
-const AutoSetSMChannelNumbersDialog = ({ onHide }: AutoSetSMChannelNumbersProperties) => {
+const AutoSetSMChannelNumbersDialog = ({ isDisabled }: AutoSetSMChannelNumbersDialogProperties) => {
   const smDialogRef = useRef<SMDialogRef>(null);
   const { selectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
   const [overwriteNumbers, setOverwriteNumbers] = React.useState<boolean>(true);
@@ -51,14 +50,14 @@ const AutoSetSMChannelNumbersDialog = ({ onHide }: AutoSetSMChannelNumbersProper
       label="Set Channel #"
       title="SET CHANNEL NUMBERS"
       onHide={() => ReturnToParent()}
-      buttonClassName="icon-yellow-filled"
+      buttonClassName={isDisabled ? 'p-disabled icon-yellow' : 'icon-yellow'}
       icon="pi-sort-numeric-up-alt"
       info="General"
       widthSize={3}
     >
       <div className="surface-border flex grid flex-wrap justify-content-center p-0 m-0 w-12 min-h-4rem h-4rem">
         <div className="flex flex-column mt-2 w-5 ">
-          {`Auto set channel numbers ${overwriteNumbers ? 'and overwrite existing numbers ?' : '?'}`}
+          {`Set channel numbers ${overwriteNumbers ? 'and overwrite existing numbers ?' : '?'}`}
           {/* <span className="scalein animation-duration-500 animation-iteration-2 text-bold text-red-500 font-italic mt-2">This will auto save</span> */}
         </div>
 

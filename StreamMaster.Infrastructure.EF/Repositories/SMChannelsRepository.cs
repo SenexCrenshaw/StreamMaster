@@ -432,48 +432,112 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
         List<FieldData> fds = [];
 
-        await Parallel.ForEachAsync(smChannels, (smChannel, token) =>
-        {
-            var scoredMatches = stationChannelNames.Select(p => new
-            {
-                Channel = p,
-                Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.Channel)
-            })
-            .Where(x => x.Score > 0)
-            .OrderByDescending(x => x.Score)
-            .ToList();
+        List<SMChannel> t = smChannels.ToList();
 
-            if (scoredMatches.Count == 0)
+        //await Parallel.ForEachAsync(t, (smChannel, token) =>
+        //{
+        //    var scoredMatches = stationChannelNames.Select(p => new
+        //    {
+        //        Channel = p,
+        //        Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.Channel)
+        //    })
+        //    .Where(x => x.Score > 0)
+        //    .OrderByDescending(x => x.Score)
+        //    .ToList();
+
+        //    if (scoredMatches.Count == 0)
+        //    {
+        //        scoredMatches = stationChannelNames
+        //            .Select(p => new
+        //            {
+        //                Channel = p,
+        //                Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.DisplayName)
+        //            })
+        //            .Where(x => x.Score > 0)
+        //            .OrderByDescending(x => x.Score)
+        //            .ToList();
+        //    }
+
+        //    if (scoredMatches.Count != 0)
+        //    {
+        //        smChannel.EPGId = scoredMatches[0].Channel.Channel;
+
+        //        fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
+
+
+        //        if (Settings.VideoStreamAlwaysUseEPGLogo)
+        //        {
+        //            if (SetVideoStreamLogoFromEPG(smChannel))
+        //            {
+        //                fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
+        //            }
+        //        }
+
+        //        Update(smChannel);
+        //        //RepositoryContext.SaveChanges();
+        //    }
+
+        //    return new ValueTask();
+        //});
+
+        foreach (SMChannel smChannel in t)
+        {
+            if (cancellationToken.IsCancellationRequested)
             {
-                scoredMatches = stationChannelNames
-                    .Select(p => new
-                    {
-                        Channel = p,
-                        Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.DisplayName)
-                    })
-                    .Where(x => x.Score > 0)
-                    .OrderByDescending(x => x.Score)
-                    .ToList();
+                if (fds.Count != 0)
+                {
+                    await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                }
+                return fds;
             }
 
-            if (scoredMatches.Count != 0)
+            try
             {
-                smChannel.EPGId = scoredMatches[0].Channel.Channel;
-
-                fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
-                Update(smChannel);
-
-                if (Settings.VideoStreamAlwaysUseEPGLogo)
+                var scoredMatches = stationChannelNames.Select(p => new
                 {
-                    if (SetVideoStreamLogoFromEPG(smChannel))
+                    Channel = p,
+                    Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.Channel)
+                })
+                .Where(x => x.Score > 0)
+                .OrderByDescending(x => x.Score)
+                .ToList();
+
+                if (scoredMatches.Count == 0)
+                {
+                    scoredMatches = stationChannelNames
+                        .Select(p => new
+                        {
+                            Channel = p,
+                            Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.DisplayName)
+                        })
+                        .Where(x => x.Score > 0)
+                        .OrderByDescending(x => x.Score)
+                        .ToList();
+                }
+
+                if (scoredMatches.Count != 0)
+                {
+                    smChannel.EPGId = scoredMatches[0].Channel.Channel;
+
+                    fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
+
+                    if (Settings.VideoStreamAlwaysUseEPGLogo)
                     {
-                        fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
+                        if (SetVideoStreamLogoFromEPG(smChannel))
+                        {
+                            fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
+                        }
                     }
+
+                    Update(smChannel);
+                    //RepositoryContext.SaveChanges();
                 }
             }
-
-            return new ValueTask();
-        });
+            catch (Exception ex)
+            {
+                logger.LogWarning("An error occurred while processing channel {ChannelName}: {ErrorMessage}", smChannel.Name, ex.Message);
+            }
+        }
 
 
         if (fds.Count != 0)

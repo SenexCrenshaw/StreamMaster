@@ -6,9 +6,10 @@ import SMFileUpload from '@components/sm/SMFileUpload';
 
 import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 import { getRandomColorHex } from '@lib/common/colors';
-import { CreateEPGFile } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
+
 import { CreateEPGFileRequest, EPGFileDto } from '@lib/smAPI/smapiTypes';
 import EPGFileDialog from './EPGFileDialog';
+import { CreateEPGFile } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
 
 export interface EPGFileCreateDialogProperties {
   readonly onHide?: (didUpload: boolean) => void;
