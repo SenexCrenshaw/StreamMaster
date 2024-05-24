@@ -1,9 +1,10 @@
 import { type FC, memo, useCallback, useMemo, useState } from 'react';
 import { CreateChannelGroupRequest } from '@lib/smAPI/smapiTypes';
 import SMDialog from '@components/sm/SMDialog';
-import { CreateChannelGroup } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
+
 import StringEditor from '@components/inputs/StringEditor';
 import OKButton from '@components/buttons/OKButton';
+import { CreateChannelGroup } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
 
 const ChannelGroupAddDialog: FC = () => {
   const [newGroupName, setNewGroupName] = useState<string>('');

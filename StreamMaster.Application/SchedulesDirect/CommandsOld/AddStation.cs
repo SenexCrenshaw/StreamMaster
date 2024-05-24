@@ -29,7 +29,7 @@ public class AddStationHandler(ILogger<AddStation> logger, IJobStatusService job
 
         JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
 
-        UpdateSettingRequest updateSettingRequest = new()
+        UpdateSettingParameters updateSettingRequest = new()
         {
             SDSettings = new SDSettingsRequest
             {

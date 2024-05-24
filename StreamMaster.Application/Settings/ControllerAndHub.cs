@@ -57,9 +57,9 @@ namespace StreamMaster.Application.Settings.Controllers
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<UpdateSettingResponse?>> UpdateSetting()
+        public async Task<ActionResult<UpdateSettingResponse?>> UpdateSetting(UpdateSettingRequest request)
         {
-            UpdateSettingResponse? ret = await Sender.Send(new UpdateSettingRequest()).ConfigureAwait(false);
+            UpdateSettingResponse? ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
@@ -88,9 +88,9 @@ namespace StreamMaster.Application.Hubs
             return ret.Data;
         }
 
-        public async Task<UpdateSettingResponse?> UpdateSetting()
+        public async Task<UpdateSettingResponse?> UpdateSetting(UpdateSettingRequest request)
         {
-            UpdateSettingResponse? ret = await Sender.Send(new UpdateSettingRequest()).ConfigureAwait(false);
+            UpdateSettingResponse? ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 

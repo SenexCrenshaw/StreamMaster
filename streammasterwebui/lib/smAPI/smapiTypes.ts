@@ -595,7 +595,7 @@ export interface GetSettingsRequest
 export interface GetSystemStatusRequest
 {
 }
-export interface UpdateSettingRequest
+export interface UpdateSettingParameters
 {
 	AdminPassword?: string;
 	AdminUserName?: string;
@@ -632,6 +632,10 @@ export interface UpdateSettingRequest
 	StreamingClientUserAgent?: string;
 	StreamingProxyType?: StreamingProxyTypes;
 	VideoStreamAlwaysUseEPGLogo?: boolean;
+}
+export interface UpdateSettingRequest
+{
+	parameters: UpdateSettingParameters;
 }
 export interface GetStationChannelNamesRequest
 {

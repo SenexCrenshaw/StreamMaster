@@ -3,9 +3,8 @@ using StreamMaster.SchedulesDirect;
 
 namespace StreamMaster.Application.Settings.Commands;
 
-[SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
+public class UpdateSettingParameters
 {
     public bool? BackupEnabled { get; set; }
     public int? BackupVersionsToKeep { get; set; }
@@ -43,6 +42,11 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public int? MaxLogFileSizeMB { get; set; }
     public List<string>? NameRegex { get; set; } = [];
 }
+
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record UpdateSettingRequest(UpdateSettingParameters parameters) : IRequest<UpdateSettingResponse> { }
+
 
 public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, IOptionsMonitor<SDSettings> intsdsettings, ILogger<UpdateSettingRequest> Logger, IMapper Mapper, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<Setting> intsettings)
 : IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
@@ -189,7 +193,7 @@ public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue,
 
         SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
         await HubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);
-        if (request.SDSettings?.SDStationIds != null)
+        if (request.parameters.SDSettings?.SDStationIds != null)
         {
             await HubContext.Clients.All.SchedulesDirectsRefresh().ConfigureAwait(false);
         }
@@ -198,197 +202,197 @@ public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue,
     }
 
     /// <summary>
-    /// Updates the current setting based on the provided request.
+    /// Updates the current setting based on the provided request.parameters.
     /// </summary>
     /// <param name="currentSetting">The current setting.</param>
-    /// <param name="request">The update setting request.</param>
+    /// <param name="request">The update setting request.parameters.</param>
     /// <returns>The updated setting as a SettingDto object.</returns>
     private async Task<bool> UpdateSetting(Setting currentSetting, SDSettings sdsettings, UpdateSettingRequest request, CancellationToken cancellationToken)
     {
         bool needsLogOut = false;
         bool needsSetProgrammes = false;
-        if (request.CacheIcons != null && request.CacheIcons != currentSetting.CacheIcons)
+        if (request.parameters.CacheIcons != null && request.parameters.CacheIcons != currentSetting.CacheIcons)
         {
-            currentSetting.CacheIcons = (bool)request.CacheIcons;
+            currentSetting.CacheIcons = (bool)request.parameters.CacheIcons;
         }
 
-        if (request.CleanURLs != null && request.CleanURLs != currentSetting.CleanURLs)
+        if (request.parameters.CleanURLs != null && request.parameters.CleanURLs != currentSetting.CleanURLs)
         {
-            currentSetting.CleanURLs = (bool)request.CleanURLs;
+            currentSetting.CleanURLs = (bool)request.parameters.CleanURLs;
         }
 
-        if (request.SDSettings != null)
+        if (request.parameters.SDSettings != null)
         {
-            CopyNonNullFields(request.SDSettings, sdsettings);
+            CopyNonNullFields(request.parameters.SDSettings, sdsettings);
             SettingsHelper.UpdateSetting(sdsettings);
         }
 
-        if (request.EnableSSL != null && request.EnableSSL != currentSetting.EnableSSL)
+        if (request.parameters.EnableSSL != null && request.parameters.EnableSSL != currentSetting.EnableSSL)
         {
-            currentSetting.EnableSSL = (bool)request.EnableSSL;
+            currentSetting.EnableSSL = (bool)request.parameters.EnableSSL;
         }
 
-        if (request.VideoStreamAlwaysUseEPGLogo != null && request.VideoStreamAlwaysUseEPGLogo != currentSetting.VideoStreamAlwaysUseEPGLogo)
+        if (request.parameters.VideoStreamAlwaysUseEPGLogo != null && request.parameters.VideoStreamAlwaysUseEPGLogo != currentSetting.VideoStreamAlwaysUseEPGLogo)
         {
-            currentSetting.VideoStreamAlwaysUseEPGLogo = (bool)request.VideoStreamAlwaysUseEPGLogo;
+            currentSetting.VideoStreamAlwaysUseEPGLogo = (bool)request.parameters.VideoStreamAlwaysUseEPGLogo;
         }
 
-        if (request.PrettyEPG.HasValue)
+        if (request.parameters.PrettyEPG.HasValue)
         {
-            currentSetting.PrettyEPG = request.PrettyEPG.Value;
+            currentSetting.PrettyEPG = request.parameters.PrettyEPG.Value;
         }
 
-        if (request.M3UIgnoreEmptyEPGID != null)
+        if (request.parameters.M3UIgnoreEmptyEPGID != null)
         {
-            currentSetting.M3UIgnoreEmptyEPGID = (bool)request.M3UIgnoreEmptyEPGID;
+            currentSetting.M3UIgnoreEmptyEPGID = (bool)request.parameters.M3UIgnoreEmptyEPGID;
         }
 
-        if (request.M3UUseCUIDForChannelID != null)
+        if (request.parameters.M3UUseCUIDForChannelID != null)
         {
-            currentSetting.M3UUseCUIDForChannelID = (bool)request.M3UUseCUIDForChannelID;
+            currentSetting.M3UUseCUIDForChannelID = (bool)request.parameters.M3UUseCUIDForChannelID;
         }
 
-        if (request.MaxLogFiles != null)
+        if (request.parameters.MaxLogFiles != null)
         {
-            currentSetting.MaxLogFiles = (int)request.MaxLogFiles;
+            currentSetting.MaxLogFiles = (int)request.parameters.MaxLogFiles;
         }
 
-        if (request.MaxLogFileSizeMB != null)
+        if (request.parameters.MaxLogFileSizeMB != null)
         {
-            currentSetting.MaxLogFileSizeMB = (int)request.MaxLogFileSizeMB;
+            currentSetting.MaxLogFileSizeMB = (int)request.parameters.MaxLogFileSizeMB;
         }
 
-        if (request.EnablePrometheus != null)
+        if (request.parameters.EnablePrometheus != null)
         {
-            currentSetting.EnablePrometheus = (bool)request.EnablePrometheus;
+            currentSetting.EnablePrometheus = (bool)request.parameters.EnablePrometheus;
         }
 
-        if (request.MaxLogFiles != null)
+        if (request.parameters.MaxLogFiles != null)
         {
-            currentSetting.MaxLogFiles = (int)request.MaxLogFiles;
+            currentSetting.MaxLogFiles = (int)request.parameters.MaxLogFiles;
         }
-        if (request.M3UUseChnoForId != null)
+        if (request.parameters.M3UUseChnoForId != null)
         {
-            currentSetting.M3UUseChnoForId = (bool)request.M3UUseChnoForId;
-        }
-
-        if (request.BackupEnabled != null)
-        {
-            currentSetting.BackupEnabled = (bool)request.BackupEnabled;
+            currentSetting.M3UUseChnoForId = (bool)request.parameters.M3UUseChnoForId;
         }
 
-        if (request.BackupVersionsToKeep.HasValue)
+        if (request.parameters.BackupEnabled != null)
         {
-            currentSetting.BackupVersionsToKeep = request.BackupVersionsToKeep.Value;
+            currentSetting.BackupEnabled = (bool)request.parameters.BackupEnabled;
         }
 
-        if (request.BackupInterval.HasValue)
+        if (request.parameters.BackupVersionsToKeep.HasValue)
         {
-            currentSetting.BackupInterval = request.BackupInterval.Value;
+            currentSetting.BackupVersionsToKeep = request.parameters.BackupVersionsToKeep.Value;
         }
 
-        if (request.ShowClientHostNames != null)
+        if (request.parameters.BackupInterval.HasValue)
         {
-            currentSetting.ShowClientHostNames = (bool)request.ShowClientHostNames;
+            currentSetting.BackupInterval = request.parameters.BackupInterval.Value;
         }
 
-        if (request.DummyRegex != null)
+        if (request.parameters.ShowClientHostNames != null)
         {
-            currentSetting.DummyRegex = request.DummyRegex;
+            currentSetting.ShowClientHostNames = (bool)request.parameters.ShowClientHostNames;
         }
 
-        if (request.M3UStationId != null)
+        if (request.parameters.DummyRegex != null)
         {
-            currentSetting.M3UStationId = (bool)request.M3UStationId;
+            currentSetting.DummyRegex = request.parameters.DummyRegex;
         }
 
-        if (request.M3UFieldGroupTitle != null)
+        if (request.parameters.M3UStationId != null)
         {
-            currentSetting.M3UFieldGroupTitle = (bool)request.M3UFieldGroupTitle;
+            currentSetting.M3UStationId = (bool)request.parameters.M3UStationId;
         }
 
-        if (request.SSLCertPath != null && request.SSLCertPath != currentSetting.SSLCertPath)
+        if (request.parameters.M3UFieldGroupTitle != null)
         {
-            currentSetting.SSLCertPath = request.SSLCertPath;
+            currentSetting.M3UFieldGroupTitle = (bool)request.parameters.M3UFieldGroupTitle;
         }
 
-        if (request.SSLCertPassword != null && request.SSLCertPassword != currentSetting.SSLCertPassword)
+        if (request.parameters.SSLCertPath != null && request.parameters.SSLCertPath != currentSetting.SSLCertPath)
         {
-            currentSetting.SSLCertPassword = request.SSLCertPassword;
+            currentSetting.SSLCertPath = request.parameters.SSLCertPath;
         }
 
-        if (request.ClientUserAgent != null && request.ClientUserAgent != currentSetting.ClientUserAgent)
+        if (request.parameters.SSLCertPassword != null && request.parameters.SSLCertPassword != currentSetting.SSLCertPassword)
         {
-            currentSetting.ClientUserAgent = request.ClientUserAgent;
+            currentSetting.SSLCertPassword = request.parameters.SSLCertPassword;
         }
 
-        if (request.StreamingClientUserAgent != null && request.StreamingClientUserAgent != currentSetting.StreamingClientUserAgent)
+        if (request.parameters.ClientUserAgent != null && request.parameters.ClientUserAgent != currentSetting.ClientUserAgent)
         {
-            currentSetting.StreamingClientUserAgent = request.StreamingClientUserAgent;
+            currentSetting.ClientUserAgent = request.parameters.ClientUserAgent;
         }
 
-        if (!string.IsNullOrEmpty(request.ApiKey) && request.ApiKey != currentSetting.ApiKey)
+        if (request.parameters.StreamingClientUserAgent != null && request.parameters.StreamingClientUserAgent != currentSetting.StreamingClientUserAgent)
         {
-            currentSetting.ApiKey = request.ApiKey;
+            currentSetting.StreamingClientUserAgent = request.parameters.StreamingClientUserAgent;
         }
 
-        if (request.AdminPassword != null && request.AdminPassword != currentSetting.AdminPassword)
+        if (!string.IsNullOrEmpty(request.parameters.ApiKey) && request.parameters.ApiKey != currentSetting.ApiKey)
         {
-            currentSetting.AdminPassword = request.AdminPassword;
+            currentSetting.ApiKey = request.parameters.ApiKey;
+        }
+
+        if (request.parameters.AdminPassword != null && request.parameters.AdminPassword != currentSetting.AdminPassword)
+        {
+            currentSetting.AdminPassword = request.parameters.AdminPassword;
             needsLogOut = true;
         }
 
-        if (request.AdminUserName != null && request.AdminUserName != currentSetting.AdminUserName)
+        if (request.parameters.AdminUserName != null && request.parameters.AdminUserName != currentSetting.AdminUserName)
         {
-            currentSetting.AdminUserName = request.AdminUserName;
+            currentSetting.AdminUserName = request.parameters.AdminUserName;
             needsLogOut = true;
         }
 
-        if (!string.IsNullOrEmpty(request.DeviceID) && request.DeviceID != currentSetting.DeviceID)
+        if (!string.IsNullOrEmpty(request.parameters.DeviceID) && request.parameters.DeviceID != currentSetting.DeviceID)
         {
-            currentSetting.DeviceID = request.DeviceID;
+            currentSetting.DeviceID = request.parameters.DeviceID;
         }
 
-        if (!string.IsNullOrEmpty(request.FFMPegExecutable) && request.FFMPegExecutable != currentSetting.FFMPegExecutable)
+        if (!string.IsNullOrEmpty(request.parameters.FFMPegExecutable) && request.parameters.FFMPegExecutable != currentSetting.FFMPegExecutable)
         {
-            currentSetting.FFMPegExecutable = request.FFMPegExecutable;
+            currentSetting.FFMPegExecutable = request.parameters.FFMPegExecutable;
         }
 
-        if (!string.IsNullOrEmpty(request.FFMpegOptions) && request.FFMpegOptions != currentSetting.FFMpegOptions)
+        if (!string.IsNullOrEmpty(request.parameters.FFMpegOptions) && request.parameters.FFMpegOptions != currentSetting.FFMpegOptions)
         {
-            currentSetting.FFMpegOptions = request.FFMpegOptions;
+            currentSetting.FFMpegOptions = request.parameters.FFMpegOptions;
         }
 
 
-        if (request.MaxConnectRetry != null && request.MaxConnectRetry >= 0 && request.MaxConnectRetry != currentSetting.MaxConnectRetry)
+        if (request.parameters.MaxConnectRetry != null && request.parameters.MaxConnectRetry >= 0 && request.parameters.MaxConnectRetry != currentSetting.MaxConnectRetry)
         {
-            currentSetting.MaxConnectRetry = (int)request.MaxConnectRetry;
+            currentSetting.MaxConnectRetry = (int)request.parameters.MaxConnectRetry;
         }
 
-        if (request.MaxConnectRetryTimeMS != null && request.MaxConnectRetryTimeMS >= 0 && request.MaxConnectRetryTimeMS != currentSetting.MaxConnectRetryTimeMS)
+        if (request.parameters.MaxConnectRetryTimeMS != null && request.parameters.MaxConnectRetryTimeMS >= 0 && request.parameters.MaxConnectRetryTimeMS != currentSetting.MaxConnectRetryTimeMS)
         {
-            currentSetting.MaxConnectRetryTimeMS = (int)request.MaxConnectRetryTimeMS;
+            currentSetting.MaxConnectRetryTimeMS = (int)request.parameters.MaxConnectRetryTimeMS;
         }
 
-        if (request.GlobalStreamLimit != null && request.GlobalStreamLimit >= 0 && request.GlobalStreamLimit != currentSetting.GlobalStreamLimit)
+        if (request.parameters.GlobalStreamLimit != null && request.parameters.GlobalStreamLimit >= 0 && request.parameters.GlobalStreamLimit != currentSetting.GlobalStreamLimit)
         {
-            currentSetting.GlobalStreamLimit = (int)request.GlobalStreamLimit;
+            currentSetting.GlobalStreamLimit = (int)request.parameters.GlobalStreamLimit;
         }
 
-        if (request.NameRegex != null)
+        if (request.parameters.NameRegex != null)
         {
-            currentSetting.NameRegex = request.NameRegex;
+            currentSetting.NameRegex = request.parameters.NameRegex;
         }
 
-        if (request.StreamingProxyType != null && request.StreamingProxyType != currentSetting.StreamingProxyType)
+        if (request.parameters.StreamingProxyType != null && request.parameters.StreamingProxyType != currentSetting.StreamingProxyType)
         {
-            currentSetting.StreamingProxyType = (StreamingProxyTypes)request.StreamingProxyType;
+            currentSetting.StreamingProxyType = (StreamingProxyTypes)request.parameters.StreamingProxyType;
         }
 
-        if (request.AuthenticationMethod != null && request.AuthenticationMethod != currentSetting.AuthenticationMethod)
+        if (request.parameters.AuthenticationMethod != null && request.parameters.AuthenticationMethod != currentSetting.AuthenticationMethod)
         {
             needsLogOut = true;
-            currentSetting.AuthenticationMethod = (AuthenticationType)request.AuthenticationMethod;
+            currentSetting.AuthenticationMethod = (AuthenticationType)request.parameters.AuthenticationMethod;
         }
 
         if (needsSetProgrammes)

@@ -70,7 +70,7 @@ namespace BuildClientAPI
 
                     List<string> smapiImport = [];
 
-                    string toCheck = "UpdateSMChannel";
+                    string toCheck = "UpdateSetting";
 
                     if (recordType.Name.StartsWith(toCheck))
                     {

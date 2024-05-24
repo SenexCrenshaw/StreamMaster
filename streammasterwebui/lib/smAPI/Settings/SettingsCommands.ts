@@ -16,8 +16,8 @@ export const GetSystemStatus = async (): Promise<SDSystemStatus | undefined> => 
   return await signalRService.invokeHubCommand<SDSystemStatus>('GetSystemStatus');
 };
 
-export const UpdateSetting = async (): Promise<UpdateSettingResponse | undefined> => {
+export const UpdateSetting = async (request: UpdateSettingRequest): Promise<UpdateSettingResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<UpdateSettingResponse>('UpdateSetting');
+  return await signalRService.invokeHubCommand<UpdateSettingResponse>('UpdateSetting', request);
 };
 

@@ -3,38 +3,34 @@ import ResetButton from '@components/buttons/ResetButton';
 import SaveButton from '@components/buttons/SaveButton';
 import { GetMessage, isEmptyObject } from '@lib/common/common';
 import { SettingsEditorIcon } from '@lib/common/icons';
-
+import { useSMContext } from '@lib/signalr/SMProvider';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { AuthenticationSettings } from './AuthenticationSettings';
-import { BackupSettings } from './BackupSettings';
-import { DevelopmentSettings } from './DevelopmentSettings';
-import { FilesEPGM3USettings } from './FilesEPGM3USettings';
-import { GeneralSettings } from './GeneralSettings';
-import { ProfileSettings } from './ProfileSettings';
-import { SDSettings } from './SDSettings';
-import { StreamingSettings } from './StreamingSettings';
 import { useUpdateSettingRequest } from '@lib/redux/hooks/updateSettingRequest';
 import { SettingDto, UpdateSettingRequest, AuthenticationType } from '@lib/smAPI/smapiTypes';
 import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import { useCurrentSettingRequest } from '@lib/redux/hooks/currentSettingRequest';
 import { UpdateSetting } from '@lib/smAPI/Settings/SettingsCommands';
+import { GeneralSettings } from './GeneralSettings';
+import { BackupSettings } from './BackupSettings';
+import { AuthenticationSettings } from './AuthenticationSettings';
+import { SDSettings } from './SDSettings';
+import { StreamingSettings } from './StreamingSettings';
+import { FilesEPGM3USettings } from './FilesEPGM3USettings';
+import { DevelopmentSettings } from './DevelopmentSettings';
 
 export const SettingsEditor = () => {
   const { currentSettingRequest, setCurrentSettingRequest } = useCurrentSettingRequest('CurrentSettingDto');
   const { updateSettingRequest, setUpdateSettingRequest } = useUpdateSettingRequest('UpdateSettingRequest');
-
-  const [originalData, setOriginalData] = useState<SettingDto>({} as SettingDto);
-
-  const settingsQuery = useGetSettings();
+  const [originalData, setOriginalData] = useState<SettingDto | null>(null);
+  const { isSystemReady, settings } = useSMContext();
 
   useEffect(() => {
-    if (settingsQuery.isLoading || !settingsQuery.data) return;
-
-    setCurrentSettingRequest({ ...settingsQuery.data });
-    setUpdateSettingRequest({} as UpdateSettingRequest);
-    setOriginalData({ ...settingsQuery.data });
-  }, [setCurrentSettingRequest, setUpdateSettingRequest, settingsQuery.data, settingsQuery.isLoading]);
+    if (isSystemReady && originalData === null && settings && settings.AuthenticationMethod !== undefined) {
+      setOriginalData({ ...settings });
+      // setCurrentSettingRequest({ ...settings });
+    }
+  }, [isSystemReady, originalData, settings]);
 
   const adminUserNameError = useMemo((): string | undefined => {
     if (currentSettingRequest?.AuthenticationMethod === AuthenticationType.Forms && currentSettingRequest?.AdminUserName === '')
@@ -77,6 +73,7 @@ export const SettingsEditor = () => {
       .then(() => {
         const reset: UpdateSettingRequest = {};
         setUpdateSettingRequest(reset);
+        setOriginalData(null); // Reset originalData to re-fetch on next load
       })
       .catch((error) => {
         console.error(error);
@@ -85,33 +82,48 @@ export const SettingsEditor = () => {
   }, [isSaveEnabled, updateSettingRequest, setUpdateSettingRequest]);
 
   const resetData = useCallback(() => {
-    setCurrentSettingRequest({ ...originalData });
+    if (originalData) {
+      setCurrentSettingRequest({ ...originalData });
+    }
   }, [originalData, setCurrentSettingRequest]);
 
   return (
     <StandardHeader displayName={GetMessage('settings')} icon={<SettingsEditorIcon />}>
-      <div className="flex flex-column">
-        <ScrollPanel style={{ height: 'calc(100vh - 100px)', width: '100%' }}>
-          <GeneralSettings />
+      <div className="flex flex-column w-full">
+        <ScrollPanel className="w-full" style={{ height: 'calc(100vh - 100px)' }}>
+          <div className="flex flex-row justify-content-start align-items-start">
+            <div className="w-6 pr-1">
+              <GeneralSettings />
+            </div>
+            <div className="w-6 pl-1">
+              <div className="flex flex-column w-full">
+                <BackupSettings />
+                <AuthenticationSettings />
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-row justify-content-start align-items-start">
+            <div className="w-6 pr-1">
+              <StreamingSettings />
+            </div>
+            <div className="w-6 pr-1">
+              <SDSettings />
+            </div>
+          </div>
 
-          <BackupSettings />
-
-          <AuthenticationSettings />
-
-          <StreamingSettings />
-
-          {settingsQuery.data?.hls?.hlsM3U8Enable && <ProfileSettings />}
-
-          <SDSettings />
-
-          <FilesEPGM3USettings />
+          <div className="flex flex-row justify-content-start align-items-start">
+            <div className="w-6 pr-1">
+              <FilesEPGM3USettings />
+            </div>
+            <div className="w-6 pr-1"></div>
+          </div>
 
           <DevelopmentSettings />
         </ScrollPanel>
         <div className="flex mt-2 justify-content-center align-items-end">
           <div className="flex justify-content-center align-items-center gap-1">
-            <SaveButton disabled={!isSaveEnabled} onClick={() => onSave()} iconFilled label="Save Settings" />
-            <ResetButton disabled={!isSaveEnabled} onClick={() => resetData()} iconFilled label="Reset Settings" />
+            <SaveButton disabled={!isSaveEnabled} onClick={onSave} iconFilled label="Save Settings" />
+            <ResetButton disabled={!isSaveEnabled} onClick={resetData} iconFilled label="Reset Settings" />
           </div>
         </div>
       </div>

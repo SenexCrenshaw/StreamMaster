@@ -1,11 +1,12 @@
 import SMLoader from '@components/loader/SMLoader';
 import { DataRefreshAll } from '@lib/smAPI/DataRefreshAll';
-import { GetIsSystemReady } from '@lib/smAPI/Settings/SettingsCommands';
-import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
+
 import { SettingDto } from '@lib/smAPI/smapiTypes';
 import { BlockUI } from 'primereact/blockui';
 import React, { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 import { Logger } from '@lib/common/logger';
+import { GetIsSystemReady } from '@lib/smAPI/Settings/SettingsCommands';
+import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 
 interface SMContextState {
   isSystemReady: boolean;

@@ -9,6 +9,7 @@ import { getInputTextLine } from './getInputTextLine';
 import { getPasswordLine } from './getPasswordLine';
 import { useSettingChangeHandler } from './useSettingChangeHandler';
 import { AuthenticationType } from '@lib/smAPI/smapiTypes';
+import { SMCard } from '@components/sm/SMCard';
 
 export function AuthenticationSettings(): React.ReactElement {
   const setting = useSettings();
@@ -51,27 +52,35 @@ export function AuthenticationSettings(): React.ReactElement {
   }
 
   return (
-    <Fieldset className="mt-4 pt-10" legend={GetMessage('authentication')} toggleable>
-      {getInputTextLine({ field: 'apiKey', currentSettingRequest, onChange })}
-      {getDropDownLine({ field: 'authenticationMethod', options: getAuthTypeOptions(), currentSettingRequest, onChange })}
-      {getInputTextLine({ field: 'adminUserName', warning: adminUserNameError, currentSettingRequest, onChange })}
-      {getPasswordLine({ field: 'adminPassword', warning: adminPasswordError, currentSettingRequest, onChange })}
-      <div className="flex col-12">
-        <div className="flex col-2 col-offset-1">
-          <span>{GetMessage('signout')}</span>
-        </div>
-        <div className="flex col-3 m-0 p-0 debug">
-          <Button
-            disabled={!setting.authenticationType || (setting.authenticationType as number) === 0}
-            icon="pi pi-check"
-            label={GetMessage('signout')}
-            onClick={() => (window.location.href = '/logout')}
-            rounded
-            severity="success"
-            size="small"
-          />
+    <SMCard
+      darkBackGround={false}
+      title="AUTHENTICATION"
+      header={<div className="justify-content-end align-items-center flex-row flex gap-1">{/* {header}                */}</div>}
+    >
+      <div className="sm-card-children">
+        <div className="sm-card-children-content">
+          {getInputTextLine({ currentSettingRequest, field: 'apiKey', onChange })}
+          {getDropDownLine({ currentSettingRequest, field: 'authenticationMethod', onChange, options: getAuthTypeOptions() })}
+          {getInputTextLine({ currentSettingRequest, field: 'adminUserName', onChange, warning: adminUserNameError })}
+          {getPasswordLine({ currentSettingRequest, field: 'adminPassword', onChange, warning: adminPasswordError })}
+          <div className="flex col-12">
+            <div className="flex col-2 col-offset-1">
+              <span>{GetMessage('signout')}</span>
+            </div>
+            <div className="flex col-3 m-0 p-0 debug">
+              <Button
+                disabled={!setting.authenticationType || (setting.authenticationType as number) === 0}
+                icon="pi pi-check"
+                label={GetMessage('signout')}
+                onClick={() => (window.location.href = '/logout')}
+                rounded
+                severity="success"
+                size="small"
+              />
+            </div>
+          </div>
         </div>
       </div>
-    </Fieldset>
+    </SMCard>
   );
 }

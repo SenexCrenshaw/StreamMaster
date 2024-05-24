@@ -21,7 +21,7 @@ public class RemoveStationHandler(ILogger<RemoveStation> logger, IJobStatusServi
             return false;
         }
 
-        UpdateSettingRequest updateSettingRequest = new()
+        UpdateSettingParameters updateSettingRequest = new()
         {
             SDSettings = new SDSettingsRequest
             {

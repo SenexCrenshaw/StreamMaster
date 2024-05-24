@@ -14,11 +14,11 @@ export function useSettingChangeHandler() {
       };
 
       const mergedSdSettings = {
-        ...updateSettingRequest.SDSettings,
-        ...updatedValues.SDSettings
+        ...updateSettingRequest.parameters.SDSettings,
+        ...updatedValues.parameters.SDSettings
       };
 
-      mergedMain.SDSettings = mergedSdSettings;
+      mergedMain.parameters.SDSettings = mergedSdSettings;
 
       setUpdateSettingRequest(mergedMain);
     }
