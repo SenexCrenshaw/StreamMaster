@@ -8,7 +8,6 @@ import { ScrollPanel } from 'primereact/scrollpanel';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useUpdateSettingRequest } from '@lib/redux/hooks/updateSettingRequest';
 import { SettingDto, UpdateSettingRequest, AuthenticationType } from '@lib/smAPI/smapiTypes';
-import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import { useCurrentSettingRequest } from '@lib/redux/hooks/currentSettingRequest';
 import { UpdateSetting } from '@lib/smAPI/Settings/SettingsCommands';
 import { GeneralSettings } from './GeneralSettings';
