@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { SMOverlay } from '@components/sm/SMOverlay';
+import SMOverlay from '@components/sm/SMOverlay';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
 import useSelectedAndQ from '@lib/hooks/useSelectedAndQ';

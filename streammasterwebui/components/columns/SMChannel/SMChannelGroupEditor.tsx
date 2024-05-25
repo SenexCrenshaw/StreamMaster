@@ -3,7 +3,7 @@ import { ReactNode, Suspense, lazy, memo, useCallback, useMemo } from 'react';
 import { isEmptyObject } from '@lib/common/common';
 import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
 import { SetSMChannelGroup } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import { SMOverlay } from '@components/sm/SMOverlay';
+import SMOverlay from '@components/sm/SMOverlay';
 
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 

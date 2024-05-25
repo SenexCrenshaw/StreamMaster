@@ -1,43 +1,73 @@
 import SMButton from '@components/sm/SMButton';
 import { OverlayPanel } from 'primereact/overlaypanel';
-import React, { ReactNode, useMemo, useRef } from 'react';
+import React, { ReactNode, SyntheticEvent, forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
 import { SMCard } from './SMCard';
 import CloseButton from '@components/buttons/CloseButton';
 
 interface SMOverlayProperties {
-  readonly buttonTemplate?: ReactNode;
-  readonly buttonDarkBackground?: boolean;
-  readonly children: React.ReactNode;
-  readonly header?: React.ReactNode;
+  readonly answer?: boolean;
   readonly buttonClassName?: string | undefined;
+  readonly buttonDarkBackground?: boolean;
   readonly buttonFlex?: boolean | undefined;
   readonly buttonLabel?: string | undefined;
-  readonly iconFilled?: boolean;
+  readonly buttonTemplate?: ReactNode;
+  readonly children: React.ReactNode;
+  readonly header?: React.ReactNode;
   readonly icon?: string | undefined;
-  readonly title?: string | undefined;
+  readonly iconFilled?: boolean;
   readonly simple?: boolean;
+  readonly title?: string | undefined;
   readonly tooltip?: string | undefined;
   readonly widthSize?: string;
+  onAnswered?(): void;
   onHide?(): void;
+  onShow?(): void;
 }
 
-export const SMOverlay = ({
-  buttonTemplate,
-  buttonClassName = '',
-  buttonFlex = false,
-  buttonLabel = '',
-  buttonDarkBackground = false,
-  iconFilled = false,
-  children,
-  header,
-  icon,
-  onHide,
-  simple = false,
-  tooltip = '',
-  title,
-  widthSize = '4'
-}: SMOverlayProperties) => {
+export interface SMOverlayRef {
+  hide: () => void;
+  show: (event: any) => void;
+}
+
+const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverlayProperties, ref) => {
+  const {
+    answer,
+    buttonClassName = '',
+    buttonDarkBackground = false,
+    buttonFlex = false,
+    buttonLabel = '',
+    buttonTemplate,
+    children,
+    header,
+    icon,
+    iconFilled = false,
+    onAnswered,
+    onHide,
+    onShow,
+    simple = false,
+    title,
+    tooltip = '',
+    widthSize = '4'
+  } = props;
+
+  useImperativeHandle(ref, () => ({
+    hide: () => op.current?.hide(),
+    props,
+    show: (event: any) => op.current?.show(null, event)
+  }));
+
   const op = useRef<OverlayPanel>(null);
+
+  const openPanel = useCallback(
+    (e: SyntheticEvent) => {
+      if (answer !== undefined) {
+        onAnswered && onAnswered();
+        return;
+      }
+      op.current?.toggle(e);
+    },
+    [answer, onAnswered]
+  );
 
   const renderButton = useMemo(() => {
     if (buttonTemplate) {
@@ -51,7 +81,7 @@ export const SMOverlay = ({
               icon={icon}
               tooltip={tooltip}
               label={buttonLabel}
-              onClick={(e) => op.current?.toggle(e)}
+              onClick={(e) => openPanel(e)}
             >
               {buttonTemplate}
             </SMButton>
@@ -66,7 +96,7 @@ export const SMOverlay = ({
           icon={icon}
           tooltip={tooltip}
           label={buttonLabel}
-          onClick={(e) => op.current?.toggle(e)}
+          onClick={(e) => openPanel(e)}
         >
           {buttonTemplate}
         </SMButton>
@@ -80,21 +110,21 @@ export const SMOverlay = ({
         icon={icon}
         tooltip={tooltip}
         label={buttonLabel}
-        onClick={(e) => op.current?.toggle(e)}
+        onClick={(e) => openPanel(e)}
       />
     );
-  }, [buttonClassName, buttonDarkBackground, buttonFlex, buttonLabel, buttonTemplate, icon, iconFilled, tooltip]);
+  }, [buttonClassName, buttonDarkBackground, buttonFlex, buttonLabel, buttonTemplate, icon, iconFilled, openPanel, tooltip]);
 
   return (
     <>
-      <OverlayPanel className={`sm-overlay w-${widthSize}`} ref={op} showCloseIcon={false} onHide={() => onHide && onHide()}>
+      <OverlayPanel className={`sm-overlay w-${widthSize}`} ref={op} showCloseIcon={false} onShow={onShow} onHide={() => onHide && onHide()}>
         <SMCard
           simple={simple}
           title={title}
           header={
             <div className="justify-content-end align-items-center flex-row flex gap-1">
               {header}
-              <CloseButton onClick={(e) => op.current?.toggle(e)} tooltip="Close" />
+              <CloseButton onClick={(e) => openPanel(e)} tooltip="Close" />
             </div>
           }
         >
@@ -104,4 +134,6 @@ export const SMOverlay = ({
       {renderButton}
     </>
   );
-};
+});
+
+export default SMOverlay;

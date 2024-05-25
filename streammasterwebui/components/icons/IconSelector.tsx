@@ -1,4 +1,4 @@
-import { SMOverlay } from '@components/sm/SMOverlay';
+import SMOverlay from '@components/sm/SMOverlay';
 import SMScroller from '@components/sm/SMScroller';
 import { getIconUrl } from '@lib/common/common';
 import useGetIcons from '@lib/smAPI/Icons/useGetIcons';

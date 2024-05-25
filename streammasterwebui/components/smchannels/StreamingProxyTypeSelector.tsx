@@ -1,6 +1,6 @@
 import React, { ReactNode, Suspense, lazy, useCallback, useMemo } from 'react';
 import { SelectItem } from 'primereact/selectitem';
-import { SMOverlay } from '@components/sm/SMOverlay';
+import SMOverlay from '@components/sm/SMOverlay';
 import { SetSMChannelProxy } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { SMChannelDto, SetSMChannelProxyRequest, StreamingProxyTypes } from '@lib/smAPI/smapiTypes';
 import { Logger } from '@lib/common/logger';

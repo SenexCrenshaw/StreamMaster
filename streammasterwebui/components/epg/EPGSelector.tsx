@@ -1,6 +1,6 @@
 import AddButton from '@components/buttons/AddButton';
 import StringEditor from '@components/inputs/StringEditor';
-import { SMOverlay } from '@components/sm/SMOverlay';
+import SMOverlay from '@components/sm/SMOverlay';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';

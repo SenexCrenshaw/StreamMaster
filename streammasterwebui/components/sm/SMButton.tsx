@@ -7,22 +7,22 @@ import { v4 as uuidv4 } from 'uuid';
 export type SeverityType = 'danger' | 'help' | 'info' | 'secondary' | 'success' | 'warning';
 
 export interface SMButtonProps {
+  onClick?: (e: React.SyntheticEvent) => void;
   readonly children?: React.ReactNode;
   readonly className?: string;
+  readonly color?: string;
   readonly darkBackGround?: boolean;
   readonly disabled?: boolean;
-  readonly color?: string;
   readonly icon?: string;
   readonly iconFilled?: boolean;
   readonly iconPos?: 'top' | 'bottom' | 'left' | 'right' | undefined;
   readonly isLeft?: boolean;
   readonly label?: string;
-  onClick?: (e: React.SyntheticEvent) => void;
+  readonly outlined?: boolean | undefined;
   readonly rounded?: boolean;
   readonly severity?: SeverityType;
-  tooltip?: string;
   readonly style?: CSSProperties | undefined;
-  readonly outlined?: boolean | undefined;
+  tooltip?: string;
 }
 
 const SMButton = forwardRef<Button, SMButtonProps>(
@@ -87,7 +87,10 @@ const SMButton = forwardRef<Button, SMButtonProps>(
           <div className="dark-background w-full">
             <Tooltip target={`.${tooltipClassName}`} />
             <div
-              onClick={onClick}
+              onClick={(e) => {
+                e.preventDefault();
+                onClick && onClick(e);
+              }}
               className={`${tooltipClassName} input-wrapper`}
               data-pr-tooltip={tooltip}
               data-pr-position={isLeft ? 'left' : 'right'}
@@ -105,7 +108,10 @@ const SMButton = forwardRef<Button, SMButtonProps>(
         <>
           <Tooltip target={`.${tooltipClassName}`} />
           <div
-            onClick={onClick}
+            onClick={(e) => {
+              e.preventDefault();
+              onClick && onClick(e);
+            }}
             className={`${tooltipClassName} input-wrapper`}
             data-pr-tooltip={tooltip}
             data-pr-position={isLeft ? 'left' : 'right'}
@@ -130,7 +136,10 @@ const SMButton = forwardRef<Button, SMButtonProps>(
           icon={`pi ${icon}`}
           iconPos={iconPos}
           label={label}
-          onClick={onClick}
+          onClick={(e) => {
+            e.preventDefault();
+            onClick && onClick(e);
+          }}
           outlined={outlined}
           rounded={rounded}
           severity={severity}

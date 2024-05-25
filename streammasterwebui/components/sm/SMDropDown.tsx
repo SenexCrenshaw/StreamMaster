@@ -1,5 +1,5 @@
 import { ReactNode, Suspense, lazy, useRef } from 'react';
-import { SMOverlay } from './SMOverlay';
+import SMOverlay from './SMOverlay';
 import { Logger } from '@lib/common/logger';
 
 interface SMDropDownProps {

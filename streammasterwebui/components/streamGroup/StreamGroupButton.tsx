@@ -1,4 +1,4 @@
-import { SMOverlay } from '@components/sm/SMOverlay';
+import SMOverlay from '@components/sm/SMOverlay';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';

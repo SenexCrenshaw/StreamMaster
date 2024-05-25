@@ -1,83 +1,116 @@
-import CloseButton from '@components/buttons/CloseButton';
 import OKButton from '@components/buttons/OKButton';
-import { Checkbox } from 'primereact/checkbox';
 import { useLocalStorage } from 'primereact/hooks';
-import { OverlayPanel } from 'primereact/overlaypanel';
 import { useEffect, useRef } from 'react';
 import { SMCard } from './SMCard';
-import { SMOverlay } from './SMOverlay';
+import SMOverlay, { SMOverlayRef } from './SMOverlay';
+import SMButton from './SMButton';
+import BooleanEditor from '@components/inputs/BooleanEditor';
+import { Logger } from '@lib/common/logger';
 
 interface SMPopUpProperties {
   readonly buttonClassName?: string;
   readonly hidden?: boolean;
   readonly icon?: string;
   readonly iconFilled?: boolean;
+  readonly rememberKey?: string;
   readonly title: string;
   readonly tooltip?: string;
   OK(): void;
 }
 
-export const SMPopUp = ({ buttonClassName = 'icon-red', hidden, icon, iconFilled, OK, title, tooltip }: SMPopUpProperties) => {
-  const op = useRef<OverlayPanel>(null);
-  const anchorRef = useRef<HTMLDivElement>(null);
-  const [remember, setRemeber] = useLocalStorage<boolean | undefined>(undefined, 'remember-' + title);
+interface RememberProps {
+  value: boolean;
+  checked: boolean;
+}
 
-  const borderClass = 'info-header-text';
+export const SMPopUp = ({ buttonClassName = 'icon-red', hidden: parentHidden, icon, iconFilled, rememberKey, OK, title, tooltip }: SMPopUpProperties) => {
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<SMOverlayRef>(null);
+  const [remember, setRemeber] = useLocalStorage<RememberProps | null>(null, 'remember-' + rememberKey);
 
   useEffect(() => {
-    if (hidden !== undefined) {
-      if (hidden) {
-        op.current?.hide();
+    if (parentHidden !== undefined) {
+      if (parentHidden) {
+        overlayRef.current?.hide();
       } else {
-        op.current?.show(null, anchorRef.current);
+        overlayRef.current?.show(anchorRef.current);
       }
     }
-  }, [hidden]);
+  }, [parentHidden]);
+
+  const checked = remember?.checked ? remember.checked : false ?? false;
 
   return (
-    <SMOverlay iconFilled={iconFilled} simple title={title} widthSize="2" icon={icon} buttonClassName={buttonClassName} tooltip={tooltip}>
+    <SMOverlay
+      onAnswered={() => {
+        if (rememberKey && rememberKey !== '' && remember !== null) {
+          if (remember.checked === true && remember.value !== undefined) {
+            if (remember.value === true) {
+              OK();
+            }
+            overlayRef.current?.hide();
+          }
+        }
+      }}
+      iconFilled={iconFilled}
+      simple
+      title={title}
+      widthSize="2"
+      icon={icon}
+      buttonClassName={buttonClassName}
+      tooltip={tooltip}
+      ref={overlayRef}
+      answer={remember?.checked ? remember?.value : undefined ?? undefined}
+    >
       <SMCard
         darkBackGround
         title={title}
         header={
-          <div className="flex align-items-center">
-            <Checkbox checked={remember ?? false} onChange={(e) => setRemeber(e.checked)} />
-            <div className="ml-2 text-xs font-italic">Don't Ask Again</div>
+          <div className="flex align-items-center gap-1">
+            Are you sure?
             <OKButton
               onClick={(e) => {
-                op.current?.hide();
+                if (rememberKey && rememberKey !== '' && remember?.checked === true) {
+                  setRemeber({ checked: true, value: true } as RememberProps);
+                  Logger.debug('Remember', { remember });
+                }
+                overlayRef.current?.hide();
                 OK();
               }}
               tooltip="Close"
             />
-            <CloseButton onClick={(e) => op.current?.hide()} tooltip="Close" />
+            <SMButton
+              icon="pi-times"
+              iconFilled
+              className="icon-red"
+              onClick={(e) => {
+                if (rememberKey && rememberKey !== '' && remember?.checked === true) {
+                  setRemeber({ checked: true, value: false } as RememberProps);
+                  Logger.debug('Remember', { remember });
+                }
+
+                overlayRef.current?.hide();
+              }}
+              tooltip="Close"
+            />
           </div>
         }
       >
         <div className="sm-card-children">
-          <div className={`${borderClass} sm-card-children-info`}></div>
-          <div className="sm-card-children-content">
-            <div className="justify-content-end align-items-center flex-row flex gap-1"></div>
+          <div className="flex w-full justify-items-center align-items-center align-content-center settings-line">
+            <div className="pl-1 w-full">
+              <div className="w-6">
+                <BooleanEditor
+                  label="Remeber?"
+                  labelInline
+                  checked={checked}
+                  onChange={(e) => setRemeber({ checked: e, value: remember?.value } as RememberProps)}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </SMCard>
-
-      {/* <div className="p-4">{children}</div>
-      <div className="flex flex-row justify-content-end align-items-center gap-1 pb-1 pr-1">
-        <div className="flex flex-column align-items-center">
-          <Checkbox checked={remember ?? false} onChange={(e) => setRemeber(e.checked)} />
-          <div className="ml-2 text-xs font-italic">Don't Ask Again</div>
-        </div>
-        <SMButton
-          label="Ok"
-          icon="pi-check"
-          className="icon-green-filled"
-          onClick={(event) => {
-            op.current?.hide();
-            OK();
-          }}
-        />
-      </div> */}
     </SMOverlay>
   );
 };

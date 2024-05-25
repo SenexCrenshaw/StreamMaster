@@ -1,5 +1,5 @@
 import EPGEditor from '@components/epg/EPGEditor';
-import { SMOverlay } from '@components/sm/SMOverlay';
+import SMOverlay from '@components/sm/SMOverlay';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { isEmptyObject } from '@lib/common/common';
 import { useSMContext } from '@lib/signalr/SMProvider';

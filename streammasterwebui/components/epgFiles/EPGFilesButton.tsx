@@ -1,4 +1,4 @@
-import { SMOverlay } from '@components/sm/SMOverlay';
+import SMOverlay from '@components/sm/SMOverlay';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { memo, useRef } from 'react';
 import EPGFileCreateDialog from './EPGFileCreateDialog';
