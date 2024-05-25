@@ -96,30 +96,17 @@ export const SettingsEditor = () => {
       <div className="flex flex-column w-full">
         <ScrollPanel className="w-full" style={{ height: 'calc(100vh - 100px)' }}>
           <div className="flex flex-row justify-content-start align-items-start">
-            <div className="w-6 pr-1">
+            <div className="w-6 pr-1 flex flex-column gap-3">
               <GeneralSettings />
-            </div>
-            <div className="w-6 pl-1">
-              <div className="flex flex-column w-full">
-                <BackupSettings />
-                <AuthenticationSettings />
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-row justify-content-start align-items-start">
-            <div className="w-6 pr-1">
               <StreamingSettings />
+              <FilesEPGM3USettings />
+              <BackupSettings />
             </div>
-            <div className="w-6 pr-1">
+            <div className="w-6 pl-1 flex flex-column gap-3">
+              <AuthenticationSettings />
+              <StreamingSettings />
               <SDSettings />
             </div>
-          </div>
-
-          <div className="flex flex-row justify-content-start align-items-start">
-            <div className="w-6 pr-1">
-              <FilesEPGM3USettings />
-            </div>
-            <div className="w-6 pr-1"></div>
           </div>
 
           <DevelopmentSettings />

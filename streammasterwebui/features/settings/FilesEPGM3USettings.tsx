@@ -24,24 +24,28 @@ export function FilesEPGM3USettings(): React.ReactElement {
   return (
     <SMCard
       darkBackGround={false}
-      title="BACKUPS"
+      title="MISC"
       header={<div className="justify-content-end align-items-center flex-row flex gap-1">{/* {header}                */}</div>}
     >
       <div className="sm-card-children">
         <div className="sm-card-children-content">
-          {getCheckBoxLine({ currentSettingRequest, field: 'prettyEPG', onChange })}
-          {getCheckBoxLine({ currentSettingRequest, field: 'cacheIcons', onChange })}
-          {getCheckBoxLine({ currentSettingRequest, field: 'videoStreamAlwaysUseEPGLogo', onChange })}
-          {getInputTextLine({ currentSettingRequest, field: 'dummyRegex', onChange })}
-          {getCheckBoxLine({ currentSettingRequest, field: 'm3UIgnoreEmptyEPGID', onChange })}
-          {getCheckBoxLine({ currentSettingRequest, field: 'm3UFieldGroupTitle', onChange })}
-          {getCheckBoxLine({ currentSettingRequest, field: 'm3UUseChnoForId', onChange })}
-          {getCheckBoxLine({ currentSettingRequest, field: 'm3UStationId', onChange })}
-          {getCheckBoxLine({ currentSettingRequest, field: 'm3UUseCUIDForChannelID', onChange })}
-          <Fieldset className="mt-4 pt-10" collapsed legend={GetMessage('nameregexSettings')} toggleable>
-            <SettingsNameRegexDataSelector data={settingsQuery.data?.NameRegex} />
-          </Fieldset>
+          <div className="layout-padding-bottom" />
+          <div className="settings-lines ">
+            {getCheckBoxLine({ currentSettingRequest, field: 'prettyEPG', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'cacheIcons', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'videoStreamAlwaysUseEPGLogo', onChange })}
+            {getInputTextLine({ currentSettingRequest, field: 'dummyRegex', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'm3UIgnoreEmptyEPGID', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'm3UFieldGroupTitle', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'm3UUseChnoForId', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'm3UStationId', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'm3UUseCUIDForChannelID', onChange })}
+            <Fieldset className="mt-4 pt-10" collapsed legend={GetMessage('nameregexSettings')} toggleable>
+              <SettingsNameRegexDataSelector data={settingsQuery.data?.NameRegex} />
+            </Fieldset>
+          </div>
         </div>
+        <div className="layout-padding-bottom" />
       </div>
     </SMCard>
   );

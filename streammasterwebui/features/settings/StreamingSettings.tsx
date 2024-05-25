@@ -44,13 +44,17 @@ export function StreamingSettings(): React.ReactElement {
     >
       <div className="sm-card-children">
         <div className="sm-card-children-content">
-          {getDropDownLine({ currentSettingRequest, field: 'streamingProxyType', onChange, options: getHandlersOptions() })}
-          {getInputNumberLine({ currentSettingRequest, field: 'globalStreamLimit', onChange })}
-          {getInputTextLine({ currentSettingRequest, field: 'clientUserAgent', onChange })}
-          {getInputTextLine({ currentSettingRequest, field: 'streamingClientUserAgent', onChange })}
-          {getInputTextLine({ currentSettingRequest, field: 'ffMpegOptions', onChange })}
-          {getCheckBoxLine({ currentSettingRequest, field: 'showClientHostNames', onChange })}
+          <div className="layout-padding-bottom" />
+          <div className="settings-lines ">
+            {getDropDownLine({ currentSettingRequest, field: 'streamingProxyType', onChange, options: getHandlersOptions() })}
+            {getInputNumberLine({ currentSettingRequest, field: 'globalStreamLimit', onChange })}
+            {getInputTextLine({ currentSettingRequest, field: 'clientUserAgent', onChange })}
+            {getInputTextLine({ currentSettingRequest, field: 'streamingClientUserAgent', onChange })}
+            {getInputTextLine({ currentSettingRequest, field: 'ffMpegOptions', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'showClientHostNames', onChange })}
+          </div>
         </div>
+        <div className="layout-padding-bottom" />
       </div>
     </SMCard>
     // <Fieldset className="mt-4 pt-10" legend={GetMessage('streaming')} toggleable>
