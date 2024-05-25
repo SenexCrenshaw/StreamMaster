@@ -555,6 +555,10 @@ $imagePreviewActionIconBorderRadius: 50% !default;
     --gray-600: #565a5b;
     --gray-700: #3e4244;
     --gray-800: #262b2c;
+    --surface-section: #{$surface-section};
+    --surface-card: #{$bgColor};
+    --surface-overlay: #{$bgColor};
+    --surface-border: #{    $inputBorderColor};
     --gray-900: #{$surface-ground};
     --content-padding: #{$panelContentPadding};
     --inline-spacing: #{$inlineSpacing};
@@ -562,10 +566,8 @@ $imagePreviewActionIconBorderRadius: 50% !default;
     --surface-ground: #{$surface-ground};
     --surface-ground-alpha: rgba(14, 19, 21, 0.85
     );
---surface-section: $surface-section;
---surface-card: $bgColor;
---surface-overlay: $bgColor;
---surface-border: $inputBorderColor;
+
+
 --surface-hover: rgba($primaryColor, 0.08);
 --focus-ring: #{$focusShadow};
 --maskbg: #{$maskBg};

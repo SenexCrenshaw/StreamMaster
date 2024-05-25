@@ -16,6 +16,7 @@ export interface StringEditorBodyTemplateProperties {
   readonly isLoading?: boolean;
   readonly label?: string;
   readonly labelInline?: boolean;
+  readonly labelInlineSmall?: boolean;
   readonly onChange?: (value: string | undefined) => void;
   readonly onClick?: () => void;
   readonly onSave?: (value: string | undefined) => void;
@@ -36,6 +37,7 @@ const StringEditor: React.FC<StringEditorBodyTemplateProperties> = ({
   isLoading,
   label,
   labelInline = false,
+  labelInlineSmall = false,
   onChange,
   onClick,
   onSave,
@@ -124,8 +126,9 @@ const StringEditor: React.FC<StringEditorBodyTemplateProperties> = ({
     }
 
     if (labelInline) {
-      ret += ' w-6';
+      ret += ' w-12';
     }
+
     return ret;
   }, [labelInline, needsSave, darkBackGround]);
 
@@ -146,7 +149,7 @@ const StringEditor: React.FC<StringEditorBodyTemplateProperties> = ({
         </>
       )}
       <div ref={divReference} className={`flex ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
-        {label && labelInline && <div className="w-6">{label.toUpperCase()}</div>}
+        {label && labelInline && <div className={labelInline ? 'w-4' : 'w-6'}>{label.toUpperCase()}</div>}
         <InputText
           ref={inputRef}
           className={getDiv}

@@ -20,6 +20,19 @@
     white-space: normal;
 }
 
+.p-password {
+    .p-icon-field {
+        width: 100%;
+
+        .p-input-icon {
+            position: absolute;
+            top: 50%;
+            margin-top: -0.5rem;
+            right: 0.75rem;
+        }
+    }
+}
+
 .sm-col-header-left-wrap {
     @include text-wrap();
     @extend .sm-col-header-left;

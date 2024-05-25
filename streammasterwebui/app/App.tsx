@@ -14,7 +14,7 @@ import { MessageProcessor } from '@lib/signalr/MessageProcessor';
 import { SignalRProvider } from '@lib/signalr/SignalRProvider';
 import 'primeicons/primeicons.css'; //icons
 import 'primereact/resources/primereact.min.css'; //core css
-
+// import 'primereact/resources/themes/viva-dark/theme.css'; // theme
 import { Suspense, lazy } from 'react';
 
 const App = (): JSX.Element => {

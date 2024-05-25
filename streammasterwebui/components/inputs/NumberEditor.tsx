@@ -170,7 +170,7 @@ const NumberEditor = ({
       )}
       <div ref={divReference} className={`flex border-blue-500 ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
         {label && labelInline && <div className="w-6 border-red-500">{label.toUpperCase()}</div>}
-        <div className="w-6 border-green-500">
+        <div className="w-6">
           <InputNumber
             className={getDiv}
             min={min}

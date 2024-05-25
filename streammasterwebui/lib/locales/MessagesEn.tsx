@@ -1,7 +1,7 @@
 interface messages_enType {
   [key: string]: string;
 
-  ffMpegOptions: string;
+  FFMpegOptions: string;
 }
 
 const MessagesEn: messages_enType = {
@@ -45,7 +45,7 @@ const MessagesEn: messages_enType = {
   channel: 'Channel',
   channels: 'Channels',
   CleanURLs: 'No URLs in Logs',
-  clientUserAgent: 'Client User Agent',
+  ClientUserAgent: 'Client User Agent',
   delete: 'Delete',
   development: 'Development',
   DeviceID: 'HDHR Device ID',
@@ -54,11 +54,11 @@ const MessagesEn: messages_enType = {
   EnablePrometheus: 'Prometheus',
   EnableSSL: 'Enable SSL',
   FFMPegExecutable: 'FFMPeg Executable',
-  ffMpegOptions: 'FFMPeg Options',
+  FFMpegOptions: 'FFMPeg Options',
   filesEPGM3U: 'Files / EPG / M3U',
   formsAuthRequiresAdminUserName: 'Forms Authentication requires an Admin Username',
   general: 'General',
-  globalStreamLimit: 'Global Stream Limit',
+  GlobalStreamLimit: 'Global Stream Limit',
   group: 'Group',
   hidden: 'Hidden',
   keywordSearch: 'Keyword Search',
@@ -91,7 +91,7 @@ const MessagesEn: messages_enType = {
   set: 'Set',
   settings: 'Settings',
   show: 'Show',
-  showClientHostNames: 'Show Client Hostnames',
+  ShowClientHostNames: 'Show Client Hostnames',
   signin: 'Sign In',
   signInSuccessful: 'Sign In Successful',
   signInUnSuccessful: 'Sign In Unsuccessful',
@@ -100,8 +100,8 @@ const MessagesEn: messages_enType = {
   sslCertPath: 'SSL Certificate Path',
   stream: 'Stream',
   streaming: 'Streaming',
-  streamingClientUserAgent: 'Streaming Client User Agent',
-  streamingProxyType: 'Enable Stream Buffer',
+  StreamingClientUserAgent: 'Streaming Agent',
+  StreamingProxyType: 'Proxy',
   streams: 'Streams',
   successful: 'Successful',
   successfully: 'Successfully',

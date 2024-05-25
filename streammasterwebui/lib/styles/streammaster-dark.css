@@ -128,6 +128,10 @@
   --gray-600: #565a5b;
   --gray-700: #3e4244;
   --gray-800: #262b2c;
+  --surface-section: #161d21;
+  --surface-card: #161d21;
+  --surface-overlay: #161d21;
+  --surface-border: #263238;
   --gray-900: #161d21;
   --content-padding: 1rem;
   --inline-spacing: 0.5rem;
@@ -135,10 +139,6 @@
   --surface-ground: #161d21;
   --surface-ground-alpha: rgba(14, 19, 21, 0.85
   );
-  --surface-section: $surface-section;
-  --surface-card: $bgColor;
-  --surface-overlay: $bgColor;
-  --surface-border: $inputBorderColor;
   --surface-hover: rgba($primaryColor, 0.08);
   --focus-ring: 0 0 0 1px #bcbfbf;
   --maskbg: rgba(0, 0, 0, 0.4);
@@ -7377,6 +7377,10 @@
   --gray-600: #565a5b;
   --gray-700: #3e4244;
   --gray-800: #262b2c;
+  --surface-section: #161d21;
+  --surface-card: #161d21;
+  --surface-overlay: #161d21;
+  --surface-border: #263238;
   --gray-900: #161d21;
   --content-padding: 1rem;
   --inline-spacing: 0.5rem;
@@ -7384,10 +7388,6 @@
   --surface-ground: #161d21;
   --surface-ground-alpha: rgba(14, 19, 21, 0.85
   );
-  --surface-section: $surface-section;
-  --surface-card: $bgColor;
-  --surface-overlay: $bgColor;
-  --surface-border: $inputBorderColor;
   --surface-hover: rgba($primaryColor, 0.08);
   --focus-ring: 0 0 0 1px #bcbfbf;
   --maskbg: rgba(0, 0, 0, 0.4);
@@ -7623,6 +7623,16 @@
   height: unset;
   white-space: normal;
   white-space: normal;
+}
+
+.p-password .p-icon-field {
+  width: 100%;
+}
+.p-password .p-icon-field .p-input-icon {
+  position: absolute;
+  top: 50%;
+  margin-top: -0.5rem;
+  right: 0.75rem;
 }
 
 .sm-col-header-left-wrap {

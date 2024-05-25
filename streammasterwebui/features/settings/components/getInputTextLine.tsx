@@ -21,7 +21,7 @@ export function getInputTextLine({ field, warning, currentSettingRequest, onChan
   const defaultSetting = getDefaultSetting(field);
 
   const value = getRecordString<SettingDto>(field, currentSettingRequest);
-  Logger.debug('getInputTextLine', { field, value });
+  Logger.debug('getInputTextLine', { defaultSetting, field, value });
 
   return getLine({
     defaultSetting,
@@ -31,11 +31,14 @@ export function getInputTextLine({ field, warning, currentSettingRequest, onChan
         <StringEditor
           darkBackGround
           disableDebounce
+          label={label}
+          labelInline
+          labelInlineSmall={
+            defaultSetting === null || defaultSetting === undefined || defaultSetting === '' || help === null || help === undefined || help !== ''
+          }
           onChange={(e) => {
             e && UpdateChanges({ currentSettingRequest, field, onChange, value: e });
           }}
-          label={label}
-          labelInline
           value={currentSettingRequest ? getRecordString<SettingDto>(field, currentSettingRequest) : undefined}
         />
 

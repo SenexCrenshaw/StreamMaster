@@ -3,7 +3,6 @@
   font-feature-settings: var(--font-feature-settings, normal);
   font-size: $common-font-size;
   color: $inputTextColor;
-  // background: $inputBg;
   border: $inputBorder-size solid transparent;
   transition: $formElementTransition;
   appearance: none;

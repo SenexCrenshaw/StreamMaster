@@ -38,7 +38,7 @@ const SMDropDown = ({
     <div className="flex justify-content-start align-items-center ">
       {label && !labelInline && (
         <div className="w-6">
-          <label className="pl-15">{label.toUpperCase()}</label>
+          <label className="pl-14">{label.toUpperCase()}</label>
           <div className="pt-small" />
         </div>
       )}
