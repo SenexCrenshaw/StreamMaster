@@ -1,5 +1,5 @@
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
-import { GetMessage } from '@lib/common/common';
+import { GetMessage } from '@lib/common/intl';
 
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 

@@ -10,18 +10,18 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 interface SMScrollerProps {
   readonly className?: string;
   readonly data: any;
-  readonly itemTemplate: (item: any) => React.ReactNode;
-  readonly value?: any;
   readonly dataKey?: string;
-  readonly filterBy?: string;
-  readonly optionValue?: string;
-  readonly itemSize?: number;
-  readonly scrollHeight?: number;
   readonly filter?: boolean;
+  readonly filterBy?: string;
+  readonly itemSize?: number;
+  readonly itemTemplate: (item: any) => React.ReactNode;
+  readonly onChange?: (value: any) => void;
+  readonly optionValue?: string;
+  readonly scrollHeight?: number;
   readonly select?: boolean;
   readonly selectedItemsKey?: string;
   readonly simple?: boolean;
-  readonly onChange?: (value: any) => void;
+  readonly value?: any;
 }
 
 const SMScroller: React.FC<SMScrollerProps> = ({

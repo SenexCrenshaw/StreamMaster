@@ -1,4 +1,5 @@
-import { GetMessage, getTopToolOptions } from '@lib/common/common';
+import { getTopToolOptions } from '@lib/common/common';
+import { GetMessage } from '@lib/common/intl';
 import { baseHostURL } from '@lib/settings';
 import { Button } from 'primereact/button';
 import { Fieldset } from 'primereact/fieldset';

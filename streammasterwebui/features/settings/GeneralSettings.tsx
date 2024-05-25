@@ -1,27 +1,14 @@
-import { GetMessage } from '@lib/common/common';
+import { GetMessage } from '@lib/common/intl';
 import React from 'react';
-import { getCheckBoxLine } from './getCheckBoxLine';
-import { getInputNumberLine } from './getInputNumberLine';
-import { getInputTextLine } from './getInputTextLine';
-import { getPasswordLine } from './getPasswordLine';
+import { getCheckBoxLine } from './components/getCheckBoxLine';
+import { getInputNumberLine } from './components/getInputNumberLine';
+import { getInputTextLine } from './components/getInputTextLine';
+import { getPasswordLine } from './components/getPasswordLine';
 import { useSettingChangeHandler } from './useSettingChangeHandler';
 import { SMCard } from '@components/sm/SMCard';
 
 export function GeneralSettings(): React.ReactElement {
   const { onChange, currentSettingRequest } = useSettingChangeHandler();
-
-  // if (currentSettingRequest === null || currentSettingRequest === undefined || 1 == 1) {
-  //   return (
-  //     <SMCard
-  //       darkBackGround={false}
-  //       title="GENERAL"
-  //       header={<div className="justify-content-end align-items-center flex-row flex gap-1">{/* {header}                */}</div>}
-  //     >
-  //       <div className="text-center">{GetMessage('loading')}</div>
-  //     </SMCard>
-  //   );
-  // }
-
   return (
     <SMCard
       darkBackGround={false}
@@ -30,24 +17,28 @@ export function GeneralSettings(): React.ReactElement {
     >
       <div className="sm-card-children">
         <div className="sm-card-children-content">
-          {getInputTextLine({ currentSettingRequest, field: 'deviceID', onChange })}
-          {getCheckBoxLine({ currentSettingRequest, field: 'cleanURLs', onChange })}
-          {getInputTextLine({ currentSettingRequest, field: 'ffmPegExecutable', onChange })}
-          {getCheckBoxLine({ currentSettingRequest, field: 'enableSSL', onChange })}
-          {currentSettingRequest?.EnableSSL === true && (
-            <>
-              {getInputTextLine({ currentSettingRequest, field: 'sslCertPath', onChange, warning: GetMessage('changesServiceRestart') })}
-              {getPasswordLine({
-                currentSettingRequest,
-                field: 'sslCertPassword',
-                onChange,
-                warning: GetMessage('changesServiceRestart')
-              })}
-            </>
-          )}
-          {getCheckBoxLine({ currentSettingRequest, field: 'enablePrometheus', onChange })}
-          {getInputNumberLine({ currentSettingRequest, field: 'maxLogFiles', onChange })}
-          {getInputNumberLine({ currentSettingRequest, field: 'maxLogFileSizeMB', onChange })}
+          <div className="layout-padding-bottom" />
+          <div className="settings-lines ">
+            {getInputTextLine({ currentSettingRequest, field: 'DeviceID', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'CleanURLs', onChange })}
+            {getInputTextLine({ currentSettingRequest, field: 'FFMPegExecutable', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'EnableSSL', onChange })}
+            {currentSettingRequest?.EnableSSL === true && (
+              <>
+                {getInputTextLine({ currentSettingRequest, field: 'SSLCertPath', onChange, warning: GetMessage('changesServiceRestart') })}
+                {getPasswordLine({
+                  currentSettingRequest,
+                  field: 'SSLCertPassword',
+                  onChange,
+                  warning: GetMessage('changesServiceRestart')
+                })}
+              </>
+            )}
+            {getCheckBoxLine({ currentSettingRequest, field: 'EnablePrometheus', onChange })}
+            {getInputNumberLine({ currentSettingRequest, field: 'MaxLogFiles', onChange })}
+            {getInputNumberLine({ currentSettingRequest, field: 'MaxLogFileSizeMB', onChange })}
+          </div>
+          <div className="layout-padding-bottom" />
         </div>
       </div>
     </SMCard>

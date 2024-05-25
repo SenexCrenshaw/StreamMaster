@@ -84,7 +84,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
     if (props.children) {
       if (darkBackGround) {
         return (
-          <div className="dark-background">
+          <div className="dark-background w-full">
             <Tooltip target={`.${tooltipClassName}`} />
             <div
               onClick={onClick}

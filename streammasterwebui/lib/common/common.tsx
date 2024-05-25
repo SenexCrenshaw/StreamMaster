@@ -169,23 +169,6 @@ export function toCamelCase(string_: string): string {
 //   return message;
 // }
 
-export function GetMessage(...arguments_: string[]): string {
-  const intl = useIntl();
-
-  if (arguments_ === undefined || arguments_.length === 0 || arguments_[0] === '') {
-    return '';
-  }
-  const ids: string[] = arguments_.flatMap((argument) => argument.split(' '));
-
-  const message = ids.map((x) => intl.formatMessage({ id: x })).join(' ');
-
-  if (message === toCamelCase(message)) {
-    return arguments_.join('');
-  }
-
-  return message;
-}
-
 export interface AdditionalFilterProperties {
   field: string;
   matchMode: MatchMode;
@@ -379,17 +362,6 @@ export function isVideoStreamDto(value: unknown): value is VideoStreamDto {
 
   return false;
 }
-
-export const GetMessageDiv = (id: string, upperCase?: boolean | null): React.ReactNode => {
-  const intl = useIntl();
-  const message = intl.formatMessage({ id });
-
-  if (upperCase) {
-    return <div>{message.toUpperCase()}</div>;
-  }
-
-  return <div>{message}</div>;
-};
 
 export function areVideoStreamsEqual(streams1: VideoStreamDto[] | VideoStreamDto[], streams2: VideoStreamDto[] | VideoStreamDto[]): boolean {
   if (streams1.length !== streams2.length) {

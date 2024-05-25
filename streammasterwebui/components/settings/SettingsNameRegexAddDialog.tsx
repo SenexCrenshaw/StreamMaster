@@ -4,6 +4,8 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import React from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
+import { UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
+import { UpdateSetting } from '@lib/smAPI/Settings/SettingsCommands';
 
 const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProperties) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
@@ -30,7 +32,7 @@ const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProperties)
 
     const tosend = {} as UpdateSettingRequest;
 
-    tosend.nameRegex = [regex, ...props.values];
+    tosend.parameters.NameRegex = [regex, ...props.values];
 
     UpdateSetting(tosend)
       .then(() => {

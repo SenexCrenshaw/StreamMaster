@@ -5,7 +5,7 @@ import { useM3UFileNameColumnConfig } from '@components/columns/useM3UFileNameCo
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
-import { GetMessage } from '@lib/common/common';
+import { GetMessage } from '@lib/common/intl';
 
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { skipToken } from '@reduxjs/toolkit/dist/query';

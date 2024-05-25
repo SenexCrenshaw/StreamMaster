@@ -1,4 +1,4 @@
-import { GetMessage, isFetchBaseQueryError } from '@lib/common/common';
+import { isFetchBaseQueryError } from '@lib/common/common';
 
 import { memo, useCallback, useEffect, useState } from 'react';
 
@@ -8,6 +8,7 @@ import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import EditButton from '../buttons/EditButton';
 import TextInput from '../inputs/TextInput';
 import { ChannelGroupDto, UpdateChannelGroupRequest } from '@lib/smAPI/smapiTypes';
+import { GetMessage } from '@lib/common/intl';
 import { UpdateChannelGroup } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
 
 interface ChannelGroupEditDialogProperties {

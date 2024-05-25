@@ -14,7 +14,7 @@
 }
 
 .sm-datatable-header {
-    @extend .sm-sm-input-border;
+    @extend .sm-input-border;
     background-color: $tableHeaderBg !important;
     padding-top: $datatable-header-padding;
     padding-bottom: $datatable-header-padding;

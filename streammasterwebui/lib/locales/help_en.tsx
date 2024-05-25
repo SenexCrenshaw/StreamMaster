@@ -4,20 +4,26 @@ interface help_enType {
 }
 
 const help_en: help_enType = {
-  adminPassword: 'Admin Password',
-  adminUserName: 'Admin Username',
-  apiKey: 'API Key',
+  'sdSettings.alternateSEFormat': 'True: "S{0}:E{1} "  False: "s{0:D2}e{1:D2} ";',
+  AdminPassword: 'Admin Password',
+  AdminUserName: 'Admin Username',
+  ApiKey: 'API Key',
   auth: 'Authentication',
-  authenticationMethod: 'Authentication Method',
+  AuthenticationMethod: 'Authentication Method',
   backup: 'Backup',
+  BackupEnabled: 'Enable Backups',
+  BackupVersionsToKeep: 'Number of Backup Versions to keep',
+  BackupInterval: 'Backup Interval (hours)',
   cacheIcons: 'Cache Icons to the local disk to speed things up',
-  cleanURLs: 'Remove URLs from being logged',
+  CleanURLs: 'Remove URLs from being logged',
   clientUserAgent: 'Client User Agent used for downloads, epg/m3u/icons/schedules direct',
   development: 'Development',
-  deviceID: 'HDHR Device ID and capability ID',
+  DeviceID: 'HDHR Device ID and capability ID',
   dummyRegex: 'EPG will be set to dummy if this matches the channel EPG',
+  EnableSSL: 'Enable SSL',
+  EnablePrometheus: 'Enable Prometheus Metrics',
+  FFMPegExecutable: 'FFMPeg Executable. The name "ffmpeg(.exe)" will be searched in the OS path as well',
   ffMpegOptions: "FFMPeg Options: '{streamUrl}' will be replaced with the stream URL.",
-  ffmPegExecutable: 'FFMPeg Executable. The name "ffmpeg(.exe)" will be searched in the OS path as well',
   filesEPG: 'Files / EPG',
   general: 'General',
   globalStreamLimit: 'Global Stream Limit for custom URLs that do not belong to a M3U playlist',
@@ -25,15 +31,17 @@ const help_en: help_enType = {
   m3UIgnoreEmptyEPGID: 'Ignore Streams with an empty EPG ID or EPG ID of "Dummy"',
   maxConnectRetry: 'How many times to retry receiving data from the source stream',
   maxConnectRetryTimeMS: 'Receiving Data Retry Timeout in MS',
+  MaxLogFiles: 'Max Log Files to keep',
+  MaxLogFileSizeMB: 'Max Log File Size in MB',
   overWriteM3UChannels: 'Overwrite M3U Channels Numbers even if they are set',
   password: 'Password',
   rememberme: 'Remember Me',
   sdPassword: 'ScheduleDirect Password - The displayed value is encypted and not the real password. Re-enter the real password to change',
   sdUserName: 'ScheduleDirect Username',
   settings: 'Settings',
+  signin: 'Sign In',
   signInSuccessful: 'Sign In Successful',
   signInUnSuccessful: 'Sign In Unsuccessful',
-  signin: 'Sign In',
   signout: 'Sign Out',
   sslCertPassword: 'SSL Certificate Password',
   sslCertPath: 'SSL Certificate Path',
@@ -44,9 +52,7 @@ const help_en: help_enType = {
   useDummyEPGForBlanks: 'Use Dummy EPG for streams with missing EPG',
   user: 'User',
   videoStreamAlwaysUseEPGLogo:
-    'Always use EPG Logo for Video Stream. If the EPG is changed to one containing a logo then the video stream logo will be set to that',
-
-  'sdSettings.alternateSEFormat': 'True: "S{0}:E{1} "  False: "s{0:D2}e{1:D2} ";'
+    'Always use EPG Logo for Video Stream. If the EPG is changed to one containing a logo then the video stream logo will be set to that'
 };
 
 export const getHelp = (key: string) => help_en[key];

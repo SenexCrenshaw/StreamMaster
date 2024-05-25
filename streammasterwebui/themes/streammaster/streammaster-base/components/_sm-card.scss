@@ -17,12 +17,12 @@
     padding: 0rem;
 
     .sm-card-header {
-        @extend .sm-sm-input-border;
+        @extend .sm-input-border;
         background-color: $tableHeaderBg !important;
     }
 
     .sm-card-info {
-        @extend .sm-sm-input-border;
+        @extend .sm-input-border;
         background-color: $headerBg !important;
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;

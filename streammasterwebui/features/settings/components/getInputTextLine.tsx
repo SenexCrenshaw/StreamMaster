@@ -1,12 +1,12 @@
-import TextInput from '@components/inputs/TextInput';
-import { GetMessage } from '@lib/common/common';
-
 import { getDefaultSetting } from '@lib/locales/default_setting';
 import { getHelp } from '@lib/locales/help_en';
 import React from 'react';
-import { UpdateChanges, getRecordString } from './SettingsUtils';
+import { UpdateChanges, getRecordString } from '../SettingsUtils';
 import { getLine } from './getLine';
 import { SettingDto, UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
+import { GetMessage } from '@lib/common/intl';
+import { Logger } from '@lib/common/logger';
+import StringEditor from '@components/inputs/StringEditor';
 
 type InputTextLineProps = {
   field: string;
@@ -20,24 +20,27 @@ export function getInputTextLine({ field, warning, currentSettingRequest, onChan
   const help = getHelp(field);
   const defaultSetting = getDefaultSetting(field);
 
+  const value = getRecordString<SettingDto>(field, currentSettingRequest);
+  Logger.debug('getInputTextLine', { field, value });
+
   return getLine({
-    label: `${label}:`,
+    defaultSetting,
+    help,
     value: (
-      <span className="w-full">
-        <TextInput
-          dontValidate
+      <>
+        <StringEditor
+          darkBackGround
+          disableDebounce
           onChange={(e) => {
-            UpdateChanges({ field, currentSettingRequest, onChange, value: e });
+            e && UpdateChanges({ currentSettingRequest, field, onChange, value: e });
           }}
-          placeHolder={label}
-          showCopy
+          label={label}
+          labelInline
           value={currentSettingRequest ? getRecordString<SettingDto>(field, currentSettingRequest) : undefined}
         />
-        <br />
+
         {warning !== null && warning !== undefined && <span className="text-xs text-orange-500">{warning}</span>}
-      </span>
-    ),
-    help,
-    defaultSetting
+      </>
+    )
   });
 }

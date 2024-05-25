@@ -2,8 +2,9 @@ import SMButton from '@components/sm/SMButton';
 
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { GetMessage } from '@lib/common/common';
+import { GetMessage } from '@lib/common/intl';
 import { RemoveSMStreamFromSMChannel, SetSMStreamRanks } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
+
 import { RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMChannelRankRequest, SMStreamDto, SetSMStreamRanksRequest } from '@lib/smAPI/smapiTypes';
 import { DataTableValue } from 'primereact/datatable';
 import { memo, useCallback, useMemo } from 'react';

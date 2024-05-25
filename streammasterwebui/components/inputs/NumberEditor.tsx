@@ -7,44 +7,46 @@ import { useDebouncedCallback } from 'use-debounce';
 
 interface NumberEditorTemplateProperties {
   readonly autoFocus?: boolean;
-  readonly onChange?: (value: number) => void;
-  readonly onSave?: (value: number | undefined) => void;
+  readonly darkBackGround?: boolean;
   readonly debounceMs?: number;
   readonly disableDebounce?: boolean;
   readonly isLoading?: boolean;
-  readonly onClick?: () => void;
   readonly label?: string;
+  readonly labelInline?: boolean;
+  readonly max?: number;
+  readonly min?: number;
+  readonly onChange?: (value: number) => void;
+  readonly onClick?: () => void;
+  readonly onSave?: (value: number | undefined) => void;
   readonly prefix?: string | undefined;
   readonly resetValue?: number | undefined;
+  readonly showButtons?: boolean;
   readonly showSave?: boolean;
   readonly suffix?: string | undefined;
   readonly tooltip?: string | undefined;
   readonly tooltipOptions?: TooltipOptions | undefined;
   readonly value: number | undefined;
-  readonly darkBackGround?: boolean;
-  readonly showButtons?: boolean;
-  readonly min?: number;
-  readonly max?: number;
 }
 
 const NumberEditor = ({
   autoFocus,
-  disableDebounce = true,
-  label,
+  darkBackGround,
   debounceMs = 1500,
+  disableDebounce = true,
   isLoading,
+  label,
+  labelInline = false,
+  max = 99999,
+  min = 0,
   onChange,
-  onSave,
   onClick,
+  onSave,
   prefix,
+  showButtons,
   suffix,
   tooltip,
   tooltipOptions,
-  showButtons,
-  value,
-  min = 0,
-  max = 99999,
-  darkBackGround
+  value
 }: NumberEditorTemplateProperties) => {
   const divReference = useRef<HTMLDivElement | null>(null);
   const [inputValue, setInputValue] = useState<number>(0);
@@ -53,6 +55,13 @@ const NumberEditor = ({
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const overlayReference = useRef(null);
   const { code } = useScrollAndKeyEvents();
+  const inputRef = useRef<InputNumber>(null);
+
+  useEffect(() => {
+    if (autoFocus && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [autoFocus]);
 
   const save = useCallback(
     (forceValueSave?: number | undefined) => {
@@ -115,8 +124,13 @@ const NumberEditor = ({
     if (showButtons === true) {
       ret += ' stringeditorbody-inputtext-buttons';
     }
+
+    if (labelInline) {
+      ret += ' w-6';
+    }
+
     return ret;
-  }, [darkBackGround, needsSave, showButtons]);
+  }, [darkBackGround, labelInline, needsSave, showButtons]);
 
   useEffect(() => {
     if (code === 'Enter' || code === 'NumpadEnter') {
@@ -147,40 +161,43 @@ const NumberEditor = ({
   }, [value, setInputValue]);
 
   return (
-    <div ref={divReference} className="flex flex-column align-items-start">
-      {label && (
+    <>
+      {label && !labelInline && (
         <>
-          <label className="pl-15" htmlFor="numbereditorbody-inputtext">
-            {label.toUpperCase()}
-          </label>
+          <label className="pl-15">{label.toUpperCase()}</label>
           <div className="pt-small" />
         </>
       )}
-      <InputNumber
-        className={getDiv}
-        min={min}
-        max={max}
-        id="numbereditorbody-inputtext"
-        locale="en-US"
-        onChange={(e) => {
-          setInputValue(e.value as number);
-          if (disableDebounce !== true) {
-            debounced(e.value as number);
-          }
-          onChange && onChange(e.value as number);
-        }}
-        onClick={() => {
-          onClick?.();
-        }}
-        onFocus={() => setIsFocused(true)}
-        prefix={prefix}
-        showButtons={showButtons}
-        suffix={suffix}
-        tooltip={tooltip}
-        tooltipOptions={tooltipOptions}
-        value={inputValue}
-      />
-    </div>
+      <div ref={divReference} className={`flex border-blue-500 ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
+        {label && labelInline && <div className="w-6 border-red-500">{label.toUpperCase()}</div>}
+        <div className="w-6 border-green-500">
+          <InputNumber
+            className={getDiv}
+            min={min}
+            max={max}
+            locale="en-US"
+            onChange={(e) => {
+              setInputValue(e.value as number);
+              if (disableDebounce !== true) {
+                debounced(e.value as number);
+              }
+              onChange && onChange(e.value as number);
+            }}
+            ref={inputRef}
+            onClick={() => {
+              onClick?.();
+            }}
+            onFocus={() => setIsFocused(true)}
+            prefix={prefix}
+            showButtons={showButtons}
+            suffix={suffix}
+            tooltip={tooltip}
+            tooltipOptions={tooltipOptions}
+            value={inputValue}
+          />
+        </div>
+      </div>
+    </>
   );
 };
 

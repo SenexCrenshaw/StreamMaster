@@ -1,15 +1,15 @@
-import { GetMessage } from '@lib/common/common';
+import { GetMessage } from '@lib/common/intl';
 import useSettings from '@lib/useSettings';
-import { Button } from 'primereact/button';
 import { Fieldset } from 'primereact/fieldset';
 import { SelectItem } from 'primereact/selectitem';
 import React, { useMemo } from 'react';
-import { getDropDownLine } from './getDropDownLine';
-import { getInputTextLine } from './getInputTextLine';
-import { getPasswordLine } from './getPasswordLine';
+import { getDropDownLine } from './components/getDropDownLine';
+import { getInputTextLine } from './components/getInputTextLine';
+import { getPasswordLine } from './components/getPasswordLine';
 import { useSettingChangeHandler } from './useSettingChangeHandler';
 import { AuthenticationType } from '@lib/smAPI/smapiTypes';
 import { SMCard } from '@components/sm/SMCard';
+import SMButton from '@components/sm/SMButton';
 
 export function AuthenticationSettings(): React.ReactElement {
   const setting = useSettings();
@@ -30,17 +30,14 @@ export function AuthenticationSettings(): React.ReactElement {
   }, [currentSettingRequest]);
 
   const getAuthTypeOptions = (): SelectItem[] => {
-    const test = Object.entries(AuthenticationType)
-      .splice(0, Object.keys(AuthenticationType).length / 2)
-      .map(
-        ([number, word]) =>
-          ({
-            label: word,
-            value: number
-          } as SelectItem)
-      );
+    const options = Object.keys(AuthenticationType)
+      .filter((key) => isNaN(Number(key)))
+      .map((key) => ({
+        label: key,
+        value: AuthenticationType[key as keyof typeof AuthenticationType]
+      }));
 
-    return test;
+    return options;
   };
 
   if (currentSettingRequest === null || currentSettingRequest === undefined) {
@@ -59,27 +56,29 @@ export function AuthenticationSettings(): React.ReactElement {
     >
       <div className="sm-card-children">
         <div className="sm-card-children-content">
-          {getInputTextLine({ currentSettingRequest, field: 'apiKey', onChange })}
-          {getDropDownLine({ currentSettingRequest, field: 'authenticationMethod', onChange, options: getAuthTypeOptions() })}
-          {getInputTextLine({ currentSettingRequest, field: 'adminUserName', onChange, warning: adminUserNameError })}
-          {getPasswordLine({ currentSettingRequest, field: 'adminPassword', onChange, warning: adminPasswordError })}
-          <div className="flex col-12">
-            <div className="flex col-2 col-offset-1">
-              <span>{GetMessage('signout')}</span>
-            </div>
-            <div className="flex col-3 m-0 p-0 debug">
-              <Button
-                disabled={!setting.authenticationType || (setting.authenticationType as number) === 0}
-                icon="pi pi-check"
-                label={GetMessage('signout')}
-                onClick={() => (window.location.href = '/logout')}
-                rounded
-                severity="success"
-                size="small"
-              />
+          <div className="layout-padding-bottom" />
+          <div className="settings-lines ">
+            {getInputTextLine({ currentSettingRequest, field: 'ApiKey', onChange })}
+            {getDropDownLine({ currentSettingRequest, field: 'AuthenticationMethod', onChange, options: getAuthTypeOptions() })}
+            {getInputTextLine({ currentSettingRequest, field: 'AdminUserName', onChange, warning: adminUserNameError })}
+            {getPasswordLine({ currentSettingRequest, field: 'AdminPassword', onChange, warning: adminPasswordError })}
+            <div className="flex w-12 settings-line justify-content-end align-items-center">
+              <div className="w-2 text-right pr-2">{GetMessage('signout')}</div>
+              <div className="w-2">
+                <SMButton
+                  disabled={!setting.authenticationType || (setting.authenticationType as number) === 0}
+                  icon="pi-check"
+                  label={GetMessage('signout')}
+                  onClick={() => (window.location.href = '/logout')}
+                  rounded
+                  iconFilled
+                  className="icon-green"
+                />
+              </div>
             </div>
           </div>
         </div>
+        <div className="layout-padding-bottom" />
       </div>
     </SMCard>
   );

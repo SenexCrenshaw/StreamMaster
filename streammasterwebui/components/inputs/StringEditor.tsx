@@ -9,39 +9,41 @@ import { Logger } from '@lib/common/logger';
 
 export interface StringEditorBodyTemplateProperties {
   readonly autoFocus?: boolean;
-  readonly disableDebounce?: boolean;
-  readonly disabled?: boolean;
+  readonly darkBackGround?: boolean;
   readonly debounceMs?: number;
+  readonly disabled?: boolean;
+  readonly disableDebounce?: boolean;
   readonly isLoading?: boolean;
   readonly label?: string;
+  readonly labelInline?: boolean;
   readonly onChange?: (value: string | undefined) => void;
-  readonly onSave?: (value: string | undefined) => void;
   readonly onClick?: () => void;
+  readonly onSave?: (value: string | undefined) => void;
   readonly placeholder?: string;
   readonly resetValue?: string | undefined;
   readonly showClear?: boolean;
   readonly tooltip?: string | undefined;
   readonly tooltipOptions?: TooltipOptions | undefined;
   readonly value: string | undefined;
-  readonly darkBackGround?: boolean;
 }
 
 const StringEditor: React.FC<StringEditorBodyTemplateProperties> = ({
   autoFocus,
-  disableDebounce = false,
-  disabled = false,
+  darkBackGround,
   debounceMs = 1500,
+  disabled = false,
+  disableDebounce = false,
   isLoading,
   label,
+  labelInline = false,
   onChange,
-  onSave,
   onClick,
+  onSave,
   placeholder,
   showClear = false,
   tooltip,
   tooltipOptions,
-  value,
-  darkBackGround
+  value
 }) => {
   const uuid = uuidv4();
   const [isFocused, setIsFocused] = useState<boolean>(false);
@@ -120,8 +122,12 @@ const StringEditor: React.FC<StringEditorBodyTemplateProperties> = ({
     if (needsSave) {
       ret = 'stringeditorbody-inputtext-save';
     }
+
+    if (labelInline) {
+      ret += ' w-6';
+    }
     return ret;
-  }, [needsSave, darkBackGround]);
+  }, [labelInline, needsSave, darkBackGround]);
 
   const doShowClear = useMemo(() => darkBackGround && showClear && isFocused && inputValue !== '', [darkBackGround, inputValue, isFocused, showClear]);
 
@@ -133,13 +139,14 @@ const StringEditor: React.FC<StringEditorBodyTemplateProperties> = ({
 
   return (
     <>
-      {label && (
+      {label && !labelInline && (
         <>
           <label className="pl-15">{label.toUpperCase()}</label>
           <div className="pt-small" />
         </>
       )}
-      <div ref={divReference} className="stringeditor flex flex-column align-items-start">
+      <div ref={divReference} className={`flex ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
+        {label && labelInline && <div className="w-6">{label.toUpperCase()}</div>}
         <InputText
           ref={inputRef}
           className={getDiv}

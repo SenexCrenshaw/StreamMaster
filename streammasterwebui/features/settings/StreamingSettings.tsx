@@ -1,12 +1,12 @@
-import { GetMessage } from '@lib/common/common';
+import { GetMessage } from '@lib/common/intl';
 import React from 'react';
 
 import { Fieldset } from 'primereact/fieldset';
 import { SelectItem } from 'primereact/selectitem';
-import { getCheckBoxLine } from './getCheckBoxLine';
-import { getDropDownLine } from './getDropDownLine';
-import { getInputNumberLine } from './getInputNumberLine';
-import { getInputTextLine } from './getInputTextLine';
+import { getCheckBoxLine } from './components/getCheckBoxLine';
+import { getDropDownLine } from './components/getDropDownLine';
+import { getInputNumberLine } from './components/getInputNumberLine';
+import { getInputTextLine } from './components/getInputTextLine';
 import { useSettingChangeHandler } from './useSettingChangeHandler';
 import { StreamingProxyTypes } from '@lib/smAPI/smapiTypes';
 import { SMCard } from '@components/sm/SMCard';

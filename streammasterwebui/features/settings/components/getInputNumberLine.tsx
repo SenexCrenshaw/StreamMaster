@@ -1,11 +1,11 @@
-import { GetMessage } from '@lib/common/common';
-
+import { GetMessage } from '@lib/common/intl';
 import { getHelp } from '@lib/locales/help_en';
-import { InputNumber } from 'primereact/inputnumber';
 import React from 'react';
-import { UpdateChanges, getRecord } from './SettingsUtils';
+import { UpdateChanges, getRecord } from '../SettingsUtils';
 import { getLine } from './getLine'; // Import the getLine function
 import { SettingDto, UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
+import NumberEditor from '@components/inputs/NumberEditor';
+import { getDefaultSetting } from '@lib/locales/default_setting';
 
 type InputNumberLineProps = {
   field: string;
@@ -18,26 +18,29 @@ type InputNumberLineProps = {
 export function getInputNumberLine({ field, min, max, currentSettingRequest, onChange }: InputNumberLineProps): React.ReactElement {
   const label = GetMessage(field);
   const help = getHelp(field);
+  const defaultSetting = getDefaultSetting(field);
 
   const validatedMax = max === null ? 999 : Math.min(max ?? 999, 999);
   const validatedMin = min === null ? 0 : Math.max(Math.min(min ?? 0, validatedMax - 1), 0);
 
   return getLine({
-    label: `${label}:`,
+    defaultSetting,
+    help,
     value: (
-      <InputNumber
-        className="withpadding w-full text-left"
-        max={validatedMax}
-        min={validatedMin}
-        onChange={(e) => {
-          UpdateChanges({ field, currentSettingRequest, onChange, value: e.value });
-        }}
-        placeholder={label}
-        showButtons
-        size={3}
-        value={currentSettingRequest ? getRecord<SettingDto, number>(field, currentSettingRequest) : undefined}
-      />
-    ),
-    help
+      <div className="w-full">
+        <NumberEditor
+          darkBackGround
+          label={label}
+          labelInline
+          max={validatedMax}
+          min={validatedMin}
+          onChange={(e) => {
+            UpdateChanges({ currentSettingRequest, field, onChange, value: e });
+          }}
+          showButtons
+          value={currentSettingRequest ? getRecord<SettingDto, number>(field, currentSettingRequest) : undefined}
+        />
+      </div>
+    )
   });
 }

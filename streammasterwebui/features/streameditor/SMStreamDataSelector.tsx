@@ -9,18 +9,19 @@ import CreateSMChannelsDialog from '@components/smchannels/CreateSMChannelsDialo
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamMultiVisibleDialog from '@components/smstreams/StreamMultiVisibleDialog';
 import StreamVisibleDialog from '@components/smstreams/StreamVisibleDialog';
-import { GetMessage } from '@lib/common/common';
+import { GetMessage } from '@lib/common/intl';
 import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectedSMStreams } from '@lib/redux/hooks/selectedSMStreams';
-import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
-import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
+
 import { CreateSMChannelFromStreamRequest, RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent, DataTableRowEvent, DataTableValue } from 'primereact/datatable';
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import SimpleButton from '../../components/buttons/SimpleButton';
 import useSelectedSMItems from './useSelectedSMItems';
+import { RemoveSMStreamFromSMChannel, AddSMStreamToSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
+import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 
 const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
 interface SMStreamDataSelectorProperties {
@@ -166,7 +167,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
       <div className="flex flex-row justify-content-end align-items-center w-full gap-1  pr-1">
         <M3UFilesButton />
         <SimpleButton dataKey={dataKey} />
-        <StreamMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} skipOverLayer />
+        <StreamMultiVisibleDialog selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} />
         {/* <SMButton className="icon-red" iconFilled icon="pi-times" rounded onClick={() => {}} /> */}
         {/* <SMButton className="icon-green-filled" icon="pi-plus" rounded onClick={() => {}} /> */}
         <CreateSMChannelsDialog selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} />

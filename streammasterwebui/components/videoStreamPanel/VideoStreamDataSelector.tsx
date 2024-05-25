@@ -1,5 +1,5 @@
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
-import { GetMessage } from '@lib/common/common';
+import { GetMessage } from '@lib/common/intl';
 
 import VideoStreamAddDialog from '@components/videoStream/VideoStreamAddDialog';
 import { skipToken } from '@reduxjs/toolkit/dist/query';

@@ -1,10 +1,10 @@
 import SettingsNameRegexDataSelector from '@components/settings/SettingsNameRegexDataSelector';
-import { GetMessage } from '@lib/common/common';
+import { GetMessage } from '@lib/common/intl';
 
 import { Fieldset } from 'primereact/fieldset';
 import React from 'react';
-import { getCheckBoxLine } from './getCheckBoxLine';
-import { getInputTextLine } from './getInputTextLine';
+import { getCheckBoxLine } from './components/getCheckBoxLine';
+import { getInputTextLine } from './components/getInputTextLine';
 import { useSettingChangeHandler } from './useSettingChangeHandler';
 import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import { SMCard } from '@components/sm/SMCard';

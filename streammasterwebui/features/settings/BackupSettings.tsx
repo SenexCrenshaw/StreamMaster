@@ -1,8 +1,8 @@
-import { GetMessage } from '@lib/common/common';
+import { GetMessage } from '@lib/common/intl';
 import React from 'react';
 import { Fieldset } from 'primereact/fieldset';
-import { getCheckBoxLine } from './getCheckBoxLine';
-import { getInputNumberLine } from './getInputNumberLine';
+import { getCheckBoxLine } from './components/getCheckBoxLine';
+import { getInputNumberLine } from './components/getInputNumberLine';
 import { useSettingChangeHandler } from './useSettingChangeHandler';
 import { SMCard } from '@components/sm/SMCard';
 
@@ -25,10 +25,14 @@ export function BackupSettings(): React.ReactElement {
     >
       <div className="sm-card-children">
         <div className="sm-card-children-content">
-          {getCheckBoxLine({ currentSettingRequest, field: 'backupEnabled', onChange })}
-          {getInputNumberLine({ currentSettingRequest, field: 'backupVersionsToKeep', onChange })}
-          {getInputNumberLine({ currentSettingRequest, field: 'backupInterval', onChange })}
+          <div className="layout-padding-bottom" />
+          <div className="settings-lines ">
+            {getCheckBoxLine({ currentSettingRequest, field: 'BackupEnabled', onChange })}
+            {getInputNumberLine({ currentSettingRequest, field: 'BackupVersionsToKeep', onChange })}
+            {getInputNumberLine({ currentSettingRequest, field: 'BackupInterval', onChange })}
+          </div>
         </div>
+        <div className="layout-padding-bottom" />
       </div>
     </SMCard>
   );

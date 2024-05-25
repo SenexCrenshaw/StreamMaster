@@ -1,13 +1,12 @@
 import StandardHeader from '@components/StandardHeader';
 import ResetButton from '@components/buttons/ResetButton';
 import SaveButton from '@components/buttons/SaveButton';
-import { GetMessage, isEmptyObject } from '@lib/common/common';
 import { SettingsEditorIcon } from '@lib/common/icons';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import { ScrollPanel } from 'primereact/scrollpanel';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo } from 'react';
 import { useUpdateSettingRequest } from '@lib/redux/hooks/updateSettingRequest';
-import { SettingDto, UpdateSettingRequest, AuthenticationType } from '@lib/smAPI/smapiTypes';
+import { UpdateSettingRequest, AuthenticationType } from '@lib/smAPI/smapiTypes';
 import { useCurrentSettingRequest } from '@lib/redux/hooks/currentSettingRequest';
 import { UpdateSetting } from '@lib/smAPI/Settings/SettingsCommands';
 import { GeneralSettings } from './GeneralSettings';
@@ -17,19 +16,24 @@ import { SDSettings } from './SDSettings';
 import { StreamingSettings } from './StreamingSettings';
 import { FilesEPGM3USettings } from './FilesEPGM3USettings';
 import { DevelopmentSettings } from './DevelopmentSettings';
+import { isEmptyObject } from '@lib/common/common';
+import { GetMessage } from '@lib/common/intl';
+import { Logger } from '@lib/common/logger';
 
 export const SettingsEditor = () => {
   const { currentSettingRequest, setCurrentSettingRequest } = useCurrentSettingRequest('CurrentSettingDto');
   const { updateSettingRequest, setUpdateSettingRequest } = useUpdateSettingRequest('UpdateSettingRequest');
-  const [originalData, setOriginalData] = useState<SettingDto | null>(null);
   const { isSystemReady, settings } = useSMContext();
 
   useEffect(() => {
-    if (isSystemReady && originalData === null && settings && settings.AuthenticationMethod !== undefined) {
-      setOriginalData({ ...settings });
-      // setCurrentSettingRequest({ ...settings });
+    if (!isSystemReady) return;
+
+    if (currentSettingRequest.ApiKey === undefined) {
+      Logger.info('SettingsEditor', settings);
+      setCurrentSettingRequest({ ...settings });
+      setUpdateSettingRequest({} as UpdateSettingRequest);
     }
-  }, [isSystemReady, originalData, settings]);
+  }, [isSystemReady, settings, currentSettingRequest, setCurrentSettingRequest, setUpdateSettingRequest]);
 
   const adminUserNameError = useMemo((): string | undefined => {
     if (currentSettingRequest?.AuthenticationMethod === AuthenticationType.Forms && currentSettingRequest?.AdminUserName === '')
@@ -72,7 +76,6 @@ export const SettingsEditor = () => {
       .then(() => {
         const reset: UpdateSettingRequest = {};
         setUpdateSettingRequest(reset);
-        setOriginalData(null); // Reset originalData to re-fetch on next load
       })
       .catch((error) => {
         console.error(error);
@@ -81,10 +84,12 @@ export const SettingsEditor = () => {
   }, [isSaveEnabled, updateSettingRequest, setUpdateSettingRequest]);
 
   const resetData = useCallback(() => {
-    if (originalData) {
-      setCurrentSettingRequest({ ...originalData });
-    }
-  }, [originalData, setCurrentSettingRequest]);
+    setCurrentSettingRequest({ ...settings });
+  }, [setCurrentSettingRequest, settings]);
+
+  if (!isSystemReady || settings === undefined) {
+    return <div>Loading</div>;
+  }
 
   return (
     <StandardHeader displayName={GetMessage('settings')} icon={<SettingsEditorIcon />}>
@@ -101,7 +106,7 @@ export const SettingsEditor = () => {
               </div>
             </div>
           </div>
-          <div className="flex flex-row justify-content-start align-items-start">
+          {/* <div className="flex flex-row justify-content-start align-items-start">
             <div className="w-6 pr-1">
               <StreamingSettings />
             </div>
@@ -117,7 +122,7 @@ export const SettingsEditor = () => {
             <div className="w-6 pr-1"></div>
           </div>
 
-          <DevelopmentSettings />
+          <DevelopmentSettings /> */}
         </ScrollPanel>
         <div className="flex mt-2 justify-content-center align-items-end">
           <div className="flex justify-content-center align-items-center gap-1">
