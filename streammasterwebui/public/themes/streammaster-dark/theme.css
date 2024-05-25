@@ -6970,6 +6970,13 @@
   border-radius: 6px;
 }
 
+.sm-border, .sm-datatable-header, .p-datatable-wrapper, .sm-standard-header {
+  border-radius: 6px !important;
+  border-color: #263238 !important;
+  border-width: 0.1rem !important;
+  border-style: solid !important;
+}
+
 .sm-hover:not(.p-disabled):hover, .sm-icon-selector:not(.p-disabled):hover {
   border-color: #bcbfbf !important;
   border-radius: 6px !important;
@@ -6978,13 +6985,13 @@
   color: #bcbfbf !important;
 }
 
-.sm-input-border, .icon-button-template img, .icon-template img, .sm-streamingproxy-selector, .sm-datatable-header, .p-datatable-wrapper, .sm-list-container, .sm-card .sm-card-info, .sm-card-dark .sm-card-info, .sm-card .sm-card-header, .sm-card-dark .sm-card-header, .sm-card .sm-card-children, .sm-card-dark .sm-card-children, .sm-streamgroupselector, .sm-standard-header, #startNumber > input, .p-multiselect, .stringeditorbody-inputtext, .p-inputnumber-input, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark, .sm-input-border-dark, .sm-input-dark {
+.sm-input-border, .icon-button-template img, .icon-template img, .sm-streamingproxy-selector, .sm-list-container, .sm-fileupload .p-inputtext, .sm-card .sm-card-info, .sm-card-dark .sm-card-info, .sm-card .sm-card-header, .sm-card-dark .sm-card-header, .sm-card .sm-card-children, .sm-card-dark .sm-card-children, .sm-streamgroupselector, #startNumber > input, .p-multiselect, .stringeditorbody-inputtext, .p-inputnumber-input, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark, .sm-input-border-dark, .sm-input-dark {
   border-radius: 6px !important;
   border-color: #263238 !important;
   border-width: 0.1rem !important;
   border-style: solid !important;
 }
-.sm-input-border:not(.p-disabled):hover, .icon-button-template img:not(.p-disabled):hover, .icon-template img:not(.p-disabled):hover, .sm-streamingproxy-selector:not(.p-disabled):hover, .sm-datatable-header:not(.p-disabled):hover, .p-datatable-wrapper:not(.p-disabled):hover, .sm-list-container:not(.p-disabled):hover, .sm-card .sm-card-info:not(.p-disabled):hover, .sm-card-dark .sm-card-info:not(.p-disabled):hover, .sm-card .sm-card-header:not(.p-disabled):hover, .sm-card-dark .sm-card-header:not(.p-disabled):hover, .sm-card .sm-card-children:not(.p-disabled):hover, .sm-card-dark .sm-card-children:not(.p-disabled):hover, .sm-streamgroupselector:not(.p-disabled):hover, .sm-standard-header:not(.p-disabled):hover, #startNumber > input:not(.p-disabled):hover, .p-multiselect:not(.p-disabled):hover, .stringeditorbody-inputtext:not(.p-disabled):hover, .p-inputnumber-input:not(.p-disabled):hover, .stringeditorbody-inputtext-save:not(.p-disabled):hover, .stringeditorbody-inputtext-dark:not(.p-disabled):hover, .sm-input-border-dark:not(.p-disabled):hover, .sm-input-dark:not(.p-disabled):hover {
+.sm-input-border:not(.p-disabled):hover, .icon-button-template img:not(.p-disabled):hover, .icon-template img:not(.p-disabled):hover, .sm-streamingproxy-selector:not(.p-disabled):hover, .sm-list-container:not(.p-disabled):hover, .sm-fileupload .p-inputtext:not(.p-disabled):hover, .sm-card .sm-card-info:not(.p-disabled):hover, .sm-card-dark .sm-card-info:not(.p-disabled):hover, .sm-card .sm-card-header:not(.p-disabled):hover, .sm-card-dark .sm-card-header:not(.p-disabled):hover, .sm-card .sm-card-children:not(.p-disabled):hover, .sm-card-dark .sm-card-children:not(.p-disabled):hover, .sm-streamgroupselector:not(.p-disabled):hover, #startNumber > input:not(.p-disabled):hover, .p-multiselect:not(.p-disabled):hover, .stringeditorbody-inputtext:not(.p-disabled):hover, .p-inputnumber-input:not(.p-disabled):hover, .stringeditorbody-inputtext-save:not(.p-disabled):hover, .stringeditorbody-inputtext-dark:not(.p-disabled):hover, .sm-input-border-dark:not(.p-disabled):hover, .sm-input-dark:not(.p-disabled):hover {
   border-color: #bcbfbf !important;
   border-radius: 6px !important;
   border-style: solid !important;
@@ -7047,13 +7054,6 @@
 
 .no-top-border .p-datatable-wrapper {
   border-top-width: 0 !important;
-}
-
-.sm-input-border, .icon-button-template img, .icon-template img, .sm-streamingproxy-selector, .sm-datatable-header, .p-datatable-wrapper, .sm-list-container, .sm-card .sm-card-info, .sm-card-dark .sm-card-info, .sm-card .sm-card-header, .sm-card-dark .sm-card-header, .sm-card .sm-card-children, .sm-card-dark .sm-card-children, .sm-streamgroupselector, .sm-standard-header, #startNumber > input, .p-multiselect, .stringeditorbody-inputtext, .p-inputnumber-input, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark, .sm-input-border-dark, .sm-input-dark {
-  border-radius: 6px !important;
-  border-color: #263238 !important;
-  border-width: 1px !important;
-  border-style: solid !important;
 }
 
 .channel-row-selected {
@@ -7919,10 +7919,6 @@
   padding-bottom: 2rem !important;
 }
 .sm-fileupload .p-inputtext {
-  border-radius: 6px !important;
-  border-color: #263238 !important;
-  border-width: 0.1rem !important;
-  border-style: solid !important;
   height: 1.6rem;
   background: var(--surface-ground);
 }

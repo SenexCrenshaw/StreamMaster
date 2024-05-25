@@ -1,5 +1,5 @@
 .settings-lines {
-    @include sm-input-border();
+    @include sm-border();
 
     .settings-line:nth-child(odd) {
         background: $tableBodyRowEvenBg;

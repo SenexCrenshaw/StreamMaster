@@ -4,7 +4,7 @@
     padding-bottom: 2rem !important;
 
     .p-inputtext {
-        @include sm-input-border;
+        @extend .sm-input-border;
         height: $input-height;
         background: var(--surface-ground);
     }

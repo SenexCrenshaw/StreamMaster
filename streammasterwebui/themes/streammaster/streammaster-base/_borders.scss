@@ -1,8 +1,12 @@
-@mixin sm-input-border() {
+@mixin sm-border() {
     border-radius: $borderRadius !important;
     border-color: $inputBorderColor !important;
     border-width: $inputBorder-size !important;
     border-style: solid !important;
+}
+
+.sm-border {
+    @include sm-border();
 }
 
 @mixin input-hover() {
@@ -20,7 +24,7 @@
 }
 
 .sm-input-border {
-    @include sm-input-border();
+    @include sm-border();
     @include input-hover();
 }
 
@@ -85,11 +89,4 @@
     .p-datatable-wrapper {
         border-top-width: 0 !important;
     }
-}
-
-.sm-input-border {
-    border-radius: $borderRadius !important;
-    border-color: $inputBorderColor !important;
-    border-width: 1px !important;
-    border-style: solid !important;
 }

@@ -68,7 +68,7 @@
 
 
 .sm-standard-header {
-    @extend .sm-input-border;
+    @extend .sm-border;
     background-color: $headerBg !important;
 }
 
