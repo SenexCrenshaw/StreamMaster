@@ -106,7 +106,7 @@ export const SettingsEditor = () => {
               </div>
             </div>
           </div>
-          {/* <div className="flex flex-row justify-content-start align-items-start">
+          <div className="flex flex-row justify-content-start align-items-start">
             <div className="w-6 pr-1">
               <StreamingSettings />
             </div>
@@ -122,7 +122,7 @@ export const SettingsEditor = () => {
             <div className="w-6 pr-1"></div>
           </div>
 
-          <DevelopmentSettings /> */}
+          <DevelopmentSettings />
         </ScrollPanel>
         <div className="flex mt-2 justify-content-center align-items-end">
           <div className="flex justify-content-center align-items-center gap-1">
