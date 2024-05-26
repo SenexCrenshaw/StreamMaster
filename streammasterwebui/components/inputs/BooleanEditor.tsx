@@ -1,4 +1,3 @@
-import { Logger } from '@lib/common/logger';
 import { Checkbox } from 'primereact/checkbox';
 import { memo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,7 +12,6 @@ interface BooleanEditorProperties {
 
 const BooleanEditor = ({ isValid = true, checked, label, labelInline = false, onChange }: BooleanEditorProperties) => {
   const uuid = uuidv4();
-  Logger.debug('BooleanEditor', { checked, isValid, label, labelInline, onChange });
   return (
     <>
       {label && !labelInline && (
@@ -23,7 +21,7 @@ const BooleanEditor = ({ isValid = true, checked, label, labelInline = false, on
         </>
       )}
       <div className={`flex ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
-        {label && labelInline && <div className="w-6">{label.toUpperCase()}</div>}
+        {label && labelInline && <div className="w-11">{label.toUpperCase()}</div>}
         <Checkbox
           invalid={!isValid}
           id={uuid}

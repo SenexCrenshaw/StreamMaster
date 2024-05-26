@@ -10,8 +10,6 @@ import React, { useRef } from 'react';
 
 interface AutoSetSMChannelNumbersDialogProperties {
   readonly disabled?: boolean;
-  readonly id: string;
-  readonly selectedItemsKey: string;
 }
 
 const AutoSetSMChannelNumbersDialog = ({ disabled }: AutoSetSMChannelNumbersDialogProperties) => {

@@ -24,7 +24,7 @@
   <ItemGroup>
     <PackageReference Include="AspectInjector" Version="2.8.2" />
     <PackageReference Include="AutoMapper" Version="13.0.1" />
-    <PackageReference Include="EFCore.BulkExtensions" Version="8.0.3" />
+    <PackageReference Include="EFCore.BulkExtensions" Version="8.0.4" />
     <PackageReference Include="MediatR" Version="12.2.0" />
     <PackageReference Include="MessagePack.Annotations" Version="2.5.140" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="8.0.5" />

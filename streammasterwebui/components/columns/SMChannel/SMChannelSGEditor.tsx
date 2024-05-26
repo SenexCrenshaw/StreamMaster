@@ -24,8 +24,8 @@ const SMChannelSGEditor = ({ smChannel, enableEditMode }: SMChannelSGEditorPrope
     }
 
     const request: AddSMChannelToStreamGroupRequest = {
-      StreamGroupId: selectedStreamGroup.Id,
-      SMChannelId: smChannel.Id
+      SMChannelId: smChannel.Id,
+      StreamGroupId: selectedStreamGroup.Id
     };
 
     try {
@@ -44,8 +44,8 @@ const SMChannelSGEditor = ({ smChannel, enableEditMode }: SMChannelSGEditorPrope
     }
 
     const request: RemoveSMChannelFromStreamGroupRequest = {
-      StreamGroupId: selectedStreamGroup.Id,
-      SMChannelId: smChannel.Id
+      SMChannelId: smChannel.Id,
+      StreamGroupId: selectedStreamGroup.Id
     };
 
     try {

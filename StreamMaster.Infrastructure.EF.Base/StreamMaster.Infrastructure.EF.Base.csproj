@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EFCore.BulkExtensions" Version="8.0.3" />
+    <PackageReference Include="EFCore.BulkExtensions" Version="8.0.4" />
   </ItemGroup>
 
   <ItemGroup>

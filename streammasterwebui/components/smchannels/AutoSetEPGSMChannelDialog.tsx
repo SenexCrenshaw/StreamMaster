@@ -1,21 +1,17 @@
-import OKButton from '@components/buttons/OKButton';
-import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
+import SMButton from '@components/sm/SMButton';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { AutoSetEPG, AutoSetEPGFromParameters } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { AutoSetEPGFromParametersRequest, AutoSetEPGRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
-import React, { useRef } from 'react';
+import React from 'react';
 
 interface AutoSetEPGSMChannelDialogProperties {
-  readonly iconFilled?: boolean;
-  readonly smChannel: SMChannelDto;
+  readonly smChannel?: SMChannelDto;
 }
 
-const AutoSetEPGSMChannelDialog = ({ iconFilled, smChannel }: AutoSetEPGSMChannelDialogProperties) => {
+const AutoSetEPGSMChannelDialog = ({ smChannel }: AutoSetEPGSMChannelDialogProperties) => {
   const selectedItemsKey = 'selectSelectedSMChannelDtoItems';
-
-  const smDialogRef = useRef<SMDialogRef>(null);
   const { queryFilter } = useQueryFilter('streameditor-SMChannelDataSelector');
   const { selectedItems } = useSelectedItems<SMChannelDto>(selectedItemsKey);
   const { selectAll } = useSelectAll('streameditor-SMChannelDataSelector');
@@ -23,7 +19,7 @@ const AutoSetEPGSMChannelDialog = ({ iconFilled, smChannel }: AutoSetEPGSMChanne
   const ReturnToParent = React.useCallback(() => {}, []);
 
   const save = React.useCallback(async () => {
-    if (selectedItems === undefined && smChannel === undefined && selectAll == true) {
+    if (selectedItems === undefined && smChannel === undefined && selectAll === true) {
       ReturnToParent();
       return;
     }
@@ -43,7 +39,7 @@ const AutoSetEPGSMChannelDialog = ({ iconFilled, smChannel }: AutoSetEPGSMChanne
           console.error(error);
         })
         .finally(() => {
-          smDialogRef.current?.close();
+          ReturnToParent();
         });
 
       return;
@@ -66,24 +62,7 @@ const AutoSetEPGSMChannelDialog = ({ iconFilled, smChannel }: AutoSetEPGSMChanne
       });
   }, [ReturnToParent, queryFilter, selectAll, selectedItems, smChannel]);
 
-  return (
-    <SMDialog
-      header={<OKButton onClick={async () => await save()} />}
-      iconFilled={iconFilled}
-      ref={smDialogRef}
-      label={iconFilled !== true ? 'Auto Set EPGs' : undefined}
-      title="AUTO SET EPGs"
-      onHide={() => ReturnToParent()}
-      buttonClassName="icon-blue"
-      icon="pi-book"
-      info="General"
-      widthSize={2}
-    >
-      <div className="flex justify-content-center">
-        <div className="flex flex-column py-2">Auto Set EPGs?</div>
-      </div>
-    </SMDialog>
-  );
+  return <SMButton icon="pi-book" className="icon-blue" onClick={async () => save()} tooltip="Auto Set EPG" />;
 };
 
 AutoSetEPGSMChannelDialog.displayName = 'AutoSetEPGSMChannelDialog';

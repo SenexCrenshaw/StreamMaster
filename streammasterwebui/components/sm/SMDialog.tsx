@@ -45,8 +45,8 @@ const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogPro
   } = props;
 
   useImperativeHandle(ref, () => ({
-    props,
-    close: () => setVisible(false)
+    close: () => setVisible(false),
+    props
   }));
 
   const [visible, setVisible] = useState<boolean>(false);

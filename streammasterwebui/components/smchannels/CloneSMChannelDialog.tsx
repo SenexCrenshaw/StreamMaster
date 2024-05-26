@@ -1,11 +1,10 @@
-import OKButton from '@components/buttons/OKButton';
 import StringEditor from '@components/inputs/StringEditor';
-import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
+import { SMPopUp } from '@components/sm/SMPopUp';
 
 import { CopySMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetSMChannelNames from '@lib/smAPI/SMChannels/useGetSMChannelNames';
 import { CopySMChannelRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 interface CloneSMChannelDialogProperties {
   label: string;
@@ -14,7 +13,6 @@ interface CloneSMChannelDialogProperties {
 }
 
 const CloneSMChannelDialog = ({ label, onHide, smChannel }: CloneSMChannelDialogProperties) => {
-  const smDialogRef = useRef<SMDialogRef>(null);
   const smQuery = useGetSMChannelNames();
 
   const [newName, setNewName] = React.useState<string>('');
@@ -66,33 +64,23 @@ const CloneSMChannelDialog = ({ label, onHide, smChannel }: CloneSMChannelDialog
         console.error(error);
       })
       .finally(() => {
-        smDialogRef.current?.close();
+        ReturnToParent();
       });
-  }, [getUniqueName, newName, smChannel]);
+  }, [ReturnToParent, getUniqueName, newName, smChannel]);
 
   return (
-    <SMDialog
-      ref={smDialogRef}
-      iconFilled={false}
-      title="COPY CHANNEL"
-      onHide={() => ReturnToParent()}
+    <SMPopUp
       buttonClassName="icon-orange"
+      disabled={newName === undefined || newName === ''}
+      rememberKey={'CloneSMChannelDialog'}
+      title="Clone"
+      OK={async () => await onSave()}
       icon="pi-clone"
-      widthSize={2}
-      info="General"
     >
-      <div className="w-12">
-        <div className="surface-border flex grid flex-wrap justify-content-center p-0 m-0">
-          <div className="flex col-12 justify-content-start align-items-center p-0 m-0 w-full">
-            <StringEditor label="New Name" darkBackGround disableDebounce onChange={(e) => e && setNewName(e)} onSave={(e) => {}} value={newName} />
-          </div>
-          <div className="flex col-12 mt-4 justify-content-center ">
-            <OKButton onClick={async () => await onSave()} />
-          </div>
-        </div>
-        <div className="layout-padding-bottom-lg" />
+      <div className="flex col-12 justify-content-start align-items-center p-0 m-0 w-full">
+        <StringEditor label="New Name" darkBackGround disableDebounce onChange={(e) => e && setNewName(e)} onSave={(e) => {}} value={newName} />
       </div>
-    </SMDialog>
+    </SMPopUp>
   );
 };
 

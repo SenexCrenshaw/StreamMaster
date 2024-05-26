@@ -9,6 +9,8 @@ import { Logger } from '@lib/common/logger';
 
 interface SMPopUpProperties {
   readonly buttonClassName?: string;
+  readonly children?: React.ReactNode;
+  readonly disabled?: boolean;
   readonly hidden?: boolean;
   readonly icon?: string;
   readonly iconFilled?: boolean;
@@ -23,7 +25,18 @@ interface RememberProps {
   checked: boolean;
 }
 
-export const SMPopUp = ({ buttonClassName = 'icon-red', hidden: parentHidden, icon, iconFilled, rememberKey, OK, title, tooltip }: SMPopUpProperties) => {
+export const SMPopUp = ({
+  buttonClassName = 'icon-red',
+  children,
+  disabled = false,
+  hidden: parentHidden,
+  icon,
+  iconFilled,
+  rememberKey,
+  OK,
+  title,
+  tooltip
+}: SMPopUpProperties) => {
   const anchorRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<SMOverlayRef>(null);
   const [remember, setRemeber] = useLocalStorage<RememberProps | null>(null, 'remember-' + rememberKey);
@@ -69,10 +82,10 @@ export const SMPopUp = ({ buttonClassName = 'icon-red', hidden: parentHidden, ic
           <div className="flex align-items-center gap-1">
             Are you sure?
             <OKButton
+              disabled={disabled}
               onClick={(e) => {
                 if (rememberKey && rememberKey !== '' && remember?.checked === true) {
                   setRemeber({ checked: true, value: true } as RememberProps);
-                  Logger.debug('Remember', { remember });
                 }
                 overlayRef.current?.hide();
                 OK();
@@ -97,11 +110,12 @@ export const SMPopUp = ({ buttonClassName = 'icon-red', hidden: parentHidden, ic
         }
       >
         <div className="sm-card-children">
-          <div className="flex w-full justify-items-center align-items-center align-content-center settings-line">
-            <div className="pl-1 w-full">
-              <div className="w-6">
+          <div className="flex flex-column w-full justify-items-center align-items-center align-content-center settings-line">
+            {children}
+            <div className="flex pl-1 w-full">
+              <div className="w-7">
                 <BooleanEditor
-                  label="Remeber?"
+                  label="Don't Ask Again?"
                   labelInline
                   checked={checked}
                   onChange={(e) => setRemeber({ checked: e, value: remember?.value } as RememberProps)}
