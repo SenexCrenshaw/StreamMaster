@@ -7,7 +7,7 @@ import { getDropDownLine } from './components/getDropDownLine';
 import { getInputNumberLine } from './components/getInputNumberLine';
 import { getInputTextLine } from './components/getInputTextLine';
 import { getPasswordLine } from './components/getPasswordLine';
-import { useSettingChangeHandler } from './useSettingChangeHandler';
+import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
 import { SMCard } from '@components/sm/SMCard';
 
 export function SDSettings(): React.ReactElement {
@@ -73,27 +73,27 @@ export function SDSettings(): React.ReactElement {
         <div className="sm-card-children-content">
           <div className="layout-padding-bottom" />
           <div className="settings-lines ">
-            {getCheckBoxLine({ currentSettingRequest, field: 'sdSettings.sdEnabled', onChange })}
-            {getInputTextLine({ currentSettingRequest, field: 'sdSettings.sdUserName', onChange })}
-            {getPasswordLine({ currentSettingRequest, field: 'sdSettings.sdPassword', onChange })}
-            {getDropDownLine({ currentSettingRequest, field: 'sdSettings.preferredLogoStyle', onChange, options: getLogoStyleOptions() })}
-            {getDropDownLine({ currentSettingRequest, field: 'sdSettings.alternateLogoStyle', onChange, options: getLogoStyleOptions() })}
-            {getCheckBoxLine({ currentSettingRequest, field: 'sdSettings.seriesPosterArt', onChange })}
-            {getCheckBoxLine({ currentSettingRequest, field: 'sdSettings.seriesWsArt', onChange })}
-            {getDropDownLine({ currentSettingRequest, field: 'sdSettings.seriesPosterAspect', onChange, options: getArtworkAspectOptions() })}
-            {getDropDownLine({ currentSettingRequest, field: 'sdSettings.artworkSize', onChange, options: getArtworkSizeOptions() })}
-            {getCheckBoxLine({ currentSettingRequest, field: 'sdSettings.excludeCastAndCrew', onChange })}
-            {getCheckBoxLine({ currentSettingRequest, field: 'sdSettings.xmltvIncludeChannelNumbers', onChange })}
-            {getCheckBoxLine({ currentSettingRequest, field: 'sdSettings.alternateSEFormat', onChange })}
-            {getCheckBoxLine({ currentSettingRequest, field: 'sdSettings.prefixEpisodeDescription', onChange })}
-            {getCheckBoxLine({ currentSettingRequest, field: 'sdSettings.prefixEpisodeTitle', onChange })}
-            {getCheckBoxLine({ currentSettingRequest, field: 'sdSettings.appendEpisodeDesc', onChange })}
-            {getInputNumberLine({ currentSettingRequest, field: 'sdSettings.sdepgDays', onChange })}
-            {getInputNumberLine({ currentSettingRequest, field: 'sdSettings.xmltvFillerProgramLength', onChange })}
-            {getCheckBoxLine({ currentSettingRequest, field: 'sdSettings.seasonEventImages', onChange })}
-            {getCheckBoxLine({ currentSettingRequest, field: 'sdSettings.xmltvAddFillerData', onChange })}
-            {getCheckBoxLine({ currentSettingRequest, field: 'sdSettings.xmltvExtendedInfoInTitleDescriptions', onChange })}
-            {getCheckBoxLine({ currentSettingRequest, field: 'sdSettings.xmltvSingleImage', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.SDEnabled', onChange })}
+            {getInputTextLine({ currentSettingRequest, field: 'SDSettings.SDUserName', onChange })}
+            {getPasswordLine({ currentSettingRequest, field: 'SDSettings.SDPassword', onChange })}
+            {getDropDownLine({ currentSettingRequest, field: 'SDSettings.PreferredLogoStyle', onChange, options: getLogoStyleOptions() })}
+            {getDropDownLine({ currentSettingRequest, field: 'SDSettings.AlternateLogoStyle', onChange, options: getLogoStyleOptions() })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.SeriesPosterArt', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.SeriesWsArt', onChange })}
+            {getDropDownLine({ currentSettingRequest, field: 'SDSettings.SeriesPosterAspect', onChange, options: getArtworkAspectOptions() })}
+            {getDropDownLine({ currentSettingRequest, field: 'SDSettings.ArtworkSize', onChange, options: getArtworkSizeOptions() })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.ExcludeCastAndCrew', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.XmltvIncludeChannelNumbers', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.AlternateSEFormat', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.PrefixEpisodeDescription', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.PrefixEpisodeTitle', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.AppendEpisodeDesc', onChange })}
+            {getInputNumberLine({ currentSettingRequest, field: 'SDSettings.SDepgDays', onChange })}
+            {getInputNumberLine({ currentSettingRequest, field: 'SDSettings.XmltvFillerProgramLength', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.SeasonEventImages', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.XmltvAddFillerData', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.XmltvExtendedInfoInTitleDescriptions', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.XmltvSingleImage', onChange })}
           </div>
         </div>
         <div className="layout-padding-bottom" />

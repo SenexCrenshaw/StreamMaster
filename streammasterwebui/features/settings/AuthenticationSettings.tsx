@@ -6,7 +6,7 @@ import React, { useMemo } from 'react';
 import { getDropDownLine } from './components/getDropDownLine';
 import { getInputTextLine } from './components/getInputTextLine';
 import { getPasswordLine } from './components/getPasswordLine';
-import { useSettingChangeHandler } from './useSettingChangeHandler';
+import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
 import { AuthenticationType } from '@lib/smAPI/smapiTypes';
 import { SMCard } from '@components/sm/SMCard';
 import SMButton from '@components/sm/SMButton';

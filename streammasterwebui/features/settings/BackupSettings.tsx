@@ -3,7 +3,7 @@ import React from 'react';
 import { Fieldset } from 'primereact/fieldset';
 import { getCheckBoxLine } from './components/getCheckBoxLine';
 import { getInputNumberLine } from './components/getInputNumberLine';
-import { useSettingChangeHandler } from './useSettingChangeHandler';
+import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
 import { SMCard } from '@components/sm/SMCard';
 
 export function BackupSettings(): React.ReactElement {

@@ -5,7 +5,7 @@ import { Fieldset } from 'primereact/fieldset';
 import React from 'react';
 import { getCheckBoxLine } from './components/getCheckBoxLine';
 import { getInputTextLine } from './components/getInputTextLine';
-import { useSettingChangeHandler } from './useSettingChangeHandler';
+import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
 import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import { SMCard } from '@components/sm/SMCard';
 

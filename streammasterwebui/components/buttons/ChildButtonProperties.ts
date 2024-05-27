@@ -5,7 +5,7 @@ export interface ChildButtonProperties {
   disabled?: boolean;
   iconFilled?: boolean;
   isLeft?: boolean;
-  label?: string | null;
+  label?: string;
   onClick?: (e: SyntheticEvent) => void;
   style?: React.CSSProperties;
   tooltip?: string;

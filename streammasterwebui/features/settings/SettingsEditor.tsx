@@ -51,12 +51,10 @@ export const SettingsEditor = () => {
 
   const isSaveEnabled = useMemo((): boolean => {
     if (currentSettingRequest?.EnableSSL === true && currentSettingRequest?.SSLCertPath === '') {
-      console.log('enableSSL');
       return false;
     }
 
     if (adminUserNameError !== undefined || adminPasswordError !== undefined) {
-      console.log('adminUserNameError');
       return false;
     }
 
@@ -74,8 +72,7 @@ export const SettingsEditor = () => {
 
     UpdateSetting(updateSettingRequest)
       .then(() => {
-        const reset: UpdateSettingRequest = {};
-        setUpdateSettingRequest(reset);
+        setUpdateSettingRequest({} as UpdateSettingRequest);
       })
       .catch((error) => {
         console.error(error);
@@ -113,8 +110,8 @@ export const SettingsEditor = () => {
         </ScrollPanel>
         <div className="flex mt-2 justify-content-center align-items-end">
           <div className="flex justify-content-center align-items-center gap-1">
-            <SaveButton disabled={!isSaveEnabled} onClick={onSave} iconFilled label="Save Settings" />
-            <ResetButton disabled={!isSaveEnabled} onClick={resetData} iconFilled label="Reset Settings" />
+            <SaveButton disabled={!isSaveEnabled} onClick={onSave} iconFilled label="Save" />
+            <ResetButton disabled={!isSaveEnabled} onClick={resetData} iconFilled label="Reset" />
           </div>
         </div>
       </div>

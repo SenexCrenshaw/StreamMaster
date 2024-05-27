@@ -3,7 +3,7 @@ import { getHelp } from '@lib/locales/help_en';
 import React from 'react';
 import { UpdateChanges, getRecord } from '../SettingsUtils';
 import { getLine } from './getLine'; // Import the getLine function
-import { SettingDto, UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
+import { SettingDto } from '@lib/smAPI/smapiTypes';
 import NumberEditor from '@components/inputs/NumberEditor';
 import { getDefaultSetting } from '@lib/locales/default_setting';
 
@@ -12,7 +12,7 @@ type InputNumberLineProps = {
   min?: number | null;
   max?: number | null;
   currentSettingRequest: SettingDto;
-  onChange: (existing: SettingDto, updatedValues: UpdateSettingRequest) => void | undefined;
+  onChange: (existing: SettingDto, updatedValues: SettingDto) => void | undefined;
 };
 
 export function getInputNumberLine({ field, min, max, currentSettingRequest, onChange }: InputNumberLineProps): React.ReactElement {

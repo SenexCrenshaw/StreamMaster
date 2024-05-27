@@ -4,11 +4,11 @@ import { Password } from 'primereact/password';
 import React from 'react';
 import { UpdateChanges, getRecordString } from '../SettingsUtils';
 import { getLine } from './getLine';
-import { SettingDto, UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
+import { SettingDto } from '@lib/smAPI/smapiTypes';
 import { getDefaultSetting } from '@lib/locales/default_setting';
 
 type PasswordLineProps = {
-  onChange: (existing: SettingDto, updatedValues: UpdateSettingRequest) => void | undefined;
+  onChange: (existing: SettingDto, updatedValues: SettingDto) => void | undefined;
   readonly autoFocus?: boolean;
   readonly currentSettingRequest: SettingDto;
   readonly field: string;

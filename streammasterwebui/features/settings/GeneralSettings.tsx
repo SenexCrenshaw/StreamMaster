@@ -4,7 +4,7 @@ import { getCheckBoxLine } from './components/getCheckBoxLine';
 import { getInputNumberLine } from './components/getInputNumberLine';
 import { getInputTextLine } from './components/getInputTextLine';
 import { getPasswordLine } from './components/getPasswordLine';
-import { useSettingChangeHandler } from './useSettingChangeHandler';
+import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
 import { SMCard } from '@components/sm/SMCard';
 
 export function GeneralSettings(): React.ReactElement {

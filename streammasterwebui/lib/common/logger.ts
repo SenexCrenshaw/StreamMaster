@@ -28,9 +28,34 @@ const createLoggerFunction =
     logFunction(`${message} (${callerInfo})`, ...args);
   };
 
+// Function to start a log group
+const startGroup = (groupName: string) => {
+  const callerInfo = getCallerInfo();
+  console.group(`${groupName} (${callerInfo})`);
+};
+
+// Function to end a log group
+const endGroup = () => {
+  console.groupEnd();
+};
+
+// Helper function to log multiple messages within a group
+const logGroup = (groupName: string, messages: { level: keyof typeof log; message: string; args?: any[] }[]) => {
+  startGroup(groupName);
+  messages.forEach(({ level, message, args }) => {
+    if (typeof log[level] === 'function') {
+      createLoggerFunction(log[level] as (...args: any[]) => void)(message, ...(args || []));
+    }
+  });
+  endGroup();
+};
+
 export const Logger = {
   debug: createLoggerFunction(log.debug),
+  endGroup,
   error: createLoggerFunction(log.error),
   info: createLoggerFunction(log.info),
+  logGroup,
+  startGroup,
   warn: createLoggerFunction(log.warn)
 };

@@ -6,7 +6,7 @@ import { getCheckBoxLine } from './components/getCheckBoxLine';
 import { getDropDownLine } from './components/getDropDownLine';
 import { getInputNumberLine } from './components/getInputNumberLine';
 import { getInputTextLine } from './components/getInputTextLine';
-import { useSettingChangeHandler } from './useSettingChangeHandler';
+import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
 import { StreamingProxyTypes } from '@lib/smAPI/smapiTypes';
 import { SMCard } from '@components/sm/SMCard';
 

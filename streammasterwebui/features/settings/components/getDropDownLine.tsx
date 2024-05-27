@@ -4,7 +4,7 @@ import { SelectItem } from 'primereact/selectitem';
 import React, { ReactNode } from 'react';
 import { UpdateChanges, getRecordString } from '../SettingsUtils';
 import { getLine } from './getLine'; // Import the getLine function
-import { SettingDto, UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
+import { SettingDto } from '@lib/smAPI/smapiTypes';
 import { getDefaultSetting } from '@lib/locales/default_setting';
 import SMDropDown from '@components/sm/SMDropDown';
 
@@ -12,7 +12,7 @@ type DropDownLineProps = {
   field: string;
   options: SelectItem[];
   currentSettingRequest: SettingDto;
-  onChange: (existing: SettingDto, updatedValues: UpdateSettingRequest) => void | undefined;
+  onChange: (existing: SettingDto, updatedValues: SettingDto) => void | undefined;
 };
 
 export function getDropDownLine({ field, options, currentSettingRequest, onChange }: DropDownLineProps): React.ReactElement {

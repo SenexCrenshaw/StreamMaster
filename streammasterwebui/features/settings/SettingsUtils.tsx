@@ -1,4 +1,4 @@
-import { SettingDto, UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
+import { SettingDto } from '@lib/smAPI/smapiTypes';
 
 // Generic function to get a nested property value
 export function getRecord<T, R>(fieldName: string, newData: T): R | undefined {
@@ -42,7 +42,7 @@ type UpdateChangesProps = {
   field: string;
   warning?: string | null;
   currentSettingRequest: SettingDto;
-  onChange: (existing: SettingDto, updatedValues: UpdateSettingRequest) => void;
+  onChange: (existing: SettingDto, updatedValues: SettingDto) => void;
   value: boolean | string | number | null;
 };
 
@@ -57,7 +57,7 @@ export function UpdateChanges({ field, currentSettingRequest, onChange, value }:
 
   updateNestedProperty(updatedSettingDto, field, value);
 
-  const updateRequest: UpdateSettingRequest = {} as UpdateSettingRequest;
+  const updateRequest: SettingDto = {} as SettingDto;
   updateNestedProperty(updateRequest, field, value);
 
   onChange(updatedSettingDto, updateRequest);

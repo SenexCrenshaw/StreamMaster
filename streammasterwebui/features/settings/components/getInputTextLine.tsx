@@ -3,7 +3,7 @@ import { getHelp } from '@lib/locales/help_en';
 import React from 'react';
 import { UpdateChanges, getRecordString } from '../SettingsUtils';
 import { getLine } from './getLine';
-import { SettingDto, UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
+import { SettingDto } from '@lib/smAPI/smapiTypes';
 import { GetMessage } from '@lib/common/intl';
 import { Logger } from '@lib/common/logger';
 import StringEditor from '@components/inputs/StringEditor';
@@ -12,7 +12,7 @@ type InputTextLineProps = {
   field: string;
   warning?: string | null;
   currentSettingRequest: SettingDto;
-  onChange: (existing: SettingDto, updatedValues: UpdateSettingRequest) => void | undefined;
+  onChange: (existing: SettingDto, updatedValues: SettingDto) => void | undefined;
 };
 
 export function getInputTextLine({ field, warning, currentSettingRequest, onChange }: InputTextLineProps): React.ReactElement {
