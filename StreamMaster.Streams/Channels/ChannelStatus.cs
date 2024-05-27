@@ -1,6 +1,6 @@
 ﻿namespace StreamMaster.Streams.Channels;
 
-public sealed class ChannelStatus(VideoStreamDto videoStreamDto) : IChannelStatus
+public sealed class ChannelStatus(SMChannel smChannel) : IChannelStatus
 {
     public bool IsStarted { get; set; }
     public bool IsGlobal { get; set; }
@@ -8,16 +8,10 @@ public sealed class ChannelStatus(VideoStreamDto videoStreamDto) : IChannelStatu
     public int Rank { get; set; }
 
     public string OverrideVideoStreamId { get; set; } = string.Empty;
-    public string ChannelVideoStreamId { get; set; } = videoStreamDto.Id;
+    public int Id { get; set; } = smChannel.Id;
 
-    public string VideoStreamURL { get; set; } = videoStreamDto.User_Url;
-    public string ChannelName { get; set; } = videoStreamDto.User_Tvg_name;
-    public VideoStreamDto? CurrentVideoStream { get; private set; } = videoStreamDto;
-
-    public void SetCurrentVideoStream(VideoStreamDto? CurrentVideoStream)
-    {
-        this.CurrentVideoStream = CurrentVideoStream;
-    }
+    public string ChannelName { get; set; } = smChannel.Name;
+    public SMStreamDto CurrentSMStream { get; private set; }
 
     public void SetIsGlobal()
     {

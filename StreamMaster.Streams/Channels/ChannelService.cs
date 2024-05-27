@@ -10,7 +10,7 @@ public sealed class ChannelService(ILogger<ChannelService> logger, IServiceProvi
 {
     private readonly Setting settings = intsettings.CurrentValue;
 
-    private readonly ConcurrentDictionary<string, IChannelStatus> _channelStatuses = new();
+    private readonly ConcurrentDictionary<int, IChannelStatus> _channelStatuses = new();
 
     private readonly object _disposeLock = new();
     private bool _disposed = false;
@@ -35,42 +35,41 @@ public sealed class ChannelService(ILogger<ChannelService> logger, IServiceProvi
                 _disposed = true;
             }
         }
-
     }
 
-    public async Task<IChannelStatus?> RegisterChannel(VideoStreamDto ChannelVideoStream, bool fetch = false)
+    public async Task<IChannelStatus?> RegisterChannel(SMChannel smChannel, bool fetch = false)
     {
-        IChannelStatus? channelStatus = GetChannelStatus(ChannelVideoStream.Id);
+        IChannelStatus? channelStatus = GetChannelStatus(smChannel.Id);
         if (channelStatus == null)
         {
-            channelStatus = new ChannelStatus(ChannelVideoStream);
-            _channelStatuses.TryAdd(ChannelVideoStream.Id, channelStatus);
+            channelStatus = new ChannelStatus(smChannel);
+            _channelStatuses.TryAdd(smChannel.Id, channelStatus);
             if (!fetch)
             {
                 return channelStatus;
             }
 
-            await SetNextChildVideoStream(ChannelVideoStream.Id);
+            await SetNextChildVideoStream(smChannel.Id);
         }
 
         return channelStatus;
     }
 
-    public void UnRegisterChannel(string channelVideoStreamId)
+    public void UnRegisterChannel(string smChannelId)
     {
-        _ = _channelStatuses.TryRemove(channelVideoStreamId, out _);
+        _ = _channelStatuses.TryRemove(smChannelId, out _);
     }
 
-    public IChannelStatus? GetChannelStatus(string channelVideoStreamId)
+    public IChannelStatus? GetChannelStatus(int smChannelId)
     {
-        _ = _channelStatuses.TryGetValue(channelVideoStreamId, out IChannelStatus? channelStatus);
+        _ = _channelStatuses.TryGetValue(smChannelId, out IChannelStatus? channelStatus);
         return channelStatus;
     }
 
-    public List<IChannelStatus> GetChannelStatusesFromVideoStreamId(string VideoStreamId)
+    public List<IChannelStatus> GetChannelStatusesFromSMStreamId(string SMStreamId)
     {
         List<IChannelStatus> test = _channelStatuses.Values.ToList();
-        return _channelStatuses.Values.Where(a => a.ChannelVideoStreamId == VideoStreamId || a.CurrentVideoStream.Id == VideoStreamId).ToList();
+        return _channelStatuses.Values.Where(a => a.ChannelSMStreamId == SMStreamId || a.CurrentVideoStream.Id == SMStreamId).ToList();
     }
 
     public List<IChannelStatus> GetChannelStatuses()
@@ -78,9 +77,9 @@ public sealed class ChannelService(ILogger<ChannelService> logger, IServiceProvi
         return [.. _channelStatuses.Values];
     }
 
-    public bool HasChannel(string channelVideoStreamId)
+    public bool HasChannel(string SMStreamId)
     {
-        return _channelStatuses.ContainsKey(channelVideoStreamId);
+        return _channelStatuses.ContainsKey(SMStreamId);
     }
 
     public int GetGlobalStreamsCount()
@@ -88,17 +87,19 @@ public sealed class ChannelService(ILogger<ChannelService> logger, IServiceProvi
         return _channelStatuses.Count(a => a.Value.IsGlobal);
     }
 
-    private async Task SetNextChildVideoStream(string channelVideoStreamId)
+    private async Task SetNextChildVideoStream(int channelSMStreamId)
     {
         using IServiceScope scope = serviceProvider.CreateScope();
         IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
 
-        IChannelStatus? channelStatus = GetChannelStatus(channelVideoStreamId);
+        IChannelStatus? channelStatus = GetChannelStatus(channelSMStreamId);
 
-        (VideoStreamHandlers videoStreamHandler, List<VideoStreamDto> childVideoStreamDtos)? result = await repository.VideoStream.GetStreamsFromVideoStreamById(channelStatus.ChannelVideoStreamId);
+        SMChannel? smChannel = repository.SMChannel.GetSMChannel(channelSMStreamId);
+
+        (VideoStreamHandlers videoStreamHandler, List<SMStreamDto> childVideoStreamDtos)? result = await repository.SMChannel.GetStreamsFromVideoStreamById(channelStatus.channelSMStreamId);
         if (result == null)
         {
-            logger.LogError("SetNextChildVideoStream could not get videoStreams for id {ParentVideoStreamId}", channelStatus.ChannelVideoStreamId);
+            logger.LogError("SetNextChildVideoStream could not get videoStreams for id {ParentVideoStreamId}", channelStatus.channelSMStreamId);
             logger.LogDebug("Exiting SetNextChildVideoStream with null due to result being null");
             channelStatus.SetCurrentVideoStream(null);
             return;

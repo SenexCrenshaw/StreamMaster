@@ -30,7 +30,7 @@ public interface IChannelStatus
     /// <summary>
     /// Gets or sets the ID of the parent video stream, if applicable.
     /// </summary>
-    string ChannelVideoStreamId { get; set; }
+    int Id { get; set; }
 
     ///// <summary>
     ///// Gets or sets the name of the video stream associated with this channel.
@@ -41,7 +41,6 @@ public interface IChannelStatus
     /// <summary>
     /// Gets or sets the name of the video stream associated with this channel.
     /// </summary>
-    VideoStreamDto? CurrentVideoStream { get; }
+    SMStreamDto CurrentSMStream { get; }
 
-    void SetCurrentVideoStream(VideoStreamDto? CurrentVideoStream);
 }

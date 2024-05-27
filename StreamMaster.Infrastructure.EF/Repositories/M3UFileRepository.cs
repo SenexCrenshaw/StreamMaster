@@ -175,7 +175,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
     {
         Stopwatch sw = Stopwatch.StartNew();
 
-        List<SMStream>? streams = await m3uFile.GetSMStreamsM3U(logger).ConfigureAwait(false);
+        List<SMStream>? streams = await m3uFile.GetSMStreamsFromM3U(logger).ConfigureAwait(false);
 
         int streamsCount = 0;
         if (streams != null)

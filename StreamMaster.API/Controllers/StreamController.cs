@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using StreamMaster.Domain.Repository;
 using StreamMaster.Streams.Domain.Interfaces;
 using StreamMaster.Streams.Domain.Models;
 using StreamMaster.Streams.Streams;
@@ -8,22 +11,22 @@ using StreamMaster.Streams.Streams;
 
 namespace StreamMaster.API.Controllers
 {
-    public class StreamController(ILogger<StreamController> logger, IStreamTracker streamTracker, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IChannelService channelService, IVideoStreamService videoStreamService, IAccessTracker accessTracker, IHLSManager hLsManager) : ApiControllerBase
+    public class StreamController(ILogger<StreamController> logger, IMapper mapper, IStreamTracker streamTracker, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IChannelService channelService, IAccessTracker accessTracker, IHLSManager hLsManager, IRepositoryWrapper repositoryWrapper) : ApiControllerBase
     {
 
         [Authorize(Policy = "SGLinks")]
         [HttpGet]
         [HttpHead]
         [Route("{videoStreamId}.m3u8")]
-        public async Task<ActionResult> GetM3U8(string videoStreamId, CancellationToken cancellationToken)
+        public async Task<ActionResult> GetM3U8(string SMStreamId, CancellationToken cancellationToken)
         {
-            VideoStreamDto? videoStreamDto = await videoStreamService.GetVideoStreamDtoAsync(videoStreamId, cancellationToken);
-            if (videoStreamDto is null)
+            SMStream? smStream = await repositoryWrapper.SMStream.FirstOrDefaultAsync(a => a.Id == SMStreamId);
+            if (smStream is null)
             {
                 return NotFound();
             }
 
-            IChannelStatus? channelStatus = await channelService.RegisterChannel(videoStreamDto, true);
+            IChannelStatus? channelStatus = await channelService.RegisterChannel(mapper.Map<SMStreamDto>(smStream), true);
 
             if (channelStatus == null || channelStatus.CurrentVideoStream == null)
             {

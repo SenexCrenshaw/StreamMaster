@@ -63,11 +63,11 @@ public sealed class ChannelManager : IChannelManager
                         continue;
                     }
 
-                    bool didSwitch = await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
+                    bool didSwitch = await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelSMStreamId);
 
                     if (streamHandler.ClientCount == 0 && !didSwitch)
                     {
-                        clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(channelStatus.ChannelVideoStreamId)
+                        clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(channelStatus.ChannelSMStreamId)
                             .ForEach(async x =>
                             {
                                 await x.CancelClient();
@@ -109,7 +109,7 @@ public sealed class ChannelManager : IChannelManager
             if (channelStatus != null)
             {
 
-                if (!await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId, newVideoStreamId))
+                if (!await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelSMStreamId, newVideoStreamId))
                 {
                     logger.LogWarning("Exiting ChangeVideoStreamChannel. Could not change channel to {newVideoStreamId}", newVideoStreamId);
                     return;
@@ -270,7 +270,7 @@ public sealed class ChannelManager : IChannelManager
 
             logger.LogInformation("No existing channel for {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.ChannelVideoStreamId, channelVideoStream.User_Tvg_name);
 
-            await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
+            await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelSMStreamId);
 
         }
         else
@@ -285,7 +285,7 @@ public sealed class ChannelManager : IChannelManager
             {
                 logger.LogInformation("Existing hanlder is failed, creating");
 
-                await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
+                await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelSMStreamId);
             }
 
             await clientStreamerManager.AddClientToHandler(config.ClientId, handler);

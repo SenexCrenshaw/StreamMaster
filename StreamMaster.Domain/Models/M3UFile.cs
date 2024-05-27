@@ -47,16 +47,7 @@ public class M3UFile : AutoUpdateEntity
 
 
     [LogExecutionTimeAspect]
-    public async Task<List<VideoStream>?> GetVideoStreamsFromM3U(ILogger logger)
-    {
-        using Stream dataStream = FileUtil.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source));
-        logger.LogInformation("Reading m3ufile {Name} and ignoring urls with {vods}", Name, string.Join(',', VODTags));
-        List<VideoStream>? ret = await IPTVExtensions.ConvertToVideoStreamAsync(dataStream, Id, Name, VODTags, logger);
-        return ret;
-    }
-
-    [LogExecutionTimeAspect]
-    public async Task<List<SMStream>?> GetSMStreamsM3U(ILogger logger)
+    public async Task<List<SMStream>?> GetSMStreamsFromM3U(ILogger logger)
     {
         using Stream dataStream = FileUtil.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source));
         logger.LogInformation("Reading m3ufile {Name} and ignoring urls with {vods}", Name, string.Join(',', VODTags));
