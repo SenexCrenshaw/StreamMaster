@@ -169,27 +169,24 @@ const SMScroller: React.FC<SMScrollerProps> = ({
       if (select === true) {
         const ss = isSelectedItem(item);
         return (
-          <div
-            className="flex align-items-center pl-2"
-            // onClick={() => {
-            //   // onChange && onChange(item);
-            // }}
-          >
-            <Checkbox
-              onChange={(e) => {
-                if (selectedItemsKey !== undefined && selectedItemsKey !== 'NONE') {
-                  if (e.checked) {
-                    console.log('selectedItems', selectedItems);
-                    setSelectedItems([...selectedItems, item]);
-                    onChange && onChange([...selectedItems, item]);
-                  } else {
-                    removeSelectedItem(item);
+          <div className="flex align-items-center justify-content-start pl-1">
+            <div className="w-1">
+              <Checkbox
+                onChange={(e) => {
+                  e.preventDefault();
+                  if (selectedItemsKey !== undefined && selectedItemsKey !== 'NONE') {
+                    if (e.checked) {
+                      setSelectedItems([...selectedItems, item]);
+                      onChange && onChange([...selectedItems, item]);
+                    } else {
+                      removeSelectedItem(item);
+                    }
                   }
-                }
-              }}
-              checked={ss}
-            />
-            <div className="pl-1">{itemTemplate(item)}</div>
+                }}
+                checked={ss}
+              />
+            </div>
+            <div className="w-11 pl-1">{itemTemplate(item)}</div>
           </div>
         );
       }

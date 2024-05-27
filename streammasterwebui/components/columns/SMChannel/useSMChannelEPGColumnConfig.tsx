@@ -1,5 +1,6 @@
 import EPGEditor from '@components/epg/EPGEditor';
-import SMOverlay from '@components/sm/SMOverlay';
+import SMDropDown from '@components/sm/SMDropDown';
+
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { isEmptyObject } from '@lib/common/common';
 import { useSMContext } from '@lib/signalr/SMProvider';
@@ -8,9 +9,7 @@ import useGetEPGFiles from '@lib/smAPI/EPGFiles/useGetEPGFiles';
 import { EPGFileDto, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 
-import { ReactNode, Suspense, lazy, useCallback, useMemo } from 'react';
-
-const SMScroller = lazy(() => import('@components/sm/SMScroller'));
+import { ReactNode, useCallback, useMemo } from 'react';
 
 interface SMChannelEPGColumnConfigProperties {
   readonly width?: string;
@@ -95,33 +94,26 @@ export const useSMChannelEPGColumnConfig = ({ width = '8rem' }: SMChannelEPGColu
   function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
     return (
       <div className="sm-input-border-dark w-full">
-        <SMOverlay isLoading={isLoading} title="EPG FILE" widthSize="2" icon="pi-chevron-down" buttonTemplate={buttonTemplate(options)} buttonLabel="EPG">
-          <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right">
-            <Suspense fallback={<div>Loading...</div>}>
-              <div className="flex w-full">
-                <SMScroller
-                  data={epgFiles}
-                  dataKey="Id"
-                  filter
-                  filterBy="Name"
-                  itemSize={26}
-                  itemTemplate={itemTemplate}
-                  onChange={async (e: any) => {
-                    console.log('e', e);
-                    if (isEmptyObject(e) || !Array.isArray(e)) {
-                      options.filterApplyCallback();
-                    } else {
-                      options.filterApplyCallback(e);
-                    }
-                  }}
-                  select
-                  selectedItemsKey={dataKey}
-                  value={options.value}
-                />
-              </div>
-            </Suspense>
-          </div>
-        </SMOverlay>
+        <SMDropDown
+          buttonDarkBackground
+          buttonTemplate={buttonTemplate(options)}
+          data={epgFiles}
+          dataKey="Id"
+          isLoading={isLoading}
+          itemTemplate={itemTemplate}
+          filter
+          filterBy="Name"
+          onChange={async (e: any) => {
+            if (isEmptyObject(e) || !Array.isArray(e)) {
+              options.filterApplyCallback();
+            } else {
+              options.filterApplyCallback(e);
+            }
+          }}
+          select
+          selectedItemsKey={dataKey}
+          title={'EPG'}
+        />
       </div>
     );
   }

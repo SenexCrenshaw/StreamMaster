@@ -1,5 +1,6 @@
 import AddButton from '@components/buttons/AddButton';
 import StringEditor from '@components/inputs/StringEditor';
+import SMDropDown from '@components/sm/SMDropDown';
 import SMOverlay from '@components/sm/SMOverlay';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useSMContext } from '@lib/signalr/SMProvider';
@@ -151,7 +152,7 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround =
       }
       const color = getColor(option.EPGNumber);
       return (
-        <span className="sm-standard-text flex align-items-center justify-content-center">
+        <span className="sm-standard-text flex align-items-center justify-content-start">
           <span className="pi pi-circle-fill pr-2" style={{ color: color }} />
           <span className="text-xs"> {option.Name}</span>
         </span>
@@ -386,18 +387,18 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround =
   const headerTemplate = useMemo(() => {
     return (
       <div className="sm-input-dark">
-        <SMOverlay widthSize="1" icon="pi-chevron-down" buttonTemplate={headerValueTemplate} buttonLabel="EPG" simple>
-          <SMScroller
-            data={epgFiles}
-            dataKey="EPGNumber"
-            filter={false}
-            itemSize={26}
-            itemTemplate={scrollerItemTemplate}
-            select
-            selectedItemsKey="EPGSelector-EPGFiles"
-            simple
-          />
-        </SMOverlay>
+        <SMDropDown
+          buttonDarkBackground
+          buttonTemplate={headerValueTemplate}
+          data={epgFiles}
+          dataKey="EPGNumber"
+          height="20vh"
+          itemTemplate={scrollerItemTemplate}
+          select
+          selectedItemsKey="EPGSelector-EPGFiles"
+          simple
+          title="EPG"
+        />
       </div>
     );
   }, [epgFiles, headerValueTemplate, scrollerItemTemplate]);
