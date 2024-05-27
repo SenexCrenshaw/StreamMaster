@@ -105,8 +105,9 @@ export const SettingsEditor = () => {
               <SDSettings />
             </div>
           </div>
-
-          <DevelopmentSettings />
+          <div className="w-12 pl-1 pt-3">
+            <DevelopmentSettings />
+          </div>
         </ScrollPanel>
         <div className="flex mt-2 justify-content-center align-items-end">
           <div className="flex justify-content-center align-items-center gap-1">

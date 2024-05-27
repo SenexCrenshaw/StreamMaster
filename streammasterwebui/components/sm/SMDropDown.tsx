@@ -14,6 +14,7 @@ interface SMDropDownProps {
   readonly label?: string;
   readonly labelInline?: boolean;
   readonly onChange: (value: any) => void;
+  readonly title?: string;
   readonly value?: any;
 }
 
@@ -30,6 +31,7 @@ const SMDropDown = ({
   label,
   labelInline = false,
   onChange,
+  title,
   value
 }: SMDropDownProps) => {
   const SMScroller = lazy(() => import('@components/sm/SMScroller'));
@@ -46,7 +48,7 @@ const SMDropDown = ({
       <div ref={divReference} className={`sm-dropdown ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
         <SMOverlay
           buttonDarkBackground={buttonDarkBackground}
-          title={label?.toUpperCase()}
+          title={title?.toUpperCase()}
           widthSize="2"
           icon="pi-chevron-down"
           buttonTemplate={buttonTemplate}

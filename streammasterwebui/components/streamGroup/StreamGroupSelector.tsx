@@ -29,9 +29,12 @@ export const StreamGroupSelector = ({ onChange, selectedStreamGroup }: StreamGro
       dataKey="Id"
       isLoading={isLoading}
       itemTemplate={(option: StreamGroupDto) => option?.Name}
+      filter
+      filterBy="Name"
       onChange={(e) => {
         onDropdownChange(e);
       }}
+      title={'Select Stream Group'}
     />
   );
 };

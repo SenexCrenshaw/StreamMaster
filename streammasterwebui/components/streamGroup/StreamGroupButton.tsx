@@ -22,9 +22,7 @@ const StreamGroupButton = () => {
           selectedStreamGroup={selectedStreamGroup}
         />
       </div>
-
       <div className="pr-1" />
-
       <SMOverlay
         title="STREAM GROUPS"
         widthSize="5"
