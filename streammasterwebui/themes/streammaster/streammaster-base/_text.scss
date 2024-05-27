@@ -119,6 +119,7 @@
         align-items: center;
         justify-content: center;
         height: 100%;
+        padding-right: 1rem;
     }
 
     .input-icon-left {
@@ -139,8 +140,8 @@
 .stringeditorbody-inputtext {
     @extend .sm-input-border;
     @extend .text-container;
-    height: $input-height-with-no-borders;
-    max-height: $input-height-with-no-borders;
+    height: $input-height-with-no-borders !important;
+    max-height: $input-height-with-no-borders !important;
     position: relative;
     display: flex;
     align-items: center;
@@ -162,7 +163,7 @@
     display: flex;
     align-items: center;
     border-color: $inputBorderColor !important;
-    // color: $inputTextColor;
+    border-style: solid !important;
 
     .p-inputnumber-input {
         color: $textColor !important;
@@ -170,7 +171,6 @@
 
     .label {
         color: $textColor !important;
-        //color: $textColor;
     }
 }
 

@@ -17,6 +17,7 @@ export interface SMButtonProps {
   readonly iconFilled?: boolean;
   readonly iconPos?: 'top' | 'bottom' | 'left' | 'right' | undefined;
   readonly isLeft?: boolean;
+  readonly isLoading?: boolean;
   readonly label?: string;
   readonly outlined?: boolean | undefined;
   readonly rounded?: boolean;
@@ -36,6 +37,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
       iconPos = 'right',
       iconFilled = false,
       isLeft = false,
+      isLoading = false,
       label,
       style,
       outlined = false,
@@ -48,7 +50,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
     ref
   ) => {
     const tooltipClassName = React.useMemo(() => {
-      const ret = `basebutton-${uuidv4()}`;
+      const ret = `smbutton-${uuidv4()} input-height-with-no-borders`;
 
       return ret;
     }, []);
@@ -81,10 +83,14 @@ const SMButton = forwardRef<Button, SMButtonProps>(
       };
     }, [color, style]);
 
+    const iconClass = useMemo(() => {
+      return isLoading ? 'pi-spin pi-spinner' : icon;
+    }, [icon, isLoading]);
+
     if (props.children) {
       if (darkBackGround) {
         return (
-          <div className="dark-background w-full">
+          <div className="sm-input-border-dark w-full">
             <Tooltip target={`.${tooltipClassName}`} />
             <div
               onClick={(e) => {
@@ -99,7 +105,8 @@ const SMButton = forwardRef<Button, SMButtonProps>(
               data-pr-autohide={true}
             >
               {props.children}
-              <i className={`input-icon pi ${icon} pr-1`} />
+              <div className="pl-1" />
+              <i className={`mr-1 pi ${iconClass}`} />
             </div>
           </div>
         );
@@ -120,7 +127,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
             data-pr-autohide={true}
           >
             {props.children}
-            <i className={`input-icon pi ${icon} pr-1`} />
+            <i className={`input-icon pi ${iconClass} pr-1`} />
           </div>
         </>
       );
@@ -136,6 +143,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
           icon={`pi ${icon}`}
           iconPos={iconPos}
           label={label}
+          loading={isLoading}
           onClick={(e) => {
             e.preventDefault();
             onClick && onClick(e);

@@ -82,7 +82,6 @@ const SMChannelGroupEditor = ({ darkBackGround, smChannelDto, onChange }: SMChan
                 onChange={(e) => {
                   updateSMChanneGroup(e.Name);
                 }}
-                scrollHeight={150}
                 value={smChannelDto}
               />
             </div>

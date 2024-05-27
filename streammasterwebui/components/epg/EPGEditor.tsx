@@ -5,10 +5,9 @@ import EPGSelector from './EPGSelector';
 
 interface EPGEditorProperties {
   readonly data: SMChannelDto;
-  readonly enableEditMode?: boolean;
 }
 
-const EPGEditor = ({ data, enableEditMode }: EPGEditorProperties) => {
+const EPGEditor = ({ data }: EPGEditorProperties) => {
   const onUpdateVideoStream = async (epg: string) => {
     if (!data.Id) {
       return;
@@ -27,7 +26,6 @@ const EPGEditor = ({ data, enableEditMode }: EPGEditorProperties) => {
 
   return (
     <EPGSelector
-      enableEditMode={enableEditMode}
       onChange={async (e: string) => {
         await onUpdateVideoStream(e);
       }}

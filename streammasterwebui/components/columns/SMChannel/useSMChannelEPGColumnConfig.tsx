@@ -18,7 +18,7 @@ interface SMChannelEPGColumnConfigProperties {
 
 export const useSMChannelEPGColumnConfig = ({ width = '8rem' }: SMChannelEPGColumnConfigProperties) => {
   const dataKey = 'epgColumn-selections';
-  const { data } = useGetEPGFiles();
+  const { data, isLoading } = useGetEPGFiles();
   const colorsQuery = useGetEPGColors();
   const { isSystemReady, settings } = useSMContext();
 
@@ -93,10 +93,9 @@ export const useSMChannelEPGColumnConfig = ({ width = '8rem' }: SMChannelEPGColu
   }, []);
 
   function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
-    console.log('options', options);
     return (
       <div className="sm-input-border-dark w-full">
-        <SMOverlay title="EPG FILE" widthSize="2" icon="pi-chevron-down" buttonTemplate={buttonTemplate(options)} buttonLabel="EPG">
+        <SMOverlay isLoading={isLoading} title="EPG FILE" widthSize="2" icon="pi-chevron-down" buttonTemplate={buttonTemplate(options)} buttonLabel="EPG">
           <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right">
             <Suspense fallback={<div>Loading...</div>}>
               <div className="flex w-full">
@@ -115,7 +114,6 @@ export const useSMChannelEPGColumnConfig = ({ width = '8rem' }: SMChannelEPGColu
                       options.filterApplyCallback(e);
                     }
                   }}
-                  scrollHeight={150}
                   select
                   selectedItemsKey={dataKey}
                   value={options.value}

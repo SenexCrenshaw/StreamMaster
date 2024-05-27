@@ -13,7 +13,6 @@ import ChannelGroupDeleteDialog from './ChannelGroupDeleteDialog';
 import useGetChannelGroupsFromSMChannels from '@lib/smAPI/ChannelGroups/useGetChannelGroupsFromSMChannels';
 
 type ChannelGroupSelectorProperties = {
-  readonly darkBackGround?: boolean;
   readonly dataKey: string;
   readonly enableEditMode?: boolean;
   readonly useSelectedItemsFilter?: boolean;
@@ -22,20 +21,10 @@ type ChannelGroupSelectorProperties = {
   readonly onChange?: (value: ChannelGroupDto[]) => void;
 };
 
-const ChannelGroupSelector = ({
-  enableEditMode = true,
-  dataKey,
-  darkBackGround = false,
-  label,
-  onChange,
-  useSelectedItemsFilter,
-  value
-}: ChannelGroupSelectorProperties) => {
+const ChannelGroupSelector = ({ enableEditMode = true, dataKey, label, onChange, useSelectedItemsFilter, value }: ChannelGroupSelectorProperties) => {
   const { selectedItems, showHidden } = useSelectedAndQ(dataKey);
   const [input, setInput] = useState<string | undefined>(value);
   const { isSystemReady } = useSMContext();
-  // const namesQuery = useGetChannelGroups();
-  // const sortedData = useSortedData(dataKey, namesQuery.data);
 
   const namesQuery = useGetChannelGroupsFromSMChannels();
 
@@ -81,7 +70,7 @@ const ChannelGroupSelector = ({
       return <div className="text-container">{names.join(', ') + suffix}</div>;
     }
 
-    return <div className="text-container">GROUP</div>;
+    return <div className="text-container pl-1">GROUP</div>;
   }, [input, selectedItems]);
 
   const actionTemplate = useCallback(
@@ -136,7 +125,7 @@ const ChannelGroupSelector = ({
   }
 
   return (
-    <div>
+    <>
       {label && (
         <div className="stringeditor flex flex-column align-items-start">
           <label className="pl-15">{label.toUpperCase()}</label>
@@ -151,6 +140,7 @@ const ChannelGroupSelector = ({
         icon="pi-chevron-down"
         buttonLabel="GROUP"
         header={headerRightTemplate}
+        isLoading={loading}
       >
         <SMDataTable
           id={dataKey}
@@ -168,7 +158,7 @@ const ChannelGroupSelector = ({
           }}
         />
       </SMOverlay>
-    </div>
+    </>
   );
 };
 

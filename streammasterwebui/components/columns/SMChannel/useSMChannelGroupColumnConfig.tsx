@@ -46,7 +46,6 @@ export const useSMChannelGroupColumnConfig = ({ dataKey, width = '10rem' }: SMCh
     function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
       return (
         <ChannelGroupSelector
-          darkBackGround
           dataKey="useSMChannelGroupColumnConfig"
           value={options.value}
           onChange={(e) => {

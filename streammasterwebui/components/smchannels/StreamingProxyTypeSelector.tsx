@@ -123,7 +123,6 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
                   onChange={async (e) => {
                     await onChange(e.value);
                   }}
-                  scrollHeight={150}
                   value={data?.StreamingProxyType}
                 />
               </div>

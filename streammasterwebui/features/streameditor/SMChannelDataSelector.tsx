@@ -158,7 +158,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
   const rightHeaderTemplate = useMemo(
     () => (
       <>
-        <div className="flex flex-row justify-content-start align-items-center w-full gap-1">
+        <div className="w-full">
           <StreamGroupButton />
         </div>
         <div className="flex flex-row justify-content-end align-items-center w-full gap-1  pr-1">

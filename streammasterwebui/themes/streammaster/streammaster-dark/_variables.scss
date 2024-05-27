@@ -38,7 +38,7 @@ $blue-header-color: #0c243c;
 
 
 //shades
-$shade000: rgba(255, 255, 255, 0.87) !default; //text color
+$shade000: $textColor !default; //text color
 $shade100: rgba(255, 255, 255, 0.6) !default; //text secondary color
 $shade500: $inputBorderColor !default;
 

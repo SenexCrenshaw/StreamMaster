@@ -7269,6 +7269,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
+  padding-right: 1rem;
 }
 .stringeditor .input-icon-left {
   position: absolute;
@@ -7285,8 +7286,8 @@
 }
 
 .stringeditorbody-inputtext, .p-inputnumber-input, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark {
-  height: 1.4rem;
-  max-height: 1.4rem;
+  height: 1.4rem !important;
+  max-height: 1.4rem !important;
   position: relative;
   display: flex;
   align-items: center;
@@ -7306,6 +7307,7 @@
   display: flex;
   align-items: center;
   border-color: #263238 !important;
+  border-style: solid !important;
 }
 .stringeditorbody-inputtext-dark .p-inputnumber-input {
   color: #bcbfbf !important;
@@ -8055,7 +8057,6 @@
   align-items: center;
   justify-content: flex-start;
   width: calc(100% - 1.4rem);
-  height: 1.4rem;
 }
 
 .sm-icon-selector {

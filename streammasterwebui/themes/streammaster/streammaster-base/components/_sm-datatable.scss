@@ -46,8 +46,6 @@
     &::-webkit-scrollbar-thumb {
         background-color: $inputBorderColor;
         border-radius: $borderRadius;
-        // border-bottom-width: 0;
-        // border: 2px solid $inputBg;
     }
 
     &::-webkit-scrollbar-thumb:hover {

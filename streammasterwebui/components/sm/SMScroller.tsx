@@ -17,7 +17,7 @@ interface SMScrollerProps {
   readonly itemTemplate: (item: any) => React.ReactNode;
   readonly onChange?: (value: any) => void;
   readonly optionValue?: string;
-  readonly scrollHeight?: number;
+  readonly scrollHeight?: string;
   readonly select?: boolean;
   readonly selectedItemsKey?: string;
   readonly simple?: boolean;
@@ -38,7 +38,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
   selectedItemsKey,
   simple,
   value,
-  scrollHeight = 100
+  scrollHeight = '40vh'
 }) => {
   const { selectedItems, setSelectedItems } = useSelectedItems(selectedItemsKey ?? 'NONE');
   const [filterString, setFilterString] = React.useState<string>('');
@@ -223,7 +223,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
               autoFocus
               disableDebounce
               darkBackGround
-              placeholder="Filter..."
+              placeholder="Name"
               value={filterString}
               onChange={(value) => {
                 if (value !== undefined) {
@@ -240,13 +240,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
 
       <div className="layout-padding-bottom-lg" />
       <div className="sm-scroller-items block">
-        <VirtualScroller
-          ref={virtualScrollerRef}
-          items={filteredValues}
-          itemSize={itemSize}
-          itemTemplate={getItemTemplate}
-          scrollHeight={`${scrollHeight}px`}
-        />
+        <VirtualScroller ref={virtualScrollerRef} items={filteredValues} itemSize={itemSize} itemTemplate={getItemTemplate} scrollHeight={scrollHeight} />
       </div>
     </div>
   );

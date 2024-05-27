@@ -15,6 +15,7 @@ interface SMOverlayProperties {
   readonly header?: React.ReactNode;
   readonly icon?: string | undefined;
   readonly iconFilled?: boolean;
+  readonly isLoading?: boolean;
   readonly simple?: boolean;
   readonly title?: string | undefined;
   readonly tooltip?: string | undefined;
@@ -41,6 +42,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
     header,
     icon,
     iconFilled = false,
+    isLoading = false,
     onAnswered,
     onHide,
     onShow,
@@ -79,6 +81,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
               className={buttonClassName}
               iconFilled={iconFilled}
               icon={icon}
+              isLoading={isLoading}
               tooltip={tooltip}
               label={buttonLabel}
               onClick={(e) => openPanel(e)}
@@ -94,6 +97,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
           className={buttonClassName}
           iconFilled={iconFilled}
           icon={icon}
+          isLoading={isLoading}
           tooltip={tooltip}
           label={buttonLabel}
           onClick={(e) => openPanel(e)}
@@ -108,12 +112,17 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
         className={buttonClassName}
         iconFilled={iconFilled}
         icon={icon}
+        isLoading={isLoading}
         tooltip={tooltip}
         label={buttonLabel}
         onClick={(e) => openPanel(e)}
       />
     );
-  }, [buttonClassName, buttonDarkBackground, buttonFlex, buttonLabel, buttonTemplate, icon, iconFilled, openPanel, tooltip]);
+  }, [buttonClassName, buttonDarkBackground, buttonFlex, buttonLabel, buttonTemplate, icon, iconFilled, isLoading, openPanel, tooltip]);
+
+  if (isLoading === true) {
+    return <div className="w-full">{renderButton}</div>;
+  }
 
   return (
     <>

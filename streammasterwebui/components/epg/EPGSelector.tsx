@@ -327,7 +327,6 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround =
                 onChange={(e) => {
                   handleOnChange(e.Channel);
                 }}
-                scrollHeight={150}
                 value={stationChannelName}
               />
             </div>
@@ -394,7 +393,6 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround =
             filter={false}
             itemSize={26}
             itemTemplate={scrollerItemTemplate}
-            scrollHeight={150}
             select
             selectedItemsKey="EPGSelector-EPGFiles"
             simple
@@ -432,7 +430,7 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround =
         <SMOverlay
           header={headerTemplate}
           title="EPG"
-          widthSize="2"
+          widthSize="3"
           icon="pi-chevron-down"
           buttonTemplate={buttonTemplate(stationChannelName)}
           buttonLabel="EPG"

@@ -159,7 +159,6 @@ const IconSelector = ({
       >
         <SMScroller
           className="icon-selector"
-          autoFocus
           filter
           filterBy="Name"
           data={query.data}
@@ -167,7 +166,6 @@ const IconSelector = ({
           itemSize={32}
           onChange={(e) => handleOnChange(e)}
           itemTemplate={itemTemplate}
-          scrollHeight={250}
           value={iconDto}
         />
       </SMOverlay>
