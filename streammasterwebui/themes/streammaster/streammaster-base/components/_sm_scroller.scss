@@ -3,16 +3,17 @@
 }
 
 .sm-scroller-items {
-    .sm-scroller-item:nth-child(odd) {
-        background: $tableBodyRowEvenBg;
+    // .flex:nth-child(odd) {
+    //     background: $tableBodyRowEvenBg;
+    // }
+
+    .p-virtualscroller-content {
+        .sm-scroller-item:nth-child(odd) {
+            background: $tableBodyRowEvenBg;
+        }
     }
 }
 
-.p-virtualscroller-content {
-    div:nth-child(odd) {
-        background: $tableBodyRowEvenBg;
-    }
-}
 
 
 .sm-scroller-item {

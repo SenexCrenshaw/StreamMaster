@@ -7954,11 +7954,7 @@
   min-width: 200px;
 }
 
-.sm-scroller-items .sm-scroller-item:nth-child(odd) {
-  background: #1b2327;
-}
-
-.p-virtualscroller-content div:nth-child(odd) {
+.sm-scroller-items .p-virtualscroller-content .sm-scroller-item:nth-child(odd) {
   background: #1b2327;
 }
 

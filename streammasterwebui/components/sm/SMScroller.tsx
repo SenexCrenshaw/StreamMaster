@@ -169,7 +169,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
       if (select === true) {
         const ss = isSelectedItem(item);
         return (
-          <div className="flex align-items-center justify-content-start pl-1">
+          <div className="flex align-items-center justify-content-start pl-1 sm-scroller-item">
             <div className="w-1">
               <Checkbox
                 onChange={(e) => {
