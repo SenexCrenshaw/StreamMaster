@@ -1,4 +1,4 @@
-import StringEditor from '@components/inputs/StringEditor';
+import StringEditor, { StringEditorRef } from '@components/inputs/StringEditor';
 import SMButton from '@components/sm/SMButton';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { Checkbox } from 'primereact/checkbox';
@@ -44,7 +44,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
   const [filterString, setFilterString] = React.useState<string>('');
   const [scrolled, setScrolled] = React.useState<boolean>(true);
   const virtualScrollerRef = React.useRef<VirtualScroller>(null);
-
+  const stringEditorRef = React.useRef<StringEditorRef>(null);
   const filteredValues = useMemo(() => {
     setScrolled(false);
     if (filter === undefined || filter === false || filterBy === undefined) {
@@ -53,6 +53,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
     if (filter && filterString !== '') {
       return data.filter((item: any) => item[filterBy].toLowerCase().includes(filterString.toLowerCase()));
     }
+
     return data;
   }, [data, filter, filterBy, filterString]);
 
@@ -229,9 +230,18 @@ const SMScroller: React.FC<SMScrollerProps> = ({
                 }
               }}
               onSave={(value) => {}}
+              ref={stringEditorRef}
             />
           </div>
-          <SMButton iconFilled={false} icon="pi-filter-slash" onClick={() => setFilterString('')} />
+          <SMButton
+            iconFilled={false}
+            icon="pi-filter-slash"
+            onClick={() => {
+              setFilterString('');
+              stringEditorRef.current?.clear();
+              scrollTo(1);
+            }}
+          />
         </div>
       )}
 
