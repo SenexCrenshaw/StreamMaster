@@ -5,13 +5,11 @@ using System.Diagnostics;
 
 namespace StreamMaster.Streams.Streams;
 
-
 /// <summary>
 /// Manages the streaming of a single video stream, including client registrations and circularRingbuffer handling.
 /// </summary>
 public sealed partial class StreamHandler
 {
-
     private const int videoBufferSize = 1 * 1024 * 1000;
     public const int ChunkSize = 64 * 1024;
 
@@ -45,30 +43,13 @@ public sealed partial class StreamHandler
         }
     }
 
-
     public async Task StartVideoStreamingAsync(Stream stream)
     {
-
         VideoStreamingCancellationToken = new();
 
         logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} name: {name}", ChunkSize, StreamUrl, VideoStreamName);
 
         bool inputStreamError = false;
-
-        //CancellationTokenSource linkedToken;
-        //CancellationTokenSource? timeOutToken = null;
-
-        //if (!testRan && hlssettings.TestSettings.DropInputSeconds > 0)
-        //{
-        //    timeOutToken = new();
-        //    logger.LogInformation("Testing: Will stop stream in {DropInputSeconds} seconds.", hlssettings.TestSettings.DropInputSeconds);
-        //    timeOutToken.CancelAfter(hlssettings.TestSettings.DropInputSeconds * 1000);
-        //    linkedToken = CancellationTokenSource.CreateLinkedTokenSource(VideoStreamingCancellationToken.Token, timeOutToken.Token);
-        //}
-        //else
-        //{
-        //    linkedToken = VideoStreamingCancellationToken;
-        //}
         CancellationTokenSource linkedToken = VideoStreamingCancellationToken;
         bool ran = false;
         int accumulatedBytes = 0;
@@ -86,14 +67,14 @@ public sealed partial class StreamHandler
                         logger.LogWarning("No more clients, breaking");
                         break;
                     }
-                    await Task.Delay(10);
+                    await Task.Delay(10).ConfigureAwait(false);
                     continue;
                 }
 
                 try
                 {
                     _writeLogger.LogDebug("-------------------{VideoStreamName}-----------------------------", VideoStreamName);
-                    int readBytes = await stream.ReadAsync(bufferMemory, linkedToken.Token);
+                    int readBytes = await stream.ReadAsync(bufferMemory, linkedToken.Token).ConfigureAwait(false);
                     _writeLogger.LogDebug("End bytes read from input stream: {byteswritten}", readBytes);
                     if (readBytes == 0)
                     {
@@ -134,7 +115,6 @@ public sealed partial class StreamHandler
                 }
                 catch (OperationCanceledException)
                 {
-
                     logger.LogInformation("Stream Operation stopped for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
                     break;
                 }
@@ -150,26 +130,18 @@ public sealed partial class StreamHandler
                     logger.LogInformation(ex, "HTTP IO for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
                     break;
                 }
-
                 catch (Exception ex)
                 {
-
                     logger.LogError(ex, "Stream error for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
                     break;
                 }
             }
         }
 
-        //foreach (IClientStreamerConfiguration clientStreamerConfig in clientStreamerConfigs.Values)
-        //{
-        //    clientStreamerConfig.ClientStream?.Channel.Writer.Complete();
-        //}
         IsFailed = true;
         stream.Close();
         stream.Dispose();
 
         OnStreamingStopped(inputStreamError);
-
     }
-
 }
