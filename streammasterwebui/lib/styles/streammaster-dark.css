@@ -7264,12 +7264,11 @@
 }
 .stringeditor .input-icon {
   position: absolute;
-  right: 0.25rem;
+  right: 0.24rem;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding-right: 1rem;
 }
 .stringeditor .input-icon-left {
   position: absolute;

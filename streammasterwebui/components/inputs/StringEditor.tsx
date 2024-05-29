@@ -140,8 +140,9 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
       if (darkBackGround) {
         ret = 'stringeditorbody-inputtext-dark';
       }
+
       if (needsSave) {
-        ret = 'stringeditorbody-inputtext-save';
+        ret += ' stringeditorbody-inputtext-save';
       }
 
       if (labelInline) {
@@ -167,7 +168,7 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
             <div className="pt-small" />
           </>
         )}
-        <div ref={divReference} className={`flex ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
+        <div ref={divReference} className={`flex stringeditor ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
           {label && labelInline && <div className={labelInline ? 'w-4' : 'w-6'}>{label.toUpperCase()}</div>}
           <InputText
             ref={inputRef}
