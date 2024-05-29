@@ -7178,7 +7178,7 @@
 }
 
 .text-sm, .sm-input-sm {
-  font-size: 0.65625rem;
+  font-size: 1.4rem;
 }
 
 .padding-lg, .text-lg, .header-text-sub, .info-header-text, .info-header-text-bottom-border {
@@ -7966,7 +7966,7 @@
   color: #bcbfbf;
   background: transparent;
   transition: box-shadow 0.3s;
-  border-radius: 6px;
+  border-radius: 0;
   height: 1.8rem;
   max-height: 1.8rem;
 }
@@ -7988,7 +7988,7 @@
 .sm-scroller-item:not(.p-disabled):hover {
   background: rgba(188, 191, 191, 0.16);
   border-color: rgba(188, 191, 191, 0.16);
-  border-radius: 6px;
+  border-radius: 0;
   border-style: solid;
   border-width: 1px;
   color: #bcbfbf;
@@ -8125,8 +8125,6 @@
   background-color: #1d2327 !important;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  height: 3rem !important;
-  max-height: 3rem !important;
 }
 
 .p-datatable-wrapper {

@@ -13,7 +13,8 @@
 
 .text-sm {
     @extend .padding-sm;
-    @include scaledFontSize($common-font-size, $scaleSM);
+    font-size: $input-height-with-no-borders;
+    // @include scaledFontSize($common-font-size, $scaleSM);
 }
 
 .padding-lg {

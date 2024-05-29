@@ -161,7 +161,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
         <div className="w-full">
           <StreamGroupButton />
         </div>
-        <div className="flex flex-row justify-content-end align-items-center w-full gap-1  pr-1">
+        <div className="flex flex-row justify-content-end align-items-center w-full gap-1 pr-1">
           <EPGFilesButton />
           <SMChannelMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} skipOverLayer />
           <DeleteSMChannelsDialog selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} />

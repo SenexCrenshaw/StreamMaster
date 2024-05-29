@@ -93,7 +93,7 @@ export const useSMChannelEPGColumnConfig = ({ width = '8rem' }: SMChannelEPGColu
 
   function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
     return (
-      <div className="sm-input-border-dark w-full">
+      <div className="w-full">
         <SMDropDown
           buttonDarkBackground
           buttonTemplate={buttonTemplate(options)}

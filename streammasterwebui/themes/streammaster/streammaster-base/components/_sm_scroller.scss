@@ -24,7 +24,7 @@
     color: $inputListItemTextColor;
     background: $inputListItemBg;
     transition: $listItemTransition;
-    border-radius: $inputListItemBorderRadius;
+    border-radius: 0; // $inputListItemBorderRadius;
     height: $datatable-row-height;
     max-height: $datatable-row-height;
 
@@ -52,7 +52,7 @@
     &:not(.p-disabled):hover {
         background: $highlightBg;
         border-color: $highlightBg;
-        border-radius: $borderRadius;
+        border-radius: 0; // $borderRadius;
         border-style: solid;
         border-width: 1px;
         color: $highlightTextColor;

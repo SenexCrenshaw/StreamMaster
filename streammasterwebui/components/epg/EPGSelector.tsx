@@ -386,20 +386,18 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround =
 
   const headerTemplate = useMemo(() => {
     return (
-      <div className="sm-input-dark">
-        <SMDropDown
-          buttonDarkBackground
-          buttonTemplate={headerValueTemplate}
-          data={epgFiles}
-          dataKey="EPGNumber"
-          height="20vh"
-          itemTemplate={scrollerItemTemplate}
-          select
-          selectedItemsKey="EPGSelector-EPGFiles"
-          simple
-          title="EPG"
-        />
-      </div>
+      <SMDropDown
+        buttonDarkBackground
+        buttonTemplate={headerValueTemplate}
+        data={epgFiles}
+        dataKey="EPGNumber"
+        height="20vh"
+        itemTemplate={scrollerItemTemplate}
+        select
+        selectedItemsKey="EPGSelector-EPGFiles"
+        simple
+        title="EPG"
+      />
     );
   }, [epgFiles, headerValueTemplate, scrollerItemTemplate]);
 
@@ -427,18 +425,11 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround =
           </>
         )}
       </div>
-      <div className={darkBackGround ? 'sm-input-border-dark' : ''}>
-        <SMOverlay
-          header={headerTemplate}
-          title="EPG"
-          widthSize="3"
-          icon="pi-chevron-down"
-          buttonTemplate={buttonTemplate(stationChannelName)}
-          buttonLabel="EPG"
-        >
-          {messageContent}
-        </SMOverlay>
-      </div>
+      {/* <div className={darkBackGround ? 'sm-input-dark2' : ''}> */}
+      <SMOverlay header={headerTemplate} title="EPG" widthSize="3" icon="pi-chevron-down" buttonTemplate={buttonTemplate(stationChannelName)} buttonLabel="EPG">
+        {messageContent}
+      </SMOverlay>
+      {/* </div> */}
     </>
   );
 };

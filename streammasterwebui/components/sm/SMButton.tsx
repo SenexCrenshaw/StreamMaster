@@ -50,7 +50,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
     ref
   ) => {
     const tooltipClassName = React.useMemo(() => {
-      const ret = `smbutton-${uuidv4()} input-height-with-no-borders`;
+      const ret = `smbutton-${uuidv4()} input-height`;
 
       return ret;
     }, []);
@@ -90,7 +90,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
     if (props.children) {
       if (darkBackGround) {
         return (
-          <div className="sm-input-border-dark w-full">
+          <div className="sm-input-dark w-full">
             <Tooltip target={`.${tooltipClassName}`} />
             <div
               onClick={(e) => {

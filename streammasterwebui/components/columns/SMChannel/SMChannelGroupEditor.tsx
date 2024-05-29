@@ -67,7 +67,7 @@ const SMChannelGroupEditor = ({ darkBackGround, smChannelDto, onChange }: SMChan
   }, [selectedItems]);
 
   return (
-    <div className={darkBackGround ? 'sm-input-border-dark w-full' : 'w-full'}>
+    <div className={darkBackGround ? ' w-full' : 'w-full'}>
       <SMOverlay header={headerTemplate} title="GROUP" widthSize="2" icon="pi-chevron-down" buttonTemplate={buttonTemplate} buttonLabel="EPG">
         <div className="flex flex-row w-full sm-card border-radius-left border-radius-right ">
           <Suspense>
