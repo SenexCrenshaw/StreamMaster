@@ -44,7 +44,7 @@ const TableHeader: React.FC<TableHeaderProperties> = ({
   }, [smTableIsSimple]);
 
   return (
-    <div className="flex flex-row align-items-center justify-content-between border-white">
+    <div className="flex flex-row align-items-center justify-content-between w-full">
       {(headerName || onMultiSelectClick) && (
         <div className={`${col} text-sm`}>
           <span className={headerClassName}>{headerName}</span>

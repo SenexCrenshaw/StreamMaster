@@ -18,13 +18,15 @@
     background-color: $tableHeaderBg !important;
     padding-top: $datatable-header-padding;
     padding-bottom: $datatable-header-padding;
+    height: 3rem !important;
+    max-height: 3rem !important;
 }
 
 .p-datatable-wrapper {
-    @extend .sm-datatable-header;
-
-    // border-bottom-left-radius: 0 !important;
-    // border-bottom-right-radius: 0 !important;
+    @extend .sm-border;
+    background-color: $tableHeaderBg !important;
+    padding-top: $datatable-header-padding;
+    padding-bottom: $datatable-header-padding;
 
     padding: 0 !important;
     background-color: var(--surface-ground) !important;

@@ -6970,7 +6970,7 @@
   border-radius: 6px;
 }
 
-.sm-border, .sm-datatable-header, .p-datatable-wrapper, .sm-card .sm-card-info, .sm-card-dark .sm-card-info, .sm-card .sm-card-header, .sm-card-dark .sm-card-header, .sm-card .sm-card-children, .sm-card-dark .sm-card-children, .sm-standard-header {
+.sm-border, .p-datatable-wrapper, .sm-datatable-header, .sm-card .sm-card-info, .sm-card-dark .sm-card-info, .sm-card .sm-card-header, .sm-card-dark .sm-card-header, .sm-card .sm-card-children, .sm-card-dark .sm-card-children, .sm-standard-header {
   border-radius: 6px !important;
   border-color: #263238 !important;
   border-width: 0.1rem !important;
@@ -8119,13 +8119,18 @@
   max-height: 1.4rem;
 }
 
-.sm-datatable-header, .p-datatable-wrapper {
+.sm-datatable-header {
   background-color: #1d2327 !important;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
+  height: 3rem !important;
+  max-height: 3rem !important;
 }
 
 .p-datatable-wrapper {
+  background-color: #1d2327 !important;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
   padding: 0 !important;
   background-color: var(--surface-ground) !important;
 }

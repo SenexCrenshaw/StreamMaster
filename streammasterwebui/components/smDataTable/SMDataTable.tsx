@@ -589,11 +589,11 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   }, [props.enablePaginator, state.dataSource, state.rows]);
 
   const getClass = useMemo(() => {
-    if (showPageination !== true) {
-      return 'sm-datatable surface-overlay';
-    }
+    // if (showPageination !== true) {
+    //   return 'sm-datatable surface-overlay';
+    // }
     return 'sm-datatable surface-overlay';
-  }, [showPageination]);
+  }, []);
 
   const getWrapperDiv = useMemo(() => {
     if (showPageination !== true) {
@@ -644,12 +644,10 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       className=""
     >
       <div className={getClass}>
-        {sourceRenderHeader && (
-          <div>
-            <div className="sm-datatable-header">{sourceRenderHeader}</div>
-            <div className="layout-padding-bottom"></div>
-          </div>
-        )}
+        <div>
+          <div className="sm-datatable-header flex flex-row align-items-center justify-content-center w-full">{sourceRenderHeader}</div>
+          <div className="layout-padding-bottom" />
+        </div>
 
         <DataTable
           // id={props.id}
