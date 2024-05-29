@@ -14,5 +14,5 @@ public interface IStreamSwitcher
     /// <param name="channelStatus">The current status of the channel.</param>
     /// <param name="overrideNextVideoStreamId">Optional ID to override the next video stream to switch to.</param>
     /// <returns>A Task returning true if the switch was successful; otherwise, returns false.</returns>
-    Task<bool> SwitchToNextVideoStreamAsync(SMChannel smChannel, string? overrideNextVideoStreamId = null);
+    Task<bool> SwitchToNextVideoStreamAsync(SMChannel smChannel, IChannelStatus channelStatus, string? overrideNextVideoStreamId = null);
 }

@@ -1,8 +1,4 @@
-﻿using AutoMapper;
-
-using Microsoft.Extensions.DependencyInjection;
-
-using StreamMaster.Domain.Configuration;
+﻿using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Streams.Streams;
 
@@ -12,20 +8,10 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
     private readonly Setting settings = intsettings.CurrentValue;
 
 
-    public async Task<bool> SwitchToNextVideoStreamAsync(SMChannel smChannel, string? overrideNextVideoStreamId = null)
+    public async Task<bool> SwitchToNextVideoStreamAsync(SMChannel smChannel, IChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
     {
-
-        IChannelStatus? channelStatus = channelService.GetChannelStatus(smChannel.Id);
-        if (channelStatus is null)
-        {
-            logger.LogError("SwitchToNextVideoStream could not get channel for id {ChannelVideoStreamId}", smChannel.Id);
-            logger.LogDebug("Exiting SwitchToNextVideoStream with false due to channelStatus being null");
-            return false;
-        }
-
         if (channelStatus.FailoverInProgress)
         {
-            //logger.LogDebug("Exiting SwitchToNextVideoStream with false due to FailoverInProgress being true");
             return false;
         }
 
@@ -37,19 +23,18 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
 
         logger.LogDebug("Starting SwitchToNextVideoStream with channelStatus: {channelStatus} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus, overrideNextVideoStreamId);
 
-
         IStreamHandler? oldStreamHandler = streamManager.GetStreamHandler(channelStatus.CurrentSMStream?.Url);
 
+        await channelService.SetNextChildVideoStream(channelStatus.Id, overrideNextVideoStreamId);
 
-        SMStream? smStream = await RetrieveNextChildVideoStream(channelStatus, overrideNextVideoStreamId);
-        if (smStream is null)
+        if (channelStatus.CurrentSMStream is null)
         {
             logger.LogDebug("Exiting SwitchToNextVideoStream with false due to smStream being null");
             channelStatus.FailoverInProgress = false;
             return false;
         }
 
-        if (oldStreamHandler != null && oldStreamHandler.SMStream.Id == smStream.Id)
+        if (oldStreamHandler != null && oldStreamHandler.SMStream.Id == channelStatus.CurrentSMStream.Id)
         {
             logger.LogDebug("Matching ids, stopping original stream");
             oldStreamHandler.SetFailed();
@@ -59,7 +44,7 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
             return true;
         }
 
-        IStreamHandler? newStreamHandler = await streamManager.GetOrCreateStreamHandler(smChannel, smStream, channelStatus.Rank);
+        IStreamHandler? newStreamHandler = await streamManager.GetOrCreateStreamHandler(smChannel, channelStatus.CurrentSMStream, channelStatus.Rank);
 
         if (newStreamHandler is null)
         {
@@ -77,7 +62,6 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
             await clientStreamerManager.AddClientsToHandler(smChannel.Id, newStreamHandler);
         }
 
-        //channelStatus.SetCurrentSMStream(smStream);
         channelStatus.FailoverInProgress = false;
 
         logger.LogDebug("Finished SwitchToNextVideoStream");
@@ -193,9 +177,9 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
     private async Task<SMStream?> RetrieveNextChildVideoStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
     {
 
-        using IServiceScope scope = serviceProvider.CreateScope();
-        IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-        IMapper mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
+        //using IServiceScope scope = serviceProvider.CreateScope();
+        //IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        //IMapper mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
         await channelService.SetNextChildVideoStream(channelStatus.Id, overrideNextVideoStreamId);
         logger.LogDebug("Starting RetrieveNextChildVideoStream with channelStatus: {VideoStreamName} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus.CurrentSMStream.Name, overrideNextVideoStreamId);
