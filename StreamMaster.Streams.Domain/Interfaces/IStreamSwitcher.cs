@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Models;
-
-namespace StreamMaster.Streams.Domain.Interfaces;
+﻿namespace StreamMaster.Streams.Domain.Interfaces;
 
 /// <summary>
 /// Provides methods for switching video streams in a channel.
@@ -14,5 +12,5 @@ public interface IStreamSwitcher
     /// <param name="channelStatus">The current status of the channel.</param>
     /// <param name="overrideNextVideoStreamId">Optional ID to override the next video stream to switch to.</param>
     /// <returns>A Task returning true if the switch was successful; otherwise, returns false.</returns>
-    Task<bool> SwitchToNextVideoStreamAsync(SMChannel smChannel, IChannelStatus channelStatus, string? overrideNextVideoStreamId = null);
+    Task<bool> SwitchToNextVideoStreamAsync(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null);
 }

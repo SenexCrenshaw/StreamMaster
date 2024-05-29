@@ -10,7 +10,7 @@ public interface IClientStreamerConfiguration
     Guid ClientId { get; set; }
     string ClientIPAddress { get; set; }
     string ClientUserAgent { get; set; }
-    IClientReadStream? Stream { get; set; }
+    IClientReadStream? ClientStream { get; set; }
     CancellationTokenSource ClientMasterToken { get; set; }
     string VideoStreamName { get; set; }
     Task CancelClient(bool includeResponse = true);

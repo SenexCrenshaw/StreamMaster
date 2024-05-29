@@ -1,14 +1,9 @@
-﻿using StreamMaster.Domain.Configuration;
+﻿namespace StreamMaster.Streams.Streams;
 
-namespace StreamMaster.Streams.Streams;
-
-public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStreamerManager clientStreamerManager, IChannelService channelService, IServiceProvider serviceProvider, IOptionsMonitor<Setting> intsettings, IStreamManager streamManager)
+public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStreamerManager clientStreamerManager, IChannelService channelService, IStreamManager streamManager)
     : IStreamSwitcher
 {
-    private readonly Setting settings = intsettings.CurrentValue;
-
-
-    public async Task<bool> SwitchToNextVideoStreamAsync(SMChannel smChannel, IChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
+    public async Task<bool> SwitchToNextVideoStreamAsync(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
     {
         if (channelStatus.FailoverInProgress)
         {
@@ -23,18 +18,18 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
 
         logger.LogDebug("Starting SwitchToNextVideoStream with channelStatus: {channelStatus} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus, overrideNextVideoStreamId);
 
-        IStreamHandler? oldStreamHandler = streamManager.GetStreamHandler(channelStatus.CurrentSMStream?.Url);
+        IStreamHandler? oldStreamHandler = streamManager.GetStreamHandler(channelStatus.SMStream?.Url);
 
         await channelService.SetNextChildVideoStream(channelStatus.Id, overrideNextVideoStreamId);
 
-        if (channelStatus.CurrentSMStream is null)
+        if (channelStatus.SMStream is null)
         {
             logger.LogDebug("Exiting SwitchToNextVideoStream with false due to smStream being null");
             channelStatus.FailoverInProgress = false;
             return false;
         }
 
-        if (oldStreamHandler != null && oldStreamHandler.SMStream.Id == channelStatus.CurrentSMStream.Id)
+        if (oldStreamHandler != null && oldStreamHandler.SMStream.Id == channelStatus.SMStream.Id)
         {
             logger.LogDebug("Matching ids, stopping original stream");
             oldStreamHandler.SetFailed();
@@ -44,7 +39,7 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
             return true;
         }
 
-        IStreamHandler? newStreamHandler = await streamManager.GetOrCreateStreamHandler(smChannel, channelStatus.CurrentSMStream, channelStatus.Rank);
+        IStreamHandler? newStreamHandler = await streamManager.GetOrCreateStreamHandler(channelStatus);
 
         if (newStreamHandler is null)
         {
@@ -53,13 +48,13 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
             return false;
         }
 
-        if (channelStatus.CurrentSMStream is not null && oldStreamHandler is not null)
+        if (channelStatus.SMStream is not null && oldStreamHandler is not null)
         {
             await streamManager.MoveClientStreamers(oldStreamHandler, newStreamHandler);
         }
         else
         {
-            await clientStreamerManager.AddClientsToHandler(smChannel.Id, newStreamHandler);
+            await clientStreamerManager.AddClientsToHandler(channelStatus.SMChannel.Id, newStreamHandler);
         }
 
         channelStatus.FailoverInProgress = false;
@@ -103,7 +98,7 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
 
     //    int allStreamsCount = streamManager.GetStreamsCountForM3UFile(vs.M3UFileId);
 
-    //    if (vs.Id != channelStatus.CurrentSMStream.Id && allStreamsCount >= m3uFile.MaxStreamCount)
+    //    if (vs.Id != channelStatus.SMStream.Id && allStreamsCount >= m3uFile.MaxStreamCount)
     //    {
     //        logger.LogInformation("Max stream count {MaxStreams} reached for stream: {StreamUrl}", 999, vs.Url);
     //    }
@@ -118,7 +113,7 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
 
     //private async Task<SMStream?> FetchNextChildVideoStream(IChannelStatus channelStatus, IRepositoryWrapper repository)
     //{
-    //    var smStreams = channelStatus.CurrentSMStream;
+    //    var smStreams = channelStatus.SMStream;
     //    (VideoStreamHandlers videoStreamHandler, List<SMStream> smStreams)? result = await repository.SMStream.GetStreamsFromVideoStreamById(channelStatus.ChannelSMStreamId);
     //    if (result == null)
     //    {
@@ -175,34 +170,34 @@ public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStream
     //    return null;
     //}
 
-    private async Task<SMStream?> RetrieveNextChildVideoStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
-    {
+    //private async Task<SMStream?> RetrieveNextChildVideoStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
+    //{
 
-        //using IServiceScope scope = serviceProvider.CreateScope();
-        //IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-        //IMapper mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
+    //    //using IServiceScope scope = serviceProvider.CreateScope();
+    //    //IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+    //    //IMapper mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
-        await channelService.SetNextChildVideoStream(channelStatus.Id, overrideNextVideoStreamId);
-        logger.LogDebug("Starting RetrieveNextChildVideoStream with channelStatus: {VideoStreamName} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus.CurrentSMStream.Name, overrideNextVideoStreamId);
+    //    await channelService.SetNextChildVideoStream(channelStatus.Id, overrideNextVideoStreamId);
+    //    logger.LogDebug("Starting RetrieveNextChildVideoStream with channelStatus: {VideoStreamName} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus.SMStream.Name, overrideNextVideoStreamId);
 
-        return channelStatus.CurrentSMStream;
+    //    return channelStatus.SMStream;
 
-        //if (!string.IsNullOrEmpty(overrideNextVideoStreamId))
-        //{
-        //    VideoStreamDto? handled = await HandleOverrideStream(overrideNextVideoStreamId, repository, channelStatus);
-        //    if (handled != null)
-        //    {
-        //        return handled;
-        //    }
-        //    logger.LogDebug("Exiting RetrieveNextChildVideoStream with null due to no overrideNextVideoStreamId not found");
-        //    return null;
-        //}
-        //VideoStreamDto? result = await FetchNextChildVideoStream(channelStatus, repository);
-        //if (result != null)
-        //{
-        //    return result;
-        //}
-        //logger.LogDebug("Exiting RetrieveNextChildVideoStream with null due to no suitable videoStream found");
-        //return null;
-    }
+    //    //if (!string.IsNullOrEmpty(overrideNextVideoStreamId))
+    //    //{
+    //    //    VideoStreamDto? handled = await HandleOverrideStream(overrideNextVideoStreamId, repository, channelStatus);
+    //    //    if (handled != null)
+    //    //    {
+    //    //        return handled;
+    //    //    }
+    //    //    logger.LogDebug("Exiting RetrieveNextChildVideoStream with null due to no overrideNextVideoStreamId not found");
+    //    //    return null;
+    //    //}
+    //    //VideoStreamDto? result = await FetchNextChildVideoStream(channelStatus, repository);
+    //    //if (result != null)
+    //    //{
+    //    //    return result;
+    //    //}
+    //    //logger.LogDebug("Exiting RetrieveNextChildVideoStream with null due to no suitable videoStream found");
+    //    //return null;
+    //}
 }

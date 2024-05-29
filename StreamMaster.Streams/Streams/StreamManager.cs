@@ -54,14 +54,6 @@ public sealed class StreamManager(
         }
     }
 
-    private async Task<IStreamHandler?> CreateStreamHandler(SMChannel smChannel, SMStream smStream, int rank, CancellationToken cancellation)
-    {
-
-        IStreamHandler? streamHandler = await streamHandlerFactory.CreateStreamHandlerAsync(smChannel, smStream, rank, cancellation);
-
-        return streamHandler;
-    }
-
     public IStreamHandler? GetStreamHandler(string? smStreamId)
     {
         return string.IsNullOrEmpty(smStreamId)
@@ -69,8 +61,12 @@ public sealed class StreamManager(
             : !_streamHandlers.TryGetValue(smStreamId, out IStreamHandler? streamHandler) ? null : streamHandler;
     }
 
-    public async Task<IStreamHandler?> GetOrCreateStreamHandler(SMChannel smChannel, SMStream smStream, int rank, CancellationToken cancellation = default)
+    public async Task<IStreamHandler?> GetOrCreateStreamHandler(IChannelStatus channelStatus, CancellationToken cancellation = default)
     {
+        SMStream smStream = channelStatus.SMStream;
+        SMChannel smChannel = channelStatus.SMChannel;
+        int rank = channelStatus.Rank;
+
         _ = _streamHandlers.TryGetValue(smStream.Url, out IStreamHandler? streamHandler);
 
         if (streamHandler is not null && streamHandler.IsFailed == true)
@@ -82,7 +78,7 @@ public sealed class StreamManager(
         if (streamHandler is null)
         {
             logger.LogInformation("Creating new handler for stream: {Id} {name}", smStream.Id, smStream.Name);
-            streamHandler = await CreateStreamHandler(smChannel, smStream, rank, cancellation);
+            streamHandler = await CreateStreamHandler(channelStatus, cancellation);
             if (streamHandler == null)
             {
                 return null;
@@ -97,8 +93,15 @@ public sealed class StreamManager(
         logger.LogInformation("Reusing handler for stream: {Id} {name}", smStream.Id, smStream.Name);
         return streamHandler;
     }
+    private async Task<IStreamHandler?> CreateStreamHandler(IChannelStatus channelStatus, CancellationToken cancellation)
+    {
 
-    private async void StreamHandler_OnStreamingStoppedEvent(object? sender, StreamHandlerStopped StoppedEvent)
+        IStreamHandler? streamHandler = await streamHandlerFactory.CreateStreamHandlerAsync(channelStatus, cancellation);
+
+        return streamHandler;
+    }
+
+    private void StreamHandler_OnStreamingStoppedEvent(object? sender, StreamHandlerStopped StoppedEvent)
     {
         if (sender is IStreamHandler streamHandler)
         {

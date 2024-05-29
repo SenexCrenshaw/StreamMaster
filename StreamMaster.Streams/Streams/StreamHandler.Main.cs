@@ -4,10 +4,6 @@ using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Streams;
 
-
-/// <summary>
-/// Manages the streaming of a single video stream, including client registrations and circularRingbuffer handling.
-/// </summary>
 public sealed partial class StreamHandler : IStreamHandler
 {
     public event EventHandler<StreamHandlerStopped> OnStreamingStoppedEvent;
@@ -50,9 +46,13 @@ public sealed partial class StreamHandler : IStreamHandler
     /// <param name="memoryCache">An IMemoryCache instance for caching purposes within the stream handler.</param>
     /// <param name="loggerFactory">An ILoggerFactory instance used to create loggers for logging information and events.</param>
     /// <param name="inputStatisticsManager">An IInputStatisticsManager instance for managing and tracking input statistics.</param>
-    public StreamHandler(SMStream smStream, SMChannel smChannel, int processId, int rank, IOptionsMonitor<Setting> intsettings, ILoggerFactory loggerFactory, IInputStatisticsManager inputStatisticsManager)
+    public StreamHandler(IChannelStatus channelStatus, int processId, IOptionsMonitor<Setting> intSettings, ILoggerFactory loggerFactory, IInputStatisticsManager inputStatisticsManager)
     {
-        settings = intsettings.CurrentValue;
+        SMStream smStream = channelStatus.SMStream;
+        SMChannel smChannel = channelStatus.SMChannel;
+        int rank = channelStatus.Rank;
+
+        settings = intSettings.CurrentValue;
         logger = loggerFactory.CreateLogger<StreamHandler>();
         SMStream = smStream;
         SMChannel = smChannel;

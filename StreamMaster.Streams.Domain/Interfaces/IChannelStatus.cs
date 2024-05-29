@@ -8,7 +8,7 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 public interface IChannelStatus
 {
     string OverrideVideoStreamId { get; set; }
-    //List<Guid> GetChannelClientIds { get; }
+
     /// <summary>
     /// Sets the channel to a global state.
     /// </summary>
@@ -39,11 +39,12 @@ public interface IChannelStatus
     ///// Gets or sets the name of the video stream associated with this channel.
     ///// </summary>
     //string CurrentVideoStreamName { get; set; }
-    string ChannelName { get; set; }
+    //string ChannelName { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the video stream associated with this channel.
     /// </summary>
-    SMStream CurrentSMStream { get; }
+    SMStream SMStream { get; }
+    SMChannel SMChannel { get; }
 
 }

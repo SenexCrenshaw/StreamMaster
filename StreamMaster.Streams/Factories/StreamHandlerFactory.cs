@@ -7,15 +7,19 @@ public sealed class StreamHandlerFactory(IInputStatisticsManager inputStatistics
 {
     private readonly Setting settings = intsettings.CurrentValue;
 
-    public async Task<IStreamHandler?> CreateStreamHandlerAsync(SMChannel smChannel, SMStream smStream, int rank, CancellationToken cancellationToken)
+    public async Task<IStreamHandler?> CreateStreamHandlerAsync(IChannelStatus channelStatus, CancellationToken cancellationToken)
     {
+        SMStream smStream = channelStatus.SMStream;
+        SMChannel smChannel = channelStatus.SMChannel;
+        int rank = channelStatus.Rank;
+
         (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(smStream.Url, smStream.Name, smChannel.StreamingProxyType, cancellationToken).ConfigureAwait(false);
         if (stream == null || error != null || processId == 0)
         {
             return null;
         }
 
-        StreamHandler streamHandler = new(smStream, smChannel, processId, rank, intsettings, loggerFactory, inputStatisticsManager);
+        StreamHandler streamHandler = new(channelStatus, processId, intsettings, loggerFactory, inputStatisticsManager);
 
         _ = Task.Run(() => streamHandler.StartVideoStreamingAsync(stream), cancellationToken);
 
@@ -33,7 +37,7 @@ public sealed class StreamHandlerFactory(IInputStatisticsManager inputStatistics
 
     //    StreamHandler.RestartCount++;
 
-    //    (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(StreamHandler.SMStream.Url, StreamHandler.SMStream.Name, StreamHandler.SMStream.StreamingProxyType, CancellationToken.None).ConfigureAwait(false);
+    //    (ClientStream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(StreamHandler.SMStream.Url, StreamHandler.SMStream.Name, StreamHandler.SMStream.StreamingProxyType, CancellationToken.None).ConfigureAwait(false);
     //    if (stream == null || error != null || processId == 0)
     //    {
     //        return null;

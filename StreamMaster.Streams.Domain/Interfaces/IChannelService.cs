@@ -6,7 +6,8 @@ public interface IChannelService
     void Dispose();
     IChannelStatus? GetChannelStatus(int smChannelId);
     List<IChannelStatus> GetChannelStatuses();
-    List<IChannelStatus> GetChannelStatusesFromId(int smChannelId);
+    List<IChannelStatus> GetChannelStatusesFromSMChannelId(int smChannelId);
+    List<IChannelStatus> GetChannelStatusesFromSMStreamId(string smStreamId);
     int GetGlobalStreamsCount();
     bool HasChannel(int SMChannelId);
     Task<IChannelStatus?> RegisterChannel(SMChannel smChannel, bool fetch = false);

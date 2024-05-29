@@ -28,41 +28,41 @@ namespace StreamMaster.API.Controllers
 
             IChannelStatus? channelStatus = await channelService.RegisterChannel(mapper.Map<SMChannelDto>(smChannel), true);
 
-            if (channelStatus == null || channelStatus.CurrentSMStream == null)
+            if (channelStatus == null || channelStatus.SMStream == null)
             {
                 return NotFound();
             }
 
-            await hLsManager.GetOrAdd(channelStatus.CurrentSMStream);
+            await hLsManager.GetOrAdd(channelStatus.SMStream);
 
             int timeOut = HLSSettings.HLSM3U8CreationTimeOutInSeconds;
-            string m3u8File = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.CurrentSMStream.Id, $"index.m3u8");
+            string m3u8File = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.SMStream.Id, $"index.m3u8");
 
-            if (!streamTracker.HasStream(channelStatus.CurrentSMStream.Id))
+            if (!streamTracker.HasStream(channelStatus.SMStream.Id))
             {
                 if (!await FileUtil.WaitForFileAsync(m3u8File, timeOut, 100, cancellationToken))
                 {
                     logger.LogWarning("HLS segment timeout {FileName}, exiting", m3u8File);
-                    hLsManager.Stop(channelStatus.CurrentSMStream.Id);
+                    hLsManager.Stop(channelStatus.SMStream.Id);
                     return NotFound();
                 }
 
-                string tsFile = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.CurrentSMStream.Id, $"2.ts");
+                string tsFile = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.SMStream.Id, $"2.ts");
 
                 if (!await FileUtil.WaitForFileAsync(tsFile, timeOut, 100, cancellationToken))
                 {
                     logger.LogWarning("TS segment timeout {FileName}, exiting", tsFile);
-                    hLsManager.Stop(channelStatus.CurrentSMStream.Id);
+                    hLsManager.Stop(channelStatus.SMStream.Id);
                     return NotFound();
                 }
 
-                if (streamTracker.AddStream(channelStatus.CurrentSMStream.Id))
+                if (streamTracker.AddStream(channelStatus.SMStream.Id))
                 {
                     //timeOut = HLSSettings.HLSM3U8CreationTimeOutInSeconds;
                 }
             }
 
-            accessTracker.UpdateAccessTime(channelStatus.CurrentSMStream.Id, TimeSpan.FromSeconds(HLSSettings.HLSM3U8ReadTimeOutInSeconds));
+            accessTracker.UpdateAccessTime(channelStatus.SMStream.Id, TimeSpan.FromSeconds(HLSSettings.HLSM3U8ReadTimeOutInSeconds));
 
             HttpContext.Response.Headers.Connection = "close";
             HttpContext.Response.Headers.AccessControlAllowOrigin = "*";
@@ -150,7 +150,7 @@ namespace StreamMaster.API.Controllers
             public void Dispose()
             {
 
-                int count = _channelService.GetChannelStatusesFromId(smChannelId).Count;
+                int count = _channelService.GetChannelStatusesFromSMChannelId(smChannelId).Count;
                 if (count == 0)
                 {
                     _channelService.UnRegisterChannel(smChannelId);

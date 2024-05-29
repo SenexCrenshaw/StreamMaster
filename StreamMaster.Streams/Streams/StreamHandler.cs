@@ -19,28 +19,32 @@ public sealed partial class StreamHandler
 
     private DateTime LastVideoInfoRun = DateTime.MinValue;
 
-    // Write to all clients with separate buffers
     private async Task WriteToAllClientsAsync(byte[] data, CancellationToken cancellationToken)
     {
         IEnumerable<Task> tasks = clientStreamerConfigs.Values
-            .Where(c => c.Stream != null)
+            .Where(c => c.ClientStream?.Channel?.Writer != null)
             .Select(async clientStreamerConfig =>
             {
-                if (clientStreamerConfig.Stream != null)
+                try
                 {
-                    try
-                    {
-                        await clientStreamerConfig.Stream.Channel.Writer.WriteAsync(data, cancellationToken).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, "Failed to write to client {ClientId}", clientStreamerConfig.ClientId);
-                    }
+                    await clientStreamerConfig.ClientStream.Channel.Writer.WriteAsync(data, cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Failed to write to client {ClientId}", clientStreamerConfig.ClientId);
                 }
             });
 
-        await Task.WhenAll(tasks);
+        try
+        {
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while writing to all clients.");
+        }
     }
+
 
     public async Task StartVideoStreamingAsync(Stream stream)
     {
@@ -158,7 +162,7 @@ public sealed partial class StreamHandler
 
         //foreach (IClientStreamerConfiguration clientStreamerConfig in clientStreamerConfigs.Values)
         //{
-        //    clientStreamerConfig.Stream?.Channel.Writer.Complete();
+        //    clientStreamerConfig.ClientStream?.Channel.Writer.Complete();
         //}
         IsFailed = true;
         stream.Close();

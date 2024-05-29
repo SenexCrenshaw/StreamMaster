@@ -23,7 +23,7 @@ public interface IStreamManager
     /// <param name="rank">The rank of the stream.</param>
     /// <param name="cancellation">Optional cancellation token to cancel the operation.</param>
     /// <returns>A Task returning an IStreamHandler if successful; otherwise, returns null.</returns>
-    Task<IStreamHandler?> GetOrCreateStreamHandler(SMChannel smChannel, SMStream smStream, int rank, CancellationToken cancellation = default);
+    Task<IStreamHandler?> GetOrCreateStreamHandler(IChannelStatus channelStatus, CancellationToken cancellation = default);
 
     /// <summary>
     /// Retrieves the stream information based on a given stream URL.
@@ -37,7 +37,7 @@ public interface IStreamManager
     /// </summary>
     /// <param name="VideoStreamId">The ID of the video stream.</param>
     /// <returns>An IStreamHandler if the stream exists; otherwise, returns null.</returns>
-    IStreamHandler? GetStreamHandler(string VideoStreamId);
+    IStreamHandler? GetStreamHandler(string? VideoStreamId);
 
     IStreamHandler? GetStreamHandlerByClientId(Guid ClientId);
 

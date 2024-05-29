@@ -70,7 +70,7 @@ public class BroadcastService : IBroadcastService, IDisposable
         //logger.LogInformation("GetStreamHandlers: {GetStreamHandlers}", streamManager.GetStreamHandlers().Count);
         foreach (IClientStreamerConfiguration clientStreamerConfiguration in clientStreamer.GetAllClientStreamerConfigurations)
         {
-            printDebug("Client: {0} {1}", clientStreamerConfiguration.ChannelName, clientStreamerConfiguration.Stream?.Id ?? Guid.Empty);
+            printDebug("Client: {0} {1}", clientStreamerConfiguration.ChannelName, clientStreamerConfiguration.ClientStream?.Id ?? Guid.Empty);
         }
 
         foreach (IStreamHandler handler in streamManager.GetStreamHandlers())

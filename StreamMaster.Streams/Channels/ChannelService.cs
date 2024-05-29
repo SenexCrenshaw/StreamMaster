@@ -78,7 +78,12 @@ public sealed class ChannelService : IChannelService, IDisposable
         return channelStatus;
     }
 
-    public List<IChannelStatus> GetChannelStatusesFromId(int smChannelId)
+    public List<IChannelStatus> GetChannelStatusesFromSMStreamId(string StreamId)
+    {
+        return _channelStatuses.Values.Where(a => a.SMStream.Id == StreamId).ToList();
+    }
+
+    public List<IChannelStatus> GetChannelStatusesFromSMChannelId(int smChannelId)
     {
         return _channelStatuses.Values.Where(a => a.Id == smChannelId).ToList();
     }
