@@ -94,12 +94,16 @@ public sealed class ChannelManager : IChannelManager
         return streamHandler is null ? new() : streamHandler.GetVideoInfo();
     }
 
-    public async Task ChangeVideoStreamChannel(string playingSMStreamId, string newSMStreamId)
+    public async Task ChangeVideoStreamChannelAsync(string playingSMStreamId, string newSMStreamId, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Starting ChangeVideoStreamChannel with playingSMStreamId: {playingSMStreamId} and newSMStreamId: {newSMStreamId}", playingSMStreamId, newSMStreamId);
 
         foreach (IChannelStatus channelStatus in channelService.GetChannelStatusesFromSMStreamId(playingSMStreamId))
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
             if (channelStatus != null)
             {
 
@@ -150,9 +154,9 @@ public sealed class ChannelManager : IChannelManager
         _ = clientStreamerManager.CancelClient(clientId, true);
     }
 
-    public async Task<Stream?> GetChannel(IClientStreamerConfiguration config)
+    public async Task<Stream?> GetChannelAsync(IClientStreamerConfiguration config, CancellationToken cancellationToken = default)
     {
-        if (config.ClientMasterToken.IsCancellationRequested)
+        if (config.ClientMasterToken.IsCancellationRequested || cancellationToken.IsCancellationRequested)
         {
             logger.LogInformation("Exiting GetChannel due to ClientMasterToken being cancelled");
             return null;
@@ -168,13 +172,13 @@ public sealed class ChannelManager : IChannelManager
         return res;
     }
 
-    public async Task RemoveClient(IClientStreamerConfiguration config)
+    public async Task RemoveClientAsync(IClientStreamerConfiguration config)
     {
         logger.LogInformation("Client exited");
         await UnRegisterWithChannelManager(config);
     }
 
-    public async Task SimulateStreamFailure(string streamUrl)
+    public void SimulateStreamFailure(string streamUrl)
     {
         IStreamHandler? handler = streamManager.GetStreamHandlerFromStreamUrl(streamUrl);
 
@@ -190,7 +194,7 @@ public sealed class ChannelManager : IChannelManager
         }
     }
 
-    public async Task SimulateStreamFailureForAll()
+    public void SimulateStreamFailureForAll()
     {
         foreach (IStreamHandler s in streamManager.GetStreamHandlers())
         {
@@ -240,10 +244,6 @@ public sealed class ChannelManager : IChannelManager
 
     private async Task<IChannelStatus?> EnsureChannelRegistration(IClientStreamerConfiguration config)
     {
-        //using IServiceScope scope = serviceProvider.CreateScope();
-        //IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-        //SMChannel? smChannel = repository.SMChannel.GetSMChannel(config.SMChannel.Id);
-
         if (config.SMChannel == null)
         {
             logger.LogError("EnsureChannelRegistration SMChannel is null");

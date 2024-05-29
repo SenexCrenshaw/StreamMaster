@@ -20,7 +20,6 @@ public class VideoStreamsController(IChannelManager channelManager, IRepositoryW
         return Ok();
     }
 
-
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [HttpHead]
@@ -30,34 +29,32 @@ public class VideoStreamsController(IChannelManager channelManager, IRepositoryW
     [Route("stream/{encodedIds}/{name}")]
     public async Task<ActionResult> GetVideoStreamStream(string encodedIds, string name, CancellationToken cancellationToken)
     {
-
         (int? StreamGroupNumberNull, string? SMChannelId) = encodedIds.DecodeTwoValuesAsString128(Settings.ServerKey);
         if (StreamGroupNumberNull == null || string.IsNullOrEmpty(SMChannelId))
         {
             return new NotFoundResult();
         }
 
-        int streamGroupNumber = (int)StreamGroupNumberNull;
+        int streamGroupId = (int)StreamGroupNumberNull;
 
         if (!int.TryParse(SMChannelId, out int smChannelId))
         {
             return new NotFoundResult();
         }
 
-
-        SMChannel? smChannel = repositoryWrapper.SMChannel.GetSMChannel(smChannelId);
-
+        SMChannel? smChannel = streamGroupId == 0
+            ? repositoryWrapper.SMChannel.GetSMChannel(smChannelId)
+            : repositoryWrapper.SMChannel.GetSMChannelFromStreamGroup(smChannelId, streamGroupId);
         if (smChannel == null)
         {
-            logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} not found exiting", streamGroupNumber, smChannelId);
+            logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} not found exiting", streamGroupId, smChannelId);
             return NotFound();
         }
-        logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId}", streamGroupNumber, smChannelId);
-
+        logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId}", streamGroupId, smChannelId);
 
         if (smChannel.SMStreams.Count == 0 || string.IsNullOrEmpty(smChannel.SMStreams.First().SMStream.Url))
         {
-            logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} missing url or additional streams", streamGroupNumber, smChannelId);
+            logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} missing url or additional streams", streamGroupId, smChannelId);
             return new NotFoundResult();
         }
 
@@ -68,17 +65,16 @@ public class VideoStreamsController(IChannelManager channelManager, IRepositoryW
 
         if (redirect)
         {
-            logger.LogInformation("GetStreamGroupVideoStream request SG Number {id} ChannelId {channelId} proxy is none, sending redirect", streamGroupNumber, smChannelId);
+            logger.LogInformation("GetStreamGroupVideoStream request SG Number {id} ChannelId {channelId} proxy is none, sending redirect", streamGroupId, smChannelId);
 
             return Redirect(smChannel.SMStreams.First().SMStream.Url);
         }
 
         string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
-        ClientStreamerConfiguration config = new(smChannel, Request.Headers["User-Agent"].ToString(), ipAddress ?? "unkown", cancellationToken, HttpContext.Response);
+        ClientStreamerConfiguration config = new(smChannel, streamGroupId, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
 
-        Stream? stream = await channelManager.GetChannel(config);
-
+        Stream? stream = await channelManager.GetChannelAsync(config, cancellationToken);
 
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, config));
         return stream != null ? new FileStreamResult(stream, "video/mp4") : StatusCode(StatusCodes.Status404NotFound);
@@ -86,7 +82,6 @@ public class VideoStreamsController(IChannelManager channelManager, IRepositoryW
 
     private StreamingProxyTypes GetStreamingProxyType(SMChannel smChannel)
     {
-
         return smChannel.StreamingProxyType == StreamingProxyTypes.SystemDefault
             ? Settings.StreamingProxyType
             : smChannel.StreamingProxyType;
@@ -106,7 +101,7 @@ public class VideoStreamsController(IChannelManager channelManager, IRepositoryW
 
         try
         {
-            using FileStream fileStream = new(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, true);
+            await using FileStream fileStream = new(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, true);
 
             while (totalBytesRead < totalSize)
             {
@@ -129,8 +124,6 @@ public class VideoStreamsController(IChannelManager channelManager, IRepositoryW
         }
     }
 
-
-
     [HttpPost]
     [Route("[action]")]
     public ActionResult SimulateStreamFailureForAll()
@@ -138,7 +131,6 @@ public class VideoStreamsController(IChannelManager channelManager, IRepositoryW
         channelManager.SimulateStreamFailureForAll();
         return Ok();
     }
-
 
     [HttpPost]
     [Route("[action]")]
@@ -148,7 +140,6 @@ public class VideoStreamsController(IChannelManager channelManager, IRepositoryW
         return Ok();
     }
 
-
     private class UnregisterClientOnDispose(IChannelManager channelManager, ClientStreamerConfiguration config) : IDisposable
     {
         private readonly IChannelManager _channelManager = channelManager;
@@ -156,7 +147,7 @@ public class VideoStreamsController(IChannelManager channelManager, IRepositoryW
 
         public void Dispose()
         {
-            _channelManager.RemoveClient(_config);
+            _channelManager.RemoveClientAsync(_config);
         }
     }
 }

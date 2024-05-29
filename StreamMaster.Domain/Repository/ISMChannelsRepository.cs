@@ -37,6 +37,7 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     new IQueryable<SMChannel> GetQuery(bool tracking = false);
 
     SMChannel? GetSMChannel(int smchannelId);
+    SMChannel? GetSMChannelFromStreamGroup(int smChannelId, int streamGroupNumber);
     List<SMChannelDto> GetSMChannels();
 
     Task<List<SMChannel>> GetSMChannelsFromStreamGroup(int streamGroupId);

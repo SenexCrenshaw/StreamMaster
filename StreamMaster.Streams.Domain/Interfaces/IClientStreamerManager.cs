@@ -1,60 +1,29 @@
-﻿namespace StreamMaster.Streams.Domain.Interfaces
+﻿namespace StreamMaster.Streams.Domain.Interfaces;
+
+
+public interface IClientStreamerManager
 {
-    /// <summary>
-    /// Manages client streamers and their configurations.
-    /// </summary>
-    public interface IClientStreamerManager
-    {
-        Task AddClientToHandler(Guid clientId, IStreamHandler streamHandler);
-        Task AddClientsToHandler(int smChannelId, IStreamHandler streamHandler);
-        /// <summary>
-        /// Gets client streamer configurations by channel video stream Url.
-        /// </summary>
-        List<IClientStreamerConfiguration> GetClientStreamerConfigurationsBySMChannelId(int smChannelId);
+    Task AddClientToHandler(Guid clientId, IStreamHandler streamHandler);
+    Task AddClientsToHandler(int smChannelId, IStreamHandler streamHandler);
+
+    List<IClientStreamerConfiguration> GetClientStreamerConfigurationsBySMChannelId(int smChannelId);
+
+    int ClientCount(int ClientCount);
+
+    Task<bool> CancelClient(Guid clientId, bool includeAbort);
+
+    void Dispose();
+
+    Task<IClientStreamerConfiguration?> GetClientStreamerConfiguration(Guid clientId, CancellationToken cancellationToken = default);
 
 
-        /// <summary>
-        /// Gets the count of clients for a specific channel video stream Url.
-        /// </summary>
-        int ClientCount(int ClientCount);
+    ICollection<IClientStreamerConfiguration> GetAllClientStreamerConfigurations { get; }
 
-        /// <summary>
-        /// Asynchronously cancels a client.
-        /// </summary>
-        Task<bool> CancelClient(Guid clientId, bool includeAbort);
+    List<IClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds);
 
-        /// <summary>
-        /// Disposes of the object, releasing all allocated resources.
-        /// </summary>
-        void Dispose();
-        /// <summary>
-        /// Asynchronously gets the configuration for a specific client.
-        /// </summary>
-        Task<IClientStreamerConfiguration?> GetClientStreamerConfiguration(Guid clientId, CancellationToken cancellationToken = default);
+    bool HasClient(string VideoStreamId, Guid ClientId);
 
-        /// <summary>
-        /// Gets all client streamer configurations.
-        /// </summary>
-        ICollection<IClientStreamerConfiguration> GetAllClientStreamerConfigurations { get; }
+    void RegisterClient(IClientStreamerConfiguration clientStreamerConfiguration);
 
-        /// <summary>
-        /// Gets client streamer configurations based on a list of client IDs.
-        /// </summary>
-        List<IClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds);
-
-        /// <summary>
-        /// Checks if a client exists for a specific video stream ID.
-        /// </summary>
-        bool HasClient(string VideoStreamId, Guid ClientId);
-
-        /// <summary>
-        /// Registers a new client streamer configuration.
-        /// </summary>
-        void RegisterClient(IClientStreamerConfiguration clientStreamerConfiguration);
-
-        /// <summary>
-        /// Unregisters a client streamer by its ID.
-        /// </summary>
-        Task UnRegisterClient(Guid clientId);
-    }
+    Task UnRegisterClient(Guid clientId);
 }

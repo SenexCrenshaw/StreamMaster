@@ -572,9 +572,15 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
     public async Task<List<SMChannel>> GetSMChannelsFromStreamGroup(int streamGroupId)
     {
-        List<SMChannel> channels = await RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.StreamGroupId == streamGroupId).Include(a => a.SMChannel).Select(a => a.SMChannel).ToListAsync();
+        IQueryable<SMChannel> channels = RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.StreamGroupId == streamGroupId).Include(a => a.SMChannel).Select(a => a.SMChannel);
 
-        return channels;
+        return await channels.ToListAsync();
 
+    }
+
+    public SMChannel? GetSMChannelFromStreamGroup(int smChannelId, int streamGroupId)
+    {
+        IQueryable<SMChannel> channels = RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.StreamGroupId == streamGroupId && a.SMChannelId == smChannelId).Include(a => a.SMChannel).Select(a => a.SMChannel);
+        return channels.FirstOrDefault();
     }
 }

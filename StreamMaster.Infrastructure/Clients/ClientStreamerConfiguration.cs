@@ -10,10 +10,11 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
 
     public ClientStreamerConfiguration(
         SMChannel smChannel,
+        int streamGroupNumber,
         string clientUserAgent,
         string clientIPAddress,
-        CancellationToken cancellationToken,
-        HttpResponse response)
+        HttpResponse response,
+           CancellationToken cancellationToken)
     {
         this.response = response;
         ClientHTTPRequestCancellationToken = cancellationToken;
@@ -21,10 +22,11 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
         ClientId = Guid.NewGuid();
         ClientUserAgent = clientUserAgent;
         SMChannel = smChannel;
+        StreamGroupNumber = streamGroupNumber;
         //ClientCancellationTokenSource = new();
         ClientMasterToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ClientHTTPRequestCancellationToken);
     }
-
+    public int StreamGroupNumber { get; set; }
     public string HttpContextId => response.HttpContext.TraceIdentifier;
 
     public async Task CancelClient(bool includeAbort = true)
