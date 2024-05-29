@@ -69,15 +69,15 @@ const SMChannelGroupEditor = ({ darkBackGround, smChannelDto, onChange }: SMChan
   return (
     <div className={darkBackGround ? 'sm-input-border-dark w-full' : 'w-full'}>
       <SMOverlay header={headerTemplate} title="GROUP" widthSize="2" icon="pi-chevron-down" buttonTemplate={buttonTemplate} buttonLabel="EPG">
-        <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right ">
+        <div className="flex flex-row w-full sm-card border-radius-left border-radius-right ">
           <Suspense>
-            <div className="flex w-12">
+            <div className="flex w-full">
               <SMScroller
                 data={data}
                 dataKey="Group"
                 filter
                 filterBy="Name"
-                itemSize={26}
+                itemSize={28.79}
                 itemTemplate={itemTemplate}
                 onChange={(e) => {
                   updateSMChanneGroup(e.Name);

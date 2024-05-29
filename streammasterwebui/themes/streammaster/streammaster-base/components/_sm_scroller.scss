@@ -25,6 +25,8 @@
     background: $inputListItemBg;
     transition: $listItemTransition;
     border-radius: $inputListItemBorderRadius;
+    height: $datatable-row-height;
+    max-height: $datatable-row-height;
 
     &:first-child {
         margin-top: 0;

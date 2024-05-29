@@ -644,10 +644,12 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       className=""
     >
       <div className={getClass}>
-        <div>
-          <div className="sm-datatable-header flex flex-row align-items-center justify-content-center w-full">{sourceRenderHeader}</div>
-          <div className="layout-padding-bottom" />
-        </div>
+        {sourceRenderHeader && (
+          <div>
+            <div className="sm-datatable-header">{sourceRenderHeader}</div>
+            <div className="layout-padding-bottom"></div>
+          </div>
+        )}
 
         <DataTable
           // id={props.id}

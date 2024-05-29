@@ -7967,6 +7967,8 @@
   background: transparent;
   transition: box-shadow 0.3s;
   border-radius: 6px;
+  height: 1.8rem;
+  max-height: 1.8rem;
 }
 .sm-scroller-item:first-child {
   margin-top: 0;
