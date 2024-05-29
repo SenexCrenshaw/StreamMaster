@@ -10,22 +10,22 @@ public class HLSManager(ILogger<HLSManager> logger, IStreamTracker streamTracker
 
     private readonly CancellationTokenSource HLSCancellationTokenSource = new();
 
-    public async Task<IHLSHandler> GetOrAdd(VideoStreamDto videoStream)
+    public async Task<IHLSHandler> GetOrAdd(SMStream smStream)
     {
-        if (hlsHandlers.ContainsKey(videoStream.User_Url))
+        if (hlsHandlers.ContainsKey(smStream.Url))
         {
-            return hlsHandlers[videoStream.User_Url];
+            return hlsHandlers[smStream.Url];
         }
 
 
-        logger.LogInformation("Adding HLSHandler for {name}", videoStream.User_Tvg_name);
-        HLSHandler hlsHandler = new(HLSHandlerlogger, FFMPEGRunnerlogger, videoStream, intsettings, inthlssettings);
+        logger.LogInformation("Adding HLSHandler for {name}", smStream.Name);
+        HLSHandler hlsHandler = new(HLSHandlerlogger, FFMPEGRunnerlogger, smStream, intsettings, inthlssettings);
         hlsHandler.Start();
         hlsHandler.ProcessExited += (sender, args) =>
         {
-            logger.LogInformation("HLSHandler Process Exited for {Name} with exit code {ExitCode}", videoStream.User_Tvg_name, args.ExitCode);
+            logger.LogInformation("HLSHandler Process Exited for {Name} with exit code {ExitCode}", smStream.Name, args.ExitCode);
         };
-        hlsHandlers.TryAdd(videoStream.User_Url, hlsHandler);
+        hlsHandlers.TryAdd(smStream.Url, hlsHandler);
         return hlsHandler;
     }
 

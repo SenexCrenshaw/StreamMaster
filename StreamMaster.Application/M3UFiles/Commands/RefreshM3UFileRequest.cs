@@ -54,7 +54,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
                     }
                 }
 
-                List<VideoStream>? streams = await m3uFile.GetVideoStreamsFromM3U(Logger);
+                List<SMStream>? streams = await m3uFile.GetSMStreamsFromM3U(Logger);
                 if (streams == null)
                 {
                     Logger.LogCritical("Exception M3U {fullName} format is not supported", fullName);

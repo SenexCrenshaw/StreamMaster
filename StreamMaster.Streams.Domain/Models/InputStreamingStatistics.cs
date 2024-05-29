@@ -40,8 +40,8 @@ public class InputStreamingStatistics : IInputStreamingStatistics
     public string ElapsedTime => GetElapsedTimeFormatted();
     public DateTimeOffset StartTime { get; set; }
     public string Id => StreamInfo.VideoStreamId;
-    public string ChannelName => StreamInfo.ChannelName;
-    public string ChannelId => StreamInfo.ChannelId;
+    public string ChannelName => StreamInfo.SMChannel.Name;
+    public int ChannelId => StreamInfo.SMChannel.Id;
     public string? Logo { get; set; }
     public int Clients { get; set; } = 0;
 

@@ -6,7 +6,7 @@ public interface IStreamHandler : IDisposable
 {
     Task StartVideoStreamingAsync(Stream stream);
     int ProcessId { get; set; }
-    VideoStreamDto VideoStreamDto { get; }
+    SMStream SMStream { get; }
     bool IsFailed { get; }
     VideoInfo GetVideoInfo();
     string VideoStreamName { get; }
@@ -29,7 +29,7 @@ public interface IStreamHandler : IDisposable
     /// </summary>
     string StreamUrl { get; }
 
-    string VideoStreamId { get; }
+    //int SMStreamId { get; }
 
 
     ///// <summary>

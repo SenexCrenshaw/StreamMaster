@@ -116,7 +116,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
       return name !== '';
     }
 
-    if (videoStream.user_Tvg_name !== name) {
+    if (smChannelDto.Name !== name) {
       return true;
     }
 
@@ -124,7 +124,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
       return true;
     }
 
-    if (videoStream.user_Tvg_logo !== iconSource) {
+    if (smChannelDto.Logo !== iconSource) {
       return true;
     }
 
@@ -132,11 +132,11 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
       return true;
     }
 
-    if (videoStream.user_Tvg_chno !== channelNumber) {
+    if (smChannelDto.ChannelNumber !== channelNumber) {
       return true;
     }
 
-    if (videoStream.user_Tvg_ID !== epgId) {
+    if (smChannelDto.EPGId !== epgId) {
       return true;
     }
 

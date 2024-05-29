@@ -1,6 +1,6 @@
 ﻿using StreamMaster.Application.ChannelGroups.Commands;
 using StreamMaster.Application.ChannelGroups.Events;
-using StreamMaster.Application.StreamGroupChannelGroupLinks.Queries;
+
 
 namespace StreamMaster.Application.ChannelGroups.EventHandlers;
 
@@ -43,14 +43,5 @@ public class UpdateChannelGroupEventHandler(ILogger<UpdateChannelGroupEvent> log
             await dataRefreshService.ClearByTag(ChannelGroup.APIName, "Name").ConfigureAwait(false);
         }
 
-        // await dataRefreshService.RefreshChannelGroups();
-
-
-        IEnumerable<StreamGroupDto> sgs = await Sender.Send(new GetStreamGroupsFromChannelGroupQuery(notification.ChannelGroup.Id), cancellationToken).ConfigureAwait(false);
-
-        if (sgs.Any())
-        {
-            await HubContext.Clients.All.StreamGroupsRefresh(sgs.ToArray()).ConfigureAwait(false);
-        }
     }
 }

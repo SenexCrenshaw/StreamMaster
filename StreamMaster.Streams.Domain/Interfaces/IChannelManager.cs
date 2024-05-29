@@ -9,14 +9,14 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 public interface IChannelManager : IDisposable
 {
 
-    VideoInfo GetVideoInfo(string channelVideoStreamId);
+    VideoInfo GetVideoInfo(int SMChannelId);
     /// <summary>
     /// Asynchronously changes the video stream of a channel.
     /// </summary>
     /// <param name="playingVideoStreamId">The ID of the currently playing video stream.</param>
     /// <param name="newVideoStreamId">The ID of the new video stream to switch to.</param>
     /// <returns>A Task representing the asynchronous operation.</returns>
-    Task ChangeVideoStreamChannel(string playingVideoStreamId, string newVideoStreamId);
+    Task ChangeVideoStreamChannel(string playingSMStreamId, string newSMStreamId);
 
     /// <summary>
     /// Fails a client by its unique identifier.

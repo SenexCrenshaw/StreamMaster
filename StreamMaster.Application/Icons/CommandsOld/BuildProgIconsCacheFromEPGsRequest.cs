@@ -114,7 +114,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
     //    .GetStreamGroupQuery()
     //    .Include(a => a.ChildVideoStreams)
     //    .SelectMany(a => a.ChildVideoStreams)
-    //    .Select(a => a.ChildVideoStream.User_Tvg_ID)
+    //    .Select(a => a.ChildsmChannelDto.EPGId)
     //    .Distinct()
     //    .AsNoTracking() // Only add this if you're using Entity Framework Core and you don't need to track the entities.
     //    .ToListAsync(cancellationToken: cancellationToken)

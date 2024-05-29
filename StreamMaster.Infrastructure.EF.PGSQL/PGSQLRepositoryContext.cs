@@ -47,86 +47,86 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             SaveChanges();
 
             int counter = 0;
-            List<VideoStream> videoStreams = [.. VideoStreams];
-            foreach (VideoStream videoStream in videoStreams)
-            {
-                //SMChannel channel = new()
-                //{
-                //    ChannelNumber = videoStream.User_Tvg_chno,
-                //    Group = videoStream.User_Tvg_group,
-                //    EPGId = videoStream.User_Tvg_ID,
-                //    Logo = videoStream.User_Tvg_logo,
-                //    Name = videoStream.User_Tvg_name,
-                //    StationId = videoStream.StationId,
-                //    TimeShift = videoStream.TimeShift,
-                //    VideoStreamHandler = videoStream.VideoStreamHandler,
-                //    IsHidden = videoStream.IsHidden,
-                //    GroupTitle = videoStream.GroupTitle,
-                //    StreamingProxyType = videoStream.StreamingProxyType,
-                //    VideoStreamId = videoStream.Id
-                //};
-                //SMChannels.Add(channel);
+            //List<VideoStream> videoStreams = [.. VideoStreams];
+            //foreach (VideoStream videoStream in videoStreams)
+            //{
+            //    //SMChannel channel = new()
+            //    //{
+            //    //    ChannelNumber = smChannelDto.ChannelNumber,
+            //    //    Group = videoStream.User_Tvg_group,
+            //    //    EPGId = smChannelDto.EPGId,
+            //    //    Logo = smChannelDto.Logo,
+            //    //    Name = smChannelDto.Name,
+            //    //    StationId = videoStream.StationId,
+            //    //    TimeShift = videoStream.TimeShift,
+            //    //    VideoStreamHandler = videoStream.VideoStreamHandler,
+            //    //    IsHidden = videoStream.IsHidden,
+            //    //    GroupTitle = videoStream.GroupTitle,
+            //    //    StreamingProxyType = videoStream.StreamingProxyType,
+            //    //    SMStreamId = videoStream.Id
+            //    //};
+            //    //SMChannels.Add(channel);
 
-                SMStream smStream = new()
-                {
-                    Id = videoStream.Id,
-                    FilePosition = videoStream.FilePosition,
-                    IsHidden = videoStream.IsHidden,
-                    IsUserCreated = videoStream.IsUserCreated,
-                    M3UFileId = videoStream.M3UFileId,
-                    M3UFileName = videoStream.M3UFileName,
-                    ChannelNumber = videoStream.Tvg_chno,
-                    ShortId = videoStream.ShortId,
-                    StationId = videoStream.StationId,
-                    Group = videoStream.Tvg_group,
-                    EPGID = videoStream.Tvg_ID,
-                    Logo = videoStream.Tvg_logo,
-                    Name = videoStream.Tvg_name,
-                    Url = videoStream.Url
-                };
-                SMStreams.Add(smStream);
+            //    SMStream smStream = new()
+            //    {
+            //        Id = videoStream.Id,
+            //        FilePosition = videoStream.FilePosition,
+            //        IsHidden = videoStream.IsHidden,
+            //        IsUserCreated = videoStream.IsUserCreated,
+            //        M3UFileId = videoStream.M3UFileId,
+            //        M3UFileName = videoStream.M3UFileName,
+            //        ChannelNumber = videoStream.Tvg_chno,
+            //        SMChannelId = videoStream.SMChannelId,
+            //        StationId = videoStream.StationId,
+            //        Group = videoStream.Tvg_group,
+            //        EPGID = videoStream.Tvg_ID,
+            //        Logo = videoStream.Tvg_logo,
+            //        Name = videoStream.Tvg_name,
+            //        Url = videoStream.Url
+            //    };
+            //    SMStreams.Add(smStream);
 
-                counter++;
-                if (counter >= 500) // Check if 500 entities have been processed
-                {
-                    SaveChanges();
-                    counter = 0; // Reset the counter after saving
-                }
-            }
+            //    counter++;
+            //    if (counter >= 500) // Check if 500 entities have been processed
+            //    {
+            //        SaveChanges();
+            //        counter = 0; // Reset the counter after saving
+            //    }
+            //}
 
-            if (counter > 0) // Check if there are any remaining entities to save after the loop
-            {
-                SaveChanges(); // Save the remaining entities
-                counter = 0;
-            }
+            //if (counter > 0) // Check if there are any remaining entities to save after the loop
+            //{
+            //    SaveChanges(); // Save the remaining entities
+            //    counter = 0;
+            //}
 
-            List<StreamGroupVideoStream> streamGroupVideoStreams = [.. StreamGroupVideoStreams];
-            foreach (StreamGroupVideoStream streamGroupVideoStream in streamGroupVideoStreams)
-            {
-                int channelId = SMChannels.First(a => a.VideoStreamId == streamGroupVideoStream.ChildVideoStreamId).Id;
-                StreamGroupSMChannelLink streamGroupSMChannel = new()
-                {
-                    SMChannelId = channelId,
-                    StreamGroupId = streamGroupVideoStream.StreamGroupId,
-                    Rank = streamGroupVideoStream.Rank,
-                    IsReadOnly = streamGroupVideoStream.IsReadOnly
-                };
-                StreamGroupSMChannels.Add(streamGroupSMChannel);
-            }
-            SaveChanges();
+            //List<StreamGroupVideoStream> streamGroupVideoStreams = [.. StreamGroupVideoStreams];
+            //foreach (StreamGroupVideoStream streamGroupVideoStream in streamGroupVideoStreams)
+            //{
+            //    int channelId = SMChannels.First(a => a.VideoStreamId == streamGroupVideoStream.ChildVideoStreamId).Id;
+            //    StreamGroupSMChannelLink streamGroupSMChannel = new()
+            //    {
+            //        SMChannelId = channelId,
+            //        StreamGroupId = streamGroupVideoStream.StreamGroupId,
+            //        Rank = streamGroupVideoStream.Rank,
+            //        IsReadOnly = streamGroupVideoStream.IsReadOnly
+            //    };
+            //    StreamGroupSMChannels.Add(streamGroupSMChannel);
+            //}
+            //SaveChanges();
 
-            List<VideoStreamLink> videoStreamLinks = VideoStreamLinks.ToList();
-            foreach (VideoStreamLink videoStreamLink in videoStreamLinks)
-            {
-                int channelId = SMChannels.First(a => a.VideoStreamId == videoStreamLink.ParentVideoStreamId).Id;
-                SMChannelStreamLink smChannelStreamLink = new()
-                {
-                    SMChannelId = channelId,
-                    SMStreamId = videoStreamLink.ChildVideoStreamId,
-                    Rank = videoStreamLink.Rank
-                };
-                SMChannelStreamLinks.Add(smChannelStreamLink);
-            }
+            //List<VideoStreamLink> videoStreamLinks = VideoStreamLinks.ToList();
+            //foreach (VideoStreamLink videoStreamLink in videoStreamLinks)
+            //{
+            //    int channelId = SMChannels.First(a => a.VideoStreamId == videoStreamLink.ParentVideoStreamId).Id;
+            //    SMChannelStreamLink smChannelStreamLink = new()
+            //    {
+            //        SMChannelId = channelId,
+            //        SMStreamId = videoStreamLink.ChildVideoStreamId,
+            //        Rank = videoStreamLink.Rank
+            //    };
+            //    SMChannelStreamLinks.Add(smChannelStreamLink);
+            //}
             SaveChanges();
         }
 

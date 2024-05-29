@@ -9,7 +9,7 @@ public class CreateChannelGroupRequestHandler(IMessageService messageSevice, IDa
 {
     public async Task<APIResponse> Handle(CreateChannelGroupRequest request, CancellationToken cancellationToken)
     {
-        if (await Repository.ChannelGroup.GetChannelGroupByName(request.GroupName).ConfigureAwait(false) != null)
+        if (!Repository.ChannelGroup.Any(a => a.Name == request.GroupName))
         {
             return APIResponse.NotFound;
         }

@@ -10,7 +10,7 @@ using System.Web;
 namespace StreamMaster.Application.StreamGroups.QueriesOld;
 
 [RequireAll]
-public record GetStreamGroupM3U(int StreamGroupId, bool UseShortId) : IRequest<string>;
+public record GetStreamGroupM3U(int StreamGroupId, bool UseSMChannelId) : IRequest<string>;
 
 public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
 {
@@ -72,29 +72,29 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         string url = httpContextAccessor.GetUrl();
         string requestPath = httpContextAccessor.HttpContext.Request.Path.Value.ToString();
         byte[]? iv = requestPath.GetIVFromPath(settings.ServerKey, 128);
-        if (iv == null && !request.UseShortId)
+        if (iv == null && !request.UseSMChannelId)
         {
             return DefaultReturn;
         }
         this.iv = iv;
 
-        List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId);
+        List<SMChannel> smChannels = await Repository.SMChannel.GetSMChannelsFromStreamGroup(request.StreamGroupId);
 
-        if (!videoStreams.Any())
+        if (!smChannels.Any())
         {
             return DefaultReturn;
         }
 
         // Initialize the ConcurrentBag with distinct channel numbers
-        existingChNos = new ConcurrentBag<int>(videoStreams.Select(a => a.User_Tvg_chno).Distinct());
+        existingChNos = new ConcurrentBag<int>(smChannels.Select(a => a.ChannelNumber).Distinct());
 
         // Retrieve necessary data in parallel
-        var videoStreamData = videoStreams
+        var videoStreamData = smChannels
      .AsParallel()
      .WithDegreeOfParallelism(Environment.ProcessorCount)
-     .Select((videoStream, index) =>
+     .Select((smChannel, index) =>
      {
-         (int ChNo, string m3uLine) = BuildM3ULineForVideoStream(videoStream, url, request, index, settings);
+         (int ChNo, string m3uLine) = BuildM3ULineForVideoStream(smChannel, url, request, index, settings);
          return new
          {
              ChNo,
@@ -151,7 +151,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         return chNo;
     }
 
-    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(VideoStreamDto videoStream, string url, GetStreamGroupM3U request, int cid, Setting setting)
+    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(SMChannel smChannel, string url, GetStreamGroupM3U request, int cid, Setting setting)
     {
 
         string epgChannelId;
@@ -159,20 +159,20 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         string channelId = string.Empty;
         string tvgID = string.Empty;
 
-        if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
+        if (string.IsNullOrEmpty(smChannel.EPGId))
         {
-            epgChannelId = videoStream.User_Tvg_group;
+            epgChannelId = smChannel.Group;
         }
         else
         {
-            if (EPGHelper.IsValidEPGId(videoStream.User_Tvg_ID))
+            if (EPGHelper.IsValidEPGId(smChannel.EPGId))
             {
-                (_, epgChannelId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
-                MxfService? service = schedulesDirectDataService.GetService(videoStream.User_Tvg_ID);
+                (_, epgChannelId) = smChannel.EPGId.ExtractEPGNumberAndStationId();
+                MxfService? service = schedulesDirectDataService.GetService(smChannel.EPGId);
                 if (setting.M3UUseCUIDForChannelID)
                 {
                     tvgID = epgChannelId;
-                    channelId = videoStream.Id;
+                    channelId = smChannel.Id.ToString();
                 }
                 else
                 {
@@ -182,44 +182,44 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
             }
             else
             {
-                epgChannelId = tvgID = channelId = videoStream.User_Tvg_ID;
+                epgChannelId = tvgID = channelId = smChannel.EPGId;
             }
         }
 
-        string name = videoStream.User_Tvg_name;
+        string name = smChannel.Name;
 
         //if (setting.M3UIgnoreEmptyEPGID)
         //{
-        //    showM3UFieldTvgId = !(string.IsNullOrEmpty(videoStream.EPGId) && string.IsNullOrEmpty(videoStream.User_Tvg_ID));
+        //    showM3UFieldTvgId = !(string.IsNullOrEmpty(videoStream.EPGId) && string.IsNullOrEmpty(smChannelDto.EPGId));
         //}
 
 
-        if (request.StreamGroupId == 1 && videoStream.User_Tvg_chno == 0)
+        if (request.StreamGroupId == 1 && smChannel.ChannelNumber == 0)
         {
-            videoStream.User_Tvg_chno = cid;
+            smChannel.ChannelNumber = cid;
         }
 
-        string logo = GetIconUrl(videoStream.User_Tvg_logo, setting);
-        videoStream.User_Tvg_logo = logo;
+        string logo = GetIconUrl(smChannel.Logo, setting);
+        smChannel.Logo = logo;
 
         string videoUrl;
-        if (request.UseShortId)
+        if (request.UseSMChannelId)
         {
-            videoUrl = $"{url}/v/v/{videoStream.ShortId}";
+            videoUrl = $"{url}/v/v/{smChannel.SMChannelId}";
         }
         else
         {
             if (hlssettings.HLSM3U8Enable)
             {
-                videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
+                videoUrl = $"{url}/api/stream/{smChannel.Id}.m3u8";
             }
             else
             {
-                string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
+                string encodedName = HttpUtility.HtmlEncode(smChannel.Name).Trim()
                          .Replace("/", "")
                          .Replace(" ", "_");
 
-                string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, setting.ServerKey, iv);
+                string encodedNumbers = request.StreamGroupId.EncodeValues128(smChannel.Id, setting.ServerKey, iv);
                 videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
             }
 
@@ -227,48 +227,48 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
 
         if (setting.M3UUseChnoForId)
         {
-            tvgID = videoStream.User_Tvg_chno.ToString();
+            tvgID = smChannel.ChannelNumber.ToString();
             if (!setting.M3UUseCUIDForChannelID)
             {
                 channelId = tvgID;
             }
         }
 
-        List<string> fieldList = [$"#EXTINF:0 CUID=\"{videoStream.Id}\""];
+        List<string> fieldList = [$"#EXTINF:0 CUID=\"{smChannel.Id}\""];
 
         fieldList.Add($"tvg-name=\"{name}\"");
 
         fieldList.Add($"channel-id=\"{channelId}\"");
         fieldList.Add($"tvg-id=\"{tvgID}\"");
 
-        fieldList.Add($"tvg-logo=\"{videoStream.User_Tvg_logo}\"");
+        fieldList.Add($"tvg-logo=\"{smChannel.Logo}\"");
 
-        int chNo = GetNextChNo(videoStream.User_Tvg_chno);
+        int chNo = GetNextChNo(smChannel.ChannelNumber);
         fieldList.Add($"tvg-chno=\"{chNo}\"");
         fieldList.Add($"channel-number=\"{chNo}\"");
 
 
         if (setting.M3UStationId)
         {
-            string toDisplay = string.IsNullOrEmpty(videoStream.StationId) ? epgChannelId : videoStream.StationId;
+            string toDisplay = string.IsNullOrEmpty(smChannel.StationId) ? epgChannelId : smChannel.StationId;
             fieldList.Add($"tvc-guide-stationid=\"{toDisplay}\"");
         }
 
         if (setting.M3UFieldGroupTitle)
         {
-            if (!string.IsNullOrEmpty(videoStream.GroupTitle))
+            if (!string.IsNullOrEmpty(smChannel.GroupTitle))
             {
-                fieldList.Add($"group-title=\"{videoStream.GroupTitle}\"");
+                fieldList.Add($"group-title=\"{smChannel.GroupTitle}\"");
             }
             else
             {
-                fieldList.Add($"group-title=\"{videoStream.User_Tvg_group}\"");
+                fieldList.Add($"group-title=\"{smChannel.Group}\"");
             }
         }
 
 
         string lines = string.Join(" ", [.. fieldList.Order()]);
-        lines += $",{videoStream.User_Tvg_name}\r\n";
+        lines += $",{smChannel.Name}\r\n";
         lines += $"{videoUrl}";
 
         return (chNo, lines);

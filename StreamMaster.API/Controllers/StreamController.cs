@@ -18,51 +18,51 @@ namespace StreamMaster.API.Controllers
         [HttpGet]
         [HttpHead]
         [Route("{videoStreamId}.m3u8")]
-        public async Task<ActionResult> GetM3U8(string SMStreamId, CancellationToken cancellationToken)
+        public async Task<ActionResult> GetM3U8(int SMChannelId, CancellationToken cancellationToken)
         {
-            SMStream? smStream = await repositoryWrapper.SMStream.FirstOrDefaultAsync(a => a.Id == SMStreamId);
-            if (smStream is null)
+            SMChannel? smChannel = await repositoryWrapper.SMChannel.FirstOrDefaultAsync(a => a.Id == SMChannelId);
+            if (smChannel is null)
             {
                 return NotFound();
             }
 
-            IChannelStatus? channelStatus = await channelService.RegisterChannel(mapper.Map<SMStreamDto>(smStream), true);
+            IChannelStatus? channelStatus = await channelService.RegisterChannel(mapper.Map<SMChannelDto>(smChannel), true);
 
-            if (channelStatus == null || channelStatus.CurrentVideoStream == null)
+            if (channelStatus == null || channelStatus.CurrentSMStream == null)
             {
                 return NotFound();
             }
 
-            await hLsManager.GetOrAdd(channelStatus.CurrentVideoStream);
+            await hLsManager.GetOrAdd(channelStatus.CurrentSMStream);
 
             int timeOut = HLSSettings.HLSM3U8CreationTimeOutInSeconds;
-            string m3u8File = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.CurrentVideoStream.Id, $"index.m3u8");
+            string m3u8File = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.CurrentSMStream.Id, $"index.m3u8");
 
-            if (!streamTracker.HasStream(channelStatus.CurrentVideoStream.Id))
+            if (!streamTracker.HasStream(channelStatus.CurrentSMStream.Id))
             {
                 if (!await FileUtil.WaitForFileAsync(m3u8File, timeOut, 100, cancellationToken))
                 {
                     logger.LogWarning("HLS segment timeout {FileName}, exiting", m3u8File);
-                    hLsManager.Stop(channelStatus.CurrentVideoStream.Id);
+                    hLsManager.Stop(channelStatus.CurrentSMStream.Id);
                     return NotFound();
                 }
 
-                string tsFile = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.CurrentVideoStream.Id, $"2.ts");
+                string tsFile = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.CurrentSMStream.Id, $"2.ts");
 
                 if (!await FileUtil.WaitForFileAsync(tsFile, timeOut, 100, cancellationToken))
                 {
                     logger.LogWarning("TS segment timeout {FileName}, exiting", tsFile);
-                    hLsManager.Stop(channelStatus.CurrentVideoStream.Id);
+                    hLsManager.Stop(channelStatus.CurrentSMStream.Id);
                     return NotFound();
                 }
 
-                if (streamTracker.AddStream(channelStatus.CurrentVideoStream.Id))
+                if (streamTracker.AddStream(channelStatus.CurrentSMStream.Id))
                 {
                     //timeOut = HLSSettings.HLSM3U8CreationTimeOutInSeconds;
                 }
             }
 
-            accessTracker.UpdateAccessTime(channelStatus.CurrentVideoStream.Id, TimeSpan.FromSeconds(HLSSettings.HLSM3U8ReadTimeOutInSeconds));
+            accessTracker.UpdateAccessTime(channelStatus.CurrentSMStream.Id, TimeSpan.FromSeconds(HLSSettings.HLSM3U8ReadTimeOutInSeconds));
 
             HttpContext.Response.Headers.Connection = "close";
             HttpContext.Response.Headers.AccessControlAllowOrigin = "*";
@@ -112,8 +112,8 @@ namespace StreamMaster.API.Controllers
         [Route("{videoStreamId}.mp4")]
         public async Task<ActionResult> GetVideoStreamMP4(string videoStreamId, CancellationToken cancellationToken)
         {
-            VideoStreamDto? videoStreamDto = await videoStreamService.GetVideoStreamDtoAsync(videoStreamId, cancellationToken);
-            if (videoStreamDto is null)
+            SMStreamDto? smStream = repositoryWrapper.SMStream.GetSMStream(videoStreamId);
+            if (smStream is null)
             {
                 return NotFound();
             }
@@ -125,13 +125,13 @@ namespace StreamMaster.API.Controllers
                 //string url = GetUrl(request);
                 string url = "http://127.0.0.1:7095/api/stream/" + videoStreamId + ".m3u8";
 
-                logger.LogInformation("Adding MP4Handler for {name}", videoStreamDto.User_Tvg_name);
+                logger.LogInformation("Adding MP4Handler for {name}", smStream.Name);
                 FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerlogger, intsettings, inthlssettings);
                 ffmpegRunner.ProcessExited += (sender, args) =>
                 {
-                    logger.LogInformation("MP4Handler Process Exited for {Name} with exit code {ExitCode}", videoStreamDto.User_Tvg_name, args.ExitCode);
+                    logger.LogInformation("MP4Handler Process Exited for {Name} with exit code {ExitCode}", smStream.Name, args.ExitCode);
                 };
-                (Stream? stream, int processId, ProxyStreamError? error) = await ffmpegRunner.CreateFFMpegStream(url, videoStreamDto.User_Tvg_name);
+                (Stream? stream, int processId, ProxyStreamError? error) = await ffmpegRunner.CreateFFMpegStream(url, smStream.Name);
 
                 return stream != null ? new FileStreamResult(stream, "video/mp4") : StatusCode(StatusCodes.Status404NotFound);
             }
@@ -141,19 +141,19 @@ namespace StreamMaster.API.Controllers
                 return StatusCode(500, "Error streaming video");
             }
         }
-        private class UnregisterClientOnDispose(IChannelService _channelService, IChannelStatus channelStatus, string _channelVideoStreamId) : IDisposable
+        private class UnregisterClientOnDispose(IChannelService _channelService, IChannelStatus channelStatus, int smChannelId) : IDisposable
         {
             private readonly IChannelService _channelService = _channelService;
-            private readonly string _channelVideoStreamId = _channelVideoStreamId;
+            private readonly int smChannelId = smChannelId;
             private readonly IChannelStatus _channelStatus = channelStatus;
 
             public void Dispose()
             {
 
-                int count = _channelService.GetChannelStatusesFromVideoStreamId(_channelVideoStreamId).Count;
+                int count = _channelService.GetChannelStatusesFromId(smChannelId).Count;
                 if (count == 0)
                 {
-                    _channelService.UnRegisterChannel(_channelVideoStreamId);
+                    _channelService.UnRegisterChannel(smChannelId);
                 }
             }
         }

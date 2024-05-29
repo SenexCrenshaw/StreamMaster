@@ -2,6 +2,8 @@
 
 using MessagePack;
 
+using StreamMaster.Domain.Extensions;
+
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -49,5 +51,6 @@ public class SMChannel
 
     public VideoStreamHandlers VideoStreamHandler { get; set; } = VideoStreamHandlers.SystemDefault;
 
-    public string VideoStreamId { get; set; } = string.Empty;
+    [Column(TypeName = "citext")]
+    public string SMChannelId { get; set; } = UniqueHexGenerator.SMChannelIdEmpty;
 }

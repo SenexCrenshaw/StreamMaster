@@ -356,7 +356,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .IsRequired()
                         .HasColumnType("citext");
 
-                    b.Property<string>("ShortId")
+                    b.Property<string>("SMChannelId")
                         .IsRequired()
                         .HasColumnType("citext");
 
@@ -513,7 +513,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .IsRequired()
                         .HasColumnType("citext");
 
-                    b.Property<string>("ShortId")
+                    b.Property<string>("SMChannelId")
                         .IsRequired()
                         .HasColumnType("citext");
 
@@ -581,8 +581,8 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ShortId")
-                        .HasDatabaseName("IX_VideoStream_ShortId");
+                    b.HasIndex("SMChannelId")
+                        .HasDatabaseName("IX_VideoStream_SMChannelId");
 
                     b.HasIndex("User_Tvg_chno")
                         .HasDatabaseName("IX_VideoStream_User_Tvg_chno");

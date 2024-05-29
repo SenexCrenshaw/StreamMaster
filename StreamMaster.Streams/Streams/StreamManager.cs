@@ -1,8 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Models;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Streams;
 
@@ -39,7 +35,7 @@ public sealed class StreamManager(
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError(ex, "Error disposing stream handler {VideoStreamId}", streamHandler.VideoStreamId);
+                        logger.LogError(ex, "Error disposing stream handler {VideoStreamId}", streamHandler.SMStream.Id);
                     }
                 }
 
@@ -58,45 +54,47 @@ public sealed class StreamManager(
         }
     }
 
-    private async Task<IStreamHandler?> CreateStreamHandler(VideoStreamDto videoStreamDto, string ChannelId, string ChannelName, int rank, CancellationToken cancellation)
+    private async Task<IStreamHandler?> CreateStreamHandler(SMChannel smChannel, SMStream smStream, int rank, CancellationToken cancellation)
     {
 
-        IStreamHandler? streamHandler = await streamHandlerFactory.CreateStreamHandlerAsync(videoStreamDto, ChannelId, ChannelName, rank, cancellation);
+        IStreamHandler? streamHandler = await streamHandlerFactory.CreateStreamHandlerAsync(smChannel, smStream, rank, cancellation);
 
         return streamHandler;
     }
 
-    public IStreamHandler? GetStreamHandler(string videoStreamId)
+    public IStreamHandler? GetStreamHandler(string? smStreamId)
     {
-        return !_streamHandlers.TryGetValue(videoStreamId, out IStreamHandler? streamHandler) ? null : streamHandler;
+        return string.IsNullOrEmpty(smStreamId)
+            ? null
+            : !_streamHandlers.TryGetValue(smStreamId, out IStreamHandler? streamHandler) ? null : streamHandler;
     }
 
-    public async Task<IStreamHandler?> GetOrCreateStreamHandler(VideoStreamDto videoStreamDto, string ChannelId, string ChannelName, int rank, CancellationToken cancellation = default)
+    public async Task<IStreamHandler?> GetOrCreateStreamHandler(SMChannel smChannel, SMStream smStream, int rank, CancellationToken cancellation = default)
     {
-        _ = _streamHandlers.TryGetValue(videoStreamDto.User_Url, out IStreamHandler? streamHandler);
+        _ = _streamHandlers.TryGetValue(smStream.Url, out IStreamHandler? streamHandler);
 
         if (streamHandler is not null && streamHandler.IsFailed == true)
         {
-            await StopAndUnRegisterHandler(videoStreamDto.User_Url);
-            _ = _streamHandlers.TryGetValue(videoStreamDto.User_Url, out streamHandler);
+            await StopAndUnRegisterHandler(smStream.Url);
+            _ = _streamHandlers.TryGetValue(smStream.Url, out streamHandler);
         }
 
         if (streamHandler is null)
         {
-            logger.LogInformation("Creating new handler for stream: {Id} {name}", videoStreamDto.Id, videoStreamDto.User_Tvg_name);
-            streamHandler = await CreateStreamHandler(videoStreamDto, ChannelId, ChannelName, rank, cancellation);
+            logger.LogInformation("Creating new handler for stream: {Id} {name}", smStream.Id, smStream.Name);
+            streamHandler = await CreateStreamHandler(smChannel, smStream, rank, cancellation);
             if (streamHandler == null)
             {
                 return null;
             }
 
             streamHandler.OnStreamingStoppedEvent += StreamHandler_OnStreamingStoppedEvent;
-            bool test = _streamHandlers.TryAdd(videoStreamDto.User_Url, streamHandler);
+            bool test = _streamHandlers.TryAdd(smStream.Url, streamHandler);
 
             return streamHandler;
         }
 
-        logger.LogInformation("Reusing handler for stream: {Id} {name}", videoStreamDto.Id, videoStreamDto.User_Tvg_name);
+        logger.LogInformation("Reusing handler for stream: {Id} {name}", smStream.Id, smStream.Name);
         return streamHandler;
     }
 
@@ -118,7 +116,7 @@ public sealed class StreamManager(
         }
     }
 
-    public async Task<VideoInfo> GetVideoInfo(string streamUrl)
+    public VideoInfo GetVideoInfo(string streamUrl)
     {
         IStreamHandler? handler = GetStreamHandlerFromStreamUrl(streamUrl);
         return handler is null ? new() : handler.GetVideoInfo();

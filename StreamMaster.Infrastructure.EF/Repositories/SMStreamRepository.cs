@@ -11,74 +11,7 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
     : RepositoryBase<SMStream>(repositoryContext, intLogger, intSettings),
     ISMStreamRepository
 {
-    public async Task<(VideoStreamHandlers videoStreamHandler, List<SMStreamDto> childSMStreamDtos)?> GetStreamsFromSMStreamById(string SMStreamId, CancellationToken cancellationToken = default)
-    {
-        var videoStream = await GetQuery(a => a.Id == SMStreamId)
-            .Include(a => a.ChildVideoStreams)
-            .ThenInclude(a => a.ChildVideoStream)
-            .FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-        if (videoStream == null)
-        {
-            return null;
-        }
 
-        VideoStreamDto videoStreamDto = mapper.Map<VideoStreamDto>(videoStream);
-        if (videoStream.ChildVideoStreams is null || !videoStream.ChildVideoStreams.Any())
-        {
-
-            M3UFileIdMaxStream? result = await sender.Send(new GetM3UFileIdMaxStreamFromUrlQuery(videoStreamDto.User_Url), cancellationToken).ConfigureAwait(false);
-            if (result == null)
-            {
-                return null;
-            }
-            videoStreamDto.MaxStreams = result.MaxStreams;
-            videoStreamDto.M3UFileId = result.M3UFileId;
-            return (videoStream.VideoStreamHandler, new List<VideoStreamDto> { videoStreamDto });
-        }
-
-
-        List<VideoStream> childVideoStreams =
-        [
-            .. RepositoryContext.VideoStreamLinks
-                    .Include(a => a.ChildVideoStream)
-                    .Where(a => a.ParentVideoStreamId == videoStream.Id)
-                    .Select(a => a.ChildVideoStream),
-        ];
-
-        List<VideoStreamDto> childVideoStreamDtos = mapper.Map<List<VideoStreamDto>>(childVideoStreams);
-        if (!string.IsNullOrEmpty(videoStreamDto.User_Url))
-        {
-            childVideoStreamDtos.Insert(0, videoStreamDto);
-        }
-
-        Dictionary<string, M3UFileIdMaxStream?> m3uCache = [];
-
-        foreach (VideoStreamDto childVideoStreamDto in childVideoStreamDtos)
-        {
-            if (m3uCache.TryGetValue(childVideoStreamDto.User_Url, out M3UFileIdMaxStream? cachedResult) && cachedResult != null)
-            {
-                childVideoStreamDto.M3UFileId = cachedResult.M3UFileId;
-                childVideoStreamDto.MaxStreams = cachedResult.MaxStreams;
-                continue;
-            }
-
-            M3UFileIdMaxStream? result = await sender.Send(new GetM3UFileIdMaxStreamFromUrlQuery(childVideoStreamDto.User_Url), cancellationToken).ConfigureAwait(false);
-            if (result == null)
-            {
-                return null;
-            }
-            VideoStreamLink? link = videoStream.ChildVideoStreams.FirstOrDefault(a => a.ChildVideoStreamId == childVideoStreamDto.Id);
-            if (link is not null)
-            {
-                childVideoStreamDto.Rank = link.Rank;
-            }
-            childVideoStreamDto.M3UFileId = result.M3UFileId;
-            childVideoStreamDto.MaxStreams = result.MaxStreams;
-            m3uCache[childVideoStreamDto.User_Url] = result;
-        }
-
-        return (videoStream.VideoStreamHandler, childVideoStreamDtos);
-    }
     public List<SMStreamDto> GetSMStreams()
     {
         return [.. GetQuery().ProjectTo<SMStreamDto>(mapper.ConfigurationProvider)];
@@ -96,6 +29,12 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
 
         return await query.GetPagedResponseAsync<SMStream, SMStreamDto>(parameters.PageNumber, parameters.PageSize, mapper)
                           .ConfigureAwait(false);
+    }
+
+    public async Task ChangeGroupName(string oldGroupName, string newGroupName)
+    {
+        string sql = $"UPDATE public.\"SMStreams\" SET \"Group\"='{newGroupName}' WHERE \"Group\"={oldGroupName};";
+        await repositoryContext.ExecuteSqlRawAsyncEntities(sql);
     }
 
     public async Task<IEnumerable<string>> DeleteAllSMStreamsFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken)

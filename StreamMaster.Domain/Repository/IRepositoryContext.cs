@@ -23,13 +23,9 @@ public interface IRepositoryContext
     DbSet<StreamGroupChannelGroup> StreamGroupChannelGroups { get; set; }
     DbSet<StreamGroupSMChannelLink> StreamGroupSMChannelLinks { get; set; }
     DbSet<StreamGroup> StreamGroups { get; set; }
-    DbSet<StreamGroupVideoStream> StreamGroupVideoStreams { get; set; }
     DbSet<SMStream> SMStreams { get; set; }
     DbSet<SMChannel> SMChannels { get; set; }
     DbSet<SystemKeyValue> SystemKeyValues { get; set; }
-    DbSet<VideoStreamLink> VideoStreamLinks { get; set; }
-    DbSet<VideoStream> VideoStreams { get; set; }
-
     void Dispose();
     bool IsEntityTracked<TEntity>(TEntity entity) where TEntity : class;
     abstract Task MigrateData();

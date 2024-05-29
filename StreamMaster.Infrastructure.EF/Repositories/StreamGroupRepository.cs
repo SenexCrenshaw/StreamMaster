@@ -127,13 +127,12 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
     public async Task<int?> DeleteStreamGroup(int StreamGroupId)
     {
-        IQueryable<StreamGroupVideoStream> videoStreams = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == StreamGroupId);
+
         IQueryable<StreamGroupChannelGroup> channelGroups = RepositoryContext.StreamGroupChannelGroups.Where(a => a.StreamGroupId == StreamGroupId);
 
         IQueryable<StreamGroupSMChannelLink> smChannels = RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.StreamGroupId == StreamGroupId);
 
 
-        RepositoryContext.StreamGroupVideoStreams.RemoveRange(videoStreams);
         RepositoryContext.StreamGroupChannelGroups.RemoveRange(channelGroups);
         RepositoryContext.StreamGroupSMChannelLinks.RemoveRange(smChannels);
         await RepositoryContext.SaveChangesAsync();
@@ -201,14 +200,14 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
     public async Task<IdIntResultWithResponse> AutoSetSMChannelNumbers(int streamGroupId, int startingNumber, bool overWriteExisting, QueryStringParameters Parameters)
     {
-        var ret = new IdIntResultWithResponse();
+        IdIntResultWithResponse ret = new();
 
         if (string.IsNullOrEmpty(Parameters.JSONFiltersString))
         {
             ret.APIResponse = APIResponse.ErrorWithMessage("JSONFiltersString null");
             return ret;
         }
-        var streamGroup = await GetQuery(true).FirstOrDefaultAsync(a => a.Id == streamGroupId);
+        StreamGroup? streamGroup = await GetQuery(true).FirstOrDefaultAsync(a => a.Id == streamGroupId);
         if (streamGroup == null)
         {
             ret.APIResponse = APIResponse.ErrorWithMessage("Stream Group not found");
@@ -217,7 +216,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
 
         List<DataTableFilterMetaData>? filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(Parameters.JSONFiltersString);
-        var channels = FilterHelper<SMChannel>.ApplyFiltersAndSort(streamGroup.SMChannels.Select(a => a.SMChannel).AsQueryable(), filters, Parameters.OrderBy, true);
+        IQueryable<SMChannel> channels = FilterHelper<SMChannel>.ApplyFiltersAndSort(streamGroup.SMChannels.Select(a => a.SMChannel).AsQueryable(), filters, Parameters.OrderBy, true);
 
         ConcurrentHashSet<int> existingNumbers = [];
         if (!overWriteExisting)
@@ -226,7 +225,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         }
         int number = startingNumber;
 
-        foreach (var channel in channels)
+        foreach (SMChannel channel in channels)
         {
             if (!overWriteExisting && channel.ChannelNumber != 0)
             {

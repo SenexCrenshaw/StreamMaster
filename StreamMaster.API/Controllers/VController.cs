@@ -23,13 +23,13 @@ public class VController(IRepositoryWrapper Repository, ISender sender, IOptions
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [HttpHead]
-    [Route("v/v/{shortId}")]
-    [Route("v/v/{shortId}.ts")]
-    public IActionResult GetVideoStreamStream(string shortId)
+    [Route("v/v/{SMChannelId}")]
+    [Route("v/v/{SMChannelId}.ts")]
+    public IActionResult GetVideoStreamStream(string SMChannelId)
     {
-        VideoStream? videoStream = Repository.VideoStream.FirstOrDefault(a => a.ShortId == shortId);
+        SMChannel? smChannel = Repository.SMChannel.FirstOrDefault(a => a.SMChannelId == SMChannelId);
 
-        if (videoStream == null)
+        if (smChannel == null)
         {
             return new NotFoundResult();
         }
@@ -39,15 +39,15 @@ public class VController(IRepositoryWrapper Repository, ISender sender, IOptions
         string url = httpContextAccessor.GetUrl();
         if (hlssettings.HLSM3U8Enable)
         {
-            videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
+            videoUrl = $"{url}/api/stream/{smChannel.Id}.m3u8";
             return Redirect(videoUrl);
         }
 
-        string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
+        string encodedName = HttpUtility.HtmlEncode(smChannel.Name).Trim()
         .Replace("/", "")
         .Replace(" ", "_");
 
-        string encodedNumbers = 0.EncodeValues128(videoStream.Id, settings.ServerKey);
+        string encodedNumbers = 0.EncodeValues128(smChannel.Id, settings.ServerKey);
         videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
         return Redirect(videoUrl);

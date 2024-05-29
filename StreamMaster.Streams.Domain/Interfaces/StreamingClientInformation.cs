@@ -1,5 +1,4 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Enums;
+﻿using StreamMaster.Domain.Enums;
 
 namespace StreamMaster.Streams.Domain.Interfaces;
 
@@ -20,7 +19,7 @@ public class StreamingClientInformation
     public int ClientErrors { get; set; }
     public string Host { get; set; } = string.Empty;
 
-    public List<M3UStreamHealth> M3UStreamHealths { get; set; } = new();
+    public List<M3UStreamHealth> M3UStreamHealths { get; set; } = [];
     public string RemoteIP { get; set; } = string.Empty;
     public DateTime StartDateTime { get; set; }
     public string UserAgent { get; set; } = string.Empty;
@@ -44,8 +43,8 @@ public class StreamingClientConfiguration : StreamingClientInformation
 
     public bool StreamBufferLooped { get; set; } = false;
 
-    public VideoStreamDto? VideoStream { get; set; }
+    public SMStreamDto? SMStream { get; set; }
 
     //public M3UStreamDto M3UStream { get; set; }
-    public List<VideoStreamDto> VideoStreams { get; set; } = new();
+    public List<SMStreamDto> SMStreams { get; set; } = [];
 }

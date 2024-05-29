@@ -66,7 +66,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     M3UFileId = table.Column<int>(type: "integer", nullable: false),
                     Tvg_chno = table.Column<int>(type: "integer", nullable: false),
                     M3UFileName = table.Column<string>(type: "citext", nullable: false),
-                    ShortId = table.Column<string>(type: "citext", nullable: false),
+                    SMChannelId = table.Column<string>(type: "citext", nullable: false),
                     Group = table.Column<string>(type: "citext", nullable: false),
                     EPGID = table.Column<string>(type: "citext", nullable: false),
                     Logo = table.Column<string>(type: "citext", nullable: false),

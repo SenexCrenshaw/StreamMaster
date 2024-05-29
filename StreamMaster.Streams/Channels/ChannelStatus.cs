@@ -11,7 +11,12 @@ public sealed class ChannelStatus(SMChannel smChannel) : IChannelStatus
     public int Id { get; set; } = smChannel.Id;
 
     public string ChannelName { get; set; } = smChannel.Name;
-    public SMStreamDto CurrentSMStream { get; private set; }
+    public SMStream CurrentSMStream { get; private set; }
+
+    public void SetCurrentSMStream(SMStream smStream)
+    {
+        CurrentSMStream = smStream;
+    }
 
     public void SetIsGlobal()
     {

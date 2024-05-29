@@ -1,11 +1,4 @@
-﻿using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Logging;
-
-using StreamMaster.Application.Hubs;
-
-namespace StreamMaster.Application.Icons.EventHandlers;
+﻿namespace StreamMaster.Application.Icons.EventHandlers;
 
 public class IconFileAddedEventHandler : INotificationHandler<IconFileAddedEvent>
 {
@@ -23,6 +16,6 @@ public class IconFileAddedEventHandler : INotificationHandler<IconFileAddedEvent
 
     public async Task Handle(IconFileAddedEvent notification, CancellationToken cancellationToken)
     {
-        await _hubContext.Clients.All.IconsRefresh().ConfigureAwait(false);
+        //await _hubContext.Clients.All.IconsRefresh().ConfigureAwait(false);
     }
 }

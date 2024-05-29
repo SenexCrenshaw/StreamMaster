@@ -5,6 +5,6 @@ public class ProgrammesProcessedEventHandler(ILogger<ProgrammesProcessedEventHan
 {
     public async Task Handle(ProgrammesProcessedEvent notification, CancellationToken cancellationToken)
     {
-        await HubContext.Clients.All.ProgrammesRefresh().ConfigureAwait(false);
+        //await HubContext.Clients.All.ProgrammesRefresh().ConfigureAwait(false);
     }
 }

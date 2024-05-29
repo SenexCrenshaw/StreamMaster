@@ -166,7 +166,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Logging
                         .IsRequired()
                         .HasColumnType("citext");
 
-                    b.Property<string>("ShortId")
+                    b.Property<string>("SMChannelId")
                         .IsRequired()
                         .HasColumnType("citext");
 

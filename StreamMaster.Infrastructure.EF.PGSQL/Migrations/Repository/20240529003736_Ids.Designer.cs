@@ -13,15 +13,15 @@ using StreamMaster.Infrastructure.EF.PGSQL;
 namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 {
     [DbContext(typeof(PGSQLRepositoryContext))]
-    [Migration("20240323185240_RemoveUnusedCols")]
-    partial class RemoveUnusedCols
+    [Migration("20240529003736_Ids")]
+    partial class Ids
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.3")
+                .HasAnnotation("ProductVersion", "8.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "citext");
@@ -46,13 +46,19 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.ToTable("DataProtectionKeys");
                 });
 
-            modelBuilder.Entity("StreamMaster.ChannelGroup", b =>
+            modelBuilder.Entity("StreamMaster.Domain.Models.ChannelGroup", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ActiveCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("HiddenCount")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("IsHidden")
                         .HasColumnType("boolean");
@@ -67,6 +73,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.Property<string>("RegexMatch")
                         .IsRequired()
                         .HasColumnType("citext");
+
+                    b.Property<int>("TotalCount")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -264,6 +273,10 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .IsRequired()
                         .HasColumnType("citext");
 
+                    b.Property<string>("SMChannelId")
+                        .IsRequired()
+                        .HasColumnType("citext");
+
                     b.Property<string>("StationId")
                         .IsRequired()
                         .HasColumnType("citext");
@@ -276,10 +289,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.Property<int>("VideoStreamHandler")
                         .HasColumnType("integer");
-
-                    b.Property<string>("VideoStreamId")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -347,7 +356,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .IsRequired()
                         .HasColumnType("citext");
 
-                    b.Property<string>("SMChannelId")
+                    b.Property<string>("SMStreamId")
                         .IsRequired()
                         .HasColumnType("citext");
 
@@ -409,44 +418,25 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.ToTable("StreamGroupChannelGroups");
                 });
 
-            modelBuilder.Entity("StreamMaster.Domain.Models.StreamGroupSMChannel", b =>
+            modelBuilder.Entity("StreamMaster.Domain.Models.StreamGroupSMChannelLink", b =>
                 {
+                    b.Property<int>("StreamGroupId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("SMChannelId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("StreamGroupId")
-                        .HasColumnType("integer");
-
                     b.Property<bool>("IsReadOnly")
                         .HasColumnType("boolean");
 
                     b.Property<int>("Rank")
                         .HasColumnType("integer");
 
-                    b.HasKey("SMChannelId", "StreamGroupId");
+                    b.HasKey("StreamGroupId", "SMChannelId");
 
-                    b.ToTable("StreamGroupSMChannels");
-                });
+                    b.HasIndex("SMChannelId");
 
-            modelBuilder.Entity("StreamMaster.Domain.Models.StreamGroupVideoStream", b =>
-                {
-                    b.Property<string>("ChildVideoStreamId")
-                        .HasColumnType("citext");
-
-                    b.Property<int>("StreamGroupId")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsReadOnly")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("Rank")
-                        .HasColumnType("integer");
-
-                    b.HasKey("ChildVideoStreamId", "StreamGroupId");
-
-                    b.HasIndex("StreamGroupId");
-
-                    b.ToTable("StreamGroupVideoStreams");
+                    b.ToTable("StreamGroupSMChannelLink");
                 });
 
             modelBuilder.Entity("StreamMaster.Domain.Models.SystemKeyValue", b =>
@@ -470,144 +460,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.ToTable("SystemKeyValues");
                 });
 
-            modelBuilder.Entity("StreamMaster.Domain.Models.VideoStream", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("citext");
-
-                    b.Property<int>("FilePosition")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("GroupTitle")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsHidden")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsReadOnly")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsUserCreated")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("M3UFileId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("M3UFileName")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
-                    b.Property<string>("SMChannelId")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
-                    b.Property<string>("StationId")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
-                    b.Property<int>("StreamProxyType")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("StreamingProxyType")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TimeShift")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Tvg_ID")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
-                    b.Property<int>("Tvg_chno")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Tvg_group")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
-                    b.Property<string>("Tvg_logo")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
-                    b.Property<string>("Tvg_name")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
-                    b.Property<string>("User_Tvg_ID")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
-                    b.Property<int>("User_Tvg_chno")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("User_Tvg_group")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
-                    b.Property<string>("User_Tvg_logo")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
-                    b.Property<string>("User_Tvg_name")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
-                    b.Property<string>("User_Url")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
-                    b.Property<int>("VideoStreamHandler")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SMChannelId")
-                        .HasDatabaseName("IX_VideoStream_SMChannelId");
-
-                    b.HasIndex("User_Tvg_chno")
-                        .HasDatabaseName("IX_VideoStream_User_Tvg_chno");
-
-                    b.HasIndex("User_Tvg_group")
-                        .HasDatabaseName("idx_User_Tvg_group");
-
-                    b.HasIndex("User_Tvg_name")
-                        .HasDatabaseName("IX_VideoStream_User_Tvg_name");
-
-                    b.HasIndex("User_Tvg_group", "IsHidden")
-                        .HasDatabaseName("idx_User_Tvg_group_IsHidden");
-
-                    b.ToTable("VideoStreams");
-                });
-
-            modelBuilder.Entity("StreamMaster.Domain.Models.VideoStreamLink", b =>
-                {
-                    b.Property<string>("ParentVideoStreamId")
-                        .HasColumnType("citext");
-
-                    b.Property<string>("ChildVideoStreamId")
-                        .HasColumnType("citext");
-
-                    b.Property<int>("Rank")
-                        .HasColumnType("integer");
-
-                    b.HasKey("ParentVideoStreamId", "ChildVideoStreamId");
-
-                    b.HasIndex("ChildVideoStreamId");
-
-                    b.ToTable("VideoStreamLinks");
-                });
-
             modelBuilder.Entity("StreamMaster.Domain.Models.SMChannelStreamLink", b =>
                 {
                     b.HasOne("StreamMaster.Domain.Models.SMChannel", "SMChannel")
@@ -629,7 +481,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
             modelBuilder.Entity("StreamMaster.Domain.Models.StreamGroupChannelGroup", b =>
                 {
-                    b.HasOne("StreamMaster.ChannelGroup", "ChannelGroup")
+                    b.HasOne("StreamMaster.Domain.Models.ChannelGroup", "ChannelGroup")
                         .WithMany()
                         .HasForeignKey("ChannelGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -646,7 +498,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.Navigation("StreamGroup");
                 });
 
-            modelBuilder.Entity("StreamMaster.Domain.Models.StreamGroupSMChannel", b =>
+            modelBuilder.Entity("StreamMaster.Domain.Models.StreamGroupSMChannelLink", b =>
                 {
                     b.HasOne("StreamMaster.Domain.Models.SMChannel", "SMChannel")
                         .WithMany("StreamGroups")
@@ -654,43 +506,15 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("SMChannel");
-                });
-
-            modelBuilder.Entity("StreamMaster.Domain.Models.StreamGroupVideoStream", b =>
-                {
-                    b.HasOne("StreamMaster.Domain.Models.VideoStream", "ChildVideoStream")
-                        .WithMany("StreamGroups")
-                        .HasForeignKey("ChildVideoStreamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("StreamMaster.Domain.Models.StreamGroup", null)
-                        .WithMany("ChildVideoStreams")
+                    b.HasOne("StreamMaster.Domain.Models.StreamGroup", "StreamGroup")
+                        .WithMany("SMChannels")
                         .HasForeignKey("StreamGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ChildVideoStream");
-                });
+                    b.Navigation("SMChannel");
 
-            modelBuilder.Entity("StreamMaster.Domain.Models.VideoStreamLink", b =>
-                {
-                    b.HasOne("StreamMaster.Domain.Models.VideoStream", "ChildVideoStream")
-                        .WithMany()
-                        .HasForeignKey("ChildVideoStreamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("StreamMaster.Domain.Models.VideoStream", "ParentVideoStream")
-                        .WithMany("ChildVideoStreams")
-                        .HasForeignKey("ParentVideoStreamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ChildVideoStream");
-
-                    b.Navigation("ParentVideoStream");
+                    b.Navigation("StreamGroup");
                 });
 
             modelBuilder.Entity("StreamMaster.Domain.Models.SMChannel", b =>
@@ -704,14 +528,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                 {
                     b.Navigation("ChannelGroups");
 
-                    b.Navigation("ChildVideoStreams");
-                });
-
-            modelBuilder.Entity("StreamMaster.Domain.Models.VideoStream", b =>
-                {
-                    b.Navigation("ChildVideoStreams");
-
-                    b.Navigation("StreamGroups");
+                    b.Navigation("SMChannels");
                 });
 #pragma warning restore 612, 618
         }

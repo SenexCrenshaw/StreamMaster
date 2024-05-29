@@ -30,18 +30,21 @@
     <Compile Remove="Common\Repository\**" />
     <Compile Remove="Programmes\Commands\**" />
     <Compile Remove="SchedulesDirect\NewFolder\**" />
+    <Compile Remove="VideoStreamLinks\**" />
     <EmbeddedResource Remove="ChannelGroups\Hub\**" />
     <EmbeddedResource Remove="Common\Aspects\**" />
     <EmbeddedResource Remove="Common\Attributes\**" />
     <EmbeddedResource Remove="Common\Repository\**" />
     <EmbeddedResource Remove="Programmes\Commands\**" />
     <EmbeddedResource Remove="SchedulesDirect\NewFolder\**" />
+    <EmbeddedResource Remove="VideoStreamLinks\**" />
     <None Remove="ChannelGroups\Hub\**" />
     <None Remove="Common\Aspects\**" />
     <None Remove="Common\Attributes\**" />
     <None Remove="Common\Repository\**" />
     <None Remove="Programmes\Commands\**" />
     <None Remove="SchedulesDirect\NewFolder\**" />
+    <None Remove="VideoStreamLinks\**" />
   </ItemGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
@@ -69,9 +72,8 @@
   <ItemGroup>
     <Folder Include="Common\Logging\" />
     <Folder Include="General\Queries\" />
-    <Folder Include="StreamGroupVideoStreams\EventHandlers\" />
-    <Folder Include="StreamGroupVideoStreams\Events\" />
-    <Folder Include="VideoStreamLinks\EventHandlers\" />
-    <Folder Include="VideoStreamLinks\Events\" />
+    <Folder Include="StreamGroupChannelGroupLinks\Commands\" />
+    <Folder Include="StreamGroupChannelGroupLinks\Hub\" />
+    <Folder Include="StreamGroupChannelGroupLinks\Queries\" />
   </ItemGroup>
 </Project>

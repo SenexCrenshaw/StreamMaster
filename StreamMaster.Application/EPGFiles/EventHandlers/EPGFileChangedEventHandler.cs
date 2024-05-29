@@ -13,7 +13,7 @@ public class EPGFileChangedEventHandler : INotificationHandler<EPGFileChangedEve
 
     public async Task Handle(EPGFileChangedEvent notification, CancellationToken cancellationToken)
     {
-        await _hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
-        await _hubContext.Clients.All.CacheHandler("epgSelector").ConfigureAwait(false);
+        //await _hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
+        //await _hubContext.Clients.All.CacheHandler("epgSelector").ConfigureAwait(false);
     }
 }

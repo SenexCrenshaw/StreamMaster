@@ -1,11 +1,9 @@
-﻿using StreamMaster.Domain.Dto;
-
-namespace StreamMaster.Domain.Services
+﻿namespace StreamMaster.Domain.Services
 {
     public interface IHLSManager : IDisposable
     {
         IHLSHandler? Get(string VideoStreamId);
-        Task<IHLSHandler> GetOrAdd(VideoStreamDto videoStream);
+        Task<IHLSHandler> GetOrAdd(SMStream smStream);
         void Stop(string VideoStreamId);
     }
 }

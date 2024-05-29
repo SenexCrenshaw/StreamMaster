@@ -6,17 +6,17 @@
     public interface IClientStreamerManager
     {
         Task AddClientToHandler(Guid clientId, IStreamHandler streamHandler);
-        Task AddClientsToHandler(string ChannelVideoStreamId, IStreamHandler streamHandler);
+        Task AddClientsToHandler(int smChannelId, IStreamHandler streamHandler);
         /// <summary>
         /// Gets client streamer configurations by channel video stream Url.
         /// </summary>
-        List<IClientStreamerConfiguration> GetClientStreamerConfigurationsByChannelVideoStreamId(string ChannelVideoStreamId);
+        List<IClientStreamerConfiguration> GetClientStreamerConfigurationsBySMChannelId(int smChannelId);
 
 
         /// <summary>
         /// Gets the count of clients for a specific channel video stream Url.
         /// </summary>
-        int ClientCount(string ChannelVideoStreamUrl);
+        int ClientCount(int ClientCount);
 
         /// <summary>
         /// Asynchronously cancels a client.

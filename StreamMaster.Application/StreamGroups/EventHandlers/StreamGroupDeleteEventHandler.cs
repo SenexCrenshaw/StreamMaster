@@ -1,9 +1,4 @@
-﻿using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-
-using StreamMaster.Application.Hubs;
-using StreamMaster.Application.StreamGroups.Events;
+﻿using StreamMaster.Application.StreamGroups.Events;
 
 namespace StreamMaster.Application.StreamGroups.EventHandlers;
 
@@ -20,6 +15,6 @@ public class StreamGroupDeleteEventHandler : INotificationHandler<StreamGroupDel
 
     public async Task Handle(StreamGroupDeleteEvent notification, CancellationToken cancellationToken)
     {
-        await _hubContext.Clients.All.StreamGroupsRefresh().ConfigureAwait(false);
+        //await _hubContext.Clients.All.StreamGroupsRefresh().ConfigureAwait(false);
     }
 }

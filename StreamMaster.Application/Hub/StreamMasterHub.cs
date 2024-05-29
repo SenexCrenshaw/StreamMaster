@@ -41,7 +41,7 @@ public partial class StreamMasterHub(
             _connections.Add(Context.ConnectionId);
         }
 
-        Clients.Caller.SystemStatusUpdate(Sender.Send(new GetSystemStatusRequest()).Result.Data);
+        //Clients.Caller.SystemStatusUpdate(Sender.Send(new GetSystemStatusRequest()).Result.Data);
 
         return base.OnConnectedAsync();
     }

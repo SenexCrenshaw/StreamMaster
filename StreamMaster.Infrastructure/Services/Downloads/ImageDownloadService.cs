@@ -238,7 +238,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                     {
                         logger.LogDebug("No artwork to download, removing job");
                         ++TotalNoArt;
-                        await hubContext.Clients.All.MiscRefresh();
+                        //await hubContext.Clients.All.MiscRefresh();
 
                         imageDownloadQueue.TryDequeue(response.ProgramId);
 
@@ -279,7 +279,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                     finally
                     {
                         _ = downloadSemaphore.Release();
-                        await hubContext.Clients.All.MiscRefresh();
+                        //await hubContext.Clients.All.MiscRefresh();
                     }
                 }
                 if (deq)

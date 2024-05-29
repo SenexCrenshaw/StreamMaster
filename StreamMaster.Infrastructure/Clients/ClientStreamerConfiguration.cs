@@ -3,17 +3,13 @@
 using StreamMaster.Streams.Domain.Interfaces;
 namespace StreamMaster.Infrastructure.Clients;
 
-/// <summary>
-/// Defines the configuration options for a video streamer.
-/// </summary>
 public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
 {
 
     private readonly HttpResponse response;
 
     public ClientStreamerConfiguration(
-        string channelVideoStreamId,
-         string channelName,
+        SMChannel smChannel,
         string clientUserAgent,
         string clientIPAddress,
         CancellationToken cancellationToken,
@@ -24,8 +20,7 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
         ClientIPAddress = clientIPAddress;
         ClientId = Guid.NewGuid();
         ClientUserAgent = clientUserAgent;
-        ChannelVideoStreamId = channelVideoStreamId;
-        ChannelName = channelName;
+        SMChannel = smChannel;
         //ClientCancellationTokenSource = new();
         ClientMasterToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ClientHTTPRequestCancellationToken);
     }
@@ -86,7 +81,7 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
     public string ClientUserAgent { get; set; }
 
     //Current Streaming info
-    public string ChannelVideoStreamId { get; set; }
+    public SMChannel SMChannel { get; set; }
     public string ChannelName { get; set; }
     public string VideoStreamName { get; set; }
 }

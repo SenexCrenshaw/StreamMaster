@@ -37,28 +37,26 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
 
-        List<VideoStreamDto> videoStreams = [];
-
-        videoStreams = request.StreamGroupId == 0
-            ? await Repository.VideoStream.GetVideoStreams()
-            : await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId);
+        List<SMChannel> smChannels = request.StreamGroupId == 0
+            ? await Repository.SMChannel.GetQuery().ToListAsync(cancellationToken: cancellationToken)
+                : await Repository.SMChannel.GetSMChannelsFromStreamGroup(request.StreamGroupId);
 
         List<VideoStreamConfig> videoStreamConfigs = [];
 
-        logger.LogInformation("GetStreamGroupEPGHandler: Handling {Count} videoStreams", videoStreams.Count);
+        logger.LogInformation("GetStreamGroupEPGHandler: Handling {Count} smStreams", smChannels.Count);
 
-        foreach (VideoStreamDto? videoStream in videoStreams.Where(a => !a.IsHidden))
+        foreach (SMChannel? smChannel in smChannels.Where(a => !a.IsHidden))
         {
             videoStreamConfigs.Add(new VideoStreamConfig
             {
-                Id = videoStream.Id,
-                M3UFileId = videoStream.M3UFileId,
-                User_Tvg_name = videoStream.User_Tvg_name,
-                Tvg_ID = videoStream.Tvg_ID,
-                User_Tvg_ID = videoStream.User_Tvg_ID,
-                User_Tvg_Logo = videoStream.User_Tvg_logo,
-                User_Tvg_chno = videoStream.User_Tvg_chno,
-                TimeShift = videoStream.TimeShift,
+                Id = smChannel.Id.ToString(),
+                M3UFileId = 0,//smChannel.M3UFileId,
+                User_Tvg_name = smChannel.Name,
+                Tvg_ID = smChannel.EPGId,
+                User_Tvg_ID = smChannel.EPGId,
+                User_Tvg_Logo = smChannel.Logo,
+                User_Tvg_chno = smChannel.ChannelNumber,
+                TimeShift = smChannel.TimeShift,
                 IsDuplicate = false,
                 IsDummy = false
             });

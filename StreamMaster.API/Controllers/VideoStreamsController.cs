@@ -1,96 +1,25 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Application.SMChannels.Commands;
 using StreamMaster.Application.StreamGroups.CommandsOld;
-using StreamMaster.Application.VideoStreams;
-using StreamMaster.Application.VideoStreams.Commands;
-using StreamMaster.Application.VideoStreams.Queries;
-using StreamMaster.Domain.API;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Requests;
+using StreamMaster.Domain.Repository;
 using StreamMaster.Infrastructure.Clients;
 using StreamMaster.Streams.Domain.Interfaces;
 
 namespace StreamMaster.API.Controllers;
 
-public class VideoStreamsController : ApiControllerBase, IVideoStreamController
+public class VideoStreamsController(IChannelManager channelManager, IRepositoryWrapper repositoryWrapper, ILogger<VideoStreamsController> logger) : ApiControllerBase
 {
-    private readonly IChannelManager _channelManager;
-    private readonly ILogger<VideoStreamsController> _logger;
-
-    public VideoStreamsController(IChannelManager channelManager, ILogger<VideoStreamsController> logger)
-    {
-        _channelManager = channelManager;
-        _logger = logger;
-    }
-
-    [HttpPost]
-    [Route("[action]")]
-    public async Task<ActionResult> CreateVideoStream(CreateVideoStreamRequest request)
-    {
-        await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
-    }
-
-    [HttpPost]
-    [Route("[action]")]
-    public async Task<ActionResult> ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request)
-    {
-        await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
-    }
-
-    [HttpDelete]
-    [Route("[action]")]
-    public async Task<ActionResult> DeleteVideoStream(DeleteVideoStreamRequest request)
-    {
-        bool data = await Mediator.Send(request).ConfigureAwait(false);
-        return data ? NoContent() : NotFound();
-    }
-
     [HttpPost]
     [Route("[action]")]
     public IActionResult FailClient(FailClientRequest request)
     {
-        _channelManager.FailClient(request.clientId);
+        channelManager.FailClient(request.clientId);
         return Ok();
     }
 
-
-    [HttpGet]
-    [Route("{id}")]
-    public async Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id)
-    {
-        VideoStreamDto? data = await Mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);
-        return data;
-    }
-
-
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<List<IdName>>> GetVideoStreamNames()
-    {
-        List<IdName> res = await Mediator.Send(new GetVideoStreamNamesRequest()).ConfigureAwait(false);
-        return Ok(res);
-    }
-
-    [HttpGet]
-    public async Task<ActionResult<PagedResponse<VideoStreamDto>>> GetPagedVideoStreams([FromQuery] VideoStreamParameters videoStreamParameters)
-    {
-        PagedResponse<VideoStreamDto> res = await Mediator.Send(new GetPagedVideoStreams(videoStreamParameters)).ConfigureAwait(false);
-        return Ok(res);
-    }
-
-    private StreamingProxyTypes GetStreamingProxyType(VideoStreamDto videoStream)
-    {
-
-        return videoStream.StreamingProxyType == StreamingProxyTypes.SystemDefault
-            ? Settings.StreamingProxyType
-            : videoStream.StreamingProxyType;
-    }
 
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
@@ -102,57 +31,66 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     public async Task<ActionResult> GetVideoStreamStream(string encodedIds, string name, CancellationToken cancellationToken)
     {
 
-        (int? StreamGroupNumberNull, string? StreamIdNull) = encodedIds.DecodeTwoValuesAsString128(Settings.ServerKey);
-        if (StreamGroupNumberNull == null || StreamIdNull == null)
+        (int? StreamGroupNumberNull, string? SMChannelId) = encodedIds.DecodeTwoValuesAsString128(Settings.ServerKey);
+        if (StreamGroupNumberNull == null || string.IsNullOrEmpty(SMChannelId))
         {
             return new NotFoundResult();
         }
 
         int streamGroupNumber = (int)StreamGroupNumberNull;
-        string videoStreamId = StreamIdNull;
 
-        VideoStreamDto? videoStream = await Mediator.Send(new GetVideoStream(videoStreamId), cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId}", streamGroupNumber, videoStreamId);
-
-        if (videoStream == null)
+        if (!int.TryParse(SMChannelId, out int smChannelId))
         {
-            _logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} not found exiting", streamGroupNumber, videoStreamId);
-            return NotFound();
+            return new NotFoundResult();
         }
 
-        if (
-            string.IsNullOrEmpty(videoStream.User_Url) &&
-            (videoStream.ChildVideoStreams.Count == 0 || string.IsNullOrEmpty(videoStream.ChildVideoStreams.First().User_Url))
-        )
+
+        SMChannel? smChannel = repositoryWrapper.SMChannel.GetSMChannel(smChannelId);
+
+        if (smChannel == null)
         {
-            _logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} missing url or additional streams", streamGroupNumber, videoStreamId);
+            logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} not found exiting", streamGroupNumber, smChannelId);
+            return NotFound();
+        }
+        logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId}", streamGroupNumber, smChannelId);
+
+
+        if (smChannel.SMStreams.Count == 0 || string.IsNullOrEmpty(smChannel.SMStreams.First().SMStream.Url))
+        {
+            logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} missing url or additional streams", streamGroupNumber, smChannelId);
             return new NotFoundResult();
         }
 
         HttpContext.Session.Remove("ClientId");
 
-        StreamingProxyTypes proxyType = GetStreamingProxyType(videoStream);
+        StreamingProxyTypes proxyType = GetStreamingProxyType(smChannel);
         bool redirect = proxyType == StreamingProxyTypes.None;
 
         if (redirect)
         {
-            _logger.LogInformation("GetStreamGroupVideoStream request SG Number {id} ChannelId {channelId} proxy is none, sending redirect", streamGroupNumber, videoStreamId);
+            logger.LogInformation("GetStreamGroupVideoStream request SG Number {id} ChannelId {channelId} proxy is none, sending redirect", streamGroupNumber, smChannelId);
 
-            return Redirect(videoStream.User_Url);
+            return Redirect(smChannel.SMStreams.First().SMStream.Url);
         }
-
 
         string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
-        ClientStreamerConfiguration config = new(videoStream.Id, videoStream.User_Tvg_name, Request.Headers["User-Agent"].ToString(), ipAddress ?? "unkown", cancellationToken, HttpContext.Response);
+        ClientStreamerConfiguration config = new(smChannel, Request.Headers["User-Agent"].ToString(), ipAddress ?? "unkown", cancellationToken, HttpContext.Response);
 
-        Stream? stream = await _channelManager.GetChannel(config);
+        Stream? stream = await channelManager.GetChannel(config);
 
 
-        HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(_channelManager, config));
+        HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, config));
         return stream != null ? new FileStreamResult(stream, "video/mp4") : StatusCode(StatusCodes.Status404NotFound);
     }
 
+    private StreamingProxyTypes GetStreamingProxyType(SMChannel smChannel)
+    {
+
+        return smChannel.StreamingProxyType == StreamingProxyTypes.SystemDefault
+            ? Settings.StreamingProxyType
+            : smChannel.StreamingProxyType;
+    }
     public async Task ReadAndWriteAsync(Stream sourceStream, string filePath, CancellationToken cancellationToken = default)
     {
         const int bufferSize = 1024; // Read in chunks of 1024 bytes
@@ -186,98 +124,18 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error writing stream to file");
+            logger.LogError(ex, "Error writing stream to file");
             throw;
         }
     }
 
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<ActionResult> ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request)
-    {
-        await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
-    }
 
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<ActionResult> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request)
-    {
-        await Mediator.Send(request).ConfigureAwait(false);
-        return NoContent();
-    }
-
-
-
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<ActionResult> SetVideoStreamsLogoFromEPG(SetVideoStreamsLogoFromEPGRequest request)
-    {
-        await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
-    }
-
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<ActionResult> UpdateVideoStream(UpdateVideoStreamRequest request)
-    {
-        _ = await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
-    }
-
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<ActionResult> UpdateVideoStreams(UpdateVideoStreamsRequest request)
-    {
-        await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
-    }
-
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<ActionResult> UpdateAllVideoStreamsFromParameters(UpdateAllVideoStreamsFromParametersRequest request)
-    {
-        await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
-    }
-
-    [HttpDelete]
-    [Route("[action]")]
-    public async Task<ActionResult> DeleteAllVideoStreamsFromParameters(DeleteAllVideoStreamsFromParametersRequest request)
-    {
-        await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
-    }
-
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<ActionResult> SetVideoStreamChannelNumbersFromParameters(SetVideoStreamChannelNumbersFromParametersRequest request)
-    {
-        await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
-    }
-
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<ActionResult> SetVideoStreamsLogoFromEPGFromParameters(SetVideoStreamsLogoFromEPGFromParametersRequest request)
-    {
-        await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
-    }
-
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<ActionResult> ReSetVideoStreamsLogoFromParameters(ReSetVideoStreamsLogoFromParametersRequest request)
-    {
-        await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
-    }
 
     [HttpPost]
     [Route("[action]")]
     public ActionResult SimulateStreamFailureForAll()
     {
-        _channelManager.SimulateStreamFailureForAll();
+        channelManager.SimulateStreamFailureForAll();
         return Ok();
     }
 
@@ -290,62 +148,6 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         return Ok();
     }
 
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<IActionResult> AutoSetEPG(AutoSetEPGRequest request)
-    {
-        await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
-    }
-
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<IActionResult> AutoSetEPGFromParameters(AutoSetEPGFromParametersRequest request)
-    {
-        await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
-    }
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<ActionResult> SetVideoStreamTimeShifts(SetVideoStreamTimeShiftsRequest request)
-    {
-        await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
-    }
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<ActionResult> SetVideoStreamTimeShiftFromParameters(SetVideoStreamTimeShiftFromParametersRequest request)
-    {
-        await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
-    }
-
-
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<VideoInfo>> GetVideoStreamInfoFromId([FromQuery] GetVideoStreamInfoFromIdRequest request)
-    {
-        VideoInfo res = await Mediator.Send(request).ConfigureAwait(false);
-        return Ok(res);
-    }
-
-
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<VideoInfo>> GetVideoStreamInfoFromUrl([FromQuery] GetVideoStreamInfoFromUrlRequest request)
-    {
-        VideoInfo res = await Mediator.Send(request).ConfigureAwait(false);
-        return Ok(res);
-    }
-
-    [HttpGet]
-    [Route("[action]")]
-
-    public async Task<ActionResult<List<IdNameUrl>>> GetVideoStreamNamesAndUrls()
-    {
-        List<IdNameUrl> res = await Mediator.Send(new GetVideoStreamNamesAndUrlsRequest()).ConfigureAwait(false);
-        return Ok(res);
-    }
 
     private class UnregisterClientOnDispose(IChannelManager channelManager, ClientStreamerConfiguration config) : IDisposable
     {

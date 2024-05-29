@@ -16,6 +16,7 @@ public class ChannelGroupRepository(
     IRepositoryContext intRepositoryContext,
     IRepositoryWrapper Repository,
     IMapper Mapper,
+    IDataRefreshService dataRefreshService,
     IOptionsMonitor<Setting> intSettings,
     ISender sender
     ) : RepositoryBase<ChannelGroup>(intRepositoryContext, intLogger, intSettings), IChannelGroupRepository
@@ -23,7 +24,7 @@ public class ChannelGroupRepository(
 
     public async Task<APIResponse> CreateChannelGroup(string GroupName, bool IsReadOnly = false)
     {
-        if (await Repository.ChannelGroup.GetChannelGroupByName(GroupName).ConfigureAwait(false) != null)
+        if (Any(a => a.Name == GroupName))
         {
             return APIResponse.Ok;
         }
@@ -31,9 +32,6 @@ public class ChannelGroupRepository(
         ChannelGroup channelGroup = new() { Name = GroupName, IsReadOnly = IsReadOnly };
         Create(channelGroup); ;
         await SaveChangesAsync();
-
-        List<StreamGroupDto>? ret = await Repository.StreamGroupChannelGroup.SyncStreamGroupChannelGroupByChannelId(channelGroup.Id);
-
 
         return APIResponse.Ok;
     }
@@ -52,32 +50,6 @@ public class ChannelGroupRepository(
             });
         }
         return APIResponse.Ok;
-    }
-
-    public async Task<List<ChannelGroupIdName>> GetChannelGroupNames(CancellationToken cancellationToken = default)
-    {
-        try
-        {
-
-            List<ChannelGroupIdName> channelGroupNames = await RepositoryContext.ChannelGroups
-             .OrderBy(channelGroup => channelGroup.Name)
-             .Select(channelGroup => new ChannelGroupIdName
-             {
-                 Name = channelGroup.Name,
-                 Id = channelGroup.Id,
-                 TotalCount = RepositoryContext.VideoStreams
-                              .Count(vs => vs.User_Tvg_group == channelGroup.Name)
-             })
-             .ToListAsync(cancellationToken)
-             .ConfigureAwait(false);
-
-            return channelGroupNames;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError($"Failed to retrieve channel group names: {ex.Message}", ex);
-            throw;  // or return a default/fallback value, depending on your application's behavior
-        }
     }
 
     public async Task<PagedResponse<ChannelGroup>> GetPagedChannelGroups(QueryStringParameters Parameters)
@@ -150,14 +122,24 @@ public class ChannelGroupRepository(
 
         try
         {
-            ChannelGroup? channelGroup = await FirstOrDefaultAsync(channelGroup => channelGroup.Name.Equals(name));
-            return channelGroup ?? null;
+            return await FirstOrDefaultAsync(channelGroup => channelGroup.Name.Equals(name));
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "An error occurred while fetching the ChannelGroup with name {Name}.", name);
             throw;
         }
+    }
+
+    public bool DoesChannelGroupExist(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            logger.LogError("The provided name for ChannelGroup was null or whitespace.");
+            return false;
+        }
+
+        return Repository.ChannelGroup.Any(a => a.Name == name);
     }
 
 
@@ -193,7 +175,6 @@ public class ChannelGroupRepository(
         return result;
     }
 
-
     public async Task<APIResponse> DeleteAllChannelGroupsFromParameters(QueryStringParameters Parameters, CancellationToken cancellationToken)
     {
         logger.LogInformation($"Attempting to fetch and delete ChannelGroups based on provided parameters.");
@@ -201,8 +182,22 @@ public class ChannelGroupRepository(
         IQueryable<ChannelGroup> toDeleteQuery = GetQuery(Parameters).Where(a => !a.IsReadOnly);
 
         List<int> channelGroupIds = await toDeleteQuery.Select(a => a.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
+        List<string> channelGroupNames = await toDeleteQuery.Select(a => a.Name).ToListAsync(cancellationToken).ConfigureAwait(false);
 
-        List<VideoStreamDto> videoStreams = await Repository.VideoStream.GetVideoStreamsForChannelGroups(channelGroupIds, cancellationToken).ConfigureAwait(false);
+        if (channelGroupNames.Any())
+        {
+            string namesList = string.Join(",", channelGroupNames.Select(name => $"'{name.Replace("'", "''")}'"));
+            string sql = $"UPDATE public.\"SMStreams\" SET \"Group\"='' WHERE \"Group\" IN ({namesList});";
+
+            await RepositoryContext.ExecuteSqlRawAsyncEntities(sql, cancellationToken).ConfigureAwait(false);
+
+            sql = $"UPDATE public.\"SMChannels\" SET \"Group\"='' WHERE \"Group\" IN ({namesList});";
+            await RepositoryContext.ExecuteSqlRawAsyncEntities(sql, cancellationToken).ConfigureAwait(false);
+
+            await dataRefreshService.RefreshSMStreams().ConfigureAwait(false);
+        }
+
+
 
         logger.LogInformation($"Preparing to bulk delete {channelGroupIds.Count} ChannelGroups.");
 

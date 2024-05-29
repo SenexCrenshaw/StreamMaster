@@ -20,7 +20,6 @@ using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 namespace StreamMaster.Infrastructure.Services;
@@ -74,7 +73,7 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
         IHubContext<StreamMasterHub, IStreamMasterHub> hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>();
         IBackgroundTaskQueue backgroundTask = scope.ServiceProvider.GetRequiredService<IBackgroundTaskQueue>();
 
-        await hubContext.Clients.All.TaskQueueStatusUpdate(await backgroundTask.GetQueueStatus()).ConfigureAwait(false);
+        //await hubContext.Clients.All.TaskQueueStatusUpdate(await backgroundTask.GetQueueStatus()).ConfigureAwait(false);
 
         SDSystemStatus status = new() { IsSystemReady = BuildInfo.SetIsSystemReady };
 
@@ -114,7 +113,7 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
                         logger.LogInformation("SDSync started. {status}", jobManager.Status);
 
                         _ = await mediator.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
-                        await hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
+                        //await hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
 
                         logger.LogInformation("SDSync completed. {status}", jobManager.Status);
                     }

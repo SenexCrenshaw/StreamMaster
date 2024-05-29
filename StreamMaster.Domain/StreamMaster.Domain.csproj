@@ -18,8 +18,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Args\**" />
+    <Compile Remove="JsonClasses\**" />
     <EmbeddedResource Remove="Args\**" />
+    <EmbeddedResource Remove="JsonClasses\**" />
     <None Remove="Args\**" />
+    <None Remove="JsonClasses\**" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AspectInjector" Version="2.8.2" />
@@ -35,8 +38,5 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Features" Version="8.0.5" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="JsonClasses\" />
   </ItemGroup>
 </Project>

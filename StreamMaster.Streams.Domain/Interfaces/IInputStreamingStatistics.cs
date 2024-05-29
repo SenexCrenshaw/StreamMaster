@@ -3,7 +3,7 @@
 public interface IInputStreamingStatistics
 {
     string? StreamUrl { get; }
-    string ChannelId { get; }
+    int ChannelId { get; }
     public string Id { get; }
     double BitsPerSecond { get; }
     long BytesRead { get; set; }

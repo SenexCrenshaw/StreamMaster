@@ -53,7 +53,7 @@ public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRe
 
             m3UFile.MaxStreamCount = Math.Max(0, command.MaxStreamCount);
 
-            List<VideoStream>? streams = await m3UFile.GetVideoStreamsFromM3U(Logger).ConfigureAwait(false);
+            List<SMStream>? streams = await m3UFile.GetSMStreamsFromM3U(Logger).ConfigureAwait(false);
             if (streams == null || streams.Count == 0)
             {
                 Logger.LogCritical("Exception M3U '{name}' format is not supported", command.Name);

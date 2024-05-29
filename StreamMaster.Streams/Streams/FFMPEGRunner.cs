@@ -38,10 +38,10 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
     public int ProcessId => process.Id;
 
     // Start the streaming process in the background
-    public Task HLSStartStreamingInBackgroundAsync(VideoStreamDto videoStream, CancellationToken cancellationToken)
+    public Task HLSStartStreamingInBackgroundAsync(SMStream smStream, CancellationToken cancellationToken)
     {
         // Start the streaming task without awaiting it here, letting it run in the background
-        Task<(int processId, ProxyStreamError? error)> streamingTask = Task.Run(() => CreateFFMpegHLS(videoStream, cancellationToken), cancellationToken);
+        Task<(int processId, ProxyStreamError? error)> streamingTask = Task.Run(() => CreateFFMpegHLS(smStream, cancellationToken), cancellationToken);
 
         // Optionally handle completion, including logging or re-throwing errors
         streamingTask.ContinueWith(task =>
@@ -64,7 +64,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
     }
 
     private Process process;
-    private async Task<(int processId, ProxyStreamError? error)> CreateFFMpegHLS(VideoStreamDto videoStream, CancellationToken cancellationToken)
+    private async Task<(int processId, ProxyStreamError? error)> CreateFFMpegHLS(SMStream smStream, CancellationToken cancellationToken)
     {
         try
         {
@@ -77,7 +77,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
                 return (-1, error);
             }
 
-            string outputdir = Path.Combine(BuildInfo.HLSOutputFolder, videoStream.Id);
+            string outputdir = Path.Combine(BuildInfo.HLSOutputFolder, smStream.Id);
 
             if (!outputdir.EndsWith(Path.DirectorySeparatorChar.ToString()))
             {
@@ -89,7 +89,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
                 Directory.CreateDirectory(outputdir);
             }
 
-            string formattedArgs = hlssettings.HLSFFMPEGOptions.Replace("{streamUrl}", $"\"{videoStream.User_Url}\"").Trim();
+            string formattedArgs = hlssettings.HLSFFMPEGOptions.Replace("{streamUrl}", $"\"{smStream.Url}\"").Trim();
             formattedArgs = formattedArgs += " ";
 
             formattedArgs +=
@@ -101,7 +101,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
                               $"-hls_list_size {hlssettings.HLSSegmentCount} " +
                               $"-hls_delete_threshold {hlssettings.HLSSegmentCount} ";
 
-            formattedArgs += $"-hls_base_url \"{videoStream.Id}/\" " +
+            formattedArgs += $"-hls_base_url \"{smStream.Id}/\" " +
                              $"-hls_segment_filename \"{outputdir}%d.ts\" " +
                              $"\"{outputdir}index.m3u8\"";
 
@@ -131,7 +131,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
                 return (-1, error);
             }
 
-            logger.LogInformation("Opened ffmpeg stream for {streamName} with args \"{formattedArgs}\"", videoStream.User_Tvg_name, formattedArgs);
+            logger.LogInformation("Opened ffmpeg stream for {streamName} with args \"{formattedArgs}\"", smStream.Name, formattedArgs);
             await process.WaitForExitAsync().ConfigureAwait(false);
             return (process.Id, null);
         }

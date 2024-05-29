@@ -1,10 +1,11 @@
-﻿namespace StreamMaster.Streams.Domain.Interfaces;
+﻿using StreamMaster.Domain.Models;
+
+namespace StreamMaster.Streams.Domain.Interfaces;
 
 public interface IClientStreamerConfiguration
 {
     string HttpContextId { get; }
-    Task CancelClient(bool includeResponse = true);
-    string ChannelVideoStreamId { get; set; }
+    SMChannel SMChannel { get; set; }
     string ChannelName { get; set; }
     Guid ClientId { get; set; }
     string ClientIPAddress { get; set; }
@@ -12,4 +13,5 @@ public interface IClientStreamerConfiguration
     IClientReadStream? Stream { get; set; }
     CancellationTokenSource ClientMasterToken { get; set; }
     string VideoStreamName { get; set; }
+    Task CancelClient(bool includeResponse = true);
 }

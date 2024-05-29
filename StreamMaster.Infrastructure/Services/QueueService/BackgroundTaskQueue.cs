@@ -66,7 +66,7 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
         {
             status.QueueTS = SMDT.UtcNow;
             status.IsRunning = true;
-            await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
+            //await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
         }
     }
 
@@ -76,7 +76,7 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
         {
             status.StartTS = DateTime.Now;
             status.IsRunning = true;
-            await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
+            //await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
         }
 
     }
@@ -87,7 +87,7 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
         {
             status.StopTS = DateTime.Now;
             status.IsRunning = false;
-            await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
+            //await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
         }
     }
 
@@ -129,7 +129,7 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
             Command = workItem.Command.ToString(),
         });
 
-        await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
+        //await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
         await _queue.Writer.WriteAsync(workItem).ConfigureAwait(false);
         _logger.LogInformation("Added {workItem.command} to Queue", workItem.Command);
 

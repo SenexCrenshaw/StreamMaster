@@ -31,6 +31,12 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return PagedExtensions.CreateEmptyPagedResponse<SMChannelDto>(Count());
     }
 
+    public async Task ChangeGroupName(string oldGroupName, string newGroupName)
+    {
+        string sql = $"UPDATE public.\"SMChannels\" SET \"Group\"='{newGroupName}' WHERE \"Group\"={oldGroupName};";
+        await repositoryContext.ExecuteSqlRawAsyncEntities(sql);
+    }
+
     public async Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(QueryStringParameters parameters)
     {
         IQueryable<SMChannel> query = GetQuery(parameters).Include(a => a.SMStreams).ThenInclude(a => a.SMStream);
@@ -562,5 +568,13 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         await SaveChangesAsync();
 
         return APIResponse.Success;
+    }
+
+    public async Task<List<SMChannel>> GetSMChannelsFromStreamGroup(int streamGroupId)
+    {
+        List<SMChannel> channels = await RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.StreamGroupId == streamGroupId).Include(a => a.SMChannel).Select(a => a.SMChannel).ToListAsync();
+
+        return channels;
+
     }
 }

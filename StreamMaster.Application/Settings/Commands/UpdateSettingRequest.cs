@@ -192,11 +192,11 @@ public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue,
         SettingsHelper.UpdateSetting(currentSetting);
 
         SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
-        await HubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);
-        if (request.parameters.SDSettings?.SDStationIds != null)
-        {
-            await HubContext.Clients.All.SchedulesDirectsRefresh().ConfigureAwait(false);
-        }
+        //await HubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);
+        //if (request.parameters.SDSettings?.SDStationIds != null)
+        //{
+        //    await HubContext.Clients.All.SchedulesDirectsRefresh().ConfigureAwait(false);
+        //}
 
         return new UpdateSettingResponse { Settings = ret, NeedsLogOut = needsLogOut };
     }

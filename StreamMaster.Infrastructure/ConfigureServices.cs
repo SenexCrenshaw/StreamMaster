@@ -18,8 +18,8 @@ public static class ConfigureServices
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
         _ = services.AddMemoryCache();
-        services.AddSingleton<IVideoStreamService, VideoStreamService>();
         _ = services.AddSingleton<IIconService, IconService>();
+        services.AddSingleton<IVideoStreamService, VideoStreamService>();
         _ = services.AddSingleton<IImageDownloadQueue, ImageDownloadQueue>();
         _ = services.AddSingleton<ICacheableSpecification, CacheableSpecification>();
         _ = services.AddSingleton<IJobStatusService, JobStatusService>();

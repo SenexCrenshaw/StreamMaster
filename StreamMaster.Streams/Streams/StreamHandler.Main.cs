@@ -21,7 +21,8 @@ public sealed partial class StreamHandler : IStreamHandler
     private readonly IInputStreamingStatistics inputStreamStatistics;
     private readonly Setting settings;
 
-    public VideoStreamDto VideoStreamDto { get; }
+    public SMChannel SMChannel { get; }
+    public SMStream SMStream { get; }
     public int M3UFileId { get; }
     public int ProcessId { get; set; }
     public string StreamUrl { get; }
@@ -49,30 +50,27 @@ public sealed partial class StreamHandler : IStreamHandler
     /// <param name="memoryCache">An IMemoryCache instance for caching purposes within the stream handler.</param>
     /// <param name="loggerFactory">An ILoggerFactory instance used to create loggers for logging information and events.</param>
     /// <param name="inputStatisticsManager">An IInputStatisticsManager instance for managing and tracking input statistics.</param>
-    public StreamHandler(VideoStreamDto videoStreamDto, int processId, string channelId, string channelName, int rank, IOptionsMonitor<Setting> intsettings, ILoggerFactory loggerFactory, IInputStatisticsManager inputStatisticsManager)
+    public StreamHandler(SMStream smStream, SMChannel smChannel, int processId, int rank, IOptionsMonitor<Setting> intsettings, ILoggerFactory loggerFactory, IInputStatisticsManager inputStatisticsManager)
     {
         settings = intsettings.CurrentValue;
         logger = loggerFactory.CreateLogger<StreamHandler>();
-        VideoStreamDto = videoStreamDto;
-        M3UFileId = videoStreamDto.M3UFileId;
+        SMStream = smStream;
+        SMChannel = smChannel;
+        M3UFileId = smStream.M3UFileId;
         ProcessId = processId;
-        StreamUrl = videoStreamDto.User_Url;
-        VideoStreamId = videoStreamDto.Id;
-        VideoStreamName = videoStreamDto.User_Tvg_name;
+        StreamUrl = smStream.Url;
+        VideoStreamId = smStream.Id;
+        VideoStreamName = smStream.Name;
         this.inputStatisticsManager = inputStatisticsManager;
 
         _writeLogger = loggerFactory.CreateLogger<WriteLogger>();
 
         StreamInfo = new StreamInfo
         {
-            ChannelId = channelId,
-            ChannelName = channelName,
-            VideoStreamId = videoStreamDto.Id,
-            VideoStreamName = videoStreamDto.User_Tvg_name,
-            Logo = videoStreamDto.User_Tvg_logo,
-            StreamingProxyType = videoStreamDto.StreamingProxyType,
-            StreamUrl = videoStreamDto.User_Url,
-
+            SMChannel = SMChannel,
+            VideoStreamId = smStream.Id,
+            VideoStreamName = smStream.Name,
+            StreamUrl = smStream.Url,
             Rank = rank
         };
 

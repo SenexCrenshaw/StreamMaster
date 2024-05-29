@@ -40,29 +40,7 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
 
     public void MigrateData()
     {
-        CheckShortIDs();
     }
 
-    private void CheckShortIDs()
-    {
-        List<VideoStream> videos = [.. context.VideoStreams.Where(a => a.ShortId == UniqueHexGenerator.ShortIdEmpty)];
-        if (videos.Count == 0)
-        {
-            //Console.WriteLine("No shortids need fixing", videos.Count);
-            return;
-        }
-
-        //Console.WriteLine($"Fixing {videos.Count} empty shortids");
-
-        HashSet<string> ids = [.. context.VideoStreams.Select(a => a.ShortId)];
-
-        foreach (VideoStream? video in videos)
-        {
-            video.ShortId = UniqueHexGenerator.GenerateUniqueHex(ids);
-        }
-
-        context.SaveChanges();
-        //Console.WriteLine($"Done fixing empty shortids");
-    }
 }
 

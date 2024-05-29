@@ -222,28 +222,6 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
         return cleanStreams;
     }
 
-    private List<VideoStream> RemoveIgnoredStreams(List<VideoStream> streams)
-    {
-        if (Settings.NameRegex.Any())
-        {
-            foreach (string regex in Settings.NameRegex)
-            {
-                List<VideoStream> toIgnore = ListHelper.GetMatchingProperty(streams, "Tvg_name", regex);
-                logger.LogInformation($"Ignoring {toIgnore.Count} streams with regex {regex}");
-                _ = streams.RemoveAll(toIgnore.Contains);
-            }
-        }
-
-        return streams;
-    }
-
-
-    private static int GetRealStreamCount(List<VideoStream> streams)
-    {
-        List<string> ids = streams.Select(a => a.Id).Distinct().ToList();
-        return ids.Count;
-    }
-
     private static bool ShouldUpdate(M3UFile m3uFile, List<string> VODTags)
     {
         if (VODTags.Count > 0)
@@ -255,7 +233,6 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
         return json is null || m3uFile.LastWrite() >= m3uFile.LastUpdated;
     }
 
-    /// <inheritdoc/>
     public void CreateM3UFile(M3UFile m3uFile)
     {
         if (m3uFile == null)
@@ -394,7 +371,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
 
         foreach (SMStream stream in streams)
         {
-            generatedIdsDict.TryAdd(stream.ShortId, 0);
+            generatedIdsDict.TryAdd(stream.SMStreamId, 0);
         }
 
         _ = Parallel.ForEach(streams.Select((stream, index) => (stream, index)), tuple =>
@@ -409,16 +386,16 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
                 if (!existingLookup.TryGetValue(stream.Id, out SMStream? existingStream))
                 {
                     ProcessNewStream(stream, group?.IsHidden ?? false, m3uFile.Name, index);
-                    stream.ShortId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
+                    stream.SMStreamId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
                     toWrite.Add(stream);
                 }
                 else
                 {
                     if (ProcessExistingStream(stream, existingStream, m3uFile, index))
                     {
-                        if (string.IsNullOrEmpty(existingStream.ShortId) || existingStream.ShortId == UniqueHexGenerator.ShortIdEmpty)
+                        if (string.IsNullOrEmpty(existingStream.SMStreamId) || existingStream.SMStreamId == UniqueHexGenerator.SMChannelIdEmpty)
                         {
-                            existingStream.ShortId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
+                            existingStream.SMStreamId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
                         }
                         toUpdate.Add(existingStream);
                     }
@@ -484,11 +461,11 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
             existingStream.Name = stream.Name;
         }
 
-        if (existingStream.ShortId != stream.ShortId)
+        if (existingStream.SMStreamId != stream.SMStreamId)
         {
             changed = true;
 
-            existingStream.ShortId = stream.ShortId;
+            existingStream.SMStreamId = stream.SMStreamId;
         }
 
         if (existingStream.FilePosition != index)

@@ -1,15 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Application.Common.Extensions;
-using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Configuration;
-
 using System.Text.Json;
 using System.Web;
 
 namespace StreamMaster.Application.StreamGroups.QueriesOld;
 
-public record GetStreamGroupVideoStreamUrl(string VideoStreamId) : IRequest<string?>;
+public record GetStreamGroupVideoStreamUrl(int smChannelId) : IRequest<string?>;
 
 internal class GetStreamGroupVideoStreamUrlHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupVideoStreamUrl> logger, IRepositoryWrapper Repository, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intsettings)
     : IRequestHandler<GetStreamGroupVideoStreamUrl, string?>
@@ -19,11 +15,11 @@ internal class GetStreamGroupVideoStreamUrlHandler(IHttpContextAccessor httpCont
 
     public async Task<string?> Handle(GetStreamGroupVideoStreamUrl request, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrEmpty(request.VideoStreamId))
+        if (request.smChannelId < 1)
         {
             return null;
         }
-        VideoStreamDto? videoStream = await Repository.VideoStream.GetVideoStreamById(request.VideoStreamId).ConfigureAwait(false);
+        SMChannel? videoStream = await Repository.SMChannel.FirstOrDefaultAsync(a => a.Id == request.smChannelId).ConfigureAwait(false);
         if (videoStream == null)
         {
             return null;
@@ -40,11 +36,11 @@ internal class GetStreamGroupVideoStreamUrlHandler(IHttpContextAccessor httpCont
         }
         else
         {
-            string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
+            string encodedName = HttpUtility.HtmlEncode(videoStream.Name).Trim()
                     .Replace("/", "")
                     .Replace(" ", "_");
 
-            string encodedNumbers = 0.EncodeValues128(request.VideoStreamId, settings.ServerKey);
+            string encodedNumbers = 0.EncodeValues128(request.smChannelId, settings.ServerKey);
             videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
         }

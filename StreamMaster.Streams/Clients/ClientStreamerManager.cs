@@ -4,7 +4,8 @@ using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Clients;
 
-public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger, IStatisticsManager statisticsManager, ILoggerFactory loggerFactory) : IClientStreamerManager
+public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger, IStatisticsManager statisticsManager, ILoggerFactory loggerFactory)
+    : IClientStreamerManager
 {
     private readonly ConcurrentDictionary<Guid, IClientStreamerConfiguration> clientStreamerConfigurations = new();
     private readonly object _disposeLock = new();
@@ -39,9 +40,9 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         }
     }
 
-    public async Task AddClientsToHandler(string ChannelVideoStreamId, IStreamHandler streamHandler)
+    public async Task AddClientsToHandler(int smChannelId, IStreamHandler streamHandler)
     {
-        List<Guid> clientIds = GetClientStreamerConfigurationsByChannelVideoStreamId(ChannelVideoStreamId).ConvertAll(a => a.ClientId);
+        List<Guid> clientIds = GetClientStreamerConfigurationsBySMChannelId(smChannelId).ConvertAll(a => a.ClientId);
         foreach (Guid clientId in clientIds)
         {
             await AddClientToHandler(clientId, streamHandler).ConfigureAwait(false);
@@ -66,10 +67,10 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         }
     }
 
-    public int ClientCount(string ChannelVideoStreamId)
+    public int ClientCount(int smChannelId)
     {
         ConcurrentDictionary<Guid, IClientStreamerConfiguration> a = clientStreamerConfigurations;
-        return clientStreamerConfigurations.Count(a => a.Value.ChannelVideoStreamId == ChannelVideoStreamId);
+        return clientStreamerConfigurations.Count(a => a.Value.SMChannel.Id == smChannelId);
     }
 
     public void RegisterClient(IClientStreamerConfiguration clientStreamerConfiguration)
@@ -108,17 +109,17 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         return null;
     }
 
-    public List<IClientStreamerConfiguration> GetClientStreamerConfigurationsByChannelVideoStreamId(string ChannelVideoStreamId)
+    public List<IClientStreamerConfiguration> GetClientStreamerConfigurationsBySMChannelId(int smChannelId)
     {
         ConcurrentDictionary<Guid, IClientStreamerConfiguration> a = clientStreamerConfigurations;
-        List<IClientStreamerConfiguration> client = GetAllClientStreamerConfigurations.Where(a => a.ChannelVideoStreamId.Equals(ChannelVideoStreamId)).ToList();
+        List<IClientStreamerConfiguration> client = GetAllClientStreamerConfigurations.Where(a => a.SMChannel.Id.Equals(smChannelId)).ToList();
 
         return client;
     }
 
     public IClientStreamerConfiguration? GetClientStreamerConfiguration(string ChannelVideoStreamId, Guid ClientId)
     {
-        IClientStreamerConfiguration? test = GetAllClientStreamerConfigurations.FirstOrDefault(a => a.ChannelVideoStreamId.Equals(ChannelVideoStreamId) && a.ClientId == ClientId);
+        IClientStreamerConfiguration? test = GetAllClientStreamerConfigurations.FirstOrDefault(a => a.SMChannel.Id.Equals(ChannelVideoStreamId) && a.ClientId == ClientId);
         return test;
     }
 

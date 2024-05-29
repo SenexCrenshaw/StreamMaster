@@ -1,19 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Application.StreamGroups.QueriesOld;
 using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Requests;
-using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 using System.Text;
-using System.Web;
 
 namespace StreamMaster.API.Controllers;
 
-public class StreamGroupsController(IHttpContextAccessor httpContextAccessor, ISchedulesDirectDataService schedulesDirectDataService)
+public class StreamGroupsController()
     : ApiControllerBase
 {
 
@@ -40,7 +36,7 @@ public class StreamGroupsController(IHttpContextAccessor httpContextAccessor, IS
     [HttpGet]
     [HttpHead]
     [Route("{encodedId}/auto/v{channelId}")]
-    public async Task<ActionResult> GetVideoStreamStreamFromAuto(string encodedId, string channelId, CancellationToken cancellationToken)
+    public ActionResult GetVideoStreamStreamFromAuto(string encodedId, string channelId, CancellationToken cancellationToken)
     {
         int? streamGroupId = encodedId.DecodeValue128(Settings.ServerKey);
         if (streamGroupId == null)
@@ -48,68 +44,68 @@ public class StreamGroupsController(IHttpContextAccessor httpContextAccessor, IS
             return new NotFoundResult();
         }
 
-        List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams((int)streamGroupId);
+        //List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams((int)streamGroupId);
 
-        if (videoStreams.Count == 0)
-        {
-            return NotFound();
-        }
+        //if (videoStreams.Count == 0)
+        //{
+        //    return NotFound();
+        //}
 
 
-        int epgNumber = EPGHelper.DummyId;
+        //int epgNumber = EPGHelper.DummyId;
 
-        foreach (VideoStreamDto videoStream in videoStreams)
-        {
-            string stationId;
+        //foreach (VideoStreamDto videoStream in videoStreams)
+        //{
+        //    string stationId;
 
-            MxfService? service = null;
+        //    MxfService? service = null;
 
-            if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
-            {
-                stationId = videoStream.User_Tvg_group;
-            }
-            else
-            {
-                if (EPGHelper.IsValidEPGId(videoStream.User_Tvg_ID))
-                {
-                    (epgNumber, stationId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
-                    service = schedulesDirectDataService.GetService(stationId);
-                }
-                else
-                {
-                    stationId = videoStream.User_Tvg_ID;
-                    string toTest = $"{stationId}-";
-                    service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId.StartsWith(toTest));
-                }
-            }
+        //    if (string.IsNullOrEmpty(smChannelDto.EPGId))
+        //    {
+        //        stationId = videoStream.User_Tvg_group;
+        //    }
+        //    else
+        //    {
+        //        if (EPGHelper.IsValidEPGId(smChannelDto.EPGId))
+        //        {
+        //            (epgNumber, stationId) = smChannelDto.EPGId.ExtractEPGNumberAndStationId();
+        //            service = schedulesDirectDataService.GetService(stationId);
+        //        }
+        //        else
+        //        {
+        //            stationId = smChannelDto.EPGId;
+        //            string toTest = $"{stationId}-";
+        //            service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId.StartsWith(toTest));
+        //        }
+        //    }
 
-            string graceNote = service?.CallSign ?? stationId;
+        //    string graceNote = service?.CallSign ?? stationId;
 
-            string id = graceNote;
-            if (Settings.M3UUseChnoForId)
-            {
-                id = videoStream.User_Tvg_chno.ToString();
-            }
-            if (id.Equals(channelId))
-            {
-                string url = httpContextAccessor.GetUrl();
-                string videoUrl;
-                if (HLSSettings.HLSM3U8Enable)
-                {
-                    videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
-                    return Redirect(videoUrl);
-                }
+        //    string id = graceNote;
+        //    if (Settings.M3UUseChnoForId)
+        //    {
+        //        id = smChannelDto.ChannelNumber.ToString();
+        //    }
+        //    if (id.Equals(channelId))
+        //    {
+        //        string url = httpContextAccessor.GetUrl();
+        //        string videoUrl;
+        //        if (HLSSettings.HLSM3U8Enable)
+        //        {
+        //            videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
+        //            return Redirect(videoUrl);
+        //        }
 
-                string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
-                    .Replace("/", "")
-                    .Replace(" ", "_");
+        //        string encodedName = HttpUtility.HtmlEncode(smChannelDto.Name).Trim()
+        //            .Replace("/", "")
+        //            .Replace(" ", "_");
 
-                string encodedNumbers = ((int)streamGroupId).EncodeValues128(videoStream.Id, Settings.ServerKey);
-                videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+        //        string encodedNumbers = ((int)streamGroupId).EncodeValues128(videoStream.Id, Settings.ServerKey);
+        //        videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
-                return Redirect(videoUrl);
-            }
-        }
+        //        return Redirect(videoUrl);
+        //    }
+        //}
 
         return NotFound();
     }
@@ -271,9 +267,10 @@ public class StreamGroupsController(IHttpContextAccessor httpContextAccessor, IS
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<string?>> GetStreamGroupVideoStreamUrl(string VideoStreamId)
+    public ActionResult<string?> GetStreamGroupVideoStreamUrl(string VideoStreamId)
     {
-        string? res = await Mediator.Send(new GetStreamGroupVideoStreamUrl(VideoStreamId)).ConfigureAwait(false);
-        return Ok(res);
+        //string? res = await Mediator.Send(new GetStreamGroupVideoStreamUrl(VideoStreamId)).ConfigureAwait(false);
+        //return Ok(res);
+        return Ok("hello");
     }
 }

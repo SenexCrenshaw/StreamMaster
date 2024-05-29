@@ -183,6 +183,7 @@ export interface SMChannelDto
 	Name: string;
 	Rank: number;
 	RealUrl: string;
+	SMChannelId: string;
 	SMStreams: SMStreamDto[];
 	StationId: string;
 	StreamGroupIds: number[];
@@ -190,7 +191,6 @@ export interface SMChannelDto
 	StreamingProxyType: StreamingProxyTypes;
 	TimeShift: number;
 	VideoStreamHandler: VideoStreamHandlers;
-	VideoStreamId: string;
 }
 export interface SMStreamDto
 {
@@ -208,7 +208,7 @@ export interface SMStreamDto
 	Name: string;
 	Rank: number;
 	RealUrl: string;
-	ShortId: string;
+	SMStreamId: string;
 	StationId: string;
 	Url: string;
 }

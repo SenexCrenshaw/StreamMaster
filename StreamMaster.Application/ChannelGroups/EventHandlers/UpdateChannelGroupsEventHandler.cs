@@ -1,6 +1,6 @@
 ﻿using StreamMaster.Application.ChannelGroups.Commands;
 using StreamMaster.Application.ChannelGroups.Events;
-using StreamMaster.Application.StreamGroupChannelGroupLinks.Queries;
+
 
 namespace StreamMaster.Application.ChannelGroups.EventHandlers;
 
@@ -11,14 +11,14 @@ public class UpdateChannelGroupsEventHandler(ILogger<UpdateChannelGroupsEvent> l
     {
         await Sender.Send(new UpdateChannelGroupCountsRequest(notification.ChannelGroups), cancellationToken).ConfigureAwait(false);
         List<int> ids = notification.ChannelGroups.Select(x => x.Id).ToList();
-        IEnumerable<StreamGroupDto> sgs = await Sender.Send(new GetStreamGroupsFromChannelGroupsQuery(ids), cancellationToken).ConfigureAwait(false);
+        //IEnumerable<StreamGroupDto> sgs = await Sender.Send(new GetStreamGroupsFromChannelGroupsQuery(ids), cancellationToken).ConfigureAwait(false);
 
-        ChannelGroupDto[] dtos = mapper.Map<ChannelGroupDto[]>(notification.ChannelGroups);
-        await HubContext.Clients.All.ChannelGroupsRefresh(dtos).ConfigureAwait(false);
-        if (sgs.Any())
-        {
-            await HubContext.Clients.All.StreamGroupsRefresh(sgs.ToArray()).ConfigureAwait(false);
-        }
+        //ChannelGroupDto[] dtos = mapper.Map<ChannelGroupDto[]>(notification.ChannelGroups);
+        //await HubContext.Clients.All.ChannelGroupsRefresh(dtos).ConfigureAwait(false);
+        //if (sgs.Any())
+        //{
+        //    await HubContext.Clients.All.StreamGroupsRefresh(sgs.ToArray()).ConfigureAwait(false);
+        //}
 
 
     }

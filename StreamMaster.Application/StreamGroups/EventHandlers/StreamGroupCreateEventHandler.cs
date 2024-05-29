@@ -13,6 +13,6 @@ public class StreamGroupCreateEventHandler : INotificationHandler<StreamGroupCre
 
     public async Task Handle(StreamGroupCreateEvent notification, CancellationToken cancellationToken)
     {
-        await _hubContext.Clients.All.StreamGroupsRefresh().ConfigureAwait(false);
+        //await _hubContext.Clients.All.StreamGroupsRefresh().ConfigureAwait(false);
     }
 }

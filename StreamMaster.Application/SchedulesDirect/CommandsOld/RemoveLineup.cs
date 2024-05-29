@@ -20,12 +20,12 @@ public class RemoveLineupHandler(ISchedulesDirect schedulesDirect, IJobStatusSer
         logger.LogInformation("Remove line up {lineup}", request.lineup);
         if (await schedulesDirect.RemoveLineup(request.lineup, cancellationToken).ConfigureAwait(false))
         {
-            var response = await schedulesDirect.SDSync(cancellationToken);
-            if (!response.IsError)
-            {
-                await HubContext.Clients.All.SchedulesDirectsRefresh();
+            APIResponse response = await schedulesDirect.SDSync(cancellationToken);
+            //if (!response.IsError)
+            //{
+            //    await HubContext.Clients.All.SchedulesDirectsRefresh();
 
-            }
+            //}
             //schedulesDirect.ResetCache(SDCommands.Status);
             //schedulesDirect.ResetCache(SDCommands.LineUps);
             //await hubContext.Clients.All.SchedulesDirectsRefresh();

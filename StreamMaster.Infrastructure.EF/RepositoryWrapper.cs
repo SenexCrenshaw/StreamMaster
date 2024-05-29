@@ -15,14 +15,10 @@ namespace StreamMaster.Infrastructure.EF
         ILogger<ChannelGroupRepository> ChannelGroupRepositoryLogger,
         ILogger<StreamGroupRepository> StreamGroupRepositoryLogger,
         ILogger<M3UFileRepository> M3UFileRepositoryLogger,
-        ILogger<VideoStreamLinkRepository> VideoStreamLinkRepositoryLogger,
         ILogger<EPGFileRepository> EPGFileRepositoryLogger,
-        ILogger<VideoStreamRepository> VideoStreamRepositoryLogger,
         ILogger<SMChannelsRepository> SMChannelLogger,
         ILogger<SMStreamRepository> SMStreamLogger,
         ILogger<SMChannelStreamLinksRepository> SMChannelStreamLinkLogger,
-        ILogger<StreamGroupVideoStreamRepository> StreamGroupVideoStreamRepositoryLogger,
-        ILogger<StreamGroupChannelGroupRepository> StreamGroupChannelGroupRepositoryLogger,
         ILogger<StreamGroupSMChannelLinkRepository> StreamGroupSMChannelLinkRepositoryLogger,
         ISchedulesDirectDataService schedulesDirectDataService,
         PGSQLRepositoryContext repositoryContext,
@@ -32,6 +28,7 @@ namespace StreamMaster.Infrastructure.EF
         IOptionsMonitor<Setting> intSettings,
         IJobStatusService jobStatusService,
         ISender sender,
+        IDataRefreshService dataRefreshService,
         IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
     {
 
@@ -97,7 +94,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _channelGroup ??= new ChannelGroupRepository(ChannelGroupRepositoryLogger, repositoryContext, this, mapper, intSettings, sender);
+                _channelGroup ??= new ChannelGroupRepository(ChannelGroupRepositoryLogger, repositoryContext, this, mapper, dataRefreshService, intSettings, sender);
                 return _channelGroup;
             }
         }
@@ -113,16 +110,7 @@ namespace StreamMaster.Infrastructure.EF
             }
         }
 
-        private IVideoStreamLinkRepository _videoStreamLink;
 
-        public IVideoStreamLinkRepository VideoStreamLink
-        {
-            get
-            {
-                _videoStreamLink ??= new VideoStreamLinkRepository(VideoStreamLinkRepositoryLogger, repositoryContext, intSettings, mapper);
-                return _videoStreamLink;
-            }
-        }
 
         private IEPGFileRepository _epgFile;
 
@@ -134,40 +122,6 @@ namespace StreamMaster.Infrastructure.EF
                 return _epgFile;
             }
         }
-
-        private IVideoStreamRepository _videoStream;
-
-        public IVideoStreamRepository VideoStream
-        {
-            get
-            {
-                _videoStream ??= new VideoStreamRepository(VideoStreamRepositoryLogger, this, schedulesDirectDataService, iconService, repositoryContext, mapper, intSettings, sender);
-                return _videoStream;
-            }
-        }
-
-
-        private IStreamGroupVideoStreamRepository _streamGroupVideoStream;
-        public IStreamGroupVideoStreamRepository StreamGroupVideoStream
-        {
-            get
-            {
-                _streamGroupVideoStream ??= new StreamGroupVideoStreamRepository(StreamGroupVideoStreamRepositoryLogger, repositoryContext, this, mapper, intSettings, sender);
-                return _streamGroupVideoStream;
-            }
-        }
-
-        private IStreamGroupChannelGroupRepository _streamGroupChannelGroup;
-        public IStreamGroupChannelGroupRepository StreamGroupChannelGroup
-        {
-            get
-            {
-                _streamGroupChannelGroup ??= new StreamGroupChannelGroupRepository(StreamGroupChannelGroupRepositoryLogger, repositoryContext, this, mapper, intSettings, sender);
-                return _streamGroupChannelGroup;
-            }
-        }
-
-
 
         public async Task<int> SaveAsync()
         {
