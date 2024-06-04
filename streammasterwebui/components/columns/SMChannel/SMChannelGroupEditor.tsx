@@ -2,9 +2,9 @@ import { isEmptyObject } from '@lib/common/common';
 import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
 import { SetSMChannelGroup } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { ChannelGroupDto, SMChannelDto, SetSMChannelGroupRequest } from '@lib/smAPI/smapiTypes';
-import { ReactNode, memo, useCallback, useMemo } from 'react';
+import { ReactNode, memo, useCallback, useMemo, useRef } from 'react';
 
-import SMDropDown from '@components/sm/SMDropDown';
+import SMDropDown, { SMDropDownRef } from '@components/sm/SMDropDown';
 
 interface SMChannelGroupEditorProperties {
   readonly smChannelDto: SMChannelDto;
@@ -14,7 +14,7 @@ interface SMChannelGroupEditorProperties {
 
 const SMChannelGroupEditor = ({ darkBackGround, smChannelDto, onChange }: SMChannelGroupEditorProperties) => {
   // const dataKey = 'SMChannelGroup-Groups';
-
+  const smDropownRef = useRef<SMDropDownRef>(null);
   const { data } = useGetChannelGroups();
   // const { selectedItems } = useSelectedItems<ChannelGroupDto>(dataKey);
 
@@ -77,6 +77,7 @@ const SMChannelGroupEditor = ({ darkBackGround, smChannelDto, onChange }: SMChan
       onChange={(e) => {
         handleOnChange(e.Name);
       }}
+      ref={smDropownRef}
       title="GROUP"
       value={smChannelDto}
       optionValue="Name"

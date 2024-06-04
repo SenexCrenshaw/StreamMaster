@@ -1,6 +1,5 @@
-import { ReactNode, Suspense, lazy, useMemo, useRef } from 'react';
-import SMOverlay from './SMOverlay';
-
+import { ReactNode, Suspense, forwardRef, lazy, useImperativeHandle, useMemo, useRef } from 'react';
+import SMOverlay, { SMOverlayRef } from './SMOverlay';
 interface SMDropDownProps {
   readonly buttonDarkBackground?: boolean;
   readonly buttonLabel?: string;
@@ -26,32 +25,44 @@ interface SMDropDownProps {
   readonly widthSize?: string;
 }
 
-const SMDropDown = ({
-  buttonDarkBackground,
-  buttonLabel,
-  buttonTemplate,
-  center,
-  data,
-  dataKey,
-  filter,
-  filterBy,
-  footerTemplate,
-  isLoading,
-  itemTemplate,
-  label,
-  labelInline = false,
-  onChange,
-  optionValue,
-  height = '40vh',
-  select,
-  selectedItemsKey,
-  simple,
-  title,
-  value,
-  widthSize
-}: SMDropDownProps) => {
+export interface SMDropDownRef {
+  hide: () => void;
+}
+
+const SMDropDown = forwardRef<SMDropDownRef, SMDropDownProps>((props: SMDropDownProps, ref) => {
+  const {
+    buttonDarkBackground,
+    buttonLabel,
+    buttonTemplate,
+    center,
+    data,
+    dataKey,
+    filter,
+    filterBy,
+    footerTemplate,
+    isLoading,
+    itemTemplate,
+    label,
+    labelInline = false,
+    onChange,
+    optionValue,
+    height = '40vh',
+    select,
+    selectedItemsKey,
+    simple,
+    title,
+    value,
+    widthSize
+  } = props;
+
+  useImperativeHandle(ref, () => ({
+    hide: () => smOverlayRef.current?.hide(),
+    props
+  }));
+
   const SMScroller = lazy(() => import('@components/sm/SMScroller'));
   const divReference = useRef<HTMLDivElement | null>(null);
+  const smOverlayRef = useRef<SMOverlayRef | null>(null);
 
   const getDiv = useMemo(() => {
     let div = 'sm-dropdown';
@@ -78,6 +89,7 @@ const SMDropDown = ({
           center={center}
           icon="pi-chevron-down"
           isLoading={isLoading}
+          ref={smOverlayRef}
           simple={simple}
           title={title?.toUpperCase()}
           widthSize={widthSize}
@@ -98,6 +110,7 @@ const SMDropDown = ({
                   itemTemplate={itemTemplate}
                   onChange={(e) => {
                     onChange?.(e);
+                    smOverlayRef.current?.hide();
                   }}
                   optionValue={optionValue}
                   value={value}
@@ -116,5 +129,5 @@ const SMDropDown = ({
       </div>
     </>
   );
-};
+});
 export default SMDropDown;

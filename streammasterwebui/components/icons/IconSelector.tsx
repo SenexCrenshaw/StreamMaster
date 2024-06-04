@@ -2,49 +2,30 @@ import SMDropDown from '@components/sm/SMDropDown';
 import { getIconUrl } from '@lib/common/common';
 import useGetIcons from '@lib/smAPI/Icons/useGetIcons';
 import { IconFileDto } from '@lib/smAPI/smapiTypes';
-import { OverlayPanel } from 'primereact/overlaypanel';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 type IconSelectorProperties = {
   readonly darkBackGround?: boolean;
   readonly enableEditMode?: boolean;
-  readonly disabled?: boolean;
-  readonly editable?: boolean | undefined;
   readonly label?: string;
+  readonly large?: boolean;
   readonly value?: string;
   readonly onChange?: (value: string) => void;
-  readonly useDefault?: boolean;
-  readonly large?: boolean;
 };
 
-const IconSelector = ({
-  enableEditMode = true,
-  darkBackGround = false,
-  large = false,
-  label,
-  value,
-  disabled,
-  editable = true,
-  onChange,
-  useDefault
-}: IconSelectorProperties) => {
+const IconSelector = ({ darkBackGround = false, enableEditMode = true, label, large = false, value, onChange }: IconSelectorProperties) => {
   const [origValue, setOrigValue] = useState<string | undefined>(undefined);
   const [iconSource, setIconSource] = useState<string | undefined>(undefined);
   const [iconDto, setIconDto] = useState<IconFileDto | undefined>(undefined);
 
   const query = useGetIcons();
-  const op = useRef<OverlayPanel>(null);
-
-  const closeOverlay = () => op.current?.hide();
 
   const handleOnChange = (source: IconFileDto) => {
     if (!source?.Source) {
       return;
     }
 
-    // setIconSource(source.Source);
-    closeOverlay();
     onChange && onChange(source.Source);
   };
 
@@ -68,7 +49,6 @@ const IconSelector = ({
       setIconSource(value);
       setOrigValue(value);
       const icon = query.data?.find((i) => i.Source === value);
-      // console.log(icon);
       setIconDto(icon);
       return;
     }
