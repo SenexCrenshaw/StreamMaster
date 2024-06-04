@@ -23,7 +23,7 @@ export interface SMButtonProps {
   readonly rounded?: boolean;
   readonly severity?: SeverityType;
   readonly style?: CSSProperties | undefined;
-  tooltip?: string;
+  readonly tooltip?: string;
 }
 
 const SMButton = forwardRef<Button, SMButtonProps>(
@@ -50,7 +50,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
     ref
   ) => {
     const tooltipClassName = React.useMemo(() => {
-      const ret = `smbutton-${uuidv4()} input-height`;
+      const ret = `smbutton-${uuidv4()} input-height w-full`;
 
       return ret;
     }, []);
@@ -112,7 +112,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
         );
       }
       return (
-        <>
+        <div className="sm-hover w-full">
           <Tooltip target={`.${tooltipClassName}`} />
           <div
             onClick={(e) => {
@@ -129,7 +129,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
             {props.children}
             <i className={`input-icon pi ${iconClass} pr-1`} />
           </div>
-        </>
+        </div>
       );
     }
 

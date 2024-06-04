@@ -1,8 +1,8 @@
+import CloseButton from '@components/buttons/CloseButton';
 import SMButton from '@components/sm/SMButton';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import React, { ReactNode, SyntheticEvent, forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
 import { SMCard } from './SMCard';
-import CloseButton from '@components/buttons/CloseButton';
 
 interface SMOverlayProperties {
   readonly answer?: boolean;
@@ -11,11 +11,13 @@ interface SMOverlayProperties {
   readonly buttonFlex?: boolean | undefined;
   readonly buttonLabel?: string | undefined;
   readonly buttonTemplate?: ReactNode;
+  readonly center?: React.ReactNode;
   readonly children: React.ReactNode;
   readonly header?: React.ReactNode;
   readonly icon?: string | undefined;
   readonly iconFilled?: boolean;
   readonly isLoading?: boolean;
+  readonly showClose?: boolean;
   readonly simple?: boolean;
   readonly title?: string | undefined;
   readonly tooltip?: string | undefined;
@@ -38,6 +40,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
     buttonFlex = false,
     buttonLabel = '',
     buttonTemplate,
+    center,
     children,
     header,
     icon,
@@ -46,6 +49,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
     onAnswered,
     onHide,
     onShow,
+    showClose = false,
     simple = false,
     title,
     tooltip = '',
@@ -126,16 +130,17 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
 
   return (
     <>
-      <OverlayPanel className={`sm-overlay w-${widthSize}`} ref={op} showCloseIcon={false} onShow={onShow} onHide={() => onHide && onHide()}>
+      <OverlayPanel className={`sm-overlay w-${widthSize} `} ref={op} showCloseIcon={false} onShow={onShow} onHide={() => onHide && onHide()}>
         <SMCard
-          simple={simple}
-          title={title}
+          center={center}
           header={
             <div className="justify-content-end align-items-center flex-row flex gap-1">
               {header}
-              <CloseButton onClick={(e) => openPanel(e)} tooltip="Close" />
+              {showClose && <CloseButton onClick={(e) => openPanel(e)} tooltip="Close" />}
             </div>
           }
+          simple={simple}
+          title={title}
         >
           {children}
         </SMCard>

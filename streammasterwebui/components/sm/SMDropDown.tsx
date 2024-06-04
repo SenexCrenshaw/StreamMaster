@@ -5,8 +5,10 @@ interface SMDropDownProps {
   readonly buttonDarkBackground?: boolean;
   readonly buttonLabel?: string;
   readonly buttonTemplate?: ReactNode;
+  readonly center?: React.ReactNode;
   readonly data: any;
   readonly dataKey?: string;
+  readonly footerTemplate?: ReactNode;
   readonly isLoading?: boolean;
   readonly filter?: boolean;
   readonly filterBy?: string;
@@ -20,16 +22,19 @@ interface SMDropDownProps {
   readonly selectedItemsKey?: string;
   readonly title?: string;
   readonly value?: any;
+  readonly widthSize?: string;
 }
 
 const SMDropDown = ({
   buttonDarkBackground,
   buttonLabel,
   buttonTemplate,
+  center,
   data,
   dataKey,
   filter,
   filterBy,
+  footerTemplate,
   isLoading,
   itemTemplate,
   label,
@@ -40,7 +45,8 @@ const SMDropDown = ({
   selectedItemsKey,
   simple,
   title,
-  value
+  value,
+  widthSize
 }: SMDropDownProps) => {
   const SMScroller = lazy(() => import('@components/sm/SMScroller'));
   const divReference = useRef<HTMLDivElement | null>(null);
@@ -53,18 +59,19 @@ const SMDropDown = ({
           <div className="pt-small" />
         </div>
       )}
-      <div ref={divReference} className={`sm-dropdown ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
+      <div ref={divReference} className={`sm-dropdown w-full ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
         <SMOverlay
           buttonDarkBackground={buttonDarkBackground}
           buttonLabel={buttonLabel}
           buttonTemplate={buttonTemplate}
+          center={center}
           icon="pi-chevron-down"
           isLoading={isLoading}
           simple={simple}
           title={title?.toUpperCase()}
-          widthSize="2"
+          widthSize={widthSize}
         >
-          <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right">
+          <div className="flex flex-column w-12 sm-card border-radius-left border-radius-right">
             <Suspense fallback={<div>Loading...</div>}>
               <div className="flex w-12">
                 <SMScroller
@@ -85,6 +92,13 @@ const SMDropDown = ({
                 />
               </div>
             </Suspense>
+            {footerTemplate && (
+              <div className="w-12">
+                <div className="layout-padding-bottom" />
+                {footerTemplate}
+                <div className="layout-padding-bottom" />
+              </div>
+            )}
           </div>
         </SMOverlay>
       </div>

@@ -1,7 +1,6 @@
 import AddButton from '@components/buttons/AddButton';
 import StringEditor from '@components/inputs/StringEditor';
 import SMDropDown from '@components/sm/SMDropDown';
-import SMOverlay from '@components/sm/SMOverlay';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';
@@ -10,10 +9,8 @@ import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationC
 import { EPGFileDto, SMChannelDto, StationChannelName } from '@lib/smAPI/smapiTypes';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Tooltip } from 'primereact/tooltip';
-import React, { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-
-const SMScroller = lazy(() => import('@components/sm/SMScroller'));
 
 type EPGResult = { epgNumber: number; stationId: string };
 
@@ -39,14 +36,6 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround =
   const query = useGetStationChannelNames();
   const epgQuery = useGetEPGFiles();
   const colorsQuery = useGetEPGColors();
-
-  // console.group('EPGSelector');
-  // console.log('smChannel', smChannel?.EPGId);
-  // console.log('checkValue', checkValue);
-  // console.log('input', input);
-  // console.log('newInput', newInput);
-  // console.log('stationChannelName', stationChannelName);
-  // console.groupEnd();
 
   const epgFiles = useMemo(() => {
     const additionalOptions = [{ EPGNumber: -1, Name: 'SD' } as EPGFileDto];
@@ -312,28 +301,9 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround =
     return checkValue === newInput;
   }, [checkValue, newInput]);
 
-  const messageContent = useMemo(() => {
+  const footerTemplate = useMemo(() => {
     return (
       <>
-        <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right ">
-          <Suspense>
-            <div className="flex w-12">
-              <SMScroller
-                data={options}
-                dataKey="Channel"
-                filter
-                filterBy="DisplayName"
-                itemSize={26}
-                itemTemplate={itemTemplate}
-                onChange={(e) => {
-                  handleOnChange(e.Channel);
-                }}
-                value={stationChannelName}
-              />
-            </div>
-          </Suspense>
-        </div>
-        <div className="layout-padding-bottom-lg" />
         <div className="flex grid col-12 m-0 p-0 justify-content-between align-items-center">
           <div className="col-10 m-0 p-0 pl-2">
             <StringEditor
@@ -370,10 +340,9 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround =
             />
           </div>
         </div>
-        <div className="layout-padding-bottom" />
       </>
     );
-  }, [addDisabled, handleOnChange, input, itemTemplate, options, stationChannelName]);
+  }, [addDisabled, handleOnChange, input]);
 
   const headerValueTemplate = useMemo((): ReactNode => {
     if (selectedItems && selectedItems.length > 0) {
@@ -416,21 +385,23 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround =
   }
 
   return (
-    <>
-      <div className="stringeditor flex flex-column align-items-start">
-        {label && (
-          <>
-            <label className="pl-15">{label.toUpperCase()}</label>
-            <div className="pt-small" />
-          </>
-        )}
-      </div>
-      {/* <div className={darkBackGround ? 'sm-input-dark2' : ''}> */}
-      <SMOverlay header={headerTemplate} title="EPG" widthSize="3" icon="pi-chevron-down" buttonTemplate={buttonTemplate(stationChannelName)} buttonLabel="EPG">
-        {messageContent}
-      </SMOverlay>
-      {/* </div> */}
-    </>
+    <SMDropDown
+      buttonLabel="EPG"
+      buttonTemplate={buttonTemplate(stationChannelName)}
+      center={headerTemplate}
+      data={options}
+      dataKey="Channel"
+      filter
+      filterBy="DisplayName"
+      footerTemplate={footerTemplate}
+      itemTemplate={itemTemplate}
+      onChange={(e) => {
+        handleOnChange(e.Channel);
+      }}
+      label={label}
+      title="EPG"
+      widthSize="3"
+    />
   );
 };
 

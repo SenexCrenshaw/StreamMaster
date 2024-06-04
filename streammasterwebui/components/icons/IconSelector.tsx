@@ -1,5 +1,4 @@
-import SMOverlay from '@components/sm/SMOverlay';
-import SMScroller from '@components/sm/SMScroller';
+import SMDropDown from '@components/sm/SMDropDown';
 import { getIconUrl } from '@lib/common/common';
 import useGetIcons from '@lib/smAPI/Icons/useGetIcons';
 import { IconFileDto } from '@lib/smAPI/smapiTypes';
@@ -139,37 +138,24 @@ const IconSelector = ({
   }
 
   return (
-    <>
-      <div className="flex flex-column align-items-start icon-label">
-        {label && (
-          <>
-            <label>{label}</label>
-            <div className="pt-small" />
-          </>
-        )}
-      </div>
-      <SMOverlay
-        buttonFlex
-        buttonDarkBackground={darkBackGround}
-        buttonTemplate={buttonTemplate}
-        title="ICONS"
-        widthSize="3"
-        buttonLabel="Icons"
-        header={<></>}
-      >
-        <SMScroller
-          className="icon-selector"
-          filter
-          filterBy="Name"
-          data={query.data}
-          dataKey="Source"
-          itemSize={32}
-          onChange={(e) => handleOnChange(e)}
-          itemTemplate={itemTemplate}
-          value={iconDto}
-        />
-      </SMOverlay>
-    </>
+    <SMDropDown
+      buttonLabel="ICONS"
+      // buttonFlex
+      buttonDarkBackground={darkBackGround}
+      buttonTemplate={buttonTemplate}
+      data={query.data}
+      dataKey="Source"
+      filter
+      filterBy="Source"
+      itemTemplate={itemTemplate}
+      onChange={(e) => {
+        handleOnChange(e);
+      }}
+      label={label}
+      title="ICONS"
+      value={iconDto}
+      widthSize="3"
+    />
   );
 };
 IconSelector.displayName = 'IconSelector';

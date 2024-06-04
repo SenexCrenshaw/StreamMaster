@@ -8134,10 +8134,12 @@
   padding: 0 !important;
   background-color: var(--surface-ground) !important;
 }
-.p-datatable-wrapper::-webkit-scrollbar {
+
+::-webkit-scrollbar {
   width: 12px;
 }
-.p-datatable-wrapper::-webkit-scrollbar-track {
+
+::-webkit-scrollbar-track {
   background-color: #12181b;
   border-radius: 6px;
   border-bottom-left-radius: 0 !important;
@@ -8146,11 +8148,13 @@
   border-bottom-width: 0;
   border: 1px solid #263238;
 }
-.p-datatable-wrapper::-webkit-scrollbar-thumb {
+
+::-webkit-scrollbar-thumb {
   background-color: #263238;
   border-radius: 6px;
 }
-.p-datatable-wrapper::-webkit-scrollbar-thumb:hover {
+
+::-webkit-scrollbar-thumb:hover {
   background-color: #263238;
 }
 
