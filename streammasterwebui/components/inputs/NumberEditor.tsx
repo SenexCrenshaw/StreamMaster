@@ -168,34 +168,32 @@ const NumberEditor = ({
           <div className="pt-small" />
         </>
       )}
-      <div ref={divReference} className={`flex border-blue-500 ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
-        {label && labelInline && <div className="w-6 border-red-500">{label.toUpperCase()}</div>}
-        <div className="w-6">
-          <InputNumber
-            className={getDiv}
-            min={min}
-            max={max}
-            locale="en-US"
-            onChange={(e) => {
-              setInputValue(e.value as number);
-              if (disableDebounce !== true) {
-                debounced(e.value as number);
-              }
-              onChange && onChange(e.value as number);
-            }}
-            ref={inputRef}
-            onClick={() => {
-              onClick?.();
-            }}
-            onFocus={() => setIsFocused(true)}
-            prefix={prefix}
-            showButtons={showButtons}
-            suffix={suffix}
-            tooltip={tooltip}
-            tooltipOptions={tooltipOptions}
-            value={inputValue}
-          />
-        </div>
+      <div ref={divReference} className={`flex ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
+        {label && labelInline && <div className="w-6">{label.toUpperCase()}</div>}
+        <InputNumber
+          className={getDiv}
+          min={min}
+          max={max}
+          locale="en-US"
+          onChange={(e) => {
+            setInputValue(e.value as number);
+            if (disableDebounce !== true) {
+              debounced(e.value as number);
+            }
+            onChange && onChange(e.value as number);
+          }}
+          ref={inputRef}
+          onClick={() => {
+            onClick?.();
+          }}
+          onFocus={() => setIsFocused(true)}
+          prefix={prefix}
+          showButtons={showButtons}
+          suffix={suffix}
+          tooltip={tooltip}
+          tooltipOptions={tooltipOptions}
+          value={inputValue}
+        />
       </div>
     </>
   );

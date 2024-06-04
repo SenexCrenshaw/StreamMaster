@@ -100,12 +100,14 @@
 }
 
 .stringeditor {
+    @extend .sm-hover;
     position: relative;
     display: flex;
     align-items: center;
+    height: $input-height-with-no-borders !important;
+    max-height: $input-height-with-no-borders !important;
 
     .p-float-label {
-
         >label {
             height: $input-height;
             left: nth($inputPadding, 2);
@@ -140,6 +142,7 @@
 .stringeditorbody-inputtext {
     @extend .sm-input-border;
     @extend .text-container;
+
     height: $input-height-with-no-borders !important;
     max-height: $input-height-with-no-borders !important;
     position: relative;

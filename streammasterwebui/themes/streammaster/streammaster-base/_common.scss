@@ -170,7 +170,15 @@
 }
 
 .p-inputnumber-input {
-  @extend .stringeditorbody-inputtext;
+  // @extend .stringeditorbody-inputtext;
+  background-color: transparent !important;
+
+  :hover {
+    border-style: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
 }
 
 .autoUpdate {

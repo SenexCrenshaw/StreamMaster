@@ -86,8 +86,8 @@ const IconSelector = ({
     }
 
     return (
-      <div className="sm-icon-selector flex icon-button-template justify-content-center align-items-center w-full">
-        <img className="no-border" alt="Icon logo" src={iconUrl} />
+      <div className="flex icon-button-template no-bo2rder justify-content-center align-items-center w-full">
+        <img className="no-borde2r" alt="Icon logo" src={iconUrl} />
       </div>
     );
   }, [iconSource, large]);
@@ -140,7 +140,6 @@ const IconSelector = ({
   return (
     <SMDropDown
       buttonLabel="ICONS"
-      // buttonFlex
       buttonDarkBackground={darkBackGround}
       buttonTemplate={buttonTemplate}
       data={query.data}

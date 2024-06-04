@@ -8,7 +8,6 @@ interface SMOverlayProperties {
   readonly answer?: boolean;
   readonly buttonClassName?: string | undefined;
   readonly buttonDarkBackground?: boolean;
-  readonly buttonFlex?: boolean | undefined;
   readonly buttonLabel?: string | undefined;
   readonly buttonTemplate?: ReactNode;
   readonly center?: React.ReactNode;
@@ -37,7 +36,6 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
     answer,
     buttonClassName = '',
     buttonDarkBackground = false,
-    buttonFlex = false,
     buttonLabel = '',
     buttonTemplate,
     center,
@@ -77,24 +75,6 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
 
   const renderButton = useMemo(() => {
     if (buttonTemplate) {
-      if (buttonFlex) {
-        return (
-          <div className="flex align-items-center justify-content-center">
-            <SMButton
-              darkBackGround={buttonDarkBackground}
-              className={buttonClassName}
-              iconFilled={iconFilled}
-              icon={icon}
-              isLoading={isLoading}
-              tooltip={tooltip}
-              label={buttonLabel}
-              onClick={(e) => openPanel(e)}
-            >
-              {buttonTemplate}
-            </SMButton>
-          </div>
-        );
-      }
       return (
         <SMButton
           darkBackGround={buttonDarkBackground}
@@ -122,7 +102,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
         onClick={(e) => openPanel(e)}
       />
     );
-  }, [buttonClassName, buttonDarkBackground, buttonFlex, buttonLabel, buttonTemplate, icon, iconFilled, isLoading, openPanel, tooltip]);
+  }, [buttonClassName, buttonDarkBackground, buttonLabel, buttonTemplate, icon, iconFilled, isLoading, openPanel, tooltip]);
 
   if (isLoading === true) {
     return <div className="w-full">{renderButton}</div>;

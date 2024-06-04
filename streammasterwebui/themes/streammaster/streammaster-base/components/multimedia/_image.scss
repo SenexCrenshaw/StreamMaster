@@ -34,16 +34,19 @@
   justify-content: center;
   align-items: center;
 
-  .no-border {
-    border-style: none !important;
-  }
-
   img {
-    @extend .sm-input-border;
+    // @extend .sm-input-border;
     padding: 0.2rem;
     height: $input-height-with-no-borders;
     width: $gridItem-width;
     object-fit: contain;
+
+    // :hover {
+    //   border-style: none !important;
+    //   box-shadow: none !important;
+    //   transform: none !important;
+    //   opacity: 1 !important;
+    // }
   }
 }
 

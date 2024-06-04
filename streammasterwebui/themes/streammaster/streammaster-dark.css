@@ -6977,26 +6977,26 @@
   border-style: solid !important;
 }
 
-.sm-hover:not(.p-disabled):hover, .sm-icon-selector:not(.p-disabled):hover {
-  border-color: #bcbfbf !important;
-  border-radius: 6px !important;
-  border-style: solid !important;
-  border-width: 0.1rem !important;
-  color: #bcbfbf !important;
+.sm-hover:not(.p-disabled):hover, .sm-icon-selector:not(.p-disabled):hover, .stringeditor:not(.p-disabled):hover {
+  border-color: #bcbfbf;
+  border-radius: 6px;
+  border-style: solid;
+  border-width: 0.1rem;
+  color: #bcbfbf;
 }
 
-.sm-input-border, .icon-button-template img, .icon-template img, .sm-streamingproxy-selector, .sm-list-container, .sm-fileupload .p-inputtext, .sm-streamgroupselector, #startNumber > input, .p-multiselect, .stringeditorbody-inputtext, .p-inputnumber-input, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark, .sm-input-border-dark, .sm-input-dark {
+.sm-input-border, .icon-template img, .sm-streamingproxy-selector, .sm-list-container, .sm-fileupload .p-inputtext, .sm-streamgroupselector, #startNumber > input, .p-multiselect, .stringeditorbody-inputtext, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark, .sm-input-border-dark, .sm-input-dark {
   border-radius: 6px !important;
   border-color: #263238 !important;
   border-width: 0.1rem !important;
   border-style: solid !important;
 }
-.sm-input-border:not(.p-disabled):hover, .icon-button-template img:not(.p-disabled):hover, .icon-template img:not(.p-disabled):hover, .sm-streamingproxy-selector:not(.p-disabled):hover, .sm-list-container:not(.p-disabled):hover, .sm-fileupload .p-inputtext:not(.p-disabled):hover, .sm-streamgroupselector:not(.p-disabled):hover, #startNumber > input:not(.p-disabled):hover, .p-multiselect:not(.p-disabled):hover, .stringeditorbody-inputtext:not(.p-disabled):hover, .p-inputnumber-input:not(.p-disabled):hover, .stringeditorbody-inputtext-save:not(.p-disabled):hover, .stringeditorbody-inputtext-dark:not(.p-disabled):hover, .sm-input-border-dark:not(.p-disabled):hover, .sm-input-dark:not(.p-disabled):hover {
-  border-color: #bcbfbf !important;
-  border-radius: 6px !important;
-  border-style: solid !important;
-  border-width: 0.1rem !important;
-  color: #bcbfbf !important;
+.sm-input-border:not(.p-disabled):hover, .icon-template img:not(.p-disabled):hover, .sm-streamingproxy-selector:not(.p-disabled):hover, .sm-list-container:not(.p-disabled):hover, .sm-fileupload .p-inputtext:not(.p-disabled):hover, .sm-streamgroupselector:not(.p-disabled):hover, #startNumber > input:not(.p-disabled):hover, .p-multiselect:not(.p-disabled):hover, .stringeditorbody-inputtext:not(.p-disabled):hover, .stringeditorbody-inputtext-save:not(.p-disabled):hover, .stringeditorbody-inputtext-dark:not(.p-disabled):hover, .sm-input-border-dark:not(.p-disabled):hover, .sm-input-dark:not(.p-disabled):hover {
+  border-color: #bcbfbf;
+  border-radius: 6px;
+  border-style: solid;
+  border-width: 0.1rem;
+  color: #bcbfbf;
 }
 
 .sm-input-border-dark, .sm-input-dark {
@@ -7256,6 +7256,8 @@
   position: relative;
   display: flex;
   align-items: center;
+  height: 1.4rem !important;
+  max-height: 1.4rem !important;
 }
 .stringeditor .p-float-label > label {
   height: 1.6rem;
@@ -7284,7 +7286,7 @@
   border-bottom-right-radius: 0 !important;
 }
 
-.stringeditorbody-inputtext, .p-inputnumber-input, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark {
+.stringeditorbody-inputtext, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark {
   height: 1.4rem !important;
   max-height: 1.4rem !important;
   position: relative;
@@ -7296,7 +7298,7 @@
   background-color: transparent !important;
   width: 100%;
 }
-.stringeditorbody-inputtext .p-inputnumber-input, .p-inputnumber-input .p-inputnumber-input, .stringeditorbody-inputtext-save .p-inputnumber-input, .stringeditorbody-inputtext-dark .p-inputnumber-input {
+.stringeditorbody-inputtext .p-inputnumber-input, .stringeditorbody-inputtext-save .p-inputnumber-input, .stringeditorbody-inputtext-dark .p-inputnumber-input {
   color: #bcbfbf;
 }
 
@@ -7323,7 +7325,7 @@
   color: #bcbfbf;
 }
 
-.text-container, .stringeditorbody-inputtext, .p-inputnumber-input, .stringeditorbody-inputtext-dark, .stringeditorbody-inputtext-save {
+.text-container, .stringeditorbody-inputtext, .stringeditorbody-inputtext-dark, .stringeditorbody-inputtext-save {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -7551,6 +7553,16 @@
 #startNumber > input {
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
+}
+
+.p-inputnumber-input {
+  background-color: transparent !important;
+}
+.p-inputnumber-input :hover {
+  border-style: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+  opacity: 1 !important;
 }
 
 .autoUpdate .p-inputtext {
@@ -8479,9 +8491,6 @@
   max-height: 1.4rem;
   justify-content: center;
   align-items: center;
-}
-.icon-button-template .no-border {
-  border-style: none !important;
 }
 .icon-button-template img {
   padding: 0.2rem;

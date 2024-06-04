@@ -11,11 +11,11 @@
 
 @mixin input-hover() {
     &:not(.p-disabled):hover {
-        border-color: $inputHoverBorderColor !important;
-        border-radius: $borderRadius !important;
-        border-style: solid !important;
-        border-width: $inputBorder-size !important;
-        color: $highlightTextColor !important;
+        border-color: $inputHoverBorderColor;
+        border-radius: $borderRadius;
+        border-style: solid;
+        border-width: $inputBorder-size ;
+        color: $highlightTextColor ;
     }
 }
 
