@@ -1,12 +1,10 @@
-import React, { ReactNode, Suspense, lazy, useCallback, useMemo } from 'react';
-import { SelectItem } from 'primereact/selectitem';
-import SMOverlay from '@components/sm/SMOverlay';
+import SMDropDown from '@components/sm/SMDropDown';
+import { isNumber } from '@lib/common/common';
+import { Logger } from '@lib/common/logger';
 import { SetSMChannelProxy } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { SMChannelDto, SetSMChannelProxyRequest, StreamingProxyTypes } from '@lib/smAPI/smapiTypes';
-import { Logger } from '@lib/common/logger';
-import { isNumber } from '@lib/common/common';
-
-const SMScroller = lazy(() => import('@components/sm/SMScroller'));
+import { SelectItem } from 'primereact/selectitem';
+import React, { ReactNode, useCallback, useMemo } from 'react';
 
 interface StreamingProxyTypeSelectorProperties {
   readonly data?: SMChannelDto;
@@ -99,39 +97,59 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
   }
 
   return (
-    <div className="flex flex-column align-items-start">
-      {label && (
-        <>
-          <label className="pl-15" htmlFor="numbereditorbody-inputtext">
-            {label.toUpperCase()}
-          </label>
-          <div className="pt-small" />
-        </>
-      )}
-      <div className={darkBackGround ? 'sm-input-border-dark w-full' : 'w-full'}>
-        <SMOverlay title="PROXY" widthSize="2" icon="pi-chevron-down" buttonTemplate={buttonTemplate} buttonLabel="EPG">
-          <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right">
-            <Suspense fallback={<div>Loading...</div>}>
-              <div className="flex w-12">
-                <SMScroller
-                  data={getHandlersOptions}
-                  dataKey="label"
-                  filter
-                  filterBy="label"
-                  itemSize={26}
-                  itemTemplate={valueTemplate}
-                  onChange={async (e) => {
-                    await onChange(e.value);
-                  }}
-                  value={data?.StreamingProxyType}
-                />
-              </div>
-            </Suspense>
-          </div>
-        </SMOverlay>
-      </div>
-    </div>
+    <SMDropDown
+      buttonLabel="PROXY"
+      buttonDarkBackground={darkBackGround}
+      buttonTemplate={buttonTemplate}
+      data={getHandlersOptions}
+      dataKey="label"
+      filter
+      filterBy="label"
+      itemTemplate={valueTemplate}
+      label={label}
+      onChange={async (e: any) => {
+        await onChange(e.value);
+      }}
+      title="PROXY"
+      value={data?.StreamingProxyType}
+      widthSize="2"
+    />
   );
+
+  // return (
+  //   <div className="flex flex-column align-items-start">
+  //     {label && (
+  //       <>
+  //         <label className="pl-15" htmlFor="numbereditorbody-inputtext">
+  //           {label.toUpperCase()}
+  //         </label>
+  //         <div className="pt-small" />
+  //       </>
+  //     )}
+  //     <div className={darkBackGround ? 'sm-input-border-dark w-full' : 'w-full'}>
+  //       <SMOverlay title="PROXY" widthSize="2" icon="pi-chevron-down" buttonTemplate={buttonTemplate} buttonLabel="EPG">
+  //         <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right">
+  //           <Suspense fallback={<div>Loading...</div>}>
+  //             <div className="flex w-12">
+  //               <SMScroller
+  //                 data={getHandlersOptions}
+  //                 dataKey="label"
+  //                 filter
+  //                 filterBy="label"
+  //                 itemSize={26}
+  //                 itemTemplate={valueTemplate}
+  //                 onChange={async (e) => {
+  //                   await onChange(e.value);
+  //                 }}
+  //                 value={data?.StreamingProxyType}
+  //               />
+  //             </div>
+  //           </Suspense>
+  //         </div>
+  //       </SMOverlay>
+  //     </div>
+  //   </div>
+  // );
 };
 
 StreamingProxyTypeSelector.displayName = 'Stream Proxy Type Dropdown';

@@ -100,12 +100,17 @@
 }
 
 .stringeditor {
-    @extend .sm-hover;
+    // @extend .sm-input-border;
+    // @extend .sm-hover;
     position: relative;
     display: flex;
     align-items: center;
     height: $input-height-with-no-borders !important;
+    min-height: $input-height-with-no-borders !important;
     max-height: $input-height-with-no-borders !important;
+    border-color: transparent;
+    border-style: solid;
+    border-width: $inputBorder-size;
 
     .p-float-label {
         >label {
@@ -140,22 +145,20 @@
 }
 
 .stringeditorbody-inputtext {
-    @extend .sm-input-border;
     @extend .text-container;
-
+    @extend .sm-hover;
+    align-items: center;
+    background-color: transparent !important;
+    color: $inputTextColor;
+    display: flex;
     height: $input-height-with-no-borders !important;
     max-height: $input-height-with-no-borders !important;
-    position: relative;
-    display: flex;
-    align-items: center;
-    align-items: center;
-    color: $inputTextColor;
-    border: unset !important;
-    background-color: transparent !important;
+    min-height: $input-height-with-no-borders !important;
     width: 100%;
 
     .p-inputnumber-input {
         color: $inputTextColor;
+        background-color: transparent !important;
     }
 }
 

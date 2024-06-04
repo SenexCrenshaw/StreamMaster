@@ -1,4 +1,4 @@
-import { ReactNode, Suspense, lazy, useRef } from 'react';
+import { ReactNode, Suspense, lazy, useMemo, useRef } from 'react';
 import SMOverlay from './SMOverlay';
 
 interface SMDropDownProps {
@@ -51,6 +51,15 @@ const SMDropDown = ({
   const SMScroller = lazy(() => import('@components/sm/SMScroller'));
   const divReference = useRef<HTMLDivElement | null>(null);
 
+  const getDiv = useMemo(() => {
+    let div = 'sm-dropdown';
+    if (label) {
+      div += ' flex-column';
+    }
+
+    return div;
+  }, [label]);
+
   return (
     <>
       {label && !labelInline && (
@@ -59,7 +68,7 @@ const SMDropDown = ({
           <div className="pt-small" />
         </div>
       )}
-      <div ref={divReference} className={`sm-dropdown w-full ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
+      <div ref={divReference} className={getDiv}>
         <SMOverlay
           buttonDarkBackground={buttonDarkBackground}
           buttonLabel={buttonLabel}

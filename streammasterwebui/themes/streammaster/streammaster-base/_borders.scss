@@ -16,11 +16,13 @@
         border-style: solid;
         border-width: $inputBorder-size ;
         color: $highlightTextColor ;
+        background-color: $inputBg !important;
     }
 }
 
 .sm-hover {
     @include input-hover();
+
 }
 
 .sm-input-border {

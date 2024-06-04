@@ -13,6 +13,7 @@ export interface SMButtonProps {
   readonly color?: string;
   readonly darkBackGround?: boolean;
   readonly disabled?: boolean;
+  readonly hover?: boolean;
   readonly icon?: string;
   readonly iconFilled?: boolean;
   readonly iconPos?: 'top' | 'bottom' | 'left' | 'right' | undefined;
@@ -33,6 +34,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
       color = 'val(--primary-color-text)',
       darkBackGround = false,
       disabled = false,
+      hover = true,
       icon,
       iconPos = 'right',
       iconFilled = false,
@@ -50,7 +52,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
     ref
   ) => {
     const tooltipClassName = React.useMemo(() => {
-      const ret = `smbutton-${uuidv4()} input-height w-full`;
+      const ret = `smbutton-${uuidv4()} input-height  w-full `;
 
       return ret;
     }, []);
@@ -73,8 +75,11 @@ const SMButton = forwardRef<Button, SMButtonProps>(
         cClass += '-filled';
       }
 
+      if (hover) {
+        toRet += ' sm-hover';
+      }
       return toRet + ' ' + cClass + ' ' + tooltipClassName;
-    }, [configuredClassName, iconFilled, label, props.children, tooltipClassName]);
+    }, [configuredClassName, hover, iconFilled, label, props.children, tooltipClassName]);
 
     const getStyle = useMemo(() => {
       return {
@@ -112,7 +117,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
         );
       }
       return (
-        <div className="sm-hover w-full">
+        <div className="w-full">
           <Tooltip target={`.${tooltipClassName}`} />
           <div
             onClick={(e) => {

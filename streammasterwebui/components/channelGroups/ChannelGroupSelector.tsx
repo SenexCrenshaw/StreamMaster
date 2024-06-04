@@ -1,16 +1,16 @@
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { ProgressSpinner } from 'primereact/progressspinner';
+import { useChannelGroupNameColumnConfig } from '@components/columns/ChannelGroups/useChannelGroupNameColumnConfig';
+import SMOverlay from '@components/sm/SMOverlay';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import SMOverlay from '@components/sm/SMOverlay';
-import { useSMContext } from '@lib/signalr/SMProvider';
-import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
 import useSelectedAndQ from '@lib/hooks/useSelectedAndQ';
-import { useChannelGroupNameColumnConfig } from '@components/columns/ChannelGroups/useChannelGroupNameColumnConfig';
-import ChannelGroupVisibleDialog from './ChannelGroupVisibleDialog';
+import { useSMContext } from '@lib/signalr/SMProvider';
+import useGetChannelGroupsFromSMChannels from '@lib/smAPI/ChannelGroups/useGetChannelGroupsFromSMChannels';
+import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import ChannelGroupAddDialog from './ChannelGroupAddDialog';
 import ChannelGroupDeleteDialog from './ChannelGroupDeleteDialog';
-import useGetChannelGroupsFromSMChannels from '@lib/smAPI/ChannelGroups/useGetChannelGroupsFromSMChannels';
+import ChannelGroupVisibleDialog from './ChannelGroupVisibleDialog';
 
 type ChannelGroupSelectorProperties = {
   readonly dataKey: string;
@@ -112,6 +112,15 @@ const ChannelGroupSelector = ({ enableEditMode = true, dataKey, label, onChange,
     [dataKey]
   );
 
+  const getDiv = useMemo(() => {
+    let div = 'sm-dropdown w-full';
+    if (label) {
+      div += ' flex-column';
+    }
+
+    return div;
+  }, [label]);
+
   if (loading) {
     return (
       <div className="flex align-content-center justify-content-center text-container">
@@ -127,37 +136,39 @@ const ChannelGroupSelector = ({ enableEditMode = true, dataKey, label, onChange,
   return (
     <>
       {label && (
-        <div className="stringeditor flex flex-column align-items-start">
+        <div className=" flex flex-column align-items-start">
           <label className="pl-15">{label.toUpperCase()}</label>
           <div className="pt-small" />
         </div>
       )}
-      <SMOverlay
-        buttonDarkBackground
-        buttonTemplate={buttonTemplate}
-        title="GROUPS"
-        widthSize="3"
-        icon="pi-chevron-down"
-        buttonLabel="GROUP"
-        header={headerRightTemplate}
-        isLoading={loading}
-      >
-        <SMDataTable
-          id={dataKey}
-          columns={columns}
-          noSourceHeader
-          dataSource={dataSource}
-          selectionMode="multiple"
-          showHiddenInSelection
-          style={{ height: '40vh' }}
-          useSelectedItemsFilter={useSelectedItemsFilter}
-          onSelectionChange={(value: any) => {
-            if (onChange) {
-              onChange(value);
-            }
-          }}
-        />
-      </SMOverlay>
+      <div className={getDiv}>
+        <SMOverlay
+          buttonDarkBackground
+          buttonTemplate={buttonTemplate}
+          title="GROUPS"
+          widthSize="3"
+          icon="pi-chevron-down"
+          buttonLabel="GROUP"
+          header={headerRightTemplate}
+          isLoading={loading}
+        >
+          <SMDataTable
+            id={dataKey}
+            columns={columns}
+            noSourceHeader
+            dataSource={dataSource}
+            selectionMode="multiple"
+            showHiddenInSelection
+            style={{ height: '40vh' }}
+            useSelectedItemsFilter={useSelectedItemsFilter}
+            onSelectionChange={(value: any) => {
+              if (onChange) {
+                onChange(value);
+              }
+            }}
+          />
+        </SMOverlay>
+      </div>
     </>
   );
 };

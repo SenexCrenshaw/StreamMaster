@@ -6977,26 +6977,28 @@
   border-style: solid !important;
 }
 
-.sm-hover:not(.p-disabled):hover, .sm-icon-selector:not(.p-disabled):hover, .stringeditor:not(.p-disabled):hover {
+.sm-hover:not(.p-disabled):hover, .sm-dropdown:not(.p-disabled):hover, .sm-icon-selector:not(.p-disabled):hover, .stringeditorbody-inputtext:not(.p-disabled):hover, .stringeditorbody-inputtext-save:not(.p-disabled):hover, .stringeditorbody-inputtext-dark:not(.p-disabled):hover {
   border-color: #bcbfbf;
   border-radius: 6px;
   border-style: solid;
   border-width: 0.1rem;
   color: #bcbfbf;
+  background-color: #12181b !important;
 }
 
-.sm-input-border, .icon-template img, .sm-streamingproxy-selector, .sm-list-container, .sm-fileupload .p-inputtext, .sm-streamgroupselector, #startNumber > input, .p-multiselect, .stringeditorbody-inputtext, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark, .sm-input-border-dark, .sm-input-dark {
+.sm-input-border, .icon-template img, .sm-streamingproxy-selector, .sm-list-container, .sm-fileupload .p-inputtext, .sm-streamgroupselector, #startNumber > input, .p-multiselect, .sm-input-border-dark, .sm-input-dark {
   border-radius: 6px !important;
   border-color: #263238 !important;
   border-width: 0.1rem !important;
   border-style: solid !important;
 }
-.sm-input-border:not(.p-disabled):hover, .icon-template img:not(.p-disabled):hover, .sm-streamingproxy-selector:not(.p-disabled):hover, .sm-list-container:not(.p-disabled):hover, .sm-fileupload .p-inputtext:not(.p-disabled):hover, .sm-streamgroupselector:not(.p-disabled):hover, #startNumber > input:not(.p-disabled):hover, .p-multiselect:not(.p-disabled):hover, .stringeditorbody-inputtext:not(.p-disabled):hover, .stringeditorbody-inputtext-save:not(.p-disabled):hover, .stringeditorbody-inputtext-dark:not(.p-disabled):hover, .sm-input-border-dark:not(.p-disabled):hover, .sm-input-dark:not(.p-disabled):hover {
+.sm-input-border:not(.p-disabled):hover, .icon-template img:not(.p-disabled):hover, .sm-streamingproxy-selector:not(.p-disabled):hover, .sm-list-container:not(.p-disabled):hover, .sm-fileupload .p-inputtext:not(.p-disabled):hover, .sm-streamgroupselector:not(.p-disabled):hover, #startNumber > input:not(.p-disabled):hover, .p-multiselect:not(.p-disabled):hover, .sm-input-border-dark:not(.p-disabled):hover, .sm-input-dark:not(.p-disabled):hover {
   border-color: #bcbfbf;
   border-radius: 6px;
   border-style: solid;
   border-width: 0.1rem;
   color: #bcbfbf;
+  background-color: #12181b !important;
 }
 
 .sm-input-border-dark, .sm-input-dark {
@@ -7257,7 +7259,11 @@
   display: flex;
   align-items: center;
   height: 1.4rem !important;
+  min-height: 1.4rem !important;
   max-height: 1.4rem !important;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 0.1rem;
 }
 .stringeditor .p-float-label > label {
   height: 1.6rem;
@@ -7287,19 +7293,18 @@
 }
 
 .stringeditorbody-inputtext, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark {
+  align-items: center;
+  background-color: transparent !important;
+  color: #bcbfbf;
+  display: flex;
   height: 1.4rem !important;
   max-height: 1.4rem !important;
-  position: relative;
-  display: flex;
-  align-items: center;
-  align-items: center;
-  color: #bcbfbf;
-  border: unset !important;
-  background-color: transparent !important;
+  min-height: 1.4rem !important;
   width: 100%;
 }
 .stringeditorbody-inputtext .p-inputnumber-input, .stringeditorbody-inputtext-save .p-inputnumber-input, .stringeditorbody-inputtext-dark .p-inputnumber-input {
   color: #bcbfbf;
+  background-color: transparent !important;
 }
 
 .stringeditorbody-inputtext-dark {
@@ -8127,6 +8132,10 @@
 .sm-datatable .p-row-toggler {
   height: 1.4rem;
 }
+.sm-datatable td {
+  padding: 0;
+  border: unset;
+}
 
 .sm-expander .p-row-toggler {
   height: 1.4rem;
@@ -8145,29 +8154,6 @@
   padding-bottom: 0.5rem;
   padding: 0 !important;
   background-color: var(--surface-ground) !important;
-}
-
-::-webkit-scrollbar {
-  width: 12px;
-}
-
-::-webkit-scrollbar-track {
-  background-color: #12181b;
-  border-radius: 6px;
-  border-bottom-left-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
-  border-right-width: 0;
-  border-bottom-width: 0;
-  border: 1px solid #263238;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: #263238;
-  border-radius: 6px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: #263238;
 }
 
 .sm-channelgroup-selector {
@@ -8211,6 +8197,41 @@
   background: #1b2327;
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
+}
+
+.sm-dropdown {
+  align-items: center;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 0.1rem;
+  display: flex;
+  height: 1.4rem !important;
+  justify-content: start;
+  max-height: 1.4rem !important;
+  min-height: 1.4rem !important;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #12181b;
+  border-radius: 6px;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-right-width: 0;
+  border-bottom-width: 0;
+  border: 1px solid #263238;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #263238;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #263238;
 }
 
 .p-datatable {
@@ -8277,11 +8298,9 @@
   border: 0.1rem solid transparent;
   transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
   appearance: none;
-}
-.p-inputtext:not(.p-disabled):hover {
-  background: #0e1315;
-  border: 0.1rem solid #bcbfbf;
-  border-radius: 6px;
+  height: 1.4rem !important;
+  max-height: 1.4rem !important;
+  min-height: 1.4rem !important;
 }
 .p-inputtext:enabled:focus {
   outline: 0 none;

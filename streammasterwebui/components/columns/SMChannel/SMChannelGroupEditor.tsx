@@ -1,13 +1,10 @@
-import { ChannelGroupDto, SMChannelDto, SetSMChannelGroupRequest } from '@lib/smAPI/smapiTypes';
-import { ReactNode, Suspense, lazy, memo, useCallback, useMemo } from 'react';
 import { isEmptyObject } from '@lib/common/common';
 import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
 import { SetSMChannelGroup } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import SMOverlay from '@components/sm/SMOverlay';
+import { ChannelGroupDto, SMChannelDto, SetSMChannelGroupRequest } from '@lib/smAPI/smapiTypes';
+import { ReactNode, memo, useCallback, useMemo } from 'react';
 
-import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
-
-const SMScroller = lazy(() => import('@components/sm/SMScroller'));
+import SMDropDown from '@components/sm/SMDropDown';
 
 interface SMChannelGroupEditorProperties {
   readonly smChannelDto: SMChannelDto;
@@ -16,11 +13,12 @@ interface SMChannelGroupEditorProperties {
 }
 
 const SMChannelGroupEditor = ({ darkBackGround, smChannelDto, onChange }: SMChannelGroupEditorProperties) => {
-  const dataKey = 'SMChannelGroup-Groups';
-  const { data } = useGetChannelGroups();
-  const { selectedItems } = useSelectedItems<ChannelGroupDto>(dataKey);
+  // const dataKey = 'SMChannelGroup-Groups';
 
-  const updateSMChanneGroup = useCallback(
+  const { data } = useGetChannelGroups();
+  // const { selectedItems } = useSelectedItems<ChannelGroupDto>(dataKey);
+
+  const handleOnChange = useCallback(
     async (newGroup: string) => {
       console.log('newGroup', newGroup);
 
@@ -57,38 +55,32 @@ const SMChannelGroupEditor = ({ darkBackGround, smChannelDto, onChange }: SMChan
     );
   }, [smChannelDto]);
 
-  const headerTemplate = useMemo((): ReactNode => {
-    if (selectedItems && selectedItems.length > 0) {
-      const epgNames = selectedItems.slice(0, 2).map((x) => x.Name);
-      const suffix = selectedItems.length > 2 ? ',...' : '';
-      return <div className="px-4 w-10rem flex align-content-center justify-content-center min-w-10rem">{epgNames.join(', ') + suffix}</div>;
-    }
-    return <div className="px-4 w-10rem" style={{ minWidth: '10rem' }} />;
-  }, [selectedItems]);
+  // const headerTemplate = useMemo((): ReactNode => {
+  //   if (selectedItems && selectedItems.length > 0) {
+  //     const epgNames = selectedItems.slice(0, 2).map((x) => x.Name);
+  //     const suffix = selectedItems.length > 2 ? ',...' : '';
+  //     return <div className="px-4 w-10rem flex align-content-center justify-content-center min-w-10rem">{epgNames.join(', ') + suffix}</div>;
+  //   }
+  //   return <div className="px-4 w-10rem" style={{ minWidth: '10rem' }} />;
+  // }, [selectedItems]);
 
   return (
-    <div className={darkBackGround ? ' w-full' : 'w-full'}>
-      <SMOverlay header={headerTemplate} title="GROUP" widthSize="2" icon="pi-chevron-down" buttonTemplate={buttonTemplate} buttonLabel="EPG">
-        <div className="flex flex-row w-full sm-card border-radius-left border-radius-right ">
-          <Suspense>
-            <div className="flex w-full">
-              <SMScroller
-                data={data}
-                dataKey="Group"
-                filter
-                filterBy="Name"
-                itemSize={28.79}
-                itemTemplate={itemTemplate}
-                onChange={(e) => {
-                  updateSMChanneGroup(e.Name);
-                }}
-                value={smChannelDto}
-              />
-            </div>
-          </Suspense>
-        </div>
-      </SMOverlay>
-    </div>
+    <SMDropDown
+      buttonLabel="GROUP"
+      buttonDarkBackground={darkBackGround}
+      buttonTemplate={buttonTemplate}
+      data={data}
+      dataKey="Group"
+      filter
+      filterBy="Name"
+      itemTemplate={itemTemplate}
+      onChange={(e) => {
+        handleOnChange(e.Name);
+      }}
+      title="GROUP"
+      value={smChannelDto}
+      widthSize="2"
+    />
   );
 };
 
