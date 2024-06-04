@@ -113,6 +113,7 @@ export const useSMChannelEPGColumnConfig = ({ width = '8rem' }: SMChannelEPGColu
           select
           selectedItemsKey={dataKey}
           title={'EPG'}
+          widthSize="2"
         />
       </div>
     );

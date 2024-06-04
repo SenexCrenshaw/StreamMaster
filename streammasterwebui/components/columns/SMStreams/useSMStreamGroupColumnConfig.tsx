@@ -1,46 +1,19 @@
+import ChannelGroupSelector from '@components/channelGroups/ChannelGroupSelector';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { isEmptyObject } from '@lib/common/common';
-import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
-import { ChannelGroupDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
+import { SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
-import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
-import { ReactNode, useCallback, useRef } from 'react';
+import { ReactNode } from 'react';
 
 export const useSMStreamGroupColumnConfig = () => {
-  const { data } = useGetChannelGroups();
-
-  const multiSelectRef = useRef<MultiSelect>(null);
-
-  const itemTemplate = useCallback((option: ChannelGroupDto) => {
-    if (option === undefined) {
-      return null;
-    }
-
-    return <div className="text-container">{option.Name}</div>;
-  }, []);
-
   function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
     return (
-      <MultiSelect
-        className="w-full input-height-with-no-borders"
-        filter
-        ref={multiSelectRef}
-        itemTemplate={itemTemplate}
-        maxSelectedLabels={1}
-        showClear
-        clearIcon="pi pi-filter-slash"
-        filterBy="Name"
-        onChange={(e: MultiSelectChangeEvent) => {
-          if (isEmptyObject(e.value)) {
+      <ChannelGroupSelector
+        dataKey="useSMStreamGroupColumnConfig"
+        onChange={(e) => {
+          if (e) {
             options.filterApplyCallback();
-          } else {
-            options.filterApplyCallback(e.value);
           }
         }}
-        options={data}
-        placeholder="Group"
-        value={options.value}
-        selectedItemTemplate={itemTemplate}
       />
     );
   }

@@ -1,4 +1,4 @@
-import ChannelGroupSelector from '@components/channelGroups/ChannelGroupSelector';
+import ChannelGroupSelectorForSMChannels from '@components/channelGroups/ChannelGroupSelectorForSMChannels';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { arraysEqual } from '@lib/common/common';
 import useSelectedAndQ from '@lib/hooks/useSelectedAndQ';
@@ -45,7 +45,7 @@ export const useSMChannelGroupColumnConfig = ({ dataKey, width = '10rem' }: SMCh
 
     function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
       return (
-        <ChannelGroupSelector
+        <ChannelGroupSelectorForSMChannels
           dataKey="useSMChannelGroupColumnConfig"
           // value={options.value}
           onChange={(e) => {

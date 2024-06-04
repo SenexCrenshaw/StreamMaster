@@ -80,7 +80,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
               return true;
             }
           }
-          return false;
+          return x !== item;
         });
         setSelectedItems(a);
         onChange && onChange(a);

@@ -1,15 +1,15 @@
+import SMDropDown from '@components/sm/SMDropDown';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { isEmptyObject } from '@lib/common/common';
 import useGetM3UFileNames from '@lib/smAPI/M3UFiles/useGetM3UFileNames';
 import { SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
-import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
-import { ReactNode, useCallback, useRef } from 'react';
+import { ReactNode, useCallback } from 'react';
 
 export const useSMStreamM3UColumnConfig = () => {
   const { data } = useGetM3UFileNames();
 
-  const multiSelectRef = useRef<MultiSelect>(null);
+  const dataKey = 'm3uColumn-selections';
 
   const itemTemplate = useCallback((option: string) => {
     if (option === undefined) {
@@ -19,29 +19,45 @@ export const useSMStreamM3UColumnConfig = () => {
     return <span>{option}</span>;
   }, []);
 
+  const buttonTemplate = useCallback((options: any): ReactNode => {
+    if (Array.isArray(options.value)) {
+      if (options.value.length > 0) {
+        const names = options.value;
+        const sortedInput = [...names].sort();
+        return <div className="text-container">{sortedInput.join(', ')}</div>;
+      }
+    }
+
+    return (
+      <div className="sm-epg-selector">
+        <div className="text-container pl-1">M3U</div>
+      </div>
+    );
+  }, []);
+
   function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
     return (
-      <MultiSelect
-        className="w-full input-height-with-no-borders"
-        filter
-        ref={multiSelectRef}
-        itemTemplate={itemTemplate}
-        maxSelectedLabels={1}
-        showClear
-        clearIcon="pi pi-filter-slash"
-        filterBy="Name"
-        onChange={(e: MultiSelectChangeEvent) => {
-          if (isEmptyObject(e.value)) {
-            options.filterApplyCallback();
-          } else {
-            options.filterApplyCallback(e.value);
-          }
-        }}
-        options={data}
-        placeholder="M3U"
-        value={options.value}
-        selectedItemTemplate={itemTemplate}
-      />
+      <div className="w-full">
+        <SMDropDown
+          buttonDarkBackground
+          buttonTemplate={buttonTemplate(options)}
+          data={data}
+          itemTemplate={itemTemplate}
+          filter
+          filterBy="Name"
+          onChange={async (e: any) => {
+            if (isEmptyObject(e) || !Array.isArray(e)) {
+              options.filterApplyCallback();
+            } else {
+              options.filterApplyCallback(e);
+            }
+          }}
+          select
+          selectedItemsKey={dataKey}
+          title="M3U"
+          widthSize="2"
+        />
+      </div>
     );
   }
   const bodyTemplate = (bodyData: SMStreamDto) => {

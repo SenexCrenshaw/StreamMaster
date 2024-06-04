@@ -47,20 +47,10 @@
 .sm-input {
     background-color: transparent;
     width: 100% !important;
-    border-radius: $borderRadius;
-    border-style: none;
-    border-width: 0px;
     height: $input-height-with-no-borders;
     max-height: $input-height-with-no-borders;
+    min-height: $input-height-with-no-borders;
     color: $inputTextColor;
-
-    .p-dropdown {
-        background-color: transparent !important;
-    }
-
-    .p-dropdown-label {
-        background-color: transparent !important;
-    }
 }
 
 .sm-input-dark {
@@ -68,14 +58,11 @@
     @extend .sm-input-border-dark;
     display: flex;
     align-items: center;
-
-    .p-dropdown {
-        background-color: transparent !important;
-    }
-
-    .p-dropdown-label {
-        background-color: transparent !important;
-    }
+    border-color: transparent;
+    border-radius: $borderRadius;
+    border-style: solid;
+    border-width: $inputBorder-size ;
+    background-color: $inputBg !important;
 }
 
 .sm-input-no-color {
@@ -100,8 +87,6 @@
 }
 
 .stringeditor {
-    // @extend .sm-input-border;
-    // @extend .sm-hover;
     position: relative;
     display: flex;
     align-items: center;

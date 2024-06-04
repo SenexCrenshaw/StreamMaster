@@ -1,5 +1,5 @@
 import SMChannelLogoEditor from '@components/smchannels/SMChannelLogoEditor';
-import createSMChannelMultiSelectColumnConfigHook from '../createSMChannelMultiSelectColumnConfigHook';
+import createSMChannelMultiSelectColumnConfigHook from './createSMChannelMultiSelectColumnConfigHook';
 
 export const useSMChannelLogoColumnConfig = createSMChannelMultiSelectColumnConfigHook({
   dataField: 'Logo',

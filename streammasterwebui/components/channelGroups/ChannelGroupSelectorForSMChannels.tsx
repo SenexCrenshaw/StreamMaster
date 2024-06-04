@@ -4,7 +4,7 @@ import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import useSelectedAndQ from '@lib/hooks/useSelectedAndQ';
 import { useSMContext } from '@lib/signalr/SMProvider';
-import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
+import useGetChannelGroupsFromSMChannels from '@lib/smAPI/ChannelGroups/useGetChannelGroupsFromSMChannels';
 import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
@@ -12,7 +12,7 @@ import ChannelGroupAddDialog from './ChannelGroupAddDialog';
 import ChannelGroupDeleteDialog from './ChannelGroupDeleteDialog';
 import ChannelGroupVisibleDialog from './ChannelGroupVisibleDialog';
 
-type ChannelGroupSelectorProperties = {
+type ChannelGroupSelectorForSMChannelsProperties = {
   readonly dataKey: string;
   readonly enableEditMode?: boolean;
   readonly useSelectedItemsFilter?: boolean;
@@ -21,12 +21,19 @@ type ChannelGroupSelectorProperties = {
   readonly onChange?: (value: ChannelGroupDto[]) => void;
 };
 
-const ChannelGroupSelector = ({ enableEditMode = true, dataKey, label, onChange, useSelectedItemsFilter, value }: ChannelGroupSelectorProperties) => {
+const ChannelGroupSelectorForSMChannels = ({
+  enableEditMode = true,
+  dataKey,
+  label,
+  onChange,
+  useSelectedItemsFilter,
+  value
+}: ChannelGroupSelectorForSMChannelsProperties) => {
   const { selectedItems, showHidden } = useSelectedAndQ(dataKey);
   const [input, setInput] = useState<string | undefined>(value);
   const { isSystemReady } = useSMContext();
 
-  const namesQuery = useGetChannelGroups();
+  const namesQuery = useGetChannelGroupsFromSMChannels();
 
   const { columnConfig: channelGroupNameColumnConfig } = useChannelGroupNameColumnConfig({ enableEdit: true });
 
@@ -173,5 +180,5 @@ const ChannelGroupSelector = ({ enableEditMode = true, dataKey, label, onChange,
   );
 };
 
-ChannelGroupSelector.displayName = 'ChannelGroupSelector';
-export default memo(ChannelGroupSelector);
+ChannelGroupSelectorForSMChannels.displayName = 'ChannelGroupSelectorForSMChannels';
+export default memo(ChannelGroupSelectorForSMChannels);

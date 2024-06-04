@@ -95,7 +95,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
     if (props.children) {
       if (darkBackGround) {
         return (
-          <div className="sm-input-dark w-full">
+          <div className="sm-input-dark w-full sm-hover">
             <Tooltip target={`.${tooltipClassName}`} />
             <div
               onClick={(e) => {

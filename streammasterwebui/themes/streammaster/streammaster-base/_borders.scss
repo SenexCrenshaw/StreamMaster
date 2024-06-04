@@ -10,13 +10,15 @@
 }
 
 @mixin input-hover() {
+    transition: border-color 0.15s;
+
     &:not(.p-disabled):hover {
-        border-color: $inputHoverBorderColor;
-        border-radius: $borderRadius;
-        border-style: solid;
-        border-width: $inputBorder-size ;
-        color: $highlightTextColor ;
-        background-color: $inputBg !important;
+        border-color: $inputHoverBorderColor !important;
+        border-radius: $borderRadius !important;
+        border-style: solid !important;
+        border-width: $inputBorder-size !important;
+        color: $highlightTextColor !important;
+        // background-color: $inputBg !important;
     }
 }
 
@@ -32,9 +34,8 @@
 
 
 .sm-input-border-dark {
-    @extend .sm-input-border;
-    background-color: $inputBg !important;
-
+    @include sm-border();
+    @include input-hover();
 }
 
 .border-radius-right {
