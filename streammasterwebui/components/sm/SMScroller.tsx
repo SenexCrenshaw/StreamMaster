@@ -58,8 +58,8 @@ const SMScroller: React.FC<SMScrollerProps> = ({
   }, [data, filter, filterBy, filterString]);
 
   const equalityKey = useCallback(() => {
-    return optionValue ? 'Id' : dataKey;
-  }, [dataKey, optionValue]);
+    return dataKey ? dataKey : 'Id';
+  }, [dataKey]);
 
   const getOptionValue = useCallback(
     (option: any) => {
@@ -107,10 +107,16 @@ const SMScroller: React.FC<SMScrollerProps> = ({
     (value: any, list: any) => {
       const key = equalityKey();
       if (key) {
+        if (optionValue) {
+          if (value[key] !== undefined) {
+            const test = list.findIndex((item: any) => value[key] === item[optionValue]);
+            return test;
+          }
+        }
         return list.findIndex((item: any) => ObjectUtils.equals(value, getOptionValue(item), key));
       }
     },
-    [equalityKey, getOptionValue]
+    [equalityKey, getOptionValue, optionValue]
   );
 
   const getSelectedOptionIndex = useCallback(() => {
@@ -129,7 +135,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
     if (virtualScrollerRef.current) {
       const selectedIndex = getSelectedOptionIndex();
       if (selectedIndex !== -1) {
-        setTimeout(() => scrollTo(selectedIndex === 1 ? 1 : selectedIndex - 1), 0);
+        setTimeout(() => scrollTo(selectedIndex <= 1 ? 1 : selectedIndex - 1), 0);
       } else {
         scrollTo(1);
       }
@@ -140,12 +146,18 @@ const SMScroller: React.FC<SMScrollerProps> = ({
     (item: any) => {
       const key = equalityKey();
       if (key) {
+        if (optionValue) {
+          const toMatch = getOptionValue(item);
+          if (value[key] !== undefined) {
+            return toMatch === value[key];
+          }
+        }
         const a = ObjectUtils.equals(value, getOptionValue(item), key);
         return a;
       }
       return false;
     },
-    [equalityKey, getOptionValue, value]
+    [equalityKey, getOptionValue, optionValue, value]
   );
 
   useMountEffect(() => {

@@ -400,6 +400,7 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround =
       }}
       label={label}
       title="EPG"
+      value={stationChannelName}
       widthSize="3"
     />
   );

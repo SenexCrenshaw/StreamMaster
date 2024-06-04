@@ -17,6 +17,7 @@ interface SMDropDownProps {
   readonly label?: string;
   readonly labelInline?: boolean;
   readonly onChange?: (value: any) => void;
+  readonly optionValue?: string;
   readonly select?: boolean;
   readonly simple?: boolean;
   readonly selectedItemsKey?: string;
@@ -40,6 +41,7 @@ const SMDropDown = ({
   label,
   labelInline = false,
   onChange,
+  optionValue,
   height = '40vh',
   select,
   selectedItemsKey,
@@ -97,6 +99,7 @@ const SMDropDown = ({
                   onChange={(e) => {
                     onChange?.(e);
                   }}
+                  optionValue={optionValue}
                   value={value}
                 />
               </div>

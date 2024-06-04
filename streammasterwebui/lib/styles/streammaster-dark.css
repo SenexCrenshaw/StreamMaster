@@ -8011,11 +8011,11 @@
   color: #bcbfbf;
 }
 .sm-scroller-item.p-highlight {
-  color: #bcbfbf;
-  background: rgba(188, 191, 191, 0.16);
+  color: #bcbfbf !important;
+  background: rgba(188, 191, 191, 0.16) !important;
 }
 .sm-scroller-item.p-highlight.p-focus {
-  background: rgba(188, 191, 191, 0.24);
+  background: rgba(188, 191, 191, 0.24) !important;
 }
 
 .sm-list-container {
@@ -8753,10 +8753,10 @@ input.p-dropdown-label {
 }
 .p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight {
   color: #bcbfbf;
-  background: rgba(188, 191, 191, 0.16);
+  background: rgba(188, 191, 191, 0.16) !important;
 }
 .p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight.p-focus {
-  background: rgba(188, 191, 191, 0.24);
+  background: rgba(188, 191, 191, 0.24) !important;
 }
 .p-dropdown-panel .p-dropdown-items .p-dropdown-item:not(.p-highlight):not(.p-disabled).p-focus {
   color: #bcbfbf;

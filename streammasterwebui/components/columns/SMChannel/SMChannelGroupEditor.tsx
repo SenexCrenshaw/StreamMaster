@@ -63,7 +63,7 @@ const SMChannelGroupEditor = ({ darkBackGround, smChannelDto, onChange }: SMChan
   //   }
   //   return <div className="px-4 w-10rem" style={{ minWidth: '10rem' }} />;
   // }, [selectedItems]);
-
+  // Logger.debug('SMChannelGroupEditor', 'smChannelDto', smChannelDto, data);
   return (
     <SMDropDown
       buttonLabel="GROUP"
@@ -79,6 +79,7 @@ const SMChannelGroupEditor = ({ darkBackGround, smChannelDto, onChange }: SMChan
       }}
       title="GROUP"
       value={smChannelDto}
+      optionValue="Name"
       widthSize="2"
     />
   );

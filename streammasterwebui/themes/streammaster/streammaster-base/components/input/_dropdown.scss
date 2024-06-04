@@ -215,10 +215,10 @@ input.p-dropdown-label {
 
             &.p-highlight {
                 color: $highlightTextColor;
-                background: $highlightBg;
+                background: $highlightBg !important;
 
                 &.p-focus {
-                    background: $highlightFocusBg;
+                    background: $highlightFocusBg !important;
                 }
             }
 

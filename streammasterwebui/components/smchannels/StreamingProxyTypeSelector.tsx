@@ -111,45 +111,11 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
         await onChange(e.value);
       }}
       title="PROXY"
+      optionValue="label"
       value={data?.StreamingProxyType}
       widthSize="2"
     />
   );
-
-  // return (
-  //   <div className="flex flex-column align-items-start">
-  //     {label && (
-  //       <>
-  //         <label className="pl-15" htmlFor="numbereditorbody-inputtext">
-  //           {label.toUpperCase()}
-  //         </label>
-  //         <div className="pt-small" />
-  //       </>
-  //     )}
-  //     <div className={darkBackGround ? 'sm-input-border-dark w-full' : 'w-full'}>
-  //       <SMOverlay title="PROXY" widthSize="2" icon="pi-chevron-down" buttonTemplate={buttonTemplate} buttonLabel="EPG">
-  //         <div className="flex flex-row w-12 sm-card border-radius-left border-radius-right">
-  //           <Suspense fallback={<div>Loading...</div>}>
-  //             <div className="flex w-12">
-  //               <SMScroller
-  //                 data={getHandlersOptions}
-  //                 dataKey="label"
-  //                 filter
-  //                 filterBy="label"
-  //                 itemSize={26}
-  //                 itemTemplate={valueTemplate}
-  //                 onChange={async (e) => {
-  //                   await onChange(e.value);
-  //                 }}
-  //                 value={data?.StreamingProxyType}
-  //               />
-  //             </div>
-  //           </Suspense>
-  //         </div>
-  //       </SMOverlay>
-  //     </div>
-  //   </div>
-  // );
 };
 
 StreamingProxyTypeSelector.displayName = 'Stream Proxy Type Dropdown';

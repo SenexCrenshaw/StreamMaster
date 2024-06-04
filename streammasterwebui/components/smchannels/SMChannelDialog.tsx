@@ -1,15 +1,14 @@
-import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, forwardRef } from 'react';
-import OKButton from '@components/buttons/OKButton';
 import ChannelGroupSelector from '@components/channelGroups/ChannelGroupSelector';
 import EPGSelector from '@components/epg/EPGSelector';
 import IconSelector from '@components/icons/IconSelector';
 import NumberEditor from '@components/inputs/NumberEditor';
 import StringEditor from '@components/inputs/StringEditor';
-import { CreateSMChannelRequest, SMChannelDto, SMStreamDto, StationChannelName } from '@lib/smAPI/smapiTypes';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
+import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationChannelNames';
+import { CreateSMChannelRequest, SMChannelDto, SMStreamDto, StationChannelName } from '@lib/smAPI/smapiTypes';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
 import SMChannelSMStreamDialog from './SMChannelSMStreamDialog';
 import StreamingProxyTypeSelector from './StreamingProxyTypeSelector';
-import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationChannelNames';
 
 interface SMChannelDialogProperties {
   onSave: (request: CreateSMChannelRequest) => void;
@@ -147,7 +146,7 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
             </div>
             <div className="flex w-12 gap-1">
               <div className="w-6 justify-content-start align-items-center">
-                <ChannelGroupSelector dataKey="SMChannelDialog" label="GROUP" darkBackGround onChange={(e) => e && setGroup(e)} value={request.Group} />
+                <ChannelGroupSelector dataKey="SMChannelDialog" label="GROUP" onChange={(e) => e && setGroup(e)} value={request.Group} />
               </div>
               <div className="w-6 justify-content-start align-items-center">
                 <NumberEditor label="Channel #" showButtons darkBackGround onChange={(e) => e && setChannelNumber(e)} value={request.ChannelNumber} />

@@ -47,7 +47,7 @@ export const useSMChannelGroupColumnConfig = ({ dataKey, width = '10rem' }: SMCh
       return (
         <ChannelGroupSelector
           dataKey="useSMChannelGroupColumnConfig"
-          value={options.value}
+          // value={options.value}
           onChange={(e) => {
             if (e) {
               options.filterApplyCallback();

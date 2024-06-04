@@ -59,11 +59,11 @@
     }
 
     &.p-highlight {
-        color: $highlightTextColor;
-        background: $highlightBg;
+        color: $highlightTextColor !important;
+        background: $highlightBg !important;
 
         &.p-focus {
-            background: $highlightFocusBg;
+            background: $highlightFocusBg !important;
         }
     }
 }
