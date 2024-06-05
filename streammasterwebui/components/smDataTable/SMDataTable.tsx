@@ -22,6 +22,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import generateFilterData from '@components/dataSelector/generateFilterData';
 import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import { SMTriSelectShowSelect } from '@components/sm/SMTriSelectShowSelect';
+import { Logger } from '@lib/common/logger';
 import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
 import TableHeader from './helpers/TableHeader';
@@ -576,9 +577,14 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   );
 
   const isLazy = useMemo(() => {
-    console.log('isLazy', props.id, props.queryFilter === undefined);
-    return props.queryFilter === undefined ? undefined : true; //undefined; // props.queryFilter !== undefined ? true : undefined;
-  }, [props.id, props.queryFilter]);
+    // const la = props.lazy === true && (props.queryFilter === undefined ? undefined : true);
+    // const la = props.queryFilter === undefined ? undefined : true;
+    const la = props.lazy === true || (props.queryFilter === undefined ? undefined : true);
+
+    // Logger.debug('DataTable', { datasource: state.dataSource, isLazy: la });
+
+    return la;
+  }, [props.lazy, props.queryFilter]);
 
   const showPageination = useMemo(() => {
     return props.enablePaginator === true && state.dataSource && state.dataSource.length >= state.rows;
@@ -620,6 +626,10 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     }
     return 'RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink';
   }, [state.smTableIsSimple]);
+
+  if (props.id === 'useSMStreamGroupColumnConfig') {
+    Logger.debug('DataTable', { a: state?.dataSource?.[0].Name, datasource: state.dataSource, id: props.id });
+  }
 
   return (
     <div

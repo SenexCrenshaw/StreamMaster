@@ -3,9 +3,11 @@ import SMOverlay from '@components/sm/SMOverlay';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { QueryHook } from '@lib/apiDefs';
+import { Logger } from '@lib/common/logger';
 import useSelectedAndQ from '@lib/hooks/useSelectedAndQ';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
+import { DataTableFilterMetaData } from 'primereact/datatable';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import ChannelGroupAddDialog from './ChannelGroupAddDialog';
@@ -25,10 +27,9 @@ type BaseChannelGroupSelectorProps = {
 
 const BaseChannelGroupSelector = memo(
   ({ enableEditMode = true, dataKey, label, onChange, useSelectedItemsFilter, value, getNamesQuery }: BaseChannelGroupSelectorProps) => {
-    const { selectedItems, showHidden } = useSelectedAndQ(dataKey);
+    const { selectedItems, showHidden, sortInfo, filters } = useSelectedAndQ(dataKey);
     const [input, setInput] = useState<string | undefined>(value);
     const { isSystemReady } = useSMContext();
-
     const { columnConfig: channelGroupNameColumnConfig } = useChannelGroupNameColumnConfig({ enableEdit: true });
 
     const namesQuery = getNamesQuery();
@@ -108,11 +109,46 @@ const BaseChannelGroupSelector = memo(
       if (!namesQuery.data) {
         return [];
       }
-      if (showHidden === null) {
-        return namesQuery.data;
+
+      let data = [] as ChannelGroupDto[];
+
+      Logger.debug('BaseChannelGroupSelector', 'dataSource', { filters });
+      if (sortInfo.sortField !== undefined) {
+        data = [...namesQuery.data].sort((a, b) => {
+          const field = sortInfo.sortField as keyof ChannelGroupDto;
+          if (a[field] < b[field]) {
+            return sortInfo.sortOrder === 1 ? -1 : 1;
+          }
+          if (a[field] > b[field]) {
+            return sortInfo.sortOrder === 1 ? 1 : -1;
+          }
+          return 0;
+        });
+
+        // Logger.debug('BaseChannelGroupSelector', 'dataSource', {
+        //   data: namesQuery.data,
+        //   showHidden,
+        //   sortedData: sortedData,
+        //   sortField: sortInfo.sortField,
+        //   sortOrder: sortInfo.sortOrder
+        // });
+      } else {
+        data = namesQuery.data;
       }
-      return namesQuery.data.filter((x) => (showHidden ? !x.IsHidden : x.IsHidden));
-    }, [showHidden, namesQuery]);
+
+      if (showHidden !== null) {
+        data = data.filter((x) => (showHidden ? !x.IsHidden : x.IsHidden));
+      }
+
+      if (filters.Name !== null) {
+        const meta = filters.Name as DataTableFilterMetaData;
+        if (meta.value !== undefined) {
+          data = data.filter((x) => x.Name.toLowerCase().includes(meta.value.toLowerCase()));
+        }
+      }
+
+      return data;
+    }, [namesQuery.data, filters, sortInfo.sortField, sortInfo.sortOrder, showHidden]);
 
     const columns = useMemo(
       (): ColumnMeta[] => [
@@ -164,10 +200,11 @@ const BaseChannelGroupSelector = memo(
             isLoading={loading}
           >
             <SMDataTable
-              id={dataKey}
               columns={columns}
-              noSourceHeader
               dataSource={dataSource}
+              id={dataKey}
+              lazy
+              noSourceHeader
               selectionMode="multiple"
               showHiddenInSelection
               style={{ height: '40vh' }}

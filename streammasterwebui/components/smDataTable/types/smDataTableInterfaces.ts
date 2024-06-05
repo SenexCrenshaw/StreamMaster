@@ -30,6 +30,7 @@ interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
   headerName?: string;
   id: string;
   isLoading?: boolean;
+  lazy?: boolean;
   noSourceHeader?: boolean;
   reorderable?: boolean;
   rowClass?: (data: DataTableRowData<any>) => string;
