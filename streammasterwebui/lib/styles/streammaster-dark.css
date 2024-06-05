@@ -6977,10 +6977,10 @@
   border-style: solid !important;
 }
 
-.sm-hover, .sm-dropdown, .sm-icon-selector, .stringeditorbody-inputtext, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark {
+.sm-hover, .sm-dropdown, .sm-icon-selector, .stringeditorbody-inputtext, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark, .sm-input, .sm-input-dark {
   transition: border-color 0.15s;
 }
-.sm-hover:not(.p-disabled):hover, .sm-dropdown:not(.p-disabled):hover, .sm-icon-selector:not(.p-disabled):hover, .stringeditorbody-inputtext:not(.p-disabled):hover, .stringeditorbody-inputtext-save:not(.p-disabled):hover, .stringeditorbody-inputtext-dark:not(.p-disabled):hover {
+.sm-hover:not(.p-disabled):hover, .sm-dropdown:not(.p-disabled):hover, .sm-icon-selector:not(.p-disabled):hover, .stringeditorbody-inputtext:not(.p-disabled):hover, .stringeditorbody-inputtext-save:not(.p-disabled):hover, .stringeditorbody-inputtext-dark:not(.p-disabled):hover, .sm-input:not(.p-disabled):hover, .sm-input-dark:not(.p-disabled):hover {
   border-color: #bcbfbf !important;
   border-radius: 6px !important;
   border-style: solid !important;
@@ -7221,21 +7221,21 @@
 }
 
 .sm-input, .sm-input-dark {
+  display: flex;
+  align-items: center;
   background-color: transparent;
   width: 100% !important;
   height: 1.4rem;
   max-height: 1.4rem;
   min-height: 1.4rem;
   color: #bcbfbf;
-}
-
-.sm-input-dark {
-  display: flex;
-  align-items: center;
   border-color: transparent;
   border-radius: 6px;
   border-style: solid;
   border-width: 0.1rem;
+}
+
+.sm-input-dark {
   background-color: #12181b !important;
 }
 
@@ -8077,14 +8077,6 @@
   align-items: center;
   justify-content: flex-start;
   width: calc(100% - 1.4rem);
-  transition: border-color 0.15s;
-}
-.sm-epg-selector:not(.p-disabled):hover {
-  border-color: #bcbfbf !important;
-  border-radius: 6px !important;
-  border-style: solid !important;
-  border-width: 0.1rem !important;
-  color: #bcbfbf !important;
 }
 
 .sm-icon-selector {

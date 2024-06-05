@@ -45,23 +45,24 @@
 }
 
 .sm-input {
+    @extend .sm-hover;
+    display: flex;
+    align-items: center;
     background-color: transparent;
     width: 100% !important;
     height: $input-height-with-no-borders;
     max-height: $input-height-with-no-borders;
     min-height: $input-height-with-no-borders;
     color: $inputTextColor;
+    border-color: transparent;
+    border-radius: $borderRadius;
+    border-style: solid;
+    border-width: $inputBorder-size ;
 }
 
 .sm-input-dark {
     @extend .sm-input;
     @extend .sm-input-border-dark;
-    display: flex;
-    align-items: center;
-    border-color: transparent;
-    border-radius: $borderRadius;
-    border-style: solid;
-    border-width: $inputBorder-size ;
     background-color: $inputBg !important;
 }
 

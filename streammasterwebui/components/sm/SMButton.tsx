@@ -34,7 +34,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
       color = 'val(--primary-color-text)',
       darkBackGround = false,
       disabled = false,
-      hover = true,
+      hover = false,
       icon,
       iconPos = 'right',
       iconFilled = false,
@@ -79,7 +79,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
       //   toRet += ' sm-hover';
       // }
       return toRet + ' ' + cClass + ' ' + tooltipClassName;
-    }, [configuredClassName, iconFilled, label, props.children, tooltipClassName]);
+    }, [configuredClassName, hover, iconFilled, label, props.children, tooltipClassName]);
 
     const getStyle = useMemo(() => {
       return {
@@ -95,7 +95,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
     if (props.children) {
       if (darkBackGround) {
         return (
-          <div className="sm-input-dark w-full sm-hover">
+          <div className="sm-input-dark w-full">
             <Tooltip target={`.${tooltipClassName}`} />
             <div
               onClick={(e) => {
@@ -117,7 +117,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
         );
       }
       return (
-        <div className="w-full">
+        <div className="sm-input w-full">
           <Tooltip target={`.${tooltipClassName}`} />
           <div
             onClick={(e) => {
