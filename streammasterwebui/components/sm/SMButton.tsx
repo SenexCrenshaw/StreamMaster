@@ -52,7 +52,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
     ref
   ) => {
     const tooltipClassName = React.useMemo(() => {
-      const ret = `smbutton-${uuidv4()} input-height  w-full `;
+      const ret = `smbutton-${uuidv4()} w-full `;
 
       return ret;
     }, []);
@@ -132,7 +132,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
             data-pr-autohide={true}
           >
             {props.children}
-            <i className={`input-icon pi ${iconClass} pr-1`} />
+            <i className={`input-icon pi ${iconClass}`} />
           </div>
         </div>
       );

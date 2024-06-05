@@ -14,6 +14,7 @@ interface StreamingProxyTypeSelectorProperties {
 }
 
 const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties> = ({ darkBackGround, data, label, onChange: clientOnChange }) => {
+  const [isSaving, setIsSaving] = React.useState<boolean>(false);
   const getHandlersOptions = useMemo((): SelectItem[] => {
     const options = Object.keys(StreamingProxyTypes)
       .filter((key) => isNaN(Number(key)))
@@ -51,14 +52,14 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
         Logger.warn('No data available for saving', { option });
         return;
       }
-
+      setIsSaving(true);
       const request: SetSMChannelProxyRequest = {
         SMChannelId: data.Id,
         StreamingProxy: option
       };
 
       try {
-        await SetSMChannelProxy(request);
+        await SetSMChannelProxy(request).finally(() => setIsSaving(false));
         Logger.info('Streaming proxy type saved successfully', { request });
       } catch (error) {
         Logger.error('Error saving streaming proxy type', { error, request });
@@ -105,6 +106,7 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
       dataKey="label"
       filter
       filterBy="label"
+      isLoading={isSaving}
       itemTemplate={valueTemplate}
       label={label}
       onChange={async (e: any) => {

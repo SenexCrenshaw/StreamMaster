@@ -16,16 +16,13 @@ type EPGResult = { epgNumber: number; stationId: string };
 
 type EPGSelectorProperties = {
   readonly enableEditMode?: boolean;
-  readonly darkBackGround?: boolean;
-  readonly disabled?: boolean;
-  readonly editable?: boolean | undefined;
+  readonly isLoading?: boolean;
   readonly label?: string;
   readonly smChannel?: SMChannelDto;
   readonly onChange?: (value: string) => void;
-  readonly simple?: boolean;
 };
 
-const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround = false, disabled, editable, onChange, simple }: EPGSelectorProperties) => {
+const EPGSelector = ({ enableEditMode = true, label, smChannel, isLoading, onChange }: EPGSelectorProperties) => {
   const { selectedItems } = useSelectedItems<EPGFileDto>('EPGSelector-EPGFiles');
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
@@ -394,6 +391,7 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, darkBackGround =
       filter
       filterBy="DisplayName"
       footerTemplate={footerTemplate}
+      isLoading={loading || isLoading}
       itemTemplate={itemTemplate}
       onChange={(e) => {
         handleOnChange(e.Channel);

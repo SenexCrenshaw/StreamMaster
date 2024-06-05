@@ -2,7 +2,7 @@ import { isEmptyObject } from '@lib/common/common';
 import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
 import { SetSMChannelGroup } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { ChannelGroupDto, SMChannelDto, SetSMChannelGroupRequest } from '@lib/smAPI/smapiTypes';
-import { ReactNode, memo, useCallback, useMemo, useRef } from 'react';
+import { ReactNode, memo, useCallback, useMemo, useRef, useState } from 'react';
 
 import SMDropDown, { SMDropDownRef } from '@components/sm/SMDropDown';
 
@@ -15,22 +15,24 @@ interface SMChannelGroupEditorProperties {
 const SMChannelGroupEditor = ({ darkBackGround, smChannelDto, onChange }: SMChannelGroupEditorProperties) => {
   // const dataKey = 'SMChannelGroup-Groups';
   const smDropownRef = useRef<SMDropDownRef>(null);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
   const { data } = useGetChannelGroups();
   // const { selectedItems } = useSelectedItems<ChannelGroupDto>(dataKey);
 
   const handleOnChange = useCallback(
     async (newGroup: string) => {
-      console.log('newGroup', newGroup);
-
       if (isEmptyObject(smChannelDto)) {
         return;
       }
+      setIsSaving(true);
       const request: SetSMChannelGroupRequest = {
         Group: newGroup,
         SMChannelId: smChannelDto.Id
       };
 
-      await SetSMChannelGroup(request);
+      await SetSMChannelGroup(request).finally(() => {
+        setIsSaving(false);
+      });
     },
     [smChannelDto]
   );
@@ -65,24 +67,27 @@ const SMChannelGroupEditor = ({ darkBackGround, smChannelDto, onChange }: SMChan
   // }, [selectedItems]);
   // Logger.debug('SMChannelGroupEditor', 'smChannelDto', smChannelDto, data);
   return (
-    <SMDropDown
-      buttonLabel="GROUP"
-      buttonDarkBackground={darkBackGround}
-      buttonTemplate={buttonTemplate}
-      data={data}
-      dataKey="Group"
-      filter
-      filterBy="Name"
-      itemTemplate={itemTemplate}
-      onChange={(e) => {
-        handleOnChange(e.Name);
-      }}
-      ref={smDropownRef}
-      title="GROUP"
-      value={smChannelDto}
-      optionValue="Name"
-      widthSize="2"
-    />
+    <div className="w-full">
+      <SMDropDown
+        buttonLabel="GROUP"
+        buttonDarkBackground={darkBackGround}
+        buttonTemplate={buttonTemplate}
+        data={data}
+        dataKey="Group"
+        filter
+        filterBy="Name"
+        isLoading={isSaving}
+        itemTemplate={itemTemplate}
+        onChange={(e) => {
+          handleOnChange(e.Name);
+        }}
+        ref={smDropownRef}
+        title="GROUP"
+        value={smChannelDto}
+        optionValue="Name"
+        widthSize="2"
+      />
+    </div>
   );
 };
 

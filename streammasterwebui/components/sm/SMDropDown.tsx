@@ -65,13 +65,16 @@ const SMDropDown = forwardRef<SMDropDownRef, SMDropDownProps>((props: SMDropDown
   const smOverlayRef = useRef<SMOverlayRef | null>(null);
 
   const getDiv = useMemo(() => {
-    let div = buttonDarkBackground ? '' : 'sm-dropdown';
+    let div = 'w-full';
+    // if (buttonDarkBackground) {
+    //   div += ' sm-dropdown';
+    // }
     if (label) {
       div += ' flex-column';
     }
 
     return div;
-  }, [buttonDarkBackground, label]);
+  }, [label]);
 
   return (
     <>
