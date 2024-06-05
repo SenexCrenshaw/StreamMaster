@@ -127,6 +127,21 @@
 .stringeditorbody-inputtext-buttons {
     border-top-right-radius: 0 !important;
     border-bottom-right-radius: 0 !important;
+
+    .p-inputnumber-input {
+        width: 99% !important;
+    }
+}
+
+.p-inputnumber-input {
+    background-color: transparent !important;
+
+    :hover {
+        border-style: none !important;
+        box-shadow: none !important;
+        transform: none !important;
+        opacity: 1 !important;
+    }
 }
 
 .stringeditorbody-inputtext {
@@ -149,6 +164,7 @@
 
 .stringeditorbody-inputtext-dark {
     @extend .stringeditorbody-inputtext;
+    @extend .sm-input-border-dark;
     color: $textColor !important;
     background-color: $inputBg !important;
     display: flex;

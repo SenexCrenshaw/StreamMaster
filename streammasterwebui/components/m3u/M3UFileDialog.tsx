@@ -1,12 +1,12 @@
-import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, forwardRef } from 'react';
 import NumberEditor from '@components/inputs/NumberEditor';
 import StringEditor from '@components/inputs/StringEditor';
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 
-import { ToggleButton } from 'primereact/togglebutton';
-import M3UFileTags from './M3UFileTags';
 import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
+import { ToggleButton } from 'primereact/togglebutton';
+import M3UFileTags from './M3UFileTags';
 
 export interface M3UFileDialogProperties {
   readonly onHide?: (didUpload: boolean) => void;
@@ -120,21 +120,24 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
           </div>
           <div className="w-6">
             <div className="flex gap-1">
-              <div className="w-6">
+              <div className="w-6 ">
                 <NumberEditor
                   darkBackGround
-                  showButtons
+                  disableDebounce
                   label="MAX STREAMS"
-                  value={m3uFileDto?.MaxStreamCount}
                   onChange={(e) => updateStateAndRequest({ MaxStreamCount: e })}
+                  showButtons
+                  value={m3uFileDto?.MaxStreamCount}
                 />
               </div>
               <div className="w-6">
                 <NumberEditor
                   darkBackGround
+                  disableDebounce
                   label="START CHANNEL #"
-                  value={m3uFileDto?.StartingChannelNumber}
                   onChange={(e) => updateStateAndRequest({ StartingChannelNumber: e })}
+                  showButtons
+                  value={m3uFileDto?.StartingChannelNumber}
                 />
               </div>
             </div>
@@ -166,6 +169,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
             <div className="w-6">
               <NumberEditor
                 darkBackGround
+                disableDebounce
                 label="AUTO UPDATE"
                 suffix=" Hours"
                 value={m3uFileDto?.HoursToUpdate}

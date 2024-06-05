@@ -1,11 +1,11 @@
+import { Logger } from '@lib/common/logger';
+import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { useClickOutside } from 'primereact/hooks';
 import { InputText } from 'primereact/inputtext';
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { v4 as uuidv4 } from 'uuid';
-import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
-import { Logger } from '@lib/common/logger';
 
 export interface StringEditorBodyTemplateProperties {
   readonly autoFocus?: boolean;
@@ -165,7 +165,6 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
         {label && !labelInline && (
           <>
             <label className="pl-15">{label.toUpperCase()}</label>
-            <div className="pt-small" />
           </>
         )}
         <div ref={divReference} className={`flex stringeditor ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>

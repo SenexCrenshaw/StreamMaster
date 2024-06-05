@@ -25,7 +25,7 @@
 }
 
 .pt-small {
-  padding-top: ($inputBorder-size + 0.2) !important;
+  padding-top: ($inputBorder-size ) !important;
 }
 
 .p-multiselect-items {
@@ -167,18 +167,6 @@
   @extend .sm-input-border;
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
-}
-
-.p-inputnumber-input {
-  // @extend .stringeditorbody-inputtext;
-  background-color: transparent !important;
-
-  :hover {
-    border-style: none !important;
-    box-shadow: none !important;
-    transform: none !important;
-    opacity: 1 !important;
-  }
 }
 
 .autoUpdate {

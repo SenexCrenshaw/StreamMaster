@@ -7003,14 +7003,14 @@
   color: #bcbfbf !important;
 }
 
-.sm-input-border-dark, .sm-input-dark {
+.sm-input-border-dark, .stringeditorbody-inputtext-dark, .sm-input-dark {
   border-radius: 6px !important;
   border-color: #263238 !important;
   border-width: 0.1rem !important;
   border-style: solid !important;
   transition: border-color 0.15s;
 }
-.sm-input-border-dark:not(.p-disabled):hover, .sm-input-dark:not(.p-disabled):hover {
+.sm-input-border-dark:not(.p-disabled):hover, .stringeditorbody-inputtext-dark:not(.p-disabled):hover, .sm-input-dark:not(.p-disabled):hover {
   border-color: #bcbfbf !important;
   border-radius: 6px !important;
   border-style: solid !important;
@@ -7295,6 +7295,19 @@
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
 }
+.stringeditorbody-inputtext-buttons .p-inputnumber-input {
+  width: 99% !important;
+}
+
+.p-inputnumber-input {
+  background-color: transparent !important;
+}
+.p-inputnumber-input :hover {
+  border-style: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
 
 .stringeditorbody-inputtext, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark {
   align-items: center;
@@ -7442,7 +7455,7 @@
 }
 
 .pt-small {
-  padding-top: 0.3rem !important;
+  padding-top: 0.1rem !important;
 }
 
 .p-multiselect-items .p-multiselect-item:nth-child(odd) {
@@ -7562,16 +7575,6 @@
 #startNumber > input {
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
-}
-
-.p-inputnumber-input {
-  background-color: transparent !important;
-}
-.p-inputnumber-input :hover {
-  border-style: none !important;
-  box-shadow: none !important;
-  transform: none !important;
-  opacity: 1 !important;
 }
 
 .autoUpdate .p-inputtext {
