@@ -17,21 +17,21 @@ import CreateSMChannelDialog from '@components/smchannels/CreateSMChannelDialog'
 import DeleteSMChannelDialog from '@components/smchannels/DeleteSMChannelDialog';
 import DeleteSMChannelsDialog from '@components/smchannels/DeleteSMChannelsDialog';
 import EditSMChannelDialog from '@components/smchannels/EditSMChannelDialog';
-import SMChannelMenu from '@features/streameditor/SMChannelMenu';
 import SMChannelMultiVisibleDialog from '@components/smchannels/SMChannelMultiVisibleDialog';
 import SetSMChannelsLogoFromEPGDialog from '@components/smchannels/SetSMChannelsLogoFromEPGDialog';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamGroupButton from '@components/streamGroup/StreamGroupButton';
+import SMChannelMenu from '@features/streameditor/SMChannelMenu';
 import { GetMessage } from '@lib/common/intl';
 import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 
+import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import { SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowData, DataTableRowEvent, DataTableRowExpansionTemplate } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import SMStreamDataSelectorValue from './SMStreamDataSelectorValue';
 import useSelectedSMItems from './useSelectedSMItems';
-import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 
 // const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
 interface SMChannelDataSelectorProperties {
@@ -180,7 +180,6 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
   }, []);
 
   return (
-    // <Suspense>
     <SMDataTable
       columns={smTableIsSimple ? simpleColumns : columns}
       enableClick
@@ -201,7 +200,6 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
       isLoading={isLoading}
       onRowExpand={(e: DataTableRowEvent) => {
         if (e.data.Id !== selectedSMChannel?.Id) {
-          // if (selectedSMChannel === undefined) {
           setSelectedSMChannel(e.data as SMChannelDto);
         }
       }}
@@ -217,7 +215,6 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
       selectedItemsKey="selectSelectedSMChannelDtoItems"
       style={{ height: 'calc(100vh - 100px)' }}
     />
-    // </Suspense>
   );
 };
 

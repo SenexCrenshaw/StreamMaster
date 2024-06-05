@@ -8077,6 +8077,14 @@
   align-items: center;
   justify-content: flex-start;
   width: calc(100% - 1.4rem);
+  transition: border-color 0.15s;
+}
+.sm-epg-selector:not(.p-disabled):hover {
+  border-color: #bcbfbf !important;
+  border-radius: 6px !important;
+  border-style: solid !important;
+  border-width: 0.1rem !important;
+  color: #bcbfbf !important;
 }
 
 .sm-icon-selector {
@@ -8141,7 +8149,6 @@
 }
 .sm-datatable td {
   padding: 0;
-  border: unset;
 }
 
 .sm-expander .p-row-toggler {

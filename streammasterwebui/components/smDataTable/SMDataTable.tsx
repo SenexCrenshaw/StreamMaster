@@ -20,6 +20,7 @@ import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import generateFilterData from '@components/dataSelector/generateFilterData';
+import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import { SMTriSelectShowSelect } from '@components/sm/SMTriSelectShowSelect';
 import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
@@ -35,7 +36,6 @@ import useSMDataSelectorValuesState from './hooks/useSMDataTableState';
 import { useSetQueryFilter } from './hooks/useSetQueryFilter';
 import { ColumnMeta } from './types/ColumnMeta';
 import { SMDataTableProps } from './types/smDataTableInterfaces';
-import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 
 const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   const { state, setters } = useSMDataSelectorValuesState<T>(props.id, props.selectedItemsKey);
@@ -161,9 +161,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       }
 
       setters.setSelectedItems(selected);
-      // if ( props.useSelectedItemsFilter){
-
-      // }
       const all = overRideSelectAll || state.selectAll;
 
       if (props.onSelectionChange) {
@@ -270,7 +267,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   }, [onSetSelection, props.dataSource, props.id, props.queryFilter, props.reorderable, selectedData, setters, state.dataSource, state.selectAll]);
 
   const onRowReorder = (changed: T[]) => {
-    // setters.setDataSource(changed);
     props.onRowReorder?.(changed);
   };
 

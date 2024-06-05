@@ -208,18 +208,28 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, isLoading, onCha
 
   const buttonTemplate = useCallback(
     (option2: StationChannelName | undefined): JSX.Element => {
-      if (!input) {
-        return <div className="text-xs text-container text-white-alpha-40">None</div>;
+      const tooltipClassName = `epgitem-${uuidv4()}`;
+
+      if (!input || input === '') {
+        return (
+          <div className="sm-epg-selector">
+            <i
+              className={`${tooltipClassName} pl-1 pi pi-circle-fill`}
+              style={{ color: '#000000' }}
+              data-pr-hidedelay={100}
+              data-pr-position="left"
+              data-pr-showdelay={500}
+              data-pr-tooltip="No EPG"
+            />
+            <div className="text-xs text-container text-white-alpha-40">None</div>
+          </div>
+        );
       }
 
       const stationChannelName = query.data?.find((x) => x.Channel === input);
       if (!stationChannelName) {
-        const tooltipClassName = `epgitem-${uuidv4()}`;
-        if (!input || input === '') {
-          return <div className="text-xs text-container text-white-alpha-40">None</div>;
-        }
         return (
-          <>
+          <div className="sm-epg-selector">
             <Tooltip target={`.${tooltipClassName}`} />
             <span
               data-pr-hidedelay={100}
@@ -230,7 +240,7 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, isLoading, onCha
             >
               {input}
             </span>
-          </>
+          </div>
         );
       }
 
@@ -256,8 +266,6 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, isLoading, onCha
           epgName = entry.Name;
         }
       }
-
-      const tooltipClassName = `epgitem-${uuidv4()}`;
 
       return (
         <div className="sm-epg-selector">

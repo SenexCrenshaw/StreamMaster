@@ -1,12 +1,9 @@
-import { SMDataTableFilterMetaData, addOrUpdateValueForField, hasValidAdditionalProps, isEmptyObject } from '@lib/common/common';
-
 import { areGetApiArgsEqual } from '@lib/apiDefs';
+import { SMDataTableFilterMetaData, addOrUpdateValueForField, hasValidAdditionalProps, isEmptyObject } from '@lib/common/common';
+import { useQueryAdditionalFilters } from '@lib/redux/hooks/queryAdditionalFilters';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useShowHidden } from '@lib/redux/hooks/showHidden';
-
 import { useSortInfo } from '@lib/redux/hooks/sortInfo';
-
-import { useQueryAdditionalFilters } from '@lib/redux/hooks/queryAdditionalFilters';
 import { ChannelGroupDto, EPGFileDto, QueryStringParameters } from '@lib/smAPI/smapiTypes';
 import { FilterMatchMode } from 'primereact/api';
 import { DataTableFilterMeta } from 'primereact/datatable';
@@ -52,19 +49,18 @@ function transformAndEnhanceFilters(
         let ids = filter.value;
         if (filter.value.length > 0 && filter.value[0].hasOwnProperty('Name')) {
           ids = (filter.value as ChannelGroupDto[]).map((x) => x.Name);
-        }
-
-        if (ids.length > 0) {
-          transformedFilters.push({
-            fieldName: column.field,
-            matchMode: FilterMatchMode.CONTAINS,
-            value: ids
-          });
+          if (ids.length > 0) {
+            transformedFilters.push({
+              fieldName: column.field,
+              matchMode: FilterMatchMode.CONTAINS,
+              value: ids
+            });
+          }
         }
       } else {
         transformedFilters.push({
           fieldName: column.field,
-          matchMode: filter.matchMode,
+          matchMode: FilterMatchMode.CONTAINS,
           value: filter.value
         });
       }
@@ -106,14 +102,6 @@ export const useSetQueryFilter = (
 
   const { generateGetApi } = useMemo(() => {
     const sortString = getSortString(sortInfo);
-
-    // console.group('useSetQueryFilter');
-    // console.log('id:', id);
-    // console.log('queryFilter:', queryFilter);
-    // console.log('queryAdditionalFilters:', queryAdditionalFilters);
-    // console.groupEnd();
-
-    // console.log('id', id, queryAdditionalFilters);
     const transformedFilters = transformAndEnhanceFilters(filters, columns, showHidden, queryAdditionalFilters);
 
     const JSONFiltersString = JSON.stringify(transformedFilters);
@@ -128,19 +116,12 @@ export const useSetQueryFilter = (
     return {
       generateGetApi: apiState
     };
-  }, [sortInfo, id, queryAdditionalFilters, filters, columns, showHidden, page, rows]);
+  }, [sortInfo, queryAdditionalFilters, filters, columns, showHidden, page, rows]);
 
   useEffect(() => {
-    // if (id === 'streameditor-SMChannelDataSelector') {
-    //   console.group('useSetQueryFilter', id);
-    //   console.log('generateGetApi', generateGetApi);
-    //   console.log('queryFilter', queryFilter);
-    // }
     if (!areGetApiArgsEqual(generateGetApi, queryFilter)) {
       setQueryFilter(generateGetApi);
-      // console.log('SET');
     }
-    // console.groupEnd();
   }, [generateGetApi, queryFilter, setQueryFilter]);
 
   return { queryFilter: generateGetApi };

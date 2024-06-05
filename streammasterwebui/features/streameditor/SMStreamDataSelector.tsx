@@ -14,14 +14,14 @@ import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectedSMStreams } from '@lib/redux/hooks/selectedSMStreams';
 
+import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
+import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import { CreateSMChannelFromStreamRequest, RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent, DataTableRowEvent, DataTableValue } from 'primereact/datatable';
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import SimpleButton from '../../components/buttons/SimpleButton';
 import useSelectedSMItems from './useSelectedSMItems';
-import { RemoveSMStreamFromSMChannel, AddSMStreamToSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
-import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 
 const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
 interface SMStreamDataSelectorProperties {
@@ -40,7 +40,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
 
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { setSelectedSMStreams } = useSelectedSMStreams(dataKey);
-  const groupColumnConfig = useSMStreamGroupColumnConfig();
+  const groupColumnConfig = useSMStreamGroupColumnConfig({ dataKey });
   const smStreamM3UColumnConfig = useSMStreamM3UColumnConfig();
   const { queryFilter } = useQueryFilter(dataKey);
   const { isLoading } = useGetPagedSMStreams(queryFilter);

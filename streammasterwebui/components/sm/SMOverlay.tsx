@@ -1,5 +1,6 @@
 import CloseButton from '@components/buttons/CloseButton';
 import SMButton from '@components/sm/SMButton';
+import { BlockUI } from 'primereact/blockui';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import React, { ReactNode, SyntheticEvent, forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
 import { SMCard } from './SMCard';
@@ -107,7 +108,11 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
   }, [buttonClassName, buttonDarkBackground, buttonLabel, buttonTemplate, icon, iconFilled, isLoading, openPanel, tooltip]);
 
   if (isLoading === true) {
-    return <div className="w-full">{renderButton}</div>;
+    return (
+      <BlockUI blocked={isLoading}>
+        <div className="w-full">{renderButton}</div>
+      </BlockUI>
+    );
   }
 
   return (

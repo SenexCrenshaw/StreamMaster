@@ -79,7 +79,7 @@ export const useSMChannelEPGColumnConfig = ({ width = '8rem' }: SMChannelEPGColu
       if (options.value.length > 0) {
         const names = options.value.map((x: EPGFileDto) => x.Name);
         const sortedInput = [...names].sort();
-        // const suffix = names.length > 2 ? ',...' : '';
+
         return <div className="text-container pl-1">{sortedInput.join(', ')}</div>;
       }
     }

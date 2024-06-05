@@ -15,8 +15,18 @@ const showHiddenSlice = createSlice({
   initialState,
   name: 'showHidden',
   reducers: {
+    SetMultipleShowHidden: (state, action: PayloadAction<Record<string, boolean | null>>) => {
+      Object.entries(action.payload).forEach(([key, value]) => {
+        if (value === null) {
+          state[key] = null;
+        } else {
+          state[key] = value;
+        }
+      });
+    },
     SetShowHidden: (state, action: PayloadAction<SetShowHiddenPayload>) => {
       const { key, value } = action.payload;
+
       state[key] = value;
     }
   }
@@ -33,15 +43,35 @@ export const useShowHidden = (key: string) => {
   const setShowHidden = (value: boolean | null) => {
     dispatch(
       showHiddenSlice.actions.SetShowHidden({
-        key,
+        key: key,
         value
       })
     );
   };
 
+  if (key !== undefined && key !== '') {
+    const persistKey = 'persist:showHidden';
+    const persistData = localStorage.getItem(persistKey);
+
+    if (persistData === null) {
+      setShowHidden(null);
+    } else {
+      try {
+        const parsedData = JSON.parse(persistData);
+        if (!parsedData.hasOwnProperty(key)) {
+          setShowHidden(null);
+        }
+      } catch (error) {}
+    }
+  }
+
+  const setMultipleShowHidden = (values: Record<string, boolean | null>) => {
+    dispatch(showHiddenSlice.actions.SetMultipleShowHidden(values));
+  };
+
   const showHidden = useSelector((state: RootState) => selectShowHidden(state)(key));
 
-  return { setShowHidden, showHidden };
+  return { setMultipleShowHidden, setShowHidden, showHidden };
 };
 
 export default showHiddenSlice.reducer;
