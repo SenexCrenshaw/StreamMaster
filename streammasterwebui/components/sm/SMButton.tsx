@@ -75,11 +75,11 @@ const SMButton = forwardRef<Button, SMButtonProps>(
         cClass += '-filled';
       }
 
-      if (hover) {
-        toRet += ' sm-hover';
-      }
+      // if (hover) {
+      //   toRet += ' sm-hover';
+      // }
       return toRet + ' ' + cClass + ' ' + tooltipClassName;
-    }, [configuredClassName, hover, iconFilled, label, props.children, tooltipClassName]);
+    }, [configuredClassName, iconFilled, label, props.children, tooltipClassName]);
 
     const getStyle = useMemo(() => {
       return {
