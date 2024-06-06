@@ -146,7 +146,7 @@ const ChannelGroupSelector = ({ enableEditMode = true, dataKey, label, onChange,
           buttonDarkBackground
           buttonTemplate={buttonTemplate}
           title="GROUPS"
-          widthSize="3"
+          contentWidthSize="3"
           icon="pi-chevron-down"
           buttonLabel="GROUP"
           header={headerRightTemplate}

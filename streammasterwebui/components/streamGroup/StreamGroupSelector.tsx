@@ -35,6 +35,7 @@ export const StreamGroupSelector = ({ onChange, selectedStreamGroup }: StreamGro
         onDropdownChange(e);
       }}
       title={'Select Stream Group'}
+      contentWidthSize="2"
     />
   );
 };

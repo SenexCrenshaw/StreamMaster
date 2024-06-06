@@ -55,7 +55,7 @@ export const useSMStreamM3UColumnConfig = () => {
           select
           selectedItemsKey={dataKey}
           title="M3U"
-          widthSize="2"
+          contentWidthSize="2"
         />
       </div>
     );

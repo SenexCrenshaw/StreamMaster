@@ -14,7 +14,7 @@ interface SMChannelGroupColumnConfigProperties {
   readonly width?: string;
 }
 
-export const useSMChannelGroupColumnConfig = ({ dataKey, width = '10rem' }: SMChannelGroupColumnConfigProperties) => {
+export const useSMChannelGroupColumnConfig = ({ dataKey, width = '10' }: SMChannelGroupColumnConfigProperties) => {
   const { filters, setFilters } = useFilters(dataKey);
   const { selectedItems } = useSelectedAndQ('useSMChannelGroupColumnConfig');
 
@@ -47,7 +47,6 @@ export const useSMChannelGroupColumnConfig = ({ dataKey, width = '10rem' }: SMCh
       return (
         <ChannelGroupSelectorForSMChannels
           dataKey="useSMChannelGroupColumnConfig"
-          // value={options.value}
           onChange={(e) => {
             if (e) {
               options.filterApplyCallback();
@@ -68,8 +67,6 @@ export const useSMChannelGroupColumnConfig = ({ dataKey, width = '10rem' }: SMCh
       filter: true,
       filterElement: filterTemplate,
       header: 'Group',
-      maxWidth: width,
-      minWidth: width,
       sortable: true,
       width: width
     } as ColumnMeta;

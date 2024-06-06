@@ -81,7 +81,7 @@ const SMChannelGroupEditor = ({ darkBackGround, smChannelDto, onChange }: SMChan
       title="GROUP"
       value={smChannelDto}
       optionValue="Name"
-      widthSize="2"
+      contentWidthSize="2"
     />
   );
 };

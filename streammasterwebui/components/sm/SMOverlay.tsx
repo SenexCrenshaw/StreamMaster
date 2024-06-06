@@ -20,7 +20,7 @@ interface SMOverlayProperties {
   readonly simple?: boolean;
   readonly title?: string | undefined;
   readonly tooltip?: string | undefined;
-  readonly widthSize?: string;
+  readonly contentWidthSize?: string;
   onAnswered?(): void;
   onHide?(): void;
   onShow?(): void;
@@ -51,7 +51,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
     simple = false,
     title,
     tooltip = '',
-    widthSize = '4'
+    contentWidthSize = '4'
   } = props;
 
   useImperativeHandle(ref, () => ({
@@ -112,7 +112,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
 
   return (
     <>
-      <OverlayPanel className={`sm-overlay w-${widthSize} `} ref={op} showCloseIcon={false} onShow={onShow} onHide={() => onHide && onHide()}>
+      <OverlayPanel className={`sm-overlay sm-w-${contentWidthSize}`} ref={op} showCloseIcon={false} onShow={onShow} onHide={() => onHide && onHide()}>
         <SMCard
           center={center}
           header={

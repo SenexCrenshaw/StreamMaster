@@ -20,6 +20,7 @@ import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import generateFilterData from '@components/dataSelector/generateFilterData';
+import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import { SMTriSelectShowSelect } from '@components/sm/SMTriSelectShowSelect';
 import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
@@ -29,13 +30,12 @@ import { getAlign, getHeaderFromField, setColumnToggle } from './helpers/dataSel
 import getEmptyFilter from './helpers/getEmptyFilter';
 import getHeader from './helpers/getHeader';
 import getRecord from './helpers/getRecord';
-import { getStyle } from './helpers/getStyle';
+import { getColumnClassNames } from './helpers/getStyle';
 import isPagedResponse from './helpers/isPagedResponse';
 import useSMDataSelectorValuesState from './hooks/useSMDataTableState';
 import { useSetQueryFilter } from './hooks/useSetQueryFilter';
 import { ColumnMeta } from './types/ColumnMeta';
 import { SMDataTableProps } from './types/smDataTableInterfaces';
-import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 
 const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   const { state, setters } = useSMDataSelectorValuesState<T>(props.id, props.selectedItemsKey);
@@ -767,7 +767,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
               .map((col) => (
                 <Column
                   align={getAlign(col.align, col.fieldType)}
-                  className={col.className}
+                  className={getColumnClassNames(col)}
                   filter
                   filterElement={col.headerTemplate ? col.headerTemplate : colFilterTemplate}
                   filterPlaceholder={col.filter === true ? (col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)) : undefined}
@@ -777,7 +777,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
                   field={col.field}
                   hidden={col.isHidden === true}
                   key={col.fieldType ? col.field + col.fieldType : col.field}
-                  style={getStyle(col, col.noAutoStyle !== true || col.bodyTemplate !== undefined)}
+                  // style={getStyle(col, col.noAutoStyle !== true || col.bodyTemplate !== undefined)}
                   showAddButton
                   showApplyButton
                   showClearButton={false}

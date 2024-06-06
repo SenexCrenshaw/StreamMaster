@@ -51,6 +51,300 @@
   width: 200px;
 }
 
+.sm-w-1 {
+  flex: 0 0 8.3333333333%;
+  min-width: 8.3333333333%;
+  width: 8.3333333333%;
+  max-width: 8.3333333333%;
+}
+
+.sm-w-2 {
+  flex: 0 0 16.6666666667%;
+  min-width: 16.6666666667%;
+  width: 16.6666666667%;
+  max-width: 16.6666666667%;
+}
+
+.sm-w-3 {
+  flex: 0 0 25%;
+  min-width: 25%;
+  width: 25%;
+  max-width: 25%;
+}
+
+.sm-w-4 {
+  flex: 0 0 33.3333333333%;
+  min-width: 33.3333333333%;
+  width: 33.3333333333%;
+  max-width: 33.3333333333%;
+}
+
+.sm-w-5 {
+  flex: 0 0 41.6666666667%;
+  min-width: 41.6666666667%;
+  width: 41.6666666667%;
+  max-width: 41.6666666667%;
+}
+
+.sm-w-6 {
+  flex: 0 0 50%;
+  min-width: 50%;
+  width: 50%;
+  max-width: 50%;
+}
+
+.sm-w-7 {
+  flex: 0 0 58.3333333333%;
+  min-width: 58.3333333333%;
+  width: 58.3333333333%;
+  max-width: 58.3333333333%;
+}
+
+.sm-w-8 {
+  flex: 0 0 66.6666666667%;
+  min-width: 66.6666666667%;
+  width: 66.6666666667%;
+  max-width: 66.6666666667%;
+}
+
+.sm-w-9 {
+  flex: 0 0 75%;
+  min-width: 75%;
+  width: 75%;
+  max-width: 75%;
+}
+
+.sm-w-10 {
+  flex: 0 0 83.3333333333%;
+  min-width: 83.3333333333%;
+  width: 83.3333333333%;
+  max-width: 83.3333333333%;
+}
+
+.sm-w-11 {
+  flex: 0 0 91.6666666667%;
+  min-width: 91.6666666667%;
+  width: 91.6666666667%;
+  max-width: 91.6666666667%;
+}
+
+.sm-w-12 {
+  flex: 0 0 100%;
+  min-width: 100%;
+  width: 100%;
+  max-width: 100%;
+}
+
+.sm-w-1rem {
+  flex: 0 0 1rem;
+  min-width: 1rem;
+  width: 1rem;
+  max-width: 1rem;
+}
+
+.sm-w-2rem {
+  flex: 0 0 2rem;
+  min-width: 2rem;
+  width: 2rem;
+  max-width: 2rem;
+}
+
+.sm-w-3rem {
+  flex: 0 0 3rem;
+  min-width: 3rem;
+  width: 3rem;
+  max-width: 3rem;
+}
+
+.sm-w-4rem {
+  flex: 0 0 4rem;
+  min-width: 4rem;
+  width: 4rem;
+  max-width: 4rem;
+}
+
+.sm-w-5rem {
+  flex: 0 0 5rem;
+  min-width: 5rem;
+  width: 5rem;
+  max-width: 5rem;
+}
+
+.sm-w-6rem {
+  flex: 0 0 6rem;
+  min-width: 6rem;
+  width: 6rem;
+  max-width: 6rem;
+}
+
+.sm-w-7rem {
+  flex: 0 0 7rem;
+  min-width: 7rem;
+  width: 7rem;
+  max-width: 7rem;
+}
+
+.sm-w-8rem {
+  flex: 0 0 8rem;
+  min-width: 8rem;
+  width: 8rem;
+  max-width: 8rem;
+}
+
+.sm-w-9rem {
+  flex: 0 0 9rem;
+  min-width: 9rem;
+  width: 9rem;
+  max-width: 9rem;
+}
+
+.sm-w-10rem {
+  flex: 0 0 10rem;
+  min-width: 10rem;
+  width: 10rem;
+  max-width: 10rem;
+}
+
+.sm-w-11rem {
+  flex: 0 0 11rem;
+  min-width: 11rem;
+  width: 11rem;
+  max-width: 11rem;
+}
+
+.sm-w-12rem {
+  flex: 0 0 12rem;
+  min-width: 12rem;
+  width: 12rem;
+  max-width: 12rem;
+}
+
+.sm-w-13rem {
+  flex: 0 0 13rem;
+  min-width: 13rem;
+  width: 13rem;
+  max-width: 13rem;
+}
+
+.sm-w-14rem {
+  flex: 0 0 14rem;
+  min-width: 14rem;
+  width: 14rem;
+  max-width: 14rem;
+}
+
+.sm-w-15rem {
+  flex: 0 0 15rem;
+  min-width: 15rem;
+  width: 15rem;
+  max-width: 15rem;
+}
+
+.sm-w-16rem {
+  flex: 0 0 16rem;
+  min-width: 16rem;
+  width: 16rem;
+  max-width: 16rem;
+}
+
+.sm-w-17rem {
+  flex: 0 0 17rem;
+  min-width: 17rem;
+  width: 17rem;
+  max-width: 17rem;
+}
+
+.sm-w-18rem {
+  flex: 0 0 18rem;
+  min-width: 18rem;
+  width: 18rem;
+  max-width: 18rem;
+}
+
+.sm-w-19rem {
+  flex: 0 0 19rem;
+  min-width: 19rem;
+  width: 19rem;
+  max-width: 19rem;
+}
+
+.sm-w-20rem {
+  flex: 0 0 20rem;
+  min-width: 20rem;
+  width: 20rem;
+  max-width: 20rem;
+}
+
+.sm-w-21rem {
+  flex: 0 0 21rem;
+  min-width: 21rem;
+  width: 21rem;
+  max-width: 21rem;
+}
+
+.sm-w-22rem {
+  flex: 0 0 22rem;
+  min-width: 22rem;
+  width: 22rem;
+  max-width: 22rem;
+}
+
+.sm-w-23rem {
+  flex: 0 0 23rem;
+  min-width: 23rem;
+  width: 23rem;
+  max-width: 23rem;
+}
+
+.sm-w-24rem {
+  flex: 0 0 24rem;
+  min-width: 24rem;
+  width: 24rem;
+  max-width: 24rem;
+}
+
+.sm-w-25rem {
+  flex: 0 0 25rem;
+  min-width: 25rem;
+  width: 25rem;
+  max-width: 25rem;
+}
+
+.sm-w-26rem {
+  flex: 0 0 26rem;
+  min-width: 26rem;
+  width: 26rem;
+  max-width: 26rem;
+}
+
+.sm-w-27rem {
+  flex: 0 0 27rem;
+  min-width: 27rem;
+  width: 27rem;
+  max-width: 27rem;
+}
+
+.sm-w-28rem {
+  flex: 0 0 28rem;
+  min-width: 28rem;
+  width: 28rem;
+  max-width: 28rem;
+}
+
+.sm-w-29rem {
+  flex: 0 0 29rem;
+  min-width: 29rem;
+  width: 29rem;
+  max-width: 29rem;
+}
+
+.sm-w-30rem {
+  flex: 0 0 30rem;
+  min-width: 30rem;
+  width: 30rem;
+  max-width: 30rem;
+}
+
 .header-text {
   display: flex;
   align-items: center;

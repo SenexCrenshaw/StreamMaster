@@ -153,7 +153,7 @@ const ChannelGroupSelectorForSMChannels = ({
           buttonDarkBackground
           buttonTemplate={buttonTemplate}
           title="GROUPS"
-          widthSize="3"
+          contentWidthSize="3"
           icon="pi-chevron-down"
           buttonLabel="GROUP"
           header={headerRightTemplate}

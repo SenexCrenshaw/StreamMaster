@@ -113,7 +113,7 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
       title="PROXY"
       optionValue="label"
       value={data?.StreamingProxyType}
-      widthSize="2"
+      contentWidthSize="2"
     />
   );
 };
