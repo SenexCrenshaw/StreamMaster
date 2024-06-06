@@ -40,7 +40,7 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
       debounceMs = 1500,
       disabled = false,
       disableDebounce = false,
-      isLoading,
+      isLoading = false,
       label,
       labelInline = false,
       labelInlineSmall = false,
@@ -135,7 +135,7 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
       setIgnoreSave(false);
     }, [disableDebounce, inputValue, isLoading, originalValue, value]);
 
-    const getDiv = useMemo(() => {
+    const inputGetDiv = useMemo(() => {
       let ret = 'stringeditorbody-inputtext';
       if (darkBackGround) {
         ret = 'stringeditorbody-inputtext-dark';
@@ -152,7 +152,23 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
       return ret;
     }, [labelInline, needsSave, darkBackGround]);
 
-    const doShowClear = useMemo(() => darkBackGround && showClear && isFocused && inputValue !== '', [darkBackGround, inputValue, isFocused, showClear]);
+    const doShowClear = useMemo(() => darkBackGround && showClear && inputValue !== '', [darkBackGround, inputValue, showClear]);
+
+    const getDiv = useMemo(() => {
+      let ret = 'flex stringeditor';
+
+      if (label && !labelInline) {
+        ret += ' flex-column';
+      }
+
+      if (labelInline) {
+        ret += ' align-items-start';
+      } else {
+        ret += ' align-items-center';
+      }
+
+      return ret;
+    }, [label, labelInline]);
 
     useEffect(() => {
       if (autoFocus && inputRef.current) {
@@ -167,12 +183,12 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
             <label className="pl-15">{label.toUpperCase()}</label>
           </>
         )}
-        <div ref={divReference} className={`flex stringeditor ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
+        <div ref={divReference} className={getDiv}>
           {label && labelInline && <div className={labelInline ? 'w-4' : 'w-6'}>{label.toUpperCase()}</div>}
           <InputText
             ref={inputRef}
-            className={getDiv}
-            disabled={disabled}
+            className={inputGetDiv}
+            disabled={disabled || isLoading}
             id={uuid}
             onChange={(e) => {
               const newValue = e.target.value as string;

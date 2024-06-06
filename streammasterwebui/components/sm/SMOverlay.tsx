@@ -79,7 +79,6 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
         <SMButton
           darkBackGround={buttonDarkBackground}
           className={buttonClassName}
-          hover
           iconFilled={iconFilled}
           icon={icon}
           isLoading={isLoading}
@@ -95,7 +94,6 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
       <SMButton
         darkBackGround={buttonDarkBackground}
         className={buttonClassName}
-        hover
         iconFilled={iconFilled}
         icon={icon}
         isLoading={isLoading}

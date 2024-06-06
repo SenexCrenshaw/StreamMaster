@@ -12,7 +12,7 @@ const StreamGroupButton = () => {
   const { selectedStreamGroup, setSelectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
 
   return (
-    <div className="flex flex-row sm-w-6 justify-content-center align-items-center ">
+    <div className="flex flex-row sm-w-12 justify-content-center align-items-center">
       <div className="sm-w-8">
         <StreamGroupSelector
           onChange={(sg) => {
@@ -23,7 +23,7 @@ const StreamGroupButton = () => {
         />
       </div>
       <div className="pr-1" />
-      <div className="sm-w-4">
+      <div className="sm-w-1rem">
         <SMOverlay
           title="STREAM GROUPS"
           contentWidthSize="4"

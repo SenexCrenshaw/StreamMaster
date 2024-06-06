@@ -51,7 +51,7 @@ const DeleteSMChannelsDialog = ({ id, onClose, selectedItemsKey }: DeleteSMChann
           throw error;
         })
         .finally(() => {
-          dialogRef.current?.close();
+          dialogRef.current?.hide();
         });
 
       return;
@@ -77,7 +77,7 @@ const DeleteSMChannelsDialog = ({ id, onClose, selectedItemsKey }: DeleteSMChann
         throw error;
       })
       .finally(() => {
-        dialogRef.current?.close();
+        dialogRef.current?.hide();
       });
   }, [selectedItems, selectAll, ReturnToParent, queryFilter, setSelectedItems, setSelectAll]);
 

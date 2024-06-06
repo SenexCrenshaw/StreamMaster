@@ -8,14 +8,9 @@ import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';
 import useGetEPGFiles from '@lib/smAPI/EPGFiles/useGetEPGFiles';
 import { EPGFileDto, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
-
 import { ReactNode, useCallback, useMemo } from 'react';
 
-interface SMChannelEPGColumnConfigProperties {
-  readonly width?: string;
-}
-
-export const useSMChannelEPGColumnConfig = ({ width = '8rem' }: SMChannelEPGColumnConfigProperties) => {
+export const useSMChannelEPGColumnConfig = () => {
   const dataKey = 'epgColumn-selections';
   const { data, isLoading } = useGetEPGFiles();
   const colorsQuery = useGetEPGColors();
@@ -66,7 +61,7 @@ export const useSMChannelEPGColumnConfig = ({ width = '8rem' }: SMChannelEPGColu
 
       return (
         <>
-          <i className="pi pi-circle-fill pr-2 " style={{ color: color }} />
+          <i className="pi pi-circle-fill pr-2" style={{ color: color }} />
           <span className="text-container">{option.Name}</span>
         </>
       );
@@ -129,10 +124,9 @@ export const useSMChannelEPGColumnConfig = ({ width = '8rem' }: SMChannelEPGColu
     filter: true,
     filterElement: filterTemplate,
     header: 'EPG',
-    maxWidth: width,
-    minWidth: width,
+    minWidth: '6',
     sortable: true,
-    width: width
+    width: '10'
   };
 
   return columnConfig;

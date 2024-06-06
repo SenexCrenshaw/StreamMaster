@@ -5,7 +5,6 @@ export const useSMChannelProxyColumnConfig = createSMChannelMultiSelectColumnCon
   dataField: 'StreamingProxyType',
   EditorComponent: StreamingProxyTypeSelector,
   headerTitle: 'PROXY',
-  maxWidth: 10,
   sortable: true,
-  width: 10
+  width: '8rem'
 });

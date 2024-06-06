@@ -23,7 +23,7 @@ const EPGFileEditDialog = ({ selectedFile }: EPGFileEditDialogProperties) => {
         console.error(error);
       })
       .finally(() => {
-        smDialogRef.current?.close();
+        smDialogRef.current?.hide();
       });
   }
 

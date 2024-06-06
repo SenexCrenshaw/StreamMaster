@@ -14,14 +14,14 @@ import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectedSMStreams } from '@lib/redux/hooks/selectedSMStreams';
 
+import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
+import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import { CreateSMChannelFromStreamRequest, RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent, DataTableRowEvent, DataTableValue } from 'primereact/datatable';
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import SimpleButton from '../../components/buttons/SimpleButton';
 import useSelectedSMItems from './useSelectedSMItems';
-import { RemoveSMStreamFromSMChannel, AddSMStreamToSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
-import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 
 const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
 interface SMStreamDataSelectorProperties {
@@ -63,7 +63,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'Name', filter: true, sortable: true },
+      { field: 'Name', filter: true, minWidth: '8', sortable: true },
       groupColumnConfig,
       smStreamM3UColumnConfig,
       { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '4rem' }
@@ -71,7 +71,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
     [actionTemplate, groupColumnConfig, smStreamM3UColumnConfig]
   );
 
-  const simpleColumns = useMemo((): ColumnMeta[] => [{ field: 'Name', filter: true, maxWidth: '11rem', sortable: true, width: '11rem' }], []);
+  const simpleColumns = useMemo((): ColumnMeta[] => [{ field: 'Name', filter: true, sortable: true, width: '10rem' }], []);
 
   const addOrRemoveTemplate = useCallback(
     (data: any) => {
@@ -168,8 +168,6 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         <M3UFilesButton />
         <SimpleButton dataKey={dataKey} />
         <StreamMultiVisibleDialog selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} />
-        {/* <SMButton className="icon-red" iconFilled icon="pi-times" rounded onClick={() => {}} /> */}
-        {/* <SMButton className="icon-green-filled" icon="pi-plus" rounded onClick={() => {}} /> */}
         <CreateSMChannelsDialog selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} />
       </div>
     );

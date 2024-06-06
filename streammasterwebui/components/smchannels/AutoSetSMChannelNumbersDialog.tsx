@@ -37,7 +37,7 @@ const AutoSetSMChannelNumbersDialog = ({ disabled }: AutoSetSMChannelNumbersDial
         console.error(error);
       })
       .finally(() => {
-        smDialogRef.current?.close();
+        smDialogRef.current?.hide();
       });
   }, [overwriteNumbers, queryFilter, selectedStreamGroup, startNumber]);
 

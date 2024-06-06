@@ -5,5 +5,6 @@ export const useSMChannelNameColumnConfig = createSMChannelMultiSelectColumnConf
   dataField: 'Name',
   EditorComponent: SMChannelNameEditor,
   headerTitle: 'NAME',
+  minWidth: '8',
   sortable: true
 });

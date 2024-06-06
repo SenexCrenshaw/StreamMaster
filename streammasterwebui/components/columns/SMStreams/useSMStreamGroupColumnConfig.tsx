@@ -28,8 +28,8 @@ export const useSMStreamGroupColumnConfig = () => {
     filter: true,
     filterElement: filterTemplate,
     header: 'Group',
-    maxWidth: '10rem',
-    sortable: true
+    sortable: true,
+    width: '16'
   };
 
   return columnConfig;

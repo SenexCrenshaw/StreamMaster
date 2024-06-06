@@ -30,7 +30,8 @@ import { getAlign, getHeaderFromField, setColumnToggle } from './helpers/dataSel
 import getEmptyFilter from './helpers/getEmptyFilter';
 import getHeader from './helpers/getHeader';
 import getRecord from './helpers/getRecord';
-import { getColumnClassNames } from './helpers/getStyle';
+
+import { getColumnClassNames } from './helpers/getColumnClassNames';
 import isPagedResponse from './helpers/isPagedResponse';
 import useSMDataSelectorValuesState from './hooks/useSMDataTableState';
 import { useSetQueryFilter } from './hooks/useSetQueryFilter';
@@ -333,6 +334,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         <div className="w-full">
           <StringTracker
             id={stringTrackerkey}
+            isLoading={isLoading}
             onChange={async (e) => {
               options.filterApplyCallback(e);
             }}
@@ -342,7 +344,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         </div>
       );
     },
-    [props.id]
+    [isLoading, props.id]
   );
 
   const sortButton = useCallback(
@@ -675,7 +677,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           onPage={onPage}
           onRowClick={props.selectRow === true ? props.onRowClick : undefined}
           paginator={showPageination}
-          paginatorClassName="text-xs"
+          paginatorClassName="text-xs p-0 m-0"
           paginatorTemplate={getPageTemplate}
           pt={{
             wrapper: { className: getWrapperDiv }

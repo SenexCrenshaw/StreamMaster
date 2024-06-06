@@ -9,9 +9,9 @@ public class CreateChannelGroupRequestHandler(IMessageService messageSevice, IDa
 {
     public async Task<APIResponse> Handle(CreateChannelGroupRequest request, CancellationToken cancellationToken)
     {
-        if (!Repository.ChannelGroup.Any(a => a.Name == request.GroupName))
+        if (Repository.ChannelGroup.Any(a => a.Name == request.GroupName))
         {
-            return APIResponse.NotFound;
+            return APIResponse.Ok;
         }
 
         APIResponse res = await Repository.ChannelGroup.CreateChannelGroup(request.GroupName, request.IsReadOnly);
@@ -21,8 +21,6 @@ public class CreateChannelGroupRequestHandler(IMessageService messageSevice, IDa
         }
 
         _ = await Repository.SaveAsync().ConfigureAwait(false);
-
-        //await sender.Send(new SyncStreamGroupChannelGroupByChannelIdRequest(channelGroupDto.Id), cancellationToken).ConfigureAwait(false);
 
         await dataRefreshService.RefreshChannelGroups().ConfigureAwait(false);
 

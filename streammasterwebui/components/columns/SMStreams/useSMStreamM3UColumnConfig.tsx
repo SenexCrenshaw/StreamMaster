@@ -71,8 +71,8 @@ export const useSMStreamM3UColumnConfig = () => {
     filter: true,
     filterElement: filterTemplate,
     header: 'M3UFileName',
-    maxWidth: '10rem',
-    sortable: true
+    sortable: true,
+    minWidth: '6'
   };
 
   return columnConfig;

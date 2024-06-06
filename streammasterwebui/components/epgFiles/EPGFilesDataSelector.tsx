@@ -155,7 +155,7 @@ const EPGFilesDataSelector = () => {
         bodyTemplate: colorTemplate,
         field: 'color',
         header: 'Color',
-        width: '4rem'
+        width: '3rem'
       },
       {
         bodyTemplate: nameEditorTemplate,
@@ -163,32 +163,32 @@ const EPGFilesDataSelector = () => {
         filter: true,
         header: 'Name',
         sortable: true,
-        width: '22rem'
+        width: '4'
       },
       {
         bodyTemplate: lastDownloadedTemplate,
         field: 'lastDownloaded',
         header: 'Downloaded',
-        width: '12rem'
+        width: '2'
       },
       {
         bodyTemplate: channelCountTemplate,
         field: 'channelCount',
         header: 'Channels',
-        width: '6rem'
+        width: '6'
       },
       {
         bodyTemplate: programmeCountTemplate,
         field: 'programmeCount',
         header: 'Progs',
-        width: '6rem'
+        width: '6'
       },
       {
         align: 'center',
         bodyTemplate: actionTemplate,
         field: 'autoUpdate',
         header: 'Actions',
-        width: '6rem'
+        width: '6'
       }
     ],
     [colorTemplate, nameEditorTemplate, lastDownloadedTemplate, channelCountTemplate, programmeCountTemplate, actionTemplate]

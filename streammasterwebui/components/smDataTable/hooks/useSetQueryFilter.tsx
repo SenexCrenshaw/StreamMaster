@@ -64,7 +64,7 @@ function transformAndEnhanceFilters(
       } else {
         transformedFilters.push({
           fieldName: column.field,
-          matchMode: filter.matchMode,
+          matchMode: FilterMatchMode.CONTAINS,
           value: filter.value
         });
       }

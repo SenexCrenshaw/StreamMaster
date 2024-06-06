@@ -1,8 +1,8 @@
+import CloseButton from '@components/buttons/CloseButton';
 import SMButton from '@components/sm/SMButton';
 import { Dialog } from 'primereact/dialog';
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { SMCard } from './SMCard';
-import CloseButton from '@components/buttons/CloseButton';
 
 interface SMDialogProperties {
   readonly children: React.ReactNode;
@@ -22,7 +22,7 @@ interface SMDialogProperties {
   onHide?(): void;
 }
 export interface SMDialogRef {
-  close: () => void;
+  hide: () => void;
 }
 
 const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogProperties, ref) => {
@@ -45,7 +45,7 @@ const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogPro
   } = props;
 
   useImperativeHandle(ref, () => ({
-    close: () => setVisible(false),
+    hide: () => setVisible(false),
     props
   }));
 

@@ -12,10 +12,9 @@ import { ReactNode, useCallback, useEffect, useState } from 'react';
 interface SMChannelSGColumnConfigProperties {
   readonly dataKey: string;
   readonly id: string;
-  readonly width?: string;
 }
 
-export const useSMChannelSGColumnConfig = ({ dataKey, id, width = '2rem' }: SMChannelSGColumnConfigProperties) => {
+export const useSMChannelSGColumnConfig = ({ dataKey, id }: SMChannelSGColumnConfigProperties) => {
   const [previousSGID, setPreviousSGID] = useState<number>(0);
   const { queryAdditionalFilters, setQueryAdditionalFilters } = useQueryAdditionalFilters(id);
 
@@ -102,10 +101,8 @@ export const useSMChannelSGColumnConfig = ({ dataKey, id, width = '2rem' }: SMCh
     filter: false,
     filterElement: filterTemplate,
     header: '',
-    maxWidth: width,
-    minWidth: width,
     sortable: false,
-    width: width
+    width: '2rem'
   };
 
   return columnConfig;

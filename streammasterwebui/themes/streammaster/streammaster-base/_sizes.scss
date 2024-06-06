@@ -42,3 +42,19 @@
         max-width: #{$i}rem;
     }
 }
+
+@for $i from 1 through 30 {
+    .sm-w-min-#{$i}rem {
+        flex: 0 0 #{$i}rem;
+        min-width: #{$i}rem;
+
+    }
+}
+
+@for $i from 1 through 30 {
+    .sm-w-max-#{$i}rem {
+        flex: 0 0 #{$i}rem;
+
+        max-width: #{$i}rem;
+    }
+}
