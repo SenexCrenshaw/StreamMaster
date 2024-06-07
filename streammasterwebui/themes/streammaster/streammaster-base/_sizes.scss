@@ -6,3 +6,55 @@
 .width-200 {
     width: 200px;
 }
+
+@for $i from 1 through 12 {
+    .sm-w-#{$i} {
+        $percent: (
+            100 / 12) * $i + 0%;
+        flex: 0 0 $percent;
+        min-width: $percent;
+        width: $percent;
+        max-width: $percent;
+    }
+}
+
+@for $i from 1 through 12 {
+    .sm-w-min-#{$i} {
+        $percent: (
+            100 / 12) * $i + 0%;
+        min-width: $percent;
+    }
+}
+
+@for $i from 1 through 12 {
+    .sm-w-max-#{$i} {
+        $percent: (
+            100 / 12) * $i + 0%;
+        max-width: $percent;
+    }
+}
+
+@for $i from 1 through 30 {
+    .sm-w-#{$i}rem {
+        flex: 0 0 #{$i}rem;
+        min-width: #{$i}rem;
+        width: #{$i}rem;
+        max-width: #{$i}rem;
+    }
+}
+
+@for $i from 1 through 30 {
+    .sm-w-min-#{$i}rem {
+        flex: 0 0 #{$i}rem;
+        min-width: #{$i}rem;
+
+    }
+}
+
+@for $i from 1 through 30 {
+    .sm-w-max-#{$i}rem {
+        flex: 0 0 #{$i}rem;
+
+        max-width: #{$i}rem;
+    }
+}

@@ -1,9 +1,9 @@
+import OKButton from '@components/buttons/OKButton';
+import ResetButton from '@components/buttons/ResetButton';
 import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 import { M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import M3UFileDialog, { M3UFileDialogRef } from './M3UFileDialog';
-import ResetButton from '@components/buttons/ResetButton';
-import OKButton from '@components/buttons/OKButton';
 
 interface M3UFileEditDialogProperties {
   readonly selectedFile: M3UFileDto;
@@ -62,7 +62,7 @@ const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
             disabled={!saveEnabled}
             onClick={(request) => {
               m3uDialogRef.current?.save();
-              smDialogRef.current?.close();
+              smDialogRef.current?.hide();
             }}
           />
         </div>

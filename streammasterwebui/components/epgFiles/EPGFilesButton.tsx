@@ -11,7 +11,7 @@ const EPGFilesButton = () => {
   return (
     <SMOverlay
       title="EPG FILES"
-      widthSize="5"
+      contentWidthSize="5"
       icon="pi-upload"
       iconFilled
       buttonClassName="w-4rem icon-green"

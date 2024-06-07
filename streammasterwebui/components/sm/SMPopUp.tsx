@@ -1,11 +1,11 @@
 import OKButton from '@components/buttons/OKButton';
-import { useLocalStorage } from 'primereact/hooks';
-import { useEffect, useRef } from 'react';
-import { SMCard } from './SMCard';
-import SMOverlay, { SMOverlayRef } from './SMOverlay';
-import SMButton from './SMButton';
 import BooleanEditor from '@components/inputs/BooleanEditor';
 import { Logger } from '@lib/common/logger';
+import { useLocalStorage } from 'primereact/hooks';
+import { useEffect, useRef } from 'react';
+import SMButton from './SMButton';
+import { SMCard } from './SMCard';
+import SMOverlay, { SMOverlayRef } from './SMOverlay';
 
 interface SMPopUpProperties {
   readonly buttonClassName?: string;
@@ -68,7 +68,7 @@ export const SMPopUp = ({
       iconFilled={iconFilled}
       simple
       title={title}
-      widthSize="2"
+      contentWidthSize="2"
       icon={icon}
       buttonClassName={buttonClassName}
       tooltip={tooltip}

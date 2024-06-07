@@ -58,19 +58,16 @@ export const useSMStreamGroupColumnConfig = ({ dataKey, width = '10rem' }: SMStr
       return <div className="text-container">{bodyData.Group}</div>;
     };
 
-    return {
-      align: 'left',
-      bodyTemplate: bodyTemplate,
-      field: 'Group',
-      filter: true,
-      filterElement: filterTemplate,
-      header: 'Group',
-      maxWidth: width,
-      minWidth: width,
-      sortable: true,
-      width: width
-    } as ColumnMeta;
-  }, [filters, selectedItems, setFilters, width]);
+  const columnConfig: ColumnMeta = {
+    align: 'left',
+    bodyTemplate: bodyTemplate,
+    field: 'Group',
+    filter: true,
+    filterElement: filterTemplate,
+    header: 'Group',
+    sortable: true,
+    width: '16'
+  };
 
   return columnConfig;
 };

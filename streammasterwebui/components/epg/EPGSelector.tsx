@@ -407,7 +407,7 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, isLoading, onCha
       label={label}
       title="EPG"
       value={stationChannelName}
-      widthSize="3"
+      contentWidthSize="3"
     />
   );
 };

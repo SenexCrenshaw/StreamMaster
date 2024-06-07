@@ -63,7 +63,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'Name', filter: true, sortable: true },
+      { field: 'Name', filter: true, minWidth: '8', sortable: true },
       groupColumnConfig,
       smStreamM3UColumnConfig,
       { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '4rem' }
@@ -71,7 +71,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
     [actionTemplate, groupColumnConfig, smStreamM3UColumnConfig]
   );
 
-  const simpleColumns = useMemo((): ColumnMeta[] => [{ field: 'Name', filter: true, maxWidth: '11rem', sortable: true, width: '11rem' }], []);
+  const simpleColumns = useMemo((): ColumnMeta[] => [{ field: 'Name', filter: true, sortable: true, width: '10rem' }], []);
 
   const addOrRemoveTemplate = useCallback(
     (data: any) => {
@@ -168,8 +168,6 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         <M3UFilesButton />
         <SimpleButton dataKey={dataKey} />
         <StreamMultiVisibleDialog selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} />
-        {/* <SMButton className="icon-red" iconFilled icon="pi-times" rounded onClick={() => {}} /> */}
-        {/* <SMButton className="icon-green-filled" icon="pi-plus" rounded onClick={() => {}} /> */}
         <CreateSMChannelsDialog selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} />
       </div>
     );

@@ -5,9 +5,9 @@ import { FileUpload } from 'primereact/fileupload';
 import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 import SMFileUpload from '@components/sm/SMFileUpload';
 
+import { CreateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { CreateM3UFileRequest, M3UFileDto } from '@lib/smAPI/smapiTypes';
 import M3UFileDialog from './M3UFileDialog';
-import { CreateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 
 export interface M3UFileDialogProperties {
   readonly infoMessage?: string;
@@ -35,7 +35,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
       if (fileUploadReference.current) {
         fileUploadReference.current.clear();
       }
-      smDialogRef.current?.close();
+      smDialogRef.current?.hide();
       onHide?.(didUpload ?? false);
       onUploadComplete();
     },
@@ -60,7 +60,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
           console.error('Error uploading M3U', error);
         })
         .finally(() => {
-          smDialogRef.current?.close();
+          smDialogRef.current?.hide();
         });
     },
     [m3uFileDto]

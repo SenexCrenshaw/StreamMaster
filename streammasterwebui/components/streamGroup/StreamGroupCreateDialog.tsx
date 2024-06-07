@@ -18,7 +18,7 @@ export const StreamGroupCreateDialog = ({ onHide, showButton }: StreamGroupCreat
 
   const ReturnToParent = useCallback(
     (didUpload?: boolean) => {
-      smDialogRef.current?.close();
+      smDialogRef.current?.hide();
       setName('');
       setSaving(false);
       onHide?.(didUpload ?? false);
@@ -42,7 +42,7 @@ export const StreamGroupCreateDialog = ({ onHide, showButton }: StreamGroupCreat
         console.error('Error Adding SG', error);
       })
       .finally(() => {
-        smDialogRef.current?.close();
+        smDialogRef.current?.hide();
         // ReturnToParent(true);
       });
   }, [name, saving]);

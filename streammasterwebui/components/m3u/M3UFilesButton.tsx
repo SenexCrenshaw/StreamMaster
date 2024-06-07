@@ -11,10 +11,10 @@ const M3UFilesButton = () => {
   return (
     <SMOverlay
       title="M3U FILES"
-      widthSize="5"
+      contentWidthSize="6"
       icon="pi-upload"
       iconFilled
-      buttonClassName="w-4rem icon-green"
+      buttonClassName="sm-w-4rem icon-green"
       buttonLabel="M3U"
       header={<M3UFileCreateDialog onUploadComplete={closeOverlay} />}
     >

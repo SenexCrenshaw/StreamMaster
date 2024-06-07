@@ -22,7 +22,7 @@ interface SMDropDownProps {
   readonly selectedItemsKey?: string;
   readonly title?: string;
   readonly value?: any;
-  readonly widthSize?: string;
+  readonly contentWidthSize?: string;
 }
 
 export interface SMDropDownRef {
@@ -52,7 +52,7 @@ const SMDropDown = forwardRef<SMDropDownRef, SMDropDownProps>((props: SMDropDown
     simple,
     title,
     value,
-    widthSize
+    contentWidthSize
   } = props;
 
   useImperativeHandle(ref, () => ({
@@ -95,7 +95,7 @@ const SMDropDown = forwardRef<SMDropDownRef, SMDropDownProps>((props: SMDropDown
           ref={smOverlayRef}
           simple={simple}
           title={title?.toUpperCase()}
-          widthSize={widthSize}
+          contentWidthSize={contentWidthSize}
         >
           <div className="flex flex-column w-12 sm-card border-radius-left border-radius-right">
             <Suspense fallback={<div>Loading...</div>}>

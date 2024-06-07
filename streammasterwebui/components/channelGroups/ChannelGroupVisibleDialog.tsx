@@ -1,11 +1,11 @@
-import React, { useMemo } from 'react';
+import OKButton from '@components/buttons/OKButton';
+import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
-import VisibleButton from '../buttons/VisibleButton';
-import { ChannelGroupDto, UpdateChannelGroupRequest, UpdateChannelGroupsRequest } from '@lib/smAPI/smapiTypes';
 import { UpdateChannelGroup, UpdateChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
-import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
-import OKButton from '@components/buttons/OKButton';
+import { ChannelGroupDto, UpdateChannelGroupRequest, UpdateChannelGroupsRequest } from '@lib/smAPI/smapiTypes';
+import React, { useMemo } from 'react';
+import VisibleButton from '../buttons/VisibleButton';
 
 interface ChannelGroupVisibleDialogProperties {
   readonly id: string;
@@ -39,7 +39,7 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
           console.error(error);
         })
         .finally(() => {
-          dialogRef.current?.close();
+          dialogRef.current?.hide();
         });
     } else if (selectedItems) {
       const toSend = {} as UpdateChannelGroupsRequest;
@@ -56,7 +56,7 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
           console.error(error);
         })
         .finally(() => {
-          dialogRef.current?.close();
+          dialogRef.current?.hide();
         });
     }
   }, [ReturnToParent, selectedItems, value]);

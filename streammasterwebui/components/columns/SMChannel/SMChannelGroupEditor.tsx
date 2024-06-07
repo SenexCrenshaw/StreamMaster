@@ -67,27 +67,25 @@ const SMChannelGroupEditor = ({ darkBackGround, smChannelDto, onChange }: SMChan
   // }, [selectedItems]);
   // Logger.debug('SMChannelGroupEditor', 'smChannelDto', smChannelDto, data);
   return (
-    <div className="w-full">
-      <SMDropDown
-        buttonLabel="GROUP"
-        buttonDarkBackground={darkBackGround}
-        buttonTemplate={buttonTemplate}
-        data={data}
-        dataKey="Group"
-        filter
-        filterBy="Name"
-        isLoading={isSaving}
-        itemTemplate={itemTemplate}
-        onChange={(e) => {
-          handleOnChange(e.Name);
-        }}
-        ref={smDropownRef}
-        title="GROUP"
-        value={smChannelDto}
-        optionValue="Name"
-        widthSize="2"
-      />
-    </div>
+    <SMDropDown
+      buttonLabel="GROUP"
+      buttonDarkBackground={darkBackGround}
+      buttonTemplate={buttonTemplate}
+      data={data}
+      dataKey="Group"
+      filter
+      filterBy="Name"
+      isLoading={isSaving}
+      itemTemplate={itemTemplate}
+      onChange={(e) => {
+        handleOnChange(e.Name);
+      }}
+      ref={smDropownRef}
+      title="GROUP"
+      value={smChannelDto}
+      optionValue="Name"
+      contentWidthSize="2"
+    />
   );
 };
 

@@ -13,7 +13,7 @@ export interface SMButtonProps {
   readonly color?: string;
   readonly darkBackGround?: boolean;
   readonly disabled?: boolean;
-  readonly hover?: boolean;
+  // readonly hover?: boolean;
   readonly icon?: string;
   readonly iconFilled?: boolean;
   readonly iconPos?: 'top' | 'bottom' | 'left' | 'right' | undefined;
@@ -34,7 +34,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
       color = 'val(--primary-color-text)',
       darkBackGround = false,
       disabled = false,
-      hover = false,
+      // hover = false,
       icon,
       iconPos = 'right',
       iconFilled = false,
@@ -76,10 +76,10 @@ const SMButton = forwardRef<Button, SMButtonProps>(
       }
 
       // if (hover) {
-      //   toRet += ' sm-hover';
+      //   // /toRet += ' sm-hover';
       // }
       return toRet + ' ' + cClass + ' ' + tooltipClassName;
-    }, [configuredClassName, hover, iconFilled, label, props.children, tooltipClassName]);
+    }, [configuredClassName, iconFilled, label, props.children, tooltipClassName]);
 
     const getStyle = useMemo(() => {
       return {

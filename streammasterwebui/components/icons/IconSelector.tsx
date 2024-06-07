@@ -133,7 +133,7 @@ const IconSelector = ({ darkBackGround = false, enableEditMode = true, label, la
       label={label}
       title="ICONS"
       value={iconDto}
-      widthSize="3"
+      contentWidthSize="3"
     />
   );
 };

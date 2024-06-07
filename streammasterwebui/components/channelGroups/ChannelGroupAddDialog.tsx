@@ -1,16 +1,17 @@
-import { type FC, memo, useCallback, useMemo, useState } from 'react';
+import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 import { CreateChannelGroupRequest } from '@lib/smAPI/smapiTypes';
-import SMDialog from '@components/sm/SMDialog';
+import { memo, useCallback, useMemo, useRef, useState, type FC } from 'react';
 
-import StringEditor from '@components/inputs/StringEditor';
 import OKButton from '@components/buttons/OKButton';
+import StringEditor from '@components/inputs/StringEditor';
 import { CreateChannelGroup } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
 
 const ChannelGroupAddDialog: FC = () => {
   const [newGroupName, setNewGroupName] = useState<string>('');
-
+  const dialogRef = useRef<SMDialogRef>(null);
   const ReturnToParent = useCallback(() => {
     setNewGroupName('');
+    dialogRef.current?.hide();
   }, []);
 
   const addGroup = useCallback(() => {
@@ -29,6 +30,9 @@ const ChannelGroupAddDialog: FC = () => {
       .then(() => {})
       .catch((error: unknown) => {
         console.error(error);
+      })
+      .finally(() => {
+        ReturnToParent();
       });
   }, [ReturnToParent, newGroupName]);
 
@@ -42,19 +46,29 @@ const ChannelGroupAddDialog: FC = () => {
 
   return (
     <SMDialog
-      title="CREATE GROUP"
-      iconFilled
-      onHide={() => ReturnToParent()}
       buttonClassName="icon-green"
-      icon="pi-plus"
-      widthSize={2}
-      info="General"
-      tooltip="Create Group"
       header={<OKButton disabled={!isSaveEnabled} onClick={addGroup} tooltip="Add Group" />}
+      icon="pi-plus"
+      iconFilled
+      info="General"
+      onHide={() => ReturnToParent()}
+      ref={dialogRef}
+      title="CREATE GROUP"
+      tooltip="Create Group"
+      widthSize={2}
     >
       <div className="flex grid justify-content-center align-items-center w-full">
         <div className="flex col-10 mt-1">
-          <StringEditor autoFocus disableDebounce label="Name" onChange={(e) => e && setNewGroupName(e)} onSave={(e) => addGroup()} value={newGroupName} />
+          <StringEditor
+            autoFocus
+            darkBackGround
+            disableDebounce
+            label="Name"
+            labelInline
+            onChange={(e) => e && setNewGroupName(e)}
+            onSave={(e) => addGroup()}
+            value={newGroupName}
+          />
         </div>
       </div>
     </SMDialog>

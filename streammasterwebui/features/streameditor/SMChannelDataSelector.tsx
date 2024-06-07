@@ -47,8 +47,8 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
   const { columnConfig: channelNumberColumnConfig } = useSMChannelNumberColumnConfig({ enableEdit, useFilter: false });
   const { columnConfig: channelLogoColumnConfig } = useSMChannelLogoColumnConfig({ enableEdit });
   const { columnConfig: channelNameColumnConfig } = useSMChannelNameColumnConfig({ enableEdit });
-  const epgColumnConfig = useSMChannelEPGColumnConfig({ width: smTableIsSimple ? '12rem' : undefined });
-  const groupColumnConfig = useSMChannelGroupColumnConfig({ dataKey, width: smTableIsSimple ? '12rem' : undefined });
+  const epgColumnConfig = useSMChannelEPGColumnConfig();
+  const groupColumnConfig = useSMChannelGroupColumnConfig({ dataKey });
   const sgColumnConfig = useSMChannelSGColumnConfig({ dataKey: dataKey + '-sg', id: dataKey });
   const { columnConfig: proxyColumnConfig } = useSMChannelProxyColumnConfig({ enableEdit, useFilter: false });
   const { queryFilter } = useQueryFilter(dataKey);
@@ -76,7 +76,17 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
 
   const actionTemplate = useCallback((data: SMChannelDto) => {
     return (
-      <div className="flex p-0 m-0 justify-content-end align-items-center">
+      <div className="flex justify-content-end align-items-center">
+        <StreamCopyLinkDialog realUrl={data?.RealUrl} />
+        <DeleteSMChannelDialog smChannel={data} />
+        <EditSMChannelDialog smChannel={data} />
+      </div>
+    );
+  }, []);
+
+  const simpleActionTemplate = useCallback((data: SMChannelDto) => {
+    return (
+      <div className="flex justify-content-end align-items-center">
         <StreamCopyLinkDialog realUrl={data?.RealUrl} />
         <SetSMChannelsLogoFromEPGDialog smChannel={data} />
         <AutoSetEPGSMChannelDialog smChannel={data} />
@@ -98,17 +108,15 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
       sgColumnConfig,
       {
         align: 'right',
-        bodyTemplate: actionTemplate,
+        bodyTemplate: simpleActionTemplate,
         field: 'IsHidden',
         fieldType: 'actions',
         header: 'Actions',
-        maxWidth: '9rem',
-        minWidth: '9rem',
         width: '9rem'
       }
     ],
     [
-      actionTemplate,
+      simpleActionTemplate,
       channelLogoColumnConfig,
       channelNameColumnConfig,
       channelNumberColumnConfig,
@@ -127,7 +135,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
       epgColumnConfig,
       groupColumnConfig,
       sgColumnConfig,
-      { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '4rem' }
+      { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '5rem' }
     ],
     [actionTemplate, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig, epgColumnConfig, groupColumnConfig, sgColumnConfig]
   );

@@ -55,7 +55,7 @@ export const useSMStreamM3UColumnConfig = () => {
           select
           selectedItemsKey={dataKey}
           title="M3U"
-          widthSize="2"
+          contentWidthSize="2"
         />
       </div>
     );
@@ -71,8 +71,8 @@ export const useSMStreamM3UColumnConfig = () => {
     filter: true,
     filterElement: filterTemplate,
     header: 'M3UFileName',
-    maxWidth: '10rem',
-    sortable: true
+    sortable: true,
+    minWidth: '6'
   };
 
   return columnConfig;
