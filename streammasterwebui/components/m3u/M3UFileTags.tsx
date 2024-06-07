@@ -1,8 +1,7 @@
-import DownArrowButton from '@components/buttons/DownArrowButton';
+import SMOverlay from '@components/sm/SMOverlay';
 import { M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { Chips } from 'primereact/chips';
-import { OverlayPanel } from 'primereact/overlaypanel';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface M3UFileTagsProperties {
@@ -12,10 +11,8 @@ export interface M3UFileTagsProperties {
 }
 
 const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) => {
-  const op = useRef<OverlayPanel>(null);
   const anchorReference = useRef(null);
   const uuid = uuidv4();
-  const [isOpen, setIsOpen] = useState(false);
 
   const intTags = useMemo((): string[] => {
     const tags = m3uFileDto ? m3uFileDto.VODTags : vodTags ?? [];
@@ -29,29 +26,38 @@ const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) =
     return intTags.length + ' Tags';
   }, [intTags]);
 
+  const buttonTemplate = useMemo(() => {
+    return <div className="text-container pl-1">{buttonTags}</div>;
+  }, [buttonTags]);
+
   return (
-    <div className="w-12 sm-M3UFileTags">
-      <label className="flex text-xs text-default-color w-full justify-content-center align-items-center" htmlFor={uuid}>
+    <div className="sm-w-12 ">
+      <label className="flex text-xs text-default-color w-full justify-content-start align-items-center pl-2" htmlFor={uuid}>
         URL REGEX
       </label>
-      <div className="layout-padding-bottom"></div>
-      <div id={uuid} className="w-full tag-editor p-0 m-0 sm-input-border" ref={anchorReference}>
-        <OverlayPanel ref={op} onHide={() => setIsOpen(false)} className="w-2">
-          <div className="flex w-full align-items-center">
+      <div id={uuid} className="w-full tag-editor p-0 m-0 pt-small" ref={anchorReference}>
+        <SMOverlay
+          buttonDarkBackground
+          buttonTemplate={buttonTemplate}
+          title="URL Regex Tags"
+          contentWidthSize="3"
+          icon="pi-chevron-down"
+          buttonLabel="GROUP"
+          header={<></>}
+        >
+          <div className="h-full p-fluid">
             <Chips
-              className="w-full"
               autoFocus
-              id="chips"
               value={intTags}
               onChange={(e) => {
-                console.log('change', e.value);
                 onChange(e.value ?? []);
               }}
+              variant="filled"
             />
           </div>
-        </OverlayPanel>
+        </SMOverlay>
 
-        <div className="flex w-full">
+        {/* <div className="flex w-full">
           <DownArrowButton
             className="w-full"
             label={buttonTags}
@@ -65,7 +71,7 @@ const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) =
               setIsOpen(!isOpen);
             }}
           />
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -7,14 +7,22 @@
     width: 200px;
 }
 
+.width-50 {
+    width: calc(50% - $input-height-with-no-borders);
+}
+
+.width-100 {
+    width: calc(100% - $input-height-with-no-borders);
+}
+
 @for $i from 1 through 12 {
     .sm-w-#{$i} {
         $percent: (
             100 / 12) * $i + 0%;
         flex: 0 0 $percent;
-        min-width: $percent;
-        width: $percent;
-        max-width: $percent;
+        min-width: $percent !important;
+        width: $percent !important;
+        max-width: $percent !important;
     }
 }
 
@@ -22,7 +30,7 @@
     .sm-w-min-#{$i} {
         $percent: (
             100 / 12) * $i + 0%;
-        min-width: $percent;
+        min-width: $percent !important;
     }
 }
 
@@ -30,31 +38,29 @@
     .sm-w-max-#{$i} {
         $percent: (
             100 / 12) * $i + 0%;
-        max-width: $percent;
+        max-width: $percent !important;
     }
 }
 
 @for $i from 1 through 30 {
     .sm-w-#{$i}rem {
         flex: 0 0 #{$i}rem;
-        min-width: #{$i}rem;
-        width: #{$i}rem;
-        max-width: #{$i}rem;
+        min-width: #{$i}rem !important;
+        width: #{$i}rem !important;
+        max-width: #{$i}rem !important;
     }
 }
 
 @for $i from 1 through 30 {
     .sm-w-min-#{$i}rem {
         flex: 0 0 #{$i}rem;
-        min-width: #{$i}rem;
-
+        min-width: #{$i}rem !important;
     }
 }
 
 @for $i from 1 through 30 {
     .sm-w-max-#{$i}rem {
         flex: 0 0 #{$i}rem;
-
-        max-width: #{$i}rem;
+        max-width: #{$i}rem !important;
     }
 }

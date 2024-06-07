@@ -25,11 +25,11 @@ const StreamEditor = () => {
 
   return (
     <StandardHeader displayName="PLAYLIST" icon={<PlayListEditorIcon />}>
-      <div className="w-6">
+      <div className="sm-w-6">
         <SMChannelDataSelector id={id} />
       </div>
 
-      <div className="w-6 layout-padding-left">
+      <div className="sm-w-6 layout-padding-left">
         <SMStreamDataSelector id={id} />
       </div>
     </StandardHeader>

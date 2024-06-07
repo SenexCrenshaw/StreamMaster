@@ -48,7 +48,7 @@ const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
       icon="pi-pencil"
       iconFilled={false}
       buttonClassName="icon-yellow"
-      tooltip="Add M3U"
+      tooltip="Edit M3U"
       info="General"
       header={
         <div className="flex w-12 gap-1 justify-content-end align-content-center">

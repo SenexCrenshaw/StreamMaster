@@ -3,9 +3,9 @@ import StringEditor from '@components/inputs/StringEditor';
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 
+import BooleanEditor from '@components/inputs/BooleanEditor';
 import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
-import { ToggleButton } from 'primereact/togglebutton';
 import M3UFileTags from './M3UFileTags';
 
 export interface M3UFileDialogProperties {
@@ -158,12 +158,11 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
           <div className="flex w-6 gap-1">
             <div className="w-6">
               <div className="sourceOrFileDialog-toggle">
-                <div className="flex flex-column">
-                  <div id="name" className="text-xs sm-input pb-2">
-                    AUTO CH.#:
-                  </div>
-                  <ToggleButton checked={m3uFileDto?.OverwriteChannelNumbers} onChange={(e) => updateStateAndRequest({ OverwriteChannelNumbers: e.value })} />
-                </div>
+                <BooleanEditor
+                  label="AUTO CH.#:"
+                  checked={m3uFileDto?.OverwriteChannelNumbers}
+                  onChange={(e) => updateStateAndRequest({ OverwriteChannelNumbers: e })}
+                />
               </div>
             </div>
             <div className="w-6">
@@ -171,9 +170,10 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
                 darkBackGround
                 disableDebounce
                 label="AUTO UPDATE"
+                onChange={(e) => updateStateAndRequest({ HoursToUpdate: e })}
+                showButtons
                 suffix=" Hours"
                 value={m3uFileDto?.HoursToUpdate}
-                onChange={(e) => updateStateAndRequest({ HoursToUpdate: e })}
               />
             </div>
           </div>

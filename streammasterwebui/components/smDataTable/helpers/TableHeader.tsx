@@ -1,5 +1,3 @@
-import { HeaderLeft, MultiSelectCheckbox } from '@lib/common/common';
-import { useMemo } from 'react';
 import { DataTableHeaderProperties } from '../types/smDataTableInterfaces';
 
 interface TableHeaderProperties {
@@ -25,46 +23,19 @@ const TableHeader: React.FC<TableHeaderProperties> = ({
   exportCSV,
   dataSelectorProps
 }) => {
-  const col = useMemo(() => {
-    if (smTableIsSimple) {
-      return 'col-8';
-    }
-    if (dataSelectorProps.headerRightTemplate) {
-      return 'col-3';
-    }
-    return 'col-12';
-  }, [dataSelectorProps.headerRightTemplate, smTableIsSimple]);
-
-  const colRight = useMemo(() => {
-    if (smTableIsSimple) {
-      return 'col-4';
-    }
-
-    return 'col-8';
-  }, [smTableIsSimple]);
-
   return (
     <div className="flex flex-row align-items-center justify-content-between w-full">
-      {(headerName || onMultiSelectClick) && (
-        <div className={`${col} text-sm`}>
-          <span className={headerClassName}>{headerName}</span>
+      <div className={`flex  ${!headerName && !onMultiSelectClick ? 'invisible' : ''} text-sm`}>
+        {headerName || onMultiSelectClick ? <span className={headerClassName}>{headerName}</span> : null}
+      </div>
 
-          {onMultiSelectClick && (
-            <div hidden={dataSelectorProps.selectionMode !== 'selectable'}>
-              <MultiSelectCheckbox onMultiSelectClick={onMultiSelectClick} rowClick={rowClick} setRowClick={setRowClick} />
-            </div>
-          )}
-        </div>
-      )}
-      {(dataSelectorProps.headerRightTemplate || enableExport || dataSelectorProps.headerLeftTemplate) && (
-        <div className={`${colRight} p-0`}>
-          <div className="flex flex-nowrap flex-row justify-content-between">
-            {dataSelectorProps.headerLeftTemplate && <HeaderLeft props={dataSelectorProps} />}
-            {dataSelectorProps.headerRightTemplate && dataSelectorProps.headerRightTemplate}
-            {/* {enableExport && <ExportComponent exportCSV={exportCSV} />} */}
-          </div>
-        </div>
-      )}
+      <div className={` flex justify-content-center items-center${!dataSelectorProps.headerCenterTemplate ? 'invisible' : ''}`}>
+        {dataSelectorProps.headerCenterTemplate}
+      </div>
+
+      <div className={` flex justify-content-end items-center pr-1 ${!dataSelectorProps.headerRightTemplate ? 'invisible' : ''}`}>
+        {dataSelectorProps.headerRightTemplate}
+      </div>
     </div>
   );
 };

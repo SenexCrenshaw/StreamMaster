@@ -15,12 +15,12 @@ interface ColumnConfigInputs {
   dataField: DataField;
   fieldType?: ColumnFieldType;
   headerTitle: string;
-  maxWidth?: number;
-  minWidth?: number;
+  maxWidth?: string;
+  minWidth?: string;
   queryHook?: QueryHook<string[]>;
   sortable?: boolean;
   useFilter?: boolean;
-  width?: number;
+  width?: string;
 }
 
 const createChannelGroupMultiSelectColumnConfigHook =
@@ -94,10 +94,10 @@ const createChannelGroupMultiSelectColumnConfigHook =
       filter: useFilter === undefined ? true : useFilter,
       filterField: dataField as string,
       header: headerTitle,
-      maxWidth: maxWidth === undefined ? undefined : `${maxWidth}rem`,
-      minWidth: minWidth === undefined ? undefined : `${minWidth}rem`,
+      maxWidth: maxWidth,
+      minWidth: minWidth,
       sortable: sortable,
-      width: width === undefined ? undefined : `${width}rem`
+      width: width
     };
 
     if (queryHook !== undefined) {

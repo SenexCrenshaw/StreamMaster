@@ -3,9 +3,8 @@ import { useSMChannelGroupColumnConfig } from '@components/columns/SMChannel/use
 import { useSMChannelLogoColumnConfig } from '@components/columns/SMChannel/useSMChannelLogoColumnConfig';
 import { useSMChannelNameColumnConfig } from '@components/columns/SMChannel/useSMChannelNameColumnConfig';
 import { useSMChannelNumberColumnConfig } from '@components/columns/SMChannel/useSMChannelNumberColumnConfig';
-import { useSMChannelSGColumnConfig } from '@components/columns/SMChannel/useSMChannelSGColumnConfig';
-
 import { useSMChannelProxyColumnConfig } from '@components/columns/SMChannel/useSMChannelProxyColumnConfig';
+import { useSMChannelSGColumnConfig } from '@components/columns/SMChannel/useSMChannelSGColumnConfig';
 import EPGFilesButton from '@components/epgFiles/EPGFilesButton';
 import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import SMDataTable from '@components/smDataTable/SMDataTable';
@@ -21,19 +20,17 @@ import SMChannelMultiVisibleDialog from '@components/smchannels/SMChannelMultiVi
 import SetSMChannelsLogoFromEPGDialog from '@components/smchannels/SetSMChannelsLogoFromEPGDialog';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamGroupButton from '@components/streamGroup/StreamGroupButton';
-import SMChannelMenu from '@features/streameditor/SMChannelMenu';
 import { GetMessage } from '@lib/common/intl';
 import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
-
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import { SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowData, DataTableRowEvent, DataTableRowExpansionTemplate } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import SMChannelMenu from './SMChannelMenu';
 import SMStreamDataSelectorValue from './SMStreamDataSelectorValue';
 import useSelectedSMItems from './useSelectedSMItems';
 
-// const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
 interface SMChannelDataSelectorProperties {
   readonly enableEdit?: boolean;
   readonly id: string;
@@ -64,7 +61,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
     (data: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
       const channel = data as unknown as SMChannelDto;
       setSelectedSMChannel(channel);
-      // setSelectedSMChannel(channel);
+
       return (
         <div className="ml-3 m-1">
           <SMStreamDataSelectorValue smChannel={channel} id={channel.Id + '-streams'} />
@@ -163,20 +160,24 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
     [selectedSMChannel]
   );
 
-  const rightHeaderTemplate = useMemo(
+  const headerCenterTemplate = useMemo(() => {
+    if (smTableIsSimple) {
+      return <StreamGroupButton className="sm-w-20rem" />;
+    }
+    return <StreamGroupButton />;
+
+    // return <StreamGroupButton />;
+  }, [smTableIsSimple]);
+
+  const headerRightTemplate = useMemo(
     () => (
-      <>
-        <div className="w-full">
-          <StreamGroupButton />
-        </div>
-        <div className="flex flex-row justify-content-end align-items-center w-full gap-1 pr-1">
-          <EPGFilesButton />
-          <SMChannelMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} skipOverLayer />
-          <DeleteSMChannelsDialog selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} />
-          <CreateSMChannelDialog />
-          <SMChannelMenu />
-        </div>
-      </>
+      <div className="flex flex-row justify-content-end align-items-center gap-1">
+        <EPGFilesButton />
+        <SMChannelMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} skipOverLayer />
+        <DeleteSMChannelsDialog selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} />
+        <CreateSMChannelDialog />
+        <SMChannelMenu />
+      </div>
     ),
     [dataKey]
   );
@@ -202,7 +203,8 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
           <SMTriSelectShowHidden dataKey={dataKey} />
         </div>
       )}
-      headerRightTemplate={rightHeaderTemplate}
+      headerCenterTemplate={headerCenterTemplate}
+      headerRightTemplate={headerRightTemplate}
       headerName={headerTitle()}
       id={dataKey}
       isLoading={isLoading}

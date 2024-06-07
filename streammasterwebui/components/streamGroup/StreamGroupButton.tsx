@@ -7,13 +7,17 @@ import StreamGroupCreateDialog from './StreamGroupCreateDialog';
 import StreamGroupDataSelector from './StreamGroupDataSelector';
 import { StreamGroupSelector } from './StreamGroupSelector';
 
-const StreamGroupButton = () => {
+interface StreamGroupButtonProperties {
+  className?: string;
+}
+
+const StreamGroupButton = ({ className = 'sm-w-10rem' }: StreamGroupButtonProperties) => {
   const { setSelectedItems } = useSelectedItems('selectedStreamGroup');
   const { selectedStreamGroup, setSelectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
 
   return (
-    <div className="flex flex-row sm-w-12 justify-content-center align-items-center">
-      <div className="sm-w-8">
+    <div className="flex justify-content-center align-items-center">
+      <div className={className}>
         <StreamGroupSelector
           onChange={(sg) => {
             setSelectedStreamGroup(sg);
@@ -23,7 +27,7 @@ const StreamGroupButton = () => {
         />
       </div>
       <div className="pr-1" />
-      <div className="sm-w-1rem">
+      <div className="sm-w-4rem">
         <SMOverlay
           title="STREAM GROUPS"
           contentWidthSize="4"

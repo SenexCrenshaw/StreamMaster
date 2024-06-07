@@ -1,6 +1,5 @@
-import { Checkbox } from 'primereact/checkbox';
+import { ToggleButton } from 'primereact/togglebutton';
 import { memo } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 
 interface BooleanEditorProperties {
   readonly checked: boolean;
@@ -11,7 +10,7 @@ interface BooleanEditorProperties {
 }
 
 const BooleanEditor = ({ isValid = true, checked, label, labelInline = false, onChange }: BooleanEditorProperties) => {
-  const uuid = uuidv4();
+  // const uuid = uuidv4();
   return (
     <>
       {label && !labelInline && (
@@ -22,7 +21,16 @@ const BooleanEditor = ({ isValid = true, checked, label, labelInline = false, on
       )}
       <div className={`flex ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
         {label && labelInline && <div className="w-11">{label.toUpperCase()}</div>}
-        <Checkbox
+        <ToggleButton
+          className="w-full"
+          checked={checked}
+          onChange={(event) => {
+            if (event.value !== null && event.value !== undefined) {
+              onChange(event.value);
+            }
+          }}
+        />
+        {/* <Checkbox
           invalid={!isValid}
           id={uuid}
           onChange={(event) => {
@@ -31,7 +39,7 @@ const BooleanEditor = ({ isValid = true, checked, label, labelInline = false, on
             }
           }}
           checked={checked}
-        />
+        /> */}
       </div>
     </>
   );

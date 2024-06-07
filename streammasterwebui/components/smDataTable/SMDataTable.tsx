@@ -22,7 +22,6 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import generateFilterData from '@components/dataSelector/generateFilterData';
 import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import { SMTriSelectShowSelect } from '@components/sm/SMTriSelectShowSelect';
-import { Logger } from '@lib/common/logger';
 import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
 import TableHeader from './helpers/TableHeader';
@@ -545,7 +544,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 
   function selectionHeaderTemplate() {
     return (
-      <div className="flex justify-content-center align-items-center p-0 m-0">
+      <div className="flex justify-content-center align-items-center">
         {props.showHiddenInSelection && <SMTriSelectShowHidden dataKey={props.id} />}
         {showSelection && <SMTriSelectShowSelect selectedItemsKey={props.selectedItemsKey} id={props.id} onToggle={() => toggleAllSelection()} />}
       </div>
@@ -629,9 +628,9 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     return 'RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink';
   }, [state.smTableIsSimple]);
 
-  if (props.id === 'useSMStreamGroupColumnConfig') {
-    Logger.debug('DataTable', { a: state?.dataSource?.[0].Name, datasource: state.dataSource, id: props.id });
-  }
+  // if (props.id === 'useSMStreamGroupColumnConfig') {
+  //   Logger.debug('DataTable', { a: state?.dataSource?.[0].Name, datasource: state.dataSource, id: props.id });
+  // }
 
   return (
     <div
@@ -716,7 +715,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         >
           <Column
             body={props.addOrRemoveTemplate}
-            className={'w-1rem'}
+            className="sm-w-2rem"
             field="addOrRemove"
             filter
             filterElement={props.addOrRemoveHeaderTemplate}
@@ -727,7 +726,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           />
 
           <Column
-            className={'w-2rem max-w-3rem p-0 justify-content-center align-items-center'}
+            className="sm-w-2rem"
             filterElement={getExpanderHeader}
             filter={props.expanderHeader !== undefined}
             hidden={!props.showExpand || props.rowExpansionTemplate === undefined}
@@ -738,7 +737,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           />
           <Column
             body={showSelection ? selectionTemplate : undefined}
-            className="w-2rem max-w-3rem p-0 justify-content-center align-items-center"
+            className={props.showHiddenInSelection ? 'sm-w-3rem' : 'sm-w-2rem'}
             field="multiSelect"
             filter
             filterElement={selectionHeaderTemplate}
@@ -747,7 +746,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             showFilterMenu={false}
             showFilterOperator={false}
             hidden={!showSelection}
-            style={{ maxWidth: '2rem', width: '2rem' }}
           />
           <Column
             body={

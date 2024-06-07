@@ -41,7 +41,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { setSelectedSMStreams } = useSelectedSMStreams(dataKey);
   const groupColumnConfig = useSMStreamGroupColumnConfig({ dataKey });
-  const smStreamM3UColumnConfig = useSMStreamM3UColumnConfig();
+  const smStreamM3UColumnConfig = useSMStreamM3UColumnConfig({ dataKey });
   const { queryFilter } = useQueryFilter(dataKey);
   const { isLoading } = useGetPagedSMStreams(queryFilter);
 
@@ -63,7 +63,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'Name', filter: true, minWidth: '8', sortable: true },
+      { field: 'Name', filter: true, sortable: true, width: '16rem' },
       groupColumnConfig,
       smStreamM3UColumnConfig,
       { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '4rem' }
@@ -156,7 +156,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
   const rightHeaderTemplate = useMemo(() => {
     if (smTableIsSimple) {
       return (
-        <div className="flex flex-row justify-content-end align-items-center w-full gap-1  pr-1">
+        <div className="flex justify-content-end align-items-center w-full gap-1 pr-1">
           {!smTableIsSimple && <M3UFilesButton />}
           <SimpleButton dataKey={dataKey} />
           <SMButton className="icon-orange" iconFilled icon="pi pi-bars" rounded onClick={() => {}} />
@@ -164,7 +164,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
       );
     }
     return (
-      <div className="flex flex-row justify-content-end align-items-center w-full gap-1  pr-1">
+      <div className="flex justify-content-end align-items-center w-full gap-1 pr-1">
         <M3UFilesButton />
         <SimpleButton dataKey={dataKey} />
         <StreamMultiVisibleDialog selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} />

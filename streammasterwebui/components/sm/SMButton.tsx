@@ -52,7 +52,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
     ref
   ) => {
     const tooltipClassName = React.useMemo(() => {
-      const ret = `smbutton-${uuidv4()} w-full `;
+      const ret = `smbutton-${uuidv4()}`;
 
       return ret;
     }, []);
@@ -95,7 +95,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
     if (props.children) {
       if (darkBackGround) {
         return (
-          <div className="sm-input-dark w-full">
+          <div className="sm-input-dark">
             <Tooltip target={`.${tooltipClassName}`} />
             <div
               onClick={(e) => {
@@ -117,7 +117,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
         );
       }
       return (
-        <div className="sm-input w-full">
+        <div className="sm-input">
           <Tooltip target={`.${tooltipClassName}`} />
           <div
             onClick={(e) => {

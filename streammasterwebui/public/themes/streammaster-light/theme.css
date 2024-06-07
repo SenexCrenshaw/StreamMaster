@@ -51,694 +51,702 @@
   width: 200px;
 }
 
+.width-50 {
+  width: calc(50% - 1.4rem);
+}
+
+.width-100 {
+  width: calc(100% - 1.4rem);
+}
+
 .sm-w-1 {
   flex: 0 0 8.3333333333%;
-  min-width: 8.3333333333%;
-  width: 8.3333333333%;
-  max-width: 8.3333333333%;
+  min-width: 8.3333333333% !important;
+  width: 8.3333333333% !important;
+  max-width: 8.3333333333% !important;
 }
 
 .sm-w-2 {
   flex: 0 0 16.6666666667%;
-  min-width: 16.6666666667%;
-  width: 16.6666666667%;
-  max-width: 16.6666666667%;
+  min-width: 16.6666666667% !important;
+  width: 16.6666666667% !important;
+  max-width: 16.6666666667% !important;
 }
 
 .sm-w-3 {
   flex: 0 0 25%;
-  min-width: 25%;
-  width: 25%;
-  max-width: 25%;
+  min-width: 25% !important;
+  width: 25% !important;
+  max-width: 25% !important;
 }
 
 .sm-w-4 {
   flex: 0 0 33.3333333333%;
-  min-width: 33.3333333333%;
-  width: 33.3333333333%;
-  max-width: 33.3333333333%;
+  min-width: 33.3333333333% !important;
+  width: 33.3333333333% !important;
+  max-width: 33.3333333333% !important;
 }
 
 .sm-w-5 {
   flex: 0 0 41.6666666667%;
-  min-width: 41.6666666667%;
-  width: 41.6666666667%;
-  max-width: 41.6666666667%;
+  min-width: 41.6666666667% !important;
+  width: 41.6666666667% !important;
+  max-width: 41.6666666667% !important;
 }
 
 .sm-w-6 {
   flex: 0 0 50%;
-  min-width: 50%;
-  width: 50%;
-  max-width: 50%;
+  min-width: 50% !important;
+  width: 50% !important;
+  max-width: 50% !important;
 }
 
 .sm-w-7 {
   flex: 0 0 58.3333333333%;
-  min-width: 58.3333333333%;
-  width: 58.3333333333%;
-  max-width: 58.3333333333%;
+  min-width: 58.3333333333% !important;
+  width: 58.3333333333% !important;
+  max-width: 58.3333333333% !important;
 }
 
 .sm-w-8 {
   flex: 0 0 66.6666666667%;
-  min-width: 66.6666666667%;
-  width: 66.6666666667%;
-  max-width: 66.6666666667%;
+  min-width: 66.6666666667% !important;
+  width: 66.6666666667% !important;
+  max-width: 66.6666666667% !important;
 }
 
 .sm-w-9 {
   flex: 0 0 75%;
-  min-width: 75%;
-  width: 75%;
-  max-width: 75%;
+  min-width: 75% !important;
+  width: 75% !important;
+  max-width: 75% !important;
 }
 
 .sm-w-10 {
   flex: 0 0 83.3333333333%;
-  min-width: 83.3333333333%;
-  width: 83.3333333333%;
-  max-width: 83.3333333333%;
+  min-width: 83.3333333333% !important;
+  width: 83.3333333333% !important;
+  max-width: 83.3333333333% !important;
 }
 
 .sm-w-11 {
   flex: 0 0 91.6666666667%;
-  min-width: 91.6666666667%;
-  width: 91.6666666667%;
-  max-width: 91.6666666667%;
+  min-width: 91.6666666667% !important;
+  width: 91.6666666667% !important;
+  max-width: 91.6666666667% !important;
 }
 
 .sm-w-12 {
   flex: 0 0 100%;
-  min-width: 100%;
-  width: 100%;
-  max-width: 100%;
+  min-width: 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 .sm-w-min-1 {
-  min-width: 8.3333333333%;
+  min-width: 8.3333333333% !important;
 }
 
 .sm-w-min-2 {
-  min-width: 16.6666666667%;
+  min-width: 16.6666666667% !important;
 }
 
 .sm-w-min-3 {
-  min-width: 25%;
+  min-width: 25% !important;
 }
 
 .sm-w-min-4 {
-  min-width: 33.3333333333%;
+  min-width: 33.3333333333% !important;
 }
 
 .sm-w-min-5 {
-  min-width: 41.6666666667%;
+  min-width: 41.6666666667% !important;
 }
 
 .sm-w-min-6 {
-  min-width: 50%;
+  min-width: 50% !important;
 }
 
 .sm-w-min-7 {
-  min-width: 58.3333333333%;
+  min-width: 58.3333333333% !important;
 }
 
 .sm-w-min-8 {
-  min-width: 66.6666666667%;
+  min-width: 66.6666666667% !important;
 }
 
 .sm-w-min-9 {
-  min-width: 75%;
+  min-width: 75% !important;
 }
 
 .sm-w-min-10 {
-  min-width: 83.3333333333%;
+  min-width: 83.3333333333% !important;
 }
 
 .sm-w-min-11 {
-  min-width: 91.6666666667%;
+  min-width: 91.6666666667% !important;
 }
 
 .sm-w-min-12 {
-  min-width: 100%;
+  min-width: 100% !important;
 }
 
 .sm-w-max-1 {
-  max-width: 8.3333333333%;
+  max-width: 8.3333333333% !important;
 }
 
 .sm-w-max-2 {
-  max-width: 16.6666666667%;
+  max-width: 16.6666666667% !important;
 }
 
 .sm-w-max-3 {
-  max-width: 25%;
+  max-width: 25% !important;
 }
 
 .sm-w-max-4 {
-  max-width: 33.3333333333%;
+  max-width: 33.3333333333% !important;
 }
 
 .sm-w-max-5 {
-  max-width: 41.6666666667%;
+  max-width: 41.6666666667% !important;
 }
 
 .sm-w-max-6 {
-  max-width: 50%;
+  max-width: 50% !important;
 }
 
 .sm-w-max-7 {
-  max-width: 58.3333333333%;
+  max-width: 58.3333333333% !important;
 }
 
 .sm-w-max-8 {
-  max-width: 66.6666666667%;
+  max-width: 66.6666666667% !important;
 }
 
 .sm-w-max-9 {
-  max-width: 75%;
+  max-width: 75% !important;
 }
 
 .sm-w-max-10 {
-  max-width: 83.3333333333%;
+  max-width: 83.3333333333% !important;
 }
 
 .sm-w-max-11 {
-  max-width: 91.6666666667%;
+  max-width: 91.6666666667% !important;
 }
 
 .sm-w-max-12 {
-  max-width: 100%;
+  max-width: 100% !important;
 }
 
 .sm-w-1rem {
   flex: 0 0 1rem;
-  min-width: 1rem;
-  width: 1rem;
-  max-width: 1rem;
+  min-width: 1rem !important;
+  width: 1rem !important;
+  max-width: 1rem !important;
 }
 
 .sm-w-2rem {
   flex: 0 0 2rem;
-  min-width: 2rem;
-  width: 2rem;
-  max-width: 2rem;
+  min-width: 2rem !important;
+  width: 2rem !important;
+  max-width: 2rem !important;
 }
 
 .sm-w-3rem {
   flex: 0 0 3rem;
-  min-width: 3rem;
-  width: 3rem;
-  max-width: 3rem;
+  min-width: 3rem !important;
+  width: 3rem !important;
+  max-width: 3rem !important;
 }
 
 .sm-w-4rem {
   flex: 0 0 4rem;
-  min-width: 4rem;
-  width: 4rem;
-  max-width: 4rem;
+  min-width: 4rem !important;
+  width: 4rem !important;
+  max-width: 4rem !important;
 }
 
 .sm-w-5rem {
   flex: 0 0 5rem;
-  min-width: 5rem;
-  width: 5rem;
-  max-width: 5rem;
+  min-width: 5rem !important;
+  width: 5rem !important;
+  max-width: 5rem !important;
 }
 
 .sm-w-6rem {
   flex: 0 0 6rem;
-  min-width: 6rem;
-  width: 6rem;
-  max-width: 6rem;
+  min-width: 6rem !important;
+  width: 6rem !important;
+  max-width: 6rem !important;
 }
 
 .sm-w-7rem {
   flex: 0 0 7rem;
-  min-width: 7rem;
-  width: 7rem;
-  max-width: 7rem;
+  min-width: 7rem !important;
+  width: 7rem !important;
+  max-width: 7rem !important;
 }
 
 .sm-w-8rem {
   flex: 0 0 8rem;
-  min-width: 8rem;
-  width: 8rem;
-  max-width: 8rem;
+  min-width: 8rem !important;
+  width: 8rem !important;
+  max-width: 8rem !important;
 }
 
 .sm-w-9rem {
   flex: 0 0 9rem;
-  min-width: 9rem;
-  width: 9rem;
-  max-width: 9rem;
+  min-width: 9rem !important;
+  width: 9rem !important;
+  max-width: 9rem !important;
 }
 
 .sm-w-10rem {
   flex: 0 0 10rem;
-  min-width: 10rem;
-  width: 10rem;
-  max-width: 10rem;
+  min-width: 10rem !important;
+  width: 10rem !important;
+  max-width: 10rem !important;
 }
 
 .sm-w-11rem {
   flex: 0 0 11rem;
-  min-width: 11rem;
-  width: 11rem;
-  max-width: 11rem;
+  min-width: 11rem !important;
+  width: 11rem !important;
+  max-width: 11rem !important;
 }
 
 .sm-w-12rem {
   flex: 0 0 12rem;
-  min-width: 12rem;
-  width: 12rem;
-  max-width: 12rem;
+  min-width: 12rem !important;
+  width: 12rem !important;
+  max-width: 12rem !important;
 }
 
 .sm-w-13rem {
   flex: 0 0 13rem;
-  min-width: 13rem;
-  width: 13rem;
-  max-width: 13rem;
+  min-width: 13rem !important;
+  width: 13rem !important;
+  max-width: 13rem !important;
 }
 
 .sm-w-14rem {
   flex: 0 0 14rem;
-  min-width: 14rem;
-  width: 14rem;
-  max-width: 14rem;
+  min-width: 14rem !important;
+  width: 14rem !important;
+  max-width: 14rem !important;
 }
 
 .sm-w-15rem {
   flex: 0 0 15rem;
-  min-width: 15rem;
-  width: 15rem;
-  max-width: 15rem;
+  min-width: 15rem !important;
+  width: 15rem !important;
+  max-width: 15rem !important;
 }
 
 .sm-w-16rem {
   flex: 0 0 16rem;
-  min-width: 16rem;
-  width: 16rem;
-  max-width: 16rem;
+  min-width: 16rem !important;
+  width: 16rem !important;
+  max-width: 16rem !important;
 }
 
 .sm-w-17rem {
   flex: 0 0 17rem;
-  min-width: 17rem;
-  width: 17rem;
-  max-width: 17rem;
+  min-width: 17rem !important;
+  width: 17rem !important;
+  max-width: 17rem !important;
 }
 
 .sm-w-18rem {
   flex: 0 0 18rem;
-  min-width: 18rem;
-  width: 18rem;
-  max-width: 18rem;
+  min-width: 18rem !important;
+  width: 18rem !important;
+  max-width: 18rem !important;
 }
 
 .sm-w-19rem {
   flex: 0 0 19rem;
-  min-width: 19rem;
-  width: 19rem;
-  max-width: 19rem;
+  min-width: 19rem !important;
+  width: 19rem !important;
+  max-width: 19rem !important;
 }
 
 .sm-w-20rem {
   flex: 0 0 20rem;
-  min-width: 20rem;
-  width: 20rem;
-  max-width: 20rem;
+  min-width: 20rem !important;
+  width: 20rem !important;
+  max-width: 20rem !important;
 }
 
 .sm-w-21rem {
   flex: 0 0 21rem;
-  min-width: 21rem;
-  width: 21rem;
-  max-width: 21rem;
+  min-width: 21rem !important;
+  width: 21rem !important;
+  max-width: 21rem !important;
 }
 
 .sm-w-22rem {
   flex: 0 0 22rem;
-  min-width: 22rem;
-  width: 22rem;
-  max-width: 22rem;
+  min-width: 22rem !important;
+  width: 22rem !important;
+  max-width: 22rem !important;
 }
 
 .sm-w-23rem {
   flex: 0 0 23rem;
-  min-width: 23rem;
-  width: 23rem;
-  max-width: 23rem;
+  min-width: 23rem !important;
+  width: 23rem !important;
+  max-width: 23rem !important;
 }
 
 .sm-w-24rem {
   flex: 0 0 24rem;
-  min-width: 24rem;
-  width: 24rem;
-  max-width: 24rem;
+  min-width: 24rem !important;
+  width: 24rem !important;
+  max-width: 24rem !important;
 }
 
 .sm-w-25rem {
   flex: 0 0 25rem;
-  min-width: 25rem;
-  width: 25rem;
-  max-width: 25rem;
+  min-width: 25rem !important;
+  width: 25rem !important;
+  max-width: 25rem !important;
 }
 
 .sm-w-26rem {
   flex: 0 0 26rem;
-  min-width: 26rem;
-  width: 26rem;
-  max-width: 26rem;
+  min-width: 26rem !important;
+  width: 26rem !important;
+  max-width: 26rem !important;
 }
 
 .sm-w-27rem {
   flex: 0 0 27rem;
-  min-width: 27rem;
-  width: 27rem;
-  max-width: 27rem;
+  min-width: 27rem !important;
+  width: 27rem !important;
+  max-width: 27rem !important;
 }
 
 .sm-w-28rem {
   flex: 0 0 28rem;
-  min-width: 28rem;
-  width: 28rem;
-  max-width: 28rem;
+  min-width: 28rem !important;
+  width: 28rem !important;
+  max-width: 28rem !important;
 }
 
 .sm-w-29rem {
   flex: 0 0 29rem;
-  min-width: 29rem;
-  width: 29rem;
-  max-width: 29rem;
+  min-width: 29rem !important;
+  width: 29rem !important;
+  max-width: 29rem !important;
 }
 
 .sm-w-30rem {
   flex: 0 0 30rem;
-  min-width: 30rem;
-  width: 30rem;
-  max-width: 30rem;
+  min-width: 30rem !important;
+  width: 30rem !important;
+  max-width: 30rem !important;
 }
 
 .sm-w-min-1rem {
   flex: 0 0 1rem;
-  min-width: 1rem;
+  min-width: 1rem !important;
 }
 
 .sm-w-min-2rem {
   flex: 0 0 2rem;
-  min-width: 2rem;
+  min-width: 2rem !important;
 }
 
 .sm-w-min-3rem {
   flex: 0 0 3rem;
-  min-width: 3rem;
+  min-width: 3rem !important;
 }
 
 .sm-w-min-4rem {
   flex: 0 0 4rem;
-  min-width: 4rem;
+  min-width: 4rem !important;
 }
 
 .sm-w-min-5rem {
   flex: 0 0 5rem;
-  min-width: 5rem;
+  min-width: 5rem !important;
 }
 
 .sm-w-min-6rem {
   flex: 0 0 6rem;
-  min-width: 6rem;
+  min-width: 6rem !important;
 }
 
 .sm-w-min-7rem {
   flex: 0 0 7rem;
-  min-width: 7rem;
+  min-width: 7rem !important;
 }
 
 .sm-w-min-8rem {
   flex: 0 0 8rem;
-  min-width: 8rem;
+  min-width: 8rem !important;
 }
 
 .sm-w-min-9rem {
   flex: 0 0 9rem;
-  min-width: 9rem;
+  min-width: 9rem !important;
 }
 
 .sm-w-min-10rem {
   flex: 0 0 10rem;
-  min-width: 10rem;
+  min-width: 10rem !important;
 }
 
 .sm-w-min-11rem {
   flex: 0 0 11rem;
-  min-width: 11rem;
+  min-width: 11rem !important;
 }
 
 .sm-w-min-12rem {
   flex: 0 0 12rem;
-  min-width: 12rem;
+  min-width: 12rem !important;
 }
 
 .sm-w-min-13rem {
   flex: 0 0 13rem;
-  min-width: 13rem;
+  min-width: 13rem !important;
 }
 
 .sm-w-min-14rem {
   flex: 0 0 14rem;
-  min-width: 14rem;
+  min-width: 14rem !important;
 }
 
 .sm-w-min-15rem {
   flex: 0 0 15rem;
-  min-width: 15rem;
+  min-width: 15rem !important;
 }
 
 .sm-w-min-16rem {
   flex: 0 0 16rem;
-  min-width: 16rem;
+  min-width: 16rem !important;
 }
 
 .sm-w-min-17rem {
   flex: 0 0 17rem;
-  min-width: 17rem;
+  min-width: 17rem !important;
 }
 
 .sm-w-min-18rem {
   flex: 0 0 18rem;
-  min-width: 18rem;
+  min-width: 18rem !important;
 }
 
 .sm-w-min-19rem {
   flex: 0 0 19rem;
-  min-width: 19rem;
+  min-width: 19rem !important;
 }
 
 .sm-w-min-20rem {
   flex: 0 0 20rem;
-  min-width: 20rem;
+  min-width: 20rem !important;
 }
 
 .sm-w-min-21rem {
   flex: 0 0 21rem;
-  min-width: 21rem;
+  min-width: 21rem !important;
 }
 
 .sm-w-min-22rem {
   flex: 0 0 22rem;
-  min-width: 22rem;
+  min-width: 22rem !important;
 }
 
 .sm-w-min-23rem {
   flex: 0 0 23rem;
-  min-width: 23rem;
+  min-width: 23rem !important;
 }
 
 .sm-w-min-24rem {
   flex: 0 0 24rem;
-  min-width: 24rem;
+  min-width: 24rem !important;
 }
 
 .sm-w-min-25rem {
   flex: 0 0 25rem;
-  min-width: 25rem;
+  min-width: 25rem !important;
 }
 
 .sm-w-min-26rem {
   flex: 0 0 26rem;
-  min-width: 26rem;
+  min-width: 26rem !important;
 }
 
 .sm-w-min-27rem {
   flex: 0 0 27rem;
-  min-width: 27rem;
+  min-width: 27rem !important;
 }
 
 .sm-w-min-28rem {
   flex: 0 0 28rem;
-  min-width: 28rem;
+  min-width: 28rem !important;
 }
 
 .sm-w-min-29rem {
   flex: 0 0 29rem;
-  min-width: 29rem;
+  min-width: 29rem !important;
 }
 
 .sm-w-min-30rem {
   flex: 0 0 30rem;
-  min-width: 30rem;
+  min-width: 30rem !important;
 }
 
 .sm-w-max-1rem {
   flex: 0 0 1rem;
-  max-width: 1rem;
+  max-width: 1rem !important;
 }
 
 .sm-w-max-2rem {
   flex: 0 0 2rem;
-  max-width: 2rem;
+  max-width: 2rem !important;
 }
 
 .sm-w-max-3rem {
   flex: 0 0 3rem;
-  max-width: 3rem;
+  max-width: 3rem !important;
 }
 
 .sm-w-max-4rem {
   flex: 0 0 4rem;
-  max-width: 4rem;
+  max-width: 4rem !important;
 }
 
 .sm-w-max-5rem {
   flex: 0 0 5rem;
-  max-width: 5rem;
+  max-width: 5rem !important;
 }
 
 .sm-w-max-6rem {
   flex: 0 0 6rem;
-  max-width: 6rem;
+  max-width: 6rem !important;
 }
 
 .sm-w-max-7rem {
   flex: 0 0 7rem;
-  max-width: 7rem;
+  max-width: 7rem !important;
 }
 
 .sm-w-max-8rem {
   flex: 0 0 8rem;
-  max-width: 8rem;
+  max-width: 8rem !important;
 }
 
 .sm-w-max-9rem {
   flex: 0 0 9rem;
-  max-width: 9rem;
+  max-width: 9rem !important;
 }
 
 .sm-w-max-10rem {
   flex: 0 0 10rem;
-  max-width: 10rem;
+  max-width: 10rem !important;
 }
 
 .sm-w-max-11rem {
   flex: 0 0 11rem;
-  max-width: 11rem;
+  max-width: 11rem !important;
 }
 
 .sm-w-max-12rem {
   flex: 0 0 12rem;
-  max-width: 12rem;
+  max-width: 12rem !important;
 }
 
 .sm-w-max-13rem {
   flex: 0 0 13rem;
-  max-width: 13rem;
+  max-width: 13rem !important;
 }
 
 .sm-w-max-14rem {
   flex: 0 0 14rem;
-  max-width: 14rem;
+  max-width: 14rem !important;
 }
 
 .sm-w-max-15rem {
   flex: 0 0 15rem;
-  max-width: 15rem;
+  max-width: 15rem !important;
 }
 
 .sm-w-max-16rem {
   flex: 0 0 16rem;
-  max-width: 16rem;
+  max-width: 16rem !important;
 }
 
 .sm-w-max-17rem {
   flex: 0 0 17rem;
-  max-width: 17rem;
+  max-width: 17rem !important;
 }
 
 .sm-w-max-18rem {
   flex: 0 0 18rem;
-  max-width: 18rem;
+  max-width: 18rem !important;
 }
 
 .sm-w-max-19rem {
   flex: 0 0 19rem;
-  max-width: 19rem;
+  max-width: 19rem !important;
 }
 
 .sm-w-max-20rem {
   flex: 0 0 20rem;
-  max-width: 20rem;
+  max-width: 20rem !important;
 }
 
 .sm-w-max-21rem {
   flex: 0 0 21rem;
-  max-width: 21rem;
+  max-width: 21rem !important;
 }
 
 .sm-w-max-22rem {
   flex: 0 0 22rem;
-  max-width: 22rem;
+  max-width: 22rem !important;
 }
 
 .sm-w-max-23rem {
   flex: 0 0 23rem;
-  max-width: 23rem;
+  max-width: 23rem !important;
 }
 
 .sm-w-max-24rem {
   flex: 0 0 24rem;
-  max-width: 24rem;
+  max-width: 24rem !important;
 }
 
 .sm-w-max-25rem {
   flex: 0 0 25rem;
-  max-width: 25rem;
+  max-width: 25rem !important;
 }
 
 .sm-w-max-26rem {
   flex: 0 0 26rem;
-  max-width: 26rem;
+  max-width: 26rem !important;
 }
 
 .sm-w-max-27rem {
   flex: 0 0 27rem;
-  max-width: 27rem;
+  max-width: 27rem !important;
 }
 
 .sm-w-max-28rem {
   flex: 0 0 28rem;
-  max-width: 28rem;
+  max-width: 28rem !important;
 }
 
 .sm-w-max-29rem {
   flex: 0 0 29rem;
-  max-width: 29rem;
+  max-width: 29rem !important;
 }
 
 .sm-w-max-30rem {
   flex: 0 0 30rem;
-  max-width: 30rem;
+  max-width: 30rem !important;
 }
 
 .header-text {
@@ -7667,10 +7675,10 @@
   border-style: solid !important;
 }
 
-.sm-hover, .sm-dropdown, .sm-icon-selector, .stringeditorbody-inputtext, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark, .sm-input, .sm-input-dark {
+.sm-hover, .sm-dropdown, .sm-icon-selector, .stringeditorbody-inputtext, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark, .sm-input {
   transition: border-color 0.15s;
 }
-.sm-hover:not(.p-disabled):hover, .sm-dropdown:not(.p-disabled):hover, .sm-icon-selector:not(.p-disabled):hover, .stringeditorbody-inputtext:not(.p-disabled):hover, .stringeditorbody-inputtext-save:not(.p-disabled):hover, .stringeditorbody-inputtext-dark:not(.p-disabled):hover, .sm-input:not(.p-disabled):hover, .sm-input-dark:not(.p-disabled):hover {
+.sm-hover:not(.p-disabled):hover, .sm-dropdown:not(.p-disabled):hover, .sm-icon-selector:not(.p-disabled):hover, .stringeditorbody-inputtext:not(.p-disabled):hover, .stringeditorbody-inputtext-save:not(.p-disabled):hover, .stringeditorbody-inputtext-dark:not(.p-disabled):hover, .sm-input:not(.p-disabled):hover {
   border-color: #bcbfbf !important;
   border-radius: 6px !important;
   border-style: solid !important;
@@ -7693,14 +7701,14 @@
   color: #bcbfbf !important;
 }
 
-.sm-input-border-dark, .stringeditorbody-inputtext-dark, .sm-input-dark {
+.sm-input-border-dark, .p-chips .p-chips-input-token input, .stringeditorbody-inputtext-dark, .sm-input-dark {
   border-radius: 6px !important;
   border-color: #263238 !important;
   border-width: 0.1rem !important;
   border-style: solid !important;
   transition: border-color 0.15s;
 }
-.sm-input-border-dark:not(.p-disabled):hover, .stringeditorbody-inputtext-dark:not(.p-disabled):hover, .sm-input-dark:not(.p-disabled):hover {
+.sm-input-border-dark:not(.p-disabled):hover, .p-chips .p-chips-input-token input:not(.p-disabled):hover, .stringeditorbody-inputtext-dark:not(.p-disabled):hover, .sm-input-dark:not(.p-disabled):hover {
   border-color: #bcbfbf !important;
   border-radius: 6px !important;
   border-style: solid !important;
@@ -7910,7 +7918,7 @@
   background-color: #12181b !important;
 }
 
-.sm-input, .sm-input-dark {
+.sm-input {
   display: flex;
   align-items: center;
   background-color: transparent;
@@ -8140,6 +8148,28 @@
   max-height: 1.6rem;
 }
 
+.tag-editor {
+  background: transparent !important;
+  height: 1.6rem;
+}
+
+.p-chips {
+  background-color: transparent;
+}
+.p-chips .p-inputtext {
+  height: unset !important;
+  max-height: unset !important;
+}
+.p-chips .p-chips-input-token {
+  height: unset !important;
+  max-height: unset !important;
+  background-color: #12181b !important;
+}
+.p-chips .p-chips-input-token input {
+  border-color: #263238 !important;
+  border-style: solid !important;
+}
+
 .background-transparent {
   background-color: transparent !important;
 }
@@ -8196,13 +8226,6 @@
   width: unset;
   max-width: unset;
   text-align: right;
-}
-
-.sourceOrFileDialog-toggle .p-button.p-component {
-  padding: 0 !important;
-  padding-right: 0.6rem !important;
-  padding-left: 0.6rem !important;
-  width: 2rem !important;
 }
 
 .sourceOrFileDialog-toggle .p-button.p-component {
@@ -8856,7 +8879,8 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  width: calc(100% - 1.4rem);
+  width: calc(100% - 1.2rem);
+  padding-left: 0.1rem;
   height: 1.4rem;
 }
 

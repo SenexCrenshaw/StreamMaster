@@ -155,7 +155,7 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
     const doShowClear = useMemo(() => darkBackGround && showClear && inputValue !== '', [darkBackGround, inputValue, showClear]);
 
     const getDiv = useMemo(() => {
-      let ret = 'flex stringeditor';
+      let ret = 'flex stringeditor justify-content-center';
 
       if (label && !labelInline) {
         ret += ' flex-column';

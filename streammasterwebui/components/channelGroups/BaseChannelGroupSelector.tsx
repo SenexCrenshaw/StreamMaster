@@ -3,7 +3,6 @@ import SMOverlay from '@components/sm/SMOverlay';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { QueryHook } from '@lib/apiDefs';
-import { Logger } from '@lib/common/logger';
 import useSelectedAndQ from '@lib/hooks/useSelectedAndQ';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
@@ -16,17 +15,27 @@ import ChannelGroupVisibleDialog from './ChannelGroupVisibleDialog';
 
 // Define a type that includes all shared props plus any additional ones
 type BaseChannelGroupSelectorProps = {
+  readonly className?: string;
   readonly dataKey: string;
   readonly enableEditMode?: boolean;
-  readonly useSelectedItemsFilter?: boolean;
   readonly label?: string;
-  readonly value?: string;
   readonly onChange?: (value: ChannelGroupDto[]) => void;
+  readonly useSelectedItemsFilter?: boolean;
+  readonly value?: string;
   getNamesQuery: () => ReturnType<QueryHook<ChannelGroupDto[]>>;
 };
 
 const BaseChannelGroupSelector = memo(
-  ({ enableEditMode = true, dataKey, label, onChange, useSelectedItemsFilter, value, getNamesQuery }: BaseChannelGroupSelectorProps) => {
+  ({
+    enableEditMode = true,
+    dataKey,
+    label,
+    onChange,
+    useSelectedItemsFilter,
+    className = 'sm-w-12rem',
+    value,
+    getNamesQuery
+  }: BaseChannelGroupSelectorProps) => {
     const { selectedItems, showHidden, sortInfo, filters } = useSelectedAndQ(dataKey);
     const [input, setInput] = useState<string | undefined>(value);
     const { isSystemReady } = useSMContext();
@@ -48,11 +57,11 @@ const BaseChannelGroupSelector = memo(
           if (input.length > 0) {
             const sortedInput = [...input].sort(); // Ensure the input array is sorted
             const suffix = input.length > 2 ? ',...' : '';
-            return <div className="text-container">{sortedInput.join(', ') + suffix}</div>;
+            return <div className="text-container ">{sortedInput.join(', ') + suffix}</div>;
           }
         }
         return (
-          <div className="sm-channelgroup-selector">
+          <div className="sm-channelgroup-selector ">
             <div className="text-container">{input}</div>
           </div>
         );
@@ -112,8 +121,7 @@ const BaseChannelGroupSelector = memo(
 
       let data = [] as ChannelGroupDto[];
 
-      Logger.debug('BaseChannelGroupSelector', 'dataSource', { filters });
-      if (sortInfo.sortField !== undefined) {
+      if (sortInfo?.sortField !== undefined) {
         data = [...namesQuery.data].sort((a, b) => {
           const field = sortInfo.sortField as keyof ChannelGroupDto;
           if (a[field] < b[field]) {
@@ -142,25 +150,25 @@ const BaseChannelGroupSelector = memo(
 
       if (filters.Name !== null) {
         const meta = filters.Name as DataTableFilterMetaData;
-        if (meta.value !== undefined) {
+        if (meta?.value !== undefined) {
           data = data.filter((x) => x.Name.toLowerCase().includes(meta.value.toLowerCase()));
         }
       }
 
       return data;
-    }, [namesQuery.data, filters, sortInfo.sortField, sortInfo.sortOrder, showHidden]);
+    }, [namesQuery.data, filters, sortInfo, showHidden]);
 
     const columns = useMemo(
       (): ColumnMeta[] => [
         channelGroupNameColumnConfig,
-        { align: 'left', bodyTemplate: streamCountTemplate, field: 'ActiveCount' },
+        { align: 'left', bodyTemplate: streamCountTemplate, field: 'ActiveCount', width: '6rem' },
         { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '4rem' }
       ],
       [actionTemplate, channelGroupNameColumnConfig, streamCountTemplate]
     );
 
     const getDiv = useMemo(() => {
-      let div = 'w-full';
+      let div = 'w-full pl-1';
       if (label) {
         div += ' flex-column';
       }
@@ -181,9 +189,9 @@ const BaseChannelGroupSelector = memo(
     }
 
     return (
-      <>
+      <div className={className}>
         {label && (
-          <div className=" flex flex-column align-items-start">
+          <div className="flex flex-column align-items-start">
             <label className="pl-15">{label.toUpperCase()}</label>
             <div className="pt-small" />
           </div>
@@ -193,7 +201,7 @@ const BaseChannelGroupSelector = memo(
             buttonDarkBackground
             buttonTemplate={buttonTemplate}
             title="GROUPS"
-            widthSize="3"
+            contentWidthSize="3"
             icon="pi-chevron-down"
             buttonLabel="GROUP"
             header={headerRightTemplate}
@@ -217,7 +225,7 @@ const BaseChannelGroupSelector = memo(
             />
           </SMOverlay>
         </div>
-      </>
+      </div>
     );
   }
 );

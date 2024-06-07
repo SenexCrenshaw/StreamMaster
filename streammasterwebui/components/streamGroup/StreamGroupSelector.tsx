@@ -18,7 +18,11 @@ export const StreamGroupSelector = ({ onChange, selectedStreamGroup }: StreamGro
   };
 
   const buttonTemplate = useMemo(() => {
-    return <div className="text-container ">{selectedStreamGroup?.Name ?? 'Select Stream Group'}</div>;
+    return (
+      <div className="sm-epg-selector">
+        <div className="text-container">{selectedStreamGroup?.Name ?? 'Select Stream Group'}</div>
+      </div>
+    );
   }, [selectedStreamGroup?.Name]);
 
   return (
@@ -28,7 +32,11 @@ export const StreamGroupSelector = ({ onChange, selectedStreamGroup }: StreamGro
       data={data}
       dataKey="Id"
       isLoading={isLoading}
-      itemTemplate={(option: StreamGroupDto) => option?.Name}
+      itemTemplate={(option: StreamGroupDto) => (
+        <div className="sm-epg-selector">
+          <div className="text-container pl-1">{option?.Name}</div>
+        </div>
+      )}
       filter
       filterBy="Name"
       onChange={(e) => {

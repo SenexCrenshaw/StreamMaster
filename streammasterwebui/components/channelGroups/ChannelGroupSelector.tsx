@@ -9,6 +9,7 @@ type ChannelGroupSelectorProperties = {
   readonly useSelectedItemsFilter?: boolean;
   readonly label?: string;
   readonly value?: string;
+  readonly width?: string;
   readonly onChange?: (value: ChannelGroupDto[]) => void;
 };
 

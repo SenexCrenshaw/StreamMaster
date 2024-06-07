@@ -1,3 +1,4 @@
+import BanButton from '@components/buttons/BanButton';
 import StringEditor, { StringEditorRef } from '@components/inputs/StringEditor';
 import SMButton from '@components/sm/SMButton';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
@@ -45,6 +46,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
   const [scrolled, setScrolled] = React.useState<boolean>(true);
   const virtualScrollerRef = React.useRef<VirtualScroller>(null);
   const stringEditorRef = React.useRef<StringEditorRef>(null);
+
   const filteredValues = useMemo(() => {
     setScrolled(false);
     if (filter === undefined || filter === false || filterBy === undefined) {
@@ -226,38 +228,48 @@ const SMScroller: React.FC<SMScrollerProps> = ({
 
   return (
     <div className={getDiv}>
+      <div className="layout-padding-bottom" />
       {filter && (
-        <div className="flex align-items-center justify-content-between px-2 pt-1 ">
-          <div className="w-11">
-            <StringEditor
-              autoFocus
-              disableDebounce
-              darkBackGround
-              placeholder="Name"
-              value={filterString}
-              onChange={(value) => {
-                if (value !== undefined) {
-                  setFilterString(value);
-                  scrollTo(1);
-                }
-              }}
-              onSave={(value) => {}}
-              ref={stringEditorRef}
-            />
+        <div className="flex align-items-center justify-content-between gap-1 pr-2 sm-w-12">
+          <div className="">
+            <BanButton disabled={selectedItems.length === 0} onClick={() => setSelectedItems([])} tooltip="Clear Selections" />
           </div>
-          <SMButton
-            iconFilled={false}
-            icon="pi-filter-slash"
-            onClick={() => {
-              setFilterString('');
-              stringEditorRef.current?.clear();
-              scrollTo(1);
-            }}
-          />
+
+          <div className="flex align-items-center justify-content-between sm-w-11">
+            <div className="sm-w-11">
+              <StringEditor
+                autoFocus
+                disableDebounce
+                darkBackGround
+                placeholder="Name"
+                value={filterString}
+                showClear
+                onChange={(value) => {
+                  if (value !== undefined) {
+                    setFilterString(value);
+                    scrollTo(1);
+                  }
+                }}
+                onSave={(value) => {}}
+                ref={stringEditorRef}
+              />
+            </div>
+            <div>
+              <SMButton
+                iconFilled={false}
+                icon="pi-filter-slash"
+                onClick={() => {
+                  setFilterString('');
+                  stringEditorRef.current?.clear();
+                  scrollTo(1);
+                }}
+              />
+            </div>
+          </div>
         </div>
       )}
 
-      <div className="layout-padding-bottom-lg" />
+      <div className="layout-padding-bottom" />
       <div className="sm-scroller-items block">
         <VirtualScroller ref={virtualScrollerRef} items={filteredValues} itemSize={itemSize} itemTemplate={getItemTemplate} scrollHeight={scrollHeight} />
       </div>

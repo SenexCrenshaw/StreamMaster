@@ -61,7 +61,7 @@
 }
 
 .sm-input-dark {
-    @extend .sm-input;
+    // @extend .sm-input;
     @extend .sm-input-border-dark;
     background-color: $inputBg !important;
 }
@@ -203,7 +203,6 @@
 .sm-input-xs {
     @extend .text-xs;
 }
-
 
 .text-container {
     @include text-overflow();

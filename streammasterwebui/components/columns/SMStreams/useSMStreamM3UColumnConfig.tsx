@@ -1,35 +1,75 @@
 import SMDropDown from '@components/sm/SMDropDown';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { isEmptyObject } from '@lib/common/common';
-import useGetM3UFileNames from '@lib/smAPI/M3UFiles/useGetM3UFileNames';
-import { SMStreamDto } from '@lib/smAPI/smapiTypes';
+import { arraysEqual, isEmptyObject } from '@lib/common/common';
+import useSelectedAndQ from '@lib/hooks/useSelectedAndQ';
+import { useFilters } from '@lib/redux/hooks/filters';
+
+import useGetM3UFiles from '@lib/smAPI/M3UFiles/useGetM3UFiles';
+import { M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
+import { DataTableFilterMetaData } from 'primereact/datatable';
 import { ReactNode, useCallback } from 'react';
 
-export const useSMStreamM3UColumnConfig = () => {
-  const { data } = useGetM3UFileNames();
+interface SMStreamM3UColumnConfigProperties {
+  readonly className?: string;
+  readonly dataKey: string;
+  readonly width?: string;
+}
 
-  const dataKey = 'm3uColumn-selections';
+export const useSMStreamM3UColumnConfig = ({ className = 'sm-w-7rem', dataKey }: SMStreamM3UColumnConfigProperties) => {
+  const { data } = useGetM3UFiles();
 
-  const itemTemplate = useCallback((option: string) => {
-    if (option === undefined) {
+  const { filters, setFilters } = useFilters(dataKey);
+  const { selectedItems } = useSelectedAndQ('useSMStreamM3UColumnConfig');
+
+  const updateFilters = () => {
+    if (selectedItems.length === 0) {
+      const newFilter = { ...filters };
+      const a = newFilter['M3UFileName'] as DataTableFilterMetaData;
+      if (a && a.value !== undefined) {
+        newFilter['M3UFileName'] = { matchMode: 'contains', value: undefined };
+        setFilters(newFilter);
+      }
+    } else {
+      const names = selectedItems.map((x) => x.Name);
+      const newFilter = { ...filters };
+      const a = newFilter['M3UFileName'] as DataTableFilterMetaData;
+      if (!filters['M3UFileName'] || !arraysEqual(a.value, names)) {
+        newFilter['M3UFileName'] = { matchMode: 'contains', value: names };
+        setFilters(newFilter);
+      }
+    }
+  };
+
+  updateFilters();
+
+  const itemTemplate = useCallback((option: M3UFileDto) => {
+    if (option?.Name === undefined) {
       return null;
     }
 
-    return <span>{option}</span>;
+    return (
+      <div className="sm-channelgroup-selector sm-w-12rem">
+        <div className="text-container">{option.Name}</div>
+      </div>
+    );
   }, []);
 
   const buttonTemplate = useCallback((options: any): ReactNode => {
     if (Array.isArray(options.value)) {
       if (options.value.length > 0) {
-        const names = options.value;
+        const names = options.value.map((x: any) => x.Name);
         const sortedInput = [...names].sort();
-        return <div className="text-container">{sortedInput.join(', ')}</div>;
+        return (
+          <div className="sm-channelgroup-selector">
+            <div className="text-container">{sortedInput.join(', ')}</div>
+          </div>
+        );
       }
     }
 
     return (
-      <div className="sm-epg-selector">
+      <div className="sm-channelgroup-selector">
         <div className="text-container pl-1">M3U</div>
       </div>
     );
@@ -37,7 +77,7 @@ export const useSMStreamM3UColumnConfig = () => {
 
   function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
     return (
-      <div className="w-full">
+      <div className={className}>
         <SMDropDown
           buttonDarkBackground
           buttonTemplate={buttonTemplate(options)}
@@ -48,31 +88,25 @@ export const useSMStreamM3UColumnConfig = () => {
           onChange={async (e: any) => {
             if (isEmptyObject(e) || !Array.isArray(e)) {
               options.filterApplyCallback();
-            } else {
-              options.filterApplyCallback(e);
             }
           }}
           select
-          selectedItemsKey={dataKey}
+          selectedItemsKey="useSMStreamM3UColumnConfig"
           title="M3U"
           contentWidthSize="2"
         />
       </div>
     );
   }
-  const bodyTemplate = (bodyData: SMStreamDto) => {
-    return <div>{bodyData.M3UFileName}</div>;
-  };
 
   const columnConfig: ColumnMeta = {
     align: 'left',
-    bodyTemplate: bodyTemplate,
     field: 'M3UFileName',
     filter: true,
     filterElement: filterTemplate,
     header: 'M3UFileName',
     sortable: true,
-    minWidth: '6'
+    width: '8rem'
   };
 
   return columnConfig;

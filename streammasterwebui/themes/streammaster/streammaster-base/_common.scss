@@ -20,6 +20,36 @@
   }
 }
 
+.tag-editor {
+  background: transparent !important;
+  height: $input-height;
+
+}
+
+.p-chips {
+  background-color: transparent;
+
+  .p-inputtext {
+    height: unset !important;
+    max-height: unset !important;
+  }
+
+  .p-chips-input-token {
+
+    height: unset !important;
+    max-height: unset !important;
+    background-color: $inputBg !important;
+
+    input {
+      @extend .sm-input-border-dark;
+      border-color: $inputBorderColor !important;
+      border-style: solid !important;
+    }
+  }
+
+}
+
+
 .background-transparent {
   background-color: transparent !important;
 }
@@ -79,15 +109,6 @@
     width: unset;
     max-width: unset;
     text-align: right;
-  }
-}
-
-.sourceOrFileDialog-toggle {
-  .p-button.p-component {
-    padding: 0 !important;
-    padding-right: 0.6rem !important;
-    padding-left: 0.6rem !important;
-    width: $gridItem-width !important;
   }
 }
 

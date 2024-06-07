@@ -3,7 +3,6 @@ import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { arraysEqual } from '@lib/common/common';
 import useSelectedAndQ from '@lib/hooks/useSelectedAndQ';
 import { useFilters } from '@lib/redux/hooks/filters';
-import { SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { DataTableFilterMetaData } from 'primereact/datatable';
 import { ReactNode, useMemo } from 'react';
@@ -27,14 +26,11 @@ export const useSMStreamGroupColumnConfig = ({ dataKey, width = '10rem' }: SMStr
         }
       } else {
         const names = selectedItems.map((x) => x.Name);
-
-        if (filters['Group']) {
-          const newFilter = { ...filters };
-          const a = newFilter['Group'] as DataTableFilterMetaData;
-          if (!arraysEqual(a.value, names)) {
-            newFilter['Group'] = { matchMode: 'contains', value: names };
-            setFilters(newFilter);
-          }
+        const newFilter = { ...filters };
+        const a = newFilter['Group'] as DataTableFilterMetaData;
+        if (!filters['Group'] || !arraysEqual(a.value, names)) {
+          newFilter['Group'] = { matchMode: 'contains', value: names };
+          setFilters(newFilter);
         }
       }
     };
@@ -54,20 +50,18 @@ export const useSMStreamGroupColumnConfig = ({ dataKey, width = '10rem' }: SMStr
       );
     }
 
-    const bodyTemplate = (bodyData: SMStreamDto) => {
-      return <div className="text-container">{bodyData.Group}</div>;
+    const columnConfig: ColumnMeta = {
+      align: 'left',
+      field: 'Group',
+      filter: true,
+      filterElement: filterTemplate,
+      header: 'Group',
+      sortable: true,
+      width: '12rem'
     };
 
-  const columnConfig: ColumnMeta = {
-    align: 'left',
-    bodyTemplate: bodyTemplate,
-    field: 'Group',
-    filter: true,
-    filterElement: filterTemplate,
-    header: 'Group',
-    sortable: true,
-    width: '16'
-  };
+    return columnConfig;
+  }, [filters, selectedItems, setFilters]);
 
   return columnConfig;
 };

@@ -49,13 +49,25 @@ function transformAndEnhanceFilters(
         let ids = filter.value;
         if (filter.value.length > 0 && filter.value[0].hasOwnProperty('Name')) {
           ids = (filter.value as ChannelGroupDto[]).map((x) => x.Name);
-          if (ids.length > 0) {
-            transformedFilters.push({
-              fieldName: column.field,
-              matchMode: FilterMatchMode.CONTAINS,
-              value: ids
-            });
-          }
+        }
+        if (ids.length > 0) {
+          transformedFilters.push({
+            fieldName: column.field,
+            matchMode: FilterMatchMode.CONTAINS,
+            value: ids
+          });
+        }
+      } else if (column.field === 'M3UFileName') {
+        let ids = filter.value;
+        if (filter.value.length > 0 && filter.value[0].hasOwnProperty('Name')) {
+          ids = (filter.value as ChannelGroupDto[]).map((x) => x.Name);
+        }
+        if (ids.length > 0) {
+          transformedFilters.push({
+            fieldName: column.field,
+            matchMode: FilterMatchMode.CONTAINS,
+            value: ids
+          });
         }
       } else {
         transformedFilters.push({

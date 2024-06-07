@@ -1,10 +1,12 @@
-import { ReactNode, Suspense, forwardRef, lazy, useImperativeHandle, useMemo, useRef } from 'react';
+import { ReactNode, forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import SMOverlay, { SMOverlayRef } from './SMOverlay';
+import SMScroller from './SMScroller';
 interface SMDropDownProps {
   readonly buttonDarkBackground?: boolean;
   readonly buttonLabel?: string;
   readonly buttonTemplate?: ReactNode;
   readonly center?: React.ReactNode;
+  readonly className?: string;
   readonly data: any;
   readonly dataKey?: string;
   readonly footerTemplate?: ReactNode;
@@ -35,6 +37,7 @@ const SMDropDown = forwardRef<SMDropDownRef, SMDropDownProps>((props: SMDropDown
     buttonLabel,
     buttonTemplate,
     center,
+    className = 'w-full',
     data,
     dataKey,
     filter,
@@ -60,15 +63,12 @@ const SMDropDown = forwardRef<SMDropDownRef, SMDropDownProps>((props: SMDropDown
     props
   }));
 
-  const SMScroller = lazy(() => import('@components/sm/SMScroller'));
   const divReference = useRef<HTMLDivElement | null>(null);
   const smOverlayRef = useRef<SMOverlayRef | null>(null);
 
   const getDiv = useMemo(() => {
     let div = 'w-full';
-    // if (buttonDarkBackground) {
-    //   div += ' sm-dropdown';
-    // }
+
     if (label) {
       div += ' flex-column';
     }
@@ -77,7 +77,7 @@ const SMDropDown = forwardRef<SMDropDownRef, SMDropDownProps>((props: SMDropDown
   }, [label]);
 
   return (
-    <>
+    <div className={className}>
       {label && !labelInline && (
         <div className="w-6">
           <label className="pl-14">{label.toUpperCase()}</label>
@@ -98,28 +98,28 @@ const SMDropDown = forwardRef<SMDropDownRef, SMDropDownProps>((props: SMDropDown
           contentWidthSize={contentWidthSize}
         >
           <div className="flex flex-column w-12 sm-card border-radius-left border-radius-right">
-            <Suspense fallback={<div>Loading...</div>}>
-              <div className="flex w-12">
-                <SMScroller
-                  scrollHeight={height}
-                  select={select}
-                  selectedItemsKey={selectedItemsKey}
-                  data={data}
-                  dataKey={dataKey}
-                  filter={filter}
-                  filterBy={filterBy}
-                  simple={simple}
-                  itemSize={22}
-                  itemTemplate={itemTemplate}
-                  onChange={(e) => {
-                    onChange?.(e);
-                    smOverlayRef.current?.hide();
-                  }}
-                  optionValue={optionValue}
-                  value={value}
-                />
-              </div>
-            </Suspense>
+            {/* <Suspense fallback={<div>Loading...</div>}> */}
+            <div className="flex w-12">
+              <SMScroller
+                scrollHeight={height}
+                select={select}
+                selectedItemsKey={selectedItemsKey}
+                data={data}
+                dataKey={dataKey}
+                filter={filter}
+                filterBy={filterBy}
+                simple={simple}
+                itemSize={22}
+                itemTemplate={itemTemplate}
+                onChange={(e) => {
+                  onChange?.(e);
+                  // smOverlayRef.current?.hide();
+                }}
+                optionValue={optionValue}
+                value={value}
+              />
+            </div>
+            {/* </Suspense> */}
             {footerTemplate && (
               <div className="w-12">
                 <div className="layout-padding-bottom" />
@@ -130,7 +130,7 @@ const SMDropDown = forwardRef<SMDropDownRef, SMDropDownProps>((props: SMDropDown
           </div>
         </SMOverlay>
       </div>
-    </>
+    </div>
   );
 });
 export default SMDropDown;

@@ -7,7 +7,7 @@ import { ColumnMeta } from './ColumnMeta';
 import { DataSelectorSelectionMode } from './smDataTableTypes';
 
 export interface DataTableHeaderProperties {
-  headerLeftTemplate?: ReactNode;
+  headerCenterTemplate?: ReactNode;
   headerRightTemplate?: ReactNode;
   selectionMode?: DataSelectorSelectionMode;
 }
