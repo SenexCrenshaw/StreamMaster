@@ -56,7 +56,11 @@ export const useSMChannelGroupColumnConfig = ({ dataKey }: SMChannelGroupColumnC
     }
 
     const bodyTemplate = (smChannelDto: SMChannelDto) => {
-      return <SMChannelGroupEditor smChannelDto={smChannelDto} />;
+      return (
+        <div className="flex align-content-center justify-content-center">
+          <SMChannelGroupEditor smChannelDto={smChannelDto} />
+        </div>
+      );
     };
 
     return {

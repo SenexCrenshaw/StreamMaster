@@ -8,11 +8,11 @@
 }
 
 .width-50 {
-    width: calc(50% - $input-height-with-no-borders);
+    width: calc(50% - ($inputBorder-size*4));
 }
 
 .width-100 {
-    width: calc(100% - $input-height-with-no-borders);
+    width: calc(100% - ($inputBorder-size*4));
 }
 
 @for $i from 1 through 12 {

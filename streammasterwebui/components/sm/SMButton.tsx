@@ -52,7 +52,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
     ref
   ) => {
     const tooltipClassName = React.useMemo(() => {
-      const ret = `smbutton-${uuidv4()}`;
+      const ret = `smbutton-${uuidv4()} width-100`;
 
       return ret;
     }, []);
@@ -117,7 +117,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
         );
       }
       return (
-        <div className="sm-input">
+        <div className="sm-input ">
           <Tooltip target={`.${tooltipClassName}`} />
           <div
             onClick={(e) => {

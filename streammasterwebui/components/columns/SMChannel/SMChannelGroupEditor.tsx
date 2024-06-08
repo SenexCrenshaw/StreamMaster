@@ -13,11 +13,9 @@ interface SMChannelGroupEditorProperties {
 }
 
 const SMChannelGroupEditor = ({ darkBackGround, smChannelDto, onChange }: SMChannelGroupEditorProperties) => {
-  // const dataKey = 'SMChannelGroup-Groups';
   const smDropownRef = useRef<SMDropDownRef>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const { data } = useGetChannelGroups();
-  // const { selectedItems } = useSelectedItems<ChannelGroupDto>(dataKey);
 
   const handleOnChange = useCallback(
     async (newGroup: string) => {
@@ -57,15 +55,6 @@ const SMChannelGroupEditor = ({ darkBackGround, smChannelDto, onChange }: SMChan
     );
   }, [smChannelDto]);
 
-  // const headerTemplate = useMemo((): ReactNode => {
-  //   if (selectedItems && selectedItems.length > 0) {
-  //     const epgNames = selectedItems.slice(0, 2).map((x) => x.Name);
-  //     const suffix = selectedItems.length > 2 ? ',...' : '';
-  //     return <div className="px-4 w-10rem flex align-content-center justify-content-center min-w-10rem">{epgNames.join(', ') + suffix}</div>;
-  //   }
-  //   return <div className="px-4 w-10rem" style={{ minWidth: '10rem' }} />;
-  // }, [selectedItems]);
-  // Logger.debug('SMChannelGroupEditor', 'smChannelDto', smChannelDto, data);
   return (
     <SMDropDown
       buttonLabel="GROUP"

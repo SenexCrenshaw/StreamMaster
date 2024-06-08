@@ -52,11 +52,11 @@
 }
 
 .width-50 {
-  width: calc(50% - 1.4rem);
+  width: calc(50% - 0.4rem);
 }
 
 .width-100 {
-  width: calc(100% - 1.4rem);
+  width: calc(100% - 0.4rem);
 }
 
 .sm-w-1 {
@@ -7944,15 +7944,9 @@
   display: flex;
   align-items: center;
   background-color: transparent;
-  width: 100% !important;
   height: 1.4rem;
   max-height: 1.4rem;
   min-height: 1.4rem;
-  color: #bcbfbf;
-  border-color: transparent;
-  border-radius: 6px;
-  border-style: solid;
-  border-width: 0.1rem;
 }
 
 .sm-input-dark {
@@ -8071,6 +8065,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: normal;
 }
 
 .sm-standard-text {
@@ -8857,9 +8852,14 @@
 }
 
 .sm-datatable-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background-color: #1d2327 !important;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
+  height: 3rem;
+  max-height: 3rem;
 }
 
 .p-datatable-wrapper {

@@ -20,9 +20,14 @@
 
 .sm-datatable-header {
     @extend .sm-border;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     background-color: $tableHeaderBg !important;
     padding-top: $datatable-header-padding;
     padding-bottom: $datatable-header-padding;
+    height: 3rem;
+    max-height: 3rem;
 }
 
 .p-datatable-wrapper {

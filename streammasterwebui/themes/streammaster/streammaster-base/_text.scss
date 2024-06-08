@@ -45,19 +45,20 @@
 }
 
 .sm-input {
+    // @extend .sm-input-border;
     @extend .sm-hover;
     display: flex;
     align-items: center;
     background-color: transparent;
-    width: 100% !important;
+    // width: 100% !important;
     height: $input-height-with-no-borders;
     max-height: $input-height-with-no-borders;
     min-height: $input-height-with-no-borders;
-    color: $inputTextColor;
-    border-color: transparent;
-    border-radius: $borderRadius;
-    border-style: solid;
-    border-width: $inputBorder-size ;
+    // color: $inputTextColor;
+    // border-color: transparent;
+    // border-radius: $borderRadius;
+    // border-style: solid;
+    // border-width: $inputBorder-size ;
 }
 
 .sm-input-dark {
@@ -206,7 +207,7 @@
 
 .text-container {
     @include text-overflow();
-    // font-weight: normal;
+    font-weight: normal;
 }
 
 .sm-standard-text {
