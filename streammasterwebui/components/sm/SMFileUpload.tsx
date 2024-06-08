@@ -1,4 +1,4 @@
-import { UploadParamsSettings, useFileUpload } from '@components/sharedEPGM3U/useFileUpload';
+import { UploadParamsSettings, useFileUpload } from '@components/file/useFileUpload';
 import { useStringValue } from '@lib/redux/hooks/stringValue';
 import { FileUpload } from 'primereact/fileupload';
 import { memo, useRef, useState } from 'react';

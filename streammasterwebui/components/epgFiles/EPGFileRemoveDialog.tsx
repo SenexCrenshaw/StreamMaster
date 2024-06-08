@@ -1,6 +1,6 @@
 import { memo, useState } from 'react';
 
-import FileRemoveDialog from '../sharedEPGM3U/FileRemoveDialog';
+import FileRemoveDialog from '../file/FileRemoveDialog';
 
 const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProperties) => {
   const [infoMessage, setInfoMessage] = useState('');

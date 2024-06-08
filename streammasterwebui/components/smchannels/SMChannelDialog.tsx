@@ -141,7 +141,7 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
                 <StringEditor label="Name" placeholder="Name" darkBackGround disableDebounce onChange={(e) => e && setName(e)} value={request.Name} />
               </div>
               <div className="w-6 justify-content-start align-items-center">
-                <EPGSelector label="EPG" darkBackGround smChannel={tempSMChannel} onChange={(e) => e && setEPGId(e)} />
+                <EPGSelector label="EPG" smChannel={tempSMChannel} onChange={(e) => e && setEPGId(e)} />
               </div>
             </div>
             <div className="flex w-12 gap-1">

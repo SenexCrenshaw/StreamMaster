@@ -34,7 +34,7 @@ const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogPro
     header,
     info = '',
     icon = 'pi pi-plus',
-    iconFilled = true,
+    iconFilled = false,
     label,
     onHide,
     position,

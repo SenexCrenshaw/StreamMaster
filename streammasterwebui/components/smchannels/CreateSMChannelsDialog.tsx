@@ -86,14 +86,14 @@ const CreateSMChannelsDialog = ({ id, onClose, selectedItemsKey }: CreateSMChann
       ref={dialogRef}
       buttonDisabled={getTotalCount === 0}
       position="top-right"
-      title="CREATE CHANNELS"
+      title="Bulk CREATE CHANNELS"
       iconFilled
       onHide={() => ReturnToParent()}
       buttonClassName="icon-green"
-      icon="pi-plus"
+      icon="pi-building-columns"
       widthSize={2}
       info="General"
-      tooltip="Create Channels"
+      tooltip="Bulk Create Channels"
     >
       <div className="text-base">
         Create ({selectAll ? 'All' : getTotalCount}) channels?

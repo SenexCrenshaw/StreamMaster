@@ -568,6 +568,23 @@ export interface UpdateSMChannelRequest
 	TimeShift?: number;
 	VideoStreamHandler?: VideoStreamHandlers;
 }
+export interface CreateSMStreamRequest
+{
+	ChannelNumber?: number;
+	Group?: string;
+	Logo?: string;
+	Name: string;
+	Url: string;
+}
+export interface UpdateSMStreamRequest
+{
+	ChannelNumber?: number;
+	Group?: string;
+	Logo?: string;
+	Name?: string;
+	SMStreamId: string;
+	Url: string;
+}
 export interface GetSMChannelStreamsRequest
 {
 	SMChannelId: number;

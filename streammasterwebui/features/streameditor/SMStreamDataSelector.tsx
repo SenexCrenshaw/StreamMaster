@@ -14,6 +14,9 @@ import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectedSMStreams } from '@lib/redux/hooks/selectedSMStreams';
 
+import CreateSMStreamDialog from '@components/smstreams/CreateSMStreamDialog';
+import EditSMStreamDialog from '@components/smstreams/EditSMStreamDialog';
+import { Logger } from '@lib/common/logger';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
@@ -51,15 +54,16 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
     }
   }, [enableEdit, propsEnableEdit]);
 
-  const actionTemplate = useCallback(
-    (data: SMStreamDto) => (
+  const actionTemplate = useCallback((data: SMStreamDto) => {
+    Logger.debug('SMStreamDataSelector actionTemplate', data);
+    return (
       <div className="flex p-0 justify-content-end align-items-center">
         <StreamCopyLinkDialog realUrl={data.RealUrl} />
         <StreamVisibleDialog iconFilled={false} value={data} />
+        <EditSMStreamDialog smStreamDto={data} />
       </div>
-    ),
-    []
-  );
+    );
+  }, []);
 
   const columns = useMemo(
     (): ColumnMeta[] => [
@@ -169,6 +173,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         <SimpleButton dataKey={dataKey} />
         <StreamMultiVisibleDialog selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} />
         <CreateSMChannelsDialog selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} />
+        <CreateSMStreamDialog />
       </div>
     );
   }, [dataKey, smTableIsSimple]);

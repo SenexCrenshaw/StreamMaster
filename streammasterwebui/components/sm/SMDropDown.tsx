@@ -7,6 +7,7 @@ interface SMDropDownProps {
   readonly buttonTemplate?: ReactNode;
   readonly center?: React.ReactNode;
   readonly className?: string;
+  readonly closeOnSelection?: boolean;
   readonly data: any;
   readonly dataKey?: string;
   readonly footerTemplate?: ReactNode;
@@ -38,6 +39,7 @@ const SMDropDown = forwardRef<SMDropDownRef, SMDropDownProps>((props: SMDropDown
     buttonTemplate,
     center,
     className = 'w-full',
+    closeOnSelection = true,
     data,
     dataKey,
     filter,
@@ -113,7 +115,7 @@ const SMDropDown = forwardRef<SMDropDownRef, SMDropDownProps>((props: SMDropDown
                 itemTemplate={itemTemplate}
                 onChange={(e) => {
                   onChange?.(e);
-                  // smOverlayRef.current?.hide();
+                  if (closeOnSelection) smOverlayRef.current?.hide();
                 }}
                 optionValue={optionValue}
                 value={value}
