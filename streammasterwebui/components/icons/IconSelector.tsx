@@ -6,6 +6,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import React, { useEffect, useMemo, useState } from 'react';
 
 type IconSelectorProperties = {
+  readonly className?: string;
   readonly darkBackGround?: boolean;
   readonly enableEditMode?: boolean;
   readonly label?: string;
@@ -14,7 +15,7 @@ type IconSelectorProperties = {
   readonly onChange?: (value: string) => void;
 };
 
-const IconSelector = ({ darkBackGround = false, enableEditMode = true, label, large = false, value, onChange }: IconSelectorProperties) => {
+const IconSelector = ({ className, darkBackGround = false, enableEditMode = true, label, large = false, value, onChange }: IconSelectorProperties) => {
   const [origValue, setOrigValue] = useState<string | undefined>(undefined);
   const [iconSource, setIconSource] = useState<string | undefined>(undefined);
   const [iconDto, setIconDto] = useState<IconFileDto | undefined>(undefined);
@@ -66,8 +67,8 @@ const IconSelector = ({ darkBackGround = false, enableEditMode = true, label, la
     }
 
     return (
-      <div className="flex icon-button-template no-bo2rder justify-content-center align-items-center w-full">
-        <img className="no-borde2r" alt="Icon logo" src={iconUrl} />
+      <div className="flex icon-button-template justify-content-center align-items-center w-full">
+        <img alt="Icon logo" src={iconUrl} />
       </div>
     );
   }, [iconSource, large]);
@@ -101,6 +102,20 @@ const IconSelector = ({ darkBackGround = false, enableEditMode = true, label, la
     );
   };
 
+  const getDiv = useMemo(() => {
+    let div = 'w-full';
+    if (large) {
+      div += ' sm-iconselector-lg';
+    } else {
+      div += ' sm-iconselector';
+    }
+    if (label) {
+      div += ' flex-column';
+    }
+
+    return div;
+  }, [label, large]);
+
   if (!enableEditMode) {
     const iconUrl = getIconUrl(iconSource ?? '', '/images/default.png', false);
 
@@ -118,23 +133,33 @@ const IconSelector = ({ darkBackGround = false, enableEditMode = true, label, la
   }
 
   return (
-    <SMDropDown
-      buttonLabel="ICONS"
-      buttonDarkBackground={darkBackGround}
-      buttonTemplate={buttonTemplate}
-      data={query.data}
-      dataKey="Source"
-      filter
-      filterBy="Source"
-      itemTemplate={itemTemplate}
-      onChange={(e) => {
-        handleOnChange(e);
-      }}
-      label={label}
-      title="ICONS"
-      value={iconDto}
-      contentWidthSize="3"
-    />
+    <div className={className}>
+      {label && (
+        <div className="flex flex-column align-items-start">
+          <label className="pl-15">{label.toUpperCase()}</label>
+          <div className="pt-small" />
+        </div>
+      )}
+      <div className={getDiv}>
+        <SMDropDown
+          buttonLabel="LOGOS"
+          buttonDarkBackground={darkBackGround}
+          buttonTemplate={buttonTemplate}
+          data={query.data}
+          dataKey="Source"
+          filter
+          filterBy="Source"
+          itemTemplate={itemTemplate}
+          onChange={(e) => {
+            handleOnChange(e);
+          }}
+          // label={label}
+          title="LOGOS"
+          value={iconDto}
+          contentWidthSize="3"
+        />
+      </div>
+    </div>
   );
 };
 IconSelector.displayName = 'IconSelector';

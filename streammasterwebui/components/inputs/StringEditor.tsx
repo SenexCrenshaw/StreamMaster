@@ -136,21 +136,21 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
     }, [disableDebounce, inputValue, isLoading, originalValue, value]);
 
     const inputGetDiv = useMemo(() => {
-      let ret = 'stringeditorbody-inputtext';
+      let ret = 'sm-input';
       if (darkBackGround) {
-        ret = 'stringeditorbody-inputtext-dark';
+        ret += '-dark';
       }
 
-      if (needsSave) {
-        ret += ' stringeditorbody-inputtext-save';
-      }
+      // if (needsSave) {
+      //   ret += ' stringeditorbody-inputtext-save';
+      // }
 
       if (labelInline) {
         ret += ' w-12';
       }
 
       return ret;
-    }, [labelInline, needsSave, darkBackGround]);
+    }, [darkBackGround, labelInline]);
 
     const doShowClear = useMemo(() => darkBackGround && showClear && inputValue !== '', [darkBackGround, inputValue, showClear]);
 

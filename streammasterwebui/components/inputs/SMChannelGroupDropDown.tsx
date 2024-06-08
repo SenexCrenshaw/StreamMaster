@@ -42,7 +42,7 @@ const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownP
   }, [smChannelDto]);
 
   const getDiv = useMemo(() => {
-    let ret = ' w-full ';
+    let ret = 'stringeditor ';
 
     if (label && !labelInline) {
       ret += '';

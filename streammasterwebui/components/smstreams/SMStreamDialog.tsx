@@ -99,7 +99,7 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
     <>
       <div className="sm-headerBg dialog-padding border-sides">
         <div className="flex w-12 gap-1 pl-2">
-          <div className="flex flex-column w-10 gap-1">
+          <div className="flex flex-column sm-w-9 gap-1 justify-content-between">
             <div className="flex w-12 gap-1">
               <div className="sm-w-6">
                 <StringEditor autoFocus label="Name" placeholder="Name" darkBackGround disableDebounce onChange={(e) => e && setName(e)} value={request.Name} />
@@ -132,14 +132,12 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
             </div>
           </div>
 
-          <div className="w-2 flex flex-column justify-content-start align-items-center">
+          <div className="sm-w-8rem">
             <IconSelector darkBackGround label="Logo" large enableEditMode onChange={(e) => setLogo(e)} value={request.Logo} />
           </div>
         </div>
-        <div className="layout-padding-bottom" />
       </div>
       <div className="layout-padding-bottom-lg sm-headerBg border-radius-bottom" />
-      <div className="layout-padding-bottom-lg" />
     </>
   );
 });

@@ -44,28 +44,7 @@
     background-color: $inputBg !important;
 }
 
-.sm-input {
-    // @extend .sm-input-border;
-    @extend .sm-hover;
-    display: flex;
-    align-items: center;
-    background-color: transparent;
-    // width: 100% !important;
-    height: $input-height-with-no-borders;
-    max-height: $input-height-with-no-borders;
-    min-height: $input-height-with-no-borders;
-    // color: $inputTextColor;
-    // border-color: transparent;
-    // border-radius: $borderRadius;
-    // border-style: solid;
-    // border-width: $inputBorder-size ;
-}
 
-.sm-input-dark {
-    // @extend .sm-input;
-    @extend .sm-input-border-dark;
-    background-color: $inputBg !important;
-}
 
 .sm-input-no-color {
     padding: 0;
@@ -88,16 +67,93 @@
     justify-content: space-between;
 }
 
+.sm-iconselector {
+    @extend .sm-hover-dark;
+    background-color: transparent;
+    width: 100%;
+}
+
+.sm-iconselector-lg {
+    @extend .sm-border;
+    @extend .sm-hover;
+    background-color: transparent;
+    width: 100%;
+}
+
 .stringeditor {
-    position: relative;
-    display: flex;
     align-items: center;
-    height: $input-height-with-no-borders !important;
-    min-height: $input-height-with-no-borders !important;
-    max-height: $input-height-with-no-borders !important;
-    border-color: transparent;
-    border-style: solid;
-    border-width: $inputBorder-size;
+    background-color: transparent;
+    // border-color: transparent;
+    // border-radius: $borderRadius;
+    // border-style: solid;
+    // border-width: $inputBorder-size;
+    color: $textColor;
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    width: 100%;
+
+    .p-inputtext {
+        border: unset;
+
+    }
+
+    .stringeditorbody-inputtext-buttons {
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+
+        .p-inputnumber-input {
+            @extend .width-100;
+        }
+    }
+
+    .sm-input {
+        @extend .text-container;
+        @extend .sm-hover;
+        background-color: transparent;
+        width: 100%;
+
+        &:focus-visible {
+            background-color: $inputBg;
+        }
+
+        .p-inputnumber-input {
+            color: $inputTextColor;
+            background-color: $inputBg;
+            @extend .width-100;
+
+            &:focus-visible {
+                background-color: $inputBg;
+            }
+        }
+    }
+
+    .sm-input-dark {
+        @extend .text-container;
+        @extend .sm-input-border-dark;
+        @extend .sm-hover-dark;
+        background-color: $inputBg;
+        border-color: $inputBorderColor;
+        border-style: solid;
+        color: $inputTextColor;
+        height: $input-height-with-no-borders;
+        max-height: $input-height-with-no-borders;
+        min-height: $input-height-with-no-borders;
+        width: 100%;
+
+        .p-inputnumber-input {
+            color: $textColor;
+            @extend .width-100;
+        }
+
+        .label {
+            color: $textColor;
+        }
+
+        &:focus-visible {
+            background-color: $inputBg;
+        }
+    }
 
     .p-float-label {
         >label {
@@ -131,63 +187,63 @@
     border-bottom-right-radius: 0 !important;
 
     .p-inputnumber-input {
-        width: 99% !important;
+        @extend .width-100;
     }
 }
 
-.p-inputnumber-input {
-    background-color: transparent !important;
+// .p-inputnumber-input {
+//     background-color: transparent !important;
 
-    :hover {
-        border-style: none !important;
-        box-shadow: none !important;
-        transform: none !important;
-        opacity: 1 !important;
-    }
-}
+//     :hover {
+//         border-style: none !important;
+//         box-shadow: none !important;
+//         transform: none !important;
+//         opacity: 1 !important;
+//     }
+// }
 
-.stringeditorbody-inputtext {
-    @extend .text-container;
-    @extend .sm-hover;
-    align-items: center;
-    background-color: transparent !important;
-    color: $inputTextColor;
-    display: flex;
-    height: $input-height-with-no-borders !important;
-    max-height: $input-height-with-no-borders !important;
-    min-height: $input-height-with-no-borders !important;
-    width: 100%;
+// .stringeditorbody-inputtext {
+//     @extend .text-container;
+//     @extend .sm-hover;
+//     align-items: center;
+//     background-color: transparent !important;
+//     color: $inputTextColor;
+//     display: flex;
+//     height: $input-height-with-no-borders !important;
+//     max-height: $input-height-with-no-borders !important;
+//     min-height: $input-height-with-no-borders !important;
+//     width: 100%;
 
-    .p-inputnumber-input {
-        color: $inputTextColor;
-        background-color: transparent !important;
-    }
-}
+//     .p-inputnumber-input {
+//         color: $inputTextColor;
+//         background-color: transparent !important;
+//     }
+// }
 
-.stringeditorbody-inputtext-dark {
-    @extend .stringeditorbody-inputtext;
-    @extend .sm-input-border-dark;
-    color: $textColor !important;
-    background-color: $inputBg !important;
-    display: flex;
-    align-items: center;
-    border-color: $inputBorderColor !important;
-    border-style: solid !important;
+// .stringeditorbody-inputtext-dark {
+//     @extend .stringeditorbody-inputtext;
+//     @extend .sm-input-border-dark;
+//     color: $textColor !important;
+//     background-color: $inputBg !important;
+//     display: flex;
+//     align-items: center;
+//     border-color: $inputBorderColor !important;
+//     border-style: solid !important;
 
-    .p-inputnumber-input {
-        color: $textColor !important;
-    }
+//     .p-inputnumber-input {
+//         color: $textColor !important;
+//     }
 
-    .label {
-        color: $textColor !important;
-    }
-}
+//     .label {
+//         color: $textColor !important;
+//     }
+// }
 
-.stringeditorbody-inputtext-save {
-    @extend .stringeditorbody-inputtext;
+// .stringeditorbody-inputtext-save {
+//     @extend .stringeditorbody-inputtext;
 
-    background-color: $inputBg !important;
-}
+//     background-color: $inputBg !important;
+// }
 
 .text-default-color {
     color: $textColor;

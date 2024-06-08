@@ -55,7 +55,7 @@
   width: calc(50% - 0.4rem);
 }
 
-.width-100 {
+.width-100, .stringeditorbody-inputtext-buttons .p-inputnumber-input, .stringeditor .sm-input-dark .p-inputnumber-input, .stringeditor .sm-input .p-inputnumber-input, .stringeditor .stringeditorbody-inputtext-buttons .p-inputnumber-input {
   width: calc(100% - 0.4rem);
 }
 
@@ -7676,17 +7676,28 @@
   border-width: 0.1rem !important;
 }
 
-.sm-border, .sm-sourceorfiledialog, .p-datatable-wrapper, .sm-datatable-header, .sm-card .sm-card-info, .sm-card-dark .sm-card-info, .sm-card .sm-card-header, .sm-card-dark .sm-card-header, .sm-card .sm-card-children, .sm-card-dark .sm-card-children, .sm-standard-header {
+.sm-border, .sm-sourceorfiledialog, .p-datatable-wrapper, .sm-datatable-header, .sm-card .sm-card-info, .sm-card-dark .sm-card-info, .sm-card .sm-card-header, .sm-card-dark .sm-card-header, .sm-card .sm-card-children, .sm-card-dark .sm-card-children, .sm-standard-header, .sm-iconselector-lg {
   border-radius: 6px !important;
   border-color: #263238 !important;
   border-width: 0.1rem !important;
   border-style: solid !important;
 }
 
-.sm-hover, .sm-dropdown, .sm-icon-selector, .stringeditorbody-inputtext, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark, .sm-input {
+.sm-hover, .sm-dropdown, .sm-icon-selector, .stringeditor .sm-input, .sm-iconselector-lg {
   transition: border-color 0.15s;
 }
-.sm-hover:not(.p-disabled):hover, .sm-dropdown:not(.p-disabled):hover, .sm-icon-selector:not(.p-disabled):hover, .stringeditorbody-inputtext:not(.p-disabled):hover, .stringeditorbody-inputtext-save:not(.p-disabled):hover, .stringeditorbody-inputtext-dark:not(.p-disabled):hover, .sm-input:not(.p-disabled):hover {
+.sm-hover:not(.p-disabled):hover:not(:focus), .sm-dropdown:not(.p-disabled):hover:not(:focus), .sm-icon-selector:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input:not(.p-disabled):hover:not(:focus), .sm-iconselector-lg:not(.p-disabled):hover:not(:focus) {
+  border-color: #bcbfbf !important;
+  border-radius: 6px !important;
+  border-style: solid !important;
+  border-width: 0.1rem !important;
+  color: #bcbfbf !important;
+}
+
+.sm-hover-dark, .stringeditor .sm-input-dark, .sm-iconselector {
+  transition: border-color 0.15s;
+}
+.sm-hover-dark:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark:not(.p-disabled):hover:not(:focus), .sm-iconselector:not(.p-disabled):hover:not(:focus) {
   border-color: #bcbfbf !important;
   border-radius: 6px !important;
   border-style: solid !important;
@@ -7715,7 +7726,7 @@
   border-style: solid !important;
   transition: border-color 0.15s;
 }
-.sm-input-border:not(.p-disabled):hover, .icon-template img:not(.p-disabled):hover, .sm-streamingproxy-selector:not(.p-disabled):hover, .sm-list-container:not(.p-disabled):hover, .sm-fileupload .p-inputtext:not(.p-disabled):hover, .sm-streamgroupselector:not(.p-disabled):hover, #startNumber > input:not(.p-disabled):hover, .p-multiselect:not(.p-disabled):hover {
+.sm-input-border:not(.p-disabled):hover:not(:focus), .icon-template img:not(.p-disabled):hover:not(:focus), .sm-streamingproxy-selector:not(.p-disabled):hover:not(:focus), .sm-list-container:not(.p-disabled):hover:not(:focus), .sm-fileupload .p-inputtext:not(.p-disabled):hover:not(:focus), .sm-streamgroupselector:not(.p-disabled):hover:not(:focus), #startNumber > input:not(.p-disabled):hover:not(:focus), .p-multiselect:not(.p-disabled):hover:not(:focus) {
   border-color: #bcbfbf !important;
   border-radius: 6px !important;
   border-style: solid !important;
@@ -7723,14 +7734,14 @@
   color: #bcbfbf !important;
 }
 
-.sm-input-border-dark, .p-chips .p-chips-input-token input, .stringeditorbody-inputtext-dark, .sm-input-dark {
+.sm-input-border-dark, .p-chips .p-chips-input-token input, .stringeditor .sm-input-dark {
   border-radius: 6px !important;
   border-color: #263238 !important;
   border-width: 0.1rem !important;
   border-style: solid !important;
   transition: border-color 0.15s;
 }
-.sm-input-border-dark:not(.p-disabled):hover, .p-chips .p-chips-input-token input:not(.p-disabled):hover, .stringeditorbody-inputtext-dark:not(.p-disabled):hover, .sm-input-dark:not(.p-disabled):hover {
+.sm-input-border-dark:not(.p-disabled):hover:not(:focus), .p-chips .p-chips-input-token input:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark:not(.p-disabled):hover:not(:focus) {
   border-color: #bcbfbf !important;
   border-radius: 6px !important;
   border-style: solid !important;
@@ -7940,19 +7951,6 @@
   background-color: #12181b !important;
 }
 
-.sm-input {
-  display: flex;
-  align-items: center;
-  background-color: transparent;
-  height: 1.4rem;
-  max-height: 1.4rem;
-  min-height: 1.4rem;
-}
-
-.sm-input-dark {
-  background-color: #12181b !important;
-}
-
 .sm-input-no-color {
   padding: 0;
   border-width: 0;
@@ -7972,16 +7970,64 @@
   justify-content: space-between;
 }
 
+.sm-iconselector {
+  background-color: transparent;
+  width: 100%;
+}
+
+.sm-iconselector-lg {
+  background-color: transparent;
+  width: 100%;
+}
+
 .stringeditor {
-  position: relative;
-  display: flex;
   align-items: center;
-  height: 1.4rem !important;
-  min-height: 1.4rem !important;
-  max-height: 1.4rem !important;
-  border-color: transparent;
+  background-color: transparent;
+  color: #bcbfbf;
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  width: 100%;
+}
+.stringeditor .p-inputtext {
+  border: unset;
+}
+.stringeditor .stringeditorbody-inputtext-buttons {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+.stringeditor .sm-input {
+  background-color: transparent;
+  width: 100%;
+}
+.stringeditor .sm-input:focus-visible {
+  background-color: #12181b;
+}
+.stringeditor .sm-input .p-inputnumber-input {
+  color: #94abec;
+  background-color: #12181b;
+}
+.stringeditor .sm-input .p-inputnumber-input:focus-visible {
+  background-color: #12181b;
+}
+.stringeditor .sm-input-dark {
+  background-color: #12181b;
+  border-color: #263238;
   border-style: solid;
-  border-width: 0.1rem;
+  color: #94abec;
+  height: 1.4rem;
+  max-height: 1.4rem;
+  min-height: 1.4rem;
+  width: 100%;
+}
+.stringeditor .sm-input-dark .p-inputnumber-input {
+  color: #bcbfbf;
+}
+.stringeditor .sm-input-dark .label {
+  color: #bcbfbf;
+}
+.stringeditor .sm-input-dark:focus-visible {
+  background-color: #12181b;
 }
 .stringeditor .p-float-label > label {
   height: 1.6rem;
@@ -8009,59 +8055,11 @@
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
 }
-.stringeditorbody-inputtext-buttons .p-inputnumber-input {
-  width: 99% !important;
-}
-
-.p-inputnumber-input {
-  background-color: transparent !important;
-}
-.p-inputnumber-input :hover {
-  border-style: none !important;
-  box-shadow: none !important;
-  transform: none !important;
-  opacity: 1 !important;
-}
-
-.stringeditorbody-inputtext, .stringeditorbody-inputtext-save, .stringeditorbody-inputtext-dark {
-  align-items: center;
-  background-color: transparent !important;
-  color: #94abec;
-  display: flex;
-  height: 1.4rem !important;
-  max-height: 1.4rem !important;
-  min-height: 1.4rem !important;
-  width: 100%;
-}
-.stringeditorbody-inputtext .p-inputnumber-input, .stringeditorbody-inputtext-save .p-inputnumber-input, .stringeditorbody-inputtext-dark .p-inputnumber-input {
-  color: #94abec;
-  background-color: transparent !important;
-}
-
-.stringeditorbody-inputtext-dark {
-  color: #bcbfbf !important;
-  background-color: #12181b !important;
-  display: flex;
-  align-items: center;
-  border-color: #263238 !important;
-  border-style: solid !important;
-}
-.stringeditorbody-inputtext-dark .p-inputnumber-input {
-  color: #bcbfbf !important;
-}
-.stringeditorbody-inputtext-dark .label {
-  color: #bcbfbf !important;
-}
-
-.stringeditorbody-inputtext-save {
-  background-color: #12181b !important;
-}
-
 .text-default-color {
   color: #bcbfbf;
 }
 
-.text-container, .stringeditorbody-inputtext, .stringeditorbody-inputtext-dark, .stringeditorbody-inputtext-save {
+.text-container, .stringeditor .sm-input, .stringeditor .sm-input-dark {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -8600,7 +8598,7 @@
 }
 
 .p-inputnumber-button-group {
-  height: 1.6rem;
+  height: 1.3rem;
 }
 .p-inputnumber-button-group > button {
   border: unset;
@@ -9258,8 +9256,7 @@
 }
 
 .icon-template-lg {
-  padding: 0rem !important;
-  padding-left: 0.25rem !important;
+  padding: 0.25rem !important;
   max-width: 6rem;
   max-height: 4.6rem;
   height: 5rem;

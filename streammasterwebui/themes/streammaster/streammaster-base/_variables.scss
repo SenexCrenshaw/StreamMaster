@@ -10,6 +10,7 @@ $headerTextLeft: .8rem;
 
 $input-height: $datatable-row-height - ($inputBorder-size*2);
 $input-height-with-no-borders: $input-height - ($inputBorder-size*2);
+$input-height-with-no-borders-md: $input-height - ($inputBorder-size*3);
 $input-height-with-no-borders-sm: $input-height - $inputBorder-size;
 $input-height-with-no-borders-lg: $input-height - ($inputBorder-size*4);
 

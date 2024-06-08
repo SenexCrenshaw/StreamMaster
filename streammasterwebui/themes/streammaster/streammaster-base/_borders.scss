@@ -24,7 +24,20 @@
 @mixin input-hover() {
     transition: border-color 0.15s;
 
-    &:not(.p-disabled):hover {
+    &:not(.p-disabled):hover:not(:focus) {
+        border-color: $inputHoverBorderColor !important;
+        border-radius: $borderRadius !important;
+        border-style: solid !important;
+        border-width: $inputBorder-size !important;
+        color: $highlightTextColor !important;
+        // background-color: $inputBg !important;
+    }
+}
+
+@mixin input-hover-dark() {
+    transition: border-color 0.15s;
+
+    &:not(.p-disabled):hover:not(:focus) {
         border-color: $inputHoverBorderColor !important;
         border-radius: $borderRadius !important;
         border-style: solid !important;
@@ -51,6 +64,10 @@
 
 .sm-hover {
     @include input-hover();
+}
+
+.sm-hover-dark {
+    @include input-hover-dark();
 }
 
 .sm-hover-y {

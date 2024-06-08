@@ -113,12 +113,9 @@ const NumberEditor = ({
   });
 
   const getDiv = useMemo(() => {
-    let ret = 'stringeditorbody-inputtext';
+    let ret = 'sm-input';
     if (darkBackGround === true) {
-      ret = 'stringeditorbody-inputtext-dark';
-    }
-    if (needsSave) {
-      ret = 'stringeditorbody-inputtext-save';
+      ret = 'sm-input-dark';
     }
 
     if (showButtons === true) {
@@ -130,7 +127,7 @@ const NumberEditor = ({
     }
 
     return ret;
-  }, [darkBackGround, labelInline, needsSave, showButtons]);
+  }, [darkBackGround, labelInline, showButtons]);
 
   useEffect(() => {
     if (code === 'Enter' || code === 'NumpadEnter') {
@@ -165,10 +162,10 @@ const NumberEditor = ({
       {label && !labelInline && (
         <>
           <label className="pl-15">{label.toUpperCase()}</label>
-          <div className="pt-small" />
+          {/* <div className="pt-small" /> */}
         </>
       )}
-      <div ref={divReference} className={`flex ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
+      <div ref={divReference} className={`flex stringeditor ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
         {label && labelInline && <div className="w-6">{label.toUpperCase()}</div>}
         <InputNumber
           className={getDiv}
