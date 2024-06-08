@@ -45,20 +45,11 @@ export const RootSideBar = () => {
     });
   };
 
-  // useEffect(() => {
-  //   if (currentDark === null || currentDark !== dark) {
-  //     setTheme(dark, () => {
-  //       console.log('setTheme', dark);
-  //       setCurrentDark(dark);
-  //     });
-  //   }
-  // }, [currentDark, dark, setCurrentDark, setTheme]);
-
   return (
     <Sidebar
       className="app sidebar max-h-screen justify-content-start align-items-start"
       collapsed={collapsed}
-      collapsedWidth="52px"
+      collapsedWidth="37px"
       rootStyles={{
         [`.${sidebarClasses.container}`]: {
           backgroundColor: 'var(--surface-a)'
@@ -70,9 +61,17 @@ export const RootSideBar = () => {
         menuItemStyles={{
           button: ({ active }) => ({
             '&:hover': {
-              backgroundColor: '#cb5e00'
+              backgroundColor: '#cb5e00',
+              // color: '#161d21',
+              filter: 'brightness(140%)'
             },
-            backgroundColor: active ? '#cb5e00' : undefined
+            backgroundColor: active ? '#cb5e00' : undefined,
+            borderBottomLeftRadius: '0.5rem',
+            borderTopLeftRadius: '0.5rem',
+            paddingBottom: '0.5rem',
+            paddingLeft: '0',
+            paddingRight: '0',
+            paddingTop: '0.5rem'
           })
         }}
       >

@@ -42,21 +42,21 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
             }
 
 
-            if (m3uFile.Url != request.Url)
+            if (!string.IsNullOrEmpty(request.Url) && m3uFile.Url != request.Url)
             {
                 needsRefresh = true;
                 m3uFile.Url = request.Url;
                 ret.Add(new FieldData(() => m3uFile.Url));
             }
 
-            if (request.OverWriteChannels != null)
+            if (request.OverWriteChannels.HasValue)
             {
                 needsUpdate = true;
-                m3uFile.OverwriteChannelNumbers = (bool)request.OverWriteChannels;
+                m3uFile.OverwriteChannelNumbers = request.OverWriteChannels.Value;
                 ret.Add(new FieldData(() => m3uFile.OverwriteChannelNumbers));
             }
 
-            if (!string.IsNullOrEmpty(request.Name))
+            if (!string.IsNullOrEmpty(request.Name) && request.Name != m3uFile.Name)
             {
                 nameChange = true;
                 m3uFile.Name = request.Name;
@@ -65,13 +65,13 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
 
             if (request.MaxStreamCount.HasValue)
             {
-                m3uFile.MaxStreamCount = (int)request.MaxStreamCount;
+                m3uFile.MaxStreamCount = request.MaxStreamCount.Value;
                 ret.Add(new FieldData(() => m3uFile.MaxStreamCount));
             }
 
-            if (request.AutoUpdate != null)
+            if (request.AutoUpdate.HasValue)
             {
-                m3uFile.AutoUpdate = (bool)request.AutoUpdate;
+                m3uFile.AutoUpdate = request.AutoUpdate.Value;
                 ret.Add(new FieldData(() => m3uFile.AutoUpdate));
             }
 

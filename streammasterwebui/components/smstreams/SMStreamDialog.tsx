@@ -2,9 +2,8 @@ import IconSelector from '@components/icons/IconSelector';
 import NumberEditor from '@components/inputs/NumberEditor';
 import SMChannelGroupDropDown from '@components/inputs/SMChannelGroupDropDown';
 import StringEditor from '@components/inputs/StringEditor';
-import { Logger } from '@lib/common/logger';
 import { CreateSMChannelRequest, CreateSMStreamRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 
 interface SMStreamDialogProperties {
   onSave: (request: CreateSMChannelRequest) => void;
@@ -80,10 +79,13 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
     [request.ChannelNumber]
   );
 
+  const isSaveEnabled = useMemo(() => {
+    return (request?.Name ?? '') !== '' && (request?.Url ?? '') !== '';
+  }, [request?.Name, request?.Url]);
+
   useEffect(() => {
-    Logger.debug('SMStreamDialog', 'request.Name', request.Name, 'request.Url', request.Url, (request?.Name ?? '') !== '' && (request?.Url ?? '') !== '');
-    onSaveEnabled && onSaveEnabled((request?.Name ?? '') !== '' && (request?.Url ?? '') !== '');
-  }, [onSaveEnabled, request.ChannelNumber, request.Group, request.Logo, request.Name, request.Url]);
+    onSaveEnabled && onSaveEnabled(isSaveEnabled);
+  }, [isSaveEnabled, onSaveEnabled, request.Name, request.Url]);
 
   useImperativeHandle(
     ref,
@@ -102,7 +104,21 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
           <div className="flex flex-column sm-w-9 gap-1 justify-content-between">
             <div className="flex w-12 gap-1">
               <div className="sm-w-6">
-                <StringEditor autoFocus label="Name" placeholder="Name" darkBackGround disableDebounce onChange={(e) => e && setName(e)} value={request.Name} />
+                <StringEditor
+                  autoFocus
+                  label="Name"
+                  placeholder="Name"
+                  darkBackGround
+                  disableDebounce
+                  onChange={(e) => e && setName(e)}
+                  onSave={(e) => {
+                    e && setName(e);
+                    if (isSaveEnabled) {
+                      doSave();
+                    }
+                  }}
+                  value={request.Name}
+                />
               </div>
               <div className="sm-w-6">
                 <SMChannelGroupDropDown

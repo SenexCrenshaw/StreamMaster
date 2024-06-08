@@ -4,6 +4,7 @@ import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 
 import BooleanEditor from '@components/inputs/BooleanEditor';
+import { arraysEqual } from '@lib/common/common';
 import { useStringValue } from '@lib/redux/hooks/stringValue';
 import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
@@ -30,7 +31,8 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
         MaxStreamCount: 1,
         Name: '',
         OverwriteChannelNumbers: true,
-        StartingChannelNumber: 1
+        StartingChannelNumber: 1,
+        Url: ''
       } as M3UFileDto),
     []
   );
@@ -71,7 +73,11 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
   );
 
   const isSaveEnabled = useMemo(() => {
-    const isChanged = Object.keys(defaultValues).some((key) => m3uFileDto[key as keyof M3UFileDto] !== originalM3UFileDto?.[key as keyof M3UFileDto]);
+    let isChanged = Object.keys(defaultValues).some((key) => m3uFileDto[key as keyof M3UFileDto] !== originalM3UFileDto?.[key as keyof M3UFileDto]);
+
+    if (!isChanged && !arraysEqual(m3uFileDto.VODTags, originalM3UFileDto?.VODTags)) {
+      isChanged = true;
+    }
 
     onSaveEnabled?.(isChanged);
     return isChanged;

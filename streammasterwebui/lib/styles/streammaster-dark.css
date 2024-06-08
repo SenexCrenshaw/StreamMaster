@@ -7998,6 +7998,10 @@
 }
 .stringeditor .sm-input {
   background-color: transparent;
+  color: #bcbfbf;
+  height: 1.4rem;
+  max-height: 1.4rem;
+  min-height: 1.4rem;
   width: 100%;
 }
 .stringeditor .sm-input:focus-visible {
@@ -8005,7 +8009,7 @@
 }
 .stringeditor .sm-input .p-inputnumber-input {
   color: #bcbfbf;
-  background-color: #12181b;
+  background-color: transparent;
 }
 .stringeditor .sm-input .p-inputnumber-input:focus-visible {
   background-color: #12181b;

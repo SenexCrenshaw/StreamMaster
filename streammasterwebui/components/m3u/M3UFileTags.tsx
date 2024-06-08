@@ -35,7 +35,7 @@ const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) =
       <label className="flex text-xs text-default-color w-full justify-content-start align-items-center pl-2" htmlFor={uuid}>
         URL REGEX
       </label>
-      <div id={uuid} className="w-full tag-editor p-0 m-0 pt-small" ref={anchorReference}>
+      <div id={uuid} className="w-full tag-editor p-0 m-0 pt-small stringeditor" ref={anchorReference}>
         <SMOverlay
           buttonDarkBackground
           buttonTemplate={buttonTemplate}
@@ -56,22 +56,6 @@ const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) =
             />
           </div>
         </SMOverlay>
-
-        {/* <div className="flex w-full">
-          <DownArrowButton
-            className="w-full"
-            label={buttonTags}
-            tooltip=""
-            onClick={(e) => {
-              if (isOpen) {
-                op.current?.hide();
-              } else {
-                op.current?.show(null, anchorReference.current);
-              }
-              setIsOpen(!isOpen);
-            }}
-          />
-        </div> */}
       </div>
     </div>
   );

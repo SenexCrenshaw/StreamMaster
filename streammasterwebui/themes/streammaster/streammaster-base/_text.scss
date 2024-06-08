@@ -111,6 +111,10 @@
         @extend .text-container;
         @extend .sm-hover;
         background-color: transparent;
+        color: $inputTextColor;
+        height: $input-height-with-no-borders;
+        max-height: $input-height-with-no-borders;
+        min-height: $input-height-with-no-borders;
         width: 100%;
 
         &:focus-visible {
@@ -119,7 +123,7 @@
 
         .p-inputnumber-input {
             color: $inputTextColor;
-            background-color: $inputBg;
+            background-color: transparent;
             @extend .width-100;
 
             &:focus-visible {
