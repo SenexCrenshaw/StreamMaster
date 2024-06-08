@@ -239,6 +239,14 @@ namespace StreamMaster.Application.SMChannels.Controllers
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
+        [HttpDelete]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> DeleteSMStream(DeleteSMStreamRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse>> UpdateSMStream(UpdateSMStreamRequest request)
@@ -411,6 +419,12 @@ namespace StreamMaster.Application.Hubs
         }
 
         public async Task<APIResponse> CreateSMStream(CreateSMStreamRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> DeleteSMStream(DeleteSMStreamRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

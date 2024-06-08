@@ -15,6 +15,7 @@ import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectedSMStreams } from '@lib/redux/hooks/selectedSMStreams';
 
 import CreateSMStreamDialog from '@components/smstreams/CreateSMStreamDialog';
+import DeleteSMStreamDialog from '@components/smstreams/DeleteSMStreamDialog';
 import EditSMStreamDialog from '@components/smstreams/EditSMStreamDialog';
 import { Logger } from '@lib/common/logger';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
@@ -61,6 +62,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         <StreamCopyLinkDialog realUrl={data.RealUrl} />
         <StreamVisibleDialog iconFilled={false} value={data} />
         <EditSMStreamDialog smStreamDto={data} />
+        <DeleteSMStreamDialog smStream={data} />
       </div>
     );
   }, []);

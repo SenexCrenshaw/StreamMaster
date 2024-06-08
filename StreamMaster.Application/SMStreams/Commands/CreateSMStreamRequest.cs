@@ -33,6 +33,8 @@ public class CreateSMStreamRequestHandler(ILogger<CreateSMStreamRequest> Logger,
                 Group = request.Group ?? "All",
                 Logo = request.Logo ?? string.Empty,
                 Url = request.Url,
+                M3UFileId = -1,
+                M3UFileName = "CUSTOM"
             };
 
             Repository.SMStream.Create(smStream);

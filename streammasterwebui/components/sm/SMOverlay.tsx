@@ -8,6 +8,7 @@ import { SMCard } from './SMCard';
 interface SMOverlayProperties {
   readonly answer?: boolean;
   readonly buttonClassName?: string | undefined;
+  readonly buttonDisabled?: boolean;
   readonly buttonDarkBackground?: boolean;
   readonly buttonLabel?: string | undefined;
   readonly buttonTemplate?: ReactNode;
@@ -37,6 +38,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
     answer,
     buttonClassName = '',
     buttonDarkBackground = false,
+    buttonDisabled = false,
     buttonLabel = '',
     buttonTemplate,
     center,
@@ -79,6 +81,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
       return (
         <SMButton
           darkBackGround={buttonDarkBackground}
+          disabled={buttonDisabled}
           className={buttonClassName}
           iconFilled={iconFilled}
           icon={icon}
@@ -94,6 +97,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
     return (
       <SMButton
         darkBackGround={buttonDarkBackground}
+        disabled={buttonDisabled}
         className={buttonClassName}
         iconFilled={iconFilled}
         icon={icon}
@@ -103,7 +107,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
         onClick={(e) => openPanel(e)}
       />
     );
-  }, [buttonClassName, buttonDarkBackground, buttonLabel, buttonTemplate, icon, iconFilled, isLoading, openPanel, tooltip]);
+  }, [buttonClassName, buttonDarkBackground, buttonDisabled, buttonLabel, buttonTemplate, icon, iconFilled, isLoading, openPanel, tooltip]);
 
   if (isLoading === true) {
     return (

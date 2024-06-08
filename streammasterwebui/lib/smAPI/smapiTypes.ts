@@ -576,6 +576,10 @@ export interface CreateSMStreamRequest
 	Name: string;
 	Url: string;
 }
+export interface DeleteSMStreamRequest
+{
+	SMStreamId: string;
+}
 export interface UpdateSMStreamRequest
 {
 	ChannelNumber?: number;

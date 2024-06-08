@@ -102,7 +102,7 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
           <div className="flex flex-column w-10 gap-1">
             <div className="flex w-12 gap-1">
               <div className="sm-w-6">
-                <StringEditor label="Name" placeholder="Name" darkBackGround disableDebounce onChange={(e) => e && setName(e)} value={request.Name} />
+                <StringEditor autoFocus label="Name" placeholder="Name" darkBackGround disableDebounce onChange={(e) => e && setName(e)} value={request.Name} />
               </div>
               <div className="sm-w-6">
                 <SMChannelGroupDropDown

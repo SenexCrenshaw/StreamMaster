@@ -9,6 +9,7 @@ import SMOverlay, { SMOverlayRef } from './SMOverlay';
 
 interface SMPopUpProperties {
   readonly buttonClassName?: string;
+  readonly buttonDisabled?: boolean;
   readonly children?: React.ReactNode;
   readonly disabled?: boolean;
   readonly hidden?: boolean;
@@ -27,6 +28,7 @@ interface RememberProps {
 
 export const SMPopUp = ({
   buttonClassName = 'icon-red',
+  buttonDisabled = false,
   children,
   disabled = false,
   hidden: parentHidden,
@@ -71,6 +73,7 @@ export const SMPopUp = ({
       contentWidthSize="2"
       icon={icon}
       buttonClassName={buttonClassName}
+      buttonDisabled={buttonDisabled}
       tooltip={tooltip}
       ref={overlayRef}
       answer={remember?.checked ? remember?.value : undefined ?? undefined}
