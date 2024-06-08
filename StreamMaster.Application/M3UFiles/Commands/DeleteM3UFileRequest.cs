@@ -92,7 +92,7 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
 
             await dataRefreshService.RefreshAllM3U();
 
-            await messageService.SendSuccess("Deleted M3U '" + m3UFile.Name);
+            await messageService.SendSuccess("Deleted M3U '" + m3UFile.Name + "'");
 
             return APIResponse.Success;
         }

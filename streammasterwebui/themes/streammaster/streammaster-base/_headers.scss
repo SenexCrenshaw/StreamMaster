@@ -1,5 +1,5 @@
 .header-text {
-    @extend .text-xlg;
+    @extend .sm-text-xlg;
     @extend .header-text-color;
     display: flex;
     align-items: center;
@@ -9,7 +9,7 @@
 }
 
 .header-text-sub {
-    @extend .text-lg;
+    @extend .sm-text-lg;
     @extend .header-text-color;
     display: flex;
     align-items: center;
@@ -36,7 +36,7 @@
 }
 
 .info-header-text {
-    @extend .text-lg;
+    @extend .sm-text-lg;
     @extend .text-color;
     font-weight: bold;
 }

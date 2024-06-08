@@ -117,6 +117,7 @@ export const SMPopUp = ({
                 <BooleanEditor
                   label="Don't Ask Again?"
                   labelInline
+                  labelSmall
                   checked={checked}
                   onChange={(e) => setRemeber({ checked: e, value: remember?.value } as RememberProps)}
                 />

@@ -44,7 +44,7 @@
     }
 
     .sm-card-children-content {
-        @extend .padding-xlg;
+        @extend .sm-padding-xlg;
         background-color: $headerBg !important;
 
         .p-dropdown {
@@ -58,7 +58,7 @@
     @extend .sm-card;
 
     .dialog-padding {
-        @extend .padding-xlg;
+        @extend .sm-padding-xlg;
     }
 
     .sm-card-header {

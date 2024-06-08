@@ -41,6 +41,7 @@ import selectedStreamGroup from '@lib/redux/hooks/selectedStreamGroup';
 import showHidden from '@lib/redux/hooks/showHidden';
 import showSelections from '@lib/redux/hooks/showSelections';
 import sortInfo from '@lib/redux/hooks/sortInfo';
+import stringValue from '@lib/redux/hooks/stringValue';
 import updateSettingRequest from '@lib/redux/hooks/updateSettingRequest';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
@@ -105,6 +106,10 @@ const sortInfoConfig = {
   key: 'sortInfo',
   storage
 };
+const stringValueConfig = {
+  key: 'stringValue',
+  storage
+};
 export const rootReducer = combineReducers({
   currentSettingRequest: currentSettingRequest,
   filters: persistReducer(filtersConfig, filters),
@@ -148,6 +153,7 @@ export const rootReducer = combineReducers({
   showHidden: persistReducer(showHiddenConfig, showHidden),
   showSelections: persistReducer(showSelectionsConfig, showSelections),
   sortInfo: persistReducer(sortInfoConfig, sortInfo),
+  stringValue: persistReducer(stringValueConfig, stringValue),
   updateSettingRequest: updateSettingRequest,
 });
 

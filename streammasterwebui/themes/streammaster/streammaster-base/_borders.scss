@@ -5,6 +5,18 @@
     border-style: solid !important;
 }
 
+@mixin sm-border-y() {
+    border-color: $inputBorderColor !important;
+    border-left-style: none !important;
+    border-radius: 0 !important;
+    border-right-style: none !important;
+    border-width: $inputBorder-size !important;
+}
+
+.sm-border-y {
+    @include sm-border-y();
+}
+
 .sm-border {
     @include sm-border();
 }
@@ -22,9 +34,27 @@
     }
 }
 
+@mixin input-hover-y() {
+    transition: border-color 0.15s;
+
+    &:not(.p-disabled):hover {
+        border-bottom-style: solid !important;
+        border-color: $inputHoverBorderColor !important;
+        border-left-color: transparent !important;
+        border-radius: 0 !important;
+        border-right-color: transparent !important;
+        border-top-style: solid !important;
+        border-width: $inputBorder-size !important;
+        color: $highlightTextColor !important;
+    }
+}
+
 .sm-hover {
     @include input-hover();
+}
 
+.sm-hover-y {
+    @include input-hover-y();
 }
 
 .sm-input-border {

@@ -7668,7 +7668,15 @@
   border-radius: 6px;
 }
 
-.sm-border, .p-datatable-wrapper, .sm-datatable-header, .sm-card .sm-card-info, .sm-card-dark .sm-card-info, .sm-card .sm-card-header, .sm-card-dark .sm-card-header, .sm-card .sm-card-children, .sm-card-dark .sm-card-children, .sm-standard-header {
+.sm-border-y {
+  border-color: #263238 !important;
+  border-left-style: none !important;
+  border-radius: 0 !important;
+  border-right-style: none !important;
+  border-width: 0.1rem !important;
+}
+
+.sm-border, .sm-sourceorfiledialog, .p-datatable-wrapper, .sm-datatable-header, .sm-card .sm-card-info, .sm-card-dark .sm-card-info, .sm-card .sm-card-header, .sm-card-dark .sm-card-header, .sm-card .sm-card-children, .sm-card-dark .sm-card-children, .sm-standard-header {
   border-radius: 6px !important;
   border-color: #263238 !important;
   border-width: 0.1rem !important;
@@ -7682,6 +7690,20 @@
   border-color: #bcbfbf !important;
   border-radius: 6px !important;
   border-style: solid !important;
+  border-width: 0.1rem !important;
+  color: #bcbfbf !important;
+}
+
+.sm-hover-y, .sm-sourceorfiledialog .p-inputtext {
+  transition: border-color 0.15s;
+}
+.sm-hover-y:not(.p-disabled):hover, .sm-sourceorfiledialog .p-inputtext:not(.p-disabled):hover {
+  border-bottom-style: solid !important;
+  border-color: #bcbfbf !important;
+  border-left-color: transparent !important;
+  border-radius: 0 !important;
+  border-right-color: transparent !important;
+  border-top-style: solid !important;
   border-width: 0.1rem !important;
   color: #bcbfbf !important;
 }
@@ -7878,35 +7900,35 @@
   border: 2px solid #e693a9;
 }
 
-.padding-xs, .text-xs, .sm-input-xs {
+.sm-padding-xs, .sm-text-xs, .sm-input-xs {
   padding: 0rem 0.18rem;
 }
 
-.text-xs, .sm-input-xs {
+.sm-text-xs, .sm-input-xs {
   font-size: 0.5625rem;
 }
 
-.padding-sm, .text-sm, .sm-input-sm {
+.sm-padding-sm, .sm-text-sm, .sm-input-sm {
   padding: 0rem 0.21rem;
 }
 
-.text-sm, .sm-input-sm {
+.sm-text-sm, .sm-input-sm {
   font-size: 1.4rem;
 }
 
-.padding-lg, .text-lg, .header-text-sub, .info-header-text, .info-header-text-bottom-border {
+.sm-padding-lg, .sm-text-lg, .header-text-sub, .info-header-text, .info-header-text-bottom-border {
   padding: 0rem 0.3rem;
 }
 
-.text-lg, .header-text-sub, .info-header-text, .info-header-text-bottom-border {
+.sm-text-lg, .header-text-sub, .info-header-text, .info-header-text-bottom-border {
   font-size: 0.9375rem;
 }
 
-.padding-xlg, .sm-card-dark .dialog-padding, .sm-card .sm-card-children-content, .sm-card-dark .sm-card-children-content {
+.sm-padding-xlg, .sm-card-dark .dialog-padding, .sm-card .sm-card-children-content, .sm-card-dark .sm-card-children-content {
   padding: 0rem 0.42rem;
 }
 
-.text-xlg, .header-text {
+.sm-text-xlg, .header-text {
   font-size: 1.3125rem;
 }
 
@@ -8049,7 +8071,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: normal;
 }
 
 .sm-standard-text {
@@ -8228,37 +8249,11 @@
   text-align: right;
 }
 
-.sourceOrFileDialog-toggle .p-button.p-component {
+.sm-sourceorfiledialog-toggle .p-button.p-component {
   padding: 0 !important;
   padding-right: 0.6rem !important;
   padding-left: 0.6rem !important;
   width: 2rem !important;
-}
-
-.sourceOrFileDialog .p-inputgroup {
-  margin-top: 1rem;
-}
-.sourceOrFileDialog .sourceOrFileDialog-url {
-  padding: unset;
-  margin: unset;
-  border: unset;
-  border-radius: unset;
-  height: unset;
-  max-height: unset;
-  padding: 0.78rem;
-  border: 2px solid var(--surface-100);
-}
-.sourceOrFileDialog .p-progressbar {
-  height: 1.8rem;
-  border-radius: 0;
-}
-.sourceOrFileDialog .p-progressbar-value {
-  border-left: none;
-  border-right: none;
-}
-.sourceOrFileDialog .p-inputtext {
-  border-radius: unset !important;
-  height: 1.8rem !important;
 }
 
 .p-dropdown-panel .p-dropdown-filter {
@@ -8952,6 +8947,30 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background-color: #263238;
+}
+
+.sm-sourceorfiledialog {
+  height: 1.4rem !important;
+}
+.sm-sourceorfiledialog .p-inputgroup {
+  height: 1.4rem !important;
+}
+.sm-sourceorfiledialog button {
+  width: 100%;
+  height: 1.4rem !important;
+}
+.sm-sourceorfiledialog .p-progressbar {
+  height: 1.4rem !important;
+  border-radius: 0;
+}
+.sm-sourceorfiledialog .p-progressbar-value {
+  height: 1.4rem !important;
+  border-left: none;
+  border-right: none;
+}
+.sm-sourceorfiledialog .p-inputtext {
+  border-radius: unset !important;
+  height: 1.4rem !important;
 }
 
 .p-datatable {

@@ -1,37 +1,37 @@
-.padding-xs {
+.sm-padding-xs {
     @include scaledPadding($inputPadding, $scaleXS);
 }
 
-.text-xs {
-    @extend .padding-xs;
+.sm-text-xs {
+    @extend .sm-padding-xs;
     @include scaledFontSize($common-font-size, $scaleXS);
 }
 
-.padding-sm {
+.sm-padding-sm {
     @include scaledPadding($inputPadding, $scaleSM);
 }
 
-.text-sm {
-    @extend .padding-sm;
+.sm-text-sm {
+    @extend .sm-padding-sm;
     font-size: $input-height-with-no-borders;
     // @include scaledFontSize($common-font-size, $scaleSM);
 }
 
-.padding-lg {
+.sm-padding-lg {
     @include scaledPadding($inputPadding, $scaleLG);
 }
 
-.text-lg {
-    @extend .padding-lg;
+.sm-text-lg {
+    @extend .sm-padding-lg;
     @include scaledFontSize($common-font-size, $scaleLG);
 }
 
-.padding-xlg {
+.sm-padding-xlg {
     @include scaledPadding($inputPadding, $scaleXLG);
 }
 
-.text-xlg {
-    // @extend .padding-xlg;
+.sm-text-xlg {
+    // @extend .sm-padding-xlg;
     //font-size: $input-height-with-no-borders;
     @include scaledFontSize($common-font-size, $scaleXLG);
 }
@@ -193,20 +193,20 @@
 }
 
 .sm-input-xs {
-    @extend .text-xs;
+    @extend .sm-text-xs;
 }
 
 .sm-input-sm {
-    @extend .text-sm;
+    @extend .sm-text-sm;
 }
 
 .sm-input-xs {
-    @extend .text-xs;
+    @extend .sm-text-xs;
 }
 
 .text-container {
     @include text-overflow();
-    font-weight: normal;
+    // font-weight: normal;
 }
 
 .sm-standard-text {

@@ -1,0 +1,38 @@
+.sm-sourceorfiledialog {
+    //@extend .sm-input-dark;
+    @extend .sm-border;
+    // @extend .sm-hover;
+    height: $input-height-with-no-borders !important;
+
+    .p-inputgroup {
+        height: $input-height-with-no-borders !important;
+    }
+
+    // .sm-sourceorfiledialog-url {
+    //     &:not(.p-disabled):hover {
+    //         border: unset !important;
+    //     }
+    // }
+
+    button {
+        width: 100%;
+        height: $input-height-with-no-borders !important;
+    }
+
+    .p-progressbar {
+        height: $input-height-with-no-borders !important;
+        border-radius: 0;
+    }
+
+    .p-progressbar-value {
+        height: $input-height-with-no-borders !important;
+        border-left: none;
+        border-right: none;
+    }
+
+    .p-inputtext {
+        border-radius: unset !important;
+        height: $input-height-with-no-borders !important;
+        @extend .sm-hover-y;
+    }
+}

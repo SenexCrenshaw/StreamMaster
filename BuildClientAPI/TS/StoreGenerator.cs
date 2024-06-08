@@ -35,7 +35,8 @@ public static class StoreGenerator
         "selectedSMStream",
         "queryAdditionalFilters",
           "filters",
-        "isTrue"
+        "isTrue",
+        "stringValue"
     ];
 
     private static readonly List<string> AdditionalReducers =
@@ -43,7 +44,6 @@ public static class StoreGenerator
         "messages",
         "updateSettingRequest",
         "currentSettingRequest"
-
     ];
 
     private static string GenerateConfigs()

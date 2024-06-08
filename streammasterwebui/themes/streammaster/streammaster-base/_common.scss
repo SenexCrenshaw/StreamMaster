@@ -112,44 +112,12 @@
   }
 }
 
-.sourceOrFileDialog-toggle {
+.sm-sourceorfiledialog-toggle {
   .p-button.p-component {
     padding: 0 !important;
     padding-right: 0.6rem !important;
     padding-left: 0.6rem !important;
     width: $gridItem-width !important;
-  }
-}
-
-.sourceOrFileDialog {
-  .p-inputgroup {
-    margin-top: 1rem;
-  }
-
-  .sourceOrFileDialog-url {
-    padding: unset;
-    margin: unset;
-    border: unset;
-    border-radius: unset;
-    height: unset;
-    max-height: unset;
-    padding: 0.78rem;
-    border: 2px solid var(--surface-100);
-  }
-
-  .p-progressbar {
-    height: $datatable-row-height;
-    border-radius: 0;
-  }
-
-  .p-progressbar-value {
-    border-left: none;
-    border-right: none;
-  }
-
-  .p-inputtext {
-    border-radius: unset !important;
-    height: $datatable-row-height !important;
   }
 }
 

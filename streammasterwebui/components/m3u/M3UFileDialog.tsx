@@ -4,6 +4,7 @@ import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 
 import BooleanEditor from '@components/inputs/BooleanEditor';
+import { useStringValue } from '@lib/redux/hooks/stringValue';
 import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
 import M3UFileTags from './M3UFileTags';
@@ -40,6 +41,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
   const [m3uFileDto, setM3UFileDto] = useState<M3UFileDto>(defaultValues);
   const [originalM3UFileDto, setOriginalM3UFileDto] = useState<M3UFileDto | undefined>(undefined);
   const [request, setRequest] = useState<UpdateM3UFileRequest>({} as UpdateM3UFileRequest);
+  const { setStringValue } = useStringValue('m3uName');
 
   const onUpdated = useCallback(async () => {
     if (request.Id === undefined) {
@@ -109,13 +111,16 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
         <div className="flex gap-1">
           <div className="w-6">
             <StringEditor
-              showClear={false}
+              showClear
               disableDebounce
               darkBackGround
               autoFocus
               label="NAME"
               value={m3uFileDto?.Name}
-              onChange={(e) => updateStateAndRequest({ Name: e })}
+              onChange={(e) => {
+                updateStateAndRequest({ Name: e });
+                setStringValue(e);
+              }}
             />
           </div>
           <div className="w-6">
@@ -157,7 +162,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
         <div className="flex gap-1">
           <div className="flex w-6 gap-1">
             <div className="w-6">
-              <div className="sourceOrFileDialog-toggle">
+              <div className="sm-sourceorfiledialog-toggle">
                 <BooleanEditor
                   label="AUTO CH.#:"
                   checked={m3uFileDto?.OverwriteChannelNumbers}

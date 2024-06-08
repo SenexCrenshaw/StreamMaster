@@ -1,27 +1,29 @@
 import { isValidUrl } from '@lib/common/common';
-import { Button } from 'primereact/button';
+import { useStringValue } from '@lib/redux/hooks/stringValue';
 import { InputText } from 'primereact/inputtext';
 import { ProgressBar } from 'primereact/progressbar';
 import { ChangeEvent, useCallback, useMemo, useRef, useState } from 'react';
+import SMButton from './SMButton';
 interface SourceOrFileDialogProps {
+  isM3U: boolean;
   onAdd: (source: string | null, file: File | null) => void;
-  onName: (name: string) => void;
   progress?: number;
 }
 
-const SourceOrFileDialog = ({ onAdd, onName, progress }: SourceOrFileDialogProps) => {
+const SourceOrFileDialog = ({ isM3U, onAdd, progress }: SourceOrFileDialogProps) => {
   const [source, setSource] = useState<string | null>('');
   const [file, setFile] = useState<File | null>(null);
   const inputFile = useRef<HTMLInputElement>(null);
+  const { setStringValue, stringValue } = useStringValue(isM3U ? 'm3uName' : 'epgName');
 
   const clearInputFile = useCallback(() => {
     setFile(null);
     if (inputFile.current !== null) {
       inputFile.current.value = '';
       inputFile.current.files = null;
-      onName('');
+      setStringValue('');
     }
-  }, [onName]);
+  }, [setStringValue]);
 
   const sourceValue = useMemo(() => {
     var value = file ? file.name : source ?? '';
@@ -34,8 +36,8 @@ const SourceOrFileDialog = ({ onAdd, onName, progress }: SourceOrFileDialogProps
     }
     if (source === null) return false;
 
-    return isValidUrl(source);
-  }, [source, file]);
+    return isValidUrl(source) && stringValue !== undefined && stringValue !== '';
+  }, [file, source, stringValue]);
 
   const getProgressOrInput = useMemo(() => {
     if (progress !== undefined && progress > 0) {
@@ -47,7 +49,7 @@ const SourceOrFileDialog = ({ onAdd, onName, progress }: SourceOrFileDialogProps
     }
     return (
       <InputText
-        className="sourceOrFileDialog-url"
+        className="sm-sourceorfiledialog-url"
         disabled={file !== null}
         placeholder="Source URL or File"
         value={sourceValue}
@@ -65,10 +67,10 @@ const SourceOrFileDialog = ({ onAdd, onName, progress }: SourceOrFileDialogProps
       if (selectedFile) {
         setSource(null);
         setFile(selectedFile);
-        onName(selectedFile.name);
+        setStringValue(selectedFile.name);
       }
     },
-    [onName]
+    [setStringValue]
   );
 
   const addIcon = useMemo((): string => {
@@ -76,27 +78,32 @@ const SourceOrFileDialog = ({ onAdd, onName, progress }: SourceOrFileDialogProps
   }, [file]);
 
   return (
-    <div className="sourceOrFileDialog flex flex-row grid-nogutter justify-content-between align-items-center">
-      <div className="p-inputgroup flex">
-        <Button className="icon-orange-filled w-1" icon="pi pi-upload" onClick={() => inputFile?.current?.click()} />
+    <div className="sm-sourceorfiledialog flex flex-row grid-nogutter justify-content-between align-items-center">
+      <div className="p-inputgroup">
+        <SMButton rounded={false} className="icon-orange" iconFilled icon="pi-upload" onClick={() => inputFile?.current?.click()} tooltip="Local File" />
         {getProgressOrInput}
-        <Button
-          className="icon-red-filled w-1"
+        <SMButton
+          className="icon-red"
           disabled={file === null}
-          icon="pi pi-times"
+          icon="pi-times"
+          iconFilled
+          rounded={false}
           onClick={() => {
             clearInputFile();
             setSource(null);
           }}
-          tooltip="Clear File"
+          tooltip="Clear Selection"
         />
-        <Button
-          className="icon-green-filled w-1"
+        <SMButton
+          rounded={false}
+          className="icon-green"
+          iconFilled
           disabled={!isSaveEnabled}
           icon={addIcon}
           onClick={() => {
             onAdd(source, file);
           }}
+          tooltip="Add M3U"
         />
       </div>
 

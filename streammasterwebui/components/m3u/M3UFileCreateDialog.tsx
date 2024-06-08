@@ -1,12 +1,10 @@
-import React, { useCallback, useRef } from 'react';
-
-import { FileUpload } from 'primereact/fileupload';
-
 import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 import SMFileUpload from '@components/sm/SMFileUpload';
-
+import { useStringValue } from '@lib/redux/hooks/stringValue';
 import { CreateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { CreateM3UFileRequest, M3UFileDto } from '@lib/smAPI/smapiTypes';
+import { FileUpload } from 'primereact/fileupload';
+import React, { useCallback, useEffect, useRef } from 'react';
 import M3UFileDialog from './M3UFileDialog';
 
 export interface M3UFileDialogProperties {
@@ -18,6 +16,7 @@ export interface M3UFileDialogProperties {
 }
 
 export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3UFileDialogProperties) => {
+  const { stringValue } = useStringValue('m3uName');
   const fileUploadReference = useRef<FileUpload>(null);
   const smDialogRef = useRef<SMDialogRef>(null);
   const defaultValues = {
@@ -66,14 +65,22 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
     [m3uFileDto]
   );
 
-  const setName = (value: string) => {
-    if (m3uFileDto && m3uFileDto.Name !== value) {
+  // const setName = (value: string) => {
+  //   if (m3uFileDto && m3uFileDto.Name !== value) {
+  //     const m3uFileDtoCopy = { ...m3uFileDto };
+  //     m3uFileDtoCopy.Name = value;
+  //     console.log('M3UFileCreateDialog setName', value);
+  //     setM3UFileDto(m3uFileDtoCopy);
+  //   }
+  // };
+
+  useEffect(() => {
+    if (stringValue && m3uFileDto.Name !== stringValue) {
       const m3uFileDtoCopy = { ...m3uFileDto };
-      m3uFileDtoCopy.Name = value;
-      console.log('M3UFileCreateDialog setName', value);
+      m3uFileDtoCopy.Name = stringValue;
       setM3UFileDto(m3uFileDtoCopy);
     }
-  };
+  }, [m3uFileDto, stringValue]);
 
   return (
     <SMDialog
@@ -86,15 +93,13 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
       tooltip="Add M3U"
       info="General"
     >
+      <div className="layout-padding-bottom-lg" />
       <div className="w-12">
         <SMFileUpload
           m3uFileDto={m3uFileDto}
           onCreateFromSource={onCreateFromSource}
           onUploadComplete={() => {
             ReturnToParent(true);
-          }}
-          onName={(name) => {
-            setName(name);
           }}
         />
         <div className="layout-padding-bottom-lg" />

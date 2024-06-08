@@ -214,7 +214,7 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
             />
           </div>
           <div className="w-2">
-            <div className="sourceOrFileDialog-toggle">
+            <div className="sm-sourceorfiledialog-toggle">
               <div className="flex flex-column">
                 <div id="name" className="text-xs sm-input pb-2">
                   COLOR

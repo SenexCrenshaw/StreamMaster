@@ -1,4 +1,5 @@
 import { UploadParamsSettings, useFileUpload } from '@components/sharedEPGM3U/useFileUpload';
+import { useStringValue } from '@lib/redux/hooks/stringValue';
 import { FileUpload } from 'primereact/fileupload';
 import { memo, useRef, useState } from 'react';
 import SourceOrFileDialog from './SourceOrFileDialog';
@@ -6,13 +7,12 @@ import SourceOrFileDialog from './SourceOrFileDialog';
 type SMFileUploadProperties = UploadParamsSettings & {
   readonly onCreateFromSource: (source: string) => void;
   readonly onUploadComplete: () => void;
-  onName(name: string): void;
+  // onName(name: string): void;
 };
 
 const SMFileUpload = (props: SMFileUploadProperties) => {
   const fileUploadReference = useRef<FileUpload>(null);
-
-  const [name, setName] = useState<string>('');
+  const { stringValue } = useStringValue(props.m3uFileDto ? 'm3uName' : 'epgName');
   const { doUpload, progress, resetUploadState } = useFileUpload();
   const [block, setBlock] = useState<boolean>(false);
 
@@ -48,26 +48,20 @@ const SMFileUpload = (props: SMFileUploadProperties) => {
   };
 
   return (
-    <div>
-      <SourceOrFileDialog
-        progress={progress}
-        onAdd={(source, file) => {
-          if (source) {
-            console.log('Add from source', source);
-            props.onCreateFromSource(source);
-            ReturnToParent();
-          } else if (file) {
-            console.log('Add from file', file.name);
-            startUpload(name, source, file);
-          }
-        }}
-        onName={(name) => {
-          name = name.replace(/\.[^./]+$/, '');
-          setName(name);
-          props.onName(name);
-        }}
-      />
-    </div>
+    <SourceOrFileDialog
+      isM3U={props.m3uFileDto !== undefined}
+      progress={progress}
+      onAdd={(source, file) => {
+        if (source) {
+          console.log('Add from source', source);
+          props.onCreateFromSource(source);
+          ReturnToParent();
+        } else if (file && stringValue) {
+          console.log('Add from file', file.name);
+          startUpload(stringValue, source, file);
+        }
+      }}
+    />
   );
 };
 

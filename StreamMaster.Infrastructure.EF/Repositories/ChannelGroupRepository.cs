@@ -239,7 +239,8 @@ public class ChannelGroupRepository(
     public async Task<APIResponse> DeleteChannelGroupsByNameRequest(List<string> channelGroupNames)
     {
         IQueryable<ChannelGroup> toDelete = GetQuery().Where(a => channelGroupNames.Contains(a.Name) && !a.IsReadOnly);
-        await BulkDeleteAsync(toDelete);
+        if (toDelete.Any())
+            await BulkDeleteAsync(toDelete);
         return APIResponse.Ok;
     }
 
