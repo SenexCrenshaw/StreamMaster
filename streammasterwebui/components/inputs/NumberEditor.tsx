@@ -17,7 +17,7 @@ interface NumberEditorTemplateProperties {
   readonly min?: number;
   readonly onChange?: (value: number) => void;
   readonly onClick?: () => void;
-  readonly onSave?: (value: number | undefined) => void;
+  readonly onSave?: (value: number) => void;
   readonly prefix?: string | undefined;
   readonly resetValue?: number | undefined;
   readonly showButtons?: boolean;

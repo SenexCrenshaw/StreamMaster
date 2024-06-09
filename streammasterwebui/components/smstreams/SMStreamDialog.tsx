@@ -2,6 +2,7 @@ import IconSelector from '@components/icons/IconSelector';
 import NumberEditor from '@components/inputs/NumberEditor';
 import SMChannelGroupDropDown from '@components/inputs/SMChannelGroupDropDown';
 import StringEditor from '@components/inputs/StringEditor';
+import { Logger } from '@lib/common/logger';
 import { CreateSMChannelRequest, CreateSMStreamRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 
@@ -10,13 +11,13 @@ interface SMStreamDialogProperties {
   readonly onSaveEnabled?: (saveEnabled: boolean) => void;
   readonly smStreamDto?: SMStreamDto;
 }
-
 export interface SMStreamDialogRef {
   save: () => void;
 }
 
 const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>(({ onSave, onSaveEnabled, smStreamDto }, ref) => {
   const [request, setRequest] = useState<CreateSMStreamRequest>({} as CreateSMStreamRequest);
+  const [orig, setOrig] = useState<SMStreamDto | null>(null);
 
   const doSave = useCallback(() => {
     onSave(request);
@@ -24,6 +25,9 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
 
   useEffect(() => {
     if (smStreamDto) {
+      if (orig === null) {
+        setOrig(smStreamDto);
+      }
       setRequest({
         ChannelNumber: smStreamDto.ChannelNumber,
         Group: smStreamDto.Group,
@@ -80,12 +84,47 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
   );
 
   const isSaveEnabled = useMemo(() => {
-    return (request?.Name ?? '') !== '' && (request?.Url ?? '') !== '';
-  }, [request?.Name, request?.Url]);
+    if (orig === null) {
+      if (request.Name === '' || request.Url === '') {
+        return false;
+      }
+      return true;
+    }
+
+    if (smStreamDto === undefined) {
+      return false;
+    }
+
+    if (request.Name === '' || request.Url === '') {
+      return false;
+    }
+    if (orig === null) {
+      return false;
+    }
+
+    if (request.Name !== orig.Name) {
+      return true;
+    }
+
+    if (request.Url !== orig.Url) {
+      return true;
+    }
+
+    if (request.Group !== orig.Group) {
+      return true;
+    }
+
+    if (request.ChannelNumber !== orig.ChannelNumber) {
+      return true;
+    }
+
+    return false;
+  }, [orig, request, smStreamDto]);
 
   useEffect(() => {
+    Logger.debug('SMStreamDialog.isSaveEnabled', request, isSaveEnabled);
     onSaveEnabled && onSaveEnabled(isSaveEnabled);
-  }, [isSaveEnabled, onSaveEnabled, request.Name, request.Url]);
+  }, [isSaveEnabled, onSaveEnabled, request, request.Name, request.Url]);
 
   useImperativeHandle(
     ref,
@@ -141,7 +180,8 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
                   label="Channel #"
                   showButtons
                   darkBackGround
-                  onChange={(e) => e && setChannelNumber(e)}
+                  onChange={(e) => setChannelNumber(e)}
+                  onSave={(e) => setChannelNumber(e)}
                   value={request.ChannelNumber}
                 />
               </div>

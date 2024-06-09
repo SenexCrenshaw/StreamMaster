@@ -113,7 +113,7 @@ export const RootSideBar = () => {
           /> */}
         </Menu>
       </Sidebar>
-      <div className="flex flex-column m-0 p-0 pb-3 sidebar-sm-icon">
+      <div className="flex flex-column m-0 p-0 pb-1 sidebar-sm-icon">
         <div className="col-6 p-0 m-0 justify-content-center align-content-center">
           <img className="p-0 m-0" alt="Stream Master Logo" src={isSystemReady ? '/images/SMNewX32.png' : '/images/SMNewX32.png'} />
         </div>
