@@ -7,7 +7,11 @@ import { SMStreamDto } from '@lib/smAPI/smapiTypes';
 import React, { useRef, useState } from 'react';
 import SMStreamDialog from './SMStreamDialog';
 
-const CreateSMStreamDialog = () => {
+interface CreateSMStreamDialogProperties {
+  readonly label?: string;
+}
+
+const CreateSMStreamDialog = ({ label }: CreateSMStreamDialogProperties) => {
   const dataKey = 'SMChannelSMStreamDialog-SMStreamDataForSMChannelSelector';
   const { setSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
   const [saveEnabled, setSaveEnabled] = useState<boolean>(false);
@@ -30,32 +34,48 @@ const CreateSMStreamDialog = () => {
   }, []);
 
   return (
-    <SMDialog
-      darkBackGround
-      ref={smDialogRef}
-      position="top"
-      title="CREATE STREAM"
-      iconFilled
-      onHide={() => ReturnToParent()}
-      buttonClassName="icon-green"
-      icon="pi-plus"
-      widthSize={5}
-      info="General"
-      tooltip="Create Stream"
-      header={
-        <div className="flex w-12 gap-1 justify-content-end align-content-center">
-          <OKButton
-            disabled={!saveEnabled}
-            onClick={(request) => {
-              m3uDialogRef.current?.save();
-              smDialogRef.current?.hide();
-            }}
-          />
+    <div className="flex align-items-center justify-content-center gap-1">
+      <SMDialog
+        darkBackGround
+        ref={smDialogRef}
+        position="top-right"
+        title="CREATE STREAM"
+        iconFilled
+        onHide={() => ReturnToParent()}
+        buttonClassName="icon-green"
+        icon="pi-plus"
+        widthSize={5}
+        info="General"
+        tooltip="Create Stream"
+        header={
+          <div className="flex w-12 gap-1 justify-content-end align-content-center">
+            <OKButton
+              disabled={!saveEnabled}
+              onClick={(request) => {
+                m3uDialogRef.current?.save();
+                smDialogRef.current?.hide();
+              }}
+            />
+          </div>
+        }
+      >
+        <SMStreamDialog ref={m3uDialogRef} onSave={onSave} onSaveEnabled={setSaveEnabled} />
+      </SMDialog>
+
+      {label && (
+        <div
+          className="sm-menuitem"
+          onClick={() => {
+            smDialogRef.current?.show();
+          }}
+          style={{
+            borderColor: 'var(--icon-green)'
+          }}
+        >
+          {label}
         </div>
-      }
-    >
-      <SMStreamDialog ref={m3uDialogRef} onSave={onSave} onSaveEnabled={setSaveEnabled} />
-    </SMDialog>
+      )}
+    </div>
   );
 };
 

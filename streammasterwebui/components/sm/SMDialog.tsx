@@ -23,6 +23,7 @@ interface SMDialogProperties {
 }
 export interface SMDialogRef {
   hide: () => void;
+  show: () => void;
 }
 
 const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogProperties, ref) => {
@@ -46,6 +47,7 @@ const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogPro
 
   useImperativeHandle(ref, () => ({
     hide: () => setVisible(false),
+    show: () => setVisible(true),
     props
   }));
 

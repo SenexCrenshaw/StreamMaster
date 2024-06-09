@@ -15,7 +15,9 @@ interface SMPopUpProperties {
   readonly hidden?: boolean;
   readonly icon?: string;
   readonly iconFilled?: boolean;
+  readonly label?: string;
   readonly rememberKey?: string;
+  readonly showRemember?: boolean;
   readonly title: string;
   readonly tooltip?: string;
   OK(): void;
@@ -34,7 +36,9 @@ export const SMPopUp = ({
   hidden: parentHidden,
   icon,
   iconFilled,
+  label,
   rememberKey,
+  showRemember = true,
   OK,
   title,
   tooltip
@@ -67,16 +71,17 @@ export const SMPopUp = ({
           }
         }
       }}
-      iconFilled={iconFilled}
-      simple
-      title={title}
-      contentWidthSize="2"
-      icon={icon}
+      answer={remember?.checked ? remember?.value : undefined ?? undefined}
       buttonClassName={buttonClassName}
       buttonDisabled={buttonDisabled}
-      tooltip={tooltip}
+      contentWidthSize="2"
+      label={label}
+      icon={icon}
+      iconFilled={iconFilled}
       ref={overlayRef}
-      answer={remember?.checked ? remember?.value : undefined ?? undefined}
+      simple
+      title={title}
+      tooltip={tooltip}
     >
       <SMCard
         darkBackGround
@@ -93,7 +98,7 @@ export const SMPopUp = ({
                 overlayRef.current?.hide();
                 OK();
               }}
-              tooltip="Close"
+              tooltip="Ok"
             />
             <SMButton
               icon="pi-times"
@@ -115,17 +120,19 @@ export const SMPopUp = ({
         <div className="sm-card-children">
           <div className="flex flex-column w-full justify-items-center align-items-center align-content-center settings-line">
             {children}
-            <div className="flex pl-1 w-full">
-              <div className="w-7">
-                <BooleanEditor
-                  label="Don't Ask Again?"
-                  labelInline
-                  labelSmall
-                  checked={checked}
-                  onChange={(e) => setRemeber({ checked: e, value: remember?.value } as RememberProps)}
-                />
+            {showRemember && (
+              <div className="flex pl-1 w-full">
+                <div className="w-7">
+                  <BooleanEditor
+                    label="Don't Ask Again?"
+                    labelInline
+                    labelSmall
+                    checked={checked}
+                    onChange={(e) => setRemeber({ checked: e, value: remember?.value } as RememberProps)}
+                  />
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </SMCard>

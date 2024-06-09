@@ -23,7 +23,6 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
         value: StreamingProxyTypes[key as keyof typeof StreamingProxyTypes]
       }));
 
-    Logger.debug('Handler options generated', { options });
     return options;
   }, []);
 

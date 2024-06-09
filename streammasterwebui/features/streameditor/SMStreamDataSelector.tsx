@@ -5,19 +5,15 @@ import SMButton from '@components/sm/SMButton';
 import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import CreateSMChannelsDialog from '@components/smchannels/CreateSMChannelsDialog';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
-import StreamMultiVisibleDialog from '@components/smstreams/StreamMultiVisibleDialog';
 import StreamVisibleDialog from '@components/smstreams/StreamVisibleDialog';
 import { GetMessage } from '@lib/common/intl';
 import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectedSMStreams } from '@lib/redux/hooks/selectedSMStreams';
 
-import CreateSMStreamDialog from '@components/smstreams/CreateSMStreamDialog';
 import DeleteSMStreamDialog from '@components/smstreams/DeleteSMStreamDialog';
 import EditSMStreamDialog from '@components/smstreams/EditSMStreamDialog';
-import { Logger } from '@lib/common/logger';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
@@ -25,6 +21,7 @@ import { CreateSMChannelFromStreamRequest, RemoveSMStreamFromSMChannelRequest, S
 import { DataTableRowClickEvent, DataTableRowEvent, DataTableValue } from 'primereact/datatable';
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import SimpleButton from '../../components/buttons/SimpleButton';
+import SMStreamMenu from './SMStreamMenu';
 import useSelectedSMItems from './useSelectedSMItems';
 
 const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
@@ -56,7 +53,6 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
   }, [enableEdit, propsEnableEdit]);
 
   const actionTemplate = useCallback((data: SMStreamDto) => {
-    Logger.debug('SMStreamDataSelector actionTemplate', data);
     return (
       <div className="flex p-0 justify-content-end align-items-center">
         <StreamCopyLinkDialog realUrl={data.RealUrl} />
@@ -165,7 +161,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         <div className="flex justify-content-end align-items-center w-full gap-1 pr-1">
           {!smTableIsSimple && <M3UFilesButton />}
           <SimpleButton dataKey={dataKey} />
-          <SMButton className="icon-orange" iconFilled icon="pi pi-bars" rounded onClick={() => {}} />
+          <SMStreamMenu />
         </div>
       );
     }
@@ -173,9 +169,10 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
       <div className="flex justify-content-end align-items-center w-full gap-1 pr-1">
         <M3UFilesButton />
         <SimpleButton dataKey={dataKey} />
-        <StreamMultiVisibleDialog selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} />
-        <CreateSMChannelsDialog selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} />
-        <CreateSMStreamDialog />
+        {/* <StreamMultiVisibleDialog selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} />
+        <CreateSMChannelsDialog selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} /> */}
+        {/* <CreateSMStreamDialog /> */}
+        <SMStreamMenu />
       </div>
     );
   }, [dataKey, smTableIsSimple]);

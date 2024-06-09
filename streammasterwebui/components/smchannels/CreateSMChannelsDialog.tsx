@@ -1,7 +1,7 @@
-import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
+import { SMDialogRef } from '@components/sm/SMDialog';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 
-import OKButton from '@components/buttons/OKButton';
+import { SMPopUp } from '@components/sm/SMPopUp';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { CreateSMChannelFromStreamParameters, CreateSMChannelFromStreams } from '@lib/smAPI/SMChannels/SMChannelsCommands';
@@ -11,10 +11,11 @@ import React, { useCallback, useMemo } from 'react';
 interface CreateSMChannelsDialogProperties {
   readonly onClose?: () => void;
   readonly id: string;
+  readonly label?: string;
   readonly selectedItemsKey: string;
 }
 
-const CreateSMChannelsDialog = ({ id, onClose, selectedItemsKey }: CreateSMChannelsDialogProperties) => {
+const CreateSMChannelsDialog = ({ id, label, onClose, selectedItemsKey }: CreateSMChannelsDialogProperties) => {
   const dialogRef = React.useRef<SMDialogRef>(null);
   const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(selectedItemsKey);
 
@@ -82,26 +83,9 @@ const CreateSMChannelsDialog = ({ id, onClose, selectedItemsKey }: CreateSMChann
   }, [selectedItems, selectAll, ReturnToParent, queryFilter, setSelectedItems, setSelectAll]);
 
   return (
-    <SMDialog
-      ref={dialogRef}
-      buttonDisabled={getTotalCount === 0}
-      position="top-right"
-      title="Bulk CREATE CHANNELS"
-      iconFilled
-      onHide={() => ReturnToParent()}
-      buttonClassName="icon-green"
-      icon="pi-building-columns"
-      widthSize={2}
-      info="General"
-      tooltip="Bulk Create Channels"
-    >
-      <div className="text-base">
-        Create ({selectAll ? 'All' : getTotalCount}) channels?
-        <div className="flex align-content-center justify-content-end">
-          <OKButton onClick={onOkClick} />
-        </div>
-      </div>
-    </SMDialog>
+    <SMPopUp label={label} showRemember={false} title="Create" OK={() => onOkClick()} iconFilled icon="pi-building-columns" buttonClassName="icon-green">
+      <div className="text-base">Create ({selectAll ? 'All' : getTotalCount}) channels?</div>
+    </SMPopUp>
   );
 };
 

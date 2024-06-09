@@ -1,23 +1,19 @@
 import MenuItemSM from '@components/MenuItemSM';
 import { HelpIcon, PlayListEditorIcon, SettingsEditorIcon, SideBarMenuIcon } from '@lib/common/icons';
-import { Logger } from '@lib/common/logger';
 import { useSMContext } from '@lib/signalr/SMProvider';
-
-import PrimeReact, { PrimeReactContext } from 'primereact/api';
 import { useLocalStorage } from 'primereact/hooks';
 import { Tooltip } from 'primereact/tooltip';
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import { Menu, MenuItem, Sidebar, sidebarClasses } from 'react-pro-sidebar';
 export const RootSideBar = () => {
-  const [dark, setDark] = useLocalStorage(true, 'dark');
+  // const [dark, setDark] = useLocalStorage(true, 'dark');
 
-  const context = useContext(PrimeReactContext);
+  // const context = useContext(PrimeReactContext);
 
   const [collapsed, setCollapsed] = useLocalStorage<boolean>(true, 'app-menu-collapsed');
 
   const { isSystemReady, settings } = useSMContext();
 
-  Logger.debug('RootSideBar', settings);
   const onsetCollapsed = useCallback(
     (isCollapsed: boolean) => {
       setCollapsed(isCollapsed);
@@ -25,25 +21,25 @@ export const RootSideBar = () => {
     [setCollapsed]
   );
 
-  const setTheme = useCallback(
-    (intDark: boolean, callback?: () => void) => {
-      const newTheme = intDark ? 'dark' : 'light';
-      const theme = !intDark ? 'dark' : 'light';
+  // const setTheme = useCallback(
+  //   (intDark: boolean, callback?: () => void) => {
+  //     const newTheme = intDark ? 'dark' : 'light';
+  //     const theme = !intDark ? 'dark' : 'light';
 
-      if (context?.changeTheme) {
-        context.changeTheme(theme, newTheme, 'theme-link', callback);
-      } else if (PrimeReact?.changeTheme) {
-        PrimeReact.changeTheme(theme, newTheme, 'theme-link', callback);
-      }
-    },
-    [context]
-  );
+  //     if (context?.changeTheme) {
+  //       context.changeTheme(theme, newTheme, 'theme-link', callback);
+  //     } else if (PrimeReact?.changeTheme) {
+  //       PrimeReact.changeTheme(theme, newTheme, 'theme-link', callback);
+  //     }
+  //   },
+  //   [context]
+  // );
 
-  const toggleTheme = () => {
-    setTheme(!dark, () => {
-      setDark(!dark);
-    });
-  };
+  // const toggleTheme = () => {
+  //   setTheme(!dark, () => {
+  //     setDark(!dark);
+  //   });
+  // };
 
   return (
     <div className="flex flex-column m-0 p-0">

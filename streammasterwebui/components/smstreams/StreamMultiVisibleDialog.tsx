@@ -8,11 +8,12 @@ import { memo, useCallback, useMemo } from 'react';
 
 interface StreamMultiVisibleDialogProperties {
   readonly id: string;
+  readonly label?: string;
   readonly onClose?: () => void;
   readonly selectedItemsKey: string;
 }
 
-const StreamMultiVisibleDialog = ({ id, onClose, selectedItemsKey }: StreamMultiVisibleDialogProperties) => {
+const StreamMultiVisibleDialog = ({ id, label, onClose, selectedItemsKey }: StreamMultiVisibleDialogProperties) => {
   const { selectedItems } = useSelectedItems<SMStreamDto>(selectedItemsKey);
   const { selectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
@@ -68,19 +69,36 @@ const StreamMultiVisibleDialog = ({ id, onClose, selectedItemsKey }: StreamMulti
   }, [selectedItems, selectAll, ReturnToParent, queryFilter]);
 
   return (
-    <SMButton
-      className="icon-red"
-      disabled={getTotalCount === 0}
-      icon="pi-eye-slash"
-      iconFilled
-      rounded
+    <div
+      className="flex align-items-center justify-content-center gap-1"
       onClick={async (event) => {
         await onVisiblesClick();
       }}
-      aria-controls="popup_menu_right"
-      aria-haspopup
-      tooltip="Toggle Visibility"
-    />
+    >
+      <SMButton
+        className="icon-red"
+        disabled={getTotalCount === 0}
+        icon="pi-eye-slash"
+        iconFilled
+        rounded
+        onClick={async (event) => {
+          await onVisiblesClick();
+        }}
+        aria-controls="popup_menu_right"
+        aria-haspopup
+        tooltip="Toggle Visibility"
+      />
+      {label && (
+        <div
+          className="sm-menuitem"
+          style={{
+            borderColor: 'var(--icon-red)'
+          }}
+        >
+          {label}
+        </div>
+      )}
+    </div>
   );
 };
 

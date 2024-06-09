@@ -826,6 +826,10 @@
   --gray-600: #565a5b;
   --gray-700: #3e4244;
   --gray-800: #262b2c;
+  --icon-green: #22c55e;
+  --icon-blue: #94abec;
+  --icon-red: #e693a9;
+  --icon-orange: #ff935a;
   --surface-section: #161d21;
   --surface-card: #161d21;
   --surface-overlay: #161d21;
@@ -7694,6 +7698,29 @@
   color: #bcbfbf !important;
 }
 
+.sm-menuitem {
+  transition: filter 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+  border-bottom-right-radius: 6px;
+  border-top-right-radius: 6px;
+  border-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-right-style: solid;
+  height: 1.4rem;
+  max-height: 1.4rem;
+  min-height: 1.4rem;
+  padding-right: 0.24rem;
+}
+.sm-menuitem:hover {
+  color: white;
+  filter: brightness(130%);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
 .sm-hover-dark, .stringeditor .sm-input-dark, .sm-iconselector {
   transition: border-color 0.15s;
 }
@@ -8118,6 +8145,10 @@
   --gray-600: #565a5b;
   --gray-700: #3e4244;
   --gray-800: #262b2c;
+  --icon-green: #22c55e;
+  --icon-blue: #94abec;
+  --icon-red: #e693a9;
+  --icon-orange: #ff935a;
   --surface-section: #161d21;
   --surface-card: #161d21;
   --surface-overlay: #161d21;
@@ -8471,6 +8502,7 @@
   height: 1.6rem;
   display: flex;
   flex-direction: column;
+  align-items: start;
   height: 100%;
   padding: 0 !important;
 }

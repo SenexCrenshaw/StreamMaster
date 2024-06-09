@@ -7,21 +7,22 @@ import { SMCard } from './SMCard';
 
 interface SMOverlayProperties {
   readonly answer?: boolean;
-  readonly buttonClassName?: string | undefined;
+  readonly buttonClassName?: string;
   readonly buttonDisabled?: boolean;
   readonly buttonDarkBackground?: boolean;
-  readonly buttonLabel?: string | undefined;
+  readonly buttonLabel?: string;
   readonly buttonTemplate?: ReactNode;
   readonly center?: React.ReactNode;
   readonly children: React.ReactNode;
   readonly header?: React.ReactNode;
-  readonly icon?: string | undefined;
+  readonly icon?: string;
   readonly iconFilled?: boolean;
   readonly isLoading?: boolean;
+  readonly label?: string;
   readonly showClose?: boolean;
   readonly simple?: boolean;
-  readonly title?: string | undefined;
-  readonly tooltip?: string | undefined;
+  readonly title?: string;
+  readonly tooltip?: string;
   readonly contentWidthSize?: string;
   onAnswered?(): void;
   onHide?(): void;
@@ -47,6 +48,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
     icon,
     iconFilled = false,
     isLoading = false,
+    label,
     onAnswered,
     onHide,
     onShow,
@@ -76,9 +78,44 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
     [answer, onAnswered]
   );
 
+  const getLabelColor = useMemo(() => {
+    if (buttonClassName.includes('red')) {
+      return 'var(--icon-red)';
+    }
+    if (buttonClassName.includes('orange')) {
+      return 'var(--icon-orange)';
+    }
+    if (buttonClassName.includes('green')) {
+      return 'var(--icon-green)';
+    }
+    if (buttonClassName.includes('blue')) {
+      return 'var(--icon-blue)';
+    }
+  }, [buttonClassName]);
+
   const renderButton = useMemo(() => {
     if (buttonTemplate) {
       return (
+        <>
+          <SMButton
+            darkBackGround={buttonDarkBackground}
+            disabled={buttonDisabled}
+            className={buttonClassName}
+            iconFilled={iconFilled}
+            icon={icon}
+            isLoading={isLoading}
+            tooltip={tooltip}
+            label={buttonLabel}
+            onClick={(e) => openPanel(e)}
+          >
+            {buttonTemplate}
+            {label}
+          </SMButton>
+        </>
+      );
+    }
+    return (
+      <div className="flex align-items-center justify-content-center gap-1" onClick={(e) => openPanel(e)}>
         <SMButton
           darkBackGround={buttonDarkBackground}
           disabled={buttonDisabled}
@@ -88,26 +125,33 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
           isLoading={isLoading}
           tooltip={tooltip}
           label={buttonLabel}
-          onClick={(e) => openPanel(e)}
-        >
-          {buttonTemplate}
-        </SMButton>
-      );
-    }
-    return (
-      <SMButton
-        darkBackGround={buttonDarkBackground}
-        disabled={buttonDisabled}
-        className={buttonClassName}
-        iconFilled={iconFilled}
-        icon={icon}
-        isLoading={isLoading}
-        tooltip={tooltip}
-        label={buttonLabel}
-        onClick={(e) => openPanel(e)}
-      />
+        />
+        {label && (
+          <div
+            className="sm-menuitem"
+            style={{
+              borderColor: getLabelColor
+            }}
+          >
+            {label}
+          </div>
+        )}
+      </div>
     );
-  }, [buttonClassName, buttonDarkBackground, buttonDisabled, buttonLabel, buttonTemplate, icon, iconFilled, isLoading, openPanel, tooltip]);
+  }, [
+    buttonClassName,
+    buttonDarkBackground,
+    buttonDisabled,
+    buttonLabel,
+    buttonTemplate,
+    getLabelColor,
+    icon,
+    iconFilled,
+    isLoading,
+    label,
+    openPanel,
+    tooltip
+  ]);
 
   if (isLoading === true) {
     return (

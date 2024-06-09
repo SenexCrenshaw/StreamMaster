@@ -66,6 +66,30 @@
     @include input-hover();
 }
 
+.sm-menuitem {
+    transition: filter 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.3s ease;
+    border-bottom-right-radius: $borderRadius;
+    border-top-right-radius: $borderRadius;
+    border-width: 1px;
+    border-top-style: solid;
+    border-bottom-style: solid;
+    border-right-style: solid;
+    height: $input-height-with-no-borders;
+    max-height: $input-height-with-no-borders;
+    min-height: $input-height-with-no-borders;
+    padding-right: .24rem;
+
+    &:hover {
+        color: white;
+        filter: brightness(130%);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+}
+
 .sm-hover-dark {
     @include input-hover-dark();
 }
