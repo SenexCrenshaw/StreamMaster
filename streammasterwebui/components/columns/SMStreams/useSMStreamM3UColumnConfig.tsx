@@ -16,7 +16,7 @@ interface SMStreamM3UColumnConfigProperties {
   readonly width?: string;
 }
 
-export const useSMStreamM3UColumnConfig = ({ className = 'sm-w-7rem', dataKey }: SMStreamM3UColumnConfigProperties) => {
+export const useSMStreamM3UColumnConfig = ({ className = 'sm-w-7rem sm-scroller-items', dataKey }: SMStreamM3UColumnConfigProperties) => {
   const { data } = useGetM3UFiles();
 
   const { filters, setFilters } = useFilters(dataKey);
@@ -49,7 +49,7 @@ export const useSMStreamM3UColumnConfig = ({ className = 'sm-w-7rem', dataKey }:
     }
 
     return (
-      <div className="sm-channelgroup-selector sm-w-12rem">
+      <div className="sm-channelgroup-selector sm-w-12rem ">
         <div className="text-container">{option.Name}</div>
       </div>
     );
@@ -85,6 +85,7 @@ export const useSMStreamM3UColumnConfig = ({ className = 'sm-w-7rem', dataKey }:
           itemTemplate={itemTemplate}
           filter
           filterBy="Name"
+          fixed
           onChange={async (e: any) => {
             if (isEmptyObject(e) || !Array.isArray(e)) {
               options.filterApplyCallback();

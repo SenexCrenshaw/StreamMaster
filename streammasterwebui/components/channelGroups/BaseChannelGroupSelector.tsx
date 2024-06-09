@@ -13,7 +13,6 @@ import ChannelGroupAddDialog from './ChannelGroupAddDialog';
 import ChannelGroupDeleteDialog from './ChannelGroupDeleteDialog';
 import ChannelGroupVisibleDialog from './ChannelGroupVisibleDialog';
 
-// Define a type that includes all shared props plus any additional ones
 type BaseChannelGroupSelectorProps = {
   readonly className?: string;
   readonly dataKey: string;
@@ -22,6 +21,7 @@ type BaseChannelGroupSelectorProps = {
   readonly onChange?: (value: ChannelGroupDto[]) => void;
   readonly useSelectedItemsFilter?: boolean;
   readonly value?: string;
+  readonly fixed?: boolean;
   getNamesQuery: () => ReturnType<QueryHook<ChannelGroupDto[]>>;
 };
 
@@ -30,6 +30,7 @@ const BaseChannelGroupSelector = memo(
     enableEditMode = true,
     dataKey,
     label,
+    fixed = false,
     onChange,
     useSelectedItemsFilter,
     className = 'sm-w-12rem',
@@ -161,8 +162,8 @@ const BaseChannelGroupSelector = memo(
     const columns = useMemo(
       (): ColumnMeta[] => [
         channelGroupNameColumnConfig,
-        { align: 'left', bodyTemplate: streamCountTemplate, field: 'ActiveCount', width: '6rem' },
-        { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '4rem' }
+        { align: 'left', bodyTemplate: streamCountTemplate, field: 'ActiveCount', width: '5rem' },
+        { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: '', width: '3rem' }
       ],
       [actionTemplate, channelGroupNameColumnConfig, streamCountTemplate]
     );
@@ -199,13 +200,14 @@ const BaseChannelGroupSelector = memo(
         <div className={getDiv}>
           <SMOverlay
             buttonDarkBackground
-            buttonTemplate={buttonTemplate}
-            title="GROUPS"
-            contentWidthSize="3"
-            icon="pi-chevron-down"
             buttonLabel="GROUP"
+            buttonTemplate={buttonTemplate}
+            contentWidthSize="3"
+            fixed={fixed}
             header={headerRightTemplate}
+            icon="pi-chevron-down"
             isLoading={loading}
+            title="GROUPS"
           >
             <SMDataTable
               columns={columns}

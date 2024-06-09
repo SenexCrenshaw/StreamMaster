@@ -34,7 +34,7 @@ export const StreamGroupSelector = ({ onChange, selectedStreamGroup }: StreamGro
       isLoading={isLoading}
       itemTemplate={(option: StreamGroupDto) => (
         <div className="sm-epg-selector">
-          <div className="text-container pl-1">{option?.Name}</div>
+          <div className="text-container pl-1 sm-w-15rem">{option?.Name}</div>
         </div>
       )}
       filter

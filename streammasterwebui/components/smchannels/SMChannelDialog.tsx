@@ -1,7 +1,7 @@
-import ChannelGroupSelector from '@components/channelGroups/ChannelGroupSelector';
 import EPGSelector from '@components/epg/EPGSelector';
 import IconSelector from '@components/icons/IconSelector';
 import NumberEditor from '@components/inputs/NumberEditor';
+import SMChannelGroupDropDown from '@components/inputs/SMChannelGroupDropDown';
 import StringEditor from '@components/inputs/StringEditor';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationChannelNames';
@@ -131,6 +131,10 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
     [doSave]
   );
 
+  if (!smChannel) {
+    return null;
+  }
+
   return (
     <>
       <div className="sm-headerBg dialog-padding border-sides">
@@ -146,7 +150,7 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
             </div>
             <div className="flex w-12 gap-1">
               <div className="w-6 justify-content-start align-items-center">
-                <ChannelGroupSelector dataKey="SMChannelDialog" label="GROUP" onChange={(e) => e && setGroup(e)} value={request.Group} />
+                <SMChannelGroupDropDown label="GROUP" darkBackGround group={request.Group} onChange={(e) => e && setGroup(e)} />
               </div>
               <div className="w-6 justify-content-start align-items-center">
                 <NumberEditor label="Channel #" showButtons darkBackGround onChange={(e) => e && setChannelNumber(e)} value={request.ChannelNumber} />

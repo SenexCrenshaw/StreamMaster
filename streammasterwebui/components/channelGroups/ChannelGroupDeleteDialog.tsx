@@ -1,11 +1,10 @@
-import React, { useMemo } from 'react';
+import { SMPopUp } from '@components/sm/SMPopUp';
+import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
-import { ChannelGroupDto, DeleteAllChannelGroupsFromParametersRequest, DeleteChannelGroupRequest, DeleteChannelGroupsRequest } from '@lib/smAPI/smapiTypes';
 import { DeleteAllChannelGroupsFromParameters, DeleteChannelGroup, DeleteChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
-import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
-import OKButton from '@components/buttons/OKButton';
-import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
+import { ChannelGroupDto, DeleteAllChannelGroupsFromParametersRequest, DeleteChannelGroupRequest, DeleteChannelGroupsRequest } from '@lib/smAPI/smapiTypes';
+import React, { useMemo } from 'react';
 
 interface ChannelGroupDeleteDialogProperties {
   readonly id: string;
@@ -17,7 +16,6 @@ const ChannelGroupDeleteDialog = ({ id, onClose, value }: ChannelGroupDeleteDial
   const { selectedItems, setSelectedItems } = useSelectedItems<ChannelGroupDto>(id);
   const { selectAll, setSelectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
-  const dialogRef = React.useRef<SMDialogRef>(null);
 
   const ReturnToParent = React.useCallback(() => {
     onClose?.();
@@ -82,7 +80,11 @@ const ChannelGroupDeleteDialog = ({ id, onClose, value }: ChannelGroupDeleteDial
 
   const message = useMemo(() => {
     if (value) {
-      return `Delete '${value.Name}' Channel Group?`;
+      return (
+        <div>
+          Delete <div className="text-container sm-w-12rem">{value.Name}</div> Channel Group?
+        </div>
+      );
     }
 
     if (selectAll) {
@@ -113,21 +115,16 @@ const ChannelGroupDeleteDialog = ({ id, onClose, value }: ChannelGroupDeleteDial
   }, [selectAll, selectedItems, value]);
 
   return (
-    <SMDialog
-      ref={dialogRef}
+    <SMPopUp
       buttonDisabled={isDisabled}
-      title="DELETE GROUP"
       iconFilled={value === undefined}
-      onHide={() => ReturnToParent()}
-      buttonClassName="icon-red"
+      rememberKey={'DeleteChannelGroupDialog'}
+      title="Delete"
+      OK={() => onDeleteClick()}
       icon="pi-times"
-      widthSize={2}
-      info="General"
-      tooltip="Delete Group"
-      header={<OKButton onClick={onDeleteClick} tooltip="Delete Group" />}
     >
-      <div className="flex justify-content-center w-full mb-2">{message}</div>
-    </SMDialog>
+      {message}
+    </SMPopUp>
   );
 };
 

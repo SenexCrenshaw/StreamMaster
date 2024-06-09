@@ -55,7 +55,7 @@
   width: calc(50% - 0.4rem);
 }
 
-.width-100, .stringeditorbody-inputtext-buttons .p-inputnumber-input, .stringeditor .sm-input-dark .p-inputnumber-input, .stringeditor .sm-input .p-inputnumber-input, .stringeditor .stringeditorbody-inputtext-buttons .p-inputnumber-input {
+.width-100, .stringeditorbody-inputtext-buttons .p-inputnumber-input, .stringeditor .p-inputnumber-input, .stringeditor .sm-input .p-inputnumber-input, .stringeditor .stringeditorbody-inputtext-buttons .p-inputnumber-input {
   width: calc(100% - 0.4rem);
 }
 
@@ -7721,10 +7721,10 @@
   border-color: rgba(255, 255, 255, 0.5);
 }
 
-.sm-hover-dark, .stringeditor .sm-input-dark, .sm-iconselector {
+.sm-hover-dark, .stringeditor .sm-input-dark-large, .stringeditor .sm-input-dark, .sm-iconselector {
   transition: border-color 0.15s;
 }
-.sm-hover-dark:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark:not(.p-disabled):hover:not(:focus), .sm-iconselector:not(.p-disabled):hover:not(:focus) {
+.sm-hover-dark:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-large:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark:not(.p-disabled):hover:not(:focus), .sm-iconselector:not(.p-disabled):hover:not(:focus) {
   border-color: #bcbfbf !important;
   border-radius: 6px !important;
   border-style: solid !important;
@@ -7761,14 +7761,14 @@
   color: #bcbfbf !important;
 }
 
-.sm-input-border-dark, .p-chips .p-chips-input-token input, .stringeditor .sm-input-dark {
+.sm-input-border-dark, .p-chips .p-chips-input-token input, .stringeditor .sm-input-dark-large, .stringeditor .sm-input-dark {
   border-radius: 6px !important;
   border-color: #263238 !important;
   border-width: 0.1rem !important;
   border-style: solid !important;
   transition: border-color 0.15s;
 }
-.sm-input-border-dark:not(.p-disabled):hover:not(:focus), .p-chips .p-chips-input-token input:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark:not(.p-disabled):hover:not(:focus) {
+.sm-input-border-dark:not(.p-disabled):hover:not(:focus), .p-chips .p-chips-input-token input:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-large:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark:not(.p-disabled):hover:not(:focus) {
   border-color: #bcbfbf !important;
   border-radius: 6px !important;
   border-style: solid !important;
@@ -8042,23 +8042,31 @@
   background-color: #12181b;
 }
 .stringeditor .sm-input-dark {
-  display: flex;
   background-color: #12181b;
   border-color: #263238;
   border-style: solid;
   color: #bcbfbf;
+  display: flex;
   height: 1.4rem;
   max-height: 1.4rem;
   min-height: 1.4rem;
   width: 100%;
 }
-.stringeditor .sm-input-dark .p-inputnumber-input {
+.stringeditor .sm-input-dark-large {
+  background-color: #12181b;
+  border-color: #263238;
+  border-style: solid;
+  color: #bcbfbf;
+  display: flex;
+  width: 100%;
+}
+.stringeditor .p-inputnumber-input {
   color: #bcbfbf;
 }
-.stringeditor .sm-input-dark .label {
+.stringeditor .label {
   color: #bcbfbf;
 }
-.stringeditor .sm-input-dark:focus-visible {
+.stringeditor:focus-visible {
   background-color: #12181b;
 }
 .stringeditor .p-float-label > label {
@@ -8091,7 +8099,7 @@
   color: #bcbfbf;
 }
 
-.text-container, .stringeditor .sm-input, .stringeditor .sm-input-dark {
+.text-container, .stringeditor .sm-input, .stringeditor .sm-input-dark, .stringeditor .sm-input-dark-large {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -8729,14 +8737,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding: 0.1rem 0.2rem;
+  border-radius: 0;
   border: 0 none;
   color: #bcbfbf;
-  background: transparent;
+  height: 1.4rem;
+  max-height: 1.4rem;
+  min-height: 1.4rem;
+  padding: 0.1rem 0.2rem;
   transition: box-shadow 0.3s;
-  border-radius: 0;
-  height: 1.8rem;
-  max-height: 1.8rem;
 }
 .sm-scroller-item:first-child {
   margin-top: 0;
@@ -9012,6 +9020,17 @@
 .sm-sourceorfiledialog .p-inputtext {
   border-radius: unset !important;
   height: 1.4rem !important;
+}
+
+.sm-popover {
+  border-radius: 6px !important;
+  border-color: #263238 !important;
+  border-width: 0.1rem !important;
+  border-style: solid !important;
+  z-index: 9999;
+  width: 100%;
+  padding: 0.5rem;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), 0 12px 40px rgba(0, 0, 0, 0.25);
 }
 
 .p-datatable {
@@ -9298,16 +9317,16 @@
   object-fit: contain;
 }
 
-.icon-template-lg {
+.icon-template-lg, .stringeditor .sm-input-dark-large {
   padding: 0.25rem !important;
-  max-width: 6rem;
   max-height: 4.6rem;
   height: 5rem;
   object-fit: contain;
   justify-content: center;
   align-items: center;
+  border-right: 1px solid #263238;
 }
-.icon-template-lg img {
+.icon-template-lg img, .stringeditor .sm-input-dark-large img {
   max-width: 6rem;
   max-height: 4.6rem;
   object-fit: contain;

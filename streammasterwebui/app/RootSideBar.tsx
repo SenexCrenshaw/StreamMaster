@@ -12,7 +12,7 @@ export const RootSideBar = () => {
 
   const [collapsed, setCollapsed] = useLocalStorage<boolean>(true, 'app-menu-collapsed');
 
-  const { isSystemReady, settings } = useSMContext();
+  const { settings } = useSMContext();
 
   const onsetCollapsed = useCallback(
     (isCollapsed: boolean) => {
@@ -44,7 +44,7 @@ export const RootSideBar = () => {
   return (
     <div className="flex flex-column m-0 p-0 " style={{ height: 'calc(100vh - 10px)' }}>
       <Sidebar
-        className="app sidebar max-h-screen justify-content-start align-items-start"
+        className="app sidebar max-h-screen justify-content-start align-items-start h-full"
         collapsed={collapsed}
         collapsedWidth="40px"
         rootStyles={{
@@ -53,7 +53,6 @@ export const RootSideBar = () => {
             backgroundColor: 'var(--surface-a)'
           }
         }}
-        style={{ height: 'calc(100vh - 10px)' }}
       >
         <Menu
           menuItemStyles={{
@@ -115,7 +114,7 @@ export const RootSideBar = () => {
       </Sidebar>
       <div className="flex flex-column m-0 p-0 pb-1 sidebar-sm-icon">
         <div className="col-6 p-0 m-0 justify-content-center align-content-center">
-          <img className="p-0 m-0" alt="Stream Master Logo" src={isSystemReady ? '/images/SMNewX32.png' : '/images/SMNewX32.png'} />
+          <img className="p-0 m-0" alt="Stream Master Logo" src="/images/SMNewX32.png" />
         </div>
 
         <Tooltip target=".custom-target-icon" />

@@ -41,6 +41,7 @@ export const useSMStreamGroupColumnConfig = ({ dataKey, width = '10rem' }: SMStr
       return (
         <ChannelGroupSelector
           dataKey="useSMStreamGroupColumnConfig"
+          fixed
           onChange={(e) => {
             if (e) {
               options.filterApplyCallback();

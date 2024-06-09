@@ -1,45 +1,62 @@
 import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
 import { ChannelGroupDto, SMChannelDto } from '@lib/smAPI/smapiTypes';
-import { ReactNode, forwardRef, memo, useMemo, useRef } from 'react';
+import { ReactNode, forwardRef, memo, useEffect, useMemo, useRef, useState } from 'react';
 
 import SMDropDown, { SMDropDownRef } from '@components/sm/SMDropDown';
 
 interface SMChannelGroupDropDownProperties {
-  readonly smChannelDto: SMChannelDto;
+  readonly smChannel?: SMChannelDto;
+  readonly group?: string;
   readonly darkBackGround?: boolean;
+  readonly fixed?: boolean;
   readonly label?: string;
   readonly labelInline?: boolean;
   readonly onChange: (value: string) => void;
 }
 
 const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownProperties>((props: SMChannelGroupDropDownProperties, ref) => {
-  const { darkBackGround, smChannelDto, onChange, label, labelInline = false } = props;
+  const { darkBackGround, group, smChannel, fixed = false, onChange, label, labelInline = false } = props;
   const smDropownRef = useRef<SMDropDownRef>(null);
   const { data } = useGetChannelGroups();
+  const [channelGroup, setChannelGroup] = useState<ChannelGroupDto | null>(null);
+
+  useEffect(() => {
+    if (!data) {
+      return;
+    }
+
+    if (smChannel !== undefined && (channelGroup === null || channelGroup.Name !== smChannel.Group)) {
+      const found = data.find((predicate) => predicate.Name === smChannel.Group);
+      if (found) setChannelGroup(found);
+      return;
+    }
+
+    if (group !== undefined && (channelGroup === null || channelGroup.Name !== group)) {
+      const found = data.find((predicate) => predicate.Name === group);
+      if (found) setChannelGroup(found);
+      return;
+    }
+  }, [channelGroup, data, group, smChannel]);
 
   const itemTemplate = (option: ChannelGroupDto) => {
     if (option === undefined) {
       return null;
     }
 
-    return (
-      <div className="border-12">
-        <div className="text-container">{option.Name}</div>
-      </div>
-    );
+    return <div className="text-container">{option.Name}</div>;
   };
 
   const buttonTemplate = useMemo((): ReactNode => {
-    if (!smChannelDto || !smChannelDto.Group) {
+    if (!channelGroup) {
       return <div className="text-xs text-container text-white-alpha-40 pl-1">None</div>;
     }
 
     return (
       <div className="sm-epg-selector">
-        <div className="text-container pl-1">{smChannelDto.Group}</div>
+        <div className="text-container pl-1">{channelGroup.Name}</div>
       </div>
     );
-  }, [smChannelDto]);
+  }, [channelGroup]);
 
   const getDiv = useMemo(() => {
     let ret = 'stringeditor ';
@@ -72,17 +89,17 @@ const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownP
           buttonTemplate={buttonTemplate}
           closeOnSelection
           data={data}
-          dataKey="Group"
+          dataKey="Name"
           filter
           filterBy="Name"
+          fixed={fixed}
           itemTemplate={itemTemplate}
           onChange={(e) => {
             onChange(e.Name);
           }}
           ref={smDropownRef}
           title="GROUP"
-          value={smChannelDto}
-          optionValue="Name"
+          value={channelGroup}
           contentWidthSize="2"
         />
       </div>

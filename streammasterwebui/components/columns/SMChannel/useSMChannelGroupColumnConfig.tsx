@@ -46,6 +46,7 @@ export const useSMChannelGroupColumnConfig = ({ dataKey }: SMChannelGroupColumnC
       return (
         <ChannelGroupSelectorForSMChannels
           dataKey="useSMChannelGroupColumnConfig"
+          fixed
           onChange={(e) => {
             if (e) {
               options.filterApplyCallback();
@@ -58,7 +59,7 @@ export const useSMChannelGroupColumnConfig = ({ dataKey }: SMChannelGroupColumnC
     const bodyTemplate = (smChannelDto: SMChannelDto) => {
       return (
         <div className="flex align-content-center justify-content-center">
-          <SMChannelGroupEditor smChannelDto={smChannelDto} />
+          <SMChannelGroupEditor fixed smChannelDto={smChannelDto} />
         </div>
       );
     };

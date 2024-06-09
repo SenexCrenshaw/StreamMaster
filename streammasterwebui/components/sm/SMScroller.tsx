@@ -43,12 +43,13 @@ const SMScroller: React.FC<SMScrollerProps> = ({
 }) => {
   const { selectedItems, setSelectedItems } = useSelectedItems(selectedItemsKey ?? 'NONE');
   const [filterString, setFilterString] = React.useState<string>('');
-  const [scrolled, setScrolled] = React.useState<boolean>(true);
+  const [scrolled, setScrolled] = React.useState<boolean>(false);
   const virtualScrollerRef = React.useRef<VirtualScroller>(null);
   const stringEditorRef = React.useRef<StringEditorRef>(null);
 
   const filteredValues = useMemo(() => {
-    setScrolled(false);
+    // setScrolled(false);
+
     if (filter === undefined || filter === false || filterBy === undefined) {
       return data;
     }
@@ -58,6 +59,21 @@ const SMScroller: React.FC<SMScrollerProps> = ({
 
     return data;
   }, [data, filter, filterBy, filterString]);
+
+  // useEffect(() => {
+  //   if (dataSource !== undefined) {
+  //     return;
+  //   }
+  //   if (filter === undefined || filter === false || filterBy === undefined) {
+  //     setDataSource(data);
+  //     return;
+  //   }
+  //   if (filter && filterString !== '') {
+  //     setDataSource(data.filter((item: any) => item[filterBy].toLowerCase().includes(filterString.toLowerCase())));
+  //   }
+
+  //   setDataSource(data);
+  // }, [data, dataSource, filter, filterBy, filterString]);
 
   const equalityKey = useCallback(() => {
     return dataKey ? dataKey : 'Id';
@@ -130,7 +146,10 @@ const SMScroller: React.FC<SMScrollerProps> = ({
   }, [filteredValues, findOptionIndexInList, value]);
 
   const scrollTo = useCallback((index: number) => {
-    setTimeout(() => virtualScrollerRef.current?.scrollToIndex(index), 0);
+    // const virtualScrollerRef = listBoxRef.current?.getVirtualScroller();
+    if (virtualScrollerRef) {
+      setTimeout(() => virtualScrollerRef.current?.scrollToIndex(index), 0);
+    }
   }, []);
 
   const scrollToSelectedIndex = useCallback(() => {
@@ -184,8 +203,8 @@ const SMScroller: React.FC<SMScrollerProps> = ({
       if (select === true) {
         const ss = isSelectedItem(item);
         return (
-          <div className="flex align-items-center justify-content-start pl-1 sm-scroller-item">
-            <div className="w-1">
+          <div className="sm-scroller-item flex align-items-center justify-content-start pl-1">
+            <div className="sm-w-1">
               <Checkbox
                 onChange={(e) => {
                   e.preventDefault();
@@ -201,7 +220,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
                 checked={ss}
               />
             </div>
-            <div className="w-11 pl-1">{itemTemplate(item)}</div>
+            <div className="sm-w-11 pl-1">{itemTemplate(item)}</div>
           </div>
         );
       }
@@ -270,7 +289,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
       )}
 
       <div className="layout-padding-bottom" />
-      <div className="sm-scroller-items block">
+      <div className="sm-scroller-items">
         <VirtualScroller ref={virtualScrollerRef} items={filteredValues} itemSize={itemSize} itemTemplate={getItemTemplate} scrollHeight={scrollHeight} />
       </div>
     </div>

@@ -1,7 +1,6 @@
 import OKButton from '@components/buttons/OKButton';
 import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
 import { SMChannelDialogRef } from '@components/smchannels/SMChannelDialog';
-import { Logger } from '@lib/common/logger';
 import { UpdateSMStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { SMStreamDto, UpdateSMStreamRequest } from '@lib/smAPI/smapiTypes';
 import React, { useRef, useState } from 'react';
@@ -65,7 +64,7 @@ const EditSMStreamDialog = ({ smStreamDto }: EditSMStreamDialogProperties) => {
         onSave={onSave}
         onSaveEnabled={(e) => {
           setSaveEnabled(e);
-          Logger.debug('EditSMStreamDialog.onSaveEnabled', e);
+          // Logger.debug('EditSMStreamDialog.onSaveEnabled', e);
         }}
         smStreamDto={smStreamDto}
       />

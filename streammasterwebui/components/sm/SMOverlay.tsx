@@ -1,8 +1,22 @@
 import CloseButton from '@components/buttons/CloseButton';
 import SMButton from '@components/sm/SMButton';
+import {
+  FloatingFocusManager,
+  FloatingPortal,
+  autoPlacement,
+  autoUpdate,
+  flip,
+  shift,
+  useClick,
+  useDismiss,
+  useFloating,
+  useId,
+  useInteractions,
+  useRole,
+  useTransitionStyles
+} from '@floating-ui/react';
 import { BlockUI } from 'primereact/blockui';
-import { OverlayPanel } from 'primereact/overlaypanel';
-import React, { CSSProperties, ReactNode, SyntheticEvent, forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
+import React, { CSSProperties, ReactNode, SyntheticEvent, forwardRef, useCallback, useImperativeHandle, useMemo, useState } from 'react';
 import { SMCard } from './SMCard';
 
 interface SMOverlayProperties {
@@ -11,6 +25,7 @@ interface SMOverlayProperties {
   readonly buttonDisabled?: boolean;
   readonly buttonDarkBackground?: boolean;
   readonly buttonLabel?: string;
+  readonly buttonLarge?: boolean;
   readonly buttonTemplate?: ReactNode;
   readonly center?: React.ReactNode;
   readonly children: React.ReactNode;
@@ -24,9 +39,10 @@ interface SMOverlayProperties {
   readonly title?: string;
   readonly tooltip?: string;
   readonly contentWidthSize?: string;
+  readonly fixed?: boolean;
   onAnswered?(): void;
-  onHide?(): void;
-  onShow?(): void;
+  // onHide?(): void;
+  // onShow?(): void;
 }
 
 export interface SMOverlayRef {
@@ -35,11 +51,29 @@ export interface SMOverlayRef {
 }
 
 const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverlayProperties, ref) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const { refs, floatingStyles, context } = useFloating({
+    middleware: props.fixed === true ? [shift(), flip()] : [autoPlacement()],
+    onOpenChange: setIsOpen,
+    open: isOpen,
+    strategy: 'absolute',
+    transform: true,
+    whileElementsMounted: autoUpdate
+  });
+
+  const { styles: transitionStyles } = useTransitionStyles(context);
+
+  const click = useClick(context);
+  const dismiss = useDismiss(context);
+  const role = useRole(context);
+  const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss, role]);
   const {
     answer,
     buttonClassName = '',
     buttonDarkBackground = false,
     buttonDisabled = false,
+    buttonLarge = false,
     buttonLabel = '',
     buttonTemplate,
     center,
@@ -50,8 +84,6 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
     isLoading = false,
     label,
     onAnswered,
-    onHide,
-    onShow,
     showClose = false,
     simple = false,
     title,
@@ -60,12 +92,10 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
   } = props;
 
   useImperativeHandle(ref, () => ({
-    hide: () => op.current?.hide(),
+    hide: () => setIsOpen(false),
     props,
-    show: (event: any) => op.current?.show(null, event)
+    show: (event: any) => setIsOpen(true)
   }));
-
-  const op = useRef<OverlayPanel>(null);
 
   const openPanel = useCallback(
     (e: SyntheticEvent) => {
@@ -73,7 +103,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
         onAnswered && onAnswered();
         return;
       }
-      op.current?.toggle(e);
+      setIsOpen((prev) => !prev);
     },
     [answer, onAnswered]
   );
@@ -113,7 +143,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
   const renderButton = useMemo(() => {
     if (buttonTemplate) {
       return (
-        <>
+        <div ref={refs.setReference} tabIndex={0} {...getReferenceProps()}>
           <SMButton
             darkBackGround={buttonDarkBackground}
             disabled={buttonDisabled}
@@ -121,6 +151,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
             iconFilled={iconFilled}
             icon={icon}
             isLoading={isLoading}
+            large={buttonLarge}
             tooltip={tooltip}
             label={buttonLabel}
             onClick={(e) => openPanel(e)}
@@ -128,11 +159,11 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
             {buttonTemplate}
             {label}
           </SMButton>
-        </>
+        </div>
       );
     }
     return (
-      <div className={getDiv} onClick={(e) => openPanel(e)} style={getStyle}>
+      <div ref={refs.setReference} tabIndex={0} {...getReferenceProps()} className={getDiv} style={getStyle}>
         <SMButton
           darkBackGround={buttonDarkBackground}
           disabled={buttonDisabled}
@@ -140,6 +171,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
           iconFilled={iconFilled}
           icon={icon}
           isLoading={isLoading}
+          large={buttonLarge}
           tooltip={tooltip}
           label={buttonLabel}
         />
@@ -151,16 +183,20 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
     buttonDarkBackground,
     buttonDisabled,
     buttonLabel,
+    buttonLarge,
     buttonTemplate,
     getDiv,
+    getReferenceProps,
     getStyle,
     icon,
     iconFilled,
     isLoading,
     label,
     openPanel,
+    refs.setReference,
     tooltip
   ]);
+  const headingId = useId();
 
   if (isLoading === true) {
     return (
@@ -172,7 +208,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
 
   return (
     <>
-      <OverlayPanel className={`sm-overlay sm-w-${contentWidthSize}`} ref={op} showCloseIcon={false} onShow={onShow} onHide={() => onHide && onHide()}>
+      {/* <OverlayPanel className={`sm-overlay sm-w-${contentWidthSize}`} ref={op} showCloseIcon={false} onShow={onShow} onHide={() => onHide && onHide()}>
         <SMCard
           center={center}
           header={
@@ -186,8 +222,41 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
         >
           {children}
         </SMCard>
-      </OverlayPanel>
+      </OverlayPanel> */}
       {renderButton}
+      {/* <button ref={refs.setReference} {...getReferenceProps()}>
+        Reference element
+      </button> */}
+
+      <FloatingPortal>
+        {isOpen && (
+          <FloatingFocusManager context={context} modal={false}>
+            <div
+              className={`sm-overlay sm-popover sm-w-${contentWidthSize} pt-2`}
+              ref={refs.setFloating}
+              style={floatingStyles}
+              aria-labelledby={headingId}
+              {...getFloatingProps()}
+            >
+              <div style={transitionStyles}>
+                <SMCard
+                  center={center}
+                  header={
+                    <div className="justify-content-end align-items-center flex-row flex gap-1">
+                      {header}
+                      {showClose && <CloseButton onClick={(e) => openPanel(e)} tooltip="Close" />}
+                    </div>
+                  }
+                  simple={simple}
+                  title={title}
+                >
+                  {children}
+                </SMCard>
+              </div>
+            </div>
+          </FloatingFocusManager>
+        )}
+      </FloatingPortal>
     </>
   );
 });

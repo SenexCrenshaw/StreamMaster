@@ -13,7 +13,7 @@ export interface SMButtonProps {
   readonly color?: string;
   readonly darkBackGround?: boolean;
   readonly disabled?: boolean;
-  // readonly hover?: boolean;
+  readonly large?: boolean;
   readonly icon?: string;
   readonly iconFilled?: boolean;
   readonly iconPos?: 'top' | 'bottom' | 'left' | 'right' | undefined;
@@ -34,18 +34,18 @@ const SMButton = forwardRef<Button, SMButtonProps>(
       color = 'val(--primary-color-text)',
       darkBackGround = false,
       disabled = false,
-      // hover = false,
       icon,
-      iconPos = 'right',
       iconFilled = false,
+      iconPos = 'right',
       isLeft = false,
       isLoading = false,
       label,
-      style,
-      outlined = false,
+      large = false,
       onClick,
+      outlined = false,
       rounded = true,
       severity,
+      style,
       tooltip = '',
       ...props
     },
@@ -53,9 +53,11 @@ const SMButton = forwardRef<Button, SMButtonProps>(
   ) => {
     const tooltipClassName = React.useMemo(() => {
       const ret = `smbutton-${uuidv4()} width-100`;
-
+      if (large) {
+        return ret + ' sm-button-large';
+      }
       return ret;
-    }, []);
+    }, [large]);
 
     const getClassName = React.useMemo(() => {
       let toRet = 'sm-button';
@@ -96,7 +98,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
       if (darkBackGround) {
         return (
           <div className="stringeditor">
-            <div className="sm-input-dark">
+            <div className={large ? 'sm-input-dark-large' : 'sm-input-dark'}>
               <Tooltip target={`.${tooltipClassName}`} />
               <div
                 onClick={(e) => {

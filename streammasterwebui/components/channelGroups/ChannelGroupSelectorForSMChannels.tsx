@@ -5,6 +5,7 @@ import BaseChannelGroupSelector from './BaseChannelGroupSelector';
 
 type ChannelGroupSelectorForSMChannelsProperties = {
   readonly dataKey: string;
+  readonly fixed?: boolean;
   readonly enableEditMode?: boolean;
   readonly useSelectedItemsFilter?: boolean;
   readonly label?: string;

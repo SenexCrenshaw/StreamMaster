@@ -94,6 +94,64 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
     );
   }, []);
 
+  // interface City {
+  //   name: string;
+  //   code: string;
+  // }
+  // const [selectedCity, setSelectedCity] = useState<City | null>(null);
+  // const cities: City[] = [
+  //   { name: 'Istanbul', code: 'IST' },
+  //   { name: 'Istanbul', code: 'IST' },
+  //   { name: 'Istanbul', code: 'IST' },
+  //   { name: 'Istanbul', code: 'IST' },
+  //   { name: 'London', code: 'LDN' },
+  //   { name: 'London', code: 'LDN' },
+  //   { name: 'London', code: 'LDN' },
+  //   { name: 'London', code: 'LDN' },
+  //   { name: 'New York', code: 'NY' },
+  //   { name: 'New York', code: 'NY' },
+  //   { name: 'New York', code: 'NY' },
+  //   { name: 'New York', code: 'NY' },
+  //   { name: 'Paris', code: 'PRS' },
+  //   { name: 'Paris', code: 'PRS' },
+  //   { name: 'Paris', code: 'PRS' },
+  //   { name: 'Paris', code: 'PRS' },
+  //   { name: 'Rome', code: 'RM' },
+  //   { name: 'Rome', code: 'RM' },
+  //   { name: 'Rome', code: 'RM' },
+  //   { name: 'Rome', code: 'RM' }
+  // ];
+
+  // const getItemTemplate = useCallback((item: City) => {
+  //   return (
+  //     <div className="p-clearfix">
+  //       <div>{item.name}</div>
+  //     </div>
+  //   );
+  // }, []);
+
+  // const testDropDownColumn = useCallback(() => {
+  //   return (
+  //     <>
+  //       <div className="flex justify-content-end align-items-center">
+  //         <Button type="button" icon="pi pi-image" label="Image" onClick={(e) => op.current?.toggle(e)} />
+  //         <OverlayPanel ref={op}>
+  //           <ListBox
+  //             value={selectedCity}
+  //             onChange={(e) => setSelectedCity(e.value)}
+  //             options={cities}
+  //             virtualScrollerOptions={{ itemSize: 38 }}
+  //             optionLabel="name"
+  //             className="w-full md:w-14rem"
+  //             listStyle={{ height: '40vh' }}
+  //           />
+  //           {/* <VirtualScroller ref={virtualScrollerRef} items={cities} itemSize={22} itemTemplate={getItemTemplate} scrollHeight="40vh" /> */}
+  //         </OverlayPanel>
+  //       </div>
+  //     </>
+  //   );
+  // }, [cities, selectedCity]);
+
   const simpleColumns = useMemo(
     (): ColumnMeta[] => [
       channelNumberColumnConfig,
@@ -103,6 +161,13 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
       groupColumnConfig,
       proxyColumnConfig,
       sgColumnConfig,
+      // {
+      //   align: 'right',
+      //   bodyTemplate: testDropDownColumn,
+      //   field: 'IsHidden',
+      //   header: 'Test',
+      //   width: '9rem'
+      // },
       {
         align: 'right',
         bodyTemplate: simpleActionTemplate,
@@ -113,14 +178,14 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
       }
     ],
     [
-      simpleActionTemplate,
+      channelNumberColumnConfig,
       channelLogoColumnConfig,
       channelNameColumnConfig,
-      channelNumberColumnConfig,
       epgColumnConfig,
       groupColumnConfig,
       proxyColumnConfig,
-      sgColumnConfig
+      sgColumnConfig,
+      simpleActionTemplate
     ]
   );
 

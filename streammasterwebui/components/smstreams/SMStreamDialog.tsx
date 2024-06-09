@@ -2,7 +2,6 @@ import IconSelector from '@components/icons/IconSelector';
 import NumberEditor from '@components/inputs/NumberEditor';
 import SMChannelGroupDropDown from '@components/inputs/SMChannelGroupDropDown';
 import StringEditor from '@components/inputs/StringEditor';
-import { Logger } from '@lib/common/logger';
 import { CreateSMChannelRequest, CreateSMStreamRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 
@@ -36,7 +35,7 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
         Url: smStreamDto.Url
       });
     }
-  }, [smStreamDto]);
+  }, [orig, smStreamDto]);
 
   const setName = useCallback(
     (value: string) => {
@@ -122,9 +121,8 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
   }, [orig, request, smStreamDto]);
 
   useEffect(() => {
-    Logger.debug('SMStreamDialog.isSaveEnabled', request, isSaveEnabled);
     onSaveEnabled && onSaveEnabled(isSaveEnabled);
-  }, [isSaveEnabled, onSaveEnabled, request, request.Name, request.Url]);
+  }, [isSaveEnabled, onSaveEnabled]);
 
   useImperativeHandle(
     ref,
@@ -166,7 +164,7 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
                   onChange={(e) => {
                     e && setGroup(e);
                   }}
-                  smChannelDto={{ Group: request.Group } as SMChannelDto}
+                  smChannel={{ Group: request.Group } as SMChannelDto}
                 />
               </div>
             </div>
@@ -189,7 +187,7 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
           </div>
 
           <div className="sm-w-8rem">
-            <IconSelector darkBackGround label="Logo" large enableEditMode onChange={(e) => setLogo(e)} value={request.Logo} />
+            <IconSelector darkBackGround label="Logo" fixed large enableEditMode onChange={(e) => setLogo(e)} value={request.Logo} />
           </div>
         </div>
       </div>

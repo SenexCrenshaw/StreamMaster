@@ -3,10 +3,6 @@
 }
 
 .sm-scroller-items {
-    // .flex:nth-child(odd) {
-    //     background: $tableBodyRowEvenBg;
-    // }
-
     .p-virtualscroller-content {
         .sm-scroller-item:nth-child(odd) {
             background: $tableBodyRowEvenBg;
@@ -19,14 +15,19 @@
 .sm-scroller-item {
     @include text-overflow();
     // margin: $inputListItemMargin;
-    padding: $inputListItemPadding;
+
+    // background: $inputListItemBg;
+    border-radius: 0; // $inputListItemBorderRadius;
     border: $inputListItemBorder;
     color: $inputListItemTextColor;
-    background: $inputListItemBg;
+    height: $input-height-with-no-borders;
+    max-height: $input-height-with-no-borders;
+    min-height: $input-height-with-no-borders;
+    padding: $inputListItemPadding;
     transition: $listItemTransition;
-    border-radius: 0; // $inputListItemBorderRadius;
-    height: $datatable-row-height;
-    max-height: $datatable-row-height;
+
+    // height: $datatable-row-height;
+    // max-height: $datatable-row-height;
 
     &:first-child {
         margin-top: 0;

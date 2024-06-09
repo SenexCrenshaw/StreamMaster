@@ -1,7 +1,8 @@
-import CloseButton from '@components/buttons/CloseButton';
-import SMButton from '@components/sm/SMButton';
-import { Dialog } from 'primereact/dialog';
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+
+import CloseButton from '@components/buttons/CloseButton';
+import { Dialog } from 'primereact/dialog';
+import SMButton from './SMButton';
 import { SMCard } from './SMCard';
 
 interface SMDialogProperties {
@@ -19,6 +20,7 @@ interface SMDialogProperties {
   readonly tooltip?: string;
   readonly widthSize?: number;
   readonly position?: 'center' | 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | undefined;
+
   onHide?(): void;
 }
 export interface SMDialogRef {

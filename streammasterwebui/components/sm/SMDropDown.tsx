@@ -5,6 +5,7 @@ interface SMDropDownProps {
   readonly buttonDarkBackground?: boolean;
   readonly buttonLabel?: string;
   readonly buttonTemplate?: ReactNode;
+  readonly buttonLarge?: boolean;
   readonly center?: React.ReactNode;
   readonly className?: string;
   readonly closeOnSelection?: boolean;
@@ -26,6 +27,7 @@ interface SMDropDownProps {
   readonly title?: string;
   readonly value?: any;
   readonly contentWidthSize?: string;
+  readonly fixed?: boolean;
 }
 
 export interface SMDropDownRef {
@@ -36,6 +38,7 @@ const SMDropDown = forwardRef<SMDropDownRef, SMDropDownProps>((props: SMDropDown
   const {
     buttonDarkBackground,
     buttonLabel,
+    buttonLarge = false,
     buttonTemplate,
     center,
     className = 'w-full',
@@ -44,6 +47,7 @@ const SMDropDown = forwardRef<SMDropDownRef, SMDropDownProps>((props: SMDropDown
     dataKey,
     filter,
     filterBy,
+    fixed = false,
     footerTemplate,
     isLoading,
     itemTemplate,
@@ -65,7 +69,6 @@ const SMDropDown = forwardRef<SMDropDownRef, SMDropDownProps>((props: SMDropDown
     props
   }));
 
-  const divReference = useRef<HTMLDivElement | null>(null);
   const smOverlayRef = useRef<SMOverlayRef | null>(null);
 
   const getDiv = useMemo(() => {
@@ -86,12 +89,14 @@ const SMDropDown = forwardRef<SMDropDownRef, SMDropDownProps>((props: SMDropDown
           <div className="pt-small" />
         </div>
       )}
-      <div ref={divReference} className={getDiv}>
+      <div className={getDiv}>
         <SMOverlay
           buttonDarkBackground={buttonDarkBackground}
           buttonLabel={buttonLabel}
+          buttonLarge={buttonLarge}
           buttonTemplate={buttonTemplate}
           center={center}
+          fixed={fixed}
           icon="pi-chevron-down"
           isLoading={isLoading}
           ref={smOverlayRef}
@@ -99,29 +104,26 @@ const SMDropDown = forwardRef<SMDropDownRef, SMDropDownProps>((props: SMDropDown
           title={title?.toUpperCase()}
           contentWidthSize={contentWidthSize}
         >
-          <div className="flex flex-column w-12 sm-card border-radius-left border-radius-right">
-            {/* <Suspense fallback={<div>Loading...</div>}> */}
-            <div className="flex w-12">
-              <SMScroller
-                scrollHeight={height}
-                select={select}
-                selectedItemsKey={selectedItemsKey}
-                data={data}
-                dataKey={dataKey}
-                filter={filter}
-                filterBy={filterBy}
-                simple={simple}
-                itemSize={22}
-                itemTemplate={itemTemplate}
-                onChange={(e) => {
-                  onChange?.(e);
-                  if (closeOnSelection) smOverlayRef.current?.hide();
-                }}
-                optionValue={optionValue}
-                value={value}
-              />
-            </div>
-            {/* </Suspense> */}
+          <div className="sm-card border-radius-left border-radius-right">
+            <SMScroller
+              scrollHeight={height}
+              select={select}
+              selectedItemsKey={selectedItemsKey}
+              data={data}
+              dataKey={dataKey}
+              filter={filter}
+              filterBy={filterBy}
+              simple={simple}
+              itemSize={22}
+              itemTemplate={itemTemplate}
+              onChange={(e) => {
+                onChange?.(e);
+                if (closeOnSelection) smOverlayRef.current?.hide();
+              }}
+              optionValue={optionValue}
+              value={value}
+            />
+
             {footerTemplate && (
               <div className="w-12">
                 <div className="layout-padding-bottom" />

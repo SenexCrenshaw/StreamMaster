@@ -76,6 +76,7 @@ export const SMPopUp = ({
       buttonDisabled={buttonDisabled}
       contentWidthSize="2"
       label={label}
+      fixed
       icon={icon}
       iconFilled={iconFilled}
       ref={overlayRef}

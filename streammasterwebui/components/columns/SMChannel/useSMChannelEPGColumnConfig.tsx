@@ -98,6 +98,7 @@ export const useSMChannelEPGColumnConfig = () => {
           itemTemplate={itemTemplate}
           filter
           filterBy="Name"
+          fixed
           onChange={async (e: any) => {
             if (isEmptyObject(e) || !Array.isArray(e)) {
               options.filterApplyCallback();

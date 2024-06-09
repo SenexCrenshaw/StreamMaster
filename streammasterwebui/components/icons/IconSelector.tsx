@@ -9,13 +9,23 @@ type IconSelectorProperties = {
   readonly className?: string;
   readonly darkBackGround?: boolean;
   readonly enableEditMode?: boolean;
+  readonly fixed?: boolean;
   readonly label?: string;
   readonly large?: boolean;
   readonly value?: string;
   readonly onChange?: (value: string) => void;
 };
 
-const IconSelector = ({ className, darkBackGround = false, enableEditMode = true, label, large = false, value, onChange }: IconSelectorProperties) => {
+const IconSelector = ({
+  className,
+  darkBackGround = false,
+  enableEditMode = true,
+  fixed = false,
+  label,
+  large = false,
+  value,
+  onChange
+}: IconSelectorProperties) => {
   const [origValue, setOrigValue] = useState<string | undefined>(undefined);
   const [iconSource, setIconSource] = useState<string | undefined>(undefined);
   const [iconDto, setIconDto] = useState<IconFileDto | undefined>(undefined);
@@ -143,17 +153,18 @@ const IconSelector = ({ className, darkBackGround = false, enableEditMode = true
       <div className={getDiv}>
         <SMDropDown
           buttonLabel="LOGOS"
+          buttonLarge={large}
           buttonDarkBackground={darkBackGround}
           buttonTemplate={buttonTemplate}
           data={query.data}
           dataKey="Source"
           filter
           filterBy="Source"
+          fixed={fixed}
           itemTemplate={itemTemplate}
           onChange={(e) => {
             handleOnChange(e);
           }}
-          // label={label}
           title="LOGOS"
           value={iconDto}
           contentWidthSize="3"

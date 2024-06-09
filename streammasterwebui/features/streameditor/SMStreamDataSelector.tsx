@@ -12,6 +12,7 @@ import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectedSMStreams } from '@lib/redux/hooks/selectedSMStreams';
 
+import SMDataTable from '@components/smDataTable/SMDataTable';
 import DeleteSMStreamDialog from '@components/smstreams/DeleteSMStreamDialog';
 import EditSMStreamDialog from '@components/smstreams/EditSMStreamDialog';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
@@ -19,12 +20,12 @@ import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsComma
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import { CreateSMChannelFromStreamRequest, RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent, DataTableRowEvent, DataTableValue } from 'primereact/datatable';
-import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import SimpleButton from '../../components/buttons/SimpleButton';
 import SMStreamMenu from './SMStreamMenu';
 import useSelectedSMItems from './useSelectedSMItems';
 
-const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
+// const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
 interface SMStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
   readonly id: string;
@@ -68,7 +69,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
       { field: 'Name', filter: true, sortable: true, width: '16rem' },
       groupColumnConfig,
       smStreamM3UColumnConfig,
-      { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '4rem' }
+      { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '5rem' }
     ],
     [actionTemplate, groupColumnConfig, smStreamM3UColumnConfig]
   );
@@ -209,42 +210,40 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
   );
 
   return (
-    <Suspense>
-      <SMDataTable
-        columns={smTableIsSimple ? simpleColumns : columns}
-        defaultSortField="Name"
-        defaultSortOrder={1}
-        addOrRemoveTemplate={addOrRemoveTemplate}
-        addOrRemoveHeaderTemplate={addOrRemoveHeaderTemplate}
-        enablePaginator
-        emptyMessage="No Streams"
-        headerName={GetMessage('m3ustreams').toUpperCase()}
-        headerRightTemplate={simple === true ? undefined : rightHeaderTemplate}
-        isLoading={isLoading}
-        id={dataKey}
-        onSelectionChange={(value, selectAll) => {
-          if (selectAll !== true) {
-            setSelectedSMStreams(value as SMStreamDto[]);
-          }
-        }}
-        onClick={(e: any) => {
-          if (e.target.className && e.target.className === 'p-datatable-wrapper') {
-            setSelectedSMChannel(undefined);
-          }
-        }}
-        onRowExpand={(e: DataTableRowEvent) => {
-          setSelectedSMEntity(e.data);
-        }}
-        onRowClick={(e: DataTableRowClickEvent) => {
-          setSelectedSMEntity(e.data, true);
-        }}
-        rowClass={rowClass}
-        queryFilter={useGetPagedSMStreams}
-        selectedItemsKey="selectSelectedSMStreamDtoItems"
-        selectionMode="multiple"
-        style={{ height: height ?? 'calc(100vh - 100px)' }}
-      />
-    </Suspense>
+    <SMDataTable
+      columns={smTableIsSimple ? simpleColumns : columns}
+      defaultSortField="Name"
+      defaultSortOrder={1}
+      addOrRemoveTemplate={addOrRemoveTemplate}
+      addOrRemoveHeaderTemplate={addOrRemoveHeaderTemplate}
+      enablePaginator
+      emptyMessage="No Streams"
+      headerName={GetMessage('m3ustreams').toUpperCase()}
+      headerRightTemplate={simple === true ? undefined : rightHeaderTemplate}
+      isLoading={isLoading}
+      id={dataKey}
+      onSelectionChange={(value, selectAll) => {
+        if (selectAll !== true) {
+          setSelectedSMStreams(value as SMStreamDto[]);
+        }
+      }}
+      onClick={(e: any) => {
+        if (e.target.className && e.target.className === 'p-datatable-wrapper') {
+          setSelectedSMChannel(undefined);
+        }
+      }}
+      onRowExpand={(e: DataTableRowEvent) => {
+        setSelectedSMEntity(e.data);
+      }}
+      onRowClick={(e: DataTableRowClickEvent) => {
+        setSelectedSMEntity(e.data, true);
+      }}
+      rowClass={rowClass}
+      queryFilter={useGetPagedSMStreams}
+      selectedItemsKey="selectSelectedSMStreamDtoItems"
+      selectionMode="multiple"
+      style={{ height: height ?? 'calc(100vh - 100px)' }}
+    />
   );
 };
 

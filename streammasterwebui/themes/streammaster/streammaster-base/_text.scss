@@ -133,32 +133,46 @@
     }
 
     .sm-input-dark {
-        display: flex;
-        @extend .text-container;
-        @extend .sm-input-border-dark;
         @extend .sm-hover-dark;
+        @extend .sm-input-border-dark;
+        @extend .text-container;
         background-color: $inputBg;
         border-color: $inputBorderColor;
         border-style: solid;
         color: $inputTextColor;
+        display: flex;
         height: $input-height-with-no-borders;
         max-height: $input-height-with-no-borders;
         min-height: $input-height-with-no-borders;
         width: 100%;
-
-        .p-inputnumber-input {
-            color: $textColor;
-            @extend .width-100;
-        }
-
-        .label {
-            color: $textColor;
-        }
-
-        &:focus-visible {
-            background-color: $inputBg;
-        }
     }
+
+    .sm-input-dark-large {
+        @extend .icon-template-lg;
+        @extend .sm-hover-dark;
+        @extend .sm-input-border-dark;
+        @extend .text-container;
+        background-color: $inputBg;
+        border-color: $inputBorderColor;
+        border-style: solid;
+        color: $inputTextColor;
+        display: flex;
+        width: 100%;
+    }
+
+    .p-inputnumber-input {
+        color: $textColor;
+        @extend .width-100;
+    }
+
+    .label {
+        color: $textColor;
+    }
+
+    &:focus-visible {
+        background-color: $inputBg;
+    }
+
 
     .p-float-label {
         >label {
