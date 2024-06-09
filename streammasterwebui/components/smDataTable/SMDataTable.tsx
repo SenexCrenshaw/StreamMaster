@@ -1,7 +1,6 @@
 import StringTracker from '@components/inputs/StringTracker';
 import { camel2title, isEmptyObject } from '@lib/common/common';
 
-import useSettings from '@lib/useSettings';
 import { areArraysEqual } from '@mui/base';
 import { Button } from 'primereact/button';
 import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
@@ -31,6 +30,7 @@ import getEmptyFilter from './helpers/getEmptyFilter';
 import getHeader from './helpers/getHeader';
 import getRecord from './helpers/getRecord';
 
+import { useSMContext } from '@lib/signalr/SMProvider';
 import { getColumnClassNames } from './helpers/getColumnClassNames';
 import isPagedResponse from './helpers/isPagedResponse';
 import useSMDataSelectorValuesState from './hooks/useSMDataTableState';
@@ -40,7 +40,7 @@ import { SMDataTableProps } from './types/smDataTableInterfaces';
 
 const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   const { state, setters } = useSMDataSelectorValuesState<T>(props.id, props.selectedItemsKey);
-
+  const { settings } = useSMContext();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [, setHasScrollbar] = useState(false);
 
@@ -270,8 +270,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   const onRowReorder = (changed: T[]) => {
     props.onRowReorder?.(changed);
   };
-
-  const setting = useSettings();
 
   const rowClass = useCallback(
     (data: DataTableRowData<T[]>): string => {
@@ -775,7 +773,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
                   filterElement={col.headerTemplate ? col.headerTemplate : colFilterTemplate}
                   filterPlaceholder={col.filter === true ? (col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)) : undefined}
                   // header={col.headerTemplate ? col.headerTemplate : getHeader(col.field, col.header, col.fieldType)}
-                  body={(e) => (col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, setting.defaultIcon, col.camelize))}
+                  body={(e) => (col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, settings.DefaultIcon, col.camelize))}
                   editor={col.editor}
                   field={col.field}
                   hidden={col.isHidden === true}

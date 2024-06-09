@@ -1,5 +1,8 @@
+import SMButton from '@components/sm/SMButton';
+import { SMCard } from '@components/sm/SMCard';
 import { GetMessage } from '@lib/common/intl';
-import useSettings from '@lib/useSettings';
+import { useSMContext } from '@lib/signalr/SMProvider';
+import { AuthenticationType } from '@lib/smAPI/smapiTypes';
 import { Fieldset } from 'primereact/fieldset';
 import { SelectItem } from 'primereact/selectitem';
 import React, { useMemo } from 'react';
@@ -7,12 +10,9 @@ import { getDropDownLine } from './components/getDropDownLine';
 import { getInputTextLine } from './components/getInputTextLine';
 import { getPasswordLine } from './components/getPasswordLine';
 import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
-import { AuthenticationType } from '@lib/smAPI/smapiTypes';
-import { SMCard } from '@components/sm/SMCard';
-import SMButton from '@components/sm/SMButton';
 
 export function AuthenticationSettings(): React.ReactElement {
-  const setting = useSettings();
+  const { settings } = useSMContext();
   const { onChange, currentSettingRequest } = useSettingChangeHandler();
 
   const adminUserNameError = useMemo((): string | undefined => {
@@ -66,7 +66,7 @@ export function AuthenticationSettings(): React.ReactElement {
               <div className="w-2 text-right pr-2">{GetMessage('signout')}</div>
               <div className="w-2">
                 <SMButton
-                  disabled={!setting.authenticationType || (setting.authenticationType as number) === 0}
+                  disabled={!settings.AuthenticationMethod || (settings.AuthenticationMethod as number) === 0}
                   icon="pi-check"
                   label={GetMessage('signout')}
                   onClick={() => (window.location.href = '/logout')}

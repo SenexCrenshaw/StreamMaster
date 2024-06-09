@@ -8136,6 +8136,12 @@
   --highlight-text-color: #bcbfbf;
 }
 
+.sidebar-sm-icon {
+  border-right-color: #263238;
+  border-right-style: solid;
+  border-right-width: 1px;
+}
+
 .p-multiselect-trigger {
   width: 1rem;
   padding-right: 0.2rem;
