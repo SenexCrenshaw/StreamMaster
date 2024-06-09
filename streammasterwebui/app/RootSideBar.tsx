@@ -42,7 +42,7 @@ export const RootSideBar = () => {
   // };
 
   return (
-    <div className="flex flex-column m-0 p-0">
+    <div className="flex flex-column m-0 p-0 " style={{ height: 'calc(100vh - 10px)' }}>
       <Sidebar
         className="app sidebar max-h-screen justify-content-start align-items-start"
         collapsed={collapsed}
