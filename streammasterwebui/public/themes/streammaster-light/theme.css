@@ -8042,6 +8042,7 @@
   background-color: #12181b;
 }
 .stringeditor .sm-input-dark {
+  display: flex;
   background-color: #12181b;
   border-color: #263238;
   border-style: solid;

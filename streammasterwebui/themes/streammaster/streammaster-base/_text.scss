@@ -133,6 +133,7 @@
     }
 
     .sm-input-dark {
+        display: flex;
         @extend .text-container;
         @extend .sm-input-border-dark;
         @extend .sm-hover-dark;
