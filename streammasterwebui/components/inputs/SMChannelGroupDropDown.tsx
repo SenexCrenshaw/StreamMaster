@@ -31,7 +31,7 @@ const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownP
 
   const buttonTemplate = useMemo((): ReactNode => {
     if (!smChannelDto || !smChannelDto.Group) {
-      return <div className="text-xs text-container text-white-alpha-40">None</div>;
+      return <div className="text-xs text-container text-white-alpha-40 pl-1">None</div>;
     }
 
     return (

@@ -221,7 +221,7 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, isLoading, onCha
               data-pr-showdelay={500}
               data-pr-tooltip="No EPG"
             />
-            <div className="text-xs text-container text-white-alpha-40">None</div>
+            <div className="text-xs text-container text-white-alpha-40 pl-1">None</div>
           </div>
         );
       }

@@ -69,7 +69,7 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
 
   const buttonTemplate = useMemo((): ReactNode => {
     if (!data) {
-      return <div className="text-xs text-container text-white-alpha-40">None</div>;
+      return <div className="text-xs text-container text-white-alpha-40 pl-1">None</div>;
     }
 
     if (isNumber(data.StreamingProxyType)) {
