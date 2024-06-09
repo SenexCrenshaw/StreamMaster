@@ -7699,21 +7699,21 @@
 }
 
 .sm-menuitem {
-  transition: filter 0.3s ease;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  transition: color 0.3s ease;
+  border-bottom-left-radius: 12px;
   border-bottom-right-radius: 6px;
+  border-style: solid;
+  border-top-left-radius: 12px;
   border-top-right-radius: 6px;
   border-width: 1px;
-  border-top-style: solid;
-  border-bottom-style: solid;
-  border-right-style: solid;
+  display: flex;
   height: 1.4rem;
+  justify-content: center;
   max-height: 1.4rem;
   min-height: 1.4rem;
   padding-right: 0.24rem;
+  transition: color 0.3s ease;
+  transition: filter 0.3s ease;
 }
 .sm-menuitem:hover {
   color: white;

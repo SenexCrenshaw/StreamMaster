@@ -2,7 +2,7 @@ import CloseButton from '@components/buttons/CloseButton';
 import SMButton from '@components/sm/SMButton';
 import { BlockUI } from 'primereact/blockui';
 import { OverlayPanel } from 'primereact/overlaypanel';
-import React, { ReactNode, SyntheticEvent, forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
+import React, { CSSProperties, ReactNode, SyntheticEvent, forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
 import { SMCard } from './SMCard';
 
 interface SMOverlayProperties {
@@ -93,6 +93,23 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
     }
   }, [buttonClassName]);
 
+  const getDiv = useMemo(() => {
+    let div = 'flex align-items-center justify-content-center gap-1';
+    if (label) {
+      div += ' sm-menuitem';
+    }
+    return div;
+  }, [label]);
+
+  const getStyle = useMemo((): CSSProperties => {
+    if (label) {
+      return {
+        borderColor: getLabelColor
+      };
+    }
+    return {};
+  }, [getLabelColor, label]);
+
   const renderButton = useMemo(() => {
     if (buttonTemplate) {
       return (
@@ -115,7 +132,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
       );
     }
     return (
-      <div className="flex align-items-center justify-content-center gap-1" onClick={(e) => openPanel(e)}>
+      <div className={getDiv} onClick={(e) => openPanel(e)} style={getStyle}>
         <SMButton
           darkBackGround={buttonDarkBackground}
           disabled={buttonDisabled}
@@ -126,16 +143,7 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
           tooltip={tooltip}
           label={buttonLabel}
         />
-        {label && (
-          <div
-            className="sm-menuitem"
-            style={{
-              borderColor: getLabelColor
-            }}
-          >
-            {label}
-          </div>
-        )}
+        {label && <div className="sm-menuitsem2">{label}</div>}
       </div>
     );
   }, [
@@ -144,7 +152,8 @@ const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverla
     buttonDisabled,
     buttonLabel,
     buttonTemplate,
-    getLabelColor,
+    getDiv,
+    getStyle,
     icon,
     iconFilled,
     isLoading,

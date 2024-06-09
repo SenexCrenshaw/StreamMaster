@@ -67,21 +67,21 @@
 }
 
 .sm-menuitem {
-    transition: filter 0.3s ease;
-    display: flex;
     align-items: center;
-    justify-content: center;
-    transition: color 0.3s ease;
+    border-bottom-left-radius: $borderRadius* 2;
     border-bottom-right-radius: $borderRadius;
+    border-style: solid;
+    border-top-left-radius: $borderRadius * 2;
     border-top-right-radius: $borderRadius;
     border-width: 1px;
-    border-top-style: solid;
-    border-bottom-style: solid;
-    border-right-style: solid;
+    display: flex;
     height: $input-height-with-no-borders;
+    justify-content: center;
     max-height: $input-height-with-no-borders;
     min-height: $input-height-with-no-borders;
     padding-right: .24rem;
+    transition: color 0.3s ease;
+    transition: filter 0.3s ease;
 
     &:hover {
         color: white;

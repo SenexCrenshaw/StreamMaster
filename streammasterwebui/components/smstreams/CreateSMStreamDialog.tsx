@@ -34,7 +34,12 @@ const CreateSMStreamDialog = ({ label }: CreateSMStreamDialogProperties) => {
   }, []);
 
   return (
-    <div className="flex align-items-center justify-content-center gap-1">
+    <div
+      className="flex align-items-center justify-content-center gap-1 sm-menuitem"
+      style={{
+        borderColor: 'var(--icon-green)'
+      }}
+    >
       <SMDialog
         darkBackGround
         ref={smDialogRef}
@@ -64,12 +69,8 @@ const CreateSMStreamDialog = ({ label }: CreateSMStreamDialogProperties) => {
 
       {label && (
         <div
-          className="sm-menuitem"
           onClick={() => {
             smDialogRef.current?.show();
-          }}
-          style={{
-            borderColor: 'var(--icon-green)'
           }}
         >
           {label}

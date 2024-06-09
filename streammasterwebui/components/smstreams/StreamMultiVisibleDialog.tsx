@@ -70,7 +70,8 @@ const StreamMultiVisibleDialog = ({ id, label, onClose, selectedItemsKey }: Stre
 
   return (
     <div
-      className="flex align-items-center justify-content-center gap-1"
+      className="flex align-items-center justify-content-center gap-1 sm-menuitem"
+      style={{ borderColor: 'var(--icon-red)' }}
       onClick={async (event) => {
         await onVisiblesClick();
       }}
@@ -88,16 +89,7 @@ const StreamMultiVisibleDialog = ({ id, label, onClose, selectedItemsKey }: Stre
         aria-haspopup
         tooltip="Toggle Visibility"
       />
-      {label && (
-        <div
-          className="sm-menuitem"
-          style={{
-            borderColor: 'var(--icon-red)'
-          }}
-        >
-          {label}
-        </div>
-      )}
+      {label && <div>{label}</div>}
     </div>
   );
 };
