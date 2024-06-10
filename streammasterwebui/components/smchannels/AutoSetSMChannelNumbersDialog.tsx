@@ -53,7 +53,6 @@ const AutoSetSMChannelNumbersDialog = ({ disabled }: AutoSetSMChannelNumbersDial
       onHide={() => ReturnToParent()}
       buttonClassName={disabled ? 'p-disabled icon-yellow' : 'icon-yellow'}
       icon="pi-sort-numeric-up-alt"
-      info="General"
       widthSize={3}
     >
       <div className="surface-border flex grid flex-wrap justify-content-center p-0 m-0 w-12 min-h-4rem h-4rem">

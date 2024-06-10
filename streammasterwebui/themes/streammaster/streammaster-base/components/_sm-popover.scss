@@ -1,7 +1,24 @@
 .sm-popover {
     @include sm-border;
-    z-index: 9999;
+    z-index: 2;
     width: 100%;
     padding: 0.5rem;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), 0 12px 40px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 8px 8px rgba(0, 0, 0, 0.2), 0 8px 8px rgba(0, 0, 0, 0.55);
+}
+
+.sm-modal {
+    z-index: 10;
+    box-shadow:
+        0 0 8px rgba(255, 255, 255, 0.5),
+        /* Soft outer white highlight */
+        0 0 16px rgba(255, 255, 255, 0.3);
+    /* More diffuse, larger radius */
+}
+
+
+.Dialog-overlay {
+    z-index: 9;
+    background: rgba(0, 0, 0, 0.4);
+    display: grid;
+    place-items: center;
 }

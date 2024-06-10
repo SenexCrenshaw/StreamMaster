@@ -47,7 +47,6 @@ const EditSMChannelDialog = ({ onHide, smChannel: toGet }: CopySMChannelProperti
       buttonClassName="icon-yellow"
       icon="pi-pencil"
       widthSize={5}
-      info="General"
       tooltip="Edit Channel"
     >
       <SMChannelDialog smChannel={query.data} onSave={onSave} />

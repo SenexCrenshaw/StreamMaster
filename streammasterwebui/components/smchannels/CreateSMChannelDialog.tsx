@@ -39,7 +39,6 @@ const CreateSMChannelDialog = () => {
       buttonClassName="icon-green"
       icon="pi-plus"
       widthSize={5}
-      info="General"
       tooltip="Create Channel"
       header={
         <div className="flex w-12 gap-1 justify-content-end align-content-center">

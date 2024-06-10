@@ -133,14 +133,6 @@ const BaseChannelGroupSelector = memo(
           }
           return 0;
         });
-
-        // Logger.debug('BaseChannelGroupSelector', 'dataSource', {
-        //   data: namesQuery.data,
-        //   showHidden,
-        //   sortedData: sortedData,
-        //   sortField: sortInfo.sortField,
-        //   sortOrder: sortInfo.sortOrder
-        // });
       } else {
         data = namesQuery.data;
       }
@@ -203,7 +195,7 @@ const BaseChannelGroupSelector = memo(
             buttonLabel="GROUP"
             buttonTemplate={buttonTemplate}
             contentWidthSize="3"
-            fixed={fixed}
+            autoPlacement={fixed}
             header={headerRightTemplate}
             icon="pi-chevron-down"
             isLoading={loading}

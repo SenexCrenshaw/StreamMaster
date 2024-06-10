@@ -15,7 +15,7 @@ interface CreateSMChannelsDialogProperties {
   readonly selectedItemsKey: string;
 }
 
-const CreateSMChannelsDialog = ({ id, label, onClose, selectedItemsKey }: CreateSMChannelsDialogProperties) => {
+const CreateSMChannelsFromSMStreamsDialog = ({ id, label, onClose, selectedItemsKey }: CreateSMChannelsDialogProperties) => {
   const dialogRef = React.useRef<SMDialogRef>(null);
   const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(selectedItemsKey);
 
@@ -89,6 +89,6 @@ const CreateSMChannelsDialog = ({ id, label, onClose, selectedItemsKey }: Create
   );
 };
 
-CreateSMChannelsDialog.displayName = 'CreateSMChannelsDialog';
+CreateSMChannelsFromSMStreamsDialog.displayName = 'CreateSMChannelsDialog';
 
-export default React.memo(CreateSMChannelsDialog);
+export default React.memo(CreateSMChannelsFromSMStreamsDialog);

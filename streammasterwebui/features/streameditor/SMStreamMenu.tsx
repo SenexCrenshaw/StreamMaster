@@ -2,7 +2,7 @@ import { memo, useRef } from 'react';
 
 import SMButton from '@components/sm/SMButton';
 
-import CreateSMChannelsDialog from '@components/smchannels/CreateSMChannelsDialog';
+import CreateSMChannelsFromSMStreamsDialog from '@components/smchannels/CreateSMChannelsFromSMStreamsDialog';
 import CreateSMStreamDialog from '@components/smstreams/CreateSMStreamDialog';
 import StreamMultiVisibleDialog from '@components/smstreams/StreamMultiVisibleDialog';
 import { OverlayPanel } from 'primereact/overlaypanel';
@@ -17,7 +17,11 @@ const SMStreamMenu = () => {
       <OverlayPanel className="sm-overlay" ref={op}>
         <div className="sm-channel-menu gap-1">
           <div className="pt-1"></div>
-          <CreateSMChannelsDialog label="Stream to Channels" selectedItemsKey="selectSelectedSMStreamDtoItems" id="streameditor-SMStreamDataSelector" />
+          <CreateSMChannelsFromSMStreamsDialog
+            label="Stream to Channels"
+            selectedItemsKey="selectSelectedSMStreamDtoItems"
+            id="streameditor-SMStreamDataSelector"
+          />
           <StreamMultiVisibleDialog label="Set Visibility" selectedItemsKey="selectSelectedSMStreamDtoItems" id="streameditor-SMStreamDataSelector" />
           <CreateSMStreamDialog label="Create Stream" />
           <div className="pt-1"></div>

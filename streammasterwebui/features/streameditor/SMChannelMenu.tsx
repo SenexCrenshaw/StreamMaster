@@ -2,10 +2,10 @@ import { memo, useMemo, useRef } from 'react';
 
 import SMButton from '@components/sm/SMButton';
 
-import { OverlayPanel } from 'primereact/overlaypanel';
-import AutoSetSMChannelNumbersDialog from '../../components/smchannels/AutoSetSMChannelNumbersDialog';
 import AutoSetEPGSMChannelDialog from '@components/smchannels/AutoSetEPGSMChannelDialog';
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
+import { OverlayPanel } from 'primereact/overlaypanel';
+import AutoSetSMChannelNumbersDialog from '../../components/smchannels/AutoSetSMChannelNumbersDialog';
 
 export interface SChannelMenuProperties {}
 

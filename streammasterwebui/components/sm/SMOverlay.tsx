@@ -1,11 +1,14 @@
 import CloseButton from '@components/buttons/CloseButton';
-import SMButton from '@components/sm/SMButton';
 import {
+  FloatingArrow,
   FloatingFocusManager,
+  FloatingOverlay,
   FloatingPortal,
+  arrow,
   autoPlacement,
   autoUpdate,
   flip,
+  offset,
   shift,
   useClick,
   useDismiss,
@@ -15,250 +18,183 @@ import {
   useRole,
   useTransitionStyles
 } from '@floating-ui/react';
+import { Logger } from '@lib/common/logger';
 import { BlockUI } from 'primereact/blockui';
-import React, { CSSProperties, ReactNode, SyntheticEvent, forwardRef, useCallback, useImperativeHandle, useMemo, useState } from 'react';
+import { CSSProperties, ReactNode, SyntheticEvent, forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { CombinedProvider } from './Context/CombinedContext';
+import { useSMButton } from './Context/useSMButton';
+import { SMOverlayProperties } from './Interfaces/SMOverlayProperties';
 import { SMCard } from './SMCard';
-
-interface SMOverlayProperties {
-  readonly answer?: boolean;
-  readonly buttonClassName?: string;
-  readonly buttonDisabled?: boolean;
-  readonly buttonDarkBackground?: boolean;
-  readonly buttonLabel?: string;
-  readonly buttonLarge?: boolean;
-  readonly buttonTemplate?: ReactNode;
-  readonly center?: React.ReactNode;
-  readonly children: React.ReactNode;
-  readonly header?: React.ReactNode;
-  readonly icon?: string;
-  readonly iconFilled?: boolean;
-  readonly isLoading?: boolean;
-  readonly label?: string;
-  readonly showClose?: boolean;
-  readonly simple?: boolean;
-  readonly title?: string;
-  readonly tooltip?: string;
-  readonly contentWidthSize?: string;
-  readonly fixed?: boolean;
-  onAnswered?(): void;
-  // onHide?(): void;
-  // onShow?(): void;
-}
 
 export interface SMOverlayRef {
   hide: () => void;
   show: (event: any) => void;
 }
 
-const SMOverlay = forwardRef<SMOverlayRef, SMOverlayProperties>((props: SMOverlayProperties, ref) => {
-  const [isOpen, setIsOpen] = useState(false);
+interface ExtendedSMOverlayProperties extends SMOverlayProperties {
+  readonly children?: ReactNode;
+}
 
-  const { refs, floatingStyles, context } = useFloating({
-    middleware: props.fixed === true ? [shift(), flip()] : [autoPlacement()],
-    onOpenChange: setIsOpen,
-    open: isOpen,
-    strategy: 'absolute',
-    transform: true,
-    whileElementsMounted: autoUpdate
-  });
-
-  const { styles: transitionStyles } = useTransitionStyles(context);
-
-  const click = useClick(context);
-  const dismiss = useDismiss(context);
-  const role = useRole(context);
-  const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss, role]);
-  const {
-    answer,
-    buttonClassName = '',
-    buttonDarkBackground = false,
-    buttonDisabled = false,
-    buttonLarge = false,
-    buttonLabel = '',
-    buttonTemplate,
-    center,
-    children,
-    header,
-    icon,
-    iconFilled = false,
-    isLoading = false,
-    label,
-    onAnswered,
-    showClose = false,
-    simple = false,
-    title,
-    tooltip = '',
-    contentWidthSize = '4'
-  } = props;
-
-  useImperativeHandle(ref, () => ({
-    hide: () => setIsOpen(false),
-    props,
-    show: (event: any) => setIsOpen(true)
-  }));
-
-  const openPanel = useCallback(
-    (e: SyntheticEvent) => {
-      if (answer !== undefined) {
-        onAnswered && onAnswered();
-        return;
-      }
-      setIsOpen((prev) => !prev);
+const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
+  (
+    {
+      buttonDisabled = false,
+      closeOnLostFocus: closeOnFocusOut = false,
+      placement = 'bottom',
+      contentWidthSize = '4',
+      answer,
+      children,
+      header,
+      info,
+      isLoading = false,
+      onAnswered,
+      showClose = false,
+      autoPlacement: innerAutoPlacement = false,
+      ...props
     },
-    [answer, onAnswered]
-  );
+    ref
+  ) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const arrowRef = useRef(null);
+    if (props.title === 'Add M3U') {
+      Logger.debug('SMOverlay', props.title, { modal: props.modal, modalCentered: props.modalCentered });
+    }
+    const ARROW_HEIGHT = 12;
+    const ARROW_HEIGHT_OFFSET = ARROW_HEIGHT - 4;
 
-  const getLabelColor = useMemo(() => {
-    if (buttonClassName.includes('red')) {
-      return 'var(--icon-red)';
-    }
-    if (buttonClassName.includes('orange')) {
-      return 'var(--icon-orange)';
-    }
-    if (buttonClassName.includes('green')) {
-      return 'var(--icon-green)';
-    }
-    if (buttonClassName.includes('blue')) {
-      return 'var(--icon-blue)';
-    }
-  }, [buttonClassName]);
+    const middleware = useMemo(() => {
+      if (props.modalCentered) {
+        return [
+          offset(({ rects }) => {
+            return -rects.reference.height / 2 - rects.floating.height / 2;
+          }),
+          arrow({ element: arrowRef })
+        ];
+      }
+      return innerAutoPlacement
+        ? [offset(() => ARROW_HEIGHT_OFFSET, [ARROW_HEIGHT_OFFSET]), autoPlacement(), arrow({ element: arrowRef })]
+        : [offset(() => ARROW_HEIGHT_OFFSET, [ARROW_HEIGHT_OFFSET]), shift(), flip(), arrow({ element: arrowRef })];
+    }, [ARROW_HEIGHT_OFFSET, innerAutoPlacement, props.modalCentered]);
 
-  const getDiv = useMemo(() => {
-    let div = 'flex align-items-center justify-content-center gap-1';
-    if (label) {
-      div += ' sm-menuitem';
-    }
-    return div;
-  }, [label]);
+    const { refs, floatingStyles, context } = useFloating({
+      middleware,
+      onOpenChange(nextOpen, event, reason) {
+        Logger.debug('onOpenChange', { closeOnLostFocus: closeOnFocusOut, event, reason });
 
-  const getStyle = useMemo((): CSSProperties => {
-    if (label) {
-      return {
-        borderColor: getLabelColor
-      };
-    }
-    return {};
-  }, [getLabelColor, label]);
+        if (props.modal && !nextOpen) return;
+        if (!event?.type) {
+          setIsOpen(nextOpen ?? false);
+          return;
+        }
+        if (!closeOnFocusOut && event.type === 'focusout') return;
+        if (props.modal && event.type === 'focusout') return;
 
-  const renderButton = useMemo(() => {
-    if (buttonTemplate) {
+        setIsOpen(nextOpen ?? false);
+      },
+      open: isOpen,
+      placement,
+      strategy: 'absolute',
+      transform: true,
+      whileElementsMounted: autoUpdate
+    });
+
+    const { styles: transitionStyles } = useTransitionStyles(context);
+    const { getReferenceProps, getFloatingProps } = useInteractions([useClick(context), useDismiss(context), useRole(context)]);
+
+    useImperativeHandle(ref, () => ({
+      hide: () => setIsOpen(false),
+      show: () => setIsOpen(true)
+    }));
+
+    const openPanel = useCallback(
+      (e: SyntheticEvent) => {
+        if (answer !== undefined) {
+          onAnswered?.();
+          return;
+        }
+        setIsOpen((prev) => !prev);
+      },
+      [answer, onAnswered]
+    );
+
+    const headingId = useId();
+    const borderClass = info ? 'info-header-text-bottom-border' : 'info-header-text';
+
+    const { buttonElement } = useSMButton({
+      buttonDisabled,
+      ...props,
+      getReferenceProps,
+      refs
+    });
+
+    const content = useMemo(() => {
       return (
-        <div ref={refs.setReference} tabIndex={0} {...getReferenceProps()}>
-          <SMButton
-            darkBackGround={buttonDarkBackground}
-            disabled={buttonDisabled}
-            className={buttonClassName}
-            iconFilled={iconFilled}
-            icon={icon}
-            isLoading={isLoading}
-            large={buttonLarge}
-            tooltip={tooltip}
-            label={buttonLabel}
-            onClick={(e) => openPanel(e)}
-          >
-            {buttonTemplate}
-            {label}
-          </SMButton>
-        </div>
-      );
-    }
-    return (
-      <div ref={refs.setReference} tabIndex={0} {...getReferenceProps()} className={getDiv} style={getStyle}>
-        <SMButton
-          darkBackGround={buttonDarkBackground}
-          disabled={buttonDisabled}
-          className={buttonClassName}
-          iconFilled={iconFilled}
-          icon={icon}
-          isLoading={isLoading}
-          large={buttonLarge}
-          tooltip={tooltip}
-          label={buttonLabel}
-        />
-        {label && <div className="sm-menuitsem2">{label}</div>}
-      </div>
-    );
-  }, [
-    buttonClassName,
-    buttonDarkBackground,
-    buttonDisabled,
-    buttonLabel,
-    buttonLarge,
-    buttonTemplate,
-    getDiv,
-    getReferenceProps,
-    getStyle,
-    icon,
-    iconFilled,
-    isLoading,
-    label,
-    openPanel,
-    refs.setReference,
-    tooltip
-  ]);
-  const headingId = useId();
-
-  if (isLoading === true) {
-    return (
-      <BlockUI blocked={isLoading}>
-        <div className="w-full">{renderButton}</div>
-      </BlockUI>
-    );
-  }
-
-  return (
-    <>
-      {/* <OverlayPanel className={`sm-overlay sm-w-${contentWidthSize}`} ref={op} showCloseIcon={false} onShow={onShow} onHide={() => onHide && onHide()}>
         <SMCard
-          center={center}
+          darkBackGround
           header={
             <div className="justify-content-end align-items-center flex-row flex gap-1">
               {header}
-              {showClose && <CloseButton onClick={(e) => openPanel(e)} tooltip="Close" />}
+              {showClose && <CloseButton onClick={openPanel} tooltip="Close" />}
             </div>
           }
-          simple={simple}
-          title={title}
+          {...props}
         >
-          {children}
+          <div className="sm-card-children">
+            {info && <div className={`${borderClass} sm-card-children-info`}>{info}</div>}
+            <div className="sm-card-children-content">{children}</div>
+          </div>
         </SMCard>
-      </OverlayPanel> */}
-      {renderButton}
-      {/* <button ref={refs.setReference} {...getReferenceProps()}>
-        Reference element
-      </button> */}
+      );
+    }, [borderClass, children, header, info, openPanel, props, showClose]);
 
-      <FloatingPortal>
-        {isOpen && (
-          <FloatingFocusManager context={context} modal={false}>
-            <div
-              className={`sm-overlay sm-popover sm-w-${contentWidthSize} pt-2`}
-              ref={refs.setFloating}
-              style={floatingStyles}
-              aria-labelledby={headingId}
-              {...getFloatingProps()}
-            >
-              <div style={transitionStyles}>
-                <SMCard
-                  center={center}
-                  header={
-                    <div className="justify-content-end align-items-center flex-row flex gap-1">
-                      {header}
-                      {showClose && <CloseButton onClick={(e) => openPanel(e)} tooltip="Close" />}
+    const getStyle = useMemo((): CSSProperties => {
+      if (props.modal && props.modalCentered) {
+        return { left: '50%', position: 'absolute', top: '50%', transform: 'translate(-50%, -50%)', width: '100%' };
+      }
+      return floatingStyles;
+    }, [props.modal, props.modalCentered, floatingStyles]);
+
+    if (isLoading) {
+      return <BlockUI blocked={isLoading}>{/* Add loading content here */}</BlockUI>;
+    }
+
+    return (
+      <>
+        {buttonElement}
+        {!buttonDisabled && (
+          <FloatingPortal>
+            {isOpen && (
+              <div>
+                <FloatingOverlay className={props.modal ? 'Dialog-overlay' : ''} lockScroll />
+                <FloatingFocusManager context={context} modal={props.modal}>
+                  <>
+                    <div
+                      className={`sm-overlay sm-popover sm-w-${contentWidthSize} pt-2 ${props.modal ? 'sm-modal' : ''}`}
+                      ref={refs.setFloating}
+                      style={getStyle}
+                      aria-labelledby={headingId}
+                      {...getFloatingProps()}
+                    >
+                      {props.modal !== true && (
+                        <FloatingArrow ref={arrowRef} context={context} height={ARROW_HEIGHT} fill="var(--surface-border)" tipRadius={4} />
+                      )}
+                      <div style={transitionStyles}>{content}</div>
                     </div>
-                  }
-                  simple={simple}
-                  title={title}
-                >
-                  {children}
-                </SMCard>
+                  </>
+                </FloatingFocusManager>
               </div>
-            </div>
-          </FloatingFocusManager>
+            )}
+          </FloatingPortal>
         )}
-      </FloatingPortal>
-    </>
-  );
-});
+      </>
+    );
+  }
+);
+
+const SMOverlay = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>((props, ref) => (
+  <CombinedProvider>
+    <SMOverlayInner ref={ref} {...props} />
+  </CombinedProvider>
+));
 
 export default SMOverlay;

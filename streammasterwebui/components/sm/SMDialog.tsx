@@ -35,7 +35,7 @@ const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogPro
     children,
     darkBackGround = false,
     header,
-    info = '',
+    info = 'General',
     icon = 'pi pi-plus',
     iconFilled = false,
     label,
@@ -86,7 +86,7 @@ const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogPro
             }
           >
             <div className="sm-card-children">
-              <div className={`${borderClass} sm-card-children-info`}>{info}</div>
+              {info && info !== '' && <div className={`${borderClass} sm-card-children-info`}>{info}</div>}
               <div className="sm-card-children-content">{children}</div>
             </div>
           </SMCard>

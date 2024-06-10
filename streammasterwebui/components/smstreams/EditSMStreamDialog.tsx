@@ -45,7 +45,6 @@ const EditSMStreamDialog = ({ smStreamDto }: EditSMStreamDialogProperties) => {
       buttonClassName="icon-yellow"
       icon="pi-pencil"
       widthSize={5}
-      info="General"
       tooltip="Edit Stream"
       header={
         <div className="flex w-12 gap-1 justify-content-end align-content-center">

@@ -1,9 +1,9 @@
-import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
+import { SMDialogRef } from '@components/sm/SMDialog';
 import { CreateChannelGroupRequest } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useMemo, useRef, useState, type FC } from 'react';
 
-import OKButton from '@components/buttons/OKButton';
 import StringEditor from '@components/inputs/StringEditor';
+import { SMPopUp } from '@components/sm/SMPopUp';
 import { CreateChannelGroup } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
 
 const ChannelGroupAddDialog: FC = () => {
@@ -45,17 +45,17 @@ const ChannelGroupAddDialog: FC = () => {
   }, [newGroupName]);
 
   return (
-    <SMDialog
+    <SMPopUp
       buttonClassName="icon-green"
-      header={<OKButton disabled={!isSaveEnabled} onClick={addGroup} tooltip="Add Group" />}
       icon="pi-plus"
       iconFilled
-      info="General"
-      onHide={() => ReturnToParent()}
-      ref={dialogRef}
-      title="CREATE GROUP"
+      modal
+      onOkClick={() => addGroup()}
+      okButtonDisabled={!isSaveEnabled}
+      placement="bottom-end"
+      showRemember={false}
+      title="Create Group"
       tooltip="Create Group"
-      widthSize={2}
     >
       <div className="flex grid justify-content-center align-items-center w-full">
         <div className="flex col-10 mt-1">
@@ -65,13 +65,13 @@ const ChannelGroupAddDialog: FC = () => {
             disableDebounce
             label="Name"
             labelInline
-            onChange={(e) => e && setNewGroupName(e)}
+            onChange={(e) => e !== undefined && setNewGroupName(e)}
             onSave={(e) => addGroup()}
             value={newGroupName}
           />
         </div>
       </div>
-    </SMDialog>
+    </SMPopUp>
   );
 };
 

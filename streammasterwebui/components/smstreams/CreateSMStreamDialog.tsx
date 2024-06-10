@@ -50,7 +50,6 @@ const CreateSMStreamDialog = ({ label }: CreateSMStreamDialogProperties) => {
         buttonClassName="icon-green"
         icon="pi-plus"
         widthSize={5}
-        info="General"
         tooltip="Create Stream"
         header={
           <div className="flex w-12 gap-1 justify-content-end align-content-center">

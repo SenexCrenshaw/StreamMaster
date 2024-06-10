@@ -140,11 +140,6 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
       if (darkBackGround) {
         ret += '-dark';
       }
-
-      // if (needsSave) {
-      //   ret += ' stringeditorbody-inputtext-save';
-      // }
-
       if (labelInline) {
         ret += ' w-12';
       }

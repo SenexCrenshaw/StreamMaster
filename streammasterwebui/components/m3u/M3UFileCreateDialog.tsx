@@ -1,5 +1,6 @@
-import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
+import { SMDialogRef } from '@components/sm/SMDialog';
 import SMFileUpload from '@components/sm/SMFileUpload';
+import SMPopUp from '@components/sm/SMPopUp';
 import { useStringValue } from '@lib/redux/hooks/stringValue';
 import { CreateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { CreateM3UFileRequest, M3UFileDto } from '@lib/smAPI/smapiTypes';
@@ -65,15 +66,6 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
     [m3uFileDto]
   );
 
-  // const setName = (value: string) => {
-  //   if (m3uFileDto && m3uFileDto.Name !== value) {
-  //     const m3uFileDtoCopy = { ...m3uFileDto };
-  //     m3uFileDtoCopy.Name = value;
-  //     console.log('M3UFileCreateDialog setName', value);
-  //     setM3UFileDto(m3uFileDtoCopy);
-  //   }
-  // };
-
   useEffect(() => {
     if (stringValue && m3uFileDto.Name !== stringValue) {
       const m3uFileDtoCopy = { ...m3uFileDto };
@@ -83,15 +75,18 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
   }, [m3uFileDto, stringValue]);
 
   return (
-    <SMDialog
-      ref={smDialogRef}
-      widthSize={6}
-      position="top-right"
-      title="ADD M3U"
-      onHide={() => ReturnToParent()}
-      buttonClassName="icon-green-filled"
-      tooltip="Add M3U"
-      info="General"
+    <SMPopUp
+      buttonClassName="icon-green"
+      contentWidthSize="6"
+      icon="pi-plus"
+      iconFilled
+      modal
+      modalCentered
+      showRemember={false}
+      title="Add M3U"
+      onOkClick={function (): void {
+        throw new Error('Function not implemented.');
+      }}
     >
       <div className="layout-padding-bottom-lg" />
       <div className="w-12">
@@ -112,7 +107,37 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
         />
         <div className="layout-padding-bottom-lg" />
       </div>
-    </SMDialog>
+    </SMPopUp>
+
+    // <SMDialog
+    //   ref={smDialogRef}
+    //   widthSize={6}
+    //   position="top-right"
+    //   title="ADD M3U"
+    //   onHide={() => ReturnToParent()}
+    //   buttonClassName="icon-green-filled"
+    //   tooltip="Add M3U"
+    // >
+    //   <div className="layout-padding-bottom-lg" />
+    //   <div className="w-12">
+    //     <SMFileUpload
+    //       m3uFileDto={m3uFileDto}
+    //       onCreateFromSource={onCreateFromSource}
+    //       onUploadComplete={() => {
+    //         ReturnToParent(true);
+    //       }}
+    //     />
+    //     <div className="layout-padding-bottom-lg" />
+    //     <M3UFileDialog
+    //       selectedFile={m3uFileDto}
+    //       onM3UChanged={(e) => {
+    //         setM3UFileDto(e);
+    //       }}
+    //       noButtons
+    //     />
+    //     <div className="layout-padding-bottom-lg" />
+    //   </div>
+    // </SMDialog>
   );
 };
 M3UFileCreateDialog.displayName = 'M3UFileCreateDialog';

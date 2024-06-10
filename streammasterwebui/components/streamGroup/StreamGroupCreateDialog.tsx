@@ -52,15 +52,7 @@ export const StreamGroupCreateDialog = ({ onHide, showButton }: StreamGroupCreat
   }, [name]);
 
   return (
-    <SMDialog
-      widthSize={2}
-      ref={smDialogRef}
-      title="ADD SG"
-      onHide={() => ReturnToParent()}
-      buttonClassName="icon-green-filled"
-      tooltip="Add SG"
-      info="General"
-    >
+    <SMDialog widthSize={2} ref={smDialogRef} title="ADD SG" onHide={() => ReturnToParent()} buttonClassName="icon-green-filled" tooltip="Add SG">
       <div className="w-12">
         <StringEditor
           disableDebounce

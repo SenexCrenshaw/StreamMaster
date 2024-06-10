@@ -1,5 +1,5 @@
-import OKButton from '@components/buttons/OKButton';
-import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
+import { SMDialogRef } from '@components/sm/SMDialog';
+import { SMPopUp } from '@components/sm/SMPopUp';
 import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { UpdateChannelGroup, UpdateChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
@@ -78,20 +78,17 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
   }
 
   return (
-    <SMDialog
-      ref={dialogRef}
-      title="TOGGLE VISIBILITY"
-      iconFilled={value === undefined}
-      onHide={() => ReturnToParent()}
+    <SMPopUp
       buttonClassName="icon-blue"
+      buttonDisabled={selectedItems.length === 0 && !selectAll}
       icon="pi-eye-slash"
-      widthSize={2}
-      info="General"
-      tooltip="Toggle Visiblity"
-      header={<OKButton onClick={async () => await onVisibleClick()} tooltip="Toggle Visiblity" />}
+      iconFilled
+      rememberKey={'ChannelGroupVisibility'}
+      title="TOGGLE VISIBILITY"
+      OK={async () => await onVisibleClick()}
     >
-      <div className="flex justify-content-center w-full mb-2">{message}</div>
-    </SMDialog>
+      {message}
+    </SMPopUp>
   );
 };
 

@@ -77,7 +77,7 @@ export const EPGFileCreateDialog = ({ onHide, onUploadComplete, showButton }: EP
   };
 
   return (
-    <SMDialog ref={smDialogRef} title="ADD EPG" onHide={() => ReturnToParent()} buttonClassName="icon-green-filled" tooltip="Add EPG" info="General">
+    <SMDialog ref={smDialogRef} title="ADD EPG" onHide={() => ReturnToParent()} buttonClassName="icon-green-filled" tooltip="Add EPG">
       <div className="w-12">
         <SMFileUpload
           epgFileDto={epgFileDto}
