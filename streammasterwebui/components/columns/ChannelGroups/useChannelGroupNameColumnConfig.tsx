@@ -1,5 +1,5 @@
 import ChannelGroupNameEditor from '@components/channelGroups/ChannelGroupNameEditor';
-import createChannelGroupMultiSelectColumnConfigHook from '../createChannelGroupMultiSelectColumnConfigHook';
+import createChannelGroupMultiSelectColumnConfigHook from './createChannelGroupMultiSelectColumnConfigHook';
 
 export const useChannelGroupNameColumnConfig = createChannelGroupMultiSelectColumnConfigHook({
   dataField: 'Name',

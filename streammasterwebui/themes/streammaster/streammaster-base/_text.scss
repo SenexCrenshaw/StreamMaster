@@ -80,6 +80,10 @@
     width: 100%;
 }
 
+div[aria-haspopup="dialog"] {
+    width: 100%;
+}
+
 .stringeditor {
     align-items: center;
     background-color: transparent;
@@ -97,6 +101,8 @@
         border: unset;
 
     }
+
+
 
     .stringeditorbody-inputtext-buttons {
         border-top-right-radius: 0 !important;

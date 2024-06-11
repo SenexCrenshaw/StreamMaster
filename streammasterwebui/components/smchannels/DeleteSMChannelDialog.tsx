@@ -36,7 +36,7 @@ const DeleteSMChannelDialog = ({ smChannel }: DeleteSMChannelProperties) => {
       });
   }, [ReturnToParent, isCalled, smChannel.Id]);
 
-  return <SMPopUp rememberKey={'DeleteSMChannelDialog'} title="Delete" OK={() => accept()} icon="pi-times" />;
+  return <SMPopUp rememberKey={'DeleteSMChannelDialog'} title="Delete" onOkClick={() => accept()} icon="pi-times" />;
 };
 
 DeleteSMChannelDialog.displayName = 'DeleteSMChannelDialog';

@@ -1,13 +1,13 @@
 import SMButton from '@components/sm/SMButton';
 import { ChildButtonProperties } from './ChildButtonProperties';
 
-const UploadButton: React.FC<ChildButtonProperties> = ({ className, disabled = false, label, outlined, onClick, tooltip = 'Upload' }) => {
+const UploadButton: React.FC<ChildButtonProperties> = ({ buttonClassName, buttonDisabled = false, label, outlined, onClick, tooltip = 'Upload' }) => {
   const iconFilled = label ? true : false;
 
   return (
     <SMButton
-      className={className}
-      disabled={disabled}
+      buttonClassName={buttonClassName}
+      buttonDisabled={buttonDisabled}
       icon="pi-upload"
       iconFilled={iconFilled}
       onClick={onClick}

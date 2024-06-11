@@ -27,8 +27,10 @@ const M3UFileDeleteDialog = ({ selectedFile }: M3UFileDeleteDialogProperties) =>
   };
 
   return (
-    <SMPopUp title="Delete M3U" OK={() => deleteFile()} icon="pi-times" tooltip="Delete M3U">
-      <div className="sm-w-11 text-container"> {selectedFile.Name}</div>
+    <SMPopUp placement="bottom-end" title="DeleteM3U" onOkClick={() => deleteFile()} icon="pi-times" tooltip="DeleteM3U">
+      <div className="sm-center-stuff">
+        <div className="text-container">{selectedFile.Name}</div>
+      </div>
     </SMPopUp>
   );
 };

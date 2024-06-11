@@ -1,6 +1,6 @@
 import SMButton from '@components/sm/SMButton';
 import { SetSMChannelsLogoFromEPG } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import { SetSMChannelsLogoFromEPGRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
+import { SMChannelDto, SetSMChannelsLogoFromEPGRequest } from '@lib/smAPI/smapiTypes';
 
 import React from 'react';
 
@@ -22,7 +22,7 @@ const SetSMChannelsLogoFromEPGDialog = ({ smChannel }: SMChannelsLogoFromEPGsPro
   return (
     <SMButton
       icon="pi-image"
-      className="icon-blue"
+      buttonClassName="icon-blue"
       onClick={() => {
         onOk();
       }}

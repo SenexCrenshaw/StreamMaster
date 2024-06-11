@@ -69,6 +69,18 @@ function transformAndEnhanceFilters(
             value: ids
           });
         }
+      } else if (column.field === 'M3UFileId') {
+        let ids = filter.value;
+        if (filter.value.length > 0 && filter.value[0].hasOwnProperty('Id')) {
+          ids = (filter.value as ChannelGroupDto[]).map((x) => x.Id);
+        }
+        if (ids.length > 0) {
+          transformedFilters.push({
+            fieldName: column.field,
+            matchMode: FilterMatchMode.CONTAINS,
+            value: ids
+          });
+        }
       } else {
         transformedFilters.push({
           fieldName: column.field,

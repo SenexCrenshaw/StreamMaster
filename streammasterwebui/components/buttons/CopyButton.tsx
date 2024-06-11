@@ -3,13 +3,13 @@ import useCopyToClipboard from '@lib/hooks/useCopyToClipboard';
 import React, { useState } from 'react';
 
 export interface CopyButtonProperties {
-  readonly disabled?: boolean | undefined;
+  readonly buttonDisabled?: boolean | undefined;
   readonly notificationDuration?: number;
   readonly openCopyWindow: boolean;
   readonly value: string | undefined; // New prop for notification duration
 }
 
-const CopyButton: React.FC<CopyButtonProperties> = ({ disabled = false, value, openCopyWindow: openWindow = false, notificationDuration = 750 }) => {
+const CopyButton: React.FC<CopyButtonProperties> = ({ buttonDisabled = false, value, openCopyWindow: openWindow = false, notificationDuration = 750 }) => {
   const [copied, setCopied] = useState(false);
   const [, copyToClipboard] = useCopyToClipboard(openWindow);
 
@@ -24,7 +24,7 @@ const CopyButton: React.FC<CopyButtonProperties> = ({ disabled = false, value, o
 
   return (
     <div style={{ position: 'relative' }}>
-      <SMButton disabled={disabled} icon="pi-copy" iconFilled={false} onClick={handleCopy} />
+      <SMButton buttonDisabled={buttonDisabled} icon="pi-copy" iconFilled={false} onClick={handleCopy} />
       {copied && <span className="copyButtonMessage">Copied!</span>}
     </div>
   );

@@ -15,6 +15,12 @@
     width: calc(100% - ($inputBorder-size*4));
 }
 
+.sm-center-stuff {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 @for $i from 1 through 12 {
     .sm-w-#{$i} {
         $percent: (

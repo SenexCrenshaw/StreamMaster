@@ -1,8 +1,8 @@
 import { SyntheticEvent } from 'react';
 
 export interface ChildButtonProperties {
-  className?: string;
-  disabled?: boolean;
+  buttonClassName?: string;
+  buttonDisabled?: boolean;
   iconFilled?: boolean;
   isLeft?: boolean;
   label?: string;

@@ -79,5 +79,15 @@ export const SMTriSelectShowSG = ({ dataKey, onChange }: SMTriSelectShowSGProper
     return 'icon-red';
   }, [showHidden]);
 
-  return <SMButton disabled={isDisabled} icon={getIcon} iconFilled={false} className={getColor} onClick={() => moveNext()} rounded tooltip={getToolTip} />;
+  return (
+    <SMButton
+      buttonDisabled={isDisabled}
+      icon={getIcon}
+      iconFilled={false}
+      buttonClassName={getColor}
+      onClick={() => moveNext()}
+      rounded
+      tooltip={getToolTip}
+    />
+  );
 };

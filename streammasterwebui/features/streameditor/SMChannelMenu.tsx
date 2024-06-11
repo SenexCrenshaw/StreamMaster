@@ -27,9 +27,9 @@ const SMChannelMenu = () => {
         </div>
       </OverlayPanel>
       <SMButton
-        className="icon-orange"
+        buttonClassName="icon-orange"
         iconFilled
-        icon="pi pi-bars"
+        icon="pi-bars"
         rounded
         onClick={(event) => {
           op.current?.toggle(event);

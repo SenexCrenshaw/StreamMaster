@@ -4,12 +4,12 @@ import { memo, useCallback, useEffect, useState } from 'react';
 
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 
+import { GetMessage } from '@lib/common/intl';
+import { UpdateChannelGroup } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
+import { ChannelGroupDto, UpdateChannelGroupRequest } from '@lib/smAPI/smapiTypes';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import EditButton from '../buttons/EditButton';
 import TextInput from '../inputs/TextInput';
-import { ChannelGroupDto, UpdateChannelGroupRequest } from '@lib/smAPI/smapiTypes';
-import { GetMessage } from '@lib/common/intl';
-import { UpdateChannelGroup } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
 
 interface ChannelGroupEditDialogProperties {
   readonly id: string;
@@ -97,12 +97,12 @@ const ChannelGroupEditDialog = ({ id, onClose, value }: ChannelGroupEditDialogPr
             <TextInput onChange={setNewGroupName} onEnter={changeGroupName} placeHolder="Group Name" value={newGroupName} />
           </div>
           <div className="flex col-12 justify-content-end">
-            <EditButton disabled={value?.Name === newGroupName} label="Edit Group" onClick={changeGroupName} tooltip="Edit Group" />
+            <EditButton buttonDisabled={value?.Name === newGroupName} label="Edit Group" onClick={changeGroupName} tooltip="Edit Group" />
           </div>
         </div>
       </InfoMessageOverLayDialog>
 
-      <EditButton disabled={!value || value.IsReadOnly === true} iconFilled={false} onClick={() => setShowOverlay(true)} tooltip="Edit Group" />
+      <EditButton buttonDisabled={!value || value.IsReadOnly === true} iconFilled={false} onClick={() => setShowOverlay(true)} tooltip="Edit Group" />
     </>
   );
 };

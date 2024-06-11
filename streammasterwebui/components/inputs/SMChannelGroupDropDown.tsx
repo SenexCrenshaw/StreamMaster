@@ -6,7 +6,7 @@ import SMDropDown, { SMDropDownRef } from '@components/sm/SMDropDown';
 
 interface SMChannelGroupDropDownProperties {
   readonly smChannel?: SMChannelDto;
-  readonly group?: string;
+  readonly value?: string;
   readonly darkBackGround?: boolean;
   readonly fixed?: boolean;
   readonly label?: string;
@@ -15,7 +15,7 @@ interface SMChannelGroupDropDownProperties {
 }
 
 const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownProperties>((props: SMChannelGroupDropDownProperties, ref) => {
-  const { darkBackGround, group, smChannel, fixed = false, onChange, label, labelInline = false } = props;
+  const { darkBackGround, value, smChannel, fixed = false, onChange, label, labelInline = false } = props;
   const smDropownRef = useRef<SMDropDownRef>(null);
   const { data } = useGetChannelGroups();
   const [channelGroup, setChannelGroup] = useState<ChannelGroupDto | null>(null);
@@ -31,12 +31,12 @@ const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownP
       return;
     }
 
-    if (group !== undefined && (channelGroup === null || channelGroup.Name !== group)) {
-      const found = data.find((predicate) => predicate.Name === group);
+    if (value !== undefined && (channelGroup === null || channelGroup.Name !== value)) {
+      const found = data.find((predicate) => predicate.Name === value);
       if (found) setChannelGroup(found);
       return;
     }
-  }, [channelGroup, data, group, smChannel]);
+  }, [channelGroup, data, value, smChannel]);
 
   const itemTemplate = (option: ChannelGroupDto) => {
     if (option === undefined) {
@@ -59,7 +59,7 @@ const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownP
   }, [channelGroup]);
 
   const getDiv = useMemo(() => {
-    let ret = 'stringeditor ';
+    let ret = 'stringeditor';
 
     if (label && !labelInline) {
       ret += '';
@@ -101,6 +101,7 @@ const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownP
           title="GROUP"
           value={channelGroup}
           contentWidthSize="2"
+          zIndex={10}
         />
       </div>
     </>

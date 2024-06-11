@@ -1,7 +1,7 @@
 import SMOverlay from '@components/sm/SMOverlay';
 import { M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { Chips } from 'primereact/chips';
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface M3UFileTagsProperties {
@@ -11,7 +11,6 @@ export interface M3UFileTagsProperties {
 }
 
 const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) => {
-  const anchorReference = useRef(null);
   const uuid = uuidv4();
 
   const intTags = useMemo((): string[] => {
@@ -31,21 +30,21 @@ const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) =
   }, [buttonTags]);
 
   return (
-    <div className="sm-w-12 ">
-      <label className="flex text-xs text-default-color w-full justify-content-start align-items-center pl-2" htmlFor={uuid}>
+    <div className="sm-w-12">
+      <label className="flex text-xs text-default-color w-full justify-content-start align-items-center pl-2 w-full" htmlFor={uuid}>
         URL REGEX
       </label>
-      <div id={uuid} className="w-full tag-editor p-0 m-0 pt-small stringeditor" ref={anchorReference}>
+      <div id={uuid} className="stringeditor">
         <SMOverlay
+          className="w-full"
           buttonDarkBackground
           buttonTemplate={buttonTemplate}
           title="URL Regex Tags"
           contentWidthSize="3"
           icon="pi-chevron-down"
-          buttonLabel="GROUP"
-          header={<></>}
+          zIndex={10}
         >
-          <div className="h-full p-fluid">
+          <div className="p-fluid h-3rem w-full">
             <Chips
               autoFocus
               value={intTags}

@@ -1,4 +1,3 @@
-import { SMDialogRef } from '@components/sm/SMDialog';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 
 import { SMPopUp } from '@components/sm/SMPopUp';
@@ -16,7 +15,6 @@ interface CreateSMChannelsDialogProperties {
 }
 
 const CreateSMChannelsFromSMStreamsDialog = ({ id, label, onClose, selectedItemsKey }: CreateSMChannelsDialogProperties) => {
-  const dialogRef = React.useRef<SMDialogRef>(null);
   const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(selectedItemsKey);
 
   const { selectAll, setSelectAll } = useSelectAll(id);
@@ -51,9 +49,7 @@ const CreateSMChannelsFromSMStreamsDialog = ({ id, label, onClose, selectedItems
           console.error(error);
           throw error;
         })
-        .finally(() => {
-          dialogRef.current?.hide();
-        });
+        .finally(() => {});
 
       return;
     }
@@ -77,13 +73,20 @@ const CreateSMChannelsFromSMStreamsDialog = ({ id, label, onClose, selectedItems
         console.error('Create channels Error: ', error.message);
         throw error;
       })
-      .finally(() => {
-        dialogRef.current?.hide();
-      });
+      .finally(() => {});
   }, [selectedItems, selectAll, ReturnToParent, queryFilter, setSelectedItems, setSelectAll]);
 
   return (
-    <SMPopUp label={label} showRemember={false} title="Create" OK={() => onOkClick()} iconFilled icon="pi-building-columns" buttonClassName="icon-green">
+    <SMPopUp
+      buttonClassName="icon-green"
+      buttonDisabled={getTotalCount < 1}
+      icon="pi-building-columns"
+      iconFilled
+      label={label}
+      onOkClick={() => onOkClick()}
+      showRemember={false}
+      title="Create"
+    >
       <div className="text-base">Create ({selectAll ? 'All' : getTotalCount}) channels?</div>
     </SMPopUp>
   );

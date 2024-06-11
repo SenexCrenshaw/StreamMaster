@@ -59,5 +59,5 @@ export const SMTriSelectShowSelect = ({ onToggle, id, selectedItemsKey }: SMTriS
     return 'icon-yellow';
   }, [selectAllStatus]);
 
-  return <SMButton icon={getIcon} iconFilled={false} className={getColor} onClick={() => toggleAllSelection()} rounded tooltip={getToolTip} />;
+  return <SMButton icon={getIcon} iconFilled={false} buttonClassName={getColor} onClick={() => toggleAllSelection()} rounded tooltip={getToolTip} />;
 };

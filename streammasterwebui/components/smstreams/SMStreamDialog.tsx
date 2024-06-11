@@ -2,7 +2,7 @@ import IconSelector from '@components/icons/IconSelector';
 import NumberEditor from '@components/inputs/NumberEditor';
 import SMChannelGroupDropDown from '@components/inputs/SMChannelGroupDropDown';
 import StringEditor from '@components/inputs/StringEditor';
-import { CreateSMChannelRequest, CreateSMStreamRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
+import { CreateSMChannelRequest, CreateSMStreamRequest, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 
 interface SMStreamDialogProperties {
@@ -84,7 +84,7 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
 
   const isSaveEnabled = useMemo(() => {
     if (orig === null) {
-      if (request.Name === '' || request.Url === '') {
+      if (!request.Name || request.Name === '' || !request?.Url || request.Url === '') {
         return false;
       }
       return true;
@@ -147,9 +147,11 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
                   placeholder="Name"
                   darkBackGround
                   disableDebounce
-                  onChange={(e) => e && setName(e)}
+                  onChange={(e) => {
+                    e !== undefined && setName(e);
+                  }}
                   onSave={(e) => {
-                    e && setName(e);
+                    e !== undefined && setName(e);
                     if (isSaveEnabled) {
                       doSave();
                     }
@@ -160,17 +162,18 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
               <div className="sm-w-6">
                 <SMChannelGroupDropDown
                   darkBackGround
+                  fixed
                   label="Group"
                   onChange={(e) => {
-                    e && setGroup(e);
+                    e !== undefined && setGroup(e);
                   }}
-                  smChannel={{ Group: request.Group } as SMChannelDto}
+                  value={request.Group}
                 />
               </div>
             </div>
             <div className="flex w-12 gap-1">
               <div className="w-9 justify-content-start align-items-center">
-                <StringEditor disableDebounce label="URL" darkBackGround onChange={(e) => e && setUrl(e)} value={request.Url} />
+                <StringEditor disableDebounce label="URL" darkBackGround onChange={(e) => e !== undefined && setUrl(e)} value={request.Url} />
               </div>
               <div className="w-3 justify-content-start align-items-center">
                 <NumberEditor

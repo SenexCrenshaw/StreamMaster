@@ -59,8 +59,8 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
     const [isFocused, setIsFocused] = useState<boolean>(false);
     const divReference = useRef<HTMLDivElement | null>(null);
     const [ignoreSave, setIgnoreSave] = useState<boolean>(false);
-    const [originalValue, setOriginalValue] = useState<string | null>(null);
-    const [inputValue, setInputValue] = useState<string | undefined>('');
+    const [originalValue, setOriginalValue] = useState<string | undefined | null>(undefined);
+    const [inputValue, setInputValue] = useState<string | undefined | null>(value);
     const { code } = useScrollAndKeyEvents();
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -79,7 +79,7 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
       (forceValueSave?: string | undefined) => {
         setIgnoreSave(true);
         Logger.debug('Saving value', { forceValueSave, inputValue });
-        onSave && onSave(forceValueSave ?? inputValue);
+        onSave && onSave(forceValueSave ?? inputValue ?? '');
       },
       [inputValue, onSave]
     );
@@ -87,11 +87,11 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
     const debounced = useDebouncedCallback(
       useCallback(
         (newValue: string) => {
-          if (newValue !== originalValue && isLoading !== true) {
+          if (!isLoading) {
             save(newValue);
           }
         },
-        [isLoading, originalValue, save]
+        [isLoading, save]
       ),
       debounceMs
     );
@@ -116,24 +116,27 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
     });
 
     useEffect(() => {
-      if (isLoading !== true && value !== undefined && originalValue !== value) {
-        if (originalValue === null) {
+      if (value?.includes('PIA')) {
+        Logger.debug('StringEditor', { inputValue, originalValue, value });
+      }
+
+      if (!isLoading) {
+        if (originalValue === undefined && value !== undefined) {
           setOriginalValue(value);
           setInputValue(value);
-        } else if (value !== inputValue) {
+          // } else if (value !== undefined) {
+          //   setInputValue(value);
+        } else if (disableDebounce && value !== undefined && value === originalValue && value !== inputValue) {
           setInputValue(value);
-          setOriginalValue(value);
         }
-      } else if (value !== undefined && originalValue !== undefined && originalValue !== '' && value === originalValue && value !== inputValue) {
-        // if (disableDebounce) {
-        //   setInputValue(inputValue);
-        // }
-        if (disableDebounce) {
+        if (onSave && value !== undefined) {
+          setOriginalValue(value);
           setInputValue(value);
         }
       }
+
       setIgnoreSave(false);
-    }, [disableDebounce, inputValue, isLoading, originalValue, value]);
+    }, [disableDebounce, inputValue, isLoading, onSave, originalValue, value]);
 
     const inputGetDiv = useMemo(() => {
       let ret = 'sm-input';
@@ -147,7 +150,10 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
       return ret;
     }, [darkBackGround, labelInline]);
 
-    const doShowClear = useMemo(() => darkBackGround && showClear && inputValue !== '', [darkBackGround, inputValue, showClear]);
+    const doShowClear = useMemo(
+      () => darkBackGround && showClear && inputValue !== '' && originalValue !== inputValue,
+      [darkBackGround, inputValue, originalValue, showClear]
+    );
 
     const getDiv = useMemo(() => {
       let ret = 'flex stringeditor justify-content-center';
@@ -199,16 +205,15 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
             placeholder={placeholder}
             tooltip={tooltip}
             tooltipOptions={tooltipOptions}
-            value={inputValue}
+            value={inputValue ?? ''}
           />
           {doShowClear && (
             <i className="input-icon">
               <i
                 className="pi pi-times-circle icon-yellow"
                 onClick={() => {
-                  setInputValue('');
-                  setOriginalValue('');
-                  onChange?.('');
+                  setInputValue(originalValue);
+                  if (originalValue !== null) onChange?.(originalValue);
                 }}
               />
             </i>

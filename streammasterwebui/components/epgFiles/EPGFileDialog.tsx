@@ -208,7 +208,7 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
               label="NAME"
               value={epgFileDto?.Name}
               onChange={(e) => {
-                e && setName(e);
+                e !== undefined && setName(e);
               }}
               onSave={(e) => {}}
             />
@@ -234,7 +234,7 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
               showButtons
               label="EPG #"
               onSave={(e) => {
-                e && setEPGNumber(e);
+                e !== undefined && setEPGNumber(e);
               }}
               value={epgFileDto.EPGNumber}
             />
@@ -253,7 +253,7 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
               label="URL"
               value={epgFileDto?.Url}
               onChange={(e) => {
-                e && setUrl(e);
+                e !== undefined && setUrl(e);
               }}
               onSave={(e) => {}}
             />
@@ -269,7 +269,7 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
               darkBackGround
               label="TIME SHIFT"
               onSave={(e) => {
-                e && setTimeShift(e);
+                e !== undefined && setTimeShift(e);
               }}
               value={epgFileDto.TimeShift}
             />
@@ -279,7 +279,7 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
               darkBackGround
               label="AUTO UPDATE"
               onSave={(e) => {
-                e && setHoursToUpdate(e);
+                e !== undefined && setHoursToUpdate(e);
               }}
               suffix=" Hours"
               value={epgFileDto.HoursToUpdate}
@@ -294,7 +294,7 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
           <div className="flex w-12 gap-2 justify-content-end align-content-center">
             <div className="layout-padding-bottom-lg" />
             <ResetButton
-              disabled={!isSaveEnabled && originalEPGFileDto !== undefined}
+              buttonDisabled={!isSaveEnabled && originalEPGFileDto !== undefined}
               onClick={() => {
                 if (originalEPGFileDto !== undefined) {
                   setEPGFileDto(originalEPGFileDto);
@@ -302,7 +302,7 @@ const EPGFileDialog = ({ onEPGChanged, onUpdated, selectedFile, noButtons }: EPG
                 }
               }}
             />
-            <SaveButton disabled={!isSaveEnabled} label="Update EPG" onClick={() => onUpdated && onUpdated(request)} />
+            <SaveButton buttonDisabled={!isSaveEnabled} label="Update EPG" onClick={() => onUpdated && onUpdated(request)} />
           </div>
           <div className="layout-padding-bottom-lg" />
         </>

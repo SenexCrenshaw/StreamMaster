@@ -34,7 +34,7 @@ const SourceOrFileDialog = ({ isM3U, onAdd, progress }: SourceOrFileDialogProps)
     if (file) {
       return true;
     }
-    if (source === null) return false;
+    if (source == null) return false;
 
     return isValidUrl(source) && stringValue !== undefined && stringValue !== '';
   }, [file, source, stringValue]);
@@ -56,10 +56,11 @@ const SourceOrFileDialog = ({ isM3U, onAdd, progress }: SourceOrFileDialogProps)
         onChange={(e) => {
           clearInputFile();
           setSource(e.target.value);
+          setStringValue(e.target.value);
         }}
       />
     );
-  }, [file, progress, sourceValue, clearInputFile]);
+  }, [progress, file, sourceValue, clearInputFile, setStringValue]);
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>): void => {
@@ -80,11 +81,11 @@ const SourceOrFileDialog = ({ isM3U, onAdd, progress }: SourceOrFileDialogProps)
   return (
     <div className="sm-sourceorfiledialog flex flex-row grid-nogutter justify-content-between align-items-center">
       <div className="p-inputgroup">
-        <SMButton rounded={false} className="icon-orange" iconFilled icon="pi-upload" onClick={() => inputFile?.current?.click()} tooltip="Local File" />
+        <SMButton rounded={false} buttonClassName="icon-orange" iconFilled icon="pi-upload" onClick={() => inputFile?.current?.click()} tooltip="Local File" />
         {getProgressOrInput}
         <SMButton
-          className="icon-red"
-          disabled={file === null}
+          buttonClassName="icon-red"
+          buttonDisabled={file === null}
           icon="pi-times"
           iconFilled
           rounded={false}
@@ -96,10 +97,10 @@ const SourceOrFileDialog = ({ isM3U, onAdd, progress }: SourceOrFileDialogProps)
         />
         <SMButton
           rounded={false}
-          className="icon-green"
-          iconFilled
-          disabled={!isSaveEnabled}
+          buttonClassName="icon-green"
+          buttonDisabled={!isSaveEnabled}
           icon={addIcon}
+          iconFilled
           onClick={() => {
             onAdd(source, file);
           }}

@@ -43,7 +43,7 @@ const CreateSMChannelDialog = () => {
       header={
         <div className="flex w-12 gap-1 justify-content-end align-content-center">
           <OKButton
-            disabled={!saveEnabled}
+            buttonDisabled={!saveEnabled}
             onClick={(request) => {
               m3uDialogRef.current?.save();
               smDialogRef.current?.hide();

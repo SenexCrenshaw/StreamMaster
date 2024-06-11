@@ -43,7 +43,7 @@ const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id
     (smStream: SMStreamDto) => (
       <div className="flex align-content-center justify-content-center">
         <SMButton
-          className="icon-red"
+          buttonClassName="icon-red"
           icon="pi-minus"
           iconFilled={false}
           onClick={() => {

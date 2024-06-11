@@ -11,9 +11,9 @@ interface SMStreamGroupColumnConfigProperties {
   readonly dataKey: string;
   readonly width?: string;
 }
-export const useSMStreamGroupColumnConfig = ({ dataKey, width = '10rem' }: SMStreamGroupColumnConfigProperties) => {
+export const useSMStreamChannelGroupColumnConfig = ({ dataKey, width = '10rem' }: SMStreamGroupColumnConfigProperties) => {
   const { filters, setFilters } = useFilters(dataKey);
-  const { selectedItems } = useSelectedAndQ('useSMStreamGroupColumnConfig');
+  const { selectedItems } = useSelectedAndQ('useSMStreamChannelGroupColumnConfig');
 
   const columnConfig: ColumnMeta = useMemo(() => {
     const updateFilters = () => {
@@ -40,7 +40,7 @@ export const useSMStreamGroupColumnConfig = ({ dataKey, width = '10rem' }: SMStr
     function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
       return (
         <ChannelGroupSelector
-          dataKey="useSMStreamGroupColumnConfig"
+          dataKey="useSMStreamChannelGroupColumnConfig"
           fixed
           onChange={(e) => {
             if (e) {

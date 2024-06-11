@@ -61,12 +61,12 @@ export const StreamGroupCreateDialog = ({ onHide, showButton }: StreamGroupCreat
           value={name}
           label="Stream Group Name"
           onSave={() => create()}
-          onChange={(e) => e && setName(e)}
+          onChange={(e) => e !== undefined && setName(e)}
         />
         <div className="layout-padding-bottom-lg" />
         <div className="flex w-12 justify-content-end align-content-center">
           <SaveButton
-            disabled={!isSaveEnabled}
+            buttonDisabled={!isSaveEnabled}
             label="Add Stream Group"
             onClick={() => {
               create();

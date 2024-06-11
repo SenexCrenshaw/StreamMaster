@@ -63,7 +63,7 @@ const AutoSetSMChannelNumbersDialog = ({ disabled }: AutoSetSMChannelNumbersDial
 
         <div className="flex mt-2 w-7 align-items-center justify-content-start p-0 m-0 ">
           <div className="w-6 pl-1 ">
-            <NumberEditor darkBackGround max={99999} min={0} onChange={(e) => e && setStartNumber(e)} showButtons value={startNumber} />
+            <NumberEditor darkBackGround max={99999} min={0} onChange={(e) => e !== undefined && setStartNumber(e)} showButtons value={startNumber} />
           </div>
           <div className="flex w-6 justify-content-center align-items-center pl-2">
             <div className="flex w-2 justify-content-center align-items-center p-0 m-0">

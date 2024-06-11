@@ -12,9 +12,8 @@ const SimpleButton = ({ dataKey }: SMSimpleButtonProperties) => {
     <SMButton
       icon="pi-window-maximize"
       iconFilled
-      className="sm-simple-button icon-blue"
+      buttonClassName="sm-simple-button icon-blue"
       onClick={() => {
-        // console.log('isSimple', !isTrue);
         setIsTrue(!isTrue);
       }}
       tooltip={isTrue ? 'Expand' : 'Shrink'}

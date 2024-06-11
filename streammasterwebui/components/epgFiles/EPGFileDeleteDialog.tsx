@@ -1,7 +1,7 @@
-import { memo } from 'react';
 import { SMPopUp } from '@components/sm/SMPopUp';
-import { DeleteEPGFileRequest, EPGFileDto } from '@lib/smAPI/smapiTypes';
 import { DeleteEPGFile } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
+import { DeleteEPGFileRequest, EPGFileDto } from '@lib/smAPI/smapiTypes';
+import { memo } from 'react';
 
 interface EPGFileDeleteDialogProperties {
   readonly selectedFile: EPGFileDto;
@@ -27,11 +27,9 @@ const EPGFileDeleteDialog = ({ selectedFile }: EPGFileDeleteDialogProperties) =>
   };
 
   return (
-    <SMPopUp title="Delete EPG" OK={() => deleteFile()} icon="pi-times" severity="danger">
-      <div>
-        "{selectedFile.Name}"
-        <br />
-        Are you sure?
+    <SMPopUp title="Delete EPG" onOkClick={() => deleteFile()} icon="pi-times">
+      <div className="sm-center-stuff">
+        <div className="text-container">{selectedFile.Name}</div>
       </div>
     </SMPopUp>
   );

@@ -69,28 +69,7 @@ const StreamMultiVisibleDialog = ({ id, label, onClose, selectedItemsKey }: Stre
   }, [selectedItems, selectAll, ReturnToParent, queryFilter]);
 
   return (
-    <div
-      className="flex align-items-center justify-content-center gap-1 sm-menuitem"
-      style={{ borderColor: 'var(--icon-red)' }}
-      onClick={async (event) => {
-        await onVisiblesClick();
-      }}
-    >
-      <SMButton
-        className="icon-red"
-        disabled={getTotalCount === 0}
-        icon="pi-eye-slash"
-        iconFilled
-        rounded
-        onClick={async (event) => {
-          await onVisiblesClick();
-        }}
-        aria-controls="popup_menu_right"
-        aria-haspopup
-        tooltip="Toggle Visibility"
-      />
-      {label && <div>{label}</div>}
-    </div>
+    <SMButton buttonClassName="icon-red" buttonDisabled={getTotalCount === 0} icon="pi-eye-slash" iconFilled label={label ?? ''} onClick={onVisiblesClick} />
   );
 };
 

@@ -1,22 +1,22 @@
+import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { AdditionalFilterProperties, isEmptyObject } from '@lib/common/common';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
-import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 
-import { GetSMChannelStreamsRequest, M3UFileDto, RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
-import { ReactNode, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import SMButton from '@components/sm/SMButton';
 import SMDataTable from '@components/smDataTable/SMDataTable';
-import { useQueryAdditionalFilters } from '@lib/redux/hooks/queryAdditionalFilters';
-import { ColumnFilterElementTemplateOptions } from 'primereact/column';
-import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import { GetMessage } from '@lib/common/intl';
+import { useQueryAdditionalFilters } from '@lib/redux/hooks/queryAdditionalFilters';
 import useGetM3UFiles from '@lib/smAPI/M3UFiles/useGetM3UFiles';
-import { RemoveSMStreamFromSMChannel, AddSMStreamToSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
+import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
+import { GetSMChannelStreamsRequest, M3UFileDto, RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
+import { ColumnFilterElementTemplateOptions } from 'primereact/column';
+import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
+import { ReactNode, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 interface SMStreamDataForSMChannelSelectorProperties {
   readonly enableEdit?: boolean;
@@ -141,7 +141,7 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
             <div className="flex align-content-center justify-content-center">
               <SMButton
                 icon="pi-minus"
-                className="border-noround borderread icon-red"
+                buttonClassName="border-noround borderread icon-red"
                 iconFilled={false}
                 onClick={() => {
                   if (!data.Id) {
@@ -183,7 +183,7 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
         <div className="flex align-content-center justify-content-center">
           <SMButton
             icon="pi-plus"
-            className="w-2rem border-noround borderread icon-green"
+            buttonClassName="w-2rem border-noround borderread icon-green"
             iconFilled={false}
             onClick={() => {
               if (smChannel) {

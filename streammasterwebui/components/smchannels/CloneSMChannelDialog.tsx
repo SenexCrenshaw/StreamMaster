@@ -74,11 +74,11 @@ const CloneSMChannelDialog = ({ label, onHide, smChannel }: CloneSMChannelDialog
       disabled={newName === undefined || newName === ''}
       rememberKey={'CloneSMChannelDialog'}
       title="Clone"
-      OK={async () => await onSave()}
+      onOkClick={async () => await onSave()}
       icon="pi-clone"
     >
       <div className="flex col-12 justify-content-start align-items-center p-0 m-0 w-full">
-        <StringEditor label="New Name" darkBackGround disableDebounce onChange={(e) => e && setNewName(e)} onSave={(e) => {}} value={newName} />
+        <StringEditor label="New Name" darkBackGround disableDebounce onChange={(e) => e !== undefined && setNewName(e)} onSave={(e) => {}} value={newName} />
       </div>
     </SMPopUp>
   );

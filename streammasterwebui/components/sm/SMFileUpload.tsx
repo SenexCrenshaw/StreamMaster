@@ -5,9 +5,9 @@ import { memo, useRef, useState } from 'react';
 import SourceOrFileDialog from './SourceOrFileDialog';
 
 type SMFileUploadProperties = UploadParamsSettings & {
+  isM3U: boolean;
   readonly onCreateFromSource: (source: string) => void;
   readonly onUploadComplete: () => void;
-  // onName(name: string): void;
 };
 
 const SMFileUpload = (props: SMFileUploadProperties) => {
@@ -49,7 +49,7 @@ const SMFileUpload = (props: SMFileUploadProperties) => {
 
   return (
     <SourceOrFileDialog
-      isM3U={props.m3uFileDto !== undefined}
+      isM3U={props.isM3U !== undefined}
       progress={progress}
       onAdd={(source, file) => {
         if (source) {

@@ -28,6 +28,7 @@ interface SMDropDownProps {
   readonly value?: any;
   readonly contentWidthSize?: string;
   readonly fixed?: boolean;
+  readonly zIndex?: number;
 }
 
 export interface SMDropDownRef {
@@ -61,6 +62,7 @@ const SMDropDown = forwardRef<SMDropDownRef, SMDropDownProps>((props: SMDropDown
     simple,
     title,
     value,
+    zIndex = 10,
     contentWidthSize
   } = props;
 
@@ -91,18 +93,19 @@ const SMDropDown = forwardRef<SMDropDownRef, SMDropDownProps>((props: SMDropDown
       )}
       <div className={getDiv}>
         <SMOverlay
+          autoPlacement={!fixed}
           buttonDarkBackground={buttonDarkBackground}
           buttonLabel={buttonLabel}
           buttonLarge={buttonLarge}
           buttonTemplate={buttonTemplate}
           center={center}
-          autoPlacement={fixed}
+          contentWidthSize={contentWidthSize}
           icon="pi-chevron-down"
           isLoading={isLoading}
           ref={smOverlayRef}
           simple={simple}
           title={title?.toUpperCase()}
-          contentWidthSize={contentWidthSize}
+          zIndex={zIndex}
         >
           <div className="sm-card border-radius-left border-radius-right">
             <SMScroller

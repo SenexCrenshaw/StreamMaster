@@ -5,6 +5,7 @@ import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo
 
 import BooleanEditor from '@components/inputs/BooleanEditor';
 import { arraysEqual } from '@lib/common/common';
+import { Logger } from '@lib/common/logger';
 import { useStringValue } from '@lib/redux/hooks/stringValue';
 import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
@@ -12,8 +13,8 @@ import M3UFileTags from './M3UFileTags';
 
 export interface M3UFileDialogProperties {
   readonly onHide?: (didUpload: boolean) => void;
-  readonly selectedFile: M3UFileDto;
-  readonly noButtons?: boolean;
+  readonly selectedFile: M3UFileDto | undefined;
+  readonly showUrlEditor?: boolean;
   readonly onM3UChanged?: (m3uFileDto: M3UFileDto) => void;
   readonly onSaveEnabled?: (saveEnabled: boolean) => void;
 }
@@ -23,7 +24,7 @@ export interface M3UFileDialogRef {
   save: () => void;
 }
 
-const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ onM3UChanged, onSaveEnabled, selectedFile, noButtons }, ref) => {
+const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ onM3UChanged, onSaveEnabled, selectedFile, showUrlEditor = false }, ref) => {
   const defaultValues = useMemo(
     () =>
       ({
@@ -40,7 +41,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
   const { code } = useScrollAndKeyEvents();
   const divRef = useRef<HTMLDivElement>(null);
 
-  const [m3uFileDto, setM3UFileDto] = useState<M3UFileDto>(defaultValues);
+  const [m3uFileDto, setM3UFileDto] = useState<M3UFileDto | undefined>(undefined);
   const [originalM3UFileDto, setOriginalM3UFileDto] = useState<M3UFileDto | undefined>(undefined);
   const [request, setRequest] = useState<UpdateM3UFileRequest>({} as UpdateM3UFileRequest);
   const { setStringValue } = useStringValue('m3uName');
@@ -73,6 +74,10 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
   );
 
   const isSaveEnabled = useMemo(() => {
+    if (m3uFileDto === undefined) {
+      return false;
+    }
+
     let isChanged = Object.keys(defaultValues).some((key) => m3uFileDto[key as keyof M3UFileDto] !== originalM3UFileDto?.[key as keyof M3UFileDto]);
 
     if (!isChanged && !arraysEqual(m3uFileDto.VODTags, originalM3UFileDto?.VODTags)) {
@@ -85,6 +90,9 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
 
   const updateStateAndRequest = useCallback(
     (updatedFields: Partial<M3UFileDto>) => {
+      if (m3uFileDto === undefined) {
+        return;
+      }
       const updatedM3UFileDto = { ...m3uFileDto, ...updatedFields };
       const updatedRequest = { ...request, Id: updatedM3UFileDto.Id, ...updatedFields };
 
@@ -111,6 +119,20 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
     }
   }, [code, isSaveEnabled, onUpdated]);
 
+  if (m3uFileDto !== undefined) {
+    Logger.debug('M3UFileDialog', { isSaveEnabled, m3uFileDto: m3uFileDto.Url, originalM3UFileDto: originalM3UFileDto?.Url });
+  }
+
+  if (selectedFile === undefined) {
+    return null;
+  }
+
+  Logger.debug('M3UFileDialog', 'm3uFileDto', m3uFileDto);
+
+  if (m3uFileDto === undefined) {
+    return null;
+  }
+
   return (
     <div ref={divRef}>
       <div className="w-12">
@@ -122,7 +144,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
               darkBackGround
               autoFocus
               label="NAME"
-              value={m3uFileDto?.Name}
+              value={m3uFileDto.Name}
               onChange={(e) => {
                 updateStateAndRequest({ Name: e });
                 setStringValue(e);
@@ -156,14 +178,14 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
         </div>
       </div>
       <div className="layout-padding-bottom-lg" />
-      {noButtons !== true && (
+      {/* {showUrlEditor === true && (
         <>
           <div className="w-12">
             <StringEditor showClear disableDebounce darkBackGround label="URL" value={m3uFileDto?.Url} onChange={(e) => updateStateAndRequest({ Url: e })} />
           </div>
           <div className="layout-padding-bottom-lg" />
         </>
-      )}
+      )} */}
       <div className="w-12">
         <div className="flex gap-1">
           <div className="flex w-6 gap-1">

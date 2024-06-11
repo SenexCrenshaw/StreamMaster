@@ -38,14 +38,14 @@ export const SMTriSelectShowHidden = ({ dataKey }: SMTriSelectShowHiddenProperti
 
   const getIcon = useMemo(() => {
     if (showHidden === null) {
-      return 'pi pi-eye';
+      return 'pi-eye';
     }
 
     if (showHidden === true) {
-      return 'pi pi-eye';
+      return 'pi-eye';
     }
 
-    return 'pi pi-eye-slash';
+    return 'pi-eye-slash';
   }, [showHidden]);
 
   const getColor = useMemo(() => {
@@ -60,5 +60,5 @@ export const SMTriSelectShowHidden = ({ dataKey }: SMTriSelectShowHiddenProperti
     return 'icon-red';
   }, [showHidden]);
 
-  return <SMButton icon={getIcon} iconFilled={false} className={getColor} onClick={() => moveNext()} rounded tooltip={getToolTip} />;
+  return <SMButton icon={getIcon} iconFilled={false} buttonClassName={getColor} onClick={() => moveNext()} rounded tooltip={getToolTip} />;
 };

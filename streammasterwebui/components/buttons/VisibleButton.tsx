@@ -2,8 +2,8 @@ import SMButton from '@components/sm/SMButton';
 import { ChildButtonProperties } from './ChildButtonProperties';
 
 const VisibleButton: React.FC<ChildButtonProperties> = ({
-  className = 'icon-blue',
-  disabled = false,
+  buttonClassName = 'icon-blue',
+  buttonDisabled = false,
   isLeft,
   iconFilled = true,
   label,
@@ -11,8 +11,8 @@ const VisibleButton: React.FC<ChildButtonProperties> = ({
   tooltip = 'Toggle Visibility'
 }) => (
   <SMButton
-    className={className}
-    disabled={disabled}
+    buttonClassName={buttonClassName}
+    buttonDisabled={buttonDisabled}
     icon="pi-eye-slash"
     iconFilled={iconFilled}
     isLeft={isLeft}

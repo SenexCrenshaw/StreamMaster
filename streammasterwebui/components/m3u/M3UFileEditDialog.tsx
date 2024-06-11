@@ -1,6 +1,7 @@
 import OKButton from '@components/buttons/OKButton';
 import ResetButton from '@components/buttons/ResetButton';
-import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
+import { SMDialogRef } from '@components/sm/SMDialog';
+import SMPopUp from '@components/sm/SMPopUp';
 import { M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import M3UFileDialog, { M3UFileDialogRef } from './M3UFileDialog';
@@ -25,7 +26,7 @@ const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
   const m3uDialogRef = useRef<M3UFileDialogRef>(null);
   const smDialogRef = useRef<SMDialogRef>(null);
   const [saveEnabled, setSaveEnabled] = useState<boolean>(false);
-  const [m3uFileDto, setM3UFileDto] = useState<M3UFileDto>(defaultValues);
+  const [m3uFileDto, setM3UFileDto] = useState<M3UFileDto | undefined>(undefined);
   const [originalM3UFileDto, setOriginalM3UFileDto] = useState<M3UFileDto | undefined>(undefined);
 
   useEffect(() => {
@@ -40,25 +41,17 @@ const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
   }, [selectedFile]);
 
   return (
-    <SMDialog
-      ref={smDialogRef}
-      widthSize={5}
-      position="top-right"
-      title="EDIT M3U"
-      icon="pi-pencil"
-      iconFilled={false}
-      buttonClassName="icon-yellow"
-      tooltip="Edit M3U"
+    <SMPopUp
       header={
         <div className="flex w-12 gap-1 justify-content-end align-content-center">
           <ResetButton
-            disabled={!saveEnabled && originalM3UFileDto !== undefined}
+            buttonDisabled={!saveEnabled && originalM3UFileDto !== undefined}
             onClick={() => {
               m3uDialogRef.current?.reset();
             }}
           />
           <OKButton
-            disabled={!saveEnabled}
+            buttonDisabled={!saveEnabled}
             onClick={(request) => {
               m3uDialogRef.current?.save();
               smDialogRef.current?.hide();
@@ -66,9 +59,47 @@ const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
           />
         </div>
       }
+      buttonClassName="icon-yellow"
+      contentWidthSize="5"
+      icon="pi-pencil"
+      modal
+      placement="bottom-end"
+      showRemember={false}
+      title="EDIT M3U"
+      zIndex={10}
     >
-      <M3UFileDialog ref={m3uDialogRef} selectedFile={m3uFileDto} onSaveEnabled={setSaveEnabled} />
-    </SMDialog>
+      <M3UFileDialog ref={m3uDialogRef} showUrlEditor selectedFile={m3uFileDto} onSaveEnabled={setSaveEnabled} />
+    </SMPopUp>
+
+    // <SMDialog
+    //   ref={smDialogRef}
+    //   widthSize={5}
+    //   position="top-right"
+    //   title="EDIT M3U"
+    //   icon="pi-pencil"
+    //   iconFilled={false}
+    //   buttonClassName="icon-yellow"
+    //   tooltip="Edit M3U"
+    //   header={
+    //     <div className="flex w-12 gap-1 justify-content-end align-content-center">
+    //       <ResetButton
+    //         disabled={!saveEnabled && originalM3UFileDto !== undefined}
+    //         onClick={() => {
+    //           m3uDialogRef.current?.reset();
+    //         }}
+    //       />
+    //       <OKButton
+    //         disabled={!saveEnabled}
+    //         onClick={(request) => {
+    //           m3uDialogRef.current?.save();
+    //           smDialogRef.current?.hide();
+    //         }}
+    //       />
+    //     </div>
+    //   }
+    // >
+    //   <M3UFileDialog ref={m3uDialogRef} showUrlEditor selectedFile={m3uFileDto} onSaveEnabled={setSaveEnabled} />
+    // </SMDialog>
   );
 };
 

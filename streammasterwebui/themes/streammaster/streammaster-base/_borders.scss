@@ -13,12 +13,81 @@
     border-width: $inputBorder-size !important;
 }
 
+
+$shadow-offset: 4px;
+$shadow-blur: 8px;
+$shadow-opacity: 0.4;
+
+$shadow-offset-black: 6px;
+$shadow-blur-black: 12px;
+$shadow-opacity-black: 0.6;
+
+$shadow-color-black: rgba(0, 0, 0, $shadow-opacity-black); // Define the shadow color with opacity
+$shadow-color-white: rgba(255, 255, 255, $shadow-opacity); // Define the shadow color with opacity
+$shadow-color-sg: rgba($iconSG, $shadow-opacity); // Define the shadow color with opacity
+
+.sm-box-shadow {
+    box-shadow: // Bottom shadow
+    0px #{$shadow-offset-black} #{$shadow-blur-black} #{$shadow-color-black},
+    // Top shadow
+    0px -#{$shadow-offset-black} #{$shadow-blur-black} #{$shadow-color-black},
+    // Right shadow
+    #{$shadow-offset-black} 0px #{$shadow-blur-black} #{$shadow-color-black},
+    // Left shadow
+    -#{$shadow-offset-black} 0px #{$shadow-blur-black} #{$shadow-color-black}; // Left shadow
+}
+
+.sm-box-shadow-menu {
+    box-shadow: // Bottom shadow
+    0px #{$shadow-offset-black} #{$shadow-blur-black} #{$shadow-color-black},
+    // Top shadow
+    0px 2px 4px #{$shadow-color-black},
+    // Right shadow
+    #{$shadow-offset-black} 0px #{$shadow-blur-black} #{$shadow-color-black},
+    // Left shadow
+    -#{$shadow-offset-black} 0px #{$shadow-blur-black} #{$shadow-color-black}; // Left shadow
+}
+
+.sm-box-shadow-sg {
+    box-shadow: // Bottom shadow
+    0px #{$shadow-offset} #{$shadow-blur} #{$shadow-color-sg},
+    // Bottom shadow
+    // Top shadow
+    0px -#{$shadow-offset} #{$shadow-blur} #{$shadow-color-sg},
+    // Right shadow
+    #{$shadow-offset} 0px #{$shadow-blur} #{$shadow-color-sg},
+    // Left shadow
+    -#{$shadow-offset} 0px #{$shadow-blur} #{$shadow-color-sg}; // Left shadow
+}
+
+.sm-box-shadow-white {
+    box-shadow: // Bottom shadow
+    0px #{$shadow-offset} #{$shadow-blur} #{$shadow-color-white},
+    // Bottom shadow
+    // Top shadow
+    0px -#{$shadow-offset} #{$shadow-blur} #{$shadow-color-white},
+    // Right shadow
+    #{$shadow-offset} 0px #{$shadow-blur} #{$shadow-color-white},
+    // Left shadow
+    -#{$shadow-offset} 0px #{$shadow-blur} #{$shadow-color-white}; // Left shadow
+}
+
+.sm-box-modal-shadow-white {
+    @extend .sm-box-shadow-white;
+}
+
 .sm-border-y {
     @include sm-border-y();
 }
 
 .sm-border {
     @include sm-border();
+}
+
+.sm-border-divider {
+    border-top-color: $inputBorderColor !important;
+    border-top-width: 1px !important;
+    border-top-style: solid !important;
 }
 
 @mixin input-hover() {

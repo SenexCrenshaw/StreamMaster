@@ -1,7 +1,7 @@
-import { memo, useCallback } from 'react';
-import { DeleteStreamGroupRequest, StreamGroupDto } from '@lib/smAPI/smapiTypes';
-import { DeleteStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
 import { SMPopUp } from '@components/sm/SMPopUp';
+import { DeleteStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
+import { DeleteStreamGroupRequest, StreamGroupDto } from '@lib/smAPI/smapiTypes';
+import { memo, useCallback } from 'react';
 
 interface StreamGroupDeleteDialogProperties {
   readonly streamGroup: StreamGroupDto;
@@ -36,11 +36,9 @@ const StreamGroupDeleteDialog = ({ streamGroup, onHide }: StreamGroupDeleteDialo
 
   return (
     <div className="flex justify-content-center w-full">
-      <SMPopUp title="Delete Stream Group" OK={() => deleteStreamGroup()} icon="pi-times" severity="danger">
-        <div>
-          "{streamGroup.Name}"
-          <br />
-          Are you sure?
+      <SMPopUp title="Delete Stream Group" onOkClick={() => deleteStreamGroup()} icon="pi-times">
+        <div className="sm-center-stuff">
+          <div className="text-container">{streamGroup.Name}</div>
         </div>
       </SMPopUp>
     </div>

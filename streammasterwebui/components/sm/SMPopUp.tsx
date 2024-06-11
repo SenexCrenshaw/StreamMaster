@@ -2,11 +2,11 @@ import OKButton from '@components/buttons/OKButton';
 import BooleanEditor from '@components/inputs/BooleanEditor';
 import { Logger } from '@lib/common/logger';
 import { useLocalStorage } from 'primereact/hooks';
-import React, { useRef } from 'react';
-import { SMPopUpProperties } from './Interfaces/SMPopUpProperties';
+import React, { useCallback, useRef } from 'react';
 import SMButton from './SMButton';
 import { SMCard } from './SMCard';
 import SMOverlay, { SMOverlayRef } from './SMOverlay';
+import { SMPopUpProperties } from './interfaces/SMPopUpProperties';
 
 interface RememberProps {
   value: boolean;
@@ -29,9 +29,16 @@ export const SMPopUp: React.FC<SMPopUpProperties> = ({
   const [remember, setRemeber] = useLocalStorage<RememberProps | null>(null, 'remember-' + rememberKey);
 
   const checked = remember?.checked ? remember.checked : false ?? false;
-  if (props.title === 'Add M3U') {
-    Logger.debug('SMPopUp', props.title, { modal: props.modal, modalCentered: props.modalCentered });
-  }
+
+  const closed = useCallback(() => {
+    onCloseClick?.(); // Call the custom onClick handler if provided
+    if (rememberKey && rememberKey !== '' && remember?.checked === true) {
+      setRemeber({ checked: true, value: false } as RememberProps);
+      Logger.debug('Remember', { remember });
+    }
+    overlayRef.current?.hide();
+  }, [onCloseClick, remember, rememberKey, setRemeber]);
+
   return (
     <SMOverlay
       ref={overlayRef}
@@ -40,7 +47,7 @@ export const SMPopUp: React.FC<SMPopUpProperties> = ({
         if (rememberKey && rememberKey !== '' && remember !== null) {
           if (remember.checked === true && remember.value !== undefined) {
             if (remember.value === true) {
-              onOkClick();
+              onOkClick && onOkClick();
             }
             overlayRef.current?.hide();
           }
@@ -48,30 +55,26 @@ export const SMPopUp: React.FC<SMPopUpProperties> = ({
       }}
       header={
         <div className="flex align-items-center gap-1">
-          <OKButton
-            disabled={disabled || okButtonDisabled} // Combine the disabled states
-            onClick={(e) => {
-              if (rememberKey && rememberKey !== '' && remember?.checked === true) {
-                setRemeber({ checked: true, value: true } as RememberProps);
-              }
-              overlayRef.current?.hide();
-              onOkClick();
-            }}
-            tooltip="Ok"
-          />
+          {onOkClick && (
+            <OKButton
+              buttonDisabled={disabled || okButtonDisabled} // Combine the disabled states
+              onClick={(e) => {
+                if (rememberKey && rememberKey !== '' && remember?.checked === true) {
+                  setRemeber({ checked: true, value: true } as RememberProps);
+                }
+                overlayRef.current?.hide();
+                onOkClick && onOkClick();
+              }}
+              tooltip="Ok"
+            />
+          )}
+
           <SMButton
             icon="pi-times"
             iconFilled
-            className="icon-red"
-            disabled={disabled || closeButtonDisabled} // Combine the disabled states
-            onClick={(e) => {
-              onCloseClick?.(); // Call the custom onClick handler if provided
-              if (rememberKey && rememberKey !== '' && remember?.checked === true) {
-                setRemeber({ checked: true, value: false } as RememberProps);
-                Logger.debug('Remember', { remember });
-              }
-              overlayRef.current?.hide();
-            }}
+            buttonClassName="icon-red"
+            buttonDisabled={disabled || closeButtonDisabled}
+            onClick={() => closed()}
             tooltip="Close"
           />
         </div>
@@ -80,11 +83,11 @@ export const SMPopUp: React.FC<SMPopUpProperties> = ({
       {...props}
     >
       <SMCard darkBackGround>
-        <div>
+        <>
           {children}
-          {showRemember && (
-            <div className="flex pl-1 w-full">
-              <div className="w-7">
+          {showRemember && !props.modal && (
+            <div className="flex w-full align-items-center justify-content-end pt-1">
+              <div className="sm-border-divider pt-1">
                 <BooleanEditor
                   label="Don't Ask Again?"
                   labelInline
@@ -95,7 +98,7 @@ export const SMPopUp: React.FC<SMPopUpProperties> = ({
               </div>
             </div>
           )}
-        </div>
+        </>
       </SMCard>
     </SMOverlay>
   );

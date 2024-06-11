@@ -1,7 +1,7 @@
 import React, { CSSProperties, useEffect, useMemo } from 'react';
-import { SMButtonProperties } from '../Interfaces/SMButtonProperties';
 import SMButton from '../SMButton';
-import { useSMButtonContext } from './SMButtonContext';
+import { useSMButtonContext } from '../context/SMButtonContext';
+import { SMButtonProperties } from '../interfaces/SMButtonProperties';
 
 export const useSMButton = ({
   buttonClassName = 'icon-red',
@@ -17,10 +17,11 @@ export const useSMButton = ({
   label,
   modal,
   modalCentered,
+  onClick,
   refs,
   tooltip,
   ...props
-}: SMButtonProperties & { getReferenceProps?: () => any; refs: { setReference: React.Ref<any> } }) => {
+}: SMButtonProperties & { getReferenceProps?: () => any; refs?: { setReference: React.Ref<any> } }) => {
   const { buttonDisabled: contextButtonDisabled, setDisabled, setEnabled } = useSMButtonContext();
 
   useEffect(() => {
@@ -49,58 +50,65 @@ export const useSMButton = ({
 
   const isDisabled = useMemo(() => buttonDisabled || contextButtonDisabled, [buttonDisabled, contextButtonDisabled]);
 
-  // if (modalCentered) {
-  //   Logger.debug('SMButton', { modal: modal, modalCentered: modalCentered });
+  // if (icon === 'pi-bars') {
+  //   Logger.debug('useSMButton', 'isLoading', isLoading, 'buttonDisabled', buttonDisabled, props);
   // }
 
   const buttonElement = useMemo(() => {
     if (buttonTemplate) {
       return (
-        <div ref={modal === true && modalCentered === true ? undefined : refs.setReference} {...(!isDisabled && getReferenceProps ? getReferenceProps() : {})}>
+        <div onClick={onClick}>
+          <div
+            ref={modal === true && modalCentered === true ? undefined : refs?.setReference}
+            {...(!isDisabled && getReferenceProps ? getReferenceProps() : {})}
+          >
+            <SMButton
+              buttonDarkBackground={buttonDarkBackground}
+              buttonDisabled={isDisabled}
+              buttonClassName={buttonClassName}
+              iconFilled={iconFilled}
+              icon={icon}
+              isLoading={isLoading}
+              large={buttonLarge}
+              tooltip={tooltip}
+              label={buttonLabel}
+            >
+              {buttonTemplate}
+              {label && <div className={isDisabled === true ? 'p-disabled' : undefined}>{label}</div>}
+            </SMButton>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div onClick={onClick}>
+        <div
+          ref={modal === true && modalCentered === true ? undefined : refs?.setReference}
+          {...(!isDisabled && getReferenceProps ? getReferenceProps() : {})}
+          className={getDiv}
+          style={getStyle}
+        >
           <SMButton
-            darkBackGround={buttonDarkBackground}
-            disabled={isDisabled}
-            className={buttonClassName}
+            buttonDarkBackground={buttonDarkBackground}
+            // buttonDisabled={isDisabled}
+            buttonClassName={buttonClassName}
             iconFilled={iconFilled}
             icon={icon}
             isLoading={isLoading}
             large={buttonLarge}
             tooltip={tooltip}
             label={buttonLabel}
-          >
-            {buttonTemplate}
-            {label}
-          </SMButton>
+          />
+          {label && <div className={isDisabled === true ? 'p-disabled' : undefined}>{label}</div>}
         </div>
-      );
-    }
-
-    return (
-      <div
-        ref={modal === true && modalCentered === true ? undefined : refs.setReference}
-        {...(!isDisabled && getReferenceProps ? getReferenceProps() : {})}
-        className={getDiv}
-        style={getStyle}
-      >
-        <SMButton
-          darkBackGround={buttonDarkBackground}
-          disabled={isDisabled}
-          className={buttonClassName}
-          iconFilled={iconFilled}
-          icon={icon}
-          isLoading={isLoading}
-          large={buttonLarge}
-          tooltip={tooltip}
-          label={buttonLabel}
-        />
-        {label && <div className="sm-menuitsem2">{label}</div>}
       </div>
     );
   }, [
     buttonTemplate,
     modal,
     modalCentered,
-    refs.setReference,
+    refs?.setReference,
     isDisabled,
     getReferenceProps,
     getDiv,
@@ -113,6 +121,7 @@ export const useSMButton = ({
     buttonLarge,
     tooltip,
     buttonLabel,
+    onClick,
     label
   ]);
 

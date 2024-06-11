@@ -97,6 +97,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
               setScrolled(false);
               return true;
             }
+            return false;
           }
           return x !== item;
         });
@@ -251,7 +252,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
       {filter && (
         <div className="flex align-items-center justify-content-between gap-1 pr-2 sm-w-12">
           <div className="">
-            <BanButton disabled={selectedItems.length === 0} onClick={() => setSelectedItems([])} tooltip="Clear Selections" />
+            <BanButton buttonDisabled={selectedItems.length === 0} onClick={() => setSelectedItems([])} tooltip="Clear Selections" />
           </div>
 
           <div className="flex align-items-center justify-content-between sm-w-11">

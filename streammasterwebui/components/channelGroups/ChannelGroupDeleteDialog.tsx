@@ -120,7 +120,7 @@ const ChannelGroupDeleteDialog = ({ id, onClose, value }: ChannelGroupDeleteDial
       iconFilled={value === undefined}
       rememberKey={'DeleteChannelGroupDialog'}
       title="Delete"
-      OK={() => onDeleteClick()}
+      onOkClick={() => onDeleteClick()}
       icon="pi-times"
     >
       {message}

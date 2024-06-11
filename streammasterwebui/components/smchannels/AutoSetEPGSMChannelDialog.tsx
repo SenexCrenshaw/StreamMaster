@@ -62,7 +62,7 @@ const AutoSetEPGSMChannelDialog = ({ smChannel }: AutoSetEPGSMChannelDialogPrope
       });
   }, [ReturnToParent, queryFilter, selectAll, selectedItems, smChannel]);
 
-  return <SMButton icon="pi-book" className="icon-blue" onClick={async () => save()} tooltip="Auto Set EPG" />;
+  return <SMButton icon="pi-book" buttonClassName="icon-blue" onClick={async () => save()} tooltip="Auto Set EPG" />;
 };
 
 AutoSetEPGSMChannelDialog.displayName = 'AutoSetEPGSMChannelDialog';

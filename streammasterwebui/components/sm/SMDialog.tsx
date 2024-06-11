@@ -49,8 +49,8 @@ const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogPro
 
   useImperativeHandle(ref, () => ({
     hide: () => setVisible(false),
-    show: () => setVisible(true),
-    props
+    props,
+    show: () => setVisible(true)
   }));
 
   const [visible, setVisible] = useState<boolean>(false);
@@ -94,13 +94,11 @@ const SMDialog = forwardRef<SMDialogRef, SMDialogProperties>((props: SMDialogPro
       />
 
       <SMButton
-        disabled={buttonDisabled}
-        className={buttonClassName}
+        buttonDisabled={buttonDisabled}
+        buttonClassName={buttonClassName}
         iconFilled={iconFilled}
         icon={icon ?? ''}
-        iconPos="left"
         label={iconFilled === true ? label : undefined}
-        isLeft
         tooltip={tooltip}
         onClick={(e) => {
           setVisible(true);

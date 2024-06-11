@@ -1,4 +1,3 @@
-import { useSMStreamGroupColumnConfig } from '@components/columns/SMStreams/useSMStreamGroupColumnConfig';
 import { useSMStreamM3UColumnConfig } from '@components/columns/SMStreams/useSMStreamM3UColumnConfig';
 import M3UFilesButton from '@components/m3u/M3UFilesButton';
 import SMButton from '@components/sm/SMButton';
@@ -12,6 +11,7 @@ import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectedSMStreams } from '@lib/redux/hooks/selectedSMStreams';
 
+import { useSMStreamChannelGroupColumnConfig } from '@components/columns/SMStreams/useSMStreamChannelGroupColumnConfig';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import DeleteSMStreamDialog from '@components/smstreams/DeleteSMStreamDialog';
 import EditSMStreamDialog from '@components/smstreams/EditSMStreamDialog';
@@ -42,7 +42,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
 
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { setSelectedSMStreams } = useSelectedSMStreams(dataKey);
-  const groupColumnConfig = useSMStreamGroupColumnConfig({ dataKey });
+  const groupColumnConfig = useSMStreamChannelGroupColumnConfig({ dataKey });
   const smStreamM3UColumnConfig = useSMStreamM3UColumnConfig({ dataKey });
   const { queryFilter } = useQueryFilter(dataKey);
   const { isLoading } = useGetPagedSMStreams(queryFilter);
@@ -69,6 +69,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
       { field: 'Name', filter: true, sortable: true, width: '16rem' },
       groupColumnConfig,
       smStreamM3UColumnConfig,
+      { field: 'M3UFileId', fieldType: 'filterOnly', filter: true },
       { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '5rem' }
     ],
     [actionTemplate, groupColumnConfig, smStreamM3UColumnConfig]
@@ -88,7 +89,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
             <div className="flex align-content-center justify-content-center">
               <SMButton
                 icon="pi-minus"
-                className="border-noround borderread icon-red"
+                buttonClassName="border-noround borderread icon-red"
                 iconFilled={false}
                 onClick={() => {
                   if (!data.Id || selectedSMChannel === undefined) {
@@ -113,7 +114,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
           <div className="flex align-content-center justify-content-center">
             <SMButton
               icon="pi-plus"
-              className="border-noround borderread icon-green"
+              buttonClassName="border-noround borderread icon-green"
               iconFilled={false}
               onClick={() => {
                 AddSMStreamToSMChannel({ SMChannelId: selectedSMChannel?.Id ?? 0, SMStreamId: data.Id })
@@ -134,7 +135,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
           <SMButton
             icon="pi-plus"
             iconFilled={false}
-            className="border-noround borderread icon-green"
+            buttonClassName="border-noround borderread icon-green"
             onClick={() => {
               CreateSMChannelFromStream({ StreamId: data.Id } as CreateSMChannelFromStreamRequest)
                 .then((response) => {})

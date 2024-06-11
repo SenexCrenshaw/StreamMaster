@@ -142,18 +142,31 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
           <div className="flex flex-column w-10 gap-1">
             <div className="flex w-12 gap-1">
               <div className="w-6 justify-content-start align-items-center">
-                <StringEditor label="Name" placeholder="Name" darkBackGround disableDebounce onChange={(e) => e && setName(e)} value={request.Name} />
+                <StringEditor
+                  label="Name"
+                  placeholder="Name"
+                  darkBackGround
+                  disableDebounce
+                  onChange={(e) => e !== undefined && setName(e)}
+                  value={request.Name}
+                />
               </div>
               <div className="w-6 justify-content-start align-items-center">
-                <EPGSelector label="EPG" smChannel={tempSMChannel} onChange={(e) => e && setEPGId(e)} />
+                <EPGSelector label="EPG" smChannel={tempSMChannel} onChange={(e) => e !== undefined && setEPGId(e)} />
               </div>
             </div>
             <div className="flex w-12 gap-1">
               <div className="w-6 justify-content-start align-items-center">
-                <SMChannelGroupDropDown label="GROUP" darkBackGround group={request.Group} onChange={(e) => e && setGroup(e)} />
+                <SMChannelGroupDropDown label="GROUP" darkBackGround value={request.Group} onChange={(e) => e !== undefined && setGroup(e)} />
               </div>
               <div className="w-6 justify-content-start align-items-center">
-                <NumberEditor label="Channel #" showButtons darkBackGround onChange={(e) => e && setChannelNumber(e)} value={request.ChannelNumber} />
+                <NumberEditor
+                  label="Channel #"
+                  showButtons
+                  darkBackGround
+                  onChange={(e) => e !== undefined && setChannelNumber(e)}
+                  value={request.ChannelNumber}
+                />
               </div>
             </div>
           </div>

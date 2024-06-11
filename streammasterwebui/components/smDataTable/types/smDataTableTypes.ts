@@ -11,6 +11,7 @@ export type ColumnFieldType =
   | 'sg'
   | 'streams'
   | 'url'
+  | 'filterOnly'
   | 'actions'
   | undefined;
 export type ColumnAlign = 'center' | 'left' | 'right' | null | undefined;

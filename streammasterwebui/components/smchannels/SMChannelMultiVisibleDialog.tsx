@@ -73,7 +73,7 @@ const SMChannelMultiVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, s
 
   return (
     <VisibleButton
-      disabled={getTotalCount === 0}
+      buttonDisabled={getTotalCount === 0}
       iconFilled
       onClick={async (event) => {
         await onVisiblesClick();

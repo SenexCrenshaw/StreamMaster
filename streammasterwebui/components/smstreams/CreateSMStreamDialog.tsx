@@ -1,5 +1,5 @@
-import OKButton from '@components/buttons/OKButton';
-import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
+import { SMDialogRef } from '@components/sm/SMDialog';
+import SMPopUp from '@components/sm/SMPopUp';
 import { SMChannelDialogRef } from '@components/smchannels/SMChannelDialog';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { CreateSMStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
@@ -15,7 +15,7 @@ const CreateSMStreamDialog = ({ label }: CreateSMStreamDialogProperties) => {
   const dataKey = 'SMChannelSMStreamDialog-SMStreamDataForSMChannelSelector';
   const { setSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
   const [saveEnabled, setSaveEnabled] = useState<boolean>(false);
-  const m3uDialogRef = useRef<SMChannelDialogRef>(null);
+  const smChannelDialogRef = useRef<SMChannelDialogRef>(null);
   const smDialogRef = useRef<SMDialogRef>(null);
 
   const ReturnToParent = React.useCallback(() => {
@@ -34,48 +34,21 @@ const CreateSMStreamDialog = ({ label }: CreateSMStreamDialogProperties) => {
   }, []);
 
   return (
-    <div
-      className="flex align-items-center justify-content-center gap-1 sm-menuitem"
-      style={{
-        borderColor: 'var(--icon-green)'
-      }}
+    <SMPopUp
+      buttonClassName="icon-green"
+      contentWidthSize="5"
+      icon="pi-plus"
+      iconFilled
+      label={label}
+      modal
+      okButtonDisabled={!saveEnabled}
+      onOkClick={() => smChannelDialogRef.current?.save()}
+      placement="bottom-end"
+      showRemember={false}
+      title="Create Stream"
     >
-      <SMDialog
-        darkBackGround
-        ref={smDialogRef}
-        position="top-right"
-        title="CREATE STREAM"
-        iconFilled
-        onHide={() => ReturnToParent()}
-        buttonClassName="icon-green"
-        icon="pi-plus"
-        widthSize={5}
-        tooltip="Create Stream"
-        header={
-          <div className="flex w-12 gap-1 justify-content-end align-content-center">
-            <OKButton
-              disabled={!saveEnabled}
-              onClick={(request) => {
-                m3uDialogRef.current?.save();
-                smDialogRef.current?.hide();
-              }}
-            />
-          </div>
-        }
-      >
-        <SMStreamDialog ref={m3uDialogRef} onSave={onSave} onSaveEnabled={setSaveEnabled} />
-      </SMDialog>
-
-      {label && (
-        <div
-          onClick={() => {
-            smDialogRef.current?.show();
-          }}
-        >
-          {label}
-        </div>
-      )}
-    </div>
+      <SMStreamDialog ref={smChannelDialogRef} onSave={onSave} onSaveEnabled={setSaveEnabled} />
+    </SMPopUp>
   );
 };
 

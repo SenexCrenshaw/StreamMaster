@@ -1,12 +1,12 @@
+import StringEditor from '@components/inputs/StringEditor';
+import { GetMessage } from '@lib/common/intl';
+import { Logger } from '@lib/common/logger';
 import { getDefaultSetting } from '@lib/locales/default_setting';
 import { getHelp } from '@lib/locales/help_en';
+import { SettingDto } from '@lib/smAPI/smapiTypes';
 import React from 'react';
 import { UpdateChanges, getRecordString } from '../SettingsUtils';
 import { getLine } from './getLine';
-import { SettingDto } from '@lib/smAPI/smapiTypes';
-import { GetMessage } from '@lib/common/intl';
-import { Logger } from '@lib/common/logger';
-import StringEditor from '@components/inputs/StringEditor';
 
 type InputTextLineProps = {
   field: string;
@@ -37,7 +37,7 @@ export function getInputTextLine({ field, warning, currentSettingRequest, onChan
             defaultSetting === null || defaultSetting === undefined || defaultSetting === '' || help === null || help === undefined || help !== ''
           }
           onChange={(e) => {
-            e && UpdateChanges({ currentSettingRequest, field, onChange, value: e });
+            e !== undefined && UpdateChanges({ currentSettingRequest, field, onChange, value: e });
           }}
           value={currentSettingRequest ? getRecordString<SettingDto>(field, currentSettingRequest) : undefined}
         />

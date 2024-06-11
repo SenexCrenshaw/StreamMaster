@@ -1,5 +1,4 @@
-import OKButton from '@components/buttons/OKButton';
-import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
+import SMPopUp from '@components/sm/SMPopUp';
 import { SMChannelDialogRef } from '@components/smchannels/SMChannelDialog';
 import { UpdateSMStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { SMStreamDto, UpdateSMStreamRequest } from '@lib/smAPI/smapiTypes';
@@ -12,8 +11,7 @@ interface EditSMStreamDialogProperties {
 
 const EditSMStreamDialog = ({ smStreamDto }: EditSMStreamDialogProperties) => {
   const [saveEnabled, setSaveEnabled] = useState<boolean>(false);
-  const m3uDialogRef = useRef<SMChannelDialogRef>(null);
-  const smDialogRef = useRef<SMDialogRef>(null);
+  const smChannelDialogRef = useRef<SMChannelDialogRef>(null);
 
   const ReturnToParent = React.useCallback(() => {}, []);
 
@@ -28,46 +26,68 @@ const EditSMStreamDialog = ({ smStreamDto }: EditSMStreamDialogProperties) => {
           console.error(e);
         })
         .finally(() => {
-          smDialogRef.current?.hide();
+          // smChannelDialogRef.current?.hide();
         });
     },
     [smStreamDto.Id]
   );
 
   return (
-    <SMDialog
-      darkBackGround
-      buttonDisabled={smStreamDto === undefined || smStreamDto.IsUserCreated === false}
-      ref={smDialogRef}
-      position="top-right"
-      title="EDIT STREAM"
-      onHide={() => ReturnToParent()}
+    <SMPopUp
       buttonClassName="icon-yellow"
+      contentWidthSize="5"
       icon="pi-pencil"
-      widthSize={5}
-      tooltip="Edit Stream"
-      header={
-        <div className="flex w-12 gap-1 justify-content-end align-content-center">
-          <OKButton
-            disabled={!saveEnabled}
-            onClick={(request) => {
-              m3uDialogRef.current?.save();
-              smDialogRef.current?.hide();
-            }}
-          />
-        </div>
-      }
+      modal
+      okButtonDisabled={!saveEnabled}
+      onOkClick={() => smChannelDialogRef.current?.save()}
+      placement="bottom-end"
+      showRemember={false}
+      title="Edit Stream"
+      zIndex={10}
     >
       <SMStreamDialog
-        ref={m3uDialogRef}
+        ref={smChannelDialogRef}
         onSave={onSave}
         onSaveEnabled={(e) => {
           setSaveEnabled(e);
-          // Logger.debug('EditSMStreamDialog.onSaveEnabled', e);
         }}
         smStreamDto={smStreamDto}
       />
-    </SMDialog>
+    </SMPopUp>
+
+    // <SMDialog
+    //   darkBackGround
+    //   buttonDisabled={smStreamDto === undefined || smStreamDto.IsUserCreated === false}
+    //   ref={smDialogRef}
+    //   position="top-right"
+    //   title="EDIT STREAM"
+    //   onHide={() => ReturnToParent()}
+    //   buttonClassName="icon-yellow"
+    //   icon="pi-pencil"
+    //   widthSize={5}
+    //   tooltip="Edit Stream"
+    //   header={
+    //     <div className="flex w-12 gap-1 justify-content-end align-content-center">
+    //       <OKButton
+    //         buttonDisabled={!saveEnabled}
+    //         onClick={(request) => {
+    //           m3uDialogRef.current?.save();
+    //           smDialogRef.current?.hide();
+    //         }}
+    //       />
+    //     </div>
+    //   }
+    // >
+    //   <SMStreamDialog
+    //     ref={m3uDialogRef}
+    //     onSave={onSave}
+    //     onSaveEnabled={(e) => {
+    //       setSaveEnabled(e);
+    //       // Logger.debug('EditSMStreamDialog.onSaveEnabled', e);
+    //     }}
+    //     smStreamDto={smStreamDto}
+    //   />
+    // </SMDialog>
   );
 };
 

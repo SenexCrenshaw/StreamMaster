@@ -76,21 +76,20 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
 
   return (
     <SMPopUp
+      placement="bottom-end"
+      hasCloseButton
       buttonClassName="icon-green"
-      contentWidthSize="6"
+      contentWidthSize="5"
       icon="pi-plus"
       iconFilled
       modal
-      modalCentered
-      showRemember={false}
       title="Add M3U"
-      onOkClick={function (): void {
-        throw new Error('Function not implemented.');
-      }}
+      zIndex={10}
     >
       <div className="layout-padding-bottom-lg" />
       <div className="w-12">
         <SMFileUpload
+          isM3U
           m3uFileDto={m3uFileDto}
           onCreateFromSource={onCreateFromSource}
           onUploadComplete={() => {
@@ -103,7 +102,6 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
           onM3UChanged={(e) => {
             setM3UFileDto(e);
           }}
-          noButtons
         />
         <div className="layout-padding-bottom-lg" />
       </div>

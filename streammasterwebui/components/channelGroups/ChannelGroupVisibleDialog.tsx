@@ -85,7 +85,7 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
       iconFilled
       rememberKey={'ChannelGroupVisibility'}
       title="TOGGLE VISIBILITY"
-      OK={async () => await onVisibleClick()}
+      onOkClick={async () => await onVisibleClick()}
     >
       {message}
     </SMPopUp>

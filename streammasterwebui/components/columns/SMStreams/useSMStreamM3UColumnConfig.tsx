@@ -1,6 +1,6 @@
 import SMDropDown from '@components/sm/SMDropDown';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { arraysEqual, isEmptyObject } from '@lib/common/common';
+import { arraysEqual } from '@lib/common/common';
 import useSelectedAndQ from '@lib/hooks/useSelectedAndQ';
 import { useFilters } from '@lib/redux/hooks/filters';
 
@@ -8,7 +8,7 @@ import useGetM3UFiles from '@lib/smAPI/M3UFiles/useGetM3UFiles';
 import { M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { DataTableFilterMetaData } from 'primereact/datatable';
-import { ReactNode, useCallback } from 'react';
+import { ReactNode, useCallback, useMemo } from 'react';
 
 interface SMStreamM3UColumnConfigProperties {
   readonly className?: string;
@@ -25,17 +25,17 @@ export const useSMStreamM3UColumnConfig = ({ className = 'sm-w-7rem sm-scroller-
   const updateFilters = () => {
     if (selectedItems.length === 0) {
       const newFilter = { ...filters };
-      const a = newFilter['M3UFileName'] as DataTableFilterMetaData;
+      const a = newFilter['M3UFileId'] as DataTableFilterMetaData;
       if (a && a.value !== undefined) {
-        newFilter['M3UFileName'] = { matchMode: 'contains', value: undefined };
+        newFilter['M3UFileId'] = { matchMode: 'contains', value: undefined };
         setFilters(newFilter);
       }
     } else {
-      const names = selectedItems.map((x) => x.Name);
+      const names = selectedItems.map((x) => x.Id);
       const newFilter = { ...filters };
-      const a = newFilter['M3UFileName'] as DataTableFilterMetaData;
-      if (!filters['M3UFileName'] || !arraysEqual(a.value, names)) {
-        newFilter['M3UFileName'] = { matchMode: 'contains', value: names };
+      const a = newFilter['M3UFileId'] as DataTableFilterMetaData;
+      if (!filters['M3UFileId'] || !arraysEqual(a.value, names)) {
+        newFilter['M3UFileId'] = { matchMode: 'contains', value: names };
         setFilters(newFilter);
       }
     }
@@ -55,25 +55,35 @@ export const useSMStreamM3UColumnConfig = ({ className = 'sm-w-7rem sm-scroller-
     );
   }, []);
 
-  const buttonTemplate = useCallback((options: any): ReactNode => {
-    if (Array.isArray(options.value)) {
-      if (options.value.length > 0) {
-        const names = options.value.map((x: any) => x.Name);
-        const sortedInput = [...names].sort();
-        return (
-          <div className="sm-channelgroup-selector">
-            <div className="text-container">{sortedInput.join(', ')}</div>
-          </div>
-        );
+  const buttonTemplate = useCallback(
+    (options: any): ReactNode => {
+      if (Array.isArray(selectedItems)) {
+        if (selectedItems.length > 0) {
+          const names = selectedItems.map((x: any) => (x.Id === -1 ? '*' : x.Name));
+          const sortedInput = [...names].sort();
+          return (
+            <div className="sm-channelgroup-selector">
+              <div className="text-container">{sortedInput.join(', ')}</div>
+            </div>
+          );
+        }
       }
-    }
 
-    return (
-      <div className="sm-channelgroup-selector">
-        <div className="text-container pl-1">M3U</div>
-      </div>
-    );
-  }, []);
+      return (
+        <div className="sm-channelgroup-selector">
+          <div className="text-container pl-1">M3U</div>
+        </div>
+      );
+    },
+    [selectedItems]
+  );
+
+  const dataSource = useMemo(() => {
+    if (data) {
+      return [{ Id: -1, Name: '* Custom Only' }, ...data];
+    }
+    return [{ Id: -1, Name: '* Custom Only' }];
+  }, [data]);
 
   function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
     return (
@@ -81,16 +91,17 @@ export const useSMStreamM3UColumnConfig = ({ className = 'sm-w-7rem sm-scroller-
         <SMDropDown
           buttonDarkBackground
           buttonTemplate={buttonTemplate(options)}
-          data={data}
+          data={dataSource}
+          dataKey="Id"
           itemTemplate={itemTemplate}
           filter
           filterBy="Name"
           fixed
-          onChange={async (e: any) => {
-            if (isEmptyObject(e) || !Array.isArray(e)) {
-              options.filterApplyCallback();
-            }
-          }}
+          // onChange={async (e: any) => {
+          //   if (isEmptyObject(e) || !Array.isArray(e)) {
+          //     // options.filterApplyCallback();
+          //   }
+          // }}
           select
           selectedItemsKey="useSMStreamM3UColumnConfig"
           title="M3U"

@@ -1,51 +1,31 @@
 import { getLeftToolOptions, getRightToolOptions } from '@lib/common/common';
+import { Logger } from '@lib/common/logger';
 import { Button } from 'primereact/button';
 import { Tooltip } from 'primereact/tooltip';
-import React, { CSSProperties, forwardRef, useMemo } from 'react';
+import { default as React, forwardRef, default as react, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { SMButtonProperties } from './interfaces/SMButtonProperties';
 
 export type SeverityType = 'danger' | 'help' | 'info' | 'secondary' | 'success' | 'warning';
 
-export interface SMButtonProps {
-  onClick?: (e: React.SyntheticEvent) => void;
-  readonly children?: React.ReactNode;
-  readonly className?: string;
-  readonly color?: string;
-  readonly darkBackGround?: boolean;
-  readonly disabled?: boolean;
-  readonly large?: boolean;
-  readonly icon?: string;
-  readonly iconFilled?: boolean;
-  readonly iconPos?: 'top' | 'bottom' | 'left' | 'right' | undefined;
-  readonly isLeft?: boolean;
-  readonly isLoading?: boolean;
-  readonly label?: string;
-  readonly outlined?: boolean | undefined;
-  readonly rounded?: boolean;
-  readonly severity?: SeverityType;
-  readonly style?: CSSProperties | undefined;
-  readonly tooltip?: string;
+interface InternalSMButtonProperties extends SMButtonProperties {
+  readonly children?: react.ReactNode;
 }
 
-const SMButton = forwardRef<Button, SMButtonProps>(
+const SMButton = forwardRef<Button, InternalSMButtonProperties>(
   (
     {
-      className: configuredClassName,
       color = 'val(--primary-color-text)',
-      darkBackGround = false,
-      disabled = false,
-      icon,
+      buttonClassName = '',
+      buttonDarkBackground = false,
+      buttonDisabled = false,
       iconFilled = false,
-      iconPos = 'right',
       isLeft = false,
       isLoading = false,
       label,
       large = false,
-      onClick,
       outlined = false,
       rounded = true,
-      severity,
-      style,
       tooltip = '',
       ...props
     },
@@ -61,7 +41,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
 
     const getClassName = React.useMemo(() => {
       let toRet = 'sm-button';
-      let cClass = configuredClassName;
+      let cClass = buttonClassName;
 
       if (label && label !== '' && !props.children) {
         toRet += ' sm-button-with-label';
@@ -81,21 +61,21 @@ const SMButton = forwardRef<Button, SMButtonProps>(
       //   // /toRet += ' sm-hover';
       // }
       return toRet + ' ' + cClass + ' ' + tooltipClassName;
-    }, [configuredClassName, iconFilled, label, props.children, tooltipClassName]);
+    }, [buttonClassName, iconFilled, label, props.children, tooltipClassName]);
 
     const getStyle = useMemo(() => {
       return {
-        ...style,
+        // ...style,
         color: color
       };
-    }, [color, style]);
+    }, [color]);
 
     const iconClass = useMemo(() => {
-      return isLoading ? 'pi-spin pi-spinner' : icon;
-    }, [icon, isLoading]);
+      return isLoading ? 'pi-spin pi-spinner' : 'pi ' + props.icon;
+    }, [props.icon, isLoading]);
 
     if (props.children) {
-      if (darkBackGround) {
+      if (buttonDarkBackground) {
         return (
           <div className="stringeditor">
             <div className={large ? 'sm-input-dark-large' : 'sm-input-dark'}>
@@ -103,7 +83,7 @@ const SMButton = forwardRef<Button, SMButtonProps>(
               <div
                 onClick={(e) => {
                   e.preventDefault();
-                  onClick && onClick(e);
+                  props.onClick && props.onClick(e);
                 }}
                 className={`${tooltipClassName} input-wrapper`}
                 data-pr-tooltip={tooltip}
@@ -114,19 +94,19 @@ const SMButton = forwardRef<Button, SMButtonProps>(
               >
                 {props.children}
                 <div className="pl-1" />
-                <i className={`mr-1 pi ${iconClass}`} />
+                <i className={`mr-1 ${iconClass}`} />
               </div>
             </div>
           </div>
         );
       }
       return (
-        <div className="sm-input ">
+        <div className="sm-input">
           <Tooltip target={`.${tooltipClassName}`} />
           <div
             onClick={(e) => {
               e.preventDefault();
-              onClick && onClick(e);
+              props.onClick && props.onClick(e);
             }}
             className={`${tooltipClassName} input-wrapper`}
             data-pr-tooltip={tooltip}
@@ -136,35 +116,35 @@ const SMButton = forwardRef<Button, SMButtonProps>(
             data-pr-autohide={true}
           >
             {props.children}
-            <i className={`input-icon pi ${iconClass}`} />
+            <i className={`input-icon ${iconClass}`} />
           </div>
         </div>
       );
     }
 
+    if (props.icon?.includes('pi-window-maximize')) {
+      Logger.debug('SMButton', 'icon', iconClass, 'buttonClassName', buttonClassName);
+    }
     return (
       <>
         <Tooltip target={`.${tooltipClassName}`} />
         <Button
           ref={ref}
           className={getClassName}
-          disabled={disabled}
-          icon={`pi ${icon}`}
-          iconPos={iconPos}
+          disabled={buttonDisabled || isLoading}
+          icon={iconClass}
           label={label}
           loading={isLoading}
           onClick={(e) => {
             e.preventDefault();
-            onClick && onClick(e);
+            props.onClick && props.onClick(e);
           }}
           outlined={outlined}
           rounded={rounded}
-          severity={severity}
           text={!iconFilled}
           tooltip={tooltip}
           tooltipOptions={isLeft ? getLeftToolOptions : getRightToolOptions}
           style={getStyle}
-          {...props}
         />
       </>
     );

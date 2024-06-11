@@ -262,10 +262,15 @@ public static class FilterHelper<T> where T : class
     private static string[] ConvertToArray(string stringValue)
     {
         // Check if the string contains unquoted numbers
-        if (Regex.IsMatch(stringValue, @"\[\s*(\d+)\s*(,\s*\d+\s*)*\]"))
+        //if (Regex.IsMatch(stringValue, @"\[\s*(\d+)\s*(,\s*\d+\s*)*\]"))
+        //{
+        //    // Add quotes around numbers
+        //    stringValue = Regex.Replace(stringValue, @"(\d+)", "\"$1\"");
+        //}
+        if (Regex.IsMatch(stringValue, @"\[\s*(-?\d+)\s*(,\s*-?\d+\s*)*\]"))
         {
-            // Add quotes around numbers
-            stringValue = Regex.Replace(stringValue, @"(\d+)", "\"$1\"");
+            // Add quotes around numbers, including negative numbers
+            stringValue = Regex.Replace(stringValue, @"(-?\d+)", "\"$1\"");
         }
 
         // Ensure all single quotes are replaced by double quotes

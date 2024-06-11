@@ -31,7 +31,7 @@ const SMChannelGroupEditor = ({ darkBackGround, fixed = false, smChannelDto, onC
     [smChannelDto]
   );
 
-  return <SMChannelGroupDropDown fixed={fixed} darkBackGround={darkBackGround} smChannel={smChannelDto} onChange={async (e) => handleOnChange(e)} />;
+  return <SMChannelGroupDropDown fixed={fixed} darkBackGround={darkBackGround} value={smChannelDto.Group} onChange={async (e) => handleOnChange(e)} />;
 };
 
 export default memo(SMChannelGroupEditor);

@@ -59,6 +59,12 @@
   width: calc(100% - 0.4rem);
 }
 
+.sm-center-stuff {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .sm-w-1 {
   flex: 0 0 8.3333333333%;
   min-width: 8.3333333333% !important;
@@ -7672,6 +7678,22 @@
   border-radius: 6px;
 }
 
+.sm-box-shadow, .sm-popover {
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.6), 0px -6px 12px rgba(0, 0, 0, 0.6), 6px 0px 12px rgba(0, 0, 0, 0.6), -6px 0px 12px rgba(0, 0, 0, 0.6);
+}
+
+.sm-box-shadow-menu {
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.6), 0px 2px 4px rgba(0, 0, 0, 0.6), 6px 0px 12px rgba(0, 0, 0, 0.6), -6px 0px 12px rgba(0, 0, 0, 0.6);
+}
+
+.sm-box-shadow-sg, .sm-modal {
+  box-shadow: 0px 4px 8px rgba(255, 192, 90, 0.4), 0px -4px 8px rgba(255, 192, 90, 0.4), 4px 0px 8px rgba(255, 192, 90, 0.4), -4px 0px 8px rgba(255, 192, 90, 0.4);
+}
+
+.sm-box-shadow-white, .sm-box-modal-shadow-white {
+  box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.4), 0px -4px 8px rgba(255, 255, 255, 0.4), 4px 0px 8px rgba(255, 255, 255, 0.4), -4px 0px 8px rgba(255, 255, 255, 0.4);
+}
+
 .sm-border-y {
   border-color: #263238 !important;
   border-left-style: none !important;
@@ -7685,6 +7707,12 @@
   border-color: #263238 !important;
   border-width: 0.1rem !important;
   border-style: solid !important;
+}
+
+.sm-border-divider {
+  border-top-color: #263238 !important;
+  border-top-width: 1px !important;
+  border-top-style: solid !important;
 }
 
 .sm-hover, .sm-dropdown, .sm-icon-selector, .stringeditor .sm-input, .sm-iconselector-lg {
@@ -8004,6 +8032,10 @@
 
 .sm-iconselector-lg {
   background-color: transparent;
+  width: 100%;
+}
+
+div[aria-haspopup=dialog] {
   width: 100%;
 }
 
@@ -8526,6 +8558,7 @@
 }
 
 .sm-overlay, .sm-dialog {
+  font-size: 0.75rem;
   background-color: var(--surface-ground);
 }
 .sm-overlay .p-float-label, .sm-dialog .p-float-label {
@@ -9031,13 +9064,14 @@
   z-index: 2;
   width: 100%;
   padding: 0.5rem;
-  box-shadow: 0 8px 8px rgba(0, 0, 0, 0.2), 0 8px 8px rgba(0, 0, 0, 0.55);
+}
+
+.z-10 {
+  z-index: 10;
 }
 
 .sm-modal {
   z-index: 10;
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5), 0 0 16px rgba(255, 255, 255, 0.3);
-  /* More diffuse, larger radius */
 }
 
 .Dialog-overlay {

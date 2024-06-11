@@ -623,7 +623,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     return 'RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink';
   }, [state.smTableIsSimple]);
 
-  // if (props.id === 'useSMStreamGroupColumnConfig') {
+  // if (props.id === 'useSMStreamChannelGroupColumnConfig') {
   //   Logger.debug('DataTable', { a: state?.dataSource?.[0].Name, datasource: state.dataSource, id: props.id });
   // }
 
@@ -776,7 +776,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
                   body={(e) => (col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, settings.DefaultIcon, col.camelize))}
                   editor={col.editor}
                   field={col.field}
-                  hidden={col.isHidden === true}
+                  hidden={col.isHidden === true || col.fieldType === 'filterOnly'}
                   key={col.fieldType ? col.field + col.fieldType : col.field}
                   // style={getStyle(col, col.noAutoStyle !== true || col.bodyTemplate !== undefined)}
                   showAddButton

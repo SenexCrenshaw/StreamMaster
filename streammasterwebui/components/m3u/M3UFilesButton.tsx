@@ -1,11 +1,10 @@
-import SMOverlay from '@components/sm/SMOverlay';
-import { OverlayPanel } from 'primereact/overlaypanel';
+import SMOverlay, { SMOverlayRef } from '@components/sm/SMOverlay';
 import { memo, useRef } from 'react';
 import M3UFileCreateDialog from './M3UFileCreateDialog';
 import M3UFilesDataSelector from './M3UFilesDataSelector';
 
 const M3UFilesButton = () => {
-  const op = useRef<OverlayPanel>(null);
+  const op = useRef<SMOverlayRef>(null);
   const closeOverlay = () => op.current?.hide();
 
   return (
@@ -16,6 +15,8 @@ const M3UFilesButton = () => {
       header={<M3UFileCreateDialog onUploadComplete={closeOverlay} />}
       icon="pi-upload"
       iconFilled
+      placement="bottom-end"
+      ref={op}
       title="M3U FILES"
     >
       <M3UFilesDataSelector />

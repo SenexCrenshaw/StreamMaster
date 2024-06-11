@@ -35,7 +35,7 @@ const M3UFilesMaxStreamsEditor = ({ data, style }: M3UFilesMaxStreamsEditorPrope
     <NumberEditor
       darkBackGround
       onSave={async (e) => {
-        e && (await onUpdateM3UFile(e));
+        e !== undefined && (await onUpdateM3UFile(e));
       }}
       showSave={false}
       tooltip={isDev ? `id: ${data.Id}` : undefined}

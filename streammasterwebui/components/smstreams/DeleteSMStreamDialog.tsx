@@ -42,7 +42,7 @@ const DeleteSMStreamDialog = ({ smStream }: DeleteSMStreamProperties) => {
       buttonDisabled={smStream === undefined || !smStream.IsUserCreated}
       rememberKey={'DeleteSMStreamDialog'}
       title="Delete"
-      OK={() => accept()}
+      onOkClick={() => accept()}
       icon="pi-times"
     />
   );
