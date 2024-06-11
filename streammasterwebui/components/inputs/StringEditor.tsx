@@ -96,16 +96,18 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
       debounceMs
     );
 
-    const needsSave = useMemo(() => inputValue !== '' && originalValue !== inputValue, [inputValue, originalValue]);
+    // const needsSave = useMemo(() => inputValue !== '' && originalValue !== inputValue, [inputValue, originalValue]);
+
+    Logger.debug('StringEditor', { inputValue, originalValue, value });
 
     useEffect(() => {
       if (code === 'Enter' || code === 'NumpadEnter') {
-        if (needsSave && !ignoreSave) {
+        if (!ignoreSave) {
           debounced.cancel();
           save();
         }
       }
-    }, [code, debounced, ignoreSave, needsSave, save]);
+    }, [code, debounced, ignoreSave, save]);
 
     useClickOutside(divReference, () => {
       if (!isFocused) return;
@@ -129,14 +131,14 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
         } else if (disableDebounce && value !== undefined && value === originalValue && value !== inputValue) {
           setInputValue(value);
         }
-        if (onSave && value !== undefined) {
-          setOriginalValue(value);
-          setInputValue(value);
-        }
+        // if (onSave && value !== undefined) {
+        //   setOriginalValue(value);
+        //   setInputValue(value);
+        // }
       }
 
       setIgnoreSave(false);
-    }, [disableDebounce, inputValue, isLoading, onSave, originalValue, value]);
+    }, [disableDebounce, inputValue, isLoading, originalValue, value]);
 
     const inputGetDiv = useMemo(() => {
       let ret = 'sm-input';

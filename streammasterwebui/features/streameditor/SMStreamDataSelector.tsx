@@ -1,4 +1,3 @@
-import { useSMStreamM3UColumnConfig } from '@components/columns/SMStreams/useSMStreamM3UColumnConfig';
 import M3UFilesButton from '@components/m3u/M3UFilesButton';
 import SMButton from '@components/sm/SMButton';
 import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
@@ -6,15 +5,16 @@ import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamVisibleDialog from '@components/smstreams/StreamVisibleDialog';
+import { useSMStreamM3UColumnConfig } from '@components/smstreams/columns/useSMStreamM3UColumnConfig';
 import { GetMessage } from '@lib/common/intl';
 import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectedSMStreams } from '@lib/redux/hooks/selectedSMStreams';
 
-import { useSMStreamChannelGroupColumnConfig } from '@components/columns/SMStreams/useSMStreamChannelGroupColumnConfig';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import DeleteSMStreamDialog from '@components/smstreams/DeleteSMStreamDialog';
 import EditSMStreamDialog from '@components/smstreams/EditSMStreamDialog';
+import { useSMStreamChannelGroupColumnConfig } from '@components/smstreams/columns/useSMStreamChannelGroupColumnConfig';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
@@ -25,7 +25,6 @@ import SimpleButton from '../../components/buttons/SimpleButton';
 import SMStreamMenu from './SMStreamMenu';
 import useSelectedSMItems from './useSelectedSMItems';
 
-// const SMDataTable = lazy(() => import('@components/smDataTable/SMDataTable'));
 interface SMStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
   readonly id: string;
@@ -66,11 +65,11 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'Name', filter: true, sortable: true, width: '16rem' },
+      { field: 'Name', filter: true, sortable: true, width: 300 },
       groupColumnConfig,
       smStreamM3UColumnConfig,
-      { field: 'M3UFileId', fieldType: 'filterOnly', filter: true },
-      { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: '5rem' }
+      { field: 'M3UFileId', fieldType: 'filterOnly' },
+      { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', maxWidth: '5rem' }
     ],
     [actionTemplate, groupColumnConfig, smStreamM3UColumnConfig]
   );

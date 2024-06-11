@@ -6,5 +6,5 @@ export const useSMChannelNumberColumnConfig = createSMChannelMultiSelectColumnCo
   EditorComponent: SMChannelNumberEditor,
   headerTitle: '#',
   sortable: true,
-  width: '3rem'
+  width: 40
 });

@@ -21,10 +21,10 @@ import {
 import { Logger } from '@lib/common/logger';
 import { BlockUI } from 'primereact/blockui';
 import { CSSProperties, ReactNode, SyntheticEvent, forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { CombinedProvider } from './Context/CombinedContext';
+import { SMOverlayProperties } from './Interfaces/SMOverlayProperties';
 import SMButton from './SMButton';
 import { SMCard } from './SMCard';
-import { CombinedProvider } from './context/CombinedContext';
-import { SMOverlayProperties } from './interfaces/SMOverlayProperties';
 
 export interface SMOverlayRef {
   hide: () => void;
@@ -170,6 +170,7 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
           label={props.buttonLabel}
           getReferenceProps={getReferenceProps}
           refs={refs}
+          {...props}
         >
           {props.buttonTemplate}
         </SMButton>

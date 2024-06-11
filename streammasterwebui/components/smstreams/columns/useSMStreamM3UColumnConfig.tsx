@@ -49,7 +49,7 @@ export const useSMStreamM3UColumnConfig = ({ className = 'sm-w-7rem sm-scroller-
     }
 
     return (
-      <div className="sm-channelgroup-selector sm-w-12rem ">
+      <div className="sm-channelgroup-selector">
         <div className="text-container">{option.Name}</div>
       </div>
     );
@@ -96,7 +96,6 @@ export const useSMStreamM3UColumnConfig = ({ className = 'sm-w-7rem sm-scroller-
           itemTemplate={itemTemplate}
           filter
           filterBy="Name"
-          fixed
           // onChange={async (e: any) => {
           //   if (isEmptyObject(e) || !Array.isArray(e)) {
           //     // options.filterApplyCallback();
@@ -118,7 +117,7 @@ export const useSMStreamM3UColumnConfig = ({ className = 'sm-w-7rem sm-scroller-
     filterElement: filterTemplate,
     header: 'M3UFileName',
     sortable: true,
-    width: '8rem'
+    width: 125
   };
 
   return columnConfig;

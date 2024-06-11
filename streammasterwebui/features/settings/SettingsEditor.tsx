@@ -111,8 +111,8 @@ export const SettingsEditor = () => {
         </ScrollPanel>
         <div className="flex mt-2 justify-content-center align-items-end">
           <div className="flex justify-content-center align-items-center gap-1">
-            <SaveButton disabled={!isSaveEnabled} onClick={onSave} iconFilled label="Save" />
-            <ResetButton disabled={!isSaveEnabled} onClick={resetData} iconFilled label="Reset" />
+            <SaveButton buttonDisabled={!isSaveEnabled} onClick={onSave} iconFilled label="Save" />
+            <ResetButton buttonDisabled={!isSaveEnabled} onClick={resetData} iconFilled label="Reset" />
           </div>
         </div>
       </div>

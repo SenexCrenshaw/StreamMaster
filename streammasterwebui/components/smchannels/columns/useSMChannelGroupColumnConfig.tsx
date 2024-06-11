@@ -1,19 +1,21 @@
-import ChannelGroupSelector from '@components/channelGroups/ChannelGroupSelector';
+import ChannelGroupSelectorForSMChannels from '@components/channelGroups/ChannelGroupSelectorForSMChannels';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { arraysEqual } from '@lib/common/common';
 import useSelectedAndQ from '@lib/hooks/useSelectedAndQ';
 import { useFilters } from '@lib/redux/hooks/filters';
+import { SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { DataTableFilterMetaData } from 'primereact/datatable';
 import { ReactNode, useMemo } from 'react';
+import SMChannelGroupEditor from './SMChannelGroupEditor';
 
-interface SMStreamGroupColumnConfigProperties {
+interface SMChannelGroupColumnConfigProperties {
   readonly dataKey: string;
-  readonly width?: string;
 }
-export const useSMStreamChannelGroupColumnConfig = ({ dataKey, width = '10rem' }: SMStreamGroupColumnConfigProperties) => {
+
+export const useSMChannelGroupColumnConfig = ({ dataKey }: SMChannelGroupColumnConfigProperties) => {
   const { filters, setFilters } = useFilters(dataKey);
-  const { selectedItems } = useSelectedAndQ('useSMStreamChannelGroupColumnConfig');
+  const { selectedItems } = useSelectedAndQ('useSMChannelGroupColumnConfig');
 
   const columnConfig: ColumnMeta = useMemo(() => {
     const updateFilters = () => {
@@ -26,11 +28,14 @@ export const useSMStreamChannelGroupColumnConfig = ({ dataKey, width = '10rem' }
         }
       } else {
         const names = selectedItems.map((x) => x.Name);
-        const newFilter = { ...filters };
-        const a = newFilter['Group'] as DataTableFilterMetaData;
-        if (!filters['Group'] || !arraysEqual(a.value, names)) {
-          newFilter['Group'] = { matchMode: 'contains', value: names };
-          setFilters(newFilter);
+
+        if (filters['Group']) {
+          const newFilter = { ...filters };
+          const a = newFilter['Group'] as DataTableFilterMetaData;
+          if (!arraysEqual(a.value, names)) {
+            newFilter['Group'] = { matchMode: 'contains', value: names };
+            setFilters(newFilter);
+          }
         }
       }
     };
@@ -39,8 +44,8 @@ export const useSMStreamChannelGroupColumnConfig = ({ dataKey, width = '10rem' }
 
     function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
       return (
-        <ChannelGroupSelector
-          dataKey="useSMStreamChannelGroupColumnConfig"
+        <ChannelGroupSelectorForSMChannels
+          dataKey="useSMChannelGroupColumnConfig"
           fixed
           onChange={(e) => {
             if (e) {
@@ -51,17 +56,24 @@ export const useSMStreamChannelGroupColumnConfig = ({ dataKey, width = '10rem' }
       );
     }
 
-    const columnConfig: ColumnMeta = {
+    const bodyTemplate = (smChannelDto: SMChannelDto) => {
+      return (
+        <div className="flex align-content-center justify-content-center">
+          <SMChannelGroupEditor fixed smChannelDto={smChannelDto} />
+        </div>
+      );
+    };
+
+    return {
       align: 'left',
+      bodyTemplate: bodyTemplate,
       field: 'Group',
       filter: true,
       filterElement: filterTemplate,
       header: 'Group',
       sortable: true,
-      width: '12rem'
-    };
-
-    return columnConfig;
+      width: 125
+    } as ColumnMeta;
   }, [filters, selectedItems, setFilters]);
 
   return columnConfig;

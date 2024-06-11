@@ -68,7 +68,7 @@ function useScrollAndKeyEvents(): UseScrollAndKeyEventsResult {
       eventManager.removeEventListener('wheel', handleWheelEvent);
       eventManager.removeEventListener('mousewheel', handleMouseWheelEvent);
     };
-  }, []);
+  }, [eventManager]);
 
   return eventData;
 }

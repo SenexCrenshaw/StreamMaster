@@ -85,21 +85,22 @@ div[aria-haspopup="dialog"] {
 }
 
 .stringeditor {
-    align-items: center;
+    // align-items: center;
     background-color: transparent;
     // border-color: transparent;
     // border-radius: $borderRadius;
     // border-style: solid;
     // border-width: $inputBorder-size;
     color: $textColor;
-    display: flex;
-    justify-content: space-between;
+    // display: flex;
+    // justify-content: space-between;
     position: relative;
-    width: 100%;
+    // width: 100%;
+
 
     .p-inputtext {
-        border: unset;
-
+        // border: unset;
+        @extend .sm-hover;
     }
 
 
@@ -115,7 +116,7 @@ div[aria-haspopup="dialog"] {
 
     .sm-input {
         @extend .text-container;
-        @extend .sm-hover;
+
         background-color: transparent;
         color: $inputTextColor;
         height: $input-height-with-no-borders;

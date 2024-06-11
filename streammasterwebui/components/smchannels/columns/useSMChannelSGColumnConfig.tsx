@@ -1,6 +1,6 @@
-import SMChannelSGEditor from '@components/columns/SMChannel/SMChannelSGEditor';
 import { SMTriSelectShowSG } from '@components/sm/SMTriSelectShowSG';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import SMChannelSGEditor from '@components/smchannels/columns/SMChannelSGEditor';
 import { AdditionalFilterProperties } from '@lib/common/common';
 import { useQueryAdditionalFilters } from '@lib/redux/hooks/queryAdditionalFilters';
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';

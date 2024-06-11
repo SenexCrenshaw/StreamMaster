@@ -73,9 +73,9 @@ export interface ColumnMeta {
    * The inline style for the column.
    */
   style?: CSSProperties;
-  width?: string;
+  width?: string | number;
   removed?: boolean;
   removable?: boolean;
-  maxWidth?: string;
-  minWidth?: string;
+  maxWidth?: string | number;
+  minWidth?: string | number;
 }

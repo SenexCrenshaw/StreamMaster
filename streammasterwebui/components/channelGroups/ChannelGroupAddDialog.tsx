@@ -1,10 +1,10 @@
+import StringEditor from '@components/inputs/StringEditor';
 import { SMDialogRef } from '@components/sm/SMDialog';
+import { SMPopUp } from '@components/sm/SMPopUp';
+import { Logger } from '@lib/common/logger';
+import { CreateChannelGroup } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
 import { CreateChannelGroupRequest } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useMemo, useRef, useState, type FC } from 'react';
-
-import StringEditor from '@components/inputs/StringEditor';
-import { SMPopUp } from '@components/sm/SMPopUp';
-import { CreateChannelGroup } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
 
 const ChannelGroupAddDialog: FC = () => {
   const [newGroupName, setNewGroupName] = useState<string>('');
@@ -66,7 +66,10 @@ const ChannelGroupAddDialog: FC = () => {
             label="Name"
             labelInline
             onChange={(e) => e !== undefined && setNewGroupName(e)}
-            onSave={(e) => addGroup()}
+            onSave={(e) => {
+              addGroup();
+              Logger.debug('onSave', e);
+            }}
             value={newGroupName}
           />
         </div>

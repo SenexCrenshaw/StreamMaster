@@ -82,7 +82,7 @@ const ChannelGroupDeleteDialog = ({ id, onClose, value }: ChannelGroupDeleteDial
     if (value) {
       return (
         <div>
-          Delete <div className="text-container sm-w-12rem">{value.Name}</div> Channel Group?
+          Delete <div className="text-container">{value.Name}</div> Channel Group?
         </div>
       );
     }

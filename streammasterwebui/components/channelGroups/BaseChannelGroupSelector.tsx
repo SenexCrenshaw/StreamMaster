@@ -21,7 +21,7 @@ type BaseChannelGroupSelectorProps = {
   readonly onChange?: (value: ChannelGroupDto[]) => void;
   readonly useSelectedItemsFilter?: boolean;
   readonly value?: string;
-  readonly fixed?: boolean;
+  readonly autoPlacement?: boolean;
   getNamesQuery: () => ReturnType<QueryHook<ChannelGroupDto[]>>;
 };
 
@@ -30,10 +30,10 @@ const BaseChannelGroupSelector = memo(
     enableEditMode = true,
     dataKey,
     label,
-    fixed = false,
+    autoPlacement = false,
     onChange,
     useSelectedItemsFilter,
-    className = 'sm-w-12rem',
+    className = '',
     value,
     getNamesQuery
   }: BaseChannelGroupSelectorProps) => {
@@ -62,7 +62,7 @@ const BaseChannelGroupSelector = memo(
           }
         }
         return (
-          <div className="sm-channelgroup-selector ">
+          <div className="sm-channelgroup-selector">
             <div className="text-container">{input}</div>
           </div>
         );
@@ -195,7 +195,7 @@ const BaseChannelGroupSelector = memo(
             buttonLabel="GROUP"
             buttonTemplate={buttonTemplate}
             contentWidthSize="3"
-            autoPlacement={fixed}
+            autoPlacement={autoPlacement}
             header={headerRightTemplate}
             icon="pi-chevron-down"
             isLoading={loading}

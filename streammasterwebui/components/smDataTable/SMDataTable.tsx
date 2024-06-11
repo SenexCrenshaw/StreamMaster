@@ -31,7 +31,8 @@ import getHeader from './helpers/getHeader';
 import getRecord from './helpers/getRecord';
 
 import { useSMContext } from '@lib/signalr/SMProvider';
-import { getColumnClassNames } from './helpers/getColumnClassNames';
+
+import { getColumnStyles } from './helpers/getColumnStyles';
 import isPagedResponse from './helpers/isPagedResponse';
 import useSMDataSelectorValuesState from './hooks/useSMDataTableState';
 import { useSetQueryFilter } from './hooks/useSetQueryFilter';
@@ -394,9 +395,9 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 
       if (col.filterElement) {
         return (
-          <div className={`flex flex-row ${justify}`}>
-            {col.filterElement(options)}
-            {col.sortable === true && sortButton(options)}
+          <div className={`flex flex-row ${justify} max-w-full border-1 border-red-400 flex-grow-0 overflow-hidden`}>
+            <div className="max-w-full flex-grow-0 overflow-hidden text-overflow-ellipsis">{col.filterElement(options)}</div>
+            <div className="max-w-full flex-grow-0 overflow-hidden text-overflow-ellipsis">{col.sortable === true && sortButton(options)}</div>
           </div>
         );
       }
@@ -710,7 +711,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         >
           <Column
             body={props.addOrRemoveTemplate}
-            className="sm-w-2rem"
+            // className="sm-w-2rem"
             field="addOrRemove"
             filter
             filterElement={props.addOrRemoveHeaderTemplate}
@@ -718,10 +719,11 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             showFilterMenu={false}
             showFilterOperator={false}
             resizeable={false}
+            style={getColumnStyles({ width: '2rem' } as ColumnMeta)}
           />
 
           <Column
-            className="sm-w-2rem"
+            // className="sm-w-2rem"
             filterElement={getExpanderHeader}
             filter={props.expanderHeader !== undefined}
             hidden={!props.showExpand || props.rowExpansionTemplate === undefined}
@@ -729,10 +731,10 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             showFilterOperator={false}
             resizeable={false}
             expander
+            style={getColumnStyles({ width: '2rem' } as ColumnMeta)}
           />
           <Column
             body={showSelection ? selectionTemplate : undefined}
-            className={props.showHiddenInSelection ? 'sm-w-3rem' : 'sm-w-2rem'}
             field="multiSelect"
             filter
             filterElement={selectionHeaderTemplate}
@@ -741,6 +743,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             showFilterMenu={false}
             showFilterOperator={false}
             hidden={!showSelection}
+            style={getColumnStyles({ width: props.showHiddenInSelection ? '3rem' : '2rem' } as ColumnMeta)}
           />
           <Column
             body={
@@ -752,7 +755,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             }
             filter
             filterElement={getRowExpanderHeader}
-            className="w-2rem"
             hidden={!props.reorderable}
             rowReorderIcon="pi pi-equals"
             rowReorder
@@ -761,6 +763,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             showFilterMenu={false}
             showFilterOperator={false}
             bodyClassName={'flex justify-content-center align-items-center'}
+            style={getColumnStyles({ width: '30px' } as ColumnMeta)}
           />
           {props.columns &&
             props.columns
@@ -768,7 +771,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
               .map((col) => (
                 <Column
                   align={getAlign(col.align, col.fieldType)}
-                  className={getColumnClassNames(col)}
+                  // className={getColumnClassNames(col)}
                   filter
                   filterElement={col.headerTemplate ? col.headerTemplate : colFilterTemplate}
                   filterPlaceholder={col.filter === true ? (col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)) : undefined}
@@ -787,6 +790,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
                   showFilterMenuOptions
                   showFilterOperator
                   sortable={props.reorderable ? false : col.sortable}
+                  style={getColumnStyles(col)}
                 />
               ))}
         </DataTable>

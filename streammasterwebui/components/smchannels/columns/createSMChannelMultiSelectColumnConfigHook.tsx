@@ -15,12 +15,12 @@ interface ColumnConfigInputs {
   dataField: DataField;
   fieldType?: ColumnFieldType;
   headerTitle: string;
-  maxWidth?: string;
-  minWidth?: string;
+  maxWidth?: string | number;
+  minWidth?: string | number;
   queryHook?: QueryHook<string[]>;
   sortable?: boolean;
   useFilter?: boolean;
-  width?: string;
+  width?: string | number;
 }
 
 const createSMChannelMultiSelectColumnConfigHook =

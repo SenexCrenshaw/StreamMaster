@@ -7,5 +7,6 @@ export const useSMChannelLogoColumnConfig = createSMChannelMultiSelectColumnConf
   fieldType: 'image',
   headerTitle: 'Logo',
   sortable: false,
-  useFilter: false
+  useFilter: false,
+  width: 44
 });
