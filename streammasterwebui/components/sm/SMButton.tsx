@@ -22,7 +22,7 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
       iconFilled = false,
       isLeft = false,
       isLoading = false,
-      large = false,
+      buttonLarge = false,
       outlined = false,
       rounded = true,
       tooltip = '',
@@ -32,11 +32,11 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
   ) => {
     const tooltipClassName = React.useMemo(() => {
       const ret = `smbutton-${uuidv4()} width-100`;
-      if (large) {
+      if (buttonLarge) {
         return ret + ' sm-button-large';
       }
       return ret;
-    }, [large]);
+    }, [buttonLarge]);
 
     const getClassName = React.useMemo(() => {
       let toRet = 'sm-button';
@@ -97,7 +97,7 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
       if (buttonDarkBackground) {
         return (
           <div className="stringeditor">
-            <div className={large ? 'sm-input-dark-large' : 'sm-input-dark'}>
+            <div className={buttonLarge ? 'sm-input-dark-large' : 'sm-input-dark'}>
               <Tooltip target={`.${tooltipClassName}`} />
               <div
                 onClick={(e) => {

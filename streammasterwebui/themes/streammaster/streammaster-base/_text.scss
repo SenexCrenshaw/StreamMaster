@@ -153,8 +153,28 @@ div[aria-haspopup="dialog"] {
         width: 100%;
     }
 
-    .sm-input-dark-large {
+    .sm-input-dark-header {
+        @extend .sm-input-dark;
+
+    }
+
+    .sm-input-dark-header-large {
         @extend .icon-template-lg;
+        @extend .sm-hover-dark;
+        @extend .text-container;
+        background-color: $inputBg;
+        border-color: $inputBorderColor;
+        border-style: solid;
+        color: $inputTextColor;
+        display: flex;
+        height: $input-height;
+        max-height: $input-height;
+        min-height: $input-height;
+        width: 100%;
+    }
+
+    .sm-input-dark-large {
+        // @extend .icon-template-lg;
         @extend .sm-hover-dark;
         @extend .sm-input-border-dark;
         @extend .text-container;
@@ -164,6 +184,12 @@ div[aria-haspopup="dialog"] {
         color: $inputTextColor;
         display: flex;
         width: 100%;
+
+        img {
+            max-width: 6rem;
+            max-height: 4.6rem;
+            object-fit: contain;
+        }
     }
 
     .p-inputnumber-input {

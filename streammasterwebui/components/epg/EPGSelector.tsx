@@ -64,7 +64,7 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, isLoading, onCha
       throw new Error('Input string cannot be null or whitespace.');
     }
 
-    const regex = /^(\-?\d+)-(.*)/;
+    const regex = /^(-?\d+)-(.*)/;
     const matches = userTvgId.match(regex);
 
     if (!matches || matches.length !== 3) {
@@ -313,7 +313,7 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, isLoading, onCha
           <div className="col-10 m-0 p-0 pl-2">
             <StringEditor
               darkBackGround
-              disableDebounce={true}
+              disableDebounce
               placeholder="Custom Id"
               value={input}
               onChange={(value) => {
@@ -330,7 +330,7 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, isLoading, onCha
           </div>
           <div className="col-1 m-0 p-0">
             <AddButton
-              disabled={addDisabled}
+              buttonDisabled={addDisabled}
               tooltip="Add Custom Id"
               iconFilled
               onClick={(e) => {

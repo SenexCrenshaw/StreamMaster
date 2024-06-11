@@ -1028,7 +1028,7 @@
   background: rgba(188, 191, 191, 0.08);
 }
 .p-editor-container .p-editor-toolbar.ql-snow .ql-picker.ql-expanded:not(.ql-icon-picker) .ql-picker-item {
-  padding: 0.1rem 0.2rem;
+  padding: 0.2rem 0.2rem;
 }
 .p-editor-container .p-editor-content {
   border-bottom-right-radius: 6px;
@@ -1194,7 +1194,7 @@
   }
   .p-autocomplete-panel .p-autocomplete-items .p-autocomplete-item {
     margin: 0 0 4px 0;
-    padding: 0.1rem 0.2rem;
+    padding: 0.2rem 0.2rem;
     border: 0 none;
     color: rgba(255, 255, 255, 0.87);
     background: transparent;
@@ -1494,7 +1494,7 @@
     border-radius: 6px;
   }
   .p-cascadeselect-panel .p-cascadeselect-items .p-cascadeselect-item .p-cascadeselect-item-content {
-    padding: 0.1rem 0.2rem;
+    padding: 0.2rem 0.2rem;
   }
   .p-cascadeselect-panel .p-cascadeselect-items .p-cascadeselect-item .p-cascadeselect-item-content:focus {
     outline: 0 none;
@@ -1895,7 +1895,7 @@
   }
   .p-dropdown-panel .p-dropdown-items .p-dropdown-item {
     margin: 0 0 4px 0;
-    padding: 0.1rem 0.2rem;
+    padding: 0.2rem 0.2rem;
     border: 0 none;
     color: rgba(255, 255, 255, 0.87);
     background: transparent;
@@ -1932,7 +1932,7 @@
     font-weight: 600;
   }
   .p-dropdown-panel .p-dropdown-items .p-dropdown-empty-message {
-    padding: 0.1rem 0.2rem;
+    padding: 0.2rem 0.2rem;
     color: rgba(255, 255, 255, 0.87);
     background: transparent;
   }
@@ -2223,7 +2223,7 @@
   }
   .p-listbox .p-listbox-list .p-listbox-item {
     margin: 0 0 4px 0;
-    padding: 0.1rem 0.2rem;
+    padding: 0.2rem 0.2rem;
     border: 0 none;
     color: rgba(255, 255, 255, 0.87);
     transition: box-shadow 0.3s;
@@ -2247,7 +2247,7 @@
     font-weight: 600;
   }
   .p-listbox .p-listbox-list .p-listbox-empty-message {
-    padding: 0.1rem 0.2rem;
+    padding: 0.2rem 0.2rem;
     color: rgba(255, 255, 255, 0.87);
     background: transparent;
   }
@@ -2287,7 +2287,7 @@
   }
   .p-mention-panel .p-mention-items .p-mention-item {
     margin: 0 0 4px 0;
-    padding: 0.1rem 0.2rem;
+    padding: 0.2rem 0.2rem;
     border: 0 none;
     color: rgba(255, 255, 255, 0.87);
     background: transparent;
@@ -2496,7 +2496,7 @@
   }
   .p-multiselect-panel .p-multiselect-items .p-multiselect-item {
     margin: 0 0 4px 0;
-    padding: 0.1rem 0.2rem;
+    padding: 0.2rem 0.2rem;
     border: 0 none;
     color: rgba(255, 255, 255, 0.87);
     background: transparent;
@@ -2531,7 +2531,7 @@
     font-weight: 600;
   }
   .p-multiselect-panel .p-multiselect-items .p-multiselect-empty-message {
-    padding: 0.1rem 0.2rem;
+    padding: 0.2rem 0.2rem;
     color: rgba(255, 255, 255, 0.87);
     background: transparent;
   }
@@ -2895,7 +2895,7 @@
     border: 0 none;
   }
   .p-treeselect-panel .p-treeselect-items-wrapper .p-treeselect-empty-message {
-    padding: 0.1rem 0.2rem;
+    padding: 0.2rem 0.2rem;
     color: rgba(255, 255, 255, 0.87);
     background: transparent;
   }
@@ -4486,7 +4486,7 @@
   }
   .p-column-filter-overlay .p-column-filter-row-items .p-column-filter-row-item {
     margin: 0 0 4px 0;
-    padding: 0.1rem 0.2rem;
+    padding: 0.2rem 0.2rem;
     border: 0 none;
     color: rgba(255, 255, 255, 0.87);
     background: transparent;
@@ -4577,7 +4577,7 @@
     outline: 0 none;
   }
   .p-orderlist .p-orderlist-list .p-orderlist-item {
-    padding: 0.1rem 0.2rem;
+    padding: 0.2rem 0.2rem;
     margin: 0 0 4px 0;
     border: 0 none;
     color: rgba(255, 255, 255, 0.87);
@@ -4762,7 +4762,7 @@
     outline: 0 none;
   }
   .p-picklist .p-picklist-list .p-picklist-item {
-    padding: 0.1rem 0.2rem;
+    padding: 0.2rem 0.2rem;
     margin: 0 0 4px 0;
     border: 0 none;
     color: rgba(255, 255, 255, 0.87);
@@ -7749,10 +7749,10 @@
   border-color: rgba(255, 255, 255, 0.5);
 }
 
-.sm-hover-dark, .stringeditor .sm-input-dark-large, .stringeditor .sm-input-dark, .sm-iconselector {
+.sm-hover-dark, .stringeditor .sm-input-dark-large, .stringeditor .sm-input-dark-header-large, .stringeditor .sm-input-dark, .stringeditor .sm-input-dark-header, .sm-iconselector {
   transition: border-color 0.15s;
 }
-.sm-hover-dark:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-large:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark:not(.p-disabled):hover:not(:focus), .sm-iconselector:not(.p-disabled):hover:not(:focus) {
+.sm-hover-dark:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-large:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-header-large:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-header:not(.p-disabled):hover:not(:focus), .sm-iconselector:not(.p-disabled):hover:not(:focus) {
   border-color: #bcbfbf !important;
   border-radius: 6px !important;
   border-style: solid !important;
@@ -7789,14 +7789,14 @@
   color: #bcbfbf !important;
 }
 
-.sm-input-border-dark, .p-chips .p-chips-input-token input, .stringeditor .sm-input-dark-large, .stringeditor .sm-input-dark {
+.sm-input-border-dark, .p-chips .p-chips-input-token input, .stringeditor .sm-input-dark-large, .stringeditor .sm-input-dark, .stringeditor .sm-input-dark-header {
   border-radius: 6px !important;
   border-color: #263238 !important;
   border-width: 0.1rem !important;
   border-style: solid !important;
   transition: border-color 0.15s;
 }
-.sm-input-border-dark:not(.p-disabled):hover:not(:focus), .p-chips .p-chips-input-token input:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-large:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark:not(.p-disabled):hover:not(:focus) {
+.sm-input-border-dark:not(.p-disabled):hover:not(:focus), .p-chips .p-chips-input-token input:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-large:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-header:not(.p-disabled):hover:not(:focus) {
   border-color: #bcbfbf !important;
   border-radius: 6px !important;
   border-style: solid !important;
@@ -8073,7 +8073,7 @@ div[aria-haspopup=dialog] {
 .stringeditor .sm-input .p-inputnumber-input:focus-visible {
   background-color: #12181b;
 }
-.stringeditor .sm-input-dark {
+.stringeditor .sm-input-dark, .stringeditor .sm-input-dark-header {
   background-color: #12181b;
   border-color: #263238;
   border-style: solid;
@@ -8084,6 +8084,17 @@ div[aria-haspopup=dialog] {
   min-height: 1.4rem;
   width: 100%;
 }
+.stringeditor .sm-input-dark-header-large {
+  background-color: #12181b;
+  border-color: #263238;
+  border-style: solid;
+  color: #94abec;
+  display: flex;
+  height: 1.6rem;
+  max-height: 1.6rem;
+  min-height: 1.6rem;
+  width: 100%;
+}
 .stringeditor .sm-input-dark-large {
   background-color: #12181b;
   border-color: #263238;
@@ -8091,6 +8102,11 @@ div[aria-haspopup=dialog] {
   color: #94abec;
   display: flex;
   width: 100%;
+}
+.stringeditor .sm-input-dark-large img {
+  max-width: 6rem;
+  max-height: 4.6rem;
+  object-fit: contain;
 }
 .stringeditor .p-inputnumber-input {
   color: #bcbfbf;
@@ -8131,7 +8147,7 @@ div[aria-haspopup=dialog] {
   color: #bcbfbf;
 }
 
-.text-container, .stringeditor .sm-input, .stringeditor .sm-input-dark, .stringeditor .sm-input-dark-large {
+.text-container, .stringeditor .sm-input, .stringeditor .sm-input-dark, .stringeditor .sm-input-dark-header, .stringeditor .sm-input-dark-header-large, .stringeditor .sm-input-dark-large {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -8774,10 +8790,7 @@ div[aria-haspopup=dialog] {
   border-radius: 0;
   border: 0 none;
   color: rgba(255, 255, 255, 0.87);
-  height: 1.4rem;
-  max-height: 1.4rem;
-  min-height: 1.4rem;
-  padding: 0.1rem 0.2rem;
+  padding: 0.2rem 0.2rem;
   transition: box-shadow 0.3s;
 }
 .sm-scroller-item:first-child {
@@ -9365,7 +9378,7 @@ div[aria-haspopup=dialog] {
   object-fit: contain;
 }
 
-.icon-template-lg, .stringeditor .sm-input-dark-large {
+.icon-template-lg, .stringeditor .sm-input-dark-header-large {
   padding: 0.25rem !important;
   max-height: 4.6rem;
   height: 5rem;
@@ -9374,7 +9387,7 @@ div[aria-haspopup=dialog] {
   align-items: center;
   border-right: 1px solid #263238;
 }
-.icon-template-lg img, .stringeditor .sm-input-dark-large img {
+.icon-template-lg img, .stringeditor .sm-input-dark-header-large img {
   max-width: 6rem;
   max-height: 4.6rem;
   object-fit: contain;
@@ -9584,7 +9597,7 @@ input.p-dropdown-label {
 }
 .p-dropdown-panel .p-dropdown-items .p-dropdown-item {
   margin: 0 0 4px 0;
-  padding: 0.1rem 0.2rem;
+  padding: 0.2rem 0.2rem;
   border: 0 none;
   color: rgba(255, 255, 255, 0.87);
   background: transparent;
@@ -9621,7 +9634,7 @@ input.p-dropdown-label {
   font-weight: 600;
 }
 .p-dropdown-panel .p-dropdown-items .p-dropdown-empty-message {
-  padding: 0.1rem 0.2rem;
+  padding: 0.2rem 0.2rem;
   color: rgba(255, 255, 255, 0.87);
   background: transparent;
 }

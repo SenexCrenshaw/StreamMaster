@@ -1,16 +1,12 @@
-import { memo, useMemo, useRef } from 'react';
-
-import SMButton from '@components/sm/SMButton';
-
+import SMOverlay from '@components/sm/SMOverlay';
 import AutoSetEPGSMChannelDialog from '@components/smchannels/AutoSetEPGSMChannelDialog';
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
-import { OverlayPanel } from 'primereact/overlaypanel';
+import { memo, useMemo } from 'react';
 import AutoSetSMChannelNumbersDialog from '../../components/smchannels/AutoSetSMChannelNumbersDialog';
 
 export interface SChannelMenuProperties {}
 
 const SMChannelMenu = () => {
-  const op = useRef<OverlayPanel>(null);
   const { selectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
 
   const isStreamGroupSelected = useMemo(() => {
@@ -18,26 +14,12 @@ const SMChannelMenu = () => {
   }, [selectedStreamGroup]);
 
   return (
-    <>
-      <OverlayPanel className="sm-overlay" ref={op}>
-        <div className="sm-channel-menu">
-          <AutoSetSMChannelNumbersDialog disabled={!isStreamGroupSelected} />
-          <div className="pt-1"></div>
-          <AutoSetEPGSMChannelDialog />
-        </div>
-      </OverlayPanel>
-      <SMButton
-        buttonClassName="icon-orange"
-        iconFilled
-        icon="pi-bars"
-        rounded
-        onClick={(event) => {
-          op.current?.toggle(event);
-        }}
-        aria-controls="popup_menu_right"
-        aria-haspopup
-      />
-    </>
+    <SMOverlay placement="bottom" icon="pi-bars" iconFilled buttonClassName="icon-orange" contentWidthSize="11rem">
+      <div className="sm-channel-menu gap-2">
+        <AutoSetSMChannelNumbersDialog disabled={!isStreamGroupSelected} />
+        <AutoSetEPGSMChannelDialog />
+      </div>
+    </SMOverlay>
   );
 };
 

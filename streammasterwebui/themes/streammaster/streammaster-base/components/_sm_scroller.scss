@@ -20,9 +20,11 @@
     border-radius: 0; // $inputListItemBorderRadius;
     border: $inputListItemBorder;
     color: $inputListItemTextColor;
-    height: $input-height-with-no-borders;
-    max-height: $input-height-with-no-borders;
-    min-height: $input-height-with-no-borders;
+
+    // height: $input-height-with-no-borders;
+    // max-height: $input-height-with-no-borders;
+    // min-height: $input-height-with-no-borders;
+
     padding: $inputListItemPadding;
     transition: $listItemTransition;
 

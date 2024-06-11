@@ -36,30 +36,36 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
       {
         field: 'Name',
         filter: true,
-        sortable: true
+        sortable: true,
+        width: '13rem'
       },
       {
+        align: 'right',
         field: 'StreamCount',
-        header: '#'
+        header: '#',
+        width: '3rem'
       },
       {
         field: 'Url',
-        fieldType: 'url'
+        fieldType: 'url',
+        width: '2rem'
       },
       {
         field: 'epglink',
-        fieldType: 'epglink'
+        fieldType: 'epglink',
+        width: '2rem'
       },
       {
         field: 'm3ulink',
-        fieldType: 'm3ulink'
+        fieldType: 'm3ulink',
+        width: '2rem'
       },
       {
         align: 'center',
         bodyTemplate: actionTemplate,
         field: 'autoUpdate',
         header: 'Actions',
-        width: '6rem'
+        width: '4rem'
       }
     ],
     [actionTemplate]

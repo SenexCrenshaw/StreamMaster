@@ -18,17 +18,14 @@ export const StreamGroupSelector = ({ onChange, selectedStreamGroup }: StreamGro
   };
 
   const buttonTemplate = useMemo(() => {
-    return (
-      <div className="sm-epg-selector">
-        <div className="text-container">{selectedStreamGroup?.Name ?? 'Select Stream Group'}</div>
-      </div>
-    );
+    return <div className="text-container ">{selectedStreamGroup?.Name ?? 'Select Stream Group'}</div>;
   }, [selectedStreamGroup?.Name]);
 
   return (
     <SMDropDown
       buttonDarkBackground
       buttonTemplate={buttonTemplate}
+      buttonLarge
       data={data}
       dataKey="Id"
       isLoading={isLoading}

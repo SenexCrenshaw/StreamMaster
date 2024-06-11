@@ -9,7 +9,7 @@ type IconSelectorProperties = {
   readonly className?: string;
   readonly darkBackGround?: boolean;
   readonly enableEditMode?: boolean;
-  readonly fixed?: boolean;
+  readonly autoPlacement?: boolean;
   readonly label?: string;
   readonly large?: boolean;
   readonly value?: string;
@@ -20,7 +20,7 @@ const IconSelector = ({
   className,
   darkBackGround = false,
   enableEditMode = true,
-  fixed = false,
+  autoPlacement = false,
   label,
   large = false,
   value,
@@ -94,7 +94,7 @@ const IconSelector = ({
 
     return (
       <div className="w-full flex flex-row align-items-center justify-content-between p-row-odd">
-        <div className="flex flex-row align-items-center h-32 p-row-odd">
+        <div className="flex flex-row align-items-center p-row-odd">
           <img
             className="icon-template"
             src={iconUrl}
@@ -160,7 +160,8 @@ const IconSelector = ({
           dataKey="Source"
           filter
           filterBy="Source"
-          fixed={fixed}
+          autoPlacement={autoPlacement}
+          itemSize={32}
           itemTemplate={itemTemplate}
           onChange={(e) => {
             handleOnChange(e);

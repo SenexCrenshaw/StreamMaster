@@ -99,7 +99,7 @@ const SMChannelSGEditor = ({ smChannel, enableEditMode }: SMChannelSGEditorPrope
   if (selectedStreamGroup.Name === 'ALL') {
     return (
       <div className="flex justify-content-center align-items-center">
-        <SGRemoveButton disabled tooltip="ALL SG" />
+        <SGRemoveButton buttonDisabled tooltip="ALL SG" />
       </div>
     );
   }

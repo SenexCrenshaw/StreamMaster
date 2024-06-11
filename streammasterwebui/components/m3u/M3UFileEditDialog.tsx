@@ -3,7 +3,7 @@ import ResetButton from '@components/buttons/ResetButton';
 import { SMDialogRef } from '@components/sm/SMDialog';
 import SMPopUp from '@components/sm/SMPopUp';
 import { M3UFileDto } from '@lib/smAPI/smapiTypes';
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import M3UFileDialog, { M3UFileDialogRef } from './M3UFileDialog';
 
 interface M3UFileEditDialogProperties {
@@ -11,17 +11,17 @@ interface M3UFileEditDialogProperties {
 }
 
 const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
-  const defaultValues = useMemo(
-    () =>
-      ({
-        HoursToUpdate: 72,
-        MaxStreamCount: 1,
-        Name: '',
-        OverwriteChannelNumbers: true,
-        StartingChannelNumber: 1
-      } as M3UFileDto),
-    []
-  );
+  // const defaultValues = useMemo(
+  //   () =>
+  //     ({
+  //       HoursToUpdate: 72,
+  //       MaxStreamCount: 1,
+  //       Name: '',
+  //       OverwriteChannelNumbers: true,
+  //       StartingChannelNumber: 1
+  //     } as M3UFileDto),
+  //   []
+  // );
 
   const m3uDialogRef = useRef<M3UFileDialogRef>(null);
   const smDialogRef = useRef<SMDialogRef>(null);
@@ -39,6 +39,10 @@ const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
 
     return;
   }, [selectedFile]);
+
+  if (selectedFile === undefined) {
+    return null;
+  }
 
   return (
     <SMPopUp

@@ -13,7 +13,7 @@ const EditSMStreamDialog = ({ smStreamDto }: EditSMStreamDialogProperties) => {
   const [saveEnabled, setSaveEnabled] = useState<boolean>(false);
   const smChannelDialogRef = useRef<SMChannelDialogRef>(null);
 
-  const ReturnToParent = React.useCallback(() => {}, []);
+  // const ReturnToParent = React.useCallback(() => {}, []);
 
   const onSave = React.useCallback(
     (request: any) => {
@@ -25,9 +25,7 @@ const EditSMStreamDialog = ({ smStreamDto }: EditSMStreamDialogProperties) => {
         .catch((e: any) => {
           console.error(e);
         })
-        .finally(() => {
-          // smChannelDialogRef.current?.hide();
-        });
+        .finally(() => {});
     },
     [smStreamDto.Id]
   );
@@ -35,6 +33,7 @@ const EditSMStreamDialog = ({ smStreamDto }: EditSMStreamDialogProperties) => {
   return (
     <SMPopUp
       buttonClassName="icon-yellow"
+      buttonDisabled={smStreamDto === undefined || smStreamDto.IsUserCreated === false}
       contentWidthSize="5"
       icon="pi-pencil"
       modal
@@ -54,40 +53,6 @@ const EditSMStreamDialog = ({ smStreamDto }: EditSMStreamDialogProperties) => {
         smStreamDto={smStreamDto}
       />
     </SMPopUp>
-
-    // <SMDialog
-    //   darkBackGround
-    //   buttonDisabled={smStreamDto === undefined || smStreamDto.IsUserCreated === false}
-    //   ref={smDialogRef}
-    //   position="top-right"
-    //   title="EDIT STREAM"
-    //   onHide={() => ReturnToParent()}
-    //   buttonClassName="icon-yellow"
-    //   icon="pi-pencil"
-    //   widthSize={5}
-    //   tooltip="Edit Stream"
-    //   header={
-    //     <div className="flex w-12 gap-1 justify-content-end align-content-center">
-    //       <OKButton
-    //         buttonDisabled={!saveEnabled}
-    //         onClick={(request) => {
-    //           m3uDialogRef.current?.save();
-    //           smDialogRef.current?.hide();
-    //         }}
-    //       />
-    //     </div>
-    //   }
-    // >
-    //   <SMStreamDialog
-    //     ref={m3uDialogRef}
-    //     onSave={onSave}
-    //     onSaveEnabled={(e) => {
-    //       setSaveEnabled(e);
-    //       // Logger.debug('EditSMStreamDialog.onSaveEnabled', e);
-    //     }}
-    //     smStreamDto={smStreamDto}
-    //   />
-    // </SMDialog>
   );
 };
 

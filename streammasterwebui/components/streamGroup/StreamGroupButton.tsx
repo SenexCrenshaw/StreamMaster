@@ -33,7 +33,7 @@ const StreamGroupButton = ({ className = 'sm-w-10rem' }: StreamGroupButtonProper
           contentWidthSize="4"
           icon="pi-file-edit"
           iconFilled
-          buttonClassName="w-4rem icon-sg"
+          buttonClassName="sm-w-4rem icon-sg"
           buttonLabel="SG"
           header={<StreamGroupCreateDialog />}
         >
