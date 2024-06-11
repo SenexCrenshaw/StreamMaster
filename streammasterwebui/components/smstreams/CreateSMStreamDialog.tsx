@@ -37,9 +37,10 @@ const CreateSMStreamDialog = ({ label }: CreateSMStreamDialogProperties) => {
     <SMPopUp
       buttonClassName="icon-green"
       contentWidthSize="5"
+      hollow
       icon="pi-plus"
       iconFilled
-      label={label}
+      buttonLabel={label}
       modal
       okButtonDisabled={!saveEnabled}
       onOkClick={() => smChannelDialogRef.current?.save()}

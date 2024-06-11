@@ -9,6 +9,7 @@ export interface SMButtonProperties extends SMModalProperties {
   readonly buttonLarge?: boolean;
   readonly buttonTemplate?: ReactNode;
   readonly color?: string;
+  readonly hollow?: boolean;
   readonly icon?: string;
   readonly iconFilled?: boolean;
   readonly isLoading?: boolean;
@@ -19,4 +20,6 @@ export interface SMButtonProperties extends SMModalProperties {
   readonly tooltip?: string;
   readonly isLeft?: boolean;
   readonly onClick?: (e: SyntheticEvent) => void;
+  getReferenceProps?: () => any;
+  readonly refs?: { setReference: React.Ref<any> };
 }

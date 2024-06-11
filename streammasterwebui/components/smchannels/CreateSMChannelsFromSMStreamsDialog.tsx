@@ -80,9 +80,10 @@ const CreateSMChannelsFromSMStreamsDialog = ({ id, label, onClose, selectedItems
     <SMPopUp
       buttonClassName="icon-green"
       buttonDisabled={getTotalCount < 1}
+      hollow
       icon="pi-building-columns"
       iconFilled
-      label={label}
+      buttonLabel="Stream to Channels"
       onOkClick={() => onOkClick()}
       showRemember={false}
       title="Create"

@@ -2,7 +2,7 @@ import { getLeftToolOptions, getRightToolOptions } from '@lib/common/common';
 import { Logger } from '@lib/common/logger';
 import { Button } from 'primereact/button';
 import { Tooltip } from 'primereact/tooltip';
-import { default as React, forwardRef, default as react, useMemo } from 'react';
+import { CSSProperties, default as React, forwardRef, default as react, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { SMButtonProperties } from './interfaces/SMButtonProperties';
 
@@ -15,14 +15,13 @@ interface InternalSMButtonProperties extends SMButtonProperties {
 const SMButton = forwardRef<Button, InternalSMButtonProperties>(
   (
     {
-      color = 'val(--primary-color-text)',
-      buttonClassName = '',
+      buttonClassName = 'icon-blue',
       buttonDarkBackground = false,
       buttonDisabled = false,
+      hollow = false,
       iconFilled = false,
       isLeft = false,
       isLoading = false,
-      label,
       large = false,
       outlined = false,
       rounded = true,
@@ -43,7 +42,7 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
       let toRet = 'sm-button';
       let cClass = buttonClassName;
 
-      if (label && label !== '' && !props.children) {
+      if (props.label && props.label !== '' && !props.children) {
         toRet += ' sm-button-with-label';
       } else {
         if (iconFilled === true) {
@@ -61,18 +60,38 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
       //   // /toRet += ' sm-hover';
       // }
       return toRet + ' ' + cClass + ' ' + tooltipClassName;
-    }, [buttonClassName, iconFilled, label, props.children, tooltipClassName]);
+    }, [buttonClassName, iconFilled, props.label, props.children, tooltipClassName]);
 
     const getStyle = useMemo(() => {
       return {
         // ...style,
-        color: color
+        color: props.color
       };
-    }, [color]);
+    }, [props.color]);
 
     const iconClass = useMemo(() => {
       return isLoading ? 'pi-spin pi-spinner' : 'pi ' + props.icon;
     }, [props.icon, isLoading]);
+
+    const getLabelColor = useMemo(() => {
+      if (buttonClassName.includes('red')) return 'var(--icon-red)';
+      if (buttonClassName.includes('orange')) return 'var(--icon-orange)';
+      if (buttonClassName.includes('green')) return 'var(--icon-green)';
+      if (buttonClassName.includes('blue')) return 'var(--icon-blue)';
+      return 'var(--icon-blue)'; // Default color
+    }, [buttonClassName]);
+
+    const getHollowStyle = useMemo((): CSSProperties => {
+      return props.label ? { borderColor: getLabelColor } : {};
+    }, [getLabelColor, props.label]);
+
+    const getDiv = useMemo(() => {
+      let divClass = 'flex align-items-center justify-content-center gap-1';
+      if (props.label) {
+        divClass += ' sm-menuitem';
+      }
+      return divClass;
+    }, [props.label]);
 
     if (props.children) {
       if (buttonDarkBackground) {
@@ -91,6 +110,8 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
                 data-pr-showdelay={400}
                 data-pr-hidedelay={100}
                 data-pr-autohide={true}
+                ref={props.modal === true && props.modalCentered === true ? undefined : props.refs?.setReference}
+                {...(!buttonDisabled && props.getReferenceProps ? props.getReferenceProps() : {})}
               >
                 {props.children}
                 <div className="pl-1" />
@@ -114,6 +135,8 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
             data-pr-showdelay={400}
             data-pr-hidedelay={100}
             data-pr-autohide={true}
+            ref={props.modal === true && props.modalCentered === true ? undefined : props.refs?.setReference}
+            {...(!buttonDisabled && props.getReferenceProps ? props.getReferenceProps() : {})}
           >
             {props.children}
             <i className={`input-icon ${iconClass}`} />
@@ -122,31 +145,62 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
       );
     }
 
-    if (props.icon?.includes('pi-window-maximize')) {
-      Logger.debug('SMButton', 'icon', iconClass, 'buttonClassName', buttonClassName);
+    if (hollow === true && props.icon === 'pi-building-columns') {
+      Logger.debug('SMButton', 'icon', iconClass, 'buttonClassName', buttonClassName, 'label', props.label);
     }
+
+    if (hollow) {
+      return (
+        <div onClick={(e) => props.onClick && props.onClick(e)}>
+          <div
+            ref={props.modal === true && props.modalCentered === true ? undefined : props.refs?.setReference}
+            {...(!buttonDisabled && props.getReferenceProps ? props.getReferenceProps() : {})}
+            className={getDiv}
+            style={getHollowStyle}
+          >
+            <Tooltip target={`.${tooltipClassName}`} />
+            <Button
+              ref={ref}
+              className={getClassName}
+              disabled={buttonDisabled || isLoading}
+              icon={iconClass}
+              loading={isLoading}
+              outlined={outlined}
+              rounded={rounded}
+              text={!iconFilled}
+              tooltip={tooltip}
+              tooltipOptions={isLeft ? getLeftToolOptions : getRightToolOptions}
+              style={getStyle}
+            />
+            {props.label && <div className={buttonDisabled === true ? 'p-disabled' : undefined}>{props.label}</div>}
+          </div>
+        </div>
+      );
+    }
+
     return (
-      <>
-        <Tooltip target={`.${tooltipClassName}`} />
-        <Button
-          ref={ref}
-          className={getClassName}
-          disabled={buttonDisabled || isLoading}
-          icon={iconClass}
-          label={label}
-          loading={isLoading}
-          onClick={(e) => {
-            e.preventDefault();
-            props.onClick && props.onClick(e);
-          }}
-          outlined={outlined}
-          rounded={rounded}
-          text={!iconFilled}
-          tooltip={tooltip}
-          tooltipOptions={isLeft ? getLeftToolOptions : getRightToolOptions}
-          style={getStyle}
-        />
-      </>
+      <div onClick={(e) => props.onClick && props.onClick(e)}>
+        <div
+          ref={props.modal === true && props.modalCentered === true ? undefined : props.refs?.setReference}
+          {...(!buttonDisabled && props.getReferenceProps ? props.getReferenceProps() : {})}
+        >
+          <Tooltip target={`.${tooltipClassName}`} />
+          <Button
+            ref={ref}
+            className={getClassName}
+            disabled={buttonDisabled || isLoading}
+            icon={iconClass}
+            label={props.label}
+            loading={isLoading}
+            outlined={outlined}
+            rounded={rounded}
+            text={!iconFilled}
+            tooltip={tooltip}
+            tooltipOptions={isLeft ? getLeftToolOptions : getRightToolOptions}
+            style={getStyle}
+          />
+        </div>
+      </div>
     );
   }
 );

@@ -21,9 +21,9 @@ import {
 import { Logger } from '@lib/common/logger';
 import { BlockUI } from 'primereact/blockui';
 import { CSSProperties, ReactNode, SyntheticEvent, forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import SMButton from './SMButton';
 import { SMCard } from './SMCard';
 import { CombinedProvider } from './context/CombinedContext';
-import { useSMButton } from './hooks/useSMButton';
 import { SMOverlayProperties } from './interfaces/SMOverlayProperties';
 
 export interface SMOverlayRef {
@@ -101,13 +101,6 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
       show: () => setIsOpen(true)
     }));
 
-    const { buttonElement } = useSMButton({
-      buttonDisabled,
-      ...props,
-      getReferenceProps,
-      refs
-    });
-
     const openPanel = useCallback(
       (e: SyntheticEvent) => {
         if (props.answer !== undefined) {
@@ -147,17 +140,39 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
       return floatingStyles;
     }, [props.modal, props.modalCentered, floatingStyles]);
 
-    // if (props.icon === 'pi-upload') {
-    //   Logger.debug('SMOverlay', 'isLoading', isLoading, 'buttonDisabled', buttonDisabled, props);
-    // }
+    if (props.icon === 'pi-building-columns') {
+      Logger.debug('SMOverlay', 'isLoading', isLoading, 'buttonDisabled', buttonDisabled, props);
+    }
+
+    const z = useMemo(() => {
+      if (props.modal) {
+        return 10;
+      }
+      return zIndex;
+    }, [props.modal, zIndex]);
 
     if (isLoading) {
-      return <BlockUI blocked={isLoading}> {buttonElement}</BlockUI>;
+      return <BlockUI blocked={isLoading}>HEY</BlockUI>;
     }
 
     return (
       <div className={props.className}>
-        {buttonElement}
+        <SMButton
+          buttonDarkBackground={props.buttonDarkBackground}
+          buttonDisabled={buttonDisabled}
+          buttonClassName={props.buttonClassName}
+          hollow={props.hollow}
+          iconFilled={props.iconFilled}
+          icon={props.icon}
+          isLoading={isLoading}
+          large={props.buttonLarge}
+          tooltip={props.tooltip}
+          label={props.buttonLabel}
+          getReferenceProps={getReferenceProps}
+          refs={refs}
+        >
+          {props.buttonTemplate}
+        </SMButton>
         {!buttonDisabled && (
           <FloatingPortal>
             {isOpen && (
@@ -165,9 +180,7 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
                 <FloatingOverlay className={props.modal ? 'Dialog-overlay' : ''} lockScroll />
                 <FloatingFocusManager context={context} modal={props.modal}>
                   <div
-                    className={`sm-overlay sm-popover sm-w-${contentWidthSize} pt-2 ${zIndex !== undefined ? 'z-' + zIndex : ''} ${
-                      props.modal ? 'sm-modal' : ''
-                    }`}
+                    className={`sm-overlay sm-popover sm-w-${contentWidthSize} pt-2 ${z !== undefined ? 'z-' + z : ''} ${props.modal ? 'sm-modal' : ''}`}
                     ref={refs.setFloating}
                     style={getStyle}
                     aria-labelledby={headingId}
