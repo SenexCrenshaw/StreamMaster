@@ -116,9 +116,8 @@ const IconSelector = ({
     let div = 'w-full';
     if (large) {
       div += ' sm-iconselector-lg';
-    } else {
-      div += ' sm-iconselector';
     }
+
     if (label) {
       div += ' flex-column';
     }
@@ -155,7 +154,7 @@ const IconSelector = ({
           buttonLabel="LOGOS"
           buttonLarge={large}
           buttonDarkBackground={darkBackGround}
-          buttonTemplate={buttonTemplate}
+          buttonContent={buttonTemplate}
           data={query.data}
           dataKey="Source"
           filter

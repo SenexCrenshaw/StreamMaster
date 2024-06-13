@@ -7,7 +7,7 @@ export interface SMButtonProperties extends SMModalProperties {
   readonly buttonDisabled?: boolean;
   readonly buttonLabel?: string;
   readonly buttonLarge?: boolean;
-  readonly buttonTemplate?: ReactNode;
+  readonly buttonContent?: ReactNode;
   readonly color?: string;
   readonly hollow?: boolean;
   readonly icon?: string;

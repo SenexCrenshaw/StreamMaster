@@ -2,7 +2,6 @@ import StringTracker from '@components/inputs/StringTracker';
 import { camel2title, isEmptyObject } from '@lib/common/common';
 
 import { areArraysEqual } from '@mui/base';
-import { Button } from 'primereact/button';
 import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import {
   DataTable,
@@ -32,6 +31,7 @@ import getRecord from './helpers/getRecord';
 
 import { useSMContext } from '@lib/signalr/SMProvider';
 
+import SMButton from '@components/sm/SMButton';
 import { getColumnStyles } from './helpers/getColumnStyles';
 import isPagedResponse from './helpers/isPagedResponse';
 import useSMDataSelectorValuesState from './hooks/useSMDataTableState';
@@ -314,9 +314,9 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   const getSortIcon = useCallback(
     (field: string) => {
       if (state.sortField !== field || state.sortOrder === 0) {
-        return 'pi pi-sort-alt';
+        return 'pi-sort-alt';
       }
-      return state.sortOrder === 1 ? 'pi pi-sort-amount-up' : 'pi pi-sort-amount-down';
+      return state.sortOrder === 1 ? 'pi-sort-amount-up' : 'pi-sort-amount-down';
     },
     [state.sortField, state.sortOrder]
   );
@@ -345,13 +345,12 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   const sortButton = useCallback(
     (options: ColumnFilterElementTemplateOptions) => {
       return (
-        <Button
-          className="p-button-text p-0 m-0"
+        <SMButton
+          icon={getSortIcon(options.field)}
           onClick={() => {
             setters.setSortField(options.field);
             setters.setSortOrder(state.sortOrder === 1 ? -1 : 1);
           }}
-          icon={getSortIcon(options.field)}
         />
       );
     },
@@ -394,10 +393,22 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       }
 
       if (col.filterElement) {
+        if (col.sortable === true) {
+          return (
+            <div className={`flex flex-row ${justify} max-w-full flex-grow-0 overflow-hidden`}>
+              <div className="max-w-full w-full flex-grow-0 overflow-hidden text-overflow-ellipsis">{col.filterElement(options)}</div>
+              {col.sortable === true && (
+                <div className="max-w-full flex-grow-0 overflow-hidden text-overflow-ellipsis" style={{ paddingLeft: '0.16rem', width: '1.84rem' }}>
+                  {sortButton(options)}
+                </div>
+              )}
+            </div>
+          );
+        }
+
         return (
-          <div className={`flex flex-row ${justify} max-w-full border-1 border-red-400 flex-grow-0 overflow-hidden`}>
+          <div className={`flex flex-row ${justify} max-w-full flex-grow-0 overflow-hidden`}>
             <div className="max-w-full flex-grow-0 overflow-hidden text-overflow-ellipsis">{col.filterElement(options)}</div>
-            <div className="max-w-full flex-grow-0 overflow-hidden text-overflow-ellipsis">{col.sortable === true && sortButton(options)}</div>
           </div>
         );
       }
@@ -719,7 +730,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             showFilterMenu={false}
             showFilterOperator={false}
             resizeable={false}
-            style={getColumnStyles({ width: '2rem' } as ColumnMeta)}
+            style={getColumnStyles({ width: 24 } as ColumnMeta)}
           />
 
           <Column
@@ -731,7 +742,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             showFilterOperator={false}
             resizeable={false}
             expander
-            style={getColumnStyles({ width: '2rem' } as ColumnMeta)}
+            style={getColumnStyles({ width: 24 } as ColumnMeta)}
           />
           <Column
             body={showSelection ? selectionTemplate : undefined}
@@ -743,7 +754,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             showFilterMenu={false}
             showFilterOperator={false}
             hidden={!showSelection}
-            style={getColumnStyles({ width: props.showHiddenInSelection ? '3rem' : '2rem' } as ColumnMeta)}
+            style={getColumnStyles({ width: props.showHiddenInSelection ? 42 : 24 } as ColumnMeta)}
           />
           <Column
             body={
@@ -763,7 +774,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             showFilterMenu={false}
             showFilterOperator={false}
             bodyClassName={'flex justify-content-center align-items-center'}
-            style={getColumnStyles({ width: '30px' } as ColumnMeta)}
+            style={getColumnStyles({ width: 12 } as ColumnMeta)}
           />
           {props.columns &&
             props.columns

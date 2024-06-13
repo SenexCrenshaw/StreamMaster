@@ -13,6 +13,17 @@
     border-width: $inputBorder-size !important;
 }
 
+@mixin sm-border-transparent() {
+    border-radius: $borderRadius !important;
+    border-color: transparent;
+    border-width: $inputBorder-size !important;
+    border-style: solid !important;
+}
+
+.sm-border-transparent {
+    @include sm-border-transparent();
+}
+
 
 $shadow-offset: 4px;
 $shadow-blur: 8px;

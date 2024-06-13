@@ -1,11 +1,12 @@
 import { useChannelGroupNameColumnConfig } from '@components/columns/ChannelGroups/useChannelGroupNameColumnConfig';
-import SMOverlay from '@components/sm/SMOverlay';
+import SMDropDown from '@components/sm/SMDropDown';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { QueryHook } from '@lib/apiDefs';
 import useSelectedAndQ from '@lib/hooks/useSelectedAndQ';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
+import { BlockUI } from 'primereact/blockui';
 import { DataTableFilterMetaData } from 'primereact/datatable';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
@@ -33,12 +34,13 @@ const BaseChannelGroupSelector = memo(
     autoPlacement = false,
     onChange,
     useSelectedItemsFilter,
-    className = '',
+
     value,
     getNamesQuery
   }: BaseChannelGroupSelectorProps) => {
     const { selectedItems, showHidden, sortInfo, filters } = useSelectedAndQ(dataKey);
     const [input, setInput] = useState<string | undefined>(value);
+
     const { isSystemReady } = useSMContext();
     const { columnConfig: channelGroupNameColumnConfig } = useChannelGroupNameColumnConfig({ enableEdit: true });
 
@@ -61,28 +63,16 @@ const BaseChannelGroupSelector = memo(
             return <div className="text-container ">{sortedInput.join(', ') + suffix}</div>;
           }
         }
-        return (
-          <div className="sm-channelgroup-selector">
-            <div className="text-container">{input}</div>
-          </div>
-        );
+        return <div className="text-container">{input}</div>;
       }
 
       if (selectedItems && selectedItems.length > 0) {
         const names = selectedItems.slice(0, 2).map((x) => x.Name);
         const suffix = selectedItems.length > 2 ? ',...' : '';
-        return (
-          <div className="sm-channelgroup-selector">
-            <div className="text-container">{names.join(', ') + suffix}</div>
-          </div>
-        );
+        return <div className="text-container">{names.join(', ') + suffix}</div>;
       }
 
-      return (
-        <div className="sm-channelgroup-selector">
-          <div className="text-container pl-1">GROUP</div>
-        </div>
-      );
+      return <div className="text-container pl-1">GROUP</div>;
     }, [input, selectedItems]);
 
     const headerRightTemplate = useMemo(
@@ -182,25 +172,9 @@ const BaseChannelGroupSelector = memo(
     }
 
     return (
-      <div className={className}>
-        {label && (
-          <div className="flex flex-column align-items-start">
-            <label className="pl-15">{label.toUpperCase()}</label>
-            <div className="pt-small" />
-          </div>
-        )}
-        <div className={getDiv}>
-          <SMOverlay
-            buttonDarkBackground
-            buttonLabel="GROUP"
-            buttonTemplate={buttonTemplate}
-            contentWidthSize="3"
-            autoPlacement={autoPlacement}
-            header={headerRightTemplate}
-            icon="pi-chevron-down"
-            isLoading={loading}
-            title="GROUPS"
-          >
+      <>
+        <BlockUI blocked={loading}>
+          <SMDropDown buttonDarkBackground buttonContent={buttonTemplate} title="GROUP" contentWidthSize="3">
             <SMDataTable
               columns={columns}
               dataSource={dataSource}
@@ -217,10 +191,50 @@ const BaseChannelGroupSelector = memo(
                 }
               }}
             />
-          </SMOverlay>
-        </div>
-      </div>
+          </SMDropDown>
+        </BlockUI>
+      </>
     );
+
+    //   <div className={className}>
+    //     {label && (
+    //       <div className="flex flex-column align-items-start">
+    //         <label className="pl-15">{label.toUpperCase()}</label>
+    //         <div className="pt-small" />
+    //       </div>
+    //     )}
+    //     <div className={getDiv}>
+    //       <SMOverlay
+    //         buttonDarkBackground
+    //         buttonLabel="GROUP"
+    //         buttonTemplate={buttonTemplate}
+    //         contentWidthSize="3"
+    //         autoPlacement={autoPlacement}
+    //         header={headerRightTemplate}
+    //         icon="pi-chevron-down"
+    //         isLoading={loading}
+    //         title="GROUPS"
+    //       >
+    //         <SMDataTable
+    //           columns={columns}
+    //           dataSource={dataSource}
+    //           id={dataKey}
+    //           lazy
+    //           noSourceHeader
+    //           selectionMode="multiple"
+    //           showHiddenInSelection
+    //           style={{ height: '40vh' }}
+    //           useSelectedItemsFilter={useSelectedItemsFilter}
+    //           onSelectionChange={(value: any) => {
+    //             if (onChange) {
+    //               onChange(value);
+    //             }
+    //           }}
+    //         />
+    //       </SMOverlay>
+    //     </div>
+    //   </div>
+    // );
   }
 );
 

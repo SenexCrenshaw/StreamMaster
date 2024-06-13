@@ -38,7 +38,7 @@ const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) =
         <SMOverlay
           className="w-full"
           buttonDarkBackground
-          buttonTemplate={buttonTemplate}
+          buttonContent={buttonTemplate}
           title="URL Regex Tags"
           contentWidthSize="3"
           icon="pi-chevron-down"

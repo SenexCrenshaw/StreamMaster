@@ -9,7 +9,7 @@ export const useSMButton = ({
   buttonDisabled = false,
   buttonLabel,
   buttonLarge = false,
-  buttonTemplate,
+  buttonContent: buttonTemplate,
   getReferenceProps,
   icon,
   iconFilled = false,

@@ -4,18 +4,18 @@ import { SMChannelDto, SetSMChannelNameRequest } from '@lib/smAPI/smapiTypes';
 import React from 'react';
 
 export interface SMChannelNameEditorProperties {
-  readonly data: SMChannelDto;
+  readonly smChannelDto: SMChannelDto;
   readonly onClick?: () => void;
 }
 
-const SMChannelNameEditor = ({ data, onClick }: SMChannelNameEditorProperties) => {
+const SMChannelNameEditor = ({ smChannelDto, onClick }: SMChannelNameEditorProperties) => {
   const onUpdateM3UStream = React.useCallback(
     async (name: string) => {
-      if (data.Id === 0 || !name || name === '' || data.Name === name) {
+      if (smChannelDto.Id === 0 || !name || name === '' || smChannelDto.Name === name) {
         return;
       }
 
-      const toSend = { Name: name, SMChannelId: data.Id } as SetSMChannelNameRequest;
+      const toSend = { Name: name, SMChannelId: smChannelDto.Id } as SetSMChannelNameRequest;
 
       await SetSMChannelName(toSend)
         .then(() => {})
@@ -23,10 +23,10 @@ const SMChannelNameEditor = ({ data, onClick }: SMChannelNameEditorProperties) =
           console.error(error);
         });
     },
-    [data.Id, data.Name]
+    [smChannelDto.Id, smChannelDto.Name]
   );
 
-  if (data.Name === undefined) {
+  if (smChannelDto.Name === undefined) {
     return <span className="sm-inputtext" />;
   }
 
@@ -40,7 +40,7 @@ const SMChannelNameEditor = ({ data, onClick }: SMChannelNameEditorProperties) =
           await onUpdateM3UStream(e);
         }
       }}
-      value={data.Name}
+      value={smChannelDto.Name}
     />
   );
 };

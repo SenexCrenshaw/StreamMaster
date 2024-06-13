@@ -7,58 +7,29 @@ import { useMountEffect } from 'primereact/hooks';
 import { ObjectUtils } from 'primereact/utils';
 import { VirtualScroller } from 'primereact/virtualscroller';
 import React, { useCallback, useEffect, useMemo } from 'react';
+import { SMScrollerProperties } from './interfaces/SMScrollerProperties';
 
-interface SMScrollerProps {
-  readonly className?: string;
-  readonly data: any;
-  readonly dataKey?: string;
-  readonly filter?: boolean;
-  readonly filterBy?: string;
-  readonly itemSize?: number;
-  readonly itemTemplate: (item: any) => React.ReactNode;
-  readonly onChange?: (value: any) => void;
-  readonly optionValue?: string;
-  readonly scrollHeight?: string;
-  readonly select?: boolean;
-  readonly selectedItemsKey?: string;
-  readonly simple?: boolean;
-  readonly value?: any;
-}
-
-const SMScroller: React.FC<SMScrollerProps> = ({
-  data,
-  dataKey,
-  className,
-  filter = false,
-  filterBy,
-  itemSize = 26,
-  itemTemplate,
-  onChange,
-  optionValue,
-  select,
-  selectedItemsKey,
-  simple,
-  value,
-  scrollHeight = '40vh'
-}) => {
-  const { selectedItems, setSelectedItems } = useSelectedItems(selectedItemsKey ?? 'NONE');
+const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize = 26, scrollHeight = '40vh', ...props }) => {
+  const { selectedItems, setSelectedItems } = useSelectedItems(props.selectedItemsKey ?? 'NONE');
   const [filterString, setFilterString] = React.useState<string>('');
   const [scrolled, setScrolled] = React.useState<boolean>(false);
   const virtualScrollerRef = React.useRef<VirtualScroller>(null);
   const stringEditorRef = React.useRef<StringEditorRef>(null);
 
   const filteredValues = useMemo(() => {
-    // setScrolled(false);
-
-    if (filter === undefined || filter === false || filterBy === undefined) {
-      return data;
-    }
-    if (filter && filterString !== '') {
-      return data.filter((item: any) => item[filterBy].toLowerCase().includes(filterString.toLowerCase()));
+    // Early return if filter is undefined/false or filterBy is undefined
+    if (!filter || !props.filterBy || filterString === '') {
+      return props.data;
     }
 
-    return data;
-  }, [data, filter, filterBy, filterString]);
+    // Ensure props.filterBy is a string and exists in the item
+    return props.data.filter((item: any) => {
+      const filterKey = props.filterBy as keyof typeof item;
+      const itemValue = item[filterKey];
+      // Ensure itemValue is a string before calling .toLowerCase()
+      return typeof itemValue === 'string' && itemValue.toLowerCase().includes(filterString.toLowerCase());
+    });
+  }, [filter, filterString, props.data, props.filterBy]);
 
   // useEffect(() => {
   //   if (dataSource !== undefined) {
@@ -76,14 +47,14 @@ const SMScroller: React.FC<SMScrollerProps> = ({
   // }, [data, dataSource, filter, filterBy, filterString]);
 
   const equalityKey = useCallback(() => {
-    return dataKey ? dataKey : 'Id';
-  }, [dataKey]);
+    return props.dataKey ? props.dataKey : 'Id';
+  }, [props.dataKey]);
 
   const getOptionValue = useCallback(
     (option: any) => {
-      return optionValue ? ObjectUtils.resolveFieldData(option, optionValue) : option && option['value'] !== undefined ? option['value'] : option;
+      return props.optionValue ? ObjectUtils.resolveFieldData(option, props.optionValue) : option && option['value'] !== undefined ? option['value'] : option;
     },
-    [optionValue]
+    [props.optionValue]
   );
 
   const removeSelectedItem = useCallback(
@@ -102,12 +73,12 @@ const SMScroller: React.FC<SMScrollerProps> = ({
           return x !== item;
         });
         setSelectedItems(a);
-        onChange && onChange(a);
+        props.onChange && props.onChange(a);
         return true;
       }
       return false;
     },
-    [equalityKey, onChange, selectedItems, setSelectedItems]
+    [equalityKey, props, selectedItems, setSelectedItems]
   );
 
   const isSelectedItem = useCallback(
@@ -123,28 +94,40 @@ const SMScroller: React.FC<SMScrollerProps> = ({
   );
 
   const findOptionIndexInList = useCallback(
-    (value: any, list: any) => {
+    (value: Record<string, any>, list: Record<string, any>[]) => {
       const key = equalityKey();
+
       if (key) {
-        if (optionValue) {
+        // Check if props.optionValue is defined and is a string
+        if (props.optionValue && typeof props.optionValue === 'string') {
+          // Check if the value has the key defined by equalityKey
           if (value[key] !== undefined) {
-            const test = list.findIndex((item: any) => value[key] === item[optionValue]);
-            return test;
+            // Find the index in the list where the optionValue matches
+            const index = list.findIndex((item: Record<string, any>) => {
+              // Ensure the item has the property defined by props.optionValue
+              const itemValue = item[props.optionValue as keyof typeof item];
+              return itemValue === value[key];
+            });
+            return index;
           }
         }
+
+        // Fallback to using ObjectUtils.equals if no specific key is provided
         return list.findIndex((item: any) => ObjectUtils.equals(value, getOptionValue(item), key));
       }
+
+      return -1; // Return -1 if no match is found or if key is undefined
     },
-    [equalityKey, getOptionValue, optionValue]
+    [equalityKey, getOptionValue, props.optionValue]
   );
 
   const getSelectedOptionIndex = useCallback(() => {
-    if (value != null) {
-      return findOptionIndexInList(value, filteredValues);
+    if (props.value != null) {
+      return findOptionIndexInList(props.value, filteredValues);
     }
 
     return -1;
-  }, [filteredValues, findOptionIndexInList, value]);
+  }, [filteredValues, findOptionIndexInList, props.value]);
 
   const scrollTo = useCallback((index: number) => {
     // const virtualScrollerRef = listBoxRef.current?.getVirtualScroller();
@@ -168,18 +151,18 @@ const SMScroller: React.FC<SMScrollerProps> = ({
     (item: any) => {
       const key = equalityKey();
       if (key) {
-        if (optionValue) {
+        if (props.optionValue) {
           const toMatch = getOptionValue(item);
-          if (value[key] !== undefined) {
-            return toMatch === value[key];
+          if (props.value[key] !== undefined) {
+            return toMatch === props.value[key];
           }
         }
-        const a = ObjectUtils.equals(value, getOptionValue(item), key);
+        const a = ObjectUtils.equals(props.value, getOptionValue(item), key);
         return a;
       }
       return false;
     },
-    [equalityKey, getOptionValue, optionValue, value]
+    [equalityKey, getOptionValue, props.optionValue, props.value]
   );
 
   useMountEffect(() => {
@@ -188,12 +171,12 @@ const SMScroller: React.FC<SMScrollerProps> = ({
 
   useEffect(() => {
     if (filteredValues) {
-      if (value && !scrolled) {
+      if (props.value && !scrolled) {
         setScrolled(true);
         scrollToSelectedIndex();
       }
     }
-  }, [scrollToSelectedIndex, scrolled, value, filteredValues]);
+  }, [filteredValues, props.value, scrolled, scrollToSelectedIndex]);
 
   const getItemTemplate = useCallback(
     (item: any) => {
@@ -201,7 +184,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
         ? 'sm-scroller-item p-highlight p-focus w-full flex align-items-center'
         : 'sm-scroller-item w-full flex align-items-center';
 
-      if (select === true) {
+      if (props.select === true) {
         const ss = isSelectedItem(item);
         return (
           <div className="sm-scroller-item flex align-items-center justify-content-start pl-1">
@@ -209,10 +192,10 @@ const SMScroller: React.FC<SMScrollerProps> = ({
               <Checkbox
                 onChange={(e) => {
                   e.preventDefault();
-                  if (selectedItemsKey !== undefined && selectedItemsKey !== 'NONE') {
+                  if (props.selectedItemsKey !== undefined && props.selectedItemsKey !== 'NONE') {
                     if (e.checked) {
                       setSelectedItems([...selectedItems, item]);
-                      onChange && onChange([...selectedItems, item]);
+                      props.onChange && props.onChange([...selectedItems, item]);
                     } else {
                       removeSelectedItem(item);
                     }
@@ -221,30 +204,30 @@ const SMScroller: React.FC<SMScrollerProps> = ({
                 checked={ss}
               />
             </div>
-            <div className="sm-w-11 pl-1">{itemTemplate(item)}</div>
+            <div className="sm-w-11 pl-1">{props.itemTemplate?.(item) ?? ''}</div>
           </div>
         );
       }
       return (
         <div
           onClick={() => {
-            onChange && onChange(item);
+            props.onChange && props.onChange(item);
           }}
           className={classes}
         >
-          {itemTemplate(item)}
+          {props.itemTemplate?.(item) ?? ''}
         </div>
       );
     },
-    [isSelected, isSelectedItem, itemTemplate, onChange, removeSelectedItem, select, selectedItems, selectedItemsKey, setSelectedItems]
+    [isSelected, isSelectedItem, props, removeSelectedItem, selectedItems, setSelectedItems]
   );
 
   const getDiv = useMemo(() => {
-    if (simple === true) {
-      return `dark-background w-full ${className} `;
+    if (props.simple === true) {
+      return `dark-background w-full ${props.className} `;
     }
-    return `sm-scroller sm-sm-input-border w-full ${className} `;
-  }, [className, simple]);
+    return `sm-scroller sm-sm-input-border w-full ${props.className} `;
+  }, [props.className, props.simple]);
 
   return (
     <div className={getDiv}>
@@ -256,7 +239,7 @@ const SMScroller: React.FC<SMScrollerProps> = ({
               buttonDisabled={selectedItems.length === 0}
               onClick={() => {
                 setSelectedItems([]);
-                onChange && onChange([]);
+                props.onChange && props.onChange([]);
               }}
               tooltip="Clear Selections"
             />

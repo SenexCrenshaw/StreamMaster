@@ -11,9 +11,10 @@ import SMChannelGroupEditor from './SMChannelGroupEditor';
 
 interface SMChannelGroupColumnConfigProperties {
   readonly dataKey: string;
+  readonly width: number;
 }
 
-export const useSMChannelGroupColumnConfig = ({ dataKey }: SMChannelGroupColumnConfigProperties) => {
+export const useSMChannelGroupColumnConfig = ({ dataKey, width }: SMChannelGroupColumnConfigProperties) => {
   const { filters, setFilters } = useFilters(dataKey);
   const { selectedItems } = useSelectedAndQ('useSMChannelGroupColumnConfig');
 
@@ -57,11 +58,7 @@ export const useSMChannelGroupColumnConfig = ({ dataKey }: SMChannelGroupColumnC
     }
 
     const bodyTemplate = (smChannelDto: SMChannelDto) => {
-      return (
-        <div className="flex align-content-center justify-content-center">
-          <SMChannelGroupEditor fixed smChannelDto={smChannelDto} />
-        </div>
-      );
+      return <SMChannelGroupEditor smChannelDto={smChannelDto} />;
     };
 
     return {
@@ -72,9 +69,9 @@ export const useSMChannelGroupColumnConfig = ({ dataKey }: SMChannelGroupColumnC
       filterElement: filterTemplate,
       header: 'Group',
       sortable: true,
-      width: 125
+      width: width
     } as ColumnMeta;
-  }, [filters, selectedItems, setFilters]);
+  }, [filters, selectedItems, setFilters, width]);
 
   return columnConfig;
 };

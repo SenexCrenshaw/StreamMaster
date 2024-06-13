@@ -102,7 +102,7 @@ export const useSMChannelSGColumnConfig = ({ dataKey, id }: SMChannelSGColumnCon
     filterElement: filterTemplate,
     header: '',
     sortable: false,
-    width: '2rem'
+    width: 24
   };
 
   return columnConfig;

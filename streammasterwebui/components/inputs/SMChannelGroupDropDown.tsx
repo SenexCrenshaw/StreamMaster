@@ -8,23 +8,24 @@ interface SMChannelGroupDropDownProperties {
   readonly smChannel?: SMChannelDto;
   readonly value?: string;
   readonly darkBackGround?: boolean;
-  readonly fixed?: boolean;
+  readonly autoPlacement?: boolean;
   readonly label?: string;
   readonly labelInline?: boolean;
   readonly onChange: (value: string) => void;
 }
 
 const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownProperties>((props: SMChannelGroupDropDownProperties, ref) => {
-  const { darkBackGround, value, smChannel, fixed = false, onChange, label, labelInline = false } = props;
+  const { darkBackGround, value, smChannel, autoPlacement = false, onChange, label, labelInline = false } = props;
   const smDropownRef = useRef<SMDropDownRef>(null);
-  const { data } = useGetChannelGroups();
+  const [_isLoading, setIsLoading] = useState<boolean>(false);
+  const { data, isLoading } = useGetChannelGroups();
   const [channelGroup, setChannelGroup] = useState<ChannelGroupDto | null>(null);
 
   useEffect(() => {
     if (!data) {
       return;
     }
-
+    setIsLoading(false);
     if (smChannel !== undefined && (channelGroup === null || channelGroup.Name !== smChannel.Group)) {
       const found = data.find((predicate) => predicate.Name === smChannel.Group);
       if (found) setChannelGroup(found);
@@ -59,7 +60,7 @@ const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownP
   }, [channelGroup]);
 
   const getDiv = useMemo(() => {
-    let ret = 'stringeditor';
+    let ret = 'stringedito';
 
     if (label && !labelInline) {
       ret += '';
@@ -84,24 +85,26 @@ const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownP
       <div className={getDiv}>
         {label && labelInline && <div className={labelInline ? 'w-4' : 'w-6'}>{label.toUpperCase()}</div>}
         <SMDropDown
-          buttonLabel="GROUP"
+          autoPlacement={autoPlacement}
           buttonDarkBackground={darkBackGround}
-          buttonTemplate={buttonTemplate}
+          buttonLabel="GROUP"
+          buttonContent={buttonTemplate}
           closeOnSelection
           data={data}
           dataKey="Name"
           filter
           filterBy="Name"
-          fixed={fixed}
+          isLoading={isLoading || _isLoading}
           itemTemplate={itemTemplate}
           onChange={(e) => {
+            setIsLoading(true);
             onChange(e.Name);
           }}
           ref={smDropownRef}
           title="GROUP"
           value={channelGroup}
           contentWidthSize="2"
-          zIndex={10}
+          // zIndex={10}
         />
       </div>
     </>

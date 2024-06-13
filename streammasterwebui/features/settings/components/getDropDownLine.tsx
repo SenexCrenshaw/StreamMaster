@@ -1,12 +1,12 @@
+import SMDropDown from '@components/sm/SMDropDown';
 import { GetMessage } from '@lib/common/intl';
+import { getDefaultSetting } from '@lib/locales/default_setting';
 import { getHelp } from '@lib/locales/help_en';
+import { SettingDto } from '@lib/smAPI/smapiTypes';
 import { SelectItem } from 'primereact/selectitem';
 import React, { ReactNode } from 'react';
 import { UpdateChanges, getRecordString } from '../SettingsUtils';
 import { getLine } from './getLine'; // Import the getLine function
-import { SettingDto } from '@lib/smAPI/smapiTypes';
-import { getDefaultSetting } from '@lib/locales/default_setting';
-import SMDropDown from '@components/sm/SMDropDown';
 
 type DropDownLineProps = {
   field: string;
@@ -37,7 +37,7 @@ export function getDropDownLine({ field, options, currentSettingRequest, onChang
       <SMDropDown
         buttonDarkBackground
         label={label}
-        buttonTemplate={buttonTemplate()}
+        buttonContent={buttonTemplate()}
         onChange={(e) => {
           const value = isFinite(+e.target.value) ? +e.target.value : e.target.value;
           UpdateChanges({ currentSettingRequest, field, onChange, value });

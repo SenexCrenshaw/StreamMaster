@@ -8,11 +8,11 @@ import SMChannelGroupDropDown from '../../inputs/SMChannelGroupDropDown';
 interface SMChannelGroupEditorProperties {
   readonly smChannelDto: SMChannelDto;
   readonly darkBackGround?: boolean;
-  readonly fixed?: boolean;
+  readonly autoPlacement?: boolean;
   readonly onChange?: (value: ChannelGroupDto[]) => void;
 }
 
-const SMChannelGroupEditor = ({ darkBackGround, fixed = false, smChannelDto, onChange }: SMChannelGroupEditorProperties) => {
+const SMChannelGroupEditor = ({ darkBackGround, autoPlacement = false, smChannelDto, onChange }: SMChannelGroupEditorProperties) => {
   const handleOnChange = useCallback(
     async (newGroup: string) => {
       if (isEmptyObject(smChannelDto)) {
@@ -31,7 +31,14 @@ const SMChannelGroupEditor = ({ darkBackGround, fixed = false, smChannelDto, onC
     [smChannelDto]
   );
 
-  return <SMChannelGroupDropDown fixed={fixed} darkBackGround={darkBackGround} value={smChannelDto.Group} onChange={async (e) => handleOnChange(e)} />;
+  return (
+    <SMChannelGroupDropDown
+      autoPlacement={autoPlacement}
+      darkBackGround={darkBackGround}
+      value={smChannelDto.Group}
+      onChange={async (e) => handleOnChange(e)}
+    />
+  );
 };
 
 export default memo(SMChannelGroupEditor);

@@ -15,10 +15,33 @@
     width: calc(100% - ($inputBorder-size*4));
 }
 
+
+
 .sm-center-stuff {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.sm-w-1-5rem {
+    flex: 0 0 1.5rem;
+    min-width: 1.5rem !important;
+    width: 1.5rem !important;
+    max-width: 1.5rem !important;
+}
+
+.sm-w-1-2-5rem {
+    flex: 0 0 1.25rem;
+    min-width: 1.25rem !important;
+    width: 1.25rem !important;
+    max-width: 1.25rem !important;
+}
+
+.sm-w-2-5rem {
+    flex: 0 0 2.5rem;
+    min-width: 2.5rem !important;
+    width: 2.5rem !important;
+    max-width: 2.5rem !important;
 }
 
 @for $i from 1 through 12 {

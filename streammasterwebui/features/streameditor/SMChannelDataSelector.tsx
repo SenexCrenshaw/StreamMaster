@@ -43,9 +43,9 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { columnConfig: channelNumberColumnConfig } = useSMChannelNumberColumnConfig({ enableEdit, useFilter: false });
   const { columnConfig: channelLogoColumnConfig } = useSMChannelLogoColumnConfig({ enableEdit });
-  const { columnConfig: channelNameColumnConfig } = useSMChannelNameColumnConfig({ enableEdit });
-  const epgColumnConfig = useSMChannelEPGColumnConfig();
-  const groupColumnConfig = useSMChannelGroupColumnConfig({ dataKey });
+  const channelNameColumnConfig = useSMChannelNameColumnConfig({ width: smTableIsSimple ? 200 : 125 });
+  const epgColumnConfig = useSMChannelEPGColumnConfig({ width: smTableIsSimple ? 200 : 125 });
+  const groupColumnConfig = useSMChannelGroupColumnConfig({ dataKey, width: smTableIsSimple ? 200 : 125 });
   const sgColumnConfig = useSMChannelSGColumnConfig({ dataKey: dataKey + '-sg', id: dataKey });
   const { columnConfig: proxyColumnConfig } = useSMChannelProxyColumnConfig({ enableEdit, useFilter: false });
   const { queryFilter } = useQueryFilter(dataKey);
@@ -109,7 +109,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
         field: 'IsHidden',
         fieldType: 'actions',
         header: 'Actions',
-        width: 90
+        width: 100
       }
     ],
     [
@@ -130,11 +130,11 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
       channelLogoColumnConfig,
       channelNameColumnConfig,
       epgColumnConfig,
-      // groupColumnConfig,
+      groupColumnConfig,
       sgColumnConfig,
       { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: 64 }
     ],
-    [actionTemplate, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig, epgColumnConfig, sgColumnConfig]
+    [actionTemplate, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig, epgColumnConfig, groupColumnConfig, sgColumnConfig]
   );
 
   const rowClass = useCallback(

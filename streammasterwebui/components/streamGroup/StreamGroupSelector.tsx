@@ -24,7 +24,7 @@ export const StreamGroupSelector = ({ onChange, selectedStreamGroup }: StreamGro
   return (
     <SMDropDown
       buttonDarkBackground
-      buttonTemplate={buttonTemplate}
+      buttonContent={buttonTemplate}
       buttonLarge
       data={data}
       dataKey="Id"

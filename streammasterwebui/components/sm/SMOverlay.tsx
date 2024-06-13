@@ -21,10 +21,10 @@ import {
 import { Logger } from '@lib/common/logger';
 import { BlockUI } from 'primereact/blockui';
 import { CSSProperties, ReactNode, SyntheticEvent, forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import { CombinedProvider } from './Context/CombinedContext';
-import { SMOverlayProperties } from './Interfaces/SMOverlayProperties';
 import SMButton from './SMButton';
 import { SMCard } from './SMCard';
+import { CombinedProvider } from './context/CombinedContext';
+import { SMOverlayProperties } from './interfaces/SMOverlayProperties';
 
 export interface SMOverlayRef {
   hide: () => void;
@@ -51,7 +51,7 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
       modalClosable = false,
       placement = 'bottom',
       showClose = false,
-      zIndex = 4,
+      // zIndex = 4,
       ...props
     },
     ref
@@ -148,31 +148,27 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
       if (props.modal) {
         return 10;
       }
-      return zIndex;
-    }, [props.modal, zIndex]);
-
-    if (isLoading) {
-      return <BlockUI blocked={isLoading}>HEY</BlockUI>;
-    }
+      return props.zIndex;
+    }, [props.modal, props.zIndex]);
 
     return (
-      <div className={props.className}>
+      <BlockUI blocked={isLoading}>
         <SMButton
+          buttonClassName={props.buttonClassName}
           buttonDarkBackground={props.buttonDarkBackground}
           buttonDisabled={buttonDisabled}
-          buttonClassName={props.buttonClassName}
-          hollow={props.hollow}
-          iconFilled={props.iconFilled}
-          icon={props.icon}
-          isLoading={isLoading}
           buttonLarge={props.buttonLarge}
-          tooltip={props.tooltip}
-          label={props.buttonLabel}
           getReferenceProps={getReferenceProps}
+          hollow={props.hollow}
+          icon={props.icon}
+          iconFilled={props.iconFilled}
+          isLoading={isLoading}
+          label={props.buttonLabel}
           refs={refs}
+          tooltip={props.tooltip}
           {...props}
         >
-          {props.buttonTemplate}
+          {props.buttonContent}
         </SMButton>
         {!buttonDisabled && (
           <FloatingPortal>
@@ -199,7 +195,7 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
             )}
           </FloatingPortal>
         )}
-      </div>
+      </BlockUI>
     );
   }
 );

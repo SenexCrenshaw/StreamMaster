@@ -10,11 +10,18 @@ import { EPGFileDto, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { ReactNode, useCallback, useMemo } from 'react';
 
-export const useSMChannelEPGColumnConfig = () => {
+interface SMChannelEPGColumnConfigProperties {
+  readonly width: number;
+}
+
+export const useSMChannelEPGColumnConfig = ({ width = 125 }: SMChannelEPGColumnConfigProperties) => {
   const dataKey = 'epgColumn-selections';
   const { data, isLoading } = useGetEPGFiles();
   const colorsQuery = useGetEPGColors();
   const { isSystemReady, settings } = useSMContext();
+
+  // const buttonWidth = `sm-w-${width - 0}rem`;
+  // const smWidth = `${width}rem`;
 
   const epgFiles = useMemo(() => {
     let additionalOptions = [] as EPGFileDto[];
@@ -88,30 +95,28 @@ export const useSMChannelEPGColumnConfig = () => {
 
   function filterTemplate(options: ColumnFilterElementTemplateOptions): ReactNode {
     return (
-      <div className="w-full">
-        <SMDropDown
-          buttonDarkBackground
-          buttonTemplate={buttonTemplate(options)}
-          data={epgFiles}
-          dataKey="Id"
-          isLoading={isLoading}
-          itemTemplate={itemTemplate}
-          filter
-          filterBy="Name"
-          autoPlacement
-          onChange={async (e: any) => {
-            if (isEmptyObject(e) || !Array.isArray(e)) {
-              options.filterApplyCallback();
-            } else {
-              options.filterApplyCallback(e);
-            }
-          }}
-          select
-          selectedItemsKey={dataKey}
-          title={'EPG'}
-          contentWidthSize="2"
-        />
-      </div>
+      <SMDropDown
+        buttonDarkBackground
+        buttonContent={buttonTemplate(options)}
+        data={epgFiles}
+        dataKey="Id"
+        isLoading={isLoading}
+        itemTemplate={itemTemplate}
+        filter
+        filterBy="Name"
+        autoPlacement
+        onChange={async (e: any) => {
+          if (isEmptyObject(e) || !Array.isArray(e)) {
+            options.filterApplyCallback();
+          } else {
+            options.filterApplyCallback(e);
+          }
+        }}
+        select
+        selectedItemsKey={dataKey}
+        title={'EPG'}
+        contentWidthSize="2"
+      />
     );
   }
   const bodyTemplate = useCallback((smChannel: SMChannelDto) => {
@@ -126,7 +131,7 @@ export const useSMChannelEPGColumnConfig = () => {
     filterElement: filterTemplate,
     header: 'EPG',
     sortable: true,
-    width: 125
+    width: width
   };
 
   return columnConfig;

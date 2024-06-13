@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { SMCardProperties } from './Interfaces/SMCardProperties';
+import { SMCardProperties } from './interfaces/SMCardProperties';
 
 interface InternalSMCardProperties extends SMCardProperties {
   readonly children: React.ReactNode;

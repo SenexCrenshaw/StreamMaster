@@ -16,7 +16,7 @@ interface SMStreamM3UColumnConfigProperties {
   readonly width?: string;
 }
 
-export const useSMStreamM3UColumnConfig = ({ className = 'sm-w-7rem sm-scroller-items', dataKey }: SMStreamM3UColumnConfigProperties) => {
+export const useSMStreamM3UColumnConfig = ({ className = 'sm-w-7rem', dataKey }: SMStreamM3UColumnConfigProperties) => {
   const { data } = useGetM3UFiles();
 
   const { filters, setFilters } = useFilters(dataKey);
@@ -48,11 +48,7 @@ export const useSMStreamM3UColumnConfig = ({ className = 'sm-w-7rem sm-scroller-
       return null;
     }
 
-    return (
-      <div className="sm-channelgroup-selector">
-        <div className="text-container">{option.Name}</div>
-      </div>
-    );
+    return <div className="text-container">{option.Name}</div>;
   }, []);
 
   const buttonTemplate = useCallback(
@@ -61,19 +57,11 @@ export const useSMStreamM3UColumnConfig = ({ className = 'sm-w-7rem sm-scroller-
         if (selectedItems.length > 0) {
           const names = selectedItems.map((x: any) => (x.Id === -1 ? '*' : x.Name));
           const sortedInput = [...names].sort();
-          return (
-            <div className="sm-channelgroup-selector">
-              <div className="text-container">{sortedInput.join(', ')}</div>
-            </div>
-          );
+          return <div className="text-container">{sortedInput.join(', ')}</div>;
         }
       }
 
-      return (
-        <div className="sm-channelgroup-selector">
-          <div className="text-container pl-1">M3U</div>
-        </div>
-      );
+      return <div className="text-container pl-1">M3U</div>;
     },
     [selectedItems]
   );
@@ -90,7 +78,7 @@ export const useSMStreamM3UColumnConfig = ({ className = 'sm-w-7rem sm-scroller-
       <div className={className}>
         <SMDropDown
           buttonDarkBackground
-          buttonTemplate={buttonTemplate(options)}
+          buttonContent={buttonTemplate(options)}
           data={dataSource}
           dataKey="Id"
           itemTemplate={itemTemplate}

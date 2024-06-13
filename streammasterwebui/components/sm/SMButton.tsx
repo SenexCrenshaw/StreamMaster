@@ -70,7 +70,7 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
     }, [props.color]);
 
     const iconClass = useMemo(() => {
-      return isLoading ? 'pi-spin pi-spinner' : 'pi ' + props.icon;
+      return isLoading ? 'pi pi-spin pi-spinner' : 'pi ' + props.icon;
     }, [props.icon, isLoading]);
 
     const getLabelColor = useMemo(() => {
@@ -122,24 +122,26 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
         );
       }
       return (
-        <div className="sm-input">
-          <Tooltip target={`.${tooltipClassName}`} />
-          <div
-            onClick={(e) => {
-              e.preventDefault();
-              props.onClick && props.onClick(e);
-            }}
-            className={`${tooltipClassName} input-wrapper`}
-            data-pr-tooltip={tooltip}
-            data-pr-position={isLeft ? 'left' : 'right'}
-            data-pr-showdelay={400}
-            data-pr-hidedelay={100}
-            data-pr-autohide={true}
-            ref={props.modal === true && props.modalCentered === true ? undefined : props.refs?.setReference}
-            {...(!buttonDisabled && props.getReferenceProps ? props.getReferenceProps() : {})}
-          >
-            {props.children}
-            <i className={`input-icon ${iconClass}`} />
+        <div className={buttonLarge ? 'sm-input-large' : 'sm-border-transparent sm-hover'}>
+          <div className="px-1">
+            <Tooltip target={`.${tooltipClassName}`} />
+            <div
+              onClick={(e) => {
+                e.preventDefault();
+                props.onClick && props.onClick(e);
+              }}
+              className={`${tooltipClassName} input-wrapper`}
+              data-pr-tooltip={tooltip}
+              data-pr-position={isLeft ? 'left' : 'right'}
+              data-pr-showdelay={400}
+              data-pr-hidedelay={100}
+              data-pr-autohide={true}
+              ref={props.modal === true && props.modalCentered === true ? undefined : props.refs?.setReference}
+              {...(!buttonDisabled && props.getReferenceProps ? props.getReferenceProps() : {})}
+            >
+              {props.children}
+              <i className={`input-icon ${iconClass}`} />
+            </div>
           </div>
         </div>
       );

@@ -362,7 +362,7 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, isLoading, onCha
     return (
       <SMDropDown
         buttonDarkBackground
-        buttonTemplate={headerValueTemplate}
+        buttonContent={headerValueTemplate}
         data={epgFiles}
         dataKey="EPGNumber"
         height="20vh"
@@ -392,7 +392,7 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, isLoading, onCha
   return (
     <SMDropDown
       buttonLabel="EPG"
-      buttonTemplate={buttonTemplate(stationChannelName)}
+      buttonContent={buttonTemplate(stationChannelName)}
       center={headerTemplate}
       data={options}
       dataKey="Channel"
