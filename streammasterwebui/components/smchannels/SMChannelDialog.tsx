@@ -6,7 +6,7 @@ import StringEditor from '@components/inputs/StringEditor';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationChannelNames';
 import { SMChannelDto, SMStreamDto, StationChannelName, UpdateSMChannelRequest } from '@lib/smAPI/smapiTypes';
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import SMChannelSMStreamDialog from './SMChannelSMStreamDialog';
 import StreamingProxyTypeSelector from './StreamingProxyTypeSelector';
 
@@ -37,12 +37,29 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
     }
   }, [smChannel, request]);
 
+  const isSaveEnabled = useMemo(() => {
+    if (!smChannel) {
+      return Boolean(request.Name && request.Name !== '');
+    }
+    return (
+      request.Name !== smChannel.Name ||
+      request.Logo !== smChannel.Logo ||
+      request.Group !== smChannel.Group ||
+      request.ChannelNumber !== smChannel.ChannelNumber ||
+      request.EPGId !== smChannel.EPGId
+    );
+  }, [request.ChannelNumber, request.EPGId, request.Group, request.Logo, request.Name, smChannel]);
+
   const doSave = useCallback(() => {
+    if (!isSaveEnabled) {
+      return;
+    }
+
     if (selectedItems.length > 0) {
       request.SMStreamsIds = selectedItems.map((e) => e.Id);
     }
     onSave(request);
-  }, [onSave, request, selectedItems]);
+  }, [isSaveEnabled, onSave, request, selectedItems]);
 
   const setName = useCallback(
     (value: string) => {
@@ -107,20 +124,8 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
   );
 
   useEffect(() => {
-    if (!smChannel) {
-      onSaveEnabled && onSaveEnabled(Boolean(request.Name && request.Name !== ''));
-      return;
-    }
-
-    onSaveEnabled &&
-      onSaveEnabled(
-        request.Name !== smChannel.Name ||
-          request.Logo !== smChannel.Logo ||
-          request.Group !== smChannel.Group ||
-          request.ChannelNumber !== smChannel.ChannelNumber ||
-          request.EPGId !== smChannel.EPGId
-      );
-  }, [onSaveEnabled, request.ChannelNumber, request.EPGId, request.Group, request.Logo, request.Name, smChannel]);
+    onSaveEnabled && onSaveEnabled(isSaveEnabled);
+  }, [isSaveEnabled, onSaveEnabled]);
 
   useImperativeHandle(
     ref,
@@ -155,6 +160,9 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
                   darkBackGround
                   disableDebounce
                   onChange={(e) => e !== undefined && setName(e)}
+                  onSave={() => {
+                    doSave();
+                  }}
                   value={request.Name}
                 />
               </div>

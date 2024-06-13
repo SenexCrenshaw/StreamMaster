@@ -1,16 +1,16 @@
-import SMChannelNameEditor from '@components/smchannels/SMChannelNameEditor';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { SMChannelDto } from '@lib/smAPI/smapiTypes';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+import SMChannelNameEditor from '../SMChannelNameEditor';
 
 interface SMChannelNameColumnConfigProperties {
   readonly width: number;
 }
 
 export const useSMChannelNameColumnConfig = ({ width }: SMChannelNameColumnConfigProperties) => {
-  const bodyTemplate = (smChannelDto: SMChannelDto) => {
+  const bodyTemplate = useCallback((smChannelDto: SMChannelDto) => {
     return <SMChannelNameEditor smChannelDto={smChannelDto} />;
-  };
+  }, []);
 
   const columnConfig: ColumnMeta = useMemo(() => {
     return {
@@ -22,7 +22,7 @@ export const useSMChannelNameColumnConfig = ({ width }: SMChannelNameColumnConfi
       sortable: true,
       width: width
     } as ColumnMeta;
-  }, [width]);
+  }, [bodyTemplate, width]);
 
   return columnConfig;
 };

@@ -1,4 +1,3 @@
-import { Logger } from '@lib/common/logger';
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { useClickOutside } from 'primereact/hooks';
 import { InputText } from 'primereact/inputtext';
@@ -78,7 +77,6 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
     const save = useCallback(
       (forceValueSave?: string | undefined) => {
         setIgnoreSave(true);
-        Logger.debug('Saving value', { forceValueSave, inputValue });
         onSave && onSave(forceValueSave ?? inputValue ?? '');
       },
       [inputValue, onSave]
@@ -98,7 +96,7 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
 
     // const needsSave = useMemo(() => inputValue !== '' && originalValue !== inputValue, [inputValue, originalValue]);
 
-    Logger.debug('StringEditor', { inputValue, originalValue, value });
+    // Logger.debug('StringEditor', { inputValue, originalValue, value });
 
     useEffect(() => {
       if (code === 'Enter' || code === 'NumpadEnter') {
@@ -112,33 +110,37 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
     useClickOutside(divReference, () => {
       if (!isFocused) return;
       setIsFocused(false);
-      if (!disableDebounce && originalValue !== inputValue && !ignoreSave) {
+      if (!disableDebounce && !ignoreSave && originalValue !== inputValue) {
         save();
       }
     });
 
     useEffect(() => {
-      if (value?.includes('PIA')) {
-        Logger.debug('StringEditor', { inputValue, originalValue, value });
-      }
-
       if (!isLoading) {
-        if (originalValue === undefined && value !== undefined) {
-          setOriginalValue(value);
-          setInputValue(value);
-          // } else if (value !== undefined) {
-          //   setInputValue(value);
-        } else if (disableDebounce && value !== undefined && value === originalValue && value !== inputValue) {
-          setInputValue(value);
-        }
-        // if (onSave && value !== undefined) {
+        // if (originalValue === undefined && value !== undefined) {
         //   setOriginalValue(value);
         //   setInputValue(value);
+        // } else if (value !== originalValue && value !== inputValue) {
+        //   setInputValue(value);
+        //   setOriginalValue(value);
+        // } else if (value !== originalValue && value === inputValue) {
+        //   setOriginalValue(value);
         // }
+        if (originalValue === undefined) {
+          if (value !== undefined) {
+            setOriginalValue(value);
+            setInputValue(value);
+          }
+        } else if (value !== originalValue) {
+          setOriginalValue(value);
+          setInputValue(value);
+        }
+      } else {
+        // Logger.debug('StringEditor', { inputValue, isLoading, originalValue, value });
       }
 
       setIgnoreSave(false);
-    }, [disableDebounce, inputValue, isLoading, originalValue, value]);
+    }, [isLoading, originalValue, value]);
 
     const inputGetDiv = useMemo(() => {
       let ret = 'sm-input';

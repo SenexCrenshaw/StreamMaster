@@ -38,6 +38,7 @@ interface SMChannelDataSelectorProperties {
 
 const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDataSelectorProperties) => {
   const dataKey = `${id}-SMChannelDataSelector`;
+
   const { isTrue: smTableIsSimple } = useIsTrue('streameditor-SMStreamDataSelector');
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
   const [enableEdit, setEnableEdit] = useState<boolean>(true);

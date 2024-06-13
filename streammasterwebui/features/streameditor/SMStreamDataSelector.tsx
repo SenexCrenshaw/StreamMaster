@@ -54,7 +54,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
 
   const actionTemplate = useCallback((data: SMStreamDto) => {
     return (
-      <div className="flex p-0 justify-content-end align-items-center">
+      <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
         <StreamCopyLinkDialog realUrl={data.RealUrl} />
         <StreamVisibleDialog iconFilled={false} value={data} />
         <EditSMStreamDialog smStreamDto={data} />
@@ -69,7 +69,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
       groupColumnConfig,
       smStreamM3UColumnConfig,
       { field: 'M3UFileId', fieldType: 'filterOnly' },
-      { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', maxWidth: '5rem' }
+      { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: 82 }
     ],
     [actionTemplate, groupColumnConfig, smStreamM3UColumnConfig]
   );
