@@ -43,6 +43,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
 
   const [m3uFileDto, setM3UFileDto] = useState<M3UFileDto | undefined>(undefined);
   const [originalM3UFileDto, setOriginalM3UFileDto] = useState<M3UFileDto | undefined>(undefined);
+
   const [request, setRequest] = useState<UpdateM3UFileRequest>({} as UpdateM3UFileRequest);
   const { setStringValue } = useStringValue('m3uName');
 

@@ -1,4 +1,3 @@
-import CloseButton from '@components/buttons/CloseButton';
 import {
   FloatingArrow,
   FloatingFocusManager,
@@ -20,7 +19,7 @@ import {
 } from '@floating-ui/react';
 import { Logger } from '@lib/common/logger';
 import { BlockUI } from 'primereact/blockui';
-import { CSSProperties, ReactNode, SyntheticEvent, forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { CSSProperties, ReactNode, forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import SMButton from './SMButton';
 import { SMCard } from './SMCard';
 import { CombinedProvider } from './context/CombinedContext';
@@ -47,11 +46,9 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
       closeOnLostFocus: closeOnFocusOut = false,
       contentWidthSize = '4',
       isLoading = false,
-      hasCloseButton = false,
       modalClosable = false,
       placement = 'bottom',
       showClose = false,
-      // zIndex = 4,
       ...props
     },
     ref
@@ -64,7 +61,7 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
       if (props.modalCentered) {
         return [arrow({ element: arrowRef })];
       }
-      // Logger.debug('SMOverlayInner', props.title, innerAutoPlacement);
+
       return innerAutoPlacement
         ? [offset(() => ARROW_HEIGHT_OFFSET, [ARROW_HEIGHT_OFFSET]), autoPlacement(), arrow({ element: arrowRef })]
         : [offset(() => ARROW_HEIGHT_OFFSET, [ARROW_HEIGHT_OFFSET]), shift(), flip(), arrow({ element: arrowRef })];
@@ -102,7 +99,7 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
     }));
 
     const openPanel = useCallback(
-      (e: SyntheticEvent) => {
+      (isOpen: boolean) => {
         if (props.answer !== undefined) {
           props.onAnswered?.();
           return;
@@ -115,23 +112,15 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
     const content = useMemo(() => {
       const borderClass = props.info ? 'info-header-text-bottom-border' : 'info-header-text';
       return (
-        <SMCard
-          darkBackGround
-          header={
-            <div className="justify-content-end align-items-center flex-row flex gap-1">
-              {props.header}
-              {!hasCloseButton && (showClose || props.modal) && <CloseButton onClick={openPanel} tooltip="Closer" />}
-            </div>
-          }
-          {...props}
-        >
+        // <SMCard darkBackGround header={<div className="justify-content-end align-items-center flex-row flex gap-1">{props.header}</div>} {...props}>
+        <SMCard darkBackGround {...props} openPanel={openPanel}>
           <div className="sm-card-children">
             {props.info && <div className={`${borderClass} sm-card-children-info`}>{props.info}</div>}
             <div className="sm-card-children-content">{props.children}</div>
           </div>
         </SMCard>
       );
-    }, [hasCloseButton, openPanel, props, showClose]);
+    }, [openPanel, props]);
 
     const getStyle = useMemo((): CSSProperties => {
       if (props.modal && props.modalCentered) {

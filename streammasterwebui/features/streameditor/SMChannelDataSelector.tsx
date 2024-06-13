@@ -83,7 +83,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
 
   const simpleActionTemplate = useCallback((data: SMChannelDto) => {
     return (
-      <div className="flex justify-content-end align-items-center">
+      <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
         <StreamCopyLinkDialog realUrl={data?.RealUrl} />
         <SetSMChannelsLogoFromEPGDialog smChannel={data} />
         <AutoSetEPGSMChannelDialog smChannel={data} />

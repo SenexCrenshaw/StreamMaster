@@ -5,19 +5,20 @@ import SMChannelGroupDropDown from '@components/inputs/SMChannelGroupDropDown';
 import StringEditor from '@components/inputs/StringEditor';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationChannelNames';
-import { CreateSMChannelRequest, SMChannelDto, SMStreamDto, StationChannelName } from '@lib/smAPI/smapiTypes';
+import { SMChannelDto, SMStreamDto, StationChannelName, UpdateSMChannelRequest } from '@lib/smAPI/smapiTypes';
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
 import SMChannelSMStreamDialog from './SMChannelSMStreamDialog';
 import StreamingProxyTypeSelector from './StreamingProxyTypeSelector';
 
 interface SMChannelDialogProperties {
-  onSave: (request: CreateSMChannelRequest) => void;
+  onSave: (request: UpdateSMChannelRequest) => void;
   readonly onSaveEnabled?: (saveEnabled: boolean) => void;
   readonly smChannel?: SMChannelDto;
 }
 
 export interface SMChannelDialogRef {
   save: () => void;
+  reset: () => void;
 }
 
 const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties>(({ smChannel, onSaveEnabled, onSave }, ref) => {
@@ -26,15 +27,15 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
   const [tempSMChannel, setTempSMChannel] = useState<SMChannelDto | undefined>(undefined);
 
   const query = useGetStationChannelNames();
-  const [request, setRequest] = useState<CreateSMChannelRequest>({} as CreateSMChannelRequest);
+  const [request, setRequest] = useState<UpdateSMChannelRequest>({} as UpdateSMChannelRequest);
   const [, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
 
   useEffect(() => {
-    if (smChannel && smChannel.Name !== request.Name) {
+    if (smChannel && smChannel.Id !== request.Id) {
       setTempSMChannel(smChannel);
       setRequest({ ...smChannel });
     }
-  }, [smChannel, request.Name]);
+  }, [smChannel, request]);
 
   const doSave = useCallback(() => {
     if (selectedItems.length > 0) {
@@ -124,11 +125,17 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
   useImperativeHandle(
     ref,
     () => ({
+      reset: () => {
+        if (smChannel) {
+          setTempSMChannel(smChannel);
+          setRequest({ ...smChannel });
+        }
+      },
       save: () => {
         doSave();
       }
     }),
-    [doSave]
+    [doSave, smChannel]
   );
 
   if (!smChannel) {
