@@ -73,7 +73,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
 
   const actionTemplate = useCallback((data: SMChannelDto) => {
     return (
-      <div className="flex justify-content-end align-items-center">
+      <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
         <StreamCopyLinkDialog realUrl={data?.RealUrl} />
         <DeleteSMChannelDialog smChannel={data} />
         <EditSMChannelDialog smChannel={data} />
