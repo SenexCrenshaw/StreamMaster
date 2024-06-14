@@ -10,6 +10,7 @@ type IconSelectorProperties = {
   readonly darkBackGround?: boolean;
   readonly enableEditMode?: boolean;
   readonly autoPlacement?: boolean;
+  readonly isLoading?: boolean;
   readonly label?: string;
   readonly large?: boolean;
   readonly value?: string;
@@ -21,6 +22,7 @@ const IconSelector = ({
   darkBackGround = false,
   enableEditMode = true,
   autoPlacement = false,
+  isLoading = false,
   label,
   large = false,
   value,
@@ -162,6 +164,7 @@ const IconSelector = ({
           autoPlacement={autoPlacement}
           itemSize={32}
           itemTemplate={itemTemplate}
+          buttonIsLoading={isLoading}
           onChange={(e) => {
             handleOnChange(e);
           }}

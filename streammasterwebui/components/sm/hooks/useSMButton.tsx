@@ -13,7 +13,7 @@ export const useSMButton = ({
   getReferenceProps,
   icon,
   iconFilled = false,
-  isLoading = false,
+  buttonIsLoading: isLoading = false,
   label,
   modal,
   modalCentered,
@@ -68,7 +68,7 @@ export const useSMButton = ({
               buttonClassName={buttonClassName}
               iconFilled={iconFilled}
               icon={icon}
-              isLoading={isLoading}
+              buttonIsLoading={isLoading}
               large={buttonLarge}
               tooltip={tooltip}
               label={buttonLabel}
@@ -95,7 +95,7 @@ export const useSMButton = ({
             buttonClassName={buttonClassName}
             iconFilled={iconFilled}
             icon={icon}
-            isLoading={isLoading}
+            buttonIsLoading={isLoading}
             large={buttonLarge}
             tooltip={tooltip}
             label={buttonLabel}

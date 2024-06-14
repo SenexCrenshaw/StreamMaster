@@ -162,7 +162,7 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
               <div className="sm-w-6">
                 <SMChannelGroupDropDown
                   darkBackGround
-                  fixed
+                  autoPlacement
                   label="Group"
                   onChange={(e) => {
                     e !== undefined && setGroup(e);
@@ -190,7 +190,7 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
           </div>
 
           <div className="sm-w-8rem">
-            <IconSelector darkBackGround label="Logo" fixed large enableEditMode onChange={(e) => setLogo(e)} value={request.Logo} />
+            <IconSelector darkBackGround label="Logo" large enableEditMode onChange={(e) => setLogo(e)} value={request.Logo} />
           </div>
         </div>
       </div>

@@ -43,7 +43,8 @@ public static class StoreGenerator
     [
         "messages",
         "updateSettingRequest",
-        "currentSettingRequest"
+        "currentSettingRequest",
+        "loading"
     ];
 
     private static string GenerateConfigs()

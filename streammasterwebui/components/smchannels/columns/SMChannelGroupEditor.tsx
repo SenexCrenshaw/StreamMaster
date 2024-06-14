@@ -3,6 +3,7 @@ import { SetSMChannelGroup } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { ChannelGroupDto, SMChannelDto, SetSMChannelGroupRequest } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback } from 'react';
 
+import useIsCellLoading from '@lib/redux/hooks/useIsCellLoading';
 import SMChannelGroupDropDown from '../../inputs/SMChannelGroupDropDown';
 
 interface SMChannelGroupEditorProperties {
@@ -13,29 +14,36 @@ interface SMChannelGroupEditorProperties {
 }
 
 const SMChannelGroupEditor = ({ darkBackGround, autoPlacement = false, smChannelDto, onChange }: SMChannelGroupEditorProperties) => {
+  const [isCellLoading, setIsCellLoading] = useIsCellLoading({
+    Entity: 'SMChannel',
+    Field: 'Group',
+    Id: smChannelDto.Id.toString()
+  });
+
   const handleOnChange = useCallback(
     async (newGroup: string) => {
       if (isEmptyObject(smChannelDto)) {
         return;
       }
-      // setIsSaving(true);
+      setIsCellLoading(true);
       const request: SetSMChannelGroupRequest = {
         Group: newGroup,
         SMChannelId: smChannelDto.Id
       };
 
       await SetSMChannelGroup(request).finally(() => {
-        // setIsSaving(false);
+        setIsCellLoading(false);
       });
     },
-    [smChannelDto]
+    [smChannelDto, setIsCellLoading]
   );
 
   return (
     <SMChannelGroupDropDown
       autoPlacement={autoPlacement}
       darkBackGround={darkBackGround}
-      value={smChannelDto.Group}
+      isLoading={isCellLoading}
+      smChannelDto={smChannelDto}
       onChange={async (e) => handleOnChange(e)}
     />
   );

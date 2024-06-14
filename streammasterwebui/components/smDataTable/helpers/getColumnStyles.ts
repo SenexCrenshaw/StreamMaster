@@ -1,4 +1,3 @@
-import { Logger } from '@lib/common/logger';
 import { CSSProperties } from 'react';
 import { ColumnMeta } from '../types/ColumnMeta';
 
@@ -38,9 +37,9 @@ const getStyle = (width?: string | number, minWidth?: string | number, maxWidth?
 export default getStyle;
 
 export const getColumnStyles = (col: ColumnMeta): CSSProperties => {
-  if (col.field === 'Group') {
-    Logger.debug('getColumnStyles', col);
-  }
+  // if (col.field === 'Group') {
+  //   Logger.debug('getColumnStyles', col);
+  // }
   // Default style for specific field types
   const defaultWidth = 40;
 

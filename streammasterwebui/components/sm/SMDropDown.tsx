@@ -12,7 +12,16 @@ export interface SMDropDownRef {
 }
 const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
   (
-    { closeOnSelection = true, autoPlacement = false, isLoading = false, itemSize = 26, labelInline = false, scrollHeight = '40vh', zIndex = 10, ...props },
+    {
+      closeOnSelection = true,
+      autoPlacement = false,
+      buttonIsLoading: isLoading = false,
+      itemSize = 26,
+      labelInline = false,
+      scrollHeight = '40vh',
+      zIndex = 10,
+      ...props
+    },
     ref
   ) => {
     useImperativeHandle(ref, () => ({
@@ -34,7 +43,7 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
       (children: ReactNode) => {
         return (
           <div className={getDiv}>
-            <SMOverlay autoPlacement={autoPlacement} icon="pi-chevron-down" isLoading={isLoading} ref={smOverlayRef} zIndex={zIndex} {...props}>
+            <SMOverlay autoPlacement={autoPlacement} icon="pi-chevron-down" buttonIsLoading={isLoading} ref={smOverlayRef} zIndex={zIndex} {...props}>
               <div className="sm-card border-radius-left border-radius-right">
                 {children}
                 {props.footerTemplate && (

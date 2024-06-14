@@ -3,31 +3,36 @@ import { ChannelGroupDto, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { ReactNode, forwardRef, memo, useEffect, useMemo, useRef, useState } from 'react';
 
 import SMDropDown, { SMDropDownRef } from '@components/sm/SMDropDown';
+import useIsRowLoading from '@lib/redux/hooks/useIsRowLoading';
 
 interface SMChannelGroupDropDownProperties {
-  readonly smChannel?: SMChannelDto;
-  readonly value?: string;
-  readonly darkBackGround?: boolean;
   readonly autoPlacement?: boolean;
+  readonly darkBackGround?: boolean;
+  readonly isLoading?: boolean;
   readonly label?: string;
   readonly labelInline?: boolean;
   readonly onChange: (value: string) => void;
+  readonly smChannelDto?: SMChannelDto;
+  readonly value?: string;
 }
 
 const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownProperties>((props: SMChannelGroupDropDownProperties, ref) => {
-  const { darkBackGround, value, smChannel, autoPlacement = false, onChange, label, labelInline = false } = props;
+  const { darkBackGround, smChannelDto, autoPlacement = false, onChange, label, labelInline = false, value } = props;
+
   const smDropownRef = useRef<SMDropDownRef>(null);
-  const [_isLoading, setIsLoading] = useState<boolean>(false);
+
   const { data, isLoading } = useGetChannelGroups();
   const [channelGroup, setChannelGroup] = useState<ChannelGroupDto | null>(null);
+
+  const [isRowLoading] = useIsRowLoading({ Entity: 'SMChannel', Id: channelGroup?.Id?.toString() ?? '' });
 
   useEffect(() => {
     if (!data) {
       return;
     }
-    setIsLoading(false);
-    if (smChannel !== undefined && (channelGroup === null || channelGroup.Name !== smChannel.Group)) {
-      const found = data.find((predicate) => predicate.Name === smChannel.Group);
+
+    if (smChannelDto !== undefined && (channelGroup === null || channelGroup.Name !== smChannelDto.Group)) {
+      const found = data.find((predicate) => predicate.Name === smChannelDto.Group);
       if (found) setChannelGroup(found);
       return;
     }
@@ -37,7 +42,7 @@ const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownP
       if (found) setChannelGroup(found);
       return;
     }
-  }, [channelGroup, data, value, smChannel]);
+  }, [channelGroup, data, smChannelDto, value]);
 
   const itemTemplate = (option: ChannelGroupDto) => {
     if (option === undefined) {
@@ -94,10 +99,9 @@ const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownP
           dataKey="Name"
           filter
           filterBy="Name"
-          isLoading={isLoading || _isLoading}
+          buttonIsLoading={isLoading || props.isLoading || isRowLoading}
           itemTemplate={itemTemplate}
           onChange={(e) => {
-            setIsLoading(true);
             onChange(e.Name);
           }}
           ref={smDropownRef}

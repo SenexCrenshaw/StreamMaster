@@ -1,5 +1,5 @@
 import StringEditor from '@components/inputs/StringEditor';
-import { useIsTrue } from '@lib/redux/hooks/isTrue';
+import useIsCellLoading from '@lib/redux/hooks/useIsCellLoading';
 import { SetSMChannelName } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { SMChannelDto, SetSMChannelNameRequest } from '@lib/smAPI/smapiTypes';
 import React from 'react';
@@ -10,14 +10,19 @@ export interface SMChannelNameEditorProperties {
 }
 
 const SMChannelNameEditor = ({ smChannelDto, onClick }: SMChannelNameEditorProperties) => {
-  const { isTrue: isNameLoading, setIsTrue: setIsNameLoading } = useIsTrue('SMChannelDataSelectorIsNameLoading');
+  const [isCellLoading, setIsCellLoading] = useIsCellLoading({
+    Entity: 'SMChannel',
+    Field: 'Name',
+    Id: smChannelDto.Id.toString()
+  });
 
   const onUpdateM3UStream = React.useCallback(
     async (name: string) => {
       if (smChannelDto.Id === 0 || !name || name === '' || smChannelDto.Name === name) {
         return;
       }
-      setIsNameLoading(true);
+
+      setIsCellLoading(true);
       const toSend = { Name: name, SMChannelId: smChannelDto.Id } as SetSMChannelNameRequest;
 
       await SetSMChannelName(toSend)
@@ -26,10 +31,10 @@ const SMChannelNameEditor = ({ smChannelDto, onClick }: SMChannelNameEditorPrope
           console.error(error);
         })
         .finally(() => {
-          setIsNameLoading(false);
+          setIsCellLoading(false);
         });
     },
-    [smChannelDto, setIsNameLoading]
+    [smChannelDto, setIsCellLoading]
   );
 
   if (smChannelDto.Name === undefined) {
@@ -40,7 +45,7 @@ const SMChannelNameEditor = ({ smChannelDto, onClick }: SMChannelNameEditorPrope
     <StringEditor
       showClear
       darkBackGround={false}
-      isLoading={isNameLoading}
+      isLoading={isCellLoading}
       onClick={onClick}
       onSave={async (e) => {
         if (e !== undefined) {

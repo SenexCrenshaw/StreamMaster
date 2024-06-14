@@ -1,39 +1,47 @@
+import useIsCellLoading from '@lib/redux/hooks/useIsCellLoading';
 import { SetSMChannelEPGId } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { SMChannelDto, SetSMChannelEPGIdRequest } from '@lib/smAPI/smapiTypes';
-import { memo, useState } from 'react';
+import { memo, useCallback } from 'react';
 import EPGSelector from './EPGSelector';
 
 interface EPGEditorProperties {
-  readonly data: SMChannelDto;
+  readonly smChannelDto: SMChannelDto;
 }
 
-const EPGEditor = ({ data }: EPGEditorProperties) => {
-  const [isSaving, setIsSaving] = useState<boolean>(false);
+const EPGEditor = ({ smChannelDto }: EPGEditorProperties) => {
+  const [isCellLoading, setIsCellLoading] = useIsCellLoading({
+    Entity: 'SMChannel',
+    Field: 'EPGId',
+    Id: smChannelDto.Id.toString()
+  });
 
-  const onUpdateVideoStream = async (epg: string) => {
-    if (!data.Id) {
-      return;
-    }
-    setIsSaving(true);
-    const request = {} as SetSMChannelEPGIdRequest;
-    request.SMChannelId = data.Id;
-    request.EPGId = epg;
+  const onUpdateVideoStream = useCallback(
+    async (epg: string) => {
+      if (!smChannelDto.Id) {
+        return;
+      }
+      setIsCellLoading(true);
+      const request = {} as SetSMChannelEPGIdRequest;
+      request.SMChannelId = smChannelDto.Id;
+      request.EPGId = epg;
 
-    await SetSMChannelEPGId(request)
-      .then(() => {})
-      .catch((error) => {
-        console.error(error);
-      })
-      .finally(() => setIsSaving(false));
-  };
+      await SetSMChannelEPGId(request)
+        .then(() => {})
+        .catch((error) => {
+          console.error(error);
+        })
+        .finally(() => setIsCellLoading(false));
+    },
+    [setIsCellLoading, smChannelDto.Id]
+  );
 
   return (
     <EPGSelector
-      isLoading={isSaving}
+      isLoading={isCellLoading}
       onChange={async (e: string) => {
         await onUpdateVideoStream(e);
       }}
-      smChannel={data}
+      smChannel={smChannelDto}
     />
   );
 };

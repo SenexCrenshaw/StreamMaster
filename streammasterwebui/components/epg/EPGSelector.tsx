@@ -399,7 +399,7 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, isLoading, onCha
       filter
       filterBy="DisplayName"
       footerTemplate={footerTemplate}
-      isLoading={loading || isLoading}
+      buttonIsLoading={loading || isLoading}
       itemTemplate={itemTemplate}
       onChange={(e) => {
         handleOnChange(e.Channel);

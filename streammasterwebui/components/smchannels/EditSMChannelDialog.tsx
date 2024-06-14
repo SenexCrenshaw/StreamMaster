@@ -1,35 +1,36 @@
 import OKButton from '@components/buttons/OKButton';
 import ResetButton from '@components/buttons/ResetButton';
 import SMPopUp from '@components/sm/SMPopUp';
-import { useIsTrue } from '@lib/redux/hooks/isTrue';
+import useIsRowLoading from '@lib/redux/hooks/useIsRowLoading';
 import { UpdateSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { SMChannelDto, UpdateSMChannelRequest } from '@lib/smAPI/smapiTypes';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import SMChannelDialog, { SMChannelDialogRef } from './SMChannelDialog';
 
 interface CopySMChannelProperties {
-  smChannel: SMChannelDto;
+  smChannelDto: SMChannelDto;
 }
 
-const EditSMChannelDialog = ({ smChannel }: CopySMChannelProperties) => {
+const EditSMChannelDialog = ({ smChannelDto }: CopySMChannelProperties) => {
   const dialogRef = useRef<SMChannelDialogRef>(null);
   const [saveEnabled, setSaveEnabled] = useState<boolean>(false);
   const [originalDto, setOriginalDto] = useState<SMChannelDto | undefined>(undefined);
-  const { isTrue: isNameLoading, setIsTrue: setIsNameLoading } = useIsTrue('SMChannelDataSelectorIsNameLoading');
+
+  const [isRowLoading, setIsRowLoading] = useIsRowLoading({ Entity: 'SMChannel', Id: smChannelDto.Id.toString() });
 
   useEffect(() => {
-    if (smChannel === undefined) {
+    if (smChannelDto === undefined) {
       return;
     }
-    setOriginalDto(smChannel);
+    setOriginalDto(smChannelDto);
 
     return;
-  }, [smChannel]);
+  }, [smChannelDto]);
 
   const onSave = useCallback(
     (request: UpdateSMChannelRequest) => {
-      request.Id = smChannel.Id;
-      setIsNameLoading(true);
+      request.Id = smChannelDto.Id;
+      setIsRowLoading(true);
 
       UpdateSMChannel(request)
         .then(() => {})
@@ -37,18 +38,21 @@ const EditSMChannelDialog = ({ smChannel }: CopySMChannelProperties) => {
           console.error(e);
         })
         .finally(() => {
-          setIsNameLoading(false);
+          setIsRowLoading(false);
         });
     },
-    [smChannel, setIsNameLoading]
+    [smChannelDto, setIsRowLoading]
   );
 
-  if (smChannel === undefined) {
+  // Logger.debug('EditSMChannelDialog', isRowLoading);
+
+  if (smChannelDto === undefined) {
     return null;
   }
 
   return (
     <SMPopUp
+      isPopupLoading={isRowLoading}
       buttonClassName="icon-yellow"
       contentWidthSize="5"
       header={
@@ -67,15 +71,15 @@ const EditSMChannelDialog = ({ smChannel }: CopySMChannelProperties) => {
           />
         </div>
       }
-      isLoading={isNameLoading}
+      buttonIsLoading={isRowLoading}
       icon="pi-pencil"
       modal
       modalCentered
       placement="bottom-end"
       rememberKey={'DeleteChannelGroupDialog'}
-      title={`EDIT CHANNEL : ${smChannel.Name}`}
+      title={`EDIT CHANNEL : ${smChannelDto.Name}`}
     >
-      <SMChannelDialog ref={dialogRef} smChannel={smChannel} onSave={onSave} onSaveEnabled={setSaveEnabled} />
+      <SMChannelDialog ref={dialogRef} smChannel={smChannelDto} onSave={onSave} onSaveEnabled={setSaveEnabled} />
     </SMPopUp>
   );
 };

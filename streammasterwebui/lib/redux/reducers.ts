@@ -27,6 +27,7 @@ import GetStreamGroupsReducer from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice
 import GetStreamGroupSMChannelsReducer from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
 import GetSystemStatusReducer from '@lib/smAPI/Settings/GetSystemStatusSlice';
 import isTrue from '@lib/redux/hooks/isTrue';
+import loading from '@lib/redux/hooks/loading';
 import messages from '@lib/redux/hooks/messages';
 import queryAdditionalFilters from '@lib/redux/hooks/queryAdditionalFilters';
 import queryFilter from '@lib/redux/hooks/queryFilter';
@@ -139,6 +140,7 @@ export const rootReducer = combineReducers({
   GetStreamGroupSMChannels: GetStreamGroupSMChannelsReducer,
   GetSystemStatus: GetSystemStatusReducer,
   isTrue: persistReducer(isTrueConfig, isTrue),
+  loading: loading,
   messages: messages,
   queryAdditionalFilters: persistReducer(queryAdditionalFiltersConfig, queryAdditionalFilters),
   queryFilter: persistReducer(queryFilterConfig, queryFilter),

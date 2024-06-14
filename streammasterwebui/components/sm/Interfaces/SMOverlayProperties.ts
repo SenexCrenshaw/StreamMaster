@@ -9,7 +9,7 @@ export interface SMOverlayProperties extends SMButtonProperties, SMCardPropertie
   readonly className?: string;
   readonly closeOnLostFocus?: boolean;
   readonly contentWidthSize?: string;
-
+  readonly isOverLayLoading?: boolean;
   readonly info?: string;
   readonly placement?: Placement;
   readonly showClose?: boolean;

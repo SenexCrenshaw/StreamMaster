@@ -45,7 +45,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
   const { columnConfig: channelNumberColumnConfig } = useSMChannelNumberColumnConfig({ enableEdit, useFilter: false });
   const { columnConfig: channelLogoColumnConfig } = useSMChannelLogoColumnConfig({ enableEdit });
   const channelNameColumnConfig = useSMChannelNameColumnConfig({ width: smTableIsSimple ? 200 : 125 });
-  const epgColumnConfig = useSMChannelEPGColumnConfig({ width: smTableIsSimple ? 200 : 125 });
+  const epgColumnConfig = useSMChannelEPGColumnConfig({ width: smTableIsSimple ? 150 : 125 });
   const groupColumnConfig = useSMChannelGroupColumnConfig({ dataKey, width: smTableIsSimple ? 200 : 125 });
   const sgColumnConfig = useSMChannelSGColumnConfig({ dataKey: dataKey + '-sg', id: dataKey });
   const { columnConfig: proxyColumnConfig } = useSMChannelProxyColumnConfig({ enableEdit, useFilter: false });
@@ -77,7 +77,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
       <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
         <StreamCopyLinkDialog realUrl={data?.RealUrl} />
         <DeleteSMChannelDialog smChannel={data} />
-        <EditSMChannelDialog smChannel={data} />
+        <EditSMChannelDialog smChannelDto={data} />
       </div>
     );
   }, []);
@@ -90,7 +90,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
         <AutoSetEPGSMChannelDialog smChannel={data} />
         <CloneSMChannelDialog label="Copy Channel" smChannel={data} />
         <DeleteSMChannelDialog smChannel={data} />
-        <EditSMChannelDialog smChannel={data} />
+        <EditSMChannelDialog smChannelDto={data} />
       </div>
     );
   }, []);

@@ -32,7 +32,7 @@ const NumberEditor = ({
   autoFocus,
   darkBackGround,
   debounceMs = 1500,
-  disableDebounce = true,
+  disableDebounce = false,
   isLoading,
   label,
   labelInline = false,
@@ -129,15 +129,6 @@ const NumberEditor = ({
     return ret;
   }, [darkBackGround, labelInline, showButtons]);
 
-  useEffect(() => {
-    if (code === 'Enter' || code === 'NumpadEnter') {
-      if (needsSave && !ignoreSave) {
-        debounced.cancel();
-        save();
-      }
-    }
-  }, [code, debounced, ignoreSave, needsSave, save]);
-
   useClickOutside(overlayReference, () => {
     if (!isFocused) {
       return;
@@ -155,6 +146,7 @@ const NumberEditor = ({
       setInputValue(value);
       setOriginalValue(value);
     }
+    setIgnoreSave(false);
   }, [value, setInputValue]);
 
   return (
@@ -169,6 +161,7 @@ const NumberEditor = ({
         {label && labelInline && <div className="w-6">{label.toUpperCase()}</div>}
         <InputNumber
           className={getDiv}
+          disabled={isLoading}
           min={min}
           max={max}
           locale="en-US"

@@ -28,7 +28,7 @@ export const StreamGroupSelector = ({ onChange, selectedStreamGroup }: StreamGro
       buttonLarge
       data={data}
       dataKey="Id"
-      isLoading={isLoading}
+      buttonIsLoading={isLoading}
       itemTemplate={(option: StreamGroupDto) => (
         <div className="sm-epg-selector">
           <div className="text-container pl-1 sm-w-15rem">{option?.Name}</div>

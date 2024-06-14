@@ -6,6 +6,7 @@ export interface SMPopUpProperties extends SMOverlayProperties {
   readonly children?: React.ReactNode;
   readonly closeButtonDisabled?: boolean;
   readonly disabled?: boolean;
+  readonly isPopupLoading?: boolean;
   readonly okButtonDisabled?: boolean;
   readonly rememberKey?: string;
   readonly showRemember?: boolean;

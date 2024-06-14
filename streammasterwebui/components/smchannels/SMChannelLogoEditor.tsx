@@ -1,4 +1,5 @@
 import IconSelector from '@components/icons/IconSelector';
+import useIsCellLoading from '@lib/redux/hooks/useIsCellLoading';
 import { SetSMChannelLogo } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { SMChannelDto, SetSMChannelLogoRequest } from '@lib/smAPI/smapiTypes';
 import { memo } from 'react';
@@ -9,11 +10,18 @@ export interface StreamDataSelectorProperties {
 }
 
 const SMChannelLogoEditor = ({ data, enableEditMode }: StreamDataSelectorProperties) => {
+  const [isCellLoading, setIsCellLoading] = useIsCellLoading({
+    Entity: 'SMChannel',
+    Field: 'Logo',
+    Id: data.Id.toString()
+  });
+
   const onSetLogo = (Logo: string) => {
     if (data.Id === 0) {
       return;
     }
-    const request = { SMChannelId: data.Id, Logo: Logo } as SetSMChannelLogoRequest;
+    setIsCellLoading(true);
+    const request = { Logo: Logo, SMChannelId: data.Id } as SetSMChannelLogoRequest;
 
     SetSMChannelLogo(request)
       .then(() => {})
@@ -21,12 +29,15 @@ const SMChannelLogoEditor = ({ data, enableEditMode }: StreamDataSelectorPropert
         console.error(error);
         throw error;
       })
-      .finally(() => {});
+      .finally(() => {
+        setIsCellLoading(false);
+      });
   };
 
   return (
     <IconSelector
       enableEditMode={enableEditMode || enableEditMode === undefined}
+      isLoading={isCellLoading}
       onChange={async (e: string) => {
         onSetLogo(e);
       }}

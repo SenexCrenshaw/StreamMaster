@@ -19,6 +19,7 @@ export const SMPopUp: React.FC<SMPopUpProperties> = ({
   contentWidthSize = '2',
   disabled = false,
   okButtonDisabled = false,
+  isPopupLoading = false,
   onCloseClick,
   onOkClick,
   rememberKey,
@@ -39,9 +40,12 @@ export const SMPopUp: React.FC<SMPopUpProperties> = ({
     overlayRef.current?.hide();
   }, [onCloseClick, remember, rememberKey, setRemeber]);
 
+  // Logger.debug('Popup', props.title, isPopupLoading);
+
   return (
     <SMOverlay
       ref={overlayRef}
+      isOverLayLoading={isPopupLoading}
       contentWidthSize={contentWidthSize}
       onAnswered={() => {
         if (rememberKey && rememberKey !== '' && remember !== null) {

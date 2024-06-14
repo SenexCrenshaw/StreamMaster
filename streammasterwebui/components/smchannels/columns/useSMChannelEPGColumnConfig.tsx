@@ -20,9 +20,6 @@ export const useSMChannelEPGColumnConfig = ({ width = 125 }: SMChannelEPGColumnC
   const colorsQuery = useGetEPGColors();
   const { isSystemReady, settings } = useSMContext();
 
-  // const buttonWidth = `sm-w-${width - 0}rem`;
-  // const smWidth = `${width}rem`;
-
   const epgFiles = useMemo(() => {
     let additionalOptions = [] as EPGFileDto[];
     if (settings.SDSettings?.SDEnabled === undefined) {
@@ -100,7 +97,7 @@ export const useSMChannelEPGColumnConfig = ({ width = 125 }: SMChannelEPGColumnC
         buttonContent={buttonTemplate(options)}
         data={epgFiles}
         dataKey="Id"
-        isLoading={isLoading}
+        buttonIsLoading={isLoading}
         itemTemplate={itemTemplate}
         filter
         filterBy="Name"
@@ -120,7 +117,7 @@ export const useSMChannelEPGColumnConfig = ({ width = 125 }: SMChannelEPGColumnC
     );
   }
   const bodyTemplate = useCallback((smChannel: SMChannelDto) => {
-    return <EPGEditor data={{ ...smChannel }} />;
+    return <EPGEditor smChannelDto={{ ...smChannel }} />;
   }, []);
 
   const columnConfig: ColumnMeta = {

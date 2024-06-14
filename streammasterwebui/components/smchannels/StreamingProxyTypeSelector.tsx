@@ -1,6 +1,7 @@
 import SMDropDown from '@components/sm/SMDropDown';
 import { isNumber } from '@lib/common/common';
 import { Logger } from '@lib/common/logger';
+import useIsCellLoading from '@lib/redux/hooks/useIsCellLoading';
 import { SetSMChannelProxy } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { SMChannelDto, SetSMChannelProxyRequest, StreamingProxyTypes } from '@lib/smAPI/smapiTypes';
 import { SelectItem } from 'primereact/selectitem';
@@ -14,7 +15,12 @@ interface StreamingProxyTypeSelectorProperties {
 }
 
 const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties> = ({ darkBackGround, data, label, onChange: clientOnChange }) => {
-  const [isSaving, setIsSaving] = React.useState<boolean>(false);
+  const [isCellLoading, setIsCellLoading] = useIsCellLoading({
+    Entity: 'SMChannel',
+    Field: 'StreamingProxyType',
+    Id: data?.Id.toString() ?? ''
+  });
+
   const getHandlersOptions = useMemo((): SelectItem[] => {
     const options = Object.keys(StreamingProxyTypes)
       .filter((key) => isNaN(Number(key)))
@@ -51,20 +57,20 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
         Logger.warn('No data available for saving', { option });
         return;
       }
-      setIsSaving(true);
+      setIsCellLoading(true);
       const request: SetSMChannelProxyRequest = {
         SMChannelId: data.Id,
         StreamingProxy: option
       };
 
       try {
-        await SetSMChannelProxy(request).finally(() => setIsSaving(false));
+        await SetSMChannelProxy(request).finally(() => setIsCellLoading(false));
         Logger.info('Streaming proxy type saved successfully', { request });
       } catch (error) {
         Logger.error('Error saving streaming proxy type', { error, request });
       }
     },
-    [data]
+    [data, setIsCellLoading]
   );
 
   const buttonTemplate = useMemo((): ReactNode => {
@@ -105,7 +111,7 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
       dataKey="label"
       filter
       filterBy="label"
-      isLoading={isSaving}
+      buttonIsLoading={isCellLoading}
       itemTemplate={valueTemplate}
       label={label}
       onChange={async (e: any) => {

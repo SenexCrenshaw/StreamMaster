@@ -43,9 +43,9 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
     {
       autoPlacement: innerAutoPlacement = false,
       buttonDisabled = false,
-      closeOnLostFocus: closeOnFocusOut = false,
+      closeOnLostFocus = false,
       contentWidthSize = '4',
-      isLoading = false,
+      isOverLayLoading = false,
       modalClosable = false,
       placement = 'bottom',
       showClose = false,
@@ -70,13 +70,13 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
     const { refs, floatingStyles, context } = useFloating({
       middleware,
       onOpenChange(nextOpen, event, reason) {
-        Logger.debug('onOpenChange', { closeOnLostFocus: closeOnFocusOut, event, reason });
+        Logger.debug('onOpenChange', { closeOnLostFocus: closeOnLostFocus, event, reason });
 
         if (reason && !DISALLOWED_CLOSE_REASONS.includes(reason)) {
           if (props.modal && !modalClosable && !nextOpen) return;
         }
 
-        if (!event?.type || (!closeOnFocusOut && event.type === 'focusout') || (props.modal && event.type === 'focusout')) {
+        if (!event?.type || (!closeOnLostFocus && event.type === 'focusout') || (props.modal && event.type === 'focusout')) {
           setIsOpen(nextOpen ?? false);
           return;
         }
@@ -129,10 +129,6 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
       return floatingStyles;
     }, [props.modal, props.modalCentered, floatingStyles]);
 
-    if (props.icon === 'pi-building-columns') {
-      Logger.debug('SMOverlay', 'isLoading', isLoading, 'buttonDisabled', buttonDisabled, props);
-    }
-
     const z = useMemo(() => {
       if (props.modal) {
         return 10;
@@ -140,8 +136,10 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
       return props.zIndex;
     }, [props.modal, props.zIndex]);
 
+    // Logger.debug('Overlay', props.title, isOverLayLoading);
+
     return (
-      <BlockUI blocked={isLoading}>
+      <>
         <SMButton
           buttonClassName={props.buttonClassName}
           buttonDarkBackground={props.buttonDarkBackground}
@@ -151,7 +149,6 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
           hollow={props.hollow}
           icon={props.icon}
           iconFilled={props.iconFilled}
-          isLoading={isLoading}
           label={props.buttonLabel}
           refs={refs}
           tooltip={props.tooltip}
@@ -176,7 +173,7 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
                       <FloatingArrow ref={arrowRef} context={context} height={ARROW_HEIGHT} fill="var(--surface-border)" tipRadius={4} />
                     )}
                     <div className="w-full" style={transitionStyles}>
-                      {content}
+                      <BlockUI blocked={isOverLayLoading}>{content}</BlockUI>
                     </div>
                   </div>
                 </FloatingFocusManager>
@@ -184,7 +181,7 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
             )}
           </FloatingPortal>
         )}
-      </BlockUI>
+      </>
     );
   }
 );
