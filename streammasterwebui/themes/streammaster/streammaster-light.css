@@ -7708,11 +7708,15 @@
 }
 
 .sm-box-shadow, .sm-popover {
-  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.6), 0px -6px 12px rgba(0, 0, 0, 0.6), 6px 0px 12px rgba(0, 0, 0, 0.6), -6px 0px 12px rgba(0, 0, 0, 0.6);
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3), 0px -6px 12px rgba(0, 0, 0, 0.3), 6px 0px 12px rgba(0, 0, 0, 0.3), -6px 0px 12px rgba(0, 0, 0, 0.3);
+}
+
+.sm-box-shadow-modal, .sm-box-modal, .sm-modal {
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3), 0px -6px 12px rgba(0, 0, 0, 0.3), 6px 0px 12px rgba(0, 0, 0, 0.3), -6px 0px 12px rgba(0, 0, 0, 0.3);
 }
 
 .sm-box-shadow-menu {
-  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.6), 0px 2px 4px rgba(0, 0, 0, 0.6), 6px 0px 12px rgba(0, 0, 0, 0.6), -6px 0px 12px rgba(0, 0, 0, 0.6);
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3), 0px 2px 4px rgba(0, 0, 0, 0.3), 6px 0px 12px rgba(0, 0, 0, 0.3), -6px 0px 12px rgba(0, 0, 0, 0.3);
 }
 
 .sm-box-shadow-sg {
@@ -9112,7 +9116,7 @@ div[aria-haspopup=dialog] {
   place-items: center;
   background: rgba(0, 0, 0, 0.01);
   transition: all 0.3s ease-in-out;
-  backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
   -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
 }
 
