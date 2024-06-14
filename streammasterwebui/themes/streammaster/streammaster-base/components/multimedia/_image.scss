@@ -60,9 +60,11 @@
   justify-content: center;
   align-items: center;
   // border-left: 1px solid $inputBorderColor;
-  border-right: 1px solid $inputBorderColor;
+  // border-right: 1px solid $inputBorderColor;
+  border: unset !important;
 
   img {
+    border: unset;
     max-width: 6rem;
     max-height: 4.6rem;
     object-fit: contain;

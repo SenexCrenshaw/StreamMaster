@@ -55,7 +55,7 @@
   width: calc(50% - 0.4rem);
 }
 
-.width-100, .stringeditorbody-inputtext-buttons .p-inputnumber-input, .stringeditor .p-inputnumber-input, .stringeditor .sm-input .p-inputnumber-input, .stringeditor .stringeditorbody-inputtext-buttons .p-inputnumber-input {
+.width-100, .stringeditorbody-inputtext-buttons .p-inputnumber-input, .stringeditor .p-inputnumber-input, .stringeditor .sm-input .p-inputnumber-input, .stringeditor .stringeditorbody-inputtext-buttons .p-inputnumber-input, .sm-iconselector-lg {
   width: calc(100% - 0.4rem);
 }
 
@@ -7715,12 +7715,12 @@
   box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.6), 0px 2px 4px rgba(0, 0, 0, 0.6), 6px 0px 12px rgba(0, 0, 0, 0.6), -6px 0px 12px rgba(0, 0, 0, 0.6);
 }
 
-.sm-box-shadow-sg, .sm-modal {
+.sm-box-shadow-sg {
   box-shadow: 0px 4px 8px rgba(255, 192, 90, 0.4), 0px -4px 8px rgba(255, 192, 90, 0.4), 4px 0px 8px rgba(255, 192, 90, 0.4), -4px 0px 8px rgba(255, 192, 90, 0.4);
 }
 
 .sm-box-shadow-white, .sm-box-modal-shadow-white {
-  box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.4), 0px -4px 8px rgba(255, 255, 255, 0.4), 4px 0px 8px rgba(255, 255, 255, 0.4), -4px 0px 8px rgba(255, 255, 255, 0.4);
+  box-shadow: 0px 3px 6px rgba(255, 255, 255, 0.2), 0px -3px 6px rgba(255, 255, 255, 0.2), 3px 0px 6px rgba(255, 255, 255, 0.2), -3px 0px 6px rgba(255, 255, 255, 0.2);
 }
 
 .sm-border-y {
@@ -7731,7 +7731,7 @@
   border-width: 0.1rem !important;
 }
 
-.sm-border, .sm-sourceorfiledialog, .p-datatable-wrapper, .sm-datatable-header, .sm-card .sm-card-info, .sm-card-dark .sm-card-info, .sm-card .sm-card-header, .sm-card-dark .sm-card-header, .sm-card .sm-card-children, .sm-card-dark .sm-card-children, .sm-standard-header, .sm-iconselector-lg {
+.sm-border, .p-datatable-wrapper, .sm-datatable-header, .sm-card .sm-card-children, .sm-card-dark .sm-card-children, .sm-card .sm-card-info, .sm-card-dark .sm-card-info, .sm-card .sm-card-header, .sm-card-dark .sm-card-header, .sm-standard-header, .sm-iconselector-lg {
   border-radius: 6px !important;
   border-color: #263238 !important;
   border-width: 0.1rem !important;
@@ -7744,10 +7744,10 @@
   border-top-style: solid !important;
 }
 
-.sm-hover, .sm-dropdown, .sm-icon-selector, .stringeditor .p-inputtext, .sm-iconselector-lg {
+.sm-hover, .sm-dropdown, .sm-icon-selector, .stringeditor .p-inputtext:not(.p-inputnumber-input), .sm-iconselector-lg {
   transition: border-color 0.15s;
 }
-.sm-hover:not(.p-disabled):hover:not(:focus), .sm-dropdown:not(.p-disabled):hover:not(:focus), .sm-icon-selector:not(.p-disabled):hover:not(:focus), .stringeditor .p-inputtext:not(.p-disabled):hover:not(:focus), .sm-iconselector-lg:not(.p-disabled):hover:not(:focus) {
+.sm-hover:not(.p-disabled):hover:not(:focus), .sm-dropdown:not(.p-disabled):hover:not(:focus), .sm-icon-selector:not(.p-disabled):hover:not(:focus), .stringeditor .p-inputtext:not(.p-disabled):hover:not(:focus):not(.p-inputnumber-input), .sm-iconselector-lg:not(.p-disabled):hover:not(:focus) {
   border-color: #bcbfbf !important;
   border-radius: 6px !important;
   border-style: solid !important;
@@ -7789,10 +7789,10 @@
   color: #bcbfbf !important;
 }
 
-.sm-hover-y, .sm-sourceorfiledialog .p-inputtext {
+.sm-hover-y {
   transition: border-color 0.15s;
 }
-.sm-hover-y:not(.p-disabled):hover, .sm-sourceorfiledialog .p-inputtext:not(.p-disabled):hover {
+.sm-hover-y:not(.p-disabled):hover {
   border-bottom-style: solid !important;
   border-color: #bcbfbf !important;
   border-left-color: transparent !important;
@@ -7803,14 +7803,14 @@
   color: #bcbfbf !important;
 }
 
-.sm-input-border, .icon-template img, .sm-streamingproxy-selector, .sm-list-container, .sm-fileupload .p-inputtext, .sm-streamgroupselector, #startNumber > input, .p-multiselect {
+.sm-input-border, .icon-template img, .sm-streamingproxy-selector, .sm-list-container, .sm-streamgroupselector, #startNumber > input, .p-multiselect {
   border-radius: 6px !important;
   border-color: #263238 !important;
   border-width: 0.1rem !important;
   border-style: solid !important;
   transition: border-color 0.15s;
 }
-.sm-input-border:not(.p-disabled):hover:not(:focus), .icon-template img:not(.p-disabled):hover:not(:focus), .sm-streamingproxy-selector:not(.p-disabled):hover:not(:focus), .sm-list-container:not(.p-disabled):hover:not(:focus), .sm-fileupload .p-inputtext:not(.p-disabled):hover:not(:focus), .sm-streamgroupselector:not(.p-disabled):hover:not(:focus), #startNumber > input:not(.p-disabled):hover:not(:focus), .p-multiselect:not(.p-disabled):hover:not(:focus) {
+.sm-input-border:not(.p-disabled):hover:not(:focus), .icon-template img:not(.p-disabled):hover:not(:focus), .sm-streamingproxy-selector:not(.p-disabled):hover:not(:focus), .sm-list-container:not(.p-disabled):hover:not(:focus), .sm-streamgroupselector:not(.p-disabled):hover:not(:focus), #startNumber > input:not(.p-disabled):hover:not(:focus), .p-multiselect:not(.p-disabled):hover:not(:focus) {
   border-color: #bcbfbf !important;
   border-radius: 6px !important;
   border-style: solid !important;
@@ -7818,14 +7818,14 @@
   color: #bcbfbf !important;
 }
 
-.sm-input-border-dark, .p-chips .p-chips-input-token input, .stringeditor .sm-input-dark-large, .stringeditor .sm-input-dark, .stringeditor .sm-input-dark-header {
+.sm-input-border-dark, .p-chips .p-chips-input-token input, .stringeditor .sm-input-dark, .stringeditor .sm-input-dark-header {
   border-radius: 6px !important;
   border-color: #263238 !important;
   border-width: 0.1rem !important;
   border-style: solid !important;
   transition: border-color 0.15s;
 }
-.sm-input-border-dark:not(.p-disabled):hover:not(:focus), .p-chips .p-chips-input-token input:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-large:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-header:not(.p-disabled):hover:not(:focus) {
+.sm-input-border-dark:not(.p-disabled):hover:not(:focus), .p-chips .p-chips-input-token input:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-header:not(.p-disabled):hover:not(:focus) {
   border-color: #bcbfbf !important;
   border-radius: 6px !important;
   border-style: solid !important;
@@ -8019,7 +8019,7 @@
   font-size: 0.9375rem;
 }
 
-.sm-padding-xlg, .sm-card-dark .dialog-padding, .sm-card .sm-card-children-content, .sm-card-dark .sm-card-children-content {
+.sm-padding-xlg, .sm-card-dark .dialog-padding {
   padding: 0rem 0.42rem;
 }
 
@@ -8061,7 +8061,6 @@
 
 .sm-iconselector-lg {
   background-color: transparent;
-  width: 100%;
 }
 
 div[aria-haspopup=dialog] {
@@ -8072,6 +8071,14 @@ div[aria-haspopup=dialog] {
   background-color: transparent;
   color: #bcbfbf;
   position: relative;
+}
+.stringeditor .p-inputtext.p-inputnumber-input {
+  border-color: transparent;
+}
+.stringeditor .p-inputtext.p-inputnumber-input:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: transparent;
 }
 .stringeditor .stringeditorbody-inputtext-buttons {
   border-top-right-radius: 0 !important;
@@ -8118,17 +8125,24 @@ div[aria-haspopup=dialog] {
   width: 100%;
 }
 .stringeditor .sm-input-dark-large {
-  background-color: #12181b;
+  border-radius: 6px;
   border-color: #263238;
   border-style: solid;
+  height: 1.6rem;
+  max-height: 1.6rem;
+  min-height: 1.6rem;
+  background-color: #12181b;
+  padding: 0.24rem;
   color: #bcbfbf;
   display: flex;
   width: 100%;
+  height: 1.6rem;
 }
 .stringeditor .sm-input-dark-large img {
   max-width: 6rem;
   max-height: 4.6rem;
   object-fit: contain;
+  border-style: none !important;
 }
 .stringeditor .p-inputnumber-input {
   color: #bcbfbf;
@@ -8611,7 +8625,7 @@ div[aria-haspopup=dialog] {
   background-color: var(--surface-ground);
   padding: 0rem;
 }
-.sm-card .sm-card-header, .sm-card-dark .sm-card-header, .sm-card .sm-card-children, .sm-card-dark .sm-card-children {
+.sm-card .sm-card-header, .sm-card-dark .sm-card-header {
   background-color: #1d2327 !important;
 }
 .sm-card .sm-card-info, .sm-card-dark .sm-card-info {
@@ -8632,9 +8646,25 @@ div[aria-haspopup=dialog] {
   height: 1.4rem !important;
 }
 .sm-card .sm-card-children-content, .sm-card-dark .sm-card-children-content {
-  background-color: #21282c !important;
+  padding: 0.4rem;
+}
+.sm-card .sm-card-children-content .p-datatable-wrapper, .sm-card-dark .sm-card-children-content .p-datatable-wrapper {
+  border: unset !important;
+}
+.sm-card .sm-card-children-content .p-datatable-table, .sm-card-dark .sm-card-children-content .p-datatable-table {
+  border: unset !important;
 }
 .sm-card .sm-card-children-content .p-dropdown, .sm-card-dark .sm-card-children-content .p-dropdown {
+  height: 0;
+  max-width: 0;
+}
+.sm-card .sm-card-children-content-simple .p-datatable-wrapper, .sm-card-dark .sm-card-children-content-simple .p-datatable-wrapper {
+  border: unset !important;
+}
+.sm-card .sm-card-children-content-simple .p-datatable-table, .sm-card-dark .sm-card-children-content-simple .p-datatable-table {
+  border: unset !important;
+}
+.sm-card .sm-card-children-content-simple .p-dropdown, .sm-card-dark .sm-card-children-content-simple .p-dropdown {
   height: 0;
   max-width: 0;
 }
@@ -8727,12 +8757,15 @@ div[aria-haspopup=dialog] {
   border: unset;
   border-style: solid;
   color: #161d21 !important;
+  background-color: #ff935a;
 }
 .p-inputnumber-button-group > button:first-child {
   border-width: 0.025rem;
   border-top-color: #161d21 !important;
   border-right-color: #ff935a;
   border-left-color: #ff935a;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 .p-inputnumber-button-group > button:last-child {
   border-width: 0.025rem;
@@ -8744,7 +8777,6 @@ div[aria-haspopup=dialog] {
   padding: 0 !important;
   min-width: 1.4rem;
   max-width: 1.4rem;
-  background-color: #ff935a;
 }
 
 .p-button.p-button-icon-only {
@@ -8767,18 +8799,6 @@ div[aria-haspopup=dialog] {
   background: var(--surface-overlay);
   padding: 0.5rem;
   padding-bottom: 2rem !important;
-}
-.sm-fileupload .p-inputtext {
-  height: 1.6rem;
-  background: var(--surface-ground);
-}
-.sm-fileupload .sm-inputnumber-input-no-right-border {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-.sm-fileupload .sm-inputnumber-input-no-right-border .p-inputnumber-input {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
 }
 
 .sm-fileupload-header {
@@ -9058,16 +9078,6 @@ div[aria-haspopup=dialog] {
   background-color: #263238;
 }
 
-.sm-sourceorfiledialog {
-  height: 1.4rem !important;
-}
-.sm-sourceorfiledialog .p-inputgroup {
-  height: 1.4rem !important;
-}
-.sm-sourceorfiledialog button {
-  width: 100%;
-  height: 1.4rem !important;
-}
 .sm-sourceorfiledialog .p-progressbar {
   height: 1.4rem !important;
   border-radius: 0;
@@ -9076,10 +9086,6 @@ div[aria-haspopup=dialog] {
   height: 1.4rem !important;
   border-left: none;
   border-right: none;
-}
-.sm-sourceorfiledialog .p-inputtext {
-  border-radius: unset !important;
-  height: 1.4rem !important;
 }
 
 .sm-popover {
@@ -9102,9 +9108,12 @@ div[aria-haspopup=dialog] {
 
 .Dialog-overlay {
   z-index: 9;
-  background: rgba(0, 0, 0, 0.4);
   display: grid;
   place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
 }
 
 .p-datatable {
@@ -9398,9 +9407,10 @@ div[aria-haspopup=dialog] {
   object-fit: contain;
   justify-content: center;
   align-items: center;
-  border-right: 1px solid #263238;
+  border: unset !important;
 }
 .icon-template-lg img, .stringeditor .sm-input-dark-header-large img {
+  border: unset;
   max-width: 6rem;
   max-height: 4.6rem;
   object-fit: contain;

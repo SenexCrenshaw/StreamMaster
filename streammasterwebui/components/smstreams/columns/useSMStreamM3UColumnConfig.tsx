@@ -78,11 +78,12 @@ export const useSMStreamM3UColumnConfig = ({ className = 'sm-w-7rem', dataKey }:
       <div className={className}>
         <SMDropDown
           buttonDarkBackground
-          buttonContent={buttonTemplate(options)}
+          buttonTemplate={buttonTemplate(options)}
           data={dataSource}
           dataKey="Id"
           itemTemplate={itemTemplate}
           filter
+          info=""
           filterBy="Name"
           // onChange={async (e: any) => {
           //   if (isEmptyObject(e) || !Array.isArray(e)) {

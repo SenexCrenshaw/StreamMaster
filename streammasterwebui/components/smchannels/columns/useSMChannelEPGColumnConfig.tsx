@@ -94,13 +94,14 @@ export const useSMChannelEPGColumnConfig = ({ width = 125 }: SMChannelEPGColumnC
     return (
       <SMDropDown
         buttonDarkBackground
-        buttonContent={buttonTemplate(options)}
+        buttonTemplate={buttonTemplate(options)}
         data={epgFiles}
         dataKey="Id"
         buttonIsLoading={isLoading}
         itemTemplate={itemTemplate}
         filter
         filterBy="Name"
+        info=""
         autoPlacement
         onChange={async (e: any) => {
           if (isEmptyObject(e) || !Array.isArray(e)) {

@@ -106,7 +106,7 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
     <SMDropDown
       buttonLabel="PROXY"
       buttonDarkBackground={darkBackGround}
-      buttonContent={buttonTemplate}
+      buttonTemplate={buttonTemplate}
       data={getHandlersOptions}
       dataKey="label"
       filter

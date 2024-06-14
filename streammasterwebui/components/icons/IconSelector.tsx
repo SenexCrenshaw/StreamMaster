@@ -117,7 +117,7 @@ const IconSelector = ({
   const getDiv = useMemo(() => {
     let div = 'w-full';
     if (large) {
-      div += ' sm-iconselector-lg';
+      div += ' sm-iconselector-lg width-100 ';
     }
 
     if (label) {
@@ -156,7 +156,7 @@ const IconSelector = ({
           buttonLabel="LOGOS"
           buttonLarge={large}
           buttonDarkBackground={darkBackGround}
-          buttonContent={buttonTemplate}
+          buttonTemplate={buttonTemplate}
           data={query.data}
           dataKey="Source"
           filter

@@ -76,8 +76,9 @@
 .sm-iconselector-lg {
     @extend .sm-border;
     @extend .sm-hover;
+    @extend .width-100;
     background-color: transparent;
-    width: 100%;
+    // width: 100%;
 }
 
 div[aria-haspopup="dialog"] {
@@ -98,12 +99,20 @@ div[aria-haspopup="dialog"] {
     // width: 100%;
 
 
-    .p-inputtext {
+    .p-inputtext:not(.p-inputnumber-input) {
         // border: unset;
         @extend .sm-hover;
     }
 
+    .p-inputtext.p-inputnumber-input {
+        &:focus {
+            outline: none;
+            box-shadow: none;
+            border-color: transparent;
+        }
 
+        border-color: transparent;
+    }
 
     .stringeditorbody-inputtext-buttons {
         border-top-right-radius: 0 !important;
@@ -175,27 +184,42 @@ div[aria-haspopup="dialog"] {
     }
 
     .sm-input-dark-large {
-        // @extend .icon-template-lg;
-        @extend .sm-hover-dark;
-        @extend .sm-input-border-dark;
-        @extend .text-container;
-        background-color: $inputBg;
+        border-radius: $borderRadius;
         border-color: $inputBorderColor;
         border-style: solid;
+        height: $input-height;
+        max-height: $input-height;
+        min-height: $input-height;
+        @extend .sm-hover-dark;
+        // @extend .icon-template-lg;
+        // @extend .sm-hover-dark;
+        // @extend .sm-input-border-dark;
+        @extend .text-container;
+        background-color: $inputBg;
+        // border-color: $inputBorderColor;
+        // border-style: solid;
+        padding: 0.24rem;
+
         color: $inputTextColor;
         display: flex;
         width: 100%;
+        height: $input-height;
 
         img {
             max-width: 6rem;
             max-height: 4.6rem;
             object-fit: contain;
+            border-style: none !important;
         }
     }
 
     .p-inputnumber-input {
         color: $textColor;
         @extend .width-100;
+
+
+
+
     }
 
     .label {

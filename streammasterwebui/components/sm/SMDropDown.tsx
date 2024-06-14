@@ -75,6 +75,7 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
           : getSMOverlay(
               <SMScroller
                 {...spreadProps}
+                scrollHeight={scrollHeight}
                 onChange={(e) => {
                   props.onChange?.(e);
                   if (closeOnSelection) smOverlayRef.current?.hide();

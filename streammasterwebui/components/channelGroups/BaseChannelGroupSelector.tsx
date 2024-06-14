@@ -174,7 +174,7 @@ const BaseChannelGroupSelector = memo(
     return (
       <>
         <BlockUI blocked={loading}>
-          <SMDropDown buttonDarkBackground buttonContent={buttonTemplate} title="GROUP" contentWidthSize="3">
+          <SMDropDown info="" buttonDarkBackground buttonTemplate={buttonTemplate} title="GROUP" contentWidthSize="3">
             <SMDataTable
               columns={columns}
               dataSource={dataSource}

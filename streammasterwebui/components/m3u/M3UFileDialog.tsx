@@ -65,13 +65,15 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
       reset: () => {
         if (originalM3UFileDto) {
           setM3UFileDto({ ...originalM3UFileDto });
+        } else {
+          setM3UFileDto(defaultValues);
         }
       },
       save: () => {
         onUpdated();
       }
     }),
-    [onUpdated, originalM3UFileDto]
+    [defaultValues, onUpdated, originalM3UFileDto]
   );
 
   const isSaveEnabled = useMemo(() => {
@@ -140,7 +142,6 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
         <div className="flex gap-1">
           <div className="w-6">
             <StringEditor
-              showClear
               disableDebounce
               darkBackGround
               autoFocus

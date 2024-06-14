@@ -113,21 +113,20 @@ const NumberEditor = ({
   });
 
   const getDiv = useMemo(() => {
-    let ret = 'sm-input';
-    if (darkBackGround === true) {
-      ret = 'sm-input-dark';
-    }
+    let ret = 'flex stringeditor justify-content-center';
 
-    if (showButtons === true) {
-      ret += ' stringeditorbody-inputtext-buttons';
+    if (label && !labelInline) {
+      ret += ' flex-column';
     }
 
     if (labelInline) {
-      ret += ' w-6';
+      ret += ' align-items-start';
+    } else {
+      ret += ' align-items-center';
     }
 
     return ret;
-  }, [darkBackGround, labelInline, showButtons]);
+  }, [label, labelInline]);
 
   useClickOutside(overlayReference, () => {
     if (!isFocused) {
@@ -148,6 +147,17 @@ const NumberEditor = ({
     }
     setIgnoreSave(false);
   }, [value, setInputValue]);
+  const inputGetDiv = useMemo(() => {
+    let ret = 'sm-input';
+    if (darkBackGround) {
+      ret += '-dark';
+    }
+    if (labelInline) {
+      ret += ' w-12';
+    }
+
+    return ret;
+  }, [darkBackGround, labelInline]);
 
   return (
     <>
@@ -157,10 +167,10 @@ const NumberEditor = ({
           {/* <div className="pt-small" /> */}
         </>
       )}
-      <div ref={divReference} className={`flex stringeditor ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
+      <div ref={divReference} className={getDiv}>
         {label && labelInline && <div className="w-6">{label.toUpperCase()}</div>}
         <InputNumber
-          className={getDiv}
+          className={inputGetDiv}
           disabled={isLoading}
           min={min}
           max={max}

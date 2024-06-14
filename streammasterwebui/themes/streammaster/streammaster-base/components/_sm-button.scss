@@ -78,6 +78,7 @@
         border: unset;
         border-style: solid;
         color: $bgColor !important;
+        background-color: $iconOrange;
     }
 
     >button:first-child {
@@ -85,6 +86,8 @@
         border-top-color: $bgColor !important;
         border-right-color: $iconOrange;
         border-left-color: $iconOrange;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
     }
 
     >button:last-child {
@@ -98,9 +101,10 @@
         padding: 0 !important;
         min-width: $input-height-with-no-borders;
         max-width: $input-height-with-no-borders;
-        background-color: $iconOrange;
+        // background-color: $iconOrange;
     }
 }
+
 
 .p-button.p-button-icon-only {
     padding: 0;

@@ -46,6 +46,7 @@ const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
 
   return (
     <SMPopUp
+      hasCloseButton={false}
       header={
         <div className="flex w-12 gap-1 justify-content-end align-content-center">
           <ResetButton
@@ -64,7 +65,7 @@ const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
         </div>
       }
       buttonClassName="icon-yellow"
-      contentWidthSize="5"
+      contentWidthSize="4"
       icon="pi-pencil"
       modal
       placement="bottom-end"

@@ -102,6 +102,9 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
               <div
                 onClick={(e) => {
                   e.preventDefault();
+                  if (buttonDisabled === true) {
+                    return;
+                  }
                   props.onClick && props.onClick(e);
                 }}
                 className={`${tooltipClassName} input-wrapper`}
@@ -128,6 +131,9 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
             <div
               onClick={(e) => {
                 e.preventDefault();
+                if (buttonDisabled === true) {
+                  return;
+                }
                 props.onClick && props.onClick(e);
               }}
               className={`${tooltipClassName} input-wrapper`}
@@ -153,7 +159,15 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
 
     if (hollow) {
       return (
-        <div onClick={(e) => props.onClick && props.onClick(e)}>
+        <div
+          onClick={(e) => {
+            e.preventDefault();
+            if (buttonDisabled === true) {
+              return;
+            }
+            props.onClick && props.onClick(e);
+          }}
+        >
           <div
             ref={props.modal === true && props.modalCentered === true ? undefined : props.refs?.setReference}
             {...(!buttonDisabled && props.getReferenceProps ? props.getReferenceProps() : {})}
@@ -181,7 +195,15 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
     }
 
     return (
-      <div onClick={(e) => props.onClick && props.onClick(e)}>
+      <div
+        onClick={(e) => {
+          e.preventDefault();
+          if (buttonDisabled === true) {
+            return;
+          }
+          props.onClick && props.onClick(e);
+        }}
+      >
         <div
           ref={props.modal === true && props.modalCentered === true ? undefined : props.refs?.setReference}
           {...(!buttonDisabled && props.getReferenceProps ? props.getReferenceProps() : {})}

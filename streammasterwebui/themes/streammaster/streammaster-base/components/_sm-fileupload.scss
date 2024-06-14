@@ -3,21 +3,21 @@
     padding: 0.5rem;
     padding-bottom: 2rem !important;
 
-    .p-inputtext {
-        @extend .sm-input-border;
-        height: $input-height;
-        background: var(--surface-ground);
-    }
+    // .p-inputtext {
+    //     @extend .sm-input-border;
+    //     height: $input-height;
+    //     background: var(--surface-ground);
+    // }
 
-    .sm-inputnumber-input-no-right-border {
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
+    // .sm-inputnumber-input-no-right-border {
+    //     border-top-right-radius: 0;
+    //     border-bottom-right-radius: 0;
 
-        .p-inputnumber-input {
-            border-top-right-radius: 0;
-            border-bottom-right-radius: 0;
-        }
-    }
+    //     // .p-inputnumber-input {
+    //     //     border-top-right-radius: 0;
+    //     //     border-bottom-right-radius: 0;
+    //     // }
+    // }
 }
 
 .sm-fileupload-header {

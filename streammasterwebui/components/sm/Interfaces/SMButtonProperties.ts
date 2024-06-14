@@ -3,7 +3,7 @@ import { SMModalProperties } from './SMModalProperties';
 
 export interface SMButtonProperties extends SMModalProperties {
   readonly buttonClassName?: string;
-  readonly buttonContent?: ReactNode;
+  readonly buttonTemplate?: ReactNode;
   readonly buttonDarkBackground?: boolean;
   readonly buttonDisabled?: boolean;
   readonly buttonIsLoading?: boolean;
@@ -15,7 +15,7 @@ export interface SMButtonProperties extends SMModalProperties {
   readonly iconFilled?: boolean;
   readonly isLeft?: boolean;
   readonly label?: string;
-  readonly large?: boolean;
+
   readonly outlined?: boolean | undefined;
   readonly rounded?: boolean;
   readonly tooltip?: string;

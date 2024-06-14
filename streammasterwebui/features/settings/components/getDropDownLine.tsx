@@ -37,7 +37,7 @@ export function getDropDownLine({ field, options, currentSettingRequest, onChang
       <SMDropDown
         buttonDarkBackground
         label={label}
-        buttonContent={buttonTemplate()}
+        buttonTemplate={buttonTemplate()}
         onChange={(e) => {
           const value = isFinite(+e.target.value) ? +e.target.value : e.target.value;
           UpdateChanges({ currentSettingRequest, field, onChange, value });

@@ -6,26 +6,61 @@ interface InternalSMCardProperties extends SMCardProperties {
   readonly children: React.ReactNode;
 }
 
-export const SMCard = ({ center, children, darkBackGround = false, hasCloseButton = false, header, openPanel, simple, title }: InternalSMCardProperties) => {
+export const SMCard = ({
+  children,
+  darkBackGround = false,
+  hasCloseButton = false,
+  header,
+  info = 'General',
+  openPanel,
+  simple,
+  title,
+  ...props
+}: InternalSMCardProperties) => {
   const getDiv = useMemo(() => {
     return darkBackGround === true ? 'sm-card-dark' : 'sm-card';
   }, [darkBackGround]);
+
+  const borderClass = info !== '' ? 'info-header-text-bottom-border' : 'info-header-text';
 
   if (simple === true || title === undefined || title === '') {
     return <div>{children}</div>;
   }
 
+  if (props.center && props.center !== '') {
+    return (
+      <div className={getDiv}>
+        <div className="sm-card-header flex flex-row justify-content-between align-items-center w-full ">
+          <div className="header-text-sub w-4 flex justify-content-start">{title}</div>
+          <div className="w-4 flex justify-content-center">{props.center}</div>
+          <div className="flex justify-content-end w-4">
+            {header}
+            {!hasCloseButton && openPanel && <CloseButton onClick={(e) => openPanel(false)} tooltip="Close" />}
+          </div>
+        </div>
+        <div className="layout-padding-bottom" />
+        <div className="sm-card-children">
+          {info && info !== '' && <div className={`${borderClass} sm-card-children-info`}>{info}</div>}
+          <div className="sm-card-children-content">{children}</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={getDiv}>
-      <div className="sm-card-header flex flex-row justify-content-between align-items-center">
-        <div className="header-text-sub">{title}</div>
-        <div className="pr-1 flex gap-1">
+      <div className="sm-card-header flex flex-row justify-content-between align-items-center w-full ">
+        <div className="header-text-sub  flex justify-content-start">{title}</div>
+        <div className="flex justify-content-end">
           {header}
           {!hasCloseButton && openPanel && <CloseButton onClick={(e) => openPanel(false)} tooltip="Close" />}
         </div>
       </div>
       <div className="layout-padding-bottom" />
-      {children}
+      <div className="sm-card-children">
+        {info && info !== '' && <div className={`${borderClass} sm-card-children-info`}>{info}</div>}
+        <div className="sm-card-children-content">{children}</div>
+      </div>
     </div>
   );
 };

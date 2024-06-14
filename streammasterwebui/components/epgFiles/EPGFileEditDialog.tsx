@@ -1,6 +1,7 @@
 import { memo, useRef } from 'react';
 
-import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
+import { SMDialogRef } from '@components/sm/SMDialog';
+import SMPopUp from '@components/sm/SMPopUp';
 import { UpdateEPGFile } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
 import { EPGFileDto, UpdateEPGFileRequest } from '@lib/smAPI/smapiTypes';
 import EPGFileDialog from './EPGFileDialog';
@@ -28,9 +29,18 @@ const EPGFileEditDialog = ({ selectedFile }: EPGFileEditDialogProperties) => {
   }
 
   return (
-    <SMDialog widthSize={4} ref={smDialogRef} title="EDIT EPG" icon="pi-pencil" iconFilled={false} buttonClassName="icon-yellow" tooltip="Add EPG">
+    <SMPopUp
+      contentWidthSize="4"
+      title="EDIT EPG"
+      icon="pi-pencil"
+      modal
+      placement="bottom-end"
+      iconFilled={false}
+      buttonClassName="icon-yellow"
+      tooltip="Add EPG"
+    >
       <EPGFileDialog selectedFile={selectedFile} onUpdated={onUpdated} />
-    </SMDialog>
+    </SMPopUp>
   );
 };
 

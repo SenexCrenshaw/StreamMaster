@@ -362,10 +362,12 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, isLoading, onCha
     return (
       <SMDropDown
         buttonDarkBackground
-        buttonContent={headerValueTemplate}
+        buttonTemplate={headerValueTemplate}
         data={epgFiles}
         dataKey="EPGNumber"
-        height="20vh"
+        info=""
+        scrollHeight="20vh"
+        contentWidthSize="2"
         itemTemplate={scrollerItemTemplate}
         select
         selectedItemsKey="EPGSelector-EPGFiles"
@@ -391,15 +393,16 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, isLoading, onCha
 
   return (
     <SMDropDown
+      buttonIsLoading={loading || isLoading}
       buttonLabel="EPG"
-      buttonContent={buttonTemplate(stationChannelName)}
+      buttonTemplate={buttonTemplate(stationChannelName)}
       center={headerTemplate}
       data={options}
       dataKey="Channel"
       filter
       filterBy="DisplayName"
       footerTemplate={footerTemplate}
-      buttonIsLoading={loading || isLoading}
+      info=""
       itemTemplate={itemTemplate}
       onChange={(e) => {
         handleOnChange(e.Channel);

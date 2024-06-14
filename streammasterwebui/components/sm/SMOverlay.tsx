@@ -104,20 +104,19 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
           props.onAnswered?.();
           return;
         }
-        setIsOpen((prev) => !prev);
+        // setIsOpen((prev) => !prev);
+        setIsOpen(isOpen);
+        if (isOpen === false) {
+          props.onCloseClick?.();
+        }
       },
       [props]
     );
 
     const content = useMemo(() => {
-      const borderClass = props.info ? 'info-header-text-bottom-border' : 'info-header-text';
       return (
-        // <SMCard darkBackGround header={<div className="justify-content-end align-items-center flex-row flex gap-1">{props.header}</div>} {...props}>
-        <SMCard darkBackGround {...props} openPanel={openPanel}>
-          <div className="sm-card-children">
-            {props.info && <div className={`${borderClass} sm-card-children-info`}>{props.info}</div>}
-            <div className="sm-card-children-content">{props.children}</div>
-          </div>
+        <SMCard {...props} openPanel={openPanel}>
+          {props.children}
         </SMCard>
       );
     }, [openPanel, props]);
@@ -135,9 +134,6 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
       }
       return props.zIndex;
     }, [props.modal, props.zIndex]);
-
-    // Logger.debug('Overlay', props.title, isOverLayLoading);
-
     return (
       <>
         <SMButton
@@ -154,7 +150,7 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
           tooltip={props.tooltip}
           {...props}
         >
-          {props.buttonContent}
+          {props.buttonTemplate}
         </SMButton>
         {!buttonDisabled && (
           <FloatingPortal>

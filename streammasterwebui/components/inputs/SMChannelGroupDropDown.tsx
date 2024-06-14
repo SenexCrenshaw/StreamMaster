@@ -93,12 +93,13 @@ const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownP
           autoPlacement={autoPlacement}
           buttonDarkBackground={darkBackGround}
           buttonLabel="GROUP"
-          buttonContent={buttonTemplate}
+          buttonTemplate={buttonTemplate}
           closeOnSelection
           data={data}
           dataKey="Name"
           filter
           filterBy="Name"
+          info=""
           buttonIsLoading={isLoading || props.isLoading || isRowLoading}
           itemTemplate={itemTemplate}
           onChange={(e) => {

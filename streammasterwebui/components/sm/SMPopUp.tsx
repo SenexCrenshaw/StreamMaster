@@ -18,6 +18,7 @@ export const SMPopUp: React.FC<SMPopUpProperties> = ({
   closeButtonDisabled = false,
   contentWidthSize = '2',
   disabled = false,
+  hasCloseButton = true,
   okButtonDisabled = false,
   isPopupLoading = false,
   onCloseClick,
@@ -45,8 +46,10 @@ export const SMPopUp: React.FC<SMPopUpProperties> = ({
   return (
     <SMOverlay
       ref={overlayRef}
+      hasCloseButton={hasCloseButton}
       isOverLayLoading={isPopupLoading}
       contentWidthSize={contentWidthSize}
+      onCloseClick={closed}
       onAnswered={() => {
         if (rememberKey && rememberKey !== '' && remember !== null) {
           if (remember.checked === true && remember.value !== undefined) {
@@ -86,7 +89,7 @@ export const SMPopUp: React.FC<SMPopUpProperties> = ({
       answer={remember?.checked ? remember?.value : undefined ?? undefined}
       {...props}
     >
-      <SMCard darkBackGround>
+      <SMCard>
         <>
           {children}
           {showRemember && !props.modal && (

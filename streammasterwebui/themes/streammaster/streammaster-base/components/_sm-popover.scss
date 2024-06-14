@@ -11,14 +11,20 @@
 }
 
 .sm-modal {
-    @extend .sm-box-shadow-sg;
+    // @extend .sm-box-shadow-white;
+
+
     z-index: 10;
 }
 
 
 .Dialog-overlay {
     z-index: 9;
-    background: rgba(0, 0, 0, 0.4);
+    // background: rgba(0, 0, 0, 0.4);
     display: grid;
     place-items: center;
+    background: rgba(0, 0, 0, 0.01); // Semi-transparent dark overlay    
+    transition: all 0.3s ease-in-out;
+    backdrop-filter: blur(1px) brightness(0.8) contrast(1); // Enhanced blur with brightness and contrast adjustments
+    -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1); // Safari support effect
 }

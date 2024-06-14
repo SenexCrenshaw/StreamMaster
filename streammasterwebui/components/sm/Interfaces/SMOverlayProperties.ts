@@ -4,6 +4,7 @@ import { SMCardProperties } from './SMCardProperties';
 import { SMModalProperties } from './SMModalProperties';
 
 export interface SMOverlayProperties extends SMButtonProperties, SMCardProperties, SMModalProperties {
+  onCloseClick?: () => void;
   readonly answer?: boolean;
   readonly autoPlacement?: boolean;
   readonly className?: string;

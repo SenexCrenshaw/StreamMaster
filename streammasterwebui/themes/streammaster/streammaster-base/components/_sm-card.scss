@@ -30,7 +30,7 @@
     }
 
     .sm-card-children {
-        @extend .sm-card-header;
+        @extend .sm-border;
         background-color: $headerBg !important;
     }
 
@@ -45,8 +45,36 @@
     }
 
     .sm-card-children-content {
-        @extend .sm-padding-xlg;
-        background-color: $headerBg !important;
+        // @extend .sm-padding-xlg;
+        // background-color: $headerBg !important;
+        padding: 0.4rem;
+
+        .p-datatable-wrapper {
+            border: unset !important;
+        }
+
+        .p-datatable-table {
+            border: unset !important;
+        }
+
+        .p-dropdown {
+            height: 0;
+            max-width: 0;
+        }
+    }
+
+    .sm-card-children-content-simple {
+        // @extend .sm-padding-xlg;
+        // background-color: $headerBg !important;
+        //padding: 0.4rem;
+
+        .p-datatable-wrapper {
+            border: unset !important;
+        }
+
+        .p-datatable-table {
+            border: unset !important;
+        }
 
         .p-dropdown {
             height: 0;

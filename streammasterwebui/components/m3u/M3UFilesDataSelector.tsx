@@ -133,7 +133,7 @@ const M3UFilesDataSelector = () => {
         field: 'Name',
         header: 'Name',
         sortable: true,
-        width: '22rem'
+        width: '50%'
       },
       {
         align: 'left',
@@ -141,19 +141,19 @@ const M3UFilesDataSelector = () => {
         bodyTemplate: lastDownloadedTemplate,
         field: 'lastDownloaded',
         header: 'Downloaded',
-        width: '12rem'
+        width: 110
       },
       {
         bodyTemplate: stationCountTemplate,
         field: 'stationCount',
         header: 'Streams',
-        width: '6rem'
+        width: 64
       },
       {
         bodyTemplate: actionTemplate,
         field: 'editBodyTemplate',
         header: 'Actions',
-        width: '6rem'
+        width: 48
       }
     ],
     [nameEditorTemplate, lastDownloadedTemplate, stationCountTemplate, actionTemplate]

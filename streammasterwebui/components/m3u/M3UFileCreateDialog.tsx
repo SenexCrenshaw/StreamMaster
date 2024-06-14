@@ -1,12 +1,13 @@
-import { SMDialogRef } from '@components/sm/SMDialog';
-import SMFileUpload from '@components/sm/SMFileUpload';
+import OKButton from '@components/buttons/OKButton';
+import ResetButton from '@components/buttons/ResetButton';
+import SMFileUpload, { SMFileUploadRef } from '@components/sm/SMFileUpload';
 import SMPopUp from '@components/sm/SMPopUp';
 import { useStringValue } from '@lib/redux/hooks/stringValue';
 import { CreateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { CreateM3UFileRequest, M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { FileUpload } from 'primereact/fileupload';
 import React, { useCallback, useEffect, useRef } from 'react';
-import M3UFileDialog from './M3UFileDialog';
+import M3UFileDialog, { M3UFileDialogRef } from './M3UFileDialog';
 
 export interface M3UFileDialogProperties {
   readonly infoMessage?: string;
@@ -17,9 +18,11 @@ export interface M3UFileDialogProperties {
 }
 
 export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3UFileDialogProperties) => {
-  const { stringValue } = useStringValue('m3uName');
+  const { stringValue, setStringValue } = useStringValue('m3uName');
   const fileUploadReference = useRef<FileUpload>(null);
-  const smDialogRef = useRef<SMDialogRef>(null);
+  const smFileUploadRef = useRef<SMFileUploadRef>(null);
+  const fileDialogRef = useRef<M3UFileDialogRef>(null);
+  const [isSaveEnabled, setIsSaveEnabled] = React.useState<boolean>(false);
   const defaultValues = {
     HoursToUpdate: 72,
     MaxStreamCount: 1,
@@ -34,12 +37,14 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
     (didUpload?: boolean) => {
       if (fileUploadReference.current) {
         fileUploadReference.current.clear();
+        setStringValue('');
       }
-      smDialogRef.current?.hide();
+
+      // smFileUploadRef.current?.hide();
       onHide?.(didUpload ?? false);
       onUploadComplete();
     },
-    [onHide, onUploadComplete]
+    [onHide, onUploadComplete, setStringValue]
   );
 
   const onCreateFromSource = useCallback(
@@ -60,10 +65,21 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
           console.error('Error uploading M3U', error);
         })
         .finally(() => {
-          smDialogRef.current?.hide();
+          // smDialogRef.current?.hide();
+          setStringValue('');
+          ReturnToParent();
         });
     },
-    [m3uFileDto]
+    [
+      ReturnToParent,
+      m3uFileDto.HoursToUpdate,
+      m3uFileDto.MaxStreamCount,
+      m3uFileDto.Name,
+      m3uFileDto.OverwriteChannelNumbers,
+      m3uFileDto.StartingChannelNumber,
+      m3uFileDto.VODTags,
+      setStringValue
+    ]
   );
 
   useEffect(() => {
@@ -76,13 +92,38 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
 
   return (
     <SMPopUp
-      placement="bottom-end"
-      hasCloseButton
       buttonClassName="icon-green"
-      contentWidthSize="5"
+      contentWidthSize="4"
+      hasCloseButton={false}
       icon="pi-plus"
+      onCloseClick={() => {
+        ReturnToParent();
+      }}
+      header={
+        <div className="flex w-12 gap-1 justify-content-end align-content-center">
+          <ResetButton
+            onClick={() => {
+              if (smFileUploadRef.current) {
+                smFileUploadRef.current.reset();
+              }
+              if (fileDialogRef.current) {
+                fileDialogRef.current.reset();
+              }
+              setM3UFileDto(defaultValues);
+            }}
+          />
+          <OKButton
+            buttonDisabled={!isSaveEnabled}
+            onClick={(request) => {
+              smFileUploadRef.current?.save();
+              ReturnToParent();
+            }}
+          />
+        </div>
+      }
       iconFilled
       modal
+      placement="bottom-end"
       title="Add M3U"
       zIndex={10}
     >
@@ -90,6 +131,10 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
       <div className="w-12">
         <SMFileUpload
           isM3U
+          onSaveEnabled={(enabled) => {
+            setIsSaveEnabled(enabled);
+          }}
+          ref={smFileUploadRef}
           m3uFileDto={m3uFileDto}
           onCreateFromSource={onCreateFromSource}
           onUploadComplete={() => {
@@ -98,6 +143,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
         />
         <div className="layout-padding-bottom-lg" />
         <M3UFileDialog
+          ref={fileDialogRef}
           selectedFile={m3uFileDto}
           onM3UChanged={(e) => {
             setM3UFileDto(e);
@@ -106,36 +152,6 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
         <div className="layout-padding-bottom-lg" />
       </div>
     </SMPopUp>
-
-    // <SMDialog
-    //   ref={smDialogRef}
-    //   widthSize={6}
-    //   position="top-right"
-    //   title="ADD M3U"
-    //   onHide={() => ReturnToParent()}
-    //   buttonClassName="icon-green-filled"
-    //   tooltip="Add M3U"
-    // >
-    //   <div className="layout-padding-bottom-lg" />
-    //   <div className="w-12">
-    //     <SMFileUpload
-    //       m3uFileDto={m3uFileDto}
-    //       onCreateFromSource={onCreateFromSource}
-    //       onUploadComplete={() => {
-    //         ReturnToParent(true);
-    //       }}
-    //     />
-    //     <div className="layout-padding-bottom-lg" />
-    //     <M3UFileDialog
-    //       selectedFile={m3uFileDto}
-    //       onM3UChanged={(e) => {
-    //         setM3UFileDto(e);
-    //       }}
-    //       noButtons
-    //     />
-    //     <div className="layout-padding-bottom-lg" />
-    //   </div>
-    // </SMDialog>
   );
 };
 M3UFileCreateDialog.displayName = 'M3UFileCreateDialog';

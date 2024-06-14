@@ -24,10 +24,11 @@ export const StreamGroupSelector = ({ onChange, selectedStreamGroup }: StreamGro
   return (
     <SMDropDown
       buttonDarkBackground
-      buttonContent={buttonTemplate}
+      buttonTemplate={buttonTemplate}
       buttonLarge
       data={data}
       dataKey="Id"
+      info=""
       buttonIsLoading={isLoading}
       itemTemplate={(option: StreamGroupDto) => (
         <div className="sm-epg-selector">
@@ -39,7 +40,7 @@ export const StreamGroupSelector = ({ onChange, selectedStreamGroup }: StreamGro
       onChange={(e) => {
         onDropdownChange(e);
       }}
-      title={'Select Stream Group'}
+      title="Stream Group"
       contentWidthSize="2"
     />
   );

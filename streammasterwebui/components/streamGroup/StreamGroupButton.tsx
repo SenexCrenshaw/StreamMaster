@@ -11,7 +11,7 @@ interface StreamGroupButtonProperties {
   className?: string;
 }
 
-const StreamGroupButton = ({ className = 'sm-w-10rem' }: StreamGroupButtonProperties) => {
+const StreamGroupButton = ({ className = 'sm-w-10rem sm-input-dark' }: StreamGroupButtonProperties) => {
   const { setSelectedItems } = useSelectedItems('selectedStreamGroup');
   const { selectedStreamGroup, setSelectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
 

@@ -34,7 +34,12 @@ $shadow-blur-black: 12px;
 $shadow-opacity-black: 0.6;
 
 $shadow-color-black: rgba(0, 0, 0, $shadow-opacity-black); // Define the shadow color with opacity
-$shadow-color-white: rgba(255, 255, 255, $shadow-opacity); // Define the shadow color with opacity
+
+$shadow-offset-white: 3px;
+$shadow-blur-white: 6px;
+$shadow-opacity-white: 0.2;
+$shadow-color-white: rgba(255, 255, 255, $shadow-opacity-white); // Define the shadow color with opacity
+
 $shadow-color-sg: rgba($iconSG, $shadow-opacity); // Define the shadow color with opacity
 
 .sm-box-shadow {
@@ -73,14 +78,14 @@ $shadow-color-sg: rgba($iconSG, $shadow-opacity); // Define the shadow color wit
 
 .sm-box-shadow-white {
     box-shadow: // Bottom shadow
-    0px #{$shadow-offset} #{$shadow-blur} #{$shadow-color-white},
+    0px #{$shadow-offset-white} #{$shadow-blur-white} #{$shadow-color-white},
     // Bottom shadow
     // Top shadow
-    0px -#{$shadow-offset} #{$shadow-blur} #{$shadow-color-white},
+    0px -#{$shadow-offset-white} #{$shadow-blur-white} #{$shadow-color-white},
     // Right shadow
-    #{$shadow-offset} 0px #{$shadow-blur} #{$shadow-color-white},
+    #{$shadow-offset-white} 0px #{$shadow-blur-white} #{$shadow-color-white},
     // Left shadow
-    -#{$shadow-offset} 0px #{$shadow-blur} #{$shadow-color-white}; // Left shadow
+    -#{$shadow-offset-white} 0px #{$shadow-blur-white} #{$shadow-color-white}; // Left shadow
 }
 
 .sm-box-modal-shadow-white {
