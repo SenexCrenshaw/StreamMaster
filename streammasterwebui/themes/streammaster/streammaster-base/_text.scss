@@ -187,23 +187,41 @@ div[aria-haspopup="dialog"] {
         border-radius: $borderRadius;
         border-color: $inputBorderColor;
         border-style: solid;
-        height: $input-height;
-        max-height: $input-height;
-        min-height: $input-height;
+
         @extend .sm-hover-dark;
-        // @extend .icon-template-lg;
-        // @extend .sm-hover-dark;
-        // @extend .sm-input-border-dark;
         @extend .text-container;
         background-color: $inputBg;
-        // border-color: $inputBorderColor;
-        // border-style: solid;
         padding: 0.24rem;
 
         color: $inputTextColor;
         display: flex;
         width: 100%;
+
         height: $input-height;
+        max-height: $input-height;
+        min-height: $input-height;
+
+        img {
+            max-width: 6rem;
+            max-height: 4.6rem;
+            object-fit: contain;
+            border-style: none !important;
+        }
+    }
+
+    .sm-input-dark-large-image {
+        border-radius: $borderRadius;
+        border-color: $inputBorderColor;
+        border-style: solid;
+
+        @extend .sm-hover-dark;
+        @extend .text-container;
+        background-color: $inputBg;
+        padding: 0.24rem;
+
+        color: $inputTextColor;
+        display: flex;
+        width: 100%;
 
         img {
             max-width: 6rem;

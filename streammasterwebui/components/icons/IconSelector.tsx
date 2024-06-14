@@ -154,7 +154,7 @@ const IconSelector = ({
       <div className={getDiv}>
         <SMDropDown
           buttonLabel="LOGOS"
-          buttonLarge={large}
+          buttonLargeImage={large}
           buttonDarkBackground={darkBackGround}
           buttonTemplate={buttonTemplate}
           data={query.data}

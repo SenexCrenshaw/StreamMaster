@@ -65,23 +65,26 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
     return (
       <>
         {props.label && !labelInline && (
-          <div className="w-6">
+          <div className="w-6 ">
             <label className="pl-14">{props.label.toUpperCase()}</label>
             <div className="pt-small" />
           </div>
         )}
-        {props.children
-          ? getSMOverlay(props.children)
-          : getSMOverlay(
-              <SMScroller
-                {...spreadProps}
-                scrollHeight={scrollHeight}
-                onChange={(e) => {
-                  props.onChange?.(e);
-                  if (closeOnSelection) smOverlayRef.current?.hide();
-                }}
-              />
-            )}
+        <div className="flex2 w-ful2l">
+          {props.label && labelInline && <div className={labelInline ? 'w-4' : 'w-6'}>{props.label.toUpperCase()}</div>}
+          {props.children
+            ? getSMOverlay(props.children)
+            : getSMOverlay(
+                <SMScroller
+                  {...spreadProps}
+                  scrollHeight={scrollHeight}
+                  onChange={(e) => {
+                    props.onChange?.(e);
+                    if (closeOnSelection) smOverlayRef.current?.hide();
+                  }}
+                />
+              )}
+        </div>
       </>
     );
   }

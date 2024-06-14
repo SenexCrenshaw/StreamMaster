@@ -1,9 +1,7 @@
-import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
-
-import OKButton from '@components/buttons/OKButton';
-import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
+import SMPopUp from '@components/sm/SMPopUp';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectAll } from '@lib/redux/hooks/selectAll';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { DeleteSMChannels, DeleteSMChannelsFromParameters } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { DeleteSMChannelsFromParametersRequest, DeleteSMChannelsRequest, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import React, { useCallback, useMemo } from 'react';
@@ -15,7 +13,6 @@ interface DeleteSMChannelsDialogProperties {
 }
 
 const DeleteSMChannelsDialog = ({ id, onClose, selectedItemsKey }: DeleteSMChannelsDialogProperties) => {
-  const dialogRef = React.useRef<SMDialogRef>(null);
   const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(selectedItemsKey);
 
   const { selectAll, setSelectAll } = useSelectAll(id);
@@ -51,7 +48,7 @@ const DeleteSMChannelsDialog = ({ id, onClose, selectedItemsKey }: DeleteSMChann
           throw error;
         })
         .finally(() => {
-          dialogRef.current?.hide();
+          // dialogRef.current?.hide();
         });
 
       return;
@@ -77,28 +74,24 @@ const DeleteSMChannelsDialog = ({ id, onClose, selectedItemsKey }: DeleteSMChann
         throw error;
       })
       .finally(() => {
-        dialogRef.current?.hide();
+        // dialogRef.current?.hide();
       });
   }, [selectedItems, selectAll, ReturnToParent, queryFilter, setSelectedItems, setSelectAll]);
 
   return (
-    <SMDialog
-      ref={dialogRef}
-      onHide={ReturnToParent}
+    <SMPopUp
+      onCloseClick={ReturnToParent}
+      onOkClick={onOkClick}
       buttonDisabled={getTotalCount === 0}
-      widthSize={2}
+      contentWidthSize="2"
       iconFilled
+      info=""
       title="DELETE CHANNELS"
       icon="pi-times"
       buttonClassName="icon-red"
     >
-      <div className="text-base">
-        Delete ({selectAll ? 'All' : getTotalCount}) channles?
-        <div className="flex align-content-center justify-content-end">
-          <OKButton onClick={onOkClick} />
-        </div>
-      </div>
-    </SMDialog>
+      <div className="text-base">Delete ({selectAll ? 'All' : getTotalCount}) channles?</div>
+    </SMPopUp>
   );
 };
 

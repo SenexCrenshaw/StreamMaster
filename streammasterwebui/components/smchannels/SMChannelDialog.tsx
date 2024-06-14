@@ -151,7 +151,7 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
     <>
       <div className="sm-headerBg dialog-padding border-sides">
         <div className="flex w-12 gap-1 pl-2">
-          <div className="flex flex-column w-10 gap-1">
+          <div className="flex flex-column w-9 gap-1 pr-3 ">
             <div className="flex w-12 gap-1">
               <div className="w-6 justify-content-start align-items-center">
                 <StringEditor
@@ -167,7 +167,7 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
                 />
               </div>
               <div className="w-6 justify-content-start align-items-center">
-                <EPGSelector label="EPG" smChannel={tempSMChannel} onChange={(e) => e !== undefined && setEPGId(e)} />
+                <EPGSelector buttonDarkBackground label="EPG" smChannel={tempSMChannel} onChange={(e) => e !== undefined && setEPGId(e)} />
               </div>
             </div>
             <div className="flex w-12 gap-1">
@@ -178,6 +178,7 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
                 <NumberEditor
                   label="Channel #"
                   showButtons
+                  disableDebounce
                   darkBackGround
                   onChange={(e) => e !== undefined && setChannelNumber(e)}
                   value={request.ChannelNumber}
@@ -186,14 +187,14 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
             </div>
           </div>
 
-          <div className="w-2 flex flex-column justify-content-start align-items-center">
+          <div className="w-3 flex flex-column justify-content-start align-items-center ">
             <IconSelector darkBackGround label="Logo" large enableEditMode onChange={(e) => setLogo(e)} value={request.Logo} />
           </div>
         </div>
         <div className="layout-padding-bottom" />
         <div className="flex w-10 gap-1 pl-2">
           <div className="w-6 gap-1 w-full h-full">
-            <StreamingProxyTypeSelector label="Proxy" data={smChannel} onChange={(e) => setProxy(e)} />
+            <StreamingProxyTypeSelector darkBackGround label="Proxy" data={smChannel} onChange={(e) => setProxy(e)} />
           </div>
         </div>
       </div>

@@ -54,6 +54,7 @@ const EditSMChannelDialog = ({ smChannelDto }: CopySMChannelProperties) => {
     <SMPopUp
       isPopupLoading={isRowLoading}
       buttonClassName="icon-yellow"
+      hasCloseButton={false}
       contentWidthSize="5"
       header={
         <div className="flex w-12 gap-1 justify-content-end align-content-center">

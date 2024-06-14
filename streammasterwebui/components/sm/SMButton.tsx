@@ -15,6 +15,7 @@ interface InternalSMButtonProperties extends SMButtonProperties {
 const SMButton = forwardRef<Button, InternalSMButtonProperties>(
   (
     {
+      buttonLargeImage = false,
       buttonClassName = 'icon-blue',
       buttonDarkBackground = false,
       buttonDisabled = false,
@@ -93,11 +94,20 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
       return divClass;
     }, [props.label]);
 
+    const getDarkDiv = useMemo(() => {
+      if (buttonLargeImage === true) {
+        return 'sm-input-dark-large-image';
+      }
+      let divClass = buttonLarge ? 'sm-input-dark-large' : 'sm-input-dark';
+
+      return divClass;
+    }, [buttonLarge, buttonLargeImage]);
+
     if (props.children) {
       if (buttonDarkBackground) {
         return (
           <div className="stringeditor">
-            <div className={buttonLarge ? 'sm-input-dark-large' : 'sm-input-dark'}>
+            <div className={getDarkDiv}>
               <Tooltip target={`.${tooltipClassName}`} />
               <div
                 onClick={(e) => {

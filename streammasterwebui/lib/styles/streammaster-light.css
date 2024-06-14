@@ -7782,10 +7782,10 @@
   border-color: rgba(255, 255, 255, 0.5);
 }
 
-.sm-hover-dark, .stringeditor .sm-input-dark-large, .stringeditor .sm-input-dark-header-large, .stringeditor .sm-input-dark, .stringeditor .sm-input-dark-header, .sm-iconselector {
+.sm-hover-dark, .stringeditor .sm-input-dark-large-image, .stringeditor .sm-input-dark-large, .stringeditor .sm-input-dark-header-large, .stringeditor .sm-input-dark, .stringeditor .sm-input-dark-header, .sm-iconselector {
   transition: border-color 0.15s;
 }
-.sm-hover-dark:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-large:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-header-large:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-header:not(.p-disabled):hover:not(:focus), .sm-iconselector:not(.p-disabled):hover:not(:focus) {
+.sm-hover-dark:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-large-image:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-large:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-header-large:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-header:not(.p-disabled):hover:not(:focus), .sm-iconselector:not(.p-disabled):hover:not(:focus) {
   border-color: #bcbfbf !important;
   border-radius: 6px !important;
   border-style: solid !important;
@@ -8132,17 +8132,32 @@ div[aria-haspopup=dialog] {
   border-radius: 6px;
   border-color: #263238;
   border-style: solid;
-  height: 1.6rem;
-  max-height: 1.6rem;
-  min-height: 1.6rem;
   background-color: #12181b;
   padding: 0.24rem;
   color: #94abec;
   display: flex;
   width: 100%;
   height: 1.6rem;
+  max-height: 1.6rem;
+  min-height: 1.6rem;
 }
 .stringeditor .sm-input-dark-large img {
+  max-width: 6rem;
+  max-height: 4.6rem;
+  object-fit: contain;
+  border-style: none !important;
+}
+.stringeditor .sm-input-dark-large-image {
+  border-radius: 6px;
+  border-color: #263238;
+  border-style: solid;
+  background-color: #12181b;
+  padding: 0.24rem;
+  color: #94abec;
+  display: flex;
+  width: 100%;
+}
+.stringeditor .sm-input-dark-large-image img {
   max-width: 6rem;
   max-height: 4.6rem;
   object-fit: contain;
@@ -8187,7 +8202,7 @@ div[aria-haspopup=dialog] {
   color: #bcbfbf;
 }
 
-.text-container, .stringeditor .sm-input, .stringeditor .sm-input-dark, .stringeditor .sm-input-dark-header, .stringeditor .sm-input-dark-header-large, .stringeditor .sm-input-dark-large {
+.text-container, .stringeditor .sm-input, .stringeditor .sm-input-dark, .stringeditor .sm-input-dark-header, .stringeditor .sm-input-dark-header-large, .stringeditor .sm-input-dark-large, .stringeditor .sm-input-dark-large-image {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

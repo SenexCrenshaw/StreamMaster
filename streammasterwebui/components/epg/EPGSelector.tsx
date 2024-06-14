@@ -20,9 +20,10 @@ type EPGSelectorProperties = {
   readonly label?: string;
   readonly smChannel?: SMChannelDto;
   readonly onChange?: (value: string) => void;
+  readonly buttonDarkBackground?: boolean;
 };
 
-const EPGSelector = ({ enableEditMode = true, label, smChannel, isLoading, onChange }: EPGSelectorProperties) => {
+const EPGSelector = ({ buttonDarkBackground = false, enableEditMode = true, label, smChannel, isLoading, onChange }: EPGSelectorProperties) => {
   const { selectedItems } = useSelectedItems<EPGFileDto>('EPGSelector-EPGFiles');
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
@@ -361,7 +362,6 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, isLoading, onCha
   const headerTemplate = useMemo(() => {
     return (
       <SMDropDown
-        buttonDarkBackground
         buttonTemplate={headerValueTemplate}
         data={epgFiles}
         dataKey="EPGNumber"
@@ -393,6 +393,7 @@ const EPGSelector = ({ enableEditMode = true, label, smChannel, isLoading, onCha
 
   return (
     <SMDropDown
+      buttonDarkBackground={buttonDarkBackground}
       buttonIsLoading={loading || isLoading}
       buttonLabel="EPG"
       buttonTemplate={buttonTemplate(stationChannelName)}
