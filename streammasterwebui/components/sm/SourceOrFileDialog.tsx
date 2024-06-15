@@ -37,12 +37,13 @@ const SourceOrFileDialog = forwardRef<SMFileUploadRef, ExtSourceOrFileDialogProp
           setStringValue(undefined);
         },
         save: () => {
+          onAdd(source, file);
           // if (sourceOrFileDialogRef.current) {
           //   sourceOrFileDialogRef.current.save();
           // }
         }
       }),
-      [clearInputFile, setStringValue]
+      [clearInputFile, file, onAdd, setStringValue, source]
     );
 
     const sourceValue = useMemo(() => {

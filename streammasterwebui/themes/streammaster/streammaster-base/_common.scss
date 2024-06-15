@@ -75,7 +75,7 @@
 
 .color-editor-box {
   @extend .default-border;
-
+  z-index: 10;
   height: $input-height - ($input-padding * 2);
 
   .sm-button {
@@ -144,6 +144,10 @@
   &.p-dialog-top-right {
     padding-bottom: 5%;
   }
+}
+
+.p-checkbox-box {
+  background-color: $headerBg;
 }
 
 .p-inputgroup {

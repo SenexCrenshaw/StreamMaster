@@ -1,4 +1,4 @@
-import ColorEditor from '@components/ColorEditor';
+import ColorEditor from '@components/inputs/ColorEditor';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
@@ -12,9 +12,6 @@ import StringEditor from '../inputs/StringEditor';
 import EPGFileDeleteDialog from './EPGFileDeleteDialog';
 import EPGFileEditDialog from './EPGFileEditDialog';
 import EPGFileRefreshDialog from './EPGFileRefreshDialog';
-// import EPGFileRefreshDialog from './EPGFileRefreshDialog';
-// import EPGFileRemoveDialog from './EPGFileRemoveDialog';
-// import EPGPreviewDialog from './EPGPreviewDialog';
 
 const EPGFilesDataSelector = () => {
   interface EPGUpdateProperties {
@@ -140,8 +137,6 @@ const EPGFilesDataSelector = () => {
     }
     return (
       <div className="flex justify-content-center align-items-center">
-        {/* <M3UFileRefreshDialog selectedFile={rowData} />
-         <M3UFileRemoveDialog selectedFile={rowData} /> */}
         <EPGFileRefreshDialog selectedFile={rowData} />
         <EPGFileDeleteDialog selectedFile={rowData} />
         <EPGFileEditDialog selectedFile={rowData} />
@@ -155,7 +150,7 @@ const EPGFilesDataSelector = () => {
         bodyTemplate: colorTemplate,
         field: 'color',
         header: 'Color',
-        width: '3rem'
+        width: 20
       },
       {
         bodyTemplate: nameEditorTemplate,
@@ -163,32 +158,32 @@ const EPGFilesDataSelector = () => {
         filter: true,
         header: 'Name',
         sortable: true,
-        width: '4'
+        width: 100
       },
       {
         bodyTemplate: lastDownloadedTemplate,
         field: 'lastDownloaded',
         header: 'Downloaded',
-        width: '2'
+        width: 80
       },
       {
         bodyTemplate: channelCountTemplate,
         field: 'channelCount',
         header: 'Channels',
-        width: '6'
+        width: 40
       },
       {
         bodyTemplate: programmeCountTemplate,
         field: 'programmeCount',
         header: 'Progs',
-        width: '6'
+        width: 40
       },
       {
         align: 'center',
         bodyTemplate: actionTemplate,
         field: 'autoUpdate',
         header: 'Actions',
-        width: '6'
+        width: 40
       }
     ],
     [colorTemplate, nameEditorTemplate, lastDownloadedTemplate, channelCountTemplate, programmeCountTemplate, actionTemplate]

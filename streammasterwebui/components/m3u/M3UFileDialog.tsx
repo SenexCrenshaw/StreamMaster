@@ -1,7 +1,7 @@
 import NumberEditor from '@components/inputs/NumberEditor';
 import StringEditor from '@components/inputs/StringEditor';
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 
 import BooleanEditor from '@components/inputs/BooleanEditor';
 import { arraysEqual } from '@lib/common/common';
@@ -39,7 +39,6 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
   );
 
   const { code } = useScrollAndKeyEvents();
-  const divRef = useRef<HTMLDivElement>(null);
 
   const [m3uFileDto, setM3UFileDto] = useState<M3UFileDto | undefined>(undefined);
   const [originalM3UFileDto, setOriginalM3UFileDto] = useState<M3UFileDto | undefined>(undefined);
@@ -137,48 +136,47 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
   }
 
   return (
-    <div ref={divRef}>
-      <div className="w-12">
-        <div className="flex gap-1">
-          <div className="w-6">
-            <StringEditor
-              disableDebounce
-              darkBackGround
-              autoFocus
-              label="NAME"
-              value={m3uFileDto.Name}
-              onChange={(e) => {
-                updateStateAndRequest({ Name: e });
-                setStringValue(e);
-              }}
-            />
-          </div>
-          <div className="w-6">
-            <div className="flex gap-1">
-              <div className="w-6 ">
-                <NumberEditor
-                  darkBackGround
-                  disableDebounce
-                  label="MAX STREAMS"
-                  onChange={(e) => updateStateAndRequest({ MaxStreamCount: e })}
-                  showButtons
-                  value={m3uFileDto?.MaxStreamCount}
-                />
-              </div>
-              <div className="w-6">
-                <NumberEditor
-                  darkBackGround
-                  disableDebounce
-                  label="START CHANNEL #"
-                  onChange={(e) => updateStateAndRequest({ StartingChannelNumber: e })}
-                  showButtons
-                  value={m3uFileDto?.StartingChannelNumber}
-                />
-              </div>
+    <div className="w-12">
+      <div className="flex gap-1">
+        <div className="w-6">
+          <StringEditor
+            disableDebounce
+            darkBackGround
+            autoFocus
+            label="NAME"
+            value={m3uFileDto.Name}
+            onChange={(e) => {
+              updateStateAndRequest({ Name: e });
+              setStringValue(e);
+            }}
+          />
+        </div>
+        <div className="w-6">
+          <div className="flex gap-1">
+            <div className="w-6 ">
+              <NumberEditor
+                darkBackGround
+                disableDebounce
+                label="MAX STREAMS"
+                onChange={(e) => updateStateAndRequest({ MaxStreamCount: e })}
+                showButtons
+                value={m3uFileDto?.MaxStreamCount}
+              />
+            </div>
+            <div className="w-6">
+              <NumberEditor
+                darkBackGround
+                disableDebounce
+                label="START CHANNEL #"
+                onChange={(e) => updateStateAndRequest({ StartingChannelNumber: e })}
+                showButtons
+                value={m3uFileDto?.StartingChannelNumber}
+              />
             </div>
           </div>
         </div>
       </div>
+
       <div className="layout-padding-bottom-lg" />
       {/* {showUrlEditor === true && (
         <>

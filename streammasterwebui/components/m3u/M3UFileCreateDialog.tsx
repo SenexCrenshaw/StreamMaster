@@ -23,6 +23,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
   const smFileUploadRef = useRef<SMFileUploadRef>(null);
   const fileDialogRef = useRef<M3UFileDialogRef>(null);
   const [isSaveEnabled, setIsSaveEnabled] = React.useState<boolean>(false);
+
   const defaultValues = {
     HoursToUpdate: 72,
     MaxStreamCount: 1,
@@ -40,7 +41,6 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
         setStringValue('');
       }
 
-      // smFileUploadRef.current?.hide();
       onHide?.(didUpload ?? false);
       onUploadComplete();
     },
@@ -65,7 +65,6 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
           console.error('Error uploading M3U', error);
         })
         .finally(() => {
-          // smDialogRef.current?.hide();
           setStringValue('');
           ReturnToParent();
         });

@@ -1,35 +1,23 @@
-import { memo, useRef } from 'react';
+import { memo, useRef, useState } from 'react';
 
-import { SMDialogRef } from '@components/sm/SMDialog';
+import OKButton from '@components/buttons/OKButton';
+import ResetButton from '@components/buttons/ResetButton';
 import SMPopUp from '@components/sm/SMPopUp';
-import { UpdateEPGFile } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
-import { EPGFileDto, UpdateEPGFileRequest } from '@lib/smAPI/smapiTypes';
-import EPGFileDialog from './EPGFileDialog';
+import { EPGFileDto } from '@lib/smAPI/smapiTypes';
+import EPGFileDialog, { EPGFileDialogRef } from './EPGFileDialog';
 
 interface EPGFileEditDialogProperties {
   readonly selectedFile: EPGFileDto;
 }
 
 const EPGFileEditDialog = ({ selectedFile }: EPGFileEditDialogProperties) => {
-  const smDialogRef = useRef<SMDialogRef>(null);
+  const epgDialogRef = useRef<EPGFileDialogRef>(null);
 
-  function onUpdated(request: UpdateEPGFileRequest): void {
-    if (request.Id === undefined) {
-      return;
-    }
-
-    UpdateEPGFile(request)
-      .then(() => {})
-      .catch((error) => {
-        console.error(error);
-      })
-      .finally(() => {
-        smDialogRef.current?.hide();
-      });
-  }
+  const [saveEnabled, setSaveEnabled] = useState<boolean>(false);
 
   return (
     <SMPopUp
+      hasCloseButton={false}
       contentWidthSize="4"
       title="EDIT EPG"
       icon="pi-pencil"
@@ -38,8 +26,25 @@ const EPGFileEditDialog = ({ selectedFile }: EPGFileEditDialogProperties) => {
       iconFilled={false}
       buttonClassName="icon-yellow"
       tooltip="Add EPG"
+      // onCloseClick={() => {set}
+      header={
+        <div className="flex w-12 gap-1 justify-content-end align-content-center">
+          <ResetButton
+            buttonDisabled={!saveEnabled}
+            onClick={() => {
+              epgDialogRef.current?.reset();
+            }}
+          />
+          <OKButton
+            buttonDisabled={!saveEnabled}
+            onClick={(request) => {
+              epgDialogRef.current?.save();
+            }}
+          />
+        </div>
+      }
     >
-      <EPGFileDialog selectedFile={selectedFile} onUpdated={onUpdated} />
+      <EPGFileDialog ref={epgDialogRef} onSaveEnabled={setSaveEnabled} selectedFile={selectedFile} />
     </SMPopUp>
   );
 };

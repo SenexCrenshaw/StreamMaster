@@ -1,6 +1,7 @@
 import OKButton from '@components/buttons/OKButton';
 import NumberEditor from '@components/inputs/NumberEditor';
-import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
+import { SMDialogRef } from '@components/sm/SMDialog';
+import SMPopUp from '@components/sm/SMPopUp';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { AutoSetSMChannelNumbers } from '@lib/smAPI/SMChannels/SMChannelsCommands';
@@ -44,21 +45,25 @@ const AutoSetSMChannelNumbersDialog = ({ disabled }: AutoSetSMChannelNumbersDial
   const ReturnToParent = React.useCallback(() => {}, []);
 
   return (
-    <SMDialog
+    <SMPopUp
       header={<OKButton onClick={async () => await onAutoChannelsSave()} />}
       iconFilled
-      ref={smDialogRef}
-      label="Set Channel #"
-      title="SET CHANNEL NUMBERS"
-      onHide={() => ReturnToParent()}
-      buttonClassName={disabled ? 'p-disabled icon-yellow' : 'icon-yellow'}
+      label="AutoSet Channel #s for SG"
+      title="AutoSet Channel #s for SG"
+      hollow
+      hasCloseButton={false}
+      onCloseClick={() => ReturnToParent()}
+      buttonClassName="icon-yellow"
       icon="pi-sort-numeric-up-alt"
-      widthSize={3}
+      placement="bottom-end"
+      contentWidthSize="3"
     >
-      <div className="surface-border flex grid flex-wrap justify-content-center p-0 m-0 w-12 min-h-4rem h-4rem">
+      <div className="surface-border flex grid flex-wrap justify-content-center p-0 m-0">
         <div className="flex flex-column mt-2 w-5 ">
           {`Set channel numbers ${overwriteNumbers ? 'and overwrite existing numbers ?' : '?'}`}
-          {/* <span className="scalein animation-duration-500 animation-iteration-2 text-bold text-red-500 font-italic mt-2">This will auto save</span> */}
+          <span className="scalein animation-duration-500 animation-iteration-2 text-bold text-red-500 font-italic mt-2">
+            This is specific to stream groups
+          </span>
         </div>
 
         <div className="flex mt-2 w-7 align-items-center justify-content-start p-0 m-0 ">
@@ -73,7 +78,7 @@ const AutoSetSMChannelNumbersDialog = ({ disabled }: AutoSetSMChannelNumbersDial
           </div>
         </div>
       </div>
-    </SMDialog>
+    </SMPopUp>
   );
 };
 

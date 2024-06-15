@@ -8364,6 +8364,7 @@ div[aria-haspopup=dialog] {
 }
 
 .color-editor-box {
+  z-index: 10;
   height: 1.4rem;
 }
 .color-editor-box .sm-button {
@@ -8418,6 +8419,10 @@ div[aria-haspopup=dialog] {
 
 .p-dialog-mask.p-dialog-top-right {
   padding-bottom: 5%;
+}
+
+.p-checkbox-box {
+  background-color: #21282c;
 }
 
 .p-inputgroup {

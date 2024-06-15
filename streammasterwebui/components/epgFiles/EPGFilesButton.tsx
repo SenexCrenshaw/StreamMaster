@@ -1,22 +1,23 @@
-import SMOverlay from '@components/sm/SMOverlay';
-import { OverlayPanel } from 'primereact/overlaypanel';
+import SMOverlay, { SMOverlayRef } from '@components/sm/SMOverlay';
 import { memo, useRef } from 'react';
 import EPGFileCreateDialog from './EPGFileCreateDialog';
 import EPGFilesDataSelector from './EPGFilesDataSelector';
 
 const EPGFilesButton = () => {
-  const op = useRef<OverlayPanel>(null);
+  const op = useRef<SMOverlayRef>(null);
   const closeOverlay = () => op.current?.hide();
-
   return (
     <SMOverlay
-      title="EPG FILES"
+      buttonClassName="sm-w-4rem icon-green"
+      buttonLabel="EPG"
       contentWidthSize="5"
+      header={<EPGFileCreateDialog onUploadComplete={closeOverlay} />}
       icon="pi-upload"
       iconFilled
-      buttonClassName="w-4rem icon-green"
-      buttonLabel="EPG"
-      header={<EPGFileCreateDialog onUploadComplete={closeOverlay} />}
+      info=""
+      placement="bottom-end"
+      ref={op}
+      title="EPG FILES"
     >
       <EPGFilesDataSelector />
     </SMOverlay>

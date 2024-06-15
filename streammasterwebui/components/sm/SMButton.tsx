@@ -1,5 +1,4 @@
 import { getLeftToolOptions, getRightToolOptions } from '@lib/common/common';
-import { Logger } from '@lib/common/logger';
 import { Button } from 'primereact/button';
 import { Tooltip } from 'primereact/tooltip';
 import { CSSProperties, default as React, forwardRef, default as react, useMemo } from 'react';
@@ -79,6 +78,7 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
       if (buttonClassName.includes('orange')) return 'var(--icon-orange)';
       if (buttonClassName.includes('green')) return 'var(--icon-green)';
       if (buttonClassName.includes('blue')) return 'var(--icon-blue)';
+      if (buttonClassName.includes('yellow')) return 'var(--icon-yellow)';
       return 'var(--icon-blue)'; // Default color
     }, [buttonClassName]);
 
@@ -136,7 +136,7 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
       }
       return (
         <div className={buttonLarge ? 'sm-input-large' : 'sm-border-transparent sm-hover'}>
-          <div className="px-1">
+          <>
             <Tooltip target={`.${tooltipClassName}`} />
             <div
               onClick={(e) => {
@@ -158,13 +158,9 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
               {props.children}
               <i className={`input-icon ${iconClass}`} />
             </div>
-          </div>
+          </>
         </div>
       );
-    }
-
-    if (hollow === true && props.icon === 'pi-building-columns') {
-      Logger.debug('SMButton', 'icon', iconClass, 'buttonClassName', buttonClassName, 'label', props.label);
     }
 
     if (hollow) {
