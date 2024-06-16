@@ -1,3 +1,4 @@
+import { Logger } from '@lib/common/logger';
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { useClickOutside } from 'primereact/hooks';
 import { InputText } from 'primereact/inputtext';
@@ -47,6 +48,7 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
       onClick,
       onSave,
       placeholder,
+      resetValue = '',
       showClear = false,
       tooltip,
       tooltipOptions,
@@ -154,11 +156,12 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
       return ret;
     }, [darkBackGround, labelInline]);
 
-    const doShowClear = useMemo(() => {
-      const ret = showClear === true && darkBackGround && inputValue !== '' && originalValue !== inputValue;
+    const doShowClear = useMemo((): boolean => {
+      const ret = showClear === true && inputValue !== ''; //&& originalValue !== inputValue;
+      Logger.debug('StringEditor', { inputValue, originalValue, showClear, ret });
       // Logger.debug('StringEditor', { darkBackGround, inputValue, originalValue, showClear, ret });
       return ret;
-    }, [darkBackGround, inputValue, originalValue, showClear]);
+    }, [inputValue, originalValue, showClear]);
 
     const getDiv = useMemo(() => {
       let ret = 'flex stringeditor justify-content-center';
@@ -217,8 +220,15 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
               <i
                 className="pi pi-times-circle icon-yellow"
                 onClick={() => {
-                  setInputValue(originalValue);
-                  if (originalValue !== null) onChange?.(originalValue);
+                  if (resetValue !== undefined) {
+                    setInputValue(resetValue);
+                    onChange?.(resetValue);
+                    setOriginalValue(resetValue);
+                    onChange?.(resetValue);
+                  } else {
+                    setInputValue(originalValue);
+                    if (originalValue !== null) onChange?.(originalValue);
+                  }
                 }}
               />
             </i>

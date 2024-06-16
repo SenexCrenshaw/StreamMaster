@@ -191,7 +191,7 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
             <IconSelector darkBackGround label="Logo" large enableEditMode onChange={(e) => setLogo(e)} value={request.Logo} />
           </div>
         </div>
-        <div className="layout-padding-bottom" />
+
         <div className="flex w-10 gap-1 pl-2">
           <div className="w-6 gap-1 w-full h-full">
             <StreamingProxyTypeSelector darkBackGround label="Proxy" data={smChannel} onChange={(e) => setProxy(e)} />

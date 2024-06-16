@@ -598,8 +598,8 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   }, [props.lazy, props.queryFilter]);
 
   const showPageination = useMemo(() => {
-    return props.enablePaginator === true && state.dataSource && state.dataSource.length >= state.rows;
-  }, [props.enablePaginator, state.dataSource, state.rows]);
+    return props.enablePaginator === true; // && state.dataSource && state.dataSource.length >= state.rows;
+  }, [props.enablePaginator]);
 
   const getClass = useMemo(() => {
     return 'sm-datatable surface-overlay';

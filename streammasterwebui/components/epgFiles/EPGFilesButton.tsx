@@ -15,7 +15,7 @@ const EPGFilesButton = () => {
       icon="pi-upload"
       iconFilled
       info=""
-      placement="bottom-end"
+      placement="bottom"
       ref={op}
       title="EPG FILES"
     >

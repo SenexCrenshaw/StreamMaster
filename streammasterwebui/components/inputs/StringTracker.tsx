@@ -25,6 +25,7 @@ const StringTracker = ({ id, isLoading, onChange, placeholder, value }: StringTr
         onChange(e);
       }}
       showClear
+      resetValue=""
       darkBackGround
       placeholder={placeholder}
       value={intValue}
