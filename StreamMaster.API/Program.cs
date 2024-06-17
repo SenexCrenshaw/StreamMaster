@@ -30,9 +30,9 @@ using System.Text.Json.Serialization;
 [assembly: TsGlobal(CamelCaseForProperties = false, CamelCaseForMethods = false, UseModules = true, DiscardNamespacesWhenUsingModules = true, AutoOptionalProperties = true, WriteWarningComment = false, ReorderMembers = true)]
 //ProcessHelper.KillProcessByName("ffmpeg");
 
-DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "hls"), BuildInfo.HLSOutputFolder);
-DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "settings"), BuildInfo.SettingsFolder);
-DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "backups"), BuildInfo.BackupFolder);
+//DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "hls"), BuildInfo.HLSOutputFolder);
+//DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "settings"), BuildInfo.SettingsFolder);
+//DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "backups"), BuildInfo.BackupFolder);
 
 DirectoryHelper.CreateApplicationDirectories();
 
@@ -72,11 +72,18 @@ if (Directory.Exists(BuildInfo.SettingsFolder))
 }
 
 
-var profileSetting = SettingsHelper.GetSetting<FFMPEGProfiles>(BuildInfo.ProfileSettingsFile);
-if (profileSetting == default(FFMPEGProfiles))
+var videoProfileSetting = SettingsHelper.GetSetting<VideoOutputProfiles>(BuildInfo.VideoProfileSettingsFile);
+if (videoProfileSetting == default(VideoOutputProfiles))
 {
-    SettingsHelper.UpdateSetting(SettingFiles.DefaultProfileSetting);
+    SettingsHelper.UpdateSetting(SettingFiles.DefaultVideoProfileSetting);
 }
+
+var fileProfileSetting = SettingsHelper.GetSetting<FileOutputProfiles>(BuildInfo.FileProfileSettingsFile);
+if (fileProfileSetting == default(FileOutputProfiles))
+{
+    SettingsHelper.UpdateSetting(SettingFiles.DefaultFileProfileSetting);
+}
+
 
 var hlsSetting = SettingsHelper.GetSetting<HLSSettings>(BuildInfo.HLSSettingsFile);
 if (hlsSetting == default(HLSSettings))
@@ -121,7 +128,9 @@ foreach (var file in settingsFiles)
 builder.Services.Configure<Setting>(builder.Configuration);
 builder.Services.Configure<SDSettings>(builder.Configuration);
 builder.Services.Configure<HLSSettings>(builder.Configuration);
-builder.Services.Configure<FFMPEGProfiles>(builder.Configuration);
+builder.Services.Configure<VideoOutputProfiles>(builder.Configuration);
+builder.Services.Configure<FileOutputProfiles>(builder.Configuration);
+
 
 
 bool enableSsl = false;

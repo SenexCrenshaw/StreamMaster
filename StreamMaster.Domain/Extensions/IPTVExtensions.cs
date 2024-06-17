@@ -210,19 +210,17 @@ public static partial class IPTVExtensions
                             break;
 
                         case "tvg-chno":
-                            string num = parameter[1].Trim();
-                            SMStream.ChannelNumber = int.TryParse(num, out int chno) ? chno : 0;
-
+                            //string num = parameter[1].Trim();
+                            //SMStream.Chno = int.TryParse(num, out int chno) ? chno : 0;                            
                             break;
 
                         case "channel-id":
-                            SMStream.EPGID = parameter[1].Trim();
+                            SMStream.Id = parameter[1].Trim();
                             break;
 
                         case "channel-number":
                             string channum = parameter[1].Trim();
                             SMStream.ChannelNumber = int.TryParse(channum, out int chanchno) ? chanchno : 0;
-
                             break;
 
                         //case "tvg-shift":

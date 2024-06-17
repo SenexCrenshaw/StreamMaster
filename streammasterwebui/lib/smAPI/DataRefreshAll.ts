@@ -5,6 +5,7 @@ import { setIsForced as GetEPGColorsSetIsForced } from '@lib/smAPI/EPG/GetEPGCol
 import { setIsForced as GetEPGFilePreviewByIdSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
 import { setIsForced as GetEPGFilesSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
 import { setIsForced as GetEPGNextEPGNumberSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
+import { setIsForced as GetFileProfilesSetIsForced } from '@lib/smAPI/Profiles/GetFileProfilesSlice';
 import { setIsForced as GetIconsSetIsForced } from '@lib/smAPI/Icons/GetIconsSlice';
 import { setIsForced as GetIsSystemReadySetIsForced } from '@lib/smAPI/General/GetIsSystemReadySlice';
 import { setIsForced as GetM3UFileNamesSetIsForced } from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
@@ -26,6 +27,7 @@ import { setIsForced as GetStreamGroupsSetIsForced } from '@lib/smAPI/StreamGrou
 import { setIsForced as GetStreamGroupSMChannelsSetIsForced } from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
 import { setIsForced as GetSystemStatusSetIsForced } from '@lib/smAPI/General/GetSystemStatusSlice';
 import { setIsForced as GetTaskIsRunningSetIsForced } from '@lib/smAPI/General/GetTaskIsRunningSlice';
+import { setIsForced as GetVideoProfilesSetIsForced } from '@lib/smAPI/Profiles/GetVideoProfilesSlice';
 
 export const DataRefreshAll = () => {
   store.dispatch(GetChannelGroupsSetIsForced({ force: true }));
@@ -34,6 +36,7 @@ export const DataRefreshAll = () => {
   store.dispatch(GetEPGFilePreviewByIdSetIsForced({ force: true }));
   store.dispatch(GetEPGFilesSetIsForced({ force: true }));
   store.dispatch(GetEPGNextEPGNumberSetIsForced({ force: true }));
+  store.dispatch(GetFileProfilesSetIsForced({ force: true }));
   store.dispatch(GetIconsSetIsForced({ force: true }));
   store.dispatch(GetIsSystemReadySetIsForced({ force: true }));
   store.dispatch(GetM3UFileNamesSetIsForced({ force: true }));
@@ -55,4 +58,5 @@ export const DataRefreshAll = () => {
   store.dispatch(GetStreamGroupSMChannelsSetIsForced({ force: true }));
   store.dispatch(GetSystemStatusSetIsForced({ force: true }));
   store.dispatch(GetTaskIsRunningSetIsForced({ force: true }));
+  store.dispatch(GetVideoProfilesSetIsForced({ force: true }));
 };

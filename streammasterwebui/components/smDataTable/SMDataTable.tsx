@@ -761,7 +761,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
               props.reorderable
                 ? undefined
                 : (e) => {
-                    return <div>Hey</div>;
+                    return <div></div>;
                   }
             }
             filter

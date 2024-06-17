@@ -115,12 +115,4 @@ public class Setting : BaseSettings
 
 //}
 
-public class FFMPEGProfiles
-{
-    public Dictionary<string, FFMPEGProfile> Profiles { get; set; } = [];
-}
 
-public class FFMPEGProfilesDto
-{
-    public Dictionary<string, FFMPEGProfile> Profiles { get; set; } = [];
-}

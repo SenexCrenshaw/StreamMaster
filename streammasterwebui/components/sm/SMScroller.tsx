@@ -31,21 +31,6 @@ const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize =
     });
   }, [filter, filterString, props.data, props.filterBy]);
 
-  // useEffect(() => {
-  //   if (dataSource !== undefined) {
-  //     return;
-  //   }
-  //   if (filter === undefined || filter === false || filterBy === undefined) {
-  //     setDataSource(data);
-  //     return;
-  //   }
-  //   if (filter && filterString !== '') {
-  //     setDataSource(data.filter((item: any) => item[filterBy].toLowerCase().includes(filterString.toLowerCase())));
-  //   }
-
-  //   setDataSource(data);
-  // }, [data, dataSource, filter, filterBy, filterString]);
-
   const equalityKey = useCallback(() => {
     return props.dataKey ? props.dataKey : 'Id';
   }, [props.dataKey]);
@@ -153,7 +138,7 @@ const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize =
       if (key) {
         if (props.optionValue) {
           const toMatch = getOptionValue(item);
-          if (props.value[key] !== undefined) {
+          if (props.value?.[key] !== undefined) {
             return toMatch === props.value[key];
           }
         }

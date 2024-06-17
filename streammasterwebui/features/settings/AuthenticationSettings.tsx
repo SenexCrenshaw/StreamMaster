@@ -66,13 +66,13 @@ export function AuthenticationSettings(): React.ReactElement {
               <div className="w-2 text-right pr-2">{GetMessage('signout')}</div>
               <div className="w-2">
                 <SMButton
-                  disabled={!settings.AuthenticationMethod || (settings.AuthenticationMethod as number) === 0}
+                  buttonDisabled={!settings.AuthenticationMethod || (settings.AuthenticationMethod as number) === 0}
                   icon="pi-check"
                   label={GetMessage('signout')}
                   onClick={() => (window.location.href = '/logout')}
                   rounded
                   iconFilled
-                  className="icon-green"
+                  buttonClassName="icon-green"
                 />
               </div>
             </div>

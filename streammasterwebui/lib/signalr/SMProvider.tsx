@@ -4,6 +4,7 @@ import { DataRefreshAll } from '@lib/smAPI/DataRefreshAll';
 import { Logger } from '@lib/common/logger';
 
 import { GetIsSystemReady } from '@lib/smAPI/General/GeneralCommands';
+import useGetIsSystemReady from '@lib/smAPI/General/useGetIsSystemReady';
 import useGetTaskIsRunning from '@lib/smAPI/General/useGetTaskIsRunning';
 import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import { SettingDto } from '@lib/smAPI/smapiTypes';
@@ -28,6 +29,7 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
   const [isSystemReady, setSystemReady] = useState<boolean>(false);
   const [settings, setSettings] = useState<SettingDto>({} as SettingDto);
   const settingsQuery = useGetSettings();
+  const { data: isSystemReadyQ } = useGetIsSystemReady();
   const { data: isTaskRunning } = useGetTaskIsRunning();
 
   useEffect(() => {
@@ -37,12 +39,14 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
   }, [settingsQuery.data]);
 
   const value = {
-    isSystemReady: isSystemReady && settingsQuery.data !== undefined,
+    isSystemReady: isSystemReadyQ === true && settingsQuery.data !== undefined,
     isTaskRunning: isTaskRunning ?? false,
     setSettings,
     setSystemReady,
     settings
   };
+
+  Logger.debug('SMProvider', isSystemReady);
 
   useEffect(() => {
     const checkSystemReady = async () => {
@@ -74,8 +78,8 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
 
   return (
     <SMContext.Provider value={value}>
-      {value.isSystemReady !== true && <SMLoader />}
-      <BlockUI blocked={value.isSystemReady !== true}>{children}</BlockUI>
+      {isSystemReady !== true && <SMLoader />}
+      <BlockUI blocked={isSystemReady !== true}>{children}</BlockUI>
     </SMContext.Provider>
   );
 };

@@ -3,30 +3,32 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record UpdateFFMPEGProfileRequest(string Name, string? NewName, string? Parameters, int? TimeOut, bool? IsM3U8) : IRequest<APIResponse> { }
+public record UpdateVideoProfileRequest(string Name, string? NewName, string? Parameters, int? TimeOut, bool? IsM3U8)
+    : IRequest<APIResponse>
+{ }
 
-public class UpdateFFMPEGProfileRequestHandler(
-    ILogger<UpdateFFMPEGProfileRequest> Logger,
-    IOptionsMonitor<FFMPEGProfiles> intprofilesettings,
+public class UpdateVideoProfileRequestHandler(
+    ILogger<UpdateVideoProfileRequest> Logger,
+    IOptionsMonitor<VideoOutputProfiles> intprofilesettings,
     IMapper Mapper,
     ISender Sender,
     IRepositoryWrapper repositoryWrapper
     )
-: IRequestHandler<UpdateFFMPEGProfileRequest, APIResponse>
+: IRequestHandler<UpdateVideoProfileRequest, APIResponse>
 {
 
-    private readonly FFMPEGProfiles profilesettings = intprofilesettings.CurrentValue;
+    private readonly VideoOutputProfiles profilesettings = intprofilesettings.CurrentValue;
 
-    public async Task<APIResponse> Handle(UpdateFFMPEGProfileRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(UpdateVideoProfileRequest request, CancellationToken cancellationToken)
     {
-        if (!profilesettings.Profiles.ContainsKey(request.Name))
+        if (!profilesettings.VideoProfiles.ContainsKey(request.Name))
         {
             DataResponse<SettingDto> ret1 = await Sender.Send(new GetSettingsRequest(), cancellationToken);
             //return APIResponse.Success(new UpdateSettingResponse { Settings = ret1.Data, NeedsLogOut = false });
             return APIResponse.Ok;
         }
 
-        if (profilesettings.Profiles.TryGetValue(request.Name, out FFMPEGProfile? existingProfile))
+        if (profilesettings.VideoProfiles.TryGetValue(request.Name, out VideoOutputProfile? existingProfile))
         {
 
             if (request.Parameters != null)
@@ -43,12 +45,12 @@ public class UpdateFFMPEGProfileRequestHandler(
             }
             if (request.NewName != null)
             {
-                profilesettings.Profiles.Remove(request.Name);
-                profilesettings.Profiles.Add(request.NewName, existingProfile);
-                repositoryWrapper.StreamGroup.GetQuery(x => x.FFMPEGProfileId == request.Name).ToList().ForEach(x => x.FFMPEGProfileId = request.NewName);
+                profilesettings.VideoProfiles.Remove(request.Name);
+                profilesettings.VideoProfiles.Add(request.NewName, existingProfile);
+                //repositoryWrapper.StreamGroup.GetQuery(x => x.VideoProfileId == request.Name).ToList().ForEach(x => x.VideoProfileId = request.NewName);
                 await repositoryWrapper.SaveAsync();
             }
-            Logger.LogInformation("UpdateFFMPEGProfileRequest");
+            Logger.LogInformation("UpdateVideoProfileRequest");
 
             SettingsHelper.UpdateSetting(profilesettings);
 

@@ -2,10 +2,11 @@ import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 
 import SMPopUp from '@components/sm/SMPopUp';
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import StreamGroupCreateDialog from './StreamGroupCreateDialog';
 import StreamGroupDataSelector from './StreamGroupDataSelector';
 import { StreamGroupSelector } from './StreamGroupSelector';
+import StreamGroupProfileButton from './profiles/StreamGroupProfileButton';
 
 interface StreamGroupButtonProperties {
   className?: string;
@@ -14,6 +15,15 @@ interface StreamGroupButtonProperties {
 const StreamGroupButton = ({ className = 'sm-w-10rem sm-input-dark' }: StreamGroupButtonProperties) => {
   const { setSelectedItems } = useSelectedItems('selectedStreamGroup');
   const { selectedStreamGroup, setSelectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
+
+  const headerTemplate = useMemo(() => {
+    return (
+      <>
+        <StreamGroupCreateDialog />
+        <StreamGroupProfileButton />
+      </>
+    );
+  }, []);
 
   return (
     <div className="flex justify-content-center align-items-center">
@@ -32,10 +42,11 @@ const StreamGroupButton = ({ className = 'sm-w-10rem sm-input-dark' }: StreamGro
           buttonClassName="sm-w-4rem icon-sg"
           buttonLabel="SG"
           contentWidthSize="4"
-          header={<StreamGroupCreateDialog />}
-          icon="pi-file-edit"
+          header={headerTemplate}
+          icon="pi-list-check"
           iconFilled
-          title="STREAM GROUPS"
+          hasCloseButton={false}
+          title="Profiles"
         >
           <StreamGroupDataSelector id={'StreamGroup'} />
         </SMPopUp>

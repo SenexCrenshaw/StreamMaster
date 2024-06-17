@@ -37,35 +37,35 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
         field: 'Name',
         filter: true,
         sortable: true,
-        width: '13rem'
+        width: 150
       },
       {
         align: 'right',
         field: 'StreamCount',
         header: '#',
-        width: '3rem'
+        width: 40
       },
       {
         field: 'Url',
         fieldType: 'url',
-        width: '2rem'
+        width: 100
       },
       {
         field: 'epglink',
         fieldType: 'epglink',
-        width: '2rem'
+        width: 40
       },
       {
         field: 'm3ulink',
         fieldType: 'm3ulink',
-        width: '2rem'
+        width: 40
       },
       {
         align: 'center',
         bodyTemplate: actionTemplate,
         field: 'autoUpdate',
         header: 'Actions',
-        width: '4rem'
+        width: 40
       }
     ],
     [actionTemplate]
@@ -73,20 +73,15 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
 
   return (
     <SMDataTable
-      noSourceHeader
-      enableClick
-      selectRow
       columns={columns}
       defaultSortField="Name"
       defaultSortOrder={1}
       emptyMessage="No Stream Groups Files"
+      enableClick
       enableExport={false}
       id={id}
       isLoading={isLoading}
-      queryFilter={useGetPagedStreamGroups}
-      style={{ height: '40vh' }}
-      selectionMode="single"
-      selectedItemsKey="selectedStreamGroup"
+      noSourceHeader
       onRowClick={(e: DataTableRowClickEvent) => {
         if (e.data.Id !== selectedStreamGroup?.Id) {
           console.log('StreamGroupDataSelector', e.data);
@@ -97,6 +92,11 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
           setSelectedItems([]);
         }
       }}
+      queryFilter={useGetPagedStreamGroups}
+      selectedItemsKey="selectedStreamGroup"
+      selectionMode="single"
+      selectRow
+      style={{ height: '30vh' }}
     />
   );
 };

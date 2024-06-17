@@ -147,8 +147,11 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string HLSSettingFileName = "hlssettings.json";
         public static readonly string HLSSettingsFile = GetSettingFilePath(HLSSettingFileName);
 
-        public static readonly string ProfileFileName = "profiles.json";
-        public static readonly string ProfileSettingsFile = GetSettingFilePath(ProfileFileName);
+        public static readonly string VideoProfileFileName = "videoprofiles.json";
+        public static readonly string VideoProfileSettingsFile = GetSettingFilePath(VideoProfileFileName);
+
+        public static readonly string FileProfileFileName = "fileprofiles.json";
+        public static readonly string FileProfileSettingsFile = GetSettingFilePath(FileProfileFileName);
 
         #endregion
 

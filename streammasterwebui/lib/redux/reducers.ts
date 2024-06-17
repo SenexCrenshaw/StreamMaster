@@ -7,6 +7,7 @@ import GetEPGColorsReducer from '@lib/smAPI/EPG/GetEPGColorsSlice';
 import GetEPGFilePreviewByIdReducer from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
 import GetEPGFilesReducer from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
 import GetEPGNextEPGNumberReducer from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
+import GetFileProfilesReducer from '@lib/smAPI/Profiles/GetFileProfilesSlice';
 import GetIconsReducer from '@lib/smAPI/Icons/GetIconsSlice';
 import GetIsSystemReadyReducer from '@lib/smAPI/General/GetIsSystemReadySlice';
 import GetM3UFileNamesReducer from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
@@ -28,6 +29,7 @@ import GetStreamGroupsReducer from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice
 import GetStreamGroupSMChannelsReducer from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
 import GetSystemStatusReducer from '@lib/smAPI/General/GetSystemStatusSlice';
 import GetTaskIsRunningReducer from '@lib/smAPI/General/GetTaskIsRunningSlice';
+import GetVideoProfilesReducer from '@lib/smAPI/Profiles/GetVideoProfilesSlice';
 import isTrue from '@lib/redux/hooks/isTrue';
 import loading from '@lib/redux/hooks/loading';
 import messages from '@lib/redux/hooks/messages';
@@ -122,6 +124,7 @@ export const rootReducer = combineReducers({
   GetEPGFilePreviewById: GetEPGFilePreviewByIdReducer,
   GetEPGFiles: GetEPGFilesReducer,
   GetEPGNextEPGNumber: GetEPGNextEPGNumberReducer,
+  GetFileProfiles: GetFileProfilesReducer,
   GetIcons: GetIconsReducer,
   GetIsSystemReady: GetIsSystemReadyReducer,
   GetM3UFileNames: GetM3UFileNamesReducer,
@@ -143,6 +146,7 @@ export const rootReducer = combineReducers({
   GetStreamGroupSMChannels: GetStreamGroupSMChannelsReducer,
   GetSystemStatus: GetSystemStatusReducer,
   GetTaskIsRunning: GetTaskIsRunningReducer,
+  GetVideoProfiles: GetVideoProfilesReducer,
   isTrue: persistReducer(isTrueConfig, isTrue),
   loading: loading,
   messages: messages,

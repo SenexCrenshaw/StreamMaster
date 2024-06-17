@@ -43,9 +43,16 @@ public static class SettingsHelper
             dir = Path.GetDirectoryName(fileName);
         }
 
-        if (typeof(FFMPEGProfiles).IsAssignableFrom(setting.GetType()))
+        if (typeof(VideoOutputProfiles).IsAssignableFrom(setting.GetType()))
         {
-            fileName = BuildInfo.ProfileSettingsFile;
+            fileName = BuildInfo.VideoProfileSettingsFile;
+            dir = Path.GetDirectoryName(fileName);
+        }
+
+
+        if (typeof(FileOutputProfiles).IsAssignableFrom(setting.GetType()))
+        {
+            fileName = BuildInfo.FileProfileSettingsFile;
             dir = Path.GetDirectoryName(fileName);
         }
 

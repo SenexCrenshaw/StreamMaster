@@ -94,7 +94,7 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
     );
   }, [data, getEnumKeyByValue]);
 
-  const valueTemplate = useCallback((option: SelectItem): JSX.Element => {
+  const itemTemplate = useCallback((option: SelectItem): JSX.Element => {
     return <div className="text-xs text-container">{option?.label ?? ''}</div>;
   }, []);
 
@@ -112,7 +112,7 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
       filter
       filterBy="label"
       buttonIsLoading={isCellLoading}
-      itemTemplate={valueTemplate}
+      itemTemplate={itemTemplate}
       label={label}
       onChange={async (e: any) => {
         await onChange(e.value);

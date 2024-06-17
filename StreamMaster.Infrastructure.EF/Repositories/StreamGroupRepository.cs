@@ -162,9 +162,9 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
             streamGroup.Name = request.Name;
         }
 
-        if (!string.IsNullOrEmpty(request.FFMPEGProfileId))
+        if (request.StreamGroupProfiles != null)
         {
-            streamGroup.FFMPEGProfileId = request.FFMPEGProfileId;
+            streamGroup.StreamGroupProfiles = request.StreamGroupProfiles;
         }
 
         if (request.AutoSetChannelNumbers != null)

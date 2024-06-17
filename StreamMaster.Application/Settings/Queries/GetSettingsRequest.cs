@@ -9,6 +9,7 @@ internal class GetSettingsRequestHandler(
         IOptionsMonitor<Setting> intsettings,
         IOptionsMonitor<HLSSettings> inthlssettings,
         IOptionsMonitor<SDSettings> intsdsettings
+
     ) : IRequestHandler<GetSettingsRequest, DataResponse<SettingDto>>
 {
     private readonly Setting settings = intsettings.CurrentValue;

@@ -176,7 +176,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         <SMStreamMenu />
       </div>
     );
-  }, [dataKey, smTableIsSimple]);
+  }, [smTableIsSimple]);
 
   const setSelectedSMEntity = useCallback(
     (data: DataTableValue, toggle?: boolean) => {

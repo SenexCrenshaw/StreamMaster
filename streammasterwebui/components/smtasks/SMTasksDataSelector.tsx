@@ -19,10 +19,6 @@ const SMTasksDataSelector = (props: SMTasksDataSelectorProps) => {
     return () => clearInterval(interval);
   }, []);
 
-  const startTSTemplate = useCallback((smTask: SMTask) => {
-    return <div>{formatJSONDateString(smTask.StartTS ?? '')}</div>;
-  }, []);
-
   const isBefore2020 = (dateStr: string): boolean => {
     const givenDate = new Date(dateStr);
     const comparisonDate = new Date('2020-01-01T00:00:00.000Z');
@@ -30,6 +26,14 @@ const SMTasksDataSelector = (props: SMTasksDataSelectorProps) => {
     // Compare the timestamps
     return givenDate < comparisonDate;
   };
+
+  const startTSTemplate = useCallback((smTask: SMTask) => {
+    if (isBefore2020(smTask.StartTS)) {
+      return <div />;
+    }
+    return <div>{formatJSONDateString(smTask.StartTS ?? '')}</div>;
+  }, []);
+
   const stopTSTemplate = useCallback((smTask: SMTask) => {
     if (isBefore2020(smTask.StopTS)) {
       return <div />;
@@ -50,6 +54,10 @@ const SMTasksDataSelector = (props: SMTasksDataSelectorProps) => {
   const isRunningTemplate = useCallback((smTask: SMTask) => {
     if (smTask.IsRunning) {
       return <div className="pi pi-spin pi-spinner" />;
+    }
+
+    if (isBefore2020(smTask.StopTS)) {
+      return <div />;
     }
 
     return <div className="pi pi-check icon-green" />;

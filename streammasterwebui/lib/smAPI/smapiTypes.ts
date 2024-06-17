@@ -1,3 +1,31 @@
+export interface FileOutputProfile
+{
+	APIName: string;
+	EPGOutputProfile: EPGOutputProfile;
+	IsReadOnly: boolean;
+	M3UOutputProfile: M3UOutputProfile;
+}
+export interface EPGOutputProfile
+{
+}
+export interface M3UOutputProfile
+{
+	ChannelId: string;
+	ChannelNumber: string;
+	EnableIcon: boolean;
+	GroupTitle: string;
+	TVGGroup: string;
+	TVGId: string;
+	TVGName: string;
+}
+export interface VideoOutputProfile
+{
+	Command: string;
+	IsM3U8: boolean;
+	IsReadOnly: boolean;
+	Parameters: string;
+	Timeout: number;
+}
 export interface QueryStringParameters
 {
 	JSONArgumentString?: string;
@@ -24,16 +52,6 @@ export interface SMMessage
 	Detail?: string;
 	Severity: string;
 	Summary: string;
-}
-export interface M3UProfile
-{
-	Command: string;
-	Id: number;
-	IsRunning: boolean;
-	QueueTS: any;
-	StartTS: any;
-	Status: string;
-	StopTS: any;
 }
 export interface SMTask
 {
@@ -246,19 +264,6 @@ export interface StreamGroupDto
 	ShortM3ULink: string;
 	StreamCount: number;
 	XMLLink: string;
-}
-export interface FFMPEGProfile
-{
-	IsM3U8: boolean;
-	Parameters: string;
-	Timeout: number;
-}
-export interface FFMPEGProfileDto
-{
-	IsM3U8: boolean;
-	Name: string;
-	Parameters: string;
-	Timeout: number;
 }
 export interface HLSSettings
 {
@@ -706,21 +711,37 @@ export interface RemoveStation
 {
 	Requests: StationRequest[];
 }
-export interface GetFFMPEGProfiles
+export interface GetFileProfilesRequest
 {
 }
-export interface AddFFMPEGProfileRequest
+export interface GetVideoProfilesRequest
+{
+}
+export interface AddFileProfileRequest
+{
+	FileOutputProfileDto: any;
+}
+export interface AddVideoProfileRequest
 {
 	IsM3U8: boolean;
 	Name: string;
 	Parameters: string;
 	TimeOut: number;
 }
-export interface RemoveFFMPEGProfileRequest
+export interface RemoveFileProfileRequest
 {
 	Name: string;
 }
-export interface UpdateFFMPEGProfileRequest
+export interface RemoveVideoProfileRequest
+{
+	Name: string;
+}
+export interface UpdateFileProfileRequest
+{
+	FileOutputProfileDto: any;
+	NewName?: string;
+}
+export interface UpdateVideoProfileRequest
 {
 	IsM3U8?: boolean;
 	Name: string;
@@ -927,6 +948,14 @@ export enum StreamingProxyTypes {
 	None = 1,
 	StreamMaster = 2,
 	FFMpeg = 3
+}
+export enum ValidM3USetting {
+	None = 0,
+	Id = 1,
+	Name = 2,
+	Group = 3,
+	EPGID = 4,
+	ChannelNumber = 5
 }
 export enum VideoStreamHandlers {
 	SystemDefault = 0,

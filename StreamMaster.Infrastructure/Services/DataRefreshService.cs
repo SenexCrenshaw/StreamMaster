@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.SignalR;
 
 using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Application.Hubs;
+using StreamMaster.Application.Services;
 using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.Services;
@@ -18,6 +19,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         await RefreshGeneral(true);
         await RefreshIcons(true);
         await RefreshM3UFiles(true);
+        await RefreshProfiles(true);
         await RefreshSchedulesDirect(true);
         await RefreshSettings(true);
         await RefreshSMChannels(true);
@@ -101,6 +103,18 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         await hub.Clients.All.DataRefresh("GetM3UFileNames");
         await hub.Clients.All.DataRefresh("GetM3UFiles");
         await hub.Clients.All.DataRefresh("GetPagedM3UFiles");
+    }
+
+    public async Task RefreshProfiles(bool alwaysRun = false)
+    {
+
+        if (!alwaysRun && !BuildInfo.IsSystemReady)
+        {
+            return;
+        }
+
+        await hub.Clients.All.DataRefresh("GetFileProfiles");
+        await hub.Clients.All.DataRefresh("GetVideoProfiles");
     }
 
     public async Task RefreshSchedulesDirect(bool alwaysRun = false)
