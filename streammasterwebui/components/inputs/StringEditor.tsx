@@ -1,4 +1,3 @@
-import { Logger } from '@lib/common/logger';
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { useClickOutside } from 'primereact/hooks';
 import { InputText } from 'primereact/inputtext';
@@ -158,10 +157,10 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
 
     const doShowClear = useMemo((): boolean => {
       const ret = showClear === true && darkBackGround === true && inputValue !== ''; //&& originalValue !== inputValue;
-      Logger.debug('StringEditor', { inputValue, originalValue, showClear, ret });
+      // Logger.debug('StringEditor', { inputValue, originalValue, showClear, ret });
       // Logger.debug('StringEditor', { darkBackGround, inputValue, originalValue, showClear, ret });
       return ret;
-    }, [inputValue, originalValue, darkBackGround, showClear]);
+    }, [inputValue, darkBackGround, showClear]);
 
     const getDiv = useMemo(() => {
       let ret = 'flex stringeditor justify-content-center';

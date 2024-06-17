@@ -223,63 +223,69 @@ const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize =
   );
 
   const getDiv = useMemo(() => {
+    let ret = props.className ? props.className : '';
+
     if (props.simple === true) {
-      return `dark-background w-full ${props.className} `;
+      ret += '  w-full';
+    } else {
+      ret += ' sm-scroller sm-sm-input-border w-full ';
     }
-    return `sm-scroller sm-sm-input-border w-full ${props.className} `;
+    return ret;
   }, [props.className, props.simple]);
 
   return (
     <div className={getDiv}>
-      <div className="layout-padding-bottom" />
-      {filter && (
-        <div className="flex align-items-center justify-content-between gap-1 pr-2 sm-w-12">
-          <div className="">
-            <BanButton
-              buttonDisabled={selectedItems.length === 0}
-              onClick={() => {
-                setSelectedItems([]);
-                props.onChange && props.onChange([]);
-              }}
-              tooltip="Clear Selections"
-            />
-          </div>
-
-          <div className="flex align-items-center justify-content-between sm-w-11">
-            <div className="sm-w-11">
-              <StringEditor
-                autoFocus
-                disableDebounce
-                darkBackGround
-                placeholder="Name"
-                value={filterString}
-                showClear
-                onChange={(value) => {
-                  if (value !== undefined) {
-                    setFilterString(value);
-                    scrollTo(1);
-                  }
-                }}
-                onSave={(value) => {}}
-                ref={stringEditorRef}
-              />
-            </div>
-            <div>
-              <SMButton
-                iconFilled={false}
-                icon="pi-filter-slash"
+      <div className="sm-scroller-header">
+        <div className="layout-padding-bottom" />
+        {filter && (
+          <div className="flex align-items-center justify-content-between gap-1 pr-2 sm-w-12">
+            <div className="">
+              <BanButton
+                buttonDisabled={selectedItems.length === 0}
                 onClick={() => {
-                  setFilterString('');
-                  stringEditorRef.current?.clear();
-                  scrollTo(1);
+                  setSelectedItems([]);
+                  props.onChange && props.onChange([]);
                 }}
+                tooltip="Clear Selections"
               />
             </div>
-          </div>
-        </div>
-      )}
 
-      <div className="layout-padding-bottom" />
+            <div className="flex align-items-center justify-content-between sm-w-11">
+              <div className="sm-w-11">
+                <StringEditor
+                  autoFocus
+                  disableDebounce
+                  darkBackGround
+                  placeholder="Name"
+                  value={filterString}
+                  showClear
+                  onChange={(value) => {
+                    if (value !== undefined) {
+                      setFilterString(value);
+                      scrollTo(1);
+                    }
+                  }}
+                  onSave={(value) => {}}
+                  ref={stringEditorRef}
+                />
+              </div>
+              <div>
+                <SMButton
+                  iconFilled={false}
+                  icon="pi-filter-slash"
+                  onClick={() => {
+                    setFilterString('');
+                    stringEditorRef.current?.clear();
+                    scrollTo(1);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="layout-padding-bottom" />
+      </div>
       <div className="sm-scroller-items">
         <VirtualScroller ref={virtualScrollerRef} items={filteredValues} itemSize={itemSize} itemTemplate={getItemTemplate} scrollHeight={scrollHeight} />
       </div>

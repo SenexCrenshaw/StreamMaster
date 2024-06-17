@@ -9101,6 +9101,10 @@ div[aria-haspopup=dialog] {
   min-height: 1.4rem !important;
 }
 
+.sm-scroller-header {
+  background-color: #21282c !important;
+}
+
 ::-webkit-scrollbar {
   width: 12px;
 }

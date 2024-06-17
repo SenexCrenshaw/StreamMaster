@@ -53,7 +53,7 @@ export const SMCard = ({
   return (
     <div className={getDiv}>
       <div className="sm-card-header flex flex-row justify-content-between align-items-center w-full">
-        <div className="header-text-sub  flex justify-content-start">{title}</div>
+        <div className="header-text-sub flex justify-content-start">{title}</div>
         <div className="flex justify-content-end gap-1">
           {header}
           {!hasCloseButton && openPanel && <CloseButton onClick={(e) => openPanel(false)} tooltip="Close" />}
