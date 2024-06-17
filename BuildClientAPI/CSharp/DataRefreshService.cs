@@ -81,7 +81,7 @@ public static class DataRefreshService
             content.AppendLine($"    public async Task Refresh{namespaceName}(bool alwaysRun = false)");
             content.AppendLine("    {");
             content.AppendLine();
-            content.AppendLine("        if (!alwaysRun && !BuildInfo.SetIsSystemReady)");
+            content.AppendLine("        if (!alwaysRun && !BuildInfo.IsSystemReady)");
             content.AppendLine("        {");
             content.AppendLine("            return;");
             content.AppendLine("        }");
@@ -105,6 +105,7 @@ public static class DataRefreshService
         content.AppendLine("");
         content.AppendLine("using StreamMaster.Application.Common.Interfaces;");
         content.AppendLine("using StreamMaster.Application.Hubs;");
+        content.AppendLine("using StreamMaster.Application.Services;");
         content.AppendLine("using StreamMaster.Domain.Configuration;");
         content.AppendLine("");
         content.AppendLine("namespace StreamMaster.Infrastructure.Services;");

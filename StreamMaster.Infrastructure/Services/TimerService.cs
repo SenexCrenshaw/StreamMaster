@@ -75,7 +75,7 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
 
         //await hubContext.Clients.All.TaskQueueStatusUpdate(await backgroundTask.GetQueueStatus()).ConfigureAwait(false);
 
-        SDSystemStatus status = new() { IsSystemReady = BuildInfo.SetIsSystemReady };
+        SDSystemStatus status = new() { IsSystemReady = BuildInfo.IsSystemReady };
 
         lock (Lock)
         {

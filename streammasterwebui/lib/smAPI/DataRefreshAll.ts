@@ -6,7 +6,7 @@ import { setIsForced as GetEPGFilePreviewByIdSetIsForced } from '@lib/smAPI/EPGF
 import { setIsForced as GetEPGFilesSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
 import { setIsForced as GetEPGNextEPGNumberSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
 import { setIsForced as GetIconsSetIsForced } from '@lib/smAPI/Icons/GetIconsSlice';
-import { setIsForced as GetIsSystemReadySetIsForced } from '@lib/smAPI/Settings/GetIsSystemReadySlice';
+import { setIsForced as GetIsSystemReadySetIsForced } from '@lib/smAPI/General/GetIsSystemReadySlice';
 import { setIsForced as GetM3UFileNamesSetIsForced } from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
 import { setIsForced as GetM3UFilesSetIsForced } from '@lib/smAPI/M3UFiles/GetM3UFilesSlice';
 import { setIsForced as GetPagedChannelGroupsSetIsForced } from '@lib/smAPI/ChannelGroups/GetPagedChannelGroupsSlice';
@@ -24,7 +24,8 @@ import { setIsForced as GetStationChannelNamesSetIsForced } from '@lib/smAPI/Sch
 import { setIsForced as GetStreamGroupSetIsForced } from '@lib/smAPI/StreamGroups/GetStreamGroupSlice';
 import { setIsForced as GetStreamGroupsSetIsForced } from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice';
 import { setIsForced as GetStreamGroupSMChannelsSetIsForced } from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
-import { setIsForced as GetSystemStatusSetIsForced } from '@lib/smAPI/Settings/GetSystemStatusSlice';
+import { setIsForced as GetSystemStatusSetIsForced } from '@lib/smAPI/General/GetSystemStatusSlice';
+import { setIsForced as GetTaskIsRunningSetIsForced } from '@lib/smAPI/General/GetTaskIsRunningSlice';
 
 export const DataRefreshAll = () => {
   store.dispatch(GetChannelGroupsSetIsForced({ force: true }));
@@ -53,4 +54,5 @@ export const DataRefreshAll = () => {
   store.dispatch(GetStreamGroupsSetIsForced({ force: true }));
   store.dispatch(GetStreamGroupSMChannelsSetIsForced({ force: true }));
   store.dispatch(GetSystemStatusSetIsForced({ force: true }));
+  store.dispatch(GetTaskIsRunningSetIsForced({ force: true }));
 };

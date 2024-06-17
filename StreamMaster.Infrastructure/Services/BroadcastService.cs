@@ -36,6 +36,8 @@ public class BroadcastService : IBroadcastService, IDisposable
         debugLogger = factory.Create("FileLoggerDebug");
     }
 
+
+
     private void printDebug(string format, params object[] args)
     {
         string formattedMessage = string.Format(format, args);

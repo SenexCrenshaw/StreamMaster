@@ -2,7 +2,9 @@ import SMLoader from '@components/loader/SMLoader';
 import { DataRefreshAll } from '@lib/smAPI/DataRefreshAll';
 
 import { Logger } from '@lib/common/logger';
-import { GetIsSystemReady } from '@lib/smAPI/Settings/SettingsCommands';
+
+import { GetIsSystemReady } from '@lib/smAPI/General/GeneralCommands';
+import useGetTaskIsRunning from '@lib/smAPI/General/useGetTaskIsRunning';
 import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import { SettingDto } from '@lib/smAPI/smapiTypes';
 import { BlockUI } from 'primereact/blockui';
@@ -10,6 +12,7 @@ import React, { ReactNode, createContext, useContext, useEffect, useState } from
 
 interface SMContextState {
   isSystemReady: boolean;
+  isTaskRunning: boolean;
   setSystemReady: React.Dispatch<React.SetStateAction<boolean>>;
   settings: SettingDto;
   setSettings: React.Dispatch<React.SetStateAction<SettingDto>>;
@@ -25,6 +28,7 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
   const [isSystemReady, setSystemReady] = useState<boolean>(false);
   const [settings, setSettings] = useState<SettingDto>({} as SettingDto);
   const settingsQuery = useGetSettings();
+  const { data: isTaskRunning } = useGetTaskIsRunning();
 
   useEffect(() => {
     if (settingsQuery.data) {
@@ -34,6 +38,7 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
 
   const value = {
     isSystemReady: isSystemReady && settingsQuery.data !== undefined,
+    isTaskRunning: isTaskRunning ?? false,
     setSettings,
     setSystemReady,
     settings
@@ -60,19 +65,19 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
     return () => clearInterval(intervalId);
   }, [isSystemReady, settingsQuery.data]);
 
-  return (
-    <SMContext.Provider value={value}>
-      {value.isSystemReady && <SMLoader />}
-      <BlockUI blocked={value.isSystemReady}>{children}</BlockUI>
-    </SMContext.Provider>
-  );
-
   // return (
   //   <SMContext.Provider value={value}>
-  //     {!value.isSystemReady && <SMLoader />}
-  //     <BlockUI blocked={!value.isSystemReady}>{children}</BlockUI>
+  //     {value.isSystemReady && <SMLoader />}
+  //     <BlockUI blocked={value.isSystemReady}>{children}</BlockUI>
   //   </SMContext.Provider>
   // );
+
+  return (
+    <SMContext.Provider value={value}>
+      {value.isSystemReady !== true && <SMLoader />}
+      <BlockUI blocked={value.isSystemReady !== true}>{children}</BlockUI>
+    </SMContext.Provider>
+  );
 };
 
 export const useSMContext = (): SMContextState => {

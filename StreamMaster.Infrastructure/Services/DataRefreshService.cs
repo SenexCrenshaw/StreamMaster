@@ -15,6 +15,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         await RefreshChannelGroups(true);
         await RefreshEPG(true);
         await RefreshEPGFiles(true);
+        await RefreshGeneral(true);
         await RefreshIcons(true);
         await RefreshM3UFiles(true);
         await RefreshSchedulesDirect(true);
@@ -30,7 +31,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
     public async Task RefreshChannelGroups(bool alwaysRun = false)
     {
 
-        if (!alwaysRun && !BuildInfo.SetIsSystemReady)
+        if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
         }
@@ -43,7 +44,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
     public async Task RefreshEPG(bool alwaysRun = false)
     {
 
-        if (!alwaysRun && !BuildInfo.SetIsSystemReady)
+        if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
         }
@@ -54,7 +55,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
     public async Task RefreshEPGFiles(bool alwaysRun = false)
     {
 
-        if (!alwaysRun && !BuildInfo.SetIsSystemReady)
+        if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
         }
@@ -65,10 +66,23 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         await hub.Clients.All.DataRefresh("GetPagedEPGFiles");
     }
 
+    public async Task RefreshGeneral(bool alwaysRun = false)
+    {
+
+        if (!alwaysRun && !BuildInfo.IsSystemReady)
+        {
+            return;
+        }
+
+        await hub.Clients.All.DataRefresh("GetIsSystemReady");
+        await hub.Clients.All.DataRefresh("GetSystemStatus");
+        await hub.Clients.All.DataRefresh("GetTaskIsRunning");
+    }
+
     public async Task RefreshIcons(bool alwaysRun = false)
     {
 
-        if (!alwaysRun && !BuildInfo.SetIsSystemReady)
+        if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
         }
@@ -79,7 +93,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
     public async Task RefreshM3UFiles(bool alwaysRun = false)
     {
 
-        if (!alwaysRun && !BuildInfo.SetIsSystemReady)
+        if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
         }
@@ -92,7 +106,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
     public async Task RefreshSchedulesDirect(bool alwaysRun = false)
     {
 
-        if (!alwaysRun && !BuildInfo.SetIsSystemReady)
+        if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
         }
@@ -103,20 +117,18 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
     public async Task RefreshSettings(bool alwaysRun = false)
     {
 
-        if (!alwaysRun && !BuildInfo.SetIsSystemReady)
+        if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
         }
 
-        await hub.Clients.All.DataRefresh("GetIsSystemReady");
         await hub.Clients.All.DataRefresh("GetSettings");
-        await hub.Clients.All.DataRefresh("GetSystemStatus");
     }
 
     public async Task RefreshSMChannels(bool alwaysRun = false)
     {
 
-        if (!alwaysRun && !BuildInfo.SetIsSystemReady)
+        if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
         }
@@ -129,7 +141,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
     public async Task RefreshSMChannelStreamLinks(bool alwaysRun = false)
     {
 
-        if (!alwaysRun && !BuildInfo.SetIsSystemReady)
+        if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
         }
@@ -140,7 +152,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
     public async Task RefreshSMStreams(bool alwaysRun = false)
     {
 
-        if (!alwaysRun && !BuildInfo.SetIsSystemReady)
+        if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
         }
@@ -151,7 +163,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
     public async Task RefreshSMTasks(bool alwaysRun = false)
     {
 
-        if (!alwaysRun && !BuildInfo.SetIsSystemReady)
+        if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
         }
@@ -162,7 +174,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
     public async Task RefreshStreamGroups(bool alwaysRun = false)
     {
 
-        if (!alwaysRun && !BuildInfo.SetIsSystemReady)
+        if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
         }
@@ -175,7 +187,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
     public async Task RefreshStreamGroupSMChannelLinks(bool alwaysRun = false)
     {
 
-        if (!alwaysRun && !BuildInfo.SetIsSystemReady)
+        if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
         }

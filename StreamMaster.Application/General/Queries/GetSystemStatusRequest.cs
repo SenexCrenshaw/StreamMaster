@@ -1,4 +1,4 @@
-﻿namespace StreamMaster.Application.Settings.Queries;
+﻿namespace StreamMaster.Application.General.Queries;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -9,6 +9,6 @@ internal class GetSystemStatusHandler : IRequestHandler<GetSystemStatusRequest, 
 
     public Task<DataResponse<SDSystemStatus>> Handle(GetSystemStatusRequest request, CancellationToken cancellationToken)
     {
-        return Task.FromResult(DataResponse<SDSystemStatus>.Success(new SDSystemStatus { IsSystemReady = BuildInfo.SetIsSystemReady }));
+        return Task.FromResult(DataResponse<SDSystemStatus>.Success(new SDSystemStatus { IsSystemReady = BuildInfo.IsSystemReady }));
     }
 }

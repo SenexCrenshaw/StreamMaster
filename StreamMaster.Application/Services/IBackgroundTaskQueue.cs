@@ -4,6 +4,7 @@ namespace StreamMaster.Application.Services;
 
 public interface IBackgroundTaskQueue : ISharedTasks
 {
+    bool IsRunning { get; }
     ValueTask<BackgroundTaskQueueConfig> DeQueueAsync(CancellationToken cancellationToken);
     Task<List<SMTask>> GetQueueStatus();
     bool HasJobs();

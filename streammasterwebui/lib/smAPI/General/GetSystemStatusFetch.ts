@@ -1,4 +1,4 @@
-import { GetSystemStatus } from '@lib/smAPI/Settings/SettingsCommands';
+import { GetSystemStatus } from '@lib/smAPI/General/GeneralCommands';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 

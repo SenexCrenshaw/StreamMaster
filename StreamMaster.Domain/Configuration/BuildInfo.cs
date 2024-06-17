@@ -64,7 +64,8 @@ namespace StreamMaster.Domain.Configuration
         #region Application Information Properties
 
         public static string AppName { get; } = "StreamMaster";
-        public static bool SetIsSystemReady { get; set; } = false;
+        public static bool IsSystemReady { get; set; } = false;
+        public static bool IsTaskRunning { get; set; } = false;
         public static Version Version { get; }
         public static string Branch { get; }
         public static string Release { get; }

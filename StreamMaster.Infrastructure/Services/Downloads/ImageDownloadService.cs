@@ -87,7 +87,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
         while (!cancellationToken.IsCancellationRequested && !exitLoop)
         {
 
-            if (sdsettings.SDEnabled && !imageDownloadQueue.IsEmpty() && BuildInfo.SetIsSystemReady)
+            if (sdsettings.SDEnabled && !imageDownloadQueue.IsEmpty() && BuildInfo.IsSystemReady)
             {
                 await DownloadImagesAsync(cancellationToken);
             }

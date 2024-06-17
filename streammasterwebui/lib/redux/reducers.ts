@@ -8,7 +8,7 @@ import GetEPGFilePreviewByIdReducer from '@lib/smAPI/EPGFiles/GetEPGFilePreviewB
 import GetEPGFilesReducer from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
 import GetEPGNextEPGNumberReducer from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
 import GetIconsReducer from '@lib/smAPI/Icons/GetIconsSlice';
-import GetIsSystemReadyReducer from '@lib/smAPI/Settings/GetIsSystemReadySlice';
+import GetIsSystemReadyReducer from '@lib/smAPI/General/GetIsSystemReadySlice';
 import GetM3UFileNamesReducer from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
 import GetM3UFilesReducer from '@lib/smAPI/M3UFiles/GetM3UFilesSlice';
 import GetPagedChannelGroupsReducer from '@lib/smAPI/ChannelGroups/GetPagedChannelGroupsSlice';
@@ -26,7 +26,8 @@ import GetStationChannelNamesReducer from '@lib/smAPI/SchedulesDirect/GetStation
 import GetStreamGroupReducer from '@lib/smAPI/StreamGroups/GetStreamGroupSlice';
 import GetStreamGroupsReducer from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice';
 import GetStreamGroupSMChannelsReducer from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
-import GetSystemStatusReducer from '@lib/smAPI/Settings/GetSystemStatusSlice';
+import GetSystemStatusReducer from '@lib/smAPI/General/GetSystemStatusSlice';
+import GetTaskIsRunningReducer from '@lib/smAPI/General/GetTaskIsRunningSlice';
 import isTrue from '@lib/redux/hooks/isTrue';
 import loading from '@lib/redux/hooks/loading';
 import messages from '@lib/redux/hooks/messages';
@@ -141,6 +142,7 @@ export const rootReducer = combineReducers({
   GetStreamGroups: GetStreamGroupsReducer,
   GetStreamGroupSMChannels: GetStreamGroupSMChannelsReducer,
   GetSystemStatus: GetSystemStatusReducer,
+  GetTaskIsRunning: GetTaskIsRunningReducer,
   isTrue: persistReducer(isTrueConfig, isTrue),
   loading: loading,
   messages: messages,

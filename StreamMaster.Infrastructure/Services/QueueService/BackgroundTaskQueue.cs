@@ -9,6 +9,7 @@ using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Extensions;
 
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading.Channels;
 
 namespace StreamMaster.Infrastructure.Services.QueueService;
@@ -38,6 +39,7 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
         _logger.LogInformation("Got {workItem.command} from Queue", workItem.Command);
         return workItem;
     }
+    public bool IsRunning => taskQueueStatuses.Values.Any(a => a.IsRunning || a.StopTS == DateTime.MinValue);
 
     public Task<List<SMTask>> GetQueueStatus()
     {
@@ -68,7 +70,11 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
     private async ValueTask SendSMTasks()
     {
         var toSend = GetSMTasks();
-        await dataRefreshService.RefreshSMTasks();// .SendSMTasks(toSend).ConfigureAwait(false);
+        await dataRefreshService.RefreshSMTasks(true);
+
+        BuildInfo.IsTaskRunning = IsRunning;
+        Debug.WriteLine($"IsTaskRunning: {IsRunning}");
+        await dataRefreshService.TaskIsRunning();
     }
 
 
@@ -130,6 +136,7 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
     }
 
     private SMQueCommand lastSMQueCommand = new();
+
     private async ValueTask QueueAsync(BackgroundTaskQueueConfig workItem)
     {
         //No need to stack up the same task

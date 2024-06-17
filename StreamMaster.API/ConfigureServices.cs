@@ -126,7 +126,10 @@ public static class ConfigureServices
         services.AddSingleton<IBackgroundTaskQueue>(x =>
        {
            int queueCapacity = 100;
-           return new BackgroundTaskQueue(queueCapacity, x.GetRequiredService<ILogger<BackgroundTaskQueue>>(), x.GetRequiredService<ISender>(), x.GetRequiredService<IDataRefreshService>());
+           var logger = x.GetRequiredService<ILogger<BackgroundTaskQueue>>();
+           var sender = x.GetRequiredService<ISender>();
+           var dataRefreshService = x.GetRequiredService<IDataRefreshService>();
+           return new BackgroundTaskQueue(queueCapacity, logger, sender, dataRefreshService);
        });
 
         services.AddOpenApiDocument(configure =>

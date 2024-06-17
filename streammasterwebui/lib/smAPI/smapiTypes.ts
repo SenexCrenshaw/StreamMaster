@@ -634,13 +634,7 @@ export interface SetSMStreamRanksRequest
 {
 	Requests: SMChannelRankRequest[];
 }
-export interface GetIsSystemReadyRequest
-{
-}
 export interface GetSettingsRequest
-{
-}
-export interface GetSystemStatusRequest
 {
 }
 export interface UpdateSettingParameters
@@ -792,6 +786,15 @@ export interface UpdateM3UFileRequest
 	VODTags?: string[];
 }
 export interface GetIconsRequest
+{
+}
+export interface GetIsSystemReadyRequest
+{
+}
+export interface GetSystemStatusRequest
+{
+}
+export interface GetTaskIsRunningRequest
 {
 }
 export interface SetTestTaskRequest

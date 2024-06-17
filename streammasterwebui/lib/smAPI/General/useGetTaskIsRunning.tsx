@@ -1,12 +1,12 @@
 import { QueryHookResult } from '@lib/apiDefs';
 import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
-import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetSMTasksSlice';
+import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetTaskIsRunningSlice';
 import { useCallback,useEffect } from 'react';
-import { fetchGetSMTasks } from './GetSMTasksFetch';
-import {FieldData, SMTask } from '@lib/smAPI/smapiTypes';
+import { fetchGetTaskIsRunning } from './GetTaskIsRunningFetch';
+import {FieldData,  } from '@lib/smAPI/smapiTypes';
 
-interface ExtendedQueryHookResult extends QueryHookResult<SMTask[] | undefined> {}
+interface ExtendedQueryHookResult extends QueryHookResult<boolean | undefined> {}
 interface Result extends ExtendedQueryHookResult {
   Clear: () => void;
   ClearByTag: (tag: string) => void;
@@ -14,9 +14,9 @@ interface Result extends ExtendedQueryHookResult {
   SetIsForced: (force: boolean) => void;
   SetIsLoading: (isLoading: boolean, query: string) => void;
 }
-const useGetSMTasks = (): Result => {
+const useGetTaskIsRunning = (): Result => {
   const dispatch = useAppDispatch();
-  const isForced = useAppSelector((state) => state.GetSMTasks.isForced ?? false);
+  const isForced = useAppSelector((state) => state.GetTaskIsRunning.isForced ?? false);
 
   const SetIsForced = useCallback(
     (forceRefresh: boolean): void => {
@@ -40,40 +40,40 @@ const SetIsLoading = useCallback(
   [dispatch]
 );
 const selectData = (state: RootState) => {
-    return state.GetSMTasks.data;
+    return state.GetTaskIsRunning.data;
   };
 const data = useAppSelector(selectData);
 
 const selectError = (state: RootState) => {
-    return state.GetSMTasks.error;
+    return state.GetTaskIsRunning.error;
   };
 const error = useAppSelector(selectError);
 
 const selectIsError = (state: RootState) => {
-    return state.GetSMTasks.isError;
+    return state.GetTaskIsRunning.isError;
   };
 const isError = useAppSelector(selectIsError);
 
 const selectIsLoading = (state: RootState) => {
-    return state.GetSMTasks.isLoading;
+    return state.GetTaskIsRunning.isLoading;
   };
 const isLoading = useAppSelector(selectIsLoading);
 
 
   useEffect(() => {
-    const state = store.getState().GetSMTasks;
+    const state = store.getState().GetTaskIsRunning;
     if (data === undefined && state.isLoading !== true && state.isForced !== true) {
       SetIsForced(true);
     }
   }, [SetIsForced, data]);
 
 useEffect(() => {
-  const state = store.getState().GetSMTasks;
+  const state = store.getState().GetTaskIsRunning;
   if (state.isLoading) return;
   if (data !== undefined && !isForced) return;
 
   SetIsLoading(true);
-  dispatch(fetchGetSMTasks());
+  dispatch(fetchGetTaskIsRunning());
 }, [SetIsLoading, data, dispatch, isForced]);
 
 const SetField = (fieldData: FieldData): void => {
@@ -97,4 +97,4 @@ return {
 };
 };
 
-export default useGetSMTasks;
+export default useGetTaskIsRunning;

@@ -4,9 +4,23 @@ using StreamMaster.Domain.Configuration;
 namespace StreamMaster.Infrastructure.Services;
 public partial class DataRefreshService : IDataRefreshServicePartial
 {
+    public async Task IsSystemReady()
+    {
+
+        await hub.Clients.All.IsSystemReady(BuildInfo.IsSystemReady);
+
+    }
+
+    public async Task TaskIsRunning()
+    {
+
+        await hub.Clients.All.TaskIsRunning(BuildInfo.IsTaskRunning);
+
+    }
+
     public async Task Refresh(string command)
     {
-        if (!BuildInfo.SetIsSystemReady)
+        if (!BuildInfo.IsSystemReady)
         {
             return;
         }
@@ -17,7 +31,7 @@ public partial class DataRefreshService : IDataRefreshServicePartial
 
     public async Task RefreshAllEPG()
     {
-        if (!BuildInfo.SetIsSystemReady)
+        if (!BuildInfo.IsSystemReady)
         {
             return;
         }
@@ -28,7 +42,7 @@ public partial class DataRefreshService : IDataRefreshServicePartial
 
     public async Task RefreshAllM3U()
     {
-        if (!BuildInfo.SetIsSystemReady)
+        if (!BuildInfo.IsSystemReady)
         {
             return;
         }
@@ -41,7 +55,7 @@ public partial class DataRefreshService : IDataRefreshServicePartial
 
     public async Task RefreshAllSMChannels()
     {
-        if (!BuildInfo.SetIsSystemReady)
+        if (!BuildInfo.IsSystemReady)
         {
             return;
         }
@@ -54,7 +68,7 @@ public partial class DataRefreshService : IDataRefreshServicePartial
 
     public async Task ClearByTag(string Entity, string Tag)
     {
-        if (!BuildInfo.SetIsSystemReady)
+        if (!BuildInfo.IsSystemReady)
         {
             return;
         }
@@ -64,7 +78,7 @@ public partial class DataRefreshService : IDataRefreshServicePartial
 
     public async Task SetField(List<FieldData> fieldData)
     {
-        if (!BuildInfo.SetIsSystemReady)
+        if (!BuildInfo.IsSystemReady)
         {
             return;
         }
@@ -74,7 +88,7 @@ public partial class DataRefreshService : IDataRefreshServicePartial
 
     public async Task SendSMTasks(List<SMTask> smTasks)
     {
-        //if (!BuildInfo.SetIsSystemReady)
+        //if (!BuildInfo.IsSystemReady)
         //{
         //    return;
         //}
@@ -84,7 +98,7 @@ public partial class DataRefreshService : IDataRefreshServicePartial
 
     public async Task SendMessage(SMMessage smMessage)
     {
-        if (!BuildInfo.SetIsSystemReady)
+        if (!BuildInfo.IsSystemReady)
         {
             return;
         }

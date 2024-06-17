@@ -28,7 +28,6 @@
     <Compile Remove="Common\Aspects\**" />
     <Compile Remove="Common\Attributes\**" />
     <Compile Remove="Common\Repository\**" />
-    <Compile Remove="General\Queries\**" />
     <Compile Remove="Programmes\Commands\**" />
     <Compile Remove="SchedulesDirect\NewFolder\**" />
     <Compile Remove="StreamGroupChannelGroupLinks\**" />
@@ -37,7 +36,6 @@
     <EmbeddedResource Remove="Common\Aspects\**" />
     <EmbeddedResource Remove="Common\Attributes\**" />
     <EmbeddedResource Remove="Common\Repository\**" />
-    <EmbeddedResource Remove="General\Queries\**" />
     <EmbeddedResource Remove="Programmes\Commands\**" />
     <EmbeddedResource Remove="SchedulesDirect\NewFolder\**" />
     <EmbeddedResource Remove="StreamGroupChannelGroupLinks\**" />
@@ -46,7 +44,6 @@
     <None Remove="Common\Aspects\**" />
     <None Remove="Common\Attributes\**" />
     <None Remove="Common\Repository\**" />
-    <None Remove="General\Queries\**" />
     <None Remove="Programmes\Commands\**" />
     <None Remove="SchedulesDirect\NewFolder\**" />
     <None Remove="StreamGroupChannelGroupLinks\**" />
