@@ -162,7 +162,6 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
               <div className="sm-w-6">
                 <SMChannelGroupDropDown
                   darkBackGround
-                  autoPlacement
                   label="Group"
                   onChange={(e) => {
                     e !== undefined && setGroup(e);

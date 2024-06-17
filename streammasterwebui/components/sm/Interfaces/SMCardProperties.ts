@@ -8,5 +8,7 @@ export interface SMCardProperties {
   readonly hasCloseButton?: boolean;
   readonly openPanel?: (open: boolean) => void;
   readonly title?: string | undefined;
+
   readonly simple?: boolean;
+  readonly simpleChildren?: boolean;
 }

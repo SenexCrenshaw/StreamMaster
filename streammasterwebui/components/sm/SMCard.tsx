@@ -13,13 +13,16 @@ export const SMCard = ({
   header,
   info = 'General',
   openPanel,
-  simple,
+  simple = false,
+  simpleChildren = true,
   title,
   ...props
 }: InternalSMCardProperties) => {
   const getDiv = useMemo(() => {
-    return darkBackGround === true ? 'sm-card-dark' : 'sm-card';
-  }, [darkBackGround]);
+    let ret = darkBackGround === true ? 'sm-card-dark' : 'sm-card';
+    ret += simpleChildren === true ? '-simple' : '';
+    return ret;
+  }, [darkBackGround, simpleChildren]);
 
   const borderClass = info !== '' ? 'info-header-text-bottom-border' : 'info-header-text';
 

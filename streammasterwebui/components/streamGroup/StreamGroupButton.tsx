@@ -1,6 +1,6 @@
-import SMOverlay from '@components/sm/SMOverlay';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 
+import SMPopUp from '@components/sm/SMPopUp';
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { memo } from 'react';
 import StreamGroupCreateDialog from './StreamGroupCreateDialog';
@@ -28,17 +28,17 @@ const StreamGroupButton = ({ className = 'sm-w-10rem sm-input-dark' }: StreamGro
       </div>
       <div className="pr-1" />
       <div className="sm-w-4rem">
-        <SMOverlay
-          title="STREAM GROUPS"
-          contentWidthSize="4"
-          icon="pi-file-edit"
-          iconFilled
+        <SMPopUp
           buttonClassName="sm-w-4rem icon-sg"
           buttonLabel="SG"
+          contentWidthSize="4"
           header={<StreamGroupCreateDialog />}
+          icon="pi-file-edit"
+          iconFilled
+          title="STREAM GROUPS"
         >
           <StreamGroupDataSelector id={'StreamGroup'} />
-        </SMOverlay>
+        </SMPopUp>
       </div>
     </div>
   );

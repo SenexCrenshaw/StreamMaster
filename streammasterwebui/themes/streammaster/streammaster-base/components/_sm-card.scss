@@ -34,6 +34,7 @@
         background-color: $headerBg !important;
     }
 
+
     .sm-card-children-info {
         background-color: $headerBg !important;
         display: flex;
@@ -63,10 +64,33 @@
         }
     }
 
-    .sm-card-children-content-simple {
+
+}
+
+.sm-card-simple {
+    @extend .sm-card;
+
+    .sm-card-children {
+        border: unset !important;
+        // background-color: unset !important;
+        background-color: $headerBg !important;
+    }
+
+    .sm-card-children-info {
+        background-color: $headerBg !important;
+        display: flex;
+        align-items: center;
+        padding-bottom: 0.75rem;
+        padding-top: 0.75rem;
+        padding-left: $headerTextLeft !important;
+        height: $input-height-with-no-borders !important;
+    }
+
+
+    .sm-card-children-content {
         // @extend .sm-padding-xlg;
         // background-color: $headerBg !important;
-        //padding: 0.4rem;
+        padding: 0;
 
         .p-datatable-wrapper {
             border: unset !important;
