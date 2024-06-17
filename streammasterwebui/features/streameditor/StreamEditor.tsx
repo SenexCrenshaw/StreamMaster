@@ -7,7 +7,7 @@ import SMStreamDataSelector from './SMStreamDataSelector';
 
 const StreamEditor = () => {
   const id = 'streameditor';
-  const { isTrue: smTableIsSimple } = useIsTrue('streameditor-SMStreamDataSelector');
+  const { isTrue: smTableIsSimple } = useIsTrue('isSimple');
 
   if (smTableIsSimple) {
     return (

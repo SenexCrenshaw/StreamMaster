@@ -1,4 +1,5 @@
 import SMOverlay, { SMOverlayRef } from '@components/sm/SMOverlay';
+import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { memo, useRef } from 'react';
 import EPGFileCreateDialog from './EPGFileCreateDialog';
 import EPGFilesDataSelector from './EPGFilesDataSelector';
@@ -6,6 +7,7 @@ import EPGFilesDataSelector from './EPGFilesDataSelector';
 const EPGFilesButton = () => {
   const op = useRef<SMOverlayRef>(null);
   const closeOverlay = () => op.current?.hide();
+  const { isTrue: smTableIsSimple } = useIsTrue('isSimple');
   return (
     <SMOverlay
       buttonClassName="sm-w-4rem icon-green"
@@ -15,7 +17,7 @@ const EPGFilesButton = () => {
       icon="pi-upload"
       iconFilled
       info=""
-      placement="bottom"
+      placement={smTableIsSimple ? 'bottom-end' : 'bottom'}
       ref={op}
       title="EPG FILES"
     >

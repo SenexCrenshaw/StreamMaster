@@ -1,8 +1,8 @@
+import SMButton from '@components/sm/SMButton';
 import SMPopUp from '@components/sm/SMPopUp';
 import { getRandomColorHex } from '@lib/common/colors';
 import Sketch from '@uiw/react-color-sketch';
-import { OverlayPanel } from 'primereact/overlaypanel';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface ColorEditorProperties {
   readonly color: string;
@@ -11,7 +11,6 @@ interface ColorEditorProperties {
   onChange?(event: string): void;
 }
 const ColorEditor = ({ color: clientColor, editable = true, label, onChange }: ColorEditorProperties) => {
-  const op = useRef<OverlayPanel>(null);
   const [color, setColor] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -30,23 +29,13 @@ const ColorEditor = ({ color: clientColor, editable = true, label, onChange }: C
   const buttonTemplate = useMemo(() => {
     return (
       <div
-        className="color-editor-box flex justify-content-between align-items-center w-full px-1"
+        className="color-editor-box flex justify-content-end align-items-center w-full px-1"
         style={{
           backgroundColor: color
         }}
-      >
-        <i className="flex justify-content-center align-items-center sm-button pi pi-chevron-circle-down" onClick={(e) => op.current?.toggle(e)} />
-        <i
-          className="flex justify-content-center align-items-center sm-button pi pi-refresh"
-          onClick={(e) => {
-            const c = getRandomColorHex();
-            setColor(c);
-            onChange && onChange(c);
-          }}
-        />
-      </div>
+      ></div>
     );
-  }, [color, onChange]);
+  }, [color]);
 
   if (editable !== undefined && !editable) {
     return (
@@ -68,13 +57,23 @@ const ColorEditor = ({ color: clientColor, editable = true, label, onChange }: C
       )}
 
       <SMPopUp buttonTemplate={buttonTemplate} zIndex={10} showRemember={false}>
-        <div className="w-full">
+        <div className="w-full flex justify-content-center flex-column align-content-center justify-items-center align-items-center gap-2">
           <Sketch
             style={{ width: '100%' }}
             color={color}
             onChange={(color) => {
               setColor(color.hex);
               onChange && onChange(color.hex);
+            }}
+          />
+          <SMButton
+            buttonClassName="sm-w-8rem icon-blue"
+            icon="pi-refresh"
+            iconFilled
+            label="Random Color"
+            onClick={() => {
+              setColor(undefined);
+              onChange && onChange('');
             }}
           />
         </div>

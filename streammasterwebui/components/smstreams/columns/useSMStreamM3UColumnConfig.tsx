@@ -85,11 +85,6 @@ export const useSMStreamM3UColumnConfig = ({ className = 'sm-w-7rem', dataKey }:
           filter
           info=""
           filterBy="Name"
-          // onChange={async (e: any) => {
-          //   if (isEmptyObject(e) || !Array.isArray(e)) {
-          //     // options.filterApplyCallback();
-          //   }
-          // }}
           select
           selectedItemsKey="useSMStreamM3UColumnConfig"
           title="M3U"

@@ -7,7 +7,7 @@ import { Outlet } from 'react-router-dom';
 import { RootSideBar } from './RootSideBar';
 
 export const RootLayout = (): JSX.Element => {
-  const { setIsTrue } = useIsTrue('streameditor-SMStreamDataSelector');
+  const { setIsTrue } = useIsTrue('isSimple');
   const { selectedStreamGroup, setSelectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
   const sgquery = useGetStreamGroup({ SGName: 'ALL' } as GetStreamGroupRequest);
   const initialized = useRef(false);
@@ -27,7 +27,7 @@ export const RootLayout = (): JSX.Element => {
     } else {
       try {
         const parsedData = JSON.parse(persistData);
-        if (!parsedData.hasOwnProperty('streameditor-SMStreamDataSelector')) {
+        if (!parsedData.hasOwnProperty('isSimple')) {
           setIsTrue(true);
         }
       } catch (error) {

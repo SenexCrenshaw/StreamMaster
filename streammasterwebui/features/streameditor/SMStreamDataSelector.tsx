@@ -35,7 +35,7 @@ interface SMStreamDataSelectorProperties {
 
 const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple = false, showSelections }: SMStreamDataSelectorProperties) => {
   const dataKey = `${id}-SMStreamDataSelector`;
-  const { isTrue: smTableIsSimple } = useIsTrue(dataKey);
+  const { isTrue: smTableIsSimple } = useIsTrue('isSimple');
 
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
 
@@ -161,7 +161,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
       return (
         <div className="flex justify-content-end align-items-center w-full gap-1 pr-1">
           {!smTableIsSimple && <M3UFilesButton />}
-          <SimpleButton dataKey={dataKey} />
+          <SimpleButton dataKey="isSimple" />
           <SMStreamMenu />
         </div>
       );
@@ -169,7 +169,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
     return (
       <div className="flex justify-content-end align-items-center w-full gap-1 pr-1">
         <M3UFilesButton />
-        <SimpleButton dataKey={dataKey} />
+        <SimpleButton dataKey="isSimple" />
         {/* <StreamMultiVisibleDialog selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} />
         <CreateSMChannelsDialog selectedItemsKey="selectSelectedSMStreamDtoItems" id={dataKey} /> */}
         {/* <CreateSMStreamDialog /> */}

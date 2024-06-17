@@ -8626,7 +8626,7 @@ div[aria-haspopup=dialog] {
   flex-direction: column;
   align-items: start;
   height: 100%;
-  padding: 0 !important;
+  padding: 0.1 !important;
 }
 
 .sm-menu-item {

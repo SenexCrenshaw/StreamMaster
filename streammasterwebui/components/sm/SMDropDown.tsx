@@ -70,7 +70,7 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
             <div className="pt-small" />
           </div>
         )}
-        <div className="flex2 w-ful2l">
+        <>
           {props.label && labelInline && <div className={labelInline ? 'w-4' : 'w-6'}>{props.label.toUpperCase()}</div>}
           {props.children
             ? getSMOverlay(props.children)
@@ -84,7 +84,7 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
                   }}
                 />
               )}
-        </div>
+        </>
       </>
     );
   }
