@@ -15,10 +15,12 @@ export function formatJSONDateString(jsonDate: string | undefined): string {
 
 export const getElapsedTimeString = (start: string, stop: string): string => {
   const startDate = new Date(start);
+
   let stopDate = new Date(stop);
 
   // Check if the stop time is less than the start time
   if (stopDate.getTime() < startDate.getTime()) {
+    // startDate.setMilliseconds(0);
     stopDate = new Date();
   }
 

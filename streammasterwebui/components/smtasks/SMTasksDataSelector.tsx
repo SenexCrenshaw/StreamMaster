@@ -52,7 +52,7 @@ const SMTasksDataSelector = (props: SMTasksDataSelectorProps) => {
       return <div className="pi pi-spin pi-spinner" />;
     }
 
-    return <div className="pi pi-times" />;
+    return <div className="pi pi-check icon-green" />;
   }, []);
 
   const columns = useMemo(
