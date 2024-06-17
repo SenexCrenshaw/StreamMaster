@@ -211,10 +211,8 @@ div[aria-haspopup="dialog"] {
 
     .sm-input-dark-large-image {
         border-radius: $borderRadius;
-        border-color: $inputBorderColor;
+        border-color: transparent;
         border-style: solid;
-
-        @extend .sm-hover-dark;
         @extend .text-container;
         background-color: $inputBg;
         padding: 0.24rem;

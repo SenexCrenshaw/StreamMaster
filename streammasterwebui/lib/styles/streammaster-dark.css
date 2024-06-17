@@ -7782,10 +7782,10 @@
   border-color: rgba(255, 255, 255, 0.5);
 }
 
-.sm-hover-dark, .stringeditor .sm-input-dark-large-image, .stringeditor .sm-input-dark-large, .stringeditor .sm-input-dark-header-large, .stringeditor .sm-input-dark, .stringeditor .sm-input-dark-header, .sm-iconselector {
+.sm-hover-dark, .stringeditor .sm-input-dark-large, .stringeditor .sm-input-dark-header-large, .stringeditor .sm-input-dark, .stringeditor .sm-input-dark-header, .sm-iconselector {
   transition: border-color 0.15s;
 }
-.sm-hover-dark:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-large-image:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-large:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-header-large:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-header:not(.p-disabled):hover:not(:focus), .sm-iconselector:not(.p-disabled):hover:not(:focus) {
+.sm-hover-dark:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-large:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-header-large:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark:not(.p-disabled):hover:not(:focus), .stringeditor .sm-input-dark-header:not(.p-disabled):hover:not(:focus), .sm-iconselector:not(.p-disabled):hover:not(:focus) {
   border-color: #bcbfbf !important;
   border-radius: 6px !important;
   border-style: solid !important;
@@ -8149,7 +8149,7 @@ div[aria-haspopup=dialog] {
 }
 .stringeditor .sm-input-dark-large-image {
   border-radius: 6px;
-  border-color: #263238;
+  border-color: transparent;
   border-style: solid;
   background-color: #12181b;
   padding: 0.24rem;
@@ -8702,7 +8702,7 @@ div[aria-haspopup=dialog] {
   height: 1.4rem !important;
 }
 .sm-card-simple .sm-card-children-content {
-  padding: 0rem;
+  padding: 0;
 }
 .sm-card-simple .sm-card-children-content .p-datatable-wrapper {
   border: unset !important;
