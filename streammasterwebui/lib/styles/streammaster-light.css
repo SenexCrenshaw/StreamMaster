@@ -8152,7 +8152,6 @@ div[aria-haspopup=dialog] {
   border-color: transparent;
   border-style: solid;
   background-color: #12181b;
-  padding: 0.24rem;
   color: #94abec;
   display: flex;
   width: 100%;
@@ -9448,7 +9447,6 @@ div[aria-haspopup=dialog] {
 }
 
 .icon-template-lg, .stringeditor .sm-input-dark-header-large {
-  padding: 0.25rem !important;
   max-height: 4.6rem;
   height: 5rem;
   object-fit: contain;

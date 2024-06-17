@@ -215,7 +215,7 @@ div[aria-haspopup="dialog"] {
         border-style: solid;
         @extend .text-container;
         background-color: $inputBg;
-        padding: 0.24rem;
+        // padding: 0.24rem;
 
         color: $inputTextColor;
         display: flex;
