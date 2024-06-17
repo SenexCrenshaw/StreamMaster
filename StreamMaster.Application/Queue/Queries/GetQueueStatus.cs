@@ -1,17 +1,16 @@
-﻿using StreamMaster.Application.Common.Models;
-using StreamMaster.Application.Services;
+﻿using StreamMaster.Application.Services;
 
 namespace StreamMaster.Application.Queue.Queries;
 
-public record GetQueueStatus : IRequest<List<TaskQueueStatus>>;
+public record GetQueueStatus : IRequest<List<SMTask>>;
 
 internal class GetQueueStatusHandler(
     IBackgroundTaskQueue taskQueue
-        ) : IRequestHandler<GetQueueStatus, List<TaskQueueStatus>>
+        ) : IRequestHandler<GetQueueStatus, List<SMTask>>
 {
-    public async Task<List<TaskQueueStatus>> Handle(GetQueueStatus request, CancellationToken cancellationToken)
+    public async Task<List<SMTask>> Handle(GetQueueStatus request, CancellationToken cancellationToken)
     {
-        List<TaskQueueStatus> data = await taskQueue.GetQueueStatus().ConfigureAwait(false);
+        List<SMTask> data = await taskQueue.GetQueueStatus().ConfigureAwait(false);
         return data.OrderBy(a => a.Id).ToList();
     }
 }

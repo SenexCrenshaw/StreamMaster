@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using StreamMaster.Domain.Extensions;
+
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -14,7 +16,7 @@ namespace StreamMaster.Domain.Configuration
             Assembly? assembly = Assembly.GetEntryAssembly() ?? throw new InvalidOperationException("Failed to get entry assembly.");
             Version = assembly.GetName().Version ?? new Version(0, 0, 0, 0);
             object[] attributes = assembly.GetCustomAttributes(true);
-
+            StartTime = SMDT.UtcNow;
             Branch = "unknown";
             Release = Version.ToString();
 
@@ -34,20 +36,8 @@ namespace StreamMaster.Domain.Configuration
         public static bool IsFreeBSD => RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD);
         public static string StartUpPath = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName;
 
-        private static DateTime _startTime;
 
-        public static DateTime StartTime
-        {
-            get
-            {
-                if (_startTime == DateTime.MinValue)
-                {
-                    _startTime = DateTime.Now;
-                }
-
-                return _startTime;
-            }
-        }
+        public static DateTime StartTime { get; set; }
 
         #region Database Configuration Properties
 

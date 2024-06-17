@@ -1,4 +1,4 @@
-import { SMPopUp } from '@components/sm/SMPopUp';
+import SMPopUp from '@components/sm/SMPopUp';
 import { DeleteStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
 import { DeleteStreamGroupRequest, StreamGroupDto } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback } from 'react';

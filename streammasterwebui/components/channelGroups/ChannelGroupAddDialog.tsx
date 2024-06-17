@@ -1,6 +1,6 @@
 import StringEditor from '@components/inputs/StringEditor';
 import { SMDialogRef } from '@components/sm/SMDialog';
-import { SMPopUp } from '@components/sm/SMPopUp';
+import SMPopUp from '@components/sm/SMPopUp';
 import { Logger } from '@lib/common/logger';
 import { CreateChannelGroup } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
 import { CreateChannelGroupRequest } from '@lib/smAPI/smapiTypes';

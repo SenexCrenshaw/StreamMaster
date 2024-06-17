@@ -2,7 +2,8 @@ import { SMDialogRef } from '@components/sm/SMDialog';
 import SMPopUp from '@components/sm/SMPopUp';
 import { SMChannelDialogRef } from '@components/smchannels/SMChannelDialog';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
-import { CreateSMStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+
+import { CreateSMStream } from '@lib/smAPI/SMStreams/SMStreamsCommands';
 import { SMStreamDto } from '@lib/smAPI/smapiTypes';
 import React, { useRef, useState } from 'react';
 import SMStreamDialog from './SMStreamDialog';

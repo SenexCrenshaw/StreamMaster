@@ -1,5 +1,5 @@
 import StringEditor from '@components/inputs/StringEditor';
-import { SMPopUp } from '@components/sm/SMPopUp';
+import SMPopUp from '@components/sm/SMPopUp';
 
 import { CopySMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetSMChannelNames from '@lib/smAPI/SMChannels/useGetSMChannelNames';

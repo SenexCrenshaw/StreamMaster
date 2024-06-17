@@ -70,7 +70,7 @@ namespace BuildClientAPI
 
                     List<string> smapiImport = [];
 
-                    string toCheck = "UpdateSetting";
+                    string toCheck = "SendSMTaskRequest";
 
                     if (recordType.Name.StartsWith(toCheck))
                     {
@@ -79,12 +79,9 @@ namespace BuildClientAPI
                         string returntypeTS = GetCleanTSReturnType(returnType);
                         string Parameters = CSharpUtils.ParamsToCSharp(recordType);
                         string TsParameters = Utils.CSharpParamToTS(recordType);
-                        //string testI = Utils.CSharpPropsToTSInterface(returnType);
                         string TsReturnType = GetCleanTSReturnType(returnType);
                         string genericArgs = string.Join(", ", recordType.GetGenericArguments().Select(FormatTypeName));
                         string genericArgs2 = string.Join(", ", returnType.GetGenericArguments().Select(FormatTypeName));
-                        smapiImport.AddRange(recordType.GetGenericArguments().Select(FormatTypeName));
-                        smapiImport.AddRange(returnType.GetGenericArguments().Select(FormatTypeName));
 
                     }
 

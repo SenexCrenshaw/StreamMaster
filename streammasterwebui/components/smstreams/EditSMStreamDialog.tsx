@@ -1,7 +1,8 @@
 import SMPopUp from '@components/sm/SMPopUp';
 import { SMChannelDialogRef } from '@components/smchannels/SMChannelDialog';
 import useIsRowLoading from '@lib/redux/hooks/useIsRowLoading';
-import { UpdateSMStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+
+import { UpdateSMStream } from '@lib/smAPI/SMStreams/SMStreamsCommands';
 import { SMStreamDto, UpdateSMStreamRequest } from '@lib/smAPI/smapiTypes';
 import React, { useRef, useState } from 'react';
 import SMStreamDialog from './SMStreamDialog';

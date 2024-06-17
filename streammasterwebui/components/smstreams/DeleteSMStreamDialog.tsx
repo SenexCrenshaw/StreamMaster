@@ -1,8 +1,7 @@
-import { SMPopUp } from '@components/sm/SMPopUp';
+import SMPopUp from '@components/sm/SMPopUp';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
-import { DeleteSMStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { DeleteSMStream } from '@lib/smAPI/SMStreams/SMStreamsCommands';
 import { DeleteSMStreamRequest, SMStreamDto } from '@lib/smAPI/smapiTypes';
-
 import React, { useState } from 'react';
 
 interface DeleteSMStreamProperties {

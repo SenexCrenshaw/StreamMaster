@@ -13,7 +13,6 @@ using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.Services;
 using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Services;
 
 namespace StreamMaster.Infrastructure.Services.QueueService;
 
@@ -117,7 +116,12 @@ public sealed class QueuedHostedService(
                             await _sender.Send(new SetIsSystemReadyRequest((bool)command.Entity), cancellationToken).ConfigureAwait(false);
                         }
                         break;
-
+                    case SMQueCommand.SetTestTask:
+                        if (command.Entity is not null && command.Entity.GetType() == typeof(int))
+                        {
+                            await _sender.Send(new SetTestTaskRequest((int)command.Entity)).ConfigureAwait(false);
+                        }
+                        break;
                     default:
                         logger.LogWarning("{command} not found", command.Command);
                         break;

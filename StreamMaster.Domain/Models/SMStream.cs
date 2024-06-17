@@ -7,7 +7,6 @@ namespace StreamMaster.Domain.Models;
 
 public class SMStream
 {
-
     public static string APIName => "SMStreams";
     [Key]
     [Column(TypeName = "citext")]

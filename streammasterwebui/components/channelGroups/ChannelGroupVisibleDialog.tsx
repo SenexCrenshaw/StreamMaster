@@ -1,5 +1,5 @@
 import { SMDialogRef } from '@components/sm/SMDialog';
-import { SMPopUp } from '@components/sm/SMPopUp';
+import SMPopUp from '@components/sm/SMPopUp';
 import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { UpdateChannelGroup, UpdateChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';

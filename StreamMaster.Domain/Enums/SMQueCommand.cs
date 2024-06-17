@@ -17,6 +17,7 @@ public enum SMQueCommand
 
     EPGSync,
     SetIsSystemReady,
+    SetTestTask,
 
     UpdateEntitiesFromIPTVChannels,
 }

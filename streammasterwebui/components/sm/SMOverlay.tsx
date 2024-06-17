@@ -26,6 +26,7 @@ import { CombinedProvider } from './context/CombinedContext';
 import { SMOverlayProperties } from './interfaces/SMOverlayProperties';
 
 export interface SMOverlayRef {
+  getOpen: () => boolean;
   hide: () => void;
   show: (event: any) => void;
 }
@@ -94,6 +95,9 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
     const { getReferenceProps, getFloatingProps } = useInteractions([useClick(context), useDismiss(context), useRole(context)]);
 
     useImperativeHandle(ref, () => ({
+      getOpen: () => {
+        return isOpen;
+      },
       hide: () => setIsOpen(false),
       show: () => setIsOpen(true)
     }));
@@ -156,7 +160,7 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
           <FloatingPortal>
             {isOpen && (
               <>
-                <FloatingOverlay className={props.modal ? 'Dialog-overlay' : ''} lockScroll />
+                <FloatingOverlay className={props.modal ? 'sm-dialog-overlay' : ''} lockScroll />
                 <FloatingFocusManager context={context} modal={props.modal}>
                   <div
                     className={`sm-overlay sm-popover sm-w-${contentWidthSize} pt-2 ${z !== undefined ? 'z-' + z : ''} ${props.modal ? 'sm-modal' : ''}`}

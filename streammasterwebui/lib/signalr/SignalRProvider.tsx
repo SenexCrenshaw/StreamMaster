@@ -20,6 +20,7 @@ import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import useGetSMChannel from '@lib/smAPI/SMChannels/useGetSMChannel';
 import useGetSMChannelNames from '@lib/smAPI/SMChannels/useGetSMChannelNames';
 import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
+import useGetSMTasks from '@lib/smAPI/SMTasks/useGetSMTasks';
 import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationChannelNames';
 import useGetStreamGroup from '@lib/smAPI/StreamGroups/useGetStreamGroup';
 import useGetStreamGroups from '@lib/smAPI/StreamGroups/useGetStreamGroups';
@@ -64,6 +65,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
   const getSMChannel = useGetSMChannel();
   const getSMChannelNames = useGetSMChannelNames();
   const getSMChannelStreams = useGetSMChannelStreams();
+  const getSMTasks = useGetSMTasks();
   const getStationChannelNames = useGetStationChannelNames();
   const getStreamGroup = useGetStreamGroup();
   const getStreamGroups = useGetStreamGroups();
@@ -159,6 +161,10 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         getSMChannelStreams.SetIsForced(true);
         return;
       }
+      if (entity === 'GetSMTasks') {
+        getSMTasks.SetIsForced(true);
+        return;
+      }
       if (entity === 'GetStationChannelNames') {
         getStationChannelNames.SetIsForced(true);
         return;
@@ -232,6 +238,10 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         getSMChannelStreams.SetIsForced(true);
         return;
       }
+      if (entity === 'SMTasks') {
+        getSMTasks.SetIsForced(true);
+        return;
+      }
       if (entity === 'SchedulesDirect') {
         getStationChannelNames.SetIsForced(true);
         return;
@@ -241,7 +251,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         return;
       }
     },
-    [getChannelGroups,getChannelGroupsFromSMChannels,getEPGColors,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getIcons,getIsSystemReady,getM3UFileNames,getM3UFiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSettings,getSMChannel,getSMChannelNames,getSMChannelStreams,getStationChannelNames,getStreamGroup,getStreamGroups,getStreamGroupSMChannels,getSystemStatus]
+    [getChannelGroups,getChannelGroupsFromSMChannels,getEPGColors,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getIcons,getIsSystemReady,getM3UFileNames,getM3UFiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSettings,getSMChannel,getSMChannelNames,getSMChannelStreams,getSMTasks,getStationChannelNames,getStreamGroup,getStreamGroups,getStreamGroupSMChannels,getSystemStatus]
   );
 
   const setField = useCallback(
@@ -327,6 +337,10 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
           getSMChannelStreams.SetField(fieldData)
           return;
         }
+        if (fieldData.Entity === 'GetSMTasks') {
+          getSMTasks.SetField(fieldData)
+          return;
+        }
         if (fieldData.Entity === 'GetStationChannelNames') {
           getStationChannelNames.SetField(fieldData)
           return;
@@ -400,6 +414,10 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         getSMChannelStreams.SetField(fieldData);
         return;
       }
+      if ( fieldData.Entity === 'SMTasks') {
+        getSMTasks.SetField(fieldData);
+        return;
+      }
       if ( fieldData.Entity === 'SchedulesDirect') {
         getStationChannelNames.SetField(fieldData);
         return;
@@ -410,7 +428,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
       }
       });
     },
-    [getChannelGroups,getChannelGroupsFromSMChannels,getEPGColors,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getIcons,getIsSystemReady,getM3UFileNames,getM3UFiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSettings,getSMChannel,getSMChannelNames,getSMChannelStreams,getStationChannelNames,getStreamGroup,getStreamGroups,getStreamGroupSMChannels,getSystemStatus]
+    [getChannelGroups,getChannelGroupsFromSMChannels,getEPGColors,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getIcons,getIsSystemReady,getM3UFileNames,getM3UFiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSettings,getSMChannel,getSMChannelNames,getSMChannelStreams,getSMTasks,getStationChannelNames,getStreamGroup,getStreamGroups,getStreamGroupSMChannels,getSystemStatus]
   );
 
   const clearByTag = useCallback((data: ClearByTag): void => {
@@ -495,6 +513,10 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
       getSMChannelStreams.ClearByTag(Tag)
       return;
     }
+    if (Entity === 'GetSMTasks') {
+      getSMTasks.ClearByTag(Tag)
+      return;
+    }
     if (Entity === 'GetStationChannelNames') {
       getStationChannelNames.ClearByTag(Tag)
       return;
@@ -518,7 +540,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
     console.log('ClearByTag', Entity, Tag);
   }
 ,
-    [getChannelGroups,getChannelGroupsFromSMChannels,getEPGColors,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getIcons,getIsSystemReady,getM3UFileNames,getM3UFiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSettings,getSMChannel,getSMChannelNames,getSMChannelStreams,getStationChannelNames,getStreamGroup,getStreamGroups,getStreamGroupSMChannels,getSystemStatus]
+    [getChannelGroups,getChannelGroupsFromSMChannels,getEPGColors,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getIcons,getIsSystemReady,getM3UFileNames,getM3UFiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSettings,getSMChannel,getSMChannelNames,getSMChannelStreams,getSMTasks,getStationChannelNames,getStreamGroup,getStreamGroups,getStreamGroupSMChannels,getSystemStatus]
   );
 
   const RemoveConnections = useCallback(() => {

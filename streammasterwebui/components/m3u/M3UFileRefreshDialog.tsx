@@ -1,4 +1,4 @@
-import { SMPopUp } from '@components/sm/SMPopUp';
+import SMPopUp from '@components/sm/SMPopUp';
 import { RefreshM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { M3UFileDto, RefreshM3UFileRequest } from '@lib/smAPI/smapiTypes';
 import { memo } from 'react';

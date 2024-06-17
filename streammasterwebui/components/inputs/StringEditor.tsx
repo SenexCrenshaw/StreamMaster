@@ -157,11 +157,11 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
     }, [darkBackGround, labelInline]);
 
     const doShowClear = useMemo((): boolean => {
-      const ret = showClear === true && inputValue !== ''; //&& originalValue !== inputValue;
+      const ret = showClear === true && darkBackGround === true && inputValue !== ''; //&& originalValue !== inputValue;
       Logger.debug('StringEditor', { inputValue, originalValue, showClear, ret });
       // Logger.debug('StringEditor', { darkBackGround, inputValue, originalValue, showClear, ret });
       return ret;
-    }, [inputValue, originalValue, showClear]);
+    }, [inputValue, originalValue, darkBackGround, showClear]);
 
     const getDiv = useMemo(() => {
       let ret = 'flex stringeditor justify-content-center';

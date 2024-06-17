@@ -25,6 +25,26 @@ export interface SMMessage
 	Severity: string;
 	Summary: string;
 }
+export interface M3UProfile
+{
+	Command: string;
+	Id: number;
+	IsRunning: boolean;
+	QueueTS: any;
+	StartTS: any;
+	Status: string;
+	StopTS: any;
+}
+export interface SMTask
+{
+	Command: string;
+	Id: number;
+	IsRunning: boolean;
+	QueueTS: any;
+	StartTS: any;
+	Status: string;
+	StopTS: any;
+}
 export interface StationIdLineup
 {
 	Id: string;
@@ -388,9 +408,28 @@ export interface RemoveSMChannelFromStreamGroupRequest
 	SMChannelId: number;
 	StreamGroupId: number;
 }
+export interface GetSMTasksRequest
+{
+}
+export interface SendSMTasksRequest
+{
+	SMTasks: SMTask[];
+}
 export interface GetPagedSMStreamsRequest
 {
 	Parameters: QueryStringParameters;
+}
+export interface CreateSMStreamRequest
+{
+	ChannelNumber?: number;
+	Group?: string;
+	Logo?: string;
+	Name: string;
+	Url: string;
+}
+export interface DeleteSMStreamRequest
+{
+	SMStreamId: string;
 }
 export interface SetSMStreamsVisibleByIdRequest
 {
@@ -413,6 +452,15 @@ export interface ToggleSMStreamVisibleByIdRequest
 export interface ToggleSMStreamVisibleByParametersRequest
 {
 	Parameters: QueryStringParameters;
+}
+export interface UpdateSMStreamRequest
+{
+	ChannelNumber?: number;
+	Group?: string;
+	Logo?: string;
+	Name?: string;
+	SMStreamId: string;
+	Url: string;
 }
 export interface SendSMErrorRequest
 {
@@ -567,27 +615,6 @@ export interface UpdateSMChannelRequest
 	StreamingProxyType?: StreamingProxyTypes;
 	TimeShift?: number;
 	VideoStreamHandler?: VideoStreamHandlers;
-}
-export interface CreateSMStreamRequest
-{
-	ChannelNumber?: number;
-	Group?: string;
-	Logo?: string;
-	Name: string;
-	Url: string;
-}
-export interface DeleteSMStreamRequest
-{
-	SMStreamId: string;
-}
-export interface UpdateSMStreamRequest
-{
-	ChannelNumber?: number;
-	Group?: string;
-	Logo?: string;
-	Name?: string;
-	SMStreamId: string;
-	Url: string;
 }
 export interface GetSMChannelStreamsRequest
 {
@@ -766,6 +793,10 @@ export interface UpdateM3UFileRequest
 }
 export interface GetIconsRequest
 {
+}
+export interface SetTestTaskRequest
+{
+	DelayInSeconds: number;
 }
 export interface GetEPGColorsRequest
 {

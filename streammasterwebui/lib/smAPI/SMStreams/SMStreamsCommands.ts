@@ -1,9 +1,19 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,SetSMStreamsVisibleByIdRequest,ToggleSMStreamsVisibleByIdRequest,ToggleSMStreamVisibleByIdRequest,ToggleSMStreamVisibleByParametersRequest,SMStreamDto,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
+import { APIResponse,CreateSMStreamRequest,DeleteSMStreamRequest,SetSMStreamsVisibleByIdRequest,ToggleSMStreamsVisibleByIdRequest,ToggleSMStreamVisibleByIdRequest,ToggleSMStreamVisibleByParametersRequest,UpdateSMStreamRequest,SMStreamDto,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const GetPagedSMStreams = async (parameters: QueryStringParameters): Promise<PagedResponse<SMStreamDto> | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<PagedResponse<SMStreamDto>>('GetPagedSMStreams', parameters);
+};
+
+export const CreateSMStream = async (request: CreateSMStreamRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('CreateSMStream', request);
+};
+
+export const DeleteSMStream = async (request: DeleteSMStreamRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('DeleteSMStream', request);
 };
 
 export const SetSMStreamsVisibleById = async (request: SetSMStreamsVisibleByIdRequest): Promise<APIResponse | undefined> => {
@@ -24,5 +34,10 @@ export const ToggleSMStreamVisibleById = async (request: ToggleSMStreamVisibleBy
 export const ToggleSMStreamVisibleByParameters = async (request: ToggleSMStreamVisibleByParametersRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('ToggleSMStreamVisibleByParameters', request);
+};
+
+export const UpdateSMStream = async (request: UpdateSMStreamRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('UpdateSMStream', request);
 };
 

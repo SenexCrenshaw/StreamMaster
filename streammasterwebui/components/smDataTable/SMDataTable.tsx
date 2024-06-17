@@ -674,7 +674,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           expandedRows={state.expandedRows}
           filters={isEmptyObject(state.filters) ? getEmptyFilter(props.columns, state.showHidden) : state.filters}
           first={state.pagedInformation ? state.pagedInformation.First : state.first}
-          loading={props.isLoading === true || isLoading === true}
+          loading={props.noIsLoading !== true && (props.isLoading === true || isLoading === true)}
           onRowReorder={(e) => {
             onRowReorder(e.value);
           }}
@@ -782,7 +782,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
               .map((col) => (
                 <Column
                   align={getAlign(col.align, col.fieldType)}
-                  // className={getColumnClassNames(col)}
+                  className={col.className}
                   filter
                   filterElement={col.headerTemplate ? col.headerTemplate : colFilterTemplate}
                   filterPlaceholder={col.filter === true ? (col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)) : undefined}

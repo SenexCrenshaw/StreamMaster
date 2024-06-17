@@ -39,7 +39,7 @@ public static class CSharpGenerator
             string parameterLine = string.IsNullOrEmpty(method.Parameter) ? "" : $"{method.Name}Request request";
             string toSend = string.IsNullOrEmpty(method.Parameter) ? $"new {method.SingalRFunction}()" : "request";
 
-            if (method.Name == "UpdateSMChannel")
+            if (method.Name == "SendSMTaskRequest")
             {
                 int a = 1;
             }

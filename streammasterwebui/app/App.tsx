@@ -15,6 +15,7 @@ import { SignalRProvider } from '@lib/signalr/SignalRProvider';
 import 'primeicons/primeicons.css'; //icons
 import 'primereact/resources/primereact.min.css'; //core css
 // import 'primereact/resources/themes/viva-dark/theme.css'; // theme
+import SMLoader from '@components/loader/SMLoader';
 import { Suspense, lazy } from 'react';
 
 const App = (): JSX.Element => {
@@ -67,6 +68,14 @@ const App = (): JSX.Element => {
             </Suspense>
           }
           path="/settings"
+        />
+        <Route
+          element={
+            <Suspense>
+              <SMLoader />
+            </Suspense>
+          }
+          path="/loader"
         />
         {/* <Route
           element={

@@ -1,4 +1,4 @@
-import { SMPopUp } from '@components/sm/SMPopUp';
+import SMPopUp from '@components/sm/SMPopUp';
 import { DeleteEPGFile } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
 import { DeleteEPGFileRequest, EPGFileDto } from '@lib/smAPI/smapiTypes';
 import { memo } from 'react';

@@ -8198,6 +8198,11 @@ div[aria-haspopup=dialog] {
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
 }
+.numeric-field {
+  font-family: "Courier New", Courier, monospace;
+  font-weight: bold;
+}
+
 .text-default-color {
   color: #bcbfbf;
 }
@@ -8937,6 +8942,24 @@ div[aria-haspopup=dialog] {
   width: 100%;
 }
 
+.sm-spinner {
+  margin-bottom: 20px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 .sm-epg-selector {
   display: flex;
   align-items: center;
@@ -9130,7 +9153,7 @@ div[aria-haspopup=dialog] {
   z-index: 10;
 }
 
-.Dialog-overlay {
+.sm-dialog-overlay, .sm-loader {
   z-index: 9;
   display: grid;
   place-items: center;

@@ -32,9 +32,6 @@ namespace StreamMaster.Application.SMChannels
         Task<ActionResult<APIResponse>> ToggleSMChannelVisibleById(ToggleSMChannelVisibleByIdRequest request);
         Task<ActionResult<APIResponse>> ToggleSMChannelVisibleByParameters(ToggleSMChannelVisibleByParametersRequest request);
         Task<ActionResult<APIResponse>> UpdateSMChannel(UpdateSMChannelRequest request);
-        Task<ActionResult<APIResponse>> CreateSMStream(CreateSMStreamRequest request);
-        Task<ActionResult<APIResponse>> DeleteSMStream(DeleteSMStreamRequest request);
-        Task<ActionResult<APIResponse>> UpdateSMStream(UpdateSMStreamRequest request);
     }
 }
 
@@ -68,8 +65,5 @@ namespace StreamMaster.Application.Hubs
         Task<APIResponse> ToggleSMChannelVisibleById(ToggleSMChannelVisibleByIdRequest request);
         Task<APIResponse> ToggleSMChannelVisibleByParameters(ToggleSMChannelVisibleByParametersRequest request);
         Task<APIResponse> UpdateSMChannel(UpdateSMChannelRequest request);
-        Task<APIResponse> CreateSMStream(CreateSMStreamRequest request);
-        Task<APIResponse> DeleteSMStream(DeleteSMStreamRequest request);
-        Task<APIResponse> UpdateSMStream(UpdateSMStreamRequest request);
     }
 }

@@ -3,7 +3,6 @@
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Application.SMMessages.Commands;
-using StreamMaster.Domain.Services;
 
 namespace StreamMaster.Infrastructure.Services
 {

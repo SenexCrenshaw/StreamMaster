@@ -28,22 +28,28 @@
     <Compile Remove="Common\Aspects\**" />
     <Compile Remove="Common\Attributes\**" />
     <Compile Remove="Common\Repository\**" />
+    <Compile Remove="General\Queries\**" />
     <Compile Remove="Programmes\Commands\**" />
     <Compile Remove="SchedulesDirect\NewFolder\**" />
+    <Compile Remove="StreamGroupChannelGroupLinks\**" />
     <Compile Remove="VideoStreamLinks\**" />
     <EmbeddedResource Remove="ChannelGroups\Hub\**" />
     <EmbeddedResource Remove="Common\Aspects\**" />
     <EmbeddedResource Remove="Common\Attributes\**" />
     <EmbeddedResource Remove="Common\Repository\**" />
+    <EmbeddedResource Remove="General\Queries\**" />
     <EmbeddedResource Remove="Programmes\Commands\**" />
     <EmbeddedResource Remove="SchedulesDirect\NewFolder\**" />
+    <EmbeddedResource Remove="StreamGroupChannelGroupLinks\**" />
     <EmbeddedResource Remove="VideoStreamLinks\**" />
     <None Remove="ChannelGroups\Hub\**" />
     <None Remove="Common\Aspects\**" />
     <None Remove="Common\Attributes\**" />
     <None Remove="Common\Repository\**" />
+    <None Remove="General\Queries\**" />
     <None Remove="Programmes\Commands\**" />
     <None Remove="SchedulesDirect\NewFolder\**" />
+    <None Remove="StreamGroupChannelGroupLinks\**" />
     <None Remove="VideoStreamLinks\**" />
   </ItemGroup>
   <ItemGroup>
@@ -71,9 +77,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Common\Logging\" />
-    <Folder Include="General\Queries\" />
-    <Folder Include="StreamGroupChannelGroupLinks\Commands\" />
-    <Folder Include="StreamGroupChannelGroupLinks\Hub\" />
-    <Folder Include="StreamGroupChannelGroupLinks\Queries\" />
   </ItemGroup>
 </Project>

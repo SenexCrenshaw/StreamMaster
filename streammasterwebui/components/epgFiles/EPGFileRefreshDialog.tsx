@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-import { SMPopUp } from '@components/sm/SMPopUp';
+import SMPopUp from '@components/sm/SMPopUp';
 import { RefreshEPGFile } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
 import { EPGFileDto, RefreshEPGFileRequest } from '@lib/smAPI/smapiTypes';
 

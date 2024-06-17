@@ -1,12 +1,12 @@
 import SMLoader from '@components/loader/SMLoader';
 import { DataRefreshAll } from '@lib/smAPI/DataRefreshAll';
 
-import { SettingDto } from '@lib/smAPI/smapiTypes';
-import { BlockUI } from 'primereact/blockui';
-import React, { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 import { Logger } from '@lib/common/logger';
 import { GetIsSystemReady } from '@lib/smAPI/Settings/SettingsCommands';
 import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
+import { SettingDto } from '@lib/smAPI/smapiTypes';
+import { BlockUI } from 'primereact/blockui';
+import React, { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 
 interface SMContextState {
   isSystemReady: boolean;
@@ -34,9 +34,9 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
 
   const value = {
     isSystemReady: isSystemReady && settingsQuery.data !== undefined,
+    setSettings,
     setSystemReady,
-    settings,
-    setSettings
+    settings
   };
 
   useEffect(() => {
@@ -62,10 +62,17 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
 
   return (
     <SMContext.Provider value={value}>
-      {!value.isSystemReady && <SMLoader />}
-      <BlockUI blocked={!value.isSystemReady}>{children}</BlockUI>
+      {value.isSystemReady && <SMLoader />}
+      <BlockUI blocked={value.isSystemReady}>{children}</BlockUI>
     </SMContext.Provider>
   );
+
+  // return (
+  //   <SMContext.Provider value={value}>
+  //     {!value.isSystemReady && <SMLoader />}
+  //     <BlockUI blocked={!value.isSystemReady}>{children}</BlockUI>
+  //   </SMContext.Provider>
+  // );
 };
 
 export const useSMContext = (): SMContextState => {

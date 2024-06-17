@@ -23,5 +23,6 @@ public interface ISettingHub
 public interface ISettingTasks
 {
     ValueTask SetIsSystemReady(bool isSystemReady, CancellationToken cancellationToken = default);
+    ValueTask SetTestTask(int DelayInSeconds, CancellationToken cancellationToken = default);
 
 }

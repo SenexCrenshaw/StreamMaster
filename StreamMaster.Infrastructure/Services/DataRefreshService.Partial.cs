@@ -72,4 +72,24 @@ public partial class DataRefreshService : IDataRefreshServicePartial
         await hub.Clients.All.SetField(fieldData);
     }
 
+    public async Task SendSMTasks(List<SMTask> smTasks)
+    {
+        //if (!BuildInfo.SetIsSystemReady)
+        //{
+        //    return;
+        //}
+
+        await hub.Clients.All.SendSMTasks(smTasks);
+    }
+
+    public async Task SendMessage(SMMessage smMessage)
+    {
+        if (!BuildInfo.SetIsSystemReady)
+        {
+            return;
+        }
+
+        await hub.Clients.All.SendMessage(smMessage);
+    }
+
 }

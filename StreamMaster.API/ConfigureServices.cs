@@ -15,8 +15,6 @@ using NSwag.Generation.Processors.Security;
 using Prometheus;
 
 using StreamMaster.API.Services;
-using StreamMaster.Application.Common.Interfaces;
-using StreamMaster.Application.Hubs;
 using StreamMaster.Application.Services;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Logging;
@@ -128,7 +126,7 @@ public static class ConfigureServices
         services.AddSingleton<IBackgroundTaskQueue>(x =>
        {
            int queueCapacity = 100;
-           return new BackgroundTaskQueue(queueCapacity, x.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>(), x.GetRequiredService<ILogger<BackgroundTaskQueue>>(), x.GetRequiredService<ISender>());
+           return new BackgroundTaskQueue(queueCapacity, x.GetRequiredService<ILogger<BackgroundTaskQueue>>(), x.GetRequiredService<ISender>(), x.GetRequiredService<IDataRefreshService>());
        });
 
         services.AddOpenApiDocument(configure =>

@@ -13,8 +13,6 @@ export interface DataTableHeaderProperties {
 }
 
 interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
-  addOrRemoveHeaderTemplate?: () => ReactNode;
-  addOrRemoveTemplate?: (data: T) => ReactNode;
   className?: string;
   columns: ColumnMeta[];
   defaultSortField?: string;
@@ -24,28 +22,31 @@ interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
   enableExport?: boolean;
   enableHeaderWrap?: boolean;
   enablePaginator?: boolean;
-  expanderHeader?: () => ReactNode;
   extraColumns?: Column[];
   headerClassName?: string;
   headerName?: string;
+  headerSize?: 'small' | 'medium' | 'large';
   id: string;
   isLoading?: boolean;
   lazy?: boolean;
+  noIsLoading?: boolean;
   noSourceHeader?: boolean;
   reorderable?: boolean;
-  rowClass?: (data: DataTableRowData<any>) => string;
-  rowExpansionTemplate?: (data: DataTableRowData<T | any>, options: DataTableRowExpansionTemplate) => React.ReactNode;
   rows?: number;
-  selectRow?: boolean;
   selectedItemsKey?: string;
+  selectRow?: boolean;
   showExpand?: boolean;
-  showSelections?: boolean;
   showHiddenInSelection?: boolean;
+  showSelections?: boolean;
   style?: CSSProperties;
-  headerSize?: 'small' | 'medium' | 'large';
   useSelectedItemsFilter?: boolean;
   onRowReorder?: (value: T[]) => void;
   onSelectionChange?: (value: T[], selectAll: boolean) => void;
+  rowClass?: (data: DataTableRowData<any>) => string;
+  rowExpansionTemplate?: (data: DataTableRowData<T | any>, options: DataTableRowExpansionTemplate) => React.ReactNode;
+  addOrRemoveHeaderTemplate?: () => ReactNode;
+  addOrRemoveTemplate?: (data: T) => ReactNode;
+  expanderHeader?: () => ReactNode;
   onClick?: MouseEventHandler<T> | undefined;
   onMultiSelectClick?: (value: boolean) => void;
   onRowClick?(event: DataTableRowClickEvent): void;

@@ -22,6 +22,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         await RefreshSMChannels(true);
         await RefreshSMChannelStreamLinks(true);
         await RefreshSMStreams(true);
+        await RefreshSMTasks(true);
         await RefreshStreamGroups(true);
         await RefreshStreamGroupSMChannelLinks(true);
     }
@@ -145,6 +146,17 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         }
 
         await hub.Clients.All.DataRefresh("GetPagedSMStreams");
+    }
+
+    public async Task RefreshSMTasks(bool alwaysRun = false)
+    {
+
+        if (!alwaysRun && !BuildInfo.SetIsSystemReady)
+        {
+            return;
+        }
+
+        await hub.Clients.All.DataRefresh("GetSMTasks");
     }
 
     public async Task RefreshStreamGroups(bool alwaysRun = false)
