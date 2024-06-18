@@ -5,7 +5,7 @@ import { Logger } from '@lib/common/logger';
 import { AddFileProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
 import { AddFileProfileRequest, FileOutputProfileDto, M3UOutputProfile, ValidM3USetting } from '@lib/smAPI/smapiTypes';
 import { useCallback, useRef, useState } from 'react';
-import FileProfileDropDown from './columns/FileProfileDropDown';
+import FileProfileValueDropDown from './columns/FileProfileValueDropDown';
 
 const CreateFileProfileDialog = () => {
   const defaultValues = {
@@ -40,8 +40,6 @@ const CreateFileProfileDialog = () => {
   const dropdownClass = 'sm-w-9rem';
 
   const save = useCallback(() => {
-    Logger.debug('CreateFileProfileDialog', { name, fileProfile });
-
     const fileOutputProfileDto = {
       M3UOutputProfile: fileProfile,
       Name: name
@@ -57,6 +55,7 @@ const CreateFileProfileDialog = () => {
         Logger.error('CreateFileProfileDialog', { error });
       })
       .finally(() => {
+        setName('');
         smPopUpRef.current?.hide();
       });
   }, [fileProfile, name]);
@@ -99,7 +98,8 @@ const CreateFileProfileDialog = () => {
                 />
               </div>
               <div className={dropdownClass}>
-                <FileProfileDropDown
+                <FileProfileValueDropDown
+                  darkBackGround
                   header="TVG Name"
                   label="TVG Name"
                   value={fileProfile.TVGName}
@@ -109,7 +109,8 @@ const CreateFileProfileDialog = () => {
                 />
               </div>
               <div className={dropdownClass}>
-                <FileProfileDropDown
+                <FileProfileValueDropDown
+                  darkBackGround
                   header="Channel Id"
                   label="Channel Id"
                   value={fileProfile.ChannelId}
@@ -119,7 +120,8 @@ const CreateFileProfileDialog = () => {
                 />
               </div>
               <div className={dropdownClass}>
-                <FileProfileDropDown
+                <FileProfileValueDropDown
+                  darkBackGround
                   header="Channel #"
                   label="Channel #"
                   value={fileProfile.ChannelNumber}
@@ -129,7 +131,8 @@ const CreateFileProfileDialog = () => {
                 />
               </div>
               <div className={dropdownClass}>
-                <FileProfileDropDown
+                <FileProfileValueDropDown
+                  darkBackGround
                   header="TVG Id"
                   label="TVG Id"
                   value={fileProfile.TVGId}

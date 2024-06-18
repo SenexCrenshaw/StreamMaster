@@ -4,6 +4,7 @@ namespace StreamMaster.Domain.Repository
 {
     public interface IRepositoryWrapper
     {
+        IStreamGroupProfileRepository StreamGroupProfile { get; }
         IStreamGroupSMChannelLinkRepository StreamGroupSMChannelLink { get; }
         ISMChannelsRepository SMChannel { get; }
         ISMStreamRepository SMStream { get; }

@@ -195,6 +195,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
         await hub.Clients.All.DataRefresh("GetPagedStreamGroups");
         await hub.Clients.All.DataRefresh("GetStreamGroup");
+        await hub.Clients.All.DataRefresh("GetStreamGroupProfiles");
         await hub.Clients.All.DataRefresh("GetStreamGroups");
     }
 

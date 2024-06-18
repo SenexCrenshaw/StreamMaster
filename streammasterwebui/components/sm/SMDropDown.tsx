@@ -1,4 +1,3 @@
-import { Logger } from '@lib/common/logger';
 import { ReactNode, forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
 import SMOverlay, { SMOverlayRef } from './SMOverlay';
 import SMScroller from './SMScroller';
@@ -62,7 +61,7 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
       [autoPlacement, getDiv, isLoading, props, zIndex]
     );
 
-    Logger.debug('SMDropDown', { value: props.value, label: props.label });
+    // Logger.debug('SMDropDown', { value: props.value, label: props.label });
     const spreadProps = props as Required<SMDropDownProperties>;
     return (
       <>

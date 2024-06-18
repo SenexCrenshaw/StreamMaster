@@ -1,10 +1,9 @@
-﻿using Reinforced.Typings.Attributes;
-
-namespace StreamMaster.Domain.Dto;
+﻿namespace StreamMaster.Domain.Dto;
 
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class StreamGroupDto : IMapFrom<StreamGroup>
 {
+    public List<StreamGroupProfile> StreamGroupProfiles { get; set; } = [];
     public string FFMPEGProfileId { get; set; } = string.Empty;
     public bool IsLoading { get; set; } = false;
     public string HDHRLink { get; set; } = string.Empty;

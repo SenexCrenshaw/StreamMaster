@@ -85,12 +85,10 @@ const StreamGroupVideoProfileDataSelector = () => {
   }, []);
 
   const update = useCallback((request: UpdateVideoProfileRequest) => {
-    console.log('update', request);
-
     UpdateVideoProfile(request)
       .then((res) => {})
       .catch((error) => {
-        console.log('error', error);
+        console.error('error', error);
       })
       .finally();
   }, []);

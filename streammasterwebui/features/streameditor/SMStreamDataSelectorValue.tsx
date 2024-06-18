@@ -21,7 +21,7 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
       <div className="flex align-content-center justify-content-end">
         <SMButton
           icon="pi-minus"
-          className="w-2rem border-noround icon-red"
+          buttonClassName="w-2rem border-noround icon-red"
           iconFilled={false}
           onClick={() => {
             if (!smStream.Id || smChannel === undefined) {

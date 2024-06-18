@@ -7,16 +7,18 @@ import { SelectItem } from 'primereact/selectitem';
 
 import { ReactNode, useCallback, useMemo } from 'react';
 
-interface FileProfileDropDownProps {
+interface FileProfileValueDropDownProps {
+  readonly darkBackGround?: boolean;
   readonly header: string;
   readonly name?: string;
-  readonly field: string;
+  readonly field?: string;
   readonly label?: string;
   readonly labelInline?: boolean;
   readonly value: string;
+  onChange?: (value: SelectItem) => void;
 }
 
-const FileProfileDropDown = ({ ...props }: FileProfileDropDownProps) => {
+const FileProfileValueDropDown = ({ ...props }: FileProfileValueDropDownProps) => {
   const update = useCallback((request: UpdateFileProfileRequest) => {
     Logger.debug('FileProfileDropDown', request);
 
@@ -29,12 +31,16 @@ const FileProfileDropDown = ({ ...props }: FileProfileDropDownProps) => {
   }, []);
 
   const onChange = (value: SelectItem) => {
-    if (props.name) {
+    if (props.name && props.field) {
       const m3uOutputProfile = {} as M3UOutputProfileRequest;
       m3uOutputProfile[props.field as keyof M3UOutputProfileRequest] = value.label ?? ('' as M3UOutputProfile[T]);
       const ret = { M3UOutputProfile: m3uOutputProfile, Name: props.name } as UpdateFileProfileRequest;
+
       update(ret);
+      return;
     }
+
+    props.onChange?.(value);
   };
 
   const getHandlersOptions = useMemo((): SelectItem[] => {
@@ -55,17 +61,16 @@ const FileProfileDropDown = ({ ...props }: FileProfileDropDownProps) => {
   const buttonTemplate = useMemo((): ReactNode => {
     return (
       <div className="sm-epg-selector">
-        <div className="text-container" style={{ paddingLeft: '0.12rem' }}>
+        <div className="text-container " style={{ paddingLeft: '0.12rem' }}>
           {props.value}
         </div>
       </div>
     );
   }, [props.value]);
-  const test = getEnumValueByKey(ValidM3USetting, props.value as keyof typeof ValidM3USetting);
-  Logger.debug('test', test);
+
   return (
     <SMDropDown
-      // buttonDarkBackground
+      buttonDarkBackground={props.darkBackGround}
       buttonTemplate={buttonTemplate}
       contentWidthSize="2"
       data={getHandlersOptions}
@@ -82,4 +87,4 @@ const FileProfileDropDown = ({ ...props }: FileProfileDropDownProps) => {
   );
 };
 
-export default FileProfileDropDown;
+export default FileProfileValueDropDown;

@@ -28,7 +28,7 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
         return tracking ? RepositoryContext.Set<T>() : RepositoryContext.Set<T>().AsNoTracking();
     }
 
-    public IQueryable<T> GetQuery(QueryStringParameters parameters, bool tracking = false)
+    public virtual IQueryable<T> GetQuery(QueryStringParameters parameters, bool tracking = false)
     {
         // If there are no filters or order specified, just return all entities.
         if (string.IsNullOrEmpty(parameters.JSONFiltersString) && string.IsNullOrEmpty(parameters.OrderBy))

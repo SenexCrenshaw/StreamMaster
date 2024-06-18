@@ -41,10 +41,11 @@ const StreamGroupButton = ({ className = 'sm-w-10rem sm-input-dark' }: StreamGro
         <SMPopUp
           buttonClassName="sm-w-4rem icon-sg"
           buttonLabel="SG"
-          contentWidthSize="4"
+          contentWidthSize="5"
           header={headerTemplate}
           icon="pi-list-check"
           iconFilled
+          showRemember={false}
           hasCloseButton={false}
           title="Profiles"
         >

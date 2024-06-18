@@ -13,6 +13,7 @@ export interface DataTableHeaderProperties {
 }
 
 interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
+  actionHeaderTemplate?: ReactNode;
   className?: string;
   columns: ColumnMeta[];
   defaultSortField?: string;

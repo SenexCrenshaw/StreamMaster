@@ -1,9 +1,14 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,CreateStreamGroupRequest,DeleteStreamGroupRequest,StreamGroupDto,GetStreamGroupRequest,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
+import { APIResponse,AddProfileToStreamGroupRequest,CreateStreamGroupRequest,DeleteStreamGroupRequest,RemoveStreamGroupProfileRequest,UpdateStreamGroupProfileRequest,StreamGroupDto,StreamGroupProfile,GetStreamGroupRequest,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const GetPagedStreamGroups = async (parameters: QueryStringParameters): Promise<PagedResponse<StreamGroupDto> | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<PagedResponse<StreamGroupDto>>('GetPagedStreamGroups', parameters);
+};
+
+export const GetStreamGroupProfiles = async (): Promise<StreamGroupProfile[] | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<StreamGroupProfile[]>('GetStreamGroupProfiles');
 };
 
 export const GetStreamGroup = async (request: GetStreamGroupRequest): Promise<StreamGroupDto | undefined> => {
@@ -16,6 +21,11 @@ export const GetStreamGroups = async (): Promise<StreamGroupDto[] | undefined> =
   return await signalRService.invokeHubCommand<StreamGroupDto[]>('GetStreamGroups');
 };
 
+export const AddProfileToStreamGroup = async (request: AddProfileToStreamGroupRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('AddProfileToStreamGroup', request);
+};
+
 export const CreateStreamGroup = async (request: CreateStreamGroupRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('CreateStreamGroup', request);
@@ -24,5 +34,15 @@ export const CreateStreamGroup = async (request: CreateStreamGroupRequest): Prom
 export const DeleteStreamGroup = async (request: DeleteStreamGroupRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('DeleteStreamGroup', request);
+};
+
+export const RemoveStreamGroupProfile = async (request: RemoveStreamGroupProfileRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('RemoveStreamGroupProfile', request);
+};
+
+export const UpdateStreamGroupProfile = async (request: UpdateStreamGroupProfileRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('UpdateStreamGroupProfile', request);
 };
 

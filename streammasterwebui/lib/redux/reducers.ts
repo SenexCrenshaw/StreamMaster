@@ -25,6 +25,7 @@ import GetSMChannelStreamsReducer from '@lib/smAPI/SMChannelStreamLinks/GetSMCha
 import GetSMTasksReducer from '@lib/smAPI/SMTasks/GetSMTasksSlice';
 import GetStationChannelNamesReducer from '@lib/smAPI/SchedulesDirect/GetStationChannelNamesSlice';
 import GetStreamGroupReducer from '@lib/smAPI/StreamGroups/GetStreamGroupSlice';
+import GetStreamGroupProfilesReducer from '@lib/smAPI/StreamGroups/GetStreamGroupProfilesSlice';
 import GetStreamGroupsReducer from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice';
 import GetStreamGroupSMChannelsReducer from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
 import GetSystemStatusReducer from '@lib/smAPI/General/GetSystemStatusSlice';
@@ -142,6 +143,7 @@ export const rootReducer = combineReducers({
   GetSMTasks: GetSMTasksReducer,
   GetStationChannelNames: GetStationChannelNamesReducer,
   GetStreamGroup: GetStreamGroupReducer,
+  GetStreamGroupProfiles: GetStreamGroupProfilesReducer,
   GetStreamGroups: GetStreamGroupsReducer,
   GetStreamGroupSMChannels: GetStreamGroupSMChannelsReducer,
   GetSystemStatus: GetSystemStatusReducer,

@@ -414,6 +414,10 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       }
 
       if (col.fieldType === 'actions') {
+        if (props.actionHeaderTemplate) {
+          return props.actionHeaderTemplate;
+        }
+
         let selectedCols = [] as ColumnMeta[];
 
         let cols = props.columns.filter((col) => col.removable === true); //.map((col) => col.field);
@@ -440,13 +444,13 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
               useOptionAsValue
             />
           );
-        } else {
-          return (
-            <div className={`flex ${justify} align-items-center align-content-center input-height-with-no-borders`}>
-              <div className={cl}>{header}</div>
-            </div>
-          );
         }
+
+        return (
+          <div className={`flex ${justify} align-items-center align-content-center input-height-with-no-borders`}>
+            <div className={cl}>{header}</div>
+          </div>
+        );
       }
 
       return (
@@ -457,7 +461,17 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         </div>
       );
     },
-    [props.columns, props.headerSize, props.enableHeaderWrap, getFilterElement, sortButton, state.visibleColumns, visibleColumnsTemplate, onColumnToggle]
+    [
+      props.columns,
+      props.headerSize,
+      props.enableHeaderWrap,
+      props.actionHeaderTemplate,
+      getFilterElement,
+      sortButton,
+      state.visibleColumns,
+      visibleColumnsTemplate,
+      onColumnToggle
+    ]
   );
 
   const showSelection = useMemo(() => {

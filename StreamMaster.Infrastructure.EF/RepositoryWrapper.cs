@@ -17,6 +17,7 @@ namespace StreamMaster.Infrastructure.EF
         ILogger<M3UFileRepository> M3UFileRepositoryLogger,
         ILogger<EPGFileRepository> EPGFileRepositoryLogger,
         ILogger<SMChannelsRepository> SMChannelLogger,
+        ILogger<StreamGroupProfileRepository> StreamGroupProfileRepositoryLogger,
         ILogger<SMStreamRepository> SMStreamLogger,
         ILogger<SMChannelStreamLinksRepository> SMChannelStreamLinkLogger,
         ILogger<StreamGroupSMChannelLinkRepository> StreamGroupSMChannelLinkRepositoryLogger,
@@ -31,6 +32,16 @@ namespace StreamMaster.Infrastructure.EF
         IDataRefreshService dataRefreshService,
         IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
     {
+
+        private IStreamGroupProfileRepository _streamGroupProfileRepository;
+        public IStreamGroupProfileRepository StreamGroupProfile
+        {
+            get
+            {
+                _streamGroupProfileRepository ??= new StreamGroupProfileRepository(StreamGroupProfileRepositoryLogger, repositoryContext, intSettings);
+                return _streamGroupProfileRepository;
+            }
+        }
 
         private IStreamGroupSMChannelLinkRepository _streamGroupSMChannelLinkRepository;
         public IStreamGroupSMChannelLinkRepository StreamGroupSMChannelLink

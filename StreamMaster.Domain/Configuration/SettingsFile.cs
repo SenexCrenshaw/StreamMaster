@@ -78,7 +78,7 @@ public static class SettingFiles
                  }
              },
             {
-                 "MPEGTS",
+                 "Default",
                  new VideoOutputProfile
                  { IsReadOnly=true,
                      Command="ffmpeg",

@@ -97,6 +97,14 @@ export interface StationIdLineup
 	Lineup: string;
 	StationId: string;
 }
+export interface StreamGroupProfile
+{
+	FileProfileName: string;
+	Id: number;
+	Name: string;
+	StreamGroupId: number;
+	VideoProfileName: string;
+}
 export interface StreamGroupSMChannelLink
 {
 	IsReadOnly: boolean;
@@ -291,6 +299,7 @@ export interface StreamGroupDto
 	ShortEPGLink: string;
 	ShortM3ULink: string;
 	StreamCount: number;
+	StreamGroupProfiles: StreamGroupProfile[];
 	XMLLink: string;
 }
 export interface HLSSettings
@@ -412,12 +421,22 @@ export interface GetPagedStreamGroupsRequest
 {
 	Parameters: QueryStringParameters;
 }
+export interface GetStreamGroupProfilesRequest
+{
+}
 export interface GetStreamGroupRequest
 {
 	SGName: string;
 }
 export interface GetStreamGroupsRequest
 {
+}
+export interface AddProfileToStreamGroupRequest
+{
+	FileProfileName: string;
+	Name: string;
+	StreamGroupId: number;
+	VideoProfileName: string;
 }
 export interface CreateStreamGroupRequest
 {
@@ -426,6 +445,19 @@ export interface CreateStreamGroupRequest
 export interface DeleteStreamGroupRequest
 {
 	Id: number;
+}
+export interface RemoveStreamGroupProfileRequest
+{
+	Name: string;
+	StreamGroupId: number;
+}
+export interface UpdateStreamGroupProfileRequest
+{
+	FileProfileName?: string;
+	Name: string;
+	NewName: string;
+	StreamGroupId: number;
+	VideoProfileName?: string;
 }
 export interface GetStreamGroupSMChannelsRequest
 {

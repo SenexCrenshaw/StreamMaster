@@ -2,8 +2,6 @@
 
 using MessagePack;
 
-using Reinforced.Typings.Attributes;
-
 using System.Text.Json.Serialization;
 namespace StreamMaster.Domain.Models;
 

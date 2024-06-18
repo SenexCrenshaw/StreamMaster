@@ -26,6 +26,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
     public async Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(QueryStringParameters Parameters)
     {
         IQueryable<StreamGroup> query = GetQuery(Parameters);
+
         PagedResponse<StreamGroupDto> ret = await query.GetPagedResponseAsync<StreamGroup, StreamGroupDto>(Parameters.PageNumber, Parameters.PageSize, mapper)
                           .ConfigureAwait(false);
 
@@ -162,10 +163,10 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
             streamGroup.Name = request.Name;
         }
 
-        if (request.StreamGroupProfiles != null)
-        {
-            streamGroup.StreamGroupProfiles = request.StreamGroupProfiles;
-        }
+        //if (request.StreamGroupProfiles != null)
+        //{
+        //    streamGroup.StreamGroupProfiles = request.StreamGroupProfiles;
+        //}
 
         if (request.AutoSetChannelNumbers != null)
         {
@@ -261,7 +262,19 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
     public override IQueryable<StreamGroup> GetQuery(bool tracking = false)
     {
         return tracking
-            ? base.GetQuery(tracking).Include(a => a.SMChannels).ThenInclude(a => a.SMChannel)
-            : base.GetQuery(tracking).Include(a => a.SMChannels).ThenInclude(a => a.SMChannel).AsNoTracking();
+            ? base.GetQuery(tracking).Include(a => a.SMChannels).ThenInclude(a => a.SMChannel).Include(a => a.StreamGroupProfiles)
+            : base.GetQuery(tracking).Include(a => a.SMChannels).ThenInclude(a => a.SMChannel).Include(a => a.StreamGroupProfiles).AsNoTracking();
+    }
+
+    public override IQueryable<StreamGroup> GetQuery(QueryStringParameters parameters, bool tracking = false)
+    {
+        // If there are no filters or order specified, just return all entities.
+        if (string.IsNullOrEmpty(parameters.JSONFiltersString) && string.IsNullOrEmpty(parameters.OrderBy))
+        {
+            return GetQuery(tracking);
+        }
+
+        List<DataTableFilterMetaData> filters = Utils.GetFiltersFromJSON(parameters.JSONFiltersString);
+        return GetQuery(filters, parameters.OrderBy, tracking: tracking);
     }
 }
