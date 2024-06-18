@@ -24,6 +24,16 @@ export const updateFieldInData = (response: any[] | undefined, fieldData: FieldD
       }
     }
 
+    if (dto.ProfileName !== undefined) {
+      const name = dto.ProfileName.toString();
+      if (name === fieldData.Id) {
+        return {
+          ...dto,
+          [fieldData.Field]: fieldData.Value
+        };
+      }
+    }
+
     return dto;
   });
 };

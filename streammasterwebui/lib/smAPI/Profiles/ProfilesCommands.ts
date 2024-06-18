@@ -1,5 +1,10 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,AddOutputProfileRequest,AddVideoProfileRequest,RemoveOutputProfileRequest,RemoveVideoProfileRequest,UpdateOutputProfileRequest,UpdateVideoProfileRequest,OutputProfileDto,VideoOutputProfileDto } from '@lib/smAPI/smapiTypes';
+import { APIResponse,AddOutputProfileRequest,AddVideoProfileRequest,RemoveOutputProfileRequest,RemoveVideoProfileRequest,UpdateOutputProfileRequest,UpdateVideoProfileRequest,OutputProfileDto,VideoOutputProfileDto,GetOutputProfileRequest } from '@lib/smAPI/smapiTypes';
+
+export const GetOutputProfile = async (request: GetOutputProfileRequest): Promise<OutputProfileDto | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<OutputProfileDto>('GetOutputProfile', request);
+};
 
 export const GetOutputProfiles = async (): Promise<OutputProfileDto[] | undefined> => {
   const signalRService = SignalRService.getInstance();

@@ -1,13 +1,13 @@
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { UpdateVideoProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
-import { UpdateVideoProfileRequest, VideoOutputProfileDto } from '@lib/smAPI/smapiTypes';
+import { UpdateOutputProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
+import { OutputProfileDto, UpdateOutputProfileRequest } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
 import { useCallback } from 'react';
 import { OutputProfileColumnConfigProps } from './useOutputProfileColumnConfig';
 
-export const useVideoIsM3U8ColumnConfig = (props?: OutputProfileColumnConfigProps) => {
-  const update = useCallback((request: UpdateVideoProfileRequest) => {
-    UpdateVideoProfile(request)
+export const useOutputProfileIconColumnConfig = (props?: OutputProfileColumnConfigProps) => {
+  const update = useCallback((request: UpdateOutputProfileRequest) => {
+    UpdateOutputProfile(request)
       .then((res) => {})
       .catch((error) => {
         console.log('error', error);
@@ -16,13 +16,13 @@ export const useVideoIsM3U8ColumnConfig = (props?: OutputProfileColumnConfigProp
   }, []);
 
   const bodyTemplate = useCallback(
-    (videoOutputProfileDto: VideoOutputProfileDto) => {
+    (outputProfileDto: OutputProfileDto) => {
       return (
         <div className="flex w-full justify-content-center align-content-center">
           <Checkbox
-            checked={videoOutputProfileDto.IsM3U8}
+            checked={outputProfileDto.EnableIcon}
             onChange={(e) => {
-              const outputProfile = { IsM3U8: e.checked, ProfileName: videoOutputProfileDto.ProfileName } as UpdateVideoProfileRequest;
+              const outputProfile = { EnableIcon: e.checked, ProfileName: outputProfileDto.ProfileName } as UpdateOutputProfileRequest;
               update(outputProfile);
             }}
           />
@@ -35,8 +35,8 @@ export const useVideoIsM3U8ColumnConfig = (props?: OutputProfileColumnConfigProp
   const columnConfig: ColumnMeta = {
     align: 'left',
     bodyTemplate: bodyTemplate,
-    field: 'IsM3U8',
-    header: 'Is M3U8',
+    field: 'EnableIcon',
+    header: 'Icon',
     width: 30
   };
 

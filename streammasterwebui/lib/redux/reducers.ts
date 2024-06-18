@@ -11,6 +11,7 @@ import GetIconsReducer from '@lib/smAPI/Icons/GetIconsSlice';
 import GetIsSystemReadyReducer from '@lib/smAPI/General/GetIsSystemReadySlice';
 import GetM3UFileNamesReducer from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
 import GetM3UFilesReducer from '@lib/smAPI/M3UFiles/GetM3UFilesSlice';
+import GetOutputProfileReducer from '@lib/smAPI/Profiles/GetOutputProfileSlice';
 import GetOutputProfilesReducer from '@lib/smAPI/Profiles/GetOutputProfilesSlice';
 import GetPagedChannelGroupsReducer from '@lib/smAPI/ChannelGroups/GetPagedChannelGroupsSlice';
 import GetPagedEPGFilesReducer from '@lib/smAPI/EPGFiles/GetPagedEPGFilesSlice';
@@ -129,6 +130,7 @@ export const rootReducer = combineReducers({
   GetIsSystemReady: GetIsSystemReadyReducer,
   GetM3UFileNames: GetM3UFileNamesReducer,
   GetM3UFiles: GetM3UFilesReducer,
+  GetOutputProfile: GetOutputProfileReducer,
   GetOutputProfiles: GetOutputProfilesReducer,
   GetPagedChannelGroups: GetPagedChannelGroupsReducer,
   GetPagedEPGFiles: GetPagedEPGFilesReducer,

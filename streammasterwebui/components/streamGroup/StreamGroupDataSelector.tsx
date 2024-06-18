@@ -49,35 +49,31 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
         field: 'Name',
         filter: true,
         sortable: true,
-        width: 150
+        width: 141
       },
       {
-        align: 'right',
-        field: 'StreamCount',
-        header: '#',
-        width: 40
-      },
-      {
-        field: 'Url',
+        align: 'center',
+        field: 'HDHRLink',
         fieldType: 'url',
-        width: 100
+        width: 20
       },
       {
-        field: 'epglink',
+        align: 'center',
+        field: 'XMLLink',
         fieldType: 'epglink',
-        width: 40
+        width: 30
       },
       {
         field: 'm3ulink',
         fieldType: 'm3ulink',
-        width: 40
+        width: 30
       },
       {
         align: 'center',
         bodyTemplate: actionTemplate,
         field: 'autoUpdate',
         header: 'Actions',
-        width: 40
+        width: 39
       }
     ],
     [actionTemplate]

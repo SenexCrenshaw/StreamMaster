@@ -14,18 +14,24 @@ internal class GetOutputProfilesRequestHandler(IOptionsMonitor<OutputProfiles> i
 
         foreach (string key in intprofilesettings.CurrentValue.OutProfiles.Keys)
         {
-            ret.Add(new OutputProfileDto
+            if (intprofilesettings.CurrentValue.OutProfiles.TryGetValue(key, out var profile))
             {
-                Name = key,
-                IsReadOnly = intprofilesettings.CurrentValue.OutProfiles[key].IsReadOnly,
-                EnableIcon = intprofilesettings.CurrentValue.OutProfiles[key].EnableIcon,
-                TVGName = intprofilesettings.CurrentValue.OutProfiles[key].TVGName,
-                ChannelId = intprofilesettings.CurrentValue.OutProfiles[key].ChannelId,
-                TVGId = intprofilesettings.CurrentValue.OutProfiles[key].TVGId,
-                TVGGroup = intprofilesettings.CurrentValue.OutProfiles[key].TVGGroup,
-                ChannelNumber = intprofilesettings.CurrentValue.OutProfiles[key].ChannelNumber,
-                GroupTitle = intprofilesettings.CurrentValue.OutProfiles[key].GroupTitle,
-            });
+                ret.Add(new OutputProfileDto
+                {
+                    ProfileName = key,
+                    IsReadOnly = profile.IsReadOnly,
+                    EnableIcon = profile.EnableIcon,
+                    EnableId = profile.EnableId,
+                    EnableGroupTitle = profile.EnableGroupTitle,
+                    EnableChannelNumber = profile.EnableChannelNumber,
+                    Name = profile.Name,
+                    EPGId = profile.EPGId,
+                    Group = profile.Group,
+                    //ChannelNumber = profile.ChannelNumber,
+                });
+            }
+
+
         }
 
         return DataResponse<List<OutputProfileDto>>.Success(ret);

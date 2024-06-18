@@ -10,6 +10,7 @@ import { DataTableRowClickEvent } from 'primereact/datatable';
 import { memo, useCallback, useMemo } from 'react';
 import CreateVideoProfileDialog from './CreateVideoProfileDialog';
 import RemoveVideoProfileDialog from './RemoveVideoProfileDialog';
+
 import { useVideoIsM3U8ColumnConfig } from './columns/useVideoIsM3U8ColumnConfig';
 import { useVideoProfileCommandColumnConfig } from './columns/useVideoProfileCommandColumnConfig';
 import { useVideoProfileParametersColumnConfig } from './columns/useVideoProfileParametersColumnConfig';
@@ -88,15 +89,15 @@ const StreamGroupVideoProfileDataSelector = () => {
 
   const nameTemplate = useCallback(
     (rowData: VideoOutputProfileDto) => {
-      if (rowData.Name.toLowerCase() === 'default') {
-        return <div className="text-container pl-1">{rowData.Name}</div>;
+      if (rowData.ProfileName.toLowerCase() === 'default') {
+        return <div className="text-container pl-1">{rowData.ProfileName}</div>;
       }
       return (
         <StringEditor
-          value={rowData.Name}
+          value={rowData.ProfileName}
           onSave={(e) => {
             if (e !== undefined) {
-              const ret = { Name: rowData.Name, NewName: e } as UpdateVideoProfileRequest;
+              const ret = { Name: rowData.ProfileName, NewName: e } as UpdateVideoProfileRequest;
               update(ret);
             }
           }}
@@ -110,9 +111,8 @@ const StreamGroupVideoProfileDataSelector = () => {
     (): ColumnMeta[] => [
       {
         bodyTemplate: nameTemplate,
-        field: 'Name',
+        field: 'ProfileName',
         filter: true,
-
         sortable: true,
         width: 40
       },

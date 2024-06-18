@@ -19,12 +19,13 @@ public static class SettingFiles
                     IsReadOnly=true,
 
                         EnableIcon=true,
-                        TVGName=ValidM3USetting.Name.ToString(),
-                        ChannelId=ValidM3USetting.Id.ToString(),
-                        ChannelNumber=ValidM3USetting.ChannelNumber.ToString(),
-                        TVGId=ValidM3USetting.EPGID.ToString(),
-                        TVGGroup=ValidM3USetting.Group.ToString(),
-                        GroupTitle=ValidM3USetting.Group.ToString(),
+                        EnableId=true,
+                        EnableGroupTitle=true,
+                        EnableChannelNumber =true,
+
+                        Name=ValidM3USetting.Name.ToString(),
+                        Group=ValidM3USetting.Group.ToString(),
+                        EPGId=ValidM3USetting.EPGId.ToString(),
                  }
             },
 
@@ -32,13 +33,15 @@ public static class SettingFiles
                 "PLEX",
                  new OutputProfile
                  {
-                     EnableIcon=true,
-                        TVGName=ValidM3USetting.Name.ToString(),
-                        ChannelId=ValidM3USetting.Id.ToString(),
-                        ChannelNumber=ValidM3USetting.ChannelNumber.ToString(),
-                        TVGId=ValidM3USetting.EPGID.ToString(),
-                        TVGGroup=ValidM3USetting.Group.ToString(),
-                        GroupTitle=ValidM3USetting.Group.ToString(),
+                      EnableIcon=true,
+                        EnableId=true,
+                        EnableGroupTitle=true,
+                         EnableChannelNumber =true,
+
+                        Name=ValidM3USetting.Name.ToString(),
+                        EPGId=ValidM3USetting.EPGId.ToString(),
+                        Group=ValidM3USetting.Group.ToString(),
+
                  }
             },
 

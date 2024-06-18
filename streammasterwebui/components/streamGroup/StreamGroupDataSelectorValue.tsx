@@ -70,7 +70,8 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
           value={rowData.OutputProfileName}
           onChange={(e) => {
             if (e !== undefined) {
-              const ret = { Name: rowData.Name, OutputProfileName: e.Name } as UpdateStreamGroupProfileRequest;
+              const profileName = e.ProfileName;
+              const ret = { Name: rowData.Name, OutputProfileName: profileName } as UpdateStreamGroupProfileRequest;
               update(ret);
             }
           }}
@@ -99,16 +100,32 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { bodyTemplate: nameTemplate, field: 'Name', sortable: false, width: '4rem' },
-      { bodyTemplate: fileProfileTemplate, field: 'OutputProfileName', sortable: false, width: '4rem' },
-      { bodyTemplate: videoProfileTemplate, field: 'VideoProfileName', sortable: false, width: '4rem' },
+      { bodyTemplate: nameTemplate, field: 'Name', sortable: false, width: 54 },
+      { bodyTemplate: fileProfileTemplate, field: 'OutputProfileName', header: 'Output', sortable: false, width: 50 },
+      { bodyTemplate: videoProfileTemplate, field: 'VideoProfileName', header: 'Video', sortable: false, width: 50 },
+      {
+        align: 'center',
+        field: 'HDHRLink',
+        fieldType: 'url',
+        width: 20
+      },
+      {
+        field: 'epglink',
+        fieldType: 'epglink',
+        width: 30
+      },
+      {
+        field: 'm3ulink',
+        fieldType: 'm3ulink',
+        width: 30
+      },
       {
         align: 'right',
         bodyTemplate: actionTemplate,
         field: '',
         fieldType: 'actions',
         header: 'Actions',
-        width: '2rem'
+        width: 36
       }
     ],
     [actionTemplate, fileProfileTemplate, nameTemplate, videoProfileTemplate]

@@ -1,27 +1,27 @@
 export interface OutputProfile
 {
 	APIName: string;
-	ChannelId: string;
-	ChannelNumber: string;
+	EnableChannelNumber: boolean;
+	EnableGroupTitle: boolean;
 	EnableIcon: boolean;
-	GroupTitle: string;
+	EnableId: boolean;
+	EPGId: string;
+	Group: string;
 	IsReadOnly: boolean;
-	TVGGroup: string;
-	TVGId: string;
-	TVGName: string;
+	Name: string;
 }
 export interface OutputProfileDto
 {
 	APIName: string;
-	ChannelId: string;
-	ChannelNumber: string;
+	EnableChannelNumber: boolean;
+	EnableGroupTitle: boolean;
 	EnableIcon: boolean;
-	GroupTitle: string;
+	EnableId: boolean;
+	EPGId: string;
+	Group: string;
 	IsReadOnly: boolean;
 	Name: string;
-	TVGGroup: string;
-	TVGId: string;
-	TVGName: string;
+	ProfileName: string;
 }
 export interface VideoOutputProfile
 {
@@ -36,8 +36,8 @@ export interface VideoOutputProfileDto
 	Command: string;
 	IsM3U8: boolean;
 	IsReadOnly: boolean;
-	Name: string;
 	Parameters: string;
+	ProfileName: string;
 	Timeout: number;
 }
 export interface QueryStringParameters
@@ -762,6 +762,10 @@ export interface RemoveStation
 {
 	Requests: StationRequest[];
 }
+export interface GetOutputProfileRequest
+{
+	OutputProfileName: string;
+}
 export interface GetOutputProfilesRequest
 {
 }
@@ -790,23 +794,23 @@ export interface RemoveVideoProfileRequest
 }
 export interface UpdateOutputProfileRequest
 {
-	ChannelId?: string;
-	ChannelNumber?: string;
+	EnableChannelNumber?: boolean;
+	EnableGroupTitle?: boolean;
 	EnableIcon?: boolean;
-	GroupTitle?: string;
-	Name: string;
+	EnableId?: boolean;
+	EPGId?: string;
+	Group?: string;
+	Name?: string;
 	NewName?: string;
-	TVGGroup?: string;
-	TVGId?: string;
-	TVGName?: string;
+	ProfileName: string;
 }
 export interface UpdateVideoProfileRequest
 {
 	Command?: string;
 	IsM3U8?: boolean;
-	Name: string;
 	NewName?: string;
 	Parameters?: string;
+	ProfileName: string;
 	Timeout?: number;
 }
 export interface GetM3UFileNamesRequest
@@ -1011,10 +1015,9 @@ export enum StreamingProxyTypes {
 }
 export enum ValidM3USetting {
 	NotMapped = 0,
-	Id = 1,
 	Name = 2,
 	Group = 3,
-	EPGID = 4,
+	EPGId = 4,
 	ChannelNumber = 5
 }
 export enum VideoStreamHandlers {

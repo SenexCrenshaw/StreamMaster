@@ -9,6 +9,7 @@ import { setIsForced as GetIconsSetIsForced } from '@lib/smAPI/Icons/GetIconsSli
 import { setIsForced as GetIsSystemReadySetIsForced } from '@lib/smAPI/General/GetIsSystemReadySlice';
 import { setIsForced as GetM3UFileNamesSetIsForced } from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
 import { setIsForced as GetM3UFilesSetIsForced } from '@lib/smAPI/M3UFiles/GetM3UFilesSlice';
+import { setIsForced as GetOutputProfileSetIsForced } from '@lib/smAPI/Profiles/GetOutputProfileSlice';
 import { setIsForced as GetOutputProfilesSetIsForced } from '@lib/smAPI/Profiles/GetOutputProfilesSlice';
 import { setIsForced as GetPagedChannelGroupsSetIsForced } from '@lib/smAPI/ChannelGroups/GetPagedChannelGroupsSlice';
 import { setIsForced as GetPagedEPGFilesSetIsForced } from '@lib/smAPI/EPGFiles/GetPagedEPGFilesSlice';
@@ -41,6 +42,7 @@ export const DataRefreshAll = () => {
   store.dispatch(GetIsSystemReadySetIsForced({ force: true }));
   store.dispatch(GetM3UFileNamesSetIsForced({ force: true }));
   store.dispatch(GetM3UFilesSetIsForced({ force: true }));
+  store.dispatch(GetOutputProfileSetIsForced({ force: true }));
   store.dispatch(GetOutputProfilesSetIsForced({ force: true }));
   store.dispatch(GetPagedChannelGroupsSetIsForced({ force: true }));
   store.dispatch(GetPagedEPGFilesSetIsForced({ force: true }));

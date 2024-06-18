@@ -16,7 +16,7 @@ internal class GetVideoProfilesRequestHandler(IOptionsMonitor<VideoOutputProfile
         {
             ret.Add(new VideoOutputProfileDto
             {
-                Name = key,
+                ProfileName = key,
                 IsReadOnly = intprofilesettings.CurrentValue.VideoProfiles[key].IsReadOnly,
                 Parameters = intprofilesettings.CurrentValue.VideoProfiles[key].Parameters,
                 Timeout = intprofilesettings.CurrentValue.VideoProfiles[key].Timeout,

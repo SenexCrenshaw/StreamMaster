@@ -113,6 +113,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
             return;
         }
 
+        await hub.Clients.All.DataRefresh("GetOutputProfile");
         await hub.Clients.All.DataRefresh("GetOutputProfiles");
         await hub.Clients.All.DataRefresh("GetVideoProfiles");
     }

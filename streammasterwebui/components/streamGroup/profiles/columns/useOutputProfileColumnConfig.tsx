@@ -31,7 +31,7 @@ export const useOutputProfileColumnConfig = ({ field, header, width = 80 }: IntO
       // }
 
       Logger.debug('value', key, value, field);
-      return <FileProfileValueDropDown header={header} value={value} field={field} name={fileOutputProfile.Name} />;
+      return <FileProfileValueDropDown header={header} value={value} field={field} name={fileOutputProfile.ProfileName} />;
     },
     [field, header]
   );

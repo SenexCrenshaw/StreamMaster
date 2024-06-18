@@ -19,6 +19,7 @@ export const StreamGroupProfileButton = () => {
       iconFilled
       info=""
       modalCentered
+      showRemember={false}
       title="PROFILES"
     >
       <StreamGroupOutputProfileDataSelector />

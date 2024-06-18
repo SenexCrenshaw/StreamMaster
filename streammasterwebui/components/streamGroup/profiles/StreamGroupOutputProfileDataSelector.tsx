@@ -12,12 +12,13 @@ import { DataTableRowClickEvent } from 'primereact/datatable';
 import { memo, useCallback, useMemo } from 'react';
 import CreateFileProfileDialog from './CreateFileProfileDialog';
 import RemoveOutputProfileDialog from './RemoveOutputProfileDialog';
-import { useOutputProfileChannelIdColumnConfig } from './columns/useOutputProfileChannelIdColumnConfig';
 import { useOutputProfileChannelNumberColumnConfig } from './columns/useOutputProfileChannelNumberColumnConfig';
+import { useOutputProfileEPGIdColumnConfig } from './columns/useOutputProfileEPGIdColumnConfig';
+import { useOutputProfileGroupColumnConfig } from './columns/useOutputProfileGroupColumnConfig';
 import { useOutputProfileGroupTitleColumnConfig } from './columns/useOutputProfileGroupTitleColumnConfig';
-import { useOutputProfileTVGGroupColumnConfig } from './columns/useOutputProfileTVGGroupColumnConfig';
-import { useOutputProfileTVGIdColumnConfig } from './columns/useOutputProfileTVGIdColumnConfig';
-import { useOutputProfileTVGNameColumnConfig } from './columns/useOutputProfileTVGNameColumnConfig';
+import { useOutputProfileIconColumnConfig } from './columns/useOutputProfileIconColumnConfig';
+import { useOutputProfileIdColumnConfig } from './columns/useOutputProfileIdColumnConfig';
+import { useOutputProfileNameColumnConfig } from './columns/useOutputProfileNameColumnConfig';
 
 const StreamGroupOutputProfileDataSelector = () => {
   const id = 'StreamGroupOutputProfileDataSelector';
@@ -25,12 +26,14 @@ const StreamGroupOutputProfileDataSelector = () => {
   const { sortInfo } = useSortInfo(id);
   const { data } = useGetOutputProfiles();
 
-  const tvgNameColumnConfig = useOutputProfileTVGNameColumnConfig({ width: 40 });
-  const channelIdColumnConfig = useOutputProfileChannelIdColumnConfig({ width: 40 });
-  const tvgGroupColumnConfig = useOutputProfileTVGGroupColumnConfig({ width: 40 });
-  const tvgIDColumnConfig = useOutputProfileTVGIdColumnConfig({ width: 40 });
+  const nameColumnConfig = useOutputProfileNameColumnConfig({ width: 40 });
+
+  const groupColumnConfig = useOutputProfileGroupColumnConfig({ width: 40 });
+  const iDColumnConfig = useOutputProfileIdColumnConfig({ width: 40 });
   const groupTitleColumnConfig = useOutputProfileGroupTitleColumnConfig({ width: 40 });
   const channelNumberColumnConfig = useOutputProfileChannelNumberColumnConfig({ width: 40 });
+  const epgIdColumnConfig = useOutputProfileEPGIdColumnConfig({ width: 40 });
+  const iconColumnConfig = useOutputProfileIconColumnConfig({ width: 40 });
 
   const filteredValues = useMemo(() => {
     if (!data) {
@@ -97,15 +100,15 @@ const StreamGroupOutputProfileDataSelector = () => {
 
   const nameTemplate = useCallback(
     (rowData: OutputProfileDto) => {
-      if (rowData.IsReadOnly === true || rowData.Name.toLowerCase() === 'default') {
-        return <div className="text-container pl-1">{rowData.Name}</div>;
+      if (rowData.IsReadOnly === true || rowData.ProfileName.toLowerCase() === 'default') {
+        return <div className="text-container pl-1">{rowData.ProfileName}</div>;
       }
       return (
         <StringEditor
-          value={rowData.Name}
+          value={rowData.ProfileName}
           onSave={(e) => {
             if (e !== undefined) {
-              const ret = { Name: rowData.Name, NewName: e } as UpdateOutputProfileRequest;
+              const ret = { Name: rowData.ProfileName, NewName: e } as UpdateOutputProfileRequest;
               update(ret);
             }
           }}
@@ -119,17 +122,19 @@ const StreamGroupOutputProfileDataSelector = () => {
     (): ColumnMeta[] => [
       {
         bodyTemplate: nameTemplate,
-        field: 'Name',
+        field: 'ProfileName',
         filter: true,
         sortable: true,
         width: 40
       },
-      tvgNameColumnConfig,
-      channelIdColumnConfig,
+      nameColumnConfig,
+      epgIdColumnConfig,
+      groupColumnConfig,
+      iDColumnConfig,
       channelNumberColumnConfig,
-      tvgIDColumnConfig,
-      tvgGroupColumnConfig,
       groupTitleColumnConfig,
+      iconColumnConfig,
+
       {
         align: 'center',
         bodyTemplate: actionTemplate,
@@ -141,12 +146,13 @@ const StreamGroupOutputProfileDataSelector = () => {
     ],
     [
       nameTemplate,
-      tvgNameColumnConfig,
-      channelIdColumnConfig,
+      nameColumnConfig,
+      epgIdColumnConfig,
+      groupColumnConfig,
+      iDColumnConfig,
       channelNumberColumnConfig,
-      tvgIDColumnConfig,
-      tvgGroupColumnConfig,
       groupTitleColumnConfig,
+      iconColumnConfig,
       actionTemplate
     ]
   );

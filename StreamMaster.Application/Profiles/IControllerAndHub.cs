@@ -6,6 +6,7 @@ namespace StreamMaster.Application.Profiles
 {
     public interface IProfilesController
     {        
+        Task<ActionResult<OutputProfileDto>> GetOutputProfile(GetOutputProfileRequest request);
         Task<ActionResult<List<OutputProfileDto>>> GetOutputProfiles();
         Task<ActionResult<List<VideoOutputProfileDto>>> GetVideoProfiles();
         Task<ActionResult<APIResponse>> AddOutputProfile(AddOutputProfileRequest request);
@@ -21,6 +22,7 @@ namespace StreamMaster.Application.Hubs
 {
     public interface IProfilesHub
     {
+        Task<OutputProfileDto> GetOutputProfile(GetOutputProfileRequest request);
         Task<List<OutputProfileDto>> GetOutputProfiles();
         Task<List<VideoOutputProfileDto>> GetVideoProfiles();
         Task<APIResponse> AddOutputProfile(AddOutputProfileRequest request);

@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-
 using StreamMaster.Application.SchedulesDirect.Queries;
 
-namespace StreamMaster.Application.SchedulesDirect
+namespace StreamMaster.Application.SchedulesDirect.Controllers
 {
     public partial class SchedulesDirectController(ILogger<SchedulesDirectController> _logger) : ApiControllerBase, ISchedulesDirectController
-    {
+    {        
 
         [HttpGet]
         [Route("[action]")]
@@ -13,8 +12,8 @@ namespace StreamMaster.Application.SchedulesDirect
         {
             try
             {
-                DataResponse<List<StationChannelName>> ret = await Sender.Send(new GetStationChannelNamesRequest()).ConfigureAwait(false);
-                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStationChannelNames.", statusCode: 500) : Ok(ret.Data);
+            DataResponse<List<StationChannelName>> ret = await Sender.Send(new GetStationChannelNamesRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStationChannelNames.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -32,7 +31,7 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<StationChannelName>> GetStationChannelNames()
         {
-            DataResponse<List<StationChannelName>> ret = await Sender.Send(new GetStationChannelNamesRequest()).ConfigureAwait(false);
+             DataResponse<List<StationChannelName>> ret = await Sender.Send(new GetStationChannelNamesRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 

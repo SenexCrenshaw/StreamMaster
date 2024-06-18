@@ -19,25 +19,25 @@ const VideoProfileDropDown = ({ buttonDarkBackground = false, onChange, value }:
       return undefined;
     }
 
-    const ret = data.find((x) => x.Name === value);
+    const ret = data.find((x) => x.ProfileName === value);
     Logger.debug('VideoProfileDropDown', data, value, ret);
 
-    return data.find((x) => x.Name === value);
+    return data.find((x) => x.ProfileName === value);
   }, [data, value]);
 
   const itemTemplate = useCallback((option: VideoOutputProfileDto): JSX.Element => {
-    return <div className="text-xs text-container">{option?.Name ?? ''}</div>;
+    return <div className="text-xs text-container">{option?.ProfileName ?? ''}</div>;
   }, []);
 
   const buttonTemplate = useMemo((): ReactNode => {
     return (
       <div className="sm-epg-selector">
         <div className="text-container" style={{ paddingLeft: '0.12rem' }}>
-          {selectedVideoProfile?.Name ?? ''}
+          {selectedVideoProfile?.ProfileName ?? ''}
         </div>
       </div>
     );
-  }, [selectedVideoProfile?.Name]);
+  }, [selectedVideoProfile?.ProfileName]);
 
   return (
     <SMDropDown

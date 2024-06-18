@@ -3,7 +3,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record UpdateOutputProfileRequest(string Name, string? NewName) : OutputProfileRequest, IRequest<APIResponse> { }
+public record UpdateOutputProfileRequest(string ProfileName, string? NewName) : OutputProfileRequest, IRequest<APIResponse> { }
 
 public class UpdateFileProfileRequestHandler(
     ILogger<UpdateOutputProfileRequest> Logger,
@@ -17,109 +17,99 @@ public class UpdateFileProfileRequestHandler(
 
     public async Task<APIResponse> Handle(UpdateOutputProfileRequest request, CancellationToken cancellationToken)
     {
-        if (!profilesettings.OutProfiles.ContainsKey(request.Name))
+        if (!profilesettings.OutProfiles.ContainsKey(request.ProfileName))
         {
             return APIResponse.Ok;
         }
 
-        if (request.NewName != null && request.NewName.Equals("default", StringComparison.OrdinalIgnoreCase))
+        if (request.NewName != null)
         {
-            return APIResponse.ErrorWithMessage("Cannot use name default");
+            if (request.NewName.Equals("default", StringComparison.OrdinalIgnoreCase))
+            {
+                return APIResponse.ErrorWithMessage("Cannot use name default");
+            }
+            if (request.ProfileName != null && request.ProfileName.Equals("default", StringComparison.OrdinalIgnoreCase))
+            {
+                return APIResponse.ErrorWithMessage("Cannot use name default");
+            }
+
         }
 
         List<FieldData> fields = new();
         OutputProfile? existingProfile = null;
 
-        if (!profilesettings.OutProfiles.TryGetValue(request.Name, out existingProfile))
+        if (!profilesettings.OutProfiles.TryGetValue(request.ProfileName, out existingProfile))
         {
             existingProfile = new OutputProfile();
         }
 
-        if (!string.IsNullOrEmpty(request.TVGName) && request.TVGName != existingProfile.TVGName)
+        if (!string.IsNullOrEmpty(request.Name) && request.Name != existingProfile.Name)
         {
-            existingProfile.TVGName = request.TVGName;
-            fields.Add(new FieldData(OutputProfile.APIName, request.Name, "TVGName", request.TVGName));
+            existingProfile.Name = request.Name;
+            fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "Name", request.Name));
         }
 
-        if (!string.IsNullOrEmpty(request.ChannelId) && request.ChannelId != existingProfile.ChannelId)
+        if (!string.IsNullOrEmpty(request.EPGId) && request.EPGId != existingProfile.EPGId)
         {
-            existingProfile.ChannelId = request.ChannelId;
-            fields.Add(new FieldData(OutputProfile.APIName, request.Name, "ChannelId", request.ChannelId));
+            existingProfile.EPGId = request.EPGId;
+            fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "EPGId", request.EPGId));
         }
 
-        if (!string.IsNullOrEmpty(request.TVGId) && request.TVGId != existingProfile.TVGId)
+        if (!string.IsNullOrEmpty(request.Group) && request.Group != existingProfile.Group)
         {
-            existingProfile.TVGId = request.TVGId;
-            fields.Add(new FieldData(OutputProfile.APIName, request.Name, "TVGId", request.TVGId));
+            existingProfile.Group = request.Group;
+            fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "Group", request.Group));
         }
 
-        if (!string.IsNullOrEmpty(request.TVGGroup) && request.TVGGroup != existingProfile.TVGGroup)
+        if (request.EnableChannelNumber.HasValue)
         {
-            existingProfile.TVGGroup = request.TVGGroup;
-            fields.Add(new FieldData(OutputProfile.APIName, request.Name, "TVGGroup", request.TVGGroup));
+            existingProfile.EnableChannelNumber = request.EnableChannelNumber.Value;
+            fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "EnableChannelNumber", request.EnableChannelNumber.Value));
         }
 
-        if (!string.IsNullOrEmpty(request.ChannelNumber) && request.ChannelNumber != existingProfile.ChannelNumber)
+
+        if (request.EnableGroupTitle.HasValue)
         {
-            existingProfile.ChannelNumber = request.ChannelNumber;
-            fields.Add(new FieldData(OutputProfile.APIName, request.Name, "ChannelNumber", request.ChannelNumber));
+            existingProfile.EnableGroupTitle = request.EnableGroupTitle.Value;
+            fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "EnableGroupTitle", request.EnableGroupTitle.Value));
         }
 
-        if (!string.IsNullOrEmpty(request.GroupTitle) && request.ChannelId != existingProfile.GroupTitle)
+        if (request.EnableId.HasValue)
         {
-            existingProfile.GroupTitle = request.GroupTitle;
-            fields.Add(new FieldData(OutputProfile.APIName, request.Name, "GroupTitle", request.GroupTitle));
+            existingProfile.EnableId = request.EnableId.Value;
+            fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "EnableId", request.EnableId.Value));
         }
 
         if (request.EnableIcon.HasValue)
         {
             existingProfile.EnableIcon = request.EnableIcon.Value;
+            fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "EnableIcon", request.EnableIcon.Value));
         }
 
-
-        if (!string.IsNullOrEmpty(request.NewName) && request.Name != request.NewName)
+        bool nameChanged = false;
+        if (!string.IsNullOrEmpty(request.NewName) && request.ProfileName != request.NewName)
         {
-            profilesettings.OutProfiles.Remove(request.Name);
+            nameChanged = true;
+            profilesettings.OutProfiles.Remove(request.ProfileName);
             profilesettings.OutProfiles.Add(request.NewName, existingProfile);
-            fields.Add(new FieldData(OutputProfile.APIName, request.Name, "Name", request.NewName));
-            await repositoryWrapper.SaveAsync();
         }
 
-        await repositoryWrapper.SaveAsync();
         SettingsHelper.UpdateSetting(profilesettings);
-        if (fields.Count > 0)
+        if (nameChanged)
         {
-            await dataRefreshService.SetField(fields);
+            await dataRefreshService.RefreshOutputProfiles();
+        }
+        else
+        {
+            if (fields.Count > 0)
+            {
+                await dataRefreshService.SetField(fields);
+            }
         }
         Logger.LogInformation("UpdateFileProfileRequest");
 
         //await dataRefreshService.RefreshOutProfiles();
         return APIResponse.Ok;
     }
-
-    //public static void UpdateM3UOutputProfile(M3UOutputProfile existingProfile, M3UOutputProfileRequest requestProfile)
-    //{
-    //    // Only update if the request profile's property is not empty or default
-    //    if (!string.IsNullOrEmpty(requestProfile.TVGName))
-    //        existingProfile.TVGName = requestProfile.TVGName;
-
-    //    if (!string.IsNullOrEmpty(requestProfile.ChannelId))
-    //        existingProfile.ChannelId = requestProfile.ChannelId;
-
-    //    if (!string.IsNullOrEmpty(requestProfile.TVGId))
-    //        existingProfile.TVGId = requestProfile.TVGId;
-
-    //    if (!string.IsNullOrEmpty(requestProfile.TVGGroup))
-    //        existingProfile.TVGGroup = requestProfile.TVGGroup;
-
-    //    if (!string.IsNullOrEmpty(requestProfile.ChannelNumber))
-    //        existingProfile.ChannelNumber = requestProfile.ChannelNumber;
-
-    //    if (!string.IsNullOrEmpty(requestProfile.GroupTitle))
-    //        existingProfile.GroupTitle = requestProfile.GroupTitle;
-
-    //    if (requestProfile.EnableIcon.HasValue)
-    //        existingProfile.EnableIcon = requestProfile.EnableIcon.Value;
-    //}
 
 }

@@ -79,7 +79,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             //        SMChannelId = videoStream.SMChannelId,
             //        StationId = videoStream.StationId,
             //        Group = videoStream.Tvg_group,
-            //        EPGID = videoStream.Tvg_ID,
+            //        EPGId = videoStream.Tvg_ID,
             //        Logo = videoStream.Tvg_logo,
             //        Name = videoStream.Tvg_name,
             //        Url = videoStream.Url

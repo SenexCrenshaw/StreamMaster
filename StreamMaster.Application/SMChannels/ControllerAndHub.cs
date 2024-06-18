@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
-
 using StreamMaster.Application.SMChannels.Commands;
 using StreamMaster.Application.SMChannels.Queries;
 
-namespace StreamMaster.Application.SMChannels
+namespace StreamMaster.Application.SMChannels.Controllers
 {
     public partial class SMChannelsController(ILogger<SMChannelsController> _logger) : ApiControllerBase, ISMChannelsController
-    {
+    {        
 
         [HttpGet]
         [Route("[action]")]
@@ -22,8 +21,8 @@ namespace StreamMaster.Application.SMChannels
         {
             try
             {
-                DataResponse<List<string>> ret = await Sender.Send(new GetSMChannelNamesRequest()).ConfigureAwait(false);
-                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannelNames.", statusCode: 500) : Ok(ret.Data);
+            DataResponse<List<string>> ret = await Sender.Send(new GetSMChannelNamesRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannelNames.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -38,8 +37,8 @@ namespace StreamMaster.Application.SMChannels
         {
             try
             {
-                DataResponse<SMChannelDto> ret = await Sender.Send(request).ConfigureAwait(false);
-                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannel.", statusCode: 500) : Ok(ret.Data);
+            DataResponse<SMChannelDto> ret = await Sender.Send(request).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannel.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -247,13 +246,13 @@ namespace StreamMaster.Application.Hubs
 
         public async Task<List<string>> GetSMChannelNames()
         {
-            DataResponse<List<string>> ret = await Sender.Send(new GetSMChannelNamesRequest()).ConfigureAwait(false);
+             DataResponse<List<string>> ret = await Sender.Send(new GetSMChannelNamesRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<SMChannelDto> GetSMChannel(GetSMChannelRequest request)
         {
-            DataResponse<SMChannelDto> ret = await Sender.Send(request).ConfigureAwait(false);
+             DataResponse<SMChannelDto> ret = await Sender.Send(request).ConfigureAwait(false);
             return ret.Data;
         }
 

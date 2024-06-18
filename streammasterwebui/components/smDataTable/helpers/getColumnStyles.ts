@@ -43,9 +43,9 @@ export const getColumnStyles = (col: ColumnMeta): CSSProperties => {
   // Default style for specific field types
   const defaultWidth = 40;
 
-  if (col.fieldType === 'blank' || col.fieldType === 'm3ulink' || col.fieldType === 'epglink' || col.fieldType === 'url') {
-    return getStyle(defaultWidth);
-  }
+  // if (col.fieldType === 'blank' || col.fieldType === 'm3ulink' || col.fieldType === 'epglink' || col.fieldType === 'url') {
+  //   return getStyle(defaultWidth);
+  // }
 
   // Check if all width properties are undefined and apply default width if true
   if (col.width === undefined && col.minWidth === undefined && col.maxWidth === undefined) {

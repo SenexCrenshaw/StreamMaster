@@ -1,12 +1,12 @@
 import SMDropDown from '@components/sm/SMDropDown';
 import useGetOutputProfiles from '@lib/smAPI/Profiles/useGetOutputProfiles';
-import { OutputProfileDto, StreamGroupProfile } from '@lib/smAPI/smapiTypes';
+import { OutputProfileDto } from '@lib/smAPI/smapiTypes';
 
 import { ReactNode, useCallback, useMemo } from 'react';
 
 interface OutputProfileDropDownProps {
   readonly value: string;
-  readonly onChange: (value: StreamGroupProfile) => void;
+  readonly onChange: (value: OutputProfileDto) => void;
   readonly buttonDarkBackground?: boolean;
 }
 
@@ -18,22 +18,22 @@ const OutputProfileDropDown = ({ buttonDarkBackground = false, onChange, value }
       return undefined;
     }
 
-    return data.find((x) => x.Name === value);
+    return data.find((x) => x.ProfileName === value);
   }, [data, value]);
 
   const itemTemplate = useCallback((option: OutputProfileDto): JSX.Element => {
-    return <div className="text-xs text-container">{option?.Name ?? ''}</div>;
+    return <div className="text-xs text-container">{option?.ProfileName ?? ''}</div>;
   }, []);
 
   const buttonTemplate = useMemo((): ReactNode => {
     return (
       <div className="sm-epg-selector">
         <div className="text-container" style={{ paddingLeft: '0.12rem' }}>
-          {selectedFileProfile?.Name ?? ''}
+          {selectedFileProfile?.ProfileName ?? ''}
         </div>
       </div>
     );
-  }, [selectedFileProfile?.Name]);
+  }, [selectedFileProfile]);
 
   return (
     <SMDropDown

@@ -1,14 +1,14 @@
 import { StreamGroupDto } from '@lib/smAPI/smapiTypes';
 import { blankTemplate } from '../../dataSelector/blankTemplate';
 import { defaultTemplate } from '../../dataSelector/defaultTemplate';
-import { epgLinkTemplate } from '../../dataSelector/epgLinkTemplate';
 import { epgSourceTemplate } from '../../dataSelector/epgSourceTemplate';
 import getRecordString from '../../dataSelector/getRecordString';
 import { imageBodyTemplate } from '../../dataSelector/imageBodyTemplate';
 import { isHiddenTemplate } from '../../dataSelector/isHiddenTemplate';
-import { m3uLinkTemplate } from '../../dataSelector/m3uLinkTemplate';
 import { streamsBodyTemplate } from '../../dataSelector/streamsBodyTemplate';
-import { urlTemplate } from '../../dataSelector/urlTemplate';
+import { epgLinkTemplate } from '../hooks/epgLinkTemplate';
+import { m3uLinkTemplate } from '../hooks/m3uLinkTemplate';
+import { urlTemplate } from '../hooks/urlTemplate';
 import { ColumnFieldType } from '../types/smDataTableTypes';
 import getRecord from './getRecord';
 

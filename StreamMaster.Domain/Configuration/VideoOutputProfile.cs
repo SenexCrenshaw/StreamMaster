@@ -12,7 +12,7 @@ public class VideoOutputProfile
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class VideoOutputProfileDto : VideoOutputProfile
 {
-    public string Name { get; set; } = "";
+    public string ProfileName { get; set; } = "";
 }
 
 
