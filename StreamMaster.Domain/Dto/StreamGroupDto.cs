@@ -3,18 +3,12 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class StreamGroupDto : IMapFrom<StreamGroup>
 {
-    public List<StreamGroupProfile> StreamGroupProfiles { get; set; } = [];
-    public string FFMPEGProfileId { get; set; } = string.Empty;
+    public List<StreamGroupProfileDto> StreamGroupProfiles { get; set; } = [];
     public bool IsLoading { get; set; } = false;
-    public string HDHRLink { get; set; } = string.Empty;
     public bool IsReadOnly { get; set; } = false;
     public bool AutoSetChannelNumbers { get; set; } = false;
-    public int StreamCount { get; set; } = 0;
-
+    //public int StreamCount { get; set; } = 0;
     public int Id { get; set; }
-    public string M3ULink { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-    public string XMLLink { get; set; } = string.Empty;
-    public string ShortM3ULink { get; set; } = string.Empty;
-    public string ShortEPGLink { get; set; } = string.Empty;
+
 }

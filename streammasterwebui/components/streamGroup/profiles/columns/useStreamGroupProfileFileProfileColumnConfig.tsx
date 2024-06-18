@@ -1,7 +1,7 @@
-import { FileProfileColumnConfigProps } from './useFileProfileColumnConfig';
+import { FileProfileColumnConfigProps } from './useOutputProfileColumnConfig';
 import { useStreamGroupProfileColumnConfig } from './useStreamGroupProfileColumnConfig';
 
 export const useStreamGroupProfileFileProfileColumnConfig = (props?: FileProfileColumnConfigProps) => {
-  const columnConfig = useStreamGroupProfileColumnConfig({ ...props, field: 'FileProfileName', header: 'File Profile' });
+  const columnConfig = useStreamGroupProfileColumnConfig({ ...props, field: 'OutputProfileName', header: 'File Profile' });
   return columnConfig;
 };

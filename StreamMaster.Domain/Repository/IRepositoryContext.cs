@@ -22,6 +22,9 @@ public interface IRepositoryContext
     DbSet<M3UFile> M3UFiles { get; set; }
     DbSet<StreamGroupChannelGroup> StreamGroupChannelGroups { get; set; }
     DbSet<StreamGroupSMChannelLink> StreamGroupSMChannelLinks { get; set; }
+
+    DbSet<StreamGroupProfile> StreamGroupProfiles { get; set; }
+
     DbSet<StreamGroup> StreamGroups { get; set; }
     DbSet<SMStream> SMStreams { get; set; }
     DbSet<SMChannel> SMChannels { get; set; }

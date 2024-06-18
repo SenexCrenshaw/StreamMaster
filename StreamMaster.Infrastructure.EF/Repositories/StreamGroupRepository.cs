@@ -30,11 +30,12 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         PagedResponse<StreamGroupDto> ret = await query.GetPagedResponseAsync<StreamGroup, StreamGroupDto>(Parameters.PageNumber, Parameters.PageSize, mapper)
                           .ConfigureAwait(false);
 
-        await SetStreamGroupsLinks(ret.Data).ConfigureAwait(false);
+        SetStreamGroupsLinks(ret.Data);
         return ret;
     }
 
-    private async Task SetStreamGroupsLinks(List<StreamGroupDto> streamGroupDtos)
+
+    public void SetStreamGroupsLinks(List<StreamGroupDto> streamGroupDtos)
     {
         string Url = httpContextAccessor.GetUrl();
 
@@ -56,24 +57,26 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
     private void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url)
     {
 
-        int count = streamGroupDto.IsReadOnly
-            ? RepositoryContext.SMStreams.Count()
-            : RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.StreamGroupId == streamGroupDto.Id).Count();
-        string encodedStreamGroupNumber = streamGroupDto.Id.EncodeValue128(Settings.ServerKey);
+        //int count = streamGroupDto.IsReadOnly
+        //    ? RepositoryContext.SMStreams.Count()
+        //    : RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.StreamGroupId == streamGroupDto.Id).Count();
+        foreach (var sgprofile in streamGroupDto.StreamGroupProfiles)
+        {
+            //string encodedStreamGroupNumber = streamGroupDto.Id.EncodeValue128(Settings.ServerKey);
+            string encodedStreamGroupNumber = streamGroupDto.Id.EncodeValues128(sgprofile.Id, Settings.ServerKey);
 
-        string encodedName = HttpUtility.HtmlEncode(streamGroupDto.Name).Trim()
-                    .Replace("/", "")
-                    .Replace(" ", "_");
+            string encodedName = HttpUtility.HtmlEncode(streamGroupDto.Name).Trim()
+                        .Replace("/", "")
+                        .Replace(" ", "_");
 
-        streamGroupDto.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
-        streamGroupDto.ShortM3ULink = $"{Url}/v/s/{encodedName}.m3u";
-        streamGroupDto.ShortEPGLink = $"{Url}/v/s/{encodedName}.xml";
-        streamGroupDto.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
-        streamGroupDto.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
-        streamGroupDto.StreamCount = count;
+            sgprofile.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
+            sgprofile.ShortM3ULink = $"{Url}/v/s/{encodedName}.m3u";
+            sgprofile.ShortEPGLink = $"{Url}/v/s/{encodedName}.xml";
+            sgprofile.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
+            sgprofile.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
+        }
+        //streamGroupDto.StreamCount = count;
     }
-
-
 
     public async Task<StreamGroupDto?> GetStreamGroupById(int streamGroupId)
     {
@@ -113,11 +116,12 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
     public async Task<List<StreamGroupDto>> GetStreamGroups(CancellationToken cancellationToken)
     {
         List<StreamGroupDto> ret = await GetQuery()
+            .OrderBy(a => a.Name)
                    .ProjectTo<StreamGroupDto>(mapper.ConfigurationProvider)
                    .ToListAsync(cancellationToken: cancellationToken)
                    .ConfigureAwait(false);
 
-        await SetStreamGroupsLinks(ret).ConfigureAwait(false);
+        SetStreamGroupsLinks(ret);
         return ret;
     }
 
@@ -133,9 +137,11 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
         IQueryable<StreamGroupSMChannelLink> smChannels = RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.StreamGroupId == StreamGroupId);
 
+        var profiles = RepositoryContext.StreamGroupProfiles.Where(a => a.StreamGroupId == StreamGroupId);
 
         RepositoryContext.StreamGroupChannelGroups.RemoveRange(channelGroups);
         RepositoryContext.StreamGroupSMChannelLinks.RemoveRange(smChannels);
+        RepositoryContext.StreamGroupProfiles.RemoveRange(profiles);
         await RepositoryContext.SaveChangesAsync();
 
         StreamGroup? streamGroup = await FirstOrDefaultAsync(c => c.Id == StreamGroupId);

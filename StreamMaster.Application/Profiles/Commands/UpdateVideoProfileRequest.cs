@@ -25,6 +25,13 @@ public class UpdateVideoProfileRequestHandler(
         {
             return APIResponse.ErrorWithMessage($"VideoProfile '" + request.Name + "' doesnt exist"); ;
         }
+
+        if (request.NewName != null && request.NewName.Equals("default", StringComparison.OrdinalIgnoreCase))
+        {
+            return APIResponse.ErrorWithMessage("Cannot use name default");
+        }
+
+
         List<FieldData> fields = new();
 
         if (profilesettings.VideoProfiles.TryGetValue(request.Name, out VideoOutputProfile? existingProfile))

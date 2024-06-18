@@ -7,11 +7,11 @@ import GetEPGColorsReducer from '@lib/smAPI/EPG/GetEPGColorsSlice';
 import GetEPGFilePreviewByIdReducer from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
 import GetEPGFilesReducer from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
 import GetEPGNextEPGNumberReducer from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
-import GetFileProfilesReducer from '@lib/smAPI/Profiles/GetFileProfilesSlice';
 import GetIconsReducer from '@lib/smAPI/Icons/GetIconsSlice';
 import GetIsSystemReadyReducer from '@lib/smAPI/General/GetIsSystemReadySlice';
 import GetM3UFileNamesReducer from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
 import GetM3UFilesReducer from '@lib/smAPI/M3UFiles/GetM3UFilesSlice';
+import GetOutputProfilesReducer from '@lib/smAPI/Profiles/GetOutputProfilesSlice';
 import GetPagedChannelGroupsReducer from '@lib/smAPI/ChannelGroups/GetPagedChannelGroupsSlice';
 import GetPagedEPGFilesReducer from '@lib/smAPI/EPGFiles/GetPagedEPGFilesSlice';
 import GetPagedM3UFilesReducer from '@lib/smAPI/M3UFiles/GetPagedM3UFilesSlice';
@@ -125,11 +125,11 @@ export const rootReducer = combineReducers({
   GetEPGFilePreviewById: GetEPGFilePreviewByIdReducer,
   GetEPGFiles: GetEPGFilesReducer,
   GetEPGNextEPGNumber: GetEPGNextEPGNumberReducer,
-  GetFileProfiles: GetFileProfilesReducer,
   GetIcons: GetIconsReducer,
   GetIsSystemReady: GetIsSystemReadyReducer,
   GetM3UFileNames: GetM3UFileNamesReducer,
   GetM3UFiles: GetM3UFilesReducer,
+  GetOutputProfiles: GetOutputProfilesReducer,
   GetPagedChannelGroups: GetPagedChannelGroupsReducer,
   GetPagedEPGFiles: GetPagedEPGFilesReducer,
   GetPagedM3UFiles: GetPagedM3UFilesReducer,

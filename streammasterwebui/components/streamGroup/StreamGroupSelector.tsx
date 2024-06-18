@@ -42,6 +42,7 @@ export const StreamGroupSelector = ({ onChange, selectedStreamGroup }: StreamGro
       }}
       title="Stream Group"
       contentWidthSize="2"
+      value={selectedStreamGroup}
     />
   );
 };

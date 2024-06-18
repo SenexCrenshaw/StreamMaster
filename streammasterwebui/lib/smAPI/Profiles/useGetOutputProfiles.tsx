@@ -1,12 +1,12 @@
 import { QueryHookResult } from '@lib/apiDefs';
 import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
-import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetProfilesSlice';
+import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetOutputProfilesSlice';
 import { useCallback,useEffect } from 'react';
-import { fetchGetProfiles } from './GetProfilesFetch';
-import {FieldData, VideoOutputProfileDto } from '@lib/smAPI/smapiTypes';
+import { fetchGetOutputProfiles } from './GetOutputProfilesFetch';
+import {FieldData, OutputProfileDto } from '@lib/smAPI/smapiTypes';
 
-interface ExtendedQueryHookResult extends QueryHookResult<VideoOutputProfileDto[] | undefined> {}
+interface ExtendedQueryHookResult extends QueryHookResult<OutputProfileDto[] | undefined> {}
 interface Result extends ExtendedQueryHookResult {
   Clear: () => void;
   ClearByTag: (tag: string) => void;
@@ -14,9 +14,9 @@ interface Result extends ExtendedQueryHookResult {
   SetIsForced: (force: boolean) => void;
   SetIsLoading: (isLoading: boolean, query: string) => void;
 }
-const useGetProfiles = (): Result => {
+const useGetOutputProfiles = (): Result => {
   const dispatch = useAppDispatch();
-  const isForced = useAppSelector((state) => state.GetProfiles.isForced ?? false);
+  const isForced = useAppSelector((state) => state.GetOutputProfiles.isForced ?? false);
 
   const SetIsForced = useCallback(
     (forceRefresh: boolean): void => {
@@ -40,40 +40,40 @@ const SetIsLoading = useCallback(
   [dispatch]
 );
 const selectData = (state: RootState) => {
-    return state.GetProfiles.data;
+    return state.GetOutputProfiles.data;
   };
 const data = useAppSelector(selectData);
 
 const selectError = (state: RootState) => {
-    return state.GetProfiles.error;
+    return state.GetOutputProfiles.error;
   };
 const error = useAppSelector(selectError);
 
 const selectIsError = (state: RootState) => {
-    return state.GetProfiles.isError;
+    return state.GetOutputProfiles.isError;
   };
 const isError = useAppSelector(selectIsError);
 
 const selectIsLoading = (state: RootState) => {
-    return state.GetProfiles.isLoading;
+    return state.GetOutputProfiles.isLoading;
   };
 const isLoading = useAppSelector(selectIsLoading);
 
 
   useEffect(() => {
-    const state = store.getState().GetProfiles;
+    const state = store.getState().GetOutputProfiles;
     if (data === undefined && state.isLoading !== true && state.isForced !== true) {
       SetIsForced(true);
     }
   }, [SetIsForced, data]);
 
 useEffect(() => {
-  const state = store.getState().GetProfiles;
+  const state = store.getState().GetOutputProfiles;
   if (state.isLoading) return;
   if (data !== undefined && !isForced) return;
 
   SetIsLoading(true);
-  dispatch(fetchGetProfiles());
+  dispatch(fetchGetOutputProfiles());
 }, [SetIsLoading, data, dispatch, isForced]);
 
 const SetField = (fieldData: FieldData): void => {
@@ -97,4 +97,4 @@ return {
 };
 };
 
-export default useGetProfiles;
+export default useGetOutputProfiles;

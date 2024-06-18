@@ -1,21 +1,22 @@
 import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
 import { Logger } from '@lib/common/logger';
-import { RemoveFileProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
-import { FileOutputProfileDto, RemoveFileProfileRequest } from '@lib/smAPI/smapiTypes';
+import { RemoveOutputProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
+import { OutputProfileDto, RemoveOutputProfileRequest } from '@lib/smAPI/smapiTypes';
+
 import { useCallback, useRef } from 'react';
 
-interface RemoveFileProfileDialogProps {
-  fileOutputProfileDto: FileOutputProfileDto;
+interface RemoveOutputProfileDialogProps {
+  outputProfileDto: OutputProfileDto;
 }
 
-const RemoveFileProfileDialog = ({ ...props }: RemoveFileProfileDialogProps) => {
+const RemoveOutputProfileDialog = ({ ...props }: RemoveOutputProfileDialogProps) => {
   const smPopUpRef = useRef<SMPopUpRef>(null);
   const remove = useCallback(() => {
     const request = {
-      Name: props.fileOutputProfileDto.Name
-    } as RemoveFileProfileRequest;
+      Name: props.outputProfileDto.Name
+    } as RemoveOutputProfileRequest;
 
-    RemoveFileProfile(request)
+    RemoveOutputProfile(request)
       .then((response) => {})
       .catch((error) => {
         Logger.error('RemoveFileProfileDialog', { error });
@@ -28,7 +29,7 @@ const RemoveFileProfileDialog = ({ ...props }: RemoveFileProfileDialogProps) => 
   return (
     <SMPopUp
       contentWidthSize="2"
-      buttonDisabled={props.fileOutputProfileDto.IsReadOnly}
+      buttonDisabled={props.outputProfileDto.IsReadOnly}
       buttonClassName="icon-red"
       icon="pi-times"
       info=""
@@ -39,15 +40,15 @@ const RemoveFileProfileDialog = ({ ...props }: RemoveFileProfileDialogProps) => 
         remove();
       }}
       ref={smPopUpRef}
-      okButtonDisabled={!props.fileOutputProfileDto.Name}
+      okButtonDisabled={!props.outputProfileDto.Name}
       tooltip="Remove Profile"
       zIndex={10}
     >
       <div className="sm-center-stuff">
-        <div className="text-container"> {props.fileOutputProfileDto.Name}</div>
+        <div className="text-container"> {props.outputProfileDto.Name}</div>
       </div>
     </SMPopUp>
   );
 };
 
-export default RemoveFileProfileDialog;
+export default RemoveOutputProfileDialog;

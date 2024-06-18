@@ -1,17 +1,17 @@
 import SMDropDown from '@components/sm/SMDropDown';
-import useGetFileProfiles from '@lib/smAPI/Profiles/useGetFileProfiles';
-import { FileOutputProfileDto, StreamGroupProfile } from '@lib/smAPI/smapiTypes';
+import useGetOutputProfiles from '@lib/smAPI/Profiles/useGetOutputProfiles';
+import { OutputProfileDto, StreamGroupProfile } from '@lib/smAPI/smapiTypes';
 
 import { ReactNode, useCallback, useMemo } from 'react';
 
-interface FileProfileDropDownProps {
+interface OutputProfileDropDownProps {
   readonly value: string;
   readonly onChange: (value: StreamGroupProfile) => void;
   readonly buttonDarkBackground?: boolean;
 }
 
-const FileProfileDropDown = ({ buttonDarkBackground = false, onChange, value }: FileProfileDropDownProps) => {
-  const { data, isLoading } = useGetFileProfiles();
+const OutputProfileDropDown = ({ buttonDarkBackground = false, onChange, value }: OutputProfileDropDownProps) => {
+  const { data, isLoading } = useGetOutputProfiles();
 
   const selectedFileProfile = useMemo(() => {
     if (!data) {
@@ -21,7 +21,7 @@ const FileProfileDropDown = ({ buttonDarkBackground = false, onChange, value }: 
     return data.find((x) => x.Name === value);
   }, [data, value]);
 
-  const itemTemplate = useCallback((option: FileOutputProfileDto): JSX.Element => {
+  const itemTemplate = useCallback((option: OutputProfileDto): JSX.Element => {
     return <div className="text-xs text-container">{option?.Name ?? ''}</div>;
   }, []);
 
@@ -55,4 +55,4 @@ const FileProfileDropDown = ({ buttonDarkBackground = false, onChange, value }: 
   );
 };
 
-export default FileProfileDropDown;
+export default OutputProfileDropDown;

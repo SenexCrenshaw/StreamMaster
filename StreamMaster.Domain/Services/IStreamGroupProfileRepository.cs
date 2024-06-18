@@ -2,7 +2,8 @@
 {
     public interface IStreamGroupProfileRepository
     {
-        void DeleteStreamGroupProfile(StreamGroupProfile test);
+        StreamGroupProfile? GetStreamGroupProfile(int StreamGroupId, int StreamGroupProfileId);
+        void DeleteStreamGroupProfile(StreamGroupProfile StreamGroupProfile);
         List<StreamGroupProfile> GetStreamGroupProfiles();
         void Update(StreamGroupProfile streamGroupProfile);
     }

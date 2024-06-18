@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Application.Common.Extensions;
-using StreamMaster.Application.StreamGroups.QueriesOld;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Repository;
 using StreamMaster.Domain.Requests;
@@ -53,28 +52,28 @@ public class VController(IRepositoryWrapper Repository, ISender sender, IOptions
         return Redirect(videoUrl);
     }
 
-    [Authorize(Policy = "SGLinks")]
-    [HttpGet]
-    [Route("v/s/{streamGroupName}.m3u")]
+    //[Authorize(Policy = "SGLinks")]
+    //[HttpGet]
+    //[Route("v/s/{streamGroupName}.m3u")]
 
-    public async Task<IActionResult> GetStreamGroupM3U(string streamGroupName)
-    {
+    //public async Task<IActionResult> GetStreamGroupM3U(string streamGroupName)
+    //{
 
-        StreamGroupDto? sg = await GetStreamGroupDto(streamGroupName);
+    //    StreamGroupDto? sg = await GetStreamGroupDto(streamGroupName);
 
-        if (sg == null)
-        {
-            return new NotFoundResult();
-        }
+    //    if (sg == null)
+    //    {
+    //        return new NotFoundResult();
+    //    }
 
-        string encodedName = GetEncodedName(streamGroupName);
-        string data = await sender.Send(new GetStreamGroupM3U(sg.Id, true)).ConfigureAwait(false);
+    //    string encodedName = GetEncodedName(streamGroupName);
+    //    string data = await sender.Send(new GetStreamGroupM3U(sg.Id, sg.)).ConfigureAwait(false);
 
-        return new FileContentResult(Encoding.UTF8.GetBytes(data), "application/x-mpegURL")
-        {
-            FileDownloadName = $"m3u-{encodedName}.m3u"
-        };
-    }
+    //    return new FileContentResult(Encoding.UTF8.GetBytes(data), "application/x-mpegURL")
+    //    {
+    //        FileDownloadName = $"m3u-{encodedName}.m3u"
+    //    };
+    //}
 
     [Authorize(Policy = "SGLinks")]
     [HttpGet]

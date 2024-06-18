@@ -50,9 +50,9 @@ public static class SettingsHelper
         }
 
 
-        if (typeof(FileOutputProfiles).IsAssignableFrom(setting.GetType()))
+        if (typeof(OutputProfiles).IsAssignableFrom(setting.GetType()))
         {
-            fileName = BuildInfo.FileProfileSettingsFile;
+            fileName = BuildInfo.OutputProfileSettingsFile;
             dir = Path.GetDirectoryName(fileName);
         }
 

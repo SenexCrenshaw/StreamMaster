@@ -1,6 +1,6 @@
 import SMPopUp from '@components/sm/SMPopUp';
 import React, { useMemo } from 'react';
-import StreamGroupFileProfileDataSelector from './StreamGroupFileProfileDataSelector';
+import StreamGroupOutputProfileDataSelector from './StreamGroupOutputProfileDataSelector';
 import StreamGroupVideoProfileDataSelector from './StreamGroupVideoProfileDataSelector';
 
 export const StreamGroupProfileButton = () => {
@@ -21,7 +21,7 @@ export const StreamGroupProfileButton = () => {
       modalCentered
       title="PROFILES"
     >
-      <StreamGroupFileProfileDataSelector />
+      <StreamGroupOutputProfileDataSelector />
       <StreamGroupVideoProfileDataSelector />
     </SMPopUp>
   );

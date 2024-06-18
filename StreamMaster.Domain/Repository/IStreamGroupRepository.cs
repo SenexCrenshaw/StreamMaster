@@ -20,7 +20,7 @@ namespace StreamMaster.Domain.Repository
         Task<StreamGroupDto?> UpdateStreamGroup(UpdateStreamGroupRequest request);
         Task<int?> DeleteStreamGroup(int streamGroupId);
 
-        IQueryable<StreamGroup> GetStreamGroupQuery();
+        //IQueryable<StreamGroup> GetStreamGroupQuery();
         Task<IdIntResultWithResponse> AutoSetSMChannelNumbers(int streamGroupId, int startingNumber, bool overWriteExisting, QueryStringParameters Parameters);
 
     }

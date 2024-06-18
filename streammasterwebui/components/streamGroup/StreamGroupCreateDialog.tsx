@@ -1,6 +1,6 @@
-import SaveButton from '@components/buttons/SaveButton';
 import StringEditor from '@components/inputs/StringEditor';
-import SMDialog, { SMDialogRef } from '@components/sm/SMDialog';
+import { SMDialogRef } from '@components/sm/SMDialog';
+import SMPopUp from '@components/sm/SMPopUp';
 import { CreateStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
 import { CreateStreamGroupRequest } from '@lib/smAPI/smapiTypes';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
@@ -52,8 +52,20 @@ export const StreamGroupCreateDialog = ({ onHide, showButton }: StreamGroupCreat
   }, [name]);
 
   return (
-    <SMDialog widthSize={2} ref={smDialogRef} title="ADD SG" onHide={() => ReturnToParent()} buttonClassName="icon-green-filled" tooltip="Add SG">
-      <div className="w-12">
+    <SMPopUp
+      icon="pi-plus"
+      iconFilled
+      contentWidthSize="2"
+      title="ADD SG"
+      onOkClick={() => {
+        create();
+      }}
+      onCloseClick={() => ReturnToParent()}
+      okButtonDisabled={!isSaveEnabled}
+      buttonClassName="icon-green"
+      tooltip="Add SG"
+    >
+      <div className="sm-w-10rem">
         <StringEditor
           disableDebounce
           darkBackGround
@@ -63,7 +75,7 @@ export const StreamGroupCreateDialog = ({ onHide, showButton }: StreamGroupCreat
           onSave={() => create()}
           onChange={(e) => e !== undefined && setName(e)}
         />
-        <div className="layout-padding-bottom-lg" />
+        {/* <div className="layout-padding-bottom-lg" />
         <div className="flex w-12 justify-content-end align-content-center">
           <SaveButton
             buttonDisabled={!isSaveEnabled}
@@ -72,10 +84,10 @@ export const StreamGroupCreateDialog = ({ onHide, showButton }: StreamGroupCreat
               create();
             }}
           />
-        </div>
+        </div> */}
         <div className="layout-padding-bottom-lg" />
       </div>
-    </SMDialog>
+    </SMPopUp>
   );
 };
 StreamGroupCreateDialog.displayName = 'StreamGroupCreateDialog';

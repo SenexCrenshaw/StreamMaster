@@ -10,7 +10,7 @@ internal class GetStreamGroupsRequestHandler(IRepositoryWrapper Repository, IMap
 {
     public async Task<DataResponse<List<StreamGroupDto>>> Handle(GetStreamGroupsRequest request, CancellationToken cancellationToken = default)
     {
-        List<StreamGroupDto> streamGroups = await Repository.StreamGroup.GetQuery().OrderBy(a => a.Name).ProjectTo<StreamGroupDto>(mapper.ConfigurationProvider).ToListAsync(cancellationToken: cancellationToken);
+        List<StreamGroupDto> streamGroups = await Repository.StreamGroup.GetStreamGroups(cancellationToken);
         return DataResponse<List<StreamGroupDto>>.Success(streamGroups);
     }
 }

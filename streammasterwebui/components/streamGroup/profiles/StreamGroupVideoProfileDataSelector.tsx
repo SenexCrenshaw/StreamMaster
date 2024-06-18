@@ -31,20 +31,13 @@ const StreamGroupVideoProfileDataSelector = () => {
       return [];
     }
 
-    let ret = data;
+    let ret = [...data];
 
     if (filters !== undefined && filters['Name'] !== undefined) {
-      ret = data.filter((item: any) => {
+      ret = ret.filter((item: any) => {
         const filterKey = 'Name' as keyof typeof item;
         const itemValue = item[filterKey];
         return typeof itemValue === 'string' && itemValue.toLowerCase().includes(filters['Name'].value.toLowerCase());
-      });
-    } else {
-      ret = data.filter((item: any) => {
-        const filterKey = 'Name' as keyof typeof item;
-        const itemValue = item[filterKey];
-
-        return typeof itemValue === 'string' && itemValue.toLowerCase().includes('hi');
       });
     }
 
@@ -95,7 +88,7 @@ const StreamGroupVideoProfileDataSelector = () => {
 
   const nameTemplate = useCallback(
     (rowData: VideoOutputProfileDto) => {
-      if (rowData.IsReadOnly === true) {
+      if (rowData.Name.toLowerCase() === 'default') {
         return <div className="text-container pl-1">{rowData.Name}</div>;
       }
       return (
@@ -119,6 +112,7 @@ const StreamGroupVideoProfileDataSelector = () => {
         bodyTemplate: nameTemplate,
         field: 'Name',
         filter: true,
+
         sortable: true,
         width: 40
       },

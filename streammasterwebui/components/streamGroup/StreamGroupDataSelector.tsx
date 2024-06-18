@@ -5,7 +5,7 @@ import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import useGetPagedStreamGroups from '@lib/smAPI/StreamGroups/useGetPagedStreamGroups';
 import { StreamGroupDto } from '@lib/smAPI/smapiTypes';
-import { DataTableRowClickEvent, DataTableRowData, DataTableRowEvent, DataTableRowExpansionTemplate } from 'primereact/datatable';
+import { DataTableRowClickEvent, DataTableRowData, DataTableRowExpansionTemplate } from 'primereact/datatable';
 import { memo, useCallback, useMemo } from 'react';
 import StreamGroupDataSelectorValue from './StreamGroupDataSelectorValue';
 
@@ -18,19 +18,16 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
   const { isLoading } = useGetPagedStreamGroups();
   const { setSelectedItems } = useSelectedItems('selectedStreamGroup');
 
-  const rowExpansionTemplate = useCallback(
-    (rowData: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
-      const channel = rowData as unknown as StreamGroupDto;
-      setSelectedStreamGroup(channel);
+  const rowExpansionTemplate = useCallback((rowData: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
+    const streamGroupDto = rowData as unknown as StreamGroupDto;
+    // setSelectedStreamGroup(channel);
 
-      return (
-        <div className="ml-3 m-1">
-          <StreamGroupDataSelectorValue streamGroupDto={channel} id={channel.Id + '-streams'} />
-        </div>
-      );
-    },
-    [setSelectedStreamGroup]
-  );
+    return (
+      <div className="ml-3 m-1">
+        <StreamGroupDataSelectorValue streamGroupDto={streamGroupDto} id={streamGroupDto.Id + '-streams'} />
+      </div>
+    );
+  }, []);
 
   const actionTemplate = useCallback((rowData: StreamGroupDto) => {
     if (rowData.IsReadOnly === true) {
@@ -103,21 +100,22 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
           console.log('StreamGroupDataSelector', e.data);
           setSelectedStreamGroup(e.data as StreamGroupDto);
           setSelectedItems([e.data as StreamGroupDto]);
-        } else {
-          setSelectedStreamGroup(undefined);
-          setSelectedItems([]);
         }
+        // else {
+        //   setSelectedStreamGroup(undefined);
+        //   setSelectedItems([]);
+        // }
       }}
-      onRowExpand={(e: DataTableRowEvent) => {
-        if (e.data.Id !== selectedStreamGroup?.Id) {
-          setSelectedStreamGroup(e.data as StreamGroupDto);
-        }
-      }}
-      onRowCollapse={(e: DataTableRowEvent) => {
-        if (e.data.Id === selectedStreamGroup?.Id) {
-          setSelectedStreamGroup(undefined);
-        }
-      }}
+      // onRowExpand={(e: DataTableRowEvent) => {
+      //   if (e.data.Id !== selectedStreamGroup?.Id) {
+      //     setSelectedStreamGroup(e.data as StreamGroupDto);
+      //   }
+      // }}
+      // onRowCollapse={(e: DataTableRowEvent) => {
+      //   if (e.data.Id === selectedStreamGroup?.Id) {
+      //     setSelectedStreamGroup(undefined);
+      //   }
+      // }}
       rowExpansionTemplate={rowExpansionTemplate}
       queryFilter={useGetPagedStreamGroups}
       selectedItemsKey="selectedStreamGroup"

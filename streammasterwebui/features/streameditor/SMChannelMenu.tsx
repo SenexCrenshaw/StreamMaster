@@ -1,5 +1,6 @@
 import SMOverlay from '@components/sm/SMOverlay';
 import AutoSetEPGSMChannelDialog from '@components/smchannels/AutoSetEPGSMChannelDialog';
+import AddSMChannelsToSGEditor from '@components/smchannels/columns/AddSMChannelsToSGEditor';
 import { memo } from 'react';
 
 export interface SChannelMenuProperties {}
@@ -16,6 +17,7 @@ const SMChannelMenu = () => {
       <div className="sm-channel-menu gap-2">
         {/* <AutoSetSMChannelNumbersDialog disabled={!isStreamGroupSelected} /> */}
         <AutoSetEPGSMChannelDialog menu />
+        <AddSMChannelsToSGEditor />
       </div>
     </SMOverlay>
   );

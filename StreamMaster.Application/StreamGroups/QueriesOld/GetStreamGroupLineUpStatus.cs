@@ -26,7 +26,7 @@ public class GetStreamGroupLineupStatusHandler(ILogger<GetStreamGroupLineupStatu
     {
         if (request.StreamGroupId > 1)
         {
-            IQueryable<StreamGroup> streamGroupExists = Repository.StreamGroup.GetStreamGroupQuery().Where(x => x.Id == request.StreamGroupId);
+            IQueryable<StreamGroup> streamGroupExists = Repository.StreamGroup.GetQuery().Where(x => x.Id == request.StreamGroupId);
             if (!streamGroupExists.Any())
             {
                 return Task.FromResult("");

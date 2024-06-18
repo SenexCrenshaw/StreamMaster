@@ -1,9 +1,9 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,AddFileProfileRequest,AddVideoProfileRequest,RemoveFileProfileRequest,RemoveVideoProfileRequest,UpdateFileProfileRequest,UpdateVideoProfileRequest,FileOutputProfileDto,VideoOutputProfileDto } from '@lib/smAPI/smapiTypes';
+import { APIResponse,AddOutputProfileRequest,AddVideoProfileRequest,RemoveOutputProfileRequest,RemoveVideoProfileRequest,UpdateOutputProfileRequest,UpdateVideoProfileRequest,OutputProfileDto,VideoOutputProfileDto } from '@lib/smAPI/smapiTypes';
 
-export const GetFileProfiles = async (): Promise<FileOutputProfileDto[] | undefined> => {
+export const GetOutputProfiles = async (): Promise<OutputProfileDto[] | undefined> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<FileOutputProfileDto[]>('GetFileProfiles');
+  return await signalRService.invokeHubCommand<OutputProfileDto[]>('GetOutputProfiles');
 };
 
 export const GetVideoProfiles = async (): Promise<VideoOutputProfileDto[] | undefined> => {
@@ -11,9 +11,9 @@ export const GetVideoProfiles = async (): Promise<VideoOutputProfileDto[] | unde
   return await signalRService.invokeHubCommand<VideoOutputProfileDto[]>('GetVideoProfiles');
 };
 
-export const AddFileProfile = async (request: AddFileProfileRequest): Promise<APIResponse | undefined> => {
+export const AddOutputProfile = async (request: AddOutputProfileRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<APIResponse>('AddFileProfile', request);
+  return await signalRService.invokeHubCommand<APIResponse>('AddOutputProfile', request);
 };
 
 export const AddVideoProfile = async (request: AddVideoProfileRequest): Promise<APIResponse | undefined> => {
@@ -21,9 +21,9 @@ export const AddVideoProfile = async (request: AddVideoProfileRequest): Promise<
   return await signalRService.invokeHubCommand<APIResponse>('AddVideoProfile', request);
 };
 
-export const RemoveFileProfile = async (request: RemoveFileProfileRequest): Promise<APIResponse | undefined> => {
+export const RemoveOutputProfile = async (request: RemoveOutputProfileRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<APIResponse>('RemoveFileProfile', request);
+  return await signalRService.invokeHubCommand<APIResponse>('RemoveOutputProfile', request);
 };
 
 export const RemoveVideoProfile = async (request: RemoveVideoProfileRequest): Promise<APIResponse | undefined> => {
@@ -31,9 +31,9 @@ export const RemoveVideoProfile = async (request: RemoveVideoProfileRequest): Pr
   return await signalRService.invokeHubCommand<APIResponse>('RemoveVideoProfile', request);
 };
 
-export const UpdateFileProfile = async (request: UpdateFileProfileRequest): Promise<APIResponse | undefined> => {
+export const UpdateOutputProfile = async (request: UpdateOutputProfileRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<APIResponse>('UpdateFileProfile', request);
+  return await signalRService.invokeHubCommand<APIResponse>('UpdateOutputProfile', request);
 };
 
 export const UpdateVideoProfile = async (request: UpdateVideoProfileRequest): Promise<APIResponse | undefined> => {

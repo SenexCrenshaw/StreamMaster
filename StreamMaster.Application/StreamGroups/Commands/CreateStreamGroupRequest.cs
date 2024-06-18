@@ -15,6 +15,7 @@ public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMes
             return APIResponse.NotFound;
         }
 
+
         if (request.Name.Equals("all", StringComparison.CurrentCultureIgnoreCase))
         {
             return APIResponse.ErrorWithMessage($"The name '{request.Name}' is reserved");
@@ -23,7 +24,15 @@ public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMes
         StreamGroup streamGroup = new()
         {
             Name = request.Name,
+
         };
+
+        streamGroup.StreamGroupProfiles.Add(new StreamGroupProfile
+        {
+            Name = "Default",
+            OutputProfileName = "Default",
+            VideoProfileName = "Default"
+        });
 
         Repository.StreamGroup.CreateStreamGroup(streamGroup);
         await Repository.SaveAsync();

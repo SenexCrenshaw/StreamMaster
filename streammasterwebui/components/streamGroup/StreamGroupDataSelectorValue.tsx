@@ -8,7 +8,7 @@ import { UpdateStreamGroupProfile } from '@lib/smAPI/StreamGroups/StreamGroupsCo
 import { StreamGroupDto, StreamGroupProfile, UpdateStreamGroupProfileRequest } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useMemo } from 'react';
 import CreateStreamGroupProfileDialog from './profiles/CreateStreamGroupProfileDialog';
-import FileProfileDropDown from './profiles/FileProfileDropDown';
+import OutputProfileDropDown from './profiles/OutputProfileDropDown';
 import RemoveStreamGroupProfileDialog from './profiles/RemoveStreamGroupProfileDialog';
 import VideoProfileDropDown from './profiles/VideoProfileDropDown';
 
@@ -45,7 +45,7 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
 
   const nameTemplate = useCallback(
     (rowData: StreamGroupDto) => {
-      if (rowData.IsReadOnly === true) {
+      if (rowData.IsReadOnly === true || rowData.Name.toLowerCase() === 'default') {
         return <div className="text-container pl-1">{rowData.Name}</div>;
       }
       return (
@@ -66,11 +66,11 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
   const fileProfileTemplate = useCallback(
     (rowData: StreamGroupProfile) => {
       return (
-        <FileProfileDropDown
-          value={rowData.FileProfileName}
+        <OutputProfileDropDown
+          value={rowData.OutputProfileName}
           onChange={(e) => {
             if (e !== undefined) {
-              const ret = { FileProfileName: e.Name, Name: rowData.Name } as UpdateStreamGroupProfileRequest;
+              const ret = { Name: rowData.Name, OutputProfileName: e.Name } as UpdateStreamGroupProfileRequest;
               update(ret);
             }
           }}
@@ -100,7 +100,7 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
   const columns = useMemo(
     (): ColumnMeta[] => [
       { bodyTemplate: nameTemplate, field: 'Name', sortable: false, width: '4rem' },
-      { bodyTemplate: fileProfileTemplate, field: 'FileProfileName', sortable: false, width: '4rem' },
+      { bodyTemplate: fileProfileTemplate, field: 'OutputProfileName', sortable: false, width: '4rem' },
       { bodyTemplate: videoProfileTemplate, field: 'VideoProfileName', sortable: false, width: '4rem' },
       {
         align: 'right',
@@ -136,7 +136,7 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
         defaultSortField="Name"
         defaultSortOrder={1}
         emptyMessage="No Profiles"
-        enablePaginator
+        enablePaginator={false}
         headerSize="small"
         id={dataKey}
         noSourceHeader

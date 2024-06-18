@@ -419,11 +419,11 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("FileProfileName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("OutputProfileName")
                         .IsRequired()
                         .HasColumnType("text");
 

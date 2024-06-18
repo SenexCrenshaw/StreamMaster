@@ -232,6 +232,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
     //    return this;
     //}
 
+    public string FFMpegOptions { get; set; } = "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1";
 
     public async Task<(Stream? stream, int processId, ProxyStreamError? error)> CreateFFMpegStream(string streamUrl, string streamName)
     {
@@ -248,7 +249,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
 
             Stopwatch stopwatch = Stopwatch.StartNew();
 
-            string options = string.IsNullOrEmpty(settings.FFMpegOptions) ? BuildInfo.FFMPEGDefaultOptions : settings.FFMpegOptions;
+            string options = string.IsNullOrEmpty(FFMpegOptions) ? BuildInfo.FFMPEGDefaultOptions : FFMpegOptions;
 
             string formattedArgs = options.Replace("{streamUrl}", $"\"{streamUrl}\"");
             formattedArgs += $" -user_agent \"{settings.StreamingClientUserAgent}\"";

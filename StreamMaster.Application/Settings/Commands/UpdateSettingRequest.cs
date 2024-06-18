@@ -24,11 +24,7 @@ public class UpdateSettingParameters
     public string? FFMPegExecutable { get; set; }
     public string? FFMpegOptions { get; set; }
     public int? GlobalStreamLimit { get; set; }
-    public bool? M3UFieldGroupTitle { get; set; }
-    public bool? M3UStationId { get; set; }
-    public bool? M3UUseChnoForId { get; set; }
-    public bool? M3UIgnoreEmptyEPGID { get; set; }
-    public bool? M3UUseCUIDForChannelID { get; set; }
+
     public bool? PrettyEPG { get; set; }
     public int? MaxConnectRetry { get; set; }
     public int? MaxConnectRetryTimeMS { get; set; }
@@ -242,15 +238,15 @@ public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue,
             currentSetting.PrettyEPG = request.parameters.PrettyEPG.Value;
         }
 
-        if (request.parameters.M3UIgnoreEmptyEPGID != null)
-        {
-            currentSetting.M3UIgnoreEmptyEPGID = (bool)request.parameters.M3UIgnoreEmptyEPGID;
-        }
+        //if (request.parameters.M3UIgnoreEmptyEPGID != null)
+        //{
+        //    currentSetting.M3UIgnoreEmptyEPGID = (bool)request.parameters.M3UIgnoreEmptyEPGID;
+        //}
 
-        if (request.parameters.M3UUseCUIDForChannelID != null)
-        {
-            currentSetting.M3UUseCUIDForChannelID = (bool)request.parameters.M3UUseCUIDForChannelID;
-        }
+        //if (request.parameters.M3UUseCUIDForChannelID != null)
+        //{
+        //    currentSetting.M3UUseCUIDForChannelID = (bool)request.parameters.M3UUseCUIDForChannelID;
+        //}
 
         if (request.parameters.MaxLogFiles != null)
         {
@@ -271,10 +267,10 @@ public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue,
         {
             currentSetting.MaxLogFiles = (int)request.parameters.MaxLogFiles;
         }
-        if (request.parameters.M3UUseChnoForId != null)
-        {
-            currentSetting.M3UUseChnoForId = (bool)request.parameters.M3UUseChnoForId;
-        }
+        //if (request.parameters.M3UUseChnoForId != null)
+        //{
+        //    currentSetting.M3UUseChnoForId = (bool)request.parameters.M3UUseChnoForId;
+        //}
 
         if (request.parameters.BackupEnabled != null)
         {
@@ -301,15 +297,15 @@ public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue,
             currentSetting.DummyRegex = request.parameters.DummyRegex;
         }
 
-        if (request.parameters.M3UStationId != null)
-        {
-            currentSetting.M3UStationId = (bool)request.parameters.M3UStationId;
-        }
+        //if (request.parameters.M3UStationId != null)
+        //{
+        //    currentSetting.M3UStationId = (bool)request.parameters.M3UStationId;
+        //}
 
-        if (request.parameters.M3UFieldGroupTitle != null)
-        {
-            currentSetting.M3UFieldGroupTitle = (bool)request.parameters.M3UFieldGroupTitle;
-        }
+        //if (request.parameters.M3UFieldGroupTitle != null)
+        //{
+        //    currentSetting.M3UFieldGroupTitle = (bool)request.parameters.M3UFieldGroupTitle;
+        //}
 
         if (request.parameters.SSLCertPath != null && request.parameters.SSLCertPath != currentSetting.SSLCertPath)
         {
@@ -358,10 +354,10 @@ public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue,
             currentSetting.FFMPegExecutable = request.parameters.FFMPegExecutable;
         }
 
-        if (!string.IsNullOrEmpty(request.parameters.FFMpegOptions) && request.parameters.FFMpegOptions != currentSetting.FFMpegOptions)
-        {
-            currentSetting.FFMpegOptions = request.parameters.FFMpegOptions;
-        }
+        //if (!string.IsNullOrEmpty(request.parameters.FFMpegOptions) && request.parameters.FFMpegOptions != currentSetting.FFMpegOptions)
+        //{
+        //    currentSetting.FFMpegOptions = request.parameters.FFMpegOptions;
+        //}
 
 
         if (request.parameters.MaxConnectRetry != null && request.parameters.MaxConnectRetry >= 0 && request.parameters.MaxConnectRetry != currentSetting.MaxConnectRetry)

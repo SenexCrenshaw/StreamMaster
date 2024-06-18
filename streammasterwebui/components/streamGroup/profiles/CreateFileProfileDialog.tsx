@@ -2,10 +2,11 @@ import StringEditor from '@components/inputs/StringEditor';
 import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
 import { getEnumKeyByValue } from '@lib/common/enumTools';
 import { Logger } from '@lib/common/logger';
-import { AddFileProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
-import { AddFileProfileRequest, FileOutputProfileDto, M3UOutputProfile, ValidM3USetting } from '@lib/smAPI/smapiTypes';
+
+import { AddOutputProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
+import { AddOutputProfileRequest, OutputProfileDto, ValidM3USetting } from '@lib/smAPI/smapiTypes';
 import { useCallback, useRef, useState } from 'react';
-import FileProfileValueDropDown from './columns/FileProfileValueDropDown';
+import FileProfileValueDropDown from './columns/OutputProfileValueDropDown';
 
 const CreateFileProfileDialog = () => {
   const defaultValues = {
@@ -16,40 +17,33 @@ const CreateFileProfileDialog = () => {
     TVGGroup: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.Group),
     TVGId: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.EPGID),
     TVGName: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.Name)
-  } as M3UOutputProfile;
+  } as OutputProfileDto;
 
-  const [fileProfile, setFileProfile] = useState<M3UOutputProfile>(defaultValues);
+  const [fileProfile, setFileProfile] = useState<OutputProfileDto>(defaultValues);
   const smPopUpRef = useRef<SMPopUpRef>(null);
   const [name, setName] = useState<string>();
 
   const updateM3UOutputProfileStateAndRequest = useCallback(
-    (updatedFields: Partial<M3UOutputProfile>) => {
+    (updatedFields: Partial<OutputProfileDto>) => {
       const updatedProfile = { ...fileProfile, ...updatedFields };
       setFileProfile(updatedProfile);
     },
     [fileProfile]
   );
 
-  // const updateStateAndRequest = useCallback(
-  //   (updatedFields: Partial<FileOutputProfile>) => {
-  //     const updatedProfile = { ...profile, ...updatedFields };
-  //     setProfile(updatedProfile);
-  //   },
-  //   [profile]
-  // );
   const dropdownClass = 'sm-w-9rem';
 
   const save = useCallback(() => {
-    const fileOutputProfileDto = {
-      M3UOutputProfile: fileProfile,
+    const outputProfileDto = {
+      ...fileProfile,
       Name: name
-    } as FileOutputProfileDto;
+    } as OutputProfileDto;
 
     const request = {
-      FileOutputProfileDto: fileOutputProfileDto
-    } as AddFileProfileRequest;
+      OutputProfileDto: outputProfileDto
+    } as AddOutputProfileRequest;
 
-    AddFileProfile(request)
+    AddOutputProfile(request)
       .then((response) => {})
       .catch((error) => {
         Logger.error('CreateFileProfileDialog', { error });

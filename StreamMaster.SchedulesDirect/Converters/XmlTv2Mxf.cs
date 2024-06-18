@@ -313,10 +313,10 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intse
             program.Stop = $"{dtStart + TimeSpan.FromSeconds(Duration):yyyyMMddHHmmss} +0000";
 
             string channelId = mxfService.CallSign;
-            if (settings.M3UUseChnoForId)
-            {
-                channelId = mxfService.ChNo.ToString();
-            }
+            //if (settings.M3UUseChnoForId)
+            //{
+            //    channelId = mxfService.ChNo.ToString();
+            //}
 
             MxfScheduleEntry scheduleEntry = new()
             {

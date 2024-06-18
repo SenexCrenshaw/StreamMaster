@@ -4,7 +4,7 @@ import { Logger } from '@lib/common/logger';
 import { AddProfileToStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
 import { AddProfileToStreamGroupRequest, StreamGroupDto } from '@lib/smAPI/smapiTypes';
 import { useCallback, useRef, useState } from 'react';
-import FileProfileDropDown from './FileProfileDropDown';
+import OutputProfileDropDown from './OutputProfileDropDown';
 import VideoProfileDropDown from './VideoProfileDropDown';
 
 interface CreateStreamGroupProfileDialogProps {
@@ -12,7 +12,7 @@ interface CreateStreamGroupProfileDialogProps {
 }
 
 const CreateStreamGroupProfileDialog = ({ streamGroupDto }: CreateStreamGroupProfileDialogProps) => {
-  const defaultValues = { FileProfileName: 'Default', VideoProfileName: 'Default' } as AddProfileToStreamGroupRequest;
+  const defaultValues = { OutputProfileName: 'Default', VideoProfileName: 'Default' } as AddProfileToStreamGroupRequest;
 
   const [fileRequest, setFileRequest] = useState<AddProfileToStreamGroupRequest>(defaultValues);
   const smPopUpRef = useRef<SMPopUpRef>(null);
@@ -80,20 +80,20 @@ const CreateStreamGroupProfileDialog = ({ streamGroupDto }: CreateStreamGroupPro
                 />
               </div>
               <div className={dropdownClass}>
-                <FileProfileDropDown
+                <OutputProfileDropDown
                   buttonDarkBackground
-                  value={fileRequest.FileProfileName}
+                  value={fileRequest.OutputProfileName}
                   onChange={(e) => {
-                    updateM3UOutputProfileStateAndRequest({ FileProfileName: e.Name });
+                    updateM3UOutputProfileStateAndRequest({ OutputProfileName: e.Name });
                   }}
                 />
               </div>
               <div className={dropdownClass}>
                 <VideoProfileDropDown
                   buttonDarkBackground
-                  value={fileRequest.FileProfileName}
+                  value={fileRequest.OutputProfileName}
                   onChange={(e) => {
-                    updateM3UOutputProfileStateAndRequest({ FileProfileName: e.Name });
+                    updateM3UOutputProfileStateAndRequest({ OutputProfileName: e.Name });
                   }}
                 />
               </div>

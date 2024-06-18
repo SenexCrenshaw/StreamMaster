@@ -39,13 +39,13 @@ export const useVideoProfileColumnConfig = ({ field, header, width = 80 }: IntVi
       var key = field as keyof VideoOutputProfileDto;
       let value = videoOutputProfile[key] as string;
 
-      if (videoOutputProfile.IsReadOnly === true) {
-        return (
-          <div className="sm-epg-selector">
-            <div className="text-container pl-1">{value}</div>
-          </div>
-        );
-      }
+      // if (videoOutputProfile.IsReadOnly === true) {
+      //   return (
+      //     <div className="sm-epg-selector">
+      //       <div className="text-container pl-1">{value}</div>
+      //     </div>
+      //   );
+      // }
 
       return (
         <StringEditor

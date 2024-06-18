@@ -150,8 +150,8 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string VideoProfileFileName = "videoprofiles.json";
         public static readonly string VideoProfileSettingsFile = GetSettingFilePath(VideoProfileFileName);
 
-        public static readonly string FileProfileFileName = "fileprofiles.json";
-        public static readonly string FileProfileSettingsFile = GetSettingFilePath(FileProfileFileName);
+        public static readonly string OutputProfileFileName = "outputprofiles.json";
+        public static readonly string OutputProfileSettingsFile = GetSettingFilePath(OutputProfileFileName);
 
         #endregion
 

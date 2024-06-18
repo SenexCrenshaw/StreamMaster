@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Domain.Comparer;
-using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Repository;
@@ -356,10 +355,10 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
     {
 
         string id = mxfService.CallSign;
-        if (settings.M3UUseChnoForId)
-        {
-            id = mxfService.ChNo.ToString();
-        }
+        //if (settings.M3UUseChnoForId)
+        //{
+        //    id = mxfService.ChNo.ToString();
+        //}
 
         //if (sdsettings.M3UUseCUIDForChannelID)
         //{

@@ -78,10 +78,10 @@ if (videoProfileSetting == default(VideoOutputProfiles))
     SettingsHelper.UpdateSetting(SettingFiles.DefaultVideoProfileSetting);
 }
 
-var fileProfileSetting = SettingsHelper.GetSetting<FileOutputProfiles>(BuildInfo.FileProfileSettingsFile);
-if (fileProfileSetting == default(FileOutputProfiles))
+var fileProfileSetting = SettingsHelper.GetSetting<OutputProfiles>(BuildInfo.OutputProfileSettingsFile);
+if (fileProfileSetting == default(OutputProfiles))
 {
-    SettingsHelper.UpdateSetting(SettingFiles.DefaultFileProfileSetting);
+    SettingsHelper.UpdateSetting(SettingFiles.DefaultOutputProfileSetting);
 }
 
 
@@ -129,7 +129,7 @@ builder.Services.Configure<Setting>(builder.Configuration);
 builder.Services.Configure<SDSettings>(builder.Configuration);
 builder.Services.Configure<HLSSettings>(builder.Configuration);
 builder.Services.Configure<VideoOutputProfiles>(builder.Configuration);
-builder.Services.Configure<FileOutputProfiles>(builder.Configuration);
+builder.Services.Configure<OutputProfiles>(builder.Configuration);
 
 
 

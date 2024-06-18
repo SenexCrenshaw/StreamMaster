@@ -12,6 +12,10 @@ public class AddVideoVideoProfileRequestHandler(ILogger<AddVideoProfileRequest> 
 
     public async Task<APIResponse> Handle(AddVideoProfileRequest request, CancellationToken cancellationToken)
     {
+        if (request.Name.Equals("default", StringComparison.OrdinalIgnoreCase))
+        {
+            return APIResponse.ErrorWithMessage("Cannot use name default");
+        }
 
         VideoOutputProfile profile = new()
         {

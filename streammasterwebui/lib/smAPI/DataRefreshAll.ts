@@ -5,11 +5,11 @@ import { setIsForced as GetEPGColorsSetIsForced } from '@lib/smAPI/EPG/GetEPGCol
 import { setIsForced as GetEPGFilePreviewByIdSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
 import { setIsForced as GetEPGFilesSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
 import { setIsForced as GetEPGNextEPGNumberSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
-import { setIsForced as GetFileProfilesSetIsForced } from '@lib/smAPI/Profiles/GetFileProfilesSlice';
 import { setIsForced as GetIconsSetIsForced } from '@lib/smAPI/Icons/GetIconsSlice';
 import { setIsForced as GetIsSystemReadySetIsForced } from '@lib/smAPI/General/GetIsSystemReadySlice';
 import { setIsForced as GetM3UFileNamesSetIsForced } from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
 import { setIsForced as GetM3UFilesSetIsForced } from '@lib/smAPI/M3UFiles/GetM3UFilesSlice';
+import { setIsForced as GetOutputProfilesSetIsForced } from '@lib/smAPI/Profiles/GetOutputProfilesSlice';
 import { setIsForced as GetPagedChannelGroupsSetIsForced } from '@lib/smAPI/ChannelGroups/GetPagedChannelGroupsSlice';
 import { setIsForced as GetPagedEPGFilesSetIsForced } from '@lib/smAPI/EPGFiles/GetPagedEPGFilesSlice';
 import { setIsForced as GetPagedM3UFilesSetIsForced } from '@lib/smAPI/M3UFiles/GetPagedM3UFilesSlice';
@@ -37,11 +37,11 @@ export const DataRefreshAll = () => {
   store.dispatch(GetEPGFilePreviewByIdSetIsForced({ force: true }));
   store.dispatch(GetEPGFilesSetIsForced({ force: true }));
   store.dispatch(GetEPGNextEPGNumberSetIsForced({ force: true }));
-  store.dispatch(GetFileProfilesSetIsForced({ force: true }));
   store.dispatch(GetIconsSetIsForced({ force: true }));
   store.dispatch(GetIsSystemReadySetIsForced({ force: true }));
   store.dispatch(GetM3UFileNamesSetIsForced({ force: true }));
   store.dispatch(GetM3UFilesSetIsForced({ force: true }));
+  store.dispatch(GetOutputProfilesSetIsForced({ force: true }));
   store.dispatch(GetPagedChannelGroupsSetIsForced({ force: true }));
   store.dispatch(GetPagedEPGFilesSetIsForced({ force: true }));
   store.dispatch(GetPagedM3UFilesSetIsForced({ force: true }));

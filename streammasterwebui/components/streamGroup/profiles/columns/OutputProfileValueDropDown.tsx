@@ -1,13 +1,14 @@
 import SMDropDown from '@components/sm/SMDropDown';
 import { getEnumValueByKey } from '@lib/common/enumTools';
 import { Logger } from '@lib/common/logger';
-import { UpdateFileProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
-import { M3UOutputProfile, M3UOutputProfileRequest, UpdateFileProfileRequest, ValidM3USetting } from '@lib/smAPI/smapiTypes';
+import { UpdateOutputProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
+
+import { UpdateOutputProfileRequest, ValidM3USetting } from '@lib/smAPI/smapiTypes';
 import { SelectItem } from 'primereact/selectitem';
 
 import { ReactNode, useCallback, useMemo } from 'react';
 
-interface FileProfileValueDropDownProps {
+interface OutputProfileValueDropDownProps {
   readonly darkBackGround?: boolean;
   readonly header: string;
   readonly name?: string;
@@ -18,11 +19,11 @@ interface FileProfileValueDropDownProps {
   onChange?: (value: SelectItem) => void;
 }
 
-const FileProfileValueDropDown = ({ ...props }: FileProfileValueDropDownProps) => {
-  const update = useCallback((request: UpdateFileProfileRequest) => {
-    Logger.debug('FileProfileDropDown', request);
+const OutputProfileValueDropDown = ({ ...props }: OutputProfileValueDropDownProps) => {
+  const update = useCallback((request: UpdateOutputProfileRequest) => {
+    Logger.debug('OutputProfileValueDropDown', request);
 
-    UpdateFileProfile(request)
+    UpdateOutputProfile(request)
       .then((res) => {})
       .catch((error) => {
         console.log('error', error);
@@ -32,9 +33,9 @@ const FileProfileValueDropDown = ({ ...props }: FileProfileValueDropDownProps) =
 
   const onChange = (value: SelectItem) => {
     if (props.name && props.field) {
-      const m3uOutputProfile = {} as M3UOutputProfileRequest;
-      m3uOutputProfile[props.field as keyof M3UOutputProfileRequest] = value.label ?? ('' as M3UOutputProfile[T]);
-      const ret = { M3UOutputProfile: m3uOutputProfile, Name: props.name } as UpdateFileProfileRequest;
+      const outputProfile = {} as UpdateOutputProfileRequest;
+      outputProfile[props.field as keyof UpdateOutputProfileRequest] = value.label ?? ('' as UpdateOutputProfileRequest[T]);
+      const ret = outputProfile;
 
       update(ret);
       return;
@@ -87,4 +88,4 @@ const FileProfileValueDropDown = ({ ...props }: FileProfileValueDropDownProps) =
   );
 };
 
-export default FileProfileValueDropDown;
+export default OutputProfileValueDropDown;

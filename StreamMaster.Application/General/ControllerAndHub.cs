@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+
 using StreamMaster.Application.General.Commands;
 using StreamMaster.Application.General.Queries;
 
-namespace StreamMaster.Application.General.Controllers
+namespace StreamMaster.Application.General
 {
     public partial class GeneralController(ILogger<GeneralController> _logger) : ApiControllerBase, IGeneralController
-    {        
+    {
 
         [HttpGet]
         [Route("[action]")]
@@ -13,8 +14,8 @@ namespace StreamMaster.Application.General.Controllers
         {
             try
             {
-            DataResponse<bool> ret = await Sender.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetIsSystemReady.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<bool> ret = await Sender.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetIsSystemReady.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -29,8 +30,8 @@ namespace StreamMaster.Application.General.Controllers
         {
             try
             {
-            DataResponse<SDSystemStatus> ret = await Sender.Send(new GetSystemStatusRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSystemStatus.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<SDSystemStatus> ret = await Sender.Send(new GetSystemStatusRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSystemStatus.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -45,8 +46,8 @@ namespace StreamMaster.Application.General.Controllers
         {
             try
             {
-            DataResponse<bool> ret = await Sender.Send(new GetTaskIsRunningRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetTaskIsRunning.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<bool> ret = await Sender.Send(new GetTaskIsRunningRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetTaskIsRunning.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -72,19 +73,19 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<bool> GetIsSystemReady()
         {
-             DataResponse<bool> ret = await Sender.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
+            DataResponse<bool> ret = await Sender.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<SDSystemStatus> GetSystemStatus()
         {
-             DataResponse<SDSystemStatus> ret = await Sender.Send(new GetSystemStatusRequest()).ConfigureAwait(false);
+            DataResponse<SDSystemStatus> ret = await Sender.Send(new GetSystemStatusRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<bool> GetTaskIsRunning()
         {
-             DataResponse<bool> ret = await Sender.Send(new GetTaskIsRunningRequest()).ConfigureAwait(false);
+            DataResponse<bool> ret = await Sender.Send(new GetTaskIsRunningRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 

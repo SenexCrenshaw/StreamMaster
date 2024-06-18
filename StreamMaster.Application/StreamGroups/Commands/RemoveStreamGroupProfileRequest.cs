@@ -15,6 +15,11 @@ public class RemoveStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
             return APIResponse.NotFound;
         }
 
+        if (request.Name.Equals("default", StringComparison.OrdinalIgnoreCase))
+        {
+            return APIResponse.ErrorWithMessage("Cannot use name default");
+        }
+
         StreamGroup? streamGroup = Repository.StreamGroup.GetStreamGroup(request.StreamGroupId);
         if (streamGroup is null)
         {

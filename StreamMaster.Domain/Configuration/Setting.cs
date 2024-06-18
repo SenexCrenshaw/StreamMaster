@@ -4,11 +4,7 @@ namespace StreamMaster.Domain.Configuration;
 
 public class BaseSettings
 {
-    public bool M3UFieldGroupTitle { get; set; } = true;
-    public bool M3UIgnoreEmptyEPGID { get; set; } = true;
-    public bool M3UUseChnoForId { get; set; } = true;
-    public bool M3UUseCUIDForChannelID { get; set; } = false;
-    public bool M3UStationId { get; set; } = false;
+
     public bool BackupEnabled { get; set; } = true;
     public int BackupVersionsToKeep { get; set; } = 18;
     public int BackupInterval { get; set; } = 4;
@@ -18,7 +14,7 @@ public class BaseSettings
     public bool EnablePrometheus { get; set; } = false;
     public int MaxStreamReStart { get; set; } = 3;
     public int MaxConcurrentDownloads { get; set; } = 8;
-    public int ExpectedServiceCount { get; set; } = 20;
+
     public string AdminPassword { get; set; } = string.Empty;
     public string AdminUserName { get; set; } = string.Empty;
     public string DefaultIcon { get; set; } = "images/default.png";
@@ -32,7 +28,7 @@ public class BaseSettings
     public string ClientUserAgent { get; set; } = "VLC/3.0.20-git LibVLC/3.0.20-git";
     public string DeviceID { get; set; } = "device1";
     public string DummyRegex { get; set; } = "(no tvg-id)";
-    public string FFMpegOptions { get; set; } = "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1";
+
     public bool EnableSSL { get; set; }
     public string FFMPegExecutable { get; set; } = "ffmpeg";
     public string FFProbeExecutable { get; set; } = "ffprobe";
@@ -53,66 +49,3 @@ public class Setting : BaseSettings
     [NoMap]
     public string ServerKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
 }
-
-//public class OldSetting : BaseSettings
-//{
-//    public Setting ConvertToSetting()
-//    {
-//        Setting setting = new()
-//        {
-//            ServerKey = ServerKey,
-//            M3UFieldGroupTitle = M3UFieldGroupTitle,
-//            M3UIgnoreEmptyEPGID = M3UIgnoreEmptyEPGID,
-//            M3UUseChnoForId = M3UUseChnoForId,
-//            M3UUseCUIDForChannelID = M3UUseCUIDForChannelID,
-//            M3UStationId = M3UStationId,
-//            BackupEnabled = BackupEnabled,
-//            BackupVersionsToKeep = BackupVersionsToKeep,
-//            BackupInterval = BackupInterval,
-//            PrettyEPG = PrettyEPG,
-//            MaxLogFiles = MaxLogFiles,
-//            MaxLogFileSizeMB = MaxLogFileSizeMB,
-//            EnablePrometheus = EnablePrometheus,
-//            MaxStreamReStart = MaxStreamReStart,
-//            MaxConcurrentDownloads = MaxConcurrentDownloads,
-//            ExpectedServiceCount = ExpectedServiceCount,
-//            AdminPassword = AdminPassword,
-//            AdminUserName = AdminUserName,
-//            DefaultIcon = DefaultIcon,
-//            UiFolder = UiFolder,
-//            UrlBase = UrlBase,
-//            LogPerformance = new List<string>(LogPerformance),
-//            ApiKey = ApiKey,
-//            AuthenticationMethod = AuthenticationMethod,
-//            CacheIcons = CacheIcons,
-//            CleanURLs = CleanURLs,
-//            ClientUserAgent = ClientUserAgent,
-//            DeviceID = DeviceID,
-//            DummyRegex = DummyRegex,
-//            FFMpegOptions = FFMpegOptions,
-//            EnableSSL = EnableSSL,
-//            FFMPegExecutable = FFMPegExecutable,
-//            FFProbeExecutable = FFProbeExecutable,
-//            GlobalStreamLimit = GlobalStreamLimit,
-//            MaxConnectRetry = MaxConnectRetry,
-//            MaxConnectRetryTimeMS = MaxConnectRetryTimeMS,
-//            NameRegex = new List<string>(NameRegex),
-//            SSLCertPassword = SSLCertPassword,
-//            SSLCertPath = SSLCertPath,
-//            StreamingClientUserAgent = StreamingClientUserAgent,
-//            StreamingProxyType = StreamingProxyType,
-//            VideoStreamAlwaysUseEPGLogo = VideoStreamAlwaysUseEPGLogo,
-//            ShowClientHostNames = ShowClientHostNames
-//        };
-
-//        return setting;
-//    }
-
-//    [NoMap]
-//    public string ServerKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
-
-//    public SDSettings? SDSettings { get; set; }
-
-//}
-
-

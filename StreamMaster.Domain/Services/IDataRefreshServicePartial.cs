@@ -2,7 +2,7 @@ namespace StreamMaster.Domain.Services
 {
     public interface IDataRefreshServicePartial
     {
-        Task RefreshFileProfiles();
+        Task RefreshOutputProfiles();
         Task RefreshVideoProfiles();
         Task IsSystemReady();
         Task TaskIsRunning();

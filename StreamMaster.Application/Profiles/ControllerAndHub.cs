@@ -1,24 +1,25 @@
 using Microsoft.AspNetCore.Mvc;
+
 using StreamMaster.Application.Profiles.Commands;
 using StreamMaster.Application.Profiles.Queries;
 
-namespace StreamMaster.Application.Profiles.Controllers
+namespace StreamMaster.Application.Profiles
 {
     public partial class ProfilesController(ILogger<ProfilesController> _logger) : ApiControllerBase, IProfilesController
-    {        
+    {
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<List<FileOutputProfileDto>>> GetFileProfiles()
+        public async Task<ActionResult<List<OutputProfileDto>>> GetOutputProfiles()
         {
             try
             {
-            DataResponse<List<FileOutputProfileDto>> ret = await Sender.Send(new GetFileProfilesRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetFileProfiles.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<List<OutputProfileDto>> ret = await Sender.Send(new GetOutputProfilesRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetOutputProfiles.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetFileProfiles.");
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetOutputProfiles.");
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
@@ -29,8 +30,8 @@ namespace StreamMaster.Application.Profiles.Controllers
         {
             try
             {
-            DataResponse<List<VideoOutputProfileDto>> ret = await Sender.Send(new GetVideoProfilesRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVideoProfiles.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<List<VideoOutputProfileDto>> ret = await Sender.Send(new GetVideoProfilesRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVideoProfiles.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -41,7 +42,7 @@ namespace StreamMaster.Application.Profiles.Controllers
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> AddFileProfile(AddFileProfileRequest request)
+        public async Task<ActionResult<APIResponse>> AddOutputProfile(AddOutputProfileRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
@@ -57,7 +58,7 @@ namespace StreamMaster.Application.Profiles.Controllers
 
         [HttpDelete]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> RemoveFileProfile(RemoveFileProfileRequest request)
+        public async Task<ActionResult<APIResponse>> RemoveOutputProfile(RemoveOutputProfileRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
@@ -73,7 +74,7 @@ namespace StreamMaster.Application.Profiles.Controllers
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> UpdateFileProfile(UpdateFileProfileRequest request)
+        public async Task<ActionResult<APIResponse>> UpdateOutputProfile(UpdateOutputProfileRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
@@ -94,19 +95,19 @@ namespace StreamMaster.Application.Hubs
 {
     public partial class StreamMasterHub : IProfilesHub
     {
-        public async Task<List<FileOutputProfileDto>> GetFileProfiles()
+        public async Task<List<OutputProfileDto>> GetOutputProfiles()
         {
-             DataResponse<List<FileOutputProfileDto>> ret = await Sender.Send(new GetFileProfilesRequest()).ConfigureAwait(false);
+            DataResponse<List<OutputProfileDto>> ret = await Sender.Send(new GetOutputProfilesRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<List<VideoOutputProfileDto>> GetVideoProfiles()
         {
-             DataResponse<List<VideoOutputProfileDto>> ret = await Sender.Send(new GetVideoProfilesRequest()).ConfigureAwait(false);
+            DataResponse<List<VideoOutputProfileDto>> ret = await Sender.Send(new GetVideoProfilesRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
-        public async Task<APIResponse> AddFileProfile(AddFileProfileRequest request)
+        public async Task<APIResponse> AddOutputProfile(AddOutputProfileRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
@@ -118,7 +119,7 @@ namespace StreamMaster.Application.Hubs
             return ret;
         }
 
-        public async Task<APIResponse> RemoveFileProfile(RemoveFileProfileRequest request)
+        public async Task<APIResponse> RemoveOutputProfile(RemoveOutputProfileRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
@@ -130,7 +131,7 @@ namespace StreamMaster.Application.Hubs
             return ret;
         }
 
-        public async Task<APIResponse> UpdateFileProfile(UpdateFileProfileRequest request)
+        public async Task<APIResponse> UpdateOutputProfile(UpdateOutputProfileRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

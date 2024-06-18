@@ -84,14 +84,14 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
             return HandleFFMpegStreamException(ProxyStreamErrorCode.UnknownError, ex);
         }
     }
-
+    public string FFMpegOptions { get; set; } = "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1";
     private async Task<(Stream? stream, int processId, ProxyStreamError? error)> CreateFFMpegStream(string ffmpegExec, string streamUrl, string streamName)
     {
         try
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
 
-            string options = string.IsNullOrEmpty(settings.FFMpegOptions) ? BuildInfo.FFMPEGDefaultOptions : settings.FFMpegOptions;
+            string options = string.IsNullOrEmpty(FFMpegOptions) ? BuildInfo.FFMPEGDefaultOptions : FFMpegOptions;
 
             string formattedArgs = options.Replace("{streamUrl}", $"\"{streamUrl}\"");
             formattedArgs += $" -user_agent \"{settings.StreamingClientUserAgent}\"";

@@ -8,22 +8,15 @@ public class SettingsFile<T>(string fileName, Type settingType)
 
 public static class SettingFiles
 {
-    public static FileOutputProfiles DefaultFileProfileSetting = new()
+    public static OutputProfiles DefaultOutputProfileSetting = new()
     {
-        FileProfiles = new Dictionary<string, FileOutputProfile>
+        OutProfiles = new Dictionary<string, OutputProfile>
         {
             {
                 "Default",
-                 new FileOutputProfile
+                 new OutputProfile
                  {
                     IsReadOnly=true,
-
-                    EPGOutputProfile= new()
-                    {
-
-                    },
-                        M3UOutputProfile= new()
-                    {
 
                         EnableIcon=true,
                         TVGName=ValidM3USetting.Name.ToString(),
@@ -32,31 +25,20 @@ public static class SettingFiles
                         TVGId=ValidM3USetting.EPGID.ToString(),
                         TVGGroup=ValidM3USetting.Group.ToString(),
                         GroupTitle=ValidM3USetting.Group.ToString(),
-
-                    }
                  }
             },
 
              {
                 "PLEX",
-                 new FileOutputProfile
+                 new OutputProfile
                  {
-                    EPGOutputProfile= new()
-                    {
-
-                    },
-                        M3UOutputProfile= new()
-                    {
-
-                        EnableIcon=true,
+                     EnableIcon=true,
                         TVGName=ValidM3USetting.Name.ToString(),
                         ChannelId=ValidM3USetting.Id.ToString(),
                         ChannelNumber=ValidM3USetting.ChannelNumber.ToString(),
                         TVGId=ValidM3USetting.EPGID.ToString(),
                         TVGGroup=ValidM3USetting.Group.ToString(),
                         GroupTitle=ValidM3USetting.Group.ToString(),
-
-                    }
                  }
             },
 

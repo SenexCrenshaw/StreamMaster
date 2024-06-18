@@ -11,6 +11,10 @@ public class RemoveVideoProfileRequestHandler(IOptionsMonitor<VideoOutputProfile
 
     public async Task<APIResponse> Handle(RemoveVideoProfileRequest request, CancellationToken cancellationToken)
     {
+        if (request.Name.Equals("default", StringComparison.OrdinalIgnoreCase))
+        {
+            return APIResponse.ErrorWithMessage("Cannot use name default");
+        }
 
         if (profileSettings.VideoProfiles.TryGetValue(request.Name, out VideoOutputProfile? profile))
         {

@@ -2,10 +2,10 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record UpdateStreamGroupProfileRequest(int StreamGroupId, string Name, string NewName, string? FileProfileName, string? VideoProfileName) : IRequest<APIResponse> { }
+public record UpdateStreamGroupProfileRequest(int StreamGroupId, string Name, string NewName, string? OutputProfileName, string? VideoProfileName) : IRequest<APIResponse> { }
 
 [LogExecutionTimeAspect]
-public class UpdateStreamGroupProfileRequestHandler(IRepositoryWrapper Repository, IMapper mapper, IMessageService messageService, IDataRefreshService dataRefreshService)
+public class UpdateStreamGroupProfileRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService)
     : IRequestHandler<UpdateStreamGroupProfileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(UpdateStreamGroupProfileRequest request, CancellationToken cancellationToken)
@@ -14,6 +14,12 @@ public class UpdateStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
         {
             return APIResponse.NotFound;
         }
+
+        if (request.NewName != null && request.NewName.Equals("default", StringComparison.OrdinalIgnoreCase))
+        {
+            return APIResponse.ErrorWithMessage("Cannot use name default");
+        }
+
 
         StreamGroup? streamGroup = Repository.StreamGroup.GetQuery().FirstOrDefault(a => a.Id == request.StreamGroupId);
 
@@ -29,10 +35,10 @@ public class UpdateStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
             return APIResponse.ErrorWithMessage("Stream Group Profile not found");
         }
 
-        if (!string.IsNullOrEmpty(request.FileProfileName) && streamGroupProfile.FileProfileName != request.FileProfileName)
+        if (!string.IsNullOrEmpty(request.OutputProfileName) && streamGroupProfile.OutputProfileName != request.OutputProfileName)
         {
-            streamGroupProfile.FileProfileName = request.FileProfileName;
-            // fields.Add(new FieldData("GetStreamGroupProfiles", streamGroupProfile.Name, "FileProfileName", request.FileProfileName));
+            streamGroupProfile.OutputProfileName = request.OutputProfileName;
+            // fields.Add(new FieldData("GetStreamGroupProfiles", streamGroupProfile.Name, "OutputProfileName", request.OutputProfileName));
         }
 
         if (!string.IsNullOrEmpty(request.VideoProfileName) && streamGroupProfile.VideoProfileName != request.VideoProfileName)

@@ -51,7 +51,9 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
         ISchedulesDirectData dummyData = schedulesDirectDataService.DummyData();
         foreach (SMChannel? smChannel in smChannels.OrderBy(a => a.ChannelNumber))
         {
-            if (settings.M3UIgnoreEmptyEPGID && string.IsNullOrEmpty(smChannel.EPGId))
+            //settings.M3UIgnoreEmptyEPGID &&
+
+            if (string.IsNullOrEmpty(smChannel.EPGId))
             {
                 continue;
             }
@@ -116,10 +118,11 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
             }
             string graceNote = service?.CallSign ?? stationId;
             string id = graceNote;
-            if (settings.M3UUseChnoForId)
-            {
-                id = smChannel.ChannelNumber.ToString();
-            }
+
+            //if (settings.M3UUseChnoForId)
+            //{
+            //    id = smChannel.ChannelNumber.ToString();
+            //}
 
             string? logo = "";
             if (service != null && service.mxfGuideImage != null && !string.IsNullOrEmpty(service.mxfGuideImage.ImageUrl))

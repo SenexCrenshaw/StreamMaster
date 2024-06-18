@@ -1,41 +1,27 @@
-export interface FileOutputProfile
+export interface OutputProfile
 {
-	EPGOutputProfile: EPGOutputProfile;
-	IsReadOnly: boolean;
-	M3UOutputProfile: M3UOutputProfile;
-}
-export interface EPGOutputProfile
-{
-}
-export interface EPGOutputProfileRequest
-{
-}
-export interface M3UOutputProfile
-{
+	APIName: string;
 	ChannelId: string;
 	ChannelNumber: string;
 	EnableIcon: boolean;
 	GroupTitle: string;
+	IsReadOnly: boolean;
 	TVGGroup: string;
 	TVGId: string;
 	TVGName: string;
 }
-export interface M3UOutputProfileRequest
+export interface OutputProfileDto
 {
-	ChannelId?: string;
-	ChannelNumber?: string;
-	EnableIcon?: boolean;
-	GroupTitle?: string;
-	TVGGroup?: string;
-	TVGId?: string;
-	TVGName?: string;
-}
-export interface FileOutputProfileDto
-{
-	EPGOutputProfile: EPGOutputProfile;
+	APIName: string;
+	ChannelId: string;
+	ChannelNumber: string;
+	EnableIcon: boolean;
+	GroupTitle: string;
 	IsReadOnly: boolean;
-	M3UOutputProfile: M3UOutputProfile;
 	Name: string;
+	TVGGroup: string;
+	TVGId: string;
+	TVGName: string;
 }
 export interface VideoOutputProfile
 {
@@ -99,11 +85,25 @@ export interface StationIdLineup
 }
 export interface StreamGroupProfile
 {
-	FileProfileName: string;
 	Id: number;
 	Name: string;
+	OutputProfileName: string;
 	StreamGroupId: number;
 	VideoProfileName: string;
+}
+export interface StreamGroupProfileDto
+{
+	HDHRLink: string;
+	Id: number;
+	M3ULink: string;
+	Name: string;
+	OutputProfileName: string;
+	ShortEPGLink: string;
+	ShortM3ULink: string;
+	StreamGroupId: number;
+	VideoProfileName: string;
+	XMLLink: string;
+	Mapping(profile: any) : void;
 }
 export interface StreamGroupSMChannelLink
 {
@@ -210,20 +210,13 @@ export interface SettingDto
 	DummyRegex: string;
 	EnablePrometheus: boolean;
 	EnableSSL: boolean;
-	ExpectedServiceCount: number;
 	FFMPEGDefaultOptions: string;
 	FFMPegExecutable: string;
-	FFMpegOptions: string;
 	FFProbeExecutable: string;
 	GlobalStreamLimit: number;
 	HLS: HLSSettings;
 	IsDebug: boolean;
 	LogPerformance: string[];
-	M3UFieldGroupTitle: boolean;
-	M3UIgnoreEmptyEPGID: boolean;
-	M3UStationId: boolean;
-	M3UUseChnoForId: boolean;
-	M3UUseCUIDForChannelID: boolean;
 	MaxConcurrentDownloads: number;
 	MaxConnectRetry: number;
 	MaxConnectRetryTimeMS: number;
@@ -289,18 +282,11 @@ export interface SMStreamDto
 export interface StreamGroupDto
 {
 	AutoSetChannelNumbers: boolean;
-	FFMPEGProfileId: string;
-	HDHRLink: string;
 	Id: number;
 	IsLoading: boolean;
 	IsReadOnly: boolean;
-	M3ULink: string;
 	Name: string;
-	ShortEPGLink: string;
-	ShortM3ULink: string;
-	StreamCount: number;
-	StreamGroupProfiles: StreamGroupProfile[];
-	XMLLink: string;
+	StreamGroupProfiles: StreamGroupProfileDto[];
 }
 export interface HLSSettings
 {
@@ -433,8 +419,8 @@ export interface GetStreamGroupsRequest
 }
 export interface AddProfileToStreamGroupRequest
 {
-	FileProfileName: string;
 	Name: string;
+	OutputProfileName: string;
 	StreamGroupId: number;
 	VideoProfileName: string;
 }
@@ -453,14 +439,24 @@ export interface RemoveStreamGroupProfileRequest
 }
 export interface UpdateStreamGroupProfileRequest
 {
-	FileProfileName?: string;
 	Name: string;
 	NewName: string;
+	OutputProfileName?: string;
 	StreamGroupId: number;
 	VideoProfileName?: string;
 }
 export interface GetStreamGroupSMChannelsRequest
 {
+	StreamGroupId: number;
+}
+export interface AddSMChannelsToStreamGroupByParametersRequest
+{
+	Parameters: QueryStringParameters;
+	StreamGroupId: number;
+}
+export interface AddSMChannelsToStreamGroupRequest
+{
+	SMChannelIds: number[];
 	StreamGroupId: number;
 }
 export interface AddSMChannelToStreamGroupRequest
@@ -721,11 +717,6 @@ export interface UpdateSettingParameters
 	FFMPegExecutable?: string;
 	FFMpegOptions?: string;
 	GlobalStreamLimit?: number;
-	M3UFieldGroupTitle?: boolean;
-	M3UIgnoreEmptyEPGID?: boolean;
-	M3UStationId?: boolean;
-	M3UUseChnoForId?: boolean;
-	M3UUseCUIDForChannelID?: boolean;
 	MaxConnectRetry?: number;
 	MaxConnectRetryTimeMS?: number;
 	MaxLogFiles?: number;
@@ -771,15 +762,15 @@ export interface RemoveStation
 {
 	Requests: StationRequest[];
 }
-export interface GetFileProfilesRequest
+export interface GetOutputProfilesRequest
 {
 }
 export interface GetVideoProfilesRequest
 {
 }
-export interface AddFileProfileRequest
+export interface AddOutputProfileRequest
 {
-	FileOutputProfileDto: FileOutputProfileDto;
+	OutputProfileDto: OutputProfileDto;
 }
 export interface AddVideoProfileRequest
 {
@@ -789,7 +780,7 @@ export interface AddVideoProfileRequest
 	Parameters: string;
 	Timeout: number;
 }
-export interface RemoveFileProfileRequest
+export interface RemoveOutputProfileRequest
 {
 	Name: string;
 }
@@ -797,13 +788,17 @@ export interface RemoveVideoProfileRequest
 {
 	Name: string;
 }
-export interface UpdateFileProfileRequest
+export interface UpdateOutputProfileRequest
 {
-	EPGOutputProfile?: EPGOutputProfileRequest;
-	IsReadOnly?: boolean;
-	M3UOutputProfile?: M3UOutputProfileRequest;
+	ChannelId?: string;
+	ChannelNumber?: string;
+	EnableIcon?: boolean;
+	GroupTitle?: string;
 	Name: string;
 	NewName?: string;
+	TVGGroup?: string;
+	TVGId?: string;
+	TVGName?: string;
 }
 export interface UpdateVideoProfileRequest
 {

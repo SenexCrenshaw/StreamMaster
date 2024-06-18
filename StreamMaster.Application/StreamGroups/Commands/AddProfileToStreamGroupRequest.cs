@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record AddProfileToStreamGroupRequest(int StreamGroupId, string Name, string FileProfileName, string VideoProfileName) : IRequest<APIResponse> { }
+public record AddProfileToStreamGroupRequest(int StreamGroupId, string Name, string OutputProfileName, string VideoProfileName) : IRequest<APIResponse> { }
 
 [LogExecutionTimeAspect]
 public class AddProfileToStreamGroupRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService)
@@ -13,6 +13,11 @@ public class AddProfileToStreamGroupRequestHandler(IRepositoryWrapper Repository
         if (request.StreamGroupId < 1 || string.IsNullOrEmpty(request.Name))
         {
             return APIResponse.NotFound;
+        }
+
+        if (request.Name.Equals("default", StringComparison.OrdinalIgnoreCase))
+        {
+            return APIResponse.ErrorWithMessage("Cannot use name default");
         }
 
         StreamGroup? streamGroup = Repository.StreamGroup.GetStreamGroup(request.StreamGroupId);
@@ -29,7 +34,7 @@ public class AddProfileToStreamGroupRequestHandler(IRepositoryWrapper Repository
         streamGroup.StreamGroupProfiles.Add(new StreamGroupProfile
         {
             Name = request.Name,
-            FileProfileName = request.FileProfileName,
+            OutputProfileName = request.OutputProfileName,
             VideoProfileName = request.VideoProfileName
         });
 

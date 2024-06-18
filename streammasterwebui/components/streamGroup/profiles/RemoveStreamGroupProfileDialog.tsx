@@ -30,7 +30,7 @@ const RemoveStreamGroupProfileDialog = ({ ...props }: RemoveStreamGroupProfileDi
   return (
     <SMPopUp
       contentWidthSize="2"
-      // buttonDisabled={props.streamGroupProfile.IsReadOnly}
+      buttonDisabled={!props.streamGroupProfile.Name || props.streamGroupProfile.Name.toLowerCase() === 'default'}
       buttonClassName="icon-red"
       icon="pi-times"
       info=""
@@ -41,7 +41,7 @@ const RemoveStreamGroupProfileDialog = ({ ...props }: RemoveStreamGroupProfileDi
         remove();
       }}
       ref={smPopUpRef}
-      okButtonDisabled={!props.streamGroupProfile.Name}
+      okButtonDisabled={!props.streamGroupProfile.Name || props.streamGroupProfile.Name.toLowerCase() === 'default'}
       tooltip="Remove Profile"
       zIndex={10}
     >
